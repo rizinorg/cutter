@@ -132,5 +132,6 @@ RESOURCES += \
 
 #INCLUDEPATH += /usr/local/radare2/osx/include/libr
 INCLUDEPATH += /usr/local/include/libr
+INCLUDEPATH += /usr/include/libr
 #LIBS += -L/usr/local/radare2/osx/lib -lr_core -lr_config -lr_cons -lr_io -lr_util -lr_flag -lr_asm -lr_debug -lr_hash -lr_bin -lr_lang -lr_io -lr_anal -lr_parse -lr_bp -lr_egg -lr_reg -lr_search -lr_syscall -lr_socket -lr_fs -lr_magic -lr_crypto
 LIBS += -L/usr/local/lib -lr_core -lr_config -lr_cons -lr_io -lr_util -lr_flag -lr_asm -lr_debug -lr_hash -lr_bin -lr_lang -lr_io -lr_anal -lr_parse -lr_bp -lr_egg -lr_reg -lr_search -lr_syscall -lr_socket -lr_fs -lr_magic -lr_crypto
