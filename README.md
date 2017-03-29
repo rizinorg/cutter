@@ -4,6 +4,10 @@
 
 A Qt and C++ GUI for radare2 reverse engineering framework
 
+## Screenshot
+
+![Screenshot](https://raw.githubusercontent.com/hteso/iaito/master/Screenshots/Screenshot.png)
+
 ## Disclaimer
 
 Iaitō is not aimed to the already existing radare2 user, it is focused on those whose are not yet radare2 users because of the learning curve, because they don't like CLI applications or because of the difficulty/inestability of radare2.
