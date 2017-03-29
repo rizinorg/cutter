@@ -1942,16 +1942,16 @@ color: rgb(0, 0, 0);</string>
     border-left: 10px;
 }
 
-QTreeWidget::item:selected
-{
-    background: gray;
-    color: white;
-}
-
 QTreeWidget::item:hover
 {
     background: rgb(242, 246, 248);
     color: black;
+}
+
+QTreeWidget::item:selected
+{
+    background: gray;
+    color: white;
 }
 
 QToolTip {
@@ -2052,16 +2052,16 @@ QToolTip {
     border-left: 10px;
 }
 
-QTreeWidget::item:selected
-{
-    background: gray;
-    color: white;
-}
-
 QTreeWidget::item:hover
 {
     background: rgb(242, 246, 248);
     color: black;
+}
+
+QTreeWidget::item:selected
+{
+    background: gray;
+    color: white;
 }
 
 QToolTip {
