@@ -37,3 +37,5 @@ Iaitō is developed and tested in OS X and Linux, Windows will be added soon. Th
 ## Documentation
 
 Proper documentation and website will be created before the first release.
+
+Roadmap information for developers can be found [here](https://github.com/hteso/iaito/wiki/Roadmap)
