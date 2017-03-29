@@ -110,17 +110,17 @@ QTreeWidget::item
     border-left: 10px;
 }
 
-QTreeWidget::item:selected
-{
-    background: gray;
-    color: white;
-}
-
 QTreeWidget::item:hover
 {
     background: rgb(242, 246, 248);
     color: black;
-}s</string>
+}
+
+QTreeWidget::item:selected
+{
+    background: gray;
+    color: white;
+}</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
