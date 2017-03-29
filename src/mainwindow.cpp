@@ -723,6 +723,7 @@ void MainWindow::on_consoleInputLineEdit_returnPressed()
     if (this->core) {
         QString input = ui->consoleInputLineEdit->text();
         ui->consoleOutputTextEdit->appendPlainText(this->core->cmd(input));
+        ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
         // Add new command to history
         QCompleter *completer = ui->consoleInputLineEdit->completer();
         /*
@@ -947,11 +948,13 @@ void MainWindow::get_refs(const QString& offset)
 void MainWindow::add_output(QString msg)
 {
     ui->consoleOutputTextEdit->appendPlainText(msg);
+    ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
 }
 
 void MainWindow::add_debug_output(QString msg)
 {
     ui->consoleOutputTextEdit->appendHtml("<font color=\"red\"> [DEBUG]:\t" + msg + "</font>");
+    ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
 }
 
 void MainWindow::on_actionNew_triggered()
