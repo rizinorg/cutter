@@ -165,7 +165,7 @@ void OptionsDialog::on_okButton_clicked()
     this->w->add_output(" > Loading file: " + this->filename);
     this->w->core->loadFile(this->filename.toUtf8(), loadaddr, mapaddr, rw, va, bits, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
-    ui->statusLabel->setText("Analysis in progess");
+    ui->statusLabel->setText("Analysis in progress");
 
     // Threads stuff
     // create an instance of MyThread
