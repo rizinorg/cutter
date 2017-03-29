@@ -1,3 +1,7 @@
+# The final executable after `make clean`
+
+iaito
+
 # C++ objects and libs
 
 *.slo
