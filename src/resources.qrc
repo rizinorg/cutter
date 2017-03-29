@@ -1,0 +1,90 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>img/icons/arrow_left.png</file>
+        <file>img/icons/arrow_right.png</file>
+        <file>img/icons/undo.png</file>
+        <file>img/icons/redo.png</file>
+        <file>img/r2.svg</file>
+        <file>img/icons/equalizer.png</file>
+        <file>img/icons/cog.png</file>
+        <file alias="lock">img/icons/lock.png</file>
+        <file alias="unlock">img/icons/unlock.png</file>
+        <file>img/icons/tabs.png</file>
+        <file>img/icons/themes.png</file>
+        <file>img/icons/target.png</file>
+        <file>img/icons/help.png</file>
+        <file>img/icons/spin.png</file>
+        <file>img/icons/plus.png</file>
+        <file>img/icons/play.png</file>
+        <file>img/icons/cloud.png</file>
+        <file>img/icons/down.png</file>
+        <file>img/icons/up.png</file>
+        <file>img/icons/clear_light.png</file>
+        <file>img/icons/load_light.png</file>
+        <file>img/icons/save_light.png</file>
+        <file>img/icons/trash_light.png</file>
+        <file>img/icons/graph_light.png</file>
+        <file>img/icons/hexdump_light.png</file>
+        <file>img/icons/disas_light.png</file>
+        <file>img/icons/cog_light.png</file>
+        <file>img/icons/cog_white.png</file>
+        <file>img/icons/disas_white.png</file>
+        <file>img/icons/graph_white.png</file>
+        <file>img/icons/hexdump_white.png</file>
+        <file>img/icons/new_light.png</file>
+        <file>img/icons/run_light.png</file>
+        <file>img/icons/edit_light.png</file>
+        <file>img/icons/polar.png</file>
+        <file>img/icons/radar.png</file>
+        <file>img/icons/polar_white.png</file>
+        <file>img/icons/radar_white.png</file>
+        <file>img/icons/cloud_white.png</file>
+        <file>img/icons/down_white.png</file>
+        <file>img/icons/spin_white.png</file>
+        <file>img/icons/tabs_white.png</file>
+        <file>img/icons/themes_white.png</file>
+        <file>img/icons/unlock_white.png</file>
+        <file>img/icons/lock_white.png</file>
+        <file>img/icons/up_white.png</file>
+        <file>img/icons/left.png</file>
+        <file>img/icons/right.png</file>
+        <file>img/icons/eye_white.png</file>
+        <file>img/icons/eye.png</file>
+        <file>img/icons/transfer.png</file>
+        <file>img/icons/transfer_white.png</file>
+        <file>img/icons/spin_grey.png</file>
+        <file>img/logo2.png</file>
+        <file>img/logo-small.png</file>
+        <file>img/logo-small-white.png</file>
+        <file>fonts/Anonymous Pro.ttf</file>
+        <file>fonts/Inconsolata-Regular.ttf</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>html/graph.html</file>
+        <file>html/viz.js</file>
+        <file>html/Chart.js</file>
+        <file>html/fcn_graph.html</file>
+        <file>html/fcn_radar.html</file>
+        <file>html/bar.html</file>
+        <file>html/stats.html</file>
+        <file>img/icons/spin_grey.png</file>
+        <file>html/utils.js</file>
+        <file>html/radar.html</file>
+    </qresource>
+    <qresource prefix="/graph">
+        <file>html/graph/index.html</file>
+        <file>html/graph/lib/css/disasm.css</file>
+        <file>html/graph/lib/css/joint.min.css</file>
+        <file>html/graph/lib/css/main.css</file>
+        <file>html/graph/lib/js/bokken.js</file>
+        <file>html/graph/lib/js/disasm_panel.js</file>
+        <file>html/graph/lib/js/disasm.js</file>
+        <file>html/graph/lib/js/joint.js</file>
+        <file>html/graph/lib/js/joint.layout.DirectedGraph.js</file>
+        <file>html/graph/lib/js/jquery-1.9.0.js</file>
+        <file>html/graph/lib/js/jquery-ui-latest.js</file>
+        <file>html/graph/lib/js/jquery.scrollTo-latest.js</file>
+        <file>html/graph/lib/js/r2_bokken.js</file>
+        <file>html/graph/lib/js/r2ui.js</file>
+    </qresource>
+</RCC>

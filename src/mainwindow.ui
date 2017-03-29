@@ -1,0 +1,1096 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>725</width>
+    <height>325</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Iaito</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/new/prefix1/img/logo-small.png</normaloff>:/new/prefix1/img/logo-small.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QHeaderView::section {
+     color: drakgray;
+     padding: 3px;
+     padding-left: 10px;
+     background-color: rgb(232, 232, 232);
+     border: 2px solid white;
+}
+
+QTabBar
+{
+    qproperty-drawBase: 0;
+}
+
+QTabBar::tab {
+    background: rgb(240, 240, 240);
+    border: 0px solid #2180a9;
+    border-bottom-color: #2180a9;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    min-width: 8ex;
+    padding: 5px;
+	margin-bottom: 3px;
+	margin-top: 3px;
+}
+
+QTabBar::tab:selected {
+    background: #2180a9;
+    color: #FFFFFF;
+}
+
+QTabBar::tab:hover {
+    background: #2180a9;      /* #3C879E; */
+    color: #FFFFFF;
+}
+
+QDockWidget::title {
+    background: rgb(236, 236, 236);
+    text-align: center;
+}
+
+QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+	font: 11pt &quot;Monaco&quot;;
+}
+/*
+QDockWidget::title {
+	background: rgb(64, 66, 68);
+}
+
+QDockWidget {
+	color: rgb(232, 232, 232);
+}
+*/</string>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="dockNestingEnabled">
+   <bool>true</bool>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout_10">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>5</number>
+    </property>
+    <item>
+     <widget class="QTabWidget" name="centralTabWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTabWidget::pane { /* The tab widget frame */
+border-top: 0px;
+}</string>
+      </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::South</enum>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <property name="usesScrollButtons">
+       <bool>false</bool>
+      </property>
+      <property name="documentMode">
+       <bool>false</bool>
+      </property>
+      <property name="tabsClosable">
+       <bool>false</bool>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string notr="true">Console</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QPlainTextEdit" name="consoleOutputTextEdit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Monaco</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">/*QPlainTextEdit { background: rgb(226, 230, 235) }*/</string>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="undoRedoEnabled">
+           <bool>false</bool>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="plainText">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_15">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>3</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>3</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="consoleInputLineEdit">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">border-top: 1px solid rgb(255, 255, 255);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="frame">
+             <bool>false</bool>
+            </property>
+            <property name="placeholderText">
+             <string> Type &quot;?&quot; for help</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="showHistoToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>18</height>
+             </size>
+            </property>
+            <property name="toolTip">
+             <string>Show commands history</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: white;</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+            <property name="arrowType">
+             <enum>Qt::DownArrow</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>10</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="consoleExecButton">
+            <property name="toolTip">
+             <string>Execute command</string>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">/*
+border: none;
+padding: 2px;
+*/
+
+QToolButton { /* all types of tool button */
+    border: 0px solid rgb(255, 255, 255);
+    border-radius: 6px;
+    border-top: 2px solid rgb(255, 255, 255);
+    border-bottom: 2px solid rgb(255, 255, 255);
+    border-left: 8px solid rgb(255, 255, 255);
+    border-right: 5px solid rgb(255, 255, 255);
+    margin-bottom: 1px;
+    margin-top: 1px;
+	background-color: rgb(255, 255, 255);
+}</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/new/prefix1/img/icons/play.png</normaloff>:/new/prefix1/img/icons/play.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>725</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>true</bool>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="geometry">
+     <rect>
+      <x>351</x>
+      <y>100</y>
+      <width>125</width>
+      <height>158</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionLoad"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionRun_Script"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionCalculator"/>
+    <addaction name="actionAssembler"/>
+    <addaction name="actionSDB_browser"/>
+   </widget>
+   <widget class="QMenu" name="menuWorkspace">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <property name="tabsOnTop" stdset="0">
+     <bool>false</bool>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionDefaut"/>
+    <addaction name="actionReset_settings"/>
+    <addaction name="separator"/>
+    <addaction name="actionLock"/>
+    <addaction name="actionTabs_on_Top"/>
+    <addaction name="separator"/>
+    <addaction name="actionWhite_Theme"/>
+    <addaction name="actionDark_Theme"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionDocumentation"/>
+    <addaction name="separator"/>
+    <addaction name="actionLicense"/>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelect_all"/>
+    <addaction name="separator"/>
+    <addaction name="actionFind"/>
+    <addaction name="actionFind_next"/>
+    <addaction name="actionFind_previous"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>Windows</string>
+    </property>
+    <addaction name="actionDashboard"/>
+    <addaction name="separator"/>
+    <addaction name="actionFunctions"/>
+    <addaction name="actionImports"/>
+    <addaction name="actionSymbols"/>
+    <addaction name="separator"/>
+    <addaction name="actionReloc"/>
+    <addaction name="actionStrings"/>
+    <addaction name="actionFlags"/>
+    <addaction name="actionSections"/>
+    <addaction name="separator"/>
+    <addaction name="actionComents"/>
+    <addaction name="actionNotepad"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuWorkspace"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuView"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QToolBar" name="sideToolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>200</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="windowTitle">
+    <string notr="true">Side toolbar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border: 1px solid rgb(64, 64, 64);
+background-color: rgb(64, 64, 64);
+background: rgb(64, 64, 64);</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::RightToolBarArea</set>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>RightToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="contextMenuPolicy">
+    <enum>Qt::DefaultContextMenu</enum>
+   </property>
+   <property name="windowTitle">
+    <string notr="true">Main toolbar</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QToolButton { /* all types of tool button */
+    border: 0px solid rgb(255, 255, 255);
+    border-radius: 6px;
+    border-left: 5px solid rgb(255, 255, 255);
+    border-right: 5px solid rgb(255, 255, 255);
+    margin-bottom: 1px;
+    margin-top: 1px;
+	background-color: rgb(255, 255, 255);
+}</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionForward"/>
+   <addaction name="actionShow_Hide_mainsidebar"/>
+  </widget>
+  <action name="actionCalculator">
+   <property name="text">
+    <string>Calculator</string>
+   </property>
+  </action>
+  <action name="actionDefaut">
+   <property name="text">
+    <string>Reset Layout</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionSave_workspace">
+   <property name="text">
+    <string>Save Layout</string>
+   </property>
+  </action>
+  <action name="actionDocumentation">
+   <property name="text">
+    <string>Documentation</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/undo.png</normaloff>:/new/prefix1/img/icons/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/redo.png</normaloff>:/new/prefix1/img/icons/redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionSelect_all">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+  </action>
+  <action name="actionFind">
+   <property name="text">
+    <string>Find</string>
+   </property>
+  </action>
+  <action name="actionFind_next">
+   <property name="text">
+    <string>Find Next</string>
+   </property>
+  </action>
+  <action name="actionFind_previous">
+   <property name="text">
+    <string>Find Previous</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/arrow_left.png</normaloff>:/new/prefix1/img/icons/arrow_left.png</iconset>
+   </property>
+   <property name="text">
+    <string>Back</string>
+   </property>
+   <property name="toolTip">
+    <string>Go back</string>
+   </property>
+  </action>
+  <action name="actionForward">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/arrow_right.png</normaloff>:/new/prefix1/img/icons/arrow_right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Forward</string>
+   </property>
+  </action>
+  <action name="actionLock">
+   <property name="text">
+    <string>Toggle Panel Locks</string>
+   </property>
+   <property name="iconVisibleInMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionLockUnlock">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/unlock</normaloff>:/new/prefix1/unlock</iconset>
+   </property>
+   <property name="text">
+    <string>Lock/Unlock</string>
+   </property>
+   <property name="toolTip">
+    <string>Lock/Unlock</string>
+   </property>
+  </action>
+  <action name="actionStrings">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Strings</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/hide Strings panel</string>
+   </property>
+  </action>
+  <action name="actionSections">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Sections</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Sections panel</string>
+   </property>
+  </action>
+  <action name="actionFunctions">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Functions</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Functions panel</string>
+   </property>
+  </action>
+  <action name="actionImports">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Imports</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Imports panel</string>
+   </property>
+  </action>
+  <action name="actionSymbols">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Symbols</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Symbols panel</string>
+   </property>
+  </action>
+  <action name="actionReloc">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Relocs</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Relocs panel</string>
+   </property>
+  </action>
+  <action name="actionFlags">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Flags</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Flags panel</string>
+   </property>
+  </action>
+  <action name="actionMem">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Memory</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide Memory panel</string>
+   </property>
+  </action>
+  <action name="actionTheme">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/themes.png</normaloff>:/new/prefix1/img/icons/themes.png</iconset>
+   </property>
+   <property name="text">
+    <string>Theme</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
+   </property>
+  </action>
+  <action name="actionTabs">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/tabs.png</normaloff>:/new/prefix1/img/icons/tabs.png</iconset>
+   </property>
+   <property name="text">
+    <string>Tabs Up/Down</string>
+   </property>
+   <property name="toolTip">
+    <string>Tabs Up/Down</string>
+   </property>
+  </action>
+  <action name="actionClear_ConsoleOutput">
+   <property name="text">
+    <string>Clear output</string>
+   </property>
+  </action>
+  <action name="actionRefresh_Panels">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/spin.png</normaloff>:/new/prefix1/img/icons/spin.png</iconset>
+   </property>
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+  </action>
+  <action name="actionComents">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Comments</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide Comments</string>
+   </property>
+  </action>
+  <action name="actionTabs_on_Top">
+   <property name="text">
+    <string>Toggle Tab Position</string>
+   </property>
+  </action>
+  <action name="actionDark_Theme">
+   <property name="text">
+    <string>Dark Theme</string>
+   </property>
+  </action>
+  <action name="actionLoad_workspace">
+   <property name="text">
+    <string>Load Layout</string>
+   </property>
+  </action>
+  <action name="actionWhite_Theme">
+   <property name="text">
+    <string>Default Theme</string>
+   </property>
+  </action>
+  <action name="actionCreate_File">
+   <property name="text">
+    <string>Create File</string>
+   </property>
+  </action>
+  <action name="actionAssembler">
+   <property name="text">
+    <string>Assembler</string>
+   </property>
+  </action>
+  <action name="actionBindiff">
+   <property name="text">
+    <string>Bindiff</string>
+   </property>
+  </action>
+  <action name="actionGraph">
+   <property name="text">
+    <string>Graph</string>
+   </property>
+  </action>
+  <action name="actionSearch">
+   <property name="text">
+    <string>Search</string>
+   </property>
+  </action>
+  <action name="actionLicense">
+   <property name="text">
+    <string>License</string>
+   </property>
+  </action>
+  <action name="actionAnalysis">
+   <property name="text">
+    <string>Analysis</string>
+   </property>
+  </action>
+  <action name="actionTest_menu">
+   <property name="text">
+    <string>Test menu</string>
+   </property>
+  </action>
+  <action name="actionHexCopy_Hexpair">
+   <property name="text">
+    <string>Copy Hexpair</string>
+   </property>
+  </action>
+  <action name="actionHexCopy_Text">
+   <property name="text">
+    <string>Copy Text</string>
+   </property>
+  </action>
+  <action name="actionHexCopy_ASCII">
+   <property name="text">
+    <string>Copy ASCII</string>
+   </property>
+  </action>
+  <action name="actionHexInsert_String">
+   <property name="text">
+    <string>Insert String</string>
+   </property>
+  </action>
+  <action name="actionHexInsert_Hex">
+   <property name="text">
+    <string>Insert Hex</string>
+   </property>
+  </action>
+  <action name="actionHexEdit">
+   <property name="text">
+    <string>Edit</string>
+   </property>
+  </action>
+  <action name="actionHexPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionDisas_ShowHideBytes">
+   <property name="text">
+    <string>Show/Hide bytes</string>
+   </property>
+  </action>
+  <action name="actionDisasSwitch_case">
+   <property name="text">
+    <string>Switch case</string>
+   </property>
+  </action>
+  <action name="actionDisasCopy_All">
+   <property name="text">
+    <string>Copy All</string>
+   </property>
+  </action>
+  <action name="actionDisasCopy_Bytes">
+   <property name="text">
+    <string>Copy Bytes</string>
+   </property>
+  </action>
+  <action name="actionDisasCopy_Disasm">
+   <property name="text">
+    <string>Copy Disasm</string>
+   </property>
+  </action>
+  <action name="actionStart_Web_Server">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/cloud.png</normaloff>:/new/prefix1/img/icons/cloud.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start Web Server</string>
+   </property>
+  </action>
+  <action name="action1column">
+   <property name="text">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="action2columns">
+   <property name="text">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="action4columns">
+   <property name="text">
+    <string>4</string>
+   </property>
+  </action>
+  <action name="action8columns">
+   <property name="text">
+    <string>8</string>
+   </property>
+  </action>
+  <action name="action16columns">
+   <property name="text">
+    <string>16</string>
+   </property>
+  </action>
+  <action name="action32columns">
+   <property name="text">
+    <string>32</string>
+   </property>
+  </action>
+  <action name="action64columns">
+   <property name="text">
+    <string>64</string>
+   </property>
+  </action>
+  <action name="actionSyntax_AT_T_Intel">
+   <property name="text">
+    <string>Syntax AT&amp;T/Intel</string>
+   </property>
+  </action>
+  <action name="actionConsoleSync_with_core">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Sync with core</string>
+   </property>
+  </action>
+  <action name="actionFunctionsRename">
+   <property name="text">
+    <string>Rename</string>
+   </property>
+  </action>
+  <action name="actionFunctionsUndefine">
+   <property name="text">
+    <string>Undefine</string>
+   </property>
+  </action>
+  <action name="actionDisasRename">
+   <property name="text">
+    <string>Rename</string>
+   </property>
+  </action>
+  <action name="actionDisasmUndefine">
+   <property name="text">
+    <string>Undefine</string>
+   </property>
+  </action>
+  <action name="actionDisasAdd_comment">
+   <property name="text">
+    <string>Add comment</string>
+   </property>
+  </action>
+  <action name="actionhide_bottomPannel">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/down.png</normaloff>:/new/prefix1/img/icons/down.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show/hide Bottom pannel</string>
+   </property>
+  </action>
+  <action name="actionSend_to_Notepad">
+   <property name="text">
+    <string>Send to Notepad</string>
+   </property>
+  </action>
+  <action name="actionNotepad">
+   <property name="text">
+    <string>Notepad</string>
+   </property>
+  </action>
+  <action name="actionSDB_browser">
+   <property name="text">
+    <string>SDB browser</string>
+   </property>
+  </action>
+  <action name="actionRun_Script">
+   <property name="text">
+    <string>Run Script</string>
+   </property>
+  </action>
+  <action name="actionShow_Hide_mainsidebar">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/new/prefix1/img/icons/hexdump_light.png</normaloff>:/new/prefix1/img/icons/hexdump_light.png</iconset>
+   </property>
+   <property name="text">
+    <string>Show/Hide mainsidebar</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide Sidebar</string>
+   </property>
+  </action>
+  <action name="actionDashboard">
+   <property name="text">
+    <string>Dashboard</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Dashboard panel</string>
+   </property>
+  </action>
+  <action name="actionSectionsVertical">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Vertical</string>
+   </property>
+   <property name="toolTip">
+    <string>Vertical view</string>
+   </property>
+  </action>
+  <action name="actionSectionsHorizontal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Horizontal</string>
+   </property>
+   <property name="toolTip">
+    <string>Horizontal</string>
+   </property>
+  </action>
+  <action name="actionReset_settings">
+   <property name="text">
+    <string>Reset settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset settings</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

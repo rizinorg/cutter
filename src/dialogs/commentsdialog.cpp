@@ -1,0 +1,29 @@
+#include "commentsdialog.h"
+#include "ui_commentsdialog.h"
+
+CommentsDialog::CommentsDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::CommentsDialog)
+{
+    ui->setupUi(this);
+}
+
+CommentsDialog::~CommentsDialog()
+{
+    delete ui;
+}
+
+void CommentsDialog::on_buttonBox_accepted()
+{
+    // Meow
+}
+
+void CommentsDialog::on_buttonBox_rejected()
+{
+    close();
+}
+
+QString CommentsDialog::getComment() {
+    QString ret = ui->lineEdit->text();
+    return ret;
+}
