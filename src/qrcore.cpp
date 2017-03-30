@@ -11,59 +11,9 @@ QRCore::QRCore(QObject *parent) :
     this->core = r_core_new ();
     r_core_loadlibs (this->core, R_CORE_LOADLIBS_ALL, NULL);
     // IMPLICIT r_bin_iobind (core->bin, core->io);
-    config("scr.color", "false");
+
+    // Otherwise r2 may ask the user for input and Iaito would freeze
     config("scr.interactive","false");
-    config("asm.lines","false");
-    // Intredazting...
-    //config("asm.linesright", "true");
-    //config("asm.lineswidth", "15");
-    //config("asm.functions", "false");
-    config("hex.pairs", "false");
-    config("asm.bytespace", "true");
-    config("asm.cmtflgrefs", "false");
-    config("asm.cmtright", "true");
-    config("asm.cmtcol", "70");
-    config("asm.xrefs", "false");
-    config("asm.fcnlines", "false");
-
-    config("asm.tabs", "10");
-    config("asm.tabsonce", "true");
-    config("asm.tabsoff", "5");
-    config("asm.nbytes", "10");
-
-    config("anal.hasnext", "true");
-    config("asm.fcncalls", "false");
-    config("asm.calls", "false");
-    config("asm.lines.call","false");
-    config("asm.flgoff", "true");
-    config("anal.autoname", "true");
-
-    // Highlight current node in graphviz
-    config("graph.gv.current", "true");
-
-    // Fucking pancake xD
-    config("cfg.fortunes.tts", "false");
-
-    // Experimenting with asm options
-    //config("asm.spacy", "true");      // We need to handle blank lines on scroll
-    //config("asm.section", "true");    // Breaks the disasm and navigation
-    //config("asm.invhex", "true");     // Needs further testing
-    //config("asm.flags", "false");     // Add with default true in future
-
-    // Used by the HTML5 graph
-    config("http.cors","true");
-    config("http.sandbox", "false");
-    config("http.port", "14170");
-
-    // Temporary fixes
-    //config("http.root","/usr/local/share/radare2/last/www");
-    //config("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
-    //config("bin.rawstr", "true");
-
-    // Graph colors and design
-    cmd("ec graph.true rgb:88FF88");
-    cmd("ec graph.false rgb:FF6666");
-    cmd("ec graph.trufae rgb:4183D7");
 
     this->db = sdb_new (NULL, NULL, 0); // WTF NOES
 }
@@ -683,4 +633,60 @@ void QRCore::getOpcodes() {
     QString registers = cmd("drp~[1]");
     this->regs = registers.split("\n");
     this->regs.removeLast();
+}
+
+void QRCore::setSettings() {
+    config("scr.color", "false");
+    config("scr.interactive","false");
+    config("asm.lines","false");
+    // Intredazting...
+    //config("asm.linesright", "true");
+    //config("asm.lineswidth", "15");
+    //config("asm.functions", "false");
+    config("hex.pairs", "false");
+    config("asm.bytespace", "true");
+    config("asm.cmtflgrefs", "false");
+    config("asm.cmtright", "true");
+    config("asm.cmtcol", "70");
+    config("asm.xrefs", "false");
+    config("asm.fcnlines", "false");
+
+    config("asm.tabs", "10");
+    config("asm.tabsonce", "true");
+    config("asm.tabsoff", "5");
+    config("asm.nbytes", "10");
+
+    config("anal.hasnext", "true");
+    config("asm.fcncalls", "false");
+    config("asm.calls", "false");
+    config("asm.lines.call","false");
+    config("asm.flgoff", "true");
+    config("anal.autoname", "true");
+
+    // Highlight current node in graphviz
+    config("graph.gv.current", "true");
+
+    // Fucking pancake xD
+    config("cfg.fortunes.tts", "false");
+
+    // Experimenting with asm options
+    //config("asm.spacy", "true");      // We need to handle blank lines on scroll
+    //config("asm.section", "true");    // Breaks the disasm and navigation
+    //config("asm.invhex", "true");     // Needs further testing
+    //config("asm.flags", "false");     // Add with default true in future
+
+    // Used by the HTML5 graph
+    config("http.cors","true");
+    config("http.sandbox", "false");
+    config("http.port", "14170");
+
+    // Temporary fixes
+    //config("http.root","/usr/local/share/radare2/last/www");
+    //config("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
+    //config("bin.rawstr", "true");
+
+    // Graph colors and design
+    cmd("ec graph.true rgb:88FF88");
+    cmd("ec graph.false rgb:FF6666");
+    cmd("ec graph.trufae rgb:4183D7");
 }

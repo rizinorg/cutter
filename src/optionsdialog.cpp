@@ -190,6 +190,8 @@ void OptionsDialog::anal_finished()
     //fprintf(stderr, "anal done");
     //ui->progressBar->setValue(70);
     this->w->core->cmd("Po " + this->shortfn);
+    // Set settings to override any incorrect saved in the project
+    this->core->setSettings();
     ui->statusLabel->setText("Loading interface");
     this->w->add_output(" > Analysis finished");
     QString initial_seek = ui->entry_initialSeek->text();
