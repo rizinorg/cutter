@@ -14,7 +14,7 @@ SideBar::SideBar(MainWindow *main, QWidget *parent) :
     // Radare core found in:
     this->main = main;
 
-    QSettings settings("Radare Corp", "Iaito");
+    QSettings settings("iaito", "iaito");
     if (settings.value("responsive").toBool()) {
         ui->respButton->setChecked(true);
     } else {

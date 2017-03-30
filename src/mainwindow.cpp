@@ -313,7 +313,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
                  QMessageBox::Ok | QMessageBox::Cancel);
     //qDebug() << ret;
     if (ret == QMessageBox::Ok) {
-        QSettings settings("Radare Corp", "Iaito");
+        QSettings settings("iaito", "iaito");
         settings.setValue("geometry", saveGeometry());
         settings.setValue("size", size());
         settings.setValue("pos", pos());
@@ -326,7 +326,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readSettings()
 {
-    QSettings settings("Radare Corp", "Iaito");
+    QSettings settings("iaito", "iaito");
     QByteArray geo = settings.value("geometry", QByteArray()).toByteArray();
     restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
@@ -340,14 +340,14 @@ void MainWindow::readSettings()
 void MainWindow::dark() {
     qApp->setStyleSheet("QPlainTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} QTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} ");
     this->memoryDock->switchTheme(true);
-    QSettings settings("Radare Corp", "Iaito");
+    QSettings settings("iaito", "iaito");
     settings.setValue("dark", true);
 }
 
 void MainWindow::def_theme() {
     qApp->setStyleSheet("");
     this->memoryDock->switchTheme(false);
-    QSettings settings("Radare Corp", "Iaito");
+    QSettings settings("iaito", "iaito");
     settings.setValue("dark", false);
 }
 
@@ -965,7 +965,7 @@ void MainWindow::on_actionNew_triggered()
     if (pid==-1)
         return;
     if(!pid) {
-        QString cmd = path+ "/Iaito";
+        QString cmd = path+ "/iaito";
         system (cmd.toLocal8Bit().data());
         exit(0);
     }
@@ -1022,7 +1022,7 @@ void MainWindow::on_actionLoad_triggered()
     if (pid==-1)
         return;
     if(!pid) {
-        QString cmd = path+ "/Iaito";
+        QString cmd = path+ "/iaito";
         exit(system (cmd.toLocal8Bit().data()));
     }
 }
@@ -1090,7 +1090,7 @@ void MainWindow::on_actionForward_triggered()
 void MainWindow::toggleResponsive(bool maybe) {
     this->responsive = maybe;
     // Save options in settings
-    QSettings settings("Radare Corp", "Iaito");
+    QSettings settings("iaito", "iaito");
     settings.setValue("responsive", this->responsive);
 }
 
@@ -1106,7 +1106,7 @@ void MainWindow::on_actionReset_settings_triggered()
                  QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
         // Save options in settings
-        QSettings settings("Radare Corp", "Iaito");
+        QSettings settings("iaito", "iaito");
         settings.clear();
     }
 }
