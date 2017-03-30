@@ -377,4 +377,5 @@ bool FunctionsWidget::eventFilter(QObject *obj, QEvent *event) {
             }
         }
     }
+    return false; //allow the event to be handled further
 }
