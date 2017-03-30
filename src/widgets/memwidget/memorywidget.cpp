@@ -1345,7 +1345,9 @@ void MemoryWidget::fillOffsetInfo( QString off) {
 
     // Add opcode description
     QStringList description = this->main->core->cmd("?d. @ " + off).split(": ");
-    ui->opcodeDescText->setPlainText("# " + description[0] + ":\n" + description[1]);
+    if(description.length() >= 2) {
+        ui->opcodeDescText->setPlainText("# " + description[0] + ":\n" + description[1]);
+    }
 }
 
 void MemoryWidget::create_graph(QString off) {
@@ -1379,14 +1381,13 @@ void MemoryWidget::setFcnName(QString addr) {
 
     // TDOD: FIX ME, ugly
     if (addr.contains("0x")) {
-        fcn = this->main->core->functionAt(addr.toLong(&ok, 16));
-        if (fcn->name != "") {
+        fcn = this->main->core->functionAt(addr.toULongLong(&ok, 16));
+        if (ok && fcn && fcn->name != "") {
             QString segment = this->main->core->cmd("S. @ " + addr).split(" ").last();
-            ui->fcnNameEdit->setText(segment.trimmed() + ":"+ fcn->name);
+            addr = segment.trimmed() + ":"+ fcn->name;
         }
-    } else {
-        ui->fcnNameEdit->setText(addr);
     }
+    ui->fcnNameEdit->setText(addr);
 }
 
 void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
@@ -1398,7 +1399,6 @@ void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
     QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
     if (ele.contains("0x")) {
         this->fillOffsetInfo(ele);
-
         QString at = this->main->core->cmdFunctionAt(ele);
         QString deco = this->main->core->getDecompiledCode(at);
 
@@ -1579,6 +1579,7 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event) {
           }
       }
   }
+  return false; //allow the event to be handled further
 }
 
 void MemoryWidget::on_actionXRefs_triggered()

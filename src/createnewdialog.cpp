@@ -9,7 +9,7 @@ createNewDialog::createNewDialog(QWidget *parent) :
     ui(new Ui::createNewDialog)
 {
     ui->setupUi(this);
-    w = new MainWindow(this);
+    w = new MainWindow(nullptr);
     w->core = new QRCore ();
 }
 
@@ -22,7 +22,7 @@ void createNewDialog::on_pushButton_2_clicked()
 {
     // Close dialog and open OptionsDialog
     close();
-    NewFileDialog* n = new NewFileDialog(this);
+    NewFileDialog* n = new NewFileDialog(nullptr);
     n->show();
 }
 
