@@ -12,7 +12,7 @@ A Qt and C++ GUI for radare2 reverse engineering framework
 
 Iaitō is not aimed to the already existing radare2 user, it is focused on those whose are not yet radare2 users because of the learning curve, because they don't like CLI applications or because of the difficulty/inestability of radare2.
 
-**IMPORTANT:** the actual staus is **highly unestable**, it is an alpha version aimed for developers. Users please wait for the first stable release with installers.
+**IMPORTANT:** the actual status is **highly unstable**, it is an alpha version aimed for developers. Users please wait for the first stable release with installers.
 
 ## The code sucks
 
