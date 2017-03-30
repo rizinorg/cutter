@@ -1594,7 +1594,7 @@ void MemoryWidget::on_actionXRefs_triggered()
         RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
 
         XrefsDialog* x = new XrefsDialog(this->main, this);
-        x->setWindowTitle("X-Refs for function " + QString::fromUtf8(fcn->name));
+        x->setWindowTitle("X-Refs for function " + QString(fcn->name));
 
         // Get Refs and Xrefs
         bool ok;

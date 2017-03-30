@@ -49,7 +49,7 @@ public:
     QList<QList<QString>> getComments();
     QMap<QString, QList<QList<QString> > > getNestedComments();
     void setOptions(QString key);
-    bool loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, bool va, int bits, int idx=0, bool loadbin=false);
+    bool loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int bits, int idx=0, bool loadbin=false);
     bool tryFile(QString path, bool rw);
     void analyze(int level);
     void seek(QString addr);

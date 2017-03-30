@@ -79,7 +79,7 @@ void OptionsDialog::on_okButton_clicked()
     // Fill asm plugins in hexdump combo
     this->w->memoryDock->fillPlugins(this->asm_plugins);
 
-    bool va = ui->vaCheckBox->isChecked();
+    int va = ui->vaCheckBox->isChecked();
     ut64 loadaddr = 0LL;
     ut64 mapaddr = 0LL;
     int bits = 0;
@@ -163,7 +163,7 @@ void OptionsDialog::on_okButton_clicked()
 
     anal_level = ui->analCheckBox->isChecked();
     this->w->add_output(" > Loading file: " + this->filename);
-    this->w->core->loadFile(this->filename.toUtf8(), loadaddr, mapaddr, rw, va, bits, binidx, load_bininfo);
+    this->w->core->loadFile(this->filename, loadaddr, mapaddr, rw, va, bits, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
     ui->statusLabel->setText("Analysis in progress");
 

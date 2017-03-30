@@ -57,7 +57,7 @@ int QRCore::getCycloComplex(ut64 addr) {
     QString ret = "";
     RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, addr, 0);
     if (fcn) {
-        ret = cmd("afcc @ " + QString::fromUtf8(fcn->name));
+        ret = cmd("afcc @ " + QString(fcn->name));
         return ret.toInt();
     } else {
         eprintf("qcore->getCycloComplex: no fcn found");
@@ -70,7 +70,7 @@ int QRCore::getFcnSize(ut64 addr) {
     QString tmp_ret = "";
     RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, addr, 0);
     if (fcn) {
-        tmp_ret = cmd("afi~size[1] " + QString::fromUtf8(fcn->name));
+        tmp_ret = cmd("afi~size[1] " + QString(fcn->name));
         ret = tmp_ret.split("\n")[0];
         return ret.toInt()/10;
     } else {
@@ -81,13 +81,13 @@ int QRCore::getFcnSize(ut64 addr) {
 
 QList<QString> QRCore::sdbList(QString path) {
     QList<QString> list = QList<QString>();
-    Sdb *root = sdb_ns_path (core->sdb, path.toUtf8(), 0);
+    Sdb *root = sdb_ns_path (core->sdb, path.toUtf8().constData(), 0);
     if (root) {
         void *vsi;
         ls_iter_t *iter;
         ls_foreach(root->ns, iter, vsi) {
             SdbNs *nsi = (SdbNs*)vsi;
-            list << QString::fromUtf8(nsi->name);
+            list << nsi->name;
         }
     }
     return list;
@@ -95,33 +95,33 @@ QList<QString> QRCore::sdbList(QString path) {
 
 QList<QString> QRCore::sdbListKeys(QString path) {
     QList<QString> list = QList<QString>();
-    Sdb *root = sdb_ns_path (core->sdb, path.toUtf8(), 0);
+    Sdb *root = sdb_ns_path (core->sdb, path.toUtf8().constData(), 0);
     if (root) {
         void *vsi;
         ls_iter_t *iter;
         SdbList *l = sdb_foreach_list(root, false);
         ls_foreach(l, iter, vsi) {
             SdbKv *nsi = (SdbKv*)vsi;
-            list << QString::fromUtf8(nsi->key);
+            list << nsi->key;
         }
     }
     return list;
 }
 
 QString QRCore::sdbGet(QString path, QString key) {
-    Sdb *db = sdb_ns_path (core->sdb, path.toUtf8(), 0);
+    Sdb *db = sdb_ns_path (core->sdb, path.toUtf8().constData(), 0);
     if (db) {
-        const char *val = sdb_const_get(db, key.toUtf8(), 0);
+        const char *val = sdb_const_get(db, key.toUtf8().constData(), 0);
         if (val && *val)
-            return QString::fromUtf8(val);
+            return val;
     }
     return QString ("");
 }
 
 bool QRCore::sdbSet(QString path, QString key, QString val) {
-    Sdb *db = sdb_ns_path (core->sdb, path.toUtf8(), 1);
+    Sdb *db = sdb_ns_path (core->sdb, path.toUtf8().constData(), 1);
     if (!db) return false;
-    return sdb_set (db, key.toUtf8(), val.toUtf8(), 0);
+    return sdb_set (db, key.toUtf8().constData(), val.toUtf8().constData(), 0);
 }
 
 QRCore::~QRCore() {
@@ -130,27 +130,24 @@ QRCore::~QRCore() {
 }
 
 QString QRCore::cmd(const QString &str) {
-    std::string tmpstr = str.toStdString();
-    const char* cmd = tmpstr.c_str();
-   // const char *cmd = (const char *)str.toUtf8();
+    QByteArray cmd = str.toUtf8();
     //r_cons_flush();
-    char *res = r_core_cmd_str (this->core, cmd);
-    QString o = (res && *res)? QString::fromUtf8(res): QString();
+    char *res = r_core_cmd_str (this->core, cmd.constData());
+    QString o = QString(res ? res : "");
     //r_mem_free was added in https://github.com/radare/radare2/commit/cd28744049492dc8ac25a1f2b3ba0e42f0e9ce93
     r_mem_free(res);
     return o;
 }
 
-bool QRCore::loadFile(QString path, uint64_t loadaddr=0LL, uint64_t mapaddr=0LL, bool rw=false, bool va=false, int bits = 0, int idx, bool loadbin) {
+bool QRCore::loadFile(QString path, uint64_t loadaddr=0LL, uint64_t mapaddr=0LL, bool rw=false, int va=0, int bits = 0, int idx, bool loadbin) {
     RCoreFile *f;
     if (va==0 || va == 2)
         r_config_set_i (core->config, "io.va", va);
     // NO ONE KNOWS WHY THIS IS FIXING A SEGFAULT. core->file should have already a proper value. Pancake dixit
     //core->file = NULL;
     // mapaddr = 0LL;
-    char *paz = (char*)path.toStdString().c_str();
-    //printf ("FILE OPEN (%s)\n", paz);
-    f = r_core_file_open(core, path.toUtf8(), rw?(R_IO_READ|R_IO_WRITE):R_IO_READ, mapaddr);
+    printf ("FILE OPEN (%s)\n", path.toUtf8().constData());
+    f = r_core_file_open(core, path.toUtf8().constData(), rw?(R_IO_READ|R_IO_WRITE):R_IO_READ, mapaddr);
     if (!f) {
         eprintf ("r_core_file_open failed\n");
         return false;
@@ -158,7 +155,7 @@ bool QRCore::loadFile(QString path, uint64_t loadaddr=0LL, uint64_t mapaddr=0LL,
 
     if (loadbin) {
         if (va==1) {
-            if (r_core_bin_load (core, path.toUtf8(), UT64_MAX)) {
+            if (r_core_bin_load (core, path.toUtf8().constData(), UT64_MAX)) {
                 RBinObject *obj = r_bin_get_object(core->bin);
                 if (obj) {
                     eprintf ("BITS %d\n", obj->info->bits);
@@ -167,7 +164,7 @@ bool QRCore::loadFile(QString path, uint64_t loadaddr=0LL, uint64_t mapaddr=0LL,
                 eprintf ("CANNOT GET RBIN INFO\n");
             }
         } else {
-            if (r_core_bin_load (core, path.toUtf8(), UT64_MAX)) {
+            if (r_core_bin_load (core, path.toUtf8().constData(), UT64_MAX)) {
                 RBinObject *obj = r_bin_get_object(core->bin);
                 if (obj) {
                     eprintf ("BITS %d\n", obj->info->bits);
@@ -196,7 +193,7 @@ bool QRCore::loadFile(QString path, uint64_t loadaddr=0LL, uint64_t mapaddr=0LL,
     } else {
         // Not loading RBin info coz va = false
     }
-    r_core_hash_load(core, path.toUtf8());
+    r_core_hash_load(core, path.toUtf8().constData());
     fflush (stdout);
     return true;
 }
@@ -273,7 +270,7 @@ QMap<QString, QList<QList<QString>>> QRCore::getNestedComments() {
 
 void QRCore::seek(QString addr) {
     if (addr.length()>0)
-        seek (this->math(addr.toUtf8()));
+        seek (this->math(addr.toUtf8().constData()));
 }
 
 void QRCore::seek(ut64 addr) {
@@ -284,7 +281,7 @@ bool QRCore::tryFile(QString path, bool rw) {
     RCoreFile *cf;
     int flags = R_IO_READ;
     if (rw) flags |= R_IO_WRITE;
-    cf = r_core_file_open (this->core, path.toUtf8(), flags, 0LL);
+    cf = r_core_file_open (this->core, path.toUtf8().constData(), flags, 0LL);
     if (!cf) {
         eprintf ("QRCore::tryFile: Cannot open file?\n");
         return false;
@@ -297,7 +294,7 @@ bool QRCore::tryFile(QString path, bool rw) {
 
     sdb_bool_set (DB, "try.is_writable", is_writable, 0);
     sdb_set (DB, "try.filetype", "elf.i386", 0);
-    sdb_set (DB, "try.filename", path.toUtf8(), 0);
+    sdb_set (DB, "try.filename", path.toUtf8().constData(), 0);
     return true;
 }
 
@@ -421,7 +418,7 @@ QList<QString> QRCore::getList(const QString type, const QString subtype) {
 }
 
 ut64 QRCore::math(const QString &expr) {
-    return r_num_math (this->core?this->core->num:NULL, expr.toUtf8());
+    return r_num_math (this->core?this->core->num:NULL, expr.toUtf8().constData());
 }
 
 int QRCore::fcnCyclomaticComplexity(ut64 addr) {
@@ -456,21 +453,21 @@ QString QRCore::itoa(ut64 num, int rdx) {
 }
 
 QString QRCore::config(const QString &k, const QString &v) {
-    const char *key = k.toUtf8().constData();
+    QByteArray key = k.toUtf8();
     if (v!=NULL) {
-        r_config_set (core->config, key, v.toUtf8().constData());
+        r_config_set (core->config, key.constData(), v.toUtf8().constData());
         return NULL;
     }
-    return QString(r_config_get (core->config, key));
+    return QString(r_config_get (core->config, key.constData()));
 }
 
 int QRCore::config(const QString &k, int v) {
-    const char *key = k.toUtf8().constData();
+    QByteArray key = k.toUtf8();
     if (v!=-1) {
-        r_config_set_i (core->config, key, v);
+        r_config_set_i (core->config, key.constData(), v);
         return 0;
     }
-    return r_config_get_i (core->config, key);
+    return r_config_get_i (core->config, key.constData());
 }
 
 void QRCore::setOptions(QString key) {
