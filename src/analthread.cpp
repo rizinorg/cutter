@@ -2,11 +2,11 @@
 #include <QDebug>
 #include "mainwindow.h"
 
-AnalThread::AnalThread(MainWindow *main, QWidget *parent) :
+AnalThread::AnalThread(MainWindow *w, QWidget *parent) :
     QThread(parent)
 {
     // Radare core found in:
-    this->main = main;
+    this->w = w;
     //this->level = 2;
 }
 
@@ -14,5 +14,5 @@ AnalThread::AnalThread(MainWindow *main, QWidget *parent) :
 void AnalThread::run()
 {
     //qDebug() << "Anal level: " << this->level;
-    this->main->core->analyze(this->level);
+    this->w->core->analyze(this->level);
 }
