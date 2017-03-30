@@ -73,7 +73,7 @@ void OptionsDialog::on_okButton_clicked()
     //ui->progressBar->setValue(5);
 
     // Close dialog and open OptionsDialog
-    this->w = new MainWindow(this);
+    this->w = new MainWindow(nullptr);
     this->w->core = this->core;
 
     // Fill asm plugins in hexdump combo
@@ -234,7 +234,7 @@ void OptionsDialog::on_cancelButton_clicked()
     this->core = NULL; // implicit by delete?
     // Close dialog and open OptionsDialog
     close();
-    NewFileDialog* n = new NewFileDialog(this);
+    NewFileDialog* n = new NewFileDialog(nullptr);
     n->show();
 }
 
