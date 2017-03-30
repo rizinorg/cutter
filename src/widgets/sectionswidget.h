@@ -39,7 +39,7 @@ private:
     QAbstractItemView      *pieChart;
     QItemSelectionModel    *selectionModel;
     MainWindow             *main;
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 };
 
 #endif // SECTIONSWIDGET_H

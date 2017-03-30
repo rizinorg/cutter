@@ -139,7 +139,7 @@ void createNewDialog::on_buttonCreate_clicked()
         char file[32];
         int sz;
         QByteArray hexpairs = ui->plainTextEdit->toPlainText().toUtf8();
-        ut8 *buf = (ut8*)malloc (strlen (hexpairs.constData()));
+        ut8 *buf = (ut8*)malloc (strlen (hexpairs.constData()) + 1);
         sz = r_hex_str2bin (hexpairs.constData(), buf);
         if (sz>0) {
             snprintf (file, sizeof(file)-1, "malloc://%d", sz);

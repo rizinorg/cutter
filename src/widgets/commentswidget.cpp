@@ -28,7 +28,6 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     ui->frame->hide();
 
     // Resize eventfilter
-    this->installEventFilter(this);
     ui->commentsTreeWidget->viewport()->installEventFilter(this);
 }
 

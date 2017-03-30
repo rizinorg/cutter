@@ -58,7 +58,7 @@ public:
     QString itoa(ut64 num, int rdx=16);
     QString config(const QString &k, const QString &v=NULL);
     int config(const QString &k, int v);
-    QList<QString> getList(const QString type, const QString subtype="");
+    QList<QString> getList(const QString & type, const QString & subtype="");
     QString assemble(const QString &code);
     QString disassemble(const QString &code);
     void setDefaultCPU();

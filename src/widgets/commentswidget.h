@@ -36,7 +36,7 @@ private slots:
 
     void on_actionVertical_triggered();
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     Ui::CommentsWidget *ui;

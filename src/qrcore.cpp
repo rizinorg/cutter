@@ -298,11 +298,10 @@ bool QRCore::tryFile(QString path, bool rw) {
     return true;
 }
 
-QList<QString> QRCore::getList(const QString type, const QString subtype) {
+QList<QString> QRCore::getList(const QString & type, const QString & subtype) {
     RListIter *it;
     QList<QString> ret = QList<QString>();
 
-    if (this == NULL) return ret;
     if (type == "bin") {
         if (subtype == "sections") {
             QString text = cmd ("S*~^S");
