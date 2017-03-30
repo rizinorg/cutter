@@ -80,6 +80,8 @@ public slots:
 
     void highlightDisasms();
 
+    void selectHexPreview();
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 

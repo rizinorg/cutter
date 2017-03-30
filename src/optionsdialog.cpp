@@ -202,6 +202,7 @@ void OptionsDialog::anal_finished()
     this->w->updateFrames();
     this->w->setFilename(this->filename);
     this->w->get_refs( this->w->core->cmd("?v entry0") );
+    this->w->memoryDock->selectHexPreview();
 
     // Restore project notes
     QString notes = this->core->cmd("Pn");

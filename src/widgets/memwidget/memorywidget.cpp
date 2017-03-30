@@ -1671,3 +1671,19 @@ void MemoryWidget::on_opcodeDescButton_clicked()
         ui->opcodeDescButton->setArrowType(Qt::DownArrow);
     }
 }
+
+void MemoryWidget::selectHexPreview() {
+    // Pre-select arch and bits in the hexdump sidebar
+    QString arch = this->main->core->cmd("e asm.arch").trimmed();
+    QString bits = this->main->core->cmd("e asm.bits").trimmed();
+
+    //int arch_index = ui->hexArchComboBox_2->findText(arch);
+    if (ui->hexArchComboBox_2->findText(arch) != -1) {
+        ui->hexArchComboBox_2->setCurrentIndex(ui->hexArchComboBox_2->findText(arch));
+    }
+
+    //int bits_index = ui->hexBitsComboBox_2->findText(bits);
+    if (ui->hexBitsComboBox_2->findText(bits) != -1) {
+        ui->hexBitsComboBox_2->setCurrentIndex(ui->hexBitsComboBox_2->findText(bits));
+    }
+}
