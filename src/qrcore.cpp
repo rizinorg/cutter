@@ -53,6 +53,7 @@ QRCore::QRCore(QObject *parent) :
     // Used by the HTML5 graph
     config("http.cors","true");
     config("http.sandbox", "false");
+    config("http.port", "14170");
 
     // Temporary fixes
     //config("http.root","/usr/local/share/radare2/last/www");
