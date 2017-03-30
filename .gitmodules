@@ -1,0 +1,3 @@
+[submodule "iaito_win32"]
+	path = iaito_win32
+	url = https://github.com/mrexodia/iaito_win32

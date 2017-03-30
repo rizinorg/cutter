@@ -136,7 +136,8 @@ QString QRCore::cmd(const QString &str) {
     //r_cons_flush();
     char *res = r_core_cmd_str (this->core, cmd);
     QString o = (res && *res)? QString::fromUtf8(res): QString();
-    free (res);
+    //r_mem_free was added in https://github.com/radare/radare2/commit/cd28744049492dc8ac25a1f2b3ba0e42f0e9ce93
+    r_mem_free(res);
     return o;
 }
 

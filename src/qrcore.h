@@ -6,7 +6,18 @@
 #include <QObject>
 #include <QStringList>
 #include <QMessageBox>
+
+//Workaround for compile errors on Windows
+#ifdef _WIN32
+#include <r2hacks.h>
+#endif //_WIN32
+
 #include "r_core.h"
+
+//Workaround for compile errors on Windows.
+#ifdef _WIN32
+#undef min
+#endif //_WIN32
 
 #define HAVE_LATEST_LIBR2 false
 
