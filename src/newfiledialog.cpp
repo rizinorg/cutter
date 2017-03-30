@@ -100,7 +100,7 @@ void NewFileDialog::on_loadFileButton_clicked()
     } else {
         // Close dialog and open OptionsDialog
         close();
-        OptionsDialog* o = new OptionsDialog(this);
+        OptionsDialog* o = new OptionsDialog(nullptr);
         o->setFilename (fname, this->strippedName(fname));
         o->exec();
     }
@@ -145,7 +145,7 @@ void NewFileDialog::on_recentsList_itemDoubleClicked(QListWidgetItem *item)
     QString sitem = data.toString();
     // Close dialog and open OptionsDialog
     close();
-    OptionsDialog* o = new OptionsDialog(this);
+    OptionsDialog* o = new OptionsDialog(nullptr);
     o->setFilename (sitem, this->strippedName(sitem));
     o->exec();
 }
@@ -177,7 +177,7 @@ void NewFileDialog::on_createButton_clicked()
 {
     // Close dialog and open create new file dialog
     close();
-    createNewDialog* n = new createNewDialog(this);
+    createNewDialog* n = new createNewDialog(nullptr);
     n->exec();
 }
 

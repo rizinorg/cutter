@@ -73,6 +73,7 @@ public:
     void getOpcodes();
     QList<QString> opcodes;
     QList<QString> regs;
+    void setSettings();
 
     /* fields */
     RCore *core;
