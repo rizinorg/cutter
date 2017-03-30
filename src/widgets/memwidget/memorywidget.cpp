@@ -1381,7 +1381,7 @@ void MemoryWidget::setFcnName(QString addr) {
     // TDOD: FIX ME, ugly
     if (addr.contains("0x")) {
         fcn = this->main->core->functionAt(addr.toULongLong(&ok, 16));
-        if (ok && fcn && *fcn) {
+        if (ok && fcn) {
             QString segment = this->main->core->cmd("S. @ " + addr).split(" ").last();
             addr = segment.trimmed() + ":"+ fcn->name;
         }
