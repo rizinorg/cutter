@@ -441,10 +441,14 @@ int QRCore::fcnEndBbs(QString addr) {
     int offset = addr.toLong(&ok, 16);
     RAnalFunction *fcn = r_anal_get_fcn_in (core->anal, offset, 0);
     if (fcn) {
-        QString endbbs = this->cmd("afi @ " + addr + " ~end-bbs").split("\n")[0].split(": ")[1];
-        return endbbs.toInt();
+        QString tmp = this->cmd("afi @ " + addr + " ~end-bbs").split("\n")[0];
+        if (tmp.contains(":")) {
+            QString endbbs = tmp.split(": ")[1];
+            return endbbs.toInt();
+        }
+    } else {
+        return 0;
     }
-    return 0;
 }
 
 QString QRCore::itoa(ut64 num, int rdx) {
