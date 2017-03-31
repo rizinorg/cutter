@@ -20,15 +20,12 @@ Yes, the code sucks. Hopefully we will be able to remove this statement from the
 
 ## Requirements
 
-- **Radare2**: It is important that all Iaitō developers use the same version of radare2. For that purpose all developers must install radare2 from [this fork](http://github.com/hteso/radare2-iaito). Install radare2 with the following command:
+- **Radare2**: Make sure that, when cloning the project, you use `git clone --recurse-submodules` or run `git submodule init` and `git submodule update` to clone the correct radare2 version. Then execute the following command in the radare2 folder:
 ```
 sys/install.sh
 ```
-- The **www-p**: Once you have radare2 installed use the following [r2pm](https://github.com/radare/radare2#package-manager) command to install this webUI:
-```
-r2pm -i www-p
-```
-- QtCreator and Qt: Right now, Iaitō uses Qt 5.3 so the latest QtCreator needs to be installed and Qt 5.3 added during the installation:
+
+- QtCreator and Qt: Right now Iaitō uses Qt 5.3. It will be updated in the near future, but in the meantime the latest QtCreator needs to be installed and Qt 5.3 added during the installation:
     - Download: https://www.qt.io/ide/
     - Add Qt 5.3: http://doc.qt.io/qtcreator/creator-project-qmake.html
 
