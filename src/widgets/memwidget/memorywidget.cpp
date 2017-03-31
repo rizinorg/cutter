@@ -442,6 +442,15 @@ void MemoryWidget::refreshDisasm(QString off = "") {
     // Get disas at offset
     if (off != "") {
         this->main->core->cmd("s " + off);
+    } else {
+        // Get current offset
+        QTextCursor tc = this->disasTextEdit->textCursor();
+        tc.select( QTextCursor::LineUnderCursor );
+        QString lastline = tc.selectedText();
+        QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
+        if (ele.contains("0x")) {
+            this->main->core->cmd("s " + ele);
+        }
     }
 
     QString txt2 = this->main->core->cmd("pd 100");
