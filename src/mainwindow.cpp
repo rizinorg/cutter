@@ -244,7 +244,7 @@ void MainWindow::start_web_server() {
     // Start web server
     thread.core = core;
     thread.start();
-    sleep (1);
+    QThread::sleep (1);
     if (core->core->http_up == R_FALSE) {
         eprintf ("FAILED TO LAUNCH\n");
     }
@@ -834,7 +834,7 @@ void MainWindow::on_actionStart_Web_Server_triggered()
         // Start web server
         thread.core = core;
         thread.start();
-        sleep (1);
+        QThread::sleep (1);
         if (core->core->http_up==R_FALSE) {
             eprintf ("FAILED TO LAUNCH\n");
         }
