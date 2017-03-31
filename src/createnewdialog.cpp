@@ -9,6 +9,7 @@ createNewDialog::createNewDialog(QWidget *parent) :
     ui(new Ui::createNewDialog)
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     w = new MainWindow(nullptr);
     w->core = new QRCore ();
 }

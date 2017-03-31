@@ -14,6 +14,7 @@ OptionsDialog::OptionsDialog(QWidget *parent):
     this->anal_level = 0;
 
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->progressBar->setVisible(0);
     ui->statusLabel->setVisible(0);
 
