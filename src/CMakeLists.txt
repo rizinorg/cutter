@@ -13,6 +13,14 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui WebKit WebKitWidgets)
 
+
+if(WIN32)
+	set(IAITO_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../iaito_win32")
+	list(APPEND CMAKE_PREFIX_PATH "${IAITO_WIN32_DIR}" "${IAITO_WIN32_DIR}/radare2")
+	list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib32")
+endif()
+
+
 find_package(Radare2 REQUIRED)
 include_directories(${RADARE2_INCLUDE_DIRS})
 
