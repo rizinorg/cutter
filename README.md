@@ -28,19 +28,19 @@ sys/install.sh
 ```
 r2pm -i www-p
 ```
-- QtCreator and Qt: Right now, Iaitō uses Qt 5.3 so the latest QtCreator needs to be installed and Q t5.3 added during the installation:
+- QtCreator and Qt: Right now, Iaitō uses Qt 5.3 so the latest QtCreator needs to be installed and Qt 5.3 added during the installation:
     - Download: https://www.qt.io/ide/
     - Add Qt 5.3: http://doc.qt.io/qtcreator/creator-project-qmake.html
 
 ## Platforms
 
-Iaitō is developed and tested in OS X and Linux, Windows will be added soon. The first release for users will include installers for all three platforms.
+Iaitō is developed and tested in OS X, Linux and [Windows](https://github.com/hteso/iaito/wiki/Compiling-on-Windows). The first release for users will include installers for all three platforms.
 
 ## Documentation
 
 Proper documentation and website will be created before the first release.
 
-Roadmap information for developers can be found [here](https://github.com/hteso/iaito/wiki/Roadmap)
+Roadmap information for developers can be found [here](https://github.com/hteso/iaito/wiki/Roadmap).
 
 ## Help
 
