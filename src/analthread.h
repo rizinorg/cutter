@@ -9,13 +9,13 @@ class AnalThread : public QThread
 {
         Q_OBJECT
 public:
-    explicit AnalThread(MainWindow *main, QWidget *parent = 0);
+    explicit AnalThread(MainWindow *w, QWidget *parent = 0);
     void run();
     int level;
 
 private:
 
-    MainWindow      *main;
+    MainWindow *w;
 };
 
 #endif // ANALTHREAD_H

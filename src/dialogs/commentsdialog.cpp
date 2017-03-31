@@ -6,6 +6,7 @@ CommentsDialog::CommentsDialog(QWidget *parent) :
     ui(new Ui::CommentsDialog)
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 }
 
 CommentsDialog::~CommentsDialog()

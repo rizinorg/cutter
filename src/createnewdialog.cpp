@@ -9,6 +9,7 @@ createNewDialog::createNewDialog(QWidget *parent) :
     ui(new Ui::createNewDialog)
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     w = new MainWindow(nullptr);
     w->core = new QRCore ();
 }
@@ -65,13 +66,12 @@ void createNewDialog::on_buttonCreate_clicked()
     bool created = false;
 
     QString arch = ui->comboArch->currentText();
-    int bits = atoi (ui->comboBits->currentText().toStdString().c_str());
-    int fsize = r_num_math (NULL, ui->entrySize->text().toStdString().c_str());
+    int bits = atoi (ui->comboBits->currentText().toUtf8().constData());
+    int fsize = r_num_math (NULL, ui->entrySize->text().toUtf8().constData());
     QString format = ui->comboFormat->currentText();
 
     if (type == "Assembler") {
-        const char *asmcode = ui->plainTextEdit->toPlainText().toStdString().c_str();
-        RAsmCode *code = r_asm_massemble (w->core->core->assembler, asmcode);
+        RAsmCode *code = r_asm_massemble (w->core->core->assembler, ui->plainTextEdit->toPlainText().toUtf8().constData());
         if (code && code->len>0) {
             char file[32];
             snprintf (file, sizeof(file)-1, "malloc://%d", code->len);
@@ -91,8 +91,7 @@ void createNewDialog::on_buttonCreate_clicked()
             created = true;
             snprintf (file, sizeof(file)-1, "malloc://%d", fsize);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {
-                const char *rapatch = ui->plainTextEdit->toPlainText().toStdString().c_str();
-                r_core_patch (w->core->core, rapatch);
+                r_core_patch (w->core->core, ui->plainTextEdit->toPlainText().toUtf8().constData());
                 r_core_seek(w->core->core, 0, 1);
                 created = true;
             } else {
@@ -111,7 +110,7 @@ void createNewDialog::on_buttonCreate_clicked()
             snprintf (file, sizeof(file)-1, "malloc://%d", fsize);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {
                 created = true;
-                QString str = ui->plainTextEdit->toPlainText().toStdString().c_str();
+                QString str = ui->plainTextEdit->toPlainText();
                 QList <QString> lines = str.split("\n");
                 foreach (QString str, lines) {
                     w->core->cmd(str);
@@ -124,13 +123,13 @@ void createNewDialog::on_buttonCreate_clicked()
         }
     } else if (type == "Text") {
         char file[32];
-        const char *hexpairs = ui->plainTextEdit->toPlainText().toStdString().c_str();
-        int sz = strlen (hexpairs);
+        QByteArray hexpairs = ui->plainTextEdit->toPlainText().toStdString().c_str();
+        int sz = strlen (hexpairs.constData());
         if (sz>0) {
             snprintf (file, sizeof(file)-1, "malloc://%d", sz);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {
                 created = true;
-                r_core_write_at(w->core->core,0, (const ut8*)hexpairs, sz);
+                r_core_write_at(w->core->core,0, (const ut8*)hexpairs.constData(), sz);
             } else {
                 __alert ("failed to open file");
             }
@@ -140,9 +139,9 @@ void createNewDialog::on_buttonCreate_clicked()
     } else if (type == "Hexpairs") {
         char file[32];
         int sz;
-        const char *hexpairs = ui->plainTextEdit->toPlainText().toStdString().c_str();
-        ut8 *buf = (ut8*)malloc (strlen (hexpairs));
-        sz = r_hex_str2bin (hexpairs, buf);
+        QByteArray hexpairs = ui->plainTextEdit->toPlainText().toUtf8();
+        ut8 *buf = (ut8*)malloc (strlen (hexpairs.constData()) + 1);
+        sz = r_hex_str2bin (hexpairs.constData(), buf);
         if (sz>0) {
             snprintf (file, sizeof(file)-1, "malloc://%d", sz);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {

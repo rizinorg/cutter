@@ -6,7 +6,18 @@
 #include <QObject>
 #include <QStringList>
 #include <QMessageBox>
+
+//Workaround for compile errors on Windows
+#ifdef _WIN32
+#include <r2hacks.h>
+#endif //_WIN32
+
 #include "r_core.h"
+
+//Workaround for compile errors on Windows.
+#ifdef _WIN32
+#undef min
+#endif //_WIN32
 
 #define HAVE_LATEST_LIBR2 false
 
@@ -38,7 +49,7 @@ public:
     QList<QList<QString>> getComments();
     QMap<QString, QList<QList<QString> > > getNestedComments();
     void setOptions(QString key);
-    bool loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, bool va, int bits, int idx=0, bool loadbin=false);
+    bool loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int bits, int idx=0, bool loadbin=false);
     bool tryFile(QString path, bool rw);
     void analyze(int level);
     void seek(QString addr);
@@ -47,7 +58,7 @@ public:
     QString itoa(ut64 num, int rdx=16);
     QString config(const QString &k, const QString &v=NULL);
     int config(const QString &k, int v);
-    QList<QString> getList(const QString type, const QString subtype="");
+    QList<QString> getList(const QString & type, const QString & subtype="");
     QString assemble(const QString &code);
     QString disassemble(const QString &code);
     void setDefaultCPU();

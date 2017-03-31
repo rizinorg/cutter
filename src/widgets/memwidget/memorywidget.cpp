@@ -99,7 +99,6 @@ MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
     ui->actionRight_align_bytes->setDisabled(true);
 
     // Resize eventfilter
-    this->installEventFilter(this);
     ui->disasTextEdit_2->viewport()->installEventFilter(this);
 
     // Set Splitter stretch factor
@@ -455,7 +454,7 @@ void MemoryWidget::refreshDisasm(QString off = "") {
     this->disasTextEdit->ensureCursorVisible();
     this->disasTextEdit->moveCursor(QTextCursor::End);
 
-    while ( this->disasTextEdit->find(QRegExp("^" + s), QTextDocument::FindBackward) ); {
+    while ( this->disasTextEdit->find(QRegExp("^" + s), QTextDocument::FindBackward) ) {
         this->disasTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
     }
 
@@ -1382,7 +1381,7 @@ void MemoryWidget::setFcnName(QString addr) {
     // TDOD: FIX ME, ugly
     if (addr.contains("0x")) {
         fcn = this->main->core->functionAt(addr.toULongLong(&ok, 16));
-        if (ok && fcn && fcn->name != "") {
+        if (ok && fcn) {
             QString segment = this->main->core->cmd("S. @ " + addr).split(" ").last();
             addr = segment.trimmed() + ":"+ fcn->name;
         }
@@ -1594,7 +1593,7 @@ void MemoryWidget::on_actionXRefs_triggered()
         RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
 
         XrefsDialog* x = new XrefsDialog(this->main, this);
-        x->setWindowTitle("X-Refs for function " + QString::fromUtf8(fcn->name));
+        x->setWindowTitle("X-Refs for function " + QString(fcn->name));
 
         // Get Refs and Xrefs
         bool ok;

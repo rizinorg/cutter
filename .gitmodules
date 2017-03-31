@@ -1,0 +1,6 @@
+[submodule "iaito_win32"]
+	path = iaito_win32
+	url = https://github.com/mrexodia/iaito_win32
+[submodule "radare2"]
+	path = radare2
+	url = https://github.com/radare/radare2

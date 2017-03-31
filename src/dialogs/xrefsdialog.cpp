@@ -8,6 +8,7 @@ XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
     ui(new Ui::XrefsDialog)
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     this->main = main;
 
     // Increase asm text edit margin

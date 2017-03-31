@@ -49,7 +49,7 @@ void SideBar::on_webServerButton_clicked()
         // Start web server
         thread.core = this->main->core;
         thread.start();
-        sleep (1);
+        QThread::sleep (1);
         if (this->main->core->core->http_up==R_FALSE) {
             eprintf ("FAILED TO LAUNCH\n");
         }

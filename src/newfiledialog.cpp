@@ -45,6 +45,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui(new Ui::NewFileDialog)
 {
     ui->setupUi(this);
+    setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->recentsList->addAction(ui->actionRemove_item);
     ui->recentsList->addAction(ui->actionClear_all);
     ui->recentsList->setIconSize(QSize(48, 48));
