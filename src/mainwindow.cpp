@@ -311,15 +311,25 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, "Iaito",
                  "Do you really want to exit?\nSave your project before closing!",
-                 QMessageBox::Ok | QMessageBox::Cancel);
+                 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     //qDebug() << ret;
-    if (ret == QMessageBox::Ok) {
+    if (ret == QMessageBox::Save) {
         QSettings settings("iaito", "iaito");
         settings.setValue("geometry", saveGeometry());
         settings.setValue("size", size());
         settings.setValue("pos", pos());
         settings.setValue("state", saveState());
+        core->cmd("Ps " + QFileInfo(this->filename).fileName());
+        QString notes = this->notepadDock->notesTextEdit->toPlainText().toUtf8().toBase64();
+        //this->add_debug_output(notes);
+        this->core->cmd("Pnj " + notes);
         QMainWindow::closeEvent(event);
+    } else if (ret == QMessageBox::Discard) {
+        QSettings settings("iaito", "iaito");
+        settings.setValue("geometry", saveGeometry());
+        settings.setValue("size", size());
+        settings.setValue("pos", pos());
+        settings.setValue("state", saveState());
     } else {
         event->ignore();
     }
