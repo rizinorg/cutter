@@ -20,6 +20,7 @@
 #include <QFileDialog>
 #include <QPropertyAnimation>
 #include <QStyledItemDelegate>
+#include <QProcess>
 
 #include <QtGlobal>
 #include <QToolTip>
@@ -959,17 +960,8 @@ void MainWindow::add_debug_output(QString msg)
 
 void MainWindow::on_actionNew_triggered()
 {
-    QString path = qApp->applicationDirPath();
-    eprintf ("(((%s)))\n", path.toLocal8Bit().data());
-    int pid = fork();
-    if (pid==-1)
-        return;
-    if(!pid) {
-        QString cmd = path+ "/iaito";
-        system (cmd.toLocal8Bit().data());
-        exit(0);
-    }
-    exit(0);
+    qApp->quit();
+    on_actionLoad_triggered();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -1016,15 +1008,10 @@ void MainWindow::on_actionSDB_browser_triggered()
 
 void MainWindow::on_actionLoad_triggered()
 {
-    QString path = qApp->applicationDirPath();
-    eprintf ("(((%s)))\n", path.toLocal8Bit().data());
-    int pid = fork();
-    if (pid==-1)
-        return;
-    if(!pid) {
-        QString cmd = path+ "/iaito";
-        exit(system (cmd.toLocal8Bit().data()));
-    }
+    QProcess* process = new QProcess(this);
+    process->setProgram(qApp->applicationFilePath());
+    process->setEnvironment(QProcess::systemEnvironment());
+    process->start();
 }
 
 void MainWindow::on_actionShow_Hide_mainsidebar_triggered()
