@@ -23,7 +23,7 @@ QT       += core gui webkit webkitwidgets
 QT_CONFIG -= no-pkg-config
 
 macx {
-	QMAKE_CXXFLAGS = -mmacosx-version-min=10.7 -std=gnu0x -stdlib=libc+
+        QMAKE_CXXFLAGS = -mmacosx-version-min=10.7 -std=gnu0x -stdlib=libc++
 		EXTSO=dylib
 } else {
 	win32 {
