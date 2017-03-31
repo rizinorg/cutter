@@ -15,9 +15,11 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui WebKit WebKitWidgets)
 
 
 if(WIN32)
-	set(IAITO_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../iaito_win32")
-	list(APPEND CMAKE_PREFIX_PATH "${IAITO_WIN32_DIR}" "${IAITO_WIN32_DIR}/radare2")
-	list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib32")
+    # use radare2 libraries from submodule on windows
+    set(IAITO_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../iaito_win32")
+    list(APPEND CMAKE_PREFIX_PATH "${IAITO_WIN32_DIR}")
+    list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib32")
+    set(RADARE2_INCLUDE_DIRS "${IAITO_WIN32_DIR}/radare2/include/libr" "${IAITO_WIN32_DIR}/include")
 endif()
 
 
@@ -26,7 +28,7 @@ include_directories(${RADARE2_INCLUDE_DIRS})
 
 
 set(SOURCE_FILES 
-	main.cpp
+    main.cpp
     mainwindow.cpp
     newfiledialog.cpp
     optionsdialog.cpp
@@ -62,7 +64,7 @@ set(SOURCE_FILES
     hexhighlighter.cpp)
 
 set(HEADER_FILES
-	mainwindow.h
+    mainwindow.h
     newfiledialog.h
     optionsdialog.h
     highlighter.h
@@ -98,7 +100,7 @@ set(HEADER_FILES
     hexhighlighter.h)
 
 set(UI_FILES
-	mainwindow.ui
+    mainwindow.ui
     newfiledialog.ui
     optionsdialog.ui
     createnewdialog.ui
