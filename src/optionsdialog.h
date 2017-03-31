@@ -43,7 +43,7 @@ private:
     QString filename;
     QString shortfn;
     Ui::OptionsDialog *ui;
-    AnalThread *analThread;
+    AnalThread analThread;
     MainWindow *w;
 };
 

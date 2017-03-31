@@ -8,7 +8,8 @@
 
 OptionsDialog::OptionsDialog(QWidget *parent):
     QDialog(parent),
-    ui(new Ui::OptionsDialog)
+    ui(new Ui::OptionsDialog),
+    analThread(this)
 {
     this->core = new QRCore();
     this->anal_level = 0;
@@ -39,6 +40,8 @@ OptionsDialog::OptionsDialog(QWidget *parent):
 
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
+
+    connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
 }
 
 OptionsDialog::~OptionsDialog()
@@ -169,18 +172,14 @@ void OptionsDialog::on_okButton_clicked()
     ui->statusLabel->setText("Analysis in progress");
 
     // Threads stuff
-    // create an instance of MyThread
-    this->analThread = new AnalThread(w);
-
     // connect signal/slot
-    connect(analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
-    //analThread->level = anal_level;
+
+    int level = 0;
     if (anal_level == true) {
-        analThread->level = ui->analSlider->value();
-    } else {
-        analThread->level = 0;
+        level = ui->analSlider->value();
     }
-    analThread->start();
+
+    analThread.start(core, level);
 }
 
 void OptionsDialog::anal_finished()
