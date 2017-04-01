@@ -1,12 +1,17 @@
+
 #include "mainwindow.h"
 #include "newfiledialog.h"
+#include "optionsdialog.h"
+
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QTextCodec>
 #include <QMessageBox>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setApplicationName("Iaito");
     a.setApplicationVersion(APP_VERSION);
 
     // Set QString codec to UTF-8
@@ -15,6 +20,16 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 #endif
+
+
+    QCommandLineParser cmdParser;
+    cmdParser.setApplicationDescription("A Qt and C++ GUI for radare2 reverse engineering framework");
+    cmdParser.addHelpOption();
+    cmdParser.addVersionOption();
+    cmdParser.addPositionalArgument("filename", QCoreApplication::translate("main", "Filename to open."));
+    cmdParser.process(a);
+
+    QStringList args = cmdParser.positionalArguments();
 
     // Check r2 version
     QString r2version = r_core_version();
@@ -31,7 +46,18 @@ int main(int argc, char *argv[])
             return 1;
     }
 
-    NewFileDialog n;
-    n.show();
+    if(args.empty())
+    {
+        NewFileDialog *n = new NewFileDialog();
+        n->setAttribute(Qt::WA_DeleteOnClose);
+        n->exec();
+    }
+    else // filename specified as positional argument
+    {
+        OptionsDialog *o = new OptionsDialog(args[0]);
+        o->setAttribute(Qt::WA_DeleteOnClose);
+        o->exec();
+    }
+
     return a.exec();
 }

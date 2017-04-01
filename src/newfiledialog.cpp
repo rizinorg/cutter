@@ -8,6 +8,8 @@
 #include <QMessageBox>
 #include <QDir>
 
+const int NewFileDialog::MaxRecentFiles;
+
 static QColor getColorFor(QString str, int pos) {
     QList<QColor> Colors;
     Colors << QColor(29, 188, 156); // Turquoise
@@ -25,7 +27,7 @@ static QIcon getIconFor(QString str, int pos) {
     // Add to the icon list
     int w = 64;
     int h = 64;
-    
+
     QPixmap pixmap(w,h);
     pixmap.fill(Qt::transparent);
 
@@ -79,11 +81,6 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui->createButton->hide();
 }
 
-QString NewFileDialog::strippedName(const QString &fullFileName)
-{
-    return QFileInfo(fullFileName).fileName();
-}
-
 NewFileDialog::~NewFileDialog()
 {
     delete ui;
@@ -100,8 +97,7 @@ void NewFileDialog::on_loadFileButton_clicked()
     } else {
         // Close dialog and open OptionsDialog
         close();
-        OptionsDialog* o = new OptionsDialog(nullptr);
-        o->setFilename (fname, this->strippedName(fname));
+        OptionsDialog* o = new OptionsDialog(fname);
         o->exec();
     }
 }
@@ -145,8 +141,7 @@ void NewFileDialog::on_recentsList_itemDoubleClicked(QListWidgetItem *item)
     QString sitem = data.toString();
     // Close dialog and open OptionsDialog
     close();
-    OptionsDialog* o = new OptionsDialog(nullptr);
-    o->setFilename (sitem, this->strippedName(sitem));
+    OptionsDialog* o = new OptionsDialog(sitem);
     o->exec();
 }
 

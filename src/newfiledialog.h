@@ -36,8 +36,8 @@ private slots:
 
 private:
     Ui::NewFileDialog *ui;
-    QString strippedName(const QString &fullFileName);
-    enum { MaxRecentFiles = 5 };
+
+    static const int MaxRecentFiles = 5;
 };
 
 #endif // NEWFILEDIALOG_H

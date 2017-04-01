@@ -19,9 +19,8 @@ class OptionsDialog : public QDialog
 
 public:
     QRCore *core;
-    explicit OptionsDialog(QWidget *parent = 0);
+    explicit OptionsDialog(QString filename, QWidget *parent = 0);
     ~OptionsDialog();
-    void setFilename(QString fn, QString shortfn);
     RAnalFunction functionAt(ut64 addr);
     QStringList    asm_plugins;
 
@@ -45,6 +44,9 @@ private:
     Ui::OptionsDialog *ui;
     AnalThread analThread;
     MainWindow *w;
+
+    void setFilename(QString fn, QString shortfn);
+    void setFilename(QString fn);
 };
 
 #endif // OPTIONSDIALOG_H

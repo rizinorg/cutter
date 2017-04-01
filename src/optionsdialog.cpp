@@ -6,7 +6,7 @@
 #include <QSettings>
 #include <QFileInfo>
 
-OptionsDialog::OptionsDialog(QWidget *parent):
+OptionsDialog::OptionsDialog(QString filename, QWidget *parent):
     QDialog(parent),
     ui(new Ui::OptionsDialog),
     analThread(this)
@@ -42,6 +42,8 @@ OptionsDialog::OptionsDialog(QWidget *parent):
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
+    
+    setFilename(filename);
 }
 
 OptionsDialog::~OptionsDialog()
@@ -55,6 +57,11 @@ void OptionsDialog::setFilename(QString fn, QString shortfn) {
     //qDebug() << QFileInfo(fn).fileName();
     ui->programLineEdit->setText(fn);
     this->core->tryFile (fn, 1);
+}
+
+void OptionsDialog::setFilename(QString fn)
+{
+    setFilename(fn, QFileInfo(fn).fileName());
 }
 
 void OptionsDialog::on_closeButton_clicked()
