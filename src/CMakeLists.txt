@@ -18,7 +18,13 @@ if(WIN32)
     # use radare2 libraries from submodule on windows
     set(IAITO_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../iaito_win32")
     list(APPEND CMAKE_PREFIX_PATH "${IAITO_WIN32_DIR}")
-    list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib32")
+
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bit
+        list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib64")
+    else()
+        list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib32")
+    endif()
+
     set(RADARE2_INCLUDE_DIRS "${IAITO_WIN32_DIR}/radare2/include/libr" "${IAITO_WIN32_DIR}/include")
 endif()
 
