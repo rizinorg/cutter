@@ -50,13 +50,13 @@ int main(int argc, char *argv[])
     {
         NewFileDialog *n = new NewFileDialog();
         n->setAttribute(Qt::WA_DeleteOnClose);
-        n->exec();
+        n->show();
     }
     else // filename specified as positional argument
     {
         OptionsDialog *o = new OptionsDialog(args[0]);
         o->setAttribute(Qt::WA_DeleteOnClose);
-        o->exec();
+        o->show();
     }
 
     return a.exec();
