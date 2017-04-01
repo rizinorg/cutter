@@ -57,13 +57,14 @@ public:
     bool responsive;
 
     explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
     void start_web_server();
     void closeEvent(QCloseEvent *event);
     void readSettings();
     void setFilename(QString fn);
     void setCore(QRCore *core);
     void seek(const QString& offset, const QString& name=NULL);
-    ~MainWindow();
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
@@ -75,6 +76,8 @@ public:
     void adjustColumns(QTreeWidget *tw);
     void appendRow(QTreeWidget *tw, const QString &str, const QString &str2=NULL,
                           const QString &str3=NULL, const QString &str4=NULL, const QString &str5=NULL);
+
+    void setWebServerState(bool start);
 
 public slots:
 
@@ -186,6 +189,8 @@ private slots:
 
     void on_actionReset_settings_triggered();
 
+    void webserverThreadFinished();
+
 private:
     void refreshFlagspaces();
     bool doLock;
@@ -213,6 +218,7 @@ private:
     QLineEdit        *gotoEntry;
     SdbDock          *sdbDock;
     QAction          *sidebar_action;
+    WebServerThread webserverThread;
 };
 
 #endif // MAINWINDOW_H

@@ -60,10 +60,12 @@ static void appendRow(QTreeWidget *tw, const QString &str, const QString &str2=N
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    core(new QRCore()),
+    ui(new Ui::MainWindow),
+    webserverThread(core, this)
 {
     ui->setupUi(this);
-    this->core = NULL;
+
     doLock = false;
 
     // Add custom font
@@ -237,18 +239,27 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut* commands_shortcut = new QShortcut(QKeySequence(Qt::Key_Colon), this);
     connect(commands_shortcut, SIGNAL(activated()), this->omnibar, SLOT(showCommands()));
 
+    connect(&webserverThread, SIGNAL(finished()), this, SLOT(webserverThreadFinished()));
+}
+
+MainWindow::~MainWindow() {
+    delete ui;
+    delete core;
 }
 
 void MainWindow::start_web_server() {
-    // To be removed
-    static WebServerThread thread;
     // Start web server
-    thread.core = core;
-    thread.start();
-    QThread::sleep (1);
-    if (core->core->http_up == R_FALSE) {
-        eprintf ("FAILED TO LAUNCH\n");
-    }
+    webserverThread.startServer();
+}
+
+void MainWindow::webserverThreadFinished()
+{
+    core->core->http_up = webserverThread.isStarted() ? R_TRUE : R_FALSE;
+
+    // this is not true anymore, cause the webserver might have been stopped
+    //if (core->core->http_up == R_FALSE) {
+    //    eprintf("FAILED TO LAUNCH\n");
+    //}
 }
 
 void MainWindow::adjustColumns(QTreeWidget *tw) {
@@ -273,6 +284,20 @@ void MainWindow::appendRow(QTreeWidget *tw, const QString &str, const QString &s
     if (str5!=NULL)
         tempItem->setText(5, str5);
     tw->insertTopLevelItem(0, tempItem);
+}
+
+void MainWindow::setWebServerState(bool start)
+{
+    if (start) {
+        webserverThread.startServer();
+
+        // Open web interface on default browser
+        // ballessay: well isn't this possible with =H&
+        //QString link = "http://localhost:9090/";
+        //QDesktopServices::openUrl(QUrl(link));
+    } else {
+        webserverThread.stopServer();
+    }
 }
 
 void MainWindow::hideDummyColumns() {
@@ -360,10 +385,6 @@ void MainWindow::def_theme() {
     this->memoryDock->switchTheme(false);
     QSettings settings("iaito", "iaito");
     settings.setValue("dark", false);
-}
-
-MainWindow::~MainWindow() {
-    delete ui;
 }
 
 /*
@@ -739,6 +760,7 @@ void MainWindow::on_consoleInputLineEdit_returnPressed()
         QCompleter *completer = ui->consoleInputLineEdit->completer();
         /*
          * TODO: FIXME: Crashed the fucking app
+         * ballessay: yes this will crash if no completer is set -> nullptr
          */
         //QStringListModel *completerModel = (QStringListModel*)(completer->model());
         //completerModel->setStringList(completerModel->stringList() << input);
@@ -840,24 +862,7 @@ void MainWindow::on_consoleExecButton_clicked()
 
 void MainWindow::on_actionStart_Web_Server_triggered()
 {
-    static WebServerThread thread;
-    if (ui->actionStart_Web_Server->isChecked()) {
-        // Start web server
-        thread.core = core;
-        thread.start();
-        QThread::sleep (1);
-        if (core->core->http_up==R_FALSE) {
-            eprintf ("FAILED TO LAUNCH\n");
-        }
-        // Open web interface on default browser
-        //QString link = "http://localhost:9090/";
-        //QDesktopServices::openUrl(QUrl(link));
-    } else {
-        core->core->http_up= R_FALSE;
-        // call something to kill the webserver!!
-        thread.exit(0);
-        // Stop web server
-    }
+    setWebServerState(ui->actionStart_Web_Server->isChecked());
 }
 
 void MainWindow::on_actionConsoleSync_with_core_triggered()
@@ -970,7 +975,7 @@ void MainWindow::add_debug_output(QString msg)
 
 void MainWindow::on_actionNew_triggered()
 {
-    qApp->quit();
+    close();
     on_actionLoad_triggered();
 }
 
@@ -1018,10 +1023,9 @@ void MainWindow::on_actionSDB_browser_triggered()
 
 void MainWindow::on_actionLoad_triggered()
 {
-    QProcess* process = new QProcess(this);
-    process->setProgram(qApp->applicationFilePath());
-    process->setEnvironment(QProcess::systemEnvironment());
-    process->start();
+    QProcess process(this);
+    process.setEnvironment(QProcess::systemEnvironment());
+    process.startDetached(qApp->applicationFilePath());
 }
 
 void MainWindow::on_actionShow_Hide_mainsidebar_triggered()
