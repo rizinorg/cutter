@@ -100,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     backButton->setIcon(QIcon(":/new/prefix1/img/icons/arrow_left.png"));
     //backButton->setPopupMode(QToolButton::DelayedPopup);
     ui->mainToolBar->insertWidget(ui->actionForward, backButton);
-    //connect(backButton, SIGNAL(clicked()), this, SLOT(on_backButton_clicked()));
+    connect(backButton, SIGNAL(clicked()), this, SLOT(on_backButton_clicked()));
 
     // Sepparator between undo/redo and goto lineEdit
     QWidget* spacer3 = new QWidget();

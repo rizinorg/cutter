@@ -23,8 +23,8 @@ void RelocsWidget::on_relocsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, 
 {
     // Get offset and name of item double clicked
     // TODO: use this info to change disasm contents
-    QString offset = item->text(0);
-    QString name = item->text(1);
+    QString offset = item->text(1);
+    QString name = item->text(2);
     main->seek(offset, name);
     this->main->memoryDock->raise();
 }
