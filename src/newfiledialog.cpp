@@ -36,8 +36,8 @@ static QIcon getIconFor(QString str, int pos) {
     pixPaint.setBrush(QBrush(QBrush(getColorFor(str, pos))));
     pixPaint.drawEllipse(1,1,w-2,h-2);
     pixPaint.setPen(Qt::white);
-    pixPaint.setFont(QFont("Verdana",32,1));
-    pixPaint.drawText(10,h/1.4,QString(str).toUpper().mid(0,2));
+    pixPaint.setFont(QFont("Verdana",24,1));
+    pixPaint.drawText(0, 0, w, h-2, Qt::AlignCenter, QString(str).toUpper().mid(0,2));
     return QIcon(pixmap);
 }
 NewFileDialog::NewFileDialog(QWidget *parent) :
