@@ -5,14 +5,13 @@
 
 #include "mainwindow.h"
 
-SideBar::SideBar(MainWindow *main, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::SideBar)
+SideBar::SideBar(MainWindow *main) :
+    QWidget(main),
+    ui(new Ui::SideBar),
+    // Radare core found in:
+    main(main)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     QSettings settings("iaito", "iaito");
     if (settings.value("responsive").toBool()) {
@@ -44,24 +43,7 @@ void SideBar::on_consoleButton_clicked()
 
 void SideBar::on_webServerButton_clicked()
 {
-    static WebServerThread thread;
-    if (ui->webServerButton->isChecked()) {
-        // Start web server
-        thread.core = this->main->core;
-        thread.start();
-        QThread::sleep (1);
-        if (this->main->core->core->http_up==R_FALSE) {
-            eprintf ("FAILED TO LAUNCH\n");
-        }
-        // Open web interface on default browser
-        //QString link = "http://localhost:9090/";
-        //QDesktopServices::openUrl(QUrl(link));
-    } else {
-        this->main->core->core->http_up= R_FALSE;
-        // call something to kill the webserver!!
-        thread.exit(0);
-        // Stop web server
-    }
+    main->setWebServerState(ui->webServerButton->isChecked());
 }
 
 void SideBar::on_lockButton_clicked()
