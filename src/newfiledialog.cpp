@@ -25,14 +25,13 @@ static QIcon getIconFor(QString str, int pos) {
     // Add to the icon list
     int w = 64;
     int h = 64;
+    
     QPixmap pixmap(w,h);
-    QPainter pixPaint(&pixmap);
+    pixmap.fill(Qt::transparent);
 
-    QBrush brush2(Qt::white);
-    pixPaint.setBrush(brush2);
-    pixPaint.setPen(Qt::white);
+    QPainter pixPaint(&pixmap);
+    pixPaint.setPen(Qt::NoPen);
     pixPaint.setRenderHint(QPainter::Antialiasing);
-    pixPaint.fillRect(0,0,w,h,Qt::white);
     pixPaint.setBrush(QBrush(QBrush(getColorFor(str, pos))));
     pixPaint.drawEllipse(1,1,w-2,h-2);
     pixPaint.setPen(Qt::white);
