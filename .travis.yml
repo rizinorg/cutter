@@ -1,0 +1,40 @@
+language: cpp
+compiler: gcc
+sudo: require
+dist: trusty
+
+before_install:
+    - sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y
+    - sudo apt-get update -qq
+    
+install: 
+    - sudo apt-get -y install qt53base qt53webkit-examples
+    - source /opt/qt5*/bin/qt5*-env.sh
+
+script:
+  - git submodule init ; git submodule update
+  - cd radare2
+  - sys/install.sh
+  - cd ..
+  - mkdir build ; cd build
+  - qmake PREFIX=/usr ../src
+  - make -j4
+  - # make install does not work, so do it by hand
+  - # sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
+  - mkdir -p appdir/usr/bin
+  - mkdir -p appdir/usr/share/applications
+  - cp iaito appdir/usr/bin
+  - cp ../src/img/logo-small.png appdir/iaito.png
+  - cp ../src/iaito.desktop appdir/
+  - cp ../src/iaito.desktop appdir/usr/share/applications/
+
+after_success:
+  - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" 
+  - chmod a+x linuxdeployqt*.AppImage
+  - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+  - ./linuxdeployqt*.AppImage --appimage-extract
+  - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -verbose=2
+  - ./squashfs-root/usr/bin/patchelf --set-rpath '$ORIGIN/../../lib' ./appdir/usr/plugins/platforms/libqxcb.so # linuxdeployqt bug?
+  - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -verbose=2
+  - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+  - curl --upload-file ./Iai*.AppImage https://transfer.sh/Iaito-git.$(git rev-parse --short HEAD)-x86_64.AppImage
