@@ -25,7 +25,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QHeaderView::section {
-     color: drakgray;
+     color: darkgray;
      padding: 3px;
      padding-left: 10px;
      background-color: rgb(232, 232, 232);
@@ -347,6 +347,7 @@ QToolButton { /* all types of tool button */
     <addaction name="separator"/>
     <addaction name="actionRun_Script"/>
     <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -1085,6 +1086,14 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="toolTip">
     <string>Reset settings</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
    </property>
   </action>
  </widget>

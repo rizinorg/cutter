@@ -1111,3 +1111,8 @@ void MainWindow::on_actionReset_settings_triggered()
         settings.clear();
     }
 }
+
+void MainWindow::on_actionQuit_triggered()
+{
+    close();
+}

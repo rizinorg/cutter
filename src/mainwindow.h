@@ -191,6 +191,8 @@ private slots:
 
     void webserverThreadFinished();
 
+    void on_actionQuit_triggered();
+
 private:
     void refreshFlagspaces();
     bool doLock;
