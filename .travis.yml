@@ -22,9 +22,11 @@ script:
   - # make install does not work, so do it by hand
   - # sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
   - mkdir -p appdir/usr/bin
+  - mkdir -p appdir/usr/share/applications
   - cp iaito appdir/usr/bin
   - cp ../src/img/logo-small.png appdir/iaito.png
   - cp ../src/iaito.desktop appdir/
+  - cp ../src/iaito.desktop appdir/usr/share/applications/
 
 after_success:
   - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" 
@@ -33,4 +35,4 @@ after_success:
   - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs
   - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage
   - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  - curl --upload-file ./iaito*.AppImage https://transfer.sh/iaito-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+  - curl --upload-file ./Iai*.AppImage https://transfer.sh/Iaito-git.$(git rev-parse --short HEAD)-x86_64.AppImage
