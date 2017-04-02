@@ -19,7 +19,12 @@ script:
   - mkdir build ; cd build
   - qmake PREFIX=/usr ../src
   - make -j4
-  - sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
+  - # make install does not work, so do it by hand
+  - # sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
+  - mkdir -p appdir/usr/bin
+  - cp iaito appdir/usr/bin
+  - touch appdir/iaito.png # FIXME
+  - cp ../src/iaito.desktop appdir/
 
 after_success:
   - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" 
