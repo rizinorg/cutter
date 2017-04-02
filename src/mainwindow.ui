@@ -25,7 +25,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QHeaderView::section {
-     color: drakgray;
+     color: darkgray;
      padding: 3px;
      padding-left: 10px;
      background-color: rgb(232, 232, 232);
