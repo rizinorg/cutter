@@ -23,7 +23,7 @@ script:
   - # sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir ; find appdir/
   - mkdir -p appdir/usr/bin
   - cp iaito appdir/usr/bin
-  - touch appdir/iaito.png # FIXME
+  - cp ../src/img/logo-small.png appdir/iaito.png
   - cp ../src/iaito.desktop appdir/
 
 after_success:
