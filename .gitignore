@@ -40,3 +40,6 @@ Makefile*
 # QtCtreator CMake
 CMakeLists.txt.user
 
+# CLion
+.idea
+
