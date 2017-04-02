@@ -14,7 +14,7 @@ class SideBar : public QWidget
     Q_OBJECT
 
 public:
-    explicit SideBar(MainWindow *main, QWidget *parent = 0);
+    explicit SideBar(MainWindow *main);
     ~SideBar();
 
 public slots:
@@ -43,7 +43,7 @@ private slots:
 
 private:
     Ui::SideBar *ui;
-    MainWindow      *main;
+    MainWindow  *main;
 };
 
 #endif // SIDEBAR_H

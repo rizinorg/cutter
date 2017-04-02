@@ -3,19 +3,25 @@
 
 #include <QThread>
 
-class MainWindow;
+class QRCore;
 
 class AnalThread : public QThread
 {
         Q_OBJECT
 public:
-    explicit AnalThread(MainWindow *w, QWidget *parent = 0);
+    explicit AnalThread(QWidget *parent = 0);
+    ~AnalThread();
+
+    void start(QRCore *core, int level);
+
+protected:
     void run();
-    int level;
+
+    using QThread::start;
 
 private:
-
-    MainWindow *w;
+    QRCore *core;
+    int level;
 };
 
 #endif // ANALTHREAD_H

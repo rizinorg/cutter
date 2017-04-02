@@ -2,20 +2,32 @@
 #define WEBSERVERTHREAD_H
 
 #include <QThread>
-#include "qrcore.h"
+#include <QMutex>
+
+class QRCore;
 
 class WebServerThread : public QThread
 {
     Q_OBJECT
 public:
-    QRCore *core;
-    explicit WebServerThread(QObject *parent = 0);
 
-signals:
+    explicit WebServerThread(QRCore *core, QObject *parent = 0);
+    ~WebServerThread();
 
-public slots:
+    void startServer();
+    void stopServer();
+
+    bool isStarted() const;
+
 private:
     void run();
+    using QThread::start;
+
+    void toggleWebServer();
+
+    mutable QMutex mutex;
+    QRCore *core;
+    bool   started;
 };
 
 #endif // WEBSERVERTHREAD_H
