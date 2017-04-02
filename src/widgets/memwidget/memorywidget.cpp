@@ -1077,7 +1077,7 @@ void MemoryWidget::on_actionDisasAdd_comment_triggered()
 {
     // Get current offset
     QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select( QTextCursor::LineUnderCursor );
+    tc.select( QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText();
     QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
     if (ele.contains("0x")) {
@@ -1091,7 +1091,9 @@ void MemoryWidget::on_actionDisasAdd_comment_triggered()
             // Rename function in r2 core
             this->main->core->setComment(ele, comment);
             // Seek to new renamed function
-            this->main->seek(fcn->name);
+            if (fcn) {
+                this->main->seek(fcn->name);
+            }
             // TODO: Refresh functions tree widget
         }
     }
