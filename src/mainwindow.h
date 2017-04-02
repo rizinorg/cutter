@@ -186,6 +186,8 @@ private slots:
 
     void on_actionReset_settings_triggered();
 
+    void on_actionQuit_triggered();
+
 private:
     void refreshFlagspaces();
     bool doLock;
