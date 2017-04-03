@@ -15,6 +15,15 @@ QRCore::QRCore(QObject *parent) :
     // Otherwise r2 may ask the user for input and Iaito would freeze
     config("scr.interactive","false");
 
+    // Used by the HTML5 graph
+    config("http.cors","true");
+    config("http.sandbox", "false");
+    //config("http.port", "14170");
+
+    // Temporary fixes
+    //config("http.root","/usr/local/share/radare2/last/www");
+    //config("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
+
     this->db = sdb_new (NULL, NULL, 0); // WTF NOES
 }
 
@@ -679,7 +688,7 @@ void QRCore::setSettings() {
     // Used by the HTML5 graph
     config("http.cors","true");
     config("http.sandbox", "false");
-    config("http.port", "14170");
+    //config("http.port", "14170");
 
     // Temporary fixes
     //config("http.root","/usr/local/share/radare2/last/www");

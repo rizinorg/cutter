@@ -65,7 +65,7 @@ try {
   }
 } catch ( e ) {}
 
-r2.root = "http://localhost:14170"; // prefix path
+r2.root = "http://localhost:9090"; // prefix path
 
 /* helpers */
 function dump(obj) {
