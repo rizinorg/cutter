@@ -13,7 +13,7 @@ SideBar::SideBar(MainWindow *main) :
 {
     ui->setupUi(this);
 
-    QSettings settings("iaito", "iaito");
+    QSettings settings;
     if (settings.value("responsive").toBool()) {
         ui->respButton->setChecked(true);
     } else {

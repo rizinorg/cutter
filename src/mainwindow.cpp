@@ -339,7 +339,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
                  QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     //qDebug() << ret;
     if (ret == QMessageBox::Save) {
-        QSettings settings("iaito", "iaito");
+        QSettings settings;
         settings.setValue("geometry", saveGeometry());
         settings.setValue("size", size());
         settings.setValue("pos", pos());
@@ -350,7 +350,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         this->core->cmd("Pnj " + notes);
         QMainWindow::closeEvent(event);
     } else if (ret == QMessageBox::Discard) {
-        QSettings settings("iaito", "iaito");
+        QSettings settings;
         settings.setValue("geometry", saveGeometry());
         settings.setValue("size", size());
         settings.setValue("pos", pos());
@@ -362,7 +362,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::readSettings()
 {
-    QSettings settings("iaito", "iaito");
+    QSettings settings;
     QByteArray geo = settings.value("geometry", QByteArray()).toByteArray();
     restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
@@ -376,14 +376,14 @@ void MainWindow::readSettings()
 void MainWindow::dark() {
     qApp->setStyleSheet("QPlainTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} QTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} ");
     this->memoryDock->switchTheme(true);
-    QSettings settings("iaito", "iaito");
+    QSettings settings;
     settings.setValue("dark", true);
 }
 
 void MainWindow::def_theme() {
     qApp->setStyleSheet("");
     this->memoryDock->switchTheme(false);
-    QSettings settings("iaito", "iaito");
+    QSettings settings;
     settings.setValue("dark", false);
 }
 
@@ -1091,7 +1091,7 @@ void MainWindow::on_actionForward_triggered()
 void MainWindow::toggleResponsive(bool maybe) {
     this->responsive = maybe;
     // Save options in settings
-    QSettings settings("iaito", "iaito");
+    QSettings settings;
     settings.setValue("responsive", this->responsive);
 }
 
@@ -1107,7 +1107,7 @@ void MainWindow::on_actionReset_settings_triggered()
                  QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
         // Save options in settings
-        QSettings settings("iaito", "iaito");
+        QSettings settings;
         settings.clear();
     }
 }

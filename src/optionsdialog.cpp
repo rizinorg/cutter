@@ -28,7 +28,7 @@ OptionsDialog::OptionsDialog(QString filename, QWidget *parent):
     ui->processorComboBox->insertItems(1, plugins);
 
     // Restore settings
-    QSettings settings("iaito", "iaito");
+    QSettings settings;
     ui->bytesCheckBox->setChecked(settings.value("bytes").toBool());
     ui->attCheckBox->setChecked(settings.value("syntax").toBool());
     ui->descriptionCheckBox->setChecked(settings.value("describe").toBool());
@@ -100,7 +100,7 @@ void OptionsDialog::on_okButton_clicked()
     }
 
     // Save options in settings
-    QSettings settings("iaito", "iaito");
+    QSettings settings;
 
     // Show asm bytes
     if (ui->bytesCheckBox->isChecked()) {
