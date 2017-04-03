@@ -113,7 +113,7 @@ void Dashboard::updateContents() {
 
     QString libs = this->main->core->cmd("il");
     QStringList lines = libs.split("\n", QString::SkipEmptyParts);
-    if (lines) {
+    if (! lines.isEmpty()) {
         lines.removeFirst();
         lines.removeLast();
     }
