@@ -84,8 +84,7 @@ void OptionsDialog::on_okButton_clicked()
     //ui->progressBar->setValue(5);
 
     // Close dialog and open OptionsDialog
-    this->w = new MainWindow(nullptr);
-    this->w->core = this->core;
+    this->w = new MainWindow(0, this->core);
 
     // Fill asm plugins in hexdump combo
     this->w->memoryDock->fillPlugins(this->asm_plugins);

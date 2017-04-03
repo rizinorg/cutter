@@ -58,12 +58,13 @@ static void appendRow(QTreeWidget *tw, const QString &str, const QString &str2=N
     tw->insertTopLevelItem(0, tempItem);
 }
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     QMainWindow(parent),
-    core(new QRCore()),
+    core(kore),
     ui(new Ui::MainWindow),
     webserverThread(core, this)
 {
+    this->start_web_server();
     ui->setupUi(this);
 
     doLock = false;

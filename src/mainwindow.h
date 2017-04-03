@@ -56,7 +56,7 @@ public:
 
     bool responsive;
 
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = 0, QRCore *kore = nullptr);
     ~MainWindow();
 
     void start_web_server();
