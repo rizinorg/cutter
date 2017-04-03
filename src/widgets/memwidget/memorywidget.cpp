@@ -1368,8 +1368,12 @@ void MemoryWidget::create_graph(QString off) {
         off = "0x0" + this->main->core->cmd("s").split("0x")[1].trimmed();
     }
     QString fcn = this->main->core->cmdFunctionAt(off);
+
     //this->main->add_debug_output("Graph Fcn: " + fcn);
     ui->graphWebView->load(QUrl("qrc:/graph/html/graph/index.html#" + off));
+    QString port = this->main->core->config("http.port");
+
+    ui->graphWebView->page()->mainFrame()->evaluateJavaScript(QString("r2.root=\"http://localhost:" + port + "\""));
 }
 
 QString MemoryWidget::normalize_addr(QString addr) {
