@@ -481,9 +481,6 @@ r2.getTextLogger = function(obj) {
       obj.refresh (function() {
         //obj.clear ();
       });
-      if (r2ui.selected_panel === "Logs")
-        setTimeout (to, n * 1000);
-      else console.log("Not in logs :(");
       return true;
     }
     obj.interval = setTimeout (to, n * 1000);
