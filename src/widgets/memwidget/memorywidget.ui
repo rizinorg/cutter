@@ -1233,7 +1233,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QWebView" name="graphWebView" native="true">
           <property name="contextMenuPolicy">
-           <enum>Qt::NoContextMenu</enum>
+           <enum>Qt::DefaultContextMenu</enum>
           </property>
           <property name="url" stdset="0">
            <url>

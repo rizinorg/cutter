@@ -68,6 +68,7 @@ MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
     // Hide graph webview scrollbars
     ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 
     // Add margin to function name line edit
     ui->fcnNameEdit->setTextMargins(5, 0, 0, 0);
