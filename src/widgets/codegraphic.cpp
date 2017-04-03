@@ -77,7 +77,10 @@ void GraphicsBar::fillData() {
         int block = mainMap["blocksize"].toInt();
         int size = (to - from);
         int num = size / block;
-        int graph_block = w/num;
+        if (num < 1) {
+            num = 1;
+        }
+        int graph_block = w / num;
         int counter = 0;
 
         for (auto i : mainMap["blocks"].toList()) {
