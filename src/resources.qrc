@@ -76,15 +76,14 @@
         <file>html/graph/lib/css/disasm.css</file>
         <file>html/graph/lib/css/joint.min.css</file>
         <file>html/graph/lib/css/main.css</file>
-        <file>html/graph/lib/js/bokken.js</file>
-        <file>html/graph/lib/js/disasm_panel.js</file>
+        <file>html/graph/lib/js/graph_panel.js</file>
         <file>html/graph/lib/js/disasm.js</file>
         <file>html/graph/lib/js/joint.js</file>
         <file>html/graph/lib/js/joint.layout.DirectedGraph.js</file>
         <file>html/graph/lib/js/jquery-1.9.0.js</file>
         <file>html/graph/lib/js/jquery-ui-latest.js</file>
         <file>html/graph/lib/js/jquery.scrollTo-latest.js</file>
-        <file>html/graph/lib/js/r2_bokken.js</file>
+        <file>html/graph/lib/js/r2.js</file>
         <file>html/graph/lib/js/r2ui.js</file>
     </qresource>
 </RCC>

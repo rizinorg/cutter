@@ -13,18 +13,33 @@
 
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/joint.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/joint.layout.DirectedGraph.js"></script>
-        <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/r2_bokken.js"></script>
+        <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/r2.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/r2ui.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/disasm.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/jquery-1.9.0.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/jquery-ui-latest.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/jquery.scrollTo-latest.js"></script>
-        <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/disasm_panel.js"></script>
-        <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/bokken.js"></script>
+        <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/graph_panel.js"></script>
+        <script type="text/javascript">
+            $(document).ready( function() {
+
+                // Workaround for Chrome 48 getTransformToElement removal
+                // https://github.com/clientIO/joint/issues/203
+                SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
+                    return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
+                };
+
+                r2ui.load_colors();
+                r2.load_settings();
+                r2ui.graph = new GraphPanel(); 
+                r2ui.graph.seek(location.hash.substring(1));
+                r2ui.graph.render();
+            });
+        </script>
 </head>
 <body style="margin: 0px">
 
-<div id="main_panel" class="ec_gui_background">
+<div id="main_panel" class="ec_gui_alt_background">
 	<div id="center_panel" style="width: 100%; height: 100%; border-top: 0; padding-bottom: 1em;">
 		<div id="disasm_tab" style="width: 100%; height: 1000px; border-top: 0; padding-bottom: 1em;"></div>
 	</div>
