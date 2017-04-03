@@ -113,8 +113,10 @@ void Dashboard::updateContents() {
 
     QString libs = this->main->core->cmd("il");
     QStringList lines = libs.split("\n", QString::SkipEmptyParts);
-    lines.removeFirst();
-    lines.removeLast();
+    if (lines) {
+        lines.removeFirst();
+        lines.removeLast();
+    }
     foreach (QString lib, lines) {
         QLabel *label = new QLabel(this);
         label->setText(lib);
