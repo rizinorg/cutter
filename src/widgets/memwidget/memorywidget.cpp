@@ -1582,7 +1582,9 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event) {
           if (jump != "") {
               if (jump.contains("0x")) {
                   RAnalFunction *fcn = this->main->core->functionAt(jump.toLongLong(0, 16));
-                  this->main->seek(jump, fcn->name);
+                  if (fcn) {
+                      this->main->seek(jump, fcn->name);
+                  }
               } else {
                   this->main->seek(this->main->core->cmd("?v " + jump), jump);
               }
