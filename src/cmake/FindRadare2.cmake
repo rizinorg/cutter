@@ -8,6 +8,7 @@
 find_path(RADARE2_INCLUDE_DIRS
 		NAMES r_core.h r_bin.h r_util.h
 		HINTS
+			"$ENV{HOME}/bin/prefix/radare2/include/libr"
 			/usr/local/include/libr
 			/usr/include/libr)
 
@@ -42,6 +43,7 @@ foreach(libname ${RADARE2_LIBRARY_NAMES})
 	find_library(RADARE2_LIBRARY_${libname}
 			r_${libname}
 			HINTS
+				"$ENV{HOME}/bin/prefix/radare2/lib"
 				/usr/local/lib
 				/usr/lib)
 
