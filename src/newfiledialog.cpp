@@ -124,6 +124,7 @@ void NewFileDialog::on_newFileButton_clicked()
             files.removeLast();
 
         settings.setValue("recentFileList", files);
+        ui->loadFileButton->setFocus();
     }
 }
 
