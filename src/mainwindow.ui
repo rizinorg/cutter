@@ -24,8 +24,7 @@
     <normaloff>:/new/prefix1/img/logo-small.png</normaloff>:/new/prefix1/img/logo-small.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">QHeaderView::section {
-     color: darkgray;
+   <string notr="true">QHeaderView::section {;
      padding: 3px;
      padding-left: 10px;
      background-color: rgb(232, 232, 232);
@@ -334,7 +333,7 @@ QToolButton { /* all types of tool button */
       <x>351</x>
       <y>100</y>
       <width>125</width>
-      <height>158</height>
+      <height>177</height>
      </rect>
     </property>
     <property name="title">
