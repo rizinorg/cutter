@@ -43,3 +43,9 @@ CMakeLists.txt.user
 # CLion
 .idea
 
+
+#CMake Files:
+src/iaito_automoc.cpp
+*CMakeCache.txt*
+*cmake_install.cmake*
+src/CMakeFiles/*
