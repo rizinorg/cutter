@@ -73,10 +73,10 @@
     </qresource>
     <qresource prefix="/graph">
         <file>html/graph/index.html</file>
+        <file>html/graph/lib/css/graph.css</file>
         <file>html/graph/lib/css/graph_light.css</file>
         <file>html/graph/lib/css/graph_dark.css</file>
         <file>html/graph/lib/css/joint.min.css</file>
-        <file>html/graph/lib/css/main.css</file>
         <file>html/graph/lib/js/graph_panel.js</file>
         <file>html/graph/lib/js/disasm.js</file>
         <file>html/graph/lib/js/joint.js</file>

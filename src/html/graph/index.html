@@ -7,10 +7,10 @@
 
 	<title>radare2</title>
 
+        <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/graph.css" />
         <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/graph_dark.css" id="dark_theme"/>
         <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/graph_light.css" id="light_theme"/>
         <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/joint.min.css" />
-        <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/main.css" />
 
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/joint.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/joint.layout.DirectedGraph.js"></script>
@@ -23,12 +23,6 @@
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/graph_panel.js"></script>
         <script type="text/javascript">
             $(document).ready( function() {
-
-                // Workaround for Chrome 48 getTransformToElement removal
-                // https://github.com/clientIO/joint/issues/203
-                SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
-                    return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
-                };
 
                 // Load r2 settings (TODO: Do we need this?)
                 r2.load_settings();

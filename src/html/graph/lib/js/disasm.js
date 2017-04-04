@@ -1,3 +1,9 @@
+// Workaround for Chrome 48 getTransformToElement removal
+// https://github.com/clientIO/joint/issues/203
+SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformToElement || function(toElement) {
+    return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
+};
+
 // Basic Block Graph 
 var BBGraph = function () {
   this.vertices = {};
