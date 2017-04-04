@@ -146,7 +146,7 @@ BBGraph.prototype.render = function() {
   // render graph
   joint.layout.DirectedGraph.layout(graph);
 
-  r2ui.graph = graph;
+  r2ui.graph_panel.graph = graph;
 
   // reposition graph
   reposition_graph();
@@ -193,7 +193,7 @@ BBGraph.prototype.render = function() {
     }
   });
 
-  if (r2ui.graph.minimap) {
+  if (r2ui.graph_panel.minimap) {
     update_minimap();
     $("#minimap_area").draggable({
       containment: "parent",
@@ -222,19 +222,19 @@ BBGraph.prototype.render = function() {
 // Functions
 
 function toggle_minimap() {
-  if (r2ui.graph.minimap) {
-    r2ui.graph.minimap = false;
-    r2ui.seek(r2ui.graph.selected_offset, false);
+  if (r2ui.graph_panel.minimap) {
+    r2ui.graph_panel.minimap = false;
+    r2ui.seek(r2ui.graph_panel.selected_offset, false);
     $('#minimap').hide();
   } else {
-    r2ui.graph.minimap = true;
-    r2ui.seek(r2ui.graph.selected_offset, false);
+    r2ui.graph_panel.minimap = true;
+    r2ui.seek(r2ui.graph_panel.selected_offset, false);
     $('#minimap').show();
   }
 }
 
 function update_minimap() {
-  if (r2ui.graph.minimap && $('#canvas svg').length) {
+  if (r2ui.graph_panel.minimap && $('#canvas svg').length) {
     var minimap_width = 200;
     var minimap_height = 200;
     var svg_width = $('#canvas svg')[0].getBBox().width;
@@ -263,7 +263,7 @@ function update_minimap() {
 }
 
 function reposition_graph() {
-  var bbs = r2ui.graph.getElements();
+  var bbs = r2ui.graph_panel.graph.getElements();
   var blocks = r2ui.get_fcn_BBs(r2ui.current_fcn_offset);
   var bb_offsets = Object.keys(blocks);
   for (var i in bbs) {
@@ -282,7 +282,9 @@ function reposition_graph() {
     }
   }
 }
+
 var flag = 0;
+
 function render_graph(x) {
   var obj;
   try {
@@ -292,7 +294,7 @@ function render_graph(x) {
   }
   if (obj[0] === undefined) return false;
   if (obj[0].blocks === undefined) return false;
-  var graph = new BBGraph();
+  var bbgraph = new BBGraph();
   r2ui.current_fcn_offset = obj[0].blocks[0].ops[0].offset;
 
   for (var bn = 0; bn < obj[0].blocks.length; bn++) {
@@ -325,17 +327,17 @@ function render_graph(x) {
     dom.id = "bb_" + addr;
     dom.className = "basicblock eny0-selectable ec_gui_background ec_gui_border";
     dom.innerHTML = idump;
-    graph.addVertex(addr, cnt, dom);
+    bbgraph.addVertex(addr, cnt, dom);
     if (bb.fail > 0) {
-      graph.addEdge(addr, bb.fail, "red");
+      bbgraph.addEdge(addr, bb.fail, "red");
       if (bb.jump > 0) {
-        graph.addEdge(addr, bb.jump, "green");
+        bbgraph.addEdge(addr, bb.jump, "green");
       }
     } else if (bb.jump > 0) {
-      graph.addEdge(addr, bb.jump, "blue");
+      bbgraph.addEdge(addr, bb.jump, "blue");
     }
   }
-  graph.render();
+  bbgraph.render();
 
   var element = $("#canvas svg g .element");
   element.on("mousedown", function(event){
@@ -854,7 +856,7 @@ function has_scrollbar(divnode) {
 }
 
 function on_scroll(event) {
-  if (!r2ui.graph.scrolling) {
+  if (!r2ui.graph_panel.scrolling) {
     var panel_disas = $("#main_panel").tabs("option", "active") === 0 ? true : false;
     event.preventDefault();
   }
@@ -864,15 +866,15 @@ function scroll_to_element(element) {
   if (element === undefined || element === null) return;
   var top = Math.max(0,element.documentOffsetTop() - ( window.innerHeight / 2 ));
   $('#center_panel').scrollTo(top, {axis: 'y'});
-  r2ui.graph.scroll_offset = top;
+  r2ui.graph_panel.scroll_offset = top;
 }
 
 function store_scroll_offset() {
-  r2ui.graph.scroll_offset = $('#center_panel').scrollTop();
+  r2ui.graph_panel.scroll_offset = $('#center_panel').scrollTop();
 }
 
 function scroll_to_last_offset() {
-  if (r2ui.graph.scroll_offset !== null) $('#center_panel').scrollTo(r2ui.graph.scroll_offset, {axis: 'y'});
+  if (r2ui.graph_panel.scroll_offset !== null) $('#center_panel').scrollTo(r2ui.graph_panel.scroll_offset, {axis: 'y'});
 }
 
 function rename(offset, old_value, new_value, space) {
@@ -923,11 +925,11 @@ function contains(a, obj) {
 }
 
 function handleInputTextChange() {
-  r2ui.graph.handleInputTextChange();
+  r2ui.graph_panel.handleInputTextChange();
 }
 
 function show_contextMenu(x,y) {
-  r2ui.graph.showContextMenu(x,y);
+  r2ui.graph_panel.showContextMenu(x,y);
 }
 
 function get_offset_flag(offset) {
@@ -987,14 +989,5 @@ function get_reloc_flag(reloc) {
   return full_name;
 }
 
-function do_randomcolors(element, inEvent) {
-  r2.cmd ('ecr;ec gui.background rgb:000', function() {
-    r2ui.load_colors ();
-  });
-}
-
-function inColor(x) {
-  return "e scr.color=true;"+x+";e scr.color=false";
-}
 
 

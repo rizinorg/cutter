@@ -7,7 +7,8 @@
 
 	<title>radare2</title>
 
-        <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/disasm.css" />
+        <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/graph_dark.css" id="dark_theme"/>
+        <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/graph_light.css" id="light_theme"/>
         <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/joint.min.css" />
         <link rel="stylesheet" type="text/css" href="qrc:/graph/html/graph/lib/css/main.css" />
 
@@ -29,11 +30,13 @@
                     return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
                 };
 
-                r2ui.load_colors();
+                // Load r2 settings (TODO: Do we need this?)
                 r2.load_settings();
-                r2ui.graph = new GraphPanel(); 
-                r2ui.graph.seek(location.hash.substring(1));
-                r2ui.graph.render();
+
+                // Initialize and render graph
+                r2ui.graph_panel = new GraphPanel(); 
+                r2ui.graph_panel.set_theme("dark");
+                r2ui.graph_panel.seek(location.hash.substring(1));
             });
         </script>
 </head>

@@ -23,6 +23,8 @@ r2ui.load_colors = function () {
 };
 
 // Basic Blocks
+r2ui.current_fcn_offset = null;
+r2ui.graph_panel = null;
 r2ui.basic_blocks = {};
 r2ui.use_sdb = false;
 r2ui.get_fcn_BB = function(fcn_offset, bb_offset) {
@@ -85,8 +87,6 @@ r2ui.update_fcn_BB = function(fcn_offset, bb_offset, bbinfo) {
   }
 };
 
-r2ui.current_fcn_offset = null;
-r2ui.graph = null;
 
 // History
 r2ui.history = [];
@@ -167,7 +167,7 @@ r2ui.seek = function (addr, push, scroll) {
   if (push) r2ui.history_push(addr);
 
   r2.cmd ("ss " + addr, function () {
-    r2ui.graph.seek(addr, scroll);
+    r2ui.graph_panel.seek(addr, scroll);
   });
 };
 
@@ -182,8 +182,8 @@ r2ui.seek_in_graph = function (addr, push) {
 r2ui.seek_prev = function () {
   var addr = r2ui.history.pop ();
   r2.cmd("ss "+addr, function () {
-    r2ui.graph.seek(addr);
-    r2ui.graph.scrollTo(0, 0);
+    r2ui.graph_panel.seek(addr);
+    r2ui.graph_panel.scrollTo(0, 0);
   });
 };
 
