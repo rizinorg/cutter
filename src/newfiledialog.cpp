@@ -90,11 +90,22 @@ void NewFileDialog::on_loadFileButton_clicked()
 {
     // Check that there is a file selected
     QString fname = ui->newFileEdit->text();
-    if (fname.isEmpty()) {
+    QFileInfo checkfile(fname);
+    if (!checkfile.exists() || !checkfile.isFile()) {
         QMessageBox msgBox;
         msgBox.setText("Select a new program or a previous one\nbefore continue");
         msgBox.exec();
     } else {
+        // Add file to recent file list
+        QSettings settings;
+        QStringList files = settings.value("recentFileList").toStringList();
+        files.removeAll(fname);
+        files.prepend(fname);
+        while (files.size() > MaxRecentFiles)
+            files.removeLast();
+
+        settings.setValue("recentFileList", files);
+                
         // Close dialog and open OptionsDialog
         close();
         OptionsDialog* o = new OptionsDialog(fname);
@@ -114,17 +125,7 @@ void NewFileDialog::on_newFileButton_clicked()
 
     if (!fileName.isEmpty()) {
         ui->newFileEdit->setText(fileName);
-
-        // Add file to recent file list
-        QSettings settings;
-        QStringList files = settings.value("recentFileList").toStringList();
-        files.removeAll(fileName);
-        files.prepend(fileName);
-        while (files.size() > MaxRecentFiles)
-            files.removeLast();
-
-        settings.setValue("recentFileList", files);
-        ui->loadFileButton->setFocus();
+        ui->loadFileButton->setFocus();        
     }
 }
 
