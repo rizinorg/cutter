@@ -21,6 +21,7 @@ public:
     ~XrefsDialog();
 
     void fillRefs(QList<QStringList> refs, QList<QStringList> xrefs);
+    void updateLabels(QString name);
 
 private slots:
 

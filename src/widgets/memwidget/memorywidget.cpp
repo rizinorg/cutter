@@ -1612,6 +1612,7 @@ void MemoryWidget::on_actionXRefs_triggered()
 
         XrefsDialog* x = new XrefsDialog(this->main, this);
         x->setWindowTitle("X-Refs for function " + QString(fcn->name));
+        x->updateLabels(QString(fcn->name));
 
         // Get Refs and Xrefs
         bool ok;

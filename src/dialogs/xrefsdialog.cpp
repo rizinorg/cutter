@@ -131,3 +131,8 @@ void XrefsDialog::on_toTreeWidget_itemSelectionChanged()
     int pos = ui->previewTextEdit->find( this->normalizeAddr(offset), QTextDocument::FindBackward);
     ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
 }
+
+void XrefsDialog::updateLabels(QString name) {
+    ui->label_2->setText(ui->label_2->text() + name);
+    ui->label_3->setText(ui->label_3->text() + name);
+}
