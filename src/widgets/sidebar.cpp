@@ -19,6 +19,11 @@ SideBar::SideBar(MainWindow *main) :
     } else {
         ui->respButton->setChecked(false);
     }
+    if (settings.value("dark").toBool()) {
+        ui->themesButton->setChecked(true);
+    } else {
+        ui->themesButton->setChecked(false);
+    }
 }
 
 SideBar::~SideBar()

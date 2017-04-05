@@ -1729,7 +1729,7 @@ void MemoryWidget::frameLoadFinished(bool ok) {
         QSettings settings;
         if (settings.value("dark").toBool()) {
             QString js = "r2ui.graph_panel.set_theme('dark');";
-            qDebug() << ui->graphWebView->page()->mainFrame()->evaluateJavaScript(js);
+            ui->graphWebView->page()->mainFrame()->evaluateJavaScript(js);
         }
     }
 }
