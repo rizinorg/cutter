@@ -34,29 +34,23 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-static void adjustColumns(QTreeWidget *tw) {
-    int count = tw->columnCount();
-    for (int i = 0; i != count; ++i) {
-        tw->resizeColumnToContents(i);
+#include <cassert>
+
+namespace
+{
+    void registerCustomFonts()
+    {
+        int ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Anonymous Pro.ttf");
+        assert(-1 != ret && "unable to register Anonymous Pro.ttf");
+
+        ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Inconsolata-Regular.ttf");
+        assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
+
+        // do not issue a warning in release
+        Q_UNUSED(ret)
     }
 }
 
-static void appendRow(QTreeWidget *tw, const QString &str, const QString &str2=NULL,
-                      const QString &str3=NULL, const QString &str4=NULL, const QString &str5=NULL) {
-    QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-    // Fill dummy hidden column
-    tempItem->setText(0,"0");
-    tempItem->setText(1,str);
-    if (str2!=NULL)
-        tempItem->setText(2, str2);
-    if (str3!=NULL)
-        tempItem->setText(3, str3);
-    if (str4!=NULL)
-        tempItem->setText(4, str4);
-    if (str5!=NULL)
-        tempItem->setText(5, str5);
-    tw->insertTopLevelItem(0, tempItem);
-}
 
 MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     QMainWindow(parent),
@@ -69,8 +63,8 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
 
     doLock = false;
 
-    // Add custom font
-    QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Anonymous Pro.ttf");
+    registerCustomFonts();
+
 
     /*
     * Toolbar
@@ -134,8 +128,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     addToolBar(graphicsBar);
 
     // Fix output panel font
-    QHelpers *help = new QHelpers();
-    help->normalizeFont(ui->consoleOutputTextEdit);
+    qhelpers::normalizeFont(ui->consoleOutputTextEdit);
 
     /*
      * Dock Widgets

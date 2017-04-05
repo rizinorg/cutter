@@ -74,11 +74,10 @@ MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
     ui->fcnNameEdit->setTextMargins(5, 0, 0, 0);
 
     // Normalize fonts for other OS
-    QHelpers *help = new QHelpers();
-    help->normalizeFont(this->disasTextEdit);
-    help->normalizeEditFont(this->hexOffsetText);
-    help->normalizeEditFont(this->hexHexText);
-    help->normalizeEditFont(this->hexASCIIText);
+    qhelpers::normalizeFont(this->disasTextEdit);
+    qhelpers::normalizeEditFont(this->hexOffsetText);
+    qhelpers::normalizeEditFont(this->hexHexText);
+    qhelpers::normalizeEditFont(this->hexASCIIText);
 
     // Popup menu on Settings toolbutton
     QMenu *memMenu = new QMenu();
