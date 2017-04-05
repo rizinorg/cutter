@@ -796,6 +796,7 @@ void MainWindow::seek(const QString& offset, const QString& name) {
     core->seek (offset);
 
     refreshMem(offset);
+    this->memoryDock->disasTextEdit->setFocus();
 }
 
 void MainWindow::setup_mem() {
