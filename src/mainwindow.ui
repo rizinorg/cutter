@@ -24,7 +24,7 @@
     <normaloff>:/new/prefix1/img/logo-small.png</normaloff>:/new/prefix1/img/logo-small.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">QHeaderView::section {;
+   <string notr="true">QHeaderView::section {
      padding: 3px;
      padding-left: 10px;
      background-color: rgb(232, 232, 232);
