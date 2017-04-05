@@ -1,6 +1,6 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
-#include "r_userconf.h"
+#include "r_version.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
@@ -10,7 +10,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->label->setText("<h1>Iaito</h1>"
                        "Version 1.0 alpha<br />"
-                       "Using r2-" R2_VERSION
+                       "Using r2-" R2_GITTAP
                        "<h2>License</h2>"
                        "This Software is released under the GNU General Public License v3.0"
                        "<h2>Authors</h2>"
