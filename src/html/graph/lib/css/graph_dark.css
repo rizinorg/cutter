@@ -35,7 +35,7 @@
 .ec_gui_cflow {color: rgb(255,255,0);}
 .ec_gui_dataoffset {color: rgb(127,127,0);}
 .ec_gui_background {background-color: rgb(255,255,255); }
-.ec_gui_alt_background {background-color: rgb(50, 50, 50); }
+.ec_gui_alt_background {background-color: rgb(64, 64, 64); }
 .ec_gui_border {border-color: rgb(0, 0, 0); }
 
 .autohighlight { background-color: #8AFF77 !important; }

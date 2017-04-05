@@ -167,6 +167,8 @@ MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
     // Control Disasm and Hex scroll to add more contents
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+
+    connect(ui->graphWebView->page()->mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(frameLoadFinished(bool)));
 }
 
 /*
@@ -1719,4 +1721,15 @@ void MemoryWidget::selectHexPreview() {
 void MemoryWidget::seek_back() {
     //this->main->add_debug_output("Back!");
     this->main->on_backButton_clicked();
+}
+
+void MemoryWidget::frameLoadFinished(bool ok) {
+    //qDebug() << "LOAD FRAME: " << ok;
+    if (ok) {
+        QSettings settings;
+        if (settings.value("dark").toBool()) {
+            QString js = "r2ui.graph_panel.set_theme('dark');";
+            qDebug() << ui->graphWebView->page()->mainFrame()->evaluateJavaScript(js);
+        }
+    }
 }

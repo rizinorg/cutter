@@ -82,6 +82,8 @@ public slots:
 
     void selectHexPreview();
 
+    void frameLoadFinished(bool ok);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
