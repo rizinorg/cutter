@@ -3,11 +3,15 @@ var r2ui = {};
 // Colors
 r2ui.colors = {};
 r2ui.load_colors = function () {
-  r2.cmdj("ecj", function(x) {
-    for (var i in x) {
-      r2ui.colors[".ec_" + i.replace("gui.","gui_")] = "rgb(" + String(x[i]) + ")";
-    }
-  });
+
+  // Load colors from r2
+  // r2.cmdj("ecj", function(x) {
+  //   for (var i in x) {
+  //     r2ui.colors[".ec_" + i.replace("gui.","gui_")] = "rgb(" + String(x[i]) + ")";
+  //   }
+  // });
+    
+  // Load colors fro CSS file
   for (var k in document.styleSheets) {
     var mysheet = document.styleSheets[k];
     var myrules = mysheet.cssRules? mysheet.cssRules: mysheet.rules;
@@ -16,10 +20,17 @@ r2ui.load_colors = function () {
       if (myrules[j].selectorText !== undefined && myrules[j].selectorText !== null) {
         if (myrules[j].selectorText.toLowerCase().indexOf(".ec_") === 0) {
           var sel = myrules[j].selectorText;
+          if (myrules[j].style.color !== "")
+            r2ui.colors[sel] = myrules[j].style.color;
+          else if (myrules[j].style.backgroundColor !== "")
+            r2ui.colors[sel] = myrules[j].style.backgroundColor
+          else if (myrules[j].style.borderColor !== "")
+            r2ui.colors[sel] = myrules[j].style.borderColor
         }
       }
     }
   }
+  console.log(r2ui.colors)
 };
 
 // Basic Blocks
