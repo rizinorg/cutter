@@ -125,6 +125,8 @@ public slots:
 
     void toggleResponsive(bool maybe);
 
+    void on_backButton_clicked();
+
 private slots:
 
     void on_actionMem_triggered();
@@ -140,8 +142,6 @@ private slots:
     void on_actionClear_ConsoleOutput_triggered();
 
     void on_actionRefresh_Panels_triggered();
-
-    void on_backButton_clicked();
 
     void hideDummyColumns();
 

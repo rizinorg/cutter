@@ -41,6 +41,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     // Esc clears omnibar
     QShortcut* clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(clear_shortcut, SIGNAL(activated()), this, SLOT(clearContents()));
+    clear_shortcut->setContext(Qt::WidgetShortcut);
 }
 
 void Omnibar::setupCompleter() {
@@ -83,7 +84,9 @@ void Omnibar::showCommands() {
 
 void Omnibar::clearContents() {
     this->setText("");
+    // Necessary hack to make it work properly
     this->clearFocus();
+    this->setFocus();
 }
 
 void Omnibar::on_gotoEntry_returnPressed()

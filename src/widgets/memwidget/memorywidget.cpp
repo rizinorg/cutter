@@ -137,22 +137,32 @@ MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
     // X to show hexdump
     QShortcut* hexdump_shortcut = new QShortcut(QKeySequence(Qt::Key_X), this->main);
     connect(hexdump_shortcut, SIGNAL(activated()), this, SLOT(showHexdump()));
+    //hexdump_shortcut->setContext(Qt::WidgetShortcut);
 
     // Space to switch between disassembly and graph
     QShortcut* graph_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this->main);
     connect(graph_shortcut, SIGNAL(activated()), this, SLOT(cycleViews()));
+    //graph_shortcut->setContext(Qt::WidgetShortcut);
 
     // Semicolon to add comment
     QShortcut* comment_shortcut = new QShortcut(QKeySequence(Qt::Key_Semicolon), ui->disasTextEdit_2);
     connect(comment_shortcut, SIGNAL(activated()), this, SLOT(on_actionDisasAdd_comment_triggered()));
+    comment_shortcut->setContext(Qt::WidgetShortcut);
 
     // N to rename function
     QShortcut* rename_shortcut = new QShortcut(QKeySequence(Qt::Key_N), ui->disasTextEdit_2);
     connect(rename_shortcut, SIGNAL(activated()), this, SLOT(on_actionFunctionsRename_triggered()));
+    rename_shortcut->setContext(Qt::WidgetShortcut);
 
     // R to show XRefs
     QShortcut* xrefs_shortcut = new QShortcut(QKeySequence(Qt::Key_R), ui->disasTextEdit_2);
     connect(xrefs_shortcut, SIGNAL(activated()), this, SLOT(on_actionXRefs_triggered()));
+    xrefs_shortcut->setContext(Qt::WidgetShortcut);
+
+    // Esc to seek back
+    QShortcut* back_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->disasTextEdit_2);
+    connect(back_shortcut, SIGNAL(activated()), this, SLOT(seek_back()));
+    back_shortcut->setContext(Qt::WidgetShortcut);
 
     // Control Disasm and Hex scroll to add more contents
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
@@ -1704,4 +1714,9 @@ void MemoryWidget::selectHexPreview() {
     if (ui->hexBitsComboBox_2->findText(bits) != -1) {
         ui->hexBitsComboBox_2->setCurrentIndex(ui->hexBitsComboBox_2->findText(bits));
     }
+}
+
+void MemoryWidget::seek_back() {
+    //this->main->add_debug_output("Back!");
+    this->main->on_backButton_clicked();
 }

@@ -164,6 +164,7 @@ private slots:
     void on_simpleGrapgToolButton_clicked();
     QString normalizeAddr(QString addr);
     void on_opcodeDescButton_clicked();
+    void seek_back();
 };
 
 #endif // MEMORYWIDGET_H

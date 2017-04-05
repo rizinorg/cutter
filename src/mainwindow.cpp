@@ -824,7 +824,6 @@ void MainWindow::on_backButton_clicked()
     this->core->cmd("s-");
     QString back_offset = this->core->cmd("s=").split(" > ").last().trimmed();
     if (back_offset != "") {
-        this->add_debug_output(back_offset);
         this->seek(back_offset);
     }
 }
