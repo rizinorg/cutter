@@ -1,4 +1,4 @@
-# Iaitō
+# Iaitō [![Build Status](https://travis-ci.org/hteso/iaito.svg?branch=master)](https://travis-ci.org/hteso/iaito)
 
 > The GUI that ~~radare2~~ humans deserve
 
