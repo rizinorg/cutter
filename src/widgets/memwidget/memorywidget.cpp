@@ -861,6 +861,10 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
     QMenu *menu = ui->disasTextEdit_2->createStandardContextMenu();
     QTextCursor cur = ui->disasTextEdit_2->textCursor();
 
+    // Move cursor to mouse position to get proper function data
+    cur.setPosition(ui->disasTextEdit_2->cursorForPosition(pt).position(), QTextCursor::MoveAnchor);
+    ui->disasTextEdit_2->setTextCursor(cur);
+
     if (cur.hasSelection()) {
         menu->addSeparator();
         menu->addAction(ui->actionSend_to_Notepad);
@@ -1599,9 +1603,9 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event) {
           jump = this->main->core->getOffsetJump(ele);
           if (jump != "") {
               if (jump.contains("0x")) {
-                  RAnalFunction *fcn = this->main->core->functionAt(jump.toLongLong(0, 16));
-                  if (fcn) {
-                      this->main->seek(jump, fcn->name);
+                  QString fcn = this->main->core->cmdFunctionAt(jump);
+                  if (fcn != "") {
+                      this->main->seek(jump.trimmed(), fcn);
                   }
               } else {
                   this->main->seek(this->main->core->cmd("?v " + jump), jump);
