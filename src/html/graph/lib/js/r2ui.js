@@ -30,7 +30,6 @@ r2ui.load_colors = function () {
       }
     }
   }
-  console.log(r2ui.colors)
 };
 
 // Basic Blocks

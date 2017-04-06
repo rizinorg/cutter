@@ -68,6 +68,8 @@ MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
     // Hide graph webview scrollbars
     ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+
+    // Debug console
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 
     // Add margin to function name line edit
@@ -1732,7 +1734,7 @@ void MemoryWidget::frameLoadFinished(bool ok) {
     if (ok) {
         QSettings settings;
         if (settings.value("dark").toBool()) {
-            QString js = "r2ui.graph_panel.set_theme('dark');";
+            QString js = "r2ui.graph_panel.render('dark');";
             ui->graphWebView->page()->mainFrame()->evaluateJavaScript(js);
         }
     }
