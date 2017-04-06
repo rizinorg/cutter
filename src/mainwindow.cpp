@@ -825,7 +825,8 @@ void MainWindow::on_backButton_clicked()
     this->core->cmd("s-");
     QString back_offset = this->core->cmd("s=").split(" > ").last().trimmed();
     if (back_offset != "") {
-        this->seek(back_offset);
+        QString fcn = this->core->cmdFunctionAt(back_offset);
+        this->seek(this->memoryDock->normalizeAddr(back_offset), fcn);
     }
 }
 
