@@ -859,6 +859,10 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
     QMenu *menu = ui->disasTextEdit_2->createStandardContextMenu();
     QTextCursor cur = ui->disasTextEdit_2->textCursor();
 
+    // Move cursor to mouse position to get proper function data
+    cur.setPosition(ui->disasTextEdit_2->cursorForPosition(pt).position(), QTextCursor::MoveAnchor);
+    ui->disasTextEdit_2->setTextCursor(cur);
+
     if (cur.hasSelection()) {
         menu->addSeparator();
         menu->addAction(ui->actionSend_to_Notepad);
