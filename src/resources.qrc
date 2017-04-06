@@ -82,8 +82,6 @@
         <file>html/graph/lib/js/joint.js</file>
         <file>html/graph/lib/js/joint.layout.DirectedGraph.js</file>
         <file>html/graph/lib/js/jquery-1.9.0.js</file>
-        <file>html/graph/lib/js/jquery-ui-latest.js</file>
-        <file>html/graph/lib/js/jquery.scrollTo-latest.js</file>
         <file>html/graph/lib/js/r2.js</file>
         <file>html/graph/lib/js/r2ui.js</file>
     </qresource>

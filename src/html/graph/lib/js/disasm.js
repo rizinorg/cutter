@@ -178,7 +178,7 @@ BBGraph.prototype.render = function() {
 
   $("#minimap").css("left", $("#main_panel").width() - minimap_width);
   $("#minimap").css("top",  $("#center_panel").position().top - 40);
-  $("#center_panel").bind('scroll', update_minimap);
+  //$("#center_panel").bind('scroll', update_minimap);
 
   paper.on( "cell:pointerup", function( cellview, evt, x, y)  {
     var model = cellview.model;
@@ -209,10 +209,10 @@ BBGraph.prototype.render = function() {
         if (delta_x < 0) delta_x = 0;
         if (delta_y < 0) delta_y = 0;
         if ($("#radareApp_mp").length) {
-          $("#main_panel").scrollTo({ top:delta_y, left:delta_x - delta/scale } );
+          //$("#main_panel").scrollTo({ top:delta_y, left:delta_x - delta/scale } );
           console.log(1);
         } else {
-          $('#center_panel').scrollTo({ top:delta_y, left:delta_x - delta/scale } );
+          //$('#center_panel').scrollTo({ top:delta_y, left:delta_x - delta/scale } );
           console.log('debug:');
           console.log(delta_y, delta_x, scale);
           console.log($('#center_panel'));
@@ -849,39 +849,39 @@ Element.prototype.documentOffsetTop = function () {
     return this.offsetTop + ( this.offsetParent ? this.offsetParent.documentOffsetTop() : 0 );
 };
 
-function scroll_to_address(address) {
-  var elements = $(".insaddr.addr_" + address);
-  var top = elements[0].documentOffsetTop() - window.innerHeight / 2;
-  top = Math.max(0,top);
-  $("#main_panel").scrollTo({'top':top, 'left':0});
-}
+// function scroll_to_address(address) {
+//   var elements = $(".insaddr.addr_" + address);
+//   var top = elements[0].documentOffsetTop() - window.innerHeight / 2;
+//   top = Math.max(0,top);
+//   $("#main_panel").scrollTo({'top':top, 'left':0});
+// }
 
-function has_scrollbar(divnode) {
-  if(divnode.scrollHeight > divnode.clientHeight) return true;
-  return false;
-}
+// function has_scrollbar(divnode) {
+//   if(divnode.scrollHeight > divnode.clientHeight) return true;
+//   return false;
+// }
 
-function on_scroll(event) {
-  if (!r2ui.graph_panel.scrolling) {
-    var panel_disas = $("#main_panel").tabs("option", "active") === 0 ? true : false;
-    event.preventDefault();
-  }
-}
+// function on_scroll(event) {
+//   if (!r2ui.graph_panel.scrolling) {
+//     var panel_disas = $("#main_panel").tabs("option", "active") === 0 ? true : false;
+//     event.preventDefault();
+//   }
+// }
 
-function scroll_to_element(element) {
-  if (element === undefined || element === null) return;
-  var top = Math.max(0,element.documentOffsetTop() - ( window.innerHeight / 2 ));
-  $('#center_panel').scrollTo(top, {axis: 'y'});
-  r2ui.graph_panel.scroll_offset = top;
-}
-
-function store_scroll_offset() {
-  r2ui.graph_panel.scroll_offset = $('#center_panel').scrollTop();
-}
-
-function scroll_to_last_offset() {
-  if (r2ui.graph_panel.scroll_offset !== null) $('#center_panel').scrollTo(r2ui.graph_panel.scroll_offset, {axis: 'y'});
-}
+// function scroll_to_element(element) {
+//   if (element === undefined || element === null) return;
+//   var top = Math.max(0,element.documentOffsetTop() - ( window.innerHeight / 2 ));
+//   $('#center_panel').scrollTo(top, {axis: 'y'});
+//   r2ui.graph_panel.scroll_offset = top;
+// }
+//
+// function store_scroll_offset() {
+//   r2ui.graph_panel.scroll_offset = $('#center_panel').scrollTop();
+// }
+//
+// function scroll_to_last_offset() {
+//   if (r2ui.graph_panel.scroll_offset !== null) $('#center_panel').scrollTo(r2ui.graph_panel.scroll_offset, {axis: 'y'});
+// }
 
 function rename(offset, old_value, new_value, space) {
   if (space === undefined) space = "functions";

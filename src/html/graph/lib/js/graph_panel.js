@@ -1,4 +1,3 @@
-
 // Graph Panel
 var GraphPanel = function () {
   this.graph = null;
@@ -13,24 +12,27 @@ var GraphPanel = function () {
   this.renameOldValue = "";
   this.rbox = null;
   this.panel = $("#disasm_tab")[0];
-  this.scroll_offset = null;
   this.minimap = true;
   this.instructions = [];
-  this.scrolling = false;
+  //this.scroll_offset = null;
+  //this.scrolling = false;
 };
 
-GraphPanel.prototype.render = function(mode) {
-
-  $("#center_panel").unbind( "click" );
-  $(document).unbind( "keypress" );
-  $(document).unbind( "click" );
-  $(document).unbind( "dblclick" );
-  $("#center_panel").scroll(on_scroll);
+GraphPanel.prototype.init_handlers = function() {
+  // Unbind mouse and key events from document
+  $("#center_panel").unbind("click");
+  $(document).unbind("keypress");
+  $(document).unbind("click");
+  $(document).unbind("dblclick");
+  
+  // Bind custom functions to mouse and key events
+  //$("#center_panel").scroll(on_scroll);
   $(document).keypress(handleKeypress);
   $(document).click(handleClick);
   $(document).dblclick(handleDoubleClick);
+};
 
-
+GraphPanel.prototype.init_context_menu = function() {
   // Context menu for disas addresses:
   $(document).contextmenu({
       delegate: ".addr",
@@ -158,8 +160,25 @@ GraphPanel.prototype.render = function(mode) {
       }
     });
 
+};
+
+GraphPanel.prototype.render = function(theme) {
+
+    // Set theme
+    if (theme === "dark") {
+        document.getElementById('dark_theme').disabled  = false;
+        document.getElementById('light_theme').disabled = true;
+    } else if (theme === "light") {
+        document.getElementById('dark_theme').disabled  = true;
+        document.getElementById('light_theme').disabled = false;
+    }
+    r2ui.load_colors();
+
     // Show graph and seek to entrypoint
-    this.display_graph();
+    $("#main_panel").removeClass("ec_gui_background");
+    $("#main_panel").addClass("ec_gui_alt_background");
+    if ($('#minimap').length) $('#minimap')[0].innerHTML = "";
+
     var addr = null;
     if (this.selected_offset !== null) {
       addr = this.selected_offset;
@@ -172,18 +191,21 @@ GraphPanel.prototype.render = function(mode) {
     } else {
       addr = r2.get_flag_address(addr);
     }
-    scroll_to_address(addr);
+    //scroll_to_address(addr);
 };
 
-GraphPanel.prototype.set_theme = function(theme) {
-    if (theme === "dark") {
-        document.getElementById('dark_theme').disabled  = false;
-        document.getElementById('light_theme').disabled = true;
-    } else if (theme === "light") {
-        document.getElementById('dark_theme').disabled  = true;
-        document.getElementById('light_theme').disabled = false;
+GraphPanel.prototype.getElementsUnderCursor = function() {
+    var elements = document.querySelectorAll(':hover');
+    var index;
+    for (index = 0; index < elements.length; ++index) {
+        var element = elements[index];
+
+        // Look for an offset item
+        if (element.className.indexOf("addr") > 0 && element.className.indexOf("ec_offset") > 0) {
+            return "{'offset':'" + element.innerText + "'}";
+        }
     }
-    r2ui.load_colors();
+    return "{}";
 }
 
 GraphPanel.prototype.seek = function(addr, scroll) {
@@ -199,12 +221,6 @@ GraphPanel.prototype.seek = function(addr, scroll) {
     this.selected_offset = addr;
 
     rehighlight_iaddress(addr);
-};
-
-GraphPanel.prototype.display_graph = function() {
-  $("#main_panel").removeClass("ec_gui_background");
-  $("#main_panel").addClass("ec_gui_alt_background");
-  if ($('#minimap').length) $('#minimap')[0].innerHTML = "";
 };
 
 GraphPanel.prototype.goToAddress = function() {
@@ -250,27 +266,27 @@ GraphPanel.prototype.handleInputTextChange = function() {
     var address = get_address_from_class(instruction);
     update_binary_details();
     r2ui.seek(address, false);
-    scroll_to_address(address);
+    //scroll_to_address(address);
   }
 };
 
-function scroll_to_address(address, pos) {
-  if (address === undefined || address === null) return;
-  var offset = 0;
-  if (pos == "top") offset = $('#center_panel').height();
-  else if (pos == "bottom") offset = 0;
-  else offset = window.innerHeight / 2;
-  var elements = $(".insaddr.addr_" + address);
-  if (elements === undefined || elements === null) return;
-  if (elements[0] === undefined || elements[0] === null) return;
-  var top = elements[0].documentOffsetTop() - offset;
-  top = Math.max(0,top);
-  $('#center_panel').scrollTo(top, {axis: 'y'});
-  r2ui.graph_panel.scroll_offset = top;
-}
+// function scroll_to_address(address, pos) {
+//   if (address === undefined || address === null) return;
+//   var offset = 0;
+//   if (pos == "top") offset = $('#center_panel').height();
+//   else if (pos == "bottom") offset = 0;
+//   else offset = window.innerHeight / 2;
+//   var elements = $(".insaddr.addr_" + address);
+//   if (elements === undefined || elements === null) return;
+//   if (elements[0] === undefined || elements[0] === null) return;
+//   var top = elements[0].documentOffsetTop() - offset;
+//   top = Math.max(0,top);
+//   $('#center_panel').scrollTo(top, {axis: 'y'});
+//   r2ui.graph_panel.scroll_offset = top;
+// }
 
 function handleClick(inEvent) {
-
+  console.log("CLICK!")
   if ($(inEvent.target).hasClass('addr')) {
       if ($(inEvent.target).hasClass('history')) {
         var idx = inEvent.target.className.split(" ").filter(function(x) { return x.substr(0,"history_idx_".length) == "history_idx_"; });
@@ -302,7 +318,7 @@ function handleClick(inEvent) {
         if (get_more_instructions) {
           r2ui.seek(address, false);
           rehighlight_iaddress(address);
-          scroll_to_address(address);
+          //scroll_to_address(address);
         }
       }
   } else if ($(inEvent.target).hasClass('fvar') || $(inEvent.target).hasClass('farg')) {
@@ -320,6 +336,7 @@ function handleClick(inEvent) {
 }
 
 function handleDoubleClick (inEvent) {
+  console.log("DOUBLE CLICK!")
   if ($(inEvent.target).hasClass('addr') && !$(inEvent.target).hasClass('insaddr')) {
     var address = get_address_from_class(inEvent.target);
     do_jumpto(address);
@@ -328,6 +345,7 @@ function handleDoubleClick (inEvent) {
 
 // key handler
 function handleKeypress(inEvent) {
+  console.log("KEYPRESS!")
   var keynum = inEvent.keyCode || inEvent.charCode || inEvent.which || 0;
   var key = String.fromCharCode(keynum);
 
@@ -364,7 +382,7 @@ function handleKeypress(inEvent) {
         r2ui.graph_panel.selected_offset = address;
       }
       rehighlight_iaddress(address);
-      scroll_to_address(address);
+      //scroll_to_address(address);
     }
   }
   // k Seek to previous instruction
@@ -387,7 +405,7 @@ function handleKeypress(inEvent) {
         r2ui.graph_panel.selected_offset = address;
       }
       rehighlight_iaddress(address);
-      scroll_to_address(address);
+      //scroll_to_address(address);
     }
   }
   // c Define function
@@ -420,7 +438,7 @@ function handleKeypress(inEvent) {
       // go back in history
       var addr = r2ui.history_prev();
       if (addr !== undefined && addr !== null) r2ui.seek(addr, false);
-      scroll_to_address(addr);
+      //scroll_to_address(addr);
     }
   }
   // enter
@@ -439,7 +457,7 @@ function do_jumpto(address) {
     r2ui.seek(address, true);
   }
   rehighlight_iaddress(address);
-  scroll_to_address(address);
+  //scroll_to_address(address);
 }
 
 function do_rename(element, inEvent) {
@@ -456,9 +474,9 @@ function do_rename(element, inEvent) {
      var new_name = prompt('New name', old_value);
      if (new_name !== null) {
        rename(address, old_value, new_name, space);
-       store_scroll_offset();
+       //store_scroll_offset();
        r2ui.seek("$$", false);
-       scroll_to_last_offset();
+       //scroll_to_last_offset();
      }
   } else if (r2ui.graph_panel.renaming === null && element !== null && $(element).hasClass("addr")) {
     r2ui.graph_panel.selected = element;
@@ -511,7 +529,7 @@ function do_comment(element) {
   if (c !== null) {
     r2.cmd('CC ' + c  + " @ " + address);
     r2ui.seek(address, false);
-    scroll_to_address(address);
+    //scroll_to_address(address);
   }
 }
 
@@ -521,7 +539,7 @@ function do_undefine(element) {
   r2.update_flags();
   update_binary_details();
   r2ui.seek(address, false);
-  scroll_to_address(address);
+  //scroll_to_address(address);
 }
 
 function do_define(element) {
@@ -532,6 +550,6 @@ function do_define(element) {
     r2.update_flags();
     update_binary_details();
     r2ui.seek(address, false);
-    scroll_to_address(address);
+    //scroll_to_address(address);
   }
 }
