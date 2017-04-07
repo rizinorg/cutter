@@ -28,6 +28,7 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     ui->frame->hide();
 
     // Resize eventfilter
+    this->installEventFilter(this);
     ui->commentsTreeWidget->viewport()->installEventFilter(this);
 }
 
@@ -133,5 +134,4 @@ bool CommentsWidget::eventFilter(QObject *obj, QEvent *event) {
             }
         }
     }
-    return false; //allow the event to be handled further
 }

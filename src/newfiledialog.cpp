@@ -174,7 +174,7 @@ void NewFileDialog::on_createButton_clicked()
 {
     // Close dialog and open create new file dialog
     close();
-    createNewDialog* n = new createNewDialog(nullptr);
+    createNewDialog* n = new createNewDialog(this);
     n->exec();
 }
 

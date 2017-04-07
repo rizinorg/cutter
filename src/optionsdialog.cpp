@@ -243,7 +243,7 @@ void OptionsDialog::on_cancelButton_clicked()
     this->core = NULL;
     // Close dialog and open OptionsDialog
     close();
-    NewFileDialog* n = new NewFileDialog(nullptr);
+    NewFileDialog* n = new NewFileDialog(this);
     n->show();
 }
 

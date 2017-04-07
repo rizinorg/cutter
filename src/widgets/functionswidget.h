@@ -41,7 +41,7 @@ private slots:
 
     void on_nestedFunctionsTree_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private:
     Ui::FunctionsWidget *ui;
