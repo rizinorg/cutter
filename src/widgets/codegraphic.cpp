@@ -17,7 +17,9 @@ GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
     setWindowTitle("Code bar");
 //    setMovable(false);
     setContentsMargins(0, 0, 0, 0);
-    setStyleSheet("QToolBar { border: 0px; border-bottom: 0px; border-top: 0px; border-width: 0px;}");
+    // If line below is used, with the dark theme the paintEvent is not called
+    // and the result is wrong. Something to do with overwriting the style sheet :/
+    //setStyleSheet("QToolBar { border: 0px; border-bottom: 0px; border-top: 0px; border-width: 0px;}");
 
     this->codeGraphic = new QGraphicsView();
     // Radare core found in:
