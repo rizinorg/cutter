@@ -89,7 +89,7 @@ void SideBar::on_asm2hex_clicked()
 
 void SideBar::on_hex2asm_clicked()
 {
-    ui->asmInput->setPlainText(main->core->assemble(ui->hexInput->toPlainText()));
+    ui->asmInput->setPlainText(main->core->disassemble(ui->hexInput->toPlainText()));
 }
 
 void SideBar::on_respButton_toggled(bool checked)

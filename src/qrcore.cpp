@@ -511,14 +511,14 @@ void QRCore::setDefaultCPU() {
 
 QString QRCore::assemble(const QString &code) {
     RAsmCode *ac = r_asm_massemble (core->assembler, code.toUtf8().constData());
-    QString hex = QString(ac->buf_hex);
+    QString hex(ac != nullptr ? ac->buf_hex : "");
     r_asm_code_free (ac);
     return hex;
 }
 
 QString QRCore::disassemble(const QString &hex) {
     RAsmCode *ac = r_asm_mdisassemble_hexstr(core->assembler, hex.toUtf8().constData());
-    QString code = QString (ac->buf_asm);
+    QString code = QString (ac != nullptr ? ac->buf_asm : "");
     r_asm_code_free (ac);
     return code;
 }
@@ -540,7 +540,7 @@ int QRCore::get_size()
 {
     RBinObject *obj = r_bin_get_object(core->bin);
     //return obj->size;
-    return obj->obj_size;
+    return obj != nullptr ? obj->obj_size : 0;
 }
 
 ulong QRCore::get_baddr()
