@@ -171,6 +171,11 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     connect(back_shortcut, SIGNAL(activated()), this, SLOT(seek_back()));
     back_shortcut->setContext(Qt::WidgetShortcut);
 
+    // CTRL + R to refresh the disasm
+    QShortcut* refresh_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_R), ui->disasTextEdit_2);
+    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshDisasm()));
+    refresh_shortcut->setContext(Qt::WidgetShortcut);
+
     // Control Disasm and Hex scroll to add more contents
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
@@ -449,8 +454,8 @@ void MemoryWidget::disasmScrolled()
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
 }
 
-void MemoryWidget::refreshDisasm(QString off = "") {
-
+void MemoryWidget::refreshDisasm(const QString &offset)
+{
     // we must store those ranges somewhere, to handle scroll
     ut64 addr = this->main->core->core->offset;
     int length = this->main->core->core->num->value;
@@ -459,8 +464,8 @@ void MemoryWidget::refreshDisasm(QString off = "") {
     disconnect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
 
     // Get disas at offset
-    if (off != "") {
-        this->main->core->cmd("s " + off);
+    if (!offset.isEmpty()) {
+        this->main->core->cmd("s " + offset);
     } else {
         // Get current offset
         QTextCursor tc = this->disasTextEdit->textCursor();

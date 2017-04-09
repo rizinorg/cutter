@@ -56,7 +56,7 @@ public slots:
 
     void replaceTextDisasm(QString txt);
 
-    void refreshDisasm(QString off);
+    void refreshDisasm(const QString &offset = QString());
 
     void refreshHexdump(QString where=0);
 
