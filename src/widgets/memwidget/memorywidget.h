@@ -11,10 +11,15 @@
 #include <QDockWidget>
 #include <QTreeWidget>
 #include <QTabWidget>
-#include <QWebView>
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QMouseEvent>
+
+#if defined(USE_WEBENGINE)
+    #include <QWebEngineView>
+#else
+    #include <QWebView>
+#endif
 
 class MainWindow;
 
@@ -39,8 +44,13 @@ public:
     QTreeWidget      *xrefToTreeWidget_2;
     QTreeWidget      *xreFromTreeWidget_2;
     QTabWidget       *memTabWidget;
+#if defined(USE_WEBENGINE)
+    QWebEngineView         *graphWebView;
+    QWebEngineView         *histoWebView;
+#else
     QWebView         *graphWebView;
     QWebView         *histoWebView;
+#endif
 
     Highlighter        *highlighter;
     Highlighter        *highlighter_5;
