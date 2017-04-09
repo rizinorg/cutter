@@ -18,16 +18,6 @@ Iaitō is not aimed at existing radare2 users, it is focused on those whose are 
 
 Yes, the code sucks. Hopefully we will be able to remove this statement from the README one day, but I had never coded Qt nor C++ until I started Iaitō, so obviously the code is ugly and not well designed.
 
-### Code formatting
-
-We use [AStyle 2.06](https://sourceforge.net/projects/astyle/files/astyle/astyle%202.06/) to format the code. The command line for formatting the code according to the style is:
-
-```bash
-AStyle --style=allman --convert-tabs --align-pointer=name --align-reference=name --indent=spaces --indent-namespaces --indent-col1-comments --pad-oper --pad-header --unpad-paren --keep-one-line-blocks --close-templates $(git ls-files *.cpp *.h *.c *.hpp)
-```
-
-**If in doubt, check the source around you and follow that style!**
-
 ## Requirements
 
 - **Radare2**: Make sure that, when cloning the project, you use `git clone --recurse-submodules` or run `git submodule init` and `git submodule update` to clone the correct radare2 version. Then execute the following command in the radare2 folder:
