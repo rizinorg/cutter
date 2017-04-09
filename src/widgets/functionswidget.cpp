@@ -376,4 +376,5 @@ bool FunctionsWidget::eventFilter(QObject *obj, QEvent *event) {
             }
         }
     }
+    return QDockWidget::eventFilter(obj, event);
 }

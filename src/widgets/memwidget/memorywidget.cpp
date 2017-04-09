@@ -1613,7 +1613,7 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event) {
           }
       }
   }
-  return false; //allow the event to be handled further
+  return QDockWidget::eventFilter(obj, event);
 }
 
 void MemoryWidget::on_actionXRefs_triggered()
