@@ -461,9 +461,12 @@ void MemoryWidget::refreshDisasm(QString off = "") {
         QTextCursor tc = this->disasTextEdit->textCursor();
         tc.select( QTextCursor::LineUnderCursor );
         QString lastline = tc.selectedText();
-        QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-        if (ele.contains("0x")) {
-            this->main->core->cmd("s " + ele);
+        QStringList elements = lastline.split(" ", QString::SkipEmptyParts);
+        if (elements.length() > 0) {
+            QString ele = elements[0];
+            if (ele.contains("0x")) {
+                this->main->core->cmd("s " + ele);
+            }
         }
     }
 
@@ -959,7 +962,7 @@ void MemoryWidget::on_actionSettings_menu_1_triggered()
 {
     bool ok = true;
 
-   // QFont font = QFont("Monospace", 8);
+    // QFont font = QFont("Monospace", 8);
 
     QFont font = QFontDialog::getFont( &ok, ui->disasTextEdit_2->font(), this);
     setFonts (font);
@@ -1566,54 +1569,54 @@ void MemoryWidget::on_previewToolButton_2_clicked()
 }
 
 bool MemoryWidget::eventFilter(QObject *obj, QEvent *event) {
-  if (event->type() == QEvent::Resize && obj == this && this->isVisible()) {
-      if (this->main->responsive) {
-          QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
-          //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
-          //       resizeEvent->size().width(),
-          //       resizeEvent->size().height());
-          if (resizeEvent->size().width() <= 1150) {
-              ui->frame_3->setVisible(false);
-              ui->memPreviewTab->setVisible(false);
-              ui->previewToolButton_2->setChecked(false);
-              if (resizeEvent->size().width() <= 950) {
-                  ui->memSideTabWidget_2->hide();
-                  ui->hexSideTab_2->hide();
-                  ui->memSideToolButton->setChecked(true);
-              } else {
-                  ui->memSideTabWidget_2->show();
-                  ui->hexSideTab_2->show();
-                  ui->memSideToolButton->setChecked(false);
-              }
-          } else {
-              ui->frame_3->setVisible(true);
-              ui->memPreviewTab->setVisible(true);
-              ui->previewToolButton_2->setChecked(true);
-          }
-      }
-  } else if ((obj == ui->disasTextEdit_2 || obj==ui->disasTextEdit_2->viewport()) && event->type() == QEvent::MouseButtonDblClick) {
-      QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
-      //qDebug()<<QString("Click location: (%1,%2)").arg(mouseEvent->x()).arg(mouseEvent->y());
-      QTextCursor cursor = ui->disasTextEdit_2->cursorForPosition( QPoint(mouseEvent->x(), mouseEvent->y()) );
-      cursor.select( QTextCursor::LineUnderCursor );
-      QString lastline = cursor.selectedText();
-      QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-      if (ele.contains("0x")) {
-          QString jump = "";
-          jump = this->main->core->getOffsetJump(ele);
-          if (jump != "") {
-              if (jump.contains("0x")) {
-                  QString fcn = this->main->core->cmdFunctionAt(jump);
-                  if (fcn != "") {
-                      this->main->seek(jump.trimmed(), fcn);
-                  }
-              } else {
-                  this->main->seek(this->main->core->cmd("?v " + jump), jump);
-              }
-          }
-      }
-  }
-  return QDockWidget::eventFilter(obj, event);
+    if (event->type() == QEvent::Resize && obj == this && this->isVisible()) {
+        if (this->main->responsive) {
+            QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+            //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
+            //       resizeEvent->size().width(),
+            //       resizeEvent->size().height());
+            if (resizeEvent->size().width() <= 1150) {
+                ui->frame_3->setVisible(false);
+                ui->memPreviewTab->setVisible(false);
+                ui->previewToolButton_2->setChecked(false);
+                if (resizeEvent->size().width() <= 950) {
+                    ui->memSideTabWidget_2->hide();
+                    ui->hexSideTab_2->hide();
+                    ui->memSideToolButton->setChecked(true);
+                } else {
+                    ui->memSideTabWidget_2->show();
+                    ui->hexSideTab_2->show();
+                    ui->memSideToolButton->setChecked(false);
+                }
+            } else {
+                ui->frame_3->setVisible(true);
+                ui->memPreviewTab->setVisible(true);
+                ui->previewToolButton_2->setChecked(true);
+            }
+        }
+    } else if ((obj == ui->disasTextEdit_2 || obj==ui->disasTextEdit_2->viewport()) && event->type() == QEvent::MouseButtonDblClick) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        //qDebug()<<QString("Click location: (%1,%2)").arg(mouseEvent->x()).arg(mouseEvent->y());
+        QTextCursor cursor = ui->disasTextEdit_2->cursorForPosition( QPoint(mouseEvent->x(), mouseEvent->y()) );
+        cursor.select( QTextCursor::LineUnderCursor );
+        QString lastline = cursor.selectedText();
+        QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
+        if (ele.contains("0x")) {
+            QString jump = "";
+            jump = this->main->core->getOffsetJump(ele);
+            if (jump != "") {
+                if (jump.contains("0x")) {
+                    QString fcn = this->main->core->cmdFunctionAt(jump);
+                    if (fcn != "") {
+                        this->main->seek(jump.trimmed(), fcn);
+                    }
+                } else {
+                    this->main->seek(this->main->core->cmd("?v " + jump), jump);
+                }
+            }
+        }
+    }
+    return QDockWidget::eventFilter(obj, event);
 }
 
 void MemoryWidget::on_actionXRefs_triggered()
