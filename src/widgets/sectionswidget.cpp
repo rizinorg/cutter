@@ -63,8 +63,8 @@ void SectionsWidget::setupViews()
     pieChart->setSelectionModel(selectionModel);
 }
 
-void SectionsWidget::fillSections(int row, const QString &str, const QString &str2=NULL,
-                                  const QString &str3=NULL, const QString &str4=NULL)
+void SectionsWidget::fillSections(int row, const QString &str, const QString &str2 = NULL,
+                                  const QString &str3 = NULL, const QString &str4 = NULL)
 {
     QList<QString> colors;
     //colors << "#F7464A" << "#46BFBD" << "#FDB45C" << "#949FB1" << "#4D5360" << "#D97041" <<"#C7604C" << "#21323D" << "#9D9B7F" << "#7D4F6D" << "#584A5E";
@@ -85,28 +85,36 @@ void SectionsWidget::fillSections(int row, const QString &str, const QString &st
     tempItem->setText(1, str2);
     tempItem->setText(2, str3);
     tempItem->setText(3, str4);
-    tempItem->setData( 0, Qt::DecorationRole, QColor(colors[row]));
+    tempItem->setData(0, Qt::DecorationRole, QColor(colors[row]));
     this->tree->insertTopLevelItem(0, tempItem);
 }
 
-void SectionsWidget::adjustColumns() {
+void SectionsWidget::adjustColumns()
+{
     int count = 4;
-    for (int i = 0; i != count; ++i) {
+    for (int i = 0; i != count; ++i)
+    {
         this->tree->resizeColumnToContents(i);
     }
 }
 
-bool SectionsWidget::eventFilter(QObject *obj, QEvent *event) {
-    if (this->main->responsive) {
-        if (event->type() == QEvent::Resize && obj == this && this->isVisible()) {
-            QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+bool SectionsWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (this->main->responsive)
+    {
+        if (event->type() == QEvent::Resize && obj == this && this->isVisible())
+        {
+            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
             //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
             //       resizeEvent->size().width(),
             //       resizeEvent->size().height());
-            if (resizeEvent->size().width() >= resizeEvent->size().height()) {
+            if (resizeEvent->size().width() >= resizeEvent->size().height())
+            {
                 // Set horizontal view (list)
                 this->main->on_actionSectionsHorizontal_triggered();
-            } else {
+            }
+            else
+            {
                 // Set vertical view (Tree)
                 this->main->on_actionSectionsVertical_triggered();
             }

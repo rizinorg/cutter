@@ -8,8 +8,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class Notepad;
+namespace Ui
+{
+    class Notepad;
 }
 
 class Notepad : public QDockWidget

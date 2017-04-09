@@ -36,7 +36,8 @@ Notepad::Notepad(MainWindow *main, QWidget *parent) :
             this, SLOT(showNotepadContextMenu(const QPoint &)));
 }
 
-void Notepad::setText(QString str) {
+void Notepad::setText(QString str)
+{
     ui->notepadTextEdit->setPlainText(str);
 }
 
@@ -49,8 +50,9 @@ void Notepad::on_fontButton_clicked()
 {
     bool ok = true;
 
-    QFont font = QFontDialog::getFont( &ok, ui->notepadTextEdit->font(), this) ;
-    if (ok) {
+    QFont font = QFontDialog::getFont(&ok, ui->notepadTextEdit->font(), this) ;
+    if (ok)
+    {
         // the user clicked OK and font is set to the font the user selected
         //ui->notepadTextEdit->setFont(font);
         //ui->previewTextEdit->setFont(font);
@@ -58,7 +60,8 @@ void Notepad::on_fontButton_clicked()
     }
 }
 
-void Notepad::setFonts(QFont font) {
+void Notepad::setFonts(QFont font)
+{
     ui->notepadTextEdit->setFont(font);
     ui->previewTextEdit->setFont(font);
 }
@@ -66,11 +69,14 @@ void Notepad::setFonts(QFont font) {
 void Notepad::on_boldButton_clicked()
 {
     QTextCursor cursor = ui->notepadTextEdit->textCursor();
-    if (cursor.hasSelection()) {
+    if (cursor.hasSelection())
+    {
         QString text = cursor.selectedText();
         cursor.removeSelectedText();
         cursor.insertText("**" + text + "**");
-    } else {
+    }
+    else
+    {
         cursor.insertText("****");
     }
 }
@@ -78,11 +84,14 @@ void Notepad::on_boldButton_clicked()
 void Notepad::on_italicsButton_clicked()
 {
     QTextCursor cursor = ui->notepadTextEdit->textCursor();
-    if (cursor.hasSelection()) {
+    if (cursor.hasSelection())
+    {
         QString text = cursor.selectedText();
         cursor.removeSelectedText();
         cursor.insertText("*" + text + "*");
-    } else {
+    }
+    else
+    {
         cursor.insertText("**");
     }
 }
@@ -90,11 +99,14 @@ void Notepad::on_italicsButton_clicked()
 void Notepad::on_h1Button_clicked()
 {
     QTextCursor cursor = ui->notepadTextEdit->textCursor();
-    if (cursor.hasSelection()) {
+    if (cursor.hasSelection())
+    {
         QString text = cursor.selectedText();
         cursor.removeSelectedText();
         cursor.insertText("# " + text);
-    } else {
+    }
+    else
+    {
         cursor.insertText("# ");
     }
 }
@@ -102,11 +114,14 @@ void Notepad::on_h1Button_clicked()
 void Notepad::on_h2Button_clicked()
 {
     QTextCursor cursor = ui->notepadTextEdit->textCursor();
-    if (cursor.hasSelection()) {
+    if (cursor.hasSelection())
+    {
         QString text = cursor.selectedText();
         cursor.removeSelectedText();
         cursor.insertText("## " + text);
-    } else {
+    }
+    else
+    {
         cursor.insertText("## ");
     }
 }
@@ -114,11 +129,14 @@ void Notepad::on_h2Button_clicked()
 void Notepad::on_h3Button_clicked()
 {
     QTextCursor cursor = ui->notepadTextEdit->textCursor();
-    if (cursor.hasSelection()) {
+    if (cursor.hasSelection())
+    {
         QString text = cursor.selectedText();
         cursor.removeSelectedText();
         cursor.insertText("### " + text);
-    } else {
+    }
+    else
+    {
         cursor.insertText("### ");
     }
 }
@@ -139,7 +157,7 @@ void Notepad::on_redoButton_clicked()
 
 void Notepad::highlightPreview()
 {
-        disasm_highlighter = new Highlighter(this->main, ui->previewTextEdit->document());
+    disasm_highlighter = new Highlighter(this->main, ui->previewTextEdit->document());
 }
 
 void Notepad::on_searchEdit_returnPressed()
@@ -150,7 +168,8 @@ void Notepad::on_searchEdit_returnPressed()
     if (isFirstTime == false)
         document->undo();
 
-    if (!searchString.isEmpty()) {
+    if (!searchString.isEmpty())
+    {
 
         QTextCursor highlightCursor(document);
         QTextCursor cursor(document);
@@ -161,12 +180,14 @@ void Notepad::on_searchEdit_returnPressed()
         QTextCharFormat colorFormat = plainFormat;
         colorFormat.setForeground(Qt::red);
 
-        while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+        while (!highlightCursor.isNull() && !highlightCursor.atEnd())
+        {
             highlightCursor = document->find(searchString, highlightCursor, QTextDocument::FindWholeWords);
 
-            if (!highlightCursor.isNull()) {
+            if (!highlightCursor.isNull())
+            {
                 highlightCursor.movePosition(QTextCursor::WordRight,
-                                       QTextCursor::KeepAnchor);
+                                             QTextCursor::KeepAnchor);
                 highlightCursor.mergeCharFormat(colorFormat);
             }
         }
@@ -186,7 +207,8 @@ void Notepad::on_searchEdit_textEdited(const QString &arg1)
     if (isFirstTime == false)
         document->undo();
 
-    if (!searchString.isEmpty()) {
+    if (!searchString.isEmpty())
+    {
 
         QTextCursor highlightCursor(document);
         QTextCursor cursor(document);
@@ -197,10 +219,12 @@ void Notepad::on_searchEdit_textEdited(const QString &arg1)
         QTextCharFormat colorFormat = plainFormat;
         colorFormat.setForeground(Qt::red);
 
-        while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+        while (!highlightCursor.isNull() && !highlightCursor.atEnd())
+        {
             highlightCursor = document->find(searchString, highlightCursor);
 
-            if (!highlightCursor.isNull()) {
+            if (!highlightCursor.isNull())
+            {
                 //highlightCursor.movePosition(QTextCursor::WordRight,
                 //                       QTextCursor::KeepAnchor);
                 highlightCursor.mergeCharFormat(colorFormat);
@@ -222,7 +246,8 @@ void Notepad::on_searchEdit_textChanged(const QString &arg1)
     if (isFirstTime == false)
         document->undo();
 
-    if (!searchString.isEmpty()) {
+    if (!searchString.isEmpty())
+    {
 
         QTextCursor highlightCursor(document);
         QTextCursor cursor(document);
@@ -233,10 +258,12 @@ void Notepad::on_searchEdit_textChanged(const QString &arg1)
         QTextCharFormat colorFormat = plainFormat;
         colorFormat.setForeground(Qt::red);
 
-        while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+        while (!highlightCursor.isNull() && !highlightCursor.atEnd())
+        {
             highlightCursor = document->find(searchString, highlightCursor);
 
-            if (!highlightCursor.isNull()) {
+            if (!highlightCursor.isNull())
+            {
                 //highlightCursor.movePosition(QTextCursor::WordRight,
                 //                       QTextCursor::KeepAnchor);
                 highlightCursor.mergeCharFormat(colorFormat);
@@ -253,23 +280,26 @@ void Notepad::showNotepadContextMenu(const QPoint &pt)
     // Set Notepad popup menu
     QMenu *menu = ui->notepadTextEdit->createStandardContextMenu();
     QTextCursor cur = ui->notepadTextEdit->textCursor();
-    QAction* first = menu->actions().at(0);
+    QAction *first = menu->actions().at(0);
 
-    if (cur.hasSelection()) {
+    if (cur.hasSelection())
+    {
         // Get selected text
         //this->main->add_debug_output("Selected text: " + cur.selectedText());
         this->addr = cur.selectedText();
-    } else {
+    }
+    else
+    {
         // Get word under the cursor
-        cur.select( QTextCursor::WordUnderCursor);
+        cur.select(QTextCursor::WordUnderCursor);
         //this->main->add_debug_output("Word: " + cur.selectedText());
         this->addr = cur.selectedText();
     }
-    ui->actionDisassmble_bytes->setText( "Disassemble bytes at: " + this->addr);
-    ui->actionDisassmble_function->setText( "Disassemble function at: " + this->addr);
-    ui->actionHexdump_bytes->setText( "Hexdump bytes at: " + this->addr);
-    ui->actionCompact_Hexdump->setText( "Compact Hexdump at: " + this->addr);
-    ui->actionHexdump_function->setText( "Hexdump function at: " + this->addr);
+    ui->actionDisassmble_bytes->setText("Disassemble bytes at: " + this->addr);
+    ui->actionDisassmble_function->setText("Disassemble function at: " + this->addr);
+    ui->actionHexdump_bytes->setText("Hexdump bytes at: " + this->addr);
+    ui->actionCompact_Hexdump->setText("Compact Hexdump at: " + this->addr);
+    ui->actionHexdump_function->setText("Hexdump function at: " + this->addr);
     menu->insertAction(first, ui->actionDisassmble_bytes);
     menu->insertAction(first, ui->actionDisassmble_function);
     menu->insertAction(first, ui->actionHexdump_bytes);
@@ -284,25 +314,25 @@ void Notepad::showNotepadContextMenu(const QPoint &pt)
 
 void Notepad::on_actionDisassmble_bytes_triggered()
 {
-    ui->previewTextEdit->setPlainText( this->main->core->cmd("pd 100 @ " + this->addr) );
+    ui->previewTextEdit->setPlainText(this->main->core->cmd("pd 100 @ " + this->addr));
 }
 
 void Notepad::on_actionDisassmble_function_triggered()
 {
-    ui->previewTextEdit->setPlainText( this->main->core->cmd("pdf @ " + this->addr) );
+    ui->previewTextEdit->setPlainText(this->main->core->cmd("pdf @ " + this->addr));
 }
 
 void Notepad::on_actionHexdump_bytes_triggered()
 {
-    ui->previewTextEdit->setPlainText( this->main->core->cmd( "px 1024 @ " + this->addr ) );
+    ui->previewTextEdit->setPlainText(this->main->core->cmd("px 1024 @ " + this->addr));
 }
 
 void Notepad::on_actionCompact_Hexdump_triggered()
 {
-    ui->previewTextEdit->setPlainText( this->main->core->cmd( "pxi 1024 @ " + this->addr ) );
+    ui->previewTextEdit->setPlainText(this->main->core->cmd("pxi 1024 @ " + this->addr));
 }
 
 void Notepad::on_actionHexdump_function_triggered()
 {
-    ui->previewTextEdit->setPlainText( this->main->core->cmd( "pxf @ " + this->addr ) );
+    ui->previewTextEdit->setPlainText(this->main->core->cmd("pxf @ " + this->addr));
 }

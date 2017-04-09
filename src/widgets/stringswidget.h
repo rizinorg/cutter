@@ -6,8 +6,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class StringsWidget;
+namespace Ui
+{
+    class StringsWidget;
 }
 
 class StringsWidget : public QDockWidget

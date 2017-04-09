@@ -27,9 +27,11 @@ XrefsDialog::~XrefsDialog()
     delete ui;
 }
 
-void XrefsDialog::fillRefs(QList<QStringList> refs, QList<QStringList> xrefs) {
+void XrefsDialog::fillRefs(QList<QStringList> refs, QList<QStringList> xrefs)
+{
     ui->fromTreeWidget->clear();
-    for (int i = 0; i < refs.size(); ++i) {
+    for (int i = 0; i < refs.size(); ++i)
+    {
         //this->add_debug_output(refs.at(i).at(0) + " " + refs.at(i).at(1));
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, refs.at(i).at(0));
@@ -40,12 +42,14 @@ void XrefsDialog::fillRefs(QList<QStringList> refs, QList<QStringList> xrefs) {
     }
     // Adjust columns to content
     int count = ui->fromTreeWidget->columnCount();
-    for (int i = 0; i != count; ++i) {
+    for (int i = 0; i != count; ++i)
+    {
         ui->fromTreeWidget->resizeColumnToContents(i);
     }
 
     ui->toTreeWidget->clear();
-    for (int i = 0; i < xrefs.size(); ++i) {
+    for (int i = 0; i < xrefs.size(); ++i)
+    {
         //this->add_debug_output(xrefs.at(i).at(0) + " " + xrefs.at(i).at(1));
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, xrefs.at(i).at(0));
@@ -56,7 +60,8 @@ void XrefsDialog::fillRefs(QList<QStringList> refs, QList<QStringList> xrefs) {
     }
     // Adjust columns to content
     int count2 = ui->toTreeWidget->columnCount();
-    for (int i = 0; i != count2; ++i) {
+    for (int i = 0; i != count2; ++i)
+    {
         ui->toTreeWidget->resizeColumnToContents(i);
     }
 
@@ -84,24 +89,30 @@ void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int c
     this->close();
 }
 
-QString XrefsDialog::normalizeAddr(QString addr) {
+QString XrefsDialog::normalizeAddr(QString addr)
+{
     QString base = addr.split("0x")[1].trimmed();
     int len = base.length();
-    if (len < 8) {
+    if (len < 8)
+    {
         int padding = 8 - len;
         QString zero = "0";
         QString zeroes = zero.repeated(padding);
         QString s = "0x" + zeroes + base;
         return s;
-    } else {
+    }
+    else
+    {
         return addr;
     }
 }
 
-void XrefsDialog::highlightCurrentLine() {
+void XrefsDialog::highlightCurrentLine()
+{
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (ui->previewTextEdit->isReadOnly()) {
+    if (ui->previewTextEdit->isReadOnly())
+    {
         QTextEdit::ExtraSelection selection;
 
         QColor lineColor = QColor(190, 144, 212);
@@ -120,10 +131,10 @@ void XrefsDialog::on_fromTreeWidget_itemSelectionChanged()
 {
     QTreeWidgetItem *item = ui->fromTreeWidget->currentItem();
     QString offset = item->text(0);
-    ui->previewTextEdit->setPlainText( this->main->core->cmd("pdf @ " + offset).trimmed() );
+    ui->previewTextEdit->setPlainText(this->main->core->cmd("pdf @ " + offset).trimmed());
     ui->previewTextEdit->moveCursor(QTextCursor::End);
     // Does it make any sense?
-    ui->previewTextEdit->find( this->normalizeAddr(offset), QTextDocument::FindBackward);
+    ui->previewTextEdit->find(this->normalizeAddr(offset), QTextDocument::FindBackward);
     ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
 }
 
@@ -131,15 +142,16 @@ void XrefsDialog::on_toTreeWidget_itemSelectionChanged()
 {
     QTreeWidgetItem *item = ui->toTreeWidget->currentItem();
     QString offset = item->text(0);
-    ui->previewTextEdit->setPlainText( this->main->core->cmd("pdf @ " + offset).trimmed() );
+    ui->previewTextEdit->setPlainText(this->main->core->cmd("pdf @ " + offset).trimmed());
     ui->previewTextEdit->moveCursor(QTextCursor::End);
     // Again, does it make any sense?
     // Also, this code should be refactored and shared instead of copied & pasted
-    ui->previewTextEdit->find( this->normalizeAddr(offset), QTextDocument::FindBackward);
+    ui->previewTextEdit->find(this->normalizeAddr(offset), QTextDocument::FindBackward);
     ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
 }
 
-void XrefsDialog::updateLabels(QString name) {
+void XrefsDialog::updateLabels(QString name)
+{
     ui->label_2->setText(ui->label_2->text() + name);
     ui->label_3->setText(ui->label_3->text() + name);
 }

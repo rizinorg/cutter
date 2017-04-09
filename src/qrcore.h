@@ -29,16 +29,16 @@
 
 class RCoreLocked
 {
-    RCore* core;
+    RCore *core;
 
 public:
-    explicit RCoreLocked(RCore* core);
-    RCoreLocked(const RCoreLocked&) = delete;
-    RCoreLocked& operator=(const RCoreLocked&) = delete;
-    RCoreLocked(RCoreLocked&&);
+    explicit RCoreLocked(RCore *core);
+    RCoreLocked(const RCoreLocked &) = delete;
+    RCoreLocked &operator=(const RCoreLocked &) = delete;
+    RCoreLocked(RCoreLocked &&);
     ~RCoreLocked();
-    operator RCore*() const;
-    RCore* operator->() const;
+    operator RCore *() const;
+    RCore *operator->() const;
 };
 
 #define QNOTUSED(x) do { (void)(x); } while ( 0 );
@@ -62,23 +62,23 @@ public:
     void setComment(QString addr, QString cmt);
     void delComment(ut64 addr);
     QList<QList<QString>> getComments();
-    QMap<QString, QList<QList<QString> > > getNestedComments();
+    QMap<QString, QList<QList<QString>>> getNestedComments();
     void setOptions(QString key);
-    bool loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int bits, int idx=0, bool loadbin=false);
+    bool loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int bits, int idx = 0, bool loadbin = false);
     bool tryFile(QString path, bool rw);
     void analyze(int level);
     void seek(QString addr);
     void seek(ut64 addr);
     ut64 math(const QString &expr);
-    QString itoa(ut64 num, int rdx=16);
-    QString config(const QString &k, const QString &v=NULL);
+    QString itoa(ut64 num, int rdx = 16);
+    QString config(const QString &k, const QString &v = NULL);
     int config(const QString &k, int v);
-    QList<QString> getList(const QString & type, const QString & subtype="");
+    QList<QString> getList(const QString &type, const QString &subtype = "");
     QString assemble(const QString &code);
     QString disassemble(const QString &code);
     void setDefaultCPU();
     void setCPU(QString arch, QString cpu, int bits, bool temporary);
-    RAnalFunction* functionAt(ut64 addr);
+    RAnalFunction *functionAt(ut64 addr);
     QString cmdFunctionAt(QString addr);
     /* sdb */
     QList<QString> sdbList(QString path);

@@ -9,8 +9,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class OptionsDialog;
+namespace Ui
+{
+    class OptionsDialog;
 }
 
 class OptionsDialog : public QDialog

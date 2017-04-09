@@ -4,8 +4,9 @@
 #include <QDialog>
 #include <QListWidgetItem>
 
-namespace Ui {
-class NewFileDialog;
+namespace Ui
+{
+    class NewFileDialog;
 }
 
 class NewFileDialog : public QDialog

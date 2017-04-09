@@ -39,12 +39,13 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     connect(this, SIGNAL(returnPressed()), this, SLOT(on_gotoEntry_returnPressed()));
 
     // Esc clears omnibar
-    QShortcut* clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(clear_shortcut, SIGNAL(activated()), this, SLOT(clearContents()));
     clear_shortcut->setContext(Qt::WidgetShortcut);
 }
 
-void Omnibar::setupCompleter() {
+void Omnibar::setupCompleter()
+{
     // Set gotoEntry completer for jump history
     QStringList flagsList = this->getFlags();
     QCompleter *completer = new QCompleter(flagsList, this);
@@ -54,7 +55,7 @@ void Omnibar::setupCompleter() {
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setFilterMode(Qt::MatchContains);
 
-    QStringListModel *completerModel = (QStringListModel*)(completer->model());
+    QStringListModel *completerModel = (QStringListModel *)(completer->model());
     completerModel->setStringList(completerModel->stringList() << this->commands);
 
     this->setCompleter(completer);
@@ -66,7 +67,8 @@ void Omnibar::restoreCompleter()
     completer->setFilterMode(Qt::MatchContains);
 }
 
-void Omnibar::showCommands() {
+void Omnibar::showCommands()
+{
     this->setFocus();
     this->setText(": ");
 
@@ -82,7 +84,8 @@ void Omnibar::showCommands() {
     completer->complete();
 }
 
-void Omnibar::clearContents() {
+void Omnibar::clearContents()
+{
     this->setText("");
     // Necessary hack to make it work properly
     this->clearFocus();
@@ -92,38 +95,69 @@ void Omnibar::clearContents() {
 void Omnibar::on_gotoEntry_returnPressed()
 {
     QString str = this->text();
-    if (str.length()>0) {
-        if (str.contains(": ")) {
-            if (str.contains("Lock")){
+    if (str.length() > 0)
+    {
+        if (str.contains(": "))
+        {
+            if (str.contains("Lock"))
+            {
                 this->main->on_actionLock_triggered();
-            } else if (str.contains("Functions")) {
+            }
+            else if (str.contains("Functions"))
+            {
                 this->main->on_actionFunctions_triggered();
-            } else if (str.contains("Flags")) {
+            }
+            else if (str.contains("Flags"))
+            {
                 this->main->on_actionFlags_triggered();
-            } else if (str.contains("Sections")) {
+            }
+            else if (str.contains("Sections"))
+            {
                 this->main->on_actionSections_triggered();
-            } else if (str.contains("Strings")) {
+            }
+            else if (str.contains("Strings"))
+            {
                 this->main->on_actionStrings_triggered();
-            } else if (str.contains("Imports")) {
+            }
+            else if (str.contains("Imports"))
+            {
                 this->main->on_actionImports_triggered();
-            } else if (str.contains("Symbols")) {
+            }
+            else if (str.contains("Symbols"))
+            {
                 this->main->on_actionSymbols_triggered();
-            } else if (str.contains("Relocs")) {
+            }
+            else if (str.contains("Relocs"))
+            {
                 this->main->on_actionReloc_triggered();
-            } else if (str.contains("Comments")) {
+            }
+            else if (str.contains("Comments"))
+            {
                 this->main->on_actionComents_triggered();
-            } else if (str.contains("Notepad")) {
+            }
+            else if (str.contains("Notepad"))
+            {
                 this->main->on_actionNotepad_triggered();
-            } else if (str.contains("Dashboard")) {
+            }
+            else if (str.contains("Dashboard"))
+            {
                 this->main->on_actionDashboard_triggered();
-            } else if (str.contains("Theme")) {
+            }
+            else if (str.contains("Theme"))
+            {
                 this->main->sideBar->themesButtonToggle();
-            } else if (str.contains("Script")) {
+            }
+            else if (str.contains("Script"))
+            {
                 this->main->on_actionRun_Script_triggered();
-            } else if (str.contains("Tabs")) {
+            }
+            else if (str.contains("Tabs"))
+            {
                 this->main->on_actionTabs_triggered();
             }
-        } else {
+        }
+        else
+        {
             //this->main->seek(this->main->core->cmd("?v " + this->text()), this->text());
             QString off = this->main->core->cmd("afo " + this->text());
             this->main->seek(off.trimmed(), this->text());
@@ -137,14 +171,17 @@ void Omnibar::on_gotoEntry_returnPressed()
     this->restoreCompleter();
 }
 
-void Omnibar::fillFlags(QString flag) {
+void Omnibar::fillFlags(QString flag)
+{
     this->flags << flag;
 }
 
-void Omnibar::clearFlags() {
+void Omnibar::clearFlags()
+{
     this->flags.clear();
 }
 
-QStringList Omnibar::getFlags() {
+QStringList Omnibar::getFlags()
+{
     return this->flags;
 }

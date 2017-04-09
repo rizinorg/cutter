@@ -24,7 +24,8 @@ void CommentsDialog::on_buttonBox_rejected()
     close();
 }
 
-QString CommentsDialog::getComment() {
+QString CommentsDialog::getComment()
+{
     QString ret = ui->lineEdit->text();
     return ret;
 }

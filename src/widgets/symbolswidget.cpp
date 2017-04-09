@@ -17,11 +17,13 @@ SymbolsWidget::~SymbolsWidget()
     delete ui;
 }
 
-void SymbolsWidget::fillSymbols() {
+void SymbolsWidget::fillSymbols()
+{
     this->symbolsTreeWidget->clear();
-    for (auto i: this->main->core->getList ("bin", "symbols")) {
-        QStringList pieces = i.split (",");
-        if (pieces.length()==3)
+    for (auto i : this->main->core->getList("bin", "symbols"))
+    {
+        QStringList pieces = i.split(",");
+        if (pieces.length() == 3)
             this->main->appendRow(this->symbolsTreeWidget, pieces[0], pieces[1], pieces[2]);
     }
     this->main->adjustColumns(this->symbolsTreeWidget);

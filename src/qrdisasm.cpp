@@ -8,11 +8,12 @@ QRDisasm::QRDisasm(QRCore *core)
     this->core = core;
 }
 
-bool QRDisasm::disassembleAt (ut64 addr, QRDisasmOption opt, QRDisasmRow &dr) {
+bool QRDisasm::disassembleAt(ut64 addr, QRDisasmOption opt, QRDisasmRow &dr)
+{
     QNOTUSED(addr);
     QNOTUSED(opt);
     QNOTUSED(dr);
 
-    printf ("FUCK\n");
+    printf("FUCK\n");
     return false;
 }

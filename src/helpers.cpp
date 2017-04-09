@@ -6,22 +6,24 @@
 namespace qhelpers
 {
 
-// TODO: wouldn't it be enough to setFont on the QWidget?
+    // TODO: wouldn't it be enough to setFont on the QWidget?
 
-void normalizeFont(QPlainTextEdit *edit) {
-    #ifdef Q_OS_LINUX
+    void normalizeFont(QPlainTextEdit *edit)
+    {
+#ifdef Q_OS_LINUX
         QFont anonFont("Inconsolata", 12);
         QTextDocument *out_doc = edit->document();
         out_doc->setDefaultFont(anonFont);
-    #endif
-}
+#endif
+    }
 
-void normalizeEditFont(QTextEdit *edit) {
-    #ifdef Q_OS_LINUX
+    void normalizeEditFont(QTextEdit *edit)
+    {
+#ifdef Q_OS_LINUX
         QFont anonFont("Inconsolata", 12);
         QTextDocument *out_doc = edit->document();
         out_doc->setDefaultFont(anonFont);
-    #endif
-}
+#endif
+    }
 
 } // end namespace

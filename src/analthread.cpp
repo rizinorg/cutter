@@ -11,7 +11,8 @@ AnalThread::AnalThread(QWidget *parent) :
 
 AnalThread::~AnalThread()
 {
-    if (isRunning()) {
+    if (isRunning())
+    {
         quit();
         wait();
     }

@@ -4,8 +4,9 @@
 #include <QDialog>
 #include "mainwindow.h"
 
-namespace Ui {
-class createNewDialog;
+namespace Ui
+{
+    class createNewDialog;
 }
 
 class createNewDialog : public QDialog
@@ -27,7 +28,7 @@ private slots:
 
 private:
     Ui::createNewDialog *ui;
-    MainWindow* w;
+    MainWindow *w;
 };
 
 #endif // CREATENEWDIALOG_H

@@ -3,19 +3,21 @@
 
 #include <qrcore.h>
 
-enum QRDisasmDataType {
+enum QRDisasmDataType
+{
     STRING = 'z',
     STRUCT = 's',
     DATA = 'd',
 
 };
 
-enum QRDisasmOption {
-    DWARF = 1<<1,
-    REFS = 1<<2,
-    ESIL = 1<<3,
-    HEXPAIRS = 1<<4,
-    COMMENT = 1<<5,
+enum QRDisasmOption
+{
+    DWARF = 1 << 1,
+    REFS = 1 << 2,
+    ESIL = 1 << 3,
+    HEXPAIRS = 1 << 4,
+    COMMENT = 1 << 5,
 };
 
 class QRDisasmRow
@@ -64,7 +66,7 @@ class QRDisasm
     Sdb *db;
 public:
     QRDisasm(QRCore *core);
-    bool disassembleAt (ut64 addr, QRDisasmOption opt, QRDisasmRow &dr);
+    bool disassembleAt(ut64 addr, QRDisasmOption opt, QRDisasmRow &dr);
     // high level api for the disasm thing to manage comments, xrefs, etc
     //next();
     //prev();

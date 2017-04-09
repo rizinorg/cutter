@@ -28,7 +28,7 @@ void StringsWidget::on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
     // TODO: use this info to change disasm contents
     QString offset = item->text(1);
     QString name = item->text(2);
-    this->main->seek (offset);
+    this->main->seek(offset);
     // Rise and shine baby!
     this->main->memoryDock->raise();
 }

@@ -20,18 +20,18 @@ public:
     void setupCompleter();
 
 private:
-        MainWindow      *main;
+    MainWindow      *main;
 
 private slots:
-        void on_gotoEntry_returnPressed();
+    void on_gotoEntry_returnPressed();
 
-        void restoreCompleter();
+    void restoreCompleter();
 
 signals:
 
 public slots:
-        void showCommands();
-        void clearContents();
+    void showCommands();
+    void clearContents();
 };
 
 #endif // OMNIBAR_H

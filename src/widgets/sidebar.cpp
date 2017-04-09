@@ -14,14 +14,20 @@ SideBar::SideBar(MainWindow *main) :
     ui->setupUi(this);
 
     QSettings settings;
-    if (settings.value("responsive").toBool()) {
+    if (settings.value("responsive").toBool())
+    {
         ui->respButton->setChecked(true);
-    } else {
+    }
+    else
+    {
         ui->respButton->setChecked(false);
     }
-    if (settings.value("dark").toBool()) {
+    if (settings.value("dark").toBool())
+    {
         ui->themesButton->setChecked(true);
-    } else {
+    }
+    else
+    {
         ui->themesButton->setChecked(false);
     }
 }
@@ -39,9 +45,12 @@ void SideBar::on_tabsButton_clicked()
 void SideBar::on_consoleButton_clicked()
 {
     this->main->on_actionhide_bottomPannel_triggered();
-    if (ui->consoleButton->isChecked()) {
+    if (ui->consoleButton->isChecked())
+    {
         ui->consoleButton->setIcon(QIcon(":/new/prefix1/img/icons/up_white.png"));
-    } else {
+    }
+    else
+    {
         ui->consoleButton->setIcon(QIcon(":/new/prefix1/img/icons/down_white.png"));
     }
 }
@@ -53,25 +62,32 @@ void SideBar::on_webServerButton_clicked()
 
 void SideBar::on_lockButton_clicked()
 {
-    if(ui->lockButton->isChecked()) {
-        ui->lockButton->setIcon( QIcon(":/new/prefix1/img/icons/unlock_white.png") );
+    if (ui->lockButton->isChecked())
+    {
+        ui->lockButton->setIcon(QIcon(":/new/prefix1/img/icons/unlock_white.png"));
         this->main->lockUnlock_Docks(1);
-    } else {
-        ui->lockButton->setIcon( QIcon(":/new/prefix1/img/icons/lock_white.png") );
+    }
+    else
+    {
+        ui->lockButton->setIcon(QIcon(":/new/prefix1/img/icons/lock_white.png"));
         this->main->lockUnlock_Docks(0);
     }
 }
 
-void SideBar::themesButtonToggle() {
+void SideBar::themesButtonToggle()
+{
     ui->themesButton->click();
 }
 
 void SideBar::on_themesButton_clicked()
 {
-    if (ui->themesButton->isChecked() ) {
+    if (ui->themesButton->isChecked())
+    {
         // Dark theme
         this->main->dark();
-    } else {
+    }
+    else
+    {
         // Clear theme
         this->main->def_theme();
     }
@@ -79,7 +95,7 @@ void SideBar::on_themesButton_clicked()
 
 void SideBar::on_calcInput_textChanged(const QString &arg1)
 {
-    ui->calcOutput->setText(QString::number(this->main->core->math (arg1)));
+    ui->calcOutput->setText(QString::number(this->main->core->math(arg1)));
 }
 
 void SideBar::on_asm2hex_clicked()

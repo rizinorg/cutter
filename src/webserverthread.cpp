@@ -12,7 +12,8 @@ WebServerThread::WebServerThread(QRCore *core, QObject *parent) :
 
 WebServerThread::~WebServerThread()
 {
-    if (isRunning()) {
+    if (isRunning())
+    {
         quit();
         wait();
     }
@@ -22,7 +23,8 @@ void WebServerThread::startServer()
 {
     assert(nullptr != core);
 
-    if (!isRunning() && !started) {
+    if (!isRunning() && !started)
+    {
         QThread::start();
     }
 }
@@ -43,7 +45,8 @@ bool WebServerThread::isStarted() const
     return started;
 }
 
-void WebServerThread::run() {
+void WebServerThread::run()
+{
     QMutexLocker locker(&mutex);
 
     if (core == nullptr)
@@ -63,13 +66,16 @@ void WebServerThread::toggleWebServer()
     // "=h*", "", "restart current webserver",
     // "=h&", " port", "start http server in background)",
 
-    if (started) {
+    if (started)
+    {
         // after this the only reaction to this commands is:
         // sandbox: connect disabled
         // and the webserver is still running
         // TODO: find out why
         core->cmd("=h-");
-    } else {
+    }
+    else
+    {
         core->cmd("=h&");
     }
 

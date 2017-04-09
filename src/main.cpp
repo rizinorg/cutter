@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
     // Check r2 version
     QString r2version = r_core_version();
     QString localVersion = "" R2_GITTAP;
-    if(r2version != localVersion)
+    if (r2version != localVersion)
     {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
@@ -43,11 +43,11 @@ int main(int argc, char *argv[])
         msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msg.setWindowTitle("Version mismatch!");
         msg.setText(QString("The version used to compile iaito (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?").arg(localVersion, r2version));
-        if(msg.exec() == QMessageBox::No)
+        if (msg.exec() == QMessageBox::No)
             return 1;
     }
 
-    if(args.empty())
+    if (args.empty())
     {
         NewFileDialog *n = new NewFileDialog();
         n->setAttribute(Qt::WA_DeleteOnClose);

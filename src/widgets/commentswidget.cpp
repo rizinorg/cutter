@@ -45,13 +45,15 @@ void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *it
     QString offset = item->text(1);
     QString name = item->text(2);
     this->main->add_debug_output(offset + ": " + name);
-    this->main->seek (offset, name);
+    this->main->seek(offset, name);
 }
 
-void CommentsWidget::refreshTree() {
+void CommentsWidget::refreshTree()
+{
     this->commentsTreeWidget->clear();
     QList<QList<QString>> comments = this->main->core->getComments();
-    for (QList<QString> comment: comments) {
+    for (QList<QString> comment : comments)
+    {
         this->main->add_debug_output(comment[1]);
         QString fcn_name = this->main->core->cmdFunctionAt(comment[1]);
         this->main->appendRow(this->commentsTreeWidget, comment[1], fcn_name, comment[0].remove('"'));
@@ -61,11 +63,13 @@ void CommentsWidget::refreshTree() {
     // Add nested comments
     this->nestedCommentsTreeWidget->clear();
     QMap<QString, QList<QList<QString>>> cmts = this->main->core->getNestedComments();
-    for(auto cmt : cmts.keys()) {
+    for (auto cmt : cmts.keys())
+    {
         QTreeWidgetItem *item = new QTreeWidgetItem(this->nestedCommentsTreeWidget);
         item->setText(0, cmt);
         QList<QList<QString>> meow = cmts.value(cmt);
-        for (int i = 0; i < meow.size(); ++i) {
+        for (int i = 0; i < meow.size(); ++i)
+        {
             QList<QString> tmp = meow.at(i);
             QTreeWidgetItem *it = new QTreeWidgetItem();
             it->setText(0, tmp[1]);
@@ -95,10 +99,13 @@ void CommentsWidget::showTitleContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHorizontal);
     menu->addAction(ui->actionVertical);
 
-    if (ui->tabWidget->currentIndex() == 0) {
+    if (ui->tabWidget->currentIndex() == 0)
+    {
         ui->actionHorizontal->setChecked(true);
         ui->actionVertical->setChecked(false);
-    } else {
+    }
+    else
+    {
         ui->actionVertical->setChecked(true);
         ui->actionHorizontal->setChecked(false);
     }
@@ -119,17 +126,23 @@ void CommentsWidget::on_actionVertical_triggered()
     ui->tabWidget->setCurrentIndex(1);
 }
 
-bool CommentsWidget::eventFilter(QObject *obj, QEvent *event) {
-    if (this->main->responsive) {
-        if (event->type() == QEvent::Resize && obj == this && this->isVisible()) {
-            QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+bool CommentsWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (this->main->responsive)
+    {
+        if (event->type() == QEvent::Resize && obj == this && this->isVisible())
+        {
+            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
             //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
             //       resizeEvent->size().width(),
             //       resizeEvent->size().height());
-            if (resizeEvent->size().width() >= resizeEvent->size().height()) {
+            if (resizeEvent->size().width() >= resizeEvent->size().height())
+            {
                 // Set horizontal view (list)
                 this->on_actionHorizontal_triggered();
-            } else {
+            }
+            else
+            {
                 // Set vertical view (Tree)
                 this->on_actionVertical_triggered();
             }

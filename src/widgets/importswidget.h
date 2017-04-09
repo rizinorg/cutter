@@ -7,8 +7,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class ImportsWidget;
+namespace Ui
+{
+    class ImportsWidget;
 }
 
 class ImportsWidget : public QDockWidget
@@ -33,9 +34,9 @@ private:
 class CMyDelegate : public QStyledItemDelegate
 {
 public:
-    CMyDelegate(QObject* parent) : QStyledItemDelegate(parent) {}
+    CMyDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
 
-    void paint(QPainter* painter, const QStyleOptionViewItem & option, const QModelIndex & index) const override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
 #endif // IMPORTSWIDGET_H

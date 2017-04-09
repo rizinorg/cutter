@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     console_docu->setDocumentMargin(10);
 
     // Sepparator between back/forward and undo/redo buttons
-    QWidget* spacer4 = new QWidget();
+    QWidget *spacer4 = new QWidget();
     spacer4->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     spacer4->setMinimumSize(10, 10);
     ui->mainToolBar->insertWidget(ui->actionForward, spacer4);
@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     connect(backButton, SIGNAL(clicked()), this, SLOT(on_backButton_clicked()));
 
     // Sepparator between undo/redo and goto lineEdit
-    QWidget* spacer3 = new QWidget();
+    QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     spacer3->setMinimumSize(20, 20);
     spacer3->setMaximumWidth(300);
@@ -105,14 +105,14 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     ui->mainToolBar->insertWidget(ui->actionShow_Hide_mainsidebar, this->omnibar);
 
     // Add special sepparators to the toolbar that expand to separate groups of elements
-    QWidget* spacer2 = new QWidget();
+    QWidget *spacer2 = new QWidget();
     spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     spacer2->setMinimumSize(10, 10);
     spacer2->setMaximumWidth(300);
     ui->mainToolBar->insertWidget(ui->actionShow_Hide_mainsidebar, spacer2);
 
     // Sepparator between back/forward and undo/redo buttons
-    QWidget* spacer = new QWidget();
+    QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     spacer->setMinimumSize(20, 20);
     ui->mainToolBar->addWidget(spacer);
@@ -143,7 +143,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     this->sectionsDock->setObjectName("sectionsDock");
     this->sectionsDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     this->sectionsDock->setWidget(this->sectionsWidget);
-    this->sectionsWidget->setContentsMargins(0,0,0,5);
+    this->sectionsWidget->setContentsMargins(0, 0, 0, 5);
     this->sectionsDock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     this->sectionsDock->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this->sectionsDock, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -185,9 +185,9 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     this->readSettings();
     // TODO: Allow the user to select this option visually in the GUI settings
     // Adjust the DockWidget areas
-    setCorner( Qt::TopLeftCorner, Qt::LeftDockWidgetArea );
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
-    setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
     this->flagsDock->flagsTreeWidget->clear();
@@ -216,28 +216,30 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
      *  Some global shortcuts
      */
     // Period goes to command entry
-    QShortcut* cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
+    QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
     connect(cmd_shortcut, SIGNAL(activated()), ui->consoleInputLineEdit, SLOT(setFocus()));
 
     // G and S goes to goto entry
-    QShortcut* goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
+    QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
     connect(goto_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
-    QShortcut* seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
+    QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
     connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
 
     // : goes to goto entry
-    QShortcut* commands_shortcut = new QShortcut(QKeySequence(Qt::Key_Colon), this);
+    QShortcut *commands_shortcut = new QShortcut(QKeySequence(Qt::Key_Colon), this);
     connect(commands_shortcut, SIGNAL(activated()), this->omnibar, SLOT(showCommands()));
 
     connect(&webserverThread, SIGNAL(finished()), this, SLOT(webserverThreadFinished()));
 }
 
-MainWindow::~MainWindow() {
+MainWindow::~MainWindow()
+{
     delete ui;
     delete core;
 }
 
-void MainWindow::start_web_server() {
+void MainWindow::start_web_server()
+{
     // Start web server
     webserverThread.startServer();
 }
@@ -252,45 +254,52 @@ void MainWindow::webserverThreadFinished()
     //}
 }
 
-void MainWindow::adjustColumns(QTreeWidget *tw) {
+void MainWindow::adjustColumns(QTreeWidget *tw)
+{
     int count = tw->columnCount();
-    for (int i = 0; i != count; ++i) {
+    for (int i = 0; i != count; ++i)
+    {
         tw->resizeColumnToContents(i);
     }
 }
 
 void MainWindow::appendRow(QTreeWidget *tw, const QString &str, const QString &str2,
-                      const QString &str3, const QString &str4, const QString &str5) {
+                           const QString &str3, const QString &str4, const QString &str5)
+{
     QTreeWidgetItem *tempItem = new QTreeWidgetItem();
     // Fill dummy hidden column
-    tempItem->setText(0,"0");
-    tempItem->setText(1,str);
-    if (str2!=NULL)
+    tempItem->setText(0, "0");
+    tempItem->setText(1, str);
+    if (str2 != NULL)
         tempItem->setText(2, str2);
-    if (str3!=NULL)
+    if (str3 != NULL)
         tempItem->setText(3, str3);
-    if (str4!=NULL)
+    if (str4 != NULL)
         tempItem->setText(4, str4);
-    if (str5!=NULL)
+    if (str5 != NULL)
         tempItem->setText(5, str5);
     tw->insertTopLevelItem(0, tempItem);
 }
 
 void MainWindow::setWebServerState(bool start)
 {
-    if (start) {
+    if (start)
+    {
         webserverThread.startServer();
 
         // Open web interface on default browser
         // ballessay: well isn't this possible with =H&
         //QString link = "http://localhost:9090/";
         //QDesktopServices::openUrl(QUrl(link));
-    } else {
+    }
+    else
+    {
         webserverThread.stopServer();
     }
 }
 
-void MainWindow::hideDummyColumns() {
+void MainWindow::hideDummyColumns()
+{
     // UGLY, should be a loop over all treewidgets...
     this->functionsDock->functionsTreeWidget->setColumnHidden(0, true);
     this->importsDock->importsTreeWidget->setColumnHidden(0, true);
@@ -301,7 +310,8 @@ void MainWindow::hideDummyColumns() {
     this->commentsDock->commentsTreeWidget->setColumnHidden(0, true);
 }
 
-void MainWindow::setFilename(QString fn) {
+void MainWindow::setFilename(QString fn)
+{
 
     // Add file name to window title
     this->filename = fn;
@@ -325,10 +335,11 @@ void MainWindow::showConsoleContextMenu(const QPoint &pt)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, "Iaito",
-                 "Do you really want to exit?\nSave your project before closing!",
-                 QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+                                      "Do you really want to exit?\nSave your project before closing!",
+                                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     //qDebug() << ret;
-    if (ret == QMessageBox::Save) {
+    if (ret == QMessageBox::Save)
+    {
         QSettings settings;
         settings.setValue("geometry", saveGeometry());
         settings.setValue("size", size());
@@ -339,13 +350,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
         //this->add_debug_output(notes);
         this->core->cmd("Pnj " + notes);
         QMainWindow::closeEvent(event);
-    } else if (ret == QMessageBox::Discard) {
+    }
+    else if (ret == QMessageBox::Discard)
+    {
         QSettings settings;
         settings.setValue("geometry", saveGeometry());
         settings.setValue("size", size());
         settings.setValue("pos", pos());
         settings.setValue("state", saveState());
-    } else {
+    }
+    else
+    {
         event->ignore();
     }
 }
@@ -357,20 +372,23 @@ void MainWindow::readSettings()
     restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
     restoreState(state);
-    if (settings.value("dark").toBool()) {
+    if (settings.value("dark").toBool())
+    {
         this->dark();
     }
     this->responsive = settings.value("responsive").toBool();
 }
 
-void MainWindow::dark() {
+void MainWindow::dark()
+{
     qApp->setStyleSheet("QPlainTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} QTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} ");
     this->memoryDock->switchTheme(true);
     QSettings settings;
     settings.setValue("dark", true);
 }
 
-void MainWindow::def_theme() {
+void MainWindow::def_theme()
+{
     qApp->setStyleSheet("");
     this->memoryDock->switchTheme(false);
     QSettings settings;
@@ -381,28 +399,33 @@ void MainWindow::def_theme() {
  * Refresh widget functions
  */
 
-void MainWindow::refreshFunctions() {
+void MainWindow::refreshFunctions()
+{
     this->functionsDock->refreshTree();
 }
 
-void MainWindow::refreshComments() {
+void MainWindow::refreshComments()
+{
     this->commentsDock->refreshTree();
 }
 
-void MainWindow::refreshFlagspaces() {
+void MainWindow::refreshFlagspaces()
+{
     int cur_idx = this->flagsDock->flagspaceCombo->currentIndex();
-    if (cur_idx<0)cur_idx = 0;
+    if (cur_idx < 0)cur_idx = 0;
     this->flagsDock->flagspaceCombo->clear();
     this->flagsDock->flagspaceCombo->addItem("(all)");
-    for (auto i : core->getList("flagspaces")) {
+    for (auto i : core->getList("flagspaces"))
+    {
         this->flagsDock->flagspaceCombo->addItem(i);
     }
-    if (cur_idx>0)
+    if (cur_idx > 0)
         this->flagsDock->flagspaceCombo->setCurrentIndex(cur_idx);
     refreshFlags();
 }
 
-void MainWindow::refreshFlags() {
+void MainWindow::refreshFlags()
+{
     QString flagspace = this->flagsDock->flagspaceCombo->currentText();
     this->omnibar->clearFlags();
     if (flagspace == "(all)")
@@ -410,13 +433,16 @@ void MainWindow::refreshFlags() {
 
     this->flagsDock->flagsTreeWidget->clear();
 
-    for (auto i: core->getList("flags", flagspace)) {
-        QStringList a = i.split (",");
-        if (a.length()>3) {
+    for (auto i : core->getList("flags", flagspace))
+    {
+        QStringList a = i.split(",");
+        if (a.length() > 3)
+        {
             appendRow(this->flagsDock->flagsTreeWidget, a[1], a[2], a[0], a[3]);
             this->omnibar->fillFlags(a[0]);
         }
-        else if (a.length()>2) {
+        else if (a.length() > 2)
+        {
             appendRow(this->flagsDock->flagsTreeWidget, a[1], a[2], a[0], "");
             this->omnibar->fillFlags(a[0]);
         }
@@ -426,18 +452,22 @@ void MainWindow::refreshFlags() {
     this->omnibar->setupCompleter();
 }
 
-void MainWindow::updateFrames() {
+void MainWindow::updateFrames()
+{
     if (core == NULL)
         return;
 
     static bool first_time = true;
-    if (first_time) {
+    if (first_time)
+    {
         setup_mem();
         this->add_output(" > Adding binary information to notepad");
         notepadDock->setText("# Binary information\n\n" + core->cmd("i") +
                              "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
         //first_time = false;
-    } else {
+    }
+    else
+    {
         refreshMem("");
     }
 
@@ -448,7 +478,8 @@ void MainWindow::updateFrames() {
 
     // TODO: make this configurable by the user?
     const bool use_scrollperpixel = true;
-    if (use_scrollperpixel) {
+    if (use_scrollperpixel)
+    {
         this->flagsDock->flagsTreeWidget->setVerticalScrollMode(spp);
         this->symbolsDock->symbolsTreeWidget->setVerticalScrollMode(spp);
         this->importsDock->importsTreeWidget->setVerticalScrollMode(spp);
@@ -457,7 +488,9 @@ void MainWindow::updateFrames() {
         this->relocsDock->relocsTreeWidget->setVerticalScrollMode(spp);
         this->memoryDock->xreFromTreeWidget_2->setVerticalScrollMode(spp);
         this->memoryDock->xrefToTreeWidget_2->setVerticalScrollMode(spp);
-    } else {
+    }
+    else
+    {
         this->flagsDock->flagsTreeWidget->setVerticalScrollMode(spi);
         this->symbolsDock->symbolsTreeWidget->setVerticalScrollMode(spi);
         this->importsDock->importsTreeWidget->setVerticalScrollMode(spi);
@@ -485,9 +518,10 @@ void MainWindow::updateFrames() {
     adjustColumns(this->importsDock->importsTreeWidget);
 
     this->relocsDock->relocsTreeWidget->clear();
-    for (auto i: core->getList ("bin","relocs")) {
-        QStringList pieces = i.split (",");
-        if (pieces.length()==3)
+    for (auto i : core->getList("bin", "relocs"))
+    {
+        QStringList pieces = i.split(",");
+        if (pieces.length() == 3)
             appendRow(this->relocsDock->relocsTreeWidget, pieces[0], pieces[1], pieces[2]);
     }
     adjustColumns(this->relocsDock->relocsTreeWidget);
@@ -495,16 +529,18 @@ void MainWindow::updateFrames() {
     this->symbolsDock->fillSymbols();
 
     this->stringsDock->stringsTreeWidget->clear();
-    for (auto i : core->getList ("bin", "strings")) {
-        QStringList pieces = i.split (",");
-        if (pieces.length () == 2)
+    for (auto i : core->getList("bin", "strings"))
+    {
+        QStringList pieces = i.split(",");
+        if (pieces.length() == 2)
             appendRow(this->stringsDock->stringsTreeWidget, pieces[0], pieces[1]);
     }
     adjustColumns(this->stringsDock->stringsTreeWidget);
 
     this->commentsDock->commentsTreeWidget->clear();
     QList<QList<QString>> comments = this->core->getComments();
-    for (QList<QString> comment: comments) {
+    for (QList<QString> comment : comments)
+    {
         /*
         QString name;
         //this->add_debug_output("Comment: " + comment[1] + ": " + comment[0]);
@@ -522,11 +558,13 @@ void MainWindow::updateFrames() {
 
     // Add nested comments
     QMap<QString, QList<QList<QString>>> cmts = this->core->getNestedComments();
-    for(auto cmt : cmts.keys()) {
+    for (auto cmt : cmts.keys())
+    {
         QTreeWidgetItem *item = new QTreeWidgetItem(this->commentsDock->nestedCommentsTreeWidget);
         item->setText(0, cmt);
         QList<QList<QString>> meow = cmts.value(cmt);
-        for (int i = 0; i < meow.size(); ++i) {
+        for (int i = 0; i < meow.size(); ++i)
+        {
             QList<QString> tmp = meow.at(i);
             QTreeWidgetItem *it = new QTreeWidgetItem();
             it->setText(0, tmp[1]);
@@ -538,25 +576,32 @@ void MainWindow::updateFrames() {
     adjustColumns(this->commentsDock->nestedCommentsTreeWidget);
 
     // TODO: FIXME: Remove the check for first_time;
-    if (first_time) {
+    if (first_time)
+    {
         sectionsWidget->tree->clear();
         int row = 0;
-        for (auto i: core->getList("bin","sections")) {
-            QStringList a = i.split (",");
-            if (a.length()>2) {
+        for (auto i : core->getList("bin", "sections"))
+        {
+            QStringList a = i.split(",");
+            if (a.length() > 2)
+            {
                 // Fix to work with ARM bins
                 //if (a[4].startsWith(".")) {
-                if (a[4].contains(".")) {
+                if (a[4].contains("."))
+                {
                     QString addr = a[1];
-                    QString addr_end = "0x0"+core->itoa(core->math(a[1]+"+"+a[2]));
+                    QString addr_end = "0x0" + core->itoa(core->math(a[1] + "+" + a[2]));
                     QString size = QString::number(core->math(a[2]));
                     QString name = a[4];
                     this->sectionsWidget->fillSections(row, name, size, addr, addr_end);
 
                     // Used to select a color for the sections graph
-                    if (row == 10) {
+                    if (row == 10)
+                    {
                         row = 0;
-                    } else {
+                    }
+                    else
+                    {
                         row++;
                     }
                 }
@@ -578,25 +623,35 @@ void MainWindow::updateFrames() {
 void MainWindow::on_actionLock_triggered()
 {
     doLock = !doLock;
-    if (doLock) {
-    foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
-        dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+    if (doLock)
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
+            dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        }
     }
-    } else {
-    foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
-        dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
-    }
+    else
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
+            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        }
     }
 }
 
 void MainWindow::lockUnlock_Docks(bool what)
 {
-    if(what) {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+    if (what)
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
-    } else {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+    }
+    else
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
     }
@@ -605,27 +660,34 @@ void MainWindow::lockUnlock_Docks(bool what)
 
 void MainWindow::on_actionLockUnlock_triggered()
 {
-    if(ui->actionLockUnlock->isChecked())
+    if (ui->actionLockUnlock->isChecked())
     {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
-        ui->actionLockUnlock->setIcon( QIcon(":/new/prefix1/lock") );
-    } else {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        ui->actionLockUnlock->setIcon(QIcon(":/new/prefix1/lock"));
+    }
+    else
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
-        ui->actionLockUnlock->setIcon( QIcon(":/new/prefix1/unlock") );
+        ui->actionLockUnlock->setIcon(QIcon(":/new/prefix1/unlock"));
     }
 }
 
 void MainWindow::on_actionTabs_triggered()
 {
-    if (ui->centralTabWidget->tabPosition() == QTabWidget::South) {
+    if (ui->centralTabWidget->tabPosition() == QTabWidget::South)
+    {
         ui->centralTabWidget->setTabPosition(QTabWidget::North);
         this->memoryDock->memTabWidget->setTabPosition(QTabWidget::North);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-    } else {
+    }
+    else
+    {
         ui->centralTabWidget->setTabPosition(QTabWidget::South);
         this->memoryDock->memTabWidget->setTabPosition(QTabWidget::South);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
@@ -636,7 +698,7 @@ void MainWindow::on_actionMem_triggered()
 {
     //this->memoryDock->show();
     //this->memoryDock->raise();
-    MemoryWidget* newMemDock = new MemoryWidget(this);
+    MemoryWidget *newMemDock = new MemoryWidget(this);
     this->dockList << newMemDock;
     newMemDock->setAttribute(Qt::WA_DeleteOnClose);
     this->tabifyDockWidget(this->memoryDock, newMemDock);
@@ -646,9 +708,12 @@ void MainWindow::on_actionMem_triggered()
 
 void MainWindow::on_actionFunctions_triggered()
 {
-    if (this->functionsDock->isVisible()) {
+    if (this->functionsDock->isVisible())
+    {
         this->functionsDock->close();
-    } else {
+    }
+    else
+    {
         this->functionsDock->show();
         this->functionsDock->raise();
     }
@@ -656,9 +721,12 @@ void MainWindow::on_actionFunctions_triggered()
 
 void MainWindow::on_actionImports_triggered()
 {
-    if (this->importsDock->isVisible()) {
+    if (this->importsDock->isVisible())
+    {
         this->importsDock->close();
-    } else {
+    }
+    else
+    {
         this->importsDock->show();
         this->importsDock->raise();
     }
@@ -666,9 +734,12 @@ void MainWindow::on_actionImports_triggered()
 
 void MainWindow::on_actionSymbols_triggered()
 {
-    if (this->symbolsDock->isVisible()) {
+    if (this->symbolsDock->isVisible())
+    {
         this->symbolsDock->close();
-    } else {
+    }
+    else
+    {
         this->symbolsDock->show();
         this->symbolsDock->raise();
     }
@@ -676,9 +747,12 @@ void MainWindow::on_actionSymbols_triggered()
 
 void MainWindow::on_actionReloc_triggered()
 {
-    if (this->relocsDock->isVisible()) {
+    if (this->relocsDock->isVisible())
+    {
         this->relocsDock->close();
-    } else {
+    }
+    else
+    {
         this->relocsDock->show();
         this->relocsDock->raise();
     }
@@ -686,9 +760,12 @@ void MainWindow::on_actionReloc_triggered()
 
 void MainWindow::on_actionStrings_triggered()
 {
-    if (this->stringsDock->isVisible()) {
+    if (this->stringsDock->isVisible())
+    {
         this->stringsDock->close();
-    } else {
+    }
+    else
+    {
         this->stringsDock->show();
         this->stringsDock->raise();
     }
@@ -696,9 +773,12 @@ void MainWindow::on_actionStrings_triggered()
 
 void MainWindow::on_actionSections_triggered()
 {
-    if (this->sectionsDock->isVisible()) {
+    if (this->sectionsDock->isVisible())
+    {
         this->sectionsDock->close();
-    } else {
+    }
+    else
+    {
         this->sectionsDock->show();
         this->sectionsDock->raise();
     }
@@ -706,9 +786,12 @@ void MainWindow::on_actionSections_triggered()
 
 void MainWindow::on_actionFlags_triggered()
 {
-    if (this->flagsDock->isVisible()) {
+    if (this->flagsDock->isVisible())
+    {
         this->flagsDock->close();
-    } else {
+    }
+    else
+    {
         this->flagsDock->show();
         this->flagsDock->raise();
     }
@@ -716,9 +799,12 @@ void MainWindow::on_actionFlags_triggered()
 
 void MainWindow::on_actionComents_triggered()
 {
-    if (this->commentsDock->isVisible()) {
+    if (this->commentsDock->isVisible())
+    {
         this->commentsDock->close();
-    } else {
+    }
+    else
+    {
         this->commentsDock->show();
         this->commentsDock->raise();
     }
@@ -726,9 +812,12 @@ void MainWindow::on_actionComents_triggered()
 
 void MainWindow::on_actionNotepad_triggered()
 {
-    if (this->notepadDock->isVisible()) {
+    if (this->notepadDock->isVisible())
+    {
         this->notepadDock->close();
-    } else {
+    }
+    else
+    {
         this->notepadDock->show();
         this->notepadDock->raise();
     }
@@ -736,22 +825,24 @@ void MainWindow::on_actionNotepad_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    AboutDialog* a = new AboutDialog(this);
+    AboutDialog *a = new AboutDialog(this);
     a->open();
 }
 
 void MainWindow::on_consoleInputLineEdit_returnPressed()
 {
-    if (this->core) {
+    if (this->core)
+    {
         QString input = ui->consoleInputLineEdit->text();
         ui->consoleOutputTextEdit->appendPlainText(this->core->cmd(input));
         ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
         // Add new command to history
         QCompleter *completer = ui->consoleInputLineEdit->completer();
-        if ( completer != NULL ) {
-            QStringListModel *completerModel = (QStringListModel*)(completer->model());
-            if ( completerModel != NULL )
-              completerModel->setStringList(completerModel->stringList() << input);
+        if (completer != NULL)
+        {
+            QStringListModel *completerModel = (QStringListModel *)(completer->model());
+            if (completerModel != NULL)
+                completerModel->setStringList(completerModel->stringList() << input);
         }
 
         ui->consoleInputLineEdit->setText("");
@@ -762,13 +853,16 @@ void MainWindow::on_showHistoToolButton_clicked()
 {
     QCompleter *completer = ui->consoleInputLineEdit->completer();
     if (completer == NULL)
-      return;
+        return;
 
-    if (ui->showHistoToolButton->isChecked()) {
+    if (ui->showHistoToolButton->isChecked())
+    {
         completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
         // Uhm... shouldn't it be called always?
         completer->complete();
-    } else {
+    }
+    else
+    {
         completer->setCompletionMode(QCompleter::PopupCompletion);
     }
 }
@@ -783,20 +877,22 @@ void MainWindow::on_actionRefresh_Panels_triggered()
     this->updateFrames();
 }
 
-void MainWindow::seek(const QString& offset, const QString& name) {
-    if (offset.length()==0)
+void MainWindow::seek(const QString &offset, const QString &name)
+{
+    if (offset.length() == 0)
         return;
     if (name != NULL)
         this->memoryDock->setWindowTitle(name);
     this->hexdumpTopOffset = 0;
     this->hexdumpBottomOffset = 0;
-    core->seek (offset);
+    core->seek(offset);
 
     refreshMem(offset);
     this->memoryDock->disasTextEdit->setFocus();
 }
 
-void MainWindow::setup_mem() {
+void MainWindow::setup_mem()
+{
     QString off = this->core->cmd("afo entry0").trimmed();
     //graphicsBar->refreshColorBar();
     graphicsBar->fillData();
@@ -807,7 +903,8 @@ void MainWindow::setup_mem() {
     this->memoryDock->setFcnName(off);
 }
 
-void MainWindow::refreshMem(QString off) {
+void MainWindow::refreshMem(QString off)
+{
     //add_debug_output("Refreshing to: " + off);
     //graphicsBar->refreshColorBar();
     this->memoryDock->refreshDisasm(off);
@@ -821,7 +918,8 @@ void MainWindow::on_backButton_clicked()
 {
     this->core->cmd("s-");
     QString back_offset = this->core->cmd("s=").split(" > ").last().trimmed();
-    if (back_offset != "") {
+    if (back_offset != "")
+    {
         QString fcn = this->core->cmdFunctionAt(back_offset);
         this->seek(this->memoryDock->normalizeAddr(back_offset), fcn);
     }
@@ -829,20 +927,22 @@ void MainWindow::on_backButton_clicked()
 
 void MainWindow::on_actionCalculator_triggered()
 {
-    if (!this->sideBar->isVisible()) {
+    if (!this->sideBar->isVisible())
+    {
         this->on_actionShow_Hide_mainsidebar_triggered();
     }
 }
 
 void MainWindow::on_actionCreate_File_triggered()
 {
-    createNewDialog* n = new createNewDialog(this);
+    createNewDialog *n = new createNewDialog(this);
     n->exec();
 }
 
 void MainWindow::on_actionAssembler_triggered()
 {
-    if (!this->sideBar->isVisible()) {
+    if (!this->sideBar->isVisible())
+    {
         this->on_actionShow_Hide_mainsidebar_triggered();
     }
 }
@@ -859,16 +959,19 @@ void MainWindow::on_actionStart_Web_Server_triggered()
 
 void MainWindow::on_actionConsoleSync_with_core_triggered()
 {
-    if (ui->actionConsoleSync_with_core->isChecked()) {
+    if (ui->actionConsoleSync_with_core->isChecked())
+    {
         //Enable core syncronization
-    } else {
+    }
+    else
+    {
         // Disable core sync
     }
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
-    CommentsDialog* c = new CommentsDialog(this);
+    CommentsDialog *c = new CommentsDialog(this);
     c->exec();
 }
 
@@ -928,9 +1031,12 @@ void MainWindow::showDefaultDocks()
 
 void MainWindow::on_actionhide_bottomPannel_triggered()
 {
-    if (ui->centralWidget->isVisible()) {
+    if (ui->centralWidget->isVisible())
+    {
         ui->centralWidget->hide();
-    } else {
+    }
+    else
+    {
         ui->centralWidget->show();
     }
 }
@@ -942,13 +1048,13 @@ void MainWindow::send_to_notepad(QString txt)
 
 void MainWindow::on_actionFunctionsRename_triggered()
 {
-    RenameDialog* r = new RenameDialog(this);
+    RenameDialog *r = new RenameDialog(this);
     // Get function based on click position
     //r->setFunctionName(fcn_name);
     r->open();
 }
 
-void MainWindow::get_refs(const QString& offset)
+void MainWindow::get_refs(const QString &offset)
 {
     this->memoryDock->get_refs_data(offset);
 }
@@ -1022,18 +1128,24 @@ void MainWindow::on_actionLoad_triggered()
 
 void MainWindow::on_actionShow_Hide_mainsidebar_triggered()
 {
-    if (ui->sideToolBar->isVisible()) {
+    if (ui->sideToolBar->isVisible())
+    {
         ui->sideToolBar->hide();
-    } else {
+    }
+    else
+    {
         ui->sideToolBar->show();
     }
 }
 
 void MainWindow::on_actionDashboard_triggered()
 {
-    if (this->dashboardDock->isVisible()) {
+    if (this->dashboardDock->isVisible())
+    {
         this->dashboardDock->close();
-    } else {
+    }
+    else
+    {
         this->dashboardDock->show();
         this->dashboardDock->raise();
     }
@@ -1047,10 +1159,13 @@ void MainWindow::showSectionsContextMenu(const QPoint &pt)
     menu->addAction(ui->actionSectionsHorizontal);
     menu->addAction(ui->actionSectionsVertical);
 
-    if (this->sectionsWidget->orientation() == 1) {
+    if (this->sectionsWidget->orientation() == 1)
+    {
         ui->actionSectionsHorizontal->setChecked(true);
         ui->actionSectionsVertical->setChecked(false);
-    } else {
+    }
+    else
+    {
         ui->actionSectionsVertical->setChecked(true);
         ui->actionSectionsHorizontal->setChecked(false);
     }
@@ -1074,13 +1189,15 @@ void MainWindow::on_actionForward_triggered()
 {
     this->core->cmd("s+");
     QString offset = this->core->cmd("s=").split(" > ").last().trimmed();
-    if (offset != "") {
+    if (offset != "")
+    {
         this->add_debug_output(offset);
         this->seek(offset);
     }
 }
 
-void MainWindow::toggleResponsive(bool maybe) {
+void MainWindow::toggleResponsive(bool maybe)
+{
     this->responsive = maybe;
     // Save options in settings
     QSettings settings;
@@ -1095,9 +1212,10 @@ void MainWindow::on_actionTabs_on_Top_triggered()
 void MainWindow::on_actionReset_settings_triggered()
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, "Iaito",
-                 "Do you really want to clear all settings?",
-                 QMessageBox::Ok | QMessageBox::Cancel);
-    if (ret == QMessageBox::Ok) {
+                                      "Do you really want to clear all settings?",
+                                      QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok)
+    {
         // Save options in settings
         QSettings settings;
         settings.clear();

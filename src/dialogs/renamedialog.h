@@ -3,8 +3,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-class RenameDialog;
+namespace Ui
+{
+    class RenameDialog;
 }
 
 class RenameDialog : public QDialog

@@ -26,7 +26,8 @@ Dashboard::~Dashboard()
     delete ui;
 }
 
-void Dashboard::updateContents() {
+void Dashboard::updateContents()
+{
 
     // Parse and add JSON file info
     QString info = this->main->core->getFileInfo();
@@ -46,8 +47,8 @@ void Dashboard::updateContents() {
     this->ui->formatEdit->setText(item["format"].toString());
     this->ui->modeEdit->setText(item["mode"].toString());
     this->ui->typeEdit->setText(item["type"].toString());
-    this->ui->sizeEdit->setText( QString::number(item["size"].toDouble()) );
-    this->ui->fdEdit->setText( QString::number(item["fd"].toDouble()) );
+    this->ui->sizeEdit->setText(QString::number(item["size"].toDouble()));
+    this->ui->fdEdit->setText(QString::number(item["fd"].toDouble()));
 
     this->ui->archEdit->setText(item2["arch"].toString());
     this->ui->langEdit->setText(item2["lang"].toString().toUpper());
@@ -57,51 +58,75 @@ void Dashboard::updateContents() {
     this->ui->subsysEdit->setText(item2["subsys"].toString());
     this->ui->endianEdit->setText(item2["endian"].toString());
     this->ui->compiledEdit->setText(item2["compiled"].toString());
-    this->ui->bitsEdit->setText( QString::number(item2["bits"].toDouble()) );
+    this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
 
-    this->ui->baddrEdit->setText( QString::number(item2["baddr"].toDouble()) );
+    this->ui->baddrEdit->setText(QString::number(item2["baddr"].toDouble()));
 
-    if ( item2["va"].toBool() == true) {
+    if (item2["va"].toBool() == true)
+    {
         this->ui->vaEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->vaEdit->setText("False");
     }
-    if ( item2["canary"].toBool() == true) {
+    if (item2["canary"].toBool() == true)
+    {
         this->ui->canaryEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->canaryEdit->setText("False");
         this->ui->canaryEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
-    if ( item2["crypto"].toBool() == true) {
+    if (item2["crypto"].toBool() == true)
+    {
         this->ui->cryptoEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->cryptoEdit->setText("False");
     }
-    if ( item2["nx"].toBool() == true) {
+    if (item2["nx"].toBool() == true)
+    {
         this->ui->nxEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->nxEdit->setText("False");
         this->ui->nxEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
-    if ( item2["pic"].toBool() == true) {
+    if (item2["pic"].toBool() == true)
+    {
         this->ui->picEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->picEdit->setText("False");
         this->ui->picEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
-    if ( item2["static"].toBool() == true) {
+    if (item2["static"].toBool() == true)
+    {
         this->ui->staticEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->staticEdit->setText("False");
     }
-    if ( item2["stripped"].toBool() == true) {
+    if (item2["stripped"].toBool() == true)
+    {
         this->ui->strippedEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->strippedEdit->setText("False");
     }
-    if ( item2["relocs"].toBool() == true) {
+    if (item2["relocs"].toBool() == true)
+    {
         this->ui->relocsEdit->setText("True");
-    } else {
+    }
+    else
+    {
         this->ui->relocsEdit->setText("False");
     }
 
@@ -113,17 +138,19 @@ void Dashboard::updateContents() {
 
     QString libs = this->main->core->cmd("il");
     QStringList lines = libs.split("\n", QString::SkipEmptyParts);
-    if (! lines.isEmpty()) {
+    if (! lines.isEmpty())
+    {
         lines.removeFirst();
         lines.removeLast();
     }
-    foreach (QString lib, lines) {
+    foreach (QString lib, lines)
+    {
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         ui->verticalLayout_2->addWidget(label);
     }
-    QSpacerItem *spacer = new QSpacerItem(1,1, QSizePolicy::Fixed, QSizePolicy::Expanding);
+    QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
     ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Add entropy value
@@ -135,8 +162,9 @@ void Dashboard::updateContents() {
 
     // Add data to HTML graphs (stats)
     QFile html(":/html/stats.html");
-    if(!html.open(QIODevice::ReadOnly)) {
-        QMessageBox::information(0,"error",html.errorString());
+    if (!html.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::information(0, "error", html.errorString());
     }
     QString code = html.readAll();
     html.close();
@@ -147,8 +175,9 @@ void Dashboard::updateContents() {
 
     // Add data to polar graph
     QFile html2(":/html/radar.html");
-    if(!html2.open(QIODevice::ReadOnly)) {
-        QMessageBox::information(0,"error",html2.errorString());
+    if (!html2.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::information(0, "error", html2.errorString());
     }
     QString code2 = html2.readAll();
     html2.close();

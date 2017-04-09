@@ -14,8 +14,9 @@ class QItemSelectionModel;
 QT_END_NAMESPACE
 
 
-namespace Ui {
-class SectionsWidget;
+namespace Ui
+{
+    class SectionsWidget;
 }
 
 class SectionsWidget : public QSplitter
@@ -25,7 +26,7 @@ class SectionsWidget : public QSplitter
 public:
     explicit SectionsWidget(MainWindow *main, QWidget *parent = 0);
     void fillSections(int row, const QString &str, const QString &str2,
-                                      const QString &str3, const QString &str4);
+                      const QString &str3, const QString &str4);
     void adjustColumns();
     QTreeWidget              *tree;
 

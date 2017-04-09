@@ -35,8 +35,9 @@
 #include "newfiledialog.h"
 #include "helpers.h"
 
-namespace Ui {
-class MainWindow;
+namespace Ui
+{
+    class MainWindow;
 }
 
 
@@ -64,18 +65,18 @@ public:
     void readSettings();
     void setFilename(QString fn);
     void setCore(QRCore *core);
-    void seek(const QString& offset, const QString& name=NULL);
+    void seek(const QString &offset, const QString &name = NULL);
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
     void refreshFlags();
-    void get_refs(const QString& offset);
+    void get_refs(const QString &offset);
     void add_output(QString msg);
     void add_debug_output(QString msg);
     void send_to_notepad(QString txt);
     void adjustColumns(QTreeWidget *tw);
-    void appendRow(QTreeWidget *tw, const QString &str, const QString &str2=NULL,
-                          const QString &str3=NULL, const QString &str4=NULL, const QString &str5=NULL);
+    void appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = NULL,
+                   const QString &str3 = NULL, const QString &str4 = NULL, const QString &str5 = NULL);
 
     void setWebServerState(bool start);
 
@@ -201,7 +202,7 @@ private:
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
-    QList<QDockWidget*> dockList;
+    QList<QDockWidget *> dockList;
     QLabel           *logo;
     Ui::MainWindow   *ui;
     Highlighter      *highlighter;

@@ -6,8 +6,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class RelocsWidget;
+namespace Ui
+{
+    class RelocsWidget;
 }
 
 class RelocsWidget : public QDockWidget

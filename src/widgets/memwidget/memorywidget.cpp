@@ -70,7 +70,8 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
 
     // Allows the local resources (qrc://) to access http content
-    if (!ui->graphWebView->settings()->testAttribute(QWebSettings::LocalContentCanAccessRemoteUrls)) {
+    if (!ui->graphWebView->settings()->testAttribute(QWebSettings::LocalContentCanAccessRemoteUrls))
+    {
         ui->graphWebView->settings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, true);
     }
 
@@ -90,7 +91,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     QMenu *memMenu = new QMenu();
     ui->memSettingsButton_2->addAction(ui->actionSettings_menu_1);
     memMenu->addAction(ui->actionSettings_menu_1);
-    QMenu* hideSide = memMenu->addMenu("Show/Hide");
+    QMenu *hideSide = memMenu->addMenu("Show/Hide");
     hideSide->addAction(ui->actionDisas_ShowHideBytes);
     hideSide->addAction(ui->actionSeparate_bytes);
     hideSide->addAction(ui->actionRight_align_bytes);
@@ -142,37 +143,37 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
             ui->hexHexText_2->verticalScrollBar(), SLOT(setValue(int)));
 
     // X to show hexdump
-    QShortcut* hexdump_shortcut = new QShortcut(QKeySequence(Qt::Key_X), this->main);
+    QShortcut *hexdump_shortcut = new QShortcut(QKeySequence(Qt::Key_X), this->main);
     connect(hexdump_shortcut, SIGNAL(activated()), this, SLOT(showHexdump()));
     //hexdump_shortcut->setContext(Qt::WidgetShortcut);
 
     // Space to switch between disassembly and graph
-    QShortcut* graph_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this->main);
+    QShortcut *graph_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this->main);
     connect(graph_shortcut, SIGNAL(activated()), this, SLOT(cycleViews()));
     //graph_shortcut->setContext(Qt::WidgetShortcut);
 
     // Semicolon to add comment
-    QShortcut* comment_shortcut = new QShortcut(QKeySequence(Qt::Key_Semicolon), ui->disasTextEdit_2);
+    QShortcut *comment_shortcut = new QShortcut(QKeySequence(Qt::Key_Semicolon), ui->disasTextEdit_2);
     connect(comment_shortcut, SIGNAL(activated()), this, SLOT(on_actionDisasAdd_comment_triggered()));
     comment_shortcut->setContext(Qt::WidgetShortcut);
 
     // N to rename function
-    QShortcut* rename_shortcut = new QShortcut(QKeySequence(Qt::Key_N), ui->disasTextEdit_2);
+    QShortcut *rename_shortcut = new QShortcut(QKeySequence(Qt::Key_N), ui->disasTextEdit_2);
     connect(rename_shortcut, SIGNAL(activated()), this, SLOT(on_actionFunctionsRename_triggered()));
     rename_shortcut->setContext(Qt::WidgetShortcut);
 
     // R to show XRefs
-    QShortcut* xrefs_shortcut = new QShortcut(QKeySequence(Qt::Key_R), ui->disasTextEdit_2);
+    QShortcut *xrefs_shortcut = new QShortcut(QKeySequence(Qt::Key_R), ui->disasTextEdit_2);
     connect(xrefs_shortcut, SIGNAL(activated()), this, SLOT(on_actionXRefs_triggered()));
     xrefs_shortcut->setContext(Qt::WidgetShortcut);
 
     // Esc to seek back
-    QShortcut* back_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->disasTextEdit_2);
+    QShortcut *back_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->disasTextEdit_2);
     connect(back_shortcut, SIGNAL(activated()), this, SLOT(seek_back()));
     back_shortcut->setContext(Qt::WidgetShortcut);
 
     // CTRL + R to refresh the disasm
-    QShortcut* refresh_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_R), ui->disasTextEdit_2);
+    QShortcut *refresh_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_R), ui->disasTextEdit_2);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshDisasm()));
     refresh_shortcut->setContext(Qt::WidgetShortcut);
 
@@ -204,7 +205,8 @@ void MemoryWidget::highlightCurrentLine()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     // Highlight the current line in yellow
-    if (ui->disasTextEdit_2->isReadOnly()) {
+    if (ui->disasTextEdit_2->isReadOnly())
+    {
         QTextEdit::ExtraSelection selection;
 
         QColor lineColor = QColor(190, 144, 212);
@@ -242,10 +244,12 @@ void MemoryWidget::highlightCurrentLine()
     cursor2.beginEditBlock();
 
     highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-    while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
+    while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd())
+    {
         highlightSelection.cursor = document->find(searchString, highlightSelection.cursor, QTextDocument::FindWholeWords);
 
-        if (!highlightSelection.cursor.isNull()) {
+        if (!highlightSelection.cursor.isNull())
+        {
             highlightSelection.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             extraSelections.append(highlightSelection);
         }
@@ -259,7 +263,8 @@ void MemoryWidget::highlightHexCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (!ui->hexHexText_2->isReadOnly()) {
+    if (!ui->hexHexText_2->isReadOnly())
+    {
         QTextEdit::ExtraSelection selection;
 
         QColor lineColor = QColor(190, 144, 212);
@@ -305,10 +310,12 @@ void MemoryWidget::highlightHexWords(QString str)
     QTextCharFormat colorFormat = plainFormat;
     colorFormat.setBackground(blueColor);
 
-    while (!highlightCursor.isNull() && !highlightCursor.atEnd()) {
+    while (!highlightCursor.isNull() && !highlightCursor.atEnd())
+    {
         highlightCursor = document->find(searchString, highlightCursor, QTextDocument::FindWholeWords);
 
-        if (!highlightCursor.isNull()) {
+        if (!highlightCursor.isNull())
+        {
             highlightCursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             highlightCursor.mergeCharFormat(colorFormat);
         }
@@ -316,12 +323,15 @@ void MemoryWidget::highlightHexWords(QString str)
     cursor.endEditBlock();
 }
 
-void MemoryWidget::highlightPreviewCurrentLine() {
+void MemoryWidget::highlightPreviewCurrentLine()
+{
 
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (ui->previewTextEdit->toPlainText() != "") {
-        if (ui->previewTextEdit->isReadOnly()) {
+    if (ui->previewTextEdit->toPlainText() != "")
+    {
+        if (ui->previewTextEdit->isReadOnly())
+        {
             QTextEdit::ExtraSelection selection;
 
             QColor lineColor = QColor(190, 144, 212);
@@ -336,12 +346,15 @@ void MemoryWidget::highlightPreviewCurrentLine() {
     ui->previewTextEdit->setExtraSelections(extraSelections);
 }
 
-void MemoryWidget::highlightDecoCurrentLine() {
+void MemoryWidget::highlightDecoCurrentLine()
+{
 
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (ui->decoTextEdit->toPlainText() != "") {
-        if (ui->decoTextEdit->isReadOnly()) {
+    if (ui->decoTextEdit->toPlainText() != "")
+    {
+        if (ui->decoTextEdit->isReadOnly())
+        {
             QTextEdit::ExtraSelection selection;
 
             QColor lineColor = QColor(190, 144, 212);
@@ -366,18 +379,21 @@ MemoryWidget::~MemoryWidget()
  * Content management functions
  */
 
-void MemoryWidget::fillPlugins(QStringList plugins) {
+void MemoryWidget::fillPlugins(QStringList plugins)
+{
     // Fill the plugins combo for the hexdump sidebar
     ui->hexArchComboBox_2->insertItems(0, plugins);
 }
 
-void MemoryWidget::addTextDisasm(QString txt) {
+void MemoryWidget::addTextDisasm(QString txt)
+{
     QTextDocument *document = ui->disasTextEdit_2->document();
     //document->undo();
     ui->disasTextEdit_2->appendPlainText(txt);
 }
 
-void MemoryWidget::replaceTextDisasm(QString txt) {
+void MemoryWidget::replaceTextDisasm(QString txt)
+{
     QTextDocument *document = ui->disasTextEdit_2->document();
     ui->disasTextEdit_2->clear();
     //document->undo();
@@ -397,23 +413,27 @@ void MemoryWidget::disasmScrolled()
 
     QScrollBar *sb = this->disasTextEdit->verticalScrollBar();
 
-    if ( sb->value() > sb->maximum() - 10 ) {
+    if (sb->value() > sb->maximum() - 10)
+    {
         //this->main->add_debug_output("End is coming");
 
         QTextCursor tc = this->disasTextEdit->textCursor();
-        tc.movePosition( QTextCursor::End );
-        tc.select( QTextCursor::LineUnderCursor );
+        tc.movePosition(QTextCursor::End);
+        tc.select(QTextCursor::LineUnderCursor);
         QString lastline = tc.selectedText();
         QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-        if (ele.contains("0x")) {
+        if (ele.contains("0x"))
+        {
             this->main->core->cmd("ss " + ele);
             QString raw = this->main->core->cmd("pd 200");
             QString txt = raw.section("\n", 1, -1);
             //this->disasTextEdit->appendPlainText(" ;\n ; New content here\n ;\n " + txt.trimmed());
             this->disasTextEdit->appendPlainText(txt.trimmed());
-        } else {
-            tc.movePosition( QTextCursor::End );
-            tc.select( QTextCursor::LineUnderCursor );
+        }
+        else
+        {
+            tc.movePosition(QTextCursor::End);
+            tc.select(QTextCursor::LineUnderCursor);
             QString lastline = tc.selectedText();
             this->main->add_debug_output("Last line: " + lastline);
         }
@@ -465,17 +485,22 @@ void MemoryWidget::refreshDisasm(const QString &offset)
     disconnect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
 
     // Get disas at offset
-    if (!offset.isEmpty()) {
+    if (!offset.isEmpty())
+    {
         this->main->core->cmd("s " + offset);
-    } else {
+    }
+    else
+    {
         // Get current offset
         QTextCursor tc = this->disasTextEdit->textCursor();
-        tc.select( QTextCursor::LineUnderCursor );
+        tc.select(QTextCursor::LineUnderCursor);
         QString lastline = tc.selectedText();
         QStringList elements = lastline.split(" ", QString::SkipEmptyParts);
-        if (elements.length() > 0) {
+        if (elements.length() > 0)
+        {
             QString ele = elements[0];
-            if (ele.contains("0x")) {
+            if (ele.contains("0x"))
+            {
                 this->main->core->cmd("s " + ele);
             }
         }
@@ -491,7 +516,8 @@ void MemoryWidget::refreshDisasm(const QString &offset)
     this->disasTextEdit->ensureCursorVisible();
     this->disasTextEdit->moveCursor(QTextCursor::End);
 
-    while ( this->disasTextEdit->find(QRegExp("^" + s), QTextDocument::FindBackward) ) {
+    while (this->disasTextEdit->find(QRegExp("^" + s), QTextDocument::FindBackward))
+    {
         this->disasTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
     }
 
@@ -534,7 +560,8 @@ void MemoryWidget::refreshHexdump(QString where)
     {
         hexdumpBottomOffset = 0;
         hexdumpLength = bsize;//-hexdumpBottomOffset;
-    } else
+    }
+    else
     {
         hexdumpLength = bsize;
     }
@@ -544,11 +571,12 @@ void MemoryWidget::refreshHexdump(QString where)
 
     QString s = "";
 
-    if (where != "") {
+    if (where != "")
+    {
         this->main->core->cmd("ss " + where);
     }
     // Add first the hexdump at block size --
-    this->main->core->cmd ("ss -" + this->main->core->itoa(hexdumpLength));
+    this->main->core->cmd("ss -" + this->main->core->itoa(hexdumpLength));
     //s = this->normalize_addr(this->main->core->cmd("s"));
     QList<QString> ret = this->get_hexdump("");
 
@@ -559,7 +587,7 @@ void MemoryWidget::refreshHexdump(QString where)
     this->resizeHexdump();
 
     // Add then the hexdump at block size ++
-    this->main->core->cmd ("ss +" + this->main->core->itoa(hexdumpLength));
+    this->main->core->cmd("ss +" + this->main->core->itoa(hexdumpLength));
     // Get address to move cursor to later
     //QString s = "0x0" + this->main->core->cmd("s").split("0x")[1].trimmed();
     s = this->normalize_addr(this->main->core->cmd("s"));
@@ -583,7 +611,8 @@ void MemoryWidget::refreshHexdump(QString where)
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 }
 
-QList<QString> MemoryWidget::get_hexdump(QString off = "") {
+QList<QString> MemoryWidget::get_hexdump(QString off = "")
+{
     RCoreLocked lcore = this->main->core->core();
     QList<QString> ret;
     QString hexdump;
@@ -596,28 +625,32 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "") {
         hexdumpBottomOffset = 0;
         hexdumpLength = bsize;
         //-hexdumpBottomOffset;
-    } else
+    }
+    else
     {
         hexdumpLength = bsize;
     }
 
     //this->main->add_debug_output("BSize: " + this->main->core->itoa(hexdumpLength, 10));
 
-    if (off == "" ) {
-        hexdump = this->main->core->cmd ("px " + this->main->core->itoa(hexdumpLength, 10));
-    } else {
-        hexdump = this->main->core->cmd ("px " + this->main->core->itoa(hexdumpLength, 10) + " @ " + off);
+    if (off == "")
+    {
+        hexdump = this->main->core->cmd("px " + this->main->core->itoa(hexdumpLength, 10));
+    }
+    else
+    {
+        hexdump = this->main->core->cmd("px " + this->main->core->itoa(hexdumpLength, 10) + " @ " + off);
     }
     //QString hexdump = this->main->core->cmd ("px 0x" + this->main->core->itoa(size) + " @ 0x0");
     // TODO: use pxl to simplify
     QString offset = QString("");
     QString hex = QString("");
-    QString ascii = QString ("");
+    QString ascii = QString("");
     int ln = 0;
 
-    for (const QString line : hexdump.split ("\n"))
+    for (const QString line : hexdump.split("\n"))
     {
-        if (ln++==0)
+        if (ln++ == 0)
         {
             continue;
         }
@@ -626,11 +659,16 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "") {
         {
             switch (wc++)
             {
-            case 0: offset += a+"\n"; break;
-            case 1: {
-                hex += a.trimmed()+"\n";
-            } break;
-            case 2: ascii += a+"\n";
+            case 0:
+                offset += a + "\n";
+                break;
+            case 1:
+            {
+                hex += a.trimmed() + "\n";
+            }
+            break;
+            case 2:
+                ascii += a + "\n";
                 break;
             }
         }
@@ -643,18 +681,20 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "") {
 }
 
 
-void MemoryWidget::seek_to(QString offset) {
+void MemoryWidget::seek_to(QString offset)
+{
     this->disasTextEdit->moveCursor(QTextCursor::End);
     int pos = this->disasTextEdit->find(offset, QTextDocument::FindBackward);
     this->disasTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
     //this->main->add_debug_output("OFFSET: " + offset);
 }
 
-void MemoryWidget::resizeHexdump() {
+void MemoryWidget::resizeHexdump()
+{
     //qDebug() << "size: " << ui->hexHexText->document()->size().width();
-    this->hexOffsetText->setMinimumWidth( this->hexOffsetText->document()->size().width() );
-    this->hexHexText->setMinimumWidth( this->hexHexText->document()->size().width() );
-    this->hexASCIIText->setMinimumWidth( this->hexASCIIText->document()->size().width() );
+    this->hexOffsetText->setMinimumWidth(this->hexOffsetText->document()->size().width());
+    this->hexHexText->setMinimumWidth(this->hexHexText->document()->size().width());
+    this->hexASCIIText->setMinimumWidth(this->hexASCIIText->document()->size().width());
 }
 
 void MemoryWidget::hexScrolled()
@@ -662,12 +702,13 @@ void MemoryWidget::hexScrolled()
     RCoreLocked lcore = this->main->core->core();
     QScrollBar *sb = this->hexASCIIText->verticalScrollBar();
 
-    if ( sb->value() > sb->maximum() -10 ) {
+    if (sb->value() > sb->maximum() - 10)
+    {
         this->main->add_debug_output("End is coming");
 
         QTextCursor tc = this->hexOffsetText->textCursor();
-        tc.movePosition( QTextCursor::End );
-        tc.select( QTextCursor::LineUnderCursor );
+        tc.movePosition(QTextCursor::End);
+        tc.select(QTextCursor::LineUnderCursor);
         QString lastline = tc.selectedText();
         //this->main->add_debug_output("Last Offset/VA: " + lastline);
         //refreshHexdump(2);
@@ -683,12 +724,14 @@ void MemoryWidget::hexScrolled()
         //   ui->disasTextEdit->moveCursor(QTextCursor::Start);
         // ui->disasTextEdit->insertPlainText(core->cmd("pd@$$-100"));
         //... same for the other text (offset and hex text edits)
-    } else if (sb->value() < sb->minimum() + 10) {
+    }
+    else if (sb->value() < sb->minimum() + 10)
+    {
         //this->main->add_debug_output("Begining is coming");
 
         QTextCursor tc = this->hexOffsetText->textCursor();
-        tc.movePosition( QTextCursor::Start );
-        tc.select( QTextCursor::LineUnderCursor );
+        tc.movePosition(QTextCursor::Start);
+        tc.select(QTextCursor::LineUnderCursor);
         QString firstline = tc.selectedText();
         //disathis->main->add_debug_output("First Offset/VA: " + firstline);
         //refreshHexdump(1);
@@ -730,7 +773,7 @@ void MemoryWidget::hexScrolled()
         // Get new maximum scroll value
         int c = this->hexASCIIText->verticalScrollBar()->maximum();
         // Get size of new added content
-        int z = c -b;
+        int z = c - b;
         // Get new slider position
         int a = this->hexASCIIText->verticalScrollBar()->sliderPosition();
         // move to previous position
@@ -752,13 +795,17 @@ void MemoryWidget::on_hexHexText_2_selectionChanged()
     sel_text = sel_text.simplified().remove(" ");
     //eprintf ("-- (((%s))) --\n", sel_text.toUtf8().constData());
 
-    if (sel_text == "") {
+    if (sel_text == "")
+    {
         this->hexDisasTextEdit->setPlainText("");
         ui->bytesEntropy->setText("");
         ui->bytesMD5->setText("");
         ui->bytesSHA1->setText("");
-    } else {
-        if (parsing == "Dissasembly") {
+    }
+    else
+    {
+        if (parsing == "Dissasembly")
+        {
             // Get selected combos
             QString arch = ui->hexArchComboBox_2->currentText();
             QString bits = ui->hexBitsComboBox_2->currentText();
@@ -766,39 +813,54 @@ void MemoryWidget::on_hexHexText_2_selectionChanged()
             QString oarch = this->main->core->config("asm.arch");
             QString obits = this->main->core->config("asm.bits");
 
-            this->main->core->config("asm.arch" , arch);
-            this->main->core->config("asm.bits" , bits);
+            this->main->core->config("asm.arch", arch);
+            this->main->core->config("asm.bits", bits);
             QString str = this->main->core->cmd("pad " + sel_text);
             this->hexDisasTextEdit->setPlainText(str);
-            this->main->core->config("asm.arch" , oarch);
-            this->main->core->config("asm.bits" , obits);
+            this->main->core->config("asm.arch", oarch);
+            this->main->core->config("asm.bits", obits);
             //qDebug() << "Selected Arch: " << arch;
             //qDebug() << "Selected Bits: " << bits;
             //qDebug() << "Selected Text: " << sel_text;
         }
         // TODO: update on selection changes.. use cmd("pc "+len+"@"+off)
-        else if (parsing == "C byte array") {
+        else if (parsing == "C byte array")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pc@x:" + sel_text));
-        } else    if (parsing == "C dword array") {
+        }
+        else    if (parsing == "C dword array")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pcw@x:" + sel_text));
-        } else    if (parsing == "C qword array") {
+        }
+        else    if (parsing == "C qword array")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pcq@x:" + sel_text));
-        } else    if (parsing == "Assembler") {
+        }
+        else    if (parsing == "Assembler")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pca@x:" + sel_text));
-        } else    if (parsing == "String") {
+        }
+        else    if (parsing == "String")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pcs@x:" + sel_text));
-        } else    if (parsing == "JSON") {
+        }
+        else    if (parsing == "JSON")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pcj@x:" + sel_text));
-        } else    if (parsing == "Javascript") {
+        }
+        else    if (parsing == "Javascript")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pcJ@x:" + sel_text));
-        } else    if (parsing == "Python") {
+        }
+        else    if (parsing == "Python")
+        {
             this->hexDisasTextEdit->setPlainText(this->main->core->cmd("pcp@x:" + sel_text));
         }
 
         // Fill the information tab hashes and entropy
-        ui->bytesMD5->setText( this->main->core->cmd("ph md5@x:" + sel_text).trimmed() );
-        ui->bytesSHA1->setText( this->main->core->cmd("ph sha1@x:" + sel_text).trimmed() );
-        ui->bytesEntropy->setText( this->main->core->cmd("ph entropy@x:" + sel_text).trimmed() );
+        ui->bytesMD5->setText(this->main->core->cmd("ph md5@x:" + sel_text).trimmed());
+        ui->bytesSHA1->setText(this->main->core->cmd("ph sha1@x:" + sel_text).trimmed());
+        ui->bytesEntropy->setText(this->main->core->cmd("ph entropy@x:" + sel_text).trimmed());
         ui->bytesMD5->setCursorPosition(0);
         ui->bytesSHA1->setCursorPosition(0);
     }
@@ -827,7 +889,7 @@ void MemoryWidget::showHexdumpContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHexCopy_ASCII);
     menu->addAction(ui->actionHexCopy_Text);
     menu->addSeparator();
-    QMenu* colSubmenu = menu->addMenu("Columns");
+    QMenu *colSubmenu = menu->addMenu("Columns");
     colSubmenu->addAction(ui->action4columns);
     colSubmenu->addAction(ui->action8columns);
     colSubmenu->addAction(ui->action16columns);
@@ -854,7 +916,7 @@ void MemoryWidget::showHexASCIIContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHexCopy_ASCII);
     menu->addAction(ui->actionHexCopy_Text);
     menu->addSeparator();
-    QMenu* colSubmenu = menu->addMenu("Columns");
+    QMenu *colSubmenu = menu->addMenu("Columns");
     colSubmenu->addAction(ui->action4columns);
     colSubmenu->addAction(ui->action8columns);
     colSubmenu->addAction(ui->action16columns);
@@ -882,11 +944,14 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
     cur.setPosition(ui->disasTextEdit_2->cursorForPosition(pt).position(), QTextCursor::MoveAnchor);
     ui->disasTextEdit_2->setTextCursor(cur);
 
-    if (cur.hasSelection()) {
+    if (cur.hasSelection())
+    {
         menu->addSeparator();
         menu->addAction(ui->actionSend_to_Notepad);
         ui->disasTextEdit_2->setContextMenuPolicy(Qt::DefaultContextMenu);
-    } else {
+    }
+    else
+    {
         // Add menu actions
         menu->clear();
         menu->addAction(ui->actionDisasAdd_comment);
@@ -917,11 +982,13 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
 
 void MemoryWidget::on_showInfoButton_2_clicked()
 {
-    if(ui->showInfoButton_2->isChecked())
+    if (ui->showInfoButton_2->isChecked())
     {
         ui->fcnGraphTabWidget->hide();
         ui->showInfoButton_2->setArrowType(Qt::RightArrow);
-    } else {
+    }
+    else
+    {
         ui->fcnGraphTabWidget->show();
         ui->showInfoButton_2->setArrowType(Qt::DownArrow);
     }
@@ -929,11 +996,13 @@ void MemoryWidget::on_showInfoButton_2_clicked()
 
 void MemoryWidget::on_offsetToolButton_clicked()
 {
-    if(ui->offsetToolButton->isChecked())
+    if (ui->offsetToolButton->isChecked())
     {
         ui->offsetTreeWidget->hide();
         ui->offsetToolButton->setArrowType(Qt::RightArrow);
-    } else {
+    }
+    else
+    {
         ui->offsetTreeWidget->show();
         ui->offsetToolButton->setArrowType(Qt::DownArrow);
     }
@@ -943,24 +1012,31 @@ void MemoryWidget::on_offsetToolButton_clicked()
  * Show widgets
  */
 
-void MemoryWidget::showHexdump() {
+void MemoryWidget::showHexdump()
+{
     ui->hexButton_2->setChecked(true);
     ui->memTabWidget->setCurrentIndex(1);
     ui->memSideTabWidget_2->setCurrentIndex(1);
 }
 
-void MemoryWidget::cycleViews() {
-    if (ui->memTabWidget->currentIndex() == 0) {
+void MemoryWidget::cycleViews()
+{
+    if (ui->memTabWidget->currentIndex() == 0)
+    {
         // Show graph
         ui->graphButton_2->setChecked(true);
         ui->memTabWidget->setCurrentIndex(2);
         ui->memSideTabWidget_2->setCurrentIndex(0);
-    } else if (ui->memTabWidget->currentIndex() == 2) {
+    }
+    else if (ui->memTabWidget->currentIndex() == 2)
+    {
         // Show disasm
         ui->disButton_2->setChecked(true);
         ui->memTabWidget->setCurrentIndex(0);
         ui->memSideTabWidget_2->setCurrentIndex(0);
-    } else {
+    }
+    else
+    {
         // Show disasm
         ui->disButton_2->setChecked(true);
         ui->memTabWidget->setCurrentIndex(0);
@@ -978,11 +1054,12 @@ void MemoryWidget::on_actionSettings_menu_1_triggered()
 
     // QFont font = QFont("Monospace", 8);
 
-    QFont font = QFontDialog::getFont( &ok, ui->disasTextEdit_2->font(), this);
-    setFonts (font);
+    QFont font = QFontDialog::getFont(&ok, ui->disasTextEdit_2->font(), this);
+    setFonts(font);
 }
-void MemoryWidget::setFonts(QFont font) {
-    ui->disasTextEdit_2->setFont (font);
+void MemoryWidget::setFonts(QFont font)
+{
+    ui->disasTextEdit_2->setFont(font);
     // the user clicked OK and font is set to the font the user selected
     ui->disasTextEdit_2->setFont(font);
     ui->hexOffsetText_2->setFont(font);
@@ -995,27 +1072,36 @@ void MemoryWidget::setFonts(QFont font) {
 
 void MemoryWidget::on_actionHideDisasm_side_panel_triggered()
 {
-    if (ui->memSideTabWidget_2->isVisible()) {
+    if (ui->memSideTabWidget_2->isVisible())
+    {
         ui->memSideTabWidget_2->hide();
-    } else {
+    }
+    else
+    {
         ui->memSideTabWidget_2->show();
     }
 }
 
 void MemoryWidget::on_actionHideHexdump_side_panel_triggered()
 {
-    if (ui->hexSideTab_2->isVisible()) {
+    if (ui->hexSideTab_2->isVisible())
+    {
         ui->hexSideTab_2->hide();
-    } else {
+    }
+    else
+    {
         ui->hexSideTab_2->show();
     }
 }
 
 void MemoryWidget::on_actionHideGraph_side_panel_triggered()
 {
-    if (ui->graphTreeWidget_2->isVisible()) {
+    if (ui->graphTreeWidget_2->isVisible())
+    {
         ui->graphTreeWidget_2->hide();
-    } else {
+    }
+    else
+    {
         ui->graphTreeWidget_2->show();
     }
 }
@@ -1038,13 +1124,16 @@ void MemoryWidget::on_hexButton_2_clicked()
 
 void MemoryWidget::on_actionDisas_ShowHideBytes_triggered()
 {
-    this->main->core->cmd ("e!asm.bytes");
+    this->main->core->cmd("e!asm.bytes");
 
-    if (this->main->core->cmd ("e asm.bytes").trimmed() == "true") {
+    if (this->main->core->cmd("e asm.bytes").trimmed() == "true")
+    {
         ui->actionSeparate_bytes->setDisabled(false);
         ui->actionRight_align_bytes->setDisabled(false);
         this->main->core->config("asm.cmtcol", "100");
-    } else {
+    }
+    else
+    {
         ui->actionSeparate_bytes->setDisabled(true);
         ui->actionRight_align_bytes->setDisabled(true);
         this->main->core->config("asm.cmtcol", "70");
@@ -1055,16 +1144,19 @@ void MemoryWidget::on_actionDisas_ShowHideBytes_triggered()
 
 void MemoryWidget::on_actionDisasSwitch_case_triggered()
 {
-    this->main->core->cmd ("e!asm.ucase");
+    this->main->core->cmd("e!asm.ucase");
     this->refreshDisasm();
 }
 
 void MemoryWidget::on_actionSyntax_AT_T_Intel_triggered()
 {
-    QString syntax = this->main->core->cmd ("e asm.syntax").trimmed();
-    if (syntax == "intel") {
+    QString syntax = this->main->core->cmd("e asm.syntax").trimmed();
+    if (syntax == "intel")
+    {
         this->main->core->config("asm.syntax", "att");
-    } else {
+    }
+    else
+    {
         this->main->core->config("asm.syntax", "intel");
     }
     this->refreshDisasm();
@@ -1072,26 +1164,26 @@ void MemoryWidget::on_actionSyntax_AT_T_Intel_triggered()
 
 void MemoryWidget::on_actionSeparate_bytes_triggered()
 {
-    this->main->core->cmd ("e!asm.bytespace");
+    this->main->core->cmd("e!asm.bytespace");
     this->refreshDisasm();
 }
 
 void MemoryWidget::on_actionRight_align_bytes_triggered()
 {
-    this->main->core->cmd ("e!asm.lbytes");
+    this->main->core->cmd("e!asm.lbytes");
     this->refreshDisasm();
 }
 
 void MemoryWidget::on_actionSeparate_disasm_calls_triggered()
 {
-    this->main->core->cmd ("e!asm.spacy");
+    this->main->core->cmd("e!asm.spacy");
     this->refreshDisasm();
 }
 
 
 void MemoryWidget::on_actionShow_stack_pointer_triggered()
 {
-    this->main->core->cmd ("e!asm.stackptr");
+    this->main->core->cmd("e!asm.stackptr");
     this->refreshDisasm();
 }
 
@@ -1112,21 +1204,24 @@ void MemoryWidget::on_actionDisasAdd_comment_triggered()
 {
     // Get current offset
     QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select( QTextCursor::LineUnderCursor);
+    tc.select(QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText();
     QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x")) {
+    if (ele.contains("0x"))
+    {
         // Get function for clicked offset
         RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
-        CommentsDialog* c = new CommentsDialog(this);
-        if (c->exec()) {
+        CommentsDialog *c = new CommentsDialog(this);
+        if (c->exec())
+        {
             // Get new function name
             QString comment = c->getComment();
             //this->main->add_debug_output("Comment: " + comment + " at: " + ele);
             // Rename function in r2 core
             this->main->core->setComment(ele, comment);
             // Seek to new renamed function
-            if (fcn) {
+            if (fcn)
+            {
                 this->main->seek(fcn->name);
             }
             // TODO: Refresh functions tree widget
@@ -1139,16 +1234,18 @@ void MemoryWidget::on_actionFunctionsRename_triggered()
 {
     // Get current offset
     QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select( QTextCursor::LineUnderCursor );
+    tc.select(QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText();
     QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x")) {
+    if (ele.contains("0x"))
+    {
         // Get function for clicked offset
         RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
-        RenameDialog* r = new RenameDialog(this);
+        RenameDialog *r = new RenameDialog(this);
         // Get function based on click position
         r->setFunctionName(fcn->name);
-        if (r->exec()) {
+        if (r->exec())
+        {
             // Get new function name
             QString new_name = r->getFunctionName();
             // Rename function in r2 core
@@ -1163,43 +1260,43 @@ void MemoryWidget::on_actionFunctionsRename_triggered()
 
 void MemoryWidget::on_action8columns_triggered()
 {
-    this->main->core->config ("hex.cols", "8");
+    this->main->core->config("hex.cols", "8");
     this->refreshHexdump();
 }
 
 void MemoryWidget::on_action16columns_triggered()
 {
-    this->main->core->config ("hex.cols", "16");
+    this->main->core->config("hex.cols", "16");
     this->refreshHexdump();
 }
 
 void MemoryWidget::on_action4columns_triggered()
 {
-    this->main->core->config ("hex.cols", "4");
+    this->main->core->config("hex.cols", "4");
     this->refreshHexdump();
 }
 
 void MemoryWidget::on_action32columns_triggered()
 {
-    this->main->core->config ("hex.cols", "32");
+    this->main->core->config("hex.cols", "32");
     this->refreshHexdump();
 }
 
 void MemoryWidget::on_action64columns_triggered()
 {
-    this->main->core->config ("hex.cols", "64");
+    this->main->core->config("hex.cols", "64");
     this->refreshHexdump();
 }
 
 void MemoryWidget::on_action2columns_triggered()
 {
-    this->main->core->config ("hex.cols", "2");
+    this->main->core->config("hex.cols", "2");
     this->refreshHexdump();
 }
 
 void MemoryWidget::on_action1column_triggered()
 {
-    this->main->core->config ("hex.cols", "1");
+    this->main->core->config("hex.cols", "1");
     this->refreshHexdump();
 }
 
@@ -1221,11 +1318,13 @@ void MemoryWidget::on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item
 
 void MemoryWidget::on_xrefFromToolButton_2_clicked()
 {
-    if(ui->xrefFromToolButton_2->isChecked())
+    if (ui->xrefFromToolButton_2->isChecked())
     {
         ui->xreFromTreeWidget_2->hide();
         ui->xrefFromToolButton_2->setArrowType(Qt::RightArrow);
-    } else {
+    }
+    else
+    {
         ui->xreFromTreeWidget_2->show();
         ui->xrefFromToolButton_2->setArrowType(Qt::DownArrow);
     }
@@ -1233,11 +1332,13 @@ void MemoryWidget::on_xrefFromToolButton_2_clicked()
 
 void MemoryWidget::on_xrefToToolButton_2_clicked()
 {
-    if(ui->xrefToToolButton_2->isChecked())
+    if (ui->xrefToToolButton_2->isChecked())
     {
         ui->xrefToTreeWidget_2->hide();
         ui->xrefToToolButton_2->setArrowType(Qt::RightArrow);
-    } else {
+    }
+    else
+    {
         ui->xrefToTreeWidget_2->show();
         ui->xrefToToolButton_2->setArrowType(Qt::DownArrow);
     }
@@ -1245,16 +1346,19 @@ void MemoryWidget::on_xrefToToolButton_2_clicked()
 
 void MemoryWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
 {
-    if (arg1 == "Dissasembly") {
+    if (arg1 == "Dissasembly")
+    {
         ui->hexSideFrame_2->show();
         ui->hexDisasTextEdit_2->setPlainText(";; Select some bytes on the left\n;; to see them disassembled");
-    } else {
+    }
+    else
+    {
         ui->hexSideFrame_2->hide();
         ui->hexDisasTextEdit_2->setPlainText(";; Select some bytes on the left\n;; to see them parsed here");
     }
 }
 
-void MemoryWidget::get_refs_data(const QString& offset)
+void MemoryWidget::get_refs_data(const QString &offset)
 {
     // Get Refs and Xrefs
     bool ok;
@@ -1263,8 +1367,10 @@ void MemoryWidget::get_refs_data(const QString& offset)
 
     // refs = calls q hace esa funcion
     QList<QString> refs = this->main->core->getFunctionRefs(offset.toLong(&ok, 16), 'C');
-    if (refs.size() > 0) {
-        for (int i = 0; i < refs.size(); ++i) {
+    if (refs.size() > 0)
+    {
+        for (int i = 0; i < refs.size(); ++i)
+        {
             //this->add_debug_output(refs.at(i));
             QStringList retlist = refs.at(i).split(",");
             QStringList temp;
@@ -1279,8 +1385,10 @@ void MemoryWidget::get_refs_data(const QString& offset)
     // xrefs = calls a esa funcion
     //qDebug() << this->main->core->getFunctionXrefs(offset.toLong(&ok, 16));
     QList<QString> xrefs = this->main->core->getFunctionXrefs(offset.toLong(&ok, 16));
-    if (xrefs.size() > 0) {
-        for (int i = 0; i < xrefs.size(); ++i) {
+    if (xrefs.size() > 0)
+    {
+        for (int i = 0; i < xrefs.size(); ++i)
+        {
             //this->add_debug_output(xrefs.at(i));
             QStringList retlist = xrefs.at(i).split(",");
             QStringList temp;
@@ -1313,41 +1421,46 @@ void MemoryWidget::get_refs_data(const QString& offset)
 void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, QList<int> graph_data)
 {
     this->xreFromTreeWidget_2->clear();
-    for (int i = 0; i < refs.size(); ++i) {
+    for (int i = 0; i < refs.size(); ++i)
+    {
         //this->add_debug_output(refs.at(i).at(0) + " " + refs.at(i).at(1));
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, refs.at(i).at(0));
         tempItem->setText(1, refs.at(i).at(1));
-        tempItem->setToolTip( 0, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)).trimmed() );
-        tempItem->setToolTip( 1, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)).trimmed() );
+        tempItem->setToolTip(0, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)).trimmed());
+        tempItem->setToolTip(1, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)).trimmed());
         this->xreFromTreeWidget_2->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
     int count = this->xreFromTreeWidget_2->columnCount();
-    for (int i = 0; i != count; ++i) {
+    for (int i = 0; i != count; ++i)
+    {
         this->xreFromTreeWidget_2->resizeColumnToContents(i);
     }
 
     this->xrefToTreeWidget_2->clear();
-    for (int i = 0; i < xrefs.size(); ++i) {
+    for (int i = 0; i < xrefs.size(); ++i)
+    {
         //this->add_debug_output(xrefs.at(i).at(0) + " " + xrefs.at(i).at(1));
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, xrefs.at(i).at(0));
         tempItem->setText(1, xrefs.at(i).at(1));
-        tempItem->setToolTip( 0, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)).trimmed() );
-        tempItem->setToolTip( 1, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)).trimmed() );
+        tempItem->setToolTip(0, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)).trimmed());
+        tempItem->setToolTip(1, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)).trimmed());
         this->xrefToTreeWidget_2->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
     int count2 = this->xrefToTreeWidget_2->columnCount();
-    for (int i = 0; i != count2; ++i) {
+    for (int i = 0; i != count2; ++i)
+    {
         this->xrefToTreeWidget_2->resizeColumnToContents(i);
     }
 
     // Add data to HTML Polar functions graph
     QFile html(":/html/fcn_graph.html");
-    if(!html.open(QIODevice::ReadOnly)) {
-        QMessageBox::information(0,"error",html.errorString());
+    if (!html.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::information(0, "error", html.errorString());
     }
     QString code = html.readAll();
     html.close();
@@ -1358,8 +1471,9 @@ void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, 
 
     // Add data to HTML Radar functions graph
     QFile html2(":/html/fcn_radar.html");
-    if(!html2.open(QIODevice::ReadOnly)) {
-        QMessageBox::information(0,"error",html.errorString());
+    if (!html2.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::information(0, "error", html.errorString());
     }
     QString code2 = html2.readAll();
     html2.close();
@@ -1369,12 +1483,14 @@ void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, 
     ui->radarGraphWebView->setHtml(code2);
 }
 
-void MemoryWidget::fillOffsetInfo( QString off) {
+void MemoryWidget::fillOffsetInfo(QString off)
+{
     ui->offsetTreeWidget->clear();
     QString raw = "";
     raw = this->main->core->getOffsetInfo(off);
     QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);
-    foreach(QString line, lines) {
+    foreach (QString line, lines)
+    {
         QList<QString> eles = line.split(":", QString::SkipEmptyParts);
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, eles.at(0).toUpper());
@@ -1384,21 +1500,25 @@ void MemoryWidget::fillOffsetInfo( QString off) {
 
     // Adjust column to contents
     int count = ui->offsetTreeWidget->columnCount();
-    for (int i = 0; i != count; ++i) {
+    for (int i = 0; i != count; ++i)
+    {
         ui->offsetTreeWidget->resizeColumnToContents(i);
     }
 
     // Add opcode description
     QStringList description = this->main->core->cmd("?d. @ " + off).split(": ");
-    if(description.length() >= 2) {
+    if (description.length() >= 2)
+    {
         ui->opcodeDescText->setPlainText("# " + description[0] + ":\n" + description[1]);
     }
 }
 
-void MemoryWidget::create_graph(QString off) {
+void MemoryWidget::create_graph(QString off)
+{
     ui->graphWebView->setZoomFactor(0.85);
     //this->main->add_debug_output("Graph Offset: '" + off + "'");
-    if (off == "") {
+    if (off == "")
+    {
         off = "0x0" + this->main->core->cmd("s").split("0x")[1].trimmed();
     }
     QString fcn = this->main->core->cmdFunctionAt(off);
@@ -1410,30 +1530,37 @@ void MemoryWidget::create_graph(QString off) {
     ui->graphWebView->page()->mainFrame()->evaluateJavaScript(QString("r2.root=\"http://localhost:" + port + "\""));
 }
 
-QString MemoryWidget::normalize_addr(QString addr) {
+QString MemoryWidget::normalize_addr(QString addr)
+{
     QString base = this->main->core->cmd("s").split("0x")[1].trimmed();
     int len = base.length();
-    if (len < 8) {
+    if (len < 8)
+    {
         int padding = 8 - len;
         QString zero = "0";
         QString zeroes = zero.repeated(padding);
         QString s = "0x" + zeroes + base;
         return s;
-    } else {
+    }
+    else
+    {
         return addr;
     }
 }
 
-void MemoryWidget::setFcnName(QString addr) {
+void MemoryWidget::setFcnName(QString addr)
+{
     RAnalFunction *fcn;
     bool ok;
 
     // TDOD: FIX ME, ugly
-    if (addr.contains("0x")) {
+    if (addr.contains("0x"))
+    {
         fcn = this->main->core->functionAt(addr.toULongLong(&ok, 16));
-        if (ok && fcn) {
+        if (ok && fcn)
+        {
             QString segment = this->main->core->cmd("S. @ " + addr).split(" ").last();
-            addr = segment.trimmed() + ":"+ fcn->name;
+            addr = segment.trimmed() + ":" + fcn->name;
         }
     }
     ui->fcnNameEdit->setText(addr);
@@ -1443,34 +1570,42 @@ void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
 {
     // Get current offset
     QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select( QTextCursor::LineUnderCursor );
+    tc.select(QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText().trimmed();
     QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x")) {
+    if (ele.contains("0x"))
+    {
         this->fillOffsetInfo(ele);
         QString at = this->main->core->cmdFunctionAt(ele);
         QString deco = this->main->core->getDecompiledCode(at);
 
-        if (deco != "") {
+        if (deco != "")
+        {
             ui->decoTextEdit->setPlainText(deco);
-        } else {
+        }
+        else
+        {
             ui->decoTextEdit->setPlainText("");
         }
         // Get jump information to fill the preview
         QString jump = "";
         jump = this->main->core->getOffsetJump(ele);
-        if (jump != "") {
+        if (jump != "")
+        {
             // Fill the preview
             QString jump_code = this->main->core->cmd("pdf @ " + jump);
             ui->previewTextEdit->setPlainText(jump_code.trimmed());
             ui->previewTextEdit->moveCursor(QTextCursor::End);
-            int pos = ui->previewTextEdit->find( jump.trimmed(), QTextDocument::FindBackward);
+            int pos = ui->previewTextEdit->find(jump.trimmed(), QTextDocument::FindBackward);
             ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
-        } else {
+        }
+        else
+        {
             ui->previewTextEdit->setPlainText("");
         }
         //this->main->add_debug_output("Fcn at: '" + at + "'");
-        if (this->last_fcn != at) {
+        if (this->last_fcn != at)
+        {
             this->last_fcn = at;
             //this->main->add_debug_output("New Fcn: '" + this->last_fcn + "'");
             // Refresh function information at sidebar
@@ -1483,27 +1618,33 @@ void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
     }
 }
 
-QString MemoryWidget::normalizeAddr(QString addr) {
+QString MemoryWidget::normalizeAddr(QString addr)
+{
     QString base = addr.split("0x")[1].trimmed();
     int len = base.length();
-    if (len < 8) {
+    if (len < 8)
+    {
         int padding = 8 - len;
         QString zero = "0";
         QString zeroes = zero.repeated(padding);
         QString s = "0x" + zeroes + base;
         return s;
-    } else {
+    }
+    else
+    {
         return addr;
     }
 }
 
-void MemoryWidget::setMiniGraph(QString at) {
+void MemoryWidget::setMiniGraph(QString at)
+{
     QString dot = this->main->core->getSimpleGraph(at);
     //QString dot = this->main->core->cmd("agc " + at);
     // Add data to HTML Polar functions graph
     QFile html(":/html/graph.html");
-    if(!html.open(QIODevice::ReadOnly)) {
-        QMessageBox::information(0,"error",html.errorString());
+    if (!html.open(QIODevice::ReadOnly))
+    {
+        QMessageBox::information(0, "error", html.errorString());
     }
     QString code = html.readAll();
     html.close();
@@ -1547,11 +1688,14 @@ void MemoryWidget::on_hexSideTab_2_currentChanged(int index)
 
 void MemoryWidget::on_memSideToolButton_clicked()
 {
-    if (ui->memSideToolButton->isChecked()) {
+    if (ui->memSideToolButton->isChecked())
+    {
         ui->memSideTabWidget_2->hide();
         ui->hexSideTab_2->hide();
         ui->memSideToolButton->setIcon(QIcon(":/new/prefix1/img/icons/left.png"));
-    } else {
+    }
+    else
+    {
         ui->memSideTabWidget_2->show();
         ui->hexSideTab_2->show();
         ui->memSideToolButton->setIcon(QIcon(":/new/prefix1/img/icons/right.png"));
@@ -1575,56 +1719,76 @@ void MemoryWidget::on_simpleGrapgToolButton_clicked()
 
 void MemoryWidget::on_previewToolButton_2_clicked()
 {
-    if (ui->previewToolButton_2->isChecked()) {
+    if (ui->previewToolButton_2->isChecked())
+    {
         ui->frame_3->setVisible(true);
-    } else {
+    }
+    else
+    {
         ui->frame_3->setVisible(false);
     }
 }
 
-bool MemoryWidget::eventFilter(QObject *obj, QEvent *event) {
-    if (event->type() == QEvent::Resize && obj == this && this->isVisible()) {
-        if (this->main->responsive) {
-            QResizeEvent *resizeEvent = static_cast<QResizeEvent*>(event);
+bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::Resize && obj == this && this->isVisible())
+    {
+        if (this->main->responsive)
+        {
+            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
             //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
             //       resizeEvent->size().width(),
             //       resizeEvent->size().height());
-            if (resizeEvent->size().width() <= 1150) {
+            if (resizeEvent->size().width() <= 1150)
+            {
                 ui->frame_3->setVisible(false);
                 ui->memPreviewTab->setVisible(false);
                 ui->previewToolButton_2->setChecked(false);
-                if (resizeEvent->size().width() <= 950) {
+                if (resizeEvent->size().width() <= 950)
+                {
                     ui->memSideTabWidget_2->hide();
                     ui->hexSideTab_2->hide();
                     ui->memSideToolButton->setChecked(true);
-                } else {
+                }
+                else
+                {
                     ui->memSideTabWidget_2->show();
                     ui->hexSideTab_2->show();
                     ui->memSideToolButton->setChecked(false);
                 }
-            } else {
+            }
+            else
+            {
                 ui->frame_3->setVisible(true);
                 ui->memPreviewTab->setVisible(true);
                 ui->previewToolButton_2->setChecked(true);
             }
         }
-    } else if ((obj == ui->disasTextEdit_2 || obj==ui->disasTextEdit_2->viewport()) && event->type() == QEvent::MouseButtonDblClick) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+    }
+    else if ((obj == ui->disasTextEdit_2 || obj == ui->disasTextEdit_2->viewport()) && event->type() == QEvent::MouseButtonDblClick)
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         //qDebug()<<QString("Click location: (%1,%2)").arg(mouseEvent->x()).arg(mouseEvent->y());
-        QTextCursor cursor = ui->disasTextEdit_2->cursorForPosition( QPoint(mouseEvent->x(), mouseEvent->y()) );
-        cursor.select( QTextCursor::LineUnderCursor );
+        QTextCursor cursor = ui->disasTextEdit_2->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
+        cursor.select(QTextCursor::LineUnderCursor);
         QString lastline = cursor.selectedText();
         QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-        if (ele.contains("0x")) {
+        if (ele.contains("0x"))
+        {
             QString jump = "";
             jump = this->main->core->getOffsetJump(ele);
-            if (jump != "") {
-                if (jump.contains("0x")) {
+            if (jump != "")
+            {
+                if (jump.contains("0x"))
+                {
                     QString fcn = this->main->core->cmdFunctionAt(jump);
-                    if (fcn != "") {
+                    if (fcn != "")
+                    {
                         this->main->seek(jump.trimmed(), fcn);
                     }
-                } else {
+                }
+                else
+                {
                     this->main->seek(this->main->core->cmd("?v " + jump), jump);
                 }
             }
@@ -1637,14 +1801,15 @@ void MemoryWidget::on_actionXRefs_triggered()
 {
     // Get current offset
     QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select( QTextCursor::LineUnderCursor );
+    tc.select(QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText();
     QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x")) {
+    if (ele.contains("0x"))
+    {
         // Get function for clicked offset
         RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
 
-        XrefsDialog* x = new XrefsDialog(this->main, this);
+        XrefsDialog *x = new XrefsDialog(this->main, this);
         x->setWindowTitle("X-Refs for function " + QString(fcn->name));
         x->updateLabels(QString(fcn->name));
 
@@ -1655,8 +1820,10 @@ void MemoryWidget::on_actionXRefs_triggered()
 
         // refs = calls q hace esa funcion
         QList<QString> refs = this->main->core->getFunctionRefs(fcn->addr, 'C');
-        if (refs.size() > 0) {
-            for (int i = 0; i < refs.size(); ++i) {
+        if (refs.size() > 0)
+        {
+            for (int i = 0; i < refs.size(); ++i)
+            {
                 //this->main->add_debug_output(refs.at(i));
                 QStringList retlist = refs.at(i).split(",");
                 QStringList temp;
@@ -1671,8 +1838,10 @@ void MemoryWidget::on_actionXRefs_triggered()
         // xrefs = calls a esa funcion
         //qDebug() << this->main->core->getFunctionXrefs(offset.toLong(&ok, 16));
         QList<QString> xrefs = this->main->core->getFunctionXrefs(fcn->addr);
-        if (xrefs.size() > 0) {
-            for (int i = 0; i < xrefs.size(); ++i) {
+        if (xrefs.size() > 0)
+        {
+            for (int i = 0; i < xrefs.size(); ++i)
+            {
                 //this->main->add_debug_output(xrefs.at(i));
                 QStringList retlist = xrefs.at(i).split(",");
                 QStringList temp;
@@ -1705,52 +1874,65 @@ void MemoryWidget::on_copySHA1_clicked()
     this->main->add_output("SHA1 copied to clipboard: " + sha1);
 }
 
-void MemoryWidget::switchTheme(bool dark) {
-    if (dark) {
+void MemoryWidget::switchTheme(bool dark)
+{
+    if (dark)
+    {
         ui->webSimpleGraph->setStyleSheet("background-color: rgb(64, 64, 64);");
-    } else {
+    }
+    else
+    {
         ui->webSimpleGraph->setStyleSheet("");
     }
 }
 
 void MemoryWidget::on_opcodeDescButton_clicked()
 {
-    if(ui->opcodeDescButton->isChecked())
+    if (ui->opcodeDescButton->isChecked())
     {
         ui->opcodeDescText->hide();
         ui->opcodeDescButton->setArrowType(Qt::RightArrow);
-    } else {
+    }
+    else
+    {
         ui->opcodeDescText->show();
         ui->opcodeDescButton->setArrowType(Qt::DownArrow);
     }
 }
 
-void MemoryWidget::selectHexPreview() {
+void MemoryWidget::selectHexPreview()
+{
     // Pre-select arch and bits in the hexdump sidebar
     QString arch = this->main->core->cmd("e asm.arch").trimmed();
     QString bits = this->main->core->cmd("e asm.bits").trimmed();
 
     //int arch_index = ui->hexArchComboBox_2->findText(arch);
-    if (ui->hexArchComboBox_2->findText(arch) != -1) {
+    if (ui->hexArchComboBox_2->findText(arch) != -1)
+    {
         ui->hexArchComboBox_2->setCurrentIndex(ui->hexArchComboBox_2->findText(arch));
     }
 
     //int bits_index = ui->hexBitsComboBox_2->findText(bits);
-    if (ui->hexBitsComboBox_2->findText(bits) != -1) {
+    if (ui->hexBitsComboBox_2->findText(bits) != -1)
+    {
         ui->hexBitsComboBox_2->setCurrentIndex(ui->hexBitsComboBox_2->findText(bits));
     }
 }
 
-void MemoryWidget::seek_back() {
+void MemoryWidget::seek_back()
+{
     //this->main->add_debug_output("Back!");
     this->main->on_backButton_clicked();
 }
 
-void MemoryWidget::frameLoadFinished(bool ok) {
+void MemoryWidget::frameLoadFinished(bool ok)
+{
     //qDebug() << "LOAD FRAME: " << ok;
-    if (ok) {
+    if (ok)
+    {
         QSettings settings;
-        if (settings.value("dark").toBool()) {
+        if (settings.value("dark").toBool())
+        {
             QString js = "r2ui.graph_panel.render('dark');";
             ui->graphWebView->page()->mainFrame()->evaluateJavaScript(js);
         }

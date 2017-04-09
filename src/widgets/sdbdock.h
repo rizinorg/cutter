@@ -6,8 +6,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class SdbDock;
+namespace Ui
+{
+    class SdbDock;
 }
 
 class SdbDock : public QDockWidget

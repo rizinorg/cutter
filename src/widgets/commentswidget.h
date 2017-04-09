@@ -7,8 +7,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class CommentsWidget;
+namespace Ui
+{
+    class CommentsWidget;
 }
 
 class CommentsWidget : public QDockWidget

@@ -71,7 +71,7 @@ protected:
 
     bool isIndexHidden(const QModelIndex &index) const;
 
-    void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
+    void setSelection(const QRect &, QItemSelectionModel::SelectionFlags command);
 
     void mousePressEvent(QMouseEvent *event);
 

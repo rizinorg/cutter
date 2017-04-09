@@ -7,7 +7,7 @@ class QRCore;
 
 class AnalThread : public QThread
 {
-        Q_OBJECT
+    Q_OBJECT
 public:
     explicit AnalThread(QWidget *parent = 0);
     ~AnalThread();

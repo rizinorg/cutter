@@ -5,7 +5,7 @@
 #include "widgets/banned.h"
 #include "mainwindow.h"
 
-void CMyDelegate::paint(QPainter* painter, const QStyleOptionViewItem & option, const QModelIndex & index) const
+void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItemV4 itemOption(option);
     initStyleOption(&itemOption, index);
@@ -43,22 +43,25 @@ ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
     //ui->importsTreeWidget->setItemDelegate(delegate);
 }
 
-void ImportsWidget::fillImports() {
+void ImportsWidget::fillImports()
+{
     this->importsTreeWidget->clear();
-    for (auto i: this->main->core->getList ("bin", "imports")) {
-        QStringList a = i.split (",");
+    for (auto i : this->main->core->getList("bin", "imports"))
+    {
+        QStringList a = i.split(",");
         // ord,plt,name
-        if (a.length()==6)
-            this->main->appendRow(this->importsTreeWidget, a[1],a[3], "", a[4]);
+        if (a.length() == 6)
+            this->main->appendRow(this->importsTreeWidget, a[1], a[3], "", a[4]);
     }
     highlightUnsafe();
     this->main->adjustColumns(this->importsTreeWidget);
 }
 
-void ImportsWidget::highlightUnsafe() {
+void ImportsWidget::highlightUnsafe()
+{
     Banned *ban = new Banned();
-    QList<QTreeWidgetItem*> clist = this->importsTreeWidget->findItems(ban->banned, Qt::MatchRegExp, 4);
-    foreach(QTreeWidgetItem* item, clist)
+    QList<QTreeWidgetItem *> clist = this->importsTreeWidget->findItems(ban->banned, Qt::MatchRegExp, 4);
+    foreach (QTreeWidgetItem *item, clist)
     {
         item->setText(3, "Unsafe");
         //item->setBackgroundColor(4, QColor(255, 129, 123));
@@ -68,9 +71,11 @@ void ImportsWidget::highlightUnsafe() {
     //ui->importsTreeWidget->setStyleSheet("QTreeWidget::item { padding-left:10px; padding-top: 1px; padding-bottom: 1px; border-left: 10px; }");
 }
 
-void ImportsWidget::adjustColumns(QTreeWidget *tw) {
+void ImportsWidget::adjustColumns(QTreeWidget *tw)
+{
     int count = tw->columnCount();
-    for (int i = 0; i != count; ++i) {
+    for (int i = 0; i != count; ++i)
+    {
         ui->importsTreeWidget->resizeColumnToContents(i);
         int width = ui->importsTreeWidget->columnWidth(i);
         ui->importsTreeWidget->setColumnWidth(i, width + 10);

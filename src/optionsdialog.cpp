@@ -21,7 +21,8 @@ OptionsDialog::OptionsDialog(QString filename, QWidget *parent):
 
     // Fill the plugins combo
     QStringList plugins;
-    for (auto i: this->core->getList ("asm", "plugins")) {
+    for (auto i : this->core->getList("asm", "plugins"))
+    {
         this->asm_plugins.append(i);
         plugins.append(i);
     }
@@ -42,7 +43,7 @@ OptionsDialog::OptionsDialog(QString filename, QWidget *parent):
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
-    
+
     setFilename(filename);
 }
 
@@ -51,12 +52,13 @@ OptionsDialog::~OptionsDialog()
     delete ui;
 }
 
-void OptionsDialog::setFilename(QString fn, QString shortfn) {
+void OptionsDialog::setFilename(QString fn, QString shortfn)
+{
     this->filename = fn;
     this->shortfn = shortfn;
     //qDebug() << QFileInfo(fn).fileName();
     ui->programLineEdit->setText(fn);
-    this->core->tryFile (fn, 1);
+    this->core->tryFile(fn, 1);
 }
 
 void OptionsDialog::setFilename(QString fn)
@@ -94,7 +96,8 @@ void OptionsDialog::on_okButton_clicked()
     ut64 mapaddr = 0LL;
     int bits = 0;
     QString sel_bits = ui->bitsComboBox->currentText();
-    if (sel_bits != "Auto") {
+    if (sel_bits != "Auto")
+    {
         bits = sel_bits.toInt();
     }
 
@@ -102,51 +105,69 @@ void OptionsDialog::on_okButton_clicked()
     QSettings settings;
 
     // Show asm bytes
-    if (ui->bytesCheckBox->isChecked()) {
+    if (ui->bytesCheckBox->isChecked())
+    {
         this->w->core->config("asm.bytes", "true");
         this->w->core->config("asm.cmtcol", "100");
-    } else {
+    }
+    else
+    {
         this->w->core->config("asm.bytes", "false");
         this->w->core->config("asm.cmtcol", "70");
     }
     settings.setValue("bytes", ui->bytesCheckBox->isChecked());
 
     // Show AT&T syntax
-    if (ui->attCheckBox->isChecked()) {
+    if (ui->attCheckBox->isChecked())
+    {
         this->w->core->config("asm.syntax", "att");
-    } else {
+    }
+    else
+    {
         this->w->core->config("asm.syntax", "intel");
     }
     settings.setValue("syntax", ui->attCheckBox->isChecked());
 
     // Show opcode description
-    if (ui->descriptionCheckBox->isChecked()) {
+    if (ui->descriptionCheckBox->isChecked())
+    {
         this->w->core->config("asm.describe", "true");
-    } else {
+    }
+    else
+    {
         this->w->core->config("asm.describe", "false");
     }
     settings.setValue("describe", ui->descriptionCheckBox->isChecked());
 
     // Show stack pointer
-    if (ui->stackCheckBox->isChecked()) {
+    if (ui->stackCheckBox->isChecked())
+    {
         this->w->core->config("asm.stackptr", "true");
-    } else {
+    }
+    else
+    {
         this->w->core->config("asm.stackptr", "false");
     }
     settings.setValue("stackptr", ui->stackCheckBox->isChecked());
 
     // Show uppercase dasm
-    if (ui->ucaseCheckBox->isChecked()) {
+    if (ui->ucaseCheckBox->isChecked())
+    {
         this->w->core->config("asm.ucase", "true");
-    } else {
+    }
+    else
+    {
         this->w->core->config("asm.ucase", "false");
     }
     settings.setValue("ucase", ui->ucaseCheckBox->isChecked());
 
     // Show spaces in dasm
-    if (ui->spacyCheckBox->isChecked()) {
+    if (ui->spacyCheckBox->isChecked())
+    {
         this->w->core->config("asm.spacy", "true");
-    } else {
+    }
+    else
+    {
         this->w->core->config("asm.spacy", "false");
     }
     settings.setValue("spacy", ui->spacyCheckBox->isChecked());
@@ -154,14 +175,18 @@ void OptionsDialog::on_okButton_clicked()
     bool rw = false;
     bool load_bininfo = ui->binCheckBox->isChecked();
 
-    if (load_bininfo) {
-        if (!va) {
+    if (load_bininfo)
+    {
+        if (!va)
+        {
             va = 2;
             loadaddr = UT64_MAX;
-            r_config_set_i (this->core->core()->config, "bin.laddr", loadaddr);
+            r_config_set_i(this->core->core()->config, "bin.laddr", loadaddr);
             mapaddr = 0;
         }
-    } else {
+    }
+    else
+    {
         va = false;
         loadaddr = mapaddr = 0;
     }
@@ -181,7 +206,8 @@ void OptionsDialog::on_okButton_clicked()
     // connect signal/slot
 
     int level = 0;
-    if (anal_level == true) {
+    if (anal_level == true)
+    {
         level = ui->analSlider->value();
     }
 
@@ -201,21 +227,25 @@ void OptionsDialog::anal_finished()
     ui->statusLabel->setText("Loading interface");
     this->w->add_output(" > Analysis finished");
     QString initial_seek = ui->entry_initialSeek->text();
-    if (initial_seek.length()>0) {
+    if (initial_seek.length() > 0)
+    {
         this->w->core->seek(initial_seek);
-    } else {
+    }
+    else
+    {
         this->w->core->seek("entry0");
     }
     this->w->add_output(" > Populating UI");
     this->w->updateFrames();
     this->w->setFilename(this->filename);
-    this->w->get_refs( this->w->core->cmd("?v entry0") );
+    this->w->get_refs(this->w->core->cmd("?v entry0"));
     this->w->memoryDock->selectHexPreview();
 
     // Restore project notes
     QString notes = this->core->cmd("Pn");
     //qDebug() << "Notes:" << notes;
-    if (notes != "") {
+    if (notes != "")
+    {
         QByteArray ba;
         ba.append(notes);
         this->w->notepadDock->notesTextEdit->setPlainText(QByteArray::fromBase64(ba));
@@ -227,7 +257,7 @@ void OptionsDialog::anal_finished()
 
     this->w->add_output(" > Finished, happy reversing :)");
     // Add fortune message
-    this->w->add_output( "\n" + this->w->core->cmd("fo") );
+    this->w->add_output("\n" + this->w->core->cmd("fo"));
     this->w->memoryDock->setWindowTitle("entry0");
     this->w->start_web_server();
     close();
@@ -243,27 +273,32 @@ void OptionsDialog::on_cancelButton_clicked()
     this->core = NULL;
     // Close dialog and open OptionsDialog
     close();
-    NewFileDialog* n = new NewFileDialog(this);
+    NewFileDialog *n = new NewFileDialog(this);
     n->show();
 }
 
 void OptionsDialog::on_analSlider_valueChanged(int value)
 {
     ui->analLevel->setText(QString::number(value));
-    if (value == 0) {
+    if (value == 0)
+    {
         ui->analCheckBox->setChecked(false);
-    } else {
+    }
+    else
+    {
         ui->analCheckBox->setChecked(true);
     }
 }
 
 void OptionsDialog::on_AdvOptButton_clicked()
 {
-    if(ui->AdvOptButton->isChecked())
+    if (ui->AdvOptButton->isChecked())
     {
         ui->hideFrame->setVisible(true);
         ui->AdvOptButton->setArrowType(Qt::DownArrow);
-    } else {
+    }
+    else
+    {
         ui->hideFrame->setVisible(false);
         ui->AdvOptButton->setArrowType(Qt::RightArrow);
 

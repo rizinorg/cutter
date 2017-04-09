@@ -8,8 +8,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class XrefsDialog;
+namespace Ui
+{
+    class XrefsDialog;
 }
 
 class XrefsDialog : public QDialog

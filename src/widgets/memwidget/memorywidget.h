@@ -18,8 +18,9 @@
 
 class MainWindow;
 
-namespace Ui {
-class MemoryWidget;
+namespace Ui
+{
+    class MemoryWidget;
 }
 
 class MemoryWidget : public QDockWidget
@@ -58,13 +59,13 @@ public slots:
 
     void refreshDisasm(const QString &offset = QString());
 
-    void refreshHexdump(QString where=0);
+    void refreshHexdump(QString where = 0);
 
     void fill_refs(QList<QStringList> list, QList<QStringList> xrefs, QList<int> graph_data);
 
     void fillOffsetInfo(QString off);
 
-    void get_refs_data(const QString& offset);
+    void get_refs_data(const QString &offset);
 
     void seek_to(QString offset);
 
