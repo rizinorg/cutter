@@ -9,20 +9,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui WebKit WebKitWidgets)
 
-set(QT_USE_MODULES Core Widgets Gui)
-find_package(Qt5 REQUIRED COMPONENTS ${QT_USE_MODULES})
-if (Qt5_VERSION_MINOR GREATER 7)
-    list(APPEND QT_USE_MODULES WebEngine WebEngineWidgets)
-    message("Using QT5 WebEngine instead WebKit")
-    add_definitions(-DUSE_WEBENGINE)
-    find_package(Qt5 REQUIRED COMPONENTS ${QT_USE_MODULES})
-else (Qt5_VERSION_MINOR GREATER 7)
-    set(CMAKE_AUTOUIC ON)
-    list(APPEND QT_USE_MODULES WebKit WebKitWidgets)
-    find_package(Qt5 REQUIRED COMPONENTS ${QT_USE_MODULES})
-endif(Qt5_VERSION_MINOR GREATER 7)
 
 if(WIN32)
     # use radare2 libraries from submodule on windows
@@ -130,39 +120,12 @@ set(UI_FILES
     widgets/commentswidget.ui
     widgets/stringswidget.ui
     widgets/flagswidget.ui
+    widgets/memwidget/memorywidget.ui
     widgets/sdbdock.ui
     dialogs/commentsdialog.ui
     widgets/sidebar.ui
+    widgets/dashboard.ui
     dialogs/xrefsdialog.ui)
-
-if (Qt5_VERSION_MINOR GREATER 7)
-    list(APPEND UI_FILES webengine/widgets/memwidget/memorywidget.ui
-        webengine/widgets/dashboard.ui)
-
-    set(UI_FILES_OUT "")
-
-    # Workaround for Qt 5.8
-    # AutoUIC looking for ui files in the same directory as source code
-    # files. This code directly calls uic for headers generation.
-    foreach(it ${UI_FILES})
-        message("Preprocessing uic: ${it}")
-        get_filename_component(outfile ${it} NAME_WE)
-        get_filename_component(infile ${it} ABSOLUTE)
-        set(outfile ${CMAKE_CURRENT_BINARY_DIR}/ui_${outfile}.h)
-        add_custom_command(OUTPUT ${outfile}
-          COMMAND ${Qt5Widgets_UIC_EXECUTABLE}
-          ARGS ${ui_options} -o ${outfile} ${infile}
-          MAIN_DEPENDENCY ${infile} VERBATIM)
-        list(APPEND UI_FILES_OUT ${outfile})
-    endforeach()
-
-    set(UI_FILES ${UI_FILES_OUT})
-
-else (Qt5_VERSION_MINOR GREATER 7)
-    list(APPEND UI_FILES widgets/memwidget/memorywidget.ui
-        widgets/dashboard.ui)
-endif (Qt5_VERSION_MINOR GREATER 7)
-
 
 set(QRC_FILES resources.qrc)
 
@@ -174,5 +137,5 @@ add_definitions("-DAPP_VERSION=\"${IAITO_VERSION_FULL}\"")
 
 
 add_executable(iaito ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
-qt5_use_modules(iaito ${QT_USE_MODULES})
+qt5_use_modules(iaito Core Widgets Gui WebKit WebKitWidgets)
 target_link_libraries(iaito ${RADARE2_LIBRARIES})
