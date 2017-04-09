@@ -667,10 +667,11 @@ void QRCore::setSettings() {
     config("asm.xrefs", "false");
     config("asm.fcnlines", "false");
 
-    config("asm.tabs", "10");
+    config("asm.tabs", "5");
     config("asm.tabsonce", "true");
     config("asm.tabsoff", "5");
     config("asm.nbytes", "10");
+    config("asm.bbline", "true");
 
     config("anal.hasnext", "true");
     config("asm.fcncalls", "false");
