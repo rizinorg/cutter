@@ -164,7 +164,7 @@ void Dashboard::updateContents()
     QFile html(":/html/stats.html");
     if (!html.open(QIODevice::ReadOnly))
     {
-        QMessageBox::information(0, "error", html.errorString());
+        QMessageBox::information(this, "error", html.errorString());
     }
     QString code = html.readAll();
     html.close();
@@ -177,7 +177,7 @@ void Dashboard::updateContents()
     QFile html2(":/html/radar.html");
     if (!html2.open(QIODevice::ReadOnly))
     {
-        QMessageBox::information(0, "error", html2.errorString());
+        QMessageBox::information(this, "error", html2.errorString());
     }
     QString code2 = html2.readAll();
     html2.close();

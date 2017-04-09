@@ -1460,7 +1460,7 @@ void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, 
     QFile html(":/html/fcn_graph.html");
     if (!html.open(QIODevice::ReadOnly))
     {
-        QMessageBox::information(0, "error", html.errorString());
+        QMessageBox::information(this, "error", html.errorString());
     }
     QString code = html.readAll();
     html.close();
@@ -1473,7 +1473,7 @@ void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, 
     QFile html2(":/html/fcn_radar.html");
     if (!html2.open(QIODevice::ReadOnly))
     {
-        QMessageBox::information(0, "error", html.errorString());
+        QMessageBox::information(this, "error", html.errorString());
     }
     QString code2 = html2.readAll();
     html2.close();
@@ -1644,7 +1644,7 @@ void MemoryWidget::setMiniGraph(QString at)
     QFile html(":/html/graph.html");
     if (!html.open(QIODevice::ReadOnly))
     {
-        QMessageBox::information(0, "error", html.errorString());
+        QMessageBox::information(this, "error", html.errorString());
     }
     QString code = html.readAll();
     html.close();

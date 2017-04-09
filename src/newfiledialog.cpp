@@ -98,7 +98,7 @@ void NewFileDialog::on_loadFileButton_clicked()
     QFileInfo checkfile(fname);
     if (!checkfile.exists() || !checkfile.isFile())
     {
-        QMessageBox msgBox;
+        QMessageBox msgBox(this);
         msgBox.setText("Select a new program or a previous one\nbefore continue");
         msgBox.exec();
     }
@@ -183,7 +183,7 @@ void NewFileDialog::on_createButton_clicked()
 {
     // Close dialog and open create new file dialog
     close();
-    createNewDialog *n = new createNewDialog(this);
+    createNewDialog *n = new createNewDialog(nullptr);
     n->exec();
 }
 

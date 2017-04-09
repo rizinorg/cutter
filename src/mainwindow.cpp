@@ -1073,8 +1073,8 @@ void MainWindow::add_debug_output(QString msg)
 
 void MainWindow::on_actionNew_triggered()
 {
-    close();
-    on_actionLoad_triggered();
+    if(close())
+        on_actionLoad_triggered();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -1095,6 +1095,8 @@ void MainWindow::on_actionRun_Script_triggered()
 
     QString fileName;
     fileName = dialog.getOpenFileName(this, "Select radare2 script");
+    if(!fileName.length()) //cancel was pressed
+        return;
 
     qDebug() << "Meow: " + fileName;
     this->core->cmd(". " + fileName);
