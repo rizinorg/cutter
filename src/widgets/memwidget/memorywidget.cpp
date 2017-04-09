@@ -69,6 +69,11 @@ MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
     ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
     ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
 
+    // Allows the local resources (qrc://) to access http content
+    if (!ui->graphWebView->settings()->testAttribute(QWebSettings::LocalContentCanAccessRemoteUrls)) {
+        ui->graphWebView->settings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, true);
+    }
+
     // Debug console
     QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 
