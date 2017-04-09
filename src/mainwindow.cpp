@@ -244,7 +244,7 @@ void MainWindow::start_web_server() {
 
 void MainWindow::webserverThreadFinished()
 {
-    core->core->http_up = webserverThread.isStarted() ? R_TRUE : R_FALSE;
+    core->core()->http_up = webserverThread.isStarted() ? R_TRUE : R_FALSE;
 
     // this is not true anymore, cause the webserver might have been stopped
     //if (core->core->http_up == R_FALSE) {

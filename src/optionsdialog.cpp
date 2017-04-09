@@ -158,7 +158,7 @@ void OptionsDialog::on_okButton_clicked()
         if (!va) {
             va = 2;
             loadaddr = UT64_MAX;
-            r_config_set_i (this->core->core->config, "bin.laddr", loadaddr);
+            r_config_set_i (this->core->core()->config, "bin.laddr", loadaddr);
             mapaddr = 0;
         }
     } else {

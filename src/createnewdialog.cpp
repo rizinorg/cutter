@@ -60,6 +60,7 @@ void createNewDialog::on_exampleButton_clicked()
 
 void createNewDialog::on_buttonCreate_clicked()
 {
+    RCoreLocked lcore = w->core->core();
     QString type = ui->comboType->currentText();
     QString str;
     bool created = false;
@@ -69,13 +70,13 @@ void createNewDialog::on_buttonCreate_clicked()
     QString format = ui->comboFormat->currentText();
 
     if (type == "Assembler") {
-        RAsmCode *code = r_asm_massemble (w->core->core->assembler, ui->plainTextEdit->toPlainText().toUtf8().constData());
+        RAsmCode *code = r_asm_massemble (lcore->assembler, ui->plainTextEdit->toPlainText().toUtf8().constData());
         if (code && code->len>0) {
             char file[32];
             snprintf (file, sizeof(file)-1, "malloc://%d", code->len);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {
                 created = true;
-                r_core_write_at(w->core->core,0, code->buf, code->len);
+                r_core_write_at(lcore,0, code->buf, code->len);
             } else {
                 __alert ("Failed to create file");
             }
@@ -89,8 +90,8 @@ void createNewDialog::on_buttonCreate_clicked()
             created = true;
             snprintf (file, sizeof(file)-1, "malloc://%d", fsize);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {
-                r_core_patch (w->core->core, ui->plainTextEdit->toPlainText().toUtf8().constData());
-                r_core_seek(w->core->core, 0, 1);
+                r_core_patch (lcore, ui->plainTextEdit->toPlainText().toUtf8().constData());
+                r_core_seek(lcore, 0, 1);
                 created = true;
             } else {
                 __alert ("failed to open file");
@@ -121,13 +122,13 @@ void createNewDialog::on_buttonCreate_clicked()
         }
     } else if (type == "Text") {
         char file[32];
-        QByteArray hexpairs = ui->plainTextEdit->toPlainText().toStdString().c_str();
+        QByteArray hexpairs = ui->plainTextEdit->toPlainText().toUtf8();
         int sz = strlen (hexpairs.constData());
         if (sz>0) {
             snprintf (file, sizeof(file)-1, "malloc://%d", sz);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {
                 created = true;
-                r_core_write_at(w->core->core,0, (const ut8*)hexpairs.constData(), sz);
+                r_core_write_at(lcore,0, (const ut8*)hexpairs.constData(), sz);
             } else {
                 __alert ("failed to open file");
             }
@@ -144,7 +145,7 @@ void createNewDialog::on_buttonCreate_clicked()
             snprintf (file, sizeof(file)-1, "malloc://%d", sz);
             if (w->core->loadFile(file,0,0,1,0,0,false)) {
                 created = true;
-                r_core_write_at(w->core->core,0, buf, sz);
+                r_core_write_at(lcore,0, buf, sz);
             } else {
                 __alert ("failed to open file");
             }
