@@ -65,7 +65,6 @@ void createNewDialog::on_buttonCreate_clicked()
     bool created = false;
 
     QString arch = ui->comboArch->currentText();
-    int bits = atoi (ui->comboBits->currentText().toUtf8().constData());
     int fsize = r_num_math (NULL, ui->entrySize->text().toUtf8().constData());
     QString format = ui->comboFormat->currentText();
 

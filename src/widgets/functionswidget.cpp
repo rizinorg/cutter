@@ -94,6 +94,8 @@ void FunctionsWidget::fillFunctions() {
 
 void FunctionsWidget::on_functionsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    QNOTUSED(column);
+
     QString offset = item->text(1);
     QString name = item->text(3);
     this->main->seek(offset, name);
@@ -281,7 +283,6 @@ void FunctionsWidget::on_action_References_triggered()
     x->setWindowTitle("X-Refs for function " + QString::fromUtf8(fcn->name));
 
     // Get Refs and Xrefs
-    bool ok;
     QList<QStringList> ret_refs;
     QList<QStringList> ret_xrefs;
 
@@ -353,6 +354,8 @@ void FunctionsWidget::on_actionVertical_triggered()
 
 void FunctionsWidget::on_nestedFunctionsTree_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    QNOTUSED(column);
+
     //QString offset = item->text(1);
     QString name = item->text(0);
     QString offset = item->child(0)->text(0).split(":")[1];

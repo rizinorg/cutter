@@ -36,21 +36,17 @@
 
 #include <cassert>
 
-namespace
+static void registerCustomFonts()
 {
-    void registerCustomFonts()
-    {
-        int ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Anonymous Pro.ttf");
-        assert(-1 != ret && "unable to register Anonymous Pro.ttf");
+    int ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Anonymous Pro.ttf");
+    assert(-1 != ret && "unable to register Anonymous Pro.ttf");
 
-        ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Inconsolata-Regular.ttf");
-        assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
+    ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Inconsolata-Regular.ttf");
+    assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
 
-        // do not issue a warning in release
-        Q_UNUSED(ret)
-    }
+    // do not issue a warning in release
+    Q_UNUSED(ret)
 }
-
 
 MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     QMainWindow(parent),
@@ -752,26 +748,27 @@ void MainWindow::on_consoleInputLineEdit_returnPressed()
         ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
         // Add new command to history
         QCompleter *completer = ui->consoleInputLineEdit->completer();
-        /*
-         * TODO: FIXME: Crashed the fucking app
-         * ballessay: yes this will crash if no completer is set -> nullptr
-         */
-        //QStringListModel *completerModel = (QStringListModel*)(completer->model());
-        //completerModel->setStringList(completerModel->stringList() << input);
+        if ( completer != NULL ) {
+            QStringListModel *completerModel = (QStringListModel*)(completer->model());
+            if ( completerModel != NULL )
+              completerModel->setStringList(completerModel->stringList() << input);
+        }
+
         ui->consoleInputLineEdit->setText("");
-        // TODO: add checkbox to enable/disable updating the whole ui or just update the list widgets, not disasm/hex
-        //this->updateFrames();
     }
 }
 
 void MainWindow::on_showHistoToolButton_clicked()
 {
+    QCompleter *completer = ui->consoleInputLineEdit->completer();
+    if (completer == NULL)
+      return;
+
     if (ui->showHistoToolButton->isChecked()) {
-        QCompleter *completer = ui->consoleInputLineEdit->completer();
         completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+        // Uhm... shouldn't it be called always?
         completer->complete();
     } else {
-        QCompleter *completer = ui->consoleInputLineEdit->completer();
         completer->setCompletionMode(QCompleter::PopupCompletion);
     }
 }

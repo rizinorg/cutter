@@ -147,8 +147,6 @@ void Notepad::on_searchEdit_returnPressed()
     QString searchString = ui->searchEdit->text();
     QTextDocument *document = ui->notepadTextEdit->document();
 
-    bool found = false;
-
     if (isFirstTime == false)
         document->undo();
 
@@ -167,7 +165,6 @@ void Notepad::on_searchEdit_returnPressed()
             highlightCursor = document->find(searchString, highlightCursor, QTextDocument::FindWholeWords);
 
             if (!highlightCursor.isNull()) {
-                found = true;
                 highlightCursor.movePosition(QTextCursor::WordRight,
                                        QTextCursor::KeepAnchor);
                 highlightCursor.mergeCharFormat(colorFormat);
@@ -176,22 +173,15 @@ void Notepad::on_searchEdit_returnPressed()
 
         cursor.endEditBlock();
         isFirstTime = false;
-
-        /*
-        if (found == false) {
-            QMessageBox::information(this, tr("Word Not Found"),
-                "Sorry, the word cannot be found.");
-        }
-        */
     }
 }
 
 void Notepad::on_searchEdit_textEdited(const QString &arg1)
 {
+    QNOTUSED(arg1);
+
     QString searchString = ui->searchEdit->text();
     QTextDocument *document = ui->notepadTextEdit->document();
-
-    bool found = false;
 
     if (isFirstTime == false)
         document->undo();
@@ -211,7 +201,6 @@ void Notepad::on_searchEdit_textEdited(const QString &arg1)
             highlightCursor = document->find(searchString, highlightCursor);
 
             if (!highlightCursor.isNull()) {
-                found = true;
                 //highlightCursor.movePosition(QTextCursor::WordRight,
                 //                       QTextCursor::KeepAnchor);
                 highlightCursor.mergeCharFormat(colorFormat);
@@ -225,10 +214,10 @@ void Notepad::on_searchEdit_textEdited(const QString &arg1)
 
 void Notepad::on_searchEdit_textChanged(const QString &arg1)
 {
+    QNOTUSED(arg1);
+
     QString searchString = ui->searchEdit->text();
     QTextDocument *document = ui->notepadTextEdit->document();
-
-    bool found = false;
 
     if (isFirstTime == false)
         document->undo();
@@ -248,7 +237,6 @@ void Notepad::on_searchEdit_textChanged(const QString &arg1)
             highlightCursor = document->find(searchString, highlightCursor);
 
             if (!highlightCursor.isNull()) {
-                found = true;
                 //highlightCursor.movePosition(QTextCursor::WordRight,
                 //                       QTextCursor::KeepAnchor);
                 highlightCursor.mergeCharFormat(colorFormat);

@@ -9,6 +9,8 @@
 SectionsWidget::SectionsWidget(MainWindow *main, QWidget *parent) :
     QSplitter(main)
 {
+    QNOTUSED(parent);
+
     this->main = main;
     //setupModel();
     setupViews();

@@ -149,6 +149,10 @@ QString QRCore::cmd(const QString &str) {
 }
 
 bool QRCore::loadFile(QString path, uint64_t loadaddr=0LL, uint64_t mapaddr=0LL, bool rw=false, int va=0, int bits = 0, int idx, bool loadbin) {
+
+    QNOTUSED(loadaddr);
+    QNOTUSED(idx);
+
     RCoreFile *f;
     if (va==0 || va == 2)
         r_config_set_i (core->config, "io.va", va);
@@ -455,9 +459,9 @@ int QRCore::fcnEndBbs(QString addr) {
             QString endbbs = tmp.split(": ")[1];
             return endbbs.toInt();
         }
-    } else {
-        return 0;
     }
+
+    return 0;
 }
 
 QString QRCore::itoa(ut64 num, int rdx) {
@@ -483,6 +487,8 @@ int QRCore::config(const QString &k, int v) {
 }
 
 void QRCore::setOptions(QString key) {
+    QNOTUSED(key);
+
     // va
     // lowercase
     // show bytes

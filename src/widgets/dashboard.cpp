@@ -133,9 +133,6 @@ void Dashboard::updateContents() {
     // Get stats for the graphs
     QStringList stats = this->main->core->getStats();
 
-    // Calculate total amount flags all + imports
-    int total = stats[6].toInt() + stats[1].toInt();
-
     // Add data to HTML graphs (stats)
     QFile html(":/html/stats.html");
     if(!html.open(QIODevice::ReadOnly)) {

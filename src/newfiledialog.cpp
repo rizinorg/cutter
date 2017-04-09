@@ -11,6 +11,8 @@
 const int NewFileDialog::MaxRecentFiles;
 
 static QColor getColorFor(QString str, int pos) {
+    QNOTUSED(str);
+
     QList<QColor> Colors;
     Colors << QColor(29, 188, 156); // Turquoise
     Colors << QColor(52, 152, 219); // Blue

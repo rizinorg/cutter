@@ -64,6 +64,8 @@ void XrefsDialog::fillRefs(QList<QStringList> refs, QList<QStringList> xrefs) {
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    QNOTUSED(column);
+
     QString offset = item->text(0);
     RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
     //this->add_debug_output( fcn->name );
@@ -73,6 +75,8 @@ void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int
 
 void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    QNOTUSED(column);
+
     QString offset = item->text(0);
     RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
     //this->add_debug_output( fcn->name );
@@ -118,7 +122,8 @@ void XrefsDialog::on_fromTreeWidget_itemSelectionChanged()
     QString offset = item->text(0);
     ui->previewTextEdit->setPlainText( this->main->core->cmd("pdf @ " + offset).trimmed() );
     ui->previewTextEdit->moveCursor(QTextCursor::End);
-    int pos = ui->previewTextEdit->find( this->normalizeAddr(offset), QTextDocument::FindBackward);
+    // Does it make any sense?
+    ui->previewTextEdit->find( this->normalizeAddr(offset), QTextDocument::FindBackward);
     ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
 }
 
@@ -128,7 +133,9 @@ void XrefsDialog::on_toTreeWidget_itemSelectionChanged()
     QString offset = item->text(0);
     ui->previewTextEdit->setPlainText( this->main->core->cmd("pdf @ " + offset).trimmed() );
     ui->previewTextEdit->moveCursor(QTextCursor::End);
-    int pos = ui->previewTextEdit->find( this->normalizeAddr(offset), QTextDocument::FindBackward);
+    // Again, does it make any sense?
+    // Also, this code should be refactored and shared instead of copied & pasted
+    ui->previewTextEdit->find( this->normalizeAddr(offset), QTextDocument::FindBackward);
     ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
 }
 

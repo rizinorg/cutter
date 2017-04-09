@@ -38,6 +38,8 @@ CommentsWidget::~CommentsWidget()
 
 void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    QNOTUSED(column);
+
     // Get offset and name of item double clicked
     // TODO: use this info to change disasm contents
     QString offset = item->text(1);

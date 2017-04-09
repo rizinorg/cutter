@@ -27,6 +27,7 @@
 #define __alert(x) QMessageBox::question (this, "Alert", QString(x), QMessageBox::Ok)
 #define __question(x) (QMessageBox::Yes==QMessageBox::question (this, "Alert", QString(x), QMessageBox::Yes| QMessageBox::No))
 
+#define QNOTUSED(x) do { (void)(x); } while ( 0 );
 
 class QRCore : public QObject
 {
