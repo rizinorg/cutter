@@ -16,8 +16,8 @@
 #include <QFont>
 #include <QUrl>
 
-MemoryWidget::MemoryWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
+MemoryWidget::MemoryWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::MemoryWidget)
 {
     ui->setupUi(this);

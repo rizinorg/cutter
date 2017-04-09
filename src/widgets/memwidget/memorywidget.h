@@ -27,7 +27,7 @@ class MemoryWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit MemoryWidget(MainWindow *main, QWidget *parent = 0);
+    explicit MemoryWidget(MainWindow *main);
     ~MemoryWidget();
 
     MainWindow       *main;
