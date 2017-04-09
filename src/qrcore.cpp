@@ -10,8 +10,9 @@ RCoreLocked::RCoreLocked(RCore *core)
 }
 
 RCoreLocked::RCoreLocked(RCoreLocked&& o)
+    : core(o.core)
 {
-    core = o.core;
+    o.core = nullptr;
 }
 
 RCoreLocked::~RCoreLocked()

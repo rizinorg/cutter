@@ -27,8 +27,11 @@
 #define __alert(x) QMessageBox::question (this, "Alert", QString(x), QMessageBox::Ok)
 #define __question(x) (QMessageBox::Yes==QMessageBox::question (this, "Alert", QString(x), QMessageBox::Yes| QMessageBox::No))
 
-struct RCoreLocked
+class RCoreLocked
 {
+    RCore* core;
+
+public:
     explicit RCoreLocked(RCore* core);
     RCoreLocked(const RCoreLocked&) = delete;
     RCoreLocked& operator=(const RCoreLocked&) = delete;
@@ -36,9 +39,6 @@ struct RCoreLocked
     ~RCoreLocked();
     operator RCore*() const;
     RCore* operator->() const;
-
-private:
-    RCore* core;
 };
 
 #define QNOTUSED(x) do { (void)(x); } while ( 0 );
