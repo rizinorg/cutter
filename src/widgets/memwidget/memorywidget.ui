@@ -774,8 +774,6 @@ QToolTip {
               </layout>
               <zorder>previewToolButton</zorder>
               <zorder>decoToolButton</zorder>
-              <zorder>horizontalSpacer_2</zorder>
-              <zorder>horizontalSpacer</zorder>
               <zorder>simpleGrapgToolButton</zorder>
              </widget>
             </item>
