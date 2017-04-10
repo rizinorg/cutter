@@ -277,15 +277,15 @@ QString OptionsDialog::analysisDescription(int level)
     switch(level)
     {
     case 0:
-        return tr("Disabled");
+        return tr("Analysis disabled");
     case 1:
-        return tr("Finger");
+        return tr("Minimum analysis");
     case 2:
-        return tr("Buttplug");
+        return tr("Basic analysis");
     case 3:
-        return tr("Dildo");
+        return tr("Medium analysis");
     case 4:
-        return tr("Fisting");
+        return tr("Full analysis (Slow)");
     default:
         return tr("Unknown");
     }
@@ -293,7 +293,7 @@ QString OptionsDialog::analysisDescription(int level)
 
 void OptionsDialog::on_analSlider_valueChanged(int value)
 {
-    ui->analDescription->setText(tr("Analysis") + QString(" (%1)").arg(analysisDescription(value)));
+    ui->analDescription->setText(tr("Level") + QString(" - %1").arg(analysisDescription(value)));
     if (value == 0)
     {
         ui->analCheckBox->setChecked(false);

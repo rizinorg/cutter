@@ -202,14 +202,14 @@
                </font>
               </property>
               <property name="text">
-               <string>Analysis</string>
+               <string>Level</string>
               </property>
              </widget>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_8">
               <property name="spacing">
-               <number>10</number>
+               <number>15</number>
               </property>
               <item>
                <widget class="QCheckBox" name="analCheckBox">
@@ -257,7 +257,7 @@
                  <bool>false</bool>
                 </property>
                 <property name="tickPosition">
-                 <enum>QSlider::TicksBelow</enum>
+                 <enum>QSlider::NoTicks</enum>
                 </property>
                </widget>
               </item>
