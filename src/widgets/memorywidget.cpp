@@ -106,7 +106,10 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     ui->actionSeparate_bytes->setDisabled(true);
     ui->actionRight_align_bytes->setDisabled(true);
 
-    // Resize eventfilter
+    // Event filter to intercept double clicks in the textbox (TODO: this does not work!)
+    ui->disasTextEdit_2->setMouseTracking(true);
+    ui->disasTextEdit_2->viewport()->setMouseTracking(true);
+    ui->disasTextEdit_2->installEventFilter(this);
     ui->disasTextEdit_2->viewport()->installEventFilter(this);
 
     // Set Splitter stretch factor
@@ -1729,46 +1732,49 @@ void MemoryWidget::on_previewToolButton_2_clicked()
     }
 }
 
-bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
+void MemoryWidget::resizeEvent(QResizeEvent *event)
 {
-    if (event->type() == QEvent::Resize && obj == this && this->isVisible())
+    if(main->responsive && isVisible())
     {
-        if (this->main->responsive)
+        if (event->size().width() <= 1150)
         {
-            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
-            //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
-            //       resizeEvent->size().width(),
-            //       resizeEvent->size().height());
-            if (resizeEvent->size().width() <= 1150)
+            ui->frame_3->setVisible(false);
+            ui->memPreviewTab->setVisible(false);
+            ui->previewToolButton_2->setChecked(false);
+            if (event->size().width() <= 950)
             {
-                ui->frame_3->setVisible(false);
-                ui->memPreviewTab->setVisible(false);
-                ui->previewToolButton_2->setChecked(false);
-                if (resizeEvent->size().width() <= 950)
-                {
-                    ui->memSideTabWidget_2->hide();
-                    ui->hexSideTab_2->hide();
-                    ui->memSideToolButton->setChecked(true);
-                }
-                else
-                {
-                    ui->memSideTabWidget_2->show();
-                    ui->hexSideTab_2->show();
-                    ui->memSideToolButton->setChecked(false);
-                }
+                ui->memSideTabWidget_2->hide();
+                ui->hexSideTab_2->hide();
+                ui->memSideToolButton->setChecked(true);
             }
             else
             {
-                ui->frame_3->setVisible(true);
-                ui->memPreviewTab->setVisible(true);
-                ui->previewToolButton_2->setChecked(true);
+                ui->memSideTabWidget_2->show();
+                ui->hexSideTab_2->show();
+                ui->memSideToolButton->setChecked(false);
             }
         }
+        else
+        {
+            ui->frame_3->setVisible(true);
+            ui->memPreviewTab->setVisible(true);
+            ui->previewToolButton_2->setChecked(true);
+        }
     }
-    else if ((obj == ui->disasTextEdit_2 || obj == ui->disasTextEdit_2->viewport()) && event->type() == QEvent::MouseButtonDblClick)
+    QDockWidget::resizeEvent(event);
+}
+
+bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if(event->type() == QEvent::MouseButtonDblClick || event->type() == QEvent::MouseButtonPress)
+        QMessageBox::information(this, "double", "double");
+    qDebug() << "MemoryWidget::eventFilter";
+    qDebug() << obj;
+    qDebug() << event;
+    if ((obj == ui->disasTextEdit_2 || obj == ui->disasTextEdit_2->viewport()) && event->type() == QEvent::MouseButtonDblClick)
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        //qDebug()<<QString("Click location: (%1,%2)").arg(mouseEvent->x()).arg(mouseEvent->y());
+        qDebug()<<QString("Click location: (%1,%2)").arg(mouseEvent->x()).arg(mouseEvent->y());
         QTextCursor cursor = ui->disasTextEdit_2->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
         cursor.select(QTextCursor::LineUnderCursor);
         QString lastline = cursor.selectedText();

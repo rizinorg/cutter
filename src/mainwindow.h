@@ -15,7 +15,7 @@
 #include "helpers.h"
 #include "qrcore.h"
 
-#include "widgets/memwidget/memorywidget.h"
+#include "widgets/memorywidget.h"
 #include "widgets/functionswidget.h"
 #include "widgets/sectionswidget.h"
 #include "widgets/commentswidget.h"

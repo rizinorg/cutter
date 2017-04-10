@@ -98,27 +98,20 @@ void SectionsWidget::adjustColumns()
     }
 }
 
-bool SectionsWidget::eventFilter(QObject *obj, QEvent *event)
+void SectionsWidget::resizeEvent(QResizeEvent *event)
 {
-    if (this->main->responsive)
+    if(main->responsive && isVisible())
     {
-        if (event->type() == QEvent::Resize && obj == this && this->isVisible())
+        if (event->size().width() >= event->size().height())
         {
-            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
-            //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
-            //       resizeEvent->size().width(),
-            //       resizeEvent->size().height());
-            if (resizeEvent->size().width() >= resizeEvent->size().height())
-            {
-                // Set horizontal view (list)
-                this->main->on_actionSectionsHorizontal_triggered();
-            }
-            else
-            {
-                // Set vertical view (Tree)
-                this->main->on_actionSectionsVertical_triggered();
-            }
+            // Set horizontal view (list)
+            main->on_actionSectionsHorizontal_triggered();
+        }
+        else
+        {
+            // Set vertical view (Tree)
+            main->on_actionSectionsVertical_triggered();
         }
     }
-    return QSplitter::eventFilter(obj, event);
+    QWidget::resizeEvent(event);
 }

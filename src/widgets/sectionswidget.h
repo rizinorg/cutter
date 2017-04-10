@@ -30,7 +30,8 @@ public:
     void adjustColumns();
     QTreeWidget              *tree;
 
-private slots:
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     //void setupModel();
@@ -40,7 +41,6 @@ private:
     QAbstractItemView      *pieChart;
     QItemSelectionModel    *selectionModel;
     MainWindow             *main;
-    bool eventFilter(QObject *obj, QEvent *event) override;
 };
 
 #endif // SECTIONSWIDGET_H

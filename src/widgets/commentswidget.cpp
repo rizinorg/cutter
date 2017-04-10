@@ -26,9 +26,6 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
 
     // Hide the buttons frame
     ui->frame->hide();
-
-    // Resize eventfilter
-    ui->commentsTreeWidget->viewport()->installEventFilter(this);
 }
 
 CommentsWidget::~CommentsWidget()
@@ -126,27 +123,20 @@ void CommentsWidget::on_actionVertical_triggered()
     ui->tabWidget->setCurrentIndex(1);
 }
 
-bool CommentsWidget::eventFilter(QObject *obj, QEvent *event)
+void CommentsWidget::resizeEvent(QResizeEvent *event)
 {
-    if (this->main->responsive)
+    if(main->responsive && isVisible())
     {
-        if (event->type() == QEvent::Resize && obj == this && this->isVisible())
+        if (event->size().width() >= event->size().height())
         {
-            QResizeEvent *resizeEvent = static_cast<QResizeEvent *>(event);
-            //qDebug("Dock Resized (New Size) - Width: %d Height: %d",
-            //       resizeEvent->size().width(),
-            //       resizeEvent->size().height());
-            if (resizeEvent->size().width() >= resizeEvent->size().height())
-            {
-                // Set horizontal view (list)
-                this->on_actionHorizontal_triggered();
-            }
-            else
-            {
-                // Set vertical view (Tree)
-                this->on_actionVertical_triggered();
-            }
+            // Set horizontal view (list)
+            on_actionHorizontal_triggered();
+        }
+        else
+        {
+            // Set vertical view (Tree)
+            on_actionVertical_triggered();
         }
     }
-    return QDockWidget::eventFilter(obj, event);
+    QDockWidget::resizeEvent(event);
 }

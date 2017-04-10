@@ -24,6 +24,9 @@ public:
     QTreeWidget    *nestedCommentsTreeWidget;
     void refreshTree();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private slots:
     void on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
@@ -36,8 +39,6 @@ private slots:
     void on_actionHorizontal_triggered();
 
     void on_actionVertical_triggered();
-
-    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     Ui::CommentsWidget *ui;

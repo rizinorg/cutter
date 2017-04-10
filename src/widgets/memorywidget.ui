@@ -120,7 +120,7 @@ QToolTip {
           <string notr="true"/>
          </property>
          <property name="icon">
-          <iconset resource="../../resources.qrc">
+          <iconset resource="../resources.qrc">
            <normaloff>:/new/prefix1/img/icons/disas_light.png</normaloff>
            <activeon>:/new/prefix1/img/icons/disas_white.png</activeon>:/new/prefix1/img/icons/disas_light.png</iconset>
          </property>
@@ -180,7 +180,7 @@ QToolTip {
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../resources.qrc">
+          <iconset resource="../resources.qrc">
            <normaloff>:/new/prefix1/img/icons/graph_light.png</normaloff>
            <activeon>:/new/prefix1/img/icons/graph_white.png</activeon>:/new/prefix1/img/icons/graph_light.png</iconset>
          </property>
@@ -237,7 +237,7 @@ QToolTip {
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../resources.qrc">
+          <iconset resource="../resources.qrc">
            <normaloff>:/new/prefix1/img/icons/hexdump_light.png</normaloff>
            <activeon>:/new/prefix1/img/icons/hexdump_white.png</activeon>:/new/prefix1/img/icons/hexdump_light.png</iconset>
          </property>
@@ -313,7 +313,7 @@ QToolTip {
           <string notr="true"/>
          </property>
          <property name="icon">
-          <iconset resource="../../resources.qrc">
+          <iconset resource="../resources.qrc">
            <normaloff>:/new/prefix1/img/icons/eye.png</normaloff>
            <activeon>:/new/prefix1/img/icons/eye_white.png</activeon>:/new/prefix1/img/icons/eye.png</iconset>
          </property>
@@ -373,7 +373,7 @@ QToolTip {
           <string notr="true"/>
          </property>
          <property name="icon">
-          <iconset resource="../../resources.qrc">
+          <iconset resource="../resources.qrc">
            <normaloff>:/new/prefix1/img/icons/right.png</normaloff>:/new/prefix1/img/icons/right.png</iconset>
          </property>
          <property name="checkable">
@@ -424,7 +424,7 @@ QToolTip {
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="../../resources.qrc">
+          <iconset resource="../resources.qrc">
            <normaloff>:/new/prefix1/img/icons/cog_light.png</normaloff>:/new/prefix1/img/icons/cog_light.png</iconset>
          </property>
          <property name="popupMode">
@@ -1499,7 +1499,7 @@ QToolTip {
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="../../resources.qrc">
+                     <iconset resource="../resources.qrc">
                       <normaloff>:/new/prefix1/img/icons/radar.png</normaloff>
                       <activeon>:/new/prefix1/img/icons/radar_white.png</activeon>:/new/prefix1/img/icons/radar.png</iconset>
                     </property>
@@ -1560,7 +1560,7 @@ QToolTip {
                      <string/>
                     </property>
                     <property name="icon">
-                     <iconset resource="../../resources.qrc">
+                     <iconset resource="../resources.qrc">
                       <normaloff>:/new/prefix1/img/icons/polar.png</normaloff>
                       <activeon>:/new/prefix1/img/icons/polar_white.png</activeon>:/new/prefix1/img/icons/polar.png</iconset>
                     </property>
@@ -3042,7 +3042,7 @@ QToolTip {
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../../resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
  <buttongroups>

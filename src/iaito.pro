@@ -51,7 +51,7 @@ SOURCES += \
     widgets/commentswidget.cpp \
     widgets/stringswidget.cpp \
     widgets/flagswidget.cpp \
-    widgets/memwidget/memorywidget.cpp \
+    widgets/memorywidget.cpp \
     qrdisasm.cpp \
     widgets/sdbdock.cpp \
     analthread.cpp \
@@ -86,7 +86,7 @@ HEADERS  += \
     widgets/commentswidget.h \
     widgets/stringswidget.h \
     widgets/flagswidget.h \
-    widgets/memwidget/memorywidget.h \
+    widgets/memorywidget.h \
     qrdisasm.h \
     widgets/sdbdock.h \
     analthread.h \
@@ -114,7 +114,7 @@ FORMS    += \
     widgets/commentswidget.ui \
     widgets/stringswidget.ui \
     widgets/flagswidget.ui \
-    widgets/memwidget/memorywidget.ui \
+    widgets/memorywidget.ui \
     widgets/sdbdock.ui \
     dialogs/commentsdialog.ui \
     widgets/sidebar.ui \

@@ -206,7 +206,7 @@ void OptionsDialog::on_okButton_clicked()
     // connect signal/slot
 
     int level = 0;
-    if (anal_level == true)
+    if (anal_level)
     {
         level = ui->analSlider->value();
     }
