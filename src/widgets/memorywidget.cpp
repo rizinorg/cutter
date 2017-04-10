@@ -106,10 +106,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     ui->actionSeparate_bytes->setDisabled(true);
     ui->actionRight_align_bytes->setDisabled(true);
 
-    // Event filter to intercept double clicks in the textbox (TODO: this does not work!)
-    ui->disasTextEdit_2->setMouseTracking(true);
-    ui->disasTextEdit_2->viewport()->setMouseTracking(true);
-    ui->disasTextEdit_2->installEventFilter(this);
+    // Event filter to intercept double clicks in the textbox
     ui->disasTextEdit_2->viewport()->installEventFilter(this);
 
     // Set Splitter stretch factor
@@ -1766,11 +1763,6 @@ void MemoryWidget::resizeEvent(QResizeEvent *event)
 
 bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if(event->type() == QEvent::MouseButtonDblClick || event->type() == QEvent::MouseButtonPress)
-        QMessageBox::information(this, "double", "double");
-    qDebug() << "MemoryWidget::eventFilter";
-    qDebug() << obj;
-    qDebug() << event;
     if ((obj == ui->disasTextEdit_2 || obj == ui->disasTextEdit_2->viewport()) && event->type() == QEvent::MouseButtonDblClick)
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
@@ -1778,7 +1770,8 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
         QTextCursor cursor = ui->disasTextEdit_2->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
         cursor.select(QTextCursor::LineUnderCursor);
         QString lastline = cursor.selectedText();
-        QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
+        auto eles = lastline.split(" ", QString::SkipEmptyParts);
+        QString ele = eles.isEmpty() ? "" : eles[0];
         if (ele.contains("0x"))
         {
             QString jump = "";
