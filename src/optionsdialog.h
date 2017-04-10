@@ -38,8 +38,10 @@ private slots:
 
     void on_AdvOptButton_clicked();
 
+    void on_analCheckBox_clicked(bool checked);
+
 private:
-    int anal_level;
+    int defaultAnalLevel = 3;
     QString filename;
     QString shortfn;
     Ui::OptionsDialog *ui;
@@ -48,6 +50,7 @@ private:
 
     void setFilename(QString fn, QString shortfn);
     void setFilename(QString fn);
+    QString analysisDescription(int level);
 };
 
 #endif // OPTIONSDIALOG_H

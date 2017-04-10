@@ -12,12 +12,13 @@ OptionsDialog::OptionsDialog(QString filename, QWidget *parent):
     analThread(this)
 {
     this->core = new QRCore();
-    this->anal_level = 0;
 
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->progressBar->setVisible(0);
     ui->statusLabel->setVisible(0);
+
+    ui->analSlider->setValue(defaultAnalLevel);
 
     // Fill the plugins combo
     QStringList plugins;
@@ -196,7 +197,6 @@ void OptionsDialog::on_okButton_clicked()
     // options dialog should show the list of archs inside the given fatbin
     int binidx = 0; // index of subbin
 
-    anal_level = ui->analCheckBox->isChecked();
     this->w->add_output(" > Loading file: " + this->filename);
     this->w->core->loadFile(this->filename, loadaddr, mapaddr, rw, va, bits, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
@@ -205,13 +205,7 @@ void OptionsDialog::on_okButton_clicked()
     // Threads stuff
     // connect signal/slot
 
-    int level = 0;
-    if (anal_level)
-    {
-        level = ui->analSlider->value();
-    }
-
-    analThread.start(core, level);
+    analThread.start(core, ui->analSlider->value());
 }
 
 void OptionsDialog::anal_finished()
@@ -277,9 +271,29 @@ void OptionsDialog::on_cancelButton_clicked()
     n->show();
 }
 
+QString OptionsDialog::analysisDescription(int level)
+{
+    //TODO: replace this with meaningful descriptions
+    switch(level)
+    {
+    case 0:
+        return tr("Disabled");
+    case 1:
+        return tr("Finger");
+    case 2:
+        return tr("Buttplug");
+    case 3:
+        return tr("Dildo");
+    case 4:
+        return tr("Fisting");
+    default:
+        return tr("Unknown");
+    }
+}
+
 void OptionsDialog::on_analSlider_valueChanged(int value)
 {
-    ui->analLevel->setText(QString::number(value));
+    ui->analDescription->setText(tr("Analysis") + QString(" (%1)").arg(analysisDescription(value)));
     if (value == 0)
     {
         ui->analCheckBox->setChecked(false);
@@ -301,6 +315,12 @@ void OptionsDialog::on_AdvOptButton_clicked()
     {
         ui->hideFrame->setVisible(false);
         ui->AdvOptButton->setArrowType(Qt::RightArrow);
-
     }
+}
+
+void OptionsDialog::on_analCheckBox_clicked(bool checked)
+{
+    if(!checked)
+        defaultAnalLevel = ui->analSlider->value();
+    ui->analSlider->setValue(checked ? defaultAnalLevel : 0);
 }
