@@ -15,7 +15,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     this->setMinimumHeight(16);
     this->setMaximumHeight(16);
     this->setFrame(false);
-    //this->setPlaceholderText("Go to address...");
+    this->setPlaceholderText("Type flag name or address here");
     this->setStyleSheet("border-radius: 5px;");
     this->setTextMargins(10, 0, 0, 0);
     this->setClearButtonEnabled(true);
