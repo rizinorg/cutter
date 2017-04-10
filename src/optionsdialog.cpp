@@ -285,7 +285,7 @@ QString OptionsDialog::analysisDescription(int level)
     case 3:
         return tr("Medium analysis");
     case 4:
-        return tr("Full analysis (Slow)");
+        return tr("Full analysis <font color='red'><b>(Experimental)</b></font>");
     default:
         return tr("Unknown");
     }
