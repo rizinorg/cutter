@@ -56,6 +56,7 @@ public:
     SideBar          *sideBar;
 
     bool responsive;
+    QString current_address;
 
     explicit MainWindow(QWidget *parent = 0, QRCore *kore = nullptr);
     ~MainWindow();

@@ -58,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     ui->setupUi(this);
 
     doLock = false;
+    this->current_address = "entry0";
 
     registerCustomFonts();
 
@@ -881,8 +882,10 @@ void MainWindow::seek(const QString &offset, const QString &name)
 {
     if (offset.length() == 0)
         return;
-    if (name != NULL)
+    if (name != NULL) {
         this->memoryDock->setWindowTitle(name);
+        this->current_address = name;
+    }
     this->hexdumpTopOffset = 0;
     this->hexdumpBottomOffset = 0;
     core->seek(offset);
@@ -907,9 +910,12 @@ void MainWindow::refreshMem(QString off)
 {
     //add_debug_output("Refreshing to: " + off);
     //graphicsBar->refreshColorBar();
+    /*
     this->memoryDock->refreshDisasm(off);
     this->memoryDock->refreshHexdump(off);
     this->memoryDock->create_graph(off);
+    */
+    this->memoryDock->updateViews();
     this->memoryDock->get_refs_data(off);
     this->memoryDock->setFcnName(off);
 }

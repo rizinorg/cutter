@@ -87,6 +87,8 @@ public slots:
 
     void frameLoadFinished(bool ok);
 
+    void updateViews();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -97,6 +99,9 @@ private:
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString last_fcn;
+    QString last_disasm_fcn;
+    QString last_graph_fcn;
+    QString last_hexdump_fcn;
 
 private slots:
     void highlightCurrentLine();
@@ -170,6 +175,7 @@ private slots:
     void on_simpleGrapgToolButton_clicked();
     void on_opcodeDescButton_clicked();
     void seek_back();
+    void on_memTabWidget_currentChanged(int index);
 };
 
 #endif // MEMORYWIDGET_H
