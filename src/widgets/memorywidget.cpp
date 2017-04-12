@@ -392,14 +392,14 @@ void MemoryWidget::fillPlugins(QStringList plugins)
 
 void MemoryWidget::addTextDisasm(QString txt)
 {
-    QTextDocument *document = ui->disasTextEdit_2->document();
+    //QTextDocument *document = ui->disasTextEdit_2->document();
     //document->undo();
     ui->disasTextEdit_2->appendPlainText(txt);
 }
 
 void MemoryWidget::replaceTextDisasm(QString txt)
 {
-    QTextDocument *document = ui->disasTextEdit_2->document();
+    //QTextDocument *document = ui->disasTextEdit_2->document();
     ui->disasTextEdit_2->clear();
     //document->undo();
     ui->disasTextEdit_2->setPlainText(txt);
@@ -483,8 +483,8 @@ void MemoryWidget::refreshDisasm(const QString &offset)
 {
     RCoreLocked lcore = this->main->core->core();
     // we must store those ranges somewhere, to handle scroll
-    ut64 addr = lcore->offset;
-    int length = lcore->num->value;
+    //ut64 addr = lcore->offset;
+    //int length = lcore->num->value;
 
     // Prevent further scroll
     disconnect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
@@ -537,7 +537,7 @@ void MemoryWidget::refreshDisasm(const QString &offset)
     this->on_disasTextEdit_2_cursorPositionChanged();
 }
 
-void MemoryWidget::refreshHexdump(QString where)
+void MemoryWidget::refreshHexdump(const QString &where)
 {
     RCoreLocked lcore = this->main->core->core();
     // Prevent further scroll
@@ -550,7 +550,7 @@ void MemoryWidget::refreshHexdump(QString where)
 
     int hexdumpLength;
     int cols = lcore->print->cols;
-    int bsize = 128 * cols;
+    ut64 bsize = 128 * cols;
     if (hexdumpBottomOffset < bsize)
     {
         hexdumpBottomOffset = 0;
@@ -566,10 +566,11 @@ void MemoryWidget::refreshHexdump(QString where)
 
     QString s = "";
 
-    if (where != "")
+    if (!where.isEmpty())
     {
         this->main->core->cmd("ss " + where);
     }
+
     // Add first the hexdump at block size --
     this->main->core->cmd("ss-" + this->main->core->itoa(hexdumpLength));
     //s = this->normalize_addr(this->main->core->cmd("s"));
@@ -606,7 +607,7 @@ void MemoryWidget::refreshHexdump(QString where)
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 }
 
-QList<QString> MemoryWidget::get_hexdump(QString off = "")
+QList<QString> MemoryWidget::get_hexdump(const QString &offset)
 {
     RCoreLocked lcore = this->main->core->core();
     QList<QString> ret;
@@ -614,7 +615,7 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "")
 
     int hexdumpLength;
     int cols = lcore->print->cols;
-    int bsize = 128 * cols;
+    ut64 bsize = 128 * cols;
     if (hexdumpBottomOffset < bsize)
     {
         hexdumpBottomOffset = 0;
@@ -628,19 +629,19 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "")
 
     //this->main->add_debug_output("BSize: " + this->main->core->itoa(hexdumpLength, 10));
 
-    if (off == "")
+    if (offset.isEmpty())
     {
         hexdump = this->main->core->cmd("px " + this->main->core->itoa(hexdumpLength, 10));
     }
     else
     {
-        hexdump = this->main->core->cmd("px " + this->main->core->itoa(hexdumpLength, 10) + " @ " + off);
+        hexdump = this->main->core->cmd("px " + this->main->core->itoa(hexdumpLength, 10) + " @ " + offset);
     }
     //QString hexdump = this->main->core->cmd ("px 0x" + this->main->core->itoa(size) + " @ 0x0");
     // TODO: use pxl to simplify
-    QString offset = QString("");
-    QString hex = QString("");
-    QString ascii = QString("");
+    QString offsets;
+    QString hex;
+    QString ascii;
     int ln = 0;
 
     for (const QString line : hexdump.split("\n"))
@@ -655,7 +656,7 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "")
             switch (wc++)
             {
             case 0:
-                offset += a + "\n";
+                offsets += a + "\n";
                 break;
             case 1:
             {
@@ -668,7 +669,7 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "")
             }
         }
     }
-    ret << offset.trimmed();
+    ret << offsets.trimmed();
     ret << hex.trimmed();
     ret << ascii.trimmed();
 
@@ -676,10 +677,10 @@ QList<QString> MemoryWidget::get_hexdump(QString off = "")
 }
 
 
-void MemoryWidget::seek_to(QString offset)
+void MemoryWidget::seek_to(const QString &offset)
 {
     this->disasTextEdit->moveCursor(QTextCursor::End);
-    int pos = this->disasTextEdit->find(offset, QTextDocument::FindBackward);
+    this->disasTextEdit->find(offset, QTextDocument::FindBackward);
     this->disasTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
     //this->main->add_debug_output("OFFSET: " + offset);
 }
@@ -731,7 +732,7 @@ void MemoryWidget::hexScrolled()
         //disathis->main->add_debug_output("First Offset/VA: " + firstline);
         //refreshHexdump(1);
 
-        int cols = lcore->print->cols;
+        //int cols = lcore->print->cols;
         // px bsize @ addr
         //int bsize = 128 * cols;
         int bsize = 800;
@@ -861,12 +862,12 @@ void MemoryWidget::on_hexHexText_2_selectionChanged()
     }
 }
 
-void MemoryWidget::on_hexArchComboBox_2_currentTextChanged(const QString &arg1)
+void MemoryWidget::on_hexArchComboBox_2_currentTextChanged(const QString &/*arg1*/)
 {
     on_hexHexText_2_selectionChanged();
 }
 
-void MemoryWidget::on_hexBitsComboBox_2_currentTextChanged(const QString &arg1)
+void MemoryWidget::on_hexBitsComboBox_2_currentTextChanged(const QString &/*arg1*/)
 {
     on_hexHexText_2_selectionChanged();
 }
@@ -1295,7 +1296,7 @@ void MemoryWidget::on_action1column_triggered()
     this->refreshHexdump();
 }
 
-void MemoryWidget::on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column)
+void MemoryWidget::on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
     QString offset = item->text(0);
     RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
@@ -1303,7 +1304,7 @@ void MemoryWidget::on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *ite
     this->main->seek(offset, fcn->name);
 }
 
-void MemoryWidget::on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column)
+void MemoryWidget::on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
     QString offset = item->text(0);
     RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
@@ -1582,15 +1583,14 @@ void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
             ui->decoTextEdit->setPlainText("");
         }
         // Get jump information to fill the preview
-        QString jump = "";
-        jump = this->main->core->getOffsetJump(ele);
-        if (jump != "")
+        QString jump =  this->main->core->getOffsetJump(ele);
+        if (!jump.isEmpty())
         {
             // Fill the preview
             QString jump_code = this->main->core->cmd("pdf @ " + jump);
             ui->previewTextEdit->setPlainText(jump_code.trimmed());
             ui->previewTextEdit->moveCursor(QTextCursor::End);
-            int pos = ui->previewTextEdit->find(jump.trimmed(), QTextDocument::FindBackward);
+            ui->previewTextEdit->find(jump.trimmed(), QTextDocument::FindBackward);
             ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
         }
         else
@@ -1662,7 +1662,7 @@ void MemoryWidget::on_radarToolButton_clicked()
 }
 
 
-void MemoryWidget::on_hexSideTab_2_currentChanged(int index)
+void MemoryWidget::on_hexSideTab_2_currentChanged(int /*index*/)
 {
     /*
     if (index == 2) {
@@ -1810,7 +1810,6 @@ void MemoryWidget::on_actionXRefs_triggered()
         x->updateLabels(QString(fcn->name));
 
         // Get Refs and Xrefs
-        bool ok;
         QList<QStringList> ret_refs;
         QList<QStringList> ret_xrefs;
 
@@ -1938,7 +1937,7 @@ void MemoryWidget::frameLoadFinished(bool ok)
     }
 }
 
-void MemoryWidget::on_memTabWidget_currentChanged(int index)
+void MemoryWidget::on_memTabWidget_currentChanged(int /*index*/)
 {
     /*
     this->main->add_debug_output("Update index: " + QString::number(index) + " to function: " + this->main->current_address);

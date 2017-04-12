@@ -59,7 +59,7 @@ public slots:
 
     void refreshDisasm(const QString &offset = QString());
 
-    void refreshHexdump(QString where = 0);
+    void refreshHexdump(const QString &where = QString());
 
     void fill_refs(QList<QStringList> list, QList<QStringList> xrefs, QList<int> graph_data);
 
@@ -67,7 +67,7 @@ public slots:
 
     void get_refs_data(const QString &offset);
 
-    void seek_to(QString offset);
+    void seek_to(const QString &offset);
 
     void create_graph(QString off);
 
@@ -143,7 +143,7 @@ private slots:
     void disasmScrolled();
     void resizeHexdump();
     void hexScrolled();
-    QList<QString> get_hexdump(QString off);
+    QList<QString> get_hexdump(const QString &offset);
 
     //void showDisas();
     void showHexdump();

@@ -799,8 +799,7 @@ QString QRCore::getOffsetInfo(QString addr)
 
 QString QRCore::getOffsetJump(QString addr)
 {
-    QString ret = "";
-    ret = cmd("ao @" + addr + "~jump[1]");
+    QString ret = cmd("ao @" + addr + "~jump[1]");
     return ret;
 }
 
@@ -811,10 +810,7 @@ QString QRCore::getDecompiledCode(QString addr)
 
 QString QRCore::getFileInfo()
 {
-
-    QString info;
-    info = cmd("ij");
-
+    QString info = cmd("ij");
     return info;
 }
 

@@ -77,7 +77,7 @@ public:
     int config(const QString &k, int v);
     QList<QString> getList(const QString &type, const QString &subtype = "");
     QString assemble(const QString &code);
-    QString disassemble(const QString &code);
+    QString disassemble(const QString &hex);
     void setDefaultCPU();
     void setCPU(QString arch, QString cpu, int bits, bool temporary);
     RAnalFunction *functionAt(ut64 addr);
