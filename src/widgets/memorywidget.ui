@@ -523,6 +523,9 @@ border-top: 0px;
            <property name="verticalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
            <property name="undoRedoEnabled">
             <bool>true</bool>
            </property>
@@ -772,9 +775,6 @@ QToolTip {
                 </spacer>
                </item>
               </layout>
-              <zorder>previewToolButton</zorder>
-              <zorder>decoToolButton</zorder>
-              <zorder>simpleGrapgToolButton</zorder>
              </widget>
             </item>
             <item>

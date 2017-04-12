@@ -202,7 +202,7 @@
                </font>
               </property>
               <property name="text">
-               <string>Level</string>
+               <string>Analysis level</string>
               </property>
              </widget>
             </item>
@@ -279,7 +279,8 @@
                </sizepolicy>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color: rgb(255, 255, 255);</string>
+               <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 0);</string>
               </property>
               <property name="frameShape">
                <enum>QFrame::NoFrame</enum>

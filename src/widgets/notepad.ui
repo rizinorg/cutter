@@ -679,6 +679,9 @@ QToolTip {
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
            </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
            <property name="lineWrapMode">
             <enum>QPlainTextEdit::NoWrap</enum>
            </property>
@@ -707,6 +710,9 @@ QToolTip {
            </property>
            <property name="frameShadow">
             <enum>QFrame::Plain</enum>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
            </property>
            <property name="lineWrapMode">
             <enum>QPlainTextEdit::NoWrap</enum>

@@ -527,6 +527,7 @@ void MemoryWidget::refreshDisasm(const QString &offset)
 
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(this->disasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_disasTextEdit_2_cursorPositionChanged()));
+    this->on_disasTextEdit_2_cursorPositionChanged();
 }
 
 void MemoryWidget::refreshHexdump(QString where)
