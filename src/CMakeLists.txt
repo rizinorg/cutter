@@ -33,7 +33,7 @@ find_package(Radare2 REQUIRED)
 include_directories(${RADARE2_INCLUDE_DIRS})
 
 
-set(SOURCE_FILES 
+set(SOURCE_FILES
     main.cpp
     mainwindow.cpp
     newfiledialog.cpp
@@ -57,7 +57,7 @@ set(SOURCE_FILES
     widgets/commentswidget.cpp
     widgets/stringswidget.cpp
     widgets/flagswidget.cpp
-    widgets/memwidget/memorywidget.cpp
+    widgets/memorywidget.cpp
     qrdisasm.cpp
     widgets/sdbdock.cpp
     analthread.cpp
@@ -92,7 +92,7 @@ set(HEADER_FILES
     widgets/commentswidget.h
     widgets/stringswidget.h
     widgets/flagswidget.h
-    widgets/memwidget/memorywidget.h
+    widgets/memorywidget.h
     qrdisasm.h
     widgets/sdbdock.h
     analthread.h
@@ -120,7 +120,7 @@ set(UI_FILES
     widgets/commentswidget.ui
     widgets/stringswidget.ui
     widgets/flagswidget.ui
-    widgets/memwidget/memorywidget.ui
+    widgets/memorywidget.ui
     widgets/sdbdock.ui
     dialogs/commentsdialog.ui
     widgets/sidebar.ui

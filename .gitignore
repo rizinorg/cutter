@@ -44,6 +44,9 @@ CMakeLists.txt.user
 # CLion
 .idea
 
+# Vim
+*.swp
+
 #CMake Files:
 src/*_automoc.cpp
 *CMakeCache.txt*
