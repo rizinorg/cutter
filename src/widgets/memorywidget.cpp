@@ -11,10 +11,11 @@
 #include <QScrollBar>
 #include <QClipboard>
 #include <QShortcut>
-#include <QWebFrame>
+#include <QWebEnginePage>
 #include <QMenu>
 #include <QFont>
 #include <QUrl>
+#include <QWebEngineSettings>
 
 MemoryWidget::MemoryWidget(MainWindow *main) :
     QDockWidget(main),
@@ -69,17 +70,17 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     graph_bar->setVisible(false);
 
     // Hide graph webview scrollbars
-    ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Vertical, Qt::ScrollBarAlwaysOff);
-    ui->graphWebView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+    ui->graphWebView->page()->runJavaScript("document.body.style.overflow='hidden';");
 
     // Allows the local resources (qrc://) to access http content
-    if (!ui->graphWebView->settings()->testAttribute(QWebSettings::LocalContentCanAccessRemoteUrls))
+    if (!ui->graphWebView->settings()->testAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls))
     {
-        ui->graphWebView->settings()->setAttribute(QWebSettings::LocalContentCanAccessRemoteUrls, true);
+        ui->graphWebView->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
     }
 
     // Debug console
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
+    // For QWebEngine debugging see: https://doc.qt.io/qt-5/qtwebengine-debugging.html
+    //QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
 
     // Add margin to function name line edit
     ui->fcnNameEdit->setTextMargins(5, 0, 0, 0);
@@ -184,7 +185,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
-    connect(ui->graphWebView->page()->mainFrame(), SIGNAL(loadFinished(bool)), this, SLOT(frameLoadFinished(bool)));
+    connect(ui->graphWebView->page(), SIGNAL(loadFinished(bool)), this, SLOT(frameLoadFinished(bool)));
 }
 
 /*
@@ -1520,7 +1521,7 @@ void MemoryWidget::create_graph(QString off)
     ui->graphWebView->setUrl(QUrl("qrc:/graph/html/graph/index.html#" + off));
     QString port = this->main->core->config("http.port");
 
-    ui->graphWebView->page()->mainFrame()->evaluateJavaScript(QString("r2.root=\"http://localhost:" + port + "\""));
+    ui->graphWebView->page()->runJavaScript(QString("r2.root=\"http://localhost:%1\"").arg(port));
 }
 
 QString MemoryWidget::normalize_addr(QString addr)
@@ -1929,7 +1930,7 @@ void MemoryWidget::frameLoadFinished(bool ok)
         if (settings.value("dark").toBool())
         {
             QString js = "r2ui.graph_panel.render('dark');";
-            ui->graphWebView->page()->mainFrame()->evaluateJavaScript(js);
+            ui->graphWebView->page()->runJavaScript(js);
         }
     }
 }

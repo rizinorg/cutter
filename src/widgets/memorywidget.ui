@@ -933,7 +933,7 @@ QToolTip {
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QWebView" name="webSimpleGraph" native="true">
+                 <widget class="QWebEngineView" name="webSimpleGraph" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -1229,7 +1229,7 @@ p, li { white-space: pre-wrap; }
          <number>0</number>
         </property>
         <item>
-         <widget class="QWebView" name="graphWebView" native="true">
+         <widget class="QWebEngineView" name="graphWebView" native="true">
           <property name="contextMenuPolicy">
            <enum>Qt::DefaultContextMenu</enum>
           </property>
@@ -1629,7 +1629,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebView" name="fcnWebView" native="true">
+                   <widget class="QWebEngineView" name="fcnWebView" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1678,7 +1678,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebView" name="radarGraphWebView" native="true">
+                   <widget class="QWebEngineView" name="radarGraphWebView" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -3036,9 +3036,9 @@ QToolTip {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header>QtWebEngineWidgets/QWebEngineView</header>
   </customwidget>
  </customwidgets>
  <resources>

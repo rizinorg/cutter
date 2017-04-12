@@ -1055,7 +1055,7 @@ QTabBar::tab:hover {
                 <number>0</number>
                </property>
                <item>
-                <widget class="QWebView" name="statsWebView" native="true">
+                <widget class="QWebEngineView" name="statsWebView" native="true">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                    <horstretch>0</horstretch>
@@ -1104,7 +1104,7 @@ QTabBar::tab:hover {
                 <number>0</number>
                </property>
                <item>
-                <widget class="QWebView" name="polarWebView" native="true">
+                <widget class="QWebEngineView" name="polarWebView" native="true">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                    <horstretch>0</horstretch>
@@ -1187,9 +1187,9 @@ QTabBar::tab:hover {
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>QtWebKitWidgets/QWebView</header>
+   <header>QtWebEngineWidgets/QWebEngineView</header>
   </customwidget>
  </customwidgets>
  <resources/>
