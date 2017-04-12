@@ -881,6 +881,7 @@ void QRCore::setSettings()
     config("asm.tabsonce", "true");
     config("asm.tabsoff", "5");
     config("asm.nbytes", "10");
+    config("asm.midflags", "2");
     //config("asm.bbline", "true");
 
     config("anal.hasnext", "true");
