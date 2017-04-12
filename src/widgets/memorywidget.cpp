@@ -35,9 +35,9 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     this->memTabWidget = ui->memTabWidget;
 
     this->last_fcn = "entry0";
-    this->last_disasm_fcn = "entry0";
-    this->last_graph_fcn = "entry0";
-    this->last_hexdump_fcn = "entry0";
+    this->last_disasm_fcn = "";
+    this->last_graph_fcn = "";
+    this->last_hexdump_fcn = "";
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = this->disasTextEdit->document();
