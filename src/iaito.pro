@@ -96,7 +96,6 @@ HEADERS  += \
     widgets/omnibar.h \
     widgets/dashboard.h \
     dialogs/xrefsdialog.h \
-    widgets/banned.h \
     hexhighlighter.h \
     widgets/sectionsdock.h
 
