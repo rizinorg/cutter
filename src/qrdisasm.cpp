@@ -3,9 +3,10 @@
 // This class is not used, created by pancake a long time ago.
 // Kept here just because
 
-QRDisasm::QRDisasm(QRCore *core)
+QRDisasm::QRDisasm(QRCore *core) :
+    core(core),
+    db(nullptr)
 {
-    this->core = core;
 }
 
 bool QRDisasm::disassembleAt(ut64 addr, QRDisasmOption opt, QRDisasmRow &dr)
