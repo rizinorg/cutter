@@ -563,7 +563,7 @@ void MemoryWidget::refreshHexdump(QString where)
         this->main->core->cmd("ss " + where);
     }
     // Add first the hexdump at block size --
-    this->main->core->cmd("ss -" + this->main->core->itoa(hexdumpLength));
+    this->main->core->cmd("ss-" + this->main->core->itoa(hexdumpLength));
     //s = this->normalize_addr(this->main->core->cmd("s"));
     QList<QString> ret = this->get_hexdump("");
 
@@ -574,7 +574,7 @@ void MemoryWidget::refreshHexdump(QString where)
     this->resizeHexdump();
 
     // Add then the hexdump at block size ++
-    this->main->core->cmd("ss +" + this->main->core->itoa(hexdumpLength));
+    this->main->core->cmd("ss+" + this->main->core->itoa(hexdumpLength));
     // Get address to move cursor to later
     //QString s = "0x0" + this->main->core->cmd("s").split("0x")[1].trimmed();
     s = this->normalize_addr(this->main->core->cmd("s"));
