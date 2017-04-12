@@ -76,8 +76,8 @@ public:
     void add_debug_output(QString msg);
     void send_to_notepad(QString txt);
     void adjustColumns(QTreeWidget *tw);
-    void appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = NULL,
-                   const QString &str3 = NULL, const QString &str4 = NULL, const QString &str5 = NULL);
+    void appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
+                   const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
 
     void setWebServerState(bool start);
 
@@ -189,19 +189,19 @@ private slots:
 
     void on_actionQuit_triggered();
 
+    void refreshVisibleDockWidgets();
+
 private:
     void refreshFlagspaces();
     bool doLock;
-    void refreshMem(QString off);
+    void refreshMem(const QString &offset = QString());
     void setup_mem();
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
     QList<QDockWidget *> dockList;
-    QLabel           *logo;
     Ui::MainWindow   *ui;
     Highlighter      *highlighter;
-    Highlighter      *highlighter_5;
     AsciiHighlighter *hex_highlighter;
     GraphicsBar      *graphicsBar;
     FunctionsWidget  *functionsDock;

@@ -52,7 +52,28 @@ static void registerCustomFonts()
 MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     QMainWindow(parent),
     core(kore),
+    asmDock(nullptr),
+    calcDock(nullptr),
+    omnibar(nullptr),
+    memoryDock(nullptr),
+    notepadDock(nullptr),
+    sideBar(nullptr),
     ui(new Ui::MainWindow),
+    highlighter(nullptr),
+    hex_highlighter(nullptr),
+    graphicsBar(nullptr),
+    functionsDock(nullptr),
+    importsDock(nullptr),
+    symbolsDock(nullptr),
+    relocsDock(nullptr),
+    commentsDock(nullptr),
+    stringsDock(nullptr),
+    flagsDock(nullptr),
+    dashboardDock(nullptr),
+    gotoEntry(nullptr),
+    sdbDock(nullptr),
+    sidebar_action(nullptr),
+    sectionsDock(nullptr),
     webserverThread(core, this)
 {
     this->start_web_server();
@@ -223,6 +244,9 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     connect(commands_shortcut, SIGNAL(activated()), this->omnibar, SLOT(showCommands()));
 
     connect(&webserverThread, SIGNAL(finished()), this, SLOT(webserverThreadFinished()));
+
+    QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
+    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshVisibleDockWidgets()));
 }
 
 MainWindow::~MainWindow()
@@ -263,14 +287,15 @@ void MainWindow::appendRow(QTreeWidget *tw, const QString &str, const QString &s
     // Fill dummy hidden column
     tempItem->setText(0, "0");
     tempItem->setText(1, str);
-    if (str2 != NULL)
+    if (!str2.isNull())
         tempItem->setText(2, str2);
-    if (str3 != NULL)
+    if (!str3.isNull())
         tempItem->setText(3, str3);
-    if (str4 != NULL)
+    if (!str4.isNull())
         tempItem->setText(4, str4);
-    if (str5 != NULL)
+    if (!str5.isNull())
         tempItem->setText(5, str5);
+
     tw->insertTopLevelItem(0, tempItem);
 }
 
@@ -461,7 +486,7 @@ void MainWindow::updateFrames()
     }
     else
     {
-        refreshMem("");
+        refreshMem();
     }
 
     refreshFlagspaces();
@@ -695,8 +720,8 @@ void MainWindow::on_actionMem_triggered()
     this->dockList << newMemDock;
     newMemDock->setAttribute(Qt::WA_DeleteOnClose);
     this->tabifyDockWidget(this->memoryDock, newMemDock);
-    newMemDock->refreshDisasm("");
-    newMemDock->refreshHexdump("");
+    newMemDock->refreshDisasm();
+    newMemDock->refreshHexdump();
 }
 
 void MainWindow::on_actionFunctions_triggered()
@@ -898,7 +923,7 @@ void MainWindow::setup_mem()
     this->memoryDock->setFcnName(off);
 }
 
-void MainWindow::refreshMem(QString off)
+void MainWindow::refreshMem(const QString &offset)
 {
     //add_debug_output("Refreshing to: " + off);
     //graphicsBar->refreshColorBar();
@@ -908,8 +933,8 @@ void MainWindow::refreshMem(QString off)
     this->memoryDock->create_graph(off);
     */
     this->memoryDock->updateViews();
-    this->memoryDock->get_refs_data(off);
-    this->memoryDock->setFcnName(off);
+    this->memoryDock->get_refs_data(offset);
+    this->memoryDock->setFcnName(offset);
 }
 
 void MainWindow::on_backButton_clicked()
@@ -1098,7 +1123,7 @@ void MainWindow::on_actionRun_Script_triggered()
 
     qDebug() << "Meow: " + fileName;
     this->core->cmd(". " + fileName);
-    this->refreshMem("");
+    this->refreshMem();
 }
 
 void MainWindow::on_actionDark_Theme_triggered()
@@ -1191,4 +1216,30 @@ void MainWindow::on_actionReset_settings_triggered()
 void MainWindow::on_actionQuit_triggered()
 {
     close();
+}
+
+void MainWindow::refreshVisibleDockWidgets()
+{
+    // There seems to be no convenience function to check if a QDockWidget
+    // is really visible or hidden in a tabbed dock. So:
+    auto isDockVisible = [](const QDockWidget * const pWidget) {
+        return pWidget != nullptr && !pWidget->visibleRegion().isEmpty();
+    };
+
+    //TODO: not used/set atm
+    // if (isDockVisible(asmDock)) { asmDock->update(); }
+    // if (isDockVisible(calcDock)) { calcDock->update(); }
+
+    if (isDockVisible(memoryDock)) { memoryDock->updateViews(); }
+    // TODO: if (isDockVisible(notepadDock)) { eprint("notepadDock visible"); }
+    if (isDockVisible(functionsDock)) { functionsDock->refreshTree(); }
+    if (isDockVisible(importsDock)) { importsDock->fillImports(); }
+    if (isDockVisible(symbolsDock)) { symbolsDock->fillSymbols(); }
+    // TODO: update/refresh function if (isDockVisible(relocsDock)) { eprint("relocsDock visible"); }
+    if (isDockVisible(commentsDock)) { commentsDock->refreshTree(); }
+    // TODO: update/refresh function if (isDockVisible(stringsDock)) { eprint("stringsDock visible"); }
+    // TODO: update/refresh function if (isDockVisible(flagsDock)) { eprint("flagsDock visible"); }
+    if (isDockVisible(dashboardDock)) { dashboardDock->updateContents(); }
+    // TODO: update/refresh function if (isDockVisible(sdbDock)) { eprint("sdbDock visible"); }
+    // TODO: update/refresh function if (isDockVisible(sectionsDock)) { eprint("sectionsDock visible"); }
 }
