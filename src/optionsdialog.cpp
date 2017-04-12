@@ -277,7 +277,7 @@ QString OptionsDialog::analysisDescription(int level)
     switch(level)
     {
     case 0:
-        return tr("Disabled");
+        return tr("-");
     case 1:
         return tr("Minimum");
     case 2:
@@ -293,14 +293,16 @@ QString OptionsDialog::analysisDescription(int level)
 
 void OptionsDialog::on_analSlider_valueChanged(int value)
 {
-    ui->analDescription->setText(tr("Analysis level") + QString(" - %1").arg(analysisDescription(value)));
+    ui->analDescription->setText(tr("Level") + QString(": %1").arg(analysisDescription(value)));
     if (value == 0)
     {
         ui->analCheckBox->setChecked(false);
+        ui->analCheckBox->setText("Analysis: Disabled");
     }
     else
     {
         ui->analCheckBox->setChecked(true);
+        ui->analCheckBox->setText("Analysis: Enabled");
     }
 }
 
