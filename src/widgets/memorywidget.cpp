@@ -1874,11 +1874,11 @@ void MemoryWidget::switchTheme(bool dark)
 {
     if (dark)
     {
-        ui->webSimpleGraph->setStyleSheet("background-color: rgb(64, 64, 64);");
+        ui->webSimpleGraph->page()->setBackgroundColor(QColor(64, 64, 64));
     }
     else
     {
-        ui->webSimpleGraph->setStyleSheet("");
+        ui->webSimpleGraph->page()->setBackgroundColor(QColor(255, 255, 255));
     }
 }
 
