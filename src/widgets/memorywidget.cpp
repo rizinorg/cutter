@@ -1795,7 +1795,9 @@ void MemoryWidget::on_actionXRefs_triggered()
     {
         // Get function for clicked offset
         RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
-
+        if (!fcn) {
+            return;
+        }
         XrefsDialog *x = new XrefsDialog(this->main, this);
         x->setWindowTitle("X-Refs for function " + QString(fcn->name));
         x->updateLabels(QString(fcn->name));
