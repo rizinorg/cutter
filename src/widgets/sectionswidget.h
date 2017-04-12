@@ -30,9 +30,6 @@ public:
     void adjustColumns();
     QTreeWidget              *tree;
 
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-
 private:
     //void setupModel();
     void setupViews();

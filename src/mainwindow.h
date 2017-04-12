@@ -22,6 +22,7 @@
 #include "widgets/importswidget.h"
 #include "widgets/symbolswidget.h"
 #include "widgets/stringswidget.h"
+#include "widgets/sectionsdock.h"
 #include "widgets/relocswidget.h"
 #include "widgets/flagswidget.h"
 #include "widgets/codegraphic.h"
@@ -51,7 +52,6 @@ public:
     QDockWidget      *calcDock;
     Omnibar          *omnibar;
     MemoryWidget     *memoryDock;
-    QDockWidget      *sectionsDock;
     Notepad          *notepadDock;
     SideBar          *sideBar;
 
@@ -121,10 +121,6 @@ public slots:
 
     void on_actionRun_Script_triggered();
 
-    void on_actionSectionsHorizontal_triggered();
-
-    void on_actionSectionsVertical_triggered();
-
     void toggleResponsive(bool maybe);
 
     void on_backButton_clicked();
@@ -183,8 +179,6 @@ private slots:
 
     void on_actionShow_Hide_mainsidebar_triggered();
 
-    void showSectionsContextMenu(const QPoint &pt);
-
     void on_actionForward_triggered();
 
     void on_actionTabs_on_Top_triggered();
@@ -210,7 +204,6 @@ private:
     Highlighter      *highlighter_5;
     AsciiHighlighter *hex_highlighter;
     GraphicsBar      *graphicsBar;
-    SectionsWidget   *sectionsWidget;
     FunctionsWidget  *functionsDock;
     ImportsWidget    *importsDock;
     SymbolsWidget    *symbolsDock;
@@ -222,6 +215,7 @@ private:
     QLineEdit        *gotoEntry;
     SdbDock          *sdbDock;
     QAction          *sidebar_action;
+    SectionsDock     *sectionsDock;
     WebServerThread webserverThread;
 };
 

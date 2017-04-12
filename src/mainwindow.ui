@@ -676,7 +676,7 @@ background: rgb(64, 64, 64);</string>
     <string>Sections</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Sections panel</string>
+    <string>Show/Hide Sections panel</string>
    </property>
   </action>
   <action name="actionFunctions">
@@ -1055,28 +1055,6 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="toolTip">
     <string>Show/HIde Dashboard panel</string>
-   </property>
-  </action>
-  <action name="actionSectionsVertical">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Vertical</string>
-   </property>
-   <property name="toolTip">
-    <string>Vertical view</string>
-   </property>
-  </action>
-  <action name="actionSectionsHorizontal">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Horizontal</string>
-   </property>
-   <property name="toolTip">
-    <string>Horizontal</string>
    </property>
   </action>
   <action name="actionReset_settings">

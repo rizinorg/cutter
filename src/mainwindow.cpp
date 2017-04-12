@@ -139,16 +139,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     // this->add_debug_output( QString::number(this->dockList.length()) );
 
     // Add Sections dock panel
-    this->sectionsWidget = new SectionsWidget(this);
-    this->sectionsDock = new QDockWidget("Sections");
-    this->sectionsDock->setObjectName("sectionsDock");
-    this->sectionsDock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    this->sectionsDock->setWidget(this->sectionsWidget);
-    this->sectionsWidget->setContentsMargins(0, 0, 0, 5);
-    this->sectionsDock->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    this->sectionsDock->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this->sectionsDock, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showSectionsContextMenu(const QPoint &)));
+    this->sectionsDock = new SectionsDock(this);
 
     // Add functions DockWidget
     this->functionsDock = new FunctionsWidget(this);
@@ -579,7 +570,7 @@ void MainWindow::updateFrames()
     // TODO: FIXME: Remove the check for first_time;
     if (first_time)
     {
-        sectionsWidget->tree->clear();
+        this->sectionsDock->sectionsWidget->tree->clear();
         int row = 0;
         for (auto i : core->getList("bin", "sections"))
         {
@@ -594,7 +585,7 @@ void MainWindow::updateFrames()
                     QString addr_end = "0x0" + core->itoa(core->math(a[1] + "+" + a[2]));
                     QString size = QString::number(core->math(a[2]));
                     QString name = a[4];
-                    this->sectionsWidget->fillSections(row, name, size, addr, addr_end);
+                    this->sectionsDock->sectionsWidget->fillSections(row, name, size, addr, addr_end);
 
                     // Used to select a color for the sections graph
                     if (row == 10)
@@ -609,7 +600,7 @@ void MainWindow::updateFrames()
             }
         }
         //adjustColumns(sectionsWidget->tree);
-        sectionsWidget->adjustColumns();
+        this->sectionsDock->sectionsWidget->adjustColumns();
 
         first_time = false;
 
@@ -1157,40 +1148,6 @@ void MainWindow::on_actionDashboard_triggered()
         this->dashboardDock->show();
         this->dashboardDock->raise();
     }
-}
-
-void MainWindow::showSectionsContextMenu(const QPoint &pt)
-{
-    // Set functions popup menu
-    QMenu *menu = new QMenu(this->sectionsDock);
-    menu->clear();
-    menu->addAction(ui->actionSectionsHorizontal);
-    menu->addAction(ui->actionSectionsVertical);
-
-    if (this->sectionsWidget->orientation() == 1)
-    {
-        ui->actionSectionsHorizontal->setChecked(true);
-        ui->actionSectionsVertical->setChecked(false);
-    }
-    else
-    {
-        ui->actionSectionsVertical->setChecked(true);
-        ui->actionSectionsHorizontal->setChecked(false);
-    }
-
-    this->sectionsDock->setContextMenuPolicy(Qt::CustomContextMenu);
-    menu->exec(this->sectionsDock->mapToGlobal(pt));
-    delete menu;
-}
-
-void MainWindow::on_actionSectionsHorizontal_triggered()
-{
-    this->sectionsWidget->setOrientation(Qt::Horizontal);
-}
-
-void MainWindow::on_actionSectionsVertical_triggered()
-{
-    this->sectionsWidget->setOrientation(Qt::Vertical);
 }
 
 void MainWindow::on_actionForward_triggered()

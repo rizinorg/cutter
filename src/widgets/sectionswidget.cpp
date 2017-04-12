@@ -33,7 +33,7 @@ void SectionsWidget::setupViews()
 {
     // Table view
     this->tree = new QTreeWidget;
-    this->tree->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    this->tree->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     //this->tree->setFont(QFont("Lucida Grande UI", 12));
     //this->tree->setFont(QFont("Courier New", 11));
     this->tree->setIndentation(10);
@@ -50,7 +50,7 @@ void SectionsWidget::setupViews()
 
     pieChart = new PieView;
     pieChart->setFrameShape(QFrame::NoFrame);
-    pieChart->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    pieChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     this->addWidget(this->tree);
     this->addWidget(pieChart);
     this->setStretchFactor(0, 4);
@@ -96,22 +96,4 @@ void SectionsWidget::adjustColumns()
     {
         this->tree->resizeColumnToContents(i);
     }
-}
-
-void SectionsWidget::resizeEvent(QResizeEvent *event)
-{
-    if(main->responsive && isVisible())
-    {
-        if (event->size().width() >= event->size().height())
-        {
-            // Set horizontal view (list)
-            main->on_actionSectionsHorizontal_triggered();
-        }
-        else
-        {
-            // Set vertical view (Tree)
-            main->on_actionSectionsVertical_triggered();
-        }
-    }
-    QWidget::resizeEvent(event);
 }
