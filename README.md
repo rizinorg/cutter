@@ -25,9 +25,9 @@ Yes, the code sucks. Hopefully we will be able to remove this statement from the
 sys/install.sh
 ```
 
-- QtCreator and Qt: Right now Iaitō uses Qt 5.3. It will be updated in the near future, but in the meantime the latest QtCreator needs to be installed and Qt 5.3 added during the installation:
+- QtCreator and Qt: Right now Iaitō uses Qt 5.6, you will need the latest QtCreator and Qt 5.6 added during the installation:
     - Download: https://www.qt.io/ide/
-    - Add Qt 5.3: http://doc.qt.io/qtcreator/creator-project-qmake.html
+    - Add Qt 5.6: http://doc.qt.io/qtcreator/creator-project-qmake.html
 
 ## Platforms
 
