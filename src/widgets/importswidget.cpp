@@ -7,7 +7,7 @@
 
 void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 itemOption(option);
+    QStyleOptionViewItem itemOption(option);
     initStyleOption(&itemOption, index);
 
     itemOption.rect.adjust(10, 0, 0, 0);  // Make the item rectangle 10 pixels smaller from the left side.

@@ -605,7 +605,8 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
         QStringList lines = flags.split("\n");
         for (auto i : lines)
         {
-            if (i[0] != 0 && i[1] == 's') continue; // skip 'fs ..'
+            // TODO: is 0 in a string even possible?
+            if (i[0] != QChar(0) && i[1] == QChar('s')) continue; // skip 'fs ..'
             ret << i.mid(2).replace(" ", ",");
         }
     }

@@ -1006,7 +1006,7 @@
 }
 
 QTabWidget::pane { /* The tab widget frame */
-	border-top: 0px;
+    border-top: 0px;
 }
 
 QTabBar::tab {
@@ -1017,8 +1017,8 @@ QTabBar::tab {
     border-top-right-radius: 0px;
     min-width: 8ex;
     padding: 5px;
-	margin-bottom: 3px;
-	margin-top: 3px;
+    margin-bottom: 3px;
+    margin-top: 3px;
 }
 
 QTabBar::tab:selected {
@@ -1144,7 +1144,6 @@ QTabBar::tab:hover {
                 </spacer>
                </item>
               </layout>
-              <zorder>verticalSpacer_3</zorder>
               <zorder>polarWebView</zorder>
              </widget>
             </widget>
