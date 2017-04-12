@@ -505,7 +505,12 @@ void MemoryWidget::refreshDisasm(const QString &offset)
             QString ele = elements[0];
             if (ele.contains("0x"))
             {
-                this->main->core->cmd("s " + ele);
+                QString fcn = this->main->core->cmdFunctionAt(ele);
+                if (fcn != "") {
+                    this->main->core->cmd("s " + fcn);
+                } else {
+                    this->main->core->cmd("s " + ele);
+                }
             }
         }
     }
