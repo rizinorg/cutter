@@ -61,7 +61,7 @@ public slots:
 
     void refreshHexdump(const QString &where = QString());
 
-    void fill_refs(QList<QStringList> list, QList<QStringList> xrefs, QList<int> graph_data);
+    void fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, QList<int> graph_data);
 
     void fillOffsetInfo(QString off);
 

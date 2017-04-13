@@ -228,7 +228,7 @@ QJsonDocument QRCore::cmdj(const QString &str)
     return doc;
 }
 
-bool QRCore::loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int bits = 0, int idx, bool loadbin)
+bool QRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int bits, int idx, bool loadbin)
 {
     QNOTUSED(loadaddr);
     QNOTUSED(idx);
@@ -291,7 +291,7 @@ bool QRCore::loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 
         }
 
 #if HAVE_MULTIPLE_RBIN_FILES_INSIDE_SELECT_WHICH_ONE
-        if (!r_core_file_open(core, path.toUtf8(), R_IO_READ | rw ? R_IO_WRITE : 0, mapaddr))
+        if (!r_core_file_open(core, path.toUtf8(), R_IO_READ | (rw ? R_IO_WRITE : 0, mapaddr)))
         {
             eprintf("Cannot open file\n");
         }
@@ -392,6 +392,7 @@ QMap<QString, QList<QList<QString>>> QRCore::getNestedComments()
             tmp << fields[1].split("\"")[1].trimmed();
             tmp << fields[0].trimmed();
             QString fcn_name = this->cmdFunctionAt(fields[0].trimmed());
+            // Why test if you do the same thing?
             if (ret.contains(fcn_name))
             {
                 ret[fcn_name].append(tmp);
@@ -840,7 +841,6 @@ QStringList QRCore::getStats()
 
 QString QRCore::getSimpleGraph(QString function)
 {
-
     // New styles
     QString graph = "graph [bgcolor=invis, splines=polyline];";
     QString node = "node [style=\"filled\" fillcolor=\"#4183D7\" shape=box fontname=\"Courier\" fontsize=\"8\" color=\"#4183D7\" fontcolor=\"white\"];";

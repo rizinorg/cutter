@@ -34,7 +34,7 @@ private:
 class CMyDelegate : public QStyledItemDelegate
 {
 public:
-    CMyDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
+    explicit CMyDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };

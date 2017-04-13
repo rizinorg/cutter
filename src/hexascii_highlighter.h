@@ -13,7 +13,7 @@ class AsciiHighlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    AsciiHighlighter(QTextDocument *parent = 0);
+    explicit AsciiHighlighter(QTextDocument *parent = 0);
 
 protected:
     void highlightBlock(const QString &text);

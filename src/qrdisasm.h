@@ -65,7 +65,7 @@ class QRDisasm
     QRCore *core;
     Sdb *db;
 public:
-    QRDisasm(QRCore *core);
+    explicit QRDisasm(QRCore *core);
     bool disassembleAt(ut64 addr, QRDisasmOption opt, QRDisasmRow &dr);
     // high level api for the disasm thing to manage comments, xrefs, etc
     //next();

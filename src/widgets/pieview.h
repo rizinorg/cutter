@@ -49,7 +49,7 @@ class PieView : public QAbstractItemView
     Q_OBJECT
 
 public:
-    PieView(QWidget *parent = 0);
+    explicit PieView(QWidget *parent = 0);
 
     QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
@@ -85,7 +85,7 @@ protected:
     QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
 private:
-    QRect itemRect(const QModelIndex &item) const;
+    QRect itemRect(const QModelIndex &index) const;
     QRegion itemRegion(const QModelIndex &index) const;
     int rows(const QModelIndex &index = QModelIndex()) const;
     void updateGeometries();

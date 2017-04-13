@@ -1482,8 +1482,7 @@ void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, 
 void MemoryWidget::fillOffsetInfo(QString off)
 {
     ui->offsetTreeWidget->clear();
-    QString raw = "";
-    raw = this->main->core->getOffsetInfo(off);
+    QString raw = this->main->core->getOffsetInfo(off);
     QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);
     foreach (QString line, lines)
     {
@@ -1769,14 +1768,13 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
         QString ele = eles.isEmpty() ? "" : eles[0];
         if (ele.contains("0x"))
         {
-            QString jump = "";
-            jump = this->main->core->getOffsetJump(ele);
-            if (jump != "")
+            QString jump = this->main->core->getOffsetJump(ele);
+            if (!jump.isEmpty())
             {
                 if (jump.contains("0x"))
                 {
                     QString fcn = this->main->core->cmdFunctionAt(jump);
-                    if (fcn != "")
+                    if (!fcn.isEmpty())
                     {
                         this->main->seek(jump.trimmed(), fcn);
                     }

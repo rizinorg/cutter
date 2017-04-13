@@ -13,7 +13,7 @@ class MdHighlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    MdHighlighter(QTextDocument *parent = 0);
+    explicit MdHighlighter(QTextDocument *parent = 0);
 
 protected:
     void highlightBlock(const QString &text);

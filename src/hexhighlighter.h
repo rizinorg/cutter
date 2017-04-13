@@ -13,7 +13,7 @@ class HexHighlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    HexHighlighter(QTextDocument *parent = 0);
+    explicit HexHighlighter(QTextDocument *parent = 0);
 
 protected:
     void highlightBlock(const QString &text);
