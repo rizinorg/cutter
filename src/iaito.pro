@@ -97,7 +97,8 @@ HEADERS  += \
     widgets/dashboard.h \
     dialogs/xrefsdialog.h \
     hexhighlighter.h \
-    widgets/sectionsdock.h
+    widgets/sectionsdock.h \
+    widgets/dockwidget.h
 
 FORMS    += \
     mainwindow.ui \
