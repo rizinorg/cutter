@@ -30,6 +30,36 @@
 #include <QMessageBox>
 #include <QStyleFactory>
 
+#include <QLabel>
+#include <QComboBox>
+#include <QTreeWidgetItem>
+#include <QDockWidget>
+#include <QLineEdit>
+#include <QSettings>
+#include <QList>
+
+#include "highlighter.h"
+#include "hexascii_highlighter.h"
+#include "newfiledialog.h"
+#include "helpers.h"
+
+#include "widgets/memorywidget.h"
+#include "widgets/functionswidget.h"
+#include "widgets/sectionswidget.h"
+#include "widgets/commentswidget.h"
+#include "widgets/importswidget.h"
+#include "widgets/symbolswidget.h"
+#include "widgets/stringswidget.h"
+#include "widgets/sectionsdock.h"
+#include "widgets/relocswidget.h"
+#include "widgets/flagswidget.h"
+#include "widgets/codegraphic.h"
+#include "widgets/dashboard.h"
+#include "widgets/notepad.h"
+#include "widgets/sidebar.h"
+#include "widgets/sdbdock.h"
+#include "widgets/omnibar.h"
+
 // graphics
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
@@ -52,11 +82,11 @@ static void registerCustomFonts()
 MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     QMainWindow(parent),
     core(kore),
+    memoryDock(nullptr),
+    notepadDock(nullptr),
     asmDock(nullptr),
     calcDock(nullptr),
     omnibar(nullptr),
-    memoryDock(nullptr),
-    notepadDock(nullptr),
     sideBar(nullptr),
     ui(new Ui::MainWindow),
     highlighter(nullptr),
@@ -153,42 +183,55 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
      * Dock Widgets
      */
 
+    dockWidgets.reserve(11);
+
     // Add Memory DockWidget
     this->memoryDock = new MemoryWidget(this);
-    this->dockList << this->memoryDock;
+    dockWidgets.push_back(memoryDock);
     // To use in the future when we handle more than one memory views
     // this->memoryDock->setAttribute(Qt::WA_DeleteOnClose);
     // this->add_debug_output( QString::number(this->dockList.length()) );
 
     // Add Sections dock panel
     this->sectionsDock = new SectionsDock(this);
+    dockWidgets.push_back(sectionsDock);
 
     // Add functions DockWidget
     this->functionsDock = new FunctionsWidget(this);
+    dockWidgets.push_back(functionsDock);
 
     // Add imports DockWidget
     this->importsDock = new ImportsWidget(this);
+    dockWidgets.push_back(importsDock);
 
     // Add symbols DockWidget
     this->symbolsDock = new SymbolsWidget(this);
+    dockWidgets.push_back(symbolsDock);
 
     // Add relocs DockWidget
     this->relocsDock = new RelocsWidget(this);
+    dockWidgets.push_back(relocsDock);
 
     // Add comments DockWidget
     this->commentsDock = new CommentsWidget(this);
+    dockWidgets.push_back(commentsDock);
 
     // Add strings DockWidget
     this->stringsDock = new StringsWidget(this);
+    dockWidgets.push_back(stringsDock);
 
     // Add flags DockWidget
     this->flagsDock = new FlagsWidget(this);
+    dockWidgets.push_back(flagsDock);
 
     // Add Notepad Dock panel
     this->notepadDock = new Notepad(this);
+    dockWidgets.push_back(notepadDock);
+    connect(memoryDock, SIGNAL(fontChanged(QFont)), notepadDock, SLOT(setFonts(QFont)));
 
     //Add Dashboard Dock panel
     this->dashboardDock = new Dashboard(this);
+    dockWidgets.push_back(dashboardDock);
 
     // Set up dock widgets default layout
     restoreDocks();
@@ -204,8 +247,6 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
-    this->flagsDock->flagsTreeWidget->clear();
-
     // Set omnibar completer for flags
     this->omnibar->setupCompleter();
 
@@ -213,9 +254,6 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     ui->consoleOutputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->consoleOutputTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showConsoleContextMenu(const QPoint &)));
-
-    // Hide dummy columns so we can reorder the rest
-    hideDummyColumns();
 
     // Setup and hide sidebar by default
     this->sideBar = new SideBar(this);
@@ -271,34 +309,6 @@ void MainWindow::webserverThreadFinished()
     //}
 }
 
-void MainWindow::adjustColumns(QTreeWidget *tw)
-{
-    int count = tw->columnCount();
-    for (int i = 0; i != count; ++i)
-    {
-        tw->resizeColumnToContents(i);
-    }
-}
-
-void MainWindow::appendRow(QTreeWidget *tw, const QString &str, const QString &str2,
-                           const QString &str3, const QString &str4, const QString &str5)
-{
-    QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-    // Fill dummy hidden column
-    tempItem->setText(0, "0");
-    tempItem->setText(1, str);
-    if (!str2.isNull())
-        tempItem->setText(2, str2);
-    if (!str3.isNull())
-        tempItem->setText(3, str3);
-    if (!str4.isNull())
-        tempItem->setText(4, str4);
-    if (!str5.isNull())
-        tempItem->setText(5, str5);
-
-    tw->insertTopLevelItem(0, tempItem);
-}
-
 void MainWindow::setWebServerState(bool start)
 {
     if (start)
@@ -316,21 +326,18 @@ void MainWindow::setWebServerState(bool start)
     }
 }
 
-void MainWindow::hideDummyColumns()
+void MainWindow::raiseMemoryDock()
 {
-    // UGLY, should be a loop over all treewidgets...
-    this->functionsDock->functionsTreeWidget->setColumnHidden(0, true);
-    this->importsDock->importsTreeWidget->setColumnHidden(0, true);
-    this->symbolsDock->symbolsTreeWidget->setColumnHidden(0, true);
-    this->relocsDock->relocsTreeWidget->setColumnHidden(0, true);
-    this->stringsDock->stringsTreeWidget->setColumnHidden(0, true);
-    this->flagsDock->flagsTreeWidget->setColumnHidden(0, true);
-    this->commentsDock->commentsTreeWidget->setColumnHidden(0, true);
+    memoryDock->raise();
+}
+
+void MainWindow::toggleSideBarTheme()
+{
+    sideBar->themesButtonToggle();
 }
 
 void MainWindow::setFilename(QString fn)
 {
-
     // Add file name to window title
     this->filename = fn;
     this->setWindowTitle("Iaito - " + fn);
@@ -364,7 +371,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         settings.setValue("pos", pos());
         settings.setValue("state", saveState());
         core->cmd("Ps " + qhelpers::uniqueProjectName(filename));
-        QString notes = this->notepadDock->notesTextEdit->toPlainText().toUtf8().toBase64();
+        QString notes = this->notepadDock->textToBase64();
         //this->add_debug_output(notes);
         this->core->cmd("Pnj " + notes);
         QMainWindow::closeEvent(event);
@@ -419,55 +426,12 @@ void MainWindow::def_theme()
 
 void MainWindow::refreshFunctions()
 {
-    this->functionsDock->refreshTree();
+    functionsDock->refresh();
 }
 
 void MainWindow::refreshComments()
 {
-    this->commentsDock->refreshTree();
-}
-
-void MainWindow::refreshFlagspaces()
-{
-    int cur_idx = this->flagsDock->flagspaceCombo->currentIndex();
-    if (cur_idx < 0)cur_idx = 0;
-    this->flagsDock->flagspaceCombo->clear();
-    this->flagsDock->flagspaceCombo->addItem("(all)");
-    for (auto i : core->getList("flagspaces"))
-    {
-        this->flagsDock->flagspaceCombo->addItem(i);
-    }
-    if (cur_idx > 0)
-        this->flagsDock->flagspaceCombo->setCurrentIndex(cur_idx);
-    refreshFlags();
-}
-
-void MainWindow::refreshFlags()
-{
-    QString flagspace = this->flagsDock->flagspaceCombo->currentText();
-    this->omnibar->clearFlags();
-    if (flagspace == "(all)")
-        flagspace = "";
-
-    this->flagsDock->flagsTreeWidget->clear();
-
-    for (auto i : core->getList("flags", flagspace))
-    {
-        QStringList a = i.split(",");
-        if (a.length() > 3)
-        {
-            appendRow(this->flagsDock->flagsTreeWidget, a[1], a[2], a[0], a[3]);
-            this->omnibar->fillFlags(a[0]);
-        }
-        else if (a.length() > 2)
-        {
-            appendRow(this->flagsDock->flagsTreeWidget, a[1], a[2], a[0], "");
-            this->omnibar->fillFlags(a[0]);
-        }
-    }
-    adjustColumns(this->flagsDock->flagsTreeWidget);
-    // Set omnibar completer for flags and commands
-    this->omnibar->setupCompleter();
+    commentsDock->refresh();
 }
 
 void MainWindow::updateFrames()
@@ -476,167 +440,27 @@ void MainWindow::updateFrames()
         return;
 
     static bool first_time = true;
+
     if (first_time)
     {
-        setup_mem();
-        this->add_output(" > Adding binary information to notepad");
-        notepadDock->setText("# Binary information\n\n" + core->cmd("i") +
-                             "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
-        //first_time = false;
-    }
-    else
-    {
-        refreshMem();
-    }
-
-    refreshFlagspaces();
-
-    auto spi = QAbstractItemView::ScrollPerItem;
-    auto spp = QAbstractItemView::ScrollPerPixel;
-
-    // TODO: make this configurable by the user?
-    const bool use_scrollperpixel = true;
-    if (use_scrollperpixel)
-    {
-        this->flagsDock->flagsTreeWidget->setVerticalScrollMode(spp);
-        this->symbolsDock->symbolsTreeWidget->setVerticalScrollMode(spp);
-        this->importsDock->importsTreeWidget->setVerticalScrollMode(spp);
-        this->functionsDock->functionsTreeWidget->setVerticalScrollMode(spp);
-        this->stringsDock->stringsTreeWidget->setVerticalScrollMode(spp);
-        this->relocsDock->relocsTreeWidget->setVerticalScrollMode(spp);
-        this->memoryDock->xreFromTreeWidget_2->setVerticalScrollMode(spp);
-        this->memoryDock->xrefToTreeWidget_2->setVerticalScrollMode(spp);
-    }
-    else
-    {
-        this->flagsDock->flagsTreeWidget->setVerticalScrollMode(spi);
-        this->symbolsDock->symbolsTreeWidget->setVerticalScrollMode(spi);
-        this->importsDock->importsTreeWidget->setVerticalScrollMode(spi);
-        this->functionsDock->functionsTreeWidget->setVerticalScrollMode(spi);
-        this->stringsDock->stringsTreeWidget->setVerticalScrollMode(spi);
-        this->relocsDock->relocsTreeWidget->setVerticalScrollMode(spi);
-        this->memoryDock->xreFromTreeWidget_2->setVerticalScrollMode(spi);
-        this->memoryDock->xrefToTreeWidget_2->setVerticalScrollMode(spi);
-    }
-
-    this->functionsDock->fillFunctions();
-
-    this->importsDock->fillImports();
-
-    // FIXME, doesn't work bc it sorts strings, not numbers... sigh
-    /*
-      Use QListWidgetItem::setData() not the constructor to set your value. Then all will work like you expect it to work.
-
-      int yourIntValue = 123456;
-      QListWidgetItem *item = new QListWidgetItem;
-      item->setData(Qt::DisplayRole, yourIntValue);
-    */
-    //this->importsDock->importsTreeWidget->sortByColumn(1, Qt::DescendingOrder);
-
-    adjustColumns(this->importsDock->importsTreeWidget);
-
-    this->relocsDock->relocsTreeWidget->clear();
-    for (auto i : core->getList("bin", "relocs"))
-    {
-        QStringList pieces = i.split(",");
-        if (pieces.length() == 3)
-            appendRow(this->relocsDock->relocsTreeWidget, pieces[0], pieces[1], pieces[2]);
-    }
-    adjustColumns(this->relocsDock->relocsTreeWidget);
-
-    this->symbolsDock->fillSymbols();
-
-    this->stringsDock->stringsTreeWidget->clear();
-    for (auto i : core->getList("bin", "strings"))
-    {
-        QStringList pieces = i.split(",");
-        if (pieces.length() == 2)
-            appendRow(this->stringsDock->stringsTreeWidget, pieces[0], pieces[1]);
-    }
-    adjustColumns(this->stringsDock->stringsTreeWidget);
-
-    this->commentsDock->commentsTreeWidget->clear();
-    QList<QList<QString>> comments = this->core->getComments();
-    for (QList<QString> comment : comments)
-    {
-        /*
-        QString name;
-        //this->add_debug_output("Comment: " + comment[1] + ": " + comment[0]);
-        RAnalFunction *fcn = this->core->functionAt(comment[1].toLongLong(0, 16));
-        if (fcn != NULL) {
-            name = fcn->name;
-        } else {
-            name = "";
-        }
-        */
-        QString fcn_name = this->core->cmdFunctionAt(comment[1]);
-        appendRow(this->commentsDock->commentsTreeWidget, comment[1], fcn_name, comment[0].remove('"'));
-    }
-    adjustColumns(this->commentsDock->commentsTreeWidget);
-
-    // Add nested comments
-    QMap<QString, QList<QList<QString>>> cmts = this->core->getNestedComments();
-    for (auto cmt : cmts.keys())
-    {
-        QTreeWidgetItem *item = new QTreeWidgetItem(this->commentsDock->nestedCommentsTreeWidget);
-        item->setText(0, cmt);
-        QList<QList<QString>> meow = cmts.value(cmt);
-        for (int i = 0; i < meow.size(); ++i)
+        for (auto w : dockWidgets)
         {
-            QList<QString> tmp = meow.at(i);
-            QTreeWidgetItem *it = new QTreeWidgetItem();
-            it->setText(0, tmp[1]);
-            it->setText(1, tmp[0].remove('"'));
-            item->addChild(it);
+            w->setup();
         }
-        this->commentsDock->nestedCommentsTreeWidget->addTopLevelItem(item);
-    }
-    adjustColumns(this->commentsDock->nestedCommentsTreeWidget);
-
-    // TODO: FIXME: Remove the check for first_time;
-    if (first_time)
-    {
-        this->sectionsDock->sectionsWidget->tree->clear();
-        int row = 0;
-        for (auto i : core->getList("bin", "sections"))
-        {
-            QStringList a = i.split(",");
-            if (a.length() > 2)
-            {
-                // Fix to work with ARM bins
-                //if (a[4].startsWith(".")) {
-                if (a[4].contains("."))
-                {
-                    QString addr = a[1];
-                    QString addr_end = "0x0" + core->itoa(core->math(a[1] + "+" + a[2]));
-                    QString size = QString::number(core->math(a[2]));
-                    QString name = a[4];
-                    this->sectionsDock->sectionsWidget->fillSections(row, name, size, addr, addr_end);
-
-                    // Used to select a color for the sections graph
-                    if (row == 10)
-                    {
-                        row = 0;
-                    }
-                    else
-                    {
-                        row++;
-                    }
-                }
-            }
-        }
-        //adjustColumns(sectionsWidget->tree);
-        this->sectionsDock->sectionsWidget->adjustColumns();
 
         first_time = false;
-
-        this->dashboardDock->updateContents();
     }
-}
+    else
+    {
+        for (auto w : dockWidgets)
+        {
+            w->refresh();
+        }
+    }
 
-/*
- * End of refresh widget functions
- */
+    // graphicsBar->refreshColorBar();
+    graphicsBar->fillData();
+}
 
 void MainWindow::on_actionLock_triggered()
 {
@@ -717,7 +541,7 @@ void MainWindow::on_actionMem_triggered()
     //this->memoryDock->show();
     //this->memoryDock->raise();
     MemoryWidget *newMemDock = new MemoryWidget(this);
-    this->dockList << newMemDock;
+    this->dockWidgets << newMemDock;
     newMemDock->setAttribute(Qt::WA_DeleteOnClose);
     this->tabifyDockWidget(this->memoryDock, newMemDock);
     newMemDock->refreshDisasm();
@@ -911,18 +735,6 @@ void MainWindow::seek(const QString &offset, const QString &name)
     this->memoryDock->disasTextEdit->setFocus();
 }
 
-void MainWindow::setup_mem()
-{
-    QString off = this->core->cmd("afo entry0").trimmed();
-    //graphicsBar->refreshColorBar();
-    graphicsBar->fillData();
-    this->memoryDock->refreshDisasm(off);
-    this->memoryDock->refreshHexdump(off);
-    this->memoryDock->create_graph(off);
-    this->memoryDock->get_refs_data(off);
-    this->memoryDock->setFcnName(off);
-}
-
 void MainWindow::refreshMem(const QString &offset)
 {
     //add_debug_output("Refreshing to: " + off);
@@ -1026,30 +838,31 @@ void MainWindow::on_actionDefaut_triggered()
 
 void MainWindow::hideAllDocks()
 {
-    sectionsDock->hide();
-    this->functionsDock->hide();
-    this->memoryDock->hide();
-    this->commentsDock->hide();
-    this->flagsDock->hide();
-    this->stringsDock->hide();
-    this->relocsDock->hide();
-    this->importsDock->hide();
-    this->symbolsDock->hide();
-    this->notepadDock->hide();
-    this->dashboardDock->hide();
+    for (auto w : dockWidgets)
+    {
+        w->hide();
+    }
 }
 
 void MainWindow::showDefaultDocks()
 {
-    sectionsDock->show();
-    this->functionsDock->show();
-    this->memoryDock->show();
-    this->commentsDock->show();
-    this->stringsDock->show();
-    this->importsDock->show();
-    this->symbolsDock->show();
-    this->notepadDock->show();
-    this->dashboardDock->show();
+    const QList<DockWidget*> defaultDocks = { sectionsDock,
+                                              functionsDock,
+                                              memoryDock,
+                                              commentsDock,
+                                              stringsDock,
+                                              importsDock,
+                                              symbolsDock,
+                                              notepadDock,
+                                              dashboardDock};
+
+    for (auto w : dockWidgets)
+    {
+        if (defaultDocks.contains(w))
+        {
+            w->show();
+        }
+    }
 }
 
 void MainWindow::on_actionhide_bottomPannel_triggered()
@@ -1066,7 +879,7 @@ void MainWindow::on_actionhide_bottomPannel_triggered()
 
 void MainWindow::send_to_notepad(QString txt)
 {
-    this->notepadDock->notesTextEdit->appendPlainText("```\n" + txt + "\n```");
+    this->notepadDock->appendPlainText("```\n" + txt + "\n```");
 }
 
 void MainWindow::on_actionFunctionsRename_triggered()
@@ -1103,7 +916,7 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::on_actionSave_triggered()
 {
     core->cmd("Ps " + qhelpers::uniqueProjectName(filename));
-    QString notes = this->notepadDock->notesTextEdit->toPlainText().toUtf8().toBase64();
+    QString notes = this->notepadDock->textToBase64();
     //this->add_debug_output(notes);
     this->core->cmd("Pnj " + notes);
     this->add_output("Project saved");
@@ -1226,20 +1039,11 @@ void MainWindow::refreshVisibleDockWidgets()
         return pWidget != nullptr && !pWidget->visibleRegion().isEmpty();
     };
 
-    //TODO: not used/set atm
-    // if (isDockVisible(asmDock)) { asmDock->update(); }
-    // if (isDockVisible(calcDock)) { calcDock->update(); }
-
-    if (isDockVisible(memoryDock)) { memoryDock->updateViews(); }
-    // TODO: if (isDockVisible(notepadDock)) { eprint("notepadDock visible"); }
-    if (isDockVisible(functionsDock)) { functionsDock->refreshTree(); }
-    if (isDockVisible(importsDock)) { importsDock->fillImports(); }
-    if (isDockVisible(symbolsDock)) { symbolsDock->fillSymbols(); }
-    // TODO: update/refresh function if (isDockVisible(relocsDock)) { eprint("relocsDock visible"); }
-    if (isDockVisible(commentsDock)) { commentsDock->refreshTree(); }
-    // TODO: update/refresh function if (isDockVisible(stringsDock)) { eprint("stringsDock visible"); }
-    // TODO: update/refresh function if (isDockVisible(flagsDock)) { eprint("flagsDock visible"); }
-    if (isDockVisible(dashboardDock)) { dashboardDock->updateContents(); }
-    // TODO: update/refresh function if (isDockVisible(sdbDock)) { eprint("sdbDock visible"); }
-    // TODO: update/refresh function if (isDockVisible(sectionsDock)) { eprint("sectionsDock visible"); }
+    for (auto w : dockWidgets)
+    {
+        if (isDockVisible(w))
+        {
+            w->refresh();
+        }
+    }
 }

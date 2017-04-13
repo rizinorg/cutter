@@ -1,40 +1,35 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "webserverthread.h"
+#include "qrcore.h" // only needed for ut64
+
 #include <QMainWindow>
-#include <QLabel>
-#include <QComboBox>
-#include <QTreeWidgetItem>
-#include <QDockWidget>
-#include <QLineEdit>
-#include <QSettings>
 #include <QList>
 
-#include "highlighter.h"
-#include "hexascii_highlighter.h"
-#include "helpers.h"
-#include "qrcore.h"
+class QRCore;
+class DockWidget;
+class Omnibar;
+class MemoryWidget;
+class Notepad;
+class SideBar;
+class Highlighter;
+class AsciiHighlighter;
+class GraphicsBar;
+class FunctionsWidget;
+class ImportsWidget;
+class SymbolsWidget;
+class RelocsWidget;
+class CommentsWidget;
+class StringsWidget;
+class FlagsWidget;
+class Dashboard;
+class QLineEdit;
+class SdbDock;
+class QAction;
+class SectionsDock;
 
-#include "widgets/memorywidget.h"
-#include "widgets/functionswidget.h"
-#include "widgets/sectionswidget.h"
-#include "widgets/commentswidget.h"
-#include "widgets/importswidget.h"
-#include "widgets/symbolswidget.h"
-#include "widgets/stringswidget.h"
-#include "widgets/sectionsdock.h"
-#include "widgets/relocswidget.h"
-#include "widgets/flagswidget.h"
-#include "widgets/codegraphic.h"
-#include "widgets/dashboard.h"
-#include "widgets/notepad.h"
-#include "widgets/sidebar.h"
-#include "widgets/sdbdock.h"
-#include "widgets/omnibar.h"
-
-#include "webserverthread.h"
-#include "newfiledialog.h"
-#include "helpers.h"
+class QDockWidget;
 
 namespace Ui
 {
@@ -48,12 +43,8 @@ class MainWindow : public QMainWindow
 
 public:
     QRCore *core;
-    QDockWidget      *asmDock;
-    QDockWidget      *calcDock;
-    Omnibar          *omnibar;
-    MemoryWidget     *memoryDock;
-    Notepad          *notepadDock;
-    SideBar          *sideBar;
+    MemoryWidget    *memoryDock;
+    Notepad         *notepadDock;
 
     bool responsive;
     QString current_address;
@@ -70,16 +61,13 @@ public:
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
-    void refreshFlags();
     void get_refs(const QString &offset);
     void add_output(QString msg);
     void add_debug_output(QString msg);
     void send_to_notepad(QString txt);
-    void adjustColumns(QTreeWidget *tw);
-    void appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
-                   const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
-
     void setWebServerState(bool start);
+    void raiseMemoryDock();
+    void toggleSideBarTheme();
 
 public slots:
 
@@ -141,8 +129,6 @@ private slots:
 
     void on_actionRefresh_Panels_triggered();
 
-    void hideDummyColumns();
-
     void on_actionCalculator_triggered();
 
     void on_actionCreate_File_triggered();
@@ -192,14 +178,17 @@ private slots:
     void refreshVisibleDockWidgets();
 
 private:
-    void refreshFlagspaces();
+    QDockWidget      *asmDock;
+    QDockWidget      *calcDock;
+    Omnibar          *omnibar;
+    SideBar          *sideBar;
+
     bool doLock;
     void refreshMem(const QString &offset = QString());
-    void setup_mem();
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
-    QList<QDockWidget *> dockList;
+    QList<DockWidget *> dockWidgets;
     Ui::MainWindow   *ui;
     Highlighter      *highlighter;
     AsciiHighlighter *hex_highlighter;
