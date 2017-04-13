@@ -1,7 +1,7 @@
 #ifndef DASHBOARD_H
 #define DASHBOARD_H
 
-#include <QDockWidget>
+#include "dockwidget.h"
 
 class MainWindow;
 
@@ -10,7 +10,7 @@ namespace Ui
     class Dashboard;
 }
 
-class Dashboard : public QDockWidget
+class Dashboard : public DockWidget
 {
     Q_OBJECT
 
@@ -18,11 +18,14 @@ public:
     explicit Dashboard(MainWindow *main, QWidget *parent = 0);
     ~Dashboard();
 
-    void updateContents();
+    void setup() override;
+
+    void refresh() override;
 
 private:
-    Ui::Dashboard *ui;
+    void updateContents();
 
+    Ui::Dashboard   *ui;
     MainWindow      *main;
 };
 

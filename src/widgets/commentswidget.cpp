@@ -2,17 +2,21 @@
 #include "ui_commentswidget.h"
 
 #include "mainwindow.h"
+#include "helpers.h"
+
+#include <QTreeWidget>
+#include <QMenu>
+#include <QResizeEvent>
+
 
 CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::CommentsWidget)
+    DockWidget(parent),
+    ui(new Ui::CommentsWidget),
+    main(main)
 {
     ui->setupUi(this);
 
-    // Radare core found in:
-    this->main = main;
-    this->commentsTreeWidget = ui->commentsTreeWidget;
-    this->nestedCommentsTreeWidget = ui->nestedCmtsTreeWidget;
+    ui->commentsTreeWidget->hideColumn(0);
 
     QTabBar *tabs = ui->tabWidget->tabBar();
     tabs->setVisible(false);
@@ -33,6 +37,16 @@ CommentsWidget::~CommentsWidget()
     delete ui;
 }
 
+void CommentsWidget::setup()
+{
+    refreshTree();
+}
+
+void CommentsWidget::refresh()
+{
+    refreshTree();
+}
+
 void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     QNOTUSED(column);
@@ -43,39 +57,6 @@ void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *it
     QString name = item->text(2);
     this->main->add_debug_output(offset + ": " + name);
     this->main->seek(offset, name);
-}
-
-void CommentsWidget::refreshTree()
-{
-    this->commentsTreeWidget->clear();
-    QList<QList<QString>> comments = this->main->core->getComments();
-    for (QList<QString> comment : comments)
-    {
-        this->main->add_debug_output(comment[1]);
-        QString fcn_name = this->main->core->cmdFunctionAt(comment[1]);
-        this->main->appendRow(this->commentsTreeWidget, comment[1], fcn_name, comment[0].remove('"'));
-    }
-    this->main->adjustColumns(this->commentsTreeWidget);
-
-    // Add nested comments
-    this->nestedCommentsTreeWidget->clear();
-    QMap<QString, QList<QList<QString>>> cmts = this->main->core->getNestedComments();
-    for (auto cmt : cmts.keys())
-    {
-        QTreeWidgetItem *item = new QTreeWidgetItem(this->nestedCommentsTreeWidget);
-        item->setText(0, cmt);
-        QList<QList<QString>> meow = cmts.value(cmt);
-        for (int i = 0; i < meow.size(); ++i)
-        {
-            QList<QString> tmp = meow.at(i);
-            QTreeWidgetItem *it = new QTreeWidgetItem();
-            it->setText(0, tmp[1]);
-            it->setText(1, tmp[0].remove('"'));
-            item->addChild(it);
-        }
-        this->nestedCommentsTreeWidget->addTopLevelItem(item);
-    }
-    this->main->adjustColumns(this->nestedCommentsTreeWidget);
 }
 
 void CommentsWidget::on_toolButton_clicked()
@@ -139,4 +120,37 @@ void CommentsWidget::resizeEvent(QResizeEvent *event)
         }
     }
     QDockWidget::resizeEvent(event);
+}
+
+void CommentsWidget::refreshTree()
+{
+    ui->commentsTreeWidget->clear();
+    const QList<QList<QString>> &comments = main->core->getComments();
+    for (const QList<QString> &comment : comments)
+    {
+        //this->main->add_debug_output(comment[1]);
+        QString fcn_name = this->main->core->cmdFunctionAt(comment[1]);
+        qhelpers::appendRow(ui->commentsTreeWidget, comment[1], fcn_name, QString(comment[0]).remove('"'));
+    }
+    qhelpers::adjustColumns(ui->commentsTreeWidget);
+
+    // Add nested comments
+    ui->nestedCmtsTreeWidget->clear();
+    const QMap<QString, QList<QList<QString>>> &cmts = main->core->getNestedComments();
+    for (auto cmt : cmts.keys())
+    {
+        QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedCmtsTreeWidget);
+        item->setText(0, cmt);
+        const QList<QList<QString>> &meow = cmts.value(cmt);
+        for (int i = 0; i < meow.size(); ++i)
+        {
+            const QList<QString> &tmp = meow.at(i);
+            QTreeWidgetItem *it = new QTreeWidgetItem();
+            it->setText(0, tmp[1]);
+            it->setText(1, QString(tmp[0]).remove('"'));
+            item->addChild(it);
+        }
+        ui->nestedCmtsTreeWidget->addTopLevelItem(item);
+    }
+    qhelpers::adjustColumns(ui->nestedCmtsTreeWidget);
 }

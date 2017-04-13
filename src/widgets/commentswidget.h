@@ -1,18 +1,17 @@
 #ifndef COMMENTSWIDGET_H
 #define COMMENTSWIDGET_H
 
-#include <QDockWidget>
-#include <QTreeWidget>
-#include <QMenu>
+#include "dockwidget.h"
 
 class MainWindow;
+class QTreeWidgetItem;
 
 namespace Ui
 {
     class CommentsWidget;
 }
 
-class CommentsWidget : public QDockWidget
+class CommentsWidget : public DockWidget
 {
     Q_OBJECT
 
@@ -20,9 +19,9 @@ public:
     explicit CommentsWidget(MainWindow *main, QWidget *parent = 0);
     ~CommentsWidget();
 
-    QTreeWidget    *commentsTreeWidget;
-    QTreeWidget    *nestedCommentsTreeWidget;
-    void refreshTree();
+    void setup() override;
+
+    void refresh() override;
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -42,10 +41,9 @@ private slots:
 
 private:
     Ui::CommentsWidget *ui;
-
     MainWindow      *main;
 
-    QWidget         *title_bar;
+    void refreshTree();
 };
 
 #endif // COMMENTSWIDGET_H

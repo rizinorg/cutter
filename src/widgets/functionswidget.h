@@ -1,17 +1,17 @@
 #ifndef FUNCTIONSWIDGET_H
 #define FUNCTIONSWIDGET_H
 
-#include <QDockWidget>
-#include <QTreeWidget>
+#include "dashboard.h"
 
 class MainWindow;
+class QTreeWidgetItem;
 
 namespace Ui
 {
     class FunctionsWidget;
 }
 
-class FunctionsWidget : public QDockWidget
+class FunctionsWidget : public DockWidget
 {
     Q_OBJECT
 
@@ -19,9 +19,11 @@ public:
     explicit FunctionsWidget(MainWindow *main, QWidget *parent = 0);
     ~FunctionsWidget();
 
-    QTreeWidget    *functionsTreeWidget;
+    void setup() override;
+
+    void refresh() override;
+
     void fillFunctions();
-    void refreshTree();
     void addTooltips();
 
 private slots:
@@ -47,8 +49,10 @@ protected:
 
 private:
     Ui::FunctionsWidget *ui;
-
     MainWindow      *main;
+
+    void refreshTree();
+    void setScrollMode();
 };
 
 #endif // FUNCTIONSWIDGET_H

@@ -1,17 +1,17 @@
 #ifndef SECTIONSDOCK_H
 #define SECTIONSDOCK_H
 
-#include <QDockWidget>
-#include "widgets/sectionswidget.h"
+#include "dockwidget.h"
 
 class MainWindow;
+class SectionsWidget;
 
 namespace Ui
 {
     class SectionsDock;
 }
 
-class SectionsDock : public QDockWidget
+class SectionsDock : public DockWidget
 {
     Q_OBJECT
 
@@ -19,7 +19,9 @@ public:
     explicit SectionsDock(MainWindow *main, QWidget *parent = 0);
     ~SectionsDock();
 
-    SectionsWidget  *sectionsWidget;
+    void setup() override;
+
+    void refresh() override;
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -34,8 +36,8 @@ private slots:
 
 private:
     Ui::SectionsDock *ui;
-
     MainWindow      *main;
+    SectionsWidget  *sectionsWidget;
 };
 
 #endif // SECTIONSDOCK_H

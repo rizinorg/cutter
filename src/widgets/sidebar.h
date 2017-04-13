@@ -19,7 +19,6 @@ public:
     ~SideBar();
 
 public slots:
-
     void themesButtonToggle();
 
 private slots:

@@ -2,10 +2,13 @@
 #include "ui_sdbdock.h"
 
 #include "mainwindow.h"
+
 #include <QDebug>
+#include <QTreeWidget>
+
 
 SdbDock::SdbDock(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
+    DockWidget(parent),
     ui(new Ui::SdbDock)
 {
     ui->setupUi(this);
@@ -93,6 +96,18 @@ void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 SdbDock::~SdbDock()
 {
     delete ui;
+}
+
+void SdbDock::setup()
+{
+    // TODO: implement
+    eprintf("%s - not implemented\n", __PRETTY_FUNCTION__);
+}
+
+void SdbDock::refresh()
+{
+    // TODO: implement
+    eprintf("%s - not implemented\n", __PRETTY_FUNCTION__);
 }
 
 void SdbDock::on_lockButton_clicked()

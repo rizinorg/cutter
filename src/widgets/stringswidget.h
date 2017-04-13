@@ -1,17 +1,17 @@
 #ifndef STRINGSWIDGET_H
 #define STRINGSWIDGET_H
 
-#include <QDockWidget>
-#include <QTreeWidget>
+#include "dockwidget.h"
 
 class MainWindow;
+class QTreeWidgetItem;
 
 namespace Ui
 {
     class StringsWidget;
 }
 
-class StringsWidget : public QDockWidget
+class StringsWidget : public DockWidget
 {
     Q_OBJECT
 
@@ -19,15 +19,19 @@ public:
     explicit StringsWidget(MainWindow *main, QWidget *parent = 0);
     ~StringsWidget();
 
-    QTreeWidget    *stringsTreeWidget;
+    void setup() override;
+
+    void refresh() override;
 
 private slots:
     void on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
     Ui::StringsWidget *ui;
-
     MainWindow      *main;
+
+    void fillTreeWidget();
+    void setScrollMode();
 };
 
 #endif // STRINGSWIDGET_H

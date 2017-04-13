@@ -1,23 +1,27 @@
 #ifndef SDBDOCK_H
 #define SDBDOCK_H
 
-#include <QDockWidget>
-#include <QTreeWidget>
+#include "dockwidget.h"
 
 class MainWindow;
+class QTreeWidgetItem;
 
 namespace Ui
 {
     class SdbDock;
 }
 
-class SdbDock : public QDockWidget
+class SdbDock : public DockWidget
 {
     Q_OBJECT
 
 public:
     explicit SdbDock(MainWindow *main, QWidget *parent = 0);
     ~SdbDock();
+
+    void setup() override;
+
+    void refresh() override;
 
 private slots:
     void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -28,10 +32,10 @@ private slots:
 
 private:
     Ui::SdbDock *ui;
-    void reload(QString path);
     QString path;
-
     MainWindow      *main;
+
+    void reload(QString path);
 };
 
 #endif // SDBDOCK_H

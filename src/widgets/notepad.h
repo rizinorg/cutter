@@ -1,29 +1,39 @@
 #ifndef NOTEPAD_H
 #define NOTEPAD_H
 
-#include <QDockWidget>
-#include <QPlainTextEdit>
-#include "mdhighlighter.h"
-#include "highlighter.h"
+#include "dockwidget.h"
 
 class MainWindow;
+class MdHighlighter;
+class Highlighter;
+class QPlainTextEdit;
 
 namespace Ui
 {
     class Notepad;
 }
 
-class Notepad : public QDockWidget
+class Notepad : public DockWidget
 {
     Q_OBJECT
 
 public:
     explicit Notepad(MainWindow *main, QWidget *parent = 0);
-    void setText(QString str);
-    void highlightPreview();
-    void setFonts(QFont font);
     ~Notepad();
-    QPlainTextEdit    *notesTextEdit;
+
+    void setup() override;
+
+    void refresh() override;
+
+    void setText(const QString &str);
+    QString textToBase64() const;
+
+    void appendPlainText(const QString &text);
+
+    void highlightPreview();
+
+public slots:
+    void setFonts(QFont font);
 
 private slots:
     void on_fontButton_clicked();
@@ -61,12 +71,13 @@ private slots:
     void on_actionHexdump_function_triggered();
 
 private:
-    Ui::Notepad            *ui;
-    MdHighlighter          *highlighter;
-    Highlighter            *disasm_highlighter;
-    bool                   isFirstTime;
-    MainWindow             *main;
-    QString                addr;
+    Ui::Notepad         *ui;
+    MdHighlighter       *highlighter;
+    Highlighter         *disasm_highlighter;
+    bool                isFirstTime;
+    MainWindow          *main;
+    QString             addr;
+    QPlainTextEdit      *notesTextEdit;
 };
 
 #endif // NOTEPAD_H

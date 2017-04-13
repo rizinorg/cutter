@@ -1,9 +1,10 @@
 #include "sidebar.h"
 #include "ui_sidebar.h"
 
+#include "mainwindow.h"
+
 #include <QSettings>
 
-#include "mainwindow.h"
 
 SideBar::SideBar(MainWindow *main) :
     QWidget(main),

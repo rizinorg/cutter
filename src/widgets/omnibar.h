@@ -11,27 +11,24 @@ class Omnibar : public QLineEdit
 public:
     explicit Omnibar(MainWindow *main, QWidget *parent = 0);
 
-    QStringList       commands;
-    QStringList       flags;
-
     void fillFlags(QString flag);
     void clearFlags();
     QStringList getFlags();
     void setupCompleter();
-
-private:
-    MainWindow      *main;
 
 private slots:
     void on_gotoEntry_returnPressed();
 
     void restoreCompleter();
 
-signals:
-
 public slots:
     void showCommands();
     void clearContents();
+
+private:
+    MainWindow      *main;
+    QStringList       commands;
+    QStringList       flags;
 };
 
 #endif // OMNIBAR_H

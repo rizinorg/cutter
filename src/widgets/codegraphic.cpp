@@ -2,6 +2,7 @@
 
 #include "mainwindow.h"
 
+#include <QGraphicsView>
 #include <QComboBox>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
@@ -16,7 +17,7 @@ GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
     QNOTUSED(parent);
 
     setObjectName("codeGraphics");
-    setWindowTitle("Code bar");
+    setWindowTitle(tr("Code bar"));
     //    setMovable(false);
     setContentsMargins(0, 0, 0, 0);
     // If line below is used, with the dark theme the paintEvent is not called
@@ -55,7 +56,7 @@ void GraphicsBar::fillData()
     // Prepare the graph scene
     int w = this->codeGraphic->width();
     int h = this->codeGraphic->height();
-    QGraphicsScene *scene = new QGraphicsScene();
+    QGraphicsScene *scene = new QGraphicsScene(this);
 
     const QBrush bg = QBrush(QColor(74, 74, 74));
 

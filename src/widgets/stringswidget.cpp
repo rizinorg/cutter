@@ -1,23 +1,38 @@
 #include "stringswidget.h"
 #include "ui_stringswidget.h"
 
-#include "dialogs/xrefsdialog.h"
+//#include "dialogs/xrefsdialog.h"
 #include "mainwindow.h"
+#include "helpers.h"
+
+#include <QTreeWidget>
+
 
 StringsWidget::StringsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::StringsWidget)
+    DockWidget(parent),
+    ui(new Ui::StringsWidget),
+    main(main)
 {
     ui->setupUi(this);
 
-    // Radare core found in:
-    this->main = main;
-    this->stringsTreeWidget = ui->stringsTreeWidget;
+    ui->stringsTreeWidget->hideColumn(0);
 }
 
 StringsWidget::~StringsWidget()
 {
     delete ui;
+}
+
+void StringsWidget::setup()
+{
+    setScrollMode();
+
+    fillTreeWidget();
+}
+
+void StringsWidget::refresh()
+{
+    setup();
 }
 
 void StringsWidget::on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -30,5 +45,22 @@ void StringsWidget::on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
     QString name = item->text(2);
     this->main->seek(offset);
     // Rise and shine baby!
-    this->main->memoryDock->raise();
+    this->main->raiseMemoryDock();
+}
+
+void StringsWidget::fillTreeWidget()
+{
+    ui->stringsTreeWidget->clear();
+    for (auto i : main->core->getList("bin", "strings"))
+    {
+        QStringList pieces = i.split(",");
+        if (pieces.length() == 2)
+            qhelpers::appendRow(ui->stringsTreeWidget, pieces[0], pieces[1]);
+    }
+    qhelpers::adjustColumns(ui->stringsTreeWidget);
+}
+
+void StringsWidget::setScrollMode()
+{
+    qhelpers::setVerticalScrollMode(ui->stringsTreeWidget);
 }

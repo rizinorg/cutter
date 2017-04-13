@@ -1,18 +1,13 @@
 #ifndef SECTIONSWIDGET_H
 #define SECTIONSWIDGET_H
 
-#include <QWidget>
 #include <QSplitter>
-#include <QTreeWidget>
 
 class MainWindow;
-
-QT_BEGIN_NAMESPACE
+class QTreeWidget;
 class QAbstractItemModel;
 class QAbstractItemView;
 class QItemSelectionModel;
-QT_END_NAMESPACE
-
 
 namespace Ui
 {
@@ -25,19 +20,20 @@ class SectionsWidget : public QSplitter
 
 public:
     explicit SectionsWidget(MainWindow *main, QWidget *parent = 0);
-    void fillSections(int row, const QString &str, const QString &str2,
-                      const QString &str3, const QString &str4);
-    void adjustColumns();
-    QTreeWidget              *tree;
+
+    void setup();
 
 private:
-    //void setupModel();
+    QAbstractItemView       *pieChart;
+    QItemSelectionModel     *selectionModel;
+    MainWindow              *main;
+    QTreeWidget             *tree;
+
     void setupViews();
 
-    //QAbstractItemModel     *model;
-    QAbstractItemView      *pieChart;
-    QItemSelectionModel    *selectionModel;
-    MainWindow             *main;
+    void fillSections(int row, const QString &str, const QString &str2 = QString(),
+                      const QString &str3 = QString(), const QString &str4 = QString());
+    void adjustColumns();
 };
 
 #endif // SECTIONSWIDGET_H

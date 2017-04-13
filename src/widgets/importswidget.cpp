@@ -1,8 +1,13 @@
 #include "importswidget.h"
 #include "ui_importswidget.h"
 
-#include <QStyledItemDelegate>
 #include "mainwindow.h"
+#include "helpers.h"
+
+#include <QTreeWidget>
+#include <QPen>
+#include <QPainter>
+
 
 void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
@@ -28,32 +33,50 @@ void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
  */
 
 ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
+    DockWidget(parent),
     ui(new Ui::ImportsWidget)
 {
     ui->setupUi(this);
 
     // Radare core found in:
     this->main = main;
-    this->importsTreeWidget = ui->importsTreeWidget;
 
     // Delegate
     //CMyDelegate* delegate = new CMyDelegate(ui->importsTreeWidget);
     //ui->importsTreeWidget->setItemDelegate(delegate);
+
+    ui->importsTreeWidget->hideColumn(0);
+}
+
+ImportsWidget::~ImportsWidget()
+{
+    delete ui;
+}
+
+void ImportsWidget::setup()
+{
+    setScrollMode();
+
+    fillImports();
+}
+
+void ImportsWidget::refresh()
+{
+    setup();
 }
 
 void ImportsWidget::fillImports()
 {
-    this->importsTreeWidget->clear();
+    ui->importsTreeWidget->clear();
     for (auto i : this->main->core->getList("bin", "imports"))
     {
         QStringList a = i.split(",");
         // ord,plt,name
         if (a.length() == 6)
-            this->main->appendRow(this->importsTreeWidget, a[1], a[3], "", a[4]);
+            qhelpers::appendRow(ui->importsTreeWidget, a[1], a[3], "", a[4]);
     }
     highlightUnsafe();
-    this->main->adjustColumns(this->importsTreeWidget);
+    qhelpers::adjustColumns(ui->importsTreeWidget);
 }
 
 void ImportsWidget::highlightUnsafe()
@@ -72,7 +95,7 @@ void ImportsWidget::highlightUnsafe()
                                 "OemToChar|OemToCharA|OemToCharW|CharToOemBuffA|CharToOemBuffW|alloca|_alloca|strlen|wcslen|_mbslen|_mbstrlen|StrLen|lstrlen|" \
                                 "ChangeWindowMessageFilter)");
 
-    QList<QTreeWidgetItem *> clist = this->importsTreeWidget->findItems(banned, Qt::MatchRegExp, 4);
+    QList<QTreeWidgetItem *> clist = ui->importsTreeWidget->findItems(banned, Qt::MatchRegExp, 4);
     foreach (QTreeWidgetItem *item, clist)
     {
         item->setText(3, "Unsafe");
@@ -83,8 +106,14 @@ void ImportsWidget::highlightUnsafe()
     //ui->importsTreeWidget->setStyleSheet("QTreeWidget::item { padding-left:10px; padding-top: 1px; padding-bottom: 1px; border-left: 10px; }");
 }
 
+void ImportsWidget::setScrollMode()
+{
+    qhelpers::setVerticalScrollMode(ui->importsTreeWidget);
+}
+
 void ImportsWidget::adjustColumns(QTreeWidget *tw)
 {
+    // WARNING: was this ever called.. compare to master
     int count = tw->columnCount();
     for (int i = 0; i != count; ++i)
     {
@@ -92,9 +121,4 @@ void ImportsWidget::adjustColumns(QTreeWidget *tw)
         int width = ui->importsTreeWidget->columnWidth(i);
         ui->importsTreeWidget->setColumnWidth(i, width + 10);
     }
-}
-
-ImportsWidget::~ImportsWidget()
-{
-    delete ui;
 }

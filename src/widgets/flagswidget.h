@@ -1,18 +1,17 @@
 #ifndef FLAGSWIDGET_H
 #define FLAGSWIDGET_H
 
-#include <QDockWidget>
-#include <QTreeWidget>
-#include <QComboBox>
+#include "dockwidget.h"
 
 class MainWindow;
+class QTreeWidgetItem;
 
 namespace Ui
 {
     class FlagsWidget;
 }
 
-class FlagsWidget : public QDockWidget
+class FlagsWidget : public DockWidget
 {
     Q_OBJECT
 
@@ -20,8 +19,14 @@ public:
     explicit FlagsWidget(MainWindow *main, QWidget *parent = 0);
     ~FlagsWidget();
 
-    QTreeWidget    *flagsTreeWidget;
-    QComboBox      *flagspaceCombo;
+    void setup() override;
+
+    void refresh() override;
+
+    void clear();
+
+signals:
+    void flagsRefreshed();
 
 private slots:
     void on_flagsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -30,8 +35,11 @@ private slots:
 
 private:
     Ui::FlagsWidget *ui;
-
     MainWindow      *main;
+
+    void refreshFlags();
+    void refreshFlagspaces();
+    void setScrollMode();
 };
 
 #endif // FLAGSWIDGET_H

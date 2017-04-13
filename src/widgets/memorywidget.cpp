@@ -2,6 +2,7 @@
 #include "ui_memorywidget.h"
 
 #include "mainwindow.h"
+#include "helpers.h"
 #include "dialogs/xrefsdialog.h"
 #include "dialogs/renamedialog.h"
 #include "dialogs/commentsdialog.h"
@@ -17,9 +18,12 @@
 #include <QUrl>
 #include <QWebEngineSettings>
 #include <QWebEngineProfile>
+#include <QSettings>
+
+#include <cassert>
 
 MemoryWidget::MemoryWidget(MainWindow *main) :
-    QDockWidget(main),
+    DockWidget(main),
     ui(new Ui::MemoryWidget)
 {
     ui->setupUi(this);
@@ -378,6 +382,27 @@ void MemoryWidget::highlightDecoCurrentLine()
 MemoryWidget::~MemoryWidget()
 {
     delete ui;
+}
+
+void MemoryWidget::setup()
+{
+    setScrollMode();
+
+    const QString off = main->core->cmd("afo entry0").trimmed();
+
+    refreshDisasm(off);
+    refreshHexdump(off);
+    create_graph(off);
+    get_refs_data(off);
+    setFcnName(off);
+}
+
+void MemoryWidget::refresh()
+{
+    setScrollMode();
+
+    // TODO: honor the offset
+    updateViews();
 }
 
 /*
@@ -1051,7 +1076,13 @@ void MemoryWidget::on_actionSettings_menu_1_triggered()
     // QFont font = QFont("Monospace", 8);
 
     QFont font = QFontDialog::getFont(&ok, ui->disasTextEdit_2->font(), this);
-    setFonts(font);
+
+    if (ok)
+    {
+        setFonts(font);
+
+        emit fontChanged(font);
+    }
 }
 void MemoryWidget::setFonts(QFont font)
 {
@@ -1063,7 +1094,6 @@ void MemoryWidget::setFonts(QFont font)
     ui->hexASCIIText_2->setFont(font);
     ui->previewTextEdit->setFont(font);
     ui->decoTextEdit->setFont(font);
-    this->main->notepadDock->setFonts(font);
 }
 
 void MemoryWidget::on_actionHideDisasm_side_panel_triggered()
@@ -1544,13 +1574,11 @@ QString MemoryWidget::normalize_addr(QString addr)
 
 void MemoryWidget::setFcnName(QString addr)
 {
-    RAnalFunction *fcn;
-    bool ok;
-
     // TDOD: FIX ME, ugly
     if (addr.contains("0x"))
     {
-        fcn = this->main->core->functionAt(addr.toULongLong(&ok, 16));
+        bool ok = false;
+        RAnalFunction *fcn = this->main->core->functionAt(addr.toULongLong(&ok, 16));
         if (ok && fcn)
         {
             QString segment = this->main->core->cmd("S. @ " + addr).split(" ").last();
@@ -1787,6 +1815,12 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QDockWidget::eventFilter(obj, event);
+}
+
+void MemoryWidget::setScrollMode()
+{
+    qhelpers::setVerticalScrollMode(ui->xreFromTreeWidget_2);
+    qhelpers::setVerticalScrollMode(ui->xrefToTreeWidget_2);
 }
 
 void MemoryWidget::on_actionXRefs_triggered()

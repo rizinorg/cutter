@@ -16,6 +16,8 @@
 #include <QPlainTextEdit>
 #include <QMouseEvent>
 
+#include "dashboard.h"
+
 class MainWindow;
 
 namespace Ui
@@ -23,13 +25,17 @@ namespace Ui
     class MemoryWidget;
 }
 
-class MemoryWidget : public QDockWidget
+class MemoryWidget : public DockWidget
 {
     Q_OBJECT
 
 public:
     explicit MemoryWidget(MainWindow *main);
     ~MemoryWidget();
+
+    void setup() override;
+
+    void refresh() override;
 
     MainWindow       *main;
     QPlainTextEdit   *disasTextEdit;
@@ -49,6 +55,9 @@ public:
     HexHighlighter     *hex_highlighter;
     Highlighter        *preview_highlighter;
     Highlighter        *deco_highlighter;
+
+signals:
+    void fontChanged(QFont font);
 
 public slots:
     void fillPlugins(QStringList plugins);
@@ -102,6 +111,8 @@ private:
     QString last_disasm_fcn;
     QString last_graph_fcn;
     QString last_hexdump_fcn;
+
+    void setScrollMode();
 
 private slots:
     void highlightCurrentLine();

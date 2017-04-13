@@ -1,31 +1,34 @@
 #include "functionswidget.h"
 #include "ui_functionswidget.h"
 
+#include "mainwindow.h"
+#include "helpers.h"
 #include "dialogs/commentsdialog.h"
 #include "dialogs/renamedialog.h"
 #include "dialogs/xrefsdialog.h"
-#include "mainwindow.h"
 
+#include <QTreeWidget>
 #include <QMenu>
 #include <QDebug>
 #include <QString>
 
+
 FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::FunctionsWidget)
+    DockWidget(parent),
+    ui(new Ui::FunctionsWidget),
+    main(main)
 {
     ui->setupUi(this);
 
-    // Radare core found in:
-    this->main = main;
-    this->functionsTreeWidget = ui->functionsTreeWidget;
-    this->functionsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-    //this->functionsTreeWidget->setFont(QFont("Monospace", 8));
+    ui->functionsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+    //ui->functionsTreeWidget->setFont(QFont("Monospace", 8));
     // Set Functions context menu
     connect(ui->functionsTreeWidget, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showFunctionsContextMenu(const QPoint &)));
     connect(ui->nestedFunctionsTree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showFunctionsContextMenu(const QPoint &)));
+
+    ui->functionsTreeWidget->hideColumn(0);
 
     // Hide the tabs
     QTabBar *tabs = ui->tabWidget->tabBar();
@@ -44,9 +47,21 @@ FunctionsWidget::~FunctionsWidget()
     delete ui;
 }
 
+void FunctionsWidget::setup()
+{
+    setScrollMode();
+
+    fillFunctions();
+}
+
+void FunctionsWidget::refresh()
+{
+    setup();
+}
+
 void FunctionsWidget::fillFunctions()
 {
-    this->functionsTreeWidget->clear();
+    ui->functionsTreeWidget->clear();
     ui->nestedFunctionsTree->clear();
     for (auto i : this->main->core->getList("anal", "functions"))
     {
@@ -57,7 +72,7 @@ void FunctionsWidget::fillFunctions()
         if (a.length() == 5)
         {
             // Add list function
-            this->main->appendRow(this->functionsTreeWidget, a[0], a[1], a[4]);
+            qhelpers::appendRow(ui->functionsTreeWidget, a[0], a[1], a[4]);
             // Add nested function
             QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedFunctionsTree);
             item->setText(0, a[4]);
@@ -72,7 +87,7 @@ void FunctionsWidget::fillFunctions()
         else if (a.length() == 6)
         {
             // Add list function
-            this->main->appendRow(this->functionsTreeWidget, a[0], a[1], a[5]);
+            qhelpers::appendRow(ui->functionsTreeWidget, a[0], a[1], a[5]);
             // Add nested function
             QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedFunctionsTree);
             item->setText(0, a[5]);
@@ -89,9 +104,9 @@ void FunctionsWidget::fillFunctions()
             qDebug() << "fillFunctions()" << a;
         }
     }
-    this->functionsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
+    ui->functionsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
     ui->nestedFunctionsTree->sortByColumn(0, Qt::AscendingOrder);
-    this->main->adjustColumns(this->functionsTreeWidget);
+    qhelpers::adjustColumns(ui->functionsTreeWidget);
 
     this->addTooltips();
 }
@@ -103,7 +118,7 @@ void FunctionsWidget::on_functionsTreeWidget_itemDoubleClicked(QTreeWidgetItem *
     QString offset = item->text(1);
     QString name = item->text(3);
     this->main->seek(offset, name);
-    this->main->memoryDock->raise();
+    this->main->raiseMemoryDock();
 }
 
 void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
@@ -119,7 +134,7 @@ void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
 
     if (ui->tabWidget->currentIndex() == 0)
     {
-        this->functionsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+        ui->functionsTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
         menu->exec(ui->functionsTreeWidget->mapToGlobal(pt));
     }
     else
@@ -132,7 +147,7 @@ void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
 
 void FunctionsWidget::refreshTree()
 {
-    this->functionsTreeWidget->clear();
+    ui->functionsTreeWidget->clear();
     ui->nestedFunctionsTree->clear();
     for (auto i : this->main->core->getList("anal", "functions"))
     {
@@ -143,7 +158,7 @@ void FunctionsWidget::refreshTree()
         if (a.length() == 5)
         {
             // Add list function
-            this->main->appendRow(this->functionsTreeWidget, a[0], a[1], a[4]);
+            qhelpers::appendRow(ui->functionsTreeWidget, a[0], a[1], a[4]);
             // Add nested function
             QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedFunctionsTree);
             item->setText(0, a[4]);
@@ -158,7 +173,7 @@ void FunctionsWidget::refreshTree()
         else if (a.length() == 6)
         {
             // Add list function
-            this->main->appendRow(this->functionsTreeWidget, a[0], a[1], a[5]);
+            qhelpers::appendRow(ui->functionsTreeWidget, a[0], a[1], a[5]);
             // Add nested function
             QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedFunctionsTree);
             item->setText(0, a[5]);
@@ -175,9 +190,9 @@ void FunctionsWidget::refreshTree()
             qDebug() << "fillFunctions()" << a;
         }
     }
-    this->functionsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
+    ui->functionsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
     ui->nestedFunctionsTree->sortByColumn(0, Qt::AscendingOrder);
-    this->main->adjustColumns(this->functionsTreeWidget);
+    qhelpers::adjustColumns(ui->functionsTreeWidget);
 
     this->addTooltips();
 }
@@ -218,7 +233,7 @@ void FunctionsWidget::addTooltips()
 {
 
     // Add comments to list functions
-    QList<QTreeWidgetItem *> clist = this->functionsTreeWidget->findItems("*", Qt::MatchWildcard, 3);
+    QList<QTreeWidgetItem *> clist = ui->functionsTreeWidget->findItems("*", Qt::MatchWildcard, 3);
     foreach (QTreeWidgetItem *item, clist)
     {
         QString name = item->text(3);
@@ -389,7 +404,7 @@ void FunctionsWidget::on_nestedFunctionsTree_itemDoubleClicked(QTreeWidgetItem *
     QString name = item->text(0);
     QString offset = item->child(0)->text(0).split(":")[1];
     this->main->seek(offset, name);
-    this->main->memoryDock->raise();
+    this->main->raiseMemoryDock();
 }
 
 void FunctionsWidget::resizeEvent(QResizeEvent *event)
@@ -408,4 +423,9 @@ void FunctionsWidget::resizeEvent(QResizeEvent *event)
         }
     }
     QDockWidget::resizeEvent(event);
+}
+
+void FunctionsWidget::setScrollMode()
+{
+    qhelpers::setVerticalScrollMode(ui->functionsTreeWidget);
 }

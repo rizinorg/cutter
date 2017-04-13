@@ -145,7 +145,7 @@ void Omnibar::on_gotoEntry_returnPressed()
             }
             else if (str.contains("Theme"))
             {
-                this->main->sideBar->themesButtonToggle();
+                this->main->toggleSideBarTheme();
             }
             else if (str.contains("Script"))
             {

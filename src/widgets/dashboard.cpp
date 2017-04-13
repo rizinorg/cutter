@@ -8,9 +8,11 @@
 #include <QStringList>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <QFile>
+
 
 Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
+    DockWidget(parent),
     ui(new Ui::Dashboard)
 {
     ui->setupUi(this);
@@ -24,6 +26,16 @@ Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
 Dashboard::~Dashboard()
 {
     delete ui;
+}
+
+void Dashboard::setup()
+{
+    updateContents();
+}
+
+void Dashboard::refresh()
+{
+    updateContents();
 }
 
 void Dashboard::updateContents()
@@ -186,3 +198,4 @@ void Dashboard::updateContents()
     code2.replace("WOEM", data);
     ui->polarWebView->setHtml(code2);
 }
+

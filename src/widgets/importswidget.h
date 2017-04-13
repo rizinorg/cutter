@@ -1,18 +1,18 @@
 #ifndef IMPORTSWIDGET_H
 #define IMPORTSWIDGET_H
 
+#include "dockwidget.h"
 #include <QStyledItemDelegate>
-#include <QDockWidget>
-#include <QTreeWidget>
 
 class MainWindow;
+class QTreeWidget;
 
 namespace Ui
 {
     class ImportsWidget;
 }
 
-class ImportsWidget : public QDockWidget
+class ImportsWidget : public DockWidget
 {
     Q_OBJECT
 
@@ -20,14 +20,17 @@ public:
     explicit ImportsWidget(MainWindow *main, QWidget *parent = 0);
     ~ImportsWidget();
 
-    QTreeWidget    *importsTreeWidget;
-    void fillImports();
-    void highlightUnsafe();
+    void setup() override;
+
+    void refresh() override;
 
 private:
     Ui::ImportsWidget *ui;
-
     MainWindow      *main;
+
+    void fillImports();
+    void highlightUnsafe();
+    void setScrollMode();
     void adjustColumns(QTreeWidget *tw);
 };
 

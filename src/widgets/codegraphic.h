@@ -1,11 +1,10 @@
 #ifndef GRAPHICSBAR_H
 #define GRAPHICSBAR_H
 
-#include <QWidget>
 #include <QToolBar>
-#include <QGraphicsView>
 
 class MainWindow;
+class QGraphicsView;
 
 class GraphicsBar : public QToolBar
 {
@@ -13,7 +12,6 @@ class GraphicsBar : public QToolBar
 
 public:
     explicit GraphicsBar(MainWindow *main, QWidget *parent = 0);
-    QGraphicsView *codeGraphic;
 
 public slots:
     void paintEvent(QPaintEvent *event);
@@ -21,9 +19,7 @@ public slots:
 
 private:
     MainWindow      *main;
-
-public slots:
-
+    QGraphicsView   *codeGraphic;
 };
 
 #endif // GRAPHICSBAR_H

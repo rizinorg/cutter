@@ -3,13 +3,19 @@
 
 #include "mainwindow.h"
 
+#include "mdhighlighter.h"
+#include "highlighter.h"
+
+#include <QPlainTextEdit>
 #include <QFont>
 #include <QDebug>
 #include <QFontDialog>
 #include <QTextCursor>
+#include <QMenu>
+
 
 Notepad::Notepad(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
+    DockWidget(parent),
     ui(new Ui::Notepad)
 {
     ui->setupUi(this);
@@ -36,14 +42,38 @@ Notepad::Notepad(MainWindow *main, QWidget *parent) :
             this, SLOT(showNotepadContextMenu(const QPoint &)));
 }
 
-void Notepad::setText(QString str)
+Notepad::~Notepad()
+{
+    delete ui;
+}
+
+void Notepad::setup()
+{
+    main->add_output(" > Adding binary information to notepad");
+
+    setText("# Binary information\n\n" + main->core->cmd("i") +
+            "\n" + main->core->cmd("ie") + "\n" + main->core->cmd("iM") + "\n");
+}
+
+void Notepad::refresh()
+{
+    // TODO: implement
+    eprintf("%s - not implemented\n", __PRETTY_FUNCTION__);
+}
+
+void Notepad::setText(const QString &str)
 {
     ui->notepadTextEdit->setPlainText(str);
 }
 
-Notepad::~Notepad()
+QString Notepad::textToBase64() const
 {
-    delete ui;
+    return notesTextEdit->toPlainText().toUtf8().toBase64();
+}
+
+void Notepad::appendPlainText(const QString &text)
+{
+    notesTextEdit->appendPlainText(text);
 }
 
 void Notepad::on_fontButton_clicked()

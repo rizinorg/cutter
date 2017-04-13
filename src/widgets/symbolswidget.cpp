@@ -2,14 +2,19 @@
 #include "ui_symbolswidget.h"
 
 #include "mainwindow.h"
+#include "helpers.h"
+
+#include <QTreeWidget>
+
 
 SymbolsWidget::SymbolsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::SymbolsWidget)
+    DockWidget(parent),
+    ui(new Ui::SymbolsWidget),
+    main(main)
 {
     ui->setupUi(this);
-    this->main = main;
-    this->symbolsTreeWidget = ui->symbolsTreeWidget;
+
+    ui->symbolsTreeWidget->hideColumn(0);
 }
 
 SymbolsWidget::~SymbolsWidget()
@@ -17,16 +22,16 @@ SymbolsWidget::~SymbolsWidget()
     delete ui;
 }
 
-void SymbolsWidget::fillSymbols()
+void SymbolsWidget::setup()
 {
-    this->symbolsTreeWidget->clear();
-    for (auto i : this->main->core->getList("bin", "symbols"))
-    {
-        QStringList pieces = i.split(",");
-        if (pieces.length() == 3)
-            this->main->appendRow(this->symbolsTreeWidget, pieces[0], pieces[1], pieces[2]);
-    }
-    this->main->adjustColumns(this->symbolsTreeWidget);
+    setScrollMode();
+
+    fillSymbols();
+}
+
+void SymbolsWidget::refresh()
+{
+    setup();
 }
 
 void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -40,4 +45,21 @@ void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
     //qDebug() << "Item Text: " << name;
     this->main->seek(offset, name);
     //ui->memDock->setWindowTitle(name);
+}
+
+void SymbolsWidget::fillSymbols()
+{
+    ui->symbolsTreeWidget->clear();
+    for (auto i : this->main->core->getList("bin", "symbols"))
+    {
+        QStringList pieces = i.split(",");
+        if (pieces.length() == 3)
+            qhelpers::appendRow(ui->symbolsTreeWidget, pieces[0], pieces[1], pieces[2]);
+    }
+    qhelpers::adjustColumns(ui->symbolsTreeWidget);
+}
+
+void SymbolsWidget::setScrollMode()
+{
+    qhelpers::setVerticalScrollMode(ui->symbolsTreeWidget);
 }
