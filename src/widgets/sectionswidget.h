@@ -33,7 +33,6 @@ private:
 
     void fillSections(int row, const QString &str, const QString &str2 = QString(),
                       const QString &str3 = QString(), const QString &str4 = QString());
-    void adjustColumns();
 };
 
 #endif // SECTIONSWIDGET_H

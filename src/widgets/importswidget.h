@@ -31,7 +31,6 @@ private:
     void fillImports();
     void highlightUnsafe();
     void setScrollMode();
-    void adjustColumns(QTreeWidget *tw);
 };
 
 class CMyDelegate : public QStyledItemDelegate

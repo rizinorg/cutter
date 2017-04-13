@@ -76,7 +76,7 @@ void ImportsWidget::fillImports()
             qhelpers::appendRow(ui->importsTreeWidget, a[1], a[3], "", a[4]);
     }
     highlightUnsafe();
-    qhelpers::adjustColumns(ui->importsTreeWidget);
+    qhelpers::adjustColumns(ui->importsTreeWidget, 0, 10);
 }
 
 void ImportsWidget::highlightUnsafe()
@@ -109,16 +109,4 @@ void ImportsWidget::highlightUnsafe()
 void ImportsWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->importsTreeWidget);
-}
-
-void ImportsWidget::adjustColumns(QTreeWidget *tw)
-{
-    // WARNING: was this ever called.. compare to master
-    int count = tw->columnCount();
-    for (int i = 0; i != count; ++i)
-    {
-        ui->importsTreeWidget->resizeColumnToContents(i);
-        int width = ui->importsTreeWidget->columnWidth(i);
-        ui->importsTreeWidget->setColumnWidth(i, width + 10);
-    }
 }

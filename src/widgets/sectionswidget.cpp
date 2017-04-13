@@ -105,12 +105,3 @@ void SectionsWidget::fillSections(int row, const QString &str, const QString &st
     tempItem->setData(0, Qt::DecorationRole, colors[row % colors.size()]);
     this->tree->insertTopLevelItem(0, tempItem);
 }
-
-void SectionsWidget::adjustColumns()
-{
-    int count = 4;
-    for (int i = 0; i != count; ++i)
-    {
-        this->tree->resizeColumnToContents(i);
-    }
-}

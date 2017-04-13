@@ -44,12 +44,17 @@ namespace qhelpers
         return QFileInfo(filename).fileName() + "_" + fullHash.toHex().left(10);
     }
 
-    void adjustColumns(QTreeWidget *tw)
+    void adjustColumns(QTreeWidget *tw, int columnCount, int padding)
     {
-        int count = tw->columnCount();
+        const int count = columnCount == 0 ? tw->columnCount() : columnCount;
         for (int i = 0; i != count; ++i)
         {
             tw->resizeColumnToContents(i);
+            if (padding > 0)
+            {
+                int width = tw->columnWidth(i);
+                tw->setColumnWidth(i, width + padding);
+            }
         }
     }
 
