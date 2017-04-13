@@ -85,9 +85,6 @@ QDockWidget {
   <property name="dockNestingEnabled">
    <bool>true</bool>
   </property>
-  <property name="unifiedTitleAndToolBarOnMac">
-   <bool>true</bool>
-  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_10">
     <property name="leftMargin">
