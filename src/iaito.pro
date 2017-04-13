@@ -126,6 +126,9 @@ FORMS    += \
 RESOURCES += \
     resources.qrc
 
+DISTFILES += iaito.astylerc
+
+
 include(lib_radare2.pri)
 
 
