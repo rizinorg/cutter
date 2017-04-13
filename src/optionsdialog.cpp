@@ -1,8 +1,12 @@
 #include "optionsdialog.h"
-#include "mainwindow.h"
 #include "ui_optionsdialog.h"
+#include "mainwindow.h"
 #include "newfiledialog.h"
 #include "helpers.h"
+
+// TODO: remove us
+#include "widgets/memorywidget.h"
+#include "widgets/notepad.h"
 
 #include <QSettings>
 
@@ -235,7 +239,7 @@ void OptionsDialog::anal_finished()
     {
         QByteArray ba;
         ba.append(notes);
-        this->w->notepadDock->notesTextEdit->setPlainText(QByteArray::fromBase64(ba));
+        this->w->notepadDock->setText(QByteArray::fromBase64(ba));
     }
 
     //Get binary beginning/end addresses
