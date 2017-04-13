@@ -79,7 +79,7 @@ public:
     QString assemble(const QString &code);
     QString disassemble(const QString &hex);
     void setDefaultCPU();
-    void setCPU(QString arch, QString cpu, int bits, bool temporary);
+    void setCPU(QString arch, QString cpu, int bits, bool temporary = false);
     RAnalFunction *functionAt(ut64 addr);
     QString cmdFunctionAt(QString addr);
     /* sdb */

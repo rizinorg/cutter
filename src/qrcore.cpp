@@ -702,7 +702,7 @@ void QRCore::setOptions(QString key)
     // anal plugin
 }
 
-void QRCore::setCPU(QString arch, QString cpu, int bits, bool temporary = false)
+void QRCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
 {
     config("asm.arch", arch);
     config("asm.cpu", cpu);
