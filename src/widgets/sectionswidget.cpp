@@ -95,7 +95,8 @@ void SectionsWidget::fillSections(int row, const QString &str, const QString &st
                                           QColor("#E74C3C"),    //ALIZARIN
                                           QColor("#ECF0F1"),    //CLOUDS
                                           QColor("#BDC3C7"),    //SILVER
-                                          QColor("#95A5A6")};   //COBCRETE
+                                          QColor("#95A5A6")     //COBCRETE
+                                        };
 
     QTreeWidgetItem *tempItem = new QTreeWidgetItem();
     tempItem->setText(0, str);

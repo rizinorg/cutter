@@ -409,7 +409,7 @@ void FunctionsWidget::on_nestedFunctionsTree_itemDoubleClicked(QTreeWidgetItem *
 
 void FunctionsWidget::resizeEvent(QResizeEvent *event)
 {
-    if(main->responsive && isVisible())
+    if (main->responsive && isVisible())
     {
         if (event->size().width() >= event->size().height())
         {

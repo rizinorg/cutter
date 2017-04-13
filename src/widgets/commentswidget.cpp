@@ -106,7 +106,7 @@ void CommentsWidget::on_actionVertical_triggered()
 
 void CommentsWidget::resizeEvent(QResizeEvent *event)
 {
-    if(main->responsive && isVisible())
+    if (main->responsive && isVisible())
     {
         if (event->size().width() >= event->size().height())
         {

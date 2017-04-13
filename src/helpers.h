@@ -20,7 +20,7 @@ namespace qhelpers
     void appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
                    const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
 
-    void setVerticalScrollMode(QTreeWidget* tw);
+    void setVerticalScrollMode(QTreeWidget *tw);
 }
 
 #endif // HELPERS_H

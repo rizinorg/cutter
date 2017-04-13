@@ -271,7 +271,7 @@ void OptionsDialog::on_cancelButton_clicked()
 QString OptionsDialog::analysisDescription(int level)
 {
     //TODO: replace this with meaningful descriptions
-    switch(level)
+    switch (level)
     {
     case 0:
         return tr("-");
@@ -319,7 +319,7 @@ void OptionsDialog::on_AdvOptButton_clicked()
 
 void OptionsDialog::on_analCheckBox_clicked(bool checked)
 {
-    if(!checked)
+    if (!checked)
         defaultAnalLevel = ui->analSlider->value();
     ui->analSlider->setValue(checked ? defaultAnalLevel : 0);
 }

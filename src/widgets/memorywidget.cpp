@@ -533,9 +533,12 @@ void MemoryWidget::refreshDisasm(const QString &offset)
             if (ele.contains("0x"))
             {
                 QString fcn = this->main->core->cmdFunctionAt(ele);
-                if (fcn != "") {
+                if (fcn != "")
+                {
                     this->main->core->cmd("s " + fcn);
-                } else {
+                }
+                else
+                {
                     this->main->core->cmd("s " + ele);
                 }
             }
@@ -1753,7 +1756,7 @@ void MemoryWidget::on_previewToolButton_2_clicked()
 
 void MemoryWidget::resizeEvent(QResizeEvent *event)
 {
-    if(main->responsive && isVisible())
+    if (main->responsive && isVisible())
     {
         if (event->size().width() <= 1150)
         {
@@ -1834,7 +1837,8 @@ void MemoryWidget::on_actionXRefs_triggered()
     {
         // Get function for clicked offset
         RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
-        if (!fcn) {
+        if (!fcn)
+        {
             return;
         }
         XrefsDialog *x = new XrefsDialog(this->main, this);
@@ -1980,27 +1984,36 @@ void MemoryWidget::on_memTabWidget_currentChanged(int /*index*/)
     this->updateViews();
 }
 
-void MemoryWidget::updateViews() {
+void MemoryWidget::updateViews()
+{
     // Update only the selected view to improve performance
 
     int index = ui->memTabWidget->tabBar()->currentIndex();
-    if (index == 0) {
+    if (index == 0)
+    {
         // Disasm
-        if (this->last_disasm_fcn != this->main->current_address) {
+        if (this->last_disasm_fcn != this->main->current_address)
+        {
             //this->main->add_debug_output("Doing disasm");
             this->refreshDisasm(this->main->current_address);
             this->last_disasm_fcn = this->main->current_address;
         }
-    } else if (index == 1) {
+    }
+    else if (index == 1)
+    {
         // Hex
-        if (this->last_hexdump_fcn != this->main->current_address) {
+        if (this->last_hexdump_fcn != this->main->current_address)
+        {
             //this->main->add_debug_output("Doing hex");
             this->refreshHexdump(this->main->current_address);
             this->last_hexdump_fcn = this->main->current_address;
         }
-    } else if (index == 2) {
+    }
+    else if (index == 2)
+    {
         // Graph
-        if (this->last_graph_fcn != this->main->current_address) {
+        if (this->last_graph_fcn != this->main->current_address)
+        {
             //this->main->add_debug_output("Doing graph");
             this->create_graph(this->main->current_address);
             this->last_graph_fcn = this->main->current_address;

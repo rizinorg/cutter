@@ -66,7 +66,7 @@ void SectionsDock::showSectionsContextMenu(const QPoint &pt)
 
 void SectionsDock::resizeEvent(QResizeEvent *event)
 {
-    if(main->responsive && isVisible())
+    if (main->responsive && isVisible())
     {
         if (event->size().width() >= event->size().height())
         {

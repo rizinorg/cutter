@@ -723,7 +723,8 @@ void MainWindow::seek(const QString &offset, const QString &name)
 {
     if (offset.length() == 0)
         return;
-    if (name != NULL) {
+    if (name != NULL)
+    {
         this->memoryDock->setWindowTitle(name);
         this->current_address = name;
     }
@@ -846,15 +847,16 @@ void MainWindow::hideAllDocks()
 
 void MainWindow::showDefaultDocks()
 {
-    const QList<DockWidget*> defaultDocks = { sectionsDock,
-                                              functionsDock,
-                                              memoryDock,
-                                              commentsDock,
-                                              stringsDock,
-                                              importsDock,
-                                              symbolsDock,
-                                              notepadDock,
-                                              dashboardDock};
+    const QList<DockWidget *> defaultDocks = { sectionsDock,
+                                               functionsDock,
+                                               memoryDock,
+                                               commentsDock,
+                                               stringsDock,
+                                               importsDock,
+                                               symbolsDock,
+                                               notepadDock,
+                                               dashboardDock
+                                             };
 
     for (auto w : dockWidgets)
     {
@@ -909,7 +911,7 @@ void MainWindow::add_debug_output(QString msg)
 
 void MainWindow::on_actionNew_triggered()
 {
-    if(close())
+    if (close())
         on_actionLoad_triggered();
 }
 
@@ -931,7 +933,7 @@ void MainWindow::on_actionRun_Script_triggered()
 
     QString fileName;
     fileName = dialog.getOpenFileName(this, "Select radare2 script");
-    if(!fileName.length()) //cancel was pressed
+    if (!fileName.length()) //cancel was pressed
         return;
 
     qDebug() << "Meow: " + fileName;
@@ -1035,7 +1037,8 @@ void MainWindow::refreshVisibleDockWidgets()
 {
     // There seems to be no convenience function to check if a QDockWidget
     // is really visible or hidden in a tabbed dock. So:
-    auto isDockVisible = [](const QDockWidget * const pWidget) {
+    auto isDockVisible = [](const QDockWidget * const pWidget)
+    {
         return pWidget != nullptr && !pWidget->visibleRegion().isEmpty();
     };
 

@@ -469,18 +469,18 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
         {
             QJsonArray importsArray = cmdj("iij").array();
 
-            foreach(QJsonValue value, importsArray)
+            foreach (QJsonValue value, importsArray)
             {
                 QJsonObject importObject = value.toObject();
                 unsigned long plt = (unsigned long)importObject["plt"].toVariant().toULongLong();
                 int ordinal = importObject["ordinal"].toInt();
 
                 QString final = QString("%1,%2,%3,%4,%5,").arg(
-                            QString::asprintf("%#o", ordinal),
-                            QString::asprintf("%#010lx", plt),
-                            importObject["bind"].toString(),
-                            importObject["type"].toString(),
-                            importObject["name"].toString());
+                                    QString::asprintf("%#o", ordinal),
+                                    QString::asprintf("%#010lx", plt),
+                                    importObject["bind"].toString(),
+                                    importObject["type"].toString(),
+                                    importObject["name"].toString());
 
 
                 ret << final;
