@@ -19,8 +19,7 @@ class OptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    QRCore *core;
-    explicit OptionsDialog(QString filename, QWidget *parent = 0);
+    explicit OptionsDialog(const QString &filename, QWidget *parent = 0);
     ~OptionsDialog();
     RAnalFunction functionAt(ut64 addr);
     QStringList    asm_plugins;
@@ -41,15 +40,13 @@ private slots:
     void on_analCheckBox_clicked(bool checked);
 
 private:
-    int defaultAnalLevel = 3;
-    QString filename;
-    QString shortfn;
     Ui::OptionsDialog *ui;
+    QRCore *core;
     AnalThread analThread;
     MainWindow *w;
+    QString filename;
+    int defaultAnalLevel;
 
-    void setFilename(QString fn, QString shortfn);
-    void setFilename(QString fn);
     QString analysisDescription(int level);
 };
 

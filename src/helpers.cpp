@@ -2,6 +2,8 @@
 
 #include <QPlainTextEdit>
 #include <QTextEdit>
+#include <QFileInfo>
+#include <QCryptographicHash>
 
 namespace qhelpers
 {
@@ -24,6 +26,12 @@ namespace qhelpers
         QTextDocument *out_doc = edit->document();
         out_doc->setDefaultFont(anonFont);
 #endif
+    }
+
+    QString uniqueProjectName(const QString &filename)
+    {
+        const QByteArray fullHash(QCryptographicHash::hash(filename.toUtf8(), QCryptographicHash::Sha1));
+        return QFileInfo(filename).fileName() + "_" + fullHash.toHex().left(10);
     }
 
 } // end namespace

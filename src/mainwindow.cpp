@@ -4,6 +4,7 @@
 #include "dialogs/commentsdialog.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/renamedialog.h"
+#include "helpers.h"
 
 #include <qfont.h>
 #include <qsettings.h>
@@ -337,7 +338,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         settings.setValue("size", size());
         settings.setValue("pos", pos());
         settings.setValue("state", saveState());
-        core->cmd("Ps " + QFileInfo(this->filename).fileName());
+        core->cmd("Ps " + qhelpers::uniqueProjectName(filename));
         QString notes = this->notepadDock->notesTextEdit->toPlainText().toUtf8().toBase64();
         //this->add_debug_output(notes);
         this->core->cmd("Pnj " + notes);
@@ -1076,7 +1077,7 @@ void MainWindow::on_actionNew_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    core->cmd("Ps " + QFileInfo(this->filename).fileName());
+    core->cmd("Ps " + qhelpers::uniqueProjectName(filename));
     QString notes = this->notepadDock->notesTextEdit->toPlainText().toUtf8().toBase64();
     //this->add_debug_output(notes);
     this->core->cmd("Pnj " + notes);

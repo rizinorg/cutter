@@ -2,17 +2,20 @@
 #include "mainwindow.h"
 #include "ui_optionsdialog.h"
 #include "newfiledialog.h"
+#include "helpers.h"
 
 #include <QSettings>
-#include <QFileInfo>
 
-OptionsDialog::OptionsDialog(QString filename, QWidget *parent):
+
+OptionsDialog::OptionsDialog(const QString &filename, QWidget *parent):
     QDialog(parent),
     ui(new Ui::OptionsDialog),
-    analThread(this)
+    core(new QRCore()),
+    analThread(this),
+    w(nullptr),
+    filename(filename),
+    defaultAnalLevel(3)
 {
-    this->core = new QRCore();
-
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->progressBar->setVisible(0);
@@ -45,26 +48,13 @@ OptionsDialog::OptionsDialog(QString filename, QWidget *parent):
 
     connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
 
-    setFilename(filename);
+    ui->programLineEdit->setText(filename);
+    this->core->tryFile(filename, true);
 }
 
 OptionsDialog::~OptionsDialog()
 {
     delete ui;
-}
-
-void OptionsDialog::setFilename(QString fn, QString shortfn)
-{
-    this->filename = fn;
-    this->shortfn = shortfn;
-    //qDebug() << QFileInfo(fn).fileName();
-    ui->programLineEdit->setText(fn);
-    this->core->tryFile(fn, 1);
-}
-
-void OptionsDialog::setFilename(QString fn)
-{
-    setFilename(fn, QFileInfo(fn).fileName());
 }
 
 void OptionsDialog::on_closeButton_clicked()
@@ -215,7 +205,10 @@ void OptionsDialog::anal_finished()
 
     //fprintf(stderr, "anal done");
     //ui->progressBar->setValue(70);
-    this->w->core->cmd("Po " + this->shortfn);
+
+    const QString uniqueName(qhelpers::uniqueProjectName(filename));
+
+    this->w->core->cmd("Po " + uniqueName);
     // Set settings to override any incorrect saved in the project
     this->core->setSettings();
     ui->statusLabel->setText("Loading interface");
