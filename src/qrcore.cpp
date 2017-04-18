@@ -1,6 +1,9 @@
 #include "qrcore.h"
 #include "sdb.h"
 
+#include <QJsonArray>
+#include <QJsonObject>
+
 #define DB this->db
 
 RCoreLocked::RCoreLocked(RCore *core)
@@ -213,6 +216,16 @@ QString QRCore::cmd(const QString &str)
     //r_mem_free was added in https://github.com/radare/radare2/commit/cd28744049492dc8ac25a1f2b3ba0e42f0e9ce93
     r_mem_free(res);
     return o;
+}
+
+QJsonDocument QRCore::cmdj(const QString &str)
+{
+    CORE_LOCK();
+    QByteArray cmd = str.toUtf8();
+    char *res = r_core_cmd_str(this->core_, cmd.constData());
+    QJsonDocument doc = res ? QJsonDocument::fromJson(QByteArray(res)) : QJsonDocument();
+    r_mem_free(res);
+    return doc;
 }
 
 bool QRCore::loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int bits = 0, int idx, bool loadbin)
@@ -453,21 +466,23 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
         }
         else if (subtype == "imports")
         {
+            QJsonArray importsArray = cmdj("iij").array();
 
-            QStringList lines = this->cmd("ii").split("\n");
-            foreach (QString line, lines)
+            foreach(QJsonValue value, importsArray)
             {
-                QStringList tmp = line.split(" ");
-                if (tmp.length() > 2)
-                {
-                    QString final;
-                    foreach (QString field, tmp)
-                    {
-                        QString value = field.split("=")[1];
-                        final.append(value + ",");
-                    }
-                    ret << final;
-                }
+                QJsonObject importObject = value.toObject();
+                unsigned long plt = (unsigned long)importObject["plt"].toVariant().toULongLong();
+                int ordinal = importObject["ordinal"].toInt();
+
+                QString final = QString("%1,%2,%3,%4,%5,").arg(
+                            QString::asprintf("%#o", ordinal),
+                            QString::asprintf("%#010lx", plt),
+                            importObject["bind"].toString(),
+                            importObject["type"].toString(),
+                            importObject["name"].toString());
+
+
+                ret << final;
             }
         }
         else if (subtype == "entrypoints")

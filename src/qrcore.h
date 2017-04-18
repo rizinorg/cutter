@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QStringList>
 #include <QMessageBox>
+#include <QJsonDocument>
 
 //Workaround for compile errors on Windows
 #ifdef _WIN32
@@ -58,6 +59,7 @@ public:
     int fcnBasicBlockCount(ut64 addr);
     int fcnEndBbs(QString addr);
     QString cmd(const QString &str);
+    QJsonDocument cmdj(const QString &str);
     void renameFunction(QString prev_name, QString new_name);
     void setComment(QString addr, QString cmt);
     void delComment(ut64 addr);
