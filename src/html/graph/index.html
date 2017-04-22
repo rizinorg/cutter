@@ -20,8 +20,7 @@
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/jquery-1.9.0.js"></script>
         <script type="text/javascript" src="qrc:/graph/html/graph/lib/js/graph_panel.js"></script>
         <script type="text/javascript">
-            $(document).ready( function() {
-
+            function init() {
                 // Load r2 settings (TODO: Do we need this?)
                 r2.load_settings();
 
@@ -31,7 +30,7 @@
                 r2ui.graph_panel.init_handlers();
                 //r2ui.graph_panel.init_context_menu();
                 r2ui.graph_panel.render("light");
-            });
+            }
         </script>
 </head>
 <body style="margin: 0px">

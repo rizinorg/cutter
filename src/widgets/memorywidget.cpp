@@ -1510,12 +1510,6 @@ void MemoryWidget::fillOffsetInfo(QString off)
 
 void MemoryWidget::create_graph(QString off)
 {
-    // No Cache enabled in 5.7
-    // ui->graphWebView->page()->profile()->setHttpCacheType(QWebEngineProfile::NoCache);
-    // force reload by first loading a blank page
-    // this is a workaround since it shows a white glitch
-    ui->graphWebView->setUrl(QUrl("about:blank"));
- 
     ui->graphWebView->setZoomFactor(0.85);
     this->main->add_debug_output("Graph Offset: '" + off + "'");
     if (off == "")
@@ -1527,6 +1521,7 @@ void MemoryWidget::create_graph(QString off)
     ui->graphWebView->setUrl(QUrl("qrc:/graph/html/graph/index.html#" + off));
     QString port = this->main->core->config("http.port");
     ui->graphWebView->page()->runJavaScript(QString("r2.root=\"http://localhost:%1\"").arg(port));
+    ui->graphWebView->page()->runJavaScript(QString("init();"));
 }
 
 QString MemoryWidget::normalize_addr(QString addr)
