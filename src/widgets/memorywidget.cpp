@@ -16,6 +16,7 @@
 #include <QFont>
 #include <QUrl>
 #include <QWebEngineSettings>
+#include <QWebEngineProfile>
 
 MemoryWidget::MemoryWidget(MainWindow *main) :
     QDockWidget(main),
@@ -1509,18 +1510,22 @@ void MemoryWidget::fillOffsetInfo(QString off)
 
 void MemoryWidget::create_graph(QString off)
 {
+    // No Cache enabled in 5.7
+    // ui->graphWebView->page()->profile()->setHttpCacheType(QWebEngineProfile::NoCache);
+    // force reload by first loading a blank page
+    // this is a workaround since it shows a white glitch
+    ui->graphWebView->setUrl(QUrl("about:blank"));
+ 
     ui->graphWebView->setZoomFactor(0.85);
-    //this->main->add_debug_output("Graph Offset: '" + off + "'");
+    this->main->add_debug_output("Graph Offset: '" + off + "'");
     if (off == "")
     {
         off = "0x0" + this->main->core->cmd("s").split("0x")[1].trimmed();
     }
-    QString fcn = this->main->core->cmdFunctionAt(off);
-
+    //QString fcn = this->main->core->cmdFunctionAt(off);
     //this->main->add_debug_output("Graph Fcn: " + fcn);
     ui->graphWebView->setUrl(QUrl("qrc:/graph/html/graph/index.html#" + off));
     QString port = this->main->core->config("http.port");
-
     ui->graphWebView->page()->runJavaScript(QString("r2.root=\"http://localhost:%1\"").arg(port));
 }
 
@@ -1875,11 +1880,14 @@ void MemoryWidget::switchTheme(bool dark)
     if (dark)
     {
         ui->webSimpleGraph->page()->setBackgroundColor(QColor(64, 64, 64));
+        ui->graphWebView->page()->runJavaScript("r2ui.graph_panel.render('dark');");
     }
     else
     {
         ui->webSimpleGraph->page()->setBackgroundColor(QColor(255, 255, 255));
+        ui->graphWebView->page()->runJavaScript("r2ui.graph_panel.render('light');");
     }
+    //ui->graphWebView->reload();
 }
 
 void MemoryWidget::on_opcodeDescButton_clicked()

@@ -199,29 +199,29 @@ BBGraph.prototype.render = function() {
     }
   });
 
-  if (r2ui.graph_panel.minimap) {
-    update_minimap();
-    $("#minimap_area").draggable({
-      containment: "parent",
-      stop: function( event, ui ) {
-        var delta_x = ui.position.left/scale;
-        var delta_y = ui.position.top/scale;
-        if (delta_x < 0) delta_x = 0;
-        if (delta_y < 0) delta_y = 0;
-        if ($("#radareApp_mp").length) {
-          //$("#main_panel").scrollTo({ top:delta_y, left:delta_x - delta/scale } );
-          console.log(1);
-        } else {
-          //$('#center_panel').scrollTo({ top:delta_y, left:delta_x - delta/scale } );
-          console.log('debug:');
-          console.log(delta_y, delta_x, scale);
-          console.log($('#center_panel'));
-        }
-      }
-    });
-  } else {
-    $("#minimap").hide();
-  }
+  // if (r2ui.graph_panel.minimap) {
+  //   update_minimap();
+  //   $("#minimap_area").draggable({
+  //     containment: "parent",
+  //     stop: function( event, ui ) {
+  //       var delta_x = ui.position.left/scale;
+  //       var delta_y = ui.position.top/scale;
+  //       if (delta_x < 0) delta_x = 0;
+  //       if (delta_y < 0) delta_y = 0;
+  //       if ($("#radareApp_mp").length) {
+  //         //$("#main_panel").scrollTo({ top:delta_y, left:delta_x - delta/scale } );
+  //         console.log(1);
+  //       } else {
+  //         //$('#center_panel').scrollTo({ top:delta_y, left:delta_x - delta/scale } );
+  //         console.log('debug:');
+  //         console.log(delta_y, delta_x, scale);
+  //         console.log($('#center_panel'));
+  //       }
+  //     }
+  //   });
+  // } else {
+  //   $("#minimap").hide();
+  // }
   
 };
 
@@ -585,7 +585,7 @@ function html_for_instruction(ins) {
         if (info !== null && info !== undefined && info.length > 0)
         idump += '<div class="ec_fname">(fcn) ' + info[0].name + '</div>';
     } catch (err) {
-        console.log("Error getting instruction information from afij command");
+        console.log("Error getting instruction information from afij command: " + err);
     }
 
     // Get function variables
