@@ -1538,7 +1538,7 @@ QString MemoryWidget::normalize_addr(QString addr)
     }
     else
     {
-        return addr;
+        return addr.trimmed();
     }
 }
 
