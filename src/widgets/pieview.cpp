@@ -65,6 +65,14 @@ PieView::PieView(QWidget *parent)
     rubberBand = 0;
 }
 
+void PieView::reset()
+{
+    validItems = 0;
+    totalValue = 0.0;
+
+    QAbstractItemView::reset();
+}
+
 void PieView::dataChanged(const QModelIndex &topLeft,
                           const QModelIndex &bottomRight,
                           const QVector<int> &)

@@ -55,11 +55,14 @@ public:
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible);
     QModelIndex indexAt(const QPoint &point) const;
 
+public slots:
+    void reset() override;
+
 protected slots:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight,
-                     const QVector<int> &roles = QVector<int>());
-    void rowsInserted(const QModelIndex &parent, int start, int end);
-    void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+                     const QVector<int> &roles = QVector<int>()) override;
+    void rowsInserted(const QModelIndex &parent, int start, int end) override;
+    void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end) override;
 
 protected:
     bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
