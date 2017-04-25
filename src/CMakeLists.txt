@@ -26,16 +26,25 @@ if(WIN32)
     endif()
 
     set(RADARE2_INCLUDE_DIRS "${IAITO_WIN32_DIR}/radare2/include/libr" "${IAITO_WIN32_DIR}/include")
+
+    find_package(Radare2 REQUIRED)
+else()
+    # support sys/user.sh install
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/bin/prefix/radare2")
+
+    find_package(PkgConfig REQUIRED)
+    pkg_search_module(RADARE2 REQUIRED r_core)
+
+    link_directories(${RADARE2_LIBRARY_DIRS})
 endif()
+
+include_directories(${RADARE2_INCLUDE_DIRS})
+
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
         OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_definitions(-Wall)
 endif()
-
-
-find_package(Radare2 REQUIRED)
-include_directories(${RADARE2_INCLUDE_DIRS})
 
 
 # Parse iaito.pro to get filenames
@@ -61,3 +70,4 @@ add_definitions("-DAPP_VERSION=\"${IAITO_VERSION_FULL}\"")
 add_executable(iaito ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
 qt5_use_modules(iaito Core Widgets Gui WebEngine WebEngineWidgets)
 target_link_libraries(iaito ${RADARE2_LIBRARIES})
+
