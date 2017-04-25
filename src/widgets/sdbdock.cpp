@@ -101,13 +101,13 @@ SdbDock::~SdbDock()
 void SdbDock::setup()
 {
     // TODO: implement
-    eprintf("%s - not implemented\n", __PRETTY_FUNCTION__);
+    eprintf("%s - not implemented\n", Q_FUNC_INFO);
 }
 
 void SdbDock::refresh()
 {
     // TODO: implement
-    eprintf("%s - not implemented\n", __PRETTY_FUNCTION__);
+    eprintf("%s - not implemented\n", Q_FUNC_INFO);
 }
 
 void SdbDock::on_lockButton_clicked()

@@ -58,7 +58,7 @@ void Notepad::setup()
 void Notepad::refresh()
 {
     // TODO: implement
-    eprintf("%s - not implemented\n", __PRETTY_FUNCTION__);
+    eprintf("%s - not implemented\n", Q_FUNC_INFO);
 }
 
 void Notepad::setText(const QString &str)
