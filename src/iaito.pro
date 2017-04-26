@@ -61,7 +61,8 @@ SOURCES += \
     widgets/dashboard.cpp \
     dialogs/xrefsdialog.cpp \
     hexhighlighter.cpp \
-    widgets/sectionsdock.cpp
+    widgets/sectionsdock.cpp \
+    widgets/consolewidget.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -98,7 +99,8 @@ HEADERS  += \
     dialogs/xrefsdialog.h \
     hexhighlighter.h \
     widgets/sectionsdock.h \
-    widgets/dockwidget.h
+    widgets/dockwidget.h \
+    widgets/consolewidget.h
 
 FORMS    += \
     mainwindow.ui \
@@ -121,7 +123,8 @@ FORMS    += \
     widgets/sidebar.ui \
     widgets/dashboard.ui \
     dialogs/xrefsdialog.ui \
-    widgets/sectionsdock.ui
+    widgets/sectionsdock.ui \
+    widgets/consolewidget.ui
 
 RESOURCES += \
     resources.qrc
