@@ -1052,13 +1052,6 @@ void MemoryWidget::cycleViews()
         ui->memTabWidget->setCurrentIndex(2);
         ui->memSideTabWidget_2->setCurrentIndex(0);
     }
-    else if (ui->memTabWidget->currentIndex() == 2)
-    {
-        // Show disasm
-        ui->disButton_2->setChecked(true);
-        ui->memTabWidget->setCurrentIndex(0);
-        ui->memSideTabWidget_2->setCurrentIndex(0);
-    }
     else
     {
         // Show disasm

@@ -392,15 +392,7 @@ QMap<QString, QList<QList<QString>>> QRCore::getNestedComments()
             tmp << fields[1].split("\"")[1].trimmed();
             tmp << fields[0].trimmed();
             QString fcn_name = this->cmdFunctionAt(fields[0].trimmed());
-            // Why test if you do the same thing?
-            if (ret.contains(fcn_name))
-            {
-                ret[fcn_name].append(tmp);
-            }
-            else
-            {
-                ret[fcn_name].append(tmp);
-            }
+            ret[fcn_name].append(tmp);
         }
     }
     return ret;
