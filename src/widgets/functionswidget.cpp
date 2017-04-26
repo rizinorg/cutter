@@ -447,7 +447,7 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
     {
         // Get new function name
         QString comment = c->getComment();
-        this->main->add_debug_output("Comment: " + comment + " at: " + function.name);
+        this->main->addDebugOutput("Comment: " + comment + " at: " + function.name);
         // Rename function in r2 core
         this->main->core->setComment(function.offset, comment);
         // Seek to new renamed function

@@ -474,7 +474,7 @@ void MemoryWidget::disasmScrolled()
             tc.movePosition(QTextCursor::End);
             tc.select(QTextCursor::LineUnderCursor);
             QString lastline = tc.selectedText();
-            this->main->add_debug_output("Last line: " + lastline);
+            this->main->addDebugOutput("Last line: " + lastline);
         }
         // Code below will be used to append more disasm upwards, one day
     } /* else if (sb->value() < sb->minimum() + 10) {
@@ -739,7 +739,7 @@ void MemoryWidget::hexScrolled()
 
     if (sb->value() > sb->maximum() - 10)
     {
-        this->main->add_debug_output("End is coming");
+        this->main->addDebugOutput("End is coming");
 
         QTextCursor tc = this->hexOffsetText->textCursor();
         tc.movePosition(QTextCursor::End);
@@ -1230,7 +1230,7 @@ void MemoryWidget::on_actionSend_to_Notepad_triggered()
 {
     QTextCursor cursor = ui->disasTextEdit_2->textCursor();
     QString text = cursor.selectedText();
-    this->main->send_to_notepad(text);
+    this->main->sendToNotepad(text);
 }
 
 void MemoryWidget::on_actionDisasAdd_comment_triggered()
@@ -1548,7 +1548,7 @@ void MemoryWidget::fillOffsetInfo(QString off)
 void MemoryWidget::create_graph(QString off)
 {
     ui->graphWebView->setZoomFactor(0.85);
-    this->main->add_debug_output("Graph Offset: '" + off + "'");
+    this->main->addDebugOutput("Graph Offset: '" + off + "'");
     if (off == "")
     {
         off = "0x0" + this->main->core->cmd("s").split("0x")[1].trimmed();
@@ -1914,7 +1914,7 @@ void MemoryWidget::on_copyMD5_clicked()
     QString md5 = ui->bytesMD5->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(md5);
-    this->main->add_output("MD5 copied to clipboard: " + md5);
+    this->main->addOutput("MD5 copied to clipboard: " + md5);
 }
 
 void MemoryWidget::on_copySHA1_clicked()
@@ -1922,7 +1922,7 @@ void MemoryWidget::on_copySHA1_clicked()
     QString sha1 = ui->bytesSHA1->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(sha1);
-    this->main->add_output("SHA1 copied to clipboard: " + sha1);
+    this->main->addOutput("SHA1 copied to clipboard: " + sha1);
 }
 
 void MemoryWidget::switchTheme(bool dark)

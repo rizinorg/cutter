@@ -28,6 +28,7 @@ class QLineEdit;
 class SdbDock;
 class QAction;
 class SectionsDock;
+class ConsoleWidget;
 
 class QDockWidget;
 
@@ -62,9 +63,9 @@ public:
     void refreshFunctions();
     void refreshComments();
     void get_refs(const QString &offset);
-    void add_output(QString msg);
-    void add_debug_output(QString msg);
-    void send_to_notepad(const QString &txt);
+    void addOutput(const QString &msg);
+    void addDebugOutput(const QString &msg);
+    void sendToNotepad(const QString &txt);
     void setWebServerState(bool start);
     void raiseMemoryDock();
     void toggleSideBarTheme();
@@ -123,14 +124,6 @@ private slots:
 
     void on_actionAbout_triggered();
 
-    void on_consoleInputLineEdit_returnPressed();
-
-    void on_showHistoToolButton_clicked();
-
-    void showConsoleContextMenu(const QPoint &pt);
-
-    void on_actionClear_ConsoleOutput_triggered();
-
     void on_actionRefresh_Panels_triggered();
 
     void on_actionCalculator_triggered();
@@ -139,11 +132,7 @@ private slots:
 
     void on_actionAssembler_triggered();
 
-    void on_consoleExecButton_clicked();
-
     void on_actionStart_Web_Server_triggered();
-
-    void on_actionConsoleSync_with_core_triggered();
 
     void on_actionDisasAdd_comment_triggered();
 
@@ -210,6 +199,7 @@ private:
     SdbDock          *sdbDock;
     QAction          *sidebar_action;
     SectionsDock     *sectionsDock;
+    ConsoleWidget    *consoleWidget;
     WebServerThread webserverThread;
 
     RVA cursor_address;

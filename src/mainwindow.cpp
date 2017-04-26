@@ -37,6 +37,7 @@
 #include <QLineEdit>
 #include <QSettings>
 #include <QList>
+#include <QToolButton>
 
 #include "highlighter.h"
 #include "hexascii_highlighter.h"
@@ -59,6 +60,7 @@
 #include "widgets/sidebar.h"
 #include "widgets/sdbdock.h"
 #include "widgets/omnibar.h"
+#include "widgets/consolewidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -104,6 +106,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     sdbDock(nullptr),
     sidebar_action(nullptr),
     sectionsDock(nullptr),
+    consoleWidget(nullptr),
     webserverThread(core, this)
 {
     this->start_web_server();
@@ -121,17 +124,8 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     // Hide central tab widget tabs
     QTabBar *centralbar = ui->centralTabWidget->tabBar();
     centralbar->setVisible(false);
-    // Adjust console lineedit
-    ui->consoleInputLineEdit->setTextMargins(10, 0, 0, 0);
-    /*
-    ui->consoleOutputTextEdit->setFont(QFont("Monospace", 8));
-    ui->consoleOutputTextEdit->setStyleSheet("background-color:black;color:gray;");
-    ui->consoleInputLineEdit->setStyleSheet("background-color:black;color:gray;");
-    */
-
-    // Adjust text margins of consoleOutputTextEdit
-    QTextDocument *console_docu = ui->consoleOutputTextEdit->document();
-    console_docu->setDocumentMargin(10);
+    consoleWidget = new ConsoleWidget(core, this);
+    ui->tabVerticalLayout->addWidget(consoleWidget);
 
     // Sepparator between back/forward and undo/redo buttons
     QWidget *spacer4 = new QWidget();
@@ -175,9 +169,6 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     this->graphicsBar->setMovable(false);
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(graphicsBar);
-
-    // Fix output panel font
-    qhelpers::normalizeFont(ui->consoleOutputTextEdit);
 
     /*
      * Dock Widgets
@@ -247,11 +238,6 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
-    // Set console output context menu
-    ui->consoleOutputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->consoleOutputTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showConsoleContextMenu(const QPoint &)));
-
     // Setup and hide sidebar by default
     this->sideBar = new SideBar(this);
     this->sidebar_action = ui->sideToolBar->addWidget(this->sideBar);
@@ -266,7 +252,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
      */
     // Period goes to command entry
     QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    connect(cmd_shortcut, SIGNAL(activated()), ui->consoleInputLineEdit, SLOT(setFocus()));
+    connect(cmd_shortcut, SIGNAL(activated()), consoleWidget, SLOT(focusInputLineEdit()));
 
     // G and S goes to goto entry
     QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
@@ -343,20 +329,6 @@ void MainWindow::setFilename(const QString &fn)
     // Add file name to window title
     this->filename = fn;
     this->setWindowTitle("Iaito - " + fn);
-}
-
-void MainWindow::showConsoleContextMenu(const QPoint &pt)
-{
-    // Set console output popup menu
-    QMenu *menu = ui->consoleOutputTextEdit->createStandardContextMenu();
-    menu->clear();
-    menu->addAction(ui->actionClear_ConsoleOutput);
-    menu->addAction(ui->actionConsoleSync_with_core);
-    ui->actionConsoleSync_with_core->setChecked(true);
-    ui->consoleOutputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    menu->exec(ui->consoleOutputTextEdit->mapToGlobal(pt));
-    delete menu;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -673,49 +645,6 @@ void MainWindow::on_actionAbout_triggered()
     a->open();
 }
 
-void MainWindow::on_consoleInputLineEdit_returnPressed()
-{
-    if (this->core)
-    {
-        QString input = ui->consoleInputLineEdit->text();
-        ui->consoleOutputTextEdit->appendPlainText(this->core->cmd(input));
-        ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
-        // Add new command to history
-        QCompleter *completer = ui->consoleInputLineEdit->completer();
-        if (completer != NULL)
-        {
-            QStringListModel *completerModel = (QStringListModel *)(completer->model());
-            if (completerModel != NULL)
-                completerModel->setStringList(completerModel->stringList() << input);
-        }
-
-        ui->consoleInputLineEdit->setText("");
-    }
-}
-
-void MainWindow::on_showHistoToolButton_clicked()
-{
-    QCompleter *completer = ui->consoleInputLineEdit->completer();
-    if (completer == NULL)
-        return;
-
-    if (ui->showHistoToolButton->isChecked())
-    {
-        completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
-        // Uhm... shouldn't it be called always?
-        completer->complete();
-    }
-    else
-    {
-        completer->setCompletionMode(QCompleter::PopupCompletion);
-    }
-}
-
-void MainWindow::on_actionClear_ConsoleOutput_triggered()
-{
-    ui->consoleOutputTextEdit->setPlainText("");
-}
-
 void MainWindow::on_actionRefresh_Panels_triggered()
 {
     this->updateFrames();
@@ -740,7 +669,6 @@ void MainWindow::seek(const QString &offset, const QString &name, bool raise_mem
 
 void MainWindow::seek(const RVA offset, const QString &name, bool raise_memory_dock)
 {
-    if (name != NULL)
     {
         this->memoryDock->setWindowTitle(name);
         //this->current_address = name;
@@ -809,26 +737,9 @@ void MainWindow::on_actionAssembler_triggered()
     }
 }
 
-void MainWindow::on_consoleExecButton_clicked()
-{
-    on_consoleInputLineEdit_returnPressed();
-}
-
 void MainWindow::on_actionStart_Web_Server_triggered()
 {
     setWebServerState(ui->actionStart_Web_Server->isChecked());
-}
-
-void MainWindow::on_actionConsoleSync_with_core_triggered()
-{
-    if (ui->actionConsoleSync_with_core->isChecked())
-    {
-        //Enable core syncronization
-    }
-    else
-    {
-        // Disable core sync
-    }
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
@@ -905,7 +816,7 @@ void MainWindow::on_actionhide_bottomPannel_triggered()
     }
 }
 
-void MainWindow::send_to_notepad(const QString &txt)
+void MainWindow::sendToNotepad(const QString &txt)
 {
     this->notepadDock->appendPlainText("```\n" + txt + "\n```");
 }
@@ -923,17 +834,15 @@ void MainWindow::get_refs(const QString &offset)
     this->memoryDock->get_refs_data(offset);
 }
 
-void MainWindow::add_output(QString msg)
+void MainWindow::addOutput(const QString &msg)
 {
-    ui->consoleOutputTextEdit->appendPlainText(msg);
-    ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
+    consoleWidget->addOutput(msg);
 }
 
-void MainWindow::add_debug_output(QString msg)
+void MainWindow::addDebugOutput(const QString &msg)
 {
     printf("debug output: %s\n", msg.toLocal8Bit().constData());
-    ui->consoleOutputTextEdit->appendHtml("<font color=\"red\"> [DEBUG]:\t" + msg + "</font>");
-    ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
+    consoleWidget->addDebugOutput(msg);
 }
 
 void MainWindow::on_actionNew_triggered()
@@ -948,7 +857,7 @@ void MainWindow::on_actionSave_triggered()
     QString notes = this->notepadDock->textToBase64();
     //this->add_debug_output(notes);
     this->core->cmd("Pnj " + notes);
-    this->add_output("Project saved");
+    this->addOutput("Project saved");
 }
 
 void MainWindow::on_actionRun_Script_triggered()
@@ -1022,7 +931,7 @@ void MainWindow::on_actionForward_triggered()
 {
     this->core->cmd("s+");
     RVA offset = core->getOffset();
-    this->add_debug_output(QString::number(offset));
+    this->addDebugOutput(QString::number(offset));
     this->seek(offset);
 }
 

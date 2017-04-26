@@ -188,7 +188,7 @@ void OptionsDialog::setupAndStartAnalysis(int level)
     // options dialog should show the list of archs inside the given fatbin
     int binidx = 0; // index of subbin
 
-    this->w->add_output(" > Loading file: " + this->filename);
+    this->w->addOutput(" > Loading file: " + this->filename);
     this->w->core->loadFile(this->filename, loadaddr, mapaddr, rw, va, bits, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
     ui->statusLabel->setText("Analysis in progress");
@@ -223,7 +223,7 @@ void OptionsDialog::anal_finished()
     // Set settings to override any incorrect saved in the project
     this->core->setSettings();
     ui->statusLabel->setText("Loading interface");
-    this->w->add_output(" > Analysis finished");
+    this->w->addOutput(" > Analysis finished");
     QString initial_seek = ui->entry_initialSeek->text();
     if (initial_seek.length() > 0)
     {
@@ -233,7 +233,7 @@ void OptionsDialog::anal_finished()
     {
         this->w->core->seek("entry0");
     }
-    this->w->add_output(" > Populating UI");
+    this->w->addOutput(" > Populating UI");
     // FIXME: initialization order frakup. the next line is needed so that the
     // comments widget displays the function names.
     core->cmd("fs sections");
@@ -256,9 +256,9 @@ void OptionsDialog::anal_finished()
     this->core->binStart = this->core->cmd("?v $M");
     this->core->binEnd = this->core->cmd("?v $M+$s");
 
-    this->w->add_output(" > Finished, happy reversing :)");
+    this->w->addOutput(" > Finished, happy reversing :)");
     // Add fortune message
-    this->w->add_output("\n" + this->w->core->cmd("fo"));
+    this->w->addOutput("\n" + this->w->core->cmd("fo"));
     this->w->memoryDock->setWindowTitle("entry0");
     this->w->start_web_server();
     close();

@@ -230,7 +230,7 @@ void createNewDialog::on_buttonCreate_clicked()
         w->core->seek(0);
         w->updateFrames();
         w->setFilename("-");
-        w->add_output("Finished, check its contents");
+        w->addOutput("Finished, check its contents");
         w->showMaximized();
     }
     else
