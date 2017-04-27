@@ -20,6 +20,7 @@ private slots:
 
 public slots:
     void showCommands();
+    void clear();
 
 private:
     void setupCompleter();

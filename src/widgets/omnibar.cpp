@@ -4,6 +4,8 @@
 #include <QStringListModel>
 #include <QCompleter>
 #include <QShortcut>
+#include <QAbstractItemView>
+
 
 Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     QLineEdit(parent),
@@ -82,6 +84,15 @@ void Omnibar::showCommands()
 
     completer->setCompletionPrefix(": ");
     completer->complete();
+}
+
+void Omnibar::clear()
+{
+    QLineEdit::clear();
+
+    // Close the potential shown completer popup
+    clearFocus();
+    setFocus();
 }
 
 void Omnibar::on_gotoEntry_returnPressed()
