@@ -5,10 +5,13 @@
 
 class QRCore;
 
+class QAction;
+
 namespace Ui
 {
     class ConsoleWidget;
 }
+
 
 class ConsoleWidget : public QWidget
 {
@@ -21,24 +24,39 @@ public:
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
 
+    void setDebugOutputEnabled(bool enabled) { debugOutputEnabled = enabled; }
+
+    void setMaxHistoryEntries(int max) { maxHistoryEntries = max; }
+
 public slots:
     void focusInputLineEdit();
 
 private slots:
-    void on_consoleInputLineEdit_returnPressed();
+    void on_inputLineEdit_returnPressed();
 
-    void on_consoleExecButton_clicked();
+    void on_execButton_clicked();
 
-    void showConsoleContextMenu(const QPoint &pt);
+    void showCustomContextMenu(const QPoint &pt);
 
-    void on_actionClear_ConsoleOutput_triggered();
-    void on_actionConsoleSync_with_core_triggered();
+    void syncWithCoreToggled(bool checked);
 
-    void on_showHistoToolButton_clicked();
+    void historyNext();
+    void historyPrev();
+
+    void clear();
 
 private:
+    void scrollOutputToEnd();
+    void historyAdd(const QString &input);
+    void invalidateHistoryPosition();
+
     Ui::ConsoleWidget *ui;
     QRCore  *core;
+    QList<QAction *> actions;
+    bool debugOutputEnabled;
+    int maxHistoryEntries;
+    int lastHistoryPosition;
+    QStringList history;
 };
 
 #endif // CONSOLEWIDGET_H
