@@ -6,11 +6,24 @@
 #include <QShortcut>
 
 Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
-    QLineEdit(parent)
+    QLineEdit(parent),
+    main(main),
+    commands({": Comments toggle",
+              ": Dashboard toggle",
+              ": Flags toggle",
+              ": Functions toggle",
+              ": Imports toggle",
+              ": Notepad toggle",
+              ": Relocs toggle",
+              ": Run Script",
+              ": Sections toggle",
+              ": Strings toggle",
+              ": Symbols toggle",
+              ": Tabs up/down",
+              ": Theme switch",
+              ": Lock/Unlock interface",
+              ": Web server start/stop"})
 {
-    // Radare core found in:
-    this->main = main;
-
     // QLineEdit basic features
     this->setMinimumHeight(16);
     this->setMaximumHeight(16);
@@ -20,45 +33,32 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     this->setTextMargins(10, 0, 0, 0);
     this->setClearButtonEnabled(true);
 
-    this->commands << ": Comments toggle"
-                   << ": Dashboard toggle"
-                   << ": Flags toggle"
-                   << ": Functions toggle"
-                   << ": Imports toggle"
-                   << ": Notepad toggle"
-                   << ": Relocs toggle"
-                   << ": Run Script"
-                   << ": Sections toggle"
-                   << ": Strings toggle"
-                   << ": Symbols toggle"
-                   << ": Tabs up/down"
-                   << ": Theme switch"
-                   << ": Lock/Unlock interface"
-                   << ": Web server start/stop";
-
     connect(this, SIGNAL(returnPressed()), this, SLOT(on_gotoEntry_returnPressed()));
 
     // Esc clears omnibar
     QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clear_shortcut, SIGNAL(activated()), this, SLOT(clearContents()));
+    connect(clear_shortcut, SIGNAL(activated()), this, SLOT(clear()));
     clear_shortcut->setContext(Qt::WidgetShortcut);
 }
 
 void Omnibar::setupCompleter()
 {
     // Set gotoEntry completer for jump history
-    QStringList flagsList = this->getFlags();
-    QCompleter *completer = new QCompleter(flagsList, this);
+    QCompleter *completer = new QCompleter(flags + commands, this);
     completer->setMaxVisibleItems(20);
     completer->setCompletionMode(QCompleter::PopupCompletion);
     completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
     completer->setFilterMode(Qt::MatchContains);
 
-    QStringListModel *completerModel = (QStringListModel *)(completer->model());
-    completerModel->setStringList(completerModel->stringList() << this->commands);
-
     this->setCompleter(completer);
+}
+
+void Omnibar::refresh(const QStringList &flagList)
+{
+    flags = flagList;
+
+    setupCompleter();
 }
 
 void Omnibar::restoreCompleter()
@@ -82,14 +82,6 @@ void Omnibar::showCommands()
 
     completer->setCompletionPrefix(": ");
     completer->complete();
-}
-
-void Omnibar::clearContents()
-{
-    this->setText("");
-    // Necessary hack to make it work properly
-    this->clearFocus();
-    this->setFocus();
 }
 
 void Omnibar::on_gotoEntry_returnPressed()
@@ -169,19 +161,4 @@ void Omnibar::on_gotoEntry_returnPressed()
     this->setText("");
     this->clearFocus();
     this->restoreCompleter();
-}
-
-void Omnibar::fillFlags(QString flag)
-{
-    this->flags << flag;
-}
-
-void Omnibar::clearFlags()
-{
-    this->flags.clear();
-}
-
-QStringList Omnibar::getFlags()
-{
-    return this->flags;
 }

@@ -247,9 +247,6 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
-    // Set omnibar completer for flags
-    this->omnibar->setupCompleter();
-
     // Set console output context menu
     ui->consoleOutputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->consoleOutputTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -334,6 +331,11 @@ void MainWindow::raiseMemoryDock()
 void MainWindow::toggleSideBarTheme()
 {
     sideBar->themesButtonToggle();
+}
+
+void MainWindow::refreshOmniBar(const QStringList &flags)
+{
+    omnibar->refresh(flags);
 }
 
 void MainWindow::setFilename(QString fn)

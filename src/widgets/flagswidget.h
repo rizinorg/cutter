@@ -25,8 +25,6 @@ public:
 
     void clear();
 
-signals:
-    void flagsRefreshed();
 
 private slots:
     void on_flagsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);

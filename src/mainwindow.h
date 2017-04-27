@@ -68,6 +68,7 @@ public:
     void setWebServerState(bool start);
     void raiseMemoryDock();
     void toggleSideBarTheme();
+    void refreshOmniBar(const QStringList &flags);
 
 public slots:
 

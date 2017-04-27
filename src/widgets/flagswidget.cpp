@@ -76,12 +76,12 @@ void FlagsWidget::refreshFlagspaces()
 void FlagsWidget::refreshFlags()
 {
     QString flagspace = ui->flagspaceCombo->currentText();
-    // TODO: Do this in Omnibar
-    //this->omnibar->clearFlags();
     if (flagspace == "(all)")
         flagspace = "";
 
     ui->flagsTreeWidget->clear();
+
+    QStringList flags;
 
     for (auto i : main->core->getList("flags", flagspace))
     {
@@ -96,12 +96,12 @@ void FlagsWidget::refreshFlags()
             qhelpers::appendRow(ui->flagsTreeWidget, a[1], a[2], a[0], "");
             //this->omnibar->fillFlags(a[0]);
         }
+
+        flags.append(a[0]);
     }
     qhelpers::adjustColumns(ui->flagsTreeWidget);
-    // Set omnibar completer for flags and commands
-    //this->omnibar->setupCompleter();
 
-    emit flagsRefreshed();
+    main->refreshOmniBar(flags);
 }
 
 void FlagsWidget::setScrollMode()
