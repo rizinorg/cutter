@@ -227,6 +227,9 @@ void OptionsDialog::anal_finished()
         this->w->core->seek("entry0");
     }
     this->w->add_output(" > Populating UI");
+    // FIXME: initialization order frakup. the next line is needed so that the
+    // comments widget displays the function names.
+    core->cmd("fs sections");
     this->w->updateFrames();
     this->w->setFilename(this->filename);
     this->w->get_refs(this->w->core->cmd("?v entry0"));
