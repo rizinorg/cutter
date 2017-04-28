@@ -27,7 +27,7 @@ GraphPanel.prototype.init_handlers = function() {
   
   // Bind custom functions to mouse and key events
   //$("#center_panel").scroll(on_scroll);
-  $(document).keypress(handleKeypress);
+  //$(document).keypress(handleKeypress);
   $(document).click(handleClick);
   $(document).dblclick(handleDoubleClick);
 };
@@ -177,7 +177,7 @@ GraphPanel.prototype.render = function(theme) {
     // Show graph and seek to entrypoint
     $("#main_panel").removeClass("ec_gui_background");
     $("#main_panel").addClass("ec_gui_alt_background");
-    if ($('#minimap').length) $('#minimap')[0].innerHTML = "";
+    //if ($('#minimap').length) $('#minimap')[0].innerHTML = "";
 
     var addr = null;
     if (this.selected_offset !== null) {
@@ -344,6 +344,7 @@ function handleDoubleClick (inEvent) {
 }
 
 // key handler
+/*
 function handleKeypress(inEvent) {
   console.log("KEYPRESS!")
   var keynum = inEvent.keyCode || inEvent.charCode || inEvent.which || 0;
@@ -553,3 +554,4 @@ function do_define(element) {
     //scroll_to_address(address);
   }
 }
+*/

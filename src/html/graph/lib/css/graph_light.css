@@ -40,3 +40,11 @@
 
 .autohighlight { background-color: #8AFF77 !important; }
 .autohighlighti { background-color: #8AFF77; }
+
+#minimap  {
+  background: #A4C5D2;
+}
+#minimap_area {
+  border: 1px solid black;
+  background: black;
+}
