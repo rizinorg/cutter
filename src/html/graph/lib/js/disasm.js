@@ -178,7 +178,17 @@ BBGraph.prototype.render = function() {
 
   $("#minimap").css("left", $("#main_panel").width() - minimap_width);
   $("#minimap").css("top",  $("#center_panel").position().top - 40);
-  //$("#center_panel").bind('scroll', update_minimap);
+  // $("#center_panel").bind('scroll', update_minimap);
+  // $("#main_panel").bind('scroll', update_minimap);
+  // $("#disasm_tab").bind('scroll', update_minimap);
+  // $("#minimap").bind('scroll', update_minimap);
+  // $("#canvas").bind('scroll', update_minimap);
+  document.addEventListener('scroll', function (event) {
+    //if (event.target.id === 'idOfUl') { // or any other filtering condition        
+        console.log('scrolling', event.target);
+        update_minimap();
+    //}
+  }, true /*Capture event*/);
 
   paper.on( "cell:pointerup", function( cellview, evt, x, y)  {
     var model = cellview.model;
@@ -199,29 +209,29 @@ BBGraph.prototype.render = function() {
     }
   });
 
-  // if (r2ui.graph_panel.minimap) {
-  //   update_minimap();
-  //   $("#minimap_area").draggable({
-  //     containment: "parent",
-  //     stop: function( event, ui ) {
-  //       var delta_x = ui.position.left/scale;
-  //       var delta_y = ui.position.top/scale;
-  //       if (delta_x < 0) delta_x = 0;
-  //       if (delta_y < 0) delta_y = 0;
-  //       if ($("#radareApp_mp").length) {
-  //         //$("#main_panel").scrollTo({ top:delta_y, left:delta_x - delta/scale } );
-  //         console.log(1);
-  //       } else {
-  //         //$('#center_panel').scrollTo({ top:delta_y, left:delta_x - delta/scale } );
-  //         console.log('debug:');
-  //         console.log(delta_y, delta_x, scale);
-  //         console.log($('#center_panel'));
-  //       }
-  //     }
-  //   });
-  // } else {
-  //   $("#minimap").hide();
-  // }
+  if (r2ui.graph_panel.minimap) {
+    update_minimap();
+    // $("#minimap_area").draggable({
+    //   containment: "parent",
+    //   stop: function( event, ui ) {
+    //     var delta_x = ui.position.left/scale;
+    //     var delta_y = ui.position.top/scale;
+    //     if (delta_x < 0) delta_x = 0;
+    //     if (delta_y < 0) delta_y = 0;
+    //     if ($("#radareApp_mp").length) {
+    //       //$("#main_panel").scrollTo({ top:delta_y, left:delta_x - delta/scale } );
+    //       console.log(1);
+    //     } else {
+    //       //$('#center_panel').scrollTo({ top:delta_y, left:delta_x - delta/scale } );
+    //       console.log('debug:');
+    //       console.log(delta_y, delta_x, scale);
+    //       console.log($('#center_panel'));
+    //     }
+    //   }
+    // });
+  } else {
+    $("#minimap").hide();
+  }
   
 };
 
@@ -250,21 +260,24 @@ function update_minimap() {
     var scale = 1/Math.max(ws, hs);
     var delta = 0;
     if (hs > ws) delta = (minimap_width/2) - svg_width*scale/2;
-    var el = null;
-    // panel layout
+
+    // Update MiniMap area position
+    var el = $('#main_panel');
+    var mma_width = el.width()*scale;
+    var mma_height = el.height()*scale - delta;
+    var top_offset = el.scrollTop()*scale
+    var left_offset = el.scrollLeft()*scale + delta;
+    if (mma_width > minimap_width - left_offset) mma_width = minimap_width - left_offset;
+    if (mma_height > minimap_height - top_offset) mma_height = minimap_height - top_offset;
+    $("#minimap_area").width(mma_width);
+    $("#minimap_area").height(mma_height);
+    $("#minimap_area").css("top", top_offset);
+    $("#minimap_area").css("left", left_offset);
+
+    // Update MiniMap position
     el = $('#center_panel');
-    if (el.scrollTop() < svg_height) {
-      $("#minimap_area").width(el.width()*scale);
-      $("#minimap_area").height(el.height()*scale);
-      if (el.scrollTop()*scale <= minimap_height - el.height()*scale)
-        $("#minimap_area").css("top", el.scrollTop()*scale);
-      $("#minimap_area").css("left", delta + el.scrollLeft()*scale);
-    }
-    el = $('#center_panel');
-    $("#minimap").css("left", el.scrollLeft() + $("#main_panel").width() - minimap_width);
+    $("#minimap").css("left", el.scrollLeft() + el.width() - minimap_width);
     $("#minimap").css("top",  el.scrollTop());
-    $("#minimap").css("border", "1px solid " + r2ui.colors['.ec_gui_background']);
-    $("#minimap_area").css("background", r2ui.colors['.ec_gui_background']);
   }
 }
 
@@ -297,6 +310,7 @@ function render_graph(x) {
     obj = JSON.parse(x.replace(/\\l/g,'\\n'));
   } catch (e) {
     console.log("Cannot parse JSON data");
+    return false
   }
   if (obj[0] === undefined) return false;
   if (obj[0].blocks === undefined) return false;
