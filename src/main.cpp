@@ -58,11 +58,11 @@ int main(int argc, char *argv[])
     bool analLevelSpecified = false;
     int analLevel = 0;
 
-    if(cmdParser.isSet(analOption))
+    if (cmdParser.isSet(analOption))
     {
         analLevel = cmdParser.value(analOption).toInt(&analLevelSpecified);
 
-        if(!analLevelSpecified || analLevel < 0 || analLevel > 4)
+        if (!analLevelSpecified || analLevel < 0 || analLevel > 4)
         {
             printf("%s\n", QObject::tr("Invalid Analysis Level. May be a value between 0 and 4.").toLocal8Bit().constData());
             return 1;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     if (args.empty())
     {
-        if(analLevelSpecified)
+        if (analLevelSpecified)
         {
             printf("%s\n", QObject::tr("Filename must be specified to start analysis automatically.").toLocal8Bit().constData());
             return 1;
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
         o->setAttribute(Qt::WA_DeleteOnClose);
         o->show();
 
-        if(analLevelSpecified)
+        if (analLevelSpecified)
             o->setupAndStartAnalysis(analLevel);
     }
 

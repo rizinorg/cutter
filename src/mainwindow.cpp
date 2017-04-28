@@ -338,7 +338,7 @@ void MainWindow::refreshOmniBar(const QStringList &flags)
     omnibar->refresh(flags);
 }
 
-void MainWindow::setFilename(QString fn)
+void MainWindow::setFilename(const QString &fn)
 {
     // Add file name to window title
     this->filename = fn;
@@ -726,12 +726,12 @@ void MainWindow::seek(const QString &offset, const QString &name, bool raise_mem
 {
     // TODO: remove this method and use the one with RVA only!
 
-    if(offset.length() < 2)
+    if (offset.length() < 2)
         return;
 
     bool ok;
     RVA addr = offset.mid(2).toULongLong(&ok, 16);
-    if(!ok)
+    if (!ok)
         return;
 
     seek(addr, name, raise_memory_dock);
@@ -754,7 +754,7 @@ void MainWindow::seek(const RVA offset, const QString &name, bool raise_memory_d
     this->memoryDock->disasTextEdit->setFocus();
 
     // Rise and shine baby!
-    if(raise_memory_dock)
+    if (raise_memory_dock)
         this->memoryDock->raise();
 }
 
@@ -905,7 +905,7 @@ void MainWindow::on_actionhide_bottomPannel_triggered()
     }
 }
 
-void MainWindow::send_to_notepad(QString txt)
+void MainWindow::send_to_notepad(const QString &txt)
 {
     this->notepadDock->appendPlainText("```\n" + txt + "\n```");
 }

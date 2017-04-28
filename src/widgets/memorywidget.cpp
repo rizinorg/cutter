@@ -310,7 +310,7 @@ void MemoryWidget::highlightHexCurrentLine()
     highlightHexWords(cursor.selectedText());
 }
 
-void MemoryWidget::highlightHexWords(QString str)
+void MemoryWidget::highlightHexWords(const QString &str)
 {
     QString searchString = str;
     QTextDocument *document = ui->hexHexText_2->document();
@@ -1582,12 +1582,10 @@ QString MemoryWidget::normalize_addr(QString addr)
 void MemoryWidget::setFcnName(RVA addr)
 {
     RAnalFunction *fcn;
-    bool ok;
-
     QString addr_string;
 
     fcn = this->main->core->functionAt(addr);
-    if (ok && fcn)
+    if (fcn)
     {
         QString segment = this->main->core->cmd("S. @ " + QString::number(addr)).split(" ").last();
         addr_string = segment.trimmed() + ":" + fcn->name;

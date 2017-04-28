@@ -230,7 +230,7 @@ QJsonDocument QRCore::cmdj(const QString &str)
     QJsonParseError jsonError;
     QJsonDocument doc = res ? QJsonDocument::fromJson(resString.toUtf8(), &jsonError) : QJsonDocument();
 
-    if(jsonError.error != QJsonParseError::NoError)
+    if (jsonError.error != QJsonParseError::NoError)
     {
         eprintf("Failed to parse JSON: %s\n", jsonError.errorString().toLocal8Bit().constData());
         eprintf("%s\n", resString.toLocal8Bit().constData());
@@ -856,7 +856,7 @@ QList<RVA> QRCore::getSeekHistory()
     QList<RVA> ret;
 
     QJsonArray jsonArray = cmdj("sj").array();
-    foreach(QJsonValue value, jsonArray)
+    foreach (QJsonValue value, jsonArray)
         ret << value.toVariant().toULongLong();
 
     return ret;
@@ -869,7 +869,7 @@ QList<FunctionDescription> QRCore::getAllFunctions()
 
     QJsonArray jsonArray = cmdj("aflj").array();
 
-    foreach(QJsonValue value, jsonArray)
+    foreach (QJsonValue value, jsonArray)
     {
         QJsonObject jsonObject = value.toObject();
 
@@ -893,7 +893,7 @@ QList<ImportDescription> QRCore::getAllImports()
 
     QJsonArray importsArray = cmdj("iij").array();
 
-    foreach(QJsonValue value, importsArray)
+    foreach (QJsonValue value, importsArray)
     {
         QJsonObject importObject = value.toObject();
 
@@ -951,18 +951,18 @@ QList<SymbolDescription> QRCore::getAllSymbols()
 }
 
 
-QList<CommentDescription> QRCore::getAllComments(QString filterType)
+QList<CommentDescription> QRCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
     QList<CommentDescription> ret;
 
     QJsonArray commentsArray = cmdj("CCj").array();
-    for(QJsonValue value : commentsArray)
+    for (QJsonValue value : commentsArray)
     {
         QJsonObject commentObject = value.toObject();
 
         QString type = commentObject["type"].toString();
-        if(type != filterType)
+        if (type != filterType)
             continue;
 
         CommentDescription comment;

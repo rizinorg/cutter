@@ -57,7 +57,7 @@ public:
 
 private slots:
     void cursorAddressChanged(RVA addr);
-    void functionRenamed(QString prev_name, QString new_name);
+    void functionRenamed(const QString &prev_name, const QString &new_name);
 
 };
 

@@ -14,23 +14,23 @@
 #include <QResource>
 
 FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *import_addresses, bool nested, QFont default_font, QFont highlight_font, MainWindow *main, QObject *parent)
-        : functions(functions),
-          import_addresses(import_addresses),
-          main(main),
-          nested(nested),
-          default_font(default_font),
-          highlight_font(highlight_font),
-          QAbstractItemModel(parent)
-{
-    current_index = -1;
+    : QAbstractItemModel(parent),
+      main(main),
+      functions(functions),
+      import_addresses(import_addresses),
+      highlight_font(highlight_font),
+      default_font(default_font),
+      nested(nested),
+      current_index(-1)
 
+{
     connect(main, SIGNAL(cursorAddressChanged(RVA)), this, SLOT(cursorAddressChanged(RVA)));
     connect(main->core, SIGNAL(functionRenamed(QString, QString)), this, SLOT(functionRenamed(QString, QString)));
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if(!parent.isValid())
+    if (!parent.isValid())
         return createIndex(row, column, (quintptr)0); // root function nodes have id = 0
 
     return createIndex(row, column, (quintptr)(parent.row() + 1)); // sub-nodes have id = function index + 1
@@ -38,23 +38,23 @@ QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent)
 
 QModelIndex FunctionModel::parent(const QModelIndex &index) const
 {
-    if(!index.isValid() || index.column() != 0)
+    if (!index.isValid() || index.column() != 0)
         return QModelIndex();
 
-    if(index.internalId() == 0) // root function node
+    if (index.internalId() == 0) // root function node
         return QModelIndex();
     else // sub-node
-        return this->index((int)(index.internalId()-1), 0);
+        return this->index((int)(index.internalId() - 1), 0);
 }
 
 int FunctionModel::rowCount(const QModelIndex &parent) const
 {
-    if(!parent.isValid())
+    if (!parent.isValid())
         return functions->count();
 
-    if(nested)
+    if (nested)
     {
-        if(parent.internalId() == 0)
+        if (parent.internalId() == 0)
             return 3; // sub-nodes for nested functions
         return 0;
     }
@@ -62,9 +62,9 @@ int FunctionModel::rowCount(const QModelIndex &parent) const
         return 0;
 }
 
-int FunctionModel::columnCount(const QModelIndex &parent) const
+int FunctionModel::columnCount(const QModelIndex &/*parent*/) const
 {
-    if(nested)
+    if (nested)
         return 1;
     else
         return 4;
@@ -73,12 +73,12 @@ int FunctionModel::columnCount(const QModelIndex &parent) const
 
 QVariant FunctionModel::data(const QModelIndex &index, int role) const
 {
-    if(!index.isValid())
+    if (!index.isValid())
         return QVariant();
 
     int function_index;
     bool subnode;
-    if(index.internalId() != 0) // sub-node
+    if (index.internalId() != 0) // sub-node
     {
         function_index = index.parent().row();
         subnode = true;
@@ -91,90 +91,90 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     const FunctionDescription &function = functions->at(function_index);
 
-    if(function_index >= functions->count())
+    if (function_index >= functions->count())
         return QVariant();
 
-    switch(role)
+    switch (role)
     {
-        case Qt::DisplayRole:
-            if(nested)
+    case Qt::DisplayRole:
+        if (nested)
+        {
+            if (subnode)
             {
-                if(subnode)
+                switch (index.row())
                 {
-                    switch(index.row())
-                    {
-                        case 0:
-                            return tr("Offset: %1").arg(RAddressString(function.offset));
-                        case 1:
-                            return tr("Size: %1").arg(RSizeString(function.size));
-                        case 2:
-                            return tr("Import: %1").arg(import_addresses->contains(function.offset) ? tr("true") : tr("false"));
-                        default:
-                            return QVariant();
-                    }
+                case 0:
+                    return tr("Offset: %1").arg(RAddressString(function.offset));
+                case 1:
+                    return tr("Size: %1").arg(RSizeString(function.size));
+                case 2:
+                    return tr("Import: %1").arg(import_addresses->contains(function.offset) ? tr("true") : tr("false"));
+                default:
+                    return QVariant();
                 }
-                else
-                    return function.name;
             }
             else
-            {
-                switch(index.column())
-                {
-                    case 0:
-                        return RAddressString(function.offset);
-                    case 1:
-                        return RSizeString(function.size);
-                    case 3:
-                        return function.name;
-                    default:
-                        return QVariant();
-                }
-            }
-
-        case Qt::DecorationRole:
-            if(import_addresses->contains(function.offset) &&
-                    (nested ? false :index.column() == 2))
-                return QIcon(":/img/icons/import_light.svg");
-            return QVariant();
-
-        case Qt::FontRole:
-            if(current_index == function_index)
-                return highlight_font;
-            return default_font;
-
-        case Qt::ToolTipRole:
+                return function.name;
+        }
+        else
         {
-            QList<QString> info = main->core->cmd("afi @ " + function.name).split("\n");
-            if (info.length() > 2)
+            switch (index.column())
             {
-                QString size = info[4].split(" ")[1];
-                QString complex = info[8].split(" ")[1];
-                QString bb = info[11].split(" ")[1];
-                return QString("Summary:\n\n    Size: " + size +
-                               "\n    Cyclomatic complexity: " + complex +
-                               "\n    Basic blocks: " + bb +
-                               "\n\nDisasm preview:\n\n" + main->core->cmd("pdi 10 @ " + function.name) +
-                               "\nStrings:\n\n" + main->core->cmd("pdsf @ " + function.name));
+            case 0:
+                return RAddressString(function.offset);
+            case 1:
+                return RSizeString(function.size);
+            case 3:
+                return function.name;
+            default:
+                return QVariant();
             }
-            return QVariant();
         }
 
-        case FunctionDescriptionRole:
-            return QVariant::fromValue(function);
+    case Qt::DecorationRole:
+        if (import_addresses->contains(function.offset) &&
+                (nested ? false : index.column() == 2))
+            return QIcon(":/img/icons/import_light.svg");
+        return QVariant();
 
-        case IsImportRole:
-            return import_addresses->contains(function.offset);
+    case Qt::FontRole:
+        if (current_index == function_index)
+            return highlight_font;
+        return default_font;
 
-        default:
-            return QVariant();
+    case Qt::ToolTipRole:
+    {
+        QList<QString> info = main->core->cmd("afi @ " + function.name).split("\n");
+        if (info.length() > 2)
+        {
+            QString size = info[4].split(" ")[1];
+            QString complex = info[8].split(" ")[1];
+            QString bb = info[11].split(" ")[1];
+            return QString("Summary:\n\n    Size: " + size +
+                           "\n    Cyclomatic complexity: " + complex +
+                           "\n    Basic blocks: " + bb +
+                           "\n\nDisasm preview:\n\n" + main->core->cmd("pdi 10 @ " + function.name) +
+                           "\nStrings:\n\n" + main->core->cmd("pdsf @ " + function.name));
+        }
+        return QVariant();
+    }
+
+    case FunctionDescriptionRole:
+        return QVariant::fromValue(function);
+
+    case IsImportRole:
+        return import_addresses->contains(function.offset);
+
+    default:
+        return QVariant();
     }
 }
 
 QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if(role == Qt::DisplayRole && orientation == Qt::Horizontal)
+    if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
     {
-        if(nested)
+        if (nested)
         {
             return tr("Name");
         }
@@ -182,16 +182,16 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
         {
             switch (section)
             {
-                case 0:
-                    return tr("Offset");
-                case 1:
-                    return tr("Size");
-                case 2:
-                    return tr("Imp.");
-                case 3:
-                    return tr("Name");
-                default:
-                    return QVariant();
+            case 0:
+                return tr("Offset");
+            case 1:
+                return tr("Size");
+            case 2:
+                return tr("Imp.");
+            case 3:
+                return tr("Name");
+            default:
+                return QVariant();
             }
         }
     }
@@ -213,7 +213,7 @@ void FunctionModel::endReloadFunctions()
 void FunctionModel::cursorAddressChanged(RVA)
 {
     updateCurrentIndex();
-    emit dataChanged(index(0, 0), index(rowCount()-1, columnCount()-1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void FunctionModel::updateCurrentIndex()
@@ -223,12 +223,12 @@ void FunctionModel::updateCurrentIndex()
     int index = -1;
     RVA offset = 0;
 
-    for(int i=0; i<functions->count(); i++)
+    for (int i = 0; i < functions->count(); i++)
     {
         const FunctionDescription &function = functions->at(i);
 
-        if(function.contains(addr)
-           && function.offset >= offset)
+        if (function.contains(addr)
+                && function.offset >= offset)
         {
             offset = function.offset;
             index = i;
@@ -238,15 +238,15 @@ void FunctionModel::updateCurrentIndex()
     current_index = index;
 }
 
-void FunctionModel::functionRenamed(QString prev_name, QString new_name)
+void FunctionModel::functionRenamed(const QString &prev_name, const QString &new_name)
 {
-    for(int i=0; i<functions->count(); i++)
+    for (int i = 0; i < functions->count(); i++)
     {
         FunctionDescription &function = (*functions)[i];
-        if(function.name == prev_name)
+        if (function.name == prev_name)
         {
             function.name = new_name;
-            emit dataChanged(index(i, 0), index(i, columnCount()-1));
+            emit dataChanged(index(i, 0), index(i, columnCount() - 1));
         }
     }
 }
@@ -255,7 +255,7 @@ void FunctionModel::functionRenamed(QString prev_name, QString new_name)
 
 
 FunctionSortFilterProxyModel::FunctionSortFilterProxyModel(FunctionModel *source_model, QObject *parent)
-        : QSortFilterProxyModel(parent)
+    : QSortFilterProxyModel(parent)
 {
     setSourceModel(source_model);
     setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -272,17 +272,17 @@ bool FunctionSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &
 
 bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    if(!left.isValid() || !right.isValid())
+    if (!left.isValid() || !right.isValid())
         return false;
 
-    if(left.parent().isValid() || right.parent().isValid())
+    if (left.parent().isValid() || right.parent().isValid())
         return false;
 
     FunctionDescription left_function = left.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     FunctionDescription right_function = right.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
 
-    if(static_cast<FunctionModel *>(sourceModel())->isNested())
+    if (static_cast<FunctionModel *>(sourceModel())->isNested())
     {
         return left_function.name < right_function.name;
     }
@@ -290,24 +290,24 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
     {
         switch (left.column())
         {
-            case 0:
-                return left_function.offset < right_function.offset;
-            case 1:
-                if (left_function.size != right_function.size)
-                    return left_function.size < right_function.size;
-                break;
-            case 2:
-            {
-                bool left_is_import = left.data(FunctionModel::IsImportRole).toBool();
-                bool right_is_import = right.data(FunctionModel::IsImportRole).toBool();
-                if(!left_is_import && right_is_import)
-                    return true;
-                break;
-            }
-            case 3:
-                return left_function.name < right_function.name;
-            default:
-                return false;
+        case 0:
+            return left_function.offset < right_function.offset;
+        case 1:
+            if (left_function.size != right_function.size)
+                return left_function.size < right_function.size;
+            break;
+        case 2:
+        {
+            bool left_is_import = left.data(FunctionModel::IsImportRole).toBool();
+            bool right_is_import = right.data(FunctionModel::IsImportRole).toBool();
+            if (!left_is_import && right_is_import)
+                return true;
+            break;
+        }
+        case 3:
+            return left_function.name < right_function.name;
+        default:
+            return false;
         }
 
         return left_function.offset < right_function.offset;
@@ -390,7 +390,7 @@ void FunctionsWidget::refreshTree()
     functions = this->main->core->getAllFunctions();
 
     import_addresses.clear();
-    foreach(ImportDescription import, main->core->getAllImports())
+    foreach (ImportDescription import, main->core->getAllImports())
         import_addresses.insert(import.plt);
 
     function_model->endReloadFunctions();

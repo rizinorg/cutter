@@ -116,7 +116,7 @@ private:
     void setScrollMode();
 
 private slots:
-    void on_cursorAddressChanged(RVA offset);
+    void on_cursorAddressChanged(RVA addr);
 
     void highlightCurrentLine();
 
@@ -125,7 +125,7 @@ private slots:
     void highlightDecoCurrentLine();
     void setFonts(QFont font);
 
-    void highlightHexWords(QString str);
+    void highlightHexWords(const QString &str);
     void on_showInfoButton_2_clicked();
     void on_actionSettings_menu_1_triggered();
     void on_actionHideDisasm_side_panel_triggered();

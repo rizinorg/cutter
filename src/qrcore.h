@@ -178,7 +178,7 @@ public:
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
     QList<SymbolDescription> getAllSymbols();
-    QList<CommentDescription> getAllComments(QString type);
+    QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();
 

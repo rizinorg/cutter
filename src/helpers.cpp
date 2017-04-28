@@ -59,7 +59,7 @@ namespace qhelpers
     }
 
     QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2,
-                   const QString &str3, const QString &str4, const QString &str5)
+                               const QString &str3, const QString &str4, const QString &str5)
     {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         // Fill dummy hidden column

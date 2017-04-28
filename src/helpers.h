@@ -20,7 +20,7 @@ namespace qhelpers
     void adjustColumns(QTreeWidget *tw, int columnCount = 0, int padding = 0);
 
     QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
-                   const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
+                               const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
 
     void setVerticalScrollMode(QAbstractItemView *tw);
 }

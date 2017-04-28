@@ -54,7 +54,7 @@ public:
     void start_web_server();
     void closeEvent(QCloseEvent *event);
     void readSettings();
-    void setFilename(QString fn);
+    void setFilename(const QString &fn);
     //void setCore(QRCore *core);
     void seek(const QString &offset, const QString &name = NULL, bool raise_memory_dock = false);
     void seek(const RVA offset, const QString &name = NULL, bool raise_memory_dock = false);
@@ -64,7 +64,7 @@ public:
     void get_refs(const QString &offset);
     void add_output(QString msg);
     void add_debug_output(QString msg);
-    void send_to_notepad(QString txt);
+    void send_to_notepad(const QString &txt);
     void setWebServerState(bool start);
     void raiseMemoryDock();
     void toggleSideBarTheme();
