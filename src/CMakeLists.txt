@@ -28,6 +28,11 @@ if(WIN32)
     set(RADARE2_INCLUDE_DIRS "${IAITO_WIN32_DIR}/radare2/include/libr" "${IAITO_WIN32_DIR}/include")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+        OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_definitions(-Wall)
+endif()
+
 
 find_package(Radare2 REQUIRED)
 include_directories(${RADARE2_INCLUDE_DIRS})
