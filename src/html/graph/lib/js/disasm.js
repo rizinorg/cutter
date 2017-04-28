@@ -580,12 +580,16 @@ function html_for_instruction(ins) {
     r2.cmd(cmd, function(x){
       results = x.split("\n");
     });
-    try {
-        var info = JSON.parse(results[0]);
-        if (info !== null && info !== undefined && info.length > 0)
-        idump += '<div class="ec_fname">(fcn) ' + info[0].name + '</div>';
-    } catch (err) {
-        console.log("Error getting instruction information from afij command: " + err);
+    for (var i in results) {
+        if (results[i] !== "") {
+            try {
+                var info = JSON.parse(results[i]);
+                if (info !== null && info !== undefined && info.length > 0)
+                idump += '<div class="ec_fname">(fcn) ' + info[0].name + '</div>';
+            } catch (err) {
+                console.log("Error getting instruction information from afij command: " + err);
+            }
+        }
     }
 
     // Get function variables
@@ -594,16 +598,21 @@ function html_for_instruction(ins) {
     r2.cmd(cmd, function(x){
       vars_reg_based = x.split("\n");
     });
-    try {
-        var vars = JSON.parse(vars_reg_based[0]);
-        var fvars = [];
-        for (var i in vars) {
-        idump += '<div class="ec_flag">; ' + vars[i].kind + " " + vars[i].type  + " <span class='fvar id_" + address_canonicalize(offset) + "_" + vars[i].ref + " ec_prompt faddr faddr_" + address_canonicalize(offset) + "'>" + escapeHTML(vars[i].name) + "</span> @ " + vars[i].ref + '</div>';
-        fvars[fvars.length] = {name: vars[i].name, id:  address_canonicalize(offset) + "_" + vars[i].ref};
+    for (var i in vars_reg_based) {
+        if (vars_reg_based[i] !== "") {
+            try {
+                var vars = JSON.parse(vars_reg_based[i]);
+                var fvars = [];
+                for (var i in vars) {
+                    var loc = vars[i].ref.base + (vars[i].ref.offset > 0? "+":"-") + "0x" + trimChar(vars[i].ref.offset.toString(16), '-');
+                    idump += '<div class="ec_flag">; ' + vars[i].kind + " " + vars[i].type  + " <span class='fvar id_" + address_canonicalize(offset) + "_" + loc + " ec_prompt faddr faddr_" + address_canonicalize(offset) + "'>" + escapeHTML(vars[i].name) + "</span> @ " + loc + '</div>';
+                fvars[fvars.length] = {name: vars[i].name, id:  address_canonicalize(offset) + "_" + loc};
+                }
+                r2.varMap[ins.fcn_addr] = fvars;
+            } catch (err) {
+                console.log("Error getting variable information from afvj command: " + err);
+            }
         }
-        r2.varMap[ins.fcn_addr] = fvars;
-    } catch (err) {
-        console.log("Error getting variable information from afvj command");
     }
 
     // Get function arguments
@@ -619,16 +628,21 @@ function html_for_instruction(ins) {
       args_sp_based = x.split("\n");
     });
     args_merged = args_bp_based.concat(args_sp_based);
-    try {
-        var args = JSON.parse(args_merged[0]);
-        var fargs = [];
-        for (var i in args) {
-        idump += '<div class="ec_flag">; ' + args[i].kind + " " + args[i].type  + " <span class='farg id_" + address_canonicalize(offset) + "_" + args[i].ref + " ec_prompt faddr faddr_" + address_canonicalize(offset) + "'>" + escapeHTML(args[i].name) + "</span> @ " + args[i].ref + '</div>';
-        fargs[fargs.length] = {name: args[i].name, id:  address_canonicalize(offset) + "_" + args[i].ref};
+    for (var i in args_merged) {
+        if (args_merged[i] !== "") {
+            try {
+                var args = JSON.parse(args_merged[i]);
+                var fargs = [];
+                for (var i in args) {
+                    var loc = args[i].ref.base + (args[i].ref.offset > 0? "+":"-") + "0x" + trimChar(args[i].ref.offset.toString(16), '-');
+                    idump += '<div class="ec_flag">; ' + args[i].kind + " " + args[i].type  + " <span class='farg id_" + address_canonicalize(offset) + "_" + loc + " ec_prompt faddr faddr_" + address_canonicalize(offset) + "'>" + escapeHTML(args[i].name) + "</span> @ " + loc + '</div>';
+                    fargs[fargs.length] = {name: args[i].name, id:  address_canonicalize(offset) + "_" + loc};
+                }
+                r2.argMap[ins.fcn_addr] = fargs;
+            } catch (err) {
+                console.log("Error getting argument information from afaj command: " + err);
+            }
         }
-        r2.argMap[ins.fcn_addr] = fargs;
-    } catch (err) {
-        console.log("Error getting argument information from afaj command");
     }
   }
   if (asm_flags) {
@@ -995,5 +1009,15 @@ function get_reloc_flag(reloc) {
   return full_name;
 }
 
+function trimChar(string, charToRemove) {
+    while(string.charAt(0)==charToRemove) {
+        string = string.substring(1);
+    }
 
+    while(string.charAt(string.length-1)==charToRemove) {
+        string = string.substring(0,string.length-1);
+    }
+
+    return string;
+}
 

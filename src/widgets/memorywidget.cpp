@@ -1558,7 +1558,13 @@ void MemoryWidget::create_graph(QString off)
     ui->graphWebView->setUrl(QUrl("qrc:/graph/html/graph/index.html#" + off));
     QString port = this->main->core->config("http.port");
     ui->graphWebView->page()->runJavaScript(QString("r2.root=\"http://localhost:%1\"").arg(port));
-    ui->graphWebView->page()->runJavaScript(QString("init();"));
+    QSettings settings;
+    if (settings.value("dark").toBool())
+    {
+        ui->graphWebView->page()->runJavaScript(QString("init('dark');"));
+    } else {
+        ui->graphWebView->page()->runJavaScript(QString("init('light');"));
+    }
 }
 
 QString MemoryWidget::normalize_addr(QString addr)
@@ -1931,7 +1937,6 @@ void MemoryWidget::switchTheme(bool dark)
         ui->webSimpleGraph->page()->setBackgroundColor(QColor(255, 255, 255));
         ui->graphWebView->page()->runJavaScript("r2ui.graph_panel.render('light');");
     }
-    //ui->graphWebView->reload();
 }
 
 void MemoryWidget::on_opcodeDescButton_clicked()
