@@ -1590,7 +1590,11 @@ void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
     QTextCursor tc = this->disasTextEdit->textCursor();
     tc.select(QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText().trimmed();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
+    QList<QString> words = lastline.split(" ", QString::SkipEmptyParts);
+    if (words.length() == 0) {
+        return;
+    }
+    QString ele = words[0];
     if (ele.contains("0x"))
     {
         this->fillOffsetInfo(ele);
