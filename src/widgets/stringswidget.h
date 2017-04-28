@@ -23,6 +23,8 @@ public:
 
     void refresh() override;
 
+    void fillStrings();
+
 private slots:
     void on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 

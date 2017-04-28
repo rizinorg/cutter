@@ -58,7 +58,7 @@ namespace qhelpers
         }
     }
 
-    void appendRow(QTreeWidget *tw, const QString &str, const QString &str2,
+    QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2,
                    const QString &str3, const QString &str4, const QString &str5)
     {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
@@ -75,9 +75,11 @@ namespace qhelpers
             tempItem->setText(5, str5);
 
         tw->insertTopLevelItem(0, tempItem);
+
+        return tempItem;
     }
 
-    void setVerticalScrollMode(QTreeWidget *tw)
+    void setVerticalScrollMode(QAbstractItemView *tw)
     {
         tw->setVerticalScrollMode(scrollMode());
     }

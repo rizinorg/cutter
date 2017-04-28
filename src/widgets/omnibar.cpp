@@ -152,7 +152,7 @@ void Omnibar::on_gotoEntry_returnPressed()
         {
             //this->main->seek(this->main->core->cmd("?v " + this->text()), this->text());
             QString off = this->main->core->cmd("afo " + this->text());
-            this->main->seek(off.trimmed(), this->text());
+            this->main->seek(off.trimmed(), this->text(), true);
         }
     }
 

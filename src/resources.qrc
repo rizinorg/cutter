@@ -68,6 +68,7 @@
         <file>html/bar.html</file>
         <file>html/stats.html</file>
         <file>img/icons/spin_grey.png</file>
+        <file>img/icons/import_light.svg</file>
         <file>html/utils.js</file>
         <file>html/radar.html</file>
     </qresource>

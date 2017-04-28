@@ -222,8 +222,20 @@ QJsonDocument QRCore::cmdj(const QString &str)
 {
     CORE_LOCK();
     QByteArray cmd = str.toUtf8();
+
     char *res = r_core_cmd_str(this->core_, cmd.constData());
-    QJsonDocument doc = res ? QJsonDocument::fromJson(QByteArray(res)) : QJsonDocument();
+
+    QString resString = QString(res);
+
+    QJsonParseError jsonError;
+    QJsonDocument doc = res ? QJsonDocument::fromJson(resString.toUtf8(), &jsonError) : QJsonDocument();
+
+    if(jsonError.error != QJsonParseError::NoError)
+    {
+        eprintf("Failed to parse JSON: %s\n", jsonError.errorString().toLocal8Bit().constData());
+        eprintf("%s\n", resString.toLocal8Bit().constData());
+    }
+
     r_mem_free(res);
     return doc;
 }
@@ -345,6 +357,13 @@ void QRCore::analyze(int level)
 void QRCore::renameFunction(QString prev_name, QString new_name)
 {
     cmd("afn " + new_name + " " + prev_name);
+    emit functionRenamed(prev_name, new_name);
+}
+
+void QRCore::setComment(RVA addr, QString cmt)
+{
+    //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
+    cmd("CC " + cmt + " @ " + QString::number(addr));
 }
 
 void QRCore::setComment(QString addr, QString cmt)
@@ -358,24 +377,6 @@ void QRCore::delComment(ut64 addr)
     CORE_LOCK();
     r_meta_del(core_->anal, 'C', addr, 1, NULL);
     //cmd (QString("CC-@")+addr);
-}
-
-QList<QList<QString>> QRCore::getComments()
-{
-    QList<QList<QString>> ret;
-    QString comments = cmd("CC~CCu");
-    for (QString line : comments.split("\n"))
-    {
-        QStringList fields = line.split("CCu");
-        if (fields.length() == 2)
-        {
-            QList<QString> tmp = QList<QString>();
-            tmp << fields[1].split("\"")[1].trimmed();
-            tmp << fields[0].trimmed();
-            ret << tmp;
-        }
-    }
-    return ret;
 }
 
 QMap<QString, QList<QList<QString>>> QRCore::getNestedComments()
@@ -404,10 +405,12 @@ void QRCore::seek(QString addr)
         seek(this->math(addr.toUtf8().constData()));
 }
 
-void QRCore::seek(ut64 addr)
+
+
+void QRCore::seek(ut64 offset)
 {
     CORE_LOCK();
-    r_core_seek(this->core_, addr, true);
+    r_core_seek(this->core_, offset, true);
 }
 
 bool QRCore::tryFile(QString path, bool rw)
@@ -457,83 +460,10 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
             if (ft && *ft)
                 ret << ft;
         }
-        else if (subtype == "imports")
-        {
-            QJsonArray importsArray = cmdj("iij").array();
-
-            foreach (QJsonValue value, importsArray)
-            {
-                QJsonObject importObject = value.toObject();
-                unsigned long plt = (unsigned long)importObject["plt"].toVariant().toULongLong();
-                int ordinal = importObject["ordinal"].toInt();
-
-                QString final = QString("%1,%2,%3,%4,%5,").arg(
-                                    QString::asprintf("%#o", ordinal),
-                                    QString::asprintf("%#010lx", plt),
-                                    importObject["bind"].toString(),
-                                    importObject["type"].toString(),
-                                    importObject["name"].toString());
-
-
-                ret << final;
-            }
-        }
         else if (subtype == "entrypoints")
         {
             if (math("entry0") != 0)
                 ret << "entry0";
-        }
-        else if (subtype == "relocs")
-        {
-            RBinReloc *br;
-            if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
-            {
-                QRListForeach(core_->bin->cur->o->relocs, it, RBinReloc, br)
-                {
-                    if (br->import)
-                    {
-                        // TODO: we want the offset too!
-                        QString type = (br->additive ? "ADD_" : "SET_") + QString::number(br->type);
-                        ret << QString("0x%1,%2,%3").arg(QString::number(br->vaddr, 16), type, br->import->name);
-                    }
-                    else
-                    {
-                        // TODO: we want the offset too!
-                        QString type = (br->additive ? "ADD_" : "SET_") + QString::number(br->type);
-                        ret << QString("0x%1,%2,reloc_%3").arg(QString::number(br->vaddr, 16), type, QString::number(br->vaddr, 16));
-                    }
-                }
-            }
-        }
-        else if (subtype == "symbols")
-        {
-            RBinSymbol *bs;
-            if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
-            {
-                QRListForeach(core_->bin->cur->o->symbols, it, RBinSymbol, bs)
-                {
-                    QString type = QString(bs->bind) + " " + QString(bs->type);
-                    ret << QString("0x%1,%2,%3").arg(QString::number(bs->vaddr, 16), type, bs->name);
-                }
-                /* list entrypoints as symbols too */
-                int n = 0;
-                RBinAddr *entry;
-                QRListForeach(core_->bin->cur->o->entries, it, RBinAddr, entry)
-                {
-                    ret << QString("0x%1,%2,%3%4").arg(QString::number(entry->vaddr, 16), "entry", "entry", QString::number(n++));
-                }
-            }
-        }
-        else if (subtype == "strings")
-        {
-            RBinString *bs;
-            if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
-            {
-                QRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
-                {
-                    ret << QString("0x%1,%2").arg(QString::number(bs->vaddr, 16), bs->string);
-                }
-            }
         }
     }
     else if (type == "asm")
@@ -564,18 +494,6 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
             QRListForeach(core_->anal->plugins, it, RAnalPlugin, ap)
             {
                 ret << ap->name;
-            }
-        }
-        else if (subtype == "functions")
-        {
-            QString funcs = cmd("afl");
-            QStringList lines = funcs.split("\n");
-            for (auto i : lines)
-            {
-                if (i != "")
-                {
-                    ret << i.replace(" ", ",").replace(",,", ",").replace(",,", ",").replace(",,", ",");
-                }
             }
         }
     }
@@ -744,8 +662,13 @@ QString QRCore::cmdFunctionAt(QString addr)
     QString ret;
     //afi~name:1[1] @ 0x08048e44
     //ret = cmd("afi~name[1] @ " + addr);
-    ret = cmd("fd @ " + addr + "~[0]");
+    ret = cmd(QString("fd @ ") + addr + "~[0]");
     return ret.trimmed();
+}
+
+QString QRCore::cmdFunctionAt(RVA addr)
+{
+    return cmdFunctionAt(QString::number(addr));
 }
 
 int QRCore::get_size()
@@ -921,4 +844,182 @@ void QRCore::setSettings()
     cmd("ec graph.true rgb:88FF88");
     cmd("ec graph.false rgb:FF6666");
     cmd("ec graph.trufae rgb:4183D7");
+}
+
+
+
+
+
+QList<RVA> QRCore::getSeekHistory()
+{
+    CORE_LOCK();
+    QList<RVA> ret;
+
+    QJsonArray jsonArray = cmdj("sj").array();
+    foreach(QJsonValue value, jsonArray)
+        ret << value.toVariant().toULongLong();
+
+    return ret;
+}
+
+QList<FunctionDescription> QRCore::getAllFunctions()
+{
+    CORE_LOCK();
+    QList<FunctionDescription> ret;
+
+    QJsonArray jsonArray = cmdj("aflj").array();
+
+    foreach(QJsonValue value, jsonArray)
+    {
+        QJsonObject jsonObject = value.toObject();
+
+        FunctionDescription function;
+
+        function.offset = (RVA)jsonObject["offset"].toVariant().toULongLong();
+        function.size = (RVA)jsonObject["size"].toVariant().toULongLong();
+        function.name = jsonObject["name"].toString();
+
+        ret << function;
+    }
+
+    return ret;
+}
+
+
+QList<ImportDescription> QRCore::getAllImports()
+{
+    CORE_LOCK();
+    QList<ImportDescription> ret;
+
+    QJsonArray importsArray = cmdj("iij").array();
+
+    foreach(QJsonValue value, importsArray)
+    {
+        QJsonObject importObject = value.toObject();
+
+        ImportDescription import;
+
+        import.plt = importObject["plt"].toVariant().toULongLong();
+        import.ordinal = importObject["ordinal"].toInt();
+        import.bind = importObject["bind"].toString();
+        import.type = importObject["type"].toString();
+        import.name = importObject["name"].toString();
+
+        ret << import;
+    }
+
+    return ret;
+}
+
+
+QList<SymbolDescription> QRCore::getAllSymbols()
+{
+    CORE_LOCK();
+    RListIter *it;
+
+    QList<SymbolDescription> ret;
+
+    RBinSymbol *bs;
+    if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
+    {
+        QRListForeach(core_->bin->cur->o->symbols, it, RBinSymbol, bs)
+        {
+            QString type = QString(bs->bind) + " " + QString(bs->type);
+            SymbolDescription symbol;
+            symbol.vaddr = bs->vaddr;
+            symbol.name = QString(bs->name);
+            symbol.bind = QString(bs->bind);
+            symbol.type = QString(bs->type);
+            ret << symbol;
+        }
+
+        /* list entrypoints as symbols too */
+        int n = 0;
+        RBinAddr *entry;
+        QRListForeach(core_->bin->cur->o->entries, it, RBinAddr, entry)
+        {
+            SymbolDescription symbol;
+            symbol.vaddr = entry->vaddr;
+            symbol.name = QString("entry") + QString::number(n++);
+            symbol.bind = "";
+            symbol.type = "entry";
+            ret << symbol;
+        }
+    }
+
+    return ret;
+}
+
+
+QList<CommentDescription> QRCore::getAllComments(QString filterType)
+{
+    CORE_LOCK();
+    QList<CommentDescription> ret;
+
+    QJsonArray commentsArray = cmdj("CCj").array();
+    for(QJsonValue value : commentsArray)
+    {
+        QJsonObject commentObject = value.toObject();
+
+        QString type = commentObject["type"].toString();
+        if(type != filterType)
+            continue;
+
+        CommentDescription comment;
+        comment.offset = commentObject["offset"].toVariant().toULongLong();
+        comment.name = commentObject["name"].toString();
+
+        ret << comment;
+    }
+    return ret;
+}
+
+QList<RelocDescription> QRCore::getAllRelocs()
+{
+    CORE_LOCK();
+    RListIter *it;
+    QList<RelocDescription> ret;
+
+    RBinReloc *br;
+    if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
+    {
+        QRListForeach(core_->bin->cur->o->relocs, it, RBinReloc, br)
+        {
+            RelocDescription reloc;
+
+            reloc.vaddr = br->vaddr;
+            reloc.paddr = br->paddr;
+            reloc.type = (br->additive ? "ADD_" : "SET_") + QString::number(br->type);
+
+            if (br->import)
+                reloc.name = br->import->name;
+            else
+                reloc.name = QString("reloc_%1").arg(QString::number(br->vaddr, 16));
+
+            ret << reloc;
+        }
+    }
+
+    return ret;
+}
+
+QList<StringDescription> QRCore::getAllStrings()
+{
+    CORE_LOCK();
+    RListIter *it;
+    QList<StringDescription> ret;
+
+    RBinString *bs;
+    if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
+    {
+        QRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
+        {
+            StringDescription str;
+            str.vaddr = bs->vaddr;
+            str.string = bs->string;
+            ret << str;
+        }
+    }
+
+    return ret;
 }

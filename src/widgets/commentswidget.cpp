@@ -52,11 +52,9 @@ void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *it
     QNOTUSED(column);
 
     // Get offset and name of item double clicked
-    // TODO: use this info to change disasm contents
-    QString offset = item->text(1);
-    QString name = item->text(2);
-    this->main->add_debug_output(offset + ": " + name);
-    this->main->seek(offset, name);
+    CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
+    this->main->add_debug_output(RAddressString(comment.offset) + ": " + comment.name);
+    this->main->seek(comment.offset, comment.name, true);
 }
 
 void CommentsWidget::on_toolButton_clicked()
@@ -122,32 +120,36 @@ void CommentsWidget::resizeEvent(QResizeEvent *event)
     QDockWidget::resizeEvent(event);
 }
 
+
+
 void CommentsWidget::refreshTree()
 {
-    ui->commentsTreeWidget->clear();
-    const QList<QList<QString>> &comments = main->core->getComments();
-    for (const QList<QString> &comment : comments)
+    ui->nestedCmtsTreeWidget->clear();
+    QList<CommentDescription> comments = this->main->core->getAllComments("CCu");
+
+    for (CommentDescription comment : comments)
     {
-        //this->main->add_debug_output(comment[1]);
-        QString fcn_name = this->main->core->cmdFunctionAt(comment[1]);
-        qhelpers::appendRow(ui->commentsTreeWidget, comment[1], fcn_name, QString(comment[0]).remove('"'));
+        //this->main->add_debug_output(RAddressString(comment.offset));
+        QString fcn_name = this->main->core->cmdFunctionAt(comment.offset);
+        QTreeWidgetItem *item = qhelpers::appendRow(ui->commentsTreeWidget, RAddressString(comment.offset), fcn_name, comment.name);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(comment));
     }
     qhelpers::adjustColumns(ui->commentsTreeWidget);
 
     // Add nested comments
     ui->nestedCmtsTreeWidget->clear();
-    const QMap<QString, QList<QList<QString>>> &cmts = main->core->getNestedComments();
+    QMap<QString, QList<QList<QString>>> cmts = this->main->core->getNestedComments();
     for (auto cmt : cmts.keys())
     {
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedCmtsTreeWidget);
         item->setText(0, cmt);
-        const QList<QList<QString>> &meow = cmts.value(cmt);
+        QList<QList<QString>> meow = cmts.value(cmt);
         for (int i = 0; i < meow.size(); ++i)
         {
-            const QList<QString> &tmp = meow.at(i);
+            QList<QString> tmp = meow.at(i);
             QTreeWidgetItem *it = new QTreeWidgetItem();
             it->setText(0, tmp[1]);
-            it->setText(1, QString(tmp[0]).remove('"'));
+            it->setText(1, tmp[0].remove('"'));
             item->addChild(it);
         }
         ui->nestedCmtsTreeWidget->addTopLevelItem(item);

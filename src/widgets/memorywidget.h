@@ -84,8 +84,6 @@ public slots:
 
     QString normalizeAddr(QString addr);
 
-    void setFcnName(QString addr);
-
     void setMiniGraph(QString at);
 
     void switchTheme(bool dark);
@@ -108,13 +106,18 @@ private:
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString last_fcn;
-    QString last_disasm_fcn;
-    QString last_graph_fcn;
-    QString last_hexdump_fcn;
+
+    RVA last_disasm_fcn;
+    RVA last_graph_fcn;
+    RVA last_hexdump_fcn;
+
+    void setFcnName(RVA addr);
 
     void setScrollMode();
 
 private slots:
+    void on_cursorAddressChanged(RVA offset);
+
     void highlightCurrentLine();
 
     void highlightHexCurrentLine();

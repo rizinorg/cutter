@@ -44,13 +44,82 @@ public:
 
 #define QNOTUSED(x) do { (void)(x); } while ( 0 );
 
+typedef ut64 RVA;
+
+inline QString RAddressString(RVA addr)
+{
+    return QString::asprintf("%#010llx", addr);
+}
+
+inline QString RSizeString(RVA size)
+{
+    return QString::asprintf("%lld", size);
+}
+
+struct FunctionDescription
+{
+    RVA offset;
+    RVA size;
+    QString name;
+
+    bool contains(RVA addr) const     { return addr >= offset && addr < offset + size; }
+};
+
+struct ImportDescription
+{
+    RVA plt;
+    int ordinal;
+    QString bind;
+    QString type;
+    QString name;
+};
+
+struct SymbolDescription
+{
+    RVA vaddr;
+    QString bind;
+    QString type;
+    QString name;
+};
+
+struct CommentDescription
+{
+    RVA offset;
+    QString name;
+};
+
+struct RelocDescription
+{
+    RVA vaddr;
+    RVA paddr;
+    QString type;
+    QString name;
+};
+
+struct StringDescription
+{
+    RVA vaddr;
+    QString string;
+};
+
+Q_DECLARE_METATYPE(FunctionDescription)
+Q_DECLARE_METATYPE(ImportDescription)
+Q_DECLARE_METATYPE(SymbolDescription)
+Q_DECLARE_METATYPE(CommentDescription)
+Q_DECLARE_METATYPE(RelocDescription)
+Q_DECLARE_METATYPE(StringDescription)
+
 class QRCore : public QObject
 {
     Q_OBJECT
+
 public:
     QString projectPath;
+
     explicit QRCore(QObject *parent = 0);
     ~QRCore();
+
+    RVA getOffset() const                           { return core_->offset; }
     QList<QString> getFunctionXrefs(ut64 addr);
     QList<QString> getFunctionRefs(ut64 addr, char type);
     int getCycloComplex(ut64 addr);
@@ -61,27 +130,27 @@ public:
     QString cmd(const QString &str);
     QJsonDocument cmdj(const QString &str);
     void renameFunction(QString prev_name, QString new_name);
+    void setComment(RVA addr, QString cmt);
     void setComment(QString addr, QString cmt);
     void delComment(ut64 addr);
-    QList<QList<QString>> getComments();
     QMap<QString, QList<QList<QString>>> getNestedComments();
     void setOptions(QString key);
     bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int bits = 0, int idx = 0, bool loadbin = false);
     bool tryFile(QString path, bool rw);
     void analyze(int level);
     void seek(QString addr);
-    void seek(ut64 addr);
+    void seek(ut64 offset);
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
     QString config(const QString &k, const QString &v = NULL);
     int config(const QString &k, int v);
-    QList<QString> getList(const QString &type, const QString &subtype = "");
     QString assemble(const QString &code);
     QString disassemble(const QString &hex);
     void setDefaultCPU();
     void setCPU(QString arch, QString cpu, int bits, bool temporary = false);
     RAnalFunction *functionAt(ut64 addr);
     QString cmdFunctionAt(QString addr);
+    QString cmdFunctionAt(RVA addr);
     /* sdb */
     QList<QString> sdbList(QString path);
     QList<QString> sdbListKeys(QString path);
@@ -103,12 +172,24 @@ public:
     QList<QString> regs;
     void setSettings();
 
+    QList<QString> getList(const QString &type, const QString &subtype = "");
+
+    QList<RVA> getSeekHistory();
+    QList<FunctionDescription> getAllFunctions();
+    QList<ImportDescription> getAllImports();
+    QList<SymbolDescription> getAllSymbols();
+    QList<CommentDescription> getAllComments(QString type);
+    QList<RelocDescription> getAllRelocs();
+    QList<StringDescription> getAllStrings();
+
     RCoreLocked core() const;
 
     /* fields */
 
     Sdb *db;
+
 signals:
+    void functionRenamed(QString prev_name, QString new_name);
 
 public slots:
 

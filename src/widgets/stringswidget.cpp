@@ -6,6 +6,7 @@
 #include "helpers.h"
 
 #include <QTreeWidget>
+#include <QAbstractItemView>
 
 
 StringsWidget::StringsWidget(MainWindow *main, QWidget *parent) :
@@ -41,21 +42,17 @@ void StringsWidget::on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
 
     // Get offset and name of item double clicked
     // TODO: use this info to change disasm contents
-    QString offset = item->text(1);
-    QString name = item->text(2);
-    this->main->seek(offset);
-    // Rise and shine baby!
-    this->main->raiseMemoryDock();
+    StringDescription str = item->data(0, Qt::UserRole).value<StringDescription>();
+    this->main->seek(str.vaddr, NULL, true);
 }
 
 void StringsWidget::fillTreeWidget()
 {
     ui->stringsTreeWidget->clear();
-    for (auto i : main->core->getList("bin", "strings"))
+    for (auto i : main->core->getAllStrings())
     {
-        QStringList pieces = i.split(",");
-        if (pieces.length() == 2)
-            qhelpers::appendRow(ui->stringsTreeWidget, pieces[0], pieces[1]);
+        QTreeWidgetItem *item = qhelpers::appendRow(ui->stringsTreeWidget, RAddressString(i.vaddr), i.string);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(i));
     }
     qhelpers::adjustColumns(ui->stringsTreeWidget);
 }

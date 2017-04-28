@@ -47,7 +47,6 @@ public:
     Notepad         *notepadDock;
 
     bool responsive;
-    QString current_address;
 
     explicit MainWindow(QWidget *parent = 0, QRCore *kore = nullptr);
     ~MainWindow();
@@ -56,8 +55,9 @@ public:
     void closeEvent(QCloseEvent *event);
     void readSettings();
     void setFilename(QString fn);
-    void setCore(QRCore *core);
-    void seek(const QString &offset, const QString &name = NULL);
+    //void setCore(QRCore *core);
+    void seek(const QString &offset, const QString &name = NULL, bool raise_memory_dock = false);
+    void seek(const RVA offset, const QString &name = NULL, bool raise_memory_dock = false);
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
@@ -69,6 +69,9 @@ public:
     void raiseMemoryDock();
     void toggleSideBarTheme();
     void refreshOmniBar(const QStringList &flags);
+
+signals:
+    void cursorAddressChanged(RVA address);
 
 public slots:
 
@@ -185,7 +188,8 @@ private:
     SideBar          *sideBar;
 
     bool doLock;
-    void refreshMem(const QString &offset = QString());
+    void refreshMem();
+    void refreshMem(RVA offset);
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
@@ -207,6 +211,12 @@ private:
     QAction          *sidebar_action;
     SectionsDock     *sectionsDock;
     WebServerThread webserverThread;
+
+    RVA cursor_address;
+
+public:
+    RVA getCursorAddress() const        { return cursor_address; }
+    void setCursorAddress(RVA addr);
 };
 
 #endif // MAINWINDOW_H

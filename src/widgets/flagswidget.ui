@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>463</width>
     <height>300</height>
    </rect>
   </property>
@@ -71,11 +71,6 @@
     </item>
     <item>
      <widget class="QTreeWidget" name="flagsTreeWidget">
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
       <property name="styleSheet">
        <string notr="true">QTreeWidget::item
 {
@@ -113,7 +108,7 @@ QTreeWidget::item:selected
        <bool>false</bool>
       </property>
       <property name="columnCount">
-       <number>5</number>
+       <number>4</number>
       </property>
       <column>
        <property name="text">
@@ -133,11 +128,6 @@ QTreeWidget::item:selected
       <column>
        <property name="text">
         <string notr="true">Name</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">Comment</string>
        </property>
       </column>
      </widget>

@@ -39,22 +39,21 @@ void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
     QNOTUSED(column);
 
     // Get offset and name of item double clicked
-    // TODO: use this info to change disasm contents
-    QString offset = item->text(1);
-    QString name = item->text(3);
-    //qDebug() << "Item Text: " << name;
-    this->main->seek(offset, name);
-    //ui->memDock->setWindowTitle(name);
+    SymbolDescription symbol = item->data(0, Qt::UserRole).value<SymbolDescription>();
+    this->main->seek(symbol.vaddr, symbol.name, true);
 }
 
 void SymbolsWidget::fillSymbols()
 {
     ui->symbolsTreeWidget->clear();
-    for (auto i : this->main->core->getList("bin", "symbols"))
+    for (auto symbol : this->main->core->getAllSymbols())
     {
-        QStringList pieces = i.split(",");
-        if (pieces.length() == 3)
-            qhelpers::appendRow(ui->symbolsTreeWidget, pieces[0], pieces[1], pieces[2]);
+        QTreeWidgetItem *item = qhelpers::appendRow(ui->symbolsTreeWidget,
+                                                      RAddressString(symbol.vaddr),
+                                                      QString("%1 %2").arg(symbol.bind, symbol.type).trimmed(),
+                                                      symbol.name);
+
+        item->setData(0, Qt::UserRole, QVariant::fromValue(symbol));
     }
     qhelpers::adjustColumns(ui->symbolsTreeWidget);
 }

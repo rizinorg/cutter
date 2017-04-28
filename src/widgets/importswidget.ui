@@ -29,11 +29,6 @@
     </property>
     <item>
      <widget class="QTreeWidget" name="importsTreeWidget">
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
       <property name="styleSheet">
        <string notr="true">QTreeWidget::item
 {

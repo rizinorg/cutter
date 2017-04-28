@@ -110,7 +110,7 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     ui->setupUi(this);
 
     doLock = false;
-    this->current_address = "entry0";
+    this->cursor_address = core->getOffset();
 
     registerCustomFonts();
 
@@ -721,24 +721,50 @@ void MainWindow::on_actionRefresh_Panels_triggered()
     this->updateFrames();
 }
 
-void MainWindow::seek(const QString &offset, const QString &name)
+
+void MainWindow::seek(const QString &offset, const QString &name, bool raise_memory_dock)
 {
-    if (offset.length() == 0)
+    // TODO: remove this method and use the one with RVA only!
+
+    if(offset.length() < 2)
         return;
+
+    bool ok;
+    RVA addr = offset.mid(2).toULongLong(&ok, 16);
+    if(!ok)
+        return;
+
+    seek(addr, name, raise_memory_dock);
+}
+
+
+void MainWindow::seek(const RVA offset, const QString &name, bool raise_memory_dock)
+{
     if (name != NULL)
     {
         this->memoryDock->setWindowTitle(name);
-        this->current_address = name;
+        //this->current_address = name;
     }
     this->hexdumpTopOffset = 0;
     this->hexdumpBottomOffset = 0;
     core->seek(offset);
+    setCursorAddress(offset);
 
     refreshMem(offset);
     this->memoryDock->disasTextEdit->setFocus();
+
+    // Rise and shine baby!
+    if(raise_memory_dock)
+        this->memoryDock->raise();
 }
 
-void MainWindow::refreshMem(const QString &offset)
+void MainWindow::refreshMem()
+{
+    this->memoryDock->updateViews();
+
+}
+
+void MainWindow::refreshMem(RVA offset)
 {
     //add_debug_output("Refreshing to: " + off);
     //graphicsBar->refreshColorBar();
@@ -747,20 +773,18 @@ void MainWindow::refreshMem(const QString &offset)
     this->memoryDock->refreshHexdump(off);
     this->memoryDock->create_graph(off);
     */
-    this->memoryDock->updateViews();
-    this->memoryDock->get_refs_data(offset);
-    this->memoryDock->setFcnName(offset);
+    refreshMem();
+    this->memoryDock->get_refs_data(RAddressString(offset));
+    //this->memoryDock->setFcnName(offset);
 }
 
 void MainWindow::on_backButton_clicked()
 {
+    QList<RVA> seek_history = core->getSeekHistory();
     this->core->cmd("s-");
-    QString back_offset = this->core->cmd("s=").split(" > ").last().trimmed();
-    if (back_offset != "")
-    {
-        QString fcn = this->core->cmdFunctionAt(back_offset);
-        this->seek(this->memoryDock->normalizeAddr(back_offset), fcn);
-    }
+    RVA offset = this->core->getOffset();
+    QString fcn = this->core->cmdFunctionAt(QString::number(offset));
+    this->seek(offset, fcn);
 }
 
 void MainWindow::on_actionCalculator_triggered()
@@ -907,6 +931,7 @@ void MainWindow::add_output(QString msg)
 
 void MainWindow::add_debug_output(QString msg)
 {
+    printf("debug output: %s\n", msg.toLocal8Bit().constData());
     ui->consoleOutputTextEdit->appendHtml("<font color=\"red\"> [DEBUG]:\t" + msg + "</font>");
     ui->consoleOutputTextEdit->verticalScrollBar()->setValue(ui->consoleOutputTextEdit->verticalScrollBar()->maximum());
 }
@@ -996,12 +1021,9 @@ void MainWindow::on_actionDashboard_triggered()
 void MainWindow::on_actionForward_triggered()
 {
     this->core->cmd("s+");
-    QString offset = this->core->cmd("s=").split(" > ").last().trimmed();
-    if (offset != "")
-    {
-        this->add_debug_output(offset);
-        this->seek(offset);
-    }
+    RVA offset = core->getOffset();
+    this->add_debug_output(QString::number(offset));
+    this->seek(offset);
 }
 
 void MainWindow::toggleResponsive(bool maybe)
@@ -1033,6 +1055,12 @@ void MainWindow::on_actionReset_settings_triggered()
 void MainWindow::on_actionQuit_triggered()
 {
     close();
+}
+
+void MainWindow::setCursorAddress(RVA addr)
+{
+    this->cursor_address = addr;
+    emit cursorAddressChanged(addr);
 }
 
 void MainWindow::refreshVisibleDockWidgets()

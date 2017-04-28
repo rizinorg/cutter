@@ -35,11 +35,6 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="font">
-       <font>
-        <pointsize>12</pointsize>
-       </font>
-      </property>
       <property name="styleSheet">
        <string notr="true">QTreeWidget::item
 {

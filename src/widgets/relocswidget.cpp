@@ -14,6 +14,9 @@ RelocsWidget::RelocsWidget(MainWindow *main, QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // Radare core found in:
+    this->main = main;
+
     ui->relocsTreeWidget->hideColumn(0);
 }
 
@@ -39,23 +42,20 @@ void RelocsWidget::on_relocsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, 
     QNOTUSED(column);
 
     // Get offset and name of item double clicked
-    // TODO: use this info to change disasm contents
-    QString offset = item->text(1);
-    QString name = item->text(2);
-    main->seek(offset, name);
-
-    main->raiseMemoryDock();
+    RelocDescription reloc = item->data(0, Qt::UserRole).value<RelocDescription>();
+    main->seek(reloc.vaddr, reloc.name, true);
 }
 
 void RelocsWidget::fillTreeWidget()
 {
     ui->relocsTreeWidget->clear();
-    for (auto i : main->core->getList("bin", "relocs"))
+
+    for (auto i : main->core->getAllRelocs())
     {
-        QStringList pieces = i.split(",");
-        if (pieces.length() == 3)
-            qhelpers::appendRow(ui->relocsTreeWidget, pieces[0], pieces[1], pieces[2]);
+        QTreeWidgetItem *item = qhelpers::appendRow(ui->relocsTreeWidget, RAddressString(i.vaddr), i.type, i.name);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(i));
     }
+
     qhelpers::adjustColumns(ui->relocsTreeWidget);
 }
 

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>603</width>
+    <height>314</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -67,23 +67,12 @@ border-top: 0px;
          <number>0</number>
         </property>
         <item>
-         <widget class="QTreeWidget" name="functionsTreeWidget">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-           </font>
-          </property>
+         <widget class="QTreeView" name="functionsTreeView">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
           </property>
           <property name="styleSheet">
-           <string notr="true">QTreeWidget::item
+           <string notr="true">QTreeView::item
 {
     padding-left:10px;
     padding-top: 1px;
@@ -91,20 +80,20 @@ border-top: 0px;
     border-left: 10px;
 }
 
-QTreeWidget::item:hover
+QTreeView::item:hover
 {
     background: rgb(242, 246, 248);
     color: black;
 }
 
-QTreeWidget::item:selected
+QTreeView::item:selected
 {
     background: gray;
     color: white;
 }
 
-
-QToolTip {
+QToolTip 
+{
 	background-color: #444;
 	border: 3px solid #444;
 	color: rgb(232, 232, 232);
@@ -120,47 +109,12 @@ QToolTip {
           <property name="sizeAdjustPolicy">
            <enum>QAbstractScrollArea::AdjustToContents</enum>
           </property>
-          <property name="alternatingRowColors">
-           <bool>false</bool>
-          </property>
           <property name="indentation">
-           <number>10</number>
-          </property>
-          <property name="uniformRowHeights">
-           <bool>false</bool>
+           <number>0</number>
           </property>
           <property name="sortingEnabled">
            <bool>true</bool>
           </property>
-          <property name="allColumnsShowFocus">
-           <bool>false</bool>
-          </property>
-          <property name="columnCount">
-           <number>4</number>
-          </property>
-          <attribute name="headerHighlightSections">
-           <bool>false</bool>
-          </attribute>
-          <column>
-           <property name="text">
-            <string>Dummy</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Offset</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Size</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Name</string>
-           </property>
-          </column>
          </widget>
         </item>
        </layout>
@@ -186,12 +140,12 @@ QToolTip {
          <number>0</number>
         </property>
         <item>
-         <widget class="QTreeWidget" name="nestedFunctionsTree">
+         <widget class="QTreeView" name="nestedFunctionsTreeView">
           <property name="contextMenuPolicy">
            <enum>Qt::CustomContextMenu</enum>
           </property>
           <property name="styleSheet">
-           <string notr="true">QTreeWidget::item
+           <string notr="true">QTreeView::item
 {
     padding-left:10px;
     padding-top: 1px;
@@ -199,17 +153,17 @@ QToolTip {
     border-left: 10px;
 }
 
-QTreeWidget::item:selected
+QTreeView::item:selected
 {
     background: gray;
     color: white;
 }
 
-QTreeWidget::branch:selected
+QTreeView::branch:selected
 {
     background: gray;
 }
-QTreeWidget::item:hover
+QTreeView::item:hover
 {
     background: rgb(242, 246, 248);
     color: black;
@@ -225,18 +179,23 @@ QToolTip {
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
+          <property name="sortingEnabled">
+           <bool>true</bool>
+          </property>
           <property name="expandsOnDoubleClick">
            <bool>false</bool>
           </property>
-          <column>
-           <property name="text">
-            <string>Name</string>
-           </property>
-          </column>
          </widget>
         </item>
        </layout>
       </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="filterLineEdit">
+      <property name="placeholderText">
+       <string>Quick Filter</string>
+      </property>
      </widget>
     </item>
    </layout>

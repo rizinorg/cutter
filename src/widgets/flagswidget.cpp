@@ -47,7 +47,7 @@ void FlagsWidget::on_flagsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, in
 
     QString offset = item->text(2);
     QString name = item->text(3);
-    this->main->seek(offset, name);
+    this->main->seek(offset, name, true);
 }
 
 void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
