@@ -4,6 +4,21 @@ SVGElement.prototype.getTransformToElement = SVGElement.prototype.getTransformTo
     return toElement.getScreenCTM().inverse().multiply(this.getScreenCTM());
 };
 
+function init_panel(theme) {
+    // Load r2 settings (TODO: Do we need this?)
+    r2.load_settings();
+
+    // Initialize and render graph
+    r2ui.graph_panel = new GraphPanel(); 
+    if (r2ui.graph_panel != null) {
+        r2ui.graph_panel.seek(location.hash.substring(1));
+        r2ui.graph_panel.init_handlers();
+        if (theme == "dark") r2ui.graph_panel.render("dark");
+        else r2ui.graph_panel.render("light");
+    }
+}
+
+
 // Basic Block Graph 
 var BBGraph = function () {
   this.vertices = {};
@@ -174,20 +189,11 @@ BBGraph.prototype.render = function() {
   if (hs > ws) delta = (minimap_width/2) - svg_width*scale/2;
   minimap.scale(scale);
   minimap.setOrigin(delta,0);
-  // minimap.$el.css('pointer-events', 'none');
-
+  minimap.$el.css('pointer-events', 'none');
   $("#minimap").css("left", $("#main_panel").width() - minimap_width);
   $("#minimap").css("top",  $("#center_panel").position().top - 40);
-  // $("#center_panel").bind('scroll', update_minimap);
-  // $("#main_panel").bind('scroll', update_minimap);
-  // $("#disasm_tab").bind('scroll', update_minimap);
-  // $("#minimap").bind('scroll', update_minimap);
-  // $("#canvas").bind('scroll', update_minimap);
   document.addEventListener('scroll', function (event) {
-    //if (event.target.id === 'idOfUl') { // or any other filtering condition        
-        console.log('scrolling', event.target);
-        update_minimap();
-    //}
+    if (event.target.id === 'main_panel') update_minimap();
   }, true /*Capture event*/);
 
   paper.on( "cell:pointerup", function( cellview, evt, x, y)  {
@@ -269,6 +275,8 @@ function update_minimap() {
     var left_offset = el.scrollLeft()*scale + delta;
     if (mma_width > minimap_width - left_offset) mma_width = minimap_width - left_offset;
     if (mma_height > minimap_height - top_offset) mma_height = minimap_height - top_offset;
+    if (left_offset > minimap_width) left_offset = minimap_width 
+    if (top_offset > minimap_height) top_offset = minimap_height;
     $("#minimap_area").width(mma_width);
     $("#minimap_area").height(mma_height);
     $("#minimap_area").css("top", top_offset);

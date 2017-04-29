@@ -1561,9 +1561,9 @@ void MemoryWidget::create_graph(QString off)
     QSettings settings;
     if (settings.value("dark").toBool())
     {
-        ui->graphWebView->page()->runJavaScript(QString("init('dark');"));
+        ui->graphWebView->page()->runJavaScript(QString("init_panel('dark');"));
     } else {
-        ui->graphWebView->page()->runJavaScript(QString("init('light');"));
+        ui->graphWebView->page()->runJavaScript(QString("init_panel('light');"));
     }
 }
 
