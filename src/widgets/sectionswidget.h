@@ -9,6 +9,8 @@ class QAbstractItemModel;
 class QAbstractItemView;
 class QItemSelectionModel;
 
+struct SectionDescription;
+
 namespace Ui
 {
     class SectionsWidget;
@@ -31,8 +33,7 @@ private:
 
     void setupViews();
 
-    void fillSections(int row, const QString &str, const QString &str2 = QString(),
-                      const QString &str3 = QString(), const QString &str4 = QString());
+    void fillSections(int row, const SectionDescription &section);
 };
 
 #endif // SECTIONSWIDGET_H

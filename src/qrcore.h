@@ -102,12 +102,36 @@ struct StringDescription
     QString string;
 };
 
+struct FlagspaceDescription
+{
+    QString name;
+};
+
+struct FlagDescription
+{
+    RVA offset;
+    RVA size;
+    QString name;
+};
+
+struct SectionDescription
+{
+    RVA vaddr;
+    RVA paddr;
+    RVA size;
+    RVA vsize;
+    QString name;
+    QString flags;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(SymbolDescription)
 Q_DECLARE_METATYPE(CommentDescription)
 Q_DECLARE_METATYPE(RelocDescription)
 Q_DECLARE_METATYPE(StringDescription)
+Q_DECLARE_METATYPE(FlagspaceDescription)
+Q_DECLARE_METATYPE(FlagDescription)
 
 class QRCore : public QObject
 {
@@ -135,7 +159,7 @@ public:
     void delComment(ut64 addr);
     QMap<QString, QList<QList<QString>>> getNestedComments();
     void setOptions(QString key);
-    bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int bits = 0, int idx = 0, bool loadbin = false);
+    bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int idx = 0, bool loadbin = false);
     bool tryFile(QString path, bool rw);
     void analyze(int level);
     void seek(QString addr);
@@ -175,12 +199,19 @@ public:
     QList<QString> getList(const QString &type, const QString &subtype = "");
 
     QList<RVA> getSeekHistory();
+
+    QStringList getAsmPluginNames();
+    QStringList getAnalPluginNames();
+
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
     QList<SymbolDescription> getAllSymbols();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();
+    QList<FlagspaceDescription> getAllFlagspaces();
+    QList<FlagDescription> getAllFlags(QString flagspace = NULL);
+    QList<SectionDescription> getAllSections();
 
     RCoreLocked core() const;
 

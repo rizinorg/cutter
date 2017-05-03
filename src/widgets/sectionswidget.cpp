@@ -24,24 +24,14 @@ void SectionsWidget::setup()
     tree->clear();
 
     int row = 0;
-    for (auto i : main->core->getList("bin", "sections"))
+    for (auto section : main->core->getAllSections())
     {
-        QStringList a = i.split(",");
-        if (a.length() > 4)
-        {
-            // Fix to work with ARM bins
-            //if (a[4].startsWith(".")) {
-            if (a[4].contains("."))
-            {
-                QString addr = a[1];
-                QString addr_end = "0x0" + main->core->itoa(main->core->math(addr + "+" + a[2]));
-                QString size = QString::number(main->core->math(a[2]));
-                QString name = a[4];
+        if(!section.name.contains("."))
+            continue;
 
-                fillSections(row++, name, size, addr, addr_end);
-            }
-        }
+        fillSections(row++, section);
     }
+
     //adjustColumns(sectionsWidget->tree);
     //this->sectionsDock->sectionsWidget->adjustColumns();
     qhelpers::adjustColumns(tree);
@@ -81,8 +71,7 @@ void SectionsWidget::setupViews()
     pieChart->setSelectionModel(selectionModel);
 }
 
-void SectionsWidget::fillSections(int row, const QString &str, const QString &str2,
-                                  const QString &str3, const QString &str4)
+void SectionsWidget::fillSections(int row, const SectionDescription &section)
 {
     // TODO: create unique colors, e. g. use HSV color space and rotate in H for 360/size
     static const QList<QColor> colors = { QColor("#1ABC9C"),    //TURQUOISE
@@ -99,10 +88,10 @@ void SectionsWidget::fillSections(int row, const QString &str, const QString &st
                                         };
 
     QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-    tempItem->setText(0, str);
-    tempItem->setText(1, str2);
-    tempItem->setText(2, str3);
-    tempItem->setText(3, str4);
+    tempItem->setText(0, section.name);
+    tempItem->setText(1, RSizeString(section.size));
+    tempItem->setText(2, RAddressString(section.vaddr));
+    tempItem->setText(3, RAddressString(section.vaddr + section.vsize));
     tempItem->setData(0, Qt::DecorationRole, colors[row % colors.size()]);
     this->tree->insertTopLevelItem(0, tempItem);
 }

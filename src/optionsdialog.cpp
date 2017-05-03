@@ -28,13 +28,9 @@ OptionsDialog::OptionsDialog(const QString &filename, QWidget *parent):
     ui->analSlider->setValue(defaultAnalLevel);
 
     // Fill the plugins combo
-    QStringList plugins;
-    for (auto i : this->core->getList("asm", "plugins"))
-    {
-        this->asm_plugins.append(i);
-        plugins.append(i);
-    }
-    ui->processorComboBox->insertItems(1, plugins);
+    asm_plugins = core->getAsmPluginNames();
+    for (auto plugin : asm_plugins)
+        ui->processorComboBox->addItem(plugin, plugin);
 
     // Restore settings
     QSettings settings;
@@ -86,12 +82,6 @@ void OptionsDialog::setupAndStartAnalysis(int level)
     int va = ui->vaCheckBox->isChecked();
     ut64 loadaddr = 0LL;
     ut64 mapaddr = 0LL;
-    int bits = 0;
-    QString sel_bits = ui->bitsComboBox->currentText();
-    if (sel_bits != "Auto")
-    {
-        bits = sel_bits.toInt();
-    }
 
     // Save options in settings
     QSettings settings;
@@ -164,6 +154,26 @@ void OptionsDialog::setupAndStartAnalysis(int level)
     }
     settings.setValue("spacy", ui->spacyCheckBox->isChecked());
 
+
+
+    //
+    // Advanced Options
+    //
+    QVariant archValue = ui->processorComboBox->currentData();
+
+    int bits = 0;
+    QString sel_bits = ui->bitsComboBox->currentText();
+    if (sel_bits != "Auto")
+    {
+        bits = sel_bits.toInt();
+    }
+
+    w->core->setCPU(archValue.isValid() ? archValue.toString() : NULL,
+                    QString(),
+                    bits);
+
+
+
     bool rw = false;
     bool load_bininfo = ui->binCheckBox->isChecked();
 
@@ -189,7 +199,7 @@ void OptionsDialog::setupAndStartAnalysis(int level)
     int binidx = 0; // index of subbin
 
     this->w->addOutput(" > Loading file: " + this->filename);
-    this->w->core->loadFile(this->filename, loadaddr, mapaddr, rw, va, bits, binidx, load_bininfo);
+    this->w->core->loadFile(this->filename, loadaddr, mapaddr, rw, va, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
     ui->statusLabel->setText("Analysis in progress");
 

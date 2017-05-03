@@ -61,6 +61,8 @@ QRCore::QRCore(QObject *parent) :
     //config("http.root","/usr/local/share/radare2/last/www");
     //config("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
 
+    default_bits = 0;
+
     this->db = sdb_new(NULL, NULL, 0);  // WTF NOES
 }
 
@@ -240,7 +242,7 @@ QJsonDocument QRCore::cmdj(const QString &str)
     return doc;
 }
 
-bool QRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int bits, int idx, bool loadbin)
+bool QRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin)
 {
     QNOTUSED(loadaddr);
     QNOTUSED(idx);
@@ -297,10 +299,6 @@ bool QRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw
                 eprintf("CANNOT GET RBIN INFO\n");
             }
         }
-        if (bits != 0)
-        {
-            r_config_set_i(core_->config, "asm.bits", bits);
-        }
 
 #if HAVE_MULTIPLE_RBIN_FILES_INSIDE_SELECT_WHICH_ONE
         if (!r_core_file_open(core, path.toUtf8(), R_IO_READ | (rw ? R_IO_WRITE : 0, mapaddr)))
@@ -320,6 +318,9 @@ bool QRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw
     {
         // Not loading RBin info coz va = false
     }
+
+    setDefaultCPU();
+
     r_core_hash_load(core_, path.toUtf8().constData());
     fflush(stdout);
     return true;
@@ -440,20 +441,11 @@ bool QRCore::tryFile(QString path, bool rw)
 QList<QString> QRCore::getList(const QString &type, const QString &subtype)
 {
     CORE_LOCK();
-    RListIter *it;
     QList<QString> ret = QList<QString>();
 
     if (type == "bin")
     {
-        if (subtype == "sections")
-        {
-            QString text = cmd("S*~^S");
-            for (QString i : text.split("\n"))
-            {
-                ret << i.mid(2).replace(" ", ",");
-            }
-        }
-        else if (subtype == "types")
+        if (subtype == "types")
         {
             ret << "raw";
             auto ft = sdb_const_get(DB, "try.filetype", 0);
@@ -468,15 +460,7 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
     }
     else if (type == "asm")
     {
-        if (subtype == "plugins")
-        {
-            RAsmPlugin *ap;
-            QRListForeach(core_->assembler->plugins, it, RAsmPlugin, ap)
-            {
-                ret << ap->name;
-            }
-        }
-        else if (subtype == "cpus")
+        if (subtype == "cpus")
         {
             QString funcs = cmd("e asm.cpu=?");
             QStringList lines = funcs.split("\n");
@@ -486,41 +470,7 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
             }
         }
     }
-    else if (type == "anal")
-    {
-        if (subtype == "plugins")
-        {
-            RAnalPlugin *ap;
-            QRListForeach(core_->anal->plugins, it, RAnalPlugin, ap)
-            {
-                ret << ap->name;
-            }
-        }
-    }
-    else if (type == "flagspaces")
-    {
-        QStringList lines = cmd("fs*").split("\n");
-        for (auto i : lines)
-        {
-            QStringList a = i.replace("*", "").split(" ");
-            if (a.length() > 1)
-                ret << a[1];
-        }
-    }
-    else if (type == "flags")
-    {
-        if (subtype != NULL && subtype != "")
-            cmd("fs " + subtype);
-        else cmd("fs *");
-        QString flags = cmd("f*");
-        QStringList lines = flags.split("\n");
-        for (auto i : lines)
-        {
-            // TODO: is 0 in a string even possible?
-            if (i[0] != QChar(0) && i[1] == QChar('s')) continue; // skip 'fs ..'
-            ret << i.mid(2).replace(" ", ",");
-        }
-    }
+
     return ret;
 }
 
@@ -627,9 +577,12 @@ void QRCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
 
 void QRCore::setDefaultCPU()
 {
-    config("asm.arch", default_arch);
-    config("asm.cpu", default_cpu);
-    config("asm.bits", QString::number(default_bits));
+    if (!default_arch.isEmpty())
+        config("asm.arch", default_arch);
+    if (!default_cpu.isEmpty())
+        config("asm.cpu", default_cpu);
+    if (default_bits)
+        config("asm.bits", QString::number(default_bits));
 }
 
 QString QRCore::assemble(const QString &code)
@@ -862,6 +815,39 @@ QList<RVA> QRCore::getSeekHistory()
     return ret;
 }
 
+
+
+QStringList QRCore::getAsmPluginNames()
+{
+    CORE_LOCK();
+    RListIter *it;
+    QStringList ret;
+
+    RAsmPlugin *ap;
+    QRListForeach(core_->assembler->plugins, it, RAsmPlugin, ap)
+    {
+        ret << ap->name;
+    }
+
+    return ret;
+}
+
+QStringList QRCore::getAnalPluginNames()
+{
+    CORE_LOCK();
+    RListIter *it;
+    QStringList ret;
+
+    RAnalPlugin *ap;
+    QRListForeach(core_->anal->plugins, it, RAnalPlugin, ap)
+    {
+        ret << ap->name;
+    }
+
+    return ret;
+}
+
+
 QList<FunctionDescription> QRCore::getAllFunctions()
 {
     CORE_LOCK();
@@ -1021,5 +1007,78 @@ QList<StringDescription> QRCore::getAllStrings()
         }
     }
 
+    return ret;
+}
+
+
+QList<FlagspaceDescription> QRCore::getAllFlagspaces()
+{
+    CORE_LOCK();
+    QList<FlagspaceDescription> ret;
+
+    QJsonArray flagspacesArray = cmdj("fsj").array();
+    for (QJsonValue value : flagspacesArray)
+    {
+        QJsonObject flagspaceObject = value.toObject();
+
+        FlagspaceDescription flagspace;
+        flagspace.name = flagspaceObject["name"].toString();
+
+        ret << flagspace;
+    }
+    return ret;
+}
+
+
+QList<FlagDescription> QRCore::getAllFlags(QString flagspace)
+{
+    CORE_LOCK();
+    QList<FlagDescription> ret;
+
+    if (!flagspace.isEmpty())
+        cmd("fs " + flagspace);
+    else
+        cmd("fs *");
+
+    QJsonArray flagsArray = cmdj("fj").array();
+    for (QJsonValue value : flagsArray)
+    {
+        QJsonObject flagObject = value.toObject();
+
+        FlagDescription flag;
+        flag.offset = flagObject["offset"].toVariant().toULongLong();
+        flag.size = flagObject["size"].toVariant().toULongLong();
+        flag.name = flagObject["name"].toString();
+
+        ret << flag;
+    }
+    return ret;
+}
+
+
+QList<SectionDescription> QRCore::getAllSections()
+{
+    CORE_LOCK();
+    QList<SectionDescription> ret;
+
+    QJsonArray sectionsArray = cmdj("Sj").array();
+    for (QJsonValue value : sectionsArray)
+    {
+        QJsonObject sectionObject = value.toObject();
+
+        QString name = sectionObject["name"].toString();
+        if (name.isEmpty())
+            continue;
+
+        SectionDescription section;
+        section.name = name;
+        section.vaddr = sectionObject["vaddr"].toVariant().toULongLong();
+        section.vsize = sectionObject["vsize"].toVariant().toULongLong();
+        section.paddr = sectionObject["paddr"].toVariant().toULongLong();
+        section.size = sectionObject["size"].toVariant().toULongLong();
+        section.flags = sectionObject["flags"].toString();
+
+        ret << section;
+    }
     return ret;
 }

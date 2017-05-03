@@ -60,13 +60,17 @@ void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
 void FlagsWidget::refreshFlagspaces()
 {
     int cur_idx = ui->flagspaceCombo->currentIndex();
-    if (cur_idx < 0)cur_idx = 0;
+    if (cur_idx < 0)
+        cur_idx = 0;
+
     ui->flagspaceCombo->clear();
-    ui->flagspaceCombo->addItem("(all)");
-    for (auto i : main->core->getList("flagspaces"))
+    ui->flagspaceCombo->addItem(tr("(all)"));
+
+    for (auto i : main->core->getAllFlagspaces())
     {
-        ui->flagspaceCombo->addItem(i);
+        ui->flagspaceCombo->addItem(i.name, QVariant::fromValue(i));
     }
+
     if (cur_idx > 0)
         ui->flagspaceCombo->setCurrentIndex(cur_idx);
 
@@ -75,29 +79,23 @@ void FlagsWidget::refreshFlagspaces()
 
 void FlagsWidget::refreshFlags()
 {
-    QString flagspace = ui->flagspaceCombo->currentText();
-    if (flagspace == "(all)")
-        flagspace = "";
+    QString flagspace;
+
+    QVariant flagspace_data = ui->flagspaceCombo->currentData();
+    if(flagspace_data.isValid())
+        flagspace = flagspace_data.value<FlagspaceDescription>().name;
+
 
     ui->flagsTreeWidget->clear();
 
     QStringList flags;
 
-    for (auto i : main->core->getList("flags", flagspace))
+    for (auto i : main->core->getAllFlags(flagspace))
     {
-        QStringList a = i.split(",");
-        if (a.length() > 3)
-        {
-            qhelpers::appendRow(ui->flagsTreeWidget, a[1], a[2], a[0], a[3]);
-            //this->omnibar->fillFlags(a[0]);
-        }
-        else if (a.length() > 2)
-        {
-            qhelpers::appendRow(ui->flagsTreeWidget, a[1], a[2], a[0], "");
-            //this->omnibar->fillFlags(a[0]);
-        }
+        QTreeWidgetItem *item = qhelpers::appendRow(ui->flagsTreeWidget, RSizeString(i.size), RAddressString(i.offset), i.name);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(i));
 
-        flags.append(a[0]);
+        flags.append(i.name);
     }
     qhelpers::adjustColumns(ui->flagsTreeWidget);
 
