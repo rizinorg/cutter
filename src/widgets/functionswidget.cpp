@@ -351,8 +351,8 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
             this, SLOT(showFunctionsContextMenu(const QPoint &)));
 
 
-    connect(ui->functionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(on_functionsTreeView_itemDoubleClicked(const QModelIndex &)));
-    connect(ui->nestedFunctionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(on_functionsTreeView_itemDoubleClicked(const QModelIndex &)));
+    connect(ui->functionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(functionsTreeView_doubleClicked(const QModelIndex &)));
+    connect(ui->nestedFunctionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(functionsTreeView_doubleClicked(const QModelIndex &)));
 
     // Hide the tabs
     QTabBar *tabs = ui->tabWidget->tabBar();
@@ -410,7 +410,7 @@ QTreeView *FunctionsWidget::getCurrentTreeView()
         return ui->nestedFunctionsTreeView;
 }
 
-void FunctionsWidget::on_functionsTreeView_itemDoubleClicked(const QModelIndex &index)
+void FunctionsWidget::functionsTreeView_doubleClicked(const QModelIndex &index)
 {
     FunctionDescription function = index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     this->main->seek(function.offset, function.name, true);

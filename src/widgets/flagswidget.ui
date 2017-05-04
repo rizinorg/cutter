@@ -31,48 +31,9 @@
      <number>0</number>
     </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_17">
-      <property name="spacing">
-       <number>10</number>
-      </property>
-      <property name="leftMargin">
-       <number>10</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>5</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="flagspaceLabel">
-        <property name="text">
-         <string>Flagspace:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="flagspaceCombo"/>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <widget class="QTreeWidget" name="flagsTreeWidget">
+     <widget class="QTreeView" name="flagsTreeView">
       <property name="styleSheet">
-       <string notr="true">QTreeWidget::item
+       <string notr="true">QTreeView::item
 {
     padding-left:10px;
     padding-top: 1px;
@@ -80,13 +41,13 @@
     border-left: 10px;
 }
 
-QTreeWidget::item:hover
+QTreeView::item:hover
 {
     background: rgb(242, 246, 248);
     color: black;
 }
 
-QTreeWidget::item:selected
+QTreeView::item:selected
 {
     background: gray;
     color: white;
@@ -98,39 +59,52 @@ QTreeWidget::item:selected
       <property name="dragEnabled">
        <bool>true</bool>
       </property>
+      <property name="indentation">
+       <number>0</number>
+      </property>
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
       <property name="animated">
        <bool>true</bool>
       </property>
-      <property name="allColumnsShowFocus">
-       <bool>false</bool>
-      </property>
-      <property name="columnCount">
-       <number>4</number>
-      </property>
-      <column>
-       <property name="text">
-        <string>Dummy</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Size</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Offset</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string notr="true">Name</string>
-       </property>
-      </column>
      </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_17">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="filterLineEdit">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="placeholderText">
+         <string>Quick Filter</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="flagspaceLabel">
+        <property name="text">
+         <string>Flagspace:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="flagspaceCombo"/>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
