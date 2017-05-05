@@ -26,19 +26,12 @@ if(WIN32)
     endif()
 
     set(RADARE2_INCLUDE_DIRS "${IAITO_WIN32_DIR}/radare2/include/libr" "${IAITO_WIN32_DIR}/include")
-
-    find_package(Radare2 REQUIRED)
-else()
-    # support sys/user.sh install
-    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/bin/prefix/radare2")
-
-    find_package(PkgConfig REQUIRED)
-    pkg_search_module(RADARE2 REQUIRED r_core)
-
-    link_directories(${RADARE2_LIBRARY_DIRS})
 endif()
 
+
+find_package(Radare2 REQUIRED)
 include_directories(${RADARE2_INCLUDE_DIRS})
+link_directories(${RADARE2_LIBRARY_DIRS})
 
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
