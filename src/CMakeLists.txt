@@ -36,7 +36,7 @@ link_directories(${RADARE2_LIBRARY_DIRS})
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
         OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-Wall)
+    add_definitions(-Wall -Wextra)
 endif()
 
 

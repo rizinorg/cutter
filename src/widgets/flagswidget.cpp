@@ -10,19 +10,18 @@
 
 
 
-FlagsModel::FlagsModel(QList<FlagDescription> *flags, MainWindow *main, QObject *parent)
+FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
     : QAbstractListModel(parent),
-      main(main),
       flags(flags)
 {
 }
 
-int FlagsModel::rowCount(const QModelIndex &parent) const
+int FlagsModel::rowCount(const QModelIndex &) const
 {
     return flags->count();
 }
 
-int FlagsModel::columnCount(const QModelIndex &parent) const
+int FlagsModel::columnCount(const QModelIndex &) const
 {
     return Columns::COUNT;
 }
@@ -136,7 +135,7 @@ FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    flags_model = new FlagsModel(&flags, main, this);
+    flags_model = new FlagsModel(&flags, this);
     flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), flags_proxy_model, SLOT(setFilterWildcard(const QString &)));
     ui->flagsTreeView->setModel(flags_proxy_model);

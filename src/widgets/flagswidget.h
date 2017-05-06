@@ -18,14 +18,13 @@ class FlagsModel: public QAbstractListModel
     Q_OBJECT
 
 private:
-    MainWindow *main;
     QList<FlagDescription> *flags;
 
 public:
     enum Columns { OFFSET = 0, SIZE, NAME, COUNT };
     static const int FlagDescriptionRole = Qt::UserRole;
 
-    FlagsModel(QList<FlagDescription> *flags, MainWindow *main, QObject *parent = 0);
+    FlagsModel(QList<FlagDescription> *flags, QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
