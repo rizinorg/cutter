@@ -7,17 +7,16 @@
 // TODO: remove us
 #include "widgets/memorywidget.h"
 #include "widgets/notepad.h"
+#include "settings.h"
 
 #include <QSettings>
 
 
-OptionsDialog::OptionsDialog(const QString &filename, QWidget *parent):
-    QDialog(parent),
+OptionsDialog::OptionsDialog(MainWindow *main):
+    QDialog(0), // parent may not be main
     ui(new Ui::OptionsDialog),
-    core(new QRCore()),
     analThread(this),
-    w(nullptr),
-    filename(filename),
+    main(main),
     defaultAnalLevel(3)
 {
     ui->setupUi(this);
@@ -28,7 +27,7 @@ OptionsDialog::OptionsDialog(const QString &filename, QWidget *parent):
     ui->analSlider->setValue(defaultAnalLevel);
 
     // Fill the plugins combo
-    asm_plugins = core->getAsmPluginNames();
+    asm_plugins = main->core->getAsmPluginNames();
     for (auto plugin : asm_plugins)
         ui->processorComboBox->addItem(plugin, plugin);
 
@@ -48,8 +47,8 @@ OptionsDialog::OptionsDialog(const QString &filename, QWidget *parent):
 
     connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
 
-    ui->programLineEdit->setText(filename);
-    this->core->tryFile(filename, true);
+    ui->programLineEdit->setText(main->getFilename());
+    this->main->core->tryFile(main->getFilename(), true);
 }
 
 OptionsDialog::~OptionsDialog()
@@ -73,87 +72,24 @@ void OptionsDialog::setupAndStartAnalysis(int level)
     ui->statusLabel->setText("Starting analysis");
     //ui->progressBar->setValue(5);
 
-    // Close dialog and open OptionsDialog
-    this->w = new MainWindow(0, this->core);
-
-    // Fill asm plugins in hexdump combo
-    this->w->memoryDock->fillPlugins(this->asm_plugins);
-
     int va = ui->vaCheckBox->isChecked();
     ut64 loadaddr = 0LL;
     ut64 mapaddr = 0LL;
 
     // Save options in settings
-    QSettings settings;
+    Settings settings;
+    settings.setAsmBytes(ui->bytesCheckBox->isChecked());
+    settings.setATnTSyntax(ui->attCheckBox->isChecked());
+    settings.setOpcodeDescription(ui->descriptionCheckBox->isChecked());
+    settings.setStackPointer(ui->stackCheckBox->isChecked());
+    settings.setUppercaseDisas(ui->ucaseCheckBox->isChecked());
+    settings.setSpacy(ui->spacyCheckBox->isChecked());
 
-    // Show asm bytes
-    if (ui->bytesCheckBox->isChecked())
-    {
-        this->w->core->config("asm.bytes", "true");
-        this->w->core->config("asm.cmtcol", "100");
-    }
-    else
-    {
-        this->w->core->config("asm.bytes", "false");
-        this->w->core->config("asm.cmtcol", "70");
-    }
-    settings.setValue("bytes", ui->bytesCheckBox->isChecked());
 
-    // Show AT&T syntax
-    if (ui->attCheckBox->isChecked())
-    {
-        this->w->core->config("asm.syntax", "att");
-    }
-    else
-    {
-        this->w->core->config("asm.syntax", "intel");
-    }
-    settings.setValue("syntax", ui->attCheckBox->isChecked());
+    main->initUI();
 
-    // Show opcode description
-    if (ui->descriptionCheckBox->isChecked())
-    {
-        this->w->core->config("asm.describe", "true");
-    }
-    else
-    {
-        this->w->core->config("asm.describe", "false");
-    }
-    settings.setValue("describe", ui->descriptionCheckBox->isChecked());
-
-    // Show stack pointer
-    if (ui->stackCheckBox->isChecked())
-    {
-        this->w->core->config("asm.stackptr", "true");
-    }
-    else
-    {
-        this->w->core->config("asm.stackptr", "false");
-    }
-    settings.setValue("stackptr", ui->stackCheckBox->isChecked());
-
-    // Show uppercase dasm
-    if (ui->ucaseCheckBox->isChecked())
-    {
-        this->w->core->config("asm.ucase", "true");
-    }
-    else
-    {
-        this->w->core->config("asm.ucase", "false");
-    }
-    settings.setValue("ucase", ui->ucaseCheckBox->isChecked());
-
-    // Show spaces in dasm
-    if (ui->spacyCheckBox->isChecked())
-    {
-        this->w->core->config("asm.spacy", "true");
-    }
-    else
-    {
-        this->w->core->config("asm.spacy", "false");
-    }
-    settings.setValue("spacy", ui->spacyCheckBox->isChecked());
-
+    // Apply options set above in MainWindow
+    main->applySettings();
 
 
     //
@@ -168,9 +104,9 @@ void OptionsDialog::setupAndStartAnalysis(int level)
         bits = sel_bits.toInt();
     }
 
-    w->core->setCPU(archValue.isValid() ? archValue.toString() : NULL,
-                    QString(),
-                    bits);
+    main->core->setCPU(archValue.isValid() ? archValue.toString() : NULL,
+                       QString(),
+                       bits);
 
 
 
@@ -183,7 +119,7 @@ void OptionsDialog::setupAndStartAnalysis(int level)
         {
             va = 2;
             loadaddr = UT64_MAX;
-            r_config_set_i(this->core->core()->config, "bin.laddr", loadaddr);
+            r_config_set_i(main->core->core()->config, "bin.laddr", loadaddr);
             mapaddr = 0;
         }
     }
@@ -198,15 +134,15 @@ void OptionsDialog::setupAndStartAnalysis(int level)
     // options dialog should show the list of archs inside the given fatbin
     int binidx = 0; // index of subbin
 
-    this->w->addOutput(" > Loading file: " + this->filename);
-    this->w->core->loadFile(this->filename, loadaddr, mapaddr, rw, va, binidx, load_bininfo);
+    main->addOutput(" > Loading file: " + main->getFilename());
+    main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
     ui->statusLabel->setText("Analysis in progress");
 
     // Threads stuff
     // connect signal/slot
 
-    analThread.start(core, level);
+    analThread.start(main->core, level);
 }
 
 void OptionsDialog::on_closeButton_clicked()
@@ -221,68 +157,29 @@ void OptionsDialog::on_okButton_clicked()
 
 void OptionsDialog::anal_finished()
 {
-    // Get opcodes
-    this->w->core->getOpcodes();
-
-    //fprintf(stderr, "anal done");
-    //ui->progressBar->setValue(70);
-
-    const QString uniqueName(qhelpers::uniqueProjectName(filename));
-
-    this->w->core->cmd("Po " + uniqueName);
-    // Set settings to override any incorrect saved in the project
-    this->core->setSettings();
     ui->statusLabel->setText("Loading interface");
-    this->w->addOutput(" > Analysis finished");
+    main->addOutput(" > Analysis finished");
+
     QString initial_seek = ui->entry_initialSeek->text();
     if (initial_seek.length() > 0)
     {
-        this->w->core->seek(initial_seek);
+        main->core->seek(initial_seek);
     }
     else
     {
-        this->w->core->seek("entry0");
-    }
-    this->w->addOutput(" > Populating UI");
-    // FIXME: initialization order frakup. the next line is needed so that the
-    // comments widget displays the function names.
-    core->cmd("fs sections");
-    this->w->updateFrames();
-    this->w->setFilename(this->filename);
-    this->w->get_refs(this->w->core->cmd("?v entry0"));
-    this->w->memoryDock->selectHexPreview();
-
-    // Restore project notes
-    QString notes = this->core->cmd("Pn");
-    //qDebug() << "Notes:" << notes;
-    if (notes != "")
-    {
-        QByteArray ba;
-        ba.append(notes);
-        this->w->notepadDock->setText(QByteArray::fromBase64(ba));
+        main->core->seek("entry0");
     }
 
-    //Get binary beginning/end addresses
-    this->core->binStart = this->core->cmd("?v $M");
-    this->core->binEnd = this->core->cmd("?v $M+$s");
-
-    this->w->addOutput(" > Finished, happy reversing :)");
-    // Add fortune message
-    this->w->addOutput("\n" + this->w->core->cmd("fo"));
-    this->w->memoryDock->setWindowTitle("entry0");
-    this->w->start_web_server();
+    main->finalizeOpen();
     close();
-    this->w->showMaximized();
-    // Initialize syntax highlighters
-    this->w->memoryDock->highlightDisasms();
-    this->w->notepadDock->highlightPreview();
 }
 
 void OptionsDialog::on_cancelButton_clicked()
 {
-    delete this->core;
-    this->core = NULL;
+    //delete this->core;
+    //this->core = NULL;
     // Close dialog and open OptionsDialog
+    delete main;
     close();
     NewFileDialog *n = new NewFileDialog(nullptr);
     n->show();

@@ -49,10 +49,6 @@ Notepad::~Notepad()
 
 void Notepad::setup()
 {
-    main->addOutput(" > Adding binary information to notepad");
-
-    setText("# Binary information\n\n" + main->core->cmd("i") +
-            "\n" + main->core->cmd("ie") + "\n" + main->core->cmd("iM") + "\n");
 }
 
 void Notepad::refresh()

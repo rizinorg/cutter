@@ -61,6 +61,8 @@
 #include "widgets/sdbdock.h"
 #include "widgets/omnibar.h"
 #include "widgets/consolewidget.h"
+#include "settings.h"
+#include "optionsdialog.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -81,9 +83,9 @@ static void registerCustomFonts()
     Q_UNUSED(ret)
 }
 
-MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    core(kore),
+    core(new QRCore()),
     memoryDock(nullptr),
     notepadDock(nullptr),
     asmDock(nullptr),
@@ -109,14 +111,22 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     consoleWidget(nullptr),
     webserver(core)
 {
-    this->start_web_server();
-    ui->setupUi(this);
-
     doLock = false;
     this->cursor_address = core->getOffset();
+}
+
+MainWindow::~MainWindow()
+{
+    delete ui;
+    delete core;
+}
+
+
+void MainWindow::initUI()
+{
+    ui->setupUi(this);
 
     registerCustomFonts();
-
 
     /*
     * Toolbar
@@ -268,10 +278,159 @@ MainWindow::MainWindow(QWidget *parent, QRCore *kore) :
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshVisibleDockWidgets()));
 }
 
-MainWindow::~MainWindow()
+void MainWindow::openFile(const QString &fn, int anal_level)
 {
-    delete ui;
-    delete core;
+    QString project_name = qhelpers::uniqueProjectName(fn);
+
+    if(core->getProjectNames().contains(project_name))
+        openProject(project_name);
+    else
+        openNewFile(fn, anal_level);
+}
+
+void MainWindow::openNewFile(const QString &fn, int anal_level)
+{
+    setFilename(fn);
+
+    OptionsDialog *o = new OptionsDialog(this);
+    o->setAttribute(Qt::WA_DeleteOnClose);
+    o->show();
+
+    if(anal_level >= 0)
+        o->setupAndStartAnalysis(anal_level);
+}
+
+void MainWindow::openProject(const QString &project_name)
+{
+    QString filename = core->cmd("Pi " + project_name);
+    setFilename(filename.trimmed());
+
+    core->cmd("Po " + project_name);
+
+    initUI();
+    finalizeOpen();
+}
+
+void MainWindow::finalizeOpen()
+{
+    core->getOpcodes();
+
+    // Set settings to override any incorrect saved in the project
+    core->setSettings();
+
+
+    addOutput(" > Populating UI");
+    // FIXME: initialization order frakup. the next line is needed so that the
+    // comments widget displays the function names.
+    core->cmd("fs sections");
+    updateFrames();
+
+    get_refs(core->cmd("?v entry0"));
+    memoryDock->selectHexPreview();
+
+    // Restore project notes
+    QString notes = this->core->cmd("Pnj");
+    //qDebug() << "Notes:" << notes;
+    if (notes != "")
+    {
+        QByteArray ba;
+        ba.append(notes);
+        notepadDock->setText(QByteArray::fromBase64(ba));
+    }
+    else
+    {
+        addOutput(" > Adding binary information to notepad");
+
+        notepadDock->setText("# Binary information\n\n" + core->cmd("i") +
+                "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
+    }
+
+    //Get binary beginning/end addresses
+    this->core->binStart = this->core->cmd("?v $M");
+    this->core->binEnd = this->core->cmd("?v $M+$s");
+
+    addOutput(" > Finished, happy reversing :)");
+    // Add fortune message
+    addOutput("\n" + core->cmd("fo"));
+    memoryDock->setWindowTitle("entry0");
+    start_web_server();
+    showMaximized();
+    // Initialize syntax highlighters
+    memoryDock->highlightDisasms();
+    notepadDock->highlightPreview();
+}
+
+void MainWindow::applySettings()
+{
+    Settings settings;
+
+    // Show asm bytes
+    if (settings.getAsmBytes())
+    {
+        core->config("asm.bytes", "true");
+        core->config("asm.cmtcol", "100");
+    }
+    else
+    {
+        core->config("asm.bytes", "false");
+        core->config("asm.cmtcol", "70");
+    }
+
+    // Show AT&T syntax
+    if (settings.getATnTSyntax())
+        core->config("asm.syntax", "att");
+    else
+        core->config("asm.syntax", "intel");
+
+    // Show opcode description
+    if (settings.getOpcodeDescription())
+    {
+        core->config("asm.describe", "true");
+    }
+    else
+    {
+        core->config("asm.describe", "false");
+    }
+
+    // Show stack pointer
+    if (settings.getStackPointer())
+    {
+        core->config("asm.stackptr", "true");
+    }
+    else
+    {
+        core->config("asm.stackptr", "false");
+    }
+
+    // Show uppercase dasm
+    if (settings.getUppercaseDisas())
+    {
+        core->config("asm.ucase", "true");
+    }
+    else
+    {
+        core->config("asm.ucase", "false");
+    }
+
+    // Show spaces in dasm
+    if (settings.getSpacy())
+    {
+        core->config("asm.spacy", "true");
+    }
+    else
+    {
+        core->config("asm.spacy", "false");
+    }
+}
+
+void MainWindow::saveProject()
+{
+    QString project_name = qhelpers::uniqueProjectName(filename);
+    core->cmd("Ps " + project_name);
+    QString notes = this->notepadDock->textToBase64();
+    //this->add_debug_output(notes);
+    this->core->cmd("Pnj " + notes);
+    this->addOutput("Project saved: " + project_name);
 }
 
 void MainWindow::start_web_server()
@@ -333,10 +492,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         settings.setValue("size", size());
         settings.setValue("pos", pos());
         settings.setValue("state", saveState());
-        core->cmd("Ps " + qhelpers::uniqueProjectName(filename));
-        QString notes = this->notepadDock->textToBase64();
-        //this->add_debug_output(notes);
-        this->core->cmd("Pnj " + notes);
+        saveProject();
         QMainWindow::closeEvent(event);
     }
     else if (ret == QMessageBox::Discard)
@@ -842,11 +998,7 @@ void MainWindow::on_actionNew_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    core->cmd("Ps " + qhelpers::uniqueProjectName(filename));
-    QString notes = this->notepadDock->textToBase64();
-    //this->add_debug_output(notes);
-    this->core->cmd("Pnj " + notes);
-    this->addOutput("Project saved");
+    saveProject();
 }
 
 void MainWindow::on_actionRun_Script_triggered()

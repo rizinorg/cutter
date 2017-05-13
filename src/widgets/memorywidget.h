@@ -60,7 +60,7 @@ signals:
     void fontChanged(QFont font);
 
 public slots:
-    void fillPlugins(QStringList plugins);
+    void fillPlugins();
 
     void addTextDisasm(QString txt);
 

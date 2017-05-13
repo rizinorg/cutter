@@ -23,20 +23,20 @@ int main(int argc, char *argv[])
 #endif
 
 
-    QCommandLineParser cmdParser;
-    cmdParser.setApplicationDescription("A Qt and C++ GUI for radare2 reverse engineering framework");
-    cmdParser.addHelpOption();
-    cmdParser.addVersionOption();
-    cmdParser.addPositionalArgument("filename", QObject::tr("Filename to open."));
+    QCommandLineParser cmd_parser;
+    cmd_parser.setApplicationDescription("A Qt and C++ GUI for radare2 reverse engineering framework");
+    cmd_parser.addHelpOption();
+    cmd_parser.addVersionOption();
+    cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
-    QCommandLineOption analOption({"A", "anal"},
+    QCommandLineOption anal_option({"A", "anal"},
                                   QObject::tr("Automatically start analysis. Needs filename to be specified. May be a value between 0 and 4."),
                                   QObject::tr("level"));
-    cmdParser.addOption(analOption);
+    cmd_parser.addOption(anal_option);
 
-    cmdParser.process(a);
+    cmd_parser.process(a);
 
-    QStringList args = cmdParser.positionalArguments();
+    QStringList args = cmd_parser.positionalArguments();
 
     // Check r2 version
     QString r2version = r_core_version();
@@ -55,14 +55,14 @@ int main(int argc, char *argv[])
 
 
 
-    bool analLevelSpecified = false;
-    int analLevel = 0;
+    bool anal_level_specified = false;
+    int anal_level = 0;
 
-    if (cmdParser.isSet(analOption))
+    if (cmd_parser.isSet(anal_option))
     {
-        analLevel = cmdParser.value(analOption).toInt(&analLevelSpecified);
+        anal_level = cmd_parser.value(anal_option).toInt(&anal_level_specified);
 
-        if (!analLevelSpecified || analLevel < 0 || analLevel > 4)
+        if (!anal_level_specified || anal_level < 0 || anal_level > 4)
         {
             printf("%s\n", QObject::tr("Invalid Analysis Level. May be a value between 0 and 4.").toLocal8Bit().constData());
             return 1;
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 
     if (args.empty())
     {
-        if (analLevelSpecified)
+        if (anal_level_specified)
         {
             printf("%s\n", QObject::tr("Filename must be specified to start analysis automatically.").toLocal8Bit().constData());
             return 1;
@@ -84,12 +84,8 @@ int main(int argc, char *argv[])
     }
     else // filename specified as positional argument
     {
-        OptionsDialog *o = new OptionsDialog(args[0]);
-        o->setAttribute(Qt::WA_DeleteOnClose);
-        o->show();
-
-        if (analLevelSpecified)
-            o->setupAndStartAnalysis(analLevel);
+        MainWindow *main = new MainWindow();
+        main->openFile(args[0], anal_level_specified ? anal_level : -1);
     }
 
     return a.exec();

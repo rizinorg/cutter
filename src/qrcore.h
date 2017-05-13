@@ -203,6 +203,8 @@ public:
     QStringList getAsmPluginNames();
     QStringList getAnalPluginNames();
 
+    QStringList getProjectNames();
+
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
     QList<SymbolDescription> getAllSymbols();

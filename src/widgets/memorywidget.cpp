@@ -193,6 +193,8 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     connect(ui->graphWebView->page(), SIGNAL(loadFinished(bool)), this, SLOT(frameLoadFinished(bool)));
 
     connect(main, SIGNAL(cursorAddressChanged(RVA)), this, SLOT(on_cursorAddressChanged(RVA)));
+
+    fillPlugins();
 }
 
 
@@ -418,10 +420,10 @@ void MemoryWidget::refresh()
  * Content management functions
  */
 
-void MemoryWidget::fillPlugins(QStringList plugins)
+void MemoryWidget::fillPlugins()
 {
     // Fill the plugins combo for the hexdump sidebar
-    ui->hexArchComboBox_2->insertItems(0, plugins);
+    ui->hexArchComboBox_2->insertItems(0, main->core->getAsmPluginNames());
 }
 
 void MemoryWidget::addTextDisasm(QString txt)

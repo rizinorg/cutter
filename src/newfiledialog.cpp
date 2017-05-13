@@ -114,10 +114,13 @@ void NewFileDialog::on_loadFileButton_clicked()
 
         settings.setValue("recentFileList", files);
 
-        // Close dialog and open OptionsDialog
         close();
-        OptionsDialog *o = new OptionsDialog(fname);
-        o->exec();
+
+        // Close dialog and open MainWindow/OptionsDialog
+        MainWindow *main = new MainWindow();
+        main->openFile(fname);
+        //OptionsDialog *o = new OptionsDialog(fname);
+        //o->exec();
     }
 }
 
@@ -152,8 +155,11 @@ void NewFileDialog::on_recentsList_itemDoubleClicked(QListWidgetItem *item)
     QString sitem = data.toString();
     // Close dialog and open OptionsDialog
     close();
-    OptionsDialog *o = new OptionsDialog(sitem);
-    o->exec();
+
+    MainWindow *main = new MainWindow();
+    main->openFile(sitem);
+    //OptionsDialog *o = new OptionsDialog(sitem);
+    //o->exec();
 }
 
 void NewFileDialog::on_cancelButton_clicked()

@@ -100,7 +100,8 @@ HEADERS  += \
     widgets/sectionsdock.h \
     widgets/dockwidget.h \
     widgets/consolewidget.h \
-    radarewebserver.h
+    radarewebserver.h \
+    settings.h
 
 FORMS    += \
     mainwindow.ui \

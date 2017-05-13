@@ -211,6 +211,7 @@ QRCore::~QRCore()
 QString QRCore::cmd(const QString &str)
 {
     CORE_LOCK();
+
     QByteArray cmd = str.toUtf8();
     //r_cons_flush();
     char *res = r_core_cmd_str(this->core_, cmd.constData());
@@ -846,6 +847,20 @@ QStringList QRCore::getAnalPluginNames()
 
     return ret;
 }
+
+
+QStringList QRCore::getProjectNames()
+{
+    CORE_LOCK();
+    QStringList ret;
+
+    QJsonArray jsonArray = cmdj("Plj").array();
+    for(QJsonValue value : jsonArray)
+        ret.append(value.toString());
+
+    return ret;
+}
+
 
 
 QList<FunctionDescription> QRCore::getAllFunctions()

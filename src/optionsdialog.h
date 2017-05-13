@@ -19,7 +19,7 @@ class OptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit OptionsDialog(const QString &filename, QWidget *parent = 0);
+    explicit OptionsDialog(MainWindow *main);
     ~OptionsDialog();
     RAnalFunction functionAt(ut64 addr);
     QStringList    asm_plugins;
@@ -43,10 +43,8 @@ private slots:
 
 private:
     Ui::OptionsDialog *ui;
-    QRCore *core;
     AnalThread analThread;
-    MainWindow *w;
-    QString filename;
+    MainWindow *main;
     int defaultAnalLevel;
 
     QString analysisDescription(int level);
