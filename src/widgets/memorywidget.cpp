@@ -750,9 +750,18 @@ void MemoryWidget::hexScrolled()
 
         QList<QString> ret = this->get_hexdump(lastline);
 
-        this->hexOffsetText->append(ret[0]);
-        this->hexHexText->append(ret[1]);
-        this->hexASCIIText->append(ret[2]);
+        // To prevent recursive calls to hexScrolled (this function) blocks the
+        // scroll bar signals
+        auto appendTextWithoutSignals = [](QTextEdit *edit, const QString &text)
+        {
+            edit->verticalScrollBar()->blockSignals(true);
+            edit->append(text);
+            edit->verticalScrollBar()->blockSignals(false);
+        };
+
+        appendTextWithoutSignals(hexOffsetText, ret[0]);
+        appendTextWithoutSignals(hexHexText, ret[1]);
+        appendTextWithoutSignals(hexASCIIText, ret[2]);
         this->resizeHexdump();
 
         // Append more hex text here
