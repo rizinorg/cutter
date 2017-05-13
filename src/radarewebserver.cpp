@@ -1,5 +1,7 @@
 #include "radarewebserver.h"
 #include "qrcore.h"
+#include <QCoreApplication>
+#include <QProcessEnvironment>
 #include <cassert>
 
 
@@ -17,6 +19,23 @@ RadareWebServer::~RadareWebServer()
 void RadareWebServer::start()
 {
     assert(core != nullptr);
+
+    // FIXME: quick & dirty work around to get this in AppImage working
+    QProcessEnvironment env(QProcessEnvironment::systemEnvironment());
+    if (env.contains("APPIMAGE") && env.contains("APPDIR") && env.contains("OWD"))
+    {
+        // pretty sure now iaito runs as AppImage
+
+        //QString defaultPath("/usr/share/radare2/1.5.0-git/www");
+        QString defaultHttpRoot(core->config("http.root"));
+        if (defaultHttpRoot.startsWith("/usr"))
+        {
+            QString path(QCoreApplication::applicationDirPath());
+            path.replace("bin/", defaultHttpRoot.remove("/usr"));
+
+            core->config("http.root", path);
+        }
+    }
 
     if (!started && core != nullptr)
     {
