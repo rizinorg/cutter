@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "webserverthread.h"
+#include "radarewebserver.h"
 #include "qrcore.h" // only needed for ut64
 
 #include <QMainWindow>
