@@ -1,33 +1,26 @@
-#ifndef WEBSERVERTHREAD_H
-#define WEBSERVERTHREAD_H
+#ifndef RADARE_WEBSERVER_H
+#define RADARE_WEBSERVER_H
 
 #include <QThread>
 #include <QMutex>
 
 class QRCore;
 
-class WebServerThread : public QThread
+class RadareWebServer
 {
-    Q_OBJECT
 public:
 
-    explicit WebServerThread(QRCore *core, QObject *parent = 0);
-    ~WebServerThread();
+    explicit RadareWebServer(QRCore *core);
+    ~RadareWebServer();
 
-    void startServer();
-    void stopServer();
+    void start();
+    void stop();
 
     bool isStarted() const;
 
 private:
-    void run();
-    using QThread::start;
-
-    void toggleWebServer();
-
-    mutable QMutex mutex;
     QRCore *core;
     bool   started;
 };
 
-#endif // WEBSERVERTHREAD_H
+#endif // RADARE_WEBSERVER_H

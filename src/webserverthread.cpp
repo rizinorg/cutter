@@ -2,83 +2,37 @@
 #include "qrcore.h"
 #include <cassert>
 
-WebServerThread::WebServerThread(QRCore *core, QObject *parent) :
-    QThread(parent),
+
+RadareWebServer::RadareWebServer(QRCore *core) :
     core(core),
     started(false)
 {
     // MEOW
 }
 
-WebServerThread::~WebServerThread()
+RadareWebServer::~RadareWebServer()
 {
-    if (isRunning())
-    {
-        quit();
-        wait();
-    }
 }
 
-void WebServerThread::startServer()
+void RadareWebServer::start()
 {
-    assert(nullptr != core);
+    assert(core != nullptr);
 
-    if (!isRunning() && !started)
+    if (!started && core != nullptr)
     {
-        QThread::start();
-    }
-}
-
-void WebServerThread::stopServer()
-{
-    assert(nullptr != core);
-
-    if (!isRunning() && started)
-    {
-        QThread::start();
-    }
-}
-
-bool WebServerThread::isStarted() const
-{
-    QMutexLocker locker(&mutex);
-    return started;
-}
-
-void WebServerThread::run()
-{
-    QMutexLocker locker(&mutex);
-
-    if (core == nullptr)
-        return;
-    //eprintf ("Starting webserver!");
-
-    toggleWebServer();
-}
-
-void WebServerThread::toggleWebServer()
-{
-    // access already locked
-
-    // see libr/core/rtr.c
-    // "=h", " port", "listen for http connections (r2 -qc=H /bin/ls)",
-    // "=h-", "", "stop background webserver",
-    // "=h*", "", "restart current webserver",
-    // "=h&", " port", "start http server in background)",
-
-    if (started)
-    {
-        // after this the only reaction to this commands is:
-        // sandbox: connect disabled
-        // and the webserver is still running
-        // TODO: find out why
-        core->cmd("=h-");
-    }
-    else
-    {
+        // command: see libr/core/rtr.c
         core->cmd("=h&");
+        core->core()->http_up = R_TRUE;
+        started = true;
     }
+}
 
-    // cmd has no usefull return value for this commands, so just toogle the state
-    started = !started;
+void RadareWebServer::stop()
+{
+    // TODO: =h- waits for ^C
+}
+
+bool RadareWebServer::isStarted() const
+{
+    return started;
 }
