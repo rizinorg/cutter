@@ -1,5 +1,6 @@
 language: cpp
 compiler: gcc
+cache: ccache
 sudo: require
 dist: trusty
 
