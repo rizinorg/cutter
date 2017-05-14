@@ -1,16 +1,14 @@
 #ifndef FLAGSWIDGET_H
 #define FLAGSWIDGET_H
 
-#include <QtCore/QAbstractItemModel>
-#include <qrcore.h>
-#include <QtCore/QSortFilterProxyModel>
+#include "qrcore.h"
 #include "dockwidget.h"
+#include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
+
 
 class MainWindow;
 class QTreeWidgetItem;
-
-
-
 
 
 class FlagsModel: public QAbstractListModel

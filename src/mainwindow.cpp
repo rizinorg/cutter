@@ -6,38 +6,34 @@
 #include "dialogs/renamedialog.h"
 #include "helpers.h"
 
-#include <qfont.h>
-#include <qsettings.h>
-#include <qlabel.h>
-#include <qfile.h>
-#include <qmessagebox.h>
-#include <qfontdialog.h>
-#include <qcompleter.h>
-#include <qstringlistmodel.h>
-#include <QScrollBar>
-#include <QDir>
+#include <QComboBox>
+#include <QCompleter>
 #include <QDebug>
 #include <QDesktopServices>
-#include <QFileDialog>
-#include <QPropertyAnimation>
-#include <QStyledItemDelegate>
-#include <QProcess>
-
-#include <QtGlobal>
-#include <QToolTip>
-#include <QShortcut>
-#include <QTextCursor>
-#include <QMessageBox>
-#include <QStyleFactory>
-
-#include <QLabel>
-#include <QComboBox>
-#include <QTreeWidgetItem>
+#include <QDir>
 #include <QDockWidget>
+#include <QFile>
+#include <QFileDialog>
+#include <QFont>
+#include <QFontDialog>
+#include <QLabel>
 #include <QLineEdit>
-#include <QSettings>
 #include <QList>
+#include <QMessageBox>
+#include <QProcess>
+#include <QPropertyAnimation>
+#include <QScrollBar>
+#include <QSettings>
+#include <QShortcut>
+#include <QStringListModel>
+#include <QStyledItemDelegate>
+#include <QStyleFactory>
+#include <QTextCursor>
+#include <QtGlobal>
 #include <QToolButton>
+#include <QToolTip>
+#include <QTreeWidgetItem>
+
 
 #include "highlighter.h"
 #include "hexascii_highlighter.h"

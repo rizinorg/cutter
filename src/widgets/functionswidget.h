@@ -1,11 +1,11 @@
 #ifndef FUNCTIONSWIDGET_H
 #define FUNCTIONSWIDGET_H
 
-#include <QDockWidget>
-#include <QTreeWidget>
-#include <QSortFilterProxyModel>
+#include "dockwidget.h"
 #include "qrcore.h"
-#include "dashboard.h"
+
+#include <QSortFilterProxyModel>
+#include <QTreeView>
 
 class MainWindow;
 class QTreeWidgetItem;

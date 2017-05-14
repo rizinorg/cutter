@@ -2,7 +2,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 class Settings
 {
