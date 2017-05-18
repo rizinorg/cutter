@@ -335,7 +335,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
-    connect(search_shortcut, SIGNAL(activated()), this, SLOT(toggle_visibility()));
+    connect(search_shortcut, SIGNAL(activated()), this, SLOT(show_filter()));
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry
@@ -617,21 +617,25 @@ void FunctionsWidget::setScrollMode()
     qhelpers::setVerticalScrollMode(ui->functionsTreeView);
 }
 
-void FunctionsWidget::toggle_visibility() {
-    if (ui->filterLineEdit->isVisible()) {
-        ui->filterLineEdit->setVisible(false);
-        ui->functionsTreeView->setFocus();
-    } else {
-        ui->filterLineEdit->setVisible(true);
-        ui->filterLineEdit->setFocus();
-    }
+void FunctionsWidget::show_filter() {
+    ui->filterLineEdit->setVisible(true);
+    ui->closeFilterButton->setVisible(true);
+    ui->filterLineEdit->setFocus();
 }
 
 void FunctionsWidget::clear_filter() {
     if (ui->filterLineEdit->text() == "") {
         ui->filterLineEdit->setVisible(false);
+        ui->closeFilterButton->setVisible(false);
         ui->functionsTreeView->setFocus();
     } else {
         ui->filterLineEdit->setText("");
     }
+}
+
+void FunctionsWidget::on_closeFilterButton_clicked()
+{
+    ui->filterLineEdit->setVisible(false);
+    ui->closeFilterButton->setVisible(false);
+    ui->functionsTreeView->setFocus();
 }

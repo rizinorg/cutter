@@ -103,9 +103,11 @@ private slots:
 
     void on_actionVertical_triggered();
 
-    void toggle_visibility();
+    void show_filter();
 
     void clear_filter();
+
+    void on_closeFilterButton_clicked();
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
