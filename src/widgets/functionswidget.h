@@ -58,7 +58,6 @@ public:
 private slots:
     void cursorAddressChanged(RVA addr);
     void functionRenamed(const QString &prev_name, const QString &new_name);
-
 };
 
 
@@ -103,6 +102,10 @@ private slots:
     void on_actionHorizontal_triggered();
 
     void on_actionVertical_triggered();
+
+    void toggle_visibility();
+
+    void clear_filter();
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

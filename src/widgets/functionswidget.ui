@@ -196,6 +196,9 @@ QToolTip {
       <property name="placeholderText">
        <string>Quick Filter</string>
       </property>
+      <property name="clearButtonEnabled">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
    </layout>

@@ -12,6 +12,7 @@
 #include <QDebug>
 #include <QString>
 #include <QResource>
+#include <QShortcut>
 
 FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *import_addresses, bool nested, QFont default_font, QFont highlight_font, MainWindow *main, QObject *parent)
     : QAbstractItemModel(parent),
@@ -329,6 +330,19 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     // Radare core found in:
     this->main = main;
 
+    // leave the filter visible by default so users know it exists
+    //ui->filterLineEdit->setVisible(false);
+
+    // Ctrl-F to show/hide the filter entry
+    QShortcut *search_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
+    connect(search_shortcut, SIGNAL(activated()), this, SLOT(toggle_visibility()));
+    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // Esc to clear the filter entry
+    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clear_shortcut, SIGNAL(activated()), this, SLOT(clear_filter()));
+    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
     QFontInfo font_info = ui->functionsTreeView->fontInfo();
     QFont default_font = QFont(font_info.family(), font_info.pointSize());
     QFont highlight_font = QFont(font_info.family(), font_info.pointSize(), QFont::Bold);
@@ -601,4 +615,23 @@ void FunctionsWidget::resizeEvent(QResizeEvent *event)
 void FunctionsWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->functionsTreeView);
+}
+
+void FunctionsWidget::toggle_visibility() {
+    if (ui->filterLineEdit->isVisible()) {
+        ui->filterLineEdit->setVisible(false);
+        ui->functionsTreeView->setFocus();
+    } else {
+        ui->filterLineEdit->setVisible(true);
+        ui->filterLineEdit->setFocus();
+    }
+}
+
+void FunctionsWidget::clear_filter() {
+    if (ui->filterLineEdit->text() == "") {
+        ui->filterLineEdit->setVisible(false);
+        ui->functionsTreeView->setFocus();
+    } else {
+        ui->filterLineEdit->setText("");
+    }
 }
