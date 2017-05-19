@@ -417,11 +417,11 @@ void MainWindow::applySettings()
     // Show spaces in dasm
     if (settings.getSpacy())
     {
-        core->config("asm.spacy", "true");
+        core->config("asm.bbline", "true");
     }
     else
     {
-        core->config("asm.spacy", "false");
+        core->config("asm.bbline", "false");
     }
 }
 

@@ -26,7 +26,7 @@ public:
     void setUppercaseDisas(bool v)      { settings.setValue("ucase", v); }
 
     bool getSpacy() const               { return settings.value("spacy", false).toBool(); }
-    void setSpacy(bool v)               { settings.setValue("spacy", v); }
+    void setSpacy(bool v)               { settings.setValue("bbline", v); }
 };
 
 #endif // SETTINGS_H

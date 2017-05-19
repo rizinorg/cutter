@@ -1220,7 +1220,7 @@ void MemoryWidget::on_actionRight_align_bytes_triggered()
 
 void MemoryWidget::on_actionSeparate_disasm_calls_triggered()
 {
-    this->main->core->cmd("e!asm.spacy");
+    this->main->core->cmd("e!asm.bbline");
     this->refreshDisasm();
 }
 

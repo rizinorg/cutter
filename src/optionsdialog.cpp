@@ -38,7 +38,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->descriptionCheckBox->setChecked(settings.value("describe").toBool());
     ui->stackCheckBox->setChecked(settings.value("stackptr").toBool());
     ui->ucaseCheckBox->setChecked(settings.value("ucase").toBool());
-    ui->spacyCheckBox->setChecked(settings.value("spacy").toBool());
+    ui->spacyCheckBox->setChecked(settings.value("bbline").toBool());
 
     ui->hideFrame->setVisible(false);
 
