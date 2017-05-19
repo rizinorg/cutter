@@ -159,7 +159,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>725</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -171,10 +171,10 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>351</x>
-      <y>100</y>
-      <width>125</width>
-      <height>177</height>
+      <x>2601</x>
+      <y>136</y>
+      <width>170</width>
+      <height>214</height>
      </rect>
     </property>
     <property name="title">
@@ -249,6 +249,7 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionFunctions"/>
     <addaction name="actionImports"/>
+    <addaction name="actionExports"/>
     <addaction name="actionSymbols"/>
     <addaction name="separator"/>
     <addaction name="actionReloc"/>
@@ -899,6 +900,14 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionExports">
+   <property name="text">
+    <string>Exports</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/HIde Exports panel</string>
    </property>
   </action>
  </widget>

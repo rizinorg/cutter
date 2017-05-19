@@ -69,7 +69,10 @@ void ImportsWidget::fillImports()
 {
     ui->importsTreeWidget->clear();
     for (auto i : this->main->core->getAllImports())
-        qhelpers::appendRow(ui->importsTreeWidget, RAddressString(i.plt), i.type, "", i.name);
+    {
+        QTreeWidgetItem *item = qhelpers::appendRow(ui->importsTreeWidget, RAddressString(i.plt), i.type, "", i.name);
+        item->setData(0, Qt::UserRole, QVariant::fromValue(i));
+    }
 
     highlightUnsafe();
     qhelpers::adjustColumns(ui->importsTreeWidget, 0, 10);
@@ -105,4 +108,10 @@ void ImportsWidget::highlightUnsafe()
 void ImportsWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->importsTreeWidget);
+}
+
+void ImportsWidget::on_importsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /* column */)
+{
+    ImportDescription imp = item->data(0, Qt::UserRole).value<ImportDescription>();
+    this->main->seek(imp.plt, imp.name, true);
 }

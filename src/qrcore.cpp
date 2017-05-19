@@ -913,6 +913,34 @@ QList<ImportDescription> QRCore::getAllImports()
 }
 
 
+
+QList<ExportDescription> QRCore::getAllExports()
+{
+    CORE_LOCK();
+    QList<ExportDescription> ret;
+
+    QJsonArray importsArray = cmdj("iEj").array();
+
+    foreach (QJsonValue value, importsArray)
+    {
+        QJsonObject importObject = value.toObject();
+
+        ExportDescription exp;
+
+        exp.vaddr = importObject["vaddr"].toVariant().toULongLong();
+        exp.paddr = importObject["paddr"].toVariant().toULongLong();
+        exp.size = importObject["size"].toVariant().toULongLong();
+        exp.type = importObject["type"].toString();
+        exp.name = importObject["name"].toString();
+        exp.flag_name = importObject["flagname"].toString();
+
+        ret << exp;
+    }
+
+    return ret;
+}
+
+
 QList<SymbolDescription> QRCore::getAllSymbols()
 {
     CORE_LOCK();

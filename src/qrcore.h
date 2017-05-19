@@ -74,6 +74,16 @@ struct ImportDescription
     QString name;
 };
 
+struct ExportDescription
+{
+    RVA vaddr;
+    RVA paddr;
+    RVA size;
+    QString type;
+    QString name;
+    QString flag_name;
+};
+
 struct SymbolDescription
 {
     RVA vaddr;
@@ -126,6 +136,7 @@ struct SectionDescription
 
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
+Q_DECLARE_METATYPE(ExportDescription)
 Q_DECLARE_METATYPE(SymbolDescription)
 Q_DECLARE_METATYPE(CommentDescription)
 Q_DECLARE_METATYPE(RelocDescription)
@@ -207,6 +218,7 @@ public:
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
+    QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();

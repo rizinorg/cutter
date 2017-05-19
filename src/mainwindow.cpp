@@ -45,6 +45,7 @@
 #include "widgets/sectionswidget.h"
 #include "widgets/commentswidget.h"
 #include "widgets/importswidget.h"
+#include "widgets/exportswidget.h"
 #include "widgets/symbolswidget.h"
 #include "widgets/stringswidget.h"
 #include "widgets/sectionsdock.h"
@@ -94,6 +95,7 @@ MainWindow::MainWindow(QWidget *parent) :
     graphicsBar(nullptr),
     functionsDock(nullptr),
     importsDock(nullptr),
+    exportsDock(nullptr),
     symbolsDock(nullptr),
     relocsDock(nullptr),
     commentsDock(nullptr),
@@ -200,6 +202,10 @@ void MainWindow::initUI()
     // Add imports DockWidget
     this->importsDock = new ImportsWidget(this);
     dockWidgets.push_back(importsDock);
+
+    // Add exports DockWidget
+    this->exportsDock = new ExportsWidget(this);
+    dockWidgets.push_back(exportsDock);
 
     // Add symbols DockWidget
     this->symbolsDock = new SymbolsWidget(this);
@@ -479,7 +485,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, "Iaito",
                                       "Do you really want to exit?\nSave your project before closing!",
-                                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+                                      (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
     //qDebug() << ret;
     if (ret == QMessageBox::Save)
     {
@@ -665,119 +671,52 @@ void MainWindow::on_actionMem_triggered()
 
 void MainWindow::on_actionFunctions_triggered()
 {
-    if (this->functionsDock->isVisible())
-    {
-        this->functionsDock->close();
-    }
-    else
-    {
-        this->functionsDock->show();
-        this->functionsDock->raise();
-    }
+    toggleDockWidget(functionsDock);
 }
 
 void MainWindow::on_actionImports_triggered()
 {
-    if (this->importsDock->isVisible())
-    {
-        this->importsDock->close();
-    }
-    else
-    {
-        this->importsDock->show();
-        this->importsDock->raise();
-    }
+    toggleDockWidget(importsDock);
+}
+
+void MainWindow::on_actionExports_triggered()
+{
+    toggleDockWidget(exportsDock);
 }
 
 void MainWindow::on_actionSymbols_triggered()
 {
-    if (this->symbolsDock->isVisible())
-    {
-        this->symbolsDock->close();
-    }
-    else
-    {
-        this->symbolsDock->show();
-        this->symbolsDock->raise();
-    }
+    toggleDockWidget(symbolsDock);
 }
 
 void MainWindow::on_actionReloc_triggered()
 {
-    if (this->relocsDock->isVisible())
-    {
-        this->relocsDock->close();
-    }
-    else
-    {
-        this->relocsDock->show();
-        this->relocsDock->raise();
-    }
+    toggleDockWidget(relocsDock);
 }
 
 void MainWindow::on_actionStrings_triggered()
 {
-    if (this->stringsDock->isVisible())
-    {
-        this->stringsDock->close();
-    }
-    else
-    {
-        this->stringsDock->show();
-        this->stringsDock->raise();
-    }
+    toggleDockWidget(stringsDock);
 }
 
 void MainWindow::on_actionSections_triggered()
 {
-    if (this->sectionsDock->isVisible())
-    {
-        this->sectionsDock->close();
-    }
-    else
-    {
-        this->sectionsDock->show();
-        this->sectionsDock->raise();
-    }
+    toggleDockWidget(sectionsDock);
 }
 
 void MainWindow::on_actionFlags_triggered()
 {
-    if (this->flagsDock->isVisible())
-    {
-        this->flagsDock->close();
-    }
-    else
-    {
-        this->flagsDock->show();
-        this->flagsDock->raise();
-    }
+    toggleDockWidget(flagsDock);
 }
 
 void MainWindow::on_actionComents_triggered()
 {
-    if (this->commentsDock->isVisible())
-    {
-        this->commentsDock->close();
-    }
-    else
-    {
-        this->commentsDock->show();
-        this->commentsDock->raise();
-    }
+    toggleDockWidget(commentsDock);
 }
 
 void MainWindow::on_actionNotepad_triggered()
 {
-    if (this->notepadDock->isVisible())
-    {
-        this->notepadDock->close();
-    }
-    else
-    {
-        this->notepadDock->show();
-        this->notepadDock->raise();
-    }
+    toggleDockWidget(notepadDock);
 }
 
 void MainWindow::on_actionAbout_triggered()
@@ -791,6 +730,18 @@ void MainWindow::on_actionRefresh_Panels_triggered()
     this->updateFrames();
 }
 
+void MainWindow::toggleDockWidget(DockWidget *dock_widget)
+{
+    if (dock_widget->isVisible())
+    {
+        dock_widget->close();
+    }
+    else
+    {
+        dock_widget->show();
+        dock_widget->raise();
+    }
+}
 
 void MainWindow::seek(const QString &offset, const QString &name, bool raise_memory_dock)
 {
@@ -900,6 +851,7 @@ void MainWindow::restoreDocks()
     this->tabifyDockWidget(this->dashboardDock, this->stringsDock);
     this->tabifyDockWidget(this->dashboardDock, this->relocsDock);
     this->tabifyDockWidget(this->dashboardDock, this->importsDock);
+    this->tabifyDockWidget(this->dashboardDock, this->exportsDock);
     this->tabifyDockWidget(this->dashboardDock, this->symbolsDock);
     this->tabifyDockWidget(this->dashboardDock, this->notepadDock);
     this->dashboardDock->raise();
@@ -1087,9 +1039,10 @@ void MainWindow::on_actionTabs_on_Top_triggered()
 
 void MainWindow::on_actionReset_settings_triggered()
 {
-    QMessageBox::StandardButton ret = QMessageBox::question(this, "Iaito",
-                                      "Do you really want to clear all settings?",
-                                      QMessageBox::Ok | QMessageBox::Cancel);
+    QMessageBox::StandardButton ret =
+            (QMessageBox::StandardButton)QMessageBox::question(this, "Iaito",
+                                                               "Do you really want to clear all settings?",
+                                                               QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok)
     {
         // Save options in settings

@@ -18,6 +18,7 @@ class AsciiHighlighter;
 class GraphicsBar;
 class FunctionsWidget;
 class ImportsWidget;
+class ExportsWidget;
 class SymbolsWidget;
 class RelocsWidget;
 class CommentsWidget;
@@ -89,21 +90,14 @@ public slots:
     void def_theme();
 
     void on_actionFunctions_triggered();
-
     void on_actionImports_triggered();
-
+    void on_actionExports_triggered();
     void on_actionSymbols_triggered();
-
     void on_actionReloc_triggered();
-
     void on_actionStrings_triggered();
-
     void on_actionSections_triggered();
-
     void on_actionFlags_triggered();
-
     void on_actionComents_triggered();
-
     void on_actionNotepad_triggered();
 
     void on_actionLock_triggered();
@@ -195,6 +189,7 @@ private:
     GraphicsBar      *graphicsBar;
     FunctionsWidget  *functionsDock;
     ImportsWidget    *importsDock;
+    ExportsWidget    *exportsDock;
     SymbolsWidget    *symbolsDock;
     RelocsWidget     *relocsDock;
     CommentsWidget   *commentsDock;
@@ -212,6 +207,8 @@ private:
 
     void openProject(const QString &project_name);
     void openNewFile(const QString &fn, int anal_level);
+
+    void toggleDockWidget(DockWidget *dock_widget);
 
 public:
     RVA getCursorAddress() const        { return cursor_address; }

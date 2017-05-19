@@ -208,6 +208,8 @@ void FlagsWidget::refreshFlags()
     ui->flagsTreeView->resizeColumnToContents(0);
     ui->flagsTreeView->resizeColumnToContents(1);
 
+
+    // TODO: this is not a very good place for the following:
     QStringList flagNames;
     for (auto i : flags)
         flagNames.append(i.name);

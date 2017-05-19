@@ -3,6 +3,7 @@
 
 #include "dockwidget.h"
 #include <QStyledItemDelegate>
+#include <QTreeWidgetItem>
 
 class MainWindow;
 class QTreeWidget;
@@ -23,6 +24,9 @@ public:
     void setup() override;
 
     void refresh() override;
+
+private slots:
+    void on_importsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
     Ui::ImportsWidget *ui;

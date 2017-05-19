@@ -92,15 +92,10 @@ private slots:
     void showFunctionsContextMenu(const QPoint &pt);
 
     void on_actionDisasAdd_comment_triggered();
-
     void on_actionFunctionsRename_triggered();
-
     void on_action_References_triggered();
 
-    void showTitleContextMenu(const QPoint &pt);
-
     void on_actionHorizontal_triggered();
-
     void on_actionVertical_triggered();
 
     void show_filter();
@@ -108,6 +103,8 @@ private slots:
     void clear_filter();
 
     void on_closeFilterButton_clicked();
+
+    void showTitleContextMenu(const QPoint &pt);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
