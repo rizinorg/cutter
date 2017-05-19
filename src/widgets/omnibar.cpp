@@ -15,6 +15,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
               ": Flags toggle",
               ": Functions toggle",
               ": Imports toggle",
+              ": Exports toggle",
               ": Notepad toggle",
               ": Relocs toggle",
               ": Run Script",
@@ -125,6 +126,10 @@ void Omnibar::on_gotoEntry_returnPressed()
             else if (str.contains("Imports"))
             {
                 this->main->on_actionImports_triggered();
+            }
+            else if (str.contains("Exports"))
+            {
+                this->main->on_actionExports_triggered();
             }
             else if (str.contains("Symbols"))
             {
