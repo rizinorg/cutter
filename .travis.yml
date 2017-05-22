@@ -18,7 +18,7 @@ script:
   - sys/install.sh
   - cd ..
   - mkdir build ; cd build
-  - qmake PREFIX=/usr ../src
+  - qmake PREFIX=/usr APPIMAGE=1 ../src
   - make -j4
   - sudo make INSTALL_ROOT=appdir install ; sudo chown -R $USER appdir
   - mkdir -p appdir/usr/share/radare2 ; cp -Lr /usr/share/radare2/*-git/ appdir/usr/share/radare2/ ; find appdir/

@@ -143,7 +143,6 @@ include(lib_radare2.pri)
 unix {
     isEmpty(PREFIX) {
         PREFIX = /usr/local
-        DEFAULT_PREFIX = true
     }
 
     desktop_file = iaito.desktop
@@ -159,8 +158,8 @@ unix {
 
     INSTALLS += target share_applications
 
-    # if a custom PREFIX is supplied, we asume it's an AppImage install
-    !defined(DEFAULT_PREFIX, var) {
+    # Triggered for example by 'qmake APPIMAGE=1'
+    !isEmpty(APPIMAGE){
         # UGLY work around for the logo name in iaito.desktop
         # Would be better to have a file called iaito.png in the first place
         system(cp img/logo-small.png $$OUT_PWD/iaito.png)
