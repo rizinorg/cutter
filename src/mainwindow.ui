@@ -159,7 +159,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>725</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -173,8 +173,8 @@ border-top: 0px;
      <rect>
       <x>2601</x>
       <y>136</y>
-      <width>170</width>
-      <height>214</height>
+      <width>126</width>
+      <height>177</height>
      </rect>
     </property>
     <property name="title">
@@ -204,6 +204,7 @@ border-top: 0px;
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
     </property>
+    <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefaut"/>
     <addaction name="actionReset_settings"/>
@@ -908,6 +909,14 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="toolTip">
     <string>Show/HIde Exports panel</string>
+   </property>
+  </action>
+  <action name="actionRefresh_contents">
+   <property name="text">
+    <string>Refresh contents</string>
+   </property>
+   <property name="toolTip">
+    <string>Refresh contents</string>
    </property>
   </action>
  </widget>

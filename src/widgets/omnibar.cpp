@@ -12,11 +12,13 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     main(main),
     commands({": Comments toggle",
               ": Dashboard toggle",
+              ": Exports toggle",
               ": Flags toggle",
               ": Functions toggle",
               ": Imports toggle",
-              ": Exports toggle",
+              ": Lock/Unlock interface",
               ": Notepad toggle",
+              ": Refresh contents",
               ": Relocs toggle",
               ": Run Script",
               ": Sections toggle",
@@ -24,7 +26,6 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
               ": Symbols toggle",
               ": Tabs up/down",
               ": Theme switch",
-              ": Lock/Unlock interface",
               ": Web server start/stop"})
 {
     // QLineEdit basic features
@@ -134,6 +135,10 @@ void Omnibar::on_gotoEntry_returnPressed()
             else if (str.contains("Symbols"))
             {
                 this->main->on_actionSymbols_triggered();
+            }
+            else if (str.contains("Refresh"))
+            {
+                this->main->refreshVisibleDockWidgets();
             }
             else if (str.contains("Relocs"))
             {

@@ -1079,3 +1079,8 @@ void MainWindow::refreshVisibleDockWidgets()
         }
     }
 }
+
+void MainWindow::on_actionRefresh_contents_triggered()
+{
+    this->refreshVisibleDockWidgets();
+}

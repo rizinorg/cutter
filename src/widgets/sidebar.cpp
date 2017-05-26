@@ -113,3 +113,8 @@ void SideBar::on_respButton_toggled(bool checked)
 {
     this->main->toggleResponsive(checked);
 }
+
+void SideBar::on_refreshButton_clicked()
+{
+    this->main->refreshVisibleDockWidgets();
+}

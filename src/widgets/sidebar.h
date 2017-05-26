@@ -41,6 +41,8 @@ private slots:
 
     void on_respButton_toggled(bool checked);
 
+    void on_refreshButton_clicked();
+
 private:
     Ui::SideBar *ui;
     MainWindow  *main;

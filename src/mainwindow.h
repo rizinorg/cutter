@@ -120,6 +120,8 @@ public slots:
 
     void on_backButton_clicked();
 
+    void refreshVisibleDockWidgets();
+
 private slots:
 
     void on_actionMem_triggered();
@@ -168,7 +170,7 @@ private slots:
 
     void on_actionQuit_triggered();
 
-    void refreshVisibleDockWidgets();
+    void on_actionRefresh_contents_triggered();
 
 private:
     QDockWidget      *asmDock;
