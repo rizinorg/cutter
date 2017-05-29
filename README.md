@@ -20,7 +20,7 @@ Yes, the code sucks. Hopefully we will be able to remove this statement from the
 
 ## Requirements
 
-- **Radare2**: Make sure that, when cloning the project, you use `git clone --recurse-submodules` or run `git submodule init` and `git submodule update` to clone the correct radare2 version. Then execute the following command in the radare2 folder:
+- **Radare2**: Make sure that, when cloning the project, you use `git clone --recurse-submodules` or run `git submodule update --init` to clone the correct radare2 version. Then execute the following command in the radare2 folder:
 ```
 sys/install.sh
 ```
