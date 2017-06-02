@@ -72,6 +72,10 @@ void Dashboard::updateContents()
     this->ui->compiledEdit->setText(item2["compiled"].toString());
     this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
 
+    QString relro=item2["relro"].toString().split(" ").at(0);
+    relro[0]=item2["relro"].toString().split(" ").at(0)[0].toUpper();
+    this->ui->relroEdit->setText(relro);
+
     this->ui->baddrEdit->setText(QString::number(item2["baddr"].toDouble()));
 
     if (item2["va"].toBool() == true)

@@ -56,7 +56,7 @@
          <x>0</x>
          <y>0</y>
          <width>1055</width>
-         <height>977</height>
+         <height>974</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -417,6 +417,19 @@
                  </property>
                 </widget>
                </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="baddrEdit">
+                 <property name="text">
+                  <string>--</string>
+                 </property>
+                 <property name="frame">
+                  <bool>false</bool>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
                <item row="2" column="0">
                 <widget class="QLabel" name="label_21">
                  <property name="font">
@@ -560,8 +573,21 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="1">
-                <widget class="QLineEdit" name="staticEdit">
+               <item row="8" column="0">
+                <widget class="QLabel" name="label_34">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Relro:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="8" column="1">
+                <widget class="QLineEdit" name="relroEdit">
                  <property name="text">
                   <string>--</string>
                  </property>
@@ -573,8 +599,8 @@
                  </property>
                 </widget>
                </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="baddrEdit">
+               <item row="7" column="1">
+                <widget class="QLineEdit" name="staticEdit">
                  <property name="text">
                   <string>--</string>
                  </property>
@@ -1144,7 +1170,6 @@ QTabBar::tab:hover {
                 </spacer>
                </item>
               </layout>
-              <zorder>polarWebView</zorder>
              </widget>
             </widget>
            </item>
