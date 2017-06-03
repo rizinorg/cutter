@@ -284,7 +284,7 @@ void MainWindow::openFile(const QString &fn, int anal_level)
 {
     QString project_name = qhelpers::uniqueProjectName(fn);
 
-    if(core->getProjectNames().contains(project_name))
+    if (core->getProjectNames().contains(project_name))
         openProject(project_name);
     else
         openNewFile(fn, anal_level);
@@ -298,7 +298,7 @@ void MainWindow::openNewFile(const QString &fn, int anal_level)
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->show();
 
-    if(anal_level >= 0)
+    if (anal_level >= 0)
         o->setupAndStartAnalysis(anal_level);
 }
 
@@ -344,7 +344,7 @@ void MainWindow::finalizeOpen()
         addOutput(" > Adding binary information to notepad");
 
         notepadDock->setText("# Binary information\n\n" + core->cmd("i") +
-                "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
+                             "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
     }
 
     //Get binary beginning/end addresses
@@ -1040,9 +1040,9 @@ void MainWindow::on_actionTabs_on_Top_triggered()
 void MainWindow::on_actionReset_settings_triggered()
 {
     QMessageBox::StandardButton ret =
-            (QMessageBox::StandardButton)QMessageBox::question(this, "Iaito",
-                                                               "Do you really want to clear all settings?",
-                                                               QMessageBox::Ok | QMessageBox::Cancel);
+        (QMessageBox::StandardButton)QMessageBox::question(this, "Iaito",
+                "Do you really want to clear all settings?",
+                QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok)
     {
         // Save options in settings

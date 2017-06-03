@@ -49,9 +49,9 @@ void SymbolsWidget::fillSymbols()
     for (auto symbol : this->main->core->getAllSymbols())
     {
         QTreeWidgetItem *item = qhelpers::appendRow(ui->symbolsTreeWidget,
-                                                      RAddressString(symbol.vaddr),
-                                                      QString("%1 %2").arg(symbol.bind, symbol.type).trimmed(),
-                                                      symbol.name);
+                                RAddressString(symbol.vaddr),
+                                QString("%1 %2").arg(symbol.bind, symbol.type).trimmed(),
+                                symbol.name);
 
         item->setData(0, Qt::UserRole, QVariant::fromValue(symbol));
     }

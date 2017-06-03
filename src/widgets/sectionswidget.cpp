@@ -26,7 +26,7 @@ void SectionsWidget::setup()
     int row = 0;
     for (auto section : main->core->getAllSections())
     {
-        if(!section.name.contains("."))
+        if (!section.name.contains("."))
             continue;
 
         fillSections(row++, section);

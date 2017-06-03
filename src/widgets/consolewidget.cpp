@@ -234,7 +234,7 @@ void ConsoleWidget::historyNext()
         {
             if (lastHistoryPosition >= history.size())
             {
-                lastHistoryPosition = history.size() -1 ;
+                lastHistoryPosition = history.size() - 1 ;
             }
 
             --lastHistoryPosition;
@@ -257,7 +257,7 @@ void ConsoleWidget::historyPrev()
 {
     if (!history.isEmpty())
     {
-        if (lastHistoryPosition >= history.size() -1)
+        if (lastHistoryPosition >= history.size() - 1)
         {
             lastHistoryPosition = history.size() - 2;
         }

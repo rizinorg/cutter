@@ -855,7 +855,7 @@ QStringList QRCore::getProjectNames()
     QStringList ret;
 
     QJsonArray jsonArray = cmdj("Plj").array();
-    for(QJsonValue value : jsonArray)
+    for (QJsonValue value : jsonArray)
         ret.append(value.toString());
 
     return ret;

@@ -30,8 +30,8 @@ int main(int argc, char *argv[])
     cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
     QCommandLineOption anal_option({"A", "anal"},
-                                  QObject::tr("Automatically start analysis. Needs filename to be specified. May be a value between 0 and 4."),
-                                  QObject::tr("level"));
+                                   QObject::tr("Automatically start analysis. Needs filename to be specified. May be a value between 0 and 4."),
+                                   QObject::tr("level"));
     cmd_parser.addOption(anal_option);
 
     cmd_parser.process(a);

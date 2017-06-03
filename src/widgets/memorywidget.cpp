@@ -754,7 +754,7 @@ void MemoryWidget::hexScrolled()
 
         // To prevent recursive calls to hexScrolled (this function) blocks the
         // scroll bar signals
-        auto appendTextWithoutSignals = [](QTextEdit *edit, const QString &text)
+        auto appendTextWithoutSignals = [](QTextEdit * edit, const QString & text)
         {
             edit->verticalScrollBar()->blockSignals(true);
             edit->append(text);
@@ -1573,7 +1573,9 @@ void MemoryWidget::create_graph(QString off)
     if (settings.value("dark").toBool())
     {
         ui->graphWebView->page()->runJavaScript(QString("init_panel('dark');"));
-    } else {
+    }
+    else
+    {
         ui->graphWebView->page()->runJavaScript(QString("init_panel('light');"));
     }
 }
@@ -1622,7 +1624,8 @@ void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
     tc.select(QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText().trimmed();
     QList<QString> words = lastline.split(" ", QString::SkipEmptyParts);
-    if (words.length() == 0) {
+    if (words.length() == 0)
+    {
         return;
     }
     QString ele = words[0];

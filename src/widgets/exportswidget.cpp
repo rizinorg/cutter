@@ -7,8 +7,8 @@
 
 
 ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
-        : QAbstractListModel(parent),
-          exports(exports)
+    : QAbstractListModel(parent),
+      exports(exports)
 {
 }
 
@@ -24,54 +24,54 @@ int ExportsModel::columnCount(const QModelIndex &) const
 
 QVariant ExportsModel::data(const QModelIndex &index, int role) const
 {
-    if(index.row() >= exports->count())
+    if (index.row() >= exports->count())
         return QVariant();
 
     const ExportDescription &exp = exports->at(index.row());
 
-    switch(role)
+    switch (role)
     {
-        case Qt::DisplayRole:
-            switch(index.column())
-            {
-                case OFFSET:
-                    return RAddressString(exp.vaddr);
-                case SIZE:
-                    return RSizeString(exp.size);
-                case TYPE:
-                    return exp.type;
-                case NAME:
-                    return exp.name;
-                default:
-                    return QVariant();
-            }
-        case ExportDescriptionRole:
-            return QVariant::fromValue(exp);
+    case Qt::DisplayRole:
+        switch (index.column())
+        {
+        case OFFSET:
+            return RAddressString(exp.vaddr);
+        case SIZE:
+            return RSizeString(exp.size);
+        case TYPE:
+            return exp.type;
+        case NAME:
+            return exp.name;
         default:
             return QVariant();
+        }
+    case ExportDescriptionRole:
+        return QVariant::fromValue(exp);
+    default:
+        return QVariant();
     }
 }
 
 QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
 {
-    switch(role)
+    switch (role)
     {
-        case Qt::DisplayRole:
-            switch(section)
-            {
-                case OFFSET:
-                    return tr("Address");
-                case SIZE:
-                    return tr("Size");
-                case TYPE:
-                    return tr("Type");
-                case NAME:
-                    return tr("Name");
-                default:
-                    return QVariant();
-            }
+    case Qt::DisplayRole:
+        switch (section)
+        {
+        case OFFSET:
+            return tr("Address");
+        case SIZE:
+            return tr("Size");
+        case TYPE:
+            return tr("Type");
+        case NAME:
+            return tr("Name");
         default:
             return QVariant();
+        }
+    default:
+        return QVariant();
     }
 }
 
@@ -90,7 +90,7 @@ void ExportsModel::endReloadExports()
 
 
 ExportsSortFilterProxyModel::ExportsSortFilterProxyModel(ExportsModel *source_model, QObject *parent)
-        : QSortFilterProxyModel(parent)
+    : QSortFilterProxyModel(parent)
 {
     setSourceModel(source_model);
 }
@@ -107,23 +107,23 @@ bool ExportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
     ExportDescription left_exp = left.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
     ExportDescription right_exp = right.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
 
-    switch(left.column())
+    switch (left.column())
     {
-        case ExportsModel::SIZE:
-            if(left_exp.size != right_exp.size)
-                return left_exp.size < right_exp.size;
-            // fallthrough
-        case ExportsModel::OFFSET:
-            if(left_exp.vaddr != right_exp.vaddr)
-                return left_exp.vaddr < right_exp.vaddr;
-            // fallthrough
-        case ExportsModel::NAME:
-            return left_exp.name < right_exp.name;
-        case ExportsModel::TYPE:
-            if(left_exp.type != right_exp.type)
-                return left_exp.type < right_exp.type;
-        default:
-            break;
+    case ExportsModel::SIZE:
+        if (left_exp.size != right_exp.size)
+            return left_exp.size < right_exp.size;
+    // fallthrough
+    case ExportsModel::OFFSET:
+        if (left_exp.vaddr != right_exp.vaddr)
+            return left_exp.vaddr < right_exp.vaddr;
+    // fallthrough
+    case ExportsModel::NAME:
+        return left_exp.name < right_exp.name;
+    case ExportsModel::TYPE:
+        if (left_exp.type != right_exp.type)
+            return left_exp.type < right_exp.type;
+    default:
+        break;
     }
 
     // fallback

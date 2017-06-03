@@ -617,18 +617,23 @@ void FunctionsWidget::setScrollMode()
     qhelpers::setVerticalScrollMode(ui->functionsTreeView);
 }
 
-void FunctionsWidget::show_filter() {
+void FunctionsWidget::show_filter()
+{
     ui->filterLineEdit->setVisible(true);
     ui->closeFilterButton->setVisible(true);
     ui->filterLineEdit->setFocus();
 }
 
-void FunctionsWidget::clear_filter() {
-    if (ui->filterLineEdit->text() == "") {
+void FunctionsWidget::clear_filter()
+{
+    if (ui->filterLineEdit->text() == "")
+    {
         ui->filterLineEdit->setVisible(false);
         ui->closeFilterButton->setVisible(false);
         ui->functionsTreeView->setFocus();
-    } else {
+    }
+    else
+    {
         ui->filterLineEdit->setText("");
     }
 }

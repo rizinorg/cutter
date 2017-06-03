@@ -28,50 +28,50 @@ int FlagsModel::columnCount(const QModelIndex &) const
 
 QVariant FlagsModel::data(const QModelIndex &index, int role) const
 {
-    if(index.row() >= flags->count())
+    if (index.row() >= flags->count())
         return QVariant();
 
     const FlagDescription &flag = flags->at(index.row());
 
-    switch(role)
+    switch (role)
     {
-        case Qt::DisplayRole:
-            switch(index.column())
-            {
-                case SIZE:
-                    return RSizeString(flag.size);
-                case OFFSET:
-                    return RAddressString(flag.offset);
-                case NAME:
-                    return flag.name;
-                default:
-                    return QVariant();
-            }
-        case FlagDescriptionRole:
-            return QVariant::fromValue(flag);
+    case Qt::DisplayRole:
+        switch (index.column())
+        {
+        case SIZE:
+            return RSizeString(flag.size);
+        case OFFSET:
+            return RAddressString(flag.offset);
+        case NAME:
+            return flag.name;
         default:
             return QVariant();
+        }
+    case FlagDescriptionRole:
+        return QVariant::fromValue(flag);
+    default:
+        return QVariant();
     }
 }
 
 QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
 {
-    switch(role)
+    switch (role)
     {
-        case Qt::DisplayRole:
-            switch(section)
-            {
-                case SIZE:
-                    return tr("Size");
-                case OFFSET:
-                    return tr("Offset");
-                case NAME:
-                    return tr("Name");
-                default:
-                    return QVariant();
-            }
+    case Qt::DisplayRole:
+        switch (section)
+        {
+        case SIZE:
+            return tr("Size");
+        case OFFSET:
+            return tr("Offset");
+        case NAME:
+            return tr("Name");
         default:
             return QVariant();
+        }
+    default:
+        return QVariant();
     }
 }
 
@@ -107,20 +107,20 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
     FlagDescription left_flag = left.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
     FlagDescription right_flag = right.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
 
-    switch(left.column())
+    switch (left.column())
     {
-        case FlagsModel::SIZE:
-            if(left_flag.size != right_flag.size)
-                return left_flag.size < right_flag.size;
-            // fallthrough
-        case FlagsModel::OFFSET:
-            if(left_flag.offset != right_flag.offset)
-                return left_flag.offset < right_flag.offset;
-            // fallthrough
-        case FlagsModel::NAME:
-            return left_flag.name < right_flag.name;
-        default:
-            break;
+    case FlagsModel::SIZE:
+        if (left_flag.size != right_flag.size)
+            return left_flag.size < right_flag.size;
+    // fallthrough
+    case FlagsModel::OFFSET:
+        if (left_flag.offset != right_flag.offset)
+            return left_flag.offset < right_flag.offset;
+    // fallthrough
+    case FlagsModel::NAME:
+        return left_flag.name < right_flag.name;
+    default:
+        break;
     }
 
     // fallback
@@ -197,7 +197,7 @@ void FlagsWidget::refreshFlags()
     QString flagspace;
 
     QVariant flagspace_data = ui->flagspaceCombo->currentData();
-    if(flagspace_data.isValid())
+    if (flagspace_data.isValid())
         flagspace = flagspace_data.value<FlagspaceDescription>().name;
 
 

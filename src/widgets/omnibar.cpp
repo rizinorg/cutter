@@ -10,23 +10,26 @@
 Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     QLineEdit(parent),
     main(main),
-    commands({": Comments toggle",
-              ": Dashboard toggle",
-              ": Exports toggle",
-              ": Flags toggle",
-              ": Functions toggle",
-              ": Imports toggle",
-              ": Lock/Unlock interface",
-              ": Notepad toggle",
-              ": Refresh contents",
-              ": Relocs toggle",
-              ": Run Script",
-              ": Sections toggle",
-              ": Strings toggle",
-              ": Symbols toggle",
-              ": Tabs up/down",
-              ": Theme switch",
-              ": Web server start/stop"})
+    commands(
+{
+    ": Comments toggle",
+    ": Dashboard toggle",
+    ": Exports toggle",
+    ": Flags toggle",
+    ": Functions toggle",
+    ": Imports toggle",
+    ": Lock/Unlock interface",
+    ": Notepad toggle",
+    ": Refresh contents",
+    ": Relocs toggle",
+    ": Run Script",
+    ": Sections toggle",
+    ": Strings toggle",
+    ": Symbols toggle",
+    ": Tabs up/down",
+    ": Theme switch",
+    ": Web server start/stop"
+})
 {
     // QLineEdit basic features
     this->setMinimumHeight(16);
