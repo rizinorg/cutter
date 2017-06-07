@@ -202,6 +202,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
 void MemoryWidget::on_cursorAddressChanged(RVA addr)
 {
     setFcnName(addr);
+    get_refs_data(addr);
 }
 
 /*
@@ -404,7 +405,7 @@ void MemoryWidget::setup()
     refreshDisasm(off);
     refreshHexdump(off);
     create_graph(off);
-    get_refs_data(off);
+    get_refs_data(off.toLongLong(0, 16));
     //setFcnName(off);
 }
 
@@ -1296,7 +1297,6 @@ void MemoryWidget::on_actionFunctionsRename_triggered()
             this->main->core->renameFunction(fcn->name, new_name);
             // Seek to new renamed function
             this->main->seek(new_name);
-            // TODO: Refresh functions tree widget
         }
     }
     this->main->refreshFunctions();
@@ -1346,18 +1346,16 @@ void MemoryWidget::on_action1column_triggered()
 
 void MemoryWidget::on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
-    QString offset = item->text(0);
-    RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
-    //this->add_debug_output( fcn->name );
-    this->main->seek(offset, fcn->name);
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    RAnalFunction *fcn = this->main->core->functionAt(xref.to);
+    this->main->seek(xref.to, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
 }
 
 void MemoryWidget::on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
-    QString offset = item->text(0);
-    RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
-    //this->add_debug_output( fcn->name );
-    this->main->seek(offset, fcn->name);
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    RAnalFunction *fcn = this->main->core->functionAt(xref.from);
+    this->main->seek(xref.from, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
 }
 
 void MemoryWidget::on_xrefFromToolButton_2_clicked()
@@ -1402,47 +1400,13 @@ void MemoryWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
     }
 }
 
-void MemoryWidget::get_refs_data(const QString &offset)
+void MemoryWidget::get_refs_data(RVA addr)
 {
-    // Get Refs and Xrefs
-    bool ok;
-    QList<QStringList> ret_refs;
-    QList<QStringList> ret_xrefs;
-
     // refs = calls q hace esa funcion
-    QList<QString> refs = this->main->core->getFunctionRefs(offset.toLong(&ok, 16), 'C');
-    if (refs.size() > 0)
-    {
-        for (int i = 0; i < refs.size(); ++i)
-        {
-            //this->add_debug_output(refs.at(i));
-            QStringList retlist = refs.at(i).split(",");
-            QStringList temp;
-            QString addr = retlist.at(2);
-            temp << addr;
-            QString op = this->main->core->cmd("pi 1 @ " + addr);
-            temp << op.simplified();
-            ret_refs << temp;
-        }
-    }
+    QList<XrefDescription> refs = main->core->getXRefs(addr, false, "C");
 
     // xrefs = calls a esa funcion
-    //qDebug() << this->main->core->getFunctionXrefs(offset.toLong(&ok, 16));
-    QList<QString> xrefs = this->main->core->getFunctionXrefs(offset.toLong(&ok, 16));
-    if (xrefs.size() > 0)
-    {
-        for (int i = 0; i < xrefs.size(); ++i)
-        {
-            //this->add_debug_output(xrefs.at(i));
-            QStringList retlist = xrefs.at(i).split(",");
-            QStringList temp;
-            QString addr = retlist.at(1);
-            temp << addr;
-            QString op = this->main->core->cmd("pi 1 @ " + addr);
-            temp << op.simplified();
-            ret_xrefs << temp;
-        }
-    }
+    QList<XrefDescription> xrefs = main->core->getXRefs(addr, true);
 
     // Data for the disasm side graph
     QList<int> data;
@@ -1452,27 +1416,29 @@ void MemoryWidget::get_refs_data(const QString &offset)
     data << xrefs.size();
     //qDebug() << "CC: " << this->main->core->fcnCyclomaticComplexity(offset.toLong(&ok, 16));
     //data << this->main->core->fcnCyclomaticComplexity(offset.toLong(&ok, 16));
-    data << this->main->core->getCycloComplex(offset.toLong(&ok, 16));
+    data << this->main->core->getCycloComplex(addr);
     //qDebug() << "BB: " << this->main->core->fcnBasicBlockCount(offset.toLong(&ok, 16));
-    data << this->main->core->fcnBasicBlockCount(offset.toLong(&ok, 16));
-    data << this->main->core->fcnEndBbs(offset);
+    data << this->main->core->fcnBasicBlockCount(addr);
+    data << this->main->core->fcnEndBbs(addr);
     //qDebug() << "MEOW: " + this->main->core->fcnEndBbs(offset);
 
     // Update disasm side bar
-    this->fill_refs(ret_refs, ret_xrefs, data);
+    this->fill_refs(refs, xrefs, data);
 }
 
-void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, QList<int> graph_data)
+void MemoryWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data)
 {
     this->xreFromTreeWidget_2->clear();
     for (int i = 0; i < refs.size(); ++i)
     {
-        //this->add_debug_output(refs.at(i).at(0) + " " + refs.at(i).at(1));
+        XrefDescription xref = refs[i];
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, refs.at(i).at(0));
-        tempItem->setText(1, refs.at(i).at(1));
-        tempItem->setToolTip(0, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)).trimmed());
-        tempItem->setToolTip(1, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)).trimmed());
+        tempItem->setText(0, RAddressString(xref.to));
+        tempItem->setText(1, main->core->disassembleSingleInstruction(xref.from));
+        tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
+        QString tooltip = this->main->core->cmd("pdi 10 @ " + QString::number(xref.to)).trimmed();
+        tempItem->setToolTip(0, tooltip);
+        tempItem->setToolTip(1, tooltip);
         this->xreFromTreeWidget_2->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
@@ -1485,12 +1451,15 @@ void MemoryWidget::fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, 
     this->xrefToTreeWidget_2->clear();
     for (int i = 0; i < xrefs.size(); ++i)
     {
-        //this->add_debug_output(xrefs.at(i).at(0) + " " + xrefs.at(i).at(1));
+        XrefDescription xref = xrefs[i];
+
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, xrefs.at(i).at(0));
-        tempItem->setText(1, xrefs.at(i).at(1));
-        tempItem->setToolTip(0, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)).trimmed());
-        tempItem->setToolTip(1, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)).trimmed());
+        tempItem->setText(0, RAddressString(xref.from));
+        tempItem->setText(1, main->core->disassembleSingleInstruction(xref.from));
+        tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
+        QString tooltip = this->main->core->cmd("pdi 10 @ " + QString::number(xref.from)).trimmed();
+        tempItem->setToolTip(0, this->main->core->cmd("pdi 10 @ " + tooltip).trimmed());
+        tempItem->setToolTip(1, this->main->core->cmd("pdi 10 @ " + tooltip).trimmed());
         this->xrefToTreeWidget_2->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
@@ -1670,7 +1639,6 @@ void MemoryWidget::on_disasTextEdit_2_cursorPositionChanged()
             // Refresh function information at sidebar
             ui->fcnNameEdit->setText(at);
             this->main->memoryDock->setWindowTitle(at);
-            this->main->memoryDock->get_refs_data(ele);
             //this->main->memoryDock->create_graph(ele);
             this->setMiniGraph(at);
         }

@@ -71,7 +71,6 @@ public:
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
-    void get_refs(const QString &offset);
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void sendToNotepad(const QString &txt);
@@ -180,7 +179,6 @@ private:
 
     bool doLock;
     void refreshMem();
-    void refreshMem(RVA offset);
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;

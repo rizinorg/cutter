@@ -463,15 +463,13 @@ int QRCore::fcnBasicBlockCount(ut64 addr)
     return 0;
 }
 
-int QRCore::fcnEndBbs(QString addr)
+int QRCore::fcnEndBbs(RVA addr)
 {
     CORE_LOCK();
-    bool ok;
-    int offset = addr.toLong(&ok, 16);
-    RAnalFunction *fcn = r_anal_get_fcn_in(core_->anal, offset, 0);
+    RAnalFunction *fcn = r_anal_get_fcn_in(core_->anal, addr, 0);
     if (fcn)
     {
-        QString tmp = this->cmd("afi @ " + addr + " ~end-bbs").split("\n")[0];
+        QString tmp = this->cmd("afi @ " + QString::number(addr) + " ~end-bbs").split("\n")[0];
         if (tmp.contains(":"))
         {
             QString endbbs = tmp.split(": ")[1];
@@ -1092,52 +1090,9 @@ QList<SectionDescription> QRCore::getAllSections()
     return ret;
 }
 
-
-QList<QString> QRCore::getFunctionXrefs(ut64 addr)
+QList<XrefDescription> QRCore::getXRefs(RVA addr, bool to, const QString &filterType)
 {
-    CORE_LOCK();
-    QList<QString> ret = QList<QString>();
-    RList *list = r_anal_xrefs_get(core_->anal, addr);
-    RAnalRef *ref;
-    RListIter *it;
-    QRListForeach(list, it, RAnalRef, ref)
-    {
-        ret << QString("%1,0x%2,0x%3").arg(
-                QString(ref->type),
-                QString::number(ref->addr, 16),
-                QString::number(ref->at, 16));
-    }
-    return ret;
-}
-
-QList<QString> QRCore::getFunctionRefs(ut64 addr, char type)
-{
-    CORE_LOCK();
-    QList<QString> ret = QList<QString>();
-    //RAnalFunction *fcn = r_anal_get_fcn_at(core_->anal, addr, addr);
-    RAnalFunction *fcn = r_anal_get_fcn_in(core_->anal, addr, 0);
-    if (!fcn)
-    {
-        eprintf("qcore->getFunctionRefs: No function found\n");
-        return ret;
-    }
-    //eprintf(fcn->name);
-    RAnalRef *ref;
-    RListIter *it;
-    QRListForeach(fcn->refs, it, RAnalRef, ref)
-    {
-        if (type == ref->type || type == 0)
-            ret << QString("%1,0x%2,0x%3").arg(
-                    QString(ref->type),
-                    QString::number(ref->addr, 16),
-                    QString::number(ref->at, 16));
-    }
-    return ret;
-}
-
-QList<XRefDescription> QRCore::getXRefs(RVA addr, bool to, const QString &filterType)
-{
-    QList<XRefDescription> ret = QList<XRefDescription>();
+    QList<XrefDescription> ret = QList<XrefDescription>();
 
     QJsonArray xrefsArray;
 
@@ -1150,7 +1105,7 @@ QList<XRefDescription> QRCore::getXRefs(RVA addr, bool to, const QString &filter
     {
         QJsonObject xrefObject = value.toObject();
 
-        XRefDescription xref;
+        XrefDescription xref;
         xref.type = xrefObject["type"].toString();
 
         if (!filterType.isNull() && filterType != xref.type)

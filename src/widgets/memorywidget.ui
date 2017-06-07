@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>990</width>
-    <height>767</height>
+    <width>1078</width>
+    <height>815</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1325,7 +1325,7 @@ border-top: 0px;
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-175</y>
+             <y>-127</y>
              <width>256</width>
              <height>887</height>
             </rect>
@@ -1866,20 +1866,17 @@ color: rgb(0, 0, 0);</string>
                </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_15">
+               <layout class="QHBoxLayout" name="horizontalLayout_16">
                 <property name="spacing">
                  <number>5</number>
-                </property>
-                <property name="leftMargin">
-                 <number>0</number>
                 </property>
                 <property name="topMargin">
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QToolButton" name="xrefFromToolButton_2">
+                 <widget class="QToolButton" name="xrefToToolButton_2">
                   <property name="text">
-                   <string/>
+                   <string>...</string>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -1899,16 +1896,22 @@ color: rgb(0, 0, 0);</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="xrefFromLabel_2">
+                 <widget class="QLabel" name="xrefToLabel_2">
+                  <property name="font">
+                   <font>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
                   <property name="text">
-                   <string>&lt;b&gt;Xrefs from:&lt;/b&gt;</string>
+                   <string>X-Refs to current address:</string>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QTreeWidget" name="xreFromTreeWidget_2">
+               <widget class="QTreeWidget" name="xrefToTreeWidget_2">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                   <horstretch>0</horstretch>
@@ -1974,17 +1977,20 @@ QToolTip {
                </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_16">
+               <layout class="QHBoxLayout" name="horizontalLayout_15">
                 <property name="spacing">
                  <number>5</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
                 </property>
                 <property name="topMargin">
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QToolButton" name="xrefToToolButton_2">
+                 <widget class="QToolButton" name="xrefFromToolButton_2">
                   <property name="text">
-                   <string>...</string>
+                   <string/>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -2004,16 +2010,22 @@ QToolTip {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="xrefToLabel_2">
+                 <widget class="QLabel" name="xrefFromLabel_2">
+                  <property name="font">
+                   <font>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
                   <property name="text">
-                   <string>&lt;b&gt;Xrefs To:&lt;/b&gt;</string>
+                   <string>X-Refs from current address:</string>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QTreeWidget" name="xrefToTreeWidget_2">
+               <widget class="QTreeWidget" name="xreFromTreeWidget_2">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                   <horstretch>0</horstretch>
@@ -3031,8 +3043,8 @@ QToolTip {
  </resources>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

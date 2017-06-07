@@ -327,7 +327,6 @@ void MainWindow::finalizeOpen()
     core->cmd("fs sections");
     updateFrames();
 
-    get_refs(core->cmd("?v entry0"));
     memoryDock->selectHexPreview();
 
     // Restore project notes
@@ -770,7 +769,7 @@ void MainWindow::seek(const RVA offset, const QString &name, bool raise_memory_d
     core->seek(offset);
     setCursorAddress(offset);
 
-    refreshMem(offset);
+    refreshMem();
     this->memoryDock->disasTextEdit->setFocus();
 
     // Rise and shine baby!
@@ -781,22 +780,8 @@ void MainWindow::seek(const RVA offset, const QString &name, bool raise_memory_d
 void MainWindow::refreshMem()
 {
     this->memoryDock->updateViews();
-
 }
 
-void MainWindow::refreshMem(RVA offset)
-{
-    //add_debug_output("Refreshing to: " + off);
-    //graphicsBar->refreshColorBar();
-    /*
-    this->memoryDock->refreshDisasm(off);
-    this->memoryDock->refreshHexdump(off);
-    this->memoryDock->create_graph(off);
-    */
-    refreshMem();
-    this->memoryDock->get_refs_data(RAddressString(offset));
-    //this->memoryDock->setFcnName(offset);
-}
 
 void MainWindow::on_backButton_clicked()
 {
@@ -920,11 +905,6 @@ void MainWindow::on_actionFunctionsRename_triggered()
     // Get function based on click position
     //r->setFunctionName(fcn_name);
     r->open();
-}
-
-void MainWindow::get_refs(const QString &offset)
-{
-    this->memoryDock->get_refs_data(offset);
 }
 
 void MainWindow::addOutput(const QString &msg)

@@ -134,7 +134,7 @@ struct SectionDescription
     QString flags;
 };
 
-struct XRefDescription
+struct XrefDescription
 {
     RVA from;
     RVA to;
@@ -150,7 +150,7 @@ Q_DECLARE_METATYPE(RelocDescription)
 Q_DECLARE_METATYPE(StringDescription)
 Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
-Q_DECLARE_METATYPE(XRefDescription)
+Q_DECLARE_METATYPE(XrefDescription)
 
 class QRCore : public QObject
 {
@@ -167,7 +167,7 @@ public:
     int getFcnSize(ut64 addr);
     int fcnCyclomaticComplexity(ut64 addr);
     int fcnBasicBlockCount(ut64 addr);
-    int fcnEndBbs(QString addr);
+    int fcnEndBbs(RVA addr);
     QString cmd(const QString &str);
     QJsonDocument cmdj(const QString &str);
     void renameFunction(QString prev_name, QString new_name);
@@ -234,10 +234,7 @@ public:
     QList<FlagDescription> getAllFlags(QString flagspace = NULL);
     QList<SectionDescription> getAllSections();
 
-
-    QList<QString> getFunctionXrefs(ut64 addr);
-    QList<QString> getFunctionRefs(ut64 addr, char type);
-    QList<XRefDescription> getXRefs(RVA addr, bool to, const QString &filterType = QString::null);
+    QList<XrefDescription> getXRefs(RVA addr, bool to, const QString &filterType = QString::null);
 
     RCoreLocked core() const;
 

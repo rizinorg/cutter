@@ -3,10 +3,15 @@
 
 #include "mainwindow.h"
 
+#include <QJsonArray>
+
 XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::XrefsDialog)
 {
+    addr = 0;
+    func_name = QString::null;
+
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     this->main = main;
@@ -27,12 +32,12 @@ XrefsDialog::~XrefsDialog()
     delete ui;
 }
 
-void XrefsDialog::fillRefs(QList<XRefDescription> refs, QList<XRefDescription> xrefs)
+void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs)
 {
     ui->fromTreeWidget->clear();
     for (int i = 0; i < refs.size(); ++i)
     {
-        XRefDescription xref = refs[i];
+        XrefDescription xref = refs[i];
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, RAddressString(xref.to));
@@ -53,7 +58,7 @@ void XrefsDialog::fillRefs(QList<XRefDescription> refs, QList<XRefDescription> x
     ui->toTreeWidget->clear();
     for (int i = 0; i < xrefs.size(); ++i)
     {
-        XRefDescription xref = xrefs[i];
+        XrefDescription xref = xrefs[i];
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, RAddressString(xref.from));
@@ -77,10 +82,10 @@ void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int
 {
     QNOTUSED(column);
 
-    QString offset = item->text(0);
-    RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
-    //this->add_debug_output( fcn->name );
-    this->main->seek(offset, fcn->name);
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    RAnalFunction *fcn = this->main->core->functionAt(xref.to);
+    this->main->seek(xref.to, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
+
     this->close();
 }
 
@@ -88,10 +93,10 @@ void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int c
 {
     QNOTUSED(column);
 
-    QString offset = item->text(0);
-    RAnalFunction *fcn = this->main->core->functionAt(offset.toLongLong(0, 16));
-    //this->add_debug_output( fcn->name );
-    this->main->seek(offset, fcn->name);
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    RAnalFunction *fcn = this->main->core->functionAt(xref.from);
+    this->main->seek(xref.from, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
+
     this->close();
 }
 
@@ -135,24 +140,39 @@ void XrefsDialog::highlightCurrentLine()
 
 void XrefsDialog::on_fromTreeWidget_itemSelectionChanged()
 {
+    if (ui->fromTreeWidget->selectedItems().isEmpty())
+        return;
+    ui->toTreeWidget->clearSelection();
     QTreeWidgetItem *item = ui->fromTreeWidget->currentItem();
-    QString offset = item->text(0);
-    ui->previewTextEdit->setPlainText(this->main->core->cmd("pdf @ " + offset).trimmed());
-    ui->previewTextEdit->moveCursor(QTextCursor::End);
-    // Does it make any sense?
-    ui->previewTextEdit->find(this->normalizeAddr(offset), QTextDocument::FindBackward);
-    ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    updatePreview(xref.to);
 }
 
 void XrefsDialog::on_toTreeWidget_itemSelectionChanged()
 {
+    if (ui->toTreeWidget->selectedItems().isEmpty())
+        return;
+    ui->fromTreeWidget->clearSelection();
     QTreeWidgetItem *item = ui->toTreeWidget->currentItem();
-    QString offset = item->text(0);
-    ui->previewTextEdit->setPlainText(this->main->core->cmd("pdf @ " + offset).trimmed());
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    updatePreview(xref.from);
+}
+
+void XrefsDialog::updatePreview(RVA addr)
+{
+    QString disass;
+
+    // is the address part of a function, so we can use pdf?
+    if (!main->core->cmdj("afij@" + QString::number(addr)).array().isEmpty())
+        disass = main->core->cmd("pdf @ " + QString::number(addr));
+    else
+        disass = main->core->cmd("pd 10 @ " + QString::number(addr));
+
+    ui->previewTextEdit->setPlainText(disass.trimmed());
+
+    // Does it make any sense?
     ui->previewTextEdit->moveCursor(QTextCursor::End);
-    // Again, does it make any sense?
-    // Also, this code should be refactored and shared instead of copied & pasted
-    ui->previewTextEdit->find(this->normalizeAddr(offset), QTextDocument::FindBackward);
+    ui->previewTextEdit->find(this->normalizeAddr(RAddressString(addr)), QTextDocument::FindBackward);
     ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
 }
 
@@ -164,15 +184,18 @@ void XrefsDialog::updateLabels(QString name)
 
 void XrefsDialog::fillRefsForFunction(RVA addr, QString name)
 {
+    this->addr = addr;
+    this->func_name = func_name;
+
     setWindowTitle(tr("X-Refs for function %1").arg(name));
     updateLabels(name);
     // Get Refs and Xrefs
 
     // refs = calls q hace esa funcion
-    QList<XRefDescription> refs = main->core->getXRefs(addr, false, "C");
+    QList<XrefDescription> refs = main->core->getXRefs(addr, false, "C");
 
     // xrefs = calls a esa funcion
-    QList<XRefDescription> xrefs = main->core->getXRefs(addr, true);
+    QList<XrefDescription> xrefs = main->core->getXRefs(addr, true);
 
     fillRefs(refs, xrefs);
 }

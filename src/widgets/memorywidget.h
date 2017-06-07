@@ -70,11 +70,9 @@ public slots:
 
     void refreshHexdump(const QString &where = QString());
 
-    void fill_refs(QList<QStringList> refs, QList<QStringList> xrefs, QList<int> graph_data);
+    void fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data);
 
     void fillOffsetInfo(QString off);
-
-    void get_refs_data(const QString &offset);
 
     void seek_to(const QString &offset);
 
@@ -112,6 +110,7 @@ private:
     RVA last_hexdump_fcn;
 
     void setFcnName(RVA addr);
+    void get_refs_data(RVA addr);
 
     void setScrollMode();
 

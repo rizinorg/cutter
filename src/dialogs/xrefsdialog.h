@@ -38,13 +38,17 @@ private slots:
     void on_toTreeWidget_itemSelectionChanged();
 
 private:
+    RVA addr;
+    QString func_name;
+
     Ui::XrefsDialog *ui;
     MainWindow *main;
 
     Highlighter      *highlighter;
 
-    void fillRefs(QList<XRefDescription> refs, QList<XRefDescription> xrefs);
+    void fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs);
     void updateLabels(QString name);
+    void updatePreview(RVA addr);
 
 };
 
