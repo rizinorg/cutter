@@ -134,6 +134,14 @@ struct SectionDescription
     QString flags;
 };
 
+struct XRefDescription
+{
+    RVA from;
+    RVA to;
+    QString type;
+    QString opcode;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -155,8 +163,6 @@ public:
     ~QRCore();
 
     RVA getOffset() const                           { return core_->offset; }
-    QList<QString> getFunctionXrefs(ut64 addr);
-    QList<QString> getFunctionRefs(ut64 addr, char type);
     int getCycloComplex(ut64 addr);
     int getFcnSize(ut64 addr);
     int fcnCyclomaticComplexity(ut64 addr);
@@ -226,6 +232,11 @@ public:
     QList<FlagspaceDescription> getAllFlagspaces();
     QList<FlagDescription> getAllFlags(QString flagspace = NULL);
     QList<SectionDescription> getAllSections();
+
+
+    QList<QString> getFunctionXrefs(ut64 addr);
+    QList<QString> getFunctionRefs(ut64 addr, char type);
+    QList<XRefDescription> getXRefs(RVA addr, bool to, const QString &filterType = QString::null);
 
     RCoreLocked core() const;
 

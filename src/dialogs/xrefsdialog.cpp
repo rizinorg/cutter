@@ -27,15 +27,15 @@ XrefsDialog::~XrefsDialog()
     delete ui;
 }
 
-void XrefsDialog::fillRefs(QList<QStringList> refs, QList<QStringList> xrefs)
+void XrefsDialog::fillRefs(QList<XRefDescription> refs, QList<XRefDescription> xrefs)
 {
     ui->fromTreeWidget->clear();
     for (int i = 0; i < refs.size(); ++i)
     {
         //this->add_debug_output(refs.at(i).at(0) + " " + refs.at(i).at(1));
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, refs.at(i).at(0));
-        tempItem->setText(1, refs.at(i).at(1));
+        tempItem->setText(0, RAddressString(refs.at(i).to));
+        tempItem->setText(1, refs.at(i).opcode);
         //tempItem->setToolTip( 0, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)) );
         //tempItem->setToolTip( 1, this->main->core->cmd("pdi 10 @ " + refs.at(i).at(0)) );
         ui->fromTreeWidget->insertTopLevelItem(0, tempItem);
@@ -52,8 +52,8 @@ void XrefsDialog::fillRefs(QList<QStringList> refs, QList<QStringList> xrefs)
     {
         //this->add_debug_output(xrefs.at(i).at(0) + " " + xrefs.at(i).at(1));
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, xrefs.at(i).at(0));
-        tempItem->setText(1, xrefs.at(i).at(1));
+        tempItem->setText(0, RAddressString(xrefs.at(i).from));
+        tempItem->setText(1, xrefs.at(i).opcode);
         //tempItem->setToolTip( 0, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)) );
         //tempItem->setToolTip( 1, this->main->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)) );
         ui->toTreeWidget->insertTopLevelItem(0, tempItem);

@@ -1880,44 +1880,14 @@ void MemoryWidget::on_actionXRefs_triggered()
         x->updateLabels(QString(fcn->name));
 
         // Get Refs and Xrefs
-        QList<QStringList> ret_refs;
-        QList<QStringList> ret_xrefs;
 
         // refs = calls q hace esa funcion
-        QList<QString> refs = this->main->core->getFunctionRefs(fcn->addr, 'C');
-        if (refs.size() > 0)
-        {
-            for (int i = 0; i < refs.size(); ++i)
-            {
-                //this->main->add_debug_output(refs.at(i));
-                QStringList retlist = refs.at(i).split(",");
-                QStringList temp;
-                QString addr = retlist.at(2);
-                temp << addr;
-                QString op = this->main->core->cmd("pi 1 @ " + addr);
-                temp << op.simplified();
-                ret_refs << temp;
-            }
-        }
+        QList<XRefDescription> refs = main->core->getXRefs(fcn->addr, false, "C");
 
         // xrefs = calls a esa funcion
-        //qDebug() << this->main->core->getFunctionXrefs(offset.toLong(&ok, 16));
-        QList<QString> xrefs = this->main->core->getFunctionXrefs(fcn->addr);
-        if (xrefs.size() > 0)
-        {
-            for (int i = 0; i < xrefs.size(); ++i)
-            {
-                //this->main->add_debug_output(xrefs.at(i));
-                QStringList retlist = xrefs.at(i).split(",");
-                QStringList temp;
-                QString addr = retlist.at(1);
-                temp << addr;
-                QString op = this->main->core->cmd("pi 1 @ " + addr);
-                temp << op.simplified();
-                ret_xrefs << temp;
-            }
-        }
-        x->fillRefs(ret_refs, ret_xrefs);
+        QList<XRefDescription> xrefs = main->core->getXRefs(fcn->addr, true);
+
+        x->fillRefs(refs, xrefs);
         x->exec();
     }
 }

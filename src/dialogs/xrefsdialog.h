@@ -2,6 +2,7 @@
 #define XREFSDIALOG_H
 
 #include "highlighter.h"
+#include "qrcore.h"
 
 #include <QDialog>
 #include <QTreeWidgetItem>
@@ -21,7 +22,7 @@ public:
     explicit XrefsDialog(MainWindow *main, QWidget *parent = 0);
     ~XrefsDialog();
 
-    void fillRefs(QList<QStringList> refs, QList<QStringList> xrefs);
+    void fillRefs(QList<XRefDescription> refs, QList<XRefDescription> xrefs);
     void updateLabels(QString name);
 
 private slots:
