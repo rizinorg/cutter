@@ -22,8 +22,7 @@ public:
     explicit XrefsDialog(MainWindow *main, QWidget *parent = 0);
     ~XrefsDialog();
 
-    void fillRefs(QList<XRefDescription> refs, QList<XRefDescription> xrefs);
-    void updateLabels(QString name);
+    void fillRefsForFunction(RVA addr, QString name);
 
 private slots:
 
@@ -43,6 +42,9 @@ private:
     MainWindow *main;
 
     Highlighter      *highlighter;
+
+    void fillRefs(QList<XRefDescription> refs, QList<XRefDescription> xrefs);
+    void updateLabels(QString name);
 
 };
 

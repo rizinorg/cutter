@@ -398,6 +398,8 @@ bool QRCore::tryFile(QString path, bool rw)
     return true;
 }
 
+
+
 QList<QString> QRCore::getList(const QString &type, const QString &subtype)
 {
     CORE_LOCK();
@@ -561,6 +563,11 @@ QString QRCore::disassemble(const QString &hex)
     QString code = QString(ac != nullptr ? ac->buf_asm : "");
     r_asm_code_free(ac);
     return code;
+}
+
+QString QRCore::disassembleSingleInstruction(RVA addr)
+{
+    return cmd("pi 1@" + QString::number(addr)).simplified();
 }
 
 RAnalFunction *QRCore::functionAt(ut64 addr)
@@ -1155,10 +1162,6 @@ QList<XRefDescription> QRCore::getXRefs(RVA addr, bool to, const QString &filter
             xref.to = addr;
         else
             xref.to = xrefObject["to"].toVariant().toULongLong();
-
-        xref.opcode = xrefObject["opcode"].toString();
-
-        printf("xref %s %s\n", to ? "to" : "from", xref.opcode.toLocal8Bit().constData());
 
         ret << xref;
     }

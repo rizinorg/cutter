@@ -1876,18 +1876,7 @@ void MemoryWidget::on_actionXRefs_triggered()
             return;
         }
         XrefsDialog *x = new XrefsDialog(this->main, this);
-        x->setWindowTitle("X-Refs for function " + QString(fcn->name));
-        x->updateLabels(QString(fcn->name));
-
-        // Get Refs and Xrefs
-
-        // refs = calls q hace esa funcion
-        QList<XRefDescription> refs = main->core->getXRefs(fcn->addr, false, "C");
-
-        // xrefs = calls a esa funcion
-        QList<XRefDescription> xrefs = main->core->getXRefs(fcn->addr, true);
-
-        x->fillRefs(refs, xrefs);
+        x->fillRefsForFunction(fcn->addr, QString::fromUtf8(fcn->name));
         x->exec();
     }
 }

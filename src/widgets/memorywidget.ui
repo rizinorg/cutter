@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>950</width>
+    <width>990</width>
     <height>767</height>
    </rect>
   </property>
@@ -933,7 +933,7 @@ QToolTip {
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QWebEngineView" name="webSimpleGraph" native="true">
+                 <widget class="QWebEngineView" name="webSimpleGraph">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -954,7 +954,7 @@ QToolTip {
 	font: 11pt &quot;Monaco&quot;;
 }</string>
                   </property>
-                  <property name="url" stdset="0">
+                  <property name="url">
                    <url>
                     <string>about:blank</string>
                    </url>
@@ -1229,16 +1229,16 @@ p, li { white-space: pre-wrap; }
          <number>0</number>
         </property>
         <item>
-         <widget class="QWebEngineView" name="graphWebView" native="true">
+         <widget class="QWebEngineView" name="graphWebView">
           <property name="contextMenuPolicy">
            <enum>Qt::DefaultContextMenu</enum>
           </property>
-          <property name="url" stdset="0">
+          <property name="url">
            <url>
             <string>about:blank</string>
            </url>
           </property>
-          <property name="zoomFactor" stdset="0">
+          <property name="zoomFactor">
            <double>1.000000000000000</double>
           </property>
          </widget>
@@ -1325,9 +1325,9 @@ border-top: 0px;
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
-             <width>257</width>
-             <height>885</height>
+             <y>-175</y>
+             <width>256</width>
+             <height>887</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -1629,7 +1629,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="fcnWebView" native="true">
+                   <widget class="QWebEngineView" name="fcnWebView">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1648,7 +1648,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url" stdset="0">
+                    <property name="url">
                      <url>
                       <string>qrc:/html/fcn_graph.html</string>
                      </url>
@@ -1678,7 +1678,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="radarGraphWebView" native="true">
+                   <widget class="QWebEngineView" name="radarGraphWebView">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1697,7 +1697,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url" stdset="0">
+                    <property name="url">
                      <url>
                       <string>qrc:/html/fcn_radar.html</string>
                      </url>
@@ -1769,11 +1769,6 @@ QToolTip {
                   <width>0</width>
                   <height>175</height>
                  </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                 </font>
                 </property>
                 <property name="frameShape">
                  <enum>QFrame::NoFrame</enum>
@@ -1926,11 +1921,6 @@ color: rgb(0, 0, 0);</string>
                   <height>100</height>
                  </size>
                 </property>
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                 </font>
-                </property>
                 <property name="styleSheet">
                  <string notr="true">QTreeWidget::item
 {
@@ -2035,11 +2025,6 @@ QToolTip {
                   <width>0</width>
                   <height>100</height>
                  </size>
-                </property>
-                <property name="font">
-                 <font>
-                  <pointsize>11</pointsize>
-                 </font>
                 </property>
                 <property name="styleSheet">
                  <string notr="true">QTreeWidget::item
@@ -3038,7 +3023,7 @@ QToolTip {
   <customwidget>
    <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>QtWebEngineWidgets/QWebEngineView</header>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -3046,8 +3031,8 @@ QToolTip {
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

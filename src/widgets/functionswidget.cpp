@@ -508,24 +508,8 @@ void FunctionsWidget::on_action_References_triggered()
     // Get selected item in functions tree view
     QTreeView *treeView = getCurrentTreeView();
     FunctionDescription function = treeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-
-    //this->main->add_debug_output("Addr: " + address);
-
-    // Get function for clicked offset
-    RAnalFunction *fcn = this->main->core->functionAt(function.offset);
-
     XrefsDialog *x = new XrefsDialog(this->main, this);
-    x->setWindowTitle("X-Refs for function " + QString::fromUtf8(fcn->name));
-
-    // Get Refs and Xrefs
-
-    // refs = calls q hace esa funcion
-    QList<XRefDescription> refs = main->core->getXRefs(fcn->addr, false, "C");
-
-    // xrefs = calls a esa funcion
-    QList<XRefDescription> xrefs = main->core->getXRefs(fcn->addr, true);
-
-    x->fillRefs(refs, xrefs);
+    x->fillRefsForFunction(function.offset, function.name);
     x->exec();
 }
 

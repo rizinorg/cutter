@@ -139,7 +139,6 @@ struct XRefDescription
     RVA from;
     RVA to;
     QString type;
-    QString opcode;
 };
 
 Q_DECLARE_METATYPE(FunctionDescription)
@@ -151,6 +150,7 @@ Q_DECLARE_METATYPE(RelocDescription)
 Q_DECLARE_METATYPE(StringDescription)
 Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
+Q_DECLARE_METATYPE(XRefDescription)
 
 class QRCore : public QObject
 {
@@ -187,6 +187,7 @@ public:
     int config(const QString &k, int v);
     QString assemble(const QString &code);
     QString disassemble(const QString &hex);
+    QString disassembleSingleInstruction(RVA addr);
     void setDefaultCPU();
     void setCPU(QString arch, QString cpu, int bits, bool temporary = false);
     RAnalFunction *functionAt(ut64 addr);
