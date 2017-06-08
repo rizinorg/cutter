@@ -182,20 +182,20 @@ void XrefsDialog::updateLabels(QString name)
     ui->label_3->setText(tr("X-Refs from %1:").arg(name));
 }
 
-void XrefsDialog::fillRefsForFunction(RVA addr, QString name)
+void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
 {
     this->addr = addr;
     this->func_name = func_name;
 
-    setWindowTitle(tr("X-Refs for function %1").arg(name));
+    setWindowTitle(tr("X-Refs for %1").arg(name));
     updateLabels(name);
     // Get Refs and Xrefs
 
     // refs = calls q hace esa funcion
-    QList<XrefDescription> refs = main->core->getXRefs(addr, false, "C");
+    QList<XrefDescription> refs = main->core->getXRefs(addr, false, whole_function);
 
     // xrefs = calls a esa funcion
-    QList<XrefDescription> xrefs = main->core->getXRefs(addr, true);
+    QList<XrefDescription> xrefs = main->core->getXRefs(addr, true, whole_function);
 
     fillRefs(refs, xrefs);
 }

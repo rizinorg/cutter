@@ -22,7 +22,7 @@ public:
     explicit XrefsDialog(MainWindow *main, QWidget *parent = 0);
     ~XrefsDialog();
 
-    void fillRefsForFunction(RVA addr, QString name);
+    void fillRefsForAddress(RVA addr, QString name, bool whole_function);
 
 private slots:
 

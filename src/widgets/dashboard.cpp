@@ -71,6 +71,7 @@ void Dashboard::updateContents()
     this->ui->endianEdit->setText(item2["endian"].toString());
     this->ui->compiledEdit->setText(item2["compiled"].toString());
     this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
+
     if (item2["relro"].isUndefined()) {
         QString relro=item2["relro"].toString().split(" ").at(0);
         relro[0]=relro[0].toUpper();

@@ -1090,7 +1090,7 @@ QList<SectionDescription> QRCore::getAllSections()
     return ret;
 }
 
-QList<XrefDescription> QRCore::getXRefs(RVA addr, bool to, const QString &filterType)
+QList<XrefDescription> QRCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();
 
@@ -1112,6 +1112,9 @@ QList<XrefDescription> QRCore::getXRefs(RVA addr, bool to, const QString &filter
             continue;
 
         xref.from = xrefObject["from"].toVariant().toULongLong();
+
+        if (!whole_function && !to && xref.from != addr)
+            continue;
 
         if (to && !xrefObject.contains("to"))
             xref.to = addr;

@@ -234,7 +234,7 @@ public:
     QList<FlagDescription> getAllFlags(QString flagspace = NULL);
     QList<SectionDescription> getAllSections();
 
-    QList<XrefDescription> getXRefs(RVA addr, bool to, const QString &filterType = QString::null);
+    QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 
     RCoreLocked core() const;
 

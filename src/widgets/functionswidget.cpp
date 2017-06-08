@@ -509,7 +509,7 @@ void FunctionsWidget::on_action_References_triggered()
     QTreeView *treeView = getCurrentTreeView();
     FunctionDescription function = treeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     XrefsDialog *x = new XrefsDialog(this->main, this);
-    x->fillRefsForFunction(function.offset, function.name);
+    x->fillRefsForAddress(function.offset, function.name, true);
     x->exec();
 }
 

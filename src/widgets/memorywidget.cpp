@@ -151,10 +151,11 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     connect(ui->hexASCIIText_2->verticalScrollBar(), SIGNAL(valueChanged(int)),
             ui->hexHexText_2->verticalScrollBar(), SLOT(setValue(int)));
 
-    // X to show hexdump
-    QShortcut *hexdump_shortcut = new QShortcut(QKeySequence(Qt::Key_X), this->main);
-    connect(hexdump_shortcut, SIGNAL(activated()), this, SLOT(showHexdump()));
-    //hexdump_shortcut->setContext(Qt::WidgetShortcut);
+    // x or X to show XRefs
+    connect(new QShortcut(QKeySequence(Qt::Key_X), ui->disasTextEdit_2),
+            SIGNAL(activated()), this, SLOT(showXrefsDialog()));
+    connect(new QShortcut(Qt::SHIFT + Qt::Key_X, ui->disasTextEdit_2),
+            SIGNAL(activated()), this, SLOT(showXrefsDialog()));
 
     // Space to switch between disassembly and graph
     QShortcut *graph_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this->main);
@@ -170,11 +171,6 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     QShortcut *rename_shortcut = new QShortcut(QKeySequence(Qt::Key_N), ui->disasTextEdit_2);
     connect(rename_shortcut, SIGNAL(activated()), this, SLOT(on_actionFunctionsRename_triggered()));
     rename_shortcut->setContext(Qt::WidgetShortcut);
-
-    // R to show XRefs
-    QShortcut *xrefs_shortcut = new QShortcut(QKeySequence(Qt::Key_R), ui->disasTextEdit_2);
-    connect(xrefs_shortcut, SIGNAL(activated()), this, SLOT(on_actionXRefs_triggered()));
-    xrefs_shortcut->setContext(Qt::WidgetShortcut);
 
     // Esc to seek back
     QShortcut *back_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), ui->disasTextEdit_2);
@@ -1055,32 +1051,49 @@ void MemoryWidget::on_offsetToolButton_clicked()
     }
 }
 
+
+void MemoryWidget::showXrefsDialog()
+{
+    // Get current offset
+    QTextCursor tc = this->disasTextEdit->textCursor();
+    tc.select(QTextCursor::LineUnderCursor);
+    QString lastline = tc.selectedText();
+    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
+    if (ele.contains("0x"))
+    {
+        RVA addr = ele.toLongLong(0, 16);
+        XrefsDialog *x = new XrefsDialog(this->main, this);
+        x->fillRefsForAddress(addr, RAddressString(addr), false);
+        x->exec();
+    }
+}
+
 /*
  * Show widgets
  */
 
-void MemoryWidget::showHexdump()
-{
-    ui->hexButton_2->setChecked(true);
-    ui->memTabWidget->setCurrentIndex(1);
-    ui->memSideTabWidget_2->setCurrentIndex(1);
-}
-
 void MemoryWidget::cycleViews()
 {
-    if (ui->memTabWidget->currentIndex() == 0)
+    switch (ui->memTabWidget->currentIndex())
     {
+    case 0:
         // Show graph
         ui->graphButton_2->setChecked(true);
         ui->memTabWidget->setCurrentIndex(2);
         ui->memSideTabWidget_2->setCurrentIndex(0);
-    }
-    else
-    {
+        break;
+    case 2:
+        // Show hexdump
+        ui->hexButton_2->setChecked(true);
+        ui->memTabWidget->setCurrentIndex(1);
+        ui->memSideTabWidget_2->setCurrentIndex(1);
+        break;
+    default:
         // Show disasm
         ui->disButton_2->setChecked(true);
         ui->memTabWidget->setCurrentIndex(0);
         ui->memSideTabWidget_2->setCurrentIndex(0);
+        break;
     }
 }
 
@@ -1403,10 +1416,10 @@ void MemoryWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
 void MemoryWidget::get_refs_data(RVA addr)
 {
     // refs = calls q hace esa funcion
-    QList<XrefDescription> refs = main->core->getXRefs(addr, false, "C");
+    QList<XrefDescription> refs = main->core->getXRefs(addr, false, false);
 
     // xrefs = calls a esa funcion
-    QList<XrefDescription> xrefs = main->core->getXRefs(addr, true);
+    QList<XrefDescription> xrefs = main->core->getXRefs(addr, true, false);
 
     // Data for the disasm side graph
     QList<int> data;
@@ -1830,23 +1843,7 @@ void MemoryWidget::setScrollMode()
 
 void MemoryWidget::on_actionXRefs_triggered()
 {
-    // Get current offset
-    QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x"))
-    {
-        // Get function for clicked offset
-        RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
-        if (!fcn)
-        {
-            return;
-        }
-        XrefsDialog *x = new XrefsDialog(this->main, this);
-        x->fillRefsForFunction(fcn->addr, QString::fromUtf8(fcn->name));
-        x->exec();
-    }
+    showXrefsDialog();
 }
 
 

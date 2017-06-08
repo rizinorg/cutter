@@ -158,8 +158,9 @@ private slots:
     void hexScrolled();
     QList<QString> get_hexdump(const QString &offset);
 
+    void showXrefsDialog();
     //void showDisas();
-    void showHexdump();
+    //void showHexdump();
     //void showGraph();
     void cycleViews();
     void on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
