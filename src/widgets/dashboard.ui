@@ -1170,6 +1170,7 @@ QTabBar::tab:hover {
                 </spacer>
                </item>
               </layout>
+             <zorder>polarWebView</zorder>
              </widget>
             </widget>
            </item>
