@@ -201,7 +201,7 @@ background-color: rgb(232, 232, 232);</string>
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
-            <normaloff>:/new/prefix1/img/icons/undo.png</normaloff>:/new/prefix1/img/icons/undo.png</iconset>
+            <normaloff>:/img/icons/undo.svg</normaloff>:/img/icons/undo.svg</iconset>
           </property>
          </widget>
         </item>
@@ -221,7 +221,7 @@ background-color: rgb(232, 232, 232);
           </property>
           <property name="icon">
            <iconset resource="../resources.qrc">
-            <normaloff>:/new/prefix1/img/icons/redo.png</normaloff>:/new/prefix1/img/icons/redo.png</iconset>
+            <normaloff>:/img/icons/redo.svg</normaloff>:/img/icons/redo.svg</iconset>
           </property>
          </widget>
         </item>
@@ -648,7 +648,7 @@ QToolTip {
            <string notr="true">QSplitter::handle {
     height: 2px;
 	 background-color: rgb(255, 255, 255);
-    image: url(:/new/prefix1/img/icons/tabs.png);
+    image: url(:/img/icons/tabs.svg);
 }</string>
           </property>
           <property name="frameShape">

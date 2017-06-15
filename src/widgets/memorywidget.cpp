@@ -1732,13 +1732,13 @@ void MemoryWidget::on_memSideToolButton_clicked()
     {
         ui->memSideTabWidget_2->hide();
         ui->hexSideTab_2->hide();
-        ui->memSideToolButton->setIcon(QIcon(":/new/prefix1/img/icons/left.png"));
+        ui->memSideToolButton->setIcon(QIcon(":/img/icons/left_light.svg"));
     }
     else
     {
         ui->memSideTabWidget_2->show();
         ui->hexSideTab_2->show();
-        ui->memSideToolButton->setIcon(QIcon(":/new/prefix1/img/icons/right.png"));
+        ui->memSideToolButton->setIcon(QIcon(":/img/icons/right_light.svg"));
     }
 }
 

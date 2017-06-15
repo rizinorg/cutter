@@ -42,7 +42,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/new/prefix1/img/logo-small.png</pixmap>
+          <pixmap resource="resources.qrc">:/img/logo-small.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

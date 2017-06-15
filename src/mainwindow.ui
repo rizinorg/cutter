@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>725</width>
-    <height>325</height>
+    <width>1013</width>
+    <height>686</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,7 +21,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/new/prefix1/img/logo-small.png</normaloff>:/new/prefix1/img/logo-small.png</iconset>
+    <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QHeaderView::section {
@@ -158,8 +158,8 @@ border-top: 0px;
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>725</width>
-     <height>22</height>
+     <width>1013</width>
+     <height>23</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -171,10 +171,10 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>2601</x>
+      <x>273</x>
       <y>136</y>
-      <width>126</width>
-      <height>177</height>
+      <width>170</width>
+      <height>214</height>
      </rect>
     </property>
     <property name="title">
@@ -330,6 +330,11 @@ background: rgb(64, 64, 64);</string>
     margin-bottom: 1px;
     margin-top: 1px;
 	background-color: rgb(255, 255, 255);
+    padding: 2px;
+	color: rgb(255, 0, 0);
+}
+QToolButton .svg-icon path {
+  fill: #ff0000;
 }</string>
    </property>
    <property name="movable">
@@ -337,8 +342,8 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="iconSize">
     <size>
-     <width>20</width>
-     <height>20</height>
+     <width>18</width>
+     <height>18</height>
     </size>
    </property>
    <property name="toolButtonStyle">
@@ -399,19 +404,11 @@ background: rgb(64, 64, 64);</string>
    </property>
   </action>
   <action name="actionUndo">
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/undo.png</normaloff>:/new/prefix1/img/icons/undo.png</iconset>
-   </property>
    <property name="text">
     <string>Undo</string>
    </property>
   </action>
   <action name="actionRedo">
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/redo.png</normaloff>:/new/prefix1/img/icons/redo.png</iconset>
-   </property>
    <property name="text">
     <string>Redo</string>
    </property>
@@ -459,7 +456,7 @@ background: rgb(64, 64, 64);</string>
   <action name="actionBack">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/arrow_left.png</normaloff>:/new/prefix1/img/icons/arrow_left.png</iconset>
+     <normaloff>:/img/icons/arrow_left.svg</normaloff>:/img/icons/arrow_left.svg</iconset>
    </property>
    <property name="text">
     <string>Back</string>
@@ -471,7 +468,7 @@ background: rgb(64, 64, 64);</string>
   <action name="actionForward">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/arrow_right.png</normaloff>:/new/prefix1/img/icons/arrow_right.png</iconset>
+     <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
    </property>
    <property name="text">
     <string>Forward</string>
@@ -491,7 +488,7 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/unlock</normaloff>:/new/prefix1/unlock</iconset>
+     <normaloff>:/unlock</normaloff>:/unlock</iconset>
    </property>
    <property name="text">
     <string>Lock/Unlock</string>
@@ -594,7 +591,7 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/themes.png</normaloff>:/new/prefix1/img/icons/themes.png</iconset>
+     <normaloff>:/img/icons/themes.svg</normaloff>:/img/icons/themes.svg</iconset>
    </property>
    <property name="text">
     <string>Theme</string>
@@ -609,7 +606,7 @@ background: rgb(64, 64, 64);</string>
   <action name="actionTabs">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/tabs.png</normaloff>:/new/prefix1/img/icons/tabs.png</iconset>
+     <normaloff>:/img/icons/tabs.svg</normaloff>:/img/icons/tabs.svg</iconset>
    </property>
    <property name="text">
     <string>Tabs Up/Down</string>
@@ -621,7 +618,7 @@ background: rgb(64, 64, 64);</string>
   <action name="actionRefresh_Panels">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/spin.png</normaloff>:/new/prefix1/img/icons/spin.png</iconset>
+     <normaloff>:/img/icons/spin.svg</normaloff>:/img/icons/spin.svg</iconset>
    </property>
    <property name="text">
     <string>Refresh</string>
@@ -764,7 +761,7 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/cloud.png</normaloff>:/new/prefix1/img/icons/cloud.png</iconset>
+     <normaloff>:/img/icons/cloud.svg</normaloff>:/img/icons/cloud.svg</iconset>
    </property>
    <property name="text">
     <string>Start Web Server</string>
@@ -841,7 +838,7 @@ background: rgb(64, 64, 64);</string>
    </property>
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/down.png</normaloff>:/new/prefix1/img/icons/down.png</iconset>
+     <normaloff>:/img/icons/down.svg</normaloff>:/img/icons/down.svg</iconset>
    </property>
    <property name="text">
     <string>Show/hide Bottom pannel</string>
@@ -870,7 +867,7 @@ background: rgb(64, 64, 64);</string>
   <action name="actionShow_Hide_mainsidebar">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/new/prefix1/img/icons/hexdump_light.png</normaloff>:/new/prefix1/img/icons/hexdump_light.png</iconset>
+     <normaloff>:/img/icons/sidebar.svg</normaloff>:/img/icons/sidebar.svg</iconset>
    </property>
    <property name="text">
     <string>Show/Hide mainsidebar</string>

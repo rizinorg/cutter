@@ -121,8 +121,9 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/disas_light.png</normaloff>
-           <activeon>:/new/prefix1/img/icons/disas_white.png</activeon>:/new/prefix1/img/icons/disas_light.png</iconset>
+           <normaloff>:/img/icons/disas_light.svg</normaloff>
+           <normalon>:/img/icons/disas_white.svg</normalon>
+           <activeon>:/img/icons/disas_white.png</activeon>:/img/icons/disas_light.svg</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -181,8 +182,9 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/graph_light.png</normaloff>
-           <activeon>:/new/prefix1/img/icons/graph_white.png</activeon>:/new/prefix1/img/icons/graph_light.png</iconset>
+           <normaloff>:/img/icons/graph_light.svg</normaloff>
+           <normalon>:/img/icons/graph_white.svg</normalon>
+           <activeon>:/img/icons/graph_white.svg</activeon>:/img/icons/graph_light.svg</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -238,8 +240,9 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/hexdump_light.png</normaloff>
-           <activeon>:/new/prefix1/img/icons/hexdump_white.png</activeon>:/new/prefix1/img/icons/hexdump_light.png</iconset>
+           <normaloff>:/img/icons/hexdump_light.svg</normaloff>
+           <normalon>:/img/icons/hexdump_white.svg</normalon>
+           <activeon>:/img/icons/hexdump_white.svg</activeon>:/img/icons/hexdump_light.svg</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -314,8 +317,9 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/eye.png</normaloff>
-           <activeon>:/new/prefix1/img/icons/eye_white.png</activeon>:/new/prefix1/img/icons/eye.png</iconset>
+           <normaloff>:/img/icons/eye.svg</normaloff>
+           <normalon>:/img/icons/eye_white.svg</normalon>
+           <activeon>:/img/icons/eye_white.svg</activeon>:/img/icons/eye.svg</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -374,7 +378,7 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/right.png</normaloff>:/new/prefix1/img/icons/right.png</iconset>
+           <normaloff>:/img/icons/right_light.svg</normaloff>:/img/icons/right_light.svg</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -425,7 +429,7 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/cog_light.png</normaloff>:/new/prefix1/img/icons/cog_light.png</iconset>
+           <normaloff>:/img/icons/cog_light.svg</normaloff>:/img/icons/cog_light.svg</iconset>
          </property>
          <property name="popupMode">
           <enum>QToolButton::InstantPopup</enum>
@@ -483,7 +487,7 @@ border-top: 0px;
            <string notr="true">QSplitter::handle {
     height: 2px;
 	 background-color: rgb(255, 255, 255);
-    image: url(:/new/prefix1/img/icons/tabs.png);
+    image: url(:/img/icons/tabs.svg);
 }</string>
           </property>
           <property name="orientation">
@@ -1325,7 +1329,7 @@ border-top: 0px;
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-127</y>
+             <y>0</y>
              <width>256</width>
              <height>887</height>
             </rect>
@@ -1500,8 +1504,9 @@ QToolTip {
                     </property>
                     <property name="icon">
                      <iconset resource="../resources.qrc">
-                      <normaloff>:/new/prefix1/img/icons/radar.png</normaloff>
-                      <activeon>:/new/prefix1/img/icons/radar_white.png</activeon>:/new/prefix1/img/icons/radar.png</iconset>
+                      <normaloff>:/img/icons/radar_light.svg</normaloff>
+                      <normalon>:/img/icons/radar_white.svg</normalon>
+                      <activeon>:/img/icons/radar_white.svg</activeon>:/img/icons/radar_light.svg</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -1561,8 +1566,9 @@ QToolTip {
                     </property>
                     <property name="icon">
                      <iconset resource="../resources.qrc">
-                      <normaloff>:/new/prefix1/img/icons/polar.png</normaloff>
-                      <activeon>:/new/prefix1/img/icons/polar_white.png</activeon>:/new/prefix1/img/icons/polar.png</iconset>
+                      <normaloff>:/img/icons/polar_light.svg</normaloff>
+                      <normalon>:/img/icons/polar_white.svg</normalon>
+                      <activeon>:/img/icons/polar_white.svg</activeon>:/img/icons/polar_light.svg</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -2538,7 +2544,7 @@ QToolTip {
     margin-bottom: 1px;
     margin-top: 1px;
 	background-color: rgb(255, 255, 255);
-	image: url(:/new/prefix1/img/icons/transfer.png);
+	image: url(:/img/icons/transfer.svg);
 }
 
 QToolButton:hover {
@@ -2550,7 +2556,7 @@ QToolButton:hover {
     margin-bottom: 1px;
     margin-top: 1px;
 	background-color: #2180a9;
-	image: url(:/new/prefix1/img/icons/transfer_white.png);
+	image: url(:/img/icons/transfer_white.svg);
 }
 
 QToolButton:pressed {
@@ -2561,7 +2567,7 @@ QToolButton:pressed {
     margin-bottom: 1px;
     margin-top: 1px;
 	background-color: rgb(255, 255, 255);
-	image: url(:/new/prefix1/img/icons/transfer.png);
+	image: url(:/img/icons/transfer.svg);
 }
 
 QToolTip {
@@ -2612,7 +2618,7 @@ QToolTip {
     margin-bottom: 1px;
     margin-top: 1px;
 	background-color: rgb(255, 255, 255);
-	image: url(:/new/prefix1/img/icons/transfer.png);
+	image: url(:/img/icons/transfer.svg);
 }
 
 QToolButton:hover {
@@ -2624,7 +2630,7 @@ QToolButton:hover {
     margin-bottom: 1px;
     margin-top: 1px;
 	background-color: #2180a9;
-	image: url(:/new/prefix1/img/icons/transfer_white.png);
+	image: url(:/img/icons/transfer_white.svg);
 }
 
 QToolButton:pressed {
@@ -2635,7 +2641,7 @@ QToolButton:pressed {
     margin-bottom: 1px;
     margin-top: 1px;
 	background-color: rgb(255, 255, 255);
-	image: url(:/new/prefix1/img/icons/transfer.png);
+	image: url(:/img/icons/transfer.svg);
 }
 
 QToolTip {
@@ -3043,8 +3049,8 @@ QToolTip {
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_3"/>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

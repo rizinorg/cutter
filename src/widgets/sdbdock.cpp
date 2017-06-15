@@ -115,12 +115,12 @@ void SdbDock::on_lockButton_clicked()
     if (ui->lockButton->isChecked())
     {
         this->setAllowedAreas(Qt::NoDockWidgetArea);
-        ui->lockButton->setIcon(QIcon(":/new/prefix1/lock"));
+        ui->lockButton->setIcon(QIcon(":/lock"));
     }
     else
     {
         this->setAllowedAreas(Qt::AllDockWidgetAreas);
-        ui->lockButton->setIcon(QIcon(":/new/prefix1/unlock"));
+        ui->lockButton->setIcon(QIcon(":/unlock"));
     }
 }
 

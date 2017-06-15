@@ -1,0 +1,7 @@
+<!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+<svg style="enable-background:new 0 0 16 32" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" height="32px" width="16px" version="1.1" y="0px" x="0px" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 32">
+	<g fill="#4d4d4f">
+		<circle cx="7.6" r="2" cy="30"/>
+		<path d="m7.7 26c-1.3 0-2.6-0.52-3.5-1.5s-1.5-2.2-1.5-3.5 0.52-2.6 1.5-3.5l6.7-6.7c1 0.7 1-0.3 1-1.4s-0.41-2.1-1.2-2.8c-1.6-1.6-4.1-1.6-5.7 0-0.9 0.8-1.3 1.8-1.3 2.8h-4c0-2.1 0.83-4.1 2.3-5.7 3-3 8.3-3 11 0.002 2 1.6 3 3.6 3 5.7s-0.83 4.1-2.3 5.7l-7 6c-0.39 0.39-0.39 1 0 1.4 0.39 0.39 1 0.39 1.4 0 0.25-0.25 0.29-0.56 0.29-0.71h4c0 1.3-0.52 2.6-1.5 3.5s-3 2-4.3 2z"/>
+	</g>
+</svg>

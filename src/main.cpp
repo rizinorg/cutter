@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowIcon(QIcon(":/new/prefix1/img/logo-small.png"));
+        msg.setWindowIcon(QIcon(":/img/logo-small.png"));
         msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msg.setWindowTitle("Version mismatch!");
         msg.setText(QString("The version used to compile iaito (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?").arg(localVersion, r2version));

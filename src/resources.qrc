@@ -1,65 +1,67 @@
 <RCC>
-    <qresource prefix="/new/prefix1">
-        <file>img/icons/arrow_left.png</file>
-        <file>img/icons/arrow_right.png</file>
-        <file>img/icons/undo.png</file>
-        <file>img/icons/redo.png</file>
+    <qresource prefix="/">
+        <file>img/icons/arrow_left.svg</file>
+        <file>img/icons/arrow_right.svg</file>
+        <file>img/icons/sidebar.svg</file>
+        <file>img/icons/undo.svg</file>
+        <file>img/icons/redo.svg</file>
         <file>img/r2.svg</file>
-        <file>img/icons/equalizer.png</file>
-        <file>img/icons/cog.png</file>
-        <file alias="lock">img/icons/lock.png</file>
-        <file alias="unlock">img/icons/unlock.png</file>
-        <file>img/icons/tabs.png</file>
-        <file>img/icons/themes.png</file>
-        <file>img/icons/target.png</file>
-        <file>img/icons/help.png</file>
-        <file>img/icons/spin.png</file>
-        <file>img/icons/plus.png</file>
-        <file>img/icons/play.png</file>
-        <file>img/icons/cloud.png</file>
-        <file>img/icons/down.png</file>
-        <file>img/icons/up.png</file>
-        <file>img/icons/clear_light.png</file>
-        <file>img/icons/load_light.png</file>
-        <file>img/icons/save_light.png</file>
-        <file>img/icons/trash_light.png</file>
-        <file>img/icons/graph_light.png</file>
-        <file>img/icons/hexdump_light.png</file>
-        <file>img/icons/disas_light.png</file>
-        <file>img/icons/cog_light.png</file>
-        <file>img/icons/cog_white.png</file>
-        <file>img/icons/disas_white.png</file>
-        <file>img/icons/graph_white.png</file>
-        <file>img/icons/hexdump_white.png</file>
-        <file>img/icons/new_light.png</file>
-        <file>img/icons/run_light.png</file>
-        <file>img/icons/edit_light.png</file>
-        <file>img/icons/polar.png</file>
-        <file>img/icons/radar.png</file>
-        <file>img/icons/polar_white.png</file>
-        <file>img/icons/radar_white.png</file>
-        <file>img/icons/cloud_white.png</file>
-        <file>img/icons/down_white.png</file>
-        <file>img/icons/spin_white.png</file>
-        <file>img/icons/tabs_white.png</file>
-        <file>img/icons/themes_white.png</file>
-        <file>img/icons/unlock_white.png</file>
-        <file>img/icons/lock_white.png</file>
-        <file>img/icons/up_white.png</file>
-        <file>img/icons/left.png</file>
-        <file>img/icons/right.png</file>
-        <file>img/icons/eye_white.png</file>
-        <file>img/icons/eye.png</file>
-        <file>img/icons/transfer.png</file>
-        <file>img/icons/transfer_white.png</file>
-        <file>img/icons/spin_grey.png</file>
+        <file>img/icons/equalizer.svg</file>
+        <file>img/icons/cog.svg</file>
+        <file alias="lock">img/icons/lock.svg</file>
+        <file alias="unlock">img/icons/unlock.svg</file>
+        <file>img/icons/tabs.svg</file>
+        <file>img/icons/themes.svg</file>
+        <file>img/icons/target.svg</file>
+        <file>img/icons/help.svg</file>
+        <file>img/icons/spin.svg</file>
+        <file>img/icons/plus.svg</file>
+        <file>img/icons/play.svg</file>
+        <file>img/icons/cloud.svg</file>
+        <file>img/icons/down.svg</file>
+        <file>img/icons/down_white.svg</file>
+        <file>img/icons/up.svg</file>
+        <file>img/icons/up_white.svg</file>
+        <file>img/icons/clear_light.svg</file>
+        <file>img/icons/load_light.svg</file>
+        <file>img/icons/save_light.svg</file>
+        <file>img/icons/trash_light.svg</file>
+        <file>img/icons/disas_light.svg</file>
+        <file>img/icons/disas_white.svg</file>
+        <file>img/icons/graph_light.svg</file>
+        <file>img/icons/graph_white.svg</file>
+        <file>img/icons/hexdump_light.svg</file>
+        <file>img/icons/hexdump_white.svg</file>
+        <file>img/icons/cog_light.svg</file>
+        <file>img/icons/cog_white.svg</file>
+        <file>img/icons/new_light.svg</file>
+        <file>img/icons/run_light.svg</file>
+        <file>img/icons/edit_light.svg</file>
+        <file>img/icons/polar_light.svg</file>
+        <file>img/icons/radar_light.svg</file>
+        <file>img/icons/polar_white.svg</file>
+        <file>img/icons/radar_white.svg</file>
+        <file>img/icons/cloud_white.svg</file>
+        <file>img/icons/spin_white.svg</file>
+        <file>img/icons/tabs_white.svg</file>
+        <file>img/icons/themes_white.svg</file>
+        <file>img/icons/unlock_white.svg</file>
+        <file>img/icons/lock_white.svg</file>
+        <file>img/icons/left_light.svg</file>
+        <file>img/icons/right_light.svg</file>
+        <file>img/icons/eye.svg</file>
+        <file>img/icons/eye_white.svg</file>
+        <file>img/icons/transfer.svg</file>
+        <file>img/icons/transfer_white.svg</file>
+        <file>img/icons/spin_light.svg</file>
         <file>img/logo2.png</file>
         <file>img/logo-small.png</file>
         <file>img/logo-small-white.png</file>
+        <file>img/icons/import_light.svg</file>
         <file>fonts/Anonymous Pro.ttf</file>
         <file>fonts/Inconsolata-Regular.ttf</file>
-    </qresource>
-    <qresource prefix="/">
+
+
         <file>html/graph.html</file>
         <file>html/viz.js</file>
         <file>html/Chart.js</file>
@@ -67,8 +69,6 @@
         <file>html/fcn_radar.html</file>
         <file>html/bar.html</file>
         <file>html/stats.html</file>
-        <file>img/icons/spin_grey.png</file>
-        <file>img/icons/import_light.svg</file>
         <file>html/utils.js</file>
         <file>html/radar.html</file>
     </qresource>

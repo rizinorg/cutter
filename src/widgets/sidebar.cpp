@@ -48,11 +48,11 @@ void SideBar::on_consoleButton_clicked()
     this->main->on_actionhide_bottomPannel_triggered();
     if (ui->consoleButton->isChecked())
     {
-        ui->consoleButton->setIcon(QIcon(":/new/prefix1/img/icons/up_white.png"));
+        ui->consoleButton->setIcon(QIcon(":/img/icons/up_white.svg"));
     }
     else
     {
-        ui->consoleButton->setIcon(QIcon(":/new/prefix1/img/icons/down_white.png"));
+        ui->consoleButton->setIcon(QIcon(":/img/icons/down_white.svg"));
     }
 }
 
@@ -65,12 +65,12 @@ void SideBar::on_lockButton_clicked()
 {
     if (ui->lockButton->isChecked())
     {
-        ui->lockButton->setIcon(QIcon(":/new/prefix1/img/icons/unlock_white.png"));
+        ui->lockButton->setIcon(QIcon(":/img/icons/unlock_white.svg"));
         this->main->lockUnlock_Docks(1);
     }
     else
     {
-        ui->lockButton->setIcon(QIcon(":/new/prefix1/img/icons/lock_white.png"));
+        ui->lockButton->setIcon(QIcon(":/img/icons/lock_white.svg"));
         this->main->lockUnlock_Docks(0);
     }
 }

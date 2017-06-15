@@ -61,7 +61,7 @@
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/new/prefix1/img/icons/arrow_right.png</normaloff>:/new/prefix1/img/icons/arrow_right.png</iconset>
+          <normaloff>:/img/icons/arrow_right.png</normaloff>:/img/icons/arrow_right.png</iconset>
         </property>
        </widget>
       </item>
@@ -79,7 +79,7 @@
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/new/prefix1/unlock</normaloff>:/new/prefix1/unlock</iconset>
+          <normaloff>:/unlock</normaloff>:/unlock</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>

@@ -70,10 +70,10 @@
 
 static void registerCustomFonts()
 {
-    int ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Anonymous Pro.ttf");
+    int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
     assert(-1 != ret && "unable to register Anonymous Pro.ttf");
 
-    ret = QFontDatabase::addApplicationFont(":/new/prefix1/fonts/Inconsolata-Regular.ttf");
+    ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
     assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
 
     // do not issue a warning in release
@@ -143,7 +143,7 @@ void MainWindow::initUI()
 
     // Popup menu on theme toolbar button
     QToolButton *backButton = new QToolButton(this);
-    backButton->setIcon(QIcon(":/new/prefix1/img/icons/arrow_left.png"));
+    backButton->setIcon(QIcon(":/img/icons/arrow_left.svg"));
     //backButton->setPopupMode(QToolButton::DelayedPopup);
     ui->mainToolBar->insertWidget(ui->actionForward, backButton);
     connect(backButton, SIGNAL(clicked()), this, SLOT(on_backButton_clicked()));
@@ -628,7 +628,7 @@ void MainWindow::on_actionLockUnlock_triggered()
         {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
-        ui->actionLockUnlock->setIcon(QIcon(":/new/prefix1/lock"));
+        ui->actionLockUnlock->setIcon(QIcon(":/lock"));
     }
     else
     {
@@ -636,7 +636,7 @@ void MainWindow::on_actionLockUnlock_triggered()
         {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
-        ui->actionLockUnlock->setIcon(QIcon(":/new/prefix1/unlock"));
+        ui->actionLockUnlock->setIcon(QIcon(":/unlock"));
     }
 }
 

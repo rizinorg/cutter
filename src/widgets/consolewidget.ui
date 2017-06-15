@@ -129,7 +129,7 @@ QToolButton { /* all types of tool button */
        </property>
        <property name="icon">
         <iconset resource="../resources.qrc">
-         <normaloff>:/new/prefix1/img/icons/play.png</normaloff>:/new/prefix1/img/icons/play.png</iconset>
+         <normaloff>:/img/icons/play.svg</normaloff>:/img/icons/play.svg</iconset>
        </property>
       </widget>
      </item>

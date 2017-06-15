@@ -291,7 +291,7 @@ QToolButton:pressed {
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="../resources.qrc">:/new/prefix1/img/icons/spin_white.png</pixmap>
+                  <pixmap resource="../resources.qrc">:/img/icons/spin_white.svg</pixmap>
                  </property>
                 </widget>
                </item>
@@ -649,7 +649,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/up_white.png</normaloff>:/new/prefix1/img/icons/up_white.png</iconset>
+             <normaloff>:/img/icons/up_white.svg</normaloff>:/img/icons/up_white.svg</iconset>
            </property>
           </widget>
          </item>
@@ -702,7 +702,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/tabs_white.png</normaloff>:/new/prefix1/img/icons/tabs_white.png</iconset>
+             <normaloff>:/img/icons/tabs_white.svg</normaloff>:/img/icons/tabs_white.svg</iconset>
            </property>
           </widget>
          </item>
@@ -755,7 +755,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/down_white.png</normaloff>:/new/prefix1/img/icons/down_white.png</iconset>
+             <normaloff>:/img/icons/down_white.svg</normaloff>:/img/icons/down_white.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -811,7 +811,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/themes_white.png</normaloff>:/new/prefix1/img/icons/themes_white.png</iconset>
+             <normaloff>:/img/icons/themes_white.svg</normaloff>:/img/icons/themes_white.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -883,7 +883,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/disas_white.png</normaloff>:/new/prefix1/img/icons/disas_white.png</iconset>
+             <normaloff>:/img/icons/disas_white.svg</normaloff>:/img/icons/disas_white.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -942,7 +942,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/cloud_white.png</normaloff>:/new/prefix1/img/icons/cloud_white.png</iconset>
+             <normaloff>:/img/icons/cloud_white.svg</normaloff>:/img/icons/cloud_white.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -1004,7 +1004,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/spin_white.png</normaloff>:/new/prefix1/img/icons/spin_white.png</iconset>
+             <normaloff>:/img/icons/spin_white.svg</normaloff>:/img/icons/spin_white.svg</iconset>
            </property>
           </widget>
          </item>
@@ -1057,7 +1057,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/unlock_white.png</normaloff>:/new/prefix1/img/icons/unlock_white.png</iconset>
+             <normaloff>:/img/icons/unlock_white.svg</normaloff>:/img/icons/unlock_white.svg</iconset>
            </property>
            <property name="checkable">
             <bool>true</bool>
@@ -1126,7 +1126,7 @@ QToolTip {
            </property>
            <property name="icon">
             <iconset resource="../resources.qrc">
-             <normaloff>:/new/prefix1/img/icons/cog_white.png</normaloff>:/new/prefix1/img/icons/cog_white.png</iconset>
+             <normaloff>:/img/icons/cog_white.svg</normaloff>:/img/icons/cog_white.svg</iconset>
            </property>
            <property name="toolButtonStyle">
             <enum>Qt::ToolButtonIconOnly</enum>

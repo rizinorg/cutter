@@ -98,8 +98,9 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/hexdump_light.png</normaloff>
-           <activeon>:/new/prefix1/img/icons/hexdump_white.png</activeon>:/new/prefix1/img/icons/hexdump_light.png</iconset>
+           <normaloff>:/img/icons/hexdump_light.svg</normaloff>
+           <normalon>:/img/icons/hexdump_white.svg</normalon>
+           <activeon>:/img/icons/hexdump_white.svg</activeon>:/img/icons/hexdump_light.svg</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -149,8 +150,9 @@ QToolTip {
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
-           <normaloff>:/new/prefix1/img/icons/disas_light.png</normaloff>
-           <activeon>:/new/prefix1/img/icons/disas_white.png</activeon>:/new/prefix1/img/icons/disas_light.png</iconset>
+           <normaloff>:/img/icons/disas_light.svg</normaloff>
+           <normalon>:/img/icons/disas_white.svg</normalon>
+           <activeon>:/img/icons/disas_white.svg</activeon>:/img/icons/disas_light.svg</iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
