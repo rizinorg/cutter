@@ -82,7 +82,7 @@ static void registerCustomFonts()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    core(new QRCore()),
+    core(new IaitoRCore()),
     memoryDock(nullptr),
     notepadDock(nullptr),
     asmDock(nullptr),

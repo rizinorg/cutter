@@ -80,7 +80,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    QNOTUSED(column);
+    IAITONOTUSED(column);
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     RAnalFunction *fcn = this->main->core->functionAt(xref.to);
@@ -91,7 +91,7 @@ void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int
 
 void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    QNOTUSED(column);
+    IAITONOTUSED(column);
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     RAnalFunction *fcn = this->main->core->functionAt(xref.from);

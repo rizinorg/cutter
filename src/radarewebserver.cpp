@@ -1,11 +1,11 @@
 #include "radarewebserver.h"
-#include "qrcore.h"
+#include "iaitorcore.h"
 #include <QCoreApplication>
 #include <QProcessEnvironment>
 #include <cassert>
 
 
-RadareWebServer::RadareWebServer(QRCore *core) :
+RadareWebServer::RadareWebServer(IaitoRCore *core) :
     core(core),
     started(false)
 {

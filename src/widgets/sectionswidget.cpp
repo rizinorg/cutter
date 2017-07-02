@@ -11,7 +11,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QWidget *parent) :
     QSplitter(main),
     main(main)
 {
-    QNOTUSED(parent);
+    IAITONOTUSED(parent);
 
     setupViews();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);

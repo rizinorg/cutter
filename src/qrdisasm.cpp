@@ -1,19 +1,19 @@
-#include "qrdisasm.h"
+#include "iaitordisasm.h"
 
 // This class is not used, created by pancake a long time ago.
 // Kept here just because
 
-QRDisasm::QRDisasm(QRCore *core) :
+IaitoRDisasm::IaitoRDisasm(IaitoRCore *core) :
     core(core),
     db(nullptr)
 {
 }
 
-bool QRDisasm::disassembleAt(ut64 addr, QRDisasmOption opt, QRDisasmRow &dr)
+bool IaitoRDisasm::disassembleAt(ut64 addr, IaitoRDisasmOption opt, IaitoRDisasmRow &dr)
 {
-    QNOTUSED(addr);
-    QNOTUSED(opt);
-    QNOTUSED(dr);
+    IAITONOTUSED(addr);
+    IAITONOTUSED(opt);
+    IAITONOTUSED(dr);
 
     printf("FUCK\n");
     return false;

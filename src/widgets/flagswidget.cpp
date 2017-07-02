@@ -167,7 +167,7 @@ void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
 
 void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
 {
-    QNOTUSED(arg1);
+    IAITONOTUSED(arg1);
 
     refreshFlags();
 }

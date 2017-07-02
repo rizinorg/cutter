@@ -46,7 +46,7 @@
 #define M_PI 3.1415927
 #endif
 
-#include "qrcore.h"
+#include "iaitorcore.h"
 #include "pieview.h"
 
 PieView::PieView(QWidget *parent)
@@ -486,7 +486,7 @@ void PieView::scrollTo(const QModelIndex &index, ScrollHint)
 
 void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    QNOTUSED(command);
+    IAITONOTUSED(command);
 
     // Use content widget coordinates because we will use the itemRegion()
     // function to check for intersections.

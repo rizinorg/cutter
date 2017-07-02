@@ -73,7 +73,6 @@ HEADERS  += \
     newfiledialog.h \
     optionsdialog.h \
     highlighter.h \
-    qrcore.h \
     createnewdialog.h \
     hexascii_highlighter.h \
     widgets/pieview.h \
@@ -92,7 +91,6 @@ HEADERS  += \
     widgets/flagswidget.h \
     widgets/memorywidget.h \
     widgets/exportswidget.h \
-    qrdisasm.h \
     widgets/sdbdock.h \
     analthread.h \
     dialogs/commentsdialog.h \
@@ -106,7 +104,9 @@ HEADERS  += \
     widgets/dockwidget.h \
     widgets/consolewidget.h \
     radarewebserver.h \
-    settings.h
+    settings.h \
+    iaitorcore.h \
+    iaitordisasm.h
 
 FORMS    += \
     mainwindow.ui \

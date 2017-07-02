@@ -36,7 +36,7 @@ void SymbolsWidget::refresh()
 
 void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    QNOTUSED(column);
+    IAITONOTUSED(column);
 
     // Get offset and name of item double clicked
     SymbolDescription symbol = item->data(0, Qt::UserRole).value<SymbolDescription>();

@@ -2,7 +2,7 @@
 #define FUNCTIONSWIDGET_H
 
 #include "dockwidget.h"
-#include "qrcore.h"
+#include "iaitorcore.h"
 
 #include <QSortFilterProxyModel>
 #include <QTreeView>

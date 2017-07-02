@@ -1,7 +1,7 @@
 #ifndef MEMORYWIDGET_H
 #define MEMORYWIDGET_H
 
-#include "qrcore.h"
+#include "iaitorcore.h"
 #include "highlighter.h"
 #include "hexascii_highlighter.h"
 #include "hexhighlighter.h"

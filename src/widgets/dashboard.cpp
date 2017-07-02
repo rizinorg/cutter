@@ -72,9 +72,10 @@ void Dashboard::updateContents()
     this->ui->compiledEdit->setText(item2["compiled"].toString());
     this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
 
-    if (!item2["relro"].isUndefined()) {
+    if (!item2["relro"].isUndefined())
+    {
         QString relro = item2["relro"].toString().split(" ").at(0);
-        relro[0]=relro[0].toUpper();
+        relro[0] = relro[0].toUpper();
         this->ui->relroEdit->setText(relro);
     }
 

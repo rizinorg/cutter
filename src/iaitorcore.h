@@ -1,5 +1,5 @@
-#ifndef QRCORE_H
-#define QRCORE_H
+#ifndef IAITORCORE_H
+#define IAITORCORE_H
 
 #include <QMap>
 #include <QDebug>
@@ -22,7 +22,7 @@
 
 #define HAVE_LATEST_LIBR2 false
 
-#define QRListForeach(list, it, type, x) \
+#define IaitoRListForeach(list, it, type, x) \
     if (list) for (it = list->head; it && ((x=(type*)it->data)); it = it->n)
 
 #define __alert(x) QMessageBox::question (this, "Alert", QString(x), QMessageBox::Ok)
@@ -42,7 +42,7 @@ public:
     RCore *operator->() const;
 };
 
-#define QNOTUSED(x) do { (void)(x); } while ( 0 );
+#define IAITONOTUSED(x) do { (void)(x); } while ( 0 );
 
 typedef ut64 RVA;
 
@@ -152,15 +152,15 @@ Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 
-class QRCore : public QObject
+class IaitoRCore : public QObject
 {
     Q_OBJECT
 
 public:
     QString projectPath;
 
-    explicit QRCore(QObject *parent = 0);
-    ~QRCore();
+    explicit IaitoRCore(QObject *parent = 0);
+    ~IaitoRCore();
 
     RVA getOffset() const                           { return core_->offset; }
     int getCycloComplex(ut64 addr);
@@ -255,4 +255,4 @@ private:
     RCore *core_;
 };
 
-#endif // QRCORE_H
+#endif // IAITORCORE_H

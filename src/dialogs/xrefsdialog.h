@@ -2,7 +2,7 @@
 #define XREFSDIALOG_H
 
 #include "highlighter.h"
-#include "qrcore.h"
+#include "iaitorcore.h"
 
 #include <QDialog>
 #include <QTreeWidgetItem>

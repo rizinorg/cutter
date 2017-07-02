@@ -1,4 +1,4 @@
-#include "qrcore.h"
+#include "iaitorcore.h"
 #include "sdb.h"
 
 #include <QJsonArray>
@@ -33,14 +33,14 @@ RCore *RCoreLocked::operator->() const
     return core;
 }
 
-RCoreLocked QRCore::core() const
+RCoreLocked IaitoRCore::core() const
 {
     return RCoreLocked(this->core_);
 }
 
 #define CORE_LOCK() RCoreLocked core_lock__(this->core_)
 
-QRCore::QRCore(QObject *parent) :
+IaitoRCore::IaitoRCore(QObject *parent) :
     QObject(parent)
 {
     r_cons_new();  // initialize console
@@ -67,7 +67,7 @@ QRCore::QRCore(QObject *parent) :
 }
 
 
-int QRCore::getCycloComplex(ut64 addr)
+int IaitoRCore::getCycloComplex(ut64 addr)
 {
     CORE_LOCK();
     QString ret = "";
@@ -84,7 +84,7 @@ int QRCore::getCycloComplex(ut64 addr)
     }
 }
 
-int QRCore::getFcnSize(ut64 addr)
+int IaitoRCore::getFcnSize(ut64 addr)
 {
     CORE_LOCK();
     QString ret = "";
@@ -103,7 +103,7 @@ int QRCore::getFcnSize(ut64 addr)
     }
 }
 
-QList<QString> QRCore::sdbList(QString path)
+QList<QString> IaitoRCore::sdbList(QString path)
 {
     CORE_LOCK();
     QList<QString> list = QList<QString>();
@@ -121,7 +121,7 @@ QList<QString> QRCore::sdbList(QString path)
     return list;
 }
 
-QList<QString> QRCore::sdbListKeys(QString path)
+QList<QString> IaitoRCore::sdbListKeys(QString path)
 {
     CORE_LOCK();
     QList<QString> list = QList<QString>();
@@ -140,7 +140,7 @@ QList<QString> QRCore::sdbListKeys(QString path)
     return list;
 }
 
-QString QRCore::sdbGet(QString path, QString key)
+QString IaitoRCore::sdbGet(QString path, QString key)
 {
     CORE_LOCK();
     Sdb *db = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 0);
@@ -153,7 +153,7 @@ QString QRCore::sdbGet(QString path, QString key)
     return QString("");
 }
 
-bool QRCore::sdbSet(QString path, QString key, QString val)
+bool IaitoRCore::sdbSet(QString path, QString key, QString val)
 {
     CORE_LOCK();
     Sdb *db = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 1);
@@ -161,13 +161,13 @@ bool QRCore::sdbSet(QString path, QString key, QString val)
     return sdb_set(db, key.toUtf8().constData(), val.toUtf8().constData(), 0);
 }
 
-QRCore::~QRCore()
+IaitoRCore::~IaitoRCore()
 {
     r_core_free(this->core_);
     r_cons_free();
 }
 
-QString QRCore::cmd(const QString &str)
+QString IaitoRCore::cmd(const QString &str)
 {
     CORE_LOCK();
 
@@ -180,7 +180,7 @@ QString QRCore::cmd(const QString &str)
     return o;
 }
 
-QJsonDocument QRCore::cmdj(const QString &str)
+QJsonDocument IaitoRCore::cmdj(const QString &str)
 {
     CORE_LOCK();
     QByteArray cmd = str.toUtf8();
@@ -202,10 +202,10 @@ QJsonDocument QRCore::cmdj(const QString &str)
     return doc;
 }
 
-bool QRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin)
+bool IaitoRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin)
 {
-    QNOTUSED(loadaddr);
-    QNOTUSED(idx);
+    IAITONOTUSED(loadaddr);
+    IAITONOTUSED(idx);
 
     CORE_LOCK();
     RCoreFile *f;
@@ -286,7 +286,7 @@ bool QRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw
     return true;
 }
 
-void QRCore::analyze(int level)
+void IaitoRCore::analyze(int level)
 {
     CORE_LOCK();
     /*
@@ -315,32 +315,32 @@ void QRCore::analyze(int level)
     }
 }
 
-void QRCore::renameFunction(QString prev_name, QString new_name)
+void IaitoRCore::renameFunction(QString prev_name, QString new_name)
 {
     cmd("afn " + new_name + " " + prev_name);
     emit functionRenamed(prev_name, new_name);
 }
 
-void QRCore::setComment(RVA addr, QString cmt)
+void IaitoRCore::setComment(RVA addr, QString cmt)
 {
     //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
     cmd("CC " + cmt + " @ " + QString::number(addr));
 }
 
-void QRCore::setComment(QString addr, QString cmt)
+void IaitoRCore::setComment(QString addr, QString cmt)
 {
     //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
     cmd("CC " + cmt + " @ " + addr);
 }
 
-void QRCore::delComment(ut64 addr)
+void IaitoRCore::delComment(ut64 addr)
 {
     CORE_LOCK();
     r_meta_del(core_->anal, 'C', addr, 1, NULL);
     //cmd (QString("CC-@")+addr);
 }
 
-QMap<QString, QList<QList<QString>>> QRCore::getNestedComments()
+QMap<QString, QList<QList<QString>>> IaitoRCore::getNestedComments()
 {
     QMap<QString, QList<QList<QString>>> ret;
     QString comments = cmd("CC~CCu");
@@ -360,7 +360,7 @@ QMap<QString, QList<QList<QString>>> QRCore::getNestedComments()
     return ret;
 }
 
-void QRCore::seek(QString addr)
+void IaitoRCore::seek(QString addr)
 {
     if (addr.length() > 0)
         seek(this->math(addr.toUtf8().constData()));
@@ -368,13 +368,13 @@ void QRCore::seek(QString addr)
 
 
 
-void QRCore::seek(ut64 offset)
+void IaitoRCore::seek(ut64 offset)
 {
     CORE_LOCK();
     r_core_seek(this->core_, offset, true);
 }
 
-bool QRCore::tryFile(QString path, bool rw)
+bool IaitoRCore::tryFile(QString path, bool rw)
 {
     CORE_LOCK();
     RCoreFile *cf;
@@ -400,7 +400,7 @@ bool QRCore::tryFile(QString path, bool rw)
 
 
 
-QList<QString> QRCore::getList(const QString &type, const QString &subtype)
+QList<QString> IaitoRCore::getList(const QString &type, const QString &subtype)
 {
     CORE_LOCK();
     QList<QString> ret = QList<QString>();
@@ -436,13 +436,13 @@ QList<QString> QRCore::getList(const QString &type, const QString &subtype)
     return ret;
 }
 
-ut64 QRCore::math(const QString &expr)
+ut64 IaitoRCore::math(const QString &expr)
 {
     CORE_LOCK();
     return r_num_math(this->core_ ? this->core_->num : NULL, expr.toUtf8().constData());
 }
 
-int QRCore::fcnCyclomaticComplexity(ut64 addr)
+int IaitoRCore::fcnCyclomaticComplexity(ut64 addr)
 {
     CORE_LOCK();
     RAnalFunction *fcn = r_anal_get_fcn_at(core_->anal, addr, addr);
@@ -451,7 +451,7 @@ int QRCore::fcnCyclomaticComplexity(ut64 addr)
     return 0;
 }
 
-int QRCore::fcnBasicBlockCount(ut64 addr)
+int IaitoRCore::fcnBasicBlockCount(ut64 addr)
 {
     CORE_LOCK();
     //RAnalFunction *fcn = r_anal_get_fcn_at (core_->anal, addr, addr);
@@ -463,7 +463,7 @@ int QRCore::fcnBasicBlockCount(ut64 addr)
     return 0;
 }
 
-int QRCore::fcnEndBbs(RVA addr)
+int IaitoRCore::fcnEndBbs(RVA addr)
 {
     CORE_LOCK();
     RAnalFunction *fcn = r_anal_get_fcn_in(core_->anal, addr, 0);
@@ -480,12 +480,12 @@ int QRCore::fcnEndBbs(RVA addr)
     return 0;
 }
 
-QString QRCore::itoa(ut64 num, int rdx)
+QString IaitoRCore::itoa(ut64 num, int rdx)
 {
     return QString::number(num, rdx);
 }
 
-QString QRCore::config(const QString &k, const QString &v)
+QString IaitoRCore::config(const QString &k, const QString &v)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
@@ -497,7 +497,7 @@ QString QRCore::config(const QString &k, const QString &v)
     return QString(r_config_get(core_->config, key.constData()));
 }
 
-int QRCore::config(const QString &k, int v)
+int IaitoRCore::config(const QString &k, int v)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
@@ -509,9 +509,9 @@ int QRCore::config(const QString &k, int v)
     return r_config_get_i(core_->config, key.constData());
 }
 
-void QRCore::setOptions(QString key)
+void IaitoRCore::setOptions(QString key)
 {
-    QNOTUSED(key);
+    IAITONOTUSED(key);
 
     // va
     // lowercase
@@ -522,7 +522,7 @@ void QRCore::setOptions(QString key)
     // anal plugin
 }
 
-void QRCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
+void IaitoRCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
 {
     config("asm.arch", arch);
     config("asm.cpu", cpu);
@@ -535,7 +535,7 @@ void QRCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
     }
 }
 
-void QRCore::setDefaultCPU()
+void IaitoRCore::setDefaultCPU()
 {
     if (!default_arch.isEmpty())
         config("asm.arch", default_arch);
@@ -545,7 +545,7 @@ void QRCore::setDefaultCPU()
         config("asm.bits", QString::number(default_bits));
 }
 
-QString QRCore::assemble(const QString &code)
+QString IaitoRCore::assemble(const QString &code)
 {
     CORE_LOCK();
     RAsmCode *ac = r_asm_massemble(core_->assembler, code.toUtf8().constData());
@@ -554,7 +554,7 @@ QString QRCore::assemble(const QString &code)
     return hex;
 }
 
-QString QRCore::disassemble(const QString &hex)
+QString IaitoRCore::disassemble(const QString &hex)
 {
     CORE_LOCK();
     RAsmCode *ac = r_asm_mdisassemble_hexstr(core_->assembler, hex.toUtf8().constData());
@@ -563,19 +563,19 @@ QString QRCore::disassemble(const QString &hex)
     return code;
 }
 
-QString QRCore::disassembleSingleInstruction(RVA addr)
+QString IaitoRCore::disassembleSingleInstruction(RVA addr)
 {
     return cmd("pi 1@" + QString::number(addr)).simplified();
 }
 
-RAnalFunction *QRCore::functionAt(ut64 addr)
+RAnalFunction *IaitoRCore::functionAt(ut64 addr)
 {
     CORE_LOCK();
     //return r_anal_fcn_find (core_->anal, addr, addr);
     return r_anal_get_fcn_in(core_->anal, addr, 0);
 }
 
-QString QRCore::cmdFunctionAt(QString addr)
+QString IaitoRCore::cmdFunctionAt(QString addr)
 {
     QString ret;
     //afi~name:1[1] @ 0x08048e44
@@ -584,12 +584,12 @@ QString QRCore::cmdFunctionAt(QString addr)
     return ret.trimmed();
 }
 
-QString QRCore::cmdFunctionAt(RVA addr)
+QString IaitoRCore::cmdFunctionAt(RVA addr)
 {
     return cmdFunctionAt(QString::number(addr));
 }
 
-int QRCore::get_size()
+int IaitoRCore::get_size()
 {
     CORE_LOCK();
     RBinObject *obj = r_bin_get_object(core_->bin);
@@ -597,14 +597,14 @@ int QRCore::get_size()
     return obj != nullptr ? obj->obj_size : 0;
 }
 
-ulong QRCore::get_baddr()
+ulong IaitoRCore::get_baddr()
 {
     CORE_LOCK();
     ulong baddr = r_bin_get_baddr(core_->bin);
     return baddr;
 }
 
-QList<QList<QString>> QRCore::get_exec_sections()
+QList<QList<QString>> IaitoRCore::get_exec_sections()
 {
     QList<QList<QString>> ret;
 
@@ -627,29 +627,29 @@ QList<QList<QString>> QRCore::get_exec_sections()
     return ret;
 }
 
-QString QRCore::getOffsetInfo(QString addr)
+QString IaitoRCore::getOffsetInfo(QString addr)
 {
     return cmd("ao @ " + addr);
 }
 
-QString QRCore::getOffsetJump(QString addr)
+QString IaitoRCore::getOffsetJump(QString addr)
 {
     QString ret = cmd("ao @" + addr + "~jump[1]");
     return ret;
 }
 
-QString QRCore::getDecompiledCode(QString addr)
+QString IaitoRCore::getDecompiledCode(QString addr)
 {
     return cmd("pdc @ " + addr);
 }
 
-QString QRCore::getFileInfo()
+QString IaitoRCore::getFileInfo()
 {
     QString info = cmd("ij");
     return info;
 }
 
-QStringList QRCore::getStats()
+QStringList IaitoRCore::getStats()
 {
     QStringList stats;
     cmd("fs functions");
@@ -672,7 +672,7 @@ QStringList QRCore::getStats()
     return stats;
 }
 
-QString QRCore::getSimpleGraph(QString function)
+QString IaitoRCore::getSimpleGraph(QString function)
 {
     // New styles
     QString graph = "graph [bgcolor=invis, splines=polyline];";
@@ -694,7 +694,7 @@ QString QRCore::getSimpleGraph(QString function)
     return dot;
 }
 
-void QRCore::getOpcodes()
+void IaitoRCore::getOpcodes()
 {
     QString opcodes = cmd("?O");
     this->opcodes = opcodes.split("\n");
@@ -705,7 +705,7 @@ void QRCore::getOpcodes()
     this->regs.removeLast();
 }
 
-void QRCore::setSettings()
+void IaitoRCore::setSettings()
 {
     config("scr.color", "false");
     config("scr.interactive", "false");
@@ -768,7 +768,7 @@ void QRCore::setSettings()
 
 
 
-QList<RVA> QRCore::getSeekHistory()
+QList<RVA> IaitoRCore::getSeekHistory()
 {
     CORE_LOCK();
     QList<RVA> ret;
@@ -782,14 +782,14 @@ QList<RVA> QRCore::getSeekHistory()
 
 
 
-QStringList QRCore::getAsmPluginNames()
+QStringList IaitoRCore::getAsmPluginNames()
 {
     CORE_LOCK();
     RListIter *it;
     QStringList ret;
 
     RAsmPlugin *ap;
-    QRListForeach(core_->assembler->plugins, it, RAsmPlugin, ap)
+    IaitoRListForeach(core_->assembler->plugins, it, RAsmPlugin, ap)
     {
         ret << ap->name;
     }
@@ -797,14 +797,14 @@ QStringList QRCore::getAsmPluginNames()
     return ret;
 }
 
-QStringList QRCore::getAnalPluginNames()
+QStringList IaitoRCore::getAnalPluginNames()
 {
     CORE_LOCK();
     RListIter *it;
     QStringList ret;
 
     RAnalPlugin *ap;
-    QRListForeach(core_->anal->plugins, it, RAnalPlugin, ap)
+    IaitoRListForeach(core_->anal->plugins, it, RAnalPlugin, ap)
     {
         ret << ap->name;
     }
@@ -813,7 +813,7 @@ QStringList QRCore::getAnalPluginNames()
 }
 
 
-QStringList QRCore::getProjectNames()
+QStringList IaitoRCore::getProjectNames()
 {
     CORE_LOCK();
     QStringList ret;
@@ -827,7 +827,7 @@ QStringList QRCore::getProjectNames()
 
 
 
-QList<FunctionDescription> QRCore::getAllFunctions()
+QList<FunctionDescription> IaitoRCore::getAllFunctions()
 {
     CORE_LOCK();
     QList<FunctionDescription> ret;
@@ -851,7 +851,7 @@ QList<FunctionDescription> QRCore::getAllFunctions()
 }
 
 
-QList<ImportDescription> QRCore::getAllImports()
+QList<ImportDescription> IaitoRCore::getAllImports()
 {
     CORE_LOCK();
     QList<ImportDescription> ret;
@@ -878,7 +878,7 @@ QList<ImportDescription> QRCore::getAllImports()
 
 
 
-QList<ExportDescription> QRCore::getAllExports()
+QList<ExportDescription> IaitoRCore::getAllExports()
 {
     CORE_LOCK();
     QList<ExportDescription> ret;
@@ -905,7 +905,7 @@ QList<ExportDescription> QRCore::getAllExports()
 }
 
 
-QList<SymbolDescription> QRCore::getAllSymbols()
+QList<SymbolDescription> IaitoRCore::getAllSymbols()
 {
     CORE_LOCK();
     RListIter *it;
@@ -915,7 +915,7 @@ QList<SymbolDescription> QRCore::getAllSymbols()
     RBinSymbol *bs;
     if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
     {
-        QRListForeach(core_->bin->cur->o->symbols, it, RBinSymbol, bs)
+        IaitoRListForeach(core_->bin->cur->o->symbols, it, RBinSymbol, bs)
         {
             QString type = QString(bs->bind) + " " + QString(bs->type);
             SymbolDescription symbol;
@@ -929,7 +929,7 @@ QList<SymbolDescription> QRCore::getAllSymbols()
         /* list entrypoints as symbols too */
         int n = 0;
         RBinAddr *entry;
-        QRListForeach(core_->bin->cur->o->entries, it, RBinAddr, entry)
+        IaitoRListForeach(core_->bin->cur->o->entries, it, RBinAddr, entry)
         {
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
@@ -944,7 +944,7 @@ QList<SymbolDescription> QRCore::getAllSymbols()
 }
 
 
-QList<CommentDescription> QRCore::getAllComments(const QString &filterType)
+QList<CommentDescription> IaitoRCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
     QList<CommentDescription> ret;
@@ -967,7 +967,7 @@ QList<CommentDescription> QRCore::getAllComments(const QString &filterType)
     return ret;
 }
 
-QList<RelocDescription> QRCore::getAllRelocs()
+QList<RelocDescription> IaitoRCore::getAllRelocs()
 {
     CORE_LOCK();
     RListIter *it;
@@ -976,7 +976,7 @@ QList<RelocDescription> QRCore::getAllRelocs()
     RBinReloc *br;
     if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
     {
-        QRListForeach(core_->bin->cur->o->relocs, it, RBinReloc, br)
+        IaitoRListForeach(core_->bin->cur->o->relocs, it, RBinReloc, br)
         {
             RelocDescription reloc;
 
@@ -996,7 +996,7 @@ QList<RelocDescription> QRCore::getAllRelocs()
     return ret;
 }
 
-QList<StringDescription> QRCore::getAllStrings()
+QList<StringDescription> IaitoRCore::getAllStrings()
 {
     CORE_LOCK();
     RListIter *it;
@@ -1005,7 +1005,7 @@ QList<StringDescription> QRCore::getAllStrings()
     RBinString *bs;
     if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
     {
-        QRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
+        IaitoRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
         {
             StringDescription str;
             str.vaddr = bs->vaddr;
@@ -1018,7 +1018,7 @@ QList<StringDescription> QRCore::getAllStrings()
 }
 
 
-QList<FlagspaceDescription> QRCore::getAllFlagspaces()
+QList<FlagspaceDescription> IaitoRCore::getAllFlagspaces()
 {
     CORE_LOCK();
     QList<FlagspaceDescription> ret;
@@ -1037,7 +1037,7 @@ QList<FlagspaceDescription> QRCore::getAllFlagspaces()
 }
 
 
-QList<FlagDescription> QRCore::getAllFlags(QString flagspace)
+QList<FlagDescription> IaitoRCore::getAllFlags(QString flagspace)
 {
     CORE_LOCK();
     QList<FlagDescription> ret;
@@ -1063,7 +1063,7 @@ QList<FlagDescription> QRCore::getAllFlags(QString flagspace)
 }
 
 
-QList<SectionDescription> QRCore::getAllSections()
+QList<SectionDescription> IaitoRCore::getAllSections()
 {
     CORE_LOCK();
     QList<SectionDescription> ret;
@@ -1090,7 +1090,7 @@ QList<SectionDescription> QRCore::getAllSections()
     return ret;
 }
 
-QList<XrefDescription> QRCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
+QList<XrefDescription> IaitoRCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();
 

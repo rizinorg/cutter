@@ -2,12 +2,12 @@
 #define MAINWINDOW_H
 
 #include "radarewebserver.h"
-#include "qrcore.h" // only needed for ut64
+#include "iaitorcore.h" // only needed for ut64
 
 #include <QMainWindow>
 #include <QList>
 
-class QRCore;
+class IaitoRCore;
 class DockWidget;
 class Omnibar;
 class MemoryWidget;
@@ -44,7 +44,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    QRCore *core;
+    IaitoRCore *core;
     MemoryWidget    *memoryDock;
     Notepad         *notepadDock;
 

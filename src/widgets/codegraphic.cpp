@@ -14,7 +14,7 @@
 GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
     QToolBar(main)
 {
-    QNOTUSED(parent);
+    IAITONOTUSED(parent);
 
     setObjectName("codeGraphics");
     setWindowTitle(tr("Code bar"));
@@ -44,7 +44,7 @@ GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
 
 void GraphicsBar::paintEvent(QPaintEvent *event)
 {
-    QNOTUSED(event);
+    IAITONOTUSED(event);
 
     QPainter painter(this);
     this->fillData();

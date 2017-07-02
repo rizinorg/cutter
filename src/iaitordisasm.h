@@ -1,9 +1,9 @@
-#ifndef QRDISASM_H
-#define QRDISASM_H
+#ifndef IAITORDISASM_H
+#define IAITORDISASM_H
 
-#include <qrcore.h>
+#include <iaitorcore.h>
 
-enum QRDisasmDataType
+enum IaitoRDisasmDataType
 {
     STRING = 'z',
     STRUCT = 's',
@@ -11,7 +11,7 @@ enum QRDisasmDataType
 
 };
 
-enum QRDisasmOption
+enum IaitoRDisasmOption
 {
     DWARF = 1 << 1,
     REFS = 1 << 2,
@@ -20,10 +20,10 @@ enum QRDisasmOption
     COMMENT = 1 << 5,
 };
 
-class QRDisasmRow
+class IaitoRDisasmRow
 {
 private:
-    QRCore *core;
+    IaitoRCore *core;
 public:
     ut64 vaddr;
     ut64 paddr;
@@ -46,7 +46,7 @@ public:
     QString esil;
 
     // if data
-    QRDisasmDataType datatype;
+    IaitoRDisasmDataType datatype;
     QString dataopt; // struct name, aliased name, string, etc
     // data type
     // string/struct/hex/word
@@ -60,17 +60,17 @@ public:
 };
 
 
-class QRDisasm
+class IaitoRDisasm
 {
-    QRCore *core;
+    IaitoRCore *core;
     Sdb *db;
 public:
-    explicit QRDisasm(QRCore *core);
-    bool disassembleAt(ut64 addr, QRDisasmOption opt, QRDisasmRow &dr);
+    explicit IaitoRDisasm(IaitoRCore *core);
+    bool disassembleAt(ut64 addr, IaitoRDisasmOption opt, IaitoRDisasmRow &dr);
     // high level api for the disasm thing to manage comments, xrefs, etc
     //next();
     //prev();
 
 };
 
-#endif // QRDISASM_H
+#endif // IAITORDISASM_H

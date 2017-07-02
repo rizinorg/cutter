@@ -2,7 +2,7 @@
 #include "ui_consolewidget.h"
 
 #include "helpers.h"
-#include "qrcore.h"
+#include "iaitorcore.h"
 
 #include <QScrollBar>
 #include <QMenu>
@@ -92,7 +92,7 @@ static bool isForbidden(const QString &input)
 
 
 
-ConsoleWidget::ConsoleWidget(QRCore *core, QWidget *parent) :
+ConsoleWidget::ConsoleWidget(IaitoRCore *core, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConsoleWidget),
     core(core),

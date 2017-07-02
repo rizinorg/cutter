@@ -1,7 +1,7 @@
 #ifndef FLAGSWIDGET_H
 #define FLAGSWIDGET_H
 
-#include "qrcore.h"
+#include "iaitorcore.h"
 #include "dockwidget.h"
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>

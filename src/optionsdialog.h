@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QStringList>
 
-#include "qrcore.h"
+#include "iaitorcore.h"
 #include "analthread.h"
 
 class MainWindow;

@@ -4,7 +4,7 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
-#include "qrcore.h"
+#include "iaitorcore.h"
 #include "dockwidget.h"
 
 class MainWindow;

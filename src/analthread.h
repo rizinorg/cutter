@@ -3,7 +3,7 @@
 
 #include <QThread>
 
-class QRCore;
+class IaitoRCore;
 
 class AnalThread : public QThread
 {
@@ -12,7 +12,7 @@ public:
     explicit AnalThread(QWidget *parent = 0);
     ~AnalThread();
 
-    void start(QRCore *core, int level);
+    void start(IaitoRCore *core, int level);
 
 protected:
     void run();
@@ -20,7 +20,7 @@ protected:
     using QThread::start;
 
 private:
-    QRCore *core;
+    IaitoRCore *core;
     int level;
 };
 
