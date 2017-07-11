@@ -10,7 +10,7 @@
 #include "settings.h"
 
 #include <QSettings>
-
+#include <QFileInfo>
 
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
@@ -48,7 +48,8 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
 
     ui->programLineEdit->setText(main->getFilename());
-    this->main->core->tryFile(main->getFilename(), true);
+    QFileInfo fi(this->main->getFilename());
+    this->main->core->tryFile(fi.filePath(), fi.isWritable());
 }
 
 OptionsDialog::~OptionsDialog()
