@@ -66,7 +66,7 @@ public slots:
 
     void replaceTextDisasm(QString txt);
 
-    void refreshDisasm(const QString &offset = QString());
+    void refreshDisasm();
 
     void refreshHexdump(const QString &where = QString());
 
@@ -92,7 +92,7 @@ public slots:
 
     void frameLoadFinished(bool ok);
 
-    void updateViews();
+    void updateViews(RVA offset = RVA_INVALID);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -105,7 +105,9 @@ private:
     ut64 hexdumpBottomOffset;
     QString last_fcn;
 
-    RVA last_disasm_fcn;
+    RVA disasm_top_offset;
+    RVA next_disasm_top_offset;
+
     RVA last_graph_fcn;
     RVA last_hexdump_fcn;
 
@@ -114,7 +116,10 @@ private:
 
     void setScrollMode();
 
+    bool loadMoreDisassembly();
+
 private slots:
+    void on_globalSeekTo(RVA addr);
     void on_cursorAddressChanged(RVA addr);
 
     void highlightCurrentLine();
@@ -122,6 +127,7 @@ private slots:
     void highlightHexCurrentLine();
     void highlightPreviewCurrentLine();
     void highlightDecoCurrentLine();
+    RVA readCurrentDisassemblyOffset();
     void setFonts(QFont font);
 
     void highlightHexWords(const QString &str);
@@ -138,6 +144,7 @@ private slots:
     void showHexASCIIContextMenu(const QPoint &pt);
     void on_actionSend_to_Notepad_triggered();
     void on_actionDisasAdd_comment_triggered();
+    void on_actionAddFlag_triggered();
     void on_actionFunctionsRename_triggered();
     void on_actionDisas_ShowHideBytes_triggered();
 

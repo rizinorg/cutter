@@ -3036,6 +3036,11 @@ QToolTip {
     <string>Show stack pointer</string>
    </property>
   </action>
+  <action name="actionAddFlag">
+   <property name="text">
+    <string>Add flag</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -3050,7 +3055,7 @@ QToolTip {
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

@@ -70,6 +70,8 @@ private slots:
     void on_flagsTreeView_doubleClicked(const QModelIndex &index);
     void on_flagspaceCombo_currentTextChanged(const QString &arg1);
 
+    void flagsChanged();
+
 private:
     Ui::FlagsWidget *ui;
     MainWindow      *main;

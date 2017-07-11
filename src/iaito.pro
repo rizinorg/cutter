@@ -66,7 +66,8 @@ SOURCES += \
     hexhighlighter.cpp \
     widgets/sectionsdock.cpp \
     widgets/consolewidget.cpp \
-    radarewebserver.cpp
+    radarewebserver.cpp \
+    dialogs/flagdialog.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -106,7 +107,8 @@ HEADERS  += \
     radarewebserver.h \
     settings.h \
     iaitorcore.h \
-    iaitordisasm.h
+    iaitordisasm.h \
+    dialogs/flagdialog.h
 
 FORMS    += \
     mainwindow.ui \
@@ -131,7 +133,8 @@ FORMS    += \
     widgets/dashboard.ui \
     dialogs/xrefsdialog.ui \
     widgets/sectionsdock.ui \
-    widgets/consolewidget.ui
+    widgets/consolewidget.ui \
+    dialogs/flagdialog.ui
 
 RESOURCES += \
     resources.qrc

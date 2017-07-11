@@ -46,6 +46,8 @@ public:
 
 typedef ut64 RVA;
 
+#define RVA_INVALID UT64_MAX
+
 inline QString RAddressString(RVA addr)
 {
     return QString::asprintf("%#010llx", addr);
@@ -163,6 +165,7 @@ public:
     ~IaitoRCore();
 
     RVA getOffset() const                           { return core_->offset; }
+    static QString sanitizeStringForCommand(QString s);
     int getCycloComplex(ut64 addr);
     int getFcnSize(ut64 addr);
     int fcnCyclomaticComplexity(ut64 addr);
@@ -172,7 +175,6 @@ public:
     QJsonDocument cmdj(const QString &str);
     void renameFunction(QString prev_name, QString new_name);
     void setComment(RVA addr, QString cmt);
-    void setComment(QString addr, QString cmt);
     void delComment(ut64 addr);
     QMap<QString, QList<QList<QString>>> getNestedComments();
     void setOptions(QString key);
@@ -236,6 +238,8 @@ public:
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 
+    void addFlag(RVA offset, QString name, RVA size);
+
     RCoreLocked core() const;
 
     /* fields */
@@ -243,7 +247,10 @@ public:
     Sdb *db;
 
 signals:
+    // TODO: create a more sophisticated update-event system
     void functionRenamed(QString prev_name, QString new_name);
+    void flagsChanged();
+    void commentsChanged();
 
 public slots:
 

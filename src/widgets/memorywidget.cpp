@@ -6,6 +6,7 @@
 #include "dialogs/xrefsdialog.h"
 #include "dialogs/renamedialog.h"
 #include "dialogs/commentsdialog.h"
+#include "dialogs/flagdialog.h"
 
 #include <QTemporaryFile>
 #include <QFontDialog>
@@ -41,9 +42,11 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     this->memTabWidget = ui->memTabWidget;
 
     this->last_fcn = "entry0";
-    this->last_disasm_fcn = 0; //"";
     this->last_graph_fcn = 0; //"";
     this->last_hexdump_fcn = 0; //"";
+
+    disasm_top_offset = 0;
+    next_disasm_top_offset = 0;
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = this->disasTextEdit->document();
@@ -188,12 +191,19 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
 
     connect(ui->graphWebView->page(), SIGNAL(loadFinished(bool)), this, SLOT(frameLoadFinished(bool)));
 
+    connect(main, SIGNAL(globalSeekTo(RVA)), this, SLOT(on_globalSeekTo(RVA)));
     connect(main, SIGNAL(cursorAddressChanged(RVA)), this, SLOT(on_cursorAddressChanged(RVA)));
+    connect(main->core, SIGNAL(flagsChanged()), this, SLOT(updateViews()));
+    connect(main->core, SIGNAL(commentsChanged()), this, SLOT(updateViews()));
 
     fillPlugins();
 }
 
 
+void MemoryWidget::on_globalSeekTo(RVA addr)
+{
+    updateViews(addr);
+}
 
 void MemoryWidget::on_cursorAddressChanged(RVA addr)
 {
@@ -386,6 +396,23 @@ void MemoryWidget::highlightDecoCurrentLine()
     ui->decoTextEdit->setExtraSelections(extraSelections);
 }
 
+RVA MemoryWidget::readCurrentDisassemblyOffset()
+{
+    // TODO: do this in a different way without parsing the disassembly text
+    QTextCursor tc = this->disasTextEdit->textCursor();
+    tc.select(QTextCursor::LineUnderCursor);
+    QString lastline = tc.selectedText();
+    QStringList parts = lastline.split(" ", QString::SkipEmptyParts);
+
+    if (parts.isEmpty())
+        return RVA_INVALID;
+
+    QString ele = parts[0];
+    if (!ele.contains("0x"))
+        return RVA_INVALID;
+
+    return ele.toULongLong(0, 16);
+}
 
 MemoryWidget::~MemoryWidget()
 {
@@ -397,11 +424,13 @@ void MemoryWidget::setup()
     setScrollMode();
 
     const QString off = main->core->cmd("afo entry0").trimmed();
+    RVA offset = off.toULongLong(0, 16);
+    updateViews(offset);
 
-    refreshDisasm(off);
-    refreshHexdump(off);
-    create_graph(off);
-    get_refs_data(off.toLongLong(0, 16));
+    //refreshDisasm();
+    //refreshHexdump(off);
+    //create_graph(off);
+    get_refs_data(offset);
     //setFcnName(off);
 }
 
@@ -438,18 +467,20 @@ void MemoryWidget::replaceTextDisasm(QString txt)
     ui->disasTextEdit_2->setPlainText(txt);
 }
 
-void MemoryWidget::disasmScrolled()
+bool MemoryWidget::loadMoreDisassembly()
 {
     /*
-     * Add more disasm as the user scrolls
-     * Not working properly when scrolling upwards
-     * r2 doesn't handle properly 'pd-' for archs with variable instruction size
-     */
+         * Add more disasm as the user scrolls
+         * Not working properly when scrolling upwards
+         * r2 doesn't handle properly 'pd-' for archs with variable instruction size
+         */
 
     // Disconnect scroll signals to add more content
     disconnect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
 
     QScrollBar *sb = this->disasTextEdit->verticalScrollBar();
+
+    bool loaded = false;
 
     if (sb->value() > sb->maximum() - 10)
     {
@@ -457,12 +488,11 @@ void MemoryWidget::disasmScrolled()
 
         QTextCursor tc = this->disasTextEdit->textCursor();
         tc.movePosition(QTextCursor::End);
-        tc.select(QTextCursor::LineUnderCursor);
-        QString lastline = tc.selectedText();
-        QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-        if (ele.contains("0x"))
+        RVA offset = readCurrentDisassemblyOffset();
+
+        if (offset != RVA_INVALID)
         {
-            this->main->core->seek(ele);
+            main->core->seek(offset);
             QString raw = this->main->core->cmd("pd 200");
             QString txt = raw.section("\n", 1, -1);
             //this->disasTextEdit->appendPlainText(" ;\n ; New content here\n ;\n " + txt.trimmed());
@@ -475,6 +505,9 @@ void MemoryWidget::disasmScrolled()
             QString lastline = tc.selectedText();
             this->main->addDebugOutput("Last line: " + lastline);
         }
+
+        loaded = true;
+
         // Code below will be used to append more disasm upwards, one day
     } /* else if (sb->value() < sb->minimum() + 10) {
         //this->main->add_debug_output("Begining is coming");
@@ -510,65 +543,63 @@ void MemoryWidget::disasmScrolled()
 
     // Reconnect scroll signals
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+
+    return loaded;
 }
 
-void MemoryWidget::refreshDisasm(const QString &offset)
+
+void MemoryWidget::disasmScrolled()
+{
+    loadMoreDisassembly();
+}
+
+void MemoryWidget::refreshDisasm()
 {
     RCoreLocked lcore = this->main->core->core();
-    // we must store those ranges somewhere, to handle scroll
-    //ut64 addr = lcore->offset;
-    //int length = lcore->num->value;
-
-    //printf("refreshDisasm %s\n", offset.toLocal8Bit().constData());
 
     // Prevent further scroll
     disconnect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     disconnect(this->disasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_disasTextEdit_2_cursorPositionChanged()));
 
-    // Get disas at offset
-    if (!offset.isEmpty())
+    RVA offset = next_disasm_top_offset;
+    next_disasm_top_offset = RVA_INVALID;
+    bool offset_changed = offset != RVA_INVALID;
+
+    if (offset_changed) // new offset (seek)
     {
-        this->main->core->cmd("s " + offset);
+        disasm_top_offset = offset;
+        this->main->core->cmd(QString("s %1").arg(offset));
     }
-    else
+    else // simple refresh
     {
-        // Get current offset
-        QTextCursor tc = this->disasTextEdit->textCursor();
-        tc.select(QTextCursor::LineUnderCursor);
-        QString lastline = tc.selectedText();
-        QStringList elements = lastline.split(" ", QString::SkipEmptyParts);
-        if (elements.length() > 0)
-        {
-            QString ele = elements[0];
-            if (ele.contains("0x"))
-            {
-                QString fcn = this->main->core->cmdFunctionAt(ele);
-                if (fcn != "")
-                {
-                    this->main->core->cmd("s " + fcn);
-                }
-                else
-                {
-                    this->main->core->cmd("s " + ele);
-                }
-            }
-        }
+        main->core->cmd(QString("s %1").arg(disasm_top_offset));
     }
 
-    QString txt2 = this->main->core->cmd("pd 100");
+    QString txt2 = this->main->core->cmd("pd 200");
+
+    disasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
+    // if the offset changed, jump to the top
+    // otherwise try to retain the position
+    int cursor_pos = offset_changed ? 0 : disasTextEdit->textCursor().position();
+    int scroll_pos = offset_changed ? 0 : disasTextEdit->verticalScrollBar()->value();
+
     this->disasTextEdit->setPlainText(txt2.trimmed());
 
-    // TODO: Fixx this ugly code
-    //QString temp_seek = this->main->core->cmd("s").split("0x")[1].trimmed();
-    QString s = this->normalize_addr(this->main->core->cmd("s"));
-    //this->main->add_debug_output("Offset to search: " + s);
-    this->disasTextEdit->ensureCursorVisible();
-    /*this->disasTextEdit->moveCursor(QTextCursor::End);
+    auto cursor = disasTextEdit->textCursor();
+    cursor.setPosition(cursor_pos);
+    disasTextEdit->setTextCursor(cursor);
 
-    while (this->disasTextEdit->find(QRegExp("^" + s), QTextDocument::FindBackward))
+    disasTextEdit->verticalScrollBar()->setValue(scroll_pos);
+
+    // load more disassembly if necessary
+    static const int load_more_limit = 10; // limit passes, so it can't take forever
+    for (int load_more_i = 0; load_more_i < load_more_limit; load_more_i++)
     {
-        this->disasTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
-    }*/
+        if (!loadMoreDisassembly())
+            break;
+        disasTextEdit->verticalScrollBar()->setValue(scroll_pos);
+    }
 
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(this->disasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_disasTextEdit_2_cursorPositionChanged()));
@@ -998,6 +1029,7 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
         // Add menu actions
         menu->clear();
         menu->addAction(ui->actionDisasAdd_comment);
+        menu->addAction(ui->actionAddFlag);
         menu->addAction(ui->actionFunctionsRename);
         menu->addAction(ui->actionFunctionsUndefine);
         menu->addSeparator();
@@ -1260,31 +1292,43 @@ void MemoryWidget::on_actionSend_to_Notepad_triggered()
 
 void MemoryWidget::on_actionDisasAdd_comment_triggered()
 {
-    // Get current offset
-    QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x"))
+    RVA offset = readCurrentDisassemblyOffset();
+
+    // Get function for clicked offset
+    RAnalFunction *fcn = this->main->core->functionAt(offset);
+    CommentsDialog *c = new CommentsDialog(this);
+    if (c->exec())
     {
-        // Get function for clicked offset
-        RAnalFunction *fcn = this->main->core->functionAt(ele.toLongLong(0, 16));
-        CommentsDialog *c = new CommentsDialog(this);
-        if (c->exec())
+        // Get new function name
+        QString comment = c->getComment();
+        //this->main->add_debug_output("Comment: " + comment + " at: " + ele);
+        // Rename function in r2 core
+        this->main->core->setComment(offset, comment);
+        // Seek to new renamed function
+        if (fcn)
         {
-            // Get new function name
-            QString comment = c->getComment();
-            //this->main->add_debug_output("Comment: " + comment + " at: " + ele);
-            // Rename function in r2 core
-            this->main->core->setComment(ele, comment);
-            // Seek to new renamed function
-            if (fcn)
-            {
-                this->main->seek(fcn->name);
-            }
-            // TODO: Refresh functions tree widget
+            this->main->seek(fcn->name);
         }
+        // TODO: Refresh functions tree widget
     }
+
+    this->main->refreshComments();
+}
+
+
+void MemoryWidget::on_actionAddFlag_triggered()
+{
+    RVA offset = readCurrentDisassemblyOffset();
+
+    FlagDialog *dialog = new FlagDialog(main->core, offset, this);
+    if (dialog->exec())
+    {
+        //QString comment = dialog->getFlagName();
+        // Rename function in r2 core
+
+        //this->main->core->setComment(offset, comment);
+    }
+
     this->main->refreshComments();
 }
 
@@ -1939,7 +1983,7 @@ void MemoryWidget::on_memTabWidget_currentChanged(int /*index*/)
     this->updateViews();
 }
 
-void MemoryWidget::updateViews()
+void MemoryWidget::updateViews(RVA offset)
 {
     // Update only the selected view to improve performance
 
@@ -1949,14 +1993,13 @@ void MemoryWidget::updateViews()
 
     QString cursor_addr_string = RAddressString(cursor_addr);
 
+    if (offset != RVA_INVALID)
+        next_disasm_top_offset = offset;
+
     if (index == 0)
     {
         // Disasm
-        if (this->last_disasm_fcn != cursor_addr)
-        {
-            this->refreshDisasm(cursor_addr_string);
-            this->last_disasm_fcn = cursor_addr;
-        }
+        this->refreshDisasm();
     }
     else if (index == 1)
     {

@@ -140,6 +140,8 @@ FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), flags_proxy_model, SLOT(setFilterWildcard(const QString &)));
     ui->flagsTreeView->setModel(flags_proxy_model);
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
+
+    connect(main->core, SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
 }
 
 FlagsWidget::~FlagsWidget()
@@ -170,6 +172,11 @@ void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
     IAITONOTUSED(arg1);
 
     refreshFlags();
+}
+
+void FlagsWidget::flagsChanged()
+{
+    refreshFlagspaces();
 }
 
 void FlagsWidget::refreshFlagspaces()

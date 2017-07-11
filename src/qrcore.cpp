@@ -167,6 +167,12 @@ IaitoRCore::~IaitoRCore()
     r_cons_free();
 }
 
+QString IaitoRCore::sanitizeStringForCommand(QString s)
+{
+    static const QRegExp regexp(";|@");
+    return s.replace(regexp, "_");
+}
+
 QString IaitoRCore::cmd(const QString &str)
 {
     CORE_LOCK();
@@ -325,13 +331,9 @@ void IaitoRCore::setComment(RVA addr, QString cmt)
 {
     //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
     cmd("CC " + cmt + " @ " + QString::number(addr));
+    emit commentsChanged();
 }
 
-void IaitoRCore::setComment(QString addr, QString cmt)
-{
-    //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
-    cmd("CC " + cmt + " @ " + addr);
-}
 
 void IaitoRCore::delComment(ut64 addr)
 {
@@ -1125,4 +1127,11 @@ QList<XrefDescription> IaitoRCore::getXRefs(RVA addr, bool to, bool whole_functi
     }
 
     return ret;
+}
+
+void IaitoRCore::addFlag(RVA offset, QString name, RVA size)
+{
+    name = sanitizeStringForCommand(name);
+    cmd(QString("f %1 %2 @ %3").arg(name).arg(size).arg(offset));
+    emit flagsChanged();
 }

@@ -80,6 +80,7 @@ public:
     void refreshOmniBar(const QStringList &flags);
 
 signals:
+    void globalSeekTo(RVA address);
     void cursorAddressChanged(RVA address);
 
 public slots:

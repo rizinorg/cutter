@@ -767,9 +767,10 @@ void MainWindow::seek(const RVA offset, const QString &name, bool raise_memory_d
     this->hexdumpTopOffset = 0;
     this->hexdumpBottomOffset = 0;
     core->seek(offset);
+    emit globalSeekTo(offset);
     setCursorAddress(offset);
 
-    refreshMem();
+    //refreshMem();
     this->memoryDock->disasTextEdit->setFocus();
 
     // Rise and shine baby!

@@ -28,6 +28,8 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showTitleContextMenu(const QPoint &)));
 
+    connect(main->core, SIGNAL(commentsChanged()), this, SLOT(refreshTree()));
+
     // Hide the buttons frame
     ui->frame->hide();
 }
