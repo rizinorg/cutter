@@ -136,6 +136,16 @@ struct SectionDescription
     QString flags;
 };
 
+struct EntrypointDescription
+{
+    RVA vaddr;
+    RVA paddr;
+    RVA baddr;
+    RVA laddr;
+    RVA haddr;
+    QString type;
+};
+
 struct XrefDescription
 {
     RVA from;
@@ -153,6 +163,7 @@ Q_DECLARE_METATYPE(StringDescription)
 Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
+Q_DECLARE_METATYPE(EntrypointDescription)
 
 class IaitoRCore : public QObject
 {
@@ -235,6 +246,7 @@ public:
     QList<FlagspaceDescription> getAllFlagspaces();
     QList<FlagDescription> getAllFlags(QString flagspace = NULL);
     QList<SectionDescription> getAllSections();
+    QList<EntrypointDescription> getAllEntrypoint();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 

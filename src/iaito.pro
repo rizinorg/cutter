@@ -67,6 +67,7 @@ SOURCES += \
     widgets/sectionsdock.cpp \
     widgets/consolewidget.cpp \
     radarewebserver.cpp \
+    widgets/entrypointwidget.cpp \
     dialogs/flagdialog.cpp
 
 HEADERS  += \
@@ -106,10 +107,10 @@ HEADERS  += \
     widgets/consolewidget.h \
     radarewebserver.h \
     settings.h \
+    widgets/entrypointwidget.h \
     iaitorcore.h \
     iaitordisasm.h \
     dialogs/flagdialog.h
-
 FORMS    += \
     mainwindow.ui \
     newfiledialog.ui \
@@ -134,6 +135,7 @@ FORMS    += \
     dialogs/xrefsdialog.ui \
     widgets/sectionsdock.ui \
     widgets/consolewidget.ui \
+    widgets/entrypointwidget.ui \
     dialogs/flagdialog.ui
 
 RESOURCES += \

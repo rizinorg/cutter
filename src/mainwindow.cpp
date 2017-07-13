@@ -60,6 +60,7 @@
 #include "widgets/consolewidget.h"
 #include "settings.h"
 #include "optionsdialog.h"
+#include "widgets/entrypointwidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -107,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sidebar_action(nullptr),
     sectionsDock(nullptr),
     consoleWidget(nullptr),
+    entrypointDock(nullptr),
     webserver(core)
 {
     doLock = false;
@@ -194,6 +196,10 @@ void MainWindow::initUI()
     // Add Sections dock panel
     this->sectionsDock = new SectionsDock(this);
     dockWidgets.push_back(sectionsDock);
+
+    // Add entrypoint DockWidget
+    this->entrypointDock = new EntrypointWidget(this);
+    dockWidgets.push_back(entrypointDock);
 
     // Add functions DockWidget
     this->functionsDock = new FunctionsWidget(this);
@@ -668,6 +674,11 @@ void MainWindow::on_actionMem_triggered()
     newMemDock->refreshHexdump();
 }
 
+void MainWindow::on_actionEntry_points_triggered()
+{
+    toggleDockWidget(entrypointDock);
+}
+
 void MainWindow::on_actionFunctions_triggered()
 {
     toggleDockWidget(functionsDock);
@@ -832,6 +843,7 @@ void MainWindow::restoreDocks()
     addDockWidget(Qt::TopDockWidgetArea, this->dashboardDock);
     this->tabifyDockWidget(sectionsDock, this->commentsDock);
     this->tabifyDockWidget(this->dashboardDock, this->memoryDock);
+    this->tabifyDockWidget(this->dashboardDock, this->entrypointDock);
     this->tabifyDockWidget(this->dashboardDock, this->functionsDock);
     this->tabifyDockWidget(this->dashboardDock, this->flagsDock);
     this->tabifyDockWidget(this->dashboardDock, this->stringsDock);
@@ -864,6 +876,7 @@ void MainWindow::hideAllDocks()
 void MainWindow::showDefaultDocks()
 {
     const QList<DockWidget *> defaultDocks = { sectionsDock,
+                                               entrypointDock,
                                                functionsDock,
                                                memoryDock,
                                                commentsDock,

@@ -30,6 +30,7 @@ class SdbDock;
 class QAction;
 class SectionsDock;
 class ConsoleWidget;
+class EntrypointWidget;
 
 class QDockWidget;
 
@@ -89,6 +90,7 @@ public slots:
 
     void def_theme();
 
+    void on_actionEntry_points_triggered();
     void on_actionFunctions_triggered();
     void on_actionImports_triggered();
     void on_actionExports_triggered();
@@ -188,6 +190,7 @@ private:
     Highlighter      *highlighter;
     AsciiHighlighter *hex_highlighter;
     GraphicsBar      *graphicsBar;
+    EntrypointWidget *entrypointDock;
     FunctionsWidget  *functionsDock;
     ImportsWidget    *importsDock;
     ExportsWidget    *exportsDock;

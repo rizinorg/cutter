@@ -1092,6 +1092,30 @@ QList<SectionDescription> IaitoRCore::getAllSections()
     return ret;
 }
 
+
+QList<EntrypointDescription> IaitoRCore::getAllEntrypoint()
+{
+    CORE_LOCK();
+    QList<EntrypointDescription> ret;
+
+    QJsonArray entrypointsArray = cmdj("iej").array();
+    for (QJsonValue value : entrypointsArray)
+    {
+        QJsonObject entrypointObject = value.toObject();
+
+        EntrypointDescription entrypoint;
+        entrypoint.vaddr = entrypointObject["vaddr"].toVariant().toULongLong();
+        entrypoint.paddr = entrypointObject["paddr"].toVariant().toULongLong();
+        entrypoint.baddr = entrypointObject["baddr"].toVariant().toULongLong();
+        entrypoint.laddr = entrypointObject["laddr"].toVariant().toULongLong();
+        entrypoint.haddr = entrypointObject["haddr"].toVariant().toULongLong();
+        entrypoint.type = entrypointObject["type"].toString();
+
+        ret << entrypoint;
+    }
+    return ret;
+}
+
 QList<XrefDescription> IaitoRCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();
