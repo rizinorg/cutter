@@ -1,11 +1,12 @@
 
 cmake_minimum_required(VERSION 3.1)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(DisallowInSource)
+
 project(Iaito VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 11)
-
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -42,7 +43,10 @@ endif()
 
 # Parse iaito.pro to get filenames
 include(QMakeProParse)
-parse_qmake_pro("${CMAKE_CURRENT_SOURCE_DIR}/iaito.pro" IAITO_PRO)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/iaito.pro"
+        "${CMAKE_CURRENT_BINARY_DIR}/iaito.pro"
+        COPYONLY) # trigger reconfigure if iaito.pro changes
+parse_qmake_pro("${CMAKE_CURRENT_BINARY_DIR}/iaito.pro" IAITO_PRO)
 set(SOURCE_FILES ${IAITO_PRO_SOURCES})
 set(HEADER_FILES ${IAITO_PRO_HEADERS})
 set(UI_FILES ${IAITO_PRO_FORMS})
