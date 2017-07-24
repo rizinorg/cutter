@@ -54,7 +54,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void openFile(const QString &fn, int anal_level = -1);
+    void openFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
     void initUI();
     void finalizeOpen();
 
@@ -210,7 +210,7 @@ private:
     RVA cursor_address;
 
     void openProject(const QString &project_name);
-    void openNewFile(const QString &fn, int anal_level);
+    void openNewFile(const QString &fn, int anal_level, QList<QString> advanced);
 
     void toggleDockWidget(DockWidget *dock_widget);
 

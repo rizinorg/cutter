@@ -292,32 +292,28 @@ bool IaitoRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     return true;
 }
 
-void IaitoRCore::analyze(int level)
+void IaitoRCore::analyze(int level,  QList<QString> advanced)
 {
     CORE_LOCK();
     /*
      * Levels
-     * Nivel 1: afr @ entry0 y main (afr@entry0;afr@main)
-     * Nivel 2: aa
-     * Nivel 3: aaa
-     * Nivel 4: aaaa
+     * Nivel 1: aaa
+     * Nivel 2: aaaa
      */
 
     if (level == 1)
     {
-        r_core_cmd0(core_, "afr@entry0;afr@main");
+        r_core_cmd0(core_, "aaa");
     }
     else if (level == 2)
     {
-        r_core_cmd0(core_, "aa");
+        r_core_cmd0(core_, "aaaa");
     }
     else if (level == 3)
     {
-        r_core_cmd0(core_, "aaa");
-    }
-    else if (level == 4)
-    {
-        r_core_cmd0(core_, "aaaa");
+        foreach(QString option, advanced){
+            r_core_cmd0(core_, option.toStdString().c_str());
+        }
     }
 }
 

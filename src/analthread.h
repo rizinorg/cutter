@@ -12,7 +12,7 @@ public:
     explicit AnalThread(QWidget *parent = 0);
     ~AnalThread();
 
-    void start(IaitoRCore *core, int level);
+    void start(IaitoRCore *core, int level, QList<QString> advanced);
 
 protected:
     void run();
@@ -22,6 +22,7 @@ protected:
 private:
     IaitoRCore *core;
     int level;
+    QList<QString> advanced;
 };
 
 #endif // ANALTHREAD_H

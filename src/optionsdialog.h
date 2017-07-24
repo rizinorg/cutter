@@ -24,7 +24,7 @@ public:
     RAnalFunction functionAt(ut64 addr);
     QStringList    asm_plugins;
 
-    void setupAndStartAnalysis(int level);
+    void setupAndStartAnalysis(int level, QList<QString> advanced);
 
 private slots:
     void on_closeButton_clicked();

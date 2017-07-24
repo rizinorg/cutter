@@ -17,7 +17,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui(new Ui::OptionsDialog),
     analThread(this),
     main(main),
-    defaultAnalLevel(3)
+    defaultAnalLevel(1)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -41,6 +41,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->spacyCheckBox->setChecked(settings.value("bbline").toBool());
 
     ui->hideFrame->setVisible(false);
+    ui->analoptionsFrame->setVisible(false);
 
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -57,7 +58,7 @@ OptionsDialog::~OptionsDialog()
     delete ui;
 }
 
-void OptionsDialog::setupAndStartAnalysis(int level)
+void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 {
     ui->analSlider->setValue(level);
 
@@ -143,7 +144,7 @@ void OptionsDialog::setupAndStartAnalysis(int level)
     // Threads stuff
     // connect signal/slot
 
-    analThread.start(main->core, level);
+    analThread.start(main->core, level, advanced);
 }
 
 void OptionsDialog::on_closeButton_clicked()
@@ -153,7 +154,44 @@ void OptionsDialog::on_closeButton_clicked()
 
 void OptionsDialog::on_okButton_clicked()
 {
-    setupAndStartAnalysis(ui->analSlider->value());
+    QList<QString> advanced = QList<QString>();
+    if (ui->analSlider->value() == 3){
+        if (ui->aa_symbols->isChecked()){
+            advanced << "aa";
+        }
+        if (ui->aar_references->isChecked()){
+            advanced << "aar";
+        }
+        if (ui->aac_calls->isChecked()){
+            advanced << "aac";
+        }
+        if (ui->aan_rename->isChecked()){
+            advanced << "aan";
+        }
+        if (ui->aae_emulate->isChecked()){
+            advanced << "aae";
+        }
+        if (ui->aat_consecutive->isChecked()){
+            advanced << "aat";
+        }
+        if (ui->afta_typeargument->isChecked()){
+            advanced << "afta";
+        }
+        if (ui->aaT_aftertrap->isChecked()){
+            advanced << "aaT";
+        }
+        if (ui->aap_preludes->isChecked()){
+            advanced << "aap";
+        }
+        if (ui->jmptbl->isChecked()){
+            advanced << "e! anal.jmptbl";
+        }
+        if (ui->pushret->isChecked()){
+            advanced << "e! anal.pushret";
+        }
+    }
+
+    setupAndStartAnalysis(ui->analSlider->value(), advanced);
 }
 
 void OptionsDialog::anal_finished()
@@ -192,15 +230,13 @@ QString OptionsDialog::analysisDescription(int level)
     switch (level)
     {
     case 0:
-        return tr("-");
+        return tr("No analysis");
     case 1:
-        return tr("Minimum");
+        return tr("Auto-Analysis (aaa)");
     case 2:
-        return tr("Basic");
+        return tr("Auto-Analysis Experimental (aaaa)");
     case 3:
-        return tr("Medium");
-    case 4:
-        return tr("Full <font color='red'><b>(Experimental)</b></font>");
+        return tr("Advanced");
     default:
         return tr("Unknown");
     }
@@ -218,6 +254,14 @@ void OptionsDialog::on_analSlider_valueChanged(int value)
     {
         ui->analCheckBox->setChecked(true);
         ui->analCheckBox->setText("Analysis: Enabled");
+        if (value==3)
+        {
+            ui->analoptionsFrame->setVisible(true);
+        }
+        else
+        {
+            ui->analoptionsFrame->setVisible(false);
+        }
     }
 }
 

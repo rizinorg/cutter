@@ -18,10 +18,11 @@ AnalThread::~AnalThread()
     }
 }
 
-void AnalThread::start(IaitoRCore *core, int level)
+void AnalThread::start(IaitoRCore *core, int level, QList<QString> advanced)
 {
     this->core = core;
     this->level = level;
+    this->advanced = advanced;
 
     QThread::start();
 }
@@ -30,5 +31,5 @@ void AnalThread::start(IaitoRCore *core, int level)
 void AnalThread::run()
 {
     //qDebug() << "Anal level: " << this->level;
-    core->analyze(this->level);
+    core->analyze(this->level, this->advanced);
 }
