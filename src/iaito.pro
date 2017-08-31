@@ -4,12 +4,12 @@ TARGET = iaito
 
 # The application version
 win32 {
-  VERSION = 1.0
-# Generate debug symbols in release mode
-QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
-QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
+    VERSION = 1.0
+    # Generate debug symbols in release mode
+    QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
+    QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
 } else {
-  VERSION = 1.0-dev
+    VERSION = 1.0-dev
 }
 
 ICON = img/Enso.icns
@@ -28,6 +28,10 @@ macx {
 }
 
 INCLUDEPATH *= .
+
+unix:exists(/usr/local/include/libr) {
+    INCLUDEPATH += /usr/local/include/libr
+}
 
 SOURCES += \
     main.cpp \
