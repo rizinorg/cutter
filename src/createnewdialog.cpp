@@ -163,14 +163,14 @@ void createNewDialog::on_buttonCreate_clicked()
     {
         char file[32];
         QByteArray hexpairs = ui->plainTextEdit->toPlainText().toUtf8();
-        int sz = strlen(hexpairs.constData());
+        size_t sz = strlen(hexpairs.constData());
         if (sz > 0)
         {
-            snprintf(file, sizeof(file) - 1, "malloc://%d", sz);
+            snprintf(file, sizeof(file) - 1, "malloc://%d", (int)sz);
             if (w->core->loadFile(file, 0, 0, 1, 0, 0, false))
             {
                 created = true;
-                r_core_write_at(lcore, 0, (const ut8 *)hexpairs.constData(), sz);
+                r_core_write_at(lcore, 0, (const ut8 *)hexpairs.constData(), (int)sz);
             }
             else
             {
