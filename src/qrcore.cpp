@@ -507,6 +507,13 @@ int IaitoRCore::config(const QString &k, int v)
     return r_config_get_i(core_->config, key.constData());
 }
 
+int IaitoRCore::getConfig(const QString &k)
+{
+    CORE_LOCK();
+    QByteArray key = k.toUtf8();
+    return r_config_get_i(core_->config, key.constData());
+}
+
 void IaitoRCore::setOptions(QString key)
 {
     IAITONOTUSED(key);
@@ -733,6 +740,10 @@ void IaitoRCore::setSettings()
     config("asm.lines.call", "false");
     config("asm.flgoff", "true");
     config("anal.autoname", "true");
+
+    // Required for consistency with GUI checkboxes
+    config("asm.esil", "false");
+    config("asm.pseudo", "false");
 
     // Highlight current node in graphviz
     config("graph.gv.current", "true");

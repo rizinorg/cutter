@@ -1078,3 +1078,17 @@ void MainWindow::on_actionRefresh_contents_triggered()
 {
     this->refreshVisibleDockWidgets();
 }
+
+void MainWindow::on_actionDisplay_Esil_triggered()
+{
+    int esil = this->core->getConfig("asm.esil"); 
+    this->core->config("asm.esil", !esil);
+    this->refreshVisibleDockWidgets();
+}
+
+void MainWindow::on_actionDisplay_Pseudocode_triggered()
+{
+    int pseudo = this->core->getConfig("asm.pseudo"); 
+    this->core->config("asm.pseudo", !pseudo);
+    this->refreshVisibleDockWidgets();
+}

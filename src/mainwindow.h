@@ -174,6 +174,10 @@ private slots:
 
     void on_actionRefresh_contents_triggered();
 
+    void on_actionDisplay_Esil_triggered();
+
+    void on_actionDisplay_Pseudocode_triggered();
+
 private:
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;

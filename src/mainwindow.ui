@@ -214,6 +214,9 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionWhite_Theme"/>
     <addaction name="actionDark_Theme"/>
+    <addaction name="separator"/>
+    <addaction name="actionDisplay_Esil"/>
+    <addaction name="actionDisplay_Pseudocode"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -882,7 +885,7 @@ QToolButton .svg-icon path {
     <string>Dashboard</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Dashboard panel</string>
+    <string>Show/Hide Dashboard panel</string>
    </property>
   </action>
   <action name="actionReset_settings">
@@ -916,6 +919,22 @@ QToolButton .svg-icon path {
    <property name="toolTip">
     <string>Refresh contents</string>
    </property>
+  </action>
+  <action name="actionDisplay_Esil">
+    <property name="text">
+      <string>Show ESIL rather than assembly</string>
+    </property>
+    <property name="checkable">
+      <bool>true</bool>
+    </property>
+  </action>
+  <action name="actionDisplay_Pseudocode">
+    <property name="text">
+      <string>Show pseudocode rather than assembly</string>
+    </property>
+    <property name="checkable">
+      <bool>true</bool>
+    </property>
   </action>
   <action name="actionEntry_points">
    <property name="text">
