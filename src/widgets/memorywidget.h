@@ -94,6 +94,8 @@ public slots:
 
     void updateViews(RVA offset = RVA_INVALID);
 
+    void showOffsets(bool show);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;

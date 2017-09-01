@@ -470,7 +470,7 @@ void MemoryWidget::replaceTextDisasm(QString txt)
 bool MemoryWidget::loadMoreDisassembly()
 {
     /*
-         * Add more disasm as the user scrolls
+z         * Add more disasm as the user scrolls
          * Not working properly when scrolling upwards
          * r2 doesn't handle properly 'pd-' for archs with variable instruction size
          */
@@ -2018,5 +2018,15 @@ void MemoryWidget::updateViews(RVA offset)
             this->create_graph(cursor_addr_string);
             this->last_graph_fcn = cursor_addr;
         }
+    }
+}
+
+void MemoryWidget::showOffsets(bool show) {
+    if (show) {
+        this->hexOffsetText->show();
+        main->core->config("asm.offset", 1);
+    } else {
+        this->hexOffsetText->hide();
+        main->core->config("asm.offset", 0);
     }
 }

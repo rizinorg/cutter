@@ -161,14 +161,14 @@ void MainWindow::initUI()
     this->omnibar = new Omnibar(this);
     ui->mainToolBar->insertWidget(ui->actionShow_Hide_mainsidebar, this->omnibar);
 
-    // Add special sepparators to the toolbar that expand to separate groups of elements
+    // Add special separators to the toolbar that expand to separate groups of elements
     QWidget *spacer2 = new QWidget();
     spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     spacer2->setMinimumSize(10, 10);
     spacer2->setMaximumWidth(300);
     ui->mainToolBar->insertWidget(ui->actionShow_Hide_mainsidebar, spacer2);
 
-    // Sepparator between back/forward and undo/redo buttons
+    // Separator between back/forward and undo/redo buttons
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     spacer->setMinimumSize(20, 20);
@@ -183,7 +183,6 @@ void MainWindow::initUI()
     /*
      * Dock Widgets
      */
-
     dockWidgets.reserve(11);
 
     // Add Memory DockWidget
@@ -1076,19 +1075,26 @@ void MainWindow::refreshVisibleDockWidgets()
 
 void MainWindow::on_actionRefresh_contents_triggered()
 {
-    this->refreshVisibleDockWidgets();
+    refreshVisibleDockWidgets();
 }
 
 void MainWindow::on_actionDisplay_Esil_triggered()
 {
     int esil = this->core->getConfig("asm.esil"); 
-    this->core->config("asm.esil", !esil);
-    this->refreshVisibleDockWidgets();
+    core->config("asm.esil", !esil);
+    refreshVisibleDockWidgets();
 }
 
 void MainWindow::on_actionDisplay_Pseudocode_triggered()
 {
     int pseudo = this->core->getConfig("asm.pseudo"); 
-    this->core->config("asm.pseudo", !pseudo);
-    this->refreshVisibleDockWidgets();
+    core->config("asm.pseudo", !pseudo);
+    refreshVisibleDockWidgets();
+}
+
+void MainWindow::on_actionDisplay_Offsets_triggered()
+{
+    bool checked = ui->actionDisplay_Offsets->isChecked();
+    memoryDock->showOffsets(checked);
+    refreshVisibleDockWidgets();
 }

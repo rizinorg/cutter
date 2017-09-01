@@ -937,7 +937,7 @@ QToolTip {
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QWebEngineView" name="webSimpleGraph">
+                 <widget class="QWebEngineView" name="webSimpleGraph" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -958,7 +958,7 @@ QToolTip {
 	font: 11pt &quot;Monaco&quot;;
 }</string>
                   </property>
-                  <property name="url">
+                  <property name="url" stdset="0">
                    <url>
                     <string>about:blank</string>
                    </url>
@@ -1233,16 +1233,16 @@ p, li { white-space: pre-wrap; }
          <number>0</number>
         </property>
         <item>
-         <widget class="QWebEngineView" name="graphWebView">
+         <widget class="QWebEngineView" name="graphWebView" native="true">
           <property name="contextMenuPolicy">
            <enum>Qt::DefaultContextMenu</enum>
           </property>
-          <property name="url">
+          <property name="url" stdset="0">
            <url>
             <string>about:blank</string>
            </url>
           </property>
-          <property name="zoomFactor">
+          <property name="zoomFactor" stdset="0">
            <double>1.000000000000000</double>
           </property>
          </widget>
@@ -1331,7 +1331,7 @@ border-top: 0px;
              <x>0</x>
              <y>0</y>
              <width>256</width>
-             <height>887</height>
+             <height>868</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -1635,7 +1635,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="fcnWebView">
+                   <widget class="QWebEngineView" name="fcnWebView" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1654,7 +1654,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url">
+                    <property name="url" stdset="0">
                      <url>
                       <string>qrc:/html/fcn_graph.html</string>
                      </url>
@@ -1684,7 +1684,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="radarGraphWebView">
+                   <widget class="QWebEngineView" name="radarGraphWebView" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1703,7 +1703,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url">
+                    <property name="url" stdset="0">
                      <url>
                       <string>qrc:/html/fcn_radar.html</string>
                      </url>

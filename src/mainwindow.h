@@ -178,6 +178,8 @@ private slots:
 
     void on_actionDisplay_Pseudocode_triggered();
 
+    void on_actionDisplay_Offsets_triggered();
+
 private:
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
