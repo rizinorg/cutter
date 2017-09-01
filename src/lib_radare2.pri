@@ -50,7 +50,7 @@ win32 {
 
     DEFINES += _CRT_NONSTDC_NO_DEPRECATE
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    USE_PKGCONFIG {
+    equals(USE_PKGCONFIG, 1) {
         CONFIG += link_pkgconfig
         PKGCONFIG += r_core
     } else {
