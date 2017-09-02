@@ -180,6 +180,8 @@ private slots:
 
     void on_actionDisplay_Offsets_triggered();
 
+    void on_actionAsm_syntax_triggered();
+
 private:
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
@@ -214,6 +216,7 @@ private:
     RadareWebServer  webserver;
 
     RVA cursor_address;
+    QList<QAction *> asmSyntaxes;
 
     void openProject(const QString &project_name);
     void openNewFile(const QString &fn, int anal_level, QList<QString> advanced);

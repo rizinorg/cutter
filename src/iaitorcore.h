@@ -198,7 +198,8 @@ public:
     QString itoa(ut64 num, int rdx = 16);
     QString config(const QString &k, const QString &v = NULL);
     int config(const QString &k, int v);
-    int getConfig(const QString &k);
+    int getConfigi(const QString &k);
+    QString getConfig(const QString &k);
     QString assemble(const QString &code);
     QString disassemble(const QString &hex);
     QString disassembleSingleInstruction(RVA addr);

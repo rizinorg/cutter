@@ -466,16 +466,13 @@ color: rgb(0, 0, 0);</string>
                    <property name="verticalSpacing">
                     <number>0</number>
                    </property>
-                   <item row="13" column="0">
-                    <widget class="QCheckBox" name="attCheckBox">
-                     <property name="toolTip">
-                      <string notr="true"/>
-                     </property>
-                     <property name="accessibleDescription">
-                      <string notr="true"/>
-                     </property>
+                   <item row="11" column="0">
+                    <widget class="QCheckBox" name="binCheckBox">
                      <property name="text">
-                      <string notr="true">Use AT&amp;&amp;T syntax</string>
+                      <string>Load bin information</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -492,20 +489,20 @@ color: rgb(0, 0, 0);</string>
                      </property>
                     </widget>
                    </item>
-                   <item row="11" column="0">
-                    <widget class="QCheckBox" name="binCheckBox">
+                   <item row="13" column="0">
+                    <widget class="QCheckBox" name="spacyCheckBox">
                      <property name="text">
-                      <string>Load bin information</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
+                      <string>Add space after calls</string>
                      </property>
                     </widget>
                    </item>
                    <item row="14" column="0">
-                    <widget class="QCheckBox" name="spacyCheckBox">
+                    <widget class="QCheckBox" name="bytesCheckBox">
                      <property name="text">
-                      <string>Add space after calls</string>
+                      <string>Display asm bytes</string>
+                     </property>
+                     <property name="checked">
+                      <bool>true</bool>
                      </property>
                     </widget>
                    </item>
@@ -528,16 +525,6 @@ color: rgb(0, 0, 0);</string>
                    <property name="leftMargin">
                     <number>0</number>
                    </property>
-                   <item row="0" column="0">
-                    <widget class="QCheckBox" name="bytesCheckBox">
-                     <property name="text">
-                      <string>Display asm bytes</string>
-                     </property>
-                     <property name="checked">
-                      <bool>true</bool>
-                     </property>
-                    </widget>
-                   </item>
                    <item row="1" column="0">
                     <widget class="QCheckBox" name="descriptionCheckBox">
                      <property name="text">

@@ -117,6 +117,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    qDeleteAll(asmSyntaxes);
     delete ui;
     delete core;
 }
@@ -179,6 +180,23 @@ void MainWindow::initUI()
     this->graphicsBar->setMovable(false);
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(graphicsBar);
+
+    // Asm syntaxes
+    QList<QString> list = core->cmd("e asm.syntax =?").split("\n");
+    QString checked = core->getConfig("asm.syntax");
+    for (QString syntax : list) {
+        if (syntax == "") {
+            break;
+        }
+        QAction* action = new QAction(syntax);
+        action->setCheckable(true);
+        if (syntax == checked) {
+            action->setChecked(true);
+        }
+        connect(action, SIGNAL(triggered(bool)), this, SLOT(on_actionAsm_syntax_triggered()));
+        asmSyntaxes.append(action);
+        ui->menuAsm_syntax->addAction(action);
+    }
 
     /*
      * Dock Widgets
@@ -381,12 +399,6 @@ void MainWindow::applySettings()
         core->config("asm.bytes", "false");
         core->config("asm.cmtcol", "70");
     }
-
-    // Show AT&T syntax
-    if (settings.getATnTSyntax())
-        core->config("asm.syntax", "att");
-    else
-        core->config("asm.syntax", "intel");
 
     // Show opcode description
     if (settings.getOpcodeDescription())
@@ -1080,14 +1092,14 @@ void MainWindow::on_actionRefresh_contents_triggered()
 
 void MainWindow::on_actionDisplay_Esil_triggered()
 {
-    int esil = this->core->getConfig("asm.esil"); 
+    int esil = this->core->getConfigi("asm.esil");
     core->config("asm.esil", !esil);
     refreshVisibleDockWidgets();
 }
 
 void MainWindow::on_actionDisplay_Pseudocode_triggered()
 {
-    int pseudo = this->core->getConfig("asm.pseudo"); 
+    int pseudo = this->core->getConfigi("asm.pseudo");
     core->config("asm.pseudo", !pseudo);
     refreshVisibleDockWidgets();
 }
@@ -1096,5 +1108,21 @@ void MainWindow::on_actionDisplay_Offsets_triggered()
 {
     bool checked = ui->actionDisplay_Offsets->isChecked();
     memoryDock->showOffsets(checked);
+    refreshVisibleDockWidgets();
+}
+
+void MainWindow::on_actionAsm_syntax_triggered()
+{
+    QObject* sender = QObject::sender();
+    // Uncheck every other choices
+    for (QAction* action : asmSyntaxes) {
+        action->setChecked(false);
+    }
+    // Check selected choice
+    QAction* action = (QAction*) sender;
+    action->setChecked(true);
+    // Set r2 config
+    core->config("asm.syntax", action->text());
+    // Refresh views
     refreshVisibleDockWidgets();
 }

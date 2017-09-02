@@ -2149,7 +2149,7 @@ QToolTip {
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <property name="usesScrollButtons">
            <bool>true</bool>
@@ -2850,14 +2850,6 @@ QToolTip {
    </property>
    <property name="toolTip">
     <string>Switch case</string>
-   </property>
-  </action>
-  <action name="actionSyntax_AT_T_Intel">
-   <property name="text">
-    <string>Syntax ATT/Intel</string>
-   </property>
-   <property name="toolTip">
-    <string>Syntax ATT/Intel</string>
    </property>
   </action>
   <action name="actionDisasCopy_All">

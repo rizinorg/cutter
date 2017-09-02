@@ -34,7 +34,6 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     // Restore settings
     QSettings settings;
     ui->bytesCheckBox->setChecked(settings.value("bytes").toBool());
-    ui->attCheckBox->setChecked(settings.value("syntax").toBool());
     ui->descriptionCheckBox->setChecked(settings.value("describe").toBool());
     ui->stackCheckBox->setChecked(settings.value("stackptr").toBool());
     ui->ucaseCheckBox->setChecked(settings.value("ucase").toBool());
@@ -81,18 +80,15 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     // Save options in settings
     Settings settings;
     settings.setAsmBytes(ui->bytesCheckBox->isChecked());
-    settings.setATnTSyntax(ui->attCheckBox->isChecked());
     settings.setOpcodeDescription(ui->descriptionCheckBox->isChecked());
     settings.setStackPointer(ui->stackCheckBox->isChecked());
     settings.setUppercaseDisas(ui->ucaseCheckBox->isChecked());
     settings.setSpacy(ui->spacyCheckBox->isChecked());
 
-
     main->initUI();
 
     // Apply options set above in MainWindow
     main->applySettings();
-
 
     //
     // Advanced Options
@@ -109,8 +105,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     main->core->setCPU(archValue.isValid() ? archValue.toString() : NULL,
                        QString(),
                        bits);
-
-
 
     bool rw = false;
     bool load_bininfo = ui->binCheckBox->isChecked();
@@ -143,7 +137,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     // Threads stuff
     // connect signal/slot
-
     analThread.start(main->core, level, advanced);
 }
 

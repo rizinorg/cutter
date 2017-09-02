@@ -507,11 +507,18 @@ int IaitoRCore::config(const QString &k, int v)
     return r_config_get_i(core_->config, key.constData());
 }
 
-int IaitoRCore::getConfig(const QString &k)
+int IaitoRCore::getConfigi(const QString &k)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
     return r_config_get_i(core_->config, key.constData());
+}
+
+QString IaitoRCore::getConfig(const QString &k)
+{
+    CORE_LOCK();
+    QByteArray key = k.toUtf8();
+    return QString(r_config_get(core_->config, key.constData()));
 }
 
 void IaitoRCore::setOptions(QString key)

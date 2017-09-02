@@ -188,7 +188,6 @@ private slots:
     void on_previewToolButton_2_clicked();
     void on_actionXRefs_triggered();
     void on_actionDisasSwitch_case_triggered();
-    void on_actionSyntax_AT_T_Intel_triggered();
     void on_actionSeparate_bytes_triggered();
     void on_actionRight_align_bytes_triggered();
     void on_actionSeparate_disasm_calls_triggered();

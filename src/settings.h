@@ -13,9 +13,6 @@ public:
     bool getAsmBytes() const            { return settings.value("bytes", false).toBool(); }
     void setAsmBytes(bool v)            { settings.setValue("bytes", v); }
 
-    bool getATnTSyntax() const          { return settings.value("syntax", false).toBool(); }
-    void setATnTSyntax(bool v)          { settings.setValue("syntax", v); }
-
     bool getOpcodeDescription() const   { return settings.value("describe", false).toBool(); }
     void setOpcodeDescription(bool v)   { settings.setValue("describe", v); }
 

@@ -109,7 +109,6 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     hideSide->addAction(ui->actionRight_align_bytes);
     hideSide->addSeparator();
     hideSide->addAction(ui->actionDisasSwitch_case);
-    hideSide->addAction(ui->actionSyntax_AT_T_Intel);
     hideSide->addAction(ui->actionSeparate_disasm_calls);
     hideSide->addAction(ui->actionShow_stack_pointer);
     ui->memSettingsButton_2->setMenu(memMenu);
@@ -1040,7 +1039,6 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
         menu->addAction(ui->actionRight_align_bytes);
         menu->addSeparator();
         menu->addAction(ui->actionDisasSwitch_case);
-        menu->addAction(ui->actionSyntax_AT_T_Intel);
         menu->addAction(ui->actionSeparate_disasm_calls);
         menu->addAction(ui->actionShow_stack_pointer);
         menu->addSeparator();
@@ -1235,20 +1233,6 @@ void MemoryWidget::on_actionDisas_ShowHideBytes_triggered()
 void MemoryWidget::on_actionDisasSwitch_case_triggered()
 {
     this->main->core->cmd("e!asm.ucase");
-    this->refreshDisasm();
-}
-
-void MemoryWidget::on_actionSyntax_AT_T_Intel_triggered()
-{
-    QString syntax = this->main->core->cmd("e asm.syntax").trimmed();
-    if (syntax == "intel")
-    {
-        this->main->core->config("asm.syntax", "att");
-    }
-    else
-    {
-        this->main->core->config("asm.syntax", "intel");
-    }
     this->refreshDisasm();
 }
 
