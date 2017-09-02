@@ -157,6 +157,12 @@ unix {
         PREFIX = /usr/local
     }
 
+    icon_file = img/iaito-small.png
+
+    share_pixmaps.path = $$PREFIX/share/pixmaps
+    share_pixmaps.files = $$icon_file
+
+
     desktop_file = iaito.desktop
 
     # built-in no need for files atm
@@ -165,16 +171,13 @@ unix {
     share_applications.path = $$PREFIX/share/applications
     share_applications.files = $$desktop_file
 
-    # TODO:
-    # iaito.png should be copied to $PREFIX/share/icons/$WIDTHx$HEIGHT
-
-    INSTALLS += target share_applications
+    INSTALLS += target share_applications share_pixmaps
 
     # Triggered for example by 'qmake APPIMAGE=1'
     !isEmpty(APPIMAGE){
         # UGLY work around for the logo name in iaito.desktop
         # Would be better to have a file called iaito.png in the first place
-        system(cp img/logo-small.png $$OUT_PWD/iaito.png)
+        system(cp img/iaito-small.png $$OUT_PWD/iaito-small.png)
 
         appimage_root.path = /
         appimage_root.files = $$OUT_PWD/iaito.png $$desktop_file
