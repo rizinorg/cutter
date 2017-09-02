@@ -149,7 +149,7 @@ void MainWindow::initUI()
     backButton->setIcon(QIcon(":/img/icons/arrow_left.svg"));
     //backButton->setPopupMode(QToolButton::DelayedPopup);
     ui->mainToolBar->insertWidget(ui->actionForward, backButton);
-    connect(backButton, SIGNAL(clicked()), this, SLOT(on_backButton_clicked()));
+    connect(backButton, SIGNAL(clicked()), this, SLOT(backButton_clicked()));
 
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
@@ -193,7 +193,7 @@ void MainWindow::initUI()
         if (syntax == checked) {
             action->setChecked(true);
         }
-        connect(action, SIGNAL(triggered(bool)), this, SLOT(on_actionAsm_syntax_triggered()));
+        connect(action, SIGNAL(triggered()), this, SLOT(actionAsm_syntax_triggered()));
         asmSyntaxes.append(action);
         ui->menuAsm_syntax->addAction(action);
     }
@@ -806,7 +806,7 @@ void MainWindow::refreshMem()
 }
 
 
-void MainWindow::on_backButton_clicked()
+void MainWindow::backButton_clicked()
 {
     QList<RVA> seek_history = core->getSeekHistory();
     this->core->cmd("s-");
@@ -1111,7 +1111,7 @@ void MainWindow::on_actionDisplay_Offsets_triggered()
     refreshVisibleDockWidgets();
 }
 
-void MainWindow::on_actionAsm_syntax_triggered()
+void MainWindow::actionAsm_syntax_triggered()
 {
     QObject* sender = QObject::sender();
     // Uncheck every other choices

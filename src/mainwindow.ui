@@ -486,6 +486,12 @@ QToolButton .svg-icon path {
    </property>
   </action>
   <action name="actionLock">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Toggle Panel Locks</string>
    </property>
@@ -647,6 +653,9 @@ QToolButton .svg-icon path {
    </property>
   </action>
   <action name="actionTabs_on_Top">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Toggle Tab Position</string>
    </property>

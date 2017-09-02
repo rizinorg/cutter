@@ -120,7 +120,7 @@ public slots:
 
     void toggleResponsive(bool maybe);
 
-    void on_backButton_clicked();
+    void backButton_clicked();
 
     void refreshVisibleDockWidgets();
 
@@ -180,7 +180,7 @@ private slots:
 
     void on_actionDisplay_Offsets_triggered();
 
-    void on_actionAsm_syntax_triggered();
+    void actionAsm_syntax_triggered();
 
 private:
     QDockWidget      *asmDock;

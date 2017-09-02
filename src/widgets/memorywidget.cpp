@@ -1941,7 +1941,7 @@ void MemoryWidget::selectHexPreview()
 void MemoryWidget::seek_back()
 {
     //this->main->add_debug_output("Back!");
-    this->main->on_backButton_clicked();
+    this->main->backButton_clicked();
 }
 
 void MemoryWidget::frameLoadFinished(bool ok)

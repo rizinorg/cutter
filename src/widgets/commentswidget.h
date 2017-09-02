@@ -39,11 +39,11 @@ private slots:
 
     void on_actionVertical_triggered();
 
+    void refreshTree();
+
 private:
     Ui::CommentsWidget *ui;
     MainWindow      *main;
-
-    void refreshTree();
 };
 
 #endif // COMMENTSWIDGET_H
