@@ -188,7 +188,8 @@ void MainWindow::initUI()
         if (syntax == "") {
             break;
         }
-        QAction* action = new QAction(syntax);
+        QAction* action = new QAction(ui->menuAsm_syntax);
+	action->setText(syntax);
         action->setCheckable(true);
         if (syntax == checked) {
             action->setChecked(true);
