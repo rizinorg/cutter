@@ -99,7 +99,7 @@ void NewFileDialog::on_loadFileButton_clicked()
     if (!checkfile.exists() || !checkfile.isFile())
     {
         QMessageBox msgBox(this);
-        msgBox.setText("Select a new program or a previous one\nbefore continue");
+        msgBox.setText(tr("Select a new program or a previous one\nbefore continue"));
         msgBox.exec();
     }
     else
@@ -132,7 +132,7 @@ void NewFileDialog::on_newFileButton_clicked()
     dialog.setDirectory(QDir::home());
 
     QString fileName;
-    fileName = dialog.getOpenFileName(this, "Select file");
+    fileName = dialog.getOpenFileName(this, tr("Select file"));
 
     if (!fileName.isEmpty())
     {

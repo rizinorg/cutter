@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
 
     QCommandLineParser cmd_parser;
-    cmd_parser.setApplicationDescription("A Qt and C++ GUI for radare2 reverse engineering framework");
+    cmd_parser.setApplicationDescription(QObject::tr("A Qt and C++ GUI for radare2 reverse engineering framework"));
     cmd_parser.addHelpOption();
     cmd_parser.addVersionOption();
     cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
         msg.setIcon(QMessageBox::Critical);
         msg.setWindowIcon(QIcon(":/img/logo-small.png"));
         msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        msg.setWindowTitle("Version mismatch!");
-        msg.setText(QString("The version used to compile iaito (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?").arg(localVersion, r2version));
+        msg.setWindowTitle(QObject::tr("Version mismatch!"));
+        msg.setText(QString(QObject::tr("The version used to compile iaito (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(localVersion, r2version));
         if (msg.exec() == QMessageBox::No)
             return 1;
     }

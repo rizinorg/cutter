@@ -64,7 +64,7 @@ void createNewDialog::on_exampleButton_clicked()
     {
         str = "48656c6c6f20576f726c6400";
     }
-    else fprintf(stderr, "Unknown combo value selected");
+    else fprintf(stderr, tr("Unknown combo value selected").toLocal8Bit().constData());
     if (str.length() > 0)
         ui->plainTextEdit->setPlainText(str);
     // }
@@ -95,12 +95,12 @@ void createNewDialog::on_buttonCreate_clicked()
             }
             else
             {
-                __alert("Failed to create file");
+                __alert(tr("Failed to create file"));
             }
         }
         else
         {
-            __alert("Invalid assembler code");
+            __alert(tr("Invalid assembler code"));
         }
         r_asm_code_free(code);
     }
@@ -119,12 +119,12 @@ void createNewDialog::on_buttonCreate_clicked()
             }
             else
             {
-                __alert("failed to open file");
+                __alert(tr("Failed to open file"));
             }
         }
         else
         {
-            __alert("Invalid file size");
+            __alert(tr("Invalid file size"));
         }
     }
     else if (type == "C Code")
@@ -151,12 +151,12 @@ void createNewDialog::on_buttonCreate_clicked()
             }
             else
             {
-                __alert("failed to open file");
+                __alert(tr("Failed to open file"));
             }
         }
         else
         {
-            __alert("Invalid file size");
+            __alert(tr("Invalid file size"));
         }
     }
     else if (type == "Text")
@@ -174,12 +174,12 @@ void createNewDialog::on_buttonCreate_clicked()
             }
             else
             {
-                __alert("failed to open file");
+                __alert(tr("Failed to open file"));
             }
         }
         else
         {
-            __alert("Empty string?");
+            __alert(tr("Empty string?"));
         }
     }
     else if (type == "Hexpairs")
@@ -199,18 +199,18 @@ void createNewDialog::on_buttonCreate_clicked()
             }
             else
             {
-                __alert("failed to open file");
+                __alert(tr("Failed to open file"));
             }
         }
         else
         {
-            __alert("Invalid hexpair string");
+            __alert(tr("Invalid hexpair string"));
         }
         free(buf);
     }
     else
     {
-        __alert("Unknown combo value selected");
+        __alert(tr("Unknown combo value selected"));
         return;
     }
 
@@ -230,12 +230,12 @@ void createNewDialog::on_buttonCreate_clicked()
         w->core->seek(0);
         w->updateFrames();
         w->setFilename("-");
-        w->addOutput("Finished, check its contents");
+        w->addOutput(tr("Finished, check its contents"));
         w->showMaximized();
     }
     else
     {
-        __alert("No file created.");
+        __alert(tr("No file created."));
 
     }
 }

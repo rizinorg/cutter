@@ -70,7 +70,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     ui->progressBar->setVisible(1);
     ui->statusLabel->setVisible(1);
 
-    ui->statusLabel->setText("Starting analysis");
+    ui->statusLabel->setText(tr("Starting analysis"));
     //ui->progressBar->setValue(5);
 
     int va = ui->vaCheckBox->isChecked();
@@ -126,14 +126,14 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     }
 
     //ui->progressBar->setValue(20);
-    ui->statusLabel->setText("Loading binary");
+    ui->statusLabel->setText(tr("Loading binary"));
     // options dialog should show the list of archs inside the given fatbin
     int binidx = 0; // index of subbin
 
-    main->addOutput(" > Loading file: " + main->getFilename());
+    main->addOutput(tr(" > Loading file: ") + main->getFilename());
     main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
-    ui->statusLabel->setText("Analysis in progress");
+    ui->statusLabel->setText(tr("Analysis in progress"));
 
     // Threads stuff
     // connect signal/slot
@@ -189,8 +189,8 @@ void OptionsDialog::on_okButton_clicked()
 
 void OptionsDialog::anal_finished()
 {
-    ui->statusLabel->setText("Loading interface");
-    main->addOutput(" > Analysis finished");
+    ui->statusLabel->setText(tr("Loading interface"));
+    main->addOutput(tr(" > Analysis finished"));
 
     QString initial_seek = ui->entry_initialSeek->text();
     if (initial_seek.length() > 0)
@@ -241,12 +241,12 @@ void OptionsDialog::on_analSlider_valueChanged(int value)
     if (value == 0)
     {
         ui->analCheckBox->setChecked(false);
-        ui->analCheckBox->setText("Analysis: Disabled");
+        ui->analCheckBox->setText(tr("Analysis: Disabled"));
     }
     else
     {
         ui->analCheckBox->setChecked(true);
-        ui->analCheckBox->setText("Analysis: Enabled");
+        ui->analCheckBox->setText(tr("Analysis: Enabled"));
         if (value==3)
         {
             ui->analoptionsFrame->setVisible(true);

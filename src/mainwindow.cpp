@@ -345,7 +345,7 @@ void MainWindow::finalizeOpen()
     core->setSettings();
 
 
-    addOutput(" > Populating UI");
+    addOutput(tr(" > Populating UI"));
     // FIXME: initialization order frakup. the next line is needed so that the
     // comments widget displays the function names.
     core->cmd("fs sections");
@@ -364,9 +364,9 @@ void MainWindow::finalizeOpen()
     }
     else
     {
-        addOutput(" > Adding binary information to notepad");
+        addOutput(tr(" > Adding binary information to notepad"));
 
-        notepadDock->setText("# Binary information\n\n" + core->cmd("i") +
+        notepadDock->setText(tr("# Binary information\n\n") + core->cmd("i") +
                              "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
     }
 
@@ -374,7 +374,7 @@ void MainWindow::finalizeOpen()
     this->core->binStart = this->core->cmd("?v $M");
     this->core->binEnd = this->core->cmd("?v $M+$s");
 
-    addOutput(" > Finished, happy reversing :)");
+    addOutput(tr(" > Finished, happy reversing :)"));
     // Add fortune message
     addOutput("\n" + core->cmd("fo"));
     memoryDock->setWindowTitle("entry0");
@@ -449,7 +449,7 @@ void MainWindow::saveProject()
     QString notes = this->notepadDock->textToBase64();
     //this->add_debug_output(notes);
     this->core->cmd("Pnj " + notes);
-    this->addOutput("Project saved: " + project_name);
+    this->addOutput(tr("Project saved: ") + project_name);
 }
 
 void MainWindow::start_web_server()
@@ -501,7 +501,7 @@ void MainWindow::setFilename(const QString &fn)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, "Iaito",
-                                      "Do you really want to exit?\nSave your project before closing!",
+                                      tr("Do you really want to exit?\nSave your project before closing!"),
                                       (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
     //qDebug() << ret;
     if (ret == QMessageBox::Save)
@@ -963,7 +963,7 @@ void MainWindow::on_actionRun_Script_triggered()
     dialog.setDirectory(QDir::home());
 
     QString fileName;
-    fileName = dialog.getOpenFileName(this, "Select radare2 script");
+    fileName = dialog.getOpenFileName(this, tr("Select radare2 script"));
     if (!fileName.length()) //cancel was pressed
         return;
 
@@ -1047,7 +1047,7 @@ void MainWindow::on_actionReset_settings_triggered()
 {
     QMessageBox::StandardButton ret =
         (QMessageBox::StandardButton)QMessageBox::question(this, "Iaito",
-                "Do you really want to clear all settings?",
+                tr("Do you really want to clear all settings?"),
                 QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok)
     {
