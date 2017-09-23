@@ -385,7 +385,10 @@ bool IaitoRCore::tryFile(QString path, bool rw)
         return false;
     }
 
-    bool is_writable = cf->desc->flags & R_IO_WRITE;
+    bool is_writable = false;
+    if (cf->core && cf->core->io && cf->core->io->desc) {
+	    is_writable = cf->core->io->desc->flags & R_IO_WRITE;
+    }
     // if rbin works, tell entry0, and symbols (main, constructor, ..)
 
     //r_core_file_close (this->core, cf);
