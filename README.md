@@ -1,6 +1,6 @@
 # Cutter [![Build Status](https://travis-ci.org/radareorg/cutter.svg?branch=master)](https://travis-ci.org/radareorg/cutter)
 
-A Qt and C++ GUI for radare2 reverse engineering framework (originally Iaito)
+A Qt and C++ GUI for radare2 reverse engineering framework (originally Cutter)
 
 ## Screenshot
 

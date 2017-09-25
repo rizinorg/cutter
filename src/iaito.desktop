@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=Iaitō
-Exec=iaito
-Icon=iaito-small
+Name=Cutter
+Exec=cutter
+Icon=cutter-small
 Categories=Development;

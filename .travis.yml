@@ -1,34 +1,52 @@
 language: cpp
-compiler: gcc
+
 cache: ccache
-sudo: require
-dist: trusty
 
-before_install:
-    - sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y
-    - sudo apt-get update -qq
-
-install:
-    - sudo apt-get -y install qt56base qt56webengine
-    - source /opt/qt5*/bin/qt5*-env.sh
+matrix:
+  include:
+    - os: osx
+      before_install:
+        - brew update
+      install:
+        - brew install p7zip ccache
+        - curl -L -o qt5-mac.sh https://raw.githubusercontent.com/LRFLEW/OpenRCT2Launcher/develop/qt5-mac.sh
+        - chmod a+x qt5-mac.sh
+        - export PATH="$PATH:/usr/local/opt/ccache/libexec:$PWD/$(./qt5-mac.sh . base declarative tools webchannel positioning extra-webengine)"
+      after_success:
+        # TODO: include radare2/www for the webserver
+        - macdeployqt cutter.app -dmg
+        - curl --upload-file ./iai*.dmg https://transfer.sh/cutter-git.$(git rev-parse --short HEAD).dmg
+    - os: linux
+      dist: trusty
+      sudo: required
+      before_install:
+        - sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y
+        - sudo apt-get update -qq
+      install:
+        - sudo apt-get -y install qt56base qt56webengine
+        - source /opt/qt5*/bin/qt5*-env.sh
+      after_success:
+        - sudo make INSTALL_ROOT=appdir install
+        - sudo chown -R $USER appdir
+        - cp -r /usr/share/radare2 appdir/usr/share/
+        - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+        - chmod a+x linuxdeployqt*.AppImage
+        - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
+        - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -verbose=2
+        - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -verbose=2
+        - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
+        - curl --upload-file ./Iai*.AppImage https://transfer.sh/Cutter-git.$(git rev-parse --short HEAD)-x86_64.AppImage
 
 script:
   - git submodule init ; git submodule update
   - cd radare2
-  - sys/install.sh
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        INSTALL_TARGET=install sys/install.sh;
+    else
+        LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
+    fi
   - cd ..
-  - mkdir build ; cd build
+  - mkdir build
+  - cd build
   - qmake PREFIX=/usr APPIMAGE=1 ../src
   - make -j4
-  - mkdir appdir
-  - sudo make INSTALL_ROOT=appdir install && sudo chown -R $USER appdir
-  - mkdir -p appdir/usr/share/radare2 && cp -Lr /usr/share/radare2/*-git/ appdir/usr/share/radare2/ && find appdir/
-
-after_success:
-  - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-  - chmod a+x linuxdeployqt*.AppImage
-  - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
-  - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -verbose=2
-  - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -verbose=2
-  - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  - ls Cut*.AppImage

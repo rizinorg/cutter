@@ -22,7 +22,7 @@
 
 #define HAVE_LATEST_LIBR2 false
 
-#define IaitoRListForeach(list, it, type, x) \
+#define CutterRListForeach(list, it, type, x) \
     if (list) for (it = list->head; it && ((x=(type*)it->data)); it = it->n)
 
 #define __alert(x) QMessageBox::question (this, "Alert", QString(x), QMessageBox::Ok)

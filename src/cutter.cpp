@@ -49,7 +49,7 @@ CutterCore::CutterCore(QObject *parent) :
     r_core_loadlibs(this->core_, R_CORE_LOADLIBS_ALL, NULL);
     // IMPLICIT r_bin_iobind (core_->bin, core_->io);
 
-    // Otherwise r2 may ask the user for input and Iaito would freeze
+    // Otherwise r2 may ask the user for input and Cutter would freeze
     config("scr.interactive", "false");
 
     // Used by the HTML5 graph
@@ -808,7 +808,7 @@ QStringList CutterCore::getAsmPluginNames()
     QStringList ret;
 
     RAsmPlugin *ap;
-    IaitoRListForeach(core_->assembler->plugins, it, RAsmPlugin, ap)
+    CutterRListForeach(core_->assembler->plugins, it, RAsmPlugin, ap)
     {
         ret << ap->name;
     }
@@ -823,7 +823,7 @@ QStringList CutterCore::getAnalPluginNames()
     QStringList ret;
 
     RAnalPlugin *ap;
-    IaitoRListForeach(core_->anal->plugins, it, RAnalPlugin, ap)
+    CutterRListForeach(core_->anal->plugins, it, RAnalPlugin, ap)
     {
         ret << ap->name;
     }
@@ -934,7 +934,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
     RBinSymbol *bs;
     if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
     {
-        IaitoRListForeach(core_->bin->cur->o->symbols, it, RBinSymbol, bs)
+        CutterRListForeach(core_->bin->cur->o->symbols, it, RBinSymbol, bs)
         {
             QString type = QString(bs->bind) + " " + QString(bs->type);
             SymbolDescription symbol;
@@ -948,7 +948,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
         /* list entrypoints as symbols too */
         int n = 0;
         RBinAddr *entry;
-        IaitoRListForeach(core_->bin->cur->o->entries, it, RBinAddr, entry)
+        CutterRListForeach(core_->bin->cur->o->entries, it, RBinAddr, entry)
         {
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
@@ -995,7 +995,7 @@ QList<RelocDescription> CutterCore::getAllRelocs()
     RBinReloc *br;
     if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
     {
-        IaitoRListForeach(core_->bin->cur->o->relocs, it, RBinReloc, br)
+        CutterRListForeach(core_->bin->cur->o->relocs, it, RBinReloc, br)
         {
             RelocDescription reloc;
 
@@ -1024,7 +1024,7 @@ QList<StringDescription> CutterCore::getAllStrings()
     RBinString *bs;
     if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
     {
-        IaitoRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
+        CutterRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
         {
             StringDescription str;
             str.vaddr = bs->vaddr;

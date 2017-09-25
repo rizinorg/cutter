@@ -17,16 +17,16 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui WebEngine WebEngineWidgets
 
 if(WIN32)
     # use radare2 libraries from submodule on windows
-    set(IAITO_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cutter_win32")
-    list(APPEND CMAKE_PREFIX_PATH "${IAITO_WIN32_DIR}")
+    set(CUTTER_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cutter_win32")
+    list(APPEND CMAKE_PREFIX_PATH "${CUTTER_WIN32_DIR}")
 
     if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bit
-        list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib64")
+        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib64")
     else()
-        list(APPEND CMAKE_LIBRARY_PATH "${IAITO_WIN32_DIR}/radare2/lib32")
+        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib32")
     endif()
 
-    set(RADARE2_INCLUDE_DIRS "${IAITO_WIN32_DIR}/radare2/include/libr" "${IAITO_WIN32_DIR}/include")
+    set(RADARE2_INCLUDE_DIRS "${CUTTER_WIN32_DIR}/radare2/include/libr" "${CUTTER_WIN32_DIR}/include")
 endif()
 
 
@@ -46,11 +46,11 @@ include(QMakeProParse)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cutter.pro"
         "${CMAKE_CURRENT_BINARY_DIR}/cutter.pro"
         COPYONLY) # trigger reconfigure if cutter.pro changes
-parse_qmake_pro("${CMAKE_CURRENT_BINARY_DIR}/cutter.pro" IAITO_PRO)
-set(SOURCE_FILES ${IAITO_PRO_SOURCES})
-set(HEADER_FILES ${IAITO_PRO_HEADERS})
-set(UI_FILES ${IAITO_PRO_FORMS})
-set(QRC_FILES ${IAITO_PRO_RESOURCES})
+parse_qmake_pro("${CMAKE_CURRENT_BINARY_DIR}/cutter.pro" CUTTER_PRO)
+set(SOURCE_FILES ${CUTTER_PRO_SOURCES})
+set(HEADER_FILES ${CUTTER_PRO_HEADERS})
+set(UI_FILES ${CUTTER_PRO_FORMS})
+set(QRC_FILES ${CUTTER_PRO_RESOURCES})
 
 message(STATUS "sources from cutter.pro: ${SOURCE_FILES}")
 message(STATUS "headers from cutter.pro: ${HEADER_FILES}")
@@ -58,10 +58,10 @@ message(STATUS "forms from cutter.pro: ${UI_FILES}")
 message(STATUS "resources from cutter.pro: ${QRC_FILES}")
 
 
-set(IAITO_VERSION_SUFFIX "-dev")
-set(IAITO_VERSION_FULL "${PROJECT_VERSION}${IAITO_VERSION_SUFFIX}")
-message(STATUS "Building Cutter version ${IAITO_VERSION_FULL}")
-add_definitions("-DAPP_VERSION=\"${IAITO_VERSION_FULL}\"")
+set(CUTTER_VERSION_SUFFIX "-dev")
+set(CUTTER_VERSION_FULL "${PROJECT_VERSION}${CUTTER_VERSION_SUFFIX}")
+message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
+add_definitions("-DAPP_VERSION=\"${CUTTER_VERSION_FULL}\"")
 
 
 add_executable(cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})

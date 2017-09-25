@@ -155,13 +155,13 @@ unix {
         PREFIX = /usr/local
     }
 
-    icon_file = img/iaito-small.png
+    icon_file = img/cutter-small.png
 
     share_pixmaps.path = $$PREFIX/share/pixmaps
     share_pixmaps.files = $$icon_file
 
 
-    desktop_file = iaito.desktop
+    desktop_file = cutter.desktop
 
     # built-in no need for files atm
     target.path = $$PREFIX/bin
@@ -173,12 +173,12 @@ unix {
 
     # Triggered for example by 'qmake APPIMAGE=1'
     !isEmpty(APPIMAGE){
-        # UGLY work around for the logo name in iaito.desktop
-        # Would be better to have a file called iaito.png in the first place
-        system(cp img/iaito-small.png $$OUT_PWD/iaito-small.png)
+        # UGLY work around for the logo name in cutter.desktop
+        # Would be better to have a file called cutter.png in the first place
+        system(cp img/cutter-small.png $$OUT_PWD/cutter-small.png)
 
         appimage_root.path = /
-        appimage_root.files = $$OUT_PWD/iaito.png $$desktop_file
+        appimage_root.files = $$OUT_PWD/cutter.png $$desktop_file
 
         INSTALLS += appimage_root
     }

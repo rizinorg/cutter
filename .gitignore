@@ -1,6 +1,6 @@
 # The final executable after `make clean`
 
-iaito
+cutter
 AStyle*
 
 # C++ objects and libs
