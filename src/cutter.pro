@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-TARGET = iaito
+TARGET = cutter
 
 # The application version
 win32 {
@@ -39,7 +39,7 @@ SOURCES += \
     newfiledialog.cpp \
     optionsdialog.cpp \
     highlighter.cpp \
-    qrcore.cpp \
+    cutter.cpp \
     createnewdialog.cpp \
     hexascii_highlighter.cpp \
     widgets/pieview.cpp \
@@ -58,7 +58,6 @@ SOURCES += \
     widgets/flagswidget.cpp \
     widgets/memorywidget.cpp \
     widgets/exportswidget.cpp \
-    qrdisasm.cpp \
     widgets/sdbdock.cpp \
     analthread.cpp \
     dialogs/commentsdialog.cpp \
@@ -112,8 +111,7 @@ HEADERS  += \
     radarewebserver.h \
     settings.h \
     widgets/entrypointwidget.h \
-    iaitorcore.h \
-    iaitordisasm.h \
+    cutter.h \
     dialogs/flagdialog.h
 FORMS    += \
     mainwindow.ui \
@@ -145,7 +143,7 @@ FORMS    += \
 RESOURCES += \
     resources.qrc
 
-DISTFILES += iaito.astylerc
+DISTFILES += cutter.astylerc
 
 
 include(lib_radare2.pri)

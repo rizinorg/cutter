@@ -4,13 +4,13 @@
 #include <QThread>
 #include <QMutex>
 
-class IaitoRCore;
+class CutterCore;
 
 class RadareWebServer
 {
 public:
 
-    explicit RadareWebServer(IaitoRCore *core);
+    explicit RadareWebServer(CutterCore *core);
     ~RadareWebServer();
 
     void start();
@@ -19,7 +19,7 @@ public:
     bool isStarted() const;
 
 private:
-    IaitoRCore *core;
+    CutterCore *core;
     bool   started;
 };
 

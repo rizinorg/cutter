@@ -1,18 +1,17 @@
-
-#include "mainwindow.h"
-#include "newfiledialog.h"
-#include "optionsdialog.h"
-
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QTextCodec>
 #include <QMessageBox>
 
+#include "mainwindow.h"
+#include "newfiledialog.h"
+#include "optionsdialog.h"
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setOrganizationName("iaito");
-    a.setApplicationName("iaito");
+    a.setOrganizationName("cutter");
+    a.setApplicationName("cutter");
     a.setApplicationVersion(APP_VERSION);
 
     // Set QString codec to UTF-8
@@ -48,7 +47,7 @@ int main(int argc, char *argv[])
         msg.setWindowIcon(QIcon(":/img/logo-small.png"));
         msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msg.setWindowTitle(QObject::tr("Version mismatch!"));
-        msg.setText(QString(QObject::tr("The version used to compile iaito (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(localVersion, r2version));
+        msg.setText(QString(QObject::tr("The version used to compile cutter (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(localVersion, r2version));
         if (msg.exec() == QMessageBox::No)
             return 1;
     }

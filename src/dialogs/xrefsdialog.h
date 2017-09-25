@@ -1,11 +1,10 @@
 #ifndef XREFSDIALOG_H
 #define XREFSDIALOG_H
 
-#include "highlighter.h"
-#include "iaitorcore.h"
-
 #include <QDialog>
 #include <QTreeWidgetItem>
+#include "highlighter.h"
+#include "cutter.h"
 
 class MainWindow;
 

@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string notr="true">Iaito</string>
+   <string notr="true">Cutter</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">

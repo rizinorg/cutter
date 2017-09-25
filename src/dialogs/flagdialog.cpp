@@ -1,8 +1,7 @@
-
 #include "ui_flagdialog.h"
 #include "flagdialog.h"
 
-FlagDialog::FlagDialog(IaitoRCore *core, RVA offset, QWidget *parent) :
+FlagDialog::FlagDialog(CutterCore *core, RVA offset, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FlagDialog)
 {

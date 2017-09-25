@@ -1,13 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "radarewebserver.h"
-#include "iaitorcore.h" // only needed for ut64
-
 #include <QMainWindow>
 #include <QList>
+#include "radarewebserver.h"
+#include "cutter.h" // only needed for ut64
 
-class IaitoRCore;
+class CutterCore;
 class DockWidget;
 class Omnibar;
 class MemoryWidget;
@@ -45,7 +44,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    IaitoRCore *core;
+    CutterCore *core;
     MemoryWidget    *memoryDock;
     Notepad         *notepadDock;
 

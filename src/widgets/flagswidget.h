@@ -1,11 +1,10 @@
 #ifndef FLAGSWIDGET_H
 #define FLAGSWIDGET_H
 
-#include "iaitorcore.h"
-#include "dockwidget.h"
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-
+#include "cutter.h"
+#include "dockwidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;

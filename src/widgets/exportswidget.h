@@ -3,8 +3,7 @@
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
-
-#include "iaitorcore.h"
+#include "cutter.h"
 #include "dockwidget.h"
 
 class MainWindow;

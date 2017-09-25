@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-class IaitoRCore;
+class CutterCore;
 
 class QAction;
 
@@ -18,7 +18,7 @@ class ConsoleWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ConsoleWidget(IaitoRCore *core, QWidget *parent = 0);
+    explicit ConsoleWidget(CutterCore *core, QWidget *parent = 0);
     ~ConsoleWidget();
 
     void addOutput(const QString &msg);
@@ -51,7 +51,7 @@ private:
     void invalidateHistoryPosition();
 
     Ui::ConsoleWidget *ui;
-    IaitoRCore  *core;
+    CutterCore  *core;
     QList<QAction *> actions;
     bool debugOutputEnabled;
     int maxHistoryEntries;

@@ -1,14 +1,10 @@
-#include "flagswidget.h"
-#include "ui_flagswidget.h"
-
-#include "mainwindow.h"
-#include "helpers.h"
-
 #include <QDockWidget>
 #include <QTreeWidget>
 #include <QComboBox>
-
-
+#include "flagswidget.h"
+#include "ui_flagswidget.h"
+#include "mainwindow.h"
+#include "helpers.h"
 
 FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
     : QAbstractListModel(parent),
@@ -169,7 +165,7 @@ void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
 
 void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
 {
-    IAITONOTUSED(arg1);
+    CUTTERNOTUSED(arg1);
 
     refreshFlags();
 }

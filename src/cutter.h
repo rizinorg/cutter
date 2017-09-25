@@ -1,5 +1,5 @@
-#ifndef IAITORCORE_H
-#define IAITORCORE_H
+#ifndef CUTTER_H 
+#define CUTTER_H
 
 #include <QMap>
 #include <QDebug>
@@ -28,6 +28,8 @@
 #define __alert(x) QMessageBox::question (this, "Alert", QString(x), QMessageBox::Ok)
 #define __question(x) (QMessageBox::Yes==QMessageBox::question (this, "Alert", QString(x), QMessageBox::Yes| QMessageBox::No))
 
+#define APPNAME "Cutter"
+
 class RCoreLocked
 {
     RCore *core;
@@ -42,7 +44,7 @@ public:
     RCore *operator->() const;
 };
 
-#define IAITONOTUSED(x) do { (void)(x); } while ( 0 );
+#define CUTTERNOTUSED(x) do { (void)(x); } while ( 0 );
 
 typedef ut64 RVA;
 
@@ -165,17 +167,17 @@ Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
 
-class IaitoRCore : public QObject
+class CutterCore: public QObject
 {
     Q_OBJECT
 
 public:
     QString projectPath;
 
-    explicit IaitoRCore(QObject *parent = 0);
-    ~IaitoRCore();
+    explicit CutterCore(QObject *parent = 0);
+    ~CutterCore();
 
-    RVA getOffset() const                           { return core_->offset; }
+    RVA getOffset() const { return core_->offset; }
     static QString sanitizeStringForCommand(QString s);
     int getCycloComplex(ut64 addr);
     int getFcnSize(ut64 addr);
@@ -276,4 +278,4 @@ private:
     RCore *core_;
 };
 
-#endif // IAITORCORE_H
+#endif // CUTTER_H

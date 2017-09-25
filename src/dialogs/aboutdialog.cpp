@@ -8,7 +8,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    ui->label->setText(tr("<h1>Iaito</h1>"
+    ui->label->setText(tr("<h1>Cutter</h1>"
                        "Version 1.0 alpha<br />"
                        "Using r2-" R2_GITTAP
                        "<h2>License</h2>"

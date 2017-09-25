@@ -2,7 +2,7 @@
 #define FLAGDIALOG_H
 
 #include <QDialog>
-#include <iaitorcore.h>
+#include "cutter.h"
 
 namespace Ui
 {
@@ -14,7 +14,7 @@ class FlagDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit FlagDialog(IaitoRCore *core, RVA offset, QWidget *parent = 0);
+    explicit FlagDialog(CutterCore *core, RVA offset, QWidget *parent = 0);
     ~FlagDialog();
 
 private slots:
@@ -24,7 +24,7 @@ private slots:
 private:
     Ui::FlagDialog *ui;
 
-    IaitoRCore *core;
+    CutterCore *core;
     RVA offset;
 };
 

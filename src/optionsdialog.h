@@ -3,8 +3,7 @@
 
 #include <QDialog>
 #include <QStringList>
-
-#include "iaitorcore.h"
+#include "cutter.h"
 #include "analthread.h"
 
 class MainWindow;

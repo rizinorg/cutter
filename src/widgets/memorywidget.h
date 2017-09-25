@@ -1,11 +1,6 @@
 #ifndef MEMORYWIDGET_H
 #define MEMORYWIDGET_H
 
-#include "iaitorcore.h"
-#include "highlighter.h"
-#include "hexascii_highlighter.h"
-#include "hexhighlighter.h"
-
 #include <QDebug>
 #include <QTextEdit>
 #include <QDockWidget>
@@ -15,7 +10,10 @@
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QMouseEvent>
-
+#include "cutter.h"
+#include "highlighter.h"
+#include "hexascii_highlighter.h"
+#include "hexhighlighter.h"
 #include "dashboard.h"
 
 class MainWindow;

@@ -1,10 +1,7 @@
 #include "exportswidget.h"
 #include "ui_exportswidget.h"
-
 #include "mainwindow.h"
 #include "helpers.h"
-
-
 
 ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
     : QAbstractListModel(parent),

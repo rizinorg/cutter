@@ -34,7 +34,6 @@
 #include <QToolTip>
 #include <QTreeWidgetItem>
 
-
 #include "highlighter.h"
 #include "hexascii_highlighter.h"
 #include "newfiledialog.h"
@@ -83,7 +82,7 @@ static void registerCustomFonts()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    core(new IaitoRCore()),
+    core(new CutterCore()),
     memoryDock(nullptr),
     notepadDock(nullptr),
     asmDock(nullptr),
@@ -495,12 +494,12 @@ void MainWindow::setFilename(const QString &fn)
 {
     // Add file name to window title
     this->filename = fn;
-    this->setWindowTitle("Iaito - " + fn);
+    this->setWindowTitle(APPNAME" - " + fn);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    QMessageBox::StandardButton ret = QMessageBox::question(this, "Iaito",
+    QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                       tr("Do you really want to exit?\nSave your project before closing!"),
                                       (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
     //qDebug() << ret;
@@ -1046,7 +1045,7 @@ void MainWindow::on_actionTabs_on_Top_triggered()
 void MainWindow::on_actionReset_settings_triggered()
 {
     QMessageBox::StandardButton ret =
-        (QMessageBox::StandardButton)QMessageBox::question(this, "Iaito",
+        (QMessageBox::StandardButton)QMessageBox::question(this, APPNAME,
                 tr("Do you really want to clear all settings?"),
                 QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok)

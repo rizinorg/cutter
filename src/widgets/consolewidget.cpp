@@ -1,15 +1,13 @@
-#include "consolewidget.h"
-#include "ui_consolewidget.h"
-
-#include "helpers.h"
-#include "iaitorcore.h"
-
 #include <QScrollBar>
 #include <QMenu>
 #include <QCompleter>
 #include <QAction>
 #include <QShortcut>
 #include <QStringListModel>
+#include "cutter.h"
+#include "consolewidget.h"
+#include "ui_consolewidget.h"
+#include "helpers.h"
 
 
 // TODO: Find a way to get to this without copying it here
@@ -92,7 +90,7 @@ static bool isForbidden(const QString &input)
 
 
 
-ConsoleWidget::ConsoleWidget(IaitoRCore *core, QWidget *parent) :
+ConsoleWidget::ConsoleWidget(CutterCore *core, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConsoleWidget),
     core(core),

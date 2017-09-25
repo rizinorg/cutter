@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.1)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
 
-project(Iaito VERSION 1.0.0)
+project(cutter VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -17,7 +17,7 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui WebEngine WebEngineWidgets
 
 if(WIN32)
     # use radare2 libraries from submodule on windows
-    set(IAITO_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../iaito_win32")
+    set(IAITO_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cutter_win32")
     list(APPEND CMAKE_PREFIX_PATH "${IAITO_WIN32_DIR}")
 
     if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bit
@@ -41,30 +41,30 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
 endif()
 
 
-# Parse iaito.pro to get filenames
+# Parse cutter.pro to get filenames
 include(QMakeProParse)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/iaito.pro"
-        "${CMAKE_CURRENT_BINARY_DIR}/iaito.pro"
-        COPYONLY) # trigger reconfigure if iaito.pro changes
-parse_qmake_pro("${CMAKE_CURRENT_BINARY_DIR}/iaito.pro" IAITO_PRO)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cutter.pro"
+        "${CMAKE_CURRENT_BINARY_DIR}/cutter.pro"
+        COPYONLY) # trigger reconfigure if cutter.pro changes
+parse_qmake_pro("${CMAKE_CURRENT_BINARY_DIR}/cutter.pro" IAITO_PRO)
 set(SOURCE_FILES ${IAITO_PRO_SOURCES})
 set(HEADER_FILES ${IAITO_PRO_HEADERS})
 set(UI_FILES ${IAITO_PRO_FORMS})
 set(QRC_FILES ${IAITO_PRO_RESOURCES})
 
-message(STATUS "sources from iaito.pro: ${SOURCE_FILES}")
-message(STATUS "headers from iaito.pro: ${HEADER_FILES}")
-message(STATUS "forms from iaito.pro: ${UI_FILES}")
-message(STATUS "resources from iaito.pro: ${QRC_FILES}")
+message(STATUS "sources from cutter.pro: ${SOURCE_FILES}")
+message(STATUS "headers from cutter.pro: ${HEADER_FILES}")
+message(STATUS "forms from cutter.pro: ${UI_FILES}")
+message(STATUS "resources from cutter.pro: ${QRC_FILES}")
 
 
 set(IAITO_VERSION_SUFFIX "-dev")
 set(IAITO_VERSION_FULL "${PROJECT_VERSION}${IAITO_VERSION_SUFFIX}")
-message(STATUS "Building Iaito version ${IAITO_VERSION_FULL}")
+message(STATUS "Building Cutter version ${IAITO_VERSION_FULL}")
 add_definitions("-DAPP_VERSION=\"${IAITO_VERSION_FULL}\"")
 
 
-add_executable(iaito ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
-qt5_use_modules(iaito Core Widgets Gui WebEngine WebEngineWidgets)
-target_link_libraries(iaito ${RADARE2_LIBRARIES})
+add_executable(cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
+qt5_use_modules(cutter Core Widgets Gui WebEngine WebEngineWidgets)
+target_link_libraries(cutter ${RADARE2_LIBRARIES})
 

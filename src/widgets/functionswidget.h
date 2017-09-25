@@ -1,11 +1,10 @@
 #ifndef FUNCTIONSWIDGET_H
 #define FUNCTIONSWIDGET_H
 
-#include "dockwidget.h"
-#include "iaitorcore.h"
-
 #include <QSortFilterProxyModel>
 #include <QTreeView>
+#include "cutter.h"
+#include "dockwidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;

@@ -1,8 +1,8 @@
-#include "iaitorcore.h"
-#include "sdb.h"
-
 #include <QJsonArray>
 #include <QJsonObject>
+#include "cutter.h"
+#include "sdb.h"
+
 
 #define DB this->db
 
@@ -33,14 +33,14 @@ RCore *RCoreLocked::operator->() const
     return core;
 }
 
-RCoreLocked IaitoRCore::core() const
+RCoreLocked CutterCore::core() const
 {
     return RCoreLocked(this->core_);
 }
 
 #define CORE_LOCK() RCoreLocked core_lock__(this->core_)
 
-IaitoRCore::IaitoRCore(QObject *parent) :
+CutterCore::CutterCore(QObject *parent) :
     QObject(parent)
 {
     r_cons_new();  // initialize console
@@ -67,7 +67,7 @@ IaitoRCore::IaitoRCore(QObject *parent) :
 }
 
 
-int IaitoRCore::getCycloComplex(ut64 addr)
+int CutterCore::getCycloComplex(ut64 addr)
 {
     CORE_LOCK();
     QString ret = "";
@@ -84,7 +84,7 @@ int IaitoRCore::getCycloComplex(ut64 addr)
     }
 }
 
-int IaitoRCore::getFcnSize(ut64 addr)
+int CutterCore::getFcnSize(ut64 addr)
 {
     CORE_LOCK();
     QString ret = "";
@@ -103,7 +103,7 @@ int IaitoRCore::getFcnSize(ut64 addr)
     }
 }
 
-QList<QString> IaitoRCore::sdbList(QString path)
+QList<QString> CutterCore::sdbList(QString path)
 {
     CORE_LOCK();
     QList<QString> list = QList<QString>();
@@ -121,7 +121,7 @@ QList<QString> IaitoRCore::sdbList(QString path)
     return list;
 }
 
-QList<QString> IaitoRCore::sdbListKeys(QString path)
+QList<QString> CutterCore::sdbListKeys(QString path)
 {
     CORE_LOCK();
     QList<QString> list = QList<QString>();
@@ -140,7 +140,7 @@ QList<QString> IaitoRCore::sdbListKeys(QString path)
     return list;
 }
 
-QString IaitoRCore::sdbGet(QString path, QString key)
+QString CutterCore::sdbGet(QString path, QString key)
 {
     CORE_LOCK();
     Sdb *db = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 0);
@@ -153,7 +153,7 @@ QString IaitoRCore::sdbGet(QString path, QString key)
     return QString("");
 }
 
-bool IaitoRCore::sdbSet(QString path, QString key, QString val)
+bool CutterCore::sdbSet(QString path, QString key, QString val)
 {
     CORE_LOCK();
     Sdb *db = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 1);
@@ -161,19 +161,19 @@ bool IaitoRCore::sdbSet(QString path, QString key, QString val)
     return sdb_set(db, key.toUtf8().constData(), val.toUtf8().constData(), 0);
 }
 
-IaitoRCore::~IaitoRCore()
+CutterCore::~CutterCore()
 {
     r_core_free(this->core_);
     r_cons_free();
 }
 
-QString IaitoRCore::sanitizeStringForCommand(QString s)
+QString CutterCore::sanitizeStringForCommand(QString s)
 {
     static const QRegExp regexp(";|@");
     return s.replace(regexp, "_");
 }
 
-QString IaitoRCore::cmd(const QString &str)
+QString CutterCore::cmd(const QString &str)
 {
     CORE_LOCK();
 
@@ -186,7 +186,7 @@ QString IaitoRCore::cmd(const QString &str)
     return o;
 }
 
-QJsonDocument IaitoRCore::cmdj(const QString &str)
+QJsonDocument CutterCore::cmdj(const QString &str)
 {
     CORE_LOCK();
     QByteArray cmd = str.toUtf8();
@@ -208,10 +208,10 @@ QJsonDocument IaitoRCore::cmdj(const QString &str)
     return doc;
 }
 
-bool IaitoRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin)
+bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin)
 {
-    IAITONOTUSED(loadaddr);
-    IAITONOTUSED(idx);
+    CUTTERNOTUSED(loadaddr);
+    CUTTERNOTUSED(idx);
 
     CORE_LOCK();
     RCoreFile *f;
@@ -292,7 +292,7 @@ bool IaitoRCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     return true;
 }
 
-void IaitoRCore::analyze(int level,  QList<QString> advanced)
+void CutterCore::analyze(int level,  QList<QString> advanced)
 {
     CORE_LOCK();
     /*
@@ -317,13 +317,13 @@ void IaitoRCore::analyze(int level,  QList<QString> advanced)
     }
 }
 
-void IaitoRCore::renameFunction(QString prev_name, QString new_name)
+void CutterCore::renameFunction(QString prev_name, QString new_name)
 {
     cmd("afn " + new_name + " " + prev_name);
     emit functionRenamed(prev_name, new_name);
 }
 
-void IaitoRCore::setComment(RVA addr, QString cmt)
+void CutterCore::setComment(RVA addr, QString cmt)
 {
     //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
     cmd("CC " + cmt + " @ " + QString::number(addr));
@@ -331,14 +331,14 @@ void IaitoRCore::setComment(RVA addr, QString cmt)
 }
 
 
-void IaitoRCore::delComment(ut64 addr)
+void CutterCore::delComment(ut64 addr)
 {
     CORE_LOCK();
     r_meta_del(core_->anal, 'C', addr, 1, NULL);
     //cmd (QString("CC-@")+addr);
 }
 
-QMap<QString, QList<QList<QString>>> IaitoRCore::getNestedComments()
+QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
 {
     QMap<QString, QList<QList<QString>>> ret;
     QString comments = cmd("CC~CCu");
@@ -358,7 +358,7 @@ QMap<QString, QList<QList<QString>>> IaitoRCore::getNestedComments()
     return ret;
 }
 
-void IaitoRCore::seek(QString addr)
+void CutterCore::seek(QString addr)
 {
     if (addr.length() > 0)
         seek(this->math(addr.toUtf8().constData()));
@@ -366,13 +366,13 @@ void IaitoRCore::seek(QString addr)
 
 
 
-void IaitoRCore::seek(ut64 offset)
+void CutterCore::seek(ut64 offset)
 {
     CORE_LOCK();
     r_core_seek(this->core_, offset, true);
 }
 
-bool IaitoRCore::tryFile(QString path, bool rw)
+bool CutterCore::tryFile(QString path, bool rw)
 {
     CORE_LOCK();
     RCoreFile *cf;
@@ -401,7 +401,7 @@ bool IaitoRCore::tryFile(QString path, bool rw)
 
 
 
-QList<QString> IaitoRCore::getList(const QString &type, const QString &subtype)
+QList<QString> CutterCore::getList(const QString &type, const QString &subtype)
 {
     CORE_LOCK();
     QList<QString> ret = QList<QString>();
@@ -437,13 +437,13 @@ QList<QString> IaitoRCore::getList(const QString &type, const QString &subtype)
     return ret;
 }
 
-ut64 IaitoRCore::math(const QString &expr)
+ut64 CutterCore::math(const QString &expr)
 {
     CORE_LOCK();
     return r_num_math(this->core_ ? this->core_->num : NULL, expr.toUtf8().constData());
 }
 
-int IaitoRCore::fcnCyclomaticComplexity(ut64 addr)
+int CutterCore::fcnCyclomaticComplexity(ut64 addr)
 {
     CORE_LOCK();
     RAnalFunction *fcn = r_anal_get_fcn_at(core_->anal, addr, addr);
@@ -452,7 +452,7 @@ int IaitoRCore::fcnCyclomaticComplexity(ut64 addr)
     return 0;
 }
 
-int IaitoRCore::fcnBasicBlockCount(ut64 addr)
+int CutterCore::fcnBasicBlockCount(ut64 addr)
 {
     CORE_LOCK();
     //RAnalFunction *fcn = r_anal_get_fcn_at (core_->anal, addr, addr);
@@ -464,7 +464,7 @@ int IaitoRCore::fcnBasicBlockCount(ut64 addr)
     return 0;
 }
 
-int IaitoRCore::fcnEndBbs(RVA addr)
+int CutterCore::fcnEndBbs(RVA addr)
 {
     CORE_LOCK();
     RAnalFunction *fcn = r_anal_get_fcn_in(core_->anal, addr, 0);
@@ -481,12 +481,12 @@ int IaitoRCore::fcnEndBbs(RVA addr)
     return 0;
 }
 
-QString IaitoRCore::itoa(ut64 num, int rdx)
+QString CutterCore::itoa(ut64 num, int rdx)
 {
     return QString::number(num, rdx);
 }
 
-QString IaitoRCore::config(const QString &k, const QString &v)
+QString CutterCore::config(const QString &k, const QString &v)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
@@ -498,7 +498,7 @@ QString IaitoRCore::config(const QString &k, const QString &v)
     return QString(r_config_get(core_->config, key.constData()));
 }
 
-int IaitoRCore::config(const QString &k, int v)
+int CutterCore::config(const QString &k, int v)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
@@ -510,23 +510,23 @@ int IaitoRCore::config(const QString &k, int v)
     return r_config_get_i(core_->config, key.constData());
 }
 
-int IaitoRCore::getConfigi(const QString &k)
+int CutterCore::getConfigi(const QString &k)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
     return r_config_get_i(core_->config, key.constData());
 }
 
-QString IaitoRCore::getConfig(const QString &k)
+QString CutterCore::getConfig(const QString &k)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
     return QString(r_config_get(core_->config, key.constData()));
 }
 
-void IaitoRCore::setOptions(QString key)
+void CutterCore::setOptions(QString key)
 {
-    IAITONOTUSED(key);
+    CUTTERNOTUSED(key);
 
     // va
     // lowercase
@@ -537,7 +537,7 @@ void IaitoRCore::setOptions(QString key)
     // anal plugin
 }
 
-void IaitoRCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
+void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
 {
     config("asm.arch", arch);
     config("asm.cpu", cpu);
@@ -550,7 +550,7 @@ void IaitoRCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
     }
 }
 
-void IaitoRCore::setDefaultCPU()
+void CutterCore::setDefaultCPU()
 {
     if (!default_arch.isEmpty())
         config("asm.arch", default_arch);
@@ -560,7 +560,7 @@ void IaitoRCore::setDefaultCPU()
         config("asm.bits", QString::number(default_bits));
 }
 
-QString IaitoRCore::assemble(const QString &code)
+QString CutterCore::assemble(const QString &code)
 {
     CORE_LOCK();
     RAsmCode *ac = r_asm_massemble(core_->assembler, code.toUtf8().constData());
@@ -569,7 +569,7 @@ QString IaitoRCore::assemble(const QString &code)
     return hex;
 }
 
-QString IaitoRCore::disassemble(const QString &hex)
+QString CutterCore::disassemble(const QString &hex)
 {
     CORE_LOCK();
     RAsmCode *ac = r_asm_mdisassemble_hexstr(core_->assembler, hex.toUtf8().constData());
@@ -578,19 +578,19 @@ QString IaitoRCore::disassemble(const QString &hex)
     return code;
 }
 
-QString IaitoRCore::disassembleSingleInstruction(RVA addr)
+QString CutterCore::disassembleSingleInstruction(RVA addr)
 {
     return cmd("pi 1@" + QString::number(addr)).simplified();
 }
 
-RAnalFunction *IaitoRCore::functionAt(ut64 addr)
+RAnalFunction *CutterCore::functionAt(ut64 addr)
 {
     CORE_LOCK();
     //return r_anal_fcn_find (core_->anal, addr, addr);
     return r_anal_get_fcn_in(core_->anal, addr, 0);
 }
 
-QString IaitoRCore::cmdFunctionAt(QString addr)
+QString CutterCore::cmdFunctionAt(QString addr)
 {
     QString ret;
     //afi~name:1[1] @ 0x08048e44
@@ -599,12 +599,12 @@ QString IaitoRCore::cmdFunctionAt(QString addr)
     return ret.trimmed();
 }
 
-QString IaitoRCore::cmdFunctionAt(RVA addr)
+QString CutterCore::cmdFunctionAt(RVA addr)
 {
     return cmdFunctionAt(QString::number(addr));
 }
 
-int IaitoRCore::get_size()
+int CutterCore::get_size()
 {
     CORE_LOCK();
     RBinObject *obj = r_bin_get_object(core_->bin);
@@ -612,14 +612,14 @@ int IaitoRCore::get_size()
     return obj != nullptr ? obj->obj_size : 0;
 }
 
-ulong IaitoRCore::get_baddr()
+ulong CutterCore::get_baddr()
 {
     CORE_LOCK();
     ulong baddr = r_bin_get_baddr(core_->bin);
     return baddr;
 }
 
-QList<QList<QString>> IaitoRCore::get_exec_sections()
+QList<QList<QString>> CutterCore::get_exec_sections()
 {
     QList<QList<QString>> ret;
 
@@ -642,29 +642,29 @@ QList<QList<QString>> IaitoRCore::get_exec_sections()
     return ret;
 }
 
-QString IaitoRCore::getOffsetInfo(QString addr)
+QString CutterCore::getOffsetInfo(QString addr)
 {
     return cmd("ao @ " + addr);
 }
 
-QString IaitoRCore::getOffsetJump(QString addr)
+QString CutterCore::getOffsetJump(QString addr)
 {
     QString ret = cmd("ao @" + addr + "~jump[1]");
     return ret;
 }
 
-QString IaitoRCore::getDecompiledCode(QString addr)
+QString CutterCore::getDecompiledCode(QString addr)
 {
     return cmd("pdc @ " + addr);
 }
 
-QString IaitoRCore::getFileInfo()
+QString CutterCore::getFileInfo()
 {
     QString info = cmd("ij");
     return info;
 }
 
-QStringList IaitoRCore::getStats()
+QStringList CutterCore::getStats()
 {
     QStringList stats;
     cmd("fs functions");
@@ -687,7 +687,7 @@ QStringList IaitoRCore::getStats()
     return stats;
 }
 
-QString IaitoRCore::getSimpleGraph(QString function)
+QString CutterCore::getSimpleGraph(QString function)
 {
     // New styles
     QString graph = "graph [bgcolor=invis, splines=polyline];";
@@ -709,7 +709,7 @@ QString IaitoRCore::getSimpleGraph(QString function)
     return dot;
 }
 
-void IaitoRCore::getOpcodes()
+void CutterCore::getOpcodes()
 {
     QString opcodes = cmd("?O");
     this->opcodes = opcodes.split("\n");
@@ -720,7 +720,7 @@ void IaitoRCore::getOpcodes()
     this->regs.removeLast();
 }
 
-void IaitoRCore::setSettings()
+void CutterCore::setSettings()
 {
     config("scr.color", "false");
     config("scr.interactive", "false");
@@ -787,7 +787,7 @@ void IaitoRCore::setSettings()
 
 
 
-QList<RVA> IaitoRCore::getSeekHistory()
+QList<RVA> CutterCore::getSeekHistory()
 {
     CORE_LOCK();
     QList<RVA> ret;
@@ -801,7 +801,7 @@ QList<RVA> IaitoRCore::getSeekHistory()
 
 
 
-QStringList IaitoRCore::getAsmPluginNames()
+QStringList CutterCore::getAsmPluginNames()
 {
     CORE_LOCK();
     RListIter *it;
@@ -816,7 +816,7 @@ QStringList IaitoRCore::getAsmPluginNames()
     return ret;
 }
 
-QStringList IaitoRCore::getAnalPluginNames()
+QStringList CutterCore::getAnalPluginNames()
 {
     CORE_LOCK();
     RListIter *it;
@@ -832,7 +832,7 @@ QStringList IaitoRCore::getAnalPluginNames()
 }
 
 
-QStringList IaitoRCore::getProjectNames()
+QStringList CutterCore::getProjectNames()
 {
     CORE_LOCK();
     QStringList ret;
@@ -846,7 +846,7 @@ QStringList IaitoRCore::getProjectNames()
 
 
 
-QList<FunctionDescription> IaitoRCore::getAllFunctions()
+QList<FunctionDescription> CutterCore::getAllFunctions()
 {
     CORE_LOCK();
     QList<FunctionDescription> ret;
@@ -870,7 +870,7 @@ QList<FunctionDescription> IaitoRCore::getAllFunctions()
 }
 
 
-QList<ImportDescription> IaitoRCore::getAllImports()
+QList<ImportDescription> CutterCore::getAllImports()
 {
     CORE_LOCK();
     QList<ImportDescription> ret;
@@ -897,7 +897,7 @@ QList<ImportDescription> IaitoRCore::getAllImports()
 
 
 
-QList<ExportDescription> IaitoRCore::getAllExports()
+QList<ExportDescription> CutterCore::getAllExports()
 {
     CORE_LOCK();
     QList<ExportDescription> ret;
@@ -924,7 +924,7 @@ QList<ExportDescription> IaitoRCore::getAllExports()
 }
 
 
-QList<SymbolDescription> IaitoRCore::getAllSymbols()
+QList<SymbolDescription> CutterCore::getAllSymbols()
 {
     CORE_LOCK();
     RListIter *it;
@@ -963,7 +963,7 @@ QList<SymbolDescription> IaitoRCore::getAllSymbols()
 }
 
 
-QList<CommentDescription> IaitoRCore::getAllComments(const QString &filterType)
+QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
     QList<CommentDescription> ret;
@@ -986,7 +986,7 @@ QList<CommentDescription> IaitoRCore::getAllComments(const QString &filterType)
     return ret;
 }
 
-QList<RelocDescription> IaitoRCore::getAllRelocs()
+QList<RelocDescription> CutterCore::getAllRelocs()
 {
     CORE_LOCK();
     RListIter *it;
@@ -1015,7 +1015,7 @@ QList<RelocDescription> IaitoRCore::getAllRelocs()
     return ret;
 }
 
-QList<StringDescription> IaitoRCore::getAllStrings()
+QList<StringDescription> CutterCore::getAllStrings()
 {
     CORE_LOCK();
     RListIter *it;
@@ -1037,7 +1037,7 @@ QList<StringDescription> IaitoRCore::getAllStrings()
 }
 
 
-QList<FlagspaceDescription> IaitoRCore::getAllFlagspaces()
+QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
 {
     CORE_LOCK();
     QList<FlagspaceDescription> ret;
@@ -1056,7 +1056,7 @@ QList<FlagspaceDescription> IaitoRCore::getAllFlagspaces()
 }
 
 
-QList<FlagDescription> IaitoRCore::getAllFlags(QString flagspace)
+QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
 {
     CORE_LOCK();
     QList<FlagDescription> ret;
@@ -1082,7 +1082,7 @@ QList<FlagDescription> IaitoRCore::getAllFlags(QString flagspace)
 }
 
 
-QList<SectionDescription> IaitoRCore::getAllSections()
+QList<SectionDescription> CutterCore::getAllSections()
 {
     CORE_LOCK();
     QList<SectionDescription> ret;
@@ -1110,7 +1110,7 @@ QList<SectionDescription> IaitoRCore::getAllSections()
 }
 
 
-QList<EntrypointDescription> IaitoRCore::getAllEntrypoint()
+QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 {
     CORE_LOCK();
     QList<EntrypointDescription> ret;
@@ -1133,7 +1133,7 @@ QList<EntrypointDescription> IaitoRCore::getAllEntrypoint()
     return ret;
 }
 
-QList<XrefDescription> IaitoRCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
+QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();
 
@@ -1170,7 +1170,7 @@ QList<XrefDescription> IaitoRCore::getXRefs(RVA addr, bool to, bool whole_functi
     return ret;
 }
 
-void IaitoRCore::addFlag(RVA offset, QString name, RVA size)
+void CutterCore::addFlag(RVA offset, QString name, RVA size)
 {
     name = sanitizeStringForCommand(name);
     cmd(QString("f %1 %2 @ %3").arg(name).arg(size).arg(offset));
