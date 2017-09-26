@@ -15,7 +15,7 @@ matrix:
       after_success:
         # TODO: include radare2/www for the webserver
         - macdeployqt cutter.app -dmg
-        - curl --upload-file ./iai*.dmg https://transfer.sh/cutter-git.$(git rev-parse --short HEAD).dmg
+        - ls cut*.dmg
     - os: linux
       dist: trusty
       sudo: required
@@ -35,7 +35,7 @@ matrix:
         - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -verbose=2
         - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -verbose=2
         - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-        - curl --upload-file ./Iai*.AppImage https://transfer.sh/Cutter-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+        - ls cut*.AppImage
 
 script:
   - git submodule init ; git submodule update
