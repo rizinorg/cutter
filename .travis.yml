@@ -9,6 +9,7 @@ matrix:
         - brew update
       install:
         - brew install p7zip ccache qt5
+        - export PATH="/usr/local/opt/qt/bin:$PATH"
       after_success:
         # TODO: include radare2/www for the webserver
         - macdeployqt cutter.app -dmg
