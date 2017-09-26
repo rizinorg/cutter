@@ -1,3 +1,6 @@
 [submodule "radare2"]
 	path = radare2
 	url = https://github.com/radare/radare2
+[submodule "cutter_win32"]
+	path = cutter_win32
+	url = https://github.com/radareorg/cutter_win32
