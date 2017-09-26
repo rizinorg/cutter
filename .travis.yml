@@ -8,10 +8,7 @@ matrix:
       before_install:
         - brew update
       install:
-        - brew install p7zip ccache
-        - curl -L -o qt5-mac.sh https://raw.githubusercontent.com/LRFLEW/OpenRCT2Launcher/develop/qt5-mac.sh
-        - chmod a+x qt5-mac.sh
-        - export PATH="$PATH:/usr/local/opt/ccache/libexec:$PWD/$(./qt5-mac.sh . base declarative tools webchannel positioning extra-webengine)"
+        - brew install p7zip ccache qt5
       after_success:
         # TODO: include radare2/www for the webserver
         - macdeployqt cutter.app -dmg
@@ -35,7 +32,7 @@ matrix:
         - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -verbose=2
         - ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -verbose=2
         - find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-        - ls cut*.AppImage
+        - ls Cut*.AppImage
 
 script:
   - git submodule init ; git submodule update
