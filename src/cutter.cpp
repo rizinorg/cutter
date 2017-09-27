@@ -323,13 +323,13 @@ void CutterCore::renameFunction(QString prev_name, QString new_name)
     emit functionRenamed(prev_name, new_name);
 }
 
+
 void CutterCore::setComment(RVA addr, QString cmt)
 {
     //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
     cmd("CC " + cmt + " @ " + QString::number(addr));
     emit commentsChanged();
 }
-
 
 void CutterCore::delComment(ut64 addr)
 {
@@ -358,19 +358,21 @@ QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
     return ret;
 }
 
+
+
 void CutterCore::seek(QString addr)
 {
     if (addr.length() > 0)
         seek(this->math(addr.toUtf8().constData()));
 }
 
-
-
 void CutterCore::seek(ut64 offset)
 {
     CORE_LOCK();
     r_core_seek(this->core_, offset, true);
 }
+
+
 
 bool CutterCore::tryFile(QString path, bool rw)
 {
@@ -399,9 +401,7 @@ bool CutterCore::tryFile(QString path, bool rw)
     return true;
 }
 
-
-
-QList<QString> CutterCore::getList(const QString &type, const QString &subtype)
+/*QList<QString> CutterCore::getList(const QString &type, const QString &subtype)
 {
     CORE_LOCK();
     QList<QString> ret = QList<QString>();
@@ -421,21 +421,9 @@ QList<QString> CutterCore::getList(const QString &type, const QString &subtype)
                 ret << "entry0";
         }
     }
-    else if (type == "asm")
-    {
-        if (subtype == "cpus")
-        {
-            QString funcs = cmd("e asm.cpu=?");
-            QStringList lines = funcs.split("\n");
-            for (auto cpu : lines)
-            {
-                ret << cpu;
-            }
-        }
-    }
 
     return ret;
-}
+}*/
 
 ut64 CutterCore::math(const QString &expr)
 {
@@ -720,6 +708,10 @@ void CutterCore::getOpcodes()
     this->regs.removeLast();
 }
 
+
+
+
+
 void CutterCore::setSettings()
 {
     config("scr.color", "false");
@@ -785,8 +777,6 @@ void CutterCore::setSettings()
 
 
 
-
-
 QList<RVA> CutterCore::getSeekHistory()
 {
     CORE_LOCK();
@@ -798,8 +788,6 @@ QList<RVA> CutterCore::getSeekHistory()
 
     return ret;
 }
-
-
 
 QStringList CutterCore::getAsmPluginNames()
 {
@@ -815,6 +803,7 @@ QStringList CutterCore::getAsmPluginNames()
 
     return ret;
 }
+
 
 QStringList CutterCore::getAnalPluginNames()
 {
@@ -832,6 +821,7 @@ QStringList CutterCore::getAnalPluginNames()
 }
 
 
+
 QStringList CutterCore::getProjectNames()
 {
     CORE_LOCK();
@@ -843,7 +833,6 @@ QStringList CutterCore::getProjectNames()
 
     return ret;
 }
-
 
 
 QList<FunctionDescription> CutterCore::getAllFunctions()
@@ -870,6 +859,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 }
 
 
+
 QList<ImportDescription> CutterCore::getAllImports()
 {
     CORE_LOCK();
@@ -894,7 +884,6 @@ QList<ImportDescription> CutterCore::getAllImports()
 
     return ret;
 }
-
 
 
 QList<ExportDescription> CutterCore::getAllExports()
@@ -962,7 +951,6 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
     return ret;
 }
 
-
 QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
@@ -1014,6 +1002,7 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 
     return ret;
 }
+
 
 QList<StringDescription> CutterCore::getAllStrings()
 {
@@ -1108,7 +1097,6 @@ QList<SectionDescription> CutterCore::getAllSections()
     }
     return ret;
 }
-
 
 QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 {

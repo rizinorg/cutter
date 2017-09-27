@@ -186,6 +186,7 @@ public:
     int fcnEndBbs(RVA addr);
     QString cmd(const QString &str);
     QJsonDocument cmdj(const QString &str);
+    QStringList cmdList(const QString &str)     { auto l = cmd(str).split("\n"); l.removeAll(""); return l; }
     void renameFunction(QString prev_name, QString new_name);
     void setComment(RVA addr, QString cmt);
     void delComment(ut64 addr);
@@ -231,7 +232,7 @@ public:
     QList<QString> regs;
     void setSettings();
 
-    QList<QString> getList(const QString &type, const QString &subtype = "");
+    //QList<QString> getList(const QString &type, const QString &subtype = "");
 
     QList<RVA> getSeekHistory();
 

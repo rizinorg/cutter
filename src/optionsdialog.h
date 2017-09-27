@@ -27,18 +27,14 @@ public:
 
 private slots:
     void on_closeButton_clicked();
-
     void on_okButton_clicked();
-
     void on_cancelButton_clicked();
+    void on_analSlider_valueChanged(int value);
+    void on_AdvOptButton_clicked();
+    void on_analCheckBox_clicked(bool checked);
+    void on_archComboBox_currentIndexChanged(int index);
 
     void anal_finished();
-
-    void on_analSlider_valueChanged(int value);
-
-    void on_AdvOptButton_clicked();
-
-    void on_analCheckBox_clicked(bool checked);
 
 private:
     Ui::OptionsDialog *ui;
@@ -47,6 +43,12 @@ private:
     int defaultAnalLevel;
 
     QString analysisDescription(int level);
+
+    void updateCPUComboBox();
+    QString getCurrentSelectedArch();
+    QString getCurrentSelectedCPU();
+    int getCurrentSelectedBits();
+    QString getCurrentSelectedOS();
 };
 
 #endif // OPTIONSDIALOG_H

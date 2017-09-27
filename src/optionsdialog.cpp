@@ -29,7 +29,20 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     // Fill the plugins combo
     asm_plugins = main->core->getAsmPluginNames();
     for (auto plugin : asm_plugins)
-        ui->processorComboBox->addItem(plugin, plugin);
+        ui->archComboBox->addItem(plugin, plugin);
+    ui->archComboBox->setToolTip(main->core->cmd("e? asm.arch").trimmed());
+
+    // cpu combo box
+    ui->cpuComboBox->lineEdit()->setPlaceholderText(tr("Auto"));
+    ui->cpuComboBox->setToolTip(main->core->cmd("e? asm.cpu").trimmed());
+    updateCPUComboBox();
+
+    // os combo box
+    for (const auto &plugin : main->core->cmdList("e asm.os=?"))
+        ui->kernelComboBox->addItem(plugin, plugin);
+    ui->kernelComboBox->setToolTip(main->core->cmd("e? asm.os").trimmed());
+
+    ui->bitsComboBox->setToolTip(main->core->cmd("e? asm.bits").trimmed());
 
     // Restore settings
     QSettings settings;
@@ -55,6 +68,54 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 OptionsDialog::~OptionsDialog()
 {
     delete ui;
+}
+
+void OptionsDialog::updateCPUComboBox()
+{
+    QString currentText = ui->cpuComboBox->lineEdit()->text();
+    ui->cpuComboBox->clear();
+
+    QString cmd = "e asm.cpu=?";
+
+    QString arch = getCurrentSelectedArch();
+    if(!arch.isNull())
+        cmd += " @a:" + arch;
+
+    ui->cpuComboBox->addItem("");
+    ui->cpuComboBox->addItems(main->core->cmdList(cmd));
+
+    ui->cpuComboBox->lineEdit()->setText(currentText);
+}
+
+QString OptionsDialog::getCurrentSelectedArch()
+{
+    QVariant archValue = ui->archComboBox->currentData();
+    return archValue.isValid() ? archValue.toString() : nullptr;
+}
+
+QString OptionsDialog::getCurrentSelectedCPU()
+{
+    QString cpu = ui->cpuComboBox->currentText();
+    if(cpu.isNull() || cpu.isEmpty())
+        return nullptr;
+    return cpu;
+}
+
+int OptionsDialog::getCurrentSelectedBits()
+{
+    QString sel_bits = ui->bitsComboBox->currentText();
+    if (sel_bits != "Auto")
+    {
+        return sel_bits.toInt();
+    }
+
+    return 0;
+}
+
+QString OptionsDialog::getCurrentSelectedOS()
+{
+    QVariant os = ui->kernelComboBox->currentData();
+    return os.isValid() ? os.toString() : nullptr;
 }
 
 void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
@@ -93,18 +154,8 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     //
     // Advanced Options
     //
-    QVariant archValue = ui->processorComboBox->currentData();
 
-    int bits = 0;
-    QString sel_bits = ui->bitsComboBox->currentText();
-    if (sel_bits != "Auto")
-    {
-        bits = sel_bits.toInt();
-    }
-
-    main->core->setCPU(archValue.isValid() ? archValue.toString() : NULL,
-                       QString(),
-                       bits);
+    main->core->setCPU(getCurrentSelectedArch(), getCurrentSelectedCPU(), getCurrentSelectedBits());
 
     bool rw = false;
     bool load_bininfo = ui->binCheckBox->isChecked();
@@ -134,6 +185,14 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo);
     //ui->progressBar->setValue(40);
     ui->statusLabel->setText(tr("Analysis in progress"));
+
+
+    QString os = getCurrentSelectedOS();
+    if(!os.isNull())
+    {
+        main->core->cmd("e asm.os=" + os);
+    }
+
 
     // Threads stuff
     // connect signal/slot
@@ -277,4 +336,9 @@ void OptionsDialog::on_analCheckBox_clicked(bool checked)
     if (!checked)
         defaultAnalLevel = ui->analSlider->value();
     ui->analSlider->setValue(checked ? defaultAnalLevel : 0);
+}
+
+void OptionsDialog::on_archComboBox_currentIndexChanged(int)
+{
+    updateCPUComboBox();
 }

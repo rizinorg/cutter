@@ -26,7 +26,7 @@
    <string>Load Options</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset>
     <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
   </property>
   <property name="autoFillBackground">
@@ -94,7 +94,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/img/logo-small.png</pixmap>
+          <pixmap>:/img/logo-small.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -602,22 +602,7 @@ color: rgb(0, 0, 0);</string>
           </item>
           <item>
            <widget class="QFrame" name="hideFrame">
-            <layout class="QVBoxLayout" name="hideLayout">
-             <property name="spacing">
-              <number>10</number>
-             </property>
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_8">
              <item>
               <widget class="QLabel" name="label_2">
                <property name="sizePolicy">
@@ -646,7 +631,7 @@ color: rgb(0, 0, 0);</string>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
-                <widget class="QLabel" name="processorLabel">
+                <widget class="QLabel" name="archLabel">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -659,7 +644,7 @@ color: rgb(0, 0, 0);</string>
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="processorComboBox">
+                <widget class="QComboBox" name="archComboBox">
                  <property name="currentText">
                   <string notr="true">Auto</string>
                  </property>
@@ -671,7 +656,38 @@ color: rgb(0, 0, 0);</string>
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="bitLabel">
+                <widget class="QLabel" name="cpuLabel">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>CPU:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="cpuComboBox">
+                 <property name="minimumSize">
+                  <size>
+                   <width>70</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="bitsLabel">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -743,26 +759,6 @@ color: rgb(0, 0, 0);</string>
                  <item>
                   <property name="text">
                    <string>Auto</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Linux</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>BSD</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>OS X</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Windows</string>
                   </property>
                  </item>
                 </widget>
