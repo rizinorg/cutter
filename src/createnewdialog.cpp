@@ -64,7 +64,7 @@ void createNewDialog::on_exampleButton_clicked()
     {
         str = "48656c6c6f20576f726c6400";
     }
-    else fprintf(stderr, tr("Unknown combo value selected").toLocal8Bit().constData());
+    else fprintf(stderr, "%s", tr("Unknown combo value selected").toLocal8Bit().constData());
     if (str.length() > 0)
         ui->plainTextEdit->setPlainText(str);
     // }

@@ -93,6 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
     highlighter(nullptr),
     hex_highlighter(nullptr),
     graphicsBar(nullptr),
+    entrypointDock(nullptr),
     functionsDock(nullptr),
     importsDock(nullptr),
     exportsDock(nullptr),
@@ -107,7 +108,6 @@ MainWindow::MainWindow(QWidget *parent) :
     sidebar_action(nullptr),
     sectionsDock(nullptr),
     consoleWidget(nullptr),
-    entrypointDock(nullptr),
     webserver(core)
 {
     doLock = false;
