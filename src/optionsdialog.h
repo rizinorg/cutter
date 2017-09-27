@@ -48,10 +48,10 @@ private:
     QString analysisDescription(int level);
 
     void updateCPUComboBox();
-    QString getCurrentSelectedArch();
-    QString getCurrentSelectedCPU();
-    int getCurrentSelectedBits();
-    QString getCurrentSelectedOS();
+    QString getSelectedArch();
+    QString getSelectedCPU();
+    int getSelectedBits();
+    QString getSelectedOS();
 };
 
 #endif // OPTIONSDIALOG_H

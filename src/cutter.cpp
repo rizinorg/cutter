@@ -403,30 +403,6 @@ bool CutterCore::tryFile(QString path, bool rw)
     return true;
 }
 
-/*QList<QString> CutterCore::getList(const QString &type, const QString &subtype)
-{
-    CORE_LOCK();
-    QList<QString> ret = QList<QString>();
-
-    if (type == "bin")
-    {
-        if (subtype == "types")
-        {
-            ret << "raw";
-            auto ft = sdb_const_get(DB, "try.filetype", 0);
-            if (ft && *ft)
-                ret << ft;
-        }
-        else if (subtype == "entrypoints")
-        {
-            if (math("entry0") != 0)
-                ret << "entry0";
-        }
-    }
-
-    return ret;
-}*/
-
 ut64 CutterCore::math(const QString &expr)
 {
     CORE_LOCK();

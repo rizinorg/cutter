@@ -82,7 +82,7 @@ void OptionsDialog::updateCPUComboBox()
 
     QString cmd = "e asm.cpu=?";
 
-    QString arch = getCurrentSelectedArch();
+    QString arch = getSelectedArch();
     if (!arch.isNull())
         cmd += " @a:" + arch;
 
@@ -92,13 +92,13 @@ void OptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
 
-QString OptionsDialog::getCurrentSelectedArch()
+QString OptionsDialog::getSelectedArch()
 {
     QVariant archValue = ui->archComboBox->currentData();
     return archValue.isValid() ? archValue.toString() : nullptr;
 }
 
-QString OptionsDialog::getCurrentSelectedCPU()
+QString OptionsDialog::getSelectedCPU()
 {
     QString cpu = ui->cpuComboBox->currentText();
     if (cpu.isNull() || cpu.isEmpty())
@@ -106,7 +106,7 @@ QString OptionsDialog::getCurrentSelectedCPU()
     return cpu;
 }
 
-int OptionsDialog::getCurrentSelectedBits()
+int OptionsDialog::getSelectedBits()
 {
     QString sel_bits = ui->bitsComboBox->currentText();
     if (sel_bits != "Auto")
@@ -117,7 +117,7 @@ int OptionsDialog::getCurrentSelectedBits()
     return 0;
 }
 
-QString OptionsDialog::getCurrentSelectedOS()
+QString OptionsDialog::getSelectedOS()
 {
     QVariant os = ui->kernelComboBox->currentData();
     return os.isValid() ? os.toString() : nullptr;
@@ -160,7 +160,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     // Advanced Options
     //
 
-    main->core->setCPU(getCurrentSelectedArch(), getCurrentSelectedCPU(), getCurrentSelectedBits());
+    main->core->setCPU(getSelectedArch(), getSelectedCPU(), getSelectedBits());
 
     bool rw = false;
     bool load_bininfo = ui->binCheckBox->isChecked();
@@ -192,7 +192,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     ui->statusLabel->setText(tr("Analysis in progress"));
 
 
-    QString os = getCurrentSelectedOS();
+    QString os = getSelectedOS();
     if (!os.isNull())
     {
         main->core->cmd("e asm.os=" + os);

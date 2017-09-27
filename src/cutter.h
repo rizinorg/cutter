@@ -234,8 +234,6 @@ public:
 
     void loadPDB(const QString &file);
 
-    //QList<QString> getList(const QString &type, const QString &subtype = "");
-
     QList<RVA> getSeekHistory();
 
     QStringList getAsmPluginNames();
