@@ -31,7 +31,7 @@ Cutter is developed on OS X, Linux and Windows. The first release for users will
 
 Proper documentation and website will be created before the first release.
 
-Roadmap information for developers can be found [here](https://github.com/radareorg/cutter/wiki/Roadmap).
+Roadmap information for developers can be found [here](https://github.com/radareorg/cutter/tree/master/docs/Roadmap.md).
 
 ## Help
 
