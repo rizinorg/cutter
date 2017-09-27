@@ -1,4 +1,4 @@
-#ifndef CUTTER_H 
+#ifndef CUTTER_H
 #define CUTTER_H
 
 #include <QMap>
@@ -231,6 +231,8 @@ public:
     QList<QString> opcodes;
     QList<QString> regs;
     void setSettings();
+
+    void loadPDB(const QString &file);
 
     //QList<QString> getList(const QString &type, const QString &subtype = "");
 

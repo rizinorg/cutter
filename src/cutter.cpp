@@ -311,7 +311,8 @@ void CutterCore::analyze(int level,  QList<QString> advanced)
     }
     else if (level == 3)
     {
-        foreach(QString option, advanced){
+        foreach (QString option, advanced)
+        {
             r_core_cmd0(core_, option.toStdString().c_str());
         }
     }
@@ -388,8 +389,9 @@ bool CutterCore::tryFile(QString path, bool rw)
     }
 
     bool is_writable = false;
-    if (cf->core && cf->core->io && cf->core->io->desc) {
-	    is_writable = cf->core->io->desc->flags & R_IO_WRITE;
+    if (cf->core && cf->core->io && cf->core->io->desc)
+    {
+        is_writable = cf->core->io->desc->flags & R_IO_WRITE;
     }
     // if rbin works, tell entry0, and symbols (main, constructor, ..)
 
@@ -1163,4 +1165,9 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
     name = sanitizeStringForCommand(name);
     cmd(QString("f %1 %2 @ %3").arg(name).arg(size).arg(offset));
     emit flagsChanged();
+}
+
+void CutterCore::loadPDB(const QString &file)
+{
+    cmd("idp " + sanitizeStringForCommand(file));
 }

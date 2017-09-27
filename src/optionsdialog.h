@@ -33,6 +33,9 @@ private slots:
     void on_AdvOptButton_clicked();
     void on_analCheckBox_clicked(bool checked);
     void on_archComboBox_currentIndexChanged(int index);
+    void on_pdbSelectButton_clicked();
+
+    void updatePDBLayout();
 
     void anal_finished();
 

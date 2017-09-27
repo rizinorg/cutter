@@ -11,6 +11,7 @@
 
 #include <QSettings>
 #include <QFileInfo>
+#include <QFileDialog>
 
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
@@ -55,6 +56,10 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->hideFrame->setVisible(false);
     ui->analoptionsFrame->setVisible(false);
 
+    updatePDBLayout();
+
+    connect(ui->pdbCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updatePDBLayout()));
+
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
@@ -78,7 +83,7 @@ void OptionsDialog::updateCPUComboBox()
     QString cmd = "e asm.cpu=?";
 
     QString arch = getCurrentSelectedArch();
-    if(!arch.isNull())
+    if (!arch.isNull())
         cmd += " @a:" + arch;
 
     ui->cpuComboBox->addItem("");
@@ -96,7 +101,7 @@ QString OptionsDialog::getCurrentSelectedArch()
 QString OptionsDialog::getCurrentSelectedCPU()
 {
     QString cpu = ui->cpuComboBox->currentText();
-    if(cpu.isNull() || cpu.isEmpty())
+    if (cpu.isNull() || cpu.isEmpty())
         return nullptr;
     return cpu;
 }
@@ -188,9 +193,15 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
 
     QString os = getCurrentSelectedOS();
-    if(!os.isNull())
+    if (!os.isNull())
     {
         main->core->cmd("e asm.os=" + os);
+    }
+
+
+    if (ui->pdbCheckBox->isChecked())
+    {
+        main->core->loadPDB(ui->pdbLineEdit->text());
     }
 
 
@@ -207,38 +218,50 @@ void OptionsDialog::on_closeButton_clicked()
 void OptionsDialog::on_okButton_clicked()
 {
     QList<QString> advanced = QList<QString>();
-    if (ui->analSlider->value() == 3){
-        if (ui->aa_symbols->isChecked()){
+    if (ui->analSlider->value() == 3)
+    {
+        if (ui->aa_symbols->isChecked())
+        {
             advanced << "aa";
         }
-        if (ui->aar_references->isChecked()){
+        if (ui->aar_references->isChecked())
+        {
             advanced << "aar";
         }
-        if (ui->aac_calls->isChecked()){
+        if (ui->aac_calls->isChecked())
+        {
             advanced << "aac";
         }
-        if (ui->aan_rename->isChecked()){
+        if (ui->aan_rename->isChecked())
+        {
             advanced << "aan";
         }
-        if (ui->aae_emulate->isChecked()){
+        if (ui->aae_emulate->isChecked())
+        {
             advanced << "aae";
         }
-        if (ui->aat_consecutive->isChecked()){
+        if (ui->aat_consecutive->isChecked())
+        {
             advanced << "aat";
         }
-        if (ui->afta_typeargument->isChecked()){
+        if (ui->afta_typeargument->isChecked())
+        {
             advanced << "afta";
         }
-        if (ui->aaT_aftertrap->isChecked()){
+        if (ui->aaT_aftertrap->isChecked())
+        {
             advanced << "aaT";
         }
-        if (ui->aap_preludes->isChecked()){
+        if (ui->aap_preludes->isChecked())
+        {
             advanced << "aap";
         }
-        if (ui->jmptbl->isChecked()){
+        if (ui->jmptbl->isChecked())
+        {
             advanced << "e! anal.jmptbl";
         }
-        if (ui->pushret->isChecked()){
+        if (ui->pushret->isChecked())
+        {
             advanced << "e! anal.pushret";
         }
     }
@@ -306,7 +329,7 @@ void OptionsDialog::on_analSlider_valueChanged(int value)
     {
         ui->analCheckBox->setChecked(true);
         ui->analCheckBox->setText(tr("Analysis: Enabled"));
-        if (value==3)
+        if (value == 3)
         {
             ui->analoptionsFrame->setVisible(true);
         }
@@ -341,4 +364,28 @@ void OptionsDialog::on_analCheckBox_clicked(bool checked)
 void OptionsDialog::on_archComboBox_currentIndexChanged(int)
 {
     updateCPUComboBox();
+}
+
+void OptionsDialog::updatePDBLayout()
+{
+    ui->pdbWidget->setEnabled(ui->pdbCheckBox->isChecked());
+}
+
+void OptionsDialog::on_pdbSelectButton_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setWindowTitle(tr("Select PDB file"));
+    dialog.setNameFilters({ tr("PDB file (*.pdb)"), tr("All files (*)") });
+
+    if (!dialog.exec())
+    {
+        return;
+    }
+
+    QString fileName = dialog.selectedFiles().first();
+
+    if (!fileName.isEmpty())
+    {
+        ui->pdbLineEdit->setText(fileName);
+    }
 }
