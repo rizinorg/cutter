@@ -93,6 +93,7 @@ MainWindow::MainWindow(QWidget *parent) :
     highlighter(nullptr),
     hex_highlighter(nullptr),
     graphicsBar(nullptr),
+    entrypointDock(nullptr),
     functionsDock(nullptr),
     importsDock(nullptr),
     exportsDock(nullptr),
@@ -107,7 +108,6 @@ MainWindow::MainWindow(QWidget *parent) :
     sidebar_action(nullptr),
     sectionsDock(nullptr),
     consoleWidget(nullptr),
-    entrypointDock(nullptr),
     webserver(core)
 {
     doLock = false;
@@ -183,14 +183,17 @@ void MainWindow::initUI()
     // Asm syntaxes
     QList<QString> list = core->cmd("e asm.syntax =?").split("\n");
     QString checked = core->getConfig("asm.syntax");
-    for (QString syntax : list) {
-        if (syntax == "") {
+    for (QString syntax : list)
+    {
+        if (syntax == "")
+        {
             break;
         }
-        QAction* action = new QAction(ui->menuAsm_syntax);
-	action->setText(syntax);
+        QAction *action = new QAction(ui->menuAsm_syntax);
+        action->setText(syntax);
         action->setCheckable(true);
-        if (syntax == checked) {
+        if (syntax == checked)
+        {
             action->setChecked(true);
         }
         connect(action, SIGNAL(triggered()), this, SLOT(actionAsm_syntax_triggered()));
@@ -1113,13 +1116,14 @@ void MainWindow::on_actionDisplay_Offsets_triggered()
 
 void MainWindow::actionAsm_syntax_triggered()
 {
-    QObject* sender = QObject::sender();
+    QObject *sender = QObject::sender();
     // Uncheck every other choices
-    for (QAction* action : asmSyntaxes) {
+    for (QAction *action : asmSyntaxes)
+    {
         action->setChecked(false);
     }
     // Check selected choice
-    QAction* action = (QAction*) sender;
+    QAction *action = (QAction *) sender;
     action->setChecked(true);
     // Set r2 config
     core->config("asm.syntax", action->text());

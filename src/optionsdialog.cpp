@@ -11,6 +11,7 @@
 
 #include <QSettings>
 #include <QFileInfo>
+#include <QFileDialog>
 
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
@@ -29,7 +30,20 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     // Fill the plugins combo
     asm_plugins = main->core->getAsmPluginNames();
     for (auto plugin : asm_plugins)
-        ui->processorComboBox->addItem(plugin, plugin);
+        ui->archComboBox->addItem(plugin, plugin);
+    ui->archComboBox->setToolTip(main->core->cmd("e? asm.arch").trimmed());
+
+    // cpu combo box
+    ui->cpuComboBox->lineEdit()->setPlaceholderText(tr("Auto"));
+    ui->cpuComboBox->setToolTip(main->core->cmd("e? asm.cpu").trimmed());
+    updateCPUComboBox();
+
+    // os combo box
+    for (const auto &plugin : main->core->cmdList("e asm.os=?"))
+        ui->kernelComboBox->addItem(plugin, plugin);
+    ui->kernelComboBox->setToolTip(main->core->cmd("e? asm.os").trimmed());
+
+    ui->bitsComboBox->setToolTip(main->core->cmd("e? asm.bits").trimmed());
 
     // Restore settings
     QSettings settings;
@@ -41,6 +55,10 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 
     ui->hideFrame->setVisible(false);
     ui->analoptionsFrame->setVisible(false);
+
+    updatePDBLayout();
+
+    connect(ui->pdbCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updatePDBLayout()));
 
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -55,6 +73,54 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 OptionsDialog::~OptionsDialog()
 {
     delete ui;
+}
+
+void OptionsDialog::updateCPUComboBox()
+{
+    QString currentText = ui->cpuComboBox->lineEdit()->text();
+    ui->cpuComboBox->clear();
+
+    QString cmd = "e asm.cpu=?";
+
+    QString arch = getSelectedArch();
+    if (!arch.isNull())
+        cmd += " @a:" + arch;
+
+    ui->cpuComboBox->addItem("");
+    ui->cpuComboBox->addItems(main->core->cmdList(cmd));
+
+    ui->cpuComboBox->lineEdit()->setText(currentText);
+}
+
+QString OptionsDialog::getSelectedArch()
+{
+    QVariant archValue = ui->archComboBox->currentData();
+    return archValue.isValid() ? archValue.toString() : nullptr;
+}
+
+QString OptionsDialog::getSelectedCPU()
+{
+    QString cpu = ui->cpuComboBox->currentText();
+    if (cpu.isNull() || cpu.isEmpty())
+        return nullptr;
+    return cpu;
+}
+
+int OptionsDialog::getSelectedBits()
+{
+    QString sel_bits = ui->bitsComboBox->currentText();
+    if (sel_bits != "Auto")
+    {
+        return sel_bits.toInt();
+    }
+
+    return 0;
+}
+
+QString OptionsDialog::getSelectedOS()
+{
+    QVariant os = ui->kernelComboBox->currentData();
+    return os.isValid() ? os.toString() : nullptr;
 }
 
 void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
@@ -93,18 +159,8 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     //
     // Advanced Options
     //
-    QVariant archValue = ui->processorComboBox->currentData();
 
-    int bits = 0;
-    QString sel_bits = ui->bitsComboBox->currentText();
-    if (sel_bits != "Auto")
-    {
-        bits = sel_bits.toInt();
-    }
-
-    main->core->setCPU(archValue.isValid() ? archValue.toString() : NULL,
-                       QString(),
-                       bits);
+    main->core->setCPU(getSelectedArch(), getSelectedCPU(), getSelectedBits());
 
     bool rw = false;
     bool load_bininfo = ui->binCheckBox->isChecked();
@@ -135,6 +191,20 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     //ui->progressBar->setValue(40);
     ui->statusLabel->setText(tr("Analysis in progress"));
 
+
+    QString os = getSelectedOS();
+    if (!os.isNull())
+    {
+        main->core->cmd("e asm.os=" + os);
+    }
+
+
+    if (ui->pdbCheckBox->isChecked())
+    {
+        main->core->loadPDB(ui->pdbLineEdit->text());
+    }
+
+
     // Threads stuff
     // connect signal/slot
     analThread.start(main->core, level, advanced);
@@ -148,38 +218,50 @@ void OptionsDialog::on_closeButton_clicked()
 void OptionsDialog::on_okButton_clicked()
 {
     QList<QString> advanced = QList<QString>();
-    if (ui->analSlider->value() == 3){
-        if (ui->aa_symbols->isChecked()){
+    if (ui->analSlider->value() == 3)
+    {
+        if (ui->aa_symbols->isChecked())
+        {
             advanced << "aa";
         }
-        if (ui->aar_references->isChecked()){
+        if (ui->aar_references->isChecked())
+        {
             advanced << "aar";
         }
-        if (ui->aac_calls->isChecked()){
+        if (ui->aac_calls->isChecked())
+        {
             advanced << "aac";
         }
-        if (ui->aan_rename->isChecked()){
+        if (ui->aan_rename->isChecked())
+        {
             advanced << "aan";
         }
-        if (ui->aae_emulate->isChecked()){
+        if (ui->aae_emulate->isChecked())
+        {
             advanced << "aae";
         }
-        if (ui->aat_consecutive->isChecked()){
+        if (ui->aat_consecutive->isChecked())
+        {
             advanced << "aat";
         }
-        if (ui->afta_typeargument->isChecked()){
+        if (ui->afta_typeargument->isChecked())
+        {
             advanced << "afta";
         }
-        if (ui->aaT_aftertrap->isChecked()){
+        if (ui->aaT_aftertrap->isChecked())
+        {
             advanced << "aaT";
         }
-        if (ui->aap_preludes->isChecked()){
+        if (ui->aap_preludes->isChecked())
+        {
             advanced << "aap";
         }
-        if (ui->jmptbl->isChecked()){
+        if (ui->jmptbl->isChecked())
+        {
             advanced << "e! anal.jmptbl";
         }
-        if (ui->pushret->isChecked()){
+        if (ui->pushret->isChecked())
+        {
             advanced << "e! anal.pushret";
         }
     }
@@ -247,7 +329,7 @@ void OptionsDialog::on_analSlider_valueChanged(int value)
     {
         ui->analCheckBox->setChecked(true);
         ui->analCheckBox->setText(tr("Analysis: Enabled"));
-        if (value==3)
+        if (value == 3)
         {
             ui->analoptionsFrame->setVisible(true);
         }
@@ -277,4 +359,33 @@ void OptionsDialog::on_analCheckBox_clicked(bool checked)
     if (!checked)
         defaultAnalLevel = ui->analSlider->value();
     ui->analSlider->setValue(checked ? defaultAnalLevel : 0);
+}
+
+void OptionsDialog::on_archComboBox_currentIndexChanged(int)
+{
+    updateCPUComboBox();
+}
+
+void OptionsDialog::updatePDBLayout()
+{
+    ui->pdbWidget->setEnabled(ui->pdbCheckBox->isChecked());
+}
+
+void OptionsDialog::on_pdbSelectButton_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setWindowTitle(tr("Select PDB file"));
+    dialog.setNameFilters({ tr("PDB file (*.pdb)"), tr("All files (*)") });
+
+    if (!dialog.exec())
+    {
+        return;
+    }
+
+    QString fileName = dialog.selectedFiles().first();
+
+    if (!fileName.isEmpty())
+    {
+        ui->pdbLineEdit->setText(fileName);
+    }
 }

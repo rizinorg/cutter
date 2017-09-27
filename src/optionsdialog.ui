@@ -26,7 +26,7 @@
    <string>Load Options</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset>
     <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
   </property>
   <property name="autoFillBackground">
@@ -94,7 +94,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="resources.qrc">:/img/logo-small.png</pixmap>
+          <pixmap>:/img/logo-small.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -602,22 +602,7 @@ color: rgb(0, 0, 0);</string>
           </item>
           <item>
            <widget class="QFrame" name="hideFrame">
-            <layout class="QVBoxLayout" name="hideLayout">
-             <property name="spacing">
-              <number>10</number>
-             </property>
-             <property name="leftMargin">
-              <number>0</number>
-             </property>
-             <property name="topMargin">
-              <number>0</number>
-             </property>
-             <property name="rightMargin">
-              <number>0</number>
-             </property>
-             <property name="bottomMargin">
-              <number>0</number>
-             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_8">
              <item>
               <widget class="QLabel" name="label_2">
                <property name="sizePolicy">
@@ -646,7 +631,7 @@ color: rgb(0, 0, 0);</string>
              <item>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
-                <widget class="QLabel" name="processorLabel">
+                <widget class="QLabel" name="archLabel">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -659,7 +644,7 @@ color: rgb(0, 0, 0);</string>
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="processorComboBox">
+                <widget class="QComboBox" name="archComboBox">
                  <property name="currentText">
                   <string notr="true">Auto</string>
                  </property>
@@ -671,7 +656,38 @@ color: rgb(0, 0, 0);</string>
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="bitLabel">
+                <widget class="QLabel" name="cpuLabel">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="text">
+                  <string>CPU:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QComboBox" name="cpuComboBox">
+                 <property name="minimumSize">
+                  <size>
+                   <width>70</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="editable">
+                  <bool>true</bool>
+                 </property>
+                 <item>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="bitsLabel">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -743,26 +759,6 @@ color: rgb(0, 0, 0);</string>
                  <item>
                   <property name="text">
                    <string>Auto</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Linux</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>BSD</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>OS X</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Windows</string>
                   </property>
                  </item>
                 </widget>
@@ -924,6 +920,48 @@ color: rgb(0, 0, 0);</string>
                  <property name="alignment">
                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                  </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QCheckBox" name="pdbCheckBox">
+                 <property name="text">
+                  <string>Load PDB</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QWidget" name="pdbWidget" native="true">
+                 <property name="enabled">
+                  <bool>true</bool>
+                 </property>
+                 <layout class="QHBoxLayout" name="pdbLayout">
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLineEdit" name="pdbLineEdit">
+                    <property name="placeholderText">
+                     <string>pdb file</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pdbSelectButton">
+                    <property name="text">
+                     <string>Select</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
               </layout>
