@@ -25,6 +25,8 @@ public:
 
     void setupAndStartAnalysis(int level, QList<QString> advanced);
 
+public slots:
+    void updateProgress(const QString &str);
 private slots:
     void on_closeButton_clicked();
     void on_okButton_clicked();
@@ -40,7 +42,6 @@ private slots:
     void anal_finished();
 
 private:
-    Ui::OptionsDialog *ui;
     AnalThread analThread;
     MainWindow *main;
     int defaultAnalLevel;
@@ -48,6 +49,8 @@ private:
     QString analysisDescription(int level);
 
     void updateCPUComboBox();
+public:
+    Ui::OptionsDialog *ui;
     QString getSelectedArch();
     QString getSelectedCPU();
     int getSelectedBits();
