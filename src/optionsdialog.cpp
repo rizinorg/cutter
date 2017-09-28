@@ -15,10 +15,10 @@
 
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
-    ui(new Ui::OptionsDialog),
     analThread(this),
     main(main),
-    defaultAnalLevel(1)
+    defaultAnalLevel(1),
+    ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -139,9 +139,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     ui->statusLabel->setText(tr("Starting analysis"));
     //ui->progressBar->setValue(5);
 
-    int va = ui->vaCheckBox->isChecked();
-    ut64 loadaddr = 0LL;
-    ut64 mapaddr = 0LL;
 
     // Save options in settings
     Settings settings;
@@ -156,58 +153,15 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     // Apply options set above in MainWindow
     main->applySettings();
 
-    //
-    // Advanced Options
-    //
-
-    main->core->setCPU(getSelectedArch(), getSelectedCPU(), getSelectedBits());
-
-    bool rw = false;
-    bool load_bininfo = ui->binCheckBox->isChecked();
-
-    if (load_bininfo)
-    {
-        if (!va)
-        {
-            va = 2;
-            loadaddr = UT64_MAX;
-            r_config_set_i(main->core->core()->config, "bin.laddr", loadaddr);
-            mapaddr = 0;
-        }
-    }
-    else
-    {
-        va = false;
-        loadaddr = mapaddr = 0;
-    }
-
-    //ui->progressBar->setValue(20);
-    ui->statusLabel->setText(tr("Loading binary"));
-    // options dialog should show the list of archs inside the given fatbin
-    int binidx = 0; // index of subbin
-
-    main->addOutput(tr(" > Loading file: ") + main->getFilename());
-    main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo);
-    //ui->progressBar->setValue(40);
-    ui->statusLabel->setText(tr("Analysis in progress"));
-
-
-    QString os = getSelectedOS();
-    if (!os.isNull())
-    {
-        main->core->cmd("e asm.os=" + os);
-    }
-
-
-    if (ui->pdbCheckBox->isChecked())
-    {
-        main->core->loadPDB(ui->pdbLineEdit->text());
-    }
-
-
     // Threads stuff
     // connect signal/slot
-    analThread.start(main->core, level, advanced);
+    connect(&analThread, &AnalThread::updateProgress, this, &OptionsDialog::updateProgress);
+    analThread.start(main, level, advanced);
+}
+
+void OptionsDialog::updateProgress(const QString &status)
+{
+    ui->statusLabel->setText(status);
 }
 
 void OptionsDialog::on_closeButton_clicked()
