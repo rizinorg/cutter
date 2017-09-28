@@ -39,7 +39,7 @@
 #include "newfiledialog.h"
 #include "helpers.h"
 
-#include "widgets/memorywidget.h"
+#include "widgets/MemoryWidget.h"
 #include "widgets/functionswidget.h"
 #include "widgets/sectionswidget.h"
 #include "widgets/commentswidget.h"
@@ -60,6 +60,7 @@
 #include "settings.h"
 #include "optionsdialog.h"
 #include "widgets/entrypointwidget.h"
+#include "widgets/DisassemblerGraphView.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -204,7 +205,7 @@ void MainWindow::initUI()
     /*
      * Dock Widgets
      */
-    dockWidgets.reserve(11);
+    dockWidgets.reserve(12);
 
     // Add Memory DockWidget
     this->memoryDock = new MemoryWidget(this);

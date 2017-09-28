@@ -18,7 +18,7 @@ QT += core gui widgets webengine webenginewidgets
 
 QT_CONFIG -= no-pkg-config
 
-CONFIG += c++11
+CONFIG += debug c++11
 
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
@@ -56,7 +56,6 @@ SOURCES += \
     widgets/commentswidget.cpp \
     widgets/stringswidget.cpp \
     widgets/flagswidget.cpp \
-    widgets/memorywidget.cpp \
     widgets/exportswidget.cpp \
     widgets/sdbdock.cpp \
     analthread.cpp \
@@ -71,7 +70,10 @@ SOURCES += \
     widgets/consolewidget.cpp \
     radarewebserver.cpp \
     widgets/entrypointwidget.cpp \
-    dialogs/flagdialog.cpp
+    dialogs/flagdialog.cpp \
+    widgets/DisassemblerGraphView.cpp \
+    widgets/MemoryWidget.cpp \
+    utils/RichTextPainter.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -94,7 +96,6 @@ HEADERS  += \
     widgets/commentswidget.h \
     widgets/stringswidget.h \
     widgets/flagswidget.h \
-    widgets/memorywidget.h \
     widgets/exportswidget.h \
     widgets/sdbdock.h \
     analthread.h \
@@ -112,7 +113,11 @@ HEADERS  += \
     settings.h \
     widgets/entrypointwidget.h \
     cutter.h \
-    dialogs/flagdialog.h
+    dialogs/flagdialog.h \
+    widgets/DisassemblerGraphView.h \
+    widgets/MemoryWidget.h \
+    utils/RichTextPainter.h \
+    utils/CachedFontMetrics.h
 FORMS    += \
     mainwindow.ui \
     newfiledialog.ui \
@@ -128,7 +133,6 @@ FORMS    += \
     widgets/commentswidget.ui \
     widgets/stringswidget.ui \
     widgets/flagswidget.ui \
-    widgets/memorywidget.ui \
     widgets/exportswidget.ui \
     widgets/sdbdock.ui \
     dialogs/commentsdialog.ui \
@@ -138,7 +142,8 @@ FORMS    += \
     widgets/sectionsdock.ui \
     widgets/consolewidget.ui \
     widgets/entrypointwidget.ui \
-    dialogs/flagdialog.ui
+    dialogs/flagdialog.ui \
+    widgets/MemoryWidget.ui
 
 RESOURCES += \
     resources.qrc

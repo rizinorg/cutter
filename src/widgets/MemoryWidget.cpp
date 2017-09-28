@@ -1,5 +1,6 @@
-#include "memorywidget.h"
-#include "ui_memorywidget.h"
+#include "MemoryWidget.h"
+#include "ui_MemoryWidget.h"
+#include "DisassemblerGraphView.h"
 
 #include "mainwindow.h"
 #include "helpers.h"
@@ -158,6 +159,11 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
             SIGNAL(activated()), this, SLOT(showXrefsDialog()));
     connect(new QShortcut(Qt::SHIFT + Qt::Key_X, ui->disasTextEdit_2),
             SIGNAL(activated()), this, SLOT(showXrefsDialog()));
+
+    // Create Graph View
+    ui->tabGraph->setLayout(new QGridLayout);
+    mGraphView = new DisassemblerGraphView(ui->tabGraph, main->core);
+    ui->tabGraph->layout()->addWidget(mGraphView);
 
     // Space to switch between disassembly and graph
     QShortcut *graph_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this->main);
@@ -1136,7 +1142,7 @@ void MemoryWidget::on_actionSettings_menu_1_triggered()
     bool ok = true;
 
     // QFont font = QFont("Monospace", 8);
-
+    // TODO Use global configuration
     QFont font = QFontDialog::getFont(&ok, ui->disasTextEdit_2->font(), this);
 
     if (ok)
@@ -1265,6 +1271,12 @@ void MemoryWidget::on_graphButton_2_clicked()
 {
     ui->memTabWidget->setCurrentIndex(2);
     ui->memSideTabWidget_2->setCurrentIndex(0);
+}
+
+void MemoryWidget::on_graphButton_clicked()
+{
+    ui->memTabWidget->setCurrentIndex(3);
+    ui->memSideTabWidget_2->setCurrentIndex(3);
 }
 
 void MemoryWidget::on_actionSend_to_Notepad_triggered()

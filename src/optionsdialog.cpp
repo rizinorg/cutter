@@ -5,7 +5,7 @@
 #include "helpers.h"
 
 // TODO: remove us
-#include "widgets/memorywidget.h"
+#include "widgets/MemoryWidget.h"
 #include "widgets/notepad.h"
 #include "settings.h"
 

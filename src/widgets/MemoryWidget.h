@@ -15,6 +15,7 @@
 #include "hexascii_highlighter.h"
 #include "hexhighlighter.h"
 #include "dashboard.h"
+#include "widgets/DisassemblerGraphView.h"
 
 class MainWindow;
 
@@ -46,6 +47,7 @@ public:
     QTabWidget       *memTabWidget;
     QWebEngineView         *graphWebView;
     QWebEngineView         *histoWebView;
+    DisassemblerGraphView *mGraphView;
 
     Highlighter        *highlighter;
     Highlighter        *highlighter_5;
@@ -139,6 +141,7 @@ private slots:
     void on_disButton_2_clicked();
     void on_hexButton_2_clicked();
     void on_graphButton_2_clicked();
+    void on_graphButton_clicked();
     void showDisasContextMenu(const QPoint &pt);
     void showHexdumpContextMenu(const QPoint &pt);
     void showHexASCIIContextMenu(const QPoint &pt);

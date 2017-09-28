@@ -178,7 +178,7 @@ QToolTip {
 }</string>
          </property>
          <property name="text">
-          <string/>
+          <string>...</string>
          </property>
          <property name="icon">
           <iconset resource="../resources.qrc">
@@ -248,6 +248,63 @@ QToolTip {
           <bool>true</bool>
          </property>
          <property name="autoExclusive">
+          <bool>false</bool>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="graphButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Graph</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QToolButton { /* all types of tool button */
+     border: 5px solid #333;
+     border-left: 10px solid #333;
+	 border-right: 10px solid #333;
+     border-radius: 0px;
+     background-color: #333;
+ }
+
+QToolButton:hover {
+     border: 5px solid #444;
+     border-radius: 0px;
+     background-color: #444;
+ }
+
+QToolButton:checked {
+     border: 5px solid #2180a9;
+     border-radius: 0px;
+     background-color: #2180a9;
+}
+
+QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+}</string>
+         </property>
+         <property name="text">
+          <string>...</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/img/icons/graph_light.svg</normaloff>
+           <normalon>:/img/icons/graph_white.svg</normalon>:/img/icons/graph_light.svg</iconset>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
           <bool>false</bool>
          </property>
          <attribute name="buttonGroup">
@@ -456,7 +513,7 @@ border-top: 0px;
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <property name="documentMode">
        <bool>false</bool>
@@ -1248,6 +1305,12 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="tabGraph">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_19"/>
       </widget>
      </widget>
     </item>
@@ -3046,8 +3109,8 @@ QToolTip {
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup_3"/>
   <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
