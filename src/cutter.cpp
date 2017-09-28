@@ -813,6 +813,31 @@ QStringList CutterCore::getProjectNames()
 }
 
 
+QList<RBinPluginDescription> CutterCore::getRBinPluginDescriptions()
+{
+    QList<RBinPluginDescription> ret;
+
+    QJsonObject jsonRoot = cmdj("iLj").object();
+    for(const QString &key : jsonRoot.keys())
+    {
+        QJsonArray pluginArray = jsonRoot[key].toArray();
+
+        for(const auto &pluginValue : pluginArray)
+        {
+            QJsonObject pluginObject = pluginValue.toObject();
+            RBinPluginDescription desc;
+            desc.name = pluginObject["name"].toString();
+            desc.description = pluginObject["description"].toString();
+            desc.license = pluginObject["license"].toString();
+            desc.type = key;
+            ret.append(desc);
+        }
+    }
+
+    return ret;
+}
+
+
 QList<FunctionDescription> CutterCore::getAllFunctions()
 {
     CORE_LOCK();

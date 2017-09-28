@@ -45,6 +45,10 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 
     ui->bitsComboBox->setToolTip(main->core->cmd("e? asm.bits").trimmed());
 
+
+    for (auto plugin : main->core->getRBinPluginDescriptions())
+        ui->formatComboBox->addItem(plugin.type + " " + plugin.name, QVariant::fromValue(plugin));
+
     // Restore settings
     QSettings settings;
     ui->bytesCheckBox->setChecked(settings.value("bytes").toBool());

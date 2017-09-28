@@ -155,6 +155,14 @@ struct XrefDescription
     QString type;
 };
 
+struct RBinPluginDescription
+{
+    QString name;
+    QString description;
+    QString license;
+    QString type;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -166,6 +174,7 @@ Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
+Q_DECLARE_METATYPE(RBinPluginDescription)
 
 class CutterCore: public QObject
 {
@@ -240,6 +249,8 @@ public:
     QStringList getAnalPluginNames();
 
     QStringList getProjectNames();
+
+    QList<RBinPluginDescription> getRBinPluginDescriptions();
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
