@@ -45,6 +45,19 @@ static QIcon getIconFor(QString str, int pos)
     pixPaint.drawText(0, 0, w, h - 2, Qt::AlignCenter, QString(str).toUpper().mid(0, 2));
     return QIcon(pixmap);
 }
+
+static QString formatBytecount(const long bytecount)
+{
+    const int exp = log(bytecount) / log(1000);
+    constexpr char suffixes[] = {' ', 'k', 'M', 'G', 'T', 'P', 'E'};
+
+    QString str;
+    QTextStream stream(&str);
+    stream << qSetRealNumberPrecision(3) << bytecount / pow(1000, exp)
+           << ' ' << suffixes[exp] << 'B';
+    return stream.readAll();
+}
+
 NewFileDialog::NewFileDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::NewFileDialog)
@@ -75,7 +88,10 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
         // Get file info
         QFileInfo info(files[i]);
 
-        QListWidgetItem *item = new QListWidgetItem(getIconFor(name, i), files[i] + "\nCreated: " + info.created().toString() + "\nSize: " +  QString::number(info.size()));
+        QListWidgetItem *item = new QListWidgetItem(
+              getIconFor(name, i),
+              files[i] + "\nCreated: " + info.created().toString() + "\nSize: " +  formatBytecount(info.size())
+        );
         //":/img/icons/target.svg"), name );
         item->setData(Qt::UserRole, files[i]);
         ui->recentsList->addItem(item);
