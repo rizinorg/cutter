@@ -1,13 +1,13 @@
 # Compiling with CMake
 
-The "official" way to build Iaito is by using qmake, but as an alternative, a [CMakeLists.txt](https://github.com/hteso/iaito/blob/master/src/CMakeLists.txt) is provided, so CMake can be used as well.
+The "official" way to build Cutter is by using qmake, but as an alternative, a [CMakeLists.txt](https://github.com/radareorg/cutter/blob/master/src/CMakeLists.txt) is provided, so CMake can be used as well.
 
-This page provides a guide to compile on **Linux** or **macOS**, the process for Windows is described in [[Compiling on Windows|Compiling-on-Windows]].
+This page provides a guide to compile on **Linux** or **macOS**, the process for Windows is described in [Compiling-on-Windows.md](Compiling-on-Windows.md).
 
 ## Requirements
 * CMake >= 3.1
-* Radare2 installed from submodule, see [README.md](https://github.com/hteso/iaito#requirements)
-* Qt 5.6 including the components Core Widgets Gui WebEngine WebEngineWidgets
+* Radare2 installed from submodule, see [README.md](https://github.com/radareorg/cutter#requirements)
+* Qt 5.9.1 including the components Core Widgets Gui WebEngine WebEngineWidgets
 
 ## Building
 
