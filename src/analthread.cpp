@@ -69,7 +69,15 @@ void AnalThread::run()
     // options dialog should show the list of archs inside the given fatbin
     int binidx = 0; // index of subbin
 
-    main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo);
+    QString forceBinPlugin = nullptr;
+    QVariant forceBinPluginData = ui->formatComboBox->currentData();
+    if(!forceBinPluginData.isNull())
+    {
+        RBinPluginDescription pluginDesc = forceBinPluginData.value<RBinPluginDescription>();
+        forceBinPlugin = pluginDesc.name;
+    }
+
+    main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo, forceBinPlugin);
     emit updateProgress("Analysis in progress.");
 
     QString os = optionsDialog->getSelectedOS();

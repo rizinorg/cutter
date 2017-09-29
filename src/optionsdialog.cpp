@@ -46,8 +46,8 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->bitsComboBox->setToolTip(main->core->cmd("e? asm.bits").trimmed());
 
 
-    for (auto plugin : main->core->getRBinPluginDescriptions())
-        ui->formatComboBox->addItem(plugin.type + " " + plugin.name, QVariant::fromValue(plugin));
+    for (auto plugin : main->core->getRBinPluginDescriptions("bin"))
+        ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
 
     // Restore settings
     QSettings settings;

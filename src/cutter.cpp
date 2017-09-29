@@ -208,7 +208,7 @@ QJsonDocument CutterCore::cmdj(const QString &str)
     return doc;
 }
 
-bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin)
+bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin, const QString &forceBinPlugin)
 {
     CUTTERNOTUSED(loadaddr);
     CUTTERNOTUSED(idx);
@@ -226,6 +226,11 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     {
         eprintf("r_core_file_open failed\n");
         return false;
+    }
+
+    if (!forceBinPlugin.isNull())
+    {
+        r_bin_force_plugin(r_core_get_bin(core_), forceBinPlugin.toUtf8().constData());
     }
 
     if (loadbin)
@@ -813,13 +818,16 @@ QStringList CutterCore::getProjectNames()
 }
 
 
-QList<RBinPluginDescription> CutterCore::getRBinPluginDescriptions()
+QList<RBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString &type)
 {
     QList<RBinPluginDescription> ret;
 
     QJsonObject jsonRoot = cmdj("iLj").object();
     for(const QString &key : jsonRoot.keys())
     {
+        if(!type.isNull() && key != type)
+            continue;
+
         QJsonArray pluginArray = jsonRoot[key].toArray();
 
         for(const auto &pluginValue : pluginArray)
