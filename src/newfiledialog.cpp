@@ -77,7 +77,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     int i = 0;
     while (it.hasNext())
     {
-        const QString& file = it.next();
+        const QString &file = it.next();
         // Get stored files
 
         // Remove all but the file name
@@ -87,12 +87,15 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 
         // Get file info
         QFileInfo info(file);
-        if (!info.exists()) {
+        if (!info.exists())
+        {
             it.remove();
-        } else {
+        }
+        else
+        {
             QListWidgetItem *item = new QListWidgetItem(
-                    getIconFor(name, i++),
-                    file + "\nCreated: " + info.created().toString() + "\nSize: " + formatBytecount(info.size())
+                getIconFor(name, i++),
+                file + "\nCreated: " + info.created().toString() + "\nSize: " + formatBytecount(info.size())
             );
             //":/img/icons/target.svg"), name );
             item->setData(Qt::UserRole, file);

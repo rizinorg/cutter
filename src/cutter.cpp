@@ -823,14 +823,14 @@ QList<RBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString
     QList<RBinPluginDescription> ret;
 
     QJsonObject jsonRoot = cmdj("iLj").object();
-    for(const QString &key : jsonRoot.keys())
+    for (const QString &key : jsonRoot.keys())
     {
-        if(!type.isNull() && key != type)
+        if (!type.isNull() && key != type)
             continue;
 
         QJsonArray pluginArray = jsonRoot[key].toArray();
 
-        for(const auto &pluginValue : pluginArray)
+        for (const auto &pluginValue : pluginArray)
         {
             QJsonObject pluginObject = pluginValue.toObject();
             RBinPluginDescription desc;

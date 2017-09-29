@@ -8,8 +8,8 @@
 
 AnalThread::AnalThread(OptionsDialog *parent) :
     QThread(parent),
-    main(nullptr),
-    level(2)
+    level(2),
+    main(nullptr)
 {
 }
 
@@ -71,7 +71,7 @@ void AnalThread::run()
 
     QString forceBinPlugin = nullptr;
     QVariant forceBinPluginData = ui->formatComboBox->currentData();
-    if(!forceBinPluginData.isNull())
+    if (!forceBinPluginData.isNull())
     {
         RBinPluginDescription pluginDesc = forceBinPluginData.value<RBinPluginDescription>();
         forceBinPlugin = pluginDesc.name;
