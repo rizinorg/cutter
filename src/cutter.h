@@ -155,6 +155,14 @@ struct XrefDescription
     QString type;
 };
 
+struct RBinPluginDescription
+{
+    QString name;
+    QString description;
+    QString license;
+    QString type;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -166,6 +174,7 @@ Q_DECLARE_METATYPE(FlagspaceDescription)
 Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
+Q_DECLARE_METATYPE(RBinPluginDescription)
 
 class CutterCore: public QObject
 {
@@ -192,7 +201,7 @@ public:
     void delComment(ut64 addr);
     QMap<QString, QList<QList<QString>>> getNestedComments();
     void setOptions(QString key);
-    bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int idx = 0, bool loadbin = false);
+    bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int idx = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
     void analyze(int level, QList<QString> advanced);
     void seek(QString addr);
@@ -240,6 +249,8 @@ public:
     QStringList getAnalPluginNames();
 
     QStringList getProjectNames();
+
+    QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();

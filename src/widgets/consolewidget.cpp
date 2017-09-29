@@ -183,7 +183,7 @@ void ConsoleWidget::on_inputLineEdit_returnPressed()
     QString input = ui->inputLineEdit->text();
     if (!input.isEmpty() && core != nullptr)
     {
-        if (true || !isForbidden(input))
+        if (!isForbidden(input))
         {
             ui->outputTextEdit->appendPlainText(this->core->cmd(input));
             scrollOutputToEnd();

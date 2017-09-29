@@ -45,6 +45,10 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 
     ui->bitsComboBox->setToolTip(main->core->cmd("e? asm.bits").trimmed());
 
+
+    for (auto plugin : main->core->getRBinPluginDescriptions("bin"))
+        ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
+
     // Restore settings
     QSettings settings;
     ui->bytesCheckBox->setChecked(settings.value("bytes").toBool());
@@ -227,16 +231,6 @@ void OptionsDialog::anal_finished()
 {
     ui->statusLabel->setText(tr("Loading interface"));
     main->addOutput(tr(" > Analysis finished"));
-
-    QString initial_seek = ui->entry_initialSeek->text();
-    if (initial_seek.length() > 0)
-    {
-        main->core->seek(initial_seek);
-    }
-    else
-    {
-        main->core->seek("entry0");
-    }
 
     main->finalizeOpen();
     close();
