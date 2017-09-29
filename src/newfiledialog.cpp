@@ -73,33 +73,39 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 
     QStringList files = settings.value("recentFileList").toStringList();
 
-    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
-
-    for (int i = 0; i < numRecentFiles; ++i)
+    QMutableListIterator<QString> it(files);
+    int i = 0;
+    while (it.hasNext())
     {
+        const QString& file = it.next();
         // Get stored files
-        //QString text = tr("&%1 %2").arg(i + 1).arg(strippedName(files[i]));
 
         // Remove all but the file name
-        QString sep = QDir::separator();
-        QStringList name_list = files[i].split(sep);
-        QString name = name_list.last();
+        const QString sep = QDir::separator();
+        const QStringList name_list = file.split(sep);
+        const QString name = name_list.last();
 
         // Get file info
-        QFileInfo info(files[i]);
-
-        QListWidgetItem *item = new QListWidgetItem(
-              getIconFor(name, i),
-              files[i] + "\nCreated: " + info.created().toString() + "\nSize: " +  formatBytecount(info.size())
-        );
-        //":/img/icons/target.svg"), name );
-        item->setData(Qt::UserRole, files[i]);
-        ui->recentsList->addItem(item);
+        QFileInfo info(file);
+        if (!info.exists()) {
+            it.remove();
+        } else {
+            QListWidgetItem *item = new QListWidgetItem(
+                    getIconFor(name, i++),
+                    file + "\nCreated: " + info.created().toString() + "\nSize: " + formatBytecount(info.size())
+            );
+            //":/img/icons/target.svg"), name );
+            item->setData(Qt::UserRole, file);
+            ui->recentsList->addItem(item);
+        }
     }
     ui->recentsList->setSortingEnabled(true);
 
     // Hide "create" button until the dialog works
     ui->createButton->hide();
+
+    // Removes files were deleted from the stringlist. Save it again.
+    settings.setValue("recentFileList", files);
 }
 
 NewFileDialog::~NewFileDialog()
