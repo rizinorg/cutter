@@ -1,10 +1,10 @@
 #include "notepad.h"
 #include "ui_notepad.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
-#include "mdhighlighter.h"
-#include "highlighter.h"
+#include "utils/MdHighlighter.h"
+#include "utils/Highlighter.h"
 
 #include <QPlainTextEdit>
 #include <QFont>

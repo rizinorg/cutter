@@ -1,7 +1,7 @@
 #include "dashboard.h"
 #include "ui_dashboard.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QDebug>
 #include <QJsonArray>

@@ -1,8 +1,8 @@
 #include "entrypointwidget.h"
 #include "ui_entrypointwidget.h"
 
-#include "mainwindow.h"
-#include "helpers.h"
+#include "MainWindow.h"
+#include "utils/Helpers.h"
 
 #include <QTreeWidget>
 #include <QPen>

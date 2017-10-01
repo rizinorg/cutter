@@ -1,7 +1,7 @@
 #include "sectionsdock.h"
 #include "ui_sectionsdock.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 #include "widgets/sectionswidget.h"
 
 #include <QMenu>

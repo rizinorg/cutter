@@ -4,8 +4,8 @@
 
 #include "commentswidget.h"
 #include "ui_commentswidget.h"
-#include "mainwindow.h"
-#include "helpers.h"
+#include "MainWindow.h"
+#include "utils/Helpers.h"
 
 CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     DockWidget(parent),

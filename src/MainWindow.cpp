@@ -1,11 +1,11 @@
-#include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "createnewdialog.h"
-#include "dialogs/commentsdialog.h"
-#include "dialogs/aboutdialog.h"
-#include "dialogs/renamedialog.h"
-#include "dialogs/asmoptionsdialog.h"
-#include "helpers.h"
+#include "MainWindow.h"
+#include "ui_MainWindow.h"
+#include "dialogs/CreatenewDialog.h"
+#include "dialogs/CommentsDialog.h"
+#include "dialogs/AboutDialog.h"
+#include "dialogs/RenameDialog.h"
+#include "dialogs/AsmOptionsDialog.h"
+#include "utils/Helpers.h"
 
 #include <QComboBox>
 #include <QCompleter>
@@ -35,10 +35,10 @@
 #include <QToolTip>
 #include <QTreeWidgetItem>
 
-#include "highlighter.h"
-#include "hexascii_highlighter.h"
-#include "newfiledialog.h"
-#include "helpers.h"
+#include "utils/Highlighter.h"
+#include "utils/HexAsciiHighlighter.h"
+#include "utils/Helpers.h"
+#include "dialogs/NewfileDialog.h"
 
 #include "widgets/MemoryWidget.h"
 #include "widgets/functionswidget.h"
@@ -58,8 +58,8 @@
 #include "widgets/sdbdock.h"
 #include "widgets/omnibar.h"
 #include "widgets/consolewidget.h"
-#include "settings.h"
-#include "optionsdialog.h"
+#include "Settings.h"
+#include "dialogs/OptionsDialog.h"
 #include "widgets/entrypointwidget.h"
 #include "widgets/DisassemblerGraphView.h"
 

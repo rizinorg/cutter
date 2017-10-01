@@ -1,6 +1,6 @@
 #include "codegraphic.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QGraphicsView>
 #include <QComboBox>

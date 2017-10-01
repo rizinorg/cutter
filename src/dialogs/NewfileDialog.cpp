@@ -1,7 +1,7 @@
-#include "newfiledialog.h"
-#include "optionsdialog.h"
-#include "ui_newfiledialog.h"
-#include "createnewdialog.h"
+#include "OptionsDialog.h"
+#include "dialogs/CreatenewDialog.h"
+#include "dialogs/NewfileDialog.h"
+#include "ui_NewfileDialog.h"
 
 #include <QFileDialog>
 #include <QtGui>

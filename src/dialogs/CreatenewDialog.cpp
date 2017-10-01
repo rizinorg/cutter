@@ -1,7 +1,7 @@
-#include "createnewdialog.h"
-#include "ui_createnewdialog.h"
 #include <QMessageBox>
-#include "newfiledialog.h"
+#include "dialogs/NewfileDialog.h"
+#include "dialogs/CreatenewDialog.h"
+#include "ui_CreatenewDialog.h"
 #include "r_util.h"
 
 createNewDialog::createNewDialog(QWidget *parent) :

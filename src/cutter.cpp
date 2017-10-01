@@ -2,7 +2,7 @@
 #include <QJsonObject>
 #include "cutter.h"
 #include "sdb.h"
-#include "settings.h"
+#include "Settings.h"
 
 
 #define DB this->db

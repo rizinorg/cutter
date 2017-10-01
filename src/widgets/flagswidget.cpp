@@ -3,8 +3,8 @@
 #include <QComboBox>
 #include "flagswidget.h"
 #include "ui_flagswidget.h"
-#include "mainwindow.h"
-#include "helpers.h"
+#include "MainWindow.h"
+#include "utils/Helpers.h"
 
 FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
     : QAbstractListModel(parent),

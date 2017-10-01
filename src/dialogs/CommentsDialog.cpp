@@ -1,5 +1,5 @@
-#include "commentsdialog.h"
-#include "ui_commentsdialog.h"
+#include "CommentsDialog.h"
+#include "ui_CommentsDialog.h"
 
 CommentsDialog::CommentsDialog(QWidget *parent) :
     QDialog(parent),

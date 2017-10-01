@@ -11,9 +11,9 @@
 #include <QPlainTextEdit>
 #include <QMouseEvent>
 #include "cutter.h"
-#include "highlighter.h"
-#include "hexascii_highlighter.h"
-#include "hexhighlighter.h"
+#include "utils/Highlighter.h"
+#include "utils/HexAsciiHighlighter.h"
+#include "utils/HexHighlighter.h"
 #include "dashboard.h"
 #include "widgets/DisassemblerGraphView.h"
 

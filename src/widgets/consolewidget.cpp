@@ -7,7 +7,7 @@
 #include "cutter.h"
 #include "consolewidget.h"
 #include "ui_consolewidget.h"
-#include "helpers.h"
+#include "utils/Helpers.h"
 
 
 // TODO: Find a way to get to this without copying it here

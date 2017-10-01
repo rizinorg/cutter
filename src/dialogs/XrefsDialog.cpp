@@ -1,7 +1,7 @@
-#include "xrefsdialog.h"
-#include "ui_xrefsdialog.h"
+#include "XrefsDialog.h"
+#include "ui_XrefsDialog.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QJsonArray>
 

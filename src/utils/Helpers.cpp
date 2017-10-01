@@ -1,4 +1,4 @@
-#include "helpers.h"
+#include "utils/Helpers.h"
 
 #include <QPlainTextEdit>
 #include <QTextEdit>

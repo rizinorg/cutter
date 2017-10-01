@@ -1,9 +1,9 @@
 
-#include "settings.h"
-#include "asmoptionsdialog.h"
-#include "ui_asmoptionsdialog.h"
+#include "Settings.h"
+#include "AsmOptionsDialog.h"
+#include "ui_AsmOptionsDialog.h"
 
-#include "helpers.h"
+#include "utils/Helpers.h"
 
 AsmOptionsDialog::AsmOptionsDialog(CutterCore *core, QWidget *parent) : QDialog(parent), ui(new Ui::AsmOptionsDialog)
 {

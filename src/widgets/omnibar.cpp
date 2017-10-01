@@ -1,5 +1,5 @@
 #include "omnibar.h"
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QStringListModel>
 #include <QCompleter>

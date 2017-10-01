@@ -1,13 +1,13 @@
-#include "optionsdialog.h"
-#include "ui_optionsdialog.h"
-#include "mainwindow.h"
-#include "newfiledialog.h"
-#include "helpers.h"
+#include "OptionsDialog.h"
+#include "ui_OptionsDialog.h"
+#include "MainWindow.h"
+#include "dialogs/NewfileDialog.h"
+#include "utils/Helpers.h"
 
 // TODO: remove us
 #include "widgets/MemoryWidget.h"
 #include "widgets/notepad.h"
-#include "settings.h"
+#include "Settings.h"
 
 #include <QSettings>
 #include <QFileInfo>

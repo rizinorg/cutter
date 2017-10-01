@@ -1,7 +1,7 @@
 #include "sdbdock.h"
 #include "ui_sdbdock.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QDebug>
 #include <QTreeWidget>

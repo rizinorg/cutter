@@ -1,10 +1,10 @@
 #include <QDebug>
-#include "ui_optionsdialog.h"
 #include "cutter.h"
 #include "analthread.h"
-#include "mainwindow.h"
-#include "settings.h"
-#include "optionsdialog.h"
+#include "MainWindow.h"
+#include "Settings.h"
+#include "ui_OptionsDialog.h"
+#include "dialogs/OptionsDialog.h"
 
 AnalThread::AnalThread(OptionsDialog *parent) :
     QThread(parent),

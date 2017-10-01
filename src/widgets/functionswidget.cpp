@@ -1,11 +1,11 @@
 #include "functionswidget.h"
 #include "ui_functionswidget.h"
 
-#include "mainwindow.h"
-#include "helpers.h"
-#include "dialogs/commentsdialog.h"
-#include "dialogs/renamedialog.h"
-#include "dialogs/xrefsdialog.h"
+#include "MainWindow.h"
+#include "utils/Helpers.h"
+#include "dialogs/CommentsDialog.h"
+#include "dialogs/RenameDialog.h"
+#include "dialogs/XrefsDialog.h"
 
 #include <algorithm>
 #include <QMenu>

@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "hexhighlighter.h"
+#include "utils/HexHighlighter.h"
 
 HexHighlighter::HexHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)

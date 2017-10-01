@@ -1,7 +1,7 @@
 #include "sidebar.h"
 #include "ui_sidebar.h"
 
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 #include <QSettings>
 

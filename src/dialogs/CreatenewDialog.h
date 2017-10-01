@@ -2,7 +2,7 @@
 #define CREATENEWDIALOG_H
 
 #include <QDialog>
-#include "mainwindow.h"
+#include "MainWindow.h"
 
 namespace Ui
 {

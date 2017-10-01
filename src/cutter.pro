@@ -35,21 +35,12 @@ unix:exists(/usr/local/include/libr) {
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp \
-    newfiledialog.cpp \
-    optionsdialog.cpp \
-    highlighter.cpp \
     cutter.cpp \
-    createnewdialog.cpp \
-    hexascii_highlighter.cpp \
     widgets/pieview.cpp \
     widgets/sectionswidget.cpp \
     widgets/codegraphic.cpp \
     widgets/notepad.cpp \
-    mdhighlighter.cpp \
     widgets/functionswidget.cpp \
-    dialogs/renamedialog.cpp \
-    dialogs/aboutdialog.cpp \
     widgets/importswidget.cpp \
     widgets/symbolswidget.cpp \
     widgets/relocswidget.cpp \
@@ -59,38 +50,38 @@ SOURCES += \
     widgets/exportswidget.cpp \
     widgets/sdbdock.cpp \
     analthread.cpp \
-    dialogs/commentsdialog.cpp \
     widgets/sidebar.cpp \
-    helpers.cpp \
     widgets/omnibar.cpp \
     widgets/dashboard.cpp \
-    dialogs/xrefsdialog.cpp \
-    hexhighlighter.cpp \
     widgets/sectionsdock.cpp \
     widgets/consolewidget.cpp \
     radarewebserver.cpp \
     widgets/entrypointwidget.cpp \
-    dialogs/flagdialog.cpp \
     widgets/DisassemblerGraphView.cpp \
     widgets/MemoryWidget.cpp \
     utils/RichTextPainter.cpp \
-    dialogs/asmoptionsdialog.cpp
+    dialogs/OptionsDialog.cpp \
+    dialogs/AboutDialog.cpp \
+    dialogs/AsmoptionsDialog.cpp \
+    dialogs/CommentsDialog.cpp \
+    dialogs/FlagDialog.cpp \
+    dialogs/NewfileDialog.cpp \
+    dialogs/RenameDialog.cpp \
+    dialogs/XrefsDialog.cpp \
+    MainWindow.cpp \
+    utils/Helpers.cpp \
+    utils/HexAsciiHighlighter.cpp \
+    utils/HexHighlighter.cpp \
+    utils/Highlighter.cpp \
+    dialogs/CreatenewDialog.cpp \
+    utils/MdHighlighter.cpp
 
 HEADERS  += \
-    mainwindow.h \
-    newfiledialog.h \
-    optionsdialog.h \
-    highlighter.h \
-    createnewdialog.h \
-    hexascii_highlighter.h \
     widgets/pieview.h \
     widgets/sectionswidget.h \
     widgets/codegraphic.h \
     widgets/notepad.h \
-    mdhighlighter.h \
     widgets/functionswidget.h \
-    dialogs/renamedialog.h \
-    dialogs/aboutdialog.h \
     widgets/importswidget.h \
     widgets/symbolswidget.h \
     widgets/relocswidget.h \
@@ -100,36 +91,39 @@ HEADERS  += \
     widgets/exportswidget.h \
     widgets/sdbdock.h \
     analthread.h \
-    dialogs/commentsdialog.h \
     widgets/sidebar.h \
-    helpers.h \
     widgets/omnibar.h \
     widgets/dashboard.h \
-    dialogs/xrefsdialog.h \
-    hexhighlighter.h \
     widgets/sectionsdock.h \
     widgets/dockwidget.h \
     widgets/consolewidget.h \
     radarewebserver.h \
-    settings.h \
     widgets/entrypointwidget.h \
     cutter.h \
-    dialogs/flagdialog.h \
     widgets/DisassemblerGraphView.h \
     widgets/MemoryWidget.h \
     utils/RichTextPainter.h \
     utils/CachedFontMetrics.h \
-    dialogs/asmoptionsdialog.h
+    dialogs/AboutDialog.h \
+    dialogs/AsmOptionsDialog.h \
+    dialogs/CommentsDialog.h \
+    dialogs/FlagDialog.h \
+    dialogs/RenameDialog.h \
+    dialogs/XrefsDialog.h \
+    dialogs/CreatenewDialog.h \
+    utils/Helpers.h \
+    utils/HexAsciiHighlighter.h \
+    utils/HexHighlighter.h \
+    MainWindow.h \
+    utils/Highlighter.h \
+    utils/MdHighlighter.h \
+    dialogs/NewfileDialog.h \
+    Settings.h \
+    dialogs/OptionsDialog.h
 
 FORMS    += \
-    mainwindow.ui \
-    newfiledialog.ui \
-    optionsdialog.ui \
-    createnewdialog.ui \
     widgets/notepad.ui \
     widgets/functionswidget.ui \
-    dialogs/aboutdialog.ui \
-    dialogs/renamedialog.ui \
     widgets/importswidget.ui \
     widgets/symbolswidget.ui \
     widgets/relocswidget.ui \
@@ -138,16 +132,22 @@ FORMS    += \
     widgets/flagswidget.ui \
     widgets/exportswidget.ui \
     widgets/sdbdock.ui \
-    dialogs/commentsdialog.ui \
     widgets/sidebar.ui \
     widgets/dashboard.ui \
-    dialogs/xrefsdialog.ui \
     widgets/sectionsdock.ui \
     widgets/consolewidget.ui \
     widgets/entrypointwidget.ui \
-    dialogs/flagdialog.ui \
-    dialogs/asmoptionsdialog.ui \
-    widgets/MemoryWidget.ui
+    widgets/MemoryWidget.ui \
+    dialogs/AboutDialog.ui \
+    dialogs/AsmOptionsDialog.ui \
+    dialogs/CommentsDialog.ui \
+    dialogs/FlagDialog.ui \
+    dialogs/RenameDialog.ui \
+    dialogs/XrefsDialog.ui \
+    dialogs/CreatenewDialog.ui \
+    dialogs/NewfileDialog.ui \
+    dialogs/OptionsDialog.ui \
+    MainWindow.ui
 
 RESOURCES += \
     resources.qrc

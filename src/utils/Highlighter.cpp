@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "highlighter.h"
-#include "mainwindow.h"
+#include "Highlighter.h"
+#include "MainWindow.h"
 
 Highlighter::Highlighter(MainWindow *main, QTextDocument *parent) :
     QSyntaxHighlighter(parent)

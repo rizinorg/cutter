@@ -1,8 +1,8 @@
 #include "importswidget.h"
 #include "ui_importswidget.h"
 
-#include "mainwindow.h"
-#include "helpers.h"
+#include "MainWindow.h"
+#include "utils/Helpers.h"
 
 #include <QTreeWidget>
 #include <QPen>

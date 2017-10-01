@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QTreeWidgetItem>
-#include "highlighter.h"
+#include "utils/Highlighter.h"
 #include "cutter.h"
 
 class MainWindow;

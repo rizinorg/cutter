@@ -2,12 +2,12 @@
 #include "ui_MemoryWidget.h"
 #include "DisassemblerGraphView.h"
 
-#include "mainwindow.h"
-#include "helpers.h"
-#include "dialogs/xrefsdialog.h"
-#include "dialogs/renamedialog.h"
-#include "dialogs/commentsdialog.h"
-#include "dialogs/flagdialog.h"
+#include "MainWindow.h"
+#include "utils/Helpers.h"
+#include "dialogs/XrefsDialog.h"
+#include "dialogs/RenameDialog.h"
+#include "dialogs/CommentsDialog.h"
+#include "dialogs/FlagDialog.h"
 
 #include <QTemporaryFile>
 #include <QFontDialog>

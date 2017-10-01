@@ -1,5 +1,5 @@
-#include "renamedialog.h"
-#include "ui_renamedialog.h"
+#include "RenameDialog.h"
+#include "ui_RenameDialog.h"
 
 RenameDialog::RenameDialog(QWidget *parent) :
     QDialog(parent),

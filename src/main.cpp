@@ -3,9 +3,9 @@
 #include <QTextCodec>
 #include <QMessageBox>
 
-#include "mainwindow.h"
-#include "newfiledialog.h"
-#include "optionsdialog.h"
+#include "MainWindow.h"
+#include "dialogs/NewfileDialog.h"
+#include "dialogs/OptionsDialog.h"
 
 int main(int argc, char *argv[])
 {

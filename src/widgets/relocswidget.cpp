@@ -1,8 +1,8 @@
 #include <QTreeWidget>
 #include "relocswidget.h"
 #include "ui_relocswidget.h"
-#include "mainwindow.h"
-#include "helpers.h"
+#include "MainWindow.h"
+#include "utils/Helpers.h"
 
 RelocsWidget::RelocsWidget(MainWindow *main, QWidget *parent) :
     DockWidget(parent),
