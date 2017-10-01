@@ -486,7 +486,7 @@ void PieView::scrollTo(const QModelIndex &index, ScrollHint)
 
 void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
-    CUTTERNOTUSED(command);
+    Q_UNUSED(command);
 
     // Use content widget coordinates because we will use the itemRegion()
     // function to check for intersections.
@@ -600,7 +600,7 @@ QRegion PieView::visualRegionForSelection(const QItemSelection &selection) const
 }
 
 /*Function to find minimum of x and y*/
-int PieView::getMin(int x, int y)
+int PieView::getMin(int x, int y) const
 {
     return y ^ ((x ^ y) & -(x < y));
 }

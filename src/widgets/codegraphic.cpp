@@ -12,9 +12,11 @@
 #include <QJsonParseError>
 
 GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
-    QToolBar(main)
+    QToolBar(main),
+    codeGraphic(new QGraphicsView),
+    main(main)
 {
-    CUTTERNOTUSED(parent);
+    Q_UNUSED(parent);
 
     setObjectName("codeGraphics");
     setWindowTitle(tr("Code bar"));
@@ -24,9 +26,6 @@ GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
     // and the result is wrong. Something to do with overwriting the style sheet :/
     //setStyleSheet("QToolBar { border: 0px; border-bottom: 0px; border-top: 0px; border-width: 0px;}");
 
-    this->codeGraphic = new QGraphicsView();
-    // Radare core found in:
-    this->main = main;
     this->codeGraphic->setAlignment(Qt::AlignLeft);
     this->codeGraphic->setMinimumHeight(20);
     this->codeGraphic->setMaximumHeight(20);
@@ -44,7 +43,7 @@ GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
 
 void GraphicsBar::paintEvent(QPaintEvent *event)
 {
-    CUTTERNOTUSED(event);
+    Q_UNUSED(event);
 
     QPainter painter(this);
     this->fillData();

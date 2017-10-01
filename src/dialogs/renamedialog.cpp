@@ -30,8 +30,7 @@ void RenameDialog::setFunctionName(QString fcnName)
     ui->nameEdit->setText(fcnName);
 }
 
-QString RenameDialog::getFunctionName()
+QString RenameDialog::getFunctionName() const
 {
-    QString ret = ui->nameEdit->text();
-    return ret;
+    return ui->nameEdit->text();
 }

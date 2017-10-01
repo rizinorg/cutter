@@ -36,7 +36,7 @@ void RelocsWidget::refresh()
 
 void RelocsWidget::on_relocsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    CUTTERNOTUSED(column);
+    Q_UNUSED(column);
 
     // Get offset and name of item double clicked
     RelocDescription reloc = item->data(0, Qt::UserRole).value<RelocDescription>();

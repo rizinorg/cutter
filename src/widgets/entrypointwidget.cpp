@@ -14,12 +14,10 @@
 
 EntrypointWidget::EntrypointWidget(MainWindow *main, QWidget *parent) :
     DockWidget(parent),
-    ui(new Ui::EntrypointWidget)
+    ui(new Ui::EntrypointWidget),
+    main(main)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     // Delegate
     //CMyDelegate* delegate = new CMyDelegate(ui->importsTreeWidget);

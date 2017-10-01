@@ -14,12 +14,10 @@
 
 Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     DockWidget(parent),
-    ui(new Ui::Dashboard)
+    ui(new Ui::Dashboard),
+    main(main)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     //this->updateContents();
 }

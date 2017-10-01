@@ -10,9 +10,9 @@
 
 const int NewFileDialog::MaxRecentFiles;
 
-static QColor getColorFor(QString str, int pos)
+static QColor getColorFor(const QString& str, int pos)
 {
-    CUTTERNOTUSED(str);
+    Q_UNUSED(str);
 
     QList<QColor> Colors;
     Colors << QColor(29, 188, 156); // Turquoise
@@ -26,7 +26,7 @@ static QColor getColorFor(QString str, int pos)
 
 }
 
-static QIcon getIconFor(QString str, int pos)
+static QIcon getIconFor(const QString& str, int pos)
 {
     // Add to the icon list
     int w = 64;
