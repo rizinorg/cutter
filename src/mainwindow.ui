@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1013</width>
-    <height>686</height>
+    <height>606</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,7 @@
    <string notr="true">Cutter</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset>
     <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
   </property>
   <property name="styleSheet">
@@ -159,7 +159,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -173,8 +173,8 @@ border-top: 0px;
      <rect>
       <x>273</x>
       <y>136</y>
-      <width>148</width>
-      <height>167</height>
+      <width>173</width>
+      <height>181</height>
      </rect>
     </property>
     <property name="title">
@@ -204,11 +204,6 @@ border-top: 0px;
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
     </property>
-    <widget class="QMenu" name="menuAsm_syntax">
-     <property name="title">
-      <string>Asm syntax</string>
-     </property>
-    </widget>
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefaut"/>
@@ -220,10 +215,7 @@ border-top: 0px;
     <addaction name="actionWhite_Theme"/>
     <addaction name="actionDark_Theme"/>
     <addaction name="separator"/>
-    <addaction name="actionDisplay_Esil"/>
-    <addaction name="actionDisplay_Pseudocode"/>
-    <addaction name="actionDisplay_Offsets"/>
-    <addaction name="menuAsm_syntax"/>
+    <addaction name="actionAsmOptions"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -966,6 +958,11 @@ QToolButton .svg-icon path {
    </property>
    <property name="text">
     <string>Display offsets</string>
+   </property>
+  </action>
+  <action name="actionAsmOptions">
+   <property name="text">
+    <string>Disassembly Options</string>
    </property>
   </action>
  </widget>

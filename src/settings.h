@@ -10,20 +10,38 @@ private:
     QSettings settings;
 
 public:
-    bool getAsmBytes() const            { return settings.value("bytes", false).toBool(); }
-    void setAsmBytes(bool v)            { settings.setValue("bytes", v); }
+    bool getAsmESIL() const             { return settings.value("asm.esil", false).toBool(); }
+    void setAsmESIL(bool v)             { settings.setValue("asm.esil", v); }
 
-    bool getOpcodeDescription() const   { return settings.value("describe", false).toBool(); }
-    void setOpcodeDescription(bool v)   { settings.setValue("describe", v); }
+    bool getAsmPseudo() const           { return settings.value("asm.pseudo", false).toBool(); }
+    void setAsmPseudo(bool v)           { settings.setValue("asm.pseudo", v); }
 
-    bool getStackPointer() const        { return settings.value("stackptr", false).toBool(); }
-    void setStackPointer(bool v)        { settings.setValue("stackptr", v); }
+    bool getAsmOffset() const           { return settings.value("asm.offset", true).toBool(); }
+    void setAsmOffset(bool v)           { settings.setValue("asm.offset", v); }
 
-    bool getUppercaseDisas() const      { return settings.value("ucase", false).toBool(); }
-    void setUppercaseDisas(bool v)      { settings.setValue("ucase", v); }
+    bool getAsmDescribe() const         { return settings.value("asm.describe", false).toBool(); }
+    void setAsmDescribe(bool v)         { settings.setValue("asm.describe", v); }
 
-    bool getSpacy() const               { return settings.value("spacy", false).toBool(); }
-    void setSpacy(bool v)               { settings.setValue("bbline", v); }
+    bool getAsmStackPointer() const     { return settings.value("asm.stackptr", false).toBool(); }
+    void setAsmStackPointer(bool v)     { settings.setValue("asm.stackptr", v); }
+
+    bool getAsmBytes() const            { return settings.value("asm.bytes", false).toBool(); }
+    void setAsmBytes(bool v)            { settings.setValue("asm.bytes", v); }
+
+    bool getAsmBytespace() const        { return settings.value("asm.bytespace", false).toBool(); }
+    void setAsmBytespace(bool v)        { settings.setValue("asm.bytespace", v); }
+
+    bool getAsmLBytes() const           { return settings.value("asm.lbytes", true).toBool(); }
+    void setAsmLBytes(bool v)           { settings.setValue("asm.lbytes", v); }
+
+    QString getAsmSyntax() const        { return settings.value("asm.syntax", "intel").toString(); }
+    void setAsmSyntax(const QString &v) { settings.setValue("asm.syntax", v); }
+
+    bool getAsmUppercase() const        { return settings.value("asm.ucase", false).toBool(); }
+    void setAsmUppercase(bool v)        { settings.setValue("asm.ucase", v); }
+
+    bool getAsmBBLine() const           { return settings.value("asm.bbline", false).toBool(); }
+    void setAsmBBLine(bool v)           { settings.setValue("asm.bbline", v); }
 };
 
 #endif // SETTINGS_H

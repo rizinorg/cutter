@@ -4,6 +4,7 @@
 #include "dialogs/commentsdialog.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/renamedialog.h"
+#include "dialogs/asmoptionsdialog.h"
 #include "helpers.h"
 
 #include <QComboBox>
@@ -180,27 +181,6 @@ void MainWindow::initUI()
     this->graphicsBar->setMovable(false);
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(graphicsBar);
-
-    // Asm syntaxes
-    QList<QString> list = core->cmd("e asm.syntax =?").split("\n");
-    QString checked = core->getConfig("asm.syntax");
-    for (QString syntax : list)
-    {
-        if (syntax == "")
-        {
-            break;
-        }
-        QAction *action = new QAction(ui->menuAsm_syntax);
-        action->setText(syntax);
-        action->setCheckable(true);
-        if (syntax == checked)
-        {
-            action->setChecked(true);
-        }
-        connect(action, SIGNAL(triggered()), this, SLOT(actionAsm_syntax_triggered()));
-        asmSyntaxes.append(action);
-        ui->menuAsm_syntax->addAction(action);
-    }
 
     /*
      * Dock Widgets
@@ -386,63 +366,6 @@ void MainWindow::finalizeOpen()
     // Initialize syntax highlighters
     memoryDock->highlightDisasms();
     notepadDock->highlightPreview();
-}
-
-void MainWindow::applySettings()
-{
-    Settings settings;
-
-    // Show asm bytes
-    if (settings.getAsmBytes())
-    {
-        core->config("asm.bytes", "true");
-        core->config("asm.cmtcol", "100");
-    }
-    else
-    {
-        core->config("asm.bytes", "false");
-        core->config("asm.cmtcol", "70");
-    }
-
-    // Show opcode description
-    if (settings.getOpcodeDescription())
-    {
-        core->config("asm.describe", "true");
-    }
-    else
-    {
-        core->config("asm.describe", "false");
-    }
-
-    // Show stack pointer
-    if (settings.getStackPointer())
-    {
-        core->config("asm.stackptr", "true");
-    }
-    else
-    {
-        core->config("asm.stackptr", "false");
-    }
-
-    // Show uppercase dasm
-    if (settings.getUppercaseDisas())
-    {
-        core->config("asm.ucase", "true");
-    }
-    else
-    {
-        core->config("asm.ucase", "false");
-    }
-
-    // Show spaces in dasm
-    if (settings.getSpacy())
-    {
-        core->config("asm.bbline", "true");
-    }
-    else
-    {
-        core->config("asm.bbline", "false");
-    }
 }
 
 void MainWindow::saveProject()
@@ -1094,40 +1017,8 @@ void MainWindow::on_actionRefresh_contents_triggered()
     refreshVisibleDockWidgets();
 }
 
-void MainWindow::on_actionDisplay_Esil_triggered()
+void MainWindow::on_actionAsmOptions_triggered()
 {
-    int esil = this->core->getConfigi("asm.esil");
-    core->config("asm.esil", !esil);
-    refreshVisibleDockWidgets();
-}
-
-void MainWindow::on_actionDisplay_Pseudocode_triggered()
-{
-    int pseudo = this->core->getConfigi("asm.pseudo");
-    core->config("asm.pseudo", !pseudo);
-    refreshVisibleDockWidgets();
-}
-
-void MainWindow::on_actionDisplay_Offsets_triggered()
-{
-    bool checked = ui->actionDisplay_Offsets->isChecked();
-    memoryDock->showOffsets(checked);
-    refreshVisibleDockWidgets();
-}
-
-void MainWindow::actionAsm_syntax_triggered()
-{
-    QObject *sender = QObject::sender();
-    // Uncheck every other choices
-    for (QAction *action : asmSyntaxes)
-    {
-        action->setChecked(false);
-    }
-    // Check selected choice
-    QAction *action = (QAction *) sender;
-    action->setChecked(true);
-    // Set r2 config
-    core->config("asm.syntax", action->text());
-    // Refresh views
-    refreshVisibleDockWidgets();
+    auto dialog = new AsmOptionsDialog(core, this);
+    dialog->show();
 }

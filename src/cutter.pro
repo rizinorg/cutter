@@ -73,7 +73,8 @@ SOURCES += \
     dialogs/flagdialog.cpp \
     widgets/DisassemblerGraphView.cpp \
     widgets/MemoryWidget.cpp \
-    utils/RichTextPainter.cpp
+    utils/RichTextPainter.cpp \
+    dialogs/asmoptionsdialog.cpp
 
 HEADERS  += \
     mainwindow.h \
@@ -117,7 +118,9 @@ HEADERS  += \
     widgets/DisassemblerGraphView.h \
     widgets/MemoryWidget.h \
     utils/RichTextPainter.h \
-    utils/CachedFontMetrics.h
+    utils/CachedFontMetrics.h \
+    dialogs/asmoptionsdialog.h
+
 FORMS    += \
     mainwindow.ui \
     newfiledialog.ui \
@@ -143,6 +146,7 @@ FORMS    += \
     widgets/consolewidget.ui \
     widgets/entrypointwidget.ui \
     dialogs/flagdialog.ui \
+    dialogs/asmoptionsdialog.ui \
     widgets/MemoryWidget.ui
 
 RESOURCES += \

@@ -2,6 +2,7 @@
 #include <QJsonObject>
 #include "cutter.h"
 #include "sdb.h"
+#include "settings.h"
 
 
 #define DB this->db
@@ -50,11 +51,11 @@ CutterCore::CutterCore(QObject *parent) :
     // IMPLICIT r_bin_iobind (core_->bin, core_->io);
 
     // Otherwise r2 may ask the user for input and Cutter would freeze
-    config("scr.interactive", "false");
+    setConfig("scr.interactive", false);
 
     // Used by the HTML5 graph
-    config("http.cors", "true");
-    config("http.sandbox", "false");
+    setConfig("http.cors", true);
+    setConfig("http.sandbox", false);
     //config("http.port", "14170");
 
     // Temporary fixes
@@ -457,35 +458,72 @@ QString CutterCore::itoa(ut64 num, int rdx)
     return QString::number(num, rdx);
 }
 
-QString CutterCore::config(const QString &k, const QString &v)
+void CutterCore::setConfig(const QString &k, const QString &v)
 {
     CORE_LOCK();
-    QByteArray key = k.toUtf8();
-    if (v != NULL)
-    {
-        r_config_set(core_->config, key.constData(), v.toUtf8().constData());
-        return NULL;
-    }
-    return QString(r_config_get(core_->config, key.constData()));
+    r_config_set(core_->config, k.toUtf8().constData(), v.toUtf8().constData());
 }
 
-int CutterCore::config(const QString &k, int v)
+void CutterCore::setConfig(const QString &k, int v)
 {
     CORE_LOCK();
-    QByteArray key = k.toUtf8();
-    if (v != -1)
-    {
-        r_config_set_i(core_->config, key.constData(), v);
-        return 0;
-    }
-    return r_config_get_i(core_->config, key.constData());
+    r_config_set_i(core_->config, k.toUtf8().constData(), static_cast<const unsigned long long int>(v));
+}
+
+void CutterCore::setConfig(const QString &k, bool v)
+{
+    CORE_LOCK();
+    r_config_set_i(core_->config, k.toUtf8().constData(), v ? 1 : 0);
 }
 
 int CutterCore::getConfigi(const QString &k)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
-    return r_config_get_i(core_->config, key.constData());
+    return static_cast<int>(r_config_get_i(core_->config, key.constData()));
+}
+
+bool CutterCore::getConfigb(const QString &k)
+{
+    CORE_LOCK();
+    return r_config_get_i(core_->config, k.toUtf8().constData()) != 0;
+}
+
+void CutterCore::triggerAsmOptionsChanged()
+{
+    emit asmOptionsChanged();
+}
+
+void CutterCore::resetDefaultAsmOptions()
+{
+    Settings settings;
+    setConfig("asm.esil", settings.getAsmESIL());
+    setConfig("asm.pseudo", settings.getAsmPseudo());
+    setConfig("asm.offset", settings.getAsmOffset());
+    setConfig("asm.describe", settings.getAsmDescribe());
+    setConfig("asm.stackptr", settings.getAsmStackPointer());
+    setConfig("asm.bytes", settings.getAsmBytes());
+    setConfig("asm.bytespace", settings.getAsmBytespace());
+    setConfig("asm.lbytes", settings.getAsmLBytes());
+    setConfig("asm.syntax", settings.getAsmSyntax());
+    setConfig("asm.ucase", settings.getAsmUppercase());
+    setConfig("asm.bbline", settings.getAsmBBLine());
+}
+
+void CutterCore::saveDefaultAsmOptions()
+{
+    Settings settings;
+    settings.setAsmESIL(getConfigb("asm.esil"));
+    settings.setAsmPseudo(getConfigb("asm.pseudo"));
+    settings.setAsmOffset(getConfigb("asm.offset"));
+    settings.setAsmDescribe(getConfigb("asm.describe"));
+    settings.setAsmStackPointer(getConfigb("asm.stackptr"));
+    settings.setAsmBytes(getConfigb("asm.bytes"));
+    settings.setAsmBytespace(getConfigb("asm.bytespace"));
+    settings.setAsmLBytes(getConfigb("asm.lbytes"));
+    settings.setAsmSyntax(getConfig("asm.syntax"));
+    settings.setAsmUppercase(getConfigb("asm.ucase"));
+    settings.setAsmBBLine(getConfigb("asm.bbline"));
 }
 
 QString CutterCore::getConfig(const QString &k)
@@ -510,9 +548,9 @@ void CutterCore::setOptions(QString key)
 
 void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
 {
-    config("asm.arch", arch);
-    config("asm.cpu", cpu);
-    config("asm.bits", bits);
+    setConfig("asm.arch", arch);
+    setConfig("asm.cpu", cpu);
+    setConfig("asm.bits", bits);
     if (!temporary)
     {
         default_arch = arch;
@@ -524,11 +562,11 @@ void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
 void CutterCore::setDefaultCPU()
 {
     if (!default_arch.isEmpty())
-        config("asm.arch", default_arch);
+        setConfig("asm.arch", default_arch);
     if (!default_cpu.isEmpty())
-        config("asm.cpu", default_cpu);
+        setConfig("asm.cpu", default_cpu);
     if (default_bits)
-        config("asm.bits", QString::number(default_bits));
+        setConfig("asm.bits", QString::number(default_bits));
 }
 
 QString CutterCore::assemble(const QString &code)
@@ -697,60 +735,55 @@ void CutterCore::getOpcodes()
 
 void CutterCore::setSettings()
 {
-    config("scr.color", "false");
-    config("scr.interactive", "false");
-    config("asm.lines", "false");
+    setConfig("scr.color", false);
+    setConfig("scr.interactive", false);
+    setConfig("asm.lines", false);
     // Intredazting...
-    //config("asm.linesright", "true");
-    //config("asm.lineswidth", "15");
-    //config("asm.functions", "false");
-    config("hex.pairs", "false");
-    config("asm.bytespace", "true");
-    config("asm.cmtflgrefs", "false");
-    config("asm.cmtright", "true");
-    config("asm.cmtcol", "70");
-    config("asm.xrefs", "false");
-    config("asm.fcnlines", "false");
+    //setConfig("asm.linesright", "true");
+    //setConfig("asm.lineswidth", "15");
+    //setConfig("asm.functions", "false");
+    setConfig("hex.pairs", false);
+    setConfig("asm.cmtflgrefs", false);
+    setConfig("asm.cmtright", true);
+    setConfig("asm.cmtcol", 70);
+    setConfig("asm.xrefs", false);
+    setConfig("asm.fcnlines", false);
 
-    config("asm.tabs", "5");
-    config("asm.tabsonce", "true");
-    config("asm.tabsoff", "5");
-    config("asm.nbytes", "10");
-    config("asm.midflags", "2");
-    //config("asm.bbline", "true");
+    setConfig("asm.tabs", 5);
+    setConfig("asm.tabsonce", true);
+    setConfig("asm.tabsoff", 5);
+    setConfig("asm.nbytes", 10);
+    setConfig("asm.midflags", 2);
+    //setConfig("asm.bbline", "true");
 
-    config("anal.hasnext", "true");
-    config("asm.fcncalls", "false");
-    config("asm.calls", "false");
-    config("asm.lines.call", "false");
-    config("asm.flgoff", "true");
-    config("anal.autoname", "true");
-
-    // Required for consistency with GUI checkboxes
-    config("asm.esil", "false");
-    config("asm.pseudo", "false");
+    setConfig("anal.hasnext", true);
+    setConfig("asm.fcncalls", false);
+    setConfig("asm.calls", false);
+    setConfig("asm.lines.call", false);
+    setConfig("asm.flgoff", true);
+    setConfig("anal.autoname", true);
 
     // Highlight current node in graphviz
-    config("graph.gv.current", "true");
+    setConfig("graph.gv.current", true);
 
     // Fucking pancake xD
-    config("cfg.fortunes.tts", "false");
+    setConfig("cfg.fortunes.tts", false);
 
     // Experimenting with asm options
-    //config("asm.spacy", "true");      // We need to handle blank lines on scroll
-    //config("asm.section", "true");    // Breaks the disasm and navigation
-    //config("asm.invhex", "true");     // Needs further testing
-    //config("asm.flags", "false");     // Add with default true in future
+    //setConfig("asm.spacy", "true");      // We need to handle blank lines on scroll
+    //setConfig("asm.section", "true");    // Breaks the disasm and navigation
+    //setConfig("asm.invhex", "true");     // Needs further testing
+    //setConfig("asm.flags", "false");     // Add with default true in future
 
     // Used by the HTML5 graph
-    config("http.cors", "true");
-    config("http.sandbox", "false");
+    setConfig("http.cors", true);
+    setConfig("http.sandbox", false);
     //config("http.port", "14170");
 
     // Temporary fixes
-    //config("http.root","/usr/local/share/radare2/last/www");
-    //config("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
-    //config("bin.rawstr", "true");
+    //setConfig("http.root","/usr/local/share/radare2/last/www");
+    //setConfig("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
+    //setConfig("bin.rawstr", "true");
 
     // Graph colors and design
     cmd("ec graph.true rgb:88FF88");

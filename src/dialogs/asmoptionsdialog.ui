@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AsmOptionsDialog</class>
+ <widget class="QDialog" name="AsmOptionsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>415</width>
+    <height>368</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Disassembly Options</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinAndMaxSize</enum>
+   </property>
+   <item>
+    <widget class="QCheckBox" name="esilCheckBox">
+     <property name="text">
+      <string>Show ESIL instead of assembly (asm.esil)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="pseudoCheckBox">
+     <property name="text">
+      <string>Show pseudocode instead of assembly (asm.pseudo)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="offsetCheckBox">
+     <property name="text">
+      <string>Show offsets (asm.offset)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="describeCheckBox">
+     <property name="text">
+      <string>Show opcode description (asm.describe)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="stackpointerCheckBox">
+     <property name="text">
+      <string>Show stack pointer (asm.stackptr)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="bytesCheckBox">
+     <property name="text">
+      <string>Show bytes (asm.bytes)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="leftMargin">
+      <number>16</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="bytespaceCheckBox">
+       <property name="text">
+        <string>Separate bytes with whitespace (asm.bytespace)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="lbytesCheckBox">
+       <property name="text">
+        <string>Align bytes to the left (asm.lbytes)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="syntaxLabel">
+       <property name="text">
+        <string>Syntax (asm.syntax):</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="syntaxComboBox"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="uppercaseCheckBox">
+     <property name="text">
+      <string>Uppercase syntax (asm.ucase)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="bblineCheckBox">
+     <property name="text">
+      <string>Show empty line after every basic block (asm.bbline)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionSaveAsDefault">
+   <property name="text">
+    <string>Save as Default</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

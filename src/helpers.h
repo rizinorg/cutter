@@ -9,6 +9,7 @@ class QString;
 class QTreeWidget;
 class QTreeWidgetItem;
 class QAbstractItemView;
+class QAbstractButton;
 
 namespace qhelpers
 {
@@ -23,6 +24,8 @@ namespace qhelpers
                                const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
 
     void setVerticalScrollMode(QAbstractItemView *tw);
+
+    void setCheckedWithoutSignals(QAbstractButton *button, bool checked);
 }
 
 #endif // HELPERS_H

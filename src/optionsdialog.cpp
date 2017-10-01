@@ -49,14 +49,6 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     for (auto plugin : main->core->getRBinPluginDescriptions("bin"))
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
 
-    // Restore settings
-    QSettings settings;
-    ui->bytesCheckBox->setChecked(settings.value("bytes").toBool());
-    ui->descriptionCheckBox->setChecked(settings.value("describe").toBool());
-    ui->stackCheckBox->setChecked(settings.value("stackptr").toBool());
-    ui->ucaseCheckBox->setChecked(settings.value("ucase").toBool());
-    ui->spacyCheckBox->setChecked(settings.value("bbline").toBool());
-
     ui->hideFrame->setVisible(false);
     ui->analoptionsFrame->setVisible(false);
 
@@ -143,19 +135,9 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     ui->statusLabel->setText(tr("Starting analysis"));
     //ui->progressBar->setValue(5);
 
-
-    // Save options in settings
-    Settings settings;
-    settings.setAsmBytes(ui->bytesCheckBox->isChecked());
-    settings.setOpcodeDescription(ui->descriptionCheckBox->isChecked());
-    settings.setStackPointer(ui->stackCheckBox->isChecked());
-    settings.setUppercaseDisas(ui->ucaseCheckBox->isChecked());
-    settings.setSpacy(ui->spacyCheckBox->isChecked());
-
     main->initUI();
 
-    // Apply options set above in MainWindow
-    main->applySettings();
+    main->core->resetDefaultAsmOptions();
 
     // Threads stuff
     // connect signal/slot
