@@ -45,7 +45,6 @@ public:
     QTreeWidget      *xrefToTreeWidget_2;
     QTreeWidget      *xreFromTreeWidget_2;
     QTabWidget       *memTabWidget;
-    QWebEngineView         *graphWebView;
     QWebEngineView         *histoWebView;
     DisassemblerGraphView *mGraphView;
 
@@ -76,8 +75,6 @@ public slots:
 
     void seek_to(const QString &offset);
 
-    void create_graph(QString off);
-
     QString normalize_addr(QString addr);
 
     QString normalizeAddr(QString addr);
@@ -89,8 +86,6 @@ public slots:
     void highlightDisasms();
 
     void selectHexPreview();
-
-    void frameLoadFinished(bool ok);
 
     void updateViews(RVA offset = RVA_INVALID);
 
@@ -138,10 +133,9 @@ private slots:
     void on_actionHideDisasm_side_panel_triggered();
     void on_actionHideHexdump_side_panel_triggered();
     void on_actionHideGraph_side_panel_triggered();
-    void on_disButton_2_clicked();
-    void on_hexButton_2_clicked();
-    void on_graphButton_2_clicked();
+    void on_disasButton_clicked();
     void on_graphButton_clicked();
+    void on_hexButton_clicked();
     void showDisasContextMenu(const QPoint &pt);
     void showHexdumpContextMenu(const QPoint &pt);
     void showHexASCIIContextMenu(const QPoint &pt);

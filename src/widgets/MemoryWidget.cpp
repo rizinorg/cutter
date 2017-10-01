@@ -78,15 +78,6 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     QTabBar *graph_bar = ui->fcnGraphTabWidget->tabBar();
     graph_bar->setVisible(false);
 
-    // Hide graph webview scrollbars
-    ui->graphWebView->page()->runJavaScript("document.body.style.overflow='hidden';");
-
-    // Allows the local resources (qrc://) to access http content
-    if (!ui->graphWebView->settings()->testAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls))
-    {
-        ui->graphWebView->settings()->setAttribute(QWebEngineSettings::LocalContentCanAccessRemoteUrls, true);
-    }
-
     // Debug console
     // For QWebEngine debugging see: https://doc.qt.io/qt-5/qtwebengine-debugging.html
     //QWebSettings::globalSettings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
@@ -181,8 +172,6 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     // Control Disasm and Hex scroll to add more contents
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
-
-    connect(ui->graphWebView->page(), SIGNAL(loadFinished(bool)), this, SLOT(frameLoadFinished(bool)));
 
     connect(main, SIGNAL(globalSeekTo(RVA)), this, SLOT(on_globalSeekTo(RVA)));
     connect(main, SIGNAL(cursorAddressChanged(RVA)), this, SLOT(on_cursorAddressChanged(RVA)));
@@ -1095,21 +1084,18 @@ void MemoryWidget::cycleViews()
     {
     case 0:
         // Show graph
-        ui->graphButton_2->setChecked(true);
-        ui->memTabWidget->setCurrentIndex(2);
-        ui->memSideTabWidget_2->setCurrentIndex(0);
+        ui->graphButton->setChecked(true);
+        on_graphButton_clicked();
+        break;
+    case 1:
+        // Show hexdump
+        ui->hexButton->setChecked(true);
+        on_hexButton_clicked();
         break;
     case 2:
-        // Show hexdump
-        ui->hexButton_2->setChecked(true);
-        ui->memTabWidget->setCurrentIndex(1);
-        ui->memSideTabWidget_2->setCurrentIndex(1);
-        break;
-    default:
         // Show disasm
-        ui->disButton_2->setChecked(true);
-        ui->memTabWidget->setCurrentIndex(0);
-        ui->memSideTabWidget_2->setCurrentIndex(0);
+        ui->disasButton->setChecked(true);
+        on_disasButton_clicked();
         break;
     }
 }
@@ -1185,28 +1171,22 @@ void MemoryWidget::on_actionHideGraph_side_panel_triggered()
  * Buttons callback functions
  */
 
-void MemoryWidget::on_disButton_2_clicked()
+void MemoryWidget::on_disasButton_clicked()
 {
     ui->memTabWidget->setCurrentIndex(0);
     ui->memSideTabWidget_2->setCurrentIndex(0);
 }
 
-void MemoryWidget::on_hexButton_2_clicked()
+void MemoryWidget::on_graphButton_clicked()
 {
     ui->memTabWidget->setCurrentIndex(1);
     ui->memSideTabWidget_2->setCurrentIndex(1);
 }
 
-void MemoryWidget::on_graphButton_2_clicked()
+void MemoryWidget::on_hexButton_clicked()
 {
     ui->memTabWidget->setCurrentIndex(2);
-    ui->memSideTabWidget_2->setCurrentIndex(0);
-}
-
-void MemoryWidget::on_graphButton_clicked()
-{
-    ui->memTabWidget->setCurrentIndex(3);
-    ui->memSideTabWidget_2->setCurrentIndex(3);
+    ui->memSideTabWidget_2->setCurrentIndex(2);
 }
 
 void MemoryWidget::on_actionSend_to_Notepad_triggered()
@@ -1505,30 +1485,6 @@ void MemoryWidget::fillOffsetInfo(QString off)
     if (description.length() >= 2)
     {
         ui->opcodeDescText->setPlainText("# " + description[0] + ":\n" + description[1]);
-    }
-}
-
-void MemoryWidget::create_graph(QString off)
-{
-    ui->graphWebView->setZoomFactor(0.85);
-    this->main->addDebugOutput("Graph Offset: '" + off + "'");
-    if (off == "")
-    {
-        off = "0x0" + this->main->core->cmd("s").split("0x")[1].trimmed();
-    }
-    //QString fcn = this->main->core->cmdFunctionAt(off);
-    //this->main->add_debug_output("Graph Fcn: " + fcn);
-    ui->graphWebView->setUrl(QUrl("qrc:/graph/html/graph/index.html#" + off));
-    QString port = this->main->core->getConfig("http.port");
-    ui->graphWebView->page()->runJavaScript(QString("r2.root=\"http://localhost:%1\"").arg(port));
-    QSettings settings;
-    if (settings.value("dark").toBool())
-    {
-        ui->graphWebView->page()->runJavaScript(QString("init_panel('dark');"));
-    }
-    else
-    {
-        ui->graphWebView->page()->runJavaScript(QString("init_panel('light');"));
     }
 }
 
@@ -1838,12 +1794,10 @@ void MemoryWidget::switchTheme(bool dark)
     if (dark)
     {
         ui->webSimpleGraph->page()->setBackgroundColor(QColor(64, 64, 64));
-        ui->graphWebView->page()->runJavaScript("r2ui.graph_panel.render('dark');");
     }
     else
     {
         ui->webSimpleGraph->page()->setBackgroundColor(QColor(255, 255, 255));
-        ui->graphWebView->page()->runJavaScript("r2ui.graph_panel.render('light');");
     }
 }
 
@@ -1870,20 +1824,6 @@ void MemoryWidget::seek_back()
 {
     //this->main->add_debug_output("Back!");
     this->main->backButton_clicked();
-}
-
-void MemoryWidget::frameLoadFinished(bool ok)
-{
-    //qDebug() << "LOAD FRAME: " << ok;
-    if (ok)
-    {
-        QSettings settings;
-        if (settings.value("dark").toBool())
-        {
-            QString js = "r2ui.graph_panel.render('dark');";
-            ui->graphWebView->page()->runJavaScript(js);
-        }
-    }
 }
 
 void MemoryWidget::on_memTabWidget_currentChanged(int /*index*/)
@@ -1922,15 +1862,7 @@ void MemoryWidget::updateViews(RVA offset)
             this->last_hexdump_fcn = cursor_addr;
         }
     }
-    else if (index == 2)
-    {
-        // Graph
-        if (this->last_graph_fcn != cursor_addr)
-        {
-            this->create_graph(cursor_addr_string);
-            this->last_graph_fcn = cursor_addr;
-        }
-    }
+    // TODO WTF
 }
 
 void MemoryWidget::showOffsets(bool show)

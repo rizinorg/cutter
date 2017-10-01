@@ -79,7 +79,7 @@
         <number>0</number>
        </property>
        <item>
-        <widget class="QToolButton" name="disButton_2">
+        <widget class="QToolButton" name="disasButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -140,122 +140,6 @@ QToolTip {
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="graphButton_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string notr="true">Graph</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QToolButton { /* all types of tool button */
-     border: 5px solid #333;
-     border-left: 10px solid #333;
-	 border-right: 10px solid #333;
-     border-radius: 0px;
-     background-color: #333;
- }
-
-QToolButton:hover {
-     border: 5px solid #444;
-     border-radius: 0px;
-     background-color: #444;
- }
-
-QToolButton:checked {
-     border: 5px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
-         </property>
-         <property name="text">
-          <string>...</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/img/icons/graph_light.svg</normaloff>
-           <normalon>:/img/icons/graph_white.svg</normalon>
-           <activeon>:/img/icons/graph_white.svg</activeon>:/img/icons/graph_light.svg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoExclusive">
-          <bool>false</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="hexButton_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string notr="true">Hexdump</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QToolButton { /* all types of tool button */
-     border: 5px solid #333;
-     border-left: 10px solid #333;
-	 border-right: 10px solid #333;
-     border-radius: 0px;
-     background-color: #333;
- }
-
-QToolButton:hover {
-     border: 5px solid #444;
-     border-radius: 0px;
-     background-color: #444;
- }
-
-QToolButton:checked {
-     border: 5px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/img/icons/hexdump_light.svg</normaloff>
-           <normalon>:/img/icons/hexdump_white.svg</normalon>
-           <activeon>:/img/icons/hexdump_white.svg</activeon>:/img/icons/hexdump_light.svg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="autoExclusive">
-          <bool>false</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
         <widget class="QToolButton" name="graphButton">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -305,6 +189,64 @@ QToolTip {
           <bool>true</bool>
          </property>
          <property name="checked">
+          <bool>false</bool>
+         </property>
+         <attribute name="buttonGroup">
+          <string notr="true">buttonGroup</string>
+         </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="hexButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string notr="true">Hexdump</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QToolButton { /* all types of tool button */
+     border: 5px solid #333;
+     border-left: 10px solid #333;
+	 border-right: 10px solid #333;
+     border-radius: 0px;
+     background-color: #333;
+ }
+
+QToolButton:hover {
+     border: 5px solid #444;
+     border-radius: 0px;
+     background-color: #444;
+ }
+
+QToolButton:checked {
+     border: 5px solid #2180a9;
+     border-radius: 0px;
+     background-color: #2180a9;
+}
+
+QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+}</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../resources.qrc">
+           <normaloff>:/img/icons/hexdump_light.svg</normaloff>
+           <normalon>:/img/icons/hexdump_white.svg</normalon>
+           <activeon>:/img/icons/hexdump_white.svg</activeon>:/img/icons/hexdump_light.svg</iconset>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="autoExclusive">
           <bool>false</bool>
          </property>
          <attribute name="buttonGroup">
@@ -513,12 +455,12 @@ border-top: 0px;
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="documentMode">
        <bool>false</bool>
       </property>
-      <widget class="QWidget" name="tabDisasm_2">
+      <widget class="QWidget" name="tabDisasm">
        <attribute name="title">
         <string>Disassembly</string>
        </attribute>
@@ -994,7 +936,7 @@ QToolTip {
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QWebEngineView" name="webSimpleGraph">
+                 <widget class="QWebEngineView" name="webSimpleGraph" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -1015,7 +957,7 @@ QToolTip {
 	font: 11pt &quot;Monaco&quot;;
 }</string>
                   </property>
-                  <property name="url">
+                  <property name="url" stdset="0">
                    <url>
                     <string>about:blank</string>
                    </url>
@@ -1032,7 +974,13 @@ QToolTip {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabHexdump_2">
+      <widget class="QWidget" name="tabGraph">
+       <attribute name="title">
+        <string>Graph</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_19"/>
+      </widget>
+      <widget class="QWidget" name="tabHexdump">
        <attribute name="title">
         <string>Hexdump</string>
        </attribute>
@@ -1272,47 +1220,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tabGraph_2">
-       <attribute name="title">
-        <string>Graph</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_12">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QWebEngineView" name="graphWebView">
-          <property name="contextMenuPolicy">
-           <enum>Qt::DefaultContextMenu</enum>
-          </property>
-          <property name="url">
-           <url>
-            <string>about:blank</string>
-           </url>
-          </property>
-          <property name="zoomFactor">
-           <double>1.000000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tabGraph">
-       <attribute name="title">
-        <string>Page</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_19"/>
-      </widget>
-     </widget>
+    </widget>
     </item>
     <item>
      <widget class="QTabWidget" name="memSideTabWidget_2">
@@ -1337,7 +1245,7 @@ border-top: 0px;
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_3">
        <attribute name="title">
@@ -1394,7 +1302,7 @@ border-top: 0px;
              <x>0</x>
              <y>0</y>
              <width>256</width>
-             <height>878</height>
+             <height>868</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -1698,7 +1606,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="fcnWebView">
+                   <widget class="QWebEngineView" name="fcnWebView" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1717,7 +1625,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url">
+                    <property name="url" stdset="0">
                      <url>
                       <string>qrc:/html/fcn_graph.html</string>
                      </url>
@@ -1747,7 +1655,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="radarGraphWebView">
+                   <widget class="QWebEngineView" name="radarGraphWebView" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1766,7 +1674,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url">
+                    <property name="url" stdset="0">
                      <url>
                       <string>qrc:/html/fcn_radar.html</string>
                      </url>
@@ -2176,6 +2084,75 @@ QToolTip {
             </item>
            </layout>
           </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_7">
+       <attribute name="title">
+        <string notr="true">Graph</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_17">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QTreeWidget" name="graphTreeWidget_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="alternatingRowColors">
+           <bool>false</bool>
+          </property>
+          <property name="animated">
+           <bool>true</bool>
+          </property>
+          <column>
+           <property name="text">
+            <string>Basic blocks</string>
+           </property>
+          </column>
+          <item>
+           <property name="text">
+            <string>fcn.08040000</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>0x08048e10</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>0x08048e50</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>0x080583FF</string>
+            </property>
+           </item>
+          </item>
          </widget>
         </item>
        </layout>
@@ -2762,76 +2739,7 @@ QToolTip {
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_7">
-       <attribute name="title">
-        <string notr="true">Graph</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_17">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QTreeWidget" name="graphTreeWidget_2">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="lineWidth">
-           <number>0</number>
-          </property>
-          <property name="alternatingRowColors">
-           <bool>false</bool>
-          </property>
-          <property name="animated">
-           <bool>true</bool>
-          </property>
-          <column>
-           <property name="text">
-            <string>Basic blocks</string>
-           </property>
-          </column>
-          <item>
-           <property name="text">
-            <string>fcn.08040000</string>
-           </property>
-           <item>
-            <property name="text">
-             <string>0x08048e10</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>0x08048e50</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>0x080583FF</string>
-            </property>
-           </item>
-          </item>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
+    </widget>
     </item>
    </layout>
   </widget>
