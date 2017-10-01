@@ -128,7 +128,7 @@ public:
                     result += t.text;
                 }
             }
-            return std::move(result);
+            return result;
         }
     };
 
