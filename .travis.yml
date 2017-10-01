@@ -17,6 +17,9 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
+      before_install:
+        - sudo add-apt-repository ppa:beineri/opt-qt59-trusty -y
+        - sudo apt-get update -qq
       install:
         - sudo apt-get -y install qt59base qt59webengine
         - source /opt/qt5*/bin/qt5*-env.sh
