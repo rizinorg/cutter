@@ -389,37 +389,6 @@ void MainWindow::finalizeOpen()
     notepadDock->highlightPreview();
 }
 
-void MainWindow::applySettings()
-{
-    Settings settings;
-
-    // TODO
-
-    // Show asm bytes
-    if (settings.getAsmBytes())
-    {
-        core->setConfig("asm.bytes", true);
-        core->setConfig("asm.cmtcol", 100);
-    }
-    else
-    {
-        core->setConfig("asm.bytes", false);
-        core->setConfig("asm.cmtcol", 70);
-    }
-
-    // Show opcode description
-    core->setConfig("asm.describe", settings.getOpcodeDescription());
-
-    // Show stack pointer
-    core->setConfig("asm.stackptr", settings.getStackPointer());
-
-    // Show uppercase dasm
-    core->setConfig("asm.ucase", settings.getUppercaseDisas());
-
-    // Show spaces in dasm
-    core->setConfig("asm.bbline", settings.getSpacy());
-}
-
 void MainWindow::saveProject()
 {
     QString project_name = qhelpers::uniqueProjectName(filename);

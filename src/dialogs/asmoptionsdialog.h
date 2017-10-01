@@ -3,6 +3,7 @@
 #define ASMOPTIONSDIALOG_H
 
 #include <QDialog>
+#include <QPushButton>
 
 #include "cutter.h"
 
@@ -26,6 +27,9 @@ private:
 
     void updateFromVars();
 
+    void saveAsDefault();
+    void resetToDefault();
+
 private slots:
     void on_esilCheckBox_toggled(bool checked);
     void on_pseudoCheckBox_toggled(bool checked);
@@ -37,7 +41,8 @@ private slots:
     void on_lbytesCheckBox_toggled(bool checked);
     void on_syntaxComboBox_currentIndexChanged(int index);
     void on_uppercaseCheckBox_toggled(bool checked);
-
+    void on_bblineCheckBox_toggled(bool checked);
+    void on_buttonBox_clicked(QAbstractButton *button);
 };
 
 

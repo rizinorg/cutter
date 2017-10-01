@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>425</width>
-    <height>338</height>
+    <width>415</width>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -101,7 +101,26 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QCheckBox" name="bblineCheckBox">
+     <property name="text">
+      <string>Show empty line after every basic block (asm.bbline)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
   </layout>
+  <action name="actionSaveAsDefault">
+   <property name="text">
+    <string>Save as Default</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

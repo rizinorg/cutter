@@ -276,6 +276,9 @@ public:
 
     void triggerAsmOptionsChanged();
 
+    void resetDefaultAsmOptions();
+    void saveDefaultAsmOptions();
+
     RCoreLocked core() const;
 
     /* fields */

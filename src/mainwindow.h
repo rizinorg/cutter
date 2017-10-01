@@ -57,8 +57,6 @@ public:
     void initUI();
     void finalizeOpen();
 
-    void applySettings();
-
     void saveProject();
 
     void start_web_server();

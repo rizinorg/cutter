@@ -1,4 +1,5 @@
 
+#include "settings.h"
 #include "asmoptionsdialog.h"
 #include "ui_asmoptionsdialog.h"
 
@@ -9,6 +10,8 @@ AsmOptionsDialog::AsmOptionsDialog(CutterCore *core, QWidget *parent) : QDialog(
     this->core = core;
 
     ui->setupUi(this);
+
+    ui->buttonBox->addButton(tr("Save as Defaults"), QDialogButtonBox::ButtonRole::ApplyRole);
 
     ui->syntaxComboBox->blockSignals(true);
     for(const auto &syntax : core->cmdList("e asm.syntax=?"))
@@ -51,7 +54,22 @@ void AsmOptionsDialog::updateFromVars()
     }
 
     qhelpers::setCheckedWithoutSignals(ui->uppercaseCheckBox, core->getConfigb("asm.ucase"));
+    qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, core->getConfigb("asm.bbline"));
 }
+
+
+void AsmOptionsDialog::saveAsDefault()
+{
+    core->saveDefaultAsmOptions();
+}
+
+void AsmOptionsDialog::resetToDefault()
+{
+    core->resetDefaultAsmOptions();
+    updateFromVars();
+    core->triggerAsmOptionsChanged();
+}
+
 
 void AsmOptionsDialog::on_esilCheckBox_toggled(bool checked)
 {
@@ -113,4 +131,25 @@ void AsmOptionsDialog::on_uppercaseCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.ucase", checked);
     core->triggerAsmOptionsChanged();
+}
+
+void AsmOptionsDialog::on_bblineCheckBox_toggled(bool checked)
+{
+    core->setConfig("asm.bbline", checked);
+    core->triggerAsmOptionsChanged();
+}
+
+void AsmOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+    switch (ui->buttonBox->buttonRole(button))
+    {
+    case QDialogButtonBox::ButtonRole::ApplyRole:
+        saveAsDefault();
+        break;
+    case QDialogButtonBox::ButtonRole::ResetRole:
+        resetToDefault();
+        break;
+    default:
+        break;
+    }
 }

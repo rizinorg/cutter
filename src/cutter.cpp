@@ -2,6 +2,7 @@
 #include <QJsonObject>
 #include "cutter.h"
 #include "sdb.h"
+#include "settings.h"
 
 
 #define DB this->db
@@ -493,6 +494,38 @@ void CutterCore::triggerAsmOptionsChanged()
     emit asmOptionsChanged();
 }
 
+void CutterCore::resetDefaultAsmOptions()
+{
+    Settings settings;
+    setConfig("asm.esil", settings.getAsmESIL());
+    setConfig("asm.pseudo", settings.getAsmPseudo());
+    setConfig("asm.offset", settings.getAsmOffset());
+    setConfig("asm.describe", settings.getAsmDescribe());
+    setConfig("asm.stackptr", settings.getAsmStackPointer());
+    setConfig("asm.bytes", settings.getAsmBytes());
+    setConfig("asm.bytespace", settings.getAsmBytespace());
+    setConfig("asm.lbytes", settings.getAsmLBytes());
+    setConfig("asm.syntax", settings.getAsmSyntax());
+    setConfig("asm.ucase", settings.getAsmUppercase());
+    setConfig("asm.bbline", settings.getAsmBBLine());
+}
+
+void CutterCore::saveDefaultAsmOptions()
+{
+    Settings settings;
+    settings.setAsmESIL(getConfigb("asm.esil"));
+    settings.setAsmPseudo(getConfigb("asm.pseudo"));
+    settings.setAsmOffset(getConfigb("asm.offset"));
+    settings.setAsmDescribe(getConfigb("asm.describe"));
+    settings.setAsmStackPointer(getConfigb("asm.stackptr"));
+    settings.setAsmBytes(getConfigb("asm.bytes"));
+    settings.setAsmBytespace(getConfigb("asm.bytespace"));
+    settings.setAsmLBytes(getConfigb("asm.lbytes"));
+    settings.setAsmSyntax(getConfig("asm.syntax"));
+    settings.setAsmUppercase(getConfigb("asm.ucase"));
+    settings.setAsmBBLine(getConfigb("asm.bbline"));
+}
+
 QString CutterCore::getConfig(const QString &k)
 {
     CORE_LOCK();
@@ -710,7 +743,6 @@ void CutterCore::setSettings()
     //setConfig("asm.lineswidth", "15");
     //setConfig("asm.functions", "false");
     setConfig("hex.pairs", false);
-    setConfig("asm.bytespace", true);
     setConfig("asm.cmtflgrefs", false);
     setConfig("asm.cmtright", true);
     setConfig("asm.cmtcol", 70);
@@ -730,10 +762,6 @@ void CutterCore::setSettings()
     setConfig("asm.lines.call", false);
     setConfig("asm.flgoff", true);
     setConfig("anal.autoname", true);
-
-    // Required for consistency with GUI checkboxes
-    setConfig("asm.esil", false);
-    setConfig("asm.pseudo", false);
 
     // Highlight current node in graphviz
     setConfig("graph.gv.current", true);
