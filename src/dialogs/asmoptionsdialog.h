@@ -42,6 +42,9 @@ private slots:
     void on_syntaxComboBox_currentIndexChanged(int index);
     void on_uppercaseCheckBox_toggled(bool checked);
     void on_bblineCheckBox_toggled(bool checked);
+    void on_capitalizeCheckBox_toggled(bool checked);
+    void on_varsubCheckBox_toggled(bool checked);
+    void on_varsubOnlyCheckBox_toggled(bool checked);
     void on_buttonBox_clicked(QAbstractButton *button);
 };
 

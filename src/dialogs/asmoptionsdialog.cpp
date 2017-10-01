@@ -55,6 +55,12 @@ void AsmOptionsDialog::updateFromVars()
 
     qhelpers::setCheckedWithoutSignals(ui->uppercaseCheckBox, core->getConfigb("asm.ucase"));
     qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, core->getConfigb("asm.bbline"));
+    qhelpers::setCheckedWithoutSignals(ui->capitalizeCheckBox, core->getConfigb("asm.capitalize"));
+
+    bool varsubEnabled = core->getConfigb("asm.varsub");
+    qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
+    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, core->getConfigb("asm.varsub_only"));
+    ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 }
 
 
@@ -139,17 +145,36 @@ void AsmOptionsDialog::on_bblineCheckBox_toggled(bool checked)
     core->triggerAsmOptionsChanged();
 }
 
+void AsmOptionsDialog::on_capitalizeCheckBox_toggled(bool checked)
+{
+    core->setConfig("asm.capitalize", checked);
+    core->triggerAsmOptionsChanged();
+}
+
+void AsmOptionsDialog::on_varsubCheckBox_toggled(bool checked)
+{
+    core->setConfig("asm.varsub", checked);
+    ui->varsubOnlyCheckBox->setEnabled(checked);
+    core->triggerAsmOptionsChanged();
+}
+
+void AsmOptionsDialog::on_varsubOnlyCheckBox_toggled(bool checked)
+{
+    core->setConfig("asm.varsub_only", checked);
+    core->triggerAsmOptionsChanged();
+}
+
 void AsmOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     switch (ui->buttonBox->buttonRole(button))
     {
-    case QDialogButtonBox::ButtonRole::ApplyRole:
-        saveAsDefault();
-        break;
-    case QDialogButtonBox::ButtonRole::ResetRole:
-        resetToDefault();
-        break;
-    default:
-        break;
+        case QDialogButtonBox::ButtonRole::ApplyRole:
+            saveAsDefault();
+            break;
+        case QDialogButtonBox::ButtonRole::ResetRole:
+            resetToDefault();
+            break;
+        default:
+            break;
     }
 }

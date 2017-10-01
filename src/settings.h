@@ -42,6 +42,15 @@ public:
 
     bool getAsmBBLine() const           { return settings.value("asm.bbline", false).toBool(); }
     void setAsmBBLine(bool v)           { settings.setValue("asm.bbline", v); }
+
+    bool getAsmCapitalize() const       { return settings.value("asm.capitalize", false).toBool(); }
+    void setAsmCapitalize(bool v)       { settings.setValue("asm.capitalize", v); }
+
+    bool getAsmVarsub() const           { return settings.value("asm.varsub", true).toBool(); }
+    void setAsmVarsub(bool v)           { settings.setValue("asm.varsub", v); }
+
+    bool getAsmVarsubOnly() const       { return settings.value("asm.varsub_only", true).toBool(); }
+    void setAsmVarsubOnly(bool v)       { settings.setValue("asm.varsub_only", v); }
 };
 
 #endif // SETTINGS_H
