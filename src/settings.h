@@ -22,7 +22,7 @@ public:
     bool getUppercaseDisas() const      { return settings.value("ucase", false).toBool(); }
     void setUppercaseDisas(bool v)      { settings.setValue("ucase", v); }
 
-    bool getSpacy() const               { return settings.value("spacy", false).toBool(); }
+    bool getSpacy() const               { return settings.value("bbline", false).toBool(); }
     void setSpacy(bool v)               { settings.setValue("bbline", v); }
 };
 

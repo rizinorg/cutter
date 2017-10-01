@@ -26,13 +26,13 @@ void RadareWebServer::start()
         // pretty sure now cutter runs as AppImage
 
         //QString defaultPath("/usr/share/radare2/1.5.0-git/www");
-        QString defaultHttpRoot(core->config("http.root"));
+        QString defaultHttpRoot(core->getConfig("http.root"));
         if (defaultHttpRoot.startsWith("/usr"))
         {
             QString path(QCoreApplication::applicationDirPath());
             path.replace("bin/", defaultHttpRoot.remove("/usr"));
 
-            core->config("http.root", path);
+            core->setConfig("http.root", path);
         }
     }
 

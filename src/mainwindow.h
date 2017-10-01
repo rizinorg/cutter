@@ -179,6 +179,8 @@ private slots:
 
     void on_actionDisplay_Offsets_triggered();
 
+    void on_actionAsmOptions_triggered();
+
     void actionAsm_syntax_triggered();
 
 private:

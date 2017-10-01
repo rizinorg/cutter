@@ -4,6 +4,7 @@
 #include "dialogs/commentsdialog.h"
 #include "dialogs/aboutdialog.h"
 #include "dialogs/renamedialog.h"
+#include "dialogs/asmoptionsdialog.h"
 #include "helpers.h"
 
 #include <QComboBox>
@@ -392,57 +393,31 @@ void MainWindow::applySettings()
 {
     Settings settings;
 
+    // TODO
+
     // Show asm bytes
     if (settings.getAsmBytes())
     {
-        core->config("asm.bytes", "true");
-        core->config("asm.cmtcol", "100");
+        core->setConfig("asm.bytes", true);
+        core->setConfig("asm.cmtcol", 100);
     }
     else
     {
-        core->config("asm.bytes", "false");
-        core->config("asm.cmtcol", "70");
+        core->setConfig("asm.bytes", false);
+        core->setConfig("asm.cmtcol", 70);
     }
 
     // Show opcode description
-    if (settings.getOpcodeDescription())
-    {
-        core->config("asm.describe", "true");
-    }
-    else
-    {
-        core->config("asm.describe", "false");
-    }
+    core->setConfig("asm.describe", settings.getOpcodeDescription());
 
     // Show stack pointer
-    if (settings.getStackPointer())
-    {
-        core->config("asm.stackptr", "true");
-    }
-    else
-    {
-        core->config("asm.stackptr", "false");
-    }
+    core->setConfig("asm.stackptr", settings.getStackPointer());
 
     // Show uppercase dasm
-    if (settings.getUppercaseDisas())
-    {
-        core->config("asm.ucase", "true");
-    }
-    else
-    {
-        core->config("asm.ucase", "false");
-    }
+    core->setConfig("asm.ucase", settings.getUppercaseDisas());
 
     // Show spaces in dasm
-    if (settings.getSpacy())
-    {
-        core->config("asm.bbline", "true");
-    }
-    else
-    {
-        core->config("asm.bbline", "false");
-    }
+    core->setConfig("asm.bbline", settings.getSpacy());
 }
 
 void MainWindow::saveProject()
@@ -1096,15 +1071,15 @@ void MainWindow::on_actionRefresh_contents_triggered()
 
 void MainWindow::on_actionDisplay_Esil_triggered()
 {
-    int esil = this->core->getConfigi("asm.esil");
-    core->config("asm.esil", !esil);
+    bool esil = this->core->getConfigb("asm.esil");
+    core->setConfig("asm.esil", !esil);
     refreshVisibleDockWidgets();
 }
 
 void MainWindow::on_actionDisplay_Pseudocode_triggered()
 {
-    int pseudo = this->core->getConfigi("asm.pseudo");
-    core->config("asm.pseudo", !pseudo);
+    bool pseudo = this->core->getConfigb("asm.pseudo");
+    core->setConfig("asm.pseudo", !pseudo);
     refreshVisibleDockWidgets();
 }
 
@@ -1127,7 +1102,13 @@ void MainWindow::actionAsm_syntax_triggered()
     QAction *action = (QAction *) sender;
     action->setChecked(true);
     // Set r2 config
-    core->config("asm.syntax", action->text());
+    core->setConfig("asm.syntax", action->text());
     // Refresh views
     refreshVisibleDockWidgets();
+}
+
+void MainWindow::on_actionAsmOptions_triggered()
+{
+    auto dialog = new AsmOptionsDialog(core, this);
+    dialog->show();
 }

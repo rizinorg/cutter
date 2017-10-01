@@ -208,10 +208,16 @@ public:
     void seek(ut64 offset);
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
-    QString config(const QString &k, const QString &v = NULL);
-    int config(const QString &k, int v);
+
+    void setConfig(const QString &k, const QString &v);
+    void setConfig(const QString &k, int v);
+    void setConfig(const QString &k, bool v);
+    void setConfig(const QString &k, const char *v)     { setConfig(k, QString(v)); }
+
     int getConfigi(const QString &k);
+    bool getConfigb(const QString &k);
     QString getConfig(const QString &k);
+
     QString assemble(const QString &code);
     QString disassemble(const QString &hex);
     QString disassembleSingleInstruction(RVA addr);
@@ -268,6 +274,8 @@ public:
 
     void addFlag(RVA offset, QString name, RVA size);
 
+    void triggerAsmOptionsChanged();
+
     RCoreLocked core() const;
 
     /* fields */
@@ -279,6 +287,11 @@ signals:
     void functionRenamed(QString prev_name, QString new_name);
     void flagsChanged();
     void commentsChanged();
+
+    /*!
+     * emitted when config regarding disassembly display changes
+     */
+    void asmOptionsChanged();
 
 public slots:
 

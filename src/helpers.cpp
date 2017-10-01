@@ -7,6 +7,7 @@
 #include <QTreeWidget>
 #include <QString>
 #include <QAbstractItemView>
+#include <QAbstractButton>
 
 
 static QAbstractItemView::ScrollMode scrollMode()
@@ -82,6 +83,14 @@ namespace qhelpers
     void setVerticalScrollMode(QAbstractItemView *tw)
     {
         tw->setVerticalScrollMode(scrollMode());
+    }
+
+    void setCheckedWithoutSignals(QAbstractButton *button, bool checked)
+    {
+        bool blocked = button->signalsBlocked();
+        button->blockSignals(true);
+        button->setChecked(checked);
+        button->blockSignals(blocked);
     }
 
 } // end namespace
