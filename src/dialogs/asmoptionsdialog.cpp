@@ -53,9 +53,22 @@ void AsmOptionsDialog::updateFromVars()
         }
     }
 
-    qhelpers::setCheckedWithoutSignals(ui->uppercaseCheckBox, core->getConfigb("asm.ucase"));
+    ui->caseComboBox->blockSignals(true);
+    if (core->getConfigb("asm.ucase"))
+    {
+        ui->caseComboBox->setCurrentIndex(1);
+    }
+    else if(core->getConfigb("asm.capitalize"))
+    {
+        ui->caseComboBox->setCurrentIndex(2);
+    }
+    else
+    {
+        ui->caseComboBox->setCurrentIndex(0);
+    }
+    ui->caseComboBox->blockSignals(false);
+
     qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, core->getConfigb("asm.bbline"));
-    qhelpers::setCheckedWithoutSignals(ui->capitalizeCheckBox, core->getConfigb("asm.capitalize"));
 
     bool varsubEnabled = core->getConfigb("asm.varsub");
     qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
@@ -133,21 +146,41 @@ void AsmOptionsDialog::on_syntaxComboBox_currentIndexChanged(int index)
     core->triggerAsmOptionsChanged();
 }
 
-void AsmOptionsDialog::on_uppercaseCheckBox_toggled(bool checked)
+void AsmOptionsDialog::on_caseComboBox_currentIndexChanged(int index)
 {
-    core->setConfig("asm.ucase", checked);
+    bool ucase;
+    bool capitalize;
+
+    switch (index)
+    {
+    // lowercase
+    case 0:
+    default:
+        ucase = false;
+        capitalize = false;
+        break;
+
+    // uppercase
+    case 1:
+        ucase = true;
+        capitalize = false;
+        break;
+
+    case 2:
+        ucase = false;
+        capitalize = true;
+        break;
+    }
+
+    core->setConfig("asm.ucase", ucase);
+    core->setConfig("asm.capitalize", capitalize);
+
     core->triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_bblineCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.bbline", checked);
-    core->triggerAsmOptionsChanged();
-}
-
-void AsmOptionsDialog::on_capitalizeCheckBox_toggled(bool checked)
-{
-    core->setConfig("asm.capitalize", checked);
     core->triggerAsmOptionsChanged();
 }
 

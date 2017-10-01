@@ -93,23 +93,25 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="caseComboBox"/>
+      <widget class="QComboBox" name="caseComboBox">
+       <item>
+        <property name="text">
+         <string>Lowercase</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Uppercase (asm.ucase)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CamelCase (asm.capitalize)</string>
+        </property>
+       </item>
+      </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="uppercaseCheckBox">
-     <property name="text">
-      <string>Uppercase syntax (asm.ucase)</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="capitalizeCheckBox">
-     <property name="text">
-      <string>Camelcase syntax (asm.capitalize)</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="bblineCheckBox">
