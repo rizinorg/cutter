@@ -436,6 +436,16 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QCheckBox" name="demangleCheckBox">
+              <property name="text">
+               <string>Import demangled symbols</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
