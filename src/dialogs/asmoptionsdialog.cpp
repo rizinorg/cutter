@@ -53,8 +53,27 @@ void AsmOptionsDialog::updateFromVars()
         }
     }
 
-    qhelpers::setCheckedWithoutSignals(ui->uppercaseCheckBox, core->getConfigb("asm.ucase"));
+    ui->caseComboBox->blockSignals(true);
+    if (core->getConfigb("asm.ucase"))
+    {
+        ui->caseComboBox->setCurrentIndex(1);
+    }
+    else if(core->getConfigb("asm.capitalize"))
+    {
+        ui->caseComboBox->setCurrentIndex(2);
+    }
+    else
+    {
+        ui->caseComboBox->setCurrentIndex(0);
+    }
+    ui->caseComboBox->blockSignals(false);
+
     qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, core->getConfigb("asm.bbline"));
+
+    bool varsubEnabled = core->getConfigb("asm.varsub");
+    qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
+    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, core->getConfigb("asm.varsub_only"));
+    ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 }
 
 
@@ -127,9 +146,35 @@ void AsmOptionsDialog::on_syntaxComboBox_currentIndexChanged(int index)
     core->triggerAsmOptionsChanged();
 }
 
-void AsmOptionsDialog::on_uppercaseCheckBox_toggled(bool checked)
+void AsmOptionsDialog::on_caseComboBox_currentIndexChanged(int index)
 {
-    core->setConfig("asm.ucase", checked);
+    bool ucase;
+    bool capitalize;
+
+    switch (index)
+    {
+    // lowercase
+    case 0:
+    default:
+        ucase = false;
+        capitalize = false;
+        break;
+
+    // uppercase
+    case 1:
+        ucase = true;
+        capitalize = false;
+        break;
+
+    case 2:
+        ucase = false;
+        capitalize = true;
+        break;
+    }
+
+    core->setConfig("asm.ucase", ucase);
+    core->setConfig("asm.capitalize", capitalize);
+
     core->triggerAsmOptionsChanged();
 }
 
@@ -139,17 +184,30 @@ void AsmOptionsDialog::on_bblineCheckBox_toggled(bool checked)
     core->triggerAsmOptionsChanged();
 }
 
+void AsmOptionsDialog::on_varsubCheckBox_toggled(bool checked)
+{
+    core->setConfig("asm.varsub", checked);
+    ui->varsubOnlyCheckBox->setEnabled(checked);
+    core->triggerAsmOptionsChanged();
+}
+
+void AsmOptionsDialog::on_varsubOnlyCheckBox_toggled(bool checked)
+{
+    core->setConfig("asm.varsub_only", checked);
+    core->triggerAsmOptionsChanged();
+}
+
 void AsmOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     switch (ui->buttonBox->buttonRole(button))
     {
-    case QDialogButtonBox::ButtonRole::ApplyRole:
-        saveAsDefault();
-        break;
-    case QDialogButtonBox::ButtonRole::ResetRole:
-        resetToDefault();
-        break;
-    default:
-        break;
+        case QDialogButtonBox::ButtonRole::ApplyRole:
+            saveAsDefault();
+            break;
+        case QDialogButtonBox::ButtonRole::ResetRole:
+            resetToDefault();
+            break;
+        default:
+            break;
     }
 }

@@ -68,8 +68,6 @@ static const int invalidHistoryPos = -1;
 
 static bool isForbidden(const QString &input)
 {
-    return false;
-
     static const QRegExp delimiters("[;&]");
 
 

@@ -77,6 +77,8 @@ void AnalThread::run()
         forceBinPlugin = pluginDesc.name;
     }
 
+    main->core->setConfig("bin.demangle", ui->demangleCheckBox->isChecked());
+
     main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo, forceBinPlugin);
     emit updateProgress("Analysis in progress.");
 

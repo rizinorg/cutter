@@ -40,8 +40,10 @@ private slots:
     void on_bytespaceCheckBox_toggled(bool checked);
     void on_lbytesCheckBox_toggled(bool checked);
     void on_syntaxComboBox_currentIndexChanged(int index);
-    void on_uppercaseCheckBox_toggled(bool checked);
+    void on_caseComboBox_currentIndexChanged(int index);
     void on_bblineCheckBox_toggled(bool checked);
+    void on_varsubCheckBox_toggled(bool checked);
+    void on_varsubOnlyCheckBox_toggled(bool checked);
     void on_buttonBox_clicked(QAbstractButton *button);
 };
 

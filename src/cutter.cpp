@@ -508,6 +508,9 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.syntax", settings.getAsmSyntax());
     setConfig("asm.ucase", settings.getAsmUppercase());
     setConfig("asm.bbline", settings.getAsmBBLine());
+    setConfig("asm.capitalize", settings.getAsmCapitalize());
+    setConfig("asm.varsub", settings.getAsmVarsub());
+    setConfig("asm.varsub_only", settings.getAsmVarsubOnly());
 }
 
 void CutterCore::saveDefaultAsmOptions()
@@ -524,6 +527,9 @@ void CutterCore::saveDefaultAsmOptions()
     settings.setAsmSyntax(getConfig("asm.syntax"));
     settings.setAsmUppercase(getConfigb("asm.ucase"));
     settings.setAsmBBLine(getConfigb("asm.bbline"));
+    settings.setAsmCapitalize(getConfigb("asm.capitalize"));
+    settings.setAsmVarsub(getConfigb("asm.varsub"));
+    settings.setAsmVarsubOnly(getConfigb("asm.varsub_only"));
 }
 
 QString CutterCore::getConfig(const QString &k)

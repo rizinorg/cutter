@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>415</width>
-    <height>368</height>
+    <width>445</width>
+    <height>631</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,25 +81,37 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QComboBox" name="syntaxComboBox"/>
+     </item>
+     <item row="0" column="0">
       <widget class="QLabel" name="syntaxLabel">
        <property name="text">
         <string>Syntax (asm.syntax):</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QComboBox" name="syntaxComboBox"/>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="caseComboBox">
+       <item>
+        <property name="text">
+         <string>Lowercase</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Uppercase (asm.ucase)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CamelCase (asm.capitalize)</string>
+        </property>
+       </item>
+      </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="uppercaseCheckBox">
-     <property name="text">
-      <string>Uppercase syntax (asm.ucase)</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="bblineCheckBox">
@@ -107,6 +119,27 @@
       <string>Show empty line after every basic block (asm.bbline)</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="varsubCheckBox">
+     <property name="text">
+      <string>Substitute variables (asm.varsub)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="leftMargin">
+      <number>16</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="varsubOnlyCheckBox">
+       <property name="text">
+        <string>Substitute entire variable expressions with names (asm.varsub_only)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
