@@ -104,19 +104,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     QMenu *memMenu = new QMenu();
     ui->memSettingsButton_2->addAction(ui->actionSettings_menu_1);
     memMenu->addAction(ui->actionSettings_menu_1);
-    QMenu *hideSide = memMenu->addMenu("Show/Hide");
-    hideSide->addAction(ui->actionDisas_ShowHideBytes);
-    hideSide->addAction(ui->actionSeparate_bytes);
-    hideSide->addAction(ui->actionRight_align_bytes);
-    hideSide->addSeparator();
-    hideSide->addAction(ui->actionDisasSwitch_case);
-    hideSide->addAction(ui->actionSeparate_disasm_calls);
-    hideSide->addAction(ui->actionShow_stack_pointer);
     ui->memSettingsButton_2->setMenu(memMenu);
-
-    // Disable bytes options by default as bytes are not shown
-    ui->actionSeparate_bytes->setDisabled(true);
-    ui->actionRight_align_bytes->setDisabled(true);
 
     // Event filter to intercept double clicks in the textbox
     ui->disasTextEdit_2->viewport()->installEventFilter(this);
@@ -1041,14 +1029,6 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
         menu->addSeparator();
         menu->addAction(ui->actionXRefs);
         menu->addSeparator();
-        menu->addAction(ui->actionDisas_ShowHideBytes);
-        menu->addAction(ui->actionSeparate_bytes);
-        menu->addAction(ui->actionRight_align_bytes);
-        menu->addSeparator();
-        menu->addAction(ui->actionDisasSwitch_case);
-        menu->addAction(ui->actionSeparate_disasm_calls);
-        menu->addAction(ui->actionShow_stack_pointer);
-        menu->addSeparator();
         menu->addAction(ui->actionDisasCopy_All);
         menu->addAction(ui->actionDisasCopy_Bytes);
         menu->addAction(ui->actionDisasCopy_Disasm);
@@ -1215,57 +1195,6 @@ void MemoryWidget::on_hexButton_2_clicked()
 {
     ui->memTabWidget->setCurrentIndex(1);
     ui->memSideTabWidget_2->setCurrentIndex(1);
-}
-
-void MemoryWidget::on_actionDisas_ShowHideBytes_triggered()
-{
-    this->main->core->cmd("e!asm.bytes");
-
-    if (this->main->core->cmd("e asm.bytes").trimmed() == "true")
-    {
-        ui->actionSeparate_bytes->setDisabled(false);
-        ui->actionRight_align_bytes->setDisabled(false);
-        this->main->core->setConfig("asm.cmtcol", "100");
-    }
-    else
-    {
-        ui->actionSeparate_bytes->setDisabled(true);
-        ui->actionRight_align_bytes->setDisabled(true);
-        this->main->core->setConfig("asm.cmtcol", "70");
-    }
-
-    this->refreshDisasm();
-}
-
-void MemoryWidget::on_actionDisasSwitch_case_triggered()
-{
-    this->main->core->cmd("e!asm.ucase");
-    this->refreshDisasm();
-}
-
-void MemoryWidget::on_actionSeparate_bytes_triggered()
-{
-    this->main->core->cmd("e!asm.bytespace");
-    this->refreshDisasm();
-}
-
-void MemoryWidget::on_actionRight_align_bytes_triggered()
-{
-    this->main->core->cmd("e!asm.lbytes");
-    this->refreshDisasm();
-}
-
-void MemoryWidget::on_actionSeparate_disasm_calls_triggered()
-{
-    this->main->core->cmd("e!asm.bbline");
-    this->refreshDisasm();
-}
-
-
-void MemoryWidget::on_actionShow_stack_pointer_triggered()
-{
-    this->main->core->cmd("e!asm.stackptr");
-    this->refreshDisasm();
 }
 
 void MemoryWidget::on_graphButton_2_clicked()
@@ -1915,20 +1844,6 @@ void MemoryWidget::switchTheme(bool dark)
     {
         ui->webSimpleGraph->page()->setBackgroundColor(QColor(255, 255, 255));
         ui->graphWebView->page()->runJavaScript("r2ui.graph_panel.render('light');");
-    }
-}
-
-void MemoryWidget::on_opcodeDescButton_clicked()
-{
-    if (ui->opcodeDescButton->isChecked())
-    {
-        ui->opcodeDescText->hide();
-        ui->opcodeDescButton->setArrowType(Qt::RightArrow);
-    }
-    else
-    {
-        ui->opcodeDescText->show();
-        ui->opcodeDescButton->setArrowType(Qt::DownArrow);
     }
 }
 

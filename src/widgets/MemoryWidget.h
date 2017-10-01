@@ -149,7 +149,6 @@ private slots:
     void on_actionDisasAdd_comment_triggered();
     void on_actionAddFlag_triggered();
     void on_actionFunctionsRename_triggered();
-    void on_actionDisas_ShowHideBytes_triggered();
 
     void on_hexHexText_2_selectionChanged();
     void on_hexArchComboBox_2_currentTextChanged(const QString &arg1);
@@ -188,15 +187,9 @@ private slots:
     void on_decoToolButton_clicked();
     void on_previewToolButton_2_clicked();
     void on_actionXRefs_triggered();
-    void on_actionDisasSwitch_case_triggered();
-    void on_actionSeparate_bytes_triggered();
-    void on_actionRight_align_bytes_triggered();
-    void on_actionSeparate_disasm_calls_triggered();
-    void on_actionShow_stack_pointer_triggered();
     void on_copyMD5_clicked();
     void on_copySHA1_clicked();
     void on_simpleGrapgToolButton_clicked();
-    void on_opcodeDescButton_clicked();
     void seek_back();
     void on_memTabWidget_currentChanged(int index);
 };

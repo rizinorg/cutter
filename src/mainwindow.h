@@ -171,15 +171,7 @@ private slots:
 
     void on_actionRefresh_contents_triggered();
 
-    void on_actionDisplay_Esil_triggered();
-
-    void on_actionDisplay_Pseudocode_triggered();
-
-    void on_actionDisplay_Offsets_triggered();
-
     void on_actionAsmOptions_triggered();
-
-    void actionAsm_syntax_triggered();
 
 private:
     QDockWidget      *asmDock;

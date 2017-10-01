@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1013</width>
-    <height>686</height>
+    <height>606</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -204,11 +204,6 @@ border-top: 0px;
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
     </property>
-    <widget class="QMenu" name="menuAsm_syntax">
-     <property name="title">
-      <string>Asm syntax</string>
-     </property>
-    </widget>
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefaut"/>
@@ -220,10 +215,6 @@ border-top: 0px;
     <addaction name="actionWhite_Theme"/>
     <addaction name="actionDark_Theme"/>
     <addaction name="separator"/>
-    <addaction name="actionDisplay_Esil"/>
-    <addaction name="actionDisplay_Pseudocode"/>
-    <addaction name="actionDisplay_Offsets"/>
-    <addaction name="menuAsm_syntax"/>
     <addaction name="actionAsmOptions"/>
    </widget>
    <widget class="QMenu" name="menuHelp">

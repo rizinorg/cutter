@@ -513,7 +513,7 @@ border-top: 0px;
        <enum>QTabWidget::South</enum>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <property name="documentMode">
        <bool>false</bool>
@@ -994,7 +994,7 @@ QToolTip {
                  <number>0</number>
                 </property>
                 <item>
-                 <widget class="QWebEngineView" name="webSimpleGraph" native="true">
+                 <widget class="QWebEngineView" name="webSimpleGraph">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                     <horstretch>0</horstretch>
@@ -1015,7 +1015,7 @@ QToolTip {
 	font: 11pt &quot;Monaco&quot;;
 }</string>
                   </property>
-                  <property name="url" stdset="0">
+                  <property name="url">
                    <url>
                     <string>about:blank</string>
                    </url>
@@ -1290,16 +1290,16 @@ p, li { white-space: pre-wrap; }
          <number>0</number>
         </property>
         <item>
-         <widget class="QWebEngineView" name="graphWebView" native="true">
+         <widget class="QWebEngineView" name="graphWebView">
           <property name="contextMenuPolicy">
            <enum>Qt::DefaultContextMenu</enum>
           </property>
-          <property name="url" stdset="0">
+          <property name="url">
            <url>
             <string>about:blank</string>
            </url>
           </property>
-          <property name="zoomFactor" stdset="0">
+          <property name="zoomFactor">
            <double>1.000000000000000</double>
           </property>
          </widget>
@@ -1394,7 +1394,7 @@ border-top: 0px;
              <x>0</x>
              <y>0</y>
              <width>256</width>
-             <height>868</height>
+             <height>878</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -1698,7 +1698,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="fcnWebView" native="true">
+                   <widget class="QWebEngineView" name="fcnWebView">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1717,7 +1717,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url" stdset="0">
+                    <property name="url">
                      <url>
                       <string>qrc:/html/fcn_graph.html</string>
                      </url>
@@ -1747,7 +1747,7 @@ QToolTip {
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QWebEngineView" name="radarGraphWebView" native="true">
+                   <widget class="QWebEngineView" name="radarGraphWebView">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -1766,7 +1766,7 @@ QToolTip {
                       <height>250</height>
                      </size>
                     </property>
-                    <property name="url" stdset="0">
+                    <property name="url">
                      <url>
                       <string>qrc:/html/fcn_radar.html</string>
                      </url>
@@ -2899,22 +2899,6 @@ QToolTip {
     <string>Undefine</string>
    </property>
   </action>
-  <action name="actionDisas_ShowHideBytes">
-   <property name="text">
-    <string>Show/Hide bytes</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide bytes</string>
-   </property>
-  </action>
-  <action name="actionDisasSwitch_case">
-   <property name="text">
-    <string>Switch case</string>
-   </property>
-   <property name="toolTip">
-    <string>Switch case</string>
-   </property>
-  </action>
   <action name="actionDisasCopy_All">
    <property name="text">
     <string>Copy all</string>
@@ -3057,38 +3041,6 @@ QToolTip {
    </property>
    <property name="toolTip">
     <string>XRefs</string>
-   </property>
-  </action>
-  <action name="actionSeparate_bytes">
-   <property name="text">
-    <string>Separate bytes</string>
-   </property>
-   <property name="toolTip">
-    <string>Separate bytes with space</string>
-   </property>
-  </action>
-  <action name="actionRight_align_bytes">
-   <property name="text">
-    <string>Right align bytes</string>
-   </property>
-   <property name="toolTip">
-    <string>Right align bytes</string>
-   </property>
-  </action>
-  <action name="actionSeparate_disasm_calls">
-   <property name="text">
-    <string>Separate disasm calls</string>
-   </property>
-   <property name="toolTip">
-    <string>Separate disasm calls</string>
-   </property>
-  </action>
-  <action name="actionShow_stack_pointer">
-   <property name="text">
-    <string>Show stack pointer</string>
-   </property>
-   <property name="toolTip">
-    <string>Show stack pointer</string>
    </property>
   </action>
   <action name="actionAddFlag">

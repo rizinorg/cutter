@@ -182,27 +182,6 @@ void MainWindow::initUI()
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(graphicsBar);
 
-    // Asm syntaxes
-    QList<QString> list = core->cmd("e asm.syntax =?").split("\n");
-    QString checked = core->getConfig("asm.syntax");
-    for (QString syntax : list)
-    {
-        if (syntax == "")
-        {
-            break;
-        }
-        QAction *action = new QAction(ui->menuAsm_syntax);
-        action->setText(syntax);
-        action->setCheckable(true);
-        if (syntax == checked)
-        {
-            action->setChecked(true);
-        }
-        connect(action, SIGNAL(triggered()), this, SLOT(actionAsm_syntax_triggered()));
-        asmSyntaxes.append(action);
-        ui->menuAsm_syntax->addAction(action);
-    }
-
     /*
      * Dock Widgets
      */
@@ -1035,44 +1014,6 @@ void MainWindow::refreshVisibleDockWidgets()
 
 void MainWindow::on_actionRefresh_contents_triggered()
 {
-    refreshVisibleDockWidgets();
-}
-
-void MainWindow::on_actionDisplay_Esil_triggered()
-{
-    bool esil = this->core->getConfigb("asm.esil");
-    core->setConfig("asm.esil", !esil);
-    refreshVisibleDockWidgets();
-}
-
-void MainWindow::on_actionDisplay_Pseudocode_triggered()
-{
-    bool pseudo = this->core->getConfigb("asm.pseudo");
-    core->setConfig("asm.pseudo", !pseudo);
-    refreshVisibleDockWidgets();
-}
-
-void MainWindow::on_actionDisplay_Offsets_triggered()
-{
-    bool checked = ui->actionDisplay_Offsets->isChecked();
-    memoryDock->showOffsets(checked);
-    refreshVisibleDockWidgets();
-}
-
-void MainWindow::actionAsm_syntax_triggered()
-{
-    QObject *sender = QObject::sender();
-    // Uncheck every other choices
-    for (QAction *action : asmSyntaxes)
-    {
-        action->setChecked(false);
-    }
-    // Check selected choice
-    QAction *action = (QAction *) sender;
-    action->setChecked(true);
-    // Set r2 config
-    core->setConfig("asm.syntax", action->text());
-    // Refresh views
     refreshVisibleDockWidgets();
 }
 
