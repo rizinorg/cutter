@@ -42,7 +42,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterCore *core)
 
     //Create timer to automatically refresh view when it needs to be updated
     this->updateTimer = new QTimer();
-    this->updateTimer->setInterval(1000);
+    this->updateTimer->setInterval(1000); // TODO Probably too slow
     this->updateTimer->setSingleShot(false);
     connect(this->updateTimer, SIGNAL(timeout()), this, SLOT(updateTimerEvent()));
     this->updateTimer->start();
@@ -163,7 +163,6 @@ void DisassemblerGraphView::copy_address()
 
 void DisassemblerGraphView::paintNormal(QPainter & p, QRect & viewportRect, int xofs, int yofs)
 {
-    qDebug() << "Paint normal...";
     //Translate the painter
     //auto dbgfunctions = DbgFunctions();
     QPoint translation(this->renderXOfs - xofs, this->renderYOfs - yofs);
@@ -312,7 +311,6 @@ void DisassemblerGraphView::paintNormal(QPainter & p, QRect & viewportRect, int 
 
 void DisassemblerGraphView::paintOverview(QPainter & p, QRect & viewportRect, int xofs, int yofs)
 {
-    qDebug() << "Paint overview...";
     // Scale and translate painter
     //auto dbgfunctions = DbgFunctions();
     qreal sx = qreal(viewportRect.width()) / qreal(this->renderWidth);
@@ -1394,7 +1392,8 @@ void DisassemblerGraphView::renderFunction(Function & func)
 
 void DisassemblerGraphView::updateTimerEvent()
 {
-    qDebug() << status << this->status << this->function << this->ready << this->update_id << this->analysis.update_id;
+    //qDebug() << status << this->status << this->function << this->ready << this->update_id << this->analysis.update_id;
+    // TODO status is useless (for now at least)
     auto status = this->analysis.status;
     if(status != this->status)
     {
@@ -1534,13 +1533,11 @@ void DisassemblerGraphView::loadCurrentGraph()
     // Read functions
     QJsonDocument functionsDoc = mCore->cmdj("agj");
     QJsonArray functions = functionsDoc.array();
-    qDebug() << functions;
 
     Analysis anal;
     anal.ready = true;
     anal.update_id = this->update_id + 1;
 
-    qDebug() << "Fuck this shit only one function at a time";
     QJsonValue funcRef = functions.first();
     QJsonObject func = funcRef.toObject();
     Function f;
