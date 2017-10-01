@@ -44,8 +44,6 @@ public:
     RCore *operator->() const;
 };
 
-#define CUTTERNOTUSED(x) do { (void)(x); } while ( 0 );
-
 typedef ut64 RVA;
 
 #define RVA_INVALID UT64_MAX

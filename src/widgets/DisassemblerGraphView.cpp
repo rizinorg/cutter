@@ -11,17 +11,17 @@
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterCore *core)
     : QAbstractScrollArea(parent),
-      mFontMetrics(nullptr),
       //currentGraph(duint(0)),
       //disasm(ConfigUint("Disassembler", "MaxModuleSize")),
-      mCip(0),
-      mGoto(nullptr),
+      mCore(core),
+      mFontMetrics(nullptr),
       syncOrigin(false),
+      mCip(0),
       forceCenter(false),
-      layoutType(LayoutType::Medium),
       mHistoryLock(false),
-      mXrefDlg(nullptr),
-      mCore(core)
+      layoutType(LayoutType::Medium),
+      mGoto(nullptr),
+      mXrefDlg(nullptr)
 {
     this->status = "Loading...";
 
@@ -533,6 +533,8 @@ duint DisassemblerGraphView::getInstrForMouseEvent(QMouseEvent* event)
 
 bool DisassemblerGraphView::getTokenForMouseEvent(QMouseEvent* event, Token & tokenOut)
 {
+  Q_UNUSED(event);
+  Q_UNUSED(tokenOut);
     /* TODO
     //Convert coordinates to system used in blocks
     int xofs = this->horizontalScrollBar()->value();
@@ -715,6 +717,7 @@ void DisassemblerGraphView::mouseReleaseEvent(QMouseEvent* event)
 
 void DisassemblerGraphView::mouseDoubleClickEvent(QMouseEvent* event)
 {
+  Q_UNUSED(event);
     if(drawOverview)
     {
         toggleOverviewSlot();
@@ -1717,6 +1720,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
 void DisassemblerGraphView::graphAtSlot(duint addr)
 {
+  Q_UNUSED(addr);
     //Bridge::getBridge()->setResult(this->navigate(addr) ? this->currentGraph.entryPoint : 0);
 }
 
@@ -1727,6 +1731,8 @@ void DisassemblerGraphView::updateGraphSlot()
 
 void DisassemblerGraphView::addReferenceAction(QMenu* menu, duint addr)
 {
+  Q_UNUSED(menu);
+  Q_UNUSED(addr);
     /*QAction* action = new QAction(menu);
     action->setData(ToPtrString(addr));
     action->setText(getSymbolicName(addr));
@@ -1837,6 +1843,7 @@ void DisassemblerGraphView::setupContextMenu()
 
 void DisassemblerGraphView::keyPressEvent(QKeyEvent* event)
 {
+  Q_UNUSED(event);
     /*
     if(event->modifiers() != 0)
         return;

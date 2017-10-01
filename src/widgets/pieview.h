@@ -92,7 +92,7 @@ private:
     QRegion itemRegion(const QModelIndex &index) const;
     int rows(const QModelIndex &index = QModelIndex()) const;
     void updateGeometries() override;
-    int getMin(int x, int y);
+    int getMin(int x, int y) const;
 
     int margin;
     int totalSize;

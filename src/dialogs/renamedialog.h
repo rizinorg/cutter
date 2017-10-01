@@ -17,7 +17,7 @@ public:
     ~RenameDialog();
 
     void setFunctionName(QString fcnName);
-    QString getFunctionName();
+    QString getFunctionName() const;
 
 private slots:
     void on_buttonBox_accepted();

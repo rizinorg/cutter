@@ -211,8 +211,8 @@ QJsonDocument CutterCore::cmdj(const QString &str)
 
 bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin, const QString &forceBinPlugin)
 {
-    CUTTERNOTUSED(loadaddr);
-    CUTTERNOTUSED(idx);
+    Q_UNUSED(loadaddr);
+    Q_UNUSED(idx);
 
     CORE_LOCK();
     RCoreFile *f;
@@ -541,7 +541,7 @@ QString CutterCore::getConfig(const QString &k)
 
 void CutterCore::setOptions(QString key)
 {
-    CUTTERNOTUSED(key);
+    Q_UNUSED(key);
 
     // va
     // lowercase

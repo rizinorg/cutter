@@ -225,7 +225,7 @@ void Notepad::on_searchEdit_returnPressed()
 
 void Notepad::on_searchEdit_textEdited(const QString &arg1)
 {
-    CUTTERNOTUSED(arg1);
+    Q_UNUSED(arg1);
 
     QString searchString = ui->searchEdit->text();
     QTextDocument *document = ui->notepadTextEdit->document();
@@ -264,7 +264,7 @@ void Notepad::on_searchEdit_textEdited(const QString &arg1)
 
 void Notepad::on_searchEdit_textChanged(const QString &arg1)
 {
-    CUTTERNOTUSED(arg1);
+    Q_UNUSED(arg1);
 
     QString searchString = ui->searchEdit->text();
     QTextDocument *document = ui->notepadTextEdit->document();

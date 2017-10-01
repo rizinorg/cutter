@@ -7,14 +7,13 @@
 
 XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::XrefsDialog)
+    addr(0),
+    func_name(QString::null),
+    ui(new Ui::XrefsDialog),
+    main(main)
 {
-    addr = 0;
-    func_name = QString::null;
-
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    this->main = main;
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = ui->previewTextEdit->document();
@@ -80,7 +79,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    CUTTERNOTUSED(column);
+    Q_UNUSED(column);
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     RAnalFunction *fcn = this->main->core->functionAt(xref.to);
@@ -91,7 +90,7 @@ void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int
 
 void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    CUTTERNOTUSED(column);
+    Q_UNUSED(column);
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     RAnalFunction *fcn = this->main->core->functionAt(xref.from);
@@ -100,7 +99,7 @@ void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int c
     this->close();
 }
 
-QString XrefsDialog::normalizeAddr(QString addr)
+QString XrefsDialog::normalizeAddr(const QString& addr) const
 {
     QString base = addr.split("0x")[1].trimmed();
     int len = base.length();

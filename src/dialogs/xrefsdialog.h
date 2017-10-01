@@ -29,7 +29,7 @@ private slots:
 
     void on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
-    QString normalizeAddr(QString addr);
+    QString normalizeAddr(const QString& addr) const;
 
     void highlightCurrentLine();
     void on_fromTreeWidget_itemSelectionChanged();
