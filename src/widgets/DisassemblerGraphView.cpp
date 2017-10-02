@@ -157,7 +157,7 @@ void DisassemblerGraphView::copy_address()
     QClipboard* clipboard = QApplication::clipboard();
     clipboard->clear();
     QMimeData mime;
-    mime.setText(QString().sprintf("0x%p", this->get_cursor_pos()));
+    mime.setText(QString().sprintf("0x%llx", this->get_cursor_pos()));
     clipboard->setMimeData(&mime);
 }
 
