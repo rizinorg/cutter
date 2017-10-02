@@ -223,7 +223,6 @@ border-top: 0px;
     </property>
     <addaction name="actionDocumentation"/>
     <addaction name="separator"/>
-    <addaction name="actionLicense"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -690,11 +689,6 @@ QToolButton .svg-icon path {
   <action name="actionSearch">
    <property name="text">
     <string>Search</string>
-   </property>
-  </action>
-  <action name="actionLicense">
-   <property name="text">
-    <string>License</string>
    </property>
   </action>
   <action name="actionAnalysis">
