@@ -1,0 +1,42 @@
+version: '1.0-git-{build}'
+skip_tags: true
+image: 'Visual Studio 2015'
+clone_depth: 1
+
+# Build configuration
+configuration:
+  - Release
+
+# Branches to build
+branches:
+  only:
+    - master
+
+# Environment
+environment:
+  PYTHON: 'C:\\Python36-x64'
+  BDIR: build-cmake
+  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-win.zip
+  QTDIR: 'C:\Qt\5.9.1\msvc2015_64'
+
+install:
+  - cmd: git submodule init && git submodule update
+  - cmd: if defined BDIR ( %PYTHON%\python.exe -m pip install meson && COPY %PYTHON%\Scripts\meson.py radare2\meson.py )
+  - cmd: if defined NINJA_URL ( powershell -Command wget %NINJA_URL% -OutFile radare2\ninja.zip && unzip radare2\ninja.zip -d radare2\ )
+
+# Build r2 and generate sln
+before_build:
+  - cmd: dir && dir radare2
+  - cmd: cd radare2 && set "PATH=%PYTHON%;%PATH%" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64 && meson.bat --release && sys\meson_install.bat --with-static radare2_dist && cd ..
+  # Required because meson for windows creates .a
+  - cmd: cd radare2\radare2_dist && rename *.a *.lib && cd ..\..
+  # Build cutter
+  - cmd: set "PATH=%PATH%;%QTDIR%\bin;" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64  && cd src && qmake -tp vc cutter.pro
+  - cmd: dir
+
+# Build config
+build:
+  project: src\cutter.vcxproj
+
+# Tests
+test: off
