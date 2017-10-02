@@ -17,10 +17,7 @@ StringsWidget::StringsWidget(MainWindow *main, QWidget *parent) :
     ui->stringsTreeWidget->hideColumn(0);
 }
 
-StringsWidget::~StringsWidget()
-{
-    delete ui;
-}
+StringsWidget::~StringsWidget() {}
 
 void StringsWidget::setup()
 {

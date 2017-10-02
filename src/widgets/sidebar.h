@@ -2,6 +2,7 @@
 #define SIDEBAR_H
 
 #include <QWidget>
+#include <memory>
 
 class MainWindow;
 
@@ -44,7 +45,7 @@ private slots:
     void on_refreshButton_clicked();
 
 private:
-    Ui::SideBar *ui;
+    std::unique_ptr<Ui::SideBar> ui;
     MainWindow  *main;
 };
 

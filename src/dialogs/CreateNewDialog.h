@@ -3,19 +3,20 @@
 
 #include <QDialog>
 #include "MainWindow.h"
+#include <memory>
 
 namespace Ui
 {
-    class createNewDialog;
+    class CreateNewDialog;
 }
 
-class createNewDialog : public QDialog
+class CreateNewDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit createNewDialog(QWidget *parent = 0);
-    ~createNewDialog();
+    explicit CreateNewDialog(QWidget *parent = 0);
+    ~CreateNewDialog();
 
 private slots:
     void on_pushButton_2_clicked();
@@ -27,7 +28,7 @@ private slots:
     void on_buttonCreate_clicked();
 
 private:
-    Ui::createNewDialog *ui;
+    std::unique_ptr<Ui::CreateNewDialog> ui;
     MainWindow *w;
 };
 

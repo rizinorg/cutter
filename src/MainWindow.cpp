@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "dialogs/CreatenewDialog.h"
+#include "dialogs/CreateNewDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "dialogs/RenameDialog.h"
@@ -38,7 +38,7 @@
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/Helpers.h"
-#include "dialogs/NewfileDialog.h"
+#include "dialogs/NewFileDialog.h"
 
 #include "widgets/MemoryWidget.h"
 #include "widgets/functionswidget.h"
@@ -84,7 +84,7 @@ static void registerCustomFonts()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    core(new CutterCore()),
+    core(new CutterCore),
     memoryDock(nullptr),
     notepadDock(nullptr),
     asmDock(nullptr),
@@ -119,7 +119,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     qDeleteAll(asmSyntaxes);
-    delete ui;
     delete core;
 }
 
@@ -752,7 +751,7 @@ void MainWindow::on_actionCalculator_triggered()
 
 void MainWindow::on_actionCreate_File_triggered()
 {
-    createNewDialog *n = new createNewDialog(this);
+    CreateNewDialog *n = new CreateNewDialog(this);
     n->exec();
 }
 

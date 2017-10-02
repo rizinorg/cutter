@@ -1,6 +1,6 @@
 #include "OptionsDialog.h"
-#include "dialogs/CreatenewDialog.h"
-#include "dialogs/NewfileDialog.h"
+#include "dialogs/CreateNewDialog.h"
+#include "dialogs/NewFileDialog.h"
 #include "ui_NewfileDialog.h"
 
 #include <QFileDialog>
@@ -111,10 +111,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     settings.setValue("recentFileList", files);
 }
 
-NewFileDialog::~NewFileDialog()
-{
-    delete ui;
-}
+NewFileDialog::~NewFileDialog() {}
 
 void NewFileDialog::on_loadFileButton_clicked()
 {
@@ -214,7 +211,7 @@ void NewFileDialog::on_createButton_clicked()
 {
     // Close dialog and open create new file dialog
     close();
-    createNewDialog *n = new createNewDialog(nullptr);
+    CreateNewDialog *n = new CreateNewDialog(nullptr);
     n->exec();
 }
 

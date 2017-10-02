@@ -2,6 +2,7 @@
 #define ABOUTDIALOG_H
 
 #include <QDialog>
+#include <memory>
 
 namespace Ui
 {
@@ -20,7 +21,7 @@ private slots:
     void on_buttonBox_rejected();
 
 private:
-    Ui::AboutDialog *ui;
+    std::unique_ptr<Ui::AboutDialog> ui;
 };
 
 #endif // ABOUTDIALOG_H

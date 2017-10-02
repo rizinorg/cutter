@@ -22,10 +22,7 @@ Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     //this->updateContents();
 }
 
-Dashboard::~Dashboard()
-{
-    delete ui;
-}
+Dashboard::~Dashboard() {}
 
 void Dashboard::setup()
 {

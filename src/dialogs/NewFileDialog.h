@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QListWidgetItem>
+#include <memory>
 
 namespace Ui
 {
@@ -36,7 +37,7 @@ private slots:
     void on_actionClear_all_triggered();
 
 private:
-    Ui::NewFileDialog *ui;
+    std::unique_ptr<Ui::NewFileDialog> ui;
 
     static const int MaxRecentFiles = 5;
 };

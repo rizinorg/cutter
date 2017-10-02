@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
+#include <memory>
 #include "cutter.h"
 #include "dockwidget.h"
 
@@ -72,7 +73,7 @@ private slots:
     void flagsChanged();
 
 private:
-    Ui::FlagsWidget *ui;
+    std::unique_ptr<Ui::FlagsWidget> ui;
     MainWindow      *main;
 
     FlagsModel *flags_model;

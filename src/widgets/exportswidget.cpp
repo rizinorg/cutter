@@ -145,10 +145,7 @@ ExportsWidget::ExportsWidget(MainWindow *main, QWidget *parent) :
     ui->exportsTreeView->sortByColumn(ExportsModel::OFFSET, Qt::AscendingOrder);
 }
 
-ExportsWidget::~ExportsWidget()
-{
-    delete ui;
-}
+ExportsWidget::~ExportsWidget() {}
 
 void ExportsWidget::setup()
 {

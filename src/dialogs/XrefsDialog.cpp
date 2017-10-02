@@ -26,10 +26,7 @@ XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
     connect(ui->previewTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
 }
 
-XrefsDialog::~XrefsDialog()
-{
-    delete ui;
-}
+XrefsDialog::~XrefsDialog() {}
 
 void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs)
 {

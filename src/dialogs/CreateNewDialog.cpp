@@ -1,37 +1,34 @@
 #include <QMessageBox>
-#include "dialogs/NewfileDialog.h"
-#include "dialogs/CreatenewDialog.h"
-#include "ui_CreatenewDialog.h"
+#include "dialogs/NewFileDialog.h"
+#include "dialogs/CreateNewDialog.h"
+#include "ui_CreateNewDialog.h"
 #include "r_util.h"
 
-createNewDialog::createNewDialog(QWidget *parent) :
+CreateNewDialog::CreateNewDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::createNewDialog)
+    ui(new Ui::CreateNewDialog),
+    w(new MainWindow)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    w = new MainWindow(nullptr);
 }
 
-createNewDialog::~createNewDialog()
-{
-    delete ui;
-}
+CreateNewDialog::~CreateNewDialog() {}
 
-void createNewDialog::on_pushButton_2_clicked()
+void CreateNewDialog::on_pushButton_2_clicked()
 {
     // Close dialog and open OptionsDialog
     close();
-    NewFileDialog *n = new NewFileDialog(nullptr);
+    NewFileDialog *n = new NewFileDialog(nullptr); // TODO: This leaks
     n->show();
 }
 
-void createNewDialog::on_pushButton_3_clicked()
+void CreateNewDialog::on_pushButton_3_clicked()
 {
     close();
 }
 
-void createNewDialog::on_exampleButton_clicked()
+void CreateNewDialog::on_exampleButton_clicked()
 {
     QString type = ui->comboType->currentText();
     QString str;
@@ -70,7 +67,7 @@ void createNewDialog::on_exampleButton_clicked()
     // }
 }
 
-void createNewDialog::on_buttonCreate_clicked()
+void CreateNewDialog::on_buttonCreate_clicked()
 {
     RCoreLocked lcore = w->core->core();
     QString type = ui->comboType->currentText();
@@ -219,6 +216,7 @@ void createNewDialog::on_buttonCreate_clicked()
         __alert("TODO: non-raw fileformat is not yet supported");
         created = false;
         delete w->core;
+        w->core = nullptr;
     }
 
     if (created)

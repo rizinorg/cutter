@@ -380,10 +380,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
             this, SLOT(showTitleContextMenu(const QPoint &)));
 }
 
-FunctionsWidget::~FunctionsWidget()
-{
-    delete ui;
-}
+FunctionsWidget::~FunctionsWidget() {}
 
 void FunctionsWidget::setup()
 {

@@ -2,6 +2,7 @@
 #define RELOCSWIDGET_H
 
 #include "dashboard.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -27,7 +28,7 @@ private slots:
     void on_relocsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    Ui::RelocsWidget *ui;
+    std::unique_ptr<Ui::RelocsWidget> ui;
     MainWindow      *main;
 
     void fillTreeWidget();

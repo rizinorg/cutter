@@ -42,10 +42,7 @@ Notepad::Notepad(MainWindow *main, QWidget *parent) :
             this, SLOT(showNotepadContextMenu(const QPoint &)));
 }
 
-Notepad::~Notepad()
-{
-    delete ui;
-}
+Notepad::~Notepad() {}
 
 void Notepad::setup()
 {

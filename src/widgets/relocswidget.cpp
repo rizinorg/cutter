@@ -17,10 +17,7 @@ RelocsWidget::RelocsWidget(MainWindow *main, QWidget *parent) :
     ui->relocsTreeWidget->hideColumn(0);
 }
 
-RelocsWidget::~RelocsWidget()
-{
-    delete ui;
-}
+RelocsWidget::~RelocsWidget() {}
 
 void RelocsWidget::setup()
 {

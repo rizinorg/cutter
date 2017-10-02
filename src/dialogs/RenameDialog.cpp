@@ -9,10 +9,7 @@ RenameDialog::RenameDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 }
 
-RenameDialog::~RenameDialog()
-{
-    delete ui;
-}
+RenameDialog::~RenameDialog() {}
 
 void RenameDialog::on_buttonBox_accepted()
 {

@@ -26,10 +26,7 @@ EntrypointWidget::EntrypointWidget(MainWindow *main, QWidget *parent) :
     ui->entrypointTreeWidget->hideColumn(0);
 }
 
-EntrypointWidget::~EntrypointWidget()
-{
-    delete ui;
-}
+EntrypointWidget::~EntrypointWidget() {}
 
 void EntrypointWidget::setup()
 {

@@ -35,7 +35,7 @@ void AnalThread::start(MainWindow *main, int level, QList<QString> advanced)
 void AnalThread::run()
 {
     const auto optionsDialog = dynamic_cast<OptionsDialog *>(parent());
-    const auto ui = optionsDialog->ui;
+    const auto& ui = optionsDialog->ui;
     int va = ui->vaCheckBox->isChecked();
     ut64 loadaddr = 0LL;
     ut64 mapaddr = 0LL;

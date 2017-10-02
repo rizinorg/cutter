@@ -2,6 +2,7 @@
 #define DASHBOARD_H
 
 #include "dockwidget.h"
+#include <memory>
 
 class MainWindow;
 
@@ -25,7 +26,7 @@ public:
 private:
     void updateContents();
 
-    Ui::Dashboard   *ui;
+    std::unique_ptr<Ui::Dashboard>   ui;
     MainWindow      *main;
 };
 

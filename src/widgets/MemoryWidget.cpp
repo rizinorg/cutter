@@ -397,10 +397,7 @@ RVA MemoryWidget::readCurrentDisassemblyOffset()
     return ele.toULongLong(0, 16);
 }
 
-MemoryWidget::~MemoryWidget()
-{
-    delete ui;
-}
+MemoryWidget::~MemoryWidget() {}
 
 void MemoryWidget::setup()
 {
