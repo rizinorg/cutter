@@ -31,8 +31,6 @@ Cutter is developed on OS X, Linux and Windows. The first release for users will
 
 Proper documentation and website will be created before the first release.
 
-Roadmap information for developers can be found [here](docs/Roadmap.md).
-
 ## Help
 
 Right now the best place to obtain help from *cutter* developers and community is joining this telegram group:
