@@ -6,7 +6,7 @@
 
 // TODO: remove us
 #include "widgets/MemoryWidget.h"
-#include "widgets/notepad.h"
+#include "widgets/Notepad.h"
 #include "Settings.h"
 
 #include <QSettings>

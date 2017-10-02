@@ -15,7 +15,7 @@
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
-#include "dashboard.h"
+#include "Dashboard.h"
 #include "widgets/DisassemblerGraphView.h"
 
 class MainWindow;
