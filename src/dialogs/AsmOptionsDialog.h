@@ -4,6 +4,7 @@
 
 #include <QDialog>
 #include <QPushButton>
+#include <memory>
 
 #include "cutter.h"
 
@@ -23,7 +24,7 @@ public:
 private:
     CutterCore *core;
 
-    Ui::AsmOptionsDialog *ui;
+    std::unique_ptr<Ui::AsmOptionsDialog> ui;
 
     void updateFromVars();
 

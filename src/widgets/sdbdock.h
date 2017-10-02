@@ -2,6 +2,7 @@
 #define SDBDOCK_H
 
 #include "dockwidget.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -31,7 +32,7 @@ private slots:
     void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
 
 private:
-    Ui::SdbDock *ui;
+    std::unique_ptr<Ui::SdbDock> ui;
     QString path;
     MainWindow      *main;
 

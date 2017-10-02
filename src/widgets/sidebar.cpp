@@ -33,10 +33,7 @@ SideBar::SideBar(MainWindow *main) :
     }
 }
 
-SideBar::~SideBar()
-{
-    delete ui;
-}
+SideBar::~SideBar() {}
 
 void SideBar::on_tabsButton_clicked()
 {

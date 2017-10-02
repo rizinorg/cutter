@@ -2,6 +2,7 @@
 #define FLAGDIALOG_H
 
 #include <QDialog>
+#include <memory>
 #include "cutter.h"
 
 namespace Ui
@@ -22,7 +23,7 @@ private slots:
     void on_buttonBox_rejected();
 
 private:
-    Ui::FlagDialog *ui;
+    std::unique_ptr<Ui::FlagDialog> ui;
 
     CutterCore *core;
     RVA offset;

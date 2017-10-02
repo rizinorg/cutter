@@ -2,6 +2,7 @@
 #define COMMENTSDIALOG_H
 
 #include <QDialog>
+#include <memory>
 
 namespace Ui
 {
@@ -24,7 +25,7 @@ private slots:
     void on_buttonBox_rejected();
 
 private:
-    Ui::CommentsDialog *ui;
+    std::unique_ptr<Ui::CommentsDialog> ui;
 };
 
 #endif // COMMENTSDIALOG_H

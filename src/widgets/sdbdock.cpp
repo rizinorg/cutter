@@ -93,10 +93,7 @@ void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
     }
 }
 
-SdbDock::~SdbDock()
-{
-    delete ui;
-}
+SdbDock::~SdbDock() {}
 
 void SdbDock::setup()
 {

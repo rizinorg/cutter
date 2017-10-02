@@ -2,6 +2,7 @@
 #define COMMENTSWIDGET_H
 
 #include "dockwidget.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -42,7 +43,7 @@ private slots:
     void refreshTree();
 
 private:
-    Ui::CommentsWidget *ui;
+    std::unique_ptr<Ui::CommentsWidget> ui;
     MainWindow      *main;
 };
 

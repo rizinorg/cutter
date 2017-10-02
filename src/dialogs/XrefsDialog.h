@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QTreeWidgetItem>
+#include <memory>
 #include "utils/Highlighter.h"
 #include "cutter.h"
 
@@ -40,7 +41,7 @@ private:
     RVA addr;
     QString func_name;
 
-    Ui::XrefsDialog *ui;
+    std::unique_ptr<Ui::XrefsDialog> ui;
     MainWindow *main;
 
     Highlighter      *highlighter;

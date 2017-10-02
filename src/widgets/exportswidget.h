@@ -3,6 +3,7 @@
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <memory>
 #include "cutter.h"
 #include "dockwidget.h"
 
@@ -73,7 +74,7 @@ private slots:
     void on_exportsTreeView_doubleClicked(const QModelIndex &index);
 
 private:
-    Ui::ExportsWidget *ui;
+    std::unique_ptr<Ui::ExportsWidget> ui;
     MainWindow      *main;
 
     ExportsModel *exports_model;

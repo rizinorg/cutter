@@ -5,10 +5,11 @@
 
 #include "utils/Helpers.h"
 
-AsmOptionsDialog::AsmOptionsDialog(CutterCore *core, QWidget *parent) : QDialog(parent), ui(new Ui::AsmOptionsDialog)
+AsmOptionsDialog::AsmOptionsDialog(CutterCore *core, QWidget *parent)
+  : QDialog(parent),
+    core(core),
+    ui(new Ui::AsmOptionsDialog)
 {
-    this->core = core;
-
     ui->setupUi(this);
 
     ui->buttonBox->addButton(tr("Save as Defaults"), QDialogButtonBox::ButtonRole::ApplyRole);
@@ -21,10 +22,7 @@ AsmOptionsDialog::AsmOptionsDialog(CutterCore *core, QWidget *parent) : QDialog(
     updateFromVars();
 }
 
-AsmOptionsDialog::~AsmOptionsDialog()
-{
-    delete ui;
-}
+AsmOptionsDialog::~AsmOptionsDialog() {}
 
 void AsmOptionsDialog::updateFromVars()
 {

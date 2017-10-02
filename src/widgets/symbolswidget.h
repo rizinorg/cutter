@@ -2,6 +2,7 @@
 #define SYMBOLSWIDGET_H
 
 #include "dockwidget.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -27,7 +28,7 @@ private slots:
     void on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    Ui::SymbolsWidget *ui;
+    std::unique_ptr<Ui::SymbolsWidget> ui;
     MainWindow      *main;
 
     void fillSymbols();

@@ -10,6 +10,7 @@
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QMouseEvent>
+#include <memory>
 #include "cutter.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
@@ -96,7 +97,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    Ui::MemoryWidget *ui;
+    std::unique_ptr<Ui::MemoryWidget> ui;
 
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;

@@ -34,12 +34,10 @@ void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
 
 ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
     DockWidget(parent),
-    ui(new Ui::ImportsWidget)
+    ui(new Ui::ImportsWidget),
+    main(main)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     // Delegate
     //CMyDelegate* delegate = new CMyDelegate(ui->importsTreeWidget);
@@ -48,10 +46,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
     ui->importsTreeWidget->hideColumn(0);
 }
 
-ImportsWidget::~ImportsWidget()
-{
-    delete ui;
-}
+ImportsWidget::~ImportsWidget() {}
 
 void ImportsWidget::setup()
 {

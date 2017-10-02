@@ -2,6 +2,7 @@
 #define RENAMEDIALOG_H
 
 #include <QDialog>
+#include <memory>
 
 namespace Ui
 {
@@ -25,7 +26,7 @@ private slots:
     void on_buttonBox_rejected();
 
 private:
-    Ui::RenameDialog *ui;
+    std::unique_ptr<Ui::RenameDialog> ui;
 };
 
 #endif // RENAMEDIALOG_H

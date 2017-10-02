@@ -25,10 +25,7 @@ SectionsDock::SectionsDock(MainWindow *main, QWidget *parent) :
             this, SLOT(showSectionsContextMenu(const QPoint &)));
 }
 
-SectionsDock::~SectionsDock()
-{
-    delete ui;
-}
+SectionsDock::~SectionsDock() {}
 
 void SectionsDock::setup()
 {

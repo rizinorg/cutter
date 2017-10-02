@@ -140,10 +140,7 @@ FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
     connect(main->core, SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
 }
 
-FlagsWidget::~FlagsWidget()
-{
-    delete ui;
-}
+FlagsWidget::~FlagsWidget() {}
 
 void FlagsWidget::setup()
 {

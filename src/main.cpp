@@ -4,7 +4,7 @@
 #include <QMessageBox>
 
 #include "MainWindow.h"
-#include "dialogs/NewfileDialog.h"
+#include "dialogs/NewFileDialog.h"
 #include "dialogs/OptionsDialog.h"
 
 int main(int argc, char *argv[])

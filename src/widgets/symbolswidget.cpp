@@ -17,10 +17,7 @@ SymbolsWidget::SymbolsWidget(MainWindow *main, QWidget *parent) :
     ui->symbolsTreeWidget->hideColumn(0);
 }
 
-SymbolsWidget::~SymbolsWidget()
-{
-    delete ui;
-}
+SymbolsWidget::~SymbolsWidget() {}
 
 void SymbolsWidget::setup()
 {

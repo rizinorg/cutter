@@ -32,10 +32,7 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     ui->frame->hide();
 }
 
-CommentsWidget::~CommentsWidget()
-{
-    delete ui;
-}
+CommentsWidget::~CommentsWidget() {}
 
 void CommentsWidget::setup()
 {

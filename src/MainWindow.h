@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QList>
+#include <memory>
 #include "radarewebserver.h"
 #include "cutter.h" // only needed for ut64
 
@@ -44,7 +45,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    CutterCore *core;
+    CutterCore* core;
     MemoryWidget    *memoryDock;
     Notepad         *notepadDock;
 
@@ -185,7 +186,7 @@ private:
     ut64 hexdumpBottomOffset;
     QString filename;
     QList<DockWidget *> dockWidgets;
-    Ui::MainWindow   *ui;
+    std::unique_ptr<Ui::MainWindow> ui;
     Highlighter      *highlighter;
     AsciiHighlighter *hex_highlighter;
     GraphicsBar      *graphicsBar;

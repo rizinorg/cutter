@@ -4,6 +4,7 @@
 #include "dockwidget.h"
 #include <QStyledItemDelegate>
 #include <QTreeWidgetItem>
+#include <memory>
 
 class MainWindow;
 class QTreeWidget;
@@ -29,7 +30,7 @@ private slots:
     void on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    Ui::EntrypointWidget *ui;
+    std::unique_ptr<Ui::EntrypointWidget> ui;
     MainWindow      *main;
 
     void fillEntrypoint();

@@ -2,6 +2,7 @@
 #define STRINGSWIDGET_H
 
 #include "dockwidget.h"
+#include <memory>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -29,7 +30,7 @@ private slots:
     void on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
 private:
-    Ui::StringsWidget *ui;
+    std::unique_ptr<Ui::StringsWidget> ui;
     MainWindow      *main;
 
     void fillTreeWidget();

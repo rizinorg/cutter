@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QStringList>
+#include <memory>
 #include "cutter.h"
 #include "analthread.h"
 #include "ui_OptionsDialog.h"
@@ -46,7 +47,7 @@ private:
 
     void updateCPUComboBox();
 public:
-    Ui::OptionsDialog *ui;
+    std::unique_ptr<Ui::OptionsDialog> ui;
     QString getSelectedArch();
     QString getSelectedCPU();
     int getSelectedBits();

@@ -1,7 +1,7 @@
 #include "OptionsDialog.h"
 #include "ui_OptionsDialog.h"
 #include "MainWindow.h"
-#include "dialogs/NewfileDialog.h"
+#include "dialogs/NewFileDialog.h"
 #include "utils/Helpers.h"
 
 // TODO: remove us
@@ -66,10 +66,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     this->main->core->tryFile(fi.filePath(), fi.isWritable());
 }
 
-OptionsDialog::~OptionsDialog()
-{
-    delete ui;
-}
+OptionsDialog::~OptionsDialog() {}
 
 void OptionsDialog::updateCPUComboBox()
 {

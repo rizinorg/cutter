@@ -2,6 +2,7 @@
 #define NOTEPAD_H
 
 #include "dockwidget.h"
+#include <memory>
 
 class MainWindow;
 class MdHighlighter;
@@ -71,7 +72,7 @@ private slots:
     void on_actionHexdump_function_triggered();
 
 private:
-    Ui::Notepad         *ui;
+    std::unique_ptr<Ui::Notepad> ui;
     MdHighlighter       *highlighter;
     Highlighter         *disasm_highlighter;
     bool                isFirstTime;

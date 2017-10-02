@@ -3,6 +3,7 @@
 
 #include <QSortFilterProxyModel>
 #include <QTreeView>
+#include <memory>
 #include "cutter.h"
 #include "dockwidget.h"
 
@@ -111,7 +112,7 @@ protected:
 private:
     QTreeView *getCurrentTreeView();
 
-    Ui::FunctionsWidget *ui;
+    std::unique_ptr<Ui::FunctionsWidget> ui;
     MainWindow      *main;
 
     QList<FunctionDescription> functions;

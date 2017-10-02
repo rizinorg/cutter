@@ -17,10 +17,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
                           "Hugo Teso &lt;hugo.teso@gmail.org&gt;\nSoon to be thousands more!"));
 }
 
-AboutDialog::~AboutDialog()
-{
-    delete ui;
-}
+AboutDialog::~AboutDialog() {}
 
 void AboutDialog::on_buttonBox_rejected()
 {

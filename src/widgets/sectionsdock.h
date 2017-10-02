@@ -2,6 +2,7 @@
 #define SECTIONSDOCK_H
 
 #include "dockwidget.h"
+#include <memory>
 
 class MainWindow;
 class SectionsWidget;
@@ -35,7 +36,7 @@ private slots:
     void on_actionHorizontal_triggered();
 
 private:
-    Ui::SectionsDock *ui;
+    std::unique_ptr<Ui::SectionsDock> ui;
     MainWindow      *main;
     SectionsWidget  *sectionsWidget;
 };

@@ -2,9 +2,9 @@
 #define CONSOLEWIDGET_H
 
 #include <QWidget>
+#include <memory>
 
 class CutterCore;
-
 class QAction;
 
 namespace Ui
@@ -50,7 +50,7 @@ private:
     void historyAdd(const QString &input);
     void invalidateHistoryPosition();
 
-    Ui::ConsoleWidget *ui;
+    std::unique_ptr<Ui::ConsoleWidget> ui;
     CutterCore  *core;
     QList<QAction *> actions;
     bool debugOutputEnabled;

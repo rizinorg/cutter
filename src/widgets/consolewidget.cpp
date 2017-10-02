@@ -153,10 +153,7 @@ ConsoleWidget::ConsoleWidget(CutterCore *core, QWidget *parent) :
     historyOnDown->setContext(Qt::WidgetShortcut);
 }
 
-ConsoleWidget::~ConsoleWidget()
-{
-    delete ui;
-}
+ConsoleWidget::~ConsoleWidget() {}
 
 void ConsoleWidget::addOutput(const QString &msg)
 {

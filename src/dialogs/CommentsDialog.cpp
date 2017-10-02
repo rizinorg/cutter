@@ -9,10 +9,7 @@ CommentsDialog::CommentsDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 }
 
-CommentsDialog::~CommentsDialog()
-{
-    delete ui;
-}
+CommentsDialog::~CommentsDialog() {}
 
 void CommentsDialog::on_buttonBox_accepted()
 {

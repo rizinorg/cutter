@@ -62,10 +62,8 @@ SOURCES += \
     utils/RichTextPainter.cpp \
     dialogs/OptionsDialog.cpp \
     dialogs/AboutDialog.cpp \
-    dialogs/AsmoptionsDialog.cpp \
     dialogs/CommentsDialog.cpp \
     dialogs/FlagDialog.cpp \
-    dialogs/NewfileDialog.cpp \
     dialogs/RenameDialog.cpp \
     dialogs/XrefsDialog.cpp \
     MainWindow.cpp \
@@ -73,8 +71,10 @@ SOURCES += \
     utils/HexAsciiHighlighter.cpp \
     utils/HexHighlighter.cpp \
     utils/Highlighter.cpp \
-    dialogs/CreatenewDialog.cpp \
-    utils/MdHighlighter.cpp
+    utils/MdHighlighter.cpp \
+    dialogs/AsmOptionsDialog.cpp \
+    dialogs/CreateNewDialog.cpp \
+    dialogs/NewFileDialog.cpp
 
 HEADERS  += \
     widgets/pieview.h \
@@ -110,16 +110,16 @@ HEADERS  += \
     dialogs/FlagDialog.h \
     dialogs/RenameDialog.h \
     dialogs/XrefsDialog.h \
-    dialogs/CreatenewDialog.h \
     utils/Helpers.h \
     utils/HexAsciiHighlighter.h \
     utils/HexHighlighter.h \
     MainWindow.h \
     utils/Highlighter.h \
     utils/MdHighlighter.h \
-    dialogs/NewfileDialog.h \
     Settings.h \
-    dialogs/OptionsDialog.h
+    dialogs/OptionsDialog.h \
+    dialogs/CreateNewDialog.h \
+    dialogs/NewFileDialog.h
 
 FORMS    += \
     widgets/notepad.ui \
@@ -144,10 +144,10 @@ FORMS    += \
     dialogs/FlagDialog.ui \
     dialogs/RenameDialog.ui \
     dialogs/XrefsDialog.ui \
-    dialogs/CreatenewDialog.ui \
     dialogs/NewfileDialog.ui \
     dialogs/OptionsDialog.ui \
-    MainWindow.ui
+    MainWindow.ui \
+    dialogs/CreateNewDialog.ui
 
 RESOURCES += \
     resources.qrc
