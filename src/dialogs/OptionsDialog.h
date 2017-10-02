@@ -5,13 +5,9 @@
 #include <QStringList>
 #include "cutter.h"
 #include "analthread.h"
+#include "ui_OptionsDialog.h"
 
 class MainWindow;
-
-namespace Ui
-{
-    class OptionsDialog;
-}
 
 class OptionsDialog : public QDialog
 {

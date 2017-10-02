@@ -3,7 +3,6 @@
 #include "analthread.h"
 #include "MainWindow.h"
 #include "Settings.h"
-#include "ui_OptionsDialog.h"
 #include "dialogs/OptionsDialog.h"
 
 AnalThread::AnalThread(OptionsDialog *parent) :
