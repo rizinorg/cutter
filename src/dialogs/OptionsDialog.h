@@ -5,7 +5,7 @@
 #include <QStringList>
 #include <memory>
 #include "cutter.h"
-#include "analthread.h"
+#include "AnalThread.h"
 #include "ui_OptionsDialog.h"
 
 class MainWindow;

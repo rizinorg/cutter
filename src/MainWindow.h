@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QList>
 #include <memory>
-#include "radarewebserver.h"
+#include "RadareWebServer.h"
 #include "cutter.h" // only needed for ut64
 
 class CutterCore;
