@@ -18,8 +18,8 @@ public slots:
     void fillData();
 
 private:
-    MainWindow      *main;
     QGraphicsView   *codeGraphic;
+    MainWindow      *main;
 };
 
 #endif // GRAPHICSBAR_H
