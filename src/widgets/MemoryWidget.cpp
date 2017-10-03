@@ -7,6 +7,7 @@
 #include "dialogs/XrefsDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/CommentsDialog.h"
+#include "dialogs/AsmOptionsDialog.h"
 #include "dialogs/FlagDialog.h"
 
 #include <QTemporaryFile>
@@ -988,6 +989,12 @@ void MemoryWidget::showHexASCIIContextMenu(const QPoint &pt)
     delete menu;
 }
 
+void MemoryWidget::on_actionDisplayOptions_triggered()
+{
+    auto dialog = new AsmOptionsDialog(main->core, this);
+    dialog->show();
+}
+
 void MemoryWidget::showDisasContextMenu(const QPoint &pt)
 {
     // Set Disas popup menu
@@ -1018,6 +1025,8 @@ void MemoryWidget::showDisasContextMenu(const QPoint &pt)
         menu->addAction(ui->actionDisasCopy_All);
         menu->addAction(ui->actionDisasCopy_Bytes);
         menu->addAction(ui->actionDisasCopy_Disasm);
+        menu->addSeparator();
+        menu->addAction(ui->actionDisplayOptions);
 
         ui->disasTextEdit_2->setContextMenuPolicy(Qt::CustomContextMenu);
     }

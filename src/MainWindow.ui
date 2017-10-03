@@ -761,6 +761,11 @@ QToolButton .svg-icon path {
     <string>Copy Disasm</string>
    </property>
   </action>
+  <action name="actionDisplayOptions">
+   <property name="text">
+    <string>Copy Disasm</string>
+   </property>
+  </action>
   <action name="actionStart_Web_Server">
    <property name="checkable">
     <bool>true</bool>

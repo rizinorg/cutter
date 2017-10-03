@@ -2823,6 +2823,11 @@ QToolTip {
     <string>Copy bytes</string>
    </property>
   </action>
+  <action name="actionDisplayOptions">
+   <property name="text">
+    <string>Display Options</string>
+   </property>
+  </action>
   <action name="actionDisasCopy_Disasm">
    <property name="text">
     <string>Copy disasm</string>

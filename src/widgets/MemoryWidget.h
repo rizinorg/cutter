@@ -134,6 +134,8 @@ private slots:
     void on_actionHideDisasm_side_panel_triggered();
     void on_actionHideHexdump_side_panel_triggered();
     void on_actionHideGraph_side_panel_triggered();
+    void on_actionDisplayOptions_triggered();
+
     void on_disasButton_clicked();
     void on_graphButton_clicked();
     void on_hexButton_clicked();
