@@ -23,6 +23,12 @@ sys/install.sh
     - Download: [Qt Open Source](https://info.qt.io/download-qt-for-application-development)
     - Add Qt 5.9.1: http://doc.qt.io/qtcreator/creator-project-qmake.html
 
+## Troubleshoting
+
+On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installed with brew. Run this command to workaround the issue:
+
+	sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
+
 ## Platforms
 
 Cutter is developed on OS X, Linux and Windows. The first release for users will include installers for all three platforms.
