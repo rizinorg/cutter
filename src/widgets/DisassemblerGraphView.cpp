@@ -9,6 +9,11 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#ifdef _WIN32
+#undef min
+#undef max
+#endif
+
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterCore *core)
     : QAbstractScrollArea(parent),
       //currentGraph(duint(0)),
