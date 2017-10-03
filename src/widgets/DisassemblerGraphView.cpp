@@ -14,11 +14,12 @@
 #undef max
 #endif
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterCore *core)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, MainWindow *main)
     : QAbstractScrollArea(parent),
       //currentGraph(duint(0)),
       //disasm(ConfigUint("Disassembler", "MaxModuleSize")),
-      mCore(core),
+      mCore(main->core),
+      mMain(main),
       mFontMetrics(nullptr),
       syncOrigin(false),
       mCip(0),
@@ -46,11 +47,17 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterCore *core)
     this->saveGraph = false;
 
     //Create timer to automatically refresh view when it needs to be updated
+    //this->updateTimer = new QTimer();
+    //this->updateTimer->setInterval(1000); // TODO Probably too slow
+    //this->updateTimer->setSingleShot(false);
+    //connect(this->updateTimer, SIGNAL(timeout()), this, SLOT(updateTimerEvent()));
+    //this->updateTimer->start();
+    // Remove above comments?
+    // Draw the first graph after 1s
     this->updateTimer = new QTimer();
-    this->updateTimer->setInterval(1000); // TODO Probably too slow
-    this->updateTimer->setSingleShot(false);
+    this->updateTimer->setSingleShot(true);
     connect(this->updateTimer, SIGNAL(timeout()), this, SLOT(updateTimerEvent()));
-    this->updateTimer->start();
+    this->updateTimer->start(1000);
 
     this->initFont();
 
@@ -68,6 +75,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterCore *core)
     setupContextMenu();
 
     //Connect to bridge
+    connect(main, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     //connect(Bridge::getBridge(), SIGNAL(loadGraph(BridgeCFGraphList*, duint)), this, SLOT(loadGraphSlot(BridgeCFGraphList*, duint)));
     //connect(Bridge::getBridge(), SIGNAL(graphAt(duint)), this, SLOT(graphAtSlot(duint)));
     //connect(Bridge::getBridge(), SIGNAL(updateGraph()), this, SLOT(updateGraphSlot()));
@@ -1057,8 +1065,6 @@ static void initVec(std::vector<T> & vec, size_t size, T value)
 
 void DisassemblerGraphView::renderFunction(Function & func)
 {
-    qDebug() << "Render function...";
-
     //Create render nodes
     this->blocks.clear();
     for(Block & block : func.blocks)
@@ -1397,6 +1403,9 @@ void DisassemblerGraphView::renderFunction(Function & func)
 
 void DisassemblerGraphView::updateTimerEvent()
 {
+    on_seekChanged(0);
+    return;
+    // TODO: Remove it if not used anymore
     //qDebug() << status << this->status << this->function << this->ready << this->update_id << this->analysis.update_id;
     // TODO status is useless (for now at least)
     auto status = this->analysis.status;
@@ -1406,9 +1415,7 @@ void DisassemblerGraphView::updateTimerEvent()
         this->viewport()->update();
     }
 
-    // TODO Dirty hack // TODO Use a global slot for seek command (xarkes)
-    auto s = sdb_atoi(mCore->cmd("s").toLocal8Bit().constData());
-    if(this->function == 0 || this->function != s)
+    if(this->function == 0)
     {
         loadCurrentGraph();
         return;
@@ -1549,8 +1556,6 @@ void DisassemblerGraphView::loadCurrentGraph()
     f.ready = true;
     f.entry = func["offset"].toInt();
     f.update_id = anal.update_id;
-    // TODO TMP HACK // TODO Use global slot for seeking (xarkes)
-    mCore->cmd(QString("s %1").arg(f.entry));
 
     for (QJsonValueRef blockRef : func["blocks"].toArray()) {
         QJsonObject block = blockRef.toObject();
@@ -1719,6 +1724,13 @@ void DisassemblerGraphView::loadCurrentGraph()
     Bridge::getBridge()->setResult(1);
 }
 */
+
+void DisassemblerGraphView::on_seekChanged(RVA addr)
+{
+    Q_UNUSED(addr);
+    loadCurrentGraph();
+    this->renderFunction(this->analysis.functions[this->function]);
+}
 
 void DisassemblerGraphView::graphAtSlot(duint addr)
 {

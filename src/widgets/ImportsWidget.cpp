@@ -108,5 +108,5 @@ void ImportsWidget::setScrollMode()
 void ImportsWidget::on_importsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /* column */)
 {
     ImportDescription imp = item->data(0, Qt::UserRole).value<ImportDescription>();
-    this->main->seek(imp.plt, imp.name, true);
+    this->main->seek(imp.plt);
 }

@@ -219,8 +219,6 @@ void FunctionModel::cursorAddressChanged(RVA)
 
 void FunctionModel::updateCurrentIndex()
 {
-    RVA addr = main->getCursorAddress();
-
     int index = -1;
     RVA offset = 0;
 
@@ -228,7 +226,7 @@ void FunctionModel::updateCurrentIndex()
     {
         const FunctionDescription &function = functions->at(i);
 
-        if (function.contains(addr)
+        if (function.contains(this->main->core->getOffset())
                 && function.offset >= offset)
         {
             offset = function.offset;
@@ -424,7 +422,7 @@ QTreeView *FunctionsWidget::getCurrentTreeView()
 void FunctionsWidget::functionsTreeView_doubleClicked(const QModelIndex &index)
 {
     FunctionDescription function = index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    this->main->seek(function.offset, function.name, true);
+    this->main->seek(function.offset);
 }
 
 void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
@@ -462,7 +460,7 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
         // Rename function in r2 core
         this->main->core->setComment(function.offset, comment);
         // Seek to new renamed function
-        this->main->seek(function.offset, function.name);
+        this->main->seek(function.offset);
         // TODO: Refresh functions tree widget
     }
     this->main->refreshComments();

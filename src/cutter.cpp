@@ -3,6 +3,7 @@
 #include "cutter.h"
 #include "sdb.h"
 #include "Settings.h"
+#include "MainWindow.h"
 
 
 #define DB this->db

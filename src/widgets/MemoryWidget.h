@@ -88,8 +88,6 @@ public slots:
 
     void selectHexPreview();
 
-    void updateViews(RVA offset = RVA_INVALID);
-
     void showOffsets(bool show);
 
 protected:
@@ -117,8 +115,8 @@ private:
     bool loadMoreDisassembly();
 
 private slots:
-    void on_globalSeekTo(RVA addr);
     void on_cursorAddressChanged(RVA addr);
+    void on_seekChanged(RVA addr);
 
     void highlightCurrentLine();
 
@@ -165,9 +163,7 @@ private slots:
     QList<QString> get_hexdump(const QString &offset);
 
     void showXrefsDialog();
-    //void showDisas();
-    //void showHexdump();
-    //void showGraph();
+    void updateViews(RVA offset = RVA_INVALID);
     void cycleViews();
     void on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);

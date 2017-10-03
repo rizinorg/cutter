@@ -32,6 +32,9 @@
 
 #define APPNAME "Cutter"
 
+typedef ut64 RVA;
+#define RVA_INVALID UT64_MAX
+
 class RCoreLocked
 {
     RCore *core;
@@ -44,11 +47,9 @@ public:
     ~RCoreLocked();
     operator RCore *() const;
     RCore *operator->() const;
+    RVA seek(RVA offset);
+    RVA getSeek();
 };
-
-typedef ut64 RVA;
-
-#define RVA_INVALID UT64_MAX
 
 inline QString RAddressString(RVA addr)
 {

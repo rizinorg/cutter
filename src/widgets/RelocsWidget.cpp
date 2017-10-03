@@ -37,7 +37,7 @@ void RelocsWidget::on_relocsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, 
 
     // Get offset and name of item double clicked
     RelocDescription reloc = item->data(0, Qt::UserRole).value<RelocDescription>();
-    main->seek(reloc.vaddr, reloc.name, true);
+    main->seek(reloc.vaddr);
 }
 
 void RelocsWidget::fillTreeWidget()

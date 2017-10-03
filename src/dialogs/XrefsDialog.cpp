@@ -80,7 +80,8 @@ void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     RAnalFunction *fcn = this->main->core->functionAt(xref.to);
-    this->main->seek(xref.to, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
+    // TODO Seek
+    //this->main->seek(xref.to, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
 
     this->close();
 }
@@ -91,7 +92,8 @@ void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int c
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     RAnalFunction *fcn = this->main->core->functionAt(xref.from);
-    this->main->seek(xref.from, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
+    // TODO Seek
+    //this->main->seek(xref.from, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
 
     this->close();
 }

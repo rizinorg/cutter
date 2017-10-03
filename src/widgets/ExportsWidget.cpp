@@ -179,5 +179,5 @@ void ExportsWidget::setScrollMode()
 void ExportsWidget::on_exportsTreeView_doubleClicked(const QModelIndex &index)
 {
     ExportDescription exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
-    this->main->seek(exp.vaddr, exp.flag_name, true);
+    this->main->seek(exp.vaddr);
 }

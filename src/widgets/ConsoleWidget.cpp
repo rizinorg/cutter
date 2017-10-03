@@ -90,10 +90,11 @@ static bool isForbidden(const QString &input)
 
 
 
-ConsoleWidget::ConsoleWidget(CutterCore *core, QWidget *parent) :
+ConsoleWidget::ConsoleWidget(MainWindow *main, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConsoleWidget),
-    core(core),
+    core(main->core),
+    main(main),
     debugOutputEnabled(true),
     maxHistoryEntries(100),
     lastHistoryPosition(invalidHistoryPos)
@@ -175,6 +176,17 @@ void ConsoleWidget::focusInputLineEdit()
     ui->inputLineEdit->setFocus();
 }
 
+QString ConsoleWidget::executeCommand(QString command)
+{
+    RVA offset = this->core->getOffset();
+    QString res = this->core->cmd(command);
+    RVA newOffset = this->core->getOffset();
+    if (offset != newOffset) {
+        emit main->seekChanged(newOffset);
+    }
+    return res;
+}
+
 void ConsoleWidget::on_inputLineEdit_returnPressed()
 {
     QString input = ui->inputLineEdit->text();
@@ -182,9 +194,9 @@ void ConsoleWidget::on_inputLineEdit_returnPressed()
     {
         if (!isForbidden(input))
         {
-            ui->outputTextEdit->appendPlainText(this->core->cmd(input));
+            QString res = executeCommand(input);
+            ui->outputTextEdit->appendPlainText(res);
             scrollOutputToEnd();
-
             historyAdd(input);
         }
         else
@@ -211,6 +223,7 @@ void ConsoleWidget::showCustomContextMenu(const QPoint &pt)
 
 void ConsoleWidget::syncWithCoreToggled(bool checked)
 {
+    // TODO Core and Cutter are always in sync
     if (checked)
     {
         //Enable core syncronization

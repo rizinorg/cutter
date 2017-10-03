@@ -113,12 +113,10 @@ MainWindow::MainWindow(QWidget *parent) :
     webserver(core)
 {
     doLock = false;
-    this->cursor_address = core->getOffset();
 }
 
 MainWindow::~MainWindow()
 {
-    qDeleteAll(asmSyntaxes);
     delete core;
 }
 
@@ -135,7 +133,7 @@ void MainWindow::initUI()
     // Hide central tab widget tabs
     QTabBar *centralbar = ui->centralTabWidget->tabBar();
     centralbar->setVisible(false);
-    consoleWidget = new ConsoleWidget(core, this);
+    consoleWidget = new ConsoleWidget(this, this);
     ui->tabVerticalLayout->addWidget(consoleWidget);
 
     // Sepparator between back/forward and undo/redo buttons
@@ -690,55 +688,26 @@ void MainWindow::toggleDockWidget(DockWidget *dock_widget)
     }
 }
 
-void MainWindow::seek(const QString &offset, const QString &name, bool raise_memory_dock)
+void MainWindow::setCursorAddress(RVA addr)
 {
-    // TODO: remove this method and use the one with RVA only!
-
-    if (offset.length() < 2)
-        return;
-
-    bool ok;
-    RVA addr = offset.mid(2).toULongLong(&ok, 16);
-    if (!ok)
-        return;
-
-    seek(addr, name, raise_memory_dock);
+    this->cursorAddress = addr;
+    emit cursorAddressChanged(core->getOffset());
 }
 
-
-void MainWindow::seek(const RVA offset, const QString &name, bool raise_memory_dock)
+void MainWindow::seek(const RVA offset)
 {
-    {
-        this->memoryDock->setWindowTitle(name);
-        //this->current_address = name;
-    }
-    this->hexdumpTopOffset = 0;
-    this->hexdumpBottomOffset = 0;
     core->seek(offset);
-    emit globalSeekTo(offset);
-    setCursorAddress(offset);
-
-    //refreshMem();
-    this->memoryDock->disasTextEdit->setFocus();
-
-    // Rise and shine baby!
-    if (raise_memory_dock)
-        this->memoryDock->raise();
+    setCursorAddress(core->getOffset());
+    emit seekChanged(core->getOffset());
 }
-
-void MainWindow::refreshMem()
-{
-    this->memoryDock->updateViews();
-}
-
 
 void MainWindow::backButton_clicked()
 {
     QList<RVA> seek_history = core->getSeekHistory();
     this->core->cmd("s-");
     RVA offset = this->core->getOffset();
-    QString fcn = this->core->cmdFunctionAt(QString::number(offset));
-    this->seek(offset, fcn);
+    //QString fcn = this->core->cmdFunctionAt(QString::number(offset));
+    this->seek(offset);
 }
 
 void MainWindow::on_actionCalculator_triggered()
@@ -894,7 +863,6 @@ void MainWindow::on_actionRun_Script_triggered()
 
     qDebug() << "Meow: " + fileName;
     this->core->cmd(". " + fileName);
-    this->refreshMem();
 }
 
 void MainWindow::on_actionDark_Theme_triggered()
@@ -985,12 +953,6 @@ void MainWindow::on_actionReset_settings_triggered()
 void MainWindow::on_actionQuit_triggered()
 {
     close();
-}
-
-void MainWindow::setCursorAddress(RVA addr)
-{
-    this->cursor_address = addr;
-    emit cursorAddressChanged(addr);
 }
 
 void MainWindow::refreshVisibleDockWidgets()

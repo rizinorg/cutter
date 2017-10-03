@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <memory>
+#include "MainWindow.h"
 
 class CutterCore;
 class QAction;
@@ -18,7 +19,7 @@ class ConsoleWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ConsoleWidget(CutterCore *core, QWidget *parent = 0);
+    explicit ConsoleWidget(MainWindow *main, QWidget *parent = 0);
     ~ConsoleWidget();
 
     void addOutput(const QString &msg);
@@ -49,9 +50,11 @@ private:
     void scrollOutputToEnd();
     void historyAdd(const QString &input);
     void invalidateHistoryPosition();
+    QString executeCommand(QString command);
 
     std::unique_ptr<Ui::ConsoleWidget> ui;
     CutterCore  *core;
+    MainWindow  *main;
     QList<QAction *> actions;
     bool debugOutputEnabled;
     int maxHistoryEntries;

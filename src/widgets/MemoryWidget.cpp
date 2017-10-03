@@ -142,7 +142,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
 
     // Create Graph View
     ui->tabGraph->setLayout(new QGridLayout);
-    mGraphView = new DisassemblerGraphView(ui->tabGraph, main->core);
+    mGraphView = new DisassemblerGraphView(ui->tabGraph, main);
     ui->tabGraph->layout()->addWidget(mGraphView);
 
     // Space to switch between disassembly and graph
@@ -174,7 +174,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
     connect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
-    connect(main, SIGNAL(globalSeekTo(RVA)), this, SLOT(on_globalSeekTo(RVA)));
+    connect(main, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(main, SIGNAL(cursorAddressChanged(RVA)), this, SLOT(on_cursorAddressChanged(RVA)));
     connect(main->core, SIGNAL(flagsChanged()), this, SLOT(updateViews()));
     connect(main->core, SIGNAL(commentsChanged()), this, SLOT(updateViews()));
@@ -184,7 +184,7 @@ MemoryWidget::MemoryWidget(MainWindow *main) :
 }
 
 
-void MemoryWidget::on_globalSeekTo(RVA addr)
+void MemoryWidget::on_seekChanged(RVA addr)
 {
     updateViews(addr);
 }
@@ -420,7 +420,7 @@ void MemoryWidget::refresh()
     setScrollMode();
 
     // TODO: honor the offset
-    updateViews();
+    updateViews(RVA_INVALID);
 }
 
 /*
@@ -451,11 +451,10 @@ void MemoryWidget::replaceTextDisasm(QString txt)
 bool MemoryWidget::loadMoreDisassembly()
 {
     /*
-    z         * Add more disasm as the user scrolls
-         * Not working properly when scrolling upwards
-         * r2 doesn't handle properly 'pd-' for archs with variable instruction size
-         */
-
+     * Add more disasm as the user scrolls
+     * Not working properly when scrolling upwards
+     * r2 doesn't handle properly 'pd-' for archs with variable instruction size
+     */
     // Disconnect scroll signals to add more content
     disconnect(this->disasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
 
@@ -732,12 +731,10 @@ void MemoryWidget::seek_to(const QString &offset)
     this->disasTextEdit->moveCursor(QTextCursor::End);
     this->disasTextEdit->find(offset, QTextDocument::FindBackward);
     this->disasTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
-    //this->main->add_debug_output("OFFSET: " + offset);
 }
 
 void MemoryWidget::resizeHexdump()
 {
-    //qDebug() << "size: " << ui->hexHexText->document()->size().width();
     this->hexOffsetText->setMinimumWidth(this->hexOffsetText->document()->size().width());
     this->hexHexText->setMinimumWidth(this->hexHexText->document()->size().width());
     this->hexASCIIText->setMinimumWidth(this->hexASCIIText->document()->size().width());
@@ -1219,7 +1216,7 @@ void MemoryWidget::on_actionDisasAdd_comment_triggered()
         // Seek to new renamed function
         if (fcn)
         {
-            this->main->seek(fcn->name);
+            this->main->seek(fcn->addr);
         }
         // TODO: Refresh functions tree widget
     }
@@ -1265,7 +1262,7 @@ void MemoryWidget::on_actionFunctionsRename_triggered()
             // Rename function in r2 core
             this->main->core->renameFunction(fcn->name, new_name);
             // Seek to new renamed function
-            this->main->seek(new_name);
+            this->main->seek(fcn->addr);
         }
     }
     this->main->refreshFunctions();
@@ -1316,15 +1313,13 @@ void MemoryWidget::on_action1column_triggered()
 void MemoryWidget::on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    RAnalFunction *fcn = this->main->core->functionAt(xref.to);
-    this->main->seek(xref.to, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
+    this->main->seek(xref.to);
 }
 
 void MemoryWidget::on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    RAnalFunction *fcn = this->main->core->functionAt(xref.from);
-    this->main->seek(xref.from, fcn ? QString::fromUtf8(fcn->name) : QString::null, true);
+    this->main->seek(xref.from);
 }
 
 void MemoryWidget::on_xrefFromToolButton_2_clicked()
@@ -1754,12 +1749,14 @@ bool MemoryWidget::eventFilter(QObject *obj, QEvent *event)
                     QString fcn = this->main->core->cmdFunctionAt(jump);
                     if (!fcn.isEmpty())
                     {
-                        this->main->seek(jump.trimmed(), fcn);
+                        RVA addr = jump.trimmed().toULongLong(0, 16);
+                        this->main->seek(addr);
                     }
                 }
                 else
                 {
-                    this->main->seek(this->main->core->cmd("?v " + jump), jump);
+                    RVA addr = this->main->core->cmd("?v " + jump).toULongLong(0, 16);
+                    this->main->seek(addr);
                 }
             }
         }
@@ -1838,7 +1835,7 @@ void MemoryWidget::on_memTabWidget_currentChanged(int /*index*/)
     this->main->add_debug_output("Last disasm: " + RAddressString(this->last_disasm_fcn));
     this->main->add_debug_output("Last graph: " + RAddressString(this->last_graph_fcn));
     this->main->add_debug_output("Last hexdump: " + RAddressString(this->last_hexdump_fcn));*/
-    this->updateViews();
+    this->updateViews(RVA_INVALID);
 }
 
 void MemoryWidget::updateViews(RVA offset)

@@ -37,7 +37,7 @@ void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
 
     // Get offset and name of item double clicked
     SymbolDescription symbol = item->data(0, Qt::UserRole).value<SymbolDescription>();
-    this->main->seek(symbol.vaddr, symbol.name, true);
+    this->main->seek(symbol.vaddr);
 }
 
 void SymbolsWidget::fillSymbols()

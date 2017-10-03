@@ -64,9 +64,7 @@ public:
     void closeEvent(QCloseEvent *event);
     void readSettings();
     void setFilename(const QString &fn);
-    //void setCore(QRCore *core);
-    void seek(const QString &offset, const QString &name = NULL, bool raise_memory_dock = false);
-    void seek(const RVA offset, const QString &name = NULL, bool raise_memory_dock = false);
+    void seek(RVA offset);
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
@@ -79,8 +77,8 @@ public:
     void refreshOmniBar(const QStringList &flags);
 
 signals:
-    void globalSeekTo(RVA address);
-    void cursorAddressChanged(RVA address);
+    void seekChanged(RVA offset);
+    void cursorAddressChanged(RVA offset);
 
 public slots:
 
@@ -184,6 +182,7 @@ private:
     void refreshMem();
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
+    RVA cursorAddress;
     QString filename;
     QList<DockWidget *> dockWidgets;
     std::unique_ptr<Ui::MainWindow> ui;
@@ -207,19 +206,15 @@ private:
     ConsoleWidget    *consoleWidget;
     RadareWebServer  webserver;
 
-    RVA cursor_address;
-    QList<QAction *> asmSyntaxes;
-
     void openProject(const QString &project_name);
     void openNewFile(const QString &fn, int anal_level, QList<QString> advanced);
 
     void toggleDockWidget(DockWidget *dock_widget);
 
 public:
-    RVA getCursorAddress() const        { return cursor_address; }
-    void setCursorAddress(RVA addr);
-
+    RVA getCursorAddress() const        { return cursorAddress; }
     QString getFilename() const         { return filename; }
+    void setCursorAddress(RVA addr);
 };
 
 #endif // MAINWINDOW_H

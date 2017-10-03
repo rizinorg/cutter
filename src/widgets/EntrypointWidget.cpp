@@ -60,5 +60,6 @@ void EntrypointWidget::setScrollMode()
 void EntrypointWidget::on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /* column */)
 {
     EntrypointDescription ep = item->data(0, Qt::UserRole).value<EntrypointDescription>();
-    this->main->seek(ep.vaddr, ep.type, true);
+    this->main->seek(ep.vaddr);
+    //this->main->seek(ep.vaddr, ep.type, true);
 }
