@@ -24,19 +24,45 @@ install:
   - cmd: if defined BDIR ( %PYTHON%\python.exe -m pip install meson && COPY %PYTHON%\Scripts\meson.py radare2\meson.py )
   - cmd: if defined NINJA_URL ( powershell -Command wget %NINJA_URL% -OutFile radare2\ninja.zip && unzip radare2\ninja.zip -d radare2\ )
 
-# Build r2 and generate sln
 before_build:
-  - cmd: dir && dir radare2
-  - cmd: cd radare2 && set "PATH=%PYTHON%;%PATH%" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64 && meson.bat --release && sys\meson_install.bat --with-static radare2_dist && cd ..
-  # Required because meson for windows creates .a
-  - cmd: cd radare2\radare2_dist && rename *.a *.lib && cd ..\..
+  # Build r2 and generate sln
+  - cmd: cd radare2 && set "PATH=%PYTHON%;%PATH%" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64 && meson.bat --release --shared && sys\meson_install.bat --with-static dist && cd ..
   # Build cutter
-  - cmd: set "PATH=%PATH%;%QTDIR%\bin;" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64  && cd src && qmake -tp vc cutter.pro
-  - cmd: dir
+  - cmd: set "PATH=%PATH%;%QTDIR%\bin;" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64  && cd src && qmake -config release -tp vc cutter.pro && cd ..
 
 # Build config
 build:
   project: src\cutter.vcxproj
 
+after_build:
+  # Install r2
+  - cmd: move radare2\dist cutter
+  - cmd: cd cutter && dir
+  - cmd: for %%v in (*.dll) do echo %%v
+  - cmd: for %%v in (*.dll) do ren %%v lib%%v
+  - cmd: cd ..
+  # Install cutter
+  - cmd: windeployqt src\release\cutter.exe --dir cutter
+  - cmd: move src\release\cutter.exe cutter\
+  - cmd: set "PATH=C:\mingw\bin;C:\mingw\msys\1.0\bin;%PATH%" && zip -r cutter.zip cutter
+
 # Tests
 test: off
+
+# Artifacts
+artifacts:
+  - path: cutter.zip
+    name: Cutter
+
+#deploy:
+#  release: cutter-1.0-$(appveyor_build_version)
+#  description: 'Cutter Windows'
+#  provider: GitHub
+#  auth_token:
+#    secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
+#  artifact: Cutter
+#  draft: true
+#  prerelease: true
+#  on:
+#    branch: master
+#    appveyor_repo_tag: false
