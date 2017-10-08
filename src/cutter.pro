@@ -4,28 +4,28 @@ TARGET = cutter
 
 # The application version
 VERSION = 1.0
+
+ICON = img/Enso.icns
+
+QT += core gui widgets webengine webenginewidgets
+QT_CONFIG -= no-pkg-config
+CONFIG += c++11
+
+# Define the preprocessor macro to get the application version in our application.
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+
+INCLUDEPATH *= .
+
 win32 {
     # Generate debug symbols in release mode
     QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
     QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
 }
 
-ICON = img/Enso.icns
-
-QT += core gui widgets webengine webenginewidgets
-
-QT_CONFIG -= no-pkg-config
-
-CONFIG += debug c++11
-
-# Define the preprocessor macro to get the application version in our application.
-DEFINES += APP_VERSION=\\\"$$VERSION\\\"
-
 macx {
     QMAKE_CXXFLAGS = -mmacosx-version-min=10.7 -std=gnu0x -stdlib=libc++
 }
 
-INCLUDEPATH *= .
 
 unix:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
