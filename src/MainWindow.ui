@@ -86,6 +86,12 @@ QDockWidget {
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <layout class="QVBoxLayout" name="verticalLayout_10">
     <property name="leftMargin">
      <number>0</number>
@@ -128,12 +134,21 @@ border-top: 0px;
        <bool>false</bool>
       </property>
       <widget class="QWidget" name="tab">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <attribute name="title">
         <string notr="true">Console</string>
        </attribute>
        <layout class="QVBoxLayout" name="tabVerticalLayout">
         <property name="spacing">
          <number>0</number>
+        </property>
+        <property name="sizeConstraint">
+         <enum>QLayout::SetNoConstraint</enum>
         </property>
         <property name="leftMargin">
          <number>0</number>
@@ -159,7 +174,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -173,8 +188,8 @@ border-top: 0px;
      <rect>
       <x>273</x>
       <y>136</y>
-      <width>173</width>
-      <height>181</height>
+      <width>148</width>
+      <height>167</height>
      </rect>
     </property>
     <property name="title">
