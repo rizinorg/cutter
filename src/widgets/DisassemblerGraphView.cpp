@@ -1582,7 +1582,16 @@ void DisassemblerGraphView::loadCurrentGraph()
             Instr i;
             i.addr = op["offset"].toInt();
             // TODO
-            i.text = Text(op["opcode"].toString(), Qt::black, QColor(255, 255, 255, 0));
+            RichTextPainter::List richText;
+
+            RichTextPainter::CustomRichText_t assembly;
+            assembly.highlight = false;
+            assembly.flags = RichTextPainter::FlagNone;
+            assembly.text = op["opcode"].toString();
+
+            richText.insert(richText.begin(), assembly);
+
+            i.text = Text(richText);
             b.instrs.push_back(i);
         }
         f.blocks.push_back(b);
