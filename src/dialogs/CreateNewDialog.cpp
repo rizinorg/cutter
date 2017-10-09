@@ -7,7 +7,8 @@
 CreateNewDialog::CreateNewDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::CreateNewDialog),
-    w(new MainWindow)
+    w(new MainWindow),
+    core(CutterCore::getInstance())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -69,7 +70,7 @@ void CreateNewDialog::on_exampleButton_clicked()
 
 void CreateNewDialog::on_buttonCreate_clicked()
 {
-    RCoreLocked lcore = w->core->core();
+    RCoreLocked lcore = core->core();
     QString type = ui->comboType->currentText();
     QString str;
     bool created = false;
@@ -85,7 +86,7 @@ void CreateNewDialog::on_buttonCreate_clicked()
         {
             char file[32];
             snprintf(file, sizeof(file) - 1, "malloc://%d", code->len);
-            if (w->core->loadFile(file, 0, 0, 1, 0, 0, false))
+            if (core->loadFile(file, 0, 0, 1, 0, 0, false))
             {
                 created = true;
                 r_core_write_at(lcore, 0, code->buf, code->len);
@@ -108,7 +109,7 @@ void CreateNewDialog::on_buttonCreate_clicked()
             char file[32];
             created = true;
             snprintf(file, sizeof(file) - 1, "malloc://%d", fsize);
-            if (w->core->loadFile(file, 0, 0, 1, 0, 0, false))
+            if (core->loadFile(file, 0, 0, 1, 0, 0, false))
             {
                 r_core_patch(lcore, ui->plainTextEdit->toPlainText().toUtf8().constData());
                 r_core_seek(lcore, 0, 1);
@@ -136,14 +137,14 @@ void CreateNewDialog::on_buttonCreate_clicked()
             char file[32];
             created = true;
             snprintf(file, sizeof(file) - 1, "malloc://%d", fsize);
-            if (w->core->loadFile(file, 0, 0, 1, 0, 0, false))
+            if (core->loadFile(file, 0, 0, 1, 0, 0, false))
             {
                 created = true;
                 QString str = ui->plainTextEdit->toPlainText();
                 QList <QString> lines = str.split("\n");
                 foreach (QString str, lines)
                 {
-                    w->core->cmd(str);
+                    core->cmd(str);
                 }
             }
             else
@@ -164,7 +165,7 @@ void CreateNewDialog::on_buttonCreate_clicked()
         if (sz > 0)
         {
             snprintf(file, sizeof(file) - 1, "malloc://%d", (int)sz);
-            if (w->core->loadFile(file, 0, 0, 1, 0, 0, false))
+            if (core->loadFile(file, 0, 0, 1, 0, 0, false))
             {
                 created = true;
                 r_core_write_at(lcore, 0, (const ut8 *)hexpairs.constData(), (int)sz);
@@ -189,7 +190,7 @@ void CreateNewDialog::on_buttonCreate_clicked()
         if (sz > 0)
         {
             snprintf(file, sizeof(file) - 1, "malloc://%d", sz);
-            if (w->core->loadFile(file, 0, 0, 1, 0, 0, false))
+            if (core->loadFile(file, 0, 0, 1, 0, 0, false))
             {
                 created = true;
                 r_core_write_at(lcore, 0, buf, sz);
@@ -215,8 +216,8 @@ void CreateNewDialog::on_buttonCreate_clicked()
     {
         __alert("TODO: non-raw fileformat is not yet supported");
         created = false;
-        delete w->core;
-        w->core = nullptr;
+        delete core;
+        core = nullptr;
     }
 
     if (created)
@@ -225,7 +226,7 @@ void CreateNewDialog::on_buttonCreate_clicked()
         // Close dialog and open OptionsDialog
         close();
 
-        w->core->seek(0);
+        core->seek(0);
         w->updateFrames();
         w->setFilename("-");
         w->addOutput(tr("Finished, check its contents"));

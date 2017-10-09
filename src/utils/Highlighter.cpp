@@ -3,18 +3,17 @@
 #include "Highlighter.h"
 #include "MainWindow.h"
 
-Highlighter::Highlighter(MainWindow *main, QTextDocument *parent) :
+Highlighter::Highlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent)
 {
-    // Radare core found in:
-    this->main = main;
-
     HighlightingRule rule;
+
+    core = CutterCore::getInstance();
 
     keywordFormat.setForeground(QColor(65, 131, 215));
     keywordFormat.setFontWeight(QFont::Bold);
 
-    foreach (const QString &pattern, this->main->core->opcodes)
+    foreach (const QString &pattern, this->core->opcodes)
     {
         rule.pattern = QRegExp("\\b" + pattern + "\\b");
         rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
@@ -25,7 +24,7 @@ Highlighter::Highlighter(MainWindow *main, QTextDocument *parent) :
     regFormat.setForeground(QColor(236, 100, 75));
     regFormat.setFontWeight(QFont::Bold);
 
-    foreach (const QString &pattern, this->main->core->regs)
+    foreach (const QString &pattern, this->core->regs)
     {
         rule.pattern = QRegExp("\\b" + pattern + "\\b");
         rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);

@@ -63,7 +63,7 @@ void ImportsWidget::refresh()
 void ImportsWidget::fillImports()
 {
     ui->importsTreeWidget->clear();
-    for (auto i : this->main->core->getAllImports())
+    for (auto i : CutterCore::getInstance()->getAllImports())
     {
         QTreeWidgetItem *item = qhelpers::appendRow(ui->importsTreeWidget, RAddressString(i.plt), i.type, "", i.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));
@@ -108,5 +108,5 @@ void ImportsWidget::setScrollMode()
 void ImportsWidget::on_importsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /* column */)
 {
     ImportDescription imp = item->data(0, Qt::UserRole).value<ImportDescription>();
-    this->main->seek(imp.plt);
+    CutterCore::getInstance()->seek(imp.plt);
 }

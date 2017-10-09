@@ -208,7 +208,7 @@ public:
         Narrow,
     };
 
-    DisassemblerGraphView(QWidget *parent, MainWindow *main);
+    DisassemblerGraphView(QWidget *parent);
     ~DisassemblerGraphView();
     void initFont();
     void adjustSize(int width, int height);
@@ -286,8 +286,7 @@ public slots:
     void decompileSlot();
 
 private:
-    CutterCore *mCore;
-    MainWindow *mMain;
+    MainWindow* main;
     QString status;
     Analysis analysis;
     duint function;

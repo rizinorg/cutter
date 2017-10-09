@@ -5,9 +5,6 @@
 #include <memory>
 #include "MainWindow.h"
 
-class CutterCore;
-class QAction;
-
 namespace Ui
 {
     class ConsoleWidget;
@@ -19,7 +16,7 @@ class ConsoleWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ConsoleWidget(MainWindow *main, QWidget *parent = 0);
+    explicit ConsoleWidget(QWidget *parent = 0);
     ~ConsoleWidget();
 
     void addOutput(const QString &msg);
@@ -39,8 +36,6 @@ private slots:
 
     void showCustomContextMenu(const QPoint &pt);
 
-    void syncWithCoreToggled(bool checked);
-
     void historyNext();
     void historyPrev();
 
@@ -53,8 +48,6 @@ private:
     QString executeCommand(QString command);
 
     std::unique_ptr<Ui::ConsoleWidget> ui;
-    CutterCore  *core;
-    MainWindow  *main;
     QList<QAction *> actions;
     bool debugOutputEnabled;
     int maxHistoryEntries;

@@ -26,7 +26,7 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
 
 {
     connect(main, SIGNAL(cursorAddressChanged(RVA)), this, SLOT(cursorAddressChanged(RVA)));
-    connect(main->core, SIGNAL(functionRenamed(QString, QString)), this, SLOT(functionRenamed(QString, QString)));
+    connect(CutterCore::getInstance(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(functionRenamed(QString, QString)));
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const
@@ -145,7 +145,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     case Qt::ToolTipRole:
     {
-        QList<QString> info = main->core->cmd("afi @ " + function.name).split("\n");
+        QList<QString> info = CutterCore::getInstance()->cmd("afi @ " + function.name).split("\n");
         if (info.length() > 2)
         {
             QString size = info[4].split(" ")[1];
@@ -154,8 +154,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             return QString("Summary:\n\n    Size: " + size +
                            "\n    Cyclomatic complexity: " + complex +
                            "\n    Basic blocks: " + bb +
-                           "\n\nDisasm preview:\n\n" + main->core->cmd("pdi 10 @ " + function.name) +
-                           "\nStrings:\n\n" + main->core->cmd("pdsf @ " + function.name));
+                           "\n\nDisasm preview:\n\n" + CutterCore::getInstance()->cmd("pdi 10 @ " + function.name) +
+                           "\nStrings:\n\n" + CutterCore::getInstance()->cmd("pdsf @ " + function.name));
         }
         return QVariant();
     }
@@ -226,7 +226,7 @@ void FunctionModel::updateCurrentIndex()
     {
         const FunctionDescription &function = functions->at(i);
 
-        if (function.contains(this->main->core->getOffset())
+        if (function.contains(CutterCore::getInstance()->getOffset())
                 && function.offset >= offset)
         {
             offset = function.offset;
@@ -396,10 +396,10 @@ void FunctionsWidget::refreshTree()
     function_model->beginReloadFunctions();
     nested_function_model->beginReloadFunctions();
 
-    functions = this->main->core->getAllFunctions();
+    functions = CutterCore::getInstance()->getAllFunctions();
 
     import_addresses.clear();
-    foreach (ImportDescription import, main->core->getAllImports())
+    foreach (ImportDescription import, CutterCore::getInstance()->getAllImports())
         import_addresses.insert(import.plt);
 
     function_model->endReloadFunctions();
@@ -422,7 +422,7 @@ QTreeView *FunctionsWidget::getCurrentTreeView()
 void FunctionsWidget::functionsTreeView_doubleClicked(const QModelIndex &index)
 {
     FunctionDescription function = index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    this->main->seek(function.offset);
+    CutterCore::getInstance()->seek(function.offset);
 }
 
 void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
@@ -458,9 +458,9 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
         QString comment = c->getComment();
         this->main->addDebugOutput("Comment: " + comment + " at: " + function.name);
         // Rename function in r2 core
-        this->main->core->setComment(function.offset, comment);
+        CutterCore::getInstance()->setComment(function.offset, comment);
         // Seek to new renamed function
-        this->main->seek(function.offset);
+        CutterCore::getInstance()->seek(function.offset);
         // TODO: Refresh functions tree widget
     }
     this->main->refreshComments();
@@ -483,7 +483,7 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
         // Get new function name
         QString new_name = r->getFunctionName();
         // Rename function in r2 core
-        this->main->core->renameFunction(function.name, new_name);
+        CutterCore::getInstance()->renameFunction(function.name, new_name);
 
         // Scroll to show the new name in functions tree widget
         //
@@ -494,7 +494,7 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
         //
         //ui->functionsTreeWidget->scrollToItem(selected_rows.first(), QAbstractItemView::PositionAtTop);
         // Seek to new renamed function
-        this->main->seek(function.offset);
+        CutterCore::getInstance()->seek(function.offset);
     }
 }
 

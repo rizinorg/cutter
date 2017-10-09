@@ -16,8 +16,9 @@
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
     analThread(this),
-    main(main),
     defaultAnalLevel(1),
+    core(CutterCore::getInstance()),
+    main(main),
     ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);
@@ -28,25 +29,25 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->analSlider->setValue(defaultAnalLevel);
 
     // Fill the plugins combo
-    asm_plugins = main->core->getAsmPluginNames();
+    asm_plugins = core->getAsmPluginNames();
     for (auto plugin : asm_plugins)
         ui->archComboBox->addItem(plugin, plugin);
-    ui->archComboBox->setToolTip(main->core->cmd("e? asm.arch").trimmed());
+    ui->archComboBox->setToolTip(core->cmd("e? asm.arch").trimmed());
 
     // cpu combo box
     ui->cpuComboBox->lineEdit()->setPlaceholderText(tr("Auto"));
-    ui->cpuComboBox->setToolTip(main->core->cmd("e? asm.cpu").trimmed());
+    ui->cpuComboBox->setToolTip(core->cmd("e? asm.cpu").trimmed());
     updateCPUComboBox();
 
     // os combo box
-    for (const auto &plugin : main->core->cmdList("e asm.os=?"))
+    for (const auto &plugin : core->cmdList("e asm.os=?"))
         ui->kernelComboBox->addItem(plugin, plugin);
-    ui->kernelComboBox->setToolTip(main->core->cmd("e? asm.os").trimmed());
+    ui->kernelComboBox->setToolTip(core->cmd("e? asm.os").trimmed());
 
-    ui->bitsComboBox->setToolTip(main->core->cmd("e? asm.bits").trimmed());
+    ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
 
 
-    for (auto plugin : main->core->getRBinPluginDescriptions("bin"))
+    for (auto plugin : core->getRBinPluginDescriptions("bin"))
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
 
     ui->hideFrame->setVisible(false);
@@ -63,7 +64,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 
     ui->programLineEdit->setText(main->getFilename());
     QFileInfo fi(this->main->getFilename());
-    this->main->core->tryFile(fi.filePath(), fi.isWritable());
+    this->core->tryFile(fi.filePath(), fi.isWritable());
 }
 
 OptionsDialog::~OptionsDialog() {}
@@ -80,7 +81,7 @@ void OptionsDialog::updateCPUComboBox()
         cmd += " @a:" + arch;
 
     ui->cpuComboBox->addItem("");
-    ui->cpuComboBox->addItems(main->core->cmdList(cmd));
+    ui->cpuComboBox->addItems(core->cmdList(cmd));
 
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
@@ -134,7 +135,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     main->initUI();
 
-    main->core->resetDefaultAsmOptions();
+    core->resetDefaultAsmOptions();
 
     // Threads stuff
     // connect signal/slot

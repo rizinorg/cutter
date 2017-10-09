@@ -180,20 +180,23 @@ Q_DECLARE_METATYPE(RBinPluginDescription)
 class CutterCore: public QObject
 {
     Q_OBJECT
+    friend class ccClass;
 
 public:
     QString projectPath;
 
     explicit CutterCore(QObject *parent = 0);
     ~CutterCore();
+    static CutterCore* getInstance();
 
+    /* Getters */
     RVA getOffset() const { return core_->offset; }
-    static QString sanitizeStringForCommand(QString s);
     int getCycloComplex(ut64 addr);
     int getFcnSize(ut64 addr);
     int fcnCyclomaticComplexity(ut64 addr);
     int fcnBasicBlockCount(ut64 addr);
     int fcnEndBbs(RVA addr);
+    static QString sanitizeStringForCommand(QString s);
     QString cmd(const QString &str);
     QJsonDocument cmdj(const QString &str);
     QStringList cmdList(const QString &str)     { auto l = cmd(str).split("\n"); l.removeAll(""); return l; }
@@ -210,11 +213,11 @@ public:
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
 
+    /* Config related */
     void setConfig(const QString &k, const QString &v);
     void setConfig(const QString &k, int v);
     void setConfig(const QString &k, bool v);
     void setConfig(const QString &k, const char *v)     { setConfig(k, QString(v)); }
-
     int getConfigi(const QString &k);
     bool getConfigb(const QString &k);
     QString getConfig(const QString &k);
@@ -227,7 +230,8 @@ public:
     RAnalFunction *functionAt(ut64 addr);
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
-    /* sdb */
+
+    /* SDB */
     QList<QString> sdbList(QString path);
     QList<QString> sdbListKeys(QString path);
     QString sdbGet(QString path, QString key);
@@ -297,6 +301,12 @@ signals:
      */
     void asmOptionsChanged();
 
+    /*!
+     * \brief seekChanged is emitted each time radare2 seek value is modified
+     * \param offset
+     */
+    void seekChanged(RVA offset);
+
 public slots:
 
 private:
@@ -305,6 +315,10 @@ private:
     int default_bits;
 
     RCore *core_;
+};
+
+class ccClass : public CutterCore
+{
 };
 
 #endif // CUTTER_H

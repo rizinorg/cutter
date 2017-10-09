@@ -66,7 +66,7 @@ void GraphicsBar::fillData()
     this->codeGraphic->setToolTip("gap");
 
     // Parse JSON data
-    QString jsonData = this->main->core->cmd("p-j");
+    QString jsonData = CutterCore::getInstance()->cmd("p-j");
     QJsonDocument doc = QJsonDocument::fromJson(jsonData.toUtf8());
 
     if (doc.isNull())

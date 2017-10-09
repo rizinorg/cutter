@@ -37,14 +37,14 @@ void RelocsWidget::on_relocsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, 
 
     // Get offset and name of item double clicked
     RelocDescription reloc = item->data(0, Qt::UserRole).value<RelocDescription>();
-    main->seek(reloc.vaddr);
+    CutterCore::getInstance()->seek(reloc.vaddr);
 }
 
 void RelocsWidget::fillTreeWidget()
 {
     ui->relocsTreeWidget->clear();
 
-    for (auto i : main->core->getAllRelocs())
+    for (auto i : CutterCore::getInstance()->getAllRelocs())
     {
         QTreeWidgetItem *item = qhelpers::appendRow(ui->relocsTreeWidget, RAddressString(i.vaddr), i.type, i.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));

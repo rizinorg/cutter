@@ -30,6 +30,7 @@ private slots:
 private:
     std::unique_ptr<Ui::CreateNewDialog> ui;
     MainWindow *w;
+    CutterCore *core;
 };
 
 #endif // CREATENEWDIALOG_H

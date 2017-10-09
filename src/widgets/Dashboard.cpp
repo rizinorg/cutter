@@ -37,7 +37,7 @@ void Dashboard::refresh()
 void Dashboard::updateContents()
 {
     // Parse and add JSON file info
-    QString info = this->main->core->getFileInfo();
+    QString info = CutterCore::getInstance()->getFileInfo();
 
     QJsonDocument docu = QJsonDocument::fromJson(info.toUtf8());
     QJsonObject object = docu.object();
@@ -145,12 +145,12 @@ void Dashboard::updateContents()
     }
 
     // Add file hashes and libraries
-    QString md5 = this->main->core->cmd("e file.md5");
-    QString sha1 = this->main->core->cmd("e file.sha1");
+    QString md5 = CutterCore::getInstance()->cmd("e file.md5");
+    QString sha1 = CutterCore::getInstance()->cmd("e file.sha1");
     ui->md5Edit->setText(md5);
     ui->sha1Edit->setText(sha1);
 
-    QString libs = this->main->core->cmd("il");
+    QString libs = CutterCore::getInstance()->cmd("il");
     QStringList lines = libs.split("\n", QString::SkipEmptyParts);
     if (!lines.isEmpty())
     {
@@ -189,11 +189,11 @@ void Dashboard::updateContents()
     ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Add entropy value
-    QString entropy = this->main->core->cmd("ph entropy").trimmed();
+    QString entropy = CutterCore::getInstance()->cmd("ph entropy").trimmed();
     ui->lblEntropy->setText(entropy);
 
     // Get stats for the graphs
-    QStringList stats = this->main->core->getStats();
+    QStringList stats = CutterCore::getInstance()->getStats();
 
     // Add data to HTML graphs (stats)
     QFile html(":/html/stats.html");

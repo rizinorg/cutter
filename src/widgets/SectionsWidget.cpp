@@ -24,7 +24,7 @@ void SectionsWidget::setup()
     tree->clear();
 
     int row = 0;
-    for (auto section : main->core->getAllSections())
+    for (auto section : CutterCore::getInstance()->getAllSections())
     {
         if (!section.name.contains("."))
             continue;

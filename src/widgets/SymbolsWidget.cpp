@@ -7,10 +7,9 @@
 #include <QTreeWidget>
 
 
-SymbolsWidget::SymbolsWidget(MainWindow *main, QWidget *parent) :
+SymbolsWidget::SymbolsWidget(QWidget *parent) :
     DockWidget(parent),
-    ui(new Ui::SymbolsWidget),
-    main(main)
+    ui(new Ui::SymbolsWidget)
 {
     ui->setupUi(this);
 
@@ -37,13 +36,13 @@ void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
 
     // Get offset and name of item double clicked
     SymbolDescription symbol = item->data(0, Qt::UserRole).value<SymbolDescription>();
-    this->main->seek(symbol.vaddr);
+    CutterCore::getInstance()->seek(symbol.vaddr);
 }
 
 void SymbolsWidget::fillSymbols()
 {
     ui->symbolsTreeWidget->clear();
-    for (auto symbol : this->main->core->getAllSymbols())
+    for (auto symbol : CutterCore::getInstance()->getAllSymbols())
     {
         QTreeWidgetItem *item = qhelpers::appendRow(ui->symbolsTreeWidget,
                                 RAddressString(symbol.vaddr),

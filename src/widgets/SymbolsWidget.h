@@ -17,7 +17,7 @@ class SymbolsWidget : public DockWidget
     Q_OBJECT
 
 public:
-    explicit SymbolsWidget(MainWindow *main, QWidget *parent = 0);
+    explicit SymbolsWidget(QWidget *parent = 0);
     ~SymbolsWidget();
 
     void setup() override;
@@ -29,7 +29,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::SymbolsWidget> ui;
-    MainWindow      *main;
 
     void fillSymbols();
     void setScrollMode();

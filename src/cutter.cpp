@@ -3,8 +3,8 @@
 #include "cutter.h"
 #include "sdb.h"
 #include "Settings.h"
-#include "MainWindow.h"
 
+Q_GLOBAL_STATIC(ccClass, uniqueInstance)
 
 #define DB this->db
 
@@ -66,6 +66,12 @@ CutterCore::CutterCore(QObject *parent) :
     default_bits = 0;
 
     this->db = sdb_new(NULL, NULL, 0);  // WTF NOES
+}
+
+
+CutterCore *CutterCore::getInstance()
+{
+    return uniqueInstance;
 }
 
 
@@ -179,12 +185,14 @@ QString CutterCore::cmd(const QString &str)
 {
     CORE_LOCK();
 
+    RVA offset = core_->offset;
     QByteArray cmd = str.toUtf8();
-    //r_cons_flush();
     char *res = r_core_cmd_str(this->core_, cmd.constData());
     QString o = QString(res ? res : "");
-    //r_mem_free was added in https://github.com/radare/radare2/commit/cd28744049492dc8ac25a1f2b3ba0e42f0e9ce93
     r_mem_free(res);
+    if (offset != core_->offset) {
+        emit seekChanged(core_->offset);
+    }
     return o;
 }
 
@@ -378,6 +386,7 @@ void CutterCore::seek(ut64 offset)
 {
     CORE_LOCK();
     r_core_seek(this->core_, offset, true);
+    emit seekChanged(core_->offset);
 }
 
 

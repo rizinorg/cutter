@@ -137,7 +137,7 @@ FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
     ui->flagsTreeView->setModel(flags_proxy_model);
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
-    connect(main->core, SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
+    connect(CutterCore::getInstance(), SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
 }
 
 FlagsWidget::~FlagsWidget() {}
@@ -157,7 +157,7 @@ void FlagsWidget::refresh()
 void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
 {
     FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-    this->main->seek(flag.offset);
+    CutterCore::getInstance()->seek(flag.offset);
 }
 
 void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
@@ -181,7 +181,7 @@ void FlagsWidget::refreshFlagspaces()
     ui->flagspaceCombo->clear();
     ui->flagspaceCombo->addItem(tr("(all)"));
 
-    for (auto i : main->core->getAllFlagspaces())
+    for (auto i : CutterCore::getInstance()->getAllFlagspaces())
     {
         ui->flagspaceCombo->addItem(i.name, QVariant::fromValue(i));
     }
@@ -202,7 +202,7 @@ void FlagsWidget::refreshFlags()
 
 
     flags_model->beginReloadFlags();
-    flags = main->core->getAllFlags(flagspace);
+    flags = CutterCore::getInstance()->getAllFlags(flagspace);
     flags_model->endReloadFlags();
 
     ui->flagsTreeView->resizeColumnToContents(0);

@@ -90,11 +90,9 @@ static bool isForbidden(const QString &input)
 
 
 
-ConsoleWidget::ConsoleWidget(MainWindow *main, QWidget *parent) :
+ConsoleWidget::ConsoleWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ConsoleWidget),
-    core(main->core),
-    main(main),
     debugOutputEnabled(true),
     maxHistoryEntries(100),
     lastHistoryPosition(invalidHistoryPos)
@@ -119,11 +117,6 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QWidget *parent) :
 
     QAction *action = new QAction(tr("Clear ouput"), ui->outputTextEdit);
     connect(action, SIGNAL(triggered(bool)), ui->outputTextEdit, SLOT(clear()));
-    actions.append(action);
-
-    action = new QAction(tr("Sync with core"), ui->outputTextEdit);
-    action->setCheckable(true);
-    connect(action, SIGNAL(toggled(bool)), this, SLOT(syncWithCoreToggled(bool)));
     actions.append(action);
 
     // Completion
@@ -176,25 +169,14 @@ void ConsoleWidget::focusInputLineEdit()
     ui->inputLineEdit->setFocus();
 }
 
-QString ConsoleWidget::executeCommand(QString command)
-{
-    RVA offset = this->core->getOffset();
-    QString res = this->core->cmd(command);
-    RVA newOffset = this->core->getOffset();
-    if (offset != newOffset) {
-        emit main->seekChanged(newOffset);
-    }
-    return res;
-}
-
 void ConsoleWidget::on_inputLineEdit_returnPressed()
 {
     QString input = ui->inputLineEdit->text();
-    if (!input.isEmpty() && core != nullptr)
+    if (!input.isEmpty())
     {
         if (!isForbidden(input))
         {
-            QString res = executeCommand(input);
+            QString res = CutterCore::getInstance()->cmd(input);
             ui->outputTextEdit->appendPlainText(res);
             scrollOutputToEnd();
             historyAdd(input);
@@ -219,19 +201,6 @@ void ConsoleWidget::showCustomContextMenu(const QPoint &pt)
     menu->addActions(actions);
     menu->exec(ui->outputTextEdit->mapToGlobal(pt));
     menu->deleteLater();
-}
-
-void ConsoleWidget::syncWithCoreToggled(bool checked)
-{
-    // TODO Core and Cutter are always in sync
-    if (checked)
-    {
-        //Enable core syncronization
-    }
-    else
-    {
-        // Disable core sync
-    }
 }
 
 void ConsoleWidget::historyNext()

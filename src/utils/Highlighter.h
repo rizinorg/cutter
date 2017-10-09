@@ -3,6 +3,7 @@
 
 #include <QSyntaxHighlighter>
 
+#include "cutter.h"
 #include <QHash>
 #include <QTextCharFormat>
 
@@ -14,13 +15,13 @@ class Highlighter : public QSyntaxHighlighter
     Q_OBJECT
 
 public:
-    Highlighter(MainWindow *main, QTextDocument *parent = 0);
+    Highlighter(QTextDocument *parent = 0);
 
 protected:
     void highlightBlock(const QString &text);
 
 private:
-    MainWindow             *main;
+    CutterCore *core;
 
     struct HighlightingRule
     {

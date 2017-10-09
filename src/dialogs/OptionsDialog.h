@@ -41,6 +41,7 @@ private slots:
 private:
     AnalThread analThread;
     MainWindow *main;
+    CutterCore *core;
     int defaultAnalLevel;
 
     QString analysisDescription(int level);

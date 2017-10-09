@@ -12,6 +12,10 @@ Make a clear description of the bug/feature, use screenshots, send binaries, etc
 
 Note that cutter is still under development and many parts of the code are to be improved.
 
+### CutterCore class
+
+This is the main class where every link with r2 is made. It is *unique* accross the whole process. To access it, simply call `CutterCore::getInstance()`.
+
 ### Calling a radare2 command
 
 There are two ways to do it:
@@ -20,12 +24,12 @@ There are two ways to do it:
 
 ### Seek the current file
 
-To modify radare2 seek use `MainWindow::seek(const RVA offset)`. This is important because it will emit a `MainWindow::seekChanged(RVA offset)` signal.
+To modify radare2 seek use `CutterCore::seek(const RVA offset)`. This is important because it will emit a `CutterCore::seekChanged(RVA offset)` signal.
 Never ever call cmd("s offset");
 
 ### Creating a widget
 
-Make sure to connect the `MainWindow::seekChanged(RVA offset)` signal so your widget refreshes its output when radare2 seek is modified (switching to another function, etc.).
+Make sure to connect the `CutterCore::seekChanged(RVA offset)` signal so your widget refreshes its output when radare2 seek is modified (switching to another function, etc.).
 
 ## General coding guidelines
 

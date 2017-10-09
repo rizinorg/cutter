@@ -8,7 +8,8 @@
 AnalThread::AnalThread(OptionsDialog *parent) :
     QThread(parent),
     level(2),
-    main(nullptr)
+    main(nullptr),
+    core(CutterCore::getInstance())
 {
 }
 
@@ -43,7 +44,7 @@ void AnalThread::run()
     // Advanced Options
     //
 
-    main->core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(), optionsDialog->getSelectedBits());
+    core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(), optionsDialog->getSelectedBits());
 
     bool rw = false;
     bool load_bininfo = ui->binCheckBox->isChecked();
@@ -54,7 +55,7 @@ void AnalThread::run()
         {
             va = 2;
             loadaddr = UT64_MAX;
-            r_config_set_i(main->core->core()->config, "bin.laddr", loadaddr);
+            r_config_set_i(core->core()->config, "bin.laddr", loadaddr);
             mapaddr = 0;
         }
     }
@@ -76,22 +77,22 @@ void AnalThread::run()
         forceBinPlugin = pluginDesc.name;
     }
 
-    main->core->setConfig("bin.demangle", ui->demangleCheckBox->isChecked());
+    core->setConfig("bin.demangle", ui->demangleCheckBox->isChecked());
 
-    main->core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo, forceBinPlugin);
+    core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, load_bininfo, forceBinPlugin);
     emit updateProgress("Analysis in progress.");
 
     QString os = optionsDialog->getSelectedOS();
     if (!os.isNull())
     {
-        main->core->cmd("e asm.os=" + os);
+        core->cmd("e asm.os=" + os);
     }
 
 
     if (ui->pdbCheckBox->isChecked())
     {
-        main->core->loadPDB(ui->pdbLineEdit->text());
+        core->loadPDB(ui->pdbLineEdit->text());
     }
     //qDebug() << "Anal level: " << this->level;
-    main->core->analyze(this->level, this->advanced);
+    core->analyze(this->level, this->advanced);
 }

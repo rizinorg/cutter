@@ -43,6 +43,7 @@ private:
 
     std::unique_ptr<Ui::XrefsDialog> ui;
     MainWindow *main;
+    CutterCore *core;
 
     Highlighter      *highlighter;
 

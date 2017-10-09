@@ -14,12 +14,10 @@
 #undef max
 #endif
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, MainWindow *main)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : QAbstractScrollArea(parent),
       //currentGraph(duint(0)),
       //disasm(ConfigUint("Disassembler", "MaxModuleSize")),
-      mCore(main->core),
-      mMain(main),
       mFontMetrics(nullptr),
       syncOrigin(false),
       mCip(0),
@@ -75,7 +73,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, MainWindow *main)
     setupContextMenu();
 
     //Connect to bridge
-    connect(main, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     //connect(Bridge::getBridge(), SIGNAL(loadGraph(BridgeCFGraphList*, duint)), this, SLOT(loadGraphSlot(BridgeCFGraphList*, duint)));
     //connect(Bridge::getBridge(), SIGNAL(graphAt(duint)), this, SLOT(graphAtSlot(duint)));
     //connect(Bridge::getBridge(), SIGNAL(updateGraph()), this, SLOT(updateGraphSlot()));
@@ -733,11 +731,11 @@ void DisassemblerGraphView::mouseDoubleClickEvent(QMouseEvent* event)
     {
         toggleOverviewSlot();
     }
-    /*else
+    else
     {
         duint instr = this->getInstrForMouseEvent(event);
-        DbgCmdExec(QString("graph dis.branchdest(%1), silent").arg(ToPtrString(instr)).toUtf8().constData());
-    }*/
+        //DbgCmdExec(QString("graph dis.branchdest(%1), silent").arg(ToPtrString(instr)).toUtf8().constData());
+    }
 }
 
 void DisassemblerGraphView::prepareGraphNode(DisassemblerBlock & block)
@@ -1543,7 +1541,7 @@ void DisassemblerGraphView::tokenizerConfigUpdatedSlot()
 void DisassemblerGraphView::loadCurrentGraph()
 {
     // Read functions
-    QJsonDocument functionsDoc = mCore->cmdj("agj");
+    QJsonDocument functionsDoc = CutterCore::getInstance()->cmdj("agj");
     QJsonArray functions = functionsDoc.array();
 
     Analysis anal;

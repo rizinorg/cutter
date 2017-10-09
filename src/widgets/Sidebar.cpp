@@ -93,17 +93,17 @@ void SideBar::on_themesButton_clicked()
 
 void SideBar::on_calcInput_textChanged(const QString &arg1)
 {
-    ui->calcOutput->setText(QString::number(this->main->core->math(arg1)));
+    ui->calcOutput->setText(QString::number(CutterCore::getInstance()->math(arg1)));
 }
 
 void SideBar::on_asm2hex_clicked()
 {
-    ui->hexInput->setPlainText(main->core->assemble(ui->asmInput->toPlainText()));
+    ui->hexInput->setPlainText(CutterCore::getInstance()->assemble(ui->asmInput->toPlainText()));
 }
 
 void SideBar::on_hex2asm_clicked()
 {
-    ui->asmInput->setPlainText(main->core->disassemble(ui->hexInput->toPlainText()));
+    ui->asmInput->setPlainText(CutterCore::getInstance()->disassemble(ui->hexInput->toPlainText()));
 }
 
 void SideBar::on_respButton_toggled(bool checked)

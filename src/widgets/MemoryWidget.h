@@ -18,7 +18,6 @@
 #include "Dashboard.h"
 #include "widgets/DisassemblerGraphView.h"
 
-class MainWindow;
 
 namespace Ui
 {
@@ -30,14 +29,13 @@ class MemoryWidget : public DockWidget
     Q_OBJECT
 
 public:
-    explicit MemoryWidget(MainWindow *main);
+    explicit MemoryWidget();
     ~MemoryWidget();
 
     void setup() override;
 
     void refresh() override;
 
-    MainWindow       *main;
     QPlainTextEdit   *disasTextEdit;
     QTextEdit        *hexOffsetText;
     QPlainTextEdit   *hexDisasTextEdit;
@@ -96,6 +94,7 @@ protected:
 
 private:
     std::unique_ptr<Ui::MemoryWidget> ui;
+    CutterCore *core;
 
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;

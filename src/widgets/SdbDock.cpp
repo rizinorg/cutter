@@ -27,19 +27,19 @@ void SdbDock::reload(QString path)
     ui->treeWidget->clear();
     QList<QString> keys;
     /* key-values */
-    keys = main->core->sdbListKeys(path);
+    keys = CutterCore::getInstance()->sdbListKeys(path);
     foreach (QString key, keys)
     {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, key);
-        tempItem->setText(1, main->core->sdbGet(path, key));
+        tempItem->setText(1, CutterCore::getInstance()->sdbGet(path, key));
         tempItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
         ui->treeWidget->insertTopLevelItem(0, tempItem);
     }
     ui->treeWidget->resizeColumnToContents(0);
     ui->treeWidget->resizeColumnToContents(1);
     /* namespaces */
-    keys = main->core->sdbList(path);
+    keys = CutterCore::getInstance()->sdbList(path);
     keys.append("..");
     foreach (QString key, keys)
     {

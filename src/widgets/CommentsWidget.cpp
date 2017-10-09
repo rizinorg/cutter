@@ -26,7 +26,7 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showTitleContextMenu(const QPoint &)));
 
-    connect(main->core, SIGNAL(commentsChanged()), this, SLOT(refreshTree()));
+    connect(CutterCore::getInstance(), SIGNAL(commentsChanged()), this, SLOT(refreshTree()));
 
     // Hide the buttons frame
     ui->frame->hide();
@@ -51,8 +51,8 @@ void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *it
     // Get offset and name of item double clicked
     CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
     this->main->addDebugOutput(RAddressString(comment.offset) + ": " + comment.name);
-    this->main->seek(comment.offset);
-    //this->main->seek(comment.offset, comment.name, true);
+    CutterCore::getInstance()->seek(comment.offset);
+    //CutterCore::getInstance()->seek(comment.offset, comment.name, true);
 }
 
 void CommentsWidget::on_toolButton_clicked()
@@ -123,12 +123,12 @@ void CommentsWidget::resizeEvent(QResizeEvent *event)
 void CommentsWidget::refreshTree()
 {
     ui->nestedCmtsTreeWidget->clear();
-    QList<CommentDescription> comments = this->main->core->getAllComments("CCu");
+    QList<CommentDescription> comments = CutterCore::getInstance()->getAllComments("CCu");
 
     for (CommentDescription comment : comments)
     {
         //this->main->add_debug_output(RAddressString(comment.offset));
-        QString fcn_name = this->main->core->cmdFunctionAt(comment.offset);
+        QString fcn_name = CutterCore::getInstance()->cmdFunctionAt(comment.offset);
         QTreeWidgetItem *item = qhelpers::appendRow(ui->commentsTreeWidget, RAddressString(comment.offset), fcn_name, comment.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(comment));
     }
@@ -136,7 +136,7 @@ void CommentsWidget::refreshTree()
 
     // Add nested comments
     ui->nestedCmtsTreeWidget->clear();
-    QMap<QString, QList<QList<QString>>> cmts = this->main->core->getNestedComments();
+    QMap<QString, QList<QList<QString>>> cmts = CutterCore::getInstance()->getNestedComments();
     for (auto cmt : cmts.keys())
     {
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedCmtsTreeWidget);

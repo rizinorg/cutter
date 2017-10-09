@@ -43,7 +43,7 @@ void EntrypointWidget::refresh()
 void EntrypointWidget::fillEntrypoint()
 {
     ui->entrypointTreeWidget->clear();
-    for (auto i : this->main->core->getAllEntrypoint())
+    for (auto i : CutterCore::getInstance()->getAllEntrypoint())
     {
         QTreeWidgetItem *item = qhelpers::appendRow(ui->entrypointTreeWidget, RAddressString(i.vaddr), i.type);
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));
@@ -60,6 +60,6 @@ void EntrypointWidget::setScrollMode()
 void EntrypointWidget::on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /* column */)
 {
     EntrypointDescription ep = item->data(0, Qt::UserRole).value<EntrypointDescription>();
-    this->main->seek(ep.vaddr);
-    //this->main->seek(ep.vaddr, ep.type, true);
+    CutterCore::getInstance()->seek(ep.vaddr);
+    //CutterCore::getInstance()->seek(ep.vaddr, ep.type, true);
 }

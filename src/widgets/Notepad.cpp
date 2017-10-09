@@ -180,7 +180,7 @@ void Notepad::on_redoButton_clicked()
 
 void Notepad::highlightPreview()
 {
-    disasm_highlighter = new Highlighter(this->main, ui->previewTextEdit->document());
+    disasm_highlighter = new Highlighter(ui->previewTextEdit->document());
 }
 
 void Notepad::on_searchEdit_returnPressed()
@@ -337,25 +337,25 @@ void Notepad::showNotepadContextMenu(const QPoint &pt)
 
 void Notepad::on_actionDisassmble_bytes_triggered()
 {
-    ui->previewTextEdit->setPlainText(this->main->core->cmd("pd 100 @ " + this->addr));
+    ui->previewTextEdit->setPlainText(CutterCore::getInstance()->cmd("pd 100 @ " + this->addr));
 }
 
 void Notepad::on_actionDisassmble_function_triggered()
 {
-    ui->previewTextEdit->setPlainText(this->main->core->cmd("pdf @ " + this->addr));
+    ui->previewTextEdit->setPlainText(CutterCore::getInstance()->cmd("pdf @ " + this->addr));
 }
 
 void Notepad::on_actionHexdump_bytes_triggered()
 {
-    ui->previewTextEdit->setPlainText(this->main->core->cmd("px 1024 @ " + this->addr));
+    ui->previewTextEdit->setPlainText(CutterCore::getInstance()->cmd("px 1024 @ " + this->addr));
 }
 
 void Notepad::on_actionCompact_Hexdump_triggered()
 {
-    ui->previewTextEdit->setPlainText(this->main->core->cmd("pxi 1024 @ " + this->addr));
+    ui->previewTextEdit->setPlainText(CutterCore::getInstance()->cmd("pxi 1024 @ " + this->addr));
 }
 
 void Notepad::on_actionHexdump_function_triggered()
 {
-    ui->previewTextEdit->setPlainText(this->main->core->cmd("pxf @ " + this->addr));
+    ui->previewTextEdit->setPlainText(CutterCore::getInstance()->cmd("pxf @ " + this->addr));
 }

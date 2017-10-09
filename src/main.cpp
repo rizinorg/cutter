@@ -52,8 +52,6 @@ int main(int argc, char *argv[])
             return 1;
     }
 
-
-
     bool anal_level_specified = false;
     int anal_level = 0;
 

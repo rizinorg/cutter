@@ -84,7 +84,7 @@ static void registerCustomFonts()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    core(new CutterCore),
+    core(CutterCore::getInstance()),
     memoryDock(nullptr),
     notepadDock(nullptr),
     asmDock(nullptr),
@@ -120,7 +120,6 @@ MainWindow::~MainWindow()
     delete core;
 }
 
-
 void MainWindow::initUI()
 {
     ui->setupUi(this);
@@ -133,7 +132,7 @@ void MainWindow::initUI()
     // Hide central tab widget tabs
     QTabBar *centralbar = ui->centralTabWidget->tabBar();
     centralbar->setVisible(false);
-    consoleWidget = new ConsoleWidget(this, this);
+    consoleWidget = new ConsoleWidget(this);
     ui->tabVerticalLayout->addWidget(consoleWidget);
 
     // Sepparator between back/forward and undo/redo buttons
@@ -185,7 +184,7 @@ void MainWindow::initUI()
     dockWidgets.reserve(12);
 
     // Add Memory DockWidget
-    this->memoryDock = new MemoryWidget(this);
+    this->memoryDock = new MemoryWidget();
     dockWidgets.push_back(memoryDock);
     // To use in the future when we handle more than one memory views
     // this->memoryDock->setAttribute(Qt::WA_DeleteOnClose);
@@ -601,7 +600,7 @@ void MainWindow::on_actionMem_triggered()
 {
     //this->memoryDock->show();
     //this->memoryDock->raise();
-    MemoryWidget *newMemDock = new MemoryWidget(this);
+    MemoryWidget *newMemDock = new MemoryWidget();
     this->dockWidgets << newMemDock;
     newMemDock->setAttribute(Qt::WA_DeleteOnClose);
     this->tabifyDockWidget(this->memoryDock, newMemDock);
@@ -694,20 +693,13 @@ void MainWindow::setCursorAddress(RVA addr)
     emit cursorAddressChanged(core->getOffset());
 }
 
-void MainWindow::seek(const RVA offset)
-{
-    core->seek(offset);
-    setCursorAddress(core->getOffset());
-    emit seekChanged(core->getOffset());
-}
-
 void MainWindow::backButton_clicked()
 {
     QList<RVA> seek_history = core->getSeekHistory();
     this->core->cmd("s-");
     RVA offset = this->core->getOffset();
     //QString fcn = this->core->cmdFunctionAt(QString::number(offset));
-    this->seek(offset);
+    core->seek(offset);
 }
 
 void MainWindow::on_actionCalculator_triggered()
@@ -920,7 +912,7 @@ void MainWindow::on_actionForward_triggered()
     this->core->cmd("s+");
     RVA offset = core->getOffset();
     this->addDebugOutput(QString::number(offset));
-    this->seek(offset);
+    core->seek(offset);
 }
 
 void MainWindow::toggleResponsive(bool maybe)

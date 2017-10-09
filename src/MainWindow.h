@@ -45,10 +45,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    CutterCore* core;
-    MemoryWidget    *memoryDock;
-    Notepad         *notepadDock;
-
     bool responsive;
 
     explicit MainWindow(QWidget *parent = 0);
@@ -77,8 +73,7 @@ public:
     void refreshOmniBar(const QStringList &flags);
 
 signals:
-    void seekChanged(RVA offset);
-    void cursorAddressChanged(RVA offset);
+    void cursorAddressChanged(RVA offset); // TODO cursor should be handled by its own widget
 
 public slots:
 
@@ -173,10 +168,13 @@ private slots:
     void on_actionAsmOptions_triggered();
 
 private:
+    CutterCore       *core;
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
     Omnibar          *omnibar;
     SideBar          *sideBar;
+    MemoryWidget     *memoryDock;
+    Notepad          *notepadDock;
 
     bool doLock;
     void refreshMem();

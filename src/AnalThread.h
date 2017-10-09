@@ -28,6 +28,7 @@ private:
     int level;
     QList<QString> advanced;
     MainWindow *main;
+    CutterCore *core;
 };
 
 #endif // ANALTHREAD_H
