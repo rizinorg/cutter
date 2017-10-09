@@ -42,7 +42,7 @@ after_success:
         ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -verbose=2 &&
         ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -verbose=2
         find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
-        export FILE_TO_UPLOAD="Cutter-x86_64.AppImage" &&
+        export FILE_TO_UPLOAD="Cutter-x86_64.AppImage"
     ; fi
 
 before_script:
