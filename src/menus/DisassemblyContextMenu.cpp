@@ -27,45 +27,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(RVA offset, QWidget *parent) :
     connect(&actionRename, SIGNAL(triggered(bool)), this, SLOT(on_actionRename_triggered()));
     connect(&actionXRefs, SIGNAL(triggered(bool)), this, SLOT(on_actionXRefs_triggered()));
     connect(&actionDisplayOptions, SIGNAL(triggered()), this, SLOT(on_actionDisplayOptions_triggered()));
-
-    /*
-     *     // Set Disas popup menu
-    QMenu *menu = ui->disasTextEdit_2->createStandardContextMenu();
-    QTextCursor cur = ui->disasTextEdit_2->textCursor();
-
-    // Move cursor to mouse position to get proper function data
-    cur.setPosition(ui->disasTextEdit_2->cursorForPosition(pt).position(), QTextCursor::MoveAnchor);
-    ui->disasTextEdit_2->setTextCursor(cur);
-
-    if (cur.hasSelection())
-    {
-        menu->addSeparator();
-        menu->addAction(ui->actionSend_to_Notepad);
-        ui->disasTextEdit_2->setContextMenuPolicy(Qt::DefaultContextMenu);
-    }
-    else
-    {
-        // Add menu actions
-        menu->clear();
-        menu->addAction(ui->actionDisasAdd_comment);
-        menu->addAction(ui->actionAddFlag);
-        menu->addAction(ui->actionFunctionsRename);
-        menu->addAction(ui->actionFunctionsUndefine);
-        menu->addSeparator();
-        menu->addAction(ui->actionXRefs);
-        menu->addSeparator();
-        menu->addAction(ui->actionDisasCopy_All);
-        menu->addAction(ui->actionDisasCopy_Bytes);
-        menu->addAction(ui->actionDisasCopy_Disasm);
-        menu->addSeparator();
-        menu->addAction(ui->actionDisplayOptions);
-
-        ui->disasTextEdit_2->setContextMenuPolicy(Qt::CustomContextMenu);
-    }
-    menu->exec(ui->disasTextEdit_2->mapToGlobal(pt));
-    delete menu;
-    ui->disasTextEdit_2->setContextMenuPolicy(Qt::CustomContextMenu);
-    */
 }
 
 DisassemblyContextMenu::~DisassemblyContextMenu()
