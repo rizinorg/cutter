@@ -5,10 +5,7 @@
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 #include "dialogs/XrefsDialog.h"
-#include "dialogs/RenameDialog.h"
-#include "dialogs/CommentsDialog.h"
-#include "dialogs/AsmOptionsDialog.h"
-#include "dialogs/FlagDialog.h"
+#include "menus/DisassemblyContextMenu.h"
 
 #include <QTemporaryFile>
 #include <QFontDialog>
@@ -983,50 +980,10 @@ void MemoryWidget::showHexASCIIContextMenu(const QPoint &pt)
     delete menu;
 }
 
-void MemoryWidget::on_actionDisplayOptions_triggered()
-{
-    auto dialog = new AsmOptionsDialog(core, this);
-    dialog->show();
-}
-
 void MemoryWidget::showDisasContextMenu(const QPoint &pt)
 {
-    // Set Disas popup menu
-    QMenu *menu = ui->disasTextEdit_2->createStandardContextMenu();
-    QTextCursor cur = ui->disasTextEdit_2->textCursor();
-
-    // Move cursor to mouse position to get proper function data
-    cur.setPosition(ui->disasTextEdit_2->cursorForPosition(pt).position(), QTextCursor::MoveAnchor);
-    ui->disasTextEdit_2->setTextCursor(cur);
-
-    if (cur.hasSelection())
-    {
-        menu->addSeparator();
-        menu->addAction(ui->actionSend_to_Notepad);
-        ui->disasTextEdit_2->setContextMenuPolicy(Qt::DefaultContextMenu);
-    }
-    else
-    {
-        // Add menu actions
-        menu->clear();
-        menu->addAction(ui->actionDisasAdd_comment);
-        menu->addAction(ui->actionAddFlag);
-        menu->addAction(ui->actionFunctionsRename);
-        menu->addAction(ui->actionFunctionsUndefine);
-        menu->addSeparator();
-        menu->addAction(ui->actionXRefs);
-        menu->addSeparator();
-        menu->addAction(ui->actionDisasCopy_All);
-        menu->addAction(ui->actionDisasCopy_Bytes);
-        menu->addAction(ui->actionDisasCopy_Disasm);
-        menu->addSeparator();
-        menu->addAction(ui->actionDisplayOptions);
-
-        ui->disasTextEdit_2->setContextMenuPolicy(Qt::CustomContextMenu);
-    }
-    menu->exec(ui->disasTextEdit_2->mapToGlobal(pt));
-    delete menu;
-    ui->disasTextEdit_2->setContextMenuPolicy(Qt::CustomContextMenu);
+    DisassemblyContextMenu menu(this->readCurrentDisassemblyOffset(), ui->disasTextEdit_2);
+    menu.exec(ui->disasTextEdit_2->mapToGlobal(pt));
 }
 
 void MemoryWidget::on_showInfoButton_2_clicked()
@@ -1067,12 +1024,10 @@ void MemoryWidget::showXrefsDialog()
     QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
     if (ele.contains("0x"))
     {
-        /*TODO FIXME
-         * RVA addr = ele.toLongLong(0, 16);
-        XrefsDialog *x = new XrefsDialog(this->main, this);
+        RVA addr = ele.toLongLong(0, 16);
+        XrefsDialog *x = new XrefsDialog(this);
         x->fillRefsForAddress(addr, RAddressString(addr), false);
         x->exec();
-        */
     }
 }
 
@@ -1197,77 +1152,6 @@ void MemoryWidget::on_actionSend_to_Notepad_triggered()
     QString text = cursor.selectedText();
     // TODO
     // this->main->sendToNotepad(text);
-}
-
-void MemoryWidget::on_actionDisasAdd_comment_triggered()
-{
-    RVA offset = readCurrentDisassemblyOffset();
-
-    // Get function for clicked offset
-    RAnalFunction *fcn = this->core->functionAt(offset);
-    CommentsDialog *c = new CommentsDialog(this);
-    if (c->exec())
-    {
-        // Get new function name
-        QString comment = c->getComment();
-        //this->main->add_debug_output("Comment: " + comment + " at: " + ele);
-        // Rename function in r2 core
-        this->core->setComment(offset, comment);
-        // Seek to new renamed function
-        if (fcn)
-        {
-            core->seek(fcn->addr);
-        }
-        // TODO: Refresh functions tree widget
-    }
-
-    // this->main->refreshComments();
-}
-
-
-void MemoryWidget::on_actionAddFlag_triggered()
-{
-    RVA offset = readCurrentDisassemblyOffset();
-
-    FlagDialog *dialog = new FlagDialog(core, offset, this);
-    if (dialog->exec())
-    {
-        //QString comment = dialog->getFlagName();
-        // Rename function in r2 core
-
-        //this->core->setComment(offset, comment);
-    }
-
-    // FIXME?
-    // this->main->refreshComments();
-}
-
-void MemoryWidget::on_actionFunctionsRename_triggered()
-{
-    // Get current offset
-    QTextCursor tc = this->disasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x"))
-    {
-        // Get function for clicked offset
-        RAnalFunction *fcn = this->core->functionAt(ele.toLongLong(0, 16));
-        RenameDialog *r = new RenameDialog(this);
-        // Get function based on click position
-        r->setFunctionName(fcn->name);
-        if (r->exec())
-        {
-            // Get new function name
-            QString new_name = r->getFunctionName();
-            // Rename function in r2 core
-            this->core->renameFunction(fcn->name, new_name);
-            // Seek to new renamed function
-            this->core->seek(fcn->addr);
-        }
-    }
-    // FIXME?
-    // this->main->refreshFunctions();
 }
 
 void MemoryWidget::on_action8columns_triggered()
@@ -1775,11 +1659,6 @@ void MemoryWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->xreFromTreeWidget_2);
     qhelpers::setVerticalScrollMode(ui->xrefToTreeWidget_2);
-}
-
-void MemoryWidget::on_actionXRefs_triggered()
-{
-    showXrefsDialog();
 }
 
 

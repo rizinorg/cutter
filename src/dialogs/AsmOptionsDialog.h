@@ -18,16 +18,14 @@ class AsmOptionsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit AsmOptionsDialog(CutterCore *core, QWidget *parent = nullptr);
+    explicit AsmOptionsDialog(QWidget *parent = nullptr);
     ~AsmOptionsDialog();
 
 private:
     CutterCore *core;
-
     std::unique_ptr<Ui::AsmOptionsDialog> ui;
 
     void updateFromVars();
-
     void saveAsDefault();
     void resetToDefault();
 

@@ -1,5 +1,6 @@
 /* x64dbg DisassemblerGraphView */
 #include "DisassemblerGraphView.h"
+#include "menus/DisassemblyContextMenu.h"
 #include <vector>
 #include <QPainter>
 #include <QScrollBar>
@@ -543,7 +544,6 @@ duint DisassemblerGraphView::getInstrForMouseEvent(QMouseEvent* event)
 bool DisassemblerGraphView::getTokenForMouseEvent(QMouseEvent* event, Token & tokenOut)
 {
   Q_UNUSED(event);
-  Q_UNUSED(tokenOut);
     /* TODO
     //Convert coordinates to system used in blocks
     int xofs = this->horizontalScrollBar()->value();
@@ -662,12 +662,11 @@ void DisassemblerGraphView::mousePressEvent(QMouseEvent* event)
 
         this->viewport()->update();
 
-        /*if(event->button() == Qt::RightButton)
+        if(event->button() == Qt::RightButton)
         {
-            QMenu wMenu(this);
-            mMenuBuilder->build(&wMenu);
-            wMenu.exec(event->globalPos()); //execute context menu
-        }*/
+            DisassemblyContextMenu cMenu(instr, this);
+            cMenu.exec(event->globalPos()); //execute context menu
+        }
     }
     else if(event->button() == Qt::LeftButton)
     {
@@ -735,6 +734,7 @@ void DisassemblerGraphView::mouseDoubleClickEvent(QMouseEvent* event)
     {
         duint instr = this->getInstrForMouseEvent(event);
         //DbgCmdExec(QString("graph dis.branchdest(%1), silent").arg(ToPtrString(instr)).toUtf8().constData());
+        CutterCore::getInstance()->seek(instr);
     }
 }
 
@@ -1372,7 +1372,7 @@ void DisassemblerGraphView::renderFunction(Function & func)
     //Adjust scroll bars for new size
     auto areaSize = this->viewport()->size();
     this->adjustSize(areaSize.width(), areaSize.height());
-    puts("Adjust scroll bars for new size");
+    //puts("Adjust scroll bars for new size");
 
     if(this->desired_pos)
     {

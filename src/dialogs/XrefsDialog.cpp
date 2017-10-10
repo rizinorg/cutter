@@ -5,12 +5,11 @@
 
 #include <QJsonArray>
 
-XrefsDialog::XrefsDialog(MainWindow *main, QWidget *parent) :
+XrefsDialog::XrefsDialog(QWidget *parent) :
     QDialog(parent),
     addr(0),
     func_name(QString::null),
     ui(new Ui::XrefsDialog),
-    main(main),
     core(CutterCore::getInstance())
 {
     ui->setupUi(this);

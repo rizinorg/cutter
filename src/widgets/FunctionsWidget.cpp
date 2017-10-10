@@ -503,7 +503,7 @@ void FunctionsWidget::on_action_References_triggered()
     // Get selected item in functions tree view
     QTreeView *treeView = getCurrentTreeView();
     FunctionDescription function = treeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    XrefsDialog *x = new XrefsDialog(this->main, this);
+    XrefsDialog *x = new XrefsDialog(this);
     x->fillRefsForAddress(function.offset, function.name, true);
     x->exec();
 }

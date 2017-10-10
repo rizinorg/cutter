@@ -1,11 +1,11 @@
 #include "FlagDialog.h"
 #include "ui_FlagDialog.h"
 
-FlagDialog::FlagDialog(CutterCore *core, RVA offset, QWidget *parent) :
+FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FlagDialog),
-    core(core),
-    offset(offset)
+    offset(offset),
+    core(CutterCore::getInstance())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));

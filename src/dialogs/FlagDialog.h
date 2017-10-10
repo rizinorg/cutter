@@ -15,7 +15,7 @@ class FlagDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit FlagDialog(CutterCore *core, RVA offset, QWidget *parent = 0);
+    explicit FlagDialog(RVA offset, QWidget *parent = 0);
     ~FlagDialog();
 
 private slots:
@@ -24,9 +24,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::FlagDialog> ui;
-
-    CutterCore *core;
     RVA offset;
+    CutterCore *core;
 };
 
 #endif // FLAGDIALOG_H

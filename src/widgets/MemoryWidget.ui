@@ -1220,7 +1220,7 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </widget>
-    </widget>
+     </widget>
     </item>
     <item>
      <widget class="QTabWidget" name="memSideTabWidget_2">
@@ -2739,7 +2739,7 @@ QToolTip {
         </item>
        </layout>
       </widget>
-    </widget>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -2783,22 +2783,6 @@ QToolTip {
     <string>Send to notepad</string>
    </property>
   </action>
-  <action name="actionDisasAdd_comment">
-   <property name="text">
-    <string>Add comment</string>
-   </property>
-   <property name="toolTip">
-    <string>Add comment</string>
-   </property>
-  </action>
-  <action name="actionFunctionsRename">
-   <property name="text">
-    <string>Rename</string>
-   </property>
-   <property name="toolTip">
-    <string>Rename</string>
-   </property>
-  </action>
   <action name="actionFunctionsUndefine">
    <property name="text">
     <string>Undefine</string>
@@ -2821,11 +2805,6 @@ QToolTip {
    </property>
    <property name="toolTip">
     <string>Copy bytes</string>
-   </property>
-  </action>
-  <action name="actionDisplayOptions">
-   <property name="text">
-    <string>Display Options</string>
    </property>
   </action>
   <action name="actionDisasCopy_Disasm">
@@ -2948,19 +2927,6 @@ QToolTip {
     <string>Insert String</string>
    </property>
   </action>
-  <action name="actionXRefs">
-   <property name="text">
-    <string>XRefs</string>
-   </property>
-   <property name="toolTip">
-    <string>XRefs</string>
-   </property>
-  </action>
-  <action name="actionAddFlag">
-   <property name="text">
-    <string>Add flag</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -2974,8 +2940,8 @@ QToolTip {
  </resources>
  <connections/>
  <buttongroups>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup_3"/>
-  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

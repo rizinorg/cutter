@@ -131,7 +131,6 @@ private slots:
     void on_actionHideDisasm_side_panel_triggered();
     void on_actionHideHexdump_side_panel_triggered();
     void on_actionHideGraph_side_panel_triggered();
-    void on_actionDisplayOptions_triggered();
 
     void on_disasButton_clicked();
     void on_graphButton_clicked();
@@ -140,9 +139,6 @@ private slots:
     void showHexdumpContextMenu(const QPoint &pt);
     void showHexASCIIContextMenu(const QPoint &pt);
     void on_actionSend_to_Notepad_triggered();
-    void on_actionDisasAdd_comment_triggered();
-    void on_actionAddFlag_triggered();
-    void on_actionFunctionsRename_triggered();
 
     void on_hexHexText_2_selectionChanged();
     void on_hexArchComboBox_2_currentTextChanged(const QString &arg1);
@@ -178,7 +174,6 @@ private slots:
     void on_previewToolButton_clicked();
     void on_decoToolButton_clicked();
     void on_previewToolButton_2_clicked();
-    void on_actionXRefs_triggered();
     void on_copyMD5_clicked();
     void on_copySHA1_clicked();
     void on_simpleGrapgToolButton_clicked();

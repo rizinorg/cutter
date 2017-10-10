@@ -972,6 +972,6 @@ void MainWindow::on_actionRefresh_contents_triggered()
 
 void MainWindow::on_actionAsmOptions_triggered()
 {
-    auto dialog = new AsmOptionsDialog(core, this);
+    auto dialog = new AsmOptionsDialog(this);
     dialog->show();
 }

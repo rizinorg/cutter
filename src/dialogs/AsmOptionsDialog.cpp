@@ -5,10 +5,10 @@
 
 #include "utils/Helpers.h"
 
-AsmOptionsDialog::AsmOptionsDialog(CutterCore *core, QWidget *parent)
+AsmOptionsDialog::AsmOptionsDialog(QWidget *parent)
   : QDialog(parent),
-    core(core),
-    ui(new Ui::AsmOptionsDialog)
+    ui(new Ui::AsmOptionsDialog),
+    core(CutterCore::getInstance())
 {
     ui->setupUi(this);
 
