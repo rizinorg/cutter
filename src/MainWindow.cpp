@@ -504,7 +504,7 @@ void MainWindow::refreshComments()
 void MainWindow::updateFrames()
 {
     /* TODO Widgets are independants and responsible to update their own
-     * content right? Just send a signal.
+     * content right? Just send a signal.*/
     if (core == NULL)
         return;
 
@@ -512,8 +512,12 @@ void MainWindow::updateFrames()
 
     if (first_time)
     {
-        for (auto w : dockWidgets)
+        for (auto W : dockWidgets)
         {
+            DockWidget* w = dynamic_cast<DockWidget*>(W);
+            if (w) {
+                w->setup();
+            }
             w->setup();
         }
 
@@ -521,15 +525,18 @@ void MainWindow::updateFrames()
     }
     else
     {
-        for (auto w : dockWidgets)
+        for (auto W : dockWidgets)
         {
+            DockWidget* w = dynamic_cast<DockWidget*>(W);
+            if (w) {
+                w->refresh();
+            }
             w->refresh();
         }
     }
 
     // graphicsBar->refreshColorBar();
     graphicsBar->fillData();
-    */
 }
 
 void MainWindow::on_actionLock_triggered()
