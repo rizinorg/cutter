@@ -35,7 +35,6 @@ public:
 
     void refresh() override;
 
-    QPlainTextEdit   *disasTextEdit;
     QTextEdit        *hexOffsetText;
     QPlainTextEdit   *hexDisasTextEdit;
     QTextEdit        *hexASCIIText;
@@ -58,19 +57,11 @@ signals:
 public slots:
     void fillPlugins();
 
-    void addTextDisasm(QString txt);
-
-    void replaceTextDisasm(QString txt);
-
-    void refreshDisasm();
-
     void refreshHexdump(const QString &where = QString());
 
     void fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data);
 
     void fillOffsetInfo(QString off);
-
-    void seek_to(const QString &offset);
 
     QString normalize_addr(QString addr);
 
@@ -80,15 +71,12 @@ public slots:
 
     void switchTheme(bool dark);
 
-    void highlightDisasms();
-
     void selectHexPreview();
 
     void showOffsets(bool show);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
-    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     std::unique_ptr<Ui::MemoryWidget> ui;
@@ -115,12 +103,9 @@ private slots:
     void on_cursorAddressChanged(RVA addr);
     void on_seekChanged(RVA addr);
 
-    void highlightCurrentLine();
-
     void highlightHexCurrentLine();
     void highlightPreviewCurrentLine();
     void highlightDecoCurrentLine();
-    RVA readCurrentDisassemblyOffset();
     void setFonts(QFont font);
 
     void highlightHexWords(const QString &str);
@@ -132,10 +117,8 @@ private slots:
 
     void on_disasButton_clicked();
     void on_hexButton_clicked();
-    void showDisasContextMenu(const QPoint &pt);
     void showHexdumpContextMenu(const QPoint &pt);
     void showHexASCIIContextMenu(const QPoint &pt);
-    void on_actionSend_to_Notepad_triggered();
 
     void on_hexHexText_2_selectionChanged();
     void on_hexArchComboBox_2_currentTextChanged(const QString &arg1);
@@ -149,12 +132,10 @@ private slots:
     void on_action32columns_triggered();
     void on_action64columns_triggered();
 
-    void disasmScrolled();
     void resizeHexdump();
     void hexScrolled();
     QList<QString> get_hexdump(const QString &offset);
 
-    void showXrefsDialog();
     void updateViews(RVA offset = RVA_INVALID);
     void cycleViews();
     void on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -162,7 +143,6 @@ private slots:
     void on_xrefFromToolButton_2_clicked();
     void on_xrefToToolButton_2_clicked();
     void on_codeCombo_2_currentTextChanged(const QString &arg1);
-    void on_disasTextEdit_2_cursorPositionChanged();
     void on_offsetToolButton_clicked();
     void on_polarToolButton_clicked();
     void on_radarToolButton_clicked();
