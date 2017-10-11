@@ -2,7 +2,8 @@ win32 {
     DEFINES += _CRT_NONSTDC_NO_DEPRECATE
     DEFINES += _CRT_SECURE_NO_WARNINGS
     INCLUDEPATH += "$$PWD/win32"
-    INCLUDEPATH += "$$PWD/../radare2/include/libr"
+    INCLUDEPATH += "$$PWD/../radare2/build"
+    INCLUDEPATH += "$$PWD/../radare2/libr/include"
     LIBS += -L"$$PWD/../radare2/dist"
     LIBS += -L"$$PWD/../radare2/lib"
 
