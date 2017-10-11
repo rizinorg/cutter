@@ -16,17 +16,14 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui WebEngine WebEngineWidgets
 
 
 if(WIN32)
-    # use radare2 libraries from submodule on windows
-    set(CUTTER_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cutter_win32")
-    list(APPEND CMAKE_PREFIX_PATH "${CUTTER_WIN32_DIR}")
+    # use radare2 libraries from radare2 dist folder
+    set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/..")
+    list(APPEND CMAKE_PREFIX_PATH "${ROOT_DIR}")
 
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bit
-        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib64")
-    else()
-        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib32")
-    endif()
+    list(APPEND CMAKE_LIBRARY_PATH "${ROOT_DIR}/radare2/lib")
+    list(APPEND CMAKE_LIBRARY_PATH "${ROOT_DIR}/radare2/dist")
 
-    set(RADARE2_INCLUDE_DIRS "${CUTTER_WIN32_DIR}/radare2/include/libr" "${CUTTER_WIN32_DIR}/include")
+    set(RADARE2_INCLUDE_DIRS "${ROOT_DIR}/radare2/include/libr" "${ROOT_DIR}/src/win32")
 endif()
 
 
