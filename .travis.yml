@@ -6,13 +6,17 @@ os:
   - linux
   - osx
 
+env:
+  - TEST_COMMAND="qmake PREFIX=/usr APPIMAGE=1 ../src && make -j4"
+  - TEST_COMMAND="cmake ../src && make -j4"
+
 sudo: required
 dist: trusty
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y &&  
+      sudo add-apt-repository ppa=beineri/opt-qt591-trusty -y &&  
       sudo apt-get update -qq  
     ; fi
 
@@ -27,7 +31,7 @@ install:
     ; fi
 
 after_success:
-# TODO: include radare2/www for the webserver      
+# TODO: include radare2/www for the webserver # Unless we remove the webserver ;)
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
       macdeployqt cutter.app -dmg &&
       export FILE_TO_UPLOAD="cutter.dmg"
@@ -54,10 +58,6 @@ before_script:
         LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
     fi
   - cd ..
-
-env:
-  - TEST_COMMAND="qmake PREFIX=/usr APPIMAGE=1 ../src && make -j4"
-  - TEST_COMMAND="cmake ../src && make -j4"
 
 script:
   - mkdir build
