@@ -181,14 +181,7 @@ void MainWindow::initUI()
     /*
      * Dock Widgets
      */
-    dockWidgets.reserve(12);
-
-    // Add graph view as dockable
-    graphDock = new QDockWidget(tr("Graph"), this);
-    graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    DisassemblerGraphView *gv = new DisassemblerGraphView(graphDock);
-    graphDock->setWidget(gv);
-    dockWidgets.push_back(graphDock);
+    dockWidgets.reserve(14);
 
     // Add Memory DockWidget
     this->memoryDock = new MemoryWidget();
@@ -196,6 +189,17 @@ void MainWindow::initUI()
     // To use in the future when we handle more than one memory views
     // this->memoryDock->setAttribute(Qt::WA_DeleteOnClose);
     // this->add_debug_output( QString::number(this->dockList.length()) );
+
+    // Add disassembly view (dockable)
+    this->disassemblyDock = new DisassemblyView(tr("Disassembly"), this);
+    dockWidgets.push_back(disassemblyDock);
+
+    // Add graph view as dockable
+    graphDock = new QDockWidget(tr("Graph"), this);
+    graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    DisassemblerGraphView *gv = new DisassemblerGraphView(graphDock);
+    graphDock->setWidget(gv);
+    dockWidgets.push_back(graphDock);
 
     // Add Sections dock panel
     this->sectionsDock = new SectionsDock(this);
@@ -367,7 +371,6 @@ void MainWindow::finalizeOpen()
     start_web_server();
     showMaximized();
     // Initialize syntax highlighters
-    memoryDock->highlightDisasms();
     notepadDock->highlightPreview();
 }
 
@@ -510,6 +513,9 @@ void MainWindow::updateFrames()
 
     static bool first_time = true;
 
+    //TODO Send signal rather than that
+    disassemblyDock->refreshDisasm();
+
     if (first_time)
     {
         for (auto W : dockWidgets)
@@ -619,7 +625,7 @@ void MainWindow::on_actionMem_triggered()
     this->dockWidgets << newMemDock;
     newMemDock->setAttribute(Qt::WA_DeleteOnClose);
     this->tabifyDockWidget(this->memoryDock, newMemDock);
-    newMemDock->refreshDisasm();
+    //newMemDock->refreshDisasm();
     newMemDock->refreshHexdump();
 }
 
@@ -752,13 +758,14 @@ void MainWindow::on_actionDisasAdd_comment_triggered()
 
 void MainWindow::restoreDocks()
 {
-    addDockWidget(Qt::RightDockWidgetArea, sectionsDock);
+    addDockWidget(Qt::LeftDockWidgetArea, this->functionsDock);
+    addDockWidget(Qt::RightDockWidgetArea, this->sectionsDock);
     addDockWidget(Qt::TopDockWidgetArea, this->dashboardDock);
-    this->tabifyDockWidget(sectionsDock, this->commentsDock);
+    this->tabifyDockWidget(this->sectionsDock, this->commentsDock);
+    this->tabifyDockWidget(this->dashboardDock, this->disassemblyDock);
     this->tabifyDockWidget(this->dashboardDock, this->graphDock);
     this->tabifyDockWidget(this->dashboardDock, this->memoryDock);
     this->tabifyDockWidget(this->dashboardDock, this->entrypointDock);
-    this->tabifyDockWidget(this->dashboardDock, this->functionsDock);
     this->tabifyDockWidget(this->dashboardDock, this->flagsDock);
     this->tabifyDockWidget(this->dashboardDock, this->stringsDock);
     this->tabifyDockWidget(this->dashboardDock, this->relocsDock);
@@ -767,7 +774,7 @@ void MainWindow::restoreDocks()
     this->tabifyDockWidget(this->dashboardDock, this->symbolsDock);
     this->tabifyDockWidget(this->dashboardDock, this->notepadDock);
     this->dashboardDock->raise();
-    sectionsDock->raise();
+    this->sectionsDock->raise();
     this->functionsDock->raise();
 }
 
@@ -790,7 +797,6 @@ void MainWindow::hideAllDocks()
 void MainWindow::showDefaultDocks()
 {
     const QList<QDockWidget *> defaultDocks = { sectionsDock,
-                                               graphDock,
                                                entrypointDock,
                                                functionsDock,
                                                memoryDock,
@@ -799,6 +805,8 @@ void MainWindow::showDefaultDocks()
                                                importsDock,
                                                symbolsDock,
                                                notepadDock,
+                                               graphDock,
+                                               disassemblyDock,
                                                dashboardDock
                                              };
 

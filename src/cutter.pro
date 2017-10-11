@@ -73,7 +73,8 @@ SOURCES += \
     widgets/Sidebar.cpp \
     widgets/StringsWidget.cpp \
     widgets/SymbolsWidget.cpp \
-    menus/DisassemblyContextMenu.cpp
+    menus/DisassemblyContextMenu.cpp \
+    widgets/DisassemblyView.cpp
 
 HEADERS  += \
     cutter.h \
@@ -119,7 +120,8 @@ HEADERS  += \
     widgets/Sidebar.h \
     widgets/StringsWidget.h \
     widgets/SymbolsWidget.h \
-    menus/DisassemblyContextMenu.h
+    menus/DisassemblyContextMenu.h \
+    widgets/DisassemblyView.h
 
 FORMS    += \
     widgets/MemoryWidget.ui \
