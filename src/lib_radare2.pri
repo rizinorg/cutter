@@ -3,7 +3,7 @@ win32 {
     DEFINES += _CRT_SECURE_NO_WARNINGS
     INCLUDEPATH += "$$PWD/win32"
     INCLUDEPATH += "$$PWD/../radare2/build"
-    INCLUDEPATH += "$$PWD/../radare2/libr/include"
+    INCLUDEPATH += "$$PWD/win32_2/libr"
     LIBS += -L"$$PWD/../radare2/dist"
     LIBS += -L"$$PWD/../radare2/lib"
 
