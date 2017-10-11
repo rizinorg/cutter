@@ -134,11 +134,6 @@ MemoryWidget::MemoryWidget() :
     connect(new QShortcut(Qt::SHIFT + Qt::Key_X, ui->disasTextEdit_2),
             SIGNAL(activated()), this, SLOT(showXrefsDialog()));
 
-    // Create Graph View
-    ui->tabGraph->setLayout(new QGridLayout);
-    mGraphView = new DisassemblerGraphView(ui->tabGraph);
-    ui->tabGraph->layout()->addWidget(mGraphView);
-
     // Space to switch between disassembly and graph
     QShortcut *graph_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
     connect(graph_shortcut, SIGNAL(activated()), this, SLOT(cycleViews()));
@@ -1040,16 +1035,11 @@ void MemoryWidget::cycleViews()
     switch (ui->memTabWidget->currentIndex())
     {
     case 0:
-        // Show graph
-        ui->graphButton->setChecked(true);
-        on_graphButton_clicked();
-        break;
-    case 1:
         // Show hexdump
         ui->hexButton->setChecked(true);
         on_hexButton_clicked();
         break;
-    case 2:
+    case 1:
         // Show disasm
         ui->disasButton->setChecked(true);
         on_disasButton_clicked();
@@ -1134,16 +1124,10 @@ void MemoryWidget::on_disasButton_clicked()
     ui->memSideTabWidget_2->setCurrentIndex(0);
 }
 
-void MemoryWidget::on_graphButton_clicked()
+void MemoryWidget::on_hexButton_clicked()
 {
     ui->memTabWidget->setCurrentIndex(1);
     ui->memSideTabWidget_2->setCurrentIndex(1);
-}
-
-void MemoryWidget::on_hexButton_clicked()
-{
-    ui->memTabWidget->setCurrentIndex(2);
-    ui->memSideTabWidget_2->setCurrentIndex(2);
 }
 
 void MemoryWidget::on_actionSend_to_Notepad_triggered()

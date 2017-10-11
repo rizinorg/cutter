@@ -169,6 +169,7 @@ private slots:
 
 private:
     CutterCore       *core;
+    QDockWidget      *graphDock;
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
     Omnibar          *omnibar;
@@ -182,7 +183,7 @@ private:
     ut64 hexdumpBottomOffset;
     RVA cursorAddress;
     QString filename;
-    QList<DockWidget *> dockWidgets;
+    QList<QDockWidget *> dockWidgets;
     std::unique_ptr<Ui::MainWindow> ui;
     Highlighter      *highlighter;
     AsciiHighlighter *hex_highlighter;

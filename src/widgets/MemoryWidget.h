@@ -16,7 +16,6 @@
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
 #include "Dashboard.h"
-#include "widgets/DisassemblerGraphView.h"
 
 
 namespace Ui
@@ -45,7 +44,6 @@ public:
     QTreeWidget      *xreFromTreeWidget_2;
     QTabWidget       *memTabWidget;
     QWebEngineView         *histoWebView;
-    DisassemblerGraphView *mGraphView;
 
     Highlighter        *highlighter;
     Highlighter        *highlighter_5;
@@ -133,7 +131,6 @@ private slots:
     void on_actionHideGraph_side_panel_triggered();
 
     void on_disasButton_clicked();
-    void on_graphButton_clicked();
     void on_hexButton_clicked();
     void showDisasContextMenu(const QPoint &pt);
     void showHexdumpContextMenu(const QPoint &pt);

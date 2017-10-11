@@ -183,6 +183,13 @@ void MainWindow::initUI()
      */
     dockWidgets.reserve(12);
 
+    // Add graph view as dockable
+    graphDock = new QDockWidget(tr("Graph"), this);
+    graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    DisassemblerGraphView *gv = new DisassemblerGraphView(graphDock);
+    graphDock->setWidget(gv);
+    dockWidgets.push_back(graphDock);
+
     // Add Memory DockWidget
     this->memoryDock = new MemoryWidget();
     dockWidgets.push_back(memoryDock);
@@ -496,6 +503,8 @@ void MainWindow::refreshComments()
 
 void MainWindow::updateFrames()
 {
+    /* TODO Widgets are independants and responsible to update their own
+     * content right? Just send a signal.
     if (core == NULL)
         return;
 
@@ -520,6 +529,7 @@ void MainWindow::updateFrames()
 
     // graphicsBar->refreshColorBar();
     graphicsBar->fillData();
+    */
 }
 
 void MainWindow::on_actionLock_triggered()
@@ -740,6 +750,7 @@ void MainWindow::restoreDocks()
     addDockWidget(Qt::RightDockWidgetArea, sectionsDock);
     addDockWidget(Qt::TopDockWidgetArea, this->dashboardDock);
     this->tabifyDockWidget(sectionsDock, this->commentsDock);
+    this->tabifyDockWidget(this->dashboardDock, this->graphDock);
     this->tabifyDockWidget(this->dashboardDock, this->memoryDock);
     this->tabifyDockWidget(this->dashboardDock, this->entrypointDock);
     this->tabifyDockWidget(this->dashboardDock, this->functionsDock);
@@ -773,7 +784,8 @@ void MainWindow::hideAllDocks()
 
 void MainWindow::showDefaultDocks()
 {
-    const QList<DockWidget *> defaultDocks = { sectionsDock,
+    const QList<QDockWidget *> defaultDocks = { sectionsDock,
+                                               graphDock,
                                                entrypointDock,
                                                functionsDock,
                                                memoryDock,
@@ -949,7 +961,8 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::refreshVisibleDockWidgets()
 {
-    // There seems to be no convenience function to check if a QDockWidget
+    /* TODO Just send a signal no?
+     * // There seems to be no convenience function to check if a QDockWidget
     // is really visible or hidden in a tabbed dock. So:
     auto isDockVisible = [](const QDockWidget * const pWidget)
     {
@@ -963,6 +976,7 @@ void MainWindow::refreshVisibleDockWidgets()
             w->refresh();
         }
     }
+    */
 }
 
 void MainWindow::on_actionRefresh_contents_triggered()
