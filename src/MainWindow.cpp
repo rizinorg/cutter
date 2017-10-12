@@ -40,7 +40,7 @@
 #include "utils/Helpers.h"
 #include "dialogs/NewFileDialog.h"
 
-#include "widgets/MemoryWidget.h"
+#include "widgets/PreviewWidget.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
 #include "widgets/CommentsWidget.h"
@@ -85,7 +85,7 @@ static void registerCustomFonts()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(CutterCore::getInstance()),
-    memoryDock(nullptr),
+    previewDock(nullptr),
     notepadDock(nullptr),
     asmDock(nullptr),
     calcDock(nullptr),
@@ -184,10 +184,10 @@ void MainWindow::initUI()
     dockWidgets.reserve(14);
 
     // Add Memory DockWidget
-    this->memoryDock = new MemoryWidget();
-    dockWidgets.push_back(memoryDock);
+    this->previewDock = new PreviewWidget(tr("Preview"), this);
+    dockWidgets.push_back(previewDock);
     // To use in the future when we handle more than one memory views
-    // this->memoryDock->setAttribute(Qt::WA_DeleteOnClose);
+    // this->previewDock->setAttribute(Qt::WA_DeleteOnClose);
     // this->add_debug_output( QString::number(this->dockList.length()) );
 
     // Add disassembly view (dockable)
@@ -250,7 +250,7 @@ void MainWindow::initUI()
     // Add Notepad Dock panel
     this->notepadDock = new Notepad(this);
     dockWidgets.push_back(notepadDock);
-    connect(memoryDock, SIGNAL(fontChanged(QFont)), notepadDock, SLOT(setFonts(QFont)));
+    connect(previewDock, SIGNAL(fontChanged(QFont)), notepadDock, SLOT(setFonts(QFont)));
 
     //Add Dashboard Dock panel
     this->dashboardDock = new Dashboard(this);
@@ -371,7 +371,7 @@ void MainWindow::finalizeOpen()
     addOutput(tr(" > Finished, happy reversing :)"));
     // Add fortune message
     addOutput("\n" + core->cmd("fo"));
-    memoryDock->setWindowTitle("entry0");
+    //previewDock->setWindowTitle("entry0");
     start_web_server();
     showMaximized();
     // Initialize syntax highlighters
@@ -410,11 +410,6 @@ void MainWindow::setWebServerState(bool start)
     {
         webserver.stop();
     }
-}
-
-void MainWindow::raiseMemoryDock()
-{
-    memoryDock->raise();
 }
 
 void MainWindow::toggleSideBarTheme()
@@ -481,7 +476,7 @@ void MainWindow::readSettings()
 void MainWindow::dark()
 {
     qApp->setStyleSheet("QPlainTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} QTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} ");
-    this->memoryDock->switchTheme(true);
+    this->previewDock->switchTheme(true);
     QSettings settings;
     settings.setValue("dark", true);
 }
@@ -489,7 +484,7 @@ void MainWindow::dark()
 void MainWindow::def_theme()
 {
     qApp->setStyleSheet("");
-    this->memoryDock->switchTheme(false);
+    this->previewDock->switchTheme(false);
     QSettings settings;
     settings.setValue("dark", false);
 }
@@ -610,25 +605,23 @@ void MainWindow::on_actionTabs_triggered()
     if (ui->centralTabWidget->tabPosition() == QTabWidget::South)
     {
         ui->centralTabWidget->setTabPosition(QTabWidget::North);
-        this->memoryDock->memTabWidget->setTabPosition(QTabWidget::North);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
     }
     else
     {
         ui->centralTabWidget->setTabPosition(QTabWidget::South);
-        this->memoryDock->memTabWidget->setTabPosition(QTabWidget::South);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
     }
 }
 
 void MainWindow::on_actionMem_triggered()
 {
-    //this->memoryDock->show();
-    //this->memoryDock->raise();
-    MemoryWidget *newMemDock = new MemoryWidget();
+    //this->previewDock->show();
+    //this->previewDock->raise();
+    PreviewWidget *newMemDock = new PreviewWidget();
     this->dockWidgets << newMemDock;
     newMemDock->setAttribute(Qt::WA_DeleteOnClose);
-    this->tabifyDockWidget(this->memoryDock, newMemDock);
+    this->tabifyDockWidget(this->previewDock, newMemDock);
     //newMemDock->refreshDisasm();
 }
 
@@ -769,7 +762,7 @@ void MainWindow::restoreDocks()
     this->tabifyDockWidget(this->dashboardDock, this->sidebarDock);
     this->tabifyDockWidget(this->dashboardDock, this->hexdumpDock);
     this->tabifyDockWidget(this->dashboardDock, this->graphDock);
-    this->tabifyDockWidget(this->dashboardDock, this->memoryDock);
+    this->tabifyDockWidget(this->dashboardDock, this->previewDock);
     this->tabifyDockWidget(this->dashboardDock, this->entrypointDock);
     this->tabifyDockWidget(this->dashboardDock, this->flagsDock);
     this->tabifyDockWidget(this->dashboardDock, this->stringsDock);
@@ -804,7 +797,7 @@ void MainWindow::showDefaultDocks()
     const QList<QDockWidget *> defaultDocks = { sectionsDock,
                                                entrypointDock,
                                                functionsDock,
-                                               memoryDock,
+                                               previewDock,
                                                commentsDock,
                                                stringsDock,
                                                importsDock,
@@ -902,7 +895,7 @@ void MainWindow::on_actionWhite_Theme_triggered()
 void MainWindow::on_actionSDB_browser_triggered()
 {
     this->sdbDock = new SdbDock(this);
-    this->tabifyDockWidget(this->memoryDock, this->sdbDock);
+    this->tabifyDockWidget(this->previewDock, this->sdbDock);
     this->sdbDock->setFloating(true);
     this->sdbDock->show();
 }

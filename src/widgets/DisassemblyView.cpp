@@ -344,8 +344,8 @@ void DisassemblyView::on_mDisasTextEdit_cursorPositionChanged()
             // Refresh function information at sidebar
             ui->fcnNameEdit->setText(at);
             // FIXME TITLE?
-            // this->main->memoryDock->setWindowTitle(at);
-            //this->main->memoryDock->create_graph(ele);
+            // this->main->previewDock->setWindowTitle(at);
+            //this->main->previewDock->create_graph(ele);
             this->setMiniGraph(at);
         }
     }

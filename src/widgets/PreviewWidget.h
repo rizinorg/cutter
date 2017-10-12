@@ -1,5 +1,5 @@
-#ifndef MEMORYWIDGET_H
-#define MEMORYWIDGET_H
+#ifndef PREVIEWWIDGET_H
+#define PREVIEWWIDGET_H
 
 #include <QDebug>
 #include <QTextEdit>
@@ -20,23 +20,17 @@
 
 namespace Ui
 {
-    class MemoryWidget;
+    class PreviewWidget;
 }
 
-class MemoryWidget : public DockWidget
+class PreviewWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit MemoryWidget();
-    ~MemoryWidget();
-
-    void setup() override;
-
-    void refresh() override;
-
-    QTabWidget       *memTabWidget;
-    QWebEngineView         *histoWebView;
+    explicit PreviewWidget(const QString &title, QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
+    explicit PreviewWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
+    ~PreviewWidget();
 
     Highlighter        *highlighter;
 
@@ -48,12 +42,11 @@ public slots:
 
     void switchTheme(bool dark);
 
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-
 private:
-    std::unique_ptr<Ui::MemoryWidget> ui;
+    std::unique_ptr<Ui::PreviewWidget> ui;
     CutterCore *core;
+
+    void refresh(RVA addr = RVA_INVALID);
 
 private slots:
     void on_seekChanged(RVA addr);
@@ -63,22 +56,9 @@ private slots:
     void setFonts(QFont font);
 
     void on_actionSettings_menu_1_triggered();
-    void on_actionHideDisasm_side_panel_triggered();
-    void on_actionHideGraph_side_panel_triggered();
-
-    void on_disasButton_clicked();
-    void on_hexButton_clicked();
-
-    void updateViews(RVA offset = RVA_INVALID);
-    void cycleViews();
-    void on_hexSideTab_2_currentChanged(int index);
-    void on_memSideToolButton_clicked();
     void on_previewToolButton_clicked();
     void on_decoToolButton_clicked();
-    void on_previewToolButton_2_clicked();
     void on_simpleGrapgToolButton_clicked();
-    void seek_back();
-    void on_memTabWidget_currentChanged(int index);
 };
 
 #endif // MEMORYWIDGET_H

@@ -13,7 +13,7 @@
 class CutterCore;
 class DockWidget;
 class Omnibar;
-class MemoryWidget;
+class PreviewWidget;
 class Notepad;
 class SideBar;
 class Highlighter;
@@ -60,10 +60,9 @@ public:
     void saveProject();
 
     void start_web_server();
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
     void readSettings();
     void setFilename(const QString &fn);
-    void seek(RVA offset);
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
@@ -71,7 +70,6 @@ public:
     void addDebugOutput(const QString &msg);
     void sendToNotepad(const QString &txt);
     void setWebServerState(bool start);
-    void raiseMemoryDock();
     void toggleSideBarTheme();
     void refreshOmniBar(const QStringList &flags);
 
@@ -180,7 +178,7 @@ private:
     QDockWidget      *calcDock;
     Omnibar          *omnibar;
     SideBar          *sideBar;
-    MemoryWidget     *memoryDock;
+    PreviewWidget     *previewDock;
     Notepad          *notepadDock;
 
     bool doLock;
