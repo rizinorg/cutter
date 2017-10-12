@@ -745,10 +745,6 @@ void CutterCore::getOpcodes()
     this->regs.removeLast();
 }
 
-
-
-
-
 void CutterCore::setSettings()
 {
     setConfig("scr.color", false);
@@ -807,8 +803,6 @@ void CutterCore::setSettings()
     cmd("ec graph.trufae rgb:4183D7");
 }
 
-
-
 QList<RVA> CutterCore::getSeekHistory()
 {
     CORE_LOCK();
@@ -836,7 +830,6 @@ QStringList CutterCore::getAsmPluginNames()
     return ret;
 }
 
-
 QStringList CutterCore::getAnalPluginNames()
 {
     CORE_LOCK();
@@ -852,8 +845,6 @@ QStringList CutterCore::getAnalPluginNames()
     return ret;
 }
 
-
-
 QStringList CutterCore::getProjectNames()
 {
     CORE_LOCK();
@@ -865,7 +856,6 @@ QStringList CutterCore::getProjectNames()
 
     return ret;
 }
-
 
 QList<RBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString &type)
 {
@@ -894,7 +884,6 @@ QList<RBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString
     return ret;
 }
 
-
 QList<FunctionDescription> CutterCore::getAllFunctions()
 {
     CORE_LOCK();
@@ -917,8 +906,6 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 
     return ret;
 }
-
-
 
 QList<ImportDescription> CutterCore::getAllImports()
 {
@@ -945,7 +932,6 @@ QList<ImportDescription> CutterCore::getAllImports()
     return ret;
 }
 
-
 QList<ExportDescription> CutterCore::getAllExports()
 {
     CORE_LOCK();
@@ -971,7 +957,6 @@ QList<ExportDescription> CutterCore::getAllExports()
 
     return ret;
 }
-
 
 QList<SymbolDescription> CutterCore::getAllSymbols()
 {
@@ -1063,7 +1048,6 @@ QList<RelocDescription> CutterCore::getAllRelocs()
     return ret;
 }
 
-
 QList<StringDescription> CutterCore::getAllStrings()
 {
     CORE_LOCK();
@@ -1085,7 +1069,6 @@ QList<StringDescription> CutterCore::getAllStrings()
     return ret;
 }
 
-
 QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
 {
     CORE_LOCK();
@@ -1103,7 +1086,6 @@ QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
     }
     return ret;
 }
-
 
 QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
 {
@@ -1129,7 +1111,6 @@ QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
     }
     return ret;
 }
-
 
 QList<SectionDescription> CutterCore::getAllSections()
 {

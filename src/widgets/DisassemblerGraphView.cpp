@@ -734,7 +734,13 @@ void DisassemblerGraphView::mouseDoubleClickEvent(QMouseEvent* event)
     {
         duint instr = this->getInstrForMouseEvent(event);
         //DbgCmdExec(QString("graph dis.branchdest(%1), silent").arg(ToPtrString(instr)).toUtf8().constData());
-        CutterCore::getInstance()->seek(instr);
+        QList<XrefDescription> refs = CutterCore::getInstance()->getXRefs(instr, false, false);
+        if (refs.length()) {
+            CutterCore::getInstance()->seek(refs.at(0).to);
+        }
+        if (refs.length() > 1) {
+            qWarning() << "Too many references here. Weird behaviour expected.";
+        }
     }
 }
 
