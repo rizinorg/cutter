@@ -11,8 +11,9 @@ DisassemblyView::DisassemblyView(QWidget *parent) :
     mDisasTextEdit(new QTextEdit(this))
 {
     // Configure Dock
-    this->setWidget(mDisasTextEdit);
-    this->setAllowedAreas(Qt::AllDockWidgetAreas);
+    setWidget(mDisasTextEdit);
+    setAllowedAreas(Qt::AllDockWidgetAreas);
+    setObjectName("DisassemblyWidget");
 
     // TODO Use Settings
     mDisasTextEdit->setFont(QFont("Monospace", 10));

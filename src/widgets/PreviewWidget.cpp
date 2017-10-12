@@ -5,7 +5,6 @@
 #include "utils/Helpers.h"
 
 #include <QClipboard>
-#include <QShortcut>
 #include <QWebEngineSettings>
 #include <QWebEngineProfile>
 #include <QSettings>
@@ -25,15 +24,7 @@ PreviewWidget::PreviewWidget(QWidget *parent, Qt::WindowFlags flags) :
     QTabBar *preTab = ui->memPreviewTab->tabBar();
     preTab->setVisible(false);
 
-    // Space to switch between disassembly and graph
-    QShortcut *graph_shortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
-    connect(graph_shortcut, SIGNAL(activated()), this, SLOT(cycleViews()));
-    //graph_shortcut->setContext(Qt::WidgetShortcut);
-
     connect(core, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    connect(core, SIGNAL(flagsChanged()), this, SLOT(updateViews()));
-    connect(core, SIGNAL(commentsChanged()), this, SLOT(updateViews()));
-    connect(core, SIGNAL(asmOptionsChanged()), this, SLOT(updateViews()));
 }
 
 PreviewWidget::PreviewWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags) :
