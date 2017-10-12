@@ -75,7 +75,8 @@ SOURCES += \
     widgets/SymbolsWidget.cpp \
     menus/DisassemblyContextMenu.cpp \
     widgets/DisassemblyView.cpp \
-    widgets/SidebarWidget.cpp
+    widgets/SidebarWidget.cpp \
+    widgets/HexdumpWidget.cpp
 
 HEADERS  += \
     cutter.h \
@@ -123,7 +124,8 @@ HEADERS  += \
     widgets/SymbolsWidget.h \
     menus/DisassemblyContextMenu.h \
     widgets/DisassemblyView.h \
-    widgets/SidebarWidget.h
+    widgets/SidebarWidget.h \
+    widgets/HexdumpWidget.h
 
 FORMS    += \
     widgets/MemoryWidget.ui \
@@ -152,7 +154,8 @@ FORMS    += \
     widgets/Sidebar.ui \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
-    widgets/SidebarWidget.ui
+    widgets/SidebarWidget.ui \
+    widgets/HexdumpWidget.ui
 
 RESOURCES += \
     resources.qrc

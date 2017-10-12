@@ -7,6 +7,7 @@
 #include "RadareWebServer.h"
 #include "widgets/DisassemblyView.h"
 #include "widgets/SidebarWidget.h"
+#include "widgets/HexdumpWidget.h"
 #include "cutter.h" // only needed for ut64
 
 class CutterCore;
@@ -173,6 +174,7 @@ private:
     CutterCore       *core;
     DisassemblyView  *disassemblyDock;
     SidebarWidget    *sidebarDock;
+    HexdumpWidget    *hexdumpDock;
     QDockWidget      *graphDock;
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;

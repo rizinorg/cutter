@@ -197,6 +197,9 @@ void MainWindow::initUI()
     sidebarDock = new SidebarWidget(tr("Sidebar"), this);
     dockWidgets.push_back(sidebarDock);
 
+    hexdumpDock = new HexdumpWidget(tr("Hexdump"), this);
+    dockWidgets.push_back(hexdumpDock);
+
     // Add graph view as dockable
     graphDock = new QDockWidget(tr("Graph"), this);
     graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -767,6 +770,7 @@ void MainWindow::restoreDocks()
     this->tabifyDockWidget(this->sectionsDock, this->commentsDock);
     this->tabifyDockWidget(this->dashboardDock, this->disassemblyDock);
     this->tabifyDockWidget(this->dashboardDock, this->sidebarDock);
+    this->tabifyDockWidget(this->dashboardDock, this->hexdumpDock);
     this->tabifyDockWidget(this->dashboardDock, this->graphDock);
     this->tabifyDockWidget(this->dashboardDock, this->memoryDock);
     this->tabifyDockWidget(this->dashboardDock, this->entrypointDock);
@@ -812,6 +816,7 @@ void MainWindow::showDefaultDocks()
                                                graphDock,
                                                disassemblyDock,
                                                sidebarDock,
+                                               hexdumpDock,
                                                dashboardDock
                                              };
 
