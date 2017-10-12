@@ -347,8 +347,6 @@ void MainWindow::finalizeOpen()
     core->cmd("fs sections");
     updateFrames();
 
-    memoryDock->selectHexPreview();
-
     // Restore project notes
     QString notes = this->core->cmd("Pnj");
     //qDebug() << "Notes:" << notes;
@@ -632,7 +630,6 @@ void MainWindow::on_actionMem_triggered()
     newMemDock->setAttribute(Qt::WA_DeleteOnClose);
     this->tabifyDockWidget(this->memoryDock, newMemDock);
     //newMemDock->refreshDisasm();
-    newMemDock->refreshHexdump();
 }
 
 void MainWindow::on_actionEntry_points_triggered()
