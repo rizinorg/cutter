@@ -59,10 +59,6 @@ public slots:
 
     void refreshHexdump(const QString &where = QString());
 
-    void fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data);
-
-    void fillOffsetInfo(QString off);
-
     QString normalize_addr(QString addr);
 
     QString normalizeAddr(QString addr);
@@ -92,15 +88,7 @@ private:
     RVA last_graph_fcn;
     RVA last_hexdump_fcn;
 
-    void setFcnName(RVA addr);
-    void get_refs_data(RVA addr);
-
-    void setScrollMode();
-
-    bool loadMoreDisassembly();
-
 private slots:
-    void on_cursorAddressChanged(RVA addr);
     void on_seekChanged(RVA addr);
 
     void highlightHexCurrentLine();
@@ -109,7 +97,6 @@ private slots:
     void setFonts(QFont font);
 
     void highlightHexWords(const QString &str);
-    void on_showInfoButton_2_clicked();
     void on_actionSettings_menu_1_triggered();
     void on_actionHideDisasm_side_panel_triggered();
     void on_actionHideHexdump_side_panel_triggered();
@@ -138,14 +125,7 @@ private slots:
 
     void updateViews(RVA offset = RVA_INVALID);
     void cycleViews();
-    void on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void on_xrefFromToolButton_2_clicked();
-    void on_xrefToToolButton_2_clicked();
     void on_codeCombo_2_currentTextChanged(const QString &arg1);
-    void on_offsetToolButton_clicked();
-    void on_polarToolButton_clicked();
-    void on_radarToolButton_clicked();
     void on_hexSideTab_2_currentChanged(int index);
     void on_memSideToolButton_clicked();
     void on_previewToolButton_clicked();
