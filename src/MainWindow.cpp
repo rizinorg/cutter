@@ -518,7 +518,6 @@ void MainWindow::updateFrames()
             if (w) {
                 w->setup();
             }
-            w->setup();
         }
 
         first_time = false;
@@ -531,7 +530,6 @@ void MainWindow::updateFrames()
             if (w) {
                 w->refresh();
             }
-            w->refresh();
         }
     }
 
