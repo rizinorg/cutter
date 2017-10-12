@@ -1,4 +1,4 @@
-#include "DisassemblyView.h"
+#include "DisassemblyWidget.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "dialogs/XrefsDialog.h"
 #include "utils/HexAsciiHighlighter.h"
@@ -6,13 +6,14 @@
 #include <QShortcut>
 #include <QScrollBar>
 
-DisassemblyView::DisassemblyView(QWidget *parent) :
+DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     QDockWidget(parent),
     mDisasTextEdit(new QTextEdit(this))
 {
     // Configure Dock
-    this->setWidget(mDisasTextEdit);
-    this->setAllowedAreas(Qt::AllDockWidgetAreas);
+    setWidget(mDisasTextEdit);
+    setAllowedAreas(Qt::AllDockWidgetAreas);
+    setObjectName("DisassemblyWidget");
 
     // TODO Use Settings
     mDisasTextEdit->setFont(QFont("Monospace", 10));
@@ -67,12 +68,12 @@ DisassemblyView::DisassemblyView(QWidget *parent) :
     connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
 }
 
-DisassemblyView::DisassemblyView(const QString &title, QWidget *parent) :
-    DisassemblyView(parent)
+DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
+    DisassemblyWidget(parent)
 {
     this->setWindowTitle(title);
 }
-void DisassemblyView::highlightCurrentLine()
+void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
@@ -131,13 +132,13 @@ void DisassemblyView::highlightCurrentLine()
     mDisasTextEdit->setExtraSelections(extraSelections);
 }
 
-void DisassemblyView::showDisasContextMenu(const QPoint &pt)
+void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
     DisassemblyContextMenu menu(this->readCurrentDisassemblyOffset(), mDisasTextEdit);
     menu.exec(mDisasTextEdit->mapToGlobal(pt));
 }
 
-void DisassemblyView::showXrefsDialog()
+void DisassemblyWidget::showXrefsDialog()
 {
     // Get current offset
     QTextCursor tc = mDisasTextEdit->textCursor();
@@ -153,7 +154,7 @@ void DisassemblyView::showXrefsDialog()
     }
 }
 
-RVA DisassemblyView::readCurrentDisassemblyOffset()
+RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 {
     // TODO: do this in a different way without parsing the disassembly text
     QTextCursor tc = mDisasTextEdit->textCursor();
@@ -171,7 +172,7 @@ RVA DisassemblyView::readCurrentDisassemblyOffset()
     return ele.toULongLong(0, 16);
 }
 
-bool DisassemblyView::loadMoreDisassembly()
+bool DisassemblyWidget::loadMoreDisassembly()
 {
     /*
      * Add more disasm as the user scrolls
@@ -251,12 +252,12 @@ bool DisassemblyView::loadMoreDisassembly()
 }
 
 
-void DisassemblyView::disasmScrolled()
+void DisassemblyWidget::disasmScrolled()
 {
     loadMoreDisassembly();
 }
 
-void DisassemblyView::refreshDisasm()
+void DisassemblyWidget::refreshDisasm()
 {
     // TODO Very slow mostly because of the highlight
     // Prevent further scroll
@@ -289,7 +290,7 @@ void DisassemblyView::refreshDisasm()
     this->highlightDisasms();
 }
 
-void DisassemblyView::on_mDisasTextEdit_cursorPositionChanged()
+void DisassemblyWidget::on_mDisasTextEdit_cursorPositionChanged()
 {
     // Get current offset
     QTextCursor tc = mDisasTextEdit->textCursor();
@@ -344,15 +345,15 @@ void DisassemblyView::on_mDisasTextEdit_cursorPositionChanged()
             // Refresh function information at sidebar
             ui->fcnNameEdit->setText(at);
             // FIXME TITLE?
-            // this->main->memoryDock->setWindowTitle(at);
-            //this->main->memoryDock->create_graph(ele);
+            // this->main->previewDock->setWindowTitle(at);
+            //this->main->previewDock->create_graph(ele);
             this->setMiniGraph(at);
         }
     }
     */
 }
 
-bool DisassemblyView::eventFilter(QObject *obj, QEvent *event)
+bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport()) && event->type() == QEvent::MouseButtonDblClick)
     {
@@ -388,13 +389,13 @@ bool DisassemblyView::eventFilter(QObject *obj, QEvent *event)
     return QDockWidget::eventFilter(obj, event);
 }
 
-void DisassemblyView::on_seekChanged(RVA offset)
+void DisassemblyWidget::on_seekChanged(RVA offset)
 {
     Q_UNUSED(offset);
     refreshDisasm();
 }
 
-void DisassemblyView::highlightDisasms()
+void DisassemblyWidget::highlightDisasms()
 {
     // Syntax Highliting
     // TODO doing new all the time

@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PreviewWidget</class>
+ <widget class="QDockWidget" name="PreviewWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>867</width>
+    <height>730</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Preview</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QFrame" name="frame_3">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="frame_2">
+         <property name="styleSheet">
+          <string notr="true">background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>55</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QToolButton" name="previewToolButton">
+            <property name="styleSheet">
+             <string notr="true">QToolButton { /* all types of tool button */
+     border: 3px solid rgb(255, 255, 255);
+     border-left: 10px solid rgb(255, 255, 255);
+	 border-right: 10px solid rgb(255, 255, 255);
+     border-radius: 0px;
+     background-color: rgb(255, 255, 255);
+     color: rgb(191, 191, 191);
+ }
+
+QToolButton:hover {
+     border: 3px solid #2180a9;
+     border-left: 10px solid #2180a9;
+	 border-right: 10px solid #2180a9;
+     border-radius: 0px;
+     background-color: #2180a9;
+     color: rgb(255, 255, 255);
+ }
+
+QToolButton:checked {
+     border: 3px solid #999;
+     border-left: 10px solid #999;
+	 border-right: 10px solid #999;
+     border-radius: 0px;
+     background-color: #999;
+     color: rgb(255, 255, 255);
+}
+
+QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+}</string>
+            </property>
+            <property name="text">
+             <string notr="true">Preview</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttonGroup_3</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="decoToolButton">
+            <property name="styleSheet">
+             <string notr="true">QToolButton { /* all types of tool button */
+     border: 3px solid rgb(255, 255, 255);
+     border-left: 10px solid rgb(255, 255, 255);
+	 border-right: 10px solid rgb(255, 255, 255);
+     border-radius: 0px;
+     background-color: rgb(255, 255, 255);
+     color: rgb(191, 191, 191);
+ }
+
+QToolButton:hover {
+     border: 3px solid #2180a9;
+     border-left: 10px solid #2180a9;
+	 border-right: 10px solid #2180a9;
+     border-radius: 0px;
+     background-color: #2180a9;
+     color: rgb(255, 255, 255);
+ }
+
+QToolButton:checked {
+     border: 3px solid #999;
+     border-left: 10px solid #999;
+	 border-right: 10px solid #999;
+     border-radius: 0px;
+     background-color: #999;
+     color: rgb(255, 255, 255);
+}
+
+QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+}</string>
+            </property>
+            <property name="text">
+             <string notr="true">Pseudo</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttonGroup_3</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <widget class="QToolButton" name="simpleGrapgToolButton">
+            <property name="styleSheet">
+             <string notr="true">QToolButton { /* all types of tool button */
+     border: 3px solid rgb(255, 255, 255);
+     border-left: 10px solid rgb(255, 255, 255);
+	 border-right: 10px solid rgb(255, 255, 255);
+     border-radius: 0px;
+     background-color: rgb(255, 255, 255);
+     color: rgb(191, 191, 191);
+ }
+
+QToolButton:hover {
+     border: 3px solid #2180a9;
+     border-left: 10px solid #2180a9;
+	 border-right: 10px solid #2180a9;
+     border-radius: 0px;
+     background-color: #2180a9;
+     color: rgb(255, 255, 255);
+ }
+
+QToolButton:checked {
+     border: 3px solid #999;
+     border-left: 10px solid #999;
+	 border-right: 10px solid #999;
+     border-radius: 0px;
+     background-color: #999;
+     color: rgb(255, 255, 255);
+}
+
+QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+}</string>
+            </property>
+            <property name="text">
+             <string notr="true">Graph</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <attribute name="buttonGroup">
+             <string notr="true">buttonGroup_3</string>
+            </attribute>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>55</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTabWidget" name="memPreviewTab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <property name="tabPosition">
+          <enum>QTabWidget::South</enum>
+         </property>
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="tab_4">
+          <attribute name="title">
+           <string notr="true">Preview</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QTextEdit" name="previewTextEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <family>Anonymous Pro</family>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Plain</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="lineWrapMode">
+              <enum>QTextEdit::NoWrap</enum>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_5">
+          <attribute name="title">
+           <string notr="true">Decomp</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QPlainTextEdit" name="decoTextEdit">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <family>Anonymous Pro</family>
+               <pointsize>13</pointsize>
+              </font>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Plain</enum>
+             </property>
+             <property name="verticalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="undoRedoEnabled">
+              <bool>false</bool>
+             </property>
+             <property name="lineWrapMode">
+              <enum>QPlainTextEdit::NoWrap</enum>
+             </property>
+             <property name="plainText">
+              <string notr="true"/>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_8">
+          <attribute name="title">
+           <string notr="true">Graph</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QWebEngineView" name="webSimpleGraph">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <family>Anonymous Pro</family>
+               <pointsize>12</pointsize>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+	font: 11pt &quot;Monaco&quot;;
+}</string>
+             </property>
+             <property name="url">
+              <url>
+               <string>about:blank</string>
+              </url>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <action name="actionSettings_menu_1">
+   <property name="text">
+    <string>Change font</string>
+   </property>
+   <property name="toolTip">
+    <string>Change font</string>
+   </property>
+  </action>
+  <action name="actionHideDisasm_side_panel">
+   <property name="text">
+    <string>Disasm side panel</string>
+   </property>
+   <property name="toolTip">
+    <string>Disasm side panel</string>
+   </property>
+  </action>
+  <action name="actionHideHexdump_side_panel">
+   <property name="text">
+    <string>Hexdump side panel</string>
+   </property>
+   <property name="toolTip">
+    <string>Hexdump side panel</string>
+   </property>
+  </action>
+  <action name="actionHideGraph_side_panel">
+   <property name="text">
+    <string>Graph side panel</string>
+   </property>
+   <property name="toolTip">
+    <string>Graph side panel</string>
+   </property>
+  </action>
+  <action name="actionSend_to_Notepad">
+   <property name="text">
+    <string>Send to notepad</string>
+   </property>
+   <property name="toolTip">
+    <string>Send to notepad</string>
+   </property>
+  </action>
+  <action name="actionFunctionsUndefine">
+   <property name="text">
+    <string>Undefine</string>
+   </property>
+   <property name="toolTip">
+    <string>Undefine</string>
+   </property>
+  </action>
+  <action name="actionDisasCopy_All">
+   <property name="text">
+    <string>Copy all</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy all</string>
+   </property>
+  </action>
+  <action name="actionDisasCopy_Bytes">
+   <property name="text">
+    <string>Copy bytes</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy bytes</string>
+   </property>
+  </action>
+  <action name="actionDisasCopy_Disasm">
+   <property name="text">
+    <string>Copy disasm</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy disasm</string>
+   </property>
+  </action>
+  <action name="actionHexCopy_Hexpair">
+   <property name="text">
+    <string>Copy Hexpair</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy Hexpair</string>
+   </property>
+  </action>
+  <action name="actionHexCopy_ASCII">
+   <property name="text">
+    <string>Copy ASCII</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy ASCII</string>
+   </property>
+  </action>
+  <action name="actionHexCopy_Text">
+   <property name="text">
+    <string>Copy Text</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy Text</string>
+   </property>
+  </action>
+  <action name="action1column">
+   <property name="text">
+    <string>1</string>
+   </property>
+   <property name="toolTip">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="action2columns">
+   <property name="text">
+    <string>2</string>
+   </property>
+   <property name="toolTip">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="action4columns">
+   <property name="text">
+    <string>4</string>
+   </property>
+   <property name="toolTip">
+    <string>4</string>
+   </property>
+  </action>
+  <action name="action8columns">
+   <property name="text">
+    <string>8</string>
+   </property>
+   <property name="toolTip">
+    <string>8</string>
+   </property>
+  </action>
+  <action name="action16columns">
+   <property name="text">
+    <string>16</string>
+   </property>
+   <property name="toolTip">
+    <string>16</string>
+   </property>
+  </action>
+  <action name="action32columns">
+   <property name="text">
+    <string>32</string>
+   </property>
+   <property name="toolTip">
+    <string>32</string>
+   </property>
+  </action>
+  <action name="action64columns">
+   <property name="text">
+    <string>64</string>
+   </property>
+   <property name="toolTip">
+    <string>64</string>
+   </property>
+  </action>
+  <action name="actionHexEdit">
+   <property name="text">
+    <string>Edit</string>
+   </property>
+   <property name="toolTip">
+    <string>Edit</string>
+   </property>
+  </action>
+  <action name="actionHexPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="toolTip">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionHexInsert_Hex">
+   <property name="text">
+    <string>Insert Hex</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert Hex</string>
+   </property>
+  </action>
+  <action name="actionHexInsert_String">
+   <property name="text">
+    <string>Insert String</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert String</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QWebEngineView</class>
+   <extends>QWidget</extends>
+   <header location="global">QtWebEngineWidgets/QWebEngineView</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
+ <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup_3"/>
+ </buttongroups>
+</ui>

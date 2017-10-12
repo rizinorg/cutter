@@ -210,6 +210,8 @@ public:
     void analyze(int level, QList<QString> advanced);
     void seek(QString addr);
     void seek(ut64 offset);
+    RVA getSeekAddr();
+
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
 

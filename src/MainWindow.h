@@ -5,13 +5,15 @@
 #include <QList>
 #include <memory>
 #include "RadareWebServer.h"
-#include "widgets/DisassemblyView.h"
+#include "widgets/DisassemblyWidget.h"
+#include "widgets/SidebarWidget.h"
+#include "widgets/HexdumpWidget.h"
 #include "cutter.h" // only needed for ut64
 
 class CutterCore;
 class DockWidget;
 class Omnibar;
-class MemoryWidget;
+class PreviewWidget;
 class Notepad;
 class SideBar;
 class Highlighter;
@@ -58,10 +60,9 @@ public:
     void saveProject();
 
     void start_web_server();
-    void closeEvent(QCloseEvent *event);
+    void closeEvent(QCloseEvent *event) override;
     void readSettings();
     void setFilename(const QString &fn);
-    void seek(RVA offset);
     void updateFrames();
     void refreshFunctions();
     void refreshComments();
@@ -69,7 +70,6 @@ public:
     void addDebugOutput(const QString &msg);
     void sendToNotepad(const QString &txt);
     void setWebServerState(bool start);
-    void raiseMemoryDock();
     void toggleSideBarTheme();
     void refreshOmniBar(const QStringList &flags);
 
@@ -170,13 +170,15 @@ private slots:
 
 private:
     CutterCore       *core;
-    DisassemblyView  *disassemblyDock;
+    DisassemblyWidget  *disassemblyDock;
+    SidebarWidget    *sidebarDock;
+    HexdumpWidget    *hexdumpDock;
     QDockWidget      *graphDock;
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
     Omnibar          *omnibar;
     SideBar          *sideBar;
-    MemoryWidget     *memoryDock;
+    PreviewWidget     *previewDock;
     Notepad          *notepadDock;
 
     bool doLock;

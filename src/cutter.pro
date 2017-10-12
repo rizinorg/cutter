@@ -35,7 +35,7 @@ SOURCES += \
     main.cpp \
     cutter.cpp \
     widgets/DisassemblerGraphView.cpp \
-    widgets/MemoryWidget.cpp \
+    widgets/PreviewWidget.cpp \
     utils/RichTextPainter.cpp \
     dialogs/OptionsDialog.cpp \
     dialogs/AboutDialog.cpp \
@@ -74,12 +74,14 @@ SOURCES += \
     widgets/StringsWidget.cpp \
     widgets/SymbolsWidget.cpp \
     menus/DisassemblyContextMenu.cpp \
-    widgets/DisassemblyView.cpp
+    widgets/DisassemblyWidget.cpp \
+    widgets/SidebarWidget.cpp \
+    widgets/HexdumpWidget.cpp
 
 HEADERS  += \
     cutter.h \
     widgets/DisassemblerGraphView.h \
-    widgets/MemoryWidget.h \
+    widgets/PreviewWidget.h \
     utils/RichTextPainter.h \
     utils/CachedFontMetrics.h \
     dialogs/AboutDialog.h \
@@ -121,10 +123,12 @@ HEADERS  += \
     widgets/StringsWidget.h \
     widgets/SymbolsWidget.h \
     menus/DisassemblyContextMenu.h \
-    widgets/DisassemblyView.h
+    widgets/DisassemblyWidget.h \
+    widgets/SidebarWidget.h \
+    widgets/HexdumpWidget.h
 
 FORMS    += \
-    widgets/MemoryWidget.ui \
+    widgets/PreviewWidget.ui \
     dialogs/AboutDialog.ui \
     dialogs/AsmOptionsDialog.ui \
     dialogs/CommentsDialog.ui \
@@ -149,7 +153,9 @@ FORMS    += \
     widgets/SectionsDock.ui \
     widgets/Sidebar.ui \
     widgets/StringsWidget.ui \
-    widgets/SymbolsWidget.ui
+    widgets/SymbolsWidget.ui \
+    widgets/SidebarWidget.ui \
+    widgets/HexdumpWidget.ui
 
 RESOURCES += \
     resources.qrc
