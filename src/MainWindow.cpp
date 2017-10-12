@@ -191,7 +191,7 @@ void MainWindow::initUI()
     // this->add_debug_output( QString::number(this->dockList.length()) );
 
     // Add disassembly view (dockable)
-    this->disassemblyDock = new DisassemblyView(tr("Disassembly"), this);
+    this->disassemblyDock = new DisassemblyWidget(tr("Disassembly"), this);
     dockWidgets.push_back(disassemblyDock);
 
     sidebarDock = new SidebarWidget(tr("Sidebar"), this);

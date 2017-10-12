@@ -74,7 +74,7 @@ SOURCES += \
     widgets/StringsWidget.cpp \
     widgets/SymbolsWidget.cpp \
     menus/DisassemblyContextMenu.cpp \
-    widgets/DisassemblyView.cpp \
+    widgets/DisassemblyWidget.cpp \
     widgets/SidebarWidget.cpp \
     widgets/HexdumpWidget.cpp
 
@@ -123,7 +123,7 @@ HEADERS  += \
     widgets/StringsWidget.h \
     widgets/SymbolsWidget.h \
     menus/DisassemblyContextMenu.h \
-    widgets/DisassemblyView.h \
+    widgets/DisassemblyWidget.h \
     widgets/SidebarWidget.h \
     widgets/HexdumpWidget.h
 

@@ -5,7 +5,7 @@
 #include <QList>
 #include <memory>
 #include "RadareWebServer.h"
-#include "widgets/DisassemblyView.h"
+#include "widgets/DisassemblyWidget.h"
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "cutter.h" // only needed for ut64
@@ -170,7 +170,7 @@ private slots:
 
 private:
     CutterCore       *core;
-    DisassemblyView  *disassemblyDock;
+    DisassemblyWidget  *disassemblyDock;
     SidebarWidget    *sidebarDock;
     HexdumpWidget    *hexdumpDock;
     QDockWidget      *graphDock;

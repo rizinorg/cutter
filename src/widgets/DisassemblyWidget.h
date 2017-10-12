@@ -5,12 +5,12 @@
 #include <QTextEdit>
 #include "cutter.h"
 
-class DisassemblyView : public QDockWidget
+class DisassemblyWidget : public QDockWidget
 {
     Q_OBJECT
 public:
-    explicit DisassemblyView(QWidget *parent = nullptr);
-    explicit DisassemblyView(const QString &title, QWidget *parent = nullptr);
+    explicit DisassemblyWidget(QWidget *parent = nullptr);
+    explicit DisassemblyWidget(const QString &title, QWidget *parent = nullptr);
 
 signals:
 
