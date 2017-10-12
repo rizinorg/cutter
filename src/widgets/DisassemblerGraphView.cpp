@@ -1557,22 +1557,25 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     for (QJsonValueRef blockRef : func["blocks"].toArray()) {
         QJsonObject block = blockRef.toObject();
-        duint e;
+        duint fail;
+        duint jump;
 
         /* Parse Block data */
         Block b;
         b.entry = block["offset"].toInt();
-        e = block["fail"].toInt();
-        if (e)
+        fail = block["fail"].toInt();
+        if (fail)
         {
-            b.false_path = e;
-            b.exits.push_back(e);
+            b.false_path = fail;
+            b.exits.push_back(fail);
         }
-        e = block["jump"].toInt();
-        if (e)
+        jump = block["jump"].toInt();
+        if (jump)
         {
-            b.true_path = e;
-            b.exits.push_back(e);
+            if (fail) {
+                b.true_path = jump;
+            }
+            b.exits.push_back(jump);
         }
 
         for (QJsonValueRef opRef : block["ops"].toArray()) {
@@ -1894,7 +1897,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     backgroundColor = QColor(220, 240, 255);
     disassemblySelectionColor = Qt::yellow;
 
-    jmpColor = Qt::cyan;
+    jmpColor = Qt::blue;
     brtrueColor = Qt::green;
     brfalseColor = Qt::red;
     /*disassemblyBackgroundColor = ConfigColor("GraphNodeBackgroundColor");
