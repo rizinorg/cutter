@@ -50,7 +50,7 @@ parse_qmake_pro("${CMAKE_CURRENT_BINARY_DIR}/cutter.pro" CUTTER_PRO)
 set(SOURCE_FILES ${CUTTER_PRO_SOURCES})
 set(HEADER_FILES ${CUTTER_PRO_HEADERS})
 set(UI_FILES ${CUTTER_PRO_FORMS})
-set(QRC_FILES ${CUTTER_PRO_RESOURCES})
+set(QRC_FILES ${CUTTER_PRO_RESOURCES} widgets/SidebarWidget.cpp widgets/SidebarWidget.h)
 
 message(STATUS "sources from cutter.pro: ${SOURCE_FILES}")
 message(STATUS "headers from cutter.pro: ${HEADER_FILES}")

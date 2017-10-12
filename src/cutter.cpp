@@ -390,6 +390,13 @@ void CutterCore::seek(ut64 offset)
 }
 
 
+RVA CutterCore::getSeekAddr()
+{
+    return cmd("s").toULongLong(nullptr, 16);
+}
+
+
+
 
 bool CutterCore::tryFile(QString path, bool rw)
 {

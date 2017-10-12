@@ -6,6 +6,7 @@
 #include <memory>
 #include "RadareWebServer.h"
 #include "widgets/DisassemblyView.h"
+#include "widgets/SidebarWidget.h"
 #include "cutter.h" // only needed for ut64
 
 class CutterCore;
@@ -171,6 +172,7 @@ private slots:
 private:
     CutterCore       *core;
     DisassemblyView  *disassemblyDock;
+    SidebarWidget    *sidebarDock;
     QDockWidget      *graphDock;
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
