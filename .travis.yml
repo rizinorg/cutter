@@ -73,3 +73,7 @@ deploy:
     - "${FILE_TO_UPLOAD}"
   on:
     repo: radareorg/cutter
+
+branches:
+  except:
+    - /^*-v[0-9]/
