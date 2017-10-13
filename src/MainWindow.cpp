@@ -519,6 +519,7 @@ void MainWindow::updateFrames()
     {
         for (auto W : dockWidgets)
         {
+            // Temporary hack
             DockWidget* w = dynamic_cast<DockWidget*>(W);
             if (w) {
                 w->setup();
@@ -531,6 +532,7 @@ void MainWindow::updateFrames()
     {
         for (auto W : dockWidgets)
         {
+            // Temporary hack
             DockWidget* w = dynamic_cast<DockWidget*>(W);
             if (w) {
                 w->refresh();
@@ -712,11 +714,12 @@ void MainWindow::setCursorAddress(RVA addr)
 
 void MainWindow::backButton_clicked()
 {
-    QList<RVA> seek_history = core->getSeekHistory();
-    this->core->cmd("s-");
-    RVA offset = this->core->getOffset();
-    //QString fcn = this->core->cmdFunctionAt(QString::number(offset));
-    core->seek(offset);
+    core->cmd("s-");
+}
+
+void MainWindow::on_actionForward_triggered()
+{
+    core->cmd("s+");
 }
 
 void MainWindow::on_actionCalculator_triggered()
@@ -754,15 +757,15 @@ void MainWindow::on_actionDisasAdd_comment_triggered()
 
 void MainWindow::restoreDocks()
 {
-    addDockWidget(Qt::LeftDockWidgetArea, this->functionsDock);
     addDockWidget(Qt::RightDockWidgetArea, this->sectionsDock);
     addDockWidget(Qt::TopDockWidgetArea, this->dashboardDock);
     this->tabifyDockWidget(this->sectionsDock, this->commentsDock);
     this->tabifyDockWidget(this->dashboardDock, this->disassemblyDock);
-    this->tabifyDockWidget(this->dashboardDock, this->sidebarDock);
-    this->tabifyDockWidget(this->dashboardDock, this->hexdumpDock);
     this->tabifyDockWidget(this->dashboardDock, this->graphDock);
+    this->tabifyDockWidget(this->dashboardDock, this->hexdumpDock);
     this->tabifyDockWidget(this->dashboardDock, this->previewDock);
+    this->tabifyDockWidget(this->dashboardDock, this->sidebarDock);
+    this->tabifyDockWidget(this->dashboardDock, this->functionsDock);
     this->tabifyDockWidget(this->dashboardDock, this->entrypointDock);
     this->tabifyDockWidget(this->dashboardDock, this->flagsDock);
     this->tabifyDockWidget(this->dashboardDock, this->stringsDock);
@@ -773,8 +776,8 @@ void MainWindow::restoreDocks()
     this->tabifyDockWidget(this->dashboardDock, this->notepadDock);
     this->dashboardDock->raise();
     this->sectionsDock->raise();
-    this->functionsDock->raise();
 }
+
 
 void MainWindow::on_actionDefaut_triggered()
 {
@@ -877,8 +880,6 @@ void MainWindow::on_actionRun_Script_triggered()
     fileName = dialog.getOpenFileName(this, tr("Select radare2 script"));
     if (!fileName.length()) //cancel was pressed
         return;
-
-    qDebug() << "Meow: " + fileName;
     this->core->cmd(". " + fileName);
 }
 
@@ -932,14 +933,6 @@ void MainWindow::on_actionDashboard_triggered()
     }
 }
 
-void MainWindow::on_actionForward_triggered()
-{
-    this->core->cmd("s+");
-    RVA offset = core->getOffset();
-    this->addDebugOutput(QString::number(offset));
-    core->seek(offset);
-}
-
 void MainWindow::toggleResponsive(bool maybe)
 {
     this->responsive = maybe;
@@ -974,22 +967,25 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::refreshVisibleDockWidgets()
 {
-    /* TODO Just send a signal no?
-     * // There seems to be no convenience function to check if a QDockWidget
+    /* TODO Just send a signal no? */
+    // There seems to be no convenience function to check if a QDockWidget
     // is really visible or hidden in a tabbed dock. So:
     auto isDockVisible = [](const QDockWidget * const pWidget)
     {
         return pWidget != nullptr && !pWidget->visibleRegion().isEmpty();
     };
 
-    for (auto w : dockWidgets)
+    for (auto W : dockWidgets)
     {
-        if (isDockVisible(w))
+        if (isDockVisible(W))
         {
-            w->refresh();
+            // Temporary hack
+            DockWidget* w = dynamic_cast<DockWidget*>(W);
+            if (w) {
+                w->setup();
+            }
         }
     }
-    */
 }
 
 void MainWindow::on_actionRefresh_contents_triggered()

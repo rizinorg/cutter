@@ -287,6 +287,7 @@ void DisassemblyWidget::refreshDisasm()
     connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_mDisasTextEdit_cursorPositionChanged()));
     //this->on_mDisasTextEdit_cursorPositionChanged();
+
     this->highlightDisasms();
 }
 
@@ -397,13 +398,12 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
 
 void DisassemblyWidget::highlightDisasms()
 {
-    // Syntax Highliting
-    // TODO doing new all the time
-    // TODO Seems very very heavy -- merge it with Graph one
-    Highlighter *highlighter = new Highlighter(mDisasTextEdit->document());
-    Highlighter *highlighter_5 = new Highlighter(mDisasTextEdit->document());
-    AsciiHighlighter *ascii_highlighter = new AsciiHighlighter(mDisasTextEdit->document());
-    HexHighlighter *hex_highlighter = new HexHighlighter(mDisasTextEdit->document());
-    Highlighter *preview_highlighter = new Highlighter(mDisasTextEdit->document());
-    Highlighter *deco_highlighter = new Highlighter(mDisasTextEdit->document());
+    // TODO Improve this syntax Highlighting
+    // TODO Must be usable for the graph view
+    //Highlighter *highlighter = new Highlighter(mDisasTextEdit->document());
+    //Highlighter *highlighter_5 = new Highlighter(mDisasTextEdit->document());
+    //AsciiHighlighter *ascii_highlighter = new AsciiHighlighter(mDisasTextEdit->document());
+    //HexHighlighter *hex_highlighter = new HexHighlighter(mDisasTextEdit->document());
+    //Highlighter *preview_highlighter = new Highlighter(mDisasTextEdit->document());
+    //Highlighter *deco_highlighter = new Highlighter(mDisasTextEdit->document());
 }

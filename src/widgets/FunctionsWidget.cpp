@@ -122,11 +122,11 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             switch (index.column())
             {
             case 0:
-                return RAddressString(function.offset);
+                return function.name;
             case 1:
                 return RSizeString(function.size);
             case 3:
-                return function.name;
+                return RAddressString(function.offset);
             default:
                 return QVariant();
             }
@@ -184,13 +184,13 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
             switch (section)
             {
             case 0:
-                return tr("Offset");
+                return tr("Name");
             case 1:
                 return tr("Size");
             case 2:
                 return tr("Imp.");
             case 3:
-                return tr("Name");
+                return tr("Offset");
             default:
                 return QVariant();
             }
