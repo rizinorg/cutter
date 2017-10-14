@@ -76,7 +76,8 @@ SOURCES += \
     menus/DisassemblyContextMenu.cpp \
     widgets/DisassemblyWidget.cpp \
     widgets/SidebarWidget.cpp \
-    widgets/HexdumpWidget.cpp
+    widgets/HexdumpWidget.cpp \
+    utils/Configuration.cpp
 
 HEADERS  += \
     cutter.h \
@@ -96,7 +97,6 @@ HEADERS  += \
     MainWindow.h \
     utils/Highlighter.h \
     utils/MdHighlighter.h \
-    Settings.h \
     dialogs/OptionsDialog.h \
     dialogs/CreateNewDialog.h \
     dialogs/NewFileDialog.h \
@@ -125,7 +125,8 @@ HEADERS  += \
     menus/DisassemblyContextMenu.h \
     widgets/DisassemblyWidget.h \
     widgets/SidebarWidget.h \
-    widgets/HexdumpWidget.h
+    widgets/HexdumpWidget.h \
+    utils/Configuration.h
 
 FORMS    += \
     widgets/PreviewWidget.ui \

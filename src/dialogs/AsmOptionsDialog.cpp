@@ -1,9 +1,11 @@
+#include <QLabel>
+#include <QFontDialog>
 
-#include "Settings.h"
 #include "AsmOptionsDialog.h"
 #include "ui_AsmOptionsDialog.h"
 
 #include "utils/Helpers.h"
+#include "utils/Configuration.h"
 
 AsmOptionsDialog::AsmOptionsDialog(QWidget *parent)
   : QDialog(parent),
@@ -18,6 +20,9 @@ AsmOptionsDialog::AsmOptionsDialog(QWidget *parent)
     for(const auto &syntax : core->cmdList("e asm.syntax=?"))
         ui->syntaxComboBox->addItem(syntax, syntax);
     ui->syntaxComboBox->blockSignals(false);
+
+    QFont currentFont = Config()->getFont();
+    ui->fontSelectionLabel->setText(currentFont.toString());
 
     updateFromVars();
 }
@@ -207,5 +212,16 @@ void AsmOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
             break;
         default:
             break;
+    }
+}
+
+void AsmOptionsDialog::on_fontSelectionButton_clicked()
+{
+    QFont currentFont = Config()->getFont();
+    bool ok;
+    QFont newFont = QFontDialog::getFont(&ok, currentFont, this);
+    if (ok) {
+        Config()->setFont(newFont);
+        ui->fontSelectionLabel->setText(newFont.toString());
     }
 }

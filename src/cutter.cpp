@@ -1,8 +1,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
+#include "utils/Configuration.h"
 #include "cutter.h"
 #include "sdb.h"
-#include "Settings.h"
 
 Q_GLOBAL_STATIC(ccClass, uniqueInstance)
 
@@ -513,40 +513,38 @@ void CutterCore::triggerAsmOptionsChanged()
 
 void CutterCore::resetDefaultAsmOptions()
 {
-    Settings settings;
-    setConfig("asm.esil", settings.getAsmESIL());
-    setConfig("asm.pseudo", settings.getAsmPseudo());
-    setConfig("asm.offset", settings.getAsmOffset());
-    setConfig("asm.describe", settings.getAsmDescribe());
-    setConfig("asm.stackptr", settings.getAsmStackPointer());
-    setConfig("asm.bytes", settings.getAsmBytes());
-    setConfig("asm.bytespace", settings.getAsmBytespace());
-    setConfig("asm.lbytes", settings.getAsmLBytes());
-    setConfig("asm.syntax", settings.getAsmSyntax());
-    setConfig("asm.ucase", settings.getAsmUppercase());
-    setConfig("asm.bbline", settings.getAsmBBLine());
-    setConfig("asm.capitalize", settings.getAsmCapitalize());
-    setConfig("asm.varsub", settings.getAsmVarsub());
-    setConfig("asm.varsub_only", settings.getAsmVarsubOnly());
+    setConfig("asm.esil", Config()->getAsmESIL());
+    setConfig("asm.pseudo", Config()->getAsmPseudo());
+    setConfig("asm.offset", Config()->getAsmOffset());
+    setConfig("asm.describe", Config()->getAsmDescribe());
+    setConfig("asm.stackptr", Config()->getAsmStackPointer());
+    setConfig("asm.bytes", Config()->getAsmBytes());
+    setConfig("asm.bytespace", Config()->getAsmBytespace());
+    setConfig("asm.lbytes", Config()->getAsmLBytes());
+    setConfig("asm.syntax", Config()->getAsmSyntax());
+    setConfig("asm.ucase", Config()->getAsmUppercase());
+    setConfig("asm.bbline", Config()->getAsmBBLine());
+    setConfig("asm.capitalize", Config()->getAsmCapitalize());
+    setConfig("asm.varsub", Config()->getAsmVarsub());
+    setConfig("asm.varsub_only", Config()->getAsmVarsubOnly());
 }
 
 void CutterCore::saveDefaultAsmOptions()
 {
-    Settings settings;
-    settings.setAsmESIL(getConfigb("asm.esil"));
-    settings.setAsmPseudo(getConfigb("asm.pseudo"));
-    settings.setAsmOffset(getConfigb("asm.offset"));
-    settings.setAsmDescribe(getConfigb("asm.describe"));
-    settings.setAsmStackPointer(getConfigb("asm.stackptr"));
-    settings.setAsmBytes(getConfigb("asm.bytes"));
-    settings.setAsmBytespace(getConfigb("asm.bytespace"));
-    settings.setAsmLBytes(getConfigb("asm.lbytes"));
-    settings.setAsmSyntax(getConfig("asm.syntax"));
-    settings.setAsmUppercase(getConfigb("asm.ucase"));
-    settings.setAsmBBLine(getConfigb("asm.bbline"));
-    settings.setAsmCapitalize(getConfigb("asm.capitalize"));
-    settings.setAsmVarsub(getConfigb("asm.varsub"));
-    settings.setAsmVarsubOnly(getConfigb("asm.varsub_only"));
+    Config()->setAsmESIL(getConfigb("asm.esil"));
+    Config()->setAsmPseudo(getConfigb("asm.pseudo"));
+    Config()->setAsmOffset(getConfigb("asm.offset"));
+    Config()->setAsmDescribe(getConfigb("asm.describe"));
+    Config()->setAsmStackPointer(getConfigb("asm.stackptr"));
+    Config()->setAsmBytes(getConfigb("asm.bytes"));
+    Config()->setAsmBytespace(getConfigb("asm.bytespace"));
+    Config()->setAsmLBytes(getConfigb("asm.lbytes"));
+    Config()->setAsmSyntax(getConfig("asm.syntax"));
+    Config()->setAsmUppercase(getConfigb("asm.ucase"));
+    Config()->setAsmBBLine(getConfigb("asm.bbline"));
+    Config()->setAsmCapitalize(getConfigb("asm.capitalize"));
+    Config()->setAsmVarsub(getConfigb("asm.varsub"));
+    Config()->setAsmVarsubOnly(getConfigb("asm.varsub_only"));
 }
 
 QString CutterCore::getConfig(const QString &k)

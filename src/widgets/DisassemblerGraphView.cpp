@@ -9,6 +9,7 @@
 #include <QMimeData>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "utils/Configuration.h"
 
 #ifdef _WIN32
 #undef min
@@ -74,7 +75,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     setupContextMenu();
 
     //Connect to bridge
-    connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     //connect(Bridge::getBridge(), SIGNAL(loadGraph(BridgeCFGraphList*, duint)), this, SLOT(loadGraphSlot(BridgeCFGraphList*, duint)));
     //connect(Bridge::getBridge(), SIGNAL(graphAt(duint)), this, SLOT(graphAtSlot(duint)));
     //connect(Bridge::getBridge(), SIGNAL(updateGraph()), this, SLOT(updateGraphSlot()));
@@ -84,7 +85,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 
     //Connect to config
     //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-    //connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     //connect(Config(), SIGNAL(shortcutsUpdated()), this, SLOT(shortcutsUpdatedSlot()));
     //connect(Config(), SIGNAL(tokenizerConfigUpdated()), this, SLOT(tokenizerConfigUpdatedSlot()));
 
@@ -98,7 +99,7 @@ DisassemblerGraphView::~DisassemblerGraphView()
 
 void DisassemblerGraphView::initFont()
 {
-    setFont(QFont("Monospace", 10));
+    setFont(Config()->getFont());
     QFontMetricsF metrics(this->font());
     this->baseline = int(metrics.ascent());
     this->charWidth = metrics.width('X');
@@ -734,9 +735,9 @@ void DisassemblerGraphView::mouseDoubleClickEvent(QMouseEvent* event)
     {
         duint instr = this->getInstrForMouseEvent(event);
         //DbgCmdExec(QString("graph dis.branchdest(%1), silent").arg(ToPtrString(instr)).toUtf8().constData());
-        QList<XrefDescription> refs = CutterCore::getInstance()->getXRefs(instr, false, false);
+        QList<XrefDescription> refs = Core()->getXRefs(instr, false, false);
         if (refs.length()) {
-            CutterCore::getInstance()->seek(refs.at(0).to);
+            Core()->seek(refs.at(0).to);
         }
         if (refs.length() > 1) {
             qWarning() << "Too many references here. Weird behaviour expected.";
@@ -1547,7 +1548,7 @@ void DisassemblerGraphView::tokenizerConfigUpdatedSlot()
 void DisassemblerGraphView::loadCurrentGraph()
 {
     // Read functions
-    QJsonDocument functionsDoc = CutterCore::getInstance()->cmdj("agj");
+    QJsonDocument functionsDoc = Core()->cmdj("agj");
     QJsonArray functions = functionsDoc.array();
 
     Analysis anal;

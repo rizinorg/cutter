@@ -9,6 +9,7 @@
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "cutter.h" // only needed for ut64
+#include "utils/Configuration.h"
 
 class CutterCore;
 class DockWidget;
@@ -180,6 +181,7 @@ private:
     SideBar          *sideBar;
     PreviewWidget     *previewDock;
     Notepad          *notepadDock;
+    Configuration   *configuration;
 
     bool doLock;
     void refreshMem();

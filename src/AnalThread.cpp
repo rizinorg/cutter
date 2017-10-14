@@ -2,7 +2,6 @@
 #include "cutter.h"
 #include "AnalThread.h"
 #include "MainWindow.h"
-#include "Settings.h"
 #include "dialogs/OptionsDialog.h"
 
 AnalThread::AnalThread(OptionsDialog *parent) :

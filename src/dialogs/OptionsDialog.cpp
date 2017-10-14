@@ -7,7 +7,6 @@
 // TODO: remove us
 #include "widgets/PreviewWidget.h"
 #include "widgets/Notepad.h"
-#include "Settings.h"
 
 #include <QSettings>
 #include <QFileInfo>

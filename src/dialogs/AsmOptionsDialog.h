@@ -44,6 +44,7 @@ private slots:
     void on_varsubCheckBox_toggled(bool checked);
     void on_varsubOnlyCheckBox_toggled(bool checked);
     void on_buttonBox_clicked(QAbstractButton *button);
+    void on_fontSelectionButton_clicked();
 };
 
 

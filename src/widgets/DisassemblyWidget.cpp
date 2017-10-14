@@ -5,6 +5,7 @@
 #include "utils/HexHighlighter.h"
 #include <QShortcut>
 #include <QScrollBar>
+#include "utils/Configuration.h"
 
 DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     QDockWidget(parent),
@@ -15,8 +16,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setObjectName("DisassemblyWidget");
 
-    // TODO Use Settings
-    mDisasTextEdit->setFont(QFont("Monospace", 10));
+    mDisasTextEdit->setFont(Config()->getFont());
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = mDisasTextEdit->document();
@@ -66,6 +66,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
 
     // Seek signal
     connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
 }
 
 DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
@@ -406,4 +407,10 @@ void DisassemblyWidget::highlightDisasms()
     //HexHighlighter *hex_highlighter = new HexHighlighter(mDisasTextEdit->document());
     //Highlighter *preview_highlighter = new Highlighter(mDisasTextEdit->document());
     //Highlighter *deco_highlighter = new Highlighter(mDisasTextEdit->document());
+}
+
+void DisassemblyWidget::fontsUpdatedSlot()
+{
+    mDisasTextEdit->setFont(Config()->getFont());
+    refreshDisasm();
 }

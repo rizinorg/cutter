@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>445</width>
+    <width>476</width>
     <height>631</height>
    </rect>
   </property>
@@ -17,6 +17,24 @@
    <property name="sizeConstraint">
     <enum>QLayout::SetMinAndMaxSize</enum>
    </property>
+   <item>
+    <layout class="QHBoxLayout" name="fontSelectionLayout">
+     <item>
+      <widget class="QLabel" name="fontSelectionLabel">
+       <property name="text">
+        <string notr="true"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="fontSelectionButton">
+       <property name="text">
+        <string>Select font</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="QCheckBox" name="esilCheckBox">
      <property name="text">

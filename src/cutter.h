@@ -32,6 +32,8 @@
 
 #define APPNAME "Cutter"
 
+#define Core() (CutterCore::getInstance())
+
 typedef ut64 RVA;
 #define RVA_INVALID UT64_MAX
 

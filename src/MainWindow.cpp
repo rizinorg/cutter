@@ -58,7 +58,6 @@
 #include "widgets/SdbDock.h"
 #include "widgets/Omnibar.h"
 #include "widgets/ConsoleWidget.h"
-#include "Settings.h"
 #include "dialogs/OptionsDialog.h"
 #include "widgets/EntrypointWidget.h"
 #include "widgets/DisassemblerGraphView.h"
@@ -113,6 +112,7 @@ MainWindow::MainWindow(QWidget *parent) :
     webserver(core)
 {
     doLock = false;
+    configuration = new Configuration();
 }
 
 MainWindow::~MainWindow()

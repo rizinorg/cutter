@@ -22,6 +22,7 @@ public slots:
     void on_mDisasTextEdit_cursorPositionChanged();
     void on_seekChanged(RVA offset);
     void refreshDisasm();
+    void fontsUpdatedSlot();
 
 private:
     QTextEdit *mDisasTextEdit;
