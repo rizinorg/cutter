@@ -108,8 +108,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sdbDock(nullptr),
     sidebar_action(nullptr),
     sectionsDock(nullptr),
-    consoleWidget(nullptr),
-    webserver(core)
+    consoleWidget(nullptr)
 {
     doLock = false;
     configuration = new Configuration();
@@ -372,7 +371,6 @@ void MainWindow::finalizeOpen()
     // Add fortune message
     addOutput("\n" + core->cmd("fo"));
     //previewDock->setWindowTitle("entry0");
-    start_web_server();
     showMaximized();
     // Initialize syntax highlighters
     notepadDock->highlightPreview();
@@ -386,30 +384,6 @@ void MainWindow::saveProject()
     //this->add_debug_output(notes);
     this->core->cmd("Pnj " + notes);
     this->addOutput(tr("Project saved: ") + project_name);
-}
-
-void MainWindow::start_web_server()
-{
-    // Start web server
-    webserver.start();
-}
-
-
-void MainWindow::setWebServerState(bool start)
-{
-    if (start)
-    {
-        webserver.start();
-
-        // Open web interface on default browser
-        // ballessay: well isn't this possible with =H&
-        //QString link = "http://localhost:9090/";
-        //QDesktopServices::openUrl(QUrl(link));
-    }
-    else
-    {
-        webserver.stop();
-    }
 }
 
 void MainWindow::toggleSideBarTheme()
@@ -742,11 +716,6 @@ void MainWindow::on_actionAssembler_triggered()
     {
         this->on_actionShow_Hide_mainsidebar_triggered();
     }
-}
-
-void MainWindow::on_actionStart_Web_Server_triggered()
-{
-    setWebServerState(ui->actionStart_Web_Server->isChecked());
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()

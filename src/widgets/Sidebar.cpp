@@ -53,11 +53,6 @@ void SideBar::on_consoleButton_clicked()
     }
 }
 
-void SideBar::on_webServerButton_clicked()
-{
-    main->setWebServerState(ui->webServerButton->isChecked());
-}
-
 void SideBar::on_lockButton_clicked()
 {
     if (ui->lockButton->isChecked())

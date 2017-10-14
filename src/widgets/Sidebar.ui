@@ -104,7 +104,7 @@ border: 3px solid rgb(48, 48, 48);</string>
             <x>0</x>
             <y>0</y>
             <width>226</width>
-            <height>600</height>
+            <height>602</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -890,68 +890,6 @@ QToolTip {
            </property>
            <property name="checked">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="webServerButton">
-           <property name="toolTip">
-            <string notr="true">Start/Stop web server</string>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QToolButton { /* all types of tool button */
-     border: 3px solid rgb(105, 105, 105);
-     border-left: 15px solid rgb(105, 105, 105);
-	 border-right: 15px solid rgb(105, 105, 105);
-     background-color: rgb(105, 105, 105);
-	 color: rgb(172, 174, 175);
- }
-
-QToolButton:hover {
-     border: 3px solid #333;
-     border-left: 15px solid #333;
-	 border-right: 15px solid #333;
-     border-radius: 0px;
-     background-color: #333;
- }
-
-QToolButton:pressed {
-     border: 3px solid #2180a9;
-     border-left: 15px solid #2180a9;
-	 border-right: 15px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolButton:checked {
-     border: 3px solid #2180a9;
-     border-left: 15px solid #2180a9;
-	 border-right: 15px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolTip {
-	background-color: #2180a9;
-	border: 3px solid #2180a9;
-	color: rgb(232, 232, 232);
-}</string>
-           </property>
-           <property name="text">
-            <string notr="true">Web</string>
-           </property>
-           <property name="icon">
-            <iconset resource="../resources.qrc">
-             <normaloff>:/img/icons/cloud_white.svg</normaloff>:/img/icons/cloud_white.svg</iconset>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <property name="toolButtonStyle">
-            <enum>Qt::ToolButtonIconOnly</enum>
            </property>
           </widget>
          </item>

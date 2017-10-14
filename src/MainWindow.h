@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QList>
 #include <memory>
-#include "RadareWebServer.h"
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
@@ -70,7 +69,6 @@ public:
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void sendToNotepad(const QString &txt);
-    void setWebServerState(bool start);
     void toggleSideBarTheme();
     void refreshOmniBar(const QStringList &flags);
 
@@ -130,8 +128,6 @@ private slots:
     void on_actionCreate_File_triggered();
 
     void on_actionAssembler_triggered();
-
-    void on_actionStart_Web_Server_triggered();
 
     void on_actionDisasAdd_comment_triggered();
 
@@ -209,7 +205,6 @@ private:
     QAction          *sidebar_action;
     SectionsDock     *sectionsDock;
     ConsoleWidget    *consoleWidget;
-    RadareWebServer  webserver;
 
     void openProject(const QString &project_name);
     void openNewFile(const QString &fn, int anal_level, QList<QString> advanced);

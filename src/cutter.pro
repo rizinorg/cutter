@@ -52,7 +52,6 @@ SOURCES += \
     dialogs/AsmOptionsDialog.cpp \
     dialogs/CreateNewDialog.cpp \
     dialogs/NewFileDialog.cpp \
-    RadareWebServer.cpp \
     AnalThread.cpp \
     widgets/CodeGraphic.cpp \
     widgets/CommentsWidget.cpp \
@@ -100,7 +99,6 @@ HEADERS  += \
     dialogs/OptionsDialog.h \
     dialogs/CreateNewDialog.h \
     dialogs/NewFileDialog.h \
-    RadareWebServer.h \
     AnalThread.h \
     widgets/CodeGraphic.h \
     widgets/CommentsWidget.h \
