@@ -10,11 +10,13 @@ A Qt and C++ GUI for radare2 reverse engineering framework (originally Iaito)
 
 ## Disclaimer
 
-Cutter is not aimed at existing radare2 users, it is focused on those whose are not yet radare2 users because of the learning curve, they don't like CLI applications or the difficulty/instability of radare2.
+Cutter is not aimed at existing radare2 users. It instead focuses on those whose are not yet radare2 users because of the learning curve, because they don't like CLI applications or because of the difficulty/instability of radare2.
 
 **IMPORTANT:** the current status is **highly unstable**, it is an alpha version aimed for developers. Users please wait for the first stable release with installers.
 
 ## Requirements
+
+**You do not have to do this if you are using a [release](https://github.com/radareorg/cutter/releases) since r2 is included in those!**
 
 - **Radare2**: Make sure that, when cloning the project, you use `git clone --recurse-submodules` or run `git submodule update --init` to clone the correct radare2 version. Then execute the following command in the radare2 folder:
 ```
