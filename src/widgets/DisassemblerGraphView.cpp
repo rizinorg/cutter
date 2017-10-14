@@ -1594,10 +1594,18 @@ void DisassemblerGraphView::loadCurrentGraph()
 
             RichTextPainter::CustomRichText_t assembly;
             assembly.highlight = false;
-            assembly.flags = RichTextPainter::FlagNone;
+            assembly.flags = RichTextPainter::FlagColor;
             assembly.text = op["opcode"].toString();
 
             richText.insert(richText.begin(), assembly);
+
+            if (op["comment"].toString().length()) {
+                RichTextPainter::CustomRichText_t comment;
+                comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
+                comment.textColor = Qt::blue;
+                comment.flags = RichTextPainter::FlagColor;
+                richText.insert(richText.end(), comment);
+            }
 
             i.text = Text(richText);
             b.instrs.push_back(i);
