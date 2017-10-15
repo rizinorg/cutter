@@ -8,7 +8,6 @@
 #include <QDockWidget>
 #include <QTreeWidget>
 #include <QTabWidget>
-#include <QWebEngineView>
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QMouseEvent>
@@ -53,14 +52,11 @@ private slots:
 
     void refresh(RVA addr = RVA_INVALID);
 
-    void on_showInfoButton_2_clicked();
     void on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void on_xrefFromToolButton_2_clicked();
     void on_xrefToToolButton_2_clicked();
     void on_offsetToolButton_clicked();
-    void on_polarToolButton_clicked();
-    void on_radarToolButton_clicked();
 };
 
 #endif // SIDEBARWIDGET_H

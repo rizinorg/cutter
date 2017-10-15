@@ -6,7 +6,6 @@
 #include <QDockWidget>
 #include <QTreeWidget>
 #include <QTabWidget>
-#include <QWebEngineView>
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QMouseEvent>
@@ -37,11 +36,6 @@ public:
 signals:
     void fontChanged(QFont font);
 
-public slots:
-    void setMiniGraph(QString at);
-
-    void switchTheme(bool dark);
-
 private:
     std::unique_ptr<Ui::PreviewWidget> ui;
     CutterCore *core;
@@ -58,7 +52,6 @@ private slots:
     void on_actionSettings_menu_1_triggered();
     void on_previewToolButton_clicked();
     void on_decoToolButton_clicked();
-    void on_simpleGrapgToolButton_clicked();
 };
 
 #endif // MEMORYWIDGET_H

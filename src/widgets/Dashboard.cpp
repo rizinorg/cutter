@@ -174,7 +174,7 @@ void Dashboard::updateContents()
         }
     }
 
-    foreach (QString lib, lines)
+    for (QString lib : lines)
     {
         QLabel *label = new QLabel(this);
         label->setText(lib);
@@ -194,30 +194,4 @@ void Dashboard::updateContents()
 
     // Get stats for the graphs
     QStringList stats = CutterCore::getInstance()->getStats();
-
-    // Add data to HTML graphs (stats)
-    QFile html(":/html/stats.html");
-    if (!html.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::information(this, "error", html.errorString());
-    }
-    QString code = html.readAll();
-    html.close();
-
-    QString data = QString("%1, %2, %3, %4, %5, %6").arg(stats.at(0)).arg(stats.at(1)).arg(stats.at(2)).arg(stats.at(3)).arg(stats.at(4)).arg(stats.at(5));
-    code.replace("MEOW", data);
-    ui->statsWebView->setHtml(code);
-
-    // Add data to polar graph
-    QFile html2(":/html/radar.html");
-    if (!html2.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::information(this, "error", html2.errorString());
-    }
-    QString code2 = html2.readAll();
-    html2.close();
-
-    code2.replace("MEOW", data);
-    code2.replace("WOEM", data);
-    ui->polarWebView->setHtml(code2);
 }

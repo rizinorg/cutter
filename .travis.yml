@@ -26,7 +26,7 @@ install:
       export PATH="/usr/local/opt/qt/bin:$PATH" 
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo apt-get -y install qt59base qt59webengine &&
+      sudo apt-get -y install qt59base &&
       source /opt/qt5*/bin/qt5*-env.sh
     ; fi
 

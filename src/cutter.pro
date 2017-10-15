@@ -7,7 +7,7 @@ VERSION = 1.0
 
 ICON = img/Enso.icns
 
-QT += core gui widgets webengine webenginewidgets
+QT += core gui widgets
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 

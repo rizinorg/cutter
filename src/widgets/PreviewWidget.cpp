@@ -5,8 +5,6 @@
 #include "utils/Helpers.h"
 
 #include <QClipboard>
-#include <QWebEngineSettings>
-#include <QWebEngineProfile>
 #include <QSettings>
 
 PreviewWidget::PreviewWidget(QWidget *parent, Qt::WindowFlags flags) :
@@ -93,8 +91,6 @@ void PreviewWidget::refresh(RVA addr)
         addr = core->getSeekAddr();
     }
 
-    setMiniGraph(RAddressString(addr));
-
     // TODO: pseudo, ...
 }
 
@@ -128,25 +124,6 @@ void PreviewWidget::setFonts(QFont font)
  * Buttons callback functions
  */
 
-
-void PreviewWidget::setMiniGraph(QString at)
-{
-    QString dot = this->core->getSimpleGraph(at);
-    //QString dot = this->core->cmd("agc " + at);
-    // Add data to HTML Polar functions graph
-    QFile html(":/html/graph.html");
-    if (!html.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::information(this, "error", html.errorString());
-    }
-    QString code = html.readAll();
-    html.close();
-
-    code.replace("MEOW", dot);
-    ui->webSimpleGraph->setHtml(code);
-
-}
-
 void PreviewWidget::on_previewToolButton_clicked()
 {
     ui->memPreviewTab->setCurrentIndex(0);
@@ -155,21 +132,4 @@ void PreviewWidget::on_previewToolButton_clicked()
 void PreviewWidget::on_decoToolButton_clicked()
 {
     ui->memPreviewTab->setCurrentIndex(1);
-}
-
-void PreviewWidget::on_simpleGrapgToolButton_clicked()
-{
-    ui->memPreviewTab->setCurrentIndex(2);
-}
-
-void PreviewWidget::switchTheme(bool dark)
-{
-    if (dark)
-    {
-        ui->webSimpleGraph->page()->setBackgroundColor(QColor(64, 64, 64));
-    }
-    else
-    {
-        ui->webSimpleGraph->page()->setBackgroundColor(QColor(255, 255, 255));
-    }
 }

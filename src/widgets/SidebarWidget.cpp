@@ -9,12 +9,9 @@
 #include <QScrollBar>
 #include <QClipboard>
 #include <QShortcut>
-#include <QWebEnginePage>
 #include <QMenu>
 #include <QFont>
 #include <QUrl>
-#include <QWebEngineSettings>
-#include <QWebEngineProfile>
 #include <QSettings>
 
 
@@ -29,10 +26,6 @@ SidebarWidget::SidebarWidget(QWidget *parent, Qt::WindowFlags flags) :
 
     // Add margin to function name line edit
     ui->fcnNameEdit->setTextMargins(5, 0, 0, 0);
-
-    // Hide fcn graph notebooks tabs
-    QTabBar *graph_bar = ui->fcnGraphTabWidget->tabBar();
-    graph_bar->setVisible(false);
 
     connect(core, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(core, SIGNAL(flagsChanged()), this, SLOT(refresh()));
@@ -71,20 +64,6 @@ void SidebarWidget::refresh(RVA addr)
 /*
  * Context menu functions
  */
-
-void SidebarWidget::on_showInfoButton_2_clicked()
-{
-    if (ui->showInfoButton_2->isChecked())
-    {
-        ui->fcnGraphTabWidget->hide();
-        ui->showInfoButton_2->setArrowType(Qt::RightArrow);
-    }
-    else
-    {
-        ui->fcnGraphTabWidget->show();
-        ui->showInfoButton_2->setArrowType(Qt::DownArrow);
-    }
-}
 
 void SidebarWidget::on_offsetToolButton_clicked()
 {
@@ -211,32 +190,6 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
     {
         this->xrefToTreeWidget_2->resizeColumnToContents(i);
     }
-
-    // Add data to HTML Polar functions graph
-    QFile html(":/html/fcn_graph.html");
-    if (!html.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::information(this, "error", html.errorString());
-    }
-    QString code = html.readAll();
-    html.close();
-
-    QString data = QString("\"%1\", \"%2\", \"%3\", \"%4\", \"%5\"").arg(graph_data.at(2)).arg(graph_data.at(0)).arg(graph_data.at(3)).arg(graph_data.at(1)).arg(graph_data.at(4));
-    code.replace("MEOW", data);
-    ui->fcnWebView->setHtml(code);
-
-    // Add data to HTML Radar functions graph
-    QFile html2(":/html/fcn_radar.html");
-    if (!html2.open(QIODevice::ReadOnly))
-    {
-        QMessageBox::information(this, "error", html.errorString());
-    }
-    QString code2 = html2.readAll();
-    html2.close();
-
-    QString data2 = QString("%1, %2, %3, %4, %5").arg(graph_data.at(2)).arg(graph_data.at(0)).arg(graph_data.at(3)).arg(graph_data.at(1)).arg(graph_data.at(4));
-    code2.replace("MEOW", data2);
-    ui->radarGraphWebView->setHtml(code2);
 }
 
 void SidebarWidget::fillOffsetInfo(QString off)
@@ -285,18 +238,6 @@ void SidebarWidget::setFcnName(RVA addr)
     }
 
     ui->fcnNameEdit->setText(addr_string);
-}
-
-void SidebarWidget::on_polarToolButton_clicked()
-{
-    ui->radarToolButton->setChecked(false);
-    ui->fcnGraphTabWidget->setCurrentIndex(0);
-}
-
-void SidebarWidget::on_radarToolButton_clicked()
-{
-    ui->polarToolButton->setChecked(false);
-    ui->fcnGraphTabWidget->setCurrentIndex(1);
 }
 
 void SidebarWidget::setScrollMode()
