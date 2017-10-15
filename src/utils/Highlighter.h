@@ -1,9 +1,9 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 
-#include <QSyntaxHighlighter>
-
 #include "cutter.h"
+
+#include <QSyntaxHighlighter>
 #include <QHash>
 #include <QTextCharFormat>
 

@@ -59,4 +59,15 @@ Win32/
 x64/
 *.dir/
 build*/
+release/
+debug/
 *.orig
+/src/*.vcxproj
+/src/*.vcxproj.filters
+/src/cutter_resource.rc
+
+#prepare_r2
+meson.py
+ninja.exe
+/dist32/
+/dist64/

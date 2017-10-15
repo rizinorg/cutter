@@ -1,19 +1,6 @@
 #ifndef CUTTER_H
 #define CUTTER_H
 
-#include <QMap>
-#include <QDebug>
-#include <QObject>
-#include <QStringList>
-#include <QMessageBox>
-#include <QJsonDocument>
-
-
-// Workaround for compile errors on Windows
-#ifdef _WIN32
-#include <r2hacks.h>
-#endif
-
 #include "r_core.h"
 
 // Workaround for compile errors on Windows
@@ -21,6 +8,13 @@
 #undef min
 #undef max
 #endif //_WIN32
+
+#include <QMap>
+#include <QDebug>
+#include <QObject>
+#include <QStringList>
+#include <QMessageBox>
+#include <QJsonDocument>
 
 #define HAVE_LATEST_LIBR2 false
 

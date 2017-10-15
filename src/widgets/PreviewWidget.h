@@ -1,6 +1,7 @@
 #ifndef PREVIEWWIDGET_H
 #define PREVIEWWIDGET_H
 
+#include "cutter.h"
 #include <QDebug>
 #include <QTextEdit>
 #include <QDockWidget>
@@ -10,7 +11,6 @@
 #include <QPlainTextEdit>
 #include <QMouseEvent>
 #include <memory>
-#include "cutter.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
