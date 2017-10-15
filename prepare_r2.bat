@@ -26,6 +26,8 @@ IF NOT "%BITS%"=="64" (
 	call :BUILD
 )
 
+GOTO :END
+
 :BUILD
 echo Building radare2 (%VARSALL%)
 cd radare2
@@ -42,10 +44,15 @@ copy /Y build\r_version.h ..\dist%BI%\include\libr\
 copy /Y build\shlr\liblibr2sdb.a ..\dist%BI%\r_sdb.lib
 cd ..
 copy /Y dist%BI%\*.lib cutter_win32\radare2\lib%BI%\
-echo Copying relevant files in cutter_win32
-xcopy /s /Y dist%BI%\include\libr cutter_win32\radare2\include\libr\
+EXIT
 
 :END
+echo Copying relevant files in cutter_win32
+IF "%BITS%"=="64" (
+	xcopy /s /Y dist64\include\libr cutter_win32\radare2\include\libr\
+) ELSE (
+	xcopy /s /Y dist32\include\libr cutter_win32\radare2\include\libr\
+)
 del ninja.exe
 del meson.py
 
