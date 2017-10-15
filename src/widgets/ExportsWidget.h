@@ -1,10 +1,10 @@
 #ifndef EXPORTSWIDGET_H
 #define EXPORTSWIDGET_H
 
+#include "cutter.h"
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 #include <memory>
-#include "cutter.h"
 #include "DockWidget.h"
 
 class MainWindow;

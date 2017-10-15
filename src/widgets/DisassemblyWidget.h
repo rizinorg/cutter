@@ -1,9 +1,9 @@
 #ifndef DISASSEMBLYVIEW_H
 #define DISASSEMBLYVIEW_H
 
+#include "cutter.h"
 #include <QDockWidget>
 #include <QTextEdit>
-#include "cutter.h"
 
 class DisassemblyWidget : public QDockWidget
 {

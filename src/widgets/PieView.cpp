@@ -38,6 +38,7 @@
 **
 ****************************************************************************/
 
+#include "cutter.h"
 #include <math.h>
 #include <QtWidgets>
 #include <QDebug>
@@ -46,7 +47,6 @@
 #define M_PI 3.1415927
 #endif
 
-#include "cutter.h"
 #include "PieView.h"
 
 PieView::PieView(QWidget *parent)

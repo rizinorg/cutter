@@ -32,7 +32,8 @@ win32 {
         -lr_socket \
         -lr_fs \
         -lr_magic \
-        -lr_crypto
+        -lr_crypto \
+        -lr_sdb
 } else {
     USE_PKGCONFIG = 1
     R2_USER_PKGCONFIG = $$(HOME)/bin/prefix/radare2/lib/pkgconfig
