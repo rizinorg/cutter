@@ -44,7 +44,7 @@ copy /Y build\r_version.h ..\dist%BI%\include\libr\
 copy /Y build\shlr\liblibr2sdb.a ..\dist%BI%\r_sdb.lib
 cd ..
 copy /Y dist%BI%\*.lib cutter_win32\radare2\lib%BI%\
-EXIT
+EXIT /B 0
 
 :END
 echo Copying relevant files in cutter_win32
