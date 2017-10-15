@@ -5,8 +5,6 @@
 #include "utils/Helpers.h"
 
 #include <QClipboard>
-#include <QWebEngineSettings>
-#include <QWebEngineProfile>
 #include <QSettings>
 
 PreviewWidget::PreviewWidget(QWidget *parent, Qt::WindowFlags flags) :

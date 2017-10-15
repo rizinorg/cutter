@@ -8,7 +8,6 @@
 #include <QDockWidget>
 #include <QTreeWidget>
 #include <QTabWidget>
-#include <QWebEngineView>
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QMouseEvent>

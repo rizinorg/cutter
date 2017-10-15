@@ -11,12 +11,9 @@
 #include <QScrollBar>
 #include <QClipboard>
 #include <QShortcut>
-#include <QWebEnginePage>
 #include <QMenu>
 #include <QFont>
 #include <QUrl>
-#include <QWebEngineSettings>
-#include <QWebEngineProfile>
 #include <QSettings>
 
 #include <cassert>

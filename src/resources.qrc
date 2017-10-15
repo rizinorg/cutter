@@ -60,16 +60,5 @@
         <file>img/icons/import_light.svg</file>
         <file>fonts/Anonymous Pro.ttf</file>
         <file>fonts/Inconsolata-Regular.ttf</file>
-
-
-        <file>html/graph.html</file>
-        <file>html/viz.js</file>
-        <file>html/Chart.js</file>
-        <file>html/fcn_graph.html</file>
-        <file>html/fcn_radar.html</file>
-        <file>html/bar.html</file>
-        <file>html/stats.html</file>
-        <file>html/utils.js</file>
-        <file>html/radar.html</file>
     </qresource>
 </RCC>
