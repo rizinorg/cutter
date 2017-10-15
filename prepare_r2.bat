@@ -16,13 +16,13 @@ if defined NINJA_URL ( powershell -Command wget %NINJA_URL% -OutFile ninja.zip &
 
 
 IF NOT "%BITS%"=="32" (
-	set VARSALL="x64"
-	set BI="64"
+	set VARSALL=x64
+	set BI=64
 	call :BUILD
 )
 IF NOT "%BITS%"=="64" (
-	set VARSALL="x86"
-	set BI="32"
+	set VARSALL=x86
+	set BI=32
 	call :BUILD
 )
 
