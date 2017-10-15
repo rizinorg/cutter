@@ -56,7 +56,7 @@
          <x>0</x>
          <y>0</y>
          <width>1055</width>
-         <height>974</height>
+         <height>980</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -90,6 +90,12 @@
         </item>
         <item>
          <widget class="QFrame" name="mainFrame">
+          <property name="minimumSize">
+           <size>
+            <width>800</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
@@ -1003,178 +1009,6 @@
             </layout>
            </item>
            <item>
-            <widget class="Line" name="line_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_5">
-             <property name="font">
-              <font>
-               <pointsize>17</pointsize>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="text">
-              <string>Statistics</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QTabWidget" name="graphTabs">
-             <property name="styleSheet">
-              <string notr="true">QTabBar
-{
-    qproperty-drawBase: 0;
-}
-
-QTabWidget::pane { /* The tab widget frame */
-    border-top: 0px;
-}
-
-QTabBar::tab {
-    background: rgb(240, 240, 240);
-    border: 0px solid #2180a9;
-    border-bottom-color: #2180a9;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    min-width: 8ex;
-    padding: 5px;
-    margin-bottom: 3px;
-    margin-top: 3px;
-}
-
-QTabBar::tab:selected {
-    background: #2180a9;
-    color: #FFFFFF;
-}
-
-QTabBar::tab:hover {
-    background: #2180a9;      /* #3C879E; */
-    color: #FFFFFF;
-}</string>
-             </property>
-             <property name="tabPosition">
-              <enum>QTabWidget::North</enum>
-             </property>
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <widget class="QWidget" name="tab_3">
-              <attribute name="title">
-               <string>Line</string>
-              </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_3">
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QWebEngineView" name="statsWebView" native="true">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>950</width>
-                   <height>400</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>950</width>
-                   <height>400</height>
-                  </size>
-                 </property>
-                 <property name="url" stdset="0">
-                  <url>
-                   <string>qrc:/html/stats.html</string>
-                  </url>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </widget>
-             <widget class="QWidget" name="tab_4">
-              <attribute name="title">
-               <string>Polar</string>
-              </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout_4">
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="topMargin">
-                <number>20</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <property name="bottomMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QWebEngineView" name="polarWebView" native="true">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>950</width>
-                   <height>400</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>950</width>
-                   <height>400</height>
-                  </size>
-                 </property>
-                 <property name="url" stdset="0">
-                  <url>
-                   <string>qrc:/html/fcn_stats.html</string>
-                  </url>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer_3">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             <zorder>polarWebView</zorder>
-             </widget>
-            </widget>
-           </item>
-           <item>
             <spacer name="verticalSpacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
@@ -1210,13 +1044,6 @@ QTabBar::tab:hover {
    </layout>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>QWebEngineView</class>
-   <extends>QWidget</extends>
-   <header>QtWebEngineWidgets/QWebEngineView</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
