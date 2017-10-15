@@ -37,7 +37,7 @@ test: off
 # Artifacts
 artifacts:
   - path: build%BITS%\cutter%BITS%
-    name: Cutter
+    name: Cutter%BITS%
 
 deploy:
   release: cutter-1.0-$(appveyor_build_version)
