@@ -20,32 +20,34 @@ environment:
   QT32PATH: 'C:\Qt\5.9.1\msvc2015'
   QT64PATH: 'C:\Qt\5.9.1\msvc2015_64'
   VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
+  matrix:
+    - BITS: 32
+    - BITS: 64
 
 before_build:
   - cmd: prepare_r2.bat
 
 # Build config
 build_script:
-  - cmd: build.bat 32
-  - cmd: build.bat 64
+  - cmd: build.bat %BITS%
 
 # Tests
 test: off
 
 # Artifacts
 artifacts:
-  - path: build32\cutter32
-  - path: build64\cutter64
+  - path: build%BITS%\cutter%BITS%
+    name: Cutter
 
-#deploy:
-#  release: cutter-1.0-$(appveyor_build_version)
-#  description: 'Cutter Windows'
-#  provider: GitHub
-#  auth_token:
-#    secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
-#  artifact: Cutter
-#  draft: true
-#  prerelease: true
-#  on:
-#    branch: master
-#    appveyor_repo_tag: false
+deploy:
+  release: cutter-1.0-$(appveyor_build_version)
+  description: 'Cutter Windows'
+  provider: GitHub
+  auth_token:
+    secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
+  artifact: Cutter
+  draft: true
+  prerelease: true
+  on:
+    branch: master
+    appveyor_repo_tag: false
