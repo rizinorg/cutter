@@ -1,6 +1,9 @@
 #ifndef CUTTER_H
 #define CUTTER_H
 
+// Workaround for compile errors on Windows
+#include <r_addr_interval_msvc.h>
+
 #include "r_core.h"
 
 // Workaround for compile errors on Windows

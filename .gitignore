@@ -71,3 +71,4 @@ meson.py
 ninja.exe
 /dist32/
 /dist64/
+*.pdb
