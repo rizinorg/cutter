@@ -65,12 +65,7 @@ CutterCore::CutterCore(QObject *parent) :
 
     default_bits = 0;
 
-#if WIN32
-    this->db = nullptr;
-#pragma message("cutter.cpp: warning C1337: sdb does not work on windows")
-#else
     this->db = sdb_new(NULL, NULL, 0);  // WTF NOES
-#endif //WIN32
 }
 
 
@@ -120,9 +115,6 @@ QList<QString> CutterCore::sdbList(QString path)
 {
     CORE_LOCK();
     QList<QString> list = QList<QString>();
-#if WIN32
-#pragma message("cutter.cpp: warning C1337: sdb does not work on windows")
-#else
     Sdb *root = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 0);
     if (root)
     {
@@ -134,7 +126,6 @@ QList<QString> CutterCore::sdbList(QString path)
             list << nsi->name;
         }
     }
-#endif //WIN32
     return list;
 }
 
@@ -142,9 +133,6 @@ QList<QString> CutterCore::sdbListKeys(QString path)
 {
     CORE_LOCK();
     QList<QString> list = QList<QString>();
-#if WIN32
-#pragma message("cutter.cpp: warning C1337: sdb does not work on windows")
-#else
     Sdb *root = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 0);
     if (root)
     {
@@ -157,16 +145,12 @@ QList<QString> CutterCore::sdbListKeys(QString path)
             list << nsi->key;
         }
     }
-#endif //WIN32
     return list;
 }
 
 QString CutterCore::sdbGet(QString path, QString key)
 {
     CORE_LOCK();
-#if WIN32
-#pragma message("cutter.cpp: warning C1337: sdb does not work on windows")
-#else
     Sdb *db = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 0);
     if (db)
     {
@@ -174,21 +158,15 @@ QString CutterCore::sdbGet(QString path, QString key)
         if (val && *val)
             return val;
     }
-#endif //WIN32
     return QString("");
 }
 
 bool CutterCore::sdbSet(QString path, QString key, QString val)
 {
     CORE_LOCK();
-#if WIN32
-#pragma message("cutter.cpp: warning C1337: sdb does not work on windows")
-    return false;
-#else
     Sdb *db = sdb_ns_path(core_->sdb, path.toUtf8().constData(), 1);
     if (!db) return false;
     return sdb_set(db, key.toUtf8().constData(), val.toUtf8().constData(), 0);
-#endif //WIN32
 }
 
 CutterCore::~CutterCore()
@@ -442,13 +420,9 @@ bool CutterCore::tryFile(QString path, bool rw)
 
     //r_core_file_close (this->core, cf);
 
-#if WIN32
-#pragma message("cutter.cpp: warning C1337: sdb does not work on windows")
-#else
     sdb_bool_set(DB, "try.is_writable", is_writable, 0);
     sdb_set(DB, "try.filetype", "elf.i386", 0);
     sdb_set(DB, "try.filename", path.toUtf8().constData(), 0);
-#endif //WIN32
     return true;
 }
 

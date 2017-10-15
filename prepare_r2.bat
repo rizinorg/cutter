@@ -24,6 +24,7 @@ call meson.bat --release --shared
 call sys\meson_install.bat --with-static ..\dist32
 copy /Y build\r_userconf.h ..\dist32\include
 copy /Y build\r_version.h ..\dist32\include
+copy /Y build\shlr\liblibr2sdb.a ..\dist32\r_sdb.lib
 
 echo Building radare2 (x64)
 git clean -xfd
@@ -33,6 +34,7 @@ rmdir /s /q ..\dist64
 call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
 call meson.bat --release --shared
 call sys\meson_install.bat --with-static ..\dist64
+copy /Y build\shlr\liblibr2sdb.a ..\dist64\r_sdb.lib
 
 cd ..
 
