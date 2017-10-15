@@ -19,15 +19,9 @@ environment:
   NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.7.2/ninja-win.zip
   QTDIR: 'C:\Qt\5.9.1\msvc2015_64'
 
-install:
-  - cmd: git submodule init && git submodule update
-  - cmd: if defined BDIR ( %PYTHON%\python.exe -m pip install meson && COPY %PYTHON%\Scripts\meson.py radare2\meson.py )
-  - cmd: if defined NINJA_URL ( powershell -Command wget %NINJA_URL% -OutFile radare2\ninja.zip && unzip radare2\ninja.zip -d radare2\ )
-
 before_build:
-  # Build r2 and generate sln
-  - cmd: cd radare2 && set "PATH=%PYTHON%;%PATH%" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64 && meson.bat --release --shared && sys\meson_install.bat --with-static dist && cd ..
-  # Build cutter
+  - cmd: prepare_r2.bat
+  # Generate cutter (TODO: also generate x86 and switch to JOM)
   - cmd: set "PATH=%PATH%;%QTDIR%\bin;" && call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64  && cd src && qmake -config release -tp vc cutter.pro && cd ..
 
 # Build config
@@ -36,11 +30,7 @@ build:
 
 after_build:
   # Install r2
-  - cmd: move radare2\dist cutter
-  - cmd: cd cutter && dir
-  - cmd: for %%v in (*.dll) do echo %%v
-  - cmd: for %%v in (*.dll) do ren %%v lib%%v
-  - cmd: cd ..
+  - cmd: move dist64 cutter
   # Install cutter
   - cmd: windeployqt src\release\cutter.exe --dir cutter
   - cmd: move src\release\cutter.exe cutter\
