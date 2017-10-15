@@ -76,7 +76,8 @@ SOURCES += \
     widgets/DisassemblyWidget.cpp \
     widgets/SidebarWidget.cpp \
     widgets/HexdumpWidget.cpp \
-    utils/Configuration.cpp
+    utils/Configuration.cpp \
+    utils/Colors.cpp
 
 HEADERS  += \
     cutter.h \
@@ -124,7 +125,8 @@ HEADERS  += \
     widgets/DisassemblyWidget.h \
     widgets/SidebarWidget.h \
     widgets/HexdumpWidget.h \
-    utils/Configuration.h
+    utils/Configuration.h \
+    utils/Colors.h
 
 FORMS    += \
     widgets/PreviewWidget.ui \

@@ -3,8 +3,10 @@
 
 #include <QSettings>
 #include <QFont>
+#include <cutter.h>
 
 #define Config() (Configuration::instance())
+#define ConfigColor(x) Config()->getColor(x)
 
 class Configuration : public QObject
 {
@@ -12,6 +14,8 @@ class Configuration : public QObject
 private:
     QSettings s;
     static Configuration* mPtr;
+
+    void loadDefaultColors();
 
 public:
     // Functions
@@ -21,6 +25,9 @@ public:
     // Fonts
     const QFont getFont() const;
     void setFont(const QFont &font);
+
+    // Colors
+    const QColor getColor(const QString &name) const;
 
     // TODO Imho it's wrong doing it this way. Should find something else.
     bool getAsmESIL() const             { return s.value("asm.esil", false).toBool(); }

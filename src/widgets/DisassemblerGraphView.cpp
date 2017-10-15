@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "utils/Configuration.h"
+#include "utils/Colors.h"
 
 #ifdef _WIN32
 #undef min
@@ -1592,20 +1593,27 @@ void DisassemblerGraphView::loadCurrentGraph()
             // TODO
             RichTextPainter::List richText;
 
+            ////////// TODO Put in a helper function to use it on DisassemblyWidget too.
             RichTextPainter::CustomRichText_t assembly;
             assembly.highlight = false;
             assembly.flags = RichTextPainter::FlagColor;
-            assembly.text = op["opcode"].toString();
+            // TODO cut opcode and use op["ptr"] to colorate registers and immediate values
+            QString opcode = op["opcode"].toString();
+            assembly.text = opcode;
 
+            QString colorName = Colors::getColor(op["type_num"].toVariant().toULongLong());
+            assembly.textColor = ConfigColor(colorName);
             richText.insert(richText.begin(), assembly);
 
             if (op["comment"].toString().length()) {
                 RichTextPainter::CustomRichText_t comment;
                 comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
-                comment.textColor = Qt::blue;
+                comment.textColor = ConfigColor("comment");
                 comment.flags = RichTextPainter::FlagColor;
                 richText.insert(richText.end(), comment);
             }
+            //////////
+
 
             i.text = Text(richText);
             b.instrs.push_back(i);
@@ -1618,6 +1626,9 @@ void DisassemblerGraphView::loadCurrentGraph()
     this->analysis = anal;
     this->function = this->analysis.entry;
     this->ready = true;
+    ///////////////////////////////////////////////////////////////////////////////
+    ////////////////// REMOVE BELOW //////////////////////////////////////
+    ////////////////////////////////////////////////////////////
     /*
     bool showGraphRva = ConfigBool("Gui", "ShowGraphRva");
     Analysis anal;
@@ -1907,14 +1918,14 @@ void DisassemblerGraphView::followDisassemblerSlot()
 
 void DisassemblerGraphView::colorsUpdatedSlot()
 {
-    disassemblyBackgroundColor = Qt::white;
-    graphNodeColor = Qt::black;
-    backgroundColor = QColor(220, 240, 255);
-    disassemblySelectionColor = Qt::yellow;
+    disassemblyBackgroundColor = ConfigColor("gui.background");
+    graphNodeColor = ConfigColor("gui.border");
+    backgroundColor = ConfigColor("gui.alt_background");
+    disassemblySelectionColor = ConfigColor("gui.highlight");
 
-    jmpColor = Qt::blue;
-    brtrueColor = Qt::green;
-    brfalseColor = Qt::red;
+    jmpColor = ConfigColor("graph.trufae");
+    brtrueColor = ConfigColor("graph.true");
+    brfalseColor = ConfigColor("graph.false");
     /*disassemblyBackgroundColor = ConfigColor("GraphNodeBackgroundColor");
     if(!disassemblyBackgroundColor.alpha())
         disassemblyBackgroundColor = ConfigColor("DisassemblyBackgroundColor");
