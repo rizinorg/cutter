@@ -14,9 +14,10 @@ echo Downloading meson and ninja
 python -m pip install meson && COPY %PYTHON%\Scripts\meson.py meson.py
 if defined NINJA_URL ( powershell -Command wget %NINJA_URL% -OutFile ninja.zip && unzip -o ninja.zip -d .\ && del ninja.zip )
 
-cd radare2
 
+IF "%BITS%"=="64" GOTO :BUILD_64
 echo Building radare2 (x86)
+cd radare2
 git clean -xfd
 copy ..\ninja.exe .\
 copy ..\meson.py .\
@@ -28,8 +29,13 @@ call sys\meson_install.bat --with-static ..\dist32
 copy /Y build\r_userconf.h ..\dist32\include\libr\
 copy /Y build\r_version.h ..\dist32\include\libr\
 copy /Y build\shlr\liblibr2sdb.a ..\dist32\r_sdb.lib
+cd ..
+copy /Y dist32\*.lib cutter_win32\radare2\lib32\
 
+IF NOT "%BITS%"=="64" GOTO :END
+:BUILD_64
 echo Building radare2 (x64)
+cd radare2
 git clean -xfd
 copy ..\ninja.exe .\
 copy ..\meson.py .\
@@ -39,13 +45,12 @@ call meson.bat --release --shared
 if not %ERRORLEVEL%==0 exit
 call sys\meson_install.bat --with-static ..\dist64
 copy /Y build\shlr\liblibr2sdb.a ..\dist64\r_sdb.lib
-
 cd ..
+copy /Y dist64\*.lib cutter_win32\radare2\lib64\
 
+:END
 echo Copying relevant files in cutter_win32
 xcopy /s /Y dist32\include\libr cutter_win32\radare2\include\libr\
-copy /Y dist32\*.lib cutter_win32\radare2\lib32\
-copy /Y dist64\*.lib cutter_win32\radare2\lib64\
 
 del ninja.exe
 del meson.py
