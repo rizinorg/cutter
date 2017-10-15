@@ -1,8 +1,24 @@
 #include "Colors.h"
+#include "utils/Configuration.h"
 
 Colors::Colors()
 {
 
+}
+
+
+void Colors::colorizeAssembly(RichTextPainter::List & list, QString opcode, ut64 type_num)
+{
+    RichTextPainter::CustomRichText_t assembly;
+    assembly.highlight = false;
+    assembly.flags = RichTextPainter::FlagColor;
+
+    // TODO cut opcode and use op["ptr"] to colorate registers and immediate values
+    assembly.text = opcode;
+
+    QString colorName = Colors::getColor(type_num);
+    assembly.textColor = ConfigColor(colorName);
+    list.push_back(assembly);
 }
 
 // Temporary solution

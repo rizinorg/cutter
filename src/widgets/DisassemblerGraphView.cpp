@@ -1590,21 +1590,8 @@ void DisassemblerGraphView::loadCurrentGraph()
             QJsonObject op = opRef.toObject();
             Instr i;
             i.addr = op["offset"].toInt();
-            // TODO
             RichTextPainter::List richText;
-
-            ////////// TODO Put in a helper function to use it on DisassemblyWidget too.
-            RichTextPainter::CustomRichText_t assembly;
-            assembly.highlight = false;
-            assembly.flags = RichTextPainter::FlagColor;
-            // TODO cut opcode and use op["ptr"] to colorate registers and immediate values
-            QString opcode = op["opcode"].toString();
-            assembly.text = opcode;
-
-            QString colorName = Colors::getColor(op["type_num"].toVariant().toULongLong());
-            assembly.textColor = ConfigColor(colorName);
-            richText.insert(richText.begin(), assembly);
-
+            Colors::colorizeAssembly(richText, op["opcode"].toString(), op["type_num"].toVariant().toULongLong());
             if (op["comment"].toString().length()) {
                 RichTextPainter::CustomRichText_t comment;
                 comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
@@ -1612,9 +1599,6 @@ void DisassemblerGraphView::loadCurrentGraph()
                 comment.flags = RichTextPainter::FlagColor;
                 richText.insert(richText.end(), comment);
             }
-            //////////
-
-
             i.text = Text(richText);
             b.instrs.push_back(i);
         }
@@ -1626,115 +1610,6 @@ void DisassemblerGraphView::loadCurrentGraph()
     this->analysis = anal;
     this->function = this->analysis.entry;
     this->ready = true;
-    ///////////////////////////////////////////////////////////////////////////////
-    ////////////////// REMOVE BELOW //////////////////////////////////////
-    ////////////////////////////////////////////////////////////
-    /*
-    bool showGraphRva = ConfigBool("Gui", "ShowGraphRva");
-    Analysis anal;
-    anal.update_id = this->update_id + 1;
-    anal.entry = currentGraph.entryPoint;
-    anal.ready = true;
-    {
-        Function func;
-        func.entry = currentGraph.entryPoint;
-        func.ready = true;
-        func.update_id = anal.update_id;
-        {
-            for(const auto & nodeIt : currentGraph.nodes)
-            {
-                const BridgeCFNode & node = nodeIt.second;
-                Block block;
-                block.entry = node.instrs.empty() ? node.start : node.instrs[0].addr;
-                block.exits = node.exits;
-                block.false_path = node.brfalse;
-                block.true_path = node.brtrue;
-                block.terminal = node.terminal;
-                block.indirectcall = node.indirectcall;
-                block.header_text = Text(getSymbolicName(block.entry), mLabelColor, mLabelBackgroundColor);
-                {
-                    Instr instr;
-                    for(const BridgeCFInstruction & nodeInstr : node.instrs)
-                    {
-                        auto addr = nodeInstr.addr;
-                        currentBlockMap[addr] = block.entry;
-                        Instruction_t instrTok = disasm.DisassembleAt((byte_t*)nodeInstr.data, sizeof(nodeInstr.data), 0, addr, false);
-                        RichTextPainter::List richText;
-                        CapstoneTokenizer::TokenToRichText(instrTok.tokens, richText, 0);
-
-                        // add rva to node instruction text
-                        if(showGraphRva)
-                        {
-                            RichTextPainter::CustomRichText_t rvaText;
-                            rvaText.highlight = false;
-                            rvaText.textColor = mAddressColor;
-                            rvaText.textBackground = mAddressBackgroundColor;
-                            rvaText.text = QString().number(instrTok.rva, 16).toUpper().trimmed() + "  ";
-                            rvaText.flags = rvaText.textBackground.alpha() ? RichTextPainter::FlagAll : RichTextPainter::FlagColor;
-                            richText.insert(richText.begin(), rvaText);
-                        }
-
-                        auto size = instrTok.length;
-                        instr.addr = addr;
-                        instr.opcode.resize(size);
-                        for(int j = 0; j < size; j++)
-                            instr.opcode[j] = nodeInstr.data[j];
-
-                        QString comment;
-                        bool autoComment = false;
-                        RichTextPainter::CustomRichText_t commentText;
-                        commentText.highlight = false;
-                        char label[MAX_LABEL_SIZE] = "";
-                        if(GetCommentFormat(addr, comment, &autoComment))
-                        {
-                            if(autoComment)
-                            {
-                                commentText.textColor = mAutoCommentColor;
-                                commentText.textBackground = mAutoCommentBackgroundColor;
-                            }
-                            else //user comment
-                            {
-                                commentText.textColor = mCommentColor;
-                                commentText.textBackground = mCommentBackgroundColor;
-                            }
-                            commentText.text = QString("; ") + comment;
-                            //add to text
-                        }
-                        else if(DbgGetLabelAt(addr, SEG_DEFAULT, label) && addr != block.entry) // label but no comment
-                        {
-                            commentText.textColor = mLabelColor;
-                            commentText.textBackground = mLabelBackgroundColor;
-                            commentText.text = QString("; ") + label;
-                        }
-                        commentText.flags = commentText.textBackground.alpha() ? RichTextPainter::FlagAll : RichTextPainter::FlagColor;
-                        if(commentText.text.length())
-                        {
-                            RichTextPainter::CustomRichText_t spaceText;
-                            spaceText.highlight = false;
-                            spaceText.flags = RichTextPainter::FlagNone;
-                            spaceText.text = " ";
-                            richText.push_back(spaceText);
-                            richText.push_back(commentText);
-                        }
-                        instr.text = Text(richText);
-
-                        //The summary contains calls, rets, user comments and string references
-                        if(!onlySummary ||
-                                instrTok.branchType == Instruction_t::Call ||
-                                instrTok.instStr.startsWith("ret", Qt::CaseInsensitive) ||
-                                (!commentText.text.isEmpty() && !autoComment) ||
-                                commentText.text.contains('\"'))
-                            block.instrs.push_back(instr);
-                    }
-                }
-                func.blocks.push_back(block);
-            }
-        }
-        anal.functions.insert({func.entry, func});
-    }
-    this->analysis = anal;
-    this->function = this->analysis.entry;
-    */
 }
 
 
