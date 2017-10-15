@@ -450,17 +450,19 @@ void MainWindow::readSettings()
 void MainWindow::dark()
 {
     qApp->setStyleSheet("QPlainTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} QTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} ");
-    this->previewDock->switchTheme(true);
     QSettings settings;
     settings.setValue("dark", true);
+
+    // TODO: emit a signal for theme
 }
 
 void MainWindow::def_theme()
 {
     qApp->setStyleSheet("");
-    this->previewDock->switchTheme(false);
     QSettings settings;
     settings.setValue("dark", false);
+
+    // TODO: emit a signal for theme
 }
 
 /*
