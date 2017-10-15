@@ -30,7 +30,7 @@ build:
 
 after_build:
   # Install r2
-  - cmd: xcopy /Y dist64 cutter\dist64
+  - cmd: xcopy /Y dist64 cutter
   # Install cutter
   - cmd: windeployqt src\release\cutter.exe --dir cutter
   - cmd: move src\release\cutter.exe cutter\
