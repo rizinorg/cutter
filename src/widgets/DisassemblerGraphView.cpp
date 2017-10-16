@@ -9,6 +9,7 @@
 #include <QMimeData>
 #include <QFileDialog>
 #include <QMessageBox>
+#include "dialogs/XrefsDialog.h"
 #include "utils/Configuration.h"
 #include "utils/Colors.h"
 
@@ -1668,6 +1669,14 @@ void DisassemblerGraphView::addReferenceAction(QMenu* menu, duint addr)
 
 void DisassemblerGraphView::setupContextMenu()
 {
+    // TODO make this prettier
+    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), this);
+    shortcut_x->setContext(Qt::WidgetShortcut);
+    connect(shortcut_x, SIGNAL(activated()), this, SLOT(xrefSlot()));
+
+    QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    shortcut_escape->setContext(Qt::WidgetShortcut);
+    connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
     /*
     mMenuBuilder = new MenuBuilder(this, [](QMenu*)
     {
@@ -2015,22 +2024,10 @@ restart:
 
 void DisassemblerGraphView::xrefSlot()
 {
-    /*
-    if(!DbgIsDebugging())
-        return;
-    duint wVA = this->get_cursor_pos();
-    if(!DbgMemIsValidReadPtr(wVA))
-        return;
-    XREF_INFO mXrefInfo;
-    DbgXrefGet(wVA, &mXrefInfo);
-    if(!mXrefInfo.refcount)
-        return;
-    BridgeFree(mXrefInfo.references);
-    if(!mXrefDlg)
-        mXrefDlg = new XrefBrowseDialog(this);
-    mXrefDlg->setup(wVA, "graph");
-    mXrefDlg->showNormal();
-    */
+    RVA addr = highlight_token->addr;
+    XrefsDialog *dialog = new XrefsDialog(this);
+    dialog->fillRefsForAddress(addr, RAddressString(addr), false);
+    dialog->exec();
 }
 
 void DisassemblerGraphView::decompileSlot()
@@ -2071,4 +2068,9 @@ void DisassemblerGraphView::followActionSlot()
         DbgCmdExecDirect(QString("graph %1, silent").arg(data).toUtf8().constData());
     }
     */
+}
+
+void DisassemblerGraphView::seekPrev()
+{
+    Core()->seekPrev();
 }

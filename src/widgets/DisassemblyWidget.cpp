@@ -3,9 +3,8 @@
 #include "dialogs/XrefsDialog.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
-#include <QShortcut>
-#include <QScrollBar>
 #include "utils/Configuration.h"
+#include <QScrollBar>
 
 DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     QDockWidget(parent),
@@ -17,6 +16,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     setObjectName("DisassemblyWidget");
 
     mDisasTextEdit->setFont(Config()->getFont());
+    mDisasTextEdit->setReadOnly(true);
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = mDisasTextEdit->document();
@@ -35,35 +35,12 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
     // x or X to show XRefs
-    connect(new QShortcut(QKeySequence(Qt::Key_X), mDisasTextEdit),
-            SIGNAL(activated()), this, SLOT(showXrefsDialog()));
-    connect(new QShortcut(Qt::SHIFT + Qt::Key_X, mDisasTextEdit),
-            SIGNAL(activated()), this, SLOT(showXrefsDialog()));
+    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), mDisasTextEdit);
+    shortcut_x->setContext(Qt::WidgetShortcut);
+    connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
 
     // Scrollbar
     connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-
-    // TODO Shortcuts
-    // Semicolon to add comment
-    //QShortcut *comment_shortcut = new QShortcut(QKeySequence(Qt::Key_Semicolon), mDisasTextEdit);
-    //connect(comment_shortcut, SIGNAL(activated()), this, SLOT(on_actionDisasAdd_comment_triggered()));
-    //comment_shortcut->setContext(Qt::WidgetShortcut);
-
-    // N to rename function
-    //QShortcut *rename_shortcut = new QShortcut(QKeySequence(Qt::Key_N), mDisasTextEdit);
-    //connect(rename_shortcut, SIGNAL(activated()), this, SLOT(on_actionFunctionsRename_triggered()));
-    //rename_shortcut->setContext(Qt::WidgetShortcut);
-
-    // Esc to seek back
-    //QShortcut *back_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), mDisasTextEdit);
-    //connect(back_shortcut, SIGNAL(activated()), this, SLOT(seek_back()));
-    //back_shortcut->setContext(Qt::WidgetShortcut);
-
-    // CTRL + R to refresh the disasm
-    //QShortcut *refresh_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_R), mDisasTextEdit);
-    //connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshDisasm()));
-    //refresh_shortcut->setContext(Qt::WidgetShortcut);
-
     // Seek signal
     connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
@@ -74,6 +51,7 @@ DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
 {
     this->setWindowTitle(title);
 }
+
 void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -137,22 +115,6 @@ void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
     DisassemblyContextMenu menu(this->readCurrentDisassemblyOffset(), mDisasTextEdit);
     menu.exec(mDisasTextEdit->mapToGlobal(pt));
-}
-
-void DisassemblyWidget::showXrefsDialog()
-{
-    // Get current offset
-    QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x"))
-    {
-        RVA addr = ele.toLongLong(0, 16);
-        XrefsDialog *dialog = new XrefsDialog(this);
-        dialog->fillRefsForAddress(addr, RAddressString(addr), false);
-        dialog->exec();
-    }
 }
 
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
@@ -413,4 +375,20 @@ void DisassemblyWidget::fontsUpdatedSlot()
 {
     mDisasTextEdit->setFont(Config()->getFont());
     refreshDisasm();
+}
+
+void DisassemblyWidget::showXrefsDialog()
+{
+    // Get current offset
+    QTextCursor tc = mDisasTextEdit->textCursor();
+    tc.select(QTextCursor::LineUnderCursor);
+    QString lastline = tc.selectedText();
+    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
+    if (ele.contains("0x"))
+    {
+        RVA addr = ele.toLongLong(0, 16);
+        XrefsDialog *dialog = new XrefsDialog(this);
+        dialog->fillRefsForAddress(addr, RAddressString(addr), false);
+        dialog->exec();
+    }
 }

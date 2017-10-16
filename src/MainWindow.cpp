@@ -690,12 +690,12 @@ void MainWindow::setCursorAddress(RVA addr)
 
 void MainWindow::backButton_clicked()
 {
-    core->cmd("s-");
+    core->seekPrev();
 }
 
 void MainWindow::on_actionForward_triggered()
 {
-    core->cmd("s+");
+    core->seekNext();
 }
 
 void MainWindow::on_actionCalculator_triggered()

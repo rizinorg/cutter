@@ -164,7 +164,7 @@ void HexdumpWidget::refresh(RVA addr)
 {
     if (addr == RVA_INVALID)
     {
-        addr = core->getSeekAddr();
+        addr = core->getOffset();
     }
 
     RCoreLocked lcore = this->core->core();

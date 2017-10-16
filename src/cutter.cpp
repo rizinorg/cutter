@@ -339,10 +339,8 @@ void CutterCore::renameFunction(QString prev_name, QString new_name)
     emit functionRenamed(prev_name, new_name);
 }
 
-
 void CutterCore::setComment(RVA addr, QString cmt)
 {
-    //r_meta_add (core->anal, 'C', addr, 1, cmt.toUtf8());
     cmd("CC " + cmt + " @ " + QString::number(addr));
     emit commentsChanged();
 }
@@ -351,7 +349,6 @@ void CutterCore::delComment(ut64 addr)
 {
     CORE_LOCK();
     r_meta_del(core_->anal, 'C', addr, 1, NULL);
-    //cmd (QString("CC-@")+addr);
 }
 
 QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
@@ -374,29 +371,35 @@ QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
     return ret;
 }
 
-
-
 void CutterCore::seek(QString addr)
 {
-    if (addr.length() > 0)
-        seek(this->math(addr.toUtf8().constData()));
+    // Slower than using the API, but the API is not complete
+    // which means we either have to duplicate code from radare2
+    // here, or refactor radare2 API.
+    CORE_LOCK();
+    cmd(QString("s %1").arg(addr));
+    emit seekChanged(core_->offset);
 }
 
 void CutterCore::seek(ut64 offset)
 {
-    CORE_LOCK();
-    r_core_seek(this->core_, offset, true);
-    emit seekChanged(core_->offset);
+    seek(QString::number(offset));
 }
 
-
-RVA CutterCore::getSeekAddr()
+void CutterCore::seekPrev()
 {
-    return cmd("s").toULongLong(nullptr, 16);
+    cmd("s-");
 }
 
+void CutterCore::seekNext()
+{
+    cmd("s+");
+}
 
-
+RVA CutterCore::getOffset()
+{
+    return core_->offset;
+}
 
 bool CutterCore::tryFile(QString path, bool rw)
 {
@@ -513,6 +516,7 @@ void CutterCore::triggerAsmOptionsChanged()
 
 void CutterCore::resetDefaultAsmOptions()
 {
+    // TODO Merge with Configuration.cpp
     setConfig("asm.esil", Config()->getAsmESIL());
     setConfig("asm.pseudo", Config()->getAsmPseudo());
     setConfig("asm.offset", Config()->getAsmOffset());

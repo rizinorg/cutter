@@ -4,6 +4,7 @@
 #include "cutter.h"
 #include <QDockWidget>
 #include <QTextEdit>
+#include <QShortcut>
 
 class DisassemblyWidget : public QDockWidget
 {
@@ -18,11 +19,11 @@ public slots:
     void highlightCurrentLine();
     void disasmScrolled();
     void showDisasContextMenu(const QPoint &pt);
-    void showXrefsDialog();
     void on_mDisasTextEdit_cursorPositionChanged();
     void on_seekChanged(RVA offset);
     void refreshDisasm();
     void fontsUpdatedSlot();
+    void showXrefsDialog();
 
 private:
     QTextEdit *mDisasTextEdit;

@@ -209,9 +209,13 @@ public:
     bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int idx = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
     void analyze(int level, QList<QString> advanced);
+
+    // Seek functions
     void seek(QString addr);
     void seek(ut64 offset);
-    RVA getSeekAddr();
+    void seekPrev();
+    void seekNext();
+    RVA getOffset();
 
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);

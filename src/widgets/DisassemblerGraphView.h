@@ -285,6 +285,8 @@ public slots:
     void xrefSlot();
     void decompileSlot();
 
+    void seekPrev();
+
 private:
     MainWindow* main;
     QString status;

@@ -54,7 +54,7 @@ void SidebarWidget::on_seekChanged(RVA addr)
 void SidebarWidget::refresh(RVA addr)
 {
     if(addr == RVA_INVALID)
-        addr = core->getSeekAddr();
+        addr = core->getOffset();
 
     get_refs_data(addr);
     setFcnName(addr);
