@@ -72,6 +72,8 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 
     // Hide "create" button until the dialog works
     ui->createButton->hide();
+
+	ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
 }
 
 NewFileDialog::~NewFileDialog() {}
@@ -81,21 +83,51 @@ void NewFileDialog::on_loadFileButton_clicked()
     loadFile(ui->newFileEdit->text());
 }
 
-void NewFileDialog::on_newFileButton_clicked()
+void NewFileDialog::on_selectFileButton_clicked()
 {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setViewMode(QFileDialog::Detail);
-    dialog.setDirectory(QDir::home());
-
-    QString fileName;
-    fileName = dialog.getOpenFileName(this, tr("Select file"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath());
 
     if (!fileName.isEmpty())
     {
         ui->newFileEdit->setText(fileName);
         ui->loadFileButton->setFocus();
     }
+}
+
+void NewFileDialog::on_selectProjectsDirButton_clicked()
+{
+	QFileDialog dialog(this);
+	dialog.setFileMode(QFileDialog::DirectoryOnly);
+
+    QString currentDir = CutterCore::getInstance()->getConfig("dir.projects"); // TODO: Fix ~
+	dialog.setDirectory(currentDir);
+
+    dialog.setWindowTitle(tr("Select project path (dir.projects)"));
+
+	if(!dialog.exec())
+    {
+        return;
+    }
+
+	const QString &dir = dialog.selectedFiles().first();
+
+	if (!dir.isEmpty())
+	{
+		CutterCore::getInstance()->setConfig("dir.projects", dir);
+		fillProjectsList();
+	}
+}
+
+void NewFileDialog::on_loadProjectButton_clicked()
+{
+	QListWidgetItem *item = ui->projectsListWidget->currentItem();
+
+	if (item == nullptr)
+	{
+		return;
+	}
+
+	loadProject(item->data(Qt::UserRole).toString());
 }
 
 void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
@@ -110,9 +142,9 @@ void NewFileDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item
     loadFile(item->data(Qt::UserRole).toString());
 }
 
-void NewFileDialog::on_projectsListWidget_itemClicked(QListWidgetItem *item)
+void NewFileDialog::on_projectsListWidget_itemSelectionChanged()
 {
-    // TODO
+	ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
 }
 
 void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -209,17 +241,18 @@ void NewFileDialog::fillProjectsList()
 {
     CutterCore *core = CutterCore::getInstance();
 
+	ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
+
     QStringList projects = core->getProjectNames();
+
+	ui->projectsListWidget->clear();
 
     int i=0;
     for(const QString &project : projects)
     {
         QString info = core->cmd("Pi " + project);
 
-        QListWidgetItem *item = new QListWidgetItem(
-                getIconFor(project, i++),
-                project + "\n" + info // + "\nCreated: " + info.created().toString() + "\nSize: " + formatBytecount(info.size())
-        );
+        QListWidgetItem *item = new QListWidgetItem(getIconFor(project, i++), project + "\n" + info);
 
         item->setData(Qt::UserRole, project);
         ui->projectsListWidget->addItem(item);

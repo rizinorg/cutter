@@ -20,14 +20,18 @@ public:
 
 private slots:
     void on_loadFileButton_clicked();
-    void on_newFileButton_clicked();
-	void on_cancelButton_clicked();
+    void on_selectFileButton_clicked();
 	void on_createButton_clicked();
+
+	void on_selectProjectsDirButton_clicked();
+	void on_loadProjectButton_clicked();
+
+	void on_cancelButton_clicked();
 
     void on_recentsListWidget_itemClicked(QListWidgetItem *item);
     void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
-	void on_projectsListWidget_itemClicked(QListWidgetItem *item);
+	void on_projectsListWidget_itemSelectionChanged();
 	void on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
     void on_actionRemove_item_triggered();
