@@ -300,16 +300,6 @@ void MainWindow::initUI()
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshVisibleDockWidgets()));
 }
 
-void MainWindow::openFile(const QString &fn, int anal_level, QList<QString> advanced)
-{
-    QString project_name = qhelpers::uniqueProjectName(fn);
-
-    if (core->getProjectNames().contains(project_name))
-        openProject(project_name);
-    else
-        openNewFile(fn, anal_level, advanced);
-}
-
 void MainWindow::openNewFile(const QString &fn, int anal_level, QList<QString> advanced)
 {
     setFilename(fn);

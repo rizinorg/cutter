@@ -19,24 +19,28 @@ public:
     ~NewFileDialog();
 
 private slots:
-
     void on_loadFileButton_clicked();
-
     void on_newFileButton_clicked();
+	void on_cancelButton_clicked();
+	void on_createButton_clicked();
 
     void on_recentsListWidget_itemClicked(QListWidgetItem *item);
     void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
-    void on_cancelButton_clicked();
+	void on_projectsListWidget_itemClicked(QListWidgetItem *item);
+	void on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
     void on_actionRemove_item_triggered();
-
-    void on_createButton_clicked();
-
     void on_actionClear_all_triggered();
 
 private:
     std::unique_ptr<Ui::NewFileDialog> ui;
+
+	void fillRecentFilesList();
+	void fillProjectsList();
+
+	void loadFile(const QString &filename);
+	void loadProject(const QString &project);
 
     static const int MaxRecentFiles = 5;
 };

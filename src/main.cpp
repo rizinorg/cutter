@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     else // filename specified as positional argument
     {
         MainWindow *main = new MainWindow();
-        main->openFile(args[0], anal_level_specified ? anal_level : -1);
+        main->openNewFile(args[0], anal_level_specified ? anal_level : -1);
     }
 
     return a.exec();

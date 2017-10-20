@@ -53,7 +53,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void openFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
+	void openNewFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
+	void openProject(const QString &project_name);
+
     void initUI();
     void finalizeOpen();
 
@@ -205,9 +207,6 @@ private:
     QAction          *sidebar_action;
     SectionsDock     *sectionsDock;
     ConsoleWidget    *consoleWidget;
-
-    void openProject(const QString &project_name);
-    void openNewFile(const QString &fn, int anal_level, QList<QString> advanced);
 
     void toggleDockWidget(DockWidget *dock_widget);
 

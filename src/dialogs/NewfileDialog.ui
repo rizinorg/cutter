@@ -163,7 +163,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="tab">
            <attribute name="title">
@@ -207,6 +207,12 @@
               <property name="lineWidth">
                <number>0</number>
               </property>
+              <property name="iconSize">
+               <size>
+                <width>48</width>
+                <height>48</height>
+               </size>
+              </property>
               <property name="verticalScrollMode">
                <enum>QAbstractItemView::ScrollPerPixel</enum>
               </property>
@@ -226,6 +232,9 @@
                <bool>false</bool>
               </property>
               <property name="selectionRectVisible">
+               <bool>true</bool>
+              </property>
+              <property name="sortingEnabled">
                <bool>true</bool>
               </property>
              </widget>
@@ -273,6 +282,12 @@
               </property>
               <property name="lineWidth">
                <number>0</number>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>48</width>
+                <height>48</height>
+               </size>
               </property>
               <property name="verticalScrollMode">
                <enum>QAbstractItemView::ScrollPerPixel</enum>
