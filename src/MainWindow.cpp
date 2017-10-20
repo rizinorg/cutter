@@ -201,6 +201,7 @@ void MainWindow::initUI()
 
     // Add graph view as dockable
     graphDock = new QDockWidget(tr("Graph"), this);
+	graphDock->setObjectName("Graph");
     graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     DisassemblerGraphView *gv = new DisassemblerGraphView(graphDock);
     graphDock->setWidget(gv);
