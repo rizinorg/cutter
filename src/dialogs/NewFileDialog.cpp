@@ -64,9 +64,9 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    ui->recentsList->addAction(ui->actionRemove_item);
-    ui->recentsList->addAction(ui->actionClear_all);
-    ui->recentsList->setIconSize(QSize(48, 48));
+    ui->recentsListWidget->addAction(ui->actionRemove_item);
+    ui->recentsListWidget->addAction(ui->actionClear_all);
+    ui->recentsListWidget->setIconSize(QSize(48, 48));
 
     // Fill list with recent opened files
     QSettings settings;
@@ -99,10 +99,10 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
             );
             //":/img/icons/target.svg"), name );
             item->setData(Qt::UserRole, file);
-            ui->recentsList->addItem(item);
+            ui->recentsListWidget->addItem(item);
         }
     }
-    ui->recentsList->setSortingEnabled(true);
+    ui->recentsListWidget->setSortingEnabled(true);
 
     // Hide "create" button until the dialog works
     ui->createButton->hide();
@@ -163,14 +163,14 @@ void NewFileDialog::on_newFileButton_clicked()
     }
 }
 
-void NewFileDialog::on_recentsList_itemClicked(QListWidgetItem *item)
+void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
 {
     QVariant data = item->data(Qt::UserRole);
     QString sitem = data.toString();
     ui->newFileEdit->setText(sitem);
 }
 
-void NewFileDialog::on_recentsList_itemDoubleClicked(QListWidgetItem *item)
+void NewFileDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item)
 {
     // Get selected item to send to options dialog
     QVariant data = item->data(Qt::UserRole);
@@ -192,7 +192,7 @@ void NewFileDialog::on_cancelButton_clicked()
 void NewFileDialog::on_actionRemove_item_triggered()
 {
     // Remove selected item from recents list
-    QListWidgetItem *item = ui->recentsList->currentItem();
+    QListWidgetItem *item = ui->recentsListWidget->currentItem();
 
     QVariant data = item->data(Qt::UserRole);
     QString sitem = data.toString();
@@ -202,7 +202,7 @@ void NewFileDialog::on_actionRemove_item_triggered()
     files.removeAll(sitem);
     settings.setValue("recentFileList", files);
 
-    ui->recentsList->takeItem(ui->recentsList->currentRow());
+    ui->recentsListWidget->takeItem(ui->recentsListWidget->currentRow());
 
     ui->newFileEdit->clear();
 }
@@ -222,7 +222,7 @@ void NewFileDialog::on_actionClear_all_triggered()
     QStringList files = settings.value("recentFileList").toStringList();
     files.clear();
 
-    ui->recentsList->clear();
+    ui->recentsListWidget->clear();
     // TODO: if called from main window its ok, otherwise its not
     settings.setValue("recentFileList", files);
     ui->newFileEdit->clear();

@@ -24,9 +24,8 @@ private slots:
 
     void on_newFileButton_clicked();
 
-    void on_recentsList_itemClicked(QListWidgetItem *item);
-
-    void on_recentsList_itemDoubleClicked(QListWidgetItem *item);
+    void on_recentsListWidget_itemClicked(QListWidgetItem *item);
+    void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
     void on_cancelButton_clicked();
 

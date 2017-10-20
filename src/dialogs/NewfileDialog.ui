@@ -6,15 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>450</height>
+    <width>452</width>
+    <height>532</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Open File</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset>
     <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -42,7 +42,7 @@
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap resource="resources.qrc">:/img/logo-small.png</pixmap>
+      <pixmap>:/img/logo-small.png</pixmap>
      </property>
      <property name="scaledContents">
       <bool>false</bool>
@@ -104,63 +104,17 @@
           <property name="horizontalSpacing">
            <number>5</number>
           </property>
-          <item row="3" column="0" colspan="2">
-           <widget class="Line" name="line">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>1</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="2">
-           <widget class="QListWidget" name="recentsList">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>1</verstretch>
-             </sizepolicy>
-            </property>
+          <item row="1" column="0">
+           <widget class="QLineEdit" name="newFileEdit">
             <property name="font">
              <font>
-              <pointsize>11</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::ActionsContextMenu</enum>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::NoFrame</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Plain</enum>
-            </property>
-            <property name="lineWidth">
-             <number>0</number>
-            </property>
-            <property name="verticalScrollMode">
-             <enum>QAbstractItemView::ScrollPerPixel</enum>
-            </property>
-            <property name="resizeMode">
-             <enum>QListView::Adjust</enum>
-            </property>
-            <property name="spacing">
-             <number>5</number>
-            </property>
-            <property name="viewMode">
-             <enum>QListView::ListMode</enum>
-            </property>
-            <property name="uniformItemSizes">
+            <property name="frame">
              <bool>false</bool>
             </property>
-            <property name="wordWrap">
-             <bool>false</bool>
-            </property>
-            <property name="selectionRectVisible">
+            <property name="clearButtonEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -178,28 +132,6 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QLabel" name="loadFileLabel">
-            <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Previous sessions&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLineEdit" name="newFileEdit">
-            <property name="font">
-             <font>
-              <pointsize>12</pointsize>
-             </font>
-            </property>
-            <property name="frame">
-             <bool>false</bool>
-            </property>
-            <property name="clearButtonEnabled">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="newFileLabel">
             <property name="sizePolicy">
@@ -214,6 +146,160 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="tab">
+           <attribute name="title">
+            <string>Previous Files</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QListWidget" name="recentsListWidget">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>1</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::ActionsContextMenu</enum>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
+              </property>
+              <property name="verticalScrollMode">
+               <enum>QAbstractItemView::ScrollPerPixel</enum>
+              </property>
+              <property name="resizeMode">
+               <enum>QListView::Adjust</enum>
+              </property>
+              <property name="spacing">
+               <number>5</number>
+              </property>
+              <property name="viewMode">
+               <enum>QListView::ListMode</enum>
+              </property>
+              <property name="uniformItemSizes">
+               <bool>false</bool>
+              </property>
+              <property name="wordWrap">
+               <bool>false</bool>
+              </property>
+              <property name="selectionRectVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="tab_2">
+           <attribute name="title">
+            <string>Projects</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QListWidget" name="projectsListWidget">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>0</horstretch>
+                <verstretch>1</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>11</pointsize>
+               </font>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::ActionsContextMenu</enum>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Plain</enum>
+              </property>
+              <property name="lineWidth">
+               <number>0</number>
+              </property>
+              <property name="verticalScrollMode">
+               <enum>QAbstractItemView::ScrollPerPixel</enum>
+              </property>
+              <property name="resizeMode">
+               <enum>QListView::Adjust</enum>
+              </property>
+              <property name="spacing">
+               <number>5</number>
+              </property>
+              <property name="viewMode">
+               <enum>QListView::ListMode</enum>
+              </property>
+              <property name="uniformItemSizes">
+               <bool>false</bool>
+              </property>
+              <property name="wordWrap">
+               <bool>false</bool>
+              </property>
+              <property name="selectionRectVisible">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -277,6 +363,7 @@
   </action>
  </widget>
  <resources>
+  <include location="../resources.qrc"/>
   <include location="resources.qrc"/>
  </resources>
  <connections/>
