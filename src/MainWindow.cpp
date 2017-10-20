@@ -61,6 +61,7 @@
 #include "dialogs/OptionsDialog.h"
 #include "widgets/EntrypointWidget.h"
 #include "widgets/DisassemblerGraphView.h"
+#include "dialogs/SaveProjectDialog.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -369,12 +370,19 @@ void MainWindow::finalizeOpen()
 
 void MainWindow::saveProject()
 {
+	// TODO
     QString project_name = qhelpers::uniqueProjectName(filename);
     core->cmd("Ps " + project_name);
     QString notes = this->notepadDock->textToBase64();
     //this->add_debug_output(notes);
     this->core->cmd("Pnj " + notes);
     this->addOutput(tr("Project saved: ") + project_name);
+}
+
+void MainWindow::saveProjectAs()
+{
+	SaveProjectDialog dialog(this);
+	dialog.exec();
 }
 
 void MainWindow::toggleSideBarTheme()
@@ -829,6 +837,11 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::on_actionSave_triggered()
 {
     saveProject();
+}
+
+void MainWindow::on_actionSaveAs_triggered()
+{
+	saveProjectAs();
 }
 
 void MainWindow::on_actionRun_Script_triggered()

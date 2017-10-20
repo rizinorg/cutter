@@ -77,7 +77,8 @@ SOURCES += \
     widgets/SidebarWidget.cpp \
     widgets/HexdumpWidget.cpp \
     utils/Configuration.cpp \
-    utils/Colors.cpp
+    utils/Colors.cpp \
+    dialogs/SaveProjectDialog.cpp
 
 HEADERS  += \
     cutter.h \
@@ -126,7 +127,8 @@ HEADERS  += \
     widgets/SidebarWidget.h \
     widgets/HexdumpWidget.h \
     utils/Configuration.h \
-    utils/Colors.h
+    utils/Colors.h \
+    dialogs/SaveProjectDialog.h
 
 FORMS    += \
     widgets/PreviewWidget.ui \
@@ -156,7 +158,8 @@ FORMS    += \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
     widgets/SidebarWidget.ui \
-    widgets/HexdumpWidget.ui
+    widgets/HexdumpWidget.ui \
+    dialogs/SaveProjectDialog.ui
 
 RESOURCES += \
     resources.qrc

@@ -60,6 +60,7 @@ public:
     void finalizeOpen();
 
     void saveProject();
+	void saveProjectAs();
 
     void start_web_server();
     void closeEvent(QCloseEvent *event) override;
@@ -146,6 +147,7 @@ private slots:
     void on_actionNew_triggered();
 
     void on_actionSave_triggered();
+	void on_actionSaveAs_triggered();
 
     void on_actionWhite_Theme_triggered();
 
