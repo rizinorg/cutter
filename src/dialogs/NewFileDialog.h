@@ -40,8 +40,15 @@ private slots:
 private:
     std::unique_ptr<Ui::NewFileDialog> ui;
 
-	void fillRecentFilesList();
-	void fillProjectsList();
+	/*!
+	 * @return true if list is not empty
+	 */
+	bool fillRecentFilesList();
+
+	/*!
+	 * @return true if list is not empty
+	 */
+	bool fillProjectsList();
 
 	void loadFile(const QString &filename);
 	void loadProject(const QString &project);

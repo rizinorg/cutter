@@ -68,7 +68,16 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui->recentsListWidget->addAction(ui->actionClear_all);
 
     fillRecentFilesList();
-    fillProjectsList();
+    bool projectsExist = fillProjectsList();
+
+    if(projectsExist)
+    {
+        ui->tabWidget->setCurrentWidget(ui->projectsTab);
+    }
+    else
+    {
+        ui->tabWidget->setCurrentWidget(ui->filesTab);
+    }
 
     // Hide "create" button until the dialog works
     ui->createButton->hide();
@@ -99,7 +108,11 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
 	QFileDialog dialog(this);
 	dialog.setFileMode(QFileDialog::DirectoryOnly);
 
-    QString currentDir = CutterCore::getInstance()->getConfig("dir.projects"); // TODO: Fix ~
+    QString currentDir = CutterCore::getInstance()->getConfig("dir.projects");
+    if(currentDir.startsWith("~"))
+    {
+        currentDir = QDir::homePath() + currentDir.mid(1);
+    }
 	dialog.setDirectory(currentDir);
 
     dialog.setWindowTitle(tr("Select project path (dir.projects)"));
@@ -196,7 +209,7 @@ void NewFileDialog::on_actionClear_all_triggered()
     ui->newFileEdit->clear();
 }
 
-void NewFileDialog::fillRecentFilesList()
+bool NewFileDialog::fillRecentFilesList()
 {
     // Fill list with recent opened files
     QSettings settings;
@@ -235,9 +248,11 @@ void NewFileDialog::fillRecentFilesList()
 
     // Removed files were deleted from the stringlist. Save it again.
     settings.setValue("recentFileList", files);
+
+    return !files.isEmpty();
 }
 
-void NewFileDialog::fillProjectsList()
+bool NewFileDialog::fillProjectsList()
 {
     CutterCore *core = CutterCore::getInstance();
 
@@ -257,6 +272,8 @@ void NewFileDialog::fillProjectsList()
         item->setData(Qt::UserRole, project);
         ui->projectsListWidget->addItem(item);
     }
+
+    return !projects.isEmpty();
 }
 
 void NewFileDialog::loadFile(const QString &filename)

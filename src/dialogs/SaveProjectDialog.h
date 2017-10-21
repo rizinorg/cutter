@@ -14,15 +14,19 @@ class SaveProjectDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SaveProjectDialog(QWidget *parent = 0);
+	enum Result { Saved, Rejected, Destructive };
+
+    explicit SaveProjectDialog(bool quit, QWidget *parent = 0);
     ~SaveProjectDialog();
 
+    virtual void accept() override;
+	virtual void reject() override;
+
 private slots:
-	void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
+	void on_buttonBox_clicked(QAbstractButton *button);
 
 private:
     std::unique_ptr<Ui::SaveProjectDialog> ui;
 };
 
-#endif // ABOUTDIALOG_H
+#endif // SAVEPROJECTDIALOG_H

@@ -59,8 +59,17 @@ public:
     void initUI();
     void finalizeOpen();
 
-    void saveProject();
-	void saveProjectAs();
+    /*!
+     * @param quit whether to show destructive button in dialog
+     * @return if quit is true, false if the application should not close
+     */
+    bool saveProject(bool quit = false);
+
+    /*!
+     * @param quit whether to show destructive button in dialog
+     * @return if quit is true, false if the application should not close
+     */
+	bool saveProjectAs(bool quit = false);
 
     void start_web_server();
     void closeEvent(QCloseEvent *event) override;
@@ -169,6 +178,8 @@ private slots:
 
     void on_actionAsmOptions_triggered();
 
+    void projectSaved(const QString &name);
+
 private:
     CutterCore       *core;
     DisassemblyWidget  *disassemblyDock;
@@ -210,7 +221,7 @@ private:
     SectionsDock     *sectionsDock;
     ConsoleWidget    *consoleWidget;
 
-    void toggleDockWidget(DockWidget *dock_widget);
+    void toggleDockWidget(QDockWidget *dock_widget);
 
 public:
     RVA getCursorAddress() const        { return cursorAddress; }

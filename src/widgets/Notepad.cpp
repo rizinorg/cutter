@@ -15,7 +15,7 @@
 
 
 Notepad::Notepad(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::Notepad)
 {
     ui->setupUi(this);
@@ -40,34 +40,12 @@ Notepad::Notepad(MainWindow *main, QWidget *parent) :
     ui->notepadTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->notepadTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showNotepadContextMenu(const QPoint &)));
+    connect(ui->notepadTextEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
+
+    connect(CutterCore::getInstance(), SIGNAL(notesChanged(const QString &)), this, SLOT(updateNotes(const QString &)));
 }
 
 Notepad::~Notepad() {}
-
-void Notepad::setup()
-{
-}
-
-void Notepad::refresh()
-{
-    // TODO: implement
-    eprintf("%s - not implemented\n", Q_FUNC_INFO);
-}
-
-void Notepad::setText(const QString &str)
-{
-    ui->notepadTextEdit->setPlainText(str);
-}
-
-QString Notepad::textToBase64() const
-{
-    return notesTextEdit->toPlainText().toUtf8().toBase64();
-}
-
-void Notepad::appendPlainText(const QString &text)
-{
-    notesTextEdit->appendPlainText(text);
-}
 
 void Notepad::on_fontButton_clicked()
 {
@@ -358,4 +336,17 @@ void Notepad::on_actionCompact_Hexdump_triggered()
 void Notepad::on_actionHexdump_function_triggered()
 {
     ui->previewTextEdit->setPlainText(CutterCore::getInstance()->cmd("pxf @ " + this->addr));
+}
+
+void Notepad::updateNotes(const QString &notes)
+{
+    ui->notepadTextEdit->setPlainText(notes);
+}
+
+void Notepad::textChanged()
+{
+    CutterCore *core = CutterCore::getInstance();
+    disconnect(core, SIGNAL(notesChanged(const QString &)), this, SLOT(updateNotes(const QString &)));
+    core->setNotes(ui->notepadTextEdit->toPlainText());
+    connect(core, SIGNAL(notesChanged(const QString &)), this, SLOT(updateNotes(const QString &)));
 }

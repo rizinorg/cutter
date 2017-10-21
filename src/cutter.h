@@ -184,8 +184,6 @@ class CutterCore: public QObject
     friend class ccClass;
 
 public:
-    QString projectPath;
-
     explicit CutterCore(QObject *parent = 0);
     ~CutterCore();
     static CutterCore* getInstance();
@@ -267,6 +265,13 @@ public:
     QStringList getAnalPluginNames();
 
     QStringList getProjectNames();
+    void openProject(const QString &name);
+    void saveProject(const QString &name);
+
+    static bool isProjectNameValid(const QString &name);
+
+    const QString &getNotes() const                { return notes; }
+    void setNotes(const QString &notes);
 
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
 
@@ -303,6 +308,9 @@ signals:
     void flagsChanged();
     void commentsChanged();
 
+    void notesChanged(const QString &notes);
+    void projectSaved(const QString &name);
+
     /*!
      * emitted when config regarding disassembly display changes
      */
@@ -320,6 +328,8 @@ private:
     QString default_arch;
     QString default_cpu;
     int default_bits;
+
+    QString notes;
 
     RCore *core_;
 };

@@ -99,9 +99,9 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
-          <widget class="QWidget" name="tab">
+          <widget class="QWidget" name="filesTab">
            <attribute name="title">
             <string>Open File</string>
            </attribute>
@@ -255,7 +255,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="tab_2">
+          <widget class="QWidget" name="projectsTab">
            <attribute name="title">
             <string>Projects</string>
            </attribute>
@@ -450,7 +450,7 @@
  </widget>
  <resources>
   <include location="../resources.qrc"/>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>
