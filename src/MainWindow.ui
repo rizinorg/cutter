@@ -186,8 +186,8 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>273</x>
-      <y>133</y>
+      <x>419</x>
+      <y>265</y>
       <width>173</width>
       <height>206</height>
      </rect>
@@ -419,6 +419,9 @@ QToolButton .svg-icon path {
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionUndo">
