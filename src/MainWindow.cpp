@@ -61,6 +61,7 @@
 #include "dialogs/OptionsDialog.h"
 #include "widgets/EntrypointWidget.h"
 #include "widgets/DisassemblerGraphView.h"
+#include "dialogs/SaveProjectDialog.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -298,16 +299,8 @@ void MainWindow::initUI()
 
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshVisibleDockWidgets()));
-}
 
-void MainWindow::openFile(const QString &fn, int anal_level, QList<QString> advanced)
-{
-    QString project_name = qhelpers::uniqueProjectName(fn);
-
-    if (core->getProjectNames().contains(project_name))
-        openProject(project_name);
-    else
-        openNewFile(fn, anal_level, advanced);
+    connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
 }
 
 void MainWindow::openNewFile(const QString &fn, int anal_level, QList<QString> advanced)
@@ -327,7 +320,7 @@ void MainWindow::openProject(const QString &project_name)
     QString filename = core->cmd("Pi " + project_name);
     setFilename(filename.trimmed());
 
-    core->cmd("Po " + project_name);
+    core->openProject(project_name);
 
     initUI();
     finalizeOpen();
@@ -347,20 +340,9 @@ void MainWindow::finalizeOpen()
     core->cmd("fs sections");
     updateFrames();
 
-    // Restore project notes
-    QString notes = this->core->cmd("Pnj");
-    //qDebug() << "Notes:" << notes;
-    if (notes != "")
+    if(core->getNotes().isEmpty())
     {
-        QByteArray ba;
-        ba.append(notes);
-        notepadDock->setText(QByteArray::fromBase64(ba));
-    }
-    else
-    {
-        addOutput(tr(" > Adding binary information to notepad"));
-
-        notepadDock->setText(tr("# Binary information\n\n") + core->cmd("i") +
+        core->setNotes(tr("# Binary information\n\n") + core->cmd("i") +
                              "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
     }
 
@@ -377,14 +359,27 @@ void MainWindow::finalizeOpen()
     notepadDock->highlightPreview();
 }
 
-void MainWindow::saveProject()
+bool MainWindow::saveProject(bool quit)
 {
-    QString project_name = qhelpers::uniqueProjectName(filename);
-    core->cmd("Ps " + project_name);
-    QString notes = this->notepadDock->textToBase64();
-    //this->add_debug_output(notes);
-    this->core->cmd("Pnj " + notes);
-    this->addOutput(tr("Project saved: ") + project_name);
+    QString projectName = core->getConfig("prj.name");
+    if (projectName.isEmpty())
+    {
+        return saveProjectAs(quit);
+    }
+    else
+    {
+        core->saveProject(projectName);
+        return true;
+    }
+}
+
+bool MainWindow::saveProjectAs(bool quit)
+{
+	SaveProjectDialog dialog(quit, this);
+	int result = dialog.exec();
+
+    return !quit || result != SaveProjectDialog::Rejected;
+
 }
 
 void MainWindow::toggleSideBarTheme()
@@ -412,13 +407,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
     //qDebug() << ret;
     if (ret == QMessageBox::Save)
     {
-        QSettings settings;
-        settings.setValue("geometry", saveGeometry());
-        settings.setValue("size", size());
-        settings.setValue("pos", pos());
-        settings.setValue("state", saveState());
-        saveProject();
-        QMainWindow::closeEvent(event);
+        if(saveProject(true))
+        {
+            QSettings settings;
+            settings.setValue("geometry", saveGeometry());
+            settings.setValue("size", size());
+            settings.setValue("pos", pos());
+            settings.setValue("state", saveState());
+            QMainWindow::closeEvent(event);
+        }
+        else
+        {
+            event->ignore();
+        }
     }
     else if (ret == QMessageBox::Discard)
     {
@@ -670,7 +671,7 @@ void MainWindow::on_actionRefresh_Panels_triggered()
     this->updateFrames();
 }
 
-void MainWindow::toggleDockWidget(DockWidget *dock_widget)
+void MainWindow::toggleDockWidget(QDockWidget *dock_widget)
 {
     if (dock_widget->isVisible())
     {
@@ -808,7 +809,7 @@ void MainWindow::on_actionhide_bottomPannel_triggered()
 
 void MainWindow::sendToNotepad(const QString &txt)
 {
-    this->notepadDock->appendPlainText("```\n" + txt + "\n```");
+    core->setNotes(core->getNotes() + "```\n" + txt + "\n```");
 }
 
 void MainWindow::on_actionFunctionsRename_triggered()
@@ -839,6 +840,11 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::on_actionSave_triggered()
 {
     saveProject();
+}
+
+void MainWindow::on_actionSaveAs_triggered()
+{
+	saveProjectAs();
 }
 
 void MainWindow::on_actionRun_Script_triggered()
@@ -969,4 +975,9 @@ void MainWindow::on_actionAsmOptions_triggered()
 {
     auto dialog = new AsmOptionsDialog(this);
     dialog->show();
+}
+
+void MainWindow::projectSaved(const QString &name)
+{
+    this->addOutput(tr("Project saved: ") + name);
 }

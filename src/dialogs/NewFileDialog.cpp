@@ -64,10 +64,152 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    ui->recentsList->addAction(ui->actionRemove_item);
-    ui->recentsList->addAction(ui->actionClear_all);
-    ui->recentsList->setIconSize(QSize(48, 48));
+    ui->recentsListWidget->addAction(ui->actionRemove_item);
+    ui->recentsListWidget->addAction(ui->actionClear_all);
 
+    fillRecentFilesList();
+    bool projectsExist = fillProjectsList();
+
+    if(projectsExist)
+    {
+        ui->tabWidget->setCurrentWidget(ui->projectsTab);
+    }
+    else
+    {
+        ui->tabWidget->setCurrentWidget(ui->filesTab);
+    }
+
+    // Hide "create" button until the dialog works
+    ui->createButton->hide();
+
+	ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
+}
+
+NewFileDialog::~NewFileDialog() {}
+
+void NewFileDialog::on_loadFileButton_clicked()
+{
+    loadFile(ui->newFileEdit->text());
+}
+
+void NewFileDialog::on_selectFileButton_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath());
+
+    if (!fileName.isEmpty())
+    {
+        ui->newFileEdit->setText(fileName);
+        ui->loadFileButton->setFocus();
+    }
+}
+
+void NewFileDialog::on_selectProjectsDirButton_clicked()
+{
+	QFileDialog dialog(this);
+	dialog.setFileMode(QFileDialog::DirectoryOnly);
+
+    QString currentDir = CutterCore::getInstance()->getConfig("dir.projects");
+    if(currentDir.startsWith("~"))
+    {
+        currentDir = QDir::homePath() + currentDir.mid(1);
+    }
+	dialog.setDirectory(currentDir);
+
+    dialog.setWindowTitle(tr("Select project path (dir.projects)"));
+
+	if(!dialog.exec())
+    {
+        return;
+    }
+
+	QString dir = dialog.selectedFiles().first();
+	if (!dir.isEmpty())
+	{
+		CutterCore::getInstance()->setConfig("dir.projects", dir);
+		fillProjectsList();
+	}
+}
+
+void NewFileDialog::on_loadProjectButton_clicked()
+{
+	QListWidgetItem *item = ui->projectsListWidget->currentItem();
+
+	if (item == nullptr)
+	{
+		return;
+	}
+
+	loadProject(item->data(Qt::UserRole).toString());
+}
+
+void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
+{
+    QVariant data = item->data(Qt::UserRole);
+    QString sitem = data.toString();
+    ui->newFileEdit->setText(sitem);
+}
+
+void NewFileDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    loadFile(item->data(Qt::UserRole).toString());
+}
+
+void NewFileDialog::on_projectsListWidget_itemSelectionChanged()
+{
+	ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
+}
+
+void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    loadProject(item->data(Qt::UserRole).toString());
+}
+
+void NewFileDialog::on_cancelButton_clicked()
+{
+    close();
+}
+
+void NewFileDialog::on_actionRemove_item_triggered()
+{
+    // Remove selected item from recents list
+    QListWidgetItem *item = ui->recentsListWidget->currentItem();
+
+    QVariant data = item->data(Qt::UserRole);
+    QString sitem = data.toString();
+
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.removeAll(sitem);
+    settings.setValue("recentFileList", files);
+
+    ui->recentsListWidget->takeItem(ui->recentsListWidget->currentRow());
+
+    ui->newFileEdit->clear();
+}
+
+void NewFileDialog::on_createButton_clicked()
+{
+    // Close dialog and open create new file dialog
+    close();
+    CreateNewDialog *n = new CreateNewDialog(nullptr);
+    n->exec();
+}
+
+void NewFileDialog::on_actionClear_all_triggered()
+{
+    // Clear recent file list
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.clear();
+
+    ui->recentsListWidget->clear();
+    // TODO: if called from main window its ok, otherwise its not
+    settings.setValue("recentFileList", files);
+    ui->newFileEdit->clear();
+}
+
+bool NewFileDialog::fillRecentFilesList()
+{
     // Fill list with recent opened files
     QSettings settings;
 
@@ -94,30 +236,50 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
         else
         {
             QListWidgetItem *item = new QListWidgetItem(
-                getIconFor(name, i++),
-                file + "\nCreated: " + info.created().toString() + "\nSize: " + formatBytecount(info.size())
+                    getIconFor(name, i++),
+                    file + "\nCreated: " + info.created().toString() + "\nSize: " + formatBytecount(info.size())
             );
             //":/img/icons/target.svg"), name );
             item->setData(Qt::UserRole, file);
-            ui->recentsList->addItem(item);
+            ui->recentsListWidget->addItem(item);
         }
     }
-    ui->recentsList->setSortingEnabled(true);
 
-    // Hide "create" button until the dialog works
-    ui->createButton->hide();
-
-    // Removes files were deleted from the stringlist. Save it again.
+    // Removed files were deleted from the stringlist. Save it again.
     settings.setValue("recentFileList", files);
+
+    return !files.isEmpty();
 }
 
-NewFileDialog::~NewFileDialog() {}
+bool NewFileDialog::fillProjectsList()
+{
+    CutterCore *core = CutterCore::getInstance();
 
-void NewFileDialog::on_loadFileButton_clicked()
+	ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
+
+    QStringList projects = core->getProjectNames();
+    projects.sort(Qt::CaseInsensitive);
+
+	ui->projectsListWidget->clear();
+
+    int i=0;
+    for(const QString &project : projects)
+    {
+        QString info = core->cmd("Pi " + project);
+
+        QListWidgetItem *item = new QListWidgetItem(getIconFor(project, i++), project + "\n" + info);
+
+        item->setData(Qt::UserRole, project);
+        ui->projectsListWidget->addItem(item);
+    }
+
+    return !projects.isEmpty();
+}
+
+void NewFileDialog::loadFile(const QString &filename)
 {
     // Check that there is a file selected
-    QString fname = ui->newFileEdit->text();
-    QFileInfo checkfile(fname);
+    QFileInfo checkfile(filename);
     if (!checkfile.exists() || !checkfile.isFile())
     {
         QMessageBox msgBox(this);
@@ -129,8 +291,8 @@ void NewFileDialog::on_loadFileButton_clicked()
         // Add file to recent file list
         QSettings settings;
         QStringList files = settings.value("recentFileList").toStringList();
-        files.removeAll(fname);
-        files.prepend(fname);
+        files.removeAll(filename);
+        files.prepend(filename);
         while (files.size() > MaxRecentFiles)
             files.removeLast();
 
@@ -140,90 +302,16 @@ void NewFileDialog::on_loadFileButton_clicked()
 
         // Close dialog and open MainWindow/OptionsDialog
         MainWindow *main = new MainWindow();
-        main->openFile(fname);
+        main->openNewFile(filename);
         //OptionsDialog *o = new OptionsDialog(fname);
         //o->exec();
     }
 }
 
-void NewFileDialog::on_newFileButton_clicked()
+void NewFileDialog::loadProject(const QString &project)
 {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setViewMode(QFileDialog::Detail);
-    dialog.setDirectory(QDir::home());
-
-    QString fileName;
-    fileName = dialog.getOpenFileName(this, tr("Select file"));
-
-    if (!fileName.isEmpty())
-    {
-        ui->newFileEdit->setText(fileName);
-        ui->loadFileButton->setFocus();
-    }
-}
-
-void NewFileDialog::on_recentsList_itemClicked(QListWidgetItem *item)
-{
-    QVariant data = item->data(Qt::UserRole);
-    QString sitem = data.toString();
-    ui->newFileEdit->setText(sitem);
-}
-
-void NewFileDialog::on_recentsList_itemDoubleClicked(QListWidgetItem *item)
-{
-    // Get selected item to send to options dialog
-    QVariant data = item->data(Qt::UserRole);
-    QString sitem = data.toString();
-    // Close dialog and open OptionsDialog
     close();
 
     MainWindow *main = new MainWindow();
-    main->openFile(sitem);
-    //OptionsDialog *o = new OptionsDialog(sitem);
-    //o->exec();
-}
-
-void NewFileDialog::on_cancelButton_clicked()
-{
-    close();
-}
-
-void NewFileDialog::on_actionRemove_item_triggered()
-{
-    // Remove selected item from recents list
-    QListWidgetItem *item = ui->recentsList->currentItem();
-
-    QVariant data = item->data(Qt::UserRole);
-    QString sitem = data.toString();
-
-    QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
-    files.removeAll(sitem);
-    settings.setValue("recentFileList", files);
-
-    ui->recentsList->takeItem(ui->recentsList->currentRow());
-
-    ui->newFileEdit->clear();
-}
-
-void NewFileDialog::on_createButton_clicked()
-{
-    // Close dialog and open create new file dialog
-    close();
-    CreateNewDialog *n = new CreateNewDialog(nullptr);
-    n->exec();
-}
-
-void NewFileDialog::on_actionClear_all_triggered()
-{
-    // Clear recent file list
-    QSettings settings;
-    QStringList files = settings.value("recentFileList").toStringList();
-    files.clear();
-
-    ui->recentsList->clear();
-    // TODO: if called from main window its ok, otherwise its not
-    settings.setValue("recentFileList", files);
-    ui->newFileEdit->clear();
+    main->openProject(project);
 }

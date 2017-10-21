@@ -46,7 +46,6 @@ CutterCore::CutterCore(QObject *parent) :
     QObject(parent)
 {
     r_cons_new();  // initialize console
-    this->projectPath = "";
     this->core_ = r_core_new();
     r_core_loadlibs(this->core_, R_CORE_LOADLIBS_ALL, NULL);
     // IMPLICIT r_bin_iobind (core_->bin, core_->io);
@@ -1218,4 +1217,32 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
 void CutterCore::loadPDB(const QString &file)
 {
     cmd("idp " + sanitizeStringForCommand(file));
+}
+
+void CutterCore::openProject(const QString &name)
+{
+    cmd("Po " + name);
+
+    QString notes = QString::fromUtf8(QByteArray::fromBase64(cmd("Pnj").toUtf8()));
+    setNotes(notes);
+}
+
+void CutterCore::saveProject(const QString &name)
+{
+    cmd("Ps " + name);
+    cmd("Pnj " + notes.toUtf8().toBase64());
+    emit projectSaved(name);
+}
+
+bool CutterCore::isProjectNameValid(const QString &name)
+{
+    // see is_valid_project_name() in libr/core/project.c
+    static const QRegExp regexp(R"(^[a-zA-Z0-9\\\._:-]{1,}$)");
+    return regexp.exactMatch(name) && !name.endsWith(".zip") ;
+}
+
+void CutterCore::setNotes(const QString &notes)
+{
+    this->notes = notes;
+    emit notesChanged(this->notes);
 }

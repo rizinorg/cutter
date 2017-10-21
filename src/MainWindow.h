@@ -53,11 +53,23 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void openFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
+	void openNewFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
+	void openProject(const QString &project_name);
+
     void initUI();
     void finalizeOpen();
 
-    void saveProject();
+    /*!
+     * @param quit whether to show destructive button in dialog
+     * @return if quit is true, false if the application should not close
+     */
+    bool saveProject(bool quit = false);
+
+    /*!
+     * @param quit whether to show destructive button in dialog
+     * @return if quit is true, false if the application should not close
+     */
+	bool saveProjectAs(bool quit = false);
 
     void start_web_server();
     void closeEvent(QCloseEvent *event) override;
@@ -144,6 +156,7 @@ private slots:
     void on_actionNew_triggered();
 
     void on_actionSave_triggered();
+	void on_actionSaveAs_triggered();
 
     void on_actionWhite_Theme_triggered();
 
@@ -164,6 +177,8 @@ private slots:
     void on_actionRefresh_contents_triggered();
 
     void on_actionAsmOptions_triggered();
+
+    void projectSaved(const QString &name);
 
 private:
     CutterCore       *core;
@@ -206,10 +221,7 @@ private:
     SectionsDock     *sectionsDock;
     ConsoleWidget    *consoleWidget;
 
-    void openProject(const QString &project_name);
-    void openNewFile(const QString &fn, int anal_level, QList<QString> advanced);
-
-    void toggleDockWidget(DockWidget *dock_widget);
+    void toggleDockWidget(QDockWidget *dock_widget);
 
 public:
     RVA getCursorAddress() const        { return cursorAddress; }

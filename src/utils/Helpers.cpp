@@ -39,12 +39,6 @@ namespace qhelpers
 #endif
     }
 
-    QString uniqueProjectName(const QString &filename)
-    {
-        const QByteArray fullHash(QCryptographicHash::hash(filename.toUtf8(), QCryptographicHash::Sha1));
-        return QFileInfo(filename).fileName() + "_" + fullHash.toHex().left(10);
-    }
-
     void adjustColumns(QTreeWidget *tw, int columnCount, int padding)
     {
         const int count = columnCount == 0 ? tw->columnCount() : columnCount;

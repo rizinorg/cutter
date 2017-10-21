@@ -174,7 +174,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -186,10 +186,10 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>273</x>
-      <y>136</y>
-      <width>148</width>
-      <height>167</height>
+      <x>419</x>
+      <y>265</y>
+      <width>173</width>
+      <height>206</height>
      </rect>
     </property>
     <property name="title">
@@ -199,6 +199,7 @@ border-top: 0px;
     <addaction name="actionLoad"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
     <addaction name="separator"/>
     <addaction name="actionRun_Script"/>
     <addaction name="separator"/>
@@ -418,6 +419,9 @@ QToolButton .svg-icon path {
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionUndo">
@@ -977,6 +981,11 @@ QToolButton .svg-icon path {
   <action name="actionAsmOptions">
    <property name="text">
     <string>Disassembly Options</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>Save As...</string>
    </property>
   </action>
  </widget>
