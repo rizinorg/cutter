@@ -2,6 +2,8 @@
 #define SAVEPROJECTDIALOG_H
 
 #include <QDialog>
+#include <QAbstractButton>
+
 #include <memory>
 
 namespace Ui
