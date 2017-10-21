@@ -122,8 +122,7 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
         return;
     }
 
-	const QString &dir = dialog.selectedFiles().first();
-
+	QString dir = dialog.selectedFiles().first();
 	if (!dir.isEmpty())
 	{
 		CutterCore::getInstance()->setConfig("dir.projects", dir);

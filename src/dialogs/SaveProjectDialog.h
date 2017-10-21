@@ -24,6 +24,7 @@ public:
 
 private slots:
 	void on_buttonBox_clicked(QAbstractButton *button);
+	void on_selectProjectsDirButton_clicked();
 
 private:
     std::unique_ptr<Ui::SaveProjectDialog> ui;

@@ -1,3 +1,6 @@
+
+#include <QFileDialog>
+
 #include <cutter.h>
 #include "SaveProjectDialog.h"
 #include "ui_SaveProjectDialog.h"
@@ -31,6 +34,32 @@ SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
 
 SaveProjectDialog::~SaveProjectDialog()
 {
+}
+
+void SaveProjectDialog::on_selectProjectsDirButton_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::DirectoryOnly);
+
+    QString currentDir = ui->projectsDirEdit->text();
+    if(currentDir.startsWith("~"))
+    {
+        currentDir = QDir::homePath() + currentDir.mid(1);
+    }
+    dialog.setDirectory(currentDir);
+
+    dialog.setWindowTitle(tr("Select project path (dir.projects)"));
+
+    if(!dialog.exec())
+    {
+        return;
+    }
+
+    QString dir = dialog.selectedFiles().first();
+    if (!dir.isEmpty())
+    {
+        ui->projectsDirEdit->setText(dir);
+    }
 }
 
 void SaveProjectDialog::on_buttonBox_clicked(QAbstractButton *button)

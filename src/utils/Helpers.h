@@ -16,8 +16,6 @@ namespace qhelpers
     void normalizeFont(QPlainTextEdit *edit);
     void normalizeEditFont(QTextEdit *edit);
 
-    QString uniqueProjectName(const QString &filename);
-
     void adjustColumns(QTreeWidget *tw, int columnCount = 0, int padding = 0);
 
     QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
