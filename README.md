@@ -45,5 +45,5 @@ Proper documentation and website will be created before the first release.
 
 Right now the best place to obtain help from *cutter* developers and community is joining this telegram group:
 
-- https://t.me/iaito
+- https://t.me/r2cutter
 - #cutter on irc.freenode.net
