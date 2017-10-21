@@ -259,6 +259,7 @@ bool NewFileDialog::fillProjectsList()
 	ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
 
     QStringList projects = core->getProjectNames();
+    projects.sort(Qt::CaseInsensitive);
 
 	ui->projectsListWidget->clear();
 
