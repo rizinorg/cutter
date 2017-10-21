@@ -43,6 +43,8 @@ Notepad::Notepad(MainWindow *main, QWidget *parent) :
     connect(ui->notepadTextEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
 
     connect(CutterCore::getInstance(), SIGNAL(notesChanged(const QString &)), this, SLOT(updateNotes(const QString &)));
+
+    updateNotes(CutterCore::getInstance()->getNotes());
 }
 
 Notepad::~Notepad() {}
@@ -340,7 +342,9 @@ void Notepad::on_actionHexdump_function_triggered()
 
 void Notepad::updateNotes(const QString &notes)
 {
+    disconnect(ui->notepadTextEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
     ui->notepadTextEdit->setPlainText(notes);
+    connect(ui->notepadTextEdit, SIGNAL(textChanged()), this, SLOT(textChanged()));
 }
 
 void Notepad::textChanged()
