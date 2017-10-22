@@ -18,15 +18,15 @@ Configuration* Configuration::instance()
 
 void Configuration::loadDefaultColors()
 {
-    //Core()->cmd("eco behelit");
-    Core()->cmd("eco smyck");
+    Core()->cmd("eco cutter");
     QJsonObject colors = Core()->cmdj("ecj").object();
     for (auto color : colors.keys()) {
         QJsonArray rgb = colors[color].toArray();
         QColor col = QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
         s.setValue("colors." + color, col);
     }
-    //s.setValue("colors.gui.alt_background", QColor(255, 255, 255));
+    s.setValue("colors.gui.background", QColor(255, 255, 245));
+    s.setValue("colors.gui.alt_background", QColor(245, 250, 255));
 }
 
 const QFont Configuration::getFont() const

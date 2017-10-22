@@ -60,7 +60,6 @@
 #include "widgets/ConsoleWidget.h"
 #include "dialogs/OptionsDialog.h"
 #include "widgets/EntrypointWidget.h"
-#include "widgets/DisassemblerGraphView.h"
 #include "dialogs/SaveProjectDialog.h"
 
 // graphics
@@ -204,8 +203,8 @@ void MainWindow::initUI()
     graphDock = new QDockWidget(tr("Graph"), this);
     graphDock->setObjectName("Graph");
     graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    DisassemblerGraphView *gv = new DisassemblerGraphView(graphDock);
-    graphDock->setWidget(gv);
+    graphView = new DisassemblerGraphView(graphDock);
+    graphDock->setWidget(graphView);
     dockWidgets.push_back(graphDock);
 
     // Add Sections dock panel

@@ -1,14 +1,17 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QList>
 #include <memory>
+
+#include "cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
+#include "widgets/DisassemblerGraphView.h"
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
-#include "cutter.h" // only needed for ut64
 #include "utils/Configuration.h"
+
+#include <QMainWindow>
+#include <QList>
 
 class CutterCore;
 class DockWidget;
@@ -34,6 +37,7 @@ class QAction;
 class SectionsDock;
 class ConsoleWidget;
 class EntrypointWidget;
+class DisassemblerGraphView;
 
 class QDockWidget;
 
@@ -186,6 +190,7 @@ private:
     SidebarWidget    *sidebarDock;
     HexdumpWidget    *hexdumpDock;
     QDockWidget      *graphDock;
+    DisassemblerGraphView *graphView;
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
     Omnibar          *omnibar;

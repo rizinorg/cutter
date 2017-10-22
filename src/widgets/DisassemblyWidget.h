@@ -12,6 +12,7 @@ class DisassemblyWidget : public QDockWidget
 public:
     explicit DisassemblyWidget(QWidget *parent = nullptr);
     explicit DisassemblyWidget(const QString &title, QWidget *parent = nullptr);
+    QWidget* getTextWidget();
 
 signals:
 

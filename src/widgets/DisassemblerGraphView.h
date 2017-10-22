@@ -288,7 +288,6 @@ public slots:
     void seekPrev();
 
 private:
-    MainWindow* main;
     QString status;
     Analysis analysis;
     duint function;

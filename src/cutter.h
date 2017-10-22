@@ -209,12 +209,15 @@ public:
     void analyze(int level, QList<QString> advanced);
 
     // Seek functions
-    bool graphDisplay = false;
     void seek(QString addr);
     void seek(ut64 offset);
     void seekPrev();
     void seekNext();
     RVA getOffset();
+
+    // Graph - Disassembly view priority
+    bool graphPriority = true;
+    bool graphDisplay = false;
 
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);

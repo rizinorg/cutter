@@ -34,7 +34,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     connect(mDisasTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
-    // x or X to show XRefs
+    // x to show XRefs
     QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), mDisasTextEdit);
     shortcut_x->setContext(Qt::WidgetShortcut);
     connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
@@ -50,6 +50,11 @@ DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
     DisassemblyWidget(parent)
 {
     this->setWindowTitle(title);
+}
+
+QWidget* DisassemblyWidget::getTextWidget()
+{
+    return mDisasTextEdit;
 }
 
 void DisassemblyWidget::highlightCurrentLine()
@@ -159,7 +164,7 @@ bool DisassemblyWidget::loadMoreDisassembly()
 
         if (offset != RVA_INVALID)
         {
-            CutterCore::getInstance()->seek(offset);
+            //CutterCore::getInstance()->seek(offset);
             QString raw = CutterCore::getInstance()->cmd("pd 200");
             QString txt = raw.section("\n", 1, -1);
             //this->disasTextEdit->appendPlainText(" ;\n ; New content here\n ;\n " + txt.trimmed());
@@ -227,11 +232,14 @@ void DisassemblyWidget::refreshDisasm()
     disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_mDisasTextEdit_cursorPositionChanged()));
 
-    QString disas = CutterCore::getInstance()->cmd("pd 200");
+    Core()->setConfig("scr.html", true);
+    Core()->setConfig("scr.color", true);
+    QString disas = Core()->cmd("pd 100");
+    Core()->setConfig("scr.html", false);
+    Core()->setConfig("scr.color", false);
 
     mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-    mDisasTextEdit->setPlainText(disas.trimmed());
+    mDisasTextEdit->setHtml(disas);
 
     auto cursor = mDisasTextEdit->textCursor();
     cursor.setPosition(0);
@@ -251,7 +259,7 @@ void DisassemblyWidget::refreshDisasm()
     connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_mDisasTextEdit_cursorPositionChanged()));
     //this->on_mDisasTextEdit_cursorPositionChanged();
 
-    this->highlightDisasms();
+    //this->highlightDisasms();
 }
 
 void DisassemblyWidget::on_mDisasTextEdit_cursorPositionChanged()
@@ -356,7 +364,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
     Q_UNUSED(offset);
-    if (!Core()->graphDisplay) {
+    if (!Core()->graphDisplay || !Core()->graphPriority) {
         this->raise();
     }
     refreshDisasm();

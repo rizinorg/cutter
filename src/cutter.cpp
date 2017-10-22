@@ -755,7 +755,6 @@ void CutterCore::getOpcodes()
 
 void CutterCore::setSettings()
 {
-    setConfig("scr.color", false);
     setConfig("scr.interactive", false);
     setConfig("asm.lines", false);
     // Intredazting...
@@ -805,10 +804,9 @@ void CutterCore::setSettings()
     //setConfig("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
     //setConfig("bin.rawstr", "true");
 
-    // Graph colors and design
-    cmd("ec graph.true rgb:88FF88");
-    cmd("ec graph.false rgb:FF6666");
-    cmd("ec graph.trufae rgb:4183D7");
+    // Colors
+    setConfig("scr.color", false);
+    setConfig("scr.truecolor", true);
 }
 
 QList<RVA> CutterCore::getSeekHistory()

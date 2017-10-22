@@ -1643,11 +1643,9 @@ void DisassemblerGraphView::on_seekChanged(RVA addr)
     Q_UNUSED(addr);
     loadCurrentGraph();
     Function f = this->analysis.functions[this->function];
-    if (f.blocks.size() > 0) {
-        Core()->graphDisplay = true;
+    Core()->graphDisplay = f.blocks.size() > 0;
+    if (Core()->graphDisplay && Core()->graphPriority) {
         this->parentWidget()->raise();
-    } else {
-        Core()->graphDisplay = false;
     }
     this->renderFunction(this->analysis.functions[this->function]);
 }
@@ -1811,6 +1809,7 @@ void DisassemblerGraphView::followDisassemblerSlot()
 void DisassemblerGraphView::colorsUpdatedSlot()
 {
     disassemblyBackgroundColor = ConfigColor("gui.background");
+    mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.alt_background");
     disassemblySelectionColor = ConfigColor("gui.highlight");
