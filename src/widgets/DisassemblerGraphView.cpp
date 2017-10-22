@@ -1410,6 +1410,7 @@ void DisassemblerGraphView::renderFunction(Function & func)
 
 void DisassemblerGraphView::updateTimerEvent()
 {
+    qDebug() << "Update timer";
     on_seekChanged(0);
     return;
     // TODO: Remove it if not used anymore
@@ -1641,6 +1642,13 @@ void DisassemblerGraphView::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
     loadCurrentGraph();
+    Function f = this->analysis.functions[this->function];
+    if (f.blocks.size() > 0) {
+        Core()->graphDisplay = true;
+        this->parentWidget()->raise();
+    } else {
+        Core()->graphDisplay = false;
+    }
     this->renderFunction(this->analysis.functions[this->function]);
 }
 

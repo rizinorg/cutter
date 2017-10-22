@@ -209,6 +209,7 @@ public:
     void analyze(int level, QList<QString> advanced);
 
     // Seek functions
+    bool graphDisplay = false;
     void seek(QString addr);
     void seek(ut64 offset);
     void seekPrev();

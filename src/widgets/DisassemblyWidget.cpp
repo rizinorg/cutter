@@ -356,6 +356,9 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
     Q_UNUSED(offset);
+    if (!Core()->graphDisplay) {
+        this->raise();
+    }
     refreshDisasm();
 }
 
