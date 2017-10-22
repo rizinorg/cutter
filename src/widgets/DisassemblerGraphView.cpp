@@ -2024,7 +2024,7 @@ restart:
 
 void DisassemblerGraphView::xrefSlot()
 {
-    RVA addr = highlight_token->addr;
+    RVA addr = this->get_cursor_pos();
     XrefsDialog *dialog = new XrefsDialog(this);
     dialog->fillRefsForAddress(addr, RAddressString(addr), false);
     dialog->exec();
