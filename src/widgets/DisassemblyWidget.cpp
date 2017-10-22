@@ -57,6 +57,122 @@ QWidget* DisassemblyWidget::getTextWidget()
     return mDisasTextEdit;
 }
 
+QString DisassemblyWidget::readDisasm(RVA offset)
+{
+    QString cmd = "pd 100";
+    Core()->setConfig("scr.html", true);
+    Core()->setConfig("scr.color", true);
+    if (offset != RVA_INVALID) {
+        cmd += " @ " + QString::number(offset);
+    }
+    QString disas = Core()->cmd(cmd);
+    Core()->setConfig("scr.html", false);
+    Core()->setConfig("scr.color", false);
+    return disas.trimmed();
+}
+
+void DisassemblyWidget::refreshDisasm()
+{
+    // Prevent further scroll
+    disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+    disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+
+    QString disas = readDisasm();
+    mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    mDisasTextEdit->setHtml(disas);
+
+    auto cursor = mDisasTextEdit->textCursor();
+    cursor.setPosition(0);
+    mDisasTextEdit->setTextCursor(cursor);
+    mDisasTextEdit->verticalScrollBar()->setValue(0);
+
+    // load more disassembly if necessary
+    /*static const int load_more_limit = 10; // limit passes, so it can't take forever
+    for (int load_more_i = 0; load_more_i < load_more_limit; load_more_i++)
+    {
+        if (!loadMoreDisassembly())
+            break;
+        mDisasTextEdit->verticalScrollBar()->setValue(0);
+    }*/
+
+    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+    connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+    //this->on_mDisasTextEdit_cursorPositionChanged();
+
+    //this->highlightDisasms();
+}
+
+
+bool DisassemblyWidget::loadMoreDisassembly()
+{
+    /*
+     * Add more disasm as the user scrolls
+     * Not working properly when scrolling upwards
+     * r2 doesn't handle properly 'pd-' for archs with variable instruction size
+     */
+
+    // Disconnect scroll signals to add more content
+    disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+
+    QScrollBar *sb = mDisasTextEdit->verticalScrollBar();
+    bool loaded = false;
+
+    if (sb->value() > sb->maximum() - 10)
+    {
+        QTextCursor tc = mDisasTextEdit->textCursor();
+        tc.movePosition(QTextCursor::End);
+        tc.movePosition(QTextCursor::StartOfLine);
+        tc.setPosition(tc.position() - 1);
+        mDisasTextEdit->setTextCursor(tc);
+        RVA offset = readCurrentDisassemblyOffset();
+
+        if (offset != RVA_INVALID)
+        {
+            mDisasTextEdit->append(readDisasm(offset));
+        }
+
+        loaded = true;
+    }
+    // Code below will be used to append more disasm upwards, one day
+    /* else if (sb->value() < sb->minimum() + 10) {
+        //this->main->add_debug_output("Begining is coming");
+
+        QTextCursor tc = this->disasTextEdit->textCursor();
+        tc.movePosition( QTextCursor::Start );
+        tc.select( QTextCursor::LineUnderCursor );
+        QString firstline = tc.selectedText();
+        //this->main->add_debug_output("First Line: " + firstline);
+        QString ele = firstline.split(" ", QString::SkipEmptyParts)[0];
+        //this->main->add_debug_output("First Offset: " + ele);
+        if (ele.contains("0x")) {
+            int b = this->disasTextEdit->verticalScrollBar()->maximum();
+            this->core->cmd("ss " + ele);
+            this->core->cmd("so -50");
+            QString raw = this->core->cmd("pd 50");
+            //this->main->add_debug_output(raw);
+            //QString txt = raw.section("\n", 1, -1);
+            //this->main->add_debug_output(txt);
+            tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+            //tc.insertText(raw.trimmed() + "\n ;\n ; New content prepended here\n ;\n");
+            int c = this->disasTextEdit->verticalScrollBar()->maximum();
+            int z = c -b;
+            int a = this->disasTextEdit->verticalScrollBar()->sliderPosition();
+            this->disasTextEdit->verticalScrollBar()->setValue(a + z);
+        } else {
+            tc.movePosition( QTextCursor::Start );
+            tc.select( QTextCursor::LineUnderCursor );
+            QString lastline = tc.selectedText();
+            this->main->add_debug_output("Last line: " + lastline);
+        }
+    } */
+
+    // Reconnect scroll signals
+    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+
+    return loaded;
+}
+
+
 void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -128,141 +244,26 @@ RVA DisassemblyWidget::readCurrentDisassemblyOffset()
     QTextCursor tc = mDisasTextEdit->textCursor();
     tc.select(QTextCursor::LineUnderCursor);
     QString lastline = tc.selectedText();
-    QStringList parts = lastline.split(" ", QString::SkipEmptyParts);
+    QStringList parts = lastline.split("\u00a0", QString::SkipEmptyParts);
 
-    if (parts.isEmpty())
+    if (parts.isEmpty()) {
         return RVA_INVALID;
+    }
 
     QString ele = parts[0];
-    if (!ele.contains("0x"))
+    if (!ele.contains("0x")) {
         return RVA_INVALID;
+    }
 
     return ele.toULongLong(0, 16);
 }
-
-bool DisassemblyWidget::loadMoreDisassembly()
-{
-    /*
-     * Add more disasm as the user scrolls
-     * Not working properly when scrolling upwards
-     * r2 doesn't handle properly 'pd-' for archs with variable instruction size
-     */
-    // Disconnect scroll signals to add more content
-    disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-
-    QScrollBar *sb = mDisasTextEdit->verticalScrollBar();
-
-    bool loaded = false;
-
-    if (sb->value() > sb->maximum() - 10)
-    {
-        //this->main->add_debug_output("End is coming");
-
-        QTextCursor tc = mDisasTextEdit->textCursor();
-        tc.movePosition(QTextCursor::End);
-        RVA offset = readCurrentDisassemblyOffset();
-
-        if (offset != RVA_INVALID)
-        {
-            //CutterCore::getInstance()->seek(offset);
-            QString raw = CutterCore::getInstance()->cmd("pd 200");
-            QString txt = raw.section("\n", 1, -1);
-            //this->disasTextEdit->appendPlainText(" ;\n ; New content here\n ;\n " + txt.trimmed());
-            mDisasTextEdit->append(txt.trimmed());
-        }
-        else
-        {
-            tc.movePosition(QTextCursor::End);
-            tc.select(QTextCursor::LineUnderCursor);
-            QString lastline = tc.selectedText();
-            //this->main->addDebugOutput("Last line: " + lastline);
-        }
-
-        loaded = true;
-
-        // Code below will be used to append more disasm upwards, one day
-    } /* else if (sb->value() < sb->minimum() + 10) {
-        //this->main->add_debug_output("Begining is coming");
-
-        QTextCursor tc = this->disasTextEdit->textCursor();
-        tc.movePosition( QTextCursor::Start );
-        tc.select( QTextCursor::LineUnderCursor );
-        QString firstline = tc.selectedText();
-        //this->main->add_debug_output("First Line: " + firstline);
-        QString ele = firstline.split(" ", QString::SkipEmptyParts)[0];
-        //this->main->add_debug_output("First Offset: " + ele);
-        if (ele.contains("0x")) {
-            int b = this->disasTextEdit->verticalScrollBar()->maximum();
-            this->core->cmd("ss " + ele);
-            this->core->cmd("so -50");
-            QString raw = this->core->cmd("pd 50");
-            //this->main->add_debug_output(raw);
-            //QString txt = raw.section("\n", 1, -1);
-            //this->main->add_debug_output(txt);
-            tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-            //tc.insertText(raw.trimmed() + "\n ;\n ; New content prepended here\n ;\n");
-            int c = this->disasTextEdit->verticalScrollBar()->maximum();
-            int z = c -b;
-            int a = this->disasTextEdit->verticalScrollBar()->sliderPosition();
-            this->disasTextEdit->verticalScrollBar()->setValue(a + z);
-        } else {
-            tc.movePosition( QTextCursor::Start );
-            tc.select( QTextCursor::LineUnderCursor );
-            QString lastline = tc.selectedText();
-            this->main->add_debug_output("Last line: " + lastline);
-        }
-    } */
-
-    // Reconnect scroll signals
-    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-
-    return loaded;
-}
-
 
 void DisassemblyWidget::disasmScrolled()
 {
     loadMoreDisassembly();
 }
 
-void DisassemblyWidget::refreshDisasm()
-{
-    // TODO Very slow mostly because of the highlight
-    // Prevent further scroll
-    disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-    disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_mDisasTextEdit_cursorPositionChanged()));
-
-    Core()->setConfig("scr.html", true);
-    Core()->setConfig("scr.color", true);
-    QString disas = Core()->cmd("pd 100");
-    Core()->setConfig("scr.html", false);
-    Core()->setConfig("scr.color", false);
-
-    mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    mDisasTextEdit->setHtml(disas);
-
-    auto cursor = mDisasTextEdit->textCursor();
-    cursor.setPosition(0);
-    mDisasTextEdit->setTextCursor(cursor);
-    mDisasTextEdit->verticalScrollBar()->setValue(0);
-
-    // load more disassembly if necessary
-    /*static const int load_more_limit = 10; // limit passes, so it can't take forever
-    for (int load_more_i = 0; load_more_i < load_more_limit; load_more_i++)
-    {
-        if (!loadMoreDisassembly())
-            break;
-        mDisasTextEdit->verticalScrollBar()->setValue(0);
-    }*/
-
-    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-    connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(on_mDisasTextEdit_cursorPositionChanged()));
-    //this->on_mDisasTextEdit_cursorPositionChanged();
-
-    //this->highlightDisasms();
-}
-
-void DisassemblyWidget::on_mDisasTextEdit_cursorPositionChanged()
+void DisassemblyWidget::cursorPositionChanged()
 {
     // Get current offset
     QTextCursor tc = mDisasTextEdit->textCursor();
@@ -372,8 +373,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
 
 void DisassemblyWidget::highlightDisasms()
 {
-    // TODO Improve this syntax Highlighting
-    // TODO Must be usable for the graph view
+    // TODO Useless
     //Highlighter *highlighter = new Highlighter(mDisasTextEdit->document());
     //Highlighter *highlighter_5 = new Highlighter(mDisasTextEdit->document());
     //AsciiHighlighter *ascii_highlighter = new AsciiHighlighter(mDisasTextEdit->document());

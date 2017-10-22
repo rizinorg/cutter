@@ -20,7 +20,7 @@ public slots:
     void highlightCurrentLine();
     void disasmScrolled();
     void showDisasContextMenu(const QPoint &pt);
-    void on_mDisasTextEdit_cursorPositionChanged();
+    void cursorPositionChanged();
     void on_seekChanged(RVA offset);
     void refreshDisasm();
     void fontsUpdatedSlot();
@@ -29,6 +29,7 @@ public slots:
 private:
     QTextEdit *mDisasTextEdit;
 
+    QString readDisasm(RVA offset = RVA_INVALID);
     RVA readCurrentDisassemblyOffset();
     bool loadMoreDisassembly();
     void highlightDisasms();
