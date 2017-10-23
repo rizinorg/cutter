@@ -8,7 +8,7 @@
 #include "dialogs/OptionsDialog.h"
 
 #ifdef __unix__
-#define SYMLINK "/tmp/.cutter_usr"
+#define PREFIX "/tmp/.cutter_usr"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -21,10 +21,10 @@ void set_appimage_symlink(char* argv0)
     *(i+1) = '\0';
     char* dest = strcat(path, "usr/");
     struct stat buf;
-    if (lstat(SYMLINK, &buf) == 0 && S_ISLNK(buf.st_mode)) {
-        remove(SYMLINK);
+    if (lstat(PREFIX, &buf) == 0 && S_ISLNK(buf.st_mode)) {
+        remove(PREFIX);
     }
-    symlink(dest, SYMLINK);
+    symlink(dest, PREFIX);
     free(path);
 }
 #endif
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
     int ret = a.exec();
 
 #ifdef __unix__
-    remove(SYMLINK);
+    remove(PREFIX);
 #endif
 
     return ret;
