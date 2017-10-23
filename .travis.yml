@@ -57,6 +57,7 @@ before_script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         mkdir -p $PREFIX/lib;
         INSTALL_TARGET=install sys/install.sh;
+        export PATH=$PATH:/usr/local/bin:$PREFIX;
     else
         LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
     fi
