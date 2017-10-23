@@ -4,16 +4,16 @@ cache: ccache
 
 matrix:
   include:
-    - os: linux
-      TEST_COMMAND="qmake PREFIX=/tmp/.cutter_usr APPIMAGE=1 ../src && make -j4"
-      DEPLOY=1
-    - os: linux
-      TEST_COMMAND="cmake ../src && make -j4"
-    - os: osx
-      TEST_COMMAND="qmake ../src && make -j4"
-      DEPLOY=1
-    - os: osx
-      TEST_COMMAND="cmake ../src && make -j4"
+  - os: linux
+    TEST_COMMAND="qmake PREFIX=/tmp/.cutter_usr APPIMAGE=1 ../src && make -j4"
+    DEPLOY=1
+  - os: linux
+    TEST_COMMAND="cmake ../src && make -j4"
+  - os: osx
+    TEST_COMMAND="qmake ../src && make -j4"
+    DEPLOY=1
+  - os: osx
+    TEST_COMMAND="cmake ../src && make -j4"
 
 sudo: required
 dist: trusty
