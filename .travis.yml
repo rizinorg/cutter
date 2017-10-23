@@ -5,7 +5,7 @@ cache: ccache
 matrix:
   include:
   - os: linux
-    env: TEST_COMMAND="qmake PREFIX=/usr APPIMAGE=1 ../src && make -j4" DEPLOY=1 PREFIX=/tmp/.cutter_usr
+    env: TEST_COMMAND="qmake APPIMAGE=1 ../src && make -j4" DEPLOY=1 PREFIX=/tmp/.cutter_usr
   - os: linux
     env: TEST_COMMAND="cmake ../src && make -j4"
   - os: osx
