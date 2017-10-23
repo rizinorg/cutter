@@ -55,7 +55,7 @@ before_script:
   - git submodule init ; git submodule update
   - cd radare2
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        sed -i 's,R2_PREFIX.*,R2_PREFIX "/tmp/.cutter_usr",' libr/include/r_userconf.h.acr
+        sed -i 's,R2_PREFIX.*,R2_PREFIX "/tmp/.cutter_usr",' libr/include/r_userconf.h.acr;
         INSTALL_TARGET=install sys/install.sh;
     else
         LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
@@ -65,9 +65,6 @@ before_script:
 script:
   - mkdir build
   - cd build
-  - export PKG_CONFIG_PATH=$PREFIX/lib:$PKG_CONFIG_PATH
-  - echo $PKG_CONFIG_PATH
-  - ls $PREFIX/lib
   - (eval "$TEST_COMMAND")
 
 deploy:
