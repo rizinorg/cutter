@@ -52,6 +52,8 @@ after_success:
 before_script:
   - git submodule init ; git submodule update
   - cd radare2
+  # Hack to modify r2 prefixes
+  - sed -i s,__WINDOWS__,1, libr/include/r_userconf.h.acr
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         INSTALL_TARGET=install sys/install.sh;
     else
