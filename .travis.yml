@@ -74,6 +74,7 @@ deploy:
   file:
     - "${FILE_TO_UPLOAD}"
   on:
+    repo: radareorg/cutter
     condition: $DEPLOY = 1
 
 branches:
