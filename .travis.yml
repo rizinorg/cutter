@@ -2,13 +2,18 @@ language: cpp
 
 cache: ccache
 
-os: 
-  - linux
-  - osx
-
-env:
-  - TEST_COMMAND="qmake PREFIX=/tmp/.cutter_usr APPIMAGE=1 ../src && make -j4"
-  - TEST_COMMAND="cmake ../src && make -j4"
+matrix:
+  include:
+    - os: linux
+      TEST_COMMAND="qmake PREFIX=/tmp/.cutter_usr APPIMAGE=1 ../src && make -j4"
+      DEPLOY=1
+    - os: linux
+      TEST_COMMAND="cmake ../src && make -j4"
+    - os: osx
+      TEST_COMMAND="qmake ../src && make -j4"
+      DEPLOY=1
+    - os: osx
+      TEST_COMMAND="cmake ../src && make -j4"
 
 sudo: required
 dist: trusty
@@ -31,7 +36,6 @@ install:
     ; fi
 
 after_success:
-# TODO: include radare2/www for the webserver # Unless we remove the webserver ;)
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
       macdeployqt cutter.app -dmg &&
       export FILE_TO_UPLOAD="cutter.dmg"
@@ -72,8 +76,9 @@ deploy:
   file:
     - "${FILE_TO_UPLOAD}"
   on:
-    repo: radareorg/cutter
+    tags: true
+    condition: $DEPLOY = 1
 
 branches:
-  except:
-    - /^*-v[0-9]/
+  only:
+  - master
