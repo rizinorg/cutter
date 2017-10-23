@@ -7,6 +7,28 @@
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/OptionsDialog.h"
 
+#ifdef __unix__
+#define SYMLINK "/tmp/.cutter_usr"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
+
+void set_appimage_symlink(char* argv0)
+{
+    char* path = strdup(argv0);
+    char* i = strrchr(path, '/');
+    *(i+1) = '\0';
+    char* dest = strcat(path, "usr/");
+    struct stat buf;
+    if (lstat(SYMLINK, &buf) == 0 && S_ISLNK(buf.st_mode)) {
+        remove(SYMLINK);
+    }
+    symlink(dest, SYMLINK);
+    free(path);
+}
+#endif
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
@@ -20,7 +42,6 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 #endif
-
 
     QCommandLineParser cmd_parser;
     cmd_parser.setApplicationDescription(QObject::tr("A Qt and C++ GUI for radare2 reverse engineering framework"));
@@ -85,5 +106,16 @@ int main(int argc, char *argv[])
         main->openNewFile(args[0], anal_level_specified ? anal_level : -1);
     }
 
-    return a.exec();
+    // Hack to make it work with AppImage
+#ifdef __unix__
+    set_appimage_symlink(argv[0]);
+#endif
+
+    int ret = a.exec();
+
+#ifdef __unix__
+    remove(SYMLINK);
+#endif
+
+    return ret;
 }

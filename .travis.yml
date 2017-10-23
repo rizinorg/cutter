@@ -52,9 +52,9 @@ after_success:
 before_script:
   - git submodule init ; git submodule update
   - cd radare2
-  # Hack to modify r2 prefixes
-  - sed -i s,__WINDOWS__,1, libr/include/r_userconf.h.acr
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        # PREFIX modification for AppImage
+        PREFIX=/tmp/.cutter_usr/
         INSTALL_TARGET=install sys/install.sh;
     else
         LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
