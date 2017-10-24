@@ -451,6 +451,7 @@ void MainWindow::readSettings()
 void MainWindow::dark()
 {
     qApp->setStyleSheet("QPlainTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} QTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} ");
+    // Call Config() rather than QSettings
     QSettings settings;
     settings.setValue("dark", true);
 

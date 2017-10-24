@@ -174,7 +174,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -188,8 +188,8 @@ border-top: 0px;
      <rect>
       <x>419</x>
       <y>265</y>
-      <width>173</width>
-      <height>206</height>
+      <width>148</width>
+      <height>190</height>
      </rect>
     </property>
     <property name="title">
@@ -220,6 +220,13 @@ border-top: 0px;
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
     </property>
+    <widget class="QMenu" name="menuTheme">
+     <property name="title">
+      <string>Theme</string>
+     </property>
+     <addaction name="actionWhite_Theme"/>
+     <addaction name="actionDark_Theme"/>
+    </widget>
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefaut"/>
@@ -228,10 +235,8 @@ border-top: 0px;
     <addaction name="actionLock"/>
     <addaction name="actionTabs_on_Top"/>
     <addaction name="separator"/>
-    <addaction name="actionWhite_Theme"/>
-    <addaction name="actionDark_Theme"/>
-    <addaction name="separator"/>
     <addaction name="actionAsmOptions"/>
+    <addaction name="menuTheme"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -986,6 +991,11 @@ QToolButton .svg-icon path {
   <action name="actionSaveAs">
    <property name="text">
     <string>Save As...</string>
+   </property>
+  </action>
+  <action name="actionTmp">
+   <property name="text">
+    <string>Tmp</string>
    </property>
   </action>
  </widget>
