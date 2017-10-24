@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <string.h>
 
-void set_appimage_symlink(char* argv0)
+void set_appimage_symlink()
 {
     char* path = realpath("/proc/self/exe", NULL);
     char* i = strrchr(path, '/');
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
     // Hack to make it work with AppImage
 #ifdef __unix__
-    set_appimage_symlink(argv[0]);
+    set_appimage_symlink();
 #endif
 
     int ret = a.exec();

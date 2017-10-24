@@ -79,7 +79,6 @@ void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int
     Q_UNUSED(column);
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    RAnalFunction *fcn = this->core->functionAt(xref.to);
     Core()->seek(xref.to);
     this->close();
 }
@@ -89,7 +88,6 @@ void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int c
     Q_UNUSED(column);
 
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    RAnalFunction *fcn = this->core->functionAt(xref.from);
     Core()->seek(xref.from);
     this->close();
 }

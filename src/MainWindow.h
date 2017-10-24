@@ -186,6 +186,8 @@ private slots:
 
 private:
     CutterCore       *core;
+    PreviewWidget     *previewDock;
+    Notepad          *notepadDock;
     DisassemblyWidget  *disassemblyDock;
     SidebarWidget    *sidebarDock;
     HexdumpWidget    *hexdumpDock;
@@ -195,8 +197,6 @@ private:
     QDockWidget      *calcDock;
     Omnibar          *omnibar;
     SideBar          *sideBar;
-    PreviewWidget     *previewDock;
-    Notepad          *notepadDock;
     Configuration   *configuration;
 
     bool doLock;

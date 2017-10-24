@@ -547,6 +547,7 @@ duint DisassemblerGraphView::getInstrForMouseEvent(QMouseEvent* event)
 bool DisassemblerGraphView::getTokenForMouseEvent(QMouseEvent* event, Token & tokenOut)
 {
   Q_UNUSED(event);
+  Q_UNUSED(tokenOut);
     /* TODO
     //Convert coordinates to system used in blocks
     int xofs = this->horizontalScrollBar()->value();

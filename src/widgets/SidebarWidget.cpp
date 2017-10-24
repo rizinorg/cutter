@@ -147,6 +147,7 @@ void SidebarWidget::get_refs_data(RVA addr)
 
 void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data)
 {
+    Q_UNUSED(graph_data);
     this->xreFromTreeWidget_2->clear();
     for (int i = 0; i < refs.size(); ++i)
     {

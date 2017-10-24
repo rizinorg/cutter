@@ -12,12 +12,13 @@
 #include <QFileInfo>
 #include <QFileDialog>
 
+// TODO Get rid of MainWindow
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
     analThread(this),
-    defaultAnalLevel(1),
-    core(CutterCore::getInstance()),
     main(main),
+    core(CutterCore::getInstance()),
+    defaultAnalLevel(1),
     ui(new Ui::OptionsDialog)
 {
     ui->setupUi(this);

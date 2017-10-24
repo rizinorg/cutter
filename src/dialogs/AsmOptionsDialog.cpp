@@ -9,8 +9,8 @@
 
 AsmOptionsDialog::AsmOptionsDialog(QWidget *parent)
   : QDialog(parent),
-    ui(new Ui::AsmOptionsDialog),
-    core(CutterCore::getInstance())
+    core(CutterCore::getInstance()),
+    ui(new Ui::AsmOptionsDialog)
 {
     ui->setupUi(this);
 
