@@ -142,8 +142,6 @@ void DisassemblyWidget::refreshDisasm()
     mDisasTextEdit->clear();
     mDisasTextEdit->appendHtml(disas);
     mDisasTextEdit->verticalScrollBar()->setValue(0);
-
-    printf("size: %d, %d\n", minimumWidth(), minimumHeight());
 }
 
 
