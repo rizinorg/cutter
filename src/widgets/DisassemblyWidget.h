@@ -29,7 +29,7 @@ public slots:
 private:
     QTextEdit *mDisasTextEdit;
 
-    QString readDisasm(RVA offset = RVA_INVALID);
+    QString readDisasm(RVA offset = RVA_INVALID, bool skipFirstInstruction = false);
     RVA readCurrentDisassemblyOffset();
     bool loadMoreDisassembly();
     void highlightDisasms();
