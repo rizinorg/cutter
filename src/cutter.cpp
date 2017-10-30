@@ -377,7 +377,7 @@ void CutterCore::seek(QString addr)
     // here, or refactor radare2 API.
     CORE_LOCK();
     cmd(QString("s %1").arg(addr));
-    emit seekChanged(core_->offset);
+    // cmd already does emit seekChanged(core_->offset);
 }
 
 void CutterCore::seek(ut64 offset)

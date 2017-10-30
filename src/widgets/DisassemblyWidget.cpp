@@ -9,18 +9,31 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QVBoxLayout>
+
 
 DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     QDockWidget(parent),
-    mDisasTextEdit(new QTextEdit(this))
+    mDisasScrollArea(new DisassemblyScrollArea(this)),
+    mDisasTextEdit(new DisassemblyTextEdit(this))
 {
     // Configure Dock
-    setWidget(mDisasTextEdit);
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(mDisasTextEdit);
+    layout->setMargin(0);
+    mDisasScrollArea->viewport()->setLayout(layout);
+    mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    setWidget(mDisasScrollArea);
+
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setObjectName("DisassemblyWidget");
 
+    mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mDisasTextEdit->setFont(Config()->getFont());
     mDisasTextEdit->setReadOnly(true);
+    mDisasTextEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = mDisasTextEdit->document();
@@ -43,8 +56,8 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     shortcut_x->setContext(Qt::WidgetShortcut);
     connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
 
-    // Scrollbar
-    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+    connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
+
     // Seek signal
     connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
@@ -97,13 +110,7 @@ QString DisassemblyWidget::readDisasm(RVA offset, bool backwards, bool skipFirst
         cmd = "pd 100" + suffix;
     }
 
-    Core()->setConfig("scr.html", true);
-    Core()->setConfig("scr.color", true);
-    QString disas = Core()->cmd(cmd);
-    Core()->setConfig("scr.html", false);
-    Core()->setConfig("scr.color", false);
-
-    disas = disas.trimmed();
+    QString disas = readDisasm(cmd);
 
     if (!backwards)
     {
@@ -115,104 +122,57 @@ QString DisassemblyWidget::readDisasm(RVA offset, bool backwards, bool skipFirst
     return disas;
 }
 
-void DisassemblyWidget::refreshDisasm()
+QString DisassemblyWidget::readDisasm(const QString &cmd)
 {
-    // Prevent further scroll
-    disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-    disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-
-    QString disas = readDisasm(Core()->getOffset());
-    mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    mDisasTextEdit->setHtml(disas);
-
-    auto cursor = mDisasTextEdit->textCursor();
-    cursor.setPosition(0);
-    mDisasTextEdit->setTextCursor(cursor);
-    mDisasTextEdit->verticalScrollBar()->setValue(0);
-
-    disas = readDisasm(Core()->getOffset(), true);
-    mDisasTextEdit->insertHtml(disas);
-    mDisasTextEdit->ensureCursorVisible();
-
-    // load more disassembly if necessary
-    /*static const int load_more_limit = 10; // limit passes, so it can't take forever
-    for (int load_more_i = 0; load_more_i < load_more_limit; load_more_i++)
-    {
-        if (!loadMoreDisassembly())
-            break;
-        mDisasTextEdit->verticalScrollBar()->setValue(0);
-    }*/
-
-    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-    connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-    //this->on_mDisasTextEdit_cursorPositionChanged();
-
-    //this->highlightDisasms();
+    Core()->setConfig("scr.html", true);
+    Core()->setConfig("scr.color", true);
+    QString disas = Core()->cmd(cmd);
+    Core()->setConfig("scr.html", false);
+    Core()->setConfig("scr.color", false);
+    return disas.trimmed();
 }
 
 
-bool DisassemblyWidget::loadMoreDisassembly()
+void DisassemblyWidget::refreshDisasm()
 {
-    /*
-     * Add more disasm as the user scrolls
-     * Not working properly when scrolling upwards
-     * r2 doesn't handle properly 'pd-' for archs with variable instruction size
-     */
+    QFontMetrics fontMetrics(mDisasTextEdit->document()->defaultFont());
+    int maxLines = mDisasTextEdit->height() / fontMetrics.lineSpacing();
 
-    // Disconnect scroll signals to add more content
-    disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+    QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(Core()->getOffset()));
+    mDisasTextEdit->clear();
+    mDisasTextEdit->appendHtml(disas);
+    mDisasTextEdit->verticalScrollBar()->setValue(0);
 
-    QScrollBar *sb = mDisasTextEdit->verticalScrollBar();
-    int originalScrollValue = sb->value();
-    bool loaded = false;
+    printf("size: %d, %d\n", minimumWidth(), minimumHeight());
+}
 
-    if (originalScrollValue > sb->maximum() - 10)
+
+void DisassemblyWidget::scrollInstructions(int count)
+{
+    if (count == 0)
     {
-        QTextCursor originalCursor = mDisasTextEdit->textCursor();
-        QTextCursor tc = originalCursor;
-        tc.movePosition(QTextCursor::End);
-        tc.movePosition(QTextCursor::StartOfLine);
-        mDisasTextEdit->setTextCursor(tc);
-        RVA offset = readCurrentDisassemblyOffset();
-
-        if (offset != RVA_INVALID)
-        {
-            mDisasTextEdit->append(readDisasm(offset, false, true));
-        }
-
-        mDisasTextEdit->setTextCursor(originalCursor);
-        sb->setValue(originalScrollValue);
-
-        loaded = true;
-    }
-    else if (originalScrollValue < sb->minimum() + 10)
-    {
-        QTextCursor originalCursor = mDisasTextEdit->textCursor();
-        QTextCursor tc = originalCursor;
-        tc.movePosition(QTextCursor::Start);
-        tc.movePosition(QTextCursor::StartOfLine);
-        mDisasTextEdit->setTextCursor(tc);
-        RVA offset = readCurrentDisassemblyOffset();
-
-        int linesBefore = sb->maximum() - sb->minimum();
-
-        if (offset != RVA_INVALID)
-        {
-            mDisasTextEdit->insertHtml(readDisasm(offset, true));
-        }
-
-        int linesDiff = (sb->maximum() - sb->minimum()) - linesBefore;
-
-        mDisasTextEdit->setTextCursor(originalCursor);
-        sb->setValue(originalScrollValue + linesDiff);
-
-        loaded = true;
+        return;
     }
 
-    // Reconnect scroll signals
-    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
+    QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(Core()->getOffset())).array();
+    if (array.isEmpty())
+    {
+        return;
+    }
 
-    return loaded;
+    QJsonValue instValue = (count < 0 ? array.first() : array.last());
+    if (!instValue.isObject())
+    {
+        return;
+    }
+
+    bool ok;
+    RVA offset = instValue.toObject()["offset"].toVariant().toULongLong(&ok);
+
+    if (ok)
+    {
+        Core()->seek(offset);
+    }
 }
 
 
@@ -299,11 +259,6 @@ RVA DisassemblyWidget::readCurrentDisassemblyOffset()
     }
 
     return ele.toULongLong(0, 16);
-}
-
-void DisassemblyWidget::disasmScrolled()
-{
-    loadMoreDisassembly();
 }
 
 void DisassemblyWidget::cursorPositionChanged()
@@ -444,5 +399,41 @@ void DisassemblyWidget::showXrefsDialog()
         XrefsDialog *dialog = new XrefsDialog(this);
         dialog->fillRefsForAddress(addr, RAddressString(addr), false);
         dialog->exec();
+    }
+}
+
+DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
+{
+}
+
+bool DisassemblyScrollArea::viewportEvent(QEvent *event)
+{
+    int dy = verticalScrollBar()->value() - 5;
+    if (dy != 0)
+    {
+        emit scrollLines(dy);
+    }
+
+    resetScrollBars();
+    return QAbstractScrollArea::viewportEvent(event);
+}
+
+void DisassemblyScrollArea::resetScrollBars()
+{
+    verticalScrollBar()->blockSignals(true);
+    verticalScrollBar()->setRange(0, 10);
+    verticalScrollBar()->setValue(5);
+    verticalScrollBar()->blockSignals(false);
+}
+
+bool DisassemblyTextEdit::viewportEvent(QEvent *event)
+{
+    //return false;
+    switch(event->type())
+    {
+        case QEvent::Type::Wheel:
+            return false;
+        default:
+            return QAbstractScrollArea::viewportEvent(event);
     }
 }

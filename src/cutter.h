@@ -216,7 +216,7 @@ public:
     RVA getOffset();
 
     // Graph - Disassembly view priority
-    bool graphPriority = true;
+    bool graphPriority = false;
     bool graphDisplay = false;
 
     ut64 math(const QString &expr);
