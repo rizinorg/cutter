@@ -6,6 +6,7 @@
 #include "utils/Configuration.h"
 
 #include <QScrollBar>
+#include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -60,41 +61,56 @@ QWidget* DisassemblyWidget::getTextWidget()
     return mDisasTextEdit;
 }
 
-QString DisassemblyWidget::readDisasm(RVA offset, bool skipFirstInstruction)
+QString DisassemblyWidget::readDisasm(RVA offset, bool backwards, bool skipFirstInstruction)
 {
-    QString suffix = offset != RVA_INVALID ? "@" + QString::number(offset) : "";
-
-    // skip size of first instruction if needed
-    if (skipFirstInstruction)
+    QString cmd;
+    if (backwards)
     {
-        QJsonArray array = Core()->cmdj("pdj 1" + suffix).array();
-        if (!array.isEmpty())
-        {
-            int instSize = array.first().toObject()["size"].toInt();
+        // Strategy for getting correct backwards disassembly in the most cases:
 
-            if (offset == RVA_INVALID)
+        // Disassemble a couple instructions at an offset before the current.
+        // The last of these instructions is most likely a correct one. Use this as a reference.
+        QJsonValue referenceInstValue = Core()->cmdj("pdj 10 @ " + QString::number(offset - 256)).array().last();
+        // TODO: handle offset < 256 and referenceInstValue.isNull()
+        QJsonObject referenceInst = referenceInstValue.toObject();
+        RVA referenceOffset = referenceInst["offset"].toVariant().toULongLong();
+        // TODO: handle referenceOffset >= offset
+
+        // Then just disassemble all bytes from the reference offset to the current offset.
+        cmd = "pD " + QString::number(offset - referenceOffset) + "@" + QString::number(referenceOffset);
+    }
+    else
+    {
+        QString suffix = "@" + QString::number(offset);
+
+        // skip size of first instruction if needed
+        if (skipFirstInstruction && !backwards)
+        {
+            QJsonArray array = Core()->cmdj("pdj 1" + suffix).array();
+            if (!array.isEmpty())
             {
-                suffix = "@+" + instSize;
-            }
-            else
-            {
+                int instSize = array.first().toObject()["size"].toInt();
                 suffix = "@" + QString::number(offset + instSize);
             }
         }
+
+        cmd = "pd 100" + suffix;
     }
 
-    QString cmd = "pd 100";
     Core()->setConfig("scr.html", true);
     Core()->setConfig("scr.color", true);
-    QString disas = Core()->cmd(cmd + suffix);
+    QString disas = Core()->cmd(cmd);
     Core()->setConfig("scr.html", false);
     Core()->setConfig("scr.color", false);
 
     disas = disas.trimmed();
 
-    // ugly hack to remove trailing newline
-    static const auto trimBrRegExp = QRegularExpression("<br />$");
-    disas = disas.remove(trimBrRegExp);
+    if (!backwards)
+    {
+        // ugly hack to remove trailing newline
+        static const auto trimBrRegExp = QRegularExpression("<br />$");
+        disas = disas.remove(trimBrRegExp);
+    }
 
     return disas;
 }
@@ -105,15 +121,18 @@ void DisassemblyWidget::refreshDisasm()
     disconnect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
     disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
 
-    QString disas = readDisasm();
+    QString disas = readDisasm(Core()->getOffset());
     mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     mDisasTextEdit->setHtml(disas);
-    printf("disas: %s\n", disas.toLocal8Bit().constData());
 
     auto cursor = mDisasTextEdit->textCursor();
     cursor.setPosition(0);
     mDisasTextEdit->setTextCursor(cursor);
     mDisasTextEdit->verticalScrollBar()->setValue(0);
+
+    disas = readDisasm(Core()->getOffset(), true);
+    mDisasTextEdit->insertHtml(disas);
+    mDisasTextEdit->ensureCursorVisible();
 
     // load more disassembly if necessary
     /*static const int load_more_limit = 10; // limit passes, so it can't take forever
@@ -158,7 +177,7 @@ bool DisassemblyWidget::loadMoreDisassembly()
 
         if (offset != RVA_INVALID)
         {
-            mDisasTextEdit->append(readDisasm(offset, true));
+            mDisasTextEdit->append(readDisasm(offset, false, true));
         }
 
         mDisasTextEdit->setTextCursor(originalCursor);
@@ -166,41 +185,29 @@ bool DisassemblyWidget::loadMoreDisassembly()
 
         loaded = true;
     }
+    else if (originalScrollValue < sb->minimum() + 10)
+    {
+        QTextCursor originalCursor = mDisasTextEdit->textCursor();
+        QTextCursor tc = originalCursor;
+        tc.movePosition(QTextCursor::Start);
+        tc.movePosition(QTextCursor::StartOfLine);
+        mDisasTextEdit->setTextCursor(tc);
+        RVA offset = readCurrentDisassemblyOffset();
 
+        int linesBefore = sb->maximum() - sb->minimum();
 
-
-    // Code below will be used to append more disasm upwards, one day
-    /* else if (sb->value() < sb->minimum() + 10) {
-        //this->main->add_debug_output("Begining is coming");
-
-        QTextCursor tc = this->disasTextEdit->textCursor();
-        tc.movePosition( QTextCursor::Start );
-        tc.select( QTextCursor::LineUnderCursor );
-        QString firstline = tc.selectedText();
-        //this->main->add_debug_output("First Line: " + firstline);
-        QString ele = firstline.split(" ", QString::SkipEmptyParts)[0];
-        //this->main->add_debug_output("First Offset: " + ele);
-        if (ele.contains("0x")) {
-            int b = this->disasTextEdit->verticalScrollBar()->maximum();
-            this->core->cmd("ss " + ele);
-            this->core->cmd("so -50");
-            QString raw = this->core->cmd("pd 50");
-            //this->main->add_debug_output(raw);
-            //QString txt = raw.section("\n", 1, -1);
-            //this->main->add_debug_output(txt);
-            tc.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-            //tc.insertText(raw.trimmed() + "\n ;\n ; New content prepended here\n ;\n");
-            int c = this->disasTextEdit->verticalScrollBar()->maximum();
-            int z = c -b;
-            int a = this->disasTextEdit->verticalScrollBar()->sliderPosition();
-            this->disasTextEdit->verticalScrollBar()->setValue(a + z);
-        } else {
-            tc.movePosition( QTextCursor::Start );
-            tc.select( QTextCursor::LineUnderCursor );
-            QString lastline = tc.selectedText();
-            this->main->add_debug_output("Last line: " + lastline);
+        if (offset != RVA_INVALID)
+        {
+            mDisasTextEdit->insertHtml(readDisasm(offset, true));
         }
-    } */
+
+        int linesDiff = (sb->maximum() - sb->minimum()) - linesBefore;
+
+        mDisasTextEdit->setTextCursor(originalCursor);
+        sb->setValue(originalScrollValue + linesDiff);
+
+        loaded = true;
+    }
 
     // Reconnect scroll signals
     connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
