@@ -41,6 +41,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
 
     // Setup disasm highlight
     connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+    connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
     highlightCurrentLine();
 
     // Event filter to intercept double clicks in the textbox
@@ -153,9 +154,11 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     }
 
     QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(topOffset), true);
-    mDisasTextEdit->clear();
-    mDisasTextEdit->appendHtml(disas);
-    mDisasTextEdit->verticalScrollBar()->setValue(0);
+    mDisasTextEdit->document()->setHtml(disas);
+    mDisasTextEdit->moveCursor(QTextCursor::End);
+    bottomOffset = readCurrentDisassemblyOffset();
+    printf("bottom: %#llx\n", bottomOffset);
+    updateCursorPosition();
 }
 
 
@@ -289,8 +292,42 @@ RVA DisassemblyWidget::readCurrentDisassemblyOffset()
     return ele.toULongLong(0, 16);
 }
 
+void DisassemblyWidget::updateCursorPosition()
+{
+    RVA offset = Core()->getOffset();
+
+    if (offset < topOffset || offset > bottomOffset)
+    {
+        QTextCursor c = mDisasTextEdit->textCursor();
+        mDisasTextEdit->setTextCursor(c);
+    }
+    else
+    {
+        QTextCursor cursor = mDisasTextEdit->textCursor();
+        cursor.movePosition(QTextCursor::Start);
+
+        while (!cursor.atEnd())
+        {
+            mDisasTextEdit->setTextCursor(cursor);
+            RVA lineOffset = readCurrentDisassemblyOffset();
+            if (lineOffset == offset)
+            {
+                break;
+            }
+            else if (lineOffset > offset)
+            {
+                break; // TODO: remove cursor here as well
+            }
+            cursor.movePosition(QTextCursor::Down);
+        }
+    }
+}
+
 void DisassemblyWidget::cursorPositionChanged()
 {
+    //printf("cursor position changed\n");
+    return;
+
     // Get current offset
     QTextCursor tc = mDisasTextEdit->textCursor();
     tc.select(QTextCursor::LineUnderCursor);
