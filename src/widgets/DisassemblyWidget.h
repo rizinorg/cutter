@@ -21,7 +21,6 @@ public:
 public slots:
     void highlightCurrentLine();
     void showDisasContextMenu(const QPoint &pt);
-    void cursorPositionChanged();
     void on_seekChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
@@ -30,6 +29,8 @@ public slots:
 private slots:
     void scrollInstructions(int count);
     void updateMaxLines();
+
+    void cursorPositionChanged();
 
 private:
     DisassemblyScrollArea *mDisasScrollArea;
@@ -42,10 +43,11 @@ private:
     QString readDisasm(RVA offset, bool backwards = false, bool skipFirstInstruction = false);
     QString readDisasm(const QString &cmd, bool stripLastNewline);
     RVA readCurrentDisassemblyOffset();
-    void highlightDisasms();
     bool eventFilter(QObject *obj, QEvent *event);
 
     void updateCursorPosition();
+
+    void connectCursorPositionChanged(bool disconnect);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

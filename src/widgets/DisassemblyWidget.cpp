@@ -6,7 +6,6 @@
 #include "utils/Configuration.h"
 
 #include <QScrollBar>
-#include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QVBoxLayout>
@@ -39,10 +38,6 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     QTextDocument *asm_docu = mDisasTextEdit->document();
     asm_docu->setDocumentMargin(10);
 
-    // Setup disasm highlight
-    connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
-    connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-    highlightCurrentLine();
 
     // Event filter to intercept double clicks in the textbox
     mDisasTextEdit->viewport()->installEventFilter(this);
@@ -65,6 +60,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
     connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
 
+    connectCursorPositionChanged(false);
     connect(mDisasTextEdit->verticalScrollBar(), &QScrollBar::valueChanged, this, [=](int value) {
         if (value != 0)
         {
@@ -154,8 +150,10 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     }
 
     QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(topOffset), true);
+    connectCursorPositionChanged(true);
     mDisasTextEdit->document()->setHtml(disas);
     mDisasTextEdit->moveCursor(QTextCursor::End);
+    connectCursorPositionChanged(false);
     bottomOffset = readCurrentDisassemblyOffset();
     printf("bottom: %#llx\n", bottomOffset);
     updateCursorPosition();
@@ -187,7 +185,6 @@ void DisassemblyWidget::scrollInstructions(int count)
     if (ok)
     {
         refreshDisasm(offset);
-        //Core()->seek(offset);
     }
 }
 
@@ -294,12 +291,13 @@ RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 
 void DisassemblyWidget::updateCursorPosition()
 {
+    connectCursorPositionChanged(true);
     RVA offset = Core()->getOffset();
 
-    if (offset < topOffset || offset > bottomOffset)
+    if (offset < topOffset || (offset > bottomOffset && bottomOffset != RVA_INVALID))
     {
-        QTextCursor c = mDisasTextEdit->textCursor();
-        mDisasTextEdit->setTextCursor(c);
+        mDisasTextEdit->moveCursor(QTextCursor::Start);
+        mDisasTextEdit->setExtraSelections({});
     }
     else
     {
@@ -312,82 +310,40 @@ void DisassemblyWidget::updateCursorPosition()
             RVA lineOffset = readCurrentDisassemblyOffset();
             if (lineOffset == offset)
             {
+                highlightCurrentLine();
                 break;
             }
-            else if (lineOffset > offset)
+            else if (lineOffset != RVA_INVALID && lineOffset > offset)
             {
-                break; // TODO: remove cursor here as well
+                mDisasTextEdit->moveCursor(QTextCursor::Start);
+                mDisasTextEdit->setExtraSelections({});
+                break;
             }
             cursor.movePosition(QTextCursor::Down);
+            cursor.movePosition(QTextCursor::EndOfLine);
         }
+    }
+    connectCursorPositionChanged(false);
+}
+
+void DisassemblyWidget::connectCursorPositionChanged(bool disconnect)
+{
+    if (disconnect)
+    {
+        QObject::disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
+    }
+    else
+    {
+        connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
     }
 }
 
 void DisassemblyWidget::cursorPositionChanged()
 {
-    //printf("cursor position changed\n");
-    return;
-
-    // Get current offset
-    QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText().trimmed();
-    QList<QString> words = lastline.split(" ", QString::SkipEmptyParts);
-    if (words.length() == 0)
-    {
-        return;
-    }
-    QString ele = words[0];
-    // TODO
-    /*if (ele.contains("0x"))
-    {
-        this->fillOffsetInfo(ele);
-        QString at = this->core->cmdFunctionAt(ele);
-        QString deco = this->core->getDecompiledCode(at);
-
-
-        RVA addr = ele.midRef(2).toULongLong(0, 16);
-        // FIXME per widget CursorAddress no?
-        // this->main->setCursorAddress(addr);
-
-        if (deco != "")
-        {
-            ui->decoTextEdit->setPlainText(deco);
-        }
-        else
-        {
-            ui->decoTextEdit->setPlainText("");
-        }
-        // Get jump information to fill the preview
-        QString jump =  this->core->getOffsetJump(ele);
-        if (!jump.isEmpty())
-        {
-            // Fill the preview
-            QString jump_code = this->core->cmd("pdf @ " + jump);
-            ui->previewTextEdit->setPlainText(jump_code.trimmed());
-            ui->previewTextEdit->moveCursor(QTextCursor::End);
-            ui->previewTextEdit->find(jump.trimmed(), QTextDocument::FindBackward);
-            ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
-        }
-        else
-        {
-            ui->previewTextEdit->setPlainText("");
-        }
-        //this->main->add_debug_output("Fcn at: '" + at + "'");
-        if (this->last_fcn != at)
-        {
-            this->last_fcn = at;
-            //this->main->add_debug_output("New Fcn: '" + this->last_fcn + "'");
-            // Refresh function information at sidebar
-            ui->fcnNameEdit->setText(at);
-            // FIXME TITLE?
-            // this->main->previewDock->setWindowTitle(at);
-            //this->main->previewDock->create_graph(ele);
-            this->setMiniGraph(at);
-        }
-    }
-    */
+    RVA offset = readCurrentDisassemblyOffset();
+    Core()->seek(offset);
 }
+
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
@@ -432,17 +388,6 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         this->raise();
     }
     refreshDisasm(offset);
-}
-
-void DisassemblyWidget::highlightDisasms()
-{
-    // TODO Useless
-    //Highlighter *highlighter = new Highlighter(mDisasTextEdit->document());
-    //Highlighter *highlighter_5 = new Highlighter(mDisasTextEdit->document());
-    //AsciiHighlighter *ascii_highlighter = new AsciiHighlighter(mDisasTextEdit->document());
-    //HexHighlighter *hex_highlighter = new HexHighlighter(mDisasTextEdit->document());
-    //Highlighter *preview_highlighter = new Highlighter(mDisasTextEdit->document());
-    //Highlighter *deco_highlighter = new Highlighter(mDisasTextEdit->document());
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
@@ -498,7 +443,6 @@ void DisassemblyScrollArea::resetScrollBars()
 
 bool DisassemblyTextEdit::viewportEvent(QEvent *event)
 {
-    //return false;
     switch(event->type())
     {
         case QEvent::Type::Wheel:
