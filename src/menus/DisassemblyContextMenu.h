@@ -7,8 +7,16 @@
 class DisassemblyContextMenu : public QMenu {
 Q_OBJECT
 public:
-    DisassemblyContextMenu(RVA offset, QWidget *parent = nullptr);
+    DisassemblyContextMenu(QWidget *parent = nullptr);
     ~DisassemblyContextMenu();
+
+
+signals:
+    void addComment_triggered();
+    void xRefs_triggered();
+    void addFlag_triggered();
+    void rename_triggered();
+    void displayOptions_triggered();
 
 private:
     RVA offset;
@@ -17,12 +25,5 @@ private:
     QAction actionRename;
     QAction actionXRefs;
     QAction actionDisplayOptions;
-
-private slots:
-    void on_actionAddComment_triggered();
-    void on_actionAddFlag_triggered();
-    void on_actionRename_triggered();
-    void on_actionXRefs_triggered();
-    void on_actionDisplayOptions_triggered();
 };
 #endif // DISASSEMBLYCONTEXTMENU_H

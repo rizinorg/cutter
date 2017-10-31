@@ -6,6 +6,8 @@
 #include <QTextEdit>
 #include <QShortcut>
 
+class DisassemblyContextMenu;
+
 class DisassemblyWidget : public QDockWidget
 {
     Q_OBJECT
@@ -24,9 +26,16 @@ public slots:
     void on_seekChanged(RVA offset);
     void refreshDisasm();
     void fontsUpdatedSlot();
+
+private slots:
     void showXrefsDialog();
+    void showCommentDialog();
+    void showAddFlagDialog();
+    void showRenameDialog();
+    void showOptionsDialog();
 
 private:
+    DisassemblyContextMenu* contextMenu;
     QTextEdit *mDisasTextEdit;
 
     QString readDisasm(RVA offset = RVA_INVALID);

@@ -668,7 +668,7 @@ void DisassemblerGraphView::mousePressEvent(QMouseEvent* event)
 
         if(event->button() == Qt::RightButton)
         {
-            DisassemblyContextMenu cMenu(instr, this);
+            DisassemblyContextMenu cMenu(this);
             cMenu.exec(event->globalPos()); //execute context menu
         }
     }
