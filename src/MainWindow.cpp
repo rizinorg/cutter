@@ -491,7 +491,7 @@ void MainWindow::updateFrames()
     static bool first_time = true;
 
     //TODO Send signal rather than that
-    disassemblyDock->refreshDisasm();
+    disassemblyDock->refreshDisasm(core->getOffset());
 
     if (first_time)
     {

@@ -56,7 +56,20 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     shortcut_x->setContext(Qt::WidgetShortcut);
     connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
 
+
+    maxLines = 0;
+    updateMaxLines();
+
+
     connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
+    connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
+
+    connect(mDisasTextEdit->verticalScrollBar(), &QScrollBar::valueChanged, this, [=](int value) {
+        if (value != 0)
+        {
+            mDisasTextEdit->verticalScrollBar()->setValue(0);
+        }
+    });
 
     // Seek signal
     connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
@@ -132,20 +145,17 @@ QString DisassemblyWidget::readDisasm(const QString &cmd, bool stripLastNewline)
 }
 
 
-void DisassemblyWidget::refreshDisasm()
+void DisassemblyWidget::refreshDisasm(RVA offset)
 {
-    QFontMetrics fontMetrics(mDisasTextEdit->document()->defaultFont());
-    int maxLines = (mDisasTextEdit->height() -
-                    (mDisasTextEdit->contentsMargins().top() + mDisasTextEdit->contentsMargins().bottom()
-                    + (int)(mDisasTextEdit->document()->documentMargin() * 2)))
-                    / fontMetrics.lineSpacing();
+    if (offset != RVA_INVALID)
+    {
+        topOffset = offset;
+    }
 
     QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(topOffset), true);
     mDisasTextEdit->clear();
     mDisasTextEdit->appendHtml(disas);
     mDisasTextEdit->verticalScrollBar()->setValue(0);
-
-    printf("lines %d/%d %d\n", mDisasTextEdit->document()->lineCount(), maxLines, mDisasTextEdit->contentsMargins().top());
 }
 
 
@@ -173,12 +183,26 @@ void DisassemblyWidget::scrollInstructions(int count)
 
     if (ok)
     {
-        topOffset = offset;
-        refreshDisasm();
+        refreshDisasm(offset);
         //Core()->seek(offset);
     }
 }
 
+
+void DisassemblyWidget::updateMaxLines()
+{
+    QFontMetrics fontMetrics(mDisasTextEdit->document()->defaultFont());
+    int currentMaxLines = (mDisasTextEdit->height() -
+                           (mDisasTextEdit->contentsMargins().top() + mDisasTextEdit->contentsMargins().bottom()
+                            + (int)(mDisasTextEdit->document()->documentMargin() * 2)))
+                          / fontMetrics.lineSpacing();
+
+    if (currentMaxLines != maxLines)
+    {
+        maxLines = currentMaxLines;
+        refreshDisasm();
+    }
+}
 
 void DisassemblyWidget::highlightCurrentLine()
 {
@@ -367,11 +391,10 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
     Q_UNUSED(offset);
-    topOffset = offset;
     if (!Core()->graphDisplay || !Core()->graphPriority) {
         this->raise();
     }
-    refreshDisasm();
+    refreshDisasm(offset);
 }
 
 void DisassemblyWidget::highlightDisasms()
@@ -417,6 +440,11 @@ bool DisassemblyScrollArea::viewportEvent(QEvent *event)
     if (dy != 0)
     {
         emit scrollLines(dy);
+    }
+
+    if (event->type() == QEvent::Resize)
+    {
+        emit disassemblyResized();
     }
 
     resetScrollBars();
