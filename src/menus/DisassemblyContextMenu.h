@@ -8,8 +8,7 @@ class DisassemblyContextMenu : public QMenu {
 Q_OBJECT
 public:
     DisassemblyContextMenu(QWidget *parent = nullptr);
-    ~DisassemblyContextMenu();
-
+    ~DisassemblyContextMenu() = default;
 
 signals:
     void addComment_triggered();

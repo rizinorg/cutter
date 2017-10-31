@@ -1,9 +1,4 @@
 #include "DisassemblyContextMenu.h"
-#include "dialogs/AsmOptionsDialog.h"
-#include "dialogs/CommentsDialog.h"
-#include "dialogs/RenameDialog.h"
-#include "dialogs/XrefsDialog.h"
-#include <QtCore>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent) :
     QMenu(parent)
@@ -25,8 +20,4 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent) :
     connect(&actionAddFlag, SIGNAL(triggered()), this, SIGNAL(addFlag_triggered()));
     connect(&actionRename, SIGNAL(triggered()), this, SIGNAL(rename_triggered()));
     connect(&actionDisplayOptions, SIGNAL(triggered()), this, SIGNAL(displayOptions_triggered()));
-}
-
-DisassemblyContextMenu::~DisassemblyContextMenu()
-{
 }
