@@ -34,8 +34,10 @@ private:
     DisassemblyScrollArea *mDisasScrollArea;
     DisassemblyTextEdit *mDisasTextEdit;
 
+    RVA topOffset;
+
     QString readDisasm(RVA offset, bool backwards = false, bool skipFirstInstruction = false);
-    QString readDisasm(const QString &cmd);
+    QString readDisasm(const QString &cmd, bool stripLastNewline);
     RVA readCurrentDisassemblyOffset();
     void highlightDisasms();
     bool eventFilter(QObject *obj, QEvent *event);

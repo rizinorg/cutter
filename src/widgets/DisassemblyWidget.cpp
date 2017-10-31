@@ -110,25 +110,24 @@ QString DisassemblyWidget::readDisasm(RVA offset, bool backwards, bool skipFirst
         cmd = "pd 100" + suffix;
     }
 
-    QString disas = readDisasm(cmd);
-
-    if (!backwards)
-    {
-        // ugly hack to remove trailing newline
-        static const auto trimBrRegExp = QRegularExpression("<br />$");
-        disas = disas.remove(trimBrRegExp);
-    }
-
-    return disas;
+    return readDisasm(cmd, !backwards);
 }
 
-QString DisassemblyWidget::readDisasm(const QString &cmd)
+QString DisassemblyWidget::readDisasm(const QString &cmd, bool stripLastNewline)
 {
     Core()->setConfig("scr.html", true);
     Core()->setConfig("scr.color", true);
     QString disas = Core()->cmd(cmd);
     Core()->setConfig("scr.html", false);
     Core()->setConfig("scr.color", false);
+
+    if (stripLastNewline)
+    {
+        // ugly hack to remove trailing newline
+        static const auto trimBrRegExp = QRegularExpression("<br />$");
+        disas = disas.remove(trimBrRegExp);
+    }
+
     return disas.trimmed();
 }
 
@@ -136,12 +135,17 @@ QString DisassemblyWidget::readDisasm(const QString &cmd)
 void DisassemblyWidget::refreshDisasm()
 {
     QFontMetrics fontMetrics(mDisasTextEdit->document()->defaultFont());
-    int maxLines = mDisasTextEdit->height() / fontMetrics.lineSpacing();
+    int maxLines = (mDisasTextEdit->height() -
+                    (mDisasTextEdit->contentsMargins().top() + mDisasTextEdit->contentsMargins().bottom()
+                    + (int)(mDisasTextEdit->document()->documentMargin() * 2)))
+                    / fontMetrics.lineSpacing();
 
-    QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(Core()->getOffset()));
+    QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(topOffset), true);
     mDisasTextEdit->clear();
     mDisasTextEdit->appendHtml(disas);
     mDisasTextEdit->verticalScrollBar()->setValue(0);
+
+    printf("lines %d/%d %d\n", mDisasTextEdit->document()->lineCount(), maxLines, mDisasTextEdit->contentsMargins().top());
 }
 
 
@@ -152,7 +156,7 @@ void DisassemblyWidget::scrollInstructions(int count)
         return;
     }
 
-    QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(Core()->getOffset())).array();
+    QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(topOffset)).array();
     if (array.isEmpty())
     {
         return;
@@ -169,7 +173,9 @@ void DisassemblyWidget::scrollInstructions(int count)
 
     if (ok)
     {
-        Core()->seek(offset);
+        topOffset = offset;
+        refreshDisasm();
+        //Core()->seek(offset);
     }
 }
 
@@ -361,6 +367,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
     Q_UNUSED(offset);
+    topOffset = offset;
     if (!Core()->graphDisplay || !Core()->graphPriority) {
         this->raise();
     }
