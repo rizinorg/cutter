@@ -72,6 +72,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
 
     // Seek signal
     connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(CutterCore::getInstance(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
 }
 
