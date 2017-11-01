@@ -346,8 +346,8 @@ void CutterCore::setComment(RVA addr, QString cmt)
 
 void CutterCore::delComment(ut64 addr)
 {
-    CORE_LOCK();
-    r_meta_del(core_->anal, 'C', addr, 1, NULL);
+    cmd("CC- @ " + QString::number(addr));
+    emit commentsChanged();
 }
 
 QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
@@ -393,6 +393,18 @@ void CutterCore::seekPrev()
 void CutterCore::seekNext()
 {
     cmd("s+");
+}
+
+RVA CutterCore::prevOpAddr(RVA startAddr, int count)
+{
+    CORE_LOCK();
+    RVA prev;
+    if (!r_core_prevop_addr(core_, startAddr, count, &prev))
+    {
+        printf("fail\n");
+        prev = startAddr - count;
+    }
+    return prev;
 }
 
 RVA CutterCore::getOffset()

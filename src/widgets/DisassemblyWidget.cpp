@@ -167,25 +167,34 @@ void DisassemblyWidget::scrollInstructions(int count)
         return;
     }
 
-    QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(topOffset)).array();
-    if (array.isEmpty())
+    RVA offset;
+    if (count > 0)
     {
-        return;
+        QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(topOffset)).array();
+        if (array.isEmpty())
+        {
+            return;
+        }
+
+        QJsonValue instValue = (count < 0 ? array.first() : array.last());
+        if (!instValue.isObject())
+        {
+            return;
+        }
+
+        bool ok;
+        offset = instValue.toObject()["offset"].toVariant().toULongLong(&ok);
+        if (!ok)
+        {
+            return;
+        }
+    }
+    else
+    {
+        offset = Core()->prevOpAddr(topOffset, -count);
     }
 
-    QJsonValue instValue = (count < 0 ? array.first() : array.last());
-    if (!instValue.isObject())
-    {
-        return;
-    }
-
-    bool ok;
-    RVA offset = instValue.toObject()["offset"].toVariant().toULongLong(&ok);
-
-    if (ok)
-    {
-        refreshDisasm(offset);
-    }
+    refreshDisasm(offset);
 }
 
 
