@@ -16,7 +16,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     mDisasScrollArea(new DisassemblyScrollArea(this)),
     mDisasTextEdit(new DisassemblyTextEdit(this))
 {
-    // Configure Dock
+    topOffset = bottomOffset = RVA_INVALID;
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(mDisasTextEdit);
@@ -33,6 +33,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     mDisasTextEdit->setFont(Config()->getFont());
     mDisasTextEdit->setReadOnly(true);
     mDisasTextEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+    mDisasTextEdit->setWordWrapMode(QTextOption::NoWrap); // wrapping breaks readCurrentDisassemblyOffset() at the moment :-(
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = mDisasTextEdit->document();
@@ -149,14 +150,38 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
         topOffset = offset;
     }
 
+    if (maxLines <= 0)
+    {
+        mDisasTextEdit->clear();
+        return;
+    }
+
+    int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
+
     QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(topOffset), true);
+
     connectCursorPositionChanged(true);
+
     mDisasTextEdit->document()->setHtml(disas);
-    mDisasTextEdit->moveCursor(QTextCursor::End);
+
+    // get bottomOffset from last visible line.
+    // because pd N may return more than N lines, move maxLines lines down from the top
+    mDisasTextEdit->moveCursor(QTextCursor::Start);
+    QTextCursor tc = mDisasTextEdit->textCursor();
+    tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, maxLines-1);
+    mDisasTextEdit->setTextCursor(tc);
+
     connectCursorPositionChanged(false);
+
     bottomOffset = readCurrentDisassemblyOffset();
-    printf("bottom: %#llx\n", bottomOffset);
+    if (bottomOffset == RVA_INVALID)
+    {
+        bottomOffset = topOffset;
+    }
+
     updateCursorPosition();
+
+    mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
 }
 
 
@@ -281,21 +306,33 @@ void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 {
     // TODO: do this in a different way without parsing the disassembly text
+
+    static const QRegularExpression offsetRegExp("^0x[0-9A-Fa-f]*");
+
     QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QStringList parts = lastline.split("\u00a0", QString::SkipEmptyParts);
 
-    if (parts.isEmpty()) {
-        return RVA_INVALID;
+    while (true)
+    {
+        tc.select(QTextCursor::LineUnderCursor);
+
+        QString line = tc.selectedText();
+
+        auto match = offsetRegExp.match(line);
+        if (match.hasMatch())
+        {
+            return match.captured(0).toULongLong(nullptr, 16);
+        }
+
+        tc.movePosition(QTextCursor::StartOfLine);
+        if (tc.atStart())
+        {
+            break;
+        }
+
+        tc.movePosition(QTextCursor::Up);
     }
 
-    QString ele = parts[0];
-    if (!ele.contains("0x")) {
-        return RVA_INVALID;
-    }
-
-    return ele.toULongLong(0, 16);
+    return RVA_INVALID;
 }
 
 void DisassemblyWidget::updateCursorPosition()
@@ -396,7 +433,18 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
     if (!Core()->graphDisplay || !Core()->graphPriority) {
         this->raise();
     }
-    refreshDisasm(offset);
+
+    if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
+        && offset >= topOffset && offset <= bottomOffset)
+    {
+        // if the line with the seek offset is currently visible, just move the cursor there
+        updateCursorPosition();
+    }
+    else
+    {
+        // otherwise scroll there
+        refreshDisasm(offset);
+    }
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
