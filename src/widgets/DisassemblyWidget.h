@@ -40,7 +40,6 @@ private:
     RVA bottomOffset;
     int maxLines;
 
-    QString readDisasm(RVA offset, bool backwards = false, bool skipFirstInstruction = false);
     QString readDisasm(const QString &cmd, bool stripLastNewline);
     RVA readCurrentDisassemblyOffset();
     bool eventFilter(QObject *obj, QEvent *event);
@@ -74,10 +73,18 @@ class DisassemblyTextEdit: public QPlainTextEdit
     Q_OBJECT
 
 public:
-    explicit DisassemblyTextEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent) {}
+    explicit DisassemblyTextEdit(QWidget *parent = nullptr)
+            : QPlainTextEdit(parent),
+              lockScroll(false) {}
+
+    void setLockScroll(bool lock)           { this->lockScroll = lock; }
 
 protected:
     bool viewportEvent(QEvent *event) override;
+    void scrollContentsBy(int dx, int dy) override;
+
+private:
+    bool lockScroll;
 };
 
 #endif // DISASSEMBLYWIDGET_H

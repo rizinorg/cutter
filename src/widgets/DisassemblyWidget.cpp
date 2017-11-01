@@ -33,7 +33,8 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     mDisasTextEdit->setFont(Config()->getFont());
     mDisasTextEdit->setReadOnly(true);
     mDisasTextEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
-    mDisasTextEdit->setWordWrapMode(QTextOption::NoWrap); // wrapping breaks readCurrentDisassemblyOffset() at the moment :-(
+    // wrapping breaks readCurrentDisassemblyOffset() at the moment :-(
+    mDisasTextEdit->setWordWrapMode(QTextOption::NoWrap);
 
     // Increase asm text edit margin
     QTextDocument *asm_docu = mDisasTextEdit->document();
@@ -85,45 +86,6 @@ QWidget* DisassemblyWidget::getTextWidget()
     return mDisasTextEdit;
 }
 
-QString DisassemblyWidget::readDisasm(RVA offset, bool backwards, bool skipFirstInstruction)
-{
-    QString cmd;
-    if (backwards)
-    {
-        // Strategy for getting correct backwards disassembly in the most cases:
-
-        // Disassemble a couple instructions at an offset before the current.
-        // The last of these instructions is most likely a correct one. Use this as a reference.
-        QJsonValue referenceInstValue = Core()->cmdj("pdj 10 @ " + QString::number(offset - 256)).array().last();
-        // TODO: handle offset < 256 and referenceInstValue.isNull()
-        QJsonObject referenceInst = referenceInstValue.toObject();
-        RVA referenceOffset = referenceInst["offset"].toVariant().toULongLong();
-        // TODO: handle referenceOffset >= offset
-
-        // Then just disassemble all bytes from the reference offset to the current offset.
-        cmd = "pD " + QString::number(offset - referenceOffset) + "@" + QString::number(referenceOffset);
-    }
-    else
-    {
-        QString suffix = "@" + QString::number(offset);
-
-        // skip size of first instruction if needed
-        if (skipFirstInstruction && !backwards)
-        {
-            QJsonArray array = Core()->cmdj("pdj 1" + suffix).array();
-            if (!array.isEmpty())
-            {
-                int instSize = array.first().toObject()["size"].toInt();
-                suffix = "@" + QString::number(offset + instSize);
-            }
-        }
-
-        cmd = "pd 100" + suffix;
-    }
-
-    return readDisasm(cmd, !backwards);
-}
-
 QString DisassemblyWidget::readDisasm(const QString &cmd, bool stripLastNewline)
 {
     Core()->setConfig("scr.html", true);
@@ -157,6 +119,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     }
 
     int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
+    mDisasTextEdit->setLockScroll(true); // avoid flicker
 
     QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(topOffset), true);
 
@@ -181,6 +144,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     updateCursorPosition();
 
+    mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
 }
 
@@ -347,10 +311,13 @@ void DisassemblyWidget::updateCursorPosition()
     }
     else
     {
-        QTextCursor cursor = mDisasTextEdit->textCursor();
+        RVA currentCursorOffset = readCurrentDisassemblyOffset();
+        QTextCursor originalCursor = mDisasTextEdit->textCursor();
+
+        QTextCursor cursor = originalCursor;
         cursor.movePosition(QTextCursor::Start);
 
-        while (!cursor.atEnd())
+        while (true)
         {
             mDisasTextEdit->setTextCursor(cursor);
             RVA lineOffset = readCurrentDisassemblyOffset();
@@ -365,8 +332,21 @@ void DisassemblyWidget::updateCursorPosition()
                 mDisasTextEdit->setExtraSelections({});
                 break;
             }
-            cursor.movePosition(QTextCursor::Down);
+
             cursor.movePosition(QTextCursor::EndOfLine);
+            if (cursor.atEnd())
+            {
+                break;
+            }
+
+            cursor.movePosition(QTextCursor::Down);
+        }
+
+        // this is true if a seek came from the user clicking on a line.
+        // then the cursor should be restored 1:1 to retain selection and cursor position.
+        if (currentCursorOffset == offset)
+        {
+            mDisasTextEdit->setTextCursor(originalCursor);
         }
     }
     connectCursorPositionChanged(false);
@@ -506,5 +486,13 @@ bool DisassemblyTextEdit::viewportEvent(QEvent *event)
             return false;
         default:
             return QAbstractScrollArea::viewportEvent(event);
+    }
+}
+
+void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
+{
+    if (!lockScroll)
+    {
+        QPlainTextEdit::scrollContentsBy(dx, dy);
     }
 }
