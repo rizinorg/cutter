@@ -401,10 +401,35 @@ RVA CutterCore::prevOpAddr(RVA startAddr, int count)
     RVA prev;
     if (!r_core_prevop_addr(core_, startAddr, count, &prev))
     {
-        printf("fail\n");
         prev = startAddr - count;
     }
     return prev;
+}
+
+RVA CutterCore::nextOpAddr(RVA startAddr, int count)
+{
+    CORE_LOCK();
+
+    QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(startAddr)).array();
+    if (array.isEmpty())
+    {
+        return startAddr + 1;
+    }
+
+    QJsonValue instValue = array.last();
+    if (!instValue.isObject())
+    {
+        return startAddr + 1;
+    }
+
+    bool ok;
+    RVA offset = instValue.toObject()["offset"].toVariant().toULongLong(&ok);
+    if (!ok)
+    {
+        return startAddr + 1;
+    }
+
+    return offset;
 }
 
 RVA CutterCore::getOffset()

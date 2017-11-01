@@ -216,6 +216,7 @@ public:
     RVA getOffset();
 
     RVA prevOpAddr(RVA startAddr, int count);
+    RVA nextOpAddr(RVA startAddr, int count);
 
     // Graph - Disassembly view priority
     bool graphPriority = false;

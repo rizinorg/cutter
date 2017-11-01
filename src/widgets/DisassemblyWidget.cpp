@@ -160,24 +160,7 @@ void DisassemblyWidget::scrollInstructions(int count)
     RVA offset;
     if (count > 0)
     {
-        QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(topOffset)).array();
-        if (array.isEmpty())
-        {
-            return;
-        }
-
-        QJsonValue instValue = (count < 0 ? array.first() : array.last());
-        if (!instValue.isObject())
-        {
-            return;
-        }
-
-        bool ok;
-        offset = instValue.toObject()["offset"].toVariant().toULongLong(&ok);
-        if (!ok)
-        {
-            return;
-        }
+        offset = Core()->nextOpAddr(topOffset, count);
     }
     else
     {
