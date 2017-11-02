@@ -440,7 +440,7 @@ void MainWindow::readSettings()
     QByteArray geo = settings.value("geometry", QByteArray()).toByteArray();
     restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
-    restoreState(state);
+    //restoreState(state);
     if (settings.value("dark").toBool())
     {
         this->dark();
@@ -730,25 +730,36 @@ void MainWindow::on_actionDisasAdd_comment_triggered()
 
 void MainWindow::restoreDocks()
 {
-    addDockWidget(Qt::RightDockWidgetArea, this->sectionsDock);
-    addDockWidget(Qt::TopDockWidgetArea, this->dashboardDock);
-    this->tabifyDockWidget(this->sectionsDock, this->commentsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->disassemblyDock);
-    this->tabifyDockWidget(this->dashboardDock, this->graphDock);
-    this->tabifyDockWidget(this->dashboardDock, this->hexdumpDock);
-    this->tabifyDockWidget(this->dashboardDock, this->previewDock);
-    this->tabifyDockWidget(this->dashboardDock, this->sidebarDock);
-    this->tabifyDockWidget(this->dashboardDock, this->functionsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->entrypointDock);
-    this->tabifyDockWidget(this->dashboardDock, this->flagsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->stringsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->relocsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->importsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->exportsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->symbolsDock);
-    this->tabifyDockWidget(this->dashboardDock, this->notepadDock);
-    this->dashboardDock->raise();
-    this->sectionsDock->raise();
+    // bottom right
+    addDockWidget(Qt::RightDockWidgetArea, sectionsDock);
+
+    // left
+    addDockWidget(Qt::TopDockWidgetArea, functionsDock);
+
+    // center
+    splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
+
+    // right (sidebar)
+    splitDockWidget(dashboardDock, sidebarDock, Qt::Horizontal);
+
+
+    // tabs for center (must be applied after splitDockWidget())
+    tabifyDockWidget(sectionsDock, commentsDock);
+    /*tabifyDockWidget(dashboardDock, disassemblyDock);
+    tabifyDockWidget(dashboardDock, graphDock);
+    tabifyDockWidget(dashboardDock, hexdumpDock);
+    tabifyDockWidget(dashboardDock, previewDock);
+    tabifyDockWidget(dashboardDock, entrypointDock);
+    tabifyDockWidget(dashboardDock, flagsDock);
+    tabifyDockWidget(dashboardDock, stringsDock);
+    tabifyDockWidget(dashboardDock, relocsDock);
+    tabifyDockWidget(dashboardDock, importsDock);
+    tabifyDockWidget(dashboardDock, exportsDock);
+    tabifyDockWidget(dashboardDock, symbolsDock);
+    tabifyDockWidget(dashboardDock, notepadDock);*/
+
+    dashboardDock->raise();
+    sectionsDock->raise();
 }
 
 
@@ -771,18 +782,18 @@ void MainWindow::hideAllDocks()
 void MainWindow::showDefaultDocks()
 {
     const QList<QDockWidget *> defaultDocks = { sectionsDock,
-                                               entrypointDock,
+                                               //entrypointDock,
                                                functionsDock,
-                                               previewDock,
+                                               //previewDock,
                                                commentsDock,
-                                               stringsDock,
+                                               /*stringsDock,
                                                importsDock,
                                                symbolsDock,
                                                notepadDock,
                                                graphDock,
-                                               disassemblyDock,
+                                               disassemblyDock,*/
                                                sidebarDock,
-                                               hexdumpDock,
+                                               //hexdumpDock,
                                                dashboardDock
                                              };
 
