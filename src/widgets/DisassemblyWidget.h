@@ -3,12 +3,14 @@
 
 #include "cutter.h"
 #include <QDockWidget>
+#include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QShortcut>
 
 
 class DisassemblyTextEdit;
 class DisassemblyScrollArea;
+class DisassemblyContextMenu;
 
 class DisassemblyWidget : public QDockWidget
 {
@@ -24,7 +26,6 @@ public slots:
     void on_seekChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
-    void showXrefsDialog();
 
 private slots:
     void scrollInstructions(int count);
@@ -33,6 +34,7 @@ private slots:
     void cursorPositionChanged();
 
 private:
+    DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;
     DisassemblyTextEdit *mDisasTextEdit;
 

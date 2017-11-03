@@ -1,6 +1,5 @@
 #include "DisassemblyWidget.h"
 #include "menus/DisassemblyContextMenu.h"
-#include "dialogs/XrefsDialog.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
 #include "utils/Configuration.h"
@@ -9,12 +8,14 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QVBoxLayout>
+#include <QRegularExpression>
 
 
-DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
-    QDockWidget(parent),
-    mDisasScrollArea(new DisassemblyScrollArea(this)),
-    mDisasTextEdit(new DisassemblyTextEdit(this))
+DisassemblyWidget::DisassemblyWidget(QWidget *parent)
+    :   QDockWidget(parent)
+    ,   mCtxMenu(new DisassemblyContextMenu(this))
+    ,   mDisasScrollArea(new DisassemblyScrollArea(this))
+    ,   mDisasTextEdit(new DisassemblyTextEdit(this))
 {
     topOffset = bottomOffset = RVA_INVALID;
 
@@ -49,15 +50,8 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     connect(mDisasTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
-    // x to show XRefs
-    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), mDisasTextEdit);
-    shortcut_x->setContext(Qt::WidgetShortcut);
-    connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
-
-
     maxLines = 0;
     updateMaxLines();
-
 
     connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
     connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
@@ -243,12 +237,12 @@ void DisassemblyWidget::highlightCurrentLine()
     cursor2.endEditBlock();
 
     mDisasTextEdit->setExtraSelections(extraSelections);
+    mCtxMenu->setOffset(readCurrentDisassemblyOffset());
 }
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
-    DisassemblyContextMenu menu(this->readCurrentDisassemblyOffset(), mDisasTextEdit);
-    menu.exec(mDisasTextEdit->mapToGlobal(pt));
+    mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
@@ -398,6 +392,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         this->raise();
     }
 
+
     if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
         && offset >= topOffset && offset <= bottomOffset)
     {
@@ -409,28 +404,13 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         // otherwise scroll there
         refreshDisasm(offset);
     }
+    mCtxMenu->setOffset(offset);
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
 {
     mDisasTextEdit->setFont(Config()->getFont());
     refreshDisasm();
-}
-
-void DisassemblyWidget::showXrefsDialog()
-{
-    // Get current offset
-    QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x"))
-    {
-        RVA addr = ele.toLongLong(0, 16);
-        XrefsDialog *dialog = new XrefsDialog(this);
-        dialog->fillRefsForAddress(addr, RAddressString(addr), false);
-        dialog->exec();
-    }
 }
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)

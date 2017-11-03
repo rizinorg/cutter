@@ -29,6 +29,7 @@ class MenuBuilder;
 class CachedFontMetrics;
 class GotoDialog;
 class XrefBrowseDialog;
+class DisassemblyContextMenu;
 
 class DisassemblerGraphView : public QAbstractScrollArea
 {
@@ -255,6 +256,7 @@ public:
 
 signals:
     void displaySnowmanWidget();
+    void currentInstructionUpdated(duint);
 
 public slots:
     void updateTimerEvent();
@@ -282,7 +284,6 @@ public slots:
     void saveImageSlot();
     void setCommentSlot();
     void setLabelSlot();
-    void xrefSlot();
     void decompileSlot();
 
     void seekPrev();
@@ -358,7 +359,7 @@ private:
     std::unordered_map<duint, duint> currentBlockMap;
     //QBeaEngine disasm;
     GotoDialog* mGoto;
-    XrefBrowseDialog* mXrefDlg;
+    DisassemblyContextMenu* mMenu;
 
     void addReferenceAction(QMenu* menu, duint addr);
 };

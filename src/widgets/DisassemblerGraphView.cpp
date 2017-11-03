@@ -4,6 +4,7 @@
 #include <vector>
 #include <QPainter>
 #include <QScrollBar>
+#include <QShortcut>
 #include <QClipboard>
 #include <QApplication>
 #include <QMimeData>
@@ -29,7 +30,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
       mHistoryLock(false),
       layoutType(LayoutType::Medium),
       mGoto(nullptr),
-      mXrefDlg(nullptr)
+      mMenu(new DisassemblyContextMenu(this))
 {
     this->status = "Loading...";
 
@@ -661,15 +662,16 @@ void DisassemblerGraphView::mousePressEvent(QMouseEvent* event)
 
         //Update current instruction
         duint instr = this->getInstrForMouseEvent(event);
-        if(instr != 0)
+        if(instr != 0) {
             this->cur_instr = instr;
+            emit currentInstructionUpdated(instr);
+        }
 
         this->viewport()->update();
 
         if(event->button() == Qt::RightButton)
         {
-            DisassemblyContextMenu cMenu(instr, this);
-            cMenu.exec(event->globalPos()); //execute context menu
+            mMenu->exec(event->globalPos()); //execute context menu
         }
     }
     else if(event->button() == Qt::LeftButton)
@@ -1676,10 +1678,9 @@ void DisassemblerGraphView::addReferenceAction(QMenu* menu, duint addr)
 
 void DisassemblerGraphView::setupContextMenu()
 {
+    connect(this, &DisassemblerGraphView::currentInstructionUpdated,
+            mMenu, &DisassemblyContextMenu::setOffset);
     // TODO make this prettier
-    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), this);
-    shortcut_x->setContext(Qt::WidgetShortcut);
-    connect(shortcut_x, SIGNAL(activated()), this, SLOT(xrefSlot()));
 
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
@@ -2028,14 +2029,6 @@ restart:
 
     this->refreshSlot();
     */
-}
-
-void DisassemblerGraphView::xrefSlot()
-{
-    RVA addr = this->get_cursor_pos();
-    XrefsDialog *dialog = new XrefsDialog(this);
-    dialog->fillRefsForAddress(addr, RAddressString(addr), false);
-    dialog->exec();
 }
 
 void DisassemblerGraphView::decompileSlot()
