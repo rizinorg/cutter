@@ -346,8 +346,8 @@ void CutterCore::setComment(RVA addr, QString cmt)
 
 void CutterCore::delComment(ut64 addr)
 {
-    CORE_LOCK();
-    r_meta_del(core_->anal, 'C', addr, 1, NULL);
+    cmd("CC- @ " + QString::number(addr));
+    emit commentsChanged();
 }
 
 QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
@@ -377,7 +377,7 @@ void CutterCore::seek(QString addr)
     // here, or refactor radare2 API.
     CORE_LOCK();
     cmd(QString("s %1").arg(addr));
-    emit seekChanged(core_->offset);
+    // cmd already does emit seekChanged(core_->offset);
 }
 
 void CutterCore::seek(ut64 offset)
@@ -393,6 +393,43 @@ void CutterCore::seekPrev()
 void CutterCore::seekNext()
 {
     cmd("s+");
+}
+
+RVA CutterCore::prevOpAddr(RVA startAddr, int count)
+{
+    CORE_LOCK();
+    RVA prev;
+    if (!r_core_prevop_addr(core_, startAddr, count, &prev))
+    {
+        prev = startAddr - count;
+    }
+    return prev;
+}
+
+RVA CutterCore::nextOpAddr(RVA startAddr, int count)
+{
+    CORE_LOCK();
+
+    QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(startAddr)).array();
+    if (array.isEmpty())
+    {
+        return startAddr + 1;
+    }
+
+    QJsonValue instValue = array.last();
+    if (!instValue.isObject())
+    {
+        return startAddr + 1;
+    }
+
+    bool ok;
+    RVA offset = instValue.toObject()["offset"].toVariant().toULongLong(&ok);
+    if (!ok)
+    {
+        return startAddr + 1;
+    }
+
+    return offset;
 }
 
 RVA CutterCore::getOffset()

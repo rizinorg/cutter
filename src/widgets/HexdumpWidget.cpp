@@ -309,7 +309,7 @@ void HexdumpWidget::resizeHexdump()
 {
     this->hexOffsetText->setMinimumWidth(this->hexOffsetText->document()->size().width());
     this->hexHexText->setMinimumWidth(this->hexHexText->document()->size().width());
-    this->hexASCIIText->setMinimumWidth(this->hexASCIIText->document()->size().width());
+    //this->hexASCIIText->setMinimumWidth(this->hexASCIIText->document()->size().width());
 }
 
 void HexdumpWidget::hexScrolled()

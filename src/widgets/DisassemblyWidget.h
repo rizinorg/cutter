@@ -1,11 +1,17 @@
-#ifndef DISASSEMBLYVIEW_H
-#define DISASSEMBLYVIEW_H
+#ifndef DISASSEMBLYWIDGET_H
+#define DISASSEMBLYWIDGET_H
 
 #include "cutter.h"
 #include <QDockWidget>
 #include <QTextEdit>
+#include <QPlainTextEdit>
+#include <QShortcut>
 
+
+class DisassemblyTextEdit;
+class DisassemblyScrollArea;
 class DisassemblyContextMenu;
+
 class DisassemblyWidget : public QDockWidget
 {
     Q_OBJECT
@@ -14,26 +20,73 @@ public:
     explicit DisassemblyWidget(const QString &title, QWidget *parent = nullptr);
     QWidget* getTextWidget();
 
-signals:
-
 public slots:
     void highlightCurrentLine();
-    void disasmScrolled();
     void showDisasContextMenu(const QPoint &pt);
-    void cursorPositionChanged();
     void on_seekChanged(RVA offset);
-    void refreshDisasm();
+    void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
+
+private slots:
+    void scrollInstructions(int count);
+    void updateMaxLines();
+
+    void cursorPositionChanged();
 
 private:
     DisassemblyContextMenu *mCtxMenu;
-    QTextEdit *mDisasTextEdit;
+    DisassemblyScrollArea *mDisasScrollArea;
+    DisassemblyTextEdit *mDisasTextEdit;
 
-    QString readDisasm(RVA offset = RVA_INVALID);
+    RVA topOffset;
+    RVA bottomOffset;
+    int maxLines;
+
+    QString readDisasm(const QString &cmd, bool stripLastNewline);
     RVA readCurrentDisassemblyOffset();
-    bool loadMoreDisassembly();
-    void highlightDisasms();
     bool eventFilter(QObject *obj, QEvent *event);
+
+    void updateCursorPosition();
+
+    void connectCursorPositionChanged(bool disconnect);
 };
 
-#endif // DISASSEMBLYVIEW_H
+class DisassemblyScrollArea : public QAbstractScrollArea
+{
+    Q_OBJECT
+
+public:
+    explicit DisassemblyScrollArea(QWidget *parent = nullptr);
+
+signals:
+    void scrollLines(int lines);
+    void disassemblyResized();
+
+protected:
+    bool viewportEvent(QEvent *event) override;
+
+private:
+    void resetScrollBars();
+};
+
+
+class DisassemblyTextEdit: public QPlainTextEdit
+{
+    Q_OBJECT
+
+public:
+    explicit DisassemblyTextEdit(QWidget *parent = nullptr)
+            : QPlainTextEdit(parent),
+              lockScroll(false) {}
+
+    void setLockScroll(bool lock)           { this->lockScroll = lock; }
+
+protected:
+    bool viewportEvent(QEvent *event) override;
+    void scrollContentsBy(int dx, int dy) override;
+
+private:
+    bool lockScroll;
+};
+
+#endif // DISASSEMBLYWIDGET_H
