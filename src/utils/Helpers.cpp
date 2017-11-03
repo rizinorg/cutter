@@ -8,6 +8,8 @@
 #include <QString>
 #include <QAbstractItemView>
 #include <QAbstractButton>
+#include <QDockWidget>
+#include <QtGui/QtGui>
 
 
 static QAbstractItemView::ScrollMode scrollMode()
@@ -85,6 +87,54 @@ namespace qhelpers
         button->blockSignals(true);
         button->setChecked(checked);
         button->blockSignals(blocked);
+    }
+
+
+    SizePolicyMinMax forceWidth(QWidget *widget, int width)
+    {
+        SizePolicyMinMax r;
+        r.sizePolicy = widget->sizePolicy();
+        r.min = widget->minimumWidth();
+        r.max = widget->maximumWidth();
+
+        QSizePolicy sizePolicy = r.sizePolicy;
+        sizePolicy.setHorizontalPolicy(QSizePolicy::Fixed);
+        widget->setSizePolicy(sizePolicy);
+        widget->setMinimumWidth(width);
+        widget->setMaximumWidth(width);
+
+        return r;
+    }
+
+
+    SizePolicyMinMax forceHeight(QWidget *widget, int height)
+    {
+        SizePolicyMinMax r;
+        r.sizePolicy = widget->sizePolicy();
+        r.min = widget->minimumHeight();
+        r.max = widget->maximumHeight();
+
+        QSizePolicy sizePolicy = r.sizePolicy;
+        sizePolicy.setVerticalPolicy(QSizePolicy::Fixed);
+        widget->setSizePolicy(sizePolicy);
+        widget->setMinimumHeight(height);
+        widget->setMaximumHeight(height);
+
+        return r;
+    }
+
+    void SizePolicyMinMax::restoreWidth(QWidget *widget)
+    {
+        widget->setSizePolicy(sizePolicy);
+        widget->setMinimumWidth(min);
+        widget->setMaximumWidth(max);
+    }
+
+    void SizePolicyMinMax::restoreHeight(QWidget *widget)
+    {
+        widget->setSizePolicy(sizePolicy);
+        widget->setMinimumHeight(min);
+        widget->setMaximumHeight(max);
     }
 
 } // end namespace

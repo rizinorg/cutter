@@ -147,13 +147,7 @@ private slots:
 
     void on_actionDisasAdd_comment_triggered();
 
-    void restoreDocks();
-
     void on_actionDefaut_triggered();
-
-    void hideAllDocks();
-
-    void showDefaultDocks();
 
     void on_actionFunctionsRename_triggered();
 
@@ -227,6 +221,12 @@ private:
     ConsoleWidget    *consoleWidget;
 
     void toggleDockWidget(QDockWidget *dock_widget);
+
+	void resetToDefaultLayout();
+
+	void restoreDocks();
+	void hideAllDocks();
+	void showDefaultDocks();
 
 public:
     RVA getCursorAddress() const        { return cursorAddress; }

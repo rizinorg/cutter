@@ -2,6 +2,7 @@
 #define QHELPERS_H
 
 #include <QString>
+#include <QSizePolicy>
 
 class QPlainTextEdit;
 class QTextEdit;
@@ -10,6 +11,7 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class QAbstractItemView;
 class QAbstractButton;
+class QWidget;
 
 namespace qhelpers
 {
@@ -24,6 +26,20 @@ namespace qhelpers
     void setVerticalScrollMode(QAbstractItemView *tw);
 
     void setCheckedWithoutSignals(QAbstractButton *button, bool checked);
+
+
+	struct SizePolicyMinMax
+	{
+		QSizePolicy sizePolicy;
+		int min;
+		int max;
+
+		void restoreWidth(QWidget *widget);
+		void restoreHeight(QWidget *widget);
+	};
+
+	SizePolicyMinMax forceWidth(QWidget *widget, int width);
+	SizePolicyMinMax forceHeight(QWidget *widget, int height);
 }
 
 #endif // HELPERS_H

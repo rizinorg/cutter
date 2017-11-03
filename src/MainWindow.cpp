@@ -257,9 +257,7 @@ void MainWindow::initUI()
     dockWidgets.push_back(dashboardDock);
 
     // Set up dock widgets default layout
-    restoreDocks();
-    hideAllDocks();
-    showDefaultDocks();
+	resetToDefaultLayout();
 
     // Restore saved settings
     this->readSettings();
@@ -440,7 +438,7 @@ void MainWindow::readSettings()
     QByteArray geo = settings.value("geometry", QByteArray()).toByteArray();
     restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
-    //restoreState(state);
+    restoreState(state);
     if (settings.value("dark").toBool())
     {
         this->dark();
@@ -745,7 +743,7 @@ void MainWindow::restoreDocks()
 
     // tabs for center (must be applied after splitDockWidget())
     tabifyDockWidget(sectionsDock, commentsDock);
-    /*tabifyDockWidget(dashboardDock, disassemblyDock);
+    tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
     tabifyDockWidget(dashboardDock, previewDock);
@@ -756,20 +754,12 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, importsDock);
     tabifyDockWidget(dashboardDock, exportsDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
-    tabifyDockWidget(dashboardDock, notepadDock);*/
+    tabifyDockWidget(dashboardDock, notepadDock);
 
     dashboardDock->raise();
     sectionsDock->raise();
 }
 
-
-void MainWindow::on_actionDefaut_triggered()
-{
-    hideAllDocks();
-    restoreDocks();
-    showDefaultDocks();
-    this->dashboardDock->raise();
-}
 
 void MainWindow::hideAllDocks()
 {
@@ -782,18 +772,18 @@ void MainWindow::hideAllDocks()
 void MainWindow::showDefaultDocks()
 {
     const QList<QDockWidget *> defaultDocks = { sectionsDock,
-                                               //entrypointDock,
+                                               entrypointDock,
                                                functionsDock,
-                                               //previewDock,
+                                               previewDock,
                                                commentsDock,
-                                               /*stringsDock,
+                                               stringsDock,
                                                importsDock,
                                                symbolsDock,
                                                notepadDock,
                                                graphDock,
-                                               disassemblyDock,*/
+                                               disassemblyDock,
                                                sidebarDock,
-                                               //hexdumpDock,
+                                               hexdumpDock,
                                                dashboardDock
                                              };
 
@@ -804,6 +794,30 @@ void MainWindow::showDefaultDocks()
             w->show();
         }
     }
+}
+
+void MainWindow::resetToDefaultLayout()
+{
+	restoreDocks();
+	hideAllDocks();
+	showDefaultDocks();
+
+	dashboardDock->raise();
+
+	// ugly workaround to set the default widths of functions and sidebar docks
+	// if anyone finds a way to do this cleaner that also works, feel free to change it!
+	auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 300);
+	auto restoreSidebarDock = qhelpers::forceWidth(sidebarDock->widget(), 300);
+
+	qApp->processEvents();
+
+	restoreFunctionDock.restoreWidth(functionsDock->widget());
+	restoreSidebarDock.restoreWidth(sidebarDock->widget());
+}
+
+void MainWindow::on_actionDefaut_triggered()
+{
+	resetToDefaultLayout();
 }
 
 void MainWindow::on_actionhide_bottomPannel_triggered()
