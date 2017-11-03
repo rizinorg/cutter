@@ -30,7 +30,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
       mHistoryLock(false),
       layoutType(LayoutType::Medium),
       mGoto(nullptr),
-      mXrefDlg(nullptr),
       mMenu(new DisassemblyContextMenu(this))
 {
     this->status = "Loading...";

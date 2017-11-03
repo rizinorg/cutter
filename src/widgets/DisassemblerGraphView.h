@@ -359,7 +359,6 @@ private:
     std::unordered_map<duint, duint> currentBlockMap;
     //QBeaEngine disasm;
     GotoDialog* mGoto;
-    XrefBrowseDialog* mXrefDlg;
     DisassemblyContextMenu* mMenu;
 
     void addReferenceAction(QMenu* menu, duint addr);
