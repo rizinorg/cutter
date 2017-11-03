@@ -73,6 +73,33 @@ void DisassemblyContextMenu::init()
     actionAddComment.setShortcut(getDisplayOptionsSequence());
     this->addAction(&actionDisplayOptions);
 
+    auto pWidget = parentWidget();
+
+    QShortcut *shortcut_dispOptions = new QShortcut(getDisplayOptionsSequence(), pWidget);
+    shortcut_dispOptions->setContext(Qt::WidgetShortcut);
+    connect(shortcut_dispOptions, &QShortcut::activated,
+            this, &DisassemblyContextMenu::on_actionDisplayOptions_triggered);
+
+    QShortcut *shortcut_x = new QShortcut(getXRefSequence(), pWidget);
+    shortcut_x->setContext(Qt::WidgetShortcut);
+    connect(shortcut_x, &QShortcut::activated,
+            this, &DisassemblyContextMenu::on_actionXRefs_triggered);
+
+    QShortcut *shortcut_comment = new QShortcut(getCommentSequence(), pWidget);
+    shortcut_comment->setContext(Qt::WidgetShortcut);
+    connect(shortcut_comment, &QShortcut::activated,
+            this, &DisassemblyContextMenu::on_actionAddComment_triggered);
+
+    QShortcut *shortcut_addFlag = new QShortcut(getAddFlagSequence(), pWidget);
+    shortcut_addFlag->setContext(Qt::WidgetShortcut);
+    connect(shortcut_addFlag, &QShortcut::activated,
+            this, &DisassemblyContextMenu::on_actionAddFlag_triggered);
+
+    QShortcut *shortcut_renameSequence = new QShortcut(getRenameSequence(), pWidget);
+    shortcut_renameSequence->setContext(Qt::WidgetShortcut);
+    connect(shortcut_renameSequence, &QShortcut::activated,
+            this, &DisassemblyContextMenu::on_actionRename_triggered);
+
     connect(&actionAddComment, SIGNAL(triggered(bool)), this, SLOT(on_actionAddComment_triggered()));
     connect(&actionAddFlag, SIGNAL(triggered(bool)), this, SLOT(on_actionAddFlag_triggered()));
     connect(&actionRename, SIGNAL(triggered(bool)), this, SLOT(on_actionRename_triggered()));

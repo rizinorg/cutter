@@ -4,6 +4,7 @@
 #include <vector>
 #include <QPainter>
 #include <QScrollBar>
+#include <QShortcut>
 #include <QClipboard>
 #include <QApplication>
 #include <QMimeData>
@@ -1681,30 +1682,6 @@ void DisassemblerGraphView::setupContextMenu()
     connect(this, &DisassemblerGraphView::currentInstructionUpdated,
             mMenu, &DisassemblyContextMenu::setOffset);
     // TODO make this prettier
-    QShortcut *shortcut_x = new QShortcut(mMenu->getXRefSequence(), this);
-    shortcut_x->setContext(Qt::WidgetShortcut);
-    connect(shortcut_x, &QShortcut::activated,
-            mMenu, &DisassemblyContextMenu::on_actionXRefs_triggered);
-
-    QShortcut *shortcut_comment = new QShortcut(mMenu->getCommentSequence(), this);
-    shortcut_comment->setContext(Qt::WidgetShortcut);
-    connect(shortcut_comment, &QShortcut::activated,
-            mMenu, &DisassemblyContextMenu::on_actionAddComment_triggered);
-
-    QShortcut *shortcut_addFlag = new QShortcut(mMenu->getAddFlagSequence(), this);
-    shortcut_addFlag->setContext(Qt::WidgetShortcut);
-    connect(shortcut_addFlag, &QShortcut::activated,
-            mMenu, &DisassemblyContextMenu::on_actionAddFlag_triggered);
-
-    QShortcut *shortcut_renameSequence = new QShortcut(mMenu->getRenameSequence(), this);
-    shortcut_renameSequence->setContext(Qt::WidgetShortcut);
-    connect(shortcut_renameSequence, &QShortcut::activated,
-            mMenu, &DisassemblyContextMenu::on_actionRename_triggered);
-
-    QShortcut *shortcut_dispOptions = new QShortcut(mMenu->getDisplayOptionsSequence(), this);
-    shortcut_dispOptions->setContext(Qt::WidgetShortcut);
-    connect(shortcut_dispOptions, &QShortcut::activated,
-            mMenu, &DisassemblyContextMenu::on_actionDisplayOptions_triggered);
 
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);

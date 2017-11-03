@@ -18,8 +18,6 @@ public:
     QKeySequence getRenameSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
-
-
 public slots:
     void setOffset(RVA offset);
 
@@ -31,6 +29,7 @@ public slots:
 
 private:
     void init();
+
 
 private:
     RVA offset;
