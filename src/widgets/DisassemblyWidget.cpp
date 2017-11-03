@@ -1,22 +1,14 @@
 #include "DisassemblyWidget.h"
 #include "menus/DisassemblyContextMenu.h"
-
-#include "dialogs/AsmOptionsDialog.h"
-#include "dialogs/CommentsDialog.h"
-#include "dialogs/FlagDialog.h"
-#include "dialogs/RenameDialog.h"
-#include "dialogs/XrefsDialog.h"
-
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
 #include "utils/Configuration.h"
-
 #include <QScrollBar>
 
-DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
-    QDockWidget(parent),
-    contextMenu(new DisassemblyContextMenu(this)),
-    mDisasTextEdit(new QTextEdit(this))
+DisassemblyWidget::DisassemblyWidget(QWidget *parent)
+    :   QDockWidget(parent)
+    ,   mCtxMenu(new DisassemblyContextMenu(this))
+    ,   mDisasTextEdit(new QTextEdit(this))
 {
     // Configure Dock
     setWidget(mDisasTextEdit);
@@ -41,23 +33,6 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     mDisasTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(mDisasTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
-
-    connect(contextMenu, SIGNAL(addComment_triggered()), this, SLOT(showCommentDialog()));
-    connect(contextMenu, SIGNAL(xRefs_triggered()), this, SLOT(showXrefsDialog()));
-    connect(contextMenu, SIGNAL(addFlag_triggered()), this, SLOT(showAddFlagDialog()));
-    connect(contextMenu, SIGNAL(rename_triggered()), this, SLOT(showRenameDialog()));
-    connect(contextMenu, SIGNAL(displayOptions_triggered()), this, SLOT(showOptionsDialog()));
-
-
-    // x to show XRefs
-    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), mDisasTextEdit);
-    shortcut_x->setContext(Qt::WidgetShortcut);
-    connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
-
-    //; to insert comment
-    QShortcut *shortcut_semicolon = new QShortcut(QKeySequence(";"), mDisasTextEdit);
-    shortcut_semicolon->setContext(Qt::WidgetShortcut);
-    connect(shortcut_semicolon, SIGNAL(activated()), this, SLOT(showCommentDialog()));
 
     // Scrollbar
     connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
@@ -250,11 +225,12 @@ void DisassemblyWidget::highlightCurrentLine()
     cursor2.endEditBlock();
 
     mDisasTextEdit->setExtraSelections(extraSelections);
+    mCtxMenu->setOffset(readCurrentDisassemblyOffset());
 }
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
-    contextMenu->exec(mDisasTextEdit->mapToGlobal(pt));
+    mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
@@ -280,22 +256,6 @@ RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 void DisassemblyWidget::disasmScrolled()
 {
     loadMoreDisassembly();
-}
-
-void DisassemblyWidget::showCommentDialog()
-{
-    const auto offset = readCurrentDisassemblyOffset();
-    RAnalFunction *fcn = CutterCore::getInstance()->functionAt(offset);
-    CommentsDialog *c = new CommentsDialog(this);
-    if (c->exec())
-    {
-        QString comment = c->getComment();
-        CutterCore::getInstance()->setComment(offset, comment);
-        if (fcn)
-        {
-            CutterCore::getInstance()->seek(fcn->addr);
-        }
-    }
 }
 
 void DisassemblyWidget::cursorPositionChanged()
@@ -404,6 +364,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         this->raise();
     }
     refreshDisasm();
+    mCtxMenu->setOffset(offset);
 }
 
 void DisassemblyWidget::highlightDisasms()
@@ -421,50 +382,4 @@ void DisassemblyWidget::fontsUpdatedSlot()
 {
     mDisasTextEdit->setFont(Config()->getFont());
     refreshDisasm();
-}
-
-void DisassemblyWidget::showXrefsDialog()
-{
-    // Get current offset
-    QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x"))
-    {
-        RVA addr = ele.toLongLong(0, 16);
-        XrefsDialog *dialog = new XrefsDialog(this);
-        dialog->fillRefsForAddress(addr, RAddressString(addr), false);
-        dialog->exec();
-    }
-}
-
-void DisassemblyWidget::showAddFlagDialog()
-{
-    FlagDialog *dialog = new FlagDialog(readCurrentDisassemblyOffset(), this->parentWidget());
-    dialog->exec();
-}
-
-void DisassemblyWidget::showRenameDialog()
-{
-    // Get function for clicked offset
-    RAnalFunction *fcn = CutterCore::getInstance()->functionAt(readCurrentDisassemblyOffset());
-    RenameDialog *dialog = new RenameDialog(this);
-    // Get function based on click position
-    dialog->setFunctionName(fcn->name);
-    if (dialog->exec())
-    {
-        // Get new function name
-        QString new_name = dialog->getFunctionName();
-        // Rename function in r2 core
-        CutterCore::getInstance()->renameFunction(fcn->name, new_name);
-        // Seek to new renamed function
-        CutterCore::getInstance()->seek(fcn->addr);
-    }
-}
-
-void DisassemblyWidget::showOptionsDialog()
-{
-    AsmOptionsDialog *dialog = new AsmOptionsDialog(this->parentWidget());
-    dialog->show();
 }
