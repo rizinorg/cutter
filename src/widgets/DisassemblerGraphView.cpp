@@ -29,7 +29,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
       mHistoryLock(false),
       layoutType(LayoutType::Medium),
       mGoto(nullptr),
-      mXrefDlg(nullptr)
+      mXrefDlg(nullptr),
+      mMenu(new DisassemblyContextMenu(this))
 {
     this->status = "Loading...";
 
@@ -661,15 +662,16 @@ void DisassemblerGraphView::mousePressEvent(QMouseEvent* event)
 
         //Update current instruction
         duint instr = this->getInstrForMouseEvent(event);
-        if(instr != 0)
+        if(instr != 0) {
             this->cur_instr = instr;
+            emit currentInstructionUpdated(instr);
+        }
 
         this->viewport()->update();
 
         if(event->button() == Qt::RightButton)
         {
-            DisassemblyContextMenu cMenu(instr, this);
-            cMenu.exec(event->globalPos()); //execute context menu
+            mMenu->exec(event->globalPos()); //execute context menu
         }
     }
     else if(event->button() == Qt::LeftButton)
@@ -1676,10 +1678,33 @@ void DisassemblerGraphView::addReferenceAction(QMenu* menu, duint addr)
 
 void DisassemblerGraphView::setupContextMenu()
 {
+    connect(this, &DisassemblerGraphView::currentInstructionUpdated,
+            mMenu, &DisassemblyContextMenu::setOffset);
     // TODO make this prettier
-    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), this);
+    QShortcut *shortcut_x = new QShortcut(mMenu->getXRefSequence(), this);
     shortcut_x->setContext(Qt::WidgetShortcut);
-    connect(shortcut_x, SIGNAL(activated()), this, SLOT(xrefSlot()));
+    connect(shortcut_x, &QShortcut::activated,
+            mMenu, &DisassemblyContextMenu::on_actionXRefs_triggered);
+
+    QShortcut *shortcut_comment = new QShortcut(mMenu->getCommentSequence(), this);
+    shortcut_comment->setContext(Qt::WidgetShortcut);
+    connect(shortcut_comment, &QShortcut::activated,
+            mMenu, &DisassemblyContextMenu::on_actionAddComment_triggered);
+
+    QShortcut *shortcut_addFlag = new QShortcut(mMenu->getAddFlagSequence(), this);
+    shortcut_addFlag->setContext(Qt::WidgetShortcut);
+    connect(shortcut_addFlag, &QShortcut::activated,
+            mMenu, &DisassemblyContextMenu::on_actionAddFlag_triggered);
+
+    QShortcut *shortcut_renameSequence = new QShortcut(mMenu->getRenameSequence(), this);
+    shortcut_renameSequence->setContext(Qt::WidgetShortcut);
+    connect(shortcut_renameSequence, &QShortcut::activated,
+            mMenu, &DisassemblyContextMenu::on_actionRename_triggered);
+
+    QShortcut *shortcut_dispOptions = new QShortcut(mMenu->getDisplayOptionsSequence(), this);
+    shortcut_dispOptions->setContext(Qt::WidgetShortcut);
+    connect(shortcut_dispOptions, &QShortcut::activated,
+            mMenu, &DisassemblyContextMenu::on_actionDisplayOptions_triggered);
 
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
@@ -2028,14 +2053,6 @@ restart:
 
     this->refreshSlot();
     */
-}
-
-void DisassemblerGraphView::xrefSlot()
-{
-    RVA addr = this->get_cursor_pos();
-    XrefsDialog *dialog = new XrefsDialog(this);
-    dialog->fillRefsForAddress(addr, RAddressString(addr), false);
-    dialog->exec();
 }
 
 void DisassemblerGraphView::decompileSlot()
