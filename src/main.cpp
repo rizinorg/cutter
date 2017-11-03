@@ -16,12 +16,13 @@
 
 void set_appimage_symlink()
 {
-    char* path = realpath("/proc/self/exe", NULL);
-    char* i = strrchr(path, '/');
-    *(i+1) = '\0';
-    char* dest = strcat(path, "../");
+    char *path = realpath("/proc/self/exe", NULL);
+    char *i = strrchr(path, '/');
+    *(i + 1) = '\0';
+    char *dest = strcat(path, "../");
     struct stat buf;
-    if (lstat(PREFIX, &buf) == 0 && S_ISLNK(buf.st_mode)) {
+    if (lstat(PREFIX, &buf) == 0 && S_ISLNK(buf.st_mode))
+    {
         remove(PREFIX);
     }
     symlink(dest, PREFIX);

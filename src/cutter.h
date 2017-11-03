@@ -186,7 +186,7 @@ class CutterCore: public QObject
 public:
     explicit CutterCore(QObject *parent = 0);
     ~CutterCore();
-    static CutterCore* getInstance();
+    static CutterCore *getInstance();
 
     /* Getters */
     RVA getOffset() const { return core_->offset; }

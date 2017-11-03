@@ -57,8 +57,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-	void openNewFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
-	void openProject(const QString &project_name);
+    void openNewFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
+    void openProject(const QString &project_name);
 
     void initUI();
     void finalizeOpen();
@@ -73,7 +73,7 @@ public:
      * @param quit whether to show destructive button in dialog
      * @return if quit is true, false if the application should not close
      */
-	bool saveProjectAs(bool quit = false);
+    bool saveProjectAs(bool quit = false);
 
     void start_web_server();
     void closeEvent(QCloseEvent *event) override;
@@ -147,20 +147,14 @@ private slots:
 
     void on_actionDisasAdd_comment_triggered();
 
-    void restoreDocks();
-
     void on_actionDefaut_triggered();
-
-    void hideAllDocks();
-
-    void showDefaultDocks();
 
     void on_actionFunctionsRename_triggered();
 
     void on_actionNew_triggered();
 
     void on_actionSave_triggered();
-	void on_actionSaveAs_triggered();
+    void on_actionSaveAs_triggered();
 
     void on_actionWhite_Theme_triggered();
 
@@ -227,6 +221,12 @@ private:
     ConsoleWidget    *consoleWidget;
 
     void toggleDockWidget(QDockWidget *dock_widget);
+
+    void resetToDefaultLayout();
+
+    void restoreDocks();
+    void hideAllDocks();
+    void showDefaultDocks();
 
 public:
     RVA getCursorAddress() const        { return cursorAddress; }
