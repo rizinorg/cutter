@@ -50,17 +50,8 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     connect(mDisasTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
-    // Scrollbar
-    connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
-    // x to show XRefs
-    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), mDisasTextEdit);
-    shortcut_x->setContext(Qt::WidgetShortcut);
-    connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
-
-
     maxLines = 0;
     updateMaxLines();
-
 
     connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
     connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
@@ -401,7 +392,6 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         this->raise();
     }
 
-    mCtxMenu->setOffset(offset);
 
     if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
         && offset >= topOffset && offset <= bottomOffset)
@@ -414,6 +404,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         // otherwise scroll there
         refreshDisasm(offset);
     }
+    mCtxMenu->setOffset(offset);
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
