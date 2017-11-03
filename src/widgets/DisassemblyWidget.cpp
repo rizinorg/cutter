@@ -1,14 +1,14 @@
 #include "DisassemblyWidget.h"
 #include "menus/DisassemblyContextMenu.h"
-#include "dialogs/XrefsDialog.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
 #include "utils/Configuration.h"
 #include <QScrollBar>
 
-DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
-    QDockWidget(parent),
-    mDisasTextEdit(new QTextEdit(this))
+DisassemblyWidget::DisassemblyWidget(QWidget *parent)
+    :   QDockWidget(parent)
+    ,   mCtxMenu(new DisassemblyContextMenu(this))
+    ,   mDisasTextEdit(new QTextEdit(this))
 {
     // Configure Dock
     setWidget(mDisasTextEdit);
@@ -33,11 +33,6 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent) :
     mDisasTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(mDisasTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
-
-    // x to show XRefs
-    QShortcut *shortcut_x = new QShortcut(QKeySequence(Qt::Key_X), mDisasTextEdit);
-    shortcut_x->setContext(Qt::WidgetShortcut);
-    connect(shortcut_x, SIGNAL(activated()), this, SLOT(showXrefsDialog()));
 
     // Scrollbar
     connect(mDisasTextEdit->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(disasmScrolled()));
@@ -230,12 +225,12 @@ void DisassemblyWidget::highlightCurrentLine()
     cursor2.endEditBlock();
 
     mDisasTextEdit->setExtraSelections(extraSelections);
+    mCtxMenu->setOffset(readCurrentDisassemblyOffset());
 }
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
-    DisassemblyContextMenu menu(this->readCurrentDisassemblyOffset(), mDisasTextEdit);
-    menu.exec(mDisasTextEdit->mapToGlobal(pt));
+    mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
@@ -369,6 +364,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         this->raise();
     }
     refreshDisasm();
+    mCtxMenu->setOffset(offset);
 }
 
 void DisassemblyWidget::highlightDisasms()
@@ -386,20 +382,4 @@ void DisassemblyWidget::fontsUpdatedSlot()
 {
     mDisasTextEdit->setFont(Config()->getFont());
     refreshDisasm();
-}
-
-void DisassemblyWidget::showXrefsDialog()
-{
-    // Get current offset
-    QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.select(QTextCursor::LineUnderCursor);
-    QString lastline = tc.selectedText();
-    QString ele = lastline.split(" ", QString::SkipEmptyParts)[0];
-    if (ele.contains("0x"))
-    {
-        RVA addr = ele.toLongLong(0, 16);
-        XrefsDialog *dialog = new XrefsDialog(this);
-        dialog->fillRefsForAddress(addr, RAddressString(addr), false);
-        dialog->exec();
-    }
 }

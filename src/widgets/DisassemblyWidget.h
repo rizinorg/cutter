@@ -4,8 +4,8 @@
 #include "cutter.h"
 #include <QDockWidget>
 #include <QTextEdit>
-#include <QShortcut>
 
+class DisassemblyContextMenu;
 class DisassemblyWidget : public QDockWidget
 {
     Q_OBJECT
@@ -24,9 +24,9 @@ public slots:
     void on_seekChanged(RVA offset);
     void refreshDisasm();
     void fontsUpdatedSlot();
-    void showXrefsDialog();
 
 private:
+    DisassemblyContextMenu *mCtxMenu;
     QTextEdit *mDisasTextEdit;
 
     QString readDisasm(RVA offset = RVA_INVALID);
