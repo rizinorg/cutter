@@ -28,18 +28,18 @@ namespace qhelpers
     void setCheckedWithoutSignals(QAbstractButton *button, bool checked);
 
 
-	struct SizePolicyMinMax
-	{
-		QSizePolicy sizePolicy;
-		int min;
-		int max;
+    struct SizePolicyMinMax
+    {
+        QSizePolicy sizePolicy;
+        int min;
+        int max;
 
-		void restoreWidth(QWidget *widget);
-		void restoreHeight(QWidget *widget);
-	};
+        void restoreWidth(QWidget *widget);
+        void restoreHeight(QWidget *widget);
+    };
 
-	SizePolicyMinMax forceWidth(QWidget *widget, int width);
-	SizePolicyMinMax forceHeight(QWidget *widget, int height);
+    SizePolicyMinMax forceWidth(QWidget *widget, int width);
+    SizePolicyMinMax forceHeight(QWidget *widget, int height);
 }
 
 #endif // HELPERS_H

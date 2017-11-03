@@ -257,7 +257,7 @@ void MainWindow::initUI()
     dockWidgets.push_back(dashboardDock);
 
     // Set up dock widgets default layout
-	resetToDefaultLayout();
+    resetToDefaultLayout();
 
     // Restore saved settings
     this->readSettings();
@@ -337,10 +337,10 @@ void MainWindow::finalizeOpen()
     core->cmd("fs sections");
     updateFrames();
 
-    if(core->getNotes().isEmpty())
+    if (core->getNotes().isEmpty())
     {
         core->setNotes(tr("# Binary information\n\n") + core->cmd("i") +
-                             "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
+                       "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
     }
 
     //Get binary beginning/end addresses
@@ -372,8 +372,8 @@ bool MainWindow::saveProject(bool quit)
 
 bool MainWindow::saveProjectAs(bool quit)
 {
-	SaveProjectDialog dialog(quit, this);
-	int result = dialog.exec();
+    SaveProjectDialog dialog(quit, this);
+    int result = dialog.exec();
 
     return !quit || result != SaveProjectDialog::Rejected;
 
@@ -404,7 +404,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     //qDebug() << ret;
     if (ret == QMessageBox::Save)
     {
-        if(saveProject(true))
+        if (saveProject(true))
         {
             QSettings settings;
             settings.setValue("geometry", saveGeometry());
@@ -496,8 +496,9 @@ void MainWindow::updateFrames()
         for (auto W : dockWidgets)
         {
             // Temporary hack
-            DockWidget* w = dynamic_cast<DockWidget*>(W);
-            if (w) {
+            DockWidget *w = dynamic_cast<DockWidget *>(W);
+            if (w)
+            {
                 w->setup();
             }
         }
@@ -509,8 +510,9 @@ void MainWindow::updateFrames()
         for (auto W : dockWidgets)
         {
             // Temporary hack
-            DockWidget* w = dynamic_cast<DockWidget*>(W);
-            if (w) {
+            DockWidget *w = dynamic_cast<DockWidget *>(W);
+            if (w)
+            {
                 w->refresh();
             }
         }
@@ -772,20 +774,20 @@ void MainWindow::hideAllDocks()
 void MainWindow::showDefaultDocks()
 {
     const QList<QDockWidget *> defaultDocks = { sectionsDock,
-                                               entrypointDock,
-                                               functionsDock,
-                                               previewDock,
-                                               commentsDock,
-                                               stringsDock,
-                                               importsDock,
-                                               symbolsDock,
-                                               notepadDock,
-                                               graphDock,
-                                               disassemblyDock,
-                                               sidebarDock,
-                                               hexdumpDock,
-                                               dashboardDock
-                                             };
+                                                entrypointDock,
+                                                functionsDock,
+                                                previewDock,
+                                                commentsDock,
+                                                stringsDock,
+                                                importsDock,
+                                                symbolsDock,
+                                                notepadDock,
+                                                graphDock,
+                                                disassemblyDock,
+                                                sidebarDock,
+                                                hexdumpDock,
+                                                dashboardDock
+                                              };
 
     for (auto w : dockWidgets)
     {
@@ -798,26 +800,26 @@ void MainWindow::showDefaultDocks()
 
 void MainWindow::resetToDefaultLayout()
 {
-	restoreDocks();
-	hideAllDocks();
-	showDefaultDocks();
+    restoreDocks();
+    hideAllDocks();
+    showDefaultDocks();
 
-	dashboardDock->raise();
+    dashboardDock->raise();
 
-	// ugly workaround to set the default widths of functions and sidebar docks
-	// if anyone finds a way to do this cleaner that also works, feel free to change it!
-	auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 300);
-	auto restoreSidebarDock = qhelpers::forceWidth(sidebarDock->widget(), 300);
+    // ugly workaround to set the default widths of functions and sidebar docks
+    // if anyone finds a way to do this cleaner that also works, feel free to change it!
+    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 300);
+    auto restoreSidebarDock = qhelpers::forceWidth(sidebarDock->widget(), 300);
 
-	qApp->processEvents();
+    qApp->processEvents();
 
-	restoreFunctionDock.restoreWidth(functionsDock->widget());
-	restoreSidebarDock.restoreWidth(sidebarDock->widget());
+    restoreFunctionDock.restoreWidth(functionsDock->widget());
+    restoreSidebarDock.restoreWidth(sidebarDock->widget());
 }
 
 void MainWindow::on_actionDefaut_triggered()
 {
-	resetToDefaultLayout();
+    resetToDefaultLayout();
 }
 
 void MainWindow::on_actionhide_bottomPannel_triggered()
@@ -869,7 +871,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-	saveProjectAs();
+    saveProjectAs();
 }
 
 void MainWindow::on_actionRun_Script_triggered()
@@ -983,8 +985,9 @@ void MainWindow::refreshVisibleDockWidgets()
         if (isDockVisible(W))
         {
             // Temporary hack
-            DockWidget* w = dynamic_cast<DockWidget*>(W);
-            if (w) {
+            DockWidget *w = dynamic_cast<DockWidget *>(W);
+            if (w)
+            {
                 w->setup();
             }
         }

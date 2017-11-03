@@ -6,12 +6,12 @@
 #include "ui_SaveProjectDialog.h"
 
 SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::SaveProjectDialog)
+        QDialog(parent),
+        ui(new Ui::SaveProjectDialog)
 {
     ui->setupUi(this);
 
-	CutterCore *core = CutterCore::getInstance();
+    CutterCore *core = CutterCore::getInstance();
 
     if (quit)
     {
@@ -26,10 +26,10 @@ SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
     }
 
     ui->nameEdit->setText(core->getConfig("prj.name"));
-	ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
-	ui->filesCheckBox->setChecked(core->getConfigb("prj.files"));
-	ui->gitCheckBox->setChecked(core->getConfigb("prj.git"));
-	ui->zipCheckBox->setChecked(core->getConfigb("prj.zip"));
+    ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
+    ui->filesCheckBox->setChecked(core->getConfigb("prj.files"));
+    ui->gitCheckBox->setChecked(core->getConfigb("prj.git"));
+    ui->zipCheckBox->setChecked(core->getConfigb("prj.zip"));
 }
 
 SaveProjectDialog::~SaveProjectDialog()
@@ -64,19 +64,19 @@ void SaveProjectDialog::on_selectProjectsDirButton_clicked()
 
 void SaveProjectDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
-	switch(ui->buttonBox->buttonRole(button))
-	{
-		case QDialogButtonBox::DestructiveRole:
+    switch(ui->buttonBox->buttonRole(button))
+    {
+        case QDialogButtonBox::DestructiveRole:
             QDialog::done(Destructive);
-			break;
+            break;
 
-		case QDialogButtonBox::RejectRole:
+        case QDialogButtonBox::RejectRole:
             QDialog::done(Rejected);
-			break;
+            break;
 
-		default:
-			break;
-	}
+        default:
+            break;
+    }
 }
 
 void SaveProjectDialog::accept()

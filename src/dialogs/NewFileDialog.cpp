@@ -59,8 +59,8 @@ static QString formatBytecount(const long bytecount)
 }
 
 NewFileDialog::NewFileDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::NewFileDialog)
+        QDialog(parent),
+        ui(new Ui::NewFileDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -82,7 +82,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     // Hide "create" button until the dialog works
     ui->createButton->hide();
 
-	ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
+    ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
 }
 
 NewFileDialog::~NewFileDialog() {}
@@ -105,41 +105,41 @@ void NewFileDialog::on_selectFileButton_clicked()
 
 void NewFileDialog::on_selectProjectsDirButton_clicked()
 {
-	QFileDialog dialog(this);
-	dialog.setFileMode(QFileDialog::DirectoryOnly);
+    QFileDialog dialog(this);
+    dialog.setFileMode(QFileDialog::DirectoryOnly);
 
     QString currentDir = CutterCore::getInstance()->getConfig("dir.projects");
     if(currentDir.startsWith("~"))
     {
         currentDir = QDir::homePath() + currentDir.mid(1);
     }
-	dialog.setDirectory(currentDir);
+    dialog.setDirectory(currentDir);
 
     dialog.setWindowTitle(tr("Select project path (dir.projects)"));
 
-	if(!dialog.exec())
+    if(!dialog.exec())
     {
         return;
     }
 
-	QString dir = dialog.selectedFiles().first();
-	if (!dir.isEmpty())
-	{
-		CutterCore::getInstance()->setConfig("dir.projects", dir);
-		fillProjectsList();
-	}
+    QString dir = dialog.selectedFiles().first();
+    if (!dir.isEmpty())
+    {
+        CutterCore::getInstance()->setConfig("dir.projects", dir);
+        fillProjectsList();
+    }
 }
 
 void NewFileDialog::on_loadProjectButton_clicked()
 {
-	QListWidgetItem *item = ui->projectsListWidget->currentItem();
+    QListWidgetItem *item = ui->projectsListWidget->currentItem();
 
-	if (item == nullptr)
-	{
-		return;
-	}
+    if (item == nullptr)
+    {
+        return;
+    }
 
-	loadProject(item->data(Qt::UserRole).toString());
+    loadProject(item->data(Qt::UserRole).toString());
 }
 
 void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
@@ -156,7 +156,7 @@ void NewFileDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item
 
 void NewFileDialog::on_projectsListWidget_itemSelectionChanged()
 {
-	ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
+    ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
 }
 
 void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *item)
@@ -255,12 +255,12 @@ bool NewFileDialog::fillProjectsList()
 {
     CutterCore *core = CutterCore::getInstance();
 
-	ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
+    ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
 
     QStringList projects = core->getProjectNames();
     projects.sort(Qt::CaseInsensitive);
 
-	ui->projectsListWidget->clear();
+    ui->projectsListWidget->clear();
 
     int i=0;
     for(const QString &project : projects)
