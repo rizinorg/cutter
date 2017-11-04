@@ -388,7 +388,10 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionDefaut">
    <property name="text">
-    <string>Reset Layout</string>
+    <string>Reset layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset layout</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -408,7 +411,10 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionSave_workspace">
    <property name="text">
-    <string>Save Layout</string>
+    <string>Save layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Save layout</string>
    </property>
   </action>
   <action name="actionDocumentation">
@@ -461,7 +467,10 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionSelect_all">
    <property name="text">
-    <string>Select All</string>
+    <string>Select all</string>
+   </property>
+   <property name="toolTip">
+    <string>Select all</string>
    </property>
   </action>
   <action name="actionFind">
@@ -471,12 +480,18 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionFind_next">
    <property name="text">
-    <string>Find Next</string>
+    <string>Find next</string>
+   </property>
+   <property name="toolTip">
+    <string>Find next</string>
    </property>
   </action>
   <action name="actionFind_previous">
    <property name="text">
-    <string>Find Previous</string>
+    <string>Find previous</string>
+   </property>
+   <property name="toolTip">
+    <string>Find previous</string>
    </property>
   </action>
   <action name="actionBack">
@@ -508,7 +523,10 @@ QToolButton .svg-icon path {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Toggle Panel Locks</string>
+    <string>Toggle panel locks</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle panel locks</string>
    </property>
    <property name="iconVisibleInMenu">
     <bool>false</bool>
@@ -537,7 +555,7 @@ QToolButton .svg-icon path {
     <string>Strings</string>
    </property>
    <property name="toolTip">
-    <string>Show/hide Strings panel</string>
+    <string>Show/Hide Strings panel</string>
    </property>
   </action>
   <action name="actionSections">
@@ -559,7 +577,7 @@ QToolButton .svg-icon path {
     <string>Functions</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Functions panel</string>
+    <string>Show/Hide Functions panel</string>
    </property>
   </action>
   <action name="actionImports">
@@ -570,7 +588,7 @@ QToolButton .svg-icon path {
     <string>Imports</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Imports panel</string>
+    <string>Show/Hide Imports panel</string>
    </property>
   </action>
   <action name="actionSymbols">
@@ -581,7 +599,7 @@ QToolButton .svg-icon path {
     <string>Symbols</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Symbols panel</string>
+    <string>Show/Hide Symbols panel</string>
    </property>
   </action>
   <action name="actionReloc">
@@ -592,7 +610,7 @@ QToolButton .svg-icon path {
     <string>Relocs</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Relocs panel</string>
+    <string>Show/Hide Relocs panel</string>
    </property>
   </action>
   <action name="actionFlags">
@@ -603,7 +621,7 @@ QToolButton .svg-icon path {
     <string>Flags</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Flags panel</string>
+    <string>Show/Hide Flags panel</string>
    </property>
   </action>
   <action name="actionMem">
@@ -641,10 +659,10 @@ QToolButton .svg-icon path {
      <normaloff>:/img/icons/tabs.svg</normaloff>:/img/icons/tabs.svg</iconset>
    </property>
    <property name="text">
-    <string>Tabs Up/Down</string>
+    <string>Tabs up/down</string>
    </property>
    <property name="toolTip">
-    <string>Tabs Up/Down</string>
+    <string>Tabs up/down</string>
    </property>
   </action>
   <action name="actionRefresh_Panels">
@@ -664,7 +682,7 @@ QToolButton .svg-icon path {
     <string>Comments</string>
    </property>
    <property name="toolTip">
-    <string>Show/Hide Comments</string>
+    <string>Show/Hide comments</string>
    </property>
   </action>
   <action name="actionTabs_on_Top">
@@ -672,27 +690,42 @@ QToolButton .svg-icon path {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Toggle Tab Position</string>
+    <string>Toggle tab position</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggle tab position</string>
    </property>
   </action>
   <action name="actionDark_Theme">
    <property name="text">
-    <string>Dark Theme</string>
+    <string>Dark theme</string>
+   </property>
+   <property name="toolTip">
+    <string>Dark theme</string>
    </property>
   </action>
   <action name="actionLoad_workspace">
    <property name="text">
-    <string>Load Layout</string>
+    <string>Load layout</string>
+   </property>
+   <property name="toolTip">
+    <string>Load layout</string>
    </property>
   </action>
   <action name="actionWhite_Theme">
    <property name="text">
-    <string>Default Theme</string>
+    <string>Default theme</string>
+   </property>
+   <property name="toolTip">
+    <string>Default theme</string>
    </property>
   </action>
   <action name="actionCreate_File">
    <property name="text">
-    <string>Create File</string>
+    <string>Create file</string>
+   </property>
+   <property name="toolTip">
+    <string>Create file</string>
    </property>
   </action>
   <action name="actionAssembler">
@@ -727,12 +760,18 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionHexCopy_Hexpair">
    <property name="text">
-    <string>Copy Hexpair</string>
+    <string>Copy hexpair</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy hexpair</string>
    </property>
   </action>
   <action name="actionHexCopy_Text">
    <property name="text">
-    <string>Copy Text</string>
+    <string>Copy text</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy text</string>
    </property>
   </action>
   <action name="actionHexCopy_ASCII">
@@ -742,12 +781,18 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionHexInsert_String">
    <property name="text">
-    <string>Insert String</string>
+    <string>Insert string</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert string</string>
    </property>
   </action>
   <action name="actionHexInsert_Hex">
    <property name="text">
-    <string>Insert Hex</string>
+    <string>Insert hex</string>
+   </property>
+   <property name="toolTip">
+    <string>Insert hex</string>
    </property>
   </action>
   <action name="actionHexEdit">
@@ -772,22 +817,34 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionDisasCopy_All">
    <property name="text">
-    <string>Copy All</string>
+    <string>Copy all</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy all</string>
    </property>
   </action>
   <action name="actionDisasCopy_Bytes">
    <property name="text">
-    <string>Copy Bytes</string>
+    <string>Copy bytes</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy bytes</string>
    </property>
   </action>
   <action name="actionDisasCopy_Disasm">
    <property name="text">
-    <string>Copy Disasm</string>
+    <string>Copy disasm</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy disasm</string>
    </property>
   </action>
   <action name="actionDisplayOptions">
    <property name="text">
-    <string>Copy Disasm</string>
+    <string>Copy disasm</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy disasm</string>
    </property>
   </action>
   <action name="actionStart_Web_Server">
@@ -799,7 +856,10 @@ QToolButton .svg-icon path {
      <normaloff>:/img/icons/cloud.svg</normaloff>:/img/icons/cloud.svg</iconset>
    </property>
    <property name="text">
-    <string>Start Web Server</string>
+    <string>Start web server</string>
+   </property>
+   <property name="toolTip">
+    <string>Start web server</string>
    </property>
   </action>
   <action name="action1column">
@@ -876,7 +936,10 @@ QToolButton .svg-icon path {
      <normaloff>:/img/icons/down.svg</normaloff>:/img/icons/down.svg</iconset>
    </property>
    <property name="text">
-    <string>Show/hide Bottom pannel</string>
+    <string>Show/Hide bottom pannel</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide bottom pannel</string>
    </property>
   </action>
   <action name="actionSend_to_Notepad">
@@ -896,7 +959,10 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionRun_Script">
    <property name="text">
-    <string>Run Script</string>
+    <string>Run script</string>
+   </property>
+   <property name="toolTip">
+    <string>Run script</string>
    </property>
   </action>
   <action name="actionShow_Hide_mainsidebar">
@@ -940,7 +1006,7 @@ QToolButton .svg-icon path {
     <string>Exports</string>
    </property>
    <property name="toolTip">
-    <string>Show/HIde Exports panel</string>
+    <string>Show/Hide Exports panel</string>
    </property>
   </action>
   <action name="actionRefresh_contents">
@@ -985,12 +1051,18 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionAsmOptions">
    <property name="text">
-    <string>Disassembly Options</string>
+    <string>Disassembly options</string>
+   </property>
+   <property name="toolTip">
+    <string>Disassembly options</string>
    </property>
   </action>
   <action name="actionSaveAs">
    <property name="text">
-    <string>Save As...</string>
+    <string>Save as...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save as</string>
    </property>
   </action>
   <action name="actionTmp">
