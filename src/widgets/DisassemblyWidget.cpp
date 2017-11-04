@@ -53,6 +53,16 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     maxLines = 0;
     updateMaxLines();
 
+
+    // Space to switch to graph
+    QShortcut *graphShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    graphShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(graphShortcut, &QShortcut::activated, this, []{
+        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
+        Core()->triggerRaisePrioritizedMemoryWidget();
+    });
+
+
     connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
     connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
 
@@ -414,6 +424,7 @@ void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetTyp
     if (type == CutterCore::MemoryWidgetType::Disassembly)
     {
         raise();
+        setFocus();
     }
 }
 
@@ -469,4 +480,9 @@ void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
     {
         QPlainTextEdit::scrollContentsBy(dx, dy);
     }
+}
+
+void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
+{
+    //QPlainTextEdit::keyPressEvent(event);
 }

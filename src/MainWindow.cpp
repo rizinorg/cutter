@@ -215,6 +215,7 @@ void MainWindow::initUI()
         if (type == CutterCore::MemoryWidgetType::Graph)
         {
             graphDock->raise();
+            graphView->setFocus();
         }
     });
     dockWidgets.push_back(graphDock);
