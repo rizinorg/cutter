@@ -218,9 +218,11 @@ public:
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
 
-    // Graph - Disassembly view priority
-    bool graphPriority = false;
-    bool graphDisplay = false;
+    // Disassembly/Graph/Hexdump view priority
+    enum class MemoryWidgetType { Disassembly, Graph, Hexdump };
+    MemoryWidgetType getMemoryWidgetPriority() const            { return memoryWidgetPriority; }
+    void setMemoryWidgetPriority(MemoryWidgetType type)         { memoryWidgetPriority = type; }
+    void triggerRaisePrioritizedMemoryWidget()                  { emit raisePrioritizedMemoryWidget(memoryWidgetPriority); }
 
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
@@ -329,12 +331,16 @@ signals:
      */
     void seekChanged(RVA offset);
 
+    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
+
 public slots:
 
 private:
     QString default_arch;
     QString default_cpu;
     int default_bits;
+
+    MemoryWidgetType memoryWidgetPriority;
 
     QString notes;
 

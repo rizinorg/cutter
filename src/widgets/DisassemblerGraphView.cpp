@@ -77,6 +77,15 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     //Setup context menu
     setupContextMenu();
 
+
+    // Space to switch to disassembly
+    QShortcut *disassemblyShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    disassemblyShortcut->setContext(Qt::WidgetShortcut);
+    connect(disassemblyShortcut, &QShortcut::activated, this, []{
+        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        Core()->triggerRaisePrioritizedMemoryWidget();
+    });
+
     //Connect to bridge
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     //connect(Bridge::getBridge(), SIGNAL(loadGraph(BridgeCFGraphList*, duint)), this, SLOT(loadGraphSlot(BridgeCFGraphList*, duint)));
@@ -1645,11 +1654,7 @@ void DisassemblerGraphView::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
     loadCurrentGraph();
-    Function f = this->analysis.functions[this->function];
-    Core()->graphDisplay = f.blocks.size() > 0;
-    if (Core()->graphDisplay && Core()->graphPriority) {
-        this->parentWidget()->raise();
-    }
+
     this->renderFunction(this->analysis.functions[this->function]);
 }
 

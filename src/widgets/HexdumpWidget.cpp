@@ -75,6 +75,14 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
     connect(core, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
+
+    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
+        if (visibility)
+        {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Hexdump);
+        }
+    });
 
     fillPlugins();
 }
@@ -90,6 +98,16 @@ void HexdumpWidget::on_seekChanged(RVA addr)
 {
     refresh(addr);
 }
+
+
+void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
+{
+    if (type == CutterCore::MemoryWidgetType::Hexdump)
+    {
+        raise();
+    }
+}
+
 
 HexdumpWidget::~HexdumpWidget() {}
 

@@ -205,6 +205,19 @@ void MainWindow::initUI()
     graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new DisassemblerGraphView(graphDock);
     graphDock->setWidget(graphView);
+    connect(graphDock, &QDockWidget::visibilityChanged, graphDock, [](bool visibility) {
+        if (visibility)
+        {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
+        }
+    });
+    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, graphDock, [=](CutterCore::MemoryWidgetType type) {
+        if (type == CutterCore::MemoryWidgetType::Graph)
+        {
+            graphDock->raise();
+            graphView->setFocus();
+        }
+    });
     dockWidgets.push_back(graphDock);
 
     // Add Sections dock panel
@@ -815,6 +828,8 @@ void MainWindow::resetToDefaultLayout()
 
     restoreFunctionDock.restoreWidth(functionsDock->widget());
     restoreSidebarDock.restoreWidth(sidebarDock->widget());
+
+    Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
 void MainWindow::on_actionDefaut_triggered()

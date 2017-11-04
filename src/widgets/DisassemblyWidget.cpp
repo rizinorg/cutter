@@ -53,6 +53,16 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     maxLines = 0;
     updateMaxLines();
 
+
+    // Space to switch to graph
+    QShortcut *graphShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    graphShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(graphShortcut, &QShortcut::activated, this, []{
+        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
+        Core()->triggerRaisePrioritizedMemoryWidget();
+    });
+
+
     connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
     connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
 
@@ -64,10 +74,18 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
         }
     });
 
-    // Seek signal
-    connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    connect(CutterCore::getInstance(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
+    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
+
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
+
+    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
+        if (visibility)
+        {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        }
+    });
 }
 
 DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
@@ -387,12 +405,6 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
-    Q_UNUSED(offset);
-    if (!Core()->graphDisplay || !Core()->graphPriority) {
-        this->raise();
-    }
-
-
     if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
         && offset >= topOffset && offset <= bottomOffset)
     {
@@ -405,6 +417,15 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         refreshDisasm(offset);
     }
     mCtxMenu->setOffset(offset);
+}
+
+void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
+{
+    if (type == CutterCore::MemoryWidgetType::Disassembly)
+    {
+        raise();
+        setFocus();
+    }
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
@@ -459,4 +480,9 @@ void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
     {
         QPlainTextEdit::scrollContentsBy(dx, dy);
     }
+}
+
+void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
+{
+    //QPlainTextEdit::keyPressEvent(event);
 }
