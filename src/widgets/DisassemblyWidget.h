@@ -23,11 +23,13 @@ public:
 public slots:
     void highlightCurrentLine();
     void showDisasContextMenu(const QPoint &pt);
-    void on_seekChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
 
 private slots:
+    void on_seekChanged(RVA offset);
+    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
+
     void scrollInstructions(int count);
     void updateMaxLines();
 

@@ -222,6 +222,7 @@ public:
     enum class MemoryWidgetType { Disassembly, Graph, Hexdump };
     MemoryWidgetType getMemoryWidgetPriority() const            { return memoryWidgetPriority; }
     void setMemoryWidgetPriority(MemoryWidgetType type)         { memoryWidgetPriority = type; }
+    void triggerRaisePrioritizedMemoryWidget()                  { emit raisePrioritizedMemoryWidget(memoryWidgetPriority); }
 
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
@@ -329,6 +330,8 @@ signals:
      * \param offset
      */
     void seekChanged(RVA offset);
+
+    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
 public slots:
 

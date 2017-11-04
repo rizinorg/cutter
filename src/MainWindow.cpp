@@ -211,6 +211,12 @@ void MainWindow::initUI()
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
         }
     });
+    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, graphDock, [=](CutterCore::MemoryWidgetType type) {
+        if (type == CutterCore::MemoryWidgetType::Graph)
+        {
+            graphDock->raise();
+        }
+    });
     dockWidgets.push_back(graphDock);
 
     // Add Sections dock panel

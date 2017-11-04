@@ -68,6 +68,7 @@ private:
 
 private slots:
     void on_seekChanged(RVA addr);
+    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     void highlightHexCurrentLine();
     void setFonts(QFont font);

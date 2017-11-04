@@ -192,6 +192,7 @@ QString CutterCore::cmd(const QString &str)
     if (offset != core_->offset)
     {
         emit seekChanged(core_->offset);
+        triggerRaisePrioritizedMemoryWidget();
     }
     return o;
 }

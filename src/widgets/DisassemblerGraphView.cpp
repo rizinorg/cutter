@@ -1646,14 +1646,6 @@ void DisassemblerGraphView::on_seekChanged(RVA addr)
     Q_UNUSED(addr);
     loadCurrentGraph();
 
-    //Function f = this->analysis.functions[this->function];
-    //Core()->graphDisplay = f.blocks.size() > 0;
-
-    if (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Graph)
-    {
-        raise();
-    }
-
     this->renderFunction(this->analysis.functions[this->function]);
 }
 

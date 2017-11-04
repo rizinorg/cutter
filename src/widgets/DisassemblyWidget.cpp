@@ -64,9 +64,10 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
         }
     });
 
-    // Seek signal
-    connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    connect(CutterCore::getInstance(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
+    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
+
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
@@ -394,11 +395,6 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
-    if (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Disassembly)
-    {
-        raise();
-    }
-
     if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
         && offset >= topOffset && offset <= bottomOffset)
     {
@@ -411,6 +407,14 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         refreshDisasm(offset);
     }
     mCtxMenu->setOffset(offset);
+}
+
+void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
+{
+    if (type == CutterCore::MemoryWidgetType::Disassembly)
+    {
+        raise();
+    }
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()
