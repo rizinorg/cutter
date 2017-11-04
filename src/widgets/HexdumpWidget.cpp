@@ -76,6 +76,13 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
 
     connect(core, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
 
+    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
+        if (visibility)
+        {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Hexdump);
+        }
+    });
+
     fillPlugins();
 }
 
@@ -89,6 +96,11 @@ HexdumpWidget::HexdumpWidget(const QString &title, QWidget *parent, Qt::WindowFl
 void HexdumpWidget::on_seekChanged(RVA addr)
 {
     refresh(addr);
+
+    if (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Hexdump)
+    {
+        raise();
+    }
 }
 
 HexdumpWidget::~HexdumpWidget() {}

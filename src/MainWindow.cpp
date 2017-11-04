@@ -205,6 +205,12 @@ void MainWindow::initUI()
     graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new DisassemblerGraphView(graphDock);
     graphDock->setWidget(graphView);
+    connect(graphDock, &QDockWidget::visibilityChanged, graphDock, [](bool visibility) {
+        if (visibility)
+        {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
+        }
+    });
     dockWidgets.push_back(graphDock);
 
     // Add Sections dock panel

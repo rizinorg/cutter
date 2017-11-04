@@ -68,6 +68,13 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     connect(CutterCore::getInstance(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(CutterCore::getInstance(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
+
+    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
+        if (visibility)
+        {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        }
+    });
 }
 
 DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
@@ -387,11 +394,10 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
-    Q_UNUSED(offset);
-    if (!Core()->graphDisplay || !Core()->graphPriority) {
-        this->raise();
+    if (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Disassembly)
+    {
+        raise();
     }
-
 
     if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
         && offset >= topOffset && offset <= bottomOffset)
