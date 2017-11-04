@@ -68,7 +68,7 @@ int FunctionModel::columnCount(const QModelIndex &/*parent*/) const
     if (nested)
         return 1;
     else
-        return 4;
+        return ColumnCount;
 }
 
 
@@ -121,11 +121,11 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         {
             switch (index.column())
             {
-            case 0:
+            case NameColumn:
                 return function.name;
-            case 1:
+            case SizeColumn:
                 return RSizeString(function.size);
-            case 3:
+            case OffsetColumn:
                 return RAddressString(function.offset);
             default:
                 return QVariant();
@@ -134,7 +134,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     case Qt::DecorationRole:
         if (import_addresses->contains(function.offset) &&
-                (nested ? false : index.column() == 2))
+                (nested ? false : index.column() == ImportColumn))
             return QIcon(":/img/icons/import_light.svg");
         return QVariant();
 
@@ -183,13 +183,13 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
         {
             switch (section)
             {
-            case 0:
+            case NameColumn:
                 return tr("Name");
-            case 1:
+            case SizeColumn:
                 return tr("Size");
-            case 2:
+            case ImportColumn:
                 return tr("Imp.");
-            case 3:
+            case OffsetColumn:
                 return tr("Offset");
             default:
                 return QVariant();
@@ -289,13 +289,13 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
     {
         switch (left.column())
         {
-        case 0:
+        case FunctionModel::OffsetColumn:
             return left_function.offset < right_function.offset;
-        case 1:
+        case FunctionModel::SizeColumn:
             if (left_function.size != right_function.size)
                 return left_function.size < right_function.size;
             break;
-        case 2:
+        case FunctionModel::ImportColumn:
         {
             bool left_is_import = left.data(FunctionModel::IsImportRole).toBool();
             bool right_is_import = right.data(FunctionModel::IsImportRole).toBool();
@@ -303,7 +303,7 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
                 return true;
             break;
         }
-        case 3:
+        case FunctionModel::NameColumn:
             return left_function.name < right_function.name;
         default:
             return false;
