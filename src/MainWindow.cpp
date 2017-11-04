@@ -828,6 +828,8 @@ void MainWindow::resetToDefaultLayout()
 
     restoreFunctionDock.restoreWidth(functionsDock->widget());
     restoreSidebarDock.restoreWidth(sidebarDock->widget());
+
+    Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
 void MainWindow::on_actionDefaut_triggered()
