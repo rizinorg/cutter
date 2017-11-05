@@ -2,5 +2,5 @@
 Type=Application
 Name=Cutter
 Exec=cutter
-Icon=cutter-small
+Icon=cutter
 Categories=Development;

@@ -37,6 +37,7 @@ int main(int argc, char *argv[])
     a.setOrganizationName("cutter");
     a.setApplicationName("cutter");
     a.setApplicationVersion(APP_VERSION);
+    a.setWindowIcon(QIcon(":/img/cutter_white.svg"));
 
     // Set QString codec to UTF-8
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
@@ -67,7 +68,6 @@ int main(int argc, char *argv[])
     {
         QMessageBox msg;
         msg.setIcon(QMessageBox::Critical);
-        msg.setWindowIcon(QIcon(":/img/logo-small.png"));
         msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msg.setWindowTitle(QObject::tr("Version mismatch!"));
         msg.setText(QString(QObject::tr("The version used to compile cutter (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(localVersion, r2version));

@@ -25,10 +25,6 @@
   <property name="windowTitle">
    <string>Load Options</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
-  </property>
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
@@ -70,34 +66,40 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
+       <item alignment="Qt::AlignHCenter">
         <widget class="QLabel" name="logo">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
          <property name="minimumSize">
           <size>
-           <width>400</width>
-           <height>0</height>
+           <width>96</width>
+           <height>96</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>400</width>
-           <height>16777215</height>
+           <width>96</width>
+           <height>96</height>
           </size>
          </property>
          <property name="text">
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>:/img/logo-small.png</pixmap>
+          <pixmap resource="../resources.qrc">:/img/cutter.svg</pixmap>
+         </property>
+         <property name="scaledContents">
+          <bool>true</bool>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+         <property name="margin">
+          <number>8</number>
          </property>
         </widget>
        </item>
@@ -927,6 +929,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
