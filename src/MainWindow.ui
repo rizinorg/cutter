@@ -19,10 +19,6 @@
   <property name="windowTitle">
    <string notr="true">Cutter</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
-  </property>
   <property name="styleSheet">
    <string notr="true">QHeaderView::section {
      padding: 3px;
@@ -174,7 +170,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -188,8 +184,8 @@ border-top: 0px;
      <rect>
       <x>419</x>
       <y>265</y>
-      <width>148</width>
-      <height>190</height>
+      <width>173</width>
+      <height>206</height>
      </rect>
     </property>
     <property name="title">

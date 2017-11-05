@@ -6,16 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>452</width>
-    <height>532</height>
+    <width>451</width>
+    <height>599</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Open File</string>
-  </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/img/logo-small.png</normaloff>:/img/logo-small.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -33,22 +29,40 @@
    <property name="bottomMargin">
     <number>5</number>
    </property>
-   <item>
+   <item alignment="Qt::AlignHCenter">
     <widget class="QLabel" name="Logo">
-     <property name="styleSheet">
-      <string notr="true"/>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>96</width>
+       <height>96</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>96</width>
+       <height>96</height>
+      </size>
      </property>
      <property name="text">
       <string/>
      </property>
      <property name="pixmap">
-      <pixmap>:/img/logo-small.png</pixmap>
+      <pixmap resource="../resources.qrc">:/img/cutter.svg</pixmap>
      </property>
      <property name="scaledContents">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+     <property name="margin">
+      <number>8</number>
      </property>
     </widget>
    </item>

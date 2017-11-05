@@ -5,7 +5,7 @@ TARGET = cutter
 # The application version
 VERSION = 1.0
 
-ICON = img/Enso.icns
+ICON = img/cutter.icns
 
 QT += core gui widgets
 QT_CONFIG -= no-pkg-config
@@ -196,10 +196,10 @@ unix {
     !isEmpty(APPIMAGE){
         # UGLY work around for the logo name in cutter.desktop
         # Would be better to have a file called cutter.png in the first place
-        system(cp img/cutter-small.png $$OUT_PWD/cutter-small.png)
+        system(cp img/cutter.svg $$OUT_PWD/cutter.svg)
 
         appimage_root.path = /
-        appimage_root.files = $$OUT_PWD/cutter.png $$desktop_file
+        appimage_root.files = $$OUT_PWD/cutter.svg $$desktop_file
 
         INSTALLS += appimage_root
     }
