@@ -49,19 +49,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     this->blocks.clear();
     this->saveGraph = false;
 
-    //Create timer to automatically refresh view when it needs to be updated
-    //this->updateTimer = new QTimer();
-    //this->updateTimer->setInterval(1000); // TODO Probably too slow
-    //this->updateTimer->setSingleShot(false);
-    //connect(this->updateTimer, SIGNAL(timeout()), this, SLOT(updateTimerEvent()));
-    //this->updateTimer->start();
-    // Remove above comments?
-    // Draw the first graph after 1s
-    this->updateTimer = new QTimer();
-    this->updateTimer->setSingleShot(true);
-    connect(this->updateTimer, SIGNAL(timeout()), this, SLOT(updateTimerEvent()));
-    this->updateTimer->start(1000);
-
     this->initFont();
 
     //Initialize scroll bars
@@ -87,7 +74,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     });
 
     //Connect to bridge
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
     //connect(Bridge::getBridge(), SIGNAL(loadGraph(BridgeCFGraphList*, duint)), this, SLOT(loadGraphSlot(BridgeCFGraphList*, duint)));
     //connect(Bridge::getBridge(), SIGNAL(graphAt(duint)), this, SLOT(graphAtSlot(duint)));
     //connect(Bridge::getBridge(), SIGNAL(updateGraph()), this, SLOT(updateGraphSlot()));
@@ -1420,46 +1408,6 @@ void DisassemblerGraphView::renderFunction(Function & func)
     //puts("Finished");
 }
 
-void DisassemblerGraphView::updateTimerEvent()
-{
-    qDebug() << "Update timer";
-    on_seekChanged(0);
-    return;
-    // TODO: Remove it if not used anymore
-    //qDebug() << status << this->status << this->function << this->ready << this->update_id << this->analysis.update_id;
-    // TODO status is useless (for now at least)
-    auto status = this->analysis.status;
-    if(status != this->status)
-    {
-        this->status = status;
-        this->viewport()->update();
-    }
-
-    if(this->function == 0)
-    {
-        loadCurrentGraph();
-        return;
-    }
-
-    if(this->ready)
-    {
-        //Check for updated code
-        if(this->update_id != this->analysis.update_id)
-            this->renderFunction(this->analysis.functions[this->function]);
-        return;
-    }
-
-    //View not up to date, check to see if active function is ready
-    if(this->analysis.functions.count(this->function))
-    {
-        if(this->analysis.functions[this->function].ready)
-        {
-            //Active function now ready, generate graph
-            this->renderFunction(this->analysis.functions[this->function]);
-        }
-    }
-}
-
 void DisassemblerGraphView::show_cur_instr(bool force)
 {
     for(auto & blockIt : this->blocks)
@@ -1609,7 +1557,7 @@ void DisassemblerGraphView::loadCurrentGraph()
             if (op["comment"].toString().length()) {
                 RichTextPainter::CustomRichText_t comment;
                 comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
-                comment.textColor = ConfigColor("comment");
+                comment.textColor = mCommentColor;
                 comment.flags = RichTextPainter::FlagColor;
                 richText.insert(richText.end(), comment);
             }
@@ -1650,12 +1598,16 @@ void DisassemblerGraphView::loadCurrentGraph()
 }
 */
 
-void DisassemblerGraphView::on_seekChanged(RVA addr)
+void DisassemblerGraphView::refreshView()
+{
+    loadCurrentGraph();
+    this->renderFunction(this->analysis.functions[this->function]);
+}
+
+void DisassemblerGraphView::onSeekChanged(RVA addr)
 {
     Q_UNUSED(addr);
-    loadCurrentGraph();
-
-    this->renderFunction(this->analysis.functions[this->function]);
+    refreshView();
 }
 
 void DisassemblerGraphView::graphAtSlot(duint addr)
@@ -1824,6 +1776,9 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     jmpColor = ConfigColor("graph.trufae");
     brtrueColor = ConfigColor("graph.true");
     brfalseColor = ConfigColor("graph.false");
+
+    mCommentColor = ConfigColor("comment");
+    mCommentBackgroundColor = disassemblyBackgroundColor;
     /*disassemblyBackgroundColor = ConfigColor("GraphNodeBackgroundColor");
     if(!disassemblyBackgroundColor.alpha())
         disassemblyBackgroundColor = ConfigColor("DisassemblyBackgroundColor");

@@ -259,8 +259,8 @@ signals:
     void currentInstructionUpdated(duint);
 
 public slots:
-    void updateTimerEvent();
-    void on_seekChanged(RVA);
+    void refreshView();
+    void onSeekChanged(RVA);
     //void loadGraphSlot(BridgeCFGraphList* graph, duint addr);
     void graphAtSlot(duint addr);
     void updateGraphSlot();
@@ -292,7 +292,6 @@ private:
     QString status;
     Analysis analysis;
     duint function;
-    QTimer* updateTimer;
     int baseline;
     qreal charWidth;
     int charHeight;
