@@ -14,9 +14,8 @@
 #include <QResource>
 #include <QShortcut>
 
-FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *import_addresses, bool nested, QFont default_font, QFont highlight_font, MainWindow *main, QObject *parent)
+FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *import_addresses, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
     : QAbstractItemModel(parent),
-      main(main),
       functions(functions),
       import_addresses(import_addresses),
       highlight_font(highlight_font),
@@ -25,8 +24,8 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
       current_index(-1)
 
 {
-    connect(main, SIGNAL(cursorAddressChanged(RVA)), this, SLOT(cursorAddressChanged(RVA)));
-    connect(CutterCore::getInstance(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(functionRenamed(QString, QString)));
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(seekChanged(RVA)));
+    connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(functionRenamed(QString, QString)));
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const
@@ -211,22 +210,26 @@ void FunctionModel::endReloadFunctions()
     endResetModel();
 }
 
-void FunctionModel::cursorAddressChanged(RVA)
+void FunctionModel::seekChanged(RVA)
 {
-    updateCurrentIndex();
-    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    if (updateCurrentIndex())
+    {
+        emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    }
 }
 
-void FunctionModel::updateCurrentIndex()
+bool FunctionModel::updateCurrentIndex()
 {
     int index = -1;
     RVA offset = 0;
+
+    RVA seek = Core()->getOffset();
 
     for (int i = 0; i < functions->count(); i++)
     {
         const FunctionDescription &function = functions->at(i);
 
-        if (function.contains(CutterCore::getInstance()->getOffset())
+        if (function.contains(seek)
                 && function.offset >= offset)
         {
             offset = function.offset;
@@ -234,7 +237,11 @@ void FunctionModel::updateCurrentIndex()
         }
     }
 
+    bool changed = current_index != index;
+
     current_index = index;
+
+    return changed;
 }
 
 void FunctionModel::functionRenamed(const QString &prev_name, const QString &new_name)
@@ -345,12 +352,12 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     QFont default_font = QFont(font_info.family(), font_info.pointSize());
     QFont highlight_font = QFont(font_info.family(), font_info.pointSize(), QFont::Bold);
 
-    function_model = new FunctionModel(&functions, &import_addresses, false, default_font, highlight_font, main, this);
+    function_model = new FunctionModel(&functions, &import_addresses, false, default_font, highlight_font, this);
     function_proxy_model = new FunctionSortFilterProxyModel(function_model, this);
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), function_proxy_model, SLOT(setFilterWildcard(const QString &)));
     ui->functionsTreeView->setModel(function_proxy_model);
 
-    nested_function_model = new FunctionModel(&functions, &import_addresses, true, default_font, highlight_font, main, this);
+    nested_function_model = new FunctionModel(&functions, &import_addresses, true, default_font, highlight_font, this);
     nested_function_proxy_model = new FunctionSortFilterProxyModel(nested_function_model, this);
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), nested_function_proxy_model, SLOT(setFilterWildcard(const QString &)));
     ui->nestedFunctionsTreeView->setModel(nested_function_proxy_model);

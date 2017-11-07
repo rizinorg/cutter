@@ -21,8 +21,6 @@ class FunctionModel : public QAbstractItemModel
     Q_OBJECT
 
 private:
-    MainWindow *main;
-
     QList<FunctionDescription> *functions;
     QSet<RVA> *import_addresses;
 
@@ -39,7 +37,7 @@ public:
 
     enum Column { NameColumn = 0, SizeColumn, ImportColumn, OffsetColumn, ColumnCount };
 
-    FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *import_addresses, bool nested, QFont default_font, QFont highlight_font, MainWindow *main, QObject *parent = 0);
+    FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *import_addresses, bool nested, QFont default_font, QFont highlight_font, QObject *parent = 0);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -53,12 +51,15 @@ public:
     void beginReloadFunctions();
     void endReloadFunctions();
 
-    void updateCurrentIndex();
+    /*!
+     * @return true if the index changed
+     */
+    bool updateCurrentIndex();
 
     bool isNested()     { return nested; }
 
 private slots:
-    void cursorAddressChanged(RVA addr);
+    void seekChanged(RVA addr);
     void functionRenamed(const QString &prev_name, const QString &new_name);
 };
 

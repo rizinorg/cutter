@@ -88,9 +88,6 @@ public:
     void toggleSideBarTheme();
     void refreshOmniBar(const QStringList &flags);
 
-signals:
-    void cursorAddressChanged(RVA offset); // TODO cursor should be handled by its own widget
-
 public slots:
 
     void dark();
@@ -197,7 +194,6 @@ private:
     void refreshMem();
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
-    RVA cursorAddress;
     QString filename;
     QList<QDockWidget *> dockWidgets;
     std::unique_ptr<Ui::MainWindow> ui;
@@ -229,9 +225,7 @@ private:
     void showDefaultDocks();
 
 public:
-    RVA getCursorAddress() const        { return cursorAddress; }
     QString getFilename() const         { return filename; }
-    void setCursorAddress(RVA addr);
 };
 
 #endif // MAINWINDOW_H
