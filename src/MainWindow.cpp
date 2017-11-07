@@ -697,12 +697,6 @@ void MainWindow::toggleDockWidget(QDockWidget *dock_widget)
     }
 }
 
-void MainWindow::setCursorAddress(RVA addr)
-{
-    this->cursorAddress = addr;
-    emit cursorAddressChanged(core->getOffset());
-}
-
 void MainWindow::backButton_clicked()
 {
     core->seekPrev();
