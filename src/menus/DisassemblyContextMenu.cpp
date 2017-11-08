@@ -132,6 +132,11 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 {
     // Get function for clicked offset
     RAnalFunction *fcn = CutterCore::getInstance()->functionAt(offset);
+    if( nullptr == fcn )
+    {
+        return;
+    }
+
     RenameDialog *dialog = new RenameDialog(this);
     // Get function based on click position
     dialog->setFunctionName(fcn->name);
