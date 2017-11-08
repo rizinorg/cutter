@@ -786,6 +786,33 @@ void HexdumpWidget::resizeEvent(QResizeEvent *event)
     QDockWidget::resizeEvent(event);
 }
 
+void HexdumpWidget::wheelEvent(QWheelEvent* event)
+{
+    if( Qt::ControlModifier == event->modifiers() )
+    {
+        const QPoint numDegrees = event->angleDelta() / 8;
+        if(!numDegrees.isNull())
+        {
+            const QPoint numSteps = numDegrees / 15;
+            if( 0 != numSteps.y() )
+            {
+                if(numSteps.y() > 0)
+                {
+                    zoomIn(1);
+                }
+                else if( numSteps.y() < 0 )
+                {
+                    zoomOut(1);
+                }
+            }
+        }
+        event->accept();
+        return;
+    }
+
+    event->ignore();
+}
+
 void HexdumpWidget::on_copyMD5_clicked()
 {
     QString md5 = ui->bytesMD5->text();
@@ -835,4 +862,20 @@ void HexdumpWidget::showOffsets(bool show)
         this->hexOffsetText->hide();
         core->setConfig("asm.offset", 0);
     }
+}
+
+void HexdumpWidget::zoomIn(int range)
+{
+    hexOffsetText->zoomIn(range);
+    hexASCIIText->zoomIn(range);
+    hexHexText->zoomIn(range);
+    resizeHexdump();
+}
+
+void HexdumpWidget::zoomOut(int range)
+{
+    hexOffsetText->zoomOut(range);
+    hexASCIIText->zoomOut(range);
+    hexHexText->zoomOut(range);
+    resizeHexdump();
 }
