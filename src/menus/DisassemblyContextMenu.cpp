@@ -109,15 +109,15 @@ void DisassemblyContextMenu::init()
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
-    RAnalFunction *fcn = CutterCore::getInstance()->functionAt(offset);
+    RAnalFunction *fcn = Core()->functionAt(offset);
     CommentsDialog *c = new CommentsDialog(this);
     if (c->exec())
     {
         QString comment = c->getComment();
-        CutterCore::getInstance()->setComment(offset, comment);
+        Core()->setComment(offset, comment);
         if (fcn)
         {
-            CutterCore::getInstance()->seek(fcn->addr);
+            Core()->seek(fcn->addr);
         }
     }
 }

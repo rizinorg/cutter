@@ -13,7 +13,6 @@ CommentsDialog::~CommentsDialog() {}
 
 void CommentsDialog::on_buttonBox_accepted()
 {
-    // Meow
 }
 
 void CommentsDialog::on_buttonBox_rejected()

@@ -342,7 +342,7 @@ void CutterCore::renameFunction(QString prev_name, QString new_name)
 
 void CutterCore::setComment(RVA addr, QString cmt)
 {
-    cmd("CC " + cmt + " @ " + QString::number(addr));
+    cmd("CCu base64:" + cmt.toLocal8Bit().toBase64() + " @ " + QString::number(addr));
     emit commentsChanged();
 }
 
