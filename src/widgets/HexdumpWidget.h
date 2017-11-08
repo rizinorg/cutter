@@ -55,8 +55,12 @@ public slots:
 
     void showOffsets(bool show);
 
+    void zoomIn(int range = 1);
+    void zoomOut(int range = 1);
+
 protected:
-    void resizeEvent(QResizeEvent *event) override;
+    virtual void resizeEvent(QResizeEvent *event) override;
+    virtual void wheelEvent(QWheelEvent* event) override;
 
 private:
     std::unique_ptr<Ui::HexdumpWidget> ui;
