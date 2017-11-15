@@ -184,6 +184,8 @@ void HexdumpWidget::refresh(RVA addr)
         addr = Core()->getOffset();
     }
 
+    updateVisibleLines(); // TODO: only on resize
+
     RCoreLocked lcore = Core()->core();
     // Prevent further scroll
     disconnect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
@@ -241,6 +243,12 @@ void HexdumpWidget::refresh(RVA addr)
 
     connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
+}
+
+
+void HexdumpWidget::updateVisibleLines()
+{
+    visibleLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 }
 
 /*

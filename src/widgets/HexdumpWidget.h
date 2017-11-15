@@ -59,10 +59,14 @@ protected:
 private:
     std::unique_ptr<Ui::HexdumpWidget> ui;
 
+    int visibleLines;
+
     RVA topOffset;
     RVA bottomOffset;
 
     void refresh(RVA addr = RVA_INVALID);
+
+    void updateVisibleLines();
 
 private slots:
     void on_seekChanged(RVA addr);

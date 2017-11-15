@@ -3,6 +3,7 @@
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
 #include "utils/Configuration.h"
+#include "utils/Helpers.h"
 
 #include <QScrollBar>
 #include <QJsonArray>
@@ -186,12 +187,7 @@ void DisassemblyWidget::scrollInstructions(int count)
 
 void DisassemblyWidget::updateMaxLines()
 {
-    QFontMetrics fontMetrics(mDisasTextEdit->document()->defaultFont());
-    int currentMaxLines = (mDisasTextEdit->height() -
-                           (mDisasTextEdit->contentsMargins().top() + mDisasTextEdit->contentsMargins().bottom()
-                            + (int)(mDisasTextEdit->document()->documentMargin() * 2)))
-                          / fontMetrics.lineSpacing();
-
+    int currentMaxLines = qhelpers::getMaxFullyDisplayedLines(mDisasTextEdit);
     if (currentMaxLines != maxLines)
     {
         maxLines = currentMaxLines;

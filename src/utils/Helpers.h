@@ -40,6 +40,9 @@ namespace qhelpers
 
     SizePolicyMinMax forceWidth(QWidget *widget, int width);
     SizePolicyMinMax forceHeight(QWidget *widget, int height);
+
+
+    int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 }
 
 #endif // HELPERS_H

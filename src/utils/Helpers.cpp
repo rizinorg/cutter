@@ -137,4 +137,15 @@ namespace qhelpers
         widget->setMaximumHeight(max);
     }
 
+
+    int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit)
+    {
+        QFontMetrics fontMetrics(plainTextEdit->document()->defaultFont());
+        return (plainTextEdit->height()
+                - (plainTextEdit->contentsMargins().top()
+                   + plainTextEdit->contentsMargins().bottom()
+                   + (int)(plainTextEdit->document()->documentMargin() * 2)))
+               / fontMetrics.lineSpacing();
+    }
+
 } // end namespace
