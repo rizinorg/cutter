@@ -33,12 +33,6 @@ public:
     explicit HexdumpWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
     ~HexdumpWidget();
 
-    QTextEdit        *hexOffsetText;
-    QTextEdit        *hexASCIIText;
-    QTextEdit        *hexHexText;
-
-    QPlainTextEdit   *hexDisasTextEdit;
-
     Highlighter        *highlighter;
 
 signals:
@@ -64,9 +58,9 @@ protected:
 
 private:
     std::unique_ptr<Ui::HexdumpWidget> ui;
-    CutterCore *core;
 
-    ut64 hexdumpBottomOffset;
+    RVA topOffset;
+    RVA bottomOffset;
 
     void refresh(RVA addr = RVA_INVALID);
 

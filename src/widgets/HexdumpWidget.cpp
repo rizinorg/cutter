@@ -18,17 +18,16 @@
 
 #include <cassert>
 
+static const int blockSize = 16;
+static const int blocksMarginMin = 2;
+static const int blocksMarginDefault = 3;
+static const int blocksMarginMax = 4;
+
 HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
         QDockWidget(parent, flags),
-        ui(new Ui::HexdumpWidget),
-        core(CutterCore::getInstance())
+        ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);
-    this->hexOffsetText = ui->hexOffsetText_2;
-    this->hexHexText = ui->hexHexText_2;
-    this->hexASCIIText = ui->hexASCIIText_2;
-
-    this->hexDisasTextEdit = ui->hexDisasTextEdit_2;
 
     //this->on_actionSettings_menu_1_triggered();
 
@@ -37,9 +36,9 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     //highlightHexCurrentLine();
 
     // Normalize fonts for other OS
-    qhelpers::normalizeEditFont(this->hexOffsetText);
-    qhelpers::normalizeEditFont(this->hexHexText);
-    qhelpers::normalizeEditFont(this->hexASCIIText);
+    qhelpers::normalizeFont(ui->hexOffsetText);
+    qhelpers::normalizeFont(ui->hexHexText);
+    qhelpers::normalizeFont(ui->hexASCIIText);
 
     // Popup menu on Settings toolbutton
     QMenu *memMenu = new QMenu();
@@ -48,33 +47,33 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     ui->memSettingsButton_2->setMenu(memMenu);
 
     // Set hexdump context menu
-    ui->hexHexText_2->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->hexHexText_2, SIGNAL(customContextMenuRequested(const QPoint &)),
+    ui->hexHexText->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->hexHexText, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showHexdumpContextMenu(const QPoint &)));
-    ui->hexASCIIText_2->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->hexASCIIText_2, SIGNAL(customContextMenuRequested(const QPoint &)),
+    ui->hexASCIIText->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->hexASCIIText, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showHexASCIIContextMenu(const QPoint &)));
 
-    // Syncronize hexdump scrolling
-    connect(ui->hexOffsetText_2->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            ui->hexHexText_2->verticalScrollBar(), SLOT(setValue(int)));
-    connect(ui->hexOffsetText_2->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            ui->hexASCIIText_2->verticalScrollBar(), SLOT(setValue(int)));
+    // Synchronize hexdump scrolling
+    connect(ui->hexOffsetText->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            ui->hexHexText->verticalScrollBar(), SLOT(setValue(int)));
+    connect(ui->hexOffsetText->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            ui->hexASCIIText->verticalScrollBar(), SLOT(setValue(int)));
 
-    connect(ui->hexHexText_2->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            ui->hexOffsetText_2->verticalScrollBar(), SLOT(setValue(int)));
-    connect(ui->hexHexText_2->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            ui->hexASCIIText_2->verticalScrollBar(), SLOT(setValue(int)));
+    connect(ui->hexHexText->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            ui->hexOffsetText->verticalScrollBar(), SLOT(setValue(int)));
+    connect(ui->hexHexText->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            ui->hexASCIIText->verticalScrollBar(), SLOT(setValue(int)));
 
-    connect(ui->hexASCIIText_2->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            ui->hexOffsetText_2->verticalScrollBar(), SLOT(setValue(int)));
-    connect(ui->hexASCIIText_2->verticalScrollBar(), SIGNAL(valueChanged(int)),
-            ui->hexHexText_2->verticalScrollBar(), SLOT(setValue(int)));
+    connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            ui->hexOffsetText->verticalScrollBar(), SLOT(setValue(int)));
+    connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            ui->hexHexText->verticalScrollBar(), SLOT(setValue(int)));
 
     // Control Disasm and Hex scroll to add more contents
-    connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+    connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
-    connect(core, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
@@ -118,7 +117,7 @@ void HexdumpWidget::highlightHexCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (!ui->hexHexText_2->isReadOnly())
+    if (!ui->hexHexText->isReadOnly())
     {
         QTextEdit::ExtraSelection selection;
 
@@ -126,12 +125,12 @@ void HexdumpWidget::highlightHexCurrentLine()
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        selection.cursor = ui->hexHexText_2->textCursor();
+        selection.cursor = ui->hexHexText->textCursor();
         selection.cursor.clearSelection();
         extraSelections.append(selection);
     }
 
-    QTextCursor cursor = ui->hexHexText_2->textCursor();
+    QTextCursor cursor = ui->hexHexText->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
 
     QTextEdit::ExtraSelection currentWord;
@@ -142,7 +141,7 @@ void HexdumpWidget::highlightHexCurrentLine()
     currentWord.cursor = cursor;
     extraSelections.append(currentWord);
 
-    ui->hexHexText_2->setExtraSelections(extraSelections);
+    ui->hexHexText->setExtraSelections(extraSelections);
 
     highlightHexWords(cursor.selectedText());
 }
@@ -150,7 +149,7 @@ void HexdumpWidget::highlightHexCurrentLine()
 void HexdumpWidget::highlightHexWords(const QString &str)
 {
     QString searchString = str;
-    QTextDocument *document = ui->hexHexText_2->document();
+    QTextDocument *document = ui->hexHexText->document();
 
     document->undo();
 
@@ -182,24 +181,24 @@ void HexdumpWidget::refresh(RVA addr)
 {
     if (addr == RVA_INVALID)
     {
-        addr = core->getOffset();
+        addr = Core()->getOffset();
     }
 
-    RCoreLocked lcore = this->core->core();
+    RCoreLocked lcore = Core()->core();
     // Prevent further scroll
-    disconnect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+    disconnect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
     // Clear previous content to add new
-    this->hexOffsetText->clear();
-    this->hexHexText->clear();
-    this->hexASCIIText->clear();
+    ui->hexOffsetText->clear();
+    ui->hexHexText->clear();
+    ui->hexASCIIText->clear();
 
     int hexdumpLength;
     int cols = lcore->print->cols;
     ut64 bsize = 128 * cols;
-    if (hexdumpBottomOffset < bsize)
+    if (bottomOffset < bsize)
     {
-        hexdumpBottomOffset = 0;
+        bottomOffset = 0;
         hexdumpLength = bsize;//-hexdumpBottomOffset;
     }
     else
@@ -215,32 +214,32 @@ void HexdumpWidget::refresh(RVA addr)
     // Add first the hexdump at block size --
     QList<QString> ret = this->get_hexdump(RAddressString(addr - hexdumpLength));
 
-    hexdumpBottomOffset = lcore->offset;
-    this->hexOffsetText->setPlainText(ret[0]);
-    this->hexHexText->setPlainText(ret[1]);
-    this->hexASCIIText->setPlainText(ret[2]);
-    this->resizeHexdump();
+    bottomOffset = lcore->offset;
+    ui->hexOffsetText->setPlainText(ret[0]);
+    ui->hexHexText->setPlainText(ret[1]);
+    ui->hexASCIIText->setPlainText(ret[2]);
+    resizeHexdump();
 
     // Get address to move cursor to later
-    s = this->normalize_addr(this->core->cmd("s"));
+    s = this->normalize_addr(Core()->cmd("s"));
     ret = this->get_hexdump(RAddressString(addr));
 
-    hexdumpBottomOffset = lcore->offset;
-    this->hexOffsetText->append(ret[0]);
-    this->hexHexText->append(ret[1]);
-    this->hexASCIIText->append(ret[2]);
-    this->resizeHexdump();
+    bottomOffset = lcore->offset;
+    ui->hexOffsetText->appendPlainText(ret[0]);
+    ui->hexHexText->appendPlainText(ret[1]);
+    ui->hexASCIIText->appendPlainText(ret[2]);
+    resizeHexdump();
 
     // Move cursor to desired address
-    QTextCursor cur = this->hexOffsetText->textCursor();
-    this->hexOffsetText->ensureCursorVisible();
-    this->hexHexText->ensureCursorVisible();
-    this->hexASCIIText->ensureCursorVisible();
-    this->hexOffsetText->moveCursor(QTextCursor::End);
-    this->hexOffsetText->find(s, QTextDocument::FindBackward);
-    this->hexOffsetText->moveCursor(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
+    QTextCursor cur = ui->hexOffsetText->textCursor();
+    ui->hexOffsetText->ensureCursorVisible();
+    ui->hexHexText->ensureCursorVisible();
+    ui->hexASCIIText->ensureCursorVisible();
+    ui->hexOffsetText->moveCursor(QTextCursor::End);
+    ui->hexOffsetText->find(s, QTextDocument::FindBackward);
+    ui->hexOffsetText->moveCursor(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
 
-    connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+    connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
 }
 
@@ -251,21 +250,21 @@ void HexdumpWidget::refresh(RVA addr)
 void HexdumpWidget::fillPlugins()
 {
     // Fill the plugins combo for the hexdump sidebar
-    ui->hexArchComboBox_2->insertItems(0, core->getAsmPluginNames());
+    ui->hexArchComboBox_2->insertItems(0, Core()->getAsmPluginNames());
 }
 
 QList<QString> HexdumpWidget::get_hexdump(const QString &offset)
 {
-    RCoreLocked lcore = this->core->core();
+    RCoreLocked lcore = Core()->core();
     QList<QString> ret;
     QString hexdump;
 
     int hexdumpLength;
     int cols = lcore->print->cols;
     ut64 bsize = 128 * cols;
-    if (hexdumpBottomOffset < bsize)
+    if (bottomOffset < bsize)
     {
-        hexdumpBottomOffset = 0;
+        bottomOffset = 0;
         hexdumpLength = bsize;
         //-hexdumpBottomOffset;
     }
@@ -274,17 +273,17 @@ QList<QString> HexdumpWidget::get_hexdump(const QString &offset)
         hexdumpLength = bsize;
     }
 
-    //this->main->add_debug_output("BSize: " + this->core->itoa(hexdumpLength, 10));
+    //this->main->add_debug_output("BSize: " + Core()->itoa(hexdumpLength, 10));
 
     if (offset.isEmpty())
     {
-        hexdump = this->core->cmd("px " + this->core->itoa(hexdumpLength, 10));
+        hexdump = Core()->cmd("px " + Core()->itoa(hexdumpLength, 10));
     }
     else
     {
-        hexdump = this->core->cmd("px " + this->core->itoa(hexdumpLength, 10) + " @ " + offset);
+        hexdump = Core()->cmd("px " + Core()->itoa(hexdumpLength, 10) + " @ " + offset);
     }
-    //QString hexdump = this->core->cmd ("px 0x" + this->core->itoa(size) + " @ 0x0");
+    //QString hexdump = Core()->cmd ("px 0x" + Core()->itoa(size) + " @ 0x0");
     // TODO: use pxl to simplify
     QString offsets;
     QString hex;
@@ -325,21 +324,21 @@ QList<QString> HexdumpWidget::get_hexdump(const QString &offset)
 
 void HexdumpWidget::resizeHexdump()
 {
-    this->hexOffsetText->setMinimumWidth(this->hexOffsetText->document()->size().width());
-    this->hexHexText->setMinimumWidth(this->hexHexText->document()->size().width());
+    ui->hexOffsetText->setMinimumWidth(static_cast<int>(ui->hexOffsetText->document()->size().width()));
+    ui->hexHexText->setMinimumWidth(static_cast<int>(ui->hexHexText->document()->size().width()));
     //this->hexASCIIText->setMinimumWidth(this->hexASCIIText->document()->size().width());
 }
 
 void HexdumpWidget::hexScrolled()
 {
-    RCoreLocked lcore = this->core->core();
-    QScrollBar *sb = this->hexASCIIText->verticalScrollBar();
+    RCoreLocked lcore = Core()->core();
+    QScrollBar *sb = ui->hexASCIIText->verticalScrollBar();
 
     if (sb->value() > sb->maximum() - 10)
     {
         //this->main->addDebugOutput("End is coming");
 
-        QTextCursor tc = this->hexOffsetText->textCursor();
+        QTextCursor tc = ui->hexOffsetText->textCursor();
         tc.movePosition(QTextCursor::End);
         tc.select(QTextCursor::LineUnderCursor);
         QString lastline = tc.selectedText();
@@ -350,17 +349,17 @@ void HexdumpWidget::hexScrolled()
 
         // To prevent recursive calls to hexScrolled (this function) blocks the
         // scroll bar signals
-        auto appendTextWithoutSignals = [](QTextEdit * edit, const QString & text)
+        auto appendTextWithoutSignals = [](QPlainTextEdit *edit, const QString & text)
         {
             edit->verticalScrollBar()->blockSignals(true);
-            edit->append(text);
+            edit->appendPlainText(text);
             edit->verticalScrollBar()->blockSignals(false);
         };
 
-        appendTextWithoutSignals(hexOffsetText, ret[0]);
-        appendTextWithoutSignals(hexHexText, ret[1]);
-        appendTextWithoutSignals(hexASCIIText, ret[2]);
-        this->resizeHexdump();
+        appendTextWithoutSignals(ui->hexOffsetText, ret[0]);
+        appendTextWithoutSignals(ui->hexHexText, ret[1]);
+        appendTextWithoutSignals(ui->hexASCIIText, ret[2]);
+        resizeHexdump();
 
         // Append more hex text here
         //   ui->disasTextEdit->moveCursor(QTextCursor::Start);
@@ -371,7 +370,7 @@ void HexdumpWidget::hexScrolled()
     {
         //this->main->add_debug_output("Begining is coming");
 
-        QTextCursor tc = this->hexOffsetText->textCursor();
+        QTextCursor tc = ui->hexOffsetText->textCursor();
         tc.movePosition(QTextCursor::Start);
         tc.select(QTextCursor::LineUnderCursor);
         QString firstline = tc.selectedText();
@@ -384,45 +383,45 @@ void HexdumpWidget::hexScrolled()
         int bsize = 800;
         QString s = QString::number(bsize);
         // s = 2048.. sigh...
-        QString kk = this->core->cmd("? " + firstline + " - " + s);
+        QString kk = Core()->cmd("? " + firstline + " - " + s);
         QString k = kk.split(" ")[1];
 
         QList<QString> ret = this->get_hexdump(k);
 
         // Prevent further scroll
-        disconnect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+        disconnect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
         // Get actual maximum scrolling value
-        int b = this->hexASCIIText->verticalScrollBar()->maximum();
+        int b = ui->hexASCIIText->verticalScrollBar()->maximum();
 
         // Add new offset content
-        QTextDocument *offset_document = this->hexOffsetText->document();
+        QTextDocument *offset_document = ui->hexOffsetText->document();
         QTextCursor offset_cursor(offset_document);
         offset_cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
         offset_cursor.insertText(ret[0] + "\n");
 
         // Add new hex content
-        QTextDocument *hex_document = this->hexHexText->document();
+        QTextDocument *hex_document = ui->hexHexText->document();
         QTextCursor hex_cursor(hex_document);
         hex_cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
         hex_cursor.insertText(ret[1] + "\n");
 
         // Add new ASCII content
-        QTextDocument *ascii_document = this->hexASCIIText->document();
+        QTextDocument *ascii_document = ui->hexASCIIText->document();
         QTextCursor ascii_cursor(ascii_document);
         ascii_cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
         ascii_cursor.insertText(ret[2] + "\n");
 
         // Get new maximum scroll value
-        int c = this->hexASCIIText->verticalScrollBar()->maximum();
+        int c = ui->hexASCIIText->verticalScrollBar()->maximum();
         // Get size of new added content
         int z = c - b;
         // Get new slider position
-        int a = this->hexASCIIText->verticalScrollBar()->sliderPosition();
+        int a = ui->hexASCIIText->verticalScrollBar()->sliderPosition();
         // move to previous position
-        this->hexASCIIText->verticalScrollBar()->setValue(a + z);
+        ui->hexASCIIText->verticalScrollBar()->setValue(a + z);
 
         this->resizeHexdump();
-        connect(this->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+        connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
     }
 }
 
@@ -431,7 +430,7 @@ void HexdumpWidget::on_hexHexText_2_selectionChanged()
     // Get selected partsing type
     QString parsing = ui->codeCombo_2->currentText();
     // Get selected text
-    QTextCursor cursor(this->hexHexText->textCursor());
+    QTextCursor cursor(ui->hexHexText->textCursor());
     QString sel_text = cursor.selectedText();
 
     sel_text = sel_text.simplified().remove(" ");
@@ -439,7 +438,7 @@ void HexdumpWidget::on_hexHexText_2_selectionChanged()
 
     if (sel_text == "")
     {
-        this->hexDisasTextEdit->setPlainText("");
+        ui->hexDisasTextEdit->setPlainText("");
         ui->bytesEntropy->setText("");
         ui->bytesMD5->setText("");
         ui->bytesSHA1->setText("");
@@ -452,15 +451,15 @@ void HexdumpWidget::on_hexHexText_2_selectionChanged()
             QString arch = ui->hexArchComboBox_2->currentText();
             QString bits = ui->hexBitsComboBox_2->currentText();
 
-            QString oarch = this->core->getConfig("asm.arch");
-            QString obits = this->core->getConfig("asm.bits");
+            QString oarch = Core()->getConfig("asm.arch");
+            QString obits = Core()->getConfig("asm.bits");
 
-            this->core->setConfig("asm.arch", arch);
-            this->core->setConfig("asm.bits", bits);
-            QString str = this->core->cmd("pad " + sel_text);
-            this->hexDisasTextEdit->setPlainText(str);
-            this->core->setConfig("asm.arch", oarch);
-            this->core->setConfig("asm.bits", obits);
+            Core()->setConfig("asm.arch", arch);
+            Core()->setConfig("asm.bits", bits);
+            QString str = Core()->cmd("pad " + sel_text);
+            ui->hexDisasTextEdit->setPlainText(str);
+            Core()->setConfig("asm.arch", oarch);
+            Core()->setConfig("asm.bits", obits);
             //qDebug() << "Selected Arch: " << arch;
             //qDebug() << "Selected Bits: " << bits;
             //qDebug() << "Selected Text: " << sel_text;
@@ -468,41 +467,41 @@ void HexdumpWidget::on_hexHexText_2_selectionChanged()
             // TODO: update on selection changes.. use cmd("pc "+len+"@"+off)
         else if (parsing == "C byte array")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pc@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pc@x:" + sel_text));
         }
         else    if (parsing == "C dword array")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pcw@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcw@x:" + sel_text));
         }
         else    if (parsing == "C qword array")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pcq@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcq@x:" + sel_text));
         }
         else    if (parsing == "Assembler")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pca@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pca@x:" + sel_text));
         }
         else    if (parsing == "String")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pcs@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcs@x:" + sel_text));
         }
         else    if (parsing == "JSON")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pcj@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcj@x:" + sel_text));
         }
         else    if (parsing == "Javascript")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pcJ@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcJ@x:" + sel_text));
         }
         else    if (parsing == "Python")
         {
-            this->hexDisasTextEdit->setPlainText(this->core->cmd("pcp@x:" + sel_text));
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcp@x:" + sel_text));
         }
 
         // Fill the information tab hashes and entropy
-        ui->bytesMD5->setText(this->core->cmd("ph md5@x:" + sel_text).trimmed());
-        ui->bytesSHA1->setText(this->core->cmd("ph sha1@x:" + sel_text).trimmed());
-        ui->bytesEntropy->setText(this->core->cmd("ph entropy@x:" + sel_text).trimmed());
+        ui->bytesMD5->setText(Core()->cmd("ph md5@x:" + sel_text).trimmed());
+        ui->bytesSHA1->setText(Core()->cmd("ph sha1@x:" + sel_text).trimmed());
+        ui->bytesEntropy->setText(Core()->cmd("ph entropy@x:" + sel_text).trimmed());
         ui->bytesMD5->setCursorPosition(0);
         ui->bytesSHA1->setCursorPosition(0);
     }
@@ -525,7 +524,7 @@ void HexdumpWidget::on_hexBitsComboBox_2_currentTextChanged(const QString &/*arg
 void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
 {
     // Set Hexdump popup menu
-    QMenu *menu = ui->hexHexText_2->createStandardContextMenu();
+    QMenu *menu = ui->hexHexText->createStandardContextMenu();
     menu->clear();
     menu->addAction(ui->actionHexCopy_Hexpair);
     menu->addAction(ui->actionHexCopy_ASCII);
@@ -543,16 +542,16 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHexInsert_Hex);
     menu->addAction(ui->actionHexInsert_String);
 
-    ui->hexHexText_2->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->hexHexText->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    menu->exec(ui->hexHexText_2->mapToGlobal(pt));
+    menu->exec(ui->hexHexText->mapToGlobal(pt));
     delete menu;
 }
 
 void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)
 {
     // Set Hex ASCII popup menu
-    QMenu *menu = ui->hexASCIIText_2->createStandardContextMenu();
+    QMenu *menu = ui->hexASCIIText->createStandardContextMenu();
     menu->clear();
     menu->addAction(ui->actionHexCopy_Hexpair);
     menu->addAction(ui->actionHexCopy_ASCII);
@@ -570,9 +569,9 @@ void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHexInsert_Hex);
     menu->addAction(ui->actionHexInsert_String);
 
-    ui->hexASCIIText_2->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->hexASCIIText->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    menu->exec(ui->hexASCIIText_2->mapToGlobal(pt));
+    menu->exec(ui->hexASCIIText->mapToGlobal(pt));
     delete menu;
 }
 /*
@@ -600,9 +599,9 @@ void HexdumpWidget::setFonts(QFont font)
     //ui->disasTextEdit_2->setFont(font);
     // the user clicked OK and font is set to the font the user selected
     //ui->disasTextEdit_2->setFont(font);
-    ui->hexOffsetText_2->setFont(font);
-    ui->hexHexText_2->setFont(font);
-    ui->hexASCIIText_2->setFont(font);
+    ui->hexOffsetText->setFont(font);
+    ui->hexHexText->setFont(font);
+    ui->hexASCIIText->setFont(font);
 }
 
 void HexdumpWidget::on_actionHideHexdump_side_panel_triggered()
@@ -628,44 +627,44 @@ void HexdumpWidget::on_actionHideHexdump_side_panel_triggered()
 
 void HexdumpWidget::on_action8columns_triggered()
 {
-    this->core->setConfig("hex.cols", 8);
-    this->refresh();
+    Core()->setConfig("hex.cols", 8);
+    refresh();
 }
 
 void HexdumpWidget::on_action16columns_triggered()
 {
-    this->core->setConfig("hex.cols", 16);
-    this->refresh();
+    Core()->setConfig("hex.cols", 16);
+    refresh();
 }
 
 void HexdumpWidget::on_action4columns_triggered()
 {
-    this->core->setConfig("hex.cols", 4);
-    this->refresh();
+    Core()->setConfig("hex.cols", 4);
+    refresh();
 }
 
 void HexdumpWidget::on_action32columns_triggered()
 {
-    this->core->setConfig("hex.cols", 32);
-    this->refresh();
+    Core()->setConfig("hex.cols", 32);
+    refresh();
 }
 
 void HexdumpWidget::on_action64columns_triggered()
 {
-    this->core->setConfig("hex.cols", 64);
-    this->refresh();
+    Core()->setConfig("hex.cols", 64);
+    refresh();
 }
 
 void HexdumpWidget::on_action2columns_triggered()
 {
-    this->core->setConfig("hex.cols", 2);
-    this->refresh();
+    Core()->setConfig("hex.cols", 2);
+    refresh();
 }
 
 void HexdumpWidget::on_action1column_triggered()
 {
-    this->core->setConfig("hex.cols", 1);
-    this->refresh();
+    Core()->setConfig("hex.cols", 1);
+    refresh();
 }
 
 void HexdumpWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
@@ -673,18 +672,18 @@ void HexdumpWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
     if (arg1 == "Dissasembly")
     {
         ui->hexSideFrame_2->show();
-        ui->hexDisasTextEdit_2->setPlainText(";; Select some bytes on the left\n;; to see them disassembled");
+        ui->hexDisasTextEdit->setPlainText(";; Select some bytes on the left\n;; to see them disassembled");
     }
     else
     {
         ui->hexSideFrame_2->hide();
-        ui->hexDisasTextEdit_2->setPlainText(";; Select some bytes on the left\n;; to see them parsed here");
+        ui->hexDisasTextEdit->setPlainText(";; Select some bytes on the left\n;; to see them parsed here");
     }
 }
 
 QString HexdumpWidget::normalize_addr(QString addr)
 {
-    QString base = this->core->cmd("s").split("0x")[1].trimmed();
+    QString base = Core()->cmd("s").split("0x")[1].trimmed();
     int len = base.length();
     if (len < 8)
     {
@@ -834,8 +833,8 @@ void HexdumpWidget::on_copySHA1_clicked()
 void HexdumpWidget::selectHexPreview()
 {
     // Pre-select arch and bits in the hexdump sidebar
-    QString arch = this->core->cmd("e asm.arch").trimmed();
-    QString bits = this->core->cmd("e asm.bits").trimmed();
+    QString arch = Core()->cmd("e asm.arch").trimmed();
+    QString bits = Core()->cmd("e asm.bits").trimmed();
 
     //int arch_index = ui->hexArchComboBox_2->findText(arch);
     if (ui->hexArchComboBox_2->findText(arch) != -1)
@@ -854,28 +853,28 @@ void HexdumpWidget::showOffsets(bool show)
 {
     if (show)
     {
-        this->hexOffsetText->show();
-        core->setConfig("asm.offset", 1);
+        ui->hexOffsetText->show();
+        Core()->setConfig("asm.offset", 1);
     }
     else
     {
-        this->hexOffsetText->hide();
-        core->setConfig("asm.offset", 0);
+        ui->hexOffsetText->hide();
+        Core()->setConfig("asm.offset", 0);
     }
 }
 
 void HexdumpWidget::zoomIn(int range)
 {
-    hexOffsetText->zoomIn(range);
-    hexASCIIText->zoomIn(range);
-    hexHexText->zoomIn(range);
+    ui->hexOffsetText->zoomIn(range);
+    ui->hexASCIIText->zoomIn(range);
+    ui->hexHexText->zoomIn(range);
     resizeHexdump();
 }
 
 void HexdumpWidget::zoomOut(int range)
 {
-    hexOffsetText->zoomOut(range);
-    hexASCIIText->zoomOut(range);
-    hexHexText->zoomOut(range);
+    ui->hexOffsetText->zoomOut(range);
+    ui->hexASCIIText->zoomOut(range);
+    ui->hexHexText->zoomOut(range);
     resizeHexdump();
 }

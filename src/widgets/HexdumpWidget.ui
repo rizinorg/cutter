@@ -210,7 +210,7 @@ QToolTip {
        <number>0</number>
       </property>
       <item>
-       <widget class="QTextEdit" name="hexOffsetText_2">
+       <widget class="QPlainTextEdit" name="hexOffsetText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -244,41 +244,10 @@ QToolTip {
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContents</enum>
         </property>
-        <property name="documentTitle">
-         <string notr="true"/>
-        </property>
-        <property name="undoRedoEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="lineWrapMode">
-         <enum>QTextEdit::NoWrap</enum>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="html">
-         <string notr="true">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Anonymous Pro'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Monaco'; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="overwriteMode">
-         <bool>false</bool>
-        </property>
-        <property name="acceptRichText">
-         <bool>false</bool>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-        <property name="placeholderText">
-         <string notr="true"/>
-        </property>
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="hexHexText_2">
+       <widget class="QPlainTextEdit" name="hexHexText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -321,32 +290,10 @@ p, li { white-space: pre-wrap; }
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContents</enum>
         </property>
-        <property name="lineWrapMode">
-         <enum>QTextEdit::NoWrap</enum>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Anonymous Pro'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Monaco'; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="overwriteMode">
-         <bool>false</bool>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-        </property>
-        <property name="placeholderText">
-         <string notr="true"/>
-        </property>
        </widget>
       </item>
       <item>
-       <widget class="QTextEdit" name="hexASCIIText_2">
+       <widget class="QPlainTextEdit" name="hexASCIIText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -388,25 +335,6 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="sizeAdjustPolicy">
          <enum>QAbstractScrollArea::AdjustToContents</enum>
-        </property>
-        <property name="lineWrapMode">
-         <enum>QTextEdit::NoWrap</enum>
-        </property>
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Anonymous Pro'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Monaco'; font-size:12pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="overwriteMode">
-         <bool>false</bool>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
         </property>
        </widget>
       </item>
@@ -656,7 +584,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QPlainTextEdit" name="hexDisasTextEdit_2">
+           <widget class="QPlainTextEdit" name="hexDisasTextEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
               <horstretch>0</horstretch>
@@ -1147,8 +1075,4 @@ QToolTip {
   <include location="../resources.qrc"/>
  </resources>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_3"/>
- </buttongroups>
 </ui>
