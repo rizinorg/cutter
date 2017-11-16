@@ -2,7 +2,7 @@
 #ifndef HEXDUMPWIDGET_H
 #define HEXDUMPWIDGET_H
 
-
+#include <array>
 #include <QDebug>
 #include <QTextEdit>
 #include <QDockWidget>
@@ -67,6 +67,7 @@ private:
     void refresh(RVA addr = RVA_INVALID);
 
     void updateVisibleLines();
+    std::array<QString, 3> fetchHexdump(RVA offset, RVA bytes);
 
 private slots:
     void on_seekChanged(RVA addr);
@@ -82,7 +83,7 @@ private slots:
     void showHexdumpContextMenu(const QPoint &pt);
     void showHexASCIIContextMenu(const QPoint &pt);
 
-    void on_hexHexText_2_selectionChanged();
+    void on_hexHexText_selectionChanged();
     void on_hexArchComboBox_2_currentTextChanged(const QString &arg1);
     void on_hexBitsComboBox_2_currentTextChanged(const QString &arg1);
 
@@ -96,7 +97,6 @@ private slots:
 
     void resizeHexdump();
     void hexScrolled();
-    QList<QString> get_hexdump(const QString &offset);
 
     void on_codeCombo_2_currentTextChanged(const QString &arg1);
     void on_hexSideTab_2_currentChanged(int index);

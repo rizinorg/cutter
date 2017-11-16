@@ -195,54 +195,36 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexHexText->clear();
     ui->hexASCIIText->clear();
 
-    int hexdumpLength;
-    int cols = lcore->print->cols;
-    ut64 bsize = 128 * cols;
-    if (bottomOffset < bsize)
-    {
-        bottomOffset = 0;
-        hexdumpLength = bsize;//-hexdumpBottomOffset;
-    }
-    else
-    {
-        hexdumpLength = bsize;
-    }
 
-    //int size;
-    //size = core->get_size();
+    int cols = lcore->print->cols;
+
+    topOffset = addr - blocksMarginDefault * blockSize * cols;
+    topOffset = (topOffset / cols) * cols; // align
+
+    int fetchLines = visibleLines + blocksMarginDefault * 2 * blockSize;
+    RVA bytes = static_cast<RVA>(fetchLines) * cols;
+
+    bottomOffset = topOffset + bytes;
+
+    auto hexdump = fetchHexdump(topOffset, bytes);
+
 
     QString s = "";
 
-    // Add first the hexdump at block size --
-    QList<QString> ret = this->get_hexdump(RAddressString(addr - hexdumpLength));
-
-    bottomOffset = lcore->offset;
-    ui->hexOffsetText->setPlainText(ret[0]);
-    ui->hexHexText->setPlainText(ret[1]);
-    ui->hexASCIIText->setPlainText(ret[2]);
-    resizeHexdump();
-
-    // Get address to move cursor to later
-    s = this->normalize_addr(Core()->cmd("s"));
-    ret = this->get_hexdump(RAddressString(addr));
-
-    bottomOffset = lcore->offset;
-    ui->hexOffsetText->appendPlainText(ret[0]);
-    ui->hexHexText->appendPlainText(ret[1]);
-    ui->hexASCIIText->appendPlainText(ret[2]);
+    ui->hexOffsetText->setPlainText(hexdump[0]);
+    ui->hexHexText->setPlainText(hexdump[1]);
+    ui->hexASCIIText->setPlainText(hexdump[2]);
     resizeHexdump();
 
     // Move cursor to desired address
     QTextCursor cur = ui->hexOffsetText->textCursor();
-    ui->hexOffsetText->ensureCursorVisible();
-    ui->hexHexText->ensureCursorVisible();
-    ui->hexASCIIText->ensureCursorVisible();
-    ui->hexOffsetText->moveCursor(QTextCursor::End);
-    ui->hexOffsetText->find(s, QTextDocument::FindBackward);
-    ui->hexOffsetText->moveCursor(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
+    cur.movePosition(QTextCursor::Start);
+    cur.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, blocksMarginDefault * blockSize);
+    ui->hexOffsetText->setTextCursor(cur);
 
     connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
 
+    ui->hexASCIIText->verticalScrollBar()->setValue(blocksMarginDefault * blockSize);
 }
 
 
@@ -261,44 +243,16 @@ void HexdumpWidget::fillPlugins()
     ui->hexArchComboBox_2->insertItems(0, Core()->getAsmPluginNames());
 }
 
-QList<QString> HexdumpWidget::get_hexdump(const QString &offset)
+std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA offset, RVA bytes)
 {
-    RCoreLocked lcore = Core()->core();
-    QList<QString> ret;
-    QString hexdump;
+    QString hexdump = Core()->cmd(QString("px %1 @ %2").arg(QString::number(bytes), QString::number(offset)));
 
-    int hexdumpLength;
-    int cols = lcore->print->cols;
-    ut64 bsize = 128 * cols;
-    if (bottomOffset < bsize)
-    {
-        bottomOffset = 0;
-        hexdumpLength = bsize;
-        //-hexdumpBottomOffset;
-    }
-    else
-    {
-        hexdumpLength = bsize;
-    }
-
-    //this->main->add_debug_output("BSize: " + Core()->itoa(hexdumpLength, 10));
-
-    if (offset.isEmpty())
-    {
-        hexdump = Core()->cmd("px " + Core()->itoa(hexdumpLength, 10));
-    }
-    else
-    {
-        hexdump = Core()->cmd("px " + Core()->itoa(hexdumpLength, 10) + " @ " + offset);
-    }
-    //QString hexdump = Core()->cmd ("px 0x" + Core()->itoa(size) + " @ 0x0");
-    // TODO: use pxl to simplify
     QString offsets;
     QString hex;
     QString ascii;
     int ln = 0;
 
-    for (const QString line : hexdump.split("\n"))
+    for (const QString &line : hexdump.split("\n"))
     {
         if (ln++ == 0)
         {
@@ -323,11 +277,8 @@ QList<QString> HexdumpWidget::get_hexdump(const QString &offset)
             }
         }
     }
-    ret << offsets.trimmed();
-    ret << hex.trimmed();
-    ret << ascii.trimmed();
 
-    return ret;
+    return { offsets, hex, ascii };
 }
 
 void HexdumpWidget::resizeHexdump()
@@ -339,6 +290,8 @@ void HexdumpWidget::resizeHexdump()
 
 void HexdumpWidget::hexScrolled()
 {
+    /*
+
     RCoreLocked lcore = Core()->core();
     QScrollBar *sb = ui->hexASCIIText->verticalScrollBar();
 
@@ -430,10 +383,10 @@ void HexdumpWidget::hexScrolled()
 
         this->resizeHexdump();
         connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
-    }
+    }*/
 }
 
-void HexdumpWidget::on_hexHexText_2_selectionChanged()
+void HexdumpWidget::on_hexHexText_selectionChanged()
 {
     // Get selected partsing type
     QString parsing = ui->codeCombo_2->currentText();
@@ -517,12 +470,12 @@ void HexdumpWidget::on_hexHexText_2_selectionChanged()
 
 void HexdumpWidget::on_hexArchComboBox_2_currentTextChanged(const QString &/*arg1*/)
 {
-    on_hexHexText_2_selectionChanged();
+    on_hexHexText_selectionChanged();
 }
 
 void HexdumpWidget::on_hexBitsComboBox_2_currentTextChanged(const QString &/*arg1*/)
 {
-    on_hexHexText_2_selectionChanged();
+    on_hexHexText_selectionChanged();
 }
 
 /*
