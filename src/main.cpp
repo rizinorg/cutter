@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
     QCommandLineOption anal_option({"A", "anal"},
-                                   QObject::tr("Automatically start analysis. Needs filename to be specified. May be a value between 0 and 4."),
+                                   QObject::tr("Automatically open file and optionally start analysis. Needs filename to be specified. May be a value between 0 and 2: 0 = no analysis, 1 = aaa, 2 = aaaa (experimental)"),
                                    QObject::tr("level"));
     cmd_parser.addOption(anal_option);
 
@@ -82,9 +82,9 @@ int main(int argc, char *argv[])
     {
         anal_level = cmd_parser.value(anal_option).toInt(&anal_level_specified);
 
-        if (!anal_level_specified || anal_level < 0 || anal_level > 4)
+        if (!anal_level_specified || anal_level < 0 || anal_level > 2)
         {
-            printf("%s\n", QObject::tr("Invalid Analysis Level. May be a value between 0 and 4.").toLocal8Bit().constData());
+            printf("%s\n", QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.").toLocal8Bit().constData());
             return 1;
         }
     }
