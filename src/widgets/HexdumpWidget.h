@@ -57,6 +57,10 @@ protected:
     virtual void wheelEvent(QWheelEvent* event) override;
 
 private:
+	static const int linesMarginMin;
+	static const int linesMarginDefault;
+	static const int linesMarginMax;
+
     std::unique_ptr<Ui::HexdumpWidget> ui;
 
     int visibleLines;
@@ -65,9 +69,13 @@ private:
     RVA bottomOffset;
 
     void refresh(RVA addr = RVA_INVALID);
+	void appendHexdumpLines(int lines, bool top);
+	void removeHexdumpLines(int lines, bool top);
 
     void updateVisibleLines();
     std::array<QString, 3> fetchHexdump(RVA offset, RVA bytes);
+
+	void connectScroll(bool disconnect);
 
 private slots:
     void on_seekChanged(RVA addr);
