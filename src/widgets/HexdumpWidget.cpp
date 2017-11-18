@@ -53,33 +53,7 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     connect(ui->hexASCIIText, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showHexASCIIContextMenu(const QPoint &)));
 
-    // Synchronize hexdump scrolling
-    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged,
-            ui->hexHexText->verticalScrollBar(), [this]() {
-                ui->hexHexText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
-            });
-    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged,
-            ui->hexASCIIText->verticalScrollBar(), [this]() {
-                ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
-            });
-
-    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged,
-            ui->hexOffsetText->verticalScrollBar(), [this]() {
-                ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-            });
-    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged,
-            ui->hexASCIIText->verticalScrollBar(), [this]() {
-                ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-            });
-
-    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged,
-            ui->hexOffsetText->verticalScrollBar(), [this]() {
-                ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
-            });
-    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged,
-            ui->hexHexText->verticalScrollBar(), [this]() {
-                ui->hexHexText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
-            });
+    setupScrollSync();
 
     // Control Disasm and Hex scroll to add more contents
     connectScroll(false);
@@ -104,6 +78,57 @@ HexdumpWidget::HexdumpWidget(const QString &title, QWidget *parent, Qt::WindowFl
 }
 
 
+void HexdumpWidget::setupScrollSync()
+{
+    /*
+     * For some reason, QScrollBar::valueChanged is not emitted when
+     * the scrolling happened from moving the cursor beyond the visible content,
+     * so QPlainTextEdit::cursorPositionChanged has to be connected as well.
+     */
+
+    auto offsetHexFunc = [this]() {
+        ui->hexHexText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
+    };
+
+    auto offsetASCIIFunc = [this]() {
+        ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
+    };
+
+    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexHexText->verticalScrollBar(), offsetHexFunc);
+    connect(ui->hexOffsetText, &QPlainTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(), offsetHexFunc);
+    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexASCIIText->verticalScrollBar(), offsetASCIIFunc);
+    connect(ui->hexOffsetText, &QPlainTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(), offsetASCIIFunc);
+
+
+    auto hexOffsetFunc = [this]() {
+        ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
+    };
+
+    auto hexASCIIFunc = [this]() {
+        ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
+    };
+
+    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexOffsetText->verticalScrollBar(), hexOffsetFunc);
+    connect(ui->hexHexText, &QPlainTextEdit::cursorPositionChanged, ui->hexOffsetText->verticalScrollBar(), hexOffsetFunc);
+    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexASCIIText->verticalScrollBar(), hexASCIIFunc);
+    connect(ui->hexHexText, &QPlainTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(), hexASCIIFunc);
+
+
+    auto asciiOffsetFunc = [this]() {
+        ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
+    };
+
+    auto asciiHexFunc = [this]() {
+        ui->hexHexText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
+    };
+
+    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexOffsetText->verticalScrollBar(), asciiOffsetFunc);
+    connect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, ui->hexOffsetText->verticalScrollBar(), asciiOffsetFunc);
+    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexHexText->verticalScrollBar(), asciiHexFunc);
+    connect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(), asciiHexFunc);
+}
+
+
 void HexdumpWidget::on_seekChanged(RVA addr)
 {
     refresh(addr);
@@ -118,16 +143,17 @@ void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType ty
     }
 }
 
-
 void HexdumpWidget::connectScroll(bool disconnect)
 {
     if (disconnect)
     {
-        this->disconnect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+        this->disconnect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, this, &HexdumpWidget::hexScrolled);
+        this->disconnect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, this, &HexdumpWidget::hexScrolled);
     }
     else
     {
-        connect(ui->hexASCIIText->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(hexScrolled()));
+        connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, this, &HexdumpWidget::hexScrolled);
+        connect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, this, &HexdumpWidget::hexScrolled);
     }
 }
 
@@ -169,6 +195,7 @@ void HexdumpWidget::highlightHexCurrentLine()
     highlightHexWords(cursor.selectedText());
 }
 
+
 void HexdumpWidget::highlightHexWords(const QString &str)
 {
     QString searchString = str;
@@ -199,7 +226,6 @@ void HexdumpWidget::highlightHexWords(const QString &str)
     }
     cursor.endEditBlock();
 }
-
 
 void HexdumpWidget::refresh(RVA addr)
 {
@@ -556,11 +582,11 @@ void HexdumpWidget::on_hexArchComboBox_2_currentTextChanged(const QString &/*arg
 {
     on_hexHexText_selectionChanged();
 }
-
 void HexdumpWidget::on_hexBitsComboBox_2_currentTextChanged(const QString &/*arg1*/)
 {
     on_hexHexText_selectionChanged();
 }
+
 /*
  * Context menu functions
  */
@@ -619,6 +645,7 @@ void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)
     delete menu;
 }
 
+
 /*
  * Actions callback functions
  */
@@ -638,7 +665,6 @@ void HexdumpWidget::on_actionSettings_menu_1_triggered()
         emit fontChanged(font);
     }
 }
-
 
 void HexdumpWidget::setFonts(QFont font)
 {

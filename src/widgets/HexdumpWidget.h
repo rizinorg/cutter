@@ -74,6 +74,7 @@ private:
     std::array<QString, 3> fetchHexdump(RVA offset, RVA bytes);
 
 	void connectScroll(bool disconnect);
+    void setupScrollSync();
 
 private slots:
     void on_seekChanged(RVA addr);
