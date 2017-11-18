@@ -203,13 +203,15 @@ void MainWindow::initUI()
     graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new DisassemblerGraphView(graphDock);
     graphDock->setWidget(graphView);
-    connect(graphDock, &QDockWidget::visibilityChanged, graphDock, [](bool visibility) {
+    connect(graphDock, &QDockWidget::visibilityChanged, graphDock, [](bool visibility)
+    {
         if (visibility)
         {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
         }
     });
-    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, graphDock, [=](CutterCore::MemoryWidgetType type) {
+    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, graphDock, [ = ](CutterCore::MemoryWidgetType type)
+    {
         if (type == CutterCore::MemoryWidgetType::Graph)
         {
             graphDock->raise();

@@ -18,7 +18,6 @@ class DockWidget;
 class Omnibar;
 class PreviewWidget;
 class Notepad;
-//class SideBar;
 class Highlighter;
 class AsciiHighlighter;
 class GraphicsBar;
