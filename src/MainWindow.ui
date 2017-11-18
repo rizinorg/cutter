@@ -201,14 +201,6 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>Tools</string>
-    </property>
-    <addaction name="actionCalculator"/>
-    <addaction name="actionAssembler"/>
-    <addaction name="actionSDB_browser"/>
-   </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
      <string>View</string>
@@ -271,6 +263,7 @@ border-top: 0px;
     <addaction name="actionImports"/>
     <addaction name="actionExports"/>
     <addaction name="actionSymbols"/>
+    <addaction name="actionSDBBrowser"/>
     <addaction name="separator"/>
     <addaction name="actionReloc"/>
     <addaction name="actionStrings"/>
@@ -283,7 +276,6 @@ border-top: 0px;
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
-   <addaction name="menuTools"/>
    <addaction name="menuWindows"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -336,11 +328,6 @@ QToolButton .svg-icon path {
    </attribute>
    <addaction name="actionForward"/>
   </widget>
-  <action name="actionCalculator">
-   <property name="text">
-    <string>Calculator</string>
-   </property>
-  </action>
   <action name="actionDefaut">
    <property name="text">
     <string>Reset layout</string>
@@ -683,11 +670,6 @@ QToolButton .svg-icon path {
     <string>Create file</string>
    </property>
   </action>
-  <action name="actionAssembler">
-   <property name="text">
-    <string>Assembler</string>
-   </property>
-  </action>
   <action name="actionBindiff">
    <property name="text">
     <string>Bindiff</string>
@@ -907,9 +889,9 @@ QToolButton .svg-icon path {
     <string>Notepad</string>
    </property>
   </action>
-  <action name="actionSDB_browser">
+  <action name="actionSDBBrowser">
    <property name="text">
-    <string>SDB browser</string>
+    <string>SDB Browser</string>
    </property>
   </action>
   <action name="actionRun_Script">

@@ -893,7 +893,7 @@ void MainWindow::on_actionWhite_Theme_triggered()
     this->def_theme();
 }
 
-void MainWindow::on_actionSDB_browser_triggered()
+void MainWindow::on_actionSDBBrowser_triggered()
 {
     this->sdbDock = new SdbDock(this);
     this->tabifyDockWidget(this->previewDock, this->sdbDock);

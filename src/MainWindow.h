@@ -149,7 +149,7 @@ private slots:
 
     void on_actionWhite_Theme_triggered();
 
-    void on_actionSDB_browser_triggered();
+    void on_actionSDBBrowser_triggered();
 
     void on_actionLoad_triggered();
 
