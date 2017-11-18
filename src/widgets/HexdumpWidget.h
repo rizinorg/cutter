@@ -63,8 +63,6 @@ private:
 
     std::unique_ptr<Ui::HexdumpWidget> ui;
 
-    int visibleLines;
-
     RVA topOffset;
     RVA bottomOffset;
 

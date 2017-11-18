@@ -129,7 +129,9 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     if (maxLines <= 0)
     {
+        connectCursorPositionChanged(true);
         mDisasTextEdit->clear();
+        connectCursorPositionChanged(false);
         return;
     }
 

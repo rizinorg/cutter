@@ -208,7 +208,7 @@ void HexdumpWidget::refresh(RVA addr)
         addr = Core()->getOffset();
     }
 
-    updateVisibleLines(); // TODO: only on resize
+    int visibleLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 
     RCoreLocked lcore = Core()->core();
 
@@ -216,14 +216,36 @@ void HexdumpWidget::refresh(RVA addr)
 
 
     int cols = lcore->print->cols;
+    RVA marginBytes = static_cast<RVA>(linesMarginDefault) * cols;
 
-    topOffset = addr - linesMarginDefault * cols;
-    topOffset = (topOffset / cols) * cols; // align
+    // lower bound of 0
+    if (addr > marginBytes)
+    {
+        topOffset = addr - marginBytes;
+        topOffset = (topOffset / cols) * cols; // align
+    }
+    else
+    {
+        topOffset = 0;
+    }
+
 
     int fetchLines = visibleLines + linesMarginDefault * 2;
     RVA bytes = static_cast<RVA>(fetchLines) * cols;
 
-    bottomOffset = topOffset + bytes;
+
+    // upper bound of UT64_MAX
+    RVA bytesLeft = UT64_MAX - topOffset;
+    if (bytes > bytesLeft)
+    {
+        bottomOffset = UT64_MAX;
+        topOffset = bottomOffset - bytes;
+    }
+    else
+    {
+        bottomOffset = topOffset + bytes;
+    }
+
 
     auto hexdump = fetchHexdump(topOffset, bytes);
 
@@ -238,9 +260,12 @@ void HexdumpWidget::refresh(RVA addr)
     cur.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, linesMarginDefault);
     ui->hexOffsetText->setTextCursor(cur);
 
-    connectScroll(false);
+    int scroll = static_cast<int>((addr - topOffset) / cols);
+    ui->hexOffsetText->verticalScrollBar()->setValue(scroll);
+    ui->hexHexText->verticalScrollBar()->setValue(scroll);
+    ui->hexASCIIText->verticalScrollBar()->setValue(scroll);
 
-    ui->hexASCIIText->verticalScrollBar()->setValue(linesMarginDefault);
+    connectScroll(false);
 }
 
 void HexdumpWidget::appendHexdumpLines(int lines, bool top)
@@ -250,10 +275,18 @@ void HexdumpWidget::appendHexdumpLines(int lines, bool top)
     int cols = Core()->getConfigi("hex.cols");
     RVA bytes = static_cast<RVA>(lines) * cols;
 
-    // TODO: check bounds
-
     if (top)
     {
+        if (bytes > topOffset)
+        {
+            bytes = topOffset;
+            if (bytes == 0)
+            {
+                connectScroll(false);
+                return;
+            }
+        }
+
         topOffset -= bytes;
         auto hexdump = fetchHexdump(topOffset, bytes);
 
@@ -272,10 +305,23 @@ void HexdumpWidget::appendHexdumpLines(int lines, bool top)
         cur.insertText(hexdump[2]);
 
         int actualLines = static_cast<int>(bytes / cols);
+        ui->hexOffsetText->verticalScrollBar()->setValue(actualLines + scroll);
+        ui->hexHexText->verticalScrollBar()->setValue(actualLines + scroll);
         ui->hexASCIIText->verticalScrollBar()->setValue(actualLines + scroll);
     }
     else
     {
+        if (bytes > UT64_MAX - bottomOffset)
+        {
+            bytes = UT64_MAX - bottomOffset;
+
+            if (bytes == 0)
+            {
+                connectScroll(false);
+                return;
+            }
+        }
+
         auto hexdump = fetchHexdump(bottomOffset, bytes);
         bottomOffset += bytes;
 
@@ -305,41 +351,37 @@ void HexdumpWidget::removeHexdumpLines(int lines, bool top)
 
     int scroll = ui->hexASCIIText->verticalScrollBar()->value();
 
-	for (QPlainTextEdit *edit : edits)
+    if (top)
     {
-        QTextCursor cur = edit->textCursor();
-
-        if (top)
+        for (QPlainTextEdit *edit : edits)
         {
+            QTextCursor cur = edit->textCursor();
             cur.movePosition(QTextCursor::Start);
             cur.movePosition(QTextCursor::Down, QTextCursor::KeepAnchor, lines + 1);
-
-            topOffset += lines * cols;
+            cur.removeSelectedText();
         }
-        else
+
+        topOffset += lines * cols;
+
+        ui->hexOffsetText->verticalScrollBar()->setValue(scroll - lines);
+        ui->hexHexText->verticalScrollBar()->setValue(scroll - lines);
+        ui->hexASCIIText->verticalScrollBar()->setValue(scroll - lines);
+    }
+    else
+    {
+        for (QPlainTextEdit *edit : edits)
         {
+            QTextCursor cur = edit->textCursor();
             cur.movePosition(QTextCursor::End);
             cur.movePosition(QTextCursor::Up, QTextCursor::KeepAnchor, lines);
             cur.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
             cur.removeSelectedText();
-
-            bottomOffset -= lines * cols;
         }
 
-        cur.removeSelectedText();
-	}
-
-    if (top)
-    {
-        ui->hexASCIIText->verticalScrollBar()->setValue(scroll - lines);
+        bottomOffset -= lines * cols;
     }
 
     connectScroll(false);
-}
-
-void HexdumpWidget::updateVisibleLines()
-{
-    visibleLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 }
 
 /*
@@ -399,11 +441,9 @@ void HexdumpWidget::resizeHexdump()
 
 void HexdumpWidget::hexScrolled()
 {
-    RCoreLocked lcore = Core()->core();
     QScrollBar *sb = ui->hexASCIIText->verticalScrollBar();
-
-	int topMargin = sb->value();
-	int bottomMargin = sb->maximum() - sb->value();
+	int topMargin = sb->value() - sb->minimum();
+    int bottomMargin = sb->maximum() - sb->value();
 
     if (topMargin < linesMarginMin)
     {
