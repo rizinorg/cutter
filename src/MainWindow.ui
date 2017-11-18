@@ -287,46 +287,6 @@ border-top: 0px;
    <addaction name="menuWindows"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QToolBar" name="sideToolBar">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>200</width>
-     <height>0</height>
-    </size>
-   </property>
-   <property name="windowTitle">
-    <string notr="true">Side toolbar</string>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">border: 1px solid rgb(64, 64, 64);
-background-color: rgb(64, 64, 64);
-background: rgb(64, 64, 64);</string>
-   </property>
-   <property name="movable">
-    <bool>false</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::RightToolBarArea</set>
-   </property>
-   <property name="floatable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>RightToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="sizePolicy">
     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -375,7 +335,6 @@ QToolButton .svg-icon path {
     <bool>false</bool>
    </attribute>
    <addaction name="actionForward"/>
-   <addaction name="actionShow_Hide_mainsidebar"/>
   </widget>
   <action name="actionCalculator">
    <property name="text">
@@ -959,18 +918,6 @@ QToolButton .svg-icon path {
    </property>
    <property name="toolTip">
     <string>Run script</string>
-   </property>
-  </action>
-  <action name="actionShow_Hide_mainsidebar">
-   <property name="icon">
-    <iconset resource="resources.qrc">
-     <normaloff>:/img/icons/sidebar.svg</normaloff>:/img/icons/sidebar.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Show/Hide mainsidebar</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Sidebar</string>
    </property>
   </action>
   <action name="actionDashboard">

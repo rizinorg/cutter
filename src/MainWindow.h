@@ -18,7 +18,7 @@ class DockWidget;
 class Omnibar;
 class PreviewWidget;
 class Notepad;
-class SideBar;
+//class SideBar;
 class Highlighter;
 class AsciiHighlighter;
 class GraphicsBar;
@@ -75,7 +75,6 @@ public:
      */
     bool saveProjectAs(bool quit = false);
 
-    void start_web_server();
     void closeEvent(QCloseEvent *event) override;
     void readSettings();
     void setFilename(const QString &fn);
@@ -85,7 +84,7 @@ public:
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void sendToNotepad(const QString &txt);
-    void toggleSideBarTheme();
+    void toggleTheme();
     void refreshOmniBar(const QStringList &flags);
 
 public slots:
@@ -136,11 +135,7 @@ private slots:
 
     void on_actionRefresh_Panels_triggered();
 
-    void on_actionCalculator_triggered();
-
     void on_actionCreate_File_triggered();
-
-    void on_actionAssembler_triggered();
 
     void on_actionDisasAdd_comment_triggered();
 
@@ -158,8 +153,6 @@ private slots:
     void on_actionSDB_browser_triggered();
 
     void on_actionLoad_triggered();
-
-    void on_actionShow_Hide_mainsidebar_triggered();
 
     void on_actionForward_triggered();
 
@@ -187,7 +180,7 @@ private:
     QDockWidget      *asmDock;
     QDockWidget      *calcDock;
     Omnibar          *omnibar;
-    SideBar          *sideBar;
+    //SideBar          *sideBar;
     Configuration   *configuration;
 
     bool doLock;
@@ -212,7 +205,7 @@ private:
     Dashboard        *dashboardDock;
     QLineEdit        *gotoEntry;
     SdbDock          *sdbDock;
-    QAction          *sidebar_action;
+    //QAction          *sidebar_action;
     SectionsDock     *sectionsDock;
     ConsoleWidget    *consoleWidget;
 

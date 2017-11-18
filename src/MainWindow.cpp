@@ -89,7 +89,6 @@ MainWindow::MainWindow(QWidget *parent) :
     asmDock(nullptr),
     calcDock(nullptr),
     omnibar(nullptr),
-    sideBar(nullptr),
     ui(new Ui::MainWindow),
     highlighter(nullptr),
     hex_highlighter(nullptr),
@@ -106,7 +105,6 @@ MainWindow::MainWindow(QWidget *parent) :
     dashboardDock(nullptr),
     gotoEntry(nullptr),
     sdbDock(nullptr),
-    sidebar_action(nullptr),
     sectionsDock(nullptr),
     consoleWidget(nullptr)
 {
@@ -152,18 +150,18 @@ void MainWindow::initUI()
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     spacer3->setMinimumSize(20, 20);
     spacer3->setMaximumWidth(300);
-    ui->mainToolBar->insertWidget(ui->actionShow_Hide_mainsidebar, spacer3);
+    ui->mainToolBar->addWidget(spacer3);
 
     // Omnibar LineEdit
     this->omnibar = new Omnibar(this);
-    ui->mainToolBar->insertWidget(ui->actionShow_Hide_mainsidebar, this->omnibar);
+    ui->mainToolBar->addWidget(this->omnibar);
 
     // Add special separators to the toolbar that expand to separate groups of elements
     QWidget *spacer2 = new QWidget();
     spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     spacer2->setMinimumSize(10, 10);
     spacer2->setMaximumWidth(300);
-    ui->mainToolBar->insertWidget(ui->actionShow_Hide_mainsidebar, spacer2);
+    ui->mainToolBar->addWidget(spacer2);
 
     // Separator between back/forward and undo/redo buttons
     QWidget *spacer = new QWidget();
@@ -281,11 +279,6 @@ void MainWindow::initUI()
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
-    // Setup and hide sidebar by default
-    this->sideBar = new SideBar(this);
-    this->sidebar_action = ui->sideToolBar->addWidget(this->sideBar);
-    ui->sideToolBar->hide();
-
     // Show dashboard by default
     this->dashboardDock->raise();
 
@@ -392,9 +385,16 @@ bool MainWindow::saveProjectAs(bool quit)
 
 }
 
-void MainWindow::toggleSideBarTheme()
+void MainWindow::toggleTheme()
 {
-    sideBar->themesButtonToggle();
+    if (QSettings().value("dark").toBool())
+    {
+        def_theme();
+    }
+    else
+    {
+        dark();
+    }
 }
 
 void MainWindow::refreshOmniBar(const QStringList &flags)
@@ -707,26 +707,10 @@ void MainWindow::on_actionForward_triggered()
     core->seekNext();
 }
 
-void MainWindow::on_actionCalculator_triggered()
-{
-    if (!this->sideBar->isVisible())
-    {
-        this->on_actionShow_Hide_mainsidebar_triggered();
-    }
-}
-
 void MainWindow::on_actionCreate_File_triggered()
 {
     CreateNewDialog *n = new CreateNewDialog(this);
     n->exec();
-}
-
-void MainWindow::on_actionAssembler_triggered()
-{
-    if (!this->sideBar->isVisible())
-    {
-        this->on_actionShow_Hide_mainsidebar_triggered();
-    }
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
@@ -920,18 +904,6 @@ void MainWindow::on_actionLoad_triggered()
     QProcess process(this);
     process.setEnvironment(QProcess::systemEnvironment());
     process.startDetached(qApp->applicationFilePath());
-}
-
-void MainWindow::on_actionShow_Hide_mainsidebar_triggered()
-{
-    if (ui->sideToolBar->isVisible())
-    {
-        ui->sideToolBar->hide();
-    }
-    else
-    {
-        ui->sideToolBar->show();
-    }
 }
 
 void MainWindow::on_actionDashboard_triggered()
