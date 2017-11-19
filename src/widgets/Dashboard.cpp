@@ -13,26 +13,16 @@
 
 
 Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::Dashboard),
     main(main)
 {
     ui->setupUi(this);
 
-    //this->updateContents();
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
 }
 
 Dashboard::~Dashboard() {}
-
-void Dashboard::setup()
-{
-    updateContents();
-}
-
-void Dashboard::refresh()
-{
-    updateContents();
-}
 
 void Dashboard::updateContents()
 {

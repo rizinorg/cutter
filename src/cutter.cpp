@@ -547,6 +547,11 @@ bool CutterCore::getConfigb(const QString &k)
     return r_config_get_i(core_->config, k.toUtf8().constData()) != 0;
 }
 
+void CutterCore::triggerRefreshAll()
+{
+    emit refreshAll();
+}
+
 void CutterCore::triggerAsmOptionsChanged()
 {
     emit asmOptionsChanged();

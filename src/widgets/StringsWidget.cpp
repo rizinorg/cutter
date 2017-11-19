@@ -8,28 +8,20 @@
 
 
 StringsWidget::StringsWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::StringsWidget),
     main(main)
 {
     ui->setupUi(this);
 
     ui->stringsTreeWidget->hideColumn(0);
+
+    setScrollMode();
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillTreeWidget()));
 }
 
 StringsWidget::~StringsWidget() {}
-
-void StringsWidget::setup()
-{
-    setScrollMode();
-
-    fillTreeWidget();
-}
-
-void StringsWidget::refresh()
-{
-    setup();
-}
 
 void StringsWidget::on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {

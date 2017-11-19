@@ -5,7 +5,7 @@
 #include "utils/Helpers.h"
 
 RelocsWidget::RelocsWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::RelocsWidget),
     main(main)
 {
@@ -15,21 +15,13 @@ RelocsWidget::RelocsWidget(MainWindow *main, QWidget *parent) :
     this->main = main;
 
     ui->relocsTreeWidget->hideColumn(0);
+
+    setScrollMode();
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillTreeWidget()));
 }
 
 RelocsWidget::~RelocsWidget() {}
-
-void RelocsWidget::setup()
-{
-    setScrollMode();
-
-    fillTreeWidget();
-}
-
-void RelocsWidget::refresh()
-{
-    setup();
-}
 
 void RelocsWidget::on_relocsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {

@@ -88,6 +88,10 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
         }
     });
+
+    connect(Core(), &CutterCore::refreshAll, this, [this]() {
+        refreshDisasm(Core()->getOffset());
+    });
 }
 
 DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :

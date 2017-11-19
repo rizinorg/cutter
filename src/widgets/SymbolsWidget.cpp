@@ -8,27 +8,20 @@
 
 
 SymbolsWidget::SymbolsWidget(QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::SymbolsWidget)
 {
     ui->setupUi(this);
 
     ui->symbolsTreeWidget->hideColumn(0);
+
+    setScrollMode();
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillSymbols()));
 }
 
 SymbolsWidget::~SymbolsWidget() {}
 
-void SymbolsWidget::setup()
-{
-    setScrollMode();
-
-    fillSymbols();
-}
-
-void SymbolsWidget::refresh()
-{
-    setup();
-}
 
 void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {

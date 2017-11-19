@@ -7,21 +7,25 @@
 #include <QTreeWidget>
 
 
-SdbDock::SdbDock(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+SdbDock::SdbDock(QWidget *parent) :
+    QDockWidget(parent),
     ui(new Ui::SdbDock)
 {
     ui->setupUi(this);
-    // Radare core found in:
-    this->main = main;
-    this->path = "";
-    reload("");
+
+    path = "";
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(reload()));
 }
 
-void SdbDock::reload(QString path)
+void SdbDock::reload(QString _path)
 {
+    if (!_path.isNull())
+    {
+        path = _path;
+    }
+
     ui->lineEdit->setText(path);
-    this->path = path;
     /* insert root sdb keyvalue pairs */
 
     ui->treeWidget->clear();
@@ -94,18 +98,6 @@ void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 }
 
 SdbDock::~SdbDock() {}
-
-void SdbDock::setup()
-{
-    // TODO: implement
-    eprintf("%s - not implemented\n", Q_FUNC_INFO);
-}
-
-void SdbDock::refresh()
-{
-    // TODO: implement
-    eprintf("%s - not implemented\n", Q_FUNC_INFO);
-}
 
 void SdbDock::on_lockButton_clicked()
 {

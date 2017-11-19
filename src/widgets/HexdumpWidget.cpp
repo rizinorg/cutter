@@ -68,6 +68,10 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
         }
     });
 
+    connect(Core(), &CutterCore::refreshAll, this, [this]() {
+        refresh(Core()->getOffset());
+    });
+
     fillPlugins();
 }
 

@@ -130,7 +130,7 @@ bool ExportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 
 ExportsWidget::ExportsWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::ExportsWidget),
     main(main)
 {
@@ -143,21 +143,13 @@ ExportsWidget::ExportsWidget(MainWindow *main, QWidget *parent) :
     exports_proxy_model = new ExportsSortFilterProxyModel(exports_model, this);
     ui->exportsTreeView->setModel(exports_proxy_model);
     ui->exportsTreeView->sortByColumn(ExportsModel::OFFSET, Qt::AscendingOrder);
+
+    setScrollMode();
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshExports()));
 }
 
 ExportsWidget::~ExportsWidget() {}
-
-void ExportsWidget::setup()
-{
-    setScrollMode();
-
-    refreshExports();
-}
-
-void ExportsWidget::refresh()
-{
-    setup();
-}
 
 void ExportsWidget::refreshExports()
 {

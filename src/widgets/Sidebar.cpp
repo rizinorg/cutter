@@ -108,5 +108,5 @@ void SideBar::on_respButton_toggled(bool checked)
 
 void SideBar::on_refreshButton_clicked()
 {
-    this->main->refreshVisibleDockWidgets();
+    this->main->refreshAll();
 }

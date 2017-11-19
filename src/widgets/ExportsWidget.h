@@ -1,11 +1,13 @@
 #ifndef EXPORTSWIDGET_H
 #define EXPORTSWIDGET_H
 
+#include <memory>
+
 #include "cutter.h"
+
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
-#include <memory>
-#include "DockWidget.h"
+#include <QDockWidget>
 
 class MainWindow;
 class QTreeWidget;
@@ -59,7 +61,7 @@ protected:
 
 
 
-class ExportsWidget : public DockWidget
+class ExportsWidget : public QDockWidget
 {
     Q_OBJECT
 
@@ -67,11 +69,10 @@ public:
     explicit ExportsWidget(MainWindow *main, QWidget *parent = 0);
     ~ExportsWidget();
 
-    void setup() override;
-    void refresh() override;
-
 private slots:
     void on_exportsTreeView_doubleClicked(const QModelIndex &index);
+
+    void refreshExports();
 
 private:
     std::unique_ptr<Ui::ExportsWidget> ui;
@@ -81,7 +82,6 @@ private:
     ExportsSortFilterProxyModel *exports_proxy_model;
     QList<ExportDescription> exports;
 
-    void refreshExports();
     void setScrollMode();
 };
 

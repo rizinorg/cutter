@@ -17,8 +17,7 @@
 
 SidebarWidget::SidebarWidget(QWidget *parent, Qt::WindowFlags flags) :
         QDockWidget(parent, flags),
-        ui(new Ui::SidebarWidget),
-        core(CutterCore::getInstance())
+        ui(new Ui::SidebarWidget)
 {
     ui->setupUi(this);
     this->xrefToTreeWidget_2 = ui->xrefToTreeWidget_2;
@@ -27,12 +26,14 @@ SidebarWidget::SidebarWidget(QWidget *parent, Qt::WindowFlags flags) :
     // Add margin to function name line edit
     ui->fcnNameEdit->setTextMargins(5, 0, 0, 0);
 
-    connect(core, SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    connect(core, SIGNAL(flagsChanged()), this, SLOT(refresh()));
-    connect(core, SIGNAL(commentsChanged()), this, SLOT(refresh()));
-    connect(core, SIGNAL(asmOptionsChanged()), this, SLOT(refresh()));
-
     setScrollMode();
+
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refresh()));
+    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refresh()));
+    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refresh()));
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refresh()));
 }
 
 SidebarWidget::SidebarWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
@@ -54,7 +55,7 @@ void SidebarWidget::on_seekChanged(RVA addr)
 void SidebarWidget::refresh(RVA addr)
 {
     if(addr == RVA_INVALID)
-        addr = core->getOffset();
+        addr = Core()->getOffset();
 
     get_refs_data(addr);
     setFcnName(addr);
@@ -82,13 +83,13 @@ void SidebarWidget::on_offsetToolButton_clicked()
 void SidebarWidget::on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    this->core->seek(xref.to);
+    Core()->seek(xref.to);
 }
 
 void SidebarWidget::on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
 {
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    this->core->seek(xref.from);
+    Core()->seek(xref.from);
 }
 
 void SidebarWidget::on_xrefFromToolButton_2_clicked()
@@ -122,10 +123,10 @@ void SidebarWidget::on_xrefToToolButton_2_clicked()
 void SidebarWidget::get_refs_data(RVA addr)
 {
     // refs = calls q hace esa funcion
-    QList<XrefDescription> refs = core->getXRefs(addr, false, false);
+    QList<XrefDescription> refs = Core()->getXRefs(addr, false, false);
 
     // xrefs = calls a esa funcion
-    QList<XrefDescription> xrefs = core->getXRefs(addr, true, false);
+    QList<XrefDescription> xrefs = Core()->getXRefs(addr, true, false);
 
     // Data for the disasm side graph
     QList<int> data;
@@ -135,10 +136,10 @@ void SidebarWidget::get_refs_data(RVA addr)
     data << xrefs.size();
     //qDebug() << "CC: " << this->core->fcnCyclomaticComplexity(offset.toLong(&ok, 16));
     //data << this->core->fcnCyclomaticComplexity(offset.toLong(&ok, 16));
-    data << this->core->getCycloComplex(addr);
+    data << Core()->getCycloComplex(addr);
     //qDebug() << "BB: " << this->core->fcnBasicBlockCount(offset.toLong(&ok, 16));
-    data << this->core->fcnBasicBlockCount(addr);
-    data << this->core->fcnEndBbs(addr);
+    data << Core()->fcnBasicBlockCount(addr);
+    data << Core()->fcnEndBbs(addr);
     //qDebug() << "MEOW: " + this->core->fcnEndBbs(offset);
 
     // Update disasm side bar
@@ -154,9 +155,9 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
         XrefDescription xref = refs[i];
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, RAddressString(xref.to));
-        tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
+        tempItem->setText(1, Core()->disassembleSingleInstruction(xref.from));
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
-        QString tooltip = this->core->cmd("pdi 10 @ " + QString::number(xref.to)).trimmed();
+        QString tooltip = Core()->cmd("pdi 10 @ " + QString::number(xref.to)).trimmed();
         tempItem->setToolTip(0, tooltip);
         tempItem->setToolTip(1, tooltip);
         this->xreFromTreeWidget_2->insertTopLevelItem(0, tempItem);
@@ -175,9 +176,9 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, RAddressString(xref.from));
-        tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
+        tempItem->setText(1, Core()->disassembleSingleInstruction(xref.from));
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
-        QString tooltip = this->core->cmd("pdi 10 @ " + QString::number(xref.from)).trimmed();
+        QString tooltip = Core()->cmd("pdi 10 @ " + QString::number(xref.from)).trimmed();
 
         // TODO wtf is this?
         //tempItem->setToolTip(0, this->core->cmd("pdi 10 @ " + tooltip).trimmed());
@@ -196,7 +197,7 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
 void SidebarWidget::fillOffsetInfo(QString off)
 {
     ui->offsetTreeWidget->clear();
-    QString raw = this->core->getOffsetInfo(off);
+    QString raw = Core()->getOffsetInfo(off);
     QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);
             foreach (QString line, lines)
         {
@@ -215,7 +216,7 @@ void SidebarWidget::fillOffsetInfo(QString off)
     }
 
     // Add opcode description
-    QStringList description = this->core->cmd("?d. @ " + off).split(": ");
+    QStringList description = Core()->cmd("?d. @ " + off).split(": ");
     if (description.length() >= 2)
     {
         ui->opcodeDescText->setPlainText("# " + description[0] + ":\n" + description[1]);
@@ -227,15 +228,15 @@ void SidebarWidget::setFcnName(RVA addr)
     RAnalFunction *fcn;
     QString addr_string;
 
-    fcn = this->core->functionAt(addr);
+    fcn = Core()->functionAt(addr);
     if (fcn)
     {
-        QString segment = this->core->cmd("S. @ " + QString::number(addr)).split(" ").last();
+        QString segment = Core()->cmd("S. @ " + QString::number(addr)).split(" ").last();
         addr_string = segment.trimmed() + ":" + fcn->name;
     }
     else
     {
-        addr_string = core->cmdFunctionAt(addr);
+        addr_string = Core()->cmdFunctionAt(addr);
     }
 
     ui->fcnNameEdit->setText(addr_string);

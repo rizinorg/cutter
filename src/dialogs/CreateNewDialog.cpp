@@ -227,7 +227,7 @@ void CreateNewDialog::on_buttonCreate_clicked()
         close();
 
         core->seek(0);
-        w->updateFrames();
+        w->refreshAll();
         w->setFilename("-");
         w->addOutput(tr("Finished, check its contents"));
         w->showMaximized();

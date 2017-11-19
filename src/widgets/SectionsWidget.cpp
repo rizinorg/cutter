@@ -17,9 +17,11 @@ SectionsWidget::SectionsWidget(MainWindow *main, QWidget *parent) :
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     //setStyleSheet("QSplitter::handle:horizontal { width: 3px; } QSplitter::handle:vertical { height: 3px; }");
     setStyleSheet("QSplitter::handle { height: 2px; background-color: rgb(255, 255, 255); image: url(:/img/icons/tabs.svg); }");
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
 }
 
-void SectionsWidget::setup()
+void SectionsWidget::refreshSections()
 {
     tree->clear();
 

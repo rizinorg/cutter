@@ -303,7 +303,7 @@ void MainWindow::initUI()
     connect(commands_shortcut, SIGNAL(activated()), this->omnibar, SLOT(showCommands()));
 
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
-    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshVisibleDockWidgets()));
+    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
     connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
 }
@@ -343,7 +343,7 @@ void MainWindow::finalizeOpen()
     // FIXME: initialization order frakup. the next line is needed so that the
     // comments widget displays the function names.
     core->cmd("fs sections");
-    updateFrames();
+    refreshAll();
 
     if (core->getNotes().isEmpty())
     {
@@ -480,61 +480,10 @@ void MainWindow::def_theme()
     // TODO: emit a signal for theme
 }
 
-/*
- * Refresh widget functions
- */
 
-void MainWindow::refreshFunctions()
+void MainWindow::refreshAll()
 {
-    functionsDock->refresh();
-}
-
-void MainWindow::refreshComments()
-{
-    commentsDock->refresh();
-}
-
-void MainWindow::updateFrames()
-{
-    /* TODO Widgets are independants and responsible to update their own
-     * content right? Just send a signal.*/
-    if (core == NULL)
-        return;
-
-    static bool first_time = true;
-
-    //TODO Send signal rather than that
-    disassemblyDock->refreshDisasm(core->getOffset());
-
-    if (first_time)
-    {
-        for (auto W : dockWidgets)
-        {
-            // Temporary hack
-            DockWidget *w = dynamic_cast<DockWidget *>(W);
-            if (w)
-            {
-                w->setup();
-            }
-        }
-
-        first_time = false;
-    }
-    else
-    {
-        for (auto W : dockWidgets)
-        {
-            // Temporary hack
-            DockWidget *w = dynamic_cast<DockWidget *>(W);
-            if (w)
-            {
-                w->refresh();
-            }
-        }
-    }
-
-    // graphicsBar->refreshColorBar();
-    graphicsBar->fillData();
+    Core()->triggerRefreshAll();
 }
 
 void MainWindow::on_actionLock_triggered()
@@ -683,7 +632,7 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionRefresh_Panels_triggered()
 {
-    this->updateFrames();
+    this->refreshAll();
 }
 
 void MainWindow::toggleDockWidget(QDockWidget *dock_widget)
@@ -953,33 +902,9 @@ void MainWindow::on_actionQuit_triggered()
     close();
 }
 
-void MainWindow::refreshVisibleDockWidgets()
-{
-    /* TODO Just send a signal no? */
-    // There seems to be no convenience function to check if a QDockWidget
-    // is really visible or hidden in a tabbed dock. So:
-    auto isDockVisible = [](const QDockWidget * const pWidget)
-    {
-        return pWidget != nullptr && !pWidget->visibleRegion().isEmpty();
-    };
-
-    for (auto W : dockWidgets)
-    {
-        if (isDockVisible(W))
-        {
-            // Temporary hack
-            DockWidget *w = dynamic_cast<DockWidget *>(W);
-            if (w)
-            {
-                w->setup();
-            }
-        }
-    }
-}
-
 void MainWindow::on_actionRefresh_contents_triggered()
 {
-    refreshVisibleDockWidgets();
+    refreshAll();
 }
 
 void MainWindow::on_actionAsmOptions_triggered()

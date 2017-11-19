@@ -8,7 +8,7 @@
 #include "utils/Helpers.h"
 
 CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::CommentsWidget),
     main(main)
 {
@@ -26,23 +26,14 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showTitleContextMenu(const QPoint &)));
 
-    connect(CutterCore::getInstance(), SIGNAL(commentsChanged()), this, SLOT(refreshTree()));
+    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshTree()));
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshTree()));
 
     // Hide the buttons frame
     ui->frame->hide();
 }
 
 CommentsWidget::~CommentsWidget() {}
-
-void CommentsWidget::setup()
-{
-    refreshTree();
-}
-
-void CommentsWidget::refresh()
-{
-    refreshTree();
-}
 
 void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {

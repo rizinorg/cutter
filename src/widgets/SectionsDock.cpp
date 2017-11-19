@@ -9,7 +9,7 @@
 
 
 SectionsDock::SectionsDock(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::SectionsDock)
 {
     ui->setupUi(this);
@@ -26,16 +26,6 @@ SectionsDock::SectionsDock(MainWindow *main, QWidget *parent) :
 }
 
 SectionsDock::~SectionsDock() {}
-
-void SectionsDock::setup()
-{
-    sectionsWidget->setup();
-}
-
-void SectionsDock::refresh()
-{
-    sectionsWidget->setup();
-}
 
 void SectionsDock::showSectionsContextMenu(const QPoint &pt)
 {

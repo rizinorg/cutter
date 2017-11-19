@@ -106,7 +106,6 @@ HEADERS  += \
     widgets/CommentsWidget.h \
     widgets/ConsoleWidget.h \
     widgets/Dashboard.h \
-    widgets/DockWidget.h \
     widgets/EntrypointWidget.h \
     widgets/ExportsWidget.h \
     widgets/FlagsWidget.h \

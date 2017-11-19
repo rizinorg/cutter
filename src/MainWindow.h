@@ -14,7 +14,6 @@
 #include <QList>
 
 class CutterCore;
-class DockWidget;
 class Omnibar;
 class PreviewWidget;
 class Notepad;
@@ -77,9 +76,6 @@ public:
     void closeEvent(QCloseEvent *event) override;
     void readSettings();
     void setFilename(const QString &fn);
-    void updateFrames();
-    void refreshFunctions();
-    void refreshComments();
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void sendToNotepad(const QString &txt);
@@ -87,6 +83,8 @@ public:
     void refreshOmniBar(const QStringList &flags);
 
 public slots:
+
+    void refreshAll();
 
     void dark();
 
@@ -123,8 +121,6 @@ public slots:
     void toggleResponsive(bool maybe);
 
     void backButton_clicked();
-
-    void refreshVisibleDockWidgets();
 
 private slots:
 

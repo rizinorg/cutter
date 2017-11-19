@@ -15,6 +15,8 @@ public:
 
 public slots:
     void paintEvent(QPaintEvent *event);
+
+private slots:
     void fillData();
 
 private:

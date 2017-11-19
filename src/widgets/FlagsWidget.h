@@ -1,11 +1,13 @@
 #ifndef FLAGSWIDGET_H
 #define FLAGSWIDGET_H
 
+#include <memory>
+
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-#include <memory>
+#include <QDockWidget>
+
 #include "cutter.h"
-#include "DockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -55,7 +57,7 @@ namespace Ui
     class FlagsWidget;
 }
 
-class FlagsWidget : public DockWidget
+class FlagsWidget : public QDockWidget
 {
     Q_OBJECT
 
@@ -63,14 +65,12 @@ public:
     explicit FlagsWidget(MainWindow *main, QWidget *parent = 0);
     ~FlagsWidget();
 
-    void setup() override;
-    void refresh() override;
-
 private slots:
     void on_flagsTreeView_doubleClicked(const QModelIndex &index);
     void on_flagspaceCombo_currentTextChanged(const QString &arg1);
 
     void flagsChanged();
+    void refreshFlagspaces();
 
 private:
     std::unique_ptr<Ui::FlagsWidget> ui;
@@ -81,7 +81,6 @@ private:
     QList<FlagDescription> flags;
 
     void refreshFlags();
-    void refreshFlagspaces();
     void setScrollMode();
 };
 

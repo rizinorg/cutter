@@ -23,7 +23,8 @@ class SectionsWidget : public QSplitter
 public:
     explicit SectionsWidget(MainWindow *main, QWidget *parent = 0);
 
-    void setup();
+private slots:
+    void refreshSections();
 
 private:
     QAbstractItemView       *pieChart;

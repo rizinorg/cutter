@@ -125,7 +125,7 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
 
 
 FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::FlagsWidget),
     main(main)
 {
@@ -137,22 +137,13 @@ FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
     ui->flagsTreeView->setModel(flags_proxy_model);
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
-    connect(CutterCore::getInstance(), SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
+    setScrollMode();
+
+    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshFlagspaces()));
 }
 
 FlagsWidget::~FlagsWidget() {}
-
-void FlagsWidget::setup()
-{
-    setScrollMode();
-
-    refreshFlagspaces();
-}
-
-void FlagsWidget::refresh()
-{
-    refreshFlagspaces();
-}
 
 void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
 {

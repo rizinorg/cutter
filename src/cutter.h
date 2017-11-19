@@ -300,6 +300,8 @@ public:
 
     void addFlag(RVA offset, QString name, RVA size);
 
+    void triggerRefreshAll();
+
     void triggerAsmOptionsChanged();
 
     void resetDefaultAsmOptions();
@@ -312,7 +314,8 @@ public:
     Sdb *db;
 
 signals:
-    // TODO: create a more sophisticated update-event system
+    void refreshAll();
+
     void functionRenamed(QString prev_name, QString new_name);
     void flagsChanged();
     void commentsChanged();

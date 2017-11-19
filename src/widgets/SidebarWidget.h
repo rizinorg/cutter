@@ -38,7 +38,6 @@ public:
 
 private:
     std::unique_ptr<Ui::SidebarWidget> ui;
-    CutterCore *core;
 
     void setFcnName(RVA addr);
     void get_refs_data(RVA addr);

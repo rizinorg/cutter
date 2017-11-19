@@ -1,11 +1,13 @@
 #ifndef FUNCTIONSWIDGET_H
 #define FUNCTIONSWIDGET_H
 
+#include <memory>
+
 #include <QSortFilterProxyModel>
 #include <QTreeView>
-#include <memory>
+#include <QDockWidget>
+
 #include "cutter.h"
-#include "DockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -78,17 +80,13 @@ protected:
 
 
 
-class FunctionsWidget : public DockWidget
+class FunctionsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
     explicit FunctionsWidget(MainWindow *main, QWidget *parent = 0);
     ~FunctionsWidget();
-
-    void setup() override;
-
-    void refresh() override;
 
 private slots:
     void functionsTreeView_doubleClicked(const QModelIndex &index);
@@ -109,6 +107,8 @@ private slots:
 
     void showTitleContextMenu(const QPoint &pt);
 
+    void refreshTree();
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -127,7 +127,6 @@ private:
     FunctionModel *nested_function_model;
     FunctionSortFilterProxyModel *nested_function_proxy_model;
 
-    void refreshTree();
     void setScrollMode();
 };
 

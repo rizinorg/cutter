@@ -141,7 +141,7 @@ void Omnibar::on_gotoEntry_returnPressed()
             }
             else if (str.contains("Refresh"))
             {
-                this->main->refreshVisibleDockWidgets();
+                this->main->refreshAll();
             }
             else if (str.contains("Relocs"))
             {

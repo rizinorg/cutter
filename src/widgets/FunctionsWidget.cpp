@@ -326,7 +326,7 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
 
 
 FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::FunctionsWidget),
     main(main)
 {
@@ -362,6 +362,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), nested_function_proxy_model, SLOT(setFilterWildcard(const QString &)));
     ui->nestedFunctionsTreeView->setModel(nested_function_proxy_model);
 
+    setScrollMode();
 
     // Set Functions context menu
     connect(ui->functionsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -383,20 +384,11 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showTitleContextMenu(const QPoint &)));
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshTree()));
 }
 
 FunctionsWidget::~FunctionsWidget() {}
-
-void FunctionsWidget::setup()
-{
-    setScrollMode();
-    refreshTree();
-}
-
-void FunctionsWidget::refresh()
-{
-    setup();
-}
 
 void FunctionsWidget::refreshTree()
 {
@@ -470,7 +462,6 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
         CutterCore::getInstance()->seek(function.offset);
         // TODO: Refresh functions tree widget
     }
-    this->main->refreshComments();
 }
 
 void FunctionsWidget::on_actionFunctionsRename_triggered()

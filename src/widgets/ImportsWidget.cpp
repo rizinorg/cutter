@@ -33,7 +33,7 @@ void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
  */
 
 ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::ImportsWidget),
     main(main)
 {
@@ -44,21 +44,13 @@ ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
     //ui->importsTreeWidget->setItemDelegate(delegate);
 
     ui->importsTreeWidget->hideColumn(0);
+
+    setScrollMode();
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillImports()));
 }
 
 ImportsWidget::~ImportsWidget() {}
-
-void ImportsWidget::setup()
-{
-    setScrollMode();
-
-    fillImports();
-}
-
-void ImportsWidget::refresh()
-{
-    setup();
-}
 
 void ImportsWidget::fillImports()
 {

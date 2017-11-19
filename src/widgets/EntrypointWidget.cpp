@@ -13,7 +13,7 @@
  */
 
 EntrypointWidget::EntrypointWidget(MainWindow *main, QWidget *parent) :
-    DockWidget(parent),
+    QDockWidget(parent),
     ui(new Ui::EntrypointWidget),
     main(main)
 {
@@ -24,21 +24,13 @@ EntrypointWidget::EntrypointWidget(MainWindow *main, QWidget *parent) :
     //ui->importsTreeWidget->setItemDelegate(delegate);
 
     ui->entrypointTreeWidget->hideColumn(0);
+
+    setScrollMode();
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillEntrypoint()));
 }
 
 EntrypointWidget::~EntrypointWidget() {}
-
-void EntrypointWidget::setup()
-{
-    setScrollMode();
-
-    fillEntrypoint();
-}
-
-void EntrypointWidget::refresh()
-{
-    setup();
-}
 
 void EntrypointWidget::fillEntrypoint()
 {
