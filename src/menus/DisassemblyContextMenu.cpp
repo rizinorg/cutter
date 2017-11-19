@@ -7,15 +7,14 @@
 #include <QtCore>
 #include <QShortcut>
 
-DisassemblyContextMenu::DisassemblyContextMenu(RVA offset, QWidget *parent) :
-    QMenu(parent),
-    offset(offset)
-{
-    init();
-}
-
-DisassemblyContextMenu::DisassemblyContextMenu(QWidget*parent)
-    :   QMenu(parent)
+DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
+    :   QMenu(parent),
+        offset(0),
+        actionAddComment(this),
+        actionAddFlag(this),
+        actionRename(this),
+        actionXRefs(this),
+        actionDisplayOptions(this)
 {
     init();
 }

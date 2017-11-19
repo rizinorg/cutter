@@ -485,7 +485,7 @@ void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
     }
 }
 
-void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
+void DisassemblyTextEdit::keyPressEvent(QKeyEvent */*event*/)
 {
     //QPlainTextEdit::keyPressEvent(event);
 }

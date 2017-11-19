@@ -5,13 +5,14 @@
 #include <QMenu>
 #include <QKeySequence>
 
-class DisassemblyContextMenu : public QMenu {
+class DisassemblyContextMenu : public QMenu
+{
 Q_OBJECT
+
 public:
-    DisassemblyContextMenu(RVA offset, QWidget *parent = nullptr);
+    DisassemblyContextMenu(QWidget *parent = nullptr);
     ~DisassemblyContextMenu() = default;
 
-    DisassemblyContextMenu(QWidget *parent = nullptr);
 
 public slots:
     void setOffset(RVA offset);
@@ -30,8 +31,9 @@ private:
     QKeySequence getRenameSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
-private:
+
     RVA offset;
+
     QAction actionAddComment;
     QAction actionAddFlag;
     QAction actionRename;
