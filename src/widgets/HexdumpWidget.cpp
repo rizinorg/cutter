@@ -35,9 +35,21 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     //highlightHexCurrentLine();
 
     // Normalize fonts for other OS
-    qhelpers::normalizeFont(ui->hexOffsetText);
+    /*qhelpers::normalizeFont(ui->hexOffsetText);
     qhelpers::normalizeFont(ui->hexHexText);
-    qhelpers::normalizeFont(ui->hexASCIIText);
+    qhelpers::normalizeFont(ui->hexASCIIText);*/
+
+    int margin = static_cast<int>(ui->hexOffsetText->document()->documentMargin());
+    ui->offsetHeaderLabel->setContentsMargins(margin, 0, margin, 0);
+
+    margin = static_cast<int>(ui->hexHexText->document()->documentMargin());
+    ui->hexHeaderLabel->setContentsMargins(margin, 0, margin, 0);
+
+    margin = static_cast<int>(ui->hexASCIIText->document()->documentMargin());
+    ui->asciiHeaderLabel->setContentsMargins(margin, 0, margin, 0);
+
+    setFonts();
+    updateHeaders();
 
     // Popup menu on Settings toolbutton
     QMenu *memMenu = new QMenu();
@@ -236,6 +248,8 @@ void HexdumpWidget::highlightHexWords(const QString &str)
 
 void HexdumpWidget::refresh(RVA addr)
 {
+    updateHeaders();
+
     if (addr == RVA_INVALID)
     {
         addr = Core()->getOffset();
@@ -427,6 +441,41 @@ void HexdumpWidget::removeHexdumpLines(int lines, bool top)
     }
 
     connectScroll(false);
+}
+
+void HexdumpWidget::updateHeaders()
+{
+    int cols = Core()->getConfigi("hex.cols");
+    bool pairs = Core()->getConfigb("hex.pairs");
+
+    QString hexHeaderString;
+    QString asciiHeaderString;
+
+    QTextStream hexHeader(&hexHeaderString);
+    QTextStream asciiHeader(&asciiHeaderString);
+
+    hexHeader.setIntegerBase(16);
+    hexHeader.setNumberFlags(QTextStream::UppercaseDigits);
+    asciiHeader.setIntegerBase(16);
+    asciiHeader.setNumberFlags(QTextStream::UppercaseDigits);
+
+    for (int i=0; i<cols; i++)
+    {
+        if (i > 0 && ((pairs && !(i&1)) || !pairs))
+        {
+            hexHeader << " ";
+        }
+
+        hexHeader << " " << (i & 0xF);
+
+        asciiHeader << (i & 0xF);
+    }
+
+    hexHeader.flush();
+    asciiHeader.flush();
+
+    ui->hexHeaderLabel->setText(hexHeaderString);
+    ui->asciiHeaderLabel->setText(asciiHeaderString);
 }
 
 /*
@@ -671,7 +720,7 @@ void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)
 
 void HexdumpWidget::on_actionSettings_menu_1_triggered()
 {
-    bool ok = true;
+    /*bool ok = true;
 
     QFont font = QFont("Monospace", 8);
     // TODO Use global configuration
@@ -681,18 +730,22 @@ void HexdumpWidget::on_actionSettings_menu_1_triggered()
     {
         setFonts(font);
 
-        emit fontChanged(font);
-    }
+        //emit fontChanged(font);
+    }*/
 }
 
-void HexdumpWidget::setFonts(QFont font)
+void HexdumpWidget::setFonts()
 {
-    //ui->disasTextEdit_2->setFont(font);
-    // the user clicked OK and font is set to the font the user selected
-    //ui->disasTextEdit_2->setFont(font);
+    QFont font = QFont("Monospace", 8);
+    // TODO Use global configuration
+
     ui->hexOffsetText->setFont(font);
     ui->hexHexText->setFont(font);
     ui->hexASCIIText->setFont(font);
+
+    ui->offsetHeaderLabel->setFont(font);
+    ui->hexHeaderLabel->setFont(font);
+    ui->asciiHeaderLabel->setFont(font);
 }
 
 void HexdumpWidget::on_actionHideHexdump_side_panel_triggered()

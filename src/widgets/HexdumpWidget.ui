@@ -205,11 +205,8 @@ QToolTip {
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_6">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
        <widget class="QPlainTextEdit" name="hexOffsetText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -249,7 +246,7 @@ QToolTip {
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="1">
        <widget class="QPlainTextEdit" name="hexHexText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -298,7 +295,7 @@ QToolTip {
         </property>
        </widget>
       </item>
-      <item>
+      <item row="1" column="2">
        <widget class="QPlainTextEdit" name="hexASCIIText">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -344,6 +341,27 @@ QToolTip {
         </property>
         <property name="lineWrapMode">
          <enum>QPlainTextEdit::NoWrap</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="offsetHeaderLabel">
+        <property name="text">
+         <string>Offset</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="hexHeaderLabel">
+        <property name="text">
+         <string>0  1  2  3 ...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="asciiHeaderLabel">
+        <property name="text">
+         <string>0123...</string>
         </property>
        </widget>
       </item>

@@ -35,8 +35,8 @@ public:
 
     Highlighter        *highlighter;
 
-signals:
-    void fontChanged(QFont font);
+//signals:
+//    void fontChanged(QFont font);
 
 public slots:
     void fillPlugins();
@@ -70,7 +70,8 @@ private:
 	void appendHexdumpLines(int lines, bool top);
 	void removeHexdumpLines(int lines, bool top);
 
-    void updateVisibleLines();
+	void updateHeaders();
+
     std::array<QString, 3> fetchHexdump(RVA offset, RVA bytes);
 
 	void connectScroll(bool disconnect);
@@ -81,7 +82,7 @@ private slots:
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     void highlightHexCurrentLine();
-    void setFonts(QFont font);
+    void setFonts();
 
     void highlightHexWords(const QString &str);
     void on_actionSettings_menu_1_triggered();
