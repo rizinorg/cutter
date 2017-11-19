@@ -223,36 +223,39 @@ void DisassemblerGraphView::paintNormal(QPainter & p, QRect & viewportRect, int 
                 int y = block.y + (2 * this->charWidth) + (int(block.block.header_text.lines.size()) * this->charHeight);
                 for(Instr & instr : block.block.instrs)
                 {
-                    auto selected = instr.addr == this->cur_instr;
-                    //auto traceCount = dbgfunctions->GetTraceRecordHitCount(instr.addr);
-                    auto traceCount = 0;
-
-                    if(selected && traceCount)
+                    if(y > viewportRect.y() - int(instr.text.lines.size()) * this->charHeight && y < viewportRect.bottom())
                     {
-                        p.fillRect(QRect(block.x + this->charWidth + 3, y, block.width - (10 + 2 * this->charWidth),
-                                         int(instr.text.lines.size()) * this->charHeight), disassemblyTracedSelectionColor);
-                    }
-                    else if(selected)
-                    {
-                        p.fillRect(QRect(block.x + this->charWidth + 3, y, block.width - (10 + 2 * this->charWidth),
-                                         int(instr.text.lines.size()) * this->charHeight), disassemblySelectionColor);
-                    }
-                    else if(traceCount)
-                    {
-                        // Color depending on how often a sequence of code is executed
-                        int exponent = 1;
-                        while(traceCount >>= 1) //log2(traceCount)
-                            exponent++;
-                        int colorDiff = (exponent * exponent) / 2;
+                        auto selected = instr.addr == this->cur_instr;
+                        //auto traceCount = dbgfunctions->GetTraceRecordHitCount(instr.addr);
+                        auto traceCount = 0;
 
-                        // If the user has a light trace background color, substract
-                        if(disassemblyTracedColor.blue() > 160)
-                            colorDiff *= -1;
+                        if(selected && traceCount)
+                        {
+                            p.fillRect(QRect(block.x + this->charWidth + 3, y, block.width - (10 + 2 * this->charWidth),
+                                             int(instr.text.lines.size()) * this->charHeight), disassemblyTracedSelectionColor);
+                        }
+                        else if(selected)
+                        {
+                            p.fillRect(QRect(block.x + this->charWidth + 3, y, block.width - (10 + 2 * this->charWidth),
+                                             int(instr.text.lines.size()) * this->charHeight), disassemblySelectionColor);
+                        }
+                        else if(traceCount)
+                        {
+                            // Color depending on how often a sequence of code is executed
+                            int exponent = 1;
+                            while(traceCount >>= 1) //log2(traceCount)
+                                exponent++;
+                            int colorDiff = (exponent * exponent) / 2;
 
-                        p.fillRect(QRect(block.x + this->charWidth + 3, y, block.width - (10 + 2 * this->charWidth), int(instr.text.lines.size()) * this->charHeight),
-                                   QColor(disassemblyTracedColor.red(),
-                                          disassemblyTracedColor.green(),
-                                          std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
+                            // If the user has a light trace background color, substract
+                            if(disassemblyTracedColor.blue() > 160)
+                                colorDiff *= -1;
+
+                            p.fillRect(QRect(block.x + this->charWidth + 3, y, block.width - (10 + 2 * this->charWidth), int(instr.text.lines.size()) * this->charHeight),
+                                       QColor(disassemblyTracedColor.red(),
+                                              disassemblyTracedColor.green(),
+                                              std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
+                        }
                     }
                     y += int(instr.text.lines.size()) * this->charHeight;
                 }
@@ -263,7 +266,10 @@ void DisassemblerGraphView::paintNormal(QPainter & p, QRect & viewportRect, int 
             auto y = block.y + (2 * this->charWidth);
             for(auto & line : block.block.header_text.lines)
             {
-                RichTextPainter::paintRichText(&p, x, y, block.width, this->charHeight, 0, line, mFontMetrics);
+                if(y > viewportRect.y() - this->charHeight && y < viewportRect.bottom())
+                {
+                    RichTextPainter::paintRichText(&p, x, y, block.width, this->charHeight, 0, line, mFontMetrics);
+                }
                 y += this->charHeight;
             }
 
@@ -271,37 +277,40 @@ void DisassemblerGraphView::paintNormal(QPainter & p, QRect & viewportRect, int 
             {
                 for(auto & line : instr.text.lines)
                 {
-                    int rectSize = qRound(this->charWidth);
-                    if(rectSize % 2)
-                        rectSize++;
-
-                    // Assume charWidth <= charHeight
-                    QRectF bpRect(x - rectSize / 3.0, y + (this->charHeight - rectSize) / 2.0, rectSize, rectSize);
-
-                    //bool isbp = DbgGetBpxTypeAt(instr.addr) != bp_none;
-                    //bool isbpdisabled = DbgIsBpDisabled(instr.addr);
-                    bool isbp = false;
-                    bool isbpdisabled = true;
-                    bool iscip = instr.addr == mCip;
-
-                    if(isbp || isbpdisabled)
+                    if(y > viewportRect.y() - this->charHeight && y < viewportRect.bottom())
                     {
-                        if(iscip)
+                        int rectSize = qRound(this->charWidth);
+                        if(rectSize % 2)
+                            rectSize++;
+
+                        // Assume charWidth <= charHeight
+                        QRectF bpRect(x - rectSize / 3.0, y + (this->charHeight - rectSize) / 2.0, rectSize, rectSize);
+
+                        //bool isbp = DbgGetBpxTypeAt(instr.addr) != bp_none;
+                        //bool isbpdisabled = DbgIsBpDisabled(instr.addr);
+                        bool isbp = false;
+                        bool isbpdisabled = true;
+                        bool iscip = instr.addr == mCip;
+
+                        if(isbp || isbpdisabled)
                         {
-                            // Left half is cip
-                            bpRect.setWidth(bpRect.width() / 2);
+                            if(iscip)
+                            {
+                                // Left half is cip
+                                bpRect.setWidth(bpRect.width() / 2);
+                                p.fillRect(bpRect, mCipColor);
+
+                                // Right half is breakpoint
+                                bpRect.translate(bpRect.width(), 0);
+                            }
+
+                            p.fillRect(bpRect, isbp ? mBreakpointColor : mDisabledBreakpointColor);
+                        }
+                        else if(iscip)
                             p.fillRect(bpRect, mCipColor);
 
-                            // Right half is breakpoint
-                            bpRect.translate(bpRect.width(), 0);
-                        }
-
-                        p.fillRect(bpRect, isbp ? mBreakpointColor : mDisabledBreakpointColor);
+                        RichTextPainter::paintRichText(&p, x + this->charWidth, y, block.width - this->charWidth, this->charHeight, 0, line, mFontMetrics);
                     }
-                    else if(iscip)
-                        p.fillRect(bpRect, mCipColor);
-
-                    RichTextPainter::paintRichText(&p, x + this->charWidth, y, block.width - this->charWidth, this->charHeight, 0, line, mFontMetrics);
                     y += this->charHeight;
                 }
             }
