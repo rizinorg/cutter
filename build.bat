@@ -2,8 +2,8 @@
 
 echo Setting path
 if "%OLDPATH%"=="" set OLDPATH=%PATH%
-if "%QT32PATH%"=="" set QT32PATH=C:\Qt\5.9.1\msvc2015
-if "%QT64PATH%"=="" set QT64PATH=C:\Qt\5.9.1\msvc2015_64
+if "%QT32PATH%"=="" set QT32PATH=C:\Qt\5.9.2\msvc2015
+if "%QT64PATH%"=="" set QT64PATH=C:\Qt\5.9.2\msvc2015_64
 if "%VSVARSALLPATH%"=="" set VSVARSALLPATH=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
 
 if "%1"=="32" (
