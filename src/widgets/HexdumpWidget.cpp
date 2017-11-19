@@ -284,16 +284,28 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexASCIIText->setPlainText(hexdump[2]);
     resizeHexdump();
 
-    // Move cursor to desired address
+
+    int seekLine = static_cast<int>((addr - topOffset) / cols);
+
+    // Move cursors to desired address
     QTextCursor cur = ui->hexOffsetText->textCursor();
     cur.movePosition(QTextCursor::Start);
-    cur.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, linesMarginDefault);
+    cur.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, seekLine);
     ui->hexOffsetText->setTextCursor(cur);
 
-    int scroll = static_cast<int>((addr - topOffset) / cols);
-    ui->hexOffsetText->verticalScrollBar()->setValue(scroll);
-    ui->hexHexText->verticalScrollBar()->setValue(scroll);
-    ui->hexASCIIText->verticalScrollBar()->setValue(scroll);
+    cur = ui->hexHexText->textCursor();
+    cur.movePosition(QTextCursor::Start);
+    cur.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, seekLine);
+    ui->hexHexText->setTextCursor(cur);
+
+    cur = ui->hexASCIIText->textCursor();
+    cur.movePosition(QTextCursor::Start);
+    cur.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, seekLine);
+    ui->hexASCIIText->setTextCursor(cur);
+
+    ui->hexOffsetText->verticalScrollBar()->setValue(seekLine);
+    ui->hexHexText->verticalScrollBar()->setValue(seekLine);
+    ui->hexASCIIText->verticalScrollBar()->setValue(seekLine);
 
     connectScroll(false);
 }
