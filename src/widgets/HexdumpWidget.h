@@ -103,7 +103,7 @@ private slots:
     void on_action64columns_triggered();
 
     void resizeHexdump();
-    void hexScrolled();
+    void adjustHexdumpLines();
 
     void on_codeCombo_2_currentTextChanged(const QString &arg1);
     void on_hexSideTab_2_currentChanged(int index);

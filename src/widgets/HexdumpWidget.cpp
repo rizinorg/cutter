@@ -151,13 +151,16 @@ void HexdumpWidget::connectScroll(bool disconnect)
 {
     if (disconnect)
     {
-        this->disconnect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, this, &HexdumpWidget::hexScrolled);
-        this->disconnect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, this, &HexdumpWidget::hexScrolled);
+        this->disconnect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, this,
+                         &HexdumpWidget::adjustHexdumpLines);
+        this->disconnect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, this,
+                         &HexdumpWidget::adjustHexdumpLines);
     }
     else
     {
-        connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, this, &HexdumpWidget::hexScrolled);
-        connect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, this, &HexdumpWidget::hexScrolled);
+        connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, this,
+                &HexdumpWidget::adjustHexdumpLines);
+        connect(ui->hexASCIIText, &QPlainTextEdit::cursorPositionChanged, this, &HexdumpWidget::adjustHexdumpLines);
     }
 }
 
@@ -481,7 +484,7 @@ void HexdumpWidget::resizeHexdump()
     //this->hexASCIIText->setMinimumWidth(this->hexASCIIText->document()->size().width());
 }
 
-void HexdumpWidget::hexScrolled()
+void HexdumpWidget::adjustHexdumpLines()
 {
     QScrollBar *sb = ui->hexASCIIText->verticalScrollBar();
 	int topMargin = sb->value() - sb->minimum();
@@ -839,37 +842,9 @@ void HexdumpWidget::on_memSideToolButton_clicked()
 
 void HexdumpWidget::resizeEvent(QResizeEvent *event)
 {
-    // FIXME
-    /*
-    if (main->responsive && isVisible())
-    {
-        if (event->size().width() <= 1150)
-        {
-            ui->frame_3->setVisible(false);
-            ui->memPreviewTab->setVisible(false);
-            ui->previewToolButton_2->setChecked(false);
-            if (event->size().width() <= 950)
-            {
-                ui->memSideTabWidget_2->hide();
-                ui->hexSideTab_2->hide();
-                ui->memSideToolButton->setChecked(true);
-            }
-            else
-            {
-                ui->memSideTabWidget_2->show();
-                ui->hexSideTab_2->show();
-                ui->memSideToolButton->setChecked(false);
-            }
-        }
-        else
-        {
-            ui->frame_3->setVisible(true);
-            ui->memPreviewTab->setVisible(true);
-            ui->previewToolButton_2->setChecked(true);
-        }
-    }
-    */
     QDockWidget::resizeEvent(event);
+
+    adjustHexdumpLines();
 }
 
 void HexdumpWidget::wheelEvent(QWheelEvent* event)
