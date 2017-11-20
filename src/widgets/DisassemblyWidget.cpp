@@ -453,7 +453,9 @@ void DisassemblyWidget::fontsUpdatedSlot()
 
 void DisassemblyWidget::colorsUpdatedSlot()
 {
-    mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; }").arg(ConfigColor("gui.background").name()));
+    mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
+                                  .arg(ConfigColor("gui.background").name())
+                                  .arg(ConfigColor("btext").name()));
     refreshDisasm();
 }
 

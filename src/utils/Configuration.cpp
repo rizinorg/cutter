@@ -99,7 +99,82 @@ void Configuration::loadDefaultTheme()
 
 void Configuration::loadDarkTheme()
 {
+    QColor color0 = QColor(255, 255, 255);
+    QColor color1 = QColor(64, 0, 255);
+    QColor color2 = QColor(0, 255, 0);
+    QColor color3 = QColor(255, 0, 0);
+    QColor color4 = QColor(128, 235, 200);
+    QColor color5 = QColor(95, 95, 175);
+    QColor color6 = QColor(255, 235, 95);
+    QColor color7 = QColor(255, 200, 0);
+    QColor color8 = QColor(108, 108, 108);
+    QColor color9 = QColor(255, 128, 0);
+
+    // Instructions
+    setColor("comment",     color4);
+    setColor("usrcmt",      color2);
+    setColor("args",        color5);
+    setColor("fname",       color1);
+    setColor("floc",        color6);
+    setColor("fline",       color2);
+    setColor("flag",        color1);
+    setColor("label",       color7);
+    setColor("help",        color1);
+    setColor("flow",        color2);
+    setColor("flow2",       color2);
+    setColor("prompt",      color0);
+    setColor("offset",      color0);
+    setColor("input",       color0);
+    setColor("invalid",     color3);
+    setColor("other",       color1);
+    setColor("b0x00",       color8);
+    setColor("b0x7f",       color0);
+    setColor("b0xff",       color3);
+    setColor("math",        color1);
+    setColor("bin",         color1);
+    setColor("btext",       color0);
+    setColor("push",        color0);
+    setColor("pop",         color0);
+    setColor("crypto",      color4);
+    setColor("jmp",         color2);
+    setColor("cjmp",        color2);
+    setColor("call",        color9);
+    setColor("nop",         color1);
+    setColor("ret",         color9);
+    setColor("trap",        color3);
+    setColor("swi",         color2);
+    setColor("cmp",         color0);
+    setColor("reg",         color1);
+    setColor("creg",        color1);
+    setColor("num",         color1);
+    setColor("mov",         color0);
+
+    // AI
+    setColor("ai.read",     color0);
+    setColor("ai.write",    color0);
+    setColor("ai.exec",     color0);
+    setColor("ai.seq",      color0);
+    setColor("ai.ascii",    color0);
+
+    // Graphs
+    setColor("graph.box",   color0);
+    setColor("graph.box2",  color2);
+    setColor("graph.box3",  color3);
+    setColor("graph.box4",  color0);
+    setColor("graph.true",  color2);
+    setColor("graph.false", color3);
+    setColor("graph.trufae", color0);
+    setColor("graph.current", color0);
+    setColor("graph.traced", color3);
+
+    // GUI
+    setColor("gui.cflow",   color0);
+    setColor("gui.dataoffset", color0);
+    setColor("gui.border",  color0);
+    setColor("highlight",   color0);
+    // Windows background
     setColor("gui.background", QColor(36, 66, 79));
+    // Disassembly nodes background
     setColor("gui.alt_background", QColor(58, 155, 196));
 }
 
