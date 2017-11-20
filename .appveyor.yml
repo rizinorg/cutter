@@ -46,8 +46,8 @@ deploy:
   auth_token:
     secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
   artifact: Cutter%BITS%
-  draft: false
-  prerelease: true
+  draft: true
+  prerelease: false
   on:
     branch: master
-    appveyor_repo_tag: false
+    appveyor_repo_tag: true
