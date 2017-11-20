@@ -54,12 +54,13 @@ qmake ../src
 make
 ```
 
-#### Method 2: Cmake
+#### Method 2: CMake
 ```sh
 cd src
 mkdir build
 cd build
 cmake ..
+make
 ```
 
 Then run cutter: `./cutter` or `./build/cutter`
