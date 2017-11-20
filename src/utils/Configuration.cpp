@@ -181,9 +181,7 @@ void Configuration::loadDarkTheme()
 
 const QFont Configuration::getFont() const
 {
-    //QFont font = s.value("font", QFont("Monospace", 12)).value<QFont>();
-    //QFont font = QFont("Monospace", 12);
-    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    QFont font = s.value("font", QFontDatabase::systemFont(QFontDatabase::FixedFont)).value<QFont>();
     return font;
 }
 
