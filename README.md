@@ -26,6 +26,45 @@ sys/install.sh
 - QtCreator and Qt: Right now *cutter* uses Qt 5.9.1, you will need the latest QtCreator and Qt added during the installation:
     - Download: [Qt Open Source](https://info.qt.io/download-qt-for-application-development)
     - Add Qt 5.9.1: http://doc.qt.io/qtcreator/creator-project-qmake.html
+    
+## Building from source
+
+First you must clone the repository:
+```sh
+git clone https://github.com/radareorg/cutter
+cd cutter
+```
+### Building radare2
+```sh
+git submodule init radare2 && git submodule update radare2
+cd radare2 && ./sys/install.sh
+cd ..
+```
+
+### Building cutter
+
+Cutter can be build with two methods: The preferred one is with qmake, but you can also compile it with cmake. Choose the one you want to use.
+
+#### Method 1: Qmake
+```sh
+mkdir build
+cd build
+qmake ../src
+make
+```
+
+#### Method 2: Cmake
+```sh
+cd src
+mkdir build
+cd build
+cmake ..
+```
+
+Then run cutter: `./cutter` or `./build/cutter`
+
+Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for instance) you might want to use  `LD_LIBRARY_PATH=$HOME/bin/prefix/radare2/lib ./cutter` to run cutter.
+
 
 ## Troubleshoting
 
