@@ -106,6 +106,7 @@ private slots:
     void adjustHexdumpLines();
 
     void fontsUpdated();
+    void colorsUpdatedSlot();
 
     void on_codeCombo_2_currentTextChanged(const QString &arg1);
     void on_hexSideTab_2_currentChanged(int index);

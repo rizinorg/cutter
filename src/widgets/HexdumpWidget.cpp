@@ -44,6 +44,7 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     ui->asciiHeaderLabel->setContentsMargins(margin, 0, margin, 0);
 
     setupFonts();
+    colorsUpdatedSlot();
     updateHeaders();
 
     // Set hexdump context menu
@@ -60,6 +61,7 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     connectScroll(false);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
+    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
@@ -714,6 +716,17 @@ void HexdumpWidget::fontsUpdated()
 {
     setupFonts();
     adjustHexdumpLines();
+}
+
+void HexdumpWidget::colorsUpdatedSlot()
+{
+    QString styleSheet = QString("QPlainTextEdit { background-color: %1; color: %2; }")
+            .arg(ConfigColor("gui.background").name())
+            .arg(ConfigColor("btext").name());
+
+    ui->hexOffsetText->setStyleSheet(styleSheet);
+    ui->hexHexText->setStyleSheet(styleSheet);
+    ui->hexASCIIText->setStyleSheet(styleSheet);
 }
 
 
