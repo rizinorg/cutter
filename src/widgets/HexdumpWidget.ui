@@ -155,16 +155,10 @@ QToolTip {
       <item row="1" column="0">
        <widget class="QPlainTextEdit" name="hexOffsetText">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-        <property name="font">
-         <font>
-          <family>Anonymous Pro</family>
-          <pointsize>13</pointsize>
-         </font>
         </property>
         <property name="acceptDrops">
          <bool>false</bool>
@@ -195,7 +189,7 @@ QToolTip {
       <item row="1" column="1">
        <widget class="QPlainTextEdit" name="hexHexText">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -211,12 +205,6 @@ QToolTip {
           <width>16777215</width>
           <height>16777215</height>
          </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Anonymous Pro</family>
-          <pointsize>13</pointsize>
-         </font>
         </property>
         <property name="acceptDrops">
          <bool>false</bool>

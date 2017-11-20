@@ -103,7 +103,6 @@ private slots:
     void on_action32columns_triggered();
     void on_action64columns_triggered();
 
-    void resizeHexdump();
     void adjustHexdumpLines();
 
     void fontsUpdated();

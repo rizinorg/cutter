@@ -290,7 +290,6 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexOffsetText->setPlainText(hexdump[0]);
     ui->hexHexText->setPlainText(hexdump[1]);
     ui->hexASCIIText->setPlainText(hexdump[2]);
-    resizeHexdump();
 
 
     int seekLine = static_cast<int>((addr - topOffset) / cols);
@@ -516,14 +515,6 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA offset, RVA bytes)
     return { offsets, hex, ascii };
 }
 
-void HexdumpWidget::resizeHexdump()
-{
-    ui->hexOffsetText->setMinimumWidth(static_cast<int>(ui->hexOffsetText->document()->size().width()));
-    ui->hexHexText->setMinimumWidth(static_cast<int>(ui->hexHexText->document()->size().width()));
-
-    //this->hexASCIIText->setMinimumWidth(this->hexASCIIText->document()->size().width());
-}
-
 void HexdumpWidget::adjustHexdumpLines()
 {
     QScrollBar *sb = ui->hexASCIIText->verticalScrollBar();
@@ -722,7 +713,6 @@ void HexdumpWidget::setupFonts()
 void HexdumpWidget::fontsUpdated()
 {
     setupFonts();
-    resizeHexdump();
     adjustHexdumpLines();
 }
 
@@ -966,7 +956,6 @@ void HexdumpWidget::zoomIn(int range)
     ui->hexOffsetText->zoomIn(range);
     ui->hexASCIIText->zoomIn(range);
     ui->hexHexText->zoomIn(range);
-    resizeHexdump();
 }
 
 void HexdumpWidget::zoomOut(int range)
@@ -974,5 +963,4 @@ void HexdumpWidget::zoomOut(int range)
     ui->hexOffsetText->zoomOut(range);
     ui->hexASCIIText->zoomOut(range);
     ui->hexHexText->zoomOut(range);
-    resizeHexdump();
 }
