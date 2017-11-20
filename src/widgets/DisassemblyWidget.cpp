@@ -152,7 +152,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     // because pd N may return more than N lines, move maxLines lines down from the top
     mDisasTextEdit->moveCursor(QTextCursor::Start);
     QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, maxLines-1);
+    tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, maxLines - 1);
     mDisasTextEdit->setTextCursor(tc);
 
     connectCursorPositionChanged(false);
@@ -162,6 +162,11 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     {
         bottomOffset = topOffset;
     }
+
+    // remove additional lines
+    tc.movePosition(QTextCursor::EndOfLine);
+    tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    tc.removeSelectedText();
 
     updateCursorPosition();
 
@@ -191,14 +196,18 @@ void DisassemblyWidget::scrollInstructions(int count)
 }
 
 
-void DisassemblyWidget::updateMaxLines()
+bool DisassemblyWidget::updateMaxLines()
 {
     int currentMaxLines = qhelpers::getMaxFullyDisplayedLines(mDisasTextEdit);
+
     if (currentMaxLines != maxLines)
     {
         maxLines = currentMaxLines;
         refreshDisasm();
+        return true;
     }
+
+    return false;
 }
 
 void DisassemblyWidget::highlightCurrentLine()
@@ -434,7 +443,11 @@ void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetTyp
 void DisassemblyWidget::fontsUpdatedSlot()
 {
     mDisasTextEdit->setFont(Config()->getFont());
-    refreshDisasm();
+
+    if (!updateMaxLines()) // updateMaxLines() returns true if it already refreshed.
+    {
+        refreshDisasm();
+    }
 }
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)

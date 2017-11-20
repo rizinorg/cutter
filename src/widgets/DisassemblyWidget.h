@@ -31,7 +31,7 @@ private slots:
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     void scrollInstructions(int count);
-    void updateMaxLines();
+    bool updateMaxLines();
 
     void cursorPositionChanged();
 
