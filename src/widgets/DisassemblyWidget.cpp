@@ -4,6 +4,7 @@
 #include "utils/HexHighlighter.h"
 #include "utils/Configuration.h"
 #include "utils/Helpers.h"
+#include "utils/TempConfig.h"
 
 #include <QScrollBar>
 #include <QJsonArray>
@@ -108,11 +109,11 @@ QWidget* DisassemblyWidget::getTextWidget()
 
 QString DisassemblyWidget::readDisasm(const QString &cmd, bool stripLastNewline)
 {
-    Core()->setConfig("scr.html", true);
-    Core()->setConfig("scr.color", true);
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", true)
+            .set("scr.color", true);
+
     QString disas = Core()->cmd(cmd);
-    Core()->setConfig("scr.html", false);
-    Core()->setConfig("scr.color", false);
 
     if (stripLastNewline)
     {

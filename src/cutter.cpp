@@ -849,7 +849,7 @@ void CutterCore::setSettings()
     //setConfig("bin.rawstr", "true");
 
     // Colors
-    setConfig("scr.color", true);
+    setConfig("scr.color", false);
     setConfig("scr.truecolor", false);
 }
 

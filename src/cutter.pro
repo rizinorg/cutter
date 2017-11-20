@@ -78,7 +78,8 @@ SOURCES += \
     widgets/HexdumpWidget.cpp \
     utils/Configuration.cpp \
     utils/Colors.cpp \
-    dialogs/SaveProjectDialog.cpp
+    dialogs/SaveProjectDialog.cpp \
+    utils/TempConfig.cpp
 
 HEADERS  += \
     cutter.h \
@@ -127,7 +128,8 @@ HEADERS  += \
     widgets/HexdumpWidget.h \
     utils/Configuration.h \
     utils/Colors.h \
-    dialogs/SaveProjectDialog.h
+    dialogs/SaveProjectDialog.h \
+    utils/TempConfig.h
 
 FORMS    += \
     widgets/PreviewWidget.ui \

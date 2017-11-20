@@ -3,6 +3,7 @@
 #include "DisassemblerGraphView.h"
 
 #include "utils/Helpers.h"
+#include "utils/TempConfig.h"
 
 #include <QTemporaryFile>
 #include <QFontDialog>
@@ -149,6 +150,11 @@ void SidebarWidget::get_refs_data(RVA addr)
 void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data)
 {
     Q_UNUSED(graph_data);
+
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", false)
+            .set("scr.color", false);
+
     this->xreFromTreeWidget_2->clear();
     for (int i = 0; i < refs.size(); ++i)
     {
@@ -196,6 +202,10 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
 
 void SidebarWidget::fillOffsetInfo(QString off)
 {
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", false)
+            .set("scr.color", false);
+
     ui->offsetTreeWidget->clear();
     QString raw = Core()->getOffsetInfo(off);
     QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);

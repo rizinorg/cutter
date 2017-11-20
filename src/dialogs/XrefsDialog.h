@@ -25,12 +25,13 @@ public:
     void fillRefsForAddress(RVA addr, QString name, bool whole_function);
 
 private slots:
-
     void on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
-
     void on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     QString normalizeAddr(const QString& addr) const;
+
+    void setupPreviewFont();
+    void setupPreviewColors();
 
     void highlightCurrentLine();
     void on_fromTreeWidget_itemSelectionChanged();
@@ -43,8 +44,6 @@ private:
 
     std::unique_ptr<Ui::XrefsDialog> ui;
     CutterCore *core;
-
-    Highlighter      *highlighter;
 
     void fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs);
     void updateLabels(QString name);

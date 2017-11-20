@@ -1,6 +1,8 @@
 #include "XrefsDialog.h"
 #include "ui_XrefsDialog.h"
 
+#include "utils/TempConfig.h"
+
 #include "MainWindow.h"
 
 #include <QJsonArray>
@@ -19,11 +21,14 @@ XrefsDialog::XrefsDialog(QWidget *parent) :
     QTextDocument *asm_docu = ui->previewTextEdit->document();
     asm_docu->setDocumentMargin(10);
 
-    // Syntax highlight
-    highlighter = new Highlighter(ui->previewTextEdit->document());
+    setupPreviewFont();
+    setupPreviewColors();
 
     // Highlight current line
     connect(ui->previewTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
+
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupPreviewFont()));
+    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setupPreviewColors()));
 }
 
 XrefsDialog::~XrefsDialog() {}
@@ -110,6 +115,18 @@ QString XrefsDialog::normalizeAddr(const QString& addr) const
     }
 }
 
+void XrefsDialog::setupPreviewFont()
+{
+    ui->previewTextEdit->setFont(Config()->getFont());
+}
+
+void XrefsDialog::setupPreviewColors()
+{
+    ui->previewTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
+                                               .arg(ConfigColor("gui.background").name())
+                                               .arg(ConfigColor("btext").name()));
+}
+
 void XrefsDialog::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
@@ -152,20 +169,26 @@ void XrefsDialog::on_toTreeWidget_itemSelectionChanged()
 
 void XrefsDialog::updatePreview(RVA addr)
 {
+    // is the address part of a function, so we can use pdf?
+    bool isFunction = !core->cmdj("afij@" + QString::number(addr)).array().isEmpty();
+
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", true);
+    tempConfig.set("scr.color", true);
+
     QString disass;
 
-    // is the address part of a function, so we can use pdf?
-    if (!core->cmdj("afij@" + QString::number(addr)).array().isEmpty())
+    if (isFunction)
         disass = core->cmd("pdf @ " + QString::number(addr));
     else
         disass = core->cmd("pd 10 @ " + QString::number(addr));
 
-    ui->previewTextEdit->setPlainText(disass.trimmed());
+    ui->previewTextEdit->document()->setHtml(disass);
 
     // Does it make any sense?
     ui->previewTextEdit->moveCursor(QTextCursor::End);
     ui->previewTextEdit->find(this->normalizeAddr(RAddressString(addr)), QTextDocument::FindBackward);
-    ui->previewTextEdit->moveCursor(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
+    ui->previewTextEdit->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 }
 
 void XrefsDialog::updateLabels(QString name)
@@ -176,6 +199,10 @@ void XrefsDialog::updateLabels(QString name)
 
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)
 {
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", false);
+    tempConfig.set("scr.color", false);
+
     this->addr = addr;
     this->func_name = func_name;
 

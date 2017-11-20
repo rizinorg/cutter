@@ -5,6 +5,7 @@
 
 #include "MainWindow.h"
 #include "utils/Helpers.h"
+#include "utils/TempConfig.h"
 
 #include <QTemporaryFile>
 #include <QFontDialog>
@@ -482,6 +483,9 @@ void HexdumpWidget::fillPlugins()
 
 std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA offset, RVA bytes)
 {
+    TempConfig tempConfig;
+    tempConfig.set("scr.color", false);
+
     QString hexdump = Core()->cmd(QString("px %1 @ %2").arg(QString::number(bytes), QString::number(offset)));
 
     QString offsets;
