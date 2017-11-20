@@ -34,11 +34,6 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
     //highlightHexCurrentLine();
 
-    // Normalize fonts for other OS
-    /*qhelpers::normalizeFont(ui->hexOffsetText);
-    qhelpers::normalizeFont(ui->hexHexText);
-    qhelpers::normalizeFont(ui->hexASCIIText);*/
-
     int margin = static_cast<int>(ui->hexOffsetText->document()->documentMargin());
     ui->offsetHeaderLabel->setContentsMargins(margin, 0, margin, 0);
 
@@ -48,14 +43,8 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     margin = static_cast<int>(ui->hexASCIIText->document()->documentMargin());
     ui->asciiHeaderLabel->setContentsMargins(margin, 0, margin, 0);
 
-    setFonts();
+    setupFonts();
     updateHeaders();
-
-    // Popup menu on Settings toolbutton
-    QMenu *memMenu = new QMenu();
-    ui->memSettingsButton_2->addAction(ui->actionSettings_menu_1);
-    memMenu->addAction(ui->actionSettings_menu_1);
-    ui->memSettingsButton_2->setMenu(memMenu);
 
     // Set hexdump context menu
     ui->hexHexText->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -69,6 +58,8 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
 
     // Control Disasm and Hex scroll to add more contents
     connectScroll(false);
+
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
@@ -714,30 +705,10 @@ void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)
 }
 
 
-/*
- * Actions callback functions
- */
 
-void HexdumpWidget::on_actionSettings_menu_1_triggered()
+void HexdumpWidget::setupFonts()
 {
-    /*bool ok = true;
-
-    QFont font = QFont("Monospace", 8);
-    // TODO Use global configuration
-    //QFont font = QFontDialog::getFont(&ok, ui->disasTextEdit_2->font(), this);
-
-    if (ok)
-    {
-        setFonts(font);
-
-        //emit fontChanged(font);
-    }*/
-}
-
-void HexdumpWidget::setFonts()
-{
-    QFont font = QFont("Monospace", 8);
-    // TODO Use global configuration
+    QFont font = Config()->getFont();
 
     ui->hexOffsetText->setFont(font);
     ui->hexHexText->setFont(font);
@@ -747,6 +718,18 @@ void HexdumpWidget::setFonts()
     ui->hexHeaderLabel->setFont(font);
     ui->asciiHeaderLabel->setFont(font);
 }
+
+void HexdumpWidget::fontsUpdated()
+{
+    setupFonts();
+    resizeHexdump();
+    adjustHexdumpLines();
+}
+
+
+/*
+ * Actions callback functions
+ */
 
 void HexdumpWidget::on_actionHideHexdump_side_panel_triggered()
 {

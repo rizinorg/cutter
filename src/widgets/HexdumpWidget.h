@@ -77,15 +77,15 @@ private:
 	void connectScroll(bool disconnect);
     void setupScrollSync();
 
+    void setupFonts();
+
 private slots:
     void on_seekChanged(RVA addr);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     void highlightHexCurrentLine();
-    void setFonts();
 
     void highlightHexWords(const QString &str);
-    void on_actionSettings_menu_1_triggered();
     void on_actionHideHexdump_side_panel_triggered();
 
     void showHexdumpContextMenu(const QPoint &pt);
@@ -105,6 +105,8 @@ private slots:
 
     void resizeHexdump();
     void adjustHexdumpLines();
+
+    void fontsUpdated();
 
     void on_codeCombo_2_currentTextChanged(const QString &arg1);
     void on_hexSideTab_2_currentChanged(int index);

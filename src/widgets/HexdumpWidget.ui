@@ -147,60 +147,6 @@ QToolTip {
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="memSettingsButton_2">
-         <property name="toolTip">
-          <string notr="true">Settings</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QToolButton { /* all types of tool button */
-     border: 5px solid #333;
-     border-left: 10px solid #333;
-	 border-right: 10px solid #333;
-     border-radius: 0px;
-     background-color: #333;
- }
-
-QToolButton:hover {
-     border: 5px solid #444;
-     border-radius: 0px;
-     background-color: #444;
- }
-
-QToolButton:pressed {
-     border: 5px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/img/icons/cog_light.svg</normaloff>:/img/icons/cog_light.svg</iconset>
-         </property>
-         <property name="popupMode">
-          <enum>QToolButton::InstantPopup</enum>
-         </property>
-         <property name="autoRaise">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
       </layout>
      </widget>
     </item>
@@ -929,14 +875,6 @@ QToolTip {
     </item>
    </layout>
   </widget>
-  <action name="actionSettings_menu_1">
-   <property name="text">
-    <string>Change font</string>
-   </property>
-   <property name="toolTip">
-    <string>Change font</string>
-   </property>
-  </action>
   <action name="actionHideHexdump_side_panel">
    <property name="text">
     <string>Hexdump side panel</string>
