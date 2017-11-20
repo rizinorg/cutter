@@ -85,7 +85,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     //connect(Bridge::getBridge(), SIGNAL(focusGraph()), this, SLOT(setFocus()));
 
     //Connect to config
-    //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
+    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     //connect(Config(), SIGNAL(shortcutsUpdated()), this, SLOT(shortcutsUpdatedSlot()));
     //connect(Config(), SIGNAL(tokenizerConfigUpdated()), this, SLOT(tokenizerConfigUpdatedSlot()));
@@ -1777,10 +1777,10 @@ void DisassemblerGraphView::followDisassemblerSlot()
 
 void DisassemblerGraphView::colorsUpdatedSlot()
 {
-    disassemblyBackgroundColor = ConfigColor("gui.background");
+    disassemblyBackgroundColor = ConfigColor("gui.alt_background");
     mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
-    backgroundColor = ConfigColor("gui.alt_background");
+    backgroundColor = ConfigColor("gui.background");
     disassemblySelectionColor = ConfigColor("gui.highlight");
 
     jmpColor = ConfigColor("graph.trufae");

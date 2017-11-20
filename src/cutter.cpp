@@ -849,8 +849,8 @@ void CutterCore::setSettings()
     //setConfig("bin.rawstr", "true");
 
     // Colors
-    setConfig("scr.color", false);
-    setConfig("scr.truecolor", true);
+    setConfig("scr.color", true);
+    setConfig("scr.truecolor", false);
 }
 
 QList<RVA> CutterCore::getSeekHistory()

@@ -30,6 +30,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
 
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setObjectName("DisassemblyWidget");
+    colorsUpdatedSlot();
 
     mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mDisasTextEdit->setFont(Config()->getFont());
@@ -41,7 +42,6 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     // Increase asm text edit margin
     QTextDocument *asm_docu = mDisasTextEdit->document();
     asm_docu->setDocumentMargin(10);
-
 
     // Event filter to intercept double clicks in the textbox
     mDisasTextEdit->viewport()->installEventFilter(this);
@@ -81,6 +81,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshDisasm()));
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
+    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
         if (visibility)
@@ -214,13 +215,12 @@ void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    // Highlight the current line in yellow
+    // Highlight the current line
     if (mDisasTextEdit->isReadOnly())
     {
         QTextEdit::ExtraSelection selection;
-
-        QColor lineColor = QColor(190, 144, 212);
-
+        QColor lineColor = ConfigColor("gui.highlight");
+        lineColor.setAlpha(128);
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = mDisasTextEdit->textCursor();
@@ -234,8 +234,9 @@ void DisassemblyWidget::highlightCurrentLine()
 
     QTextEdit::ExtraSelection currentWord;
 
-    QColor blueColor = QColor(Qt::blue).lighter(160);
-    currentWord.format.setBackground(blueColor);
+    QColor highlightColor = ConfigColor("comment");
+    highlightColor.setAlpha(128);
+    currentWord.format.setBackground(highlightColor);
 
     currentWord.cursor = cursor;
     extraSelections.append(currentWord);
@@ -248,7 +249,7 @@ void DisassemblyWidget::highlightCurrentLine()
     //QTextCursor highlightCursor(document);
     QTextEdit::ExtraSelection highlightSelection;
     highlightSelection.cursor = cursor;
-    highlightSelection.format.setBackground(blueColor);
+    highlightSelection.format.setBackground(highlightColor);
     QTextCursor cursor2(document);
 
     cursor2.beginEditBlock();
@@ -448,6 +449,12 @@ void DisassemblyWidget::fontsUpdatedSlot()
     {
         refreshDisasm();
     }
+}
+
+void DisassemblyWidget::colorsUpdatedSlot()
+{
+    mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; }").arg(ConfigColor("gui.background").name()));
+    refreshDisasm();
 }
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)

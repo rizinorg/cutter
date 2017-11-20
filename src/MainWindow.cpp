@@ -391,11 +391,11 @@ void MainWindow::toggleTheme()
 {
     if (QSettings().value("dark").toBool())
     {
-        def_theme();
+        setDefaultTheme();
     }
     else
     {
-        dark();
+        setDarkTheme();
     }
 }
 
@@ -456,28 +456,19 @@ void MainWindow::readSettings()
     restoreState(state);
     if (settings.value("dark").toBool())
     {
-        this->dark();
+        this->setDarkTheme();
     }
     this->responsive = settings.value("responsive").toBool();
 }
 
-void MainWindow::dark()
+void MainWindow::setDarkTheme()
 {
-    qApp->setStyleSheet("QPlainTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} QTextEdit { background-color: rgb(64, 64, 64); color: rgb(222, 222, 222);} ");
-    // Call Config() rather than QSettings
-    QSettings settings;
-    settings.setValue("dark", true);
-
-    // TODO: emit a signal for theme
+    Config()->setDarkTheme(true);
 }
 
-void MainWindow::def_theme()
+void MainWindow::setDefaultTheme()
 {
-    qApp->setStyleSheet("");
-    QSettings settings;
-    settings.setValue("dark", false);
-
-    // TODO: emit a signal for theme
+    Config()->setDarkTheme(false);
 }
 
 
@@ -834,12 +825,12 @@ void MainWindow::on_actionRun_Script_triggered()
 
 void MainWindow::on_actionDark_Theme_triggered()
 {
-    this->dark();
+    this->setDarkTheme();
 }
 
 void MainWindow::on_actionWhite_Theme_triggered()
 {
-    this->def_theme();
+    this->setDefaultTheme();
 }
 
 void MainWindow::on_actionSDBBrowser_triggered()

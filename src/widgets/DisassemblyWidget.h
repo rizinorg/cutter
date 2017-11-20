@@ -25,6 +25,7 @@ public slots:
     void showDisasContextMenu(const QPoint &pt);
     void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
+    void colorsUpdatedSlot();
 
 private slots:
     void on_seekChanged(RVA offset);

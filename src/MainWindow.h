@@ -86,9 +86,8 @@ public slots:
 
     void refreshAll();
 
-    void dark();
-
-    void def_theme();
+    void setDarkTheme();
+    void setDefaultTheme();
 
     void on_actionEntry_points_triggered();
     void on_actionFunctions_triggered();

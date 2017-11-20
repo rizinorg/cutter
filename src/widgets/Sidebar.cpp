@@ -77,12 +77,12 @@ void SideBar::on_themesButton_clicked()
     if (ui->themesButton->isChecked())
     {
         // Dark theme
-        this->main->dark();
+        this->main->setDarkTheme();
     }
     else
     {
         // Clear theme
-        this->main->def_theme();
+        this->main->setDefaultTheme();
     }
 }
 

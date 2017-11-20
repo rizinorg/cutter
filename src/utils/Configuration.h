@@ -15,7 +15,10 @@ private:
     QSettings s;
     static Configuration* mPtr;
 
-    void loadDefaultColors();
+    // Colors
+    void loadDefaultTheme();
+    void loadDarkTheme();
+    void setColor(const QString &name, const QColor &color);
 
 public:
     // Functions
@@ -28,6 +31,7 @@ public:
 
     // Colors
     const QColor getColor(const QString &name) const;
+    void setDarkTheme(bool set);
 
     // TODO Imho it's wrong doing it this way. Should find something else.
     bool getAsmESIL() const             { return s.value("asm.esil", false).toBool(); }
@@ -74,6 +78,7 @@ public:
 
 signals:
     void fontsUpdated();
+    void colorsUpdated();
 };
 
 #endif // CONFIGURATION_H
