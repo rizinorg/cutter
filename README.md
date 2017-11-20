@@ -34,6 +34,7 @@ First you must clone the repository:
 git clone https://github.com/radareorg/cutter
 cd cutter
 ```
+
 ### Building radare2
 ```sh
 git submodule init radare2 && git submodule update radare2
@@ -71,6 +72,8 @@ Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for 
 On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installed with brew. Run this command to workaround the issue:
 
 	sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
+	
+If you encounter the `Project ERROR: r_core development package not found` try this command instead `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
 
 ## Platforms
 
