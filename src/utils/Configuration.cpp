@@ -1,6 +1,7 @@
 #include "Configuration.h"
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QFontDatabase>
 
 Configuration* Configuration::mPtr = nullptr;
 
@@ -180,7 +181,9 @@ void Configuration::loadDarkTheme()
 
 const QFont Configuration::getFont() const
 {
-    QFont font = s.value("font", QFont("Monospace", 12)).value<QFont>();
+    //QFont font = s.value("font", QFont("Monospace", 12)).value<QFont>();
+    //QFont font = QFont("Monospace", 12);
+    QFont font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     return font;
 }
 
