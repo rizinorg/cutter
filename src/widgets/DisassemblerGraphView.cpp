@@ -1533,7 +1533,15 @@ void DisassemblerGraphView::loadCurrentGraph()
     Function f;
     f.ready = true;
     f.entry = func["offset"].toInt();
-    this->parentWidget()->setWindowTitle(func["name"].toString());
+
+    QString windowTitle = tr("Graph");
+    QString funcName = func["name"].toString().trimmed();
+    if (!funcName.isEmpty())
+    {
+        windowTitle += " (" + funcName + ")";
+    }
+    this->parentWidget()->setWindowTitle(windowTitle);
+
     f.update_id = anal.update_id;
 
     for (QJsonValueRef blockRef : func["blocks"].toArray()) {
