@@ -275,7 +275,6 @@ bool FunctionSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &
     return function.name.contains(filterRegExp());
 }
 
-
 bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
     if (!left.isValid() || !right.isValid())
@@ -319,11 +318,6 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
         return left_function.offset < right_function.offset;
     }
 }
-
-
-
-
-
 
 FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     QDockWidget(parent),

@@ -1533,6 +1533,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     Function f;
     f.ready = true;
     f.entry = func["offset"].toInt();
+    this->parentWidget()->setWindowTitle(func["name"].toString());
     f.update_id = anal.update_id;
 
     for (QJsonValueRef blockRef : func["blocks"].toArray()) {
@@ -1820,7 +1821,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     */
 
     fontChanged();
-    loadCurrentGraph();
+    refreshView();
 }
 
 void DisassemblerGraphView::fontsUpdatedSlot()
