@@ -7,7 +7,7 @@ VERSION = 1.0
 
 ICON = img/cutter.icns
 
-QT += core gui widgets
+QT += core gui widgets svg
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
