@@ -395,6 +395,7 @@ void PieView::paintEvent(QPaintEvent *event)
     //painter.drawEllipse(meowRect);
     QPoint p = pieRect.center();
     QPoint q(margin - 2, margin - 2);
+    painter.setBrush(background);
     painter.drawEllipse(p -= q, pieSize / 4, pieSize / 4);
 
     painter.restore();

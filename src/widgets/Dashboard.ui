@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(255, 255, 255);</string>
+   <string notr="true">background-color: palette(base);</string>
   </property>
   <property name="windowTitle">
    <string notr="true">Dashboard</string>
@@ -56,7 +56,7 @@
          <x>0</x>
          <y>0</y>
          <width>1055</width>
-         <height>980</height>
+         <height>974</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_5">

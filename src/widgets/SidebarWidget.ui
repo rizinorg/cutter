@@ -83,7 +83,7 @@
          <x>0</x>
          <y>0</y>
          <width>333</width>
-         <height>816</height>
+         <height>810</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -299,10 +299,6 @@
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 0);</string>
             </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>

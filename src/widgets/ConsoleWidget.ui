@@ -88,7 +88,7 @@
         </font>
        </property>
        <property name="styleSheet">
-        <string notr="true">border-top: 1px solid rgb(255, 255, 255);</string>
+        <string notr="true">/*border-top: 1px solid rgb(255, 255, 255);*/</string>
        </property>
        <property name="frame">
         <bool>false</bool>
@@ -117,10 +117,12 @@ QToolButton { /* all types of tool button */
     border-radius: 6px;
     border-top: 2px solid rgb(255, 255, 255);
     border-bottom: 2px solid rgb(255, 255, 255);
-    border-left: 8px solid rgb(255, 255, 255);
-    border-right: 5px solid rgb(255, 255, 255);
+    border-left: 2px solid rgb(255, 255, 255);
+    border-right: 2px solid rgb(255, 255, 255);
     margin-bottom: 1px;
     margin-top: 1px;
+    padding-left: 8px;
+    padding-right: 5px;
 	background-color: rgb(255, 255, 255);
 }</string>
        </property>
