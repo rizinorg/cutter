@@ -235,7 +235,6 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     if (va == 0 || va == 2)
         r_config_set_i(core_->config, "io.va", va);
 
-    printf("FILE OPEN (%s)\n", path.toUtf8().constData());
     f = r_core_file_open(core_, path.toUtf8().constData(), rw ? (R_IO_READ | R_IO_WRITE) : R_IO_READ, mapaddr);
     if (!f)
     {
@@ -252,35 +251,14 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     {
         if (va == 1)
         {
-            if (r_core_bin_load(core_, path.toUtf8().constData(), UT64_MAX))
-            {
-                RBinObject *obj = r_bin_get_object(core_->bin);
-                if (obj)
-                {
-                    eprintf("BITS %d\n", obj->info->bits);
-                }
-            }
-            else
+            if (!r_core_bin_load(core_, path.toUtf8().constData(), UT64_MAX))
             {
                 eprintf("CANNOT GET RBIN INFO\n");
             }
         }
         else
         {
-            if (r_core_bin_load(core_, path.toUtf8().constData(), UT64_MAX))
-            {
-                RBinObject *obj = r_bin_get_object(core_->bin);
-                if (obj)
-                {
-                    eprintf("BITS %d\n", obj->info->bits);
-                }
-                else
-                {
-                    eprintf("Bin load failed\n");
-                    return false;
-                }
-            }
-            else
+            if (!r_core_bin_load(core_, path.toUtf8().constData(), UT64_MAX))
             {
                 eprintf("CANNOT GET RBIN INFO\n");
             }
