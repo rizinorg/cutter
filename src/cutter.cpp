@@ -228,9 +228,7 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     RCoreFile *f;
     if (va == 0 || va == 2)
         r_config_set_i(core_->config, "io.va", va);
-    // NO ONE KNOWS WHY THIS IS FIXING A SEGFAULT. core_->file should have already a proper value. Pancake dixit
-    //core_->file = NULL;
-    // mapaddr = 0LL;
+
     printf("FILE OPEN (%s)\n", path.toUtf8().constData());
     f = r_core_file_open(core_, path.toUtf8().constData(), rw ? (R_IO_READ | R_IO_WRITE) : R_IO_READ, mapaddr);
     if (!f)
@@ -459,7 +457,7 @@ bool CutterCore::tryFile(QString path, bool rw)
     }
     // if rbin works, tell entry0, and symbols (main, constructor, ..)
 
-    //r_core_file_close (this->core, cf);
+    r_core_file_close (this->core_, cf);
 
     sdb_bool_set(DB, "try.is_writable", is_writable, 0);
     sdb_set(DB, "try.filetype", "elf.i386", 0);

@@ -114,7 +114,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    //delete core;
 }
 
 void MainWindow::initUI()
