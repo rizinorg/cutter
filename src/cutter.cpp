@@ -206,6 +206,12 @@ QJsonDocument CutterCore::cmdj(const QString &str)
 
     QString resString = QString(res);
 
+    if (resString.isEmpty())
+    {
+        r_mem_free(res);
+        return QJsonDocument();
+    }
+
     QJsonParseError jsonError;
     QJsonDocument doc = res ? QJsonDocument::fromJson(resString.toUtf8(), &jsonError) : QJsonDocument();
 
