@@ -11,7 +11,7 @@ configuration:
 branches:
   only:
     - master
-    - /v.*/
+    - /v\d.*/
 
 # Environment
 environment:
