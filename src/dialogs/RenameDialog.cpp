@@ -22,12 +22,12 @@ void RenameDialog::on_buttonBox_rejected()
     close();
 }
 
-void RenameDialog::setFunctionName(QString fcnName)
+void RenameDialog::setName(QString fcnName)
 {
     ui->nameEdit->setText(fcnName);
 }
 
-QString RenameDialog::getFunctionName() const
+QString RenameDialog::getName() const
 {
     return ui->nameEdit->text();
 }

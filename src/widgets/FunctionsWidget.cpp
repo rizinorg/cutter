@@ -468,12 +468,12 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
     RenameDialog *r = new RenameDialog(this);
 
     // Set function name in dialog
-    r->setFunctionName(function.name);
+    r->setName(function.name);
     // If user accepted
     if (r->exec())
     {
         // Get new function name
-        QString new_name = r->getFunctionName();
+        QString new_name = r->getName();
         // Rename function in r2 core
         CutterCore::getInstance()->renameFunction(function.name, new_name);
 

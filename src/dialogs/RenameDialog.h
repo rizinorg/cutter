@@ -17,8 +17,8 @@ public:
     explicit RenameDialog(QWidget *parent = 0);
     ~RenameDialog();
 
-    void setFunctionName(QString fcnName);
-    QString getFunctionName() const;
+    void setName(QString fcnName);
+    QString getName() const;
 
 private slots:
     void on_buttonBox_accepted();
