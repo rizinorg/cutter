@@ -33,9 +33,6 @@ public:
     explicit SidebarWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
     ~SidebarWidget();
 
-    QTreeWidget      *xrefToTreeWidget_2;
-    QTreeWidget      *xreFromTreeWidget_2;
-
 private:
     std::unique_ptr<Ui::SidebarWidget> ui;
 
@@ -51,11 +48,13 @@ private slots:
 
     void refresh(RVA addr = RVA_INVALID);
 
-    void on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void on_xrefFromToolButton_2_clicked();
-    void on_xrefToToolButton_2_clicked();
+    void on_xrefFromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+    void on_xrefToTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+
     void on_offsetToolButton_clicked();
+    void on_opcodeDescToolButton_clicked();
+    void on_xrefFromToolButton_clicked();
+    void on_xrefToToolButton_clicked();
 };
 
 #endif // SIDEBARWIDGET_H

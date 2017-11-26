@@ -21,8 +21,6 @@ SidebarWidget::SidebarWidget(QWidget *parent, Qt::WindowFlags flags) :
         ui(new Ui::SidebarWidget)
 {
     ui->setupUi(this);
-    this->xrefToTreeWidget_2 = ui->xrefToTreeWidget_2;
-    this->xreFromTreeWidget_2 = ui->xreFromTreeWidget_2;
 
     // Add margin to function name line edit
     ui->fcnNameEdit->setTextMargins(5, 0, 0, 0);
@@ -63,9 +61,17 @@ void SidebarWidget::refresh(RVA addr)
     fillOffsetInfo(RAddressString(addr));
 }
 
-/*
- * Context menu functions
- */
+void SidebarWidget::on_xrefFromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
+{
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    Core()->seek(xref.to);
+}
+
+void SidebarWidget::on_xrefToTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
+{
+    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
+    Core()->seek(xref.from);
+}
 
 void SidebarWidget::on_offsetToolButton_clicked()
 {
@@ -81,43 +87,45 @@ void SidebarWidget::on_offsetToolButton_clicked()
     }
 }
 
-void SidebarWidget::on_xreFromTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
+void SidebarWidget::on_opcodeDescToolButton_clicked()
 {
-    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    Core()->seek(xref.to);
-}
-
-void SidebarWidget::on_xrefToTreeWidget_2_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
-{
-    XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
-    Core()->seek(xref.from);
-}
-
-void SidebarWidget::on_xrefFromToolButton_2_clicked()
-{
-    if (ui->xrefFromToolButton_2->isChecked())
+    if (ui->opcodeDescToolButton->isChecked())
     {
-        ui->xreFromTreeWidget_2->hide();
-        ui->xrefFromToolButton_2->setArrowType(Qt::RightArrow);
+        ui->opcodeDescText->hide();
+        ui->opcodeDescToolButton->setArrowType(Qt::RightArrow);
     }
     else
     {
-        ui->xreFromTreeWidget_2->show();
-        ui->xrefFromToolButton_2->setArrowType(Qt::DownArrow);
+        ui->opcodeDescText->show();
+        ui->opcodeDescToolButton->setArrowType(Qt::DownArrow);
     }
 }
 
-void SidebarWidget::on_xrefToToolButton_2_clicked()
+void SidebarWidget::on_xrefFromToolButton_clicked()
 {
-    if (ui->xrefToToolButton_2->isChecked())
+    if (ui->xrefFromToolButton->isChecked())
     {
-        ui->xrefToTreeWidget_2->hide();
-        ui->xrefToToolButton_2->setArrowType(Qt::RightArrow);
+        ui->xrefFromTreeWidget->hide();
+        ui->xrefFromToolButton->setArrowType(Qt::RightArrow);
     }
     else
     {
-        ui->xrefToTreeWidget_2->show();
-        ui->xrefToToolButton_2->setArrowType(Qt::DownArrow);
+        ui->xrefFromTreeWidget->show();
+        ui->xrefFromToolButton->setArrowType(Qt::DownArrow);
+    }
+}
+
+void SidebarWidget::on_xrefToToolButton_clicked()
+{
+    if (ui->xrefToToolButton->isChecked())
+    {
+        ui->xrefToTreeWidget->hide();
+        ui->xrefToToolButton->setArrowType(Qt::RightArrow);
+    }
+    else
+    {
+        ui->xrefToTreeWidget->show();
+        ui->xrefToToolButton->setArrowType(Qt::DownArrow);
     }
 }
 
@@ -155,7 +163,7 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
     tempConfig.set("scr.html", false)
             .set("scr.color", false);
 
-    this->xreFromTreeWidget_2->clear();
+    ui->xrefFromTreeWidget->clear();
     for (int i = 0; i < refs.size(); ++i)
     {
         XrefDescription xref = refs[i];
@@ -166,16 +174,16 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
         QString tooltip = Core()->cmd("pdi 10 @ " + QString::number(xref.to)).trimmed();
         tempItem->setToolTip(0, tooltip);
         tempItem->setToolTip(1, tooltip);
-        this->xreFromTreeWidget_2->insertTopLevelItem(0, tempItem);
+        ui->xrefFromTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
-    int count = this->xreFromTreeWidget_2->columnCount();
+    int count = ui->xrefFromTreeWidget->columnCount();
     for (int i = 0; i != count; ++i)
     {
-        this->xreFromTreeWidget_2->resizeColumnToContents(i);
+        ui->xrefFromTreeWidget->resizeColumnToContents(i);
     }
 
-    this->xrefToTreeWidget_2->clear();
+    ui->xrefToTreeWidget->clear();
     for (int i = 0; i < xrefs.size(); ++i)
     {
         XrefDescription xref = xrefs[i];
@@ -190,13 +198,13 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
         //tempItem->setToolTip(0, this->core->cmd("pdi 10 @ " + tooltip).trimmed());
         //tempItem->setToolTip(1, this->core->cmd("pdi 10 @ " + tooltip).trimmed());
 
-        this->xrefToTreeWidget_2->insertTopLevelItem(0, tempItem);
+        ui->xrefToTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
-    int count2 = this->xrefToTreeWidget_2->columnCount();
+    int count2 = ui->xrefToTreeWidget->columnCount();
     for (int i = 0; i != count2; ++i)
     {
-        this->xrefToTreeWidget_2->resizeColumnToContents(i);
+        ui->xrefToTreeWidget->resizeColumnToContents(i);
     }
 }
 
@@ -254,6 +262,6 @@ void SidebarWidget::setFcnName(RVA addr)
 
 void SidebarWidget::setScrollMode()
 {
-    qhelpers::setVerticalScrollMode(ui->xreFromTreeWidget_2);
-    qhelpers::setVerticalScrollMode(ui->xrefToTreeWidget_2);
+    qhelpers::setVerticalScrollMode(ui->xrefFromTreeWidget);
+    qhelpers::setVerticalScrollMode(ui->xrefToTreeWidget);
 }
