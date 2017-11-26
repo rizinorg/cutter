@@ -86,7 +86,6 @@ int CutterCore::getCycloComplex(ut64 addr)
     }
     else
     {
-        eprintf("qcore->getCycloComplex: no fcn found");
         return 0;
     }
 }
@@ -105,7 +104,6 @@ int CutterCore::getFcnSize(ut64 addr)
     }
     else
     {
-        eprintf("qcore->getFcnSize: no fcn found");
         return 0;
     }
 }

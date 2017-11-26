@@ -451,7 +451,6 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
     {
         // Get new function name
         QString comment = c->getComment();
-        this->main->addDebugOutput("Comment: " + comment + " at: " + function.name);
         // Rename function in r2 core
         CutterCore::getInstance()->setComment(function.offset, comment);
         // Seek to new renamed function
