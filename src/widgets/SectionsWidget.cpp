@@ -18,6 +18,8 @@ SectionsWidget::SectionsWidget(MainWindow *main, QWidget *parent) :
     //setStyleSheet("QSplitter::handle:horizontal { width: 3px; } QSplitter::handle:vertical { height: 3px; }");
     //setStyleSheet("QSplitter::handle { height: 2px; background-color: rgb(255, 255, 255); image: url(:/img/icons/tabs.svg); }");
 
+    tree->sortByColumn(0, Qt::AscendingOrder);
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
 }
 

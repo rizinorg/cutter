@@ -44,6 +44,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
     //ui->importsTreeWidget->setItemDelegate(delegate);
 
     ui->importsTreeWidget->hideColumn(0);
+    ui->importsTreeWidget->sortByColumn(4, Qt::AscendingOrder);
 
     setScrollMode();
 

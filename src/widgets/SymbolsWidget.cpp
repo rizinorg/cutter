@@ -14,6 +14,7 @@ SymbolsWidget::SymbolsWidget(QWidget *parent) :
     ui->setupUi(this);
 
     ui->symbolsTreeWidget->hideColumn(0);
+    ui->symbolsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
 
     setScrollMode();
 

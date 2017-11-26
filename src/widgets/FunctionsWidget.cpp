@@ -350,11 +350,13 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     function_proxy_model = new FunctionSortFilterProxyModel(function_model, this);
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), function_proxy_model, SLOT(setFilterWildcard(const QString &)));
     ui->functionsTreeView->setModel(function_proxy_model);
+    ui->functionsTreeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
 
     nested_function_model = new FunctionModel(&functions, &import_addresses, true, default_font, highlight_font, this);
     nested_function_proxy_model = new FunctionSortFilterProxyModel(nested_function_model, this);
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), nested_function_proxy_model, SLOT(setFilterWildcard(const QString &)));
     ui->nestedFunctionsTreeView->setModel(nested_function_proxy_model);
+    ui->nestedFunctionsTreeView->sortByColumn(0, Qt::AscendingOrder);
 
     setScrollMode();
 

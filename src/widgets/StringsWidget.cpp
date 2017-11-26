@@ -18,6 +18,8 @@ StringsWidget::StringsWidget(MainWindow *main, QWidget *parent) :
 
     setScrollMode();
 
+    ui->stringsTreeWidget->sortByColumn(2, Qt::AscendingOrder);
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillTreeWidget()));
 }
 

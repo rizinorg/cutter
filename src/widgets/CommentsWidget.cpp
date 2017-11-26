@@ -15,6 +15,7 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
     ui->setupUi(this);
 
     ui->commentsTreeWidget->hideColumn(0);
+    ui->commentsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
 
     QTabBar *tabs = ui->tabWidget->tabBar();
     tabs->setVisible(false);
