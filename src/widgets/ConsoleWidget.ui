@@ -43,9 +43,6 @@
        <pointsize>11</pointsize>
       </font>
      </property>
-     <property name="styleSheet">
-      <string notr="true">/*QPlainTextEdit { background: rgb(226, 230, 235) }*/</string>
-     </property>
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
@@ -66,7 +63,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
-      <number>0</number>
+      <number>4</number>
      </property>
      <property name="leftMargin">
       <number>5</number>
@@ -82,13 +79,8 @@
      </property>
      <item>
       <widget class="QLineEdit" name="inputLineEdit">
-       <property name="font">
-        <font>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
        <property name="styleSheet">
-        <string notr="true">/*border-top: 1px solid rgb(255, 255, 255);*/</string>
+        <string notr="true">border: 2px solid palette(base);</string>
        </property>
        <property name="frame">
         <bool>false</bool>
@@ -103,6 +95,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="execButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="toolTip">
         <string>Execute command</string>
        </property>

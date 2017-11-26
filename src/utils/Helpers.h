@@ -15,9 +15,6 @@ class QWidget;
 
 namespace qhelpers
 {
-    void normalizeFont(QPlainTextEdit *edit);
-    void normalizeEditFont(QTextEdit *edit);
-
     void adjustColumns(QTreeWidget *tw, int columnCount = 0, int padding = 0);
 
     QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),

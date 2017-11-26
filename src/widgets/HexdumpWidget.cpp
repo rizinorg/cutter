@@ -714,6 +714,8 @@ void HexdumpWidget::setupFonts()
     ui->offsetHeaderLabel->setFont(font);
     ui->hexHeaderLabel->setFont(font);
     ui->asciiHeaderLabel->setFont(font);
+
+    ui->hexDisasTextEdit->setFont(font);
 }
 
 void HexdumpWidget::fontsUpdated()

@@ -68,6 +68,7 @@ static const int invalidHistoryPos = -1;
 
 static bool isForbidden(const QString &input)
 {
+    return false;
     static const QRegExp delimiters("[;&]");
 
 
@@ -102,20 +103,13 @@ ConsoleWidget::ConsoleWidget(QWidget *parent) :
     // Adjust console lineedit
     ui->inputLineEdit->setTextMargins(10, 0, 0, 0);
 
-    /*
-    ui->consoleOutputTextEdit->setFont(QFont("Monospace", 8));
-    ui->consoleOutputTextEdit->setStyleSheet("background-color:black;color:gray;");
-    ui->consoleInputLineEdit->setStyleSheet("background-color:black;color:gray;");
-    */
+    setupFont();
 
     // Adjust text margins of consoleOutputTextEdit
     QTextDocument *console_docu = ui->outputTextEdit->document();
     console_docu->setDocumentMargin(10);
 
-    // Fix output panel font
-    qhelpers::normalizeFont(ui->outputTextEdit);
-
-    QAction *action = new QAction(tr("Clear ouput"), ui->outputTextEdit);
+    QAction *action = new QAction(tr("Clear Output"), ui->outputTextEdit);
     connect(action, SIGNAL(triggered(bool)), ui->outputTextEdit, SLOT(clear()));
     actions.append(action);
 
@@ -145,9 +139,16 @@ ConsoleWidget::ConsoleWidget(QWidget *parent) :
     QShortcut *historyOnDown = new QShortcut(QKeySequence(Qt::Key_Down), ui->inputLineEdit);
     connect(historyOnDown, SIGNAL(activated()), this, SLOT(historyNext()));
     historyOnDown->setContext(Qt::WidgetShortcut);
+
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupFont()));
 }
 
 ConsoleWidget::~ConsoleWidget() {}
+
+void ConsoleWidget::setupFont()
+{
+    ui->outputTextEdit->setFont(Config()->getFont());
+}
 
 void ConsoleWidget::addOutput(const QString &msg)
 {
@@ -177,7 +178,8 @@ void ConsoleWidget::on_inputLineEdit_returnPressed()
         if (!isForbidden(input))
         {
             QString res = CutterCore::getInstance()->cmd(input);
-            ui->outputTextEdit->appendPlainText(res);
+            QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + input + "\n";
+            ui->outputTextEdit->appendPlainText(cmd_line + res);
             scrollOutputToEnd();
             historyAdd(input);
         }

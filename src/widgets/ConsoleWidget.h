@@ -30,6 +30,8 @@ public slots:
     void focusInputLineEdit();
 
 private slots:
+    void setupFont();
+
     void on_inputLineEdit_returnPressed();
 
     void on_execButton_clicked();
