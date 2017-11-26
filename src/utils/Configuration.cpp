@@ -20,14 +20,14 @@ void Configuration::loadDefaultTheme()
 {
     QColor color0 = QColor(0, 0, 0);
     QColor color1 = QColor(0, 0, 255);
-    QColor color2 = QColor(0, 255, 0);
+    QColor color2 = QColor(0, 128, 0);
     QColor color3 = QColor(255, 0, 0);
     QColor color4 = QColor(127, 0, 127);
     QColor color5 = QColor(95, 95, 175);
     QColor color6 = QColor(255, 235, 95);
     QColor color7 = QColor(215, 135, 0);
     QColor color8 = QColor(108, 108, 108);
-    QColor color9 = QColor(255, 128, 0);
+    QColor color9 = QColor(128, 64, 0);
 
     // Instructions
     setColor("comment",     color4);
@@ -101,7 +101,7 @@ void Configuration::loadDefaultTheme()
 void Configuration::loadDarkTheme()
 {
     QColor color0 = QColor(255, 255, 255);
-    QColor color1 = QColor(64, 0, 255);
+    QColor color1 = QColor(100, 180, 255);
     QColor color2 = QColor(0, 255, 0);
     QColor color3 = QColor(255, 0, 0);
     QColor color4 = QColor(128, 235, 200);
@@ -176,7 +176,7 @@ void Configuration::loadDarkTheme()
     // Windows background
     setColor("gui.background", QColor(36, 66, 79));
     // Disassembly nodes background
-    setColor("gui.alt_background", QColor(58, 155, 196));
+    setColor("gui.alt_background", QColor(58, 100, 128));
 }
 
 const QFont Configuration::getFont() const
