@@ -298,20 +298,20 @@ void NewFileDialog::loadFile(const QString &filename)
 
         settings.setValue("recentFileList", files);
 
-        close();
-
         // Close dialog and open MainWindow/OptionsDialog
         MainWindow *main = new MainWindow();
         main->openNewFile(filename);
         //OptionsDialog *o = new OptionsDialog(fname);
         //o->exec();
+
+        close();
     }
 }
 
 void NewFileDialog::loadProject(const QString &project)
 {
-    close();
-
     MainWindow *main = new MainWindow();
     main->openProject(project);
+    
+    close();
 }

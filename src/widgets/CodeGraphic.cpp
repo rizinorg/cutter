@@ -79,7 +79,12 @@ void GraphicsBar::fillData()
     int to = mainMap["to"].toInt();
     int block = mainMap["blocksize"].toInt();
     int size = (to - from);
-    int num = size / block;
+    int num = 1;
+    if (block != 0)
+    {
+        num = size / block;
+    }
+
     if (num < 1)
     {
         num = 1;
