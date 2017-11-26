@@ -14,9 +14,6 @@
    <string>Save Project</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="sizeConstraint">
-    <enum>QLayout::SetMinAndMaxSize</enum>
-   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -68,6 +65,13 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="simpleCheckBox">
+     <property name="text">
+      <string>Use simple project saving style (prj.simple, recommended)</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="filesCheckBox">

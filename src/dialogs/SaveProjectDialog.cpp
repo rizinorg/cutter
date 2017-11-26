@@ -27,6 +27,7 @@ SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
 
     ui->nameEdit->setText(core->getConfig("prj.name"));
     ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
+    ui->simpleCheckBox->setChecked(core->getConfigb("prj.simple"));
     ui->filesCheckBox->setChecked(core->getConfigb("prj.files"));
     ui->gitCheckBox->setChecked(core->getConfigb("prj.git"));
     ui->zipCheckBox->setChecked(core->getConfigb("prj.zip"));
@@ -83,6 +84,7 @@ void SaveProjectDialog::accept()
 {
     CutterCore *core = CutterCore::getInstance();
     core->setConfig("dir.projects", ui->projectsDirEdit->text().toUtf8().constData());
+    core->setConfig("prj.simple", ui->simpleCheckBox->isChecked());
     core->setConfig("prj.files", ui->filesCheckBox->isChecked());
     core->setConfig("prj.git", ui->gitCheckBox->isChecked());
     core->setConfig("prj.zip", ui->zipCheckBox->isChecked());

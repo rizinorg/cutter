@@ -312,6 +312,6 @@ void NewFileDialog::loadProject(const QString &project)
 {
     MainWindow *main = new MainWindow();
     main->openProject(project);
-    
+
     close();
 }

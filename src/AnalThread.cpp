@@ -87,11 +87,13 @@ void AnalThread::run()
         core->cmd("e asm.os=" + os);
     }
 
-
     if (ui->pdbCheckBox->isChecked())
     {
         core->loadPDB(ui->pdbLineEdit->text());
     }
-    //qDebug() << "Anal level: " << this->level;
+
+    // use prj.simple as default as long as regular projects are broken
+    core->setConfig("prj.simple", true);
+
     core->analyze(this->level, this->advanced);
 }
