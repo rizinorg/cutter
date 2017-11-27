@@ -269,7 +269,6 @@ void DisassemblyWidget::highlightCurrentLine()
     cursor2.endEditBlock();
 
     mDisasTextEdit->setExtraSelections(extraSelections);
-    mCtxMenu->setOffset(readCurrentDisassemblyOffset());
 }
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)

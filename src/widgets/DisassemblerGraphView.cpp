@@ -1656,107 +1656,10 @@ void DisassemblerGraphView::setupContextMenu()
 {
     connect(this, &DisassemblerGraphView::currentInstructionUpdated,
             mMenu, &DisassemblyContextMenu::setOffset);
-    // TODO make this prettier
 
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
-    /*
-    mMenuBuilder = new MenuBuilder(this, [](QMenu*)
-    {
-        return DbgIsDebugging();
-    });
-
-    mMenuBuilder->addAction(makeShortcutAction(DIcon(QString("processor%1.png").arg(ArchValue("32", "64"))), tr("Follow in &Disassembler"), SLOT(followDisassemblerSlot()), "ActionGraphFollowDisassembler"), [this](QMenu*)
-    {
-        return this->cur_instr != 0;
-    });
-    mMenuBuilder->addSeparator();
-
-    auto breakpointMenu = new BreakpointMenu(this, getActionHelperFuncs(), [this]()
-    {
-        return cur_instr;
-    });
-    breakpointMenu->build(mMenuBuilder);
-    mMenuBuilder->addAction(makeShortcutAction(DIcon("comment.png"), tr("&Comment"), SLOT(setCommentSlot()), "ActionSetComment"));
-    mMenuBuilder->addAction(makeShortcutAction(DIcon("label.png"), tr("&Label"), SLOT(setLabelSlot()), "ActionSetLabel"));
-    MenuBuilder* gotoMenu = new MenuBuilder(this);
-    gotoMenu->addAction(makeShortcutAction(DIcon("geolocation-goto.png"), tr("Expression"), SLOT(gotoExpressionSlot()), "ActionGotoExpression"));
-    gotoMenu->addAction(makeShortcutAction(DIcon("cbp.png"), tr("Origin"), SLOT(gotoOriginSlot()), "ActionGotoOrigin"));
-    gotoMenu->addAction(makeShortcutAction(DIcon("previous.png"), tr("Previous"), SLOT(gotoPreviousSlot()), "ActionGotoPrevious"), [this](QMenu*)
-    {
-        return mHistory.historyHasPrev();
-    });
-    gotoMenu->addAction(makeShortcutAction(DIcon("next.png"), tr("Next"), SLOT(gotoNextSlot()), "ActionGotoNext"), [this](QMenu*)
-    {
-        return mHistory.historyHasNext();
-    });
-    MenuBuilder* childrenAndParentMenu = new MenuBuilder(this, [this](QMenu * menu)
-    {
-        duint cursorpos = get_cursor_pos();
-        const DisassemblerBlock* currentBlock = nullptr;
-        const Instr* currentInstruction = nullptr;
-        for(const auto & i : blocks)
-        {
-            if(i.second.block.entry > cursorpos)
-                continue;
-            for(const Instr & inst : i.second.block.instrs)
-            {
-                if(inst.addr <= cursorpos && inst.addr + inst.opcode.size() > cursorpos)
-                {
-                    currentBlock = &i.second;
-                    currentInstruction = &inst;
-                    break;
-                }
-            }
-            if(currentInstruction)
-                break;
-        }
-        if(currentInstruction)
-        {
-            for(const duint & i : currentBlock->incoming) // This list is incomplete
-                addReferenceAction(menu, i);
-            if(!currentBlock->block.terminal)
-            {
-                menu->addSeparator();
-                for(const duint & i : currentBlock->block.exits)
-                    addReferenceAction(menu, i);
-            }
-            //to do: follow a constant
-            return true;
-        }
-        return false;
-    });
-    gotoMenu->addSeparator();
-    gotoMenu->addBuilder(childrenAndParentMenu);
-    mMenuBuilder->addMenu(makeMenu(DIcon("goto.png"), tr("Go to")), gotoMenu);
-    mMenuBuilder->addAction(makeShortcutAction(DIcon("xrefs.png"), tr("Xrefs..."), SLOT(xrefSlot()), "ActionXrefs"));
-    mMenuBuilder->addAction(makeShortcutAction(DIcon("snowman.png"), tr("Decompile"), SLOT(decompileSlot()), "ActionGraphDecompile"));
-    mMenuBuilder->addSeparator();
-    mMenuBuilder->addAction(mToggleOverview = makeShortcutAction(DIcon("graph.png"), tr("&Overview"), SLOT(toggleOverviewSlot()), "ActionGraphToggleOverview"));
-    mToggleOverview->setCheckable(true);
-    mMenuBuilder->addAction(mToggleSummary = makeShortcutAction(DIcon("summary.png"), tr("S&ummary"), SLOT(toggleSummarySlot()), "ActionGraphToggleSummary"));
-    mToggleSummary->setCheckable(true);
-    mMenuBuilder->addAction(mToggleSyncOrigin = makeShortcutAction(DIcon("lock.png"), tr("&Sync with origin"), SLOT(toggleSyncOriginSlot()), "ActionGraphSyncOrigin"));
-    mMenuBuilder->addAction(makeShortcutAction(DIcon("sync.png"), tr("&Refresh"), SLOT(refreshSlot()), "ActionRefresh"));
-    mMenuBuilder->addAction(makeShortcutAction(DIcon("image.png"), tr("&Save as image"), SLOT(saveImageSlot()), "ActionGraphSaveImage"));
-
-    MenuBuilder* layoutMenu = new MenuBuilder(this);
-    QActionGroup* layoutGroup = new QActionGroup(this);
-    layoutGroup->addAction(makeAction(DIcon("narrow.png"), tr("Narrow"), [this]() { setGraphLayout(LayoutType::Narrow); }));
-    QAction* mediumLayout =
-    layoutGroup->addAction(makeAction(DIcon("medium.png"), tr("Medium"), [this]() { setGraphLayout(LayoutType::Medium); }));
-    layoutGroup->addAction(makeAction(DIcon("wide.png"), tr("Wide"), [this]() { setGraphLayout(LayoutType::Wide); }));
-    for(QAction* layoutAction : layoutGroup->actions())
-    {
-        layoutAction->setCheckable(true);
-        layoutMenu->addAction(layoutAction);
-    }
-    mediumLayout->setChecked(true);
-    mMenuBuilder->addMenu(makeMenu(DIcon("layout.png"), tr("Layout")), layoutMenu);
-
-    mMenuBuilder->loadFromConfig();
-    */
 }
 
 void DisassemblerGraphView::keyPressEvent(QKeyEvent* event)

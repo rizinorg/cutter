@@ -135,7 +135,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 
     RenameDialog *dialog = new RenameDialog(this);
 
-    r_anal_op(core->anal, &op, offset, core->block, 32);
+    r_anal_op(core->anal, &op, offset, core->block + offset - core->offset, 32);
     tgt_addr = op.jump != UT64_MAX ? op.jump : op.ptr;
     if (op.var) {
         RAnalFunction *fcn = r_anal_get_fcn_in (core->anal, offset, 0);
