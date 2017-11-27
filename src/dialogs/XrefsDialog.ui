@@ -38,12 +38,12 @@
       <number>5</number>
      </property>
      <widget class="QWidget" name="verticalLayoutWidget">
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="xrefLayout">
        <property name="spacing">
         <number>5</number>
        </property>
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="label_xTo">
          <property name="text">
           <string notr="true">X-Refs to: </string>
          </property>
@@ -81,7 +81,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="label_xFrom">
          <property name="text">
           <string notr="true">X-Refs from: </string>
          </property>
@@ -121,7 +121,7 @@
       </layout>
      </widget>
      <widget class="QWidget" name="verticalLayoutWidget_2">
-      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <layout class="QVBoxLayout" name="previewLayout">
        <item>
         <widget class="QLabel" name="label">
          <property name="text">

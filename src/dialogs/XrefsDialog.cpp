@@ -42,12 +42,9 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         XrefDescription xref = refs[i];
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, RAddressString(xref.to));
+        tempItem->setText(0, xref.to_str);
         tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
         tempItem->setText(2, xrefTypeString(xref.type));
-        tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
-        //tempItem->setToolTip( 0, this->core->cmd("pdi 10 @ " + refs.at(i).at(0)) );
-        //tempItem->setToolTip( 1, this->core->cmd("pdi 10 @ " + refs.at(i).at(0)) );
         ui->fromTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
@@ -64,12 +61,9 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         XrefDescription xref = xrefs[i];
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, RAddressString(xref.from));
+        tempItem->setText(0, xref.from_str);
         tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
         tempItem->setText(2, xrefTypeString(xref.type));
-        tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
-        //tempItem->setToolTip( 0, this->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)) );
-        //tempItem->setToolTip( 1, this->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)) );
         ui->toTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
@@ -78,7 +72,6 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
     {
         ui->toTreeWidget->resizeColumnToContents(i);
     }
-
 }
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -193,8 +186,8 @@ void XrefsDialog::updatePreview(RVA addr)
 
 void XrefsDialog::updateLabels(QString name)
 {
-    ui->label_2->setText(tr("X-Refs to %1:").arg(name));
-    ui->label_3->setText(tr("X-Refs from %1:").arg(name));
+    ui->label_xTo->setText(tr("X-Refs to %1:").arg(name));
+    ui->label_xFrom->setText(tr("X-Refs from %1:").arg(name));
 }
 
 void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function)

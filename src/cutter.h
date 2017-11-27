@@ -153,7 +153,9 @@ struct EntrypointDescription
 struct XrefDescription
 {
     RVA from;
+    QString from_str;
     RVA to;
+    QString to_str;
     QString type;
 };
 
