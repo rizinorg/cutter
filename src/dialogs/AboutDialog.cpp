@@ -10,7 +10,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->label->setText(tr("<h1>Cutter</h1>"
-                          "Version "CUTTER_VERSION"<br/>"
+                          "Version " CUTTER_VERSION "<br/>"
                           "Using r2-" R2_GITTAP
                           "<h2>License</h2>"
                           "This Software is released under the GNU General Public License v3.0"
