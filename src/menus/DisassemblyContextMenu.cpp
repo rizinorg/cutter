@@ -172,7 +172,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
             dialog->setName(f->name);
             if (dialog->exec()) {
                 QString new_name = dialog->getName();
-                Core()->renameFunction(f->name, new_name);
+                Core()->renameFlag(f->name, new_name);
             }
         } else {
             /* Create new flag */

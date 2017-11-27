@@ -314,10 +314,15 @@ void CutterCore::analyze(int level,  QList<QString> advanced)
     }
 }
 
-void CutterCore::renameFunction(QString prev_name, QString new_name)
+void CutterCore::renameFunction(QString old_name, QString new_name)
 {
-    cmd("afn " + new_name + " " + prev_name);
-    emit functionRenamed(prev_name, new_name);
+    cmd("afn " + new_name + " " + old_name);
+    emit functionRenamed(old_name, new_name);
+}
+
+void CutterCore::renameFlag(QString old_name, QString new_name)
+{
+    cmd("fr " + old_name + " " + new_name);
 }
 
 void CutterCore::setComment(RVA addr, QString cmt)

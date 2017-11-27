@@ -40,7 +40,7 @@
      <item>
       <widget class="QLabel" name="nameLabel">
        <property name="text">
-        <string>Function name:</string>
+        <string>Name:</string>
        </property>
       </widget>
      </item>

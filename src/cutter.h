@@ -200,6 +200,7 @@ public:
     QJsonDocument cmdj(const QString &str);
     QStringList cmdList(const QString &str)     { auto l = cmd(str).split("\n"); l.removeAll(""); return l; }
     void renameFunction(QString prev_name, QString new_name);
+    void renameFlag(QString old_name, QString new_name);
     void setComment(RVA addr, QString cmt);
     void delComment(ut64 addr);
     QMap<QString, QList<QList<QString>>> getNestedComments();
