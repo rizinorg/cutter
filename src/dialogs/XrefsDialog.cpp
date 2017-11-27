@@ -35,6 +35,7 @@ XrefsDialog::~XrefsDialog() {}
 
 void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs)
 {
+    /* Fill refs */
     ui->fromTreeWidget->clear();
     for (int i = 0; i < refs.size(); ++i)
     {
@@ -43,10 +44,10 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, RAddressString(xref.to));
         tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
+        tempItem->setText(2, xrefTypeString(xref.type));
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         //tempItem->setToolTip( 0, this->core->cmd("pdi 10 @ " + refs.at(i).at(0)) );
         //tempItem->setToolTip( 1, this->core->cmd("pdi 10 @ " + refs.at(i).at(0)) );
-
         ui->fromTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
@@ -56,6 +57,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         ui->fromTreeWidget->resizeColumnToContents(i);
     }
 
+    /* Fill Xrefs */
     ui->toTreeWidget->clear();
     for (int i = 0; i < xrefs.size(); ++i)
     {
@@ -64,10 +66,10 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, RAddressString(xref.from));
         tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
+        tempItem->setText(2, xrefTypeString(xref.type));
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         //tempItem->setToolTip( 0, this->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)) );
         //tempItem->setToolTip( 1, this->core->cmd("pdi 10 @ " + xrefs.at(i).at(0)) );
-
         ui->toTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
@@ -99,6 +101,7 @@ void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int c
 
 QString XrefsDialog::normalizeAddr(const QString& addr) const
 {
+    QString r = addr;
     QString base = addr.split("0x")[1].trimmed();
     int len = base.length();
     if (len < 8)
@@ -106,13 +109,10 @@ QString XrefsDialog::normalizeAddr(const QString& addr) const
         int padding = 8 - len;
         QString zero = "0";
         QString zeroes = zero.repeated(padding);
-        QString s = "0x" + zeroes + base;
-        return s;
+        r = "0x" + zeroes + base;
     }
-    else
-    {
-        return addr;
-    }
+
+    return r;
 }
 
 void XrefsDialog::setupPreviewFont()
@@ -217,4 +217,21 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
     QList<XrefDescription> xrefs = core->getXRefs(addr, true, whole_function);
 
     fillRefs(refs, xrefs);
+}
+
+QString XrefsDialog::xrefTypeString(const QString &type)
+{
+    switch (type.toStdString()[0]) {
+    case R_ANAL_REF_TYPE_CALL:
+        return QString("Call");
+    case R_ANAL_REF_TYPE_CODE:
+        return QString("Code");
+    case R_ANAL_REF_TYPE_DATA:
+        return QString("Data");
+    case R_ANAL_REF_TYPE_NULL:
+        return QString("");
+    case R_ANAL_REF_TYPE_STRING:
+        return QString("String");
+    }
+    return type;
 }

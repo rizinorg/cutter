@@ -49,6 +49,8 @@ private:
     void updateLabels(QString name);
     void updatePreview(RVA addr);
 
+    QString xrefTypeString(const QString &type);
+
 };
 
 #endif // XREFSDIALOG_H
