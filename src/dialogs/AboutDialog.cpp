@@ -1,6 +1,6 @@
+#include <cutter.h>
 #include "AboutDialog.h"
 #include "ui_AboutDialog.h"
-#include "cutter.h"
 #include "r_version.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
