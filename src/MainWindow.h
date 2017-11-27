@@ -142,6 +142,9 @@ private slots:
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
 
+    void on_actionUndoSeek_triggered();
+    void on_actionRedoSeek_triggered();
+
     void on_actionWhite_Theme_triggered();
 
     void on_actionSDBBrowser_triggered();

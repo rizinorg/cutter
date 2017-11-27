@@ -808,6 +808,16 @@ void MainWindow::on_actionSaveAs_triggered()
     saveProjectAs();
 }
 
+void MainWindow::on_actionUndoSeek_triggered()
+{
+    Core()->seekPrev();
+}
+
+void MainWindow::on_actionRedoSeek_triggered()
+{
+    Core()->seekNext();
+}
+
 void MainWindow::on_actionRun_Script_triggered()
 {
     QFileDialog dialog(this);

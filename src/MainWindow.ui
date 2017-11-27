@@ -178,8 +178,8 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>419</x>
-      <y>265</y>
+      <x>367</x>
+      <y>185</y>
       <width>140</width>
       <height>239</height>
      </rect>
@@ -226,27 +226,14 @@ border-top: 0px;
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionDocumentation"/>
-    <addaction name="separator"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
-    <addaction name="separator"/>
-    <addaction name="actionCut"/>
-    <addaction name="actionCopy"/>
-    <addaction name="actionPaste"/>
-    <addaction name="actionDelete"/>
-    <addaction name="separator"/>
-    <addaction name="actionSelect_all"/>
-    <addaction name="separator"/>
-    <addaction name="actionFind"/>
-    <addaction name="actionFind_next"/>
-    <addaction name="actionFind_previous"/>
+    <addaction name="actionUndoSeek"/>
+    <addaction name="actionRedoSeek"/>
    </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="title">
@@ -328,7 +315,7 @@ QToolButton .svg-icon path {
   </widget>
   <action name="actionDefaut">
    <property name="text">
-    <string>Reset layout</string>
+    <string>Reset Layout</string>
    </property>
    <property name="toolTip">
     <string>Reset layout</string>
@@ -342,6 +329,9 @@ QToolButton .svg-icon path {
   <action name="actionNew">
    <property name="text">
     <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
   <action name="actionClose">
@@ -366,6 +356,9 @@ QToolButton .svg-icon path {
    <property name="text">
     <string>Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="actionSave">
    <property name="text">
@@ -375,14 +368,14 @@ QToolButton .svg-icon path {
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionUndo">
+  <action name="actionUndoSeek">
    <property name="text">
-    <string>Undo</string>
+    <string>Undo Seek</string>
    </property>
   </action>
-  <action name="actionRedo">
+  <action name="actionRedoSeek">
    <property name="text">
-    <string>Redo</string>
+    <string>Redo Seek</string>
    </property>
   </action>
   <action name="actionCut">
@@ -463,7 +456,7 @@ QToolButton .svg-icon path {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Toggle panel locks</string>
+    <string>Unlock Panels</string>
    </property>
    <property name="toolTip">
     <string>Toggle panel locks</string>
@@ -630,7 +623,7 @@ QToolButton .svg-icon path {
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Toggle tab position</string>
+    <string>Show Tabs at the Top</string>
    </property>
    <property name="toolTip">
     <string>Toggle tab position</string>
@@ -638,10 +631,7 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionDark_Theme">
    <property name="text">
-    <string>Dark theme</string>
-   </property>
-   <property name="toolTip">
-    <string>Dark theme</string>
+    <string>Dark Theme</string>
    </property>
   </action>
   <action name="actionLoad_workspace">
@@ -654,10 +644,7 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionWhite_Theme">
    <property name="text">
-    <string>Default theme</string>
-   </property>
-   <property name="toolTip">
-    <string>Default theme</string>
+    <string>Default Theme</string>
    </property>
   </action>
   <action name="actionCreate_File">
@@ -894,10 +881,7 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionRun_Script">
    <property name="text">
-    <string>Run script</string>
-   </property>
-   <property name="toolTip">
-    <string>Run script</string>
+    <string>Run Script</string>
    </property>
   </action>
   <action name="actionDashboard">
@@ -910,7 +894,7 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionReset_settings">
    <property name="text">
-    <string>Reset settings</string>
+    <string>Reset Settings</string>
    </property>
    <property name="toolTip">
     <string>Reset settings</string>
@@ -934,7 +918,7 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionRefresh_contents">
    <property name="text">
-    <string>Refresh contents</string>
+    <string>Refresh Contents</string>
    </property>
    <property name="toolTip">
     <string>Refresh contents</string>
@@ -958,7 +942,7 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionEntry_points">
    <property name="text">
-    <string>Entry points</string>
+    <string>Entry Points</string>
    </property>
   </action>
   <action name="actionDisplay_Offsets">
@@ -974,18 +958,12 @@ QToolButton .svg-icon path {
   </action>
   <action name="actionAsmOptions">
    <property name="text">
-    <string>Disassembly options</string>
-   </property>
-   <property name="toolTip">
-    <string>Disassembly options</string>
+    <string>Disassembly Options</string>
    </property>
   </action>
   <action name="actionSaveAs">
    <property name="text">
-    <string>Save as...</string>
-   </property>
-   <property name="toolTip">
-    <string>Save as</string>
+    <string>Save As...</string>
    </property>
   </action>
   <action name="actionTmp">
