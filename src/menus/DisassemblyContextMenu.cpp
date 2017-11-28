@@ -14,7 +14,15 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionAddFlag(this),
         actionRename(this),
         actionXRefs(this),
-        actionDisplayOptions(this)
+        actionDisplayOptions(this),
+        actionSetBaseBinary(this),
+        actionSetBaseOctal(this),
+        actionSetBaseDecimal(this),
+        actionSetBaseHexadecimal(this),
+        actionSetBasePort(this),
+        actionSetBaseIPAddr(this),
+        actionSetBaseSyscall(this),
+        actionSetBaseString(this)
 {
     init();
 }
@@ -51,24 +59,43 @@ QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 
 void DisassemblyContextMenu::init()
 {
-    actionAddComment.setText("Add comment");
+    actionAddComment.setText(tr("Add Comment"));
     this->addAction(&actionAddComment);
     actionAddComment.setShortcut(getCommentSequence());
 
-    actionAddFlag.setText("Add flag");
+    actionAddFlag.setText(tr("Add Flag"));
     this->addAction(&actionAddFlag);
     actionAddComment.setShortcut(getAddFlagSequence());
 
-    actionRename.setText("Rename");
+    actionRename.setText(tr("Rename"));
     this->addAction(&actionRename);
     actionAddComment.setShortcut(getRenameSequence());
 
-    actionXRefs.setText("Show xrefs");
+    QMenu *baseMenu = addMenu(tr("Set Base to..."));
+    actionSetBaseBinary.setText(tr("Binary"));
+    baseMenu->addAction(&actionSetBaseBinary);
+    actionSetBaseOctal.setText(tr("Octal"));
+    baseMenu->addAction(&actionSetBaseOctal);
+    actionSetBaseDecimal.setText(tr("Decimal"));
+    baseMenu->addAction(&actionSetBaseDecimal);
+    actionSetBaseHexadecimal.setText(tr("Hexadecimal"));
+    baseMenu->addAction(&actionSetBaseHexadecimal);
+    actionSetBasePort.setText(tr("Network Port"));
+    baseMenu->addAction(&actionSetBasePort);
+    actionSetBaseIPAddr.setText(tr("IP Address"));
+    baseMenu->addAction(&actionSetBaseIPAddr);
+    actionSetBaseSyscall.setText(tr("Syscall"));
+    baseMenu->addAction(&actionSetBaseSyscall);
+    actionSetBaseString.setText(tr("String"));
+    baseMenu->addAction(&actionSetBaseString);
+
+    this->addSeparator();
+    actionXRefs.setText(tr("Show X-Refs"));
     this->addAction(&actionXRefs);
     actionAddComment.setShortcut(getXRefSequence());
 
     this->addSeparator();
-    actionDisplayOptions.setText("Show options");
+    actionDisplayOptions.setText(tr("Show Options"));
     actionAddComment.setShortcut(getDisplayOptionsSequence());
     this->addAction(&actionDisplayOptions);
 
@@ -104,6 +131,16 @@ void DisassemblyContextMenu::init()
     connect(&actionRename, SIGNAL(triggered(bool)), this, SLOT(on_actionRename_triggered()));
     connect(&actionXRefs, SIGNAL(triggered(bool)), this, SLOT(on_actionXRefs_triggered()));
     connect(&actionDisplayOptions, SIGNAL(triggered()), this, SLOT(on_actionDisplayOptions_triggered()));
+
+    connect(&actionSetBaseBinary, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseBinary_triggered()));
+    connect(&actionSetBaseOctal, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseOctal_triggered()));
+    connect(&actionSetBaseDecimal, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseDecimal_triggered()));
+    connect(&actionSetBaseHexadecimal, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseHexadecimal_triggered()));
+    connect(&actionSetBasePort, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBasePort_triggered()));
+    connect(&actionSetBaseIPAddr, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseIPAddr_triggered()));
+    connect(&actionSetBaseSyscall, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseSyscall_triggered()));
+    connect(&actionSetBaseString, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseString_triggered()));
+    
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
@@ -198,4 +235,44 @@ void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
     AsmOptionsDialog *dialog = new AsmOptionsDialog(this->parentWidget());
     dialog->show();
+}
+
+void DisassemblyContextMenu::on_actionSetBaseBinary_triggered()
+{
+    Core()->setImmediateBase("b", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBaseOctal_triggered()
+{
+    Core()->setImmediateBase("o", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBaseDecimal_triggered()
+{
+    Core()->setImmediateBase("d", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBaseHexadecimal_triggered()
+{
+    Core()->setImmediateBase("h", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBasePort_triggered()
+{
+    Core()->setImmediateBase("p", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBaseIPAddr_triggered()
+{
+    Core()->setImmediateBase("i", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBaseSyscall_triggered()
+{
+    Core()->setImmediateBase("S", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBaseString_triggered()
+{
+    Core()->setImmediateBase("s", offset);
 }

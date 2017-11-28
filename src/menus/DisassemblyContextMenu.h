@@ -23,6 +23,15 @@ public slots:
     void on_actionXRefs_triggered();
     void on_actionDisplayOptions_triggered();
 
+    void on_actionSetBaseBinary_triggered();
+    void on_actionSetBaseOctal_triggered();
+    void on_actionSetBaseDecimal_triggered();
+    void on_actionSetBaseHexadecimal_triggered();
+    void on_actionSetBasePort_triggered();
+    void on_actionSetBaseIPAddr_triggered();
+    void on_actionSetBaseSyscall_triggered();
+    void on_actionSetBaseString_triggered();
+
 private:
     void init();
 
@@ -39,5 +48,14 @@ private:
     QAction actionRename;
     QAction actionXRefs;
     QAction actionDisplayOptions;
+
+    QAction actionSetBaseBinary;
+    QAction actionSetBaseOctal;
+    QAction actionSetBaseDecimal;
+    QAction actionSetBaseHexadecimal;
+    QAction actionSetBasePort;
+    QAction actionSetBaseIPAddr;
+    QAction actionSetBaseSyscall;
+    QAction actionSetBaseString;
 };
 #endif // DISASSEMBLYCONTEXTMENU_H

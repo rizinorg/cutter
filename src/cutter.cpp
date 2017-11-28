@@ -344,6 +344,17 @@ void CutterCore::delComment(ut64 addr)
     emit commentsChanged();
 }
 
+void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
+{
+    if (offset == RVA_INVALID)
+    {
+        offset = getOffset();
+    }
+
+    this->cmd("ahi " + r2BaseName + " @ " + QString::number(offset));
+    emit instructionChanged(offset);
+}
+
 QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
 {
     QMap<QString, QList<QList<QString>>> ret;
