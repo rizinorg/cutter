@@ -45,6 +45,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         tempItem->setText(0, xref.to_str);
         tempItem->setText(1, core->disassembleSingleInstruction(xref.to));
         tempItem->setText(2, xrefTypeString(xref.type));
+        tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         ui->fromTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
@@ -64,6 +65,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         tempItem->setText(0, xref.from_str);
         tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
         tempItem->setText(2, xrefTypeString(xref.type));
+        tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         ui->toTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content

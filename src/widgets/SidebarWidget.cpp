@@ -168,7 +168,7 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
     {
         XrefDescription xref = refs[i];
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, RAddressString(xref.to));
+        tempItem->setText(0, xref.to_str);
         tempItem->setText(1, Core()->disassembleSingleInstruction(xref.to));
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         QString tooltip = Core()->cmd("pdi 10 @ " + QString::number(xref.to)).trimmed();
@@ -189,7 +189,7 @@ void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription
         XrefDescription xref = xrefs[i];
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, RAddressString(xref.from));
+        tempItem->setText(0, xref.from_str);
         tempItem->setText(1, Core()->disassembleSingleInstruction(xref.from));
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         QString tooltip = Core()->cmd("pdi 10 @ " + QString::number(xref.from)).trimmed();
