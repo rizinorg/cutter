@@ -100,6 +100,11 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     connect(Core(), &CutterCore::refreshAll, this, [this]() {
         refreshDisasm(Core()->getOffset());
     });
+
+    // Dirty
+    QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    shortcut_escape->setContext(Qt::WidgetShortcut);
+    connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
 }
 
 DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
@@ -515,4 +520,9 @@ void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
 void DisassemblyTextEdit::keyPressEvent(QKeyEvent */*event*/)
 {
     //QPlainTextEdit::keyPressEvent(event);
+}
+
+void DisassemblyWidget::seekPrev()
+{
+    Core()->seekPrev();
 }

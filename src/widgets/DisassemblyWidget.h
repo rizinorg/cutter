@@ -26,6 +26,7 @@ public slots:
     void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
+    void seekPrev();
 
 private slots:
     void on_seekChanged(RVA offset);
