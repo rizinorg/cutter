@@ -13,9 +13,11 @@ public:
     DisassemblyContextMenu(QWidget *parent = nullptr);
     ~DisassemblyContextMenu() = default;
 
-
 public slots:
     void setOffset(RVA offset);
+
+private slots:
+    void aboutToShowSlot();
 
     void on_actionAddComment_triggered();
     void on_actionAddFlag_triggered();
@@ -33,8 +35,6 @@ public slots:
     void on_actionSetBaseString_triggered();
 
 private:
-    void init();
-
     QKeySequence getCommentSequence() const;
     QKeySequence getAddFlagSequence() const;
     QKeySequence getRenameSequence() const;
@@ -49,6 +49,8 @@ private:
     QAction actionXRefs;
     QAction actionDisplayOptions;
 
+    QMenu *setBaseMenu;
+    QAction *setBaseMenuAction;
     QAction actionSetBaseBinary;
     QAction actionSetBaseOctal;
     QAction actionSetBaseDecimal;

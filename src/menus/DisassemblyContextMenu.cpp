@@ -24,41 +24,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBaseSyscall(this),
         actionSetBaseString(this)
 {
-    init();
-}
-
-void DisassemblyContextMenu::setOffset(RVA offset)
-{
-    this->offset = offset;
-}
-
-QKeySequence DisassemblyContextMenu::getCommentSequence() const
-{
-    return {";"};
-}
-
-QKeySequence DisassemblyContextMenu::getAddFlagSequence() const
-{
-    return {}; //TODO insert correct sequence
-}
-
-QKeySequence DisassemblyContextMenu::getRenameSequence() const
-{
-    return {Qt::Key_N};
-}
-
-QKeySequence DisassemblyContextMenu::getXRefSequence() const
-{
-    return {Qt::Key_X};
-}
-
-QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
-{
-    return {}; //TODO insert correct sequence
-}
-
-void DisassemblyContextMenu::init()
-{
     actionAddComment.setText(tr("Add Comment"));
     this->addAction(&actionAddComment);
     actionAddComment.setShortcut(getCommentSequence());
@@ -71,23 +36,24 @@ void DisassemblyContextMenu::init()
     this->addAction(&actionRename);
     actionAddComment.setShortcut(getRenameSequence());
 
-    QMenu *baseMenu = addMenu(tr("Set Base to..."));
+    setBaseMenu = new QMenu(tr("Set Immediate Base to..."), this);
+    setBaseMenuAction = addMenu(setBaseMenu);
     actionSetBaseBinary.setText(tr("Binary"));
-    baseMenu->addAction(&actionSetBaseBinary);
+    setBaseMenu->addAction(&actionSetBaseBinary);
     actionSetBaseOctal.setText(tr("Octal"));
-    baseMenu->addAction(&actionSetBaseOctal);
+    setBaseMenu->addAction(&actionSetBaseOctal);
     actionSetBaseDecimal.setText(tr("Decimal"));
-    baseMenu->addAction(&actionSetBaseDecimal);
+    setBaseMenu->addAction(&actionSetBaseDecimal);
     actionSetBaseHexadecimal.setText(tr("Hexadecimal"));
-    baseMenu->addAction(&actionSetBaseHexadecimal);
+    setBaseMenu->addAction(&actionSetBaseHexadecimal);
     actionSetBasePort.setText(tr("Network Port"));
-    baseMenu->addAction(&actionSetBasePort);
+    setBaseMenu->addAction(&actionSetBasePort);
     actionSetBaseIPAddr.setText(tr("IP Address"));
-    baseMenu->addAction(&actionSetBaseIPAddr);
+    setBaseMenu->addAction(&actionSetBaseIPAddr);
     actionSetBaseSyscall.setText(tr("Syscall"));
-    baseMenu->addAction(&actionSetBaseSyscall);
+    setBaseMenu->addAction(&actionSetBaseSyscall);
     actionSetBaseString.setText(tr("String"));
-    baseMenu->addAction(&actionSetBaseString);
+    setBaseMenu->addAction(&actionSetBaseString);
 
     this->addSeparator();
     actionXRefs.setText(tr("Show X-Refs"));
@@ -140,7 +106,47 @@ void DisassemblyContextMenu::init()
     connect(&actionSetBaseIPAddr, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseIPAddr_triggered()));
     connect(&actionSetBaseSyscall, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseSyscall_triggered()));
     connect(&actionSetBaseString, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseString_triggered()));
-    
+
+    connect(this, SIGNAL(aboutToShow()), this, SLOT(aboutToShowSlot()));
+}
+
+void DisassemblyContextMenu::setOffset(RVA offset)
+{
+    this->offset = offset;
+}
+
+void DisassemblyContextMenu::aboutToShowSlot()
+{
+    // check if set immediate base menu makes sense
+    QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(offset)).array().first().toObject();
+    auto keys = instObject.keys();
+    bool immBase = keys.contains("val") || keys.contains("ptr");
+    setBaseMenuAction->setVisible(immBase);
+}
+
+QKeySequence DisassemblyContextMenu::getCommentSequence() const
+{
+    return {";"};
+}
+
+QKeySequence DisassemblyContextMenu::getAddFlagSequence() const
+{
+    return {}; //TODO insert correct sequence
+}
+
+QKeySequence DisassemblyContextMenu::getRenameSequence() const
+{
+    return {Qt::Key_N};
+}
+
+QKeySequence DisassemblyContextMenu::getXRefSequence() const
+{
+    return {Qt::Key_X};
+}
+
+QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
+{
+    return {}; //TODO insert correct sequence
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
