@@ -43,7 +43,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, xref.to_str);
-        tempItem->setText(1, core->disassembleSingleInstruction(xref.from));
+        tempItem->setText(1, core->disassembleSingleInstruction(xref.to));
         tempItem->setText(2, xrefTypeString(xref.type));
         ui->fromTreeWidget->insertTopLevelItem(0, tempItem);
     }
