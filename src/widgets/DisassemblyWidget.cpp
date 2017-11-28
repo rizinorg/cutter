@@ -278,11 +278,15 @@ void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 
 RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 {
+    QTextCursor tc = mDisasTextEdit->textCursor();
+    return readDisassemblyOffset(tc);
+}
+
+RVA DisassemblyWidget::readDisassemblyOffset(QTextCursor tc)
+{
     // TODO: do this in a different way without parsing the disassembly text
 
     static const QRegularExpression offsetRegExp("^0x[0-9A-Fa-f]*");
-
-    QTextCursor tc = mDisasTextEdit->textCursor();
 
     while (true)
     {
@@ -385,33 +389,28 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
     if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport()) && event->type() == QEvent::MouseButtonDblClick)
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        //qDebug()<<QString("Click location: (%1,%2)").arg(mouseEvent->x()).arg(mouseEvent->y());
+
         QTextCursor cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
-        cursor.select(QTextCursor::LineUnderCursor);
-        QString lastline = cursor.selectedText();
-        auto eles = lastline.split(" ", QString::SkipEmptyParts);
-        QString ele = eles.isEmpty() ? "" : eles[0];
-        if (ele.contains("0x"))
+        RVA offset = readDisassemblyOffset(cursor);
+
+        RVA jump = Core()->getOffsetJump(offset);
+
+        if (jump == RVA_INVALID)
         {
-            QString jump = CutterCore::getInstance()->getOffsetJump(ele);
-            if (!jump.isEmpty())
+            bool ok;
+            RVA xref = Core()->cmdj("axfj@" + QString::number(offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
+            if (ok)
             {
-                if (jump.contains("0x"))
-                {
-                    QString fcn = CutterCore::getInstance()->cmdFunctionAt(jump);
-                    if (!fcn.isEmpty())
-                    {
-                        RVA addr = jump.trimmed().toULongLong(0, 16);
-                        CutterCore::getInstance()->seek(addr);
-                    }
-                }
-                else
-                {
-                    RVA addr = CutterCore::getInstance()->cmd("?v " + jump).toULongLong(0, 16);
-                    CutterCore::getInstance()->seek(addr);
-                }
+                jump = xref;
             }
         }
+
+        if (jump != RVA_INVALID)
+        {
+            CutterCore::getInstance()->seek(jump);
+        }
+
+        return true;
     }
     return QDockWidget::eventFilter(obj, event);
 }

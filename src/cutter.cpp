@@ -716,10 +716,17 @@ QString CutterCore::getOffsetInfo(QString addr)
     return cmd("ao @ " + addr);
 }
 
-QString CutterCore::getOffsetJump(QString addr)
+RVA CutterCore::getOffsetJump(RVA addr)
 {
-    QString ret = cmd("ao @" + addr + "~jump[1]");
-    return ret;
+    bool ok;
+    RVA value = cmdj("aoj @" + QString::number(addr)).array().first().toObject().value("jump").toVariant().toULongLong(&ok);
+
+    if (!ok)
+    {
+        return RVA_INVALID;
+    }
+
+    return value;
 }
 
 QString CutterCore::getDecompiledCode(QString addr)

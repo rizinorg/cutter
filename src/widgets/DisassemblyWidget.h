@@ -47,6 +47,7 @@ private:
 
     QString readDisasm(const QString &cmd, bool stripLastNewline);
     RVA readCurrentDisassemblyOffset();
+    RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event);
 
     void updateCursorPosition();

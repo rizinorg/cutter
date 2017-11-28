@@ -258,7 +258,7 @@ public:
     ulong get_baddr();
     QList<QList<QString>> get_exec_sections();
     QString getOffsetInfo(QString addr);
-    QString getOffsetJump(QString addr);
+    RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(QString addr);
     QString getFileInfo();
     QStringList getStats();
