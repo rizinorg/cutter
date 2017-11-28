@@ -5,7 +5,6 @@
 #include "utils/Helpers.h"
 
 // TODO: remove us
-#include "widgets/PreviewWidget.h"
 #include "widgets/Notepad.h"
 
 #include <QSettings>

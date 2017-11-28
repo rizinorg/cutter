@@ -40,7 +40,6 @@
 #include "utils/Helpers.h"
 #include "dialogs/NewFileDialog.h"
 
-#include "widgets/PreviewWidget.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
 #include "widgets/CommentsWidget.h"
@@ -84,7 +83,6 @@ static void registerCustomFonts()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(CutterCore::getInstance()),
-    previewDock(nullptr),
     notepadDock(nullptr),
     asmDock(nullptr),
     calcDock(nullptr),
@@ -179,13 +177,6 @@ void MainWindow::initUI()
      */
     dockWidgets.reserve(14);
 
-    // Add Memory DockWidget
-    this->previewDock = new PreviewWidget(tr("Preview"), this);
-    dockWidgets.push_back(previewDock);
-    // To use in the future when we handle more than one memory views
-    // this->previewDock->setAttribute(Qt::WA_DeleteOnClose);
-    // this->add_debug_output( QString::number(this->dockList.length()) );
-
     // Add disassembly view (dockable)
     this->disassemblyDock = new DisassemblyWidget(tr("Disassembly"), this);
     dockWidgets.push_back(disassemblyDock);
@@ -262,7 +253,6 @@ void MainWindow::initUI()
     // Add Notepad Dock panel
     this->notepadDock = new Notepad(this);
     dockWidgets.push_back(notepadDock);
-    connect(previewDock, SIGNAL(fontChanged(QFont)), notepadDock, SLOT(setFonts(QFont)));
 
     //Add Dashboard Dock panel
     this->dashboardDock = new Dashboard(this);
@@ -548,17 +538,6 @@ void MainWindow::on_actionTabs_triggered()
     }
 }
 
-void MainWindow::on_actionMem_triggered()
-{
-    //this->previewDock->show();
-    //this->previewDock->raise();
-    PreviewWidget *newMemDock = new PreviewWidget();
-    this->dockWidgets << newMemDock;
-    newMemDock->setAttribute(Qt::WA_DeleteOnClose);
-    this->tabifyDockWidget(this->previewDock, newMemDock);
-    //newMemDock->refreshDisasm();
-}
-
 void MainWindow::on_actionEntry_points_triggered()
 {
     toggleDockWidget(entrypointDock);
@@ -680,7 +659,6 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
-    tabifyDockWidget(dashboardDock, previewDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
     tabifyDockWidget(dashboardDock, flagsDock);
     tabifyDockWidget(dashboardDock, stringsDock);
@@ -708,7 +686,6 @@ void MainWindow::showDefaultDocks()
     const QList<QDockWidget *> defaultDocks = { sectionsDock,
                                                 entrypointDock,
                                                 functionsDock,
-                                                previewDock,
                                                 commentsDock,
                                                 stringsDock,
                                                 importsDock,
@@ -845,7 +822,7 @@ void MainWindow::on_actionWhite_Theme_triggered()
 void MainWindow::on_actionSDBBrowser_triggered()
 {
     this->sdbDock = new SdbDock(this);
-    this->tabifyDockWidget(this->previewDock, this->sdbDock);
+    //this->tabifyDockWidget(this->previewDock, this->sdbDock);
     this->sdbDock->setFloating(true);
     this->sdbDock->show();
 }

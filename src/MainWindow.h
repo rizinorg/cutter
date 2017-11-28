@@ -123,8 +123,6 @@ public slots:
 
 private slots:
 
-    void on_actionMem_triggered();
-
     void on_actionAbout_triggered();
 
     void on_actionRefresh_Panels_triggered();
@@ -167,7 +165,6 @@ private slots:
 
 private:
     CutterCore       *core;
-    PreviewWidget     *previewDock;
     Notepad          *notepadDock;
     DisassemblyWidget  *disassemblyDock;
     SidebarWidget    *sidebarDock;
@@ -181,7 +178,6 @@ private:
     Configuration   *configuration;
 
     bool doLock;
-    void refreshMem();
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
