@@ -829,6 +829,10 @@ void CutterCore::setSettings()
     setConfig("asm.midflags", 2);
     //setConfig("asm.bbline", "true");
 
+    // asm.offset=false would break reading the offset in DisassemblyWidget
+    // TODO: remove this when DisassemblyWidget::readDisassemblyOffset() allows it
+    setConfig("asm.offset", true);
+
     setConfig("anal.hasnext", true);
     setConfig("asm.fcncalls", false);
     setConfig("asm.calls", false);

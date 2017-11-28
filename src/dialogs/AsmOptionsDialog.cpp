@@ -24,6 +24,10 @@ AsmOptionsDialog::AsmOptionsDialog(QWidget *parent)
     QFont currentFont = Config()->getFont();
     ui->fontSelectionLabel->setText(currentFont.toString());
 
+    // asm.offset=false would break reading the offset in DisassemblyWidget
+    // TODO: remove this when DisassemblyWidget::readDisassemblyOffset() allows it
+    ui->offsetCheckBox->setVisible(false);
+
     updateFromVars();
 }
 
