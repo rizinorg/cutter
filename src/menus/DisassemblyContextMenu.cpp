@@ -167,11 +167,20 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
 
     // only show "rename X used here" if there is something to rename
-    QString thingUsedHere = Core()->cmd("an @ " + QString::number(offset)).trimmed();
-    if (!thingUsedHere.isEmpty())
+    QJsonArray thingUsedHereArray = Core()->cmdj("anj @ " + QString::number(offset)).array();
+    if (!thingUsedHereArray.isEmpty())
     {
         actionRenameUsedHere.setVisible(true);
-        actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere));
+        QJsonObject thingUsedHere = thingUsedHereArray.first().toObject();
+        if (thingUsedHere["type"] == "address")
+        {
+            RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
+            actionRenameUsedHere.setText(tr("Add flag at %1 (used here)").arg(RAddressString(offset)));
+        }
+        else
+        {
+            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere["name"].toString()));
+        }
     }
     else
     {
@@ -294,18 +303,37 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 
 void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 {
-    QString thingUsedHere = Core()->cmd("an @ " + QString::number(offset)).trimmed();
-    if (thingUsedHere.isEmpty())
+    QJsonArray array = Core()->cmdj("anj @ " + QString::number(offset)).array();
+    if (array.isEmpty())
     {
         return;
     }
 
+    QJsonObject thingUsedHere = array.first().toObject();
+    QString type = thingUsedHere.value("type").toString();
+
     RenameDialog *dialog = new RenameDialog(this);
-    dialog->setWindowTitle(tr("Rename %1").arg(thingUsedHere));
-    dialog->setName(thingUsedHere);
-    if (dialog->exec()) {
-        QString new_name = dialog->getName();
-        Core()->cmd("an " + new_name.trimmed() + " @ " + QString::number(offset));
+
+    if (type == "address")
+    {
+        RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
+        dialog->setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
+        dialog->setName("label." + QString::number(offset, 16));
+    }
+    else
+    {
+        QString oldName = thingUsedHere.value("name").toString();
+        dialog->setWindowTitle(tr("Rename %1").arg(oldName));
+        dialog->setName(oldName);
+    }
+
+    if (dialog->exec())
+    {
+        QString newName = dialog->getName().trimmed();
+        if (!newName.isEmpty())
+        {
+            Core()->cmd("an " + newName + " @ " + QString::number(offset));
+        }
     }
 }
 
