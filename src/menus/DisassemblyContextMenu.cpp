@@ -15,6 +15,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionAddComment(this),
         actionAddFlag(this),
         actionRename(this),
+        actionRenameUsedHere(this),
         actionXRefs(this),
         actionDisplayOptions(this),
         actionSetBaseBinary(this),
@@ -37,11 +38,15 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     actionAddFlag.setText(tr("Add Flag"));
     this->addAction(&actionAddFlag);
-    actionAddComment.setShortcut(getAddFlagSequence());
+    actionAddFlag.setShortcut(getAddFlagSequence());
 
     actionRename.setText(tr("Rename"));
     this->addAction(&actionRename);
-    actionAddComment.setShortcut(getRenameSequence());
+    actionRename.setShortcut(getRenameSequence());
+
+    actionRenameUsedHere.setText(("Rename Flag/Fcn/Var Used Here"));
+    this->addAction(&actionRenameUsedHere);
+    actionRenameUsedHere.setShortcut(getRenameUsedHereSequence());
 
     setBaseMenu = new QMenu(tr("Set Immediate Base to..."), this);
     setBaseMenuAction = addMenu(setBaseMenu);
@@ -65,50 +70,35 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     this->addSeparator();
     actionXRefs.setText(tr("Show X-Refs"));
     this->addAction(&actionXRefs);
-    actionAddComment.setShortcut(getXRefSequence());
+    actionXRefs.setShortcut(getXRefSequence());
 
     this->addSeparator();
     actionDisplayOptions.setText(tr("Show Options"));
-    actionAddComment.setShortcut(getDisplayOptionsSequence());
+    actionDisplayOptions.setShortcut(getDisplayOptionsSequence());
     this->addAction(&actionDisplayOptions);
 
     auto pWidget = parentWidget();
 
-    QShortcut *shortcut_Copy = new QShortcut(getCopySequence(), pWidget);
-    shortcut_Copy->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_Copy, &QShortcut::activated,
-            this, &DisassemblyContextMenu::on_actionCopy_triggered);
-
-    QShortcut *shortcut_dispOptions = new QShortcut(getDisplayOptionsSequence(), pWidget);
-    shortcut_dispOptions->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_dispOptions, &QShortcut::activated,
-            this, &DisassemblyContextMenu::on_actionDisplayOptions_triggered);
-
-    QShortcut *shortcut_x = new QShortcut(getXRefSequence(), pWidget);
-    shortcut_x->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_x, &QShortcut::activated,
-            this, &DisassemblyContextMenu::on_actionXRefs_triggered);
-
-    QShortcut *shortcut_comment = new QShortcut(getCommentSequence(), pWidget);
-    shortcut_comment->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_comment, &QShortcut::activated,
-            this, &DisassemblyContextMenu::on_actionAddComment_triggered);
-
-    QShortcut *shortcut_addFlag = new QShortcut(getAddFlagSequence(), pWidget);
-    shortcut_addFlag->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_addFlag, &QShortcut::activated,
-            this, &DisassemblyContextMenu::on_actionAddFlag_triggered);
-
-    QShortcut *shortcut_renameSequence = new QShortcut(getRenameSequence(), pWidget);
-    shortcut_renameSequence->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_renameSequence, &QShortcut::activated,
-            this, &DisassemblyContextMenu::on_actionRename_triggered);
+#define ADD_SHORTCUT(sequence, slot) { \
+    QShortcut *shortcut = new QShortcut((sequence), pWidget); \
+    shortcut->setContext(Qt::WidgetWithChildrenShortcut); \
+    connect(shortcut, &QShortcut::activated, this, (slot)); \
+}
+    ADD_SHORTCUT(getCopySequence(), &DisassemblyContextMenu::on_actionCopy_triggered);
+    ADD_SHORTCUT(getDisplayOptionsSequence(), &DisassemblyContextMenu::on_actionDisplayOptions_triggered);
+    ADD_SHORTCUT(getXRefSequence(), &DisassemblyContextMenu::on_actionXRefs_triggered);
+    ADD_SHORTCUT(getCommentSequence(), &DisassemblyContextMenu::on_actionAddComment_triggered);
+    ADD_SHORTCUT(getAddFlagSequence(), &DisassemblyContextMenu::on_actionAddFlag_triggered);
+    ADD_SHORTCUT(getRenameSequence(), &DisassemblyContextMenu::on_actionRename_triggered);
+    ADD_SHORTCUT(getRenameUsedHereSequence(), &DisassemblyContextMenu::on_actionRenameUsedHere_triggered);
+#undef ADD_SHORTCUT
 
     connect(&actionCopy, SIGNAL(triggered(bool)), this, SLOT(on_actionCopy_triggered()));
 
     connect(&actionAddComment, SIGNAL(triggered(bool)), this, SLOT(on_actionAddComment_triggered()));
     connect(&actionAddFlag, SIGNAL(triggered(bool)), this, SLOT(on_actionAddFlag_triggered()));
     connect(&actionRename, SIGNAL(triggered(bool)), this, SLOT(on_actionRename_triggered()));
+    connect(&actionRenameUsedHere, SIGNAL(triggered(bool)), this, SLOT(on_actionRenameUsedHere_triggered()));
     connect(&actionXRefs, SIGNAL(triggered(bool)), this, SLOT(on_actionXRefs_triggered()));
     connect(&actionDisplayOptions, SIGNAL(triggered()), this, SLOT(on_actionDisplayOptions_triggered()));
 
@@ -174,6 +164,19 @@ void DisassemblyContextMenu::aboutToShowSlot()
     {
         actionRename.setVisible(false);
     }
+
+
+    // only show "rename X used here" if there is something to rename
+    QString thingUsedHere = Core()->cmd("an @ " + QString::number(offset)).trimmed();
+    if (!thingUsedHere.isEmpty())
+    {
+        actionRenameUsedHere.setVisible(true);
+        actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere));
+    }
+    else
+    {
+        actionRenameUsedHere.setVisible(false);
+    }
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
@@ -194,6 +197,11 @@ QKeySequence DisassemblyContextMenu::getAddFlagSequence() const
 QKeySequence DisassemblyContextMenu::getRenameSequence() const
 {
     return {Qt::Key_N};
+}
+
+QKeySequence DisassemblyContextMenu::getRenameUsedHereSequence() const
+{
+    return {Qt::SHIFT + Qt::Key_N};
 }
 
 QKeySequence DisassemblyContextMenu::getXRefSequence() const
@@ -281,6 +289,23 @@ void DisassemblyContextMenu::on_actionRename_triggered()
     else
     {
         return;
+    }
+}
+
+void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
+{
+    QString thingUsedHere = Core()->cmd("an @ " + QString::number(offset)).trimmed();
+    if (thingUsedHere.isEmpty())
+    {
+        return;
+    }
+
+    RenameDialog *dialog = new RenameDialog(this);
+    dialog->setWindowTitle(tr("Rename %1").arg(thingUsedHere));
+    dialog->setName(thingUsedHere);
+    if (dialog->exec()) {
+        QString new_name = dialog->getName();
+        Core()->cmd("an " + new_name.trimmed() + " @ " + QString::number(offset));
     }
 }
 

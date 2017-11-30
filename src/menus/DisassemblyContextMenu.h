@@ -28,6 +28,7 @@ private slots:
     void on_actionAddComment_triggered();
     void on_actionAddFlag_triggered();
     void on_actionRename_triggered();
+    void on_actionRenameUsedHere_triggered();
     void on_actionXRefs_triggered();
     void on_actionDisplayOptions_triggered();
 
@@ -45,6 +46,7 @@ private:
     QKeySequence getCommentSequence() const;
     QKeySequence getAddFlagSequence() const;
     QKeySequence getRenameSequence() const;
+    QKeySequence getRenameUsedHereSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
 
@@ -57,6 +59,7 @@ private:
     QAction actionAddComment;
     QAction actionAddFlag;
     QAction actionRename;
+    QAction actionRenameUsedHere;
     QAction actionXRefs;
     QAction actionDisplayOptions;
 
