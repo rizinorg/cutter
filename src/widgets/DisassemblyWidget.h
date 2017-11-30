@@ -51,6 +51,9 @@ private:
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event);
 
+    void setupFonts();
+    void setupColors();
+
     void updateCursorPosition();
 
     void connectCursorPositionChanged(bool disconnect);

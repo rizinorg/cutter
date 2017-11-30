@@ -31,7 +31,12 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
 
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setObjectName("DisassemblyWidget");
-    colorsUpdatedSlot();
+
+    setupFonts();
+    setupColors();
+
+    maxLines = 0;
+    updateMaxLines();
 
     mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mDisasTextEdit->setFont(Config()->getFont());
@@ -51,9 +56,6 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     mDisasTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(mDisasTextEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
-
-    maxLines = 0;
-    updateMaxLines();
 
 
     // Space to switch to graph
@@ -453,7 +455,7 @@ void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetTyp
 
 void DisassemblyWidget::fontsUpdatedSlot()
 {
-    mDisasTextEdit->setFont(Config()->getFont());
+    setupFonts();
 
     if (!updateMaxLines()) // updateMaxLines() returns true if it already refreshed.
     {
@@ -463,11 +465,22 @@ void DisassemblyWidget::fontsUpdatedSlot()
 
 void DisassemblyWidget::colorsUpdatedSlot()
 {
-    mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
-                                  .arg(ConfigColor("gui.background").name())
-                                  .arg(ConfigColor("btext").name()));
+    setupColors();
     refreshDisasm();
 }
+
+void DisassemblyWidget::setupFonts()
+{
+    mDisasTextEdit->setFont(Config()->getFont());
+}
+
+void DisassemblyWidget::setupColors()
+{
+    mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
+                                          .arg(ConfigColor("gui.background").name())
+                                          .arg(ConfigColor("btext").name()));
+}
+
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
 {
