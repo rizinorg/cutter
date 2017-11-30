@@ -306,6 +306,10 @@ public:
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 
     void addFlag(RVA offset, QString name, RVA size);
+    void triggerFlagsChanged();
+
+    void triggerVarsChanged();
+    void triggerFunctionRenamed(const QString &prevName, const QString &newName);
 
     void triggerRefreshAll();
 
@@ -324,6 +328,7 @@ signals:
     void refreshAll();
 
     void functionRenamed(QString prev_name, QString new_name);
+    void varsChanged();
     void flagsChanged();
     void commentsChanged();
     void instructionChanged(RVA offset);

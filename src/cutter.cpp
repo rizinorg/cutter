@@ -1253,6 +1253,21 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
     emit flagsChanged();
 }
 
+void CutterCore::triggerFlagsChanged()
+{
+    emit flagsChanged();
+}
+
+void CutterCore::triggerVarsChanged()
+{
+    emit varsChanged();
+}
+
+void CutterCore::triggerFunctionRenamed(const QString &prevName, const QString &newName)
+{
+    emit functionRenamed(prevName, newName);
+}
+
 void CutterCore::loadPDB(const QString &file)
 {
     cmd("idp " + sanitizeStringForCommand(file));

@@ -314,6 +314,8 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 
     RenameDialog *dialog = new RenameDialog(this);
 
+    QString oldName;
+
     if (type == "address")
     {
         RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
@@ -322,7 +324,7 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
     }
     else
     {
-        QString oldName = thingUsedHere.value("name").toString();
+        oldName = thingUsedHere.value("name").toString();
         dialog->setWindowTitle(tr("Rename %1").arg(oldName));
         dialog->setName(oldName);
     }
@@ -333,6 +335,19 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
         if (!newName.isEmpty())
         {
             Core()->cmd("an " + newName + " @ " + QString::number(offset));
+
+            if (type == "address" || type == "flag")
+            {
+                Core()->triggerFlagsChanged();
+            }
+            else if (type == "var")
+            {
+                Core()->triggerVarsChanged();
+            }
+            else if (type == "function")
+            {
+                Core()->triggerFunctionRenamed(oldName, newName);
+            }
         }
     }
 }

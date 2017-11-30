@@ -77,6 +77,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
 
     //connect(Bridge::getBridge(), SIGNAL(loadGraph(BridgeCFGraphList*, duint)), this, SLOT(loadGraphSlot(BridgeCFGraphList*, duint)));
