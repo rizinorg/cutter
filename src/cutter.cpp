@@ -332,7 +332,7 @@ void CutterCore::renameFlag(QString old_name, QString new_name)
     cmd("fr " + old_name + " " + new_name);
 }
 
-void CutterCore::setComment(RVA addr, QString cmt)
+void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     cmd("CCu base64:" + cmt.toLocal8Bit().toBase64() + " @ " + QString::number(addr));
     emit commentsChanged();

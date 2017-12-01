@@ -25,3 +25,8 @@ QString CommentsDialog::getComment()
     QString ret = ui->lineEdit->text();
     return ret;
 }
+
+void CommentsDialog::setComment(const QString &comment)
+{
+    ui->lineEdit->setText(comment);
+}

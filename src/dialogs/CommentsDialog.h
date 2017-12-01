@@ -18,6 +18,7 @@ public:
     ~CommentsDialog();
 
     QString getComment();
+    void setComment(const QString &comment);
 
 private slots:
     void on_buttonBox_accepted();

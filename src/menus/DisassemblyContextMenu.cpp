@@ -122,6 +122,17 @@ void DisassemblyContextMenu::aboutToShowSlot()
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenuAction->setVisible(immBase);
+
+    QJsonObject disasObject = Core()->cmdj("pdj 1 @ " + QString::number(offset)).array().first().toObject();
+    QString comment = disasObject["comment"].toString();
+    if (comment.isNull() || QByteArray::fromBase64(comment.toUtf8()).isEmpty())
+    {
+        actionAddComment.setText(tr("Add Comment"));
+    }
+    else
+    {
+        actionAddComment.setText(tr("Edit Comment"));
+    }
 }
 
 QKeySequence DisassemblyContextMenu::getCommentSequence() const
@@ -151,11 +162,32 @@ QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
+    QJsonObject disasObject = Core()->cmdj("pdj 1 @ " + QString::number(offset)).array().first().toObject();
+    QString oldComment = QString::fromUtf8(QByteArray::fromBase64(disasObject["comment"].toString().toUtf8()));
+
     CommentsDialog *c = new CommentsDialog(this);
+
+    if (oldComment.isNull() || QByteArray::fromBase64(oldComment.toUtf8()).isEmpty())
+    {
+        c->setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
+    }
+    else
+    {
+        c->setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
+    }
+
+    c->setComment(oldComment);
     if (c->exec())
     {
         QString comment = c->getComment();
-        Core()->setComment(offset, comment);
+        if (comment.isEmpty())
+        {
+            Core()->delComment(offset);
+        }
+        else
+        {
+            Core()->setComment(offset, comment);
+        }
     }
 }
 

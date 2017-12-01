@@ -204,8 +204,10 @@ public:
     QStringList cmdList(const QString &str)     { auto l = cmd(str).split("\n"); l.removeAll(""); return l; }
     void renameFunction(QString prev_name, QString new_name);
     void renameFlag(QString old_name, QString new_name);
-    void setComment(RVA addr, QString cmt);
+
+    void setComment(RVA addr, const QString &cmt);
     void delComment(ut64 addr);
+
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     QMap<QString, QList<QList<QString>>> getNestedComments();
     void setOptions(QString key);
