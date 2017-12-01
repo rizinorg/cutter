@@ -151,16 +151,11 @@ QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
-    RAnalFunction *fcn = Core()->functionAt(offset);
     CommentsDialog *c = new CommentsDialog(this);
     if (c->exec())
     {
         QString comment = c->getComment();
         Core()->setComment(offset, comment);
-        if (fcn)
-        {
-            Core()->seek(fcn->addr);
-        }
     }
 }
 
