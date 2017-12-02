@@ -103,6 +103,8 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
         refreshDisasm(Core()->getOffset());
     });
 
+    connect(mCtxMenu, SIGNAL(copy()), mDisasTextEdit, SLOT(copy()));
+
     // Dirty
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
@@ -402,8 +404,8 @@ void DisassemblyWidget::cursorPositionChanged()
     RVA offset = readCurrentDisassemblyOffset();
     Core()->seek(offset);
     highlightCurrentLine();
+    mCtxMenu->setCanCopy(mDisasTextEdit->textCursor().hasSelection());
 }
-
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
@@ -547,7 +549,7 @@ void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
 {
     QPlainTextEdit::mousePressEvent(event);
 
-    if (event->button() == Qt::RightButton)
+    if (event->button() == Qt::RightButton && !textCursor().hasSelection())
     {
         setTextCursor(cursorForPosition(event->pos()));
     }

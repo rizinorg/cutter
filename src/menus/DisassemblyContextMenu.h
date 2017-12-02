@@ -13,11 +13,17 @@ public:
     DisassemblyContextMenu(QWidget *parent = nullptr);
     ~DisassemblyContextMenu() = default;
 
+signals:
+    void copy();
+
 public slots:
     void setOffset(RVA offset);
+    void setCanCopy(bool enabled);
 
 private slots:
     void aboutToShowSlot();
+
+    void on_actionCopy_triggered();
 
     void on_actionAddComment_triggered();
     void on_actionAddFlag_triggered();
@@ -35,6 +41,7 @@ private slots:
     void on_actionSetBaseString_triggered();
 
 private:
+    QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
     QKeySequence getAddFlagSequence() const;
     QKeySequence getRenameSequence() const;
@@ -42,6 +49,10 @@ private:
     QKeySequence getDisplayOptionsSequence() const;
 
     RVA offset;
+    bool canCopy;
+
+    QAction actionCopy;
+    QAction *copySeparator;
 
     QAction actionAddComment;
     QAction actionAddFlag;

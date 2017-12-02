@@ -10,6 +10,8 @@
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     :   QMenu(parent),
         offset(0),
+        canCopy(false),
+        actionCopy(this),
         actionAddComment(this),
         actionAddFlag(this),
         actionRename(this),
@@ -24,6 +26,11 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBaseSyscall(this),
         actionSetBaseString(this)
 {
+    actionCopy.setText(tr("Copy"));
+    this->addAction(&actionCopy);
+    actionCopy.setShortcut(getCopySequence());
+    copySeparator = addSeparator();
+
     actionAddComment.setText(tr("Add Comment"));
     this->addAction(&actionAddComment);
     actionAddComment.setShortcut(getCommentSequence());
@@ -67,6 +74,11 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     auto pWidget = parentWidget();
 
+    QShortcut *shortcut_Copy = new QShortcut(getCopySequence(), pWidget);
+    shortcut_Copy->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(shortcut_Copy, &QShortcut::activated,
+            this, &DisassemblyContextMenu::on_actionCopy_triggered);
+
     QShortcut *shortcut_dispOptions = new QShortcut(getDisplayOptionsSequence(), pWidget);
     shortcut_dispOptions->setContext(Qt::WidgetWithChildrenShortcut);
     connect(shortcut_dispOptions, &QShortcut::activated,
@@ -92,6 +104,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     connect(shortcut_renameSequence, &QShortcut::activated,
             this, &DisassemblyContextMenu::on_actionRename_triggered);
 
+    connect(&actionCopy, SIGNAL(triggered(bool)), this, SLOT(on_actionCopy_triggered()));
+
     connect(&actionAddComment, SIGNAL(triggered(bool)), this, SLOT(on_actionAddComment_triggered()));
     connect(&actionAddFlag, SIGNAL(triggered(bool)), this, SLOT(on_actionAddFlag_triggered()));
     connect(&actionRename, SIGNAL(triggered(bool)), this, SLOT(on_actionRename_triggered()));
@@ -115,6 +129,11 @@ void DisassemblyContextMenu::setOffset(RVA offset)
     this->offset = offset;
 }
 
+void DisassemblyContextMenu::setCanCopy(bool enabled)
+{
+    this->canCopy = enabled;
+}
+
 void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
@@ -133,6 +152,14 @@ void DisassemblyContextMenu::aboutToShowSlot()
     {
         actionAddComment.setText(tr("Edit Comment"));
     }
+
+    actionCopy.setVisible(canCopy);
+    copySeparator->setVisible(canCopy);
+}
+
+QKeySequence DisassemblyContextMenu::getCopySequence() const
+{
+    return QKeySequence::Copy;
 }
 
 QKeySequence DisassemblyContextMenu::getCommentSequence() const
@@ -158,6 +185,11 @@ QKeySequence DisassemblyContextMenu::getXRefSequence() const
 QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 {
     return {}; //TODO insert correct sequence
+}
+
+void DisassemblyContextMenu::on_actionCopy_triggered()
+{
+    emit copy();
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
