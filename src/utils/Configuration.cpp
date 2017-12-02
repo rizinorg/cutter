@@ -29,6 +29,8 @@ void Configuration::loadDefaultTheme()
     QColor color8 = QColor(108, 108, 108);
     QColor color9 = QColor(128, 64, 0);
 
+    QColor highlightColor = QColor(210, 210, 255);
+
     // Instructions
     setColor("comment",     color4);
     setColor("usrcmt",      color2);
@@ -90,7 +92,7 @@ void Configuration::loadDefaultTheme()
     setColor("gui.cflow",   color0);
     setColor("gui.dataoffset", color0);
     setColor("gui.border",  color0);
-    setColor("highlight",   color0);
+    setColor("highlight",   highlightColor);
     // Windows background
     setColor("gui.background", QColor(255, 255, 255));
     // Disassembly nodes background
@@ -111,6 +113,8 @@ void Configuration::loadDarkTheme()
     QColor color8 = QColor(108, 108, 108);
     QColor color9 = QColor(255, 128, 0);
 
+    QColor highlightColor = QColor(64, 115, 115);
+
     // Instructions
     setColor("comment",     color4);
     setColor("usrcmt",      color2);
@@ -172,7 +176,7 @@ void Configuration::loadDarkTheme()
     setColor("gui.cflow",   color0);
     setColor("gui.dataoffset", color0);
     setColor("gui.border",  color0);
-    setColor("highlight",   color0);
+    setColor("highlight", highlightColor);
     // Windows background
     setColor("gui.background", QColor(36, 66, 79));
     // Disassembly nodes background

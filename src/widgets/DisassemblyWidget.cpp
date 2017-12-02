@@ -229,57 +229,56 @@ void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
+    QColor highlightColor = ConfigColor("highlight");
+    QColor highlightWordColor = ConfigColor("highlight");
+    highlightWordColor.setAlpha(128);
+    QColor highlightWordCurrentLineColor = ConfigColor("gui.background");
+    highlightWordCurrentLineColor.setAlpha(128);
+
     // Highlight the current line
-    if (mDisasTextEdit->isReadOnly())
-    {
-        QTextEdit::ExtraSelection selection;
-        QColor lineColor = ConfigColor("gui.highlight");
-        lineColor.setAlpha(128);
-        selection.format.setBackground(lineColor);
-        selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-        selection.cursor = mDisasTextEdit->textCursor();
-        selection.cursor.clearSelection();
-        extraSelections.append(selection);
-    }
+    QTextEdit::ExtraSelection selection;
+    selection.format.setBackground(highlightColor);
+    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
+    selection.cursor = mDisasTextEdit->textCursor();
+    selection.cursor.clearSelection();
+    extraSelections.append(selection);
 
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
-
-    QTextEdit::ExtraSelection currentWord;
-
-    QColor highlightColor = ConfigColor("comment");
-    highlightColor.setAlpha(128);
-    currentWord.format.setBackground(highlightColor);
-
-    currentWord.cursor = cursor;
-    extraSelections.append(currentWord);
-    currentWord.cursor.clearSelection();
-
-    // Highlight all the words in the document same as the actual one
     QString searchString = cursor.selectedText();
+
+    cursor.movePosition(QTextCursor::StartOfLine);
+    int listStartPos = cursor.position();
+    cursor.movePosition(QTextCursor::EndOfLine);
+    int lineEndPos = cursor.position();
+
+    // Highlight all the words in the document same as the current one
     QTextDocument *document = mDisasTextEdit->document();
 
-    //QTextCursor highlightCursor(document);
     QTextEdit::ExtraSelection highlightSelection;
     highlightSelection.cursor = cursor;
-    highlightSelection.format.setBackground(highlightColor);
-    QTextCursor cursor2(document);
-
-    cursor2.beginEditBlock();
-
     highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+
     while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd())
     {
         highlightSelection.cursor = document->find(searchString, highlightSelection.cursor, QTextDocument::FindWholeWords);
 
         if (!highlightSelection.cursor.isNull())
         {
+            if (highlightSelection.cursor.position() >= listStartPos && highlightSelection.cursor.position() <= lineEndPos)
+            {
+                highlightSelection.format.setBackground(highlightWordCurrentLineColor);
+            }
+            else
+            {
+                highlightSelection.format.setBackground(highlightWordColor);
+            }
+
             highlightSelection.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             extraSelections.append(highlightSelection);
         }
     }
-    cursor2.endEditBlock();
 
     mDisasTextEdit->setExtraSelections(extraSelections);
 }
