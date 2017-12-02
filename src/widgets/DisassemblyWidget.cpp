@@ -535,6 +535,16 @@ void DisassemblyTextEdit::keyPressEvent(QKeyEvent */*event*/)
     //QPlainTextEdit::keyPressEvent(event);
 }
 
+void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
+{
+    QPlainTextEdit::mousePressEvent(event);
+
+    if (event->button() == Qt::RightButton)
+    {
+        setTextCursor(cursorForPosition(event->pos()));
+    }
+}
+
 void DisassemblyWidget::seekPrev()
 {
     Core()->seekPrev();

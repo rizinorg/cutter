@@ -93,6 +93,7 @@ protected:
     bool viewportEvent(QEvent *event) override;
     void scrollContentsBy(int dx, int dy) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     bool lockScroll;
