@@ -574,6 +574,11 @@ void HexdumpWidget::on_hexHexText_selectionChanged()
     {
         if (parsing == "Dissasembly")
         {
+            QString dText = QString(sel_text);
+            dText.replace(" ", "");
+            if (dText.length() % 2 != 0) {
+                return;
+            }
             // Get selected combos
             QString arch = ui->hexArchComboBox_2->currentText();
             QString bits = ui->hexBitsComboBox_2->currentText();
@@ -583,7 +588,7 @@ void HexdumpWidget::on_hexHexText_selectionChanged()
 
             Core()->setConfig("asm.arch", arch);
             Core()->setConfig("asm.bits", bits);
-            QString str = Core()->cmd("pad " + sel_text);
+            QString str = Core()->cmd("pad " + dText);
             ui->hexDisasTextEdit->setPlainText(str);
             Core()->setConfig("asm.arch", oarch);
             Core()->setConfig("asm.bits", obits);
