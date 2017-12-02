@@ -327,8 +327,16 @@ RVA DisassemblyWidget::readDisassemblyOffset(QTextCursor tc)
 
 void DisassemblyWidget::updateCursorPosition()
 {
-    connectCursorPositionChanged(true);
     RVA offset = Core()->getOffset();
+
+    // already fine where it is?
+    RVA currentLineOffset = readCurrentDisassemblyOffset();
+    if (currentLineOffset == offset)
+    {
+        return;
+    }
+
+    connectCursorPositionChanged(true);
 
     if (offset < topOffset || (offset > bottomOffset && bottomOffset != RVA_INVALID))
     {
@@ -345,10 +353,10 @@ void DisassemblyWidget::updateCursorPosition()
 
         while (true)
         {
-            mDisasTextEdit->setTextCursor(cursor);
-            RVA lineOffset = readCurrentDisassemblyOffset();
+            RVA lineOffset = readDisassemblyOffset(cursor);
             if (lineOffset == offset)
             {
+                mDisasTextEdit->setTextCursor(cursor);
                 highlightCurrentLine();
                 break;
             }
@@ -394,6 +402,7 @@ void DisassemblyWidget::cursorPositionChanged()
 {
     RVA offset = readCurrentDisassemblyOffset();
     Core()->seek(offset);
+    highlightCurrentLine();
 }
 
 
