@@ -14,11 +14,9 @@ StringsWidget::StringsWidget(MainWindow *main, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->stringsTreeWidget->hideColumn(0);
-
     setScrollMode();
 
-    ui->stringsTreeWidget->sortByColumn(2, Qt::AscendingOrder);
+    ui->stringsTreeWidget->sortByColumn(1, Qt::AscendingOrder);
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillTreeWidget()));
 }
@@ -29,8 +27,6 @@ void StringsWidget::on_stringsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
 {
     Q_UNUSED(column);
 
-    // Get offset and name of item double clicked
-    // TODO: use this info to change disasm contents
     StringDescription str = item->data(0, Qt::UserRole).value<StringDescription>();
     CutterCore::getInstance()->seek(str.vaddr);
 }
@@ -40,7 +36,13 @@ void StringsWidget::fillTreeWidget()
     ui->stringsTreeWidget->clear();
     for (auto i : CutterCore::getInstance()->getAllStrings())
     {
-        QTreeWidgetItem *item = qhelpers::appendRow(ui->stringsTreeWidget, RAddressString(i.vaddr), i.string);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+
+        item->setText(0, RAddressString(i.vaddr));
+        item->setText(1, i.string);
+
+        ui->stringsTreeWidget->insertTopLevelItem(0, item);
+
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));
     }
     qhelpers::adjustColumns(ui->stringsTreeWidget);

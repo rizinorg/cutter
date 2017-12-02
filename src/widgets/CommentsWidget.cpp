@@ -14,8 +14,7 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->commentsTreeWidget->hideColumn(0);
-    ui->commentsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
+    ui->commentsTreeWidget->sortByColumn(2, Qt::AscendingOrder);
 
     QTabBar *tabs = ui->tabWidget->tabBar();
     tabs->setVisible(false);
@@ -43,7 +42,6 @@ void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *it
     // Get offset and name of item double clicked
     CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
     CutterCore::getInstance()->seek(comment.offset);
-    //CutterCore::getInstance()->seek(comment.offset, comment.name, true);
 }
 
 void CommentsWidget::on_toolButton_clicked()
@@ -118,10 +116,13 @@ void CommentsWidget::refreshTree()
 
     for (CommentDescription comment : comments)
     {
-        //this->main->add_debug_output(RAddressString(comment.offset));
         QString fcn_name = CutterCore::getInstance()->cmdFunctionAt(comment.offset);
-        QTreeWidgetItem *item = qhelpers::appendRow(ui->commentsTreeWidget, RAddressString(comment.offset), fcn_name, comment.name);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, RAddressString(comment.offset));
+        item->setText(1, fcn_name);
+        item->setText(2, comment.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(comment));
+        ui->commentsTreeWidget->addTopLevelItem(item);
     }
     qhelpers::adjustColumns(ui->commentsTreeWidget);
 

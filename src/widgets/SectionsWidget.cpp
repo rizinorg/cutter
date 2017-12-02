@@ -15,8 +15,6 @@ SectionsWidget::SectionsWidget(MainWindow *main, QWidget *parent) :
 
     setupViews();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    //setStyleSheet("QSplitter::handle:horizontal { width: 3px; } QSplitter::handle:vertical { height: 3px; }");
-    //setStyleSheet("QSplitter::handle { height: 2px; background-color: rgb(255, 255, 255); image: url(:/img/icons/tabs.svg); }");
 
     tree->sortByColumn(0, Qt::AscendingOrder);
 
@@ -36,8 +34,6 @@ void SectionsWidget::refreshSections()
         fillSections(row++, section);
     }
 
-    //adjustColumns(sectionsWidget->tree);
-    //this->sectionsDock->sectionsWidget->adjustColumns();
     qhelpers::adjustColumns(tree);
 }
 
@@ -46,15 +42,12 @@ void SectionsWidget::setupViews()
     // Table view
     this->tree = new QTreeWidget;
     this->tree->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    //this->tree->setFont(QFont("Lucida Grande UI", 12));
-    //this->tree->setFont(QFont("Courier New", 11));
     this->tree->setIndentation(10);
-    //this->tree->setStyleSheet("QTreeWidget::item { padding-top: 1px; padding-bottom: 1px; padding-left:10px; border-left:10px;} QTreeWidget::item:selected { background: gray; color: white; } QTreeWidget::item:hover { background: rgb(242, 246, 248); color: black; }");
 
     // Setup TreeWidget
     this->tree->setColumnCount(4);
     QList<QString> headers;
-    headers << "Name" << "Size" << "Address" << "End Address";
+    headers << tr("Name") << tr("Size") << tr("Address") << tr("End Address");
     this->tree->setHeaderLabels(headers);
 
     this->tree->setFrameShape(QFrame::NoFrame);

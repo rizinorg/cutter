@@ -14,8 +14,6 @@ RelocsWidget::RelocsWidget(MainWindow *main, QWidget *parent) :
     // Radare core found in:
     this->main = main;
 
-    ui->relocsTreeWidget->hideColumn(0);
-
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillTreeWidget()));
@@ -38,8 +36,12 @@ void RelocsWidget::fillTreeWidget()
 
     for (auto i : CutterCore::getInstance()->getAllRelocs())
     {
-        QTreeWidgetItem *item = qhelpers::appendRow(ui->relocsTreeWidget, RAddressString(i.vaddr), i.type, i.name);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, RAddressString(i.vaddr));
+        item->setText(1, i.type);
+        item->setText(2, i.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));
+        ui->relocsTreeWidget->addTopLevelItem(item);
     }
 
     qhelpers::adjustColumns(ui->relocsTreeWidget);

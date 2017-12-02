@@ -39,12 +39,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Delegate
-    //CMyDelegate* delegate = new CMyDelegate(ui->importsTreeWidget);
-    //ui->importsTreeWidget->setItemDelegate(delegate);
-
-    ui->importsTreeWidget->hideColumn(0);
-    ui->importsTreeWidget->sortByColumn(4, Qt::AscendingOrder);
+    ui->importsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
 
     setScrollMode();
 
@@ -58,8 +53,13 @@ void ImportsWidget::fillImports()
     ui->importsTreeWidget->clear();
     for (auto i : CutterCore::getInstance()->getAllImports())
     {
-        QTreeWidgetItem *item = qhelpers::appendRow(ui->importsTreeWidget, RAddressString(i.plt), i.type, "", i.name);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, RAddressString(i.plt));
+        item->setText(1, i.type);
+        item->setText(2, "");
+        item->setText(3, i.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));
+        ui->importsTreeWidget->addTopLevelItem(item);
     }
 
     highlightUnsafe();
@@ -85,7 +85,7 @@ void ImportsWidget::highlightUnsafe()
     QList<QTreeWidgetItem *> clist = ui->importsTreeWidget->findItems(banned, Qt::MatchRegExp, 4);
     foreach (QTreeWidgetItem *item, clist)
     {
-        item->setText(3, "Unsafe");
+        item->setText(2, "Unsafe");
         //item->setBackgroundColor(4, QColor(255, 129, 123));
         //item->setForeground(4, Qt::white);
         item->setForeground(4, QColor(255, 129, 123));

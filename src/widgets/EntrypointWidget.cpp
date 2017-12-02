@@ -19,12 +19,6 @@ EntrypointWidget::EntrypointWidget(MainWindow *main, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // Delegate
-    //CMyDelegate* delegate = new CMyDelegate(ui->importsTreeWidget);
-    //ui->importsTreeWidget->setItemDelegate(delegate);
-
-    ui->entrypointTreeWidget->hideColumn(0);
-
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillEntrypoint()));
@@ -37,8 +31,11 @@ void EntrypointWidget::fillEntrypoint()
     ui->entrypointTreeWidget->clear();
     for (auto i : CutterCore::getInstance()->getAllEntrypoint())
     {
-        QTreeWidgetItem *item = qhelpers::appendRow(ui->entrypointTreeWidget, RAddressString(i.vaddr), i.type);
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, RAddressString(i.vaddr));
+        item->setText(1, i.type);
         item->setData(0, Qt::UserRole, QVariant::fromValue(i));
+        ui->entrypointTreeWidget->addTopLevelItem(item);
     }
 
     qhelpers::adjustColumns(ui->entrypointTreeWidget, 0, 10);
@@ -53,5 +50,4 @@ void EntrypointWidget::on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem
 {
     EntrypointDescription ep = item->data(0, Qt::UserRole).value<EntrypointDescription>();
     CutterCore::getInstance()->seek(ep.vaddr);
-    //CutterCore::getInstance()->seek(ep.vaddr, ep.type, true);
 }

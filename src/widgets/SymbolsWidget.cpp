@@ -13,8 +13,7 @@ SymbolsWidget::SymbolsWidget(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->symbolsTreeWidget->hideColumn(0);
-    ui->symbolsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
+    ui->symbolsTreeWidget->sortByColumn(2, Qt::AscendingOrder);
 
     setScrollMode();
 
@@ -38,12 +37,12 @@ void SymbolsWidget::fillSymbols()
     ui->symbolsTreeWidget->clear();
     for (auto symbol : CutterCore::getInstance()->getAllSymbols())
     {
-        QTreeWidgetItem *item = qhelpers::appendRow(ui->symbolsTreeWidget,
-                                RAddressString(symbol.vaddr),
-                                QString("%1 %2").arg(symbol.bind, symbol.type).trimmed(),
-                                symbol.name);
-
+        QTreeWidgetItem *item = new QTreeWidgetItem();
+        item->setText(0, RAddressString(symbol.vaddr));
+        item->setText(1, QString("%1 %2").arg(symbol.bind, symbol.type).trimmed());
+        item->setText(2, symbol.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(symbol));
+        ui->symbolsTreeWidget->addTopLevelItem(item);
     }
     qhelpers::adjustColumns(ui->symbolsTreeWidget);
 }

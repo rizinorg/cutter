@@ -38,22 +38,8 @@
       <property name="styleSheet">
        <string notr="true">QTreeWidget::item
 {
-    padding-left:10px;
     padding-top: 1px;
     padding-bottom: 1px;
-    border-left: 10px;
-}
-
-QTreeWidget::item:hover
-{
-    background: rgb(242, 246, 248);
-    color: black;
-}
-
-QTreeWidget::item:selected
-{
-    background: gray;
-    color: white;
 }</string>
       </property>
       <property name="frameShape">
@@ -62,14 +48,12 @@ QTreeWidget::item:selected
       <property name="lineWidth">
        <number>0</number>
       </property>
+      <property name="indentation">
+       <number>8</number>
+      </property>
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
-      <column>
-       <property name="text">
-        <string>Dummy</string>
-       </property>
-      </column>
       <column>
        <property name="text">
         <string>Address</string>

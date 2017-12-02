@@ -61,7 +61,7 @@
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/img/icons/arrow_right.png</normaloff>:/img/icons/arrow_right.png</iconset>
+          <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
         </property>
        </widget>
       </item>
@@ -79,7 +79,7 @@
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/unlock</normaloff>:/unlock</iconset>
+          <normaloff>:/img/icons/unlock_white.svg</normaloff>:/img/icons/unlock_white.svg</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -94,32 +94,10 @@
     <item>
      <widget class="QTreeWidget" name="treeWidget">
       <property name="styleSheet">
-       <string notr="true">QHeaderView::section {
-     color: drakgray;
-     padding: 3px;
-     padding-left: 10px;
-     background-color: rgb(232, 232, 232);
-     border: 2px solid white;
-}
-
-QTreeWidget::item
+       <string notr="true">QTreeWidget::item
 {
-    padding-left:10px;
     padding-top: 1px;
     padding-bottom: 1px;
-    border-left: 10px;
-}
-
-QTreeWidget::item:hover
-{
-    background: rgb(242, 246, 248);
-    color: black;
-}
-
-QTreeWidget::item:selected
-{
-    background: gray;
-    color: white;
 }</string>
       </property>
       <property name="frameShape">
@@ -132,7 +110,7 @@ QTreeWidget::item:selected
        <number>0</number>
       </property>
       <property name="indentation">
-       <number>10</number>
+       <number>8</number>
       </property>
       <property name="sortingEnabled">
        <bool>false</bool>
