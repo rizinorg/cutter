@@ -27,7 +27,7 @@ void Configuration::loadDefaultTheme()
     QColor color6 = QColor(255, 235, 95);
     QColor color7 = QColor(215, 135, 0);
     QColor color8 = QColor(108, 108, 108);
-    QColor color9 = QColor(128, 64, 0);
+    QColor color9 = QColor(96, 48, 0);
 
     QColor highlightColor = QColor(210, 210, 255);
 
@@ -111,7 +111,7 @@ void Configuration::loadDarkTheme()
     QColor color6 = QColor(255, 235, 95);
     QColor color7 = QColor(255, 200, 0);
     QColor color8 = QColor(108, 108, 108);
-    QColor color9 = QColor(255, 128, 0);
+    QColor color9 = QColor(255, 200, 0);
 
     QColor highlightColor = QColor(64, 115, 115);
 
