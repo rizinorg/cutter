@@ -1695,7 +1695,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
-    disassemblySelectionColor = ConfigColor("gui.highlight");
+    disassemblySelectionColor = ConfigColor("highlight");
 
     jmpColor = ConfigColor("graph.trufae");
     brtrueColor = ConfigColor("graph.true");
