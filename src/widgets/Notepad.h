@@ -45,11 +45,7 @@ private slots:
 
     void showNotepadContextMenu(const QPoint &pt);
 
-    void on_actionDisassmble_bytes_triggered();
-    void on_actionDisassmble_function_triggered();
-    void on_actionHexdump_bytes_triggered();
-    void on_actionCompact_Hexdump_triggered();
-    void on_actionHexdump_function_triggered();
+    void on_actionSeekToSelection_triggered();
 
     void updateNotes(const QString &notes);
     void textChanged();

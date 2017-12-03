@@ -353,8 +353,6 @@ void MainWindow::finalizeOpen()
     addOutput("\n" + core->cmd("fo"));
     //previewDock->setWindowTitle("entry0");
     showMaximized();
-    // Initialize syntax highlighters
-    notepadDock->highlightPreview();
 }
 
 bool MainWindow::saveProject(bool quit)

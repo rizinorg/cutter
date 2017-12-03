@@ -389,53 +389,6 @@ QToolTip {
             </widget>
            </item>
            <item>
-            <widget class="QToolButton" name="underlineButton">
-             <property name="font">
-              <font>
-               <pointsize>15</pointsize>
-               <underline>true</underline>
-              </font>
-             </property>
-             <property name="toolTip">
-              <string notr="true">Underline</string>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">QToolButton { /* all types of tool button */
-     border: 5px solid #333;
-     border-left: 10px solid #333;
-	 border-right: 10px solid #333;
-     border-radius: 0px;
-     background-color: #333;
-	 color: rgb(172, 174, 175);
- }
-
-QToolButton:hover {
-     border: 5px solid #444;
-     border-radius: 0px;
-     background-color: #444;
- }
-
-QToolButton:pressed {
-     border: 5px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
-             </property>
-             <property name="text">
-              <string notr="true">U</string>
-             </property>
-             <property name="toolButtonStyle">
-              <enum>Qt::ToolButtonTextOnly</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="Line" name="line">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -644,93 +597,37 @@ QToolTip {
          </widget>
         </item>
         <item>
-         <widget class="QSplitter" name="splitter">
+         <widget class="QPlainTextEdit" name="notepadTextEdit">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
+          <property name="font">
+           <font>
+            <family>Monaco</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
           <property name="styleSheet">
-           <string notr="true">QSplitter::handle {
-    height: 2px;
-	 background-color: rgb(255, 255, 255);
-    image: url(:/img/icons/tabs.svg);
-}</string>
+           <string notr="true"/>
           </property>
           <property name="frameShape">
            <enum>QFrame::NoFrame</enum>
           </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
           </property>
-          <widget class="QPlainTextEdit" name="notepadTextEdit">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Monaco</family>
-             <pointsize>12</pointsize>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="lineWrapMode">
-            <enum>QPlainTextEdit::NoWrap</enum>
-           </property>
-           <property name="plainText">
-            <string/>
-           </property>
-          </widget>
-          <widget class="QPlainTextEdit" name="previewTextEdit">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Anonymous Pro</family>
-             <pointsize>13</pointsize>
-            </font>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Plain</enum>
-           </property>
-           <property name="horizontalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
-           </property>
-           <property name="lineWrapMode">
-            <enum>QPlainTextEdit::NoWrap</enum>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="plainText">
-            <string/>
-           </property>
-          </widget>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="lineWrapMode">
+           <enum>QPlainTextEdit::NoWrap</enum>
+          </property>
+          <property name="plainText">
+           <string/>
+          </property>
          </widget>
         </item>
        </layout>
@@ -739,44 +636,9 @@ QToolTip {
     </item>
    </layout>
   </widget>
-  <action name="actionDisassmble_bytes">
+  <action name="actionSeekToSelection">
    <property name="text">
-    <string>Disassmble bytes at </string>
-   </property>
-   <property name="toolTip">
-    <string>Disassmble bytes at </string>
-   </property>
-  </action>
-  <action name="actionDisassmble_function">
-   <property name="text">
-    <string>Disassmble function at </string>
-   </property>
-   <property name="toolTip">
-    <string>Disassmble function at </string>
-   </property>
-  </action>
-  <action name="actionHexdump_bytes">
-   <property name="text">
-    <string>Hexdump bytes at </string>
-   </property>
-   <property name="toolTip">
-    <string>Hexdump bytes at </string>
-   </property>
-  </action>
-  <action name="actionCompact_Hexdump">
-   <property name="text">
-    <string>Compact Hexdump at </string>
-   </property>
-   <property name="toolTip">
-    <string>Compact Hexdump at </string>
-   </property>
-  </action>
-  <action name="actionHexdump_function">
-   <property name="text">
-    <string>Hexdump function at</string>
-   </property>
-   <property name="toolTip">
-    <string>Hexdump function at</string>
+    <string>Seek to</string>
    </property>
   </action>
  </widget>
