@@ -16,6 +16,7 @@ SdbDock::SdbDock(QWidget *parent) :
     path = "";
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(reload()));
+    reload(nullptr);
 }
 
 void SdbDock::reload(QString _path)
@@ -90,10 +91,6 @@ void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
             // enter directory
             reload(newpath);
         }
-        else
-        {
-            //__alert ("TODO: change value");
-        }
     }
 }
 
@@ -115,8 +112,5 @@ void SdbDock::on_lockButton_clicked()
 
 void SdbDock::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
 {
-    __alert(item->text(column));
-    // El nuevo valor esta en:
-    // item->text(column)
-    // ya sabras tu que hacer con el :P
+    Core()->sdbSet(path, item->text(0), item->text(column));
 }
