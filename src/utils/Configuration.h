@@ -15,6 +15,8 @@ private:
     QSettings s;
     static Configuration* mPtr;
 
+    void loadInitial();
+
     // Colors
     void loadDefaultTheme();
     void loadDarkTheme();
@@ -24,6 +26,8 @@ public:
     // Functions
     Configuration();
     static Configuration* instance();
+
+    void resetAll();
 
     // Fonts
     const QFont getFont() const;

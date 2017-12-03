@@ -8,12 +8,24 @@ Configuration* Configuration::mPtr = nullptr;
 Configuration::Configuration() : QObject()
 {
     mPtr = this;
-    loadDefaultTheme();
+    loadInitial();
 }
 
 Configuration* Configuration::instance()
 {
     return mPtr;
+}
+
+void Configuration::loadInitial()
+{
+    setDarkTheme(s.value("dark").toBool());
+}
+
+void Configuration::resetAll()
+{
+    s.clear();
+    loadInitial();
+    emit fontsUpdated();
 }
 
 void Configuration::loadDefaultTheme()

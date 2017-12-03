@@ -443,10 +443,6 @@ void MainWindow::readSettings()
     restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
     restoreState(state);
-    if (settings.value("dark").toBool())
-    {
-        this->setDarkTheme();
-    }
     this->responsive = settings.value("responsive").toBool();
 }
 
@@ -868,9 +864,7 @@ void MainWindow::on_actionReset_settings_triggered()
                 QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok)
     {
-        // Save options in settings
-        QSettings settings;
-        settings.clear();
+        Config()->resetAll();
     }
 }
 
