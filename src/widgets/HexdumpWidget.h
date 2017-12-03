@@ -39,7 +39,7 @@ public:
 //    void fontChanged(QFont font);
 
 public slots:
-    void fillPlugins();
+    void initParsing();
 
     QString normalize_addr(QString addr);
 
@@ -90,8 +90,11 @@ private slots:
     void showHexASCIIContextMenu(const QPoint &pt);
 
     void on_hexHexText_selectionChanged();
-    void on_hexArchComboBox_2_currentTextChanged(const QString &arg1);
-    void on_hexBitsComboBox_2_currentTextChanged(const QString &arg1);
+
+    void on_parseArchComboBox_currentTextChanged(const QString &arg1);
+    void on_parseBitsComboBox_currentTextChanged(const QString &arg1);
+    void on_parseTypeComboBox_currentTextChanged(const QString &arg1);
+    void on_parseEndianComboBox_currentTextChanged(const QString &arg1);
 
     void on_action1column_triggered();
     void on_action2columns_triggered();
@@ -106,7 +109,6 @@ private slots:
     void fontsUpdated();
     void colorsUpdatedSlot();
 
-    void on_codeCombo_2_currentTextChanged(const QString &arg1);
     void on_hexSideTab_2_currentChanged(int index);
     void on_memSideToolButton_clicked();
     void on_copyMD5_clicked();

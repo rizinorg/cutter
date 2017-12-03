@@ -361,7 +361,7 @@ QToolTip {
              <number>0</number>
             </property>
             <item>
-             <widget class="QComboBox" name="codeCombo_2">
+             <widget class="QComboBox" name="parseTypeComboBox">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -369,11 +369,11 @@ QToolTip {
                </sizepolicy>
               </property>
               <property name="currentText">
-               <string>Dissasembly</string>
+               <string>Disassembly</string>
               </property>
               <item>
                <property name="text">
-                <string>Dissasembly</string>
+                <string>Disassembly</string>
                </property>
               </item>
               <item>
@@ -388,17 +388,22 @@ QToolTip {
               </item>
               <item>
                <property name="text">
-                <string>C byte array</string>
+                <string>C bytes</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>C dword array</string>
+                <string>C half-words (2 byte)</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>C qword array</string>
+                <string>C words (4 byte)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>C dwords (8 byte)</string>
                </property>
               </item>
               <item>
@@ -413,7 +418,7 @@ QToolTip {
               </item>
               <item>
                <property name="text">
-                <string>Javascript</string>
+                <string>JavaScript</string>
                </property>
               </item>
              </widget>
@@ -432,7 +437,7 @@ QToolTip {
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboBox_2">
+             <widget class="QComboBox" name="parseEndianComboBox">
               <property name="sizeAdjustPolicy">
                <enum>QComboBox::AdjustToMinimumContentsLength</enum>
               </property>
@@ -503,7 +508,7 @@ QToolTip {
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="hexArchComboBox_2">
+              <widget class="QComboBox" name="parseArchComboBox">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -532,7 +537,7 @@ QToolTip {
               </widget>
              </item>
              <item>
-              <widget class="QComboBox" name="hexBitsComboBox_2">
+              <widget class="QComboBox" name="parseBitsComboBox">
                <property name="sizeAdjustPolicy">
                 <enum>QComboBox::AdjustToMinimumContentsLength</enum>
                </property>
@@ -654,36 +659,6 @@ QToolTip {
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>SHA1:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_10">
-            <property name="text">
-             <string>Entropy:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="bytesEntropy">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="frame">
-             <bool>false</bool>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <property name="spacing">
@@ -757,6 +732,13 @@ QToolTip {
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_9">
+            <property name="text">
+             <string>SHA1:</string>
+            </property>
+           </widget>
           </item>
           <item row="2" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
@@ -832,14 +814,43 @@ QToolTip {
             </item>
            </layout>
           </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Entropy:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="bytesEntropy">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="frame">
+             <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_22">
-          <property name="topMargin">
-           <number>0</number>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-         </layout>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>

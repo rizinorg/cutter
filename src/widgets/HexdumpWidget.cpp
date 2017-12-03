@@ -78,7 +78,7 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
         refresh(Core()->getOffset());
     });
 
-    fillPlugins();
+    initParsing();
     selectHexPreview();
 }
 
@@ -476,10 +476,12 @@ void HexdumpWidget::updateHeaders()
  * Content management functions
  */
 
-void HexdumpWidget::fillPlugins()
+void HexdumpWidget::initParsing()
 {
     // Fill the plugins combo for the hexdump sidebar
-    ui->hexArchComboBox_2->insertItems(0, Core()->getAsmPluginNames());
+    ui->parseArchComboBox->insertItems(0, Core()->getAsmPluginNames());
+
+    ui->parseEndianComboBox->setCurrentIndex(Core()->getConfigb("cfg.bigendian") ? 1 : 0);
 }
 
 std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA offset, RVA bytes)
@@ -555,14 +557,11 @@ void HexdumpWidget::adjustHexdumpLines()
 
 void HexdumpWidget::on_hexHexText_selectionChanged()
 {
-    // Get selected partsing type
-    QString parsing = ui->codeCombo_2->currentText();
     // Get selected text
     QTextCursor cursor(ui->hexHexText->textCursor());
     QString sel_text = cursor.selectedText();
 
-    sel_text = sel_text.simplified().remove(" ");
-    //eprintf ("-- (((%s))) --\n", sel_text.toUtf8().constData());
+    sel_text = sel_text.simplified().remove(' ');
 
     if (sel_text == "")
     {
@@ -570,81 +569,82 @@ void HexdumpWidget::on_hexHexText_selectionChanged()
         ui->bytesEntropy->setText("");
         ui->bytesMD5->setText("");
         ui->bytesSHA1->setText("");
+        return;
     }
-    else
-    {
-        if (parsing == "Dissasembly")
+
+    // Get selected combos
+    QString arch = ui->parseArchComboBox->currentText();
+    QString bits = ui->parseBitsComboBox->currentText();
+    bool bigEndian = ui->parseEndianComboBox->currentIndex() == 1;
+
+    { // scope for TempConfig
+        TempConfig tempConfig;
+        tempConfig
+                .set("asm.arch", arch)
+                .set("asm.bits", bits)
+                .set("cfg.bigendian", bigEndian);
+
+        switch(ui->parseTypeComboBox->currentIndex())
         {
-            QString dText = QString(sel_text);
-            dText.replace(" ", "");
-            if (dText.length() % 2 != 0) {
-                return;
+            case 0: // Disassembly
+            {
+                QStringRef disasBytes = sel_text.leftRef((sel_text.length() / 2) * 2);
+                QString str = "";
+                if (disasBytes.length() > 0)
+                {
+                    QString cmd = "pad ";
+                    str = Core()->cmd(cmd.append(disasBytes));
+                }
+                ui->hexDisasTextEdit->setPlainText(str);
             }
-            // Get selected combos
-            QString arch = ui->hexArchComboBox_2->currentText();
-            QString bits = ui->hexBitsComboBox_2->currentText();
-
-            QString oarch = Core()->getConfig("asm.arch");
-            QString obits = Core()->getConfig("asm.bits");
-
-            Core()->setConfig("asm.arch", arch);
-            Core()->setConfig("asm.bits", bits);
-            QString str = Core()->cmd("pad " + dText);
-            ui->hexDisasTextEdit->setPlainText(str);
-            Core()->setConfig("asm.arch", oarch);
-            Core()->setConfig("asm.bits", obits);
-            //qDebug() << "Selected Arch: " << arch;
-            //qDebug() << "Selected Bits: " << bits;
-            //qDebug() << "Selected Text: " << sel_text;
+                break;
+            case 1: // String
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcs@x:" + sel_text));
+                break;
+            case 2: // Assembler
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pca@x:" + sel_text));
+                break;
+            case 3: // C byte array
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pc@x:" + sel_text));
+                break;
+            case 4: // C half-word
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pch@x:" + sel_text));
+                break;
+            case 5: // C word
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcw@x:" + sel_text));
+                break;
+            case 6: // C dword
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcd@x:" + sel_text));
+                break;
+            case 7: // Python
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcp@x:" + sel_text));
+                break;
+            case 8: // JSON
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcj@x:" + sel_text));
+                break;
+            case 9: // JavaScript
+                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcJ@x:" + sel_text));
+                break;
+            default:
+                ui->hexDisasTextEdit->setPlainText("");
         }
-            // TODO: update on selection changes.. use cmd("pc "+len+"@"+off)
-        else if (parsing == "C byte array")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pc@x:" + sel_text));
-        }
-        else    if (parsing == "C dword array")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcw@x:" + sel_text));
-        }
-        else    if (parsing == "C qword array")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcq@x:" + sel_text));
-        }
-        else    if (parsing == "Assembler")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pca@x:" + sel_text));
-        }
-        else    if (parsing == "String")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcs@x:" + sel_text));
-        }
-        else    if (parsing == "JSON")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcj@x:" + sel_text));
-        }
-        else    if (parsing == "Javascript")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcJ@x:" + sel_text));
-        }
-        else    if (parsing == "Python")
-        {
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcp@x:" + sel_text));
-        }
-
-        // Fill the information tab hashes and entropy
-        ui->bytesMD5->setText(Core()->cmd("ph md5@x:" + sel_text).trimmed());
-        ui->bytesSHA1->setText(Core()->cmd("ph sha1@x:" + sel_text).trimmed());
-        ui->bytesEntropy->setText(Core()->cmd("ph entropy@x:" + sel_text).trimmed());
-        ui->bytesMD5->setCursorPosition(0);
-        ui->bytesSHA1->setCursorPosition(0);
     }
+
+    // Fill the information tab hashes and entropy
+    ui->bytesMD5->setText(Core()->cmd("ph md5@x:" + sel_text).trimmed());
+    ui->bytesSHA1->setText(Core()->cmd("ph sha1@x:" + sel_text).trimmed());
+    ui->bytesEntropy->setText(Core()->cmd("ph entropy@x:" + sel_text).trimmed());
+    ui->bytesMD5->setCursorPosition(0);
+    ui->bytesSHA1->setCursorPosition(0);
+
 }
 
-void HexdumpWidget::on_hexArchComboBox_2_currentTextChanged(const QString &/*arg1*/)
+void HexdumpWidget::on_parseArchComboBox_currentTextChanged(const QString &/*arg1*/)
 {
     on_hexHexText_selectionChanged();
 }
-void HexdumpWidget::on_hexBitsComboBox_2_currentTextChanged(const QString &/*arg1*/)
+
+void HexdumpWidget::on_parseBitsComboBox_currentTextChanged(const QString &/*arg1*/)
 {
     on_hexHexText_selectionChanged();
 }
@@ -808,9 +808,9 @@ void HexdumpWidget::on_action1column_triggered()
     refresh();
 }
 
-void HexdumpWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
+void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &arg1)
 {
-    if (arg1 == "Dissasembly")
+    if (ui->parseTypeComboBox->currentIndex() == 0)
     {
         ui->hexSideFrame_2->show();
     }
@@ -818,6 +818,11 @@ void HexdumpWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
     {
         ui->hexSideFrame_2->hide();
     }
+    on_hexHexText_selectionChanged();
+}
+
+void HexdumpWidget::on_parseEndianComboBox_currentTextChanged(const QString &arg1)
+{
     on_hexHexText_selectionChanged();
 }
 
@@ -949,15 +954,15 @@ void HexdumpWidget::selectHexPreview()
     QString bits = Core()->cmd("e asm.bits").trimmed();
 
     //int arch_index = ui->hexArchComboBox_2->findText(arch);
-    if (ui->hexArchComboBox_2->findText(arch) != -1)
+    if (ui->parseArchComboBox->findText(arch) != -1)
     {
-        ui->hexArchComboBox_2->setCurrentIndex(ui->hexArchComboBox_2->findText(arch));
+        ui->parseArchComboBox->setCurrentIndex(ui->parseArchComboBox->findText(arch));
     }
 
     //int bits_index = ui->hexBitsComboBox_2->findText(bits);
-    if (ui->hexBitsComboBox_2->findText(bits) != -1)
+    if (ui->parseBitsComboBox->findText(bits) != -1)
     {
-        ui->hexBitsComboBox_2->setCurrentIndex(ui->hexBitsComboBox_2->findText(bits));
+        ui->parseBitsComboBox->setCurrentIndex(ui->parseBitsComboBox->findText(bits));
     }
 }
 
