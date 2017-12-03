@@ -3,6 +3,11 @@
 cutter
 AStyle*
 
+### OSX ###
+*.DS_Store
+.AppleDouble
+.LSOverride
+
 # C++ objects and libs
 
 *.slo
