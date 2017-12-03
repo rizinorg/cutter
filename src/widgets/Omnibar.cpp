@@ -174,9 +174,7 @@ void Omnibar::on_gotoEntry_returnPressed()
         }
         else
         {
-            //CutterCore::getInstance()->seek(CutterCore::getInstance()->cmd("?v " + this->text()), this->text());
-            QString off = CutterCore::getInstance()->cmd("afo " + this->text());
-            CutterCore::getInstance()->seek(off.trimmed().toInt());
+            Core()->seek(text());
         }
     }
 
