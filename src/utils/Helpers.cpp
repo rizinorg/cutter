@@ -127,17 +127,14 @@ namespace qhelpers
                / fontMetrics.lineSpacing();
     }
 
-
-    QByteArray applyColorToSvg(const QString &filename, QColor color)
+    QByteArray applyColorToSvg(const QByteArray &data, QColor color)
     {
-        static QRegularExpression styleRegExp("(?:style=\".*fill:(.*?);.*?\")|(?:fill=\"(.*?)\")");
+        static const QRegularExpression styleRegExp("(?:style=\".*fill:(.*?);.*?\")|(?:fill=\"(.*?)\")");
 
         QString replaceStr = QString("#%1").arg(color.rgb() & 0xffffff, 6, 16, QLatin1Char('0'));
         int replaceStrLen = replaceStr.length();
 
-        QFile file(filename);
-        file.open(QIODevice::ReadOnly);
-        QString xml = QString::fromUtf8(file.readAll());
+        QString xml = QString::fromUtf8(data);
 
         int offset = 0;
         while(true)
@@ -154,6 +151,14 @@ namespace qhelpers
         }
 
         return xml.toUtf8();
+    }
+
+    QByteArray applyColorToSvg(const QString &filename, QColor color)
+    {
+        QFile file(filename);
+        file.open(QIODevice::ReadOnly);
+
+        return applyColorToSvg(file.readAll(), color);
     }
 
 } // end namespace

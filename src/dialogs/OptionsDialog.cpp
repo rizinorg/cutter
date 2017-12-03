@@ -25,8 +25,8 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->progressBar->setVisible(0);
     ui->statusLabel->setVisible(0);
 
-    QColor logoColor = (palette().window().color().value() < 127) ? QColor(255, 255, 255) : QColor(0, 0, 0);
-    ui->logoSvgWidget->load(qhelpers::applyColorToSvg(":/img/cutter.svg", logoColor));
+    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white.svg" : ":/img/cutter.svg";
+    ui->logoSvgWidget->load(logoFile);
 
     ui->analSlider->setValue(defaultAnalLevel);
 

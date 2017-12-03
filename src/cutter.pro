@@ -78,7 +78,8 @@ SOURCES += \
     utils/Configuration.cpp \
     utils/Colors.cpp \
     dialogs/SaveProjectDialog.cpp \
-    utils/TempConfig.cpp
+    utils/TempConfig.cpp \
+    utils/SvgIconEngine.cpp
 
 HEADERS  += \
     cutter.h \
@@ -127,7 +128,8 @@ HEADERS  += \
     utils/Configuration.h \
     utils/Colors.h \
     dialogs/SaveProjectDialog.h \
-    utils/TempConfig.h
+    utils/TempConfig.h \
+    utils/SvgIconEngine.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

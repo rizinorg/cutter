@@ -42,6 +42,7 @@ namespace qhelpers
 
     int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 
+    QByteArray applyColorToSvg(const QByteArray &data, QColor color);
     QByteArray applyColorToSvg(const QString &filename, QColor color);
 }
 

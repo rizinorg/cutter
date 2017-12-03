@@ -114,6 +114,9 @@ MainWindow::~MainWindow()
 {
 }
 
+#include <QSvgRenderer>
+#include "utils/SvgIconEngine.h"
+
 void MainWindow::initUI()
 {
     ui->setupUi(this);
@@ -134,10 +137,11 @@ void MainWindow::initUI()
     spacer4->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     spacer4->setMinimumSize(10, 10);
     ui->mainToolBar->insertWidget(ui->actionForward, spacer4);
+    ui->actionForward->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_right.svg"), palette().buttonText().color())));
 
     // Popup menu on theme toolbar button
     QToolButton *backButton = new QToolButton(this);
-    backButton->setIcon(QIcon(":/img/icons/arrow_left.svg"));
+    backButton->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_left.svg"), palette().buttonText().color())));
     //backButton->setPopupMode(QToolButton::DelayedPopup);
     ui->mainToolBar->insertWidget(ui->actionForward, backButton);
     connect(backButton, SIGNAL(clicked()), this, SLOT(backButton_clicked()));

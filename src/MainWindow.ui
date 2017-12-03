@@ -277,20 +277,19 @@ border-top: 0px;
    </property>
    <property name="styleSheet">
     <string notr="true">QToolButton { /* all types of tool button */
-    border: 0px solid rgb(255, 255, 255);
-    border-radius: 6px;
     margin-bottom: 1px;
     margin-top: 1px;
     margin-left: 2px;
     margin-right: 2px;
-	background-color: rgb(255, 255, 255);
     padding: 2px;
     padding-left: 7px;
     padding-right: 7px;
-	color: rgb(255, 0, 0);
+	background-color: palette(light);
+    border-radius: 6px;
 }
-QToolButton .svg-icon path {
-  fill: #ff0000;
+
+QToolButton:pressed {
+	background-color: palette(dark);
 }</string>
    </property>
    <property name="movable">

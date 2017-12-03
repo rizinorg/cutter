@@ -105,23 +105,28 @@
         <string>Execute command</string>
        </property>
        <property name="styleSheet">
-        <string notr="true">/*
-border: none;
-padding: 2px;
-*/
-
+        <string notr="true">
 QToolButton { /* all types of tool button */
-    border: 0px solid rgb(255, 255, 255);
-    border-radius: 6px;
-    border-top: 2px solid rgb(255, 255, 255);
-    border-bottom: 2px solid rgb(255, 255, 255);
-    border-left: 2px solid rgb(255, 255, 255);
-    border-right: 2px solid rgb(255, 255, 255);
     margin-bottom: 1px;
     margin-top: 1px;
     padding-left: 8px;
     padding-right: 5px;
-	background-color: rgb(255, 255, 255);
+    padding-top: 1px;
+    padding-bottom: 1px;
+	background-color: palette(light);
+    border-radius: 6px;
+    border-top: 2px solid palette(light);
+    border-bottom: 2px solid palette(light);
+    border-left: 2px solid palette(light);
+    border-right: 2px solid palette(light);
+}
+
+QToolButton:pressed {
+	background-color: palette(dark);
+    border-top: 2px solid palette(dark);
+    border-bottom: 2px solid palette(dark);
+    border-left: 2px solid palette(dark);
+    border-right: 2px solid palette(dark);
 }</string>
        </property>
        <property name="text">
