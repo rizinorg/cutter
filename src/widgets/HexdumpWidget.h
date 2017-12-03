@@ -45,8 +45,6 @@ public slots:
 
     QString normalizeAddr(QString addr);
 
-    void selectHexPreview();
-
     void showOffsets(bool show);
 
     void zoomIn(int range = 1);
@@ -69,7 +67,7 @@ private:
     void refresh(RVA addr = RVA_INVALID);
 	void appendHexdumpLines(int lines, bool top);
 	void removeHexdumpLines(int lines, bool top);
-
+    void selectHexPreview();
 	void updateHeaders();
 
     std::array<QString, 3> fetchHexdump(RVA offset, RVA bytes);

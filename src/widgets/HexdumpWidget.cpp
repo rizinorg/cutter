@@ -79,6 +79,7 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     });
 
     fillPlugins();
+    selectHexPreview();
 }
 
 HexdumpWidget::HexdumpWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
@@ -812,13 +813,12 @@ void HexdumpWidget::on_codeCombo_2_currentTextChanged(const QString &arg1)
     if (arg1 == "Dissasembly")
     {
         ui->hexSideFrame_2->show();
-        ui->hexDisasTextEdit->setPlainText(";; Select some bytes on the left\n;; to see them disassembled");
     }
     else
     {
         ui->hexSideFrame_2->hide();
-        ui->hexDisasTextEdit->setPlainText(";; Select some bytes on the left\n;; to see them parsed here");
     }
+    on_hexHexText_selectionChanged();
 }
 
 QString HexdumpWidget::normalize_addr(QString addr)
