@@ -9,7 +9,6 @@
 #include <QAbstractItemView>
 #include <QAbstractButton>
 #include <QDockWidget>
-#include <QtGui/QtGui>
 
 
 static QAbstractItemView::ScrollMode scrollMode()
@@ -126,6 +125,35 @@ namespace qhelpers
                    + plainTextEdit->contentsMargins().bottom()
                    + (int)(plainTextEdit->document()->documentMargin() * 2)))
                / fontMetrics.lineSpacing();
+    }
+
+
+    QByteArray applyColorToSvg(const QString &filename, QColor color)
+    {
+        static QRegularExpression styleRegExp("(?:style=\".*fill:(.*?);.*?\")|(?:fill=\"(.*?)\")");
+
+        QString replaceStr = QString("#%1").arg(color.rgb() & 0xffffff, 6, 16, QLatin1Char('0'));
+        int replaceStrLen = replaceStr.length();
+
+        QFile file(filename);
+        file.open(QIODevice::ReadOnly);
+        QString xml = QString::fromUtf8(file.readAll());
+
+        int offset = 0;
+        while(true)
+        {
+            QRegularExpressionMatch match = styleRegExp.match(xml, offset);
+            if (!match.hasMatch())
+            {
+                break;
+            }
+
+            int captureIndex = match.captured(1).isNull() ? 2 : 1;
+            xml.replace(match.capturedStart(captureIndex), match.capturedLength(captureIndex), replaceStr);
+            offset = match.capturedStart(captureIndex) + replaceStrLen;
+        }
+
+        return xml.toUtf8();
     }
 
 } // end namespace

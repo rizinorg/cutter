@@ -2,6 +2,7 @@
 #define QHELPERS_H
 
 #include <QString>
+#include <QColor>
 #include <QSizePolicy>
 
 class QPlainTextEdit;
@@ -40,6 +41,8 @@ namespace qhelpers
 
 
     int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
+
+    QByteArray applyColorToSvg(const QString &filename, QColor color);
 }
 
 #endif // HELPERS_H

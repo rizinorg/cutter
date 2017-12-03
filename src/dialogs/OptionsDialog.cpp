@@ -25,6 +25,9 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->progressBar->setVisible(0);
     ui->statusLabel->setVisible(0);
 
+    QColor logoColor = (palette().window().color().value() < 127) ? QColor(255, 255, 255) : QColor(0, 0, 0);
+    ui->logoSvgWidget->load(qhelpers::applyColorToSvg(":/img/cutter.svg", logoColor));
+
     ui->analSlider->setValue(defaultAnalLevel);
 
     // Fill the plugins combo
@@ -121,7 +124,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     ui->analSlider->setValue(level);
 
     this->setEnabled(0);
-    ui->logo->setEnabled(true);
 
     // Show Progress Bar
     ui->progressBar->setEnabled(1);

@@ -58,6 +58,8 @@ static QString formatBytecount(const long bytecount)
     return stream.readAll();
 }
 
+#include "utils/Helpers.h"
+
 NewFileDialog::NewFileDialog(QWidget *parent) :
         QDialog(parent),
         ui(new Ui::NewFileDialog)
@@ -66,6 +68,9 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->recentsListWidget->addAction(ui->actionRemove_item);
     ui->recentsListWidget->addAction(ui->actionClear_all);
+
+    QColor logoColor = (palette().window().color().value() < 127) ? QColor(255, 255, 255) : QColor(0, 0, 0);
+    ui->logoSvgWidget->load(qhelpers::applyColorToSvg(":/img/cutter.svg", logoColor));
 
     fillRecentFilesList();
     bool projectsExist = fillProjectsList();
