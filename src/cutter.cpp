@@ -330,6 +330,7 @@ void CutterCore::renameFunction(QString old_name, QString new_name)
 void CutterCore::renameFlag(QString old_name, QString new_name)
 {
     cmd("fr " + old_name + " " + new_name);
+    emit flagsChanged();
 }
 
 void CutterCore::setComment(RVA addr, const QString &cmt)

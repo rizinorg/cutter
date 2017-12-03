@@ -155,6 +155,25 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     actionCopy.setVisible(canCopy);
     copySeparator->setVisible(canCopy);
+
+
+    RCore *core = Core()->core();
+    RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
+    RFlagItem *f = r_flag_get_i (core->flags, offset);
+    if (fcn)
+    {
+        actionRename.setVisible(true);
+        actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
+    }
+    else if (f)
+    {
+        actionRename.setVisible(true);
+        actionRename.setText(tr("Rename flag \"%1\"").arg(f->name));
+    }
+    else
+    {
+        actionRename.setVisible(false);
+    }
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
@@ -231,62 +250,38 @@ void DisassemblyContextMenu::on_actionAddFlag_triggered()
 
 void DisassemblyContextMenu::on_actionRename_triggered()
 {
-    ut64 tgt_addr = UT64_MAX;
-    RAnalOp op;
     RCore *core = Core()->core();
 
     RenameDialog *dialog = new RenameDialog(this);
 
-    r_anal_op(core->anal, &op, offset, core->block + offset - core->offset, 32);
-    tgt_addr = op.jump != UT64_MAX ? op.jump : op.ptr;
-    if (op.var) {
-        RAnalFunction *fcn = r_anal_get_fcn_in (core->anal, offset, 0);
-        if (fcn) {
-            RAnalVar *bar = r_anal_var_get_byname (core->anal, fcn, op.var->name);
-            if (!bar) {
-                bar = r_anal_var_get_byname (core->anal, fcn, op.var->name);
-                if (!bar) {
-
-                    bar = r_anal_var_get_byname (core->anal, fcn, op.var->name);
-                }
-            }
-            if (bar) {
-                dialog->setName(bar->name);
-                if (dialog->exec()) {
-                    QString new_name = dialog->getName();
-                    r_anal_var_rename (core->anal, fcn->addr, bar->scope,
-                        bar->kind, bar->name, new_name.toStdString().c_str());
-                }
-            }
-        }
-    } else if (tgt_addr != UT64_MAX) {
-        RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, tgt_addr, R_ANAL_FCN_TYPE_NULL);
-        RFlagItem *f = r_flag_get_i (core->flags, tgt_addr);
-        if (fcn) {
-            /* Rename function */
-            dialog->setName(fcn->name);
-            if (dialog->exec()) {
-                QString new_name = dialog->getName();
-                Core()->renameFunction(fcn->name, new_name);
-            }
-        } else if (f) {
-            /* Rename current flag */
-            dialog->setName(f->name);
-            if (dialog->exec()) {
-                QString new_name = dialog->getName();
-                Core()->renameFlag(f->name, new_name);
-            }
-        } else {
-            /* Create new flag */
-            dialog->setName("");
-            if (dialog->exec()) {
-                QString new_name = dialog->getName();
-                Core()->addFlag(tgt_addr, new_name, 1);
-            }
+    RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
+    RFlagItem *f = r_flag_get_i (core->flags, offset);
+    if (fcn)
+    {
+        /* Rename function */
+        dialog->setWindowTitle(tr("Rename function %1").arg(fcn->name));
+        dialog->setName(fcn->name);
+        if (dialog->exec())
+        {
+            QString new_name = dialog->getName();
+            Core()->renameFunction(fcn->name, new_name);
         }
     }
-    r_anal_op_fini (&op);
-    emit Core()->commentsChanged();
+    else if (f)
+    {
+        /* Rename current flag */
+        dialog->setWindowTitle(tr("Rename flag %1").arg(f->name));
+        dialog->setName(f->name);
+        if (dialog->exec())
+        {
+            QString new_name = dialog->getName();
+            Core()->renameFlag(f->name, new_name);
+        }
+    }
+    else
+    {
+        return;
+    }
 }
 
 void DisassemblyContextMenu::on_actionXRefs_triggered()
