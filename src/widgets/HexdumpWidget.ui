@@ -322,7 +322,7 @@ QToolTip {
        <enum>QTabWidget::North</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="usesScrollButtons">
        <bool>true</bool>
@@ -687,37 +687,15 @@ QToolTip {
               </property>
               <property name="styleSheet">
                <string notr="true">QToolButton { /* all types of tool button */
-    border: 0px solid rgb(255, 255, 255);
+    padding: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+	background-color: palette(button);
     border-radius: 6px;
-    border-left: 5px solid rgb(255, 255, 255);
-    border-right: 5px solid rgb(255, 255, 255);
-    margin-bottom: 1px;
-    margin-top: 1px;
-	background-color: rgb(255, 255, 255);
-	image: url(:/img/icons/transfer.svg);
-}
-
-QToolButton:hover {
-
-    border: 0px solid #2180a9;
-    border-radius: 6px;
-    border-left: 5px solid #2180a9;
-    border-right: 5px solid #2180a9;
-    margin-bottom: 1px;
-    margin-top: 1px;
-	background-color: #2180a9;
-	image: url(:/img/icons/transfer_white.svg);
 }
 
 QToolButton:pressed {
-    border: 0px solid rgb(255, 255, 255);
-    border-radius: 6px;
-    border-left: 5px solid rgb(255, 255, 255);
-    border-right: 5px solid rgb(255, 255, 255);
-    margin-bottom: 1px;
-    margin-top: 1px;
-	background-color: rgb(255, 255, 255);
-	image: url(:/img/icons/transfer.svg);
+	background-color: palette(dark);
 }
 
 QToolTip {
@@ -768,37 +746,15 @@ QToolTip {
               </property>
               <property name="styleSheet">
                <string notr="true">QToolButton { /* all types of tool button */
-    border: 0px solid rgb(255, 255, 255);
+    padding: 1px;
+    padding-left: 5px;
+    padding-right: 5px;
+	background-color: palette(button);
     border-radius: 6px;
-    border-left: 5px solid rgb(255, 255, 255);
-    border-right: 5px solid rgb(255, 255, 255);
-    margin-bottom: 1px;
-    margin-top: 1px;
-	background-color: rgb(255, 255, 255);
-	image: url(:/img/icons/transfer.svg);
-}
-
-QToolButton:hover {
-
-    border: 0px solid #2180a9;
-    border-radius: 6px;
-    border-left: 5px solid #2180a9;
-    border-right: 5px solid #2180a9;
-    margin-bottom: 1px;
-    margin-top: 1px;
-	background-color: #2180a9;
-	image: url(:/img/icons/transfer_white.svg);
 }
 
 QToolButton:pressed {
-    border: 0px solid rgb(255, 255, 255);
-    border-radius: 6px;
-    border-left: 5px solid rgb(255, 255, 255);
-    border-right: 5px solid rgb(255, 255, 255);
-    margin-bottom: 1px;
-    margin-top: 1px;
-	background-color: rgb(255, 255, 255);
-	image: url(:/img/icons/transfer.svg);
+	background-color: palette(dark);
 }
 
 QToolTip {

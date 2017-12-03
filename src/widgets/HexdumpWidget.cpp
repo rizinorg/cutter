@@ -6,6 +6,7 @@
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 #include "utils/TempConfig.h"
+#include "utils/SvgIconEngine.h"
 
 #include <QTemporaryFile>
 #include <QFontDialog>
@@ -34,6 +35,9 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     // Setup hex highlight
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
     //highlightHexCurrentLine();
+
+    ui->copyMD5->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"), palette().buttonText().color())));
+    ui->copySHA1->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"), palette().buttonText().color())));
 
     int margin = static_cast<int>(ui->hexOffsetText->document()->documentMargin());
     ui->offsetHeaderLabel->setContentsMargins(margin, 0, margin, 0);

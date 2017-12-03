@@ -5,6 +5,7 @@
 
 #include "utils/MdHighlighter.h"
 #include "utils/Highlighter.h"
+#include "utils/SvgIconEngine.h"
 
 #include <QPlainTextEdit>
 #include <QFont>
@@ -19,6 +20,9 @@ Notepad::Notepad(MainWindow *main, QWidget *parent) :
     ui(new Ui::Notepad)
 {
     ui->setupUi(this);
+
+    ui->undoButton->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/undo.svg"), palette().buttonText().color())));
+    ui->redoButton->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/redo.svg"), palette().buttonText().color())));
 
     // Radare core found in:
     this->main = main;

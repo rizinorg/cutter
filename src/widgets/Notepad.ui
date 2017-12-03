@@ -190,11 +190,16 @@ color: rgb(48, 48, 48);
         <item>
          <widget class="QToolButton" name="undoButton">
           <property name="styleSheet">
-           <string notr="true">border-radius: 5px;
-border: none;
-padding: 2px;
-/*color: darkgray;*/
-background-color: rgb(232, 232, 232);</string>
+           <string notr="true">
+QToolButton { /* all types of tool button */
+    padding: 2px;
+	background-color: palette(light);
+    border-radius: 5px;
+}
+
+QToolButton:pressed {
+	background-color: palette(dark);
+}</string>
           </property>
           <property name="text">
            <string>...</string>
@@ -208,13 +213,15 @@ background-color: rgb(232, 232, 232);</string>
         <item>
          <widget class="QToolButton" name="redoButton">
           <property name="styleSheet">
-           <string notr="true">border-radius: 5px;
-border: none;
-padding: 2px;
-/*color: darkgray;*/
-background-color: rgb(232, 232, 232);
+           <string notr="true">QToolButton { /* all types of tool button */
+    padding: 2px;
+	background-color: palette(light);
+    border-radius: 5px;
+}
 
-</string>
+QToolButton:pressed {
+	background-color: palette(dark);
+}</string>
           </property>
           <property name="text">
            <string>...</string>

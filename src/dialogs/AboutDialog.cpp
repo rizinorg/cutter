@@ -9,6 +9,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+
+    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white.svg" : ":/img/cutter.svg";
+    ui->logoSvgWidget->load(logoFile);
+
     ui->label->setText(tr("<h1>Cutter</h1>"
                           "Version " CUTTER_VERSION "<br/>"
                           "Using r2-" R2_GITTAP
