@@ -35,13 +35,25 @@ CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
 
 CommentsWidget::~CommentsWidget() {}
 
-void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
+void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int)
 {
-    Q_UNUSED(column);
+    // Get offset and name of item double clicked
+    CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
+    CutterCore::getInstance()->seek(comment.offset);
+}
+
+void CommentsWidget::on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int)
+{
+    // don't react on top-level items
+    if (item->parent() == nullptr)
+    {
+        return;
+    }
 
     // Get offset and name of item double clicked
     CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
     CutterCore::getInstance()->seek(comment.offset);
+
 }
 
 void CommentsWidget::on_toolButton_clicked()
@@ -89,6 +101,8 @@ void CommentsWidget::on_actionVertical_triggered()
     ui->tabWidget->setCurrentIndex(1);
 }
 
+
+
 void CommentsWidget::resizeEvent(QResizeEvent *event)
 {
     if (main->responsive && isVisible())
@@ -107,12 +121,34 @@ void CommentsWidget::resizeEvent(QResizeEvent *event)
     QDockWidget::resizeEvent(event);
 }
 
+/*
+ *
+QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
+{
+    QMap<QString, QList<QList<QString>>> ret;
+    QString comments = cmd("CC~CCu");
 
+    for (QString line : comments.split("\n"))
+    {
+        QStringList fields = line.split("CCu");
+        if (fields.length() == 2)
+        {
+            QList<QString> tmp = QList<QString>();
+            tmp << fields[1].split("\"")[1].trimmed();
+            tmp << fields[0].trimmed();
+            QString fcn_name = this->cmdFunctionAt(fields[0].trimmed());
+            ret[fcn_name].append(tmp);
+        }
+    }
+    return ret;
+}
+ */
 
 void CommentsWidget::refreshTree()
 {
     ui->nestedCmtsTreeWidget->clear();
     QList<CommentDescription> comments = CutterCore::getInstance()->getAllComments("CCu");
+    QMap<QString, QList<CommentDescription>> nestedComments;
 
     for (CommentDescription comment : comments)
     {
@@ -123,23 +159,23 @@ void CommentsWidget::refreshTree()
         item->setText(2, comment.name);
         item->setData(0, Qt::UserRole, QVariant::fromValue(comment));
         ui->commentsTreeWidget->addTopLevelItem(item);
+
+        nestedComments[fcn_name].append(comment);
     }
     qhelpers::adjustColumns(ui->commentsTreeWidget);
 
     // Add nested comments
     ui->nestedCmtsTreeWidget->clear();
-    QMap<QString, QList<QList<QString>>> cmts = CutterCore::getInstance()->getNestedComments();
-    for (auto cmt : cmts.keys())
+    for (auto functionName : nestedComments.keys())
     {
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedCmtsTreeWidget);
-        item->setText(0, cmt);
-        QList<QList<QString>> meow = cmts.value(cmt);
-        for (int i = 0; i < meow.size(); ++i)
+        item->setText(0, functionName);
+        for (CommentDescription comment : nestedComments.value(functionName))
         {
-            QList<QString> tmp = meow.at(i);
             QTreeWidgetItem *it = new QTreeWidgetItem();
-            it->setText(0, tmp[1]);
-            it->setText(1, tmp[0].remove('"'));
+            it->setText(0, RAddressString(comment.offset));
+            it->setText(1, comment.name);
+            it->setData(0, Qt::UserRole, QVariant::fromValue(comment));
             item->addChild(it);
         }
         ui->nestedCmtsTreeWidget->addTopLevelItem(item);

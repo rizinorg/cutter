@@ -26,6 +26,7 @@ protected:
 
 private slots:
     void on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
+    void on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
     void on_toolButton_clicked();
     void on_toolButton_2_clicked();

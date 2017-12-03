@@ -808,7 +808,7 @@ void HexdumpWidget::on_action1column_triggered()
     refresh();
 }
 
-void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &arg1)
+void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
 {
     if (ui->parseTypeComboBox->currentIndex() == 0)
     {
@@ -821,7 +821,7 @@ void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &arg1)
     on_hexHexText_selectionChanged();
 }
 
-void HexdumpWidget::on_parseEndianComboBox_currentTextChanged(const QString &arg1)
+void HexdumpWidget::on_parseEndianComboBox_currentTextChanged(const QString &)
 {
     on_hexHexText_selectionChanged();
 }

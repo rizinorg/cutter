@@ -355,26 +355,6 @@ void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
     emit instructionChanged(offset);
 }
 
-QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
-{
-    QMap<QString, QList<QList<QString>>> ret;
-    QString comments = cmd("CC~CCu");
-
-    for (QString line : comments.split("\n"))
-    {
-        QStringList fields = line.split("CCu");
-        if (fields.length() == 2)
-        {
-            QList<QString> tmp = QList<QString>();
-            tmp << fields[1].split("\"")[1].trimmed();
-            tmp << fields[0].trimmed();
-            QString fcn_name = this->cmdFunctionAt(fields[0].trimmed());
-            ret[fcn_name].append(tmp);
-        }
-    }
-    return ret;
-}
-
 void CutterCore::seek(QString addr)
 {
     // Slower than using the API, but the API is not complete

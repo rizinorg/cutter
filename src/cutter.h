@@ -209,7 +209,7 @@ public:
     void delComment(ut64 addr);
 
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
-    QMap<QString, QList<QList<QString>>> getNestedComments();
+
     void setOptions(QString key);
     bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int idx = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
