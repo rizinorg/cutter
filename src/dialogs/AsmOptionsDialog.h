@@ -25,11 +25,15 @@ private:
     CutterCore *core;
     std::unique_ptr<Ui::AsmOptionsDialog> ui;
 
-    void updateFromVars();
     void saveAsDefault();
     void resetToDefault();
 
+    void triggerAsmOptionsChanged();
+
 private slots:
+    void updateFontFromConfig();
+    void updateAsmOptionsFromVars();
+
     void on_esilCheckBox_toggled(bool checked);
     void on_pseudoCheckBox_toggled(bool checked);
     void on_offsetCheckBox_toggled(bool checked);

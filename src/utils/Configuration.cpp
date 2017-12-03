@@ -24,8 +24,13 @@ void Configuration::loadInitial()
 void Configuration::resetAll()
 {
     s.clear();
+    Core()->cmd("e-");
+    Core()->setSettings();
+    Core()->resetDefaultAsmOptions();
+
     loadInitial();
     emit fontsUpdated();
+    Core()->triggerAsmOptionsChanged();
 }
 
 void Configuration::loadDefaultTheme()

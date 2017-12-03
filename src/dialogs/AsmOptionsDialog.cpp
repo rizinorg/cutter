@@ -21,19 +21,26 @@ AsmOptionsDialog::AsmOptionsDialog(QWidget *parent)
         ui->syntaxComboBox->addItem(syntax, syntax);
     ui->syntaxComboBox->blockSignals(false);
 
-    QFont currentFont = Config()->getFont();
-    ui->fontSelectionLabel->setText(currentFont.toString());
-
     // asm.offset=false would break reading the offset in DisassemblyWidget
     // TODO: remove this when DisassemblyWidget::readDisassemblyOffset() allows it
     ui->offsetCheckBox->setVisible(false);
 
-    updateFromVars();
+    updateAsmOptionsFromVars();
+    updateFontFromConfig();
+
+    connect(core, SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(updateFontFromConfig()));
 }
 
 AsmOptionsDialog::~AsmOptionsDialog() {}
 
-void AsmOptionsDialog::updateFromVars()
+void AsmOptionsDialog::updateFontFromConfig()
+{
+    QFont currentFont = Config()->getFont();
+    ui->fontSelectionLabel->setText(currentFont.toString());
+}
+
+void AsmOptionsDialog::updateAsmOptionsFromVars()
 {
     qhelpers::setCheckedWithoutSignals(ui->esilCheckBox, core->getConfigb("asm.esil"));
     qhelpers::setCheckedWithoutSignals(ui->pseudoCheckBox, core->getConfigb("asm.pseudo"));
@@ -92,39 +99,46 @@ void AsmOptionsDialog::saveAsDefault()
 void AsmOptionsDialog::resetToDefault()
 {
     core->resetDefaultAsmOptions();
-    updateFromVars();
+    updateAsmOptionsFromVars();
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsDialog::triggerAsmOptionsChanged()
+{
+    disconnect(core, SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
     core->triggerAsmOptionsChanged();
+    connect(core, SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
 }
 
 
 void AsmOptionsDialog::on_esilCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.esil", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_pseudoCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.pseudo", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_offsetCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.offset", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_describeCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.describe", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_stackpointerCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.stackptr", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_bytesCheckBox_toggled(bool checked)
@@ -132,25 +146,25 @@ void AsmOptionsDialog::on_bytesCheckBox_toggled(bool checked)
     core->setConfig("asm.bytes", checked);
     ui->bytespaceCheckBox->setEnabled(checked);
     ui->lbytesCheckBox->setEnabled(checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_bytespaceCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.bytespace", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_lbytesCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.lbytes", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_syntaxComboBox_currentIndexChanged(int index)
 {
     core->setConfig("asm.syntax", ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_caseComboBox_currentIndexChanged(int index)
@@ -182,26 +196,26 @@ void AsmOptionsDialog::on_caseComboBox_currentIndexChanged(int index)
     core->setConfig("asm.ucase", ucase);
     core->setConfig("asm.capitalize", capitalize);
 
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_bblineCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.bbline", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_varsubCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.varsub", checked);
     ui->varsubOnlyCheckBox->setEnabled(checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_varsubOnlyCheckBox_toggled(bool checked)
 {
     core->setConfig("asm.varsub_only", checked);
-    core->triggerAsmOptionsChanged();
+    triggerAsmOptionsChanged();
 }
 
 void AsmOptionsDialog::on_buttonBox_clicked(QAbstractButton *button)
@@ -226,6 +240,5 @@ void AsmOptionsDialog::on_fontSelectionButton_clicked()
     QFont newFont = QFontDialog::getFont(&ok, currentFont, this);
     if (ok) {
         Config()->setFont(newFont);
-        ui->fontSelectionLabel->setText(newFont.toString());
     }
 }
