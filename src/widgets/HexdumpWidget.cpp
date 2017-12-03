@@ -662,21 +662,21 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
     // Set Hexdump popup menu
     QMenu *menu = ui->hexHexText->createStandardContextMenu();
     menu->clear();
-    menu->addAction(ui->actionHexCopy_Hexpair);
+    /*menu->addAction(ui->actionHexCopy_Hexpair);
     menu->addAction(ui->actionHexCopy_ASCII);
     menu->addAction(ui->actionHexCopy_Text);
-    menu->addSeparator();
+    menu->addSeparator();*/
     QMenu *colSubmenu = menu->addMenu("Columns");
     colSubmenu->addAction(ui->action4columns);
     colSubmenu->addAction(ui->action8columns);
     colSubmenu->addAction(ui->action16columns);
     colSubmenu->addAction(ui->action32columns);
-    menu->addSeparator();
+    /*menu->addSeparator();
     menu->addAction(ui->actionHexEdit);
     menu->addAction(ui->actionHexPaste);
     menu->addSeparator();
     menu->addAction(ui->actionHexInsert_Hex);
-    menu->addAction(ui->actionHexInsert_String);
+    menu->addAction(ui->actionHexInsert_String);*/
 
     ui->hexHexText->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -689,21 +689,21 @@ void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)
     // Set Hex ASCII popup menu
     QMenu *menu = ui->hexASCIIText->createStandardContextMenu();
     menu->clear();
-    menu->addAction(ui->actionHexCopy_Hexpair);
+    /*menu->addAction(ui->actionHexCopy_Hexpair);
     menu->addAction(ui->actionHexCopy_ASCII);
     menu->addAction(ui->actionHexCopy_Text);
-    menu->addSeparator();
+    menu->addSeparator();*/
     QMenu *colSubmenu = menu->addMenu("Columns");
     colSubmenu->addAction(ui->action4columns);
     colSubmenu->addAction(ui->action8columns);
     colSubmenu->addAction(ui->action16columns);
     colSubmenu->addAction(ui->action32columns);
-    menu->addSeparator();
+    /*menu->addSeparator();
     menu->addAction(ui->actionHexEdit);
     menu->addAction(ui->actionHexPaste);
     menu->addSeparator();
     menu->addAction(ui->actionHexInsert_Hex);
-    menu->addAction(ui->actionHexInsert_String);
+    menu->addAction(ui->actionHexInsert_String);*/
 
     ui->hexASCIIText->setContextMenuPolicy(Qt::CustomContextMenu);
 

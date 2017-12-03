@@ -429,7 +429,7 @@ void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
     menu->clear();
     menu->addAction(ui->actionDisasAdd_comment);
     menu->addAction(ui->actionFunctionsRename);
-    menu->addAction(ui->actionFunctionsUndefine);
+    //menu->addAction(ui->actionFunctionsUndefine);
     menu->addSeparator();
     menu->addAction(ui->action_References);
 
