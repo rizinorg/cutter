@@ -196,7 +196,7 @@ unix {
     !isEmpty(APPIMAGE){
         # UGLY work around for the logo name in cutter.desktop
         # Would be better to have a file called cutter.png in the first place
-        system(cp img/cutter.svg $$OUT_PWD/cutter.svg)
+        system(cp img/cutter_appicon.svg $$OUT_PWD/cutter.svg)
 
         appimage_root.path = /
         appimage_root.files = $$OUT_PWD/cutter.svg $$desktop_file
