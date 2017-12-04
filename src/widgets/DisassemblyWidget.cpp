@@ -151,6 +151,11 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
         topOffset = offset;
     }
 
+    if (topOffset == RVA_INVALID)
+    {
+        return;
+    }
+
     if (maxLines <= 0)
     {
         connectCursorPositionChanged(true);
