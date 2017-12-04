@@ -124,7 +124,7 @@
        </item>
        <item>
         <property name="text">
-         <string>CamelCase (asm.capitalize)</string>
+         <string>Capitalize (asm.capitalize)</string>
         </property>
        </item>
       </widget>
