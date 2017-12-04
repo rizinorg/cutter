@@ -297,6 +297,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="aab_basicblocks">
+             <property name="text">
+              <string>Analyze all basic blocks (aab)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QCheckBox" name="aan_rename">
              <property name="text">
               <string>Autorename functions based on context (aan)</string>
@@ -359,6 +366,13 @@
             <widget class="QCheckBox" name="pushret">
              <property name="text">
               <string>Analyze push+ret as jmp (e! anal.pushret)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="hasnext">
+             <property name="text">
+              <string>Continue analysis after each function (e! anal.hasnext)</string>
              </property>
             </widget>
            </item>
