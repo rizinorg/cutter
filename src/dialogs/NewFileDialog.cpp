@@ -1,6 +1,7 @@
 #include "OptionsDialog.h"
 #include "dialogs/CreateNewDialog.h"
 #include "dialogs/NewFileDialog.h"
+#include "dialogs/AboutDialog.h"
 #include "ui_NewfileDialog.h"
 
 #include <QFileDialog>
@@ -172,6 +173,12 @@ void NewFileDialog::on_cancelButton_clicked()
     close();
 }
 
+void NewFileDialog::on_aboutButton_clicked()
+{
+	AboutDialog *a = new AboutDialog(this);
+	a->open();
+}
+
 void NewFileDialog::on_actionRemove_item_triggered()
 {
     // Remove selected item from recents list
@@ -286,7 +293,7 @@ void NewFileDialog::loadFile(const QString &filename)
     if (!checkfile.exists() || !checkfile.isFile())
     {
         QMessageBox msgBox(this);
-        msgBox.setText(tr("Select a new program or a previous one\nbefore continue"));
+        msgBox.setText(tr("Select a new program or a previous one\nbefore continuing"));
         msgBox.exec();
     }
     else
