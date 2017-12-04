@@ -171,6 +171,10 @@ void OptionsDialog::on_okButton_clicked()
         {
             advanced << "aac";
         }
+        if (ui->aab_basicblocks->isChecked())
+        {
+            advanced << "aab";
+        }
         if (ui->aan_rename->isChecked())
         {
             advanced << "aan";
@@ -202,6 +206,10 @@ void OptionsDialog::on_okButton_clicked()
         if (ui->pushret->isChecked())
         {
             advanced << "e! anal.pushret";
+        }
+        if (ui->hasnext->isChecked())
+        {
+            advanced << "e! anal.hasnext";
         }
     }
 
