@@ -59,5 +59,7 @@
         <file>fonts/Inconsolata-Regular.ttf</file>
         <file>img/cutter.svg</file>
         <file>img/cutter_white.svg</file>
+        <file>img/cutter_bg.svg</file>
+        <file>img/cutter_white_bg.svg</file>
     </qresource>
 </RCC>
