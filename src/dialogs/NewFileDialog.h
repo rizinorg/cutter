@@ -27,6 +27,7 @@ private slots:
     void on_loadProjectButton_clicked();
 
     void on_cancelButton_clicked();
+	void on_aboutButton_clicked();
 
     void on_recentsListWidget_itemClicked(QListWidgetItem *item);
     void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
