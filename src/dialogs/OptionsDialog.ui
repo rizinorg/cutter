@@ -299,10 +299,7 @@
            <item>
             <widget class="QCheckBox" name="aab_basicblocks">
              <property name="text">
-              <string>Analyze all basic blocks</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
+              <string>Analyze all basic blocks (aab)</string>
              </property>
             </widget>
            </item>
