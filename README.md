@@ -79,10 +79,6 @@ If you encounter the `Project ERROR: r_core development package not found` try t
 
 Cutter is developed on OS X, Linux and Windows. The first release for users will include installers for all three platforms.
 
-## Documentation
-
-Proper documentation and website will be created before the first release.
-
 ## Help
 
 Right now the best place to obtain help from *cutter* developers and community is joining this telegram group:
