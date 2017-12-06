@@ -65,6 +65,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
+    setAcceptDrops(true);
     ui->recentsListWidget->addAction(ui->actionRemove_item);
     ui->recentsListWidget->addAction(ui->actionClear_all);
 
@@ -216,6 +217,27 @@ void NewFileDialog::on_actionClear_all_triggered()
     // TODO: if called from main window its ok, otherwise its not
     settings.setValue("recentFileList", files);
     ui->newFileEdit->clear();
+}
+
+void NewFileDialog::dragEnterEvent(QDragEnterEvent *event)
+{
+    // Accept drag & drop events only if they provide a URL
+    if(event->mimeData()->hasUrls())
+    {
+        event->acceptProposedAction();
+    }
+}
+
+void NewFileDialog::dropEvent(QDropEvent *event)
+{
+    // Accept drag & drop events only if they provide a URL
+    if(event->mimeData()->urls().count() == 0) {
+        qWarning() << "No URL in drop event, ignoring it.";
+        return;
+    }
+
+    event->acceptProposedAction();
+    loadFile(event->mimeData()->urls().first().path());
 }
 
 bool NewFileDialog::fillRecentFilesList()
