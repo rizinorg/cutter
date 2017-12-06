@@ -126,25 +126,6 @@ QWidget* DisassemblyWidget::getTextWidget()
     return mDisasTextEdit;
 }
 
-QString DisassemblyWidget::readDisasm(const QString &cmd, bool stripLastNewline)
-{
-    TempConfig tempConfig;
-    tempConfig.set("scr.html", true)
-            .set("scr.color", true);
-
-    QString disas = Core()->cmd(cmd);
-
-    if (stripLastNewline)
-    {
-        // ugly hack to remove trailing newline
-        static const auto trimBrRegExp = QRegularExpression("<br />$");
-        disas = disas.remove(trimBrRegExp);
-    }
-
-    return disas.trimmed();
-}
-
-
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
     if (offset != RVA_INVALID)
@@ -168,11 +149,22 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
     mDisasTextEdit->setLockScroll(true); // avoid flicker
 
-    QString disas = readDisasm("pd " + QString::number(maxLines) + "@" + QString::number(topOffset), true);
+    {
+        TempConfig tempConfig;
+        tempConfig.set("scr.html", true)
+                .set("scr.color", true);
+        disassemblyLines = Core()->disassembleLines(topOffset, maxLines);
+    }
+
+    QString html;
+    for (DisassemblyLine line : disassemblyLines)
+    {
+        html += line.text + "<br />";
+    }
 
     connectCursorPositionChanged(true);
 
-    mDisasTextEdit->document()->setHtml(disas);
+    mDisasTextEdit->document()->setHtml(html);
 
     // get bottomOffset from last visible line.
     // because pd N may return more than N lines, move maxLines lines down from the top
