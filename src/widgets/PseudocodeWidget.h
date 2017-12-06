@@ -24,7 +24,6 @@ public:
 private:
     std::unique_ptr<Ui::PseudocodeWidget> ui;
     void refresh(RVA addr);
-    void refreshPseudocode();
     void setupFonts();
 
 signals:
@@ -35,6 +34,7 @@ private slots:
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
     void fontsUpdated();
     void colorsUpdatedSlot();
+    void refreshPseudocode();
 };
 
 #endif // PSEUDOCODEWIDGET_H
