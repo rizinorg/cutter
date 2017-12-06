@@ -63,6 +63,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
+    connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     ui->programLineEdit->setText(main->getFilename());
     QFileInfo fi(this->main->getFilename());
@@ -149,11 +150,6 @@ void OptionsDialog::updateProgress(const QString &status)
     ui->statusLabel->setText(status);
 }
 
-void OptionsDialog::on_closeButton_clicked()
-{
-    close();
-}
-
 void OptionsDialog::on_okButton_clicked()
 {
     QList<QString> advanced = QList<QString>();
@@ -223,17 +219,6 @@ void OptionsDialog::anal_finished()
 
     main->finalizeOpen();
     close();
-}
-
-void OptionsDialog::on_cancelButton_clicked()
-{
-    //delete this->core;
-    //this->core = NULL;
-    // Close dialog and open OptionsDialog
-    delete main;
-    close();
-    NewFileDialog *n = new NewFileDialog(nullptr);
-    n->show();
 }
 
 QString OptionsDialog::analysisDescription(int level)
@@ -325,4 +310,12 @@ void OptionsDialog::on_pdbSelectButton_clicked()
     {
         ui->pdbLineEdit->setText(fileName);
     }
+}
+
+void OptionsDialog::reject()
+{
+    delete main;
+    done(0);
+    NewFileDialog *n = new NewFileDialog(nullptr);
+    n->show();
 }

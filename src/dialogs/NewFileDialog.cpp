@@ -311,8 +311,6 @@ void NewFileDialog::loadFile(const QString &filename)
         // Close dialog and open MainWindow/OptionsDialog
         MainWindow *main = new MainWindow();
         main->openNewFile(filename);
-        //OptionsDialog *o = new OptionsDialog(fname);
-        //o->exec();
 
         close();
     }

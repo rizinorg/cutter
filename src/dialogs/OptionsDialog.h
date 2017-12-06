@@ -25,9 +25,7 @@ public:
 public slots:
     void updateProgress(const QString &str);
 private slots:
-    void on_closeButton_clicked();
     void on_okButton_clicked();
-    void on_cancelButton_clicked();
     void on_analSlider_valueChanged(int value);
     void on_AdvOptButton_clicked();
     void on_analCheckBox_clicked(bool checked);
@@ -53,6 +51,7 @@ public:
     QString getSelectedCPU();
     int getSelectedBits();
     QString getSelectedOS();
+    void reject() override;
 };
 
 #endif // OPTIONSDIALOG_H

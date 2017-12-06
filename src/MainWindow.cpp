@@ -310,7 +310,9 @@ void MainWindow::openNewFile(const QString &fn, int anal_level, QList<QString> a
     o->show();
 
     if (anal_level >= 0)
+    {
         o->setupAndStartAnalysis(anal_level, advanced);
+    }
 }
 
 void MainWindow::openProject(const QString &project_name)
