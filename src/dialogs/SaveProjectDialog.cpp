@@ -103,4 +103,5 @@ void SaveProjectDialog::accept()
 
 void SaveProjectDialog::reject()
 {
+    done(Rejected);
 }
