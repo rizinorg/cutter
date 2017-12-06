@@ -57,8 +57,8 @@
         <file>img/icons/import_light.svg</file>
         <file>fonts/Anonymous Pro.ttf</file>
         <file>fonts/Inconsolata-Regular.ttf</file>
+        <file>img/cutter_plain.svg</file>
+        <file>img/cutter_white_plain.svg</file>
         <file>img/cutter.svg</file>
-        <file>img/cutter_white.svg</file>
-        <file>img/cutter_appicon.svg</file>
     </qresource>
 </RCC>

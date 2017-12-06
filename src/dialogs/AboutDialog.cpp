@@ -10,7 +10,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white.svg" : ":/img/cutter.svg";
+    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white_plain.svg" : ":/img/cutter_plain.svg";
     ui->logoSvgWidget->load(logoFile);
 
     ui->label->setText(tr("<h1>Cutter</h1>"
