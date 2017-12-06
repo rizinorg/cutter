@@ -225,8 +225,8 @@ public:
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
 
-    // Disassembly/Graph/Hexdump view priority
-    enum class MemoryWidgetType { Disassembly, Graph, Hexdump };
+    // Disassembly/Graph/Hexdump/Pseudocode view priority
+    enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Pseudocode };
     MemoryWidgetType getMemoryWidgetPriority() const            { return memoryWidgetPriority; }
     void setMemoryWidgetPriority(MemoryWidgetType type)         { memoryWidgetPriority = type; }
     void triggerRaisePrioritizedMemoryWidget()                  { emit raisePrioritizedMemoryWidget(memoryWidgetPriority); }
@@ -262,6 +262,7 @@ public:
     QList<QList<QString>> get_exec_sections();
     QString getOffsetInfo(QString addr);
     RVA getOffsetJump(RVA addr);
+    QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
     QString getFileInfo();
     QStringList getStats();

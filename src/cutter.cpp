@@ -721,6 +721,11 @@ RVA CutterCore::getOffsetJump(RVA addr)
     return value;
 }
 
+QString CutterCore::getDecompiledCode(RVA addr)
+{
+    return cmd("pdc @ " + QString::number(addr));
+}
+
 QString CutterCore::getDecompiledCode(QString addr)
 {
     return cmd("pdc @ " + addr);
