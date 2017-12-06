@@ -2,6 +2,8 @@
 #define PSEUDOCODEWIDGET_H
 
 #include <QDockWidget>
+#include <memory>
+
 #include "ui_PseudocodeWidget.h"
 #include "cutter.h"
 
