@@ -231,7 +231,8 @@ void NewFileDialog::dragEnterEvent(QDragEnterEvent *event)
 void NewFileDialog::dropEvent(QDropEvent *event)
 {
     // Accept drag & drop events only if they provide a URL
-    if(event->mimeData()->urls().count() == 0) {
+    if(event->mimeData()->urls().count() == 0)
+    {
         qWarning() << "No URL in drop event, ignoring it.";
         return;
     }
