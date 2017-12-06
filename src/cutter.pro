@@ -176,7 +176,7 @@ unix {
         PREFIX = /usr/local
     }
 
-    icon_file = img/cutter-small.png
+    icon_file = img/cutter.svg
 
     share_pixmaps.path = $$PREFIX/share/pixmaps
     share_pixmaps.files = $$icon_file
@@ -194,12 +194,8 @@ unix {
 
     # Triggered for example by 'qmake APPIMAGE=1'
     !isEmpty(APPIMAGE){
-        # UGLY work around for the logo name in cutter.desktop
-        # Would be better to have a file called cutter.png in the first place
-        system(cp img/cutter_appicon.svg $$OUT_PWD/cutter.svg)
-
         appimage_root.path = /
-        appimage_root.files = $$OUT_PWD/cutter.svg $$desktop_file
+        appimage_root.files = $$icon_file $$desktop_file
 
         INSTALLS += appimage_root
     }

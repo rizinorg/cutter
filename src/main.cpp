@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     a.setOrganizationName("cutter");
     a.setApplicationName("cutter");
     a.setApplicationVersion(APP_VERSION);
-    a.setWindowIcon(QIcon(":/img/cutter_appicon.svg"));
+    a.setWindowIcon(QIcon(":/img/cutter.svg"));
 
     // Set QString codec to UTF-8
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

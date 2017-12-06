@@ -68,7 +68,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui->recentsListWidget->addAction(ui->actionRemove_item);
     ui->recentsListWidget->addAction(ui->actionClear_all);
 
-    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white.svg" : ":/img/cutter.svg";
+    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white_plain.svg" : ":/img/cutter_plain.svg";
     ui->logoSvgWidget->load(logoFile);
 
     fillRecentFilesList();
