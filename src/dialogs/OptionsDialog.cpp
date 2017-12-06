@@ -218,7 +218,7 @@ void OptionsDialog::anal_finished()
     main->addOutput(tr(" > Analysis finished"));
 
     main->finalizeOpen();
-    close();
+    done(0);
 }
 
 QString OptionsDialog::analysisDescription(int level)
