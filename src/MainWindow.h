@@ -8,6 +8,7 @@
 #include "widgets/DisassemblerGraphView.h"
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
+#include "widgets/PseudocodeWidget.h"
 #include "utils/Configuration.h"
 
 #include <QMainWindow>
@@ -169,6 +170,7 @@ private:
     DisassemblyWidget  *disassemblyDock;
     SidebarWidget    *sidebarDock;
     HexdumpWidget    *hexdumpDock;
+    PseudocodeWidget *pseudocodeDock;
     QDockWidget      *graphDock;
     DisassemblerGraphView *graphView;
     QDockWidget      *asmDock;

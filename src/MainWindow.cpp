@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
     relocsDock(nullptr),
     commentsDock(nullptr),
     stringsDock(nullptr),
+    pseudocodeDock(nullptr),
     flagsDock(nullptr),
     dashboardDock(nullptr),
     gotoEntry(nullptr),
@@ -190,6 +191,9 @@ void MainWindow::initUI()
 
     hexdumpDock = new HexdumpWidget(tr("Hexdump"), this);
     dockWidgets.push_back(hexdumpDock);
+
+    pseudocodeDock = new PseudocodeWidget(tr("Pseudocode"), this);
+    dockWidgets.push_back(pseudocodeDock);
 
     // Add graph view as dockable
     graphDock = new QDockWidget(tr("Graph"), this);
@@ -659,6 +663,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
+    tabifyDockWidget(dashboardDock, pseudocodeDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
     tabifyDockWidget(dashboardDock, flagsDock);
     tabifyDockWidget(dashboardDock, stringsDock);
@@ -695,6 +700,7 @@ void MainWindow::showDefaultDocks()
                                                 disassemblyDock,
                                                 sidebarDock,
                                                 hexdumpDock,
+                                                pseudocodeDock,
                                                 dashboardDock
                                               };
 

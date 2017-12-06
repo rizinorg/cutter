@@ -79,7 +79,8 @@ SOURCES += \
     utils/Colors.cpp \
     dialogs/SaveProjectDialog.cpp \
     utils/TempConfig.cpp \
-    utils/SvgIconEngine.cpp
+    utils/SvgIconEngine.cpp \
+    widgets/PseudocodeWidget.cpp
 
 HEADERS  += \
     cutter.h \
@@ -129,7 +130,8 @@ HEADERS  += \
     utils/Colors.h \
     dialogs/SaveProjectDialog.h \
     utils/TempConfig.h \
-    utils/SvgIconEngine.h
+    utils/SvgIconEngine.h \
+    widgets/PseudocodeWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -159,7 +161,8 @@ FORMS    += \
     widgets/SymbolsWidget.ui \
     widgets/SidebarWidget.ui \
     widgets/HexdumpWidget.ui \
-    dialogs/SaveProjectDialog.ui
+    dialogs/SaveProjectDialog.ui \
+    widgets/PseudocodeWidget.ui
 
 RESOURCES += \
     resources.qrc
