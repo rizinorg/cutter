@@ -169,7 +169,7 @@ void GraphicsBar::fillData()
                 }
                 else if(map["symbols"].toInt() > 0)
                 {
-                    rect->setBrush(QBrush(QColor(229, 104, 69)));
+                    rect->setBrush(QBrush(QColor(229, 150, 69)));
                 }
                 else if(map["strings"].toInt() > 0)
                 {
