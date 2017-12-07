@@ -1537,7 +1537,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     QJsonObject func = funcRef.toObject();
     Function f;
     f.ready = true;
-    f.entry = func["offset"].toInt();
+    f.entry = func["offset"].toVariant().toULongLong();
 
     QString windowTitle = tr("Graph");
     QString funcName = func["name"].toString().trimmed();
@@ -1546,7 +1546,6 @@ void DisassemblerGraphView::loadCurrentGraph()
         windowTitle += " (" + funcName + ")";
     }
     this->parentWidget()->setWindowTitle(windowTitle);
-
     f.update_id = anal.update_id;
 
     for (QJsonValueRef blockRef : func["blocks"].toArray()) {
@@ -1556,14 +1555,14 @@ void DisassemblerGraphView::loadCurrentGraph()
 
         /* Parse Block data */
         Block b;
-        b.entry = block["offset"].toInt();
-        fail = block["fail"].toInt();
+        b.entry = block["offset"].toVariant().toULongLong();
+        fail = block["fail"].toVariant().toULongLong();
         if (fail)
         {
             b.false_path = fail;
             b.exits.push_back(fail);
         }
-        jump = block["jump"].toInt();
+        jump = block["jump"].toVariant().toULongLong();
         if (jump)
         {
             if (fail) {
@@ -1575,7 +1574,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         for (QJsonValueRef opRef : block["ops"].toArray()) {
             QJsonObject op = opRef.toObject();
             Instr i;
-            i.addr = op["offset"].toInt();
+            i.addr = op["offset"].toVariant().toULongLong();
             RichTextPainter::List richText;
             Colors::colorizeAssembly(richText, op["opcode"].toString(), op["type_num"].toVariant().toULongLong());
             if (op["comment"].toString().length()) {
