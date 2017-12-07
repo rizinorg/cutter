@@ -142,12 +142,11 @@ void GraphicsBar::fillData()
 
             // Keep X start and end as well as the start & end address in a list.
             // This is used to convert address to an X position on the bar and vice versa.
-            struct xToAddress x2a = {
-                .x_start = block_x_start,
-                .x_end = block_x_start + graph_block,
-                .address_from = map["offset"].toULongLong(),
-                .address_to = map["offset"].toULongLong() + map["size"].toULongLong()
-            };
+            struct xToAddress x2a;
+            x2a.x_start = block_x_start;
+            x2a.x_end = block_x_start + graph_block;
+            x2a.address_from = map["offset"].toULongLong();
+            x2a.address_to = map["offset"].toULongLong() + map["size"].toULongLong();
             xToAddress.append(x2a);
 
             if (map.empty())
