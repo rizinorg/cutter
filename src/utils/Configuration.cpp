@@ -126,9 +126,9 @@ void Configuration::loadDarkTheme()
     QColor color4 = QColor(128, 235, 200);
     QColor color5 = QColor(95, 95, 175);
     QColor color6 = QColor(255, 235, 95);
-    QColor color7 = QColor(255, 200, 0);
+    QColor color7 = QColor(255, 130, 0);
     QColor color8 = QColor(108, 108, 108);
-    QColor color9 = QColor(255, 200, 0);
+    QColor color9 = QColor(255, 130, 0);
 
     QColor highlightColor = QColor(64, 115, 115);
 
