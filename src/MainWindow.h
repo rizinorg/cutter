@@ -20,7 +20,7 @@ class PreviewWidget;
 class Notepad;
 class Highlighter;
 class AsciiHighlighter;
-class GraphicsBar;
+class VisualNavbar;
 class FunctionsWidget;
 class ImportsWidget;
 class ExportsWidget;
@@ -187,7 +187,7 @@ private:
     std::unique_ptr<Ui::MainWindow> ui;
     Highlighter      *highlighter;
     AsciiHighlighter *hex_highlighter;
-    GraphicsBar      *graphicsBar;
+    VisualNavbar      *visualNavbar;
     EntrypointWidget *entrypointDock;
     FunctionsWidget  *functionsDock;
     ImportsWidget    *importsDock;
