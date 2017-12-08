@@ -248,7 +248,7 @@ void GraphicsBar::mousePressEvent(QMouseEvent *event)
     // Convert the local X coordinate to an address.
     qreal x = event->localPos().x();
     RVA address = localXToAddress(x);
-    if(address != 0)
+    if(address != RVA_INVALID)
     {
         Core()->seek(address);
     }
@@ -265,7 +265,7 @@ RVA GraphicsBar::localXToAddress(double x)
             return x2a.address_from + (offset * size);
         }
     }
-    return 0;
+    return RVA_INVALID;
 }
 
 double GraphicsBar::addressToLocalX(RVA address)
