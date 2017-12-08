@@ -43,6 +43,8 @@ GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fetchAndPaintData()));
+
+    graphicsScene = new QGraphicsScene(this);
 }
 
 void GraphicsBar::paintEvent(QPaintEvent *event)
@@ -50,7 +52,11 @@ void GraphicsBar::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
 
     QPainter painter(this);
-    this->fillData();
+    if(previousWidth != this->codeGraphic->width())
+    {
+        this->fillData();
+        previousWidth = this->codeGraphic->width();
+    }
 }
 
 void GraphicsBar::fetchAndPaintData()
@@ -80,19 +86,20 @@ void GraphicsBar::fetchData()
 
 void GraphicsBar::fillData()
 {
+    qDeleteAll(graphicsScene->items());
     int from = blockMaps.first()["from"].toInt();
     int to = blockMaps.first()["to"].toInt();
 
     // Prepare the graph scene
     int w = this->codeGraphic->width();
     int h = this->codeGraphic->height();
-    QGraphicsScene *scene = new QGraphicsScene(this);
+
 
     const QBrush bg = QBrush(QColor(74, 74, 74));
 
-    scene->setBackgroundBrush(bg);
+    graphicsScene->setBackgroundBrush(bg);
     this->codeGraphic->setRenderHints(0);
-    this->codeGraphic->setScene(scene);
+    this->codeGraphic->setScene(graphicsScene);
     this->codeGraphic->setRenderHints(QPainter::Antialiasing);
     this->codeGraphic->setToolTip("gap");
 
@@ -131,6 +138,10 @@ void GraphicsBar::fillData()
         }
 
         int graph_block = local_w / num;
+        if(graph_block == 0)
+        {
+            continue;
+        }
         int counter = 0;
 
         for (auto j : mainMap["blocks"].toList())
@@ -156,7 +167,7 @@ void GraphicsBar::fillData()
                 rect->setPen(Qt::NoPen);
                 rect->setBrush(QBrush(QColor(252, 249, 190)));
                 rect->setToolTip("Data");
-                scene->addItem(rect);
+                graphicsScene->addItem(rect);
             }
             else
             {
@@ -180,7 +191,7 @@ void GraphicsBar::fillData()
                     rect->setBrush(QBrush(QColor(190, 190, 190)));
                 }
                 rect->setToolTip(generateTooltip(section.name, map));
-                scene->addItem(rect);
+                graphicsScene->addItem(rect);
             }
 
             // Check whether this block contains the current address.
@@ -202,7 +213,7 @@ void GraphicsBar::fillData()
         QGraphicsRectItem *rect = new QGraphicsRectItem(cursor_x, 0, 2, h);
         rect->setPen(Qt::NoPen);
         rect->setBrush(QBrush(QColor(255, 0, 0)));
-        scene->addItem(rect);
+        graphicsScene->addItem(rect);
     }
 }
 

@@ -2,6 +2,7 @@
 #define GRAPHICSBAR_H
 
 #include <QToolBar>
+#include <QGraphicsScene>
 
 #include "cutter.h"
 
@@ -33,6 +34,7 @@ private slots:
 
 private:
     QGraphicsView   *codeGraphic;
+    QGraphicsScene  *graphicsScene;
     MainWindow      *main;
     RVA totalSectionsSize;
     QList<SectionDescription> sections;
@@ -40,6 +42,8 @@ private:
     QList<struct xToAddress> xToAddress;
     QString generateTooltip(QString section_name, QMap<QString, QVariant> map);
 
+    // Used to check whether the width changed. If yes we need to re-initialize the scene (slow)
+    int previousWidth;
     void mousePressEvent(QMouseEvent *event) override;
 };
 
