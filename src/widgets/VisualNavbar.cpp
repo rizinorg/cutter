@@ -27,11 +27,6 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     // and the result is wrong. Something to do with overwriting the style sheet :/
     //setStyleSheet("QToolBar { border: 0px; border-bottom: 0px; border-top: 0px; border-width: 0px;}");
 
-    this->graphicsView->setAlignment(Qt::AlignLeft);
-    this->graphicsView->setMinimumHeight(20);
-    this->graphicsView->setMaximumHeight(20);
-    this->graphicsView->setFrameShape(QFrame::NoFrame);
-
     /*
     QComboBox *addsCombo = new QComboBox();
     addsCombo->addItem("");
@@ -45,6 +40,19 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fetchAndPaintData()));
 
     graphicsScene = new QGraphicsScene(this);
+
+    const QBrush bg = QBrush(QColor(74, 74, 74));
+
+    graphicsScene->setBackgroundBrush(bg);
+
+    this->graphicsView->setAlignment(Qt::AlignLeft);
+    this->graphicsView->setMinimumHeight(20);
+    this->graphicsView->setMaximumHeight(20);
+    this->graphicsView->setFrameShape(QFrame::NoFrame);
+    this->graphicsView->setRenderHints(0);
+    this->graphicsView->setScene(graphicsScene);
+    this->graphicsView->setRenderHints(QPainter::Antialiasing);
+    this->graphicsView->setToolTip("gap");
 }
 
 void VisualNavbar::paintEvent(QPaintEvent *event)
@@ -52,10 +60,10 @@ void VisualNavbar::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
 
     QPainter painter(this);
-    if(previousWidth != this->graphicsView->width())
+    if(previousWidth != this->width())
     {
         this->fillData();
-        previousWidth = this->graphicsView->width();
+        previousWidth = this->width();
     }
 }
 
@@ -86,7 +94,8 @@ void VisualNavbar::fetchData()
 
 void VisualNavbar::fillData()
 {
-    qDeleteAll(graphicsScene->items());
+//    qDeleteAll(graphicsScene->items());
+    graphicsScene->clear();
     cursorGraphicsItem = nullptr;
     int from = blockMaps.first()["from"].toInt();
     int to = blockMaps.first()["to"].toInt();
@@ -95,14 +104,6 @@ void VisualNavbar::fillData()
     int w = this->graphicsView->width();
     int h = this->graphicsView->height();
 
-
-    const QBrush bg = QBrush(QColor(74, 74, 74));
-
-    graphicsScene->setBackgroundBrush(bg);
-    this->graphicsView->setRenderHints(0);
-    this->graphicsView->setScene(graphicsScene);
-    this->graphicsView->setRenderHints(QPainter::Antialiasing);
-    this->graphicsView->setToolTip("gap");
 
 
     RVA current_address = Core()->getOffset();
@@ -195,7 +196,10 @@ void VisualNavbar::fillData()
         }
         x_start = x_end;
     }
+    // Update scene width
+    graphicsScene->setSceneRect(graphicsScene->itemsBoundingRect());
 
+    // Draw cursor
     drawCursor();
 }
 
@@ -207,8 +211,9 @@ void VisualNavbar::drawCursor()
     {
         graphicsScene->removeItem(cursorGraphicsItem);
         delete cursorGraphicsItem;
+        cursorGraphicsItem = nullptr;
     }
-    if (cursor_x == nan(""))
+    if (isnan(cursor_x))
     {
         return;
     }
@@ -238,7 +243,7 @@ QString VisualNavbar::generateTooltip(QString section_name, QMap<QString, QVaria
 void VisualNavbar::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
-    // Re-paint, which will also update the cursor.
+   // Update cursor
     this->drawCursor();
 }
 
