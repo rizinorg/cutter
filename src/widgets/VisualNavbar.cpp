@@ -1,4 +1,4 @@
-#include "CodeGraphic.h"
+#include "VisualNavbar.h"
 
 #include "MainWindow.h"
 #include "utils/TempConfig.h"
@@ -12,25 +12,20 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 
-GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
+VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     QToolBar(main),
-    codeGraphic(new QGraphicsView),
+    graphicsView(new QGraphicsView),
     main(main)
 {
     Q_UNUSED(parent);
 
-    setObjectName("codeGraphics");
-    setWindowTitle(tr("Code bar"));
+    setObjectName("visualNavbar");
+    setWindowTitle(tr("Visual navigation bar"));
     //    setMovable(false);
     setContentsMargins(0, 0, 0, 0);
     // If line below is used, with the dark theme the paintEvent is not called
     // and the result is wrong. Something to do with overwriting the style sheet :/
     //setStyleSheet("QToolBar { border: 0px; border-bottom: 0px; border-top: 0px; border-width: 0px;}");
-
-    this->codeGraphic->setAlignment(Qt::AlignLeft);
-    this->codeGraphic->setMinimumHeight(20);
-    this->codeGraphic->setMaximumHeight(20);
-    this->codeGraphic->setFrameShape(QFrame::NoFrame);
 
     /*
     QComboBox *addsCombo = new QComboBox();
@@ -38,34 +33,47 @@ GraphicsBar::GraphicsBar(MainWindow *main, QWidget *parent) :
     addsCombo->addItem("Entry points");
     addsCombo->addItem("Marks");
     */
-    addWidget(this->codeGraphic);
+    addWidget(this->graphicsView);
     //addWidget(addsCombo);
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fetchAndPaintData()));
 
     graphicsScene = new QGraphicsScene(this);
+
+    const QBrush bg = QBrush(QColor(74, 74, 74));
+
+    graphicsScene->setBackgroundBrush(bg);
+
+    this->graphicsView->setAlignment(Qt::AlignLeft);
+    this->graphicsView->setMinimumHeight(20);
+    this->graphicsView->setMaximumHeight(20);
+    this->graphicsView->setFrameShape(QFrame::NoFrame);
+    this->graphicsView->setRenderHints(0);
+    this->graphicsView->setScene(graphicsScene);
+    this->graphicsView->setRenderHints(QPainter::Antialiasing);
+    this->graphicsView->setToolTip("gap");
 }
 
-void GraphicsBar::paintEvent(QPaintEvent *event)
+void VisualNavbar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
     QPainter painter(this);
-    if(previousWidth != this->codeGraphic->width())
+    if(previousWidth != this->width())
     {
         this->fillData();
-        previousWidth = this->codeGraphic->width();
+        previousWidth = this->width();
     }
 }
 
-void GraphicsBar::fetchAndPaintData()
+void VisualNavbar::fetchAndPaintData()
 {
     fetchData();
     fillData();
 }
 
-void GraphicsBar::fetchData()
+void VisualNavbar::fetchData()
 {
     TempConfig tempConfig;
     tempConfig.set("search.in", QString("io.section"));
@@ -84,25 +92,18 @@ void GraphicsBar::fetchData()
     }
 }
 
-void GraphicsBar::fillData()
+void VisualNavbar::fillData()
 {
-    qDeleteAll(graphicsScene->items());
+//    qDeleteAll(graphicsScene->items());
+    graphicsScene->clear();
     cursorGraphicsItem = nullptr;
     int from = blockMaps.first()["from"].toInt();
     int to = blockMaps.first()["to"].toInt();
 
     // Prepare the graph scene
-    int w = this->codeGraphic->width();
-    int h = this->codeGraphic->height();
+    int w = this->graphicsView->width();
+    int h = this->graphicsView->height();
 
-
-    const QBrush bg = QBrush(QColor(74, 74, 74));
-
-    graphicsScene->setBackgroundBrush(bg);
-    this->codeGraphic->setRenderHints(0);
-    this->codeGraphic->setScene(graphicsScene);
-    this->codeGraphic->setRenderHints(QPainter::Antialiasing);
-    this->codeGraphic->setToolTip("gap");
 
 
     RVA current_address = Core()->getOffset();
@@ -195,11 +196,14 @@ void GraphicsBar::fillData()
         }
         x_start = x_end;
     }
+    // Update scene width
+    graphicsScene->setSceneRect(graphicsScene->itemsBoundingRect());
 
+    // Draw cursor
     drawCursor();
 }
 
-void GraphicsBar::drawCursor()
+void VisualNavbar::drawCursor()
 {
     RVA offset = Core()->getOffset();
     double cursor_x = addressToLocalX(offset);
@@ -207,19 +211,20 @@ void GraphicsBar::drawCursor()
     {
         graphicsScene->removeItem(cursorGraphicsItem);
         delete cursorGraphicsItem;
+        cursorGraphicsItem = nullptr;
     }
-    if (cursor_x == nan(""))
+    if (isnan(cursor_x))
     {
         return;
     }
-    int h = this->codeGraphic->height();
+    int h = this->graphicsView->height();
     cursorGraphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, h);
     cursorGraphicsItem->setPen(Qt::NoPen);
     cursorGraphicsItem->setBrush(QBrush(QColor(255, 0, 0)));
     graphicsScene->addItem(cursorGraphicsItem);
 }
 
-QString GraphicsBar::generateTooltip(QString section_name, QMap<QString, QVariant> map)
+QString VisualNavbar::generateTooltip(QString section_name, QMap<QString, QVariant> map)
 {
     QString ret = "";
     ret += "Offset:    0x" + QString::number(map["offset"].toInt(), 16) + "\n";
@@ -235,26 +240,26 @@ QString GraphicsBar::generateTooltip(QString section_name, QMap<QString, QVarian
     return ret;
 }
 
-void GraphicsBar::on_seekChanged(RVA addr)
+void VisualNavbar::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
-    // Re-paint, which will also update the cursor.
+   // Update cursor
     this->drawCursor();
 }
 
-void GraphicsBar::mousePressEvent(QMouseEvent *event)
+void VisualNavbar::mousePressEvent(QMouseEvent *event)
 {
     event->accept();
     // Convert the local X coordinate to an address.
     qreal x = event->localPos().x();
     RVA address = localXToAddress(x);
-    if(address != 0)
+    if(address != RVA_INVALID)
     {
         Core()->seek(address);
     }
 }
 
-RVA GraphicsBar::localXToAddress(double x)
+RVA VisualNavbar::localXToAddress(double x)
 {
     for(auto x2a : xToAddress)
     {
@@ -265,10 +270,10 @@ RVA GraphicsBar::localXToAddress(double x)
             return x2a.address_from + (offset * size);
         }
     }
-    return 0;
+    return RVA_INVALID;
 }
 
-double GraphicsBar::addressToLocalX(RVA address)
+double VisualNavbar::addressToLocalX(RVA address)
 {
     for(auto x2a : xToAddress)
     {

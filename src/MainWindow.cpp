@@ -50,7 +50,7 @@
 #include "widgets/SectionsDock.h"
 #include "widgets/RelocsWidget.h"
 #include "widgets/FlagsWidget.h"
-#include "widgets/CodeGraphic.h"
+#include "widgets/VisualNavbar.h"
 #include "widgets/Dashboard.h"
 #include "widgets/Notepad.h"
 #include "widgets/Sidebar.h"
@@ -90,7 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     highlighter(nullptr),
     hex_highlighter(nullptr),
-    graphicsBar(nullptr),
+    visualNavbar(nullptr),
     entrypointDock(nullptr),
     functionsDock(nullptr),
     importsDock(nullptr),
@@ -171,11 +171,11 @@ void MainWindow::initUI()
     spacer->setMinimumSize(20, 20);
     ui->mainToolBar->addWidget(spacer);
 
-    // codeGraphics tool bar
-    this->graphicsBar = new GraphicsBar(this);
-    this->graphicsBar->setMovable(false);
+    // Visual navigation tool bar
+    this->visualNavbar = new VisualNavbar(this);
+    this->visualNavbar->setMovable(false);
     addToolBarBreak(Qt::TopToolBarArea);
-    addToolBar(graphicsBar);
+    addToolBar(visualNavbar);
 
     /*
      * Dock Widgets

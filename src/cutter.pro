@@ -52,7 +52,6 @@ SOURCES += \
     dialogs/CreateNewDialog.cpp \
     dialogs/NewFileDialog.cpp \
     AnalThread.cpp \
-    widgets/CodeGraphic.cpp \
     widgets/CommentsWidget.cpp \
     widgets/ConsoleWidget.cpp \
     widgets/Dashboard.cpp \
@@ -80,7 +79,8 @@ SOURCES += \
     dialogs/SaveProjectDialog.cpp \
     utils/TempConfig.cpp \
     utils/SvgIconEngine.cpp \
-    widgets/PseudocodeWidget.cpp
+    widgets/PseudocodeWidget.cpp \
+    widgets/VisualNavbar.cpp
 
 HEADERS  += \
     cutter.h \
@@ -103,7 +103,6 @@ HEADERS  += \
     dialogs/CreateNewDialog.h \
     dialogs/NewFileDialog.h \
     AnalThread.h \
-    widgets/CodeGraphic.h \
     widgets/CommentsWidget.h \
     widgets/ConsoleWidget.h \
     widgets/Dashboard.h \
@@ -131,7 +130,8 @@ HEADERS  += \
     dialogs/SaveProjectDialog.h \
     utils/TempConfig.h \
     utils/SvgIconEngine.h \
-    widgets/PseudocodeWidget.h
+    widgets/PseudocodeWidget.h \
+    widgets/VisualNavbar.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

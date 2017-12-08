@@ -1,5 +1,5 @@
-#ifndef GRAPHICSBAR_H
-#define GRAPHICSBAR_H
+#ifndef VISUALNAVBAR_H
+#define VISUALNAVBAR_H
 
 #include <QToolBar>
 #include <QGraphicsScene>
@@ -9,7 +9,7 @@
 class MainWindow;
 class QGraphicsView;
 
-class GraphicsBar : public QToolBar
+class VisualNavbar : public QToolBar
 {
     Q_OBJECT
 
@@ -21,7 +21,7 @@ class GraphicsBar : public QToolBar
     };
 
 public:
-    explicit GraphicsBar(MainWindow *main, QWidget *parent = 0);
+    explicit VisualNavbar(MainWindow *main, QWidget *parent = 0);
 
 public slots:
     void paintEvent(QPaintEvent *event) override;
@@ -34,7 +34,7 @@ private slots:
     void on_seekChanged(RVA addr);
 
 private:
-    QGraphicsView     *codeGraphic;
+    QGraphicsView     *graphicsView;
     QGraphicsScene    *graphicsScene;
     QGraphicsRectItem *cursorGraphicsItem;
     MainWindow        *main;
@@ -54,4 +54,4 @@ private:
     void mousePressEvent(QMouseEvent *event) override;
 };
 
-#endif // GRAPHICSBAR_H
+#endif // VISUALNAVBAR_H
