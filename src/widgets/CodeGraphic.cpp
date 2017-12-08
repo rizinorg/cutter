@@ -87,6 +87,7 @@ void GraphicsBar::fetchData()
 void GraphicsBar::fillData()
 {
     qDeleteAll(graphicsScene->items());
+    cursorGraphicsItem = NULL;
     int from = blockMaps.first()["from"].toInt();
     int to = blockMaps.first()["to"].toInt();
 
@@ -109,10 +110,6 @@ void GraphicsBar::fillData()
     double width_per_byte = (double)w/(double)totalSectionsSize;
     xToAddress.clear();
     double x_start = 0.0;
-
-
-    bool draw_cursor = false;
-    double cursor_x = 0.0;
 
     for(int i=0; i < sections.length(); i++)
     {
@@ -194,27 +191,32 @@ void GraphicsBar::fillData()
                 graphicsScene->addItem(rect);
             }
 
-            // Check whether this block contains the current address.
-            if ((x2a.address_from <= current_address) && (current_address < x2a.address_to))
-            {
-                draw_cursor = true;
-                RVA cursor_offset = (double)(current_address - x2a.address_from) * width_per_byte;
-                cursor_x = block_x_start + cursor_offset;
-            }
-
             counter += 1;
         }
         x_start = x_end;
     }
 
-    // Draw the red cursor that shows where we are in the file (if we are in one of the rendered sections)
-    if(draw_cursor)
+    drawCursor();
+}
+
+void GraphicsBar::drawCursor()
+{
+    RVA offset = Core()->getOffset();
+    double cursor_x = addressToLocalX(offset);
+    if (cursorGraphicsItem != NULL)
     {
-        QGraphicsRectItem *rect = new QGraphicsRectItem(cursor_x, 0, 2, h);
-        rect->setPen(Qt::NoPen);
-        rect->setBrush(QBrush(QColor(255, 0, 0)));
-        graphicsScene->addItem(rect);
+        graphicsScene->removeItem(cursorGraphicsItem);
+        delete cursorGraphicsItem;
     }
+    if (cursor_x == nan(""))
+    {
+        return;
+    }
+    int h = this->codeGraphic->height();
+    cursorGraphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, h);
+    cursorGraphicsItem->setPen(Qt::NoPen);
+    cursorGraphicsItem->setBrush(QBrush(QColor(255, 0, 0)));
+    graphicsScene->addItem(cursorGraphicsItem);
 }
 
 QString GraphicsBar::generateTooltip(QString section_name, QMap<QString, QVariant> map)
@@ -237,7 +239,7 @@ void GraphicsBar::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
     // Re-paint, which will also update the cursor.
-    this->fillData();
+    this->drawCursor();
 }
 
 void GraphicsBar::mousePressEvent(QMouseEvent *event)
@@ -245,14 +247,34 @@ void GraphicsBar::mousePressEvent(QMouseEvent *event)
     event->accept();
     // Convert the local X coordinate to an address.
     qreal x = event->localPos().x();
+    RVA address = localXToAddress(x);
+    Core()->seek(address);
+}
+
+RVA GraphicsBar::localXToAddress(double x)
+{
     for(auto x2a : xToAddress)
     {
         if ((x2a.x_start <= x) && (x <= x2a.x_end))
         {
             double offset = (x - x2a.x_start) / (x2a.x_end - x2a.x_start);
             double size = x2a.address_to - x2a.address_from;
-            Core()->seek(x2a.address_from + (offset * size));
-            break;
+            return x2a.address_from + (offset * size);
         }
     }
+    return 0;
+}
+
+double GraphicsBar::addressToLocalX(RVA address)
+{
+    for(auto x2a : xToAddress)
+    {
+        if ((x2a.address_from <= address) && (address < x2a.address_to))
+        {
+            double offset = (double)(address - x2a.address_from) / (double)(x2a.address_to - x2a.address_from);
+            double size = x2a.x_end - x2a.x_start;
+            return x2a.x_start + (offset * size);
+        }
+    }
+    return nan("");
 }

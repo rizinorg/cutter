@@ -30,20 +30,27 @@ private slots:
     void fetchAndPaintData();
     void fetchData();
     void fillData();
+    void drawCursor();
     void on_seekChanged(RVA addr);
 
 private:
-    QGraphicsView   *codeGraphic;
-    QGraphicsScene  *graphicsScene;
-    MainWindow      *main;
+    QGraphicsView     *codeGraphic;
+    QGraphicsScene    *graphicsScene;
+    QGraphicsRectItem *cursorGraphicsItem;
+    MainWindow        *main;
     RVA totalSectionsSize;
     QList<SectionDescription> sections;
     QList<QVariantMap> blockMaps;
     QList<struct xToAddress> xToAddress;
-    QString generateTooltip(QString section_name, QMap<QString, QVariant> map);
 
     // Used to check whether the width changed. If yes we need to re-initialize the scene (slow)
     int previousWidth;
+
+    QString generateTooltip(QString section_name, QMap<QString, QVariant> map);
+
+    RVA localXToAddress(double x);
+    double addressToLocalX(RVA address);
+
     void mousePressEvent(QMouseEvent *event) override;
 };
 
