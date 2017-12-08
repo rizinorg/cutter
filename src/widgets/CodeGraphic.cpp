@@ -87,7 +87,7 @@ void GraphicsBar::fetchData()
 void GraphicsBar::fillData()
 {
     qDeleteAll(graphicsScene->items());
-    cursorGraphicsItem = NULL;
+    cursorGraphicsItem = nullptr;
     int from = blockMaps.first()["from"].toInt();
     int to = blockMaps.first()["to"].toInt();
 
@@ -203,7 +203,7 @@ void GraphicsBar::drawCursor()
 {
     RVA offset = Core()->getOffset();
     double cursor_x = addressToLocalX(offset);
-    if (cursorGraphicsItem != NULL)
+    if (cursorGraphicsItem != nullptr)
     {
         graphicsScene->removeItem(cursorGraphicsItem);
         delete cursorGraphicsItem;
