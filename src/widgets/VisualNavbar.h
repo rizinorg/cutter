@@ -20,6 +20,20 @@ class VisualNavbar : public QToolBar
         RVA address_to;
     };
 
+    struct MappedSegmentMetadata {
+        RVA address;
+        RVA size;
+    };
+
+    struct MappedSegment {
+        QList<SectionDescription> sectionDescriptions;
+        QList<MappedSegmentMetadata> functions;
+        QList<MappedSegmentMetadata> symbols;
+        QList<MappedSegmentMetadata> strings;
+        RVA address_from;
+        RVA address_to;
+    };
+
 public:
     explicit VisualNavbar(MainWindow *main, QWidget *parent = 0);
 
@@ -38,20 +52,31 @@ private:
     QGraphicsScene    *graphicsScene;
     QGraphicsRectItem *cursorGraphicsItem;
     MainWindow        *main;
-    RVA totalSectionsSize;
+    RVA totalMappedSize;
     QList<SectionDescription> sections;
-    QList<QVariantMap> blockMaps;
     QList<struct xToAddress> xToAddress;
+
+    QList<MappedSegment> mappedSegments;
 
     // Used to check whether the width changed. If yes we need to re-initialize the scene (slow)
     int previousWidth;
+    void drawMetadata(QList<MappedSegmentMetadata> metadata,
+                      RVA offset,
+                      double x,
+                      double width_per_byte,
+                      double h, QColor color);
 
-    QString generateTooltip(QString section_name, QMap<QString, QVariant> map);
-
+    struct MappedSegment* mappedSegmentForAddress(RVA addr);
     RVA localXToAddress(double x);
     double addressToLocalX(RVA address);
+    QList<QString> sectionsForAddress(RVA address);
+    QString toolTipForAddress(RVA address);
+
+    static bool sortSectionLessThan(const SectionDescription &section1, const SectionDescription &section2);
+
 
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
 };
 
 #endif // VISUALNAVBAR_H
