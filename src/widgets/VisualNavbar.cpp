@@ -12,6 +12,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QJsonParseError>
+#include <QToolTip>
 
 VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     QToolBar(main),
@@ -53,7 +54,12 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     this->graphicsView->setRenderHints(0);
     this->graphicsView->setScene(graphicsScene);
     this->graphicsView->setRenderHints(QPainter::Antialiasing);
-    this->graphicsView->setToolTip("gap");
+    this->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    this->graphicsView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    // So the graphicsView doesn't intercept mouse events.
+    this->graphicsView->setEnabled(false);
+    this->graphicsView->setMouseTracking(true);
+    setMouseTracking(true);
 }
 
 void VisualNavbar::paintEvent(QPaintEvent *event)
@@ -74,129 +80,203 @@ void VisualNavbar::fetchAndPaintData()
     fillData();
 }
 
+bool VisualNavbar::sortSectionLessThan(const SectionDescription &section1, const SectionDescription &section2)
+{
+    return section1.vaddr < section2.vaddr;
+}
+
+VisualNavbar::MappedSegment* VisualNavbar::mappedSegmentForAddress(RVA addr)
+{
+    for(int i=0; i < mappedSegments.length(); i++)
+    {
+        MappedSegment *mappedSegment = &mappedSegments[i];
+        if((mappedSegment->address_from <= addr) && (addr <= mappedSegment->address_to))
+        {
+            return mappedSegment;
+        }
+    }
+    return nullptr;
+}
+
 void VisualNavbar::fetchData()
 {
-    TempConfig tempConfig;
-    tempConfig.set("search.in", QString("io.section"));
+    // TODO: This code is quite verbose but very readable. The goal is to
+    //       experiment until we know what we want and then start to optimize.
     sections = Core()->getAllSections();
 
-    totalSectionsSize = 0;
-    blockMaps.clear();
+    // Sort sections so we don't have to filter for overlaps afterwards
+    qSort(sections.begin(), sections.end(), sortSectionLessThan);
+
+    mappedSegments.clear();
     for(SectionDescription section : sections)
     {
-        QString command = "p-j @" + RAddressString(section.vaddr);
-        QJsonDocument doc = Core()->cmdj(command);
-        QJsonObject jObject = doc.object();
-        QVariantMap mainMap = jObject.toVariantMap();
-        blockMaps.append(mainMap);
-        totalSectionsSize += section.size;
+        bool segment_found = false;
+        for(int i=0; i < mappedSegments.count(); i++)
+        {
+            MappedSegment &mappedSegment = mappedSegments[i];
+            // Check if the segment contains the section
+            bool segment_contains_section_start = false;
+            if((mappedSegment.address_from <= section.vaddr) &&
+                    (section.vaddr <= mappedSegment.address_to)) {
+                segment_contains_section_start = true;
+            }
+            bool segment_contains_section_end = false;
+            if((mappedSegment.address_from <= section.vaddr+section.vsize) &&
+                    (section.vaddr+section.vsize <= mappedSegment.address_to)) {
+                segment_contains_section_end = true;
+            }
+
+            // Check if the section contains the segment
+            bool section_contains_segment_start = false;
+            bool section_contains_segment_end = false;
+            if((section.vaddr <= mappedSegment.address_from) &&
+                    (mappedSegment.address_from <= section.vaddr+section.vsize)) {
+                section_contains_segment_start = true;
+            }
+            if((section.vaddr <= mappedSegment.address_to) &&
+                    (mappedSegment.address_to <= section.vaddr+section.vsize)) {
+                section_contains_segment_end = true;
+            }
+
+            if(segment_contains_section_start | segment_contains_section_end |
+                    section_contains_segment_start | section_contains_segment_end)
+            {
+                if(section.vaddr < mappedSegment.address_from) {
+                    mappedSegment.address_from = section.vaddr;
+                }
+                if(mappedSegment.address_to < section.vaddr+section.vsize) {
+                    mappedSegment.address_to = section.vaddr + section.vsize;
+                }
+                segment_found = true;
+                mappedSegment.sectionDescriptions.append(section);
+                break;
+            }
+        }
+        if(!segment_found)
+        {
+            MappedSegment mappedSegment;
+            mappedSegment.address_from = section.vaddr;
+            mappedSegment.address_to = section.vaddr + section.vsize;
+            mappedSegment.sectionDescriptions.append(section);
+            mappedSegments.append(mappedSegment);
+        }
+    }
+
+    totalMappedSize = 0;
+    for(auto &mappedSegment : mappedSegments)
+    {
+        totalMappedSize += mappedSegment.address_to - mappedSegment.address_from;
+    }
+
+    QList<FunctionDescription> functions = Core()->getAllFunctions();
+    for(auto function : functions)
+    {
+        auto mappedSegment = mappedSegmentForAddress(function.offset);
+        if(mappedSegment)
+        {
+            MappedSegmentMetadata metadata;
+            metadata.address = function.offset;
+            metadata.size = function.size;
+            mappedSegment->functions.append(metadata);
+        }
+    }
+
+    QList<SymbolDescription> symbols = Core()->getAllSymbols();
+    for(auto symbol : symbols)
+    {
+        auto mappedSegment = mappedSegmentForAddress(symbol.vaddr);
+        if(mappedSegment)
+        {
+            MappedSegmentMetadata metadata;
+            metadata.address = symbol.vaddr;
+            metadata.size = 1;
+            mappedSegment->symbols.append(metadata);
+        }
+    }
+
+    QList<StringDescription> strings = Core()->getAllStrings();
+    for(auto string : strings)
+    {
+        MappedSegment *mappedSegment = mappedSegmentForAddress(string.vaddr);
+        if(mappedSegment)
+        {
+            MappedSegmentMetadata metadata;
+            metadata.address = string.vaddr;
+            metadata.size = string.string.length();
+            mappedSegment->strings.append(metadata);
+        }
+    }
+}
+
+void VisualNavbar::drawMetadata(QList<MappedSegmentMetadata> metadata,
+                                RVA offset,
+                                double x,
+                                double width_per_byte,
+                                double h, QColor color)
+{
+    for(auto s : metadata)
+    {
+        double block_x = x + ((double)(s.address - offset) * width_per_byte);
+        double block_width = (double)s.size * width_per_byte;
+        QGraphicsRectItem *rect = new QGraphicsRectItem(block_x, 0, block_width, h);
+        rect->setPen(Qt::NoPen);
+        rect->setBrush(QBrush(color));
+        graphicsScene->addItem(rect);
     }
 }
 
 void VisualNavbar::fillData()
 {
-//    qDeleteAll(graphicsScene->items());
     graphicsScene->clear();
     cursorGraphicsItem = nullptr;
-    int from = blockMaps.first()["from"].toInt();
-    int to = blockMaps.first()["to"].toInt();
+    // Do not try to draw if no sections are available.
+    if(mappedSegments.length() == 0) {
+        return;
+    }
 
-    // Prepare the graph scene
     int w = this->graphicsView->width();
     int h = this->graphicsView->height();
 
-
-
     RVA current_address = Core()->getOffset();
 
-    double width_per_byte = (double)w/(double)totalSectionsSize;
+    double width_per_byte = (double)w/(double)totalMappedSize;
     xToAddress.clear();
-    double x_start = 0.0;
-
-    for(int i=0; i < sections.length(); i++)
+    double current_x = 0;
+    for(auto mappedSegment : mappedSegments)
     {
-        SectionDescription section = sections[i];
-        double width = ((double)section.size * width_per_byte);
-        double x_end = x_start + width;
-        double local_w = x_end - x_start;
+        RVA segment_size = mappedSegment.address_to - mappedSegment.address_from;
+        double segment_width = (double)segment_size * width_per_byte;
+        QGraphicsRectItem *rect = new QGraphicsRectItem(current_x, 0, segment_width, h);
+        rect->setBrush(QBrush(QColor(100, 100, 100)));
+        graphicsScene->addItem(rect);
+        drawMetadata(mappedSegment.strings,
+                     mappedSegment.address_from,
+                     current_x,
+                     width_per_byte,
+                     h, QColor(104, 229, 69));
+        drawMetadata(mappedSegment.symbols,
+                     mappedSegment.address_from,
+                     current_x,
+                     width_per_byte,
+                     h, QColor(229, 150, 69));
+        drawMetadata(mappedSegment.functions,
+                     mappedSegment.address_from,
+                     current_x,
+                     width_per_byte,
+                     h, QColor(69, 104, 229));
 
-        QVariantMap mainMap = blockMaps[i];
-        from =  mainMap["from"].toInt();
-        to = mainMap["to"].toInt();
-        int block = mainMap["blocksize"].toInt();
-        int size = (to - from);
-        int num = 1;
-        if (block != 0)
-        {
-            num = size / block;
-        }
+        // Keep track of where which memory segment is mapped so we are able to convert from
+        // address to X coordinate and vice versa.
+        struct xToAddress x2a;
+        x2a.x_start = current_x;
+        x2a.x_end = current_x + segment_width;
+        x2a.address_from = mappedSegment.address_from;
+        x2a.address_to = mappedSegment.address_to;
+        xToAddress.append(x2a);
 
-        if (num < 1)
-        {
-            num = 1;
-        }
-
-        int graph_block = local_w / num;
-        if(graph_block == 0)
-        {
-            continue;
-        }
-        int counter = 0;
-
-        for (auto j : mainMap["blocks"].toList())
-        {
-            QMap<QString, QVariant> map = j.toMap();
-
-            // The X of where this block will start
-            double block_x_start = x_start + (double)(counter * graph_block);
-
-            // Keep X start and end as well as the start & end address in a list.
-            // This is used to convert address to an X position on the bar and vice versa.
-            struct xToAddress x2a;
-            x2a.x_start = block_x_start;
-            x2a.x_end = block_x_start + graph_block;
-            x2a.address_from = map["offset"].toULongLong();
-            x2a.address_to = map["offset"].toULongLong() + map["size"].toULongLong();
-            xToAddress.append(x2a);
-
-            if (map.empty())
-            {
-                // Fill as empty
-                QGraphicsRectItem *rect = new QGraphicsRectItem(block_x_start, 0, graph_block, h);
-                rect->setPen(Qt::NoPen);
-                rect->setBrush(QBrush(QColor(252, 249, 190)));
-                rect->setToolTip("Data");
-                graphicsScene->addItem(rect);
-            }
-            else
-            {
-                // TODO: Make this compatible with theming
-                QGraphicsRectItem *rect = new QGraphicsRectItem(block_x_start, 0, graph_block, h);
-                rect->setPen(Qt::NoPen);
-                if (map["functions"].toInt() > 0)
-                {
-                    rect->setBrush(QBrush(QColor(69, 104, 229)));
-                }
-                else if(map["symbols"].toInt() > 0)
-                {
-                    rect->setBrush(QBrush(QColor(229, 150, 69)));
-                }
-                else if(map["strings"].toInt() > 0)
-                {
-                    rect->setBrush(QBrush(QColor(104, 229, 69)));
-                }
-                else
-                {
-                    rect->setBrush(QBrush(QColor(190, 190, 190)));
-                }
-                rect->setToolTip(generateTooltip(section.name, map));
-                graphicsScene->addItem(rect);
-            }
-
-            counter += 1;
-        }
-        x_start = x_end;
+        current_x +=segment_width;
     }
+
     // Update scene width
     graphicsScene->setSceneRect(graphicsScene->itemsBoundingRect());
 
@@ -225,22 +305,6 @@ void VisualNavbar::drawCursor()
     graphicsScene->addItem(cursorGraphicsItem);
 }
 
-QString VisualNavbar::generateTooltip(QString section_name, QMap<QString, QVariant> map)
-{
-    QString ret = "";
-    ret += "Offset:    0x" + QString::number(map["offset"].toInt(), 16) + "\n";
-    ret += "Section:   " + section_name + "\n";
-    ret += "Size:      " + QString::number(map["size"].toInt()) + "\n";
-    ret += "Functions: " + QString::number(map["functions"].toInt()) + "\n";
-    ret += "Flags:     " + QString::number(map["flags"].toInt()) + "\n";
-    ret += "Comments:  " + QString::number(map["comments"].toInt()) + "\n";
-    ret += "Symbols:   " + QString::number(map["symbols"].toInt()) + "\n";
-    ret += "Strings:   " + QString::number(map["strings"].toInt()) + "\n";
-    ret += "rwx: " + map["rwx"].toString() + "\n";
-
-    return ret;
-}
-
 void VisualNavbar::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
@@ -250,14 +314,23 @@ void VisualNavbar::on_seekChanged(RVA addr)
 
 void VisualNavbar::mousePressEvent(QMouseEvent *event)
 {
-    event->accept();
-    // Convert the local X coordinate to an address.
     qreal x = event->localPos().x();
     RVA address = localXToAddress(x);
     if(address != RVA_INVALID)
     {
-        Core()->seek(address);
+        QToolTip::showText(event->globalPos(), toolTipForAddress(address), this);
+        if(event->buttons() & Qt::LeftButton) {
+            event->accept();
+            Core()->seek(address);
+        }
     }
+
+}
+
+void VisualNavbar::mouseMoveEvent(QMouseEvent *event)
+{
+    event->accept();
+    mousePressEvent(event);
 }
 
 RVA VisualNavbar::localXToAddress(double x)
@@ -286,4 +359,32 @@ double VisualNavbar::addressToLocalX(RVA address)
         }
     }
     return nan("");
+}
+
+QList<QString> VisualNavbar::sectionsForAddress(RVA address)
+{
+    QList<QString> ret;
+    for(auto mappedSegment : mappedSegments)
+    {
+        for(auto section : mappedSegment.sectionDescriptions)
+        {
+            if((section.vaddr <= address) && (address <= section.vaddr+section.vsize))
+            {
+                ret.append(section.name);
+            }
+        }
+    }
+    return ret;
+}
+
+QString VisualNavbar::toolTipForAddress(RVA address)
+{
+    QString ret = "Address: " + RAddressString(address) + "\n";
+    ret += "Sections: \n";
+    auto sections = sectionsForAddress(address);
+    for(auto section : sections)
+    {
+        ret += "  " + section + "\n";
+    }
+    return ret;
 }
