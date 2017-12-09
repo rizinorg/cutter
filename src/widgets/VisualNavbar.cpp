@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "utils/TempConfig.h"
 
+#include <cmath>
 #include <QGraphicsView>
 #include <QComboBox>
 #include <QGraphicsScene>
@@ -213,7 +214,7 @@ void VisualNavbar::drawCursor()
         delete cursorGraphicsItem;
         cursorGraphicsItem = nullptr;
     }
-    if (isnan(cursor_x))
+    if (std::isnan(cursor_x))
     {
         return;
     }
