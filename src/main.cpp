@@ -7,7 +7,7 @@
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/OptionsDialog.h"
 
-#ifdef __unix__
+#ifdef APPIMAGE
 #define PREFIX "/tmp/.cutter_usr"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -109,13 +109,13 @@ int main(int argc, char *argv[])
     }
 
     // Hack to make it work with AppImage
-#ifdef __unix__
+#ifdef APPIMAGE
     set_appimage_symlink();
 #endif
 
     int ret = a.exec();
 
-#ifdef __unix__
+#ifdef APPIMAGE
     remove(PREFIX);
 #endif
 
