@@ -201,5 +201,6 @@ unix {
         appimage_root.files = $$icon_file $$desktop_file
 
         INSTALLS += appimage_root
+        DEFINES += APPIMAGE
     }
 }
