@@ -252,6 +252,9 @@ public:
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
 
+    QString createFunctionAt(RVA addr, QString name);
+    void markString(RVA addr);
+
     /* SDB */
     QList<QString> sdbList(QString path);
     QList<QString> sdbListKeys(QString path);
