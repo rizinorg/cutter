@@ -7,40 +7,35 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>75</height>
+    <height>118</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Comment</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
+   <property name="spacing">
+    <number>2</number>
+   </property>
+   <property name="leftMargin">
+    <number>2</number>
+   </property>
+   <property name="topMargin">
+    <number>5</number>
+   </property>
+   <property name="rightMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="topMargin">
       <number>0</number>
      </property>
      <item>
-      <widget class="QLabel" name="label">
-       <property name="font">
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Comment:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="lineEdit">
-       <property name="frame">
-        <bool>false</bool>
-       </property>
-       <property name="placeholderText">
-        <string notr="true"/>
-       </property>
-      </widget>
+      <widget class="QPlainTextEdit" name="textEdit"/>
      </item>
     </layout>
    </item>

@@ -27,6 +27,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::CommentsDialog> ui;
+
+    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // COMMENTSDIALOG_H
