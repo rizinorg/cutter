@@ -162,6 +162,23 @@ void VisualNavbar::fetchData()
         }
     }
 
+    // If the file does not contain any sections we get the segments
+    // from the memory maps instead.
+    // It treats each map on its own, so overlapping maps will be shown
+    // seperated.
+    if (sections.count() == 0)
+    {
+        QJsonArray maps = Core()->cmdj("omj").array();
+        for(QJsonValue mapValue : maps)
+        {
+            QJsonObject map = mapValue.toObject();
+            MappedSegment mappedSegment;
+            mappedSegment.address_from = map["from"].toVariant().toULongLong();
+            mappedSegment.address_to = map["to"].toVariant().toULongLong();
+            mappedSegments.append(mappedSegment);
+        }
+    }
+
     totalMappedSize = 0;
     for(auto &mappedSegment : mappedSegments)
     {
@@ -379,12 +396,15 @@ QList<QString> VisualNavbar::sectionsForAddress(RVA address)
 
 QString VisualNavbar::toolTipForAddress(RVA address)
 {
-    QString ret = "Address: " + RAddressString(address) + "\n";
-    ret += "Sections: \n";
+    QString ret = "Address: " + RAddressString(address);
     auto sections = sectionsForAddress(address);
-    for(auto section : sections)
+    if(sections.count())
     {
-        ret += "  " + section + "\n";
+        ret += "\nSections: \n";
+        for(auto section : sections)
+        {
+            ret += "  " + section + "\n";
+        }
     }
     return ret;
 }
