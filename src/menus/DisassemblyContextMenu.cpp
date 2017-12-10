@@ -230,9 +230,9 @@ void DisassemblyContextMenu::on_actionCopy_triggered()
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
-    QJsonObject disasObject = Core()->cmdj("pdj 1 @ " + QString::number(offset)).array().first().toObject();
-    QString oldComment = QString::fromUtf8(QByteArray::fromBase64(disasObject["comment"].toString().toUtf8()));
-
+    QString oldComment = Core()->cmd("CC." + RAddressString(offset));
+    // Remove newline at the end added by cmd
+    oldComment.remove(oldComment.length()-1, 1);
     CommentsDialog *c = new CommentsDialog(this);
 
     if (oldComment.isNull() || QByteArray::fromBase64(oldComment.toUtf8()).isEmpty())
