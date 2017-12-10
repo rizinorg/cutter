@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     gotoEntry(nullptr),
     sdbDock(nullptr),
     sectionsDock(nullptr),
-    consoleWidget(nullptr)
+    consoleDock(nullptr)
 {
     doLock = false;
     configuration = new Configuration();
@@ -130,8 +130,6 @@ void MainWindow::initUI()
     // Hide central tab widget tabs
     QTabBar *centralbar = ui->centralTabWidget->tabBar();
     centralbar->setVisible(false);
-    consoleWidget = new ConsoleWidget(this);
-    ui->tabVerticalLayout->addWidget(consoleWidget);
 
     // Sepparator between back/forward and undo/redo buttons
     QWidget *spacer4 = new QWidget();
@@ -195,12 +193,19 @@ void MainWindow::initUI()
     pseudocodeDock = new PseudocodeWidget(tr("Pseudocode"), this);
     dockWidgets.push_back(pseudocodeDock);
 
+    consoleDock = new ConsoleWidget(tr("Console"), this);
+    dockWidgets.push_back(consoleDock);
+
     // Add graph view as dockable
     graphDock = new QDockWidget(tr("Graph"), this);
     graphDock->setObjectName("Graph");
     graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new DisassemblerGraphView(graphDock);
     graphDock->setWidget(graphView);
+
+    // Hide centralWidget as we do not need it
+    ui->centralWidget->hide();
+
     connect(graphDock, &QDockWidget::visibilityChanged, graphDock, [](bool visibility)
     {
         if (visibility)
@@ -287,7 +292,7 @@ void MainWindow::initUI()
      */
     // Period goes to command entry
     QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    connect(cmd_shortcut, SIGNAL(activated()), consoleWidget, SLOT(focusInputLineEdit()));
+    connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
 
     // G and S goes to goto entry
     QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
@@ -645,18 +650,18 @@ void MainWindow::on_actionDisasAdd_comment_triggered()
 
 void MainWindow::restoreDocks()
 {
-    // bottom right
-    addDockWidget(Qt::RightDockWidgetArea, sectionsDock);
-
-    // left
+    // In the upper half the functions are the first widget
     addDockWidget(Qt::TopDockWidgetArea, functionsDock);
 
-    // center
+    // Function | Dashboard | Sidebar
     splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
-
-    // right (sidebar)
     splitDockWidget(dashboardDock, sidebarDock, Qt::Horizontal);
 
+    // In the lower half the console is the first widget
+    addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
+
+    // Console | Sections
+    splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
 
     // tabs for center (must be applied after splitDockWidget())
     tabifyDockWidget(sectionsDock, commentsDock);
@@ -674,7 +679,6 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, notepadDock);
 
     dashboardDock->raise();
-    sectionsDock->raise();
 }
 
 
@@ -693,6 +697,7 @@ void MainWindow::showDefaultDocks()
                                                 functionsDock,
                                                 commentsDock,
                                                 stringsDock,
+                                                consoleDock,
                                                 importsDock,
                                                 symbolsDock,
                                                 notepadDock,
@@ -739,18 +744,6 @@ void MainWindow::on_actionDefaut_triggered()
     resetToDefaultLayout();
 }
 
-void MainWindow::on_actionhide_bottomPannel_triggered()
-{
-    if (ui->centralWidget->isVisible())
-    {
-        ui->centralWidget->hide();
-    }
-    else
-    {
-        ui->centralWidget->show();
-    }
-}
-
 void MainWindow::sendToNotepad(const QString &txt)
 {
     core->setNotes(core->getNotes() + "```\n" + txt + "\n```");
@@ -766,13 +759,13 @@ void MainWindow::on_actionFunctionsRename_triggered()
 
 void MainWindow::addOutput(const QString &msg)
 {
-    consoleWidget->addOutput(msg);
+    consoleDock->addOutput(msg);
 }
 
 void MainWindow::addDebugOutput(const QString &msg)
 {
     printf("debug output: %s\n", msg.toLocal8Bit().constData());
-    consoleWidget->addDebugOutput(msg);
+    consoleDock->addDebugOutput(msg);
 }
 
 void MainWindow::on_actionNew_triggered()

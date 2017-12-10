@@ -90,8 +90,8 @@ static bool isForbidden(const QString &input)
     return false;
 }
 
-ConsoleWidget::ConsoleWidget(QWidget *parent) :
-    QWidget(parent),
+ConsoleWidget::ConsoleWidget(QWidget *parent, Qt::WindowFlags flags) :
+    QDockWidget(parent, flags),
     ui(new Ui::ConsoleWidget),
     debugOutputEnabled(true),
     maxHistoryEntries(100),
@@ -142,6 +142,12 @@ ConsoleWidget::ConsoleWidget(QWidget *parent) :
     historyOnDown->setContext(Qt::WidgetShortcut);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupFont()));
+}
+
+ConsoleWidget::ConsoleWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
+        : ConsoleWidget(parent, flags)
+{
+    setWindowTitle(title);
 }
 
 ConsoleWidget::~ConsoleWidget() {}

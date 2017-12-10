@@ -108,8 +108,6 @@ public slots:
 
     void on_actionTabs_triggered();
 
-    void on_actionhide_bottomPannel_triggered();
-
     void lockUnlock_Docks(bool what);
 
     void on_actionDashboard_triggered();
@@ -202,7 +200,7 @@ private:
     SdbDock          *sdbDock;
     //QAction          *sidebar_action;
     SectionsDock     *sectionsDock;
-    ConsoleWidget    *consoleWidget;
+    ConsoleWidget    *consoleDock;
 
     void toggleDockWidget(QDockWidget *dock_widget);
 
