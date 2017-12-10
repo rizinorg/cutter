@@ -132,9 +132,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenuAction->setVisible(immBase);
 
-    QJsonObject disasObject = Core()->cmdj("pdj 1 @ " + QString::number(offset)).array().first().toObject();
-    QString comment = disasObject["comment"].toString();
-    if (comment.isNull() || QByteArray::fromBase64(comment.toUtf8()).isEmpty())
+    QString comment = Core()->cmd("CC." + RAddressString(offset));
+    if (comment.isNull() || comment.isEmpty())
     {
         actionAddComment.setText(tr("Add Comment"));
     }
@@ -235,7 +234,7 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
     oldComment.remove(oldComment.length()-1, 1);
     CommentsDialog *c = new CommentsDialog(this);
 
-    if (oldComment.isNull() || QByteArray::fromBase64(oldComment.toUtf8()).isEmpty())
+    if (oldComment.isNull() || oldComment.isEmpty())
     {
         c->setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
     }
