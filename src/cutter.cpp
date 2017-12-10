@@ -667,6 +667,7 @@ QString CutterCore::cmdFunctionAt(RVA addr)
 
 QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
+    name.remove(QRegExp("[^a-zA-Z0-9_]"));
     QString command = "af " + name + " " + RAddressString(addr);
     QString ret = cmd(command);
     emit refreshAll();
