@@ -11,12 +11,14 @@ namespace Ui
 }
 
 
-class ConsoleWidget : public QWidget
+class ConsoleWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit ConsoleWidget(QWidget *parent = 0);
+    explicit ConsoleWidget(const QString &title, QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
+    explicit ConsoleWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
+
     ~ConsoleWidget();
 
     void addOutput(const QString &msg);

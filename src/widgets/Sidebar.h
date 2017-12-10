@@ -26,8 +26,6 @@ private slots:
 
     void on_tabsButton_clicked();
 
-    void on_consoleButton_clicked();
-
     void on_lockButton_clicked();
 
     void on_themesButton_clicked();

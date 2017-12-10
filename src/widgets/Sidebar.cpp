@@ -40,19 +40,6 @@ void SideBar::on_tabsButton_clicked()
     this->main->on_actionTabs_triggered();
 }
 
-void SideBar::on_consoleButton_clicked()
-{
-    this->main->on_actionhide_bottomPannel_triggered();
-    if (ui->consoleButton->isChecked())
-    {
-        ui->consoleButton->setIcon(QIcon(":/img/icons/up_white.svg"));
-    }
-    else
-    {
-        ui->consoleButton->setIcon(QIcon(":/img/icons/down_white.svg"));
-    }
-}
-
 void SideBar::on_lockButton_clicked()
 {
     if (ui->lockButton->isChecked())
