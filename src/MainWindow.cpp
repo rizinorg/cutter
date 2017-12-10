@@ -770,8 +770,7 @@ void MainWindow::addDebugOutput(const QString &msg)
 
 void MainWindow::on_actionNew_triggered()
 {
-    if (close())
-        on_actionLoad_triggered();
+    on_actionLoad_triggered();
 }
 
 void MainWindow::on_actionSave_triggered()
