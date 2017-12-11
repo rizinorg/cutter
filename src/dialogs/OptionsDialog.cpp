@@ -167,6 +167,7 @@ void OptionsDialog::updateProgressTimer()
     if(hoursElapsed)
     {
         label += tr("%n hour", "%n hours", hoursElapsed);
+        label += " ";
     }
     if(minutesElapsed)
     {
