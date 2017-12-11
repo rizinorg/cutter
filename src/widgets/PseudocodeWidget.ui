@@ -16,7 +16,11 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTextBrowser" name="pseudocodeTextBrowser"/>
+  <widget class="QTextBrowser" name="pseudocodeTextBrowser">
+   <property name="lineWrapMode">
+    <enum>QTextEdit::NoWrap</enum>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
