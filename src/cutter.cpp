@@ -327,9 +327,21 @@ void CutterCore::renameFunction(QString old_name, QString new_name)
     emit functionRenamed(old_name, new_name);
 }
 
+void CutterCore::delFunction(RVA addr)
+{
+    cmd("af- " + RAddressString(addr));
+    emit functionsChanged();
+}
+
 void CutterCore::renameFlag(QString old_name, QString new_name)
 {
     cmd("fr " + old_name + " " + new_name);
+    emit flagsChanged();
+}
+
+void CutterCore::delFlag(RVA addr)
+{
+    cmd("f-@" + RAddressString(addr));
     emit flagsChanged();
 }
 
@@ -339,7 +351,7 @@ void CutterCore::setComment(RVA addr, const QString &cmt)
     emit commentsChanged();
 }
 
-void CutterCore::delComment(ut64 addr)
+void CutterCore::delComment(RVA addr)
 {
     cmd("CC- @ " + QString::number(addr));
     emit commentsChanged();
@@ -670,7 +682,7 @@ QString CutterCore::createFunctionAt(RVA addr, QString name)
     name.remove(QRegExp("[^a-zA-Z0-9_]"));
     QString command = "af " + name + " " + RAddressString(addr);
     QString ret = cmd(command);
-    emit refreshAll();
+    emit functionsChanged();
     return ret;
 }
 

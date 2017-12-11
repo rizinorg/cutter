@@ -203,10 +203,12 @@ public:
     QJsonDocument cmdj(const QString &str);
     QStringList cmdList(const QString &str)     { auto l = cmd(str).split("\n"); l.removeAll(""); return l; }
     void renameFunction(QString prev_name, QString new_name);
+    void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
+    void delFlag(RVA addr);
 
     void setComment(RVA addr, const QString &cmt);
-    void delComment(ut64 addr);
+    void delComment(RVA addr);
 
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
 
@@ -333,6 +335,7 @@ signals:
 
     void functionRenamed(QString prev_name, QString new_name);
     void varsChanged();
+    void functionsChanged();
     void flagsChanged();
     void commentsChanged();
     void instructionChanged(RVA offset);

@@ -43,6 +43,8 @@ public slots:
 private slots:
     void fetchAndPaintData();
     void fetchData();
+    void updateMetadataAndPaint();
+    void updateMetadata();
     void fillData();
     void drawCursor();
     void on_seekChanged(RVA addr);

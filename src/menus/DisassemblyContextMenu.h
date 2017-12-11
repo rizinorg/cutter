@@ -33,6 +33,10 @@ private slots:
     void on_actionXRefs_triggered();
     void on_actionDisplayOptions_triggered();
 
+    void on_actionDeleteComment_triggered();
+    void on_actionDeleteFlag_triggered();
+    void on_actionDeleteFunction_triggered();
+
     void on_actionSetBaseBinary_triggered();
     void on_actionSetBaseOctal_triggered();
     void on_actionSetBaseDecimal_triggered();
@@ -68,6 +72,10 @@ private:
     QAction actionRenameUsedHere;
     QAction actionXRefs;
     QAction actionDisplayOptions;
+
+    QAction actionDeleteComment;
+    QAction actionDeleteFlag;
+    QAction actionDeleteFunction;
 
     QMenu *setBaseMenu;
     QAction *setBaseMenuAction;

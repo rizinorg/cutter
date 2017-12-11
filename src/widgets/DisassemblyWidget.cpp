@@ -82,6 +82,7 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshDisasm()));
+    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshDisasm()));
