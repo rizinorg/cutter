@@ -139,10 +139,42 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     core->resetDefaultAsmOptions();
 
+    // Timer for showing elapsed analysis time.
+    analTimer.setInterval(1000);
+    analTimer.setSingleShot(false);
+    analTimer.start();
+    analElapsedTimer.start();
+    updateProgressTimer();
+    connect(&analTimer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
+
     // Threads stuff
     // connect signal/slot
     connect(&analThread, &AnalThread::updateProgress, this, &OptionsDialog::updateProgress);
     analThread.start(main, level, advanced);
+}
+
+void OptionsDialog::updateProgressTimer()
+{
+    int secondsElapsed = (analElapsedTimer.elapsed()+500)/1000;
+    int minutesElapsed = secondsElapsed / 60;
+    int hoursElapsed = minutesElapsed / 60;
+    int daysElapsed = hoursElapsed / 24;
+    int yearsElapsed = daysElapsed / 365;
+    int decadesElapsed = yearsElapsed / 10;
+    int centuriesElapsed = decadesElapsed / 10;
+
+    QString label = tr("Running since") + " ";
+    if(hoursElapsed)
+    {
+        label += tr("%n hour", "%n hours", hoursElapsed);
+    }
+    if(minutesElapsed)
+    {
+        label += tr("%n minute", "%n minutes", minutesElapsed % 60);
+        label += " ";
+    }
+    label += tr("%n seconds", "%n second", secondsElapsed % 60);
+    ui->elapsedLabel->setText(label);
 }
 
 void OptionsDialog::updateProgress(const QString &status)

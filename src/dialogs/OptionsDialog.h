@@ -3,6 +3,8 @@
 
 #include <QDialog>
 #include <QStringList>
+#include <QTimer>
+#include <QElapsedTimer>
 #include <memory>
 #include "cutter.h"
 #include "AnalThread.h"
@@ -32,6 +34,8 @@ private slots:
     void on_archComboBox_currentIndexChanged(int index);
     void on_pdbSelectButton_clicked();
 
+    void updateProgressTimer();
+
     void updatePDBLayout();
 
     void anal_finished();
@@ -51,6 +55,8 @@ public:
     QString getSelectedCPU();
     int getSelectedBits();
     QString getSelectedOS();
+    QTimer analTimer;
+    QElapsedTimer analElapsedTimer;
     void reject() override;
 };
 
