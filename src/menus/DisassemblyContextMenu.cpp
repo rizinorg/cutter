@@ -36,6 +36,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     createAction(&actionRename, tr("Rename"), getRenameSequence(), SLOT(on_actionRename_triggered()));
     createAction(&actionRenameUsedHere, "Rename Flag/Fcn/Var Used Here", getRenameUsedHereSequence(), SLOT(on_actionRenameUsedHere_triggered()));
 
+    createAction(&actionDeleteComment, tr("Delete comment"), {}, SLOT(on_actionDeleteComment_triggered()));
+    createAction(&actionDeleteFlag, tr("Delete flag"), {}, SLOT(on_actionDeleteFlag_triggered()));
+    createAction(&actionDeleteFunction, tr("Delete function"), {}, SLOT(on_actionDeleteFunction_triggered()));
+
     setBaseMenu = new QMenu(tr("Set Immediate Base to..."), this);
     setBaseMenuAction = addMenu(setBaseMenu);
     actionSetBaseBinary.setText(tr("Binary"));
@@ -96,13 +100,17 @@ void DisassemblyContextMenu::aboutToShowSlot()
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenuAction->setVisible(immBase);
 
+    actionCreateFunction.setVisible(true);
+
     QString comment = Core()->cmd("CC." + RAddressString(offset));
     if (comment.isNull() || comment.isEmpty())
     {
+        actionDeleteComment.setVisible(false);
         actionAddComment.setText(tr("Add Comment"));
     }
     else
     {
+        actionDeleteComment.setVisible(true);
         actionAddComment.setText(tr("Edit Comment"));
     }
 
@@ -113,7 +121,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
     RCore *core = Core()->core();
     RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
     RFlagItem *f = r_flag_get_i (core->flags, offset);
-    actionCreateFunction.setVisible(true);
+
+    actionDeleteFlag.setVisible(f ? true : false);
+    actionDeleteFunction.setVisible(fcn ? true : false);
+
     if (fcn)
     {
         actionCreateFunction.setVisible(false);
@@ -160,8 +171,7 @@ QKeySequence DisassemblyContextMenu::getCopySequence() const
 
 QKeySequence DisassemblyContextMenu::getCommentSequence() const
 {
-//    return {";"};
-    return {};
+    return {";"};
 }
 
 QKeySequence DisassemblyContextMenu::getAddFlagSequence() const
@@ -340,6 +350,21 @@ void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
     AsmOptionsDialog *dialog = new AsmOptionsDialog(this->parentWidget());
     dialog->show();
+}
+
+void DisassemblyContextMenu::on_actionDeleteComment_triggered()
+{
+    Core()->delComment(offset);
+}
+
+void DisassemblyContextMenu::on_actionDeleteFlag_triggered()
+{
+    Core()->delFlag(offset);
+}
+
+void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
+{
+    Core()->delFunction(offset);
 }
 
 void DisassemblyContextMenu::on_actionSetBaseBinary_triggered()

@@ -381,6 +381,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showTitleContextMenu(const QPoint &)));
 
+    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshTree()));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshTree()));
 }
 

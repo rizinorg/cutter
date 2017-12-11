@@ -40,6 +40,8 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fetchAndPaintData()));
+    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(updateMetadataAndPaint()));
+    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(updateMetadataAndPaint()));
 
     graphicsScene = new QGraphicsScene(this);
 
@@ -183,6 +185,25 @@ void VisualNavbar::fetchData()
     for(auto &mappedSegment : mappedSegments)
     {
         totalMappedSize += mappedSegment.address_to - mappedSegment.address_from;
+    }
+
+    updateMetadata();
+}
+
+void VisualNavbar::updateMetadataAndPaint()
+{
+    qWarning() << "Update metadata & paint";
+    updateMetadata();
+    fillData();
+}
+
+void VisualNavbar::updateMetadata()
+{
+    for(int i=0; i < mappedSegments.length(); i++)
+    {
+        mappedSegments[i].functions.clear();
+        mappedSegments[i].symbols.clear();
+        mappedSegments[i].strings.clear();
     }
 
     QList<FunctionDescription> functions = Core()->getAllFunctions();
