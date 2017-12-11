@@ -11,6 +11,19 @@
 #include <QJsonObject>
 #include <QVBoxLayout>
 #include <QRegularExpression>
+#include <QTextBlockUserData>
+
+
+class DisassemblyTextBlockUserData: public QTextBlockUserData
+{
+public:
+    DisassemblyLine line;
+
+    explicit DisassemblyTextBlockUserData(const DisassemblyLine &line)
+    {
+        this->line = line;
+    }
+};
 
 
 DisassemblyWidget::DisassemblyWidget(QWidget *parent)
@@ -148,7 +161,8 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
     mDisasTextEdit->setLockScroll(true); // avoid flicker
-
+    
+    QList<DisassemblyLine> disassemblyLines;
     {
         TempConfig tempConfig;
         tempConfig.set("scr.html", true)
@@ -156,15 +170,17 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
         disassemblyLines = Core()->disassembleLines(topOffset, maxLines);
     }
 
-    QString html;
-    for (DisassemblyLine line : disassemblyLines)
-    {
-        html += line.text + "<br />";
-    }
-
     connectCursorPositionChanged(true);
 
-    mDisasTextEdit->document()->setHtml(html);
+    mDisasTextEdit->document()->clear();
+    QTextCursor cursor(mDisasTextEdit->document());
+    for (DisassemblyLine line : disassemblyLines)
+    {
+        cursor.insertHtml(line.text);
+        auto a = new DisassemblyTextBlockUserData(line);
+        cursor.block().setUserData(a);
+        cursor.insertBlock();
+    }
 
     // get bottomOffset from last visible line.
     // because pd N may return more than N lines, move maxLines lines down from the top
@@ -299,32 +315,14 @@ RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 
 RVA DisassemblyWidget::readDisassemblyOffset(QTextCursor tc)
 {
-    // TODO: do this in a different way without parsing the disassembly text
-
-    static const QRegularExpression offsetRegExp("^0x[0-9A-Fa-f]*");
-
-    while (true)
+    QTextBlockUserData *userData = tc.block().userData();
+    if (!userData)
     {
-        tc.select(QTextCursor::LineUnderCursor);
-
-        QString line = tc.selectedText();
-
-        auto match = offsetRegExp.match(line);
-        if (match.hasMatch())
-        {
-            return match.captured(0).toULongLong(nullptr, 16);
-        }
-
-        tc.movePosition(QTextCursor::StartOfLine);
-        if (tc.atStart())
-        {
-            break;
-        }
-
-        tc.movePosition(QTextCursor::Up);
+        return RVA_INVALID;
     }
 
-    return RVA_INVALID;
+    auto *dsUserData = static_cast<DisassemblyTextBlockUserData *>(userData);
+    return dsUserData->line.offset;
 }
 
 void DisassemblyWidget::updateCursorPosition()

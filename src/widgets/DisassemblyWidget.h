@@ -46,8 +46,6 @@ private:
     RVA bottomOffset;
     int maxLines;
 
-    QList<DisassemblyLine> disassemblyLines;
-
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event);
