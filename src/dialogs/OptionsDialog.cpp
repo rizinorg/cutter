@@ -24,6 +24,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->progressBar->setVisible(0);
     ui->statusLabel->setVisible(0);
+    ui->elapsedLabel->setVisible(0);
 
     QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white_plain.svg" : ":/img/cutter_plain.svg";
     ui->logoSvgWidget->load(logoFile);
@@ -131,6 +132,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     ui->statusLabel->setEnabled(1);
     ui->progressBar->setVisible(1);
     ui->statusLabel->setVisible(1);
+    ui->elapsedLabel->setVisible(1);
 
     ui->statusLabel->setText(tr("Starting analysis"));
     //ui->progressBar->setValue(5);
@@ -139,10 +141,40 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     core->resetDefaultAsmOptions();
 
+    // Timer for showing elapsed analysis time.
+    analTimer.setInterval(1000);
+    analTimer.setSingleShot(false);
+    analTimer.start();
+    analElapsedTimer.start();
+
+    updateProgressTimer();
+    connect(&analTimer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
+
     // Threads stuff
     // connect signal/slot
     connect(&analThread, &AnalThread::updateProgress, this, &OptionsDialog::updateProgress);
     analThread.start(main, level, advanced);
+}
+
+void OptionsDialog::updateProgressTimer()
+{
+    int secondsElapsed = (analElapsedTimer.elapsed()+500)/1000;
+    int minutesElapsed = secondsElapsed / 60;
+    int hoursElapsed = minutesElapsed / 60;
+
+    QString label = tr("Running since") + " ";
+    if(hoursElapsed)
+    {
+        label += tr("%n hour", "%n hours", hoursElapsed);
+        label += " ";
+    }
+    if(minutesElapsed)
+    {
+        label += tr("%n minute", "%n minutes", minutesElapsed % 60);
+        label += " ";
+    }
+    label += tr("%n seconds", "%n second", secondsElapsed % 60);
+    ui->elapsedLabel->setText(label);
 }
 
 void OptionsDialog::updateProgress(const QString &status)
