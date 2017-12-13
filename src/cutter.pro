@@ -79,7 +79,9 @@ SOURCES += \
     utils/TempConfig.cpp \
     utils/SvgIconEngine.cpp \
     widgets/PseudocodeWidget.cpp \
-    widgets/VisualNavbar.cpp
+    widgets/VisualNavbar.cpp \
+    widgets/GraphView.cpp \
+    widgets/Disassembler2GraphView.cpp
 
 HEADERS  += \
     cutter.h \
@@ -129,7 +131,9 @@ HEADERS  += \
     utils/TempConfig.h \
     utils/SvgIconEngine.h \
     widgets/PseudocodeWidget.h \
-    widgets/VisualNavbar.h
+    widgets/VisualNavbar.h \
+    widgets/GraphView.h \
+    widgets/Disassembler2GraphView.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

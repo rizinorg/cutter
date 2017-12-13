@@ -1,0 +1,458 @@
+#include "Disassembler2GraphView.h"
+
+#include <QPainter>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QMouseEvent>
+#include <QPropertyAnimation>
+#include <QShortcut>
+
+#include "cutter.h"
+#include "utils/Colors.h"
+#include "utils/Configuration.h"
+#include "utils/CachedFontMetrics.h"
+
+Disassembler2GraphView::Disassembler2GraphView(QWidget *parent)
+    : GraphView(parent),
+      mFontMetrics(nullptr),
+      mMenu(new DisassemblyContextMenu(this))
+{
+    this->highlight_token = nullptr;
+    // Signals that require a refresh all
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
+
+    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+
+    // Space to switch to disassembly
+    QShortcut *disassemblyShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    disassemblyShortcut->setContext(Qt::WidgetShortcut);
+    connect(disassemblyShortcut, &QShortcut::activated, this, []{
+        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        Core()->triggerRaisePrioritizedMemoryWidget();
+    });
+    // ESC for previous
+    QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    shortcut_escape->setContext(Qt::WidgetShortcut);
+    connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
+
+    initFont();
+    colorsUpdatedSlot();
+}
+
+void Disassembler2GraphView::refreshView()
+{
+    initFont();
+    loadCurrentGraph();
+}
+
+void Disassembler2GraphView::loadCurrentGraph()
+{
+    QJsonDocument functionsDoc = Core()->cmdj("agj");
+    QJsonArray functions = functionsDoc.array();
+
+    disassembly_blocks.clear();
+    this->blocks.clear();
+
+    Analysis anal;
+    anal.ready = true;
+
+    QJsonValue funcRef = functions.first();
+    QJsonObject func = funcRef.toObject();
+    Function f;
+    f.ready = true;
+    f.entry = func["offset"].toVariant().toULongLong();
+
+    QString windowTitle = tr("Graph");
+    QString funcName = func["name"].toString().trimmed();
+    if (!funcName.isEmpty())
+    {
+        windowTitle += " (" + funcName + ")";
+    }
+    this->parentWidget()->setWindowTitle(windowTitle);
+
+    RVA entry = func["offset"].toVariant().toULongLong();
+
+    setEntry(entry);
+    for (QJsonValueRef blockRef : func["blocks"].toArray()) {
+        QJsonObject block = blockRef.toObject();
+        RVA block_entry = block["offset"].toVariant().toULongLong();
+        RVA block_fail = block["fail"].toVariant().toULongLong();
+        RVA block_jump = block["jump"].toVariant().toULongLong();
+
+        DisassemblyBlock db;
+        GraphBlock gb;
+        gb.entry = block_entry;
+        db.entry = block_entry;
+
+        if(block_fail)
+        {
+            db.false_path = block_fail;
+            gb.exits.push_back(block_fail);
+        }
+        if(block_jump)
+        {
+            if(block_fail)
+            {
+                db.true_path = block_jump;
+            }
+            gb.exits.push_back(block_jump);
+        }
+        for (QJsonValueRef opRef : block["ops"].toArray()) {
+            QJsonObject op = opRef.toObject();
+            Instr i;
+            i.addr = op["offset"].toVariant().toULongLong();
+            // Skip last byte, otherwise it will overlap with next instruction
+            i.size = op["size"].toVariant().toULongLong() - 1;
+            RichTextPainter::List richText;
+            Colors::colorizeAssembly(richText, op["opcode"].toString(), op["type_num"].toVariant().toULongLong());
+            if (op["comment"].toString().length()) {
+                RichTextPainter::CustomRichText_t comment;
+                comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
+                comment.textColor = mCommentColor;
+                comment.flags = RichTextPainter::FlagColor;
+                richText.insert(richText.end(), comment);
+            }
+            i.text = Text(richText);
+            db.instrs.push_back(i);
+        }
+        disassembly_blocks[db.entry] = db;
+        prepareGraphNode(gb);
+        f.blocks.push_back(db);
+
+        addBlock(gb);
+    }
+
+    anal.functions[f.entry] = f;
+    anal.status = "Ready.";
+    anal.entry = f.entry;
+
+    if(func["blocks"].toArray().size() > 0)
+    {
+        computeGraph(entry);
+        this->viewport()->update();
+        transition_dont_seek = true;
+        DisassemblyBlock *db = blockForAddress(Core()->getOffset());
+        if(db)
+        {
+            showBlock(&this->blocks[db->entry]);
+        } else {
+            showBlock(&this->blocks[entry]);
+        }
+    }
+}
+
+void Disassembler2GraphView::prepareGraphNode(GraphBlock &block)
+{
+    DisassemblyBlock &db = disassembly_blocks[block.entry];
+    int width = 0;
+    int height = 0;
+    for(auto & line : db.header_text.lines)
+    {
+        int lw = 0;
+        for(auto & part : line)
+            lw += mFontMetrics->width(part.text);
+        if(lw > width)
+            width = lw;
+        height += 1;
+    }
+    for(Instr & instr : db.instrs)
+    {
+        for(auto & line : instr.text.lines)
+        {
+            int lw = 0;
+            for(auto & part : line)
+                lw += mFontMetrics->width(part.text);
+            if(lw > width)
+                width = lw;
+            height += 1;
+        }
+    }
+    int extra = 4 * this->charWidth + 4;
+    block.width = width + extra + this->charWidth;
+    block.height = (height * this->charHeight) + extra;
+}
+
+
+void Disassembler2GraphView::initFont()
+{
+    setFont(Config()->getFont());
+    QFontMetricsF metrics(this->font());
+    this->baseline = int(metrics.ascent());
+    this->charWidth = metrics.width('X');
+    this->charHeight = metrics.height();
+    this->charOffset = 0;
+    if(mFontMetrics)
+        delete mFontMetrics;
+    mFontMetrics = new CachedFontMetrics(this, font());
+}
+
+void Disassembler2GraphView::drawBlock(QPainter & p, GraphView::GraphBlock &block)
+{
+    p.setPen(Qt::black);
+    p.setBrush(Qt::gray);
+    p.drawRect(block.x, block.y, block.width, block.height);
+
+
+    // Render node
+    DisassemblyBlock &db = disassembly_blocks[block.entry];
+    bool block_selected = false;
+    RVA selected_instruction = RVA_INVALID;
+
+    // Figure out if the current block is selected
+    for(const Instr & instr : db.instrs)
+    {
+        RVA addr = Core()->getOffset();
+        if((instr.addr <= addr) && (addr <= instr.addr+instr.size))
+        {
+            block_selected = true;
+            selected_instruction = instr.addr;
+        }
+        // TODO: L219
+    }
+
+    p.setPen(QColor(0, 0, 0, 0));
+    if(db.terminal)
+    {
+        p.setBrush(retShadowColor);
+    } else if(db.indirectcall) {
+        p.setBrush(indirectcallShadowColor);
+    } else {
+        p.setBrush(QColor(0, 0, 0, 128));
+    }
+
+    p.drawRect(block.x + 4, block.y + 4,
+               block.width + 4, block.height + 4);
+    p.setPen(graphNodeColor);
+
+    if(block_selected)
+    {
+        p.setBrush(disassemblySelectedBackgroundColor);
+    } else {
+        p.setBrush(disassemblyBackgroundColor);
+    }
+
+    p.drawRect(block.x, block.y,
+               block.width, block.height);
+
+    // Draw different background for selected instruction
+    if(selected_instruction != RVA_INVALID)
+    {
+        int y = block.y + (2 * this->charWidth) + (db.header_text.lines.size() * this->charHeight);
+        for(Instr & instr : db.instrs)
+        {
+            auto selected = instr.addr == selected_instruction;
+            //auto traceCount = dbgfunctions->GetTraceRecordHitCount(instr.addr);
+            auto traceCount = 0;
+            if(selected && traceCount)
+            {
+                p.fillRect(QRect(block.x + this->charWidth, y, block.width - (10 + 2 * this->charWidth),
+                                 int(instr.text.lines.size()) * this->charHeight), disassemblyTracedSelectionColor);
+            }
+            else if(selected)
+            {
+                p.fillRect(QRect(block.x + this->charWidth, y, block.width - (10 + 2 * this->charWidth),
+                                 int(instr.text.lines.size()) * this->charHeight), disassemblySelectionColor);
+            }
+            else if(traceCount)
+            {
+                // Color depending on how often a sequence of code is executed
+                int exponent = 1;
+                while(traceCount >>= 1) //log2(traceCount)
+                    exponent++;
+                int colorDiff = (exponent * exponent) / 2;
+
+                // If the user has a light trace background color, substract
+                if(disassemblyTracedColor.blue() > 160)
+                    colorDiff *= -1;
+
+                p.fillRect(QRect(block.x + this->charWidth, y, block.width - (10 + 2 * this->charWidth), int(instr.text.lines.size()) * this->charHeight),
+                           QColor(disassemblyTracedColor.red(),
+                                  disassemblyTracedColor.green(),
+                                  std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
+            }
+            y += int(instr.text.lines.size()) * this->charHeight;
+        }
+    }
+
+
+    // Render node text
+    auto x = block.x + (2 * this->charWidth);
+    int y = block.y + (2 * this->charWidth);
+    for(auto & line : db.header_text.lines)
+    {
+        RichTextPainter::paintRichText(&p, x, y, block.width, this->charHeight, 0, line, mFontMetrics);
+        y += this->charHeight;
+    }
+    for(Instr & instr : db.instrs)
+    {
+        for(auto & line : instr.text.lines)
+        {
+            int rectSize = qRound(this->charWidth);
+            if(rectSize % 2)
+            {
+                rectSize++;
+            }
+            // Assume charWidth <= charHeight
+            QRectF bpRect(x - rectSize / 3.0, y + (this->charHeight - rectSize) / 2.0, rectSize, rectSize);
+
+            // TODO: Breakpoint/Cip stuff
+
+            RichTextPainter::paintRichText(&p, x + this->charWidth, y, block.width - this->charWidth, this->charHeight, 0, line, mFontMetrics);
+            y += this->charHeight;
+
+        }
+    }
+}
+
+GraphView::EdgeConfiguration Disassembler2GraphView::edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to)
+{
+    EdgeConfiguration ec;
+    DisassemblyBlock &db = disassembly_blocks[from.entry];
+    if(to->entry == db.true_path)
+    {
+        ec.color = brtrueColor;
+    }
+    else if(to->entry == db.false_path)
+    {
+        ec.color = brfalseColor;
+    }
+    else
+    {
+        ec.color = jmpColor;
+    }
+    ec.start_arrow = false;
+    ec.end_arrow = true;
+    return ec;
+}
+
+RVA Disassembler2GraphView::getInstrForMouseEvent(GraphBlock &block, QPoint* point)
+{
+    DisassemblyBlock &db = disassembly_blocks[block.entry];
+    int mouse_row = ((point->y()-(2*this->charWidth)) / this->charHeight);
+    int cur_row = db.header_text.lines.size();
+    if (mouse_row < cur_row)
+    {
+        return db.entry;
+    }
+
+    for(Instr & instr : db.instrs)
+    {
+        if(mouse_row < cur_row + (int)instr.text.lines.size())
+        {
+            return instr.addr;
+        }
+        cur_row += instr.text.lines.size();
+    }
+    return RVA_INVALID;
+}
+
+
+// Public Slots
+
+void Disassembler2GraphView::colorsUpdatedSlot()
+{
+    disassemblyBackgroundColor = ConfigColor("gui.alt_background");
+    disassemblySelectedBackgroundColor = ConfigColor("gui.background");
+    mDisabledBreakpointColor = disassemblyBackgroundColor;
+    graphNodeColor = ConfigColor("gui.border");
+    backgroundColor = ConfigColor("gui.background");
+    disassemblySelectionColor = ConfigColor("highlight");
+
+    jmpColor = ConfigColor("graph.trufae");
+    brtrueColor = ConfigColor("graph.true");
+    brfalseColor = ConfigColor("graph.false");
+
+    mCommentColor = ConfigColor("comment");
+    initFont();
+    refreshView();
+}
+
+void Disassembler2GraphView::fontsUpdatedSlot()
+{
+    this->initFont();
+    refreshView();
+}
+
+Disassembler2GraphView::DisassemblyBlock *Disassembler2GraphView::blockForAddress(RVA addr)
+{
+    for(auto & blockIt : disassembly_blocks)
+    {
+        DisassemblyBlock &db = blockIt.second;
+        for(Instr i : db.instrs)
+        {
+            if((i.addr <= addr) && (addr <= i.addr + i.size))
+            {
+                return &db;
+            }
+        }
+    }
+    return nullptr;
+}
+
+void Disassembler2GraphView::onSeekChanged(RVA addr)
+{
+    // If this seek was NOT done by us...
+    if(!sent_seek)
+    {
+        DisassemblyBlock *db = blockForAddress(addr);
+        if(db)
+        {
+            // This is a local address! We animated to it.
+            transition_dont_seek = true;
+            showBlock(&blocks[db->entry], true);
+            return;
+        }
+        refreshView();
+    }
+    sent_seek = false;
+}
+
+void Disassembler2GraphView::seek(RVA addr, bool update_viewport)
+{
+    sent_seek = true;
+    Core()->seek(addr);
+    if(update_viewport)
+    {
+        this->viewport()->update();
+    }
+}
+
+void Disassembler2GraphView::seekPrev()
+{
+    Core()->seekPrev();
+}
+
+void Disassembler2GraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
+{
+    RVA instr = this->getInstrForMouseEvent(block, &pos);
+    if(instr == RVA_INVALID)
+    {
+        return;
+//
+    }
+
+    seek(instr, true);
+
+    if(event->button() == Qt::RightButton)
+    {
+        mMenu->setOffset(instr);
+        mMenu->exec(event->globalPos());
+    }
+}
+
+void Disassembler2GraphView::blockTransitionedTo(GraphView::GraphBlock *to)
+{
+    if(transition_dont_seek)
+    {
+        transition_dont_seek = false;
+        return;
+    }
+    seek(to->entry);
+}
