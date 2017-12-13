@@ -12,7 +12,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg)
+find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg WebEngineWidgets)
 
 
 if(WIN32)
@@ -65,6 +65,6 @@ add_definitions("-DAPP_VERSION=\"${CUTTER_VERSION_FULL}\"")
 
 
 add_executable(cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
-qt5_use_modules(cutter Core Widgets Gui Svg)
+qt5_use_modules(cutter Core Widgets Gui Svg WebEngineWidgets)
 target_link_libraries(cutter ${RADARE2_LIBRARIES})
 
