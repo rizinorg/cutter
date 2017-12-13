@@ -39,6 +39,7 @@
 #include "utils/Helpers.h"
 #include "dialogs/NewFileDialog.h"
 
+#include "widgets/DisassemblerGraphView.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
 #include "widgets/CommentsWidget.h"
