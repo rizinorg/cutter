@@ -49,7 +49,6 @@ SOURCES += \
     utils/Highlighter.cpp \
     utils/MdHighlighter.cpp \
     dialogs/AsmOptionsDialog.cpp \
-    dialogs/CreateNewDialog.cpp \
     dialogs/NewFileDialog.cpp \
     AnalThread.cpp \
     widgets/CommentsWidget.cpp \
@@ -100,7 +99,6 @@ HEADERS  += \
     utils/Highlighter.h \
     utils/MdHighlighter.h \
     dialogs/OptionsDialog.h \
-    dialogs/CreateNewDialog.h \
     dialogs/NewFileDialog.h \
     AnalThread.h \
     widgets/CommentsWidget.h \
@@ -143,7 +141,6 @@ FORMS    += \
     dialogs/NewfileDialog.ui \
     dialogs/OptionsDialog.ui \
     MainWindow.ui \
-    dialogs/CreateNewDialog.ui \
     widgets/CommentsWidget.ui \
     widgets/ConsoleWidget.ui \
     widgets/Dashboard.ui \

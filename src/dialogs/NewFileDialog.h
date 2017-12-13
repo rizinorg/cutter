@@ -21,7 +21,6 @@ public:
 private slots:
     void on_loadFileButton_clicked();
     void on_selectFileButton_clicked();
-    void on_createButton_clicked();
 
     void on_selectProjectsDirButton_clicked();
     void on_loadProjectButton_clicked();

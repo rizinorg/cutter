@@ -166,7 +166,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -180,8 +180,8 @@ border-top: 0px;
      <rect>
       <x>367</x>
       <y>185</y>
-      <width>140</width>
-      <height>239</height>
+      <width>156</width>
+      <height>206</height>
      </rect>
     </property>
     <property name="title">
@@ -644,14 +644,6 @@ QToolButton:pressed {
   <action name="actionWhite_Theme">
    <property name="text">
     <string>Default Theme</string>
-   </property>
-  </action>
-  <action name="actionCreate_File">
-   <property name="text">
-    <string>Create file</string>
-   </property>
-   <property name="toolTip">
-    <string>Create file</string>
    </property>
   </action>
   <action name="actionBindiff">

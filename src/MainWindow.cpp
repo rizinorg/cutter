@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "dialogs/CreateNewDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "dialogs/RenameDialog.h"
@@ -634,12 +633,6 @@ void MainWindow::backButton_clicked()
 void MainWindow::on_actionForward_triggered()
 {
     core->seekNext();
-}
-
-void MainWindow::on_actionCreate_File_triggered()
-{
-    CreateNewDialog *n = new CreateNewDialog(this);
-    n->exec();
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()

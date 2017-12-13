@@ -126,8 +126,6 @@ private slots:
 
     void on_actionRefresh_Panels_triggered();
 
-    void on_actionCreate_File_triggered();
-
     void on_actionDisasAdd_comment_triggered();
 
     void on_actionDefaut_triggered();
