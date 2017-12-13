@@ -68,13 +68,26 @@ GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock 
     return ec;
 }
 
-void GraphView::adjustSize(int width, int height)
+void GraphView::adjustSize(int new_width, int new_height)
 {
+    double hfactor = 0.0;
+    double vfactor = 0.0;
+    if(horizontalScrollBar()->maximum())
+    {
+        hfactor = (double)horizontalScrollBar()->value() / (double)horizontalScrollBar()->maximum();
+    }
+    if(verticalScrollBar()->maximum())
+    {
+        vfactor = (double)verticalScrollBar()->value() / (double)verticalScrollBar()->maximum();
+    }
+
     //Update scroll bar information
-    this->horizontalScrollBar()->setPageStep(width);
-    this->horizontalScrollBar()->setRange(0, this->width - width);
-    this->verticalScrollBar()->setPageStep(height);
-    this->verticalScrollBar()->setRange(0, this->height - height);
+    horizontalScrollBar()->setPageStep(new_width);
+    horizontalScrollBar()->setRange(0, this->width - (new_width/current_scale));
+    verticalScrollBar()->setPageStep(new_height);
+    verticalScrollBar()->setRange(0, this->height - (new_height/current_scale));
+    horizontalScrollBar()->setValue((int)((double)horizontalScrollBar()->maximum() * hfactor));
+    verticalScrollBar()->setValue((int)((double)verticalScrollBar()->maximum() * vfactor));
 }
 
 // This calculates the full graph starting at block entry.
@@ -714,9 +727,6 @@ void GraphView::showBlock(GraphBlock *block, bool animated)
     int show_block_offset_y = 30;
     // But beginning of Y (so we show the top of the block)
     int target_y = block->y - show_block_offset_y;
-
-    target_x *= current_scale;
-    target_y *= current_scale;
 
     target_x = std::max(0, target_x);
     target_y = std::max(0, target_y);

@@ -42,6 +42,21 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
 
+    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    shortcut_zoom_in->setContext(Qt::WidgetShortcut);
+    connect(shortcut_zoom_in, SIGNAL(activated()), this, SLOT(zoomIn()));
+
+    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+    shortcut_zoom_in->setContext(Qt::WidgetShortcut);
+    connect(shortcut_zoom_out, SIGNAL(activated()), this, SLOT(zoomOut()));
+
+    QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
+    shortcut_take_true->setContext(Qt::WidgetShortcut);
+    connect(shortcut_take_true, SIGNAL(activated()), this, SLOT(takeTrue()));
+    QShortcut *shortcut_take_false = new QShortcut(QKeySequence(Qt::Key_F), this);
+    shortcut_take_false->setContext(Qt::WidgetShortcut);
+    connect(shortcut_take_false, SIGNAL(activated()), this, SLOT(takeFalse()));
+
     initFont();
     colorsUpdatedSlot();
 }
@@ -50,6 +65,7 @@ void DisassemblerGraphView::refreshView()
 {
     initFont();
     loadCurrentGraph();
+    this->viewport()->update();
 }
 
 void DisassemblerGraphView::loadCurrentGraph()
@@ -90,7 +106,8 @@ void DisassemblerGraphView::loadCurrentGraph()
         GraphBlock gb;
         gb.entry = block_entry;
         db.entry = block_entry;
-
+        db.true_path = RVA_INVALID;
+        db.false_path = RVA_INVALID;
         if(block_fail)
         {
             db.false_path = block_fail;
@@ -137,14 +154,6 @@ void DisassemblerGraphView::loadCurrentGraph()
     {
         computeGraph(entry);
         this->viewport()->update();
-        transition_dont_seek = true;
-        DisassemblyBlock *db = blockForAddress(Core()->getOffset());
-        if(db)
-        {
-            showBlock(&this->blocks[db->entry]);
-        } else {
-            showBlock(&this->blocks[entry]);
-        }
     }
 }
 
@@ -398,6 +407,7 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
 
 void DisassemblerGraphView::onSeekChanged(RVA addr)
 {
+    mMenu->setOffset(addr);
     // If this seek was NOT done by us...
     if(!sent_seek)
     {
@@ -408,10 +418,62 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
             transition_dont_seek = true;
             showBlock(&blocks[db->entry], true);
             return;
+        } else {
+            refreshView();
+            DisassemblyBlock *db = blockForAddress(addr);
+            if(db)
+            {
+                // This is a local address! We animated to it.
+                transition_dont_seek = true;
+                showBlock(&blocks[db->entry], false);
+                return;
+            }
         }
-        refreshView();
     }
     sent_seek = false;
+}
+
+void DisassemblerGraphView::zoomIn()
+{
+    current_scale += 0.1;
+    auto areaSize = this->viewport()->size();
+    this->adjustSize(areaSize.width(), areaSize.height());
+    this->viewport()->update();
+}
+
+void DisassemblerGraphView::zoomOut()
+{
+    current_scale -= 0.1;
+    current_scale = std::max(current_scale, 0.3);
+    auto areaSize = this->viewport()->size();
+    this->adjustSize(areaSize.width(), areaSize.height());
+    this->viewport()->update();
+}
+
+void DisassemblerGraphView::takeTrue()
+{
+    DisassemblyBlock *db = blockForAddress(Core()->getOffset());
+    if(db->true_path != RVA_INVALID)
+    {
+        Core()->seek(db->true_path);
+    }
+    else if(blocks[db->entry].exits.size())
+    {
+        Core()->seek(blocks[db->entry].exits[0]);
+    }
+}
+
+void DisassemblerGraphView::takeFalse()
+{
+    DisassemblyBlock *db = blockForAddress(Core()->getOffset());
+    if(db->false_path != RVA_INVALID)
+    {
+        Core()->seek(db->false_path);
+    }
+    else if(blocks[db->entry].exits.size())
+    {
+        Core()->seek(blocks[db->entry].exits[0]);
+    }
 }
 
 void DisassemblerGraphView::seek(RVA addr, bool update_viewport)

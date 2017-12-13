@@ -102,6 +102,8 @@ protected:
     // The vertical margin between blocks
     int block_vertical_margin = 32;
 
+    // Zoom data
+    double current_scale = 1.0;
 
     void addBlock(GraphView::GraphBlock block);
     void setEntry(ut64 e);
@@ -113,7 +115,7 @@ protected:
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
-    void adjustSize(int width, int height);
+    void adjustSize(int new_width, int new_height);
 private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y=false);
 
@@ -134,8 +136,6 @@ private:
     int scroll_base_y;
     bool scroll_mode;
 
-    // Zoom data
-    double current_scale = 1.0;
 
     // Todo: remove charheight/charwidth cause it should be handled in child class
     qreal charWidth = 10.0;

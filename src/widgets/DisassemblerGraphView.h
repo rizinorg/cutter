@@ -151,6 +151,11 @@ public slots:
     void fontsUpdatedSlot();
     void onSeekChanged(RVA addr);
 
+    void zoomIn();
+    void zoomOut();
+
+    void takeTrue();
+    void takeFalse();
 private slots:
     void seekPrev();
 

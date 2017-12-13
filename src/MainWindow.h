@@ -5,7 +5,6 @@
 
 #include "cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
-#include "widgets/DisassemblerGraphView.h"
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
