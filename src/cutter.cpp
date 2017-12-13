@@ -1,5 +1,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
+#include <utils/TempConfig.h>
 #include "utils/Configuration.h"
 #include "cutter.h"
 #include "sdb.h"
@@ -1330,4 +1331,23 @@ void CutterCore::setNotes(const QString &notes)
 {
     this->notes = notes;
     emit notesChanged(this->notes);
+}
+
+QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
+{
+    QJsonArray array = cmdj(QString("pdJ ") + QString::number(lines) + QString(" @ ") + QString::number(offset)).array();
+    QList<DisassemblyLine> r;
+
+    for (QJsonValue value : array)
+    {
+        QJsonObject object = value.toObject();
+
+        DisassemblyLine line;
+        line.offset = object["offset"].toVariant().toULongLong();
+        line.text = object["text"].toString();
+
+        r << line;
+    }
+
+    return r;
 }
