@@ -366,8 +366,15 @@ void GraphView::paintEvent(QPaintEvent* event)
     int render_width = this->viewport()->size().width() / current_scale;
     int render_height = this->viewport()->size().height() / current_scale;
 
+    // Draw background
+    QRect viewportRect(this->viewport()->rect().topLeft(), this->viewport()->rect().bottomRight() - QPoint(1, 1));
+    p.setBrush(backgroundColor);
+    p.drawRect(viewportRect);
+    p.setBrush(Qt::black);
+
     p.translate(render_offset_x, render_offset_y);
     p.scale(current_scale, current_scale);
+
 
     // Draw blocks
     for(auto & blockIt : this->blocks)
