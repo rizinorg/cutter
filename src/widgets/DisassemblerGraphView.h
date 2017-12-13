@@ -153,6 +153,7 @@ public slots:
 
     void zoomIn();
     void zoomOut();
+    void zoomReset();
 
     void takeTrue();
     void takeFalse();

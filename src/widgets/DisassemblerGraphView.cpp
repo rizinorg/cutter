@@ -42,14 +42,18 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
 
+    // Zoom shortcuts
     QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
     shortcut_zoom_in->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_in, SIGNAL(activated()), this, SLOT(zoomIn()));
-
     QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-    shortcut_zoom_in->setContext(Qt::WidgetShortcut);
+    shortcut_zoom_out->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_out, SIGNAL(activated()), this, SLOT(zoomOut()));
+    QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::Key_Equal), this);
+    shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
+    connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
 
+    // Branch shortcuts
     QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
     shortcut_take_true->setContext(Qt::WidgetShortcut);
     connect(shortcut_take_true, SIGNAL(activated()), this, SLOT(takeTrue()));
@@ -445,6 +449,14 @@ void DisassemblerGraphView::zoomOut()
 {
     current_scale -= 0.1;
     current_scale = std::max(current_scale, 0.3);
+    auto areaSize = this->viewport()->size();
+    this->adjustSize(areaSize.width(), areaSize.height());
+    this->viewport()->update();
+}
+
+void DisassemblerGraphView::zoomReset()
+{
+    current_scale = 1.0;
     auto areaSize = this->viewport()->size();
     this->adjustSize(areaSize.width(), areaSize.height());
     this->viewport()->update();
