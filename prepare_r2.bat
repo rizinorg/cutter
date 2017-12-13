@@ -36,7 +36,7 @@ copy ..\ninja.exe .\
 copy ..\meson.py .\
 rmdir /s /q ..\dist%BI%
 call "%VSVARSALLPATH%" %VARSALL%
-call meson.bat --release --shared
+%PYTHON%\python.exe sys\meson.py --release --shared --prefix="%CD%"
 if not %ERRORLEVEL%==0 exit
 call sys\meson_install.bat --with-static ..\dist%BI%
 copy /Y build\r_userconf.h ..\dist%BI%\include\libr\
