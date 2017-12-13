@@ -99,6 +99,9 @@ Cutter is developed on OS X, Linux and Windows. The first release for users will
 | Disassembly graph view: ||
 | Esc | Seek to previous position |
 | Space | Switch to disassembly view |
+| + | Zoom in |
+| - | Zoom out |
+| = | Reset zoom |
 
 
 ## Help
