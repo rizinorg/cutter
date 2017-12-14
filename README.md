@@ -102,6 +102,8 @@ Cutter is developed on OS X, Linux and Windows. The first release for users will
 | + | Zoom in |
 | - | Zoom out |
 | = | Reset zoom |
+| J | Next instruction |
+| K | Previous instruction |
 
 
 ## Help

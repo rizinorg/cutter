@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QAbstractScrollArea>
 #include <QScrollBar>
+#include <QElapsedTimer>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -19,8 +20,8 @@ class GraphView : public QAbstractScrollArea
 
     enum class LayoutType
     {
-        Wide,
         Medium,
+        Wide,
         Narrow,
     };
 public:
@@ -101,9 +102,16 @@ protected:
     QColor backgroundColor = QColor(Qt::white);
     // The vertical margin between blocks
     int block_vertical_margin = 32;
+    int block_horizontal_margin = 10;
+
+    // Padding inside the block
+    int block_padding = 16;
 
     // Zoom data
     double current_scale = 1.0;
+
+    int unscrolled_render_offset_x = 0;
+    int unscrolled_render_offset_y = 0;
 
     void addBlock(GraphView::GraphBlock block);
     void setEntry(ut64 e);
@@ -112,6 +120,7 @@ protected:
     // Callbacks that should be overridden
     virtual void drawBlock(QPainter & p, GraphView::GraphBlock &block);
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
+    virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
@@ -158,6 +167,7 @@ private slots:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 };
 

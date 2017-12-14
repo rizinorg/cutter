@@ -5,6 +5,7 @@
 
 #include <QWidget>
 #include <QPainter>
+#include <QShortcut>
 
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
@@ -136,9 +137,11 @@ class DisassemblerGraphView : public GraphView
 
 public:
     DisassemblerGraphView(QWidget *parent);
+    ~DisassemblerGraphView();
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter & p, GraphView::GraphBlock &block) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
+    virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
 
@@ -157,10 +160,14 @@ public slots:
 
     void takeTrue();
     void takeFalse();
+
+    void nextInstr();
+    void prevInstr();
 private slots:
     void seekPrev();
 
 private:
+    bool first_draw = true;
     bool transition_dont_seek = false;
     bool sent_seek = false;
 
@@ -168,7 +175,7 @@ private:
     // Font data
     CachedFontMetrics* mFontMetrics;
     qreal charWidth;
-    qreal charHeight;
+    int charHeight;
     int charOffset;
     int baseline;
 
@@ -179,6 +186,9 @@ private:
     RVA getInstrForMouseEvent(GraphBlock &block, QPoint* point);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seek(RVA addr, bool update_viewport=true);
+    void seekInstruction(bool previous_instr);
+
+    QList<QShortcut*> shortcuts;
 
     QColor disassemblyBackgroundColor;
     QColor disassemblySelectedBackgroundColor;

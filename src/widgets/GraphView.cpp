@@ -9,12 +9,12 @@
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
-    this->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    this->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    this->horizontalScrollBar()->setSingleStep(this->charWidth);
-    this->verticalScrollBar()->setSingleStep(this->charWidth);
-    QSize areaSize = this->viewport()->size();
-    this->adjustSize(areaSize.width(), areaSize.height());
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    horizontalScrollBar()->setSingleStep(charWidth);
+    verticalScrollBar()->setSingleStep(charWidth);
+    QSize areaSize = viewport()->size();
+    adjustSize(areaSize.width(), areaSize.height());
 }
 
 GraphView::~GraphView()
@@ -53,6 +53,14 @@ void GraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, Q
     qWarning() << "Block clicked not overridden!";
 }
 
+void GraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
+{
+    Q_UNUSED(block);
+    Q_UNUSED(event);
+    Q_UNUSED(pos);
+    qWarning() << "Block double clicked not overridden!";
+}
+
 void GraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
     Q_UNUSED(to);
@@ -83,9 +91,9 @@ void GraphView::adjustSize(int new_width, int new_height)
 
     //Update scroll bar information
     horizontalScrollBar()->setPageStep(new_width);
-    horizontalScrollBar()->setRange(0, this->width - (new_width/current_scale));
+    horizontalScrollBar()->setRange(0, width - (new_width/current_scale));
     verticalScrollBar()->setPageStep(new_height);
-    verticalScrollBar()->setRange(0, this->height - (new_height/current_scale));
+    verticalScrollBar()->setRange(0, height - (new_height/current_scale));
     horizontalScrollBar()->setValue((int)((double)horizontalScrollBar()->maximum() * hfactor));
     verticalScrollBar()->setValue((int)((double)verticalScrollBar()->maximum() * vfactor));
 }
@@ -93,15 +101,15 @@ void GraphView::adjustSize(int new_width, int new_height)
 // This calculates the full graph starting at block entry.
 void GraphView::computeGraph(ut64 entry)
 {
-    QSize areaSize = this->viewport()->size();
+    QSize areaSize = viewport()->size();
 
     // Populate incoming lists
-    for(auto &blockIt : this->blocks)
+    for(auto &blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
         for(auto & edge : block.exits)
         {
-            this->blocks[edge].incoming.push_back(block.entry);
+            blocks[edge].incoming.push_back(block.entry);
         }
     }
 
@@ -119,7 +127,7 @@ void GraphView::computeGraph(ut64 entry)
         // Pick nodes with single entrypoints
         while(!queue.empty())
         {
-            GraphBlock &block = this->blocks[queue.front()];
+            GraphBlock &block = blocks[queue.front()];
             queue.pop();
             block_order.push_back(block.entry);
             for(ut64 edge : block.exits)
@@ -131,22 +139,22 @@ void GraphView::computeGraph(ut64 entry)
                 }
 
                 // Some edges might not be available
-                if(!this->blocks.count(edge))
+                if(!blocks.count(edge))
                 {
                     continue;
                 }
 
                 // If this node has no other incoming edges, add it to the graph layout
-                if(this->blocks[edge].incoming.size() == 1)
+                if(blocks[edge].incoming.size() == 1)
                 {
-                    removeFromVec(this->blocks[edge].incoming, block.entry);
+                    removeFromVec(blocks[edge].incoming, block.entry);
                     block.new_exits.push_back(edge);
-                    queue.push(this->blocks[edge].entry);
+                    queue.push(blocks[edge].entry);
                     visited.insert(edge);
                     changed = true;
                 } else {
                     // Remove from incoming edges
-                    removeFromVec(this->blocks[edge].incoming, block.entry);
+                    removeFromVec(blocks[edge].incoming, block.entry);
                 }
             }
         }
@@ -155,7 +163,7 @@ void GraphView::computeGraph(ut64 entry)
         ut64 best = 0;
         int best_edges;
         ut64 best_parent;
-        for(auto & blockIt : this->blocks)
+        for(auto & blockIt : blocks)
         {
             GraphBlock &block = blockIt.second;
             // Skip blocks we haven't visited yet
@@ -170,24 +178,24 @@ void GraphView::computeGraph(ut64 entry)
                 {
                     continue;
                 }
-                if(!this->blocks.count(edge))
+                if(!blocks.count(edge))
                 {
                     continue;
                 }
                 // find best edge
-                if((best == 0) || ((int)this->blocks[edge].incoming.size() < best_edges) || (
-                    ((int)this->blocks[edge].incoming.size() == best_edges) && (edge < best)))
+                if((best == 0) || ((int)blocks[edge].incoming.size() < best_edges) || (
+                    ((int)blocks[edge].incoming.size() == best_edges) && (edge < best)))
                 {
                     best = edge;
-                    best_edges = this->blocks[edge].incoming.size();
+                    best_edges = blocks[edge].incoming.size();
                     best_parent = block.entry;
                 }
             }
         }
         if(best != 0)
         {
-            GraphBlock &best_parentb = this->blocks[best_parent];
-            removeFromVec(this->blocks[best].incoming, best_parentb.entry);
+            GraphBlock &best_parentb = blocks[best_parent];
+            removeFromVec(blocks[best].incoming, best_parentb.entry);
             best_parentb.new_exits.push_back(best);
             visited.insert(best);
             queue.push(best);
@@ -195,10 +203,10 @@ void GraphView::computeGraph(ut64 entry)
         }
     }
 
-    this->computeGraphLayout(this->blocks[entry]);
+    computeGraphLayout(blocks[entry]);
 
     // Prepare edge routing
-    GraphBlock &entryb = this->blocks[entry];
+    GraphBlock &entryb = blocks[entry];
     EdgesVector horiz_edges, vert_edges;
     horiz_edges.resize(entryb.row_count + 1);
     vert_edges.resize(entryb.row_count + 1);
@@ -216,7 +224,7 @@ void GraphView::computeGraph(ut64 entry)
         }
     }
 
-    for(auto & blockIt : this->blocks)
+    for(auto & blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
         edge_valid[block.row][block.col + 1] = false;
@@ -229,8 +237,8 @@ void GraphView::computeGraph(ut64 entry)
         GraphBlock &start = block;
         for(ut64 edge : block.exits)
         {
-            GraphBlock &end = this->blocks[edge];
-            start.edges.push_back(this->routeEdge(horiz_edges, vert_edges, edge_valid, start, end, QColor(255, 0, 0)));
+            GraphBlock &end = blocks[edge];
+            start.edges.push_back(routeEdge(horiz_edges, vert_edges, edge_valid, start, end, QColor(255, 0, 0)));
         }
     }
 
@@ -254,7 +262,7 @@ void GraphView::computeGraph(ut64 entry)
     std::vector<int> col_width, row_height;
     initVec(col_width, entryb.col_count + 1, 0);
     initVec(row_height, entryb.row_count + 1, 0);
-    for(auto & blockIt : this->blocks)
+    for(auto & blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
         if((int(block.width / 2)) > col_width[block.col])
@@ -269,47 +277,52 @@ void GraphView::computeGraph(ut64 entry)
     std::vector<int> col_x, row_y;
     initVec(col_x, entryb.col_count, 0);
     initVec(row_y, entryb.row_count, 0);
-    initVec(this->col_edge_x, entryb.col_count + 1, 0);
-    initVec(this->row_edge_y, entryb.row_count + 1, 0);
-    int x = 16;
+    initVec(col_edge_x, entryb.col_count + 1, 0);
+    initVec(row_edge_y, entryb.row_count + 1, 0);
+    int x = block_horizontal_margin * 2;
     for(int i = 0; i < entryb.col_count; i++)
     {
-        this->col_edge_x[i] = x;
-        x += 8 * col_edge_count[i];
+        col_edge_x[i] = x;
+        x += block_horizontal_margin * col_edge_count[i];
         col_x[i] = x;
         x += col_width[i];
     }
-    int y = 16;
+    int y = block_vertical_margin * 2;
     for(int i = 0; i < entryb.row_count; i++)
     {
-        this->row_edge_y[i] = y;
+        row_edge_y[i] = y;
+        // TODO: The 1 when row_edge_count is 0 is not needed on the original.. not sure why it's required for us
+        if(!row_edge_count[i])
+        {
+            row_edge_count[i] = 1;
+        }
         y += block_vertical_margin * row_edge_count[i];
         row_y[i] = y;
         y += row_height[i];
     }
-    this->col_edge_x[entryb.col_count] = x;
-    this->row_edge_y[entryb.row_count] = y;
-    this->width = x + 16 + (8 * col_edge_count[entryb.col_count]);
-    this->height = y + 16 + (8 * row_edge_count[entryb.row_count]);
+    col_edge_x[entryb.col_count] = x;
+    row_edge_y[entryb.row_count] = y;
+    width = x + (block_horizontal_margin * 2) + (block_horizontal_margin * col_edge_count[entryb.col_count]);
+    height = y + (block_vertical_margin * 2) + (block_vertical_margin * row_edge_count[entryb.row_count]);
 
     //Compute node positions
-    for(auto & blockIt : this->blocks)
+    for(auto & blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
         block.x = int(
-                      (col_x[block.col] + col_width[block.col] + 4 * col_edge_count[block.col + 1]) - (block.width / 2));
+                      (col_x[block.col] + col_width[block.col] + ((block_horizontal_margin / 2) * col_edge_count[block.col + 1])) - (block.width / 2));
         if((block.x + block.width) > (
-                    col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + 8 * col_edge_count[
+                    col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + block_horizontal_margin * col_edge_count[
                         block.col + 1]))
         {
-            block.x = int((col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + 8 * col_edge_count[
+            block.x = int((col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + block_horizontal_margin * col_edge_count[
                                block.col + 1]) - block.width);
         }
         block.y = row_y[block.row];
     }
 
     // Precompute coordinates for edges
-    for(auto & blockIt : this->blocks)
+    for(auto & blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
 
@@ -318,7 +331,8 @@ void GraphView::computeGraph(ut64 entry)
             auto start = edge.points[0];
             auto start_col = start.col;
             auto last_index = edge.start_index;
-            auto first_pt = QPoint(this->col_edge_x[start_col] + (8 * last_index) + 4,
+            // This is the start point of the edge.
+            auto first_pt = QPoint(col_edge_x[start_col] + (block_horizontal_margin * last_index) + (block_horizontal_margin / 2),
                                    block.y + block.height);
             auto last_pt = first_pt;
             QPolygonF pts;
@@ -333,9 +347,9 @@ void GraphView::computeGraph(ut64 entry)
                 QPoint new_pt;
                 // block_vertical_margin/2 gives the margin from block to the horizontal lines
                 if(start_col == end_col)
-                    new_pt = QPoint(last_pt.x(), this->row_edge_y[end_row] + (8 * last_index) + (block_vertical_margin/2));
+                    new_pt = QPoint(last_pt.x(), row_edge_y[end_row] + (block_vertical_margin * last_index) + (block_vertical_margin/2));
                 else
-                    new_pt = QPoint(this->col_edge_x[end_col] + (8 * last_index) + 4, last_pt.y());
+                    new_pt = QPoint(col_edge_x[end_col] + (block_horizontal_margin * last_index) + (block_horizontal_margin/2), last_pt.y());
                 pts.push_back(new_pt);
                 last_pt = new_pt;
                 start_col = end_col;
@@ -355,42 +369,64 @@ void GraphView::computeGraph(ut64 entry)
                 pts.append(first_pt);
                 edge.arrow_start = pts;
             }
-            pts.clear();
-            pts.append(QPoint(new_pt.x() - 3, new_pt.y() - 6));
-            pts.append(QPoint(new_pt.x() + 3, new_pt.y() - 6));
-            pts.append(new_pt);
-            edge.arrow_end = pts;
+            if(ec.end_arrow)
+            {
+                pts.clear();
+                pts.append(QPoint(new_pt.x() - 3, new_pt.y() - 6));
+                pts.append(QPoint(new_pt.x() + 3, new_pt.y() - 6));
+                pts.append(new_pt);
+                edge.arrow_end = pts;
+            }
         }
     }
 
-    this->ready = true;
+    ready = true;
 
-    this->viewport()->update();
-    areaSize = this->viewport()->size();
-    this->adjustSize(areaSize.width(), areaSize.height());
+    viewport()->update();
+    areaSize = viewport()->size();
+    adjustSize(areaSize.width(), areaSize.height());
 }
 
 void GraphView::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
-    QPainter p(this->viewport());
-    int render_offset_x = -this->horizontalScrollBar()->value() * current_scale;
-    int render_offset_y = -this->verticalScrollBar()->value() * current_scale;
-    int render_width = this->viewport()->size().width() / current_scale;
-    int render_height = this->viewport()->size().height() / current_scale;
+    QPainter p(viewport());
+    int render_offset_x = -horizontalScrollBar()->value() * current_scale;
+    int render_offset_y = -verticalScrollBar()->value() * current_scale;
+    int render_width = viewport()->size().width() / current_scale;
+    int render_height = viewport()->size().height() / current_scale;
+
+    // Do we have scrollbars?
+    bool hscrollbar = horizontalScrollBar()->pageStep() < width;
+    bool vscrollbar = verticalScrollBar()->pageStep() < height;
 
     // Draw background
-    QRect viewportRect(this->viewport()->rect().topLeft(), this->viewport()->rect().bottomRight() - QPoint(1, 1));
+    QRect viewportRect(viewport()->rect().topLeft(), viewport()->rect().bottomRight() - QPoint(1, 1));
     p.setBrush(backgroundColor);
     p.drawRect(viewportRect);
     p.setBrush(Qt::black);
+
+    unscrolled_render_offset_x = 0;
+    unscrolled_render_offset_y = 0;
+
+    // We do not have a scrollbar on this axis, so we center the view
+    if(!hscrollbar)
+    {
+        unscrolled_render_offset_x = (viewport()->size().width() - (width * current_scale)) / 2;
+        render_offset_x += unscrolled_render_offset_x;
+    }
+    if(!vscrollbar)
+    {
+        unscrolled_render_offset_y = (viewport()->size().height() - (height * current_scale)) / 2;
+        render_offset_y += unscrolled_render_offset_y;
+    }
 
     p.translate(render_offset_x, render_offset_y);
     p.scale(current_scale, current_scale);
 
 
     // Draw blocks
-    for(auto & blockIt : this->blocks)
+    for(auto & blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
 
@@ -429,7 +465,6 @@ void GraphView::paintEvent(QPaintEvent* event)
                 p.drawConvexPolygon(edge.arrow_end);
             }
         }
-
     }
 }
 
@@ -446,34 +481,34 @@ void GraphView::computeGraphLayout(GraphBlock &block)
     for(size_t i = 0; i < block.new_exits.size(); i++)
     {
         ut64 edge = block.new_exits[i];
-        GraphBlock &edgeb = this->blocks[edge];
-        this->computeGraphLayout(edgeb);
+        GraphBlock &edgeb = blocks[edge];
+        computeGraphLayout(edgeb);
         row_count = std::max(edgeb.row_count + 1, row_count);
         childColumn = edgeb.col;
     }
 
-    if(this->layoutType != LayoutType::Wide && block.new_exits.size() == 2)
+    if(layoutType != LayoutType::Wide && block.new_exits.size() == 2)
     {
-        GraphBlock &left = this->blocks[block.new_exits[0]];
-        GraphBlock &right= this->blocks[block.new_exits[1]];
+        GraphBlock &left = blocks[block.new_exits[0]];
+        GraphBlock &right= blocks[block.new_exits[1]];
         if(left.new_exits.size() == 0)
         {
             left.col = right.col - 2;
             int add = left.col < 0 ? - left.col : 0;
-            this->adjustGraphLayout(right, add, 1);
-            this->adjustGraphLayout(left, add, 1);
+            adjustGraphLayout(right, add, 1);
+            adjustGraphLayout(left, add, 1);
             col = right.col_count + add;
         }
         else if(right.new_exits.size() == 0)
         {
-            this->adjustGraphLayout(left, 0, 1);
-            this->adjustGraphLayout(right, left.col + 2, 1);
+            adjustGraphLayout(left, 0, 1);
+            adjustGraphLayout(right, left.col + 2, 1);
             col = std::max(left.col_count, right.col + 2);
         }
         else
         {
-            this->adjustGraphLayout(left, 0, 1);
-            this->adjustGraphLayout(right, left.col_count, 1);
+            adjustGraphLayout(left, 0, 1);
+            adjustGraphLayout(right, left.col_count, 1);
             col = left.col_count + right.col_count;
         }
         block.col_count = std::max(2, col);
@@ -490,8 +525,8 @@ void GraphView::computeGraphLayout(GraphBlock &block)
     {
         for(ut64 edge : block.new_exits)
         {
-            this->adjustGraphLayout(this->blocks[edge], col, 1);
-            col += this->blocks[edge].col_count;
+            adjustGraphLayout(blocks[edge], col, 1);
+            col += blocks[edge].col_count;
         }
         if(col >= 2)
         {
@@ -536,11 +571,11 @@ GraphView::GraphEdge GraphView::routeEdge(EdgesVector & horiz_edges, EdgesVector
     int i = 0;
     while(true)
     {
-        if(!this->isEdgeMarked(vert_edges, start.row + 1, start.col + 1, i))
+        if(!isEdgeMarked(vert_edges, start.row + 1, start.col + 1, i))
             break;
         i += 1;
     }
-    this->markEdge(vert_edges, start.row + 1, start.col + 1, i);
+    markEdge(vert_edges, start.row + 1, start.col + 1, i);
     edge.addPoint(start.row + 1, start.col + 1);
     edge.start_index = i;
     bool horiz = false;
@@ -617,7 +652,7 @@ GraphView::GraphEdge GraphView::routeEdge(EdgesVector & horiz_edges, EdgesVector
             min_col = start.col + 1;
             max_col = col;
         }
-        int index = this->findHorizEdgeIndex(horiz_edges, start.row + 1, min_col, max_col);
+        int index = findHorizEdgeIndex(horiz_edges, start.row + 1, min_col, max_col);
         edge.addPoint(start.row + 1, col, index);
         horiz = true;
     }
@@ -626,8 +661,8 @@ GraphView::GraphEdge GraphView::routeEdge(EdgesVector & horiz_edges, EdgesVector
     {
         //Not in same row, need to generate a line for moving to the correct row
         if(col == (start.col + 1))
-            this->markEdge(vert_edges, start.row + 1, start.col + 1, i, false);
-        int index = this->findVertEdgeIndex(vert_edges, col, min_row, max_row);
+            markEdge(vert_edges, start.row + 1, start.col + 1, i, false);
+        int index = findVertEdgeIndex(vert_edges, col, min_row, max_row);
         if(col == (start.col + 1))
             edge.start_index = index;
         edge.addPoint(end.row, col, index);
@@ -648,7 +683,7 @@ GraphView::GraphEdge GraphView::routeEdge(EdgesVector & horiz_edges, EdgesVector
             min_col = end.col + 1;
             max_col = col;
         }
-        int index = this->findHorizEdgeIndex(horiz_edges, end.row, min_col, max_col);
+        int index = findHorizEdgeIndex(horiz_edges, end.row, min_col, max_col);
         edge.addPoint(end.row, end.col + 1, index);
         horiz = true;
     }
@@ -656,7 +691,7 @@ GraphView::GraphEdge GraphView::routeEdge(EdgesVector & horiz_edges, EdgesVector
     //If last line was horizontal, choose the ending edge index for the incoming edge
     if(horiz)
     {
-        int index = this->findVertEdgeIndex(vert_edges, end.col + 1, end.row, end.row);
+        int index = findVertEdgeIndex(vert_edges, end.col + 1, end.row, end.row);
         edge.points[int(edge.points.size()) - 1].index = index;
     }
 
@@ -683,7 +718,7 @@ int GraphView::findHorizEdgeIndex(EdgesVector & edges, int row, int min_col, int
 
     //Mark chosen index as used
     for(int col = min_col; col < max_col + 1; col++)
-        this->markEdge(edges, row, col, i);
+        markEdge(edges, row, col, i);
     return i;
 }
 
@@ -707,7 +742,7 @@ int GraphView::findVertEdgeIndex(EdgesVector & edges, int col, int min_row, int 
 
     //Mark chosen index as used
     for(int row = min_row; row < max_row + 1; row++)
-        this->markEdge(edges, row, col, i);
+        markEdge(edges, row, col, i);
     return i;
 }
 
@@ -730,30 +765,30 @@ void GraphView::showBlock(GraphBlock *block, bool animated)
 
     target_x = std::max(0, target_x);
     target_y = std::max(0, target_y);
-    target_x = std::min(this->horizontalScrollBar()->maximum(), target_x);
-    target_y = std::min(this->verticalScrollBar()->maximum(), target_y);
+    target_x = std::min(horizontalScrollBar()->maximum(), target_x);
+    target_y = std::min(verticalScrollBar()->maximum(), target_y);
     if(animated)
     {
-        QPropertyAnimation *animation_x = new QPropertyAnimation(this->horizontalScrollBar(), "value");
+        QPropertyAnimation *animation_x = new QPropertyAnimation(horizontalScrollBar(), "value");
         animation_x->setDuration(500);
-        animation_x->setStartValue(this->horizontalScrollBar()->value());
+        animation_x->setStartValue(horizontalScrollBar()->value());
         animation_x->setEndValue(target_x);
         animation_x->setEasingCurve(QEasingCurve::InOutQuad);
         animation_x->start();
-        QPropertyAnimation *animation_y = new QPropertyAnimation(this->verticalScrollBar(), "value");
+        QPropertyAnimation *animation_y = new QPropertyAnimation(verticalScrollBar(), "value");
         animation_y->setDuration(500);
-        animation_y->setStartValue(this->verticalScrollBar()->value());
+        animation_y->setStartValue(verticalScrollBar()->value());
         animation_y->setEndValue(target_y);
         animation_y->setEasingCurve(QEasingCurve::InOutQuad);
         animation_y->start();
     } else {
-        this->horizontalScrollBar()->setValue(target_x);
-        this->verticalScrollBar()->setValue(target_y);
+        horizontalScrollBar()->setValue(target_x);
+        verticalScrollBar()->setValue(target_y);
     }
 
     blockTransitionedTo(block);
 
-    this->viewport()->update();
+    viewport()->update();
 }
 
 void GraphView::adjustGraphLayout(GraphBlock &block, int col, int row)
@@ -762,18 +797,18 @@ void GraphView::adjustGraphLayout(GraphBlock &block, int col, int row)
     block.row += row;
     for(ut64 edge : block.new_exits)
     {
-        this->adjustGraphLayout(this->blocks[edge], col, row);
+        adjustGraphLayout(blocks[edge], col, row);
     }
 }
 
 void GraphView::addBlock(GraphView::GraphBlock block)
 {
-    this->blocks[block.entry] = block;
+    blocks[block.entry] = block;
 }
 
 void GraphView::setEntry(ut64 e)
 {
-    this->entry = e;
+    entry = e;
 }
 
 bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
@@ -782,7 +817,7 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
     if((point.x() - half_target_size < x) &&
             (point.y() - (above_y ? (2 * half_target_size) : 0) < y) &&
             (x < point.x() + half_target_size) &&
-            (y < point.y() + (above_y ? 0 : (2 * half_target_size))))
+            (y < point.y() + (above_y ? 0 : (3 * half_target_size))))
     {
         return true;
     }
@@ -798,8 +833,8 @@ void GraphView::resizeEvent(QResizeEvent* event)
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
-    int x = (event->pos().x() / current_scale) + horizontalScrollBar()->value();
-    int y = (event->pos().y() / current_scale) + verticalScrollBar()->value();
+    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) + horizontalScrollBar()->value();
+    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) + verticalScrollBar()->value();
 
     // Check if a block was clicked
     for(auto & blockIt : blocks)
@@ -818,7 +853,7 @@ void GraphView::mousePressEvent(QMouseEvent *event)
     }
 
     // Check if a line beginning/end  was clicked
-    for(auto & blockIt : this->blocks)
+    for(auto & blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
         for(GraphEdge & edge : block.edges)
@@ -850,25 +885,45 @@ void GraphView::mousePressEvent(QMouseEvent *event)
     if(event->button() == Qt::LeftButton)
     {
         //Left click outside any block, enter scrolling mode
-        this->scroll_base_x = event->x();
-        this->scroll_base_y = event->y();
-        this->scroll_mode = true;
-        this->setCursor(Qt::ClosedHandCursor);
-        this->viewport()->grabMouse();
+        scroll_base_x = event->x();
+        scroll_base_y = event->y();
+        scroll_mode = true;
+        setCursor(Qt::ClosedHandCursor);
+        viewport()->grabMouse();
     }
 
 }
 
 void GraphView::mouseMoveEvent(QMouseEvent* event)
 {
-    if(this->scroll_mode)
+    if(scroll_mode)
     {
-        int x_delta = this->scroll_base_x - event->x();
-        int y_delta = this->scroll_base_y - event->y();
-        this->scroll_base_x = event->x();
-        this->scroll_base_y = event->y();
-        this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() + x_delta);
-        this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + y_delta);
+        int x_delta = scroll_base_x - event->x();
+        int y_delta = scroll_base_y - event->y();
+        scroll_base_x = event->x();
+        scroll_base_y = event->y();
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta);
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta);
+    }
+}
+
+void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) + horizontalScrollBar()->value();
+    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) + verticalScrollBar()->value();
+
+    // Check if a block was clicked
+    for(auto & blockIt : blocks)
+    {
+        GraphBlock &block = blockIt.second;
+
+        if((block.x <= x) && (block.y <= y) &&
+                (x <= block.x + block.width) & (y <= block.y + block.height))
+        {
+            QPoint pos = QPoint(x - block.x, y - block.y);
+            blockDoubleClicked(block, event, pos);
+            return;
+        }
     }
 }
 
@@ -883,10 +938,10 @@ void GraphView::mouseReleaseEvent(QMouseEvent* event)
     if(event->button() != Qt::LeftButton)
         return;
 
-    if(this->scroll_mode)
+    if(scroll_mode)
     {
-        this->scroll_mode = false;
-        this->setCursor(Qt::ArrowCursor);
-        this->viewport()->releaseMouse();
+        scroll_mode = false;
+        setCursor(Qt::ArrowCursor);
+        viewport()->releaseMouse();
     }
 }
