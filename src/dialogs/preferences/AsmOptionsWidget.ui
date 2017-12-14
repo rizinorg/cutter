@@ -11,30 +11,9 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Disassembly Options</string>
+   <string>Disassembly</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="sizeConstraint">
-    <enum>QLayout::SetMinAndMaxSize</enum>
-   </property>
-   <item>
-    <layout class="QHBoxLayout" name="fontSelectionLayout">
-     <item>
-      <widget class="QLabel" name="fontSelectionLabel">
-       <property name="text">
-        <string notr="true"/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="fontSelectionButton">
-       <property name="text">
-        <string>Select font</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item>
     <widget class="QCheckBox" name="esilCheckBox">
      <property name="text">
@@ -158,6 +137,29 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
    </item>
   </layout>
   <action name="actionSaveAsDefault">

@@ -26,12 +26,12 @@
 /*     border: 2px solid white;*/
 }
 
-QTabBar
+QMainWindow &gt; QTabBar
 {
     qproperty-drawBase: 0;
 }
 
-QTabBar::tab {
+QMainWindow &gt; QTabBar::tab {
     border-bottom-color: #2180a9;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
@@ -41,12 +41,12 @@ QTabBar::tab {
 	margin-top: 3px;
 }
 
-QTabBar::tab:selected {
+QMainWindow &gt; QTabBar::tab:selected {
     background: #2180a9;
     color: #FFFFFF;
 }
 
-QTabBar::tab:hover {
+QMainWindow &gt; QTabBar::tab:hover {
     background: #2180a9;      /* #3C879E; */
     color: #FFFFFF;
 }

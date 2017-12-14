@@ -81,7 +81,8 @@ SOURCES += \
     widgets/PseudocodeWidget.cpp \
     widgets/VisualNavbar.cpp \
     widgets/GraphView.cpp \
-    dialogs/preferences/PreferencesDialog.cpp
+    dialogs/preferences/PreferencesDialog.cpp \
+    dialogs/preferences/GeneralOptionsWidget.cpp
 
 HEADERS  += \
     cutter.h \
@@ -133,7 +134,8 @@ HEADERS  += \
     widgets/PseudocodeWidget.h \
     widgets/VisualNavbar.h \
     widgets/GraphView.h \
-    dialogs/preferences/PreferencesDialog.h
+    dialogs/preferences/PreferencesDialog.h \
+    dialogs/preferences/GeneralOptionsWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -164,7 +166,8 @@ FORMS    += \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     widgets/PseudocodeWidget.ui \
-    dialogs/preferences/PreferencesDialog.ui
+    dialogs/preferences/PreferencesDialog.ui \
+    dialogs/preferences/GeneralOptionsWidget.ui
 
 RESOURCES += \
     resources.qrc

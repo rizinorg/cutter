@@ -20,27 +20,18 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
         ui->syntaxComboBox->addItem(syntax, syntax);
     ui->syntaxComboBox->blockSignals(false);
 
-    // asm.offset=false would break reading the offset in DisassemblyWidget
-    // TODO: remove this when DisassemblyWidget::readDisassemblyOffset() allows it
-    ui->offsetCheckBox->setVisible(false);
-
     updateAsmOptionsFromVars();
-    updateFontFromConfig();
 
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(updateFontFromConfig()));
 
-    connect(dialog, SIGNAL(saveAsDefault()), this, SLOT(saveAsDefault()));
-    connect(dialog, SIGNAL(resetToDefault()), this, SLOT(resetToDefault()));
+    ui->buttonBox->addButton(tr("Save as Defaults"), QDialogButtonBox::ButtonRole::ApplyRole);
+
+    //connect(dialog, SIGNAL(saveAsDefault()), this, SLOT(saveAsDefault()));
+    //connect(dialog, SIGNAL(resetToDefault()), this, SLOT(resetToDefault()));
 }
 
 AsmOptionsWidget::~AsmOptionsWidget() {}
 
-void AsmOptionsWidget::updateFontFromConfig()
-{
-    QFont currentFont = Config()->getFont();
-    ui->fontSelectionLabel->setText(currentFont.toString());
-}
 
 void AsmOptionsWidget::updateAsmOptionsFromVars()
 {
@@ -220,12 +211,18 @@ void AsmOptionsWidget::on_varsubOnlyCheckBox_toggled(bool checked)
     triggerAsmOptionsChanged();
 }
 
-void AsmOptionsWidget::on_fontSelectionButton_clicked()
+
+void AsmOptionsWidget::on_buttonBox_clicked(QAbstractButton *button)
 {
-    QFont currentFont = Config()->getFont();
-    bool ok;
-    QFont newFont = QFontDialog::getFont(&ok, currentFont, this);
-    if (ok) {
-        Config()->setFont(newFont);
+    switch (ui->buttonBox->buttonRole(button))
+    {
+        case QDialogButtonBox::ButtonRole::ApplyRole:
+            saveAsDefault();
+            break;
+        case QDialogButtonBox::ButtonRole::ResetRole:
+            resetToDefault();
+            break;
+        default:
+            break;
     }
 }

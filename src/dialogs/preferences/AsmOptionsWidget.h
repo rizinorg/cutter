@@ -1,6 +1,6 @@
 
-#ifndef ASMOPTIONSDIALOG_H
-#define ASMOPTIONSDIALOG_H
+#ifndef ASMOPTIONSWIDGET_H
+#define ASMOPTIONSWIDGET_H
 
 #include <QDialog>
 #include <QPushButton>
@@ -32,7 +32,6 @@ private slots:
     void saveAsDefault();
     void resetToDefault();
 
-    void updateFontFromConfig();
     void updateAsmOptionsFromVars();
 
     void on_esilCheckBox_toggled(bool checked);
@@ -48,7 +47,8 @@ private slots:
     void on_bblineCheckBox_toggled(bool checked);
     void on_varsubCheckBox_toggled(bool checked);
     void on_varsubOnlyCheckBox_toggled(bool checked);
-    void on_fontSelectionButton_clicked();
+
+    void on_buttonBox_clicked(QAbstractButton *button);
 };
 
 

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GeneralOptionsWidget</class>
+ <widget class="QWidget" name="GeneralOptionsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>442</width>
+    <height>225</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>General</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetMinAndMaxSize</enum>
+   </property>
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="fontLabel">
+       <property name="text">
+        <string>Font:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <layout class="QHBoxLayout" name="fontSelectionLayout">
+       <item>
+        <widget class="QLabel" name="fontSelectionLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string notr="true"/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fontSelectionButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Select font</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="themeLabel">
+       <property name="text">
+        <string>Theme:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="themeComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Default</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Dark</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+  <action name="actionSaveAsDefault">
+   <property name="text">
+    <string>Save as Default</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

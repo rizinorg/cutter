@@ -4,6 +4,7 @@
 #include "PreferencesDialog.h"
 #include "ui_PreferencesDialog.h"
 
+#include "GeneralOptionsWidget.h"
 #include "AsmOptionsWidget.h"
 
 #include "utils/Helpers.h"
@@ -16,10 +17,10 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
 {
     ui->setupUi(this);
 
-    ui->buttonBox->addButton(tr("Save as Defaults"), QDialogButtonBox::ButtonRole::ApplyRole);
-
-    auto asmOptionsWidget = new AsmOptionsWidget(this);
-    ui->tabWidget->addTab(asmOptionsWidget, tr("Disassembly"));
+#define ADD_TAB(c) { auto w = new c(this); ui->tabWidget->addTab(w, w->windowTitle()); }
+    ADD_TAB(GeneralOptionsWidget)
+    ADD_TAB(AsmOptionsWidget)
+#undef ADD_TAB
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -30,23 +31,11 @@ void PreferencesDialog::showSection(PreferencesDialog::Section section)
 {
     switch(section)
     {
-        case Section::Disassembly:
+        case Section::General:
             ui->tabWidget->setCurrentIndex(0);
             break;
-    }
-}
-
-void PreferencesDialog::on_buttonBox_clicked(QAbstractButton *button)
-{
-    switch (ui->buttonBox->buttonRole(button))
-    {
-        case QDialogButtonBox::ButtonRole::ApplyRole:
-            emit saveAsDefault();
-            break;
-        case QDialogButtonBox::ButtonRole::ResetRole:
-            emit resetToDefault();
-            break;
-        default:
+        case Section::Disassembly:
+            ui->tabWidget->setCurrentIndex(1);
             break;
     }
 }

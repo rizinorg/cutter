@@ -18,21 +18,19 @@ class PreferencesDialog : public QDialog
 Q_OBJECT
 
 public:
-    enum class Section { Disassembly };
+    enum class Section { General, Disassembly };
 
     explicit PreferencesDialog(QWidget *parent = nullptr);
     ~PreferencesDialog();
 
     void showSection(Section section);
 
-signals:
+/*signals:
     void saveAsDefault();
-    void resetToDefault();
+    void resetToDefault();*/
 
 private:
     std::unique_ptr<Ui::PreferencesDialog> ui;
-
-    void on_buttonBox_clicked(QAbstractButton *button);
 };
 
 #endif //PREFERENCESDIALOG_H
