@@ -656,6 +656,7 @@ void MainWindow::on_actionDisasAdd_comment_triggered()
 {
     CommentsDialog *c = new CommentsDialog(this);
     c->exec();
+    delete c;
 }
 
 void MainWindow::restoreDocks()
