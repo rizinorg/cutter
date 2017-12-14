@@ -5,6 +5,7 @@
 
 #include <QWidget>
 #include <QPainter>
+#include <QShortcut>
 
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
@@ -136,6 +137,7 @@ class DisassemblerGraphView : public GraphView
 
 public:
     DisassemblerGraphView(QWidget *parent);
+    ~DisassemblerGraphView();
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter & p, GraphView::GraphBlock &block) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
@@ -158,6 +160,9 @@ public slots:
 
     void takeTrue();
     void takeFalse();
+
+    void nextInstr();
+    void prevInstr();
 private slots:
     void seekPrev();
 
@@ -181,6 +186,9 @@ private:
     RVA getInstrForMouseEvent(GraphBlock &block, QPoint* point);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seek(RVA addr, bool update_viewport=true);
+    void seekInstruction(bool previous_instr);
+
+    QList<QShortcut*> shortcuts;
 
     QColor disassemblyBackgroundColor;
     QColor disassemblySelectedBackgroundColor;

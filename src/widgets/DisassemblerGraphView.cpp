@@ -31,9 +31,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
 
     // Space to switch to disassembly
-    QShortcut *disassemblyShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
-    disassemblyShortcut->setContext(Qt::WidgetShortcut);
-    connect(disassemblyShortcut, &QShortcut::activated, this, []{
+    QShortcut *shortcut_disassembly = new QShortcut(QKeySequence(Qt::Key_Space), this);
+    shortcut_disassembly->setContext(Qt::WidgetShortcut);
+    connect(shortcut_disassembly, &QShortcut::activated, this, []{
         Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
         Core()->triggerRaisePrioritizedMemoryWidget();
     });
@@ -61,8 +61,32 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcut_take_false->setContext(Qt::WidgetShortcut);
     connect(shortcut_take_false, SIGNAL(activated()), this, SLOT(takeFalse()));
 
+    // Navigation shortcuts
+    QShortcut *shortcut_next_instr = new QShortcut(QKeySequence(Qt::Key_J), this);
+    shortcut_next_instr->setContext(Qt::WidgetShortcut);
+    connect(shortcut_next_instr, SIGNAL(activated()), this, SLOT(nextInstr()));
+    QShortcut *shortcut_prev_instr = new QShortcut(QKeySequence(Qt::Key_K), this);
+    shortcut_prev_instr->setContext(Qt::WidgetShortcut);
+    connect(shortcut_prev_instr, SIGNAL(activated()), this, SLOT(prevInstr()));
+    shortcuts.append(shortcut_disassembly);
+    shortcuts.append(shortcut_escape);
+    shortcuts.append(shortcut_zoom_in);
+    shortcuts.append(shortcut_zoom_out);
+    shortcuts.append(shortcut_zoom_reset);
+    shortcuts.append(shortcut_next_instr);
+    shortcuts.append(shortcut_prev_instr);
+
+
     initFont();
     colorsUpdatedSlot();
+}
+
+DisassemblerGraphView::~DisassemblerGraphView()
+{
+    for(QShortcut *shortcut : shortcuts)
+    {
+        delete shortcut;
+    }
 }
 
 void DisassemblerGraphView::refreshView()
@@ -498,6 +522,45 @@ void DisassemblerGraphView::takeFalse()
     {
         Core()->seek(blocks[db->entry].exits[0]);
     }
+}
+
+void DisassemblerGraphView::seekInstruction(bool previous_instr)
+{
+    RVA addr = Core()->getOffset();
+    DisassemblyBlock *db = blockForAddress(addr);
+    if(!db)
+    {
+        return;
+    }
+
+    for(size_t i=0; i < db->instrs.size(); i++)
+    {
+        Instr &instr = db->instrs[i];
+        if(!((instr.addr <= addr) && (addr <= instr.addr + instr.size)))
+        {
+            continue;
+        }
+
+        // Found the instructon. Check if a next one exists
+        if(!previous_instr && (i < db->instrs.size()-1))
+        {
+            seek(db->instrs[i+1].addr, true);
+        }
+        else if(previous_instr && (i > 0))
+        {
+            seek(db->instrs[i-1].addr);
+        }
+    }
+}
+
+void DisassemblerGraphView::nextInstr()
+{
+    seekInstruction(false);
+}
+
+void DisassemblerGraphView::prevInstr()
+{
+    seekInstruction(true);
 }
 
 void DisassemblerGraphView::seek(RVA addr, bool update_viewport)
