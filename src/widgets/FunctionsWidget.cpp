@@ -430,7 +430,7 @@ void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
     menu->clear();
     menu->addAction(ui->actionDisasAdd_comment);
     menu->addAction(ui->actionFunctionsRename);
-    //menu->addAction(ui->actionFunctionsUndefine);
+    menu->addAction(ui->actionFunctionsUndefine);
     menu->addSeparator();
     menu->addAction(ui->action_References);
 
@@ -490,6 +490,13 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
         // Seek to new renamed function
         CutterCore::getInstance()->seek(function.offset);
     }
+}
+
+void FunctionsWidget::on_actionFunctionsUndefine_triggered()
+{
+    QTreeView *treeView = getCurrentTreeView();
+    FunctionDescription function = treeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    Core()->delFunction(function.offset);
 }
 
 void FunctionsWidget::on_action_References_triggered()

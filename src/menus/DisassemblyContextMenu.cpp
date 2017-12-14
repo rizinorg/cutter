@@ -41,7 +41,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     createAction(&actionDeleteComment, tr("Delete comment"), {}, SLOT(on_actionDeleteComment_triggered()));
     createAction(&actionDeleteFlag, tr("Delete flag"), {}, SLOT(on_actionDeleteFlag_triggered()));
-    createAction(&actionDeleteFunction, tr("Delete function"), {}, SLOT(on_actionDeleteFunction_triggered()));
+    createAction(&actionDeleteFunction, tr("Undefine function"), {}, SLOT(on_actionDeleteFunction_triggered()));
 
     setBaseMenu = new QMenu(tr("Set Immediate Base to..."), this);
     setBaseMenuAction = addMenu(setBaseMenu);
