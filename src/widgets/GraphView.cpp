@@ -283,6 +283,11 @@ void GraphView::computeGraph(ut64 entry)
     for(int i = 0; i < entryb.row_count; i++)
     {
         this->row_edge_y[i] = y;
+        // TODO: The 1 when row_edge_count is 0 is not needed on the original.. not sure why it's required for us
+        if(!row_edge_count[i])
+        {
+            row_edge_count[i] = 1;
+        }
         y += block_vertical_margin * row_edge_count[i];
         row_y[i] = y;
         y += row_height[i];
