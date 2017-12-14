@@ -440,6 +440,7 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
             }
         }
     }
+    sent_seek = false;
 }
 
 void DisassemblerGraphView::zoomIn()
