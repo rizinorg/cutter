@@ -160,7 +160,7 @@ void OptionsDialog::updateProgressTimer()
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
 
-    QString label = tr("Running since") + " ";
+    QString label = tr("Running for") + " ";
     if(hoursElapsed)
     {
         label += tr("%n hour", "%n hours", hoursElapsed);
