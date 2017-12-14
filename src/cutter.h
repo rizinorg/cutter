@@ -333,6 +333,8 @@ public:
     void resetDefaultAsmOptions();
     void saveDefaultAsmOptions();
 
+    void loadScript(const QString &scriptname);
+
     RCoreLocked core() const;
 
     /* fields */

@@ -1351,3 +1351,8 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 
     return r;
 }
+
+void CutterCore::loadScript(const QString &scriptname)
+{
+    r_core_cmd_file(core_, scriptname.toStdString().data());
+}

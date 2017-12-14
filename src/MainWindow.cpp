@@ -314,6 +314,22 @@ void MainWindow::openNewFile(const QString &fn, int anal_level, QList<QString> a
 {
     setFilename(fn);
 
+    /* Reset config */
+    core->resetDefaultAsmOptions();
+
+    /* Prompt to load filename.r2 script */
+    QString script = QString("%1.r2").arg(this->filename);
+    if (r_file_exists(script.toStdString().data())) {
+        QMessageBox mb;
+        mb.setWindowTitle(tr("Script loading"));
+        mb.setText(tr("Do you want to load the '%1' script?").arg(script));
+        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        if (mb.exec() == QMessageBox::Yes) {
+            core->loadScript(script);
+        }
+    }
+
+    /* Show analysis options dialog */
     OptionsDialog *o = new OptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->show();

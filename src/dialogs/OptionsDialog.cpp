@@ -139,8 +139,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     main->initUI();
 
-    core->resetDefaultAsmOptions();
-
     // Timer for showing elapsed analysis time.
     analTimer.setInterval(1000);
     analTimer.setSingleShot(false);
