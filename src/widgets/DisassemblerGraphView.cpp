@@ -17,7 +17,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
       mFontMetrics(nullptr),
       mMenu(new DisassemblyContextMenu(this))
 {
-    this->highlight_token = nullptr;
+    highlight_token = nullptr;
     // Signals that require a refresh all
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
@@ -69,7 +69,7 @@ void DisassemblerGraphView::refreshView()
 {
     initFont();
     loadCurrentGraph();
-    this->viewport()->update();
+    viewport()->update();
 }
 
 void DisassemblerGraphView::loadCurrentGraph()
@@ -78,7 +78,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     QJsonArray functions = functionsDoc.array();
 
     disassembly_blocks.clear();
-    this->blocks.clear();
+    blocks.clear();
 
     Analysis anal;
     anal.ready = true;
@@ -95,7 +95,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     {
         windowTitle += " (" + funcName + ")";
     }
-    this->parentWidget()->setWindowTitle(windowTitle);
+    parentWidget()->setWindowTitle(windowTitle);
 
     RVA entry = func["offset"].toVariant().toULongLong();
 
@@ -157,11 +157,11 @@ void DisassemblerGraphView::loadCurrentGraph()
     if(func["blocks"].toArray().size() > 0)
     {
         computeGraph(entry);
-        this->viewport()->update();
+        viewport()->update();
 
         if(first_draw)
         {
-            showBlock(this->blocks[entry]);
+            showBlock(blocks[entry]);
             first_draw = false;
         }
     }
@@ -193,20 +193,20 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
             height += 1;
         }
     }
-    int extra = 4 * this->charWidth + 4;
-    block.width = width + extra + this->charWidth;
-    block.height = (height * this->charHeight) + extra;
+    int extra = 4 * charWidth + 4;
+    block.width = width + extra + charWidth;
+    block.height = (height * charHeight) + extra;
 }
 
 
 void DisassemblerGraphView::initFont()
 {
     setFont(Config()->getFont());
-    QFontMetricsF metrics(this->font());
-    this->baseline = int(metrics.ascent());
-    this->charWidth = metrics.width('X');
-    this->charHeight = metrics.height();
-    this->charOffset = 0;
+    QFontMetricsF metrics(font());
+    baseline = int(metrics.ascent());
+    charWidth = metrics.width('X');
+    charHeight = metrics.height();
+    charOffset = 0;
     if(mFontMetrics)
         delete mFontMetrics;
     mFontMetrics = new CachedFontMetrics(this, font());
@@ -263,7 +263,7 @@ void DisassemblerGraphView::drawBlock(QPainter & p, GraphView::GraphBlock &block
     // Draw different background for selected instruction
     if(selected_instruction != RVA_INVALID)
     {
-        int y = block.y + (2 * this->charWidth) + (db.header_text.lines.size() * this->charHeight);
+        int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
         for(Instr & instr : db.instrs)
         {
             auto selected = instr.addr == selected_instruction;
@@ -271,13 +271,13 @@ void DisassemblerGraphView::drawBlock(QPainter & p, GraphView::GraphBlock &block
             auto traceCount = 0;
             if(selected && traceCount)
             {
-                p.fillRect(QRect(block.x + this->charWidth, y, block.width - (10 + 2 * this->charWidth),
-                                 int(instr.text.lines.size()) * this->charHeight), disassemblyTracedSelectionColor);
+                p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
+                                 int(instr.text.lines.size()) * charHeight), disassemblyTracedSelectionColor);
             }
             else if(selected)
             {
-                p.fillRect(QRect(block.x + this->charWidth, y, block.width - (10 + 2 * this->charWidth),
-                                 int(instr.text.lines.size()) * this->charHeight), disassemblySelectionColor);
+                p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
+                                 int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
             }
             else if(traceCount)
             {
@@ -291,40 +291,40 @@ void DisassemblerGraphView::drawBlock(QPainter & p, GraphView::GraphBlock &block
                 if(disassemblyTracedColor.blue() > 160)
                     colorDiff *= -1;
 
-                p.fillRect(QRect(block.x + this->charWidth, y, block.width - (10 + 2 * this->charWidth), int(instr.text.lines.size()) * this->charHeight),
+                p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth), int(instr.text.lines.size()) * charHeight),
                            QColor(disassemblyTracedColor.red(),
                                   disassemblyTracedColor.green(),
                                   std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
             }
-            y += int(instr.text.lines.size()) * this->charHeight;
+            y += int(instr.text.lines.size()) * charHeight;
         }
     }
 
 
     // Render node text
-    auto x = block.x + (2 * this->charWidth);
-    int y = block.y + (2 * this->charWidth);
+    auto x = block.x + (2 * charWidth);
+    int y = block.y + (2 * charWidth);
     for(auto & line : db.header_text.lines)
     {
-        RichTextPainter::paintRichText(&p, x, y, block.width, this->charHeight, 0, line, mFontMetrics);
-        y += this->charHeight;
+        RichTextPainter::paintRichText(&p, x, y, block.width, charHeight, 0, line, mFontMetrics);
+        y += charHeight;
     }
     for(Instr & instr : db.instrs)
     {
         for(auto & line : instr.text.lines)
         {
-            int rectSize = qRound(this->charWidth);
+            int rectSize = qRound(charWidth);
             if(rectSize % 2)
             {
                 rectSize++;
             }
             // Assume charWidth <= charHeight
-            QRectF bpRect(x - rectSize / 3.0, y + (this->charHeight - rectSize) / 2.0, rectSize, rectSize);
+            QRectF bpRect(x - rectSize / 3.0, y + (charHeight - rectSize) / 2.0, rectSize, rectSize);
 
             // TODO: Breakpoint/Cip stuff
 
-            RichTextPainter::paintRichText(&p, x + this->charWidth, y, block.width - this->charWidth, this->charHeight, 0, line, mFontMetrics);
-            y += this->charHeight;
+            RichTextPainter::paintRichText(&p, x + charWidth, y, block.width - charWidth, charHeight, 0, line, mFontMetrics);
+            y += charHeight;
 
         }
     }
@@ -356,10 +356,10 @@ RVA DisassemblerGraphView::getInstrForMouseEvent(GraphBlock &block, QPoint* poin
     DisassemblyBlock &db = disassembly_blocks[block.entry];
 
     // Remove header and margin
-    int off_y = (2 * this->charWidth) + (db.header_text.lines.size() * this->charHeight);
+    int off_y = (2 * charWidth) + (db.header_text.lines.size() * charHeight);
     // Get mouse coordinate over the actual text
     int text_point_y = point->y() - off_y;
-    int mouse_row = text_point_y / this->charHeight;
+    int mouse_row = text_point_y / charHeight;
 
     int cur_row = db.header_text.lines.size();
     if (mouse_row < cur_row)
@@ -401,7 +401,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
 
 void DisassemblerGraphView::fontsUpdatedSlot()
 {
-    this->initFont();
+    initFont();
     refreshView();
 }
 
@@ -452,26 +452,26 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
 void DisassemblerGraphView::zoomIn()
 {
     current_scale += 0.1;
-    auto areaSize = this->viewport()->size();
-    this->adjustSize(areaSize.width(), areaSize.height());
-    this->viewport()->update();
+    auto areaSize = viewport()->size();
+    adjustSize(areaSize.width(), areaSize.height());
+    viewport()->update();
 }
 
 void DisassemblerGraphView::zoomOut()
 {
     current_scale -= 0.1;
     current_scale = std::max(current_scale, 0.3);
-    auto areaSize = this->viewport()->size();
-    this->adjustSize(areaSize.width(), areaSize.height());
-    this->viewport()->update();
+    auto areaSize = viewport()->size();
+    adjustSize(areaSize.width(), areaSize.height());
+    viewport()->update();
 }
 
 void DisassemblerGraphView::zoomReset()
 {
     current_scale = 1.0;
-    auto areaSize = this->viewport()->size();
-    this->adjustSize(areaSize.width(), areaSize.height());
-    this->viewport()->update();
+    auto areaSize = viewport()->size();
+    adjustSize(areaSize.width(), areaSize.height());
+    viewport()->update();
 }
 
 void DisassemblerGraphView::takeTrue()
@@ -506,7 +506,7 @@ void DisassemblerGraphView::seek(RVA addr, bool update_viewport)
     Core()->seek(addr);
     if(update_viewport)
     {
-        this->viewport()->update();
+        viewport()->update();
     }
 }
 
@@ -517,7 +517,7 @@ void DisassemblerGraphView::seekPrev()
 
 void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
 {
-    RVA instr = this->getInstrForMouseEvent(block, &pos);
+    RVA instr = getInstrForMouseEvent(block, &pos);
     if(instr == RVA_INVALID)
     {
         return;
@@ -534,7 +534,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 
 void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
 {
-    RVA instr = this->getInstrForMouseEvent(block, &pos);
+    RVA instr = getInstrForMouseEvent(block, &pos);
     if(instr == RVA_INVALID)
     {
         return;
