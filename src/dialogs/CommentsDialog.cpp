@@ -34,7 +34,7 @@ void CommentsDialog::setComment(const QString &comment)
     ui->textEdit->document()->setPlainText(comment);
 }
 
-bool CommentsDialog::eventFilter(QObject *obj, QEvent *event)
+bool CommentsDialog::eventFilter(QObject */*obj*/, QEvent *event)
 {
     if(event -> type() == QEvent::KeyPress)
     {

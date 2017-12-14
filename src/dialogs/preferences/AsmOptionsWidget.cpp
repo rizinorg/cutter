@@ -9,7 +9,7 @@
 #include "utils/Helpers.h"
 #include "utils/Configuration.h"
 
-AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
+AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
   : QDialog(parent),
     ui(new Ui::AsmOptionsWidget)
 {

@@ -9,7 +9,7 @@
 #include "utils/Helpers.h"
 #include "utils/Configuration.h"
 
-GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
+GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
   : QDialog(parent),
     ui(new Ui::GeneralOptionsWidget)
 {

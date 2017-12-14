@@ -275,8 +275,6 @@ void VisualNavbar::fillData()
     int w = this->graphicsView->width();
     int h = this->graphicsView->height();
 
-    RVA current_address = Core()->getOffset();
-
     double width_per_byte = (double)w/(double)totalMappedSize;
     xToAddress.clear();
     double current_x = 0;

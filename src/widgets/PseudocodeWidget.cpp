@@ -22,7 +22,7 @@ PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags) :
     connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(refreshPseudocode()));
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshPseudocode()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshPseudocode()));
-    connect(Core(), &CutterCore::instructionChanged, this, [this](RVA offset) {
+    connect(Core(), &CutterCore::instructionChanged, this, [this](/*RVA offset*/) {
             refreshPseudocode();
     });
 
