@@ -509,7 +509,6 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
     if(instr == RVA_INVALID)
     {
         return;
-//
     }
 
     seek(instr, true);
@@ -518,6 +517,22 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
     {
         mMenu->setOffset(instr);
         mMenu->exec(event->globalPos());
+    }
+}
+
+void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
+{
+    RVA instr = this->getInstrForMouseEvent(block, &pos);
+    if(instr == RVA_INVALID)
+    {
+        return;
+    }
+    QList<XrefDescription> refs = Core()->getXRefs(instr, false, false);
+    if (refs.length()) {
+        Core()->seek(refs.at(0).to);
+    }
+    if (refs.length() > 1) {
+        qWarning() << "Too many references here. Weird behaviour expected.";
     }
 }
 

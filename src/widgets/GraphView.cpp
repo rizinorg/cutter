@@ -53,6 +53,14 @@ void GraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, Q
     qWarning() << "Block clicked not overridden!";
 }
 
+void GraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
+{
+    Q_UNUSED(block);
+    Q_UNUSED(event);
+    Q_UNUSED(pos);
+    qWarning() << "Block double clicked not overridden!";
+}
+
 void GraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
     Q_UNUSED(to);
@@ -434,7 +442,6 @@ void GraphView::paintEvent(QPaintEvent* event)
                 p.drawConvexPolygon(edge.arrow_end);
             }
         }
-
     }
 }
 
@@ -874,6 +881,26 @@ void GraphView::mouseMoveEvent(QMouseEvent* event)
         this->scroll_base_y = event->y();
         this->horizontalScrollBar()->setValue(this->horizontalScrollBar()->value() + x_delta);
         this->verticalScrollBar()->setValue(this->verticalScrollBar()->value() + y_delta);
+    }
+}
+
+void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
+{
+    int x = (event->pos().x() / current_scale) + horizontalScrollBar()->value();
+    int y = (event->pos().y() / current_scale) + verticalScrollBar()->value();
+
+    // Check if a block was clicked
+    for(auto & blockIt : blocks)
+    {
+        GraphBlock &block = blockIt.second;
+
+        if((block.x <= x) && (block.y <= y) &&
+                (x <= block.x + block.width) & (y <= block.y + block.height))
+        {
+            QPoint pos = QPoint(x - block.x, y - block.y);
+            blockDoubleClicked(block, event, pos);
+            return;
+        }
     }
 }
 

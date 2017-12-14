@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QAbstractScrollArea>
 #include <QScrollBar>
+#include <QElapsedTimer>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -112,6 +113,7 @@ protected:
     // Callbacks that should be overridden
     virtual void drawBlock(QPainter & p, GraphView::GraphBlock &block);
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
+    virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
@@ -158,6 +160,7 @@ private slots:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 };
 
