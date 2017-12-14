@@ -180,7 +180,7 @@ border-top: 0px;
      <rect>
       <x>367</x>
       <y>185</y>
-      <width>156</width>
+      <width>173</width>
       <height>206</height>
      </rect>
     </property>
@@ -219,7 +219,7 @@ border-top: 0px;
     <addaction name="actionLock"/>
     <addaction name="actionTabs_on_Top"/>
     <addaction name="separator"/>
-    <addaction name="actionAsmOptions"/>
+    <addaction name="actionPreferences"/>
     <addaction name="menuTheme"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -947,9 +947,9 @@ QToolButton:pressed {
     <string>Display offsets</string>
    </property>
   </action>
-  <action name="actionAsmOptions">
+  <action name="actionPreferences">
    <property name="text">
-    <string>Disassembly Options</string>
+    <string>Preferences</string>
    </property>
   </action>
   <action name="actionSaveAs">

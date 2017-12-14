@@ -155,7 +155,7 @@ private slots:
 
     void on_actionRefresh_contents_triggered();
 
-    void on_actionAsmOptions_triggered();
+    void on_actionPreferences_triggered();
 
     void projectSaved(const QString &name);
 

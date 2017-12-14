@@ -1,5 +1,5 @@
 #include "DisassemblyContextMenu.h"
-#include "dialogs/AsmOptionsDialog.h"
+#include "dialogs/preferences/PreferencesDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
 #include "dialogs/RenameDialog.h"
@@ -351,7 +351,8 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
-    AsmOptionsDialog *dialog = new AsmOptionsDialog(this->parentWidget());
+    auto *dialog = new PreferencesDialog(this->window());
+    dialog->showSection(PreferencesDialog::Section::Disassembly);
     dialog->show();
 }
 

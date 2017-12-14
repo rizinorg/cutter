@@ -3,7 +3,7 @@
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "dialogs/RenameDialog.h"
-#include "dialogs/AsmOptionsDialog.h"
+#include "dialogs/preferences/PreferencesDialog.h"
 #include "utils/Helpers.h"
 
 #include <QComboBox>
@@ -890,9 +890,9 @@ void MainWindow::on_actionRefresh_contents_triggered()
     refreshAll();
 }
 
-void MainWindow::on_actionAsmOptions_triggered()
+void MainWindow::on_actionPreferences_triggered()
 {
-    auto dialog = new AsmOptionsDialog(this);
+    auto dialog = new PreferencesDialog(this);
     dialog->show();
 }
 

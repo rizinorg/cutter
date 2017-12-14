@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AsmOptionsDialog</class>
- <widget class="QDialog" name="AsmOptionsDialog">
+ <class>AsmOptionsWidget</class>
+ <widget class="QWidget" name="AsmOptionsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>476</width>
-    <height>631</height>
+    <width>461</width>
+    <height>463</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -158,13 +158,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::RestoreDefaults</set>
-     </property>
-    </widget>
    </item>
   </layout>
   <action name="actionSaveAsDefault">
