@@ -25,6 +25,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
 
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
@@ -597,6 +598,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 
 void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
 {
+    Q_UNUSED(event);
     RVA instr = getInstrForMouseEvent(block, &pos);
     if(instr == RVA_INVALID)
     {
