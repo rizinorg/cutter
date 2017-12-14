@@ -169,7 +169,7 @@ private:
     // Font data
     CachedFontMetrics* mFontMetrics;
     qreal charWidth;
-    qreal charHeight;
+    int charHeight;
     int charOffset;
     int baseline;
 

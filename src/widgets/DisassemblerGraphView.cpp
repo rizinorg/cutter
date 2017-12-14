@@ -348,7 +348,13 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
 RVA DisassemblerGraphView::getInstrForMouseEvent(GraphBlock &block, QPoint* point)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
-    int mouse_row = ((point->y()-(2*this->charWidth)) / this->charHeight);
+
+    // Remove header and margin
+    int off_y = (2 * this->charWidth) + (db.header_text.lines.size() * this->charHeight);
+    // Get mouse coordinate over the actual text
+    int text_point_y = point->y() - off_y;
+    int mouse_row = text_point_y / this->charHeight;
+
     int cur_row = db.header_text.lines.size();
     if (mouse_row < cur_row)
     {
@@ -434,7 +440,6 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
             }
         }
     }
-    sent_seek = false;
 }
 
 void DisassemblerGraphView::zoomIn()
@@ -529,6 +534,7 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     }
     QList<XrefDescription> refs = Core()->getXRefs(instr, false, false);
     if (refs.length()) {
+        sent_seek = false;
         Core()->seek(refs.at(0).to);
     }
     if (refs.length() > 1) {
