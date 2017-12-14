@@ -158,6 +158,12 @@ void DisassemblerGraphView::loadCurrentGraph()
     {
         computeGraph(entry);
         this->viewport()->update();
+
+        if(first_draw)
+        {
+            showBlock(this->blocks[entry]);
+            first_draw = false;
+        }
     }
 }
 

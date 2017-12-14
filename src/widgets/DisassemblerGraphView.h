@@ -162,6 +162,7 @@ private slots:
     void seekPrev();
 
 private:
+    bool first_draw = true;
     bool transition_dont_seek = false;
     bool sent_seek = false;
 

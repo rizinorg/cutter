@@ -392,11 +392,30 @@ void GraphView::paintEvent(QPaintEvent* event)
     int render_width = this->viewport()->size().width() / current_scale;
     int render_height = this->viewport()->size().height() / current_scale;
 
+    // Do we have scrollbars?
+    bool hscrollbar = horizontalScrollBar()->pageStep() < this->width;
+    bool vscrollbar = verticalScrollBar()->pageStep() < this->height;
+
     // Draw background
     QRect viewportRect(this->viewport()->rect().topLeft(), this->viewport()->rect().bottomRight() - QPoint(1, 1));
     p.setBrush(backgroundColor);
     p.drawRect(viewportRect);
     p.setBrush(Qt::black);
+
+    unscrolled_render_offset_x = 0;
+    unscrolled_render_offset_y = 0;
+
+    // We do not have a scrollbar on this axis, so we center the view
+    if(!hscrollbar)
+    {
+        unscrolled_render_offset_x = (this->viewport()->size().width() - (this->width * current_scale)) / 2;
+        render_offset_x += unscrolled_render_offset_x;
+    }
+    if(!vscrollbar)
+    {
+        unscrolled_render_offset_y = (this->viewport()->size().height() - (this->height * current_scale)) / 2;
+        render_offset_y += unscrolled_render_offset_y;
+    }
 
     p.translate(render_offset_x, render_offset_y);
     p.scale(current_scale, current_scale);
@@ -810,8 +829,8 @@ void GraphView::resizeEvent(QResizeEvent* event)
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
-    int x = (event->pos().x() / current_scale) + horizontalScrollBar()->value();
-    int y = (event->pos().y() / current_scale) + verticalScrollBar()->value();
+    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) + horizontalScrollBar()->value();
+    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) + verticalScrollBar()->value();
 
     // Check if a block was clicked
     for(auto & blockIt : blocks)
@@ -886,8 +905,8 @@ void GraphView::mouseMoveEvent(QMouseEvent* event)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = (event->pos().x() / current_scale) + horizontalScrollBar()->value();
-    int y = (event->pos().y() / current_scale) + verticalScrollBar()->value();
+    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) + horizontalScrollBar()->value();
+    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) + verticalScrollBar()->value();
 
     // Check if a block was clicked
     for(auto & blockIt : blocks)

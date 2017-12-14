@@ -109,6 +109,9 @@ protected:
     // Zoom data
     double current_scale = 1.0;
 
+    int unscrolled_render_offset_x = 0;
+    int unscrolled_render_offset_y = 0;
+
     void addBlock(GraphView::GraphBlock block);
     void setEntry(ut64 e);
     void computeGraph(ut64 entry);
