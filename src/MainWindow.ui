@@ -178,8 +178,8 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>367</x>
-      <y>185</y>
+      <x>273</x>
+      <y>133</y>
       <width>173</width>
       <height>206</height>
      </rect>
@@ -204,13 +204,6 @@ border-top: 0px;
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
     </property>
-    <widget class="QMenu" name="menuTheme">
-     <property name="title">
-      <string>Theme</string>
-     </property>
-     <addaction name="actionWhite_Theme"/>
-     <addaction name="actionDark_Theme"/>
-    </widget>
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefaut"/>
@@ -220,7 +213,6 @@ border-top: 0px;
     <addaction name="actionTabs_on_Top"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
-    <addaction name="menuTheme"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
