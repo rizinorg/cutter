@@ -279,15 +279,15 @@ void GraphView::computeGraph(ut64 entry)
     initVec(row_y, entryb.row_count, 0);
     initVec(col_edge_x, entryb.col_count + 1, 0);
     initVec(row_edge_y, entryb.row_count + 1, 0);
-    int x = block_padding;
+    int x = block_horizontal_margin * 2;
     for(int i = 0; i < entryb.col_count; i++)
     {
         col_edge_x[i] = x;
-        x += block_margin * col_edge_count[i];
+        x += block_horizontal_margin * col_edge_count[i];
         col_x[i] = x;
         x += col_width[i];
     }
-    int y = block_padding;
+    int y = block_vertical_margin * 2;
     for(int i = 0; i < entryb.row_count; i++)
     {
         row_edge_y[i] = y;
@@ -296,26 +296,26 @@ void GraphView::computeGraph(ut64 entry)
         {
             row_edge_count[i] = 1;
         }
-        y += block_margin * row_edge_count[i];
+        y += block_vertical_margin * row_edge_count[i];
         row_y[i] = y;
         y += row_height[i];
     }
     col_edge_x[entryb.col_count] = x;
     row_edge_y[entryb.row_count] = y;
-    width = x + block_padding + (block_margin * col_edge_count[entryb.col_count]);
-    height = y + block_padding + (block_margin * row_edge_count[entryb.row_count]);
+    width = x + (block_horizontal_margin * 2) + (block_horizontal_margin * col_edge_count[entryb.col_count]);
+    height = y + (block_vertical_margin * 2) + (block_vertical_margin * row_edge_count[entryb.row_count]);
 
     //Compute node positions
     for(auto & blockIt : blocks)
     {
         GraphBlock &block = blockIt.second;
         block.x = int(
-                      (col_x[block.col] + col_width[block.col] + 4 * col_edge_count[block.col + 1]) - (block.width / 2));
+                      (col_x[block.col] + col_width[block.col] + ((block_horizontal_margin / 2) * col_edge_count[block.col + 1])) - (block.width / 2));
         if((block.x + block.width) > (
-                    col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + block_margin * col_edge_count[
+                    col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + block_horizontal_margin * col_edge_count[
                         block.col + 1]))
         {
-            block.x = int((col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + block_margin * col_edge_count[
+            block.x = int((col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + block_horizontal_margin * col_edge_count[
                                block.col + 1]) - block.width);
         }
         block.y = row_y[block.row];
@@ -331,7 +331,8 @@ void GraphView::computeGraph(ut64 entry)
             auto start = edge.points[0];
             auto start_col = start.col;
             auto last_index = edge.start_index;
-            auto first_pt = QPoint(col_edge_x[start_col] + (block_margin * last_index) + 4,
+            // This is the start point of the edge.
+            auto first_pt = QPoint(col_edge_x[start_col] + (block_horizontal_margin * last_index) + (block_horizontal_margin / 2),
                                    block.y + block.height);
             auto last_pt = first_pt;
             QPolygonF pts;
@@ -346,9 +347,9 @@ void GraphView::computeGraph(ut64 entry)
                 QPoint new_pt;
                 // block_vertical_margin/2 gives the margin from block to the horizontal lines
                 if(start_col == end_col)
-                    new_pt = QPoint(last_pt.x(), row_edge_y[end_row] + (block_margin * last_index) + (block_margin/2));
+                    new_pt = QPoint(last_pt.x(), row_edge_y[end_row] + (block_vertical_margin * last_index) + (block_vertical_margin/2));
                 else
-                    new_pt = QPoint(col_edge_x[end_col] + (block_margin * last_index) + 4, last_pt.y());
+                    new_pt = QPoint(col_edge_x[end_col] + (block_horizontal_margin * last_index) + (block_horizontal_margin/2), last_pt.y());
                 pts.push_back(new_pt);
                 last_pt = new_pt;
                 start_col = end_col;
@@ -368,11 +369,14 @@ void GraphView::computeGraph(ut64 entry)
                 pts.append(first_pt);
                 edge.arrow_start = pts;
             }
-            pts.clear();
-            pts.append(QPoint(new_pt.x() - 3, new_pt.y() - 6));
-            pts.append(QPoint(new_pt.x() + 3, new_pt.y() - 6));
-            pts.append(new_pt);
-            edge.arrow_end = pts;
+            if(ec.end_arrow)
+            {
+                pts.clear();
+                pts.append(QPoint(new_pt.x() - 3, new_pt.y() - 6));
+                pts.append(QPoint(new_pt.x() + 3, new_pt.y() - 6));
+                pts.append(new_pt);
+                edge.arrow_end = pts;
+            }
         }
     }
 
@@ -813,7 +817,7 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
     if((point.x() - half_target_size < x) &&
             (point.y() - (above_y ? (2 * half_target_size) : 0) < y) &&
             (x < point.x() + half_target_size) &&
-            (y < point.y() + (above_y ? 0 : (2 * half_target_size))))
+            (y < point.y() + (above_y ? 0 : (3 * half_target_size))))
     {
         return true;
     }

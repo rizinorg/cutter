@@ -20,8 +20,8 @@ class GraphView : public QAbstractScrollArea
 
     enum class LayoutType
     {
-        Wide,
         Medium,
+        Wide,
         Narrow,
     };
 public:
@@ -101,7 +101,8 @@ protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);
     // The vertical margin between blocks
-    int block_margin = 32;
+    int block_vertical_margin = 32;
+    int block_horizontal_margin = 10;
 
     // Padding inside the block
     int block_padding = 16;
