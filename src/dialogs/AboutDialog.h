@@ -19,6 +19,7 @@ public:
 
 private slots:
     void on_buttonBox_rejected();
+    void on_showVersionButton_clicked();
 
 private:
     std::unique_ptr<Ui::AboutDialog> ui;

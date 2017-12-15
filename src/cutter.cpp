@@ -1356,3 +1356,44 @@ void CutterCore::loadScript(const QString &scriptname)
 {
     r_core_cmd_file(core_, scriptname.toStdString().data());
 }
+
+QString CutterCore::getVersionInformation()
+{
+    int i;
+    QString ret;
+    struct vcs_t {
+        const char *name;
+        const char *(*callback)();
+    } vcs[] = {
+        { "r_anal", &r_anal_version },
+        { "r_lib", &r_lib_version },
+        { "r_egg", &r_egg_version },
+        { "r_asm", &r_asm_version },
+        { "r_bin", &r_bin_version },
+        { "r_cons", &r_cons_version },
+        { "r_flag", &r_flag_version },
+        { "r_core", &r_core_version },
+        { "r_crypto", &r_crypto_version },
+        { "r_bp", &r_bp_version },
+        { "r_debug", &r_debug_version },
+        { "r_hash", &r_hash_version },
+        { "r_fs", &r_fs_version },
+        { "r_io", &r_io_version },
+        { "r_magic", &r_magic_version },
+        { "r_parse", &r_parse_version },
+        { "r_reg", &r_reg_version },
+        { "r_sign", &r_sign_version },
+        { "r_search", &r_search_version },
+        { "r_syscall", &r_syscall_version },
+        { "r_util", &r_util_version },
+        /* ... */
+        {NULL,NULL}
+    };
+    ret.append(QString("%1 r2\n").arg(R2_GITTAP));
+    for (i = 0; vcs[i].name; i++) {
+            struct vcs_t *v = &vcs[i];
+            const char *name = v->callback ();
+            ret.append(QString("%1 %2\n").arg(name, v->name));
+    }
+    return ret;
+}

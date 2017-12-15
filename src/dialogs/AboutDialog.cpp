@@ -29,3 +29,12 @@ void AboutDialog::on_buttonBox_rejected()
 {
     close();
 }
+
+void AboutDialog::on_showVersionButton_clicked()
+{
+    QMessageBox popup(this);
+    popup.setWindowTitle("radare2 version information");
+    auto versionInformation = Core()->getVersionInformation();
+    popup.setText(versionInformation);
+    popup.exec();
+}

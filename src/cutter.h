@@ -334,6 +334,7 @@ public:
     void saveDefaultAsmOptions();
 
     void loadScript(const QString &scriptname);
+    QString getVersionInformation();
 
     RCoreLocked core() const;
 
