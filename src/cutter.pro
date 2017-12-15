@@ -165,7 +165,6 @@ FORMS    += \
     widgets/SidebarWidget.ui \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
-    widgets/PseudocodeWidget.ui \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/GeneralOptionsWidget.ui
 
