@@ -39,7 +39,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
     rule.format.clearBackground();
     rule.format.clearForeground();
     rule.format.setFontItalic(true);
-    rule.format.setForeground(Qt::blue);
+    rule.format.setForeground(Qt::darkCyan);
     highlightingRules.append(rule);
 
     //single-line comment
