@@ -78,6 +78,7 @@ SOURCES += \
     dialogs/SaveProjectDialog.cpp \
     utils/TempConfig.cpp \
     utils/SvgIconEngine.cpp \
+    utils/SyntaxHighlighter.cpp \
     widgets/PseudocodeWidget.cpp \
     widgets/VisualNavbar.cpp \
     widgets/GraphView.cpp \
@@ -131,6 +132,7 @@ HEADERS  += \
     dialogs/SaveProjectDialog.h \
     utils/TempConfig.h \
     utils/SvgIconEngine.h \
+    utils/SyntaxHighlighter.h \
     widgets/PseudocodeWidget.h \
     widgets/VisualNavbar.h \
     widgets/GraphView.h \
@@ -165,7 +167,6 @@ FORMS    += \
     widgets/SidebarWidget.ui \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
-    widgets/PseudocodeWidget.ui \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/GeneralOptionsWidget.ui
 
