@@ -4,13 +4,11 @@
 #include <QDockWidget>
 #include <memory>
 
-#include "ui_PseudocodeWidget.h"
 #include "cutter.h"
 
-namespace Ui
-{
-    class PseudocodeWidget;
-}
+
+class QTextEdit;
+class SyntaxHighlighter;
 
 class PseudocodeWidget : public QDockWidget
 {
@@ -21,20 +19,20 @@ public:
     explicit PseudocodeWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
     ~PseudocodeWidget();
 
-private:
-    std::unique_ptr<Ui::PseudocodeWidget> ui;
-    void refresh(RVA addr);
-    void setupFonts();
-
-signals:
-
-public slots:
 private slots:
     void on_seekChanged(RVA addr);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
     void fontsUpdated();
     void colorsUpdatedSlot();
     void refreshPseudocode();
+
+private:
+    void refresh(RVA addr);
+    void setupFonts();
+
+private:
+    QTextEdit* textEditWidget;
+    SyntaxHighlighter* syntaxHighLighter;
 };
 
 #endif // PSEUDOCODEWIDGET_H

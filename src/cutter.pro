@@ -80,7 +80,8 @@ SOURCES += \
     utils/TempConfig.cpp \
     utils/SvgIconEngine.cpp \
     widgets/PseudocodeWidget.cpp \
-    widgets/VisualNavbar.cpp
+    widgets/VisualNavbar.cpp \
+    widgets/SyntaxHighlighter.cpp
 
 HEADERS  += \
     cutter.h \
@@ -131,7 +132,8 @@ HEADERS  += \
     utils/TempConfig.h \
     utils/SvgIconEngine.h \
     widgets/PseudocodeWidget.h \
-    widgets/VisualNavbar.h
+    widgets/VisualNavbar.h \
+    widgets/SyntaxHighlighter.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -161,8 +163,7 @@ FORMS    += \
     widgets/SymbolsWidget.ui \
     widgets/SidebarWidget.ui \
     widgets/HexdumpWidget.ui \
-    dialogs/SaveProjectDialog.ui \
-    widgets/PseudocodeWidget.ui
+    dialogs/SaveProjectDialog.ui
 
 RESOURCES += \
     resources.qrc
