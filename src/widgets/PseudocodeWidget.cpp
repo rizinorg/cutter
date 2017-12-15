@@ -17,6 +17,7 @@ PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags)
     setupFonts();
     colorsUpdatedSlot();
     textEditWidget->setReadOnly(true);
+    textEditWidget->setLineWrapMode(QTextEdit::NoWrap);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
@@ -99,7 +100,8 @@ void PseudocodeWidget::fontsUpdated()
 
 void PseudocodeWidget::colorsUpdatedSlot()
 {
-    QString styleSheet = QString("QTextBrowser { background-color: %1; color: %2; }")
+    const QString textEditClassName(textEditWidget->metaObject()->className());
+    QString styleSheet = QString(textEditClassName + " { background-color: %1; color: %2; }")
             .arg(ConfigColor("gui.background").name())
             .arg(ConfigColor("btext").name());
     textEditWidget->setStyleSheet(styleSheet);
