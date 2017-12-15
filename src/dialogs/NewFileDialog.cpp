@@ -8,6 +8,8 @@
 #include <QtGui>
 #include <QMessageBox>
 #include <QDir>
+#include <QPushButton>
+#include <QLineEdit>
 
 const int NewFileDialog::MaxRecentFiles;
 
@@ -85,6 +87,9 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     }
 
     ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
+
+    /* Set focus on the TextInput */
+    ui->newFileEdit->setFocus();
 }
 
 NewFileDialog::~NewFileDialog() {}
