@@ -18,7 +18,7 @@ Configuration* Configuration::instance()
 
 void Configuration::loadInitial()
 {
-    setDarkTheme(s.value("dark").toBool());
+    setDarkTheme(getDarkTheme());
 }
 
 void Configuration::resetAll()

@@ -29,7 +29,7 @@ SvgIconEngine::SvgIconEngine(const QByteArray &svgData, QColor tintColor)
     this->svgData = qhelpers::applyColorToSvg(svgData, tintColor);
 }
 
-void SvgIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state)
+void SvgIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode /*mode*/, QIcon::State /*state*/)
 {
     QSvgRenderer renderer(svgData);
     renderer.render(painter, rect);

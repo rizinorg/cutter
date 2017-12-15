@@ -1,5 +1,5 @@
 #include "DisassemblyContextMenu.h"
-#include "dialogs/AsmOptionsDialog.h"
+#include "dialogs/preferences/PreferencesDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
 #include "dialogs/RenameDialog.h"
@@ -18,10 +18,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionRename(this),
         actionRenameUsedHere(this),
         actionXRefs(this),
+        actionDisplayOptions(this),
         actionDeleteComment(this),
         actionDeleteFlag(this),
         actionDeleteFunction(this),
-        actionDisplayOptions(this),
         actionSetBaseBinary(this),
         actionSetBaseOctal(this),
         actionSetBaseDecimal(this),
@@ -41,7 +41,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     createAction(&actionDeleteComment, tr("Delete comment"), {}, SLOT(on_actionDeleteComment_triggered()));
     createAction(&actionDeleteFlag, tr("Delete flag"), {}, SLOT(on_actionDeleteFlag_triggered()));
-    createAction(&actionDeleteFunction, tr("Delete function"), {}, SLOT(on_actionDeleteFunction_triggered()));
+    createAction(&actionDeleteFunction, tr("Undefine function"), {}, SLOT(on_actionDeleteFunction_triggered()));
 
     setBaseMenu = new QMenu(tr("Set Immediate Base to..."), this);
     setBaseMenuAction = addMenu(setBaseMenu);
@@ -351,7 +351,8 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
-    AsmOptionsDialog *dialog = new AsmOptionsDialog(this->parentWidget());
+    auto *dialog = new PreferencesDialog(this->window());
+    dialog->showSection(PreferencesDialog::Section::Disassembly);
     dialog->show();
 }
 

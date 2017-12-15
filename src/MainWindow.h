@@ -5,7 +5,6 @@
 
 #include "cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
-#include "widgets/DisassemblerGraphView.h"
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
@@ -126,8 +125,6 @@ private slots:
 
     void on_actionRefresh_Panels_triggered();
 
-    void on_actionCreate_File_triggered();
-
     void on_actionDisasAdd_comment_triggered();
 
     void on_actionDefaut_triggered();
@@ -158,7 +155,7 @@ private slots:
 
     void on_actionRefresh_contents_triggered();
 
-    void on_actionAsmOptions_triggered();
+    void on_actionPreferences_triggered();
 
     void projectSaved(const QString &name);
 

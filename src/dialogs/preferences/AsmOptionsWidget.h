@@ -1,6 +1,6 @@
 
-#ifndef ASMOPTIONSDIALOG_H
-#define ASMOPTIONSDIALOG_H
+#ifndef ASMOPTIONSWIDGET_H
+#define ASMOPTIONSWIDGET_H
 
 #include <QDialog>
 #include <QPushButton>
@@ -8,30 +8,30 @@
 
 #include "cutter.h"
 
+class PreferencesDialog;
+
 namespace Ui
 {
-    class AsmOptionsDialog;
+    class AsmOptionsWidget;
 }
 
-class AsmOptionsDialog : public QDialog
+class AsmOptionsWidget : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit AsmOptionsDialog(QWidget *parent = nullptr);
-    ~AsmOptionsDialog();
+    explicit AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
+    ~AsmOptionsWidget();
 
 private:
-    CutterCore *core;
-    std::unique_ptr<Ui::AsmOptionsDialog> ui;
-
-    void saveAsDefault();
-    void resetToDefault();
+    std::unique_ptr<Ui::AsmOptionsWidget> ui;
 
     void triggerAsmOptionsChanged();
 
 private slots:
-    void updateFontFromConfig();
+    void saveAsDefault();
+    void resetToDefault();
+
     void updateAsmOptionsFromVars();
 
     void on_esilCheckBox_toggled(bool checked);
@@ -47,8 +47,8 @@ private slots:
     void on_bblineCheckBox_toggled(bool checked);
     void on_varsubCheckBox_toggled(bool checked);
     void on_varsubOnlyCheckBox_toggled(bool checked);
+
     void on_buttonBox_clicked(QAbstractButton *button);
-    void on_fontSelectionButton_clicked();
 };
 
 

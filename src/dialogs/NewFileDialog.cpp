@@ -1,5 +1,5 @@
 #include "OptionsDialog.h"
-#include "dialogs/CreateNewDialog.h"
+#include "MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "ui_NewfileDialog.h"
@@ -83,9 +83,6 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     {
         ui->tabWidget->setCurrentWidget(ui->filesTab);
     }
-
-    // Hide "create" button until the dialog works
-    ui->createButton->hide();
 
     ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
 }
@@ -196,14 +193,6 @@ void NewFileDialog::on_actionRemove_item_triggered()
     ui->recentsListWidget->takeItem(ui->recentsListWidget->currentRow());
 
     ui->newFileEdit->clear();
-}
-
-void NewFileDialog::on_createButton_clicked()
-{
-    // Close dialog and open create new file dialog
-    close();
-    CreateNewDialog *n = new CreateNewDialog(nullptr);
-    n->exec();
 }
 
 void NewFileDialog::on_actionClear_all_triggered()

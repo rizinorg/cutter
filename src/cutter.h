@@ -168,6 +168,12 @@ struct RBinPluginDescription
     QString type;
 };
 
+struct DisassemblyLine
+{
+    RVA offset;
+    QString text;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -202,6 +208,9 @@ public:
     QString cmd(const QString &str);
     QJsonDocument cmdj(const QString &str);
     QStringList cmdList(const QString &str)     { auto l = cmd(str).split("\n"); l.removeAll(""); return l; }
+
+    QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
+
     void renameFunction(QString prev_name, QString new_name);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
@@ -323,6 +332,8 @@ public:
 
     void resetDefaultAsmOptions();
     void saveDefaultAsmOptions();
+
+    void loadScript(const QString &scriptname);
 
     RCoreLocked core() const;
 

@@ -1,10 +1,9 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "dialogs/CreateNewDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "dialogs/RenameDialog.h"
-#include "dialogs/AsmOptionsDialog.h"
+#include "dialogs/preferences/PreferencesDialog.h"
 #include "utils/Helpers.h"
 
 #include <QComboBox>
@@ -40,6 +39,7 @@
 #include "utils/Helpers.h"
 #include "dialogs/NewFileDialog.h"
 
+#include "widgets/DisassemblerGraphView.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
 #include "widgets/CommentsWidget.h"
@@ -84,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(CutterCore::getInstance()),
     notepadDock(nullptr),
+    pseudocodeDock(nullptr),
     asmDock(nullptr),
     calcDock(nullptr),
     omnibar(nullptr),
@@ -99,7 +100,6 @@ MainWindow::MainWindow(QWidget *parent) :
     relocsDock(nullptr),
     commentsDock(nullptr),
     stringsDock(nullptr),
-    pseudocodeDock(nullptr),
     flagsDock(nullptr),
     dashboardDock(nullptr),
     gotoEntry(nullptr),
@@ -314,6 +314,22 @@ void MainWindow::openNewFile(const QString &fn, int anal_level, QList<QString> a
 {
     setFilename(fn);
 
+    /* Reset config */
+    core->resetDefaultAsmOptions();
+
+    /* Prompt to load filename.r2 script */
+    QString script = QString("%1.r2").arg(this->filename);
+    if (r_file_exists(script.toStdString().data())) {
+        QMessageBox mb;
+        mb.setWindowTitle(tr("Script loading"));
+        mb.setText(tr("Do you want to load the '%1' script?").arg(script));
+        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        if (mb.exec() == QMessageBox::Yes) {
+            core->loadScript(script);
+        }
+    }
+
+    /* Show analysis options dialog */
     OptionsDialog *o = new OptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->show();
@@ -636,16 +652,11 @@ void MainWindow::on_actionForward_triggered()
     core->seekNext();
 }
 
-void MainWindow::on_actionCreate_File_triggered()
-{
-    CreateNewDialog *n = new CreateNewDialog(this);
-    n->exec();
-}
-
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
     CommentsDialog *c = new CommentsDialog(this);
     c->exec();
+    delete c;
 }
 
 void MainWindow::restoreDocks()
@@ -880,9 +891,9 @@ void MainWindow::on_actionRefresh_contents_triggered()
     refreshAll();
 }
 
-void MainWindow::on_actionAsmOptions_triggered()
+void MainWindow::on_actionPreferences_triggered()
 {
-    auto dialog = new AsmOptionsDialog(this);
+    auto dialog = new PreferencesDialog(this);
     dialog->show();
 }
 

@@ -139,8 +139,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     main->initUI();
 
-    core->resetDefaultAsmOptions();
-
     // Timer for showing elapsed analysis time.
     analTimer.setInterval(1000);
     analTimer.setSingleShot(false);
@@ -162,7 +160,7 @@ void OptionsDialog::updateProgressTimer()
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
 
-    QString label = tr("Running since") + " ";
+    QString label = tr("Running for") + " ";
     if(hoursElapsed)
     {
         label += tr("%n hour", "%n hours", hoursElapsed);

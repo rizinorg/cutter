@@ -48,8 +48,7 @@ SOURCES += \
     utils/HexHighlighter.cpp \
     utils/Highlighter.cpp \
     utils/MdHighlighter.cpp \
-    dialogs/AsmOptionsDialog.cpp \
-    dialogs/CreateNewDialog.cpp \
+    dialogs/preferences/AsmOptionsWidget.cpp \
     dialogs/NewFileDialog.cpp \
     AnalThread.cpp \
     widgets/CommentsWidget.cpp \
@@ -81,7 +80,9 @@ SOURCES += \
     utils/SvgIconEngine.cpp \
     widgets/PseudocodeWidget.cpp \
     widgets/VisualNavbar.cpp \
-    widgets/SyntaxHighlighter.cpp
+    widgets/GraphView.cpp \
+    dialogs/preferences/PreferencesDialog.cpp \
+    dialogs/preferences/GeneralOptionsWidget.cpp
 
 HEADERS  += \
     cutter.h \
@@ -89,7 +90,7 @@ HEADERS  += \
     utils/RichTextPainter.h \
     utils/CachedFontMetrics.h \
     dialogs/AboutDialog.h \
-    dialogs/AsmOptionsDialog.h \
+    dialogs/preferences/AsmOptionsWidget.h \
     dialogs/CommentsDialog.h \
     dialogs/FlagDialog.h \
     dialogs/RenameDialog.h \
@@ -101,7 +102,6 @@ HEADERS  += \
     utils/Highlighter.h \
     utils/MdHighlighter.h \
     dialogs/OptionsDialog.h \
-    dialogs/CreateNewDialog.h \
     dialogs/NewFileDialog.h \
     AnalThread.h \
     widgets/CommentsWidget.h \
@@ -133,11 +133,13 @@ HEADERS  += \
     utils/SvgIconEngine.h \
     widgets/PseudocodeWidget.h \
     widgets/VisualNavbar.h \
-    widgets/SyntaxHighlighter.h
+    widgets/GraphView.h \
+    dialogs/preferences/PreferencesDialog.h \
+    dialogs/preferences/GeneralOptionsWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
-    dialogs/AsmOptionsDialog.ui \
+    dialogs/preferences/AsmOptionsWidget.ui \
     dialogs/CommentsDialog.ui \
     dialogs/FlagDialog.ui \
     dialogs/RenameDialog.ui \
@@ -145,7 +147,6 @@ FORMS    += \
     dialogs/NewfileDialog.ui \
     dialogs/OptionsDialog.ui \
     MainWindow.ui \
-    dialogs/CreateNewDialog.ui \
     widgets/CommentsWidget.ui \
     widgets/ConsoleWidget.ui \
     widgets/Dashboard.ui \
@@ -163,7 +164,10 @@ FORMS    += \
     widgets/SymbolsWidget.ui \
     widgets/SidebarWidget.ui \
     widgets/HexdumpWidget.ui \
-    dialogs/SaveProjectDialog.ui
+    dialogs/SaveProjectDialog.ui \
+    widgets/PseudocodeWidget.ui \
+    dialogs/preferences/PreferencesDialog.ui \
+    dialogs/preferences/GeneralOptionsWidget.ui
 
 RESOURCES += \
     resources.qrc

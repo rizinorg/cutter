@@ -95,6 +95,7 @@ private slots:
     void on_actionDisasAdd_comment_triggered();
     void on_actionFunctionsRename_triggered();
     void on_action_References_triggered();
+    void on_actionFunctionsUndefine_triggered();
 
     void on_actionHorizontal_triggered();
     void on_actionVertical_triggered();
