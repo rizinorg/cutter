@@ -2,10 +2,9 @@
 
 #include <QTextEdit>
 
-#include "SyntaxHighlighter.h"
-
 #include "utils/Configuration.h"
 #include "utils/Helpers.h"
+#include "utils/SyntaxHighlighter.h"
 #include "utils/TempConfig.h"
 
 PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags)
