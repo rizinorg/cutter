@@ -46,6 +46,12 @@ private:
     RVA bottomOffset;
     int maxLines;
 
+    /*!
+     * offset of lines below the first line of the current seek
+     */
+    int cursorLineOffset;
+    bool seekFromCursor;
+
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event);
@@ -56,6 +62,8 @@ private:
     void updateCursorPosition();
 
     void connectCursorPositionChanged(bool disconnect);
+
+    void moveCursorRelative(bool up, bool page);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

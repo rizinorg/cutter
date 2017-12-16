@@ -409,7 +409,7 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
 
-    QJsonArray array = Core()->cmdj("pdj " + QString::number(count) + "@" + QString::number(startAddr)).array();
+    QJsonArray array = Core()->cmdj("pdj " + QString::number(count+1) + "@" + QString::number(startAddr)).array();
     if (array.isEmpty())
     {
         return startAddr + 1;
