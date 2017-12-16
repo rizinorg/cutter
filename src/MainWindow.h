@@ -86,6 +86,9 @@ public slots:
 
     void refreshAll();
 
+    void setPanelLock();
+    void setTabLocation();
+
     void setDarkTheme();
     void setDefaultTheme();
 
@@ -175,6 +178,7 @@ private:
     Configuration   *configuration;
 
     bool doLock;
+    bool tabsOnTop;
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;

@@ -108,6 +108,7 @@ MainWindow::MainWindow(QWidget *parent) :
     consoleDock(nullptr)
 {
     doLock = false;
+    tabsOnTop = false;
     configuration = new Configuration();
 }
 
@@ -458,6 +459,8 @@ void MainWindow::closeEvent(QCloseEvent *event)
         settings.setValue("size", size());
         settings.setValue("pos", pos());
         settings.setValue("state", saveState());
+        settings.setValue("doLock", doLock);
+        settings.setValue("tabsOnTop", tabsOnTop);
     }
     else
     {
@@ -473,6 +476,48 @@ void MainWindow::readSettings()
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
     restoreState(state);
     this->responsive = settings.value("responsive").toBool();
+    doLock = settings.value("doLock").toBool();
+    setPanelLock();
+    tabsOnTop = settings.value("tabsOnTop").toBool();
+    setTabLocation();
+}
+
+void MainWindow::setPanelLock()
+{
+    if (doLock)
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
+            dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        }
+
+        ui->actionLock->setChecked(false);
+    }
+    else
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
+            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        }
+
+        ui->actionLock->setChecked(true);
+    }
+}
+
+void MainWindow::setTabLocation()
+{
+    if (tabsOnTop)
+    {
+        ui->centralTabWidget->setTabPosition(QTabWidget::North);
+        this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
+        ui->actionTabs_on_Top->setChecked(true);
+    }
+    else
+    {
+        ui->centralTabWidget->setTabPosition(QTabWidget::South);
+        this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
+        ui->actionTabs_on_Top->setChecked(false);
+    }
 }
 
 void MainWindow::setDarkTheme()
@@ -494,20 +539,7 @@ void MainWindow::refreshAll()
 void MainWindow::on_actionLock_triggered()
 {
     doLock = !doLock;
-    if (doLock)
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
-            dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-        }
-    }
-    else
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
-            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        }
-    }
+    setPanelLock();
 }
 
 void MainWindow::lockUnlock_Docks(bool what)
@@ -551,16 +583,8 @@ void MainWindow::on_actionLockUnlock_triggered()
 
 void MainWindow::on_actionTabs_triggered()
 {
-    if (ui->centralTabWidget->tabPosition() == QTabWidget::South)
-    {
-        ui->centralTabWidget->setTabPosition(QTabWidget::North);
-        this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
-    }
-    else
-    {
-        ui->centralTabWidget->setTabPosition(QTabWidget::South);
-        this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
-    }
+    tabsOnTop = !tabsOnTop;
+    setTabLocation();
 }
 
 void MainWindow::on_actionEntry_points_triggered()
