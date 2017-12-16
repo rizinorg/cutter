@@ -12,6 +12,8 @@ PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags)
     ,   textEditWidget(new QTextEdit(this))
     ,   syntaxHighLighter( new SyntaxHighlighter(textEditWidget->document()))
 {
+    setObjectName("PseudocodeWidget");
+
     textEditWidget->setParent(this);
     setWidget(textEditWidget);
     setupFonts();
