@@ -58,7 +58,7 @@ make
 cd src
 mkdir build
 cd build
-cmake ..
+cmake ../src
 make
 ```
 
