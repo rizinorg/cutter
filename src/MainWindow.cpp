@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     sectionsDock(nullptr),
     consoleDock(nullptr)
 {
-    doLock = false;
+    panelLock = false;
     tabsOnTop = false;
     configuration = new Configuration();
 }
@@ -440,11 +440,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     {
         if (saveProject(true))
         {
-            QSettings settings;
-            settings.setValue("geometry", saveGeometry());
-            settings.setValue("size", size());
-            settings.setValue("pos", pos());
-            settings.setValue("state", saveState());
+            saveSettings();
             QMainWindow::closeEvent(event);
         }
         else
@@ -454,13 +450,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
     else if (ret == QMessageBox::Discard)
     {
-        QSettings settings;
-        settings.setValue("geometry", saveGeometry());
-        settings.setValue("size", size());
-        settings.setValue("pos", pos());
-        settings.setValue("state", saveState());
-        settings.setValue("doLock", doLock);
-        settings.setValue("tabsOnTop", tabsOnTop);
+        saveSettings();
     }
     else
     {
@@ -476,15 +466,26 @@ void MainWindow::readSettings()
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
     restoreState(state);
     this->responsive = settings.value("responsive").toBool();
-    doLock = settings.value("doLock").toBool();
+    panelLock = settings.value("panelLock").toBool();
     setPanelLock();
     tabsOnTop = settings.value("tabsOnTop").toBool();
     setTabLocation();
 }
 
+void MainWindow::saveSettings()
+{
+    QSettings settings;
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("size", size());
+    settings.setValue("pos", pos());
+    settings.setValue("state", saveState());
+    settings.setValue("panelLock", panelLock);
+    settings.setValue("tabsOnTop", tabsOnTop);
+}
+
 void MainWindow::setPanelLock()
 {
-    if (doLock)
+    if (panelLock)
     {
         foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
         {
@@ -538,7 +539,7 @@ void MainWindow::refreshAll()
 
 void MainWindow::on_actionLock_triggered()
 {
-    doLock = !doLock;
+    panelLock = !panelLock;
     setPanelLock();
 }
 
