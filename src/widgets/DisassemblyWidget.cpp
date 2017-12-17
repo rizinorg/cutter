@@ -454,35 +454,69 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 {
     if (page)
     {
-        // TODO: implement page up/down
-        return;
+        RVA offset;
+        if (!up)
+        {
+            offset = Core()->nextOpAddr(bottomOffset, 1);
+        }
+        else
+        {
+            offset = Core()->prevOpAddr(topOffset, maxLines);
+
+            // disassembly from calculated offset may have more than maxLines lines
+            // move some instructions down if necessary.
+
+            auto lines = Core()->disassembleLines(offset, maxLines).toVector();
+            int oldTopLine;
+            for (oldTopLine=lines.length(); oldTopLine>0; oldTopLine--)
+            {
+                if (lines[oldTopLine - 1].offset < topOffset)
+                {
+                    break;
+                }
+            }
+
+            int overflowLines = oldTopLine - maxLines;
+            if(overflowLines > 0)
+            {
+                while (lines[overflowLines-1].offset == lines[overflowLines].offset
+                       && overflowLines < lines.length()-1)
+                {
+                    overflowLines++;
+                }
+                offset = lines[overflowLines].offset;
+            }
+        }
+        refreshDisasm(offset);
     }
-
-    int blockCount = mDisasTextEdit->blockCount();
-    if (blockCount < 1)
+    else // normal arrow keys
     {
-        return;
-    }
+        int blockCount = mDisasTextEdit->blockCount();
+        if (blockCount < 1)
+        {
+            return;
+        }
 
-    int blockNumber = mDisasTextEdit->textCursor().blockNumber();
+        int blockNumber = mDisasTextEdit->textCursor().blockNumber();
 
-    if (blockNumber == blockCount - 1 && !up)
-    {
-        scrollInstructions(1);
-    }
-    else if (blockNumber == 0 && up)
-    {
-        scrollInstructions(-1);
-    }
+        if (blockNumber == blockCount - 1 && !up)
+        {
+            scrollInstructions(1);
+        }
+        else if (blockNumber == 0 && up)
+        {
+            scrollInstructions(-1);
+        }
 
-    mDisasTextEdit->moveCursor(up ? QTextCursor::Up : QTextCursor::Down);
+        mDisasTextEdit->moveCursor(up ? QTextCursor::Up : QTextCursor::Down);
 
-    // handle cases where top instruction offsets change
-    RVA offset = readCurrentDisassemblyOffset();
-    if (offset != Core()->getOffset())
-    {
-        Core()->seek(offset);
-        highlightCurrentLine();
+        // handle cases where top instruction offsets change
+        RVA offset = readCurrentDisassemblyOffset();
+        if (offset != Core()->getOffset())
+        {
+            Core()->seek(offset);
+            highlightCurrentLine();
+        }
     }
 }
 
