@@ -397,12 +397,9 @@ void CutterCore::seekNext()
 RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
-    RVA prev;
-    if (!r_core_prevop_addr(core_, startAddr, count, &prev))
-    {
-        prev = startAddr - count;
-    }
-    return prev;
+    bool ok;
+    RVA offset = cmd("/O " + QString::number(count) + " @ " + QString::number(startAddr)).toULongLong(&ok, 16);
+    return ok ? offset : startAddr - count;
 }
 
 RVA CutterCore::nextOpAddr(RVA startAddr, int count)
