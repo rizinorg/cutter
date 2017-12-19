@@ -28,7 +28,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTreeWidget" name="stringsTreeWidget">
+     <widget class="QTreeView" name="stringsTreeView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -54,16 +54,6 @@
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
-      <column>
-       <property name="text">
-        <string>Address</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Name</string>
-       </property>
-      </column>
      </widget>
     </item>
    </layout>
