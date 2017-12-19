@@ -38,6 +38,8 @@ public:
     //functions
     static void paintRichText(QPainter* painter, int x, int y, int w, int h, int xinc, const List & richText, CachedFontMetrics* fontMetrics);
     static void htmlRichText(const List & richText, QString & textHtml, QString & textPlain);
+
+    static List cropped(const List &richText, int maxCols, const QString &indicator = nullptr);
 };
 
 #endif // RICHTEXTPAINTER_H

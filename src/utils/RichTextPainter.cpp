@@ -101,3 +101,58 @@ void RichTextPainter::htmlRichText(const List & richText, QString & textHtml, QS
         textPlain += curRichText.text;
     }
 }
+
+RichTextPainter::List RichTextPainter::cropped(const RichTextPainter::List &richText, int maxCols, const QString &indicator)
+{
+    List r;
+    r.reserve(richText.size());
+
+    int cols = 0;
+    bool cropped = false;
+    for(const auto &text : richText)
+    {
+        int textLength = text.text.size();
+        if(cols + textLength <= maxCols)
+        {
+            r.push_back(text);
+            cols += textLength;
+        }
+        else if(cols == maxCols)
+        {
+            break;
+        }
+        else
+        {
+            CustomRichText_t croppedText = text;
+            croppedText.text.truncate(maxCols - cols);
+            r.push_back(croppedText);
+            cropped = true;
+            break;
+        }
+    }
+
+    if(cropped && !indicator.isEmpty())
+    {
+        int indicatorCropLength = indicator.length();
+        if(indicatorCropLength > maxCols)
+        {
+            indicatorCropLength = maxCols;
+        }
+
+        while(!r.empty())
+        {
+            auto &text = r.back();
+
+            if(text.text.length() >= indicatorCropLength)
+            {
+                text.text.replace(text.text.length() - indicatorCropLength, indicatorCropLength, indicator);
+                break;
+            }
+
+            indicatorCropLength -= text.text.length();
+            r.pop_back();
+        }
+    }
+
+    return r;
+}

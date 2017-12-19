@@ -165,7 +165,7 @@ void DisassemblerGraphView::loadCurrentGraph()
                 comment.flags = RichTextPainter::FlagColor;
                 richText.insert(richText.end(), comment);
             }
-            i.text = Text(richText);
+            i.text = Text(RichTextPainter::cropped(richText, Config()->getGraphBlockMaxChars(), "..."));
             db.instrs.push_back(i);
         }
         disassembly_blocks[db.entry] = db;
