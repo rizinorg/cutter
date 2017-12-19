@@ -92,6 +92,7 @@ class DisassemblerGraphView : public GraphView
         ut64 addr = 0;
         ut64 size = 0;
         Text text;
+        Text fullText;
         std::vector<unsigned char> opcode; //instruction bytes
     };
 
@@ -142,6 +143,8 @@ public:
     virtual void drawBlock(QPainter & p, GraphView::GraphBlock &block) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
+    virtual bool helpEvent(QHelpEvent *event) override;
+    virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos) override;
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
 
@@ -183,7 +186,8 @@ private:
 
     void initFont();
     void prepareGraphNode(GraphBlock &block);
-    RVA getInstrForMouseEvent(GraphBlock &block, QPoint* point);
+    RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
+    Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seek(RVA addr, bool update_viewport=true);
     void seekInstruction(bool previous_instr);

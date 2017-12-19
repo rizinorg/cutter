@@ -39,7 +39,7 @@ public:
     static void paintRichText(QPainter* painter, int x, int y, int w, int h, int xinc, const List & richText, CachedFontMetrics* fontMetrics);
     static void htmlRichText(const List & richText, QString & textHtml, QString & textPlain);
 
-    static List cropped(const List &richText, int maxCols, const QString &indicator = nullptr);
+    static List cropped(const List &richText, int maxCols, const QString &indicator = nullptr, bool *croppedOut = nullptr);
 };
 
 #endif // RICHTEXTPAINTER_H

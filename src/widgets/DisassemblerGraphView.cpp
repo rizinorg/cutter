@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <QPropertyAnimation>
 #include <QShortcut>
+#include <QToolTip>
 
 #include "cutter.h"
 #include "utils/Colors.h"
@@ -166,7 +167,16 @@ void DisassemblerGraphView::loadCurrentGraph()
                 comment.flags = RichTextPainter::FlagColor;
                 richText.insert(richText.end(), comment);
             }
-            i.text = Text(RichTextPainter::cropped(richText, Config()->getGraphBlockMaxChars(), "..."));
+            bool cropped;
+            i.text = Text(RichTextPainter::cropped(richText, Config()->getGraphBlockMaxChars(), "...", &cropped));
+            if(cropped)
+            {
+                i.fullText = richText;
+            }
+            else
+            {
+                i.fullText = Text();
+            }
             db.instrs.push_back(i);
         }
         disassembly_blocks[db.entry] = db;
@@ -377,7 +387,7 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
     return ec;
 }
 
-RVA DisassemblerGraphView::getInstrForMouseEvent(GraphBlock &block, QPoint* point)
+RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
 
@@ -393,17 +403,39 @@ RVA DisassemblerGraphView::getInstrForMouseEvent(GraphBlock &block, QPoint* poin
         return db.entry;
     }
 
+    Instr *instr = getInstrForMouseEvent(block, point);
+    if(instr)
+    {
+        return instr->addr;
+    }
+
+    return RVA_INVALID;
+}
+
+
+DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(GraphView::GraphBlock &block, QPoint *point)
+{
+    DisassemblyBlock &db = disassembly_blocks[block.entry];
+
+    // Remove header and margin
+    int off_y = (2 * charWidth) + (db.header_text.lines.size() * charHeight);
+    // Get mouse coordinate over the actual text
+    int text_point_y = point->y() - off_y;
+    int mouse_row = text_point_y / charHeight;
+
+    int cur_row = db.header_text.lines.size();
+
     for(Instr & instr : db.instrs)
     {
         if(mouse_row < cur_row + (int)instr.text.lines.size())
         {
-            return instr.addr;
+            return &instr;
         }
         cur_row += instr.text.lines.size();
     }
-    return RVA_INVALID;
-}
 
+    return nullptr;
+}
 
 // Public Slots
 
@@ -582,7 +614,7 @@ void DisassemblerGraphView::seekPrev()
 
 void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
 {
-    RVA instr = getInstrForMouseEvent(block, &pos);
+    RVA instr = getAddrForMouseEvent(block, &pos);
     if(instr == RVA_INVALID)
     {
         return;
@@ -600,7 +632,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos)
 {
     Q_UNUSED(event);
-    RVA instr = getInstrForMouseEvent(block, &pos);
+    RVA instr = getAddrForMouseEvent(block, &pos);
     if(instr == RVA_INVALID)
     {
         return;
@@ -613,6 +645,30 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     if (refs.length() > 1) {
         qWarning() << "Too many references here. Weird behaviour expected.";
     }
+}
+
+void DisassemblerGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos)
+{
+    Instr *instr = getInstrForMouseEvent(block, &pos);
+    if(!instr || instr->fullText.lines.empty())
+    {
+        QToolTip::hideText();
+        event->ignore();
+        return;
+    }
+
+    QToolTip::showText(event->globalPos(), instr->fullText.ToQString());
+}
+
+bool DisassemblerGraphView::helpEvent(QHelpEvent *event)
+{
+    if(!GraphView::helpEvent(event))
+    {
+        QToolTip::hideText();
+        event->ignore();
+    }
+
+    return true;
 }
 
 void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)

@@ -61,6 +61,34 @@ void GraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *ev
     qWarning() << "Block double clicked not overridden!";
 }
 
+void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos)
+{
+    Q_UNUSED(block);
+    Q_UNUSED(event);
+    Q_UNUSED(pos);
+}
+
+bool GraphView::helpEvent(QHelpEvent *event)
+{
+    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) + horizontalScrollBar()->value();
+    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) + verticalScrollBar()->value();
+
+    for(auto & blockIt : blocks)
+    {
+        GraphBlock &block = blockIt.second;
+
+        if((block.x <= x) && (block.y <= y) &&
+           (x <= block.x + block.width) & (y <= block.y + block.height))
+        {
+            QPoint pos = QPoint(x - block.x, y - block.y);
+            blockHelpEvent(block, event, pos);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void GraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
     Q_UNUSED(to);
@@ -96,6 +124,19 @@ void GraphView::adjustSize(int new_width, int new_height)
     verticalScrollBar()->setRange(0, height - (new_height/current_scale));
     horizontalScrollBar()->setValue((int)((double)horizontalScrollBar()->maximum() * hfactor));
     verticalScrollBar()->setValue((int)((double)verticalScrollBar()->maximum() * vfactor));
+}
+
+bool GraphView::event(QEvent *event)
+{
+    if(event->type() == QEvent::ToolTip)
+    {
+        if(helpEvent(static_cast<QHelpEvent *>(event)))
+        {
+            return true;
+        }
+    }
+
+    return QAbstractScrollArea::event(event);
 }
 
 // This calculates the full graph starting at block entry.
@@ -698,6 +739,7 @@ GraphView::GraphEdge GraphView::routeEdge(EdgesVector & horiz_edges, EdgesVector
     return edge;
 }
 
+
 int GraphView::findHorizEdgeIndex(EdgesVector & edges, int row, int min_col, int max_col)
 {
     //Find a valid index
@@ -745,7 +787,6 @@ int GraphView::findVertEdgeIndex(EdgesVector & edges, int col, int min_row, int 
         markEdge(edges, row, col, i);
     return i;
 }
-
 
 void GraphView::showBlock(GraphBlock &block, bool animated)
 {
@@ -806,6 +847,7 @@ void GraphView::addBlock(GraphView::GraphBlock block)
     blocks[block.entry] = block;
 }
 
+
 void GraphView::setEntry(ut64 e)
 {
     entry = e;
@@ -823,7 +865,6 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
     }
     return false;
 }
-
 
 void GraphView::resizeEvent(QResizeEvent* event)
 {

@@ -7,6 +7,7 @@
 #include <QAbstractScrollArea>
 #include <QScrollBar>
 #include <QElapsedTimer>
+#include <QHelpEvent>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -121,10 +122,14 @@ protected:
     virtual void drawBlock(QPainter & p, GraphView::GraphBlock &block);
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
+    virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos);
+    virtual bool helpEvent(QHelpEvent *event);
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
     void adjustSize(int new_width, int new_height);
+
+    bool event(QEvent *event);
 private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y=false);
 

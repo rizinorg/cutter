@@ -102,7 +102,7 @@ void RichTextPainter::htmlRichText(const List & richText, QString & textHtml, QS
     }
 }
 
-RichTextPainter::List RichTextPainter::cropped(const RichTextPainter::List &richText, int maxCols, const QString &indicator)
+RichTextPainter::List RichTextPainter::cropped(const RichTextPainter::List &richText, int maxCols, const QString &indicator, bool *croppedOut)
 {
     List r;
     r.reserve(richText.size());
@@ -154,5 +154,9 @@ RichTextPainter::List RichTextPainter::cropped(const RichTextPainter::List &rich
         }
     }
 
+    if(croppedOut)
+    {
+        *croppedOut = cropped;
+    }
     return r;
 }
