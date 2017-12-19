@@ -126,10 +126,23 @@ StringsWidget::StringsWidget(QWidget *parent) :
 
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
+    // Ctrl-F to show/hide the filter entry
+    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
+    connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // Esc to clear the filter entry
+    QShortcut *clear_shortcut = new QShortcut(QKeySequence::Cancel, this);
+    connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
+    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
     model = new StringsModel(&strings, this);
     proxy_model = new StringsSortFilterProxyModel(model, this);
     ui->stringsTreeView->setModel(proxy_model);
     ui->stringsTreeView->sortByColumn(StringsModel::OFFSET, Qt::AscendingOrder);
+
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxy_model, SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->stringsTreeView, SLOT(setFocus()));
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
 }

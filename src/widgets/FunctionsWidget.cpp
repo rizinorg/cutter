@@ -333,12 +333,12 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     //ui->filterLineEdit->setVisible(false);
 
     // Ctrl-F to show/hide the filter entry
-    QShortcut *search_shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F), this);
+    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry
-    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    QShortcut *clear_shortcut = new QShortcut(QKeySequence::Cancel, this);
     connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
