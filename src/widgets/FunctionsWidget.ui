@@ -197,71 +197,7 @@ QToolTip {
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="sizeConstraint">
-       <enum>QLayout::SetNoConstraint</enum>
-      </property>
-      <property name="rightMargin">
-       <number>2</number>
-      </property>
-      <item>
-       <widget class="QLineEdit" name="filterLineEdit">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="placeholderText">
-         <string>Quick Filter</string>
-        </property>
-        <property name="clearButtonEnabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="closeFilterButton">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QToolButton { /* all types of tool button */
-     border: 2px solid #333;
-     border-left: 2px solid #333;
-	 border-right: 2px solid #333;
-     background-color: #333;
-     color: rgb(255, 255, 255)
-}
-
-QToolButton:hover {
-     border: 2px solid rgb(128, 128, 128);
-     border-left: 2px solid rgb(128, 128, 128);
-     border-right: 2px solid rgb(128, 128, 128);
-     background-color: rgb(128, 128, 128);
-     color: rgb(255, 255, 255)
- }
-
-QToolButton:pressed {
-     border: 2px solid #2180a9;
-     border-left: 2px solid #2180a9;
-	 border-right: 2px solid #2180a9;
-     background-color: #2180a9;
-}</string>
-        </property>
-        <property name="text">
-         <string>X</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     <widget class="QuickFilterView" name="quickFilterView" native="true"/>
     </item>
    </layout>
   </widget>
@@ -305,6 +241,14 @@ QToolButton:pressed {
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

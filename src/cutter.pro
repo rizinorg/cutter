@@ -84,7 +84,8 @@ SOURCES += \
     widgets/GraphView.cpp \
     dialogs/preferences/PreferencesDialog.cpp \
     dialogs/preferences/GeneralOptionsWidget.cpp \
-    dialogs/preferences/GraphOptionsWidget.cpp
+    dialogs/preferences/GraphOptionsWidget.cpp \
+    widgets/QuickFilterView.cpp
 
 HEADERS  += \
     cutter.h \
@@ -139,7 +140,8 @@ HEADERS  += \
     widgets/GraphView.h \
     dialogs/preferences/PreferencesDialog.h \
     dialogs/preferences/GeneralOptionsWidget.h \
-    dialogs/preferences/GraphOptionsWidget.h
+    dialogs/preferences/GraphOptionsWidget.h \
+    widgets/QuickFilterView.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -171,7 +173,8 @@ FORMS    += \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/GeneralOptionsWidget.ui \
-    dialogs/preferences/GraphOptionsWidget.ui
+    dialogs/preferences/GraphOptionsWidget.ui \
+    widgets/QuickFilterView.ui
 
 RESOURCES += \
     resources.qrc
