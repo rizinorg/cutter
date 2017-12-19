@@ -329,6 +329,7 @@ public:
     void triggerRefreshAll();
 
     void triggerAsmOptionsChanged();
+    void triggerGraphOptionsChanged();
 
     void resetDefaultAsmOptions();
     void saveDefaultAsmOptions();
@@ -359,6 +360,11 @@ signals:
      * emitted when config regarding disassembly display changes
      */
     void asmOptionsChanged();
+
+    /*!
+     * emitted when config regarding graph display changes
+     */
+    void graphOptionsChanged();
 
     /*!
      * \brief seekChanged is emitted each time radare2 seek value is modified

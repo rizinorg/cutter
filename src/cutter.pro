@@ -83,7 +83,8 @@ SOURCES += \
     widgets/VisualNavbar.cpp \
     widgets/GraphView.cpp \
     dialogs/preferences/PreferencesDialog.cpp \
-    dialogs/preferences/GeneralOptionsWidget.cpp
+    dialogs/preferences/GeneralOptionsWidget.cpp \
+    dialogs/preferences/GraphOptionsWidget.cpp
 
 HEADERS  += \
     cutter.h \
@@ -137,7 +138,8 @@ HEADERS  += \
     widgets/VisualNavbar.h \
     widgets/GraphView.h \
     dialogs/preferences/PreferencesDialog.h \
-    dialogs/preferences/GeneralOptionsWidget.h
+    dialogs/preferences/GeneralOptionsWidget.h \
+    dialogs/preferences/GraphOptionsWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -168,7 +170,8 @@ FORMS    += \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
-    dialogs/preferences/GeneralOptionsWidget.ui
+    dialogs/preferences/GeneralOptionsWidget.ui \
+    dialogs/preferences/GraphOptionsWidget.ui
 
 RESOURCES += \
     resources.qrc

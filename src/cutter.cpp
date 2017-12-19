@@ -551,6 +551,11 @@ void CutterCore::triggerAsmOptionsChanged()
     emit asmOptionsChanged();
 }
 
+void CutterCore::triggerGraphOptionsChanged()
+{
+    emit graphOptionsChanged();
+}
+
 void CutterCore::resetDefaultAsmOptions()
 {
     // TODO Merge with Configuration.cpp

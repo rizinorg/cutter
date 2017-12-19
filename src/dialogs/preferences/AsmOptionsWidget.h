@@ -52,4 +52,4 @@ private slots:
 };
 
 
-#endif //ASMOPTIONSDIALOG_H
+#endif //ASMOPTIONSWIDGET_H

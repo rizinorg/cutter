@@ -6,6 +6,7 @@
 
 #include "GeneralOptionsWidget.h"
 #include "AsmOptionsWidget.h"
+#include "GraphOptionsWidget.h"
 
 #include "utils/Helpers.h"
 #include "utils/Configuration.h"
@@ -20,6 +21,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
 #define ADD_TAB(c) { auto w = new c(this); ui->tabWidget->addTab(w, w->windowTitle()); }
     ADD_TAB(GeneralOptionsWidget)
     ADD_TAB(AsmOptionsWidget)
+    ADD_TAB(GraphOptionsWidget)
 #undef ADD_TAB
 }
 
