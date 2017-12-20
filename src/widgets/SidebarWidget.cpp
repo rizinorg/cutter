@@ -56,7 +56,7 @@ void SidebarWidget::refresh(RVA addr)
     if(addr == RVA_INVALID)
         addr = Core()->getOffset();
 
-    get_refs_data(addr);
+    updateRefs(addr);
     setFcnName(addr);
     fillOffsetInfo(RAddressString(addr));
 }
@@ -129,7 +129,7 @@ void SidebarWidget::on_xrefToToolButton_clicked()
     }
 }
 
-void SidebarWidget::get_refs_data(RVA addr)
+void SidebarWidget::updateRefs(RVA addr)
 {
     // refs = calls q hace esa funcion
     QList<XrefDescription> refs = Core()->getXRefs(addr, false, false);
@@ -137,28 +137,12 @@ void SidebarWidget::get_refs_data(RVA addr)
     // xrefs = calls a esa funcion
     QList<XrefDescription> xrefs = Core()->getXRefs(addr, true, false);
 
-    // Data for the disasm side graph
-    QList<int> data;
-    //qDebug() << "Refs:" << refs.size();
-    data << refs.size();
-    //qDebug() << "XRefs:" << xrefs.size();
-    data << xrefs.size();
-    //qDebug() << "CC: " << this->core->fcnCyclomaticComplexity(offset.toLong(&ok, 16));
-    //data << this->core->fcnCyclomaticComplexity(offset.toLong(&ok, 16));
-    data << Core()->getCycloComplex(addr);
-    //qDebug() << "BB: " << this->core->fcnBasicBlockCount(offset.toLong(&ok, 16));
-    data << Core()->fcnBasicBlockCount(addr);
-    data << Core()->fcnEndBbs(addr);
-    //qDebug() << "MEOW: " + this->core->fcnEndBbs(offset);
-
     // Update disasm side bar
-    this->fill_refs(refs, xrefs, data);
+    this->fillRefs(refs, xrefs);
 }
 
-void SidebarWidget::fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data)
+void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs)
 {
-    Q_UNUSED(graph_data);
-
     TempConfig tempConfig;
     tempConfig.set("scr.html", false)
             .set("scr.color", false);

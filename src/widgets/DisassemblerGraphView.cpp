@@ -22,7 +22,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     // Signals that require a refresh all
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));

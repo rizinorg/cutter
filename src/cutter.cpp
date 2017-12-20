@@ -203,6 +203,13 @@ QString CutterCore::cmd(const QString &str)
     return o;
 }
 
+QString CutterCore::cmdRaw(const QString &str)
+{
+    QString cmdStr = str;
+    cmdStr.replace('\"', "\\\"");
+    return cmd("\"" + cmdStr + "\"");
+}
+
 QJsonDocument CutterCore::cmdj(const QString &str)
 {
     CORE_LOCK();
@@ -322,10 +329,10 @@ void CutterCore::analyze(int level,  QList<QString> advanced)
     }
 }
 
-void CutterCore::renameFunction(QString old_name, QString new_name)
+void CutterCore::renameFunction(const QString &oldName, const QString &newName)
 {
-    cmd("afn " + new_name + " " + old_name);
-    emit functionRenamed(old_name, new_name);
+    cmdRaw("afn " + newName + " " + oldName);
+    emit functionRenamed(oldName, newName);
 }
 
 void CutterCore::delFunction(RVA addr)
@@ -336,7 +343,7 @@ void CutterCore::delFunction(RVA addr)
 
 void CutterCore::renameFlag(QString old_name, QString new_name)
 {
-    cmd("fr " + old_name + " " + new_name);
+    cmdRaw("fr " + old_name + " " + new_name);
     emit flagsChanged();
 }
 

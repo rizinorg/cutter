@@ -37,8 +37,8 @@ private:
     std::unique_ptr<Ui::SidebarWidget> ui;
 
     void setFcnName(RVA addr);
-    void get_refs_data(RVA addr);
-    void fill_refs(QList<XrefDescription> refs, QList<XrefDescription> xrefs, QList<int> graph_data);
+    void updateRefs(RVA addr);
+    void fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs);
     void fillOffsetInfo(QString off);
 
     void setScrollMode();
