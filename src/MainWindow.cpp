@@ -372,10 +372,6 @@ void MainWindow::finalizeOpen()
                        "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
     }
 
-    //Get binary beginning/end addresses
-    this->core->binStart = this->core->cmd("?v $M");
-    this->core->binEnd = this->core->cmd("?v $M+$s");
-
     addOutput(tr(" > Finished, happy reversing :)"));
     // Add fortune message
     addOutput("\n" + core->cmd("fo"));

@@ -199,11 +199,7 @@ public:
 
     /* Getters */
     RVA getOffset() const { return core_->offset; }
-    int getCycloComplex(ut64 addr);
-    int getFcnSize(ut64 addr);
-    int fcnCyclomaticComplexity(ut64 addr);
-    int fcnBasicBlockCount(ut64 addr);
-    int fcnEndBbs(RVA addr);
+
     static QString sanitizeStringForCommand(QString s);
     QString cmd(const QString &str);
     QString cmdRaw(const QString &str);
@@ -282,8 +278,7 @@ public:
     QString getFileInfo();
     QStringList getStats();
     QString getSimpleGraph(QString function);
-    QString binStart;
-    QString binEnd;
+
     void getOpcodes();
     QList<QString> opcodes;
     QList<QString> regs;
