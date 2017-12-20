@@ -70,6 +70,11 @@ int FunctionModel::columnCount(const QModelIndex &/*parent*/) const
         return ColumnCount;
 }
 
+bool FunctionModel::functionIsImport(ut64 addr) const
+{
+    return import_addresses->contains(addr);
+}
+
 
 QVariant FunctionModel::data(const QModelIndex &index, int role) const
 {
@@ -108,7 +113,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 case 1:
                     return tr("Size: %1").arg(RSizeString(function.size));
                 case 2:
-                    return tr("Import: %1").arg(import_addresses->contains(function.offset) ? tr("true") : tr("false"));
+                    return tr("Import: %1").arg(functionIsImport(function.offset) ? tr("true") : tr("false"));
                 default:
                     return QVariant();
                 }
@@ -158,6 +163,11 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         }
         return QVariant();
     }
+
+    case Qt::ForegroundRole:
+        if (functionIsImport(function.offset))
+            return QVariant(ConfigColor("gui.imports"));
+        return QVariant(QColor(Qt::black));
 
     case FunctionDescriptionRole:
         return QVariant::fromValue(function);

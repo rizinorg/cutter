@@ -33,6 +33,8 @@ private:
 
     int current_index;
 
+    bool functionIsImport(ut64 addr) const;
+
 public:
     static const int FunctionDescriptionRole = Qt::UserRole;
     static const int IsImportRole = Qt::UserRole + 1;
