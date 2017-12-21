@@ -60,7 +60,8 @@ public:
      */
     bool updateCurrentIndex();
 
-    bool isNested()     { return nested; }
+    void setNested(bool nested);
+    bool isNested()                 { return nested; }
 
 private slots:
     void seekChanged(RVA addr);
@@ -110,8 +111,6 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    QTreeView *getCurrentTreeView();
-
     std::unique_ptr<Ui::FunctionsWidget> ui;
     MainWindow      *main;
 
@@ -120,9 +119,6 @@ private:
 
     FunctionModel *function_model;
     FunctionSortFilterProxyModel *function_proxy_model;
-
-    FunctionModel *nested_function_model;
-    FunctionSortFilterProxyModel *nested_function_proxy_model;
 
     void setScrollMode();
 };
