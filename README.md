@@ -56,10 +56,9 @@ make
 
 - Method 2: CMake
 ```sh
-cd src
 mkdir build
 cd build
-cmake ..
+cmake ../src
 make
 ```
 
