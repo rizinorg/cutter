@@ -9,27 +9,7 @@
 
 Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
     QLineEdit(parent),
-    main(main),
-    commands(
-{
-    ": Comments toggle",
-    ": Dashboard toggle",
-    ": Exports toggle",
-    ": Flags toggle",
-    ": Functions toggle",
-    ": Imports toggle",
-    ": Lock/Unlock interface",
-    ": Notepad toggle",
-    ": Refresh contents",
-    ": Relocs toggle",
-    ": Run Script",
-    ": Sections toggle",
-    ": Strings toggle",
-    ": Symbols toggle",
-    ": Tabs up/down",
-    ": Theme switch",
-    ": Web server start/stop"
-})
+    main(main)
 {
     // QLineEdit basic features
     this->setMinimumHeight(16);
@@ -51,7 +31,7 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
 void Omnibar::setupCompleter()
 {
     // Set gotoEntry completer for jump history
-    QCompleter *completer = new QCompleter(flags + commands, this);
+    QCompleter *completer = new QCompleter(flags, this);
     completer->setMaxVisibleItems(20);
     completer->setCompletionMode(QCompleter::PopupCompletion);
     completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
@@ -74,23 +54,6 @@ void Omnibar::restoreCompleter()
     completer->setFilterMode(Qt::MatchContains);
 }
 
-void Omnibar::showCommands()
-{
-    this->setFocus();
-    this->setText(": ");
-
-    QCompleter *completer = this->completer();
-    completer->setCompletionMode(QCompleter::PopupCompletion);
-    completer->setModelSorting(QCompleter::CaseSensitivelySortedModel);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setFilterMode(Qt::MatchStartsWith);
-
-    completer->setMaxVisibleItems(20);
-
-    completer->setCompletionPrefix(": ");
-    completer->complete();
-}
-
 void Omnibar::clear()
 {
     QLineEdit::clear();
@@ -103,83 +66,11 @@ void Omnibar::clear()
 void Omnibar::on_gotoEntry_returnPressed()
 {
     QString str = this->text();
-    if (str.length() > 0)
+    if (!str.isEmpty())
     {
-        if (str.contains(": "))
-        {
-            if (str.contains("Lock"))
-            {
-                this->main->on_actionLock_triggered();
-            }
-            else if (str.contains("Functions"))
-            {
-                this->main->on_actionFunctions_triggered();
-            }
-            else if (str.contains("Flags"))
-            {
-                this->main->on_actionFlags_triggered();
-            }
-            else if (str.contains("Sections"))
-            {
-                this->main->on_actionSections_triggered();
-            }
-            else if (str.contains("Strings"))
-            {
-                this->main->on_actionStrings_triggered();
-            }
-            else if (str.contains("Imports"))
-            {
-                this->main->on_actionImports_triggered();
-            }
-            else if (str.contains("Exports"))
-            {
-                this->main->on_actionExports_triggered();
-            }
-            else if (str.contains("Symbols"))
-            {
-                this->main->on_actionSymbols_triggered();
-            }
-            else if (str.contains("Refresh"))
-            {
-                this->main->refreshAll();
-            }
-            else if (str.contains("Relocs"))
-            {
-                this->main->on_actionReloc_triggered();
-            }
-            else if (str.contains("Comments"))
-            {
-                this->main->on_actionComents_triggered();
-            }
-            else if (str.contains("Notepad"))
-            {
-                this->main->on_actionNotepad_triggered();
-            }
-            else if (str.contains("Dashboard"))
-            {
-                this->main->on_actionDashboard_triggered();
-            }
-            else if (str.contains("Theme"))
-            {
-                this->main->toggleTheme();
-            }
-            else if (str.contains("Script"))
-            {
-                this->main->on_actionRun_Script_triggered();
-            }
-            else if (str.contains("Tabs"))
-            {
-                this->main->on_actionTabs_triggered();
-            }
-        }
-        else
-        {
-            Core()->seek(text());
-        }
+        Core()->seek(str);
     }
 
-    // check which tab is open? update all tabs? hex, graph?
-    //refreshMem( this->gotoEntry->text() );
     this->setText("");
     this->clearFocus();
     this->restoreCompleter();

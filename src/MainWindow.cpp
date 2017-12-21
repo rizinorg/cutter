@@ -301,10 +301,6 @@ void MainWindow::initUI()
     QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
     connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
 
-    // : goes to goto entry
-    QShortcut *commands_shortcut = new QShortcut(QKeySequence(Qt::Key_Colon), this);
-    connect(commands_shortcut, SIGNAL(activated()), this->omnibar, SLOT(showCommands()));
-
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 

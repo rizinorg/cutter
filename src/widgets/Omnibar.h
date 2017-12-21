@@ -19,14 +19,12 @@ private slots:
     void restoreCompleter();
 
 public slots:
-    void showCommands();
     void clear();
 
 private:
     void setupCompleter();
 
     MainWindow          *main;
-    const QStringList   commands;
     QStringList         flags;
 };
 
