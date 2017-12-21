@@ -90,6 +90,13 @@ void OptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
 
+void OptionsDialog::setInteractionEnabled(bool enabled)
+{
+    ui->optionsWidget->setEnabled(enabled);
+    ui->okButton->setEnabled(enabled);
+    ui->cancelButton->setEnabled(enabled);
+}
+
 QString OptionsDialog::getSelectedArch()
 {
     QVariant archValue = ui->archComboBox->currentData();
@@ -125,14 +132,12 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 {
     ui->analSlider->setValue(level);
 
-    this->setEnabled(0);
+    setInteractionEnabled(false);
 
     // Show Progress Bar
-    ui->progressBar->setEnabled(1);
-    ui->statusLabel->setEnabled(1);
-    ui->progressBar->setVisible(1);
-    ui->statusLabel->setVisible(1);
-    ui->elapsedLabel->setVisible(1);
+    ui->progressBar->setVisible(true);
+    ui->statusLabel->setVisible(true);
+    ui->elapsedLabel->setVisible(true);
 
     ui->statusLabel->setText(tr("Starting analysis"));
     //ui->progressBar->setValue(5);

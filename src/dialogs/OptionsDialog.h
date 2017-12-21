@@ -49,6 +49,9 @@ private:
     QString analysisDescription(int level);
 
     void updateCPUComboBox();
+
+    void setInteractionEnabled(bool enabled);
+
 public:
     std::unique_ptr<Ui::OptionsDialog> ui;
     QString getSelectedArch();
