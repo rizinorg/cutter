@@ -93,18 +93,6 @@ public slots:
     void setDarkTheme();
     void setDefaultTheme();
 
-    void on_actionEntry_points_triggered();
-    void on_actionFunctions_triggered();
-    void on_actionImports_triggered();
-    void on_actionExports_triggered();
-    void on_actionSymbols_triggered();
-    void on_actionReloc_triggered();
-    void on_actionStrings_triggered();
-    void on_actionSections_triggered();
-    void on_actionFlags_triggered();
-    void on_actionComents_triggered();
-    void on_actionNotepad_triggered();
-
     void on_actionLock_triggered();
 
     void on_actionLockUnlock_triggered();
@@ -112,8 +100,6 @@ public slots:
     void on_actionTabs_triggered();
 
     void lockUnlock_Docks(bool what);
-
-    void on_actionDashboard_triggered();
 
     void on_actionDark_Theme_triggered();
 
@@ -124,7 +110,6 @@ public slots:
     void backButton_clicked();
 
 private slots:
-
     void on_actionAbout_triggered();
 
     void on_actionRefresh_Panels_triggered();
@@ -144,8 +129,6 @@ private slots:
     void on_actionRedoSeek_triggered();
 
     void on_actionWhite_Theme_triggered();
-
-    void on_actionSDBBrowser_triggered();
 
     void on_actionLoad_triggered();
 
@@ -183,7 +166,6 @@ private:
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
-    QList<QDockWidget *> dockWidgets;
     std::unique_ptr<Ui::MainWindow> ui;
     Highlighter      *highlighter;
     AsciiHighlighter *hex_highlighter;
@@ -204,13 +186,17 @@ private:
     SectionsDock     *sectionsDock;
     ConsoleWidget    *consoleDock;
 
-    void toggleDockWidget(QDockWidget *dock_widget);
+    QList<QDockWidget *> dockWidgets;
+    QMap<QAction *, QDockWidget *> dockWidgetActions;
+
+    void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
     void resetToDefaultLayout();
 
     void restoreDocks();
     void hideAllDocks();
     void showDefaultDocks();
+    void updateDockActionsChecked();
 
 public:
     QString getFilename() const         { return filename; }

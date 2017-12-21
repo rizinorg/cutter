@@ -47,6 +47,8 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     cursorLineOffset = 0;
     seekFromCursor = false;
 
+    setWindowTitle(tr("Disassembly"));
+
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(mDisasTextEdit);
     layout->setMargin(0);
@@ -151,12 +153,6 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     ADD_SHORTCUT(QKeySequence::MoveToNextPage, [this]() { moveCursorRelative(false, true); })
     ADD_SHORTCUT(QKeySequence::MoveToPreviousPage, [this]() { moveCursorRelative(true, true); })
 #undef ADD_SHORTCUT
-}
-
-DisassemblyWidget::DisassemblyWidget(const QString &title, QWidget *parent) :
-    DisassemblyWidget(parent)
-{
-    this->setWindowTitle(title);
 }
 
 QWidget* DisassemblyWidget::getTextWidget()

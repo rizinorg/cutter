@@ -17,7 +17,6 @@ class DisassemblyWidget : public QDockWidget
     Q_OBJECT
 public:
     explicit DisassemblyWidget(QWidget *parent = nullptr);
-    explicit DisassemblyWidget(const QString &title, QWidget *parent = nullptr);
     QWidget* getTextWidget();
 
 public slots:
