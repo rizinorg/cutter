@@ -6,6 +6,10 @@
 
 #include "cutter.h"
 
+namespace Ui
+{
+    class PseudocodeWidget;
+}
 
 class QTextEdit;
 class SyntaxHighlighter;
@@ -20,19 +24,18 @@ public:
     ~PseudocodeWidget();
 
 private slots:
-    void on_seekChanged(RVA addr);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
     void fontsUpdated();
     void colorsUpdatedSlot();
     void refreshPseudocode();
 
 private:
+    std::unique_ptr<Ui::PseudocodeWidget> ui;
+
+    SyntaxHighlighter *syntaxHighLighter;
+
     void refresh(RVA addr);
     void setupFonts();
-
-private:
-    QTextEdit* textEditWidget;
-    SyntaxHighlighter* syntaxHighLighter;
 };
 
 #endif // PSEUDOCODEWIDGET_H

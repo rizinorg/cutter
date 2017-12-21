@@ -1,4 +1,5 @@
 #include "PseudocodeWidget.h"
+#include "ui_PseudocodeWidget.h"
 
 #include <QTextEdit>
 
@@ -7,19 +8,16 @@
 #include "utils/SyntaxHighlighter.h"
 #include "utils/TempConfig.h"
 
-PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags)
-    :   QDockWidget(parent, flags)
-    ,   textEditWidget(new QTextEdit(this))
-    ,   syntaxHighLighter( new SyntaxHighlighter(textEditWidget->document()))
+PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags) :
+        QDockWidget(parent, flags),
+        ui(new Ui::PseudocodeWidget)
 {
-    setObjectName("PseudocodeWidget");
+    ui->setupUi(this);
 
-    textEditWidget->setParent(this);
-    setWidget(textEditWidget);
+    syntaxHighLighter = new SyntaxHighlighter(ui->textEdit->document());
+
     setupFonts();
     colorsUpdatedSlot();
-    textEditWidget->setReadOnly(true);
-    textEditWidget->setLineWrapMode(QTextEdit::NoWrap);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
@@ -34,7 +32,6 @@ PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags)
     });
 
 
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
         if (visibility)
@@ -43,12 +40,11 @@ PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags)
         }
     });
 
-    // Get alerted when there's a refresh
-    connect(Core(), &CutterCore::refreshAll, this, [this]() {
+    connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
         refresh(Core()->getOffset());
     });
 
-    refresh(Core()->getOffset());
+    refresh(RVA_INVALID);
 }
 
 PseudocodeWidget::PseudocodeWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
@@ -60,20 +56,21 @@ PseudocodeWidget::PseudocodeWidget(const QString &title, QWidget *parent, Qt::Wi
 PseudocodeWidget::~PseudocodeWidget() {}
 
 
-void PseudocodeWidget::on_seekChanged(RVA addr)
-{
-    refresh(addr);
-}
-
 void PseudocodeWidget::refresh(RVA addr)
 {
+    if (addr == RVA_INVALID)
+    {
+        ui->textEdit->setText(tr("Click Refresh to generate Pseudocode from current offset."));
+        return;
+    }
+
     const QString& decompiledCode = Core()->getDecompiledCode(addr);
     if (decompiledCode.length() == 0)
     {
-        textEditWidget->setText(tr("Cannot decompile at") + " " + RAddressString(addr) + " " + tr("(Not a function?)"));
+        ui->textEdit->setText(tr("Cannot decompile at") + " " + RAddressString(addr) + " " + tr("(Not a function?)"));
         return;
     }
-    textEditWidget->setText(decompiledCode);
+    ui->textEdit->setText(decompiledCode);
 }
 
 void PseudocodeWidget::refreshPseudocode()
@@ -92,7 +89,7 @@ void PseudocodeWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType
 void PseudocodeWidget::setupFonts()
 {
     QFont font = Config()->getFont();
-    textEditWidget->setFont(font);
+    ui->textEdit->setFont(font);
 }
 
 void PseudocodeWidget::fontsUpdated()
@@ -102,9 +99,9 @@ void PseudocodeWidget::fontsUpdated()
 
 void PseudocodeWidget::colorsUpdatedSlot()
 {
-    const QString textEditClassName(textEditWidget->metaObject()->className());
+    const QString textEditClassName(ui->textEdit->metaObject()->className());
     QString styleSheet = QString(textEditClassName + " { background-color: %1; color: %2; }")
             .arg(ConfigColor("gui.background").name())
             .arg(ConfigColor("btext").name());
-    textEditWidget->setStyleSheet(styleSheet);
+    ui->textEdit->setStyleSheet(styleSheet);
 }
