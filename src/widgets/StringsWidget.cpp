@@ -132,7 +132,7 @@ StringsWidget::StringsWidget(QWidget *parent) :
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry
-    QShortcut *clear_shortcut = new QShortcut(QKeySequence::Cancel, this);
+    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
