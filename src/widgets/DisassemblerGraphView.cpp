@@ -159,7 +159,7 @@ void DisassemblerGraphView::loadCurrentGraph()
             // Skip last byte, otherwise it will overlap with next instruction
             i.size = op["size"].toVariant().toULongLong() - 1;
             RichTextPainter::List richText;
-            Colors::colorizeAssembly(richText, op["opcode"].toString(), op["type_num"].toVariant().toULongLong());
+            Colors::colorizeAssembly(richText, op["disasm"].toString(), op["type_num"].toVariant().toULongLong());
             if (op["comment"].toString().length()) {
                 RichTextPainter::CustomRichText_t comment;
                 comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
