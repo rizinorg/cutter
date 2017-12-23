@@ -162,7 +162,7 @@ void CommentsWidget::refreshTree()
 
         nestedComments[fcn_name].append(comment);
     }
-    qhelpers::adjustColumns(ui->commentsTreeWidget);
+    qhelpers::adjustColumns(ui->commentsTreeWidget, 0);
 
     // Add nested comments
     ui->nestedCmtsTreeWidget->clear();
@@ -180,5 +180,5 @@ void CommentsWidget::refreshTree()
         }
         ui->nestedCmtsTreeWidget->addTopLevelItem(item);
     }
-    qhelpers::adjustColumns(ui->nestedCmtsTreeWidget);
+    qhelpers::adjustColumns(ui->nestedCmtsTreeWidget, 0);
 }

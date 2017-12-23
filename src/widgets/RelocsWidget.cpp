@@ -44,7 +44,7 @@ void RelocsWidget::fillTreeWidget()
         ui->relocsTreeWidget->addTopLevelItem(item);
     }
 
-    qhelpers::adjustColumns(ui->relocsTreeWidget);
+    qhelpers::adjustColumns(ui->relocsTreeWidget, 0);
 }
 
 void RelocsWidget::setScrollMode()

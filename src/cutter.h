@@ -174,6 +174,27 @@ struct DisassemblyLine
     QString text;
 };
 
+struct ClassMethodDescription
+{
+    QString name;
+    RVA addr;
+};
+
+struct ClassFieldDescription
+{
+    QString name;
+    RVA addr;
+};
+
+struct ClassDescription
+{
+    QString name;
+    RVA addr;
+    ut64 index;
+    QList<ClassMethodDescription> methods;
+    QList<ClassFieldDescription> fields;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -186,6 +207,12 @@ Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
 Q_DECLARE_METATYPE(RBinPluginDescription)
+Q_DECLARE_METATYPE(ClassMethodDescription)
+Q_DECLARE_METATYPE(ClassFieldDescription)
+Q_DECLARE_METATYPE(ClassDescription)
+Q_DECLARE_METATYPE(const ClassDescription *)
+Q_DECLARE_METATYPE(const ClassMethodDescription *)
+Q_DECLARE_METATYPE(const ClassFieldDescription *)
 
 class CutterCore: public QObject
 {
@@ -313,6 +340,7 @@ public:
     QList<FlagDescription> getAllFlags(QString flagspace = NULL);
     QList<SectionDescription> getAllSections();
     QList<EntrypointDescription> getAllEntrypoint();
+    QList<ClassDescription> getAllClasses();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 

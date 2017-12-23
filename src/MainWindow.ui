@@ -241,6 +241,7 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionEntrypoints"/>
     <addaction name="actionFunctions"/>
+    <addaction name="actionClasses"/>
     <addaction name="actionImports"/>
     <addaction name="actionExports"/>
     <addaction name="actionSymbols"/>
@@ -1017,6 +1018,14 @@ QToolButton:pressed {
    </property>
    <property name="text">
     <string>Console</string>
+   </property>
+  </action>
+  <action name="actionClasses">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Classes</string>
    </property>
   </action>
  </widget>

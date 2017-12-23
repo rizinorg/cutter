@@ -36,6 +36,7 @@ class SectionsDock;
 class ConsoleWidget;
 class EntrypointWidget;
 class DisassemblerGraphView;
+class ClassesWidget;
 
 class QDockWidget;
 
@@ -169,7 +170,7 @@ private:
     std::unique_ptr<Ui::MainWindow> ui;
     Highlighter      *highlighter;
     AsciiHighlighter *hex_highlighter;
-    VisualNavbar      *visualNavbar;
+    VisualNavbar     *visualNavbar;
     EntrypointWidget *entrypointDock;
     FunctionsWidget  *functionsDock;
     ImportsWidget    *importsDock;
@@ -185,6 +186,7 @@ private:
     //QAction          *sidebar_action;
     SectionsDock     *sectionsDock;
     ConsoleWidget    *consoleDock;
+    ClassesWidget    *classesDock;
 
     QList<QDockWidget *> dockWidgets;
     QMap<QAction *, QDockWidget *> dockWidgetActions;

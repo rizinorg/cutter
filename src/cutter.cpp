@@ -1175,6 +1175,46 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
     return ret;
 }
 
+QList<ClassDescription> CutterCore::getAllClasses()
+{
+    CORE_LOCK();
+    QList<ClassDescription> ret;
+
+    QJsonArray classesArray = cmdj("icj").array();
+    for (QJsonValueRef value : classesArray)
+    {
+        QJsonObject classObject = value.toObject();
+
+        ClassDescription cls;
+        cls.name = classObject["classname"].toString();
+        cls.addr = classObject["addr"].toVariant().toULongLong();
+        cls.index = classObject["index"].toVariant().toULongLong();
+
+        for(QJsonValueRef value2 : classObject["methods"].toArray())
+        {
+            QJsonObject methObject = value2.toObject();
+
+            ClassMethodDescription meth;
+            meth.name = methObject["name"].toString();
+            meth.addr = methObject["addr"].toVariant().toULongLong();
+            cls.methods << meth;
+        }
+
+        for(QJsonValueRef value2 : classObject["fields"].toArray())
+        {
+            QJsonObject fieldObject = value2.toObject();
+
+            ClassFieldDescription field;
+            field.name = fieldObject["name"].toString();
+            field.addr = fieldObject["addr"].toVariant().toULongLong();
+            cls.fields << field;
+        }
+
+        ret << cls;
+    }
+    return ret;
+}
+
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();

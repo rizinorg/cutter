@@ -34,7 +34,7 @@ void SectionsWidget::refreshSections()
         fillSections(row++, section);
     }
 
-    qhelpers::adjustColumns(tree);
+    qhelpers::adjustColumns(tree, 0);
 }
 
 void SectionsWidget::setupViews()

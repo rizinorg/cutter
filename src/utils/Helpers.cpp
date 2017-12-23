@@ -20,18 +20,22 @@ static QAbstractItemView::ScrollMode scrollMode()
 
 namespace qhelpers
 {
-    void adjustColumns(QTreeWidget *tw, int columnCount, int padding)
+    void adjustColumns(QTreeView *tv, int columnCount, int padding)
     {
-        const int count = columnCount == 0 ? tw->columnCount() : columnCount;
-        for (int i = 0; i != count; ++i)
+        for (int i = 0; i != columnCount; ++i)
         {
-            tw->resizeColumnToContents(i);
+            tv->resizeColumnToContents(i);
             if (padding > 0)
             {
-                int width = tw->columnWidth(i);
-                tw->setColumnWidth(i, width + padding);
+                int width = tv->columnWidth(i);
+                tv->setColumnWidth(i, width + padding);
             }
         }
+    }
+
+    void adjustColumns(QTreeWidget *tw, int padding)
+    {
+        adjustColumns(tw, tw->columnCount(), padding);
     }
 
     QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2,

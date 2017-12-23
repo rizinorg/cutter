@@ -33,12 +33,14 @@
 #include <QToolButton>
 #include <QToolTip>
 #include <QTreeWidgetItem>
+#include <QSvgRenderer>
 
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/Helpers.h"
-#include "dialogs/NewFileDialog.h"
+#include "utils/SvgIconEngine.h"
 
+#include "dialogs/NewFileDialog.h"
 #include "widgets/DisassemblerGraphView.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
@@ -60,6 +62,7 @@
 #include "dialogs/OptionsDialog.h"
 #include "widgets/EntrypointWidget.h"
 #include "dialogs/SaveProjectDialog.h"
+#include "widgets/ClassesWidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -115,9 +118,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
 }
-
-#include <QSvgRenderer>
-#include "utils/SvgIconEngine.h"
 
 void MainWindow::initUI()
 {
@@ -241,6 +241,8 @@ void MainWindow::initUI()
     ADD_DOCK(Notepad, notepadDock, ui->actionNotepad);
     ADD_DOCK(Dashboard, dashboardDock, ui->actionDashboard);
     ADD_DOCK(SdbDock, sdbDock, ui->actionSDBBrowser);
+    ADD_DOCK(ClassesWidget, classesDock, ui->actionClasses);
+
 #undef ADD_DOCK
 
     // Set up dock widgets default layout
@@ -622,6 +624,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, exportsDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
     tabifyDockWidget(dashboardDock, notepadDock);
+    tabifyDockWidget(dashboardDock, classesDock);
 
     dashboardDock->raise();
 

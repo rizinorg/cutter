@@ -13,10 +13,12 @@ class QTreeWidgetItem;
 class QAbstractItemView;
 class QAbstractButton;
 class QWidget;
+class QTreeView;
 
 namespace qhelpers
 {
-    void adjustColumns(QTreeWidget *tw, int columnCount = 0, int padding = 0);
+    void adjustColumns(QTreeView *tv, int columnCount, int padding);
+    void adjustColumns(QTreeWidget *tw, int padding);
 
     QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
                                const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());

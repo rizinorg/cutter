@@ -44,7 +44,7 @@ void SymbolsWidget::fillSymbols()
         item->setData(0, Qt::UserRole, QVariant::fromValue(symbol));
         ui->symbolsTreeWidget->addTopLevelItem(item);
     }
-    qhelpers::adjustColumns(ui->symbolsTreeWidget);
+    qhelpers::adjustColumns(ui->symbolsTreeWidget, 0);
 }
 
 void SymbolsWidget::setScrollMode()
