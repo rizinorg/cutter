@@ -443,42 +443,7 @@ void HexdumpWidget::selectionChanged()
     }
     connectScroll(true);
 
-    if(sender() == ui->hexASCIIText)
-    {
-        QTextCursor textCursor = ui->hexASCIIText->textCursor();
-        if(!textCursor.hasSelection())
-        {
-            clearParseWindow();
-            RVA adr = asciiPositionToAddress(textCursor.position());
-            int pos = hexAddressToPosition(adr);
-            setTextEditPosition(ui->hexHexText, pos);
-            connectScroll(false);
-            sent_seek = true;
-            Core()->seek(adr);
-            sent_seek = false;
-            return;
-        }
-        RVA startAddress = asciiPositionToAddress(textCursor.selectionStart());
-        RVA endAddress = asciiPositionToAddress(textCursor.selectionEnd());
-
-        updateParseWindow(startAddress, endAddress - startAddress);
-
-        int startPosition = hexAddressToPosition(startAddress);
-        int endPosition = hexAddressToPosition(endAddress);
-        QChar endChar = ui->hexHexText->document()->characterAt(endPosition);
-
-        // End position -1 because the position we get above is for the next
-        // entry, so including the space/newline
-        endPosition -= 1;
-        QTextCursor targetTextCursor = ui->hexHexText->textCursor();
-        targetTextCursor.setPosition(startPosition);
-        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
-        ui->hexHexText->setTextCursor(targetTextCursor);
-        sent_seek = true;
-        Core()->seek(startAddress);
-        sent_seek = false;
-    }
-    else if(sender() == ui->hexHexText)
+    if(sender() == ui->hexHexText)
     {
         QTextCursor textCursor = ui->hexHexText->textCursor();
         if(!textCursor.hasSelection())
@@ -548,8 +513,41 @@ void HexdumpWidget::selectionChanged()
         sent_seek = true;
         Core()->seek(startAddress);
         sent_seek = false;
-    } else {
-        qWarning() << "HexdumpWidget::selectionChanged: Unknown sender!";
+    }
+    else
+    {
+        QTextCursor textCursor = ui->hexASCIIText->textCursor();
+        if(!textCursor.hasSelection())
+        {
+            clearParseWindow();
+            RVA adr = asciiPositionToAddress(textCursor.position());
+            int pos = hexAddressToPosition(adr);
+            setTextEditPosition(ui->hexHexText, pos);
+            connectScroll(false);
+            sent_seek = true;
+            Core()->seek(adr);
+            sent_seek = false;
+            return;
+        }
+        RVA startAddress = asciiPositionToAddress(textCursor.selectionStart());
+        RVA endAddress = asciiPositionToAddress(textCursor.selectionEnd());
+
+        updateParseWindow(startAddress, endAddress - startAddress);
+
+        int startPosition = hexAddressToPosition(startAddress);
+        int endPosition = hexAddressToPosition(endAddress);
+        QChar endChar = ui->hexHexText->document()->characterAt(endPosition);
+
+        // End position -1 because the position we get above is for the next
+        // entry, so including the space/newline
+        endPosition -= 1;
+        QTextCursor targetTextCursor = ui->hexHexText->textCursor();
+        targetTextCursor.setPosition(startPosition);
+        targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+        ui->hexHexText->setTextCursor(targetTextCursor);
+        sent_seek = true;
+        Core()->seek(startAddress);
+        sent_seek = false;
     }
 
     connectScroll(false);
@@ -654,7 +652,6 @@ void HexdumpWidget::setupFonts()
 void HexdumpWidget::fontsUpdated()
 {
     setupFonts();
-//    adjustHexdumpLines();
 }
 
 void HexdumpWidget::colorsUpdatedSlot()
