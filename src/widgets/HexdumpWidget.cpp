@@ -666,6 +666,7 @@ void HexdumpWidget::colorsUpdatedSlot()
     ui->hexOffsetText->setStyleSheet(styleSheet);
     ui->hexHexText->setStyleSheet(styleSheet);
     ui->hexASCIIText->setStyleSheet(styleSheet);
+    ui->hexSpacerText->setStyleSheet(styleSheet);
 }
 
 void HexdumpWidget::clearParseWindow()
