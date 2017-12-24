@@ -71,13 +71,13 @@ public:
         std::vector<ut64> new_exits;
 
         // Number of rows in block
-        int row_count;
+        int row_count = 0;
         // Number of columns in block
-        int col_count;
+        int col_count = 0;
         // Column in which the block is
-        int col;
+        int col = 0;
         // Row in which the block is
-        int row;
+        int row = 0;
 
         // Edges
         std::vector<GraphEdge> edges;
