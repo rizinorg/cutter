@@ -22,14 +22,14 @@ PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshPseudocode()));
-    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshPseudocode()));
-    connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(refreshPseudocode()));
-    connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshPseudocode()));
-    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshPseudocode()));
-    connect(Core(), &CutterCore::instructionChanged, this, [this](/*RVA offset*/) {
-            refreshPseudocode();
-    });
+    //connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshPseudocode()));
+    //connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshPseudocode()));
+    //connect(Core(), SIGNAL(functionRenamed(QString, QString)), this, SLOT(refreshPseudocode()));
+    //connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshPseudocode()));
+    //connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshPseudocode()));
+    //connect(Core(), &CutterCore::instructionChanged, this, [this](/*RVA offset*/) {
+    //        refreshPseudocode();
+    //});
 
 
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
