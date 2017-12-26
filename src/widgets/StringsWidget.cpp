@@ -87,6 +87,8 @@ StringsSortFilterProxyModel::StringsSortFilterProxyModel(StringsModel *source_mo
         : QSortFilterProxyModel(parent)
 {
     setSourceModel(source_model);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
 bool StringsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
