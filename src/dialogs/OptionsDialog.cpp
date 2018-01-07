@@ -67,8 +67,6 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     ui->programLineEdit->setText(main->getFilename());
-    QFileInfo fi(this->main->getFilename());
-    this->core->tryFile(fi.filePath(), fi.isWritable());
 }
 
 OptionsDialog::~OptionsDialog() {}

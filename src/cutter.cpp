@@ -414,7 +414,6 @@ bool CutterCore::tryFile(QString path, bool rw)
     cf = r_core_file_open(this->core_, path.toUtf8().constData(), flags, 0LL);
     if (!cf)
     {
-        eprintf("QRCore::tryFile: Cannot open file?\n");
         return false;
     }
 
