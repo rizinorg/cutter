@@ -2,6 +2,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QFontDatabase>
+#include <QFile>
+#include <QApplication>
 
 Configuration* Configuration::mPtr = nullptr;
 
@@ -118,6 +120,8 @@ void Configuration::loadDefaultTheme()
     // Custom
     setColor("gui.imports", colorA);
 
+    /* Load Qt Theme */
+    qApp->setStyleSheet("");
 }
 
 void Configuration::loadDarkTheme()
@@ -204,6 +208,20 @@ void Configuration::loadDarkTheme()
     setColor("gui.alt_background", QColor(58, 100, 128));
     // Custom
     setColor("gui.imports", colorA);
+
+
+    /* Load Qt Theme */
+    QFile f(":qdarkstyle/style.qss");
+    if (!f.exists())
+    {
+        qWarning() << "Can't find dark theme stylesheet.";
+    }
+    else
+    {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        qApp->setStyleSheet(ts.readAll());
+    }
 }
 
 const QFont Configuration::getFont() const

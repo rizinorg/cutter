@@ -19,16 +19,11 @@ public:
     explicit SideBar(MainWindow *main);
     ~SideBar();
 
-public slots:
-    void themesButtonToggle();
-
 private slots:
 
     void on_tabsButton_clicked();
 
     void on_lockButton_clicked();
-
-    void on_themesButton_clicked();
 
     void on_calcInput_textChanged(const QString &arg1);
 

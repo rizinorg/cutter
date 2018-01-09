@@ -81,7 +81,6 @@ public:
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void sendToNotepad(const QString &txt);
-    void toggleTheme();
     void refreshOmniBar(const QStringList &flags);
 
 public slots:
@@ -91,9 +90,6 @@ public slots:
     void setPanelLock();
     void setTabLocation();
 
-    void setDarkTheme();
-    void setDefaultTheme();
-
     void on_actionLock_triggered();
 
     void on_actionLockUnlock_triggered();
@@ -101,8 +97,6 @@ public slots:
     void on_actionTabs_triggered();
 
     void lockUnlock_Docks(bool what);
-
-    void on_actionDark_Theme_triggered();
 
     void on_actionRun_Script_triggered();
 
@@ -128,8 +122,6 @@ private slots:
 
     void on_actionUndoSeek_triggered();
     void on_actionRedoSeek_triggered();
-
-    void on_actionWhite_Theme_triggered();
 
     void on_actionLoad_triggered();
 

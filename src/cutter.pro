@@ -181,7 +181,9 @@ FORMS    += \
     widgets/ClassesWidget.ui
 
 RESOURCES += \
-    resources.qrc
+    resources.qrc \
+    themes/qdarkstyle/style.qrc
+
 
 DISTFILES += cutter.astylerc
 

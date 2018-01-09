@@ -167,7 +167,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         if (functionIsImport(function.offset))
             return QVariant(ConfigColor("gui.imports"));
-        return QVariant(QColor(Qt::black));
+        return QVariant(this->property("color"));
 
     case FunctionDescriptionRole:
         return QVariant::fromValue(function);

@@ -57,19 +57,13 @@
        <enum>Qt::CustomContextMenu</enum>
       </property>
       <property name="styleSheet">
-       <string notr="true">QTreeView::item
+       <string notr="true">
+QTreeView::item
 {
    padding-top: 1px;
    padding-bottom: 1px;
 }
-
-QToolTip 
-{
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-	font: 11pt &quot;Monaco&quot;;
-}</string>
+       </string>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>

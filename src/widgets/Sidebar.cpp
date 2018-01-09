@@ -23,14 +23,6 @@ SideBar::SideBar(MainWindow *main) :
     {
         ui->respButton->setChecked(false);
     }
-    if (settings.value("dark").toBool())
-    {
-        ui->themesButton->setChecked(true);
-    }
-    else
-    {
-        ui->themesButton->setChecked(false);
-    }
 }
 
 SideBar::~SideBar() {}
@@ -51,25 +43,6 @@ void SideBar::on_lockButton_clicked()
     {
         ui->lockButton->setIcon(QIcon(":/img/icons/lock_white.svg"));
         this->main->lockUnlock_Docks(0);
-    }
-}
-
-void SideBar::themesButtonToggle()
-{
-    ui->themesButton->click();
-}
-
-void SideBar::on_themesButton_clicked()
-{
-    if (ui->themesButton->isChecked())
-    {
-        // Dark theme
-        this->main->setDarkTheme();
-    }
-    else
-    {
-        // Clear theme
-        this->main->setDefaultTheme();
     }
 }
 

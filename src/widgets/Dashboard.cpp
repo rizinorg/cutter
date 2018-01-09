@@ -81,7 +81,7 @@ void Dashboard::updateContents()
     else
     {
         this->ui->canaryEdit->setText("False");
-        this->ui->canaryEdit->setStyleSheet("color: rgb(255, 0, 0);");
+        //this->ui->canaryEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
     if (item2["crypto"].toBool() == true)
     {
@@ -98,7 +98,7 @@ void Dashboard::updateContents()
     else
     {
         this->ui->nxEdit->setText("False");
-        this->ui->nxEdit->setStyleSheet("color: rgb(255, 0, 0);");
+        //this->ui->nxEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
     if (item2["pic"].toBool() == true)
     {
@@ -107,7 +107,7 @@ void Dashboard::updateContents()
     else
     {
         this->ui->picEdit->setText("False");
-        this->ui->picEdit->setStyleSheet("color: rgb(255, 0, 0);");
+        //this->ui->picEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
     if (item2["static"].toBool() == true)
     {

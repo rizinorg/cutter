@@ -137,11 +137,11 @@ void MainWindow::initUI()
     spacer4->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     spacer4->setMinimumSize(10, 10);
     ui->mainToolBar->insertWidget(ui->actionForward, spacer4);
-    ui->actionForward->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_right.svg"), palette().buttonText().color())));
+    ui->actionForward->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_right.svg"))));
 
     // Popup menu on theme toolbar button
     QToolButton *backButton = new QToolButton(this);
-    backButton->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_left.svg"), palette().buttonText().color())));
+    backButton->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_left.svg"))));
     //backButton->setPopupMode(QToolButton::DelayedPopup);
     ui->mainToolBar->insertWidget(ui->actionForward, backButton);
     connect(backButton, SIGNAL(clicked()), this, SLOT(backButton_clicked()));
@@ -371,18 +371,6 @@ bool MainWindow::saveProjectAs(bool quit)
 
 }
 
-void MainWindow::toggleTheme()
-{
-    if (QSettings().value("dark").toBool())
-    {
-        setDefaultTheme();
-    }
-    else
-    {
-        setDarkTheme();
-    }
-}
-
 void MainWindow::refreshOmniBar(const QStringList &flags)
 {
     omnibar->refresh(flags);
@@ -486,17 +474,6 @@ void MainWindow::setTabLocation()
         ui->actionTabs_on_Top->setChecked(false);
     }
 }
-
-void MainWindow::setDarkTheme()
-{
-    Config()->setDarkTheme(true);
-}
-
-void MainWindow::setDefaultTheme()
-{
-    Config()->setDarkTheme(false);
-}
-
 
 void MainWindow::refreshAll()
 {
@@ -767,16 +744,6 @@ void MainWindow::on_actionRun_Script_triggered()
     if (!fileName.length()) //cancel was pressed
         return;
     this->core->cmd(". " + fileName);
-}
-
-void MainWindow::on_actionDark_Theme_triggered()
-{
-    this->setDarkTheme();
-}
-
-void MainWindow::on_actionWhite_Theme_triggered()
-{
-    this->setDefaultTheme();
 }
 
 void MainWindow::on_actionLoad_triggered()

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: palette(base);</string>
+   <string notr="true"></string>
   </property>
   <property name="windowTitle">
    <string notr="true">Dashboard</string>
