@@ -6,6 +6,7 @@
 #include "dialogs/preferences/PreferencesDialog.h"
 #include "utils/Helpers.h"
 
+#include <QApplication>
 #include <QComboBox>
 #include <QCompleter>
 #include <QDebug>
@@ -245,9 +246,6 @@ void MainWindow::initUI()
 
 #undef ADD_DOCK
 
-    // Set up dock widgets default layout
-    resetToDefaultLayout();
-
     // Restore saved settings
     this->readSettings();
     // TODO: Allow the user to select this option visually in the GUI settings
@@ -257,10 +255,9 @@ void MainWindow::initUI()
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
-    // Show dashboard by default
-    this->dashboardDock->raise();
+    // Set up dock widgets default layout
+    resetToDefaultLayout();
 
-    //qDebug() << "FOLDER: " << QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
     /*
      *  Some global shortcuts
      */
@@ -368,7 +365,6 @@ bool MainWindow::saveProjectAs(bool quit)
     int result = dialog.exec();
 
     return !quit || result != SaveProjectDialog::Rejected;
-
 }
 
 void MainWindow::refreshOmniBar(const QStringList &flags)
@@ -587,7 +583,7 @@ void MainWindow::restoreDocks()
     // Console | Sections
     splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
 
-    // tabs for center (must be applied after splitDockWidget())
+    // Tabs for center (must be applied after splitDockWidget())
     tabifyDockWidget(sectionsDock, commentsDock);
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
@@ -603,8 +599,6 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, notepadDock);
     tabifyDockWidget(dashboardDock, classesDock);
 
-    dashboardDock->raise();
-
     updateDockActionsChecked();
 }
 
@@ -613,7 +607,7 @@ void MainWindow::hideAllDocks()
 {
     for (auto w : dockWidgets)
     {
-        w->hide();
+        removeDockWidget(w);
     }
 
     updateDockActionsChecked();
@@ -659,10 +653,9 @@ void MainWindow::showDefaultDocks()
 
 void MainWindow::resetToDefaultLayout()
 {
-    restoreDocks();
     hideAllDocks();
+    restoreDocks();
     showDefaultDocks();
-
     dashboardDock->raise();
 
     // ugly workaround to set the default widths of functions and sidebar docks
