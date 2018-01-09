@@ -24,14 +24,14 @@ dist: trusty
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo add-apt-repository ppa:beineri/opt-qt591-trusty -y &&  
-      sudo apt-get update -qq  
+      sudo add-apt-repository ppa:beineri/opt-qt591-trusty -y &&
+      sudo apt-get update -qq
     ; fi
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install p7zip ccache qt5 && 
-      export PATH="/usr/local/opt/qt/bin:$PATH" 
+      brew install p7zip ccache qt5 &&
+      export PATH="/usr/local/opt/qt/bin:$PATH"
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get -y install qt59base qt59svg --allow-unauthenticated &&
@@ -39,7 +39,7 @@ install:
     ; fi
 
 after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       macdeployqt cutter.app -dmg &&
       export FILE_TO_UPLOAD="cutter.dmg"
     ; fi
@@ -59,12 +59,11 @@ after_success:
 before_script:
   - git submodule init ; git submodule update
   - cd radare2
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        sed -i 's,R2_PREFIX.*,R2_PREFIX "/tmp/.cutter_usr",' libr/include/r_userconf.h.acr;
-        INSTALL_TARGET=install sys/install.sh;
-    else
-        LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        export LDFLAGS=-headerpad_max_install_names;
     fi
+  - ./configure --with-nonpic --without-pic
+  - make
   - cd ..
 
 script:

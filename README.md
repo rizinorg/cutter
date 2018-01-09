@@ -25,20 +25,25 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 Cutter is based on Qt so you will need to have it installed.
 - Download: [Qt Open Source](https://info.qt.io/download-qt-for-application-development)
 - Add Qt 5.9.1: http://doc.qt.io/qtcreator/creator-project-qmake.html
-    
+
 #### Building
 
 First you must clone the repository:
+
 ```sh
 git clone https://github.com/radareorg/cutter
 cd cutter
 ```
 
 ##### Building radare2
-**/!\ WARNING /!\ This will delete your current radare2 version if any already installed.**
+
+The version of radare2 installed on your system is probably not compatible with Cutter, so build it from source:
+
 ```sh
 git submodule init radare2 && git submodule update radare2
-cd radare2 && ./sys/install.sh
+cd radare2
+./configure --with-nonpic --without-pic
+make
 cd ..
 ```
 
@@ -62,17 +67,14 @@ cmake ../src
 make
 ```
 
-Then run cutter: `./cutter` or `./build/cutter`
-
-Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for instance) you might want to use  `LD_LIBRARY_PATH=$HOME/bin/prefix/radare2/lib ./cutter` to run cutter.
-
+Then run cutter: `./cutter`.
 
 ## Troubleshooting
 
 On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installed with brew. Run this command to workaround the issue:
 
 	sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
-	
+
 If you encounter the `Project ERROR: r_core development package not found` try this command instead `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
 
 ## Platforms
