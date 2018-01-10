@@ -47,6 +47,8 @@ make
 cd ..
 ```
 
+If you know what you're doing, you can build against radare2 by passing the `USE_SYSTEM_RADARE2=1` flag to qmake or cmake.
+
 ##### Building cutter
 
 Cutter can be build with two methods: The preferred one is with qmake, but you can also compile it with cmake. Choose the one you want to use.

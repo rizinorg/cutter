@@ -34,7 +34,18 @@ win32 {
         -lr_magic \
         -lr_crypto \
         -lr_sdb
-} else {
-    INCLUDEPATH += $$PWD/../radare2/libr/include
-    LIBS += $$PWD/../radare2/libr/libr.a -lutil -ldl -lpthread -lz
+}
+unix {
+    equals(USE_SYSTEM_RADARE2, 1) {
+        PKG_CONFIG_PATH  = $$(HOME)/bin/prefix/radare2/lib/pkgconfig
+        PKG_CONFIG_PATH += /usr/local/lib/pkgconfig
+        PKG_CONFIG_PATH += $$(PKG_CONFIG_PATH)
+        PKG_CONFIG = PKG_CONFIG_PATH=$$join(PKG_CONFIG_PATH, ":") pkg-config
+
+        CONFIG += link_pkgconfig
+        PKGCONFIG += r_core
+    } else {
+        INCLUDEPATH += $$PWD/../radare2/libr/include
+        LIBS += $$PWD/../radare2/libr/libr.a -lutil -ldl -lpthread -lz
+    }
 }

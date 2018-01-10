@@ -6,6 +6,8 @@ include(DisallowInSource)
 
 project(cutter VERSION 1.1)
 
+option(USE_SYSTEM_RADARE2 "Link against installed radare2")
+
 set(CMAKE_CXX_STANDARD 11)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -18,13 +20,13 @@ find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg)
 if(WIN32)
     set(CUTTER_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cutter_win32")
 
-    include_directories(
+    set(RADARE2_INCLUDE_DIRS
         "${CUTTER_WIN32_DIR}/radare2/include/libr"
         "${CUTTER_WIN32_DIR}/include")
     if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bit
-        link_directories("${CUTTER_WIN32_DIR}/radare2/lib64")
+        set(RADARE2_LIBRARY_DIRS "${CUTTER_WIN32_DIR}/radare2/lib64")
     else()
-        link_directories("${CUTTER_WIN32_DIR}/radare2/lib32")
+        set(RADARE2_LIBRARY_DIRS "${CUTTER_WIN32_DIR}/radare2/lib32")
     endif()
 
     set(RADARE2_LIBRARIES
@@ -52,18 +54,25 @@ if(WIN32)
         r_magic
         r_crypto
         r_sdb)
-else()
-    include_directories("${CMAKE_SOURCE_DIR}/../radare2/libr/include")
-    link_directories("${CMAKE_SOURCE_DIR}/../radare2/libr/")
+endif()
+if(UNIX)
+    if(USE_SYSTEM_RADARE2)
+        find_package(Radare2 REQUIRED)
+    else()
+        set(RADARE2_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/../radare2/libr/include")
+        set(RADARE2_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/../radare2/libr/")
 
-    set(RADARE2_LIBRARIES
-        r
-        util
-        pthread
-        dl
-        z)
+        set(RADARE2_LIBRARIES
+            r
+            util
+            pthread
+            dl
+            z)
+    endif()
 endif()
 
+include_directories(${RADARE2_INCLUDE_DIRS})
+link_directories(${RADARE2_LIBRARY_DIRS})
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
         OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
