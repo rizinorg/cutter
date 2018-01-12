@@ -43,7 +43,7 @@ The version of radare2 installed on your system is probably not compatible with 
 git submodule init radare2 && git submodule update radare2
 cd radare2
 ./configure --with-nonpic --without-pic
-make
+CFLAGS=-fPIC make
 cd ..
 ```
 

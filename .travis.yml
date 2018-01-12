@@ -63,7 +63,7 @@ before_script:
         export LDFLAGS=-headerpad_max_install_names;
     fi
   - ./configure --with-nonpic --without-pic
-  - make
+  - CFLAGS=-fPIC make
   - cd ..
 
 script:
