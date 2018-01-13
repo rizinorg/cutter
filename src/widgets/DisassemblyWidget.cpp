@@ -148,7 +148,9 @@ DisassemblyWidget::DisassemblyWidget(QWidget *parent)
     s->setContext(Qt::WidgetShortcut); \
     connect(s, &QShortcut::activated, this, (slot)); \
 }
+    ADD_SHORTCUT(QKeySequence(Qt::Key_J), [this]() { moveCursorRelative(false, false); })
     ADD_SHORTCUT(QKeySequence::MoveToNextLine, [this]() { moveCursorRelative(false, false); })
+    ADD_SHORTCUT(QKeySequence(Qt::Key_K), [this]() { moveCursorRelative(true, false); })
     ADD_SHORTCUT(QKeySequence::MoveToPreviousLine, [this]() { moveCursorRelative(true, false); })
     ADD_SHORTCUT(QKeySequence::MoveToNextPage, [this]() { moveCursorRelative(false, true); })
     ADD_SHORTCUT(QKeySequence::MoveToPreviousPage, [this]() { moveCursorRelative(true, true); })
