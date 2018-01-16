@@ -174,7 +174,7 @@ QKeySequence DisassemblyContextMenu::getCopySequence() const
 
 QKeySequence DisassemblyContextMenu::getCommentSequence() const
 {
-    return {";"};
+    return {Qt::Key_Semicolon};
 }
 
 QKeySequence DisassemblyContextMenu::getAddFlagSequence() const
