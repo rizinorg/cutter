@@ -476,12 +476,6 @@ void MainWindow::refreshAll()
     Core()->triggerRefreshAll();
 }
 
-void MainWindow::on_actionLock_triggered()
-{
-    panelLock = !panelLock;
-    setPanelLock();
-}
-
 void MainWindow::lockUnlock_Docks(bool what)
 {
     if (what)
@@ -501,43 +495,6 @@ void MainWindow::lockUnlock_Docks(bool what)
 
 }
 
-void MainWindow::on_actionLockUnlock_triggered()
-{
-    if (ui->actionLockUnlock->isChecked())
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
-            dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
-        }
-        ui->actionLockUnlock->setIcon(QIcon(":/lock"));
-    }
-    else
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
-            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
-        }
-        ui->actionLockUnlock->setIcon(QIcon(":/unlock"));
-    }
-}
-
-void MainWindow::on_actionTabs_triggered()
-{
-    tabsOnTop = !tabsOnTop;
-    setTabLocation();
-}
-
-void MainWindow::on_actionAbout_triggered()
-{
-    AboutDialog *a = new AboutDialog(this);
-    a->open();
-}
-
-void MainWindow::on_actionRefresh_Panels_triggered()
-{
-    this->refreshAll();
-}
-
 void MainWindow::toggleDockWidget(QDockWidget *dock_widget, bool show)
 {
     if (!show)
@@ -554,18 +511,6 @@ void MainWindow::toggleDockWidget(QDockWidget *dock_widget, bool show)
 void MainWindow::backButton_clicked()
 {
     core->seekPrev();
-}
-
-void MainWindow::on_actionForward_triggered()
-{
-    core->seekNext();
-}
-
-void MainWindow::on_actionDisasAdd_comment_triggered()
-{
-    CommentsDialog *c = new CommentsDialog(this);
-    c->exec();
-    delete c;
 }
 
 void MainWindow::restoreDocks()
@@ -671,22 +616,9 @@ void MainWindow::resetToDefaultLayout()
     Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
-void MainWindow::on_actionDefaut_triggered()
-{
-    resetToDefaultLayout();
-}
-
 void MainWindow::sendToNotepad(const QString &txt)
 {
     core->setNotes(core->getNotes() + "```\n" + txt + "\n```");
-}
-
-void MainWindow::on_actionFunctionsRename_triggered()
-{
-    RenameDialog *r = new RenameDialog(this);
-    // Get function based on click position
-    //r->setFunctionName(fcn_name);
-    r->open();
 }
 
 void MainWindow::addOutput(const QString &msg)
@@ -700,9 +632,48 @@ void MainWindow::addDebugOutput(const QString &msg)
     consoleDock->addDebugOutput(msg);
 }
 
+void MainWindow::on_actionLock_triggered()
+{
+    panelLock = !panelLock;
+    setPanelLock();
+}
+
+void MainWindow::on_actionLockUnlock_triggered()
+{
+    if (ui->actionLockUnlock->isChecked())
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
+            dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
+        }
+        ui->actionLockUnlock->setIcon(QIcon(":/lock"));
+    }
+    else
+    {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
+        {
+            dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
+        }
+        ui->actionLockUnlock->setIcon(QIcon(":/unlock"));
+    }
+}
+
+void MainWindow::on_actionFunctionsRename_triggered()
+{
+    RenameDialog *r = new RenameDialog(this);
+    // Get function based on click position
+    //r->setFunctionName(fcn_name);
+    r->open();
+}
+
+void MainWindow::on_actionDefault_triggered()
+{
+    resetToDefaultLayout();
+}
+
 void MainWindow::on_actionNew_triggered()
 {
-    on_actionLoad_triggered();
+    on_actionOpen_triggered();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -739,7 +710,7 @@ void MainWindow::on_actionRun_Script_triggered()
     this->core->cmd(". " + fileName);
 }
 
-void MainWindow::on_actionLoad_triggered()
+void MainWindow::on_actionOpen_triggered()
 {
     QProcess process(this);
     process.setEnvironment(QProcess::systemEnvironment());
@@ -776,6 +747,18 @@ void MainWindow::on_actionQuit_triggered()
     close();
 }
 
+void MainWindow::on_actionForward_triggered()
+{
+    core->seekNext();
+}
+
+void MainWindow::on_actionDisasAdd_comment_triggered()
+{
+    CommentsDialog *c = new CommentsDialog(this);
+    c->exec();
+    delete c;
+}
+
 void MainWindow::on_actionRefresh_contents_triggered()
 {
     refreshAll();
@@ -787,7 +770,44 @@ void MainWindow::on_actionPreferences_triggered()
     dialog->show();
 }
 
+void MainWindow::on_actionTabs_triggered()
+{
+    tabsOnTop = !tabsOnTop;
+    setTabLocation();
+}
+
+void MainWindow::on_actionAbout_triggered()
+{
+    AboutDialog *a = new AboutDialog(this);
+    a->open();
+}
+
+void MainWindow::on_actionRefresh_Panels_triggered()
+{
+    this->refreshAll();
+}
+
+void MainWindow::on_actionImportPDB_triggered()
+{
+    QFileDialog dialog(this);
+    dialog.setWindowTitle(tr("Select PDB file"));
+    dialog.setNameFilters({ tr("PDB file (*.pdb)"), tr("All files (*)") });
+
+    if (!dialog.exec())
+    {
+        return;
+    }
+
+    QString pdbFile = dialog.selectedFiles().first();
+
+    if (!pdbFile.isEmpty())
+    {
+        Core()->loadPDB(pdbFile);
+        addOutput(tr("%1 loaded.").arg(pdbFile));
+    }
+}
+
 void MainWindow::projectSaved(const QString &name)
 {
-    this->addOutput(tr("Project saved: ") + name);
+    addOutput(tr("Project saved: ") + name);
 }

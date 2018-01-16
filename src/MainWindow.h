@@ -111,7 +111,7 @@ private slots:
 
     void on_actionDisasAdd_comment_triggered();
 
-    void on_actionDefaut_triggered();
+    void on_actionDefault_triggered();
 
     void on_actionFunctionsRename_triggered();
 
@@ -123,7 +123,7 @@ private slots:
     void on_actionUndoSeek_triggered();
     void on_actionRedoSeek_triggered();
 
-    void on_actionLoad_triggered();
+    void on_actionOpen_triggered();
 
     void on_actionForward_triggered();
 
@@ -136,6 +136,8 @@ private slots:
     void on_actionRefresh_contents_triggered();
 
     void on_actionPreferences_triggered();
+
+    void on_actionImportPDB_triggered();
 
     void projectSaved(const QString &name);
 
