@@ -277,7 +277,7 @@ void MainWindow::initUI()
     connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
 }
 
-void MainWindow::openNewFile(const QString &fn, int anal_level, QList<QString> advanced)
+void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> advancedOptions)
 {
     setFilename(fn);
 
@@ -297,13 +297,18 @@ void MainWindow::openNewFile(const QString &fn, int anal_level, QList<QString> a
     }
 
     /* Show analysis options dialog */
+    displayAnalysisOptionsDialog(analLevel, advancedOptions);
+}
+
+void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions)
+{
     OptionsDialog *o = new OptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->show();
 
-    if (anal_level >= 0)
+    if (analLevel >= 0)
     {
-        o->setupAndStartAnalysis(anal_level, advanced);
+        o->setupAndStartAnalysis(analLevel, advancedOptions);
     }
 }
 
@@ -785,6 +790,11 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionRefresh_Panels_triggered()
 {
     this->refreshAll();
+}
+
+void MainWindow::on_actionAnalyze_triggered()
+{
+    displayAnalysisOptionsDialog(-1, QList<QString>());
 }
 
 void MainWindow::on_actionImportPDB_triggered()

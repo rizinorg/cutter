@@ -11,7 +11,6 @@
 #include <QFileInfo>
 #include <QFileDialog>
 
-// TODO Get rid of MainWindow
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
     analThread(this),
@@ -151,7 +150,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     ui->elapsedLabel->setVisible(true);
 
     ui->statusLabel->setText(tr("Starting analysis"));
-    //ui->progressBar->setValue(5);
 
     main->initUI();
 
@@ -164,8 +162,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     updateProgressTimer();
     connect(&analTimer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
 
-    // Threads stuff
-    // connect signal/slot
+    // Threads stuff, connect signal/slot
     connect(&analThread, &AnalThread::updateProgress, this, &OptionsDialog::updateProgress);
     analThread.start(main, level, advanced);
 }

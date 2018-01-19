@@ -157,7 +157,7 @@ QString CutterCore::cmd(const QString &str)
     {
         emit seekChanged(core_->offset);
 
-        // switch from graph to disassembly if there is no function
+        // Switch from graph to disassembly if there is no function
         if (this->cmd("afi.").trimmed().isEmpty() && memoryWidgetPriority == MemoryWidgetType::Graph)
         {
             memoryWidgetPriority = MemoryWidgetType::Disassembly;
@@ -273,8 +273,8 @@ void CutterCore::analyze(int level,  QList<QString> advanced)
     CORE_LOCK();
     /*
      * Levels
-     * Nivel 1: aaa
-     * Nivel 2: aaaa
+     * Level 1: aaa
+     * Level 2: aaaa
      */
 
     if (level == 1)
@@ -531,19 +531,6 @@ QString CutterCore::getConfig(const QString &k)
     CORE_LOCK();
     QByteArray key = k.toUtf8();
     return QString(r_config_get(core_->config, key.constData()));
-}
-
-void CutterCore::setOptions(QString key)
-{
-    Q_UNUSED(key);
-
-    // va
-    // lowercase
-    // show bytes
-    // att syntax
-    // asm plugin
-    // cpu type
-    // anal plugin
 }
 
 void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
@@ -1376,4 +1363,10 @@ QString CutterCore::getVersionInformation()
             ret.append(QString("%1 %2\n").arg(name, v->name));
     }
     return ret;
+}
+
+QJsonArray CutterCore::getOpenedFiles()
+{
+    QJsonDocument files = cmdj("oj");
+    return files.array();
 }
