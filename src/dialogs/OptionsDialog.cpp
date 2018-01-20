@@ -120,6 +120,19 @@ int OptionsDialog::getSelectedBits()
     return 0;
 }
 
+OptionsDialog::Endianness OptionsDialog::getSelectedEndianness()
+{
+    switch(ui->endiannessComboBox->currentIndex())
+    {
+    case 1:
+        return Endianness::Little;
+    case 2:
+        return Endianness::Big;
+    default:
+        return Endianness::Auto;
+    }
+}
+
 QString OptionsDialog::getSelectedOS()
 {
     QVariant os = ui->kernelComboBox->currentData();

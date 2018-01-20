@@ -559,6 +559,11 @@ void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
     }
 }
 
+void CutterCore::setEndianness(bool big)
+{
+    setConfig("cfg.bigendian", big);
+}
+
 void CutterCore::setDefaultCPU()
 {
     if (!default_arch.isEmpty())

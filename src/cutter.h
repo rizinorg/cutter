@@ -283,6 +283,7 @@ public:
     QString disassembleSingleInstruction(RVA addr);
     void setDefaultCPU();
     void setCPU(QString arch, QString cpu, int bits, bool temporary = false);
+    void setEndianness(bool big);
     RAnalFunction *functionAt(ut64 addr);
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);

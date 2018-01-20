@@ -53,10 +53,14 @@ private:
     void setInteractionEnabled(bool enabled);
 
 public:
+	enum class Endianness { Auto, Little, Big };
+
     std::unique_ptr<Ui::OptionsDialog> ui;
+
     QString getSelectedArch();
     QString getSelectedCPU();
     int getSelectedBits();
+	Endianness getSelectedEndianness();
     QString getSelectedOS();
     QTimer analTimer;
     QElapsedTimer analElapsedTimer;

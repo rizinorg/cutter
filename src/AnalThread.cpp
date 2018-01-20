@@ -92,6 +92,11 @@ void AnalThread::run()
         core->loadPDB(ui->pdbLineEdit->text());
     }
 
+	if (optionsDialog->getSelectedEndianness() != OptionsDialog::Endianness::Auto)
+	{
+		core->setEndianness(optionsDialog->getSelectedEndianness() == OptionsDialog::Endianness::Big);
+	}
+
     // use prj.simple as default as long as regular projects are broken
     core->setConfig("prj.simple", true);
 
