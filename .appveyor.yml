@@ -26,7 +26,7 @@ environment:
     - BITS: 64
 
 before_build:
-  - cmd: prepare_r2.bat
+  - cmd: prepare_r2.bat %BITS%
 
 # Build config
 build_script:
