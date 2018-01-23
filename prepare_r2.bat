@@ -15,6 +15,8 @@ IF NOT DEFINED PYTHON SET PYTHON=C:\Program Files\Python36
 IF NOT DEFINED NINJA_URL SET NINJA_URL=https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip
 IF NOT DEFINED VSVARSALLPATH SET VSVARSALLPATH=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat
 
+ECHO DEBUG BA:%BADARG% BI:%BITS% PY:%PYTHON% NI:%NINJA_URL% VS:%VSVARSALLPATH%
+
 IF NOT EXIST %PYTHON%\python.exe EXIT /B
 
 SET "PYTHONHOME=%PYTHON%"
@@ -32,36 +34,30 @@ IF NOT EXIST ninja.exe (
 
 IF NOT "%BITS%" == "32" (
 	SET VARSALL=x64
-	SET BI=64
 	CALL :BUILD
 	IF !ERRORLEVEL! NEQ 0 EXIT /B
 )
 IF NOT "%BITS%" == "64" (
 	SET VARSALL=x86
-	SET BI=32
 	CALL :BUILD
 	IF !ERRORLEVEL! NEQ 0 EXIT /B
 )
 
 ECHO Copying relevant files in cutter_win32
-IF "%BITS%" == "64" (
-	XCOPY /S /Y dist64\include\libr cutter_win32\radare2\include\libr\
-) ELSE (
-	XCOPY /S /Y dist32\include\libr cutter_win32\radare2\include\libr\
-)
+XCOPY /S /Y dist%BITS%\include\libr cutter_win32\radare2\include\libr\
 EXIT /B
 
 :BUILD
 ECHO Building radare2 (%VARSALL%)
 CD radare2
 git clean -xfd
-RMDIR /s /q ..\dist%BI%
+RMDIR /s /q ..\dist%BITS%
 CALL "%VSVARSALLPATH%" %VARSALL%
-python sys\meson.py --release --shared --prefix="%CD%" --install=..\dist%BI%
+python sys\meson.py --release --shared --prefix="%CD%" --install=..\dist%BITS%
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
-COPY /Y build\r_userconf.h ..\dist%BI%\include\libr\
-COPY /Y build\r_version.h ..\dist%BI%\include\libr\
-COPY /Y build\shlr\liblibr2sdb.a ..\dist%BI%\r_sdb.lib
+COPY /Y build\r_userconf.h ..\dist%BITS%\include\libr\
+COPY /Y build\r_version.h ..\dist%BITS%\include\libr\
+COPY /Y build\shlr\liblibr2sdb.a ..\dist%BITS%\r_sdb.lib
 CD ..
-COPY /Y dist%BI%\*.lib cutter_win32\radare2\lib%BI%\
+COPY /Y dist%BITS%\*.lib cutter_win32\radare2\lib%BITS%\
 EXIT /B 0
