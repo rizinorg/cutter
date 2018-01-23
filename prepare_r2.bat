@@ -57,9 +57,8 @@ CD radare2
 git clean -xfd
 RMDIR /s /q ..\dist%BI%
 CALL "%VSVARSALLPATH%" %VARSALL%
-python sys\meson.py --release --shared --prefix="%CD%"
+python sys\meson.py --release --shared --prefix="%CD%" --install=..\dist%BI%
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
-CALL sys\meson_install.bat --with-static ..\dist%BI%
 COPY /Y build\r_userconf.h ..\dist%BI%\include\libr\
 COPY /Y build\r_version.h ..\dist%BI%\include\libr\
 COPY /Y build\shlr\liblibr2sdb.a ..\dist%BI%\r_sdb.lib
