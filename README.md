@@ -23,7 +23,7 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 #### Requirements
 
 Cutter is based on Qt so you will need to have it installed.
-- Download: [Qt Open Source](https://info.qt.io/download-qt-for-application-development)
+- Download: [Qt Open Source](https://www.qt.io/download-qt-for-application-development)
 - Add Qt 5.9.1: http://doc.qt.io/qtcreator/creator-project-qmake.html
     
 #### Building
