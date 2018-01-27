@@ -17,6 +17,7 @@
 VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     QToolBar(main),
     graphicsView(new QGraphicsView),
+    cursorGraphicsItem(nullptr),
     main(main)
 {
     Q_UNUSED(parent);
