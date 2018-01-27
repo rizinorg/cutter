@@ -52,10 +52,10 @@ int main(int argc, char *argv[])
     cmd_parser.addVersionOption();
     cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
-    QCommandLineOption anal_option({"A", "anal"},
+    QCommandLineOption analOption({"A", "anal"},
                                    QObject::tr("Automatically open file and optionally start analysis. Needs filename to be specified. May be a value between 0 and 2: 0 = no analysis, 1 = aaa, 2 = aaaa (experimental)"),
                                    QObject::tr("level"));
-    cmd_parser.addOption(anal_option);
+    cmd_parser.addOption(analOption);
 
     cmd_parser.process(a);
 
@@ -75,14 +75,14 @@ int main(int argc, char *argv[])
             return 1;
     }
 
-    bool anal_level_specified = false;
-    int anal_level = 0;
+    bool analLevelSpecified = false;
+    int analLevel= 0;
 
-    if (cmd_parser.isSet(anal_option))
+    if (cmd_parser.isSet(analOption))
     {
-        anal_level = cmd_parser.value(anal_option).toInt(&anal_level_specified);
+        analLevel = cmd_parser.value(analOption).toInt(&analLevelSpecified);
 
-        if (!anal_level_specified || anal_level < 0 || anal_level > 2)
+        if (!analLevelSpecified || analLevel < 0 || analLevel > 2)
         {
             printf("%s\n", QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.").toLocal8Bit().constData());
             return 1;
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
     if (args.empty())
     {
-        if (anal_level_specified)
+        if (analLevelSpecified)
         {
             printf("%s\n", QObject::tr("Filename must be specified to start analysis automatically.").toLocal8Bit().constData());
             return 1;
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
     else // filename specified as positional argument
     {
         MainWindow *main = new MainWindow();
-        main->openNewFile(args[0], anal_level_specified ? anal_level : -1);
+        main->openNewFile(args[0], analLevelSpecified ? analLevel : -1);
     }
 
     // Hack to make it work with AppImage

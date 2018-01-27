@@ -56,7 +56,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void openNewFile(const QString &fn, int anal_level = -1, QList<QString> advanced = QList<QString>());
+    void openNewFile(const QString &fn, int analLevel = -1, QList<QString> advancedOptions = QList<QString>());
+    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions);
     void openProject(const QString &project_name);
 
     void initUI();
@@ -136,6 +137,8 @@ private slots:
     void on_actionRefresh_contents_triggered();
 
     void on_actionPreferences_triggered();
+
+    void on_actionAnalyze_triggered();
 
     void on_actionImportPDB_triggered();
 

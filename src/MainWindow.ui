@@ -181,7 +181,7 @@ border-top: 0px;
       <x>346</x>
       <y>97</y>
       <width>148</width>
-      <height>215</height>
+      <height>238</height>
      </rect>
     </property>
     <property name="title">
@@ -190,6 +190,7 @@ border-top: 0px;
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
+    <addaction name="actionAnalyze"/>
     <addaction name="actionImportPDB"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
@@ -1033,6 +1034,11 @@ QToolButton:pressed {
   <action name="actionImportPDB">
    <property name="text">
     <string>Import PDB</string>
+   </property>
+  </action>
+  <action name="actionAnalyze">
+   <property name="text">
+    <string>Analyze</string>
    </property>
   </action>
  </widget>
