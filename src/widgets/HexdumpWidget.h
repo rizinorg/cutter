@@ -1,32 +1,28 @@
-
 #ifndef HEXDUMPWIDGET_H
 #define HEXDUMPWIDGET_H
 
-#include <array>
 #include <QDebug>
 #include <QTextEdit>
 #include <QDockWidget>
-#include <QTreeWidget>
-#include <QTabWidget>
-#include <QUrl>
-#include <QPlainTextEdit>
 #include <QMouseEvent>
+
+#include <array>
 #include <memory>
+
 #include "cutter.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
+#include "utils/SvgIconEngine.h"
+
 #include "Dashboard.h"
 
-
-namespace Ui
-{
-    class HexdumpWidget;
-}
+#include "ui_HexdumpWidget.h"
 
 class HexdumpWidget : public QDockWidget
 {
-Q_OBJECT
+    Q_OBJECT
+
 
 public:
     explicit HexdumpWidget(const QString &title, QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
@@ -35,15 +31,21 @@ public:
 
     Highlighter        *highlighter;
 
-//signals:
-//    void fontChanged(QFont font);
+    enum Format {
+        Hex,
+        Octal,
+        // TODO:
+//        HalfWord,
+//        Word,
+//        QuadWord,
+//        Emoji,
+//        SignedInt1,
+//        SignedInt2,
+//        SignedInt4,
+    };
 
 public slots:
     void initParsing();
-
-    QString normalize_addr(QString addr);
-
-    QString normalizeAddr(QString addr);
 
     void showOffsets(bool show);
 
@@ -55,41 +57,67 @@ protected:
     virtual void wheelEvent(QWheelEvent* event) override;
 
 private:
-	static const int linesMarginMin;
-	static const int linesMarginDefault;
-	static const int linesMarginMax;
+    static const int linesMarginMin = 32;
+    static const int linesMarginDefault = 48;
+    static const int linesMarginMax = 64;
+
+    enum Format format = Format::Hex;
 
     std::unique_ptr<Ui::HexdumpWidget> ui;
 
-    RVA topOffset;
-    RVA bottomOffset;
+    bool sent_seek = false;
+    bool scroll_disabled = false;
+
+    RVA first_loaded_address = RVA_INVALID;
+    RVA last_loaded_address = RVA_INVALID;
 
     void refresh(RVA addr = RVA_INVALID);
-	void appendHexdumpLines(int lines, bool top);
-	void removeHexdumpLines(int lines, bool top);
     void selectHexPreview();
-	void updateHeaders();
+    void updateHeaders();
 
-    std::array<QString, 3> fetchHexdump(RVA offset, RVA bytes);
+    std::array<QString, 3> fetchHexdump(RVA addr, int lines);
 
-	void connectScroll(bool disconnect);
+    void connectScroll(bool disconnect_);
     void setupScrollSync();
 
     void setupFonts();
+
+    // If bottom = false gets the FIRST displayed line, otherwise the LAST displayed
+    // line.
+    int getDisplayedLined(QTextEdit *textEdit, bool bottom = false);
+
+    static void removeTopLinesWithoutScroll(QTextEdit *textEdit, int lines);
+    static void removeBottomLinesWithoutScroll(QTextEdit *textEdit, int lines);
+    static void prependWithoutScroll(QTextEdit *textEdit, QString text);
+    static void appendWithoutScroll(QTextEdit *textEdit, QString text);
+    static void setTextEditPosition(QTextEdit *textEdit, int position);
+
+    RVA hexPositionToAddress(int position);
+    RVA asciiPositionToAddress(int position);
+    int hexAddressToPosition(RVA address);
+    int asciiAddressToPosition(RVA address);
+    void updateWidths();
+
+    void updateParseWindow(RVA start_address, int size);
+    void clearParseWindow();
+
+    int bufferLines;
 
 private slots:
     void on_seekChanged(RVA addr);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
-    void highlightHexCurrentLine();
+    // Currently unused/untested
+    // void highlightHexCurrentLine();
+    // void highlightHexWords(const QString &str);
 
-    void highlightHexWords(const QString &str);
     void on_actionHideHexdump_side_panel_triggered();
 
     void showHexdumpContextMenu(const QPoint &pt);
     void showHexASCIIContextMenu(const QPoint &pt);
 
-    void on_hexHexText_selectionChanged();
+    void selectionChanged();
+    void scrollChanged();
 
     void on_parseArchComboBox_currentTextChanged(const QString &arg1);
     void on_parseBitsComboBox_currentTextChanged(const QString &arg1);
@@ -104,7 +132,8 @@ private slots:
     void on_action32columns_triggered();
     void on_action64columns_triggered();
 
-    void adjustHexdumpLines();
+    void on_actionFormatHex_triggered();
+    void on_actionFormatOctal_triggered();
 
     void fontsUpdated();
     void colorsUpdatedSlot();

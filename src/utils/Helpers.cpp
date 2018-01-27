@@ -120,6 +120,15 @@ namespace qhelpers
         widget->setMaximumHeight(max);
     }
 
+    int getMaxFullyDisplayedLines(QTextEdit *textEdit)
+    {
+        QFontMetrics fontMetrics(textEdit->document()->defaultFont());
+        return (textEdit->height()
+                - (textEdit->contentsMargins().top()
+                   + textEdit->contentsMargins().bottom()
+                   + (int)(textEdit->document()->documentMargin() * 2)))
+               / fontMetrics.lineSpacing();
+    }
 
     int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit)
     {
