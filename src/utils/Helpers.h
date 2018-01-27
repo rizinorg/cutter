@@ -41,7 +41,7 @@ namespace qhelpers
     SizePolicyMinMax forceWidth(QWidget *widget, int width);
     SizePolicyMinMax forceHeight(QWidget *widget, int height);
 
-    int getMaxFullyDisplayedLines(QTextEdit *textEdit);
+
     int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 
     QByteArray applyColorToSvg(const QByteArray &data, QColor color);
