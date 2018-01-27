@@ -144,6 +144,12 @@ QString CutterCore::sanitizeStringForCommand(QString s)
     return s.replace(regexp, "_");
 }
 
+/**
+ * @brief CutterCore::cmd send a command to radare2
+ * @param str the command you want to execute
+ * Note that if you want to seek to an address, you should use CutterCore::seek
+ * @return command output
+ */
 QString CutterCore::cmd(const QString &str)
 {
     CORE_LOCK();
@@ -341,19 +347,23 @@ void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
     emit instructionChanged(offset);
 }
 
-void CutterCore::seek(QString addr)
+void CutterCore::seek(ut64 offset)
 {
     // Slower than using the API, but the API is not complete
     // which means we either have to duplicate code from radare2
     // here, or refactor radare2 API.
     CORE_LOCK();
-    cmd(QString("s %1").arg(addr));
+    if (offset == RVA_INVALID)
+    {
+        return;
+    }
+    cmd(QString("s %1").arg(offset));
     // cmd already does emit seekChanged(core_->offset);
 }
 
-void CutterCore::seek(ut64 offset)
+void CutterCore::seek(QString offset)
 {
-    seek(QString::number(offset));
+    seek(offset.toULongLong());
 }
 
 void CutterCore::seekPrev()

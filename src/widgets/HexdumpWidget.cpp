@@ -296,8 +296,8 @@ void HexdumpWidget::refresh(RVA addr)
     // TODO: Figure out how to calculate a sane value for this
     bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 
-
-    RVA cur_addr = addr - (bufferLines * cols);
+    //RVA cur_addr = addr - (bufferLines * cols);
+    RVA cur_addr = addr;
     first_loaded_address = cur_addr;
     last_loaded_address = cur_addr + (3 * bufferLines) * cols;
     QElapsedTimer getHexdumpTimer;
@@ -679,7 +679,7 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
     QString address = RAddressString(start_address);
 
-    QString argument = QString("%1 " + address).arg(size);
+    QString argument = QString("%1@" + address).arg(size);
     // Get selected combos
     QString arch = ui->parseArchComboBox->currentText();
     QString bits = ui->parseBitsComboBox->currentText();
