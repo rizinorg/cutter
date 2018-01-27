@@ -308,7 +308,6 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexHexText->setText(hexdump[1]);
     ui->hexASCIIText->setText(hexdump[2]);
 
-    QTextBlock blockText = ui->hexHexText->document()->findBlockByLineNumber(bufferLines);
     QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(bufferLines)); // ln-1 because line number starts from 0
     ui->hexHexText->moveCursor(QTextCursor::End);
     ui->hexHexText->setTextCursor(cursor);
@@ -536,7 +535,6 @@ void HexdumpWidget::selectionChanged()
 
         int startPosition = hexAddressToPosition(startAddress);
         int endPosition = hexAddressToPosition(endAddress);
-        QChar endChar = ui->hexHexText->document()->characterAt(endPosition);
 
         // End position -1 because the position we get above is for the next
         // entry, so including the space/newline
@@ -794,7 +792,7 @@ void HexdumpWidget::setTextEditPosition(QTextEdit *textEdit, int position)
 
 int HexdumpWidget::getDisplayedLined(QTextEdit *textEdit, bool bottom)
 {
-    int start_pos = textEdit->cursorForPosition(QPoint(0, 0)).position();
+    //int start_pos = textEdit->cursorForPosition(QPoint(0, 0)).position();
     QPoint top_right(textEdit->viewport()->x(), textEdit->viewport()->y());
     QPoint bottom_right(textEdit->viewport()->width(), textEdit->viewport()->height() - 1);
     QPoint point = top_right;
@@ -804,10 +802,10 @@ int HexdumpWidget::getDisplayedLined(QTextEdit *textEdit, bool bottom)
     }
 
     QTextCursor textCursor = textEdit->cursorForPosition(point);
-    QTextBlock textBlock = textCursor.block();
-    QTextLayout *textLayout = textBlock.layout();
-    const int relativePos = textCursor.position() - textBlock.position();
-    int end_pos = textEdit->cursorForPosition(bottom_right).position();
+    //QTextBlock textBlock = textCursor.block();
+    //QTextLayout *textLayout = textBlock.layout();
+    //const int relativePos = textCursor.position() - textBlock.position();
+    //int end_pos = textEdit->cursorForPosition(bottom_right).position();
     return textCursor.blockNumber();
 }
 
@@ -849,7 +847,7 @@ void HexdumpWidget::prependWithoutScroll(QTextEdit *textEdit, QString text)
     QTextCursor textCursor = textEdit->textCursor();
     int current_positon = textCursor.position();
 
-    int scroll_max_before = textEdit->verticalScrollBar()->maximum();
+    //int scroll_max_before = textEdit->verticalScrollBar()->maximum();
     int scroll_val_before = textEdit->verticalScrollBar()->value();
     int height_before = textEdit->document()->size().height();
     textEdit->moveCursor(QTextCursor::Start);
@@ -857,8 +855,8 @@ void HexdumpWidget::prependWithoutScroll(QTextEdit *textEdit, QString text)
     textCursor.setPosition(text.length() + current_positon);
     textEdit->setTextCursor(textCursor);
     int height_after = textEdit->document()->size().height();
-    int scroll_max_after = textEdit->verticalScrollBar()->maximum();
-    int scroll_val_after = textEdit->verticalScrollBar()->maximum();
+    //int scroll_max_after = textEdit->verticalScrollBar()->maximum();
+    //int scroll_val_after = textEdit->verticalScrollBar()->maximum();
     textEdit->verticalScrollBar()->setValue(scroll_val_before + (height_after - height_before));
 }
 
