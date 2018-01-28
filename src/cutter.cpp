@@ -507,6 +507,7 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.offset", Config()->getAsmOffset());
     setConfig("asm.describe", Config()->getAsmDescribe());
     setConfig("asm.stackptr", Config()->getAsmStackPointer());
+    setConfig("asm.lines", Config()->getAsmLines());
     setConfig("asm.bytes", Config()->getAsmBytes());
     setConfig("asm.bytespace", Config()->getAsmBytespace());
     setConfig("asm.lbytes", Config()->getAsmLBytes());
@@ -525,6 +526,7 @@ void CutterCore::saveDefaultAsmOptions()
     Config()->setAsmOffset(getConfigb("asm.offset"));
     Config()->setAsmDescribe(getConfigb("asm.describe"));
     Config()->setAsmStackPointer(getConfigb("asm.stackptr"));
+    Config()->setAsmLines(getConfigb("asm.lines"));
     Config()->setAsmBytes(getConfigb("asm.bytes"));
     Config()->setAsmBytespace(getConfigb("asm.bytespace"));
     Config()->setAsmLBytes(getConfigb("asm.lbytes"));
@@ -760,7 +762,6 @@ void CutterCore::getOpcodes()
 void CutterCore::setSettings()
 {
     setConfig("scr.interactive", false);
-    setConfig("asm.lines", false);
     // Intredazting...
     //setConfig("asm.linesright", "true");
     //setConfig("asm.lineswidth", "15");

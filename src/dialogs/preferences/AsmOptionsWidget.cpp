@@ -40,6 +40,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->offsetCheckBox, Core()->getConfigb("asm.offset"));
     qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Core()->getConfigb("asm.describe"));
     qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Core()->getConfigb("asm.stackptr"));
+    qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Core()->getConfigb("asm.lines"));
 
     bool bytesEnabled = Core()->getConfigb("asm.bytes");
     qhelpers::setCheckedWithoutSignals(ui->bytesCheckBox, bytesEnabled);
@@ -131,6 +132,12 @@ void AsmOptionsWidget::on_describeCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_stackpointerCheckBox_toggled(bool checked)
 {
     Core()->setConfig("asm.stackptr", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_linesCheckBox_toggled(bool checked)
+{
+    Core()->setConfig("asm.lines", checked);
     triggerAsmOptionsChanged();
 }
 

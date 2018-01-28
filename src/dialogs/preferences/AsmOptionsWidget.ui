@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>461</width>
-    <height>463</height>
+    <width>541</width>
+    <height>478</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,6 +46,13 @@
     <widget class="QCheckBox" name="stackpointerCheckBox">
      <property name="text">
       <string>Show stack pointer (asm.stackptr)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="linesCheckBox">
+     <property name="text">
+      <string>Show jump lines (asm.lines)</string>
      </property>
     </widget>
    </item>
