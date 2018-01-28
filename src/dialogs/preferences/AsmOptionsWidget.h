@@ -39,6 +39,7 @@ private slots:
     void on_offsetCheckBox_toggled(bool checked);
     void on_describeCheckBox_toggled(bool checked);
     void on_stackpointerCheckBox_toggled(bool checked);
+    void on_linesCheckBox_toggled(bool checked);
     void on_bytesCheckBox_toggled(bool checked);
     void on_bytespaceCheckBox_toggled(bool checked);
     void on_lbytesCheckBox_toggled(bool checked);

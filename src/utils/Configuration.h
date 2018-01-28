@@ -58,6 +58,9 @@ public:
     bool getAsmStackPointer() const     { return s.value("asm.stackptr", false).toBool(); }
     void setAsmStackPointer(bool v)     { s.setValue("asm.stackptr", v); }
 
+    bool getAsmLines() const            { return s.value("asm.lines", false).toBool(); }
+    void setAsmLines(bool v)            { s.setValue("asm.lines", v); }
+
     bool getAsmBytes() const            { return s.value("asm.bytes", false).toBool(); }
     void setAsmBytes(bool v)            { s.setValue("asm.bytes", v); }
 
