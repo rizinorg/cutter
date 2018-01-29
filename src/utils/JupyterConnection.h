@@ -1,8 +1,8 @@
-
 #ifndef JUPYTERCONNECTION_H
 #define JUPYTERCONNECTION_H
 
 #include <QProcess>
+#include "CommandServer.h"
 
 class JupyterConnection : public QObject
 {
@@ -20,6 +20,7 @@ signals:
 private:
     QProcess *process;
     QProcess *urlProcess;
+    CommandServer *cmdServer;
 
 private slots:
     void readStandardError();

@@ -83,7 +83,7 @@ static void registerCustomFonts()
     ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
     assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
 
-    // do not issue a warning in release
+    // Do not issue a warning in release
     Q_UNUSED(ret)
 }
 
@@ -99,6 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    delete configuration;
 }
 
 void MainWindow::initUI()
@@ -389,22 +390,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                       tr("Do you really want to exit?\nSave your project before closing!"),
                                       (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
-    //qDebug() << ret;
     if (ret == QMessageBox::Save)
     {
         if (saveProject(true))
         {
             saveSettings();
-            QMainWindow::closeEvent(event);
         }
-        else
-        {
-            event->ignore();
-        }
+        QMainWindow::closeEvent(event);
     }
     else if (ret == QMessageBox::Discard)
     {
         saveSettings();
+        QMainWindow::closeEvent(event);
     }
     else
     {
