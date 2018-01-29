@@ -93,7 +93,8 @@ SOURCES += \
     widgets/VTablesWidget.cpp \
     CutterApplication.cpp \
     utils/JupyterConnection.cpp \
-    widgets/JupyterWidget.cpp
+    widgets/JupyterWidget.cpp \
+    utils/CommandServer.cpp
 
 HEADERS  += \
     cutter.h \
@@ -156,7 +157,8 @@ HEADERS  += \
     CutterApplication.h \
     widgets/VTablesWidget.h \
     utils/JupyterConnection.h \
-    widgets/JupyterWidget.h
+    widgets/JupyterWidget.h \
+    utils/CommandServer.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
