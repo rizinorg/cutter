@@ -80,7 +80,6 @@ void AnalThread::run()
     core->setConfig("bin.demangle", ui->demangleCheckBox->isChecked());
 
     QJsonArray openedFiles = Core()->getOpenedFiles();
-    qDebug() << openedFiles << openedFiles.size();
     if (!openedFiles.size())
     {
         core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, loadBinInfo, forceBinPlugin);
