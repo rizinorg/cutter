@@ -27,7 +27,7 @@ public:
         QColor textColor;
         QColor textBackground;
         CustomRichTextFlags flags;
-        bool highlight;
+        bool highlight = false;
         QColor highlightColor;
         int highlightWidth = 2;
         bool highlightConnectPrev = false;

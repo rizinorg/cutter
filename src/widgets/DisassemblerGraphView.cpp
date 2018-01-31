@@ -28,6 +28,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(graphOptionsChanged()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshView()));
 
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
@@ -159,21 +160,45 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
             gb.exits.push_back(block_jump);
         }
-        for (QJsonValueRef opRef : block["ops"].toArray()) {
+        for (QJsonValueRef opRef : block["ops"].toArray())
+        {
             QJsonObject op = opRef.toObject();
             Instr i;
             i.addr = op["offset"].toVariant().toULongLong();
             // Skip last byte, otherwise it will overlap with next instruction
             i.size = op["size"].toVariant().toULongLong() - 1;
+
             RichTextPainter::List richText;
             Colors::colorizeAssembly(richText, op["disasm"].toString(), op["type_num"].toVariant().toULongLong());
-            if (op["comment"].toString().length()) {
+
+            if (op["comment"].toString().length())
+            {
                 RichTextPainter::CustomRichText_t comment;
                 comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
                 comment.textColor = mCommentColor;
                 comment.flags = RichTextPainter::FlagColor;
                 richText.insert(richText.end(), comment);
             }
+
+            if (Core()->getConfigb("asm.bytes"))
+            {
+                RichTextPainter::CustomRichText_t bytes;
+                bytes.text = op["bytes"].toVariant().toString();
+
+                if (Core()->getConfigb("asm.bytespace"))
+                    for (int i = 2; i <= bytes.text.size(); i += 2+1)
+                            bytes.text.insert(i, ' ');
+
+                if (Core()->getConfigb("asm.lbytes"))
+                    bytes.text = bytes.text.leftJustified(24, ' ');
+                else
+                    bytes.text = bytes.text.rightJustified(24, ' ');
+
+                bytes.textColor = Config()->getColor("bin");
+                bytes.flags = RichTextPainter::FlagColor;
+                richText.insert(richText.begin(), bytes);
+            }
+
             bool cropped;
             i.text = Text(RichTextPainter::cropped(richText, Config()->getGraphBlockMaxChars(), "...", &cropped));
             if(cropped)
