@@ -169,7 +169,13 @@ void DisassemblerGraphView::loadCurrentGraph()
             i.size = op["size"].toVariant().toULongLong() - 1;
 
             RichTextPainter::List richText;
-            Colors::colorizeAssembly(richText, op["disasm"].toString(), op["type_num"].toVariant().toULongLong());
+            QString disas;
+            if (Core()->getConfigb("asm.emu"))
+                disas = op["esil"].toString();
+            else
+                disas = op["disasm"].toString();
+
+            Colors::colorizeAssembly(richText, disas, op["type_num"].toVariant().toULongLong());
 
             if (op["comment"].toString().length())
             {
@@ -200,7 +206,8 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
 
             bool cropped;
-            i.text = Text(RichTextPainter::cropped(richText, Config()->getGraphBlockMaxChars(), "...", &cropped));
+            int blockLength = Config()->getGraphBlockMaxChars() + Core()->getConfigb("asm.bytes") * 24 + Core()->getConfigb("asm.emu") * 10;
+            i.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
             if(cropped)
             {
                 i.fullText = richText;
