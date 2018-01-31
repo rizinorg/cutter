@@ -170,7 +170,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
             RichTextPainter::List richText;
             QString disas;
-            if (Core()->getConfigb("asm.emu"))
+            if (Core()->getConfigb("asm.esil"))
                 disas = op["esil"].toString();
             else
                 disas = op["disasm"].toString();
@@ -209,13 +209,9 @@ void DisassemblerGraphView::loadCurrentGraph()
             int blockLength = Config()->getGraphBlockMaxChars() + Core()->getConfigb("asm.bytes") * 24 + Core()->getConfigb("asm.emu") * 10;
             i.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
             if(cropped)
-            {
                 i.fullText = richText;
-            }
             else
-            {
                 i.fullText = Text();
-            }
             db.instrs.push_back(i);
         }
         disassembly_blocks[db.entry] = db;
