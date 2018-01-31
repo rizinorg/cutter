@@ -226,7 +226,8 @@ void Configuration::loadDarkTheme()
 
 const QFont Configuration::getFont() const
 {
-    QFont font = s.value("font", QFontDatabase::systemFont(QFontDatabase::FixedFont)).value<QFont>();
+    //QFont font = s.value("font", QFontDatabase::systemFont(QFontDatabase::FixedFont)).value<QFont>();
+    QFont font = s.value("font", QFont("Incosolata")).value<QFont>();
     return font;
 }
 
