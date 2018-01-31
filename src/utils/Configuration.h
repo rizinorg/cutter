@@ -58,8 +58,20 @@ public:
     bool getAsmStackPointer() const     { return s.value("asm.stackptr", false).toBool(); }
     void setAsmStackPointer(bool v)     { s.setValue("asm.stackptr", v); }
 
+    bool getAsmSlow() const             { return s.value("asm.slow", false).toBool(); }
+    void setAsmSlow(bool v)             { s.setValue("asm.slow", v); }
+
     bool getAsmLines() const            { return s.value("asm.lines", false).toBool(); }
     void setAsmLines(bool v)            { s.setValue("asm.lines", v); }
+
+    bool getAsmEmu() const              { return s.value("asm.emu", false).toBool(); }
+    void setAsmEmu(bool v)              { s.setValue("asm.emu", v); }
+
+    bool getAsmCmtRight() const         { return s.value("asm.cmtright", true).toBool(); }
+    void setAsmCmtRight(bool v)         { s.setValue("asm.cmtright", v); }
+
+    bool getAsmVarSum() const            { return s.value("asm.varsum", false).toBool(); }
+    void setAsmVarSum(bool v)            { s.setValue("asm.varsum", v); }
 
     bool getAsmBytes() const            { return s.value("asm.bytes", false).toBool(); }
     void setAsmBytes(bool v)            { s.setValue("asm.bytes", v); }
@@ -87,6 +99,9 @@ public:
 
     bool getAsmVarsubOnly() const       { return s.value("asm.varsub_only", true).toBool(); }
     void setAsmVarsubOnly(bool v)       { s.setValue("asm.varsub_only", v); }
+
+    int getAsmTabs() const              { return s.value("asm.tabs", 5).toInt(); }
+    void setAsmTabs(int v)              { s.setValue("asm.tabs", v); }
 
 signals:
     void fontsUpdated();

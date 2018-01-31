@@ -40,7 +40,11 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->offsetCheckBox, Core()->getConfigb("asm.offset"));
     qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Core()->getConfigb("asm.describe"));
     qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Core()->getConfigb("asm.stackptr"));
+    qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Core()->getConfigb("asm.slow"));
     qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Core()->getConfigb("asm.lines"));
+    qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Core()->getConfigb("asm.emu"));
+    qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Core()->getConfigb("asm.cmtright"));
+    qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Core()->getConfigb("asm.varsum"));
 
     bool bytesEnabled = Core()->getConfigb("asm.bytes");
     qhelpers::setCheckedWithoutSignals(ui->bytesCheckBox, bytesEnabled);
@@ -75,6 +79,10 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
         ui->caseComboBox->setCurrentIndex(0);
     }
     ui->caseComboBox->blockSignals(false);
+
+    ui->asmTabsSpinBox->blockSignals(true);
+    ui->asmTabsSpinBox->setValue(Core()->getConfigi("asm.tabs"));
+    ui->asmTabsSpinBox->blockSignals(false);
 
     qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, Core()->getConfigb("asm.bbline"));
 
@@ -135,9 +143,33 @@ void AsmOptionsWidget::on_stackpointerCheckBox_toggled(bool checked)
     triggerAsmOptionsChanged();
 }
 
+void AsmOptionsWidget::on_slowCheckBox_toggled(bool checked)
+{
+    Core()->setConfig("asm.slow", checked);
+    triggerAsmOptionsChanged();
+}
+
 void AsmOptionsWidget::on_linesCheckBox_toggled(bool checked)
 {
     Core()->setConfig("asm.lines", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_emuCheckBox_toggled(bool checked)
+{
+    Core()->setConfig("asm.emu", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_cmtrightCheckBox_toggled(bool checked)
+{
+    Core()->setConfig("asm.cmtright", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_varsumCheckBox_toggled(bool checked)
+{
+    Core()->setConfig("asm.varsum", checked);
     triggerAsmOptionsChanged();
 }
 
@@ -196,6 +228,12 @@ void AsmOptionsWidget::on_caseComboBox_currentIndexChanged(int index)
     Core()->setConfig("asm.ucase", ucase);
     Core()->setConfig("asm.capitalize", capitalize);
 
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_asmTabsSpinBox_valueChanged(int value)
+{
+    Core()->setConfig("asm.tabs", value);
     triggerAsmOptionsChanged();
 }
 
