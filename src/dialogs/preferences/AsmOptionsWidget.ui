@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>541</width>
-    <height>478</height>
+    <width>545</width>
+    <height>638</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,9 +50,37 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="slowCheckBox">
+     <property name="text">
+      <string>Slow Analysis (asm.slow)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="linesCheckBox">
      <property name="text">
       <string>Show jump lines (asm.lines)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="emuCheckBox">
+     <property name="text">
+      <string>Run ESIL emulation analysis (asm.emu)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="cmtrightCheckBox">
+     <property name="text">
+      <string>Show comments at right of assembly (asm.cmtright)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="varsumCheckBox">
+     <property name="text">
+      <string>Show variables summary instead of full list (asm.varsum)</string>
      </property>
     </widget>
    </item>
@@ -113,6 +141,27 @@
          <string>Capitalize (asm.capitalize)</string>
         </property>
        </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Tabs in assembly (asm.tabs):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="asmTabsSpinBox">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
       </widget>
      </item>
     </layout>

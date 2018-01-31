@@ -507,7 +507,11 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.offset", Config()->getAsmOffset());
     setConfig("asm.describe", Config()->getAsmDescribe());
     setConfig("asm.stackptr", Config()->getAsmStackPointer());
+    setConfig("asm.slow", Config()->getAsmSlow());
     setConfig("asm.lines", Config()->getAsmLines());
+    setConfig("asm.emu", Config()->getAsmEmu());
+    setConfig("asm.cmtright", Config()->getAsmCmtRight());
+    setConfig("asm.varsum", Config()->getAsmVarSum());
     setConfig("asm.bytes", Config()->getAsmBytes());
     setConfig("asm.bytespace", Config()->getAsmBytespace());
     setConfig("asm.lbytes", Config()->getAsmLBytes());
@@ -517,6 +521,7 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.capitalize", Config()->getAsmCapitalize());
     setConfig("asm.varsub", Config()->getAsmVarsub());
     setConfig("asm.varsub_only", Config()->getAsmVarsubOnly());
+    setConfig("asm.tabs", Config()->getAsmTabs());
 }
 
 void CutterCore::saveDefaultAsmOptions()
@@ -526,7 +531,11 @@ void CutterCore::saveDefaultAsmOptions()
     Config()->setAsmOffset(getConfigb("asm.offset"));
     Config()->setAsmDescribe(getConfigb("asm.describe"));
     Config()->setAsmStackPointer(getConfigb("asm.stackptr"));
+    Config()->setAsmSlow(getConfigb("asm.slow"));
     Config()->setAsmLines(getConfigb("asm.lines"));
+    Config()->setAsmEmu(getConfigb("asm.emu"));
+    Config()->setAsmCmtRight(getConfigb("asm.cmtright"));
+    Config()->setAsmVarSum(getConfigb("asm.varsum"));
     Config()->setAsmBytes(getConfigb("asm.bytes"));
     Config()->setAsmBytespace(getConfigb("asm.bytespace"));
     Config()->setAsmLBytes(getConfigb("asm.lbytes"));
@@ -536,6 +545,7 @@ void CutterCore::saveDefaultAsmOptions()
     Config()->setAsmCapitalize(getConfigb("asm.capitalize"));
     Config()->setAsmVarsub(getConfigb("asm.varsub"));
     Config()->setAsmVarsubOnly(getConfigb("asm.varsub_only"));
+    Config()->setAsmTabs(getConfigi("asm.tabs"));
 }
 
 QString CutterCore::getConfig(const QString &k)
@@ -768,12 +778,10 @@ void CutterCore::setSettings()
     //setConfig("asm.functions", "false");
     setConfig("hex.pairs", false);
     setConfig("asm.cmtflgrefs", false);
-    setConfig("asm.cmtright", true);
     setConfig("asm.cmtcol", 70);
     setConfig("asm.xrefs", false);
     setConfig("asm.fcnlines", false);
 
-    setConfig("asm.tabs", 5);
     setConfig("asm.tabsonce", true);
     setConfig("asm.tabsoff", 5);
     setConfig("asm.nbytes", 10);
