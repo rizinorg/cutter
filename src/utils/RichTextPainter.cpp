@@ -2,6 +2,8 @@
 #include "RichTextPainter.h"
 #include "CachedFontMetrics.h"
 #include <QPainter>
+#include <QTextBlock>
+#include <QTextFragment>
 
 //TODO: fix performance (possibly use QTextLayout?)
 void RichTextPainter::paintRichText(QPainter* painter, int x, int y, int w, int h, int xinc, const List & richText, CachedFontMetrics* fontMetrics)
@@ -100,6 +102,49 @@ void RichTextPainter::htmlRichText(const List & richText, QString & textHtml, QS
         textHtml += "</span>"; //Close the tag
         textPlain += curRichText.text;
     }
+}
+
+RichTextPainter::List RichTextPainter::fromTextDocument(const QTextDocument &doc)
+{
+    List r;
+
+    for (QTextBlock block = doc.begin(); block != doc.end(); block = block.next())
+    {
+        for (QTextBlock::iterator it = block.begin(); it != block.end(); it++)
+        {
+            QTextFragment fragment = it.fragment();
+            QTextCharFormat format = fragment.charFormat();
+
+            CustomRichText_t text;
+            text.text = fragment.text();
+            text.textColor = format.foreground().color();
+            text.textBackground = format.background().color();
+
+            bool hasForeground = format.hasProperty(QTextFormat::ForegroundBrush);
+            bool hasBackground = format.hasProperty(QTextFormat::BackgroundBrush);
+
+            if (hasForeground && !hasBackground)
+            {
+                text.flags = FlagColor;
+            }
+            else if (!hasForeground && hasBackground)
+            {
+                text.flags = FlagBackground;
+            }
+            else if (hasForeground && hasBackground)
+            {
+                text.flags = FlagAll;
+            }
+            else
+            {
+                text.flags = FlagNone;
+            }
+
+            r.push_back(text);
+        }
+    }
+
+    return r;
 }
 
 RichTextPainter::List RichTextPainter::cropped(const RichTextPainter::List &richText, int maxCols, const QString &indicator, bool *croppedOut)

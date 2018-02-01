@@ -112,8 +112,9 @@ void DisassemblerGraphView::refreshView()
 void DisassemblerGraphView::loadCurrentGraph()
 {
     TempConfig tempConfig;
-    tempConfig.set("scr.html", true);
-    QJsonDocument functionsDoc = Core()->cmdj("agJ@e:scr.html=true");
+    tempConfig.set("scr.html", true)
+            .set("scr.color", true);
+    QJsonDocument functionsDoc = Core()->cmdj("agJ");
     QJsonArray functions = functionsDoc.array();
 
     disassembly_blocks.clear();
@@ -187,14 +188,14 @@ void DisassemblerGraphView::loadCurrentGraph()
             // Skip last byte, otherwise it will overlap with next instruction
             i.size -= 1;
 
-            RichTextPainter::List richText;
             QString disas;
             disas = op["text"].toString();
 
 			QTextDocument textDoc;
 			textDoc.setHtml(disas);
 
-            Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
+            RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);
+            //Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
 
             bool cropped;
             int blockLength = Config()->getGraphBlockMaxChars() + Core()->getConfigb("asm.bytes") * 24 + Core()->getConfigb("asm.emu") * 10;

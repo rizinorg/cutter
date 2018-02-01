@@ -3,6 +3,7 @@
 #define RICHTEXTPAINTER_H
 
 #include <QString>
+#include <QTextDocument>
 #include <QColor>
 #include <vector>
 
@@ -38,6 +39,8 @@ public:
     //functions
     static void paintRichText(QPainter* painter, int x, int y, int w, int h, int xinc, const List & richText, CachedFontMetrics* fontMetrics);
     static void htmlRichText(const List & richText, QString & textHtml, QString & textPlain);
+
+    static List fromTextDocument(const QTextDocument &doc);
 
     static List cropped(const List &richText, int maxCols, const QString &indicator = nullptr, bool *croppedOut = nullptr);
 };
