@@ -62,9 +62,9 @@ cmake ../src
 make
 ```
 
-Then run cutter: `./cutter` or `./build/cutter`
+Then run cutter: `./Cutter` or `./build/Cutter`
 
-Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for instance) you might want to use  `LD_LIBRARY_PATH=$HOME/bin/prefix/radare2/lib ./cutter` to run cutter.
+Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for instance) you might want to use  `LD_LIBRARY_PATH=$HOME/bin/prefix/radare2/lib ./Cutter` to run cutter.
 
 
 ## Troubleshooting
