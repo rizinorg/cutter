@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-TARGET = cutter
+TARGET = Cutter
 
 # The application version
 VERSION = 1.2
