@@ -284,23 +284,23 @@ void VisualNavbar::fillData()
         RVA segment_size = mappedSegment.address_to - mappedSegment.address_from;
         double segment_width = (double)segment_size * width_per_byte;
         QGraphicsRectItem *rect = new QGraphicsRectItem(current_x, 0, segment_width, h);
-        rect->setBrush(QBrush(QColor(100, 100, 100)));
+        rect->setBrush(QBrush(Config()->getColor("gui.navbar.empty")));
         graphicsScene->addItem(rect);
         drawMetadata(mappedSegment.strings,
                      mappedSegment.address_from,
                      current_x,
                      width_per_byte,
-                     h, QColor(104, 229, 69));
+                     h, Config()->getColor("gui.navbar.str"));
         drawMetadata(mappedSegment.symbols,
                      mappedSegment.address_from,
                      current_x,
                      width_per_byte,
-                     h, QColor(229, 150, 69));
+                     h, Config()->getColor("gui.navbar.sym"));
         drawMetadata(mappedSegment.functions,
                      mappedSegment.address_from,
                      current_x,
                      width_per_byte,
-                     h, QColor(69, 104, 229));
+                     h, Config()->getColor("gui.navbar.code"));
 
         // Keep track of where which memory segment is mapped so we are able to convert from
         // address to X coordinate and vice versa.
@@ -338,14 +338,14 @@ void VisualNavbar::drawCursor()
     int h = this->graphicsView->height();
     cursorGraphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, h);
     cursorGraphicsItem->setPen(Qt::NoPen);
-    cursorGraphicsItem->setBrush(QBrush(QColor(255, 0, 0)));
+    cursorGraphicsItem->setBrush(QBrush(Config()->getColor("gui.navbar.err")));
     graphicsScene->addItem(cursorGraphicsItem);
 }
 
 void VisualNavbar::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
-   // Update cursor
+    // Update cursor
     this->drawCursor();
 }
 
@@ -356,12 +356,12 @@ void VisualNavbar::mousePressEvent(QMouseEvent *event)
     if(address != RVA_INVALID)
     {
         QToolTip::showText(event->globalPos(), toolTipForAddress(address), this);
-        if(event->buttons() & Qt::LeftButton) {
+        if(event->buttons() & Qt::LeftButton)
+        {
             event->accept();
             Core()->seek(address);
         }
     }
-
 }
 
 void VisualNavbar::mouseMoveEvent(QMouseEvent *event)

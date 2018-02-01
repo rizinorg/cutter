@@ -119,6 +119,11 @@ void Configuration::loadDefaultTheme()
     setColor("gui.alt_background", QColor(245, 250, 255));
     // Custom
     setColor("gui.imports", colorA);
+    setColor("gui.navbar.err", QColor(255, 0, 0));
+    setColor("gui.navbar.code", QColor(104, 229, 69));
+    setColor("gui.navbar.str", QColor(69, 104, 229));
+    setColor("gui.navbar.sym", QColor(229, 150, 69));
+    setColor("gui.navbar.empty", QColor(100, 100, 100));
 
     /* Load Qt Theme */
     qApp->setStyleSheet("");
@@ -208,7 +213,11 @@ void Configuration::loadDarkTheme()
     setColor("gui.alt_background", QColor(58, 100, 128));
     // Custom
     setColor("gui.imports", colorA);
-
+    setColor("gui.navbar.err", QColor(255, 0, 0));
+    setColor("gui.navbar.code", QColor(104, 229, 69));
+    setColor("gui.navbar.str", QColor(69, 104, 229));
+    setColor("gui.navbar.sym", QColor(229, 150, 69));
+    setColor("gui.navbar.empty", QColor(100, 100, 100));
 
     /* Load Qt Theme */
     QFile f(":qdarkstyle/style.qss");
