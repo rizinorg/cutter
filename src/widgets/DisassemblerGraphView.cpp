@@ -7,11 +7,13 @@
 #include <QPropertyAnimation>
 #include <QShortcut>
 #include <QToolTip>
+#include <QTextDocument>
 
 #include "cutter.h"
 #include "utils/Colors.h"
 #include "utils/Configuration.h"
 #include "utils/CachedFontMetrics.h"
+#include "utils/TempConfig.h"
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
@@ -109,7 +111,9 @@ void DisassemblerGraphView::refreshView()
 
 void DisassemblerGraphView::loadCurrentGraph()
 {
-    QJsonDocument functionsDoc = Core()->cmdj("agj");
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", true);
+    QJsonDocument functionsDoc = Core()->cmdj("agJ@e:scr.html=true");
     QJsonArray functions = functionsDoc.array();
 
     disassembly_blocks.clear();
@@ -138,6 +142,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     for (QJsonValueRef blockRef : func["blocks"].toArray()) {
         QJsonObject block = blockRef.toObject();
         RVA block_entry = block["offset"].toVariant().toULongLong();
+        RVA block_size = block["size"].toVariant().toULongLong();
         RVA block_fail = block["fail"].toVariant().toULongLong();
         RVA block_jump = block["jump"].toVariant().toULongLong();
 
@@ -160,50 +165,36 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
             gb.exits.push_back(block_jump);
         }
-        for (QJsonValueRef opRef : block["ops"].toArray())
+        QJsonArray opArray = block["ops"].toArray();
+        for (int opIndex=0; opIndex<opArray.size(); opIndex++)
         {
-            QJsonObject op = opRef.toObject();
+            QJsonObject op = opArray[opIndex].toObject();
             Instr i;
             i.addr = op["offset"].toVariant().toULongLong();
+
+            if (opIndex < opArray.size() - 1)
+            {
+                // get instruction size from distance to next instruction ...
+                RVA nextOffset = opArray[opIndex+1].toObject()["offset"].toVariant().toULongLong();
+                i.size = nextOffset - i.addr;
+            }
+            else
+            {
+                // or to the end of the block.
+                i.size = (block_entry + block_size) - i.addr;
+            }
+
             // Skip last byte, otherwise it will overlap with next instruction
-            i.size = op["size"].toVariant().toULongLong() - 1;
+            i.size -= 1;
 
             RichTextPainter::List richText;
             QString disas;
-            if (Core()->getConfigb("asm.esil"))
-                disas = op["esil"].toString();
-            else
-                disas = op["disasm"].toString();
+            disas = op["text"].toString();
 
-            Colors::colorizeAssembly(richText, disas, op["type_num"].toVariant().toULongLong());
+			QTextDocument textDoc;
+			textDoc.setHtml(disas);
 
-            if (op["comment"].toString().length())
-            {
-                RichTextPainter::CustomRichText_t comment;
-                comment.text = QString(" ; %1").arg(QByteArray::fromBase64(op["comment"].toString().toLocal8Bit()).data());
-                comment.textColor = mCommentColor;
-                comment.flags = RichTextPainter::FlagColor;
-                richText.insert(richText.end(), comment);
-            }
-
-            if (Core()->getConfigb("asm.bytes"))
-            {
-                RichTextPainter::CustomRichText_t bytes;
-                bytes.text = op["bytes"].toVariant().toString();
-
-                if (Core()->getConfigb("asm.bytespace"))
-                    for (int i = 2; i <= bytes.text.size(); i += 2+1)
-                            bytes.text.insert(i, ' ');
-
-                if (Core()->getConfigb("asm.lbytes"))
-                    bytes.text = bytes.text.leftJustified(24, ' ');
-                else
-                    bytes.text = bytes.text.rightJustified(24, ' ');
-
-                bytes.textColor = Config()->getColor("bin");
-                bytes.flags = RichTextPainter::FlagColor;
-                richText.insert(richText.begin(), bytes);
-            }
+            Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
 
             bool cropped;
             int blockLength = Config()->getGraphBlockMaxChars() + Core()->getConfigb("asm.bytes") * 24 + Core()->getConfigb("asm.emu") * 10;
