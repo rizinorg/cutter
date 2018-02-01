@@ -70,8 +70,8 @@ public:
     bool getAsmCmtRight() const         { return s.value("asm.cmtright", true).toBool(); }
     void setAsmCmtRight(bool v)         { s.setValue("asm.cmtright", v); }
 
-    bool getAsmVarSum() const            { return s.value("asm.varsum", false).toBool(); }
-    void setAsmVarSum(bool v)            { s.setValue("asm.varsum", v); }
+    bool getAsmVarSum() const           { return s.value("asm.varsum", false).toBool(); }
+    void setAsmVarSum(bool v)           { s.setValue("asm.varsum", v); }
 
     bool getAsmBytes() const            { return s.value("asm.bytes", false).toBool(); }
     void setAsmBytes(bool v)            { s.setValue("asm.bytes", v); }
@@ -81,6 +81,9 @@ public:
 
     bool getAsmLBytes() const           { return s.value("asm.lbytes", true).toBool(); }
     void setAsmLBytes(bool v)           { s.setValue("asm.lbytes", v); }
+
+    int getAsmNBytes() const            { return s.value("asm.nbytes", 10).toInt(); }
+    void setAsmNBytes(int v)            { s.setValue("asm.nbytes", v); }
 
     QString getAsmSyntax() const        { return s.value("asm.syntax", "intel").toString(); }
     void setAsmSyntax(const QString &v) { s.setValue("asm.syntax", v); }
