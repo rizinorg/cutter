@@ -113,7 +113,8 @@ void DisassemblerGraphView::loadCurrentGraph()
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", true)
-            .set("scr.color", true);
+            .set("scr.color", true)
+            .set("asm.bbline", false);
     QJsonDocument functionsDoc = Core()->cmdj("agJ");
     QJsonArray functions = functionsDoc.array();
 
