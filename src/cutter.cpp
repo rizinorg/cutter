@@ -515,6 +515,7 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.bytes", Config()->getAsmBytes());
     setConfig("asm.bytespace", Config()->getAsmBytespace());
     setConfig("asm.lbytes", Config()->getAsmLBytes());
+    setConfig("asm.nbytes", Config()->getAsmNBytes());
     setConfig("asm.syntax", Config()->getAsmSyntax());
     setConfig("asm.ucase", Config()->getAsmUppercase());
     setConfig("asm.bbline", Config()->getAsmBBLine());
@@ -539,6 +540,7 @@ void CutterCore::saveDefaultAsmOptions()
     Config()->setAsmBytes(getConfigb("asm.bytes"));
     Config()->setAsmBytespace(getConfigb("asm.bytespace"));
     Config()->setAsmLBytes(getConfigb("asm.lbytes"));
+    Config()->setAsmNBytes(getConfigi("asm.nbytes"));
     Config()->setAsmSyntax(getConfig("asm.syntax"));
     Config()->setAsmUppercase(getConfigb("asm.ucase"));
     Config()->setAsmBBLine(getConfigb("asm.bbline"));
@@ -784,7 +786,6 @@ void CutterCore::setSettings()
 
     setConfig("asm.tabsonce", true);
     setConfig("asm.tabsoff", 5);
-    setConfig("asm.nbytes", 10);
     setConfig("asm.midflags", 2);
     //setConfig("asm.bbline", "true");
 

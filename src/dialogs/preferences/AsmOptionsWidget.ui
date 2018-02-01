@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>545</width>
-    <height>638</height>
+    <height>710</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,6 +113,30 @@
     </layout>
    </item>
    <item>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <property name="leftMargin">
+      <number>16</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="nbytesLabel">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Number of bytes to display (asm.nbytes):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="nbytesSpinBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="1">
       <widget class="QComboBox" name="syntaxComboBox"/>
@@ -148,7 +172,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="asmTabsLabel">
        <property name="text">
         <string>Tabs in assembly (asm.tabs):</string>
        </property>

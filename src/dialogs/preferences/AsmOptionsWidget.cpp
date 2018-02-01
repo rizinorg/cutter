@@ -52,6 +52,12 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->bytespaceCheckBox->setEnabled(bytesEnabled);
     qhelpers::setCheckedWithoutSignals(ui->lbytesCheckBox, Core()->getConfigb("asm.lbytes"));
     ui->lbytesCheckBox->setEnabled(bytesEnabled);
+    ui->nbytesSpinBox->blockSignals(true);
+    ui->nbytesSpinBox->setValue(Core()->getConfigi("asm.nbytes"));
+    ui->nbytesSpinBox->blockSignals(false);
+    ui->nbytesLabel->setEnabled(bytesEnabled);
+    ui->nbytesSpinBox->setEnabled(bytesEnabled);
+
 
     QString currentSyntax = Core()->getConfig("asm.syntax");
     for (int i = 0; i < ui->syntaxComboBox->count(); i++)
@@ -178,6 +184,8 @@ void AsmOptionsWidget::on_bytesCheckBox_toggled(bool checked)
     Core()->setConfig("asm.bytes", checked);
     ui->bytespaceCheckBox->setEnabled(checked);
     ui->lbytesCheckBox->setEnabled(checked);
+    ui->nbytesLabel->setEnabled(checked);
+    ui->nbytesSpinBox->setEnabled(checked);
     triggerAsmOptionsChanged();
 }
 
@@ -190,6 +198,12 @@ void AsmOptionsWidget::on_bytespaceCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_lbytesCheckBox_toggled(bool checked)
 {
     Core()->setConfig("asm.lbytes", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_nbytesSpinBox_valueChanged(int value)
+{
+    Core()->setConfig("asm.nbytes", value);
     triggerAsmOptionsChanged();
 }
 
