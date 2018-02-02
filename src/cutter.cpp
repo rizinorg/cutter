@@ -774,12 +774,8 @@ void CutterCore::getOpcodes()
 void CutterCore::setSettings()
 {
     setConfig("scr.interactive", false);
-    // Intredazting...
-    //setConfig("asm.linesright", "true");
-    //setConfig("asm.lineswidth", "15");
-    //setConfig("asm.functions", "false");
+
     setConfig("hex.pairs", false);
-    setConfig("asm.cmtflgrefs", false);
     setConfig("asm.cmtcol", 70);
     setConfig("asm.xrefs", false);
     setConfig("asm.fcnlines", false);
@@ -787,40 +783,18 @@ void CutterCore::setSettings()
     setConfig("asm.tabsonce", true);
     setConfig("asm.tabsoff", 5);
     setConfig("asm.midflags", 2);
-    //setConfig("asm.bbline", "true");
-
-    // asm.offset=false would break reading the offset in DisassemblyWidget
-    // TODO: remove this when DisassemblyWidget::readDisassemblyOffset() allows it
-    setConfig("asm.offset", true);
 
     setConfig("anal.hasnext", true);
-    setConfig("asm.fcncalls", false);
-    setConfig("asm.calls", false);
     setConfig("asm.lines.call", false);
     setConfig("asm.flgoff", true);
     setConfig("anal.autoname", true);
 
-    // Highlight current node in graphviz
-    setConfig("graph.gv.current", true);
-
     // Fucking pancake xD
     setConfig("cfg.fortunes.tts", false);
-
-    // Experimenting with asm options
-    //setConfig("asm.spacy", "true");      // We need to handle blank lines on scroll
-    //setConfig("asm.section", "true");    // Breaks the disasm and navigation
-    //setConfig("asm.invhex", "true");     // Needs further testing
-    //setConfig("asm.flags", "false");     // Add with default true in future
 
     // Used by the HTML5 graph
     setConfig("http.cors", true);
     setConfig("http.sandbox", false);
-    //config("http.port", "14170");
-
-    // Temporary fixes
-    //setConfig("http.root","/usr/local/share/radare2/last/www");
-    //setConfig("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
-    //setConfig("bin.rawstr", "true");
 
     // Colors
     setConfig("scr.color", false);

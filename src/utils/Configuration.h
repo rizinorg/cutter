@@ -58,7 +58,7 @@ public:
     bool getAsmStackPointer() const     { return s.value("asm.stackptr", false).toBool(); }
     void setAsmStackPointer(bool v)     { s.setValue("asm.stackptr", v); }
 
-    bool getAsmSlow() const             { return s.value("asm.slow", false).toBool(); }
+    bool getAsmSlow() const             { return s.value("asm.slow", true).toBool(); }
     void setAsmSlow(bool v)             { s.setValue("asm.slow", v); }
 
     bool getAsmLines() const            { return s.value("asm.lines", false).toBool(); }
