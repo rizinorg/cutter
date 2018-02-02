@@ -92,7 +92,7 @@ public:
     ~FunctionsWidget();
 
 private slots:
-    void functionsTreeView_doubleClicked(const QModelIndex &index);
+    void onFunctionsDoubleClicked(const QModelIndex &index);
     void showFunctionsContextMenu(const QPoint &pt);
 
     void on_actionDisasAdd_comment_triggered();

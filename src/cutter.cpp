@@ -363,7 +363,11 @@ void CutterCore::seek(ut64 offset)
 
 void CutterCore::seek(QString offset)
 {
-    seek(offset.toULongLong());
+    bool converted;
+    auto s = offset.toULongLong(&converted, 16);
+    if (!converted)
+        s = offset.toULongLong();
+    seek(s);
 }
 
 void CutterCore::seekPrev()

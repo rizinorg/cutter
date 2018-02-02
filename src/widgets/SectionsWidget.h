@@ -26,6 +26,8 @@ public:
 private slots:
     void refreshSections();
 
+    void onSectionsDoubleClicked(const QModelIndex &index);
+
 private:
     QAbstractItemView       *pieChart;
     QItemSelectionModel     *selectionModel;

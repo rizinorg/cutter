@@ -378,7 +378,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     connect(ui->functionsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showFunctionsContextMenu(const QPoint &)));
 
-    connect(ui->functionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(functionsTreeView_doubleClicked(const QModelIndex &)));
+    connect(ui->functionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onFunctionsDoubleClicked(const QModelIndex &)));
 
     // Use a custom context menu on the dock title bar
     //this->title_bar = this->titleBarWidget();
@@ -411,10 +411,10 @@ void FunctionsWidget::refreshTree()
     ui->functionsTreeView->resizeColumnToContents(2);
 }
 
-void FunctionsWidget::functionsTreeView_doubleClicked(const QModelIndex &index)
+void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
 {
     FunctionDescription function = index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    CutterCore::getInstance()->seek(function.offset);
+    Core()->seek(function.offset);
 }
 
 void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
