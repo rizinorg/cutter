@@ -229,7 +229,17 @@ void Configuration::loadDarkTheme()
     {
         f.open(QFile::ReadOnly | QFile::Text);
         QTextStream ts(&f);
-        qApp->setStyleSheet(ts.readAll());
+        QString stylesheet = ts.readAll();
+#ifdef Q_OS_MACX
+        // see https://github.com/ColinDuquesnoy/QDarkStyleSheet/issues/22#issuecomment-96179529
+        stylesheet += "QDockWidget::title"
+                "{"
+                "    background-color: #31363b;"
+                "    text-align: center;"
+                "    height: 12px;"
+                "}";
+#endif
+        qApp->setStyleSheet(stylesheet);
     }
 }
 
