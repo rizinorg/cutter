@@ -13,10 +13,9 @@ Omnibar::Omnibar(MainWindow *main, QWidget *parent) :
 {
     // QLineEdit basic features
     this->setMinimumHeight(16);
-    this->setMaximumHeight(16);
     this->setFrame(false);
-    this->setPlaceholderText("Type flag name or address here");
-    this->setStyleSheet("border-radius: 5px;");
+    this->setPlaceholderText(tr("Type flag name or address here"));
+    this->setStyleSheet("border-radius: 5px; padding: 0 8px; margin: 5px 0;");
     this->setTextMargins(10, 0, 0, 0);
     this->setClearButtonEnabled(true);
 
