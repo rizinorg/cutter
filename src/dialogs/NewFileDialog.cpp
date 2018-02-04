@@ -3,6 +3,7 @@
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "ui_NewfileDialog.h"
+#include "utils/Helpers.h"
 
 #include <QFileDialog>
 #include <QtGui>
@@ -47,18 +48,6 @@ static QIcon getIconFor(const QString& str, int pos)
     pixPaint.setFont(QFont("Verdana", 24, 1));
     pixPaint.drawText(0, 0, w, h - 2, Qt::AlignCenter, QString(str).toUpper().mid(0, 2));
     return QIcon(pixmap);
-}
-
-static QString formatBytecount(const long bytecount)
-{
-    const int exp = log(bytecount) / log(1000);
-    constexpr char suffixes[] = {' ', 'k', 'M', 'G', 'T', 'P', 'E'};
-
-    QString str;
-    QTextStream stream(&str);
-    stream << qSetRealNumberPrecision(3) << bytecount / pow(1000, exp)
-           << ' ' << suffixes[exp] << 'B';
-    return stream.readAll();
 }
 
 NewFileDialog::NewFileDialog(QWidget *parent) :
@@ -264,7 +253,7 @@ bool NewFileDialog::fillRecentFilesList()
         {
             QListWidgetItem *item = new QListWidgetItem(
                     getIconFor(name, i++),
-                    file + "\nCreated: " + info.created().toString() + "\nSize: " + formatBytecount(info.size())
+                    file + "\nCreated: " + info.created().toString() + "\nSize: " + qhelpers::formatBytecount(info.size())
             );
             //":/img/icons/target.svg"), name );
             item->setData(Qt::UserRole, file);

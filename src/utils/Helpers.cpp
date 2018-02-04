@@ -1,14 +1,17 @@
 #include "utils/Helpers.h"
 
+#include <cmath>
 #include <QPlainTextEdit>
 #include <QTextEdit>
 #include <QFileInfo>
+#include <QtCore>
 #include <QCryptographicHash>
 #include <QTreeWidget>
 #include <QString>
 #include <QAbstractItemView>
 #include <QAbstractButton>
 #include <QDockWidget>
+
 
 
 static QAbstractItemView::ScrollMode scrollMode()
@@ -20,6 +23,18 @@ static QAbstractItemView::ScrollMode scrollMode()
 
 namespace qhelpers
 {
+
+    QString formatBytecount(const long bytecount)
+    {
+        const int exp = log(bytecount) / log(1000);
+        constexpr char suffixes[] = {' ', 'k', 'M', 'G', 'T', 'P', 'E'};
+
+        QString str;
+        QTextStream stream(&str);
+        stream << qSetRealNumberPrecision(3) << bytecount / pow(1000, exp)
+               << ' ' << suffixes[exp] << 'B';
+        return stream.readAll();
+    }
     void adjustColumns(QTreeView *tv, int columnCount, int padding)
     {
         for (int i = 0; i != columnCount; ++i)

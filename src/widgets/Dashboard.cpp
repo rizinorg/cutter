@@ -1,5 +1,6 @@
 #include "Dashboard.h"
 #include "ui_Dashboard.h"
+#include "utils/Helpers.h"
 
 #include "MainWindow.h"
 
@@ -44,7 +45,7 @@ void Dashboard::updateContents()
     this->ui->formatEdit->setText(item["format"].toString());
     this->ui->modeEdit->setText(item["mode"].toString());
     this->ui->typeEdit->setText(item["type"].toString());
-    this->ui->sizeEdit->setText(QString::number(item["size"].toDouble()));
+    this->ui->sizeEdit->setText(qhelpers::formatBytecount(item["size"].toDouble()));
     this->ui->fdEdit->setText(QString::number(item["fd"].toDouble()));
 
     this->ui->archEdit->setText(item2["arch"].toString());

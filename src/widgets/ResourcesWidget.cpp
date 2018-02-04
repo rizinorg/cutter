@@ -1,3 +1,4 @@
+#include "utils/Helpers.h"
 #include "ResourcesWidget.h"
 #include <QVBoxLayout>
 
@@ -34,7 +35,7 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
                 case TYPE:
                     return res->type;
                 case SIZE:
-                    return res->size;
+                    return qhelpers::formatBytecount(res->size);
                 case LANG:
                     return res->lang;
                 default:
