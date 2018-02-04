@@ -160,11 +160,6 @@ void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *ite
     loadProject(item->data(Qt::UserRole).toString());
 }
 
-void NewFileDialog::on_cancelButton_clicked()
-{
-    close();
-}
-
 void NewFileDialog::on_aboutButton_clicked()
 {
 	AboutDialog *a = new AboutDialog(this);
