@@ -17,8 +17,6 @@ namespace Ui
     class StringsWidget;
 }
 
-
-
 class StringsModel: public QAbstractListModel
 {
 Q_OBJECT

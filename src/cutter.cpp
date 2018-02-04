@@ -1204,6 +1204,29 @@ QList<ClassDescription> CutterCore::getAllClasses()
     return ret;
 }
 
+QList<ResourcesDescription> CutterCore::getAllResources()
+{
+    CORE_LOCK();
+    QList<ResourcesDescription> ret;
+
+    QJsonArray resourcesArray = cmdj("iRj").array();
+    for (QJsonValueRef value : resourcesArray)
+    {
+        QJsonObject resourceObject = value.toObject();
+
+        ResourcesDescription res;
+        res.name = resourceObject["name"].toString();
+        res.vaddr = resourceObject["vaddr"].toVariant().toULongLong();
+        res.index = resourceObject["index"].toVariant().toULongLong();
+        res.type = resourceObject["type"].toString();
+        res.size = resourceObject["size"].toVariant().toULongLong();
+        res.lang = resourceObject["lang"].toString();
+
+        ret << res;
+    }
+    return ret;
+}
+
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();

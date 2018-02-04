@@ -195,6 +195,16 @@ struct ClassDescription
     QList<ClassFieldDescription> fields;
 };
 
+struct ResourcesDescription
+{
+    QString name;
+    RVA vaddr;
+    ut64 index;
+    QString type;
+    ut64 size;
+    QString lang;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -210,6 +220,7 @@ Q_DECLARE_METATYPE(RBinPluginDescription)
 Q_DECLARE_METATYPE(ClassMethodDescription)
 Q_DECLARE_METATYPE(ClassFieldDescription)
 Q_DECLARE_METATYPE(ClassDescription)
+Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(const ClassDescription *)
 Q_DECLARE_METATYPE(const ClassMethodDescription *)
 Q_DECLARE_METATYPE(const ClassFieldDescription *)
@@ -341,6 +352,7 @@ public:
     QList<SectionDescription> getAllSections();
     QList<EntrypointDescription> getAllEntrypoint();
     QList<ClassDescription> getAllClasses();
+    QList<ResourcesDescription> getAllResources();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 

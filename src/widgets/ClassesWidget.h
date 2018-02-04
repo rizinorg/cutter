@@ -1,5 +1,5 @@
-#ifndef CLASSWSWIDGET_H
-#define CLASSWSWIDGET_H
+#ifndef CLASSESWIDGET_H
+#define CLASSESWIDGET_H
 
 #include <memory>
 
@@ -9,16 +9,12 @@
 #include <QSortFilterProxyModel>
 #include <QDockWidget>
 
-class MainWindow;
-class QTreeWidget;
-
 namespace Ui
 {
     class ClassesWidget;
 }
 
-
-class MainWindow;
+class QTreeWidget;
 class QTreeWidgetItem;
 
 
@@ -52,7 +48,7 @@ public:
     void endReload();
 };
 
-Q_DECLARE_METATYPE(ClassesModel::RowType);
+Q_DECLARE_METATYPE(ClassesModel::RowType)
 
 
 class ClassesSortFilterProxyModel : public QSortFilterProxyModel
@@ -74,7 +70,7 @@ class ClassesWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit ClassesWidget(MainWindow *main, QWidget *parent = 0);
+    explicit ClassesWidget(QWidget *parent = nullptr);
     ~ClassesWidget();
 
 private slots:
@@ -84,7 +80,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::ClassesWidget> ui;
-    MainWindow      *main;
 
     ClassesModel *model;
     ClassesSortFilterProxyModel *proxy_model;
@@ -92,4 +87,4 @@ private:
 };
 
 
-#endif // CLASSWSWIDGET_H
+#endif // CLASSESWIDGET_H

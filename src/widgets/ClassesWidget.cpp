@@ -3,7 +3,6 @@
 
 #include "ClassesWidget.h"
 #include "ui_ClassesWidget.h"
-#include "MainWindow.h"
 #include "utils/Helpers.h"
 
 ClassesModel::ClassesModel(QList<ClassDescription> *classes, QObject *parent)
@@ -243,15 +242,11 @@ bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 
 
-ClassesWidget::ClassesWidget(MainWindow *main, QWidget *parent) :
+ClassesWidget::ClassesWidget(QWidget *parent) :
     QDockWidget(parent),
-    ui(new Ui::ClassesWidget),
-    main(main)
+    ui(new Ui::ClassesWidget)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     model = new ClassesModel(&classes, this);
     proxy_model = new ClassesSortFilterProxyModel(model, this);

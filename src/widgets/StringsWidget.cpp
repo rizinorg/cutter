@@ -79,10 +79,6 @@ void StringsModel::endReload()
     endResetModel();
 }
 
-
-
-
-
 StringsSortFilterProxyModel::StringsSortFilterProxyModel(StringsModel *source_model, QObject *parent)
         : QSortFilterProxyModel(parent)
 {

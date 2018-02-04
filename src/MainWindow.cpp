@@ -64,6 +64,7 @@
 #include "widgets/EntrypointWidget.h"
 #include "dialogs/SaveProjectDialog.h"
 #include "widgets/ClassesWidget.h"
+#include "widgets/ResourcesWidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -87,29 +88,7 @@ static void registerCustomFonts()
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(CutterCore::getInstance()),
-    notepadDock(nullptr),
-    pseudocodeDock(nullptr),
-    asmDock(nullptr),
-    calcDock(nullptr),
-    omnibar(nullptr),
-    ui(new Ui::MainWindow),
-    highlighter(nullptr),
-    hex_highlighter(nullptr),
-    visualNavbar(nullptr),
-    entrypointDock(nullptr),
-    functionsDock(nullptr),
-    importsDock(nullptr),
-    exportsDock(nullptr),
-    symbolsDock(nullptr),
-    relocsDock(nullptr),
-    commentsDock(nullptr),
-    stringsDock(nullptr),
-    flagsDock(nullptr),
-    dashboardDock(nullptr),
-    gotoEntry(nullptr),
-    sdbDock(nullptr),
-    sectionsDock(nullptr),
-    consoleDock(nullptr)
+    ui(new Ui::MainWindow)
 {
     panelLock = false;
     tabsOnTop = false;
@@ -180,7 +159,7 @@ void MainWindow::initUI()
     /*
      * Dock Widgets
      */
-    dockWidgets.reserve(14);
+    dockWidgets.reserve(20);
 
 #define ADD_DOCK(cls, dockMember, action) \
 { \
@@ -243,6 +222,7 @@ void MainWindow::initUI()
     ADD_DOCK(Dashboard, dashboardDock, ui->actionDashboard);
     ADD_DOCK(SdbDock, sdbDock, ui->actionSDBBrowser);
     ADD_DOCK(ClassesWidget, classesDock, ui->actionClasses);
+    ADD_DOCK(ResourcesWidget, resourcesDock, ui->actionResources);
 
 #undef ADD_DOCK
 
@@ -548,6 +528,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, symbolsDock);
     tabifyDockWidget(dashboardDock, notepadDock);
     tabifyDockWidget(dashboardDock, classesDock);
+    tabifyDockWidget(dashboardDock, resourcesDock);
 
     updateDockActionsChecked();
 }

@@ -86,7 +86,8 @@ SOURCES += \
     dialogs/preferences/GeneralOptionsWidget.cpp \
     dialogs/preferences/GraphOptionsWidget.cpp \
     widgets/QuickFilterView.cpp \
-    widgets/ClassesWidget.cpp
+    widgets/ClassesWidget.cpp \
+    widgets/ResourcesWidget.cpp
 
 HEADERS  += \
     cutter.h \
@@ -143,7 +144,8 @@ HEADERS  += \
     dialogs/preferences/GeneralOptionsWidget.h \
     dialogs/preferences/GraphOptionsWidget.h \
     widgets/QuickFilterView.h \
-    widgets/ClassesWidget.h
+    widgets/ClassesWidget.h \
+    widgets/ResourcesWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

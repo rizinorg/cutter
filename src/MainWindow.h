@@ -37,6 +37,7 @@ class ConsoleWidget;
 class EntrypointWidget;
 class DisassemblerGraphView;
 class ClassesWidget;
+class ResourcesWidget;
 
 class QDockWidget;
 
@@ -145,48 +146,46 @@ private slots:
     void projectSaved(const QString &name);
 
 private:
-    CutterCore       *core;
-    Notepad          *notepadDock;
-    DisassemblyWidget  *disassemblyDock;
-    SidebarWidget    *sidebarDock;
-    HexdumpWidget    *hexdumpDock;
-    PseudocodeWidget *pseudocodeDock;
-    QDockWidget      *graphDock;
-    DisassemblerGraphView *graphView;
-    QDockWidget      *asmDock;
-    QDockWidget      *calcDock;
-    Omnibar          *omnibar;
-    //SideBar          *sideBar;
-    Configuration   *configuration;
-
+    CutterCore *core;
     bool panelLock;
     bool tabsOnTop;
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
     std::unique_ptr<Ui::MainWindow> ui;
-    Highlighter      *highlighter;
+    Highlighter *highlighter;
     AsciiHighlighter *hex_highlighter;
-    VisualNavbar     *visualNavbar;
-    EntrypointWidget *entrypointDock;
-    FunctionsWidget  *functionsDock;
-    ImportsWidget    *importsDock;
-    ExportsWidget    *exportsDock;
-    SymbolsWidget    *symbolsDock;
-    RelocsWidget     *relocsDock;
-    CommentsWidget   *commentsDock;
-    StringsWidget    *stringsDock;
-    FlagsWidget      *flagsDock;
-    Dashboard        *dashboardDock;
-    QLineEdit        *gotoEntry;
-    SdbDock          *sdbDock;
-    //QAction          *sidebar_action;
-    SectionsDock     *sectionsDock;
-    ConsoleWidget    *consoleDock;
-    ClassesWidget    *classesDock;
+    VisualNavbar *visualNavbar;
+    Omnibar *omnibar;
+    Configuration *configuration;
 
     QList<QDockWidget *> dockWidgets;
     QMap<QAction *, QDockWidget *> dockWidgetActions;
+    Notepad            *notepadDock = nullptr;
+    DisassemblyWidget  *disassemblyDock = nullptr;
+    SidebarWidget      *sidebarDock = nullptr;
+    HexdumpWidget      *hexdumpDock = nullptr;
+    PseudocodeWidget   *pseudocodeDock = nullptr;
+    QDockWidget        *graphDock = nullptr;
+    EntrypointWidget   *entrypointDock = nullptr;
+    FunctionsWidget    *functionsDock = nullptr;
+    ImportsWidget      *importsDock = nullptr;
+    ExportsWidget      *exportsDock = nullptr;
+    SymbolsWidget      *symbolsDock = nullptr;
+    RelocsWidget       *relocsDock = nullptr;
+    CommentsWidget     *commentsDock = nullptr;
+    StringsWidget      *stringsDock = nullptr;
+    FlagsWidget        *flagsDock = nullptr;
+    Dashboard          *dashboardDock = nullptr;
+    QLineEdit          *gotoEntry = nullptr;
+    SdbDock            *sdbDock = nullptr;
+    SectionsDock       *sectionsDock = nullptr;
+    ConsoleWidget      *consoleDock = nullptr;
+    ClassesWidget      *classesDock = nullptr;
+    ResourcesWidget    *resourcesDock = nullptr;
+    DisassemblerGraphView *graphView = nullptr;
+    QDockWidget        *asmDock = nullptr;
+    QDockWidget        *calcDock = nullptr;
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
