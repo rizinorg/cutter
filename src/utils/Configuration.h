@@ -61,8 +61,11 @@ public:
     bool getAsmSlow() const             { return s.value("asm.slow", true).toBool(); }
     void setAsmSlow(bool v)             { s.setValue("asm.slow", v); }
 
-    bool getAsmLines() const            { return s.value("asm.lines", false).toBool(); }
+    bool getAsmLines() const            { return s.value("asm.lines", true).toBool(); }
     void setAsmLines(bool v)            { s.setValue("asm.lines", v); }
+
+    bool getAsmFcnLines() const         { return s.value("asm.fcnlines", true).toBool(); }
+    void setAsmFcnLines(bool v)         { s.setValue("asm.fcnlines", v); }
 
     bool getAsmEmu() const              { return s.value("asm.emu", false).toBool(); }
     void setAsmEmu(bool v)              { s.setValue("asm.emu", v); }

@@ -64,6 +64,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="fcnlinesCheckBox">
+     <property name="text">
+      <string>Show function boundary lines (asm.fcnlines)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="emuCheckBox">
      <property name="text">
       <string>Run ESIL emulation analysis (asm.emu)</string>

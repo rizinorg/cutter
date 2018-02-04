@@ -513,6 +513,7 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.stackptr", Config()->getAsmStackPointer());
     setConfig("asm.slow", Config()->getAsmSlow());
     setConfig("asm.lines", Config()->getAsmLines());
+    setConfig("asm.fcnlines", Config()->getAsmFcnLines());
     setConfig("asm.emu", Config()->getAsmEmu());
     setConfig("asm.cmtright", Config()->getAsmCmtRight());
     setConfig("asm.varsum", Config()->getAsmVarSum());
@@ -538,6 +539,7 @@ void CutterCore::saveDefaultAsmOptions()
     Config()->setAsmStackPointer(getConfigb("asm.stackptr"));
     Config()->setAsmSlow(getConfigb("asm.slow"));
     Config()->setAsmLines(getConfigb("asm.lines"));
+    Config()->setAsmFcnLines(getConfigb("asm.fcnlines"));
     Config()->setAsmEmu(getConfigb("asm.emu"));
     Config()->setAsmCmtRight(getConfigb("asm.cmtright"));
     Config()->setAsmVarSum(getConfigb("asm.varsum"));
@@ -782,7 +784,6 @@ void CutterCore::setSettings()
     setConfig("hex.pairs", false);
     setConfig("asm.cmtcol", 70);
     setConfig("asm.xrefs", false);
-    setConfig("asm.fcnlines", false);
 
     setConfig("asm.tabsonce", true);
     setConfig("asm.tabsoff", 5);

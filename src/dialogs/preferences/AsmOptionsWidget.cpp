@@ -42,6 +42,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Core()->getConfigb("asm.stackptr"));
     qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Core()->getConfigb("asm.slow"));
     qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Core()->getConfigb("asm.lines"));
+    qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Core()->getConfigb("asm.fcnlines"));
     qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Core()->getConfigb("asm.emu"));
     qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Core()->getConfigb("asm.cmtright"));
     qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Core()->getConfigb("asm.varsum"));
@@ -158,6 +159,12 @@ void AsmOptionsWidget::on_slowCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_linesCheckBox_toggled(bool checked)
 {
     Core()->setConfig("asm.lines", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_fcnlinesCheckBox_toggled(bool checked)
+{
+    Core()->setConfig("asm.fcnlines", checked);
     triggerAsmOptionsChanged();
 }
 
