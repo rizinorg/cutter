@@ -58,6 +58,7 @@ public:
     ~MainWindow();
 
     void openNewFile(const QString &fn, int analLevel = -1, QList<QString> advancedOptions = QList<QString>());
+    void displayNewFileDialog();
     void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions);
     void openProject(const QString &project_name);
 
