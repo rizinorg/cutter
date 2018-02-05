@@ -280,6 +280,13 @@ void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> ad
     displayAnalysisOptionsDialog(analLevel, advancedOptions);
 }
 
+void MainWindow::displayNewFileDialog()
+{
+    NewFileDialog *n = new NewFileDialog();
+    n->setAttribute(Qt::WA_DeleteOnClose);
+    n->show();
+}
+
 void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions)
 {
     OptionsDialog *o = new OptionsDialog(this);
