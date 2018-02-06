@@ -98,9 +98,8 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        NewFileDialog *n = new NewFileDialog();
-        n->setAttribute(Qt::WA_DeleteOnClose);
-        n->show();
+        MainWindow *main = new MainWindow();
+        main->displayNewFileDialog();
     }
     else // filename specified as positional argument
     {
