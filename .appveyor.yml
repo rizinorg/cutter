@@ -22,22 +22,39 @@ environment:
   QT64PATH: 'C:\Qt\5.10.0\msvc2015_64'
   VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
   matrix:
-    - BITS: 32
-    - BITS: 64
+    - builder: qmake_vs2015_32_dyn
+      BITS: 32
+      QMAKE: 1
+    - builder: qmake_vs2015_64_dyn
+      BITS: 64
+      QMAKE: 1
+    - builder: meson_ninja_64
+      BITS: 64
+      ARCH: x64
+      MESON: 1
+      BACKEND: ninja
+
+install:
+  - cmd: if defined MESON ( if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" ) )
+  - cmd: if defined MESON ( set "ARTIFACT=dist_%ARCH%" ) else ( set "ARTIFACT=build%BITS%\cutter%BITS%" )
+  - cmd: if defined MESON ( %PYTHON%\python.exe -m pip install meson )
+  - cmd: if defined MESON ( if "%BACKEND%" == "ninja" ( powershell -Command wget %NINJA_URL% -OutFile ninja.zip && unzip ninja.zip ) )
 
 before_build:
-  - cmd: prepare_r2.bat %BITS%
+  - cmd: if defined QMAKE ( prepare_r2.bat %BITS% )
+  - cmd: if defined MESON ( git submodule update --init --recursive && git clone -b next --depth 10 https://github.com/aquynh/capstone.git radare2\shlr\capstone )
 
 # Build config
 build_script:
-  - cmd: build.bat %BITS%
+  - cmd: if defined QMAKE ( build.bat %BITS% )
+  - cmd: if defined MESON ( call "%VSVARSALLPATH%" %ARCH% && %PYTHON%\python.exe meson.py --dist=%ARTIFACT% --backend=%BACKEND% )
 
 # Tests
 test: off
 
 # Artifacts
 artifacts:
-  - path: build%BITS%\cutter%BITS%
+  - path: "%ARTIFACT%"
     name: Cutter%BITS%
 
 deploy:
