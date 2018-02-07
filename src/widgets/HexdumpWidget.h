@@ -102,6 +102,7 @@ private:
     void clearParseWindow();
 
     int bufferLines;
+    int cols;
 
 private slots:
     void on_seekChanged(RVA addr);

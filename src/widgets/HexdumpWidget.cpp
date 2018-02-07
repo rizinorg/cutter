@@ -287,8 +287,10 @@ void HexdumpWidget::refresh(RVA addr)
         addr = Core()->getOffset();
     }
 
-    RCoreLocked lcore = Core()->core();
-    int cols = lcore->print->cols;
+    cols = Core()->getConfigi("hex.cols");
+    // Avoid divison by 0
+    if (cols == 0)
+        cols = 16;
 
     // Align addr to cols
     addr -= addr % cols;
@@ -385,9 +387,6 @@ void HexdumpWidget::initParsing()
 
 std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA addr, int lines)
 {
-    RCoreLocked lcore = Core()->core();
-    int cols = lcore->print->cols;
-
     // Main bytes to fetch:
     int bytes = cols * lines;
 
@@ -753,9 +752,6 @@ RVA HexdumpWidget::hexPositionToAddress(int position)
 
 RVA HexdumpWidget::asciiPositionToAddress(int position)
 {
-    RCoreLocked lcore = Core()->core();
-    int cols = lcore->print->cols;
-
     // Each row adds one byte (because of the newline), so cols + 1 gets rid of that offset
     return first_loaded_address + (position - (position / (cols + 1)));
 }
@@ -776,8 +772,6 @@ int HexdumpWidget::hexAddressToPosition(RVA address)
 
 int HexdumpWidget::asciiAddressToPosition(RVA address)
 {
-    RCoreLocked lcore = Core()->core();
-    int cols = lcore->print->cols;
     RVA local_address = address - first_loaded_address;
     int position = local_address + (local_address / cols);
     return position;
@@ -873,8 +867,6 @@ void HexdumpWidget::appendWithoutScroll(QTextEdit *textEdit, QString text)
 void HexdumpWidget::scrollChanged()
 {
     connectScroll(true);
-    RCoreLocked lcore = Core()->core();
-    int cols = lcore->print->cols;
 
     int firstLine = getDisplayedLined(ui->hexHexText);
     if(firstLine < (bufferLines/2))
