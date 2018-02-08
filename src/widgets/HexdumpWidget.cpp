@@ -660,7 +660,6 @@ void HexdumpWidget::colorsUpdatedSlot()
     ui->hexOffsetText->setStyleSheet(styleSheet);
     ui->hexHexText->setStyleSheet(styleSheet);
     ui->hexASCIIText->setStyleSheet(styleSheet);
-    ui->hexSpacerText->setStyleSheet(styleSheet);
 }
 
 void HexdumpWidget::clearParseWindow()
@@ -1009,20 +1008,6 @@ void HexdumpWidget::on_hexSideTab_2_currentChanged(int /*index*/)
     */
 }
 
-
-void HexdumpWidget::on_memSideToolButton_clicked()
-{
-    if (ui->memSideToolButton->isChecked())
-    {
-        ui->hexSideTab_2->hide();
-        ui->memSideToolButton->setIcon(QIcon(":/img/icons/left_light.svg"));
-    }
-    else
-    {
-        ui->hexSideTab_2->show();
-        ui->memSideToolButton->setIcon(QIcon(":/img/icons/right_light.svg"));
-    }
-}
 
 void HexdumpWidget::resizeEvent(QResizeEvent *event)
 {

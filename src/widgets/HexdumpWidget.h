@@ -140,7 +140,6 @@ private slots:
     void colorsUpdatedSlot();
 
     void on_hexSideTab_2_currentChanged(int index);
-    void on_memSideToolButton_clicked();
     void on_copyMD5_clicked();
     void on_copySHA1_clicked();
 };
