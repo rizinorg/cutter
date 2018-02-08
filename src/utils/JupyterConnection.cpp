@@ -16,17 +16,42 @@ JupyterConnection::~JupyterConnection()
 {
     cmdServer->stop();
     process->terminate();
-    urlProcess->terminate();
 }
 
-const char *urlPy = "from notebook import notebookapp\n"
-        "import json\n"
-        "import time\n"
+const char *jupyterPyCode = "import sys\n"
+        "from notebook.notebookapp import *\n"
         "\n"
-        "time.sleep(3)\n"
         "\n"
-        "servers = [si for si in notebookapp.list_running_servers()]\n"
-        "print(json.dumps(servers))";
+        "class CutterNotebookApp(NotebookApp):\n"
+        "    def start(self):\n"
+        "        \"\"\" see NotebookApp.start() \"\"\"\n"
+        "\n"
+        "        super(NotebookApp, self).start()\n"
+        "\n"
+        "        self.write_server_info_file()\n"
+        "\n"
+        "        if self.token and self._token_generated:\n"
+        "            url = url_concat(self.connection_url, {'token': self.token})\n"
+        "            sys.stdout.write(url + \"\\n\")\n"
+        "            sys.stdout.flush()\n"
+        "\n"
+        "        self.io_loop = ioloop.IOLoop.current()\n"
+        "        if sys.platform.startswith('win'):\n"
+        "            # add no-op to wake every 5s\n"
+        "            # to handle signals that may be ignored by the inner loop\n"
+        "            pc = ioloop.PeriodicCallback(lambda: None, 5000)\n"
+        "            pc.start()\n"
+        "        try:\n"
+        "            self.io_loop.start()\n"
+        "        except KeyboardInterrupt:\n"
+        "            self.log.info(_(\"Interrupted...\"))\n"
+        "        finally:\n"
+        "            self.remove_server_info_file()\n"
+        "            self.cleanup_kernels()\n"
+        "\n"
+        "\n"
+        "if __name__ == \"__main__\":\n"
+        "    CutterNotebookApp.launch_instance()";
 
 void JupyterConnection::start()
 {
@@ -34,11 +59,7 @@ void JupyterConnection::start()
     connect(process, &QProcess::readyReadStandardError, this, &JupyterConnection::readStandardError);
     connect(process, &QProcess::readyReadStandardOutput, this, &JupyterConnection::readStandardOutput);
     connect(process, &QProcess::errorOccurred, this, [](QProcess::ProcessError error){ qWarning() << "Jupyter error occurred:" << error; });
-    process->start("jupyter", {"notebook", "--no-browser", "-y"});
-
-    urlProcess = new QProcess(this);
-    connect(urlProcess, &QProcess::readyReadStandardOutput, this, &JupyterConnection::readUrlStandardOutput);
-    urlProcess->start("python3", {"-c", urlPy});
+    process->start("python3", {"-c", jupyterPyCode});
 
     QThread *cmdServerThread = new QThread(this);
     cmdServer = new CommandServer();
@@ -54,24 +75,12 @@ void JupyterConnection::start()
 void JupyterConnection::readStandardError()
 {
     auto data = process->readAllStandardError();
-    printf("Jupyter stderr: %s", data.constData());
+    printf("Jupyter stderr: %s\n", data.constData());
 }
 
 void JupyterConnection::readStandardOutput()
 {
     auto data = process->readAllStandardOutput();
-    printf("Jupyter stdout: %s", data.constData());
-}
-
-void JupyterConnection::readUrlStandardOutput()
-{
-    QJsonDocument doc = QJsonDocument::fromJson(urlProcess->readAllStandardOutput());
-
-    for(QJsonValue value : doc.array())
-    {
-        QJsonObject serverObject = value.toObject();
-        QString url = serverObject["url"].toString() + "?token=" + serverObject["token"].toString();
-        emit urlReceived(url);
-        break;
-    }
+    printf("Jupyter stdout: %s\n", data.constData());
+    emit urlReceived(data);
 }
