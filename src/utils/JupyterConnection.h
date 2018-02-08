@@ -19,14 +19,11 @@ signals:
 
 private:
     QProcess *process;
-    QProcess *urlProcess;
     CommandServer *cmdServer;
 
 private slots:
     void readStandardError();
     void readStandardOutput();
-
-    void readUrlStandardOutput();
 };
 
 #endif //JUPYTERCONNECTION_H
