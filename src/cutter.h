@@ -197,7 +197,7 @@ struct ClassDescription
 
 struct ResourcesDescription
 {
-    QString name;
+    int name;
     RVA vaddr;
     ut64 index;
     QString type;
@@ -220,10 +220,10 @@ Q_DECLARE_METATYPE(RBinPluginDescription)
 Q_DECLARE_METATYPE(ClassMethodDescription)
 Q_DECLARE_METATYPE(ClassFieldDescription)
 Q_DECLARE_METATYPE(ClassDescription)
-Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(const ClassDescription *)
 Q_DECLARE_METATYPE(const ClassMethodDescription *)
 Q_DECLARE_METATYPE(const ClassFieldDescription *)
+Q_DECLARE_METATYPE(ResourcesDescription)
 
 class CutterCore: public QObject
 {

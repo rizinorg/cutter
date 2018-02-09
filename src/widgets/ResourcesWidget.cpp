@@ -20,27 +20,30 @@ int ResourcesModel::columnCount(const QModelIndex &) const
 
 QVariant ResourcesModel::data(const QModelIndex &index, int role) const
 {
-    const ResourcesDescription *res = &resources->at(index.row());
+    const ResourcesDescription &res = resources->at(index.row());
+
     switch (role)
     {
         case Qt::DisplayRole:
             switch (index.column())
             {
                 case NAME:
-                    return res->name;
+                    return res.name;
                 case VADDR:
-                    return RAddressString(res->vaddr);
+                    return RAddressString(res.vaddr);
                 case INDEX:
-                    return res->index;
+                    return res.index;
                 case TYPE:
-                    return res->type;
+                    return res.type;
                 case SIZE:
-                    return qhelpers::formatBytecount(res->size);
+                    return qhelpers::formatBytecount(res.size);
                 case LANG:
-                    return res->lang;
+                    return res.lang;
                 default:
                     return QVariant();
             }
+        case Qt::UserRole:
+            return QVariant::fromValue(res);
         default:
             return QVariant();
     }
@@ -110,6 +113,6 @@ void ResourcesWidget::refreshResources()
 
 void ResourcesWidget::onDoubleClicked(const QModelIndex &index)
 {
-    ResourcesDescription res = index.data().value<ResourcesDescription>();
+    ResourcesDescription res = index.data(Qt::UserRole).value<ResourcesDescription>();
     CutterCore::getInstance()->seek(res.vaddr);
 }

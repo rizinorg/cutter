@@ -1216,7 +1216,7 @@ QList<ResourcesDescription> CutterCore::getAllResources()
         QJsonObject resourceObject = value.toObject();
 
         ResourcesDescription res;
-        res.name = resourceObject["name"].toString();
+        res.name = resourceObject["name"].toInt();
         res.vaddr = resourceObject["vaddr"].toVariant().toULongLong();
         res.index = resourceObject["index"].toVariant().toULongLong();
         res.type = resourceObject["type"].toString();
