@@ -22,26 +22,30 @@ environment:
   QT64PATH: 'C:\Qt\5.10.0\msvc2015_64'
   VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
   matrix:
-    - builder: qmake_vs2015_32_dyn
-      BITS: 32
+    # Build: qmake vs2015 x86 shared
+    - BITS: 32
       QMAKE: 1
-    - builder: qmake_vs2015_64_dyn
-      BITS: 64
+    # Build: qmake vs2015 x64 shared
+    - BITS: 64
       QMAKE: 1
-    - builder: meson_ninja_64
-      BITS: 64
+    # Build: meson ninja x64 static
+    - BITS: 64
       ARCH: x64
       MESON: 1
       BACKEND: ninja
 
 install:
+  # Artifacts
+  - cmd: if defined MESON ( set "ARTIFACT_NAME=Cutter%BITS%_static" ) else ( set "ARTIFACT_NAME=Cutter%BITS%" )
+  - cmd: if defined MESON ( set "ARTIFACT=dist%BITS%" ) else ( set "ARTIFACT=build%BITS%\cutter%BITS%" )
+  # Meson specific
   - cmd: if defined MESON ( if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" ) )
-  - cmd: if defined MESON ( set "ARTIFACT=dist_%ARCH%" ) else ( set "ARTIFACT=build%BITS%\cutter%BITS%" )
   - cmd: if defined MESON ( %PYTHON%\python.exe -m pip install meson )
   - cmd: if defined MESON ( if "%BACKEND%" == "ninja" ( powershell -Command wget %NINJA_URL% -OutFile ninja.zip && unzip ninja.zip ) )
 
 before_build:
   - cmd: if defined QMAKE ( prepare_r2.bat %BITS% )
+  - cmd: if defined MESON ( git submodule update --init )
 
 # Build config
 build_script:
@@ -54,7 +58,7 @@ test: off
 # Artifacts
 artifacts:
   - path: "%ARTIFACT%"
-    name: Cutter%BITS%
+    name: "%ARTIFACT_NAME%"
 
 deploy:
   release: cutter-$(appveyor_build_version)
