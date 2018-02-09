@@ -24,14 +24,14 @@ class FunctionModel : public QAbstractItemModel
 
 private:
     QList<FunctionDescription> *functions;
-    QSet<RVA> *import_addresses;
+    QSet<RVA> *importAddresses;
 
 
-    QFont highlight_font;
-    QFont default_font;
+    QFont highlightFont;
+    QFont defaultFont;
     bool nested;
 
-    int current_index;
+    int currentIndex;
 
     bool functionIsImport(ut64 addr) const;
 
@@ -41,7 +41,7 @@ public:
 
     enum Column { NameColumn = 0, SizeColumn, ImportColumn, OffsetColumn, ColumnCount };
 
-    FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *import_addresses, bool nested, QFont default_font, QFont highlight_font, QObject *parent = 0);
+    FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = 0);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -115,10 +115,10 @@ private:
     MainWindow      *main;
 
     QList<FunctionDescription> functions;
-    QSet<RVA> import_addresses;
+    QSet<RVA> importAddresses;
 
-    FunctionModel *function_model;
-    FunctionSortFilterProxyModel *function_proxy_model;
+    FunctionModel *functionModel;
+    FunctionSortFilterProxyModel *functionProxyModel;
 
     void setScrollMode();
 };
