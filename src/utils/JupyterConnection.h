@@ -4,6 +4,12 @@
 #include <QProcess>
 #include "CommandServer.h"
 
+struct _object;
+typedef _object PyObject;
+
+struct _ts;
+typedef _ts PyThreadState;
+
 class JupyterConnection : public QObject
 {
     Q_OBJECT
@@ -18,12 +24,13 @@ signals:
     void urlReceived(const QString &url);
 
 private:
-    QProcess *process;
     CommandServer *cmdServer;
+    QThread *cmdServerThread;
 
-private slots:
-    void readStandardError();
-    void readStandardOutput();
+    PyObject *cutterJupyterModule = nullptr;
+    PyObject *cutterNotebookAppInstance = nullptr;
+
+    PyThreadState *pyThreadState = nullptr;
 };
 
 #endif //JUPYTERCONNECTION_H
