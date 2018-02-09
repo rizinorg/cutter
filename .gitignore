@@ -79,3 +79,6 @@ ninja.exe
 
 #Mesonbuild
 src/subprojects/
+
+# Python
+__pycache__

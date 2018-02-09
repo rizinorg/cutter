@@ -35,6 +35,10 @@ include_directories(${RADARE2_INCLUDE_DIRS})
 link_directories(${RADARE2_LIBRARY_DIRS})
 
 
+find_package(PythonLibs 3 REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
         OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     add_definitions(-Wall -Wextra)
@@ -67,4 +71,5 @@ add_definitions("-DAPP_VERSION=\"${CUTTER_VERSION_FULL}\"")
 add_executable(cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
 qt5_use_modules(cutter Core Widgets Gui Svg WebEngineWidgets)
 target_link_libraries(cutter ${RADARE2_LIBRARIES})
+target_link_libraries(cutter ${PYTHON_LIBRARIES})
 
