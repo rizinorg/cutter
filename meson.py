@@ -73,6 +73,7 @@ def win_dist(args):
     r2_meson_mod.win_dist_libr2(DIST=dist)
 
 def build(args):
+    r2_meson_mod.prepare_capstone()
     cutter_builddir = os.path.join(ROOT, args.dir)
     if not os.path.exists(cutter_builddir):
         defines = []
@@ -85,13 +86,13 @@ def build(args):
         r2_meson_mod.meson(os.path.join(ROOT, 'src'), cutter_builddir,
                            prefix=cutter_builddir, backend=args.backend,
                            release=True, shared=False, options=defines)
+    r2_meson_mod.build_sdb(args.backend, release=True)
     log.info('Building cutter')
     if args.backend == 'ninja':
         r2_meson_mod.ninja(cutter_builddir)
     else:
         project = os.path.join(cutter_builddir, 'Cutter.sln')
         r2_meson_mod.msbuild(project, '/m')
-    r2_meson_mod.build_sdb('ninja', release=True)
 
 def create_sp_dir():
     sp_dir = os.path.join(ROOT, 'src', 'subprojects')

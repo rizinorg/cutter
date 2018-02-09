@@ -42,7 +42,6 @@ install:
 
 before_build:
   - cmd: if defined QMAKE ( prepare_r2.bat %BITS% )
-  - cmd: if defined MESON ( git submodule update --init --recursive && git clone -b next --depth 10 https://github.com/aquynh/capstone.git radare2\shlr\capstone )
 
 # Build config
 build_script:
