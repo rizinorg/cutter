@@ -25,7 +25,7 @@ private:
     QList<StringDescription> *strings;
 
 public:
-    enum Columns { OFFSET = 0, STRING, COUNT };
+    enum Columns { OFFSET = 0, STRING, TYPE, LENGTH, SIZE, COUNT };
     static const int StringDescriptionRole = Qt::UserRole;
 
     StringsModel(QList<StringDescription> *strings, QObject *parent = 0);

@@ -1065,6 +1065,9 @@ QList<StringDescription> CutterCore::getAllStrings()
             StringDescription str;
             str.vaddr = bs->vaddr;
             str.string = bs->string;
+            str.type = bs->type;
+            str.length = bs->length;
+            str.size = bs->size;
             ret << str;
         }
     }

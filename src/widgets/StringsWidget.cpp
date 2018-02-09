@@ -40,6 +40,12 @@ QVariant StringsModel::data(const QModelIndex &index, int role) const
                     return RAddressString(str.vaddr);
                 case STRING:
                     return str.string;
+                case TYPE:
+                    return str.type;
+                case LENGTH:
+                    return str.length;
+                case SIZE:
+                    return str.size;
                 default:
                     return QVariant();
             }
@@ -61,6 +67,12 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
                     return tr("Address");
                 case STRING:
                     return tr("String");
+                case TYPE:
+                    return tr("Type");
+                case LENGTH:
+                    return tr("Length");
+                case SIZE:
+                    return tr("Size");
                 default:
                     return QVariant();
             }
@@ -161,4 +173,9 @@ void StringsWidget::refreshStrings()
 
     ui->stringsTreeView->resizeColumnToContents(0);
     ui->stringsTreeView->resizeColumnToContents(1);
+    if (ui->stringsTreeView->columnWidth(1) > 300)
+        ui->stringsTreeView->setColumnWidth(1, 300);
+    ui->stringsTreeView->resizeColumnToContents(2);
+    ui->stringsTreeView->resizeColumnToContents(3);
+    ui->stringsTreeView->resizeColumnToContents(4);
 }

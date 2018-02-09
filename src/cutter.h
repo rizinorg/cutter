@@ -117,6 +117,9 @@ struct StringDescription
 {
     RVA vaddr;
     QString string;
+    char type;
+    ut32 length;
+    ut32 size;
 };
 
 struct FlagspaceDescription
