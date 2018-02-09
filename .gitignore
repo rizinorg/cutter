@@ -72,8 +72,10 @@ debug/
 /src/cutter_resource.rc
 
 #prepare_r2
-meson.py
 ninja.exe
 /dist32/
 /dist64/
 *.pdb
+
+#Mesonbuild
+src/subprojects/
