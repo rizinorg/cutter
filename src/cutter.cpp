@@ -1055,7 +1055,8 @@ QList<StringDescription> CutterCore::getAllStrings()
 {
     CORE_LOCK();
     QList<StringDescription> ret;
-    QJsonArray stringsArray = cmdj("izzj")["strings"].toArray();
+    QJsonDocument stringsDoc = cmdj("izzj");
+    QJsonArray stringsArray = stringsDoc["strings"].toArray();
     for (QJsonValue value : stringsArray)
     {
         QJsonObject stringObject = value.toObject();
