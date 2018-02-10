@@ -1,14 +1,7 @@
 #ifndef CUTTERAPPLICATION_H
 #define CUTTERAPPLICATION_H
 
-#include <QApplication>
-#include <QFileOpenEvent>
 #include <QEvent>
-#include <QMessageBox>
-#include <QCommandLineParser>
-#include <QTextCodec>
-#include <QStringList>
-#include <QProcess>
 
 #include "MainWindow.h"
 
