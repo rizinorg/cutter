@@ -1054,22 +1054,20 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 QList<StringDescription> CutterCore::getAllStrings()
 {
     CORE_LOCK();
-    RListIter *it;
     QList<StringDescription> ret;
-
-    RBinString *bs;
-    if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
+    QJsonArray stringsArray = cmdj("izzj")["strings"].toArray();
+    for (QJsonValue value : stringsArray)
     {
-        CutterRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
-        {
-            StringDescription str;
-            str.vaddr = bs->vaddr;
-            str.string = bs->string;
-            str.type = bs->type;
-            str.length = bs->length;
-            str.size = bs->size;
-            ret << str;
-        }
+        QJsonObject stringObject = value.toObject();
+
+        StringDescription string;
+        string.string = QString(QByteArray::fromBase64(stringObject["string"].toVariant().toByteArray()));
+        string.vaddr = stringObject["vaddr"].toVariant().toULongLong();
+        string.type = stringObject["type"].toString();
+        string.size = stringObject["size"].toVariant().toUInt();
+        string.length = stringObject["length"].toVariant().toUInt();
+
+        ret << string;
     }
 
     return ret;
