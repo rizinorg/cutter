@@ -19,8 +19,8 @@ class CutterApplication : public QApplication
     Q_PROPERTY(MainWindow* mainWindow READ mainWindow WRITE setMainWindow)
 public:
     CutterApplication(int &argc, char **argv) : QApplication(argc, argv){
-        setOrganizationName("cutter");
-        setApplicationName("cutter");
+        setOrganizationName("Cutter");
+        setApplicationName("Cutter");
         setApplicationVersion(APP_VERSION);
         setWindowIcon(QIcon(":/img/cutter.svg"));
 
@@ -54,7 +54,7 @@ public:
             msg.setIcon(QMessageBox::Critical);
             msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
             msg.setWindowTitle(QObject::tr("Version mismatch!"));
-            msg.setText(QString(QObject::tr("The version used to compile cutter (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(localVersion, r2version));
+            msg.setText(QString(QObject::tr("The version used to compile Cutter (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(localVersion, r2version));
             if (msg.exec() == QMessageBox::No)
                 exit(1);
         }
