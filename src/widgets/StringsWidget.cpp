@@ -41,7 +41,12 @@ QVariant StringsModel::data(const QModelIndex &index, int role) const
                 case STRING:
                     return str.string;
                 case TYPE:
-                    return str.type;
+                    if (str.type == "a")
+                        return "ASCII";
+                    else if (str.type == "u")
+                        return "UTF-8";
+                    else
+                        return str.type;
                 case LENGTH:
                     return str.length;
                 case SIZE:
