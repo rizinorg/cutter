@@ -24,6 +24,7 @@ win32 {
 
 macx {
     QMAKE_CXXFLAGS = -mmacosx-version-min=10.7 -std=gnu0x -stdlib=libc++
+    QMAKE_INFO_PLIST = apple/Info.plist
 }
 
 
@@ -87,7 +88,8 @@ SOURCES += \
     dialogs/preferences/GraphOptionsWidget.cpp \
     widgets/QuickFilterView.cpp \
     widgets/ClassesWidget.cpp \
-    widgets/ResourcesWidget.cpp
+    widgets/ResourcesWidget.cpp \
+    CutterApplication.cpp
 
 HEADERS  += \
     cutter.h \
@@ -145,7 +147,8 @@ HEADERS  += \
     dialogs/preferences/GraphOptionsWidget.h \
     widgets/QuickFilterView.h \
     widgets/ClassesWidget.h \
-    widgets/ResourcesWidget.h
+    widgets/ResourcesWidget.h \
+    CutterApplication.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

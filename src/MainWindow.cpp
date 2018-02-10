@@ -283,8 +283,17 @@ void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> ad
 void MainWindow::displayNewFileDialog()
 {
     NewFileDialog *n = new NewFileDialog();
+    newFileDialog = n;
     n->setAttribute(Qt::WA_DeleteOnClose);
     n->show();
+}
+
+void MainWindow::closeNewFileDialog()
+{
+    if (newFileDialog) {
+        newFileDialog->close();
+    }
+    newFileDialog = nullptr;
 }
 
 void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions)
