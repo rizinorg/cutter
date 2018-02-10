@@ -2,6 +2,7 @@
 #define CUTTERAPPLICATION_H
 
 #include <QEvent>
+#include <QApplication>
 
 #include "MainWindow.h"
 

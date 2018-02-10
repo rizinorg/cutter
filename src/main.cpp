@@ -1,10 +1,5 @@
-#include <QApplication>
-#include <QMessageBox>
-
 #include "CutterApplication.h"
 #include "MainWindow.h"
-#include "dialogs/NewFileDialog.h"
-#include "dialogs/OptionsDialog.h"
 
 #ifdef APPIMAGE
 #define PREFIX "/tmp/.cutter_usr"
