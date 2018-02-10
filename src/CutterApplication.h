@@ -7,6 +7,8 @@
 #include <QMessageBox>
 #include <QCommandLineParser>
 #include <QTextCodec>
+#include <QStringList>
+#include <QProcess>
 
 #include "MainWindow.h"
 
@@ -14,7 +16,6 @@
 class CutterApplication : public QApplication
 {
     Q_OBJECT
-    Q_PROPERTY(QString fileToOpen READ fileToOpen)
     Q_PROPERTY(MainWindow* mainWindow READ mainWindow WRITE setMainWindow)
 public:
     CutterApplication(int &argc, char **argv) : QApplication(argc, argv){
@@ -92,10 +93,6 @@ public:
         }
     }
 
-    QString fileToOpen() {
-        return m_fileToOpen;
-    }
-
     MainWindow * mainWindow() {
         return m_MainWindow;
     }
@@ -109,16 +106,26 @@ protected:
         if (e->type() == QEvent::FileOpen) {
             QFileOpenEvent *openEvent = static_cast<QFileOpenEvent *>(e);
             if (openEvent) {
-                QString fileName = openEvent->file();
-                m_fileToOpen = openEvent->file();
-                m_MainWindow->closeNewFileDialog();
-                m_MainWindow->openNewFile(m_fileToOpen, -1);
+                if (m_FileAlreadyDropped) {
+                    // we already dropped a file in macOS, let's spawn another instance
+                    // (Like the File -> Open)
+                    QString fileName = openEvent->file();
+                    QProcess process(this);
+                    process.setEnvironment(QProcess::systemEnvironment());
+                    QStringList args = QStringList(fileName);
+                    process.startDetached(qApp->applicationFilePath(), args);
+                } else {
+                    QString fileName = openEvent->file();
+                    m_FileAlreadyDropped = true;
+                    m_MainWindow->closeNewFileDialog();
+                    m_MainWindow->openNewFile(fileName, -1);
+                }
             }
         }
         return QApplication::event(e);
     }
 private:
-    QString m_fileToOpen;
+    bool m_FileAlreadyDropped;
     MainWindow *m_MainWindow;
 };
 
