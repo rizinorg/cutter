@@ -24,6 +24,7 @@ win32 {
 
 macx {
     QMAKE_CXXFLAGS = -mmacosx-version-min=10.7 -std=gnu0x -stdlib=libc++
+    QMAKE_INFO_PLIST = apple/Info.plist
 }
 
 
@@ -145,7 +146,8 @@ HEADERS  += \
     dialogs/preferences/GraphOptionsWidget.h \
     widgets/QuickFilterView.h \
     widgets/ClassesWidget.h \
-    widgets/ResourcesWidget.h
+    widgets/ResourcesWidget.h \
+    CutterApplication.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

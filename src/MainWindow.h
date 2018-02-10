@@ -8,6 +8,7 @@
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
+#include "dialogs/NewFileDialog.h"
 #include "utils/Configuration.h"
 
 #include <QMainWindow>
@@ -59,6 +60,7 @@ public:
 
     void openNewFile(const QString &fn, int analLevel = -1, QList<QString> advancedOptions = QList<QString>());
     void displayNewFileDialog();
+    void closeNewFileDialog();
     void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions);
     void openProject(const QString &project_name);
 
@@ -187,6 +189,7 @@ private:
     DisassemblerGraphView *graphView = nullptr;
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;
+    NewFileDialog      *newFileDialog = nullptr; 
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
