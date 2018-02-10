@@ -225,9 +225,9 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>-611</y>
-           <width>565</width>
-           <height>856</height>
+           <y>-379</y>
+           <width>564</width>
+           <height>786</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -438,10 +438,10 @@
                <item>
                 <widget class="QCheckBox" name="binCheckBox">
                  <property name="text">
-                  <string>Load bin information</string>
+                  <string>Do not load bin information (-n)</string>
                  </property>
                  <property name="checked">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>

@@ -715,10 +715,9 @@ QString CutterCore::getDecompiledCode(QString addr)
     return cmd("pdc @ " + addr);
 }
 
-QString CutterCore::getFileInfo()
+QJsonDocument CutterCore::getFileInfo()
 {
-    QString info = cmd("ij");
-    return info;
+    return cmdj("ij");
 }
 
 QStringList CutterCore::getStats()
@@ -1055,6 +1054,7 @@ QList<StringDescription> CutterCore::getAllStrings()
 {
     CORE_LOCK();
     QList<StringDescription> ret;
+    return ret;
     QJsonDocument stringsDoc = cmdj("izzj");
     QJsonObject stringsObj = stringsDoc.object();
     QJsonArray stringsArray = stringsObj["strings"].toArray();

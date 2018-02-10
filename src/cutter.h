@@ -316,7 +316,7 @@ public:
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
-    QString getFileInfo();
+    QJsonDocument getFileInfo();
     QStringList getStats();
     QString getSimpleGraph(QString function);
 
