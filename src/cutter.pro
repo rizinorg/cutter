@@ -88,7 +88,8 @@ SOURCES += \
     dialogs/preferences/GraphOptionsWidget.cpp \
     widgets/QuickFilterView.cpp \
     widgets/ClassesWidget.cpp \
-    widgets/ResourcesWidget.cpp
+    widgets/ResourcesWidget.cpp \
+    CutterApplication.cpp
 
 HEADERS  += \
     cutter.h \
