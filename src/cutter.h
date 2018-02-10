@@ -117,7 +117,7 @@ struct StringDescription
 {
     RVA vaddr;
     QString string;
-    char type;
+    QChar type;
     ut32 length;
     ut32 size;
 };
