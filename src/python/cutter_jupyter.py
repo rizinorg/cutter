@@ -2,6 +2,7 @@ import sys
 import threading
 import time
 from notebook.notebookapp import *
+import cutter
 
 
 class CutterNotebookApp(NotebookApp):
@@ -47,4 +48,7 @@ def start_jupyter():
     app = CutterNotebookApp()
     app.initialize()
     app.start()
+    print('TODO: Export cutter bindings to any kernel')
+    print(cutter.version())
+    print(cutter.cmd('?e That is executed from radare2'))
     return app

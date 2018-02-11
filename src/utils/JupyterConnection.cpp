@@ -9,6 +9,7 @@
 #include <QFile>
 
 #include "JupyterConnection.h"
+#include "PythonAPI.h"
 
 JupyterConnection::JupyterConnection(QObject *parent) : QObject(parent)
 {
@@ -30,6 +31,7 @@ JupyterConnection::~JupyterConnection()
 
 void JupyterConnection::start()
 {
+    PyImport_AppendInittab("cutter", &PyInit_api);
     Py_Initialize();
     PyEval_InitThreads();
 
