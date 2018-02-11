@@ -16,15 +16,7 @@ class CutterNotebookApp(NotebookApp):
 
         self.write_server_info_file()
 
-        class NotebookThread(threading.Thread):
-            def __init__(self, notebook_app):
-                super().__init__()
-                self.notebook_app = notebook_app
-
-            def run(self):
-                self.notebook_app.run()
-
-        self.thread = NotebookThread(self)
+        self.thread = threading.Thread(target=self.run)
         self.thread.start()
 
     def run(self):
