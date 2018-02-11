@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QDebug>
 #include <QThread>
+#include <QFile>
 
 #include "JupyterConnection.h"
 
@@ -32,12 +33,25 @@ void JupyterConnection::start()
     Py_Initialize();
     PyEval_InitThreads();
 
-    cutterJupyterModule = PyImport_ImportModule("cutter_jupyter");
+    QFile moduleFile(":/python/cutter_jupyter.py");
+    moduleFile.open(QIODevice::ReadOnly);
+    QByteArray moduleCode = moduleFile.readAll();
+    moduleFile.close();
+
+    auto moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_jupyter.py", Py_file_input);
+    if (!moduleCodeObject)
+    {
+        qWarning() << "Could not compile cutter_jupyter.";
+        return;
+    }
+    cutterJupyterModule = PyImport_ExecCodeModule("cutter_jupyter", moduleCodeObject);
+    Py_DECREF(moduleCodeObject);
     if (!cutterJupyterModule)
     {
         qWarning() << "Could not import cutter_jupyter.";
         return;
     }
+
     auto startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
     cutterNotebookAppInstance = PyObject_CallObject(startFunc, nullptr);
     auto urlWithToken = PyObject_GetAttrString(cutterNotebookAppInstance, "url_with_token");
