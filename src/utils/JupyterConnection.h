@@ -2,7 +2,6 @@
 #define JUPYTERCONNECTION_H
 
 #include <QProcess>
-#include "CommandServer.h"
 
 struct _object;
 typedef _object PyObject;
@@ -24,9 +23,6 @@ signals:
     void urlReceived(const QString &url);
 
 private:
-    CommandServer *cmdServer;
-    QThread *cmdServerThread;
-
     PyObject *cutterJupyterModule = nullptr;
     PyObject *cutterNotebookAppInstance = nullptr;
 

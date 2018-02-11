@@ -25,8 +25,6 @@ JupyterConnection::~JupyterConnection()
 
         Py_FinalizeEx();
     }
-
-    cmdServer->stop();
 }
 
 void JupyterConnection::start()
@@ -35,6 +33,11 @@ void JupyterConnection::start()
     PyEval_InitThreads();
 
     cutterJupyterModule = PyImport_ImportModule("cutter_jupyter");
+    if (!cutterJupyterModule)
+    {
+        qWarning() << "Could not import cutter_jupyter.";
+        return;
+    }
     auto startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
     cutterNotebookAppInstance = PyObject_CallObject(startFunc, nullptr);
     auto urlWithToken = PyObject_GetAttrString(cutterNotebookAppInstance, "url_with_token");
@@ -44,15 +47,4 @@ void JupyterConnection::start()
     Py_DECREF(urlWithToken);
 
     pyThreadState = PyEval_SaveThread();
-
-
-    cmdServerThread = new QThread(this);
-    cmdServer = new CommandServer();
-    cmdServer->moveToThread(cmdServerThread);
-    connect(cmdServer, &CommandServer::error, this, [](QString err){ qWarning() << "CmdServer error:" << err; });
-    connect(cmdServerThread, SIGNAL (started()), cmdServer, SLOT (process()));
-    connect(cmdServer, SIGNAL (finished()), cmdServerThread, SLOT (quit()));
-    connect(cmdServer, SIGNAL (finished()), cmdServer, SLOT (deleteLater()));
-    connect(cmdServerThread, SIGNAL (finished()), cmdServerThread, SLOT (deleteLater()));
-    cmdServerThread->start();
 }
