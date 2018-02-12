@@ -14,6 +14,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         offset(0),
         canCopy(false),
         actionEditInstruction(this),
+        actionEditBytes(this),
         actionCopy(this),
         actionAddComment(this),
         actionAddFlag(this),
@@ -37,8 +38,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBits32(this),
         actionSetBits64(this)
 {
-    createAction(&actionEditInstruction, tr("Edit Instruction"), getEditInstructionSequence(), SLOT(on_actionEditInstruction_triggered()));
-    editSeparator = addSeparator();
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
     createAction(&actionAddComment, tr("Add Comment"), getCommentSequence(), SLOT(on_actionAddComment_triggered()));
@@ -82,6 +81,17 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     addSeparator();
     createAction(&actionXRefs, tr("Show X-Refs"), getXRefSequence(), SLOT(on_actionXRefs_triggered()));
     createAction(&actionDisplayOptions, tr("Show Options"), getDisplayOptionsSequence(), SLOT(on_actionDisplayOptions_triggered()));
+
+    addSeparator();
+    editMenu = new QMenu(tr("Edit"), this);
+    editMenuAction = addMenu(editMenu);
+    actionEditInstruction.setText(tr("Instruction"));
+    editMenu->addAction(&actionEditInstruction);
+    actionEditBytes.setText(tr("Bytes"));
+    editMenu->addAction(&actionEditBytes);
+
+    connect(&actionEditInstruction, SIGNAL(triggered(bool)), this, SLOT(on_actionEditInstruction_triggered()));
+    connect(&actionEditBytes, SIGNAL(triggered(bool)), this, SLOT(on_actionEditBytes_triggered()));
 
     connect(&actionSetBaseBinary, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseBinary_triggered()));
     connect(&actionSetBaseOctal, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseOctal_triggered()));
@@ -190,11 +200,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
     }
 }
 
-QKeySequence DisassemblyContextMenu::getEditInstructionSequence() const
-{
-    return {Qt::Key_E};
-}
-
 QKeySequence DisassemblyContextMenu::getCopySequence() const
 {
     return QKeySequence::Copy;
@@ -244,6 +249,24 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
         if (instruction != oldInstruction)
         {
             Core()->editInstruction(offset, instruction);
+        }
+    }
+}
+
+void DisassemblyContextMenu::on_actionEditBytes_triggered()
+{
+    EditInstructionDialog *e = new EditInstructionDialog(this);
+    e->setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
+
+    QString oldBytes = Core()->cmdj("aoj").array().first().toObject()["bytes"].toString();
+    e->setInstruction(oldBytes);
+
+    if (e->exec()){}
+    {
+        QString bytes = e->getInstruction();
+        if (bytes != oldBytes)
+        {
+            Core()->editBytes(offset, bytes);
         }
     }
 }

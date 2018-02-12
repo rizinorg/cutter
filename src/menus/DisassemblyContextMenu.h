@@ -24,6 +24,7 @@ private slots:
     void aboutToShowSlot();
 
     void on_actionEditInstruction_triggered();
+    void on_actionEditBytes_triggered();
 
     void on_actionCopy_triggered();
 
@@ -53,7 +54,6 @@ private slots:
     void on_actionSetBits64_triggered();
 
 private:
-    QKeySequence getEditInstructionSequence() const;
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
     QKeySequence getAddFlagSequence() const;
@@ -67,8 +67,10 @@ private:
 
     QList<QAction*> anonymousActions;
 
+    QMenu *editMenu;
+    QAction *editMenuAction;
     QAction actionEditInstruction;
-    QAction *editSeparator;
+    QAction actionEditBytes;
 
     QAction actionCopy;
     QAction *copySeparator;

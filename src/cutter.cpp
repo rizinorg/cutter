@@ -330,6 +330,12 @@ void CutterCore::editInstruction(RVA addr, const QString &inst)
     emit instructionChanged(addr);
 }
 
+void CutterCore::editBytes(RVA addr, const QString &bytes)
+{
+    cmd("wx " + bytes);
+    emit instructionChanged(addr);
+}
+
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     cmd("CCu base64:" + cmt.toLocal8Bit().toBase64() + " @ " + QString::number(addr));
