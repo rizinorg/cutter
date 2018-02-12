@@ -128,6 +128,9 @@ void Configuration::loadDefaultTheme()
 
     /* Load Qt Theme */
     qApp->setStyleSheet("");
+
+    /* Images */
+    logoFile = QString(":/img/cutter_plain.svg");
 }
 
 void Configuration::loadDarkTheme()
@@ -243,6 +246,9 @@ void Configuration::loadDarkTheme()
 #endif
         qApp->setStyleSheet(stylesheet);
     }
+
+    /* Images */
+    logoFile = QString(":/img/cutter_white_plain.svg");
 }
 
 const QFont Configuration::getFont() const
@@ -275,6 +281,11 @@ const QColor Configuration::getColor(const QString &name) const
     } else {
         return s.value("colors.other").value<QColor>();
     }
+}
+
+QString Configuration::getLogoFile()
+{
+    return logoFile;
 }
 
 /**
