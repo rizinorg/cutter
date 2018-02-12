@@ -29,7 +29,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBasePort(this),
         actionSetBaseIPAddr(this),
         actionSetBaseSyscall(this),
-        actionSetBaseString(this)
+        actionSetBaseString(this),
+        actionSetBits16(this),
+        actionSetBits32(this),
+        actionSetBits64(this)
 {
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
@@ -61,6 +64,16 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     setBaseMenu->addAction(&actionSetBaseSyscall);
     actionSetBaseString.setText(tr("String"));
     setBaseMenu->addAction(&actionSetBaseString);
+
+    setBitsMenu = new QMenu(tr("Set current bits to..."), this);
+    setBitsMenuAction = addMenu(setBitsMenu);
+    actionSetBits16.setText("16");
+    setBitsMenu->addAction(&actionSetBits16);
+    actionSetBits32.setText("32");
+    setBitsMenu->addAction(&actionSetBits32);
+    actionSetBits64.setText("64");
+    setBitsMenu->addAction(&actionSetBits64);
+
     addSeparator();
     createAction(&actionXRefs, tr("Show X-Refs"), getXRefSequence(), SLOT(on_actionXRefs_triggered()));
     createAction(&actionDisplayOptions, tr("Show Options"), getDisplayOptionsSequence(), SLOT(on_actionDisplayOptions_triggered()));
@@ -73,6 +86,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     connect(&actionSetBaseIPAddr, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseIPAddr_triggered()));
     connect(&actionSetBaseSyscall, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseSyscall_triggered()));
     connect(&actionSetBaseString, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseString_triggered()));
+
+    connect(&actionSetBits16, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits16_triggered()));
+    connect(&actionSetBits32, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits32_triggered()));
+    connect(&actionSetBits64, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits64_triggered()));
 
     connect(this, SIGNAL(aboutToShow()), this, SLOT(aboutToShowSlot()));
 }
@@ -102,6 +119,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenuAction->setVisible(immBase);
+    setBitsMenuAction->setVisible(true);
 
     actionCreateFunction.setVisible(true);
 
@@ -409,6 +427,21 @@ void DisassemblyContextMenu::on_actionSetBaseSyscall_triggered()
 void DisassemblyContextMenu::on_actionSetBaseString_triggered()
 {
     Core()->setImmediateBase("s", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBits16_triggered()
+{
+    Core()->setCurrentBits(16, offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBits32_triggered()
+{
+    Core()->setCurrentBits(32, offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBits64_triggered()
+{
+    Core()->setCurrentBits(64, offset);
 }
 
 void DisassemblyContextMenu::createAction(QString name, QKeySequence keySequence, const char *slot)

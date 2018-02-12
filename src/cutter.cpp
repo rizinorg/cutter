@@ -347,6 +347,17 @@ void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
     emit instructionChanged(offset);
 }
 
+void CutterCore::setCurrentBits(int bits, RVA offset)
+{
+    if (offset == RVA_INVALID)
+    {
+        offset = getOffset();
+    }
+
+    this->cmd("ahb " + QString::number(bits) + " @ " + QString::number(offset));
+    emit instructionChanged(offset);
+}
+
 void CutterCore::seek(ut64 offset)
 {
     // Slower than using the API, but the API is not complete

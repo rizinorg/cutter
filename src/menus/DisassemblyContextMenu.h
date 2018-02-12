@@ -46,6 +46,10 @@ private slots:
     void on_actionSetBaseSyscall_triggered();
     void on_actionSetBaseString_triggered();
 
+    void on_actionSetBits16_triggered();
+    void on_actionSetBits32_triggered();
+    void on_actionSetBits64_triggered();
+
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
@@ -87,6 +91,12 @@ private:
     QAction actionSetBaseIPAddr;
     QAction actionSetBaseSyscall;
     QAction actionSetBaseString;
+
+    QMenu *setBitsMenu;
+    QAction *setBitsMenuAction;
+    QAction actionSetBits16;
+    QAction actionSetBits32;
+    QAction actionSetBits64;
 
     // For creating anonymous entries (that are always visible)
     void createAction(QString name, QKeySequence keySequence, const char *slot);

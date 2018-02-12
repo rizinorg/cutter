@@ -258,6 +258,7 @@ public:
     void delComment(RVA addr);
 
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
+    void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int idx = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
