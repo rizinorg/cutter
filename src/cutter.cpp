@@ -219,7 +219,7 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     if (va == 0 || va == 2)
         r_config_set_i(core_->config, "io.va", va);
 
-    f = r_core_file_open(core_, path.toUtf8().constData(), rw ? (R_IO_READ | R_IO_WRITE) : R_IO_READ, mapaddr);
+    f = r_core_file_open(core_, path.toUtf8().constData(), rw ? R_IO_RW : R_IO_READ, mapaddr);
     if (!f)
     {
         eprintf("r_core_file_open failed\n");
@@ -324,6 +324,12 @@ void CutterCore::delFlag(RVA addr)
     emit flagsChanged();
 }
 
+void CutterCore::editInstruction(RVA addr, const QString &inst)
+{
+    cmd("wa " + inst);
+    emit instructionChanged(addr);
+}
+
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     cmd("CCu base64:" + cmt.toLocal8Bit().toBase64() + " @ " + QString::number(addr));
@@ -335,6 +341,7 @@ void CutterCore::delComment(RVA addr)
     cmd("CC- @ " + QString::number(addr));
     emit commentsChanged();
 }
+
 
 void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
 {

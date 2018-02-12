@@ -254,6 +254,8 @@ public:
     void renameFlag(QString old_name, QString new_name);
     void delFlag(RVA addr);
 
+    void editInstruction(RVA addr, const QString &inst);
+
     void setComment(RVA addr, const QString &cmt);
     void delComment(RVA addr);
 

@@ -1,16 +1,19 @@
 #include "DisassemblyContextMenu.h"
 #include "dialogs/preferences/PreferencesDialog.h"
+#include "dialogs/EditInstructionDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include <QtCore>
 #include <QShortcut>
+#include <QJsonArray>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     :   QMenu(parent),
         offset(0),
         canCopy(false),
+        actionEditInstruction(this),
         actionCopy(this),
         actionAddComment(this),
         actionAddFlag(this),
@@ -34,6 +37,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBits32(this),
         actionSetBits64(this)
 {
+    createAction(&actionEditInstruction, tr("Edit Instruction"), getEditInstructionSequence(), SLOT(on_actionEditInstruction_triggered()));
+    editSeparator = addSeparator();
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
     createAction(&actionAddComment, tr("Add Comment"), getCommentSequence(), SLOT(on_actionAddComment_triggered()));
@@ -185,6 +190,11 @@ void DisassemblyContextMenu::aboutToShowSlot()
     }
 }
 
+QKeySequence DisassemblyContextMenu::getEditInstructionSequence() const
+{
+    return {Qt::Key_E};
+}
+
 QKeySequence DisassemblyContextMenu::getCopySequence() const
 {
     return QKeySequence::Copy;
@@ -218,6 +228,24 @@ QKeySequence DisassemblyContextMenu::getXRefSequence() const
 QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 {
     return {}; //TODO insert correct sequence
+}
+
+void DisassemblyContextMenu::on_actionEditInstruction_triggered()
+{
+    EditInstructionDialog *e = new EditInstructionDialog(this);
+    e->setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
+
+    QString oldInstruction = Core()->cmdj("aoj").array().first().toObject()["opcode"].toString();
+    e->setInstruction(oldInstruction);
+
+    if (e->exec()){}
+    {
+        QString instruction = e->getInstruction();
+        if (instruction != oldInstruction)
+        {
+            Core()->editInstruction(offset, instruction);
+        }
+    }
 }
 
 void DisassemblyContextMenu::on_actionCopy_triggered()
