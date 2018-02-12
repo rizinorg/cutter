@@ -342,7 +342,6 @@ void CutterCore::delComment(RVA addr)
     emit commentsChanged();
 }
 
-
 void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
 {
     if (offset == RVA_INVALID)

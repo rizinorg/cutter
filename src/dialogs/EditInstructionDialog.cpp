@@ -34,8 +34,9 @@ void EditInstructionDialog::setInstruction(const QString &instruction)
     ui->lineEdit->setText(instruction);
 }
 
-bool EditInstructionDialog::eventFilter(QObject */*obj*/, QEvent *event)
+bool EditInstructionDialog::eventFilter(QObject *obj, QEvent *event)
 {
+    Q_UNUSED(obj);
 
     if (event -> type() == QEvent::KeyPress)
     {
