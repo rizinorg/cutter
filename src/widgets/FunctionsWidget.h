@@ -25,6 +25,7 @@ class FunctionModel : public QAbstractItemModel
 private:
     QList<FunctionDescription> *functions;
     QSet<RVA> *importAddresses;
+    ut64 *mainAdress;
 
 
     QFont highlightFont;
@@ -35,13 +36,15 @@ private:
 
     bool functionIsImport(ut64 addr) const;
 
+    bool functionIsMain(ut64 addr) const;
+
 public:
     static const int FunctionDescriptionRole = Qt::UserRole;
     static const int IsImportRole = Qt::UserRole + 1;
 
     enum Column { NameColumn = 0, SizeColumn, ImportColumn, OffsetColumn, ColumnCount };
 
-    FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = 0);
+    FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, ut64 *mainAdress, bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = 0);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -116,6 +119,7 @@ private:
 
     QList<FunctionDescription> functions;
     QSet<RVA> importAddresses;
+    ut64 mainAdress;
 
     FunctionModel *functionModel;
     FunctionSortFilterProxyModel *functionProxyModel;
