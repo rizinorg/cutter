@@ -35,7 +35,7 @@
       <number>0</number>
      </property>
      <item>
-      <widget class="QPlainLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="lineEdit"/>
      </item>
     </layout>
    </item>
