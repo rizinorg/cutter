@@ -408,8 +408,7 @@ void FunctionsWidget::refreshTree()
     foreach (ImportDescription import, CutterCore::getInstance()->getAllImports())
         importAddresses.insert(import.plt);
 
-    mainAdress = (ut64)QJsonDocument::fromJson(
-                CutterCore::getInstance()->cmd("iMj").toUtf8()).object()["vaddr"].toInt();
+    mainAdress = (ut64)CutterCore::getInstance()->cmdj("iMj").object()["vaddr"].toInt();
 
     functionModel->endReloadFunctions();
 
