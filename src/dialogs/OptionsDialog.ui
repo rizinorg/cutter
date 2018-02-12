@@ -436,6 +436,16 @@
                 <enum>QLayout::SetMinimumSize</enum>
                </property>
                <item>
+                <widget class="QCheckBox" name="writeCheckBox">
+                 <property name="text">
+                  <string>Load in write mode (-w)</string>
+                 </property>
+                 <property name="checked">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QCheckBox" name="binCheckBox">
                  <property name="text">
                   <string>Do not load bin information (-n)</string>

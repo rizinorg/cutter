@@ -23,6 +23,9 @@ public slots:
 private slots:
     void aboutToShowSlot();
 
+    void on_actionEditInstruction_triggered();
+    void on_actionEditBytes_triggered();
+
     void on_actionCopy_triggered();
 
     void on_actionAddComment_triggered();
@@ -63,6 +66,11 @@ private:
     bool canCopy;
 
     QList<QAction*> anonymousActions;
+
+    QMenu *editMenu;
+    QAction *editMenuAction;
+    QAction actionEditInstruction;
+    QAction actionEditBytes;
 
     QAction actionCopy;
     QAction *copySeparator;

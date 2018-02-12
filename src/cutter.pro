@@ -40,6 +40,7 @@ SOURCES += \
     dialogs/OptionsDialog.cpp \
     dialogs/AboutDialog.cpp \
     dialogs/CommentsDialog.cpp \
+    dialogs/EditInstructionDialog.cpp \
     dialogs/FlagDialog.cpp \
     dialogs/RenameDialog.cpp \
     dialogs/XrefsDialog.cpp \
@@ -99,6 +100,7 @@ HEADERS  += \
     dialogs/AboutDialog.h \
     dialogs/preferences/AsmOptionsWidget.h \
     dialogs/CommentsDialog.h \
+    dialogs/EditInstructionDialog.h \
     dialogs/FlagDialog.h \
     dialogs/RenameDialog.h \
     dialogs/XrefsDialog.h \
@@ -154,6 +156,7 @@ FORMS    += \
     dialogs/AboutDialog.ui \
     dialogs/preferences/AsmOptionsWidget.ui \
     dialogs/CommentsDialog.ui \
+    dialogs/EditInstructionDialog.ui \
     dialogs/FlagDialog.ui \
     dialogs/RenameDialog.ui \
     dialogs/XrefsDialog.ui \

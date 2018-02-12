@@ -46,7 +46,7 @@ void AnalThread::run()
 
     core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(), optionsDialog->getSelectedBits());
 
-    bool rw = false;
+    bool rw = ui->writeCheckBox->isChecked();
     bool loadBinInfo = !ui->binCheckBox->isChecked();
 
     if (loadBinInfo)
