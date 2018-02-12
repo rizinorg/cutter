@@ -2,6 +2,7 @@
 #include "AboutDialog.h"
 #include "ui_AboutDialog.h"
 #include "r_version.h"
+#include "utils/Configuration.h"
 
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
@@ -9,9 +10,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-
-    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white_plain.svg" : ":/img/cutter_plain.svg";
-    ui->logoSvgWidget->load(logoFile);
+    ui->logoSvgWidget->load(Config()->getLogoFile());
 
     ui->label->setText(tr("<h1>Cutter</h1>"
                           "Version " CUTTER_VERSION "<br/>"
