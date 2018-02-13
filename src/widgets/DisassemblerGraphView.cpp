@@ -8,6 +8,8 @@
 #include <QShortcut>
 #include <QToolTip>
 #include <QTextDocument>
+#include <QFileDialog>
+#include <QFile>
 
 #include "cutter.h"
 #include "utils/Colors.h"
@@ -89,6 +91,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcuts.append(shortcut_prev_instr);
     shortcuts.append(shortcut_next_instr_arrow);
     shortcuts.append(shortcut_prev_instr_arrow);
+
+    //Export Graph menu
+    mMenu->addSeparator();
+    actionExportGraph.setText(tr("Export Graph"));
+    mMenu->addAction(&actionExportGraph);
+    connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
 
     initFont();
     colorsUpdatedSlot();
@@ -709,4 +717,17 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
         return;
     }
     seek(to->entry);
+}
+
+void DisassemblerGraphView::on_actionExportGraph_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Export Graph"), "", tr("Dot file (*.dot)"));
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+        qWarning() << "Can't open file";
+        return;
+    }
+    QTextStream fileOut(&file);
+    fileOut << Core()->cmd("ag -");
 }
