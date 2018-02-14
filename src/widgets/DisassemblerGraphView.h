@@ -169,6 +169,8 @@ public slots:
 private slots:
     void seekPrev();
 
+    void on_actionExportGraph_triggered();
+
 private:
     bool first_draw = true;
     bool transition_dont_seek = false;
@@ -216,6 +218,8 @@ private:
     QColor mCipColor;
     QColor mBreakpointColor;
     QColor mDisabledBreakpointColor;
+
+    QAction actionExportGraph;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H
