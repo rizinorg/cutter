@@ -1,16 +1,20 @@
 #include "DisassemblyContextMenu.h"
 #include "dialogs/preferences/PreferencesDialog.h"
+#include "dialogs/EditInstructionDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/FlagDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include <QtCore>
 #include <QShortcut>
+#include <QJsonArray>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     :   QMenu(parent),
         offset(0),
         canCopy(false),
+        actionEditInstruction(this),
+        actionEditBytes(this),
         actionCopy(this),
         actionAddComment(this),
         actionAddFlag(this),
@@ -29,7 +33,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBasePort(this),
         actionSetBaseIPAddr(this),
         actionSetBaseSyscall(this),
-        actionSetBaseString(this)
+        actionSetBaseString(this),
+        actionSetBits16(this),
+        actionSetBits32(this),
+        actionSetBits64(this)
 {
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
@@ -61,9 +68,30 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     setBaseMenu->addAction(&actionSetBaseSyscall);
     actionSetBaseString.setText(tr("String"));
     setBaseMenu->addAction(&actionSetBaseString);
+
+    setBitsMenu = new QMenu(tr("Set current bits to..."), this);
+    setBitsMenuAction = addMenu(setBitsMenu);
+    actionSetBits16.setText("16");
+    setBitsMenu->addAction(&actionSetBits16);
+    actionSetBits32.setText("32");
+    setBitsMenu->addAction(&actionSetBits32);
+    actionSetBits64.setText("64");
+    setBitsMenu->addAction(&actionSetBits64);
+
     addSeparator();
     createAction(&actionXRefs, tr("Show X-Refs"), getXRefSequence(), SLOT(on_actionXRefs_triggered()));
     createAction(&actionDisplayOptions, tr("Show Options"), getDisplayOptionsSequence(), SLOT(on_actionDisplayOptions_triggered()));
+
+    addSeparator();
+    editMenu = new QMenu(tr("Edit"), this);
+    editMenuAction = addMenu(editMenu);
+    actionEditInstruction.setText(tr("Instruction"));
+    editMenu->addAction(&actionEditInstruction);
+    actionEditBytes.setText(tr("Bytes"));
+    editMenu->addAction(&actionEditBytes);
+
+    connect(&actionEditInstruction, SIGNAL(triggered(bool)), this, SLOT(on_actionEditInstruction_triggered()));
+    connect(&actionEditBytes, SIGNAL(triggered(bool)), this, SLOT(on_actionEditBytes_triggered()));
 
     connect(&actionSetBaseBinary, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseBinary_triggered()));
     connect(&actionSetBaseOctal, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseOctal_triggered()));
@@ -73,6 +101,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     connect(&actionSetBaseIPAddr, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseIPAddr_triggered()));
     connect(&actionSetBaseSyscall, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseSyscall_triggered()));
     connect(&actionSetBaseString, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseString_triggered()));
+
+    connect(&actionSetBits16, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits16_triggered()));
+    connect(&actionSetBits32, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits32_triggered()));
+    connect(&actionSetBits64, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits64_triggered()));
 
     connect(this, SIGNAL(aboutToShow()), this, SLOT(aboutToShowSlot()));
 }
@@ -102,6 +134,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenuAction->setVisible(immBase);
+    setBitsMenuAction->setVisible(true);
 
     actionCreateFunction.setVisible(true);
 
@@ -200,6 +233,42 @@ QKeySequence DisassemblyContextMenu::getXRefSequence() const
 QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 {
     return {}; //TODO insert correct sequence
+}
+
+void DisassemblyContextMenu::on_actionEditInstruction_triggered()
+{
+    EditInstructionDialog *e = new EditInstructionDialog(this);
+    e->setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
+
+    QString oldInstruction = Core()->cmdj("aoj").array().first().toObject()["opcode"].toString();
+    e->setInstruction(oldInstruction);
+
+    if (e->exec()){}
+    {
+        QString instruction = e->getInstruction();
+        if (instruction != oldInstruction)
+        {
+            Core()->editInstruction(offset, instruction);
+        }
+    }
+}
+
+void DisassemblyContextMenu::on_actionEditBytes_triggered()
+{
+    EditInstructionDialog *e = new EditInstructionDialog(this);
+    e->setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
+
+    QString oldBytes = Core()->cmdj("aoj").array().first().toObject()["bytes"].toString();
+    e->setInstruction(oldBytes);
+
+    if (e->exec()){}
+    {
+        QString bytes = e->getInstruction();
+        if (bytes != oldBytes)
+        {
+            Core()->editBytes(offset, bytes);
+        }
+    }
 }
 
 void DisassemblyContextMenu::on_actionCopy_triggered()
@@ -409,6 +478,21 @@ void DisassemblyContextMenu::on_actionSetBaseSyscall_triggered()
 void DisassemblyContextMenu::on_actionSetBaseString_triggered()
 {
     Core()->setImmediateBase("s", offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBits16_triggered()
+{
+    Core()->setCurrentBits(16, offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBits32_triggered()
+{
+    Core()->setCurrentBits(32, offset);
+}
+
+void DisassemblyContextMenu::on_actionSetBits64_triggered()
+{
+    Core()->setCurrentBits(64, offset);
 }
 
 void DisassemblyContextMenu::createAction(QString name, QKeySequence keySequence, const char *slot)

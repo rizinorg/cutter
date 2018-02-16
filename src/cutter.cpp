@@ -219,7 +219,7 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     if (va == 0 || va == 2)
         r_config_set_i(core_->config, "io.va", va);
 
-    f = r_core_file_open(core_, path.toUtf8().constData(), rw ? (R_IO_READ | R_IO_WRITE) : R_IO_READ, mapaddr);
+    f = r_core_file_open(core_, path.toUtf8().constData(), rw ? R_IO_RW : R_IO_READ, mapaddr);
     if (!f)
     {
         eprintf("r_core_file_open failed\n");
@@ -324,6 +324,18 @@ void CutterCore::delFlag(RVA addr)
     emit flagsChanged();
 }
 
+void CutterCore::editInstruction(RVA addr, const QString &inst)
+{
+    cmd("wa " + inst);
+    emit instructionChanged(addr);
+}
+
+void CutterCore::editBytes(RVA addr, const QString &bytes)
+{
+    cmd("wx " + bytes);
+    emit instructionChanged(addr);
+}
+
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     cmd("CCu base64:" + cmt.toLocal8Bit().toBase64() + " @ " + QString::number(addr));
@@ -344,6 +356,17 @@ void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
     }
 
     this->cmd("ahi " + r2BaseName + " @ " + QString::number(offset));
+    emit instructionChanged(offset);
+}
+
+void CutterCore::setCurrentBits(int bits, RVA offset)
+{
+    if (offset == RVA_INVALID)
+    {
+        offset = getOffset();
+    }
+
+    this->cmd("ahb " + QString::number(bits) + " @ " + QString::number(offset));
     emit instructionChanged(offset);
 }
 
@@ -715,10 +738,9 @@ QString CutterCore::getDecompiledCode(QString addr)
     return cmd("pdc @ " + addr);
 }
 
-QString CutterCore::getFileInfo()
+QJsonDocument CutterCore::getFileInfo()
 {
-    QString info = cmd("ij");
-    return info;
+    return cmdj("ij");
 }
 
 QStringList CutterCore::getStats()
@@ -1054,22 +1076,22 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 QList<StringDescription> CutterCore::getAllStrings()
 {
     CORE_LOCK();
-    RListIter *it;
     QList<StringDescription> ret;
-
-    RBinString *bs;
-    if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o)
+    QJsonDocument stringsDoc = cmdj("izzj");
+    QJsonObject stringsObj = stringsDoc.object();
+    QJsonArray stringsArray = stringsObj["strings"].toArray();
+    for (QJsonValue value : stringsArray)
     {
-        CutterRListForeach(core_->bin->cur->o->strings, it, RBinString, bs)
-        {
-            StringDescription str;
-            str.vaddr = bs->vaddr;
-            str.string = bs->string;
-            str.type = bs->type;
-            str.length = bs->length;
-            str.size = bs->size;
-            ret << str;
-        }
+        QJsonObject stringObject = value.toObject();
+
+        StringDescription string;
+        string.string = QString(QByteArray::fromBase64(stringObject["string"].toVariant().toByteArray()));
+        string.vaddr = stringObject["vaddr"].toVariant().toULongLong();
+        string.type = stringObject["type"].toString();
+        string.size = stringObject["size"].toVariant().toUInt();
+        string.length = stringObject["length"].toVariant().toUInt();
+
+        ret << string;
     }
 
     return ret;

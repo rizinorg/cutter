@@ -24,10 +24,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->progressBar->setVisible(0);
     ui->statusLabel->setVisible(0);
     ui->elapsedLabel->setVisible(0);
-
-    QString logoFile = (palette().window().color().value() < 127) ? ":/img/cutter_white_plain.svg" : ":/img/cutter_plain.svg";
-    ui->logoSvgWidget->load(logoFile);
-
+    ui->logoSvgWidget->load(Config()->getLogoFile());
     ui->analSlider->setValue(defaultAnalLevel);
 
     // Fill the plugins combo

@@ -119,6 +119,7 @@ void Configuration::loadDefaultTheme()
     setColor("gui.alt_background", QColor(245, 250, 255));
     // Custom
     setColor("gui.imports", colorA);
+    setColor("gui.main", color2);
     setColor("gui.navbar.err", QColor(255, 0, 0));
     setColor("gui.navbar.code", QColor(104, 229, 69));
     setColor("gui.navbar.str", QColor(69, 104, 229));
@@ -127,6 +128,9 @@ void Configuration::loadDefaultTheme()
 
     /* Load Qt Theme */
     qApp->setStyleSheet("");
+
+    /* Images */
+    logoFile = QString(":/img/cutter_plain.svg");
 }
 
 void Configuration::loadDarkTheme()
@@ -213,6 +217,7 @@ void Configuration::loadDarkTheme()
     setColor("gui.alt_background", QColor(58, 100, 128));
     // Custom
     setColor("gui.imports", colorA);
+    setColor("gui.main", color2);
     setColor("gui.navbar.err", QColor(255, 0, 0));
     setColor("gui.navbar.code", QColor(104, 229, 69));
     setColor("gui.navbar.str", QColor(69, 104, 229));
@@ -241,6 +246,9 @@ void Configuration::loadDarkTheme()
 #endif
         qApp->setStyleSheet(stylesheet);
     }
+
+    /* Images */
+    logoFile = QString(":/img/cutter_white_plain.svg");
 }
 
 const QFont Configuration::getFont() const
@@ -273,6 +281,11 @@ const QColor Configuration::getColor(const QString &name) const
     } else {
         return s.value("colors.other").value<QColor>();
     }
+}
+
+QString Configuration::getLogoFile()
+{
+    return logoFile;
 }
 
 /**

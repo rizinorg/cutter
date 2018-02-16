@@ -23,6 +23,9 @@ public slots:
 private slots:
     void aboutToShowSlot();
 
+    void on_actionEditInstruction_triggered();
+    void on_actionEditBytes_triggered();
+
     void on_actionCopy_triggered();
 
     void on_actionAddComment_triggered();
@@ -46,6 +49,10 @@ private slots:
     void on_actionSetBaseSyscall_triggered();
     void on_actionSetBaseString_triggered();
 
+    void on_actionSetBits16_triggered();
+    void on_actionSetBits32_triggered();
+    void on_actionSetBits64_triggered();
+
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
@@ -59,6 +66,11 @@ private:
     bool canCopy;
 
     QList<QAction*> anonymousActions;
+
+    QMenu *editMenu;
+    QAction *editMenuAction;
+    QAction actionEditInstruction;
+    QAction actionEditBytes;
 
     QAction actionCopy;
     QAction *copySeparator;
@@ -87,6 +99,12 @@ private:
     QAction actionSetBaseIPAddr;
     QAction actionSetBaseSyscall;
     QAction actionSetBaseString;
+
+    QMenu *setBitsMenu;
+    QAction *setBitsMenuAction;
+    QAction actionSetBits16;
+    QAction actionSetBits32;
+    QAction actionSetBits64;
 
     // For creating anonymous entries (that are always visible)
     void createAction(QString name, QKeySequence keySequence, const char *slot);

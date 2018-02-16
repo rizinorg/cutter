@@ -13,11 +13,13 @@
 #include <QString>
 #include <QResource>
 #include <QShortcut>
+#include <QJsonObject>
 
-FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
+FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, ut64 *mainAdress, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
     : QAbstractItemModel(parent),
       functions(functions),
       importAddresses(importAddresses),
+      mainAdress(mainAdress),
       highlightFont(highlight_font),
       defaultFont(default_font),
       nested(nested),
@@ -75,6 +77,10 @@ bool FunctionModel::functionIsImport(ut64 addr) const
     return importAddresses->contains(addr);
 }
 
+bool FunctionModel::functionIsMain(ut64 addr) const
+{
+    return *mainAdress == addr;
+}
 
 QVariant FunctionModel::data(const QModelIndex &index, int role) const
 {
@@ -167,6 +173,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         if (functionIsImport(function.offset))
             return QVariant(ConfigColor("gui.imports"));
+        if (functionIsMain(function.offset))
+            return QVariant(ConfigColor("gui.main"));
         return QVariant(this->property("color"));
 
     case FunctionDescriptionRole:
@@ -361,7 +369,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QWidget *parent) :
     QFont default_font = QFont(font_info.family(), font_info.pointSize());
     QFont highlight_font = QFont(font_info.family(), font_info.pointSize(), QFont::Bold);
 
-    functionModel = new FunctionModel(&functions, &importAddresses, false, default_font, highlight_font, this);
+    functionModel = new FunctionModel(&functions, &importAddresses, &mainAdress, false, default_font, highlight_font, this);
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
     ui->functionsTreeView->setModel(functionProxyModel);
     ui->functionsTreeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
@@ -399,6 +407,8 @@ void FunctionsWidget::refreshTree()
     importAddresses.clear();
     foreach (ImportDescription import, CutterCore::getInstance()->getAllImports())
         importAddresses.insert(import.plt);
+
+    mainAdress = (ut64)CutterCore::getInstance()->cmdj("iMj").object()["vaddr"].toInt();
 
     functionModel->endReloadFunctions();
 

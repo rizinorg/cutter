@@ -46,8 +46,8 @@ void AnalThread::run()
 
     core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(), optionsDialog->getSelectedBits());
 
-    bool rw = false;
-    bool loadBinInfo = ui->binCheckBox->isChecked();
+    bool rw = ui->writeCheckBox->isChecked();
+    bool loadBinInfo = !ui->binCheckBox->isChecked();
 
     if (loadBinInfo)
     {
@@ -61,6 +61,7 @@ void AnalThread::run()
     }
     else
     {
+        Core()->setConfig("file.info", "false");
         va = false;
         loadaddr = mapaddr = 0;
     }

@@ -22,6 +22,9 @@ private:
     void loadDarkTheme();
     void setColor(const QString &name, const QColor &color);
 
+    // Images
+    QString logoFile;
+
 public:
     // Functions
     Configuration();
@@ -37,6 +40,9 @@ public:
     const QColor getColor(const QString &name) const;
     void setDarkTheme(bool set);
     bool getDarkTheme()                 { return s.value("dark").toBool(); }
+
+    // Images
+    QString getLogoFile();
 
     // Graph
     int getGraphBlockMaxChars() const   { return s.value("graph.maxcols", 50).toInt(); }

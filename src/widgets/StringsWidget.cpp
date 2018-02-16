@@ -41,7 +41,7 @@ QVariant StringsModel::data(const QModelIndex &index, int role) const
                 case STRING:
                     return str.string;
                 case TYPE:
-                    return str.type;
+                    return str.type.toUpper();
                 case LENGTH:
                     return str.length;
                 case SIZE:

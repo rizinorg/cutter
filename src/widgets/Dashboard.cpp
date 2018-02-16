@@ -27,19 +27,9 @@ Dashboard::~Dashboard() {}
 
 void Dashboard::updateContents()
 {
-    // Parse and add JSON file info
-    QString info = CutterCore::getInstance()->getFileInfo();
-
-    QJsonDocument docu = QJsonDocument::fromJson(info.toUtf8());
-    QJsonObject object = docu.object();
-    QJsonValue value_core = object.value(QString("core"));
-    QJsonObject item = value_core.toObject();
-    //qDebug() << tr("QJsonObject of description: ") << item;
-
-    QJsonValue value_bin = object.value(QString("bin"));
-    //qDebug() << value;
-    QJsonObject item2 = value_bin.toObject();
-    //qDebug() << tr("QJsonObject of description: ") << item;
+    QJsonDocument docu = Core()->getFileInfo();
+    QJsonObject item = docu.object()["core"].toObject();
+    QJsonObject item2 = docu.object()["bin"].toObject();
 
     this->ui->fileEdit->setText(item["file"].toString());
     this->ui->formatEdit->setText(item["format"].toString());
@@ -82,7 +72,6 @@ void Dashboard::updateContents()
     else
     {
         this->ui->canaryEdit->setText("False");
-        //this->ui->canaryEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
     if (item2["crypto"].toBool() == true)
     {
@@ -99,7 +88,6 @@ void Dashboard::updateContents()
     else
     {
         this->ui->nxEdit->setText("False");
-        //this->ui->nxEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
     if (item2["pic"].toBool() == true)
     {
@@ -108,7 +96,6 @@ void Dashboard::updateContents()
     else
     {
         this->ui->picEdit->setText("False");
-        //this->ui->picEdit->setStyleSheet("color: rgb(255, 0, 0);");
     }
     if (item2["static"].toBool() == true)
     {
