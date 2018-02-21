@@ -62,5 +62,6 @@
         <file>img/cutter.svg</file>
 
         <file>python/cutter_jupyter.py</file>
+        <file>python/cutter_ipykernel.py</file>
     </qresource>
 </RCC>

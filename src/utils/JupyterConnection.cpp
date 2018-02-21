@@ -32,6 +32,7 @@ JupyterConnection::~JupyterConnection()
 void JupyterConnection::start()
 {
     PyImport_AppendInittab("cutter", &PyInit_api);
+    PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
     Py_Initialize();
     PyEval_InitThreads();
 
