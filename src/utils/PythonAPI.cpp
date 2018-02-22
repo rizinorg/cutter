@@ -47,30 +47,27 @@ PyObject *PyInit_api()
 
 PyObject *api_internal_launch_ipykernel(PyObject *self, PyObject *args, PyObject *kw)
 {
+    Q_UNUSED(self);
+    Q_UNUSED(kw);
+
     QStringList argv;
+    PyObject *argvListObject;
 
+    if (!PyArg_ParseTuple(args, "O", &argvListObject)
+            || !PyList_Check(argvListObject))
     {
-        PyObject *argvListObject;
-
-        if (!PyArg_ParseTuple(args, "O", &argvListObject)
-                || !PyList_Check(argvListObject))
-        {
-            qWarning() << "Invalid args passed to api_internal_launch_ipykernel().";
-            return nullptr;
-        }
-
-        for (int i=0; i<PyList_Size(argvListObject); i++)
-        {
-            PyObject *o = PyList_GetItem(argvListObject, i);
-            QString s = QString::fromUtf8(PyUnicode_AsUTF8(o));
-            argv.append(s);
-        }
+        qWarning() << "Invalid args passed to api_internal_launch_ipykernel().";
+        return nullptr;
     }
 
+    for (int i = 0; i < PyList_Size(argvListObject); i++)
+    {
+        PyObject *o = PyList_GetItem(argvListObject, i);
+        QString s = QString::fromUtf8(PyUnicode_AsUTF8(o));
+        argv.append(s);
+    }
 
     PyThreadState *parentThreadState = PyThreadState_Get();
-
-    PyThreadState *threadState = Py_NewInterpreter();
 
     QFile moduleFile(":/python/cutter_ipykernel.py");
     moduleFile.open(QIODevice::ReadOnly);
@@ -93,15 +90,15 @@ PyObject *api_internal_launch_ipykernel(PyObject *self, PyObject *args, PyObject
 
     auto launchFunc = PyObject_GetAttrString(cutterIPykernelModule, "launch_ipykernel");
 
-    PyObject *argvListObject = PyList_New(argv.size());
-    for (int i=0; i<argv.size(); i++)
+    argvListObject = PyList_New(argv.size());
+    for (int i = 0; i < argv.size(); i++)
     {
         QString s = argv[i];
         PyList_SetItem(argvListObject, i, PyUnicode_DecodeUTF8(s.toUtf8().constData(), s.length(), nullptr));
     }
 
-
     auto ipyKernel = PyObject_CallFunction(launchFunc, "O", argvListObject);
+    Q_UNUSED(ipyKernel);
 
     PyThreadState_Swap(parentThreadState);
 
