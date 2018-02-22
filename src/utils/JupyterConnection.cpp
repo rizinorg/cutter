@@ -45,6 +45,7 @@ void JupyterConnection::start()
     if (!moduleCodeObject)
     {
         qWarning() << "Could not compile cutter_jupyter.";
+        emit creationFailed();
         return;
     }
     cutterJupyterModule = PyImport_ExecCodeModule("cutter_jupyter", moduleCodeObject);
@@ -52,6 +53,7 @@ void JupyterConnection::start()
     if (!cutterJupyterModule)
     {
         qWarning() << "Could not import cutter_jupyter.";
+        emit creationFailed();
         return;
     }
 

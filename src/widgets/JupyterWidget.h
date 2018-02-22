@@ -28,6 +28,7 @@ public:
 
 private slots:
     void urlReceived(const QString &url);
+    void creationFailed();
 
 private:
     std::unique_ptr<Ui::JupyterWidget> ui;

@@ -21,6 +21,7 @@ public:
 
 signals:
     void urlReceived(const QString &url);
+    void creationFailed();
 
 private:
     PyObject *cutterJupyterModule = nullptr;
