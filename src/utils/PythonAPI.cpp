@@ -4,7 +4,6 @@
 
 #include <QFile>
 
-/* Return the number of arguments of the application command line */
 PyObject *api_version(PyObject *self, PyObject *null)
 {
     Q_UNUSED(self)

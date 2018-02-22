@@ -4,6 +4,9 @@
 #include "JupyterWidget.h"
 
 #include <QWebEngineSettings>
+#include <QTabWidget>
+#include <QHBoxLayout>
+#include <QLabel>
 
 JupyterWidget::JupyterWidget(QWidget *parent, Qt::WindowFlags flags) :
     QDockWidget(parent, flags),
@@ -13,6 +16,7 @@ JupyterWidget::JupyterWidget(QWidget *parent, Qt::WindowFlags flags) :
 
     jupyter = new JupyterConnection(this);
     connect(jupyter, &JupyterConnection::urlReceived, this, &JupyterWidget::urlReceived);
+    connect(jupyter, &JupyterConnection::creationFailed, this, &JupyterWidget::creationFailed);
     jupyter->start();
 }
 
@@ -27,13 +31,22 @@ JupyterWebView *JupyterWidget::createNewTab()
     return webView;
 }
 
-
 void JupyterWidget::urlReceived(const QString &url)
 {
     createNewTab()->load(QUrl(url));
 }
 
-
+void JupyterWidget::creationFailed()
+{
+    QWidget *failPage = new QWidget(this);
+    QLabel *label = new QLabel(failPage);
+    label->setText(tr("An error occurred while opening jupyter. Make sure Jupyter is installed system-wide."));
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(label);
+    layout->setAlignment(label, Qt::AlignCenter);
+    failPage->setLayout(layout);
+    ui->tabWidget->addTab(failPage, tr("Error"));
+}
 
 JupyterWebView::JupyterWebView(JupyterWidget *mainWidget, QWidget *parent) : QWebEngineView(parent)
 {
