@@ -9,6 +9,7 @@
 #include <QFile>
 
 #include "JupyterConnection.h"
+#include "NestedIPyKernel.h"
 #include "PythonAPI.h"
 
 Q_GLOBAL_STATIC(JupyterConnection, uniqueInstance)
@@ -123,4 +124,25 @@ QString JupyterConnection::getUrl()
     pyThreadState = PyEval_SaveThread();
 
     return urlWithTokenString;
+}
+
+long JupyterConnection::startNestedIPyKernel(const QStringList &argv)
+{
+    NestedIPyKernel *kernel = NestedIPyKernel::start(argv);
+
+    if (!kernel)
+    {
+        qWarning() << "Could not start nested IPyKernel.";
+        return 0;
+    }
+
+    long id = nextKernelId++;
+    kernels.insert(id, kernel);
+
+    return id;
+}
+
+NestedIPyKernel *JupyterConnection::getNestedIPyKernel(long id)
+{
+    return kernels[id];
 }

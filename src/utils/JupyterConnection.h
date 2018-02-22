@@ -3,6 +3,8 @@
 
 #include <QProcess>
 
+class NestedIPyKernel;
+
 struct _object;
 typedef _object PyObject;
 
@@ -22,6 +24,9 @@ public:
     void start();
     QString getUrl();
 
+    long startNestedIPyKernel(const QStringList &argv);
+    NestedIPyKernel *getNestedIPyKernel(long id);
+
 signals:
     void urlReceived(const QString &url);
     void creationFailed();
@@ -31,6 +36,9 @@ private:
     PyObject *cutterNotebookAppInstance = nullptr;
 
     PyThreadState *pyThreadState = nullptr;
+
+    QMap<long, NestedIPyKernel *> kernels;
+    long nextKernelId = 1;
 
     void initPython();
     void createCutterJupyterModule();

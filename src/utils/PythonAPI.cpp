@@ -1,6 +1,8 @@
 
 #include "PythonAPI.h"
 #include "cutter.h"
+#include "JupyterConnection.h"
+#include "NestedIPyKernel.h"
 
 #include <QFile>
 
@@ -67,47 +69,30 @@ PyObject *api_internal_launch_ipykernel(PyObject *self, PyObject *args, PyObject
         argv.append(s);
     }
 
-    PyThreadState *parentThreadState = PyThreadState_Get();
+    long id = Jupyter()->startNestedIPyKernel(argv);
 
-    QFile moduleFile(":/python/cutter_ipykernel.py");
-    moduleFile.open(QIODevice::ReadOnly);
-    QByteArray moduleCode = moduleFile.readAll();
-    moduleFile.close();
+    return PyLong_FromLong(id);
+}
 
-    auto moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_ipykernel.py", Py_file_input);
-    if (!moduleCodeObject)
+PyObject *api_internal_kernel_interface_kill(PyObject *, PyObject *args)
+{
+    long id;
+
+    if (!PyArg_ParseTuple(args, "l", &id))
     {
-        qWarning() << "Could not compile cutter_ipykernel.";
-        return nullptr;
-    }
-    auto cutterIPykernelModule = PyImport_ExecCodeModule("cutter_ipykernel", moduleCodeObject);
-    Py_DECREF(moduleCodeObject);
-    if (!cutterIPykernelModule)
-    {
-        qWarning() << "Could not import cutter_ipykernel.";
+        qWarning() << "Invalid args passed to api_internal_kernel_interface_kill().";
         return nullptr;
     }
 
-    auto launchFunc = PyObject_GetAttrString(cutterIPykernelModule, "launch_ipykernel");
+    Jupyter()->getNestedIPyKernel(id)->kill();
 
-    argvListObject = PyList_New(argv.size());
-    for (int i = 0; i < argv.size(); i++)
-    {
-        QString s = argv[i];
-        PyList_SetItem(argvListObject, i, PyUnicode_DecodeUTF8(s.toUtf8().constData(), s.length(), nullptr));
-    }
-
-    auto ipyKernel = PyObject_CallFunction(launchFunc, "O", argvListObject);
-    Q_UNUSED(ipyKernel);
-
-    PyThreadState_Swap(parentThreadState);
-
-    return PyLong_FromLong(42);
+    Py_RETURN_NONE;
 }
 
 PyMethodDef CutterInternalMethods[] = {
     {"launch_ipykernel", (PyCFunction)api_internal_launch_ipykernel, METH_VARARGS | METH_KEYWORDS,
     "Launch an IPython Kernel in a subinterpreter"},
+    {"kernel_interface_kill", (PyCFunction)api_internal_kernel_interface_kill, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
