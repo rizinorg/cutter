@@ -5,6 +5,12 @@ from notebook.notebookapp import *
 
 # TODO: this must behave like a Popen instance and pipe to IPyKernelInterfaceKernel!
 class IPyKernelInterfaceJupyter:
+    def __init__(self, id):
+        self._id = id
+
+    def kill(self):
+        print("DIE!! " + str(self._id))
+
     def poll(self):
         return None
 
@@ -45,8 +51,8 @@ class CutterInternalIPyKernelManager(IOLoopKernelManager):
 
         # TODO: kernel_cmd including python executable and so on is currently used for argv. Make a clean version!
         import cutter_internal
-        cutter_internal.launch_ipykernel(kernel_cmd, env=env, **kw)
-        self.kernel = IPyKernelInterfaceJupyter()
+        id = cutter_internal.launch_ipykernel(kernel_cmd, env=env, **kw)
+        self.kernel = IPyKernelInterfaceJupyter(id)
         # self._launch_kernel(kernel_cmd, env=env,
         #                    **kw)
 
