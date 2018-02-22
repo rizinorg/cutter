@@ -32,8 +32,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::JupyterWidget> ui;
-
-    JupyterConnection *jupyter;
 };
 
 

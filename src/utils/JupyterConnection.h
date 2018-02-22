@@ -14,10 +14,13 @@ class JupyterConnection : public QObject
     Q_OBJECT
 
 public:
+    static JupyterConnection* getInstance();
+
     JupyterConnection(QObject *parent = nullptr);
     ~JupyterConnection();
 
     void start();
+    QString getUrl();
 
 signals:
     void urlReceived(const QString &url);
@@ -28,6 +31,13 @@ private:
     PyObject *cutterNotebookAppInstance = nullptr;
 
     PyThreadState *pyThreadState = nullptr;
+
+    void initPython();
+    void createCutterJupyterModule();
 };
+
+
+#define Jupyter() (JupyterConnection::getInstance())
+
 
 #endif //JUPYTERCONNECTION_H

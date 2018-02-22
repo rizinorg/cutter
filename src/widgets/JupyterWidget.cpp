@@ -14,10 +14,9 @@ JupyterWidget::JupyterWidget(QWidget *parent, Qt::WindowFlags flags) :
 {
     ui->setupUi(this);
 
-    jupyter = new JupyterConnection(this);
-    connect(jupyter, &JupyterConnection::urlReceived, this, &JupyterWidget::urlReceived);
-    connect(jupyter, &JupyterConnection::creationFailed, this, &JupyterWidget::creationFailed);
-    jupyter->start();
+    connect(Jupyter(), &JupyterConnection::urlReceived, this, &JupyterWidget::urlReceived);
+    connect(Jupyter(), &JupyterConnection::creationFailed, this, &JupyterWidget::creationFailed);
+    Jupyter()->start();
 }
 
 JupyterWidget::~JupyterWidget()
@@ -47,6 +46,7 @@ void JupyterWidget::creationFailed()
     failPage->setLayout(layout);
     ui->tabWidget->addTab(failPage, tr("Error"));
 }
+
 
 JupyterWebView::JupyterWebView(JupyterWidget *mainWidget, QWidget *parent) : QWebEngineView(parent)
 {
