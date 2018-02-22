@@ -28,7 +28,7 @@ def launch_ipykernel(argv):
     def run_kernel():
         app = CutterIPKernelApp.instance()
         app.kernel_class = CutterIPythonKernel
-        app.log_level = logging.DEBUG
+        #app.log_level = logging.DEBUG
         app.initialize(argv[3:])
         app.start()
 
