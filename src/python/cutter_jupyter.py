@@ -1,7 +1,8 @@
 
+import signal
+import time
 from jupyter_client.ioloop import IOLoopKernelManager
 from notebook.notebookapp import *
-import signal
 import cutter_internal
 
 
@@ -10,6 +11,7 @@ class IPyKernelInterfaceJupyter:
         self._id = id
 
     def send_signal(self, signum):
+        print("sending signal " + str(signum) + " to kernel")
         cutter_internal.kernel_interface_send_signal(self._id, signum)
 
     def kill(self):
@@ -22,17 +24,23 @@ class IPyKernelInterfaceJupyter:
         return cutter_internal.kernel_interface_poll(self._id)
 
     def wait(self, timeout=None):
+        if timeout is not None:
+            start_time = time.process_time()
+        else:
+            start_time = None
+        while timeout is None or time.process_time() - start_time < timeout:
+            if self.poll() is not None:
+                return
+            time.sleep(0.1)
         pass
 
 
 class CutterInternalIPyKernelManager(IOLoopKernelManager):
     def start_kernel(self, **kw):
-        # write connection file / get default ports
         self.write_connection_file()
 
-        # save kwargs for use in restart
         self._launch_args = kw.copy()
-        # build the Popen cmd
+
         extra_arguments = kw.pop('extra_arguments', [])
         kernel_cmd = self.format_kernel_cmd(extra_arguments=extra_arguments)
         env = kw.pop('env', os.environ).copy()
@@ -45,9 +53,6 @@ class CutterInternalIPyKernelManager(IOLoopKernelManager):
             env.update(self.kernel_spec.env or {})
 
         # launch the kernel subprocess
-        self.log.debug("Starting kernel: %s", kernel_cmd)
-
-        # TODO: kernel_cmd including python executable and so on is currently used for argv. Make a clean version!
         id = cutter_internal.launch_ipykernel(kernel_cmd, env=env, **kw)
         self.kernel = IPyKernelInterfaceJupyter(id)
         # self._launch_kernel(kernel_cmd, env=env, **kw)

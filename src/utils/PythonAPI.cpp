@@ -123,11 +123,30 @@ PyObject *api_internal_kernel_interface_poll(PyObject *, PyObject *args)
     }
 }
 
+PyObject *api_internal_thread_set_async_exc(PyObject *, PyObject *args)
+{
+    long id;
+    PyObject *exc;
+
+    if (!PyArg_ParseTuple(args, "lO", &id, &exc))
+    {
+        qWarning() << "Invalid args passed to api_internal_set_async_exc().";
+        return nullptr;
+    }
+
+    printf("setasyncexc %ld\n", id);
+    int ret = PyThreadState_SetAsyncExc(id, exc);
+    printf("%d threads affected\n", ret);
+
+    return PyLong_FromLong(ret);
+}
+
 PyMethodDef CutterInternalMethods[] = {
     {"launch_ipykernel", (PyCFunction)api_internal_launch_ipykernel, METH_VARARGS | METH_KEYWORDS,
     "Launch an IPython Kernel in a subinterpreter"},
     {"kernel_interface_send_signal", (PyCFunction)api_internal_kernel_interface_send_signal, METH_VARARGS, ""},
     {"kernel_interface_poll", (PyCFunction)api_internal_kernel_interface_poll, METH_VARARGS, ""},
+    {"thread_set_async_exc", (PyCFunction)api_internal_thread_set_async_exc, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 

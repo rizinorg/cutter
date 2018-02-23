@@ -96,6 +96,11 @@ void JupyterConnection::start()
     if (!cutterJupyterModule)
     {
         createCutterJupyterModule();
+
+        if(!cutterJupyterModule)
+        {
+            return;
+        }
     }
 
     PyEval_RestoreThread(pyThreadState);
