@@ -144,5 +144,10 @@ long JupyterConnection::startNestedIPyKernel(const QStringList &argv)
 
 NestedIPyKernel *JupyterConnection::getNestedIPyKernel(long id)
 {
-    return kernels[id];
+    auto it = kernels.find(id);
+    if(it == kernels.end())
+    {
+        return nullptr;
+    }
+    return *it;
 }

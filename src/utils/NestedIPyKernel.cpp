@@ -45,6 +45,8 @@ NestedIPyKernel *NestedIPyKernel::start(const QStringList &argv)
 
 NestedIPyKernel::NestedIPyKernel(PyObject *cutterIPykernelModule, const QStringList &argv)
 {
+    threadState = PyThreadState_Get();
+
     auto launchFunc = PyObject_GetAttrString(cutterIPykernelModule, "launch_ipykernel");
 
     PyObject *argvListObject = PyList_New(argv.size());
@@ -59,12 +61,24 @@ NestedIPyKernel::NestedIPyKernel(PyObject *cutterIPykernelModule, const QStringL
 
 NestedIPyKernel::~NestedIPyKernel()
 {
-
 }
 
-void NestedIPyKernel::kill()
+void NestedIPyKernel::sendSignal(long signum)
 {
     auto parentThreadState = PyThreadState_Swap(threadState);
-    PyObject_CallMethod(kernel, "kill", nullptr);
+    PyObject_CallMethod(kernel, "send_signal", "l", signum);
     PyThreadState_Swap(parentThreadState);
+}
+
+QVariant NestedIPyKernel::poll()
+{
+    QVariant ret;
+    auto parentThreadState = PyThreadState_Swap(threadState);
+    PyObject *pyRet = PyObject_CallMethod(kernel, "poll", nullptr);
+    if(PyLong_Check(pyRet))
+    {
+        ret = (qlonglong)PyLong_AsLong(pyRet);
+    }
+    PyThreadState_Swap(parentThreadState);
+    return ret;
 }

@@ -17,7 +17,8 @@ public:
     static NestedIPyKernel *start(const QStringList &argv);
     ~NestedIPyKernel();
 
-    void kill();
+    void sendSignal(long signum);
+    QVariant poll();
 
 private:
     NestedIPyKernel(PyObject *cutterIPykernelModule, const QStringList &argv);
