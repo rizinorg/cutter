@@ -2,6 +2,7 @@
 #include <Python.h>
 
 #include <QFile>
+#include <csignal>
 
 #include "cutter.h"
 #include "NestedIPyKernel.h"
@@ -66,7 +67,11 @@ NestedIPyKernel::~NestedIPyKernel()
 void NestedIPyKernel::sendSignal(long signum)
 {
     auto parentThreadState = PyThreadState_Swap(threadState);
-    PyObject_CallMethod(kernel, "send_signal", "l", signum);
+    auto ret = PyObject_CallMethod(kernel, "send_signal", "l", signum);
+    if (!ret)
+    {
+        PyErr_Print();
+    }
     PyThreadState_Swap(parentThreadState);
 }
 
@@ -75,9 +80,16 @@ QVariant NestedIPyKernel::poll()
     QVariant ret;
     auto parentThreadState = PyThreadState_Swap(threadState);
     PyObject *pyRet = PyObject_CallMethod(kernel, "poll", nullptr);
-    if(PyLong_Check(pyRet))
+    if(pyRet)
     {
-        ret = (qlonglong)PyLong_AsLong(pyRet);
+        if(PyLong_Check(pyRet))
+        {
+            ret = (qlonglong)PyLong_AsLong(pyRet);
+        }
+    }
+    else
+    {
+        PyErr_Print();
     }
     PyThreadState_Swap(parentThreadState);
     return ret;
