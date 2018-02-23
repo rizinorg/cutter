@@ -110,13 +110,7 @@ PyObject *api_internal_kernel_interface_poll(PyObject *, PyObject *args)
         return nullptr;
     }
 
-    NestedIPyKernel *kernel = Jupyter()->getNestedIPyKernel(id);
-    if(!kernel)
-    {
-        return PyLong_FromLong(0);
-    }
-
-    QVariant v = kernel->poll();
+    QVariant v = Jupyter()->pollNestedIPyKernel(id);
     bool ok;
     auto ret = static_cast<long>(v.toLongLong(&ok));
     if(ok)

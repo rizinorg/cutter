@@ -3,6 +3,7 @@ import logging
 import threading
 import signal
 import cutter_internal
+import zmq
 from ipykernel.kernelapp import IPKernelApp
 from ipykernel.ipkernel import IPythonKernel
 
@@ -27,6 +28,16 @@ class IPyKernelInterfaceKernel:
             return None
         else:
             return 0
+
+    def cleanup(self):
+        self._app.heartbeat.context.destroy()
+        self._thread.join()
+        self._app.heartbeat.join()
+        self._app.iopub_thread.stop()
+        self._app.kernel.shell.history_manager.save_thread.stop()
+        zmq.Context.instance().destroy()
+        # successful if only the main thread remains
+        return len(threading.enumerate()) == 1
 
 
 class CutterIPythonKernel(IPythonKernel):
@@ -59,7 +70,7 @@ def launch_ipykernel(argv):
 
     def run_kernel():
         app.kernel_class = CutterIPythonKernel
-        #app.log_level = logging.DEBUG
+        # app.log_level = logging.DEBUG
         app.initialize(argv[3:])
         app.start()
 

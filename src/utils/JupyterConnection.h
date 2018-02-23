@@ -26,6 +26,7 @@ public:
 
     long startNestedIPyKernel(const QStringList &argv);
     NestedIPyKernel *getNestedIPyKernel(long id);
+    QVariant pollNestedIPyKernel(long id);
 
 signals:
     void urlReceived(const QString &url);

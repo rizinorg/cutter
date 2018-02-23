@@ -156,3 +156,29 @@ NestedIPyKernel *JupyterConnection::getNestedIPyKernel(long id)
     }
     return *it;
 }
+
+QVariant JupyterConnection::pollNestedIPyKernel(long id)
+{
+    auto it = kernels.find(id);
+    if(it == kernels.end())
+    {
+        return QVariant(0);
+    }
+
+    NestedIPyKernel *kernel = *it;
+    QVariant v = kernel->poll();
+
+    if(!v.isNull())
+    {
+        // if poll of kernel returns anything but None, it has already quit and should be cleaned up
+        PyThreadState *subinterpreterState = kernel->getThreadState();
+        delete kernel;
+        kernels.erase(it);
+
+        PyThreadState *parentThreadState = PyThreadState_Swap(subinterpreterState);
+        Py_EndInterpreter(subinterpreterState);
+        PyThreadState_Swap(parentThreadState);
+    }
+
+    return v;
+}

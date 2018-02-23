@@ -62,6 +62,13 @@ NestedIPyKernel::NestedIPyKernel(PyObject *cutterIPykernelModule, const QStringL
 
 NestedIPyKernel::~NestedIPyKernel()
 {
+    auto parentThreadState = PyThreadState_Swap(threadState);
+    auto ret = PyObject_CallMethod(kernel, "cleanup", nullptr);
+    if (!ret)
+    {
+        PyErr_Print();
+    }
+    PyThreadState_Swap(parentThreadState);
 }
 
 void NestedIPyKernel::sendSignal(long signum)
