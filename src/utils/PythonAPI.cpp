@@ -58,7 +58,9 @@ PyObject *api_internal_launch_ipykernel(PyObject *self, PyObject *args, PyObject
     if (!PyArg_ParseTuple(args, "O", &argvListObject)
             || !PyList_Check(argvListObject))
     {
-        qWarning() << "Invalid args passed to api_internal_launch_ipykernel().";
+        const char *msg = "Invalid args passed to api_internal_launch_ipykernel().";
+        qWarning() << msg;
+        PyErr_SetString(PyExc_RuntimeError, msg);
         return nullptr;
     }
 
@@ -81,7 +83,9 @@ PyObject *api_internal_kernel_interface_send_signal(PyObject *, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "ll", &id, &signum))
     {
-        qWarning() << "Invalid args passed to api_internal_kernel_interface_send_signal().";
+        const char *msg = "Invalid args passed to api_internal_kernel_interface_send_signal().";
+        qWarning() << msg;
+        PyErr_SetString(PyExc_RuntimeError, msg);
         return nullptr;
     }
 
@@ -100,7 +104,9 @@ PyObject *api_internal_kernel_interface_poll(PyObject *, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "l", &id))
     {
-        qWarning() << "Invalid args passed to api_internal_kernel_interface_poll().";
+        const char *msg = "Invalid args passed to api_internal_kernel_interface_poll().";
+        qWarning() << msg;
+        PyErr_SetString(PyExc_RuntimeError, msg);
         return nullptr;
     }
 
@@ -130,14 +136,13 @@ PyObject *api_internal_thread_set_async_exc(PyObject *, PyObject *args)
 
     if (!PyArg_ParseTuple(args, "lO", &id, &exc))
     {
-        qWarning() << "Invalid args passed to api_internal_set_async_exc().";
+        const char *msg = "Invalid args passed to api_internal_thread_set_async_exc().";
+        qWarning() << msg;
+        PyErr_SetString(PyExc_RuntimeError, msg);
         return nullptr;
     }
 
-    printf("setasyncexc %ld\n", id);
     int ret = PyThreadState_SetAsyncExc(id, exc);
-    printf("%d threads affected\n", ret);
-
     return PyLong_FromLong(ret);
 }
 
