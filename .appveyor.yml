@@ -42,7 +42,7 @@ install:
   # Meson specific
   - cmd: if defined MESON ( if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" ) )
   - cmd: if defined MESON ( python -m pip install meson )
-  - cmd: if defined MESON ( if "%BACKEND%" == "ninja" ( powershell -Command wget %NINJA_URL% -OutFile ninja.zip && unzip ninja.zip ) )
+  - cmd: if defined MESON ( if "%BACKEND%" == "ninja" ( powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip" && unzip ninja.zip ) )
 
 before_build:
   - cmd: if defined QMAKE ( prepare_r2.bat %BITS% )
