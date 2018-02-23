@@ -7,8 +7,8 @@ from ipykernel.ipkernel import IPythonKernel
 
 # TODO: Make this behave like a Popen instance and pipe it to IPyKernelInterfaceJupyter!
 class IPyKernelInterfaceKernel:
-    def kill(self):
-        print("No!! Not into the pit! It burns!!!")
+    def send_signal(self, signum):
+        pass
 
     def poll(self):
         return None

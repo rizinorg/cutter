@@ -1,34 +1,32 @@
 
 from jupyter_client.ioloop import IOLoopKernelManager
 from notebook.notebookapp import *
+import signal
+import cutter_internal
 
 
-# TODO: this must behave like a Popen instance and pipe to IPyKernelInterfaceKernel!
 class IPyKernelInterfaceJupyter:
     def __init__(self, id):
         self._id = id
 
+    def send_signal(self, signum):
+        cutter_internal.kernel_interface_send_signal(self._id, signum)
+
     def kill(self):
-        print("DIE!! " + str(self._id))
+        self.send_signal(signal.SIGKILL)
+
+    def terminate(self):
+        self.send_signal(signal.SIGTERM)
 
     def poll(self):
-        return None
+        return cutter_internal.kernel_interface_poll(self._id)
+
+    def wait(self, timeout=None):
+        pass
 
 
 class CutterInternalIPyKernelManager(IOLoopKernelManager):
     def start_kernel(self, **kw):
-        """Starts a kernel on this host in a separate process.
-
-        If random ports (port=0) are being used, this method must be called
-        before the channels are created.
-
-        Parameters
-        ----------
-        `**kw` : optional
-             keyword arguments that are passed down to build the kernel_cmd
-             and launching the kernel (e.g. Popen kwargs).
-        """
-
         # write connection file / get default ports
         self.write_connection_file()
 
@@ -50,14 +48,15 @@ class CutterInternalIPyKernelManager(IOLoopKernelManager):
         self.log.debug("Starting kernel: %s", kernel_cmd)
 
         # TODO: kernel_cmd including python executable and so on is currently used for argv. Make a clean version!
-        import cutter_internal
         id = cutter_internal.launch_ipykernel(kernel_cmd, env=env, **kw)
         self.kernel = IPyKernelInterfaceJupyter(id)
-        # self._launch_kernel(kernel_cmd, env=env,
-        #                    **kw)
+        # self._launch_kernel(kernel_cmd, env=env, **kw)
 
         self.start_restarter()
         self._connect_control_socket()
+
+    def signal_kernel(self, signum):
+        self.kernel.send_signal(signum)
 
 
 def kernel_manager_factory(kernel_name, **kwargs):

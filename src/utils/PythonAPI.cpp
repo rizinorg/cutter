@@ -74,25 +74,60 @@ PyObject *api_internal_launch_ipykernel(PyObject *self, PyObject *args, PyObject
     return PyLong_FromLong(id);
 }
 
-PyObject *api_internal_kernel_interface_kill(PyObject *, PyObject *args)
+PyObject *api_internal_kernel_interface_send_signal(PyObject *, PyObject *args)
+{
+    long id;
+    long signum;
+
+    if (!PyArg_ParseTuple(args, "ll", &id, &signum))
+    {
+        qWarning() << "Invalid args passed to api_internal_kernel_interface_send_signal().";
+        return nullptr;
+    }
+
+    NestedIPyKernel *kernel = Jupyter()->getNestedIPyKernel(id);
+    if(kernel)
+    {
+        kernel->sendSignal(signum);
+    }
+
+    Py_RETURN_NONE;
+}
+
+PyObject *api_internal_kernel_interface_poll(PyObject *, PyObject *args)
 {
     long id;
 
     if (!PyArg_ParseTuple(args, "l", &id))
     {
-        qWarning() << "Invalid args passed to api_internal_kernel_interface_kill().";
+        qWarning() << "Invalid args passed to api_internal_kernel_interface_poll().";
         return nullptr;
     }
 
-    Jupyter()->getNestedIPyKernel(id)->kill();
+    NestedIPyKernel *kernel = Jupyter()->getNestedIPyKernel(id);
+    if(!kernel)
+    {
+        return PyLong_FromLong(0);
+    }
 
-    Py_RETURN_NONE;
+    QVariant v = kernel->poll();
+    bool ok;
+    auto ret = static_cast<long>(v.toLongLong(&ok));
+    if(ok)
+    {
+        return PyLong_FromLong(ret);
+    }
+    else
+    {
+        Py_RETURN_NONE;
+    }
 }
 
 PyMethodDef CutterInternalMethods[] = {
     {"launch_ipykernel", (PyCFunction)api_internal_launch_ipykernel, METH_VARARGS | METH_KEYWORDS,
     "Launch an IPython Kernel in a subinterpreter"},
-    {"kernel_interface_kill", (PyCFunction)api_internal_kernel_interface_kill, METH_VARARGS, ""},
+    {"kernel_interface_send_signal", (PyCFunction)api_internal_kernel_interface_send_signal, METH_VARARGS, ""},
+    {"kernel_interface_poll", (PyCFunction)api_internal_kernel_interface_poll, METH_VARARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
