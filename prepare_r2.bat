@@ -25,7 +25,7 @@ ECHO Downloading meson and ninja
 python -m pip install meson
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 IF NOT EXIST ninja.exe (
-	powershell -Command wget %NINJA_URL% -OutFile ninja.zip && powershell -Command Expand-Archive .\ninja.zip -DestinationPath .\ && DEL ninja.zip
+	powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip" && powershell -Command Expand-Archive .\ninja.zip -DestinationPath .\ && DEL ninja.zip
 	IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 )
 
