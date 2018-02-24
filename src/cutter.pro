@@ -206,7 +206,6 @@ FORMS    += \
     widgets/PseudocodeWidget.ui \
     widgets/ClassesWidget.ui \
     widgets/VTablesWidget.ui \
-    widgets/PseudocodeWidget.ui \
     widgets/JupyterWidget.ui
 
 RESOURCES += \
