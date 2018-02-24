@@ -47,5 +47,5 @@ cutter_exe = executable(
   gui_app: not console,
   sources: sources,
   include_directories: platform_inc,
-  dependencies: [libr2_dep, qt5dep],
+  dependencies: [libr2_dep, qt5dep, dependency('python3')],
 )

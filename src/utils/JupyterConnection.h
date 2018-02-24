@@ -2,6 +2,7 @@
 #define JUPYTERCONNECTION_H
 
 #include <QProcess>
+#include <QMap>
 
 class NestedIPyKernel;
 
