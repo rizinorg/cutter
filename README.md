@@ -111,3 +111,4 @@ Right now the best place to obtain help from *cutter* developers and community i
 
 - https://t.me/r2cutter
 - #cutter on irc.freenode.net
+- [@r2gui](https://twitter.com/r2gui) on Twitter
