@@ -36,7 +36,7 @@ JupyterConnection::~JupyterConnection()
 
     if (Py_IsInitialized())
     {
-        Py_FinalizeEx();
+        Py_Finalize();
     }
 }
 
