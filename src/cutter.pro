@@ -34,11 +34,7 @@ unix:exists(/usr/local/include/libr) {
 
 # Libraries
 include(lib_radare2.pri)
-# TODO Not portable
-unix {
-    LIBS += /usr/lib/libpython3.6m.so
-    INCLUDEPATH += /usr/include/python3.6m
-}
+PKGCONFIG += python3
 
 SOURCES += \
     main.cpp \
