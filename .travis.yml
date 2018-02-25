@@ -30,7 +30,7 @@ before_install:
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install p7zip ccache qt5 && 
+      brew install p7zip ccache qt5 python3 && 
       export PATH="/usr/local/opt/qt/bin:$PATH" 
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then

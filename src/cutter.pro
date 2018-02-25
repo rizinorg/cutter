@@ -27,14 +27,31 @@ macx {
     QMAKE_INFO_PLIST = apple/Info.plist
 }
 
-
 unix:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
 }
 
 # Libraries
 include(lib_radare2.pri)
-PKGCONFIG += python3
+win32 {
+    pythonpath = $$quote($$system("where python"))
+    pythonpath = $$replace(pythonpath, ".exe ", ".exe;")
+    pythonpath = $$section(pythonpath, ";", 0, 0)
+    pythonpath = $$clean_path($$dirname(pythonpath))
+    LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
+    INCLUDEPATH += $${pythonpath}/include
+    message($$pythonpath)
+    message($$LIBS)
+    message($$INCLUDEPATH)
+}
+
+unix|macx {
+    CONFIG += link_pkgconfig
+    !packagesExist(python3) {
+        error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
+    }
+    PKGCONFIG += python3
+}
 
 SOURCES += \
     main.cpp \
