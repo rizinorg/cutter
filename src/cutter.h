@@ -208,6 +208,12 @@ struct ResourcesDescription
     QString lang;
 };
 
+struct VTableDescription
+{
+    RVA addr;
+    QList<ClassMethodDescription> methods;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -227,6 +233,7 @@ Q_DECLARE_METATYPE(const ClassDescription *)
 Q_DECLARE_METATYPE(const ClassMethodDescription *)
 Q_DECLARE_METATYPE(const ClassFieldDescription *)
 Q_DECLARE_METATYPE(ResourcesDescription)
+Q_DECLARE_METATYPE(VTableDescription)
 
 class CutterCore: public QObject
 {
@@ -360,6 +367,7 @@ public:
     QList<EntrypointDescription> getAllEntrypoint();
     QList<ClassDescription> getAllClasses();
     QList<ResourcesDescription> getAllResources();
+    QList<VTableDescription> getAllVTables();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 
