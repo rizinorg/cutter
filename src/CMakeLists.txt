@@ -35,7 +35,7 @@ include_directories(${RADARE2_INCLUDE_DIRS})
 link_directories(${RADARE2_LIBRARY_DIRS})
 
 
-find_package(PythonLibs 3 REQUIRED)
+find_package(PythonLibs 3.3 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
 
