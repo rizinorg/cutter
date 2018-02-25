@@ -15,7 +15,6 @@ branches:
 
 # Environment
 environment:
-  PYTHON: 'C:\Python36-x64'
   NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip
   QTDIR: 'C:\Qt\5.10.0\msvc2015_64'
   QT32PATH: 'C:\Qt\5.10.0\msvc2015'
@@ -24,12 +23,15 @@ environment:
   matrix:
     # Build: qmake vs2015 x86 shared
     - ARCH: x86
+      PYTHON: 'C:\Python36'
       QMAKE: 1
     # Build: qmake vs2015 x64 shared
     - ARCH: x64
+      PYTHON: 'C:\Python36-x64'
       QMAKE: 1
     # Build: meson ninja x64 static
     - ARCH: x64
+      PYTHON: 'C:\Python36-x64'
       MESON: 1
       BACKEND: ninja
 
