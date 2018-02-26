@@ -3,7 +3,7 @@
 
 #include "GeneralOptionsWidget.h"
 #include "ui_GeneralOptionsWidget.h"
-
+#include <QComboBox>
 #include "PreferencesDialog.h"
 
 #include "utils/Helpers.h"
@@ -18,8 +18,8 @@ GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog */*dialog*/, QWidge
     updateFontFromConfig();
     updateThemeFromConfig();
 
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(updateFontFromConfig()));
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
+    //connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(updateFontFromConfig()));
+    //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
 }
 
 GeneralOptionsWidget::~GeneralOptionsWidget() {}
@@ -33,6 +33,15 @@ void GeneralOptionsWidget::updateFontFromConfig()
 void GeneralOptionsWidget::updateThemeFromConfig()
 {
     ui->themeComboBox->setCurrentIndex(Config()->getDarkTheme() ? 1 : 0);
+
+    QList<QString> themes = Core()->getColorThemes();
+    ui->colorComboBox->clear();
+    ui->colorComboBox->addItem("default");
+    for (QString str : themes)
+        ui->colorComboBox->addItem(str);
+    QString curTheme = Config()->getCurrentTheme();
+    int index = themes.indexOf(curTheme) + 1;
+    ui->colorComboBox->setCurrentIndex(index);
 }
 
 void GeneralOptionsWidget::on_fontSelectionButton_clicked()
@@ -47,7 +56,13 @@ void GeneralOptionsWidget::on_fontSelectionButton_clicked()
 
 void GeneralOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
-    disconnect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
+    //disconnect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
     Config()->setDarkTheme(index == 1);
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
+    //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
+}
+
+void GeneralOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
+{
+    QString theme = ui->colorComboBox->itemText(index);
+    Config()->setColorTheme(theme);
 }

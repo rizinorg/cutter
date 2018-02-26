@@ -824,8 +824,7 @@ void CutterCore::setSettings()
     setConfig("http.sandbox", false);
 
     // Colors
-    setConfig("scr.color", false);
-    setConfig("scr.truecolor", false);
+    setConfig("scr.color", COLOR_MODE_DISABLED);
 }
 
 QList<RVA> CutterCore::getSeekHistory()
@@ -1416,4 +1415,13 @@ QJsonArray CutterCore::getOpenedFiles()
 {
     QJsonDocument files = cmdj("oj");
     return files.array();
+}
+
+QList<QString> CutterCore::getColorThemes()
+{
+    QList<QString> r;
+    QJsonDocument themes = cmdj("ecoj");
+    for (auto s : themes.array())
+        r << s.toString();
+    return r;
 }

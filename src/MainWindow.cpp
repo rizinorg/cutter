@@ -87,12 +87,12 @@ static void registerCustomFonts()
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    core(CutterCore::getInstance()),
+    core(Core()),
     ui(new Ui::MainWindow)
 {
     panelLock = false;
     tabsOnTop = false;
-    configuration = new Configuration();
+    configuration = Config();
 }
 
 MainWindow::~MainWindow()

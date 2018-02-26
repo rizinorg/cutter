@@ -189,7 +189,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     {
         TempConfig tempConfig;
         tempConfig.set("scr.html", true)
-                .set("scr.color", true);
+                .set("scr.color", COLOR_MODE_16M);
         disassemblyLines = Core()->disassembleLines(topOffset, maxLines);
     }
 

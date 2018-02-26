@@ -381,6 +381,8 @@ public:
     QString getVersionInformation();
     QJsonArray getOpenedFiles();
 
+    QList<QString> getColorThemes();
+
     RCoreLocked core() const;
 
     /* fields */

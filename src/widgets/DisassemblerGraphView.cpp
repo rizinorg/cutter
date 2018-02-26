@@ -121,7 +121,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", true)
-            .set("scr.color", true)
+            .set("scr.color", COLOR_MODE_16M)
             .set("asm.bbline", false)
             .set("asm.lines", false)
             .set("asm.fcnlines", false);

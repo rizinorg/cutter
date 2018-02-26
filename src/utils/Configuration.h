@@ -13,7 +13,7 @@ class Configuration : public QObject
     Q_OBJECT
 private:
     QSettings s;
-    static Configuration* mPtr;
+    static Configuration *mPtr;
 
     void loadInitial();
 
@@ -114,6 +114,9 @@ public:
 
     int getAsmTabs() const              { return s.value("asm.tabs", 5).toInt(); }
     void setAsmTabs(int v)              { s.setValue("asm.tabs", v); }
+
+    QString getCurrentTheme() const     { return s.value("theme", "default").toString(); }
+    void setColorTheme(QString theme);
 
 signals:
     void fontsUpdated();
