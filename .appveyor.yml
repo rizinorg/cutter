@@ -23,42 +23,42 @@ environment:
   VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat'
   matrix:
     # Build: qmake vs2015 x86 shared
-    - BITS: 32
+    - ARCH: x86
       QMAKE: 1
     # Build: qmake vs2015 x64 shared
-    - BITS: 64
+    - ARCH: x64
       QMAKE: 1
     # Build: meson ninja x64 static
-    - BITS: 64
-      ARCH: x64
+    - ARCH: x64
       MESON: 1
       BACKEND: ninja
 
 install:
-  - cmd: set "PATH=%PYTHON%;%PATH%"
+  - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
+  - cmd: call "%VSVARSALLPATH%" %ARCH%
+  - cmd: if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" && set "BITS=64" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" && set "BITS=32" )
+  - cmd: python -m pip install meson
+  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip" && unzip ninja.zip
   # Artifacts
-  - cmd: if defined MESON ( set "ARTIFACT_NAME=Cutter%BITS%_static" ) else ( set "ARTIFACT_NAME=Cutter%BITS%" )
-  - cmd: if defined MESON ( set "ARTIFACT=dist%BITS%" ) else ( set "ARTIFACT=build%BITS%\cutter%BITS%" )
-  # Meson specific
-  - cmd: if defined MESON ( if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" ) )
-  - cmd: if defined MESON ( python -m pip install meson )
-  - cmd: if defined MESON ( if "%BACKEND%" == "ninja" ( powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip" && unzip ninja.zip ) )
+  - cmd: if defined MESON ( set "ARTIFACT_NAME=Cutter_%ARCH%_static" ) else ( set "ARTIFACT_NAME=Cutter_%ARCH%" )
+  - cmd: if defined MESON ( set "ARTIFACT_PATH=dist%BITS%" ) else ( set "ARTIFACT_PATH=build%BITS%\cutter" )
 
 before_build:
-  - cmd: if defined QMAKE ( prepare_r2.bat %BITS% )
-  - cmd: if defined MESON ( git submodule update --init )
+  - cmd: git submodule update --init
+  - cmd: if defined QMAKE ( prepare_r2.bat )
+
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( build.bat %BITS% )
-  - cmd: if defined MESON ( call "%VSVARSALLPATH%" %ARCH% && python meson.py --dist=%ARTIFACT% --backend=%BACKEND% )
+  - cmd: if defined QMAKE ( build.bat )
+  - cmd: if defined MESON ( python meson.py --dist=%ARTIFACT_PATH% --backend=%BACKEND% )
 
 # Tests
 test: off
 
 # Artifacts
 artifacts:
-  - path: "%ARTIFACT%"
+  - path: "%ARTIFACT_PATH%"
     name: "%ARTIFACT_NAME%"
 
 deploy:
