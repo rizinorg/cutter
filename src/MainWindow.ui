@@ -250,6 +250,7 @@ border-top: 0px;
     <addaction name="actionSymbols"/>
     <addaction name="actionSDBBrowser"/>
     <addaction name="actionResources"/>
+    <addaction name="actionVTables"/>
     <addaction name="separator"/>
     <addaction name="actionRelocs"/>
     <addaction name="actionStrings"/>
@@ -1048,6 +1049,17 @@ QToolButton:pressed {
    </property>
    <property name="text">
     <string>Resources</string>
+   </property>
+  </action>
+  <action name="actionVTables">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>VTables</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide VTables panel</string>
    </property>
   </action>
  </widget>

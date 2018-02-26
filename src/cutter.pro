@@ -90,6 +90,7 @@ SOURCES += \
     widgets/QuickFilterView.cpp \
     widgets/ClassesWidget.cpp \
     widgets/ResourcesWidget.cpp \
+    widgets/VTablesWidget.cpp \
     CutterApplication.cpp
 
 HEADERS  += \
@@ -150,7 +151,8 @@ HEADERS  += \
     widgets/QuickFilterView.h \
     widgets/ClassesWidget.h \
     widgets/ResourcesWidget.h \
-    CutterApplication.h
+    CutterApplication.h \
+    widgets/VTablesWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -186,7 +188,8 @@ FORMS    += \
     dialogs/preferences/GraphOptionsWidget.ui \
     widgets/QuickFilterView.ui \
     widgets/PseudocodeWidget.ui \
-    widgets/ClassesWidget.ui
+    widgets/ClassesWidget.ui \
+    widgets/VTablesWidget.ui
 
 RESOURCES += \
     resources.qrc \

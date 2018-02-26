@@ -39,6 +39,7 @@ class EntrypointWidget;
 class DisassemblerGraphView;
 class ClassesWidget;
 class ResourcesWidget;
+class VTablesWidget;
 
 class QDockWidget;
 
@@ -186,6 +187,7 @@ private:
     ConsoleWidget      *consoleDock = nullptr;
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;
+    VTablesWidget      *vTablesDock = nullptr;
     DisassemblerGraphView *graphView = nullptr;
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;

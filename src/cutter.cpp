@@ -1252,6 +1252,36 @@ QList<ResourcesDescription> CutterCore::getAllResources()
     return ret;
 }
 
+QList<VTableDescription> CutterCore::getAllVTables()
+{
+    CORE_LOCK();
+    QList<VTableDescription> ret;
+
+    QJsonArray vTablesArray = cmdj("avj").array();
+    for(QJsonValueRef vTableValue : vTablesArray)
+    {
+        QJsonObject vTableObject = vTableValue.toObject();
+
+        VTableDescription res;
+        res.addr = vTableObject["offset"].toVariant().toULongLong();
+        QJsonArray methodArray = vTableObject["methods"].toArray();
+
+        for(QJsonValueRef methodValue : methodArray)
+        {
+            QJsonObject methodObject = methodValue.toObject();
+
+            ClassMethodDescription method;
+            method.addr = methodObject["offset"].toVariant().toULongLong();
+            method.name = methodObject["name"].toString();
+
+            res.methods << method;
+        }
+
+        ret << res;
+    }
+    return ret;
+}
+
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();
