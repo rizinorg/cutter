@@ -10,25 +10,19 @@
 class CutterApplication : public QApplication
 {
     Q_OBJECT
-    Q_PROPERTY(MainWindow* mainWindow READ mainWindow WRITE setMainWindow)
 
 public:
     CutterApplication(int &argc, char **argv);
+    ~CutterApplication();
 
-    MainWindow * mainWindow() {
-        return m_MainWindow;
-    }
-
-    void setMainWindow(MainWindow * mw) {
-        m_MainWindow = mw;
-    }
+    MainWindow *getMainWindow() { return mainWindow; }
 
 protected:
     bool event(QEvent *e);
 
 private:
     bool m_FileAlreadyDropped;
-    MainWindow *m_MainWindow;
+    MainWindow *mainWindow;
 };
 
 #endif // CUTTERAPPLICATION_H

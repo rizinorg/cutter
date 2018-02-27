@@ -64,9 +64,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
     }
 
-    MainWindow *main = new MainWindow();
-
-    setMainWindow(main);
+    mainWindow = new MainWindow();
 
     if (args.empty())
     {
@@ -76,19 +74,28 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
             exit(1);
         }
 
-        main->displayNewFileDialog();
+        mainWindow->displayNewFileDialog();
     }
     else // filename specified as positional argument
     {
-        main->openNewFile(args[0], analLevelSpecified ? analLevel : -1);
+        mainWindow->openNewFile(args[0], analLevelSpecified ? analLevel : -1);
     }
 }
 
-bool CutterApplication::event(QEvent *e){
-    if (e->type() == QEvent::FileOpen) {
+CutterApplication::~CutterApplication()
+{
+    delete mainWindow;
+}
+
+bool CutterApplication::event(QEvent *e)
+{
+    if (e->type() == QEvent::FileOpen)
+    {
         QFileOpenEvent *openEvent = static_cast<QFileOpenEvent *>(e);
-        if (openEvent) {
-            if (m_FileAlreadyDropped) {
+        if (openEvent)
+        {
+            if (m_FileAlreadyDropped)
+            {
                 // we already dropped a file in macOS, let's spawn another instance
                 // (Like the File -> Open)
                 QString fileName = openEvent->file();
@@ -96,11 +103,13 @@ bool CutterApplication::event(QEvent *e){
                 process.setEnvironment(QProcess::systemEnvironment());
                 QStringList args = QStringList(fileName);
                 process.startDetached(qApp->applicationFilePath(), args);
-            } else {
+            }
+            else
+            {
                 QString fileName = openEvent->file();
                 m_FileAlreadyDropped = true;
-                m_MainWindow->closeNewFileDialog();
-                m_MainWindow->openNewFile(fileName, -1);
+                mainWindow->closeNewFileDialog();
+                mainWindow->openNewFile(fileName, -1);
             }
         }
     }
