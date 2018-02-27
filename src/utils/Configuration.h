@@ -76,8 +76,8 @@ public:
     bool getAsmEmu() const              { return s.value("asm.emu", false).toBool(); }
     void setAsmEmu(bool v)              { s.setValue("asm.emu", v); }
 
-    bool getAsmCmtRight() const         { return s.value("asm.cmtright", true).toBool(); }
-    void setAsmCmtRight(bool v)         { s.setValue("asm.cmtright", v); }
+    bool getAsmCmtRight() const         { return s.value("asm.cmt.right", true).toBool(); }
+    void setAsmCmtRight(bool v)         { s.setValue("asm.cmt.right", v); }
 
     bool getAsmVarSum() const           { return s.value("asm.varsum", false).toBool(); }
     void setAsmVarSum(bool v)           { s.setValue("asm.varsum", v); }

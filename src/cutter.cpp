@@ -538,7 +538,7 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.lines", Config()->getAsmLines());
     setConfig("asm.fcnlines", Config()->getAsmFcnLines());
     setConfig("asm.emu", Config()->getAsmEmu());
-    setConfig("asm.cmtright", Config()->getAsmCmtRight());
+    setConfig("asm.cmt.right", Config()->getAsmCmtRight());
     setConfig("asm.varsum", Config()->getAsmVarSum());
     setConfig("asm.bytes", Config()->getAsmBytes());
     setConfig("asm.bytespace", Config()->getAsmBytespace());
@@ -564,7 +564,7 @@ void CutterCore::saveDefaultAsmOptions()
     Config()->setAsmLines(getConfigb("asm.lines"));
     Config()->setAsmFcnLines(getConfigb("asm.fcnlines"));
     Config()->setAsmEmu(getConfigb("asm.emu"));
-    Config()->setAsmCmtRight(getConfigb("asm.cmtright"));
+    Config()->setAsmCmtRight(getConfigb("asm.cmt.right"));
     Config()->setAsmVarSum(getConfigb("asm.varsum"));
     Config()->setAsmBytes(getConfigb("asm.bytes"));
     Config()->setAsmBytespace(getConfigb("asm.bytespace"));
