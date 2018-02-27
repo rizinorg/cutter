@@ -16,6 +16,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         : QDialog(parent),
           ui(new Ui::PreferencesDialog)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
 #define ADD_TAB(c) { auto w = new c(this); ui->tabWidget->addTab(w, w->windowTitle()); }
