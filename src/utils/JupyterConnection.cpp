@@ -25,17 +25,17 @@ JupyterConnection::JupyterConnection(QObject *parent) : QObject(parent)
 
 JupyterConnection::~JupyterConnection()
 {
-    if (cutterNotebookAppInstance)
+    if (pyThreadState)
     {
         PyEval_RestoreThread(pyThreadState);
 
-        auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
-        PyObject_CallObject(stopFunc, nullptr);
-        Py_DECREF(cutterNotebookAppInstance);
-    }
+        if (cutterNotebookAppInstance)
+        {
+            auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
+            PyObject_CallObject(stopFunc, nullptr);
+            Py_DECREF(cutterNotebookAppInstance);
+        }
 
-    if (Py_IsInitialized())
-    {
         Py_Finalize();
     }
 }
@@ -63,20 +63,22 @@ void JupyterConnection::createCutterJupyterModule()
     auto moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_jupyter.py", Py_file_input);
     if (!moduleCodeObject)
     {
+        PyErr_Print();
         qWarning() << "Could not compile cutter_jupyter.";
         emit creationFailed();
         pyThreadState = PyEval_SaveThread();
         return;
     }
     cutterJupyterModule = PyImport_ExecCodeModule("cutter_jupyter", moduleCodeObject);
-    Py_DECREF(moduleCodeObject);
     if (!cutterJupyterModule)
     {
+        PyErr_Print();
         qWarning() << "Could not import cutter_jupyter.";
         emit creationFailed();
         pyThreadState = PyEval_SaveThread();
         return;
     }
+    Py_DECREF(moduleCodeObject);
 
     pyThreadState = PyEval_SaveThread();
 }
