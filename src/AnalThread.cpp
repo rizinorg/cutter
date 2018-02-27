@@ -46,7 +46,9 @@ void AnalThread::run()
 
     core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(), optionsDialog->getSelectedBits());
 
-    bool rw = ui->writeCheckBox->isChecked();
+    int perms = R_IO_READ | R_IO_EXEC;
+    if (ui->writeCheckBox->isChecked())
+        perms |= R_IO_WRITE;
     bool loadBinInfo = !ui->binCheckBox->isChecked();
 
     if (loadBinInfo)
@@ -83,7 +85,7 @@ void AnalThread::run()
     QJsonArray openedFiles = Core()->getOpenedFiles();
     if (!openedFiles.size())
     {
-        core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, loadBinInfo, forceBinPlugin);
+        core->loadFile(main->getFilename(), loadaddr, mapaddr, perms, va, binidx, loadBinInfo, forceBinPlugin);
     }
     emit updateProgress("Analysis in progress.");
 

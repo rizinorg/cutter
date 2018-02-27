@@ -209,7 +209,7 @@ QJsonDocument CutterCore::cmdj(const QString &str)
     return doc;
 }
 
-bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, bool rw, int va, int idx, bool loadbin, const QString &forceBinPlugin)
+bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, int perms, int va, int idx, bool loadbin, const QString &forceBinPlugin)
 {
     Q_UNUSED(loadaddr);
     Q_UNUSED(idx);
@@ -219,7 +219,7 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, boo
     if (va == 0 || va == 2)
         r_config_set_i(core_->config, "io.va", va);
 
-    f = r_core_file_open(core_, path.toUtf8().constData(), rw ? R_IO_RW : R_IO_READ, mapaddr);
+    f = r_core_file_open(core_, path.toUtf8().constData(), perms, mapaddr);
     if (!f)
     {
         eprintf("r_core_file_open failed\n");
@@ -326,13 +326,13 @@ void CutterCore::delFlag(RVA addr)
 
 void CutterCore::editInstruction(RVA addr, const QString &inst)
 {
-    cmd("wa " + inst);
+    cmd("wa " + inst + " @ " + RAddressString(addr));
     emit instructionChanged(addr);
 }
 
 void CutterCore::editBytes(RVA addr, const QString &bytes)
 {
-    cmd("wx " + bytes);
+    cmd("wx " + bytes + " @ " + RAddressString(addr));
     emit instructionChanged(addr);
 }
 
