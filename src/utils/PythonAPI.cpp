@@ -25,11 +25,32 @@ PyObject *api_cmd(PyObject *self, PyObject *args)
     return PyUnicode_FromString(result);
 }
 
+PyObject *api_cmdj(PyObject *self, PyObject *args)
+{
+    Q_UNUSED(self);
+    char *command;
+    char *result = (char*) "";
+    if (PyArg_ParseTuple(args, "s:command", &command))
+    {
+        result = Core()->cmd(command).toUtf8().data();
+        PyObject *jsonModule = PyImport_ImportModule("json");
+        PyObject *loadsFunc = PyObject_GetAttrString(jsonModule, "loads");
+        if (!PyCallable_Check(loadsFunc)) {
+            PyErr_SetString(PyExc_SystemError, "Could not parse JSON.");
+            return NULL;
+        }
+        return PyEval_CallFunction(loadsFunc, "(s)", result);
+    }
+    return Py_None;
+}
+
 PyMethodDef CutterMethods[] = {
     {"version", api_version, METH_NOARGS,
      "Returns Cutter current version"},
     {"cmd", api_cmd, METH_VARARGS,
      "Execute a command inside Cutter"},
+    {"cmdj", api_cmdj, METH_VARARGS,
+     "Execute a JSON command and return the result as a dictionnary"},
     {NULL, NULL, 0, NULL}
 };
 
