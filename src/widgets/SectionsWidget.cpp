@@ -88,7 +88,8 @@ void SectionsWidget::fillSections(int row, const SectionDescription &section)
 
     QTreeWidgetItem *tempItem = new QTreeWidgetItem();
     tempItem->setText(0, section.name);
-    tempItem->setText(1, RSizeString(section.size));
+    tempItem->setData(1, Qt::DisplayRole, section.size);
+    tempItem->setTextAlignment(1, Qt::AlignRight | Qt::AlignVCenter);
     tempItem->setText(2, RAddressString(section.vaddr));
     tempItem->setText(3, RAddressString(section.vaddr + section.vsize));
     tempItem->setData(0, Qt::DecorationRole, colors[row % colors.size()]);
