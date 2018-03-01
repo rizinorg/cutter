@@ -4,9 +4,6 @@
 #include "dialogs/NewFileDialog.h"
 #include "utils/Helpers.h"
 
-// TODO: remove us
-#include "widgets/Notepad.h"
-
 #include <QSettings>
 #include <QFileInfo>
 #include <QFileDialog>

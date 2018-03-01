@@ -712,14 +712,6 @@ QToolTip {
     <string>Hexdump side panel</string>
    </property>
   </action>
-  <action name="actionSend_to_Notepad">
-   <property name="text">
-    <string>Send to notepad</string>
-   </property>
-   <property name="toolTip">
-    <string>Send to notepad</string>
-   </property>
-  </action>
   <action name="actionFunctionsUndefine">
    <property name="text">
     <string>Undefine</string>

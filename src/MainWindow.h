@@ -17,7 +17,6 @@
 class CutterCore;
 class Omnibar;
 class PreviewWidget;
-class Notepad;
 class Highlighter;
 class AsciiHighlighter;
 class VisualNavbar;
@@ -86,7 +85,6 @@ public:
     void setFilename(const QString &fn);
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
-    void sendToNotepad(const QString &txt);
     void refreshOmniBar(const QStringList &flags);
 
 public slots:
@@ -166,7 +164,6 @@ private:
 
     QList<QDockWidget *> dockWidgets;
     QMap<QAction *, QDockWidget *> dockWidgetActions;
-    Notepad            *notepadDock = nullptr;
     DisassemblyWidget  *disassemblyDock = nullptr;
     SidebarWidget      *sidebarDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;

@@ -349,9 +349,6 @@ public:
 
     static bool isProjectNameValid(const QString &name);
 
-    const QString &getNotes() const                { return notes; }
-    void setNotes(const QString &notes);
-
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
 
     QList<FunctionDescription> getAllFunctions();

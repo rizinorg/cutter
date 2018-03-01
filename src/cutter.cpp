@@ -1349,7 +1349,6 @@ void CutterCore::openProject(const QString &name)
     cmd("Po " + name);
 
     QString notes = QString::fromUtf8(QByteArray::fromBase64(cmd("Pnj").toUtf8()));
-    setNotes(notes);
 }
 
 void CutterCore::saveProject(const QString &name)
@@ -1364,12 +1363,6 @@ bool CutterCore::isProjectNameValid(const QString &name)
     // see is_valid_project_name() in libr/core/project.c
     static const QRegExp regexp(R"(^[a-zA-Z0-9\\\._:-]{1,}$)");
     return regexp.exactMatch(name) && !name.endsWith(".zip") ;
-}
-
-void CutterCore::setNotes(const QString &notes)
-{
-    this->notes = notes;
-    emit notesChanged(this->notes);
 }
 
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)

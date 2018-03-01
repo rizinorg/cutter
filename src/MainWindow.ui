@@ -258,7 +258,6 @@ border-top: 0px;
     <addaction name="actionSections"/>
     <addaction name="separator"/>
     <addaction name="actionComments"/>
-    <addaction name="actionNotepad"/>
     <addaction name="actionConsole"/>
     <addaction name="actionJupyter"/>
    </widget>
@@ -854,19 +853,6 @@ QToolButton:pressed {
    </property>
    <property name="toolTip">
     <string>Show/Hide bottom pannel</string>
-   </property>
-  </action>
-  <action name="actionSend_to_Notepad">
-   <property name="text">
-    <string>Send to Notepad</string>
-   </property>
-  </action>
-  <action name="actionNotepad">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Notepad</string>
    </property>
   </action>
   <action name="actionSDBBrowser">
