@@ -393,10 +393,6 @@ public:
 
     RCoreLocked core() const;
 
-    /* fields */
-
-    Sdb *db;
-
 signals:
     void refreshAll();
 

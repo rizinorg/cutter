@@ -7,8 +7,6 @@
 
 Q_GLOBAL_STATIC(ccClass, uniqueInstance)
 
-#define DB this->db
-
 RCoreLocked::RCoreLocked(RCore *core)
     : core(core)
 {
@@ -54,18 +52,7 @@ CutterCore::CutterCore(QObject *parent) :
     // Otherwise r2 may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
 
-    // Used by the HTML5 graph
-    setConfig("http.cors", true);
-    setConfig("http.sandbox", false);
-    //config("http.port", "14170");
-
-    // Temporary fixes
-    //config("http.root","/usr/local/share/radare2/last/www");
-    //config("http.root","/usr/local/radare2/osx/share/radare2/1.1.0-git/www");
-
     default_bits = 0;
-
-    this->db = sdb_new(NULL, NULL, 0);  // WTF NOES
 }
 
 
@@ -267,6 +254,18 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, int
         // Not loading RBin info coz va = false
     }
 
+    auto iod = core_->io ? core_->io->desc : NULL;
+    auto debug = core_->file && iod && (core_->file->fd == iod->fd) && iod->plugin && \
+            iod->plugin->isdbg;
+
+    if (!debug && r_flag_get (core_->flags, "entry0")) {
+            r_core_cmd0 (core_, "s entry0");
+    }
+
+    if (perms & R_IO_WRITE) {
+            r_core_cmd0 (core_, "omfg+w");
+    }
+
     setDefaultCPU();
 
     r_core_hash_load(core_, path.toUtf8().constData());
@@ -463,9 +462,6 @@ bool CutterCore::tryFile(QString path, bool rw)
 
     r_core_file_close (this->core_, cf);
 
-    sdb_bool_set(DB, "try.is_writable", is_writable, 0);
-    sdb_set(DB, "try.filetype", "elf.i386", 0);
-    sdb_set(DB, "try.filename", path.toUtf8().constData(), 0);
     return true;
 }
 
