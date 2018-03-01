@@ -23,6 +23,11 @@ Configuration* Configuration::instance()
 void Configuration::loadInitial()
 {
     setDarkTheme(getDarkTheme());
+    QString theme = s.value("theme").toString();
+    if (theme != "default")
+    {
+        Core()->cmd(QString("eco %1").arg(theme));
+    }
 }
 
 void Configuration::resetAll()
