@@ -169,7 +169,7 @@ void XrefsDialog::updatePreview(RVA addr)
 
     TempConfig tempConfig;
     tempConfig.set("scr.html", true);
-    tempConfig.set("scr.color", true);
+    tempConfig.set("scr.color", COLOR_MODE_16M);
 
     QString disass;
 
@@ -196,7 +196,7 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", false);
-    tempConfig.set("scr.color", false);
+    tempConfig.set("scr.color", COLOR_MODE_DISABLED);
 
     this->addr = addr;
     this->func_name = func_name;
