@@ -18,7 +18,8 @@ CONFIG += c++11
 
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
-CUTTER_ENABLE_QTWEBENGINE {
+
+CUTTER_ENABLE_JUPYTER {
     message("Jupyter support enabled.")
     DEFINES += CUTTER_ENABLE_JUPYTER
 }
@@ -55,9 +56,6 @@ win32 {
     pythonpath = $$clean_path($$dirname(pythonpath))
     LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
     INCLUDEPATH += $${pythonpath}/include
-    message($$pythonpath)
-    message($$LIBS)
-    message($$INCLUDEPATH)
 }
 
 unix|macx {
