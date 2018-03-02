@@ -1,7 +1,9 @@
 # Common errors
 
+## Linux / OsX
 Please make sure you have the appropriate QT version: [https://www.qt.io/qt5-6/](https://www.qt.io/qt5-6/)
 
+### Compilation error
 > r_core development package not found
 
 If you installed radare2 and still encounter this error, could be your `PATH` environment variable is set improperly (doesn't contain `/usr/local/bin`). That can be, for example, due to `Qt Creator.app` being copied over to `/Applications`.
@@ -12,6 +14,10 @@ To fix this, append:
 to the `PATH` variable within the *Build Environment* section in Qt Creator. See the screenshot below should you encounter any problems.
 
 ![PATH variable settings](https://d0vine.github.io/images/iaito_settings.png)
+
+### Keyboard layout issue
+Some people report that they have keyboard issues. Usually it is because the Xorg layout is wrong. You can check it with:
+```setxkbmap -query``` Most of the time using ```setxkbmap us``` solves the issue, but it might not be enough and require some more advanced Xorg configuration. 
 
 ## Windows
 
