@@ -7,16 +7,27 @@ VERSION = 1.2
 
 ICON = img/cutter.icns
 
-QT += core gui widgets svg webenginewidgets
+QT += core gui widgets svg
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
+# You can spawn qmake with qmake "CONFIG+=CUTTER_ENABLE_JUPYTER" to set a variable
+# Or manually edit this file
+#CONFIG += CUTTER_ENABLE_JUPYTER
+#CONFIG += CUTTER_ENABLE_QTWEBENGINE
+
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+CUTTER_ENABLE_QTWEBENGINE {
+    message("Jupyter support enabled.")
+    DEFINES += CUTTER_ENABLE_JUPYTER
+}
 
-# TODO: make optional
-DEFINES += CUTTER_ENABLE_JUPYTER
-DEFINES += CUTTER_ENABLE_QTWEBENGINE
+CUTTER_ENABLE_QTWEBENGINE {
+    message("QtWebEngine support enabled.")
+    DEFINES += CUTTER_ENABLE_QTWEBENGINE
+    QT += webenginewidgets
+}
 
 INCLUDEPATH *= .
 
