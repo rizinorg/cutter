@@ -59,7 +59,8 @@ def parse_qmake_file():
             VARS[var_name].append(word)
         if end_of_def:
             var_name = None
-    VARS['QT'] = list(map(str.title, VARS['QT']))
+    qt_mod_translation = { "webenginewidgets": "WebEngineWidgets" }
+    VARS['QT'] = list(map(lambda s: qt_mod_translation[s] if s in qt_mod_translation else str.title(s), VARS['QT']))
     log.debug('Variables: \n%s', pprint.pformat(VARS, compact=True))
 
 def win_dist(args):
@@ -121,7 +122,7 @@ def main():
         parser.add_argument('--dist', help='dist directory')
     args = parser.parse_args()
 
-    if args.dist and os.path.exists(args.dist):
+    if hasattr(args, 'dist') and args.dist and os.path.exists(args.dist):
         log.error('%s already exists', args.dist)
         sys.exit(1)
 
@@ -132,7 +133,7 @@ def main():
 
     build(args)
 
-    if args.dist:
+    if hasattr(args, 'dist') and args.dist:
         win_dist(args)
 
 import_r2_meson_mod()

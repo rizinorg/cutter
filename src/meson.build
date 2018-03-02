@@ -5,8 +5,12 @@ project('cutter', 'cpp', default_options: 'cpp_std=c++11')
 console = false
 
 #TODO: make optional
-add_project_arguments('-DCUTTER_ENABLE_JUPYTER', language: 'cpp')
-add_project_arguments('-DCUTTER_ENABLE_QTWEBENGINE', language: 'cpp')
+feature_define_args = [
+  '-DCUTTER_ENABLE_JUPYTER',
+  '-DCUTTER_ENABLE_QTWEBENGINE'
+]
+
+add_project_arguments(feature_define_args, language: 'cpp')
 
 qt5_mod = import('qt5')
 
@@ -23,7 +27,8 @@ qt5dep = dependency('qt5', modules: qt_modules)
 moc_files = qt5_mod.preprocess(
   moc_headers: headers,
   ui_files: ui_files,
-  qresources: qresources
+  qresources: qresources,
+  moc_extra_arguments: feature_define_args
 )
 
 cpp = meson.get_compiler('cpp')
