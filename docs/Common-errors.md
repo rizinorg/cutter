@@ -1,7 +1,7 @@
 # Common errors
 
 ## Linux / OsX
-Please make sure you have the appropriate QT version: [https://www.qt.io/qt5-6/](https://www.qt.io/qt5-6/)
+Please make sure you have the appropriate QT version: [https://www.qt.io/qt5-9/](https://www.qt.io/qt5-9/)
 
 ### Compilation error
 > r_core development package not found
@@ -13,7 +13,9 @@ To fix this, append:
 
 to the `PATH` variable within the *Build Environment* section in Qt Creator. See the screenshot below should you encounter any problems.
 
-![PATH variable settings](https://d0vine.github.io/images/iaito_settings.png)
+![PATH variable settings](cutter_path_settings.png)
+
+Or radare2 libs could be installed to `/usr/lib/pkgconfig/`, so you can add variable `PKG_CONFIG_PATH` with value `/usr/lib/pkgconfig/`
 
 ### Keyboard layout issue
 Some people report that they have keyboard issues. Usually it is because the Xorg layout is wrong. You can check it with:
@@ -21,4 +23,4 @@ Some people report that they have keyboard issues. Usually it is because the Xor
 
 ## Windows
 
-See [Compiling on Windows](https://github.com/hteso/iaito/wiki/Compiling-on-Windows).
+See [Compiling on Windows](https://github.com/radareorg/cutter/blob/master/docs/Compiling-on-Windows.md).
