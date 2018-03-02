@@ -75,7 +75,10 @@ On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installe
 
 	sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
 	
-If you encounter the `Project ERROR: r_core development package not found` try this command instead `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
+If you encounter the `Project ERROR: r_core development package not found` try one of this commands instead:
+
+- `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
+- `PKG_CONFIG_PATH=$HOME/cutter/radare2/pkgcfg qmake` (for modern version and if radare2 was installed like the submodule)
 
 ## Platforms
 
