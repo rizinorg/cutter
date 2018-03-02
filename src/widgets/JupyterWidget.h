@@ -17,6 +17,8 @@ namespace Ui
 
 class JupyterWebView;
 
+class QTabWidget;
+
 class JupyterWidget : public QDockWidget
 {
 Q_OBJECT
