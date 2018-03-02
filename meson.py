@@ -60,7 +60,7 @@ def parse_qmake_file():
         if end_of_def:
             var_name = None
     qt_mod_translation = { "webenginewidgets": "WebEngineWidgets" }
-    VARS['QT'] = list(map(lambda s: qt_mod_translation[s] if s in qt_mod_translation else str.title(s), VARS['QT']))
+    VARS['QT'] = list(map(lambda s: qt_mod_translation.get(s, str.title(s)), VARS['QT']))
     log.debug('Variables: \n%s', pprint.pformat(VARS, compact=True))
 
 def win_dist(args):
@@ -76,6 +76,8 @@ def win_dist(args):
 def build(args):
     r2_meson_mod.prepare_capstone()
     cutter_builddir = os.path.join(ROOT, args.dir)
+    if not args.webengine:
+        VARS['QT'].remove('WebEngineWidgets')
     if not os.path.exists(cutter_builddir):
         defines = []
         defines.append('-Dversion=%s' % VARS['VERSION'][0])
@@ -84,6 +86,8 @@ def build(args):
         defines.append('-Dheaders=%s' % ','.join(VARS['HEADERS']))
         defines.append('-Dui_files=%s' % ','.join(VARS['FORMS']))
         defines.append('-Dqresources=%s' % ','.join(VARS['RESOURCES']))
+        defines.append('-Denable_jupyter=%s' % str(args.jupyter).lower())
+        defines.append('-Denable_webengine=%s' % str(args.webengine).lower())
         r2_meson_mod.meson(os.path.join(ROOT, 'src'), cutter_builddir,
                            prefix=cutter_builddir, backend=args.backend,
                            release=True, shared=False, options=defines)
@@ -118,6 +122,10 @@ def main():
                         default='ninja', help='Choose build backend')
     parser.add_argument('--dir', default='build',
                         help='Destination build directory')
+    parser.add_argument('--jupyter', action='store_true',
+                        help='Enable Jupyter support')
+    parser.add_argument('--webengine', action='store_true',
+                        help='Enable QtWebEngine support')
     if os.name == 'nt':
         parser.add_argument('--dist', help='dist directory')
     args = parser.parse_args()
