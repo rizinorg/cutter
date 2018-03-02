@@ -222,6 +222,9 @@ void MainWindow::initUI()
     ADD_DOCK(FlagsWidget, flagsDock, ui->actionFlags);
 #ifdef CUTTER_ENABLE_JUPYTER
     ADD_DOCK(JupyterWidget, jupyterDock, ui->actionJupyter);
+#else
+    ui->actionJupyter->setEnabled(false);
+    ui->actionJupyter->setVisible(false);
 #endif
     ADD_DOCK(Dashboard, dashboardDock, ui->actionDashboard);
     ADD_DOCK(SdbDock, sdbDock, ui->actionSDBBrowser);

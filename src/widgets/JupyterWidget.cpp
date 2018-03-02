@@ -42,7 +42,17 @@ void JupyterWidget::urlReceived(const QString &url)
 #ifdef CUTTER_ENABLE_QTWEBENGINE
     createNewTab()->load(QUrl(url));
 #else
-    // TODO: make a tab with the url, so the user can use another browser
+    QWidget *failPage = new QWidget(this);
+    QLabel *label = new QLabel(failPage);
+    label->setText(tr("Cutter has been built without QtWebEngine.<br />Open the following URL in your Browser to use Jupyter:<br /><a href=\"%1\">%1</a>").arg(url));
+    label->setTextFormat(Qt::RichText);
+    label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    label->setOpenExternalLinks(true);
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(label);
+    layout->setAlignment(label, Qt::AlignCenter);
+    failPage->setLayout(layout);
+    ui->tabWidget->addTab(failPage, tr("Jupyter"));
 #endif
 }
 
