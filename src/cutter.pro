@@ -48,7 +48,7 @@ unix:exists(/usr/local/include/libr) {
 
 # Libraries
 include(lib_radare2.pri)
-win32 {
+win32:CUTTER_ENABLE_JUPYTER {
     pythonpath = $$quote($$system("where python"))
     pythonpath = $$replace(pythonpath, ".exe ", ".exe;")
     pythonpath = $$section(pythonpath, ";", 0, 0)
@@ -60,7 +60,7 @@ win32 {
     message($$INCLUDEPATH)
 }
 
-unix|macx {
+unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
     CONFIG += link_pkgconfig
     !packagesExist(python3) {
         error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
