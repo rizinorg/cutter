@@ -69,6 +69,8 @@ Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for 
 
 ## Troubleshooting
 
+Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
+
 On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installed with brew. Run this command to workaround the issue:
 
 	sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
