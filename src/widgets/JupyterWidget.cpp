@@ -33,6 +33,7 @@ JupyterWebView *JupyterWidget::createNewTab()
 {
     auto webView = new JupyterWebView(this);
     ui->tabWidget->addTab(webView, "Tab");
+    webView->setTabWidget(ui->tabWidget);
     return webView;
 }
 #endif
@@ -73,6 +74,15 @@ void JupyterWidget::creationFailed()
 JupyterWebView::JupyterWebView(JupyterWidget *mainWidget, QWidget *parent) : QWebEngineView(parent)
 {
     this->mainWidget = mainWidget;
+    this->tabWidget = nullptr;
+
+    connect(this, &QWebEngineView::titleChanged, this, &JupyterWebView::onTitleChanged);
+}
+
+void JupyterWebView::setTabWidget(QTabWidget *tabWidget)
+{
+    this->tabWidget = tabWidget;
+    updateTitle();
 }
 
 QWebEngineView *JupyterWebView::createWindow(QWebEnginePage::WebWindowType type)
@@ -85,6 +95,27 @@ QWebEngineView *JupyterWebView::createWindow(QWebEnginePage::WebWindowType type)
             return nullptr;
     }
 }
+
+void JupyterWebView::onTitleChanged(const QString &)
+{
+    updateTitle();
+}
+
+void JupyterWebView::updateTitle()
+{
+    if (!tabWidget)
+    {
+        return;
+    }
+
+    QString title = this->title();
+    if (title.isEmpty())
+    {
+        title = tr("Jupyter");
+    }
+    tabWidget->setTabText(tabWidget->indexOf(this), title);
+}
+
 #endif
 
 #endif

@@ -48,11 +48,19 @@ Q_OBJECT
 public:
     JupyterWebView(JupyterWidget *mainWidget, QWidget *parent = nullptr);
 
+    void setTabWidget(QTabWidget *tabWidget);
+
 protected:
     QWebEngineView *createWindow(QWebEnginePage::WebWindowType type) override;
 
+private slots:
+    void onTitleChanged(const QString &title);
+
 private:
     JupyterWidget *mainWidget;
+    QTabWidget *tabWidget;
+
+    void updateTitle();
 };
 
 #endif
