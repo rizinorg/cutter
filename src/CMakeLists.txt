@@ -23,6 +23,7 @@ if(CUTTER_ENABLE_JUPYTER AND CUTTER_ENABLE_QTWEBENGINE)
         message(FATAL_ERROR "QtWebEngine could not be found which is required for the in-app Jupyter Browser.
 If you do not want to enable this in-app Browser, re-run CMake with -DCUTTER_ENABLE_QTWEBENGINE=OFF.")
     endif()
+    add_definitions(-DCUTTER_ENABLE_QTWEBENGINE)
 endif()
 
 
