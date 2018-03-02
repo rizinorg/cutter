@@ -1,6 +1,8 @@
 #ifndef JUPYTERCONNECTION_H
 #define JUPYTERCONNECTION_H
 
+#ifdef CUTTER_ENABLE_JUPYTER
+
 #include <QProcess>
 #include <QMap>
 
@@ -49,5 +51,6 @@ private:
 
 #define Jupyter() (JupyterConnection::getInstance())
 
+#endif
 
 #endif //JUPYTERCONNECTION_H

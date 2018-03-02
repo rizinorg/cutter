@@ -1,12 +1,17 @@
 
+#ifdef CUTTER_ENABLE_JUPYTER
+
 #include "ui_JupyterWidget.h"
 
 #include "JupyterWidget.h"
 
-#include <QWebEngineSettings>
 #include <QTabWidget>
 #include <QHBoxLayout>
 #include <QLabel>
+
+#ifdef CUTTER_ENABLE_QTWEBENGINE
+#include <QWebEngineSettings>
+#endif
 
 JupyterWidget::JupyterWidget(QWidget *parent, Qt::WindowFlags flags) :
     QDockWidget(parent, flags),
@@ -23,16 +28,22 @@ JupyterWidget::~JupyterWidget()
 {
 }
 
+#ifdef CUTTER_ENABLE_QTWEBENGINE
 JupyterWebView *JupyterWidget::createNewTab()
 {
     auto webView = new JupyterWebView(this);
     ui->tabWidget->addTab(webView, "Tab");
     return webView;
 }
+#endif
 
 void JupyterWidget::urlReceived(const QString &url)
 {
+#ifdef CUTTER_ENABLE_QTWEBENGINE
     createNewTab()->load(QUrl(url));
+#else
+    // TODO: make a tab with the url, so the user can use another browser
+#endif
 }
 
 void JupyterWidget::creationFailed()
@@ -48,6 +59,7 @@ void JupyterWidget::creationFailed()
 }
 
 
+#ifdef CUTTER_ENABLE_QTWEBENGINE
 JupyterWebView::JupyterWebView(JupyterWidget *mainWidget, QWidget *parent) : QWebEngineView(parent)
 {
     this->mainWidget = mainWidget;
@@ -63,3 +75,6 @@ QWebEngineView *JupyterWebView::createWindow(QWebEnginePage::WebWindowType type)
             return nullptr;
     }
 }
+#endif
+
+#endif

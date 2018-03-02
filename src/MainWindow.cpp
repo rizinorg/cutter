@@ -220,7 +220,9 @@ void MainWindow::initUI()
     ADD_DOCK(CommentsWidget, commentsDock, ui->actionComments);
     ADD_DOCK(StringsWidget, stringsDock, ui->actionStrings);
     ADD_DOCK(FlagsWidget, flagsDock, ui->actionFlags);
+#ifdef CUTTER_ENABLE_JUPYTER
     ADD_DOCK(JupyterWidget, jupyterDock, ui->actionJupyter);
+#endif
     ADD_DOCK(Dashboard, dashboardDock, ui->actionDashboard);
     ADD_DOCK(SdbDock, sdbDock, ui->actionSDBBrowser);
     ADD_DOCK(ClassesWidget, classesDock, ui->actionClasses);
@@ -538,7 +540,9 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
     tabifyDockWidget(dashboardDock, vTablesDock);
+#ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
+#endif
 
     updateDockActionsChecked();
 }
@@ -578,7 +582,9 @@ void MainWindow::showDefaultDocks()
                                                 hexdumpDock,
                                                 pseudocodeDock,
                                                 dashboardDock,
+#ifdef CUTTER_ENABLE_JUPYTER
                                                 jupyterDock
+#endif
                                               };
 
     for (auto w : dockWidgets)

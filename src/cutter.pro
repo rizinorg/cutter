@@ -14,6 +14,10 @@ CONFIG += c++11
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
+# TODO: make optional
+DEFINES += CUTTER_ENABLE_JUPYTER
+DEFINES += CUTTER_ENABLE_QTWEBENGINE
+
 INCLUDEPATH *= .
 
 win32 {

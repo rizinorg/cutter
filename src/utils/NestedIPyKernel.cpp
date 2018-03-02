@@ -1,4 +1,6 @@
 
+#ifdef CUTTER_ENABLE_JUPYTER
+
 #include <Python.h>
 
 #include <QFile>
@@ -101,3 +103,5 @@ QVariant NestedIPyKernel::poll()
     PyThreadState_Swap(parentThreadState);
     return ret;
 }
+
+#endif

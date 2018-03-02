@@ -1,7 +1,8 @@
 
-
 #ifndef NESTEDIPYKERNEL_H
 #define NESTEDIPYKERNEL_H
+
+#ifdef CUTTER_ENABLE_JUPYTER
 
 #include <QStringList>
 
@@ -28,5 +29,7 @@ private:
     PyThreadState *threadState;
     PyObject *kernel;
 };
+
+#endif
 
 #endif //NESTEDIPYKERNEL_H

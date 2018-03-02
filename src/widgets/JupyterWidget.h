@@ -2,10 +2,11 @@
 #ifndef JUPYTERWIDGET_H
 #define JUPYTERWIDGET_H
 
+#ifdef CUTTER_ENABLE_JUPYTER
+
 #include <memory>
 
 #include <QDockWidget>
-#include <QWebEngineView>
 
 #include "utils/JupyterConnection.h"
 
@@ -24,7 +25,9 @@ public:
     JupyterWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
     ~JupyterWidget();
 
+#ifdef CUTTER_ENABLE_QTWEBENGINE
     JupyterWebView *createNewTab();
+#endif
 
 private slots:
     void urlReceived(const QString &url);
@@ -34,6 +37,9 @@ private:
     std::unique_ptr<Ui::JupyterWidget> ui;
 };
 
+#ifdef CUTTER_ENABLE_QTWEBENGINE
+
+#include <QWebEngineView>
 
 class JupyterWebView : public QWebEngineView
 {
@@ -48,5 +54,9 @@ protected:
 private:
     JupyterWidget *mainWidget;
 };
+
+#endif
+
+#endif
 
 #endif //JUPYTERWIDGET_H

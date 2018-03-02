@@ -39,7 +39,9 @@ class DisassemblerGraphView;
 class ClassesWidget;
 class ResourcesWidget;
 class VTablesWidget;
+#ifdef CUTTER_ENABLE_JUPYTER
 class JupyterWidget;
+#endif
 class QDockWidget;
 
 namespace Ui
@@ -190,7 +192,9 @@ private:
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
+#ifdef CUTTER_ENABLE_JUPYTER
     JupyterWidget      *jupyterDock = nullptr;
+#endif
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 

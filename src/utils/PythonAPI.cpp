@@ -1,4 +1,6 @@
 
+#ifdef CUTTER_ENABLE_JUPYTER
+
 #include "PythonAPI.h"
 #include "cutter.h"
 #include "JupyterConnection.h"
@@ -181,3 +183,4 @@ PyObject *PyInit_api_internal()
     return PyModule_Create(&CutterInternalModule);
 }
 
+#endif

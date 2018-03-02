@@ -4,6 +4,10 @@ project('cutter', 'cpp', default_options: 'cpp_std=c++11')
 #TODO: add console option
 console = false
 
+#TODO: make optional
+add_project_arguments('-DCUTTER_ENABLE_JUPYTER', language: 'cpp')
+add_project_arguments('-DCUTTER_ENABLE_QTWEBENGINE', language: 'cpp')
+
 qt5_mod = import('qt5')
 
 version = get_option('version')

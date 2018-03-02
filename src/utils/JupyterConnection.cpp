@@ -1,3 +1,4 @@
+#ifdef CUTTER_ENABLE_JUPYTER
 
 #include <Python.h>
 
@@ -184,3 +185,5 @@ QVariant JupyterConnection::pollNestedIPyKernel(long id)
 
     return v;
 }
+
+#endif
