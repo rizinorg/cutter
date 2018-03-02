@@ -15,11 +15,27 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->label->setText(tr("<h1>Cutter</h1>"
                           "Version " CUTTER_VERSION "<br/>"
                           "Using r2-" R2_GITTAP
+                          "<p><b>Optional Features:</b><br/>"
+                          "Jupyter: %1<br/>"
+                          "QtWebEngine: %2</p>"
                           "<h2>License</h2>"
                           "This Software is released under the GNU General Public License v3.0"
                           "<h2>Authors</h2>"
                           "xarkes, thestr4ng3r, ballessay<br/>"
-                          "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito)."));
+                          "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).")
+        .arg(
+#ifdef CUTTER_ENABLE_JUPYTER
+        "ON"
+#else
+        "OFF"
+#endif
+        ,
+#ifdef CUTTER_ENABLE_QTWEBENGINE
+        "ON"
+#else
+        "OFF"
+#endif
+        ));
 }
 
 AboutDialog::~AboutDialog() {}
