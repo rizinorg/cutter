@@ -26,8 +26,11 @@ JupyterWidget::JupyterWidget(QWidget *parent, Qt::WindowFlags flags) :
     QWidget *cornerWidget = new QWidget(ui->tabWidget);
     QHBoxLayout *cornerWidgetLayout = new QHBoxLayout(cornerWidget);
     cornerWidget->setLayout(cornerWidgetLayout);
+    cornerWidgetLayout->setContentsMargins(4, 4, 4, 4);
     homeButton = new QPushButton(cornerWidget);
-    homeButton->setText(tr("Home"));
+    homeButton->setStyleSheet("QPushButton { padding: 2px; background-color: palette(light); border-radius: 4px; }"
+                              "QPushButton:pressed { background-color: palette(dark); }");
+    homeButton->setIcon(QIcon(":/img/icons/home.svg"));
     homeButton->setEnabled(false);
     cornerWidgetLayout->addWidget(homeButton);
     ui->tabWidget->setCornerWidget(cornerWidget);
