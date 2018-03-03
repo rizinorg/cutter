@@ -20,9 +20,13 @@ PyObject *api_cmd(PyObject *self, PyObject *args)
     Q_UNUSED(self);
     char *command;
     char *result = (char*) "";
+    QString cmdRes;
+    QByteArray cmdBytes;
     if (PyArg_ParseTuple(args, "s:command", &command))
     {
-        result = Core()->cmd(command).toLocal8Bit().data();
+        cmdRes = Core()->cmd(command);
+        cmdBytes = cmdRes.toLocal8Bit();
+        result = cmdBytes.data();
     }
     return PyUnicode_FromString(result);
 }
@@ -32,9 +36,13 @@ PyObject *api_cmdj(PyObject *self, PyObject *args)
     Q_UNUSED(self);
     char *command;
     char *result = (char*) "";
+    QString cmdRes;
+    QByteArray cmdBytes;
     if (PyArg_ParseTuple(args, "s:command", &command))
     {
-        result = Core()->cmd(command).toLocal8Bit().data();
+        cmdRes = Core()->cmd(command);
+        cmdBytes = cmdRes.toLocal8Bit();
+        result = cmdBytes.data();
         PyObject *jsonModule = PyImport_ImportModule("json");
         PyObject *loadsFunc = PyObject_GetAttrString(jsonModule, "loads");
         if (!PyCallable_Check(loadsFunc)) {
