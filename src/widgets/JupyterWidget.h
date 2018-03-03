@@ -7,6 +7,7 @@
 #include <memory>
 
 #include <QDockWidget>
+#include <QAbstractButton>
 
 #include "utils/JupyterConnection.h"
 
@@ -35,8 +36,16 @@ private slots:
     void urlReceived(const QString &url);
     void creationFailed();
 
+    void openHomeTab();
+    void tabCloseRequested(int index);
+
 private:
     std::unique_ptr<Ui::JupyterWidget> ui;
+
+    QAbstractButton *homeButton;
+
+    void removeTab(int index);
+    void clearTabs();
 };
 
 #ifdef CUTTER_ENABLE_QTWEBENGINE

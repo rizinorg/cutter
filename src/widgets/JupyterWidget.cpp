@@ -8,6 +8,7 @@
 #include <QTabWidget>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QPushButton>
 
 #ifdef CUTTER_ENABLE_QTWEBENGINE
 #include <QWebEngineSettings>
@@ -18,6 +19,21 @@ JupyterWidget::JupyterWidget(QWidget *parent, Qt::WindowFlags flags) :
     ui(new Ui::JupyterWidget)
 {
     ui->setupUi(this);
+
+    ui->tabWidget->setTabsClosable(true);
+    ui->tabWidget->setMovable(true);
+
+    QWidget *cornerWidget = new QWidget(ui->tabWidget);
+    QHBoxLayout *cornerWidgetLayout = new QHBoxLayout(cornerWidget);
+    cornerWidget->setLayout(cornerWidgetLayout);
+    homeButton = new QPushButton(cornerWidget);
+    homeButton->setText(tr("Home"));
+    homeButton->setEnabled(false);
+    cornerWidgetLayout->addWidget(homeButton);
+    ui->tabWidget->setCornerWidget(cornerWidget);
+
+    connect(homeButton, &QAbstractButton::clicked, this, &JupyterWidget::openHomeTab);
+    connect(ui->tabWidget, &QTabWidget::tabCloseRequested, this, &JupyterWidget::tabCloseRequested);
 
     connect(Jupyter(), &JupyterConnection::urlReceived, this, &JupyterWidget::urlReceived);
     connect(Jupyter(), &JupyterConnection::creationFailed, this, &JupyterWidget::creationFailed);
@@ -32,8 +48,9 @@ JupyterWidget::~JupyterWidget()
 JupyterWebView *JupyterWidget::createNewTab()
 {
     auto webView = new JupyterWebView(this);
-    ui->tabWidget->addTab(webView, "Tab");
+    int index = ui->tabWidget->addTab(webView, "Tab");
     webView->setTabWidget(ui->tabWidget);
+    ui->tabWidget->setCurrentIndex(index);
     return webView;
 }
 #endif
@@ -41,8 +58,11 @@ JupyterWebView *JupyterWidget::createNewTab()
 void JupyterWidget::urlReceived(const QString &url)
 {
 #ifdef CUTTER_ENABLE_QTWEBENGINE
-    createNewTab()->load(QUrl(url));
+    Q_UNUSED(url);
+    openHomeTab();
+    homeButton->setEnabled(true);
 #else
+    clearTabs();
     QWidget *failPage = new QWidget(this);
     QLabel *label = new QLabel(failPage);
     label->setText(tr("Cutter has been built without QtWebEngine.<br />Open the following URL in your Browser to use Jupyter:<br /><a href=\"%1\">%1</a>").arg(url));
@@ -54,11 +74,14 @@ void JupyterWidget::urlReceived(const QString &url)
     layout->setAlignment(label, Qt::AlignCenter);
     failPage->setLayout(layout);
     ui->tabWidget->addTab(failPage, tr("Jupyter"));
+    homeButton->setEnabled(false);
+    ui->tabWidget->setTabsClosable(false);
 #endif
 }
 
 void JupyterWidget::creationFailed()
 {
+    clearTabs();
     QWidget *failPage = new QWidget(this);
     QLabel *label = new QLabel(failPage);
     label->setText(tr("An error occurred while opening jupyter. Make sure Jupyter is installed system-wide."));
@@ -67,8 +90,44 @@ void JupyterWidget::creationFailed()
     layout->setAlignment(label, Qt::AlignCenter);
     failPage->setLayout(layout);
     ui->tabWidget->addTab(failPage, tr("Error"));
+    homeButton->setEnabled(false);
+    ui->tabWidget->setTabsClosable(false);
 }
 
+void JupyterWidget::openHomeTab()
+{
+#ifdef CUTTER_ENABLE_QTWEBENGINE
+    QString url = Jupyter()->getUrl();
+    if (!url.isNull())
+    {
+        createNewTab()->load(QUrl(url));
+    }
+#endif
+}
+
+void JupyterWidget::tabCloseRequested(int index)
+{
+    removeTab(index);
+    if (ui->tabWidget->count() == 0)
+    {
+        openHomeTab();
+    }
+}
+
+void JupyterWidget::removeTab(int index)
+{
+    QWidget *widget = ui->tabWidget->widget(index);
+    ui->tabWidget->removeTab(index);
+    delete widget;
+}
+
+void JupyterWidget::clearTabs()
+{
+    while (ui->tabWidget->count() > 0)
+    {
+        removeTab(0);
+    }
+}
 
 #ifdef CUTTER_ENABLE_QTWEBENGINE
 JupyterWebView::JupyterWebView(JupyterWidget *mainWidget, QWidget *parent) : QWebEngineView(parent)
