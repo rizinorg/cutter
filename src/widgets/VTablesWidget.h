@@ -23,6 +23,7 @@ private:
 
 public:
     enum Columns { NAME = 0, ADDRESS, COUNT };
+    static const int VTableDescriptionRole = Qt::UserRole;
 
     VTableModel(QList<VTableDescription> *vtables, QObject* parent = nullptr);
 
@@ -58,6 +59,7 @@ public:
 
 private slots:
     void refreshVTables();
+    void on_vTableTreeView_doubleClicked(const QModelIndex &index);
 
 private:
     std::unique_ptr<Ui::VTablesWidget> ui;
