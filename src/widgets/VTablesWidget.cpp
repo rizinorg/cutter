@@ -1,4 +1,5 @@
 #include <QShortcut>
+#include <QModelIndex>
 
 #include "VTablesWidget.h"
 #include "ui_VTablesWidget.h"
@@ -48,6 +49,8 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
             default:
                 break;
             }
+        case VTableDescriptionRole:
+            return QVariant::fromValue(res);
         default:
             break;
         }
@@ -64,6 +67,11 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
                 return RAddressString(vtables->at(index.row()).addr);
             default:
                 break;
+            }
+        case VTableDescriptionRole:
+            {
+                const VTableDescription &res = vtables->at(index.row());
+                return QVariant::fromValue(res);
             }
         default:
             break;
@@ -176,4 +184,13 @@ void VTablesWidget::refreshVTables()
     ui->vTableTreeView->resizeColumnToContents(2);
 
     ui->vTableTreeView->setColumnWidth(0, 200);
+}
+
+void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)
+{
+    QModelIndex parent = index.parent();
+    if(parent.isValid())
+        CutterCore::getInstance()->seek(index.data(VTableModel::VTableDescriptionRole).value<ClassMethodDescription>().addr);
+    else
+        CutterCore::getInstance()->seek(index.data(VTableModel::VTableDescriptionRole).value<VTableDescription>().addr);
 }
