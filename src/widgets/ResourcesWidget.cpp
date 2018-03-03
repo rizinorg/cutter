@@ -89,6 +89,8 @@ void ResourcesModel::endReload()
 ResourcesWidget::ResourcesWidget(QWidget *parent)
     : QDockWidget(parent)
 {
+    setObjectName("ResourcesWidget");
+
     model = new ResourcesModel(&resources, this);
 
     // Configure widget
