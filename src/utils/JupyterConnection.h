@@ -5,6 +5,7 @@
 
 #include <QProcess>
 #include <QMap>
+#include <cwchar>
 
 class NestedIPyKernel;
 
@@ -43,6 +44,8 @@ private:
 
     QMap<long, NestedIPyKernel *> kernels;
     long nextKernelId = 1;
+
+    wchar_t *pythonHome = nullptr;
 
     void initPython();
     void createCutterJupyterModule();
