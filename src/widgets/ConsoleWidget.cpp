@@ -4,7 +4,7 @@
 #include <QAction>
 #include <QShortcut>
 #include <QStringListModel>
-#include "cutter.h"
+#include "Cutter.h"
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
 #include "utils/Helpers.h"

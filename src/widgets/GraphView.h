@@ -13,7 +13,7 @@
 #include <unordered_set>
 #include <queue>
 
-#include "cutter.h"
+#include "Cutter.h"
 
 class GraphView : public QAbstractScrollArea
 {

@@ -5,7 +5,7 @@
 #include <QTreeWidgetItem>
 #include <memory>
 #include "utils/Highlighter.h"
-#include "cutter.h"
+#include "Cutter.h"
 
 class MainWindow;
 

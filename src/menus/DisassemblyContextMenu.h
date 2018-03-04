@@ -1,7 +1,7 @@
 #ifndef DISASSEMBLYCONTEXTMENU_H
 #define DISASSEMBLYCONTEXTMENU_H
 
-#include "cutter.h"
+#include "Cutter.h"
 #include <QMenu>
 #include <QKeySequence>
 

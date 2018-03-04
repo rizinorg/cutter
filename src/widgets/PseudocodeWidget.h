@@ -4,7 +4,7 @@
 #include <QDockWidget>
 #include <memory>
 
-#include "cutter.h"
+#include "Cutter.h"
 
 namespace Ui
 {

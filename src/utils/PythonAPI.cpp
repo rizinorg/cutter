@@ -2,7 +2,7 @@
 #ifdef CUTTER_ENABLE_JUPYTER
 
 #include "PythonAPI.h"
-#include "cutter.h"
+#include "Cutter.h"
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
 

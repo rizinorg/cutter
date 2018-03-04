@@ -6,7 +6,7 @@
 #include <QPushButton>
 #include <memory>
 
-#include "cutter.h"
+#include "Cutter.h"
 
 class PreferencesDialog;
 

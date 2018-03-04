@@ -1,7 +1,7 @@
 #ifndef DISASSEMBLYWIDGET_H
 #define DISASSEMBLYWIDGET_H
 
-#include "cutter.h"
+#include "Cutter.h"
 #include <QDockWidget>
 #include <QTextEdit>
 #include <QPlainTextEdit>

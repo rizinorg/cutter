@@ -11,7 +11,7 @@
 #include <QFileDialog>
 #include <QFile>
 
-#include "cutter.h"
+#include "Cutter.h"
 #include "utils/Colors.h"
 #include "utils/Configuration.h"
 #include "utils/CachedFontMetrics.h"

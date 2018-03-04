@@ -69,8 +69,8 @@ unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
 }
 
 SOURCES += \
-    main.cpp \
-    cutter.cpp \
+    Main.cpp \
+    Cutter.cpp \
     widgets/DisassemblerGraphView.cpp \
     utils/RichTextPainter.cpp \
     dialogs/OptionsDialog.cpp \
@@ -133,7 +133,7 @@ SOURCES += \
     utils/NestedIPyKernel.cpp
 
 HEADERS  += \
-    cutter.h \
+    Cutter.h \
     widgets/DisassemblerGraphView.h \
     utils/RichTextPainter.h \
     utils/CachedFontMetrics.h \
@@ -238,7 +238,7 @@ RESOURCES += \
     themes/qdarkstyle/style.qrc
 
 
-DISTFILES += cutter.astylerc
+DISTFILES += Cutter.astylerc
 
 # 'make install' for AppImage
 unix {
@@ -252,7 +252,7 @@ unix {
     share_pixmaps.files = $$icon_file
 
 
-    desktop_file = cutter.desktop
+    desktop_file = Cutter.desktop
 
     # built-in no need for files atm
     target.path = $$PREFIX/bin

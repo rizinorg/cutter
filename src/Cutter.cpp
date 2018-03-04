@@ -2,7 +2,7 @@
 #include <QJsonObject>
 #include <utils/TempConfig.h>
 #include "utils/Configuration.h"
-#include "cutter.h"
+#include "Cutter.h"
 #include "sdb.h"
 
 Q_GLOBAL_STATIC(ccClass, uniqueInstance)

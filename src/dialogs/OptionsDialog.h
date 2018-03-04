@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <memory>
-#include "cutter.h"
+#include "Cutter.h"
 #include "AnalThread.h"
 #include "ui_OptionsDialog.h"
 

@@ -1,5 +1,5 @@
 #TODO: icon
-project('cutter', 'cpp', default_options: 'cpp_std=c++11')
+project('Cutter', 'cpp', default_options: 'cpp_std=c++11')
 
 feature_define_args = []
 if get_option('enable_jupyter')
