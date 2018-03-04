@@ -2,6 +2,7 @@
 #define FLAGDIALOG_H
 
 #include <QDialog>
+#include <QIntValidator>
 #include <memory>
 #include "cutter.h"
 
