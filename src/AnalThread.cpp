@@ -1,5 +1,5 @@
 #include <QDebug>
-#include "cutter.h"
+#include "Cutter.h"
 #include "AnalThread.h"
 #include "MainWindow.h"
 #include "dialogs/OptionsDialog.h"

@@ -1,7 +1,7 @@
 
 #include <cassert>
 
-#include "cutter.h"
+#include "Cutter.h"
 #include "TempConfig.h"
 
 TempConfig::~TempConfig()

@@ -6,7 +6,7 @@
 #include <QFile>
 #include <csignal>
 
-#include "cutter.h"
+#include "Cutter.h"
 #include "NestedIPyKernel.h"
 
 NestedIPyKernel *NestedIPyKernel::start(const QStringList &argv)

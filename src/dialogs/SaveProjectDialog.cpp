@@ -1,7 +1,7 @@
 
 #include <QFileDialog>
 
-#include <cutter.h>
+#include <Cutter.h>
 #include "SaveProjectDialog.h"
 #include "ui_SaveProjectDialog.h"
 

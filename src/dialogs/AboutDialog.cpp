@@ -1,4 +1,4 @@
-#include <cutter.h>
+#include <Cutter.h>
 #include "AboutDialog.h"
 #include "ui_AboutDialog.h"
 #include "r_version.h"

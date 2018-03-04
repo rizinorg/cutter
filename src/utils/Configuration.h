@@ -3,7 +3,7 @@
 
 #include <QSettings>
 #include <QFont>
-#include <cutter.h>
+#include <Cutter.h>
 
 #define Config() (Configuration::instance())
 #define ConfigColor(x) Config()->getColor(x)

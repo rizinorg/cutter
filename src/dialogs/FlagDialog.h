@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <memory>
-#include "cutter.h"
+#include "Cutter.h"
 
 namespace Ui
 {

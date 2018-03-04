@@ -7,7 +7,7 @@
 #include <QTreeView>
 #include <QDockWidget>
 
-#include "cutter.h"
+#include "Cutter.h"
 
 class MainWindow;
 class QTreeWidgetItem;

@@ -1,7 +1,7 @@
 #ifndef RESOURCESWIDGET_H
 #define RESOURCESWIDGET_H
 
-#include "cutter.h"
+#include "Cutter.h"
 
 #include <QDockWidget>
 #include <QAbstractListModel>

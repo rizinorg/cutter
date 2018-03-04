@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "cutter.h"
+#include "Cutter.h"
 #include <math.h>
 #include <QtWidgets>
 #include <QDebug>
