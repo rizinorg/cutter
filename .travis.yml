@@ -10,13 +10,13 @@ branches:
 matrix:
   include:
   - os: linux
-    env: TEST_COMMAND="qmake PREFIX=/usr APPIMAGE=1 ../src && make -j4" DEPLOY=1
+    env: BUILD_SYSTEM=qmake DEPLOY=1
   - os: linux
-    env: TEST_COMMAND="cmake ../src && make -j4"
+    env: BUILD_SYSTEM=cmake
   - os: osx
-    env: TEST_COMMAND="qmake ../src && make -j4" DEPLOY=1
+    env: BUILD_SYSTEM=qmake DEPLOY=1
   - os: osx
-    env: TEST_COMMAND="cmake ../src && make -j4"
+    env: BUILD_SYSTEM=cmake
 
 sudo: required
 dist: trusty
@@ -36,7 +36,13 @@ install:
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get -y install qt59base qt59svg qt59webengine --allow-unauthenticated &&
-      source /opt/qt5*/bin/qt5*-env.sh
+      source /opt/qt5*/bin/qt5*-env.sh &&
+      mkdir python && cd python && wget "https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz" && tar -xf Python-3.6.4.tar.xz &&
+      export CUSTOM_PYTHON_PREFIX="`pwd`/prefix" && cd Python-3.6.4 &&
+      echo "Building Python to install to prefix $CUSTOM_PYTHON_PREFIX" &&
+      ./configure --enable-shared --prefix=$CUSTOM_PYTHON_PREFIX && make -j4 && make install > /dev/null &&
+      PYTHONHOME=$CUSTOM_PYTHON_PREFIX LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib "$CUSTOM_PYTHON_PREFIX/bin/pip3" install jupyter &&
+      cd ../..
     ; fi
 
 after_success:
@@ -48,11 +54,12 @@ after_success:
         sudo make INSTALL_ROOT=appdir install &&
         sudo chown -R $USER appdir &&
         cp -r /usr/share/radare2 appdir/usr/share/ &&
+        cp -RT "$CUSTOM_PYTHON_PREFIX" appdir/usr/ &&
         wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
         chmod a+x linuxdeployqt*.AppImage &&
         unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH &&
-        ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -verbose=2 &&
-        ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -verbose=2 &&
+        LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -verbose=2 &&
+        LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -verbose=2 &&
         find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
         export FILE_TO_UPLOAD="Cutter-x86_64.AppImage"
     ; fi
@@ -71,7 +78,19 @@ before_script:
 script:
   - mkdir build
   - cd build
-  - (eval "$TEST_COMMAND")
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+        if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
+            PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" qmake CONFIG+=CUTTER_ENABLE_JUPYTER CONFIG+=CUTTER_ENABLE_QTWEBENGINE PREFIX=/usr APPIMAGE=1 ../src && make -j4;
+        elif [[ "$BUILD_SYSTEM" == "qmake" ]]; then
+            cmake ../src && make -j4;
+       fi
+    elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
+            qmake ../src && make -j4;
+        elif [[ "$BUILD_SYSTEM" == "qmake" ]]; then
+            cmake ../src && make -j4;
+       fi
+    fi
 
 deploy:
   skip_cleanup: true
