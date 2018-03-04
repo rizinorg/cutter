@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <QThread>
 #include <QFile>
+#include <QCoreApplication>
+#include <QDir>
 
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
@@ -39,11 +41,26 @@ JupyterConnection::~JupyterConnection()
 
         Py_Finalize();
     }
+
+    if (pythonHome)
+    {
+        PyMem_RawFree(pythonHome);
+    }
 }
 
 
 void JupyterConnection::initPython()
 {
+#ifdef APPIMAGE
+    // Executable is in appdir/bin
+    auto pythonHomeDir = QDir(QCoreApplication::applicationDirPath());
+    pythonHomeDir.cdUp();
+    QString pythonHomeStr = pythonHomeDir.absolutePath();
+    qInfo() << "Setting PYTHONHOME =" << pythonHomeStr << " for AppImage.";
+    pythonHome = Py_DecodeLocale(pythonHomeStr.toLocal8Bit().constData(), nullptr);
+    Py_SetPythonHome(pythonHome);
+#endif
+
     PyImport_AppendInittab("cutter", &PyInit_api);
     PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
     Py_Initialize();
