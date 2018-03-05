@@ -262,6 +262,8 @@ public:
     void delFlag(RVA addr);
 
     void editInstruction(RVA addr, const QString &inst);
+    void nopInstruction(RVA addr);
+    
     void editBytes(RVA addr, const QString &inst);
 
     void setComment(RVA addr, const QString &cmt);

@@ -329,6 +329,12 @@ void CutterCore::editInstruction(RVA addr, const QString &inst)
     emit instructionChanged(addr);
 }
 
+void CutterCore::nopInstruction(RVA addr)
+{
+    cmd("wao nop @ " + RAddressString(addr));
+    emit instructionChanged(addr);
+}
+
 void CutterCore::editBytes(RVA addr, const QString &bytes)
 {
     cmd("wx " + bytes + " @ " + RAddressString(addr));

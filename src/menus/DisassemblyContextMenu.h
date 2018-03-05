@@ -24,6 +24,7 @@ private slots:
     void aboutToShowSlot();
 
     void on_actionEditInstruction_triggered();
+    void on_actionNopInstruction_triggered();
     void on_actionEditBytes_triggered();
 
     void on_actionCopy_triggered();
@@ -70,6 +71,7 @@ private:
     QMenu *editMenu;
     QAction *editMenuAction;
     QAction actionEditInstruction;
+    QAction actionNopInstruction;
     QAction actionEditBytes;
 
     QAction actionCopy;
