@@ -30,9 +30,14 @@ before_install:
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install p7zip ccache qt5 &&
-      brew upgrade python &&
-      export PATH="/usr/local/opt/qt/bin:$PATH" 
+      brew install p7zip ccache qt5 openssl xz &&
+      export PATH="/usr/local/opt/qt/bin:$PATH" &&
+      mkdir python && cd python && wget "https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz" && tar -xf Python-3.6.4.tar.xz &&
+      export PYTHON_FRAMEWORK_DIR="`pwd`/framework" && cd Python-3.6.4 &&
+      CPPFLAGS="-I$(brew --prefix openssl)/include" LDFLAGS="-L$(brew --prefix openssl)/lib" ./configure --enable-framework=$PYTHON_FRAMEWORK_DIR &&
+      make -j4 && make frameworkinstallframework > /dev/null &&
+      PYTHONHOME=$PYTHON_FRAMEWORK_DIR/Python.framework/Versions/Current $PYTHON_FRAMEWORK_DIR/Python.framework/Versions/Current/bin/pip3 install jupyter &&
+      cd ../..
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get -y install qt59base qt59svg qt59webengine --allow-unauthenticated &&
@@ -47,21 +52,26 @@ install:
 
 after_success:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
-      macdeployqt cutter.app -dmg &&
-      export FILE_TO_UPLOAD="cutter.dmg"
+      macdeployqt Cutter.app &&
+      mkdir -p Cutter.app/Contents/Frameworks &&
+      cp -r "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app/Contents/Frameworks/ &&
+      install_name_tool -change `otool -L Cutter.app/Contents/MacOS/Cutter | sed -n "s/^[[:blank:]]*\([^[:blank:]]*Python\) (.*$/\1/p"` @executable_path/../Frameworks/Python.framework/Versions/Current/Python Cutter.App/Contents/MacOS/Cutter &&
+      mkdir image && cp -r Cutter.app image/ &&
+      hdiutil create -srcfolder image -volname Cutter -fs HFS+ Cutter.dmg &&
+      export FILE_TO_UPLOAD="Cutter.dmg"
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        sudo make INSTALL_ROOT=appdir install &&
-        sudo chown -R $USER appdir &&
-        cp -r /usr/share/radare2 appdir/usr/share/ &&
-        cp -RT "$CUSTOM_PYTHON_PREFIX" appdir/usr/ &&
-        wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
-        chmod a+x linuxdeployqt*.AppImage &&
-        unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH &&
-        LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -verbose=2 &&
-        LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -verbose=2 &&
-        find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
-        export FILE_TO_UPLOAD="Cutter-x86_64.AppImage"
+      sudo make INSTALL_ROOT=appdir install &&
+      sudo chown -R $USER appdir &&
+      cp -r /usr/share/radare2 appdir/usr/share/ &&
+      cp -RT "$CUSTOM_PYTHON_PREFIX" appdir/usr/ &&
+      wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
+      chmod a+x linuxdeployqt*.AppImage &&
+      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH &&
+      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -verbose=2 &&
+      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -verbose=2 &&
+      find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
+      export FILE_TO_UPLOAD="Cutter-x86_64.AppImage"
     ; fi
 
 before_script:
@@ -86,7 +96,8 @@ script:
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake ../src && make -j4;
+            qmake CONFIG+=CUTTER_ENABLE_JUPYTER CONFIG+=CUTTER_ENABLE_QTWEBENGINE PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
+            make -j4;
         elif [[ "$BUILD_SYSTEM" == "qmake" ]]; then
             cmake ../src && make -j4;
        fi
