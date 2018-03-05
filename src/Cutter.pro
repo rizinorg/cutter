@@ -18,7 +18,7 @@ CONFIG += c++11
 
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
-CUTTER_ENABLE_QTWEBENGINE {
+CUTTER_ENABLE_JUPYTER {
     message("Jupyter support enabled.")
     DEFINES += CUTTER_ENABLE_JUPYTER
 } else {
@@ -65,11 +65,18 @@ win32:CUTTER_ENABLE_JUPYTER {
 }
 
 unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
-    CONFIG += link_pkgconfig
-    !packagesExist(python3) {
-        error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
+    defined(PYTHON_FRAMEWORK_DIR, var) {
+        message("Using Python.framework at $$PYTHON_FRAMEWORK_DIR")
+        INCLUDEPATH += $$PYTHON_FRAMEWORK_DIR/Python.framework/Headers
+        LIBS += -F$$PYTHON_FRAMEWORK_DIR -framework Python
+        DEFINES += MACOS_PYTHON_FRAMEWORK_BUNDLED
+    } else {
+        CONFIG += link_pkgconfig
+        !packagesExist(python3) {
+            error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
+        }
+        PKGCONFIG += python3
     }
-    PKGCONFIG += python3
 }
 
 SOURCES += \

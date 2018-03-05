@@ -51,12 +51,18 @@ JupyterConnection::~JupyterConnection()
 
 void JupyterConnection::initPython()
 {
-#ifdef APPIMAGE
-    // Executable is in appdir/bin
+#if defined(APPIMAGE) || defined(MACOS_PYTHON_FRAMEWORK_BUNDLED)
     auto pythonHomeDir = QDir(QCoreApplication::applicationDirPath());
-    pythonHomeDir.cdUp();
+#   ifdef APPIMAGE
+        // Executable is in appdir/bin
+        pythonHomeDir.cdUp();
+        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for AppImage.";
+#   else // MACOS_PYTHON_FRAMEWORK_BUNDLED
+        // @executable_path/../Frameworks/Python.framework/Versions/Current
+        pythonHomeDir.cd("../Frameworks/Python.framework/Versions/Current");
+        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for macOS Application Bundle.";
+#   endif
     QString pythonHomeStr = pythonHomeDir.absolutePath();
-    qInfo() << "Setting PYTHONHOME =" << pythonHomeStr << " for AppImage.";
     pythonHome = Py_DecodeLocale(pythonHomeStr.toLocal8Bit().constData(), nullptr);
     Py_SetPythonHome(pythonHome);
 #endif
