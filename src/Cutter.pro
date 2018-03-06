@@ -21,12 +21,16 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 CUTTER_ENABLE_QTWEBENGINE {
     message("Jupyter support enabled.")
     DEFINES += CUTTER_ENABLE_JUPYTER
+} else {
+    message("Jupyter support disabled.")
 }
 
 CUTTER_ENABLE_QTWEBENGINE {
     message("QtWebEngine support enabled.")
     DEFINES += CUTTER_ENABLE_QTWEBENGINE
     QT += webenginewidgets
+} else {
+    message("QtWebEngine support disabled.")
 }
 
 INCLUDEPATH *= .

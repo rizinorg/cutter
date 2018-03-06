@@ -34,51 +34,22 @@ git clone https://github.com/radareorg/cutter
 cd cutter
 ```
 
-##### Building radare2
-**/!\ WARNING /!\ This will delete your current radare2 version if any already installed.**
+Building on linux:
 ```sh
-git submodule init radare2 && git submodule update radare2
-cd radare2 && ./sys/install.sh
-cd ..
+./build.sh
 ```
 
-##### Building cutter
-
-Cutter can be build with two methods: The preferred one is with qmake, but you can also compile it with cmake. Choose the one you want to use.
-
-- Method 1: Qmake
-```sh
-mkdir build
-cd build
-qmake ../src
-make
+Building on Windows:
+```batch
+set ARCH=x64
+set PYTHON=C:\Python36-x64
+prepare_r2.bat
+build.bat
 ```
 
-- Method 2: CMake
-```sh
-mkdir build
-cd build
-cmake ../src
-make
-```
-
-Then run cutter: `./Cutter` or `./build/Cutter`
-
-Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for instance) you might want to use  `LD_LIBRARY_PATH=$HOME/bin/prefix/radare2/lib ./Cutter` to run cutter.
-
-
-## Troubleshooting
+If any of those do not work, check the more detailed version [here](https://github.com/radareorg/cutter/blob/master/docs/Compiling.md).
 
 Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
-
-On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installed with brew. Run this command to workaround the issue:
-
-	sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
-	
-If you encounter the `Project ERROR: r_core development package not found` try one of this commands instead:
-
-- `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
-- `PKG_CONFIG_PATH=$HOME/cutter/radare2/pkgcfg qmake` (for modern version and if radare2 was installed like the submodule)
 
 ## Platforms
 
