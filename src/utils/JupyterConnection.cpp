@@ -52,20 +52,28 @@ JupyterConnection::~JupyterConnection()
 void JupyterConnection::initPython()
 {
 #if defined(APPIMAGE) || defined(MACOS_PYTHON_FRAMEWORK_BUNDLED)
-    auto pythonHomeDir = QDir(QCoreApplication::applicationDirPath());
+    if(customPythonHome.isNull())
+    {
+        auto pythonHomeDir = QDir(QCoreApplication::applicationDirPath());
 #   ifdef APPIMAGE
-        // Executable is in appdir/bin
-        pythonHomeDir.cdUp();
-        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for AppImage.";
+            // Executable is in appdir/bin
+            pythonHomeDir.cdUp();
+            qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for AppImage.";
 #   else // MACOS_PYTHON_FRAMEWORK_BUNDLED
-        // @executable_path/../Frameworks/Python.framework/Versions/Current
-        pythonHomeDir.cd("../Frameworks/Python.framework/Versions/Current");
-        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for macOS Application Bundle.";
+            // @executable_path/../Frameworks/Python.framework/Versions/Current
+            pythonHomeDir.cd("../Frameworks/Python.framework/Versions/Current");
+            qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for macOS Application Bundle.";
 #   endif
-    QString pythonHomeStr = pythonHomeDir.absolutePath();
-    pythonHome = Py_DecodeLocale(pythonHomeStr.toLocal8Bit().constData(), nullptr);
-    Py_SetPythonHome(pythonHome);
+        customPythonHome = pythonHomeDir.absolutePath();
+    }
 #endif
+
+    if(!customPythonHome.isNull())
+    {
+        qInfo() << "PYTHONHOME =" << customPythonHome;
+        pythonHome = Py_DecodeLocale(customPythonHome.toLocal8Bit().constData(), nullptr);
+        Py_SetPythonHome(pythonHome);
+    }
 
     PyImport_AppendInittab("cutter", &PyInit_api);
     PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
