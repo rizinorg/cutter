@@ -34,7 +34,10 @@ class IPyKernelInterfaceKernel:
         self._thread.join()
         self._app.heartbeat.join()
         self._app.iopub_thread.stop()
-        self._app.kernel.shell.history_manager.save_thread.stop()
+        try:
+            self._app.kernel.shell.history_manager.save_thread.stop()
+        except AttributeError:
+            pass
         zmq.Context.instance().destroy()
         # successful if only the main thread remains
         return len(threading.enumerate()) == 1
@@ -69,6 +72,8 @@ def launch_ipykernel(argv):
     app = CutterIPKernelApp.instance()
 
     def run_kernel():
+        import asyncio
+        asyncio.set_event_loop(asyncio.new_event_loop())
         app.kernel_class = CutterIPythonKernel
         # app.log_level = logging.DEBUG
         app.initialize(argv[3:])
