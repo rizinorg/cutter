@@ -126,6 +126,7 @@ SOURCES += \
     widgets/ClassesWidget.cpp \
     widgets/ResourcesWidget.cpp \
     widgets/VTablesWidget.cpp \
+    widgets/TypesWidget.cpp \
     CutterApplication.cpp \
     utils/JupyterConnection.cpp \
     widgets/JupyterWidget.cpp \
@@ -191,6 +192,7 @@ HEADERS  += \
     widgets/ResourcesWidget.h \
     CutterApplication.h \
     widgets/VTablesWidget.h \
+    widgets/TypesWidget.h \
     utils/JupyterConnection.h \
     widgets/JupyterWidget.h \
     utils/PythonAPI.h \
@@ -231,6 +233,7 @@ FORMS    += \
     widgets/PseudocodeWidget.ui \
     widgets/ClassesWidget.ui \
     widgets/VTablesWidget.ui \
+    widgets/TypesWidget.ui \
     widgets/JupyterWidget.ui
 
 RESOURCES += \

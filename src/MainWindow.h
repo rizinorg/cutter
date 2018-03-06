@@ -39,6 +39,7 @@ class DisassemblerGraphView;
 class ClassesWidget;
 class ResourcesWidget;
 class VTablesWidget;
+class TypesWidget;
 #ifdef CUTTER_ENABLE_JUPYTER
 class JupyterWidget;
 #endif
@@ -175,6 +176,7 @@ private:
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;
     ExportsWidget      *exportsDock = nullptr;
+    TypesWidget        *typesDock = nullptr;
     SymbolsWidget      *symbolsDock = nullptr;
     RelocsWidget       *relocsDock = nullptr;
     CommentsWidget     *commentsDock = nullptr;

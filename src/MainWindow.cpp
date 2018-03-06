@@ -48,6 +48,7 @@
 #include "widgets/CommentsWidget.h"
 #include "widgets/ImportsWidget.h"
 #include "widgets/ExportsWidget.h"
+#include "widgets/TypesWidget.h"
 #include "widgets/SymbolsWidget.h"
 #include "widgets/StringsWidget.h"
 #include "widgets/SectionsDock.h"
@@ -215,6 +216,7 @@ void MainWindow::initUI()
     ADD_DOCK(FunctionsWidget, functionsDock, ui->actionFunctions);
     ADD_DOCK(ImportsWidget, importsDock, ui->actionImports);
     ADD_DOCK(ExportsWidget, exportsDock, ui->actionExports);
+    ADD_DOCK(TypesWidget, typesDock, ui->actionTypes);
     ADD_DOCK(SymbolsWidget, symbolsDock, ui->actionSymbols);
     ADD_DOCK(RelocsWidget, relocsDock, ui->actionRelocs);
     ADD_DOCK(CommentsWidget, commentsDock, ui->actionComments);
@@ -539,6 +541,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, relocsDock);
     tabifyDockWidget(dashboardDock, importsDock);
     tabifyDockWidget(dashboardDock, exportsDock);
+    tabifyDockWidget(dashboardDock, typesDock);    
     tabifyDockWidget(dashboardDock, symbolsDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
