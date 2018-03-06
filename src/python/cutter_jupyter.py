@@ -1,6 +1,6 @@
 
-import signal
-import time
+import asyncio
+import queue
 from jupyter_client.ioloop import IOLoopKernelManager
 from notebook.notebookapp import *
 import cutter_internal
@@ -73,22 +73,18 @@ def kernel_manager_factory(kernel_name, **kwargs):
 
 class CutterNotebookApp(NotebookApp):
     def __init__(self, **kwargs):
-        super().__init__(**kwargs)
         self.thread = None
+        self.io_loop = None
+        super().__init__(**kwargs)
 
     def start(self):
         """ see NotebookApp.start() """
-
         self.kernel_manager.kernel_manager_factory = kernel_manager_factory
 
         super(NotebookApp, self).start()
 
         self.write_server_info_file()
 
-        self.thread = threading.Thread(target=self.run)
-        self.thread.start()
-
-    def run(self):
         self.io_loop = ioloop.IOLoop.current()
         if sys.platform.startswith('win'):
             # add no-op to wake every 5s
@@ -107,16 +103,29 @@ class CutterNotebookApp(NotebookApp):
         super().stop()
         self.thread.join()
 
+    def init_signal(self):
+        # This would call signal.signal(signal.SIGINT, signal.SIG_IGN)
+        # Not needed in supinterpreter.
+        pass
+
     @property
     def url_with_token(self):
         return url_concat(self.connection_url, {'token': self.token})
 
 
 def start_jupyter():
-    app = CutterNotebookApp()
-    app.initialize()
-    app.start()
-    return app
+    q = queue.Queue()
+
+    def start_jupyter_async():
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        app = CutterNotebookApp()
+        # app.log_level = logging.DEBUG
+        app.initialize()
+        q.put(app)
+        app.start()
+
+    threading.Thread(target=start_jupyter_async).start()
+    return q.get()
 
 
 if __name__ == "__main__":
