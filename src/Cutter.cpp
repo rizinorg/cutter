@@ -1284,6 +1284,29 @@ QList<VTableDescription> CutterCore::getAllVTables()
     return ret;
 }
 
+QList<TypeDescription> CutterCore::getAllTypes()
+{
+    CORE_LOCK();
+    QList<TypeDescription> ret;
+
+    QJsonArray typesArray = cmdj("tj").array();
+
+    foreach (QJsonValue value, typesArray)
+    {
+        QJsonObject typeObject = value.toObject();
+
+        TypeDescription exp;
+
+        exp.type = typeObject["type"].toString();
+        exp.size = typeObject["size"].toVariant().toULongLong();
+        exp.format = typeObject["format"].toString();
+
+        ret << exp;
+    }
+
+    return ret;
+}
+
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();
