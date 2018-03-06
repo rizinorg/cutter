@@ -9,6 +9,10 @@
 #include <QStringList>
 #include <QProcess>
 
+#ifdef CUTTER_ENABLE_JUPYTER
+#include "utils/JupyterConnection.h"
+#endif
+
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv){
     setOrganizationName("Cutter");
     setApplicationName("Cutter");
@@ -32,6 +36,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                    QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
+#ifdef CUTTER_ENABLE_JUPYTER
+    QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for Jupyter"), "PYTHONHOME");
+    cmd_parser.addOption(pythonHomeOption);
+#endif
+
     cmd_parser.process(*this);
 
     QStringList args = cmd_parser.positionalArguments();
@@ -49,6 +58,13 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         if (msg.exec() == QMessageBox::No)
             exit(1);
     }
+
+#ifdef CUTTER_ENABLE_JUPYTER
+    if (cmd_parser.isSet(pythonHomeOption))
+    {
+        Jupyter()->setPythonHome(cmd_parser.value(pythonHomeOption));
+    }
+#endif
 
     bool analLevelSpecified = false;
     int analLevel= 0;
