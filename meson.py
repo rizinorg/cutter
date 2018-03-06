@@ -37,7 +37,7 @@ def set_global_vars():
 
 def parse_qmake_file():
     log.info('Parsing qmake file')
-    with open(os.path.join(ROOT, 'src', 'cutter.pro')) as qmake_file:
+    with open(os.path.join(ROOT, 'src', 'Cutter.pro')) as qmake_file:
         lines = qmake_file.readlines()
     var_name = None
     end_of_def = True
