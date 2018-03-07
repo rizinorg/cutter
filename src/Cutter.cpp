@@ -813,7 +813,7 @@ void CutterCore::setSettings()
     setConfig("asm.tabsoff", 5);
     setConfig("asm.midflags", 2);
 
-    setConfig("anal.hasnext", true);
+    setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
     setConfig("asm.flgoff", true);
     setConfig("anal.autoname", true);
