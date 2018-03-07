@@ -16,6 +16,7 @@ Cutter is not aimed at existing radare2 users. It instead focuses on those whose
 
 ### Downloading a release
 
+Cutter is available for all platforms (Linux, OS X, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
 
 ### Building from source
@@ -50,10 +51,6 @@ build.bat
 If any of those do not work, check the more detailed version [here](https://github.com/radareorg/cutter/blob/master/docs/Compiling.md).
 
 Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
-
-## Platforms
-
-Cutter is developed on OS X, Linux and Windows. The first release for users will include installers for all three platforms.
 
 ## Keyboard shortcuts
 
