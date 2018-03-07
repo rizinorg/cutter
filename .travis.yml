@@ -54,8 +54,12 @@ after_success:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
       macdeployqt Cutter.app &&
       mkdir -p Cutter.app/Contents/Frameworks &&
-      cp -r "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app/Contents/Frameworks/ &&
-      install_name_tool -change `otool -L Cutter.app/Contents/MacOS/Cutter | sed -n "s/^[[:blank:]]*\([^[:blank:]]*Python\) (.*$/\1/p"` @executable_path/../Frameworks/Python.framework/Versions/Current/Python Cutter.App/Contents/MacOS/Cutter &&
+      cp -a "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app/Contents/Frameworks/ &&
+      install_name_tool -change `otool -L Cutter.app/Contents/MacOS/Cutter | sed -n "s/^[[:blank:]]*\([^[:blank:]]*Python\) (.*$/\1/p"` @executable_path/../Frameworks/Python.framework/Versions/Current/Python Cutter.app/Contents/MacOS/Cutter &&
+      cd Cutter.app/Contents/Frameworks/Python.framework &&
+        find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf &&
+        rm -r Versions/Current/Resources/* Versions/Current/lib/python3.6/test Versions/Current/lib/python3.6/idlelib Versions/Current/lib/python3.6/curses Versions/Current/lib/python3.6/lib2to3 &&
+      cd ../../../.. &&
       mkdir image && cp -r Cutter.app image/ &&
       hdiutil create -srcfolder image -volname Cutter -fs HFS+ Cutter.dmg &&
       export FILE_TO_UPLOAD="Cutter.dmg"
