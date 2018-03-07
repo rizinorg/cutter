@@ -99,7 +99,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete configuration;
 }
 
 void MainWindow::initUI()
