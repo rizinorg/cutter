@@ -318,6 +318,8 @@ public:
     void setDefaultCPU();
     void setCPU(QString arch, QString cpu, int bits, bool temporary = false);
     void setEndianness(bool big);
+    void setBBSize(int size);
+    
     RAnalFunction *functionAt(ut64 addr);
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
