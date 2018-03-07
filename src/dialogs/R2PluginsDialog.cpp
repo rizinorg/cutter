@@ -1,0 +1,28 @@
+#include "R2PluginsDialog.h"
+#include "ui_R2PluginsDialog.h"
+
+#include "Cutter.h"
+#include "utils/Helpers.h"
+
+R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
+    QDialog(parent),
+    ui(new Ui::R2PluginsDialog)
+{
+    ui->setupUi(this);
+
+    for(auto plugin : Core()->getRBinPluginDescriptions())
+    {
+        QTreeWidgetItem* item = new QTreeWidgetItem();
+        item->setText(0, plugin.name);
+        item->setText(1, plugin.description);
+        item->setText(2, plugin.license);
+        item->setText(3, plugin.type);
+        ui->RBinTreeWidget->addTopLevelItem(item);
+    }
+    qhelpers::adjustColumns(ui->RBinTreeWidget, 0);
+}
+
+R2PluginsDialog::~R2PluginsDialog()
+{
+    delete ui;
+}

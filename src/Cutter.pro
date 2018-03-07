@@ -140,7 +140,8 @@ SOURCES += \
     utils/JupyterConnection.cpp \
     widgets/JupyterWidget.cpp \
     utils/PythonAPI.cpp \
-    utils/NestedIPyKernel.cpp
+    utils/NestedIPyKernel.cpp \
+    dialogs/R2PluginsDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -206,7 +207,8 @@ HEADERS  += \
     utils/JupyterConnection.h \
     widgets/JupyterWidget.h \
     utils/PythonAPI.h \
-    utils/NestedIPyKernel.h
+    utils/NestedIPyKernel.h \
+    dialogs/R2PluginsDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -245,7 +247,8 @@ FORMS    += \
     widgets/VTablesWidget.ui \
     widgets/TypesWidget.ui \
     widgets/SearchWidget.ui \
-    widgets/JupyterWidget.ui
+    widgets/JupyterWidget.ui \
+    dialogs/R2PluginsDialog.ui
 
 RESOURCES += \
     resources.qrc \
