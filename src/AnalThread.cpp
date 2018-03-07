@@ -105,6 +105,8 @@ void AnalThread::run()
         core->setEndianness(optionsDialog->getSelectedEndianness() == OptionsDialog::Endianness::Big);
     }
 
+    core->setBBSize(optionsDialog->getSelectedBBSize());
+    
     // use prj.simple as default as long as regular projects are broken
     core->setConfig("prj.simple", true);
 

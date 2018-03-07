@@ -60,6 +60,7 @@ public:
     QString getSelectedArch();
     QString getSelectedCPU();
     int getSelectedBits();
+    int getSelectedBBSize();
 	Endianness getSelectedEndianness();
     QString getSelectedOS();
     QTimer analTimer;

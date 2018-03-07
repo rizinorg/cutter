@@ -606,6 +606,11 @@ void CutterCore::setEndianness(bool big)
     setConfig("cfg.bigendian", big);
 }
 
+void CutterCore::setBBSize(int size)
+{
+    setConfig("anal.bb.maxsize", size);
+}
+
 void CutterCore::setDefaultCPU()
 {
     if (!default_arch.isEmpty())
