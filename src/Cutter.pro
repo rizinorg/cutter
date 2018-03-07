@@ -59,9 +59,6 @@ win32:CUTTER_ENABLE_JUPYTER {
     pythonpath = $$clean_path($$dirname(pythonpath))
     LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
     INCLUDEPATH += $${pythonpath}/include
-    message($$pythonpath)
-    message($$LIBS)
-    message($$INCLUDEPATH)
 }
 
 unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
