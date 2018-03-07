@@ -53,6 +53,17 @@ install:
 after_success:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
       macdeployqt Cutter.app &&
+
+      install_name_tool `otool -L Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess | sed -n "s/^[[:blank:]]*\(\/usr\/local\/Cellar[^[:blank:]]*\(Qt[A-Za-z]*\.framework[^[:blank:]]*\)\) (.*$/-change \1 @executable_path\/..\/..\/..\/..\/..\/..\/..\/\2/p"` Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess &&
+      mkdir -p Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks &&
+      ln -s ../../../../../../../QtCore.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
+      ln -s ../../../../../../../QtQuick.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
+      ln -s ../../../../../../../QtGui.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
+      ln -s ../../../../../../../QtQml.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
+      ln -s ../../../../../../../QtNetwork.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
+      ln -s ../../../../../../../QtWebChannel.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
+      ln -s ../../../../../../../QtPositioning.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
+
       mkdir -p Cutter.app/Contents/Frameworks &&
       cp -a "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app/Contents/Frameworks/ &&
       install_name_tool -change `otool -L Cutter.app/Contents/MacOS/Cutter | sed -n "s/^[[:blank:]]*\([^[:blank:]]*Python\) (.*$/\1/p"` @executable_path/../Frameworks/Python.framework/Versions/Current/Python Cutter.app/Contents/MacOS/Cutter &&
@@ -60,7 +71,7 @@ after_success:
         find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf &&
         rm -r Versions/Current/Resources/* Versions/Current/lib/python3.6/test Versions/Current/lib/python3.6/idlelib Versions/Current/lib/python3.6/curses Versions/Current/lib/python3.6/lib2to3 &&
       cd ../../../.. &&
-      mkdir image && cp -r Cutter.app image/ &&
+      mkdir image && cp -a Cutter.app image/ &&
       hdiutil create -srcfolder image -volname Cutter -fs HFS+ Cutter.dmg &&
       export FILE_TO_UPLOAD="Cutter.dmg"
     ; fi
