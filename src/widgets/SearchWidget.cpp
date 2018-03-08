@@ -187,7 +187,7 @@ void SearchWidget::refreshSearch()
     QString searchspace = searchspace_data.toString();
 
     search_model->beginReloadSearch();
-    search = CutterCore::getInstance()->getAllSearch(search_for, searchspace);
+    search = Core()->getAllSearch(search_for, searchspace);
     search_model->endReloadSearch();
 
     ui->searchTreeView->resizeColumnToContents(0);
