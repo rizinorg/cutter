@@ -1305,6 +1305,30 @@ QList<TypeDescription> CutterCore::getAllTypes()
     return ret;
 }
 
+QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
+{
+    CORE_LOCK();
+    QList<SearchDescription> ret;
+
+    QJsonArray searchArray = cmdj(space + QString(" ") + search_for).array();
+    
+    foreach (QJsonValue value, searchArray)
+    {
+        QJsonObject searchObject = value.toObject();
+
+        SearchDescription exp;
+
+        exp.offset = searchObject["offset"].toVariant().toULongLong();
+        exp.size = searchObject["len"].toVariant().toULongLong();
+        exp.code = searchObject["code"].toString();
+        exp.data = searchObject["data"].toString();
+
+        ret << exp;
+    }
+
+    return ret;
+}
+
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType)
 {
     QList<XrefDescription> ret = QList<XrefDescription>();
