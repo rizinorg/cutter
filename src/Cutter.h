@@ -186,6 +186,14 @@ struct RBinPluginDescription
     QString type;
 };
 
+struct RIOPluginDescription
+{
+    QString name;
+    QString description;
+    QString license;
+    QString permissions;
+};
+
 struct DisassemblyLine
 {
     RVA offset;
@@ -241,6 +249,7 @@ Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
 Q_DECLARE_METATYPE(RBinPluginDescription)
+Q_DECLARE_METATYPE(RIOPluginDescription)
 Q_DECLARE_METATYPE(ClassMethodDescription)
 Q_DECLARE_METATYPE(ClassFieldDescription)
 Q_DECLARE_METATYPE(ClassDescription)
@@ -371,6 +380,7 @@ public:
     static bool isProjectNameValid(const QString &name);
 
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
+    QList<RIOPluginDescription> getRIOPluginDescriptions();
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();

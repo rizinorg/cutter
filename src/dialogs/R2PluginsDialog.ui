@@ -41,6 +41,37 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="RIOLabel">
+     <property name="text">
+      <string>RIO plugins</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="RIOTreeWidget">
+     <column>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Description</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>License</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Permissions</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
