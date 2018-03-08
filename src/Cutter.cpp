@@ -459,13 +459,6 @@ bool CutterCore::tryFile(QString path, bool rw)
         return false;
     }
 
-    bool is_writable = false;
-    if (cf->core && cf->core->io && cf->core->io->desc)
-    {
-        is_writable = cf->core->io->desc->flags & R_IO_WRITE;
-    }
-    // if rbin works, tell entry0, and symbols (main, constructor, ..)
-
     r_core_file_close (this->core_, cf);
 
     return true;
@@ -604,6 +597,11 @@ void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
 void CutterCore::setEndianness(bool big)
 {
     setConfig("cfg.bigendian", big);
+}
+
+void CutterCore::setBBSize(int size)
+{
+    setConfig("anal.bb.maxsize", size);
 }
 
 void CutterCore::setDefaultCPU()
@@ -813,7 +811,7 @@ void CutterCore::setSettings()
     setConfig("asm.tabsoff", 5);
     setConfig("asm.midflags", 2);
 
-    setConfig("anal.hasnext", true);
+    setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
     setConfig("asm.flgoff", true);
     setConfig("anal.autoname", true);
@@ -1281,6 +1279,29 @@ QList<VTableDescription> CutterCore::getAllVTables()
 
         ret << res;
     }
+    return ret;
+}
+
+QList<TypeDescription> CutterCore::getAllTypes()
+{
+    CORE_LOCK();
+    QList<TypeDescription> ret;
+
+    QJsonArray typesArray = cmdj("tj").array();
+
+    foreach (QJsonValue value, typesArray)
+    {
+        QJsonObject typeObject = value.toObject();
+
+        TypeDescription exp;
+
+        exp.type = typeObject["type"].toString();
+        exp.size = typeObject["size"].toVariant().toULongLong();
+        exp.format = typeObject["format"].toString();
+
+        ret << exp;
+    }
+
     return ret;
 }
 

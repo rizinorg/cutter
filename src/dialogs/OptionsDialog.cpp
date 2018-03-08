@@ -42,7 +42,8 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 
     ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
 
-
+    ui->entry_analbb->setToolTip(core->cmd("e? anal.bb.maxsize").trimmed());
+    
     for (auto plugin : core->getRBinPluginDescriptions("bin"))
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
 
@@ -111,6 +112,16 @@ int OptionsDialog::getSelectedBits()
     }
 
     return 0;
+}
+
+int OptionsDialog::getSelectedBBSize()
+{
+    QString sel_bbsize = ui->entry_analbb->text();
+    bool ok;
+    int bbsize = sel_bbsize.toInt(&ok);
+    if (ok)
+        return bbsize;
+    return 1024;
 }
 
 OptionsDialog::Endianness OptionsDialog::getSelectedEndianness()

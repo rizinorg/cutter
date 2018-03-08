@@ -25,10 +25,12 @@ environment:
     - ARCH: x86
       PYTHON: 'C:\Python36'
       QMAKE: 1
+      BITS: 32
     # Build: qmake vs2015 x64 shared
     - ARCH: x64
       PYTHON: 'C:\Python36-x64'
       QMAKE: 1
+      BITS: 64
     # Build: meson ninja x64 static
     - ARCH: x64
       PYTHON: 'C:\Python36-x64'
@@ -38,22 +40,31 @@ environment:
 install:
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
-  - cmd: if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" && set "BITS=64" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" && set "BITS=32" )
+  - cmd: if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" )
   - cmd: python -m pip install meson
-  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip" && unzip ninja.zip
+  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
   # Artifacts
   - cmd: if defined MESON ( set "ARTIFACT_NAME=Cutter_%ARCH%_static" ) else ( set "ARTIFACT_NAME=Cutter_%ARCH%" )
   - cmd: if defined MESON ( set "ARTIFACT_PATH=dist%BITS%" ) else ( set "ARTIFACT_PATH=build%BITS%\cutter" )
 
 before_build:
   - cmd: git submodule update --init
-  - cmd: if defined QMAKE ( prepare_r2.bat )
-
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( build.bat )
-  - cmd: if defined MESON ( python meson.py --dist=%ARTIFACT_PATH% --backend=%BACKEND% )
+  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_ENABLE_JUPYTER CUTTER_ENABLE_QTWEBENGINE )
+  - cmd: if defined MESON ( python meson.py --dist=%ARTIFACT_PATH% --backend=%BACKEND% --jupyter --webengine )
+
+after_build:
+  - ps: $env:py_version = (python --version).Split()[1]
+  - ps: $env:py_platform = If ($env:ARCH -eq "x64") {"amd64"} Else {"win32"}
+  - ps: $env:py_url = "https://www.python.org/ftp/python/${env:py_version}/python-${env:py_version}-embed-${env:py_platform}.zip"
+  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %py_url% -OutFile python_embed.zip; Expand-Archive .\python_embed.zip -DestinationPath .\python_embed; Remove-Item -Path .\python_embed\vcruntime140.dll"
+  - cmd: powershell -Command "Expand-Archive .\python_embed\python36.zip -DestinationPath .\%ARTIFACT_PATH%\python36"
+  - cmd: python -m pip install -I -t "%ARTIFACT_PATH%\python36\site-packages" jupyter
+  - cmd: for /d %%p in ("%ARTIFACT_PATH%\python36\site-packages\*.dist-info" "%ARTIFACT_PATH%\python36\site-packages\*.egg-info") do rd /s /q "%%p"
+  - cmd: copy python_embed\*.pyd "%ARTIFACT_PATH%\python36\" && copy python_embed\*.dll "%ARTIFACT_PATH%\"
+  - cmd: powershell -Command "[System.IO.File]::WriteAllLines(\"%ARTIFACT_PATH%\python36._pth\", \"python36`r`npython36\site-packages\")"
 
 # Tests
 test: off

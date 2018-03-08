@@ -21,12 +21,16 @@ DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 CUTTER_ENABLE_JUPYTER {
     message("Jupyter support enabled.")
     DEFINES += CUTTER_ENABLE_JUPYTER
+} else {
+    message("Jupyter support disabled.")
 }
 
 CUTTER_ENABLE_QTWEBENGINE {
     message("QtWebEngine support enabled.")
     DEFINES += CUTTER_ENABLE_QTWEBENGINE
     QT += webenginewidgets
+} else {
+    message("QtWebEngine support disabled.")
 }
 
 INCLUDEPATH *= .
@@ -55,9 +59,6 @@ win32:CUTTER_ENABLE_JUPYTER {
     pythonpath = $$clean_path($$dirname(pythonpath))
     LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
     INCLUDEPATH += $${pythonpath}/include
-    message($$pythonpath)
-    message($$LIBS)
-    message($$INCLUDEPATH)
 }
 
 unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
@@ -133,6 +134,7 @@ SOURCES += \
     widgets/ClassesWidget.cpp \
     widgets/ResourcesWidget.cpp \
     widgets/VTablesWidget.cpp \
+    widgets/TypesWidget.cpp \
     CutterApplication.cpp \
     utils/JupyterConnection.cpp \
     widgets/JupyterWidget.cpp \
@@ -198,6 +200,7 @@ HEADERS  += \
     widgets/ResourcesWidget.h \
     CutterApplication.h \
     widgets/VTablesWidget.h \
+    widgets/TypesWidget.h \
     utils/JupyterConnection.h \
     widgets/JupyterWidget.h \
     utils/PythonAPI.h \
@@ -238,6 +241,7 @@ FORMS    += \
     widgets/PseudocodeWidget.ui \
     widgets/ClassesWidget.ui \
     widgets/VTablesWidget.ui \
+    widgets/TypesWidget.ui \
     widgets/JupyterWidget.ui
 
 RESOURCES += \

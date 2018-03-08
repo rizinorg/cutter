@@ -116,4 +116,5 @@ deploy:
     - "${FILE_TO_UPLOAD}"
   on:
     tags: true
+    condition: $DEPLOY = 1
 

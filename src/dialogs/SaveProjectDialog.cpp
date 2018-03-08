@@ -4,6 +4,7 @@
 #include <Cutter.h>
 #include "SaveProjectDialog.h"
 #include "ui_SaveProjectDialog.h"
+#include "utils/TempConfig.h"
 
 SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
         QDialog(parent),
@@ -82,12 +83,12 @@ void SaveProjectDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void SaveProjectDialog::accept()
 {
-    CutterCore *core = CutterCore::getInstance();
-    core->setConfig("dir.projects", ui->projectsDirEdit->text().toUtf8().constData());
-    core->setConfig("prj.simple", ui->simpleCheckBox->isChecked());
-    core->setConfig("prj.files", ui->filesCheckBox->isChecked());
-    core->setConfig("prj.git", ui->gitCheckBox->isChecked());
-    core->setConfig("prj.zip", ui->zipCheckBox->isChecked());
+    TempConfig tempConfig;
+    tempConfig.set("dir.projects", ui->projectsDirEdit->text().toUtf8().constData())
+        .set("prj.simple", ui->simpleCheckBox->isChecked())
+        .set("prj.files", ui->filesCheckBox->isChecked())
+        .set("prj.git", ui->gitCheckBox->isChecked())
+        .set("prj.zip", ui->zipCheckBox->isChecked());
 
     QString projectName = ui->nameEdit->text().trimmed();
     if(!CutterCore::isProjectNameValid(projectName))
@@ -96,7 +97,7 @@ void SaveProjectDialog::accept()
         return;
     }
 
-    core->saveProject(projectName);
+    Core()->saveProject(projectName);
 
     QDialog::done(Saved);
 }
