@@ -155,7 +155,7 @@ SearchWidget::~SearchWidget() {}
 void SearchWidget::on_searchTreeView_doubleClicked(const QModelIndex &index)
 {
     SearchDescription search = index.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
-    CutterCore::getInstance()->seek(search.offset);
+    Core()->seek(search.offset);
 }
 
 void SearchWidget::searchChanged()
