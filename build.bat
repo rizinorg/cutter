@@ -15,7 +15,7 @@ MKDIR build%BITS%
 CD build%BITS%
 
 ECHO Building cutter
-qmake ..\src\cutter.pro -config release -tp vc
+qmake "CONFIG+=%*" ..\src\cutter.pro -config release -tp vc
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 msbuild /m cutter.vcxproj /p:Configuration=Release;Platform=%MSBUILDPLATFORM%
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
