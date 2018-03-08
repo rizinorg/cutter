@@ -61,15 +61,7 @@ QToolTip {
 	color: rgb(232, 232, 232);
 	font: 11pt &quot;Monaco&quot;;
 }
-/*
-QDockWidget::title {
-	background: rgb(64, 66, 68);
-}
-
-QDockWidget {
-	color: rgb(232, 232, 232);
-}
-*/</string>
+</string>
   </property>
   <property name="documentMode">
    <bool>false</bool>
@@ -282,21 +274,21 @@ border-top: 0px;
     <string notr="true">Main toolbar</string>
    </property>
    <property name="styleSheet">
-    <string notr="true">QToolButton { /* all types of tool button */
-    margin-bottom: 1px;
-    margin-top: 1px;
-    margin-left: 2px;
-    margin-right: 2px;
-    padding: 2px;
-    padding-left: 7px;
-    padding-right: 7px;
-	background-color: palette(light);
-    border-radius: 6px;
+     <string notr="true">
+QToolButton {
+margin: 1px;
+margin-left: 2px;
+margin-right: 2px;
+padding: 2px;
+padding-left: 7px;
+padding-right: 7px;
+border-radius: 6px;
+background-color: #ffffff;
 }
-
 QToolButton:pressed {
-	background-color: palette(dark);
-}</string>
+background-color: palette(dark);
+}
+     </string>
    </property>
    <property name="movable">
     <bool>false</bool>
@@ -316,6 +308,7 @@ QToolButton:pressed {
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionBackward"/>
    <addaction name="actionForward"/>
   </widget>
   <action name="actionDefault">
@@ -432,7 +425,7 @@ QToolButton:pressed {
     <string>Find previous</string>
    </property>
   </action>
-  <action name="actionBack">
+  <action name="actionBackward">
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/img/icons/arrow_left.svg</normaloff>:/img/icons/arrow_left.svg</iconset>

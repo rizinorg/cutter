@@ -109,8 +109,6 @@ public slots:
 
     void toggleResponsive(bool maybe);
 
-    void backButton_clicked();
-
 private slots:
     void on_actionAbout_triggered();
 
@@ -127,12 +125,12 @@ private slots:
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
 
+    void on_actionBackward_triggered();
+    void on_actionForward_triggered();
     void on_actionUndoSeek_triggered();
     void on_actionRedoSeek_triggered();
 
     void on_actionOpen_triggered();
-
-    void on_actionForward_triggered();
 
     void on_actionTabs_on_Top_triggered();
 
