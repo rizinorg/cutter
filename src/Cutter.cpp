@@ -545,7 +545,6 @@ void CutterCore::resetDefaultAsmOptions()
     setConfig("asm.capitalize", Config()->getAsmCapitalize());
     setConfig("asm.varsub", Config()->getAsmVarsub());
     setConfig("asm.varsub_only", Config()->getAsmVarsubOnly());
-    setConfig("asm.tabs", Config()->getAsmTabs());
 }
 
 void CutterCore::saveDefaultAsmOptions()
@@ -825,6 +824,9 @@ void CutterCore::setSettings()
 
     // Colors
     setConfig("scr.color", COLOR_MODE_DISABLED);
+
+    // Don't show hits
+    setConfig("search.flags", false);
 }
 
 QList<RVA> CutterCore::getSeekHistory()
