@@ -138,6 +138,7 @@ SOURCES += \
     widgets/ResourcesWidget.cpp \
     widgets/VTablesWidget.cpp \
     widgets/TypesWidget.cpp \
+    widgets/SearchWidget.cpp \
     CutterApplication.cpp \
     utils/JupyterConnection.cpp \
     widgets/JupyterWidget.cpp \
@@ -204,6 +205,7 @@ HEADERS  += \
     CutterApplication.h \
     widgets/VTablesWidget.h \
     widgets/TypesWidget.h \
+    widgets/SearchWidget.h \
     utils/JupyterConnection.h \
     widgets/JupyterWidget.h \
     utils/PythonAPI.h \
@@ -245,6 +247,7 @@ FORMS    += \
     widgets/ClassesWidget.ui \
     widgets/VTablesWidget.ui \
     widgets/TypesWidget.ui \
+    widgets/SearchWidget.ui \
     widgets/JupyterWidget.ui
 
 RESOURCES += \

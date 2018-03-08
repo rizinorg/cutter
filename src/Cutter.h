@@ -98,6 +98,14 @@ struct TypeDescription
     QString format;
 };
 
+struct SearchDescription
+{
+    RVA offset;
+    int size;
+    QString code;
+    QString data;
+};
+
 struct SymbolDescription
 {
     RVA vaddr;
@@ -242,6 +250,7 @@ Q_DECLARE_METATYPE(const ClassFieldDescription *)
 Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
+Q_DECLARE_METATYPE(SearchDescription)
 
 class CutterCore: public QObject
 {
@@ -378,6 +387,7 @@ public:
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
     QList<TypeDescription> getAllTypes();
+    QList<SearchDescription> getAllSearch(QString search_for, QString space);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 

@@ -252,6 +252,7 @@ border-top: 0px;
     <addaction name="actionResources"/>
     <addaction name="actionVTables"/>
     <addaction name="actionTypes"/>
+    <addaction name="actionSearchInst"/>
     <addaction name="separator"/>
     <addaction name="actionRelocs"/>
     <addaction name="actionStrings"/>
@@ -1059,6 +1060,17 @@ QToolButton:pressed {
    </property>
    <property name="toolTip">
     <string>Show/Hide Types panel</string>
+   </property>
+  </action>
+  <action name="actionSearchInst">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Search</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide Search panel</string>
    </property>
   </action>
   <action name="actionJupyter">
