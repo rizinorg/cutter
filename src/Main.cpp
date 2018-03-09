@@ -27,12 +27,12 @@ void set_appimage_symlink()
 
 int main(int argc, char *argv[])
 {
-    CutterApplication a(argc, argv);
-
     // Hack to make it work with AppImage
 #ifdef APPIMAGE
     set_appimage_symlink();
 #endif
+
+    CutterApplication a(argc, argv);
 
     int ret = a.exec();
 

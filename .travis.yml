@@ -98,6 +98,10 @@ before_script:
   - cd radare2
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         sed -i 's,R2_PREFIX.*,R2_PREFIX "/tmp/.cutter_usr",' libr/include/r_userconf.h.acr;
+        sed -i 's,R2_DATDIR.*,R2_DATDIR "/tmp/.cutter_usr/share",' libr/include/r_userconf.h.acr;
+        echo "Modified r_userconf.h.acr:";
+        cat libr/include/r_userconf.h.acr;
+        echo "-----------------------------";
         INSTALL_TARGET=install sys/install.sh;
     else
         LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
