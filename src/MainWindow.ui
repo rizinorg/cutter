@@ -219,6 +219,7 @@ border-top: 0px;
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionSearchInst"/>
     <addaction name="actionUndoSeek"/>
     <addaction name="actionRedoSeek"/>
    </widget>
