@@ -140,7 +140,9 @@ SOURCES += \
     utils/JupyterConnection.cpp \
     widgets/JupyterWidget.cpp \
     utils/PythonAPI.cpp \
-    utils/NestedIPyKernel.cpp
+    utils/NestedIPyKernel.cpp \
+    utils/JsonTreeItem.cpp \
+    utils/JsonModel.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -206,7 +208,9 @@ HEADERS  += \
     utils/JupyterConnection.h \
     widgets/JupyterWidget.h \
     utils/PythonAPI.h \
-    utils/NestedIPyKernel.h
+    utils/NestedIPyKernel.h \
+    utils/JsonTreeItem.h \
+    utils/JsonModel.h 
 
 FORMS    += \
     dialogs/AboutDialog.ui \

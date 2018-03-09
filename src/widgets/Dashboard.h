@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QDockWidget>
+#include <QTreeView>
 
 class MainWindow;
 
@@ -22,10 +23,12 @@ public:
 
 private slots:
     void updateContents();
+    void on_certificateButton_clicked();
 
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
     MainWindow      *main;
+    QTreeView **ppcertificate_view;
 };
 
 #endif // DASHBOARD_H
