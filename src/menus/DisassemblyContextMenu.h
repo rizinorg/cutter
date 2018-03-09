@@ -25,6 +25,8 @@ private slots:
 
     void on_actionEditInstruction_triggered();
     void on_actionNopInstruction_triggered();
+    void on_actionJmpReverse_triggered();
+    void showReverseJmpQuery();
     void on_actionEditBytes_triggered();
 
     void on_actionCopy_triggered();
@@ -72,6 +74,7 @@ private:
     QAction *editMenuAction;
     QAction actionEditInstruction;
     QAction actionNopInstruction;
+    QAction actionJmpReverse;
     QAction actionEditBytes;
 
     QAction actionCopy;

@@ -280,6 +280,7 @@ public:
 
     void editInstruction(RVA addr, const QString &inst);
     void nopInstruction(RVA addr);
+    void jmpReverse(RVA addr);
     
     void editBytes(RVA addr, const QString &inst);
 
