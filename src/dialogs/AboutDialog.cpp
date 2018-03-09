@@ -1,6 +1,7 @@
 #include <Cutter.h>
 #include "AboutDialog.h"
 #include "ui_AboutDialog.h"
+#include "R2PluginsDialog.h"
 #include "r_version.h"
 #include "utils/Configuration.h"
 
@@ -52,4 +53,10 @@ void AboutDialog::on_showVersionButton_clicked()
     auto versionInformation = Core()->getVersionInformation();
     popup.setText(versionInformation);
     popup.exec();
+}
+
+void AboutDialog::on_showPluginsButton_clicked()
+{
+    R2PluginsDialog dialog(this);
+    dialog.exec();
 }
