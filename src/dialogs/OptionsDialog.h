@@ -40,6 +40,9 @@ private slots:
 
     void anal_finished();
 
+protected:
+	void closeEvent(QCloseEvent *event) override;
+
 private:
     AnalThread analThread;
     MainWindow *main;

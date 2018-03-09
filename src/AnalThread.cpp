@@ -9,7 +9,8 @@ AnalThread::AnalThread(OptionsDialog *parent) :
     QThread(parent),
     level(2),
     main(nullptr),
-    core(CutterCore::getInstance())
+    core(CutterCore::getInstance()),
+    interrupted(false)
 {
 }
 
@@ -31,6 +32,17 @@ void AnalThread::start(MainWindow *main, int level, QList<QString> advanced)
     QThread::start();
 }
 
+void AnalThread::interruptAndWait()
+{
+    interrupted = true;
+
+    while(isRunning())
+    {
+        r_cons_singleton()->breaked = true;
+        r_sys_usleep(10000);
+    }
+}
+
 // run() will be called when a thread starts
 void AnalThread::run()
 {
@@ -39,6 +51,8 @@ void AnalThread::run()
     int va = ui->vaCheckBox->isChecked();
     ut64 loadaddr = 0LL;
     ut64 mapaddr = 0LL;
+
+    interrupted = false;
 
     //
     // Advanced Options
@@ -106,7 +120,7 @@ void AnalThread::run()
     }
 
     core->setBBSize(optionsDialog->getSelectedBBSize());
-    
+
     // use prj.simple as default as long as regular projects are broken
     core->setConfig("prj.simple", true);
 

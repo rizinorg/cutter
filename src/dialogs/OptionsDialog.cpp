@@ -262,11 +262,26 @@ void OptionsDialog::on_okButton_clicked()
 
 void OptionsDialog::anal_finished()
 {
+    if (analThread.isInterrupted())
+    {
+        done(0);
+        return;
+    }
+
     ui->statusLabel->setText(tr("Loading interface"));
     main->addOutput(tr(" > Analysis finished"));
 
     main->finalizeOpen();
     done(0);
+}
+
+void OptionsDialog::closeEvent(QCloseEvent *event)
+{
+    if (analThread.isRunning())
+    {
+        analThread.interruptAndWait();
+    }
+    event->accept();
 }
 
 QString OptionsDialog::analysisDescription(int level)
@@ -362,7 +377,6 @@ void OptionsDialog::on_pdbSelectButton_clicked()
 
 void OptionsDialog::reject()
 {
-    delete main;
     done(0);
     NewFileDialog *n = new NewFileDialog(nullptr);
     n->show();
