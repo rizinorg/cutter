@@ -7,6 +7,8 @@ IF "%Platform%" == "X64" (
     SET BITS=32
 )
 
+SET "PATH=%CD%;%PATH%"
+
 ECHO Building radare2 (%BITS%)
 CD radare2
 git clean -xfd
