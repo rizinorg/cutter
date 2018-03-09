@@ -23,19 +23,18 @@ Configuration* Configuration::instance()
 void Configuration::loadInitial()
 {
     setDarkTheme(getDarkTheme());
-    QString theme = getCurrentTheme();
-    if (theme != "default")
-    {
-        Core()->cmd(QString("eco %1").arg(theme));
-    }
+    setColorTheme(getCurrentTheme());
 }
 
 void Configuration::resetAll()
 {
-    s.clear();
     Core()->cmd("e-");
     Core()->setSettings();
     Core()->resetDefaultAsmOptions();
+    // Delete the file so no extra configuration is in it.
+    QFile settingsFile(s.fileName());
+    settingsFile.remove();
+    s.clear();
 
     loadInitial();
     emit fontsUpdated();
