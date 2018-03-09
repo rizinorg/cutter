@@ -1,0 +1,84 @@
+# The final executable after `make clean`
+
+cutter
+AStyle*
+
+### OSX ###
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# C++ objects and libs
+
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+# Qt-es
+
+*.qmake.cache
+*.qmake.stash
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.moc
+moc_*.cpp
+qrc_*.cpp
+moc_*.h
+ui_*.h
+Makefile*
+*build-*
+
+# QtCreator
+
+*.autosave
+
+# QtCtreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
+
+# QtCtreator CMake
+CMakeLists.txt.user
+
+# CLion
+.idea
+
+# Vim
+*.swp
+
+#CMake Files:
+src/*_automoc.cpp
+*CMakeCache.txt*
+*cmake_install.cmake*
+src/CMakeFiles/*
+
+# Visual Studio
+Win32/
+x64/
+*.dir/
+build*/
+release/
+debug/
+*.orig
+/src/*.vcxproj
+/src/*.vcxproj.filters
+/src/cutter_resource.rc
+
+#prepare_r2
+ninja.exe
+/dist32/
+/dist64/
+*.pdb
+
+#Mesonbuild
+src/subprojects/
+
+# Python
+__pycache__

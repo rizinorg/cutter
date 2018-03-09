@@ -1,0 +1,3 @@
+[submodule "radare2"]
+	path = radare2
+	url = https://github.com/radare/radare2

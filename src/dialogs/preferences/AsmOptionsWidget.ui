@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AsmOptionsWidget</class>
+ <widget class="QWidget" name="AsmOptionsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>545</width>
+    <height>710</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Disassembly</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QCheckBox" name="esilCheckBox">
+     <property name="text">
+      <string>Show ESIL instead of assembly (asm.esil)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="pseudoCheckBox">
+     <property name="text">
+      <string>Show pseudocode instead of assembly (asm.pseudo)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="offsetCheckBox">
+     <property name="text">
+      <string>Show offsets (asm.offset)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="describeCheckBox">
+     <property name="text">
+      <string>Show opcode description (asm.describe)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="stackpointerCheckBox">
+     <property name="text">
+      <string>Show stack pointer (asm.stackptr)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="slowCheckBox">
+     <property name="text">
+      <string>Slow Analysis (asm.slow)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="linesCheckBox">
+     <property name="text">
+      <string>Show jump lines (asm.lines)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="fcnlinesCheckBox">
+     <property name="text">
+      <string>Show function boundary lines (asm.fcnlines)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="emuCheckBox">
+     <property name="text">
+      <string>Run ESIL emulation analysis (asm.emu)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="cmtrightCheckBox">
+     <property name="text">
+      <string>Show comments at right of assembly (asm.cmtright)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="varsumCheckBox">
+     <property name="text">
+      <string>Show variables summary instead of full list (asm.varsum)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="bytesCheckBox">
+     <property name="text">
+      <string>Show bytes (asm.bytes)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="leftMargin">
+      <number>16</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="bytespaceCheckBox">
+       <property name="text">
+        <string>Separate bytes with whitespace (asm.bytespace)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="lbytesCheckBox">
+       <property name="text">
+        <string>Align bytes to the left (asm.lbytes)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <property name="leftMargin">
+      <number>16</number>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="nbytesLabel">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Number of bytes to display (asm.nbytes):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="nbytesSpinBox">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1">
+      <widget class="QComboBox" name="syntaxComboBox"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="syntaxLabel">
+       <property name="text">
+        <string>Syntax (asm.syntax):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="caseComboBox">
+       <item>
+        <property name="text">
+         <string>Lowercase</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Uppercase (asm.ucase)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Capitalize (asm.capitalize)</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="asmTabsLabel">
+       <property name="text">
+        <string>Tabs in assembly (asm.tabs):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="asmTabsSpinBox">
+       <property name="maximum">
+        <number>100</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="bblineCheckBox">
+     <property name="text">
+      <string>Show empty line after every basic block (asm.bbline)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="varsubCheckBox">
+     <property name="text">
+      <string>Substitute variables (asm.varsub)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <property name="leftMargin">
+      <number>16</number>
+     </property>
+     <item>
+      <widget class="QCheckBox" name="varsubOnlyCheckBox">
+       <property name="text">
+        <string>Substitute entire variable expressions with names (asm.varsub_only)</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::RestoreDefaults</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionSaveAsDefault">
+   <property name="text">
+    <string>Save as Default</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

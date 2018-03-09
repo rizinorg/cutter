@@ -1,0 +1,13 @@
+<!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+<svg style="enable-background:new 0 0 32 32" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" height="32px" width="32px" version="1.1" y="0px" x="0px" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32">
+				<path d="m18 14h5.8c-0.73-2.8-3-5.1-5.8-5.8v5.8z" fill="#4d4d4f"/>
+				<path d="m18 18v5.8c2.8-0.73 5.1-3 5.8-5.8h-6z" fill="#4d4d4f"/>
+				<path d="m14 14v-5.8c-2.8 0.73-5.1 3-5.8 5.8h5.8z" fill="#4d4d4f"/>
+				<path d="m14 18h-5.8c0.73 2.8 3 5.1 5.8 5.8v-6z" fill="#4d4d4f"/>
+		<g fill="#4d4d4f">
+			<path d="m18 4.1c5.1 0.86 9.1 4.8 9.9 9.9h4c-1-7.3-7-13-14-14v4.1z"/>
+			<path d="m4.1 14c0.8-5.1 4.8-9.1 9.9-9.9v-4.1c-7.3 0.92-13 6.7-14 14h4.1z"/>
+			<path d="m14 28c-5.1-0.86-9.1-4.8-9.9-9.9h-4.1c0.92 7 6.7 13 14 14v-4z"/>
+			<path d="m28 18c-0.86 5.1-4.8 9.1-9.9 9.9v4c7-1 13-7 14-14h-4z"/>
+		</g>
+</svg>

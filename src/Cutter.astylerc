@@ -1,0 +1,13 @@
+--style=allman
+--convert-tabs
+--align-pointer=name
+--align-reference=name
+--indent=spaces
+--indent-namespaces
+--indent-col1-comments
+--pad-oper
+--pad-header
+--unpad-paren
+--keep-one-line-blocks
+--close-templates
+

@@ -1,0 +1,68 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/icons/arrow_left.svg</file>
+        <file>img/icons/arrow_right.svg</file>
+        <file>img/icons/sidebar.svg</file>
+        <file>img/icons/undo.svg</file>
+        <file>img/icons/redo.svg</file>
+        <file>img/r2.svg</file>
+        <file>img/icons/equalizer.svg</file>
+        <file>img/icons/cog.svg</file>
+        <file alias="lock">img/icons/lock.svg</file>
+        <file alias="unlock">img/icons/unlock.svg</file>
+        <file>img/icons/tabs.svg</file>
+        <file>img/icons/themes.svg</file>
+        <file>img/icons/target.svg</file>
+        <file>img/icons/help.svg</file>
+        <file>img/icons/spin.svg</file>
+        <file>img/icons/plus.svg</file>
+        <file>img/icons/play.svg</file>
+        <file>img/icons/cloud.svg</file>
+        <file>img/icons/down.svg</file>
+        <file>img/icons/down_white.svg</file>
+        <file>img/icons/up.svg</file>
+        <file>img/icons/up_white.svg</file>
+        <file>img/icons/clear_light.svg</file>
+        <file>img/icons/load_light.svg</file>
+        <file>img/icons/save_light.svg</file>
+        <file>img/icons/trash_light.svg</file>
+        <file>img/icons/disas_light.svg</file>
+        <file>img/icons/disas_white.svg</file>
+        <file>img/icons/graph_light.svg</file>
+        <file>img/icons/graph_white.svg</file>
+        <file>img/icons/hexdump_light.svg</file>
+        <file>img/icons/hexdump_white.svg</file>
+        <file>img/icons/cog_light.svg</file>
+        <file>img/icons/cog_white.svg</file>
+        <file>img/icons/new_light.svg</file>
+        <file>img/icons/run_light.svg</file>
+        <file>img/icons/edit_light.svg</file>
+        <file>img/icons/polar_light.svg</file>
+        <file>img/icons/radar_light.svg</file>
+        <file>img/icons/polar_white.svg</file>
+        <file>img/icons/radar_white.svg</file>
+        <file>img/icons/cloud_white.svg</file>
+        <file>img/icons/spin_white.svg</file>
+        <file>img/icons/tabs_white.svg</file>
+        <file>img/icons/themes_white.svg</file>
+        <file>img/icons/unlock_white.svg</file>
+        <file>img/icons/lock_white.svg</file>
+        <file>img/icons/left_light.svg</file>
+        <file>img/icons/right_light.svg</file>
+        <file>img/icons/eye.svg</file>
+        <file>img/icons/eye_white.svg</file>
+        <file>img/icons/transfer.svg</file>
+        <file>img/icons/transfer_white.svg</file>
+        <file>img/icons/spin_light.svg</file>
+        <file>img/icons/import_light.svg</file>
+        <file>img/icons/home.svg</file>
+        <file>fonts/Anonymous Pro.ttf</file>
+        <file>fonts/Inconsolata-Regular.ttf</file>
+        <file>img/cutter_plain.svg</file>
+        <file>img/cutter_white_plain.svg</file>
+        <file>img/cutter.svg</file>
+
+        <file>python/cutter_jupyter.py</file>
+        <file>python/cutter_ipykernel.py</file>
+    </qresource>
+</RCC>

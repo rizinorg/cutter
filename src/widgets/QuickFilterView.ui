@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QuickFilterView</class>
+ <widget class="QWidget" name="QuickFilterView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>327</width>
+    <height>25</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QLineEdit" name="filterLineEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="placeholderText">
+      <string>Quick Filter</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QToolButton" name="closeFilterButton">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <italic>false</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QToolButton { /* all types of tool button */
+     border: 2px solid #333;
+     border-left: 2px solid #333;
+	 border-right: 2px solid #333;
+     background-color: #333;
+     color: rgb(255, 255, 255)
+}
+
+QToolButton:hover {
+     border: 2px solid rgb(128, 128, 128);
+     border-left: 2px solid rgb(128, 128, 128);
+     border-right: 2px solid rgb(128, 128, 128);
+     background-color: rgb(128, 128, 128);
+     color: rgb(255, 255, 255)
+ }
+
+QToolButton:pressed {
+     border: 2px solid #2180a9;
+     border-left: 2px solid #2180a9;
+	 border-right: 2px solid #2180a9;
+     background-color: #2180a9;
+}</string>
+     </property>
+     <property name="text">
+      <string>X</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

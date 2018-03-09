@@ -1,0 +1,9 @@
+option('version', type: 'string')
+option('qt_modules', type: 'array')
+option('sources', type: 'array')
+option('headers', type: 'array')
+option('ui_files', type: 'array')
+option('qresources', type: 'array')
+
+option('enable_jupyter', type: 'boolean', value: false)
+option('enable_webengine', type: 'boolean', value: false)
