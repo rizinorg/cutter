@@ -71,7 +71,7 @@ def win_dist(args):
     log.debug('Deploying Qt5')
     subprocess.call(['windeployqt', '--release', os.path.join(dist, 'Cutter.exe')])
     log.debug('Deploying libr2')
-    r2_meson_mod.win_dist_libr2(DIST=dist)
+    r2_meson_mod.win_dist_libr2(DIST=dist, BUILDDIR=os.path.join(build, 'subprojects', 'radare2'))
 
 def build(args):
     cutter_builddir = os.path.join(ROOT, args.dir)
