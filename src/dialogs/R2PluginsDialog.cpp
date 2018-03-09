@@ -40,6 +40,13 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         ui->RCoreTreeWidget->addTopLevelItem(item);
     }
     qhelpers::adjustColumns(ui->RCoreTreeWidget, 0);
+
+    for(auto plugin : Core()->getRAsmPlugins())
+    {
+        QTreeWidgetItem* item = new QTreeWidgetItem();
+        item->setText(0, plugin);
+        ui->RAsmTreeWidget->addTopLevelItem(item);
+    }
 }
 
 R2PluginsDialog::~R2PluginsDialog()

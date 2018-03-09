@@ -950,6 +950,17 @@ QList<RCorePluginDescription> CutterCore::getRCorePluginDescriptions()
     return ret;
 }
 
+QStringList CutterCore::getRAsmPlugins()
+{
+    QStringList ret;
+
+    QJsonArray plugins = cmdj("evj asm.arch").array()[0].toObject()["options"].toArray();
+    for(QJsonValueRef pluginValue : plugins)
+        ret << pluginValue.toString();
+
+    return ret;
+}
+
 QList<FunctionDescription> CutterCore::getAllFunctions()
 {
     CORE_LOCK();

@@ -6,11 +6,51 @@
    <string>radare2 plugin information</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="RBinLabel">
-     <property name="text">
-      <string>RBin plugins</string>
+   <item row="1" column="1">
+    <widget class="QTreeWidget" name="RCoreTreeWidget">
+     <column>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Description</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="RIOLabel">
+     <property name="text">
+      <string>RIO plugins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="RAsmLabel">
+     <property name="text">
+      <string>RAsm plugins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QTreeWidget" name="RAsmTreeWidget">
+     <column>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item row="1" column="0">
@@ -38,13 +78,6 @@
        <string>Type</string>
       </property>
      </column>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="RIOLabel">
-     <property name="text">
-      <string>RIO plugins</string>
-     </property>
     </widget>
    </item>
    <item row="3" column="0">
@@ -78,27 +111,10 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QTreeWidget" name="RCoreTreeWidget">
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Description</string>
-      </property>
-     </column>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+   <item row="0" column="0">
+    <widget class="QLabel" name="RBinLabel">
+     <property name="text">
+      <string>RBin plugins</string>
      </property>
     </widget>
    </item>

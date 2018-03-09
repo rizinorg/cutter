@@ -389,6 +389,7 @@ public:
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
     QList<RIOPluginDescription> getRIOPluginDescriptions();
     QList<RCorePluginDescription> getRCorePluginDescriptions();
+    QStringList getRAsmPlugins();
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
