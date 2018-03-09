@@ -85,6 +85,9 @@ public:
     bool getAsmBytes() const            { return s.value("asm.bytes", false).toBool(); }
     void setAsmBytes(bool v)            { s.setValue("asm.bytes", v); }
 
+    bool getAsmSize() const             { return s.value("asm.size", false).toBool(); }
+    void setAsmSize(bool v)             { s.setValue("asm.size", v); }
+
     bool getAsmBytespace() const        { return s.value("asm.bytespace", false).toBool(); }
     void setAsmBytespace(bool v)        { s.setValue("asm.bytespace", v); }
 
