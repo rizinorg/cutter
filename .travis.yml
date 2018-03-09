@@ -80,6 +80,10 @@ after_success:
       sudo chown -R $USER appdir &&
       cp -r /usr/share/radare2 appdir/usr/share/ &&
       cp -RT "$CUSTOM_PYTHON_PREFIX" appdir/usr/ &&
+      cd appdir/usr/ &&
+        find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf &&
+        rm -r lib/python3.6/test lib/python3.6/idlelib lib/python3.6/curses lib/python3.6/lib2to3 &&
+      cd ../.. &&
       wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
       chmod a+x linuxdeployqt*.AppImage &&
       unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH &&
