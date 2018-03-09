@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="styleSheet">
-   <string notr="true"></string>
+   <string notr="true"/>
   </property>
   <property name="windowTitle">
    <string notr="true">Dashboard</string>
@@ -56,7 +56,7 @@
          <x>0</x>
          <y>0</y>
          <width>1055</width>
-         <height>974</height>
+         <height>979</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -861,6 +861,26 @@
            </item>
            <item>
             <widget class="Line" name="line_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="certificateButton">
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>167</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Certificates</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="Line" name="line_2">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
              </property>

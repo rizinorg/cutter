@@ -720,6 +720,11 @@ void MainWindow::on_actionReset_settings_triggered()
 
 void MainWindow::on_actionQuit_triggered()
 {
+    if(pcertificate_view)
+    {
+        pcertificate_view->close();
+        pcertificate_view = nullptr;
+    }
     close();
 }
 

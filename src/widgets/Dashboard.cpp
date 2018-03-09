@@ -1,6 +1,8 @@
 #include "Dashboard.h"
 #include "ui_Dashboard.h"
 #include "utils/Helpers.h"
+#include "utils/JsonModel.h"
+#include "utils/JsonTreeItem.h"
 
 #include "MainWindow.h"
 
@@ -12,6 +14,9 @@
 #include <QFile>
 #include <QLayoutItem>
 
+#include <QString>
+#include <QMessageBox>
+#include <QTreeView>
 
 Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     QDockWidget(parent),
@@ -19,7 +24,7 @@ Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     main(main)
 {
     ui->setupUi(this);
-
+    ppcertificate_view = &(main->pcertificate_view);
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
 }
 
@@ -172,4 +177,34 @@ void Dashboard::updateContents()
 
     // Get stats for the graphs
     QStringList stats = CutterCore::getInstance()->getStats();
+}
+
+void Dashboard::on_certificateButton_clicked() {
+
+    QJsonDocument qjsonCertificatesDoc = Core()->cmdj("iCj");
+    QString qstrCertificates(qjsonCertificatesDoc.toJson(QJsonDocument::Compact));
+    if (QString::compare("{}",qstrCertificates)) 
+    {
+        /*if(  !(*(this->ppcertificate_view)))
+        {*/
+            QTreeView *view = new QTreeView;
+            JsonModel *model = new JsonModel; 
+            view->setModel(model);
+            view->setWindowTitle(QObject::tr("Certificates"));
+
+            std::string strCertificates = qstrCertificates.toUtf8().constData();
+            model->loadJson(QByteArray::fromStdString(strCertificates));
+            *(this->ppcertificate_view) = view;
+            view->show();
+        //}
+    }
+    else {
+
+        QMessageBox msgBoxCertificateInf(QMessageBox::Information, "Certificate Information ",
+                                         "There is no certificate information",
+                                         QMessageBox::NoButton, this);
+        msgBoxCertificateInf.exec();       
+
+    }
+    
 }
