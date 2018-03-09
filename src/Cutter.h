@@ -194,6 +194,12 @@ struct RIOPluginDescription
     QString permissions;
 };
 
+struct RCorePluginDescription
+{
+    QString name;
+    QString description;
+};
+
 struct DisassemblyLine
 {
     RVA offset;
@@ -250,6 +256,7 @@ Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
 Q_DECLARE_METATYPE(RBinPluginDescription)
 Q_DECLARE_METATYPE(RIOPluginDescription)
+Q_DECLARE_METATYPE(RCorePluginDescription)
 Q_DECLARE_METATYPE(ClassMethodDescription)
 Q_DECLARE_METATYPE(ClassFieldDescription)
 Q_DECLARE_METATYPE(ClassDescription)
@@ -381,6 +388,7 @@ public:
 
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
     QList<RIOPluginDescription> getRIOPluginDescriptions();
+    QList<RCorePluginDescription> getRCorePluginDescriptions();
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();

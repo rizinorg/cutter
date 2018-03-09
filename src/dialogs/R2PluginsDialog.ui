@@ -5,15 +5,15 @@
   <property name="windowTitle">
    <string>radare2 plugin information</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
     <widget class="QLabel" name="RBinLabel">
      <property name="text">
       <string>RBin plugins</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0">
     <widget class="QTreeWidget" name="RBinTreeWidget">
      <property name="sortingEnabled">
       <bool>true</bool>
@@ -40,14 +40,14 @@
      </column>
     </widget>
    </item>
-   <item>
+   <item row="2" column="0">
     <widget class="QLabel" name="RIOLabel">
      <property name="text">
       <string>RIO plugins</string>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="3" column="0">
     <widget class="QTreeWidget" name="RIOTreeWidget">
      <column>
       <property name="text">
@@ -71,7 +71,28 @@
      </column>
     </widget>
    </item>
-   <item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="RCoreLabel">
+     <property name="text">
+      <string>RCore plugins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QTreeWidget" name="RCoreTreeWidget">
+     <column>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Description</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

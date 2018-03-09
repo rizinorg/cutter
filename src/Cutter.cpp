@@ -931,6 +931,25 @@ QList<RIOPluginDescription> CutterCore::getRIOPluginDescriptions()
     return ret;
 }
 
+QList<RCorePluginDescription> CutterCore::getRCorePluginDescriptions()
+{
+    QList<RCorePluginDescription> ret;
+
+    QJsonArray plugins = cmdj("Lsj").array();
+    for(QJsonValueRef pluginValue : plugins)
+    {
+        QJsonObject pluginObject = pluginValue.toObject();
+        RCorePluginDescription plugin;
+
+        plugin.name = pluginObject["Name"].toString();
+        plugin.description = pluginObject["Description"].toString();
+
+        ret << plugin;
+    }
+
+    return ret;
+}
+
 QList<FunctionDescription> CutterCore::getAllFunctions()
 {
     CORE_LOCK();

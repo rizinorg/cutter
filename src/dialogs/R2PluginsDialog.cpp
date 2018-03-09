@@ -31,6 +31,15 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         ui->RIOTreeWidget->addTopLevelItem(item);
     }
     qhelpers::adjustColumns(ui->RIOTreeWidget, 0);
+
+    for(auto plugin : Core()->getRCorePluginDescriptions())
+    {
+        QTreeWidgetItem* item = new QTreeWidgetItem();
+        item->setText(0, plugin.name);
+        item->setText(1, plugin.description);
+        ui->RCoreTreeWidget->addTopLevelItem(item);
+    }
+    qhelpers::adjustColumns(ui->RCoreTreeWidget, 0);
 }
 
 R2PluginsDialog::~R2PluginsDialog()
