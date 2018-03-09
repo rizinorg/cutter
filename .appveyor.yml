@@ -1,4 +1,4 @@
-version: '1.2-git-{build}'
+version: '1.3-git-{build}'
 skip_tags: true
 image: 'Visual Studio 2015'
 clone_depth: 1

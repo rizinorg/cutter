@@ -153,6 +153,7 @@ void TypesWidget::setScrollMode()
 
 void TypesWidget::on_typesTreeView_doubleClicked(const QModelIndex &index)
 {
+    Q_UNUSED(index);
     // TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
     // CutterCore::getInstance()->seek(exp.vaddr);
 }

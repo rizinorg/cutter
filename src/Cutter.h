@@ -30,7 +30,7 @@
 #define __question(x) (QMessageBox::Yes==QMessageBox::question (this, "Alert", QString(x), QMessageBox::Yes| QMessageBox::No))
 
 #define APPNAME "Cutter"
-#define CUTTER_VERSION "1.2"
+#define CUTTER_VERSION "1.3"
 
 #define Core() (CutterCore::getInstance())
 
