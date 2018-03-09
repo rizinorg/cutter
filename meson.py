@@ -74,7 +74,6 @@ def win_dist(args):
     r2_meson_mod.win_dist_libr2(DIST=dist)
 
 def build(args):
-    r2_meson_mod.prepare_capstone()
     cutter_builddir = os.path.join(ROOT, args.dir)
     if not args.webengine:
         VARS['QT'].remove('WebEngineWidgets')
@@ -91,7 +90,6 @@ def build(args):
         r2_meson_mod.meson(os.path.join(ROOT, 'src'), cutter_builddir,
                            prefix=cutter_builddir, backend=args.backend,
                            release=True, shared=False, options=defines)
-    r2_meson_mod.build_sdb(args.backend, release=True)
     log.info('Building cutter')
     if args.backend == 'ninja':
         r2_meson_mod.ninja(cutter_builddir)
