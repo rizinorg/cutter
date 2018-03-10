@@ -335,6 +335,12 @@ void CutterCore::nopInstruction(RVA addr)
     emit instructionChanged(addr);
 }
 
+void CutterCore::jmpReverse(RVA addr)
+{
+    cmd("wao recj @ " + RAddressString(addr));
+    emit instructionChanged(addr);
+}
+
 void CutterCore::editBytes(RVA addr, const QString &bytes)
 {
     cmd("wx " + bytes + " @ " + RAddressString(addr));
