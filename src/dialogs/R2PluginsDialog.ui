@@ -51,6 +51,36 @@
        <string>Name</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Architecture</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>CPU's</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Version</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Description</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>License</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Author</string>
+      </property>
+     </column>
     </widget>
    </item>
    <item row="1" column="0">
