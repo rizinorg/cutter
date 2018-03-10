@@ -13,6 +13,7 @@
 
 #include <QMainWindow>
 #include <QList>
+#include <QCloseEvent>
 
 class CutterCore;
 class Omnibar;
@@ -58,7 +59,6 @@ class MainWindow : public QMainWindow
 
 public:
     bool responsive;
-    QTreeView *pcertificate_view = nullptr; //To close QTreeView if user doesn't close
     
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -91,7 +91,9 @@ public:
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void refreshOmniBar(const QStringList &flags);
-
+    
+signals:
+    void closeEventSignal();
 
 public slots:
 

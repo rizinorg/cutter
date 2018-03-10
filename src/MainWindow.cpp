@@ -373,21 +373,26 @@ void MainWindow::setFilename(const QString &fn)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+    emit closeEventSignal();
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                       tr("Do you really want to exit?\nSave your project before closing!"),
                                       (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+
     if (ret == QMessageBox::Save)
     {
         if (saveProject(true))
         {
             saveSettings();
         }
+
         QMainWindow::closeEvent(event);
+
     }
     else if (ret == QMessageBox::Discard)
     {
         saveSettings();
         QMainWindow::closeEvent(event);
+
     }
     else
     {
@@ -720,11 +725,6 @@ void MainWindow::on_actionReset_settings_triggered()
 
 void MainWindow::on_actionQuit_triggered()
 {
-    if(pcertificate_view)
-    {
-        pcertificate_view->close();
-        pcertificate_view = nullptr;
-    }
     close();
 }
 

@@ -24,7 +24,6 @@ Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     main(main)
 {
     ui->setupUi(this);
-    ppcertificate_view = &(main->pcertificate_view);
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
 }
 
@@ -183,20 +182,19 @@ void Dashboard::on_certificateButton_clicked() {
 
     QJsonDocument qjsonCertificatesDoc = Core()->cmdj("iCj");
     QString qstrCertificates(qjsonCertificatesDoc.toJson(QJsonDocument::Compact));
+    static QTreeView * view = nullptr;
     if (QString::compare("{}",qstrCertificates)) 
     {
-        /*if(  !(*(this->ppcertificate_view)))
-        {*/
-            QTreeView *view = new QTreeView;
-            JsonModel *model = new JsonModel; 
-            view->setModel(model);
-            view->setWindowTitle(QObject::tr("Certificates"));
-
-            std::string strCertificates = qstrCertificates.toUtf8().constData();
+        if(!view || !(view->isVisible()) ) {
+            JsonModel *model    = new JsonModel;
+            view   	= new QTreeView;
+    		connect(this->main, &MainWindow::closeEventSignal, view, &QTreeView::close);
+    		view->setModel(model);
+            view->setWindowTitle(QObject::tr("Certificates"));	
+    		std::string strCertificates = qstrCertificates.toUtf8().constData();
             model->loadJson(QByteArray::fromStdString(strCertificates));
-            *(this->ppcertificate_view) = view;
-            view->show();
-        //}
+    		view->show();
+        }
     }
     else {
 
