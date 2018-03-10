@@ -46,6 +46,7 @@ private slots:
     void on_cmtrightCheckBox_toggled(bool checked);
     void on_varsumCheckBox_toggled(bool checked);
     void on_bytesCheckBox_toggled(bool checked);
+    void on_sizeCheckBox_toggled(bool checked);
     void on_bytespaceCheckBox_toggled(bool checked);
     void on_lbytesCheckBox_toggled(bool checked);
     void on_syntaxComboBox_currentIndexChanged(int index);
