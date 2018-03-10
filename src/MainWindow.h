@@ -91,6 +91,9 @@ public:
     void addDebugOutput(const QString &msg);
     void refreshOmniBar(const QStringList &flags);
 
+signals:
+    void closeEventSignal();
+
 public slots:
 
     void refreshAll();

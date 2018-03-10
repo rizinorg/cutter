@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QDockWidget>
+#include <QCloseEvent>
 
 class MainWindow;
 
@@ -19,9 +20,9 @@ class Dashboard : public QDockWidget
 public:
     explicit Dashboard(MainWindow *main, QWidget *parent = 0);
     ~Dashboard();
-
 private slots:
     void updateContents();
+    void on_certificateButton_clicked();
 
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
@@ -29,3 +30,5 @@ private:
 };
 
 #endif // DASHBOARD_H
+
+    
