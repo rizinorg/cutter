@@ -1,5 +1,6 @@
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <utils/TempConfig.h>
 #include "utils/Configuration.h"
 #include "Cutter.h"
@@ -1264,7 +1265,7 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
     return ret;
 }
 
-QList<ClassDescription> CutterCore::getAllClasses()
+QList<ClassDescription> CutterCore::getAllClassesFromBin()
 {
     CORE_LOCK();
     QList<ClassDescription> ret;
@@ -1300,6 +1301,78 @@ QList<ClassDescription> CutterCore::getAllClasses()
         }
 
         ret << cls;
+    }
+    return ret;
+}
+
+#include <QList>
+
+QList<ClassDescription> CutterCore::getAllClassesFromFlags()
+{
+    static const QRegularExpression classFlagRegExp("^class\\.(.*)$");
+    static const QRegularExpression methodFlagRegExp("^method\\.([^\\.]*)\\.(.*)$");
+
+    CORE_LOCK();
+    QList<ClassDescription> ret;
+    QMap<QString, ClassDescription *> classesCache;
+
+    QJsonArray flagsArray = cmdj("fj@F:classes").array();
+    for (QJsonValueRef value : flagsArray)
+    {
+        QJsonObject flagObject = value.toObject();
+        QString flagName = flagObject["name"].toString();
+
+        QRegularExpressionMatch match = classFlagRegExp.match(flagName);
+        if (match.hasMatch())
+        {
+            QString className = match.captured(1);
+            ClassDescription *desc = nullptr;
+            auto it = classesCache.find(className);
+            if (it == classesCache.end())
+            {
+                ClassDescription cls = {};
+                ret << cls;
+                desc = &ret.last();
+                classesCache[className] = desc;
+            }
+            else
+            {
+                desc = it.value();
+            }
+            desc->name = match.captured(1);
+            desc->addr = flagObject["offset"].toVariant().toULongLong();
+            desc->index = 0;
+            continue;
+        }
+
+        match = methodFlagRegExp.match(flagName);
+        if (match.hasMatch())
+        {
+            QString className = match.captured(1);
+            ClassDescription *classDesc = nullptr;
+            auto it = classesCache.find(className);
+            if (it == classesCache.end())
+            {
+                // add a new stub class, will be replaced if class flag comes after it
+                ClassDescription cls;
+                cls.name = tr("Unknown (%1)").arg(className);
+                cls.addr = 0;
+                cls.index = 0;
+                ret << cls;
+                classDesc = &ret.last();
+                classesCache[className] = classDesc;
+            }
+            else
+            {
+                classDesc = it.value();
+            }
+
+            ClassMethodDescription meth;
+            meth.name = match.captured(2);
+            meth.addr = flagObject["offset"].toVariant().toULongLong();
+            classDesc->methods << meth;
+            continue;
+        }
     }
     return ret;
 }

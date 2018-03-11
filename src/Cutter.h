@@ -415,7 +415,8 @@ public:
     QList<FlagDescription> getAllFlags(QString flagspace = NULL);
     QList<SectionDescription> getAllSections();
     QList<EntrypointDescription> getAllEntrypoint();
-    QList<ClassDescription> getAllClasses();
+    QList<ClassDescription> getAllClassesFromBin();
+    QList<ClassDescription> getAllClassesFromFlags();
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
     QList<TypeDescription> getAllTypes();

@@ -261,7 +261,7 @@ ClassesWidget::~ClassesWidget() {}
 void ClassesWidget::refreshClasses()
 {
     model->beginReload();
-    classes = CutterCore::getInstance()->getAllClasses();
+    classes = CutterCore::getInstance()->getAllClassesFromBin();
     model->endReload();
 
     ui->classesTreeView->resizeColumnToContents(0);
