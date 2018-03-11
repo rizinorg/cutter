@@ -382,13 +382,11 @@ void MainWindow::closeEvent(QCloseEvent *event)
         {
             saveSettings();
         }
-        emit closeEventSignal();
         QMainWindow::closeEvent(event);
     }
     else if (ret == QMessageBox::Discard)
     {
         saveSettings();
-        emit closeEventSignal();
         QMainWindow::closeEvent(event);
     }
     else

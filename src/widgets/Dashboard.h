@@ -6,6 +6,8 @@
 #include <QDockWidget>
 #include <QCloseEvent>
 
+#include "JsonTreeViewDialog.h"
+
 class MainWindow;
 
 namespace Ui
@@ -27,6 +29,7 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
     MainWindow      *main;
+    JsonTreeViewDialog *m_dialog;
 };
 
 #endif // DASHBOARD_H

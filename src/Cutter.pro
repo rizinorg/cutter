@@ -143,7 +143,8 @@ SOURCES += \
     utils/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
     utils/JsonTreeItem.cpp \
-    utils/JsonModel.cpp
+    utils/JsonModel.cpp \
+    widgets/JsonTreeViewDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -212,7 +213,8 @@ HEADERS  += \
     utils/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
     utils/JsonTreeItem.h \
-    utils/JsonModel.h 
+    utils/JsonModel.h \
+    widgets/JsonTreeViewDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -252,7 +254,8 @@ FORMS    += \
     widgets/TypesWidget.ui \
     widgets/SearchWidget.ui \
     widgets/JupyterWidget.ui \
-    dialogs/R2PluginsDialog.ui
+    dialogs/R2PluginsDialog.ui \
+    widgets/JsonTreeViewDialog.ui
 
 RESOURCES += \
     resources.qrc \

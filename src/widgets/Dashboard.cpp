@@ -21,7 +21,8 @@
 Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::Dashboard),
-    main(main)
+    main(main),
+    m_dialog(new JsonTreeViewDialog(this))
 {
     ui->setupUi(this);
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
@@ -180,29 +181,16 @@ void Dashboard::updateContents()
 
 void Dashboard::on_certificateButton_clicked() {
 
-    QJsonDocument qjsonCertificatesDoc = Core()->cmdj("iCj");
-    QString qstrCertificates(qjsonCertificatesDoc.toJson(QJsonDocument::Compact));
-    static QTreeView * view = nullptr;
-    if (QString::compare("{}",qstrCertificates)) 
-    {
-        if(!view || !(view->isVisible()) ) {
-            JsonModel *model    = new JsonModel;
-            view   	= new QTreeView;
-    		connect(this->main, &MainWindow::closeEventSignal, view, &QTreeView::close);
-    		view->setModel(model);
-            view->setWindowTitle(QObject::tr("Certificates"));	
-    		std::string strCertificates = qstrCertificates.toUtf8().constData();
-            model->loadJson(QByteArray::fromStdString(strCertificates));
-    		view->show();
-        }
+    if(certificateDialog->setJsonTreeView()) {
+        
+        if(!certificateDialog->isVisible())
+            certificateDialog->show();
     }
     else {
-
         QMessageBox msgBoxCertificateInf(QMessageBox::Information, "Certificate Information ",
                                          "There is no certificate information",
                                          QMessageBox::NoButton, this);
-        msgBoxCertificateInf.exec();       
-
+        msgBoxCertificateInf.exec();    
     }
     
 }
