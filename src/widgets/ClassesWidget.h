@@ -77,8 +77,13 @@ private slots:
     void on_classesTreeView_doubleClicked(const QModelIndex &index);
 
     void refreshClasses();
+    void flagsChanged();
 
 private:
+    enum class Source { BIN, FLAGS };
+
+    Source getSource();
+
     std::unique_ptr<Ui::ClassesWidget> ui;
 
     ClassesModel *model;

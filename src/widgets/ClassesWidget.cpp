@@ -254,14 +254,38 @@ ClassesWidget::ClassesWidget(QWidget *parent) :
     ui->classesTreeView->sortByColumn(ClassesModel::TYPE, Qt::AscendingOrder);
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshClasses()));
+    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
+    connect(ui->classSourceCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshClasses()));
 }
 
 ClassesWidget::~ClassesWidget() {}
 
+ClassesWidget::Source ClassesWidget::getSource()
+{
+    if (ui->classSourceCombo->currentIndex() == 1)
+    {
+        return Source::FLAGS;
+    }
+    else
+    {
+        return Source::BIN;
+    }
+}
+
+void ClassesWidget::flagsChanged()
+{
+    if (getSource() == Source::FLAGS)
+    {
+        refreshClasses();
+    }
+}
+
 void ClassesWidget::refreshClasses()
 {
     model->beginReload();
-    classes = CutterCore::getInstance()->getAllClassesFromBin();
+    classes = getSource() == Source::BIN
+              ? CutterCore::getInstance()->getAllClassesFromBin()
+              : CutterCore::getInstance()->getAllClassesFromFlags();
     model->endReload();
 
     ui->classesTreeView->resizeColumnToContents(0);
