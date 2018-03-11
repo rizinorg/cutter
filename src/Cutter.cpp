@@ -324,6 +324,12 @@ void CutterCore::delFlag(RVA addr)
     emit flagsChanged();
 }
 
+void CutterCore::delFlag(const QString &name)
+{
+    cmdRaw("f-" + name);
+    emit flagsChanged();
+}
+
 void CutterCore::editInstruction(RVA addr, const QString &inst)
 {
     cmd("wa " + inst + " @ " + RAddressString(addr));

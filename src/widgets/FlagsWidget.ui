@@ -94,6 +94,16 @@
     </item>
    </layout>
   </widget>
+  <action name="actionRename">
+   <property name="text">
+    <string>Rename</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

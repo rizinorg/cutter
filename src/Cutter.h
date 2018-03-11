@@ -305,6 +305,7 @@ public:
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
     void delFlag(RVA addr);
+    void delFlag(const QString &name);
 
     void editInstruction(RVA addr, const QString &inst);
     void nopInstruction(RVA addr);

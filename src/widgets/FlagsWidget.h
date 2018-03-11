@@ -69,6 +69,11 @@ private slots:
     void on_flagsTreeView_doubleClicked(const QModelIndex &index);
     void on_flagspaceCombo_currentTextChanged(const QString &arg1);
 
+    void on_actionRename_triggered();
+    void on_actionDelete_triggered();
+
+    void showContextMenu(const QPoint &pt);
+
     void flagsChanged();
     void refreshFlagspaces();
 

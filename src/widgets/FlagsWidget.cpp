@@ -1,9 +1,12 @@
 #include <QDockWidget>
 #include <QTreeWidget>
 #include <QComboBox>
+#include <QMenu>
+
 #include "FlagsWidget.h"
 #include "ui_FlagsWidget.h"
 #include "MainWindow.h"
+#include "dialogs/RenameDialog.h"
 #include "utils/Helpers.h"
 
 FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
@@ -139,6 +142,9 @@ FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
 
     setScrollMode();
 
+    ui->flagsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->flagsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(showContextMenu(const QPoint &)));
+
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshFlagspaces()));
 }
@@ -157,6 +163,35 @@ void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
 
     refreshFlags();
 }
+
+void FlagsWidget::on_actionRename_triggered()
+{
+    FlagDescription flag = ui->flagsTreeView->selectionModel()->currentIndex().data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
+
+    RenameDialog *r = new RenameDialog(this);
+    r->setName(flag.name);
+    if (r->exec())
+    {
+        QString new_name = r->getName();
+        CutterCore::getInstance()->renameFlag(flag.name, new_name);
+    }
+}
+
+void FlagsWidget::on_actionDelete_triggered()
+{
+    FlagDescription flag = ui->flagsTreeView->selectionModel()->currentIndex().data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
+    Core()->delFlag(flag.name);
+}
+
+void FlagsWidget::showContextMenu(const QPoint &pt)
+{
+    QMenu *menu = new QMenu(ui->flagsTreeView);
+    menu->addAction(ui->actionRename);
+    menu->addAction(ui->actionDelete);
+    menu->exec(ui->flagsTreeView->mapToGlobal(pt));
+    delete menu;
+}
+
 
 void FlagsWidget::flagsChanged()
 {
