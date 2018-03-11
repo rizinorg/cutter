@@ -44,6 +44,15 @@ void GeneralOptionsWidget::updateThemeFromConfig()
     QString curTheme = Config()->getCurrentTheme();
     int index = themes.indexOf(curTheme) + 1;
     ui->colorComboBox->setCurrentIndex(index);
+    int maxThemeLen = 0;
+    for (QString str : themes){
+        int strLen = str.length();
+        if (strLen > maxThemeLen) {
+            maxThemeLen = strLen;
+        }
+    }
+    ui->colorComboBox->setMinimumContentsLength(maxThemeLen);
+    ui->colorComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     connect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(on_colorComboBox_currentIndexChanged(int)));
 }
 
