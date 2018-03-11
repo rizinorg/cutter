@@ -958,13 +958,27 @@ QList<RCorePluginDescription> CutterCore::getRCorePluginDescriptions()
     return ret;
 }
 
-QStringList CutterCore::getRAsmPlugins()
+QList<RAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
 {
-    QStringList ret;
+    CORE_LOCK();
+    RListIter *it;
+    QList<RAsmPluginDescription> ret;
 
-    QJsonArray plugins = cmdj("evj asm.arch").array()[0].toObject()["options"].toArray();
-    for(QJsonValueRef pluginValue : plugins)
-        ret << pluginValue.toString();
+    RAsmPlugin *ap;
+    CutterRListForeach(core_->assembler->plugins, it, RAsmPlugin, ap)
+    {
+        RAsmPluginDescription plugin;
+
+        plugin.name = ap->name;
+        plugin.architecture = ap->arch;
+        plugin.author = ap->author;
+        plugin.version = ap->version;
+        plugin.cpus = ap->cpus;
+        plugin.description = ap->desc;
+        plugin.license = ap->license;
+
+        ret << plugin;
+    }
 
     return ret;
 }

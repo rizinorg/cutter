@@ -200,6 +200,17 @@ struct RCorePluginDescription
     QString description;
 };
 
+struct RAsmPluginDescription
+{
+    QString name;
+    QString architecture;
+    QString author;
+    QString version;
+    QString cpus;
+    QString description;
+    QString license;
+};
+
 struct DisassemblyLine
 {
     RVA offset;
@@ -257,6 +268,7 @@ Q_DECLARE_METATYPE(EntrypointDescription)
 Q_DECLARE_METATYPE(RBinPluginDescription)
 Q_DECLARE_METATYPE(RIOPluginDescription)
 Q_DECLARE_METATYPE(RCorePluginDescription)
+Q_DECLARE_METATYPE(RAsmPluginDescription)
 Q_DECLARE_METATYPE(ClassMethodDescription)
 Q_DECLARE_METATYPE(ClassFieldDescription)
 Q_DECLARE_METATYPE(ClassDescription)
@@ -390,7 +402,7 @@ public:
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
     QList<RIOPluginDescription> getRIOPluginDescriptions();
     QList<RCorePluginDescription> getRCorePluginDescriptions();
-    QStringList getRAsmPlugins();
+    QList<RAsmPluginDescription> getRAsmPluginDescriptions();
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
