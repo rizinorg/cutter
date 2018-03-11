@@ -31,7 +31,7 @@ Cutter is based on Qt so you will need to have it installed.
 
 First you must clone the repository:
 ```sh
-git clone https://github.com/radareorg/cutter
+git clone --recurse-submodules https://github.com/radareorg/cutter
 cd cutter
 ```
 
