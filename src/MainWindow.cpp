@@ -223,6 +223,9 @@ void MainWindow::initUI()
 
 #undef ADD_DOCK
 
+    // Set up dock widgets default layout
+    resetToDefaultLayout();
+
     // Restore saved settings
     this->readSettings();
     // TODO: Allow the user to select this option visually in the GUI settings
@@ -232,8 +235,6 @@ void MainWindow::initUI()
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
     //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
 
-    // Set up dock widgets default layout
-    resetToDefaultLayout();
 
     /*
      *  Some global shortcuts
