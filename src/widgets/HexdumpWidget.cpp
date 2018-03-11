@@ -432,7 +432,7 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA addr, int lines)
         cur_addr += cols;
     }
 
-    return { offsetText, hexText, asciiText};
+    return {{offsetText, hexText, asciiText}};
 }
 
 void HexdumpWidget::selectionChanged()

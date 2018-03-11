@@ -129,7 +129,7 @@ protected:
 
     void adjustSize(int new_width, int new_height);
 
-    bool event(QEvent *event);
+    bool event(QEvent *event) override;
 private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y=false);
 
