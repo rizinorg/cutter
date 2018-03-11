@@ -16,6 +16,7 @@ Cutter is not aimed at existing radare2 users. It instead focuses on those whose
 
 ### Downloading a release
 
+Cutter is available for all platforms (Linux, OS X, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
 
 ### Building from source
@@ -34,50 +35,22 @@ git clone https://github.com/radareorg/cutter
 cd cutter
 ```
 
-##### Building radare2
-**/!\ WARNING /!\ This will delete your current radare2 version if any already installed.**
+Building on linux:
 ```sh
-git submodule init radare2 && git submodule update radare2
-cd radare2 && ./sys/install.sh
-cd ..
+./build.sh
 ```
 
-##### Building cutter
-
-Cutter can be build with two methods: The preferred one is with qmake, but you can also compile it with cmake. Choose the one you want to use.
-
-- Method 1: Qmake
-```sh
-mkdir build
-cd build
-qmake ../src
-make
+Building on Windows:
+```batch
+set ARCH=x64
+set PYTHON=C:\Python36-x64
+prepare_r2.bat
+build.bat
 ```
 
-- Method 2: CMake
-```sh
-mkdir build
-cd build
-cmake ../src
-make
-```
+If any of those do not work, check the more detailed version [here](https://github.com/radareorg/cutter/blob/master/docs/Compiling.md).
 
-Then run cutter: `./Cutter` or `./build/Cutter`
-
-Note: If radare2 is not installed system-wide (`./sys/user.sh` installation for instance) you might want to use  `LD_LIBRARY_PATH=$HOME/bin/prefix/radare2/lib ./Cutter` to run cutter.
-
-
-## Troubleshooting
-
-On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installed with brew. Run this command to workaround the issue:
-
-	sudo mv /usr/local/lib/libjpeg.dylib /usr/local/lib/libjpeg.dylib.not-found
-	
-If you encounter the `Project ERROR: r_core development package not found` try this command instead `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
-
-## Platforms
-
-Cutter is developed on OS X, Linux and Windows. The first release for users will include installers for all three platforms.
+Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
 
 ## Keyboard shortcuts
 
@@ -111,3 +84,4 @@ Right now the best place to obtain help from *cutter* developers and community i
 
 - https://t.me/r2cutter
 - #cutter on irc.freenode.net
+- [@r2gui](https://twitter.com/r2gui) on Twitter

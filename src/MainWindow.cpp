@@ -48,6 +48,8 @@
 #include "widgets/CommentsWidget.h"
 #include "widgets/ImportsWidget.h"
 #include "widgets/ExportsWidget.h"
+#include "widgets/TypesWidget.h"
+#include "widgets/SearchWidget.h"
 #include "widgets/SymbolsWidget.h"
 #include "widgets/StringsWidget.h"
 #include "widgets/SectionsDock.h"
@@ -55,7 +57,6 @@
 #include "widgets/FlagsWidget.h"
 #include "widgets/VisualNavbar.h"
 #include "widgets/Dashboard.h"
-#include "widgets/Notepad.h"
 #include "widgets/Sidebar.h"
 #include "widgets/SdbDock.h"
 #include "widgets/Omnibar.h"
@@ -65,6 +66,8 @@
 #include "dialogs/SaveProjectDialog.h"
 #include "widgets/ClassesWidget.h"
 #include "widgets/ResourcesWidget.h"
+#include "widgets/VTablesWidget.h"
+#include "widgets/JupyterWidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -81,18 +84,18 @@ static void registerCustomFonts()
     ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
     assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
 
-    // do not issue a warning in release
+    // Do not issue a warning in release
     Q_UNUSED(ret)
 }
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    core(CutterCore::getInstance()),
+    core(Core()),
     ui(new Ui::MainWindow)
 {
     panelLock = false;
     tabsOnTop = false;
-    configuration = new Configuration();
+    configuration = Config();
 }
 
 MainWindow::~MainWindow()
@@ -111,20 +114,6 @@ void MainWindow::initUI()
     // Hide central tab widget tabs
     QTabBar *centralbar = ui->centralTabWidget->tabBar();
     centralbar->setVisible(false);
-
-    // Sepparator between back/forward and undo/redo buttons
-    QWidget *spacer4 = new QWidget();
-    spacer4->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
-    spacer4->setMinimumSize(10, 10);
-    ui->mainToolBar->insertWidget(ui->actionForward, spacer4);
-    ui->actionForward->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_right.svg"))));
-
-    // Popup menu on theme toolbar button
-    QToolButton *backButton = new QToolButton(this);
-    backButton->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_left.svg"))));
-    //backButton->setPopupMode(QToolButton::DelayedPopup);
-    ui->mainToolBar->insertWidget(ui->actionForward, backButton);
-    connect(backButton, SIGNAL(clicked()), this, SLOT(backButton_clicked()));
 
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
@@ -213,16 +202,24 @@ void MainWindow::initUI()
     ADD_DOCK(FunctionsWidget, functionsDock, ui->actionFunctions);
     ADD_DOCK(ImportsWidget, importsDock, ui->actionImports);
     ADD_DOCK(ExportsWidget, exportsDock, ui->actionExports);
+    ADD_DOCK(TypesWidget, typesDock, ui->actionTypes);
+    ADD_DOCK(SearchWidget, searchDock, ui->actionSearchInst);
     ADD_DOCK(SymbolsWidget, symbolsDock, ui->actionSymbols);
     ADD_DOCK(RelocsWidget, relocsDock, ui->actionRelocs);
     ADD_DOCK(CommentsWidget, commentsDock, ui->actionComments);
     ADD_DOCK(StringsWidget, stringsDock, ui->actionStrings);
     ADD_DOCK(FlagsWidget, flagsDock, ui->actionFlags);
-    ADD_DOCK(Notepad, notepadDock, ui->actionNotepad);
+#ifdef CUTTER_ENABLE_JUPYTER
+    ADD_DOCK(JupyterWidget, jupyterDock, ui->actionJupyter);
+#else
+    ui->actionJupyter->setEnabled(false);
+    ui->actionJupyter->setVisible(false);
+#endif
     ADD_DOCK(Dashboard, dashboardDock, ui->actionDashboard);
     ADD_DOCK(SdbDock, sdbDock, ui->actionSDBBrowser);
     ADD_DOCK(ClassesWidget, classesDock, ui->actionClasses);
     ADD_DOCK(ResourcesWidget, resourcesDock, ui->actionResources);
+    ADD_DOCK(VTablesWidget, vTablesDock, ui->actionVTables);
 
 #undef ADD_DOCK
 
@@ -333,12 +330,6 @@ void MainWindow::finalizeOpen()
     core->cmd("fs sections");
     refreshAll();
 
-    if (core->getNotes().isEmpty())
-    {
-        core->setNotes(tr("# Binary information\n\n") + core->cmd("i") +
-                       "\n" + core->cmd("ie") + "\n" + core->cmd("iM") + "\n");
-    }
-
     addOutput(tr(" > Finished, happy reversing :)"));
     // Add fortune message
     addOutput("\n" + core->cmd("fo"));
@@ -385,22 +376,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                       tr("Do you really want to exit?\nSave your project before closing!"),
                                       (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
-    //qDebug() << ret;
     if (ret == QMessageBox::Save)
     {
         if (saveProject(true))
         {
             saveSettings();
-            QMainWindow::closeEvent(event);
         }
-        else
-        {
-            event->ignore();
-        }
+        QMainWindow::closeEvent(event);
     }
     else if (ret == QMessageBox::Discard)
     {
         saveSettings();
+        QMainWindow::closeEvent(event);
     }
     else
     {
@@ -509,11 +496,6 @@ void MainWindow::toggleDockWidget(QDockWidget *dock_widget, bool show)
     }
 }
 
-void MainWindow::backButton_clicked()
-{
-    core->seekPrev();
-}
-
 void MainWindow::restoreDocks()
 {
     // In the upper half the functions are the first widget
@@ -541,10 +523,15 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, relocsDock);
     tabifyDockWidget(dashboardDock, importsDock);
     tabifyDockWidget(dashboardDock, exportsDock);
+    tabifyDockWidget(dashboardDock, typesDock);
+    tabifyDockWidget(dashboardDock, searchDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
-    tabifyDockWidget(dashboardDock, notepadDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
+    tabifyDockWidget(dashboardDock, vTablesDock);
+#ifdef CUTTER_ENABLE_JUPYTER
+    tabifyDockWidget(dashboardDock, jupyterDock);
+#endif
 
     updateDockActionsChecked();
 }
@@ -578,13 +565,15 @@ void MainWindow::showDefaultDocks()
                                                 consoleDock,
                                                 importsDock,
                                                 symbolsDock,
-                                                notepadDock,
                                                 graphDock,
                                                 disassemblyDock,
                                                 sidebarDock,
                                                 hexdumpDock,
                                                 pseudocodeDock,
-                                                dashboardDock
+                                                dashboardDock,
+#ifdef CUTTER_ENABLE_JUPYTER
+                                                jupyterDock
+#endif
                                               };
 
     for (auto w : dockWidgets)
@@ -616,11 +605,6 @@ void MainWindow::resetToDefaultLayout()
     restoreSidebarDock.restoreWidth(sidebarDock->widget());
 
     Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
-}
-
-void MainWindow::sendToNotepad(const QString &txt)
-{
-    core->setNotes(core->getNotes() + "```\n" + txt + "\n```");
 }
 
 void MainWindow::addOutput(const QString &msg)
@@ -688,16 +672,6 @@ void MainWindow::on_actionSaveAs_triggered()
     saveProjectAs();
 }
 
-void MainWindow::on_actionUndoSeek_triggered()
-{
-    Core()->seekPrev();
-}
-
-void MainWindow::on_actionRedoSeek_triggered()
-{
-    Core()->seekNext();
-}
-
 void MainWindow::on_actionRun_Script_triggered()
 {
     QFileDialog dialog(this);
@@ -749,9 +723,24 @@ void MainWindow::on_actionQuit_triggered()
     close();
 }
 
+void MainWindow::on_actionBackward_triggered()
+{
+    Core()->seekPrev();
+}
+
 void MainWindow::on_actionForward_triggered()
 {
-    core->seekNext();
+    Core()->seekNext();
+}
+
+void MainWindow::on_actionUndoSeek_triggered()
+{
+    Core()->seekPrev();
+}
+
+void MainWindow::on_actionRedoSeek_triggered()
+{
+    Core()->seekNext();
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()

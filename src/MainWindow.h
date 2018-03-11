@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "cutter.h" // only needed for ut64
+#include "Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/SidebarWidget.h"
 #include "widgets/HexdumpWidget.h"
@@ -17,7 +17,6 @@
 class CutterCore;
 class Omnibar;
 class PreviewWidget;
-class Notepad;
 class Highlighter;
 class AsciiHighlighter;
 class VisualNavbar;
@@ -39,7 +38,12 @@ class EntrypointWidget;
 class DisassemblerGraphView;
 class ClassesWidget;
 class ResourcesWidget;
-
+class VTablesWidget;
+class TypesWidget;
+class SearchWidget;
+#ifdef CUTTER_ENABLE_JUPYTER
+class JupyterWidget;
+#endif
 class QDockWidget;
 
 namespace Ui
@@ -85,7 +89,6 @@ public:
     void setFilename(const QString &fn);
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
-    void sendToNotepad(const QString &txt);
     void refreshOmniBar(const QStringList &flags);
 
 public slots:
@@ -107,8 +110,6 @@ public slots:
 
     void toggleResponsive(bool maybe);
 
-    void backButton_clicked();
-
 private slots:
     void on_actionAbout_triggered();
 
@@ -125,12 +126,12 @@ private slots:
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
 
+    void on_actionBackward_triggered();
+    void on_actionForward_triggered();
     void on_actionUndoSeek_triggered();
     void on_actionRedoSeek_triggered();
 
     void on_actionOpen_triggered();
-
-    void on_actionForward_triggered();
 
     void on_actionTabs_on_Top_triggered();
 
@@ -150,6 +151,7 @@ private slots:
 
 private:
     CutterCore *core;
+
     bool panelLock;
     bool tabsOnTop;
     ut64 hexdumpTopOffset;
@@ -164,7 +166,6 @@ private:
 
     QList<QDockWidget *> dockWidgets;
     QMap<QAction *, QDockWidget *> dockWidgetActions;
-    Notepad            *notepadDock = nullptr;
     DisassemblyWidget  *disassemblyDock = nullptr;
     SidebarWidget      *sidebarDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;
@@ -174,6 +175,8 @@ private:
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;
     ExportsWidget      *exportsDock = nullptr;
+    TypesWidget        *typesDock = nullptr;
+    SearchWidget        *searchDock = nullptr;
     SymbolsWidget      *symbolsDock = nullptr;
     RelocsWidget       *relocsDock = nullptr;
     CommentsWidget     *commentsDock = nullptr;
@@ -186,10 +189,14 @@ private:
     ConsoleWidget      *consoleDock = nullptr;
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;
+    VTablesWidget      *vTablesDock = nullptr;
     DisassemblerGraphView *graphView = nullptr;
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;
-    NewFileDialog      *newFileDialog = nullptr; 
+    NewFileDialog      *newFileDialog = nullptr;
+#ifdef CUTTER_ENABLE_JUPYTER
+    JupyterWidget      *jupyterDock = nullptr;
+#endif
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 

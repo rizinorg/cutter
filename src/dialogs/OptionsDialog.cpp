@@ -4,9 +4,6 @@
 #include "dialogs/NewFileDialog.h"
 #include "utils/Helpers.h"
 
-// TODO: remove us
-#include "widgets/Notepad.h"
-
 #include <QSettings>
 #include <QFileInfo>
 #include <QFileDialog>
@@ -45,7 +42,8 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 
     ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
 
-
+    ui->entry_analbb->setToolTip(core->cmd("e? anal.bb.maxsize").trimmed());
+    
     for (auto plugin : core->getRBinPluginDescriptions("bin"))
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
 
@@ -114,6 +112,16 @@ int OptionsDialog::getSelectedBits()
     }
 
     return 0;
+}
+
+int OptionsDialog::getSelectedBBSize()
+{
+    QString sel_bbsize = ui->entry_analbb->text();
+    bool ok;
+    int bbsize = sel_bbsize.toInt(&ok);
+    if (ok)
+        return bbsize;
+    return 1024;
 }
 
 OptionsDialog::Endianness OptionsDialog::getSelectedEndianness()
@@ -254,11 +262,26 @@ void OptionsDialog::on_okButton_clicked()
 
 void OptionsDialog::anal_finished()
 {
+    if (analThread.isInterrupted())
+    {
+        done(0);
+        return;
+    }
+
     ui->statusLabel->setText(tr("Loading interface"));
     main->addOutput(tr(" > Analysis finished"));
 
     main->finalizeOpen();
     done(0);
+}
+
+void OptionsDialog::closeEvent(QCloseEvent *event)
+{
+    if (analThread.isRunning())
+    {
+        analThread.interruptAndWait();
+    }
+    event->accept();
 }
 
 QString OptionsDialog::analysisDescription(int level)
@@ -354,7 +377,6 @@ void OptionsDialog::on_pdbSelectButton_clicked()
 
 void OptionsDialog::reject()
 {
-    delete main;
     done(0);
     NewFileDialog *n = new NewFileDialog(nullptr);
     n->show();

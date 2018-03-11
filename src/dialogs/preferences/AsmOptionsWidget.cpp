@@ -46,6 +46,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Core()->getConfigb("asm.emu"));
     qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Core()->getConfigb("asm.cmtright"));
     qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Core()->getConfigb("asm.varsum"));
+    qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Core()->getConfigb("asm.size"));
 
     bool bytesEnabled = Core()->getConfigb("asm.bytes");
     qhelpers::setCheckedWithoutSignals(ui->bytesCheckBox, bytesEnabled);
@@ -193,6 +194,12 @@ void AsmOptionsWidget::on_bytesCheckBox_toggled(bool checked)
     ui->lbytesCheckBox->setEnabled(checked);
     ui->nbytesLabel->setEnabled(checked);
     ui->nbytesSpinBox->setEnabled(checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_sizeCheckBox_toggled(bool checked)
+{
+    Core()->setConfig("asm.size", checked);
     triggerAsmOptionsChanged();
 }
 

@@ -114,11 +114,15 @@ bool StringsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
     switch (left.column())
     {
         case StringsModel::OFFSET:
-            if (left_str.vaddr != right_str.vaddr)
-                return left_str.vaddr < right_str.vaddr;
-            // fallthrough
-        case StringsModel::STRING:
+            return left_str.vaddr < right_str.vaddr;
+        case StringsModel::STRING: // sort by string
             return left_str.string < right_str.string;
+        case StringsModel::TYPE: // sort by type
+            return left_str.type < right_str.type;
+        case StringsModel::SIZE: // sort by size
+            return left_str.size < right_str.size;
+        case StringsModel::LENGTH: // sort by length
+            return left_str.length < right_str.length;
         default:
             break;
     }

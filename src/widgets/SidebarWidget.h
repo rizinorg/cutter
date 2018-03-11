@@ -12,7 +12,7 @@
 #include <QPlainTextEdit>
 #include <QMouseEvent>
 #include <memory>
-#include "cutter.h"
+#include "Cutter.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"

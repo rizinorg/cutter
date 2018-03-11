@@ -37,7 +37,7 @@ def set_global_vars():
 
 def parse_qmake_file():
     log.info('Parsing qmake file')
-    with open(os.path.join(ROOT, 'src', 'cutter.pro')) as qmake_file:
+    with open(os.path.join(ROOT, 'src', 'Cutter.pro')) as qmake_file:
         lines = qmake_file.readlines()
     var_name = None
     end_of_def = True
@@ -59,7 +59,8 @@ def parse_qmake_file():
             VARS[var_name].append(word)
         if end_of_def:
             var_name = None
-    VARS['QT'] = list(map(str.title, VARS['QT']))
+    qt_mod_translation = { "webenginewidgets": "WebEngineWidgets" }
+    VARS['QT'] = list(map(lambda s: qt_mod_translation.get(s, str.title(s)), VARS['QT']))
     log.debug('Variables: \n%s', pprint.pformat(VARS, compact=True))
 
 def win_dist(args):
@@ -70,11 +71,12 @@ def win_dist(args):
     log.debug('Deploying Qt5')
     subprocess.call(['windeployqt', '--release', os.path.join(dist, 'Cutter.exe')])
     log.debug('Deploying libr2')
-    r2_meson_mod.win_dist_libr2(DIST=dist)
+    r2_meson_mod.win_dist_libr2(DIST=dist, BUILDDIR=os.path.join(build, 'subprojects', 'radare2'))
 
 def build(args):
-    r2_meson_mod.prepare_capstone()
     cutter_builddir = os.path.join(ROOT, args.dir)
+    if not args.webengine:
+        VARS['QT'].remove('WebEngineWidgets')
     if not os.path.exists(cutter_builddir):
         defines = []
         defines.append('-Dversion=%s' % VARS['VERSION'][0])
@@ -83,10 +85,11 @@ def build(args):
         defines.append('-Dheaders=%s' % ','.join(VARS['HEADERS']))
         defines.append('-Dui_files=%s' % ','.join(VARS['FORMS']))
         defines.append('-Dqresources=%s' % ','.join(VARS['RESOURCES']))
+        defines.append('-Denable_jupyter=%s' % str(args.jupyter).lower())
+        defines.append('-Denable_webengine=%s' % str(args.webengine).lower())
         r2_meson_mod.meson(os.path.join(ROOT, 'src'), cutter_builddir,
                            prefix=cutter_builddir, backend=args.backend,
                            release=True, shared=False, options=defines)
-    r2_meson_mod.build_sdb(args.backend, release=True)
     log.info('Building cutter')
     if args.backend == 'ninja':
         r2_meson_mod.ninja(cutter_builddir)
@@ -117,11 +120,15 @@ def main():
                         default='ninja', help='Choose build backend')
     parser.add_argument('--dir', default='build',
                         help='Destination build directory')
+    parser.add_argument('--jupyter', action='store_true',
+                        help='Enable Jupyter support')
+    parser.add_argument('--webengine', action='store_true',
+                        help='Enable QtWebEngine support')
     if os.name == 'nt':
         parser.add_argument('--dist', help='dist directory')
     args = parser.parse_args()
 
-    if args.dist and os.path.exists(args.dist):
+    if hasattr(args, 'dist') and args.dist and os.path.exists(args.dist):
         log.error('%s already exists', args.dist)
         sys.exit(1)
 
@@ -132,7 +139,7 @@ def main():
 
     build(args)
 
-    if args.dist:
+    if hasattr(args, 'dist') and args.dist:
         win_dist(args)
 
 import_r2_meson_mod()

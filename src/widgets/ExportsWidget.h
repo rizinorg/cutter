@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "cutter.h"
+#include "Cutter.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>

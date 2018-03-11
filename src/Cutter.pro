@@ -3,7 +3,7 @@ TEMPLATE = app
 TARGET = Cutter
 
 # The application version
-VERSION = 1.2
+VERSION = 1.3
 
 ICON = img/cutter.icns
 
@@ -11,8 +11,27 @@ QT += core gui widgets svg
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
+# You can spawn qmake with qmake "CONFIG+=CUTTER_ENABLE_JUPYTER" to set a variable
+# Or manually edit this file
+#CONFIG += CUTTER_ENABLE_JUPYTER
+#CONFIG += CUTTER_ENABLE_QTWEBENGINE
+
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+CUTTER_ENABLE_JUPYTER {
+    message("Jupyter support enabled.")
+    DEFINES += CUTTER_ENABLE_JUPYTER
+} else {
+    message("Jupyter support disabled.")
+}
+
+CUTTER_ENABLE_QTWEBENGINE {
+    message("QtWebEngine support enabled.")
+    DEFINES += CUTTER_ENABLE_QTWEBENGINE
+    QT += webenginewidgets
+} else {
+    message("QtWebEngine support disabled.")
+}
 
 INCLUDEPATH *= .
 
@@ -27,14 +46,39 @@ macx {
     QMAKE_INFO_PLIST = apple/Info.plist
 }
 
-
 unix:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
 }
 
+# Libraries
+include(lib_radare2.pri)
+win32:CUTTER_ENABLE_JUPYTER {
+    pythonpath = $$quote($$system("where python"))
+    pythonpath = $$replace(pythonpath, ".exe ", ".exe;")
+    pythonpath = $$section(pythonpath, ";", 0, 0)
+    pythonpath = $$clean_path($$dirname(pythonpath))
+    LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
+    INCLUDEPATH += $${pythonpath}/include
+}
+
+unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
+    defined(PYTHON_FRAMEWORK_DIR, var) {
+        message("Using Python.framework at $$PYTHON_FRAMEWORK_DIR")
+        INCLUDEPATH += $$PYTHON_FRAMEWORK_DIR/Python.framework/Headers
+        LIBS += -F$$PYTHON_FRAMEWORK_DIR -framework Python
+        DEFINES += MACOS_PYTHON_FRAMEWORK_BUNDLED
+    } else {
+        CONFIG += link_pkgconfig
+        !packagesExist(python3) {
+            error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
+        }
+        PKGCONFIG += python3
+    }
+}
+
 SOURCES += \
-    main.cpp \
-    cutter.cpp \
+    Main.cpp \
+    Cutter.cpp \
     widgets/DisassemblerGraphView.cpp \
     utils/RichTextPainter.cpp \
     dialogs/OptionsDialog.cpp \
@@ -61,7 +105,6 @@ SOURCES += \
     widgets/FlagsWidget.cpp \
     widgets/FunctionsWidget.cpp \
     widgets/ImportsWidget.cpp \
-    widgets/Notepad.cpp \
     widgets/Omnibar.cpp \
     widgets/PieView.cpp \
     widgets/RelocsWidget.cpp \
@@ -90,10 +133,18 @@ SOURCES += \
     widgets/QuickFilterView.cpp \
     widgets/ClassesWidget.cpp \
     widgets/ResourcesWidget.cpp \
-    CutterApplication.cpp
+    widgets/VTablesWidget.cpp \
+    widgets/TypesWidget.cpp \
+    widgets/SearchWidget.cpp \
+    CutterApplication.cpp \
+    utils/JupyterConnection.cpp \
+    widgets/JupyterWidget.cpp \
+    utils/PythonAPI.cpp \
+    utils/NestedIPyKernel.cpp \
+    dialogs/R2PluginsDialog.cpp
 
 HEADERS  += \
-    cutter.h \
+    Cutter.h \
     widgets/DisassemblerGraphView.h \
     utils/RichTextPainter.h \
     utils/CachedFontMetrics.h \
@@ -121,7 +172,6 @@ HEADERS  += \
     widgets/FlagsWidget.h \
     widgets/FunctionsWidget.h \
     widgets/ImportsWidget.h \
-    widgets/Notepad.h \
     widgets/Omnibar.h \
     widgets/PieView.h \
     widgets/RelocsWidget.h \
@@ -150,7 +200,15 @@ HEADERS  += \
     widgets/QuickFilterView.h \
     widgets/ClassesWidget.h \
     widgets/ResourcesWidget.h \
-    CutterApplication.h
+    CutterApplication.h \
+    widgets/VTablesWidget.h \
+    widgets/TypesWidget.h \
+    widgets/SearchWidget.h \
+    utils/JupyterConnection.h \
+    widgets/JupyterWidget.h \
+    utils/PythonAPI.h \
+    utils/NestedIPyKernel.h \
+    dialogs/R2PluginsDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -171,7 +229,6 @@ FORMS    += \
     widgets/ExportsWidget.ui \
     widgets/FunctionsWidget.ui \
     widgets/ImportsWidget.ui \
-    widgets/Notepad.ui \
     widgets/SdbDock.ui \
     widgets/RelocsWidget.ui \
     widgets/SectionsDock.ui \
@@ -186,18 +243,19 @@ FORMS    += \
     dialogs/preferences/GraphOptionsWidget.ui \
     widgets/QuickFilterView.ui \
     widgets/PseudocodeWidget.ui \
-    widgets/ClassesWidget.ui
+    widgets/ClassesWidget.ui \
+    widgets/VTablesWidget.ui \
+    widgets/TypesWidget.ui \
+    widgets/SearchWidget.ui \
+    widgets/JupyterWidget.ui \
+    dialogs/R2PluginsDialog.ui
 
 RESOURCES += \
     resources.qrc \
     themes/qdarkstyle/style.qrc
 
 
-DISTFILES += cutter.astylerc
-
-
-include(lib_radare2.pri)
-
+DISTFILES += Cutter.astylerc
 
 # 'make install' for AppImage
 unix {
@@ -211,7 +269,7 @@ unix {
     share_pixmaps.files = $$icon_file
 
 
-    desktop_file = cutter.desktop
+    desktop_file = Cutter.desktop
 
     # built-in no need for files atm
     target.path = $$PREFIX/bin

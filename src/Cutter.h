@@ -30,7 +30,7 @@
 #define __question(x) (QMessageBox::Yes==QMessageBox::question (this, "Alert", QString(x), QMessageBox::Yes| QMessageBox::No))
 
 #define APPNAME "Cutter"
-#define CUTTER_VERSION "1.2"
+#define CUTTER_VERSION "1.3"
 
 #define Core() (CutterCore::getInstance())
 
@@ -89,6 +89,21 @@ struct ExportDescription
     QString type;
     QString name;
     QString flag_name;
+};
+
+struct TypeDescription
+{
+    QString type;
+    int size;
+    QString format;
+};
+
+struct SearchDescription
+{
+    RVA offset;
+    int size;
+    QString code;
+    QString data;
 };
 
 struct SymbolDescription
@@ -171,6 +186,20 @@ struct RBinPluginDescription
     QString type;
 };
 
+struct RIOPluginDescription
+{
+    QString name;
+    QString description;
+    QString license;
+    QString permissions;
+};
+
+struct RCorePluginDescription
+{
+    QString name;
+    QString description;
+};
+
 struct DisassemblyLine
 {
     RVA offset;
@@ -208,6 +237,12 @@ struct ResourcesDescription
     QString lang;
 };
 
+struct VTableDescription
+{
+    RVA addr;
+    QList<ClassMethodDescription> methods;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -220,6 +255,8 @@ Q_DECLARE_METATYPE(FlagDescription)
 Q_DECLARE_METATYPE(XrefDescription)
 Q_DECLARE_METATYPE(EntrypointDescription)
 Q_DECLARE_METATYPE(RBinPluginDescription)
+Q_DECLARE_METATYPE(RIOPluginDescription)
+Q_DECLARE_METATYPE(RCorePluginDescription)
 Q_DECLARE_METATYPE(ClassMethodDescription)
 Q_DECLARE_METATYPE(ClassFieldDescription)
 Q_DECLARE_METATYPE(ClassDescription)
@@ -227,6 +264,9 @@ Q_DECLARE_METATYPE(const ClassDescription *)
 Q_DECLARE_METATYPE(const ClassMethodDescription *)
 Q_DECLARE_METATYPE(const ClassFieldDescription *)
 Q_DECLARE_METATYPE(ResourcesDescription)
+Q_DECLARE_METATYPE(VTableDescription)
+Q_DECLARE_METATYPE(TypeDescription)
+Q_DECLARE_METATYPE(SearchDescription)
 
 class CutterCore: public QObject
 {
@@ -255,6 +295,9 @@ public:
     void delFlag(RVA addr);
 
     void editInstruction(RVA addr, const QString &inst);
+    void nopInstruction(RVA addr);
+    void jmpReverse(RVA addr);
+    
     void editBytes(RVA addr, const QString &inst);
 
     void setComment(RVA addr, const QString &cmt);
@@ -263,7 +306,7 @@ public:
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
-    bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, bool rw = false, int va = 0, int idx = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
+    bool loadFile(QString path, uint64_t loadaddr = 0LL, uint64_t mapaddr = 0LL, int perms = R_IO_READ, int va = 0, int idx = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
     void analyze(int level, QList<QString> advanced);
 
@@ -301,6 +344,8 @@ public:
     void setDefaultCPU();
     void setCPU(QString arch, QString cpu, int bits, bool temporary = false);
     void setEndianness(bool big);
+    void setBBSize(int size);
+    
     RAnalFunction *functionAt(ut64 addr);
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
@@ -342,10 +387,10 @@ public:
 
     static bool isProjectNameValid(const QString &name);
 
-    const QString &getNotes() const                { return notes; }
-    void setNotes(const QString &notes);
-
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
+    QList<RIOPluginDescription> getRIOPluginDescriptions();
+    QList<RCorePluginDescription> getRCorePluginDescriptions();
+    QStringList getRAsmPlugins();
 
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
@@ -360,6 +405,9 @@ public:
     QList<EntrypointDescription> getAllEntrypoint();
     QList<ClassDescription> getAllClasses();
     QList<ResourcesDescription> getAllResources();
+    QList<VTableDescription> getAllVTables();
+    QList<TypeDescription> getAllTypes();
+    QList<SearchDescription> getAllSearch(QString search_for, QString space);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function, const QString &filterType = QString::null);
 
@@ -381,11 +429,9 @@ public:
     QString getVersionInformation();
     QJsonArray getOpenedFiles();
 
+    QList<QString> getColorThemes();
+
     RCoreLocked core() const;
-
-    /* fields */
-
-    Sdb *db;
 
 signals:
     void refreshAll();

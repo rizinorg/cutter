@@ -134,7 +134,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             case NameColumn:
                 return function.name;
             case SizeColumn:
-                return RSizeString(function.size);
+                return function.size;
             case OffsetColumn:
                 return RAddressString(function.offset);
             default:
@@ -152,6 +152,11 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         if (currentIndex == function_index)
             return highlightFont;
         return defaultFont;
+
+    case Qt::TextAlignmentRole:
+        if (index.column() == 1)
+            return static_cast<int>(Qt::AlignRight | Qt::AlignVCenter);
+        return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::ToolTipRole:
     {

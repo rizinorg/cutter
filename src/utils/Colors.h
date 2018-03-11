@@ -1,7 +1,7 @@
 #ifndef COLORS_H
 #define COLORS_H
 
-#include "cutter.h"
+#include "Cutter.h"
 #include "utils/RichTextPainter.h"
 #include <r_anal.h>
 

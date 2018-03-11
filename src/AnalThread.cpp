@@ -1,5 +1,5 @@
 #include <QDebug>
-#include "cutter.h"
+#include "Cutter.h"
 #include "AnalThread.h"
 #include "MainWindow.h"
 #include "dialogs/OptionsDialog.h"
@@ -9,7 +9,8 @@ AnalThread::AnalThread(OptionsDialog *parent) :
     QThread(parent),
     level(2),
     main(nullptr),
-    core(CutterCore::getInstance())
+    core(CutterCore::getInstance()),
+    interrupted(false)
 {
 }
 
@@ -31,6 +32,17 @@ void AnalThread::start(MainWindow *main, int level, QList<QString> advanced)
     QThread::start();
 }
 
+void AnalThread::interruptAndWait()
+{
+    interrupted = true;
+
+    while(isRunning())
+    {
+        r_cons_singleton()->breaked = true;
+        r_sys_usleep(10000);
+    }
+}
+
 // run() will be called when a thread starts
 void AnalThread::run()
 {
@@ -40,13 +52,17 @@ void AnalThread::run()
     ut64 loadaddr = 0LL;
     ut64 mapaddr = 0LL;
 
+    interrupted = false;
+
     //
     // Advanced Options
     //
 
     core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(), optionsDialog->getSelectedBits());
 
-    bool rw = ui->writeCheckBox->isChecked();
+    int perms = R_IO_READ | R_IO_EXEC;
+    if (ui->writeCheckBox->isChecked())
+        perms |= R_IO_WRITE;
     bool loadBinInfo = !ui->binCheckBox->isChecked();
 
     if (loadBinInfo)
@@ -83,7 +99,7 @@ void AnalThread::run()
     QJsonArray openedFiles = Core()->getOpenedFiles();
     if (!openedFiles.size())
     {
-        core->loadFile(main->getFilename(), loadaddr, mapaddr, rw, va, binidx, loadBinInfo, forceBinPlugin);
+        core->loadFile(main->getFilename(), loadaddr, mapaddr, perms, va, binidx, loadBinInfo, forceBinPlugin);
     }
     emit updateProgress("Analysis in progress.");
 
@@ -102,6 +118,8 @@ void AnalThread::run()
     {
         core->setEndianness(optionsDialog->getSelectedEndianness() == OptionsDialog::Endianness::Big);
     }
+
+    core->setBBSize(optionsDialog->getSelectedBBSize());
 
     // use prj.simple as default as long as regular projects are broken
     core->setConfig("prj.simple", true);

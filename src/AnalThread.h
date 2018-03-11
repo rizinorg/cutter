@@ -15,6 +15,9 @@ public:
     ~AnalThread();
 
     void start(MainWindow *main, int level, QList<QString> advanced);
+    void interruptAndWait();
+
+    bool isInterrupted()   { return interrupted; }
 
 protected:
     void run();
@@ -29,6 +32,8 @@ private:
     QList<QString> advanced;
     MainWindow *main;
     CutterCore *core;
+
+    bool interrupted;
 };
 
 #endif // ANALTHREAD_H

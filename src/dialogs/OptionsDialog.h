@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <memory>
-#include "cutter.h"
+#include "Cutter.h"
 #include "AnalThread.h"
 #include "ui_OptionsDialog.h"
 
@@ -40,6 +40,9 @@ private slots:
 
     void anal_finished();
 
+protected:
+	void closeEvent(QCloseEvent *event) override;
+
 private:
     AnalThread analThread;
     MainWindow *main;
@@ -53,13 +56,14 @@ private:
     void setInteractionEnabled(bool enabled);
 
 public:
-	enum class Endianness { Auto, Little, Big };
+    enum class Endianness { Auto, Little, Big };
 
     std::unique_ptr<Ui::OptionsDialog> ui;
 
     QString getSelectedArch();
     QString getSelectedCPU();
     int getSelectedBits();
+    int getSelectedBBSize();
 	Endianness getSelectedEndianness();
     QString getSelectedOS();
     QTimer analTimer;

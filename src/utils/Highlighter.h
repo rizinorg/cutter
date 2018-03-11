@@ -1,7 +1,7 @@
 #ifndef HIGHLIGHTER_H
 #define HIGHLIGHTER_H
 
-#include "cutter.h"
+#include "Cutter.h"
 
 #include <QSyntaxHighlighter>
 #include <QHash>

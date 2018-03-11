@@ -59,7 +59,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="themeLabel">
        <property name="text">
-        <string>Theme:</string>
+        <string>Qt Theme:</string>
        </property>
       </widget>
      </item>
@@ -81,6 +81,23 @@
          <string>Dark</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="colorLabel">
+       <property name="text">
+        <string>Color theme</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="colorComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
       </widget>
      </item>
     </layout>

@@ -37,6 +37,8 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     margin = static_cast<int>(ui->hexASCIIText->document()->documentMargin());
     ui->asciiHeaderLabel->setContentsMargins(margin, 0, margin, 0);
 
+    ui->splitter->setCollapsible(0, false); // Only Sidebar should collapse
+
     setupFonts();
 
     colorsUpdatedSlot();
@@ -1122,5 +1124,5 @@ void HexdumpWidget::updateWidths()
     ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width());
 
     ui->hexASCIIText->document()->adjustSize();
-    ui->hexASCIIText->setFixedWidth(ui->hexASCIIText->document()->size().width());
+    ui->hexASCIIText->setMinimumWidth(ui->hexASCIIText->document()->size().width());
 }

@@ -3,7 +3,7 @@
 
 #include <QSettings>
 #include <QFont>
-#include <cutter.h>
+#include <Cutter.h>
 
 #define Config() (Configuration::instance())
 #define ConfigColor(x) Config()->getColor(x)
@@ -13,7 +13,7 @@ class Configuration : public QObject
     Q_OBJECT
 private:
     QSettings s;
-    static Configuration* mPtr;
+    static Configuration *mPtr;
 
     void loadInitial();
 
@@ -76,14 +76,17 @@ public:
     bool getAsmEmu() const              { return s.value("asm.emu", false).toBool(); }
     void setAsmEmu(bool v)              { s.setValue("asm.emu", v); }
 
-    bool getAsmCmtRight() const         { return s.value("asm.cmtright", true).toBool(); }
-    void setAsmCmtRight(bool v)         { s.setValue("asm.cmtright", v); }
+    bool getAsmCmtRight() const         { return s.value("asm.cmt.right", true).toBool(); }
+    void setAsmCmtRight(bool v)         { s.setValue("asm.cmt.right", v); }
 
     bool getAsmVarSum() const           { return s.value("asm.varsum", false).toBool(); }
     void setAsmVarSum(bool v)           { s.setValue("asm.varsum", v); }
 
     bool getAsmBytes() const            { return s.value("asm.bytes", false).toBool(); }
     void setAsmBytes(bool v)            { s.setValue("asm.bytes", v); }
+
+    bool getAsmSize() const             { return s.value("asm.size", false).toBool(); }
+    void setAsmSize(bool v)             { s.setValue("asm.size", v); }
 
     bool getAsmBytespace() const        { return s.value("asm.bytespace", false).toBool(); }
     void setAsmBytespace(bool v)        { s.setValue("asm.bytespace", v); }
@@ -114,6 +117,9 @@ public:
 
     int getAsmTabs() const              { return s.value("asm.tabs", 5).toInt(); }
     void setAsmTabs(int v)              { s.setValue("asm.tabs", v); }
+
+    QString getCurrentTheme() const     { return s.value("theme", "solarized").toString(); }
+    void setColorTheme(QString theme);
 
 signals:
     void fontsUpdated();

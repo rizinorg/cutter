@@ -14,6 +14,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         offset(0),
         canCopy(false),
         actionEditInstruction(this),
+        actionNopInstruction(this),
+        actionJmpReverse(this),
         actionEditBytes(this),
         actionCopy(this),
         actionAddComment(this),
@@ -87,11 +89,17 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     editMenuAction = addMenu(editMenu);
     actionEditInstruction.setText(tr("Instruction"));
     editMenu->addAction(&actionEditInstruction);
+    actionNopInstruction.setText(tr("Nop Instruction"));
+    editMenu->addAction(&actionNopInstruction);
     actionEditBytes.setText(tr("Bytes"));
     editMenu->addAction(&actionEditBytes);
+    actionJmpReverse.setText(tr("Reverse Jump"));
+    editMenu->addAction(&actionJmpReverse);
 
     connect(&actionEditInstruction, SIGNAL(triggered(bool)), this, SLOT(on_actionEditInstruction_triggered()));
+    connect(&actionNopInstruction, SIGNAL(triggered(bool)), this, SLOT(on_actionNopInstruction_triggered()));    
     connect(&actionEditBytes, SIGNAL(triggered(bool)), this, SLOT(on_actionEditBytes_triggered()));
+    connect(&actionJmpReverse, SIGNAL(triggered(bool)), this, SLOT(on_actionJmpReverse_triggered()));
 
     connect(&actionSetBaseBinary, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseBinary_triggered()));
     connect(&actionSetBaseOctal, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBaseOctal_triggered()));
@@ -198,6 +206,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
     {
         actionRenameUsedHere.setVisible(false);
     }
+
+    // decide to show Reverse jmp option
+    showReverseJmpQuery();
+
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
@@ -251,6 +263,37 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
             Core()->editInstruction(offset, instruction);
         }
     }
+}
+
+void DisassemblyContextMenu::on_actionNopInstruction_triggered()
+{
+    Core()->nopInstruction(offset);
+}
+
+void DisassemblyContextMenu::showReverseJmpQuery()
+{
+    QString type;
+
+    QJsonArray array = Core()->cmdj("pdj 1 @ " + RAddressString(offset)).array();
+    if (array.isEmpty())
+    {
+        return;
+    }
+
+    type = array.first().toObject()["type"].toString();
+    if (type == "cjmp")
+    {
+        actionJmpReverse.setVisible(true);
+    }
+    else
+    {
+        actionJmpReverse.setVisible(false);
+    }
+}
+
+void DisassemblyContextMenu::on_actionJmpReverse_triggered()
+{
+    Core()->jmpReverse(offset);
 }
 
 void DisassemblyContextMenu::on_actionEditBytes_triggered()

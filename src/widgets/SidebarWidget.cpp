@@ -145,7 +145,7 @@ void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription>
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", false)
-            .set("scr.color", false);
+            .set("scr.color", COLOR_MODE_DISABLED);
 
     ui->xrefFromTreeWidget->clear();
     for (int i = 0; i < refs.size(); ++i)
@@ -196,7 +196,7 @@ void SidebarWidget::fillOffsetInfo(QString off)
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", false)
-            .set("scr.color", false);
+            .set("scr.color", COLOR_MODE_DISABLED);
 
     ui->offsetTreeWidget->clear();
     QString raw = Core()->getOffsetInfo(off);
