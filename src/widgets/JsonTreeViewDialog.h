@@ -19,7 +19,7 @@ public:
     QTreeView *view;
     JsonModel *model;
     QJsonDocument qjsonCertificatesDoc;
-    bool certificateDialog();
+    bool setJsonTreeView();
 
 private:
     Ui::JsonTreeViewDialog *ui;

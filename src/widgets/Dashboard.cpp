@@ -22,7 +22,7 @@ Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::Dashboard),
     main(main),
-    m_dialog(new JsonTreeViewDialog(this))
+    certificateDialog(new JsonTreeViewDialog(this))
 {
     ui->setupUi(this);
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
