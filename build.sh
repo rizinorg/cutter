@@ -21,8 +21,8 @@ if [ $? = 0 ]; then
 fi
 
 # Check if qmake is available
-qmake --help >/dev/null 2>&1
-if [ $? != 0 ]; then
+qmakepath=$(which qmake)
+if [ -z "$qmakepath" ]; then
 	echo "You need qmake to build Cutter."
 	echo "Please make sure qmake is in your PATH environment variable."
 	exit 1
