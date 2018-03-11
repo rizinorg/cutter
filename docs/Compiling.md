@@ -19,7 +19,7 @@ Each time in the section below, the prefered method will be explained. For other
 The easy way is to simply run `./build.sh` from the root directory, and let the magic happen. The script will use qmake to build Cutter.
 
 If you want to manually use qmake, follow this steps:
-```
+```sh
 mkdir build; cd build
 qmake ../src/Cutter.pro
 make
@@ -28,13 +28,32 @@ cd ..
 
 ### Compiling on Windows
 
-The easy way to compile on Windows is to run:
+Additional requirements:
 
+* Visual Studio 2015 or Visual Studio 2017
+* Ninja build system
+* Meson build system
+
+Download and unpack [Ninja](https://github.com/ninja-build/ninja/releases) to the Cutter source root directory.
+
+Environment settings (example for x64 version):
+```batch
+:: Export MSVC variables
+CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
+:: Add qmake to PATH
+SET "PATH=C:\Qt\5.10.1\msvc2015_64\bin;%PATH%"
+:: Add Python to PATH
+SET "PATH=C:\Program Files\Python36;%PATH%"
 ```
-set PYTHON=C:\Python36-x64
-set ARCH=x64
-prepare_r2.bat
-build.bat
+
+Install Meson:
+```batch
+python -m pip install meson
+```
+To compile Cutter run:
+```batch
+CALL prepare_r2.bat
+CALL build.bat
 ```
 
 ## It doesn't work!
