@@ -17,7 +17,7 @@ COPY /Y build\r_userconf.h ..\dist%BITS%\include\libr\
 COPY /Y build\r_version.h ..\dist%BITS%\include\libr\
 COPY /Y build\shlr\liblibr2sdb.a ..\dist%BITS%\r_sdb.lib
 CD ..
-COPY /Y dist%BITS%\*.lib cutter_win32\radare2\lib%BITS%\
+MOVE /Y dist%BITS%\*.lib cutter_win32\radare2\lib%BITS%\
 
 ECHO Copying relevant files in cutter_win32
 XCOPY /S /Y dist%BITS%\include\libr cutter_win32\radare2\include\libr\
