@@ -33,7 +33,7 @@ if [ $BUILDR2 -eq 1 ]; then
 	answer="Y"
 	echo -n "A (new?) version of radare2 will be installed. Do you agree? [Y/n] "
 	read answer
-	if [ "$answer" = "Y" ]; then
+	if [ -z "$answer" -o "$answer" = "Y" -o "$answer" = "y" ]; then
 		git submodule init && git submodule update
 		cd radare2 || exit 1
 		./sys/install.sh
