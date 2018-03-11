@@ -41,12 +41,19 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     }
     qhelpers::adjustColumns(ui->RCoreTreeWidget, 0);
 
-    for(auto plugin : Core()->getRAsmPlugins())
+    for(auto plugin : Core()->getRAsmPluginDescriptions())
     {
         QTreeWidgetItem* item = new QTreeWidgetItem();
-        item->setText(0, plugin);
+        item->setText(0, plugin.name);
+        item->setText(1, plugin.architecture);
+        item->setText(2, plugin.cpus);
+        item->setText(3, plugin.version);
+        item->setText(4, plugin.description);
+        item->setText(5, plugin.license);
+        item->setText(6, plugin.author);
         ui->RAsmTreeWidget->addTopLevelItem(item);
     }
+    qhelpers::adjustColumns(ui->RAsmTreeWidget, 0);
 }
 
 R2PluginsDialog::~R2PluginsDialog()
