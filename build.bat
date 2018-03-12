@@ -1,7 +1,8 @@
 @ECHO off
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-IF "%Platform%" == "X64" (
+FOR /F %%i in ('powershell -c "\"%Platform%\".toLower()"') DO SET PLATFORM=%%i
+IF "%PLATFORM%" == "x64" (
     SET MSBUILDPLATFORM=x64
     SET BITS=64
 ) ELSE (
