@@ -21,8 +21,7 @@
 Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     QDockWidget(parent),
     ui(new Ui::Dashboard),
-    main(main),
-    certificateDialog(new JsonTreeViewDialog(this))
+    main(main)
 {
     ui->setupUi(this);
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
@@ -179,18 +178,23 @@ void Dashboard::updateContents()
     QStringList stats = CutterCore::getInstance()->getStats();
 }
 
-void Dashboard::on_certificateButton_clicked() {
-
-    if(certificateDialog->setJsonTreeView()) {
-        
+void Dashboard::on_certificateButton_clicked() 
+{
+	if (!certificateDialog)
+	{
+		certificateDialog = new JsonTreeViewDialog(this);
+	}
+	
+    if(certificateDialog->setJsonTreeView())
+    {        
         if(!certificateDialog->isVisible())
             certificateDialog->show();
     }
-    else {
+    else 
+    {
         QMessageBox msgBoxCertificateInf(QMessageBox::Information, "Certificate Information ",
                                          "There is no certificate information",
                                          QMessageBox::NoButton, this);
         msgBoxCertificateInf.exec();    
-    }
-    
+    }    
 }

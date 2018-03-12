@@ -29,7 +29,7 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
     MainWindow      *main;
-    JsonTreeViewDialog *certificateDialog;
+    JsonTreeViewDialog *certificateDialog = nullptr;
 };
 
 #endif // DASHBOARD_H
