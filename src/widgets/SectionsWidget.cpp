@@ -30,9 +30,6 @@ void SectionsWidget::refreshSections()
     int row = 0;
     for (auto section : CutterCore::getInstance()->getAllSections())
     {
-        if (!section.name.contains("."))
-            continue;
-
         fillSections(row++, section);
     }
 
