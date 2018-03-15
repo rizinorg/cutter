@@ -1466,20 +1466,40 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
 
     QJsonArray searchArray = cmdj(space + QString(" ") + search_for).array();
     
-    foreach (QJsonValue value, searchArray)
+    if (space == "/Rj")
     {
-        QJsonObject searchObject = value.toObject();
+        foreach (QJsonValue value, searchArray)
+        {
+            QJsonObject searchObject = value.toObject();
+            SearchDescription exp;
+            exp.code = QString("");
+            foreach (QJsonValue value2, searchObject["opcodes"].toArray())
+            {
+                QJsonObject gadget = value2.toObject();
+                exp.code += gadget["opcode"].toString() + ";  ";
+            }
 
-        SearchDescription exp;
+            exp.offset = searchObject["opcodes"].toArray().first().toObject()["offset"].toVariant().toULongLong();
+            exp.size = searchObject["size"].toVariant().toULongLong();
 
-        exp.offset = searchObject["offset"].toVariant().toULongLong();
-        exp.size = searchObject["len"].toVariant().toULongLong();
-        exp.code = searchObject["code"].toString();
-        exp.data = searchObject["data"].toString();
-
-        ret << exp;
+            ret << exp;
+        }
     }
+    else
+    {
+        foreach (QJsonValue value, searchArray)
+        {
+            QJsonObject searchObject = value.toObject();
+            SearchDescription exp;
 
+            exp.offset = searchObject["offset"].toVariant().toULongLong();
+            exp.size = searchObject["len"].toVariant().toULongLong();
+            exp.code = searchObject["code"].toString();
+            exp.data = searchObject["data"].toString();
+
+            ret << exp;
+        }
+    }
     return ret;
 }
 
