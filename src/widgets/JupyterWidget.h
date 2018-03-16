@@ -6,9 +6,9 @@
 
 #include <memory>
 
-#include <QDockWidget>
 #include <QAbstractButton>
 
+#include "CutterDockWidget.h"
 #include "utils/JupyterConnection.h"
 
 namespace Ui
@@ -17,15 +17,15 @@ namespace Ui
 }
 
 class JupyterWebView;
-
 class QTabWidget;
+class MainWindow;
 
-class JupyterWidget : public QDockWidget
+class JupyterWidget : public CutterDockWidget
 {
 Q_OBJECT
 
 public:
-    JupyterWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
+    JupyterWidget(MainWindow *main, QAction *action = nullptr);
     ~JupyterWidget();
 
 #ifdef CUTTER_ENABLE_QTWEBENGINE

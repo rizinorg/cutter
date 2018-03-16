@@ -5,9 +5,9 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-#include <QDockWidget>
 
 #include "Cutter.h"
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -57,12 +57,12 @@ namespace Ui
     class FlagsWidget;
 }
 
-class FlagsWidget : public QDockWidget
+class FlagsWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit FlagsWidget(MainWindow *main, QWidget *parent = 0);
+    explicit FlagsWidget(MainWindow *main, QAction *action = nullptr);
     ~FlagsWidget();
 
 private slots:

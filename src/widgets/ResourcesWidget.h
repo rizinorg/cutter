@@ -2,10 +2,12 @@
 #define RESOURCESWIDGET_H
 
 #include "Cutter.h"
+#include "CutterDockWidget.h"
 
-#include <QDockWidget>
 #include <QAbstractListModel>
 #include <QTreeView>
+
+class MainWindow;
 
 class ResourcesModel : public QAbstractListModel
 {
@@ -28,7 +30,7 @@ public:
     void endReload();
 };
 
-class ResourcesWidget : public QDockWidget
+class ResourcesWidget : public CutterDockWidget
 {
     Q_OBJECT
 
@@ -38,7 +40,7 @@ private:
     QList<ResourcesDescription> resources;
 
 public:
-    ResourcesWidget(QWidget *parent = nullptr);
+    explicit ResourcesWidget(MainWindow *main, QAction *action = nullptr);
 
 private slots:
     void refreshResources();

@@ -1,4 +1,3 @@
-#include <QDockWidget>
 #include <QTreeWidget>
 #include <QComboBox>
 #include <QMenu>
@@ -127,8 +126,8 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
 }
 
 
-FlagsWidget::FlagsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
+FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
+    CutterDockWidget(main, action),
     ui(new Ui::FlagsWidget),
     main(main)
 {

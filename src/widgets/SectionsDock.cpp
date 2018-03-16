@@ -8,14 +8,12 @@
 #include <QResizeEvent>
 
 
-SectionsDock::SectionsDock(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::SectionsDock)
+SectionsDock::SectionsDock(MainWindow *main, QAction *action) :
+    CutterDockWidget(main, action),
+    ui(new Ui::SectionsDock),
+    main(main)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     this->sectionsWidget = new SectionsWidget(this->main);
     this->setWidget(this->sectionsWidget);

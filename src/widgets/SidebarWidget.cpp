@@ -16,8 +16,8 @@
 #include <QSettings>
 
 
-SidebarWidget::SidebarWidget(QWidget *parent, Qt::WindowFlags flags) :
-        QDockWidget(parent, flags),
+SidebarWidget::SidebarWidget(MainWindow *main, QAction *action) :
+        CutterDockWidget(main, action),
         ui(new Ui::SidebarWidget)
 {
     ui->setupUi(this);
@@ -34,13 +34,6 @@ SidebarWidget::SidebarWidget(QWidget *parent, Qt::WindowFlags flags) :
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refresh()));
 }
-
-SidebarWidget::SidebarWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
-    : SidebarWidget(parent, flags)
-{
-    setWindowTitle(title);
-}
-
 
 SidebarWidget::~SidebarWidget()
 {

@@ -2,7 +2,7 @@
 #define DISASSEMBLYWIDGET_H
 
 #include "Cutter.h"
-#include <QDockWidget>
+#include "CutterDockWidget.h"
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QShortcut>
@@ -12,11 +12,11 @@ class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 
-class DisassemblyWidget : public QDockWidget
+class DisassemblyWidget : public CutterDockWidget
 {
     Q_OBJECT
 public:
-    explicit DisassemblyWidget(QWidget *parent = nullptr);
+    explicit DisassemblyWidget(MainWindow *main, QAction *action = nullptr);
     QWidget* getTextWidget();
 
 public slots:

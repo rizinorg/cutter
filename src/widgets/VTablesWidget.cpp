@@ -1,6 +1,7 @@
 #include <QShortcut>
 #include <QModelIndex>
 
+#include "MainWindow.h"
 #include "VTablesWidget.h"
 #include "ui_VTablesWidget.h"
 
@@ -142,8 +143,8 @@ bool VTableSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIn
 }
 
 
-VTablesWidget::VTablesWidget(QWidget *parent) :
-    QDockWidget(parent),
+VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
+    CutterDockWidget(main, action),
     ui(new Ui::VTablesWidget)
 {
     ui->setupUi(this);

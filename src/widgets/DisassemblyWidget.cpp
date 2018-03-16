@@ -37,8 +37,8 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 }
 
 
-DisassemblyWidget::DisassemblyWidget(QWidget *parent)
-    :   QDockWidget(parent)
+DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
+    :   CutterDockWidget(main, action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))

@@ -1,5 +1,6 @@
 #include "utils/Helpers.h"
 #include "ResourcesWidget.h"
+#include "MainWindow.h"
 #include <QVBoxLayout>
 
 ResourcesModel::ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent)
@@ -86,8 +87,8 @@ void ResourcesModel::endReload()
     endResetModel();
 }
 
-ResourcesWidget::ResourcesWidget(QWidget *parent)
-    : QDockWidget(parent)
+ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
+    CutterDockWidget(main, action)
 {
     setObjectName("ResourcesWidget");
 

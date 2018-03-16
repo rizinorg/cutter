@@ -5,9 +5,9 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-#include <QDockWidget>
 
 #include "Cutter.h"
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -57,12 +57,12 @@ namespace Ui
     class SearchWidget;
 }
 
-class SearchWidget : public QDockWidget
+class SearchWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SearchWidget(MainWindow *main, QWidget *parent = 0);
+    explicit SearchWidget(MainWindow *main, QAction *action = nullptr);
     ~SearchWidget();
 
 private slots:
@@ -73,7 +73,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::SearchWidget> ui;
-    MainWindow      *main;
 
     SearchModel *search_model;
     SearchSortFilterProxyModel *search_proxy_model;

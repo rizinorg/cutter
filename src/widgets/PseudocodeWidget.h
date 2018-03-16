@@ -1,10 +1,10 @@
 #ifndef PSEUDOCODEWIDGET_H
 #define PSEUDOCODEWIDGET_H
 
-#include <QDockWidget>
 #include <memory>
 
 #include "Cutter.h"
+#include "CutterDockWidget.h"
 
 namespace Ui
 {
@@ -14,13 +14,12 @@ namespace Ui
 class QTextEdit;
 class SyntaxHighlighter;
 
-class PseudocodeWidget : public QDockWidget
+class PseudocodeWidget : public CutterDockWidget
 {
 Q_OBJECT
 
 public:
-    explicit PseudocodeWidget(const QString &title, QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
-    explicit PseudocodeWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
+    explicit PseudocodeWidget(MainWindow *main, QAction *action = nullptr);
     ~PseudocodeWidget();
 
 private slots:

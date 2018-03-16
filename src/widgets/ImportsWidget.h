@@ -3,9 +3,10 @@
 
 #include <memory>
 
-#include <QDockWidget>
 #include <QStyledItemDelegate>
 #include <QTreeWidgetItem>
+
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class QTreeWidget;
@@ -15,12 +16,12 @@ namespace Ui
     class ImportsWidget;
 }
 
-class ImportsWidget : public QDockWidget
+class ImportsWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit ImportsWidget(MainWindow *main, QWidget *parent = 0);
+    explicit ImportsWidget(MainWindow *main, QAction *action);
     ~ImportsWidget();
 
 private slots:
@@ -30,7 +31,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::ImportsWidget> ui;
-    MainWindow      *main;
 
     void highlightUnsafe();
     void setScrollMode();

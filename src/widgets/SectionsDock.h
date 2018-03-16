@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <QDockWidget>
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class SectionsWidget;
@@ -13,12 +13,12 @@ namespace Ui
     class SectionsDock;
 }
 
-class SectionsDock : public QDockWidget
+class SectionsDock : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SectionsDock(MainWindow *main, QWidget *parent = 0);
+    explicit SectionsDock(MainWindow *main, QAction *action = nullptr);
     ~SectionsDock();
 
 protected:

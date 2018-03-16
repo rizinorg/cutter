@@ -13,8 +13,8 @@
 #include <QClipboard>
 #include <QScrollBar>
 
-HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
-        QDockWidget(parent, flags),
+HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
+        CutterDockWidget(main, action),
         ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);
@@ -83,12 +83,6 @@ HexdumpWidget::HexdumpWidget(QWidget *parent, Qt::WindowFlags flags) :
     format = Format::Hex;
     initParsing();
     selectHexPreview();
-}
-
-HexdumpWidget::HexdumpWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
-        : HexdumpWidget(parent, flags)
-{
-    setWindowTitle(title);
 }
 
 void HexdumpWidget::setupScrollSync()

@@ -5,14 +5,16 @@
 
 #include <QTreeView>
 #include <QSortFilterProxyModel>
-#include <QDockWidget>
 
 #include "Cutter.h"
+#include "CutterDockWidget.h"
 
 namespace Ui
 {
     class VTablesWidget;
 }
+
+class MainWindow;
 
 class VTableModel : public QAbstractItemModel
 {
@@ -49,12 +51,12 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 };
 
-class VTablesWidget : public QDockWidget
+class VTablesWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit VTablesWidget(QWidget *parent = 0);
+    explicit VTablesWidget(MainWindow *main, QAction *action = nullptr);
     ~VTablesWidget();
 
 private slots:
