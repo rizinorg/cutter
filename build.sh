@@ -4,6 +4,7 @@
 
 ####   Constants    ####
 BUILDR2=1
+ERR=0
 
 #### User variables ####
 BUILD="build"
@@ -50,9 +51,14 @@ fi
 mkdir "$BUILD"
 cd "$BUILD" || exit 1
 qmake "$QMAKE_CONF" ../src/Cutter.pro
-make
+make -j4
+ERR=$((ERR+$?))
 cd ..
 
 # Done
-echo "Build complete. Binary available at: $BUILD/Cutter"
+if [ ${ERR} -gt 0 ]; then
+	echo "Something went wrong!"
+else
+	echo "Build complete. Binary available at: $BUILD/Cutter"
+fi
 
