@@ -1,6 +1,8 @@
 #include "Dashboard.h"
 #include "ui_Dashboard.h"
 #include "utils/Helpers.h"
+#include "utils/JsonModel.h"
+#include "utils/JsonTreeItem.h"
 
 #include "MainWindow.h"
 
@@ -12,6 +14,9 @@
 #include <QFile>
 #include <QLayoutItem>
 
+#include <QString>
+#include <QMessageBox>
+#include <QTreeView>
 
 Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     QDockWidget(parent),
@@ -19,7 +24,6 @@ Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
     main(main)
 {
     ui->setupUi(this);
-
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
 }
 
@@ -172,4 +176,25 @@ void Dashboard::updateContents()
 
     // Get stats for the graphs
     QStringList stats = CutterCore::getInstance()->getStats();
+}
+
+void Dashboard::on_certificateButton_clicked() 
+{
+	if (!certificateDialog)
+	{
+		certificateDialog = new JsonTreeViewDialog(this);
+	}
+	
+    if(certificateDialog->setJsonTreeView())
+    {        
+        if(!certificateDialog->isVisible())
+            certificateDialog->show();
+    }
+    else 
+    {
+        QMessageBox msgBoxCertificateInf(QMessageBox::Information, "Certificate Information ",
+                                         "There is no certificate information",
+                                         QMessageBox::NoButton, this);
+        msgBoxCertificateInf.exec();    
+    }    
 }
