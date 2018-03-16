@@ -15,7 +15,7 @@
 #endif
 
 JupyterWidget::JupyterWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::JupyterWidget)
 {
     ui->setupUi(this);

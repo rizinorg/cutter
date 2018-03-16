@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
@@ -19,7 +19,7 @@
 
 #include "ui_HexdumpWidget.h"
 
-class HexdumpWidget : public CutterWidget
+class HexdumpWidget : public CutterDockWidget
 {
     Q_OBJECT
 

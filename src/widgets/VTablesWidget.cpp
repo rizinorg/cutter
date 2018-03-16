@@ -144,7 +144,7 @@ bool VTableSortFilterProxyModel::filterAcceptsRow(int source_row, const QModelIn
 
 
 VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::VTablesWidget)
 {
     ui->setupUi(this);

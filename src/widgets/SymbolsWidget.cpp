@@ -8,7 +8,7 @@
 
 
 SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::SymbolsWidget)
 {
     ui->setupUi(this);

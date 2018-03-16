@@ -1,20 +1,20 @@
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 #include "MainWindow.h"
 
 
-CutterWidget::CutterWidget(MainWindow *main, QAction *action) :
+CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
     QDockWidget(main),
     action(action)
 {
     main->addToDockWidgetList(this);
     if (action) {
         main->addDockWidgetAction(this, action);
-        connect(action, &QAction::triggered, this, &CutterWidget::toggleDockWidget);
+        connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
     }
 }
 
 
-void CutterWidget::toggleDockWidget(bool show)
+void CutterDockWidget::toggleDockWidget(bool show)
 {
     if (!show)
     {
@@ -27,11 +27,11 @@ void CutterWidget::toggleDockWidget(bool show)
     }
 }
 
-void CutterWidget::closeEvent(QCloseEvent * event) {
+void CutterDockWidget::closeEvent(QCloseEvent * event) {
     if (action) {
         this->action->setChecked(false);
     }
     QDockWidget::closeEvent(event);
 }
 
-CutterWidget::~CutterWidget() {}
+CutterDockWidget::~CutterDockWidget() {}

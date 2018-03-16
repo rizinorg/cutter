@@ -142,7 +142,7 @@ SOURCES += \
     utils/PythonAPI.cpp \
     utils/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
-    widgets/CutterWidget.cpp \
+    widgets/CutterDockWidget.cpp \
     widgets/GraphWidget.cpp
 
 HEADERS  += \
@@ -211,7 +211,7 @@ HEADERS  += \
     utils/PythonAPI.h \
     utils/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
-    widgets/CutterWidget.h \
+    widgets/CutterDockWidget.h \
     widgets/GraphWidget.h
 
 FORMS    += \

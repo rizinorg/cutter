@@ -2,7 +2,7 @@
 #define RESOURCESWIDGET_H
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 #include <QAbstractListModel>
 #include <QTreeView>
@@ -30,7 +30,7 @@ public:
     void endReload();
 };
 
-class ResourcesWidget : public CutterWidget
+class ResourcesWidget : public CutterDockWidget
 {
     Q_OBJECT
 

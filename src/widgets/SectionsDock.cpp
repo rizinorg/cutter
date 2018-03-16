@@ -9,7 +9,7 @@
 
 
 SectionsDock::SectionsDock(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::SectionsDock),
     main(main)
 {

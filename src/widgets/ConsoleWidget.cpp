@@ -91,7 +91,7 @@ static bool isForbidden(const QString &input)
 }
 
 ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::ConsoleWidget),
     debugOutputEnabled(true),
     maxHistoryEntries(100),

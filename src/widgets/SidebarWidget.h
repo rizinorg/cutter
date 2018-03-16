@@ -13,7 +13,7 @@
 #include <memory>
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
@@ -25,7 +25,7 @@ namespace Ui
     class SidebarWidget;
 }
 
-class SidebarWidget : public CutterWidget
+class SidebarWidget : public CutterDockWidget
 {
 Q_OBJECT
 

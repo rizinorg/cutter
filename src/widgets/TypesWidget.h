@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -61,7 +61,7 @@ protected:
 
 
 
-class TypesWidget : public CutterWidget
+class TypesWidget : public CutterDockWidget
 {
     Q_OBJECT
 

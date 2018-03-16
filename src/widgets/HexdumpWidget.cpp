@@ -14,7 +14,7 @@
 #include <QScrollBar>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-        CutterWidget(main, action),
+        CutterDockWidget(main, action),
         ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);

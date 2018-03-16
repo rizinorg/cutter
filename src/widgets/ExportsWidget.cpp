@@ -130,7 +130,7 @@ bool ExportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 
 ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::ExportsWidget)
 {
     ui->setupUi(this);

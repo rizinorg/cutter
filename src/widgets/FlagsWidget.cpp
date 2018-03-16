@@ -127,7 +127,7 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
 
 
 FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::FlagsWidget),
     main(main)
 {

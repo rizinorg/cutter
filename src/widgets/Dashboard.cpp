@@ -13,7 +13,7 @@
 #include <QLayoutItem>
 
 Dashboard::Dashboard(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::Dashboard)
 {
     ui->setupUi(this);

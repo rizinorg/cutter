@@ -33,7 +33,7 @@ void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, c
  */
 
 ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::ImportsWidget)
 {
     ui->setupUi(this);

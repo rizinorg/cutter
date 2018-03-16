@@ -7,7 +7,7 @@
 #include <QSortFilterProxyModel>
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -57,7 +57,7 @@ namespace Ui
     class FlagsWidget;
 }
 
-class FlagsWidget : public CutterWidget
+class FlagsWidget : public CutterDockWidget
 {
     Q_OBJECT
 

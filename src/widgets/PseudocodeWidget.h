@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 namespace Ui
 {
@@ -14,7 +14,7 @@ namespace Ui
 class QTextEdit;
 class SyntaxHighlighter;
 
-class PseudocodeWidget : public CutterWidget
+class PseudocodeWidget : public CutterDockWidget
 {
 Q_OBJECT
 

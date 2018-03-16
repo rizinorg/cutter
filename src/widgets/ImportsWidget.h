@@ -6,7 +6,7 @@
 #include <QStyledItemDelegate>
 #include <QTreeWidgetItem>
 
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class QTreeWidget;
@@ -16,7 +16,7 @@ namespace Ui
     class ImportsWidget;
 }
 
-class ImportsWidget : public CutterWidget
+class ImportsWidget : public CutterDockWidget
 {
     Q_OBJECT
 

@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -13,7 +13,7 @@ namespace Ui
     class RelocsWidget;
 }
 
-class RelocsWidget : public CutterWidget
+class RelocsWidget : public CutterDockWidget
 {
     Q_OBJECT
 

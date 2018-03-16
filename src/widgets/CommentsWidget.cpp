@@ -8,7 +8,7 @@
 #include "utils/Helpers.h"
 
 CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::CommentsWidget),
     main(main)
 {

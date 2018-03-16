@@ -244,7 +244,7 @@ bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 
 ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::ClassesWidget)
 {
     ui->setupUi(this);

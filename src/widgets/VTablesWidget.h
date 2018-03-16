@@ -7,7 +7,7 @@
 #include <QSortFilterProxyModel>
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 namespace Ui
 {
@@ -51,7 +51,7 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 };
 
-class VTablesWidget : public CutterWidget
+class VTablesWidget : public CutterDockWidget
 {
     Q_OBJECT
 

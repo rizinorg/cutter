@@ -5,14 +5,14 @@
 
 class MainWindow;
 
-class CutterWidget : public QDockWidget
+class CutterDockWidget : public QDockWidget
 {
 
     Q_OBJECT
 
 public:
-    explicit CutterWidget(MainWindow *main, QAction *action = nullptr);
-    ~CutterWidget();
+    explicit CutterDockWidget(MainWindow *main, QAction *action = nullptr);
+    ~CutterDockWidget();
 public slots:
     void toggleDockWidget(bool show);
 

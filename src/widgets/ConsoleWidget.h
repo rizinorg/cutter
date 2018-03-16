@@ -3,7 +3,7 @@
 
 #include <memory>
 #include "MainWindow.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 namespace Ui
 {
@@ -11,7 +11,7 @@ namespace Ui
 }
 
 
-class ConsoleWidget : public CutterWidget
+class ConsoleWidget : public CutterDockWidget
 {
     Q_OBJECT
 

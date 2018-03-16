@@ -2,7 +2,7 @@
 #define DISASSEMBLYWIDGET_H
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QShortcut>
@@ -12,7 +12,7 @@ class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 
-class DisassemblyWidget : public CutterWidget
+class DisassemblyWidget : public CutterDockWidget
 {
     Q_OBJECT
 public:

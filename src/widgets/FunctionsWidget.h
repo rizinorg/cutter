@@ -7,7 +7,7 @@
 #include <QTreeView>
 
 #include "Cutter.h"
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -86,7 +86,7 @@ protected:
 
 
 
-class FunctionsWidget : public CutterWidget
+class FunctionsWidget : public CutterDockWidget
 {
     Q_OBJECT
 

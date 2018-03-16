@@ -88,7 +88,7 @@ void ResourcesModel::endReload()
 }
 
 ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action)
+    CutterDockWidget(main, action)
 {
     setObjectName("ResourcesWidget");
 

@@ -17,7 +17,7 @@
 
 
 SidebarWidget::SidebarWidget(MainWindow *main, QAction *action) :
-        CutterWidget(main, action),
+        CutterDockWidget(main, action),
         ui(new Ui::SidebarWidget)
 {
     ui->setupUi(this);

@@ -9,7 +9,7 @@
 #include "utils/TempConfig.h"
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-        CutterWidget(main, action),
+        CutterDockWidget(main, action),
         ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);

@@ -5,7 +5,7 @@
 #include "utils/Helpers.h"
 
 RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::RelocsWidget)
 {
     ui->setupUi(this);

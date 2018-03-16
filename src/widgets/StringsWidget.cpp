@@ -133,7 +133,7 @@ bool StringsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 
 StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::StringsWidget)
 {
     ui->setupUi(this);

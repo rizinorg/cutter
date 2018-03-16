@@ -8,7 +8,7 @@
 
 #include <QAbstractButton>
 
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 #include "utils/JupyterConnection.h"
 
 namespace Ui
@@ -20,7 +20,7 @@ class JupyterWebView;
 class QTabWidget;
 class MainWindow;
 
-class JupyterWidget : public CutterWidget
+class JupyterWidget : public CutterDockWidget
 {
 Q_OBJECT
 

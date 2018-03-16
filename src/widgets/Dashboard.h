@@ -2,7 +2,7 @@
 #define DASHBOARD_H
 
 #include <memory>
-#include "CutterWidget.h"
+#include "CutterDockWidget.h"
 
 class MainWindow;
 
@@ -11,7 +11,7 @@ namespace Ui
     class Dashboard;
 }
 
-class Dashboard : public CutterWidget
+class Dashboard : public CutterDockWidget
 {
     Q_OBJECT
 

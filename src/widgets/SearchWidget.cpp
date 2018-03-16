@@ -123,7 +123,7 @@ bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelI
 
 
 SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
-    CutterWidget(main, action),
+    CutterDockWidget(main, action),
     ui(new Ui::SearchWidget)
 {
     ui->setupUi(this);
