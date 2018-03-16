@@ -91,6 +91,9 @@ public:
     void addDebugOutput(const QString &msg);
     void refreshOmniBar(const QStringList &flags);
 
+    void addToDockWidgetList(QDockWidget *dockWidget);
+    void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
+
 public slots:
 
     void refreshAll();
@@ -198,14 +201,14 @@ private:
     JupyterWidget      *jupyterDock = nullptr;
 #endif
 
-    void toggleDockWidget(QDockWidget *dock_widget, bool show);
-
     void resetToDefaultLayout();
 
     void restoreDocks();
     void hideAllDocks();
     void showDefaultDocks();
     void updateDockActionsChecked();
+
+    void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
 public:
     QString getFilename() const         { return filename; }

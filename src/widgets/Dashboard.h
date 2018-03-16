@@ -2,8 +2,7 @@
 #define DASHBOARD_H
 
 #include <memory>
-
-#include <QDockWidget>
+#include "CutterWidget.h"
 
 class MainWindow;
 
@@ -12,12 +11,12 @@ namespace Ui
     class Dashboard;
 }
 
-class Dashboard : public QDockWidget
+class Dashboard : public CutterWidget
 {
     Q_OBJECT
 
 public:
-    explicit Dashboard(MainWindow *main, QWidget *parent = 0);
+    explicit Dashboard(MainWindow *main, QAction *action = nullptr);
     ~Dashboard();
 
 private slots:
@@ -25,7 +24,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
-    MainWindow      *main;
 };
 
 #endif // DASHBOARD_H

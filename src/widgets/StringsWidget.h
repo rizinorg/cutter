@@ -4,10 +4,10 @@
 #include <memory>
 
 #include "Cutter.h"
+#include "CutterWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
-#include <QDockWidget>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -55,12 +55,12 @@ protected:
 };
 
 
-class StringsWidget : public QDockWidget
+class StringsWidget : public CutterWidget
 {
     Q_OBJECT
 
 public:
-    explicit StringsWidget(QWidget *parent = nullptr);
+    explicit StringsWidget(MainWindow *main, QAction *action = nullptr);
     ~StringsWidget();
 
 private slots:

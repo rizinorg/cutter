@@ -4,10 +4,10 @@
 #include <memory>
 
 #include "Cutter.h"
+#include "CutterWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
-#include <QDockWidget>
 
 class MainWindow;
 class QTreeWidget;
@@ -61,12 +61,12 @@ protected:
 
 
 
-class ExportsWidget : public QDockWidget
+class ExportsWidget : public CutterWidget
 {
     Q_OBJECT
 
 public:
-    explicit ExportsWidget(MainWindow *main, QWidget *parent = 0);
+    explicit ExportsWidget(MainWindow *main, QAction *action = nullptr);
     ~ExportsWidget();
 
 private slots:
@@ -76,7 +76,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::ExportsWidget> ui;
-    MainWindow      *main;
 
     ExportsModel *exports_model;
     ExportsSortFilterProxyModel *exports_proxy_model;

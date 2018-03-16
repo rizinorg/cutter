@@ -90,8 +90,8 @@ static bool isForbidden(const QString &input)
     return false;
 }
 
-ConsoleWidget::ConsoleWidget(QWidget *parent, Qt::WindowFlags flags) :
-    QDockWidget(parent, flags),
+ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
     ui(new Ui::ConsoleWidget),
     debugOutputEnabled(true),
     maxHistoryEntries(100),
@@ -110,9 +110,9 @@ ConsoleWidget::ConsoleWidget(QWidget *parent, Qt::WindowFlags flags) :
     QTextDocument *console_docu = ui->outputTextEdit->document();
     console_docu->setDocumentMargin(10);
 
-    QAction *action = new QAction(tr("Clear Output"), ui->outputTextEdit);
-    connect(action, SIGNAL(triggered(bool)), ui->outputTextEdit, SLOT(clear()));
-    actions.append(action);
+    QAction *actionClear = new QAction(tr("Clear Output"), ui->outputTextEdit);
+    connect(actionClear, SIGNAL(triggered(bool)), ui->outputTextEdit, SLOT(clear()));
+    actions.append(actionClear);
 
     // Completion
     QCompleter *completer = new QCompleter(radareArgs, this);
@@ -142,12 +142,6 @@ ConsoleWidget::ConsoleWidget(QWidget *parent, Qt::WindowFlags flags) :
     historyOnDown->setContext(Qt::WidgetShortcut);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupFont()));
-}
-
-ConsoleWidget::ConsoleWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
-        : ConsoleWidget(parent, flags)
-{
-    setWindowTitle(title);
 }
 
 ConsoleWidget::~ConsoleWidget() {}

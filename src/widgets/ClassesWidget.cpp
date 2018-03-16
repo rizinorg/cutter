@@ -2,6 +2,7 @@
 #include <QList>
 
 #include "ClassesWidget.h"
+#include "MainWindow.h"
 #include "ui_ClassesWidget.h"
 #include "utils/Helpers.h"
 
@@ -242,8 +243,8 @@ bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 
 
-ClassesWidget::ClassesWidget(QWidget *parent) :
-    QDockWidget(parent),
+ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
     ui(new Ui::ClassesWidget)
 {
     ui->setupUi(this);

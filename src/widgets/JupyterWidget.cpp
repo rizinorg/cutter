@@ -14,8 +14,8 @@
 #include <QWebEngineSettings>
 #endif
 
-JupyterWidget::JupyterWidget(QWidget *parent, Qt::WindowFlags flags) :
-    QDockWidget(parent, flags),
+JupyterWidget::JupyterWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
     ui(new Ui::JupyterWidget)
 {
     ui->setupUi(this);

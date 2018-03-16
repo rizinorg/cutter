@@ -43,6 +43,7 @@
 
 #include "dialogs/NewFileDialog.h"
 #include "widgets/DisassemblerGraphView.h"
+#include "widgets/GraphWidget.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
 #include "widgets/CommentsWidget.h"
@@ -150,78 +151,44 @@ void MainWindow::initUI()
      */
     dockWidgets.reserve(20);
 
-#define ADD_DOCK(cls, dockMember, action) \
-{ \
-    (dockMember) = new cls(this); \
-    dockWidgets.push_back(dockMember); \
-    connect((action), &QAction::triggered, this, [this](bool checked) \
-    { \
-        toggleDockWidget((dockMember), checked); \
-    }); \
-    dockWidgetActions[action] = (dockMember); \
-}
-    ADD_DOCK(DisassemblyWidget, disassemblyDock, ui->actionDisassembly);
-    ADD_DOCK(SidebarWidget, sidebarDock, ui->actionSidebar);
-    ADD_DOCK(HexdumpWidget, hexdumpDock, ui->actionHexdump);
-    ADD_DOCK(PseudocodeWidget, pseudocodeDock, ui->actionPseudocode);
-    ADD_DOCK(ConsoleWidget, consoleDock, ui->actionConsole);
+    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
+    sidebarDock = new SidebarWidget(this, ui->actionSidebar);
+    hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
+    pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
+    consoleDock = new ConsoleWidget(this, ui->actionConsole);
 
     // Add graph view as dockable
-    graphDock = new QDockWidget(tr("Graph"), this);
-    graphDock->setObjectName("Graph");
-    graphDock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    graphView = new DisassemblerGraphView(graphDock);
-    graphDock->setWidget(graphView);
+    graphDock = new GraphWidget(this, ui->actionGraph);
 
     // Hide centralWidget as we do not need it
     ui->centralWidget->hide();
 
-    connect(graphDock, &QDockWidget::visibilityChanged, graphDock, [](bool visibility)
-    {
-        if (visibility)
-        {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-        }
-    });
-    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, graphDock, [ = ](CutterCore::MemoryWidgetType type)
-    {
-        if (type == CutterCore::MemoryWidgetType::Graph)
-        {
-            graphDock->raise();
-            graphView->setFocus();
-        }
-    });
-    dockWidgets.push_back(graphDock);
-    connect(ui->actionGraph, &QAction::triggered, this, [this](bool checked)
-    {
-        toggleDockWidget(graphDock, checked);
-    });
-
-    ADD_DOCK(SectionsDock, sectionsDock, ui->actionSections);
-    ADD_DOCK(EntrypointWidget, entrypointDock, ui->actionEntrypoints);
-    ADD_DOCK(FunctionsWidget, functionsDock, ui->actionFunctions);
-    ADD_DOCK(ImportsWidget, importsDock, ui->actionImports);
-    ADD_DOCK(ExportsWidget, exportsDock, ui->actionExports);
-    ADD_DOCK(TypesWidget, typesDock, ui->actionTypes);
-    ADD_DOCK(SearchWidget, searchDock, ui->actionSearchInst);
-    ADD_DOCK(SymbolsWidget, symbolsDock, ui->actionSymbols);
-    ADD_DOCK(RelocsWidget, relocsDock, ui->actionRelocs);
-    ADD_DOCK(CommentsWidget, commentsDock, ui->actionComments);
-    ADD_DOCK(StringsWidget, stringsDock, ui->actionStrings);
-    ADD_DOCK(FlagsWidget, flagsDock, ui->actionFlags);
+    sectionsDock = new SectionsDock(this, ui->actionSections);
+    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
+    entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
+    functionsDock = new FunctionsWidget(this, ui->actionFunctions);
+    importsDock = new ImportsWidget(this, ui->actionImports);
+    exportsDock = new ExportsWidget(this, ui->actionExports);
+    typesDock = new TypesWidget(this, ui->actionTypes);
+    searchDock = new SearchWidget(this, ui->actionSearch);
+    symbolsDock = new SymbolsWidget(this, ui->actionSymbols);
+    relocsDock = new RelocsWidget(this, ui->actionRelocs);
+    commentsDock = new CommentsWidget(this, ui->actionComments);
+    stringsDock = new StringsWidget(this, ui->actionStrings);
+    flagsDock = new FlagsWidget(this, ui->actionFlags);
 #ifdef CUTTER_ENABLE_JUPYTER
-    ADD_DOCK(JupyterWidget, jupyterDock, ui->actionJupyter);
+    jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else
     ui->actionJupyter->setEnabled(false);
     ui->actionJupyter->setVisible(false);
 #endif
-    ADD_DOCK(Dashboard, dashboardDock, ui->actionDashboard);
-    ADD_DOCK(SdbDock, sdbDock, ui->actionSDBBrowser);
-    ADD_DOCK(ClassesWidget, classesDock, ui->actionClasses);
-    ADD_DOCK(ResourcesWidget, resourcesDock, ui->actionResources);
-    ADD_DOCK(VTablesWidget, vTablesDock, ui->actionVTables);
+    dashboardDock = new Dashboard(this, ui->actionDashboard);
+    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
+    sdbDock = new SdbDock(this, ui->actionSDBBrowser);
+    classesDock = new ClassesWidget(this, ui->actionClasses);
+    resourcesDock = new ResourcesWidget(this, ui->actionResources);
+    vTablesDock = new VTablesWidget(this, ui->actionVTables);
 
-#undef ADD_DOCK
 
     // Set up dock widgets default layout
     resetToDefaultLayout();
@@ -482,19 +449,6 @@ void MainWindow::lockUnlock_Docks(bool what)
         }
     }
 
-}
-
-void MainWindow::toggleDockWidget(QDockWidget *dock_widget, bool show)
-{
-    if (!show)
-    {
-        dock_widget->close();
-    }
-    else
-    {
-        dock_widget->show();
-        dock_widget->raise();
-    }
 }
 
 void MainWindow::restoreDocks()
@@ -807,4 +761,12 @@ void MainWindow::on_actionImportPDB_triggered()
 void MainWindow::projectSaved(const QString &name)
 {
     addOutput(tr("Project saved: ") + name);
+}
+
+void MainWindow::addToDockWidgetList(QDockWidget *dockWidget) {
+    this->dockWidgets.push_back(dockWidget);
+}
+
+void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action) {
+    this->dockWidgetActions[action] = dockWidget;
 }

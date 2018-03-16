@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <QDockWidget>
+#include "CutterWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -13,12 +13,12 @@ namespace Ui
     class RelocsWidget;
 }
 
-class RelocsWidget : public QDockWidget
+class RelocsWidget : public CutterWidget
 {
     Q_OBJECT
 
 public:
-    explicit RelocsWidget(MainWindow *main, QWidget *parent = 0);
+    explicit RelocsWidget(MainWindow *main, QAction *action = nullptr);
     ~RelocsWidget();
 
 private slots:
@@ -28,7 +28,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::RelocsWidget> ui;
-    MainWindow      *main;
 
     void setScrollMode();
 };

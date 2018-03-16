@@ -2,10 +2,10 @@
 #define ENTRYPOINTWIDGET_H
 
 #include <memory>
-
-#include <QDockWidget>
 #include <QStyledItemDelegate>
 #include <QTreeWidgetItem>
+
+#include "CutterWidget.h"
 
 class MainWindow;
 class QTreeWidget;
@@ -15,12 +15,12 @@ namespace Ui
     class EntrypointWidget;
 }
 
-class EntrypointWidget : public QDockWidget
+class EntrypointWidget : public CutterWidget
 {
     Q_OBJECT
 
 public:
-    explicit EntrypointWidget(MainWindow *main, QWidget *parent = 0);
+    explicit EntrypointWidget(MainWindow *main, QAction *action = nullptr);
     ~EntrypointWidget();
 
 private slots:
@@ -30,7 +30,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::EntrypointWidget> ui;
-    MainWindow      *main;
 
     void setScrollMode();
 };

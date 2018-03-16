@@ -3,13 +3,13 @@
 
 #include <QDebug>
 #include <QTextEdit>
-#include <QDockWidget>
 #include <QMouseEvent>
 
 #include <array>
 #include <memory>
 
 #include "Cutter.h"
+#include "CutterWidget.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
@@ -19,14 +19,13 @@
 
 #include "ui_HexdumpWidget.h"
 
-class HexdumpWidget : public QDockWidget
+class HexdumpWidget : public CutterWidget
 {
     Q_OBJECT
 
 
 public:
-    explicit HexdumpWidget(const QString &title, QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
-    explicit HexdumpWidget(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
+    explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
 
     Highlighter        *highlighter;

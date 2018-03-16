@@ -4,15 +4,11 @@
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 
-RelocsWidget::RelocsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::RelocsWidget),
-    main(main)
+RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
+    ui(new Ui::RelocsWidget)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     setScrollMode();
 

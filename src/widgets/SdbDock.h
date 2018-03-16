@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include <QDockWidget>
+#include "CutterWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -13,12 +13,12 @@ namespace Ui
     class SdbDock;
 }
 
-class SdbDock : public QDockWidget
+class SdbDock : public CutterWidget
 {
     Q_OBJECT
 
 public:
-    explicit SdbDock(QWidget *parent = 0);
+    explicit SdbDock(MainWindow *main, QAction *action = nullptr);
     ~SdbDock();
 
 private slots:

@@ -12,11 +12,9 @@
 #include <QFile>
 #include <QLayoutItem>
 
-
-Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::Dashboard),
-    main(main)
+Dashboard::Dashboard(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
+    ui(new Ui::Dashboard)
 {
     ui->setupUi(this);
 

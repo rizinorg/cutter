@@ -7,8 +7,8 @@
 #include <QTreeWidget>
 
 
-SymbolsWidget::SymbolsWidget(QWidget *parent) :
-    QDockWidget(parent),
+SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
     ui(new Ui::SymbolsWidget)
 {
     ui->setupUi(this);

@@ -7,8 +7,8 @@
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 
-CommentsWidget::CommentsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
+CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
     ui(new Ui::CommentsWidget),
     main(main)
 {

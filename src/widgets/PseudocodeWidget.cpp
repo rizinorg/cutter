@@ -8,8 +8,8 @@
 #include "utils/SyntaxHighlighter.h"
 #include "utils/TempConfig.h"
 
-PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags) :
-        QDockWidget(parent, flags),
+PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
+        CutterWidget(main, action),
         ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);
@@ -45,12 +45,6 @@ PseudocodeWidget::PseudocodeWidget(QWidget *parent, Qt::WindowFlags flags) :
     });
 
     refresh(RVA_INVALID);
-}
-
-PseudocodeWidget::PseudocodeWidget(const QString &title, QWidget *parent, Qt::WindowFlags flags)
-        : PseudocodeWidget(parent, flags)
-{
-    setWindowTitle(title);
 }
 
 PseudocodeWidget::~PseudocodeWidget() {}

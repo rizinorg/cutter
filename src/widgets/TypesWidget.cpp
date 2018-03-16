@@ -113,15 +113,11 @@ bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
 
 
 
-TypesWidget::TypesWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::TypesWidget),
-    main(main)
+TypesWidget::TypesWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
+    ui(new Ui::TypesWidget)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     types_model = new TypesModel(&types, this);
     types_proxy_model = new TypesSortFilterProxyModel(types_model, this);

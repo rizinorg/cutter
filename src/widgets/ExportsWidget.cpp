@@ -129,15 +129,11 @@ bool ExportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 
 
-ExportsWidget::ExportsWidget(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::ExportsWidget),
-    main(main)
+ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
+    CutterWidget(main, action),
+    ui(new Ui::ExportsWidget)
 {
     ui->setupUi(this);
-
-    // Radare core found in:
-    this->main = main;
 
     exports_model = new ExportsModel(&exports, this);
     exports_proxy_model = new ExportsSortFilterProxyModel(exports_model, this);

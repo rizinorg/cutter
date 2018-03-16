@@ -5,9 +5,9 @@
 
 #include <QSortFilterProxyModel>
 #include <QTreeView>
-#include <QDockWidget>
 
 #include "Cutter.h"
+#include "CutterWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -86,12 +86,12 @@ protected:
 
 
 
-class FunctionsWidget : public QDockWidget
+class FunctionsWidget : public CutterWidget
 {
     Q_OBJECT
 
 public:
-    explicit FunctionsWidget(MainWindow *main, QWidget *parent = 0);
+    explicit FunctionsWidget(MainWindow *main, QAction *action = nullptr);
     ~FunctionsWidget();
 
 private slots:

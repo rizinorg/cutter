@@ -141,7 +141,9 @@ SOURCES += \
     widgets/JupyterWidget.cpp \
     utils/PythonAPI.cpp \
     utils/NestedIPyKernel.cpp \
-    dialogs/R2PluginsDialog.cpp
+    dialogs/R2PluginsDialog.cpp \
+    widgets/CutterWidget.cpp \
+    widgets/GraphWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -208,7 +210,9 @@ HEADERS  += \
     widgets/JupyterWidget.h \
     utils/PythonAPI.h \
     utils/NestedIPyKernel.h \
-    dialogs/R2PluginsDialog.h
+    dialogs/R2PluginsDialog.h \
+    widgets/CutterWidget.h \
+    widgets/GraphWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
