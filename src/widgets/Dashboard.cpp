@@ -1,6 +1,8 @@
 #include "Dashboard.h"
 #include "ui_Dashboard.h"
 #include "utils/Helpers.h"
+#include "utils/JsonModel.h"
+#include "utils/JsonTreeItem.h"
 
 #include "MainWindow.h"
 
@@ -11,6 +13,11 @@
 #include <QJsonDocument>
 #include <QFile>
 #include <QLayoutItem>
+#include <QString>
+#include <QMessageBox>
+#include <QDialog>
+#include <QTreeView>
+#include <QTreeWidget>
 
 Dashboard::Dashboard(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -170,4 +177,48 @@ void Dashboard::updateContents()
 
     // Get stats for the graphs
     QStringList stats = CutterCore::getInstance()->getStats();
+}
+
+void Dashboard::on_certificateButton_clicked() 
+{   
+    static QDialog *viewDialog = nullptr;
+    static QTreeView *view = nullptr;
+    static JsonModel *model = nullptr;
+    static QString qstrCertificates;
+    if(!viewDialog)
+    {
+        viewDialog = new QDialog(this);
+        view = new QTreeView(viewDialog);
+        model = new JsonModel();
+        QJsonDocument qjsonCertificatesDoc = Core()->cmdj("iCj");
+        qstrCertificates = qjsonCertificatesDoc.toJson(QJsonDocument::Compact);
+    }
+    if (QString::compare("{}",qstrCertificates)) 
+    {
+        if(!viewDialog->isVisible())
+        {
+            std::string strCertificates = qstrCertificates.toUtf8().constData();
+            model->loadJson(QByteArray::fromStdString(strCertificates));
+            view->setModel(model);
+            view->expandAll();
+            view->resize(900,600);
+            QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            sizePolicy.setHorizontalStretch(0);
+            sizePolicy.setVerticalStretch(0);
+            sizePolicy.setHeightForWidth(view->sizePolicy().hasHeightForWidth());
+            viewDialog->setSizePolicy(sizePolicy);
+            viewDialog->setMinimumSize(QSize(900, 600));
+            viewDialog->setMaximumSize(QSize(900, 600));
+            viewDialog->setSizeGripEnabled(false);  
+            viewDialog->setWindowTitle("Certificates");
+            viewDialog->show();
+        }
+    }
+    else 
+    {
+        QMessageBox msgBoxCertificateInf(QMessageBox::Information, "Certificate Information ",
+                                         "There is no certificate information",
+                                         QMessageBox::NoButton, this);
+        msgBoxCertificateInf.exec();    
+    }    
 }
