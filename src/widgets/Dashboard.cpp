@@ -5,7 +5,6 @@
 #include "utils/JsonTreeItem.h"
 
 #include "MainWindow.h"
-#include <Cutter.h>
 
 #include <QDebug>
 #include <QJsonArray>
@@ -20,12 +19,12 @@
 #include <QTreeView>
 #include <QTreeWidget>
 
-Dashboard::Dashboard(MainWindow *main, QWidget *parent) :
-    QDockWidget(parent),
-    ui(new Ui::Dashboard),
-    main(main)
+Dashboard::Dashboard(MainWindow *main, QAction *action) :
+    CutterDockWidget(main, action),
+    ui(new Ui::Dashboard)
 {
     ui->setupUi(this);
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
 }
 
@@ -179,6 +178,7 @@ void Dashboard::updateContents()
     // Get stats for the graphs
     QStringList stats = CutterCore::getInstance()->getStats();
 }
+
 
 void Dashboard::on_certificateButton_clicked() 
 {	

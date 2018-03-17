@@ -11,10 +11,11 @@ QT += core gui widgets svg
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
-# You can spawn qmake with qmake "CONFIG+=CUTTER_ENABLE_JUPYTER" to set a variable
-# Or manually edit this file
-#CONFIG += CUTTER_ENABLE_JUPYTER
-#CONFIG += CUTTER_ENABLE_QTWEBENGINE
+!defined(CUTTER_ENABLE_JUPYTER, var)     CUTTER_ENABLE_JUPYTER=true
+equals(CUTTER_ENABLE_JUPYTER, true)      CONFIG += CUTTER_ENABLE_JUPYTER
+
+!defined(CUTTER_ENABLE_QTWEBENGINE, var) CUTTER_ENABLE_QTWEBENGINE=true
+equals(CUTTER_ENABLE_QTWEBENGINE, true)  CONFIG += CUTTER_ENABLE_QTWEBENGINE
 
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
@@ -142,6 +143,8 @@ SOURCES += \
     utils/PythonAPI.cpp \
     utils/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
+    widgets/CutterDockWidget.cpp \
+    widgets/GraphWidget.cpp \
     utils/JsonTreeItem.cpp \
     utils/JsonModel.cpp
 
@@ -211,6 +214,8 @@ HEADERS  += \
     utils/PythonAPI.h \
     utils/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
+    widgets/CutterDockWidget.h \
+    widgets/GraphWidget.h \
     utils/JsonTreeItem.h \
     utils/JsonModel.h
 
