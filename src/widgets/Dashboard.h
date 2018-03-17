@@ -4,9 +4,6 @@
 #include <memory>
 
 #include <QDockWidget>
-#include <QCloseEvent>
-
-#include "JsonTreeViewDialog.h"
 
 class MainWindow;
 
@@ -29,7 +26,6 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
     MainWindow      *main;
-    JsonTreeViewDialog *certificateDialog = nullptr;
 };
 
 #endif // DASHBOARD_H
