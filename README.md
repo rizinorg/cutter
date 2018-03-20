@@ -41,9 +41,7 @@ Building on linux:
 ```
 
 Building on Windows:
-```batch
-set ARCH=x64
-set PYTHON=C:\Python36-x64
+```
 prepare_r2.bat
 build.bat
 ```

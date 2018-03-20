@@ -56,6 +56,8 @@ CALL prepare_r2.bat
 CALL build.bat
 ```
 
+Pass `CUTTER_ENABLE_JUPYTER=false` argument to `build.bat` if you want to disable Jupyter support. Use `CUTTER_ENABLE_QTWEBENGINE=false` argument to disable QtWebEngine support for Jupyter.
+
 ## It doesn't work!
 
 Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
