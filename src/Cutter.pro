@@ -15,7 +15,9 @@ CONFIG += c++11
 equals(CUTTER_ENABLE_JUPYTER, true)      CONFIG += CUTTER_ENABLE_JUPYTER
 
 !defined(CUTTER_ENABLE_QTWEBENGINE, var) CUTTER_ENABLE_QTWEBENGINE=true
-equals(CUTTER_ENABLE_QTWEBENGINE, true)  CONFIG += CUTTER_ENABLE_QTWEBENGINE
+equals(CUTTER_ENABLE_JUPYTER, true) {
+    equals(CUTTER_ENABLE_QTWEBENGINE, true)  CONFIG += CUTTER_ENABLE_QTWEBENGINE
+}
 
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
