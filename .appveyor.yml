@@ -51,7 +51,7 @@ before_build:
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_ENABLE_JUPYTER CUTTER_ENABLE_QTWEBENGINE )
+  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat )
   - cmd: if defined MESON ( python meson.py --dist=%ARTIFACT_PATH% --backend=%BACKEND% --jupyter --webengine )
 
 after_build:
