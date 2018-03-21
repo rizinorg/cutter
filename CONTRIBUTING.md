@@ -39,7 +39,7 @@ We follow [these guidelines](https://wiki.qt.io/Qt_Coding_Style) to format the c
 If in doubt, you can use [AStyle 2.06](https://sourceforge.net/projects/astyle/files/astyle/astyle%202.06/) to format the code. The command line for formatting the code according to the style is:
 
 ```bash
-astyle --style=kr --indent=spaces=4 --align-pointer=name --align-reference=name --convert-tabs --attach-namespaces --max-code-length=100 --max-instatement-indent=120 --pad-header --pad-oper filename.cpp
+astyle --project=src/Cutter.astylerc src/filename.cpp
 ```
 
 ### Functions documentation

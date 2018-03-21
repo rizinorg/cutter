@@ -1,13 +1,12 @@
---style=allman
---convert-tabs
+--style=kr
+--indent=spaces=4
 --align-pointer=name
 --align-reference=name
---indent=spaces
---indent-namespaces
---indent-col1-comments
---pad-oper
+--convert-tabs
+--attach-namespaces
+--max-code-length=100
+--max-instatement-indent=120
 --pad-header
---unpad-paren
+--pad-oper
 --keep-one-line-blocks
---close-templates
 
