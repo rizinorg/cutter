@@ -28,7 +28,6 @@ private:
     void triggerAsmOptionsChanged();
 
 private slots:
-    void saveAsDefault();
     void resetToDefault();
 
     void updateAsmOptionsFromVars();

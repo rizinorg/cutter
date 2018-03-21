@@ -343,10 +343,8 @@ public:
     void setConfig(const QString &k, const QString &v);
     void setConfig(const QString &k, int v);
     void setConfig(const QString &k, bool v);
-    void setConfig(const QString &k, const char *v)
-    {
-        setConfig(k, QString(v));
-    }
+    void setConfig(const QString &k, const char *v) { setConfig(k, QString(v)); }
+    void setConfig(const QString &k, const QVariant &v);
     int getConfigi(const QString &k);
     bool getConfigb(const QString &k);
     QString getConfig(const QString &k);
@@ -436,9 +434,6 @@ public:
 
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
-
-    void resetDefaultAsmOptions();
-    void saveDefaultAsmOptions();
 
     void loadScript(const QString &scriptname);
     QString getVersionInformation();

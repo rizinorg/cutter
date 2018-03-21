@@ -503,65 +503,26 @@ void CutterCore::triggerGraphOptionsChanged()
     emit graphOptionsChanged();
 }
 
-void CutterCore::resetDefaultAsmOptions()
-{
-    // TODO Merge with Configuration.cpp
-    setConfig("asm.esil", Config()->getAsmESIL());
-    setConfig("asm.pseudo", Config()->getAsmPseudo());
-    setConfig("asm.offset", Config()->getAsmOffset());
-    setConfig("asm.describe", Config()->getAsmDescribe());
-    setConfig("asm.stackptr", Config()->getAsmStackPointer());
-    setConfig("asm.slow", Config()->getAsmSlow());
-    setConfig("asm.lines", Config()->getAsmLines());
-    setConfig("asm.fcnlines", Config()->getAsmFcnLines());
-    setConfig("asm.emu", Config()->getAsmEmu());
-    setConfig("asm.cmt.right", Config()->getAsmCmtRight());
-    setConfig("asm.varsum", Config()->getAsmVarSum());
-    setConfig("asm.bytes", Config()->getAsmBytes());
-    setConfig("asm.size", Config()->getAsmSize());
-    setConfig("asm.bytespace", Config()->getAsmBytespace());
-    setConfig("asm.lbytes", Config()->getAsmLBytes());
-    setConfig("asm.nbytes", Config()->getAsmNBytes());
-    setConfig("asm.syntax", Config()->getAsmSyntax());
-    setConfig("asm.ucase", Config()->getAsmUppercase());
-    setConfig("asm.bbline", Config()->getAsmBBLine());
-    setConfig("asm.capitalize", Config()->getAsmCapitalize());
-    setConfig("asm.varsub", Config()->getAsmVarsub());
-    setConfig("asm.varsub_only", Config()->getAsmVarsubOnly());
-}
-
-void CutterCore::saveDefaultAsmOptions()
-{
-    Config()->setAsmESIL(getConfigb("asm.esil"));
-    Config()->setAsmPseudo(getConfigb("asm.pseudo"));
-    Config()->setAsmOffset(getConfigb("asm.offset"));
-    Config()->setAsmDescribe(getConfigb("asm.describe"));
-    Config()->setAsmStackPointer(getConfigb("asm.stackptr"));
-    Config()->setAsmSlow(getConfigb("asm.slow"));
-    Config()->setAsmLines(getConfigb("asm.lines"));
-    Config()->setAsmFcnLines(getConfigb("asm.fcnlines"));
-    Config()->setAsmEmu(getConfigb("asm.emu"));
-    Config()->setAsmCmtRight(getConfigb("asm.cmt.right"));
-    Config()->setAsmVarSum(getConfigb("asm.varsum"));
-    Config()->setAsmBytes(getConfigb("asm.bytes"));
-    Config()->setAsmSize(getConfigb("asm.size"));
-    Config()->setAsmBytespace(getConfigb("asm.bytespace"));
-    Config()->setAsmLBytes(getConfigb("asm.lbytes"));
-    Config()->setAsmNBytes(getConfigi("asm.nbytes"));
-    Config()->setAsmSyntax(getConfig("asm.syntax"));
-    Config()->setAsmUppercase(getConfigb("asm.ucase"));
-    Config()->setAsmBBLine(getConfigb("asm.bbline"));
-    Config()->setAsmCapitalize(getConfigb("asm.capitalize"));
-    Config()->setAsmVarsub(getConfigb("asm.varsub"));
-    Config()->setAsmVarsubOnly(getConfigb("asm.varsub_only"));
-    Config()->setAsmTabs(getConfigi("asm.tabs"));
-}
-
 QString CutterCore::getConfig(const QString &k)
 {
     CORE_LOCK();
     QByteArray key = k.toUtf8();
     return QString(r_config_get(core_->config, key.constData()));
+}
+
+void CutterCore::setConfig(const QString &k, const QVariant &v)
+{
+    switch(v.type()) {
+    case QVariant::Type::Bool:
+        setConfig(k, v.toBool());
+        break;
+    case QVariant::Type::Int:
+        setConfig(k, v.toInt());
+        break;
+    default:
+        setConfig(k, v.toString());
+        break;
+    }
 }
 
 void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
@@ -1583,7 +1544,6 @@ QJsonArray CutterCore::getOpenedFiles()
     QJsonDocument files = cmdj("oj");
     return files.array();
 }
-
 QList<QString> CutterCore::getColorThemes()
 {
     QList<QString> r;

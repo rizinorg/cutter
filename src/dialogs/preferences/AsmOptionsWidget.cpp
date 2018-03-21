@@ -24,8 +24,6 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog */*dialog*/, QWidget *paren
 
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
 
-    ui->buttonBox->addButton(tr("Save as Defaults"), QDialogButtonBox::ButtonRole::ApplyRole);
-
     //connect(dialog, SIGNAL(saveAsDefault()), this, SLOT(saveAsDefault()));
     //connect(dialog, SIGNAL(resetToDefault()), this, SLOT(resetToDefault()));
 }
@@ -35,34 +33,34 @@ AsmOptionsWidget::~AsmOptionsWidget() {}
 
 void AsmOptionsWidget::updateAsmOptionsFromVars()
 {
-    qhelpers::setCheckedWithoutSignals(ui->esilCheckBox, Core()->getConfigb("asm.esil"));
-    qhelpers::setCheckedWithoutSignals(ui->pseudoCheckBox, Core()->getConfigb("asm.pseudo"));
-    qhelpers::setCheckedWithoutSignals(ui->offsetCheckBox, Core()->getConfigb("asm.offset"));
-    qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Core()->getConfigb("asm.describe"));
-    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Core()->getConfigb("asm.stackptr"));
-    qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Core()->getConfigb("asm.slow"));
-    qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Core()->getConfigb("asm.lines"));
-    qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Core()->getConfigb("asm.fcnlines"));
-    qhelpers::setCheckedWithoutSignals(ui->flgoffCheckBox, Core()->getConfigb("asm.flgoff"));
-    qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Core()->getConfigb("asm.emu"));
-    qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Core()->getConfigb("asm.cmt.right"));
-    qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Core()->getConfigb("asm.varsum"));
-    qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Core()->getConfigb("asm.size"));
+    qhelpers::setCheckedWithoutSignals(ui->esilCheckBox, Config()->getConfigBool("asm.esil"));
+    qhelpers::setCheckedWithoutSignals(ui->pseudoCheckBox, Config()->getConfigBool("asm.pseudo"));
+    qhelpers::setCheckedWithoutSignals(ui->offsetCheckBox, Config()->getConfigBool("asm.offset"));
+    qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Config()->getConfigBool("asm.describe"));
+    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Config()->getConfigBool("asm.stackptr"));
+    qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Config()->getConfigBool("asm.slow"));
+    qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Config()->getConfigBool("asm.lines"));
+    qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.fcnlines"));
+    qhelpers::setCheckedWithoutSignals(ui->flgoffCheckBox, Config()->getConfigBool("asm.flgoff"));
+    qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Config()->getConfigBool("asm.emu"));
+    qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Config()->getConfigBool("asm.cmt.right"));
+    qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Config()->getConfigBool("asm.varsum"));
+    qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Config()->getConfigBool("asm.size"));
 
-    bool bytesEnabled = Core()->getConfigb("asm.bytes");
+    bool bytesEnabled = Config()->getConfigBool("asm.bytes");
     qhelpers::setCheckedWithoutSignals(ui->bytesCheckBox, bytesEnabled);
-    qhelpers::setCheckedWithoutSignals(ui->bytespaceCheckBox, Core()->getConfigb("asm.bytespace"));
+    qhelpers::setCheckedWithoutSignals(ui->bytespaceCheckBox, Config()->getConfigBool("asm.bytespace"));
     ui->bytespaceCheckBox->setEnabled(bytesEnabled);
-    qhelpers::setCheckedWithoutSignals(ui->lbytesCheckBox, Core()->getConfigb("asm.lbytes"));
+    qhelpers::setCheckedWithoutSignals(ui->lbytesCheckBox, Config()->getConfigBool("asm.lbytes"));
     ui->lbytesCheckBox->setEnabled(bytesEnabled);
     ui->nbytesSpinBox->blockSignals(true);
-    ui->nbytesSpinBox->setValue(Core()->getConfigi("asm.nbytes"));
+    ui->nbytesSpinBox->setValue(Config()->getConfigInt("asm.nbytes"));
     ui->nbytesSpinBox->blockSignals(false);
     ui->nbytesLabel->setEnabled(bytesEnabled);
     ui->nbytesSpinBox->setEnabled(bytesEnabled);
 
 
-    QString currentSyntax = Core()->getConfig("asm.syntax");
+    QString currentSyntax = Config()->getConfigString("asm.syntax");
     for (int i = 0; i < ui->syntaxComboBox->count(); i++) {
         if (ui->syntaxComboBox->itemData(i) == currentSyntax) {
             ui->syntaxComboBox->blockSignals(true);
@@ -73,9 +71,9 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     }
 
     ui->caseComboBox->blockSignals(true);
-    if (Core()->getConfigb("asm.ucase")) {
+    if (Config()->getConfigBool("asm.ucase")) {
         ui->caseComboBox->setCurrentIndex(1);
-    } else if (Core()->getConfigb("asm.capitalize")) {
+    } else if (Config()->getConfigBool("asm.capitalize")) {
         ui->caseComboBox->setCurrentIndex(2);
     } else {
         ui->caseComboBox->setCurrentIndex(0);
@@ -83,26 +81,20 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->caseComboBox->blockSignals(false);
 
     ui->asmTabsSpinBox->blockSignals(true);
-    ui->asmTabsSpinBox->setValue(Core()->getConfigi("asm.tabs"));
+    ui->asmTabsSpinBox->setValue(Config()->getConfigInt("asm.tabs"));
     ui->asmTabsSpinBox->blockSignals(false);
 
-    qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, Core()->getConfigb("asm.bbline"));
+    qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, Config()->getConfigBool("asm.bbline"));
 
-    bool varsubEnabled = Core()->getConfigb("asm.varsub");
+    bool varsubEnabled = Config()->getConfigBool("asm.varsub");
     qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
-    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, Core()->getConfigb("asm.varsub_only"));
+    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, Config()->getConfigBool("asm.varsub_only"));
     ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
-}
-
-
-void AsmOptionsWidget::saveAsDefault()
-{
-    Core()->saveDefaultAsmOptions();
 }
 
 void AsmOptionsWidget::resetToDefault()
 {
-    Core()->resetDefaultAsmOptions();
+    Config()->resetToDefaultAsmOptions();
     updateAsmOptionsFromVars();
     triggerAsmOptionsChanged();
 }
@@ -117,79 +109,79 @@ void AsmOptionsWidget::triggerAsmOptionsChanged()
 
 void AsmOptionsWidget::on_esilCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.esil", checked);
+    Config()->setConfig("asm.esil", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_pseudoCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.pseudo", checked);
+    Config()->setConfig("asm.pseudo", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_offsetCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.offset", checked);
+    Config()->setConfig("asm.offset", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_describeCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.describe", checked);
+    Config()->setConfig("asm.describe", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_stackpointerCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.stackptr", checked);
+    Config()->setConfig("asm.stackptr", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_slowCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.slow", checked);
+    Config()->setConfig("asm.slow", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_linesCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.lines", checked);
+    Config()->setConfig("asm.lines", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_fcnlinesCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.fcnlines", checked);
+    Config()->setConfig("asm.fcnlines", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_flgoffCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.flgoff", checked);
+    Config()->setConfig("asm.flgoff", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_emuCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.emu", checked);
+    Config()->setConfig("asm.emu", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_cmtrightCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.cmt.right", checked);
+    Config()->setConfig("asm.cmt.right", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_varsumCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.varsum", checked);
+    Config()->setConfig("asm.varsum", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_bytesCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.bytes", checked);
+    Config()->setConfig("asm.bytes", checked);
     ui->bytespaceCheckBox->setEnabled(checked);
     ui->lbytesCheckBox->setEnabled(checked);
     ui->nbytesLabel->setEnabled(checked);
@@ -199,31 +191,31 @@ void AsmOptionsWidget::on_bytesCheckBox_toggled(bool checked)
 
 void AsmOptionsWidget::on_sizeCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.size", checked);
+    Config()->setConfig("asm.size", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_bytespaceCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.bytespace", checked);
+    Config()->setConfig("asm.bytespace", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_lbytesCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.lbytes", checked);
+    Config()->setConfig("asm.lbytes", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_nbytesSpinBox_valueChanged(int value)
 {
-    Core()->setConfig("asm.nbytes", value);
+    Config()->setConfig("asm.nbytes", value);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_syntaxComboBox_currentIndexChanged(int index)
 {
-    Core()->setConfig("asm.syntax",
+    Config()->setConfig("asm.syntax",
                       ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
     triggerAsmOptionsChanged();
 }
@@ -253,34 +245,34 @@ void AsmOptionsWidget::on_caseComboBox_currentIndexChanged(int index)
         break;
     }
 
-    Core()->setConfig("asm.ucase", ucase);
-    Core()->setConfig("asm.capitalize", capitalize);
+    Config()->setConfig("asm.ucase", ucase);
+    Config()->setConfig("asm.capitalize", capitalize);
 
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_asmTabsSpinBox_valueChanged(int value)
 {
-    Core()->setConfig("asm.tabs", value);
+    Config()->setConfig("asm.tabs", value);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_bblineCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.bbline", checked);
+    Config()->setConfig("asm.bbline", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_varsubCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.varsub", checked);
+    Config()->setConfig("asm.varsub", checked);
     ui->varsubOnlyCheckBox->setEnabled(checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_varsubOnlyCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.varsub_only", checked);
+    Config()->setConfig("asm.varsub_only", checked);
     triggerAsmOptionsChanged();
 }
 
@@ -288,9 +280,6 @@ void AsmOptionsWidget::on_varsubOnlyCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_buttonBox_clicked(QAbstractButton *button)
 {
     switch (ui->buttonBox->buttonRole(button)) {
-    case QDialogButtonBox::ButtonRole::ApplyRole:
-        saveAsDefault();
-        break;
     case QDialogButtonBox::ButtonRole::ResetRole:
         resetToDefault();
         break;
