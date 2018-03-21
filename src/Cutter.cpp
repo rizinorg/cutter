@@ -793,7 +793,6 @@ void CutterCore::setSettings()
 
     setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
-    setConfig("asm.flgoff", true);
     setConfig("anal.autoname", true);
 
     // Fucking pancake xD

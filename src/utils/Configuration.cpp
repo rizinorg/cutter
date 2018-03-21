@@ -183,3 +183,4 @@ void Configuration::setColorTheme(QString theme)
     }
     emit colorsUpdated();
 }
+

@@ -71,6 +71,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="flgoffCheckBox">
+     <property name="text">
+      <string>Show offset before flags (asm.flgoff)</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QCheckBox" name="emuCheckBox">
      <property name="text">
       <string>Run ESIL emulation analysis (asm.emu)</string>
