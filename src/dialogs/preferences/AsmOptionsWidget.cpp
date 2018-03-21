@@ -44,7 +44,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Core()->getConfigb("asm.lines"));
     qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Core()->getConfigb("asm.fcnlines"));
     qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Core()->getConfigb("asm.emu"));
-    qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Core()->getConfigb("asm.cmtright"));
+    qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Core()->getConfigb("asm.cmt.right"));
     qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Core()->getConfigb("asm.varsum"));
     qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Core()->getConfigb("asm.size"));
 
@@ -170,7 +170,7 @@ void AsmOptionsWidget::on_emuCheckBox_toggled(bool checked)
 
 void AsmOptionsWidget::on_cmtrightCheckBox_toggled(bool checked)
 {
-    Core()->setConfig("asm.cmtright", checked);
+    Core()->setConfig("asm.cmt.right", checked);
     triggerAsmOptionsChanged();
 }
 

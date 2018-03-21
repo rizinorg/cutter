@@ -80,7 +80,7 @@
    <item>
     <widget class="QCheckBox" name="cmtrightCheckBox">
      <property name="text">
-      <string>Show comments at right of assembly (asm.cmtright)</string>
+      <string>Show comments at right of assembly (asm.cmt.right)</string>
      </property>
     </widget>
    </item>
