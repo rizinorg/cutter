@@ -9,9 +9,8 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 
-namespace Ui
-{
-    class VTablesWidget;
+namespace Ui {
+class VTablesWidget;
 }
 
 class MainWindow;
@@ -27,7 +26,7 @@ public:
     enum Columns { NAME = 0, ADDRESS, COUNT };
     static const int VTableDescriptionRole = Qt::UserRole;
 
-    VTableModel(QList<VTableDescription> *vtables, QObject* parent = nullptr);
+    VTableModel(QList<VTableDescription> *vtables, QObject *parent = nullptr);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -45,7 +44,7 @@ public:
 class VTableSortFilterProxyModel : public QSortFilterProxyModel
 {
 public:
-    VTableSortFilterProxyModel(VTableModel* model, QObject *parent = nullptr);
+    VTableSortFilterProxyModel(VTableModel *model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;

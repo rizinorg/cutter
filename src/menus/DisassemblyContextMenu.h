@@ -7,7 +7,7 @@
 
 class DisassemblyContextMenu : public QMenu
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     DisassemblyContextMenu(QWidget *parent = nullptr);
@@ -68,7 +68,7 @@ private:
     RVA offset;
     bool canCopy;
 
-    QList<QAction*> anonymousActions;
+    QList<QAction *> anonymousActions;
 
     QMenu *editMenu;
     QAction *editMenuAction;

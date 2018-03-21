@@ -8,9 +8,8 @@
 class MainWindow;
 class QTreeWidgetItem;
 
-namespace Ui
-{
-    class RelocsWidget;
+namespace Ui {
+class RelocsWidget;
 }
 
 class RelocsWidget : public CutterDockWidget

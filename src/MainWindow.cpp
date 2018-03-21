@@ -267,8 +267,7 @@ void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> adva
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->show();
 
-    if (analLevel >= 0)
-    {
+    if (analLevel >= 0) {
         o->setupAndStartAnalysis(analLevel, advancedOptions);
     }
 }
@@ -308,12 +307,9 @@ void MainWindow::finalizeOpen()
 bool MainWindow::saveProject(bool quit)
 {
     QString projectName = core->getConfig("prj.name");
-    if (projectName.isEmpty())
-    {
+    if (projectName.isEmpty()) {
         return saveProjectAs(quit);
-    }
-    else
-    {
+    } else {
         core->saveProject(projectName);
         return true;
     }
@@ -342,23 +338,17 @@ void MainWindow::setFilename(const QString &fn)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
-                                      tr("Do you really want to exit?\nSave your project before closing!"),
-                                      (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
-    if (ret == QMessageBox::Save)
-    {
-        if (saveProject(true))
-        {
+                                                            tr("Do you really want to exit?\nSave your project before closing!"),
+                                                            (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+    if (ret == QMessageBox::Save) {
+        if (saveProject(true)) {
             saveSettings();
         }
         QMainWindow::closeEvent(event);
-    }
-    else if (ret == QMessageBox::Discard)
-    {
+    } else if (ret == QMessageBox::Discard) {
         saveSettings();
         QMainWindow::closeEvent(event);
-    }
-    else
-    {
+    } else {
         event->ignore();
     }
 }
@@ -391,19 +381,14 @@ void MainWindow::saveSettings()
 
 void MainWindow::setPanelLock()
 {
-    if (panelLock)
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
+    if (panelLock) {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
 
         ui->actionLock->setChecked(false);
-    }
-    else
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
+    } else {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
 
@@ -413,14 +398,11 @@ void MainWindow::setPanelLock()
 
 void MainWindow::setTabLocation()
 {
-    if (tabsOnTop)
-    {
+    if (tabsOnTop) {
         ui->centralTabWidget->setTabPosition(QTabWidget::North);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
         ui->actionTabs_on_Top->setChecked(true);
-    }
-    else
-    {
+    } else {
         ui->centralTabWidget->setTabPosition(QTabWidget::South);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
         ui->actionTabs_on_Top->setChecked(false);
@@ -434,17 +416,12 @@ void MainWindow::refreshAll()
 
 void MainWindow::lockUnlock_Docks(bool what)
 {
-    if (what)
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
+    if (what) {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
-    }
-    else
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
+    } else {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
     }
@@ -494,8 +471,7 @@ void MainWindow::restoreDocks()
 
 void MainWindow::hideAllDocks()
 {
-    for (auto w : dockWidgets)
-    {
+    for (auto w : dockWidgets) {
         removeDockWidget(w);
     }
 
@@ -504,8 +480,7 @@ void MainWindow::hideAllDocks()
 
 void MainWindow::updateDockActionsChecked()
 {
-    for(auto i=dockWidgetActions.constBegin(); i!=dockWidgetActions.constEnd(); i++)
-    {
+    for (auto i = dockWidgetActions.constBegin(); i != dockWidgetActions.constEnd(); i++) {
         i.key()->setChecked(!i.value()->isHidden());
     }
 }
@@ -531,10 +506,8 @@ void MainWindow::showDefaultDocks()
 #endif
                                               };
 
-    for (auto w : dockWidgets)
-    {
-        if (defaultDocks.contains(w))
-        {
+    for (auto w : dockWidgets) {
+        if (defaultDocks.contains(w)) {
             w->show();
         }
     }
@@ -581,18 +554,13 @@ void MainWindow::on_actionLock_triggered()
 
 void MainWindow::on_actionLockUnlock_triggered()
 {
-    if (ui->actionLockUnlock->isChecked())
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
+    if (ui->actionLockUnlock->isChecked()) {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
         ui->actionLockUnlock->setIcon(QIcon(":/lock"));
-    }
-    else
-    {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>())
-        {
+    } else {
+        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
         ui->actionLockUnlock->setIcon(QIcon(":/unlock"));
@@ -665,10 +633,9 @@ void MainWindow::on_actionReset_settings_triggered()
 {
     QMessageBox::StandardButton ret =
         (QMessageBox::StandardButton)QMessageBox::question(this, APPNAME,
-                tr("Do you really want to clear all settings?"),
-                QMessageBox::Ok | QMessageBox::Cancel);
-    if (ret == QMessageBox::Ok)
-    {
+                                                           tr("Do you really want to clear all settings?"),
+                                                           QMessageBox::Ok | QMessageBox::Cancel);
+    if (ret == QMessageBox::Ok) {
         Config()->resetAll();
     }
 }
@@ -744,15 +711,13 @@ void MainWindow::on_actionImportPDB_triggered()
     dialog.setWindowTitle(tr("Select PDB file"));
     dialog.setNameFilters({ tr("PDB file (*.pdb)"), tr("All files (*)") });
 
-    if (!dialog.exec())
-    {
+    if (!dialog.exec()) {
         return;
     }
 
     QString pdbFile = dialog.selectedFiles().first();
 
-    if (!pdbFile.isEmpty())
-    {
+    if (!pdbFile.isEmpty()) {
         Core()->loadPDB(pdbFile);
         addOutput(tr("%1 loaded.").arg(pdbFile));
     }
@@ -763,10 +728,12 @@ void MainWindow::projectSaved(const QString &name)
     addOutput(tr("Project saved: ") + name);
 }
 
-void MainWindow::addToDockWidgetList(QDockWidget *dockWidget) {
+void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
+{
     this->dockWidgets.push_back(dockWidget);
 }
 
-void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action) {
+void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
+{
     this->dockWidgetActions[action] = dockWidget;
 }

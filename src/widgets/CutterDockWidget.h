@@ -21,7 +21,7 @@ private:
     QAction *action;
 
 protected:
-    void closeEvent(QCloseEvent * event) override;
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // CUTTERWIDGET_H

@@ -6,9 +6,8 @@
 
 #include "Cutter.h"
 
-namespace Ui
-{
-    class R2PluginsDialog;
+namespace Ui {
+class R2PluginsDialog;
 }
 
 class R2PluginsDialog : public QDialog

@@ -6,9 +6,8 @@
 
 class MainWindow;
 
-namespace Ui
-{
-    class SideBar;
+namespace Ui {
+class SideBar;
 }
 
 class SideBar : public QWidget

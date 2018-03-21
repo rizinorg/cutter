@@ -19,8 +19,7 @@ protected:
     void highlightBlock(const QString &text);
 
 private:
-    struct HighlightingRule
-    {
+    struct HighlightingRule {
         QRegExp pattern;
         QTextCharFormat format;
     };

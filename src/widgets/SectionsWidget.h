@@ -11,9 +11,8 @@ class QItemSelectionModel;
 
 struct SectionDescription;
 
-namespace Ui
-{
-    class SectionsWidget;
+namespace Ui {
+class SectionsWidget;
 }
 
 class SectionsWidget : public QSplitter

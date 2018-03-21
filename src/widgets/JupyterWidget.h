@@ -11,9 +11,8 @@
 #include "CutterDockWidget.h"
 #include "utils/JupyterConnection.h"
 
-namespace Ui
-{
-    class JupyterWidget;
+namespace Ui {
+class JupyterWidget;
 }
 
 class JupyterWebView;
@@ -22,7 +21,7 @@ class MainWindow;
 
 class JupyterWidget : public CutterDockWidget
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     JupyterWidget(MainWindow *main, QAction *action = nullptr);
@@ -54,7 +53,7 @@ private:
 
 class JupyterWebView : public QWebEngineView
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     JupyterWebView(JupyterWidget *mainWidget, QWidget *parent = nullptr);

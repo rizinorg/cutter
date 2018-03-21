@@ -9,8 +9,8 @@
 #include "utils/TempConfig.h"
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-        CutterDockWidget(main, action),
-        ui(new Ui::PseudocodeWidget)
+    CutterDockWidget(main, action),
+    ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);
 
@@ -32,10 +32,10 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     //});
 
 
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
+    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
+            SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        if (visibility)
-        {
+        if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Pseudocode);
         }
     });
@@ -52,16 +52,15 @@ PseudocodeWidget::~PseudocodeWidget() {}
 
 void PseudocodeWidget::refresh(RVA addr)
 {
-    if (addr == RVA_INVALID)
-    {
+    if (addr == RVA_INVALID) {
         ui->textEdit->setText(tr("Click Refresh to generate Pseudocode from current offset."));
         return;
     }
 
-    const QString& decompiledCode = Core()->getDecompiledCode(addr);
-    if (decompiledCode.length() == 0)
-    {
-        ui->textEdit->setText(tr("Cannot decompile at") + " " + RAddressString(addr) + " " + tr("(Not a function?)"));
+    const QString &decompiledCode = Core()->getDecompiledCode(addr);
+    if (decompiledCode.length() == 0) {
+        ui->textEdit->setText(tr("Cannot decompile at") + " " + RAddressString(
+                                  addr) + " " + tr("(Not a function?)"));
         return;
     }
     ui->textEdit->setText(decompiledCode);
@@ -74,8 +73,7 @@ void PseudocodeWidget::refreshPseudocode()
 
 void PseudocodeWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
 {
-    if (type == CutterCore::MemoryWidgetType::Pseudocode)
-    {
+    if (type == CutterCore::MemoryWidgetType::Pseudocode) {
         raise();
     }
 }
@@ -95,7 +93,7 @@ void PseudocodeWidget::colorsUpdatedSlot()
 {
     const QString textEditClassName(ui->textEdit->metaObject()->className());
     QString styleSheet = QString(textEditClassName + " { background-color: %1; color: %2; }")
-            .arg(ConfigColor("gui.background").name())
-            .arg(ConfigColor("btext").name());
+                         .arg(ConfigColor("gui.background").name())
+                         .arg(ConfigColor("btext").name());
     ui->textEdit->setStyleSheet(styleSheet);
 }

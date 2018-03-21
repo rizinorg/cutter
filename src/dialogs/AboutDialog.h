@@ -4,9 +4,8 @@
 #include <QDialog>
 #include <memory>
 
-namespace Ui
-{
-    class AboutDialog;
+namespace Ui {
+class AboutDialog;
 }
 
 class AboutDialog : public QDialog

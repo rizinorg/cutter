@@ -52,9 +52,8 @@ protected:
 
 
 
-namespace Ui
-{
-    class FlagsWidget;
+namespace Ui {
+class FlagsWidget;
 }
 
 class FlagsWidget : public CutterDockWidget

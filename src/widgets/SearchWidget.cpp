@@ -29,11 +29,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
     const SearchDescription &exp = search->at(index.row());
 
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (index.column())
-        {
+        switch (index.column()) {
         case OFFSET:
             return RAddressString(exp.offset);
         case SIZE:
@@ -54,11 +52,9 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
 
 QVariant SearchModel::headerData(int section, Qt::Orientation, int role) const
 {
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (section)
-        {
+        switch (section) {
         case SIZE:
             return tr("Size");
         case OFFSET:
@@ -95,17 +91,19 @@ SearchSortFilterProxyModel::SearchSortFilterProxyModel(SearchModel *source_model
 bool SearchSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    SearchDescription search = index.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    SearchDescription search = index.data(
+                                   SearchModel::SearchDescriptionRole).value<SearchDescription>();
     return search.code.contains(filterRegExp());
 }
 
 bool SearchSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    SearchDescription left_search = left.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
-    SearchDescription right_search = right.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    SearchDescription left_search = left.data(
+                                        SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    SearchDescription right_search = right.data(
+                                         SearchModel::SearchDescriptionRole).value<SearchDescription>();
 
-    switch (left.column())
-    {
+    switch (left.column()) {
     case SearchModel::SIZE:
         return left_search.size < right_search.size;
     case SearchModel::OFFSET:
@@ -153,7 +151,8 @@ SearchWidget::~SearchWidget() {}
 
 void SearchWidget::on_searchTreeView_doubleClicked(const QModelIndex &index)
 {
-    SearchDescription search = index.data(SearchModel::SearchDescriptionRole).value<SearchDescription>();
+    SearchDescription search = index.data(
+                                   SearchModel::SearchDescriptionRole).value<SearchDescription>();
     Core()->seek(search.offset);
 }
 
@@ -173,7 +172,7 @@ void SearchWidget::refreshSearchspaces()
     ui->searchspaceCombo->addItem(tr("string"),     QVariant("/j"));
     ui->searchspaceCombo->addItem(tr("hex string"), QVariant("/xj"));
     ui->searchspaceCombo->addItem(tr("ROP gadgets"), QVariant("/Rj"));
-    
+
     if (cur_idx > 0)
         ui->searchspaceCombo->setCurrentIndex(cur_idx);
 

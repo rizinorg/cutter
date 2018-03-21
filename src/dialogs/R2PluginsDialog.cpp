@@ -10,9 +10,8 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    for(auto plugin : Core()->getRBinPluginDescriptions())
-    {
-        QTreeWidgetItem* item = new QTreeWidgetItem();
+    for (auto plugin : Core()->getRBinPluginDescriptions()) {
+        QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
         item->setText(2, plugin.license);
@@ -21,9 +20,8 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     }
     qhelpers::adjustColumns(ui->RBinTreeWidget, 0);
 
-    for(auto plugin : Core()->getRIOPluginDescriptions())
-    {
-        QTreeWidgetItem* item = new QTreeWidgetItem();
+    for (auto plugin : Core()->getRIOPluginDescriptions()) {
+        QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
         item->setText(2, plugin.license);
@@ -32,18 +30,16 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     }
     qhelpers::adjustColumns(ui->RIOTreeWidget, 0);
 
-    for(auto plugin : Core()->getRCorePluginDescriptions())
-    {
-        QTreeWidgetItem* item = new QTreeWidgetItem();
+    for (auto plugin : Core()->getRCorePluginDescriptions()) {
+        QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
         ui->RCoreTreeWidget->addTopLevelItem(item);
     }
     qhelpers::adjustColumns(ui->RCoreTreeWidget, 0);
 
-    for(auto plugin : Core()->getRAsmPluginDescriptions())
-    {
-        QTreeWidgetItem* item = new QTreeWidgetItem();
+    for (auto plugin : Core()->getRAsmPluginDescriptions()) {
+        QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.architecture);
         item->setText(2, plugin.cpus);

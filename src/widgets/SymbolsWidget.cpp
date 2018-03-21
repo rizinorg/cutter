@@ -35,8 +35,7 @@ void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item
 void SymbolsWidget::fillSymbols()
 {
     ui->symbolsTreeWidget->clear();
-    for (auto symbol : CutterCore::getInstance()->getAllSymbols())
-    {
+    for (auto symbol : CutterCore::getInstance()->getAllSymbols()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, RAddressString(symbol.vaddr));
         item->setText(1, QString("%1 %2").arg(symbol.bind, symbol.type).trimmed());

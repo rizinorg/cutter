@@ -5,7 +5,7 @@
 #include <QFile>
 #include <QApplication>
 
-Configuration* Configuration::mPtr = nullptr;
+Configuration *Configuration::mPtr = nullptr;
 
 Configuration::Configuration() : QObject()
 {
@@ -13,7 +13,7 @@ Configuration::Configuration() : QObject()
     loadInitial();
 }
 
-Configuration* Configuration::instance()
+Configuration *Configuration::instance()
 {
     if (!mPtr)
         mPtr = new Configuration();
@@ -73,23 +73,20 @@ void Configuration::loadDarkTheme()
 {
     /* Load Qt Theme */
     QFile f(":qdarkstyle/style.qss");
-    if (!f.exists())
-    {
+    if (!f.exists()) {
         qWarning() << "Can't find dark theme stylesheet.";
-    }
-    else
-    {
+    } else {
         f.open(QFile::ReadOnly | QFile::Text);
         QTextStream ts(&f);
         QString stylesheet = ts.readAll();
 #ifdef Q_OS_MACX
         // see https://github.com/ColinDuquesnoy/QDarkStyleSheet/issues/22#issuecomment-96179529
         stylesheet += "QDockWidget::title"
-                "{"
-                "    background-color: #31363b;"
-                "    text-align: center;"
-                "    height: 12px;"
-                "}";
+                      "{"
+                      "    background-color: #31363b;"
+                      "    text-align: center;"
+                      "    height: 12px;"
+                      "}";
 #endif
         qApp->setStyleSheet(stylesheet);
     }

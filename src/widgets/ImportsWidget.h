@@ -11,9 +11,8 @@
 class MainWindow;
 class QTreeWidget;
 
-namespace Ui
-{
-    class ImportsWidget;
+namespace Ui {
+class ImportsWidget;
 }
 
 class ImportsWidget : public CutterDockWidget
@@ -41,7 +40,8 @@ class CMyDelegate : public QStyledItemDelegate
 public:
     explicit CMyDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
 };
 
 #endif // IMPORTSWIDGET_H

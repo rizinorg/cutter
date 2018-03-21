@@ -19,8 +19,7 @@ class GraphView : public QAbstractScrollArea
 {
     Q_OBJECT
 
-    enum class LayoutType
-    {
+    enum class LayoutType {
         Medium,
         Wide,
         Narrow,
@@ -28,15 +27,13 @@ class GraphView : public QAbstractScrollArea
 public:
     struct GraphBlock;
 
-    struct Point
-    {
+    struct Point {
         int row; //point[0]
         int col; //point[1]
         int index; //point[2]
     };
 
-    struct GraphEdge
-    {
+    struct GraphEdge {
         QColor color;
         GraphBlock *dest;
         std::vector<Point> points;
@@ -50,7 +47,7 @@ public:
         {
             Point point = {row, col, 0};
             this->points.push_back(point);
-            if(int(this->points.size()) > 1)
+            if (int(this->points.size()) > 1)
                 this->points[this->points.size() - 2].index = index;
         }
     };
@@ -83,8 +80,7 @@ public:
         std::vector<GraphEdge> edges;
     };
 
-    struct EdgeConfiguration
-    {
+    struct EdgeConfiguration {
         QColor color = QColor(128, 128, 128);
         bool start_arrow = false;
         bool end_arrow = true;
@@ -92,11 +88,11 @@ public:
 
     GraphView(QWidget *parent);
     ~GraphView();
-    void paintEvent(QPaintEvent* event) override;
+    void paintEvent(QPaintEvent *event) override;
 
     // Show a block centered. Animates to it if animated=true
-    void showBlock(GraphBlock &block, bool animated=false);
-    void showBlock(GraphBlock *block, bool animated=false);
+    void showBlock(GraphBlock &block, bool animated = false);
+    void showBlock(GraphBlock *block, bool animated = false);
 
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
@@ -119,7 +115,7 @@ protected:
     void computeGraph(ut64 entry);
 
     // Callbacks that should be overridden
-    virtual void drawBlock(QPainter & p, GraphView::GraphBlock &block);
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block);
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos);
@@ -131,7 +127,7 @@ protected:
 
     bool event(QEvent *event) override;
 private:
-    bool checkPointClicked(QPointF &point, int x, int y, bool above_y=false);
+    bool checkPointClicked(QPointF &point, int x, int y, bool above_y = false);
 
     ut64 entry;
 
@@ -160,14 +156,15 @@ private:
     using EdgesVector = Matrix<std::vector<bool>>;
     std::vector<int> col_edge_x;
     std::vector<int> row_edge_y;
-    bool isEdgeMarked(EdgesVector & edges, int row, int col, int index);
-    void markEdge(EdgesVector & edges, int row, int col, int index, bool used = true);
-    int findHorizEdgeIndex(EdgesVector & edges, int row, int min_col, int max_col);
-    int findVertEdgeIndex(EdgesVector & edges, int col, int min_row, int max_row);
-    GraphEdge routeEdge(EdgesVector & horiz_edges, EdgesVector & vert_edges, Matrix<bool> & edge_valid, GraphBlock &start, GraphBlock &end, QColor color);
+    bool isEdgeMarked(EdgesVector &edges, int row, int col, int index);
+    void markEdge(EdgesVector &edges, int row, int col, int index, bool used = true);
+    int findHorizEdgeIndex(EdgesVector &edges, int row, int min_col, int max_col);
+    int findVertEdgeIndex(EdgesVector &edges, int col, int min_row, int max_row);
+    GraphEdge routeEdge(EdgesVector &horiz_edges, EdgesVector &vert_edges, Matrix<bool> &edge_valid,
+                        GraphBlock &start, GraphBlock &end, QColor color);
 
 private slots:
-    void resizeEvent(QResizeEvent* event) override;
+    void resizeEvent(QResizeEvent *event) override;
     // Mouse events
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;

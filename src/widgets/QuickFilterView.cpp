@@ -3,15 +3,14 @@
 #include "ui_QuickFilterView.h"
 
 QuickFilterView::QuickFilterView(QWidget *parent) :
-        QWidget(parent),
-        ui(new Ui::QuickFilterView())
+    QWidget(parent),
+    ui(new Ui::QuickFilterView())
 {
     ui->setupUi(this);
 
     connect(ui->closeFilterButton, &QAbstractButton::clicked, this, &QuickFilterView::closeFilter);
 
-    connect(ui->filterLineEdit, &QLineEdit::textChanged, this, [this](const QString &text)
-    {
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, this, [this](const QString & text) {
         emit filterTextChanged(text);
     });
 }
@@ -27,12 +26,9 @@ void QuickFilterView::showFilter()
 
 void QuickFilterView::clearFilter()
 {
-    if (ui->filterLineEdit->text().isEmpty())
-    {
+    if (ui->filterLineEdit->text().isEmpty()) {
         closeFilter();
-    }
-    else
-    {
+    } else {
         ui->filterLineEdit->setText("");
     }
 }

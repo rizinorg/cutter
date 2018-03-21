@@ -28,8 +28,7 @@ public:
 static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 {
     QTextBlockUserData *userData = block.userData();
-    if (!userData)
-    {
+    if (!userData) {
         return nullptr;
     }
 
@@ -89,7 +88,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     // Space to switch to graph
     QShortcut *graphShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
     graphShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(graphShortcut, &QShortcut::activated, this, []{
+    connect(graphShortcut, &QShortcut::activated, this, [] {
         Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
         Core()->triggerRaisePrioritizedMemoryWidget();
     });
@@ -99,24 +98,24 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
 
     connectCursorPositionChanged(false);
-    connect(mDisasTextEdit->verticalScrollBar(), &QScrollBar::valueChanged, this, [=](int value) {
-        if (value != 0)
-        {
+    connect(mDisasTextEdit->verticalScrollBar(), &QScrollBar::valueChanged, this, [ = ](int value) {
+        if (value != 0) {
             mDisasTextEdit->verticalScrollBar()->setValue(0);
         }
     });
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
+    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
+            SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshDisasm()));
-    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this, SLOT(refreshDisasm()));
+    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this,
+            SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), &CutterCore::instructionChanged, this, [this](RVA offset) {
-        if (offset >= topOffset && offset <= bottomOffset)
-        {
+        if (offset >= topOffset && offset <= bottomOffset) {
             refreshDisasm();
         }
     });
@@ -125,8 +124,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        if (visibility)
-        {
+        if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
         }
     });
@@ -148,34 +146,43 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     s->setContext(Qt::WidgetShortcut); \
     connect(s, &QShortcut::activated, this, (slot)); \
 }
-    ADD_SHORTCUT(QKeySequence(Qt::Key_J), [this]() { moveCursorRelative(false, false); })
-    ADD_SHORTCUT(QKeySequence::MoveToNextLine, [this]() { moveCursorRelative(false, false); })
-    ADD_SHORTCUT(QKeySequence(Qt::Key_K), [this]() { moveCursorRelative(true, false); })
-    ADD_SHORTCUT(QKeySequence::MoveToPreviousLine, [this]() { moveCursorRelative(true, false); })
-    ADD_SHORTCUT(QKeySequence::MoveToNextPage, [this]() { moveCursorRelative(false, true); })
-    ADD_SHORTCUT(QKeySequence::MoveToPreviousPage, [this]() { moveCursorRelative(true, true); })
+    ADD_SHORTCUT(QKeySequence(Qt::Key_J), [this]() {
+        moveCursorRelative(false, false);
+    })
+    ADD_SHORTCUT(QKeySequence::MoveToNextLine, [this]() {
+        moveCursorRelative(false, false);
+    })
+    ADD_SHORTCUT(QKeySequence(Qt::Key_K), [this]() {
+        moveCursorRelative(true, false);
+    })
+    ADD_SHORTCUT(QKeySequence::MoveToPreviousLine, [this]() {
+        moveCursorRelative(true, false);
+    })
+    ADD_SHORTCUT(QKeySequence::MoveToNextPage, [this]() {
+        moveCursorRelative(false, true);
+    })
+    ADD_SHORTCUT(QKeySequence::MoveToPreviousPage, [this]() {
+        moveCursorRelative(true, true);
+    })
 #undef ADD_SHORTCUT
 }
 
-QWidget* DisassemblyWidget::getTextWidget()
+QWidget *DisassemblyWidget::getTextWidget()
 {
     return mDisasTextEdit;
 }
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
-    if (offset != RVA_INVALID)
-    {
+    if (offset != RVA_INVALID) {
         topOffset = offset;
     }
 
-    if (topOffset == RVA_INVALID)
-    {
+    if (topOffset == RVA_INVALID) {
         return;
     }
 
-    if (maxLines <= 0)
-    {
+    if (maxLines <= 0) {
         connectCursorPositionChanged(true);
         mDisasTextEdit->clear();
         connectCursorPositionChanged(false);
@@ -184,12 +191,12 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
     mDisasTextEdit->setLockScroll(true); // avoid flicker
-    
+
     QList<DisassemblyLine> disassemblyLines;
     {
         TempConfig tempConfig;
         tempConfig.set("scr.html", true)
-                .set("scr.color", COLOR_MODE_16M);
+        .set("scr.color", COLOR_MODE_16M);
         disassemblyLines = Core()->disassembleLines(topOffset, maxLines);
     }
 
@@ -197,8 +204,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->document()->clear();
     QTextCursor cursor(mDisasTextEdit->document());
-    for (DisassemblyLine line : disassemblyLines)
-    {
+    for (DisassemblyLine line : disassemblyLines) {
         cursor.insertHtml(line.text);
         auto a = new DisassemblyTextBlockUserData(line);
         cursor.block().setUserData(a);
@@ -215,8 +221,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     connectCursorPositionChanged(false);
 
     bottomOffset = readCurrentDisassemblyOffset();
-    if (bottomOffset == RVA_INVALID)
-    {
+    if (bottomOffset == RVA_INVALID) {
         bottomOffset = topOffset;
     }
 
@@ -234,18 +239,14 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
 void DisassemblyWidget::scrollInstructions(int count)
 {
-    if (count == 0)
-    {
+    if (count == 0) {
         return;
     }
 
     RVA offset;
-    if (count > 0)
-    {
+    if (count > 0) {
         offset = Core()->nextOpAddr(topOffset, count);
-    }
-    else
-    {
+    } else {
         offset = Core()->prevOpAddr(topOffset, -count);
     }
 
@@ -257,8 +258,7 @@ bool DisassemblyWidget::updateMaxLines()
 {
     int currentMaxLines = qhelpers::getMaxFullyDisplayedLines(mDisasTextEdit);
 
-    if (currentMaxLines != maxLines)
-    {
+    if (currentMaxLines != maxLines) {
         maxLines = currentMaxLines;
         refreshDisasm();
         return true;
@@ -302,18 +302,15 @@ void DisassemblyWidget::highlightCurrentLine()
     highlightSelection.cursor = cursor;
     highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
-    while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd())
-    {
-        highlightSelection.cursor = document->find(searchString, highlightSelection.cursor, QTextDocument::FindWholeWords);
+    while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
+        highlightSelection.cursor = document->find(searchString, highlightSelection.cursor,
+                                                   QTextDocument::FindWholeWords);
 
-        if (!highlightSelection.cursor.isNull())
-        {
-            if (highlightSelection.cursor.position() >= listStartPos && highlightSelection.cursor.position() <= lineEndPos)
-            {
+        if (!highlightSelection.cursor.isNull()) {
+            if (highlightSelection.cursor.position() >= listStartPos
+                    && highlightSelection.cursor.position() <= lineEndPos) {
                 highlightSelection.format.setBackground(highlightWordCurrentLineColor);
-            }
-            else
-            {
+            } else {
                 highlightSelection.format.setBackground(highlightWordColor);
             }
 
@@ -339,8 +336,7 @@ RVA DisassemblyWidget::readCurrentDisassemblyOffset()
 RVA DisassemblyWidget::readDisassemblyOffset(QTextCursor tc)
 {
     auto userData = getUserData(tc.block());
-    if (!userData)
-    {
+    if (!userData) {
         return RVA_INVALID;
     }
 
@@ -353,50 +349,40 @@ void DisassemblyWidget::updateCursorPosition()
 
     // already fine where it is?
     RVA currentLineOffset = readCurrentDisassemblyOffset();
-    if (currentLineOffset == offset)
-    {
+    if (currentLineOffset == offset) {
         return;
     }
 
     connectCursorPositionChanged(true);
 
-    if (offset < topOffset || (offset > bottomOffset && bottomOffset != RVA_INVALID))
-    {
+    if (offset < topOffset || (offset > bottomOffset && bottomOffset != RVA_INVALID)) {
         mDisasTextEdit->moveCursor(QTextCursor::Start);
         mDisasTextEdit->setExtraSelections({});
-    }
-    else
-    {
+    } else {
         RVA currentCursorOffset = readCurrentDisassemblyOffset();
         QTextCursor originalCursor = mDisasTextEdit->textCursor();
 
         QTextCursor cursor = originalCursor;
         cursor.movePosition(QTextCursor::Start);
 
-        while (true)
-        {
+        while (true) {
             RVA lineOffset = readDisassemblyOffset(cursor);
-            if (lineOffset == offset)
-            {
-                if (cursorLineOffset > 0)
-                {
+            if (lineOffset == offset) {
+                if (cursorLineOffset > 0) {
                     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, cursorLineOffset);
                 }
 
                 mDisasTextEdit->setTextCursor(cursor);
                 highlightCurrentLine();
                 break;
-            }
-            else if (lineOffset != RVA_INVALID && lineOffset > offset)
-            {
+            } else if (lineOffset != RVA_INVALID && lineOffset > offset) {
                 mDisasTextEdit->moveCursor(QTextCursor::Start);
                 mDisasTextEdit->setExtraSelections({});
                 break;
             }
 
             cursor.movePosition(QTextCursor::EndOfLine);
-            if (cursor.atEnd())
-            {
+            if (cursor.atEnd()) {
                 break;
             }
 
@@ -405,8 +391,7 @@ void DisassemblyWidget::updateCursorPosition()
 
         // this is true if a seek came from the user clicking on a line.
         // then the cursor should be restored 1:1 to retain selection and cursor position.
-        if (currentCursorOffset == offset)
-        {
+        if (currentCursorOffset == offset) {
             mDisasTextEdit->setTextCursor(originalCursor);
         }
     }
@@ -415,12 +400,10 @@ void DisassemblyWidget::updateCursorPosition()
 
 void DisassemblyWidget::connectCursorPositionChanged(bool disconnect)
 {
-    if (disconnect)
-    {
-        QObject::disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
-    }
-    else
-    {
+    if (disconnect) {
+        QObject::disconnect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this,
+                            SLOT(cursorPositionChanged()));
+    } else {
         connect(mDisasTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(cursorPositionChanged()));
     }
 }
@@ -431,11 +414,9 @@ void DisassemblyWidget::cursorPositionChanged()
 
     cursorLineOffset = 0;
     QTextCursor c = mDisasTextEdit->textCursor();
-    while (c.blockNumber() > 0)
-    {
+    while (c.blockNumber() > 0) {
         c.movePosition(QTextCursor::PreviousBlock);
-        if (readDisassemblyOffset(c) != offset)
-        {
+        if (readDisassemblyOffset(c) != offset) {
             break;
         }
         cursorLineOffset++;
@@ -450,15 +431,11 @@ void DisassemblyWidget::cursorPositionChanged()
 
 void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 {
-    if (page)
-    {
+    if (page) {
         RVA offset;
-        if (!up)
-        {
+        if (!up) {
             offset = Core()->nextOpAddr(bottomOffset, 1);
-        }
-        else
-        {
+        } else {
             offset = Core()->prevOpAddr(topOffset, maxLines);
 
             // disassembly from calculated offset may have more than maxLines lines
@@ -466,43 +443,33 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
             auto lines = Core()->disassembleLines(offset, maxLines).toVector();
             int oldTopLine;
-            for (oldTopLine=lines.length(); oldTopLine>0; oldTopLine--)
-            {
-                if (lines[oldTopLine - 1].offset < topOffset)
-                {
+            for (oldTopLine = lines.length(); oldTopLine > 0; oldTopLine--) {
+                if (lines[oldTopLine - 1].offset < topOffset) {
                     break;
                 }
             }
 
             int overflowLines = oldTopLine - maxLines;
-            if(overflowLines > 0)
-            {
-                while (lines[overflowLines-1].offset == lines[overflowLines].offset
-                       && overflowLines < lines.length()-1)
-                {
+            if (overflowLines > 0) {
+                while (lines[overflowLines - 1].offset == lines[overflowLines].offset
+                        && overflowLines < lines.length() - 1) {
                     overflowLines++;
                 }
                 offset = lines[overflowLines].offset;
             }
         }
         refreshDisasm(offset);
-    }
-    else // normal arrow keys
-    {
+    } else { // normal arrow keys
         int blockCount = mDisasTextEdit->blockCount();
-        if (blockCount < 1)
-        {
+        if (blockCount < 1) {
             return;
         }
 
         int blockNumber = mDisasTextEdit->textCursor().blockNumber();
 
-        if (blockNumber == blockCount - 1 && !up)
-        {
+        if (blockNumber == blockCount - 1 && !up) {
             scrollInstructions(1);
-        }
-        else if (blockNumber == 0 && up)
-        {
+        } else if (blockNumber == 0 && up) {
             scrollInstructions(-1);
         }
 
@@ -510,8 +477,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
         // handle cases where top instruction offsets change
         RVA offset = readCurrentDisassemblyOffset();
-        if (offset != Core()->getOffset())
-        {
+        if (offset != Core()->getOffset()) {
             Core()->seek(offset);
             highlightCurrentLine();
         }
@@ -520,8 +486,8 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport()) && event->type() == QEvent::MouseButtonDblClick)
-    {
+    if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())
+            && event->type() == QEvent::MouseButtonDblClick) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
         QTextCursor cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
@@ -529,18 +495,16 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
         RVA jump = Core()->getOffsetJump(offset);
 
-        if (jump == RVA_INVALID)
-        {
+        if (jump == RVA_INVALID) {
             bool ok;
-            RVA xref = Core()->cmdj("axfj@" + QString::number(offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
-            if (ok)
-            {
+            RVA xref = Core()->cmdj("axfj@" + QString::number(
+                                        offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
+            if (ok) {
                 jump = xref;
             }
         }
 
-        if (jump != RVA_INVALID)
-        {
+        if (jump != RVA_INVALID) {
             CutterCore::getInstance()->seek(jump);
         }
 
@@ -551,19 +515,15 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblyWidget::on_seekChanged(RVA offset)
 {
-    if (!seekFromCursor)
-    {
+    if (!seekFromCursor) {
         cursorLineOffset = 0;
     }
 
     if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
-        && offset >= topOffset && offset <= bottomOffset)
-    {
+            && offset >= topOffset && offset <= bottomOffset) {
         // if the line with the seek offset is currently visible, just move the cursor there
         updateCursorPosition();
-    }
-    else
-    {
+    } else {
         // otherwise scroll there
         refreshDisasm(offset);
     }
@@ -572,8 +532,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
 
 void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
 {
-    if (type == CutterCore::MemoryWidgetType::Disassembly)
-    {
+    if (type == CutterCore::MemoryWidgetType::Disassembly) {
         raise();
         setFocus();
     }
@@ -583,8 +542,7 @@ void DisassemblyWidget::fontsUpdatedSlot()
 {
     setupFonts();
 
-    if (!updateMaxLines()) // updateMaxLines() returns true if it already refreshed.
-    {
+    if (!updateMaxLines()) { // updateMaxLines() returns true if it already refreshed.
         refreshDisasm();
     }
 }
@@ -604,8 +562,8 @@ void DisassemblyWidget::setupFonts()
 void DisassemblyWidget::setupColors()
 {
     mDisasTextEdit->setStyleSheet(QString("QPlainTextEdit { background-color: %1; color: %2; }")
-                                          .arg(ConfigColor("gui.background").name())
-                                          .arg(ConfigColor("btext").name()));
+                                  .arg(ConfigColor("gui.background").name())
+                                  .arg(ConfigColor("btext").name()));
 }
 
 DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
@@ -615,13 +573,11 @@ DisassemblyScrollArea::DisassemblyScrollArea(QWidget *parent) : QAbstractScrollA
 bool DisassemblyScrollArea::viewportEvent(QEvent *event)
 {
     int dy = verticalScrollBar()->value() - 5;
-    if (dy != 0)
-    {
+    if (dy != 0) {
         emit scrollLines(dy);
     }
 
-    if (event->type() == QEvent::Resize)
-    {
+    if (event->type() == QEvent::Resize) {
         emit disassemblyResized();
     }
 
@@ -639,19 +595,17 @@ void DisassemblyScrollArea::resetScrollBars()
 
 bool DisassemblyTextEdit::viewportEvent(QEvent *event)
 {
-    switch(event->type())
-    {
-        case QEvent::Type::Wheel:
-            return false;
-        default:
-            return QAbstractScrollArea::viewportEvent(event);
+    switch (event->type()) {
+    case QEvent::Type::Wheel:
+        return false;
+    default:
+        return QAbstractScrollArea::viewportEvent(event);
     }
 }
 
 void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
 {
-    if (!lockScroll)
-    {
+    if (!lockScroll) {
         QPlainTextEdit::scrollContentsBy(dx, dy);
     }
 }
@@ -665,8 +619,7 @@ void DisassemblyTextEdit::mousePressEvent(QMouseEvent *event)
 {
     QPlainTextEdit::mousePressEvent(event);
 
-    if (event->button() == Qt::RightButton && !textCursor().hasSelection())
-    {
+    if (event->button() == Qt::RightButton && !textCursor().hasSelection()) {
         setTextCursor(cursorForPosition(event->pos()));
     }
 }

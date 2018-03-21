@@ -6,9 +6,8 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 
-namespace Ui
-{
-    class PseudocodeWidget;
+namespace Ui {
+class PseudocodeWidget;
 }
 
 class QTextEdit;
@@ -16,7 +15,7 @@ class SyntaxHighlighter;
 
 class PseudocodeWidget : public CutterDockWidget
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit PseudocodeWidget(MainWindow *main, QAction *action = nullptr);

@@ -6,9 +6,8 @@
 #include <memory>
 #include "Cutter.h"
 
-namespace Ui
-{
-    class FlagDialog;
+namespace Ui {
+class FlagDialog;
 }
 
 class FlagDialog : public QDialog

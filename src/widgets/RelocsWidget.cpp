@@ -30,8 +30,7 @@ void RelocsWidget::fillTreeWidget()
 {
     ui->relocsTreeWidget->clear();
 
-    for (auto i : CutterCore::getInstance()->getAllRelocs())
-    {
+    for (auto i : CutterCore::getInstance()->getAllRelocs()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, RAddressString(i.vaddr));
         item->setText(1, i.type);

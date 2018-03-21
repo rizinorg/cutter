@@ -14,7 +14,7 @@
 
 const int NewFileDialog::MaxRecentFiles;
 
-static QColor getColorFor(const QString& str, int pos)
+static QColor getColorFor(const QString &str, int pos)
 {
     Q_UNUSED(str);
 
@@ -30,7 +30,7 @@ static QColor getColorFor(const QString& str, int pos)
 
 }
 
-static QIcon getIconFor(const QString& str, int pos)
+static QIcon getIconFor(const QString &str, int pos)
 {
     // Add to the icon list
     int w = 64;
@@ -51,8 +51,8 @@ static QIcon getIconFor(const QString& str, int pos)
 }
 
 NewFileDialog::NewFileDialog(QWidget *parent) :
-        QDialog(parent),
-        ui(new Ui::NewFileDialog)
+    QDialog(parent),
+    ui(new Ui::NewFileDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -64,12 +64,9 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     fillRecentFilesList();
     bool projectsExist = fillProjectsList();
 
-    if(projectsExist)
-    {
+    if (projectsExist) {
         ui->tabWidget->setCurrentWidget(ui->projectsTab);
-    }
-    else
-    {
+    } else {
         ui->tabWidget->setCurrentWidget(ui->filesTab);
     }
 
@@ -90,8 +87,7 @@ void NewFileDialog::on_selectFileButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath());
 
-    if (!fileName.isEmpty())
-    {
+    if (!fileName.isEmpty()) {
         ui->newFileEdit->setText(fileName);
         ui->loadFileButton->setFocus();
     }
@@ -103,22 +99,19 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
     dialog.setFileMode(QFileDialog::DirectoryOnly);
 
     QString currentDir = CutterCore::getInstance()->getConfig("dir.projects");
-    if(currentDir.startsWith("~"))
-    {
+    if (currentDir.startsWith("~")) {
         currentDir = QDir::homePath() + currentDir.mid(1);
     }
     dialog.setDirectory(currentDir);
 
     dialog.setWindowTitle(tr("Select project path (dir.projects)"));
 
-    if(!dialog.exec())
-    {
+    if (!dialog.exec()) {
         return;
     }
 
     QString dir = dialog.selectedFiles().first();
-    if (!dir.isEmpty())
-    {
+    if (!dir.isEmpty()) {
         CutterCore::getInstance()->setConfig("dir.projects", dir);
         fillProjectsList();
     }
@@ -128,8 +121,7 @@ void NewFileDialog::on_loadProjectButton_clicked()
 {
     QListWidgetItem *item = ui->projectsListWidget->currentItem();
 
-    if (item == nullptr)
-    {
+    if (item == nullptr) {
         return;
     }
 
@@ -160,8 +152,8 @@ void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *ite
 
 void NewFileDialog::on_aboutButton_clicked()
 {
-	AboutDialog *a = new AboutDialog(this);
-	a->open();
+    AboutDialog *a = new AboutDialog(this);
+    a->open();
 }
 
 void NewFileDialog::on_actionRemove_item_triggered()
@@ -198,8 +190,7 @@ void NewFileDialog::on_actionClear_all_triggered()
 void NewFileDialog::dragEnterEvent(QDragEnterEvent *event)
 {
     // Accept drag & drop events only if they provide a URL
-    if(event->mimeData()->hasUrls())
-    {
+    if (event->mimeData()->hasUrls()) {
         event->acceptProposedAction();
     }
 }
@@ -207,8 +198,7 @@ void NewFileDialog::dragEnterEvent(QDragEnterEvent *event)
 void NewFileDialog::dropEvent(QDropEvent *event)
 {
     // Accept drag & drop events only if they provide a URL
-    if(event->mimeData()->urls().count() == 0)
-    {
+    if (event->mimeData()->urls().count() == 0) {
         qWarning() << "No URL in drop event, ignoring it.";
         return;
     }
@@ -226,8 +216,7 @@ bool NewFileDialog::fillRecentFilesList()
 
     QMutableListIterator<QString> it(files);
     int i = 0;
-    while (it.hasNext())
-    {
+    while (it.hasNext()) {
         const QString &file = it.next();
         // Get stored files
 
@@ -238,15 +227,13 @@ bool NewFileDialog::fillRecentFilesList()
 
         // Get file info
         QFileInfo info(file);
-        if (!info.exists())
-        {
+        if (!info.exists()) {
             it.remove();
-        }
-        else
-        {
+        } else {
             QListWidgetItem *item = new QListWidgetItem(
-                    getIconFor(name, i++),
-                    file + "\nCreated: " + info.created().toString() + "\nSize: " + qhelpers::formatBytecount(info.size())
+                getIconFor(name, i++),
+                file + "\nCreated: " + info.created().toString() + "\nSize: " + qhelpers::formatBytecount(
+                    info.size())
             );
             //":/img/icons/target.svg"), name );
             item->setData(Qt::UserRole, file);
@@ -271,9 +258,8 @@ bool NewFileDialog::fillProjectsList()
 
     ui->projectsListWidget->clear();
 
-    int i=0;
-    for(const QString &project : projects)
-    {
+    int i = 0;
+    for (const QString &project : projects) {
         QString info = core->cmd("Pi " + project);
 
         QListWidgetItem *item = new QListWidgetItem(getIconFor(project, i++), project + "\n" + info);
@@ -287,8 +273,7 @@ bool NewFileDialog::fillProjectsList()
 
 void NewFileDialog::loadFile(const QString &filename)
 {
-    if(!Core()->tryFile(filename, false))
-    {
+    if (!Core()->tryFile(filename, false)) {
         QMessageBox msgBox(this);
         msgBox.setText(tr("Select a new program or a previous one before continuing."));
         msgBox.exec();

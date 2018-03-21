@@ -65,8 +65,7 @@ void Omnibar::clear()
 void Omnibar::on_gotoEntry_returnPressed()
 {
     QString str = this->text();
-    if (!str.isEmpty())
-    {
+    if (!str.isEmpty()) {
         Core()->seek(str);
     }
 

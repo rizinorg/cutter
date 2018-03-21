@@ -68,13 +68,14 @@ private:
                       double width_per_byte,
                       double h, QColor color);
 
-    struct MappedSegment* mappedSegmentForAddress(RVA addr);
+    struct MappedSegment *mappedSegmentForAddress(RVA addr);
     RVA localXToAddress(double x);
     double addressToLocalX(RVA address);
     QList<QString> sectionsForAddress(RVA address);
     QString toolTipForAddress(RVA address);
 
-    static bool sortSectionLessThan(const SectionDescription &section1, const SectionDescription &section2);
+    static bool sortSectionLessThan(const SectionDescription &section1,
+                                    const SectionDescription &section2);
 
 
     void mousePressEvent(QMouseEvent *event) override;

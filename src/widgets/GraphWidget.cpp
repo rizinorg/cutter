@@ -10,18 +10,15 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     this->graphView = new DisassemblerGraphView(this);
     this->setWidget(graphView);
 
-    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility)
-    {
-        if (visibility)
-        {
+    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
+        if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
         }
     });
 
-    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, this, [ = ](CutterCore::MemoryWidgetType type)
-    {
-        if (type == CutterCore::MemoryWidgetType::Graph)
-        {
+    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget,
+    this, [ = ](CutterCore::MemoryWidgetType type) {
+        if (type == CutterCore::MemoryWidgetType::Graph) {
             this->raise();
             this->graphView->setFocus();
         }

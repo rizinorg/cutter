@@ -45,8 +45,7 @@ void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *it
 void CommentsWidget::on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int)
 {
     // don't react on top-level items
-    if (item->parent() == nullptr)
-    {
+    if (item->parent() == nullptr) {
         return;
     }
 
@@ -74,13 +73,10 @@ void CommentsWidget::showTitleContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHorizontal);
     menu->addAction(ui->actionVertical);
 
-    if (ui->tabWidget->currentIndex() == 0)
-    {
+    if (ui->tabWidget->currentIndex() == 0) {
         ui->actionHorizontal->setChecked(true);
         ui->actionVertical->setChecked(false);
-    }
-    else
-    {
+    } else {
         ui->actionVertical->setChecked(true);
         ui->actionHorizontal->setChecked(false);
     }
@@ -105,15 +101,11 @@ void CommentsWidget::on_actionVertical_triggered()
 
 void CommentsWidget::resizeEvent(QResizeEvent *event)
 {
-    if (main->responsive && isVisible())
-    {
-        if (event->size().width() >= event->size().height())
-        {
+    if (main->responsive && isVisible()) {
+        if (event->size().width() >= event->size().height()) {
             // Set horizontal view (list)
             on_actionHorizontal_triggered();
-        }
-        else
-        {
+        } else {
             // Set vertical view (Tree)
             on_actionVertical_triggered();
         }
@@ -150,8 +142,7 @@ void CommentsWidget::refreshTree()
     QList<CommentDescription> comments = CutterCore::getInstance()->getAllComments("CCu");
     QMap<QString, QList<CommentDescription>> nestedComments;
 
-    for (CommentDescription comment : comments)
-    {
+    for (CommentDescription comment : comments) {
         QString fcn_name = CutterCore::getInstance()->cmdFunctionAt(comment.offset);
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, RAddressString(comment.offset));
@@ -166,12 +157,10 @@ void CommentsWidget::refreshTree()
 
     // Add nested comments
     ui->nestedCmtsTreeWidget->clear();
-    for (auto functionName : nestedComments.keys())
-    {
+    for (auto functionName : nestedComments.keys()) {
         QTreeWidgetItem *item = new QTreeWidgetItem(ui->nestedCmtsTreeWidget);
         item->setText(0, functionName);
-        for (CommentDescription comment : nestedComments.value(functionName))
-        {
+        for (CommentDescription comment : nestedComments.value(functionName)) {
             QTreeWidgetItem *it = new QTreeWidgetItem();
             it->setText(0, RAddressString(comment.offset));
             it->setText(1, comment.name);

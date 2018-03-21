@@ -13,8 +13,8 @@
 
 
 PreferencesDialog::PreferencesDialog(QWidget *parent)
-        : QDialog(parent),
-          ui(new Ui::PreferencesDialog)
+    : QDialog(parent),
+      ui(new Ui::PreferencesDialog)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
@@ -32,13 +32,12 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::showSection(PreferencesDialog::Section section)
 {
-    switch(section)
-    {
-        case Section::General:
-            ui->tabWidget->setCurrentIndex(0);
-            break;
-        case Section::Disassembly:
-            ui->tabWidget->setCurrentIndex(1);
-            break;
+    switch (section) {
+    case Section::General:
+        ui->tabWidget->setCurrentIndex(0);
+        break;
+    case Section::Disassembly:
+        ui->tabWidget->setCurrentIndex(1);
+        break;
     }
 }

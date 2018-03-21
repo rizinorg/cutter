@@ -5,9 +5,8 @@
 #include <QKeyEvent>
 #include <memory>
 
-namespace Ui
-{
-    class EditInstructionDialog;
+namespace Ui {
+class EditInstructionDialog;
 }
 
 class EditInstructionDialog : public QDialog

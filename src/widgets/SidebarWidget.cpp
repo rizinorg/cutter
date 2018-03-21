@@ -17,8 +17,8 @@
 
 
 SidebarWidget::SidebarWidget(MainWindow *main, QAction *action) :
-        CutterDockWidget(main, action),
-        ui(new Ui::SidebarWidget)
+    CutterDockWidget(main, action),
+    ui(new Ui::SidebarWidget)
 {
     ui->setupUi(this);
 
@@ -46,7 +46,7 @@ void SidebarWidget::on_seekChanged(RVA addr)
 
 void SidebarWidget::refresh(RVA addr)
 {
-    if(addr == RVA_INVALID)
+    if (addr == RVA_INVALID)
         addr = Core()->getOffset();
 
     updateRefs(addr);
@@ -68,13 +68,10 @@ void SidebarWidget::on_xrefToTreeWidget_itemDoubleClicked(QTreeWidgetItem *item,
 
 void SidebarWidget::on_offsetToolButton_clicked()
 {
-    if (ui->offsetToolButton->isChecked())
-    {
+    if (ui->offsetToolButton->isChecked()) {
         ui->offsetTreeWidget->hide();
         ui->offsetToolButton->setArrowType(Qt::RightArrow);
-    }
-    else
-    {
+    } else {
         ui->offsetTreeWidget->show();
         ui->offsetToolButton->setArrowType(Qt::DownArrow);
     }
@@ -82,13 +79,10 @@ void SidebarWidget::on_offsetToolButton_clicked()
 
 void SidebarWidget::on_opcodeDescToolButton_clicked()
 {
-    if (ui->opcodeDescToolButton->isChecked())
-    {
+    if (ui->opcodeDescToolButton->isChecked()) {
         ui->opcodeDescText->hide();
         ui->opcodeDescToolButton->setArrowType(Qt::RightArrow);
-    }
-    else
-    {
+    } else {
         ui->opcodeDescText->show();
         ui->opcodeDescToolButton->setArrowType(Qt::DownArrow);
     }
@@ -96,13 +90,10 @@ void SidebarWidget::on_opcodeDescToolButton_clicked()
 
 void SidebarWidget::on_xrefFromToolButton_clicked()
 {
-    if (ui->xrefFromToolButton->isChecked())
-    {
+    if (ui->xrefFromToolButton->isChecked()) {
         ui->xrefFromTreeWidget->hide();
         ui->xrefFromToolButton->setArrowType(Qt::RightArrow);
-    }
-    else
-    {
+    } else {
         ui->xrefFromTreeWidget->show();
         ui->xrefFromToolButton->setArrowType(Qt::DownArrow);
     }
@@ -110,13 +101,10 @@ void SidebarWidget::on_xrefFromToolButton_clicked()
 
 void SidebarWidget::on_xrefToToolButton_clicked()
 {
-    if (ui->xrefToToolButton->isChecked())
-    {
+    if (ui->xrefToToolButton->isChecked()) {
         ui->xrefToTreeWidget->hide();
         ui->xrefToToolButton->setArrowType(Qt::RightArrow);
-    }
-    else
-    {
+    } else {
         ui->xrefToTreeWidget->show();
         ui->xrefToToolButton->setArrowType(Qt::DownArrow);
     }
@@ -138,11 +126,10 @@ void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription>
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", false)
-            .set("scr.color", COLOR_MODE_DISABLED);
+    .set("scr.color", COLOR_MODE_DISABLED);
 
     ui->xrefFromTreeWidget->clear();
-    for (int i = 0; i < refs.size(); ++i)
-    {
+    for (int i = 0; i < refs.size(); ++i) {
         XrefDescription xref = refs[i];
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, xref.to_str);
@@ -155,14 +142,12 @@ void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription>
     }
     // Adjust columns to content
     int count = ui->xrefFromTreeWidget->columnCount();
-    for (int i = 0; i != count; ++i)
-    {
+    for (int i = 0; i != count; ++i) {
         ui->xrefFromTreeWidget->resizeColumnToContents(i);
     }
 
     ui->xrefToTreeWidget->clear();
-    for (int i = 0; i < xrefs.size(); ++i)
-    {
+    for (int i = 0; i < xrefs.size(); ++i) {
         XrefDescription xref = xrefs[i];
 
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
@@ -179,8 +164,7 @@ void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription>
     }
     // Adjust columns to content
     int count2 = ui->xrefToTreeWidget->columnCount();
-    for (int i = 0; i != count2; ++i)
-    {
+    for (int i = 0; i != count2; ++i) {
         ui->xrefToTreeWidget->resizeColumnToContents(i);
     }
 }
@@ -189,31 +173,28 @@ void SidebarWidget::fillOffsetInfo(QString off)
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", false)
-            .set("scr.color", COLOR_MODE_DISABLED);
+    .set("scr.color", COLOR_MODE_DISABLED);
 
     ui->offsetTreeWidget->clear();
     QString raw = Core()->getOffsetInfo(off);
     QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);
-            foreach (QString line, lines)
-        {
-            QList<QString> eles = line.split(":", QString::SkipEmptyParts);
-            QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-            tempItem->setText(0, eles.at(0).toUpper());
-            tempItem->setText(1, eles.at(1));
-            ui->offsetTreeWidget->insertTopLevelItem(0, tempItem);
-        }
+    foreach (QString line, lines) {
+        QList<QString> eles = line.split(":", QString::SkipEmptyParts);
+        QTreeWidgetItem *tempItem = new QTreeWidgetItem();
+        tempItem->setText(0, eles.at(0).toUpper());
+        tempItem->setText(1, eles.at(1));
+        ui->offsetTreeWidget->insertTopLevelItem(0, tempItem);
+    }
 
     // Adjust column to contents
     int count = ui->offsetTreeWidget->columnCount();
-    for (int i = 0; i != count; ++i)
-    {
+    for (int i = 0; i != count; ++i) {
         ui->offsetTreeWidget->resizeColumnToContents(i);
     }
 
     // Add opcode description
     QStringList description = Core()->cmd("?d. @ " + off).split(": ");
-    if (description.length() >= 2)
-    {
+    if (description.length() >= 2) {
         ui->opcodeDescText->setPlainText("# " + description[0] + ":\n" + description[1]);
     }
 }
@@ -224,13 +205,10 @@ void SidebarWidget::setFcnName(RVA addr)
     QString addr_string;
 
     fcn = Core()->functionAt(addr);
-    if (fcn)
-    {
+    if (fcn) {
         QString segment = Core()->cmd("S. @ " + QString::number(addr)).split(" ").last();
         addr_string = segment.trimmed() + ":" + fcn->name;
-    }
-    else
-    {
+    } else {
         addr_string = Core()->cmdFunctionAt(addr);
     }
 

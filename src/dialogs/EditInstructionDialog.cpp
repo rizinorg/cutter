@@ -38,14 +38,12 @@ bool EditInstructionDialog::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
 
-    if (event -> type() == QEvent::KeyPress)
-    {
+    if (event -> type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast <QKeyEvent *>(event);
 
         // Confirm comment by pressing Ctrl/Cmd+Return
         if ((keyEvent -> modifiers() & Qt::ControlModifier) &&
-                ((keyEvent -> key() == Qt::Key_Enter) || (keyEvent -> key() == Qt::Key_Return)))
-        {
+                ((keyEvent -> key() == Qt::Key_Enter) || (keyEvent -> key() == Qt::Key_Return))) {
             this->accept();
             return true;
         }

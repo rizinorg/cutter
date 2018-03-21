@@ -17,7 +17,7 @@ class DisassemblyWidget : public CutterDockWidget
     Q_OBJECT
 public:
     explicit DisassemblyWidget(MainWindow *main, QAction *action = nullptr);
-    QWidget* getTextWidget();
+    QWidget *getTextWidget();
 
 public slots:
     void highlightCurrentLine();
@@ -90,10 +90,13 @@ class DisassemblyTextEdit: public QPlainTextEdit
 
 public:
     explicit DisassemblyTextEdit(QWidget *parent = nullptr)
-            : QPlainTextEdit(parent),
-              lockScroll(false) {}
+        : QPlainTextEdit(parent),
+          lockScroll(false) {}
 
-    void setLockScroll(bool lock)           { this->lockScroll = lock; }
+    void setLockScroll(bool lock)
+    {
+        this->lockScroll = lock;
+    }
 
 protected:
     bool viewportEvent(QEvent *event) override;

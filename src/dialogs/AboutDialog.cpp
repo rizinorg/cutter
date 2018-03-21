@@ -24,19 +24,19 @@ AboutDialog::AboutDialog(QWidget *parent) :
                           "<h2>Authors</h2>"
                           "xarkes, thestr4ng3r, ballessay<br/>"
                           "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).")
-        .arg(
+                       .arg(
 #ifdef CUTTER_ENABLE_JUPYTER
-        "ON"
+                           "ON"
 #else
-        "OFF"
+                           "OFF"
 #endif
-        ,
+                           ,
 #ifdef CUTTER_ENABLE_QTWEBENGINE
-        "ON"
+                           "ON"
 #else
-        "OFF"
+                           "OFF"
 #endif
-        ));
+                       ));
 }
 
 AboutDialog::~AboutDialog() {}

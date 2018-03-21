@@ -52,9 +52,8 @@ protected:
 
 
 
-namespace Ui
-{
-    class SearchWidget;
+namespace Ui {
+class SearchWidget;
 }
 
 class SearchWidget : public CutterDockWidget

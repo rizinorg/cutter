@@ -10,9 +10,8 @@
 
 class PreferencesDialog;
 
-namespace Ui
-{
-    class AsmOptionsWidget;
+namespace Ui {
+class AsmOptionsWidget;
 }
 
 class AsmOptionsWidget : public QDialog

@@ -16,8 +16,7 @@ AnalThread::AnalThread(OptionsDialog *parent) :
 
 AnalThread::~AnalThread()
 {
-    if (isRunning())
-    {
+    if (isRunning()) {
         quit();
         wait();
     }
@@ -36,8 +35,7 @@ void AnalThread::interruptAndWait()
 {
     interrupted = true;
 
-    while(isRunning())
-    {
+    while (isRunning()) {
         r_cons_singleton()->breaked = true;
         r_sys_usleep(10000);
     }
@@ -58,25 +56,22 @@ void AnalThread::run()
     // Advanced Options
     //
 
-    core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(), optionsDialog->getSelectedBits());
+    core->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(),
+                 optionsDialog->getSelectedBits());
 
     int perms = R_IO_READ | R_IO_EXEC;
     if (ui->writeCheckBox->isChecked())
         perms |= R_IO_WRITE;
     bool loadBinInfo = !ui->binCheckBox->isChecked();
 
-    if (loadBinInfo)
-    {
-        if (!va)
-        {
+    if (loadBinInfo) {
+        if (!va) {
             va = 2;
             loadaddr = UT64_MAX;
             r_config_set_i(core->core()->config, "bin.laddr", loadaddr);
             mapaddr = 0;
         }
-    }
-    else
-    {
+    } else {
         Core()->setConfig("file.info", "false");
         va = false;
         loadaddr = mapaddr = 0;
@@ -88,8 +83,7 @@ void AnalThread::run()
 
     QString forceBinPlugin = nullptr;
     QVariant forceBinPluginData = ui->formatComboBox->currentData();
-    if (!forceBinPluginData.isNull())
-    {
+    if (!forceBinPluginData.isNull()) {
         RBinPluginDescription pluginDesc = forceBinPluginData.value<RBinPluginDescription>();
         forceBinPlugin = pluginDesc.name;
     }
@@ -97,25 +91,22 @@ void AnalThread::run()
     core->setConfig("bin.demangle", ui->demangleCheckBox->isChecked());
 
     QJsonArray openedFiles = Core()->getOpenedFiles();
-    if (!openedFiles.size())
-    {
-        core->loadFile(main->getFilename(), loadaddr, mapaddr, perms, va, binidx, loadBinInfo, forceBinPlugin);
+    if (!openedFiles.size()) {
+        core->loadFile(main->getFilename(), loadaddr, mapaddr, perms, va, binidx, loadBinInfo,
+                       forceBinPlugin);
     }
     emit updateProgress("Analysis in progress.");
 
     QString os = optionsDialog->getSelectedOS();
-    if (!os.isNull())
-    {
+    if (!os.isNull()) {
         core->cmd("e asm.os=" + os);
     }
 
-    if (ui->pdbCheckBox->isChecked())
-    {
+    if (ui->pdbCheckBox->isChecked()) {
         core->loadPDB(ui->pdbLineEdit->text());
     }
 
-    if (optionsDialog->getSelectedEndianness() != OptionsDialog::Endianness::Auto)
-    {
+    if (optionsDialog->getSelectedEndianness() != OptionsDialog::Endianness::Auto) {
         core->setEndianness(optionsDialog->getSelectedEndianness() == OptionsDialog::Endianness::Big);
     }
 

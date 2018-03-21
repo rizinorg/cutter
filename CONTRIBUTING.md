@@ -35,10 +35,14 @@ Make sure to connect the `CutterCore::seekChanged(RVA offset)` signal so your wi
 
 ### Code formatting
 
-We use [AStyle 2.06](https://sourceforge.net/projects/astyle/files/astyle/astyle%202.06/) to format the code. The command line for formatting the code according to the style is:
+We follow [these guidelines](https://wiki.qt.io/Qt_Coding_Style) to format the code.
+If in doubt, you can use [AStyle 2.06](https://sourceforge.net/projects/astyle/files/astyle/astyle%202.06/) to format the code. The command line for formatting the code according to the style is:
 
 ```bash
-AStyle --style=allman --convert-tabs --align-pointer=name --align-reference=name --indent=spaces --indent-namespaces --indent-col1-comments --pad-oper --pad-header --unpad-paren --keep-one-line-blocks --close-templates $(git ls-files *.cpp *.h *.c *.hpp)
+astyle --style=kr --indent=spaces=4 --align-pointer=name --align-reference=name --convert-tabs --attach-namespaces --max-code-length=100 --max-instatement-indent=120 --pad-header --pad-oper filename.cpp
 ```
 
-**If in doubt, check the source around you and follow that style!**
+### Functions documentation
+
+It's good to add some documentation to your functions when needed. To do so we follow these [rules](http://doc.qt.io/qt-5/qdoc-guide-writing.html).
+

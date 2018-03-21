@@ -15,7 +15,10 @@ public:
     CutterApplication(int &argc, char **argv);
     ~CutterApplication();
 
-    MainWindow *getMainWindow() { return mainWindow; }
+    MainWindow *getMainWindow()
+    {
+        return mainWindow;
+    }
 
 protected:
     bool event(QEvent *e);

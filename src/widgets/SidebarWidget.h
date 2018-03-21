@@ -20,14 +20,13 @@
 #include "Dashboard.h"
 
 
-namespace Ui
-{
-    class SidebarWidget;
+namespace Ui {
+class SidebarWidget;
 }
 
 class SidebarWidget : public CutterDockWidget
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     explicit SidebarWidget(MainWindow *main, QAction *action = nullptr);

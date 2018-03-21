@@ -33,13 +33,10 @@ void SectionsDock::showSectionsContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHorizontal);
     menu->addAction(ui->actionVertical);
 
-    if (this->sectionsWidget->orientation() == 1)
-    {
+    if (this->sectionsWidget->orientation() == 1) {
         ui->actionHorizontal->setChecked(true);
         ui->actionVertical->setChecked(false);
-    }
-    else
-    {
+    } else {
         ui->actionVertical->setChecked(true);
         ui->actionHorizontal->setChecked(false);
     }
@@ -51,15 +48,11 @@ void SectionsDock::showSectionsContextMenu(const QPoint &pt)
 
 void SectionsDock::resizeEvent(QResizeEvent *event)
 {
-    if (main->responsive && isVisible())
-    {
-        if (event->size().width() >= event->size().height())
-        {
+    if (main->responsive && isVisible()) {
+        if (event->size().width() >= event->size().height()) {
             // Set horizontal view (list)
             this->on_actionHorizontal_triggered();
-        }
-        else
-        {
+        } else {
             // Set vertical view (Tree)
             this->on_actionVertical_triggered();
         }

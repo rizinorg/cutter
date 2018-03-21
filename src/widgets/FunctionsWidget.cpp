@@ -15,7 +15,8 @@
 #include <QShortcut>
 #include <QJsonObject>
 
-FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, ut64 *mainAdress, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
+FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses,
+                             ut64 *mainAdress, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
     : QAbstractItemModel(parent),
       functions(functions),
       importAddresses(importAddresses),
@@ -27,7 +28,8 @@ FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *i
 
 {
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(seekChanged(RVA)));
-    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this, SLOT(functionRenamed(QString, QString)));
+    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this,
+            SLOT(functionRenamed(QString, QString)));
 }
 
 QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent) const
@@ -35,7 +37,8 @@ QModelIndex FunctionModel::index(int row, int column, const QModelIndex &parent)
     if (!parent.isValid())
         return createIndex(row, column, (quintptr)0); // root function nodes have id = 0
 
-    return createIndex(row, column, (quintptr)(parent.row() + 1)); // sub-nodes have id = function index + 1
+    return createIndex(row, column,
+                       (quintptr)(parent.row() + 1)); // sub-nodes have id = function index + 1
 }
 
 QModelIndex FunctionModel::parent(const QModelIndex &index) const
@@ -54,13 +57,11 @@ int FunctionModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         return functions->count();
 
-    if (nested)
-    {
+    if (nested) {
         if (parent.internalId() == 0)
             return 3; // sub-nodes for nested functions
         return 0;
-    }
-    else
+    } else
         return 0;
 }
 
@@ -89,13 +90,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     int function_index;
     bool subnode;
-    if (index.internalId() != 0) // sub-node
-    {
+    if (index.internalId() != 0) { // sub-node
         function_index = index.parent().row();
         subnode = true;
-    }
-    else // root function node
-    {
+    } else { // root function node
         function_index = index.row();
         subnode = false;
     }
@@ -105,15 +103,11 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
     if (function_index >= functions->count())
         return QVariant();
 
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        if (nested)
-        {
-            if (subnode)
-            {
-                switch (index.row())
-                {
+        if (nested) {
+            if (subnode) {
+                switch (index.row()) {
                 case 0:
                     return tr("Offset: %1").arg(RAddressString(function.offset));
                 case 1:
@@ -123,14 +117,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 default:
                     return QVariant();
                 }
-            }
-            else
+            } else
                 return function.name;
-        }
-        else
-        {
-            switch (index.column())
-            {
+        } else {
+            switch (index.column()) {
             case NameColumn:
                 return function.name;
             case SizeColumn:
@@ -158,11 +148,9 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             return static_cast<int>(Qt::AlignRight | Qt::AlignVCenter);
         return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
-    case Qt::ToolTipRole:
-    {
+    case Qt::ToolTipRole: {
         QList<QString> info = CutterCore::getInstance()->cmd("afi @ " + function.name).split("\n");
-        if (info.length() > 2)
-        {
+        if (info.length() > 2) {
             QString size = info[4].split(" ")[1];
             QString complex = info[8].split(" ")[1];
             QString bb = info[11].split(" ")[1];
@@ -195,16 +183,11 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
 QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (role == Qt::DisplayRole && orientation == Qt::Horizontal)
-    {
-        if (nested)
-        {
+    if (role == Qt::DisplayRole && orientation == Qt::Horizontal) {
+        if (nested) {
             return tr("Name");
-        }
-        else
-        {
-            switch (section)
-            {
+        } else {
+            switch (section) {
             case NameColumn:
                 return tr("Name");
             case SizeColumn:
@@ -243,8 +226,7 @@ void FunctionModel::setNested(bool nested)
 
 void FunctionModel::seekChanged(RVA)
 {
-    if (updateCurrentIndex())
-    {
+    if (updateCurrentIndex()) {
         emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
     }
 }
@@ -256,13 +238,11 @@ bool FunctionModel::updateCurrentIndex()
 
     RVA seek = Core()->getOffset();
 
-    for (int i = 0; i < functions->count(); i++)
-    {
+    for (int i = 0; i < functions->count(); i++) {
         const FunctionDescription &function = functions->at(i);
 
         if (function.contains(seek)
-                && function.offset >= offset)
-        {
+                && function.offset >= offset) {
             offset = function.offset;
             index = i;
         }
@@ -277,18 +257,17 @@ bool FunctionModel::updateCurrentIndex()
 
 void FunctionModel::functionRenamed(const QString &prev_name, const QString &new_name)
 {
-    for (int i = 0; i < functions->count(); i++)
-    {
+    for (int i = 0; i < functions->count(); i++) {
         FunctionDescription &function = (*functions)[i];
-        if (function.name == prev_name)
-        {
+        if (function.name == prev_name) {
             function.name = new_name;
             emit dataChanged(index(i, 0), index(i, columnCount() - 1));
         }
     }
 }
 
-FunctionSortFilterProxyModel::FunctionSortFilterProxyModel(FunctionModel *source_model, QObject *parent)
+FunctionSortFilterProxyModel::FunctionSortFilterProxyModel(FunctionModel *source_model,
+                                                           QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     setSourceModel(source_model);
@@ -299,7 +278,8 @@ FunctionSortFilterProxyModel::FunctionSortFilterProxyModel(FunctionModel *source
 bool FunctionSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    FunctionDescription function = index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription function = index.data(
+                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     return function.name.contains(filterRegExp());
 }
 
@@ -311,26 +291,23 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
     if (left.parent().isValid() || right.parent().isValid())
         return false;
 
-    FunctionDescription left_function = left.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    FunctionDescription right_function = right.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription left_function = left.data(
+                                            FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription right_function = right.data(
+                                             FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
 
-    if (static_cast<FunctionModel *>(sourceModel())->isNested())
-    {
+    if (static_cast<FunctionModel *>(sourceModel())->isNested()) {
         return left_function.name < right_function.name;
-    }
-    else
-    {
-        switch (left.column())
-        {
+    } else {
+        switch (left.column()) {
         case FunctionModel::OffsetColumn:
             return left_function.offset < right_function.offset;
         case FunctionModel::SizeColumn:
             if (left_function.size != right_function.size)
                 return left_function.size < right_function.size;
             break;
-        case FunctionModel::ImportColumn:
-        {
+        case FunctionModel::ImportColumn: {
             bool left_is_import = left.data(FunctionModel::IsImportRole).toBool();
             bool right_is_import = right.data(FunctionModel::IsImportRole).toBool();
             if (!left_is_import && right_is_import)
@@ -373,12 +350,14 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     QFont default_font = QFont(font_info.family(), font_info.pointSize());
     QFont highlight_font = QFont(font_info.family(), font_info.pointSize(), QFont::Bold);
 
-    functionModel = new FunctionModel(&functions, &importAddresses, &mainAdress, false, default_font, highlight_font, this);
+    functionModel = new FunctionModel(&functions, &importAddresses, &mainAdress, false, default_font,
+                                      highlight_font, this);
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
     ui->functionsTreeView->setModel(functionProxyModel);
     ui->functionsTreeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), functionProxyModel, SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), functionProxyModel,
+            SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->functionsTreeView, SLOT(setFocus()));
 
     setScrollMode();
@@ -387,7 +366,8 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     connect(ui->functionsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showFunctionsContextMenu(const QPoint &)));
 
-    connect(ui->functionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onFunctionsDoubleClicked(const QModelIndex &)));
+    connect(ui->functionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this,
+            SLOT(onFunctionsDoubleClicked(const QModelIndex &)));
 
     // Use a custom context menu on the dock title bar
     //this->title_bar = this->titleBarWidget();
@@ -424,7 +404,8 @@ void FunctionsWidget::refreshTree()
 
 void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
 {
-    FunctionDescription function = index.data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription function = index.data(
+                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     Core()->seek(function.offset);
 }
 
@@ -447,13 +428,13 @@ void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
 void FunctionsWidget::on_actionDisasAdd_comment_triggered()
 {
     // Get selected item in functions tree view
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
+                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
     CommentsDialog *c = new CommentsDialog(this);
 
-    if (c->exec())
-    {
+    if (c->exec()) {
         // Get new function name
         QString comment = c->getComment();
         // Rename function in r2 core
@@ -467,7 +448,8 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
 void FunctionsWidget::on_actionFunctionsRename_triggered()
 {
     // Get selected item in functions tree view
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
+                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
     RenameDialog *r = new RenameDialog(this);
@@ -475,8 +457,7 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
     // Set function name in dialog
     r->setName(function.name);
     // If user accepted
-    if (r->exec())
-    {
+    if (r->exec()) {
         // Get new function name
         QString new_name = r->getName();
 
@@ -490,14 +471,16 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
 
 void FunctionsWidget::on_actionFunctionsUndefine_triggered()
 {
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
+                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     Core()->delFunction(function.offset);
 }
 
 void FunctionsWidget::on_action_References_triggered()
 {
     // Get selected item in functions tree view
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
+                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     XrefsDialog *x = new XrefsDialog(this);
     x->fillRefsForAddress(function.offset, function.name, true);
     x->exec();
@@ -511,13 +494,10 @@ void FunctionsWidget::showTitleContextMenu(const QPoint &pt)
     menu->addAction(ui->actionHorizontal);
     menu->addAction(ui->actionVertical);
 
-    if (!functionModel->isNested())
-    {
+    if (!functionModel->isNested()) {
         ui->actionHorizontal->setChecked(true);
         ui->actionVertical->setChecked(false);
-    }
-    else
-    {
+    } else {
         ui->actionVertical->setChecked(true);
         ui->actionHorizontal->setChecked(false);
     }
@@ -542,15 +522,11 @@ void FunctionsWidget::on_actionVertical_triggered()
 
 void FunctionsWidget::resizeEvent(QResizeEvent *event)
 {
-    if (main->responsive && isVisible())
-    {
-        if (event->size().width() >= event->size().height())
-        {
+    if (main->responsive && isVisible()) {
+        if (event->size().width() >= event->size().height()) {
             // Set horizontal view (list)
             on_actionHorizontal_triggered();
-        }
-        else
-        {
+        } else {
             // Set vertical view (Tree)
             on_actionVertical_triggered();
         }

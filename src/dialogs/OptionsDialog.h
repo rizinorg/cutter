@@ -41,7 +41,7 @@ private slots:
     void anal_finished();
 
 protected:
-	void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     AnalThread analThread;
@@ -64,7 +64,7 @@ public:
     QString getSelectedCPU();
     int getSelectedBits();
     int getSelectedBBSize();
-	Endianness getSelectedEndianness();
+    Endianness getSelectedEndianness();
     QString getSelectedOS();
     QTimer analTimer;
     QElapsedTimer analElapsedTimer;

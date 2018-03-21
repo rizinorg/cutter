@@ -21,7 +21,10 @@ public:
     void sendSignal(long signum);
     QVariant poll();
 
-    PyThreadState *getThreadState()     { return threadState; }
+    PyThreadState *getThreadState()
+    {
+        return threadState;
+    }
 
 private:
     NestedIPyKernel(PyObject *cutterIPykernelModule, const QStringList &argv);

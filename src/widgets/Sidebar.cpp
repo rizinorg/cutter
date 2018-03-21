@@ -15,12 +15,9 @@ SideBar::SideBar(MainWindow *main) :
     ui->setupUi(this);
 
     QSettings settings;
-    if (settings.value("responsive").toBool())
-    {
+    if (settings.value("responsive").toBool()) {
         ui->respButton->setChecked(true);
-    }
-    else
-    {
+    } else {
         ui->respButton->setChecked(false);
     }
 }
@@ -34,13 +31,10 @@ void SideBar::on_tabsButton_clicked()
 
 void SideBar::on_lockButton_clicked()
 {
-    if (ui->lockButton->isChecked())
-    {
+    if (ui->lockButton->isChecked()) {
         ui->lockButton->setIcon(QIcon(":/img/icons/unlock_white.svg"));
         this->main->lockUnlock_Docks(1);
-    }
-    else
-    {
+    } else {
         ui->lockButton->setIcon(QIcon(":/img/icons/lock_white.svg"));
         this->main->lockUnlock_Docks(0);
     }

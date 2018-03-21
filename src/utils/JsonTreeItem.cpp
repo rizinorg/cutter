@@ -33,7 +33,7 @@ int JsonTreeItem::childCount() const
 int JsonTreeItem::row() const
 {
     if (mParent)
-        return mParent->mChilds.indexOf(const_cast<JsonTreeItem*>(this));
+        return mParent->mChilds.indexOf(const_cast<JsonTreeItem *>(this));
 
     return 0;
 }
@@ -68,39 +68,34 @@ QJsonValue::Type JsonTreeItem::type() const
     return mType;
 }
 
-JsonTreeItem* JsonTreeItem::load(const QJsonValue& value, JsonTreeItem* parent)
+JsonTreeItem *JsonTreeItem::load(const QJsonValue &value, JsonTreeItem *parent)
 {
-    JsonTreeItem * rootItem = new JsonTreeItem(parent);
+    JsonTreeItem *rootItem = new JsonTreeItem(parent);
     rootItem->setKey("root");
 
-    if ( value.isObject())
-    {
+    if ( value.isObject()) {
 
         //Get all QJsonValue childs
-        for (QString key : value.toObject().keys()){
+        for (QString key : value.toObject().keys()) {
             QJsonValue v = value.toObject().value(key);
-            JsonTreeItem * child = load(v,rootItem);
+            JsonTreeItem *child = load(v, rootItem);
             child->setKey(key);
             child->setType(v.type());
             rootItem->appendChild(child);
         }
 
-    }
-    else if ( value.isArray())
-    {
+    } else if ( value.isArray()) {
         //Get all QJsonValue childs
         int index = 0;
-        for (QJsonValue v : value.toArray()){
+        for (QJsonValue v : value.toArray()) {
 
-            JsonTreeItem * child = load(v,rootItem);
+            JsonTreeItem *child = load(v, rootItem);
             child->setKey(QString::number(index));
             child->setType(v.type());
             rootItem->appendChild(child);
             ++index;
         }
-    }
-    else
-    {
+    } else {
         rootItem->setValue(value.toVariant().toString());
         rootItem->setType(value.type());
     }

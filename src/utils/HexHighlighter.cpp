@@ -11,7 +11,8 @@ HexHighlighter::HexHighlighter(QTextDocument *parent)
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
     // I know, your eyes are bleeding, mine too
-    keywordPatterns << "\\b20\\b" << "\\b21\\b" << "\\b22\\b" << "\\b23\\b" << "\\b24\\b" << "\\b25\\b" << "\\b26\\b"
+    keywordPatterns << "\\b20\\b" << "\\b21\\b" << "\\b22\\b" << "\\b23\\b" << "\\b24\\b" << "\\b25\\b"
+                    << "\\b26\\b"
                     << "\\b27\\b" << "\\b28\\b" << "\\b29\\b" << "\\b2a\\b" << "\\b2b\\b" << "\\b2c\\b" << "\\b2d\\b"
                     << "\\b2e\\b" << "\\b2f\\b" << "\\b30\\b" << "\\b31\\b" << "\\b32\\b" << "\\b33\\b" << "\\b34\\b"
                     << "\\b35\\b" << "\\b36\\b" << "\\b37\\b" << "\\b38\\b" << "\\b39\\b" << "\\b3a\\b" << "\\b3b\\b"
@@ -25,8 +26,7 @@ HexHighlighter::HexHighlighter(QTextDocument *parent)
                     << "\\b6e\\b" << "\\b6f\\b" << "\\b70\\b" << "\\b71\\b" << "\\b72\\b" << "\\b73\\b" << "\\b74\\b"
                     << "\\b75\\b" << "\\b76\\b" << "\\b77\\b" << "\\b78\\b" << "\\b79\\b" << "\\b7a\\b" << "\\b7b\\b"
                     << "\\b7c\\b" << "\\b7d\\b" << "\\b7e\\b" << "\\b7f\\b";
-    foreach (const QString &pattern, keywordPatterns)
-    {
+    foreach (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
         rule.format = keywordFormat;
@@ -45,12 +45,10 @@ HexHighlighter::HexHighlighter(QTextDocument *parent)
 
 void HexHighlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules)
-    {
+    foreach (const HighlightingRule &rule, highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
-        while (index >= 0)
-        {
+        while (index >= 0) {
             int length = expression.matchedLength();
             setFormat(index, length, rule.format);
             index = expression.indexIn(text, index + length);
@@ -62,17 +60,13 @@ void HexHighlighter::highlightBlock(const QString &text)
     if (previousBlockState() != 1)
         startIndex = commentStartExpression.indexIn(text);
 
-    while (startIndex >= 0)
-    {
+    while (startIndex >= 0) {
         int endIndex = commentEndExpression.indexIn(text, startIndex);
         int commentLength;
-        if (endIndex == -1)
-        {
+        if (endIndex == -1) {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
-        }
-        else
-        {
+        } else {
             commentLength = endIndex - startIndex
                             + commentEndExpression.matchedLength();
         }

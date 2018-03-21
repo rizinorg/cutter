@@ -10,16 +10,16 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
 
     //C language keywords
     keywordPatterns << "\\bauto\\b" << "\\bdouble\\b" << "\\bint\\b"
-                   << "\\bstruct\\b" << "\\bbreak\\b" << "\\belse\\b"
-                   << "\\blong\\b" << "\\switch\\b" << "\\bcase\\b"
-                   << "\\benum\\b" << "\\bregister\\b" << "\\btypedef\\b"
-                   << "\\bchar\\b" << "\\bextern\\b" << "\\breturn\\b"
-                   << "\\bunion\\b" << "\\bconst\\b" << "\\bfloat\\b"
-                   << "\\bshort\\b" << "\\bunsigned\\b" << "\\bcontinue\\b"
-                   << "\\bfor\\b" << "\\bsigned\\b" << "\\bvoid\\b"
-                   << "\\bdefault\\b" << "\\bgoto\\b" << "\\bsizeof\\b"
-                   << "\\bvolatile\\b" << "\\bdo\\b" << "\\bif\\b"
-                   << "\\static\\b" << "\\while\\b";
+                    << "\\bstruct\\b" << "\\bbreak\\b" << "\\belse\\b"
+                    << "\\blong\\b" << "\\switch\\b" << "\\bcase\\b"
+                    << "\\benum\\b" << "\\bregister\\b" << "\\btypedef\\b"
+                    << "\\bchar\\b" << "\\bextern\\b" << "\\breturn\\b"
+                    << "\\bunion\\b" << "\\bconst\\b" << "\\bfloat\\b"
+                    << "\\bshort\\b" << "\\bunsigned\\b" << "\\bcontinue\\b"
+                    << "\\bfor\\b" << "\\bsigned\\b" << "\\bvoid\\b"
+                    << "\\bdefault\\b" << "\\bgoto\\b" << "\\bsizeof\\b"
+                    << "\\bvolatile\\b" << "\\bdo\\b" << "\\bif\\b"
+                    << "\\static\\b" << "\\while\\b";
     //Special words
     keywordPatterns << "\\bloc_*\\b" << "\\bsym.*\\b";
 
@@ -27,11 +27,10 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
     keywordFormat.setForeground(Qt::red);
     keywordFormat.setFontWeight(QFont::Bold);
 
-    for( const auto& pattern : keywordPatterns )
-    {
-       rule.pattern.setPattern(pattern);
-       rule.format = keywordFormat;
-       highlightingRules.append(rule);
+    for ( const auto &pattern : keywordPatterns ) {
+        rule.pattern.setPattern(pattern);
+        rule.format = keywordFormat;
+        highlightingRules.append(rule);
     }
 
     //Functions
@@ -59,13 +58,11 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
     multiLineCommentFormat.setForeground(Qt::gray);
 }
 
-void SyntaxHighlighter::highlightBlock(const QString&text)
+void SyntaxHighlighter::highlightBlock(const QString &text)
 {
-    for( const auto& it : highlightingRules )
-    {
+    for ( const auto &it : highlightingRules ) {
         auto matchIterator = it.pattern.globalMatch(text);
-        while (matchIterator.hasNext())
-        {
+        while (matchIterator.hasNext()) {
             const auto match = matchIterator.next();
             setFormat(match.capturedStart(), match.capturedLength(), it.format);
         }
@@ -74,24 +71,19 @@ void SyntaxHighlighter::highlightBlock(const QString&text)
     setCurrentBlockState(0);
 
     int startIndex = 0;
-    if (previousBlockState() != 1)
-    {
+    if (previousBlockState() != 1) {
         startIndex = text.indexOf(commentStartExpression);
     }
 
-    while (startIndex >= 0)
-    {
+    while (startIndex >= 0) {
         const auto match = commentEndExpression.match(text, startIndex);
         const int endIndex = match.capturedStart();
         int commentLength = 0;
 
-        if (endIndex == -1)
-        {
+        if (endIndex == -1) {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
-        }
-        else
-        {
+        } else {
             commentLength = endIndex - startIndex
                             + match.capturedLength();
         }

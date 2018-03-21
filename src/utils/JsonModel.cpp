@@ -22,8 +22,7 @@ bool JsonModel::loadJson(const QByteArray &json)
 {
     mDocument = QJsonDocument::fromJson(json);
 
-    if (!mDocument.isNull())
-    {
+    if (!mDocument.isNull()) {
         beginResetModel();
         delete mRootItem;
         if (mDocument.isArray()) {
@@ -44,7 +43,7 @@ QVariant JsonModel::data(const QModelIndex &index, int role) const
         return QVariant();
 
 
-    JsonTreeItem *item = static_cast<JsonTreeItem*>(index.internalPointer());
+    JsonTreeItem *item = static_cast<JsonTreeItem *>(index.internalPointer());
 
 
     if (role == Qt::DisplayRole) {
@@ -67,8 +66,7 @@ QVariant JsonModel::headerData(int section, Qt::Orientation orientation, int rol
     if (orientation == Qt::Horizontal) {
 
         return mHeaders.value(section);
-    }
-    else
+    } else
         return QVariant();
 }
 
@@ -82,7 +80,7 @@ QModelIndex JsonModel::index(int row, int column, const QModelIndex &parent) con
     if (!parent.isValid())
         parentItem = mRootItem;
     else
-        parentItem = static_cast<JsonTreeItem*>(parent.internalPointer());
+        parentItem = static_cast<JsonTreeItem *>(parent.internalPointer());
 
     JsonTreeItem *childItem = parentItem->child(row);
     if (childItem)
@@ -96,7 +94,7 @@ QModelIndex JsonModel::parent(const QModelIndex &index) const
     if (!index.isValid())
         return QModelIndex();
 
-    JsonTreeItem *childItem = static_cast<JsonTreeItem*>(index.internalPointer());
+    JsonTreeItem *childItem = static_cast<JsonTreeItem *>(index.internalPointer());
     JsonTreeItem *parentItem = childItem->parent();
 
     if (parentItem == mRootItem)
@@ -114,7 +112,7 @@ int JsonModel::rowCount(const QModelIndex &parent) const
     if (!parent.isValid())
         parentItem = mRootItem;
     else
-        parentItem = static_cast<JsonTreeItem*>(parent.internalPointer());
+        parentItem = static_cast<JsonTreeItem *>(parent.internalPointer());
 
     return parentItem->childCount();
 }

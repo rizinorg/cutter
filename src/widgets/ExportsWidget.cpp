@@ -26,11 +26,9 @@ QVariant ExportsModel::data(const QModelIndex &index, int role) const
 
     const ExportDescription &exp = exports->at(index.row());
 
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (index.column())
-        {
+        switch (index.column()) {
         case OFFSET:
             return RAddressString(exp.vaddr);
         case SIZE:
@@ -51,11 +49,9 @@ QVariant ExportsModel::data(const QModelIndex &index, int role) const
 
 QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
 {
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (section)
-        {
+        switch (section) {
         case OFFSET:
             return tr("Address");
         case SIZE:
@@ -86,7 +82,8 @@ void ExportsModel::endReloadExports()
 
 
 
-ExportsSortFilterProxyModel::ExportsSortFilterProxyModel(ExportsModel *source_model, QObject *parent)
+ExportsSortFilterProxyModel::ExportsSortFilterProxyModel(ExportsModel *source_model,
+                                                         QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     setSourceModel(source_model);
@@ -101,11 +98,12 @@ bool ExportsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &p
 
 bool ExportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    ExportDescription left_exp = left.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
-    ExportDescription right_exp = right.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
+    ExportDescription left_exp = left.data(
+                                     ExportsModel::ExportDescriptionRole).value<ExportDescription>();
+    ExportDescription right_exp = right.data(
+                                      ExportsModel::ExportDescriptionRole).value<ExportDescription>();
 
-    switch (left.column())
-    {
+    switch (left.column()) {
     case ExportsModel::SIZE:
         if (left_exp.size != right_exp.size)
             return left_exp.size < right_exp.size;

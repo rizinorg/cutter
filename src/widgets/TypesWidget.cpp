@@ -26,11 +26,9 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
 
     const TypeDescription &exp = types->at(index.row());
 
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (index.column())
-        {
+        switch (index.column()) {
         case TYPE:
             return exp.type;
         case SIZE:
@@ -49,11 +47,9 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
 
 QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 {
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (section)
-        {
+        switch (section) {
         case TYPE:
             return tr("Type");
         case SIZE:
@@ -96,8 +92,7 @@ bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
     TypeDescription left_exp = left.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
     TypeDescription right_exp = right.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
 
-    switch (left.column())
-    {
+    switch (left.column()) {
     case TypesModel::TYPE:
         return left_exp.type < right_exp.type;
     case TypesModel::SIZE:

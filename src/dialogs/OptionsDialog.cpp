@@ -43,7 +43,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
 
     ui->entry_analbb->setToolTip(core->cmd("e? anal.bb.maxsize").trimmed());
-    
+
     for (auto plugin : core->getRBinPluginDescriptions("bin"))
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
 
@@ -106,8 +106,7 @@ QString OptionsDialog::getSelectedCPU()
 int OptionsDialog::getSelectedBits()
 {
     QString sel_bits = ui->bitsComboBox->currentText();
-    if (sel_bits != "Auto")
-    {
+    if (sel_bits != "Auto") {
         return sel_bits.toInt();
     }
 
@@ -126,8 +125,7 @@ int OptionsDialog::getSelectedBBSize()
 
 OptionsDialog::Endianness OptionsDialog::getSelectedEndianness()
 {
-    switch(ui->endiannessComboBox->currentIndex())
-    {
+    switch (ui->endiannessComboBox->currentIndex()) {
     case 1:
         return Endianness::Little;
     case 2:
@@ -174,18 +172,16 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
 void OptionsDialog::updateProgressTimer()
 {
-    int secondsElapsed = (analElapsedTimer.elapsed()+500)/1000;
+    int secondsElapsed = (analElapsedTimer.elapsed() + 500) / 1000;
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
 
     QString label = tr("Running for") + " ";
-    if(hoursElapsed)
-    {
+    if (hoursElapsed) {
         label += tr("%n hour", "%n hours", hoursElapsed);
         label += " ";
     }
-    if(minutesElapsed)
-    {
+    if (minutesElapsed) {
         label += tr("%n minute", "%n minutes", minutesElapsed % 60);
         label += " ";
     }
@@ -201,58 +197,44 @@ void OptionsDialog::updateProgress(const QString &status)
 void OptionsDialog::on_okButton_clicked()
 {
     QList<QString> advanced = QList<QString>();
-    if (ui->analSlider->value() == 3)
-    {
-        if (ui->aa_symbols->isChecked())
-        {
+    if (ui->analSlider->value() == 3) {
+        if (ui->aa_symbols->isChecked()) {
             advanced << "aa";
         }
-        if (ui->aar_references->isChecked())
-        {
+        if (ui->aar_references->isChecked()) {
             advanced << "aar";
         }
-        if (ui->aac_calls->isChecked())
-        {
+        if (ui->aac_calls->isChecked()) {
             advanced << "aac";
         }
-        if (ui->aab_basicblocks->isChecked())
-        {
+        if (ui->aab_basicblocks->isChecked()) {
             advanced << "aab";
         }
-        if (ui->aan_rename->isChecked())
-        {
+        if (ui->aan_rename->isChecked()) {
             advanced << "aan";
         }
-        if (ui->aae_emulate->isChecked())
-        {
+        if (ui->aae_emulate->isChecked()) {
             advanced << "aae";
         }
-        if (ui->aat_consecutive->isChecked())
-        {
+        if (ui->aat_consecutive->isChecked()) {
             advanced << "aat";
         }
-        if (ui->afta_typeargument->isChecked())
-        {
+        if (ui->afta_typeargument->isChecked()) {
             advanced << "afta";
         }
-        if (ui->aaT_aftertrap->isChecked())
-        {
+        if (ui->aaT_aftertrap->isChecked()) {
             advanced << "aaT";
         }
-        if (ui->aap_preludes->isChecked())
-        {
+        if (ui->aap_preludes->isChecked()) {
             advanced << "aap";
         }
-        if (ui->jmptbl->isChecked())
-        {
+        if (ui->jmptbl->isChecked()) {
             advanced << "e! anal.jmptbl";
         }
-        if (ui->pushret->isChecked())
-        {
+        if (ui->pushret->isChecked()) {
             advanced << "e! anal.pushret";
         }
-        if (ui->hasnext->isChecked())
-        {
+        if (ui->hasnext->isChecked()) {
             advanced << "e! anal.hasnext";
         }
     }
@@ -262,8 +244,7 @@ void OptionsDialog::on_okButton_clicked()
 
 void OptionsDialog::anal_finished()
 {
-    if (analThread.isInterrupted())
-    {
+    if (analThread.isInterrupted()) {
         done(0);
         return;
     }
@@ -277,8 +258,7 @@ void OptionsDialog::anal_finished()
 
 void OptionsDialog::closeEvent(QCloseEvent *event)
 {
-    if (analThread.isRunning())
-    {
+    if (analThread.isRunning()) {
         analThread.interruptAndWait();
     }
     event->accept();
@@ -287,8 +267,7 @@ void OptionsDialog::closeEvent(QCloseEvent *event)
 QString OptionsDialog::analysisDescription(int level)
 {
     //TODO: replace this with meaningful descriptions
-    switch (level)
-    {
+    switch (level) {
     case 0:
         return tr("No analysis");
     case 1:
@@ -305,21 +284,15 @@ QString OptionsDialog::analysisDescription(int level)
 void OptionsDialog::on_analSlider_valueChanged(int value)
 {
     ui->analDescription->setText(tr("Level") + QString(": %1").arg(analysisDescription(value)));
-    if (value == 0)
-    {
+    if (value == 0) {
         ui->analCheckBox->setChecked(false);
         ui->analCheckBox->setText(tr("Analysis: Disabled"));
-    }
-    else
-    {
+    } else {
         ui->analCheckBox->setChecked(true);
         ui->analCheckBox->setText(tr("Analysis: Enabled"));
-        if (value == 3)
-        {
+        if (value == 3) {
             ui->analoptionsFrame->setVisible(true);
-        }
-        else
-        {
+        } else {
             ui->analoptionsFrame->setVisible(false);
         }
     }
@@ -327,13 +300,10 @@ void OptionsDialog::on_analSlider_valueChanged(int value)
 
 void OptionsDialog::on_AdvOptButton_clicked()
 {
-    if (ui->AdvOptButton->isChecked())
-    {
+    if (ui->AdvOptButton->isChecked()) {
         ui->hideFrame->setVisible(true);
         ui->AdvOptButton->setArrowType(Qt::DownArrow);
-    }
-    else
-    {
+    } else {
         ui->hideFrame->setVisible(false);
         ui->AdvOptButton->setArrowType(Qt::RightArrow);
     }
@@ -362,15 +332,13 @@ void OptionsDialog::on_pdbSelectButton_clicked()
     dialog.setWindowTitle(tr("Select PDB file"));
     dialog.setNameFilters({ tr("PDB file (*.pdb)"), tr("All files (*)") });
 
-    if (!dialog.exec())
-    {
+    if (!dialog.exec()) {
         return;
     }
 
     QString fileName = dialog.selectedFiles().first();
 
-    if (!fileName.isEmpty())
-    {
+    if (!fileName.isEmpty()) {
         ui->pdbLineEdit->setText(fileName);
     }
 }

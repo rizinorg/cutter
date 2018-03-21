@@ -23,8 +23,7 @@ protected:
 private:
     CutterCore *core;
 
-    struct HighlightingRule
-    {
+    struct HighlightingRule {
         QRegExp pattern;
         QTextCharFormat format;
     };

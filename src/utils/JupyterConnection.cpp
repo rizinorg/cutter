@@ -28,12 +28,10 @@ JupyterConnection::JupyterConnection(QObject *parent) : QObject(parent)
 
 JupyterConnection::~JupyterConnection()
 {
-    if (pyThreadState)
-    {
+    if (pyThreadState) {
         PyEval_RestoreThread(pyThreadState);
 
-        if (cutterNotebookAppInstance)
-        {
+        if (cutterNotebookAppInstance) {
             auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
             PyObject_CallObject(stopFunc, nullptr);
             Py_DECREF(cutterNotebookAppInstance);
@@ -42,8 +40,7 @@ JupyterConnection::~JupyterConnection()
         Py_Finalize();
     }
 
-    if (pythonHome)
-    {
+    if (pythonHome) {
         PyMem_RawFree(pythonHome);
     }
 }
@@ -52,24 +49,23 @@ JupyterConnection::~JupyterConnection()
 void JupyterConnection::initPython()
 {
 #if defined(APPIMAGE) || defined(MACOS_PYTHON_FRAMEWORK_BUNDLED)
-    if(customPythonHome.isNull())
-    {
+    if (customPythonHome.isNull()) {
         auto pythonHomeDir = QDir(QCoreApplication::applicationDirPath());
 #   ifdef APPIMAGE
-            // Executable is in appdir/bin
-            pythonHomeDir.cdUp();
-            qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for AppImage.";
+        // Executable is in appdir/bin
+        pythonHomeDir.cdUp();
+        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for AppImage.";
 #   else // MACOS_PYTHON_FRAMEWORK_BUNDLED
-            // @executable_path/../Frameworks/Python.framework/Versions/Current
-            pythonHomeDir.cd("../Frameworks/Python.framework/Versions/Current");
-            qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for macOS Application Bundle.";
+        // @executable_path/../Frameworks/Python.framework/Versions/Current
+        pythonHomeDir.cd("../Frameworks/Python.framework/Versions/Current");
+        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() <<
+                " for macOS Application Bundle.";
 #   endif
         customPythonHome = pythonHomeDir.absolutePath();
     }
 #endif
 
-    if(!customPythonHome.isNull())
-    {
+    if (!customPythonHome.isNull()) {
         qInfo() << "PYTHONHOME =" << customPythonHome;
         pythonHome = Py_DecodeLocale(customPythonHome.toLocal8Bit().constData(), nullptr);
         Py_SetPythonHome(pythonHome);
@@ -92,9 +88,9 @@ void JupyterConnection::createCutterJupyterModule()
     QByteArray moduleCode = moduleFile.readAll();
     moduleFile.close();
 
-    auto moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_jupyter.py", Py_file_input);
-    if (!moduleCodeObject)
-    {
+    auto moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_jupyter.py",
+                                             Py_file_input);
+    if (!moduleCodeObject) {
         PyErr_Print();
         qWarning() << "Could not compile cutter_jupyter.";
         emit creationFailed();
@@ -102,8 +98,7 @@ void JupyterConnection::createCutterJupyterModule()
         return;
     }
     cutterJupyterModule = PyImport_ExecCodeModule("cutter_jupyter", moduleCodeObject);
-    if (!cutterJupyterModule)
-    {
+    if (!cutterJupyterModule) {
         PyErr_Print();
         qWarning() << "Could not import cutter_jupyter.";
         emit creationFailed();
@@ -117,22 +112,18 @@ void JupyterConnection::createCutterJupyterModule()
 
 void JupyterConnection::start()
 {
-    if (cutterNotebookAppInstance)
-    {
+    if (cutterNotebookAppInstance) {
         return;
     }
 
-    if (!Py_IsInitialized())
-    {
+    if (!Py_IsInitialized()) {
         initPython();
     }
 
-    if (!cutterJupyterModule)
-    {
+    if (!cutterJupyterModule) {
         createCutterJupyterModule();
 
-        if(!cutterJupyterModule)
-        {
+        if (!cutterJupyterModule) {
             return;
         }
     }
@@ -147,8 +138,7 @@ void JupyterConnection::start()
 
 QString JupyterConnection::getUrl()
 {
-    if (!cutterNotebookAppInstance)
-    {
+    if (!cutterNotebookAppInstance) {
         return nullptr;
     }
 
@@ -169,8 +159,7 @@ long JupyterConnection::startNestedIPyKernel(const QStringList &argv)
 {
     NestedIPyKernel *kernel = NestedIPyKernel::start(argv);
 
-    if (!kernel)
-    {
+    if (!kernel) {
         qWarning() << "Could not start nested IPyKernel.";
         return 0;
     }
@@ -184,8 +173,7 @@ long JupyterConnection::startNestedIPyKernel(const QStringList &argv)
 NestedIPyKernel *JupyterConnection::getNestedIPyKernel(long id)
 {
     auto it = kernels.find(id);
-    if(it == kernels.end())
-    {
+    if (it == kernels.end()) {
         return nullptr;
     }
     return *it;
@@ -194,16 +182,14 @@ NestedIPyKernel *JupyterConnection::getNestedIPyKernel(long id)
 QVariant JupyterConnection::pollNestedIPyKernel(long id)
 {
     auto it = kernels.find(id);
-    if(it == kernels.end())
-    {
+    if (it == kernels.end()) {
         return QVariant(0);
     }
 
     NestedIPyKernel *kernel = *it;
     QVariant v = kernel->poll();
 
-    if(!v.isNull())
-    {
+    if (!v.isNull()) {
         // if poll of kernel returns anything but None, it has already quit and should be cleaned up
         PyThreadState *subinterpreterState = kernel->getThreadState();
         delete kernel;

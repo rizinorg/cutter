@@ -6,9 +6,8 @@
 
 class MainWindow;
 
-namespace Ui
-{
-    class Dashboard;
+namespace Ui {
+class Dashboard;
 }
 
 class Dashboard : public CutterDockWidget

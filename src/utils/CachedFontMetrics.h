@@ -9,7 +9,7 @@ class CachedFontMetrics : public QObject
 {
     Q_OBJECT
 public:
-    explicit CachedFontMetrics(QObject* parent, const QFont & font)
+    explicit CachedFontMetrics(QObject *parent, const QFont &font)
         : QObject(parent),
           mFontMetrics(font)
     {
@@ -17,31 +17,29 @@ public:
         mHeight = mFontMetrics.height();
     }
 
-    int width(const QChar & ch)
+    int width(const QChar &ch)
     {
         auto unicode = ch.unicode();
-        if(unicode >= 0xD800)
-        {
-            if(unicode >= 0xE000)
+        if (unicode >= 0xD800) {
+            if (unicode >= 0xE000)
                 unicode -= 0xE000 - 0xD800;
             else
                 // is lonely surrogate
                 return mFontMetrics.width(ch);
         }
-        if(!mWidths[unicode])
+        if (!mWidths[unicode])
             return mWidths[unicode] = mFontMetrics.width(ch);
         return mWidths[unicode];
     }
 
-    int width(const QString & text)
+    int width(const QString &text)
     {
         int result = 0;
         QChar temp;
-        for(const QChar & ch : text)
-        {
-            if(ch.isHighSurrogate())
+        for (const QChar &ch : text) {
+            if (ch.isHighSurrogate())
                 temp = ch;
-            else if(ch.isLowSurrogate())
+            else if (ch.isLowSurrogate())
                 result += mFontMetrics.width(QString(temp) + ch);
             else
                 result += width(ch);

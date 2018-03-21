@@ -10,8 +10,8 @@
 #include "utils/Configuration.h"
 
 GraphOptionsWidget::GraphOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
-  : QDialog(parent),
-    ui(new Ui::GraphOptionsWidget)
+    : QDialog(parent),
+      ui(new Ui::GraphOptionsWidget)
 {
     ui->setupUi(this);
 

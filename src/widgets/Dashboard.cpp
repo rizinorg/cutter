@@ -53,8 +53,7 @@ void Dashboard::updateContents()
     this->ui->compiledEdit->setText(item2["compiled"].toString());
     this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
 
-    if (!item2["relro"].isUndefined())
-    {
+    if (!item2["relro"].isUndefined()) {
         QString relro = item2["relro"].toString().split(" ").at(0);
         relro[0] = relro[0].toUpper();
         this->ui->relroEdit->setText(relro);
@@ -62,68 +61,44 @@ void Dashboard::updateContents()
 
     this->ui->baddrEdit->setText(QString::number(item2["baddr"].toDouble()));
 
-    if (item2["va"].toBool() == true)
-    {
+    if (item2["va"].toBool() == true) {
         this->ui->vaEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->vaEdit->setText("False");
     }
-    if (item2["canary"].toBool() == true)
-    {
+    if (item2["canary"].toBool() == true) {
         this->ui->canaryEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->canaryEdit->setText("False");
     }
-    if (item2["crypto"].toBool() == true)
-    {
+    if (item2["crypto"].toBool() == true) {
         this->ui->cryptoEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->cryptoEdit->setText("False");
     }
-    if (item2["nx"].toBool() == true)
-    {
+    if (item2["nx"].toBool() == true) {
         this->ui->nxEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->nxEdit->setText("False");
     }
-    if (item2["pic"].toBool() == true)
-    {
+    if (item2["pic"].toBool() == true) {
         this->ui->picEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->picEdit->setText("False");
     }
-    if (item2["static"].toBool() == true)
-    {
+    if (item2["static"].toBool() == true) {
         this->ui->staticEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->staticEdit->setText("False");
     }
-    if (item2["stripped"].toBool() == true)
-    {
+    if (item2["stripped"].toBool() == true) {
         this->ui->strippedEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->strippedEdit->setText("False");
     }
-    if (item2["relocs"].toBool() == true)
-    {
+    if (item2["relocs"].toBool() == true) {
         this->ui->relocsEdit->setText("True");
-    }
-    else
-    {
+    } else {
         this->ui->relocsEdit->setText("False");
     }
 
@@ -135,21 +110,17 @@ void Dashboard::updateContents()
 
     QString libs = CutterCore::getInstance()->cmd("il");
     QStringList lines = libs.split("\n", QString::SkipEmptyParts);
-    if (!lines.isEmpty())
-    {
+    if (!lines.isEmpty()) {
         lines.removeFirst();
         lines.removeLast();
     }
 
     // dunno: why not label->setText(lines.join("\n")?
-    while (ui->verticalLayout_2->count() > 0)
-    {
+    while (ui->verticalLayout_2->count() > 0) {
         QLayoutItem *item = ui->verticalLayout_2->takeAt(0);
-        if (item != nullptr)
-        {
+        if (item != nullptr) {
             QWidget *w = item->widget();
-            if (w != nullptr)
-            {
+            if (w != nullptr) {
                 w->deleteLater();
             }
 
@@ -157,8 +128,7 @@ void Dashboard::updateContents()
         }
     }
 
-    for (QString lib : lines)
-    {
+    for (QString lib : lines) {
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -179,29 +149,26 @@ void Dashboard::updateContents()
     QStringList stats = CutterCore::getInstance()->getStats();
 }
 
-void Dashboard::on_certificateButton_clicked() 
-{   
+void Dashboard::on_certificateButton_clicked()
+{
     static QDialog *viewDialog = nullptr;
     static QTreeView *view = nullptr;
     static JsonModel *model = nullptr;
     static QString qstrCertificates;
-    if(!viewDialog)
-    {
+    if (!viewDialog) {
         viewDialog = new QDialog(this);
         view = new QTreeView(viewDialog);
         model = new JsonModel();
         QJsonDocument qjsonCertificatesDoc = Core()->cmdj("iCj");
         qstrCertificates = qjsonCertificatesDoc.toJson(QJsonDocument::Compact);
     }
-    if (QString::compare("{}",qstrCertificates)) 
-    {
-        if(!viewDialog->isVisible())
-        {
+    if (QString::compare("{}", qstrCertificates)) {
+        if (!viewDialog->isVisible()) {
             std::string strCertificates = qstrCertificates.toUtf8().constData();
             model->loadJson(QByteArray::fromStdString(strCertificates));
             view->setModel(model);
             view->expandAll();
-            view->resize(900,600);
+            view->resize(900, 600);
             QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             sizePolicy.setHorizontalStretch(0);
             sizePolicy.setVerticalStretch(0);
@@ -209,16 +176,14 @@ void Dashboard::on_certificateButton_clicked()
             viewDialog->setSizePolicy(sizePolicy);
             viewDialog->setMinimumSize(QSize(900, 600));
             viewDialog->setMaximumSize(QSize(900, 600));
-            viewDialog->setSizeGripEnabled(false);  
+            viewDialog->setSizeGripEnabled(false);
             viewDialog->setWindowTitle("Certificates");
             viewDialog->show();
         }
-    }
-    else 
-    {
+    } else {
         QMessageBox msgBoxCertificateInf(QMessageBox::Information, "Certificate Information ",
                                          "There is no certificate information",
                                          QMessageBox::NoButton, this);
-        msgBoxCertificateInf.exec();    
-    }    
+        msgBoxCertificateInf.exec();
+    }
 }

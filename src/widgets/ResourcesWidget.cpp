@@ -23,40 +23,36 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
 {
     const ResourcesDescription &res = resources->at(index.row());
 
-    switch (role)
-    {
-        case Qt::DisplayRole:
-            switch (index.column())
-            {
-                case NAME:
-                    return res.name;
-                case VADDR:
-                    return RAddressString(res.vaddr);
-                case INDEX:
-                    return res.index;
-                case TYPE:
-                    return res.type;
-                case SIZE:
-                    return qhelpers::formatBytecount(res.size);
-                case LANG:
-                    return res.lang;
-                default:
-                    return QVariant();
-            }
-        case Qt::UserRole:
-            return QVariant::fromValue(res);
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case NAME:
+            return res.name;
+        case VADDR:
+            return RAddressString(res.vaddr);
+        case INDEX:
+            return res.index;
+        case TYPE:
+            return res.type;
+        case SIZE:
+            return qhelpers::formatBytecount(res.size);
+        case LANG:
+            return res.lang;
         default:
             return QVariant();
+        }
+    case Qt::UserRole:
+        return QVariant::fromValue(res);
+    default:
+        return QVariant();
     }
 }
 
 QVariant ResourcesModel::headerData(int section, Qt::Orientation, int role) const
 {
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (section)
-        {
+        switch (section) {
         case NAME:
             return tr("Name");
         case VADDR:
@@ -104,7 +100,8 @@ ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
     this->setWidget(view);
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshResources()));
-    connect(view, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(view, SIGNAL(doubleClicked(const QModelIndex &)), this,
+            SLOT(onDoubleClicked(const QModelIndex &)));
 }
 
 void ResourcesWidget::refreshResources()

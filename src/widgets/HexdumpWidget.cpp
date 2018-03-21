@@ -14,8 +14,8 @@
 #include <QScrollBar>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-        CutterDockWidget(main, action),
-        ui(new Ui::HexdumpWidget)
+    CutterDockWidget(main, action),
+    ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);
 
@@ -25,8 +25,10 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
     //highlightHexCurrentLine();
 
-    ui->copyMD5->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"), palette().buttonText().color())));
-    ui->copySHA1->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"), palette().buttonText().color())));
+    ui->copyMD5->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"),
+                                                 palette().buttonText().color())));
+    ui->copySHA1->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"),
+                                                  palette().buttonText().color())));
 
     int margin = static_cast<int>(ui->hexOffsetText->document()->documentMargin());
     ui->offsetHeaderLabel->setContentsMargins(margin, 0, margin, 0);
@@ -62,11 +64,11 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
+    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
+            SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        if (visibility)
-        {
+        if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Hexdump);
         }
     });
@@ -78,7 +80,8 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(ui->hexHexText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexASCIIText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
-    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
+    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this,
+            &HexdumpWidget::selectionChanged);
 
     format = Format::Hex;
     initParsing();
@@ -94,8 +97,7 @@ void HexdumpWidget::setupScrollSync()
      */
 
     auto offsetHexFunc = [this]() {
-        if(!scroll_disabled)
-        {
+        if (!scroll_disabled) {
             scroll_disabled = true;
             ui->hexHexText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
             scroll_disabled = false;
@@ -103,22 +105,24 @@ void HexdumpWidget::setupScrollSync()
     };
 
     auto offsetASCIIFunc = [this]() {
-        if(!scroll_disabled)
-        {
+        if (!scroll_disabled) {
             scroll_disabled = true;
             ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexOffsetText->verticalScrollBar()->value());
             scroll_disabled = false;
         }
     };
 
-    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexHexText->verticalScrollBar(), offsetHexFunc);
-    connect(ui->hexOffsetText, &QTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(), offsetHexFunc);
-    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexASCIIText->verticalScrollBar(), offsetASCIIFunc);
-    connect(ui->hexOffsetText, &QTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(), offsetASCIIFunc);
+    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged,
+            ui->hexHexText->verticalScrollBar(), offsetHexFunc);
+    connect(ui->hexOffsetText, &QTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(),
+            offsetHexFunc);
+    connect(ui->hexOffsetText->verticalScrollBar(), &QScrollBar::valueChanged,
+            ui->hexASCIIText->verticalScrollBar(), offsetASCIIFunc);
+    connect(ui->hexOffsetText, &QTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(),
+            offsetASCIIFunc);
 
     auto hexOffsetFunc = [this]() {
-        if(!scroll_disabled)
-        {
+        if (!scroll_disabled) {
             scroll_disabled = true;
             ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
             scroll_disabled = false;
@@ -126,22 +130,24 @@ void HexdumpWidget::setupScrollSync()
     };
 
     auto hexASCIIFunc = [this]() {
-        if(!scroll_disabled)
-        {
+        if (!scroll_disabled) {
             scroll_disabled = true;
             ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
             scroll_disabled = false;
         }
     };
 
-    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexOffsetText->verticalScrollBar(), hexOffsetFunc);
-    connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, ui->hexOffsetText->verticalScrollBar(), hexOffsetFunc);
-    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexASCIIText->verticalScrollBar(), hexASCIIFunc);
-    connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(), hexASCIIFunc);
+    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged,
+            ui->hexOffsetText->verticalScrollBar(), hexOffsetFunc);
+    connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, ui->hexOffsetText->verticalScrollBar(),
+            hexOffsetFunc);
+    connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged,
+            ui->hexASCIIText->verticalScrollBar(), hexASCIIFunc);
+    connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, ui->hexASCIIText->verticalScrollBar(),
+            hexASCIIFunc);
 
     auto asciiOffsetFunc = [this]() {
-        if(!scroll_disabled)
-        {
+        if (!scroll_disabled) {
             scroll_disabled = true;
             ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
             scroll_disabled = false;
@@ -149,24 +155,26 @@ void HexdumpWidget::setupScrollSync()
     };
 
     auto asciiHexFunc = [this]() {
-        if(!scroll_disabled)
-        {
+        if (!scroll_disabled) {
             scroll_disabled = true;
             ui->hexHexText->verticalScrollBar()->setValue(ui->hexASCIIText->verticalScrollBar()->value());
             scroll_disabled = false;
         }
     };
 
-    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexOffsetText->verticalScrollBar(), asciiOffsetFunc);
-    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, ui->hexOffsetText->verticalScrollBar(), asciiOffsetFunc);
-    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged, ui->hexHexText->verticalScrollBar(), asciiHexFunc);
-    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(), asciiHexFunc);
+    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged,
+            ui->hexOffsetText->verticalScrollBar(), asciiOffsetFunc);
+    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, ui->hexOffsetText->verticalScrollBar(),
+            asciiOffsetFunc);
+    connect(ui->hexASCIIText->verticalScrollBar(), &QScrollBar::valueChanged,
+            ui->hexHexText->verticalScrollBar(), asciiHexFunc);
+    connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(),
+            asciiHexFunc);
 }
 
 void HexdumpWidget::on_seekChanged(RVA addr)
 {
-    if(sent_seek)
-    {
+    if (sent_seek) {
         sent_seek = false;
         return;
     }
@@ -175,8 +183,7 @@ void HexdumpWidget::on_seekChanged(RVA addr)
 
 void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
 {
-    if (type == CutterCore::MemoryWidgetType::Hexdump)
-    {
+    if (type == CutterCore::MemoryWidgetType::Hexdump) {
         raise();
     }
 }
@@ -184,14 +191,11 @@ void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType ty
 void HexdumpWidget::connectScroll(bool disconnect_)
 {
     scroll_disabled = disconnect_;
-    if (disconnect_)
-    {
+    if (disconnect_) {
         disconnect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged, this,
-                &HexdumpWidget::scrollChanged);
+                   &HexdumpWidget::scrollChanged);
         disconnect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::scrollChanged);
-    }
-    else
-    {
+    } else {
         connect(ui->hexHexText->verticalScrollBar(), &QScrollBar::valueChanged, this,
                 &HexdumpWidget::scrollChanged);
         connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::scrollChanged);
@@ -278,8 +282,7 @@ void HexdumpWidget::refresh(RVA addr)
 
     updateHeaders();
 
-    if(addr == RVA_INVALID)
-    {
+    if (addr == RVA_INVALID) {
         addr = Core()->getOffset();
     }
 
@@ -306,7 +309,8 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexHexText->setText(hexdump[1]);
     ui->hexASCIIText->setText(hexdump[2]);
 
-    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(bufferLines)); // ln-1 because line number starts from 0
+    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(
+                           bufferLines)); // ln-1 because line number starts from 0
     ui->hexHexText->moveCursor(QTextCursor::End);
     ui->hexHexText->setTextCursor(cursor);
 
@@ -338,8 +342,7 @@ void HexdumpWidget::updateHeaders()
 
     // Custom spacing for the header
     QString space = " ";
-    switch(format)
-    {
+    switch (format) {
     case Hex:
         space = space.repeated(1);
         break;
@@ -351,18 +354,15 @@ void HexdumpWidget::updateHeaders()
         break;
     }
 
-    for (int i=0; i<cols; i++)
-    {
-        if (i > 0 && ((pairs && !(i&1)) || !pairs))
-        {
+    for (int i = 0; i < cols; i++) {
+        if (i > 0 && ((pairs && !(i & 1)) || !pairs)) {
             hexHeader << " ";
         }
 
         hexHeader << space << (i & 0xF);
     }
 
-    for (int i=0; i < ascii_cols; i++)
-    {
+    for (int i = 0; i < ascii_cols; i++) {
         asciiHeader << (i & 0xF);
     }
 
@@ -387,30 +387,28 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA addr, int lines)
     int bytes = cols * lines;
 
     QString command = QString("pxj %1 @%2").arg(
-                QString::number(bytes),
-                RAddressString(addr));
+                          QString::number(bytes),
+                          RAddressString(addr));
     QJsonArray byte_array = Core()->cmdj(command).array();
 
     QString hexText = "";
     QString offsetText = "";
     QString asciiText = "";
     RVA cur_addr = addr;
-    for(int i=0; i < lines; i++)
-    {
-        for(int j=0; j < cols; j++) {
+    for (int i = 0; i < lines; i++) {
+        for (int j = 0; j < cols; j++) {
             int b = byte_array[(i * cols) + j].toInt();
-            if((j > 0) && (j < cols)) {
+            if ((j > 0) && (j < cols)) {
                 hexText += " ";
             }
             // Non printable
-            if((b < 0x20) || (b > 0x7E))
-            {
+            if ((b < 0x20) || (b > 0x7E)) {
                 asciiText += ".";
             } else {
                 asciiText += (char)b;
             }
 
-            switch(format) {
+            switch (format) {
             case Octal:
                 hexText += QString::number(b, 8).rightJustified(3, '0');
                 break;
@@ -431,17 +429,14 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA addr, int lines)
 
 void HexdumpWidget::selectionChanged()
 {
-    if(scroll_disabled)
-    {
+    if (scroll_disabled) {
         return;
     }
     connectScroll(true);
 
-    if(sender() == ui->hexHexText)
-    {
+    if (sender() == ui->hexHexText) {
         QTextCursor textCursor = ui->hexHexText->textCursor();
-        if(!textCursor.hasSelection())
-        {
+        if (!textCursor.hasSelection()) {
             clearParseWindow();
             RVA adr = hexPositionToAddress(textCursor.position());
             int pos = asciiAddressToPosition(adr);
@@ -460,33 +455,26 @@ void HexdumpWidget::selectionChanged()
         QChar end = ui->hexHexText->document()->characterAt(selectionEnd);
 
         // This adjusts the selection to make sense with the chosen format
-        switch(format)
-        {
+        switch (format) {
         case Hex:
             // Handle the spaces/newlines (if it's at the start, move forward,
             // if it's at the end, move back)
 
-            if (!start.isLetterOrNumber())
-            {
+            if (!start.isLetterOrNumber()) {
                 selectionStart += 1;
-            }
-            else if(ui->hexHexText->document()->characterAt(selectionStart-1).isLetterOrNumber())
-            {
+            } else if (ui->hexHexText->document()->characterAt(selectionStart - 1).isLetterOrNumber()) {
                 selectionStart += 2;
             }
 
-            if (!end.isLetterOrNumber())
-            {
+            if (!end.isLetterOrNumber()) {
                 selectionEnd += 1;
             }
             break;
         case Octal:
-            if (!start.isLetterOrNumber())
-            {
+            if (!start.isLetterOrNumber()) {
                 selectionStart += 1;
             }
-            if (!end.isLetterOrNumber())
-            {
+            if (!end.isLetterOrNumber()) {
                 selectionEnd += 1;
             }
             break;
@@ -507,12 +495,9 @@ void HexdumpWidget::selectionChanged()
         sent_seek = true;
         Core()->seek(startAddress);
         sent_seek = false;
-    }
-    else
-    {
+    } else {
         QTextCursor textCursor = ui->hexASCIIText->textCursor();
-        if(!textCursor.hasSelection())
-        {
+        if (!textCursor.hasSelection()) {
             clearParseWindow();
             RVA adr = asciiPositionToAddress(textCursor.position());
             int pos = hexAddressToPosition(adr);
@@ -650,8 +635,8 @@ void HexdumpWidget::fontsUpdated()
 void HexdumpWidget::colorsUpdatedSlot()
 {
     QString styleSheet = QString("QTextEdit { background-color: %1; color: %2; }")
-            .arg(ConfigColor("gui.background").name())
-            .arg(ConfigColor("btext").name());
+                         .arg(ConfigColor("gui.background").name())
+                         .arg(ConfigColor("btext").name());
 
     ui->hexOffsetText->setStyleSheet(styleSheet);
     ui->hexHexText->setStyleSheet(styleSheet);
@@ -677,47 +662,47 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
     QString bits = ui->parseBitsComboBox->currentText();
     bool bigEndian = ui->parseEndianComboBox->currentIndex() == 1;
 
-    { // scope for TempConfig
+    {
+        // scope for TempConfig
         TempConfig tempConfig;
         tempConfig
-                .set("asm.arch", arch)
-                .set("asm.bits", bits)
-                .set("cfg.bigendian", bigEndian);
+        .set("asm.arch", arch)
+        .set("asm.bits", bits)
+        .set("cfg.bigendian", bigEndian);
 
-        switch(ui->parseTypeComboBox->currentIndex())
-        {
-            case 0: // Disassembly
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pda " + argument));
-                break;
-            case 1: // String
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcs " + argument));
-                break;
-            case 2: // Assembler
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pca " + argument));
-                break;
-            case 3: // C byte array
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pc " + argument));
-                break;
-            case 4: // C half-word
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pch " + argument));
-                break;
-            case 5: // C word
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcw " + argument));
-                break;
-            case 6: // C dword
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcd " + argument));
-                break;
-            case 7: // Python
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcp " + argument));
-                break;
-            case 8: // JSON
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcj " + argument));
-                break;
-            case 9: // JavaScript
-                ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcJ " + argument));
-                break;
-            default:
-                ui->hexDisasTextEdit->setPlainText("");
+        switch (ui->parseTypeComboBox->currentIndex()) {
+        case 0: // Disassembly
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pda " + argument));
+            break;
+        case 1: // String
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcs " + argument));
+            break;
+        case 2: // Assembler
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pca " + argument));
+            break;
+        case 3: // C byte array
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pc " + argument));
+            break;
+        case 4: // C half-word
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pch " + argument));
+            break;
+        case 5: // C word
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcw " + argument));
+            break;
+        case 6: // C dword
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcd " + argument));
+            break;
+        case 7: // Python
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcp " + argument));
+            break;
+        case 8: // JSON
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcj " + argument));
+            break;
+        case 9: // JavaScript
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcJ " + argument));
+            break;
+        default:
+            ui->hexDisasTextEdit->setPlainText("");
         }
     }
 
@@ -731,8 +716,7 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
 RVA HexdumpWidget::hexPositionToAddress(int position)
 {
-    switch(format)
-    {
+    switch (format) {
 
     case Octal:
         return first_loaded_address + (position / 4);
@@ -754,8 +738,7 @@ RVA HexdumpWidget::asciiPositionToAddress(int position)
 int HexdumpWidget::hexAddressToPosition(RVA address)
 {
     // This strictly assumes that the address is actually loaded.
-    switch(format)
-    {
+    switch (format) {
 
     case Octal:
         return (address - first_loaded_address) * 4;
@@ -785,8 +768,7 @@ int HexdumpWidget::getDisplayedLined(QTextEdit *textEdit, bool bottom)
     QPoint top_right(textEdit->viewport()->x(), textEdit->viewport()->y());
     QPoint bottom_right(textEdit->viewport()->width(), textEdit->viewport()->height() - 1);
     QPoint point = top_right;
-    if(bottom)
-    {
+    if (bottom) {
         point = bottom_right;
     }
 
@@ -805,8 +787,7 @@ void HexdumpWidget::removeTopLinesWithoutScroll(QTextEdit *textEdit, int lines)
 
     QTextBlock block = textEdit->document()->firstBlock();
     QTextCursor textCursor = textEdit->textCursor();
-    for(int i=0; i < lines; i++)
-    {
+    for (int i = 0; i < lines; i++) {
         QTextCursor cursor(block);
         cursor.select(QTextCursor::BlockUnderCursor);
         cursor.removeSelectedText();
@@ -821,8 +802,7 @@ void HexdumpWidget::removeBottomLinesWithoutScroll(QTextEdit *textEdit, int line
 {
     QTextBlock block = textEdit->document()->lastBlock();
     QTextCursor textCursor = textEdit->textCursor();
-    for(int i=0; i < lines; i++)
-    {
+    for (int i = 0; i < lines; i++) {
         QTextCursor cursor(block);
         cursor.select(QTextCursor::BlockUnderCursor);
         cursor.removeSelectedText();
@@ -864,8 +844,7 @@ void HexdumpWidget::scrollChanged()
     connectScroll(true);
 
     int firstLine = getDisplayedLined(ui->hexHexText);
-    if(firstLine < (bufferLines/2))
-    {
+    if (firstLine < (bufferLines / 2)) {
         auto hexdump = fetchHexdump(first_loaded_address, bufferLines);
         first_loaded_address -= bufferLines * cols;
         prependWithoutScroll(ui->hexOffsetText, hexdump[0]);
@@ -883,8 +862,7 @@ void HexdumpWidget::scrollChanged()
 
     int blocks  = ui->hexHexText->document()->blockCount();
     int lastLine = getDisplayedLined(ui->hexHexText, true);
-    if(blocks - lastLine < (bufferLines/2))
-    {
+    if (blocks - lastLine < (bufferLines / 2)) {
         auto hexdump = fetchHexdump(last_loaded_address, bufferLines);
         last_loaded_address += bufferLines * cols;
         removeTopLinesWithoutScroll(ui->hexOffsetText, bufferLines);
@@ -903,12 +881,9 @@ void HexdumpWidget::scrollChanged()
 
 void HexdumpWidget::on_actionHideHexdump_side_panel_triggered()
 {
-    if (ui->hexSideTab_2->isVisible())
-    {
+    if (ui->hexSideTab_2->isVisible()) {
         ui->hexSideTab_2->hide();
-    }
-    else
-    {
+    } else {
         ui->hexSideTab_2->show();
     }
 }
@@ -969,12 +944,9 @@ void HexdumpWidget::on_actionFormatOctal_triggered()
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
 {
-    if (ui->parseTypeComboBox->currentIndex() == 0)
-    {
+    if (ui->parseTypeComboBox->currentIndex() == 0) {
         ui->hexSideFrame_2->show();
-    }
-    else
-    {
+    } else {
         ui->hexSideFrame_2->hide();
     }
     selectionChanged();
@@ -1011,22 +983,16 @@ void HexdumpWidget::resizeEvent(QResizeEvent *event)
     refresh();
 }
 
-void HexdumpWidget::wheelEvent(QWheelEvent* event)
+void HexdumpWidget::wheelEvent(QWheelEvent *event)
 {
-    if( Qt::ControlModifier == event->modifiers() )
-    {
+    if ( Qt::ControlModifier == event->modifiers() ) {
         const QPoint numDegrees = event->angleDelta() / 8;
-        if(!numDegrees.isNull())
-        {
+        if (!numDegrees.isNull()) {
             const QPoint numSteps = numDegrees / 15;
-            if( 0 != numSteps.y() )
-            {
-                if(numSteps.y() > 0)
-                {
+            if ( 0 != numSteps.y() ) {
+                if (numSteps.y() > 0) {
                     zoomIn(1);
-                }
-                else if( numSteps.y() < 0 )
-                {
+                } else if ( numSteps.y() < 0 ) {
                     zoomOut(1);
                 }
             }
@@ -1064,27 +1030,22 @@ void HexdumpWidget::selectHexPreview()
     QString bits = Core()->cmd("e asm.bits").trimmed();
 
     //int arch_index = ui->hexArchComboBox_2->findText(arch);
-    if (ui->parseArchComboBox->findText(arch) != -1)
-    {
+    if (ui->parseArchComboBox->findText(arch) != -1) {
         ui->parseArchComboBox->setCurrentIndex(ui->parseArchComboBox->findText(arch));
     }
 
     //int bits_index = ui->hexBitsComboBox_2->findText(bits);
-    if (ui->parseBitsComboBox->findText(bits) != -1)
-    {
+    if (ui->parseBitsComboBox->findText(bits) != -1) {
         ui->parseBitsComboBox->setCurrentIndex(ui->parseBitsComboBox->findText(bits));
     }
 }
 
 void HexdumpWidget::showOffsets(bool show)
 {
-    if (show)
-    {
+    if (show) {
         ui->hexOffsetText->show();
         Core()->setConfig("asm.offset", 1);
-    }
-    else
-    {
+    } else {
         ui->hexOffsetText->hide();
         Core()->setConfig("asm.offset", 0);
     }

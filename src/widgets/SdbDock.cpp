@@ -21,8 +21,7 @@ SdbDock::SdbDock(MainWindow *main, QAction *action) :
 
 void SdbDock::reload(QString _path)
 {
-    if (!_path.isNull())
-    {
+    if (!_path.isNull()) {
         path = _path;
     }
 
@@ -33,12 +32,12 @@ void SdbDock::reload(QString _path)
     QList<QString> keys;
     /* key-values */
     keys = CutterCore::getInstance()->sdbListKeys(path);
-    foreach (QString key, keys)
-    {
+    foreach (QString key, keys) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, key);
         tempItem->setText(1, CutterCore::getInstance()->sdbGet(path, key));
-        tempItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
+        tempItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled |
+                           Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
         ui->treeWidget->insertTopLevelItem(0, tempItem);
     }
     ui->treeWidget->resizeColumnToContents(0);
@@ -46,8 +45,7 @@ void SdbDock::reload(QString _path)
     /* namespaces */
     keys = CutterCore::getInstance()->sdbList(path);
     keys.append("..");
-    foreach (QString key, keys)
-    {
+    foreach (QString key, keys) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, key + "/");
         tempItem->setText(1, "");
@@ -62,30 +60,20 @@ void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     QString newpath;
 
-    if (column == 0)
-    {
-        if (item->text(0) == "../")
-        {
+    if (column == 0) {
+        if (item->text(0) == "../") {
             int idx = path.lastIndexOf("/");
-            if (idx != -1)
-            {
+            if (idx != -1) {
                 newpath = path.mid(0, idx);
-            }
-            else
-            {
+            } else {
                 newpath = "";
             }
             reload(newpath);
 
-        }
-        else if (item->text(0).indexOf("/") != -1)
-        {
-            if (path != "")
-            {
+        } else if (item->text(0).indexOf("/") != -1) {
+            if (path != "") {
                 newpath = path + "/" + item->text(0).replace("/", "");
-            }
-            else
-            {
+            } else {
                 newpath = path + item->text(0).replace("/", "");
             }
             // enter directory
@@ -98,13 +86,10 @@ SdbDock::~SdbDock() {}
 
 void SdbDock::on_lockButton_clicked()
 {
-    if (ui->lockButton->isChecked())
-    {
+    if (ui->lockButton->isChecked()) {
         this->setAllowedAreas(Qt::NoDockWidgetArea);
         ui->lockButton->setIcon(QIcon(":/lock"));
-    }
-    else
-    {
+    } else {
         this->setAllowedAreas(Qt::AllDockWidgetAreas);
         ui->lockButton->setIcon(QIcon(":/unlock"));
     }

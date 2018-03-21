@@ -46,9 +46,8 @@ class JupyterWidget;
 #endif
 class QDockWidget;
 
-namespace Ui
-{
-    class MainWindow;
+namespace Ui {
+class MainWindow;
 }
 
 
@@ -62,7 +61,8 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void openNewFile(const QString &fn, int analLevel = -1, QList<QString> advancedOptions = QList<QString>());
+    void openNewFile(const QString &fn, int analLevel = -1,
+                     QList<QString> advancedOptions = QList<QString>());
     void displayNewFileDialog();
     void closeNewFileDialog();
     void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions);
@@ -211,7 +211,10 @@ private:
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
 public:
-    QString getFilename() const         { return filename; }
+    QString getFilename() const
+    {
+        return filename;
+    }
 };
 
 #endif // MAINWINDOW_H

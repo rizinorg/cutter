@@ -6,9 +6,8 @@
 
 #include <memory>
 
-namespace Ui
-{
-    class SaveProjectDialog;
+namespace Ui {
+class SaveProjectDialog;
 }
 
 class SaveProjectDialog : public QDialog

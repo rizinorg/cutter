@@ -5,9 +5,8 @@
 #include "MainWindow.h"
 #include "CutterDockWidget.h"
 
-namespace Ui
-{
-    class ConsoleWidget;
+namespace Ui {
+class ConsoleWidget;
 }
 
 
@@ -23,9 +22,15 @@ public:
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
 
-    void setDebugOutputEnabled(bool enabled) { debugOutputEnabled = enabled; }
+    void setDebugOutputEnabled(bool enabled)
+    {
+        debugOutputEnabled = enabled;
+    }
 
-    void setMaxHistoryEntries(int max) { maxHistoryEntries = max; }
+    void setMaxHistoryEntries(int max)
+    {
+        maxHistoryEntries = max;
+    }
 
 public slots:
     void focusInputLineEdit();

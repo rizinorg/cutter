@@ -6,9 +6,8 @@
 
 #include <QWidget>
 
-namespace Ui
-{
-    class QuickFilterView;
+namespace Ui {
+class QuickFilterView;
 }
 
 class QuickFilterView : public QWidget

@@ -9,9 +9,8 @@
 
 class MainWindow;
 
-namespace Ui
-{
-    class XrefsDialog;
+namespace Ui {
+class XrefsDialog;
 }
 
 class XrefsDialog : public QDialog
@@ -28,7 +27,7 @@ private slots:
     void on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
     void on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
 
-    QString normalizeAddr(const QString& addr) const;
+    QString normalizeAddr(const QString &addr) const;
 
     void setupPreviewFont();
     void setupPreviewColors();

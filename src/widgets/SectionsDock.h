@@ -8,9 +8,8 @@
 class MainWindow;
 class SectionsWidget;
 
-namespace Ui
-{
-    class SectionsDock;
+namespace Ui {
+class SectionsDock;
 }
 
 class SectionsDock : public CutterDockWidget

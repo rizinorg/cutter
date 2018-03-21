@@ -53,7 +53,7 @@ public slots:
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
-    virtual void wheelEvent(QWheelEvent* event) override;
+    virtual void wheelEvent(QWheelEvent *event) override;
 
 private:
     static const int linesMarginMin = 32;

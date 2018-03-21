@@ -16,18 +16,16 @@ CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
 
 void CutterDockWidget::toggleDockWidget(bool show)
 {
-    if (!show)
-    {
+    if (!show) {
         this->close();
-    }
-    else
-    {
+    } else {
         this->show();
         this->raise();
     }
 }
 
-void CutterDockWidget::closeEvent(QCloseEvent * event) {
+void CutterDockWidget::closeEvent(QCloseEvent *event)
+{
     if (action) {
         this->action->setChecked(false);
     }

@@ -8,9 +8,8 @@
 class MainWindow;
 class QTreeWidgetItem;
 
-namespace Ui
-{
-    class SdbDock;
+namespace Ui {
+class SdbDock;
 }
 
 class SdbDock : public CutterDockWidget

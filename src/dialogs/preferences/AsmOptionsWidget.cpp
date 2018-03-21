@@ -10,13 +10,13 @@
 #include "utils/Configuration.h"
 
 AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
-  : QDialog(parent),
-    ui(new Ui::AsmOptionsWidget)
+    : QDialog(parent),
+      ui(new Ui::AsmOptionsWidget)
 {
     ui->setupUi(this);
 
     ui->syntaxComboBox->blockSignals(true);
-    for(const auto &syntax : Core()->cmdList("e asm.syntax=?"))
+    for (const auto &syntax : Core()->cmdList("e asm.syntax=?"))
         ui->syntaxComboBox->addItem(syntax, syntax);
     ui->syntaxComboBox->blockSignals(false);
 
@@ -62,10 +62,8 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
 
 
     QString currentSyntax = Core()->getConfig("asm.syntax");
-    for (int i = 0; i < ui->syntaxComboBox->count(); i++)
-    {
-        if (ui->syntaxComboBox->itemData(i) == currentSyntax)
-        {
+    for (int i = 0; i < ui->syntaxComboBox->count(); i++) {
+        if (ui->syntaxComboBox->itemData(i) == currentSyntax) {
             ui->syntaxComboBox->blockSignals(true);
             ui->syntaxComboBox->setCurrentIndex(i);
             ui->syntaxComboBox->blockSignals(false);
@@ -74,16 +72,11 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     }
 
     ui->caseComboBox->blockSignals(true);
-    if (Core()->getConfigb("asm.ucase"))
-    {
+    if (Core()->getConfigb("asm.ucase")) {
         ui->caseComboBox->setCurrentIndex(1);
-    }
-    else if(Core()->getConfigb("asm.capitalize"))
-    {
+    } else if (Core()->getConfigb("asm.capitalize")) {
         ui->caseComboBox->setCurrentIndex(2);
-    }
-    else
-    {
+    } else {
         ui->caseComboBox->setCurrentIndex(0);
     }
     ui->caseComboBox->blockSignals(false);
@@ -223,7 +216,8 @@ void AsmOptionsWidget::on_nbytesSpinBox_valueChanged(int value)
 
 void AsmOptionsWidget::on_syntaxComboBox_currentIndexChanged(int index)
 {
-    Core()->setConfig("asm.syntax", ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
+    Core()->setConfig("asm.syntax",
+                      ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
     triggerAsmOptionsChanged();
 }
 
@@ -232,8 +226,7 @@ void AsmOptionsWidget::on_caseComboBox_currentIndexChanged(int index)
     bool ucase;
     bool capitalize;
 
-    switch (index)
-    {
+    switch (index) {
     // lowercase
     case 0:
     default:
@@ -287,15 +280,14 @@ void AsmOptionsWidget::on_varsubOnlyCheckBox_toggled(bool checked)
 
 void AsmOptionsWidget::on_buttonBox_clicked(QAbstractButton *button)
 {
-    switch (ui->buttonBox->buttonRole(button))
-    {
-        case QDialogButtonBox::ButtonRole::ApplyRole:
-            saveAsDefault();
-            break;
-        case QDialogButtonBox::ButtonRole::ResetRole:
-            resetToDefault();
-            break;
-        default:
-            break;
+    switch (ui->buttonBox->buttonRole(button)) {
+    case QDialogButtonBox::ButtonRole::ApplyRole:
+        saveAsDefault();
+        break;
+    case QDialogButtonBox::ButtonRole::ResetRole:
+        resetToDefault();
+        break;
+    default:
+        break;
     }
 }

@@ -10,9 +10,8 @@
 class MainWindow;
 class QTreeWidget;
 
-namespace Ui
-{
-    class EntrypointWidget;
+namespace Ui {
+class EntrypointWidget;
 }
 
 class EntrypointWidget : public CutterDockWidget

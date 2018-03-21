@@ -17,7 +17,10 @@ public:
     void start(MainWindow *main, int level, QList<QString> advanced);
     void interruptAndWait();
 
-    bool isInterrupted()   { return interrupted; }
+    bool isInterrupted()
+    {
+        return interrupted;
+    }
 
 protected:
     void run();

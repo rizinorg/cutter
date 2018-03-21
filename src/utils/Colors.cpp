@@ -7,7 +7,7 @@ Colors::Colors()
 }
 
 
-void Colors::colorizeAssembly(RichTextPainter::List & list, QString opcode, ut64 type_num)
+void Colors::colorizeAssembly(RichTextPainter::List &list, QString opcode, ut64 type_num)
 {
     RichTextPainter::CustomRichText_t assembly;
     assembly.highlight = false;

@@ -10,9 +10,8 @@
 
 class PreferencesDialog;
 
-namespace Ui
-{
-    class GeneralOptionsWidget;
+namespace Ui {
+class GeneralOptionsWidget;
 }
 
 class GeneralOptionsWidget : public QDialog

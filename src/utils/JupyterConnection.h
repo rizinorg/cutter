@@ -20,12 +20,15 @@ class JupyterConnection : public QObject
     Q_OBJECT
 
 public:
-    static JupyterConnection* getInstance();
+    static JupyterConnection *getInstance();
 
     JupyterConnection(QObject *parent = nullptr);
     ~JupyterConnection();
 
-    void setPythonHome(const QString pythonHome)    { customPythonHome = pythonHome; }
+    void setPythonHome(const QString pythonHome)
+    {
+        customPythonHome = pythonHome;
+    }
 
     void start();
     QString getUrl();

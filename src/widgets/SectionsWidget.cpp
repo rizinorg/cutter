@@ -16,7 +16,8 @@ SectionsWidget::SectionsWidget(MainWindow *main, QWidget *parent) :
     setupViews();
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    connect(this->tree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
+    connect(this->tree, SIGNAL(doubleClicked(const QModelIndex &)), this,
+            SLOT(onSectionsDoubleClicked(const QModelIndex &)));
 
     tree->sortByColumn(0, Qt::AscendingOrder);
 
@@ -28,8 +29,7 @@ void SectionsWidget::refreshSections()
     tree->clear();
 
     int row = 0;
-    for (auto section : CutterCore::getInstance()->getAllSections())
-    {
+    for (auto section : CutterCore::getInstance()->getAllSections()) {
         fillSections(row++, section);
     }
 
@@ -95,7 +95,7 @@ void SectionsWidget::fillSections(int row, const SectionDescription &section)
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 {
-    QTreeWidgetItem* section = tree->topLevelItem(index.row());
+    QTreeWidgetItem *section = tree->topLevelItem(index.row());
     auto addr = section->text(2);
     Core()->seek(addr);
 }

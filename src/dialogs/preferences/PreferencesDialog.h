@@ -8,14 +8,13 @@
 
 #include "Cutter.h"
 
-namespace Ui
-{
-    class PreferencesDialog;
+namespace Ui {
+class PreferencesDialog;
 }
 
 class PreferencesDialog : public QDialog
 {
-Q_OBJECT
+    Q_OBJECT
 
 public:
     enum class Section { General, Disassembly };
@@ -25,9 +24,9 @@ public:
 
     void showSection(Section section);
 
-/*signals:
-    void saveAsDefault();
-    void resetToDefault();*/
+    /*signals:
+        void saveAsDefault();
+        void resetToDefault();*/
 
 private:
     std::unique_ptr<Ui::PreferencesDialog> ui;
