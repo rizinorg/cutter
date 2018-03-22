@@ -44,6 +44,9 @@ public:
         return s.value("dark").toBool();
     }
 
+    QString getDirProjects();
+    void setDirProjects(const QString& dir);
+
     // Images
     QString getLogoFile();
 
