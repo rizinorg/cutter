@@ -226,9 +226,6 @@ void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> ad
 {
     setFilename(fn);
 
-    /* Reset config */
-    core->resetDefaultAsmOptions();
-
     /* Prompt to load filename.r2 script */
     QString script = QString("%1.r2").arg(this->filename);
     if (r_file_exists(script.toStdString().data())) {

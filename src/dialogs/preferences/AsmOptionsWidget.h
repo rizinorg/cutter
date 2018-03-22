@@ -28,7 +28,6 @@ private:
     void triggerAsmOptionsChanged();
 
 private slots:
-    void saveAsDefault();
     void resetToDefault();
 
     void updateAsmOptionsFromVars();
@@ -41,6 +40,7 @@ private slots:
     void on_slowCheckBox_toggled(bool checked);
     void on_linesCheckBox_toggled(bool checked);
     void on_fcnlinesCheckBox_toggled(bool checked);
+    void on_flgoffCheckBox_toggled(bool checked);
     void on_emuCheckBox_toggled(bool checked);
     void on_cmtrightCheckBox_toggled(bool checked);
     void on_varsumCheckBox_toggled(bool checked);

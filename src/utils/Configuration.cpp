@@ -7,6 +7,37 @@
 
 Configuration *Configuration::mPtr = nullptr;
 
+/*!
+ * \brief All asm.* options saved as settings. Values are the default values.
+ */
+static const QHash<QString, QVariant> asmOptions = {
+    { "asm.esil",           false },
+    { "asm.pseudo",         false },
+    { "asm.offset",         true },
+    { "asm.describe",       false },
+    { "asm.stackptr",       false },
+    { "asm.slow",           true },
+    { "asm.lines",          true },
+    { "asm.fcnlines",       true },
+    { "asm.flgoff",         false },
+    { "asm.emu",            false },
+    { "asm.cmt.right",      true },
+    { "asm.varsum",         false },
+    { "asm.bytes",          false },
+    { "asm.size",           false },
+    { "asm.bytespace",      false },
+    { "asm.lbytes",         true },
+    { "asm.nbytes",         10 },
+    { "asm.syntax",         "intel" },
+    { "asm.ucase",          false },
+    { "asm.bbline",         false },
+    { "asm.capitalize",     false },
+    { "asm.varsub",         true },
+    { "asm.varsub_only",    true },
+    { "asm.tabs",           5 }
+};
+
+
 Configuration::Configuration() : QObject()
 {
     mPtr = this;
@@ -24,13 +55,14 @@ void Configuration::loadInitial()
 {
     setDarkTheme(getDarkTheme());
     setColorTheme(getCurrentTheme());
+    applySavedAsmOptions();
 }
 
 void Configuration::resetAll()
 {
     Core()->cmd("e-");
     Core()->setSettings();
-    Core()->resetDefaultAsmOptions();
+    resetToDefaultAsmOptions();
     // Delete the file so no extra configuration is in it.
     QFile settingsFile(s.fileName());
     settingsFile.remove();
@@ -182,4 +214,59 @@ void Configuration::setColorTheme(QString theme)
         s.setValue("colors." + it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()));
     }
     emit colorsUpdated();
+}
+
+void Configuration::resetToDefaultAsmOptions()
+{
+    for (auto it = asmOptions.begin(); it != asmOptions.end(); it++) {
+        setConfig(it.key(), it.value());
+    }
+}
+
+void Configuration::applySavedAsmOptions()
+{
+    for (auto it = asmOptions.begin(); it != asmOptions.end(); it++) {
+        Core()->setConfig(it.key(), s.value(it.key(), it.value()));
+    }
+}
+
+QVariant Configuration::getConfigVar(const QString &key)
+{
+    QHash<QString, QVariant>::const_iterator it = asmOptions.find(key);
+    if (it != asmOptions.end()) {
+        switch(it.value().type()) {
+        case QVariant::Type::Bool:
+            return Core()->getConfigb(key);
+        case QVariant::Type::Int:
+            return Core()->getConfigi(key);
+        default:
+            return Core()->getConfig(key);
+        }
+    }
+    return QVariant();
+}
+
+
+bool Configuration::getConfigBool(const QString &key)
+{
+    return getConfigVar(key).toBool();
+}
+
+int Configuration::getConfigInt(const QString &key)
+{
+    return getConfigVar(key).toInt();
+}
+
+QString Configuration::getConfigString(const QString &key)
+{
+    return getConfigVar(key).toString();
+}
+
+void Configuration::setConfig(const QString &key, const QVariant &value)
+{
+    if (asmOptions.contains(key)) {
+        s.setValue(key, value);
+    }
+
+    Core()->setConfig(key, value);
 }
