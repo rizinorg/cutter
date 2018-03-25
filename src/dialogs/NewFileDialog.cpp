@@ -273,7 +273,7 @@ bool NewFileDialog::fillProjectsList()
 
 void NewFileDialog::loadFile(const QString &filename)
 {
-	if (!ui->checkBox_FilelessOpen->isChecked() && !Core()->tryFile(filename, false)) {
+    if (!ui->checkBox_FilelessOpen->isChecked() && !Core()->tryFile(filename, false)) {
         QMessageBox msgBox(this);
         msgBox.setText(tr("Select a new program or a previous one before continuing."));
         msgBox.exec();
@@ -281,22 +281,20 @@ void NewFileDialog::loadFile(const QString &filename)
     }
 
     // Add file to recent file list
-	QSettings settings;
-	QStringList files = settings.value("recentFileList").toStringList();
-	files.removeAll(filename);
-	files.prepend(filename);
-	while (files.size() > MaxRecentFiles)
-	    files.removeLast();
+    QSettings settings;
+    QStringList files = settings.value("recentFileList").toStringList();
+    files.removeAll(filename);
+    files.prepend(filename);
+    while (files.size() > MaxRecentFiles)
+        files.removeLast();
 
-	settings.setValue("recentFileList", files);
+    settings.setValue("recentFileList", files);
 
-	// Close dialog and open MainWindow/OptionsDialog
-	MainWindow *main = new MainWindow();
-	main->openNewFile(filename);
-
-	close();
-
-
+    // Close dialog and open MainWindow/OptionsDialog
+    MainWindow *main = new MainWindow();
+    main->openNewFile(filename);
+    
+    close();
 }
 
 void NewFileDialog::loadProject(const QString &project)
