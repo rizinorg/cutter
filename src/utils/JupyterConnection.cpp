@@ -81,7 +81,9 @@ void JupyterConnection::initPython()
 
 void JupyterConnection::createCutterJupyterModule()
 {
-    PyEval_RestoreThread(pyThreadState);
+    if (pyThreadState) {
+        PyEval_RestoreThread(pyThreadState);
+    }
 
     QFile moduleFile(":/python/cutter_jupyter.py");
     moduleFile.open(QIODevice::ReadOnly);
