@@ -58,6 +58,23 @@ void Configuration::loadInitial()
     applySavedAsmOptions();
 }
 
+QString Configuration::getDirProjects()
+{
+    auto projectsDir = s.value("dir.projects").toString();
+    if (projectsDir == "") {
+        projectsDir = Core()->getConfig("dir.projects");
+        setDirProjects(projectsDir);
+    }
+
+    return projectsDir;
+}
+
+void Configuration::setDirProjects(const QString &dir)
+{
+    Core()->setConfig("dir.projects", dir);
+    s.setValue("dir.projects", dir);
+}
+
 void Configuration::resetAll()
 {
     Core()->cmd("e-");

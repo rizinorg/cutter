@@ -5,6 +5,7 @@
 #include "SaveProjectDialog.h"
 #include "ui_SaveProjectDialog.h"
 #include "utils/TempConfig.h"
+#include "utils/Configuration.h"
 
 SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
     QDialog(parent),
@@ -24,7 +25,7 @@ SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
     }
 
     ui->nameEdit->setText(core->getConfig("prj.name"));
-    ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
+    ui->projectsDirEdit->setText(Config()->getDirProjects());
     ui->simpleCheckBox->setChecked(core->getConfigb("prj.simple"));
     ui->filesCheckBox->setChecked(core->getConfigb("prj.files"));
     ui->gitCheckBox->setChecked(core->getConfigb("prj.git"));

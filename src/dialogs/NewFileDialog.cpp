@@ -98,7 +98,8 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
     QFileDialog dialog(this);
     dialog.setFileMode(QFileDialog::DirectoryOnly);
 
-    QString currentDir = CutterCore::getInstance()->getConfig("dir.projects");
+    auto currentDir = Config()->getDirProjects();
+
     if (currentDir.startsWith("~")) {
         currentDir = QDir::homePath() + currentDir.mid(1);
     }
@@ -112,7 +113,7 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
 
     QString dir = dialog.selectedFiles().first();
     if (!dir.isEmpty()) {
-        CutterCore::getInstance()->setConfig("dir.projects", dir);
+        Config()->setDirProjects(dir);
         fillProjectsList();
     }
 }
@@ -160,6 +161,9 @@ void NewFileDialog::on_actionRemove_item_triggered()
 {
     // Remove selected item from recents list
     QListWidgetItem *item = ui->recentsListWidget->currentItem();
+
+    if (item == nullptr)
+        return;
 
     QVariant data = item->data(Qt::UserRole);
     QString sitem = data.toString();
@@ -251,7 +255,9 @@ bool NewFileDialog::fillProjectsList()
 {
     CutterCore *core = CutterCore::getInstance();
 
-    ui->projectsDirEdit->setText(core->getConfig("dir.projects"));
+    auto currentDir = Config()->getDirProjects();
+
+    ui->projectsDirEdit->setText(currentDir);
 
     QStringList projects = core->getProjectNames();
     projects.sort(Qt::CaseInsensitive);
