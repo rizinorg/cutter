@@ -273,7 +273,7 @@ bool NewFileDialog::fillProjectsList()
 
 void NewFileDialog::loadFile(const QString &filename)
 {
-    if (!Core()->tryFile(filename, false)) {
+    if (!ui->checkBox_FilelessOpen->isChecked() && !Core()->tryFile(filename, false)) {
         QMessageBox msgBox(this);
         msgBox.setText(tr("Select a new program or a previous one before continuing."));
         msgBox.exec();
@@ -293,7 +293,7 @@ void NewFileDialog::loadFile(const QString &filename)
     // Close dialog and open MainWindow/OptionsDialog
     MainWindow *main = new MainWindow();
     main->openNewFile(filename);
-
+    
     close();
 }
 

@@ -275,6 +275,13 @@
                </spacer>
               </item>
               <item>
+               <widget class="QCheckBox" name="checkBox_FilelessOpen">
+                <property name="text">
+                 <string>Don't open any file</string>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QPushButton" name="loadFileButton">
                 <property name="text">
                  <string>Open</string>
