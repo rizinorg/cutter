@@ -126,9 +126,6 @@
            <property name="acceptDrops">
             <bool>false</bool>
            </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -577,25 +574,6 @@
                <property name="toolTip">
                 <string notr="true">Copy MD5</string>
                </property>
-               <property name="styleSheet">
-                <string notr="true">QToolButton { /* all types of tool button */
-    padding: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-	background-color: palette(button);
-    border-radius: 6px;
-}
-
-QToolButton:pressed {
-	background-color: palette(dark);
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
-               </property>
                <property name="text">
                 <string notr="true"/>
                </property>
@@ -635,25 +613,6 @@ QToolTip {
               <widget class="QToolButton" name="copySHA1">
                <property name="toolTip">
                 <string notr="true">Copy SHA1</string>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">QToolButton { /* all types of tool button */
-    padding: 1px;
-    padding-left: 5px;
-    padding-right: 5px;
-	background-color: palette(button);
-    border-radius: 6px;
-}
-
-QToolButton:pressed {
-	background-color: palette(dark);
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
                </property>
                <property name="text">
                 <string notr="true"/>

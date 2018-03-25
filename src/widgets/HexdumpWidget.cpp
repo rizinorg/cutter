@@ -634,13 +634,6 @@ void HexdumpWidget::fontsUpdated()
 
 void HexdumpWidget::colorsUpdatedSlot()
 {
-    QString styleSheet = QString("QTextEdit { background-color: %1; color: %2; }")
-                         .arg(ConfigColor("gui.background").name())
-                         .arg(ConfigColor("btext").name());
-
-    ui->hexOffsetText->setStyleSheet(styleSheet);
-    ui->hexHexText->setStyleSheet(styleSheet);
-    ui->hexASCIIText->setStyleSheet(styleSheet);
 }
 
 void HexdumpWidget::clearParseWindow()
