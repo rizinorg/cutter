@@ -71,7 +71,6 @@ QString Configuration::getDirProjects()
 
 void Configuration::setDirProjects(const QString &dir)
 {
-    Core()->setConfig("dir.projects", dir);
     s.setValue("dir.projects", dir);
 }
 

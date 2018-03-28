@@ -78,7 +78,8 @@ void SaveProjectDialog::on_buttonBox_clicked(QAbstractButton *button)
 void SaveProjectDialog::accept()
 {
     TempConfig tempConfig;
-    tempConfig.set("dir.projects", ui->projectsDirEdit->text().toUtf8().constData())
+    Config()->setDirProjects(ui->projectsDirEdit->text().toUtf8().constData());
+    tempConfig.set("dir.projects", Config()->getDirProjects())
     .set("prj.simple", ui->simpleCheckBox->isChecked())
     .set("prj.files", ui->filesCheckBox->isChecked())
     .set("prj.git", ui->gitCheckBox->isChecked())
