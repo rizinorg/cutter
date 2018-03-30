@@ -164,7 +164,6 @@ void MainWindow::initUI()
     ui->centralWidget->hide();
 
     sectionsDock = new SectionsDock(this, ui->actionSections);
-    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
     entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
     functionsDock = new FunctionsWidget(this, ui->actionFunctions);
     importsDock = new ImportsWidget(this, ui->actionImports);
@@ -183,7 +182,6 @@ void MainWindow::initUI()
     ui->actionJupyter->setVisible(false);
 #endif
     dashboardDock = new Dashboard(this, ui->actionDashboard);
-    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
     sdbDock = new SdbDock(this, ui->actionSDBBrowser);
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
