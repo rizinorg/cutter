@@ -151,9 +151,7 @@ void ExportsWidget::refreshExports()
     exports = CutterCore::getInstance()->getAllExports();
     exports_model->endReloadExports();
 
-    ui->exportsTreeView->resizeColumnToContents(0);
-    ui->exportsTreeView->resizeColumnToContents(1);
-    ui->exportsTreeView->resizeColumnToContents(2);
+    qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
 }
 
 

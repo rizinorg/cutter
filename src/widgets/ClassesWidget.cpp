@@ -260,9 +260,7 @@ void ClassesWidget::refreshClasses()
               : CutterCore::getInstance()->getAllClassesFromFlags();
     model->endReload();
 
-    ui->classesTreeView->resizeColumnToContents(0);
-    ui->classesTreeView->resizeColumnToContents(1);
-    ui->classesTreeView->resizeColumnToContents(2);
+    qhelpers::adjustColumns(ui->classesTreeView, 3, 0);
 
     ui->classesTreeView->setColumnWidth(0, 200);
 }
