@@ -2,6 +2,7 @@
 #include "ui_SdbDock.h"
 
 #include "MainWindow.h"
+#include "utils/Helpers.h"
 
 #include <QDebug>
 #include <QTreeWidget>
@@ -40,8 +41,7 @@ void SdbDock::reload(QString _path)
                            Qt::ItemIsDragEnabled | Qt::ItemIsEditable);
         ui->treeWidget->insertTopLevelItem(0, tempItem);
     }
-    ui->treeWidget->resizeColumnToContents(0);
-    ui->treeWidget->resizeColumnToContents(1);
+    qhelpers::adjustColumns(ui->treeWidget, 0);
     /* namespaces */
     keys = CutterCore::getInstance()->sdbList(path);
     keys.append("..");
@@ -51,8 +51,7 @@ void SdbDock::reload(QString _path)
         tempItem->setText(1, "");
         ui->treeWidget->insertTopLevelItem(0, tempItem);
     }
-    ui->treeWidget->resizeColumnToContents(0);
-    ui->treeWidget->resizeColumnToContents(1);
+    qhelpers::adjustColumns(ui->treeWidget, 0);
 }
 
 

@@ -189,9 +189,7 @@ void SearchWidget::refreshSearch()
     search = Core()->getAllSearch(search_for, searchspace);
     search_model->endReloadSearch();
 
-    ui->searchTreeView->resizeColumnToContents(0);
-    ui->searchTreeView->resizeColumnToContents(1);
-    ui->searchTreeView->resizeColumnToContents(2);
+    qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
 }
 
 void SearchWidget::setScrollMode()

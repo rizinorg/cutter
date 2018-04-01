@@ -2,6 +2,8 @@
 #include <QModelIndex>
 
 #include "MainWindow.h"
+#include "utils/Helpers.h"
+
 #include "VTablesWidget.h"
 #include "ui_VTablesWidget.h"
 
@@ -173,9 +175,7 @@ void VTablesWidget::refreshVTables()
     vtables = CutterCore::getInstance()->getAllVTables();
     model->endReload();
 
-    ui->vTableTreeView->resizeColumnToContents(0);
-    ui->vTableTreeView->resizeColumnToContents(1);
-    ui->vTableTreeView->resizeColumnToContents(2);
+    qhelpers::adjustColumns(ui->vTableTreeView, 3, 0);
 
     ui->vTableTreeView->setColumnWidth(0, 200);
 }

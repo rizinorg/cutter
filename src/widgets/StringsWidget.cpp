@@ -174,11 +174,7 @@ void StringsWidget::refreshStrings()
     strings = CutterCore::getInstance()->getAllStrings();
     model->endReload();
 
-    ui->stringsTreeView->resizeColumnToContents(0);
-    ui->stringsTreeView->resizeColumnToContents(1);
+    qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
-    ui->stringsTreeView->resizeColumnToContents(2);
-    ui->stringsTreeView->resizeColumnToContents(3);
-    ui->stringsTreeView->resizeColumnToContents(4);
 }

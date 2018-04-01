@@ -141,10 +141,7 @@ void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription>
         ui->xrefFromTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
-    int count = ui->xrefFromTreeWidget->columnCount();
-    for (int i = 0; i != count; ++i) {
-        ui->xrefFromTreeWidget->resizeColumnToContents(i);
-    }
+    qhelpers::adjustColumns(ui->xrefFromTreeWidget, 0);
 
     ui->xrefToTreeWidget->clear();
     for (int i = 0; i < xrefs.size(); ++i) {
@@ -163,10 +160,7 @@ void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription>
         ui->xrefToTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
-    int count2 = ui->xrefToTreeWidget->columnCount();
-    for (int i = 0; i != count2; ++i) {
-        ui->xrefToTreeWidget->resizeColumnToContents(i);
-    }
+    qhelpers::adjustColumns(ui->xrefToTreeWidget, 0);
 }
 
 void SidebarWidget::fillOffsetInfo(QString off)
@@ -187,10 +181,7 @@ void SidebarWidget::fillOffsetInfo(QString off)
     }
 
     // Adjust column to contents
-    int count = ui->offsetTreeWidget->columnCount();
-    for (int i = 0; i != count; ++i) {
-        ui->offsetTreeWidget->resizeColumnToContents(i);
-    }
+    qhelpers::adjustColumns(ui->offsetTreeWidget, 0);
 
     // Add opcode description
     QStringList description = Core()->cmd("?d. @ " + off).split(": ");

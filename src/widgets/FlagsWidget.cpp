@@ -227,8 +227,7 @@ void FlagsWidget::refreshFlags()
     flags = CutterCore::getInstance()->getAllFlags(flagspace);
     flags_model->endReloadFlags();
 
-    ui->flagsTreeView->resizeColumnToContents(0);
-    ui->flagsTreeView->resizeColumnToContents(1);
+    qhelpers::adjustColumns(ui->flagsTreeView, 2, 0);
 
 
     // TODO: this is not a very good place for the following:

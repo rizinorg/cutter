@@ -132,9 +132,7 @@ void TypesWidget::refreshTypes()
     types = CutterCore::getInstance()->getAllTypes();
     types_model->endReloadTypes();
 
-    ui->typesTreeView->resizeColumnToContents(0);
-    ui->typesTreeView->resizeColumnToContents(1);
-    ui->typesTreeView->resizeColumnToContents(2);
+    qhelpers::adjustColumns(ui->typesTreeView, 3, 0);
 }
 
 void TypesWidget::setScrollMode()

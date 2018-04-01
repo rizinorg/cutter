@@ -2,6 +2,7 @@
 #include "ui_XrefsDialog.h"
 
 #include "utils/TempConfig.h"
+#include "utils/Helpers.h"
 
 #include "MainWindow.h"
 
@@ -48,10 +49,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         ui->fromTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
-    int count = ui->fromTreeWidget->columnCount();
-    for (int i = 0; i != count; ++i) {
-        ui->fromTreeWidget->resizeColumnToContents(i);
-    }
+    qhelpers::adjustColumns(ui->fromTreeWidget, 0);
 
     /* Fill Xrefs */
     ui->toTreeWidget->clear();
@@ -66,10 +64,7 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
         ui->toTreeWidget->insertTopLevelItem(0, tempItem);
     }
     // Adjust columns to content
-    int count2 = ui->toTreeWidget->columnCount();
-    for (int i = 0; i != count2; ++i) {
-        ui->toTreeWidget->resizeColumnToContents(i);
-    }
+    qhelpers::adjustColumns(ui->toTreeWidget, 0);
 }
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)

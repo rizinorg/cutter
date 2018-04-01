@@ -397,9 +397,7 @@ void FunctionsWidget::refreshTree()
     functionModel->endReloadFunctions();
 
     // resize offset and size columns
-    ui->functionsTreeView->resizeColumnToContents(0);
-    ui->functionsTreeView->resizeColumnToContents(1);
-    ui->functionsTreeView->resizeColumnToContents(2);
+    qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
 }
 
 void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
