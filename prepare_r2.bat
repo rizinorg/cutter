@@ -18,7 +18,7 @@ python sys\meson.py --release --install=..\dist%BITS% --shared
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 COPY /Y build\r_userconf.h ..\dist%BITS%\include\libr\
 COPY /Y build\r_version.h ..\dist%BITS%\include\libr\
-COPY /Y build\shlr\libr2sdb.a ..\dist%BITS%\r_sdb.lib
+COPY /Y build\shlr\libr2sdb.a ..\dist%BITS%\lib\r_sdb.lib
 CD ..
 MOVE /Y dist%BITS%\lib\*.lib cutter_win32\radare2\lib%BITS%\
 
