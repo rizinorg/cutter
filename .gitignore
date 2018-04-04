@@ -60,21 +60,13 @@ src/*_automoc.cpp
 src/CMakeFiles/*
 
 # Visual Studio
-Win32/
-x64/
-*.dir/
-build*/
-release/
-debug/
-*.orig
-/src/*.vcxproj
-/src/*.vcxproj.filters
-/src/cutter_resource.rc
+build_x86/
+build_x64/
 
 #prepare_r2
 ninja.exe
-/dist32/
-/dist64/
+r2_dist_x86/
+r2_dist_x64/
 *.pdb
 
 #Mesonbuild

@@ -1,28 +1,32 @@
 @ECHO off
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-FOR /F %%i in ('powershell -c "\"%Platform%\".toLower()"') DO SET PLATFORM=%%i
-IF "%PLATFORM%" == "x64" (
-    SET MSBUILDPLATFORM=x64
-    SET BITS=64
-) ELSE (
-    SET MSBUILDPLATFORM=Win32
-    SET BITS=32
+IF "%VisualStudioVersion%" == "14.0" ( IF NOT DEFINED Platform SET "Platform=X86" )
+FOR /F %%i IN ('powershell -c "\"%Platform%\".toLower()"') DO SET PLATFORM=%%i
+powershell -c "if ('%PLATFORM%' -notin ('x86', 'x64')) {Exit 1}"
+IF !ERRORLEVEL! NEQ 0 (
+    ECHO Unknown platform: %PLATFORM%
+    EXIT /B 1
 )
 
+SET "R2DIST=r2_dist_%PLATFORM%"
+SET "BUILDDIR=build_%PLATFORM%"
+
 ECHO Preparing directory
-RMDIR /S /Q build%BITS%
-MKDIR build%BITS%
-CD build%BITS%
+RMDIR /S /Q %BUILDDIR%
+MKDIR %BUILDDIR%
+CD %BUILDDIR%
 
 ECHO Building cutter
 qmake %* ..\src\cutter.pro -config release -tp vc
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
-msbuild /m cutter.vcxproj /p:Configuration=Release;Platform=%MSBUILDPLATFORM%
+msbuild /m cutter.vcxproj /p:Configuration=Release
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 
 ECHO Deploying cutter
 MKDIR cutter
-MOVE release\cutter.exe cutter\cutter.exe
-XCOPY /S ..\dist%BITS% cutter\
+COPY release\cutter.exe cutter\cutter.exe
+XCOPY /S /I ..\%R2DIST%\www cutter\www
+XCOPY /S /I ..\%R2DIST%\share cutter\share
+COPY ..\%R2DIST%\*.dll cutter\
 windeployqt cutter\cutter.exe
