@@ -52,6 +52,14 @@ PyObject *api_cmdj(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+PyObject *api_refresh(PyObject *self, PyObject *args)
+{
+    Q_UNUSED(self);
+    Q_UNUSED(args);
+    Core()->triggerRefreshAll();
+    return Py_None;
+}
+
 PyMethodDef CutterMethods[] = {
     {
         "version", api_version, METH_NOARGS,
@@ -64,6 +72,10 @@ PyMethodDef CutterMethods[] = {
     {
         "cmdj", api_cmdj, METH_VARARGS,
         "Execute a JSON command and return the result as a dictionnary"
+    },
+    {
+        "refresh", api_refresh, METH_NOARGS,
+        "Refresh Cutter widgets"
     },
     {NULL, NULL, 0, NULL}
 };
