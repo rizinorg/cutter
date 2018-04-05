@@ -38,7 +38,7 @@ platform_inc = []
 if host_machine.system() == 'windows'
   add_project_arguments('-D_CRT_NONSTDC_NO_DEPRECATE', language: 'cpp')
   add_project_arguments('-D_CRT_SECURE_NO_WARNINGS', language: 'cpp')
-  platform_inc = include_directories('../cutter_win32/include')
+  platform_inc = include_directories('../radare2/libr/include/msvc')
   # Workaround for https://github.com/mesonbuild/meson/issues/2327
   qt_lib = run_command('qmake', '-query', 'QT_HOST_LIBS').stdout().strip()
   add_project_link_arguments(join_paths(qt_lib, 'qtmain.lib'), language: 'cpp')

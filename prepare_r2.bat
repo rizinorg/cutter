@@ -1,26 +1,21 @@
 @ECHO OFF
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-FOR /F %%i in ('powershell -c "\"%Platform%\".toLower()"') DO SET PLATFORM=%%i
-IF "%PLATFORM%" == "x64" (
-    SET BITS=64
-) ELSE (
-    SET BITS=32
+IF "%VisualStudioVersion%" == "14.0" ( IF NOT DEFINED Platform SET "Platform=X86" )
+FOR /F %%i IN ('powershell -c "\"%Platform%\".toLower()"') DO SET PLATFORM=%%i
+powershell -c "if ('%PLATFORM%' -notin ('x86', 'x64')) {Exit 1}"
+IF !ERRORLEVEL! NEQ 0 (
+    ECHO Unknown platform: %PLATFORM%
+    EXIT /B 1
 )
 
 SET "PATH=%CD%;%PATH%"
+SET "R2DIST=r2_dist_%PLATFORM%"
 
-ECHO Building radare2 (%BITS%)
+ECHO Building radare2 (%PLATFORM%)
 CD radare2
 git clean -xfd
-RMDIR /S /Q ..\dist%BITS%
-python sys\meson.py --release --install=..\dist%BITS% --shared
+RMDIR /S /Q ..\%R2DIST%
+python sys\meson.py --release --shared --install=..\%R2DIST%
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
-COPY /Y build\r_userconf.h ..\dist%BITS%\include\libr\
-COPY /Y build\r_version.h ..\dist%BITS%\include\libr\
-COPY /Y build\shlr\libr2sdb.a ..\dist%BITS%\lib\r_sdb.lib
-CD ..
-MOVE /Y dist%BITS%\lib\*.lib cutter_win32\radare2\lib%BITS%\
-
-ECHO Copying relevant files in cutter_win32
-XCOPY /S /Y dist%BITS%\include\libr cutter_win32\radare2\include\libr\
+REN ..\%R2DIST%\lib\libr_shlr.a r_shlr.lib

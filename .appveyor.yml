@@ -24,12 +24,10 @@ environment:
     - ARCH: x86
       PYTHON: 'C:\Python36'
       QMAKE: 1
-      BITS: 32
     # Build: qmake vs2015 x64 shared
     - ARCH: x64
       PYTHON: 'C:\Python36-x64'
       QMAKE: 1
-      BITS: 64
     # Build: meson ninja x64 static
     - ARCH: x64
       PYTHON: 'C:\Python36-x64'
@@ -43,8 +41,8 @@ install:
   - cmd: python -m pip install meson
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
   # Artifacts
-  - cmd: if defined MESON ( set "ARTIFACT_NAME=Cutter_%ARCH%_static" ) else ( set "ARTIFACT_NAME=Cutter_%ARCH%" )
-  - cmd: if defined MESON ( set "ARTIFACT_PATH=dist%BITS%" ) else ( set "ARTIFACT_PATH=build%BITS%\cutter" )
+  - cmd: set "ARTIFACT_NAME=Cutter_%ARCH%"
+  - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )
 
 before_build:
   - cmd: git submodule update --init
@@ -83,7 +81,7 @@ deploy:
   provider: GitHub
   auth_token:
     secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
-  artifact: Cutter%BITS%
+  artifact: Cutter_%ARCH%
   draft: true
   prerelease: false
   on:

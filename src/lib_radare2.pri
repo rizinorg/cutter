@@ -1,12 +1,13 @@
 win32 {
     DEFINES += _CRT_NONSTDC_NO_DEPRECATE
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    INCLUDEPATH += "$$PWD/../cutter_win32/include"
-    INCLUDEPATH += "$$PWD/../cutter_win32/radare2/include/libr"
+    INCLUDEPATH += "$$PWD/../radare2/libr/include/msvc"
     !contains(QT_ARCH, x86_64) {
-        LIBS += -L"$$PWD/../cutter_win32/radare2/lib32"
+        LIBS += -L"$$PWD/../r2_dist_x86/lib"
+        INCLUDEPATH += "$$PWD/../r2_dist_x86/include/libr"
     } else {
-        LIBS += -L"$$PWD/../cutter_win32/radare2/lib64"
+        LIBS += -L"$$PWD/../r2_dist_x64/lib"
+        INCLUDEPATH += "$$PWD/../r2_dist_x64/include/libr"
     }
 
     LIBS += \
@@ -21,7 +22,6 @@ win32 {
         -lr_hash \
         -lr_bin \
         -lr_lang \
-        -lr_io \
         -lr_anal \
         -lr_parse \
         -lr_bp \
@@ -33,7 +33,7 @@ win32 {
         -lr_fs \
         -lr_magic \
         -lr_crypto \
-        -lr_sdb
+        -lr_shlr
 } else {
     USE_PKGCONFIG = 1
     R2_USER_PKGCONFIG = $$(HOME)/bin/prefix/radare2/lib/pkgconfig
@@ -66,7 +66,6 @@ win32 {
         -lr_hash \
         -lr_bin \
         -lr_lang \
-        -lr_io \
         -lr_parse \
         -lr_bp \
         -lr_egg \
