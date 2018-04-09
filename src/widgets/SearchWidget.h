@@ -79,6 +79,7 @@ private:
 
     void refreshSearch();
     void setScrollMode();
+    void updatePlaceholderText(int index);
 };
 
 #endif // SEARCHWIDGET_H

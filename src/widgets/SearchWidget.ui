@@ -75,9 +75,6 @@
         <property name="text">
          <string/>
         </property>
-        <property name="placeholderText">
-         <string>jmp rax</string>
-        </property>
        </widget>
       </item>
       <item>
