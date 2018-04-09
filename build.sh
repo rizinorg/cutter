@@ -21,8 +21,11 @@ if [ $? = 0 ]; then
 	fi
 fi
 
-# Check if qmake is available
-qmakepath=$(which qmake)
+# Check if either qmake or qmake-qt5 is available
+qmakepath=$(which qmake-qt5)
+if [ -z "$qmakepath" ]; then
+	qmakepath=$(which qmake)
+fi
 if [ -z "$qmakepath" ]; then
 	echo "You need qmake to build Cutter."
 	echo "Please make sure qmake is in your PATH environment variable."
@@ -50,7 +53,7 @@ fi
 # Build
 mkdir "$BUILD"
 cd "$BUILD" || exit 1
-qmake "$QMAKE_CONF" ../src/Cutter.pro
+"$qmakepath" "$QMAKE_CONF" ../src/Cutter.pro
 make -j4
 ERR=$((ERR+$?))
 cd ..
