@@ -923,6 +923,11 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 
         function.offset = (RVA)jsonObject["offset"].toVariant().toULongLong();
         function.size = (RVA)jsonObject["size"].toVariant().toULongLong();
+        function.nargs = (RVA)jsonObject["nargs"].toVariant().toULongLong();
+        function.nbbs = (RVA)jsonObject["nbbs"].toVariant().toULongLong();
+        function.nlocals = (RVA)jsonObject["nlocals"].toVariant().toULongLong();
+        function.cc = (RVA)jsonObject["cc"].toVariant().toULongLong();
+        function.calltype = (RVA)jsonObject["calltype"].toVariant().toULongLong();
         function.name = jsonObject["name"].toString();
 
         ret << function;

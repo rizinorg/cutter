@@ -61,6 +61,11 @@ inline QString RSizeString(RVA size)
 struct FunctionDescription {
     RVA offset;
     RVA size;
+    RVA nargs;
+    RVA nbbs;
+    RVA nlocals;
+    RVA cc;
+    RVA calltype;
     QString name;
 
     bool contains(RVA addr) const
