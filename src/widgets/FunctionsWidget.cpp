@@ -123,7 +123,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 case 6:
                     return tr("Cyclomatic complexity: %1").arg(RSizeString(function.cc));
                 case 7:
-                    return tr("Call type: %1").arg(RSizeString(function.calltype));
+                    return tr("Call type: %1").arg(function.calltype);
                 default:
                     return QVariant();
                 }
@@ -363,8 +363,7 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
               return left_function.cc < right_function.cc;
           break;
         case FunctionModel::CalltypeColumn:
-          if (left_function.calltype != right_function.calltype)
-              return left_function.calltype < right_function.calltype;
+          return left_function.calltype < right_function.calltype;
           break;
         default:
             return false;

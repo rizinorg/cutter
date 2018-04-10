@@ -65,7 +65,7 @@ struct FunctionDescription {
     RVA nbbs;
     RVA nlocals;
     RVA cc;
-    RVA calltype;
+    QString calltype;
     QString name;
 
     bool contains(RVA addr) const
