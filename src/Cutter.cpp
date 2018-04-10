@@ -927,7 +927,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
         function.nbbs = (RVA)jsonObject["nbbs"].toVariant().toULongLong();
         function.nlocals = (RVA)jsonObject["nlocals"].toVariant().toULongLong();
         function.cc = (RVA)jsonObject["cc"].toVariant().toULongLong();
-        function.calltype = (RVA)jsonObject["calltype"].toVariant().toULongLong();
+        function.calltype = jsonObject["calltype"].toString();
         function.name = jsonObject["name"].toString();
 
         ret << function;
