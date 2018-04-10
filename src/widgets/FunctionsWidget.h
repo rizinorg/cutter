@@ -41,7 +41,8 @@ public:
     static const int FunctionDescriptionRole = Qt::UserRole;
     static const int IsImportRole = Qt::UserRole + 1;
 
-    enum Column { NameColumn = 0, SizeColumn, ImportColumn, OffsetColumn, ColumnCount };
+    enum Column { NameColumn = 0, SizeColumn, ImportColumn, OffsetColumn, NargsColumn, NbbsColumn,
+                  NlocalsColumn, CcColumn, CalltypeColumn, ColumnCount };
 
     FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, ut64 *mainAdress,
                   bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = 0);

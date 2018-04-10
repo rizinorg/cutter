@@ -59,7 +59,7 @@ int FunctionModel::rowCount(const QModelIndex &parent) const
 
     if (nested) {
         if (parent.internalId() == 0)
-            return 3; // sub-nodes for nested functions
+            return 8; // sub-nodes for nested functions
         return 0;
     } else
         return 0;
@@ -114,6 +114,16 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                     return tr("Size: %1").arg(RSizeString(function.size));
                 case 2:
                     return tr("Import: %1").arg(functionIsImport(function.offset) ? tr("true") : tr("false"));
+                case 3:
+                    return tr("Nargs: %1").arg(RSizeString(function.nargs));
+                case 4:
+                    return tr("Nbbs: %1").arg(RSizeString(function.nbbs));
+                case 5:
+                    return tr("Nlocals: %1").arg(RSizeString(function.nlocals));
+                case 6:
+                    return tr("Cyclomatic complexity: %1").arg(RSizeString(function.cc));
+                case 7:
+                    return tr("Call type: %1").arg(function.calltype);
                 default:
                     return QVariant();
                 }
@@ -127,6 +137,16 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 return function.size;
             case OffsetColumn:
                 return RAddressString(function.offset);
+            case NargsColumn:
+                return function.nargs;
+            case NbbsColumn:
+                return function.nbbs;
+            case NlocalsColumn:
+                return function.nlocals;
+            case CcColumn:
+                return function.cc;
+            case CalltypeColumn:
+                return function.calltype;
             default:
                 return QVariant();
             }
@@ -196,6 +216,16 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
                 return tr("Imp.");
             case OffsetColumn:
                 return tr("Offset");
+            case NargsColumn:
+                return tr("Nargs");
+            case NbbsColumn:
+                return tr("Nbbs");
+            case NlocalsColumn:
+                return tr("Nlocals");
+            case CcColumn:
+                return tr("Cyclo. Comp.");
+            case CalltypeColumn:
+                return tr("Call type");
             default:
                 return QVariant();
             }
@@ -316,6 +346,25 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
         }
         case FunctionModel::NameColumn:
             return left_function.name < right_function.name;
+        case FunctionModel::NargsColumn:
+          if (left_function.nargs != right_function.nargs)
+              return left_function.nargs < right_function.nargs;
+          break;
+        case FunctionModel::NbbsColumn:
+          if (left_function.nbbs != right_function.nbbs)
+              return left_function.nbbs < right_function.nbbs;
+          break;
+        case FunctionModel::NlocalsColumn:
+          if (left_function.nlocals != right_function.nlocals)
+              return left_function.nlocals < right_function.nlocals;
+          break;
+        case FunctionModel::CcColumn:
+          if (left_function.cc != right_function.cc)
+              return left_function.cc < right_function.cc;
+          break;
+        case FunctionModel::CalltypeColumn:
+          return left_function.calltype < right_function.calltype;
+          break;
         default:
             return false;
         }
