@@ -86,7 +86,7 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
 
 RelocsWidget::~RelocsWidget() {}
 
-void RelocsWidget::on_relocsTreeView_doubleClicked(const QModelIndex &index)
+void RelocsWidget::on_relocsTableView_doubleClicked(const QModelIndex &index)
 {
     Core()->seek(index.data(RelocsModel::AddressRole).toLongLong());
 }

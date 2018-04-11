@@ -745,7 +745,7 @@ void CutterCore::setSettings()
     setConfig("scr.interactive", false);
 
     setConfig("hex.pairs", false);
-    setConfig("asm.cmtcol", 70);
+    setConfig("asm.cmt.col", 70);
     setConfig("asm.xrefs", false);
 
     setConfig("asm.tabsonce", true);
@@ -815,7 +815,7 @@ QStringList CutterCore::getProjectNames()
     CORE_LOCK();
     QStringList ret;
 
-    QJsonArray jsonArray = cmdj("Plj").array();
+    QJsonArray jsonArray = cmdj("Pj").array();
     for (QJsonValue value : jsonArray)
         ret.append(value.toString());
 
