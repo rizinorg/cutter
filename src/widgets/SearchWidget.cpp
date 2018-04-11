@@ -145,6 +145,9 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
         refreshSearch();
     });
 
+    connect(ui->searchspaceCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            [=](int index){ updatePlaceholderText(index);});
+
 }
 
 SearchWidget::~SearchWidget() {}
@@ -172,6 +175,7 @@ void SearchWidget::refreshSearchspaces()
     ui->searchspaceCombo->addItem(tr("string"),     QVariant("/j"));
     ui->searchspaceCombo->addItem(tr("hex string"), QVariant("/xj"));
     ui->searchspaceCombo->addItem(tr("ROP gadgets"), QVariant("/Rj"));
+    ui->searchspaceCombo->addItem(tr("32bit value"), QVariant("/vj"));
 
     if (cur_idx > 0)
         ui->searchspaceCombo->setCurrentIndex(cur_idx);
@@ -195,4 +199,24 @@ void SearchWidget::refreshSearch()
 void SearchWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->searchTreeView);
+}
+
+void SearchWidget::updatePlaceholderText(int index)
+{
+    switch(index){
+        case 1: // string
+            ui->filterLineEdit->setPlaceholderText("foobar");
+            break;
+        case 2: // hex string
+            ui->filterLineEdit->setPlaceholderText("deadbeef");
+            break;
+        case 3: // ROP gadgets
+            ui->filterLineEdit->setPlaceholderText("pop,,pop");
+            break;
+        case 4: // 32bit value
+            ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
+            break;
+        default:
+            ui->filterLineEdit->setPlaceholderText("jmp rax");
+    }
 }
