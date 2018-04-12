@@ -28,9 +28,9 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTableView" name="relocsTableView">
+     <widget class="QTreeView" name="relocsTreeView">
       <property name="styleSheet">
-       <string notr="true">QTableView::item
+       <string notr="true">QTreeView::item
 {
     padding-top: 1px;
     padding-bottom: 1px;
@@ -39,18 +39,12 @@
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
-      <property name="showGrid">
-       <bool>false</bool>
+      <property name="indentation">
+       <number>8</number>
       </property>
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
-      <attribute name="horizontalHeaderStretchLastSection">
-       <bool>true</bool>
-      </attribute>
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
      </widget>
     </item>
    </layout>
