@@ -172,7 +172,7 @@ VTablesWidget::~VTablesWidget()
 void VTablesWidget::refreshVTables()
 {
     model->beginReload();
-    vtables = CutterCore::getInstance()->getAllVTables();
+    vtables = Core()->getAllVTables();
     model->endReload();
 
     qhelpers::adjustColumns(ui->vTableTreeView, 3, 0);
@@ -184,9 +184,9 @@ void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)
 {
     QModelIndex parent = index.parent();
     if (parent.isValid())
-        CutterCore::getInstance()->seek(index.data(
+        Core()->seek(index.data(
                                             VTableModel::VTableDescriptionRole).value<ClassMethodDescription>().addr);
     else
-        CutterCore::getInstance()->seek(index.data(
+        Core()->seek(index.data(
                                             VTableModel::VTableDescriptionRole).value<VTableDescription>().addr);
 }

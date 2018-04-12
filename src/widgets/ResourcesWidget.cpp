@@ -114,5 +114,5 @@ void ResourcesWidget::refreshResources()
 void ResourcesWidget::onDoubleClicked(const QModelIndex &index)
 {
     ResourcesDescription res = index.data(Qt::UserRole).value<ResourcesDescription>();
-    CutterCore::getInstance()->seek(res.vaddr);
+    Core()->seek(res.vaddr);
 }

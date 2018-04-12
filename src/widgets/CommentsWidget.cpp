@@ -39,7 +39,7 @@ void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *it
 {
     // Get offset and name of item double clicked
     CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
-    CutterCore::getInstance()->seek(comment.offset);
+    Core()->seek(comment.offset);
 }
 
 void CommentsWidget::on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int)
@@ -51,7 +51,7 @@ void CommentsWidget::on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *
 
     // Get offset and name of item double clicked
     CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
-    CutterCore::getInstance()->seek(comment.offset);
+    Core()->seek(comment.offset);
 
 }
 
@@ -139,11 +139,11 @@ QMap<QString, QList<QList<QString>>> CutterCore::getNestedComments()
 void CommentsWidget::refreshTree()
 {
     ui->nestedCmtsTreeWidget->clear();
-    QList<CommentDescription> comments = CutterCore::getInstance()->getAllComments("CCu");
+    QList<CommentDescription> comments = Core()->getAllComments("CCu");
     QMap<QString, QList<CommentDescription>> nestedComments;
 
     for (CommentDescription comment : comments) {
-        QString fcn_name = CutterCore::getInstance()->cmdFunctionAt(comment.offset);
+        QString fcn_name = Core()->cmdFunctionAt(comment.offset);
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, RAddressString(comment.offset));
         item->setText(1, fcn_name);

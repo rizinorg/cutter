@@ -5,7 +5,7 @@ FlagDialog::FlagDialog(RVA offset, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::FlagDialog),
     offset(offset),
-    core(CutterCore::getInstance())
+    core(Core())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));

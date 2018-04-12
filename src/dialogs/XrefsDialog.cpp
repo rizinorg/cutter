@@ -13,7 +13,7 @@ XrefsDialog::XrefsDialog(QWidget *parent) :
     addr(0),
     func_name(QString::null),
     ui(new Ui::XrefsDialog),
-    core(CutterCore::getInstance())
+    core(Core())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));

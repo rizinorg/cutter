@@ -165,13 +165,13 @@ StringsWidget::~StringsWidget() {}
 void StringsWidget::on_stringsTreeView_doubleClicked(const QModelIndex &index)
 {
     StringDescription str = index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
-    CutterCore::getInstance()->seek(str.vaddr);
+    Core()->seek(str.vaddr);
 }
 
 void StringsWidget::refreshStrings()
 {
     model->beginReload();
-    strings = CutterCore::getInstance()->getAllStrings();
+    strings = Core()->getAllStrings();
     model->endReload();
 
     qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
