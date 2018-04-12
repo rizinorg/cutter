@@ -78,13 +78,4 @@ private:
     void setScrollMode();
 };
 
-class CMyDelegate : public QStyledItemDelegate
-{
-public:
-    explicit CMyDelegate(QObject *parent) : QStyledItemDelegate(parent) {}
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override;
-};
-
 #endif // IMPORTSWIDGET_H

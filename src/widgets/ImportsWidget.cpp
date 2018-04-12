@@ -87,27 +87,6 @@ void ImportsModel::endReload()
     endResetModel();
 }
 
-void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                        const QModelIndex &index) const
-{
-    QStyleOptionViewItem itemOption(option);
-    initStyleOption(&itemOption, index);
-
-    itemOption.rect.adjust(10, 0, 0,
-                           0);  // Make the item rectangle 10 pixels smaller from the left side.
-
-    // Draw your item content.
-    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &itemOption, painter, nullptr);
-
-    // And now you can draw a bottom border.
-    //painter->setPen(Qt::cyan);
-    QPen pen = painter->pen();
-    pen.setColor(Qt::white);
-    pen.setWidth(1);
-    painter->setPen(pen);
-    painter->drawLine(itemOption.rect.bottomLeft(), itemOption.rect.bottomRight());
-}
-
 /*
  * Imports Widget
  */
