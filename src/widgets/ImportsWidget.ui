@@ -28,9 +28,9 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTreeWidget" name="importsTreeWidget">
+     <widget class="QTreeView" name="importsTreeView">
       <property name="styleSheet">
-       <string notr="true">QTreeWidget::item
+       <string notr="true">QTreeView::item
 {
     padding-top: 1px;
     padding-bottom: 1px;
@@ -48,26 +48,6 @@
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
-      <column>
-       <property name="text">
-        <string>Address</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Type</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Safety</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Name</string>
-       </property>
-      </column>
      </widget>
     </item>
    </layout>

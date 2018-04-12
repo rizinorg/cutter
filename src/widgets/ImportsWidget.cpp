@@ -8,26 +8,83 @@
 #include <QPen>
 #include <QPainter>
 
+ImportsModel::ImportsModel(QList<ImportDescription> *imports, QObject *parent) :
+    QAbstractTableModel(parent),
+    imports(imports)
+{}
 
-void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                        const QModelIndex &index) const
+int ImportsModel::rowCount(const QModelIndex &parent) const
 {
-    QStyleOptionViewItem itemOption(option);
-    initStyleOption(&itemOption, index);
+    return parent.isValid()? 0 : imports->count();
+}
 
-    itemOption.rect.adjust(10, 0, 0,
-                           0);  // Make the item rectangle 10 pixels smaller from the left side.
+int ImportsModel::columnCount(const QModelIndex&) const
+{
+    return COUNT;
+}
 
-    // Draw your item content.
-    QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &itemOption, painter, nullptr);
+QVariant ImportsModel::data(const QModelIndex &index, int role) const
+{
+    const ImportDescription &import = imports->at(index.row());
+    switch(role)
+    {
+    case AddressRole:
+        return import.plt;
+    case Qt::ForegroundRole:
+        if(index.column() < COUNT)
+            if(banned.match(import.name).hasMatch())
+                return QColor(255, 129, 123);
+        break;
+    case Qt::DisplayRole:
+        switch(index.column())
+        {
+        case ADDRESS:
+            return RAddressString(import.plt);
+        case TYPE:
+            return import.type;
+        case SAFETY:
+            return banned.match(import.name).hasMatch()? tr("Unsafe") : QStringLiteral("");
+        case NAME:
+            return import.name;
+        default:
+            break;
+        }
+        break;
+    default:
+        break;
+    }
+    return QVariant();
+}
 
-    // And now you can draw a bottom border.
-    //painter->setPen(Qt::cyan);
-    QPen pen = painter->pen();
-    pen.setColor(Qt::white);
-    pen.setWidth(1);
-    painter->setPen(pen);
-    painter->drawLine(itemOption.rect.bottomLeft(), itemOption.rect.bottomRight());
+QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
+{
+    if(role == Qt::DisplayRole)
+    {
+        switch(section)
+        {
+        case ADDRESS:
+            return tr("Address");
+        case TYPE:
+            return tr("Type");
+        case SAFETY:
+            return tr("Safety");
+        case NAME:
+            return tr("Name");
+        default:
+            break;
+        }
+    }
+    return QVariant();
+}
+
+void ImportsModel::beginReload()
+{
+    beginResetModel();
+}
+
+void ImportsModel::endReload()
+{
+    endResetModel();
 }
 
 /*
@@ -36,82 +93,35 @@ void CMyDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 
 ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::ImportsWidget)
+    ui(new Ui::ImportsWidget),
+    model(new ImportsModel(&imports, this))
 {
     ui->setupUi(this);
 
-    ui->importsTreeWidget->sortByColumn(3, Qt::AscendingOrder);
+    ui->importsTreeView->setModel(model);
+    ui->importsTreeView->sortByColumn(3, Qt::AscendingOrder);
 
     setScrollMode();
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillImports()));
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshImports()));
 }
 
 ImportsWidget::~ImportsWidget() {}
 
-void ImportsWidget::fillImports()
+void ImportsWidget::refreshImports()
 {
-    ui->importsTreeWidget->clear();
-    for (auto i : CutterCore::getInstance()->getAllImports()) {
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, RAddressString(i.plt));
-        item->setText(1, i.type);
-        item->setText(2, "");
-        item->setText(3, i.name);
-        item->setData(0, Qt::UserRole, QVariant::fromValue(i));
-        ui->importsTreeWidget->addTopLevelItem(item);
-    }
-
-    highlightUnsafe();
-    qhelpers::adjustColumns(ui->importsTreeWidget, 0, 10);
-}
-
-void ImportsWidget::highlightUnsafe()
-{
-    static const QString
-    banned("[a-zA-Z_.]*(system|strcpy|strcpyA|strcpyW|wcscpy|_tcscpy|_mbscpy|StrCpy|StrCpyA|StrCpyW|lstrcpy|lstrcpyA|lstrcpyW"
-           \
-           "|_tccpy|_mbccpy|_ftcscpy|strcat|strcatA|strcatW|wcscat|_tcscat|_mbscat|StrCat|StrCatA|StrCatW|lstrcat|lstrcatA|"
-           \
-           "lstrcatW|StrCatBuff|StrCatBuffA|StrCatBuffW|StrCatChainW|_tccat|_mbccat|_ftcscat|sprintfW|sprintfA|wsprintf|wsprintfW|"
-           \
-           "wsprintfA|sprintf|swprintf|_stprintf|wvsprintf|wvsprintfA|wvsprintfW|vsprintf|_vstprintf|vswprintf|strncpy|wcsncpy|"
-           \
-           "_tcsncpy|_mbsncpy|_mbsnbcpy|StrCpyN|StrCpyNA|StrCpyNW|StrNCpy|strcpynA|StrNCpyA|StrNCpyW|lstrcpyn|lstrcpynA|lstrcpynW|"
-           \
-           "strncat|wcsncat|_tcsncat|_mbsncat|_mbsnbcat|StrCatN|StrCatNA|StrCatNW|StrNCat|StrNCatA|StrNCatW|lstrncat|lstrcatnA|"
-           \
-           "lstrcatnW|lstrcatn|gets|_getts|_gettws|IsBadWritePtr|IsBadHugeWritePtr|IsBadReadPtr|IsBadHugeReadPtr|IsBadCodePtr|"
-           \
-           "IsBadStringPtr|memcpy|RtlCopyMemory|CopyMemory|wmemcpy|wnsprintf|wnsprintfA|wnsprintfW|_snwprintf|_snprintf|_sntprintf|"
-           \
-           "_vsnprintf|vsnprintf|_vsnwprintf|_vsntprintf|wvnsprintf|wvnsprintfA|wvnsprintfW|strtok|_tcstok|wcstok|_mbstok|makepath|"
-           \
-           "_tmakepath| _makepath|_wmakepath|_splitpath|_tsplitpath|_wsplitpath|scanf|wscanf|_tscanf|sscanf|swscanf|_stscanf|snscanf|"
-           \
-           "snwscanf|_sntscanf|_itoa|_itow|_i64toa|_i64tow|_ui64toa|_ui64tot|_ui64tow|_ultoa|_ultot|_ultow|CharToOem|CharToOemA|CharToOemW|"
-           \
-           "OemToChar|OemToCharA|OemToCharW|CharToOemBuffA|CharToOemBuffW|alloca|_alloca|strlen|wcslen|_mbslen|_mbstrlen|StrLen|lstrlen|"
-           \
-           "ChangeWindowMessageFilter)");
-
-    QList<QTreeWidgetItem *> clist = ui->importsTreeWidget->findItems(banned, Qt::MatchRegExp, 4);
-    foreach (QTreeWidgetItem *item, clist) {
-        item->setText(2, "Unsafe");
-        //item->setBackgroundColor(4, QColor(255, 129, 123));
-        //item->setForeground(4, Qt::white);
-        item->setForeground(4, QColor(255, 129, 123));
-    }
-    //ui->importsTreeWidget->setStyleSheet("QTreeWidget::item { padding-left:10px; padding-top: 1px; padding-bottom: 1px; border-left: 10px; }");
+    model->beginReload();
+    imports = Core()->getAllImports();
+    model->endReload();
+    qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
 }
 
 void ImportsWidget::setScrollMode()
 {
-    qhelpers::setVerticalScrollMode(ui->importsTreeWidget);
+    qhelpers::setVerticalScrollMode(ui->importsTreeView);
 }
 
-void ImportsWidget::on_importsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /* column */)
+void ImportsWidget::on_importsTreeView_doubleClicked(const QModelIndex &index)
 {
-    ImportDescription imp = item->data(0, Qt::UserRole).value<ImportDescription>();
-    CutterCore::getInstance()->seek(imp.plt);
+    Core()->seek(index.data(ImportsModel::AddressRole).toLongLong());
 }
