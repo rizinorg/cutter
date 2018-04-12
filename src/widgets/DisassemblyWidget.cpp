@@ -505,7 +505,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         }
 
         if (jump != RVA_INVALID) {
-            CutterCore::getInstance()->seek(jump);
+            Core()->seek(jump);
         }
 
         return true;

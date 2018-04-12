@@ -103,12 +103,12 @@ void Dashboard::updateContents()
     }
 
     // Add file hashes and libraries
-    QString md5 = CutterCore::getInstance()->cmd("e file.md5");
-    QString sha1 = CutterCore::getInstance()->cmd("e file.sha1");
+    QString md5 = Core()->cmd("e file.md5");
+    QString sha1 = Core()->cmd("e file.sha1");
     ui->md5Edit->setText(md5);
     ui->sha1Edit->setText(sha1);
 
-    QString libs = CutterCore::getInstance()->cmd("il");
+    QString libs = Core()->cmd("il");
     QStringList lines = libs.split("\n", QString::SkipEmptyParts);
     if (!lines.isEmpty()) {
         lines.removeFirst();
@@ -142,11 +142,11 @@ void Dashboard::updateContents()
     ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Add entropy value
-    QString entropy = CutterCore::getInstance()->cmd("ph entropy").trimmed();
+    QString entropy = Core()->cmd("ph entropy").trimmed();
     ui->lblEntropy->setText(entropy);
 
     // Get stats for the graphs
-    QStringList stats = CutterCore::getInstance()->getStats();
+    QStringList stats = Core()->getStats();
 }
 
 void Dashboard::on_certificateButton_clicked()

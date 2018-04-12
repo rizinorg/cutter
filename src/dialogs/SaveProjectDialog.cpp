@@ -13,7 +13,7 @@ SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    CutterCore *core = CutterCore::getInstance();
+    CutterCore *core = Core();
 
     if (quit) {
         ui->buttonBox->setStandardButtons(QDialogButtonBox::Save

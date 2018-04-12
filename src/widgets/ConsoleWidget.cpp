@@ -173,7 +173,7 @@ void ConsoleWidget::on_inputLineEdit_returnPressed()
     QString input = ui->inputLineEdit->text();
     if (!input.isEmpty()) {
         if (!isForbidden(input)) {
-            QString res = CutterCore::getInstance()->cmd(input);
+            QString res = Core()->cmd(input);
             QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + input + "\n";
             ui->outputTextEdit->appendPlainText(cmd_line + res);
             scrollOutputToEnd();

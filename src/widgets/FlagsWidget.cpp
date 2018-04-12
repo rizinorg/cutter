@@ -150,7 +150,7 @@ FlagsWidget::~FlagsWidget() {}
 void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
 {
     FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-    CutterCore::getInstance()->seek(flag.offset);
+    Core()->seek(flag.offset);
 }
 
 void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
@@ -169,7 +169,7 @@ void FlagsWidget::on_actionRename_triggered()
     r->setName(flag.name);
     if (r->exec()) {
         QString new_name = r->getName();
-        CutterCore::getInstance()->renameFlag(flag.name, new_name);
+        Core()->renameFlag(flag.name, new_name);
     }
 }
 
@@ -204,7 +204,7 @@ void FlagsWidget::refreshFlagspaces()
     ui->flagspaceCombo->clear();
     ui->flagspaceCombo->addItem(tr("(all)"));
 
-    for (auto i : CutterCore::getInstance()->getAllFlagspaces()) {
+    for (auto i : Core()->getAllFlagspaces()) {
         ui->flagspaceCombo->addItem(i.name, QVariant::fromValue(i));
     }
 
@@ -224,7 +224,7 @@ void FlagsWidget::refreshFlags()
 
 
     flags_model->beginReloadFlags();
-    flags = CutterCore::getInstance()->getAllFlags(flagspace);
+    flags = Core()->getAllFlags(flagspace);
     flags_model->endReloadFlags();
 
     qhelpers::adjustColumns(ui->flagsTreeView, 2, 0);

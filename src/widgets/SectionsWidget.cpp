@@ -29,7 +29,7 @@ void SectionsWidget::refreshSections()
     tree->clear();
 
     int row = 0;
-    for (auto section : CutterCore::getInstance()->getAllSections()) {
+    for (auto section : Core()->getAllSections()) {
         fillSections(row++, section);
     }
 

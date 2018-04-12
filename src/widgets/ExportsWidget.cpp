@@ -148,7 +148,7 @@ ExportsWidget::~ExportsWidget() {}
 void ExportsWidget::refreshExports()
 {
     exports_model->beginReloadExports();
-    exports = CutterCore::getInstance()->getAllExports();
+    exports = Core()->getAllExports();
     exports_model->endReloadExports();
 
     qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
@@ -163,5 +163,5 @@ void ExportsWidget::setScrollMode()
 void ExportsWidget::on_exportsTreeView_doubleClicked(const QModelIndex &index)
 {
     ExportDescription exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
-    CutterCore::getInstance()->seek(exp.vaddr);
+    Core()->seek(exp.vaddr);
 }

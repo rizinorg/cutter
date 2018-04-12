@@ -256,8 +256,8 @@ void ClassesWidget::refreshClasses()
 {
     model->beginReload();
     classes = getSource() == Source::BIN
-              ? CutterCore::getInstance()->getAllClassesFromBin()
-              : CutterCore::getInstance()->getAllClassesFromFlags();
+              ? Core()->getAllClassesFromBin()
+              : Core()->getAllClassesFromFlags();
     model->endReload();
 
     qhelpers::adjustColumns(ui->classesTreeView, 3, 0);
@@ -268,5 +268,5 @@ void ClassesWidget::refreshClasses()
 void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
 {
     RVA offset = index.data(ClassesModel::OffsetRole).value<RVA>();
-    CutterCore::getInstance()->seek(offset);
+    Core()->seek(offset);
 }

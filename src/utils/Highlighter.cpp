@@ -8,7 +8,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
 {
     HighlightingRule rule;
 
-    core = CutterCore::getInstance();
+    core = Core();
 
     keywordFormat.setForeground(QColor(65, 131, 215));
     keywordFormat.setFontWeight(QFont::Bold);

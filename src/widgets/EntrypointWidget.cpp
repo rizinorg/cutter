@@ -28,7 +28,7 @@ EntrypointWidget::~EntrypointWidget() {}
 void EntrypointWidget::fillEntrypoint()
 {
     ui->entrypointTreeWidget->clear();
-    for (auto i : CutterCore::getInstance()->getAllEntrypoint()) {
+    for (auto i : Core()->getAllEntrypoint()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, RAddressString(i.vaddr));
         item->setText(1, i.type);
@@ -48,5 +48,5 @@ void EntrypointWidget::on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem
                                                                  int /* column */)
 {
     EntrypointDescription ep = item->data(0, Qt::UserRole).value<EntrypointDescription>();
-    CutterCore::getInstance()->seek(ep.vaddr);
+    Core()->seek(ep.vaddr);
 }

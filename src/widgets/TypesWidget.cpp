@@ -129,7 +129,7 @@ TypesWidget::~TypesWidget() {}
 void TypesWidget::refreshTypes()
 {
     types_model->beginReloadTypes();
-    types = CutterCore::getInstance()->getAllTypes();
+    types = Core()->getAllTypes();
     types_model->endReloadTypes();
 
     qhelpers::adjustColumns(ui->typesTreeView, 3, 0);
@@ -144,5 +144,5 @@ void TypesWidget::on_typesTreeView_doubleClicked(const QModelIndex &index)
 {
     Q_UNUSED(index);
     // TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    // CutterCore::getInstance()->seek(exp.vaddr);
+    // Core()->seek(exp.vaddr);
 }

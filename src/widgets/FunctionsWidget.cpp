@@ -169,7 +169,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::ToolTipRole: {
-        QList<QString> info = CutterCore::getInstance()->cmd("afi @ " + function.name).split("\n");
+        QList<QString> info = Core()->cmd("afi @ " + function.name).split("\n");
         if (info.length() > 2) {
             QString size = info[4].split(" ")[1];
             QString complex = info[8].split(" ")[1];
@@ -177,8 +177,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             return QString("Summary:\n\n    Size: " + size +
                            "\n    Cyclomatic complexity: " + complex +
                            "\n    Basic blocks: " + bb +
-                           "\n\nDisasm preview:\n\n" + CutterCore::getInstance()->cmd("pdi 10 @ " + function.name) +
-                           "\nStrings:\n\n" + CutterCore::getInstance()->cmd("pdsf @ " + function.name));
+                           "\n\nDisasm preview:\n\n" + Core()->cmd("pdi 10 @ " + function.name) +
+                           "\nStrings:\n\n" + Core()->cmd("pdsf @ " + function.name));
         }
         return QVariant();
     }
@@ -435,13 +435,13 @@ void FunctionsWidget::refreshTree()
 {
     functionModel->beginReloadFunctions();
 
-    functions = CutterCore::getInstance()->getAllFunctions();
+    functions = Core()->getAllFunctions();
 
     importAddresses.clear();
-    foreach (ImportDescription import, CutterCore::getInstance()->getAllImports())
+    foreach (ImportDescription import, Core()->getAllImports())
         importAddresses.insert(import.plt);
 
-    mainAdress = (ut64)CutterCore::getInstance()->cmdj("iMj").object()["vaddr"].toInt();
+    mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();
 
     functionModel->endReloadFunctions();
 
@@ -485,9 +485,9 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
         // Get new function name
         QString comment = c->getComment();
         // Rename function in r2 core
-        CutterCore::getInstance()->setComment(function.offset, comment);
+        Core()->setComment(function.offset, comment);
         // Seek to new renamed function
-        CutterCore::getInstance()->seek(function.offset);
+        Core()->seek(function.offset);
         // TODO: Refresh functions tree widget
     }
 }
@@ -509,10 +509,10 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
         QString new_name = r->getName();
 
         // Rename function in r2 core
-        CutterCore::getInstance()->renameFunction(function.name, new_name);
+        Core()->renameFunction(function.name, new_name);
 
         // Seek to new renamed function
-        CutterCore::getInstance()->seek(function.offset);
+        Core()->seek(function.offset);
     }
 }
 

@@ -253,7 +253,7 @@ bool NewFileDialog::fillRecentFilesList()
 
 bool NewFileDialog::fillProjectsList()
 {
-    CutterCore *core = CutterCore::getInstance();
+    CutterCore *core = Core();
 
     auto currentDir = Config()->getDirProjects();
 

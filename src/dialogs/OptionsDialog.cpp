@@ -12,7 +12,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
     analThread(this),
     main(main),
-    core(CutterCore::getInstance()),
+    core(Core()),
     defaultAnalLevel(1),
     ui(new Ui::OptionsDialog)
 {

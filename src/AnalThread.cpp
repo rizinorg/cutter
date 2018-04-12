@@ -9,7 +9,7 @@ AnalThread::AnalThread(OptionsDialog *parent) :
     QThread(parent),
     level(2),
     main(nullptr),
-    core(CutterCore::getInstance()),
+    core(Core()),
     interrupted(false)
 {
 }
