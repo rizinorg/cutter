@@ -77,7 +77,7 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    ui->relocsTableView->setModel(model);
+    ui->relocsTreeView->setModel(model);
 
     setScrollMode();
 
@@ -86,7 +86,7 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
 
 RelocsWidget::~RelocsWidget() {}
 
-void RelocsWidget::on_relocsTableView_doubleClicked(const QModelIndex &index)
+void RelocsWidget::on_relocsTreeView_doubleClicked(const QModelIndex &index)
 {
     Core()->seek(index.data(RelocsModel::AddressRole).toLongLong());
 }
@@ -96,10 +96,10 @@ void RelocsWidget::refreshRelocs()
     model->beginReload();
     relocs = Core()->getAllRelocs();
     model->endReload();
-    ui->relocsTableView->resizeColumnsToContents();
+    qhelpers::adjustColumns(ui->relocsTreeView, 3, 0);
 }
 
 void RelocsWidget::setScrollMode()
 {
-    qhelpers::setVerticalScrollMode(ui->relocsTableView);
+    qhelpers::setVerticalScrollMode(ui->relocsTreeView);
 }

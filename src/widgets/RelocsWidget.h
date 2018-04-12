@@ -45,7 +45,7 @@ public:
     ~RelocsWidget();
 
 private slots:
-    void on_relocsTableView_doubleClicked(const QModelIndex &index);
+    void on_relocsTreeView_doubleClicked(const QModelIndex &index);
     void refreshRelocs();
 
 private:
