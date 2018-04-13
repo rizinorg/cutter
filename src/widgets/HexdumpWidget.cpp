@@ -297,22 +297,31 @@ void HexdumpWidget::refresh(RVA addr)
     // TODO: Figure out how to calculate a sane value for this
     bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 
-    //RVA cur_addr = addr - (bufferLines * cols);
-    RVA cur_addr = addr;
-    first_loaded_address = cur_addr;
-    last_loaded_address = cur_addr + (3 * bufferLines) * cols;
-    QElapsedTimer getHexdumpTimer;
-    getHexdumpTimer.start();
-    auto hexdump = fetchHexdump(cur_addr, 3 * bufferLines);
+    int loadLines = bufferLines * 3; // total lines to load
+    int curAddrLineOffset = bufferLines; // line number where seek should be
+
+    if (addr < curAddrLineOffset * cols) {
+        curAddrLineOffset = static_cast<int>(addr / cols);
+    }
+
+    if (addr > RVA_MAX - curAddrLineOffset * cols) {
+        curAddrLineOffset = static_cast<int>(loadLines - (RVA_MAX - addr) / cols);
+    }
+
+    first_loaded_address = addr - curAddrLineOffset * cols;
+    last_loaded_address = addr + (loadLines - curAddrLineOffset) * cols;
+
+    auto hexdump = fetchHexdump(first_loaded_address, loadLines);
 
     ui->hexOffsetText->setText(hexdump[0]);
     ui->hexHexText->setText(hexdump[1]);
     ui->hexASCIIText->setText(hexdump[2]);
 
-    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(
-                           bufferLines)); // ln-1 because line number starts from 0
+    QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(curAddrLineOffset));
     ui->hexHexText->moveCursor(QTextCursor::End);
+    ui->hexHexText->ensureCursorVisible();
     ui->hexHexText->setTextCursor(cursor);
+    ui->hexHexText->ensureCursorVisible();
 
     updateWidths();
 
@@ -792,13 +801,12 @@ void HexdumpWidget::removeTopLinesWithoutScroll(QTextEdit *textEdit, int lines)
 
 void HexdumpWidget::removeBottomLinesWithoutScroll(QTextEdit *textEdit, int lines)
 {
-    QTextBlock block = textEdit->document()->lastBlock();
+    QTextBlock block = textEdit->document()->lastBlock().previous();
     QTextCursor textCursor = textEdit->textCursor();
     for (int i = 0; i < lines; i++) {
         QTextCursor cursor(block);
         block = block.previous();
-        //cursor.select(QTextCursor::BlockUnderCursor);
-        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.select(QTextCursor::BlockUnderCursor);
         cursor.removeSelectedText();
     }
 }
@@ -871,16 +879,19 @@ void HexdumpWidget::scrollChanged()
             shift = RVA_MAX - last_loaded_address;
             loadLines = static_cast<int>(shift / cols);
         }
-        auto hexdump = fetchHexdump(last_loaded_address, loadLines);
-        last_loaded_address += shift;
-        first_loaded_address += shift;
 
-        removeTopLinesWithoutScroll(ui->hexOffsetText, loadLines);
-        removeTopLinesWithoutScroll(ui->hexHexText, loadLines);
-        removeTopLinesWithoutScroll(ui->hexASCIIText, loadLines);
-        appendWithoutScroll(ui->hexOffsetText, hexdump[0]);
-        appendWithoutScroll(ui->hexHexText, hexdump[1]);
-        appendWithoutScroll(ui->hexASCIIText, hexdump[2]);
+        if (loadLines > 0) {
+            auto hexdump = fetchHexdump(last_loaded_address, loadLines);
+            last_loaded_address += shift;
+            first_loaded_address += shift;
+
+            removeTopLinesWithoutScroll(ui->hexOffsetText, loadLines);
+            removeTopLinesWithoutScroll(ui->hexHexText, loadLines);
+            removeTopLinesWithoutScroll(ui->hexASCIIText, loadLines);
+            appendWithoutScroll(ui->hexOffsetText, hexdump[0]);
+            appendWithoutScroll(ui->hexHexText, hexdump[1]);
+            appendWithoutScroll(ui->hexASCIIText, hexdump[2]);
+        }
     }
     connectScroll(false);
 }
