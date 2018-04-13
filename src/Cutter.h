@@ -312,7 +312,7 @@ public:
     void analyze(int level, QList<QString> advanced);
 
     // Seek functions
-    void seek(QString addr);
+    void seek(QString thing);
     void seek(ut64 offset);
     void seekPrev();
     void seekNext();

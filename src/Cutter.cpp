@@ -373,13 +373,9 @@ void CutterCore::seek(ut64 offset)
     // cmd already does emit seekChanged(core_->offset);
 }
 
-void CutterCore::seek(QString offset)
+void CutterCore::seek(QString thing)
 {
-    bool converted;
-    auto s = offset.toULongLong(&converted, 16);
-    if (!converted)
-        s = offset.toULongLong();
-    seek(s);
+    cmdRaw(QString("s %1").arg(thing));
 }
 
 void CutterCore::seekPrev()
