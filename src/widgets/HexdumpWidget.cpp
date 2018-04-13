@@ -779,12 +779,11 @@ void HexdumpWidget::removeTopLinesWithoutScroll(QTextEdit *textEdit, int lines)
     int height_before = textEdit->document()->size().height();
 
     QTextBlock block = textEdit->document()->firstBlock();
-    QTextCursor textCursor = textEdit->textCursor();
     for (int i = 0; i < lines; i++) {
         QTextCursor cursor(block);
-        cursor.select(QTextCursor::BlockUnderCursor);
-        cursor.removeSelectedText();
         block = block.next();
+        cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+        cursor.removeSelectedText();
     }
 
     int height_after = textEdit->document()->size().height();
