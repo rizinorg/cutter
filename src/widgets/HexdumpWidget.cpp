@@ -796,9 +796,10 @@ void HexdumpWidget::removeBottomLinesWithoutScroll(QTextEdit *textEdit, int line
     QTextCursor textCursor = textEdit->textCursor();
     for (int i = 0; i < lines; i++) {
         QTextCursor cursor(block);
-        cursor.select(QTextCursor::BlockUnderCursor);
-        cursor.removeSelectedText();
         block = block.previous();
+        //cursor.select(QTextCursor::BlockUnderCursor);
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.removeSelectedText();
     }
 }
 
@@ -837,29 +838,46 @@ void HexdumpWidget::scrollChanged()
 
     int firstLine = getDisplayedLined(ui->hexHexText);
     if (firstLine < (bufferLines / 2)) {
-        first_loaded_address -= bufferLines * cols;
-        auto hexdump = fetchHexdump(first_loaded_address, bufferLines);
-        prependWithoutScroll(ui->hexOffsetText, hexdump[0]);
-        prependWithoutScroll(ui->hexHexText, hexdump[1]);
-        prependWithoutScroll(ui->hexASCIIText, hexdump[2]);
+        int loadLines = bufferLines;
+        RVA shift = static_cast<RVA>(loadLines * cols);
+        if (shift > first_loaded_address) {
+            loadLines = static_cast<int>(first_loaded_address / cols);
+            shift = first_loaded_address;
+        }
+        first_loaded_address -= shift;
+        last_loaded_address -= shift;
 
-        removeBottomLinesWithoutScroll(ui->hexOffsetText, bufferLines);
-        removeBottomLinesWithoutScroll(ui->hexHexText, bufferLines);
-        removeBottomLinesWithoutScroll(ui->hexASCIIText, bufferLines);
+        if (loadLines > 0) {
+            auto hexdump = fetchHexdump(first_loaded_address, loadLines);
+            prependWithoutScroll(ui->hexOffsetText, hexdump[0]);
+            prependWithoutScroll(ui->hexHexText, hexdump[1]);
+            prependWithoutScroll(ui->hexASCIIText, hexdump[2]);
 
-        ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
-        ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
+            removeBottomLinesWithoutScroll(ui->hexOffsetText, loadLines);
+            removeBottomLinesWithoutScroll(ui->hexHexText, loadLines);
+            removeBottomLinesWithoutScroll(ui->hexASCIIText, loadLines);
 
+            ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
+            ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
+        }
     }
 
     int blocks  = ui->hexHexText->document()->blockCount();
     int lastLine = getDisplayedLined(ui->hexHexText, true);
     if (blocks - lastLine < (bufferLines / 2)) {
-        auto hexdump = fetchHexdump(last_loaded_address, bufferLines);
-        last_loaded_address += bufferLines * cols;
-        removeTopLinesWithoutScroll(ui->hexOffsetText, bufferLines);
-        removeTopLinesWithoutScroll(ui->hexHexText, bufferLines);
-        removeTopLinesWithoutScroll(ui->hexASCIIText, bufferLines);
+        int loadLines = bufferLines;
+        RVA shift = static_cast<RVA>(loadLines * cols);
+        if (last_loaded_address > RVA_MAX - shift) {
+            shift = RVA_MAX - last_loaded_address;
+            loadLines = static_cast<int>(shift / cols);
+        }
+        auto hexdump = fetchHexdump(last_loaded_address, loadLines);
+        last_loaded_address += shift;
+        first_loaded_address += shift;
+
+        removeTopLinesWithoutScroll(ui->hexOffsetText, loadLines);
+        removeTopLinesWithoutScroll(ui->hexHexText, loadLines);
+        removeTopLinesWithoutScroll(ui->hexASCIIText, loadLines);
         appendWithoutScroll(ui->hexOffsetText, hexdump[0]);
         appendWithoutScroll(ui->hexHexText, hexdump[1]);
         appendWithoutScroll(ui->hexASCIIText, hexdump[2]);
