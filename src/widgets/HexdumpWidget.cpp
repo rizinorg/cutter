@@ -838,8 +838,8 @@ void HexdumpWidget::scrollChanged()
 
     int firstLine = getDisplayedLined(ui->hexHexText);
     if (firstLine < (bufferLines / 2)) {
-        auto hexdump = fetchHexdump(first_loaded_address, bufferLines);
         first_loaded_address -= bufferLines * cols;
+        auto hexdump = fetchHexdump(first_loaded_address, bufferLines);
         prependWithoutScroll(ui->hexOffsetText, hexdump[0]);
         prependWithoutScroll(ui->hexHexText, hexdump[1]);
         prependWithoutScroll(ui->hexASCIIText, hexdump[2]);
