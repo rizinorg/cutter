@@ -29,69 +29,14 @@ before_install:
     ; fi
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew install p7zip ccache qt5 openssl xz &&
-      export PATH="/usr/local/opt/qt/bin:$PATH" &&
-      mkdir python && cd python && wget "https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz" && tar -xf Python-3.6.4.tar.xz &&
-      export PYTHON_FRAMEWORK_DIR="`pwd`/framework" && cd Python-3.6.4 &&
-      CPPFLAGS="-I$(brew --prefix openssl)/include" LDFLAGS="-L$(brew --prefix openssl)/lib" ./configure --enable-framework=$PYTHON_FRAMEWORK_DIR &&
-      make -j4 && make frameworkinstallframework > /dev/null &&
-      PYTHONHOME=$PYTHON_FRAMEWORK_DIR/Python.framework/Versions/Current $PYTHON_FRAMEWORK_DIR/Python.framework/Versions/Current/bin/pip3 install jupyter &&
-      cd ../..
-    ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew install p7zip ccache qt5 openssl xz  ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get -y install qt59base qt59svg qt59webengine --allow-unauthenticated &&
-      source /opt/qt5*/bin/qt5*-env.sh &&
-      mkdir python && cd python && wget "https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz" && tar -xf Python-3.6.4.tar.xz &&
-      export CUSTOM_PYTHON_PREFIX="`pwd`/prefix" && cd Python-3.6.4 &&
-      echo "Building Python to install to prefix $CUSTOM_PYTHON_PREFIX" &&
-      ./configure --enable-shared --prefix=$CUSTOM_PYTHON_PREFIX && make -j4 && make install > /dev/null &&
-      PYTHONHOME=$CUSTOM_PYTHON_PREFIX LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib "$CUSTOM_PYTHON_PREFIX/bin/pip3" install jupyter &&
-      cd ../..
+      source /opt/qt5*/bin/qt5*-env.sh
     ; fi
-
-after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
-      macdeployqt Cutter.app &&
-
-      install_name_tool `otool -L Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess | sed -n "s/^[[:blank:]]*\(\/usr\/local\/Cellar[^[:blank:]]*\(Qt[A-Za-z]*\.framework[^[:blank:]]*\)\) (.*$/-change \1 @executable_path\/..\/..\/..\/..\/..\/..\/..\/\2/p"` Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/MacOS/QtWebEngineProcess &&
-      mkdir -p Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks &&
-      ln -s ../../../../../../../QtCore.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
-      ln -s ../../../../../../../QtQuick.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
-      ln -s ../../../../../../../QtGui.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
-      ln -s ../../../../../../../QtQml.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
-      ln -s ../../../../../../../QtNetwork.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
-      ln -s ../../../../../../../QtWebChannel.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
-      ln -s ../../../../../../../QtPositioning.framework Cutter.app/Contents/Frameworks/QtWebEngineCore.framework/Helpers/QtWebEngineProcess.app/Contents/Frameworks/ &&
-
-      mkdir -p Cutter.app/Contents/Frameworks &&
-      cp -a "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app/Contents/Frameworks/ &&
-      install_name_tool -change `otool -L Cutter.app/Contents/MacOS/Cutter | sed -n "s/^[[:blank:]]*\([^[:blank:]]*Python\) (.*$/\1/p"` @executable_path/../Frameworks/Python.framework/Versions/Current/Python Cutter.app/Contents/MacOS/Cutter &&
-      cd Cutter.app/Contents/Frameworks/Python.framework &&
-        find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf &&
-        rm -r Versions/Current/Resources/* Versions/Current/lib/python3.6/test Versions/Current/lib/python3.6/idlelib Versions/Current/lib/python3.6/curses Versions/Current/lib/python3.6/lib2to3 &&
-      cd ../../../.. &&
-      mkdir image && cp -a Cutter.app image/ &&
-      hdiutil create -srcfolder image -volname Cutter -fs HFS+ Cutter.dmg &&
-      export FILE_TO_UPLOAD="Cutter.dmg"
-    ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo make INSTALL_ROOT=appdir install &&
-      sudo chown -R $USER appdir &&
-      cp -r /usr/share/radare2 appdir/usr/share/ &&
-      cp -RT "$CUSTOM_PYTHON_PREFIX" appdir/usr/ &&
-      cd appdir/usr/ &&
-        find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf &&
-        rm -r lib/python3.6/test lib/python3.6/idlelib lib/python3.6/curses lib/python3.6/lib2to3 &&
-      cd ../.. &&
-      wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
-      chmod a+x linuxdeployqt*.AppImage &&
-      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH &&
-      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -verbose=2 &&
-      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -verbose=2 &&
-      find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
-      export FILE_TO_UPLOAD="Cutter-x86_64.AppImage"
-    ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_python_linux.sh    ; fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -125,6 +70,33 @@ script:
             cmake ../src && make -j4;
        fi
     fi
+
+after_success:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
+      macdeployqt Cutter.app &&
+      "$TRAVIS_BUILD_DIR/scripts/appbundle_patch_qtwebengine.sh" Cutter.app &&
+      "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
+      mkdir image && cp -a Cutter.app image/ &&
+      hdiutil create -srcfolder image -volname Cutter -fs HFS+ Cutter.dmg &&
+      export FILE_TO_UPLOAD="Cutter.dmg"
+    ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo make INSTALL_ROOT=appdir install &&
+      sudo chown -R $USER appdir &&
+      cp -r /usr/share/radare2 appdir/usr/share/ &&
+      cp -RT "$CUSTOM_PYTHON_PREFIX" appdir/usr/ &&
+      cd appdir/usr/ &&
+        find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf &&
+        rm -r lib/python3.6/test lib/python3.6/idlelib lib/python3.6/curses lib/python3.6/lib2to3 &&
+      cd ../.. &&
+      wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
+      chmod a+x linuxdeployqt*.AppImage &&
+      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH &&
+      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -verbose=2 &&
+      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -verbose=2 &&
+      find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
+      export FILE_TO_UPLOAD="Cutter-x86_64.AppImage"
+    ; fi
 
 deploy:
   skip_cleanup: true
