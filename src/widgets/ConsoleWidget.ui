@@ -67,21 +67,24 @@
        <number>4</number>
       </property>
       <property name="leftMargin">
-       <number>5</number>
+       <number>4</number>
       </property>
       <property name="topMargin">
-       <number>3</number>
+       <number>2</number>
       </property>
       <property name="rightMargin">
-       <number>5</number>
+       <number>2</number>
       </property>
       <property name="bottomMargin">
-       <number>3</number>
+       <number>2</number>
       </property>
       <item>
        <widget class="QLineEdit" name="inputLineEdit">
-        <property name="styleSheet">
-         <string notr="true">border: 2px solid palette(base);</string>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="frame">
          <bool>false</bool>
@@ -97,7 +100,7 @@
       <item>
        <widget class="QToolButton" name="execButton">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
