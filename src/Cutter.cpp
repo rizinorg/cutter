@@ -651,6 +651,11 @@ QString CutterCore::getOffsetInfo(QString addr)
     return cmd("ao @ " + addr);
 }
 
+QString CutterCore::getRegistersInfo()
+{
+    return cmd("aeaf");
+}
+
 RVA CutterCore::getOffsetJump(RVA addr)
 {
     bool ok;

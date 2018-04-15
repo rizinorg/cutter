@@ -39,6 +39,7 @@ private:
     void updateRefs(RVA addr);
     void fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs);
     void fillOffsetInfo(QString off);
+    void fillRegistersInfo();
 
     void setScrollMode();
 
@@ -54,6 +55,7 @@ private slots:
     void on_opcodeDescToolButton_clicked();
     void on_xrefFromToolButton_clicked();
     void on_xrefToToolButton_clicked();
+    void on_regInfoToolButton_clicked();
 };
 
 #endif // SIDEBARWIDGET_H
