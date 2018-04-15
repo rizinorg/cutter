@@ -205,30 +205,33 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     mDisasTextEdit->document()->clear();
     QTextCursor cursor(mDisasTextEdit->document());
     for (DisassemblyLine line : disassemblyLines) {
+        if (line.offset < topOffset) { // overflow
+            break;
+        }
         cursor.insertHtml(line.text);
         auto a = new DisassemblyTextBlockUserData(line);
         cursor.block().setUserData(a);
         cursor.insertBlock();
     }
 
-    // get bottomOffset from last visible line.
-    // because pd N may return more than N lines, move maxLines lines down from the top
-    mDisasTextEdit->moveCursor(QTextCursor::Start);
-    QTextCursor tc = mDisasTextEdit->textCursor();
-    tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, maxLines - 1);
-    mDisasTextEdit->setTextCursor(tc);
-
-    connectCursorPositionChanged(false);
-
-    bottomOffset = readCurrentDisassemblyOffset();
-    if (bottomOffset == RVA_INVALID) {
+    if (!disassemblyLines.isEmpty()) {
+        bottomOffset = disassemblyLines[qMin(disassemblyLines.size(), maxLines) - 1].offset;
+        if (bottomOffset < topOffset) {
+            bottomOffset = RVA_MAX;
+        }
+    } else {
         bottomOffset = topOffset;
     }
 
     // remove additional lines
+    QTextCursor tc = mDisasTextEdit->textCursor();
+    tc.movePosition(QTextCursor::Start);
+    tc.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, maxLines - 1);
     tc.movePosition(QTextCursor::EndOfLine);
     tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     tc.removeSelectedText();
+
+    connectCursorPositionChanged(false);
 
     updateCursorPosition();
 
@@ -246,8 +249,14 @@ void DisassemblyWidget::scrollInstructions(int count)
     RVA offset;
     if (count > 0) {
         offset = Core()->nextOpAddr(topOffset, count);
+        if (offset < topOffset) {
+            offset = RVA_MAX;
+        }
     } else {
         offset = Core()->prevOpAddr(topOffset, -count);
+        if (offset > topOffset) {
+            offset = 0;
+        }
     }
 
     refreshDisasm(offset);
@@ -435,27 +444,33 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
         RVA offset;
         if (!up) {
             offset = Core()->nextOpAddr(bottomOffset, 1);
+            if (offset < bottomOffset) {
+                offset = RVA_MAX;
+            }
         } else {
             offset = Core()->prevOpAddr(topOffset, maxLines);
+            if (offset > topOffset) {
+                offset = 0;
+            } else {
+                // disassembly from calculated offset may have more than maxLines lines
+                // move some instructions down if necessary.
 
-            // disassembly from calculated offset may have more than maxLines lines
-            // move some instructions down if necessary.
-
-            auto lines = Core()->disassembleLines(offset, maxLines).toVector();
-            int oldTopLine;
-            for (oldTopLine = lines.length(); oldTopLine > 0; oldTopLine--) {
-                if (lines[oldTopLine - 1].offset < topOffset) {
-                    break;
+                auto lines = Core()->disassembleLines(offset, maxLines).toVector();
+                int oldTopLine;
+                for (oldTopLine = lines.length(); oldTopLine > 0; oldTopLine--) {
+                    if (lines[oldTopLine - 1].offset < topOffset) {
+                        break;
+                    }
                 }
-            }
 
-            int overflowLines = oldTopLine - maxLines;
-            if (overflowLines > 0) {
-                while (lines[overflowLines - 1].offset == lines[overflowLines].offset
+                int overflowLines = oldTopLine - maxLines;
+                if (overflowLines > 0) {
+                    while (lines[overflowLines - 1].offset == lines[overflowLines].offset
                         && overflowLines < lines.length() - 1) {
-                    overflowLines++;
+                        overflowLines++;
+                    }
+                    offset = lines[overflowLines].offset;
                 }
-                offset = lines[overflowLines].offset;
             }
         }
         refreshDisasm(offset);
@@ -519,7 +534,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         cursorLineOffset = 0;
     }
 
-    if (topOffset != RVA_INVALID && bottomOffset != RVA_INVALID
+    if (topOffset != RVA_INVALID
             && offset >= topOffset && offset <= bottomOffset) {
         // if the line with the seek offset is currently visible, just move the cursor there
         updateCursorPosition();
