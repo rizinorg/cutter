@@ -600,12 +600,6 @@ QToolTip {
             </column>
            </widget>
           </item>
-
-
-
-
-
-
           <item>
            <spacer name="verticalSpacer_4">
             <property name="orientation">
