@@ -11,13 +11,16 @@ QT += core gui widgets svg
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
-!defined(CUTTER_ENABLE_JUPYTER, var)     CUTTER_ENABLE_JUPYTER=true
-equals(CUTTER_ENABLE_JUPYTER, true)      CONFIG += CUTTER_ENABLE_JUPYTER
+!defined(CUTTER_ENABLE_JUPYTER, var)        CUTTER_ENABLE_JUPYTER=true
+equals(CUTTER_ENABLE_JUPYTER, true)         CONFIG += CUTTER_ENABLE_JUPYTER
 
-!defined(CUTTER_ENABLE_QTWEBENGINE, var) CUTTER_ENABLE_QTWEBENGINE=true
+!defined(CUTTER_ENABLE_QTWEBENGINE, var)    CUTTER_ENABLE_QTWEBENGINE=true
 equals(CUTTER_ENABLE_JUPYTER, true) {
     equals(CUTTER_ENABLE_QTWEBENGINE, true)  CONFIG += CUTTER_ENABLE_QTWEBENGINE
 }
+
+!defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)   CUTTER_BUNDLE_R2_APPBUNDLE=false
+equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)    CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
 
 # Define the preprocessor macro to get the application version in our application.
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
@@ -77,6 +80,11 @@ unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
         }
         PKGCONFIG += python3
     }
+}
+
+macx:CUTTER_BUNDLE_R2_APPBUNDLE {
+    message("Using r2 rom AppBundle")
+    DEFINES += MACOS_R2_BUNDLED
 }
 
 SOURCES += \

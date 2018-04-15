@@ -1,7 +1,10 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QRegularExpression>
-#include <utils/TempConfig.h>
+#include <QDir>
+#include <QCoreApplication>
+
+#include "utils/TempConfig.h"
 #include "utils/Configuration.h"
 #include "Cutter.h"
 #include "sdb.h"
@@ -52,6 +55,23 @@ CutterCore::CutterCore(QObject *parent) :
 
     // Otherwise r2 may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
+    
+#if defined(APPIMAGE) || defined(MACOS_R2_BUNDLED)
+    auto prefix = QDir(QCoreApplication::applicationDirPath());
+#   ifdef APPIMAGE
+        // Executable is in appdir/bin
+        prefix.cdUp();
+        qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for AppImage.";
+#   else // MACOS_R2_BUNDLED
+        // Executable is in Contents/MacOS, prefix is Contents/Resources/r2
+        prefix.cdUp();
+        prefix.cd("Resources");
+        prefix.cd("r2");
+        qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
+#   endif
+    setConfig("dir.prefix", prefix.absolutePath());
+#endif
+
 
     default_bits = 0;
 }
