@@ -651,9 +651,22 @@ QString CutterCore::getOffsetInfo(QString addr)
     return cmd("ao @ " + addr);
 }
 
-QString CutterCore::getRegistersInfo()
+QStringList CutterCore::getRegistersInfo()
 {
-    return cmd("aeaf");
+    CORE_LOCK();
+    QStringList ret;
+
+    QJsonObject jsonRoot = cmdj("aeafj").object();
+    foreach (QString key, jsonRoot.keys()) {
+        QString temp;
+        temp.append(key + ":");
+        foreach (QJsonValue value, jsonRoot[key].toArray()) {
+            temp.append(" " + value.toString());
+        }
+        ret.append(temp);
+    }
+
+    return ret;
 }
 
 RVA CutterCore::getOffsetJump(RVA addr)

@@ -232,13 +232,13 @@ void SidebarWidget::fillRegistersInfo()
 
     ui->regInfoTreeWidget->clear();
 
-    QString raw = Core()->getRegistersInfo();
-    QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);
-    foreach (QString line, lines) {
+    QStringList list = Core()->getRegistersInfo();
+    foreach (QString line, list) {
         QList<QString> eles = line.split(":", QString::SkipEmptyParts);
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, eles.at(0).toUpper());
-        tempItem->setText(1, eles.at(1));
+        if (eles.count() > 1)
+            tempItem->setText(1, eles.at(1));
         ui->regInfoTreeWidget->addTopLevelItem(tempItem);
     }
 
