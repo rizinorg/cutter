@@ -29,7 +29,7 @@ before_install:
     ; fi
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew install p7zip ccache qt5 openssl xz  ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew bundle --file=scripts/Brewfile       ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
