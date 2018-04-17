@@ -14,7 +14,8 @@
 #include <QFont>
 #include <QUrl>
 #include <QSettings>
-
+#include <QJsonObject>
+#include <QJsonArray>
 
 SidebarWidget::SidebarWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -232,13 +233,15 @@ void SidebarWidget::fillRegistersInfo()
 
     ui->regInfoTreeWidget->clear();
 
-    QStringList list = Core()->getRegistersInfo();
-    foreach (QString line, list) {
-        QList<QString> eles = line.split(":", QString::SkipEmptyParts);
+    QJsonObject jsonRoot = Core()->getRegistersInfo().object();
+    foreach (QString key, jsonRoot.keys()) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-        tempItem->setText(0, eles.at(0).toUpper());
-        if (eles.count() > 1)
-            tempItem->setText(1, eles.at(1));
+        QString tempString;
+        tempItem->setText(0, key.toUpper());
+        foreach (QJsonValue value, jsonRoot[key].toArray()) {
+            tempString.append(value.toString() + " ");
+        }
+        tempItem->setText(1, tempString);
         ui->regInfoTreeWidget->addTopLevelItem(tempItem);
     }
 
