@@ -671,6 +671,11 @@ QString CutterCore::getOffsetInfo(QString addr)
     return cmd("ao @ " + addr);
 }
 
+QJsonDocument CutterCore::getRegistersInfo()
+{
+    return cmdj("aeafj");
+}
+
 RVA CutterCore::getOffsetJump(RVA addr)
 {
     bool ok;

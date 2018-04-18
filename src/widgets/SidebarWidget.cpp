@@ -14,7 +14,8 @@
 #include <QFont>
 #include <QUrl>
 #include <QSettings>
-
+#include <QJsonObject>
+#include <QJsonArray>
 
 SidebarWidget::SidebarWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -52,6 +53,7 @@ void SidebarWidget::refresh(RVA addr)
     updateRefs(addr);
     setFcnName(addr);
     fillOffsetInfo(RAddressString(addr));
+    fillRegistersInfo();
 }
 
 void SidebarWidget::on_xrefFromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
@@ -107,6 +109,17 @@ void SidebarWidget::on_xrefToToolButton_clicked()
     } else {
         ui->xrefToTreeWidget->show();
         ui->xrefToToolButton->setArrowType(Qt::DownArrow);
+    }
+}
+
+void SidebarWidget::on_regInfoToolButton_clicked()
+{
+    if (ui->regInfoToolButton->isChecked()) {
+        ui->regInfoTreeWidget->hide();
+        ui->regInfoToolButton->setArrowType(Qt::RightArrow);
+    } else {
+        ui->regInfoTreeWidget->show();
+        ui->regInfoToolButton->setArrowType(Qt::DownArrow);
     }
 }
 
@@ -210,4 +223,28 @@ void SidebarWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->xrefFromTreeWidget);
     qhelpers::setVerticalScrollMode(ui->xrefToTreeWidget);
+}
+
+void SidebarWidget::fillRegistersInfo()
+{
+    TempConfig tempConfig;
+    tempConfig.set("scr.html", false)
+    .set("scr.color", COLOR_MODE_DISABLED);
+
+    ui->regInfoTreeWidget->clear();
+
+    QJsonObject jsonRoot = Core()->getRegistersInfo().object();
+    foreach (QString key, jsonRoot.keys()) {
+        QTreeWidgetItem *tempItem = new QTreeWidgetItem();
+        QString tempString;
+        tempItem->setText(0, key.toUpper());
+        foreach (QJsonValue value, jsonRoot[key].toArray()) {
+            tempString.append(value.toString() + " ");
+        }
+        tempItem->setText(1, tempString);
+        ui->regInfoTreeWidget->addTopLevelItem(tempItem);
+    }
+
+    // Adjust columns to content
+    qhelpers::adjustColumns(ui->regInfoTreeWidget, 0);
 }
