@@ -89,7 +89,7 @@
       <widget class="QLineEdit" name="programLineEdit">
        <property name="font">
         <font>
-         <pointsize>12</pointsize>
+         <pointsize>9</pointsize>
         </font>
        </property>
        <property name="focusPolicy">
@@ -225,9 +225,9 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>-379</y>
+           <y>-636</y>
            <width>564</width>
-           <height>786</height>
+           <height>831</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -804,7 +804,7 @@
                    <widget class="QLineEdit" name="entry_loadOffset">
                     <property name="font">
                      <font>
-                      <pointsize>12</pointsize>
+                      <pointsize>9</pointsize>
                      </font>
                     </property>
                     <property name="inputMask">
@@ -844,7 +844,7 @@
                    <widget class="QLineEdit" name="entry_mapOffset">
                     <property name="font">
                      <font>
-                      <pointsize>12</pointsize>
+                      <pointsize>9</pointsize>
                      </font>
                     </property>
                     <property name="text">
@@ -923,7 +923,7 @@
                    <widget class="QLineEdit" name="entry_analbb">
                     <property name="font">
                      <font>
-                      <pointsize>12</pointsize>
+                      <pointsize>9</pointsize>
                      </font>
                     </property>
                     <property name="text">
@@ -1073,7 +1073,7 @@
   <customwidget>
    <class>QSvgWidget</class>
    <extends>QWidget</extends>
-   <header>qsvgwidget.h</header>
+   <header>QSvgWidget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
