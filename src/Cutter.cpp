@@ -1493,6 +1493,11 @@ void CutterCore::saveProject(const QString &name)
     emit projectSaved(name);
 }
 
+void CutterCore::deleteProject(const QString &name)
+{
+    cmd("Pd " + name);
+}
+
 bool CutterCore::isProjectNameValid(const QString &name)
 {
     // see is_valid_project_name() in libr/core/project.c

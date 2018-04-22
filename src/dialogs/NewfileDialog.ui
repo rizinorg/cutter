@@ -457,6 +457,11 @@
     <string>Clear all</string>
    </property>
   </action>
+  <action name="actionRemove_project">
+   <property name="text">
+    <string>Delete project</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

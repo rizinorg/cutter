@@ -34,6 +34,7 @@ private slots:
 
     void on_actionRemove_item_triggered();
     void on_actionClear_all_triggered();
+    void on_actionRemove_project_triggered();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event);

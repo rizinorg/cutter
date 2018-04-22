@@ -59,6 +59,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     setAcceptDrops(true);
     ui->recentsListWidget->addAction(ui->actionRemove_item);
     ui->recentsListWidget->addAction(ui->actionClear_all);
+    ui->projectsListWidget->addAction(ui->actionRemove_project);
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     fillRecentFilesList();
@@ -189,6 +190,35 @@ void NewFileDialog::on_actionClear_all_triggered()
     // TODO: if called from main window its ok, otherwise its not
     settings.setValue("recentFileList", files);
     ui->newFileEdit->clear();
+}
+
+void NewFileDialog::on_actionRemove_project_triggered()
+{
+    CutterCore *core = Core();
+
+    QListWidgetItem *item = ui->projectsListWidget->currentItem();
+
+    if (item == nullptr)
+        return;
+
+    QVariant data = item->data(Qt::UserRole);
+    QString sitem = data.toString();
+
+    // Confirmation box
+    QMessageBox msgBox(this);
+    msgBox.setText(tr("Delete the project \"%1\" from disk ?").arg(sitem));
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    int ret = msgBox.exec();
+
+    switch (ret) {
+    case QMessageBox::Yes:
+        core->deleteProject(sitem);
+        ui->projectsListWidget->takeItem(ui->projectsListWidget->currentRow());
+        break;
+    case QMessageBox::No:
+    default:
+        break;
+    }
 }
 
 void NewFileDialog::dragEnterEvent(QDragEnterEvent *event)
