@@ -451,6 +451,9 @@ void FunctionsWidget::refreshTree()
 
 void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     FunctionDescription function = index.data(
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
     Core()->seek(function.offset);

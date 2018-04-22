@@ -154,6 +154,9 @@ SearchWidget::~SearchWidget() {}
 
 void SearchWidget::on_searchTreeView_doubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     SearchDescription search = index.data(
                                    SearchModel::SearchDescriptionRole).value<SearchDescription>();
     Core()->seek(search.offset);

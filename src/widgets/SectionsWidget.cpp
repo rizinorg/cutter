@@ -95,6 +95,9 @@ void SectionsWidget::fillSections(int row, const SectionDescription &section)
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     QTreeWidgetItem *section = tree->topLevelItem(index.row());
     auto addr = section->text(2);
     Core()->seek(addr);

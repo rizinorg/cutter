@@ -113,6 +113,9 @@ void ResourcesWidget::refreshResources()
 
 void ResourcesWidget::onDoubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     ResourcesDescription res = index.data(Qt::UserRole).value<ResourcesDescription>();
     Core()->seek(res.vaddr);
 }

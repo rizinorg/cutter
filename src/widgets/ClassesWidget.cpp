@@ -267,6 +267,9 @@ void ClassesWidget::refreshClasses()
 
 void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     RVA offset = index.data(ClassesModel::OffsetRole).value<RVA>();
     Core()->seek(offset);
 }
