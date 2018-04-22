@@ -20,36 +20,39 @@ int ImportsModel::rowCount(const QModelIndex &parent) const
 
 int ImportsModel::columnCount(const QModelIndex&) const
 {
-    return COUNT;
+    return ImportsModel::ColumnCount;
 }
 
 QVariant ImportsModel::data(const QModelIndex &index, int role) const
 {
     const ImportDescription &import = imports->at(index.row());
-    switch(role)
+    switch (role)
     {
-    case AddressRole:
-        return import.plt;
     case Qt::ForegroundRole:
-        if(index.column() < COUNT)
-            if(banned.match(import.name).hasMatch())
+        if (index.column() < ImportsModel::ColumnCount) {
+            if (banned.match(import.name).hasMatch())
                 return QColor(255, 129, 123);
+        }
         break;
     case Qt::DisplayRole:
         switch(index.column())
         {
-        case ADDRESS:
+        case ImportsModel::AddressColumn:
             return RAddressString(import.plt);
-        case TYPE:
+        case ImportsModel::TypeColumn:
             return import.type;
-        case SAFETY:
+        case ImportsModel::SafetyColumn:
             return banned.match(import.name).hasMatch()? tr("Unsafe") : QStringLiteral("");
-        case NAME:
+        case ImportsModel::NameColumn:
             return import.name;
         default:
             break;
         }
         break;
+    case ImportsModel::ImportDescriptionRole:
+        return QVariant::fromValue(import);
+    case ImportsModel::AddressRole:
+        return import.plt;
     default:
         break;
     }
@@ -62,13 +65,13 @@ QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
     {
         switch(section)
         {
-        case ADDRESS:
+        case ImportsModel::AddressColumn:
             return tr("Address");
-        case TYPE:
+        case ImportsModel::TypeColumn:
             return tr("Type");
-        case SAFETY:
+        case ImportsModel::SafetyColumn:
             return tr("Safety");
-        case NAME:
+        case ImportsModel::NameColumn:
             return tr("Name");
         default:
             break;
@@ -87,6 +90,55 @@ void ImportsModel::endReload()
     endResetModel();
 }
 
+ImportsSortFilterProxyModel::ImportsSortFilterProxyModel(ImportsModel *sourceModel, QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+    setSourceModel(sourceModel);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
+}
+
+bool ImportsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+{
+    QModelIndex index;
+    ImportDescription import;
+
+    index = sourceModel()->index(row, 0, parent);
+    import = index.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
+
+    return import.name.contains(filterRegExp());
+}
+
+bool ImportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    ImportDescription leftImport;
+    ImportDescription rightImport;
+
+    if (!left.isValid() || !right.isValid())
+        return false;
+
+    if (left.parent().isValid() || right.parent().isValid())
+        return false;
+
+    leftImport = left.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
+    rightImport = right.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
+
+    switch (left.column()) {
+    case ImportsModel::AddressColumn:
+        return leftImport.plt < rightImport.plt;
+    case ImportsModel::TypeColumn:
+        return leftImport.type < rightImport.type;
+    case ImportsModel::SafetyColumn:
+        break;
+    case ImportsModel::NameColumn:
+        return leftImport.name < rightImport.name;
+    default:
+        break;
+    }
+
+    return false;
+}
+
 /*
  * Imports Widget
  */
@@ -94,12 +146,27 @@ void ImportsModel::endReload()
 ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::ImportsWidget),
-    model(new ImportsModel(&imports, this))
+    importsModel(new ImportsModel(&imports, this)),
+    importsProxyModel(new ImportsSortFilterProxyModel(importsModel, this))
 {
     ui->setupUi(this);
 
-    ui->importsTreeView->setModel(model);
-    ui->importsTreeView->sortByColumn(3, Qt::AscendingOrder);
+    ui->importsTreeView->setModel(importsProxyModel);
+    ui->importsTreeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
+
+    // Ctrl-F to show/hide the filter entry
+    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // Esc to clear the filter entry
+    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)),
+            importsProxyModel, SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->importsTreeView, SLOT(setFocus()));
 
     setScrollMode();
 
@@ -110,9 +177,9 @@ ImportsWidget::~ImportsWidget() {}
 
 void ImportsWidget::refreshImports()
 {
-    model->beginReload();
+    importsModel->beginReload();
     imports = Core()->getAllImports();
-    model->endReload();
+    importsModel->endReload();
     qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
 }
 

@@ -16,7 +16,7 @@ int ExportsModel::rowCount(const QModelIndex &) const
 
 int ExportsModel::columnCount(const QModelIndex &) const
 {
-    return Columns::COUNT;
+    return ExportsModel::ColumnCount;
 }
 
 QVariant ExportsModel::data(const QModelIndex &index, int role) const
@@ -29,18 +29,18 @@ QVariant ExportsModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
-        case OFFSET:
+        case ExportsModel::OffsetColumn:
             return RAddressString(exp.vaddr);
-        case SIZE:
+        case ExportsModel::SizeColumn:
             return RSizeString(exp.size);
-        case TYPE:
+        case ExportsModel::TypeColumn:
             return exp.type;
-        case NAME:
+        case ExportsModel::NameColumn:
             return exp.name;
         default:
             return QVariant();
         }
-    case ExportDescriptionRole:
+    case ExportsModel::ExportDescriptionRole:
         return QVariant::fromValue(exp);
     default:
         return QVariant();
@@ -52,13 +52,13 @@ QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
     switch (role) {
     case Qt::DisplayRole:
         switch (section) {
-        case OFFSET:
+        case ExportsModel::OffsetColumn:
             return tr("Address");
-        case SIZE:
+        case ExportsModel::SizeColumn:
             return tr("Size");
-        case TYPE:
+        case ExportsModel::TypeColumn:
             return tr("Type");
-        case NAME:
+        case ExportsModel::NameColumn:
             return tr("Name");
         default:
             return QVariant();
@@ -78,15 +78,13 @@ void ExportsModel::endReloadExports()
     endResetModel();
 }
 
-
-
-
-
 ExportsSortFilterProxyModel::ExportsSortFilterProxyModel(ExportsModel *source_model,
                                                          QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     setSourceModel(source_model);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
 bool ExportsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
@@ -104,17 +102,17 @@ bool ExportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
                                       ExportsModel::ExportDescriptionRole).value<ExportDescription>();
 
     switch (left.column()) {
-    case ExportsModel::SIZE:
+    case ExportsModel::SizeColumn:
         if (left_exp.size != right_exp.size)
             return left_exp.size < right_exp.size;
     // fallthrough
-    case ExportsModel::OFFSET:
+    case ExportsModel::OffsetColumn:
         if (left_exp.vaddr != right_exp.vaddr)
             return left_exp.vaddr < right_exp.vaddr;
     // fallthrough
-    case ExportsModel::NAME:
+    case ExportsModel::NameColumn:
         return left_exp.name < right_exp.name;
-    case ExportsModel::TYPE:
+    case ExportsModel::TypeColumn:
         if (left_exp.type != right_exp.type)
             return left_exp.type < right_exp.type;
     default:
@@ -133,10 +131,24 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    exports_model = new ExportsModel(&exports, this);
-    exports_proxy_model = new ExportsSortFilterProxyModel(exports_model, this);
-    ui->exportsTreeView->setModel(exports_proxy_model);
-    ui->exportsTreeView->sortByColumn(ExportsModel::OFFSET, Qt::AscendingOrder);
+    exportsModel = new ExportsModel(&exports, this);
+    exportsProxyModel = new ExportsSortFilterProxyModel(exportsModel, this);
+    ui->exportsTreeView->setModel(exportsProxyModel);
+    ui->exportsTreeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
+
+    // Ctrl-F to show/hide the filter entry
+    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // Esc to clear the filter entry
+    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)),
+            exportsProxyModel, SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->exportsTreeView, SLOT(setFocus()));
 
     setScrollMode();
 
@@ -147,9 +159,9 @@ ExportsWidget::~ExportsWidget() {}
 
 void ExportsWidget::refreshExports()
 {
-    exports_model->beginReloadExports();
+    exportsModel->beginReloadExports();
     exports = Core()->getAllExports();
-    exports_model->endReloadExports();
+    exportsModel->endReloadExports();
 
     qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
 }
