@@ -90,7 +90,7 @@ void ImportsModel::endReload()
     endResetModel();
 }
 
-ImportsSortFilterProxyModel::ImportsSortFilterProxyModel(ImportsModel *sourceModel, QObject *parent)
+ImportsProxyModel::ImportsProxyModel(ImportsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     setSourceModel(sourceModel);
@@ -98,30 +98,24 @@ ImportsSortFilterProxyModel::ImportsSortFilterProxyModel(ImportsModel *sourceMod
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
-bool ImportsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+bool ImportsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
-    QModelIndex index;
-    ImportDescription import;
-
-    index = sourceModel()->index(row, 0, parent);
-    import = index.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
+    QModelIndex index = sourceModel()->index(row, 0, parent);
+    auto import = index.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
 
     return import.name.contains(filterRegExp());
 }
 
-bool ImportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    ImportDescription leftImport;
-    ImportDescription rightImport;
-
     if (!left.isValid() || !right.isValid())
         return false;
 
     if (left.parent().isValid() || right.parent().isValid())
         return false;
 
-    leftImport = left.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
-    rightImport = right.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
+    auto leftImport = left.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
+    auto rightImport = right.data(ImportsModel::ImportDescriptionRole).value<ImportDescription>();
 
     switch (left.column()) {
     case ImportsModel::AddressColumn:
@@ -147,7 +141,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::ImportsWidget),
     importsModel(new ImportsModel(&imports, this)),
-    importsProxyModel(new ImportsSortFilterProxyModel(importsModel, this))
+    importsProxyModel(new ImportsProxyModel(importsModel, this))
 {
     ui->setupUi(this);
 

@@ -32,7 +32,7 @@ public:
     enum Column { OffsetColumn = 0, SizeColumn, TypeColumn, NameColumn, ColumnCount };
     enum Role { ExportDescriptionRole = Qt::UserRole };
 
-    ExportsModel(QList<ExportDescription> *exports, QObject *parent = 0);
+    ExportsModel(QList<ExportDescription> *exports, QObject *parent = Q_NULLPTR);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -46,12 +46,12 @@ public:
 
 
 
-class ExportsSortFilterProxyModel : public QSortFilterProxyModel
+class ExportsProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    ExportsSortFilterProxyModel(ExportsModel *source_model, QObject *parent = 0);
+    ExportsProxyModel(ExportsModel *source_model, QObject *parent = Q_NULLPTR);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
@@ -77,7 +77,7 @@ private:
     std::unique_ptr<Ui::ExportsWidget> ui;
 
     ExportsModel *exportsModel;
-    ExportsSortFilterProxyModel *exportsProxyModel;
+    ExportsProxyModel *exportsProxyModel;
     QList<ExportDescription> exports;
 
     void setScrollMode();

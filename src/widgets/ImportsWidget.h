@@ -57,12 +57,12 @@ public:
     void endReload();
 };
 
-class ImportsSortFilterProxyModel : public QSortFilterProxyModel
+class ImportsProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    ImportsSortFilterProxyModel(ImportsModel *sourceModel, QObject *parent = Q_NULLPTR);
+    ImportsProxyModel(ImportsModel *sourceModel, QObject *parent = Q_NULLPTR);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
@@ -85,7 +85,7 @@ private slots:
 private:
     std::unique_ptr<Ui::ImportsWidget> ui;
     ImportsModel *importsModel;
-    ImportsSortFilterProxyModel *importsProxyModel;
+    ImportsProxyModel *importsProxyModel;
     QList<ImportDescription> imports;
 
     void highlightUnsafe();

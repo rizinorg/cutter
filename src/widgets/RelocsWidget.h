@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QAbstractTableModel>
+#include <QSortFilterProxyModel>
 
 #include "CutterDockWidget.h"
 #include "Cutter.h"
@@ -21,10 +22,10 @@ private:
     QList<RelocDescription> *relocs;
 
 public:
-    enum COLUMNS {VADDR = 0, TYPE, NAME, COUNT};
-    static const int AddressRole = Qt::UserRole;
+    enum Column { VAddrColumn = 0, TypeColumn, NameColumn, ColumnCount };
+    enum Role { RelocDescriptionRole = Qt::UserRole, AddressRole };
 
-    RelocsModel(QList<RelocDescription> *relocs, QObject* parent = nullptr);
+    RelocsModel(QList<RelocDescription> *relocs, QObject* parent = Q_NULLPTR);
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
@@ -34,6 +35,18 @@ public:
 
     void beginReload();
     void endReload();
+};
+
+class RelocsProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    RelocsProxyModel(RelocsModel *sourceModel, QObject *parent = Q_NULLPTR);
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
 class RelocsWidget : public CutterDockWidget
@@ -50,7 +63,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::RelocsWidget> ui;
-    RelocsModel *model;
+    RelocsModel *relocsModel;
+    RelocsProxyModel *relocsProxyModel;
     QList<RelocDescription> relocs;
 
     void setScrollMode();
