@@ -87,11 +87,6 @@
      </item>
      <item>
       <widget class="QLineEdit" name="programLineEdit">
-       <property name="font">
-        <font>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
@@ -802,11 +797,6 @@
                   </item>
                   <item row="0" column="1">
                    <widget class="QLineEdit" name="entry_loadOffset">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
                     <property name="inputMask">
                      <string notr="true"/>
                     </property>
@@ -842,11 +832,6 @@
                   </item>
                   <item row="1" column="1">
                    <widget class="QLineEdit" name="entry_mapOffset">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
                     <property name="text">
                      <string>0</string>
                     </property>
@@ -921,11 +906,6 @@
                   </item>
                   <item row="3" column="1">
                    <widget class="QLineEdit" name="entry_analbb">
-                    <property name="font">
-                     <font>
-                      <pointsize>9</pointsize>
-                     </font>
-                    </property>
                     <property name="text">
                      <string>1024</string>
                     </property>
