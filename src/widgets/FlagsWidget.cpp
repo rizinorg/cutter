@@ -149,6 +149,9 @@ FlagsWidget::~FlagsWidget() {}
 
 void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
     Core()->seek(flag.offset);
 }

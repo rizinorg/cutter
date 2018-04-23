@@ -35,15 +35,21 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
 
 CommentsWidget::~CommentsWidget() {}
 
-void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int)
+void CommentsWidget::on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    if (column < 0)
+        return;
+
     // Get offset and name of item double clicked
     CommentDescription comment = item->data(0, Qt::UserRole).value<CommentDescription>();
     Core()->seek(comment.offset);
 }
 
-void CommentsWidget::on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int)
+void CommentsWidget::on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    if (column < 0)
+        return;
+
     // don't react on top-level items
     if (item->parent() == nullptr) {
         return;

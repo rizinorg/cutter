@@ -164,6 +164,9 @@ StringsWidget::~StringsWidget() {}
 
 void StringsWidget::on_stringsTreeView_doubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     StringDescription str = index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
     Core()->seek(str.vaddr);
 }

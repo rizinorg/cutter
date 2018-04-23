@@ -57,6 +57,9 @@ void SdbDock::reload(QString _path)
 
 void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    if (column < 0)
+        return;
+
     QString newpath;
 
     if (column == 0) {

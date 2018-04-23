@@ -25,7 +25,8 @@ SymbolsWidget::~SymbolsWidget() {}
 
 void SymbolsWidget::on_symbolsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
-    Q_UNUSED(column);
+    if (column < 0)
+        return;
 
     // Get offset and name of item double clicked
     SymbolDescription symbol = item->data(0, Qt::UserRole).value<SymbolDescription>();

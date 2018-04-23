@@ -190,5 +190,8 @@ void ImportsWidget::setScrollMode()
 
 void ImportsWidget::on_importsTreeView_doubleClicked(const QModelIndex &index)
 {
+    if (!index.isValid())
+        return;
+
     Core()->seek(index.data(ImportsModel::AddressRole).toLongLong());
 }

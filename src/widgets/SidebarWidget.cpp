@@ -56,14 +56,20 @@ void SidebarWidget::refresh(RVA addr)
     fillRegistersInfo();
 }
 
-void SidebarWidget::on_xrefFromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
+void SidebarWidget::on_xrefFromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    if (column < 0)
+        return;
+
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     Core()->seek(xref.to);
 }
 
-void SidebarWidget::on_xrefToTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int /*column*/)
+void SidebarWidget::on_xrefToTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
+    if (column < 0)
+        return;
+
     XrefDescription xref = item->data(0, Qt::UserRole).value<XrefDescription>();
     Core()->seek(xref.from);
 }
