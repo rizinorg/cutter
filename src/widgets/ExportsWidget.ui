@@ -50,9 +50,20 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QuickFilterView" name="quickFilterView" native="true"/>
+    </item>
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

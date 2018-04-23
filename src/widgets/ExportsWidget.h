@@ -29,8 +29,8 @@ private:
     QList<ExportDescription> *exports;
 
 public:
-    enum Columns { OFFSET = 0, SIZE, TYPE, NAME, COUNT };
-    static const int ExportDescriptionRole = Qt::UserRole;
+    enum Column { OffsetColumn = 0, SizeColumn, TypeColumn, NameColumn, ColumnCount };
+    enum Role { ExportDescriptionRole = Qt::UserRole };
 
     ExportsModel(QList<ExportDescription> *exports, QObject *parent = 0);
 
@@ -76,8 +76,8 @@ private slots:
 private:
     std::unique_ptr<Ui::ExportsWidget> ui;
 
-    ExportsModel *exports_model;
-    ExportsSortFilterProxyModel *exports_proxy_model;
+    ExportsModel *exportsModel;
+    ExportsSortFilterProxyModel *exportsProxyModel;
     QList<ExportDescription> exports;
 
     void setScrollMode();

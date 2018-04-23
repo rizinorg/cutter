@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QAbstractTableModel>
+#include <QSortFilterProxyModel>
 #include <QRegularExpression>
 #include <QStyledItemDelegate>
 #include <QTreeWidgetItem>
@@ -41,8 +42,8 @@ private:
     QList<ImportDescription> *imports;
 
 public:
-    enum COLUMNS {ADDRESS = 0, TYPE, SAFETY, NAME, COUNT};
-    static const int AddressRole = Qt::UserRole;
+    enum Column { AddressColumn = 0, TypeColumn, SafetyColumn, NameColumn, ColumnCount };
+    enum Role { ImportDescriptionRole = Qt::UserRole, AddressRole };
 
     ImportsModel(QList<ImportDescription> *imports, QObject *parent = nullptr);
 
@@ -54,6 +55,18 @@ public:
 
     void beginReload();
     void endReload();
+};
+
+class ImportsSortFilterProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    ImportsSortFilterProxyModel(ImportsModel *sourceModel, QObject *parent = Q_NULLPTR);
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
 class ImportsWidget : public CutterDockWidget
@@ -71,7 +84,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::ImportsWidget> ui;
-    ImportsModel* model;
+    ImportsModel *importsModel;
+    ImportsSortFilterProxyModel *importsProxyModel;
     QList<ImportDescription> imports;
 
     void highlightUnsafe();
