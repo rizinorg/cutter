@@ -408,6 +408,7 @@ public:
     QStringList getProjectNames();
     void openProject(const QString &name);
     void saveProject(const QString &name);
+    void deleteProject(const QString &name);
 
     static bool isProjectNameValid(const QString &name);
 
