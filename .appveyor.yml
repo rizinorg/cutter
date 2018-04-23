@@ -76,13 +76,13 @@ artifacts:
     name: "%ARTIFACT_NAME%"
 
 deploy:
-  release: cutter-$(appveyor_build_version)
   description: 'Cutter binaries (Windows)'
   provider: GitHub
   auth_token:
     secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
-  artifact: Cutter_%ARCH%
-  draft: true
+  artifact: %ARTIFACT_NAME%
+  draft: false
   prerelease: false
   on:
+    branch: master
     appveyor_repo_tag: true
