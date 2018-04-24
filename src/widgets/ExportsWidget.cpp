@@ -78,8 +78,7 @@ void ExportsModel::endReloadExports()
     endResetModel();
 }
 
-ExportsSortFilterProxyModel::ExportsSortFilterProxyModel(ExportsModel *source_model,
-                                                         QObject *parent)
+ExportsProxyModel::ExportsProxyModel(ExportsModel *source_model, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
     setSourceModel(source_model);
@@ -87,40 +86,39 @@ ExportsSortFilterProxyModel::ExportsSortFilterProxyModel(ExportsModel *source_mo
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
-bool ExportsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+bool ExportsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    ExportDescription exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
+    auto exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
+
     return exp.name.contains(filterRegExp());
 }
 
-bool ExportsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    ExportDescription left_exp = left.data(
-                                     ExportsModel::ExportDescriptionRole).value<ExportDescription>();
-    ExportDescription right_exp = right.data(
-                                      ExportsModel::ExportDescriptionRole).value<ExportDescription>();
+    auto leftExp = left.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
+    auto rightExp = right.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
 
     switch (left.column()) {
     case ExportsModel::SizeColumn:
-        if (left_exp.size != right_exp.size)
-            return left_exp.size < right_exp.size;
+        if (leftExp.size != rightExp.size)
+            return leftExp.size < rightExp.size;
     // fallthrough
     case ExportsModel::OffsetColumn:
-        if (left_exp.vaddr != right_exp.vaddr)
-            return left_exp.vaddr < right_exp.vaddr;
+        if (leftExp.vaddr != rightExp.vaddr)
+            return leftExp.vaddr < rightExp.vaddr;
     // fallthrough
     case ExportsModel::NameColumn:
-        return left_exp.name < right_exp.name;
+        return leftExp.name < rightExp.name;
     case ExportsModel::TypeColumn:
-        if (left_exp.type != right_exp.type)
-            return left_exp.type < right_exp.type;
+        if (leftExp.type != rightExp.type)
+            return leftExp.type < rightExp.type;
     default:
         break;
     }
 
     // fallback
-    return left_exp.vaddr < right_exp.vaddr;
+    return leftExp.vaddr < rightExp.vaddr;
 }
 
 
@@ -132,7 +130,7 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
     ui->setupUi(this);
 
     exportsModel = new ExportsModel(&exports, this);
-    exportsProxyModel = new ExportsSortFilterProxyModel(exportsModel, this);
+    exportsProxyModel = new ExportsProxyModel(exportsModel, this);
     ui->exportsTreeView->setModel(exportsProxyModel);
     ui->exportsTreeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
 
