@@ -170,10 +170,10 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>346</x>
-      <y>97</y>
+      <x>345</x>
+      <y>96</y>
       <width>148</width>
-      <height>238</height>
+      <height>215</height>
      </rect>
     </property>
     <property name="title">
@@ -218,7 +218,7 @@ border-top: 0px;
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionSearchInst"/>
+    <addaction name="actionSearch"/>
     <addaction name="actionUndoSeek"/>
     <addaction name="actionRedoSeek"/>
    </widget>
@@ -244,7 +244,7 @@ border-top: 0px;
     <addaction name="actionResources"/>
     <addaction name="actionVTables"/>
     <addaction name="actionTypes"/>
-    <addaction name="actionSearchInst"/>
+    <addaction name="actionSearch"/>
     <addaction name="separator"/>
     <addaction name="actionRelocs"/>
     <addaction name="actionStrings"/>
@@ -275,7 +275,7 @@ border-top: 0px;
     <string notr="true">Main toolbar</string>
    </property>
    <property name="styleSheet">
-     <string notr="true">
+    <string notr="true">
 QToolButton {
 margin: 1px;
 margin-left: 2px;
@@ -649,11 +649,6 @@ background-color: palette(dark);
   <action name="actionBindiff">
    <property name="text">
     <string>Bindiff</string>
-   </property>
-  </action>
-  <action name="actionSearch">
-   <property name="text">
-    <string>Search</string>
    </property>
   </action>
   <action name="actionAnalysis">
@@ -1055,7 +1050,7 @@ background-color: palette(dark);
     <string>Show/Hide Types panel</string>
    </property>
   </action>
-  <action name="actionSearchInst">
+  <action name="actionSearch">
    <property name="checkable">
     <bool>true</bool>
    </property>
