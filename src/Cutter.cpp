@@ -704,6 +704,11 @@ QJsonDocument CutterCore::getFileInfo()
     return cmdj("ij");
 }
 
+QJsonDocument CutterCore::getFileVersionInfo()
+{
+    return cmdj("iVj");
+}
+
 QStringList CutterCore::getStats()
 {
     QStringList stats;

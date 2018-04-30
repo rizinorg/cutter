@@ -390,6 +390,7 @@ public:
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
     QJsonDocument getFileInfo();
+    QJsonDocument getFileVersionInfo();
     QStringList getStats();
     QString getSimpleGraph(QString function);
 
