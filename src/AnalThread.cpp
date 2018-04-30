@@ -106,6 +106,10 @@ void AnalThread::run()
         core->loadPDB(ui->pdbLineEdit->text());
     }
 
+    if (ui->scriptCheckBox->isChecked()) {
+        core->loadScript(ui->scriptLineEdit->text());
+    }
+
     if (optionsDialog->getSelectedEndianness() != OptionsDialog::Endianness::Auto) {
         core->setEndianness(optionsDialog->getSelectedEndianness() == OptionsDialog::Endianness::Big);
     }

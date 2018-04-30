@@ -54,6 +54,10 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 
     connect(ui->pdbCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updatePDBLayout()));
 
+    updateScriptLayout();
+    
+    connect(ui->scriptCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updateScriptLayout()));
+
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
@@ -342,6 +346,30 @@ void OptionsDialog::on_pdbSelectButton_clicked()
         ui->pdbLineEdit->setText(fileName);
     }
 }
+
+
+void OptionsDialog::updateScriptLayout()
+{
+    ui->scriptWidget->setEnabled(ui->scriptCheckBox->isChecked());
+}
+
+void OptionsDialog::on_scriptSelectButton_clicked()
+{
+    QFileDialog dialog(this);
+    dialog.setWindowTitle(tr("Select radare2 script file"));
+    dialog.setNameFilters({ tr("Script file (*.r2)"), tr("All files (*)") });
+
+    if (!dialog.exec()) {
+        return;
+    }
+
+    QString fileName = dialog.selectedFiles().first();
+
+    if (!fileName.isEmpty()) {
+        ui->scriptLineEdit->setText(fileName);
+    }
+}
+
 
 void OptionsDialog::reject()
 {

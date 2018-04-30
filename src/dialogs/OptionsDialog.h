@@ -33,11 +33,13 @@ private slots:
     void on_analCheckBox_clicked(bool checked);
     void on_archComboBox_currentIndexChanged(int index);
     void on_pdbSelectButton_clicked();
+    void on_scriptSelectButton_clicked();
 
     void updateProgressTimer();
 
     void updatePDBLayout();
-
+    void updateScriptLayout();
+    
     void anal_finished();
 
 protected:
