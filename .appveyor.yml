@@ -46,6 +46,7 @@ install:
 
 before_build:
   - cmd: git submodule update --init
+  - cmd: python scripts\compile_python_resources.py
 
 # Build config
 build_script:
