@@ -1,6 +1,7 @@
 #ifdef CUTTER_ENABLE_JUPYTER
 
 #include <Python.h>
+#include <marshal.h>
 
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -85,13 +86,23 @@ void JupyterConnection::createCutterJupyterModule()
         PyEval_RestoreThread(pyThreadState);
     }
 
-    QFile moduleFile(":/python/cutter_jupyter.py");
+    QFile moduleFile(":/python/cutter_jupyter.pyc");
+    bool isBytecode = moduleFile.exists();
+    if (!isBytecode) {
+        moduleFile.setFileName(":/python/cutter_jupyter.py");
+    }
     moduleFile.open(QIODevice::ReadOnly);
     QByteArray moduleCode = moduleFile.readAll();
     moduleFile.close();
 
-    auto moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_jupyter.py",
-                                             Py_file_input);
+    PyObject *moduleCodeObject;
+    if (isBytecode) {
+        moduleCodeObject = PyMarshal_ReadObjectFromString(moduleCode.constData() + 12,
+                                                          moduleCode.size() - 12);
+    } else {
+        moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_jupyter.py",
+                                            Py_file_input);
+    }
     if (!moduleCodeObject) {
         PyErr_Print();
         qWarning() << "Could not compile cutter_jupyter.";
