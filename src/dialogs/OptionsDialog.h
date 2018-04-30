@@ -40,7 +40,6 @@ private slots:
     void updatePDBLayout();
     void updateScriptLayout();
     
-    
     void anal_finished();
 
 protected:

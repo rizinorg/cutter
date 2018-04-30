@@ -400,8 +400,6 @@ public:
 
     void loadPDB(const QString &file);
 
-    void loadRadareScript(const QString &file);
-
     QList<RVA> getSeekHistory();
 
     QStringList getAsmPluginNames();

@@ -1467,7 +1467,6 @@ void CutterCore::triggerFlagsChanged()
 void CutterCore::triggerVarsChanged()
 {
     emit varsChanged();
-    
 }
 
 void CutterCore::triggerFunctionRenamed(const QString &prevName, const QString &newName)
@@ -1478,11 +1477,6 @@ void CutterCore::triggerFunctionRenamed(const QString &prevName, const QString &
 void CutterCore::loadPDB(const QString &file)
 {
     cmd("idp " + sanitizeStringForCommand(file));
-}
-
-void CutterCore::loadRadareScript(const QString &file)
-{
-    cmd(". " + sanitizeStringForCommand(file));
 }
 
 void CutterCore::openProject(const QString &name)

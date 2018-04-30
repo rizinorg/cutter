@@ -107,7 +107,7 @@ void AnalThread::run()
     }
 
     if (ui->scriptCheckBox->isChecked()) {
-        core->loadRadareScript(ui->scriptLineEdit->text());
+        core->loadScript(ui->scriptLineEdit->text());
     }
 
     if (optionsDialog->getSelectedEndianness() != OptionsDialog::Endianness::Auto) {
