@@ -16,6 +16,6 @@ ECHO Building radare2 (%PLATFORM%)
 CD radare2
 git clean -xfd
 RMDIR /S /Q ..\%R2DIST%
-python sys\meson.py --release --shared --install=..\%R2DIST%
+python sys\meson.py --release --shared --install=..\%R2DIST% --options r2_datdir=radare2/share
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 REN ..\%R2DIST%\lib\libr_shlr.a r_shlr.lib
