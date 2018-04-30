@@ -4,10 +4,10 @@ win32 {
     INCLUDEPATH += "$$PWD/../radare2/libr/include/msvc"
     !contains(QT_ARCH, x86_64) {
         LIBS += -L"$$PWD/../r2_dist_x86/lib"
-        INCLUDEPATH += "$$PWD/../r2_dist_x86/include/libr"
+        INCLUDEPATH += "$$PWD/../r2_dist_x86/include"
     } else {
         LIBS += -L"$$PWD/../r2_dist_x64/lib"
-        INCLUDEPATH += "$$PWD/../r2_dist_x64/include/libr"
+        INCLUDEPATH += "$$PWD/../r2_dist_x64/include"
     }
 
     LIBS += \
