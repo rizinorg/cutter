@@ -99,16 +99,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="bytesCheckBox">
+    <widget class="QCheckBox" name="sizeCheckBox">
      <property name="text">
-      <string>Show bytes (asm.bytes)</string>
+      <string>Show size of opcodes in disassembly (asm.size)</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="sizeCheckBox">
+    <widget class="QCheckBox" name="bytesCheckBox">
      <property name="text">
-      <string>Show size of opcodes in disassembly (asm.size)</string>
+      <string>Show bytes (asm.bytes)</string>
      </property>
     </widget>
    </item>
