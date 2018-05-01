@@ -14,7 +14,7 @@
    <string notr="true">Comments</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -31,283 +31,17 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QFrame" name="frame">
-      <property name="styleSheet">
-       <string notr="true">background-color: #333;</string>
+     <widget class="QTreeView" name="commentsTreeView">
+      <property name="sortingEnabled">
+       <bool>true</bool>
       </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <property name="spacing">
-        <number>5</number>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="topMargin">
-        <number>10</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item>
-        <widget class="QToolButton" name="toolButton">
-         <property name="toolTip">
-          <string notr="true">Show plain list</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QToolButton { /* all types of tool button */
-     border: 5px solid #333;
-     border-left: 10px solid #333;
-	 border-right: 10px solid #333;
-     border-radius: 0px;
-     background-color: #333;
- }
-
-QToolButton:hover {
-     border: 5px solid #444;
-     border-left: 10px solid #444;
-	 border-right: 10px solid #444;
-     border-radius: 0px;
-     background-color: #444;
- }
-
-QToolButton:checked {
-     border: 5px solid #2180a9;
-     border-left: 10px solid #2180a9;
-	 border-right: 10px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/img/icons/hexdump_light.svg</normaloff>
-           <normalon>:/img/icons/hexdump_white.svg</normalon>
-           <activeon>:/img/icons/hexdump_white.svg</activeon>:/img/icons/hexdump_light.svg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <widget class="QToolButton" name="toolButton_2">
-         <property name="toolTip">
-          <string notr="true">Show grouped list</string>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">QToolButton { /* all types of tool button */
-     border: 5px solid #333;
-     border-left: 10px solid #333;
-	 border-right: 10px solid #333;
-     border-radius: 0px;
-     background-color: #333;
- }
-
-QToolButton:hover {
-     border: 5px solid #444;
-     border-radius: 0px;
-     background-color: #444;
- }
-
-QToolButton:checked {
-     border: 5px solid #2180a9;
-     border-radius: 0px;
-     background-color: #2180a9;
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-}</string>
-         </property>
-         <property name="text">
-          <string notr="true"/>
-         </property>
-         <property name="icon">
-          <iconset resource="../resources.qrc">
-           <normaloff>:/img/icons/disas_light.svg</normaloff>
-           <normalon>:/img/icons/disas_white.svg</normalon>
-           <activeon>:/img/icons/disas_white.svg</activeon>:/img/icons/disas_light.svg</iconset>
-         </property>
-         <property name="checkable">
-          <bool>true</bool>
-         </property>
-         <attribute name="buttonGroup">
-          <string notr="true">buttonGroup</string>
-         </attribute>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      <attribute name="headerShowSortIndicator" stdset="0">
+       <bool>true</bool>
+      </attribute>
      </widget>
     </item>
     <item>
-     <widget class="QTabWidget" name="tabWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QTabWidget::pane { /* The tab widget frame */
-border-top: 0px;
-}</string>
-      </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::West</enum>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <widget class="QWidget" name="plain">
-       <attribute name="title">
-        <string>Plain</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QTreeWidget" name="commentsTreeWidget">
-          <property name="styleSheet">
-           <string notr="true">QTreeWidget::item
-{
-    padding-top: 1px;
-    padding-bottom: 1px;
-}</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <property name="indentation">
-           <number>8</number>
-          </property>
-          <property name="sortingEnabled">
-           <bool>true</bool>
-          </property>
-          <column>
-           <property name="text">
-            <string>Offset</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Function</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Comment</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="nested">
-       <attribute name="title">
-        <string>Nested</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QTreeWidget" name="nestedCmtsTreeWidget">
-          <property name="styleSheet">
-           <string notr="true">QTreeWidget::item
-{
-    padding-top: 1px;
-    padding-bottom: 1px;
-}
-
-QToolTip {
-	background-color: #444;
-	border: 3px solid #444;
-	color: rgb(232, 232, 232);
-	font: 11pt &quot;Monaco&quot;;
-}</string>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::NoFrame</enum>
-          </property>
-          <column>
-           <property name="text">
-            <string>Function/Offset</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Comment</string>
-           </property>
-          </column>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </widget>
+     <widget class="QuickFilterView" name="quickFilterView" native="true"/>
     </item>
    </layout>
   </widget>
@@ -334,11 +68,14 @@ QToolTip {
    </property>
   </action>
  </widget>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <customwidgets>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
- </buttongroups>
 </ui>
