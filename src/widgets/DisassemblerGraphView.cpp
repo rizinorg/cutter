@@ -448,7 +448,7 @@ DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
 void DisassemblerGraphView::colorsUpdatedSlot()
 {
     disassemblyBackgroundColor = ConfigColor("gui.alt_background");
-    disassemblySelectedBackgroundColor = ConfigColor("gui.background");
+    disassemblySelectedBackgroundColor = ConfigColor("gui.disass_selected");
     mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
