@@ -118,9 +118,9 @@ void VersionInfoDialog::fillVersionInfo(){
                 QTreeWidgetItem *childItem = new QTreeWidgetItem();
                 QString childString;
                 childItem->setText(0, RAddressString(childObj["idx"].toDouble()));
-                childString.append("Name: " + childVal["name"].toString() + "\t");
-                childString.append("Flags: " + childVal["flags"].toString() + "\t");
-                childString.append("Version: " + QString::number(childVal["version"].toDouble()));
+                childString.append("Name: " + childObj["name"].toString() + "\t");
+                childString.append("Flags: " + childObj["flags"].toString() + "\t");
+                childString.append("Version: " + QString::number(childObj["version"].toDouble()));
                 childItem->setText(1, childString);
                 parentItem->addChild(childItem);
             }
