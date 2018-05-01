@@ -70,6 +70,11 @@ inline QString RSizeString(RVA size)
     return QString::asprintf("%lld", size);
 }
 
+inline QString RHexString(RVA size)
+{
+    return QString::asprintf("%#llx", size);
+}
+
 struct FunctionDescription {
     RVA offset;
     RVA size;
@@ -390,6 +395,7 @@ public:
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
     QJsonDocument getFileInfo();
+    QJsonDocument getFileVersionInfo();
     QStringList getStats();
     QString getSimpleGraph(QString function);
 

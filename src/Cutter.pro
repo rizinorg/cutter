@@ -156,7 +156,8 @@ SOURCES += \
     widgets/CutterDockWidget.cpp \
     widgets/GraphWidget.cpp \
     utils/JsonTreeItem.cpp \
-    utils/JsonModel.cpp
+    utils/JsonModel.cpp \
+    dialogs/VersionInfoDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -227,7 +228,8 @@ HEADERS  += \
     widgets/CutterDockWidget.h \
     widgets/GraphWidget.h \
     utils/JsonTreeItem.h \
-    utils/JsonModel.h
+    utils/JsonModel.h \
+    dialogs/VersionInfoDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -267,7 +269,8 @@ FORMS    += \
     widgets/TypesWidget.ui \
     widgets/SearchWidget.ui \
     widgets/JupyterWidget.ui \
-    dialogs/R2PluginsDialog.ui
+    dialogs/R2PluginsDialog.ui \
+    dialogs/VersionInfoDialog.ui
 
 RESOURCES += \
     resources.qrc \
