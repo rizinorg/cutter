@@ -70,6 +70,11 @@ inline QString RSizeString(RVA size)
     return QString::asprintf("%lld", size);
 }
 
+inline QString RHexString(RVA size)
+{
+    return QString::asprintf("%#llx", size);
+}
+
 struct FunctionDescription {
     RVA offset;
     RVA size;
