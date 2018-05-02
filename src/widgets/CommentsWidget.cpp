@@ -1,6 +1,5 @@
 #include <QMenu>
 #include <QResizeEvent>
-#include <QDebug>
 
 #include "CommentsWidget.h"
 #include "ui_CommentsWidget.h"
