@@ -147,7 +147,6 @@ void Configuration::loadBaseDark()
     // GUI
     setColor("gui.cflow",   QColor(255, 255, 255));
     setColor("gui.dataoffset", QColor(255, 255, 255));
-    setColor("gui.border",  QColor(255, 255, 255));
     // Custom
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
@@ -161,6 +160,7 @@ void Configuration::loadBaseDark()
 void Configuration::loadDarkTheme()
 {
     loadBaseDark();
+    setColor("gui.border",  QColor(255, 255, 255));
     // Windows background
     setColor("gui.background", QColor(36, 66, 79));
     // Disassembly nodes background
@@ -174,6 +174,7 @@ void Configuration::loadDarkTheme()
 void Configuration::loadDarkGreyTheme()
 {
     loadBaseDark();
+    setColor("gui.border",  QColor(100,100,100));
     // Windows background
     setColor("gui.background", QColor(37, 40, 43));
     // Disassembly nodes background

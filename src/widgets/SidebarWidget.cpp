@@ -8,7 +8,6 @@
 #include <QTemporaryFile>
 #include <QFontDialog>
 #include <QScrollBar>
-#include <QClipboard>
 #include <QShortcut>
 #include <QMenu>
 #include <QFont>

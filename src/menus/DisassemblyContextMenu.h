@@ -30,7 +30,7 @@ private slots:
     void on_actionEditBytes_triggered();
 
     void on_actionCopy_triggered();
-
+    void on_actionCopyAddr_triggered();
     void on_actionAddComment_triggered();
     void on_actionCreateFunction_triggered();
     void on_actionAddFlag_triggered();
@@ -79,7 +79,7 @@ private:
 
     QAction actionCopy;
     QAction *copySeparator;
-
+    QAction actionCopyAddr;
 
 
     QAction actionAddComment;
