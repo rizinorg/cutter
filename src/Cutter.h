@@ -275,6 +275,7 @@ Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
 Q_DECLARE_METATYPE(SearchDescription)
+Q_DECLARE_METATYPE(SectionDescription)
 
 class CutterCore: public QObject
 {
