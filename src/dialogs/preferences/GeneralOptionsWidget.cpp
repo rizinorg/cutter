@@ -35,7 +35,7 @@ void GeneralOptionsWidget::updateThemeFromConfig()
     // Disconnect currentIndexChanged because clearing the comboxBox and refiling it causes its index to change.
     disconnect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this,
                SLOT(on_colorComboBox_currentIndexChanged(int)));
-    ui->themeComboBox->setCurrentIndex(Config()->getDarkTheme() ? 1 : 0);
+    ui->themeComboBox->setCurrentIndex(Config()->getDarkTheme());
 
     QList<QString> themes = Core()->getColorThemes();
     ui->colorComboBox->clear();
@@ -71,7 +71,7 @@ void GeneralOptionsWidget::on_fontSelectionButton_clicked()
 void GeneralOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
     //disconnect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
-    Config()->setDarkTheme(index == 1);
+    Config()->setDarkTheme(index);
     //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
 }
 
