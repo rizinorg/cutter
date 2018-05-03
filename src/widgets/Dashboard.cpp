@@ -143,10 +143,14 @@ void Dashboard::updateContents()
     ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Add entropy value
-    TempConfig tempConfig;
-    tempConfig.set("io.va", false);
-    QString entropy = Core()->cmd("ph entropy $s @ 0").trimmed();
-    ui->lblEntropy->setText(entropy);
+    {
+        // Scope for TempConfig
+        TempConfig tempConfig;
+        tempConfig.set("io.va", false);
+        QString entropy = Core()->cmd("ph entropy $s @ 0").trimmed();
+        ui->lblEntropy->setText(entropy);
+    }
+
 
     // Get stats for the graphs
     QStringList stats = Core()->getStats();
