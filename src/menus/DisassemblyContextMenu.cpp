@@ -8,6 +8,8 @@
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
+#include <QClipboard>
+#include <QApplication>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     :   QMenu(parent),
@@ -18,6 +20,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionJmpReverse(this),
         actionEditBytes(this),
         actionCopy(this),
+        actionCopyAddr(this),
         actionAddComment(this),
         actionAddFlag(this),
         actionCreateFunction(this),
@@ -42,6 +45,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 {
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
+    createAction(&actionCopyAddr, tr("Copy address"), {}, SLOT(on_actionCopyAddr_triggered()));
     createAction(&actionAddComment, tr("Add Comment"), getCommentSequence(),
                  SLOT(on_actionAddComment_triggered()));
     createAction(&actionAddFlag, tr("Add Flag"), getAddFlagSequence(),
@@ -313,6 +317,12 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
 void DisassemblyContextMenu::on_actionCopy_triggered()
 {
     emit copy();
+}
+
+void DisassemblyContextMenu::on_actionCopyAddr_triggered()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(RAddressString(offset));
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
