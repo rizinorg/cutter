@@ -3,6 +3,7 @@
 #include "utils/Helpers.h"
 #include "utils/JsonModel.h"
 #include "utils/JsonTreeItem.h"
+#include "utils/TempConfig.h"
 
 #include "MainWindow.h"
 
@@ -59,7 +60,7 @@ void Dashboard::updateContents()
         this->ui->relroEdit->setText(relro);
     }
 
-    this->ui->baddrEdit->setText(QString::number(item2["baddr"].toDouble()));
+    this->ui->baddrEdit->setText("0x"+QString::number(Core()->get_baddr(), 16));
 
     if (item2["va"].toBool() == true) {
         this->ui->vaEdit->setText("True");
@@ -115,7 +116,7 @@ void Dashboard::updateContents()
         lines.removeLast();
     }
 
-    // dunno: why not label->setText(lines.join("\n")?
+    // dunno: why not label->setText(lines.join("\n")?Core()->cmd
     while (ui->verticalLayout_2->count() > 0) {
         QLayoutItem *item = ui->verticalLayout_2->takeAt(0);
         if (item != nullptr) {
@@ -142,7 +143,9 @@ void Dashboard::updateContents()
     ui->verticalLayout_2->addSpacerItem(spacer);
 
     // Add entropy value
-    QString entropy = Core()->cmd("ph entropy").trimmed();
+    TempConfig tempConfig;
+    tempConfig.set("io.va", false);
+    QString entropy = Core()->cmd("ph entropy $s @ 0").trimmed();
     ui->lblEntropy->setText(entropy);
 
     // Get stats for the graphs
