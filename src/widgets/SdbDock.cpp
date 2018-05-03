@@ -33,7 +33,7 @@ void SdbDock::reload(QString _path)
     QList<QString> keys;
     /* key-values */
     keys = Core()->sdbListKeys(path);
-    foreach (QString key, keys) {
+    for (QString key : keys) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, key);
         tempItem->setText(1, Core()->sdbGet(path, key));
@@ -45,7 +45,7 @@ void SdbDock::reload(QString _path)
     /* namespaces */
     keys = Core()->sdbList(path);
     keys.append("..");
-    foreach (QString key, keys) {
+    for (QString key : keys) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, key + "/");
         tempItem->setText(1, "");

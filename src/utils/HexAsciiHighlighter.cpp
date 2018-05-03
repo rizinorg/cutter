@@ -18,7 +18,7 @@ AsciiHighlighter::AsciiHighlighter(QTextDocument *parent)
 
 void AsciiHighlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
+    for (const HighlightingRule &rule : highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
         while (index >= 0) {

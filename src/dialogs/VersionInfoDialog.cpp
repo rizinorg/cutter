@@ -64,7 +64,7 @@ void VersionInfoDialog::fillVersionInfo(){
 
         QTreeWidgetItem *entriesItemL = new QTreeWidgetItem();
         entriesItemL->setText(0, "Entries:");
-        foreach (QJsonValue val, versym["entries"].toArray()) {
+        for (QJsonValue val : versym["entries"].toArray()) {
             QJsonObject obj = val.toObject();
             QTreeWidgetItem *tempItem = new QTreeWidgetItem();
             tempItem->setText(0, RAddressString(obj["idx"].toDouble()));
@@ -104,7 +104,7 @@ void VersionInfoDialog::fillVersionInfo(){
 
         QTreeWidgetItem *entriesItemR = new QTreeWidgetItem();
         entriesItemR->setText(0, "Entries:");
-        foreach (QJsonValue parentVal, verneed["entries"].toArray()) {
+        for (QJsonValue parentVal : verneed["entries"].toArray()) {
             QJsonObject parentObj = parentVal.toObject();
             QTreeWidgetItem *parentItem = new QTreeWidgetItem();
             QString parentString;
@@ -113,7 +113,7 @@ void VersionInfoDialog::fillVersionInfo(){
             parentString.append("File: " + parentObj["file_name"].toString());
             parentItem->setText(1, parentString);
 
-            foreach (QJsonValue childVal, parentObj["vernaux"].toArray()) {
+            for (QJsonValue childVal : parentObj["vernaux"].toArray()) {
                 QJsonObject childObj = childVal.toObject();
                 QTreeWidgetItem *childItem = new QTreeWidgetItem();
                 QString childString;
@@ -143,7 +143,7 @@ void VersionInfoDialog::fillVersionInfo(){
         ui->rightLabel->setText("String table");
 
         // Left tree
-        foreach (QString key, vs.keys()){
+        for (QString key : vs.keys()){
             QTreeWidgetItem *tempItem = new QTreeWidgetItem();
             tempItem->setText(0, key);
             if (vs[key].isDouble())
@@ -157,7 +157,7 @@ void VersionInfoDialog::fillVersionInfo(){
         }
 
         // Right tree
-        foreach (QString key, strings.keys()){
+        for (QString key : strings.keys()){
             QTreeWidgetItem *tempItem = new QTreeWidgetItem();
             tempItem->setText(0, key);
             tempItem->setText(1, strings[key].toString());
