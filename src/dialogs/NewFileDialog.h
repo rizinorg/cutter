@@ -14,7 +14,7 @@ class NewFileDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit NewFileDialog(QWidget *parent = 0);
+    explicit NewFileDialog(QWidget *parent = nullptr);
     ~NewFileDialog();
 
 private slots:

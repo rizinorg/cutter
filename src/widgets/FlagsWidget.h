@@ -24,7 +24,7 @@ public:
     enum Columns { OFFSET = 0, SIZE, NAME, COUNT };
     static const int FlagDescriptionRole = Qt::UserRole;
 
-    FlagsModel(QList<FlagDescription> *flags, QObject *parent = 0);
+    FlagsModel(QList<FlagDescription> *flags, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -43,7 +43,7 @@ class FlagsSortFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    FlagsSortFilterProxyModel(FlagsModel *source_model, QObject *parent = 0);
+    FlagsSortFilterProxyModel(FlagsModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

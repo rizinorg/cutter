@@ -62,7 +62,7 @@ class ImportsProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    ImportsProxyModel(ImportsModel *sourceModel, QObject *parent = Q_NULLPTR);
+    ImportsProxyModel(ImportsModel *sourceModel, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

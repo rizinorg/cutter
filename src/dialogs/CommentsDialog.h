@@ -13,7 +13,7 @@ class CommentsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit CommentsDialog(QWidget *parent = 0);
+    explicit CommentsDialog(QWidget *parent = nullptr);
     ~CommentsDialog();
 
     QString getComment();

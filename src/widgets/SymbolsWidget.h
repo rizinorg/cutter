@@ -26,7 +26,7 @@ public:
     enum Column { AddressColumn = 0, TypeColumn, NameColumn, ColumnCount };
     enum Role { SymbolDescriptionRole = Qt::UserRole };
 
-    SymbolsModel(QList<SymbolDescription> *exports, QObject *parent = Q_NULLPTR);
+    SymbolsModel(QList<SymbolDescription> *exports, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -43,7 +43,7 @@ class SymbolsProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    SymbolsProxyModel(SymbolsModel *sourceModel, QObject *parent = Q_NULLPTR);
+    SymbolsProxyModel(SymbolsModel *sourceModel, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

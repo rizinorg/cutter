@@ -17,7 +17,7 @@ class JsonModel : public QAbstractItemModel
 {
 
 public:
-    explicit JsonModel(QObject *parent = 0);
+    explicit JsonModel(QObject *parent = nullptr);
     bool load(QIODevice *device);
     bool loadJson(const QByteArray &json);
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;

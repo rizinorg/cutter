@@ -33,7 +33,7 @@ public:
     static const int NameRole = Qt::UserRole + 1;
     static const int TypeRole = Qt::UserRole + 2;
 
-    explicit ClassesModel(QList<ClassDescription> *classes, QObject *parent = 0);
+    explicit ClassesModel(QList<ClassDescription> *classes, QObject *parent = nullptr);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
@@ -57,7 +57,7 @@ class ClassesSortFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit ClassesSortFilterProxyModel(ClassesModel *source_model, QObject *parent = 0);
+    explicit ClassesSortFilterProxyModel(ClassesModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

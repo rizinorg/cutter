@@ -13,7 +13,7 @@ class RenameDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit RenameDialog(QWidget *parent = 0);
+    explicit RenameDialog(QWidget *parent = nullptr);
     ~RenameDialog();
 
     void setName(QString fcnName);

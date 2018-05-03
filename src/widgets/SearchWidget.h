@@ -24,7 +24,7 @@ public:
     enum Columns { OFFSET = 0, SIZE, CODE, DATA, COUNT };
     static const int SearchDescriptionRole = Qt::UserRole;
 
-    SearchModel(QList<SearchDescription> *search, QObject *parent = 0);
+    SearchModel(QList<SearchDescription> *search, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -43,7 +43,7 @@ class SearchSortFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    SearchSortFilterProxyModel(SearchModel *source_model, QObject *parent = 0);
+    SearchSortFilterProxyModel(SearchModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

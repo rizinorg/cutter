@@ -30,7 +30,7 @@ public:
     enum Column { NameColumn = 0, SizeColumn, AddressColumn, EndAddressColumn, ColumnCount };
     enum Role { SectionDescriptionRole = Qt::UserRole };
 
-    SectionsModel(QList<SectionDescription> *sections, QObject *parent = Q_NULLPTR);
+    SectionsModel(QList<SectionDescription> *sections, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -47,7 +47,7 @@ class SectionsProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    SectionsProxyModel(SectionsModel *sourceModel, QObject *parent = Q_NULLPTR);
+    SectionsProxyModel(SectionsModel *sourceModel, QObject *parent = nullptr);
 
 private slots:
     void onSourceModelDataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight,
@@ -62,7 +62,7 @@ class SectionsWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit SectionsWidget(MainWindow *main, QAction *action = Q_NULLPTR);
+    explicit SectionsWidget(MainWindow *main, QAction *action = nullptr);
     ~SectionsWidget();
 
 protected:
