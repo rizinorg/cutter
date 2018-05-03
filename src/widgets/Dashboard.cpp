@@ -116,7 +116,7 @@ void Dashboard::updateContents()
         lines.removeLast();
     }
 
-    // dunno: why not label->setText(lines.join("\n")?Core()->cmd
+    // dunno: why not label->setText(lines.join("\n")?
     while (ui->verticalLayout_2->count() > 0) {
         QLayoutItem *item = ui->verticalLayout_2->takeAt(0);
         if (item != nullptr) {
