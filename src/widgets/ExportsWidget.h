@@ -16,12 +16,7 @@ namespace Ui {
 class ExportsWidget;
 }
 
-
-class MainWindow;
-class QTreeWidgetItem;
-
-
-class ExportsModel: public QAbstractListModel
+class ExportsModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -44,8 +39,6 @@ public:
     void endReloadExports();
 };
 
-
-
 class ExportsProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
@@ -57,8 +50,6 @@ protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
-
-
 
 class ExportsWidget : public CutterDockWidget
 {
@@ -82,6 +73,5 @@ private:
 
     void setScrollMode();
 };
-
 
 #endif // EXPORTSWIDGET_H

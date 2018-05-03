@@ -53,7 +53,6 @@
 #include "widgets/SearchWidget.h"
 #include "widgets/SymbolsWidget.h"
 #include "widgets/StringsWidget.h"
-#include "widgets/SectionsDock.h"
 #include "widgets/RelocsWidget.h"
 #include "widgets/FlagsWidget.h"
 #include "widgets/VisualNavbar.h"
@@ -163,7 +162,7 @@ void MainWindow::initUI()
     // Hide centralWidget as we do not need it
     ui->centralWidget->hide();
 
-    sectionsDock = new SectionsDock(this, ui->actionSections);
+    sectionsDock = new SectionsWidget(this, ui->actionSections);
     entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
     functionsDock = new FunctionsWidget(this, ui->actionFunctions);
     importsDock = new ImportsWidget(this, ui->actionImports);
