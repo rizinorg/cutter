@@ -45,7 +45,7 @@ public:
                   NlocalsColumn, CcColumn, CalltypeColumn, ColumnCount };
 
     FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, ut64 *mainAdress,
-                  bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = 0);
+                  bool nested, QFont defaultFont, QFont highlightFont, QObject *parent = nullptr);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -81,7 +81,7 @@ class FunctionSortFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    FunctionSortFilterProxyModel(FunctionModel *source_model, QObject *parent = 0);
+    FunctionSortFilterProxyModel(FunctionModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

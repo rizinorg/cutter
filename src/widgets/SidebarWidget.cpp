@@ -8,7 +8,6 @@
 #include <QTemporaryFile>
 #include <QFontDialog>
 #include <QScrollBar>
-#include <QClipboard>
 #include <QShortcut>
 #include <QMenu>
 #include <QFont>
@@ -191,7 +190,7 @@ void SidebarWidget::fillOffsetInfo(QString off)
     ui->offsetTreeWidget->clear();
     QString raw = Core()->getOffsetInfo(off);
     QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);
-    foreach (QString line, lines) {
+    for (QString line : lines) {
         QList<QString> eles = line.split(":", QString::SkipEmptyParts);
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, eles.at(0).toUpper());
@@ -240,11 +239,11 @@ void SidebarWidget::fillRegistersInfo()
     ui->regInfoTreeWidget->clear();
 
     QJsonObject jsonRoot = Core()->getRegistersInfo().object();
-    foreach (QString key, jsonRoot.keys()) {
+    for (QString key : jsonRoot.keys()) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         QString tempString;
         tempItem->setText(0, key.toUpper());
-        foreach (QJsonValue value, jsonRoot[key].toArray()) {
+        for (QJsonValue value : jsonRoot[key].toArray()) {
             tempString.append(value.toString() + " ");
         }
         tempItem->setText(1, tempString);

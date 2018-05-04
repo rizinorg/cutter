@@ -16,12 +16,7 @@ namespace Ui {
 class ExportsWidget;
 }
 
-
-class MainWindow;
-class QTreeWidgetItem;
-
-
-class ExportsModel: public QAbstractListModel
+class ExportsModel : public QAbstractListModel
 {
     Q_OBJECT
 
@@ -32,7 +27,7 @@ public:
     enum Column { OffsetColumn = 0, SizeColumn, TypeColumn, NameColumn, ColumnCount };
     enum Role { ExportDescriptionRole = Qt::UserRole };
 
-    ExportsModel(QList<ExportDescription> *exports, QObject *parent = Q_NULLPTR);
+    ExportsModel(QList<ExportDescription> *exports, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -44,21 +39,17 @@ public:
     void endReloadExports();
 };
 
-
-
 class ExportsProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
 public:
-    ExportsProxyModel(ExportsModel *source_model, QObject *parent = Q_NULLPTR);
+    ExportsProxyModel(ExportsModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
-
-
 
 class ExportsWidget : public CutterDockWidget
 {
@@ -82,6 +73,5 @@ private:
 
     void setScrollMode();
 };
-
 
 #endif // EXPORTSWIDGET_H

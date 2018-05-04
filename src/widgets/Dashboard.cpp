@@ -4,6 +4,8 @@
 #include "utils/JsonModel.h"
 #include "utils/JsonTreeItem.h"
 #include "utils/TempConfig.h"
+#include "dialogs/VersionInfoDialog.h"
+
 
 #include "MainWindow.h"
 
@@ -192,5 +194,19 @@ void Dashboard::on_certificateButton_clicked()
                                          "There is no certificate information",
                                          QMessageBox::NoButton, this);
         msgBoxCertificateInf.exec();
+    }
+}
+
+void Dashboard::on_versioninfoButton_clicked()
+{
+
+    static QDialog *infoDialog = nullptr;
+
+    if (!infoDialog){
+        infoDialog = new VersionInfoDialog(this);
+    }
+
+    if (!infoDialog->isVisible()) {
+        infoDialog->show();
     }
 }

@@ -885,7 +885,51 @@
                     </layout>
                    </widget>
                   </item>
+
                   <item row="3" column="0">
+                   <widget class="QCheckBox" name="scriptCheckBox">
+                    <property name="text">
+                     <string>Load script file</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1">
+                   <widget class="QWidget" name="scriptWidget" native="true">
+                    <property name="enabled">
+                     <bool>true</bool>
+                    </property>
+                    <layout class="QHBoxLayout" name="scriptLayout">
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="scriptLineEdit">
+                       <property name="placeholderText">
+                        <string>Path to radare2 script file</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="scriptSelectButton">
+                       <property name="text">
+                        <string>Select</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                  
+                  <item row="4" column="0">
                    <widget class="QLabel" name="analbbLabel">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -904,7 +948,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="3" column="1">
+                  <item row="4" column="1">
                    <widget class="QLineEdit" name="entry_analbb">
                     <property name="text">
                      <string>1024</string>

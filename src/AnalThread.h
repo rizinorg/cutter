@@ -11,7 +11,7 @@ class AnalThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit AnalThread(OptionsDialog *parent = 0);
+    explicit AnalThread(OptionsDialog *parent = nullptr);
     ~AnalThread();
 
     void start(MainWindow *main, int level, QList<QString> advanced);

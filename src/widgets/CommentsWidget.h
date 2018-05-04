@@ -2,7 +2,10 @@
 #define COMMENTSWIDGET_H
 
 #include <memory>
+#include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 
+#include "Cutter.h"
 #include "CutterDockWidget.h"
 
 class MainWindow;
@@ -11,6 +14,51 @@ class QTreeWidgetItem;
 namespace Ui {
 class CommentsWidget;
 }
+
+class CommentsModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+private:
+    QList<CommentDescription> *comments;
+    QMap<QString, QList<CommentDescription>> *nestedComments;
+    bool nested;
+
+public:
+    enum Column { OffsetColumn = 0, FunctionColumn, CommentColumn, ColumnCount };
+    enum NestedColumn { OffsetNestedColumn = 0, CommentNestedColumn, NestedColumnCount };
+    enum Role { CommentDescriptionRole = Qt::UserRole, FunctionRole };
+
+    CommentsModel(QList<CommentDescription> *comments, QMap<QString, QList<CommentDescription>> *nestedComments,
+                  QObject *parent = nullptr);
+
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+    QModelIndex parent(const QModelIndex &index) const;
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    void beginReloadComments();
+    void endReloadComments();
+
+    bool isNested() const;
+    void setNested(bool nested);
+};
+
+class CommentsProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    CommentsProxyModel(CommentsModel *sourceModel, QObject *parent = nullptr);
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+};
 
 class CommentsWidget : public CutterDockWidget
 {
@@ -24,11 +72,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
-    void on_commentsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
-    void on_nestedCmtsTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
-
-    void on_toolButton_clicked();
-    void on_toolButton_2_clicked();
+    void on_commentsTreeView_doubleClicked(const QModelIndex &index);
 
     void on_actionHorizontal_triggered();
     void on_actionVertical_triggered();
@@ -39,7 +83,15 @@ private slots:
 
 private:
     std::unique_ptr<Ui::CommentsWidget> ui;
-    MainWindow      *main;
+    MainWindow *main;
+
+    CommentsModel *commentsModel;
+    CommentsProxyModel *commentsProxyModel;
+
+    QList<CommentDescription> comments;
+    QMap<QString, QList<CommentDescription>> nestedComments;
+
+    void setScrollMode();
 };
 
 #endif // COMMENTSWIDGET_H

@@ -13,7 +13,7 @@
 class JsonTreeItem
 {
 public:
-    JsonTreeItem(JsonTreeItem *parent = 0);
+    JsonTreeItem(JsonTreeItem *parent = nullptr);
     ~JsonTreeItem();
     void appendChild(JsonTreeItem *item);
     JsonTreeItem *child(int row);
@@ -26,7 +26,7 @@ public:
     QString key() const;
     QString value() const;
     QJsonValue::Type type() const;
-    static JsonTreeItem *load(const QJsonValue &value, JsonTreeItem *parent = 0);
+    static JsonTreeItem *load(const QJsonValue &value, JsonTreeItem *parent = nullptr);
 
 private:
     QString mKey;

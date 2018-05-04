@@ -120,7 +120,6 @@ SOURCES += \
     widgets/PieView.cpp \
     widgets/RelocsWidget.cpp \
     widgets/SdbDock.cpp \
-    widgets/SectionsDock.cpp \
     widgets/SectionsWidget.cpp \
     widgets/Sidebar.cpp \
     widgets/StringsWidget.cpp \
@@ -156,7 +155,8 @@ SOURCES += \
     widgets/CutterDockWidget.cpp \
     widgets/GraphWidget.cpp \
     utils/JsonTreeItem.cpp \
-    utils/JsonModel.cpp
+    utils/JsonModel.cpp \
+    dialogs/VersionInfoDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -191,7 +191,6 @@ HEADERS  += \
     widgets/PieView.h \
     widgets/RelocsWidget.h \
     widgets/SdbDock.h \
-    widgets/SectionsDock.h \
     widgets/SectionsWidget.h \
     widgets/Sidebar.h \
     widgets/StringsWidget.h \
@@ -227,7 +226,8 @@ HEADERS  += \
     widgets/CutterDockWidget.h \
     widgets/GraphWidget.h \
     utils/JsonTreeItem.h \
-    utils/JsonModel.h
+    utils/JsonModel.h \
+    dialogs/VersionInfoDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -250,7 +250,7 @@ FORMS    += \
     widgets/ImportsWidget.ui \
     widgets/SdbDock.ui \
     widgets/RelocsWidget.ui \
-    widgets/SectionsDock.ui \
+    widgets/SectionsWidget.ui \
     widgets/Sidebar.ui \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
@@ -267,7 +267,8 @@ FORMS    += \
     widgets/TypesWidget.ui \
     widgets/SearchWidget.ui \
     widgets/JupyterWidget.ui \
-    dialogs/R2PluginsDialog.ui
+    dialogs/R2PluginsDialog.ui \
+    dialogs/VersionInfoDialog.ui
 
 RESOURCES += \
     resources.qrc \

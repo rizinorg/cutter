@@ -98,7 +98,7 @@ protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);
     // The vertical margin between blocks
-    int block_vertical_margin = 20;
+    int block_vertical_margin = 40;
     int block_horizontal_margin = 10;
 
     // Padding inside the block

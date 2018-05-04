@@ -49,7 +49,7 @@ class PieView : public QAbstractItemView
     Q_OBJECT
 
 public:
-    explicit PieView(QWidget *parent = 0);
+    explicit PieView(QWidget *parent = nullptr);
 
     QRect visualRect(const QModelIndex &index) const override;
     void scrollTo(const QModelIndex &index, ScrollHint hint = EnsureVisible) override;

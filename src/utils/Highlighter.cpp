@@ -13,7 +13,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
     keywordFormat.setForeground(QColor(65, 131, 215));
     keywordFormat.setFontWeight(QFont::Bold);
 
-    foreach (const QString &pattern, this->core->opcodes) {
+    for (const QString &pattern : this->core->opcodes) {
         rule.pattern = QRegExp("\\b" + pattern + "\\b");
         rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
         rule.format = keywordFormat;
@@ -23,7 +23,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
     regFormat.setForeground(QColor(236, 100, 75));
     regFormat.setFontWeight(QFont::Bold);
 
-    foreach (const QString &pattern, this->core->regs) {
+    for (const QString &pattern : this->core->regs) {
         rule.pattern = QRegExp("\\b" + pattern + "\\b");
         rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
         rule.format = regFormat;
@@ -43,7 +43,7 @@ Highlighter::Highlighter(QTextDocument *parent) :
 
 void Highlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
+    for (const HighlightingRule &rule : highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
         while (index >= 0) {

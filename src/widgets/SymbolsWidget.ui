@@ -28,47 +28,29 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTreeWidget" name="symbolsTreeWidget">
-      <property name="styleSheet">
-       <string notr="true">QTreeWidget::item
-{
-    padding-top: 1px;
-    padding-bottom: 1px;
-}
-</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="lineWidth">
-       <number>0</number>
-      </property>
-      <property name="indentation">
-       <number>8</number>
-      </property>
+     <widget class="QTreeView" name="symbolsTreeView">
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
-      <column>
-       <property name="text">
-        <string>Address</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Type</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Name</string>
-       </property>
-      </column>
+      <attribute name="headerShowSortIndicator" stdset="0">
+       <bool>true</bool>
+      </attribute>
      </widget>
+    </item>
+    <item>
+     <widget class="QuickFilterView" name="quickFilterView" native="true"/>
     </item>
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

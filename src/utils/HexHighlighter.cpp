@@ -26,7 +26,7 @@ HexHighlighter::HexHighlighter(QTextDocument *parent)
                     << "\\b6e\\b" << "\\b6f\\b" << "\\b70\\b" << "\\b71\\b" << "\\b72\\b" << "\\b73\\b" << "\\b74\\b"
                     << "\\b75\\b" << "\\b76\\b" << "\\b77\\b" << "\\b78\\b" << "\\b79\\b" << "\\b7a\\b" << "\\b7b\\b"
                     << "\\b7c\\b" << "\\b7d\\b" << "\\b7e\\b" << "\\b7f\\b";
-    foreach (const QString &pattern, keywordPatterns) {
+    for (const QString &pattern : keywordPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
         rule.format = keywordFormat;
@@ -45,7 +45,7 @@ HexHighlighter::HexHighlighter(QTextDocument *parent)
 
 void HexHighlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
+    for (const HighlightingRule &rule : highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
         while (index >= 0) {

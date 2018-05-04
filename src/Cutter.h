@@ -70,6 +70,11 @@ inline QString RSizeString(RVA size)
     return QString::asprintf("%lld", size);
 }
 
+inline QString RHexString(RVA size)
+{
+    return QString::asprintf("%#llx", size);
+}
+
 struct FunctionDescription {
     RVA offset;
     RVA size;
@@ -270,6 +275,7 @@ Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
 Q_DECLARE_METATYPE(SearchDescription)
+Q_DECLARE_METATYPE(SectionDescription)
 
 class CutterCore: public QObject
 {
@@ -277,7 +283,7 @@ class CutterCore: public QObject
     friend class ccClass;
 
 public:
-    explicit CutterCore(QObject *parent = 0);
+    explicit CutterCore(QObject *parent = nullptr);
     ~CutterCore();
     static CutterCore *getInstance();
 
@@ -390,6 +396,7 @@ public:
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
     QJsonDocument getFileInfo();
+    QJsonDocument getFileVersionInfo();
     QStringList getStats();
     QString getSimpleGraph(QString function);
 

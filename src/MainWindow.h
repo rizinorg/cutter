@@ -32,7 +32,7 @@ class Dashboard;
 class QLineEdit;
 class SdbDock;
 class QAction;
-class SectionsDock;
+class SectionsWidget;
 class ConsoleWidget;
 class EntrypointWidget;
 class DisassemblerGraphView;
@@ -58,7 +58,7 @@ class MainWindow : public QMainWindow
 public:
     bool responsive;
 
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
     void openNewFile(const QString &fn, int analLevel = -1,
@@ -188,7 +188,7 @@ private:
     Dashboard          *dashboardDock = nullptr;
     QLineEdit          *gotoEntry = nullptr;
     SdbDock            *sdbDock = nullptr;
-    SectionsDock       *sectionsDock = nullptr;
+    SectionsWidget     *sectionsDock = nullptr;
     ConsoleWidget      *consoleDock = nullptr;
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;

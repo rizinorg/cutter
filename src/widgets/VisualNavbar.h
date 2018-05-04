@@ -35,7 +35,7 @@ class VisualNavbar : public QToolBar
     };
 
 public:
-    explicit VisualNavbar(MainWindow *main, QWidget *parent = 0);
+    explicit VisualNavbar(MainWindow *main, QWidget *parent = nullptr);
 
 public slots:
     void paintEvent(QPaintEvent *event) override;

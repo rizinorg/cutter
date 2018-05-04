@@ -105,6 +105,7 @@ void Configuration::loadDefaultTheme()
     setColor("highlight",   QColor(210, 210, 255));
     // Windows background
     setColor("gui.background", QColor(255, 255, 255));
+    setColor("gui.disass_selected", QColor(255, 255, 255));
     // Disassembly nodes background
     setColor("gui.alt_background", QColor(245, 250, 255));
     // Custom
@@ -117,7 +118,7 @@ void Configuration::loadDefaultTheme()
     setColor("gui.navbar.empty", QColor(100, 100, 100));
 }
 
-void Configuration::loadDarkTheme()
+void Configuration::loadBaseDark()
 {
     /* Load Qt Theme */
     QFile f(":qdarkstyle/style.qss");
@@ -146,12 +147,6 @@ void Configuration::loadDarkTheme()
     // GUI
     setColor("gui.cflow",   QColor(255, 255, 255));
     setColor("gui.dataoffset", QColor(255, 255, 255));
-    setColor("gui.border",  QColor(255, 255, 255));
-    setColor("highlight", QColor(64, 115, 115));
-    // Windows background
-    setColor("gui.background", QColor(36, 66, 79));
-    // Disassembly nodes background
-    setColor("gui.alt_background", QColor(58, 100, 128));
     // Custom
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
@@ -160,6 +155,34 @@ void Configuration::loadDarkTheme()
     setColor("gui.navbar.str", QColor(69, 104, 229));
     setColor("gui.navbar.sym", QColor(229, 150, 69));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
+}
+
+void Configuration::loadDarkTheme()
+{
+    loadBaseDark();
+    setColor("gui.border",  QColor(255, 255, 255));
+    // Windows background
+    setColor("gui.background", QColor(36, 66, 79));
+    // Disassembly nodes background
+    setColor("gui.alt_background", QColor(58, 100, 128));
+    // Disassembly nodes background when selected
+    setColor("gui.disass_selected", QColor(36, 66, 79));
+    // Disassembly line selected
+    setColor("highlight", QColor(64, 115, 115));
+}
+
+void Configuration::loadDarkGreyTheme()
+{
+    loadBaseDark();
+    setColor("gui.border",  QColor(100,100,100));
+    // Windows background
+    setColor("gui.background", QColor(37, 40, 43));
+    // Disassembly nodes background
+    setColor("gui.alt_background", QColor(28, 31, 36));
+    // Disassembly nodes background when selected
+    setColor("gui.disass_selected", QColor(44, 53, 54));
+    // Disassembly line selected
+    setColor("highlight", QColor(21, 29, 29));
 }
 
 const QFont Configuration::getFont() const
@@ -174,12 +197,17 @@ void Configuration::setFont(const QFont &font)
     emit fontsUpdated();
 }
 
-void Configuration::setDarkTheme(bool set)
+void Configuration::setDarkTheme(int theme)
 {
-    s.setValue("dark", set);
-    if (set) {
+    s.setValue("dark", theme);
+    switch(theme){
+    case 1:
         loadDarkTheme();
-    } else {
+        break;
+    case 2:
+        loadDarkGreyTheme();
+        break;
+    default:
         loadDefaultTheme();
     }
     emit colorsUpdated();

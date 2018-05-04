@@ -1,73 +1,32 @@
-#include "widgets/SectionsWidget.h"
-#include "widgets/PieView.h"
+#include <QMenu>
+#include <QSplitter>
+#include <QTreeView>
+#include <QResizeEvent>
+
+#include "SectionsWidget.h"
+#include "ui_SectionsWidget.h"
+#include "PieView.h"
 
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 
-#include <QtWidgets>
-#include <QTreeWidget>
-
-SectionsWidget::SectionsWidget(MainWindow *main, QWidget *parent) :
-    QSplitter(main),
-    main(main)
+SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
+    : QAbstractListModel(parent),
+      sections(sections)
 {
-    Q_UNUSED(parent);
-
-    setupViews();
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-    connect(this->tree, SIGNAL(doubleClicked(const QModelIndex &)), this,
-            SLOT(onSectionsDoubleClicked(const QModelIndex &)));
-
-    tree->sortByColumn(0, Qt::AscendingOrder);
-
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
 }
 
-void SectionsWidget::refreshSections()
+int SectionsModel::rowCount(const QModelIndex &) const
 {
-    tree->clear();
-
-    int row = 0;
-    for (auto section : Core()->getAllSections()) {
-        fillSections(row++, section);
-    }
-
-    qhelpers::adjustColumns(tree, 0);
+    return sections->count();
 }
 
-void SectionsWidget::setupViews()
+int SectionsModel::columnCount(const QModelIndex &) const
 {
-    // Table view
-    this->tree = new QTreeWidget;
-    this->tree->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->tree->setIndentation(10);
-
-    // Setup TreeWidget
-    this->tree->setColumnCount(4);
-    QList<QString> headers;
-    headers << tr("Name") << tr("Size") << tr("Address") << tr("End Address");
-    this->tree->setHeaderLabels(headers);
-
-    this->tree->setFrameShape(QFrame::NoFrame);
-    this->tree->setSortingEnabled(true);
-
-    pieChart = new PieView;
-    pieChart->setFrameShape(QFrame::NoFrame);
-    pieChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->addWidget(this->tree);
-    this->addWidget(pieChart);
-    this->setStretchFactor(0, 4);
-
-    //this->tree->setModel(model);
-    pieChart->setModel(this->tree->model());
-
-    QItemSelectionModel *selectionModel = new QItemSelectionModel(this->tree->model());
-    this->tree->setSelectionModel(selectionModel);
-    pieChart->setSelectionModel(selectionModel);
+    return SectionsModel::ColumnCount;
 }
 
-void SectionsWidget::fillSections(int row, const SectionDescription &section)
+QVariant SectionsModel::data(const QModelIndex &index, int role) const
 {
     // TODO: create unique colors, e. g. use HSV color space and rotate in H for 360/size
     static const QList<QColor> colors = { QColor("#1ABC9C"),    //TURQUOISE
@@ -83,14 +42,200 @@ void SectionsWidget::fillSections(int row, const SectionDescription &section)
                                           QColor("#95A5A6")     //COBCRETE
                                         };
 
-    QTreeWidgetItem *tempItem = new QTreeWidgetItem();
-    tempItem->setText(0, section.name);
-    tempItem->setData(1, Qt::DisplayRole, section.size);
-    tempItem->setTextAlignment(1, Qt::AlignRight | Qt::AlignVCenter);
-    tempItem->setText(2, RAddressString(section.vaddr));
-    tempItem->setText(3, RAddressString(section.vaddr + section.vsize));
-    tempItem->setData(0, Qt::DecorationRole, colors[row % colors.size()]);
-    this->tree->insertTopLevelItem(0, tempItem);
+    if (index.row() >= sections->count())
+        return QVariant();
+
+    const SectionDescription &section = sections->at(index.row());
+
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (index.column()) {
+        case SectionsModel::NameColumn:
+            return section.name;
+        case SectionsModel::SizeColumn:
+            return section.size;
+        case SectionsModel::AddressColumn:
+            return RAddressString(section.vaddr);
+        case SectionsModel::EndAddressColumn:
+            return RAddressString(section.vaddr + section.size);
+        default:
+            return QVariant();
+        }
+    case Qt::DecorationRole:
+        if (index.column() == 0)
+            return colors[index.row() % colors.size()];
+        return QVariant();
+    case SectionsModel::SectionDescriptionRole:
+        return QVariant::fromValue(section);
+    default:
+        return QVariant();
+    }
+}
+
+QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
+{
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (section) {
+        case SectionsModel::NameColumn:
+            return tr("Name");
+        case SectionsModel::SizeColumn:
+            return tr("Size");
+        case SectionsModel::AddressColumn:
+            return tr("Address");
+        case SectionsModel::EndAddressColumn:
+            return tr("EndAddress");
+        default:
+            return QVariant();
+        }
+    default:
+        return QVariant();
+    }
+}
+
+void SectionsModel::beginReloadSections()
+{
+    beginResetModel();
+}
+
+void SectionsModel::endReloadSections()
+{
+    endResetModel();
+    // Update PieChart
+    emit dataChanged(QModelIndex(), QModelIndex());
+}
+
+SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+    setSourceModel(sourceModel);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
+    connect(sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
+            this, SLOT(onSourceModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
+}
+
+void SectionsProxyModel::onSourceModelDataChanged(const QModelIndex &topLeft,
+                                                  const QModelIndex &bottomRight,
+                                                  const QVector<int> &roles)
+{
+    // Pass the signal further to update PieChart
+    emit dataChanged(topLeft, bottomRight, roles);
+}
+
+bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    auto leftSection = left.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
+    auto rightSection = right.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
+
+    switch (left.column()) {
+    case SectionsModel::NameColumn:
+        return leftSection.name < rightSection.name;
+    case SectionsModel::SizeColumn:
+        return leftSection.size < rightSection.size;
+    case SectionsModel::AddressColumn:
+    case SectionsModel::EndAddressColumn:
+        return leftSection.vaddr < rightSection.vaddr;
+    default:
+        break;
+    }
+
+    return false;
+}
+
+SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
+    CutterDockWidget(main, action),
+    ui(new Ui::SectionsWidget),
+    main(main)
+{
+    ui->setupUi(this);
+
+    sectionsModel = new SectionsModel(&sections, this);
+    sectionsProxyModel = new SectionsProxyModel(sectionsModel, this);
+
+    setupViews();
+
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showSectionsContextMenu(const QPoint &)));
+
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
+}
+
+SectionsWidget::~SectionsWidget() {}
+
+void SectionsWidget::resizeEvent(QResizeEvent *event)
+{
+    if (main->responsive && isVisible()) {
+        if (event->size().width() >= event->size().height()) {
+            on_actionHorizontal_triggered();
+        } else {
+            on_actionVertical_triggered();
+        }
+    }
+    QWidget::resizeEvent(event);
+}
+
+void SectionsWidget::showSectionsContextMenu(const QPoint &pt)
+{
+    // Set functions popup menu
+    QMenu *menu = new QMenu(this);
+    menu->clear();
+    menu->addAction(ui->actionHorizontal);
+    menu->addAction(ui->actionVertical);
+
+    if (splitter->orientation() == 1) {
+        ui->actionHorizontal->setChecked(true);
+        ui->actionVertical->setChecked(false);
+    } else {
+        ui->actionVertical->setChecked(true);
+        ui->actionHorizontal->setChecked(false);
+    }
+
+    menu->exec(mapToGlobal(pt));
+    delete menu;
+}
+
+void SectionsWidget::refreshSections()
+{
+    sectionsModel->beginReloadSections();
+    sections = Core()->getAllSections();
+    sectionsModel->endReloadSections();
+
+    qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
+}
+
+void SectionsWidget::setupViews()
+{
+    splitter = new QSplitter;
+    sectionsTable = new QTreeView;
+    sectionsPieChart = new PieView;
+
+    splitter->addWidget(sectionsTable);
+    splitter->addWidget(sectionsPieChart);
+    //splitter->setStretchFactor(0, 4);
+
+    sectionsTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    sectionsTable->setIndentation(10);
+    sectionsTable->setFrameShape(QFrame::NoFrame);
+    sectionsTable->setSortingEnabled(true);
+    sectionsTable->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
+    connect(sectionsTable, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
+
+    sectionsPieChart->setFrameShape(QFrame::NoFrame);
+    sectionsPieChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    sectionsTable->setModel(sectionsProxyModel);
+    sectionsPieChart->setModel(sectionsProxyModel);
+
+    QItemSelectionModel *selectionModel = new QItemSelectionModel(sectionsProxyModel);
+    sectionsTable->setSelectionModel(selectionModel);
+    sectionsPieChart->setSelectionModel(selectionModel);
+
+    setWidget(splitter);
 }
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
@@ -98,7 +243,16 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    QTreeWidgetItem *section = tree->topLevelItem(index.row());
-    auto addr = section->text(2);
-    Core()->seek(addr);
+    auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
+    Core()->seek(section.vaddr);
+}
+
+void SectionsWidget::on_actionVertical_triggered()
+{
+    splitter->setOrientation(Qt::Vertical);
+}
+
+void SectionsWidget::on_actionHorizontal_triggered()
+{
+    splitter->setOrientation(Qt::Horizontal);
 }
