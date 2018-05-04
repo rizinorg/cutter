@@ -15,7 +15,7 @@ class VersionInfoDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit VersionInfoDialog(QWidget *parent = 0);
+    explicit VersionInfoDialog(QWidget *parent = nullptr);
     ~VersionInfoDialog();
 
 private:

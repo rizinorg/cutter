@@ -27,7 +27,7 @@ public:
     enum Column { OffsetColumn = 0, SizeColumn, TypeColumn, NameColumn, ColumnCount };
     enum Role { ExportDescriptionRole = Qt::UserRole };
 
-    ExportsModel(QList<ExportDescription> *exports, QObject *parent = Q_NULLPTR);
+    ExportsModel(QList<ExportDescription> *exports, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -44,7 +44,7 @@ class ExportsProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    ExportsProxyModel(ExportsModel *source_model, QObject *parent = Q_NULLPTR);
+    ExportsProxyModel(ExportsModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

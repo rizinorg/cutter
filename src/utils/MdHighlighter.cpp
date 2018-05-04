@@ -15,7 +15,7 @@ MdHighlighter::MdHighlighter(QTextDocument *parent)
                     << "\\*([^\\\\]+)\\*" << "\\_([^\\\\]+)\\_"
                     << "\\_\\_([^\\\\]+)\\_\\_";
 
-    foreach (const QString &pattern, keywordPatterns) {
+    for (const QString &pattern : keywordPatterns) {
         rule.pattern = QRegExp(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
@@ -30,7 +30,7 @@ MdHighlighter::MdHighlighter(QTextDocument *parent)
 
 void MdHighlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
+    for (const HighlightingRule &rule : highlightingRules) {
         QRegExp expression(rule.pattern);
         int index = expression.indexIn(text);
         while (index >= 0) {

@@ -376,13 +376,13 @@ void MainWindow::saveSettings()
 void MainWindow::setPanelLock()
 {
     if (panelLock) {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
 
         ui->actionLock->setChecked(false);
     } else {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
 
@@ -411,11 +411,11 @@ void MainWindow::refreshAll()
 void MainWindow::lockUnlock_Docks(bool what)
 {
     if (what) {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
     } else {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
     }
@@ -549,12 +549,12 @@ void MainWindow::on_actionLock_triggered()
 void MainWindow::on_actionLockUnlock_triggered()
 {
     if (ui->actionLockUnlock->isChecked()) {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
         }
         ui->actionLockUnlock->setIcon(QIcon(":/lock"));
     } else {
-        foreach (QDockWidget *dockWidget, findChildren<QDockWidget *>()) {
+        for (QDockWidget *dockWidget : findChildren<QDockWidget *>()) {
             dockWidget->setFeatures(QDockWidget::AllDockWidgetFeatures);
         }
         ui->actionLockUnlock->setIcon(QIcon(":/unlock"));

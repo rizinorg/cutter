@@ -283,7 +283,7 @@ class CutterCore: public QObject
     friend class ccClass;
 
 public:
-    explicit CutterCore(QObject *parent = 0);
+    explicit CutterCore(QObject *parent = nullptr);
     ~CutterCore();
     static CutterCore *getInstance();
 

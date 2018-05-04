@@ -288,7 +288,7 @@ void CutterCore::analyze(int level,  QList<QString> advanced)
     } else if (level == 2) {
         r_core_cmd0(core_, "aaaa");
     } else if (level == 3) {
-        foreach (QString option, advanced) {
+        for (QString option : advanced) {
             r_core_cmd0(core_, option.toStdString().c_str());
         }
     }
@@ -802,7 +802,7 @@ QList<RVA> CutterCore::getSeekHistory()
     QList<RVA> ret;
 
     QJsonArray jsonArray = cmdj("sj").array();
-    foreach (QJsonValue value, jsonArray)
+    for (QJsonValue value : jsonArray)
         ret << value.toVariant().toULongLong();
 
     return ret;
@@ -942,7 +942,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
 
     QJsonArray jsonArray = cmdj("aflj").array();
 
-    foreach (QJsonValue value, jsonArray) {
+    for (QJsonValue value : jsonArray) {
         QJsonObject jsonObject = value.toObject();
 
         FunctionDescription function;
@@ -969,7 +969,7 @@ QList<ImportDescription> CutterCore::getAllImports()
 
     QJsonArray importsArray = cmdj("iij").array();
 
-    foreach (QJsonValue value, importsArray) {
+    for (QJsonValue value : importsArray) {
         QJsonObject importObject = value.toObject();
 
         ImportDescription import;
@@ -993,7 +993,7 @@ QList<ExportDescription> CutterCore::getAllExports()
 
     QJsonArray importsArray = cmdj("iEj").array();
 
-    foreach (QJsonValue value, importsArray) {
+    for (QJsonValue value : importsArray) {
         QJsonObject importObject = value.toObject();
 
         ExportDescription exp;
@@ -1364,7 +1364,7 @@ QList<TypeDescription> CutterCore::getAllTypes()
 
     QJsonArray typesArray = cmdj("tj").array();
 
-    foreach (QJsonValue value, typesArray) {
+    for (QJsonValue value : typesArray) {
         QJsonObject typeObject = value.toObject();
 
         TypeDescription exp;
@@ -1387,11 +1387,11 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
     QJsonArray searchArray = cmdj(space + QString(" ") + search_for).array();
 
     if (space == "/Rj") {
-        foreach (QJsonValue value, searchArray) {
+        for (QJsonValue value : searchArray) {
             QJsonObject searchObject = value.toObject();
             SearchDescription exp;
             exp.code = QString("");
-            foreach (QJsonValue value2, searchObject["opcodes"].toArray()) {
+            for (QJsonValue value2 : searchObject["opcodes"].toArray()) {
                 QJsonObject gadget = value2.toObject();
                 exp.code += gadget["opcode"].toString() + ";  ";
             }
@@ -1403,7 +1403,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
             ret << exp;
         }
     } else {
-        foreach (QJsonValue value, searchArray) {
+        for (QJsonValue value : searchArray) {
             QJsonObject searchObject = value.toObject();
             SearchDescription exp;
 

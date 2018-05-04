@@ -58,7 +58,7 @@ class MainWindow : public QMainWindow
 public:
     bool responsive;
 
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
     void openNewFile(const QString &fn, int analLevel = -1,

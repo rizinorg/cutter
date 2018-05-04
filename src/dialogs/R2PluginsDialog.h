@@ -15,7 +15,7 @@ class R2PluginsDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit R2PluginsDialog(QWidget *parent = 0);
+    explicit R2PluginsDialog(QWidget *parent = nullptr);
     ~R2PluginsDialog();
 
 private:

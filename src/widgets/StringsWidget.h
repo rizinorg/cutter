@@ -27,7 +27,7 @@ public:
     enum Columns { OFFSET = 0, STRING, TYPE, LENGTH, SIZE, COUNT };
     static const int StringDescriptionRole = Qt::UserRole;
 
-    StringsModel(QList<StringDescription> *strings, QObject *parent = 0);
+    StringsModel(QList<StringDescription> *strings, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -46,7 +46,7 @@ class StringsSortFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    StringsSortFilterProxyModel(StringsModel *source_model, QObject *parent = 0);
+    StringsSortFilterProxyModel(StringsModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;

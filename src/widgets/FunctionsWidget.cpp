@@ -438,7 +438,7 @@ void FunctionsWidget::refreshTree()
     functions = Core()->getAllFunctions();
 
     importAddresses.clear();
-    foreach (ImportDescription import, Core()->getAllImports())
+    for (ImportDescription import : Core()->getAllImports())
         importAddresses.insert(import.plt);
 
     mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();

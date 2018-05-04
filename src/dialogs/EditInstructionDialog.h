@@ -14,7 +14,7 @@ class EditInstructionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditInstructionDialog(QWidget *parent = 0);
+    explicit EditInstructionDialog(QWidget *parent = nullptr);
     ~EditInstructionDialog();
 
     QString getInstruction();

@@ -30,7 +30,7 @@ public:
     enum Role { CommentDescriptionRole = Qt::UserRole, FunctionRole };
 
     CommentsModel(QList<CommentDescription> *comments, QMap<QString, QList<CommentDescription>> *nestedComments,
-                  QObject *parent = Q_NULLPTR);
+                  QObject *parent = nullptr);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -53,7 +53,7 @@ class CommentsProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    CommentsProxyModel(CommentsModel *sourceModel, QObject *parent = Q_NULLPTR);
+    CommentsProxyModel(CommentsModel *sourceModel, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
