@@ -709,6 +709,11 @@ QJsonDocument CutterCore::getFileVersionInfo()
     return cmdj("iVj");
 }
 
+QJsonDocument CutterCore::getSignatureInfo()
+{
+    return cmdj("iCj");
+}
+
 QStringList CutterCore::getStats()
 {
     QStringList stats;

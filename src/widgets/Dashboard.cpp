@@ -156,6 +156,15 @@ void Dashboard::updateContents()
 
     // Get stats for the graphs
     QStringList stats = Core()->getStats();
+
+    // Check if signature info and version info available
+    if (Core()->getSignatureInfo().isEmpty()){
+        ui->certificateButton->setEnabled(false);
+    }
+    if (Core()->getFileVersionInfo().isEmpty()){
+        ui->versioninfoButton->setEnabled(false);
+    }
+
 }
 
 void Dashboard::on_certificateButton_clicked()
@@ -168,32 +177,25 @@ void Dashboard::on_certificateButton_clicked()
         viewDialog = new QDialog(this);
         view = new QTreeView(viewDialog);
         model = new JsonModel();
-        QJsonDocument qjsonCertificatesDoc = Core()->cmdj("iCj");
+        QJsonDocument qjsonCertificatesDoc = Core()->getSignatureInfo();
         qstrCertificates = qjsonCertificatesDoc.toJson(QJsonDocument::Compact);
     }
-    if (QString::compare("{}", qstrCertificates)) {
-        if (!viewDialog->isVisible()) {
-            std::string strCertificates = qstrCertificates.toUtf8().constData();
-            model->loadJson(QByteArray::fromStdString(strCertificates));
-            view->setModel(model);
-            view->expandAll();
-            view->resize(900, 600);
-            QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-            sizePolicy.setHorizontalStretch(0);
-            sizePolicy.setVerticalStretch(0);
-            sizePolicy.setHeightForWidth(view->sizePolicy().hasHeightForWidth());
-            viewDialog->setSizePolicy(sizePolicy);
-            viewDialog->setMinimumSize(QSize(900, 600));
-            viewDialog->setMaximumSize(QSize(900, 600));
-            viewDialog->setSizeGripEnabled(false);
-            viewDialog->setWindowTitle("Certificates");
-            viewDialog->show();
-        }
-    } else {
-        QMessageBox msgBoxCertificateInf(QMessageBox::Information, "Certificate Information ",
-                                         "There is no certificate information",
-                                         QMessageBox::NoButton, this);
-        msgBoxCertificateInf.exec();
+    if (!viewDialog->isVisible()) {
+        std::string strCertificates = qstrCertificates.toUtf8().constData();
+        model->loadJson(QByteArray::fromStdString(strCertificates));
+        view->setModel(model);
+        view->expandAll();
+        view->resize(900, 600);
+        QSizePolicy sizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(view->sizePolicy().hasHeightForWidth());
+        viewDialog->setSizePolicy(sizePolicy);
+        viewDialog->setMinimumSize(QSize(900, 600));
+        viewDialog->setMaximumSize(QSize(900, 600));
+        viewDialog->setSizeGripEnabled(false);
+        viewDialog->setWindowTitle("Certificates");
+        viewDialog->show();
     }
 }
 
