@@ -1164,7 +1164,10 @@ QList<SectionDescription> CutterCore::getAllSections()
     CORE_LOCK();
     QList<SectionDescription> ret;
 
-    QJsonArray sectionsArray = cmdj("Sj").array();
+    QJsonDocument sectionsDoc = cmdj("iSj entropy");
+    QJsonObject sectionsObj = sectionsDoc.object();
+    QJsonArray sectionsArray = sectionsObj["sections"].toArray();
+
     for (QJsonValue value : sectionsArray) {
         QJsonObject sectionObject = value.toObject();
 
@@ -1179,6 +1182,7 @@ QList<SectionDescription> CutterCore::getAllSections()
         section.paddr = sectionObject["paddr"].toVariant().toULongLong();
         section.size = sectionObject["size"].toVariant().toULongLong();
         section.flags = sectionObject["flags"].toString();
+        section.entropy =  sectionObject["entropy"].toString();
 
         ret << section;
     }

@@ -58,6 +58,8 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
             return RAddressString(section.vaddr);
         case SectionsModel::EndAddressColumn:
             return RAddressString(section.vaddr + section.size);
+        case SectionsModel::EntropyColumn:
+            return section.entropy;
         default:
             return QVariant();
         }
@@ -85,6 +87,8 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Address");
         case SectionsModel::EndAddressColumn:
             return tr("EndAddress");
+        case SectionsModel::EntropyColumn:
+            return tr("Entropy");
         default:
             return QVariant();
         }
@@ -136,6 +140,9 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     case SectionsModel::AddressColumn:
     case SectionsModel::EndAddressColumn:
         return leftSection.vaddr < rightSection.vaddr;
+    case SectionsModel::EntropyColumn:
+        return leftSection.entropy < rightSection.entropy;
+
     default:
         break;
     }
