@@ -34,7 +34,6 @@ private:
     int level;
     QList<QString> advanced;
     MainWindow *main;
-    CutterCore *core;
 
     bool interrupted;
 };

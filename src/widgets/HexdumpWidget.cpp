@@ -19,8 +19,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    //this->on_actionSettings_menu_1_triggered();
-
     // Setup hex highlight
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
     //highlightHexCurrentLine();
@@ -297,8 +295,8 @@ void HexdumpWidget::refresh(RVA addr)
     // TODO: Figure out how to calculate a sane value for this
     bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 
-    int loadLines = bufferLines * 3; // total lines to load
-    int curAddrLineOffset = bufferLines; // line number where seek should be
+    ut64 loadLines = bufferLines * 3; // total lines to load
+    ut64 curAddrLineOffset = bufferLines; // line number where seek should be
 
     if (addr < curAddrLineOffset * cols) {
         curAddrLineOffset = static_cast<int>(addr / cols);

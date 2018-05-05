@@ -71,9 +71,6 @@ CutterCore::CutterCore(QObject *parent) :
 #   endif
     setConfig("dir.prefix", prefix.absolutePath());
 #endif
-
-
-    default_bits = 0;
 }
 
 
@@ -209,16 +206,12 @@ QJsonDocument CutterCore::cmdj(const QString &str)
     return doc;
 }
 
-bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, int perms, int va,
-                          int idx, bool loadbin, const QString &forceBinPlugin)
+bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int va,
+                          bool loadbin, const QString &forceBinPlugin)
 {
-    Q_UNUSED(loadaddr);
-    Q_UNUSED(idx);
-
     CORE_LOCK();
     RCoreFile *f;
-    if (va == 0 || va == 2)
-        r_config_set_i(core_->config, "io.va", va);
+    r_config_set_i(core_->config, "io.va", va);
 
     f = r_core_file_open(core_, path.toUtf8().constData(), perms, mapaddr);
     if (!f) {
@@ -230,15 +223,9 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, int
         r_bin_force_plugin(r_core_get_bin(core_), forceBinPlugin.toUtf8().constData());
     }
 
-    if (loadbin) {
-        if (va == 1) {
-            if (!r_core_bin_load(core_, path.toUtf8().constData(), UT64_MAX)) {
-                eprintf("CANNOT GET RBIN INFO\n");
-            }
-        } else {
-            if (!r_core_bin_load(core_, path.toUtf8().constData(), UT64_MAX)) {
-                eprintf("CANNOT GET RBIN INFO\n");
-            }
+    if (loadbin && va) {
+        if (!r_core_bin_load(core_, path.toUtf8().constData(), baddr)) {
+            eprintf("CANNOT GET RBIN INFO\n");
         }
 
 #if HAVE_MULTIPLE_RBIN_FILES_INSIDE_SELECT_WHICH_ONE
@@ -247,7 +234,7 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, int
         } else {
             // load RBin information
             // XXX only for sub-bins
-            r_core_bin_load(core, path.toUtf8(), loadaddr);
+            r_core_bin_load(core, path.toUtf8(), baddr);
             r_bin_select_idx(core_->bin, NULL, idx);
         }
 #endif
@@ -266,8 +253,6 @@ bool CutterCore::loadFile(QString path, uint64_t loadaddr, uint64_t mapaddr, int
     if (perms & R_IO_WRITE) {
         r_core_cmd0 (core_, "omfg+w");
     }
-
-    setDefaultCPU();
 
     r_core_hash_load(core_, path.toUtf8().constData());
     fflush(stdout);
@@ -541,16 +526,11 @@ void CutterCore::setConfig(const QString &k, const QVariant &v)
     }
 }
 
-void CutterCore::setCPU(QString arch, QString cpu, int bits, bool temporary)
+void CutterCore::setCPU(QString arch, QString cpu, int bits)
 {
     setConfig("asm.arch", arch);
     setConfig("asm.cpu", cpu);
     setConfig("asm.bits", bits);
-    if (!temporary) {
-        default_arch = arch;
-        default_cpu = cpu;
-        default_bits = bits;
-    }
 }
 
 void CutterCore::setEndianness(bool big)
@@ -561,16 +541,6 @@ void CutterCore::setEndianness(bool big)
 void CutterCore::setBBSize(int size)
 {
     setConfig("anal.bb.maxsize", size);
-}
-
-void CutterCore::setDefaultCPU()
-{
-    if (!default_arch.isEmpty())
-        setConfig("asm.arch", default_arch);
-    if (!default_cpu.isEmpty())
-        setConfig("asm.cpu", default_cpu);
-    if (default_bits)
-        setConfig("asm.bits", QString::number(default_bits));
 }
 
 QString CutterCore::assemble(const QString &code)

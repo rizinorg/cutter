@@ -220,9 +220,9 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>-636</y>
+           <y>-672</y>
            <width>564</width>
-           <height>831</height>
+           <height>867</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -791,7 +791,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>Load offset:</string>
+                     <string>Load bin offset (-B)</string>
                     </property>
                    </widget>
                   </item>
@@ -801,13 +801,16 @@
                      <string notr="true"/>
                     </property>
                     <property name="text">
-                     <string notr="true">0</string>
+                     <string notr="true"/>
                     </property>
                     <property name="frame">
                      <bool>false</bool>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="placeholderText">
+                     <string>1024</string>
                     </property>
                    </widget>
                   </item>
@@ -826,20 +829,23 @@
                      </size>
                     </property>
                     <property name="text">
-                     <string>Map offset:</string>
+                     <string>Map offset (-m)</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="1">
                    <widget class="QLineEdit" name="entry_mapOffset">
                     <property name="text">
-                     <string>0</string>
+                     <string/>
                     </property>
                     <property name="frame">
                      <bool>false</bool>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="placeholderText">
+                     <string>0x40000</string>
                     </property>
                    </widget>
                   </item>
@@ -871,7 +877,7 @@
                      <item>
                       <widget class="QLineEdit" name="pdbLineEdit">
                        <property name="placeholderText">
-                        <string>pdb file</string>
+                        <string>PDB File path</string>
                        </property>
                       </widget>
                      </item>
@@ -885,7 +891,6 @@
                     </layout>
                    </widget>
                   </item>
-
                   <item row="3" column="0">
                    <widget class="QCheckBox" name="scriptCheckBox">
                     <property name="text">
@@ -928,7 +933,6 @@
                     </layout>
                    </widget>
                   </item>
-                  
                   <item row="4" column="0">
                    <widget class="QLabel" name="analbbLabel">
                     <property name="sizePolicy">
