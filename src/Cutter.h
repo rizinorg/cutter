@@ -165,6 +165,7 @@ struct SectionDescription {
     RVA vsize;
     QString name;
     QString flags;
+    QString entropy;
 };
 
 struct EntrypointDescription {
