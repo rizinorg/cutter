@@ -47,7 +47,9 @@ void AnalThread::run()
     const auto optionsDialog = dynamic_cast<OptionsDialog *>(parent());
     const auto &ui = optionsDialog->ui;
     bool va = ui->vaCheckBox->isChecked();
-    ut64 binLoadAddr = Core()->math(ui->entry_loadOffset->text()); // Where the bin header is located in the file (-B)
+    ut64 binLoadAddr = UT64_MAX;                                   // Where the bin header is located in the file (-B)
+    if (ui->entry_loadOffset->text().length() > 0)
+        binLoadAddr = Core()->math(ui->entry_loadOffset->text());
     ut64 mapAddr = Core()->math(ui->entry_mapOffset->text());      // Where to map the file once loaded (-m)
     interrupted = false;
     emit updateProgress(tr("Loading binary..."));
