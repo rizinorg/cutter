@@ -239,6 +239,17 @@ void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> ad
     displayAnalysisOptionsDialog(analLevel, advancedOptions);
 }
 
+void MainWindow::openNewFileFailed()
+{
+    displayNewFileDialog();
+    QMessageBox mb(this);
+    mb.setIcon(QMessageBox::Critical);
+    mb.setStandardButtons(QMessageBox::Ok);
+    mb.setWindowTitle(tr("Cannot open file!"));
+    mb.setText(tr("Could not open the file! Make sure the file exists and that you have the correct permissions."));
+    mb.exec();
+}
+
 void MainWindow::displayNewFileDialog()
 {
     NewFileDialog *n = new NewFileDialog();
@@ -294,7 +305,6 @@ void MainWindow::finalizeOpen()
     addOutput(tr(" > Finished, happy reversing :)"));
     // Add fortune message
     addOutput("\n" + core->cmd("fo"));
-    //previewDock->setWindowTitle("entry0");
     showMaximized();
 }
 

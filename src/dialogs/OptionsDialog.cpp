@@ -61,7 +61,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(&analThread, SIGNAL(finished()), this, SLOT(anal_finished()));
+    connect(&analThread, SIGNAL(finished()), this, SLOT(analysisFinished()));
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     ui->programLineEdit->setText(main->getFilename());
@@ -171,6 +171,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     // Threads stuff, connect signal/slot
     connect(&analThread, &AnalThread::updateProgress, this, &OptionsDialog::updateProgress);
+    connect(&analThread, &AnalThread::openFileFailed, main, &MainWindow::openNewFileFailed);
     analThread.start(main, level, advanced);
 }
 
@@ -246,14 +247,15 @@ void OptionsDialog::on_okButton_clicked()
     setupAndStartAnalysis(ui->analSlider->value(), advanced);
 }
 
-void OptionsDialog::anal_finished()
+void OptionsDialog::analysisFinished()
 {
     if (analThread.isInterrupted()) {
-        done(0);
+        updateProgress(tr("Analysis aborted."));
+        done(1);
         return;
     }
 
-    ui->statusLabel->setText(tr("Loading interface"));
+    updateProgress(tr("Loading interface..."));
     main->addOutput(tr(" > Analysis finished"));
 
     main->finalizeOpen();

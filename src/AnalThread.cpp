@@ -78,8 +78,14 @@ void AnalThread::run()
     // Do not reload the file if already loaded
     QJsonArray openedFiles = Core()->getOpenedFiles();
     if (!openedFiles.size()) {
-        Core()->loadFile(main->getFilename(), binLoadAddr, mapAddr, perms, va, loadBinInfo,
+        bool fileLoaded = Core()->loadFile(main->getFilename(), binLoadAddr, mapAddr, perms, va, loadBinInfo,
                        forceBinPlugin);
+        if (!fileLoaded) {
+            // Something wrong happened, fallback to open dialog
+            emit openFileFailed();
+            interrupted = true;
+            return;
+        }
     }
 
     // Set asm OS configuration

@@ -214,7 +214,6 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
 
     f = r_core_file_open(core_, path.toUtf8().constData(), perms, mapaddr);
     if (!f) {
-        // @TODO pop warning msg
         eprintf("r_core_file_open failed\n");
         return false;
     }

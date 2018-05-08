@@ -40,7 +40,7 @@ private slots:
     void updatePDBLayout();
     void updateScriptLayout();
     
-    void anal_finished();
+    void analysisFinished();
 
 protected:
     void closeEvent(QCloseEvent *event) override;

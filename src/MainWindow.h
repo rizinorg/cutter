@@ -113,6 +113,8 @@ public slots:
 
     void toggleResponsive(bool maybe);
 
+    void openNewFileFailed();
+
 private slots:
     void on_actionAbout_triggered();
 

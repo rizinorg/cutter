@@ -108,7 +108,7 @@ bool CutterApplication::event(QEvent *e)
         QFileOpenEvent *openEvent = static_cast<QFileOpenEvent *>(e);
         if (openEvent) {
             if (m_FileAlreadyDropped) {
-                // we already dropped a file in macOS, let's spawn another instance
+                // We already dropped a file in macOS, let's spawn another instance
                 // (Like the File -> Open)
                 QString fileName = openEvent->file();
                 QProcess process(this);

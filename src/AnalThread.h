@@ -29,6 +29,7 @@ protected:
 
 signals:
     void updateProgress(QString str);
+    void openFileFailed();
 
 private:
     int level;
