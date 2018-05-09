@@ -123,7 +123,7 @@ protected:
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
-    void adjustSize(int new_width, int new_height);
+    void adjustSize(int new_width, int new_height, QPoint mouse = QPoint(0, 0));
 
     bool event(QEvent *event) override;
 private:

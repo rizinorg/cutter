@@ -281,7 +281,7 @@ void DisassemblyWidget::highlightCurrentLine()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     QColor highlightColor = ConfigColor("highlight");
-    QColor highlightWordColor = ConfigColor("highlight");
+    QColor highlightWordColor = ConfigColor("highlightWord");
     highlightWordColor.setAlpha(128);
     QColor highlightWordCurrentLineColor = ConfigColor("gui.background");
     highlightWordCurrentLineColor.setAlpha(128);

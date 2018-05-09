@@ -150,8 +150,8 @@ public slots:
     void fontsUpdatedSlot();
     void onSeekChanged(RVA addr);
 
-    void zoomIn();
-    void zoomOut();
+    void zoomIn(QPoint mouse = QPoint(0, 0));
+    void zoomOut(QPoint mouse = QPoint(0, 0));
     void zoomReset();
 
     void takeTrue();
@@ -159,6 +159,10 @@ public slots:
 
     void nextInstr();
     void prevInstr();
+
+protected:
+    virtual void wheelEvent(QWheelEvent *event) override;
+
 private slots:
     void seekPrev();
 

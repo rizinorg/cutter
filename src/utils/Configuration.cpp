@@ -103,6 +103,7 @@ void Configuration::loadDefaultTheme()
     setColor("gui.dataoffset", QColor(0, 0, 0));
     setColor("gui.border",  QColor(0, 0, 0));
     setColor("highlight",   QColor(210, 210, 255));
+    setColor("highlightWord", QColor(210, 210, 255));
     // Windows background
     setColor("gui.background", QColor(255, 255, 255));
     setColor("gui.disass_selected", QColor(255, 255, 255));
@@ -169,6 +170,7 @@ void Configuration::loadDarkTheme()
     setColor("gui.disass_selected", QColor(36, 66, 79));
     // Disassembly line selected
     setColor("highlight", QColor(64, 115, 115));
+    setColor("highlightWord", QColor(64, 115, 115));
 }
 
 void Configuration::loadDarkGreyTheme()
@@ -183,6 +185,7 @@ void Configuration::loadDarkGreyTheme()
     setColor("gui.disass_selected", QColor(44, 53, 54));
     // Disassembly line selected
     setColor("highlight", QColor(21, 29, 29));
+    setColor("highlightWord", QColor(100, 100, 100));
 }
 
 const QFont Configuration::getFont() const

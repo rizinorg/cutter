@@ -105,24 +105,30 @@ GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock 
     return ec;
 }
 
-void GraphView::adjustSize(int new_width, int new_height)
+void GraphView::adjustSize(int new_width, int new_height, QPoint mouse)
 {
-    double hfactor = 0.0;
-    double vfactor = 0.0;
-    if (horizontalScrollBar()->maximum()) {
-        hfactor = (double)horizontalScrollBar()->value() / (double)horizontalScrollBar()->maximum();
-    }
-    if (verticalScrollBar()->maximum()) {
-        vfactor = (double)verticalScrollBar()->value() / (double)verticalScrollBar()->maximum();
-    }
+    int originalRangeX = horizontalScrollBar()->maximum();
+    int originalRangeY = verticalScrollBar()->maximum();
+    int newMaxX = width - (new_width / current_scale);
+    int newMaxY = height - (new_height / current_scale);
 
-    //Update scroll bar information
+    // Update scroll bar information
     horizontalScrollBar()->setPageStep(new_width);
-    horizontalScrollBar()->setRange(0, width - (new_width / current_scale));
+    horizontalScrollBar()->setRange(0, newMaxX);
     verticalScrollBar()->setPageStep(new_height);
-    verticalScrollBar()->setRange(0, height - (new_height / current_scale));
-    horizontalScrollBar()->setValue((int)((double)horizontalScrollBar()->maximum() * hfactor));
-    verticalScrollBar()->setValue((int)((double)verticalScrollBar()->maximum() * vfactor));
+    verticalScrollBar()->setRange(0, newMaxY);
+
+    // Compute new scrollBar values so that the mouse always points
+    // to the same place when zooming
+    QPoint mouseLocal = mapFromGlobal(mouse);
+
+    int topX = horizontalScrollBar()->value();
+    int topY = verticalScrollBar()->value();
+
+    int dx = newMaxX - originalRangeX;
+    int dy = newMaxY - originalRangeY;
+    horizontalScrollBar()->setValue(topX + dx*((float)mouseLocal.x()/new_width));
+    verticalScrollBar()->setValue(topY + dy*((float)mouseLocal.y()/new_height));
 }
 
 bool GraphView::event(QEvent *event)
