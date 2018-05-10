@@ -507,20 +507,20 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
     sent_seek = false;
 }
 
-void DisassemblerGraphView::zoomIn()
+void DisassemblerGraphView::zoomIn(QPoint mouse)
 {
     current_scale += 0.1;
     auto areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height());
+    adjustSize(areaSize.width(), areaSize.height(), mouse);
     viewport()->update();
 }
 
-void DisassemblerGraphView::zoomOut()
+void DisassemblerGraphView::zoomOut(QPoint mouse)
 {
     current_scale -= 0.1;
     current_scale = std::max(current_scale, 0.3);
     auto areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height());
+    adjustSize(areaSize.width(), areaSize.height(), mouse);
     viewport()->update();
 }
 
@@ -676,4 +676,26 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     }
     QTextStream fileOut(&file);
     fileOut << Core()->cmd("ag -");
+}
+
+
+void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
+{
+    // when CTRL is pressed, we zoom in/out with mouse wheel
+    if (Qt::ControlModifier == event->modifiers()) {
+        const QPoint numDegrees = event->angleDelta() / 8;
+        if (!numDegrees.isNull()) {
+            const QPoint numSteps = numDegrees / 15;
+            QPoint mouse = event->globalPos();
+            if (numSteps.y() > 0) {
+                zoomIn(mouse);
+            } else if (numSteps.y() < 0) {
+                zoomOut(mouse);
+            }
+        }
+        event->accept();
+    } else {
+        // use mouse wheel for scrolling when CTRL is not pressed
+        GraphView::wheelEvent(event);
+    }
 }
