@@ -1,15 +1,13 @@
-# The final executable after `make clean`
-
-cutter
+# Binaries
+Cutter
 AStyle*
 
-### OSX ###
+# OSX files
 *.DS_Store
 .AppleDouble
 .LSOverride
 
 # C++ objects and libs
-
 *.slo
 *.lo
 *.o
@@ -20,8 +18,7 @@ AStyle*
 *.dll
 *.dylib
 
-# Qt-es
-
+# Qt files
 *.qmake.cache
 *.qmake.stash
 *.pro.user
@@ -34,17 +31,12 @@ qrc_*.cpp
 moc_*.h
 ui_*.h
 Makefile*
-*build-*
+build*
 
 # QtCreator
-
 *.autosave
-
-# QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
-
-# QtCtreator CMake
 CMakeLists.txt.user
 
 # CLion
@@ -53,24 +45,23 @@ CMakeLists.txt.user
 # Vim
 *.swp
 
-#CMake Files:
+# CMake Files:
 src/*_automoc.cpp
 *CMakeCache.txt*
 *cmake_install.cmake*
 src/CMakeFiles/*
 
-# Visual Studio
-build_x86/
-build_x64/
-
-#prepare_r2
+# Prepare_r2
 ninja.exe
 r2_dist_x86/
 r2_dist_x64/
 *.pdb
 
-#Mesonbuild
+# Mesonbuild
 src/subprojects/
 
 # Python
 __pycache__
+
+# Other
+compile_commands.json
