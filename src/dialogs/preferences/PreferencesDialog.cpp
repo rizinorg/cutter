@@ -25,17 +25,17 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         {
             "General",
             new GeneralOptionsWidget(this),
-            QIcon(":/img/icons/preferences.png")
+            QIcon(":/img/icons/cog.svg")
         },
         {
             "Assembly",
             new AsmOptionsWidget(this),
-            QIcon(":/img/icons/assembly.png"),
+            QIcon(":/img/icons/disas.svg"),
             {
                 {
                     "Graph",
                     new GraphOptionsWidget(this),
-                    QIcon(":/img/icons/graph.png")
+                    QIcon(":/img/icons/graph.svg")
                 },
             }
         },
