@@ -732,6 +732,33 @@ void MainWindow::projectSaved(const QString &name)
     addOutput(tr("Project saved: ") + name);
 }
 
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    switch (event->button()) {
+    case Qt::BackButton:
+        Core()->seekPrev();
+        break;
+    case Qt::ForwardButton:
+        Core()->seekNext();
+        break;
+    default:
+        break;
+    }
+}
+
+bool MainWindow::eventFilter(QObject *, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (mouseEvent->button() == Qt::ForwardButton || mouseEvent->button() == Qt::BackButton) {
+            mousePressEvent(mouseEvent);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
 {
     this->dockWidgets.push_back(dockWidget);

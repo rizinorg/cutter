@@ -83,6 +83,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 
     mainWindow = new MainWindow();
+    installEventFilter(mainWindow);
 
     if (args.empty()) {
         if (analLevelSpecified) {
