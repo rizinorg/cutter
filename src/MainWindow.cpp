@@ -746,6 +746,19 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
 }
 
+bool MainWindow::eventFilter(QObject *, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (mouseEvent->button() == Qt::ForwardButton || mouseEvent->button() == Qt::BackButton) {
+            mousePressEvent(mouseEvent);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
 {
     this->dockWidgets.push_back(dockWidget);
