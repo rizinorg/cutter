@@ -289,9 +289,6 @@ void HexdumpWidget::refresh(RVA addr)
     if (cols == 0)
         cols = 16;
 
-    // Align addr to cols
-    addr -= addr % cols;
-
     // TODO: Figure out how to calculate a sane value for this
     bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 
@@ -321,6 +318,12 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexHexText->setTextCursor(cursor);
     ui->hexHexText->ensureCursorVisible();
 
+    // Set the backgorund color of the current seek
+    QTextCursor offsetCursor(ui->hexOffsetText->document()->findBlockByLineNumber(curAddrLineOffset));
+    QTextBlockFormat formatTmp = offsetCursor.blockFormat();
+    formatTmp.setBackground(QColor(64, 129, 160));
+    offsetCursor.setBlockFormat(formatTmp);
+    
     updateWidths();
 
     // Update other text areas scroll
