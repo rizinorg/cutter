@@ -732,6 +732,20 @@ void MainWindow::projectSaved(const QString &name)
     addOutput(tr("Project saved: ") + name);
 }
 
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    switch (event->button()) {
+    case Qt::BackButton:
+        Core()->seekPrev();
+        break;
+    case Qt::ForwardButton:
+        Core()->seekNext();
+        break;
+    default:
+        break;
+    }
+}
+
 void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
 {
     this->dockWidgets.push_back(dockWidget);

@@ -154,6 +154,8 @@ private slots:
 
     void projectSaved(const QString &name);
 
+    void mousePressEvent(QMouseEvent *event) override;
+
 private:
     CutterCore *core;
 
