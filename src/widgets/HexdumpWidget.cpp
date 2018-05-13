@@ -319,10 +319,10 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexHexText->ensureCursorVisible();
 
     // Set the backgorund color of the current seek
-    QTextCursor offset_cursor(ui->hexOffsetText->document()->findBlockByLineNumber(curAddrLineOffset));
-    QTextBlockFormat formatTmp = offset_cursor.blockFormat();
+    QTextCursor offsetCursor(ui->hexOffsetText->document()->findBlockByLineNumber(curAddrLineOffset));
+    QTextBlockFormat formatTmp = offsetCursor.blockFormat();
     formatTmp.setBackground(QColor(64, 129, 160));
-    offset_cursor.setBlockFormat(formatTmp);
+    offsetCursor.setBlockFormat(formatTmp);
     
     updateWidths();
 
