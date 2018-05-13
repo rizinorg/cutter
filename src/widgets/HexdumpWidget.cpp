@@ -320,9 +320,9 @@ void HexdumpWidget::refresh(RVA addr)
 
     // Set the backgorund color of the current seek
     QTextCursor offset_cursor(ui->hexOffsetText->document()->findBlockByLineNumber(curAddrLineOffset));
-    QTextBlockFormat format_tmp = offset_cursor.blockFormat();
-    format_tmp.setBackground(QColor(64, 129, 160));
-    offset_cursor.setBlockFormat(format_tmp);
+    QTextBlockFormat formatTmp = offset_cursor.blockFormat();
+    formatTmp.setBackground(QColor(64, 129, 160));
+    offset_cursor.setBlockFormat(formatTmp);
     
     updateWidths();
 
