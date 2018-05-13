@@ -19,8 +19,8 @@ public:
     void addItem(QTreeWidgetItem &tree, QStackedWidget &panel);
 
 private:
-    const QString name;
-    const QIcon icon;
+    QString name;
+    QIcon icon;
     QWidget *widget;
     QList<PreferenceCategory> children;
 };
