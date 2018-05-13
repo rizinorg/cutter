@@ -23,9 +23,6 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog */*dialog*/, QWidget *paren
     updateAsmOptionsFromVars();
 
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
-
-    //connect(dialog, SIGNAL(saveAsDefault()), this, SLOT(saveAsDefault()));
-    //connect(dialog, SIGNAL(resetToDefault()), this, SLOT(resetToDefault()));
 }
 
 AsmOptionsWidget::~AsmOptionsWidget() {}

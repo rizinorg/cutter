@@ -140,6 +140,7 @@ SOURCES += \
     dialogs/preferences/PreferencesDialog.cpp \
     dialogs/preferences/GeneralOptionsWidget.cpp \
     dialogs/preferences/GraphOptionsWidget.cpp \
+    dialogs/preferences/PreferenceCategory.cpp \
     widgets/QuickFilterView.cpp \
     widgets/ClassesWidget.cpp \
     widgets/ResourcesWidget.cpp \
@@ -210,6 +211,7 @@ HEADERS  += \
     widgets/GraphView.h \
     dialogs/preferences/PreferencesDialog.h \
     dialogs/preferences/GeneralOptionsWidget.h \
+    dialogs/preferences/PreferenceCategory.h \
     dialogs/preferences/GraphOptionsWidget.h \
     widgets/QuickFilterView.h \
     widgets/ClassesWidget.h \

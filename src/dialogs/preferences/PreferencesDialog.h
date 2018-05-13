@@ -4,6 +4,7 @@
 
 #include <QDialog>
 #include <QPushButton>
+#include <QTreeWidget>
 #include <memory>
 
 #include "Cutter.h"
@@ -24,9 +25,8 @@ public:
 
     void showSection(Section section);
 
-    /*signals:
-        void saveAsDefault();
-        void resetToDefault();*/
+public slots:
+    void changePage(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
 private:
     std::unique_ptr<Ui::PreferencesDialog> ui;
