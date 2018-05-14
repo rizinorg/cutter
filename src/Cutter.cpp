@@ -1418,7 +1418,7 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
             continue;
 
         xref.from = xrefObject["from"].toVariant().toULongLong();
-        xref.from_str = Core()->cmd("fd " + xrefObject["from"].toString()).trimmed();
+        xref.from_str = Core()->cmd("fd " + QString::number(xrefObject["from"].toInt())).trimmed();
 
         if (!whole_function && !to && xref.from != addr)
             continue;
