@@ -1020,6 +1020,29 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
     return ret;
 }
 
+QList<HeaderDescription> CutterCore::getAllHeaders()
+{
+    CORE_LOCK();
+    QList<HeaderDescription> ret;
+
+    QJsonArray headersArray = cmdj("ihj").array();
+
+    for (QJsonValue value : headersArray) {
+        QJsonObject headerObject = value.toObject();
+
+        HeaderDescription header;
+
+        header.vaddr = headerObject["vaddr"].toVariant().toULongLong();
+        header.paddr = headerObject["paddr"].toVariant().toULongLong();
+        header.value = headerObject["comment"].toString();
+        header.name = headerObject["name"].toString();
+
+        ret << header;
+    }
+
+    return ret;
+}
+
 QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();
