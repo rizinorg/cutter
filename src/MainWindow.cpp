@@ -223,6 +223,18 @@ void MainWindow::initUI()
     connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
 }
 
+void MainWindow::on_actionExtraGraph_triggered()
+{
+    QDockWidget *extraDock = new GraphWidget(this, 0);
+    addDockWidget(Qt::TopDockWidgetArea, extraDock);
+}
+
+void MainWindow::on_actionExtraDisassembly_triggered()
+{
+    QDockWidget *extraDock = new DisassemblyWidget(this, 0);
+    addDockWidget(Qt::TopDockWidgetArea, extraDock);
+}
+
 void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> advancedOptions)
 {
     setFilename(fn);
@@ -525,6 +537,23 @@ void MainWindow::showDefaultDocks()
     updateDockActionsChecked();
 }
 
+void MainWindow::showZenDocks()
+{
+    const QList<QDockWidget *> zenDocks = { functionsDock,
+                                            stringsDock,
+                                            graphDock,
+                                            disassemblyDock,
+                                            hexdumpDock,
+                                            searchDock
+                                            };
+    for (auto w : dockWidgets) {
+        if (zenDocks.contains(w)) {
+            w->show();
+        }
+    }
+    updateDockActionsChecked();
+}
+
 void MainWindow::resetToDefaultLayout()
 {
     hideAllDocks();
@@ -541,6 +570,24 @@ void MainWindow::resetToDefaultLayout()
 
     restoreFunctionDock.restoreWidth(functionsDock->widget());
     restoreSidebarDock.restoreWidth(sidebarDock->widget());
+
+    Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+}
+
+void MainWindow::resetToZenLayout()
+{
+    hideAllDocks();
+    restoreDocks();
+    showZenDocks();
+    disassemblyDock->raise();
+
+    // ugly workaround to set the default widths of functions
+    // if anyone finds a way to do this cleaner that also works, feel free to change it!
+    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
+
+    qApp->processEvents();
+
+    restoreFunctionDock.restoreWidth(functionsDock->widget());
 
     Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
@@ -588,6 +635,11 @@ void MainWindow::on_actionFunctionsRename_triggered()
 void MainWindow::on_actionDefault_triggered()
 {
     resetToDefaultLayout();
+}
+
+void MainWindow::on_actionZen_triggered()
+{
+    resetToZenLayout();
 }
 
 void MainWindow::on_actionNew_triggered()

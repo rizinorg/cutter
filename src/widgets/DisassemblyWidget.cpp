@@ -37,7 +37,7 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
-    :   CutterDockWidget(main, action)
+    :   CutterSeekableWidget(main, action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
@@ -140,6 +140,10 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
 
+    mCtxMenu->addSeparator();
+    syncIt.setText(tr("Sync/unsync offset"));
+    mCtxMenu->addAction(&syncIt);
+    connect(&syncIt, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
 
 #define ADD_SHORTCUT(ksq, slot) { \
     QShortcut *s = new QShortcut((ksq), this); \
@@ -165,6 +169,19 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
         moveCursorRelative(true, true);
     })
 #undef ADD_SHORTCUT
+}
+
+void DisassemblyWidget::toggleSync()
+{
+    this->isInSyncWithCore = !this->isInSyncWithCore;
+    if (this->isInSyncWithCore) {
+        setWindowTitle(tr("Disassembly"));
+        connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    }
+    else {
+        setWindowTitle(tr("Disassembly (not synced)"));
+        disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    }
 }
 
 QWidget *DisassemblyWidget::getTextWidget()
@@ -432,7 +449,7 @@ void DisassemblyWidget::cursorPositionChanged()
     }
 
     seekFromCursor = true;
-    Core()->seek(offset);
+    this->seek(offset);
     seekFromCursor = false;
     highlightCurrentLine();
     mCtxMenu->setCanCopy(mDisasTextEdit->textCursor().hasSelection());
@@ -493,7 +510,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
         // handle cases where top instruction offsets change
         RVA offset = readCurrentDisassemblyOffset();
         if (offset != Core()->getOffset()) {
-            Core()->seek(offset);
+            this->seek(offset);
             highlightCurrentLine();
         }
     }
@@ -520,7 +537,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         }
 
         if (jump != RVA_INVALID) {
-            Core()->seek(jump);
+            this->seek(jump);
         }
 
         return true;

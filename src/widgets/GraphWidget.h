@@ -1,12 +1,12 @@
 #ifndef GRAPHWIDGET_H
 #define GRAPHWIDGET_H
 
-#include "CutterDockWidget.h"
+#include "CutterSeekableWidget.h"
 
 class MainWindow;
 class DisassemblerGraphView;
 
-class GraphWidget : public CutterDockWidget
+class GraphWidget : public CutterSeekableWidget
 {
     Q_OBJECT
 

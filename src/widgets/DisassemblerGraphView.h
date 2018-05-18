@@ -10,6 +10,7 @@
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "utils/RichTextPainter.h"
+#include "CutterSeekableWidget.h"
 
 class DisassemblerGraphView : public GraphView
 {
@@ -128,7 +129,7 @@ class DisassemblerGraphView : public GraphView
     };
 
 public:
-    DisassemblerGraphView(QWidget *parent);
+    DisassemblerGraphView(CutterSeekableWidget *parent);
     ~DisassemblerGraphView();
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
@@ -142,6 +143,7 @@ public:
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
 
     void loadCurrentGraph();
+    QString windowTitle;
 //    bool navigate(ut64 addr);
 
 public slots:
@@ -149,6 +151,7 @@ public slots:
     void colorsUpdatedSlot();
     void fontsUpdatedSlot();
     void onSeekChanged(RVA addr);
+    void toggleSync();
 
     void zoomIn(QPoint mouse = QPoint(0, 0));
     void zoomOut(QPoint mouse = QPoint(0, 0));
@@ -191,7 +194,7 @@ private:
     DisassemblyBlock *blockForAddress(RVA addr);
     void seek(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
-
+    CutterSeekableWidget *seekable;
     QList<QShortcut *> shortcuts;
 
     QColor disassemblyBackgroundColor;
@@ -218,6 +221,7 @@ private:
     QColor mDisabledBreakpointColor;
 
     QAction actionExportGraph;
+    QAction actionSyncOffset;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

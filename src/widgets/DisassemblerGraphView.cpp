@@ -1,5 +1,4 @@
 #include "DisassemblerGraphView.h"
-
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -17,10 +16,11 @@
 #include "utils/CachedFontMetrics.h"
 #include "utils/TempConfig.h"
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
+DisassemblerGraphView::DisassemblerGraphView(CutterSeekableWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
-      mMenu(new DisassemblyContextMenu(this))
+      mMenu(new DisassemblyContextMenu(this)),
+      seekable(parent)
 {
     highlight_token = nullptr;
     // Signals that require a refresh all
@@ -99,6 +99,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     mMenu->addAction(&actionExportGraph);
     connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
 
+    mMenu->addSeparator();
+    actionSyncOffset.setText(tr("Sync/unsync offset"));
+    mMenu->addAction(&actionSyncOffset);
+
+    connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
+
     initFont();
     colorsUpdatedSlot();
 }
@@ -118,6 +124,24 @@ DisassemblerGraphView::~DisassemblerGraphView()
         delete shortcut;
     }
 }
+
+void DisassemblerGraphView::toggleSync()
+{
+    seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
+    if (seekable->isInSyncWithCore) {
+        seekable->setWindowTitle(windowTitle);
+        connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+    }
+    else {
+        seekable->setWindowTitle(windowTitle + " (not synced)");
+        disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+    }
+}
+
+// void DisassemblerGraphView::toggleSync()
+// {
+//     seekable->toggleSync(windowTitle, onSeekChanged);
+// }
 
 void DisassemblerGraphView::refreshView()
 {
@@ -149,7 +173,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     f.ready = true;
     f.entry = func["offset"].toVariant().toULongLong();
 
-    QString windowTitle = tr("Graph");
+    windowTitle = tr("Graph");
     QString funcName = func["name"].toString().trimmed();
     if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
@@ -545,9 +569,9 @@ void DisassemblerGraphView::takeTrue()
 {
     DisassemblyBlock *db = blockForAddress(Core()->getOffset());
     if (db->true_path != RVA_INVALID) {
-        Core()->seek(db->true_path);
+        seekable->seek(db->true_path);
     } else if (blocks[db->entry].exits.size()) {
-        Core()->seek(blocks[db->entry].exits[0]);
+        seekable->seek(blocks[db->entry].exits[0]);
     }
 }
 
@@ -555,9 +579,9 @@ void DisassemblerGraphView::takeFalse()
 {
     DisassemblyBlock *db = blockForAddress(Core()->getOffset());
     if (db->false_path != RVA_INVALID) {
-        Core()->seek(db->false_path);
+        seekable->seek(db->false_path);
     } else if (blocks[db->entry].exits.size()) {
-        Core()->seek(blocks[db->entry].exits[0]);
+        seekable->seek(blocks[db->entry].exits[0]);
     }
 }
 
@@ -597,7 +621,7 @@ void DisassemblerGraphView::prevInstr()
 void DisassemblerGraphView::seek(RVA addr, bool update_viewport)
 {
     connectSeekChanged(true);
-    Core()->seek(addr);
+    seekable->seek(addr);
     connectSeekChanged(false);
     if (update_viewport) {
         viewport()->update();
@@ -629,13 +653,14 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
                                                QPoint pos)
 {
     Q_UNUSED(event);
+
     RVA instr = getAddrForMouseEvent(block, &pos);
     if (instr == RVA_INVALID) {
         return;
     }
     QList<XrefDescription> refs = Core()->getXRefs(instr, false, false);
     if (refs.length()) {
-        Core()->seek(refs.at(0).to);
+        seekable->seek(refs.at(0).to);
     }
     if (refs.length() > 1) {
         qWarning() << "Too many references here. Weird behaviour expected.";

@@ -2,17 +2,18 @@
 #define DISASSEMBLYWIDGET_H
 
 #include "Cutter.h"
-#include "CutterDockWidget.h"
+#include "CutterSeekableWidget.h"
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QShortcut>
+#include <QAction>
 
 
 class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 
-class DisassemblyWidget : public CutterDockWidget
+class DisassemblyWidget : public CutterSeekableWidget
 {
     Q_OBJECT
 public:
@@ -26,6 +27,7 @@ public slots:
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void seekPrev();
+    void toggleSync();
 
 private slots:
     void on_seekChanged(RVA offset);
@@ -63,6 +65,7 @@ private:
     void connectCursorPositionChanged(bool disconnect);
 
     void moveCursorRelative(bool up, bool page);
+    QAction syncIt;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
