@@ -906,3 +906,13 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
         viewport()->releaseMouse();
     }
 }
+
+void GraphView::wheelEvent(QWheelEvent *event)
+{
+    const QPoint delta = -event->angleDelta();
+    int x_delta = delta.x();
+    int y_delta = delta.y();
+    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1/current_scale));
+    verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1/current_scale));
+    event->accept();
+}
