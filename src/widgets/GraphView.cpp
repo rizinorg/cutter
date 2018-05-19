@@ -864,8 +864,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
         int y_delta = scroll_base_y - event->y();
         scroll_base_x = event->x();
         scroll_base_y = event->y();
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta);
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta);
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1/current_scale));
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1/current_scale));
     }
 }
 
