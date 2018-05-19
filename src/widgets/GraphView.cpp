@@ -411,6 +411,9 @@ void GraphView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter p(viewport());
+    
+    p.setRenderHint(QPainter::Antialiasing);
+    
     int render_offset_x = -horizontalScrollBar()->value() * current_scale;
     int render_offset_y = -verticalScrollBar()->value() * current_scale;
     int render_width = viewport()->size().width() / current_scale;
