@@ -226,13 +226,27 @@ void MainWindow::initUI()
 void MainWindow::on_actionExtraGraph_triggered()
 {
     QDockWidget *extraDock = new GraphWidget(this, 0);
-    addDockWidget(Qt::TopDockWidgetArea, extraDock);
+    addExtraWidget(extraDock);
+}
+
+void MainWindow::on_actionExtraHexdump_triggered()
+{
+    QDockWidget *extraDock = new HexdumpWidget(this, 0);
+    addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraDisassembly_triggered()
 {
     QDockWidget *extraDock = new DisassemblyWidget(this, 0);
+    addExtraWidget(extraDock);
+}
+
+void MainWindow::addExtraWidget(QDockWidget *extraDock)
+{
     addDockWidget(Qt::TopDockWidgetArea, extraDock);
+    auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
+    qApp->processEvents();
+    restoreExtraDock.restoreWidth(extraDock->widget());
 }
 
 void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> advancedOptions)
@@ -804,7 +818,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
 }
 
-bool MainWindow::eventFilter(QObject *, QEvent *event)
+bool MainWindow::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
@@ -813,7 +827,11 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
             return true;
         }
     }
-
+    // else if (event->type() == QEvent::FocusOut) {
+    //     eprintf("%s\n", object->objectName().toLatin1().data());
+    //     eprintf("%s\n", object->Name().toLatin1().data());
+    //     return true;
+    // }
     return false;
 }
 

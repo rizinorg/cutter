@@ -13,7 +13,6 @@ void CutterSeekableWidget::seek(RVA addr)
         Core()->seek(addr);
     }
     else {
-        eprintf("synced seek\n");
         independentOffset = addr;
     }
 }

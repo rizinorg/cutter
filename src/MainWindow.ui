@@ -1109,6 +1109,11 @@ background-color: palette(dark);
     <string>Graph view</string>
    </property>
   </action>
+  <action name="actionExtraHexdump">
+   <property name="text">
+    <string>Hexdump view</string>
+   </property>
+  </action>
   <action name="actionExtraDisassembly">
    <property name="text">
     <string>Disassembly view</string>
@@ -1119,6 +1124,7 @@ background-color: palette(dark);
      <string>Add extra...</string>
     </property>
     <addaction name="actionExtraGraph"/>
+    <addaction name="actionExtraHexdump"/>
     <addaction name="actionExtraDisassembly"/>
    </widget>
  </widget>

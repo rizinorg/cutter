@@ -95,6 +95,8 @@ public:
 
     void addToDockWidgetList(QDockWidget *dockWidget);
     void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
+    void addExtraWidget(QDockWidget *extraDock);
+
 
 public slots:
 
@@ -120,6 +122,7 @@ public slots:
 private slots:
     void on_actionAbout_triggered();
     void on_actionExtraGraph_triggered();
+    void on_actionExtraHexdump_triggered();
     void on_actionExtraDisassembly_triggered();
 
     void on_actionRefresh_Panels_triggered();
