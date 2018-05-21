@@ -146,6 +146,7 @@ SOURCES += \
     widgets/ResourcesWidget.cpp \
     widgets/VTablesWidget.cpp \
     widgets/TypesWidget.cpp \
+    widgets/HeadersWidget.cpp \
     widgets/SearchWidget.cpp \
     CutterApplication.cpp \
     utils/JupyterConnection.cpp \
@@ -219,6 +220,7 @@ HEADERS  += \
     CutterApplication.h \
     widgets/VTablesWidget.h \
     widgets/TypesWidget.h \
+    widgets/HeadersWidget.h \
     widgets/SearchWidget.h \
     utils/JupyterConnection.h \
     widgets/JupyterWidget.h \
@@ -267,6 +269,7 @@ FORMS    += \
     widgets/ClassesWidget.ui \
     widgets/VTablesWidget.ui \
     widgets/TypesWidget.ui \
+    widgets/HeadersWidget.ui \
     widgets/SearchWidget.ui \
     widgets/JupyterWidget.ui \
     dialogs/R2PluginsDialog.ui \

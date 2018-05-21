@@ -108,6 +108,14 @@ struct ExportDescription {
     QString flag_name;
 };
 
+struct HeaderDescription
+{
+    RVA vaddr;
+    RVA paddr;
+    QString value;
+    QString name;
+};
+
 struct TypeDescription {
     QString type;
     int size;
@@ -275,6 +283,7 @@ Q_DECLARE_METATYPE(const ClassFieldDescription *)
 Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
+Q_DECLARE_METATYPE(HeaderDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
 
@@ -429,6 +438,7 @@ public:
     QList<ImportDescription> getAllImports();
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
+    QList<HeaderDescription> getAllHeaders();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();

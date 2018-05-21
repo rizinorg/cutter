@@ -40,6 +40,7 @@ class ClassesWidget;
 class ResourcesWidget;
 class VTablesWidget;
 class TypesWidget;
+class HeadersWidget;
 class SearchWidget;
 #ifdef CUTTER_ENABLE_JUPYTER
 class JupyterWidget;
@@ -183,8 +184,9 @@ private:
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;
     ExportsWidget      *exportsDock = nullptr;
+    HeadersWidget      *headersDock = nullptr;
     TypesWidget        *typesDock = nullptr;
-    SearchWidget        *searchDock = nullptr;
+    SearchWidget       *searchDock = nullptr;
     SymbolsWidget      *symbolsDock = nullptr;
     RelocsWidget       *relocsDock = nullptr;
     CommentsWidget     *commentsDock = nullptr;

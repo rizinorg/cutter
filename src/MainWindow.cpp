@@ -68,6 +68,7 @@
 #include "widgets/ResourcesWidget.h"
 #include "widgets/VTablesWidget.h"
 #include "widgets/JupyterWidget.h"
+#include "widgets/HeadersWidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -167,6 +168,7 @@ void MainWindow::initUI()
     functionsDock = new FunctionsWidget(this, ui->actionFunctions);
     importsDock = new ImportsWidget(this, ui->actionImports);
     exportsDock = new ExportsWidget(this, ui->actionExports);
+    headersDock = new HeadersWidget(this, ui->actionHeaders);
     typesDock = new TypesWidget(this, ui->actionTypes);
     searchDock = new SearchWidget(this, ui->actionSearch);
     symbolsDock = new SymbolsWidget(this, ui->actionSymbols);
@@ -461,6 +463,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, exportsDock);
     tabifyDockWidget(dashboardDock, typesDock);
     tabifyDockWidget(dashboardDock, searchDock);
+    tabifyDockWidget(dashboardDock, headersDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
