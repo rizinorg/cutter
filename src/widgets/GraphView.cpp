@@ -411,6 +411,9 @@ void GraphView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter p(viewport());
+    
+    p.setRenderHint(QPainter::Antialiasing);
+    
     int render_offset_x = -horizontalScrollBar()->value() * current_scale;
     int render_offset_y = -verticalScrollBar()->value() * current_scale;
     int render_width = viewport()->size().width() / current_scale;
@@ -861,8 +864,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
         int y_delta = scroll_base_y - event->y();
         scroll_base_x = event->x();
         scroll_base_y = event->y();
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta);
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta);
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1/current_scale));
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1/current_scale));
     }
 }
 
@@ -902,4 +905,14 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
         setCursor(Qt::ArrowCursor);
         viewport()->releaseMouse();
     }
+}
+
+void GraphView::wheelEvent(QWheelEvent *event)
+{
+    const QPoint delta = -event->angleDelta();
+    int x_delta = delta.x();
+    int y_delta = delta.y();
+    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1/current_scale));
+    verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1/current_scale));
+    event->accept();
 }

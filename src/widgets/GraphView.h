@@ -121,6 +121,7 @@ protected:
     virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos);
     virtual bool helpEvent(QHelpEvent *event);
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
+    virtual void wheelEvent(QWheelEvent *event) override;
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
     void adjustSize(int new_width, int new_height, QPoint mouse = QPoint(0, 0));
