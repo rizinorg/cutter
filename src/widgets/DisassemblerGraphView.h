@@ -192,7 +192,8 @@ private:
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
     DisassemblyBlock *blockForAddress(RVA addr);
-    void seek(RVA addr, bool update_viewport = true);
+    void seekLocal(RVA addr, bool update_viewport = true);
+    void seek(RVA addr);
     void seekInstruction(bool previous_instr);
     CutterSeekableWidget *seekable;
     QList<QShortcut *> shortcuts;

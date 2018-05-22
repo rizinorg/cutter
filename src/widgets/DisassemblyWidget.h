@@ -66,6 +66,7 @@ private:
 
     void moveCursorRelative(bool up, bool page);
     QAction syncIt;
+    void seek(RVA);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

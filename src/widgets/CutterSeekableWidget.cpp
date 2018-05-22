@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 #include "CutterSeekableWidget.h"
 
-
 CutterSeekableWidget::CutterSeekableWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
@@ -17,9 +16,20 @@ void CutterSeekableWidget::seek(RVA addr)
     }
 }
 
+RVA CutterSeekableWidget::getOffset()
+{
+    RVA addr;
+    if (isInSyncWithCore) {
+        addr = Core()->getOffset();
+    }
+    else {
+        addr = independentOffset;
+    }
+    return addr;
+}
+
 // void CutterSeekableWidget::toggleSync(QString windowTitle, void (* callback)(RVA))
 // {
-
 //     isInSyncWithCore = !isInSyncWithCore;
 //     if (isInSyncWithCore) {
 //         setWindowTitle(windowTitle);
@@ -27,6 +37,7 @@ void CutterSeekableWidget::seek(RVA addr)
 //     }
 //     else {
 //         setWindowTitle(windowTitle + " (not synced)");
+//         independentOffset = Core()->getOffset();
 //         disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(callback(RVA)));
 //     }
 // }

@@ -27,7 +27,6 @@ class HexdumpWidget : public CutterSeekableWidget
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
-
     Highlighter        *highlighter;
     QString windowTitle;
     enum Format {
@@ -81,6 +80,7 @@ private:
     void setupScrollSync();
 
     void setupFonts();
+    void seek(RVA);
 
     // If bottom = false gets the FIRST displayed line, otherwise the LAST displayed
     // line.

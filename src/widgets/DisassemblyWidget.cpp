@@ -184,6 +184,17 @@ void DisassemblyWidget::toggleSync()
     }
 }
 
+void DisassemblyWidget::seek(RVA addr)
+{
+    if (isInSyncWithCore) {
+        Core()->seek(addr);
+    }
+    else {
+        independentOffset = addr;
+        on_seekChanged(addr);
+    }
+}
+
 QWidget *DisassemblyWidget::getTextWidget()
 {
     return mDisasTextEdit;
@@ -509,7 +520,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
         // handle cases where top instruction offsets change
         RVA offset = readCurrentDisassemblyOffset();
-        if (offset != Core()->getOffset()) {
+        if (offset != this->getOffset()) {
             this->seek(offset);
             highlightCurrentLine();
         }
@@ -537,7 +548,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         }
 
         if (jump != RVA_INVALID) {
-            this->seek(jump);
+            seek(jump);
         }
 
         return true;

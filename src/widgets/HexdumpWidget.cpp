@@ -43,7 +43,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     colorsUpdatedSlot();
     updateHeaders();
-    
+
     windowTitle = tr("Hexdump");
     this->setWindowTitle(windowTitle);
     connect(&syncAction, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
@@ -173,6 +173,18 @@ void HexdumpWidget::setupScrollSync()
             asciiHexFunc);
 }
 
+void HexdumpWidget::seek(RVA addr)
+{
+    if (this->isInSyncWithCore) {
+        Core()->seek(addr);
+    }
+    else {
+        this->independentOffset = addr;
+        on_seekChanged(addr);
+    }
+}
+
+
 void HexdumpWidget::on_seekChanged(RVA addr)
 {
     if (sent_seek) {
@@ -284,7 +296,7 @@ void HexdumpWidget::refresh(RVA addr)
     updateHeaders();
 
     if (addr == RVA_INVALID) {
-        addr = Core()->getOffset();
+        addr = this->getOffset();
     }
 
     cols = Core()->getConfigi("hex.cols");
@@ -326,7 +338,7 @@ void HexdumpWidget::refresh(RVA addr)
     QTextBlockFormat formatTmp = offsetCursor.blockFormat();
     formatTmp.setBackground(QColor(64, 129, 160));
     offsetCursor.setBlockFormat(formatTmp);
-    
+
     updateWidths();
 
     // Update other text areas scroll
@@ -455,7 +467,7 @@ void HexdumpWidget::selectionChanged()
             int pos = asciiAddressToPosition(adr);
             setTextEditPosition(ui->hexASCIIText, pos);
             sent_seek = true;
-            this->seek(adr);
+            seek(adr);
             sent_seek = false;
             connectScroll(false);
             return;
@@ -506,7 +518,7 @@ void HexdumpWidget::selectionChanged()
         targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
         ui->hexASCIIText->setTextCursor(targetTextCursor);
         sent_seek = true;
-        this->seek(startAddress);
+        seek(startAddress);
         sent_seek = false;
     } else {
         QTextCursor textCursor = ui->hexASCIIText->textCursor();
@@ -517,7 +529,7 @@ void HexdumpWidget::selectionChanged()
             setTextEditPosition(ui->hexHexText, pos);
             connectScroll(false);
             sent_seek = true;
-            this->seek(adr);
+            seek(adr);
             sent_seek = false;
             return;
         }
@@ -537,7 +549,7 @@ void HexdumpWidget::selectionChanged()
         targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
         ui->hexHexText->setTextCursor(targetTextCursor);
         sent_seek = true;
-        this->seek(startAddress);
+        seek(startAddress);
         sent_seek = false;
     }
 

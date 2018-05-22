@@ -14,13 +14,13 @@ public:
     explicit CutterSeekableWidget(MainWindow *main, QAction *action = nullptr);
     ~CutterSeekableWidget();
     RVA independentOffset;
+    RVA prevIdenpendentOffset;
     bool isInSyncWithCore = true;
     void seek(RVA addr);
+    RVA getOffset();
 
 // public slots:
 //     void on_seekChanged(RVA)=0;
-
-// public slots:
 //     void toggleSync(QString windowTitle, void *callback(RVA));
 
 };
