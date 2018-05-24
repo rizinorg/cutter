@@ -167,7 +167,6 @@ QString CutterCore::cmd(const QString &str)
             memoryWidgetPriority = MemoryWidgetType::Disassembly;
         }
     }
-    triggerRaisePrioritizedMemoryWidget();
     return o;
 }
 
@@ -375,21 +374,25 @@ void CutterCore::seek(ut64 offset)
     }
     cmd(QString("s %1").arg(offset));
     // cmd already does emit seekChanged(core_->offset);
+    triggerRaisePrioritizedMemoryWidget();
 }
 
 void CutterCore::seek(QString thing)
 {
     cmdRaw(QString("s %1").arg(thing));
+    triggerRaisePrioritizedMemoryWidget();
 }
 
 void CutterCore::seekPrev()
 {
     cmd("s-");
+    triggerRaisePrioritizedMemoryWidget();
 }
 
 void CutterCore::seekNext()
 {
     cmd("s+");
+    triggerRaisePrioritizedMemoryWidget();
 }
 
 RVA CutterCore::prevOpAddr(RVA startAddr, int count)
