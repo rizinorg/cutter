@@ -45,8 +45,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     colorsUpdatedSlot();
     updateHeaders();
 
-    windowTitle = tr("Hexdump");
-    this->setWindowTitle(windowTitle);
+    this->setWindowTitle(tr("Hexdump"));
     connect(&syncAction, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
 
     // Set hexdump context menu
@@ -607,12 +606,12 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
 
 void HexdumpWidget::toggleSync()
 {
+    QString windowTitle = tr("Hexdump");
     seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
     if (seekable->isInSyncWithCore) {
         this->setWindowTitle(windowTitle);
         connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    }
-    else {
+    } else {
         this->setWindowTitle(windowTitle + " (not synced)");
         seekable->independentOffset = Core()->getOffset();
         disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));

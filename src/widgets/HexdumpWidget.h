@@ -29,7 +29,6 @@ public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
     Highlighter        *highlighter;
-    QString windowTitle;
     enum Format {
         Hex,
         Octal,

@@ -22,7 +22,4 @@ public:
 signals:
     void seekChanged(RVA addr);
 
-// public slots:
-//     void toggleSync(QString windowTitle, void *callback(RVA));
-
 };

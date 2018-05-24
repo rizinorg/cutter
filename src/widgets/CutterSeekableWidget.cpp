@@ -30,18 +30,4 @@ RVA CutterSeekableWidget::getOffset()
     return addr;
 }
 
-// void CutterSeekableWidget::toggleSync(QString windowTitle, void (* callback)(RVA))
-// {
-//     isInSyncWithCore = !isInSyncWithCore;
-//     if (isInSyncWithCore) {
-//         setWindowTitle(windowTitle);
-//         connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(callback(RVA)));
-//     }
-//     else {
-//         setWindowTitle(windowTitle + " (not synced)");
-//         independentOffset = Core()->getOffset();
-//         disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(callback(RVA)));
-//     }
-// }
-
 CutterSeekableWidget::~CutterSeekableWidget() {}

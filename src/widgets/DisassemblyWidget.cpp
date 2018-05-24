@@ -175,13 +175,14 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
 void DisassemblyWidget::toggleSync()
 {
+    QString windowTitle = tr("Disassembly");
     seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
     if (seekable->isInSyncWithCore) {
-        setWindowTitle(tr("Disassembly"));
+        setWindowTitle(windowTitle);
         connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     }
     else {
-        setWindowTitle(tr("Disassembly (not synced)"));
+        setWindowTitle(windowTitle + " (not synced)");
         seekable->independentOffset = Core()->getOffset();
         disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     }
