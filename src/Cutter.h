@@ -116,6 +116,18 @@ struct HeaderDescription
     QString name;
 };
 
+struct ZignatureDescription
+{
+    QString name;
+    QString bytes;
+    RVA cc;
+    RVA nbbs;
+    RVA edges;
+    RVA ebbs;
+    RVA offset;
+    QStringList refs;
+};
+
 struct TypeDescription {
     QString type;
     int size;
@@ -284,6 +296,7 @@ Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
 Q_DECLARE_METATYPE(HeaderDescription)
+Q_DECLARE_METATYPE(ZignatureDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
 
@@ -439,6 +452,7 @@ public:
     QList<ExportDescription> getAllExports();
     QList<SymbolDescription> getAllSymbols();
     QList<HeaderDescription> getAllHeaders();
+    QList<ZignatureDescription> getAllZignatures();
     QList<CommentDescription> getAllComments(const QString &filterType);
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();

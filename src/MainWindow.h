@@ -41,6 +41,7 @@ class ResourcesWidget;
 class VTablesWidget;
 class TypesWidget;
 class HeadersWidget;
+class ZignaturesWidget;
 class SearchWidget;
 #ifdef CUTTER_ENABLE_JUPYTER
 class JupyterWidget;
@@ -196,6 +197,7 @@ private:
     QLineEdit          *gotoEntry = nullptr;
     SdbDock            *sdbDock = nullptr;
     SectionsWidget     *sectionsDock = nullptr;
+    ZignaturesWidget   *zignaturesDock = nullptr;
     ConsoleWidget      *consoleDock = nullptr;
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;

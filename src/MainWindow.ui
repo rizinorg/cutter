@@ -251,6 +251,7 @@ border-top: 0px;
     <addaction name="actionFlags"/>
     <addaction name="actionSections"/>
     <addaction name="actionHeaders"/>
+    <addaction name="actionZignatures"/>
     <addaction name="separator"/>
     <addaction name="actionComments"/>
     <addaction name="actionConsole"/>
@@ -1071,6 +1072,17 @@ background-color: palette(dark);
    </property>
    <property name="toolTip">
     <string>Show/Hide Headers panel</string>
+   </property>
+  </action>
+  <action name="actionZignatures">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Zignatures</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide Zignatures panel</string>
    </property>
   </action>
   <action name="actionJupyter">

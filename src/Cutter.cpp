@@ -1043,6 +1043,37 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
     return ret;
 }
 
+QList<ZignatureDescription> CutterCore::getAllZignatures()
+{
+    CORE_LOCK();
+    QList<ZignatureDescription> ret;
+
+    QJsonArray zignaturesArray = cmdj("zj").array();
+
+    for (QJsonValue value : zignaturesArray) {
+        QJsonObject zignatureObject = value.toObject();
+
+        ZignatureDescription zignature;
+
+        zignature.name = zignatureObject["name"].toString();
+        zignature.bytes = zignatureObject["bytes"].toString();
+        zignature.offset = zignatureObject["offset"].toVariant().toULongLong();
+        for (QJsonValue ref : zignatureObject["refs"].toArray()) {
+            zignature.refs << ref.toString();
+        }
+
+        QJsonObject graphObject = zignatureObject["graph"].toObject();
+        zignature.cc = graphObject["cc"].toVariant().toULongLong();
+        zignature.nbbs = graphObject["nbbs"].toVariant().toULongLong();
+        zignature.edges = graphObject["edges"].toVariant().toULongLong();
+        zignature.ebbs = graphObject["ebbs"].toVariant().toULongLong();
+
+        ret << zignature;
+    }
+
+    return ret;
+}
+
 QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 {
     CORE_LOCK();

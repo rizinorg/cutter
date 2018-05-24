@@ -69,6 +69,7 @@
 #include "widgets/VTablesWidget.h"
 #include "widgets/JupyterWidget.h"
 #include "widgets/HeadersWidget.h"
+#include "widgets/ZignaturesWidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -169,6 +170,7 @@ void MainWindow::initUI()
     importsDock = new ImportsWidget(this, ui->actionImports);
     exportsDock = new ExportsWidget(this, ui->actionExports);
     headersDock = new HeadersWidget(this, ui->actionHeaders);
+    zignaturesDock = new ZignaturesWidget(this, ui->actionZignatures);
     typesDock = new TypesWidget(this, ui->actionTypes);
     searchDock = new SearchWidget(this, ui->actionSearch);
     symbolsDock = new SymbolsWidget(this, ui->actionSymbols);
@@ -464,6 +466,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, typesDock);
     tabifyDockWidget(dashboardDock, searchDock);
     tabifyDockWidget(dashboardDock, headersDock);
+    tabifyDockWidget(dashboardDock, zignaturesDock);
     tabifyDockWidget(dashboardDock, symbolsDock);
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
