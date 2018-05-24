@@ -483,6 +483,10 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
     for (auto &blockIt : disassembly_blocks) {
         DisassemblyBlock &db = blockIt.second;
         for (Instr i : db.instrs) {
+            if (i.addr == RVA_INVALID || i.size == RVA_INVALID) {
+                continue;
+            }
+
             if ((i.addr <= addr) && (addr <= i.addr + i.size)) {
                 return &db;
             }
