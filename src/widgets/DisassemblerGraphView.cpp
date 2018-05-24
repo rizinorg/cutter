@@ -124,7 +124,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     .set("scr.color", COLOR_MODE_16M)
     .set("asm.bbline", false)
     .set("asm.lines", false)
-    .set("asm.fcnlines", false);
+    .set("asm.lines.fcn", false);
     QJsonDocument functionsDoc = Core()->cmdj("agJ");
     QJsonArray functions = functionsDoc.array();
 

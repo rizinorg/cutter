@@ -37,11 +37,11 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Config()->getConfigBool("asm.stackptr"));
     qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Config()->getConfigBool("asm.slow"));
     qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Config()->getConfigBool("asm.lines"));
-    qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.fcnlines"));
-    qhelpers::setCheckedWithoutSignals(ui->flgoffCheckBox, Config()->getConfigBool("asm.flgoff"));
+    qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.lines.fcn"));
+    qhelpers::setCheckedWithoutSignals(ui->flgoffCheckBox, Config()->getConfigBool("asm.flags.offset"));
     qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Config()->getConfigBool("asm.emu"));
     qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Config()->getConfigBool("asm.cmt.right"));
-    qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Config()->getConfigBool("asm.varsum"));
+    qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Config()->getConfigBool("asm.var.summary"));
     qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Config()->getConfigBool("asm.size"));
 
     bool bytesEnabled = Config()->getConfigBool("asm.bytes");
@@ -148,13 +148,13 @@ void AsmOptionsWidget::on_linesCheckBox_toggled(bool checked)
 
 void AsmOptionsWidget::on_fcnlinesCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("asm.fcnlines", checked);
+    Config()->setConfig("asm.lines.fcn", checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_flgoffCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("asm.flgoff", checked);
+    Config()->setConfig("asm.flags.off", checked);
     triggerAsmOptionsChanged();
 }
 
@@ -172,7 +172,7 @@ void AsmOptionsWidget::on_cmtrightCheckBox_toggled(bool checked)
 
 void AsmOptionsWidget::on_varsumCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("asm.varsum", checked);
+    Config()->setConfig("asm.var.summary", checked);
     triggerAsmOptionsChanged();
 }
 
@@ -262,14 +262,14 @@ void AsmOptionsWidget::on_bblineCheckBox_toggled(bool checked)
 
 void AsmOptionsWidget::on_varsubCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("asm.varsub", checked);
+    Config()->setConfig("asm.var.sub", checked);
     ui->varsubOnlyCheckBox->setEnabled(checked);
     triggerAsmOptionsChanged();
 }
 
 void AsmOptionsWidget::on_varsubOnlyCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("asm.varsub_only", checked);
+    Config()->setConfig("asm.var.subonly", checked);
     triggerAsmOptionsChanged();
 }
 

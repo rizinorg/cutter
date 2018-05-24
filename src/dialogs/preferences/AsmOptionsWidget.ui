@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="asmOptionsTab">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="asmStyleTab">
       <attribute name="title">
@@ -172,14 +172,14 @@
        <item>
         <widget class="QCheckBox" name="fcnlinesCheckBox">
          <property name="text">
-          <string>Show function boundary lines (asm.fcnlines)</string>
+          <string>Show function boundary lines (asm.lines.fcn)</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="flgoffCheckBox">
          <property name="text">
-          <string>Show offset before flags (asm.flgoff)</string>
+          <string>Show offset before flags (asm.flags.off)</string>
          </property>
         </widget>
        </item>
@@ -207,7 +207,7 @@
        <item>
         <widget class="QCheckBox" name="varsumCheckBox">
          <property name="text">
-          <string>Show variables summary instead of full list (asm.varsum)</string>
+          <string>Show variables summary instead of full list (asm.var.summary)</string>
          </property>
         </widget>
        </item>
@@ -238,14 +238,14 @@
        <item>
         <widget class="QCheckBox" name="varsubCheckBox">
          <property name="text">
-          <string>Substitute variables (asm.varsub)</string>
+          <string>Substitute variables (asm.var.sub)</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="varsubOnlyCheckBox">
          <property name="text">
-          <string>Substitute entire variable expressions with names (asm.varsub_only)</string>
+          <string>Substitute entire variable expressions with names (asm.var.subonly)</string>
          </property>
         </widget>
        </item>

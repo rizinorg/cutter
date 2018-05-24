@@ -18,11 +18,11 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.stackptr",       false },
     { "asm.slow",           true },
     { "asm.lines",          true },
-    { "asm.fcnlines",       true },
-    { "asm.flgoff",         false },
+    { "asm.lines.fcn",      true },
+    { "asm.flags.offset",   false },
     { "asm.emu",            false },
     { "asm.cmt.right",      true },
-    { "asm.varsum",         false },
+    { "asm.var.summary",    false },
     { "asm.bytes",          false },
     { "asm.size",           false },
     { "asm.bytespace",      false },
@@ -32,8 +32,8 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.ucase",          false },
     { "asm.bbline",         false },
     { "asm.capitalize",     false },
-    { "asm.varsub",         true },
-    { "asm.varsub_only",    true },
+    { "asm.var.sub",        true },
+    { "asm.var.subonly",    true },
     { "asm.tabs",           5 }
 };
 

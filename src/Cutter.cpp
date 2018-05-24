@@ -748,9 +748,9 @@ void CutterCore::setSettings()
     setConfig("asm.cmt.col", 70);
     setConfig("asm.xrefs", false);
 
-    setConfig("asm.tabsonce", true);
-    setConfig("asm.tabsoff", 5);
-    setConfig("asm.midflags", 2);
+    setConfig("asm.tabs.once", true);
+    setConfig("asm.tabs.off", 5);
+    setConfig("asm.flags.middle", 2);
 
     setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
