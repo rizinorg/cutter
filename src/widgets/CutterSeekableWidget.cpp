@@ -5,6 +5,7 @@ CutterSeekableWidget::CutterSeekableWidget(QObject *parent)
  :
     QObject(parent)
 {
+    connect(Core(), &CutterCore::seekChanged, this, &CutterSeekableWidget::onSeekChanged);
 }
 
 void CutterSeekableWidget::onSeekChanged(RVA addr)

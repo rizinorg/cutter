@@ -105,7 +105,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
         }
     });
 
-    connect(Core(), &CutterCore::seekChanged, seekable, &CutterSeekableWidget::onSeekChanged);
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
             SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));

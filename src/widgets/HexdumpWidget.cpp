@@ -64,7 +64,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    connect(Core(), &CutterCore::seekChanged, seekable, &CutterSeekableWidget::onSeekChanged);
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
             SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
 

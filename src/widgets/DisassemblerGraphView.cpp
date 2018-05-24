@@ -39,7 +39,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connectSeekChanged(false);
-    connect(Core(), &CutterCore::seekChanged, seekable, &CutterSeekableWidget::onSeekChanged);
 
     // Space to switch to disassembly
     QShortcut *shortcut_disassembly = new QShortcut(QKeySequence(Qt::Key_Space), this);
