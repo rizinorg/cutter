@@ -31,7 +31,6 @@ class IPyKernelInterfaceJupyter:
             if self.poll() is not None:
                 return
             time.sleep(0.1)
-        pass
 
 
 class CutterInternalIPyKernelManager(IOLoopKernelManager):

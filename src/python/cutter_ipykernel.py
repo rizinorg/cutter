@@ -50,11 +50,9 @@ class CutterIPythonKernel(IPythonKernel):
 
     def pre_handler_hook(self):
         self.interruptable = True
-        pass
 
     def post_handler_hook(self):
         self.interruptable = False
-        pass
 
 
 class CutterIPKernelApp(IPKernelApp):
