@@ -16,7 +16,7 @@
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::HexdumpWidget),
-    seekable(new CutterSeekableWidget(main, action))
+    seekable(new CutterSeekableWidget(this))
 {
     ui->setupUi(this);
 
@@ -64,7 +64,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), &CutterCore::seekChanged, seekable, &CutterSeekableWidget::onSeekChanged);
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
             SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
 
@@ -607,14 +607,12 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
 void HexdumpWidget::toggleSync()
 {
     QString windowTitle = tr("Hexdump");
-    seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
-    if (seekable->isInSyncWithCore) {
-        this->setWindowTitle(windowTitle);
-        connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    seekable->toggleSyncWithCore();
+    if (seekable->getSyncWithCore()) {
+        setWindowTitle(windowTitle);
     } else {
-        this->setWindowTitle(windowTitle + " (not synced)");
-        seekable->independentOffset = Core()->getOffset();
-        disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+        setWindowTitle(windowTitle + " (not synced)");
+        seekable->setIndependentOffset(Core()->getOffset());
     }
 }
 

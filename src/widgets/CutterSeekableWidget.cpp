@@ -1,9 +1,17 @@
 #include "MainWindow.h"
 #include "CutterSeekableWidget.h"
 
-CutterSeekableWidget::CutterSeekableWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+CutterSeekableWidget::CutterSeekableWidget(QObject *parent)
+ :
+    QObject(parent)
 {
+}
+
+void CutterSeekableWidget::onSeekChanged(RVA addr)
+{
+    if (isInSyncWithCore) {
+        emit seekChanged(addr);
+    }
 }
 
 void CutterSeekableWidget::seek(RVA addr)
@@ -28,6 +36,31 @@ RVA CutterSeekableWidget::getOffset()
         addr = independentOffset;
     }
     return addr;
+}
+
+void CutterSeekableWidget::toggleSyncWithCore()
+{
+    isInSyncWithCore = !isInSyncWithCore;
+}
+
+RVA CutterSeekableWidget::getIndependentOffset()
+{
+    return independentOffset;
+}
+
+RVA CutterSeekableWidget::getPrevIndependentOffset()
+{
+    return prevIdenpendentOffset;
+}
+
+bool CutterSeekableWidget::getSyncWithCore()
+{
+    return isInSyncWithCore;
+}
+
+void CutterSeekableWidget::setIndependentOffset(RVA addr)
+{
+    independentOffset = addr;
 }
 
 CutterSeekableWidget::~CutterSeekableWidget() {}

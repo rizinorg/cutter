@@ -21,7 +21,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
       mMenu(new DisassemblyContextMenu(this)),
-      seekable(new CutterSeekableWidget(nullptr, nullptr))
+      seekable(new CutterSeekableWidget(this))
 {
     highlight_token = nullptr;
     // Signals that require a refresh all
@@ -39,6 +39,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connectSeekChanged(false);
+    connect(Core(), &CutterCore::seekChanged, seekable, &CutterSeekableWidget::onSeekChanged);
 
     // Space to switch to disassembly
     QShortcut *shortcut_disassembly = new QShortcut(QKeySequence(Qt::Key_Space), this);
@@ -105,17 +106,16 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     mMenu->addAction(&actionSyncOffset);
 
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
-    connect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblerGraphView::onSeekChanged);
     initFont();
     colorsUpdatedSlot();
 }
 
-void DisassemblerGraphView::connectSeekChanged(bool disconnect)
+void DisassemblerGraphView::connectSeekChanged(bool disconn)
 {
-    if (disconnect) {
-        QObject::disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+    if (disconn) {
+        disconnect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblerGraphView::onSeekChanged);
     } else {
-        connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+        connect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblerGraphView::onSeekChanged);
     }
 }
 
@@ -128,15 +128,12 @@ DisassemblerGraphView::~DisassemblerGraphView()
 
 void DisassemblerGraphView::toggleSync()
 {
-    seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
-    if (seekable->isInSyncWithCore) {
+    seekable->toggleSyncWithCore();
+    if (seekable->getSyncWithCore()) {
         parentWidget()->setWindowTitle(windowTitle);
-        connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
-    }
-    else {
+    } else {
         parentWidget()->setWindowTitle(windowTitle + " (not synced)");
-        seekable->independentOffset = Core()->getOffset();
-        disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+        seekable->setIndependentOffset(Core()->getOffset());
     }
 }
 
@@ -175,10 +172,9 @@ void DisassemblerGraphView::loadCurrentGraph()
     if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
     }
-    if (!seekable->isInSyncWithCore) {
+    if (!seekable->getSyncWithCore()) {
         parentWidget()->setWindowTitle(windowTitle + " (not synced)");
-    }
-    else {
+    } else {
         parentWidget()->setWindowTitle(windowTitle);
     }
 
@@ -632,11 +628,11 @@ void DisassemblerGraphView::seekLocal(RVA addr, bool update_viewport)
 
 void DisassemblerGraphView::seekPrev()
 {
-    if (seekable->isInSyncWithCore) {
+    if (seekable->getSyncWithCore()) {
         Core()->seekPrev();
     }
     else {
-        seekable->seek(seekable->prevIdenpendentOffset);
+        seekable->seek(seekable->getPrevIndependentOffset());
     }
 }
 
