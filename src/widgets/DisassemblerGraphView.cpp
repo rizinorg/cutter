@@ -37,7 +37,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+    connectSeekChanged(false);
 
     // Space to switch to disassembly
     QShortcut *shortcut_disassembly = new QShortcut(QKeySequence(Qt::Key_Space), this);
@@ -101,6 +101,15 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 
     initFont();
     colorsUpdatedSlot();
+}
+
+void DisassemblerGraphView::connectSeekChanged(bool disconnect)
+{
+    if (disconnect) {
+        QObject::disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+    } else {
+        connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
+    }
 }
 
 DisassemblerGraphView::~DisassemblerGraphView()
@@ -232,6 +241,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     }
 }
 
+
 void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
@@ -259,7 +269,6 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
     block.width = width + extra + charWidth;
     block.height = (height * charHeight) + extra;
 }
-
 
 void DisassemblerGraphView::initFont()
 {
@@ -396,6 +405,7 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
     return ec;
 }
 
+
 RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
@@ -418,7 +428,6 @@ RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point
 
     return RVA_INVALID;
 }
-
 
 DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
     GraphView::GraphBlock &block, QPoint *point)
@@ -485,26 +494,22 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
 void DisassemblerGraphView::onSeekChanged(RVA addr)
 {
     mMenu->setOffset(addr);
-    // If this seek was NOT done by us...
-    if (!sent_seek) {
+    DisassemblyBlock *db = blockForAddress(addr);
+    if (db) {
+        // This is a local address! We animated to it.
+        transition_dont_seek = true;
+        showBlock(&blocks[db->entry], true);
+        return;
+    } else {
+        refreshView();
         DisassemblyBlock *db = blockForAddress(addr);
         if (db) {
             // This is a local address! We animated to it.
             transition_dont_seek = true;
-            showBlock(&blocks[db->entry], true);
+            showBlock(&blocks[db->entry], false);
             return;
-        } else {
-            refreshView();
-            DisassemblyBlock *db = blockForAddress(addr);
-            if (db) {
-                // This is a local address! We animated to it.
-                transition_dont_seek = true;
-                showBlock(&blocks[db->entry], false);
-                return;
-            }
         }
     }
-    sent_seek = false;
 }
 
 void DisassemblerGraphView::zoomIn(QPoint mouse)
@@ -587,8 +592,9 @@ void DisassemblerGraphView::prevInstr()
 
 void DisassemblerGraphView::seek(RVA addr, bool update_viewport)
 {
-    sent_seek = true;
+    connectSeekChanged(true);
     Core()->seek(addr);
+    connectSeekChanged(false);
     if (update_viewport) {
         viewport()->update();
     }
@@ -625,7 +631,6 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
     }
     QList<XrefDescription> refs = Core()->getXRefs(instr, false, false);
     if (refs.length()) {
-        sent_seek = false;
         Core()->seek(refs.at(0).to);
     }
     if (refs.length() > 1) {
@@ -665,6 +670,7 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
     seek(to->entry);
 }
 
+
 void DisassemblerGraphView::on_actionExportGraph_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -677,8 +683,6 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     QTextStream fileOut(&file);
     fileOut << Core()->cmd("ag -");
 }
-
-
 void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
 {
     // when CTRL is pressed, we zoom in/out with mouse wheel

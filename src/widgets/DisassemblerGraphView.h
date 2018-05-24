@@ -171,7 +171,6 @@ private slots:
 private:
     bool first_draw = true;
     bool transition_dont_seek = false;
-    bool sent_seek = false;
 
     HighlightToken *highlight_token;
     // Font data
@@ -182,6 +181,8 @@ private:
     int baseline;
 
     DisassemblyContextMenu *mMenu;
+
+    void connectSeekChanged(bool disconnect);
 
     void initFont();
     void prepareGraphNode(GraphBlock &block);
