@@ -13,14 +13,16 @@ class CutterSeekableWidget : public CutterDockWidget
 public:
     explicit CutterSeekableWidget(MainWindow *main, QAction *action = nullptr);
     ~CutterSeekableWidget();
-    RVA independentOffset;
-    RVA prevIdenpendentOffset;
+    RVA independentOffset = RVA_INVALID;
+    RVA prevIdenpendentOffset = RVA_INVALID;
     bool isInSyncWithCore = true;
     void seek(RVA addr);
     RVA getOffset();
 
+signals:
+    void seekChanged(RVA addr);
+
 // public slots:
-//     void on_seekChanged(RVA)=0;
 //     void toggleSync(QString windowTitle, void *callback(RVA));
 
 };

@@ -14,8 +14,9 @@
 #include <QScrollBar>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    CutterSeekableWidget(main, action),
-    ui(new Ui::HexdumpWidget)
+    CutterDockWidget(main, action),
+    ui(new Ui::HexdumpWidget),
+    seekable(new CutterSeekableWidget(main, action))
 {
     ui->setupUi(this);
 
@@ -83,6 +84,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this,
             &HexdumpWidget::selectionChanged);
+    connect(seekable, &CutterSeekableWidget::seekChanged, this, &HexdumpWidget::on_seekChanged);
 
     format = Format::Hex;
     initParsing();
@@ -172,18 +174,6 @@ void HexdumpWidget::setupScrollSync()
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, ui->hexHexText->verticalScrollBar(),
             asciiHexFunc);
 }
-
-void HexdumpWidget::seek(RVA addr)
-{
-    if (this->isInSyncWithCore) {
-        Core()->seek(addr);
-    }
-    else {
-        this->independentOffset = addr;
-        on_seekChanged(addr);
-    }
-}
-
 
 void HexdumpWidget::on_seekChanged(RVA addr)
 {
@@ -296,7 +286,7 @@ void HexdumpWidget::refresh(RVA addr)
     updateHeaders();
 
     if (addr == RVA_INVALID) {
-        addr = this->getOffset();
+        addr = seekable->getOffset();
     }
 
     cols = Core()->getConfigi("hex.cols");
@@ -467,7 +457,7 @@ void HexdumpWidget::selectionChanged()
             int pos = asciiAddressToPosition(adr);
             setTextEditPosition(ui->hexASCIIText, pos);
             sent_seek = true;
-            seek(adr);
+            seekable->seek(adr);
             sent_seek = false;
             connectScroll(false);
             return;
@@ -518,7 +508,7 @@ void HexdumpWidget::selectionChanged()
         targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
         ui->hexASCIIText->setTextCursor(targetTextCursor);
         sent_seek = true;
-        seek(startAddress);
+        seekable->seek(startAddress);
         sent_seek = false;
     } else {
         QTextCursor textCursor = ui->hexASCIIText->textCursor();
@@ -529,7 +519,7 @@ void HexdumpWidget::selectionChanged()
             setTextEditPosition(ui->hexHexText, pos);
             connectScroll(false);
             sent_seek = true;
-            seek(adr);
+            seekable->seek(adr);
             sent_seek = false;
             return;
         }
@@ -549,7 +539,7 @@ void HexdumpWidget::selectionChanged()
         targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
         ui->hexHexText->setTextCursor(targetTextCursor);
         sent_seek = true;
-        seek(startAddress);
+        seekable->seek(startAddress);
         sent_seek = false;
     }
 
@@ -617,13 +607,14 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
 
 void HexdumpWidget::toggleSync()
 {
-    this->isInSyncWithCore = !this->isInSyncWithCore;
-    if (this->isInSyncWithCore) {
+    seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
+    if (seekable->isInSyncWithCore) {
         this->setWindowTitle(windowTitle);
         connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     }
     else {
         this->setWindowTitle(windowTitle + " (not synced)");
+        seekable->independentOffset = Core()->getOffset();
         disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     }
 }

@@ -2,6 +2,7 @@
 #define DISASSEMBLYWIDGET_H
 
 #include "Cutter.h"
+#include "CutterDockWidget.h"
 #include "CutterSeekableWidget.h"
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -13,7 +14,7 @@ class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 
-class DisassemblyWidget : public CutterSeekableWidget
+class DisassemblyWidget : public CutterDockWidget
 {
     Q_OBJECT
 public:
@@ -66,7 +67,7 @@ private:
 
     void moveCursorRelative(bool up, bool page);
     QAction syncIt;
-    void seek(RVA);
+    CutterSeekableWidget *seekable;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

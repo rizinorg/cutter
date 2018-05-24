@@ -3,7 +3,7 @@
 #include "DisassemblerGraphView.h"
 
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
-    CutterSeekableWidget(main, action)
+    CutterDockWidget(main, action)
 {
     this->setObjectName("Graph");
     this->setAllowedAreas(Qt::AllDockWidgetAreas);

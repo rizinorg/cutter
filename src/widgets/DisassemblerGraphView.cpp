@@ -1,4 +1,5 @@
 #include "DisassemblerGraphView.h"
+#include "CutterSeekableWidget.h"
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -16,11 +17,11 @@
 #include "utils/CachedFontMetrics.h"
 #include "utils/TempConfig.h"
 
-DisassemblerGraphView::DisassemblerGraphView(CutterSeekableWidget *parent)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
       mMenu(new DisassemblyContextMenu(this)),
-      seekable(parent)
+      seekable(new CutterSeekableWidget(nullptr, nullptr))
 {
     highlight_token = nullptr;
     // Signals that require a refresh all
@@ -104,7 +105,7 @@ DisassemblerGraphView::DisassemblerGraphView(CutterSeekableWidget *parent)
     mMenu->addAction(&actionSyncOffset);
 
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
-
+    connect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblerGraphView::onSeekChanged);
     initFont();
     colorsUpdatedSlot();
 }
@@ -129,11 +130,11 @@ void DisassemblerGraphView::toggleSync()
 {
     seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
     if (seekable->isInSyncWithCore) {
-        seekable->setWindowTitle(windowTitle);
+        parentWidget()->setWindowTitle(windowTitle);
         connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
     }
     else {
-        seekable->setWindowTitle(windowTitle + " (not synced)");
+        parentWidget()->setWindowTitle(windowTitle + " (not synced)");
         seekable->independentOffset = Core()->getOffset();
         disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSeekChanged(RVA)));
     }
@@ -570,9 +571,9 @@ void DisassemblerGraphView::takeTrue()
 {
     DisassemblyBlock *db = blockForAddress(seekable->getOffset());
     if (db->true_path != RVA_INVALID) {
-        seek(db->true_path);
+        seekable->seek(db->true_path);
     } else if (blocks[db->entry].exits.size()) {
-        seek(blocks[db->entry].exits[0]);
+        seekable->seek(blocks[db->entry].exits[0]);
     }
 }
 
@@ -580,9 +581,9 @@ void DisassemblerGraphView::takeFalse()
 {
     DisassemblyBlock *db = blockForAddress(seekable->getOffset());
     if (db->false_path != RVA_INVALID) {
-        seek(db->false_path);
+        seekable->seek(db->false_path);
     } else if (blocks[db->entry].exits.size()) {
-        seek(blocks[db->entry].exits[0]);
+        seekable->seek(blocks[db->entry].exits[0]);
     }
 }
 
@@ -602,9 +603,9 @@ void DisassemblerGraphView::seekInstruction(bool previous_instr)
 
         // Found the instructon. Check if a next one exists
         if (!previous_instr && (i < db->instrs.size() - 1)) {
-            seek(db->instrs[i + 1].addr);
+            seekable->seek(db->instrs[i + 1].addr);
         } else if (previous_instr && (i > 0)) {
-            seek(db->instrs[i - 1].addr);
+            seekable->seek(db->instrs[i - 1].addr);
         }
     }
 }
@@ -629,25 +630,13 @@ void DisassemblerGraphView::seekLocal(RVA addr, bool update_viewport)
     }
 }
 
-void DisassemblerGraphView::seek(RVA addr)
-{
-    if (seekable->isInSyncWithCore) {
-        Core()->seek(addr);
-    }
-    else {
-        seekable->prevIdenpendentOffset = seekable->independentOffset;
-        seekable->independentOffset = addr;
-        onSeekChanged(addr);
-    }
-}
-
 void DisassemblerGraphView::seekPrev()
 {
     if (seekable->isInSyncWithCore) {
         Core()->seekPrev();
     }
     else {
-        seek(seekable->prevIdenpendentOffset);
+        seekable->seek(seekable->prevIdenpendentOffset);
     }
 }
 

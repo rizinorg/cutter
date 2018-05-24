@@ -818,7 +818,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
     }
 }
 
-bool MainWindow::eventFilter(QObject *object, QEvent *event)
+bool MainWindow::eventFilter(QObject *, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
@@ -827,11 +827,6 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event)
             return true;
         }
     }
-    // else if (event->type() == QEvent::FocusOut) {
-    //     eprintf("%s\n", object->objectName().toLatin1().data());
-    //     eprintf("%s\n", object->Name().toLatin1().data());
-    //     return true;
-    // }
     return false;
 }
 

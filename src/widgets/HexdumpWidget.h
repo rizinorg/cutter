@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "Cutter.h"
+#include "CutterDockWidget.h"
 #include "CutterSeekableWidget.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
@@ -19,7 +20,7 @@
 
 #include "ui_HexdumpWidget.h"
 
-class HexdumpWidget : public CutterSeekableWidget
+class HexdumpWidget : public CutterDockWidget
 {
     Q_OBJECT
 
@@ -80,7 +81,6 @@ private:
     void setupScrollSync();
 
     void setupFonts();
-    void seek(RVA);
 
     // If bottom = false gets the FIRST displayed line, otherwise the LAST displayed
     // line.
@@ -104,6 +104,7 @@ private:
     int bufferLines;
     int cols;
     QAction syncAction;
+    CutterSeekableWidget *seekable;
 
 private slots:
     void on_seekChanged(RVA addr);

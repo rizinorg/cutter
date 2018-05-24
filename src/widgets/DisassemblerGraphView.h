@@ -129,7 +129,7 @@ class DisassemblerGraphView : public GraphView
     };
 
 public:
-    DisassemblerGraphView(CutterSeekableWidget *parent);
+    DisassemblerGraphView(QWidget *parent);
     ~DisassemblerGraphView();
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
@@ -193,9 +193,8 @@ private:
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
-    void seek(RVA addr);
     void seekInstruction(bool previous_instr);
-    CutterSeekableWidget *seekable;
+    CutterSeekableWidget *seekable = nullptr;
     QList<QShortcut *> shortcuts;
 
     QColor disassemblyBackgroundColor;

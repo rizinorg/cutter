@@ -37,10 +37,11 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
-    :   CutterSeekableWidget(main, action)
+    :   CutterDockWidget(main, action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
+    ,   seekable(new CutterSeekableWidget(main, action))
 {
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
@@ -144,6 +145,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     syncIt.setText(tr("Sync/unsync offset"));
     mCtxMenu->addAction(&syncIt);
     connect(&syncIt, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
+    connect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblyWidget::on_seekChanged);
 
 #define ADD_SHORTCUT(ksq, slot) { \
     QShortcut *s = new QShortcut((ksq), this); \
@@ -173,25 +175,15 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
 void DisassemblyWidget::toggleSync()
 {
-    this->isInSyncWithCore = !this->isInSyncWithCore;
-    if (this->isInSyncWithCore) {
+    seekable->isInSyncWithCore = !seekable->isInSyncWithCore;
+    if (seekable->isInSyncWithCore) {
         setWindowTitle(tr("Disassembly"));
         connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     }
     else {
         setWindowTitle(tr("Disassembly (not synced)"));
+        seekable->independentOffset = Core()->getOffset();
         disconnect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
-    }
-}
-
-void DisassemblyWidget::seek(RVA addr)
-{
-    if (isInSyncWithCore) {
-        Core()->seek(addr);
-    }
-    else {
-        independentOffset = addr;
-        on_seekChanged(addr);
     }
 }
 
@@ -382,7 +374,7 @@ RVA DisassemblyWidget::readDisassemblyOffset(QTextCursor tc)
 
 void DisassemblyWidget::updateCursorPosition()
 {
-    RVA offset = Core()->getOffset();
+    RVA offset = seekable->getOffset();
 
     // already fine where it is?
     RVA currentLineOffset = readCurrentDisassemblyOffset();
@@ -460,7 +452,7 @@ void DisassemblyWidget::cursorPositionChanged()
     }
 
     seekFromCursor = true;
-    this->seek(offset);
+    seekable->seek(offset);
     seekFromCursor = false;
     highlightCurrentLine();
     mCtxMenu->setCanCopy(mDisasTextEdit->textCursor().hasSelection());
@@ -520,8 +512,8 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
         // handle cases where top instruction offsets change
         RVA offset = readCurrentDisassemblyOffset();
-        if (offset != this->getOffset()) {
-            this->seek(offset);
+        if (offset != seekable->getOffset()) {
+            seekable->seek(offset);
             highlightCurrentLine();
         }
     }
@@ -548,7 +540,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         }
 
         if (jump != RVA_INVALID) {
-            seek(jump);
+            seekable->seek(jump);
         }
 
         return true;

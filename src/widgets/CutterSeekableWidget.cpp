@@ -12,7 +12,9 @@ void CutterSeekableWidget::seek(RVA addr)
         Core()->seek(addr);
     }
     else {
+        prevIdenpendentOffset = independentOffset;
         independentOffset = addr;
+        emit seekChanged(addr);
     }
 }
 
