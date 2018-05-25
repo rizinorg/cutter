@@ -35,7 +35,7 @@ fi
 # Build radare2
 if [ $BUILDR2 -eq 1 ]; then
 	answer="Y"
-	echo -n "A (new?) version of radare2 will be installed. Do you agree? [Y/n] "
+	printf "A (new?) version of radare2 will be installed. Do you agree? [Y/n] "
 	read answer
 	if [ -z "$answer" -o "$answer" = "Y" -o "$answer" = "y" ]; then
 		git submodule init && git submodule update
