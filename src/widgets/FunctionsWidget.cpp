@@ -256,8 +256,14 @@ void FunctionModel::setNested(bool nested)
 
 void FunctionModel::seekChanged(RVA)
 {
+    int previousIndex = currentIndex;
     if (updateCurrentIndex()) {
-        emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+        if (previousIndex >= 0) {
+            emit dataChanged(index(previousIndex, 0), index(previousIndex, columnCount() - 1));
+        }
+        if (currentIndex >= 0) {
+            emit dataChanged(index(currentIndex, 0), index(currentIndex, columnCount() - 1));
+        }
     }
 }
 
