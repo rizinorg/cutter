@@ -23,9 +23,6 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
             this->graphView->setFocus();
         }
     });
-
-
-
 }
 
 GraphWidget::~GraphWidget() {}

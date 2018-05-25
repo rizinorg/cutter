@@ -201,6 +201,7 @@ border-top: 0px;
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefault"/>
+    <addaction name="actionZen"/>
     <addaction name="actionReset_settings"/>
     <addaction name="separator"/>
     <addaction name="actionLock"/>
@@ -256,6 +257,8 @@ border-top: 0px;
     <addaction name="actionComments"/>
     <addaction name="actionConsole"/>
     <addaction name="actionJupyter"/>
+    <addaction name="separator"/>
+    <addaction name="addExtraWidgets"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -320,6 +323,14 @@ background-color: palette(dark);
    </property>
    <property name="toolTip">
     <string>Reset layout</string>
+   </property>
+  </action>
+  <action name="actionZen">
+   <property name="text">
+    <string>Zen Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Zen mode</string>
    </property>
   </action>
   <action name="actionAbout">
@@ -1093,6 +1104,29 @@ background-color: palette(dark);
     <string>Jupyter</string>
    </property>
   </action>
+  <action name="actionExtraGraph">
+   <property name="text">
+    <string>Graph view</string>
+   </property>
+  </action>
+  <action name="actionExtraHexdump">
+   <property name="text">
+    <string>Hexdump view</string>
+   </property>
+  </action>
+  <action name="actionExtraDisassembly">
+   <property name="text">
+    <string>Disassembly view</string>
+   </property>
+  </action>
+   <widget class="QMenu" name="addExtraWidgets">
+    <property name="title">
+     <string>Add extra...</string>
+    </property>
+    <addaction name="actionExtraGraph"/>
+    <addaction name="actionExtraHexdump"/>
+    <addaction name="actionExtraDisassembly"/>
+   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

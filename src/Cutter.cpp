@@ -55,7 +55,7 @@ CutterCore::CutterCore(QObject *parent) :
 
     // Otherwise r2 may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
-    
+
 #if defined(APPIMAGE) || defined(MACOS_R2_BUNDLED)
     auto prefix = QDir(QCoreApplication::applicationDirPath());
 #   ifdef APPIMAGE

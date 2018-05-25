@@ -95,6 +95,8 @@ public:
 
     void addToDockWidgetList(QDockWidget *dockWidget);
     void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
+    void addExtraWidget(QDockWidget *extraDock);
+
 
 public slots:
 
@@ -119,12 +121,16 @@ public slots:
 
 private slots:
     void on_actionAbout_triggered();
+    void on_actionExtraGraph_triggered();
+    void on_actionExtraHexdump_triggered();
+    void on_actionExtraDisassembly_triggered();
 
     void on_actionRefresh_Panels_triggered();
 
     void on_actionDisasAdd_comment_triggered();
 
     void on_actionDefault_triggered();
+    void on_actionZen_triggered();
 
     void on_actionFunctionsRename_triggered();
 
@@ -211,10 +217,12 @@ private:
 #endif
 
     void resetToDefaultLayout();
+    void resetToZenLayout();
 
     void restoreDocks();
     void hideAllDocks();
     void showDefaultDocks();
+    void showZenDocks();
     void updateDockActionsChecked();
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);

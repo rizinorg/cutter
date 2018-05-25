@@ -10,6 +10,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterSeekableWidget.h"
 #include "utils/Highlighter.h"
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/HexHighlighter.h"
@@ -27,9 +28,7 @@ class HexdumpWidget : public CutterDockWidget
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
-
     Highlighter        *highlighter;
-
     enum Format {
         Hex,
         Octal,
@@ -50,6 +49,7 @@ public slots:
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
+    void toggleSync();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -102,6 +102,8 @@ private:
 
     int bufferLines;
     int cols;
+    QAction syncAction;
+    CutterSeekableWidget *seekable;
 
 private slots:
     void on_seekChanged(RVA addr);

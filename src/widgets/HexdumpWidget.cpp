@@ -15,7 +15,8 @@
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::HexdumpWidget)
+    ui(new Ui::HexdumpWidget),
+    seekable(new CutterSeekableWidget(this))
 {
     ui->setupUi(this);
 
@@ -44,6 +45,8 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     colorsUpdatedSlot();
     updateHeaders();
 
+    this->setWindowTitle(tr("Hexdump"));
+    connect(&syncAction, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
 
     // Set hexdump context menu
     ui->hexHexText->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -61,7 +64,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
             SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
 
@@ -80,6 +82,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this,
             &HexdumpWidget::selectionChanged);
+    connect(seekable, &CutterSeekableWidget::seekChanged, this, &HexdumpWidget::on_seekChanged);
 
     format = Format::Hex;
     initParsing();
@@ -281,7 +284,7 @@ void HexdumpWidget::refresh(RVA addr)
     updateHeaders();
 
     if (addr == RVA_INVALID) {
-        addr = Core()->getOffset();
+        addr = seekable->getOffset();
     }
 
     cols = Core()->getConfigi("hex.cols");
@@ -323,7 +326,7 @@ void HexdumpWidget::refresh(RVA addr)
     QTextBlockFormat formatTmp = offsetCursor.blockFormat();
     formatTmp.setBackground(QColor(64, 129, 160));
     offsetCursor.setBlockFormat(formatTmp);
-    
+
     updateWidths();
 
     // Update other text areas scroll
@@ -452,7 +455,7 @@ void HexdumpWidget::selectionChanged()
             int pos = asciiAddressToPosition(adr);
             setTextEditPosition(ui->hexASCIIText, pos);
             sent_seek = true;
-            Core()->seek(adr);
+            seekable->seek(adr);
             sent_seek = false;
             connectScroll(false);
             return;
@@ -503,7 +506,7 @@ void HexdumpWidget::selectionChanged()
         targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
         ui->hexASCIIText->setTextCursor(targetTextCursor);
         sent_seek = true;
-        Core()->seek(startAddress);
+        seekable->seek(startAddress);
         sent_seek = false;
     } else {
         QTextCursor textCursor = ui->hexASCIIText->textCursor();
@@ -514,7 +517,7 @@ void HexdumpWidget::selectionChanged()
             setTextEditPosition(ui->hexHexText, pos);
             connectScroll(false);
             sent_seek = true;
-            Core()->seek(adr);
+            seekable->seek(adr);
             sent_seek = false;
             return;
         }
@@ -534,7 +537,7 @@ void HexdumpWidget::selectionChanged()
         targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
         ui->hexHexText->setTextCursor(targetTextCursor);
         sent_seek = true;
-        Core()->seek(startAddress);
+        seekable->seek(startAddress);
         sent_seek = false;
     }
 
@@ -570,6 +573,11 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
     QMenu *formatSubmenu = menu->addMenu(tr("Format"));
     formatSubmenu->addAction(ui->actionFormatHex);
     formatSubmenu->addAction(ui->actionFormatOctal);
+
+    menu->addSeparator();
+    syncAction.setText(tr("Sync/unsync offset"));
+    menu->addAction(&syncAction);
+
     // TODO:
     // formatSubmenu->addAction(ui->actionFormatHalfWord);
     // formatSubmenu->addAction(ui->actionFormatWord);
@@ -593,6 +601,18 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
 
     menu->exec(ui->hexHexText->mapToGlobal(pt));
     delete menu;
+}
+
+void HexdumpWidget::toggleSync()
+{
+    QString windowTitle = tr("Hexdump");
+    seekable->toggleSyncWithCore();
+    if (seekable->getSyncWithCore()) {
+        setWindowTitle(windowTitle);
+    } else {
+        setWindowTitle(windowTitle + " (not synced)");
+        seekable->setIndependentOffset(Core()->getOffset());
+    }
 }
 
 void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)
