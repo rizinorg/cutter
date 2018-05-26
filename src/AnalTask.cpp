@@ -47,7 +47,7 @@ void AnalTask::runTask()
         binLoadAddr = Core()->math(ui->entry_loadOffset->text());
     ut64 mapAddr = Core()->math(ui->entry_mapOffset->text());      // Where to map the file once loaded (-m)
 
-    emit updateProgress(tr("Loading binary..."));
+    log(tr("Loading Binary...\n"));
 
     // Set the CPU details (handle auto)
     Core()->setCPU(optionsDialog->getSelectedArch(), optionsDialog->getSelectedCPU(),
@@ -106,7 +106,9 @@ void AnalTask::runTask()
     Core()->setConfig("prj.simple", true);
 
     // Start analysis
-    emit updateProgress(tr("Analysis in progress..."));
+    log(tr("Analysis in progress...\n"));
+
     Core()->analyze(this->level, this->advanced);
-    emit updateProgress(tr("Analysis complete!"));
+    
+    log(tr("Analysis complete!"));
 }

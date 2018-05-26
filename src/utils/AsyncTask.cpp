@@ -44,10 +44,18 @@ void AsyncTask::run()
 {
     runningMutex.lock();
     running = true;
+    logBuffer = "";
+    emit logChanged(logBuffer);
     runTask();
     emit finished();
     running = false;
     runningMutex.unlock();
+}
+
+void AsyncTask::log(QString s)
+{
+    logBuffer += s;
+    emit logChanged(logBuffer);
 }
 
 AsyncTaskManager::AsyncTaskManager(QObject *parent)

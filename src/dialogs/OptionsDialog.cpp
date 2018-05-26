@@ -2,6 +2,7 @@
 #include "ui_OptionsDialog.h"
 #include "MainWindow.h"
 #include "dialogs/NewFileDialog.h"
+#include "dialogs/AsyncTaskDialog.h"
 #include "utils/Helpers.h"
 
 #include <QSettings>
@@ -169,11 +170,12 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     updateProgressTimer();
     connect(&analTimer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
 
-    // Threads stuff, connect signal/slot
-    connect(&analTask, &AnalTask::updateProgress, this, &OptionsDialog::updateProgress);
     connect(&analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
     analTask.setSettings(main, level, advanced);
     Core()->getAsyncTaskManager()->start(&analTask);
+
+    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(&analTask, main);
+    taskDialog->show();
 }
 
 void OptionsDialog::updateProgressTimer()

@@ -161,7 +161,8 @@ SOURCES += \
     utils/JsonModel.cpp \
     dialogs/VersionInfoDialog.cpp \
     widgets/ZignaturesWidget.cpp \
-    utils/AsyncTask.cpp
+    utils/AsyncTask.cpp \
+    dialogs/AsyncTaskDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -237,7 +238,8 @@ HEADERS  += \
     utils/JsonModel.h \
     dialogs/VersionInfoDialog.h \
     widgets/ZignaturesWidget.h \
-    utils/AsyncTask.h
+    utils/AsyncTask.h \
+    dialogs/AsyncTaskDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -280,7 +282,8 @@ FORMS    += \
     widgets/JupyterWidget.ui \
     dialogs/R2PluginsDialog.ui \
     dialogs/VersionInfoDialog.ui \
-    widgets/ZignaturesWidget.ui
+    widgets/ZignaturesWidget.ui \
+    dialogs/AsyncTaskDialog.ui
 
 RESOURCES += \
     resources.qrc \

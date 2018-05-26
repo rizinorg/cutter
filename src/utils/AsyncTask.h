@@ -26,16 +26,23 @@ public:
     bool isInterrupted()                { return interrupted; }
     bool isRunning()                    { return running; }
 
+    const QString &getLog()             { return logBuffer; }
+
 protected:
     virtual void runTask() =0;
 
+    void log(QString s);
+
 signals:
     void finished();
+    void logChanged(const QString &log);
 
 private:
     bool running;
     bool interrupted;
     QMutex runningMutex;
+
+    QString logBuffer;
 
     void prepareRun();
 };

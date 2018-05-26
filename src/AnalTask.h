@@ -20,10 +20,9 @@ public:
     void interruptAndWait();
 
 protected:
-    void runTask();
+    void runTask() override;
 
 signals:
-    void updateProgress(QString str);
     void openFileFailed();
 
 private:
