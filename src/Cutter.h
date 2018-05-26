@@ -44,6 +44,8 @@ typedef ut64 RVA;
  */
 #define RVA_INVALID RVA_MAX
 
+class AsyncTaskManager;
+
 class RCoreLocked
 {
     RCore *core;
@@ -528,6 +530,7 @@ private:
     QString notes;
 
     RCore *core_;
+    AsyncTaskManager *asyncTaskManager;
 };
 
 class ccClass : public CutterCore

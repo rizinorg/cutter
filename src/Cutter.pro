@@ -160,7 +160,8 @@ SOURCES += \
     utils/JsonTreeItem.cpp \
     utils/JsonModel.cpp \
     dialogs/VersionInfoDialog.cpp \
-    widgets/ZignaturesWidget.cpp
+    widgets/ZignaturesWidget.cpp \
+    utils/AsyncTask.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -235,7 +236,8 @@ HEADERS  += \
     utils/JsonTreeItem.h \
     utils/JsonModel.h \
     dialogs/VersionInfoDialog.h \
-    widgets/ZignaturesWidget.h
+    widgets/ZignaturesWidget.h \
+    utils/AsyncTask.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
