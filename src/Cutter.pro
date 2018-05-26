@@ -107,7 +107,7 @@ SOURCES += \
     utils/MdHighlighter.cpp \
     dialogs/preferences/AsmOptionsWidget.cpp \
     dialogs/NewFileDialog.cpp \
-    AnalThread.cpp \
+    AnalTask.cpp \
     widgets/CommentsWidget.cpp \
     widgets/ConsoleWidget.cpp \
     widgets/Dashboard.cpp \
@@ -183,7 +183,7 @@ HEADERS  += \
     utils/MdHighlighter.h \
     dialogs/OptionsDialog.h \
     dialogs/NewFileDialog.h \
-    AnalThread.h \
+    AnalTask.h \
     widgets/CommentsWidget.h \
     widgets/ConsoleWidget.h \
     widgets/Dashboard.h \

@@ -10,7 +10,7 @@
 
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
-    analThread(this),
+    analTask(this),
     main(main),
     core(Core()),
     defaultAnalLevel(1),
@@ -61,7 +61,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(&analThread, SIGNAL(finished()), this, SLOT(analysisFinished()));
+    connect(&analTask, SIGNAL(finished()), this, SLOT(analysisFinished()));
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     ui->programLineEdit->setText(main->getFilename());
@@ -170,9 +170,10 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     connect(&analTimer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
 
     // Threads stuff, connect signal/slot
-    connect(&analThread, &AnalThread::updateProgress, this, &OptionsDialog::updateProgress);
-    connect(&analThread, &AnalThread::openFileFailed, main, &MainWindow::openNewFileFailed);
-    analThread.start(main, level, advanced);
+    connect(&analTask, &AnalTask::updateProgress, this, &OptionsDialog::updateProgress);
+    connect(&analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
+    analTask.setSettings(main, level, advanced);
+    Core()->getAsyncTaskManager()->start(&analTask);
 }
 
 void OptionsDialog::updateProgressTimer()
@@ -249,7 +250,7 @@ void OptionsDialog::on_okButton_clicked()
 
 void OptionsDialog::analysisFinished()
 {
-    if (analThread.isInterrupted()) {
+    if (analTask.isInterrupted()) {
         updateProgress(tr("Analysis aborted."));
         done(1);
         return;
@@ -264,8 +265,8 @@ void OptionsDialog::analysisFinished()
 
 void OptionsDialog::closeEvent(QCloseEvent *event)
 {
-    if (analThread.isRunning()) {
-        analThread.interruptAndWait();
+    if (analTask.isRunning()) {
+        analTask.interruptAndWait();
     }
     event->accept();
 }

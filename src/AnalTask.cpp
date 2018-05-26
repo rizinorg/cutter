@@ -1,48 +1,43 @@
 #include "Cutter.h"
-#include "AnalThread.h"
+#include "AnalTask.h"
 #include "MainWindow.h"
 #include "dialogs/OptionsDialog.h"
 #include <QJsonArray>
 #include <QDebug>
 #include <QCheckBox>
 
-AnalThread::AnalThread(OptionsDialog *parent) :
-    QThread(parent),
+AnalTask::AnalTask(OptionsDialog *parent) :
+    AsyncTask(parent),
     level(2),
-    main(nullptr),
-    interrupted(false)
+    main(nullptr)
 {
 }
 
-AnalThread::~AnalThread()
+AnalTask::~AnalTask()
 {
-    if (isRunning()) {
-        quit();
-        wait();
-    }
 }
 
-void AnalThread::start(MainWindow *main, int level, QList<QString> advanced)
+void AnalTask::setSettings(MainWindow *main, int level, QList<QString> advanced)
 {
+    this->main = main;
     this->level = level;
     this->advanced = advanced;
-    this->main = main;
-
-    QThread::start();
 }
 
-void AnalThread::interruptAndWait()
+void AnalTask::interrupt()
 {
-    interrupted = true;
-
-    while (isRunning()) {
-        r_cons_singleton()->breaked = true;
-        r_sys_usleep(10000);
-    }
+    AsyncTask::interrupt();
+    r_cons_singleton()->breaked = true;
 }
 
-// run() will be called when a thread starts
-void AnalThread::run()
+void AnalTask::interruptAndWait()
+{
+    do {
+        interrupt();
+    } while(!wait(10));
+}
+
+void AnalTask::runTask()
 {
     const auto optionsDialog = dynamic_cast<OptionsDialog *>(parent());
     const auto &ui = optionsDialog->ui;
@@ -51,7 +46,7 @@ void AnalThread::run()
     if (ui->entry_loadOffset->text().length() > 0)
         binLoadAddr = Core()->math(ui->entry_loadOffset->text());
     ut64 mapAddr = Core()->math(ui->entry_mapOffset->text());      // Where to map the file once loaded (-m)
-    interrupted = false;
+
     emit updateProgress(tr("Loading binary..."));
 
     // Set the CPU details (handle auto)
@@ -83,7 +78,7 @@ void AnalThread::run()
         if (!fileLoaded) {
             // Something wrong happened, fallback to open dialog
             emit openFileFailed();
-            interrupted = true;
+            AsyncTask::interrupt();
             return;
         }
     }
