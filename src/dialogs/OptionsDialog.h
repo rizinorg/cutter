@@ -7,7 +7,7 @@
 #include <QElapsedTimer>
 #include <memory>
 #include "Cutter.h"
-#include "AnalThread.h"
+#include "AnalTask.h"
 #include "ui_OptionsDialog.h"
 
 class MainWindow;
@@ -46,7 +46,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-    AnalThread analThread;
+    AnalTask analTask;
     MainWindow *main;
     CutterCore *core;
     int defaultAnalLevel;

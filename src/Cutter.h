@@ -312,11 +312,9 @@ public:
     ~CutterCore();
     static CutterCore *getInstance();
 
-    /* Getters */
-    RVA getOffset() const
-    {
-        return core_->offset;
-    }
+    AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
+
+    RVA getOffset() const                   { return core_->offset; }
 
     static QString sanitizeStringForCommand(QString s);
     QString cmd(const QString &str);

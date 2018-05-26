@@ -1,10 +1,53 @@
 
 #include "AsyncTask.h"
 
+AsyncTask::AsyncTask(QObject *parent)
+    : QObject(parent),
+      QRunnable()
+{
+    setAutoDelete(false);
+    running = false;
+}
+
+AsyncTask::~AsyncTask()
+{
+    wait();
+}
+
+void AsyncTask::wait()
+{
+    runningMutex.lock();
+    runningMutex.unlock();
+}
+
+bool AsyncTask::wait(int timeout)
+{
+    bool r = runningMutex.tryLock(timeout);
+    if (r) {
+        runningMutex.unlock();
+    }
+    return r;
+}
+
+void AsyncTask::interrupt()
+{
+    interrupted = true;
+}
+
+void AsyncTask::prepareRun()
+{
+    interrupted = false;
+    wait();
+}
+
 void AsyncTask::run()
 {
+    runningMutex.lock();
+    running = true;
     runTask();
     emit finished();
+    running = false;
+    runningMutex.unlock();
 }
 
 AsyncTaskManager::AsyncTaskManager(QObject *parent)
@@ -19,5 +62,6 @@ AsyncTaskManager::~AsyncTaskManager()
 
 void AsyncTaskManager::start(AsyncTask *task)
 {
+    task->prepareRun();
     threadPool->start(task);
 }
