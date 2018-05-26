@@ -6,6 +6,7 @@
 
 #include "utils/TempConfig.h"
 #include "utils/Configuration.h"
+#include "utils/AsyncTask.h"
 #include "Cutter.h"
 #include "sdb.h"
 
@@ -71,6 +72,8 @@ CutterCore::CutterCore(QObject *parent) :
 #   endif
     setConfig("dir.prefix", prefix.absolutePath());
 #endif
+
+    asyncTaskManager = new AsyncTaskManager(this);
 }
 
 
