@@ -88,12 +88,13 @@ add_definitions("-DAPP_VERSION=\"${CUTTER_VERSION_FULL}\"")
 
 
 add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
-qt5_use_modules(Cutter Core Widgets Gui Svg)
+
+target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg)
 target_link_libraries(Cutter ${RADARE2_LIBRARIES})
 if(CUTTER_ENABLE_JUPYTER)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_QTWEBENGINE)
-        qt5_use_modules(Cutter WebEngineWidgets)
+        target_link_libraries(Cutter Qt5::WebEngineWidgets)
     endif()
 endif()
 
