@@ -5,6 +5,7 @@
 #include <QRunnable>
 #include <QThreadPool>
 #include <QMutex>
+#include <QElapsedTimer>
 
 class AsyncTaskManager;
 
@@ -27,6 +28,9 @@ public:
     bool isRunning()                    { return running; }
 
     const QString &getLog()             { return logBuffer; }
+    const QElapsedTimer &getTimer()     { return timer; }
+
+    virtual QString getTitle()          { return QString(); }
 
 protected:
     virtual void runTask() =0;
@@ -42,6 +46,7 @@ private:
     bool interrupted;
     QMutex runningMutex;
 
+    QElapsedTimer timer;
     QString logBuffer;
 
     void prepareRun();

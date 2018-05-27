@@ -2,8 +2,10 @@
 #ifndef ASYNCTASKDIALOG_H
 #define ASYNCTASKDIALOG_H
 
-#include <QDialog>
 #include <memory>
+
+#include <QDialog>
+#include <QTimer>
 
 namespace Ui {
 class AsyncTaskDialog;
@@ -21,10 +23,12 @@ public:
 
 private slots:
     void updateLog();
+    void updateProgressTimer();
 
 private:
     std::unique_ptr<Ui::AsyncTaskDialog> ui;
     AsyncTask *task;
+    QTimer timer;
 };
 
 #endif //ASYNCTASKDIALOG_H

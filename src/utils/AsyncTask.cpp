@@ -38,6 +38,7 @@ void AsyncTask::prepareRun()
 {
     interrupted = false;
     wait();
+    timer.start();
 }
 
 void AsyncTask::run()

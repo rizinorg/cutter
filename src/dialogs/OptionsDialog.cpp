@@ -161,15 +161,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     main->initUI();
 
-    // Timer for showing elapsed analysis time.
-    analTimer.setInterval(1000);
-    analTimer.setSingleShot(false);
-    analTimer.start();
-    analElapsedTimer.start();
-
-    updateProgressTimer();
-    connect(&analTimer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
-
     connect(&analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
     analTask.setSettings(main, level, advanced);
     Core()->getAsyncTaskManager()->start(&analTask);
@@ -178,24 +169,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     taskDialog->show();
 }
 
-void OptionsDialog::updateProgressTimer()
-{
-    int secondsElapsed = (analElapsedTimer.elapsed() + 500) / 1000;
-    int minutesElapsed = secondsElapsed / 60;
-    int hoursElapsed = minutesElapsed / 60;
-
-    QString label = tr("Running for") + " ";
-    if (hoursElapsed) {
-        label += tr("%n hour", "%n hours", hoursElapsed);
-        label += " ";
-    }
-    if (minutesElapsed) {
-        label += tr("%n minute", "%n minutes", minutesElapsed % 60);
-        label += " ";
-    }
-    label += tr("%n seconds", "%n second", secondsElapsed % 60);
-    ui->elapsedLabel->setText(label);
-}
 
 void OptionsDialog::updateProgress(const QString &status)
 {

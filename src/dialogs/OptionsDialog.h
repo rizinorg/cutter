@@ -19,7 +19,7 @@ class OptionsDialog : public QDialog
 public:
     explicit OptionsDialog(MainWindow *main);
     ~OptionsDialog();
-    RAnalFunction functionAt(ut64 addr);
+
     QStringList    asm_plugins;
 
     void setupAndStartAnalysis(int level, QList<QString> advanced);
@@ -34,8 +34,6 @@ private slots:
     void on_archComboBox_currentIndexChanged(int index);
     void on_pdbSelectButton_clicked();
     void on_scriptSelectButton_clicked();
-
-    void updateProgressTimer();
 
     void updatePDBLayout();
     void updateScriptLayout();
@@ -68,8 +66,7 @@ public:
     int getSelectedBBSize();
     Endianness getSelectedEndianness();
     QString getSelectedOS();
-    QTimer analTimer;
-    QElapsedTimer analElapsedTimer;
+
     void reject() override;
 };
 
