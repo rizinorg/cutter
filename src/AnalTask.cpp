@@ -52,6 +52,10 @@ void AnalTask::runTask()
         }
     }
 
+    if (isInterrupted()) {
+        return;
+    }
+
     if (!options.os.isNull()) {
         Core()->cmd("e asm.os=" + options.os);
     }
@@ -61,8 +65,16 @@ void AnalTask::runTask()
         Core()->loadPDB(options.pdbFile);
     }
 
+    if (isInterrupted()) {
+        return;
+    }
+
     if (!options.script.isNull()) {
         Core()->loadScript(options.script);
+    }
+
+    if (isInterrupted()) {
+        return;
     }
 
     if (options.endian != InitialOptions::Endianness::Auto) {
