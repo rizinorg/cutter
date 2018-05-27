@@ -36,8 +36,7 @@ struct InitialOptions
 
 	int bbsize = 0;
 
-	int analLevel = 1;
-	QList<QString> analAdvanced;
+	QList<QString> analCmd;
 };
 
 class AnalTask : public AsyncTask
@@ -53,7 +52,6 @@ public:
     void setOptions(const InitialOptions &options)	{ this->options = options; }
 
     void interrupt() override;
-    void interruptAndWait();
 
 protected:
     void runTask() override;

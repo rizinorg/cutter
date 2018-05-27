@@ -26,6 +26,7 @@ public:
 
 public slots:
     void updateProgress(const QString &str);
+
 private slots:
     void on_okButton_clicked();
     void on_analSlider_valueChanged(int value);
@@ -63,6 +64,7 @@ public:
     int getSelectedBBSize();
     InitialOptions::Endianness getSelectedEndianness();
     QString getSelectedOS();
+    QList<QString> getSelectedAdvancedAnalCmds();
 
     void reject() override;
 };

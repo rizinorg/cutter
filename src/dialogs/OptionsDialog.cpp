@@ -145,6 +145,53 @@ QString OptionsDialog::getSelectedOS()
     return os.isValid() ? os.toString() : nullptr;
 }
 
+QList<QString> OptionsDialog::getSelectedAdvancedAnalCmds()
+{
+    QList<QString> advanced = QList<QString>();
+    if (ui->analSlider->value() == 3) {
+        if (ui->aa_symbols->isChecked()) {
+            advanced << "aa";
+        }
+        if (ui->aar_references->isChecked()) {
+            advanced << "aar";
+        }
+        if (ui->aac_calls->isChecked()) {
+            advanced << "aac";
+        }
+        if (ui->aab_basicblocks->isChecked()) {
+            advanced << "aab";
+        }
+        if (ui->aan_rename->isChecked()) {
+            advanced << "aan";
+        }
+        if (ui->aae_emulate->isChecked()) {
+            advanced << "aae";
+        }
+        if (ui->aat_consecutive->isChecked()) {
+            advanced << "aat";
+        }
+        if (ui->afta_typeargument->isChecked()) {
+            advanced << "afta";
+        }
+        if (ui->aaT_aftertrap->isChecked()) {
+            advanced << "aaT";
+        }
+        if (ui->aap_preludes->isChecked()) {
+            advanced << "aap";
+        }
+        if (ui->jmptbl->isChecked()) {
+            advanced << "e! anal.jmptbl";
+        }
+        if (ui->pushret->isChecked()) {
+            advanced << "e! anal.pushret";
+        }
+        if (ui->hasnext->isChecked()) {
+            advanced << "e! anal.hasnext";
+        }
+    }
+    return advanced;
+}
+
 void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 {
     ui->analSlider->setValue(level);
@@ -191,6 +238,22 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     options.endian = getSelectedEndianness();
     options.bbsize = getSelectedBBSize();
 
+    switch(level) {
+        case 1:
+            options.analCmd = { "aaa" };
+            break;
+        case 2:
+            options.analCmd = { "aaaa" };
+            break;
+        case 3:
+            options.analCmd = advanced;
+            break;
+        default:
+            options.analCmd = {};
+            break;
+    }
+
+
     AnalTask *analTask = new AnalTask(main);
     analTask->setOptions(options);
 
@@ -214,50 +277,7 @@ void OptionsDialog::updateProgress(const QString &status)
 
 void OptionsDialog::on_okButton_clicked()
 {
-    QList<QString> advanced = QList<QString>();
-    if (ui->analSlider->value() == 3) {
-        if (ui->aa_symbols->isChecked()) {
-            advanced << "aa";
-        }
-        if (ui->aar_references->isChecked()) {
-            advanced << "aar";
-        }
-        if (ui->aac_calls->isChecked()) {
-            advanced << "aac";
-        }
-        if (ui->aab_basicblocks->isChecked()) {
-            advanced << "aab";
-        }
-        if (ui->aan_rename->isChecked()) {
-            advanced << "aan";
-        }
-        if (ui->aae_emulate->isChecked()) {
-            advanced << "aae";
-        }
-        if (ui->aat_consecutive->isChecked()) {
-            advanced << "aat";
-        }
-        if (ui->afta_typeargument->isChecked()) {
-            advanced << "afta";
-        }
-        if (ui->aaT_aftertrap->isChecked()) {
-            advanced << "aaT";
-        }
-        if (ui->aap_preludes->isChecked()) {
-            advanced << "aap";
-        }
-        if (ui->jmptbl->isChecked()) {
-            advanced << "e! anal.jmptbl";
-        }
-        if (ui->pushret->isChecked()) {
-            advanced << "e! anal.pushret";
-        }
-        if (ui->hasnext->isChecked()) {
-            advanced << "e! anal.hasnext";
-        }
-    }
-
-    setupAndStartAnalysis(ui->analSlider->value(), advanced);
+    setupAndStartAnalysis(ui->analSlider->value(), getSelectedAdvancedAnalCmds());
 }
 
 void OptionsDialog::analysisFinished()

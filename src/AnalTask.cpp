@@ -21,13 +21,6 @@ void AnalTask::interrupt()
     r_cons_singleton()->breaked = true;
 }
 
-void AnalTask::interruptAndWait()
-{
-    do {
-        interrupt();
-    } while(!wait(10));
-}
-
 void AnalTask::runTask()
 {
     log(tr("Loading Binary...\n"));
@@ -81,10 +74,17 @@ void AnalTask::runTask()
     // Use prj.simple as default as long as regular projects are broken
     Core()->setConfig("prj.simple", true);
 
-    // Start analysis
-    log(tr("Analysis in progress...\n"));
-
-    Core()->analyze(options.analLevel, options.analAdvanced);
-    
-    log(tr("Analysis complete!"));
+    if (!options.analCmd.empty()) {
+        log(tr("Analyzing...\n"));
+        for (QString cmd : options.analCmd) {
+            if (isInterrupted()) {
+                return;
+            }
+            log("  " + tr("Running") + " " + cmd + "\n");
+            Core()->cmd(cmd);
+        }
+        log(tr("Analysis complete!\n"));
+    } else {
+        log(tr("Skipping Analysis.\n"));
+    }
 }
