@@ -23,7 +23,7 @@ AsyncTaskDialog::AsyncTaskDialog(AsyncTask *task, QWidget *parent)
         close();
     });
 
-    updateLog();
+    updateLog(task->getLog());
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(updateProgressTimer()));
     timer.setInterval(1000);
@@ -37,9 +37,9 @@ AsyncTaskDialog::~AsyncTaskDialog()
 {
 }
 
-void AsyncTaskDialog::updateLog()
+void AsyncTaskDialog::updateLog(const QString &log)
 {
-    ui->logTextEdit->setPlainText(task->getLog());
+    ui->logTextEdit->setPlainText(log);
 }
 
 void AsyncTaskDialog::updateProgressTimer()

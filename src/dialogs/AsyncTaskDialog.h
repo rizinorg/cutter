@@ -25,7 +25,7 @@ public slots:
     void reject() override;
 
 private slots:
-    void updateLog();
+    void updateLog(const QString &log);
     void updateProgressTimer();
 
 protected:
