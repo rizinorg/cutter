@@ -18,6 +18,7 @@ AsyncTaskDialog::AsyncTaskDialog(AsyncTask *task, QWidget *parent)
     }
 
     connect(task, &AsyncTask::logChanged, this, &AsyncTaskDialog::updateLog);
+    connect(task, &AsyncTask::finished, this, &QWidget::close);
 
     updateLog();
 

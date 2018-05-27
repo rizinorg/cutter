@@ -11,7 +11,6 @@
 
 OptionsDialog::OptionsDialog(MainWindow *main):
     QDialog(0), // parent may not be main
-    analTask(this),
     main(main),
     core(Core()),
     defaultAnalLevel(1),
@@ -62,7 +61,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     // Add this so the dialog resizes when widgets are shown/hidden
     //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(&analTask, SIGNAL(finished()), this, SLOT(analysisFinished()));
+    //connect(&analTask, SIGNAL(finished()), this, SLOT(analysisFinished()));
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     ui->programLineEdit->setText(main->getFilename());
@@ -128,15 +127,15 @@ int OptionsDialog::getSelectedBBSize()
     return 1024;
 }
 
-OptionsDialog::Endianness OptionsDialog::getSelectedEndianness()
+InitialOptions::Endianness OptionsDialog::getSelectedEndianness()
 {
     switch (ui->endiannessComboBox->currentIndex()) {
     case 1:
-        return Endianness::Little;
+        return InitialOptions::Endianness::Little;
     case 2:
-        return Endianness::Big;
+        return InitialOptions::Endianness::Big;
     default:
-        return Endianness::Auto;
+        return InitialOptions::Endianness::Auto;
     }
 }
 
@@ -161,12 +160,50 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     main->initUI();
 
-    connect(&analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
-    analTask.setSettings(main, level, advanced);
-    Core()->getAsyncTaskManager()->start(&analTask);
+    InitialOptions options;
 
-    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(&analTask, main);
+    options.filename = main->getFilename();
+
+    // Where the bin header is located in the file (-B)
+    if (ui->entry_loadOffset->text().length() > 0) {
+        options.binLoadAddr = Core()->math(ui->entry_loadOffset->text());
+    }
+
+    options.mapAddr = Core()->math(ui->entry_mapOffset->text());      // Where to map the file once loaded (-m)
+    options.arch = getSelectedArch();
+    options.cpu = getSelectedCPU();
+    options.bits = getSelectedBits();
+    options.os = getSelectedOS();
+    options.writeEnabled = ui->writeCheckBox->isChecked();
+    options.loadBinInfo = !ui->binCheckBox->isChecked();
+    QVariant forceBinPluginData = ui->formatComboBox->currentData();
+    if (!forceBinPluginData.isNull()) {
+        RBinPluginDescription pluginDesc = forceBinPluginData.value<RBinPluginDescription>();
+        options.forceBinPlugin = pluginDesc.name;
+    }
+    options.demangle = ui->demangleCheckBox->isChecked();
+    if (ui->pdbCheckBox->isChecked()) {
+        options.pdbFile = ui->pdbLineEdit->text();
+    }
+    if (ui->scriptCheckBox->isChecked()) {
+        options.script = ui->scriptLineEdit->text();
+    }
+    options.endian = getSelectedEndianness();
+    options.bbsize = getSelectedBBSize();
+
+    AnalTask *analTask = new AnalTask(main);
+    analTask->setOptions(options);
+
+    connect(analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
+    connect(analTask, &AsyncTask::finished, main, &MainWindow::finalizeOpen);
+
+    Core()->getAsyncTaskManager()->start(analTask);
+
+    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analTask);
+    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
+
+    done(0);
 }
 
 
@@ -225,11 +262,11 @@ void OptionsDialog::on_okButton_clicked()
 
 void OptionsDialog::analysisFinished()
 {
-    if (analTask.isInterrupted()) {
-        updateProgress(tr("Analysis aborted."));
-        done(1);
-        return;
-    }
+    //if (analTask.isInterrupted()) {
+    //    updateProgress(tr("Analysis aborted."));
+    //    done(1);
+    //    return;
+    //}
 
     updateProgress(tr("Loading interface..."));
     main->addOutput(tr(" > Analysis finished"));
@@ -240,9 +277,9 @@ void OptionsDialog::analysisFinished()
 
 void OptionsDialog::closeEvent(QCloseEvent *event)
 {
-    if (analTask.isRunning()) {
-        analTask.interruptAndWait();
-    }
+    //if (analTask.isRunning()) {
+    //    analTask.interruptAndWait();
+    //}
     event->accept();
 }
 

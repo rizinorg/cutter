@@ -5,7 +5,7 @@ AsyncTask::AsyncTask(QObject *parent)
     : QObject(parent),
       QRunnable()
 {
-    setAutoDelete(false);
+    setAutoDelete(true);
     running = false;
 }
 

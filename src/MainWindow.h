@@ -71,7 +71,6 @@ public:
     void openProject(const QString &project_name);
 
     void initUI();
-    void finalizeOpen();
 
     /*!
      * @param quit whether to show destructive button in dialog
@@ -99,6 +98,7 @@ public:
 
 
 public slots:
+    void finalizeOpen();
 
     void refreshAll();
 
