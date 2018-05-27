@@ -18,7 +18,10 @@ AsyncTaskDialog::AsyncTaskDialog(AsyncTask *task, QWidget *parent)
     }
 
     connect(task, &AsyncTask::logChanged, this, &AsyncTaskDialog::updateLog);
-    connect(task, &AsyncTask::finished, this, &QWidget::close);
+    connect(task, &AsyncTask::finished, this, [this]() {
+        this->task = nullptr;
+        close();
+    });
 
     updateLog();
 
@@ -41,6 +44,10 @@ void AsyncTaskDialog::updateLog()
 
 void AsyncTaskDialog::updateProgressTimer()
 {
+    if(!task) {
+        return;
+    }
+
     int secondsElapsed = (task->getTimer().elapsed() + 500) / 1000;
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
@@ -56,4 +63,21 @@ void AsyncTaskDialog::updateProgressTimer()
     }
     label += tr("%n seconds", "%n second", secondsElapsed % 60);
     ui->timeLabel->setText(label);
+}
+
+void AsyncTaskDialog::closeEvent(QCloseEvent *event)
+{
+    if (interruptOnClose && task) {
+        task->interrupt();
+        task->wait();
+    }
+
+    QWidget::closeEvent(event);
+}
+
+void AsyncTaskDialog::reject()
+{
+    if (task) {
+        task->interrupt();
+    }
 }

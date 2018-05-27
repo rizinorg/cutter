@@ -21,14 +21,22 @@ public:
     AsyncTaskDialog(AsyncTask *task, QWidget *parent = nullptr);
     ~AsyncTaskDialog();
 
+public slots:
+    void reject() override;
+
 private slots:
     void updateLog();
     void updateProgressTimer();
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     std::unique_ptr<Ui::AsyncTaskDialog> ui;
     AsyncTask *task;
     QTimer timer;
+
+    bool interruptOnClose;
 };
 
 #endif //ASYNCTASKDIALOG_H
