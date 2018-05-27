@@ -18,9 +18,6 @@ OptionsDialog::OptionsDialog(MainWindow *main):
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-    ui->progressBar->setVisible(0);
-    ui->statusLabel->setVisible(0);
-    ui->elapsedLabel->setVisible(0);
     ui->logoSvgWidget->load(Config()->getLogoFile());
     ui->analSlider->setValue(defaultAnalLevel);
 
@@ -58,10 +55,6 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     
     connect(ui->scriptCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updateScriptLayout()));
 
-    // Add this so the dialog resizes when widgets are shown/hidden
-    //this->layout()->setSizeConstraint(QLayout::SetFixedSize);
-
-    //connect(&analTask, SIGNAL(finished()), this, SLOT(analysisFinished()));
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     ui->programLineEdit->setText(main->getFilename());
@@ -84,13 +77,6 @@ void OptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->addItems(core->cmdList(cmd));
 
     ui->cpuComboBox->lineEdit()->setText(currentText);
-}
-
-void OptionsDialog::setInteractionEnabled(bool enabled)
-{
-    ui->optionsWidget->setEnabled(enabled);
-    ui->okButton->setEnabled(enabled);
-    ui->cancelButton->setEnabled(enabled);
 }
 
 QString OptionsDialog::getSelectedArch()
@@ -196,15 +182,6 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 {
     ui->analSlider->setValue(level);
 
-    setInteractionEnabled(false);
-
-    // Show Progress Bar
-    ui->progressBar->setVisible(true);
-    ui->statusLabel->setVisible(true);
-    ui->elapsedLabel->setVisible(true);
-
-    ui->statusLabel->setText(tr("Starting analysis"));
-
     main->initUI();
 
     InitialOptions options;
@@ -269,37 +246,13 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     done(0);
 }
 
-
-void OptionsDialog::updateProgress(const QString &status)
-{
-    ui->statusLabel->setText(status);
-}
-
 void OptionsDialog::on_okButton_clicked()
 {
     setupAndStartAnalysis(ui->analSlider->value(), getSelectedAdvancedAnalCmds());
 }
 
-void OptionsDialog::analysisFinished()
-{
-    //if (analTask.isInterrupted()) {
-    //    updateProgress(tr("Analysis aborted."));
-    //    done(1);
-    //    return;
-    //}
-
-    updateProgress(tr("Loading interface..."));
-    main->addOutput(tr(" > Analysis finished"));
-
-    main->finalizeOpen();
-    done(0);
-}
-
 void OptionsDialog::closeEvent(QCloseEvent *event)
 {
-    //if (analTask.isRunning()) {
-    //    analTask.interruptAndWait();
-    //}
     event->accept();
 }
 

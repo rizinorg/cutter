@@ -24,9 +24,6 @@ public:
 
     void setupAndStartAnalysis(int level, QList<QString> advanced);
 
-public slots:
-    void updateProgress(const QString &str);
-
 private slots:
     void on_okButton_clicked();
     void on_analSlider_valueChanged(int value);
@@ -38,8 +35,6 @@ private slots:
 
     void updatePDBLayout();
     void updateScriptLayout();
-    
-    void analysisFinished();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
@@ -52,8 +47,6 @@ private:
     QString analysisDescription(int level);
 
     void updateCPUComboBox();
-
-    void setInteractionEnabled(bool enabled);
 
 public:
     std::unique_ptr<Ui::OptionsDialog> ui;
