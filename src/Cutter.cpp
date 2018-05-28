@@ -1177,10 +1177,11 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 
 QList<StringDescription> CutterCore::getAllStrings()
 {
-    CORE_LOCK();
+    //CORE_LOCK();
     QList<StringDescription> ret;
-    QJsonDocument stringsDoc = cmdj("izzj");
-    QJsonObject stringsObj = stringsDoc.object();
+    //QJsonDocument stringsDoc = cmdj("izzj");
+
+    /*QJsonObject stringsObj = stringsDoc.object();
     QJsonArray stringsArray = stringsObj["strings"].toArray();
     for (QJsonValue value : stringsArray) {
         QJsonObject stringObject = value.toObject();
@@ -1194,6 +1195,56 @@ QList<StringDescription> CutterCore::getAllStrings()
 
         ret << string;
     }
+
+    return ret;*/
+
+
+    RBinFile *bf = r_core_bin_cur(core_);
+    if (!bf) {
+        return {};
+    }
+
+    int min = getConfigi("bin.minstr");
+    int rawstrTmp = bf->rawstr;
+    bf->rawstr = 2;
+    RList *list = r_bin_file_get_strings(bf, min, 0);
+    bf->rawstr = rawstrTmp;
+
+    if (!list) {
+        return {};
+    }
+
+    RListIter *iter;
+    void *s;
+    r_list_foreach (list, iter, s) {
+        RBinString *str = reinterpret_cast<RBinString *>(s);
+        StringDescription string;
+
+        switch (str->type) {
+            case R_STRING_TYPE_ASCII:
+                string.string = QString::fromUtf8(str->string);
+                string.type = "ASCII";
+                break;
+            case R_STRING_TYPE_UTF8:
+                string.string = QString::fromUtf8(str->string);
+                string.type = "UTF-8";
+                break;
+            default:
+                // TODO: utf-16, utf-32, etc.
+                string.string = QString::fromUtf8(str->string);
+                string.type = "TODO";
+                break;
+        }
+        string.string = QString::fromUtf8(str->string);
+
+        string.vaddr = str->vaddr;
+        string.size = str->size;
+        string.length = str->length;
+
+        ret << string;
+    }
+
+    r_list_free(list);
 
     return ret;
 }
