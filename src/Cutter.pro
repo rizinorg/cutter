@@ -166,7 +166,8 @@ SOURCES += \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
     widgets/BacktraceWidget.cpp \
-    dialogs/OpenFileDialog.cpp
+    dialogs/OpenFileDialog.cpp \
+    utils/StringsTask.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -247,7 +248,8 @@ HEADERS  += \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
     widgets/BacktraceWidget.h \
-    dialogs/OpenFileDialog.h
+    dialogs/OpenFileDialog.h \
+    utils/StringsTask.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
