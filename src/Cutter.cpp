@@ -689,6 +689,11 @@ QJsonDocument CutterCore::getSignatureInfo()
     return cmdj("iCj");
 }
 
+QJsonDocument CutterCore::getRegisterValues()
+{
+    return cmdj("drj");
+}
+
 QStringList CutterCore::getStats()
 {
     QStringList stats;

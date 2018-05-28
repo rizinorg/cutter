@@ -256,6 +256,7 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionComments"/>
     <addaction name="actionConsole"/>
+    <addaction name="actionDebug"/>
     <addaction name="actionJupyter"/>
     <addaction name="separator"/>
     <addaction name="addExtraWidgets"/>
@@ -1013,6 +1014,14 @@ background-color: palette(dark);
    </property>
    <property name="text">
     <string>Console</string>
+   </property>
+  </action>
+  <action name="actionDebug">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debug</string>
    </property>
   </action>
   <action name="actionClasses">
