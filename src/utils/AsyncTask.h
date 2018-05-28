@@ -6,6 +6,8 @@
 #include <QThreadPool>
 #include <QMutex>
 #include <QElapsedTimer>
+#include <QSharedPointer>
+#include <QList>
 
 class AsyncTaskManager;
 
@@ -16,7 +18,9 @@ class AsyncTask : public QObject, public QRunnable
     friend class AsyncTaskManager;
 
 public:
-    AsyncTask(QObject *parent = nullptr);
+    using Ptr = QSharedPointer<AsyncTask>;
+
+    AsyncTask();
     ~AsyncTask();
 
     void run() override final;
@@ -59,12 +63,13 @@ class AsyncTaskManager : public QObject
 
 private:
     QThreadPool *threadPool;
+    QList<AsyncTask::Ptr> tasks;
 
 public:
     explicit AsyncTaskManager(QObject *parent = nullptr);
     ~AsyncTaskManager();
 
-    void start(AsyncTask *task);
+    void start(AsyncTask::Ptr task);
 };
 
 

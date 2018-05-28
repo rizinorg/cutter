@@ -5,10 +5,10 @@
 #include "ui_AsyncTaskDialog.h"
 
 
-AsyncTaskDialog::AsyncTaskDialog(AsyncTask *task, QWidget *parent)
+AsyncTaskDialog::AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::AsyncTaskDialog),
-      task(task)
+      task(task),
+      ui(new Ui::AsyncTaskDialog)
 {
     ui->setupUi(this);
 
@@ -17,9 +17,8 @@ AsyncTaskDialog::AsyncTaskDialog(AsyncTask *task, QWidget *parent)
         setWindowTitle(title);
     }
 
-    connect(task, &AsyncTask::logChanged, this, &AsyncTaskDialog::updateLog);
-    connect(task, &AsyncTask::finished, this, [this]() {
-        this->task = nullptr;
+    connect(task.data(), &AsyncTask::logChanged, this, &AsyncTaskDialog::updateLog);
+    connect(task.data(), &AsyncTask::finished, this, [this]() {
         close();
     });
 
@@ -44,10 +43,6 @@ void AsyncTaskDialog::updateLog(const QString &log)
 
 void AsyncTaskDialog::updateProgressTimer()
 {
-    if(!task) {
-        return;
-    }
-
     int secondsElapsed = (task->getTimer().elapsed() + 500) / 1000;
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
@@ -67,7 +62,7 @@ void AsyncTaskDialog::updateProgressTimer()
 
 void AsyncTaskDialog::closeEvent(QCloseEvent *event)
 {
-    if (interruptOnClose && task) {
+    if (interruptOnClose) {
         task->interrupt();
         task->wait();
     }
@@ -77,7 +72,5 @@ void AsyncTaskDialog::closeEvent(QCloseEvent *event)
 
 void AsyncTaskDialog::reject()
 {
-    if (task) {
-        task->interrupt();
-    }
+    task->interrupt();
 }

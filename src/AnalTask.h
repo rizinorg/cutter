@@ -44,7 +44,7 @@ class AnalTask : public AsyncTask
     Q_OBJECT
 
 public:
-    explicit AnalTask(QObject *parent = nullptr);
+    explicit AnalTask();
     ~AnalTask();
 
     QString getTitle() override                     { return tr("Initial Analysis"); }

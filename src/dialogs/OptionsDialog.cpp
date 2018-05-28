@@ -1,3 +1,6 @@
+
+#include "utils/AsyncTask.h"
+
 #include "OptionsDialog.h"
 #include "ui_OptionsDialog.h"
 #include "MainWindow.h"
@@ -231,15 +234,17 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     }
 
 
-    AnalTask *analTask = new AnalTask(main);
+    AnalTask *analTask = new AnalTask();
     analTask->setOptions(options);
 
     connect(analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
     connect(analTask, &AsyncTask::finished, main, &MainWindow::finalizeOpen);
 
-    Core()->getAsyncTaskManager()->start(analTask);
+    AsyncTask::Ptr analTaskPtr(analTask);
 
-    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analTask);
+    Core()->getAsyncTaskManager()->start(analTaskPtr);
+
+    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analTaskPtr);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
 

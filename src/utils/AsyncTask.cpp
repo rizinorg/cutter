@@ -1,11 +1,11 @@
 
 #include "AsyncTask.h"
 
-AsyncTask::AsyncTask(QObject *parent)
-    : QObject(parent),
+AsyncTask::AsyncTask()
+    : QObject(nullptr),
       QRunnable()
 {
-    setAutoDelete(true);
+    setAutoDelete(false);
     running = false;
 }
 
@@ -44,12 +44,17 @@ void AsyncTask::prepareRun()
 void AsyncTask::run()
 {
     runningMutex.lock();
+
     running = true;
+
     logBuffer = "";
     emit logChanged(logBuffer);
     runTask();
-    emit finished();
+
     running = false;
+
+    emit finished();
+
     runningMutex.unlock();
 }
 
@@ -69,8 +74,14 @@ AsyncTaskManager::~AsyncTaskManager()
 {
 }
 
-void AsyncTaskManager::start(AsyncTask *task)
+void AsyncTaskManager::start(AsyncTask::Ptr task)
 {
+    tasks.append(task);
     task->prepareRun();
-    threadPool->start(task);
+
+    QWeakPointer<AsyncTask> weakPtr = task;
+    connect(task.data(), &AsyncTask::finished, this, [this, weakPtr]() {
+        tasks.removeOne(weakPtr);
+    });
+    threadPool->start(task.data());
 }

@@ -6,8 +6,8 @@
 #include <QDebug>
 #include <QCheckBox>
 
-AnalTask::AnalTask(QObject *parent) :
-    AsyncTask(parent)
+AnalTask::AnalTask() :
+    AsyncTask()
 {
 }
 

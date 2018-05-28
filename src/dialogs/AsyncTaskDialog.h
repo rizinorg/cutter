@@ -7,18 +7,18 @@
 #include <QDialog>
 #include <QTimer>
 
+#include "utils/AsyncTask.h"
+
 namespace Ui {
 class AsyncTaskDialog;
 }
-
-class AsyncTask;
 
 class AsyncTaskDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    AsyncTaskDialog(AsyncTask *task, QWidget *parent = nullptr);
+    AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent = nullptr);
     ~AsyncTaskDialog();
 
 public slots:
@@ -33,7 +33,7 @@ protected:
 
 private:
     std::unique_ptr<Ui::AsyncTaskDialog> ui;
-    AsyncTask *task;
+    AsyncTask::Ptr task;
     QTimer timer;
 
     bool interruptOnClose;
