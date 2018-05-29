@@ -327,7 +327,11 @@ public:
         l.removeAll("");
         return l;
     }
+    QString cmdTask(const QString &str);
+    QJsonDocument cmdjTask(const QString &str);
     QString getVersionInformation();
+
+    QJsonDocument parseJson(const char *res, const QString &cmd = QString());
 
     /* Functions methods */
     void renameFunction(const QString &oldName, const QString &newName);
@@ -488,12 +492,18 @@ public:
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
 
+    QList<StringDescription> parseStringsJson(const QJsonDocument &doc);
+
     /* Signals related */
     void triggerVarsChanged();
     void triggerFunctionRenamed(const QString &prevName, const QString &newName);
     void triggerRefreshAll();
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
+
+    RCoreTask *startTask(const QString &cmd);
+    void joinTask(RCoreTask *task);
+    void deleteTask(RCoreTask *task);
 
     RCoreLocked core() const;
 

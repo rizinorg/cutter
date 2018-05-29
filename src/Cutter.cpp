@@ -159,7 +159,9 @@ QString CutterCore::cmd(const QString &str)
 
     RVA offset = core_->offset;
     QByteArray cmd = str.toUtf8();
+    r_core_task_sync_begin(core_);
     char *res = r_core_cmd_str(this->core_, cmd.constData());
+    r_core_task_sync_end(core_);
     QString o = QString(res ? res : "");
     r_mem_free(res);
     if (offset != core_->offset) {
@@ -185,12 +187,38 @@ QJsonDocument CutterCore::cmdj(const QString &str)
     CORE_LOCK();
     QByteArray cmd = str.toUtf8();
 
+    r_core_task_sync_begin(core_);
     char *res = r_core_cmd_str(this->core_, cmd.constData());
+    r_core_task_sync_end(core_);
+    QJsonDocument doc = parseJson(res, str);
+    r_mem_free(res);
 
+    return doc;
+}
+
+QString CutterCore::cmdTask(const QString &str)
+{
+    RCoreTask *task = startTask(str);
+    joinTask(task);
+    QString ret = QString::fromUtf8(task->res);
+    deleteTask(task);
+    return ret;
+}
+
+QJsonDocument CutterCore::cmdjTask(const QString &str)
+{
+    RCoreTask *task = startTask(str);
+    joinTask(task);
+    QJsonDocument ret = parseJson(task->res, str);
+    deleteTask(task);
+    return ret;
+}
+
+QJsonDocument CutterCore::parseJson(const char *res, const QString &cmd)
+{
     QString resString = QString(res);
 
     if (resString.isEmpty()) {
-        r_mem_free(res);
         return QJsonDocument();
     }
 
@@ -198,12 +226,15 @@ QJsonDocument CutterCore::cmdj(const QString &str)
     QJsonDocument doc = res ? QJsonDocument::fromJson(resString.toUtf8(), &jsonError) : QJsonDocument();
 
     if (jsonError.error != QJsonParseError::NoError) {
-        eprintf("Failed to parse JSON for command \"%s\": %s\n", str.toLocal8Bit().constData(),
-                jsonError.errorString().toLocal8Bit().constData());
+        if (!cmd.isNull()) {
+            eprintf("Failed to parse JSON for command \"%s\": %s\n", cmd.toLocal8Bit().constData(),
+                    jsonError.errorString().toLocal8Bit().constData());
+        } else {
+            eprintf("Failed to parse JSON: %s\n", jsonError.errorString().toLocal8Bit().constData());
+        }
         eprintf("%s\n", resString.toLocal8Bit().constData());
     }
 
-    r_mem_free(res);
     return doc;
 }
 
@@ -1177,11 +1208,14 @@ QList<RelocDescription> CutterCore::getAllRelocs()
 
 QList<StringDescription> CutterCore::getAllStrings()
 {
-    //CORE_LOCK();
-    QList<StringDescription> ret;
-    //QJsonDocument stringsDoc = cmdj("izzj");
+    return parseStringsJson(cmdjTask("izzj"));
+}
 
-    /*QJsonObject stringsObj = stringsDoc.object();
+QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
+{
+    QList<StringDescription> ret;
+
+    QJsonObject stringsObj = doc.object();
     QJsonArray stringsArray = stringsObj["strings"].toArray();
     for (QJsonValue value : stringsArray) {
         QJsonObject stringObject = value.toObject();
@@ -1195,56 +1229,6 @@ QList<StringDescription> CutterCore::getAllStrings()
 
         ret << string;
     }
-
-    return ret;*/
-
-
-    RBinFile *bf = r_core_bin_cur(core_);
-    if (!bf) {
-        return {};
-    }
-
-    int min = getConfigi("bin.minstr");
-    int rawstrTmp = bf->rawstr;
-    bf->rawstr = 2;
-    RList *list = r_bin_file_get_strings(bf, min, 0);
-    bf->rawstr = rawstrTmp;
-
-    if (!list) {
-        return {};
-    }
-
-    RListIter *iter;
-    void *s;
-    r_list_foreach (list, iter, s) {
-        RBinString *str = reinterpret_cast<RBinString *>(s);
-        StringDescription string;
-
-        switch (str->type) {
-            case R_STRING_TYPE_ASCII:
-                string.string = QString::fromUtf8(str->string);
-                string.type = "ASCII";
-                break;
-            case R_STRING_TYPE_UTF8:
-                string.string = QString::fromUtf8(str->string);
-                string.type = "UTF-8";
-                break;
-            default:
-                // TODO: utf-16, utf-32, etc.
-                string.string = QString::fromUtf8(str->string);
-                string.type = "TODO";
-                break;
-        }
-        string.string = QString::fromUtf8(str->string);
-
-        string.vaddr = str->vaddr;
-        string.size = str->size;
-        string.length = str->length;
-
-        ret << string;
-    }
-
-    r_list_free(list);
 
     return ret;
 }
@@ -1709,12 +1693,15 @@ QString CutterCore::getVersionInformation()
     }
     return ret;
 }
-
 QJsonArray CutterCore::getOpenedFiles()
 {
     QJsonDocument files = cmdj("oj");
     return files.array();
 }
+
+
+
+
 QList<QString> CutterCore::getColorThemes()
 {
     QList<QString> r;
@@ -1722,4 +1709,21 @@ QList<QString> CutterCore::getColorThemes()
     for (auto s : themes.array())
         r << s.toString();
     return r;
+}
+
+RCoreTask *CutterCore::startTask(const QString &cmd)
+{
+    RCoreTask *task = r_core_task_new (core_, cmd.toLocal8Bit().constData(), nullptr, nullptr);
+    r_core_task_enqueue(core_, task);
+    return task;
+}
+
+void CutterCore::joinTask(RCoreTask *task)
+{
+    r_core_task_join(core_, nullptr, task);
+}
+
+void CutterCore::deleteTask(RCoreTask *task)
+{
+    r_core_task_del(core_, task->id);
 }
