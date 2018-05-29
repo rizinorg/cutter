@@ -14,9 +14,7 @@
    <string notr="true">Debug</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_17">
+     <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
        <number>10</number>
       </property>
@@ -30,8 +28,6 @@
        <number>0</number>
       </property>
      </layout>
-    </item>
-   </layout>
   </widget>
  </widget>
  <resources/>

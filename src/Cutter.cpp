@@ -689,6 +689,11 @@ QJsonDocument CutterCore::getSignatureInfo()
     return cmdj("iCj");
 }
 
+QJsonDocument CutterCore::getStack()
+{
+    return cmdj("pxrj 0x40 @ `dr?rsp`");
+}
+
 QJsonDocument CutterCore::getRegisterValues()
 {
     return cmdj("drj");

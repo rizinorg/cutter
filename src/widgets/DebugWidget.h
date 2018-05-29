@@ -7,7 +7,11 @@
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QMouseEvent>
+#include <QGridLayout>
+#include <QJsonObject>
 #include <memory>
+#include <QStandardItem>
+#include <QTableView>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -33,7 +37,12 @@ public:
 
 private slots:
     void updateContents();
+    void setRegisterGrid(int numcols);
+    void setStackGrid();
 
 private:
     std::unique_ptr<Ui::DebugWidget> ui;
+    QStandardItemModel *model = new QStandardItemModel(8,3,this);
+    QTableView *view = new QTableView;
+    QGridLayout *registerLayout = new QGridLayout;
 };
