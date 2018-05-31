@@ -691,7 +691,7 @@ QJsonDocument CutterCore::getSignatureInfo()
 
 QJsonDocument CutterCore::getStack()
 {
-    return cmdj("pxrj 0x40 @ `dr?rsp`");
+    return cmdj("pxrj 0x40 @ r:SP");
 }
 
 QJsonDocument CutterCore::getRegisterValues()
