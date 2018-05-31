@@ -416,6 +416,7 @@ public:
     QJsonDocument getRegistersInfo();
     QJsonDocument getRegisterValues();
     QJsonDocument getStack();
+    QJsonDocument getBacktrace();
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);

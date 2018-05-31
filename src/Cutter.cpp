@@ -699,6 +699,11 @@ QJsonDocument CutterCore::getRegisterValues()
     return cmdj("drj");
 }
 
+QJsonDocument CutterCore::getBacktrace()
+{
+    return cmdj("dbtj");
+}
+
 QStringList CutterCore::getStats()
 {
     QStringList stats;

@@ -39,10 +39,13 @@ private slots:
     void updateContents();
     void setRegisterGrid(int numcols);
     void setStackGrid();
+    void setBacktraceGrid();
 
 private:
     std::unique_ptr<Ui::DebugWidget> ui;
     QStandardItemModel *model = new QStandardItemModel(8,3,this);
+    QStandardItemModel *modelBacktrace = new QStandardItemModel(8,5,this);
     QTableView *view = new QTableView;
+    QTableView *viewBacktrace = new QTableView;
     QGridLayout *registerLayout = new QGridLayout;
 };

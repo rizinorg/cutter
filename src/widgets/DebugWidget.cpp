@@ -25,11 +25,18 @@ DebugWidget::DebugWidget(MainWindow *main, QAction *action) :
     model->setHorizontalHeaderItem(0, new QStandardItem(tr("Offset")));
     model->setHorizontalHeaderItem(1, new QStandardItem(tr("Value")));
     model->setHorizontalHeaderItem(2, new QStandardItem(tr("Reference")));
-
     view->setStyleSheet("QTableView { font-size: 12; font-family: mono }");
-
     view->setModel(model);
     ui->verticalLayout->addWidget(view);
+
+    modelBacktrace->setHorizontalHeaderItem(0, new QStandardItem(tr("PC")));
+    modelBacktrace->setHorizontalHeaderItem(1, new QStandardItem(tr("SP")));
+    modelBacktrace->setHorizontalHeaderItem(2, new QStandardItem(tr("Frame Size")));
+    modelBacktrace->setHorizontalHeaderItem(3, new QStandardItem(tr("Func Name")));
+    modelBacktrace->setHorizontalHeaderItem(4, new QStandardItem(tr("Description")));
+    viewBacktrace->setStyleSheet("QTableView { font-size: 12; font-family: mono }");
+    viewBacktrace->setModel(modelBacktrace);
+    ui->verticalLayout->addWidget(viewBacktrace);
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(updateContents()));
@@ -44,6 +51,7 @@ void DebugWidget::updateContents()
     int numCols = 2;
     setRegisterGrid(numCols);
     setStackGrid();
+    setBacktraceGrid();
 }
 
 void DebugWidget::setRegisterGrid(int numCols)
@@ -97,4 +105,33 @@ void DebugWidget::setStackGrid()
     }
     view->setModel(model);
     view->resizeColumnsToContents();;
+}
+
+void DebugWidget::setBacktraceGrid()
+{
+    QJsonArray backtraceValues = Core()->getBacktrace().array();
+    int i = 0;
+    for (QJsonValueRef value : backtraceValues) {
+        QJsonObject backtraceItem = value.toObject();
+        QString progCounter = RAddressString(backtraceItem["pc"].toVariant().toULongLong());
+        QString stackPointer = RAddressString(backtraceItem["sp"].toVariant().toULongLong());
+        int frameSize = backtraceItem["frame_size"].toInt();
+        QString funcName = backtraceItem["fname"].toString();
+        QString desc = backtraceItem["desc"].toString();
+
+        QStandardItem *rowPC = new QStandardItem(progCounter);
+        QStandardItem *rowSP = new QStandardItem(stackPointer);
+        QStandardItem *rowFrameSize = new QStandardItem(frameSize);
+        QStandardItem *rowFuncName = new QStandardItem(funcName);
+        QStandardItem *rowDesc = new QStandardItem(desc);
+
+        modelBacktrace->setItem(i, 0, rowPC);
+        modelBacktrace->setItem(i, 1, rowSP);
+        modelBacktrace->setItem(i, 2, rowFrameSize);
+        modelBacktrace->setItem(i, 3, rowFuncName);
+        modelBacktrace->setItem(i, 4, rowDesc);
+        i++;
+    }
+    viewBacktrace->setModel(modelBacktrace);
+    viewBacktrace->resizeColumnsToContents();;
 }
