@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DebugWidget</class>
- <widget class="QDockWidget" name="DebugWidget">
+ <class>BacktraceWidget</class>
+ <widget class="QDockWidget" name="BacktraceWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">Debug</string>
+   <string notr="true">Backtrace</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
      <layout class="QVBoxLayout" name="verticalLayout">

@@ -178,7 +178,9 @@ void MainWindow::initUI()
     commentsDock = new CommentsWidget(this, ui->actionComments);
     stringsDock = new StringsWidget(this, ui->actionStrings);
     flagsDock = new FlagsWidget(this, ui->actionFlags);
-    debugDock = new DebugWidget(this, ui->actionDebug);
+    stackDock = new StackWidget(this, ui->actionStack);
+    backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
+    registersDock = new RegistersWidget(this, ui->actionRegisters);
 #ifdef CUTTER_ENABLE_JUPYTER
     jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else

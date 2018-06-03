@@ -6,7 +6,9 @@
 #include "Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/SidebarWidget.h"
-#include "widgets/DebugWidget.h"
+#include "widgets/StackWidget.h"
+#include "widgets/RegistersWidget.h"
+#include "widgets/BacktraceWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
 #include "dialogs/NewFileDialog.h"
@@ -212,7 +214,9 @@ private:
     DisassemblerGraphView *graphView = nullptr;
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;
-    QDockWidget        *debugDock = nullptr;
+    QDockWidget        *stackDock = nullptr;
+    QDockWidget        *registersDock = nullptr;
+    QDockWidget        *backtraceDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
 #ifdef CUTTER_ENABLE_JUPYTER
     JupyterWidget      *jupyterDock = nullptr;

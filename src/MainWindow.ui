@@ -256,7 +256,9 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionComments"/>
     <addaction name="actionConsole"/>
-    <addaction name="actionDebug"/>
+    <addaction name="actionStack"/>
+    <addaction name="actionRegisters"/>
+    <addaction name="actionBacktrace"/>
     <addaction name="actionJupyter"/>
     <addaction name="separator"/>
     <addaction name="addExtraWidgets"/>
@@ -1016,12 +1018,28 @@ background-color: palette(dark);
     <string>Console</string>
    </property>
   </action>
-  <action name="actionDebug">
+  <action name="actionStack">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Debug</string>
+    <string>Stack</string>
+   </property>
+  </action>
+  <action name="actionRegisters">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Registers</string>
+   </property>
+  </action>
+  <action name="actionBacktrace">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Backtrace</string>
    </property>
   </action>
   <action name="actionClasses">

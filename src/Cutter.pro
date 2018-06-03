@@ -163,7 +163,9 @@ SOURCES += \
     widgets/ZignaturesWidget.cpp \
     utils/AsyncTask.cpp \
     dialogs/AsyncTaskDialog.cpp \
-    widgets/DebugWidget.cpp
+    widgets/StackWidget.cpp \
+    widgets/RegistersWidget.cpp \
+    widgets/BacktraceWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -241,7 +243,9 @@ HEADERS  += \
     widgets/ZignaturesWidget.h \
     utils/AsyncTask.h \
     dialogs/AsyncTaskDialog.h \
-    widgets/DebugWidget.h
+    widgets/StackWidget.h \
+    widgets/RegistersWidget.h \
+    widgets/BacktraceWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -286,7 +290,9 @@ FORMS    += \
     dialogs/VersionInfoDialog.ui \
     widgets/ZignaturesWidget.ui \
     dialogs/AsyncTaskDialog.ui \
-    widgets/DebugWidget.ui
+    widgets/StackWidget.ui \
+    widgets/RegistersWidget.ui \
+    widgets/BacktraceWidget.ui
 
 RESOURCES += \
     resources.qrc \
