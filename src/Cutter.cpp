@@ -699,6 +699,11 @@ QJsonDocument CutterCore::getRegisterValues()
     return cmdj("drj");
 }
 
+QString CutterCore::getRegisterName(QString registerRole)
+{
+    return cmd("drn " + registerRole).trimmed();
+}
+
 QJsonDocument CutterCore::getBacktrace()
 {
     return cmdj("dbtj");
