@@ -25,6 +25,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     modelStack->setHorizontalHeaderItem(2, new QStandardItem(tr("Reference")));
     viewStack->setStyleSheet("QTableView {font-family: mono}");
     viewStack->setModel(modelStack);
+    viewStack->verticalHeader()->hide();
     ui->verticalLayout->addWidget(viewStack);
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
