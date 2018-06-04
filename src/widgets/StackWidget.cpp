@@ -4,6 +4,7 @@
 #include "utils/Helpers.h"
 
 #include "MainWindow.h"
+#include "QHeaderView"
 
 StackWidget::StackWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
