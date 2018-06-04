@@ -1,6 +1,5 @@
 #pragma once
 
-#include <QGridLayout>
 #include <QJsonObject>
 #include <memory>
 #include <QStandardItem>

@@ -1,18 +1,8 @@
 #include "BacktraceWidget.h"
 #include "ui_BacktraceWidget.h"
 #include "utils/JsonModel.h"
-#include "utils/Helpers.h"
 
 #include "MainWindow.h"
-
-#include <QStringList>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QLayoutItem>
-#include <QString>
-#include <QGridLayout>
-#include <QStandardItem>
-#include <QTableView>
 
 BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),

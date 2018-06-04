@@ -1,18 +1,8 @@
 #include "RegistersWidget.h"
 #include "ui_RegistersWidget.h"
 #include "utils/JsonModel.h"
-#include "utils/Helpers.h"
 
 #include "MainWindow.h"
-
-#include <QStringList>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QLayoutItem>
-#include <QString>
-#include <QGridLayout>
-#include <QStandardItem>
-#include <QTableView>
 
 RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),

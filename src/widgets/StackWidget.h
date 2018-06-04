@@ -29,5 +29,5 @@ private slots:
 private:
     std::unique_ptr<Ui::StackWidget> ui;
     QTableView *viewStack = new QTableView;
-    QStandardItemModel *modelStack = new QStandardItemModel(1,3,this);
+    QStandardItemModel *modelStack = new QStandardItemModel(1, 3, this);
 };

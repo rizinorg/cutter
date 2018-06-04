@@ -5,14 +5,6 @@
 
 #include "MainWindow.h"
 
-#include <QStringList>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QLayoutItem>
-#include <QString>
-#include <QStandardItem>
-#include <QTableView>
-
 StackWidget::StackWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::StackWidget)
