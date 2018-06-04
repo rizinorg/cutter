@@ -18,6 +18,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     viewStack->setStyleSheet("QTableView {font-family: mono}");
     viewStack->setModel(modelStack);
     viewStack->verticalHeader()->hide();
+    viewStack->setSortingEnabled(true);
     ui->verticalLayout->addWidget(viewStack);
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
