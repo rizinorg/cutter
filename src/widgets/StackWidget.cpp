@@ -22,8 +22,8 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     viewStack->setSortingEnabled(true);
     ui->verticalLayout->addWidget(viewStack);
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(updateContents()));
+    connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
+    connect(Core(), &CutterCore::seekChanged, this, &StackWidget::updateContents);
 }
 
 StackWidget::~StackWidget() {}

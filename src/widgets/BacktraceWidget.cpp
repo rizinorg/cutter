@@ -22,8 +22,8 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     viewBacktrace->setModel(modelBacktrace);
     ui->verticalLayout->addWidget(viewBacktrace);
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(updateContents()));
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(updateContents()));
+    connect(Core(), &CutterCore::refreshAll, this, &BacktraceWidget::updateContents);
+    connect(Core(), &CutterCore::seekChanged, this, &BacktraceWidget::updateContents);
 }
 
 BacktraceWidget::~BacktraceWidget() {}

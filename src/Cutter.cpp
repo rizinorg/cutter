@@ -704,6 +704,11 @@ QString CutterCore::getRegisterName(QString registerRole)
     return cmd("drn " + registerRole).trimmed();
 }
 
+void CutterCore::setRegister(QString regName, QString regValue)
+{
+    cmd("dr " + regName + "=" + regValue);
+}
+
 QJsonDocument CutterCore::getBacktrace()
 {
     return cmdj("dbtj");
