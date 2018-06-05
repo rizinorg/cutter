@@ -1559,7 +1559,7 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 
         DisassemblyLine line;
         line.offset = object["offset"].toVariant().toULongLong();
-        line.text = object["text"].toString();
+        line.text = object["text"].toString().replace(QRegularExpression("dword[&nbsp;]+\\[sym\\.imp\\..+_(.+)\\]"), "\\1");
 
         r << line;
     }
