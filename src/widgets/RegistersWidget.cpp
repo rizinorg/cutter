@@ -81,12 +81,21 @@ void RegistersWidget::setRegisterGrid()
             registerLabel = qobject_cast<QLabel *>(regNameWidget);
             registerEditValue = qobject_cast<QLineEdit *>(regValueWidget);
         }
+        // decide to highlight QLine Box in case of change of register value
+        if (regValue != registerEditValue->text() && registerEditValue->text() != 0) {
+            registerEditValue->setStyleSheet("QLineEdit {border: 1px solid green;} QLineEdit:hover { border: 1px solid #3daee9; color: #eff0f1;}");
+        }
+        else {
+            // reset stylesheet
+            registerEditValue->setStyleSheet("");
+        }
         // define register label and value
         registerLabel->setText(key);
         registerEditValue->setPlaceholderText(regValue);
         registerEditValue->setText(regValue);
         i++;
-        if (i >= registerLen/numCols + 1) { // compute correct column
+        // decide if we should change column
+        if (i >= registerLen/numCols + 1) {
             i = 0;
             col += 2;
         }
