@@ -414,6 +414,11 @@ public:
     QList<QList<QString>> get_exec_sections();
     QString getOffsetInfo(QString addr);
     QJsonDocument getRegistersInfo();
+    QJsonDocument getRegisterValues();
+    QString getRegisterName(QString registerRole);
+    void setRegister(QString regName, QString regValue);
+    QJsonDocument getStack(int size = 0x40);
+    QJsonDocument getBacktrace();
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);

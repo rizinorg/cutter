@@ -178,6 +178,9 @@ void MainWindow::initUI()
     commentsDock = new CommentsWidget(this, ui->actionComments);
     stringsDock = new StringsWidget(this, ui->actionStrings);
     flagsDock = new FlagsWidget(this, ui->actionFlags);
+    stackDock = new StackWidget(this, ui->actionStack);
+    backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
+    registersDock = new RegistersWidget(this, ui->actionRegisters);
 #ifdef CUTTER_ENABLE_JUPYTER
     jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else
@@ -497,6 +500,11 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
     tabifyDockWidget(dashboardDock, vTablesDock);
+
+    // Add Stack, Registers and Backtrace vertically stacked
+    addExtraWidget(stackDock);
+    splitDockWidget(stackDock, registersDock, Qt::Vertical);
+    splitDockWidget(stackDock, backtraceDock, Qt::Vertical);
 #ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
 #endif

@@ -689,6 +689,31 @@ QJsonDocument CutterCore::getSignatureInfo()
     return cmdj("iCj");
 }
 
+QJsonDocument CutterCore::getStack(int size)
+{
+    return cmdj("pxrj " + QString::number(size) + " @ r:SP");
+}
+
+QJsonDocument CutterCore::getRegisterValues()
+{
+    return cmdj("drj");
+}
+
+QString CutterCore::getRegisterName(QString registerRole)
+{
+    return cmd("drn " + registerRole).trimmed();
+}
+
+void CutterCore::setRegister(QString regName, QString regValue)
+{
+    cmd("dr " + regName + "=" + regValue);
+}
+
+QJsonDocument CutterCore::getBacktrace()
+{
+    return cmdj("dbtj");
+}
+
 QStringList CutterCore::getStats()
 {
     QStringList stats;
