@@ -41,7 +41,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBaseString(this),
         actionSetBits16(this),
         actionSetBits32(this),
-        actionSetBits64(this)
+        actionSetBits64(this),
+        actionContinueUntil(this),
+        actionAddBreakpoint(this)
 {
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
@@ -107,6 +109,14 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     actionJmpReverse.setText(tr("Reverse Jump"));
     editMenu->addAction(&actionJmpReverse);
 
+    addSeparator();
+    debugMenu = new QMenu(tr("Debug"), this);
+    debugMenuAction = addMenu(debugMenu);
+    actionAddBreakpoint.setText(tr("Add breakpoint"));
+    debugMenu->addAction(&actionAddBreakpoint);
+    actionContinueUntil.setText(tr("Continue until line"));
+    debugMenu->addAction(&actionContinueUntil);
+
     connect(&actionEditInstruction, SIGNAL(triggered(bool)), this,
             SLOT(on_actionEditInstruction_triggered()));
     connect(&actionNopInstruction, SIGNAL(triggered(bool)), this,
@@ -133,6 +143,11 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     connect(&actionSetBits16, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits16_triggered()));
     connect(&actionSetBits32, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits32_triggered()));
     connect(&actionSetBits64, SIGNAL(triggered(bool)), this, SLOT(on_actionSetBits64_triggered()));
+
+    connect(&actionAddBreakpoint, &QAction::triggered,
+            this, &DisassemblyContextMenu::on_actionAddBreakpoint_triggered);
+    connect(&actionContinueUntil, &QAction::triggered,
+            this, &DisassemblyContextMenu::on_actionContinueUntil_triggered);
 
     connect(this, SIGNAL(aboutToShow()), this, SLOT(aboutToShowSlot()));
 }
@@ -216,6 +231,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
     // decide to show Reverse jmp option
     showReverseJmpQuery();
 
+    // show debug options
+    // @TODO determine if we are being debugged and only show the menu in those cases
+    // maybe using dpt command
+    debugMenuAction->setVisible(true);
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
@@ -323,6 +342,16 @@ void DisassemblyContextMenu::on_actionCopyAddr_triggered()
 {
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(RAddressString(offset));
+}
+
+void DisassemblyContextMenu::on_actionAddBreakpoint_triggered()
+{
+    Core()->addBreakpoint(RAddressString(offset));
+}
+
+void DisassemblyContextMenu::on_actionContinueUntil_triggered()
+{
+    Core()->continueUntilDebug(RAddressString(offset));
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()

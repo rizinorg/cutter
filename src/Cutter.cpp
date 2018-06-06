@@ -709,6 +709,37 @@ void CutterCore::setRegister(QString regName, QString regValue)
     cmd("dr " + regName + "=" + regValue);
 }
 
+void CutterCore::startDebug()
+{
+    cmd("ood");
+    emit registersChanged();
+}
+
+void CutterCore::continueDebug()
+{
+    cmd("dc");
+    emit registersChanged();
+}
+
+void CutterCore::continueUntilDebug(QString offset)
+{
+    cmd("dcu " + offset);
+    emit registersChanged();
+}
+
+void CutterCore::stepDebug()
+{
+    cmd("ds");
+    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+}
+
+void CutterCore::addBreakpoint(QString offset)
+{
+    cmd("db " + offset);
+}
+
 QJsonDocument CutterCore::getBacktrace()
 {
     return cmdj("dbtj");

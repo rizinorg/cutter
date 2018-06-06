@@ -294,7 +294,7 @@ border-top: 0px;
    <property name="windowTitle">
     <string notr="true">Main toolbar</string>
    </property>
-   <property name="styleSheet">
+   <!-- <property name="styleSheet">
     <string notr="true">
 QToolButton {
 margin: 1px;
@@ -310,7 +310,7 @@ QToolButton:pressed {
 background-color: palette(dark);
 }
      </string>
-   </property>
+   </property> -->
    <property name="movable">
     <bool>false</bool>
    </property>

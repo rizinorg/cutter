@@ -413,12 +413,20 @@ public:
     ulong get_baddr();
     QList<QList<QString>> get_exec_sections();
     QString getOffsetInfo(QString addr);
+
+    // Debug
     QJsonDocument getRegistersInfo();
     QJsonDocument getRegisterValues();
     QString getRegisterName(QString registerRole);
     void setRegister(QString regName, QString regValue);
     QJsonDocument getStack(int size = 0x40);
     QJsonDocument getBacktrace();
+    void startDebug();
+    void continueDebug();
+    void continueUntilDebug(QString offset);
+    void stepDebug();
+    void addBreakpoint(QString offset);
+
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
@@ -502,6 +510,7 @@ signals:
     void functionsChanged();
     void flagsChanged();
     void commentsChanged();
+    void registersChanged();
     void instructionChanged(RVA offset);
 
     void notesChanged(const QString &notes);

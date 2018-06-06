@@ -165,7 +165,8 @@ SOURCES += \
     dialogs/AsyncTaskDialog.cpp \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
-    widgets/BacktraceWidget.cpp
+    widgets/BacktraceWidget.cpp \
+    widgets/DebugToolbar.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -245,7 +246,8 @@ HEADERS  += \
     dialogs/AsyncTaskDialog.h \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
-    widgets/BacktraceWidget.h
+    widgets/BacktraceWidget.h \
+    widgets/DebugToolbar.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

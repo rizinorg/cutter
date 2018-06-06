@@ -19,7 +19,7 @@ RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
 
     ui->verticalLayout->addWidget(buttonSetRegisters);
     connect(Core(), &CutterCore::refreshAll, this, &RegistersWidget::updateContents);
-    connect(Core(), &CutterCore::seekChanged, this, &RegistersWidget::updateContents);
+    connect(Core(), &CutterCore::registersChanged, this, &RegistersWidget::updateContents);
 }
 
 RegistersWidget::~RegistersWidget() {}
