@@ -500,6 +500,11 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
     tabifyDockWidget(dashboardDock, vTablesDock);
+
+    // Add Stack, Registers and Backtrace vertically stacked
+    addExtraWidget(stackDock);
+    splitDockWidget(stackDock, registersDock, Qt::Vertical);
+    splitDockWidget(stackDock, backtraceDock, Qt::Vertical);
 #ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
 #endif
