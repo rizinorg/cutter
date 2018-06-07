@@ -352,7 +352,7 @@ void DisassemblyContextMenu::on_actionCopyAddr_triggered()
 
 void DisassemblyContextMenu::on_actionAddBreakpoint_triggered()
 {
-    Core()->addBreakpoint(RAddressString(offset));
+    Core()->addBreakpoint(offset);
 }
 
 void DisassemblyContextMenu::on_actionContinueUntil_triggered()

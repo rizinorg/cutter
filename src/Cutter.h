@@ -426,7 +426,7 @@ public:
     void continueUntilDebug(QString offset);
     void stepDebug();
     void stepOverDebug();
-    void addBreakpoint(QString offset);
+    void addBreakpoint(RVA offset);
 
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);

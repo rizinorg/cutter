@@ -744,9 +744,10 @@ void CutterCore::stepOverDebug()
     emit registersChanged();
 }
 
-void CutterCore::addBreakpoint(QString offset)
+void CutterCore::addBreakpoint(RVA addr)
 {
-    cmd("db " + offset);
+    cmd("db " + RAddressString(addr));
+    emit instructionChanged(addr);
 }
 
 QJsonDocument CutterCore::getBacktrace()
