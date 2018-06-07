@@ -755,6 +755,29 @@ QJsonDocument CutterCore::getBacktrace()
     return cmdj("dbtj");
 }
 
+QList<MemoryMapDescription> CutterCore::getMemoryMap()
+{
+    QList<MemoryMapDescription> ret;
+    QJsonArray memoryMapArray = cmdj("dmj").array();
+
+    for (QJsonValue value : memoryMapArray) {
+        QJsonObject memMapObject = value.toObject();
+
+        MemoryMapDescription memMap;
+
+        memMap.name = memMapObject["name"].toString();
+        memMap.fileName = memMapObject["file"].toString();
+        memMap.addrStart = memMapObject["addr"].toVariant().toULongLong();
+        memMap.addrEnd = memMapObject["addr_end"].toVariant().toULongLong();
+        memMap.type = memMapObject["type"].toString();
+        memMap.permission = memMapObject["perm"].toString();
+
+        ret << memMap;
+    }
+
+    return ret;
+}
+
 QStringList CutterCore::getStats()
 {
     QStringList stats;

@@ -166,7 +166,8 @@ SOURCES += \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
     widgets/BacktraceWidget.cpp \
-    widgets/DebugToolbar.cpp
+    widgets/DebugToolbar.cpp \
+    widgets/MemoryMapWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -247,7 +248,8 @@ HEADERS  += \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
     widgets/BacktraceWidget.h \
-    widgets/DebugToolbar.h
+    widgets/DebugToolbar.h \
+    widgets/MemoryMapWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -294,7 +296,8 @@ FORMS    += \
     dialogs/AsyncTaskDialog.ui \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
-    widgets/BacktraceWidget.ui
+    widgets/BacktraceWidget.ui \
+    widgets/MemoryMapWidget.ui
 
 RESOURCES += \
     resources.qrc \

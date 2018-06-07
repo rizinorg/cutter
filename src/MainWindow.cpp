@@ -71,6 +71,7 @@
 #include "widgets/HeadersWidget.h"
 #include "widgets/ZignaturesWidget.h"
 #include "widgets/DebugToolbar.h"
+#include "widgets/MemoryMapWidget.h"
 
 // graphics
 #include <QGraphicsEllipseItem>
@@ -192,6 +193,7 @@ void MainWindow::initUI()
     stackDock = new StackWidget(this, ui->actionStack);
     backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
     registersDock = new RegistersWidget(this, ui->actionRegisters);
+    memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
 #ifdef CUTTER_ENABLE_JUPYTER
     jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else
@@ -516,6 +518,7 @@ void MainWindow::restoreDocks()
     addExtraWidget(stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     splitDockWidget(stackDock, backtraceDock, Qt::Vertical);
+    splitDockWidget(stackDock, memoryMapDock, Qt::Vertical);
 #ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
 #endif

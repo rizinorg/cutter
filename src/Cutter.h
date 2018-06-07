@@ -273,6 +273,15 @@ struct VTableDescription {
     QList<ClassMethodDescription> methods;
 };
 
+struct MemoryMapDescription {
+    RVA addrStart;
+    RVA addrEnd;
+    QString name;
+    QString fileName;
+    QString type;
+    QString permission;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -301,6 +310,7 @@ Q_DECLARE_METATYPE(HeaderDescription)
 Q_DECLARE_METATYPE(ZignatureDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
+Q_DECLARE_METATYPE(MemoryMapDescription)
 
 class CutterCore: public QObject
 {
@@ -479,6 +489,7 @@ public:
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
     QList<TypeDescription> getAllTypes();
+    QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
