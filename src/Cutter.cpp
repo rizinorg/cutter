@@ -1584,7 +1584,10 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 
         DisassemblyLine line;
         line.offset = object["offset"].toVariant().toULongLong();
-        line.text = object["text"].toString();
+
+        // If the'rs a call to an API function, clean how it looks like and remove "dword [sym.imp...]" from the line.
+        line.text = object["text"].toString().replace(
+                                QRegularExpression("(dword[&nbsp;]*)*\\[sym\\.imp\\..+_(.+)\\]", QRegularExpression::CaseInsensitiveOption), "\\2");
 
         r << line;
     }

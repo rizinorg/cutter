@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QMouseEvent>
 #include <QPropertyAnimation>
+#include <QRegularExpression>
 #include <QShortcut>
 #include <QToolTip>
 #include <QTextDocument>
@@ -222,7 +223,9 @@ void DisassemblerGraphView::loadCurrentGraph()
             i.size -= 1;
 
             QString disas;
-            disas = op["text"].toString();
+             // If the'rs a call to an API function, clean how it looks like and remove "dword [sym.imp...]" from the line.
+            disas = op["text"].toString().replace(
+                            QRegularExpression("(dword[&nbsp;]*)*\\[sym\\.imp\\..+_(.+)\\]", QRegularExpression::CaseInsensitiveOption), "\\2");
 
             QTextDocument textDoc;
             textDoc.setHtml(disas);
