@@ -43,7 +43,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBits32(this),
         actionSetBits64(this),
         actionContinueUntil(this),
-        actionAddBreakpoint(this)
+        actionAddBreakpoint(this),
+        actionSetPC(this)
 {
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
@@ -116,6 +117,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     debugMenu->addAction(&actionAddBreakpoint);
     actionContinueUntil.setText(tr("Continue until line"));
     debugMenu->addAction(&actionContinueUntil);
+    QString progCounterName = Core()->getRegisterName("PC");
+    actionSetPC.setText("Set " + progCounterName + " here");
+    debugMenu->addAction(&actionSetPC);
 
     connect(&actionEditInstruction, SIGNAL(triggered(bool)), this,
             SLOT(on_actionEditInstruction_triggered()));
@@ -148,6 +152,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
             this, &DisassemblyContextMenu::on_actionAddBreakpoint_triggered);
     connect(&actionContinueUntil, &QAction::triggered,
             this, &DisassemblyContextMenu::on_actionContinueUntil_triggered);
+    connect(&actionSetPC, &QAction::triggered,
+            this, &DisassemblyContextMenu::on_actionSetPC_triggered);
 
     connect(this, SIGNAL(aboutToShow()), this, SLOT(aboutToShowSlot()));
 }
@@ -352,6 +358,12 @@ void DisassemblyContextMenu::on_actionAddBreakpoint_triggered()
 void DisassemblyContextMenu::on_actionContinueUntil_triggered()
 {
     Core()->continueUntilDebug(RAddressString(offset));
+}
+
+void DisassemblyContextMenu::on_actionSetPC_triggered()
+{
+    QString progCounterName = Core()->getRegisterName("PC");
+    Core()->setRegister(progCounterName, RAddressString(offset));
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()

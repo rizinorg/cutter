@@ -707,6 +707,7 @@ QString CutterCore::getRegisterName(QString registerRole)
 void CutterCore::setRegister(QString regName, QString regValue)
 {
     cmd("dr " + regName + "=" + regValue);
+    emit registersChanged();
 }
 
 void CutterCore::startDebug()
@@ -730,6 +731,14 @@ void CutterCore::continueUntilDebug(QString offset)
 void CutterCore::stepDebug()
 {
     cmd("ds");
+    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+}
+
+void CutterCore::stepOverDebug()
+{
+    cmd("dso");
     QString programCounterValue = cmd("dr?`drn pc`").trimmed();
     seek(programCounterValue);
     emit registersChanged();

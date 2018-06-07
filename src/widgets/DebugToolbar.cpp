@@ -33,13 +33,16 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QAction *actionContinue = new QAction(getIconFor("Continue"), tr("Continue"), parent);
     QAction *actionContinueUntilMain = new QAction(getIconFor("CU"), tr("Continue until main"), parent);
     QAction *actionStep = new QAction(getIconFor("Step"), tr("Step"), parent);
+    QAction *actionStepOver = new QAction(getIconFor("SO"), tr("Step over"), parent);
     addAction(actionStart);
     addAction(actionContinue);
     addAction(actionContinueUntilMain);
     addAction(actionStep);
+    addAction(actionStepOver);
 
     connect(actionStep,              &QAction::triggered, Core(), &CutterCore::stepDebug);
     connect(actionStart,             &QAction::triggered, Core(), &CutterCore::startDebug);
+    connect(actionStepOver,          &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionContinue,          &QAction::triggered, Core(), &CutterCore::continueDebug);
     connect(actionContinueUntilMain, &QAction::triggered, this,   &DebugToolbar::continueUntilMain);
 }

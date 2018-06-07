@@ -57,6 +57,7 @@ private slots:
     void on_actionSetBits64_triggered();
     void on_actionAddBreakpoint_triggered();
     void on_actionContinueUntil_triggered();
+    void on_actionSetPC_triggered();
 
 private:
     QKeySequence getCopySequence() const;
@@ -117,6 +118,7 @@ private:
     QAction *debugMenuAction;
     QAction actionContinueUntil;
     QAction actionAddBreakpoint;
+    QAction actionSetPC;
 
     // For creating anonymous entries (that are always visible)
     void createAction(QString name, QKeySequence keySequence, const char *slot);

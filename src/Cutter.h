@@ -425,6 +425,7 @@ public:
     void continueDebug();
     void continueUntilDebug(QString offset);
     void stepDebug();
+    void stepOverDebug();
     void addBreakpoint(QString offset);
 
     RVA getOffsetJump(RVA addr);
