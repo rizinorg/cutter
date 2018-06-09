@@ -78,7 +78,6 @@ void Configuration::resetAll()
 {
     Core()->cmd("e-");
     Core()->setSettings();
-    resetToDefaultAsmOptions();
     // Delete the file so no extra configuration is in it.
     QFile settingsFile(s.fileName());
     settingsFile.remove();
@@ -86,7 +85,6 @@ void Configuration::resetAll()
 
     loadInitial();
     emit fontsUpdated();
-    Core()->triggerAsmOptionsChanged();
 }
 
 void Configuration::loadDefaultTheme()
