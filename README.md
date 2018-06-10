@@ -42,6 +42,21 @@ Building on linux:
 ```sh
 ./build.sh
 ```
+##### Important note:
+When using the default `build.sh` script you might encounter a `ModuleNotFoundError` upon starting Cutter.
+This can be resolved by either
+
+1. disabling the optional jupyter support during building by modifying `build.sh` as follows:
+
+   * Uncomment `#QMAKE_CONF="CUTTER_ENABLE_JUPYTER=false CUTTER_ENABLE_QTWEBENGINE=false"`
+   * Comment out the prior empty `QMAKE_CONF=""`
+
+2. or alternatively by installing the two python dependencies manually afterwards via:
+```
+pip3 install notebook jupyter_client
+```
+____
+
 
 Building on Windows:
 ```
