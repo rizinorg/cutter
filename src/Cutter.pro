@@ -315,13 +315,18 @@ unix {
 
     desktop_file = Cutter.desktop
 
-    # built-in no need for files atm
-    target.path = $$PREFIX/bin
-
     share_applications.path = $$PREFIX/share/applications
     share_applications.files = $$desktop_file
 
-    INSTALLS += target share_applications share_pixmaps
+    appstream_file = Cutter.appdata.xml
+
+    share_appdata.path = $$PREFIX/share/appdata
+    share_appdata.files = $$appstream_file
+
+    # built-in no need for files atm
+    target.path = $$PREFIX/bin
+
+    INSTALLS += target share_appdata share_applications share_pixmaps
 
     # Triggered for example by 'qmake APPIMAGE=1'
     !isEmpty(APPIMAGE){
