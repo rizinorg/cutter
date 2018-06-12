@@ -273,6 +273,15 @@ struct VTableDescription {
     QList<ClassMethodDescription> methods;
 };
 
+struct MemoryMapDescription {
+    RVA addrStart;
+    RVA addrEnd;
+    QString name;
+    QString fileName;
+    QString type;
+    QString permission;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -301,6 +310,7 @@ Q_DECLARE_METATYPE(HeaderDescription)
 Q_DECLARE_METATYPE(ZignatureDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
+Q_DECLARE_METATYPE(MemoryMapDescription)
 
 class CutterCore: public QObject
 {
@@ -413,12 +423,21 @@ public:
     ulong get_baddr();
     QList<QList<QString>> get_exec_sections();
     QString getOffsetInfo(QString addr);
+
+    // Debug
     QJsonDocument getRegistersInfo();
     QJsonDocument getRegisterValues();
     QString getRegisterName(QString registerRole);
     void setRegister(QString regName, QString regValue);
     QJsonDocument getStack(int size = 0x40);
     QJsonDocument getBacktrace();
+    void startDebug();
+    void continueDebug();
+    void continueUntilDebug(QString offset);
+    void stepDebug();
+    void stepOverDebug();
+    void addBreakpoint(RVA offset);
+
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
@@ -470,6 +489,7 @@ public:
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
     QList<TypeDescription> getAllTypes();
+    QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
@@ -502,6 +522,7 @@ signals:
     void functionsChanged();
     void flagsChanged();
     void commentsChanged();
+    void registersChanged();
     void instructionChanged(RVA offset);
 
     void notesChanged(const QString &notes);
