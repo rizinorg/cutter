@@ -73,6 +73,8 @@
 #include "widgets/JupyterWidget.h"
 #include "widgets/HeadersWidget.h"
 #include "widgets/ZignaturesWidget.h"
+#include "widgets/DebugToolbar.h"
+#include "widgets/MemoryMapWidget.h"
 
 // Graphics
 #include <QGraphicsEllipseItem>
@@ -124,8 +126,18 @@ void MainWindow::initUI()
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     spacer3->setMinimumSize(20, 20);
-    spacer3->setMaximumWidth(300);
+    spacer3->setMaximumWidth(100);
     ui->mainToolBar->addWidget(spacer3);
+
+    QToolBar *debugToolbar = new DebugToolbar(this);
+    ui->mainToolBar->addWidget(debugToolbar);
+
+    // Sepparator between undo/redo and goto lineEdit
+    QWidget *spacer4 = new QWidget();
+    spacer4->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    spacer4->setMinimumSize(20, 20);
+    spacer4->setMaximumWidth(100);
+    ui->mainToolBar->addWidget(spacer4);
 
     // Omnibar LineEdit
     this->omnibar = new Omnibar(this);
@@ -193,6 +205,7 @@ void MainWindow::initUI()
     stackDock = new StackWidget(this, ui->actionStack);
     backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
     registersDock = new RegistersWidget(this, ui->actionRegisters);
+    memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
 #ifdef CUTTER_ENABLE_JUPYTER
     jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else
@@ -531,6 +544,7 @@ void MainWindow::restoreDocks()
     addExtraWidget(stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     splitDockWidget(stackDock, backtraceDock, Qt::Vertical);
+    splitDockWidget(stackDock, memoryMapDock, Qt::Vertical);
 #ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
 #endif

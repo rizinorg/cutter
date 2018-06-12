@@ -754,11 +754,75 @@ QString CutterCore::getRegisterName(QString registerRole)
 void CutterCore::setRegister(QString regName, QString regValue)
 {
     cmd("dr " + regName + "=" + regValue);
+    emit registersChanged();
+}
+
+void CutterCore::startDebug()
+{
+    cmd("ood");
+    emit registersChanged();
+}
+
+void CutterCore::continueDebug()
+{
+    cmd("dc");
+    emit registersChanged();
+}
+
+void CutterCore::continueUntilDebug(QString offset)
+{
+    cmd("dcu " + offset);
+    emit registersChanged();
+}
+
+void CutterCore::stepDebug()
+{
+    cmd("ds");
+    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+}
+
+void CutterCore::stepOverDebug()
+{
+    cmd("dso");
+    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+}
+
+void CutterCore::addBreakpoint(RVA addr)
+{
+    cmd("db " + RAddressString(addr));
+    emit instructionChanged(addr);
 }
 
 QJsonDocument CutterCore::getBacktrace()
 {
     return cmdj("dbtj");
+}
+
+QList<MemoryMapDescription> CutterCore::getMemoryMap()
+{
+    QList<MemoryMapDescription> ret;
+    QJsonArray memoryMapArray = cmdj("dmj").array();
+
+    for (QJsonValue value : memoryMapArray) {
+        QJsonObject memMapObject = value.toObject();
+
+        MemoryMapDescription memMap;
+
+        memMap.name = memMapObject["name"].toString();
+        memMap.fileName = memMapObject["file"].toString();
+        memMap.addrStart = memMapObject["addr"].toVariant().toULongLong();
+        memMap.addrEnd = memMapObject["addr_end"].toVariant().toULongLong();
+        memMap.type = memMapObject["type"].toString();
+        memMap.permission = memMapObject["perm"].toString();
+
+        ret << memMap;
+    }
+
+    return ret;
 }
 
 QStringList CutterCore::getStats()

@@ -175,7 +175,9 @@ SOURCES += \
     dialogs/OpenFileDialog.cpp \
     utils/CommandTask.cpp \
     utils/ProgressIndicator.cpp \
-    utils/R2Task.cpp
+    utils/R2Task.cpp \
+    widgets/DebugToolbar.cpp \
+    widgets/MemoryMapWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -262,7 +264,9 @@ HEADERS  += \
     utils/CommandTask.h \
     utils/ProgressIndicator.h \
     plugins/CutterPlugin.h \
-    utils/R2Task.h
+    utils/R2Task.h \
+    widgets/DebugToolbar.h \
+    widgets/MemoryMapWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -310,7 +314,8 @@ FORMS    += \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
     widgets/BacktraceWidget.ui \
-    dialogs/OpenFileDialog.ui
+    dialogs/OpenFileDialog.ui \
+    widgets/MemoryMapWidget.ui
 
 RESOURCES += \
     resources.qrc \
