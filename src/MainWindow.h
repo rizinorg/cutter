@@ -170,6 +170,8 @@ private slots:
 
     void mousePressEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *object, QEvent *event);
+    void changeDebugView();
+    void changeDefinedView();
 
 private:
     CutterCore *core;
@@ -230,11 +232,13 @@ private:
 
     void resetToDefaultLayout();
     void resetToZenLayout();
+    void resetToDebugLayout();
 
     void restoreDocks();
     void hideAllDocks();
     void showDefaultDocks();
     void showZenDocks();
+    void showDebugDocks();
     void updateDockActionsChecked();
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
