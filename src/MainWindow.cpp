@@ -250,6 +250,9 @@ void MainWindow::initUI()
 
     connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
 
+    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
+    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
+
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this, &MainWindow::updateTasksIndicator);
 
@@ -475,11 +478,9 @@ void MainWindow::setPanelLock()
 void MainWindow::setTabLocation()
 {
     if (tabsOnTop) {
-        ui->centralTabWidget->setTabPosition(QTabWidget::North);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
         ui->actionTabs_on_Top->setChecked(true);
     } else {
-        ui->centralTabWidget->setTabPosition(QTabWidget::South);
         this->setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::South);
         ui->actionTabs_on_Top->setChecked(false);
     }
@@ -616,6 +617,26 @@ void MainWindow::showZenDocks()
     updateDockActionsChecked();
 }
 
+void MainWindow::showDebugDocks()
+{
+    const QList<QDockWidget *> debugDocks = { functionsDock,
+                                            stringsDock,
+                                            graphDock,
+                                            disassemblyDock,
+                                            hexdumpDock,
+                                            searchDock,
+                                            stackDock,
+                                            registersDock,
+                                            backtraceDock
+                                            };
+    for (auto w : dockWidgets) {
+        if (debugDocks.contains(w)) {
+            w->show();
+        }
+    }
+    updateDockActionsChecked();
+}
+
 void MainWindow::resetToDefaultLayout()
 {
     hideAllDocks();
@@ -641,6 +662,24 @@ void MainWindow::resetToZenLayout()
     hideAllDocks();
     restoreDocks();
     showZenDocks();
+    disassemblyDock->raise();
+
+    // ugly workaround to set the default widths of functions
+    // if anyone finds a way to do this cleaner that also works, feel free to change it!
+    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
+
+    qApp->processEvents();
+
+    restoreFunctionDock.restoreWidth(functionsDock->widget());
+
+    Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+}
+
+void MainWindow::resetToDebugLayout()
+{
+    hideAllDocks();
+    restoreDocks();
+    showDebugDocks();
     disassemblyDock->raise();
 
     // ugly workaround to set the default widths of functions
@@ -860,6 +899,20 @@ void MainWindow::on_actionImportPDB_triggered()
 void MainWindow::projectSaved(const QString &name)
 {
     addOutput(tr("Project saved: ") + name);
+}
+
+void MainWindow::changeDebugView()
+{
+    saveSettings();
+    resetToDebugLayout();
+}
+
+void MainWindow::changeDefinedView()
+{
+    resetToDefaultLayout();
+    readSettings();
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
