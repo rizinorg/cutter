@@ -761,6 +761,16 @@ void CutterCore::startDebug()
 {
     cmd("ood");
     emit registersChanged();
+    emit changeDebugView();
+}
+
+void CutterCore::stopDebug()
+{
+    // @TODO should first obtain correct signal to send.
+    // Also, we do a ds since otherwise the process does not die.
+    cmd("dk 9; ds; e cfg.debug = false; oo");
+    seek(tr("main"));
+    emit changeDefinedView();
 }
 
 void CutterCore::continueDebug()
