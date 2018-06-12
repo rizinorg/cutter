@@ -432,6 +432,7 @@ public:
     QJsonDocument getStack(int size = 0x40);
     QJsonDocument getBacktrace();
     void startDebug();
+    void stopDebug();
     void continueDebug();
     void continueUntilDebug(QString offset);
     void stepDebug();
@@ -545,6 +546,8 @@ signals:
     void seekChanged(RVA offset);
 
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
+    void changeDefinedView();
+    void changeDebugView();
 
 public slots:
 
