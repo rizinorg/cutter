@@ -545,7 +545,8 @@ void MainWindow::restoreDocks()
     addExtraWidget(stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     splitDockWidget(stackDock, backtraceDock, Qt::Vertical);
-    splitDockWidget(stackDock, memoryMapDock, Qt::Vertical);
+    // MemoryMap widget goes in the center tabs
+    tabifyDockWidget(dashboardDock, memoryMapDock);
 #ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
 #endif
@@ -627,7 +628,8 @@ void MainWindow::showDebugDocks()
                                             searchDock,
                                             stackDock,
                                             registersDock,
-                                            backtraceDock
+                                            backtraceDock,
+                                            memoryMapDock
                                             };
     for (auto w : dockWidgets) {
         if (debugDocks.contains(w)) {
@@ -682,13 +684,15 @@ void MainWindow::resetToDebugLayout()
     showDebugDocks();
     disassemblyDock->raise();
 
-    // ugly workaround to set the default widths of functions
+    // ugly workaround to set the default widths of functions/stack
     // if anyone finds a way to do this cleaner that also works, feel free to change it!
-    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
+    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 150);
+    auto restoreStackDock = qhelpers::forceWidth(stackDock->widget(), 350);
 
     qApp->processEvents();
 
     restoreFunctionDock.restoreWidth(functionsDock->widget());
+    restoreStackDock.restoreWidth(stackDock->widget());
 
     Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
@@ -913,6 +917,7 @@ void MainWindow::changeDefinedView()
     readSettings();
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)

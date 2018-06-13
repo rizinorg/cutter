@@ -759,6 +759,7 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::startDebug()
 {
+    offsetPriorDebugging = getOffset();
     cmd("ood");
     emit registersChanged();
     emit changeDebugView();
@@ -769,7 +770,7 @@ void CutterCore::stopDebug()
     // @TODO should first obtain correct signal to send.
     // Also, we do a ds since otherwise the process does not die.
     cmd("dk 9; ds; e cfg.debug = false; oo");
-    seek(tr("main"));
+    seek(offsetPriorDebugging);
     emit changeDefinedView();
 }
 
