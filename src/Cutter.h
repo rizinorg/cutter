@@ -590,9 +590,9 @@ private:
     MemoryWidgetType memoryWidgetPriority;
 
     QString notes;
-
     RCore *core_;
     AsyncTaskManager *asyncTaskManager;
+    RVA offsetPriorDebugging = RVA_INVALID;
 
     QList<CutterPlugin*> plugins;
 };
