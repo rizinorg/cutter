@@ -8,10 +8,13 @@
 #include <QTextCodec>
 #include <QStringList>
 #include <QProcess>
+#include <QPluginLoader>
+#include <QDir>
 
 #ifdef CUTTER_ENABLE_JUPYTER
 #include "utils/JupyterConnection.h"
 #endif
+#include "plugins/CutterPlugin.h"
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
@@ -96,6 +99,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     } else { // filename specified as positional argument
         mainWindow->openNewFile(args[0], analLevelSpecified ? analLevel : -1);
     }
+
+    // Load plugins
+    qDebug() << "Loading plugins...";
+    int n = loadPlugins();
+    qDebug() << "Loaded" << n << "plugins.";
 }
 
 CutterApplication::~CutterApplication()
@@ -125,4 +133,36 @@ bool CutterApplication::event(QEvent *e)
         }
     }
     return QApplication::event(e);
+}
+
+int CutterApplication::loadPlugins()
+{
+    int pluginsCount = 0;
+
+    QDir pluginsDir(qApp->applicationDirPath());
+    #if defined(Q_OS_WIN)
+        if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+            pluginsDir.cdUp();
+    #elif defined(Q_OS_MAC)
+        if (pluginsDir.dirName() == "MacOS") {
+            pluginsDir.cdUp();
+            pluginsDir.cdUp();
+            pluginsDir.cdUp();
+        }
+    #endif
+    pluginsDir.cd("plugins");
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+        QObject *plugin = pluginLoader.instance();
+        if (plugin) {
+            CutterPlugin *cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
+            if (cutterPlugin) {
+                Core()->cmd("?e slt");
+                cutterPlugin->setupPlugin(Core());
+                pluginsCount++;
+            }
+        }
+    }
+
+    return pluginsCount;
 }

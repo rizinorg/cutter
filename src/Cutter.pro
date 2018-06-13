@@ -253,7 +253,8 @@ HEADERS  += \
     utils/StringsTask.h \
     utils/FunctionsTask.h \
     utils/CommandTask.h \
-    utils/ProgressIndicator.h
+    utils/ProgressIndicator.h \
+    plugins/CutterPlugin.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

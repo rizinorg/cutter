@@ -20,6 +20,8 @@ public:
         return mainWindow;
     }
 
+    int loadPlugins();
+
 protected:
     bool event(QEvent *e);
 
