@@ -985,11 +985,17 @@ QToolButton[popupMode="2"] {
     border: 1px #76797C;
 }
 
-QToolButton:hover,
-QToolButton::menu-button:hover {
+QToolButton:hover {
     background-color: transparent;
     border: 1px solid #3daee9;
-    padding: 5px;
+}
+
+QToolButton::menu-button:hover {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+    width: 16px;
+    background-color: transparent;
+    border: 1px solid #3daee9;
 }
 
 QToolButton:checked,
@@ -997,7 +1003,6 @@ QToolButton:pressed,
 QToolButton::menu-button:pressed {
     background-color: #3daee9;
     border: 1px solid #3daee9;
-    padding: 5px;
 }
 
 

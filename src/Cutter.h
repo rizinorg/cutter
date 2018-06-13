@@ -434,6 +434,8 @@ public:
     void startDebug();
     void stopDebug();
     void continueDebug();
+    void continueUntilCall();
+    void continueUntilSyscall();
     void continueUntilDebug(QString offset);
     void stepDebug();
     void stepOverDebug();

@@ -23,6 +23,8 @@
         <file>img/icons/media-stop_light.svg</file>
         <file>img/icons/media-skip-forward_light.svg</file>
         <file>img/icons/continue_until_main.svg</file>
+        <file>img/icons/continue_until_call.svg</file>
+        <file>img/icons/continue_until_syscall.svg</file>
         <file>img/icons/step_light.svg</file>
         <file>img/icons/step_over_light.svg</file>
         <file>img/icons/cloud.svg</file>
