@@ -101,9 +101,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     }
 
     // Load plugins
-    qDebug() << "Loading plugins...";
-    int n = loadPlugins();
-    qDebug() << "Loaded" << n << "plugins.";
+    loadPlugins();
 }
 
 CutterApplication::~CutterApplication()
@@ -135,10 +133,9 @@ bool CutterApplication::event(QEvent *e)
     return QApplication::event(e);
 }
 
-int CutterApplication::loadPlugins()
+void CutterApplication::loadPlugins()
 {
-    int pluginsCount = 0;
-
+    QList<CutterPlugin*> plugins;
     QDir pluginsDir(qApp->applicationDirPath());
     #if defined(Q_OS_WIN)
         if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
@@ -157,12 +154,11 @@ int CutterApplication::loadPlugins()
         if (plugin) {
             CutterPlugin *cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
             if (cutterPlugin) {
-                Core()->cmd("?e slt");
                 cutterPlugin->setupPlugin(Core());
-                pluginsCount++;
+                plugins.append(cutterPlugin);
             }
         }
     }
 
-    return pluginsCount;
+    Core()->setCutterPlugins(plugins);
 }

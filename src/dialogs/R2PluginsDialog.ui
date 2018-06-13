@@ -2,12 +2,23 @@
 <ui version="4.0">
  <class>R2PluginsDialog</class>
  <widget class="QDialog" name="R2PluginsDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>296</width>
+    <height>310</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>radare2 plugin information</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
     <widget class="QTabWidget" name="tabWidget">
+     <property name="currentIndex">
+      <number>4</number>
+     </property>
      <widget class="QWidget" name="RBinTab">
       <attribute name="title">
        <string>RBin</string>
@@ -157,6 +168,44 @@
          <column>
           <property name="text">
            <string>License</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Author</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="CutterTab">
+      <attribute name="title">
+       <string>Cutter</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <item>
+        <widget class="QLabel" name="CutterLabel">
+         <property name="text">
+          <string>Cutter plugins</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTreeWidget" name="CutterTreeWidget">
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Description</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Version</string>
           </property>
          </column>
          <column>

@@ -45,6 +45,8 @@ typedef ut64 RVA;
 #define RVA_INVALID RVA_MAX
 
 class AsyncTaskManager;
+class CutterCore;
+#include "plugins/CutterPlugin.h"
 
 class RCoreLocked
 {
@@ -506,6 +508,14 @@ public:
     void joinTask(RCoreTask *task);
     void deleteTask(RCoreTask *task);
 
+    void loadScript(const QString &scriptname);
+    QString getVersionInformation();
+    QJsonArray getOpenedFiles();
+
+    QList<QString> getColorThemes();
+    void setCutterPlugins(QList<CutterPlugin*> plugins);
+    QList<CutterPlugin*> getCutterPlugins();
+
     RCoreLocked core() const;
 
 signals:
@@ -548,6 +558,8 @@ private:
 
     RCore *core_;
     AsyncTaskManager *asyncTaskManager;
+
+    QList<CutterPlugin*> plugins;
 };
 
 class ccClass : public CutterCore

@@ -3,6 +3,7 @@
 
 #include <QEvent>
 #include <QApplication>
+#include <QList>
 
 #include "MainWindow.h"
 
@@ -20,7 +21,7 @@ public:
         return mainWindow;
     }
 
-    int loadPlugins();
+    void loadPlugins();
 
 protected:
     bool event(QEvent *e);

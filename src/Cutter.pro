@@ -55,6 +55,9 @@ macx {
 unix:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
 }
+unix {
+    QMAKE_LFLAGS += -rdynamic # Export dynamic symbols for plugins
+}
 
 # Libraries
 include(lib_radare2.pri)
