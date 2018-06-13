@@ -786,6 +786,22 @@ void CutterCore::continueUntilDebug(QString offset)
     emit registersChanged();
 }
 
+void CutterCore::continueUntilCall()
+{
+    cmd("dcc");
+    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+}
+
+void CutterCore::continueUntilSyscall()
+{
+    cmd("dcs");
+    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+}
+
 void CutterCore::stepDebug()
 {
     cmd("ds");
