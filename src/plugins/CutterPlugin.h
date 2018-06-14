@@ -2,15 +2,17 @@
 #define CUTTERPLUGIN_H
 
 class CutterPlugin;
+class MainWindow;
 
 #include "Cutter.h"
+#include "widgets/CutterDockWidget.h"
 
 class CutterPlugin 
 {
 public:
     virtual ~CutterPlugin() {}
     virtual void setupPlugin(CutterCore *core) = 0;
-    virtual void setupInterface(QWidget *parent) = 0;
+    virtual CutterDockWidget* setupInterface(MainWindow *main, QAction *action = nullptr) = 0;
 
     QString name;
     QString description;
@@ -19,6 +21,7 @@ public:
 
 protected:
     CutterCore *core;
+    CutterDockWidget *dockable;
 };
 
 #define CutterPlugin_iid "org.radare.cutter.plugins.CutterPlugin"

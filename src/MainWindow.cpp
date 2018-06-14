@@ -239,6 +239,13 @@ void MainWindow::initUI()
 
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this, &MainWindow::updateTasksIndicator);
+
+    /* Load plugins */
+    QList<CutterPlugin*> plugins = Core()->getCutterPlugins();
+    for (auto plugin : plugins) {
+        CutterDockWidget *pluginDock = plugin->setupInterface(this);
+        tabifyDockWidget(dashboardDock, pluginDock);
+    }
 }
 
 void MainWindow::updateTasksIndicator()
