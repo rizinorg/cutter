@@ -167,7 +167,8 @@ SOURCES += \
     widgets/RegistersWidget.cpp \
     widgets/BacktraceWidget.cpp \
     widgets/DebugToolbar.cpp \
-    widgets/MemoryMapWidget.cpp
+    widgets/MemoryMapWidget.cpp \
+    dialogs/preferences/DebugOptionsWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -249,7 +250,8 @@ HEADERS  += \
     widgets/RegistersWidget.h \
     widgets/BacktraceWidget.h \
     widgets/DebugToolbar.h \
-    widgets/MemoryMapWidget.h
+    widgets/MemoryMapWidget.h \
+    dialogs/preferences/DebugOptionsWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -297,7 +299,8 @@ FORMS    += \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
     widgets/BacktraceWidget.ui \
-    widgets/MemoryMapWidget.ui
+    widgets/MemoryMapWidget.ui \
+    dialogs/preferences/DebugOptionsWidget.ui
 
 RESOURCES += \
     resources.qrc \
