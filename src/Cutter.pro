@@ -173,7 +173,8 @@ SOURCES += \
     utils/CommandTask.cpp \
     utils/ProgressIndicator.cpp \
     widgets/DebugToolbar.cpp \
-    widgets/MemoryMapWidget.cpp
+    widgets/MemoryMapWidget.cpp \
+    dialogs/preferences/DebugOptionsWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -261,7 +262,8 @@ HEADERS  += \
     utils/ProgressIndicator.h \
     plugins/CutterPlugin.h \
     widgets/DebugToolbar.h \
-    widgets/MemoryMapWidget.h
+    widgets/MemoryMapWidget.h \
+    dialogs/preferences/DebugOptionsWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -310,7 +312,9 @@ FORMS    += \
     widgets/RegistersWidget.ui \
     widgets/BacktraceWidget.ui \
     dialogs/OpenFileDialog.ui \
-    widgets/MemoryMapWidget.ui
+    widgets/MemoryMapWidget.ui \
+    widgets/MemoryMapWidget.ui \
+    dialogs/preferences/DebugOptionsWidget.ui
 
 RESOURCES += \
     resources.qrc \

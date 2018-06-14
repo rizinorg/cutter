@@ -818,6 +818,29 @@ void CutterCore::stepOverDebug()
     emit registersChanged();
 }
 
+QStringList CutterCore::getDebugPlugins()
+{
+    QStringList plugins;
+    QJsonArray pluginArray = cmdj("dLj").array();
+
+    for (QJsonValue value : pluginArray) {
+        QJsonObject pluginObject = value.toObject();
+        QString plugin = pluginObject["name"].toString();
+        plugins << plugin;
+    }
+    return plugins;
+}
+
+QString CutterCore::getActiveDebugPlugin()
+{
+    return getConfig("dbg.backend");
+}
+
+void CutterCore::setDebugPlugin(QString plugin)
+{
+    setConfig("dbg.backend", plugin);
+}
+
 void CutterCore::addBreakpoint(RVA addr)
 {
     cmd("db " + RAddressString(addr));
