@@ -6,6 +6,7 @@
 #include "GeneralOptionsWidget.h"
 #include "AsmOptionsWidget.h"
 #include "GraphOptionsWidget.h"
+#include "DebugOptionsWidget.h"
 
 #include "PreferenceCategory.h"
 
@@ -24,20 +25,25 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         {
             "General",
             new GeneralOptionsWidget(this),
-            QIcon(":/img/icons/cog.svg")
+            QIcon(":/img/icons/cog_light.svg")
         },
         {
             "Assembly",
             new AsmOptionsWidget(this),
-            QIcon(":/img/icons/disas.svg"),
+            QIcon(":/img/icons/disas_light.svg"),
             {
                 {
                     "Graph",
                     new GraphOptionsWidget(this),
-                    QIcon(":/img/icons/graph.svg")
+                    QIcon(":/img/icons/graph_light.svg")
                 },
             }
         },
+        {
+            "Debug",
+            new DebugOptionsWidget(this),
+            QIcon(":/img/icons/bug_light.svg")
+        }
     };
 
     for (auto &c : prefs)
