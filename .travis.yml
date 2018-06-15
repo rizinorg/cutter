@@ -5,6 +5,7 @@ cache: ccache
 branches:
   only:
   - master
+  - pkgconfig-fix
   - /^v\d.*$/
 
 matrix:
