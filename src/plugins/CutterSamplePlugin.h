@@ -28,6 +28,7 @@ private:
 
 private slots:
     void on_seekChanged(RVA addr);
+    void on_buttonClicked();
 };
 
 

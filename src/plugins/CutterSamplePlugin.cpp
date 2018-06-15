@@ -1,8 +1,10 @@
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QPushButton>
 
 #include "CutterSamplePlugin.h"
 #include "utils/TempConfig.h"
+#include "utils/Configuration.h"
 
 void CutterSamplePlugin::setupPlugin(CutterCore *core)
 {
@@ -24,14 +26,26 @@ CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main, QAction *ac
     CutterDockWidget(main, action)
 {
     this->setWindowTitle("Sample Plugin");
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    this->setLayout(layout);
+    QWidget *content = new QWidget();
+    this->setWidget(content);
 
-    text = new QLabel(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+    content->setLayout(layout);
+    text = new QLabel(content);
+    text->setFont(Config()->getFont());
     text->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     layout->addWidget(text);
 
+    QPushButton *button = new QPushButton(content);
+    button->setText("Want a fortune?");
+    button->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    button->setMaximumHeight(50);
+    button->setMaximumWidth(200);
+    layout->addWidget(button);
+    layout->setAlignment(button, Qt::AlignHCenter);
+
     connect(Core(), &CutterCore::seekChanged, this, &CutterSamplePluginWidget::on_seekChanged);
+    connect(button, &QPushButton::clicked, this, &CutterSamplePluginWidget::on_buttonClicked);
 }
 
 void CutterSamplePluginWidget::on_seekChanged(RVA addr)
@@ -43,6 +57,11 @@ void CutterSamplePluginWidget::on_seekChanged(RVA addr)
         tempConfig.set("scr.color", 0);
         res = Core()->cmd("?E `pi 1`");
     }
-    qDebug() << res;
+    text->setText(res);
+}
+
+void CutterSamplePluginWidget::on_buttonClicked()
+{
+    QString res = Core()->cmd("?E `fo`");
     text->setText(res);
 }
