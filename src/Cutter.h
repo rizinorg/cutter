@@ -563,6 +563,7 @@ private:
     RCore *core_;
     AsyncTaskManager *asyncTaskManager;
     RVA offsetPriorDebugging = RVA_INVALID;
+    bool currentlyDebugging = false;
 };
 
 class ccClass : public CutterCore
