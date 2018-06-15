@@ -16,5 +16,19 @@ public:
     CutterDockWidget* setupInterface(MainWindow *main, QAction *action = nullptr) override;
 };
 
+class CutterSamplePluginWidget : public CutterDockWidget
+{
+    Q_OBJECT
+
+public:
+    explicit CutterSamplePluginWidget(MainWindow *main, QAction *action);
+
+private:
+    QLabel* text;
+
+private slots:
+    void on_seekChanged(RVA addr);
+};
+
 
 #endif // CUTTERSAMPLEPLUGIN_H
