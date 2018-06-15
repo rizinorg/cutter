@@ -759,10 +759,15 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::startDebug()
 {
-    offsetPriorDebugging = getOffset();
+    if (!currentlyDebugging) {
+        offsetPriorDebugging = getOffset();
+    }
     cmd("ood");
     emit registersChanged();
-    emit changeDebugView();
+    if (!currentlyDebugging) {
+        emit changeDebugView();
+        currentlyDebugging = true;
+    }
 }
 
 void CutterCore::stopDebug()
@@ -772,6 +777,7 @@ void CutterCore::stopDebug()
     cmd("dk 9; ds; e cfg.debug = false; oo");
     seek(offsetPriorDebugging);
     emit changeDefinedView();
+    currentlyDebugging = false;
 }
 
 void CutterCore::continueDebug()
