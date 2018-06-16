@@ -152,10 +152,8 @@ void DisassemblerGraphView::loadCurrentGraph()
     .set("asm.lines", false)
     .set("asm.lines.fcn", false);
     QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(seekable->getOffset()));
-    if(fundtionsDoc.isempty())
-    {
-        QWidget *warningwidget = new QWidget(this);
-        QLabel *label = new QLabel(*warningwidget);
+    if (functionsDoc.isempty()) {
+        QLabel *label = new QLabel(this);
         label->setText(
                 tr("Graph mode can only display instructions which belong to functions."));
     }
