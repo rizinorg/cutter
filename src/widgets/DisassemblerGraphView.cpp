@@ -10,6 +10,7 @@
 #include <QTextDocument>
 #include <QFileDialog>
 #include <QFile>
+#include <QLabel>
 
 #include "Cutter.h"
 #include "utils/Colors.h"
