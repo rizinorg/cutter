@@ -46,9 +46,16 @@ win32 {
         # caution: may not work for cross compilations
         PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$R2_USER_PKGCONFIG
     } else {
-        exists($$PREFIX/lib/pkgconfig/r_core.pc) {
-            PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$PREFIX/lib/pkgconfig
-        } else {
+        unix {
+            exists($$PREFIX/lib/pkgconfig/r_core.pc) {
+                PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$PREFIX/lib/pkgconfig
+            } else {
+                LIBS += -L$$PREFIX/lib
+                INCLUDEPATH += $$PREFIX/include/libr
+                USE_PKGCONFIG = 0
+           }
+        }
+        macx {
             LIBS += -L$$PREFIX/lib
             INCLUDEPATH += $$PREFIX/include/libr
             USE_PKGCONFIG = 0
