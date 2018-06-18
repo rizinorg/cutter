@@ -44,10 +44,10 @@ win32 {
     R2_USER_PKGCONFIG = $$(HOME)/bin/prefix/radare2/lib/pkgconfig
     exists($$R2_USER_PKGCONFIG) {
         # caution: may not work for cross compilations
-        QMAKE_PKG_CONFIG = PKG_CONFIG_PATH=$$R2_USER_PKGCONFIG pkg-config
+        PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$R2_USER_PKGCONFIG
     } else {
         exists($$PREFIX/lib/pkgconfig/r_core.pc) {
-            QMAKE_PKG_CONFIG = PKG_CONFIG_PATH=$$PREFIX/lib/pkgconfig pkg-config
+            PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$PREFIX/lib/pkgconfig
         } else {
             LIBS += -L$$PREFIX/lib
             INCLUDEPATH += $$PREFIX/include/libr
