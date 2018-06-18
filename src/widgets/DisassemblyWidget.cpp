@@ -298,6 +298,7 @@ void DisassemblyWidget::highlightCurrentLine()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     QColor highlightColor = ConfigColor("highlight");
+    QColor highlightPCColor = ConfigColor("highlightPC");
     QColor highlightWordColor = ConfigColor("highlightWord");
     highlightWordColor.setAlpha(128);
     QColor highlightWordCurrentLineColor = ConfigColor("gui.background");
@@ -343,6 +344,20 @@ void DisassemblyWidget::highlightCurrentLine()
             highlightSelection.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             extraSelections.append(highlightSelection);
         }
+    }
+
+    // highlight PC line
+    // a bit hacky: we find an occurrence of the PC and highlight that line
+    RVA PCAddr = Core()->getProgramCounterValue();
+    if (PCAddr != RVA_INVALID) {
+        highlightSelection.cursor = document->find(RAddressString(PCAddr), highlightSelection.cursor,
+                                                    QTextDocument::FindWholeWords);
+        if (!highlightSelection.cursor.isNull()) {
+            highlightSelection.format.setBackground(highlightPCColor);
+            highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+            highlightSelection.cursor.clearSelection();
+        }
+        extraSelections.append(highlightSelection);
     }
 
     mDisasTextEdit->setExtraSelections(extraSelections);
