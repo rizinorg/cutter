@@ -66,5 +66,7 @@
 
         <file>python/cutter_jupyter.py</file>
         <file>python/cutter_ipykernel.py</file>
+
+        <file>data/constants.txt</file>
     </qresource>
 </RCC>

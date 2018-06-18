@@ -5,6 +5,7 @@
 #include "dialogs/FlagDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
+#include "dialogs/ConstNameDialog.h"
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
@@ -41,12 +42,13 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
         actionSetBaseString(this),
         actionSetBits16(this),
         actionSetBits32(this),
-        actionSetBits64(this)
+        actionSetBits64(this),
+    	actionSetConstName(this)
 {
     createAction(&actionCopy, tr("Copy"), getCopySequence(), SLOT(on_actionCopy_triggered()));
     copySeparator = addSeparator();
     createAction(&actionCopyAddr, tr("Copy address"), {}, SLOT(on_actionCopyAddr_triggered()));
-    createAction(&actionAddComment, tr("Add Comment"), getCommentSequence(),
+    createAction(&actionAddComment, tr("Add Comment fish"), getCommentSequence(),
                  SLOT(on_actionAddComment_triggered()));
     createAction(&actionAddFlag, tr("Add Flag"), getAddFlagSequence(),
                  SLOT(on_actionAddFlag_triggered()));
@@ -61,6 +63,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     createAction(&actionDeleteFlag, tr("Delete flag"), {}, SLOT(on_actionDeleteFlag_triggered()));
     createAction(&actionDeleteFunction, tr("Undefine function"), {}, SLOT(
                      on_actionDeleteFunction_triggered()));
+    createAction(&actionSetConstName, tr("Lookup standard constant"), {}, SLOT(
+                     on_actionSetConstName_triggered()));
 
     setBaseMenu = new QMenu(tr("Set Immediate Base to..."), this);
     setBaseMenuAction = addMenu(setBaseMenu);
@@ -175,6 +179,20 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionAddComment.setText(tr("Edit Comment"));
     }
 
+    bool hasImm = false;
+    QString type = instObject["type"].toString();
+    if (type != "call" && !type.contains("jmp")) {
+        QJsonArray operandArray = instObject["opex"].toObject()["operands"].toArray();
+        foreach (const QJsonValue & value, operandArray) {
+            QJsonObject obj = value.toObject();
+            if (obj["type"].toString() == "imm") {
+                hasImm = true;
+                break;
+            }
+        }
+    }
+    actionSetConstName.setVisible(hasImm);
+
     actionCopy.setVisible(canCopy);
     copySeparator->setVisible(canCopy);
 
@@ -251,6 +269,30 @@ QKeySequence DisassemblyContextMenu::getXRefSequence() const
 QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 {
     return {}; //TODO insert correct sequence
+}
+
+void DisassemblyContextMenu::on_actionSetConstName_triggered()
+{
+    ConstNameDialog *e = new ConstNameDialog(this);
+    QJsonObject instObject = Core()->cmdj("aoj").array().first().toObject();
+    qulonglong constant = 0;
+    QJsonArray operandArray = instObject["opex"].toObject()["operands"].toArray();
+    foreach (const QJsonValue & value, operandArray) {
+        QJsonObject obj = value.toObject();
+        if (obj["type"].toString() == "imm") {
+            constant = (qulonglong) obj["value"].toDouble();
+            break;
+        }
+    }
+    e->setConstValue(constant);
+
+    if (e->exec()) {}
+    {
+        QString constname = e->getConstName();
+        if (constname != nullptr) {
+            Core()->setComment(offset, constname);    
+        }
+    }
 }
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
