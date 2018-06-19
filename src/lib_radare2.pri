@@ -35,16 +35,29 @@ win32 {
         -lr_crypto \
         -lr_shlr
 } else {
+    macx {
+        PREFIX=/usr/local
+    } else {
+        PREFIX=/usr
+    }
     USE_PKGCONFIG = 1
     R2_USER_PKGCONFIG = $$(HOME)/bin/prefix/radare2/lib/pkgconfig
     exists($$R2_USER_PKGCONFIG) {
         # caution: may not work for cross compilations
-        QMAKE_PKG_CONFIG = PKG_CONFIG_PATH=$$R2_USER_PKGCONFIG pkg-config
+        PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$R2_USER_PKGCONFIG
     } else {
-        exists(/usr/local/lib/pkgconfig/r_core.pc) {
-            QMAKE_PKG_CONFIG = PKG_CONFIG_PATH=/usr/local/lib/pkgconfig pkg-config
-            LIBS += -L/usr/local/lib
-            INCLUDEPATH += /usr/local/include/libr
+        unix {
+            exists($$PREFIX/lib/pkgconfig/r_core.pc) {
+                PKG_CONFIG_PATH=$$PKG_CONFIG_PATH:$$PREFIX/lib/pkgconfig
+            } else {
+                LIBS += -L$$PREFIX/lib
+                INCLUDEPATH += $$PREFIX/include/libr
+                USE_PKGCONFIG = 0
+           }
+        }
+        macx {
+            LIBS += -L$$PREFIX/lib
+            INCLUDEPATH += $$PREFIX/include/libr
             USE_PKGCONFIG = 0
         }
     }
