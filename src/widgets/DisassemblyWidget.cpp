@@ -169,6 +169,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_SHORTCUT(QKeySequence::MoveToPreviousPage, [this]() {
         moveCursorRelative(true, true);
     })
+    ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Plus), &DisassemblyWidget::zoomIn)
+    ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Minus), &DisassemblyWidget::zoomOut)
 #undef ADD_SHORTCUT
 }
 
@@ -291,6 +293,16 @@ bool DisassemblyWidget::updateMaxLines()
     }
 
     return false;
+}
+
+void DisassemblyWidget::zoomIn() {
+    mDisasTextEdit->zoomIn();
+    updateMaxLines();
+}
+
+void DisassemblyWidget::zoomOut() {
+    mDisasTextEdit->zoomOut();
+    updateMaxLines();
 }
 
 void DisassemblyWidget::highlightCurrentLine()
