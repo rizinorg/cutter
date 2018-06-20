@@ -207,6 +207,18 @@ QJsonDocument CutterCore::cmdj(const QString &str)
     return doc;
 }
 
+/**
+ * @brief CutterCore::loadFile
+ * Load initial file. TODO Maybe use the "o" commands?
+ * @param path File path
+ * @param baddr Base (RBin) address
+ * @param mapaddr Map address
+ * @param perms
+ * @param va
+ * @param loadbin Load RBin information
+ * @param forceBinPlugin
+ * @return
+ */
 bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int va,
                           bool loadbin, const QString &forceBinPlugin)
 {
@@ -258,6 +270,31 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
     r_core_hash_load(core_, path.toUtf8().constData());
     fflush(stdout);
     return true;
+}
+
+bool CutterCore::tryFile(QString path, bool rw)
+{
+    CORE_LOCK();
+    RCoreFile *cf;
+    int flags = R_IO_READ;
+    if (rw) flags |= R_IO_WRITE;
+    cf = r_core_file_open(this->core_, path.toUtf8().constData(), flags, 0LL);
+    if (!cf) {
+        return false;
+    }
+
+    r_core_file_close (this->core_, cf);
+
+    return true;
+}
+
+void CutterCore::openFile(QString path, RVA mapaddr)
+{
+    if (mapaddr != RVA_INVALID) {
+        cmd("o " + path + QString(" %1").arg(mapaddr));
+    } else {
+        cmd("o " + path);
+    }
 }
 
 void CutterCore::analyze(int level,  QList<QString> advanced)
@@ -434,22 +471,6 @@ RVA CutterCore::nextOpAddr(RVA startAddr, int count)
 RVA CutterCore::getOffset()
 {
     return core_->offset;
-}
-
-bool CutterCore::tryFile(QString path, bool rw)
-{
-    CORE_LOCK();
-    RCoreFile *cf;
-    int flags = R_IO_READ;
-    if (rw) flags |= R_IO_WRITE;
-    cf = r_core_file_open(this->core_, path.toUtf8().constData(), flags, 0LL);
-    if (!cf) {
-        return false;
-    }
-
-    r_core_file_close (this->core_, cf);
-
-    return true;
 }
 
 ut64 CutterCore::math(const QString &expr)

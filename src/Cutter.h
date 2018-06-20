@@ -316,6 +316,7 @@ public:
 
     RVA getOffset() const                   { return core_->offset; }
 
+    /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
     QString cmd(const QString &str);
     QString cmdRaw(const QString &str);
@@ -326,43 +327,57 @@ public:
         l.removeAll("");
         return l;
     }
+    QString getVersionInformation();
 
-    QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
-
+    /* Functions methods */
     void renameFunction(const QString &oldName, const QString &newName);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
+    RAnalFunction *functionAt(ut64 addr);
+    QString cmdFunctionAt(QString addr);
+    QString cmdFunctionAt(RVA addr);
+    QString createFunctionAt(RVA addr, QString name);
+    void markString(RVA addr);
+
+    /* Flags */
     void delFlag(RVA addr);
     void delFlag(const QString &name);
+    void addFlag(RVA offset, QString name, RVA size);
+    void triggerFlagsChanged();
 
+    /* Edition functions */
     void editInstruction(RVA addr, const QString &inst);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
-
     void editBytes(RVA addr, const QString &inst);
 
+    /* Comments */
     void setComment(RVA addr, const QString &cmt);
     void delComment(RVA addr);
-
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
+    /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_IO_READ,
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
+    void openFile(QString path, RVA mapaddr);
+    void loadScript(const QString &scriptname);
+    QJsonArray getOpenedFiles();
+
+    /* Analysis functions */
     void analyze(int level, QList<QString> advanced);
 
-    // Seek functions
+    /* Seek functions */
     void seek(QString thing);
     void seek(ut64 offset);
     void seekPrev();
     void seekNext();
     RVA getOffset();
-
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
 
-    // Disassembly/Graph/Hexdump/Pseudocode view priority
+    /* Disassembly/Graph/Hexdump/Pseudocode view priority */
     enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Pseudocode };
     MemoryWidgetType getMemoryWidgetPriority() const
     {
@@ -377,10 +392,11 @@ public:
         emit raisePrioritizedMemoryWidget(memoryWidgetPriority);
     }
 
+    /* Math functions */
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
 
-    /* Config related */
+    /* Config functions */
     void setConfig(const QString &k, const QString &v);
     void setConfig(const QString &k, int v);
     void setConfig(const QString &k, bool v);
@@ -389,20 +405,16 @@ public:
     int getConfigi(const QString &k);
     bool getConfigb(const QString &k);
     QString getConfig(const QString &k);
+    QList<QString> getColorThemes();
 
+    /* Assembly related methods */
     QString assemble(const QString &code);
     QString disassemble(const QString &hex);
     QString disassembleSingleInstruction(RVA addr);
+    QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
     void setCPU(QString arch, QString cpu, int bits);
     void setEndianness(bool big);
     void setBBSize(int size);
-
-    RAnalFunction *functionAt(ut64 addr);
-    QString cmdFunctionAt(QString addr);
-    QString cmdFunctionAt(RVA addr);
-
-    QString createFunctionAt(RVA addr, QString name);
-    void markString(RVA addr);
 
     /* SDB */
     QList<QString> sdbList(QString path);
@@ -437,21 +449,22 @@ public:
 
     QList<RVA> getSeekHistory();
 
+    /* Plugins */
     QStringList getAsmPluginNames();
     QStringList getAnalPluginNames();
 
+    /* Projects */
     QStringList getProjectNames();
     void openProject(const QString &name);
     void saveProject(const QString &name);
     void deleteProject(const QString &name);
-
     static bool isProjectNameValid(const QString &name);
 
+    /* Widgets */
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
     QList<RIOPluginDescription> getRIOPluginDescriptions();
     QList<RCorePluginDescription> getRCorePluginDescriptions();
     QList<RAsmPluginDescription> getRAsmPluginDescriptions();
-
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
     QList<ExportDescription> getAllExports();
@@ -475,22 +488,12 @@ public:
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
 
-    void addFlag(RVA offset, QString name, RVA size);
-    void triggerFlagsChanged();
-
+    /* Signals related */
     void triggerVarsChanged();
     void triggerFunctionRenamed(const QString &prevName, const QString &newName);
-
     void triggerRefreshAll();
-
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
-
-    void loadScript(const QString &scriptname);
-    QString getVersionInformation();
-    QJsonArray getOpenedFiles();
-
-    QList<QString> getColorThemes();
 
     RCoreLocked core() const;
 

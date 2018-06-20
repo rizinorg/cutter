@@ -1,9 +1,5 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "dialogs/CommentsDialog.h"
-#include "dialogs/AboutDialog.h"
-#include "dialogs/RenameDialog.h"
-#include "dialogs/preferences/PreferencesDialog.h"
 #include "utils/Helpers.h"
 
 #include <QApplication>
@@ -42,6 +38,14 @@
 #include "utils/SvgIconEngine.h"
 
 #include "dialogs/NewFileDialog.h"
+#include "dialogs/OptionsDialog.h"
+#include "dialogs/SaveProjectDialog.h"
+#include "dialogs/CommentsDialog.h"
+#include "dialogs/AboutDialog.h"
+#include "dialogs/RenameDialog.h"
+#include "dialogs/preferences/PreferencesDialog.h"
+#include "dialogs/OpenFileDialog.h"
+
 #include "widgets/DisassemblerGraphView.h"
 #include "widgets/GraphWidget.h"
 #include "widgets/FunctionsWidget.h"
@@ -61,9 +65,7 @@
 #include "widgets/SdbDock.h"
 #include "widgets/Omnibar.h"
 #include "widgets/ConsoleWidget.h"
-#include "dialogs/OptionsDialog.h"
 #include "widgets/EntrypointWidget.h"
-#include "dialogs/SaveProjectDialog.h"
 #include "widgets/ClassesWidget.h"
 #include "widgets/ResourcesWidget.h"
 #include "widgets/VTablesWidget.h"
@@ -664,9 +666,16 @@ void MainWindow::on_actionZen_triggered()
     resetToZenLayout();
 }
 
+/**
+ * @brief MainWindow::on_actionNew_triggered
+ * Open a new Cutter session.
+ */
 void MainWindow::on_actionNew_triggered()
 {
-    on_actionOpen_triggered();
+    // Create a new Cutter process
+    QProcess process(this);
+    process.setEnvironment(QProcess::systemEnvironment());
+    process.startDetached(qApp->applicationFilePath());
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -688,16 +697,19 @@ void MainWindow::on_actionRun_Script_triggered()
 
     QString fileName;
     fileName = dialog.getOpenFileName(this, tr("Select radare2 script"));
-    if (!fileName.length()) //cancel was pressed
+    if (!fileName.length()) // Cancel was pressed
         return;
-    this->core->cmd(". " + fileName);
+    Core()->loadScript(fileName);
 }
 
+/**
+ * @brief MainWindow::on_actionOpen_triggered
+ * Open a file as in "load (add) a file in current session".
+ */
 void MainWindow::on_actionOpen_triggered()
 {
-    QProcess process(this);
-    process.setEnvironment(QProcess::systemEnvironment());
-    process.startDetached(qApp->applicationFilePath());
+    OpenFileDialog dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::toggleResponsive(bool maybe)
