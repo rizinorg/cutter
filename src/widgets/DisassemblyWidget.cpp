@@ -347,17 +347,27 @@ void DisassemblyWidget::highlightCurrentLine()
     }
 
     // highlight PC line
-    // a bit hacky: we find an occurrence of the PC and highlight that line
     RVA PCAddr = Core()->getProgramCounterValue();
+    highlightSelection.cursor = cursor;
+    highlightSelection.cursor.movePosition(QTextCursor::Start);
     if (PCAddr != RVA_INVALID) {
-        highlightSelection.cursor = document->find(RAddressString(PCAddr), highlightSelection.cursor,
-                                                    QTextDocument::FindWholeWords);
-        if (!highlightSelection.cursor.isNull()) {
-            highlightSelection.format.setBackground(highlightPCColor);
-            highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
-            highlightSelection.cursor.clearSelection();
+        while (true) {
+            RVA lineOffset = readDisassemblyOffset(highlightSelection.cursor);
+            if (lineOffset == PCAddr) {
+                highlightSelection.format.setBackground(highlightPCColor);
+                highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+                highlightSelection.cursor.clearSelection();
+                extraSelections.append(highlightSelection);
+            } else if (lineOffset != RVA_INVALID && lineOffset > PCAddr) {
+                break;
+            }
+            highlightSelection.cursor.movePosition(QTextCursor::EndOfLine);
+            if (highlightSelection.cursor.atEnd()) {
+                break;
+            }
+
+            highlightSelection.cursor.movePosition(QTextCursor::Down);
         }
-        extraSelections.append(highlightSelection);
     }
 
     mDisasTextEdit->setExtraSelections(extraSelections);
