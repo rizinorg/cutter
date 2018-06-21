@@ -5,6 +5,7 @@ cache: ccache
 branches:
   only:
   - master
+  - debug
   - /^v\d.*$/
 
 matrix:
