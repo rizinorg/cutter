@@ -135,7 +135,7 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     connect(actionToggleBreakpoint, &QAction::triggered, this, &BreakpointWidget::toggleBreakpoint);
     connect(Core(), &CutterCore::refreshAll, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::breakpointsChanged, this, &BreakpointWidget::refreshBreakpoint);
-
+    connect(ui->delAllBreakpoints, &QAbstractButton::clicked, Core(), &CutterCore::delAllBreakpoints);
     ui->breakpointTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->breakpointTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
         this, SLOT(showBreakpointContextMenu(const QPoint &)));

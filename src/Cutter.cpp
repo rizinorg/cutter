@@ -814,6 +814,12 @@ void CutterCore::delBreakpoint(RVA addr)
     emit breakpointsChanged();
 }
 
+void CutterCore::delAllBreakpoints()
+{
+    cmd("db-*");
+    emit breakpointsChanged();
+}
+
 void CutterCore::enableBreakpoint(RVA addr)
 {
     cmd("dbe " + RAddressString(addr));

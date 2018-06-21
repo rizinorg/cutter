@@ -50,6 +50,13 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QToolButton" name="delAllBreakpoints">
+      <property name="text">
+       <string>Delete all breakpoints</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>

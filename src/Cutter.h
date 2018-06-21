@@ -451,6 +451,7 @@ public:
     void stepOverDebug();
     void addBreakpoint(RVA addr);
     void delBreakpoint(RVA addr);
+    void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
     void disableBreakpoint(RVA addr);
     QString getActiveDebugPlugin();
