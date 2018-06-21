@@ -282,6 +282,15 @@ struct MemoryMapDescription {
     QString permission;
 };
 
+struct BreakpointDescription {
+    RVA addr;
+    int size;
+    QString permission;
+    bool hw;
+    bool trace;
+    bool enabled;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -311,6 +320,7 @@ Q_DECLARE_METATYPE(ZignatureDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(MemoryMapDescription)
+Q_DECLARE_METATYPE(BreakpointDescription)
 
 class CutterCore: public QObject
 {
@@ -439,7 +449,10 @@ public:
     void continueUntilDebug(QString offset);
     void stepDebug();
     void stepOverDebug();
-    void addBreakpoint(RVA offset);
+    void addBreakpoint(RVA addr);
+    void delBreakpoint(RVA addr);
+    void enableBreakpoint(RVA addr);
+    void disableBreakpoint(RVA addr);
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
@@ -497,6 +510,7 @@ public:
     QList<TypeDescription> getAllTypes();
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
+    QList<BreakpointDescription> getBreakpoints();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
@@ -530,6 +544,7 @@ signals:
     void commentsChanged();
     void registersChanged();
     void instructionChanged(RVA offset);
+    void breakpointsChanged();
 
     void notesChanged(const QString &notes);
     void projectSaved(const QString &name);
