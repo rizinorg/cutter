@@ -226,6 +226,7 @@ private:
     QDockWidget        *backtraceDock = nullptr;
     QDockWidget        *memoryMapDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
+    QDockWidget        *breakpointDock = nullptr;
 #ifdef CUTTER_ENABLE_JUPYTER
     JupyterWidget      *jupyterDock = nullptr;
 #endif

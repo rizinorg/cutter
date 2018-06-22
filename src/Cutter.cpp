@@ -851,6 +851,57 @@ void CutterCore::addBreakpoint(RVA addr)
 {
     cmd("db " + RAddressString(addr));
     emit instructionChanged(addr);
+    emit breakpointsChanged();
+}
+
+void CutterCore::delBreakpoint(RVA addr)
+{
+    cmd("db- " + RAddressString(addr));
+    emit instructionChanged(addr);
+    emit breakpointsChanged();
+}
+
+void CutterCore::delAllBreakpoints()
+{
+    cmd("db-*");
+    emit breakpointsChanged();
+}
+
+void CutterCore::enableBreakpoint(RVA addr)
+{
+    cmd("dbe " + RAddressString(addr));
+    emit instructionChanged(addr);
+    emit breakpointsChanged();
+}
+
+void CutterCore::disableBreakpoint(RVA addr)
+{
+    cmd("dbd " + RAddressString(addr));
+    emit instructionChanged(addr);
+    emit breakpointsChanged();
+}
+
+QList<BreakpointDescription> CutterCore::getBreakpoints()
+{
+    QList<BreakpointDescription> ret;
+    QJsonArray breakpointArray = cmdj("dbj").array();
+
+    for (QJsonValue value : breakpointArray) {
+        QJsonObject bpObject = value.toObject();
+
+        BreakpointDescription bp;
+
+        bp.addr = bpObject["addr"].toVariant().toULongLong();
+        bp.size = bpObject["size"].toVariant().toInt();
+        bp.permission = bpObject["prot"].toString();
+        bp.hw = bpObject["hw"].toBool();
+        bp.trace = bpObject["trace"].toBool();
+        bp.enabled = bpObject["enabled"].toBool();
+
+        ret << bp;
+    }
+
+    return ret;
 }
 
 QJsonDocument CutterCore::getBacktrace()
