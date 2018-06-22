@@ -48,8 +48,10 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     addAction(actionStepOver);
 
     connect(actionStop,              &QAction::triggered, Core(), &CutterCore::stopDebug);
+    connect(actionStop,              &QAction::triggered, [=](){ this->colorToolbar(false); });
     connect(actionStep,              &QAction::triggered, Core(), &CutterCore::stepDebug);
     connect(actionStart,             &QAction::triggered, Core(), &CutterCore::startDebug);
+    connect(actionStart,             &QAction::triggered, [=](){ this->colorToolbar(true); });
     connect(actionStepOver,          &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionContinue,          &QAction::triggered, Core(), &CutterCore::continueDebug);
     connect(actionContinueUntilMain, &QAction::triggered, this,   &DebugToolbar::continueUntilMain);
@@ -60,4 +62,13 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 void DebugToolbar::continueUntilMain()
 {
     Core()->continueUntilDebug(tr("main"));
+}
+
+void DebugToolbar::colorToolbar(bool p)
+{
+    if (p) {
+        this->setStyleSheet("QToolBar {background: green;}");
+    } else {
+        this->setStyleSheet("");
+    }
 }
