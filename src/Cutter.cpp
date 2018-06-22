@@ -1713,7 +1713,7 @@ QList<QString> CutterCore::getColorThemes()
 
 RCoreTask *CutterCore::startTask(const QString &cmd)
 {
-    RCoreTask *task = r_core_task_new (core_, cmd.toLocal8Bit().constData(), nullptr, nullptr);
+    RCoreTask *task = r_core_task_new (core_, true, cmd.toLocal8Bit().constData(), nullptr, nullptr);
     r_core_task_enqueue(core_, task);
     return task;
 }
