@@ -51,11 +51,29 @@
      </widget>
     </item>
     <item>
-     <widget class="QToolButton" name="delAllBreakpoints">
-      <property name="text">
-       <string>Delete all breakpoints</string>
-      </property>
-     </widget>
+     <layout class="QHBoxLayout" name="hLayout">
+       <item>
+       <widget class="QToolButton" name="addBreakpoint">
+        <property name="text">
+         <string>Add new breakpoint</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="delBreakpoint">
+        <property name="text">
+         <string>Delete breakpoint</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignLeft">
+       <widget class="QToolButton" name="delAllBreakpoints">
+        <property name="text">
+         <string>Delete all breakpoints</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>

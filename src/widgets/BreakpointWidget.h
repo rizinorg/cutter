@@ -73,7 +73,7 @@ private slots:
     void showBreakpointContextMenu(const QPoint &pt);
     void delBreakpoint();
     void toggleBreakpoint();
-
+    void addBreakpointDialog();
     void refreshBreakpoint();
 
 private:

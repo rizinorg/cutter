@@ -1,5 +1,6 @@
 #include "BreakpointWidget.h"
 #include "ui_BreakpointWidget.h"
+#include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 #include <QMenu>
@@ -135,6 +136,9 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     connect(actionToggleBreakpoint, &QAction::triggered, this, &BreakpointWidget::toggleBreakpoint);
     connect(Core(), &CutterCore::refreshAll, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::breakpointsChanged, this, &BreakpointWidget::refreshBreakpoint);
+    connect(Core(), &CutterCore::deletedAllBreakpoints, this, &BreakpointWidget::refreshBreakpoint);
+    connect(ui->addBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::addBreakpointDialog);
+    connect(ui->delBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::delBreakpoint);
     connect(ui->delAllBreakpoints, &QAbstractButton::clicked, Core(), &CutterCore::delAllBreakpoints);
     ui->breakpointTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->breakpointTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -176,6 +180,21 @@ void BreakpointWidget::showBreakpointContextMenu(const QPoint &pt)
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     delete menu;
+}
+
+void BreakpointWidget::addBreakpointDialog()
+{
+    BreakpointsDialog *dialog = new BreakpointsDialog(this);
+
+    if (dialog->exec()) {
+        QString bps = dialog->getBreakpoints();
+        if (!bps.isEmpty()) {
+            QStringList bpList = bps.split(" ", QString::SkipEmptyParts);
+            for ( QString bp : bpList) {
+                Core()->addBreakpoint(bp);
+            }
+        }
+    }
 }
 
 void BreakpointWidget::delBreakpoint()
