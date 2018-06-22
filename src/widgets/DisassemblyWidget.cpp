@@ -310,6 +310,7 @@ void DisassemblyWidget::highlightCurrentLine()
     QList<QTextEdit::ExtraSelection> extraSelections;
 
     QColor highlightColor = ConfigColor("highlight");
+    QColor highlightPCColor = ConfigColor("highlightPC");
     QColor highlightWordColor = ConfigColor("highlightWord");
     highlightWordColor.setAlpha(128);
     QColor highlightWordCurrentLineColor = ConfigColor("gui.background");
@@ -354,6 +355,30 @@ void DisassemblyWidget::highlightCurrentLine()
 
             highlightSelection.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             extraSelections.append(highlightSelection);
+        }
+    }
+
+    // highlight PC line
+    RVA PCAddr = Core()->getProgramCounterValue();
+    highlightSelection.cursor = cursor;
+    highlightSelection.cursor.movePosition(QTextCursor::Start);
+    if (PCAddr != RVA_INVALID) {
+        while (true) {
+            RVA lineOffset = readDisassemblyOffset(highlightSelection.cursor);
+            if (lineOffset == PCAddr) {
+                highlightSelection.format.setBackground(highlightPCColor);
+                highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+                highlightSelection.cursor.clearSelection();
+                extraSelections.append(highlightSelection);
+            } else if (lineOffset != RVA_INVALID && lineOffset > PCAddr) {
+                break;
+            }
+            highlightSelection.cursor.movePosition(QTextCursor::EndOfLine);
+            if (highlightSelection.cursor.atEnd()) {
+                break;
+            }
+
+            highlightSelection.cursor.movePosition(QTextCursor::Down);
         }
     }
 

@@ -751,6 +751,18 @@ QString CutterCore::getRegisterName(QString registerRole)
     return cmd("drn " + registerRole).trimmed();
 }
 
+RVA CutterCore::getProgramCounterValue()
+{
+    bool ok;
+    if (currentlyDebugging) {
+        RVA addr = cmd("dr?`drn PC`").toULongLong(&ok, 16);
+        if (ok) {
+            return addr;
+        }
+    }
+    return RVA_INVALID;
+}
+
 void CutterCore::setRegister(QString regName, QString regValue)
 {
     cmd("dr " + regName + "=" + regValue);
@@ -774,10 +786,12 @@ void CutterCore::stopDebug()
 {
     // @TODO should first obtain correct signal to send.
     // Also, we do a ds since otherwise the process does not die.
-    cmd("dk 9; ds; e cfg.debug = false; oo");
-    seek(offsetPriorDebugging);
-    emit changeDefinedView();
-    currentlyDebugging = false;
+    if (currentlyDebugging) {
+        cmd("dk 9; ds; e cfg.debug = false; oo");
+        seek(offsetPriorDebugging);
+        emit changeDefinedView();
+        currentlyDebugging = false;
+    }
 }
 
 void CutterCore::continueDebug()
@@ -795,7 +809,7 @@ void CutterCore::continueUntilDebug(QString offset)
 void CutterCore::continueUntilCall()
 {
     cmd("dcc");
-    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
     seek(programCounterValue);
     emit registersChanged();
 }
@@ -803,7 +817,7 @@ void CutterCore::continueUntilCall()
 void CutterCore::continueUntilSyscall()
 {
     cmd("dcs");
-    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
     seek(programCounterValue);
     emit registersChanged();
 }
@@ -811,7 +825,7 @@ void CutterCore::continueUntilSyscall()
 void CutterCore::stepDebug()
 {
     cmd("ds");
-    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
     seek(programCounterValue);
     emit registersChanged();
 }
@@ -819,7 +833,7 @@ void CutterCore::stepDebug()
 void CutterCore::stepOverDebug()
 {
     cmd("dso");
-    QString programCounterValue = cmd("dr?`drn pc`").trimmed();
+    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
     seek(programCounterValue);
     emit registersChanged();
 }

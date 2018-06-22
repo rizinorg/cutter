@@ -422,12 +422,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
                                                             tr("Do you really want to exit?\nSave your project before closing!"),
                                                             (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
     if (ret == QMessageBox::Save) {
-        if (saveProject(true)) {
+        if (saveProject(true) && !Core()->currentlyDebugging) {
             saveSettings();
         }
         QMainWindow::closeEvent(event);
     } else if (ret == QMessageBox::Discard) {
-        saveSettings();
+        if (!Core()->currentlyDebugging) {
+            saveSettings();
+        }
         QMainWindow::closeEvent(event);
     } else {
         event->ignore();

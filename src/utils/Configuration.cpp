@@ -119,6 +119,8 @@ void Configuration::loadDefaultTheme()
     setColor("gui.border",  QColor(0, 0, 0));
     setColor("highlight",   QColor(210, 210, 255));
     setColor("highlightWord", QColor(210, 210, 255));
+    // RIP line selection in debug
+    setColor("highlightPC", QColor(214, 255, 210));
     // Windows background
     setColor("gui.background", QColor(255, 255, 255));
     setColor("gui.disass_selected", QColor(255, 255, 255));
@@ -171,6 +173,8 @@ void Configuration::loadBaseDark()
     setColor("gui.navbar.str", QColor(69, 104, 229));
     setColor("gui.navbar.sym", QColor(229, 150, 69));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
+    // RIP line selection in debug
+    setColor("highlightPC", QColor(87, 26, 7));
 }
 
 void Configuration::loadDarkTheme()
