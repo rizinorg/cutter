@@ -159,19 +159,9 @@ void Configuration::loadBaseDark()
 void Configuration::loadDarkTheme()
 {
     loadBaseDark();
-    setColor("gui.border",  QColor(100,100,100));
-    // Windows background
-    setColor("gui.background", QColor(37, 40, 43));    loadBaseDark();
-    setColor("gui.border",  QColor(100,100,100));
+    setColor("gui.border",  QColor(100, 100, 100));
     // Windows background
     setColor("gui.background", QColor(37, 40, 43));
-    // Disassembly nodes background
-    setColor("gui.alt_background", QColor(28, 31, 36));
-    // Disassembly nodes background when selected
-    setColor("gui.disass_selected", QColor(44, 53, 54));
-    // Disassembly line selected
-    setColor("highlight", QColor(21, 29, 29));
-    setColor("highlightWord", QColor(100, 100, 100));
     // Disassembly nodes background
     setColor("gui.alt_background", QColor(28, 31, 36));
     // Disassembly nodes background when selected
