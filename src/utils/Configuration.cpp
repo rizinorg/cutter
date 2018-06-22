@@ -53,7 +53,7 @@ Configuration *Configuration::instance()
 
 void Configuration::loadInitial()
 {
-    setDarkTheme(getDarkTheme());
+    setTheme(getTheme());
     setColorTheme(getCurrentTheme());
     applySavedAsmOptions();
 }
@@ -159,22 +159,7 @@ void Configuration::loadBaseDark()
 void Configuration::loadDarkTheme()
 {
     loadBaseDark();
-    setColor("gui.border",  QColor(255, 255, 255));
-    // Windows background
-    setColor("gui.background", QColor(36, 66, 79));
-    // Disassembly nodes background
-    setColor("gui.alt_background", QColor(58, 100, 128));
-    // Disassembly nodes background when selected
-    setColor("gui.disass_selected", QColor(36, 66, 79));
-    // Disassembly line selected
-    setColor("highlight", QColor(64, 115, 115));
-    setColor("highlightWord", QColor(64, 115, 115));
-}
-
-void Configuration::loadDarkGreyTheme()
-{
-    loadBaseDark();
-    setColor("gui.border",  QColor(100,100,100));
+    setColor("gui.border",  QColor(100, 100, 100));
     // Windows background
     setColor("gui.background", QColor(37, 40, 43));
     // Disassembly nodes background
@@ -198,15 +183,15 @@ void Configuration::setFont(const QFont &font)
     emit fontsUpdated();
 }
 
-void Configuration::setDarkTheme(int theme)
+void Configuration::setTheme(int theme)
 {
-    s.setValue("dark", theme);
+    s.setValue("ColorPalette", theme);
     switch(theme){
+    case 0:
+        loadDefaultTheme();
+        break;
     case 1:
         loadDarkTheme();
-        break;
-    case 2:
-        loadDarkGreyTheme();
         break;
     default:
         loadDefaultTheme();
