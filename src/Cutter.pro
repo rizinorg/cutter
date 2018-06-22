@@ -178,7 +178,8 @@ SOURCES += \
     utils/R2Task.cpp \
     widgets/DebugToolbar.cpp \
     widgets/MemoryMapWidget.cpp \
-    dialogs/preferences/DebugOptionsWidget.cpp
+    dialogs/preferences/DebugOptionsWidget.cpp \
+    widgets/BreakpointWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -268,7 +269,8 @@ HEADERS  += \
     utils/R2Task.h \
     widgets/DebugToolbar.h \
     widgets/MemoryMapWidget.h \
-    dialogs/preferences/DebugOptionsWidget.h
+    dialogs/preferences/DebugOptionsWidget.h \
+    widgets/BreakpointWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -319,7 +321,8 @@ FORMS    += \
     dialogs/OpenFileDialog.ui \
     widgets/MemoryMapWidget.ui \
     widgets/MemoryMapWidget.ui \
-    dialogs/preferences/DebugOptionsWidget.ui
+    dialogs/preferences/DebugOptionsWidget.ui \
+    widgets/BreakpointWidget.ui
 
 RESOURCES += \
     resources.qrc \
