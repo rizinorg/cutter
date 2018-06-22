@@ -168,16 +168,30 @@ void ConsoleWidget::focusInputLineEdit()
     ui->inputLineEdit->setFocus();
 }
 
+void ConsoleWidget::executeCommand(const QString &command)
+{
+    if (!commandTask.isNull()) {
+        return;
+    }
+
+    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
+
+    commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
+    connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line, command] (const QString &result) {
+        ui->outputTextEdit->appendPlainText(cmd_line + result);
+        scrollOutputToEnd();
+        historyAdd(command);
+        commandTask = nullptr;
+    });
+    Core()->getAsyncTaskManager()->start(commandTask);
+}
+
 void ConsoleWidget::on_inputLineEdit_returnPressed()
 {
     QString input = ui->inputLineEdit->text();
     if (!input.isEmpty()) {
         if (!isForbidden(input)) {
-            QString res = Core()->cmd(input);
-            QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + input + "\n";
-            ui->outputTextEdit->appendPlainText(cmd_line + res);
-            scrollOutputToEnd();
-            historyAdd(input);
+            executeCommand(input);
         } else {
             addDebugOutput(tr("command forbidden: ") + input);
         }
@@ -258,7 +272,6 @@ void ConsoleWidget::historyAdd(const QString &input)
 
     invalidateHistoryPosition();
 }
-
 void ConsoleWidget::invalidateHistoryPosition()
 {
     lastHistoryPosition = invalidHistoryPos;

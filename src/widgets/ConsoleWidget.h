@@ -4,6 +4,7 @@
 #include <memory>
 #include "MainWindow.h"
 #include "CutterDockWidget.h"
+#include "utils/CommandTask.h"
 
 namespace Ui {
 class ConsoleWidget;
@@ -53,7 +54,9 @@ private:
     void scrollOutputToEnd();
     void historyAdd(const QString &input);
     void invalidateHistoryPosition();
-    QString executeCommand(QString command);
+    void executeCommand(const QString &command);
+
+    QSharedPointer<CommandTask> commandTask;
 
     std::unique_ptr<Ui::ConsoleWidget> ui;
     QList<QAction *> actions;

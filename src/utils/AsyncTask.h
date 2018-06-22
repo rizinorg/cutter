@@ -70,6 +70,10 @@ public:
     ~AsyncTaskManager();
 
     void start(AsyncTask::Ptr task);
+    bool getTasksRunning();
+
+signals:
+    void tasksChanged();
 };
 
 

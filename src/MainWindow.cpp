@@ -143,6 +143,9 @@ void MainWindow::initUI()
     spacer->setMinimumSize(20, 20);
     ui->mainToolBar->addWidget(spacer);
 
+    tasksIndicator = new QLabel(this);
+    ui->mainToolBar->addWidget(tasksIndicator);
+
     // Visual navigation tool bar
     this->visualNavbar = new VisualNavbar(this);
     this->visualNavbar->setMovable(false);
@@ -226,6 +229,17 @@ void MainWindow::initUI()
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
     connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
+
+    updateTasksIndicator();
+    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this, &MainWindow::updateTasksIndicator);
+}
+
+void MainWindow::updateTasksIndicator()
+{
+    bool running = Core()->getAsyncTaskManager()->getTasksRunning();
+    QLabel *l = static_cast<QLabel *>(tasksIndicator);
+    l->setText(running ? "running" : "");
+    //tasksIndicator->setVisible(running);
 }
 
 void MainWindow::on_actionExtraGraph_triggered()

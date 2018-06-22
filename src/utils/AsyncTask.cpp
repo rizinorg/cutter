@@ -82,6 +82,13 @@ void AsyncTaskManager::start(AsyncTask::Ptr task)
     QWeakPointer<AsyncTask> weakPtr = task;
     connect(task.data(), &AsyncTask::finished, this, [this, weakPtr]() {
         tasks.removeOne(weakPtr);
+        emit tasksChanged();
     });
     threadPool->start(task.data());
+    emit tasksChanged();
+}
+
+bool AsyncTaskManager::getTasksRunning()
+{
+    return !tasks.isEmpty();
 }

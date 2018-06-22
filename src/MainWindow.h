@@ -165,6 +165,8 @@ private slots:
 
     void projectSaved(const QString &name);
 
+    void updateTasksIndicator();
+
     void mousePressEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *object, QEvent *event);
 
@@ -181,6 +183,8 @@ private:
     AsciiHighlighter *hex_highlighter;
     VisualNavbar *visualNavbar;
     Omnibar *omnibar;
+    QWidget *tasksIndicator;
+
     Configuration *configuration;
 
     QList<QDockWidget *> dockWidgets;
