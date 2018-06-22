@@ -17,5 +17,6 @@ private:
 
 private slots:
     void continueUntilMain();
+    void colorToolbar(bool p);
 
 };
