@@ -21,7 +21,6 @@ private:
     void loadBaseDark();
     void loadDefaultTheme();
     void loadDarkTheme();
-    void loadDarkGreyTheme();
     void setColor(const QString &name, const QColor &color);
 
     // Images
@@ -43,10 +42,10 @@ public:
 
     // Colors
     const QColor getColor(const QString &name) const;
-    void setDarkTheme(int theme);
-    int getDarkTheme()
+    void setTheme(int theme);
+    int getTheme()
     {
-        return s.value("dark").toInt();
+        return s.value("ColorPalette").toInt();
     }
 
     QString getDirProjects();
