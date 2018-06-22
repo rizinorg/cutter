@@ -475,6 +475,7 @@ public:
     QJsonDocument getRegistersInfo();
     QJsonDocument getRegisterValues();
     QString getRegisterName(QString registerRole);
+    RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
     QJsonDocument getStack(int size = 0x40);
     QJsonDocument getBacktrace();
@@ -494,6 +495,7 @@ public:
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
+    bool currentlyDebugging = false;
 
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);

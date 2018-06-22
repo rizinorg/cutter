@@ -201,6 +201,7 @@ private:
     QColor disassemblyBackgroundColor;
     QColor disassemblySelectedBackgroundColor;
     QColor disassemblySelectionColor;
+    QColor PCSelectionColor;
     QColor disassemblyTracedColor;
     QColor disassemblyTracedSelectionColor;
     QColor jmpColor;

@@ -335,14 +335,19 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     // Render node
     DisassemblyBlock &db = disassembly_blocks[block.entry];
     bool block_selected = false;
+    bool PCInBlock = false;
     RVA selected_instruction = RVA_INVALID;
 
     // Figure out if the current block is selected
+    RVA addr = seekable->getOffset();
+    RVA PCAddr = Core()->getProgramCounterValue();
     for (const Instr &instr : db.instrs) {
-        RVA addr = seekable->getOffset();
         if ((instr.addr <= addr) && (addr <= instr.addr + instr.size)) {
             block_selected = true;
             selected_instruction = instr.addr;
+        }
+        if ((instr.addr <= PCAddr) && (PCAddr <= instr.addr + instr.size)) {
+            PCInBlock = true;
         }
         // TODO: L219
     }
@@ -370,6 +375,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                block.width, block.height);
 
     // Draw different background for selected instruction
+    bool paintedSelected = false;
     if (selected_instruction != RVA_INVALID) {
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
         for (Instr &instr : db.instrs) {
@@ -379,9 +385,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             if (selected && traceCount) {
                 p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
                                  int(instr.text.lines.size()) * charHeight), disassemblyTracedSelectionColor);
+                paintedSelected = true;
             } else if (selected) {
                 p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
+                paintedSelected = true;
             } else if (traceCount) {
                 // Color depending on how often a sequence of code is executed
                 int exponent = 1;
@@ -398,11 +406,28 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                            QColor(disassemblyTracedColor.red(),
                                   disassemblyTracedColor.green(),
                                   std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
+                paintedSelected = true;
+            }
+            if (paintedSelected) {
+                break;
             }
             y += int(instr.text.lines.size()) * charHeight;
         }
     }
 
+    // highlight program counter
+    if (PCInBlock) {
+        int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
+        for (Instr &instr : db.instrs) {
+            auto PC = instr.addr == PCAddr;
+            if (PC) {
+                p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
+                                 int(instr.text.lines.size()) * charHeight), PCSelectionColor);
+                break;
+            }
+            y += int(instr.text.lines.size()) * charHeight;
+        }
+    }
 
     // Render node text
     auto x = block.x + (2 * charWidth);
@@ -504,6 +529,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
     disassemblySelectionColor = ConfigColor("highlight");
+    PCSelectionColor = ConfigColor("highlightPC");
 
     jmpColor = ConfigColor("graph.trufae");
     brtrueColor = ConfigColor("graph.true");
