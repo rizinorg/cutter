@@ -228,7 +228,9 @@ SOURCES += \
     RunScriptTask.cpp \
     dialogs/EditMethodDialog.cpp \
     dialogs/LoadNewTypesDialog.cpp \
-    widgets/SdbWidget.cpp
+    widgets/SdbWidget.cpp \
+    plugins/CutterPythonPlugin.cpp \
+    common/PythonManager.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -339,7 +341,9 @@ HEADERS  += \
     common/Json.h \
     dialogs/EditMethodDialog.h \
     dialogs/LoadNewTypesDialog.h \
-    widgets/SdbWidget.h
+    widgets/SdbWidget.h \
+    plugins/CutterPythonPlugin.h \
+    common/PythonManager.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

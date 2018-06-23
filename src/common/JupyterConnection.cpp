@@ -2,18 +2,12 @@
 
 #include <Python.h>
 
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QDebug>
-#include <QThread>
-#include <QCoreApplication>
-#include <QDir>
-
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
-#include "QtResImporter.h"
-#include "PythonAPI.h"
+#include "PythonManager.h"
+
+#include <QVariant>
+#include <QDebug>
 
 Q_GLOBAL_STATIC(JupyterConnection, uniqueInstance)
 
@@ -24,130 +18,32 @@ JupyterConnection *JupyterConnection::getInstance()
 
 JupyterConnection::JupyterConnection(QObject *parent) : QObject(parent)
 {
-    /* Will be removed/reworked with python plugins PR */
-    initPythonHome();
-    initPython();
-    qDebug() << "Python init";
 }
 
 JupyterConnection::~JupyterConnection()
 {
-    if (pyThreadState) {
-        PyEval_RestoreThread(pyThreadState);
-
-        if (cutterNotebookAppInstance) {
-            auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
-            PyObject_CallObject(stopFunc, nullptr);
-            Py_DECREF(cutterNotebookAppInstance);
-        }
-
-        Py_Finalize();
-    }
-
-    if (pythonHome) {
-        PyMem_RawFree(pythonHome);
-    }
 }
 
-void JupyterConnection::initPythonHome()
-{
-#if defined(APPIMAGE) || defined(MACOS_PYTHON_FRAMEWORK_BUNDLED)
-    if (customPythonHome.isNull()) {
-        auto pythonHomeDir = QDir(QCoreApplication::applicationDirPath());
-#ifdef APPIMAGE
-        // Executable is in appdir/bin
-        pythonHomeDir.cdUp();
-        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() << " for AppImage.";
-#else // MACOS_PYTHON_FRAMEWORK_BUNDLED
-        // @executable_path/../Frameworks/Python.framework/Versions/Current
-        pythonHomeDir.cd("../Frameworks/Python.framework/Versions/Current");
-        qInfo() << "Setting PYTHONHOME =" << pythonHomeDir.absolutePath() <<
-                " for macOS Application Bundle.";
-#endif
-        customPythonHome = pythonHomeDir.absolutePath();
-    }
-#endif
-
-    if (!customPythonHome.isNull()) {
-        qInfo() << "PYTHONHOME =" << customPythonHome;
-        pythonHome = Py_DecodeLocale(customPythonHome.toLocal8Bit().constData(), nullptr);
-        Py_SetPythonHome(pythonHome);
-    }
-
-}
-
-void JupyterConnection::initPython()
-{
-    PyImport_AppendInittab("_cutter", &PyInit_api);
-    PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
-    PyImport_AppendInittab("_qtres", &PyInit_qtres);
-    Py_Initialize();
-    PyEval_InitThreads();
-
-    pyThreadState = PyEval_SaveThread();
-}
-
-void JupyterConnection::createCutterJupyterModule()
-{
-    if (pyThreadState) {
-        PyEval_RestoreThread(pyThreadState);
-    }
-
-    cutterJupyterModule = QtResImport("cutter_jupyter");
-    if (!cutterJupyterModule) {
-        PyErr_Print();
-        qWarning() << "Could not import cutter_jupyter.";
-        emit creationFailed();
-        pyThreadState = PyEval_SaveThread();
-        return;
-    }
-
-    pyThreadState = PyEval_SaveThread();
-}
 
 void JupyterConnection::start()
 {
-    if (cutterNotebookAppInstance) {
+    if (notebookInstanceExists) {
         return;
     }
 
-    if (!Py_IsInitialized()) {
-        initPython();
-    }
-
-    if (!cutterJupyterModule) {
-        createCutterJupyterModule();
-
-        if (!cutterJupyterModule) {
-            return;
-        }
-    }
-
-    PyEval_RestoreThread(pyThreadState);
-    auto startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
-    cutterNotebookAppInstance = PyObject_CallObject(startFunc, nullptr);
-    pyThreadState = PyEval_SaveThread();
+    notebookInstanceExists = Python()->startJupyterNotebook();
 
     emit urlReceived(getUrl());
 }
 
 QString JupyterConnection::getUrl()
 {
-    if (!cutterNotebookAppInstance) {
+    if (!notebookInstanceExists) {
         return nullptr;
     }
 
-    PyEval_RestoreThread(pyThreadState);
-
-    auto urlWithToken = PyObject_GetAttrString(cutterNotebookAppInstance, "url_with_token");
-    auto asciiBytes = PyUnicode_AsASCIIString(urlWithToken);
-    auto urlWithTokenString = QString::fromUtf8(PyBytes_AsString(asciiBytes));
-    Py_DECREF(asciiBytes);
-    Py_DECREF(urlWithToken);
-
-    pyThreadState = PyEval_SaveThread();
-
-    return urlWithTokenString;
+    QString url = Python()->getJupyterUrl();
+    return url;
 }
 
 long JupyterConnection::startNestedIPyKernel(const QStringList &argv)
