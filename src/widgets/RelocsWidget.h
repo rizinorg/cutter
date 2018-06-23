@@ -49,12 +49,12 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class RelocsWidget : public CutterDockWidget
+class RelocsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit RelocsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit RelocsWidget(MainWindow *main);
     ~RelocsWidget();
 
 private slots:

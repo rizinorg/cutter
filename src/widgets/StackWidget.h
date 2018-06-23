@@ -14,12 +14,12 @@ namespace Ui {
 class StackWidget;
 }
 
-class StackWidget : public CutterDockWidget
+class StackWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit StackWidget(MainWindow *main, QAction *action = nullptr);
+    explicit StackWidget(MainWindow *main);
     ~StackWidget();
 
 private slots:

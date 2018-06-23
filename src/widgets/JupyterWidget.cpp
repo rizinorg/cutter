@@ -1,9 +1,8 @@
-
 #ifdef CUTTER_ENABLE_JUPYTER
 
-#include "ui_JupyterWidget.h"
-
 #include "JupyterWidget.h"
+#include "ui_JupyterWidget.h"
+#include "MainWindow.h"
 
 #include <QTabWidget>
 #include <QHBoxLayout>
@@ -14,8 +13,8 @@
 #include <QWebEngineSettings>
 #endif
 
-JupyterWidget::JupyterWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+JupyterWidget::JupyterWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::JupyterWidget)
 {
     ui->setupUi(this);

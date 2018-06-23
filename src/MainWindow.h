@@ -66,7 +66,7 @@ public:
     bool responsive;
 
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
     void openNewFile(InitialOptions options = InitialOptions(), bool skipOptionsDialog = false);
     void displayNewFileDialog();
@@ -95,9 +95,10 @@ public:
     void setFilename(const QString &fn);
     void refreshOmniBar(const QStringList &flags);
 
-    void addToDockWidgetList(QDockWidget *dockWidget);
-    void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
+    void addToDockWidgetList(CutterDockWidget *dockWidget);
+    void addDockWidgetAction(CutterDockWidget *dockWidget, QAction *action);
     void addExtraWidget(QDockWidget *extraDock);
+    void addExtraWidget(CutterDockWidget *extraDock);
 
 
 public slots:
@@ -170,7 +171,7 @@ private slots:
     void updateTasksIndicator();
 
     void mousePressEvent(QMouseEvent *event) override;
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
     void changeDebugView();
     void changeDefinedView();
 
@@ -191,46 +192,46 @@ private:
 
     Configuration *configuration;
 
-    QList<QDockWidget *> dockWidgets;
-    QMap<QAction *, QDockWidget *> dockWidgetActions;
-    DisassemblyWidget  *disassemblyDock = nullptr;
-    SidebarWidget      *sidebarDock = nullptr;
-    HexdumpWidget      *hexdumpDock = nullptr;
-    PseudocodeWidget   *pseudocodeDock = nullptr;
-    QDockWidget        *graphDock = nullptr;
-    EntrypointWidget   *entrypointDock = nullptr;
-    FunctionsWidget    *functionsDock = nullptr;
-    ImportsWidget      *importsDock = nullptr;
-    ExportsWidget      *exportsDock = nullptr;
-    HeadersWidget      *headersDock = nullptr;
-    TypesWidget        *typesDock = nullptr;
-    SearchWidget       *searchDock = nullptr;
-    SymbolsWidget      *symbolsDock = nullptr;
-    RelocsWidget       *relocsDock = nullptr;
-    CommentsWidget     *commentsDock = nullptr;
-    StringsWidget      *stringsDock = nullptr;
-    FlagsWidget        *flagsDock = nullptr;
-    Dashboard          *dashboardDock = nullptr;
-    QLineEdit          *gotoEntry = nullptr;
-    SdbDock            *sdbDock = nullptr;
-    SectionsWidget     *sectionsDock = nullptr;
-    ZignaturesWidget   *zignaturesDock = nullptr;
-    ConsoleWidget      *consoleDock = nullptr;
-    ClassesWidget      *classesDock = nullptr;
-    ResourcesWidget    *resourcesDock = nullptr;
-    VTablesWidget      *vTablesDock = nullptr;
+    QList<CutterDockWidget *> dockWidgets;
+    QMap<QAction *, CutterDockWidget *> dockWidgetActions;
+    CutterDockWidget   *disassemblyDock = nullptr;
+    CutterDockWidget   *sidebarDock = nullptr;
+    CutterDockWidget   *hexdumpDock = nullptr;
+    CutterDockWidget   *pseudocodeDock = nullptr;
+    CutterDockWidget   *graphDock = nullptr;
+    CutterDockWidget   *entrypointDock = nullptr;
+    CutterDockWidget   *functionsDock = nullptr;
+    CutterDockWidget   *importsDock = nullptr;
+    CutterDockWidget   *exportsDock = nullptr;
+    CutterDockWidget   *headersDock = nullptr;
+    CutterDockWidget   *typesDock = nullptr;
+    CutterDockWidget   *searchDock = nullptr;
+    CutterDockWidget   *symbolsDock = nullptr;
+    CutterDockWidget   *relocsDock = nullptr;
+    CutterDockWidget   *commentsDock = nullptr;
+    CutterDockWidget   *stringsDock = nullptr;
+    CutterDockWidget   *flagsDock = nullptr;
+    CutterDockWidget   *dashboardDock = nullptr;
+    CutterDockWidget   *gotoEntry = nullptr;
+    CutterDockWidget   *sdbDock = nullptr;
+    CutterDockWidget   *sectionsDock = nullptr;
+    CutterDockWidget   *zignaturesDock = nullptr;
+    CutterDockWidget   *consoleDock = nullptr;
+    CutterDockWidget   *classesDock = nullptr;
+    CutterDockWidget   *resourcesDock = nullptr;
+    CutterDockWidget   *vTablesDock = nullptr;
     DisassemblerGraphView *graphView = nullptr;
-    QDockWidget        *asmDock = nullptr;
-    QDockWidget        *calcDock = nullptr;
-    QDockWidget        *stackDock = nullptr;
-    QDockWidget        *registersDock = nullptr;
-    QDockWidget        *backtraceDock = nullptr;
-    QDockWidget        *memoryMapDock = nullptr;
+    CutterDockWidget   *asmDock = nullptr;
+    CutterDockWidget   *calcDock = nullptr;
+    CutterDockWidget   *stackDock = nullptr;
+    CutterDockWidget   *registersDock = nullptr;
+    CutterDockWidget   *backtraceDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
-    QDockWidget        *breakpointDock = nullptr;
-    QDockWidget        *registerRefsDock = nullptr;
+    CutterDockWidget   *breakpointDock = nullptr;
+    CutterDockWidget   *registerRefsDock = nullptr;
+    CutterDockWidget   *memoryMapDock = nullptr;
 #ifdef CUTTER_ENABLE_JUPYTER
-    JupyterWidget      *jupyterDock = nullptr;
+    CutterDockWidget   *jupyterDock = nullptr;
 #endif
 
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
@@ -238,6 +239,11 @@ private:
     void resetToDefaultLayout();
     void resetToZenLayout();
     void resetToDebugLayout();
+
+    void addDockWidget(Qt::DockWidgetArea area, CutterDockWidget *dockWidget);
+    void removeDockWidget(CutterDockWidget *dockWidget);
+    void tabifyDockWidget(CutterDockWidget *first, CutterDockWidget *second);
+    void splitDockWidget(CutterDockWidget *first, CutterDockWidget *second, Qt::Orientation orientation);
 
     void restoreDocks();
     void hideAllDocks();

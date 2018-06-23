@@ -4,12 +4,12 @@
 
 #ifdef CUTTER_ENABLE_JUPYTER
 
-#include <memory>
 
-#include <QAbstractButton>
-
-#include "CutterDockWidget.h"
 #include "utils/JupyterConnection.h"
+#include "CutterDockWidget.h"
+
+#include <memory>
+#include <QAbstractButton>
 
 namespace Ui {
 class JupyterWidget;
@@ -19,12 +19,12 @@ class JupyterWebView;
 class QTabWidget;
 class MainWindow;
 
-class JupyterWidget : public CutterDockWidget
+class JupyterWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    JupyterWidget(MainWindow *main, QAction *action = nullptr);
+    JupyterWidget(MainWindow *main);
     ~JupyterWidget();
 
 #ifdef CUTTER_ENABLE_QTWEBENGINE

@@ -10,12 +10,12 @@ namespace Ui {
 class Dashboard;
 }
 
-class Dashboard : public CutterDockWidget
+class Dashboard : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit Dashboard(MainWindow *main, QAction *action = nullptr);
+    explicit Dashboard(MainWindow *main);
     ~Dashboard();
 
 private slots:

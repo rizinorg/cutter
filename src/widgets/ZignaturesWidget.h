@@ -57,12 +57,12 @@ protected:
 
 
 
-class ZignaturesWidget : public CutterDockWidget
+class ZignaturesWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit ZignaturesWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ZignaturesWidget(MainWindow *main);
     ~ZignaturesWidget();
 
 private slots:

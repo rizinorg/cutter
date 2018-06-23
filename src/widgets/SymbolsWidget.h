@@ -51,12 +51,12 @@ protected:
 };
 
 
-class SymbolsWidget : public CutterDockWidget
+class SymbolsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SymbolsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SymbolsWidget(MainWindow *main);
     ~SymbolsWidget();
 
 private slots:

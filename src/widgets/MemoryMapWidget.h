@@ -32,7 +32,7 @@ public:
     enum Column { AddrStartColumn = 0, AddrEndColumn, NameColumn, PermColumn, ColumnCount };
     enum Role { MemoryDescriptionRole = Qt::UserRole };
 
-    MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent = 0);
+    MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -60,12 +60,12 @@ protected:
 
 
 
-class MemoryMapWidget : public CutterDockWidget
+class MemoryMapWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit MemoryMapWidget(MainWindow *main, QAction *action = nullptr);
+    explicit MemoryMapWidget(MainWindow *main);
     ~MemoryMapWidget();
 
 private slots:

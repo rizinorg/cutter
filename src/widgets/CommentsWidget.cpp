@@ -225,8 +225,8 @@ bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     return false;
 }
 
-CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+CommentsWidget::CommentsWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::CommentsWidget),
     main(main)
 {

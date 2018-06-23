@@ -120,8 +120,8 @@ bool ZignaturesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &
     return leftZignature.offset < rightZignature.offset;
 }
 
-ZignaturesWidget::ZignaturesWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ZignaturesWidget::ZignaturesWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::ZignaturesWidget)
 {
     ui->setupUi(this);

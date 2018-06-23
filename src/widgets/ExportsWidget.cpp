@@ -121,8 +121,8 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftExp.vaddr < rightExp.vaddr;
 }
 
-ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ExportsWidget::ExportsWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::ExportsWidget)
 {
     ui->setupUi(this);

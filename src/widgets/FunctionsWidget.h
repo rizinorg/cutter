@@ -91,12 +91,12 @@ protected:
 
 
 
-class FunctionsWidget : public CutterDockWidget
+class FunctionsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit FunctionsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit FunctionsWidget(MainWindow *main);
     ~FunctionsWidget();
 
 private slots:

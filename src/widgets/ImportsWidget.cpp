@@ -137,8 +137,8 @@ bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
  * Imports Widget
  */
 
-ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ImportsWidget::ImportsWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::ImportsWidget),
     importsModel(new ImportsModel(&imports, this)),
     importsProxyModel(new ImportsProxyModel(importsModel, this))

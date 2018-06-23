@@ -60,12 +60,12 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class CommentsWidget : public CutterDockWidget
+class CommentsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit CommentsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit CommentsWidget(MainWindow *main);
     ~CommentsWidget();
 
 protected:

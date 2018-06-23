@@ -14,12 +14,12 @@ namespace Ui {
 class EntrypointWidget;
 }
 
-class EntrypointWidget : public CutterDockWidget
+class EntrypointWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit EntrypointWidget(MainWindow *main, QAction *action = nullptr);
+    explicit EntrypointWidget(MainWindow *main);
     ~EntrypointWidget();
 
 private slots:

@@ -7,9 +7,10 @@
 #include "utils/Helpers.h"
 #include "utils/SyntaxHighlighter.h"
 #include "utils/TempConfig.h"
+#include "MainWindow.h"
 
-PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+PseudocodeWidget::PseudocodeWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);

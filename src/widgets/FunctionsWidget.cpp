@@ -380,8 +380,8 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
     }
 }
 
-FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+FunctionsWidget::FunctionsWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::FunctionsWidget)
 {
     ui->setupUi(this);

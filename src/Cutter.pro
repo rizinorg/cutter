@@ -192,7 +192,9 @@ SOURCES += \
     dialogs/BreakpointsDialog.cpp \
     dialogs/AttachProcDialog.cpp \
     widgets/RegisterRefsWidget.cpp \
-    dialogs/SetToDataDialog.cpp
+    dialogs/SetToDataDialog.cpp \
+    plugins/CutterPythonPlugin.cpp \
+    utils/PythonManager.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -287,7 +289,9 @@ HEADERS  += \
     dialogs/AttachProcDialog.h \
     widgets/RegisterRefsWidget.h \
     dialogs/SetToDataDialog.h \
-    utils/InitialOptions.h
+    utils/InitialOptions.h \
+    plugins/CutterPythonPlugin.h \
+    utils/PythonManager.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

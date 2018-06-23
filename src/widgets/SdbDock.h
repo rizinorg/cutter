@@ -12,12 +12,12 @@ namespace Ui {
 class SdbDock;
 }
 
-class SdbDock : public CutterDockWidget
+class SdbDock : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SdbDock(MainWindow *main, QAction *action = nullptr);
+    explicit SdbDock(MainWindow *main);
     ~SdbDock();
 
 private slots:

@@ -16,7 +16,7 @@ public:
     CutterDockWidget* setupInterface(MainWindow *main, QAction *action = nullptr) override;
 };
 
-class CutterSamplePluginWidget : public CutterDockWidget
+class CutterSamplePluginWidget : public QDockWidget
 {
     Q_OBJECT
 
