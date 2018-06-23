@@ -8,8 +8,8 @@
 #include "common/SyntaxHighlighter.h"
 #include "common/TempConfig.h"
 
-PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+PseudocodeWidget::PseudocodeWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);

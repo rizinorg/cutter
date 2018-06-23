@@ -56,12 +56,12 @@ namespace Ui {
 class SearchWidget;
 }
 
-class SearchWidget : public CutterDockWidget
+class SearchWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SearchWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SearchWidget(MainWindow *main);
     ~SearchWidget();
 
 private slots:

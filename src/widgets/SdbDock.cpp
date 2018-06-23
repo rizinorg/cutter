@@ -8,8 +8,8 @@
 #include <QTreeWidget>
 
 
-SdbDock::SdbDock(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+SdbDock::SdbDock(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::SdbDock)
 {
     ui->setupUi(this);

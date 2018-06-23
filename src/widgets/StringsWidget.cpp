@@ -131,8 +131,8 @@ bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 }
 
 
-StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+StringsWidget::StringsWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::StringsWidget),
     tree(new CutterTreeWidget(this))
 {

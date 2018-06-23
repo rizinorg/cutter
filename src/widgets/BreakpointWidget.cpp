@@ -111,8 +111,8 @@ bool BreakpointProxyModel::lessThan(const QModelIndex &left, const QModelIndex &
     return leftBreakpt.addr < rightBreakpt.addr;
 }
 
-BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+BreakpointWidget::BreakpointWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::BreakpointWidget)
 {
     ui->setupUi(this);

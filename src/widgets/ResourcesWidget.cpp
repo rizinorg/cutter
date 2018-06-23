@@ -73,8 +73,8 @@ QVariant ResourcesModel::headerData(int section, Qt::Orientation, int role) cons
     }
 }
 
-ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+ResourcesWidget::ResourcesWidget(MainWindow *main) :
+    QDockWidget(main)
 {
     setObjectName("ResourcesWidget");
 

@@ -219,7 +219,9 @@ SOURCES += \
     common/ColorSchemeFileSaver.cpp \
     dialogs/EditFunctionDialog.cpp \
     widgets/CutterTreeView.cpp \
-    widgets/ComboQuickFilterView.cpp
+    widgets/ComboQuickFilterView.cpp \
+    plugins/CutterPythonPlugin.cpp \
+    common/PythonManager.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -322,7 +324,9 @@ HEADERS  += \
     widgets/ColorSchemePrefWidget.h \
     dialogs/EditFunctionDialog.h \
     widgets/CutterTreeView.h \
-    widgets/ComboQuickFilterView.h
+    widgets/ComboQuickFilterView.h \
+    plugins/CutterPythonPlugin.h \
+    common/PythonManager.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

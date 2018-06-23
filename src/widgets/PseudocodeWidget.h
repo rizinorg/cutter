@@ -13,12 +13,12 @@ class PseudocodeWidget;
 class QTextEdit;
 class SyntaxHighlighter;
 
-class PseudocodeWidget : public CutterDockWidget
+class PseudocodeWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit PseudocodeWidget(MainWindow *main, QAction *action = nullptr);
+    explicit PseudocodeWidget(MainWindow *main);
     ~PseudocodeWidget();
 
 private slots:

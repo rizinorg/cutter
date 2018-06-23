@@ -8,8 +8,8 @@
 #include "QHeaderView"
 #include "QMenu"
 
-StackWidget::StackWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+StackWidget::StackWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::StackWidget)
 {
     ui->setupUi(this);

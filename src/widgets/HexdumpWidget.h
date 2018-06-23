@@ -20,13 +20,13 @@
 
 #include "ui_HexdumpWidget.h"
 
-class HexdumpWidget : public CutterDockWidget
+class HexdumpWidget : public QDockWidget
 {
     Q_OBJECT
 
 
 public:
-    explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
+    explicit HexdumpWidget(MainWindow *main);
     ~HexdumpWidget();
     Highlighter        *highlighter;
     enum Format {

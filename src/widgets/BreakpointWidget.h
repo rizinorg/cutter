@@ -58,12 +58,12 @@ protected:
 
 
 
-class BreakpointWidget : public CutterDockWidget
+class BreakpointWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit BreakpointWidget(MainWindow *main, QAction *action = nullptr);
+    explicit BreakpointWidget(MainWindow *main);
     ~BreakpointWidget();
 
 private slots:

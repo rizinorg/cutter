@@ -4,8 +4,8 @@
 
 #include "MainWindow.h"
 
-RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+RegistersWidget::RegistersWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::RegistersWidget)
 {
     ui->setupUi(this);

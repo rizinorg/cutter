@@ -101,8 +101,8 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return false;
 }
 
-SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+SymbolsWidget::SymbolsWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::SymbolsWidget),
     tree(new CutterTreeWidget(this))
 {

@@ -131,8 +131,8 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     return false;
 }
 
-SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+SectionsWidget::SectionsWidget(MainWindow *main) :
+    QDockWidget(main),
     main(main)
 {
     setObjectName("SectionsWidget");

@@ -105,8 +105,8 @@ bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     return leftMemMap.addrStart < rightMemMap.addrStart;
 }
 
-MemoryMapWidget::MemoryMapWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+MemoryMapWidget::MemoryMapWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::MemoryMapWidget)
 {
     ui->setupUi(this);

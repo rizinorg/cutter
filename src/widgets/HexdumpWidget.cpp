@@ -13,8 +13,8 @@
 #include <QClipboard>
 #include <QScrollBar>
 
-HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+HexdumpWidget::HexdumpWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::HexdumpWidget),
     seekable(new CutterSeekableWidget(this))
 {

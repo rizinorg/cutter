@@ -14,11 +14,11 @@ class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 
-class DisassemblyWidget : public CutterDockWidget
+class DisassemblyWidget : public QDockWidget
 {
     Q_OBJECT
 public:
-    explicit DisassemblyWidget(MainWindow *main, QAction *action = nullptr);
+    explicit DisassemblyWidget(MainWindow *main);
     QWidget *getTextWidget();
 
 public slots:

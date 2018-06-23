@@ -6,12 +6,12 @@
 class MainWindow;
 class DisassemblerGraphView;
 
-class GraphWidget : public CutterDockWidget
+class GraphWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit GraphWidget(MainWindow *main, QAction *action = nullptr);
+    explicit GraphWidget(MainWindow *main);
     ~GraphWidget();
 
 private:

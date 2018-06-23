@@ -66,8 +66,8 @@ static const int invalidHistoryPos = -1;
 
 
 
-ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ConsoleWidget::ConsoleWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::ConsoleWidget),
     debugOutputEnabled(true),
     maxHistoryEntries(100),

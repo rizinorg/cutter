@@ -60,12 +60,12 @@ protected:
 
 
 
-class HeadersWidget : public CutterDockWidget
+class HeadersWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit HeadersWidget(MainWindow *main, QAction *action = nullptr);
+    explicit HeadersWidget(MainWindow *main);
     ~HeadersWidget();
 
 private slots:

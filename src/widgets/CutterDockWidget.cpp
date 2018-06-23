@@ -2,8 +2,9 @@
 #include "MainWindow.h"
 
 
-CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
-    QDockWidget(main),
+CutterDockWidget::CutterDockWidget(MainWindow *main, QDockWidget *dockWidget, QAction *action) :
+    QObject(main),
+    dockWidget(dockWidget),
     action(action)
 {
     if (action) {
@@ -11,25 +12,28 @@ CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
         main->addDockWidgetAction(this, action);
         connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
     }
+
+    dockWidget->installEventFilter(this);
 }
 
+CutterDockWidget::~CutterDockWidget() = default;
 
 void CutterDockWidget::toggleDockWidget(bool show)
 {
     if (!show) {
-        this->close();
+        dockWidget->close();
     } else {
-        this->show();
-        this->raise();
+        dockWidget->show();
+        dockWidget->raise();
     }
 }
 
-void CutterDockWidget::closeEvent(QCloseEvent *event)
+bool CutterDockWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if (action) {
-        this->action->setChecked(false);
+    if (event->type() == QEvent::Close) {
+        if (action) {
+            this->action->setChecked(false);
+        }
     }
-    QDockWidget::closeEvent(event);
+    return QObject::eventFilter(obj, event);
 }
-
-CutterDockWidget::~CutterDockWidget() {}

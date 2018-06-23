@@ -60,12 +60,12 @@ protected:
 };
 
 
-class StringsWidget : public CutterDockWidget
+class StringsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit StringsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit StringsWidget(MainWindow *main);
     ~StringsWidget();
 
 private slots:

@@ -14,12 +14,12 @@ namespace Ui {
 class BacktraceWidget;
 }
 
-class BacktraceWidget : public CutterDockWidget
+class BacktraceWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit BacktraceWidget(MainWindow *main, QAction *action = nullptr);
+    explicit BacktraceWidget(MainWindow *main);
     ~BacktraceWidget();
 
 private slots:

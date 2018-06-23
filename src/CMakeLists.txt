@@ -88,12 +88,9 @@ endif()
 
 message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
 
-
 include(QMakeConfigureFile)
 qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
         "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.h")
-
-
 
 add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
 

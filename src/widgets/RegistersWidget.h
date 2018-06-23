@@ -15,12 +15,12 @@ namespace Ui {
 class RegistersWidget;
 }
 
-class RegistersWidget : public CutterDockWidget
+class RegistersWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit RegistersWidget(MainWindow *main, QAction *action = nullptr);
+    explicit RegistersWidget(MainWindow *main);
     ~RegistersWidget();
 
 private slots:

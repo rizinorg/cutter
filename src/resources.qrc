@@ -79,6 +79,7 @@
         <file>img/cutter.svg</file>
         <file>python/cutter_jupyter.py</file>
         <file>python/cutter_ipykernel.py</file>
+        <file>python/cutter_plugin.py</file>
         <file>img/icons/copy.svg</file>
         <file>img/icons/delete.svg</file>
         <file>img/icons/previous.svg</file>
