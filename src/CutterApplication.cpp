@@ -1,4 +1,8 @@
+#include "utils/PythonManager.h"
 #include "CutterApplication.h"
+#ifdef CUTTER_ENABLE_JUPYTER
+#include "utils/JupyterConnection.h"
+#endif
 
 #include <QApplication>
 #include <QFileOpenEvent>
@@ -10,11 +14,6 @@
 #include <QProcess>
 #include <QPluginLoader>
 #include <QDir>
-
-#ifdef CUTTER_ENABLE_JUPYTER
-#include "utils/JupyterConnection.h"
-#endif
-#include "plugins/CutterPlugin.h"
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
@@ -41,11 +40,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                   QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
-#ifdef CUTTER_ENABLE_JUPYTER
-    QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for Jupyter"),
+    QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for embeded python interpreter"),
                                         "PYTHONHOME");
     cmd_parser.addOption(pythonHomeOption);
-#endif
 
     cmd_parser.process(*this);
 
@@ -66,11 +63,12 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
             exit(1);
     }
 
-#ifdef CUTTER_ENABLE_JUPYTER
+    // Init python
     if (cmd_parser.isSet(pythonHomeOption)) {
-        Jupyter()->setPythonHome(cmd_parser.value(pythonHomeOption));
+        Python()->setPythonHome(cmd_parser.value(pythonHomeOption));
     }
-#endif
+    Python()->initialize();
+
 
     bool analLevelSpecified = false;
     int analLevel = 0;
@@ -148,17 +146,28 @@ void CutterApplication::loadPlugins()
         }
     #endif
     pluginsDir.cd("plugins");
+    Python()->addPythonPath(pluginsDir.absolutePath().toLatin1().data());
+
+    CutterPlugin *cutterPlugin = nullptr;
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
-        QObject *plugin = pluginLoader.instance();
-        if (plugin) {
-            CutterPlugin *cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
-            if (cutterPlugin) {
-                cutterPlugin->setupPlugin(Core());
-                plugins.append(cutterPlugin);
+        if (fileName.endsWith(".py")) {
+            // Load python plugins
+            cutterPlugin = Python()->loadPlugin(fileName.toLatin1().data());
+        } else {
+            // Load C++ plugins
+            QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+            QObject *plugin = pluginLoader.instance();
+            if (plugin) {
+                cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
             }
+        }
+
+        if (cutterPlugin) {
+            cutterPlugin->setupPlugin(Core());
+            plugins.append(cutterPlugin);
         }
     }
 
+    qDebug() << "Loaded" << plugins.length() << "plugins.";
     Core()->setCutterPlugins(plugins);
 }

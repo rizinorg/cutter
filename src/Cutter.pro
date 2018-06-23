@@ -171,7 +171,9 @@ SOURCES += \
     widgets/BacktraceWidget.cpp \
     dialogs/OpenFileDialog.cpp \
     utils/CommandTask.cpp \
-    utils/ProgressIndicator.cpp
+    utils/ProgressIndicator.cpp \
+    plugins/CutterPythonPlugin.cpp \
+    utils/PythonManager.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -257,7 +259,9 @@ HEADERS  += \
     utils/FunctionsTask.h \
     utils/CommandTask.h \
     utils/ProgressIndicator.h \
-    plugins/CutterPlugin.h
+    plugins/CutterPlugin.h \
+    plugins/CutterPythonPlugin.h \
+    utils/PythonManager.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

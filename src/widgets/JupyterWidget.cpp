@@ -1,9 +1,7 @@
-
 #ifdef CUTTER_ENABLE_JUPYTER
 
-#include "ui_JupyterWidget.h"
-
 #include "JupyterWidget.h"
+#include "ui_JupyterWidget.h"
 
 #include <QTabWidget>
 #include <QHBoxLayout>

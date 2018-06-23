@@ -1,3 +1,4 @@
+#include "utils/PythonManager.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "utils/Helpers.h"
@@ -240,7 +241,7 @@ void MainWindow::initUI()
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this, &MainWindow::updateTasksIndicator);
 
-    /* Load plugins */
+    /* Load plugins interface */
     QList<CutterPlugin*> plugins = Core()->getCutterPlugins();
     for (auto plugin : plugins) {
         CutterDockWidget *pluginDock = plugin->setupInterface(this);

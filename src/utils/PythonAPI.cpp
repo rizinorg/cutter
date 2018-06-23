@@ -1,10 +1,6 @@
 
-#ifdef CUTTER_ENABLE_JUPYTER
-
 #include "PythonAPI.h"
 #include "Cutter.h"
-#include "JupyterConnection.h"
-#include "NestedIPyKernel.h"
 
 #include <QFile>
 
@@ -93,6 +89,9 @@ PyObject *PyInit_api()
 
 // -----------------------------
 
+#ifdef CUTTER_ENABLE_JUPYTER
+#include "JupyterConnection.h"
+#include "NestedIPyKernel.h"
 
 PyObject *api_internal_launch_ipykernel(PyObject *self, PyObject *args, PyObject *kw)
 {
@@ -200,4 +199,4 @@ PyObject *PyInit_api_internal()
     return PyModule_Create(&CutterInternalModule);
 }
 
-#endif
+#endif // CUTTER_ENABLE_JUPYTER
