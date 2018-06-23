@@ -5,15 +5,8 @@
 
 #include <QProcess>
 #include <QMap>
-#include <cwchar>
 
 class NestedIPyKernel;
-
-struct _object;
-typedef _object PyObject;
-
-struct _ts;
-typedef _ts PyThreadState;
 
 class JupyterConnection : public QObject
 {
@@ -24,11 +17,6 @@ public:
 
     JupyterConnection(QObject *parent = nullptr);
     ~JupyterConnection();
-
-    void setPythonHome(const QString pythonHome)
-    {
-        customPythonHome = pythonHome;
-    }
 
     void start();
     QString getUrl();
@@ -42,26 +30,15 @@ signals:
     void creationFailed();
 
 private:
-    PyObject *cutterJupyterModule = nullptr;
-    PyObject *cutterNotebookAppInstance = nullptr;
-
-    PyThreadState *pyThreadState = nullptr;
-
     QMap<long, NestedIPyKernel *> kernels;
     long nextKernelId = 1;
 
-    QString customPythonHome;
-
-    wchar_t *pythonHome = nullptr;
-
-    void initPythonHome();
-    void initPython();
-    void createCutterJupyterModule();
+    bool notebookInstanceExists = false;
 };
 
 
 #define Jupyter() (JupyterConnection::getInstance())
 
-#endif
+#endif // CUTTER_ENABLE_JUPYTER
 
-#endif //JUPYTERCONNECTION_H
+#endif // JUPYTERCONNECTION_H

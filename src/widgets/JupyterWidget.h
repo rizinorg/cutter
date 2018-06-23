@@ -4,12 +4,10 @@
 
 #ifdef CUTTER_ENABLE_JUPYTER
 
-#include <memory>
-
-#include <QAbstractButton>
-
 #include "CutterDockWidget.h"
-#include "common/JupyterConnection.h"
+
+#include <memory>
+#include <QAbstractButton>
 
 namespace Ui {
 class JupyterWidget;

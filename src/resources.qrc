@@ -86,5 +86,6 @@
         <file>img/icons/fork.svg</file>
         <file>python/cutter.py</file>
         <file>python/reg_qtres_importer.py</file>
+        <file>python/cutter_plugin.py</file>
     </qresource>
 </RCC>
