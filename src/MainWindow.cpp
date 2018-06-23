@@ -1,3 +1,4 @@
+#include "common/PythonManager.h"
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "common/Helpers.h"
