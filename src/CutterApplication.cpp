@@ -224,7 +224,8 @@ void CutterApplication::loadPlugins()
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
         if (fileName.endsWith(".py")) {
             // Load python plugins
-            cutterPlugin = Python()->loadPlugin(fileName.toLatin1().data());
+            QStringList l = fileName.split(".py");
+            cutterPlugin = (CutterPlugin*) Python()->loadPlugin(l.at(0).toLatin1().constData());
         } else {
             // Load C++ plugins
             QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
