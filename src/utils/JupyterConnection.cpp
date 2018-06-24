@@ -4,6 +4,7 @@
 
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
+#include <QDebug>
 
 Q_GLOBAL_STATIC(JupyterConnection, uniqueInstance)
 

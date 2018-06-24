@@ -1,7 +1,9 @@
 #include "PythonManager.h"
+#include "plugins/CutterPythonPlugin.h"
 #include "PythonAPI.h"
 
 #include <marshal.h>
+#include <QDebug>
 #include <QFile>
 
 Q_GLOBAL_STATIC(PythonManager, uniqueInstance)
@@ -25,6 +27,8 @@ PythonManager::~PythonManager()
             PyObject_CallObject(stopFunc, nullptr);
             Py_DECREF(cutterNotebookAppInstance);
         }
+
+        // TODO PyDECREF plugins
 
         Py_Finalize();
     }
@@ -64,7 +68,7 @@ void PythonManager::initialize()
     Py_Initialize();
     PyEval_InitThreads();
 
-    pyThreadState = PyEval_SaveThread();
+    saveThread();
 
     // Import other modules
     cutterJupyterModule = createModule("cutter_jupyter");
@@ -72,9 +76,7 @@ void PythonManager::initialize()
 }
 
 void PythonManager::addPythonPath(char *path) {
-    if (pyThreadState) {
-        PyEval_RestoreThread(pyThreadState);
-    }
+    restoreThread();
 
     PyObject *sysModule = PyImport_ImportModule("sys");
     if (!sysModule) {
@@ -90,12 +92,12 @@ void PythonManager::addPythonPath(char *path) {
     }
     PyEval_CallFunction(append, "(s)", path);
 
-    pyThreadState = PyEval_SaveThread();
+    saveThread();
 }
 
 bool PythonManager::startJupyterNotebook()
 {
-    PyEval_RestoreThread(pyThreadState);
+    restoreThread();
 
     PyObject* startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
     if (!startFunc) {
@@ -104,14 +106,14 @@ bool PythonManager::startJupyterNotebook()
     }
 
     cutterNotebookAppInstance = PyObject_CallObject(startFunc, nullptr);
-    pyThreadState = PyEval_SaveThread();
+    saveThread();
 
     return cutterNotebookAppInstance != nullptr;
 }
 
 QString PythonManager::getJupyterUrl()
 {
-    PyEval_RestoreThread(pyThreadState);
+    restoreThread();
 
     auto urlWithToken = PyObject_GetAttrString(cutterNotebookAppInstance, "url_with_token");
     auto asciiBytes = PyUnicode_AsASCIIString(urlWithToken);
@@ -119,7 +121,7 @@ QString PythonManager::getJupyterUrl()
     Py_DECREF(asciiBytes);
     Py_DECREF(urlWithToken);
 
-    pyThreadState = PyEval_SaveThread();
+    saveThread();
 
     return urlWithTokenString;
 }
@@ -127,10 +129,8 @@ QString PythonManager::getJupyterUrl()
 PyObject* PythonManager::createModule(QString module)
 {
     PyObject *result = nullptr;
-    if (pyThreadState) {
-        PyEval_RestoreThread(pyThreadState);
-    }
 
+    restoreThread();
     QFile moduleFile(":/python/" + module + ".pyc");
     bool isBytecode = moduleFile.exists();
     if (!isBytecode) {
@@ -163,42 +163,39 @@ PyObject* PythonManager::createModule(QString module)
     }
     Py_DECREF(moduleCodeObject);
 
-    pyThreadState = PyEval_SaveThread();
+    saveThread();
 
     return result;
 }
 
-CutterPythonPlugin* PythonManager::loadPlugin(char *pluginName) {
+CutterPythonPlugin* PythonManager::loadPlugin(const char *pluginName) {
     CutterPythonPlugin *plugin = nullptr;
     if (!cutterPluginModule) {
         return plugin;
     }
 
-    if (pyThreadState) {
-        PyEval_RestoreThread(pyThreadState);
-    }
-
+    restoreThread();
     PyObject *pluginModule = PyImport_ImportModule(pluginName);
     if (!pluginModule) {
         qWarning() << "Couldn't import the plugin" << QString(pluginName);
+        PyErr_PrintEx(10);
+    } else {
+        plugin = new CutterPythonPlugin(pluginModule);
+        //Py_DECREF(pluginModule);
     }
-    plugin = new CutterPythonPlugin(pluginModule);
-
-    pyThreadState = PyEval_SaveThread();
+    saveThread();
 
     return plugin;
 }
 
-PyObject *PythonManager::getAttrStringSafe(PyObject *object, const char* attribute)
+void PythonManager::restoreThread()
 {
-    PyObject *result = nullptr;
     if (pyThreadState) {
         PyEval_RestoreThread(pyThreadState);
     }
+}
 
-    result = PyObject_GetAttrString(object, attribute);
-
+void PythonManager::saveThread()
+{
     pyThreadState = PyEval_SaveThread();
-
-    return result;
 }

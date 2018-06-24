@@ -13,6 +13,7 @@ public:
 
 private:
     PyObject *pluginModule;
+    QString getAttributeFromPython(PyObject *object, const char *attribute);
 };
 
 #endif // CUTTERPYTHONPLUGIN_H

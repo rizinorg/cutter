@@ -28,9 +28,10 @@ public:
     QString getJupyterUrl();
 
     PyObject *createModule(QString module);
-    CutterPythonPlugin *loadPlugin(char *pluginName);
+    CutterPythonPlugin *loadPlugin(const char *pluginName);
 
-    PyObject *getAttrStringSafe(PyObject *object, const char* attribute);
+    void restoreThread();
+    void saveThread();
 
 private:
     QString customPythonHome;
