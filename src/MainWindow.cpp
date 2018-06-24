@@ -36,6 +36,7 @@
 #include "utils/HexAsciiHighlighter.h"
 #include "utils/Helpers.h"
 #include "utils/SvgIconEngine.h"
+#include "utils/ProgressIndicator.h"
 
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/OptionsDialog.h"
@@ -143,8 +144,14 @@ void MainWindow::initUI()
     spacer->setMinimumSize(20, 20);
     ui->mainToolBar->addWidget(spacer);
 
-    tasksIndicator = new QLabel(this);
-    ui->mainToolBar->addWidget(tasksIndicator);
+    tasksProgressIndicator = new ProgressIndicator();
+    ui->mainToolBar->addWidget(tasksProgressIndicator);
+
+    QWidget *spacerEnd = new QWidget();
+    spacerEnd->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    spacerEnd->setMinimumSize(4, 0);
+    spacerEnd->setMaximumWidth(4);
+    ui->mainToolBar->addWidget(spacerEnd);
 
     // Visual navigation tool bar
     this->visualNavbar = new VisualNavbar(this);
@@ -237,9 +244,7 @@ void MainWindow::initUI()
 void MainWindow::updateTasksIndicator()
 {
     bool running = Core()->getAsyncTaskManager()->getTasksRunning();
-    QLabel *l = static_cast<QLabel *>(tasksIndicator);
-    l->setText(running ? "running" : "");
-    //tasksIndicator->setVisible(running);
+    tasksProgressIndicator->setProgressIndicatorVisible(running);
 }
 
 void MainWindow::on_actionExtraGraph_triggered()

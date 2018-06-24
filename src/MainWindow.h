@@ -19,6 +19,7 @@
 
 class CutterCore;
 class Omnibar;
+class ProgressIndicator;
 class PreviewWidget;
 class Highlighter;
 class AsciiHighlighter;
@@ -183,7 +184,7 @@ private:
     AsciiHighlighter *hex_highlighter;
     VisualNavbar *visualNavbar;
     Omnibar *omnibar;
-    QWidget *tasksIndicator;
+    ProgressIndicator *tasksProgressIndicator;
 
     Configuration *configuration;
 

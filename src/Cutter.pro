@@ -168,7 +168,8 @@ SOURCES += \
     widgets/BacktraceWidget.cpp \
     dialogs/OpenFileDialog.cpp \
     utils/StringsTask.cpp \
-    utils/CommandTask.cpp
+    utils/CommandTask.cpp \
+    utils/ProgressIndicator.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -251,7 +252,8 @@ HEADERS  += \
     widgets/BacktraceWidget.h \
     dialogs/OpenFileDialog.h \
     utils/StringsTask.h \
-    utils/CommandTask.h
+    utils/CommandTask.h \
+    utils/ProgressIndicator.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
