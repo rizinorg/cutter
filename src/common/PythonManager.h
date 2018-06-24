@@ -29,9 +29,11 @@ public:
     bool startJupyterNotebook();
     QString getJupyterUrl();
 
-    CutterPythonPlugin *loadPlugin(char *pluginName);
+    PyObject *createModule(QString module);
+    CutterPythonPlugin *loadPlugin(const char *pluginName);
 
-    PyObject *getAttrStringSafe(PyObject *object, const char* attribute);
+    void restoreThread();
+    void saveThread();
 
 private:
     QString customPythonHome;

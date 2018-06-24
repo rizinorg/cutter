@@ -9,10 +9,6 @@ class CutterPlugin(ABC):
     dockable = None
 
     @abstractmethod
-    def __init__(self):
-        pass
-
-    @abstractmethod
     def setupPlugin(self):
         pass
 
