@@ -174,6 +174,8 @@ void ConsoleWidget::executeCommand(const QString &command)
         return;
     }
 
+    ui->inputLineEdit->setEnabled(false);
+
     QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
 
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
@@ -182,6 +184,8 @@ void ConsoleWidget::executeCommand(const QString &command)
         scrollOutputToEnd();
         historyAdd(command);
         commandTask = nullptr;
+        ui->inputLineEdit->setEnabled(true);
+        ui->inputLineEdit->setFocus();
     });
     Core()->getAsyncTaskManager()->start(commandTask);
 }
