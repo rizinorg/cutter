@@ -12,8 +12,9 @@ public:
     CutterDockWidget* setupInterface(MainWindow *main, QAction *action);
 
 private:
-    PyObject *pluginModule;
-    QString getAttributeFromPython(PyObject *object, const char *attribute);
+    PyObject *pluginModule = nullptr;
+    PyObject *pInstance = nullptr;
+    QString getAttributeFromPython(const char *attribute);
 };
 
 #endif // CUTTERPYTHONPLUGIN_H
