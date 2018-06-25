@@ -508,11 +508,6 @@ public:
     void joinTask(RCoreTask *task);
     void deleteTask(RCoreTask *task);
 
-    void loadScript(const QString &scriptname);
-    QString getVersionInformation();
-    QJsonArray getOpenedFiles();
-
-    QList<QString> getColorThemes();
     void setCutterPlugins(QList<CutterPlugin*> plugins);
     QList<CutterPlugin*> getCutterPlugins();
 
