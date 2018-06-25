@@ -29,8 +29,9 @@ QString BreakpointsDialog::getBreakpoints()
     return ret;
 }
 
-bool BreakpointsDialog::eventFilter(QObject */*obj*/, QEvent *event)
+bool BreakpointsDialog::eventFilter(QObject *obj, QEvent *event)
 {
+    Q_UNUSED(obj);
     if (event -> type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast <QKeyEvent *> (event);
 
