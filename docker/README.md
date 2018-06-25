@@ -18,7 +18,7 @@ sudo docker run \
     -v $PWD/sharedFolder:/var/sharedFolder \
     -v $PWD/radare2rc:/home/r2/.radare2rc \
     -v $PWD/r2-config:/home/r2/.config/radare2 \
-    radare/cutter:latest
+    radareorg/cutter:latest
 ```
 
 or by using the `Makefile` (after additional configuration to make it fit your needs) by executing `make build` and `make run`.
