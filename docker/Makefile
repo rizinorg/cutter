@@ -4,7 +4,7 @@ SHELL := /bin/bash
 DIR := $(shell echo $(shell cd "$(shell  dirname "${BASH_SOURCE[0]}" )" && pwd ))
 
 VERSION ?= latest
-IMAGE_NAME ?= radare/cutter
+IMAGE_NAME ?= radareorg/cutter
 CONTAINER_NAME ?= cutter
 
 # This will output the help for each task
@@ -16,8 +16,6 @@ help: ## This help
 
 .DEFAULT_GOAL := help
 
-
-# DOCKER TASKS
 # Build the container
 build: ## Build the container
 	sudo docker build --rm -t $(IMAGE_NAME) .
