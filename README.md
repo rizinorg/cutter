@@ -18,7 +18,7 @@ Cutter is not aimed at existing radare2 users. It instead focuses on those whose
 
 Cutter is available for all platforms (Linux, OS X, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
- *  Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.4/Cutter-v1.4-x86_64.AppImage) file. Then just make it executable and run it: 
+ *  Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.4/Cutter-v1.4-x86_64.AppImage) file. Then just make it executable and run it:
      * `chmod +x Cutter-v1.4-x86_64.AppImage`
      * `./Cutter-v1.4-x86_64.AppImage`
 
@@ -29,7 +29,7 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 Cutter is based on Qt so you will need to have it installed.
 - Download: [Qt Open Source](https://www.qt.io/download-qt-for-application-development)
 - Add Qt 5.9.1: http://doc.qt.io/qtcreator/creator-project-qmake.html
-    
+
 #### Building
 
 First you must clone the repository:
@@ -67,6 +67,10 @@ build.bat
 If any of those do not work, check the more detailed version [here](https://github.com/radareorg/cutter/blob/master/docs/Compiling.md).
 
 Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
+
+### Docker
+
+To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
 
 ## Keyboard shortcuts
 
