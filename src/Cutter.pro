@@ -167,7 +167,6 @@ SOURCES += \
     widgets/RegistersWidget.cpp \
     widgets/BacktraceWidget.cpp \
     dialogs/OpenFileDialog.cpp \
-    utils/StringsTask.cpp \
     utils/CommandTask.cpp \
     utils/ProgressIndicator.cpp
 
@@ -252,6 +251,7 @@ HEADERS  += \
     widgets/BacktraceWidget.h \
     dialogs/OpenFileDialog.h \
     utils/StringsTask.h \
+    utils/FunctionsTask.h \
     utils/CommandTask.h \
     utils/ProgressIndicator.h
 

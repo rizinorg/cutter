@@ -11,6 +11,7 @@
 
 class MainWindow;
 class QTreeWidgetItem;
+class FunctionsTask;
 
 namespace Ui {
 class FunctionsWidget;
@@ -120,6 +121,8 @@ protected:
 private:
     std::unique_ptr<Ui::FunctionsWidget> ui;
     MainWindow      *main;
+
+    QSharedPointer<FunctionsTask> task;
 
     QList<FunctionDescription> functions;
     QSet<RVA> importAddresses;

@@ -56,7 +56,6 @@ private:
     void prepareRun();
 };
 
-
 class AsyncTaskManager : public QObject
 {
     Q_OBJECT

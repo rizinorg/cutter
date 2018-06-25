@@ -493,6 +493,7 @@ public:
                                     const QString &filterType = QString::null);
 
     QList<StringDescription> parseStringsJson(const QJsonDocument &doc);
+    QList<FunctionDescription> parseFunctionsJson(const QJsonDocument &doc);
 
     /* Signals related */
     void triggerVarsChanged();

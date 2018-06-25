@@ -7,7 +7,7 @@
 
 class StringsTask : public AsyncTask
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
     QString getTitle() override                     { return tr("Searching for Strings"); }
@@ -16,7 +16,11 @@ signals:
     void stringSearchFinished(const QList<StringDescription> &strings);
 
 protected:
-    void runTask() override;
+    void runTask() override
+    {
+        auto strings = Core()->getAllStrings();
+        emit stringSearchFinished(strings);
+    }
 };
 
 #endif //STRINGSASYNCTASK_H

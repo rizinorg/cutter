@@ -994,29 +994,7 @@ QList<RAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
 
 QList<FunctionDescription> CutterCore::getAllFunctions()
 {
-    CORE_LOCK();
-    QList<FunctionDescription> ret;
-
-    QJsonArray jsonArray = cmdj("aflj").array();
-
-    for (QJsonValue value : jsonArray) {
-        QJsonObject jsonObject = value.toObject();
-
-        FunctionDescription function;
-
-        function.offset = (RVA)jsonObject["offset"].toVariant().toULongLong();
-        function.size = (RVA)jsonObject["size"].toVariant().toULongLong();
-        function.nargs = (RVA)jsonObject["nargs"].toVariant().toULongLong();
-        function.nbbs = (RVA)jsonObject["nbbs"].toVariant().toULongLong();
-        function.nlocals = (RVA)jsonObject["nlocals"].toVariant().toULongLong();
-        function.cc = (RVA)jsonObject["cc"].toVariant().toULongLong();
-        function.calltype = jsonObject["calltype"].toString();
-        function.name = jsonObject["name"].toString();
-
-        ret << function;
-    }
-
-    return ret;
+    return parseFunctionsJson(cmdjTask("aflj"));
 }
 
 QList<ImportDescription> CutterCore::getAllImports()
@@ -1228,6 +1206,31 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
         string.length = stringObject["length"].toVariant().toUInt();
 
         ret << string;
+    }
+
+    return ret;
+}
+
+QList<FunctionDescription> CutterCore::parseFunctionsJson(const QJsonDocument &doc)
+{
+    QList<FunctionDescription> ret;
+    QJsonArray jsonArray = doc.array();
+
+    for (QJsonValue value : jsonArray) {
+        QJsonObject jsonObject = value.toObject();
+
+        FunctionDescription function;
+
+        function.offset = (RVA)jsonObject["offset"].toVariant().toULongLong();
+        function.size = (RVA)jsonObject["size"].toVariant().toULongLong();
+        function.nargs = (RVA)jsonObject["nargs"].toVariant().toULongLong();
+        function.nbbs = (RVA)jsonObject["nbbs"].toVariant().toULongLong();
+        function.nlocals = (RVA)jsonObject["nlocals"].toVariant().toULongLong();
+        function.cc = (RVA)jsonObject["cc"].toVariant().toULongLong();
+        function.calltype = jsonObject["calltype"].toString();
+        function.name = jsonObject["name"].toString();
+
+        ret << function;
     }
 
     return ret;
@@ -1652,7 +1655,6 @@ void CutterCore::loadScript(const QString &scriptname)
 {
     r_core_cmd_file(core_, scriptname.toStdString().data());
 }
-
 QString CutterCore::getVersionInformation()
 {
     int i;
@@ -1693,14 +1695,15 @@ QString CutterCore::getVersionInformation()
     }
     return ret;
 }
+
+
+
+
 QJsonArray CutterCore::getOpenedFiles()
 {
     QJsonDocument files = cmdj("oj");
     return files.array();
 }
-
-
-
 
 QList<QString> CutterCore::getColorThemes()
 {
@@ -1722,7 +1725,6 @@ void CutterCore::joinTask(RCoreTask *task)
 {
     r_core_task_join(core_, nullptr, task);
 }
-
 void CutterCore::deleteTask(RCoreTask *task)
 {
     r_core_task_del(core_, task->id);
