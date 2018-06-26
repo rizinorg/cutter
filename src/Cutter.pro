@@ -175,7 +175,8 @@ SOURCES += \
     widgets/DebugToolbar.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
-    widgets/BreakpointWidget.cpp
+    widgets/BreakpointWidget.cpp \
+    dialogs/BreakpointsDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -265,7 +266,8 @@ HEADERS  += \
     widgets/DebugToolbar.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
-    widgets/BreakpointWidget.h
+    widgets/BreakpointWidget.h \
+    dialogs/BreakpointsDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -317,7 +319,8 @@ FORMS    += \
     widgets/MemoryMapWidget.ui \
     widgets/MemoryMapWidget.ui \
     dialogs/preferences/DebugOptionsWidget.ui \
-    widgets/BreakpointWidget.ui
+    widgets/BreakpointWidget.ui \
+    dialogs/BreakpointsDialog.ui
 
 RESOURCES += \
     resources.qrc \
