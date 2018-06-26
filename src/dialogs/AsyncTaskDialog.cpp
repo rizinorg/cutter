@@ -7,8 +7,8 @@
 
 AsyncTaskDialog::AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent)
     : QDialog(parent),
-      task(task),
-      ui(new Ui::AsyncTaskDialog)
+      ui(new Ui::AsyncTaskDialog),
+      task(task)
 {
     ui->setupUi(this);
 

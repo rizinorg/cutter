@@ -524,7 +524,7 @@ void CutterCore::setConfig(const QString &k, const QString &v)
 void CutterCore::setConfig(const QString &k, int v)
 {
     CORE_LOCK();
-    r_config_set_i(core_->config, k.toUtf8().constData(), static_cast<const unsigned long long int>(v));
+    r_config_set_i(core_->config, k.toUtf8().constData(), static_cast<ut64>(v));
 }
 
 void CutterCore::setConfig(const QString &k, bool v)
