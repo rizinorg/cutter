@@ -1729,10 +1729,7 @@ void CutterCore::deleteTask(RCoreTask *task)
 
 void CutterCore::setCutterPlugins(QList<CutterPlugin*> plugins)
 {
-    this->plugins.clear();
-    for (auto plugin : plugins) {
-        this->plugins.append(plugin);
-    }
+    this->plugins = plugins;
 }
 
 QList<CutterPlugin*> CutterCore::getCutterPlugins()

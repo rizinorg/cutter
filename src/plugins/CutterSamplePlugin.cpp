@@ -25,6 +25,7 @@ CutterDockWidget* CutterSamplePlugin::setupInterface(MainWindow *main, QAction* 
 CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
+    this->setObjectName("CutterSamplePluginWidget");
     this->setWindowTitle("Sample Plugin");
     QWidget *content = new QWidget();
     this->setWidget(content);
