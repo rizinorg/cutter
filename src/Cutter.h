@@ -488,6 +488,7 @@ public:
     void stepDebug();
     void stepOverDebug();
     void addBreakpoint(RVA addr);
+    void addBreakpoint(QString addr);
     void delBreakpoint(RVA addr);
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
@@ -583,6 +584,7 @@ signals:
     void registersChanged();
     void instructionChanged(RVA offset);
     void breakpointsChanged();
+    void deletedAllBreakpoints();
 
     void notesChanged(const QString &notes);
     void projectSaved(const QString &name);
