@@ -1696,9 +1696,6 @@ QString CutterCore::getVersionInformation()
     return ret;
 }
 
-
-
-
 QJsonArray CutterCore::getOpenedFiles()
 {
     QJsonDocument files = cmdj("oj");
@@ -1728,4 +1725,14 @@ void CutterCore::joinTask(RCoreTask *task)
 void CutterCore::deleteTask(RCoreTask *task)
 {
     r_core_task_del(core_, task->id);
+}
+
+void CutterCore::setCutterPlugins(QList<CutterPlugin*> plugins)
+{
+    this->plugins = plugins;
+}
+
+QList<CutterPlugin*> CutterCore::getCutterPlugins()
+{
+    return plugins;
 }

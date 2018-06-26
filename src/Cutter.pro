@@ -55,6 +55,9 @@ macx {
 unix:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
 }
+unix {
+    QMAKE_LFLAGS += -rdynamic # Export dynamic symbols for plugins
+}
 
 # Libraries
 include(lib_radare2.pri)
@@ -253,7 +256,8 @@ HEADERS  += \
     utils/StringsTask.h \
     utils/FunctionsTask.h \
     utils/CommandTask.h \
-    utils/ProgressIndicator.h
+    utils/ProgressIndicator.h \
+    plugins/CutterPlugin.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
