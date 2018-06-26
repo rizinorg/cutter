@@ -61,7 +61,7 @@ private:
     QList<MappedSegment> mappedSegments;
 
     // Used to check whether the width changed. If yes we need to re-initialize the scene (slow)
-    int previousWidth;
+    int previousWidth = -1;
     void drawMetadata(QList<MappedSegmentMetadata> metadata,
                       RVA offset,
                       double x,
