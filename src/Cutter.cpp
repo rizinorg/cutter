@@ -730,8 +730,27 @@ void CutterCore::startDebug()
     cmd("ood");
     emit registersChanged();
     if (!currentlyDebugging) {
+        setConfig("asm.flags", false);
         emit changeDebugView();
+        emit flagsChanged();
         currentlyDebugging = true;
+    }
+}
+
+void CutterCore::startEmulation()
+{
+    if (!currentlyDebugging) {
+        offsetPriorDebugging = getOffset();
+    }
+    cmd("ar0; aei; aeim; aeip");
+    emit registersChanged();
+    if (!currentlyDebugging || !currentlyEmulating) {
+        setConfig("asm.flags", false);
+        setConfig("io.cache", true);
+        emit changeDebugView();
+        emit flagsChanged();
+        currentlyDebugging = true;
+        currentlyEmulating = true;
     }
 }
 
@@ -740,55 +759,79 @@ void CutterCore::stopDebug()
     // @TODO should first obtain correct signal to send.
     // Also, we do a ds since otherwise the process does not die.
     if (currentlyDebugging) {
-        cmd("dk 9; ds; e cfg.debug = false; oo");
+        if (currentlyEmulating) {
+            cmd("aeim-; aei-; wcr");
+            currentlyEmulating = false;
+        } else {
+            cmd("dk 9; ds; e cfg.debug = false");
+        }
         seek(offsetPriorDebugging);
-        emit changeDefinedView();
+        setConfig("asm.flags", true);
+        setConfig("io.cache", false);
         currentlyDebugging = false;
+        emit changeDefinedView();
+        emit flagsChanged();
     }
 }
 
 void CutterCore::continueDebug()
 {
-    cmd("dc");
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("dc");
+        emit registersChanged();
+    }
 }
 
 void CutterCore::continueUntilDebug(QString offset)
 {
-    cmd("dcu " + offset);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        if (!currentlyEmulating) {
+            cmd("dcu " + offset);
+        } else {
+            cmd("aecu " + offset);
+        }
+        emit registersChanged();
+    }
 }
 
 void CutterCore::continueUntilCall()
 {
-    cmd("dcc");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("dcc");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 void CutterCore::continueUntilSyscall()
 {
-    cmd("dcs");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("dcs");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 void CutterCore::stepDebug()
 {
-    cmd("ds");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("ds");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 void CutterCore::stepOverDebug()
 {
-    cmd("dso");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("dso");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 QStringList CutterCore::getDebugPlugins()

@@ -18,7 +18,7 @@ AnalTask::~AnalTask()
 void AnalTask::interrupt()
 {
     AsyncTask::interrupt();
-    r_cons_singleton()->breaked = true;
+    r_cons_singleton()->context->breaked = true;
 }
 
 void AnalTask::runTask()

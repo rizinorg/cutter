@@ -11,7 +11,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     main(main)
 {
     setObjectName("debugToolbar");
-    QIcon startIcon = QIcon(":/img/icons/play_light.svg");
+    QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
+    QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
     QIcon stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     QIcon continueIcon = QIcon(":/img/icons/media-skip-forward_light.svg");
     QIcon continueUntilMainIcon = QIcon(":/img/icons/continue_until_main.svg");
@@ -20,7 +21,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QIcon stepIcon = QIcon(":/img/icons/step_light.svg");
     QIcon stepOverIcon = QIcon(":/img/icons/step_over_light.svg");
 
-    QAction *actionStart = new QAction(startIcon, tr("Start debug"), parent);
+    QAction *actionStart = new QAction(startDebugIcon, tr("Start debug"), parent);
+    QAction *actionStartEmul = new QAction(startEmulIcon, tr("Start emulation"), parent);
     QAction *actionStop = new QAction(stopIcon, tr("Stop debug"), parent);
     QAction *actionContinue = new QAction(continueIcon, tr("Continue"), parent);
     QAction *actionContinueUntilMain = new QAction(continueUntilMainIcon, tr("Continue until main"), parent);
@@ -29,10 +31,18 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QAction *actionStep = new QAction(stepIcon, tr("Step"), parent);
     QAction *actionStepOver = new QAction(stepOverIcon, tr("Step over"), parent);
 
+    QToolButton *startButton = new QToolButton;
+    startButton->setPopupMode(QToolButton::MenuButtonPopup);
+    connect(startButton, &QToolButton::triggered, startButton, &QToolButton::setDefaultAction);
+    QMenu *startMenu = new QMenu;
+    startMenu->addAction(actionStart);
+    startMenu->addAction(actionStartEmul);
+    startButton->setDefaultAction(actionStart);
+    startButton->setMenu(startMenu);
+
     QToolButton *continueUntilButton = new QToolButton;
     continueUntilButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(continueUntilButton, &QToolButton::triggered, continueUntilButton, &QToolButton::setDefaultAction);
-
     QMenu *continueUntilMenu = new QMenu;
     continueUntilMenu->addAction(actionContinueUntilMain);
     continueUntilMenu->addAction(actionContinueUntilCall);
@@ -40,7 +50,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     continueUntilButton->setMenu(continueUntilMenu);
     continueUntilButton->setDefaultAction(actionContinueUntilMain);
 
-    addAction(actionStart);
+    addWidget(startButton);
     addAction(actionStop);
     addAction(actionContinue);
     addWidget(continueUntilButton);
@@ -48,10 +58,16 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     addAction(actionStepOver);
 
     connect(actionStop,              &QAction::triggered, Core(), &CutterCore::stopDebug);
-    connect(actionStop,              &QAction::triggered, [=](){ this->colorToolbar(false); });
+    connect(actionStop,              &QAction::triggered, [=](){ actionContinue->setVisible(true);
+                                                                 this->colorToolbar(false); });
     connect(actionStep,              &QAction::triggered, Core(), &CutterCore::stepDebug);
     connect(actionStart,             &QAction::triggered, Core(), &CutterCore::startDebug);
     connect(actionStart,             &QAction::triggered, [=](){ this->colorToolbar(true); });
+    connect(actionStartEmul,         &QAction::triggered, Core(), &CutterCore::startEmulation);
+    connect(actionStartEmul,         &QAction::triggered, [=](){
+                                                                actionContinue->setVisible(false);
+                                                                this->colorToolbar(true);
+                                                                 });
     connect(actionStepOver,          &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionContinue,          &QAction::triggered, Core(), &CutterCore::continueDebug);
     connect(actionContinueUntilMain, &QAction::triggered, this,   &DebugToolbar::continueUntilMain);
@@ -67,7 +83,7 @@ void DebugToolbar::continueUntilMain()
 void DebugToolbar::colorToolbar(bool p)
 {
     if (p) {
-        this->setStyleSheet("QToolBar {background: green;}");
+        this->setStyleSheet("QToolBar {border: green;}");
     } else {
         this->setStyleSheet("");
     }

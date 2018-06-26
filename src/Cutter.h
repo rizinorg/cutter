@@ -443,6 +443,7 @@ public:
     QJsonDocument getStack(int size = 0x40);
     QJsonDocument getBacktrace();
     void startDebug();
+    void startEmulation();
     void stopDebug();
     void continueDebug();
     void continueUntilCall();
@@ -460,6 +461,7 @@ public:
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
     bool currentlyDebugging = false;
+    bool currentlyEmulating = false;
 
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
