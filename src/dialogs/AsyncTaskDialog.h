@@ -21,6 +21,9 @@ public:
     AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent = nullptr);
     ~AsyncTaskDialog();
 
+    void setInterruptOnClose(bool v)        { interruptOnClose = v; }
+    bool getInterruptOnClose()              { return interruptOnClose; }
+
 public slots:
     void reject() override;
 
@@ -36,7 +39,7 @@ private:
     AsyncTask::Ptr task;
     QTimer timer;
 
-    bool interruptOnClose;
+    bool interruptOnClose = false;
 };
 
 #endif //ASYNCTASKDIALOG_H
