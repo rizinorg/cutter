@@ -821,6 +821,13 @@ void CutterCore::addBreakpoint(RVA addr)
     emit breakpointsChanged();
 }
 
+void CutterCore::addBreakpoint(QString addr)
+{
+    cmd("db " + addr);
+    emit instructionChanged(addr.toULongLong());
+    emit breakpointsChanged();
+}
+
 void CutterCore::delBreakpoint(RVA addr)
 {
     cmd("db- " + RAddressString(addr));
@@ -831,7 +838,7 @@ void CutterCore::delBreakpoint(RVA addr)
 void CutterCore::delAllBreakpoints()
 {
     cmd("db-*");
-    emit breakpointsChanged();
+    emit deletedAllBreakpoints();
 }
 
 void CutterCore::enableBreakpoint(RVA addr)

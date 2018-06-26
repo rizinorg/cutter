@@ -119,6 +119,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
             refreshDisasm();
         }
     });
+    connect(Core(), SIGNAL(deletedAllBreakpoints()), this, SLOT(refreshDisasm()));
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
