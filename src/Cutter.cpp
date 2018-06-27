@@ -742,10 +742,14 @@ void CutterCore::startEmulation()
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
+    // clear registers, init esil state, stack, progcounter
     cmd("ar0; aei; aeim; aeip");
     emit registersChanged();
     if (!currentlyDebugging || !currentlyEmulating) {
+        // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
+        // consider adding this to default config
+        // allows to view self-modifying code changes
         setConfig("io.cache", true);
         emit changeDebugView();
         emit flagsChanged();
@@ -760,10 +764,10 @@ void CutterCore::stopDebug()
     // Also, we do a ds since otherwise the process does not die.
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmd("aeim-; aei-; wcr");
+            cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
         } else {
-            cmd("dk 9; ds; e cfg.debug = false");
+            cmd("dk 9; ds; wcr; e cfg.debug = false; .ar-");
         }
         seek(offsetPriorDebugging);
         setConfig("asm.flags", true);
@@ -807,7 +811,11 @@ void CutterCore::continueUntilCall()
 void CutterCore::continueUntilSyscall()
 {
     if (currentlyDebugging) {
-        cmd("dcs");
+        if (currentlyEmulating) {
+            cmd("aecs");
+        } else {
+            cmd("dcs");
+        }
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
         seek(programCounterValue);
         emit registersChanged();
@@ -821,6 +829,7 @@ void CutterCore::stepDebug()
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
         seek(programCounterValue);
         emit registersChanged();
+        emit deletedAllBreakpoints();
     }
 }
 

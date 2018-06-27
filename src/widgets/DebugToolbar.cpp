@@ -59,6 +59,9 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 
     connect(actionStop,              &QAction::triggered, Core(), &CutterCore::stopDebug);
     connect(actionStop,              &QAction::triggered, [=](){ actionContinue->setVisible(true);
+                                                                 actionStart->setVisible(true);
+                                                                 actionContinueUntilMain->setVisible(true);
+                                                                 actionContinueUntilCall->setVisible(true);
                                                                  this->colorToolbar(false); });
     connect(actionStep,              &QAction::triggered, Core(), &CutterCore::stepDebug);
     connect(actionStart,             &QAction::triggered, Core(), &CutterCore::startDebug);
@@ -66,6 +69,10 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     connect(actionStartEmul,         &QAction::triggered, Core(), &CutterCore::startEmulation);
     connect(actionStartEmul,         &QAction::triggered, [=](){
                                                                 actionContinue->setVisible(false);
+                                                                actionStart->setVisible(false);
+                                                                actionContinueUntilMain->setVisible(false);
+                                                                actionContinueUntilCall->setVisible(false);
+                                                                continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
                                                                 this->colorToolbar(true);
                                                                  });
     connect(actionStepOver,          &QAction::triggered, Core(), &CutterCore::stepOverDebug);
@@ -83,7 +90,7 @@ void DebugToolbar::continueUntilMain()
 void DebugToolbar::colorToolbar(bool p)
 {
     if (p) {
-        this->setStyleSheet("QToolBar {border: green;}");
+        this->setStyleSheet("QToolBar {background: green;}");
     } else {
         this->setStyleSheet("");
     }
