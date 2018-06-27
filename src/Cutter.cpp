@@ -748,8 +748,8 @@ void CutterCore::startEmulation()
     if (!currentlyDebugging || !currentlyEmulating) {
         // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
-        // consider adding this to default config
-        // allows to view self-modifying code changes
+        // consider adding io.cache = true to default config
+        // allows to view self-modifying code changes or other binary changes
         setConfig("io.cache", true);
         emit changeDebugView();
         emit flagsChanged();
@@ -767,7 +767,7 @@ void CutterCore::stopDebug()
             cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
         } else {
-            cmd("dk 9; ds; wcr; e cfg.debug = false; .ar-");
+            cmd("dk 9; ds; wcr; oo; .ar-");
         }
         seek(offsetPriorDebugging);
         setConfig("asm.flags", true);
