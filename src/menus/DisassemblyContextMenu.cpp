@@ -237,10 +237,12 @@ void DisassemblyContextMenu::aboutToShowSlot()
     // decide to show Reverse jmp option
     showReverseJmpQuery();
 
-    // show debug options
-    // @TODO determine if we are being debugged and only show the menu in those cases
-    // maybe using dpt command
-    debugMenuAction->setVisible(true);
+    // only show debug options if we are currently debugging
+    debugMenuAction->setVisible(Core()->currentlyDebugging);
+    // currently there are is no breakpoint support in ESIL so
+    // we dont show the option in case we are emulating
+    actionAddBreakpoint.setVisible(!Core()->currentlyEmulating);
+
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
