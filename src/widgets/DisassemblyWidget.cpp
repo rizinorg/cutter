@@ -130,7 +130,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     });
 
     connect(Core(), &CutterCore::refreshAll, this, [this]() {
-        refreshDisasm(Core()->getOffset());
+        refreshDisasm(seekable->getOffset());
     });
 
     connect(mCtxMenu, SIGNAL(copy()), mDisasTextEdit, SLOT(copy()));

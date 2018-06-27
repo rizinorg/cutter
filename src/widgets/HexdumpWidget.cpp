@@ -74,7 +74,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     });
 
     connect(Core(), &CutterCore::refreshAll, this, [this]() {
-        refresh(Core()->getOffset());
+        refresh(seekable->getOffset());
     });
 
     connect(ui->hexHexText, &QTextEdit::selectionChanged, this, &HexdumpWidget::selectionChanged);
