@@ -291,6 +291,13 @@ struct BreakpointDescription {
     bool enabled;
 };
 
+struct ProcessDescription {
+    int pid;
+    int uid;
+    QString status;
+    QString path;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -321,6 +328,7 @@ Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(MemoryMapDescription)
 Q_DECLARE_METATYPE(BreakpointDescription)
+Q_DECLARE_METATYPE(ProcessDescription)
 
 class CutterCore: public QObject
 {
@@ -444,6 +452,7 @@ public:
     QJsonDocument getBacktrace();
     void startDebug();
     void startEmulation();
+    void attachDebug(int pid);
     void stopDebug();
     void continueDebug();
     void continueUntilCall();
@@ -517,6 +526,7 @@ public:
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
     QList<BreakpointDescription> getBreakpoints();
+    QList<ProcessDescription> getAllProcesses();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);

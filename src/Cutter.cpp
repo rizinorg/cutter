@@ -758,6 +758,28 @@ void CutterCore::startEmulation()
     }
 }
 
+void CutterCore::attachDebug(int pid)
+{
+    if (!currentlyDebugging) {
+        offsetPriorDebugging = getOffset();
+    }
+    // attach to process with dbg plugin
+    cmd("o dbg://" + QString::number(pid));
+    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+    if (!currentlyDebugging || !currentlyEmulating) {
+        // prevent register flags from appearing during debug/emul
+        setConfig("asm.flags", false);
+        // consider adding io.cache = true to default config
+        // allows to view self-modifying code changes or other binary changes
+        setConfig("io.cache", true);
+        emit changeDebugView();
+        emit flagsChanged();
+        currentlyDebugging = true;
+    }
+}
+
 void CutterCore::stopDebug()
 {
     // @TODO should first obtain correct signal to send.
@@ -933,6 +955,27 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
 QJsonDocument CutterCore::getBacktrace()
 {
     return cmdj("dbtj");
+}
+
+QList<ProcessDescription> CutterCore::getAllProcesses()
+{
+    QList<ProcessDescription> ret;
+    QJsonArray ProcessArray = cmdj("dplj").array();
+
+    for (QJsonValue value : ProcessArray) {
+        QJsonObject procObject = value.toObject();
+
+        ProcessDescription proc;
+
+        proc.pid = procObject["pid"].toVariant().toInt();
+        proc.uid = procObject["uid"].toVariant().toInt();
+        proc.status = procObject["status"].toString();
+        proc.path = procObject["path"].toString();
+
+        ret << proc;
+    }
+
+    return ret;
 }
 
 QList<MemoryMapDescription> CutterCore::getMemoryMap()

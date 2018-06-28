@@ -14,9 +14,12 @@ public:
 
 private:
     MainWindow *main;
+    QAction *actionStart;
+    QAction *actionStartEmul;
 
 private slots:
     void continueUntilMain();
     void colorToolbar(bool p);
-
+    void attachProcessDialog();
+    void attachProcess(int pid);
 };
