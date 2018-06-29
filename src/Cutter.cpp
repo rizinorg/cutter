@@ -1540,6 +1540,47 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
     return ret;
 }
 
+BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
+{
+    QJsonObject statsObj = cmdj("p- " + QString::number(blocksCount)).object();
+
+    BlockStatistics ret;
+    ret.from = statsObj["from"].toVariant().toULongLong();
+    ret.to = statsObj["to"].toVariant().toULongLong();
+    ret.blocksize = statsObj["blocksize"].toVariant().toULongLong();
+
+    QJsonArray blocksArray = statsObj["blocks"].toArray();
+    for (QJsonValue value : blocksArray) {
+        QJsonObject blockObj = value.toObject();
+        BlockDescription block;
+        block.addr = blockObj["offset"].toVariant().toULongLong();
+        block.size = blockObj["size"].toVariant().toULongLong();
+        block.flags = blockObj["flags"].toInt(0);
+        block.functions = blockObj["functions"].toInt(0);
+        block.comments = blockObj["comments"].toInt(0);
+        block.symbols = blockObj["symbols"].toInt(0);
+        block.strings = blockObj["strings"].toInt(0);
+
+        block.rwx = 0;
+        QString rwxStr = blockObj["rwx"].toString();
+        if (rwxStr.length() == 3) {
+            if (rwxStr[0] == 'r') {
+                block.rwx |= (1 << 0);
+            }
+            if (rwxStr[1] == 'w') {
+                block.rwx |= (1 << 1);
+            }
+            if (rwxStr[2] == 'x') {
+                block.rwx |= (1 << 2);
+            }
+        }
+
+        ret.blocks << block;
+    }
+    
+    return ret;
+}
+
 QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_function,
                                             const QString &filterType)
 {

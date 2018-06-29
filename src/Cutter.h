@@ -275,6 +275,24 @@ struct VTableDescription {
     QList<ClassMethodDescription> methods;
 };
 
+struct BlockDescription {
+    RVA addr;
+    RVA size;
+    int flags;
+    int functions;
+    int comments;
+    int symbols;
+    int strings;
+    ut8 rwx;
+};
+
+struct BlockStatistics {
+    RVA from;
+    RVA to;
+    RVA blocksize;
+    QList<BlockDescription> blocks;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -490,6 +508,7 @@ public:
     QList<VTableDescription> getAllVTables();
     QList<TypeDescription> getAllTypes();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
+    BlockStatistics getBlockStatistics(unsigned int blocksCount);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
