@@ -1537,7 +1537,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
 
 BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
 {
-    QJsonObject statsObj = cmdj("p- " + QString::number(blocksCount)).object();
+    QJsonObject statsObj = cmdj("p-j " + QString::number(blocksCount)).object();
 
     BlockStatistics ret;
     ret.from = statsObj["from"].toVariant().toULongLong();
@@ -1545,7 +1545,7 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
     ret.blocksize = statsObj["blocksize"].toVariant().toULongLong();
 
     QJsonArray blocksArray = statsObj["blocks"].toArray();
-    for (QJsonValue value : blocksArray) {
+    for (const QJsonValue &value : blocksArray) {
         QJsonObject blockObj = value.toObject();
         BlockDescription block;
         block.addr = blockObj["offset"].toVariant().toULongLong();
@@ -1572,7 +1572,7 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
 
         ret.blocks << block;
     }
-    
+
     return ret;
 }
 
