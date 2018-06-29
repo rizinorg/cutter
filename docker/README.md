@@ -1,24 +1,16 @@
 # Docker Configuration for Cutter
 
-These files provide an easy way to deploy *cutter* in a docker container.
+These files provide an easy way to deploy *Cutter* in a Docker container. After additional configuration you may want to apply to the `Makefile`, execute `make run`. By default, the *Cutter* image on [Docker Hub](https://hub.docker.com/r/radareorg/cutter/) will be used along with additional capability, X and mount settings:
 
-You can use the pre-built image like:
-```
-touch $PWD/radare2rc && \
-mkdir -p $PWD/r2-config && \
-mkdir -p $PWD/sharedFolder && \
-xhost +local:root && \
-sudo docker run \
-    -it \
-    --name cutter \
-    --cap-drop=ALL  \
-    --cap-add=SYS_PTRACE \
-    -e DISPLAY=$DISPLAY \
-    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \
-    -v $PWD/sharedFolder:/var/sharedFolder \
-    -v $PWD/radare2rc:/home/r2/.radare2rc \
-    -v $PWD/r2-config:/home/r2/.config/radare2 \
-    radareorg/cutter:latest
-```
+- Xauthority settings which avoid using potentially insecure `xhost` directives. The settings have been adapted from [this post](https://stackoverflow.com/questions/16296753/can-you-run-gui-apps-in-a-docker-container/25280523#25280523).
+- Mount directives to mount a shared folder and radare2 configuration files.
+- Capability dropping to only use `SYS_PTRACE`.
 
-or by using the `Makefile` (after additional configuration to make it fit your needs) by executing `make build` and `make run`.
+## Mounting and Using a Specific Binary
+
+The `Makefile` allows mounting a single binary file as read-only, which will also be used as an input for *Cutter*. To use this feature, execute `make run BINARY=/absolote/path/to/binary`.
+
+## Additional Notes
+
+- The internal container user doesn't use superuser privileges and is called `r2`.
+- To check for more options of the `Makefile`, execute `make`.

@@ -62,4 +62,4 @@ RUN chown -R r2:r2 /var/sharedFolder
 RUN chown -R r2:r2 /home/r2/
 USER r2
 
-ENTRYPOINT ["/bin/bash", "-c", "/opt/cutter/build/cutter"]
+ENTRYPOINT ["/opt/cutter/build/Cutter"]
