@@ -1,8 +1,11 @@
 SHELL := /bin/bash
 
-
 # The directory of this file
 DIR := $(shell echo $(shell cd "$(shell  dirname "${BASH_SOURCE[0]}" )" && pwd ))
+
+# The local users UID/GID
+LUID := $(shell id -u)
+LGID := $(shell id -g)
 
 # To mount a specific binary using BINARY=/absolute/path/to/binary
 ifdef BINARY
@@ -41,10 +44,11 @@ run: ## Run container
 	sudo docker run \
 		-it \
 		--name $(CONTAINER_NAME) \
-		--cap-drop=ALL  \
 		--cap-add=SYS_PTRACE \
 		-e DISPLAY=$$DISPLAY \
 		-e XAUTHORITY=$$XAUTH \
+		-e LOCAL_USER_ID=$(LUID) \
+		-e LOCAL_GROUP_ID=$(LGID) \
 		-v $$XSOCK:$$XSOCK:ro \
 		-v $$XAUTH:$$XAUTH \
 		$(MOUNTFLAGS) \
