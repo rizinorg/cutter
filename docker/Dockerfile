@@ -62,5 +62,5 @@ RUN chown -R r2:r2 /var/sharedFolder && \
     chown -R r2:r2 /home/r2/
 
 WORKDIR /home/r2
-USER r2
-ENTRYPOINT ["/opt/cutter/build/Cutter"]
+ADD entrypoint.sh /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
