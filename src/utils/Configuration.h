@@ -60,7 +60,7 @@ public:
     // Graph
     int getGraphBlockMaxChars() const
     {
-        return s.value("graph.maxcols", 50).toInt();
+        return s.value("graph.maxcols", 100).toInt();
     }
     void setGraphBlockMaxChars(int ch)
     {
