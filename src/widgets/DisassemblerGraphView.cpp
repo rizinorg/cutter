@@ -10,6 +10,7 @@
 #include <QTextDocument>
 #include <QFileDialog>
 #include <QFile>
+#include <QLabel>
 
 #include "Cutter.h"
 #include "utils/Colors.h"
@@ -152,6 +153,11 @@ void DisassemblerGraphView::loadCurrentGraph()
     .set("asm.lines", false)
     .set("asm.lines.fcn", false);
     QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(seekable->getOffset()));
+    if (functionsDoc.isEmpty()) {
+        QLabel *label = new QLabel(this);
+        label->setText(
+                tr("Graph mode can only display instructions which belong to functions."));
+    }
     QJsonArray functions = functionsDoc.array();
 
     disassembly_blocks.clear();
