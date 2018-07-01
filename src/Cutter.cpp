@@ -777,65 +777,137 @@ void CutterCore::startDebug()
     cmd("ood");
     emit registersChanged();
     if (!currentlyDebugging) {
+        setConfig("asm.flags", false);
         emit changeDebugView();
+        emit flagsChanged();
+        emit refreshCodeViews();
+        currentlyDebugging = true;
+    }
+}
+
+void CutterCore::startEmulation()
+{
+    if (!currentlyDebugging) {
+        offsetPriorDebugging = getOffset();
+    }
+    // clear registers, init esil state, stack, progcounter at current seek
+    cmd("ar0; aei; aeim; aeip");
+    emit registersChanged();
+    if (!currentlyDebugging || !currentlyEmulating) {
+        // prevent register flags from appearing during debug/emul
+        setConfig("asm.flags", false);
+        // allows to view self-modifying code changes or other binary changes
+        setConfig("io.cache", true);
+        emit changeDebugView();
+        emit flagsChanged();
+        emit refreshCodeViews();
+        currentlyDebugging = true;
+        currentlyEmulating = true;
+    }
+}
+
+void CutterCore::attachDebug(int pid)
+{
+    if (!currentlyDebugging) {
+        offsetPriorDebugging = getOffset();
+    }
+    // attach to process with dbg plugin
+    cmd("o-*; e cfg.debug = true; o+ dbg://" + QString::number(pid));
+    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+    seek(programCounterValue);
+    emit registersChanged();
+    if (!currentlyDebugging || !currentlyEmulating) {
+        // prevent register flags from appearing during debug/emul
+        setConfig("asm.flags", false);
+        emit changeDebugView();
+        emit flagsChanged();
         currentlyDebugging = true;
     }
 }
 
 void CutterCore::stopDebug()
 {
-    // @TODO should first obtain correct signal to send.
-    // Also, we do a ds since otherwise the process does not die.
     if (currentlyDebugging) {
-        cmd("dk 9; ds; e cfg.debug = false; oo");
+        if (currentlyEmulating) {
+            cmd("aeim-; aei-; wcr; .ar-");
+            currentlyEmulating = false;
+        } else {
+            // we do a ds since otherwise the process does not die.
+            cmd("dk 9; ds; oo; .ar-");
+        }
         seek(offsetPriorDebugging);
-        emit changeDefinedView();
+        setConfig("asm.flags", true);
+        setConfig("io.cache", false);
         currentlyDebugging = false;
+        emit changeDefinedView();
+        emit flagsChanged();
     }
 }
 
 void CutterCore::continueDebug()
 {
-    cmd("dc");
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("dc");
+        emit registersChanged();
+        emit refreshCodeViews();
+    }
 }
 
 void CutterCore::continueUntilDebug(QString offset)
 {
-    cmd("dcu " + offset);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        if (!currentlyEmulating) {
+            cmd("dcu " + offset);
+        } else {
+            cmd("aecu " + offset);
+        }
+        emit registersChanged();
+        emit refreshCodeViews();
+    }
 }
 
 void CutterCore::continueUntilCall()
 {
-    cmd("dcc");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("dcc");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 void CutterCore::continueUntilSyscall()
 {
-    cmd("dcs");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        if (currentlyEmulating) {
+            cmd("aecs");
+        } else {
+            cmd("dcs");
+        }
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 void CutterCore::stepDebug()
 {
-    cmd("ds");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("ds");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 void CutterCore::stepOverDebug()
 {
-    cmd("dso");
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
-    emit registersChanged();
+    if (currentlyDebugging) {
+        cmd("dso");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
 }
 
 QStringList CutterCore::getDebugPlugins()
@@ -885,7 +957,7 @@ void CutterCore::delBreakpoint(RVA addr)
 void CutterCore::delAllBreakpoints()
 {
     cmd("db-*");
-    emit deletedAllBreakpoints();
+    emit refreshCodeViews();
 }
 
 void CutterCore::enableBreakpoint(RVA addr)
@@ -928,6 +1000,27 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
 QJsonDocument CutterCore::getBacktrace()
 {
     return cmdj("dbtj");
+}
+
+QList<ProcessDescription> CutterCore::getAllProcesses()
+{
+    QList<ProcessDescription> ret;
+    QJsonArray ProcessArray = cmdj("dplj").array();
+
+    for (QJsonValue value : ProcessArray) {
+        QJsonObject procObject = value.toObject();
+
+        ProcessDescription proc;
+
+        proc.pid = procObject["pid"].toVariant().toInt();
+        proc.uid = procObject["uid"].toVariant().toInt();
+        proc.status = procObject["status"].toString();
+        proc.path = procObject["path"].toString();
+
+        ret << proc;
+    }
+
+    return ret;
 }
 
 QList<MemoryMapDescription> CutterCore::getMemoryMap()
