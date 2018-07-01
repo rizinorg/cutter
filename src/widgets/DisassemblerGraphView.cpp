@@ -10,6 +10,7 @@
 #include <QTextDocument>
 #include <QFileDialog>
 #include <QFile>
+#include <QVBoxLayout>
 
 #include "Cutter.h"
 #include "utils/Colors.h"
@@ -157,6 +158,23 @@ void DisassemblerGraphView::loadCurrentGraph()
     disassembly_blocks.clear();
     blocks.clear();
 
+    bool emptyGraph = functions.isEmpty();
+    if (emptyGraph) {
+        // If there's no function to print, just move to disassembly and add a message
+        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        if (!emptyText) {
+            QVBoxLayout *layout = new QVBoxLayout(this);
+            emptyText = new QLabel(this);
+            emptyText->setText(tr("No function detected. Cannot display graph."));
+            emptyText->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+            layout->addWidget(emptyText);
+            layout->setAlignment(emptyText, Qt::AlignHCenter);
+        }
+        emptyText->setVisible(true);
+    } else {
+        emptyText->setVisible(false);
+    }
+
     Analysis anal;
     anal.ready = true;
 
@@ -168,7 +186,9 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     windowTitle = tr("Graph");
     QString funcName = func["name"].toString().trimmed();
-    if (!funcName.isEmpty()) {
+    if (emptyGraph) {
+        windowTitle += " (Empty)";
+    } else if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
     }
     if (!seekable->getSyncWithCore()) {
@@ -261,7 +281,6 @@ void DisassemblerGraphView::loadCurrentGraph()
         }
     }
 }
-
 
 void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
 {
@@ -714,6 +733,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     QTextStream fileOut(&file);
     fileOut << Core()->cmd("ag -");
 }
+
 void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
 {
     // when CTRL is pressed, we zoom in/out with mouse wheel

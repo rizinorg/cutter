@@ -166,11 +166,6 @@ QString CutterCore::cmd(const QString &str)
     r_mem_free(res);
     if (offset != core_->offset) {
         emit seekChanged(core_->offset);
-
-        // Switch from graph to disassembly if there is no function
-        if (this->cmd("afi.").trimmed().isEmpty() && memoryWidgetPriority == MemoryWidgetType::Graph) {
-            memoryWidgetPriority = MemoryWidgetType::Disassembly;
-        }
     }
     return o;
 }
