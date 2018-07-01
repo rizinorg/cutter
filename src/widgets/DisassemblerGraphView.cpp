@@ -36,7 +36,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(graphOptionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(deletedAllBreakpoints()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshView()));
 
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
