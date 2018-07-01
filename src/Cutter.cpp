@@ -733,6 +733,7 @@ void CutterCore::startDebug()
         setConfig("asm.flags", false);
         emit changeDebugView();
         emit flagsChanged();
+        emit deletedAllBreakpoints();
         currentlyDebugging = true;
     }
 }
@@ -742,17 +743,17 @@ void CutterCore::startEmulation()
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
-    // clear registers, init esil state, stack, progcounter
+    // clear registers, init esil state, stack, progcounter at current seek
     cmd("ar0; aei; aeim; aeip");
     emit registersChanged();
     if (!currentlyDebugging || !currentlyEmulating) {
         // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
-        // consider adding io.cache = true to default config
         // allows to view self-modifying code changes or other binary changes
         setConfig("io.cache", true);
         emit changeDebugView();
         emit flagsChanged();
+        emit deletedAllBreakpoints();
         currentlyDebugging = true;
         currentlyEmulating = true;
     }
@@ -764,16 +765,13 @@ void CutterCore::attachDebug(int pid)
         offsetPriorDebugging = getOffset();
     }
     // attach to process with dbg plugin
-    cmd("o dbg://" + QString::number(pid));
+    cmd("o-*; e cfg.debug = true; o+ dbg://" + QString::number(pid));
     QString programCounterValue = cmd("dr?`drn PC`").trimmed();
     seek(programCounterValue);
     emit registersChanged();
     if (!currentlyDebugging || !currentlyEmulating) {
         // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
-        // consider adding io.cache = true to default config
-        // allows to view self-modifying code changes or other binary changes
-        setConfig("io.cache", true);
         emit changeDebugView();
         emit flagsChanged();
         currentlyDebugging = true;
@@ -782,14 +780,13 @@ void CutterCore::attachDebug(int pid)
 
 void CutterCore::stopDebug()
 {
-    // @TODO should first obtain correct signal to send.
-    // Also, we do a ds since otherwise the process does not die.
     if (currentlyDebugging) {
         if (currentlyEmulating) {
             cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
         } else {
-            cmd("dk 9; ds; wcr; oo; .ar-");
+            // we do a ds since otherwise the process does not die.
+            cmd("dk 9; ds; oo; .ar-");
         }
         seek(offsetPriorDebugging);
         setConfig("asm.flags", true);
@@ -805,6 +802,7 @@ void CutterCore::continueDebug()
     if (currentlyDebugging) {
         cmd("dc");
         emit registersChanged();
+        emit deletedAllBreakpoints();
     }
 }
 
@@ -851,7 +849,6 @@ void CutterCore::stepDebug()
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
         seek(programCounterValue);
         emit registersChanged();
-        emit deletedAllBreakpoints();
     }
 }
 

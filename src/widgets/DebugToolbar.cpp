@@ -65,6 +65,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
                                                                 actionContinue->setVisible(true);
                                                                 actionStart->setVisible(true);
                                                                 actionStartEmul->setVisible(true);
+                                                                actionAttach->setVisible(true);
                                                                 actionContinueUntilMain->setVisible(true);
                                                                 actionContinueUntilCall->setVisible(true);
                                                                 this->colorToolbar(false);

@@ -130,6 +130,8 @@ AttachProcDialog::AttachProcDialog(QWidget *parent) :
             SLOT(setFilterWildcard(const QString &)));
     qhelpers::setVerticalScrollMode(ui->procTreeView);
 
+    // focus on filter line
+    ui->filterLineEdit->setFocus();
     // Event filter for capturing Ctrl/Cmd+Return
     ui->filterLineEdit->installEventFilter(this);
 }
