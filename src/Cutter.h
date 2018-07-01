@@ -280,6 +280,7 @@ struct BlockDescription {
     RVA size;
     int flags;
     int functions;
+    int inFunctions;
     int comments;
     int symbols;
     int strings;

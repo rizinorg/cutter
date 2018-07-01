@@ -71,7 +71,7 @@ void VisualNavbar::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
     if (previousWidth != this->width()) {
-        this->fillData();
+        fetchAndPaintData();
         previousWidth = this->width();
     }
 }
@@ -107,6 +107,8 @@ void VisualNavbar::fillData()
 
     RVA totalSize = stats.to - stats.from;
 
+    printf("from: %llu, to %llu, first: %llu\n", stats.from, stats.to, stats.blocks[0].addr);
+
     double widthPerByte = (double)w / (double)totalSize;
     auto xFromAddr = [widthPerByte] (RVA addr) -> double {
         return addr * widthPerByte;
@@ -131,18 +133,23 @@ void VisualNavbar::fillData()
         xToAddress.append(x2a);
 
         DataType dataType;
-        if (block.functions > 0) {
+        if (block.inFunctions > 0) {
             dataType = DataType::Code;
         } else if (block.strings > 0) {
             dataType = DataType::String;
         } else if (block.symbols > 0) {
             dataType = DataType::Symbol;
         } else {
+            lastDataType = DataType::Empty;
             continue;
         }
 
         if (dataType == lastDataType) {
-            dataItemRect.setRight(xFromAddr(block.addr + block.size));
+            double r = xFromAddr(block.addr + block.size);
+            if (r > dataItemRect.right()) {
+                dataItemRect.setRight(r);
+                dataItem->setRect(dataItemRect);
+            }
             dataItem->setRect(dataItemRect);
             continue;
         }
@@ -159,7 +166,7 @@ void VisualNavbar::fillData()
     }
 
     // Update scene width
-    graphicsScene->setSceneRect(graphicsScene->itemsBoundingRect());
+    graphicsScene->setSceneRect(0, 0, w, h);
 
     drawCursor();
 }

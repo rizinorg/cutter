@@ -1545,6 +1545,9 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
     ret.blocksize = statsObj["blocksize"].toVariant().toULongLong();
 
     QJsonArray blocksArray = statsObj["blocks"].toArray();
+
+    printf("got %d blocks for requested %u\n", blocksArray.count(), blocksCount);
+
     for (const QJsonValue &value : blocksArray) {
         QJsonObject blockObj = value.toObject();
         BlockDescription block;
@@ -1552,6 +1555,7 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
         block.size = blockObj["size"].toVariant().toULongLong();
         block.flags = blockObj["flags"].toInt(0);
         block.functions = blockObj["functions"].toInt(0);
+        block.inFunctions = blockObj["in_functions"].toInt(0);
         block.comments = blockObj["comments"].toInt(0);
         block.symbols = blockObj["symbols"].toInt(0);
         block.strings = blockObj["strings"].toInt(0);
