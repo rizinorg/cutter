@@ -733,7 +733,7 @@ void CutterCore::startDebug()
         setConfig("asm.flags", false);
         emit changeDebugView();
         emit flagsChanged();
-        emit deletedAllBreakpoints();
+        emit refreshCodeViews();
         currentlyDebugging = true;
     }
 }
@@ -753,7 +753,7 @@ void CutterCore::startEmulation()
         setConfig("io.cache", true);
         emit changeDebugView();
         emit flagsChanged();
-        emit deletedAllBreakpoints();
+        emit refreshCodeViews();
         currentlyDebugging = true;
         currentlyEmulating = true;
     }
@@ -802,7 +802,7 @@ void CutterCore::continueDebug()
     if (currentlyDebugging) {
         cmd("dc");
         emit registersChanged();
-        emit deletedAllBreakpoints();
+        emit refreshCodeViews();
     }
 }
 
@@ -815,6 +815,7 @@ void CutterCore::continueUntilDebug(QString offset)
             cmd("aecu " + offset);
         }
         emit registersChanged();
+        emit refreshCodeViews();
     }
 }
 
@@ -909,7 +910,7 @@ void CutterCore::delBreakpoint(RVA addr)
 void CutterCore::delAllBreakpoints()
 {
     cmd("db-*");
-    emit deletedAllBreakpoints();
+    emit refreshCodeViews();
 }
 
 void CutterCore::enableBreakpoint(RVA addr)

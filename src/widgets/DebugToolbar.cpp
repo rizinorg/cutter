@@ -14,6 +14,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     setObjectName("debugToolbar");
     QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
     QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
+    QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
     QIcon stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     QIcon continueIcon = QIcon(":/img/icons/media-skip-forward_light.svg");
     QIcon continueUntilMainIcon = QIcon(":/img/icons/continue_until_main.svg");
@@ -24,7 +25,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 
     actionStart = new QAction(startDebugIcon, tr("Start debug"), parent);
     actionStartEmul = new QAction(startEmulIcon, tr("Start emulation"), parent);
-    QAction *actionAttach = new QAction(startEmulIcon, tr("Attach to process"), parent);
+    QAction *actionAttach = new QAction(startAttachIcon, tr("Attach to process"), parent);
     QAction *actionStop = new QAction(stopIcon, tr("Stop debug"), parent);
     QAction *actionContinue = new QAction(continueIcon, tr("Continue"), parent);
     QAction *actionContinueUntilMain = new QAction(continueUntilMainIcon, tr("Continue until main"), parent);

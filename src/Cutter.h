@@ -561,7 +561,7 @@ signals:
     void registersChanged();
     void instructionChanged(RVA offset);
     void breakpointsChanged();
-    void deletedAllBreakpoints();
+    void refreshCodeViews();
 
     void notesChanged(const QString &notes);
     void projectSaved(const QString &name);
