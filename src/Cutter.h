@@ -312,6 +312,13 @@ struct BreakpointDescription {
     bool enabled;
 };
 
+struct ProcessDescription {
+    int pid;
+    int uid;
+    QString status;
+    QString path;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -342,6 +349,7 @@ Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(MemoryMapDescription)
 Q_DECLARE_METATYPE(BreakpointDescription)
+Q_DECLARE_METATYPE(ProcessDescription)
 
 class CutterCore: public QObject
 {
@@ -480,6 +488,8 @@ public:
     QJsonDocument getStack(int size = 0x40);
     QJsonDocument getBacktrace();
     void startDebug();
+    void startEmulation();
+    void attachDebug(int pid);
     void stopDebug();
     void continueDebug();
     void continueUntilCall();
@@ -497,6 +507,7 @@ public:
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
     bool currentlyDebugging = false;
+    bool currentlyEmulating = false;
 
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
@@ -554,6 +565,7 @@ public:
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
     BlockStatistics getBlockStatistics(unsigned int blocksCount);
     QList<BreakpointDescription> getBreakpoints();
+    QList<ProcessDescription> getAllProcesses();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
@@ -584,7 +596,7 @@ signals:
     void registersChanged();
     void instructionChanged(RVA offset);
     void breakpointsChanged();
-    void deletedAllBreakpoints();
+    void refreshCodeViews();
 
     void notesChanged(const QString &notes);
     void projectSaved(const QString &name);
