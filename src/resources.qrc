@@ -19,7 +19,9 @@
         <file>img/icons/spin.svg</file>
         <file>img/icons/plus.svg</file>
         <file>img/icons/play.svg</file>
-        <file>img/icons/play_light.svg</file>
+        <file>img/icons/play_light_debug.svg</file>
+        <file>img/icons/play_light_emul.svg</file>
+        <file>img/icons/play_light_attach.svg</file>
         <file>img/icons/media-stop_light.svg</file>
         <file>img/icons/media-skip-forward_light.svg</file>
         <file>img/icons/continue_until_main.svg</file>
