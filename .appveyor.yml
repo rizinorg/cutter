@@ -1,4 +1,4 @@
-version: '1.4-git-{build}'
+version: '1.5-git-{build}'
 skip_tags: true
 image: 'Visual Studio 2015'
 clone_depth: 1
@@ -82,7 +82,7 @@ deploy:
   auth_token:
     secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
   artifact: "%ARTIFACT_NAME%"
-  draft: false
+  draft: true
   prerelease: false
   on:
     branch: master

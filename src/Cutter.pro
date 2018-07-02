@@ -3,7 +3,7 @@ TEMPLATE = app
 TARGET = Cutter
 
 # The application version
-VERSION = 1.4
+VERSION = 1.5
 
 ICON = img/cutter.icns
 
