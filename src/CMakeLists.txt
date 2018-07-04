@@ -80,12 +80,10 @@ message(STATUS "headers from Cutter.pro: ${HEADER_FILES}")
 message(STATUS "forms from Cutter.pro: ${UI_FILES}")
 message(STATUS "resources from Cutter.pro: ${QRC_FILES}")
 
-
 set(CUTTER_VERSION_SUFFIX "-dev")
 set(CUTTER_VERSION_FULL "${PROJECT_VERSION}${CUTTER_VERSION_SUFFIX}")
 message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
 add_definitions("-DAPP_VERSION=\"${CUTTER_VERSION_FULL}\"")
-
 
 add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
 
@@ -98,3 +96,7 @@ if(CUTTER_ENABLE_JUPYTER)
     endif()
 endif()
 
+# Make mocs_compilation.cpp build while including Python.h
+set(CUTTER_AUTOGEN_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/Cutter_autogen")
+set_source_files_properties("${CUTTER_AUTOGEN_BUILD_DIR}/mocs_compilation.cpp"
+        PROPERTIES COMPILE_DEFINITIONS "Py_PYTHON_H;PyObject=void;PyThreadState=void")
