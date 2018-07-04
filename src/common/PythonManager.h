@@ -7,10 +7,8 @@ class CutterPythonPlugin;
 typedef struct _ts PyThreadState;
 typedef struct _object PyObject;
 
-class PythonManager : public QObject
+class PythonManager
 {
-    Q_OBJECT
-
 public:
     static PythonManager *getInstance();
 

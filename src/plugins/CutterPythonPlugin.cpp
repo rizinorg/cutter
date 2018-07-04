@@ -17,6 +17,18 @@ CutterPythonPlugin::CutterPythonPlugin(PyObject* pluginModule)
     }
 }
 
+CutterPythonPlugin::~CutterPythonPlugin()
+{
+    Python()->restoreThread();
+    if (pInstance) {
+        Py_DECREF(pInstance);
+    }
+    if (pluginModule) {
+        Py_DECREF(pluginModule);
+    }
+    Python()->saveThread();
+}
+
 void CutterPythonPlugin::setupPlugin(CutterCore *core)
 {
     Q_UNUSED(core)

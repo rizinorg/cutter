@@ -8,6 +8,7 @@ class CutterPythonPlugin : public CutterPlugin
 {
 public:
     CutterPythonPlugin(PyObject* pluginModule);
+    ~CutterPythonPlugin();
     void setupPlugin(CutterCore *core);
     CutterDockWidget* setupInterface(MainWindow *main, QAction *action);
 

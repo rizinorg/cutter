@@ -172,6 +172,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 CutterApplication::~CutterApplication()
 {
     delete mainWindow;
+    delete Python();
 }
 
 bool CutterApplication::event(QEvent *e)
