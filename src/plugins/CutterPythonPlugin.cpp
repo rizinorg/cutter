@@ -17,6 +17,18 @@ CutterPythonPlugin::CutterPythonPlugin(PyObject* pluginModule)
     }
 }
 
+CutterPythonPlugin::~CutterPythonPlugin()
+{
+    Python()->restoreThread();
+    if (pInstance) {
+        Py_DECREF(pInstance);
+    }
+    if (pluginModule) {
+        Py_DECREF(pluginModule);
+    }
+    Python()->saveThread();
+}
+
 void CutterPythonPlugin::setupPlugin(CutterCore *core)
 {
     Q_UNUSED(core)
@@ -68,8 +80,6 @@ CutterDockWidget* CutterPythonPlugin::setupInterface(MainWindow *main, QAction *
     Python()->restoreThread();
     pWidget = PyObject_CallMethod(pInstance, "setupInterface", nullptr);
     Python()->saveThread();
-
-    qDebug() << "Here is the widget: " << pWidget;
 
     return nullptr;
 }
