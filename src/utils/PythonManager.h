@@ -6,10 +6,8 @@
 
 class CutterPythonPlugin;
 
-class PythonManager : public QObject
+class PythonManager
 {
-    Q_OBJECT
-
 public:
     static PythonManager *getInstance();
 

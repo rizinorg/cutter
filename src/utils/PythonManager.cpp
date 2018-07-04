@@ -6,10 +6,13 @@
 #include <QDebug>
 #include <QFile>
 
-Q_GLOBAL_STATIC(PythonManager, uniqueInstance)
+static PythonManager *uniqueInstance = nullptr;
 
 PythonManager *PythonManager::getInstance()
 {
+    if (!uniqueInstance) {
+        uniqueInstance = new PythonManager();
+    }
     return uniqueInstance;
 }
 
@@ -19,19 +22,20 @@ PythonManager::PythonManager()
 
 PythonManager::~PythonManager()
 {
-    if (pyThreadState) {
-        PyEval_RestoreThread(pyThreadState);
-
-        if (cutterNotebookAppInstance) {
-            auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
-            PyObject_CallObject(stopFunc, nullptr);
-            Py_DECREF(cutterNotebookAppInstance);
-        }
-
-        // TODO PyDECREF plugins
-
-        Py_Finalize();
+    QList<CutterPlugin *> plugins = Core()->getCutterPlugins();
+    for (CutterPlugin *plugin : plugins) {
+        delete plugin;
     }
+
+    restoreThread();
+
+    if (cutterNotebookAppInstance) {
+        auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
+        PyObject_CallObject(stopFunc, nullptr);
+        Py_DECREF(cutterNotebookAppInstance);
+    }
+
+    Py_Finalize();
 
     if (pythonHome) {
         PyMem_RawFree(pythonHome);
@@ -177,11 +181,10 @@ CutterPythonPlugin* PythonManager::loadPlugin(const char *pluginName) {
     restoreThread();
     PyObject *pluginModule = PyImport_ImportModule(pluginName);
     if (!pluginModule) {
-        qWarning() << "Couldn't import the plugin" << QString(pluginName);
+        qWarning() << "Couldn't load the plugin" << QString(pluginName);
         PyErr_PrintEx(10);
     } else {
         plugin = new CutterPythonPlugin(pluginModule);
-        //Py_DECREF(pluginModule);
     }
     saveThread();
 
