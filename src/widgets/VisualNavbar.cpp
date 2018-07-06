@@ -259,8 +259,14 @@ QString VisualNavbar::toolTipForAddress(RVA address)
     auto sections = sectionsForAddress(address);
     if (sections.count()) {
         ret += "\nSections: \n";
+        bool first = true;
         for (auto section : sections) {
-            ret += "  " + section + "\n";
+            if (!first) {
+                ret += "\n";
+            } else {
+                first = false;
+            }
+            ret += "  " + section;
         }
     }
     return ret;
