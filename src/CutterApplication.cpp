@@ -83,6 +83,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
     }
 
+    loadPlugins();
+
     mainWindow = new MainWindow();
     installEventFilter(mainWindow);
 
@@ -97,9 +99,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     } else { // filename specified as positional argument
         mainWindow->openNewFile(args[0], analLevelSpecified ? analLevel : -1);
     }
-
-    // Load plugins
-    loadPlugins();
 }
 
 CutterApplication::~CutterApplication()
