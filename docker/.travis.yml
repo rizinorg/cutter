@@ -4,5 +4,4 @@ services:
   - docker
 
 script:
-  - docker build -t radare/cutter .
-  - docker images
+  - docker build -t radareorg/cutter .

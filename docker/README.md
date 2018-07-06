@@ -8,7 +8,7 @@ These files provide an easy way to deploy *Cutter* in a Docker container. After 
 
 ## Mounting and Using a Specific Binary
 
-The `Makefile` allows mounting a single binary file as read-only, which will also be used as an input for *Cutter*. To use this feature, execute `make run BINARY=/absolote/path/to/binary`.
+The `Makefile` allows mounting a single binary file as read-only, which will also be used as an input for *Cutter*. To use this feature, execute `make run BINARY=/absolute/path/to/binary`.
 
 ## Additional Notes
 
