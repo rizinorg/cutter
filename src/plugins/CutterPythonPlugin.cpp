@@ -44,6 +44,7 @@ void CutterPythonPlugin::setupPlugin(CutterCore *core)
     PyObject *result = PyObject_CallMethod(pInstance, "setupPlugin", nullptr);
     if (!result) {
         qWarning() << "Error in setupPlugin().";
+        PyErr_Print();
         Python()->saveThread();
     }
     Py_DECREF(result);
@@ -76,6 +77,10 @@ CutterDockWidget* CutterPythonPlugin::setupInterface(MainWindow *main, QAction *
     PyObject *pWidget = nullptr;
     Python()->restoreThread();
     pWidget = PyObject_CallMethod(pInstance, "setupInterface", nullptr);
+    if (!pWidget) {
+        qWarning() << "Error in setupInterface().";
+        PyErr_Print();
+    }
     Python()->saveThread();
 
     return nullptr;
