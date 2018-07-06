@@ -108,8 +108,8 @@ bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
 
 
 
-TypesWidget::TypesWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+TypesWidget::TypesWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::TypesWidget)
 {
     ui->setupUi(this);

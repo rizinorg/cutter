@@ -56,12 +56,12 @@ namespace Ui {
 class FlagsWidget;
 }
 
-class FlagsWidget : public CutterDockWidget
+class FlagsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit FlagsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit FlagsWidget(MainWindow *main);
     ~FlagsWidget();
 
 private slots:

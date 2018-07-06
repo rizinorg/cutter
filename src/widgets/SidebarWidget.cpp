@@ -1,6 +1,7 @@
 #include "SidebarWidget.h"
 #include "ui_SidebarWidget.h"
 #include "DisassemblerGraphView.h"
+#include "MainWindow.h"
 
 #include "utils/Helpers.h"
 #include "utils/TempConfig.h"
@@ -16,8 +17,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-SidebarWidget::SidebarWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+SidebarWidget::SidebarWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::SidebarWidget)
 {
     ui->setupUi(this);

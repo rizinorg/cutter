@@ -19,12 +19,12 @@ class JupyterWebView;
 class QTabWidget;
 class MainWindow;
 
-class JupyterWidget : public CutterDockWidget
+class JupyterWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    JupyterWidget(MainWindow *main, QAction *action = nullptr);
+    JupyterWidget(MainWindow *main);
     ~JupyterWidget();
 
 #ifdef CUTTER_ENABLE_QTWEBENGINE

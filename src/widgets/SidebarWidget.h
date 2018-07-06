@@ -24,12 +24,12 @@ namespace Ui {
 class SidebarWidget;
 }
 
-class SidebarWidget : public CutterDockWidget
+class SidebarWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SidebarWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SidebarWidget(MainWindow *main);
     ~SidebarWidget();
 
 private:

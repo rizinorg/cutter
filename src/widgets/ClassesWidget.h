@@ -66,12 +66,12 @@ protected:
 
 
 
-class ClassesWidget : public CutterDockWidget
+class ClassesWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit ClassesWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ClassesWidget(MainWindow *main);
     ~ClassesWidget();
 
 private slots:

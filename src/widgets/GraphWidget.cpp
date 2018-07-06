@@ -2,8 +2,8 @@
 #include "GraphWidget.h"
 #include "DisassemblerGraphView.h"
 
-GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+GraphWidget::GraphWidget(MainWindow *main) :
+    QDockWidget(main)
 {
     this->setObjectName("Graph");
     this->setAllowedAreas(Qt::AllDockWidgetAreas);

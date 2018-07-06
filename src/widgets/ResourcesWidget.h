@@ -31,7 +31,7 @@ public:
     void endReload();
 };
 
-class ResourcesWidget : public CutterDockWidget
+class ResourcesWidget : public QDockWidget
 {
     Q_OBJECT
 
@@ -41,7 +41,7 @@ private:
     QList<ResourcesDescription> resources;
 
 public:
-    explicit ResourcesWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ResourcesWidget(MainWindow *main);
 
 private slots:
     void refreshResources();

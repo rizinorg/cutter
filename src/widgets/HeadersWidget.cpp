@@ -106,8 +106,8 @@ bool HeadersProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftHeader.vaddr < rightHeader.vaddr;
 }
 
-HeadersWidget::HeadersWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+HeadersWidget::HeadersWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::HeadersWidget)
 {
     ui->setupUi(this);

@@ -22,8 +22,8 @@
 #include <QTreeView>
 #include <QTreeWidget>
 
-Dashboard::Dashboard(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+Dashboard::Dashboard(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::Dashboard)
 {
     ui->setupUi(this);

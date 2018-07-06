@@ -113,8 +113,8 @@ bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     return false;
 }
 
-RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+RelocsWidget::RelocsWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::RelocsWidget),
     relocsModel(new RelocsModel(&relocs, this)),
     relocsProxyModel(new RelocsProxyModel(relocsModel, this))

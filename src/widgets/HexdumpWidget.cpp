@@ -4,6 +4,7 @@
 #include "utils/Helpers.h"
 #include "utils/Configuration.h"
 #include "utils/TempConfig.h"
+#include "MainWindow.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -13,8 +14,8 @@
 #include <QClipboard>
 #include <QScrollBar>
 
-HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+HexdumpWidget::HexdumpWidget(MainWindow *main) :
+    QDockWidget(main),
     ui(new Ui::HexdumpWidget),
     seekable(new CutterSeekableWidget(this))
 {

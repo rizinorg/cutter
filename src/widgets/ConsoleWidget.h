@@ -11,12 +11,12 @@ class ConsoleWidget;
 }
 
 
-class ConsoleWidget : public CutterDockWidget
+class ConsoleWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit ConsoleWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ConsoleWidget(MainWindow *main);
 
     ~ConsoleWidget();
 

@@ -165,46 +165,48 @@ void MainWindow::initUI()
      */
     dockWidgets.reserve(20);
 
-    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
-    sidebarDock = new SidebarWidget(this, ui->actionSidebar);
-    hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
-    pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
-    consoleDock = new ConsoleWidget(this, ui->actionConsole);
+#define DOCK(w, a) (new CutterDockWidget(this, w, a))
+
+    disassemblyDock =   DOCK(new DisassemblyWidget(this), ui->actionDisassembly);
+    sidebarDock =       DOCK(new SidebarWidget(this), ui->actionSidebar);
+    hexdumpDock =       DOCK(new HexdumpWidget(this), ui->actionHexdump);
+    pseudocodeDock =    DOCK(new PseudocodeWidget(this), ui->actionPseudocode);
+    consoleDock =       DOCK(new ConsoleWidget(this), ui->actionConsole);
 
     // Add graph view as dockable
-    graphDock = new GraphWidget(this, ui->actionGraph);
+    graphDock =         DOCK(new GraphWidget(this), ui->actionGraph);
 
     // Hide centralWidget as we do not need it
     ui->centralWidget->hide();
 
-    sectionsDock = new SectionsWidget(this, ui->actionSections);
-    entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
-    functionsDock = new FunctionsWidget(this, ui->actionFunctions);
-    importsDock = new ImportsWidget(this, ui->actionImports);
-    exportsDock = new ExportsWidget(this, ui->actionExports);
-    headersDock = new HeadersWidget(this, ui->actionHeaders);
-    zignaturesDock = new ZignaturesWidget(this, ui->actionZignatures);
-    typesDock = new TypesWidget(this, ui->actionTypes);
-    searchDock = new SearchWidget(this, ui->actionSearch);
-    symbolsDock = new SymbolsWidget(this, ui->actionSymbols);
-    relocsDock = new RelocsWidget(this, ui->actionRelocs);
-    commentsDock = new CommentsWidget(this, ui->actionComments);
-    stringsDock = new StringsWidget(this, ui->actionStrings);
-    flagsDock = new FlagsWidget(this, ui->actionFlags);
-    stackDock = new StackWidget(this, ui->actionStack);
-    backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
-    registersDock = new RegistersWidget(this, ui->actionRegisters);
+    sectionsDock =      DOCK(new SectionsWidget(this), ui->actionSections);
+    entrypointDock =    DOCK(new EntrypointWidget(this), ui->actionEntrypoints);
+    functionsDock =     DOCK(new FunctionsWidget(this), ui->actionFunctions);
+    importsDock =       DOCK(new ImportsWidget(this), ui->actionImports);
+    exportsDock =       DOCK(new ExportsWidget(this), ui->actionExports);
+    headersDock =       DOCK(new HeadersWidget(this), ui->actionHeaders);
+    zignaturesDock =    DOCK(new ZignaturesWidget(this), ui->actionZignatures);
+    typesDock =         DOCK(new TypesWidget(this), ui->actionTypes);
+    searchDock =        DOCK(new SearchWidget(this), ui->actionSearch);
+    symbolsDock =       DOCK(new SymbolsWidget(this), ui->actionSymbols);
+    relocsDock =        DOCK(new RelocsWidget(this), ui->actionRelocs);
+    commentsDock =      DOCK(new CommentsWidget(this), ui->actionComments);
+    stringsDock =       DOCK(new StringsWidget(this), ui->actionStrings);
+    flagsDock =         DOCK(new FlagsWidget(this), ui->actionFlags);
+    stackDock =         DOCK(new StackWidget(this), ui->actionStack);
+    backtraceDock =     DOCK(new BacktraceWidget(this), ui->actionBacktrace);
+    registersDock =     DOCK(new RegistersWidget(this), ui->actionRegisters);
 #ifdef CUTTER_ENABLE_JUPYTER
-    jupyterDock = new JupyterWidget(this, ui->actionJupyter);
+    jupyterDock =       DOCK(new JupyterWidget(this), ui->actionJupyter);
 #else
     ui->actionJupyter->setEnabled(false);
     ui->actionJupyter->setVisible(false);
 #endif
-    dashboardDock = new Dashboard(this, ui->actionDashboard);
-    sdbDock = new SdbDock(this, ui->actionSDBBrowser);
-    classesDock = new ClassesWidget(this, ui->actionClasses);
-    resourcesDock = new ResourcesWidget(this, ui->actionResources);
-    vTablesDock = new VTablesWidget(this, ui->actionVTables);
+    dashboardDock =     DOCK(new Dashboard(this), ui->actionDashboard);
+    sdbDock =           DOCK(new SdbDock(this), ui->actionSDBBrowser);
+    classesDock =       DOCK(new ClassesWidget(this), ui->actionClasses);
+    resourcesDock =     DOCK(new ResourcesWidget(this), ui->actionResources);
+    vTablesDock =       DOCK(new VTablesWidget(this), ui->actionVTables);
 
 
     // Set up dock widgets default layout
@@ -259,28 +261,33 @@ void MainWindow::updateTasksIndicator()
 
 void MainWindow::on_actionExtraGraph_triggered()
 {
-    QDockWidget *extraDock = new GraphWidget(this, 0);
+    QDockWidget *extraDock = new GraphWidget(this);
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraHexdump_triggered()
 {
-    QDockWidget *extraDock = new HexdumpWidget(this, 0);
+    QDockWidget *extraDock = new HexdumpWidget(this);
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraDisassembly_triggered()
 {
-    QDockWidget *extraDock = new DisassemblyWidget(this, 0);
+    QDockWidget *extraDock = new DisassemblyWidget(this);
     addExtraWidget(extraDock);
+}
+
+void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
+{
+    addDockWidget(Qt::TopDockWidgetArea, extraDock);
+    auto restoreExtraDock = qhelpers::forceWidth(extraDock->getDockWidget()->widget(), 600);
+    qApp->processEvents();
+    restoreExtraDock.restoreWidth(extraDock->getDockWidget()->widget());
 }
 
 void MainWindow::addExtraWidget(QDockWidget *extraDock)
 {
-    addDockWidget(Qt::TopDockWidgetArea, extraDock);
-    auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
-    qApp->processEvents();
-    restoreExtraDock.restoreWidth(extraDock->widget());
+    addExtraWidget(new CutterDockWidget(this, extraDock, nullptr));
 }
 
 void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> advancedOptions)
@@ -496,6 +503,28 @@ void MainWindow::lockUnlock_Docks(bool what)
 
 }
 
+void MainWindow::addDockWidget(Qt::DockWidgetArea area, CutterDockWidget *dockWidget)
+{
+    QMainWindow::addDockWidget(area, dockWidget->getDockWidget());
+}
+
+void MainWindow::removeDockWidget(CutterDockWidget *dockWidget)
+{
+    QMainWindow::removeDockWidget(dockWidget->getDockWidget());
+}
+
+void MainWindow::tabifyDockWidget(CutterDockWidget *first, CutterDockWidget *second)
+{
+    QMainWindow::tabifyDockWidget(first->getDockWidget(), second->getDockWidget());
+}
+
+
+void MainWindow::splitDockWidget(CutterDockWidget *first, CutterDockWidget *second, Qt::Orientation orientation)
+{
+    QMainWindow::splitDockWidget(first->getDockWidget(), second->getDockWidget(), orientation);
+}
+
+
 void MainWindow::restoreDocks()
 {
     // In the upper half the functions are the first widget
@@ -543,7 +572,6 @@ void MainWindow::restoreDocks()
     updateDockActionsChecked();
 }
 
-
 void MainWindow::hideAllDocks()
 {
     for (auto w : dockWidgets) {
@@ -556,30 +584,30 @@ void MainWindow::hideAllDocks()
 void MainWindow::updateDockActionsChecked()
 {
     for (auto i = dockWidgetActions.constBegin(); i != dockWidgetActions.constEnd(); i++) {
-        i.key()->setChecked(!i.value()->isHidden());
+        i.key()->setChecked(!i.value()->getDockWidget()->isHidden());
     }
 }
 
 void MainWindow::showDefaultDocks()
 {
-    const QList<QDockWidget *> defaultDocks = { sectionsDock,
-                                                entrypointDock,
-                                                functionsDock,
-                                                commentsDock,
-                                                stringsDock,
-                                                consoleDock,
-                                                importsDock,
-                                                symbolsDock,
-                                                graphDock,
-                                                disassemblyDock,
-                                                sidebarDock,
-                                                hexdumpDock,
-                                                pseudocodeDock,
-                                                dashboardDock,
+    const QList<CutterDockWidget *> defaultDocks = { sectionsDock,
+                                                    entrypointDock,
+                                                    functionsDock,
+                                                    commentsDock,
+                                                    stringsDock,
+                                                    consoleDock,
+                                                    importsDock,
+                                                    symbolsDock,
+                                                    graphDock,
+                                                    disassemblyDock,
+                                                    sidebarDock,
+                                                    hexdumpDock,
+                                                    pseudocodeDock,
+                                                    dashboardDock,
 #ifdef CUTTER_ENABLE_JUPYTER
-                                                jupyterDock
+                                                    jupyterDock
 #endif
-                                              };
+                                                };
 
     for (auto w : dockWidgets) {
         if (defaultDocks.contains(w)) {
@@ -592,13 +620,13 @@ void MainWindow::showDefaultDocks()
 
 void MainWindow::showZenDocks()
 {
-    const QList<QDockWidget *> zenDocks = { functionsDock,
-                                            stringsDock,
-                                            graphDock,
-                                            disassemblyDock,
-                                            hexdumpDock,
-                                            searchDock
-                                            };
+    const QList<CutterDockWidget *> zenDocks = { functionsDock,
+                                                 stringsDock,
+                                                 graphDock,
+                                                 disassemblyDock,
+                                                 hexdumpDock,
+                                                 searchDock
+                                                 };
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w)) {
             w->show();
@@ -616,13 +644,13 @@ void MainWindow::resetToDefaultLayout()
 
     // ugly workaround to set the default widths of functions and sidebar docks
     // if anyone finds a way to do this cleaner that also works, feel free to change it!
-    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 300);
-    auto restoreSidebarDock = qhelpers::forceWidth(sidebarDock->widget(), 300);
+    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->getDockWidget()->widget(), 300);
+    auto restoreSidebarDock = qhelpers::forceWidth(sidebarDock->getDockWidget()->widget(), 300);
 
     qApp->processEvents();
 
-    restoreFunctionDock.restoreWidth(functionsDock->widget());
-    restoreSidebarDock.restoreWidth(sidebarDock->widget());
+    restoreFunctionDock.restoreWidth(functionsDock->getDockWidget()->widget());
+    restoreSidebarDock.restoreWidth(sidebarDock->getDockWidget()->widget());
 
     Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
@@ -636,24 +664,32 @@ void MainWindow::resetToZenLayout()
 
     // ugly workaround to set the default widths of functions
     // if anyone finds a way to do this cleaner that also works, feel free to change it!
-    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
+    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->getDockWidget()->widget(), 200);
 
     qApp->processEvents();
 
-    restoreFunctionDock.restoreWidth(functionsDock->widget());
+    restoreFunctionDock.restoreWidth(functionsDock->getDockWidget()->widget());
 
     Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
 void MainWindow::addOutput(const QString &msg)
 {
-    consoleDock->addOutput(msg);
+    auto *consoleWidget = qobject_cast<ConsoleWidget *>(consoleDock->getDockWidget());
+    if (!consoleWidget) {
+        return;
+    }
+    consoleWidget->addOutput(msg);
 }
 
 void MainWindow::addDebugOutput(const QString &msg)
 {
     printf("debug output: %s\n", msg.toLocal8Bit().constData());
-    consoleDock->addDebugOutput(msg);
+    auto *consoleWidget = qobject_cast<ConsoleWidget *>(consoleDock->getDockWidget());
+    if (!consoleWidget) {
+        return;
+    }
+    consoleWidget->addDebugOutput(msg);
 }
 
 void MainWindow::on_actionLock_triggered()
@@ -879,12 +915,12 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
+void MainWindow::addToDockWidgetList(CutterDockWidget *dockWidget)
 {
     this->dockWidgets.push_back(dockWidget);
 }
 
-void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
+void MainWindow::addDockWidgetAction(CutterDockWidget *dockWidget, QAction *action)
 {
     this->dockWidgetActions[action] = dockWidget;
 }

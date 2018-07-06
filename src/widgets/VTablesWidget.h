@@ -50,12 +50,12 @@ protected:
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 };
 
-class VTablesWidget : public CutterDockWidget
+class VTablesWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit VTablesWidget(MainWindow *main, QAction *action = nullptr);
+    explicit VTablesWidget(MainWindow *main);
     ~VTablesWidget();
 
 private slots:

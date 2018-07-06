@@ -51,12 +51,12 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class ExportsWidget : public CutterDockWidget
+class ExportsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit ExportsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ExportsWidget(MainWindow *main);
     ~ExportsWidget();
 
 private slots:
