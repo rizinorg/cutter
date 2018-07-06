@@ -106,12 +106,11 @@ void VisualNavbar::fillData()
     int h = graphicsView->height();
 
     RVA totalSize = stats.to - stats.from;
-
-    printf("from: %llu, to %llu, first: %llu\n", stats.from, stats.to, stats.blocks[0].addr);
+    RVA beginAddr = stats.from;
 
     double widthPerByte = (double)w / (double)totalSize;
-    auto xFromAddr = [widthPerByte] (RVA addr) -> double {
-        return addr * widthPerByte;
+    auto xFromAddr = [widthPerByte, beginAddr] (RVA addr) -> double {
+        return (addr - beginAddr) * widthPerByte;
     };
 
     std::array<QBrush, static_cast<int>(DataType::Count)> dataTypeBrushes;
@@ -133,12 +132,14 @@ void VisualNavbar::fillData()
         xToAddress.append(x2a);
 
         DataType dataType;
-        if (block.inFunctions > 0) {
+        if (block.functions > 0) {
             dataType = DataType::Code;
         } else if (block.strings > 0) {
             dataType = DataType::String;
         } else if (block.symbols > 0) {
             dataType = DataType::Symbol;
+        } else if (block.inFunctions > 0) {
+            dataType = DataType::Code;
         } else {
             lastDataType = DataType::Empty;
             continue;

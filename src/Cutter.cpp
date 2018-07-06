@@ -1546,8 +1546,6 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
 
     QJsonArray blocksArray = statsObj["blocks"].toArray();
 
-    printf("got %d blocks for requested %u\n", blocksArray.count(), blocksCount);
-
     for (const QJsonValue &value : blocksArray) {
         QJsonObject blockObj = value.toObject();
         BlockDescription block;
