@@ -36,7 +36,7 @@ void AnalTask::runTask()
 
     // Do not reload the file if already loaded
     QJsonArray openedFiles = Core()->getOpenedFiles();
-    if (!openedFiles.size()) {
+    if (!openedFiles.size() && options.filename.length()) {
         bool fileLoaded = Core()->loadFile(options.filename,
                                            options.binLoadAddr,
                                            options.mapAddr,
@@ -47,7 +47,7 @@ void AnalTask::runTask()
         if (!fileLoaded) {
             // Something wrong happened, fallback to open dialog
             emit openFileFailed();
-            AsyncTask::interrupt();
+            interrupt();
             return;
         }
     }
@@ -60,8 +60,8 @@ void AnalTask::runTask()
         Core()->cmd("e asm.os=" + options.os);
     }
 
-    // Load PDB and/or scripts
     if (!options.pdbFile.isNull()) {
+        log(tr("Loading PDB file...\n"));
         Core()->loadPDB(options.pdbFile);
     }
 
@@ -70,6 +70,7 @@ void AnalTask::runTask()
     }
 
     if (!options.script.isNull()) {
+        log(tr("Executing script...\n"));
         Core()->loadScript(options.script);
     }
 

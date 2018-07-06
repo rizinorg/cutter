@@ -74,7 +74,7 @@
 #include "widgets/HeadersWidget.h"
 #include "widgets/ZignaturesWidget.h"
 
-// graphics
+// Graphics
 #include <QGraphicsEllipseItem>
 #include <QGraphicsScene>
 #include <QGraphicsView>
