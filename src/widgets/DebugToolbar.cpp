@@ -1,6 +1,6 @@
 #include "DebugToolbar.h"
 #include "MainWindow.h"
-#include "dialogs/AttachProcDialog.cpp"
+#include "dialogs/AttachProcDialog.h"
 
 #include <QAction>
 #include <QPainter>
