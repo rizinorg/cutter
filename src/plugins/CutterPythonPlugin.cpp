@@ -81,7 +81,5 @@ CutterDockWidget* CutterPythonPlugin::setupInterface(MainWindow *main, QAction *
     pWidget = PyObject_CallMethod(pInstance, "setupInterface", nullptr);
     Python()->saveThread();
 
-    qDebug() << "Here is the widget: " << pWidget;
-
     return nullptr;
 }
