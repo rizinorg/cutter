@@ -12,7 +12,10 @@ class CutterSamplePlugin(CutterPlugin):
 
     def setupInterface(self):
         print('Creating the dock widget...')
-        main_window = self.app.findChild('MainWindow')
+        main_window = None
+        for widget in QtWidgets.QApplication.topLevelWidgets():
+            if widget.objectName() == "MainWindow":
+                main_window = widget
         dock_widget = QtWidgets.QDockWidget(main_window)
         dock_widget.setWindowTitle('Test Widget')
         print(main_window, dock_widget)
