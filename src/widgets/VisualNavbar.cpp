@@ -65,32 +65,54 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     setMouseTracking(true);
 }
 
+unsigned int nextPow2(unsigned int n)
+{
+    unsigned int b = 0;
+    while (n) {
+        n >>= 1;
+        b++;
+    }
+    return (1u << b);
+}
+
 void VisualNavbar::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
 
     QPainter painter(this);
-    if (previousWidth != this->width()) {
+
+    auto w = static_cast<unsigned int>(width());
+    bool fetch = false;
+    if (statsWidth < w) {
+        statsWidth = nextPow2(w);
+        fetch = true;
+    } else if (statsWidth > w*4) {
+        statsWidth = statsWidth > 0 ? statsWidth / 2 : 0;
+        fetch = true;
+    }
+
+    if (fetch) {
         fetchAndPaintData();
-        previousWidth = this->width();
+    } else if (previousWidth != w) {
+        this->previousWidth = w;
+        updateGraphicsScene();
     }
 }
 
 void VisualNavbar::fetchAndPaintData()
 {
-    fetchData();
-    fillData();
+    fetchStats();
+    updateGraphicsScene();
 }
 
-void VisualNavbar::fetchData()
+void VisualNavbar::fetchStats()
 {
-    statsWidth = graphicsView->width();
-    stats = Core()->getBlockStatistics((unsigned int)statsWidth);
+    stats = Core()->getBlockStatistics(statsWidth);
 }
 
 enum class DataType: int { Empty, Code, String, Symbol, Count };
 
-void VisualNavbar::fillData()
+void VisualNavbar::updateGraphicsScene()
 {
     graphicsScene->clear();
     xToAddress.clear();

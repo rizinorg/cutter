@@ -1537,6 +1537,11 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
 
 BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
 {
+    if (blocksCount == 0) {
+        BlockStatistics ret;
+        ret.from = ret.to = ret.blocksize = 0;
+        return ret;
+    }
     QJsonObject statsObj = cmdj("p-j " + QString::number(blocksCount)).object();
 
     BlockStatistics ret;

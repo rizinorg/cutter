@@ -28,8 +28,8 @@ public slots:
 
 private slots:
     void fetchAndPaintData();
-    void fetchData();
-    void fillData();
+    void fetchStats();
+    void updateGraphicsScene();
     void drawCursor();
     void on_seekChanged(RVA addr);
 
@@ -40,12 +40,10 @@ private:
     MainWindow        *main;
 
     BlockStatistics    stats;
-    int                statsWidth;
+    unsigned int       statsWidth = 0;
+    unsigned int       previousWidth = 0;
 
     QList<XToAddress> xToAddress;
-
-    // Used to check whether the width changed. If yes we need to re-initialize the scene (slow)
-    int previousWidth = -1;
 
     RVA localXToAddress(double x);
     double addressToLocalX(RVA address);
