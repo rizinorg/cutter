@@ -80,10 +80,23 @@ CutterDockWidget* CutterPythonPlugin::setupInterface(MainWindow *main, QAction *
     PyObject *pWidget = nullptr;
     Python()->restoreThread();
     pWidget = PyObject_CallMethod(pInstance, "setupInterface", nullptr);
+
     if (!pWidget) {
         qWarning() << "Error in setupInterface().";
         PyErr_Print();
+        Python()->saveThread();
+        return nullptr;
     }
+
+    if (!PyLong_Check(pWidget)) {
+        qWarning() << "Value returned by setupInterface() is not PyLong.";
+        Python()->saveThread();
+        return nullptr;
+    }
+
+    auto dockWidget = reinterpret_cast<QDockWidget *>(PyLong_AsLong(pWidget));
+    printf("plugin gave me this: %s\n", dockWidget->objectName().toLocal8Bit().constData());
+
     Python()->saveThread();
 
     return nullptr;

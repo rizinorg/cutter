@@ -119,6 +119,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
     }
 
+    loadPlugins();
+
     mainWindow = new MainWindow();
     installEventFilter(mainWindow);
 
@@ -160,9 +162,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         options.script = cmd_parser.value(scriptOption);
         mainWindow->openNewFile(options, analLevelSpecified);
     }
-
-    // Load plugins
-    loadPlugins();
 
 #ifdef CUTTER_APPVEYOR_R2DEC
     qputenv("R2DEC_HOME", "radare2\\lib\\plugins\\r2dec-js");
