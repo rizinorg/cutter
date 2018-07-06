@@ -170,6 +170,6 @@ void CutterApplication::loadPlugins()
         }
     }
 
-    qDebug() << "Loaded" << plugins.length() << "plugins.";
+    qInfo() << "Loaded" << plugins.length() << "plugins.";
     Core()->setCutterPlugins(plugins);
 }

@@ -11,13 +11,11 @@ class CutterSamplePlugin(CutterPlugin):
         self.app = QtCore.QCoreApplication.instance()
 
     def setupInterface(self):
-        for _ in range(200):
-            print('FUCK', end='')
+        print('Creating the dock widget...')
         main_window = self.app.findChild('MainWindow')
         dock_widget = QtWidgets.QDockWidget(main_window)
-        dock_widget.setWindowTitle('Test Widget!!!')
-        for _ in range(200):
-            print(main_window, dock_widget)
+        dock_widget.setWindowTitle('Test Widget')
+        print(main_window, dock_widget)
         return dock_widget
 
 
