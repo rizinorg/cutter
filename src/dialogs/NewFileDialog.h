@@ -16,7 +16,6 @@ class NewFileDialog : public QDialog
 public:
     explicit NewFileDialog(QWidget *parent = nullptr);
     ~NewFileDialog();
-    enum newFileTabs { TAB_FILES = 0, TAB_PROJECTS };
 
 private slots:
     void on_loadFileButton_clicked();
@@ -55,6 +54,7 @@ private:
      * @return true if list is not empty
      */
     bool fillProjectsList();
+    void fillIOPluginsList();
 
     void loadFile(const QString &filename);
     void loadProject(const QString &project);

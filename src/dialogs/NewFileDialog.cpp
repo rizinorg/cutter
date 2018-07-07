@@ -63,12 +63,10 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     fillRecentFilesList();
+    fillIOPluginsList();
 
-    if (Config()->getNewFileLastClicked() == TAB_PROJECTS) {
-        ui->tabWidget->setCurrentWidget(ui->projectsTab);
-    } else {
-        ui->tabWidget->setCurrentWidget(ui->filesTab);
-    }
+    // Set last clicked tab
+    ui->tabWidget->setCurrentIndex(Config()->getNewFileLastClicked());
 
     ui->loadProjectButton->setEnabled(ui->projectsListWidget->currentItem() != nullptr);
 
@@ -306,9 +304,24 @@ bool NewFileDialog::fillProjectsList()
     return !projects.isEmpty();
 }
 
+void NewFileDialog::fillIOPluginsList()
+{
+    ui->ioPlugin->clear();
+    ui->ioPlugin->addItem("");
+    ui->ioPlugin->setItemData(0, tr("Open a file with no extra treatment."), Qt::ToolTipRole);
+
+    int index = 1;
+    QList<RIOPluginDescription> ioPlugins = Core()->getRIOPluginDescriptions();
+    for (RIOPluginDescription plugin : ioPlugins) {
+        ui->ioPlugin->addItem(plugin.name);
+        ui->ioPlugin->setItemData(index, plugin.description, Qt::ToolTipRole);
+        index++;
+    }
+}
+
 void NewFileDialog::loadFile(const QString &filename)
 {
-    if (!ui->checkBox_FilelessOpen->isChecked() && !Core()->tryFile(filename, false)) {
+    if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(filename, false) && !ui->checkBox_FilelessOpen->isChecked()) {
         QMessageBox msgBox(this);
         msgBox.setText(tr("Select a new program or a previous one before continuing."));
         msgBox.exec();
@@ -327,7 +340,8 @@ void NewFileDialog::loadFile(const QString &filename)
 
     // Close dialog and open MainWindow/OptionsDialog
     MainWindow *main = new MainWindow();
-    main->openNewFile(filename);
+    QString ioFile = ui->ioPlugin->currentText() + "://" + filename;
+    main->openNewFile(ioFile);
     
     close();
 }
