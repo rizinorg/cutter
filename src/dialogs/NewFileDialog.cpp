@@ -63,9 +63,8 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     fillRecentFilesList();
-    bool projectsExist = fillProjectsList();
 
-    if (projectsExist) {
+    if (Config()->getNewFileLastClicked() == TAB_PROJECTS) {
         ui->tabWidget->setCurrentWidget(ui->projectsTab);
     } else {
         ui->tabWidget->setCurrentWidget(ui->filesTab);
@@ -339,4 +338,9 @@ void NewFileDialog::loadProject(const QString &project)
     main->openProject(project);
 
     close();
+}
+
+void NewFileDialog::on_tabWidget_currentChanged(int index)
+{
+    Config()->setNewFileLastClicked(index);
 }

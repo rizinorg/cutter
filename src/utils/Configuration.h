@@ -51,6 +51,9 @@ public:
     QString getDirProjects();
     void setDirProjects(const QString& dir);
 
+    void setNewFileLastClicked(int lastClicked);
+    int getNewFileLastClicked();
+
     // Images
     QString getLogoFile();
 

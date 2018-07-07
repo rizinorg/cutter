@@ -16,6 +16,7 @@ class NewFileDialog : public QDialog
 public:
     explicit NewFileDialog(QWidget *parent = nullptr);
     ~NewFileDialog();
+    enum newFileTabs { TAB_FILES = 0, TAB_PROJECTS };
 
 private slots:
     void on_loadFileButton_clicked();
@@ -35,6 +36,8 @@ private slots:
     void on_actionRemove_item_triggered();
     void on_actionClear_all_triggered();
     void on_actionRemove_project_triggered();
+
+    void on_tabWidget_currentChanged(int index);
 
 protected:
     void dragEnterEvent(QDragEnterEvent *event);

@@ -74,6 +74,21 @@ void Configuration::setDirProjects(const QString &dir)
     s.setValue("dir.projects", dir);
 }
 
+/**
+ * @brief Configuration::setFilesTabLastClicked
+ * Set the new file dialog last clicked tab
+ * @param lastClicked
+ */
+void Configuration::setNewFileLastClicked(int lastClicked)
+{
+    s.setValue("newFileLastClicked", lastClicked);
+}
+
+int Configuration::getNewFileLastClicked()
+{
+    return s.value("newFileLastClicked").toInt();
+}
+
 void Configuration::resetAll()
 {
     Core()->cmd("e-");
@@ -292,6 +307,12 @@ QString Configuration::getConfigString(const QString &key)
     return getConfigVar(key).toString();
 }
 
+/**
+ * @brief Configuration::setConfig
+ * Set radare2 configuration value (e.g. "asm.lines")
+ * @param key
+ * @param value
+ */
 void Configuration::setConfig(const QString &key, const QVariant &value)
 {
     if (asmOptions.contains(key)) {
