@@ -313,7 +313,7 @@ void HexdumpWidget::refresh(RVA addr)
 
     ui->hexOffsetText->setText(hexdump[0]);
     ui->hexHexText->setText(hexdump[1]);
-    ui->hexASCIIText->setText(hexdump[2]);
+    ui->hexASCIIText->setPlainText(hexdump[2]);
 
     QTextCursor cursor(ui->hexHexText->document()->findBlockByLineNumber(curAddrLineOffset));
     ui->hexHexText->moveCursor(QTextCursor::End);
