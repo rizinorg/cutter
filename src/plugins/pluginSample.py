@@ -3,12 +3,14 @@ from cutter_plugin import CutterPlugin
 from PySide2 import QtCore, QtWidgets
 import shiboken2
 
+
 class CutterSamplePlugin(CutterPlugin):
+    name = "SamplePlugin"
+    description = "A sample plugin written in python."
+    version = "1.0"
+    author = "xarkes"
+
     def setupPlugin(self):
-        self.name = 'SamplePlugin'
-        self.description = 'A sample plugin written in python.'
-        self.version = '1.0'
-        self.author = 'xarkes'
         self.app = QtCore.QCoreApplication.instance()
 
     def setupInterface(self):
@@ -28,4 +30,3 @@ class CutterSamplePlugin(CutterPlugin):
 
 # Instantiate our plugin
 plugin = CutterSamplePlugin()
-
