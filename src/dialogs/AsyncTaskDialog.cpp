@@ -43,7 +43,7 @@ void AsyncTaskDialog::updateLog(const QString &log)
 
 void AsyncTaskDialog::updateProgressTimer()
 {
-    int secondsElapsed = (task->getTimer().elapsed() + 500) / 1000;
+    int secondsElapsed = (task->getElapsedTime() + 500) / 1000;
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
 
@@ -57,6 +57,7 @@ void AsyncTaskDialog::updateProgressTimer()
         label += " ";
     }
     label += tr("%n seconds", "%n second", secondsElapsed % 60);
+    printf("setText %s\n", label.toLocal8Bit().constData());
     ui->timeLabel->setText(label);
 }
 

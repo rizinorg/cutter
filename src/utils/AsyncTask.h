@@ -33,6 +33,7 @@ public:
 
     const QString &getLog()             { return logBuffer; }
     const QElapsedTimer &getTimer()     { return timer; }
+    qint64 getElapsedTime()             { return timer.isValid() ? timer.elapsed() : 0; }
 
     virtual QString getTitle()          { return QString(); }
 

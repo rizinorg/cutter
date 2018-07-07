@@ -242,12 +242,12 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
     AsyncTask::Ptr analTaskPtr(analTask);
 
-    Core()->getAsyncTaskManager()->start(analTaskPtr);
-
     AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analTaskPtr);
     taskDialog->setInterruptOnClose(true);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
+
+    Core()->getAsyncTaskManager()->start(analTaskPtr);
 
     done(0);
 }
