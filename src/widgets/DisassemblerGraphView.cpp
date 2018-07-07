@@ -161,7 +161,9 @@ void DisassemblerGraphView::loadCurrentGraph()
     bool emptyGraph = functions.isEmpty();
     if (emptyGraph) {
         // If there's no function to print, just move to disassembly and add a message
-        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        if (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Graph) {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        }
         if (!emptyText) {
             QVBoxLayout *layout = new QVBoxLayout(this);
             emptyText = new QLabel(this);
