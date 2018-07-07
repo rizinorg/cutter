@@ -24,6 +24,7 @@ void AnalTask::interrupt()
 void AnalTask::runTask()
 {
     log(tr("Loading Binary...\n"));
+    openFailed = false;
 
     Core()->setCPU(options.arch, options.cpu, options.bits);
 
@@ -46,6 +47,7 @@ void AnalTask::runTask()
                                            options.forceBinPlugin);
         if (!fileLoaded) {
             // Something wrong happened, fallback to open dialog
+            openFailed = true;
             emit openFileFailed();
             interrupt();
             return;

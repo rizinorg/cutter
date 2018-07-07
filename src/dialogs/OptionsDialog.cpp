@@ -237,8 +237,14 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     AnalTask *analTask = new AnalTask();
     analTask->setOptions(options);
 
+    MainWindow *main = this->main;
     connect(analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
-    connect(analTask, &AsyncTask::finished, main, &MainWindow::finalizeOpen);
+    connect(analTask, &AsyncTask::finished, main, [analTask, main]() {
+        if (analTask->getOpenFileFailed()) {
+            return;
+        }
+        main->finalizeOpen();
+    });
 
     AsyncTask::Ptr analTaskPtr(analTask);
 

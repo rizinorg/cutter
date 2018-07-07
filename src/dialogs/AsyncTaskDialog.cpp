@@ -57,7 +57,6 @@ void AsyncTaskDialog::updateProgressTimer()
         label += " ";
     }
     label += tr("%n seconds", "%n second", secondsElapsed % 60);
-    printf("setText %s\n", label.toLocal8Bit().constData());
     ui->timeLabel->setText(label);
 }
 

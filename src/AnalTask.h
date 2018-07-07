@@ -53,6 +53,8 @@ public:
 
     void interrupt() override;
 
+    bool getOpenFileFailed()	{ return openFailed; }
+
 protected:
     void runTask() override;
 
@@ -61,6 +63,8 @@ signals:
 
 private:
     InitialOptions options;
+
+    bool openFailed = false;
 };
 
 #endif // ANALTHREAD_H
