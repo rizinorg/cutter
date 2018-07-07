@@ -340,7 +340,11 @@ void NewFileDialog::loadFile(const QString &filename)
 
     // Close dialog and open MainWindow/OptionsDialog
     MainWindow *main = new MainWindow();
-    QString ioFile = ui->ioPlugin->currentText() + "://" + filename;
+    QString ioFile = "";
+    if (ui->ioPlugin->currentIndex()) {
+        ioFile = ui->ioPlugin->currentText() + "://";
+    }
+    ioFile += filename;
     main->openNewFile(ioFile);
     
     close();
