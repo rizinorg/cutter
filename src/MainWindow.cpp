@@ -278,7 +278,7 @@ void MainWindow::initUI()
     /* Setup plugins interfaces */
     QList<CutterPlugin *> plugins = core->getCutterPlugins();
     for (auto plugin : plugins) {
-        CutterDockWidget *pluginDock = plugin->setupInterface(this);
+        QDockWidget *pluginDock = plugin->setupInterface(this);
         if (pluginDock) {
             tabifyDockWidget(dashboardDock, pluginDock);
         }

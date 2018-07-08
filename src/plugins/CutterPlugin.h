@@ -12,7 +12,7 @@ class CutterPlugin
 public:
     virtual ~CutterPlugin() {}
     virtual void setupPlugin(CutterCore *core) = 0;
-    virtual CutterDockWidget* setupInterface(MainWindow *main, QAction *action = nullptr) = 0;
+    virtual QDockWidget *setupInterface(MainWindow *main, QAction *action = nullptr) = 0;
 
     QString name;
     QString description;
