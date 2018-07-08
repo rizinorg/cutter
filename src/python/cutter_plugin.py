@@ -1,17 +1,25 @@
-from abc import ABC, abstractmethod
+from PySide2 import QtCore, QtWidgets
+import shiboken2
 
 
-class CutterPlugin(ABC):
+class CutterPlugin(object):
     name = ''
     description = ''
     version = ''
     author = ''
 
-    @abstractmethod
     def setupPlugin(self):
-        pass
+        self.app = QtCore.QCoreApplication.instance()
 
-    @abstractmethod
     def setupInterface(self):
-        pass
+        for widget in QtWidgets.QApplication.topLevelWidgets():
+            if widget.objectName() == "MainWindow":
+                self.main = widget
+                break
+
+    def makeCppPointer(self, widget):
+        ptr = shiboken2.getCppPointer(widget)[0]
+        return ptr
+        
+
 
