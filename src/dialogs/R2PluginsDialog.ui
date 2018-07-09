@@ -74,6 +74,9 @@
        </item>
        <item>
         <widget class="QTreeWidget" name="RIOTreeWidget">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
          <column>
           <property name="text">
            <string>Name</string>
@@ -112,6 +115,9 @@
        </item>
        <item>
         <widget class="QTreeWidget" name="RCoreTreeWidget">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
          <column>
           <property name="text">
            <string>Name</string>
@@ -140,6 +146,9 @@
        </item>
        <item>
         <widget class="QTreeWidget" name="RAsmTreeWidget">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
          <column>
           <property name="text">
            <string>Name</string>
@@ -193,6 +202,9 @@
        </item>
        <item>
         <widget class="QTreeWidget" name="CutterTreeWidget">
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
          <column>
           <property name="text">
            <string>Name</string>
