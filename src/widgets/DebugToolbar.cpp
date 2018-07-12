@@ -24,15 +24,19 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QIcon stepOverIcon = QIcon(":/img/icons/step_over_light.svg");
 
     actionStart = new QAction(startDebugIcon, tr("Start debug"), parent);
+    actionStart->setShortcut(QKeySequence(Qt::Key_F9));
     actionStartEmul = new QAction(startEmulIcon, tr("Start emulation"), parent);
-    QAction *actionAttach = new QAction(startAttachIcon, tr("Attach to process"), parent);
+    actionAttach = new QAction(startAttachIcon, tr("Attach to process"), parent);
     QAction *actionStop = new QAction(stopIcon, tr("Stop debug"), parent);
-    QAction *actionContinue = new QAction(continueIcon, tr("Continue"), parent);
-    QAction *actionContinueUntilMain = new QAction(continueUntilMainIcon, tr("Continue until main"), parent);
-    QAction *actionContinueUntilCall = new QAction(continueUntilCallIcon, tr("Continue until call"), parent);
-    QAction *actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, tr("Continue until syscall"), parent);
-    QAction *actionStep = new QAction(stepIcon, tr("Step"), parent);
-    QAction *actionStepOver = new QAction(stepOverIcon, tr("Step over"), parent);
+    actionContinue = new QAction(continueIcon, tr("Continue"), parent);
+    actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
+    actionContinueUntilMain = new QAction(continueUntilMainIcon, tr("Continue until main"), parent);
+    actionContinueUntilCall = new QAction(continueUntilCallIcon, tr("Continue until call"), parent);
+    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, tr("Continue until syscall"), parent);
+    actionStep = new QAction(stepIcon, tr("Step"), parent);
+    actionStep->setShortcut(QKeySequence(Qt::Key_F7));
+    actionStepOver = new QAction(stepOverIcon, tr("Step over"), parent);
+    actionStepOver->setShortcut(QKeySequence(Qt::Key_F8));
 
     QToolButton *startButton = new QToolButton;
     startButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -61,39 +65,39 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     addAction(actionStep);
     addAction(actionStepOver);
 
-    connect(actionStop,              &QAction::triggered, Core(), &CutterCore::stopDebug);
-    connect(actionStop,              &QAction::triggered, [=](){
-                                                                actionContinue->setVisible(true);
-                                                                actionStart->setVisible(true);
-                                                                actionStartEmul->setVisible(true);
-                                                                actionAttach->setVisible(true);
-                                                                actionContinueUntilMain->setVisible(true);
-                                                                actionContinueUntilCall->setVisible(true);
-                                                                this->colorToolbar(false);
-                                                                });
-    connect(actionStep,              &QAction::triggered, Core(), &CutterCore::stepDebug);
-    connect(actionStart,             &QAction::triggered, Core(), &CutterCore::startDebug);
-    connect(actionStart,             &QAction::triggered, [=](){
-                                                                this->colorToolbar(true);
-                                                                actionAttach->setVisible(false);
-                                                                actionStartEmul->setVisible(false);
-                                                                });
-    connect(actionAttach,           &QAction::triggered, this,   &DebugToolbar::attachProcessDialog);
-    connect(actionStartEmul,        &QAction::triggered, Core(), &CutterCore::startEmulation);
-    connect(actionStartEmul,        &QAction::triggered, [=](){
-                                                                actionContinue->setVisible(false);
-                                                                actionStart->setVisible(false);
-                                                                actionAttach->setVisible(false);
-                                                                actionContinueUntilMain->setVisible(false);
-                                                                actionContinueUntilCall->setVisible(false);
-                                                                continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
-                                                                this->colorToolbar(true);
-                                                                });
-    connect(actionStepOver,          &QAction::triggered, Core(), &CutterCore::stepOverDebug);
-    connect(actionContinue,          &QAction::triggered, Core(), &CutterCore::continueDebug);
-    connect(actionContinueUntilMain, &QAction::triggered, this,   &DebugToolbar::continueUntilMain);
+    connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
+    connect(actionStop, &QAction::triggered, [=]() {
+        actionContinue->setVisible(true);
+        actionStart->setVisible(true);
+        actionStartEmul->setVisible(true);
+        actionAttach->setVisible(true);
+        actionContinueUntilMain->setVisible(true);
+        actionContinueUntilCall->setVisible(true);
+        this->colorToolbar(false);
+    });
+    connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
+    connect(actionStart, &QAction::triggered, Core(), &CutterCore::startDebug);
+    connect(actionStart, &QAction::triggered, [=]() {
+        this->colorToolbar(true);
+        actionAttach->setVisible(false);
+        actionStartEmul->setVisible(false);
+    });
+    connect(actionAttach, &QAction::triggered, this, &DebugToolbar::attachProcessDialog);
+    connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
+    connect(actionStartEmul, &QAction::triggered, [=]() {
+        actionContinue->setVisible(false);
+        actionStart->setVisible(false);
+        actionAttach->setVisible(false);
+        actionContinueUntilMain->setVisible(false);
+        actionContinueUntilCall->setVisible(false);
+        continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
+        this->colorToolbar(true);
+    });
+    connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
+    connect(actionContinue, &QAction::triggered, Core(), &CutterCore::continueDebug);
+    connect(actionContinueUntilMain, &QAction::triggered, this, &DebugToolbar::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
-    connect(actionContinueUntilSyscall, &QAction::triggered, Core(),&CutterCore::continueUntilSyscall);
+    connect(actionContinueUntilSyscall, &QAction::triggered, Core(), &CutterCore::continueUntilSyscall);
 }
 
 void DebugToolbar::continueUntilMain()
