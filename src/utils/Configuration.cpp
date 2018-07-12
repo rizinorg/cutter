@@ -34,7 +34,8 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.capitalize",     false },
     { "asm.var.sub",        true },
     { "asm.var.subonly",    true },
-    { "asm.tabs",           5 }
+    { "asm.tabs",           5 },
+    { "asm.tabs.off",       5 }
 };
 
 
