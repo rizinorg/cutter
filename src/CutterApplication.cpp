@@ -75,6 +75,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     bool analLevelSpecified = false;
     int analLevel = 0;
 
+    // Initialize CutterCore and set default settings
+    Core()->setSettings();
+
     if (cmd_parser.isSet(analOption)) {
         analLevel = cmd_parser.value(analOption).toInt(&analLevelSpecified);
 

@@ -353,9 +353,8 @@ void MainWindow::finalizeOpen()
 {
     core->getOpcodes();
 
-    // Set settings to override any incorrect saved in the project
+    // Override any incorrect setting saved in the project
     core->setSettings();
-
 
     addOutput(tr(" > Populating UI"));
     // FIXME: initialization order frakup. the next line is needed so that the
