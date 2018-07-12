@@ -833,13 +833,9 @@ void CutterCore::setSettings()
     setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
     setConfig("anal.autoname", true);
+    setConfig("anal.jmptbl", false);
 
-    // Fucking pancake xD
     setConfig("cfg.fortunes.tts", false);
-
-    // Used by the HTML5 graph
-    setConfig("http.cors", true);
-    setConfig("http.sandbox", false);
 
     // Colors
     setConfig("scr.color", COLOR_MODE_DISABLED);
