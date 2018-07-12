@@ -823,7 +823,6 @@ void CutterCore::setSettings()
     setConfig("scr.interactive", false);
 
     setConfig("hex.pairs", false);
-    setConfig("asm.cmt.col", 70);
     setConfig("asm.xrefs", false);
 
     setConfig("asm.tabs.once", true);
