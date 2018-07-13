@@ -22,6 +22,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     setApplicationName("Cutter");
     setApplicationVersion(APP_VERSION);
     setWindowIcon(QIcon(":/img/cutter.svg"));
+    setAttribute(Qt::AA_DontShowIconsInMenus);
 
     // Set QString codec to UTF-8
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
