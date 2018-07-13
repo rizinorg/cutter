@@ -2,10 +2,10 @@
 
 mkdir -p python && cd python || exit 1
 
+export CUSTOM_PYTHON_PREFIX="`pwd`/prefix"
+
 wget "https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz" || exit 1
 tar -xf Python-3.6.4.tar.xz || exit 1
-
-export CUSTOM_PYTHON_PREFIX="`pwd`/prefix"
 
 cd Python-3.6.4 || exit 1
 echo "Building Python to install to prefix $CUSTOM_PYTHON_PREFIX"
