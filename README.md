@@ -70,28 +70,44 @@ Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-er
 
 ## Keyboard shortcuts
 
-| Shortcut | Function |
-| --- | --- |
-| Global shortcuts: ||
-| . | Focus console input |
-| G & S | Focus search bar |
-| F5 | Refresh contents |
-| Disassembly view: ||
-| Esc | Seek to previous position |
-| Space | Switch to disassembly graph view |
-| Ctrl/Cmd+C | Copy |
-| ; | Add comment |
-| N | Rename current function/flag |
-| Shift+N | Rename flag/function used here |
-| X | Show Xrefs |
-| Disassembly graph view: ||
-| Esc | Seek to previous position |
-| Space | Switch to disassembly view |
-| + | Zoom in |
-| - | Zoom out |
-| = | Reset zoom |
-| J | Next instruction |
-| K | Previous instruction |
+### Global shortcuts
+| Shortcut   | Function            |
+| ---------- | ------------------- |
+| .          | Focus console input |
+| G/S        | Focus search bar    |
+| Ctrl/Cmd+R | Refresh contents    |
+
+### Disassembly view shortcuts
+| Shortcut   | Function                         |
+| ---------- | -------------------------------- |
+| Esc        | Seek to previous position        |
+| Space      | Switch to disassembly graph view |
+| Ctrl/Cmd+C | Copy                             |
+| ;          | Add comment                      |
+| N          | Rename current function/flag     |
+| Shift+N    | Rename flag/function used here   |
+| X          | Show Xrefs                       |
+
+### Graph view shortcuts
+| Shortcut            | Function                   |
+| ------------------- | -------------------------- |
+| Esc                 | Seek to previous position  |
+| Space               | Switch to disassembly view |
+| Ctrl/Cmd+MouseWheel | Zoom                       |
+| +                   | Zoom in                    |
+| -                   | Zoom out                   |
+| =                   | Reset zoom                 |
+| J                   | Next instruction           |
+| K                   | Previous instruction       |
+
+### Debug shortcuts
+| Shortcut   | Function       |
+| ---------- | -------------- |
+| F9         | Start debug    |
+| F7         | Step into      |
+| F8         | Step over      |
+| F5         | Continue       |
+| Ctrl/Cmd+B | Add breakpoint |
 
 
 ## Help
