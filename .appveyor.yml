@@ -1,5 +1,4 @@
 version: '1.5-git-{build}'
-skip_tags: true
 image: 'Visual Studio 2015'
 clone_depth: 1
 
@@ -24,15 +23,18 @@ environment:
     - ARCH: x86
       PYTHON: 'C:\Python36'
       QMAKE: 1
+      DEPLOY: true
     # Build: qmake vs2015 x64 shared
     - ARCH: x64
       PYTHON: 'C:\Python36-x64'
       QMAKE: 1
+      DEPLOY: true
     # Build: meson ninja x64 static
     - ARCH: x64
       PYTHON: 'C:\Python36-x64'
       MESON: 1
       BACKEND: ninja
+      DEPLOY: false
 
 install:
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
@@ -79,7 +81,7 @@ artifacts:
     name: "%ARTIFACT_NAME%"
 
 deploy:
-  description: 'Cutter binaries (Windows)'
+  description: 'Cutter binaries'
   provider: GitHub
   auth_token:
     secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
@@ -89,3 +91,4 @@ deploy:
   on:
     branch: master
     appveyor_repo_tag: true
+    DEPLOY: true
