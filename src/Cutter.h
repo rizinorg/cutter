@@ -636,7 +636,6 @@ private:
     RVA offsetPriorDebugging = RVA_INVALID;
 
     QList<CutterPlugin*> plugins;
-    bool currentlyDebugging = false;
 };
 
 class ccClass : public CutterCore
