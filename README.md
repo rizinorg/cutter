@@ -18,9 +18,9 @@ Cutter is not aimed at existing radare2 users. It instead focuses on those whose
 
 Cutter is available for all platforms (Linux, OS X, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
- *  Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.5/Cutter-v1.5-x86_64.AppImage) file. Then just make it executable and run it:
-     * `chmod +x Cutter-v1.5-x86_64.AppImage`
-     * `./Cutter-v1.5-x86_64.AppImage`
+ *  Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.6/Cutter-v1.6-x86_64.AppImage) file. Then just make it executable and run it:
+     * `chmod +x Cutter-v1.6-x86_64.AppImage`
+     * `./Cutter-v1.6-x86_64.AppImage`
 
 ### Building from source
 
