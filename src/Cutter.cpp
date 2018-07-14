@@ -51,11 +51,6 @@ CutterCore::CutterCore(QObject *parent) :
 {
     r_cons_new();  // initialize console
     this->core_ = r_core_new();
-    r_core_loadlibs(this->core_, R_CORE_LOADLIBS_ALL, NULL);
-    // IMPLICIT r_bin_iobind (core_->bin, core_->io);
-
-    // Otherwise r2 may ask the user for input and Cutter would freeze
-    setConfig("scr.interactive", false);
 
 #if defined(APPIMAGE) || defined(MACOS_R2_BUNDLED)
     auto prefix = QDir(QCoreApplication::applicationDirPath());
@@ -72,6 +67,12 @@ CutterCore::CutterCore(QObject *parent) :
 #   endif
     setConfig("dir.prefix", prefix.absolutePath());
 #endif
+
+    r_core_loadlibs(this->core_, R_CORE_LOADLIBS_ALL, NULL);
+    // IMPLICIT r_bin_iobind (core_->bin, core_->io);
+
+    // Otherwise r2 may ask the user for input and Cutter would freeze
+    setConfig("scr.interactive", false);
 
     asyncTaskManager = new AsyncTaskManager(this);
 }
