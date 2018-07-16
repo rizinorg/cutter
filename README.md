@@ -103,13 +103,13 @@ To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [pro
 | K                   | Previous instruction       |
 
 ### Debug shortcuts
-| Shortcut   | Function       |
-| ---------- | -------------- |
-| F9         | Start debug    |
-| F7         | Step into      |
-| F8         | Step over      |
-| F5         | Continue       |
-| Ctrl/Cmd+B | Add breakpoint |
+| Shortcut        | Function       |
+| --------------- | -------------- |
+| F9              | Start debug    |
+| F7              | Step into      |
+| F8              | Step over      |
+| F5              | Continue       |
+| F2/(Ctrl/Cmd)+B | Add breakpoint |
 
 ## Help
 

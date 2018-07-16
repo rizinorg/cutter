@@ -933,16 +933,16 @@ void CutterCore::setDebugPlugin(QString plugin)
     setConfig("dbg.backend", plugin);
 }
 
-void CutterCore::addBreakpoint(RVA addr)
+void CutterCore::toggleBreakpoint(RVA addr)
 {
-    cmd("db " + RAddressString(addr));
+    cmd("dbs " + RAddressString(addr));
     emit instructionChanged(addr);
     emit breakpointsChanged();
 }
 
-void CutterCore::addBreakpoint(QString addr)
+void CutterCore::toggleBreakpoint(QString addr)
 {
-    cmd("db " + addr);
+    cmd("dbs " + addr);
     emit instructionChanged(addr.toULongLong());
     emit breakpointsChanged();
 }

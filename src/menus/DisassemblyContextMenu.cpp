@@ -113,7 +113,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     addSeparator();
     debugMenu = new QMenu(tr("Debug"), this);
     debugMenuAction = addMenu(debugMenu);
-    createAction(debugMenu, &actionAddBreakpoint, tr("Add breakpoint"), getAddBPSequence(),
+    createAction(debugMenu, &actionAddBreakpoint, tr("Add/remove breakpoint"), getAddBPSequence(),
             SLOT(on_actionAddBreakpoint_triggered()));
     actionContinueUntil.setText(tr("Continue until line"));
     debugMenu->addAction(&actionContinueUntil);
@@ -278,9 +278,9 @@ QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
     return {}; //TODO insert correct sequence
 }
 
-QKeySequence DisassemblyContextMenu::getAddBPSequence() const
+QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 {
-    return {Qt::CTRL + Qt::Key_B};
+    return {Qt::Key_F2, Qt::CTRL + Qt::Key_B};
 }
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
@@ -357,7 +357,7 @@ void DisassemblyContextMenu::on_actionCopyAddr_triggered()
 
 void DisassemblyContextMenu::on_actionAddBreakpoint_triggered()
 {
-    Core()->addBreakpoint(offset);
+    Core()->toggleBreakpoint(offset);
 }
 
 void DisassemblyContextMenu::on_actionContinueUntil_triggered()
@@ -586,17 +586,19 @@ void DisassemblyContextMenu::createAction(QAction *action, QString name, QKeySeq
     connect(shortcut, SIGNAL(activated()), this, slot);
 }
 
-void DisassemblyContextMenu::createAction(QMenu *menu, QAction *action, QString name, QKeySequence keySequence,
+void DisassemblyContextMenu::createAction(QMenu *menu, QAction *action, QString name, QList<QKeySequence> keySequence,
                                           const char *slot)
 {
     action->setText(name);
     menu->addAction(action);
-    action->setShortcut(keySequence);
+    action->setShortcuts(keySequence);
 
     connect(action, SIGNAL(triggered(bool)), this, slot);
 
     auto pWidget = parentWidget();
-    QShortcut *shortcut = new QShortcut(keySequence, pWidget);
-    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut, SIGNAL(activated()), this, slot);
+    for (auto stct : keySequence) {
+        QShortcut *shortcut = new QShortcut(stct, pWidget);
+        shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+        connect(shortcut, SIGNAL(activated()), this, slot);
+    }
 }

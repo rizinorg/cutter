@@ -191,7 +191,7 @@ void BreakpointWidget::addBreakpointDialog()
         if (!bps.isEmpty()) {
             QStringList bpList = bps.split(" ", QString::SkipEmptyParts);
             for ( QString bp : bpList) {
-                Core()->addBreakpoint(bp);
+                Core()->toggleBreakpoint(bp);
             }
         }
     }
