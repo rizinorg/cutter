@@ -128,6 +128,27 @@
         </layout>
        </item>
        <item>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="asmTabsOffLabel">
+           <property name="text">
+            <string>Tabs before assembly (asm.tabs.off):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="asmTabsOffSpinBox">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QCheckBox" name="bblineCheckBox">
          <property name="text">
           <string>Show empty line after every basic block (asm.bbline)</string>
@@ -140,6 +161,27 @@
           <string>Show comments at right of assembly (asm.cmt.right)</string>
          </property>
         </widget>
+       </item>
+       <item>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="0" column="0">
+          <widget class="QLabel" name="cmtcolLabel">
+           <property name="text">
+            <string>Column to align comments (asm.cmt.col):</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QSpinBox" name="cmtcolSpinBox">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="singleStep">
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>

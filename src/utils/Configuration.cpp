@@ -22,6 +22,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.flags.offset",   false },
     { "asm.emu",            false },
     { "asm.cmt.right",      true },
+    { "asm.cmt.col",        70 },
     { "asm.var.summary",    false },
     { "asm.bytes",          false },
     { "asm.size",           false },
@@ -34,7 +35,8 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.capitalize",     false },
     { "asm.var.sub",        true },
     { "asm.var.subonly",    true },
-    { "asm.tabs",           5 }
+    { "asm.tabs",           5 },
+    { "asm.tabs.off",       5 }
 };
 
 
