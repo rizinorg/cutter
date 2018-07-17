@@ -324,7 +324,6 @@ FORMS    += \
     widgets/BacktraceWidget.ui \
     dialogs/OpenFileDialog.ui \
     widgets/MemoryMapWidget.ui \
-    widgets/MemoryMapWidget.ui \
     dialogs/preferences/DebugOptionsWidget.ui \
     widgets/BreakpointWidget.ui \
     dialogs/BreakpointsDialog.ui \

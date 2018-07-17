@@ -130,8 +130,19 @@ void MainWindow::initUI()
     spacer3->setMaximumWidth(100);
     ui->mainToolBar->addWidget(spacer3);
 
-    QToolBar *debugToolbar = new DebugToolbar(this);
+    DebugToolbar *debugToolbar = new DebugToolbar(this);
     ui->mainToolBar->addWidget(debugToolbar);
+    // Debug menu
+    ui->menuDebug->addAction(debugToolbar->actionStart);
+    ui->menuDebug->addAction(debugToolbar->actionStartEmul);
+    ui->menuDebug->addAction(debugToolbar->actionAttach);
+    ui->menuDebug->addSeparator();
+    ui->menuDebug->addAction(debugToolbar->actionStep);
+    ui->menuDebug->addAction(debugToolbar->actionStepOver);
+    ui->menuDebug->addSeparator();
+    ui->menuDebug->addAction(debugToolbar->actionContinue);
+    ui->menuDebug->addAction(debugToolbar->actionContinueUntilCall);
+    ui->menuDebug->addAction(debugToolbar->actionContinueUntilSyscall);
 
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer4 = new QWidget();

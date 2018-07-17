@@ -693,8 +693,8 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 
     seekLocal(instr);
 
+    mMenu->setOffset(instr);
     if (event->button() == Qt::RightButton) {
-        mMenu->setOffset(instr);
         mMenu->exec(event->globalPos());
     }
 }

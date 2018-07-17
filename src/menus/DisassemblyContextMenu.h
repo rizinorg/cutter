@@ -67,6 +67,7 @@ private:
     QKeySequence getRenameUsedHereSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
+    QList<QKeySequence> getAddBPSequence() const;
 
     RVA offset;
     bool canCopy;
@@ -123,5 +124,6 @@ private:
     // For creating anonymous entries (that are always visible)
     void createAction(QString name, QKeySequence keySequence, const char *slot);
     void createAction(QAction *action, QString name, QKeySequence keySequence, const char *slot);
+    void createAction(QMenu *menu, QAction *action, QString name, QList<QKeySequence> keySequence, const char *slot);
 };
 #endif // DISASSEMBLYCONTEXTMENU_H
