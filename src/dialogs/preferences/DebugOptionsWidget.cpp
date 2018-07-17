@@ -17,7 +17,6 @@ DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog */*dialog*/, QWidget *p
     ui->setupUi(this);
 
     updateDebugPlugin();
-    setupDebugArgs();
 }
 
 DebugOptionsWidget::~DebugOptionsWidget() {}
@@ -36,33 +35,44 @@ void DebugOptionsWidget::updateDebugPlugin()
 
     connect(ui->pluginComboBox, SIGNAL(currentIndexChanged(const QString &)), this,
             SLOT(on_pluginComboBox_currentIndexChanged(const QString &)));
-}
 
-void DebugOptionsWidget::setupDebugArgs()
-{
-    // add Enter shortcut to confirm changes
-    QShortcut *enterPress = new QShortcut(QKeySequence(Qt::Key_Return), this);
-    enterPress->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(enterPress, &QShortcut::activated, this, &DebugOptionsWidget::updateDebugArgs);
+    QString debugArgs = Core()->getConfig("dbg.args");
+    ui->debugArgs->setText(debugArgs);
+    ui->debugArgs->setPlaceholderText(debugArgs);
+    connect(ui->debugArgs, &QLineEdit::editingFinished, this, &DebugOptionsWidget::updateDebugArgs);
 
-    QString currentArgs = Core()->getConfig("dbg.args");
-    ui->debugArgs->setText(currentArgs);
-    ui->debugArgs->setPlaceholderText(currentArgs);
-    connect(ui->updateArgsButton, &QAbstractButton::clicked, this, &DebugOptionsWidget::updateDebugArgs);
+    QString stackSize = Core()->getConfig("esil.stack.size");
+    ui->stackSize->setText(stackSize);
+    ui->stackSize->setPlaceholderText(stackSize);
+    QString stackAddr = Core()->getConfig("esil.stack.addr");
+    ui->stackAddr->setText(stackAddr);
+    ui->stackAddr->setPlaceholderText(stackAddr);
+    connect(ui->stackAddr, &QLineEdit::editingFinished, this, &DebugOptionsWidget::updateStackAddr);
+    connect(ui->stackSize, &QLineEdit::editingFinished, this, &DebugOptionsWidget::updateStackSize);
 }
 
 void DebugOptionsWidget::updateDebugArgs()
 {
     QString newArgs = ui->debugArgs->text();
     Core()->setConfig("dbg.args", newArgs);
-    ui->debugArgs->setText(newArgs);
     ui->debugArgs->setPlaceholderText(newArgs);
-    // flash green for 200 ms
-    ui->debugArgs->setStyleSheet("border: 1px solid green;");
-    QTimer::singleShot(200, [this](){ ui->debugArgs->setStyleSheet("");});
 }
 
 void DebugOptionsWidget::on_pluginComboBox_currentIndexChanged(const QString &plugin)
 {
     Core()->setDebugPlugin(plugin);
+}
+
+void DebugOptionsWidget::updateStackSize()
+{
+    QString newSize = ui->stackSize->text();
+    Core()->setConfig("esil.stack.size", newSize);
+    ui->stackSize->setPlaceholderText(newSize);
+}
+
+void DebugOptionsWidget::updateStackAddr()
+{
+    QString newAddr = ui->stackAddr->text();
+    Core()->setConfig("esil.stack.addr", newAddr);
+    ui->stackAddr->setPlaceholderText(newAddr);
 }
