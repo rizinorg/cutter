@@ -60,15 +60,15 @@ CutterCore::CutterCore(QObject *parent) :
 #if defined(APPIMAGE) || defined(MACOS_R2_BUNDLED)
     auto prefix = QDir(QCoreApplication::applicationDirPath());
 #   ifdef APPIMAGE
-    // Executable is in appdir/bin
-    prefix.cdUp();
-    qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for AppImage.";
+        // Executable is in appdir/bin
+        prefix.cdUp();
+        qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for AppImage.";
 #   else // MACOS_R2_BUNDLED
-    // Executable is in Contents/MacOS, prefix is Contents/Resources/r2
-    prefix.cdUp();
-    prefix.cd("Resources");
-    prefix.cd("r2");
-    qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
+        // Executable is in Contents/MacOS, prefix is Contents/Resources/r2
+        prefix.cdUp();
+        prefix.cd("Resources");
+        prefix.cd("r2");
+        qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
 #   endif
     setConfig("dir.prefix", prefix.absolutePath());
 #endif
