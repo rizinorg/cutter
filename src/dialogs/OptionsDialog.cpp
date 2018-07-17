@@ -55,7 +55,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     connect(ui->pdbCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updatePDBLayout()));
 
     updateScriptLayout();
-    
+
     connect(ui->scriptCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updateScriptLayout()));
 
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));

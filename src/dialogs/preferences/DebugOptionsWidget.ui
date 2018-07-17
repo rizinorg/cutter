@@ -59,10 +59,45 @@
                                     </property>
                                 </widget>
                             </item>
+                        </layout>
+                    </item>
+                    <item row="2" column="0">
+                        <layout class="QHBoxLayout" name="esilVMOptions1">
                             <item>
-                                <widget class="QPushButton" name="updateArgsButton">
+                                <widget class="QLabel" name="esilstackAddr">
                                     <property name="text">
-                                        <string>Confirm</string>
+                                        <string>ESIL stack address:</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QLineEdit" name="stackAddr">
+                                    <property name="sizePolicy">
+                                        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                </widget>
+                            </item>
+                        </layout>
+                    </item>
+                    <item row="3" column="0">
+                        <layout class="QHBoxLayout" name="esilVMOptions2">
+                            <item>
+                                <widget class="QLabel" name="esilStackSize">
+                                    <property name="text">
+                                        <string>ESIL stack size:</string>
+                                    </property>
+                                </widget>
+                            </item>
+                            <item>
+                                <widget class="QLineEdit" name="stackSize">
+                                    <property name="sizePolicy">
+                                        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
                                     </property>
                                 </widget>
                             </item>
