@@ -9,16 +9,17 @@
 #include "utils/Helpers.h"
 #include "utils/Configuration.h"
 
-GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
+GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::GeneralOptionsWidget)
 {
+    Q_UNUSED(dialog);
     ui->setupUi(this);
 
     updateFontFromConfig();
     updateThemeFromConfig();
 
-    //connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(updateFontFromConfig()));
+    connect(Config(), &Configuration::fontsUpdated, this, &GeneralOptionsWidget::updateFontFromConfig);
     //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
 }
 

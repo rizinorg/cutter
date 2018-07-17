@@ -25,6 +25,7 @@ public:
 private slots:
     void updateContents();
     void setStackGrid();
+    void fontsUpdatedSlot();
 
 private:
     std::unique_ptr<Ui::StackWidget> ui;
