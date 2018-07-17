@@ -11,11 +11,18 @@ class DebugToolbar : public QToolBar
 
 public:
     explicit DebugToolbar(MainWindow *main, QWidget *parent = nullptr);
+    QAction *actionStart;
+    QAction *actionStartEmul;
+    QAction *actionAttach;
+    QAction *actionContinue;
+    QAction *actionContinueUntilMain;
+    QAction *actionContinueUntilCall;
+    QAction *actionContinueUntilSyscall;
+    QAction *actionStep;
+    QAction *actionStepOver;
 
 private:
     MainWindow *main;
-    QAction *actionStart;
-    QAction *actionStartEmul;
 
 private slots:
     void continueUntilMain();

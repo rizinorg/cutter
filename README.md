@@ -72,31 +72,44 @@ Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-er
 
 To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
 
-## Keyboard shortcuts
+### Global shortcuts
+| Shortcut   | Function            |
+| ---------- | ------------------- |
+| .          | Focus console input |
+| G/S        | Focus search bar    |
+| Ctrl/Cmd+R | Refresh contents    |
 
-| Shortcut | Function |
-| --- | --- |
-| Global shortcuts: ||
-| . | Focus console input |
-| G & S | Focus search bar |
-| F5 | Refresh contents |
-| Disassembly view: ||
-| Esc | Seek to previous position |
-| Space | Switch to disassembly graph view |
-| Ctrl/Cmd+C | Copy |
-| ; | Add comment |
-| N | Rename current function/flag |
-| Shift+N | Rename flag/function used here |
-| X | Show Xrefs |
-| Disassembly graph view: ||
-| Esc | Seek to previous position |
-| Space | Switch to disassembly view |
-| + | Zoom in |
-| - | Zoom out |
-| = | Reset zoom |
-| J | Next instruction |
-| K | Previous instruction |
+### Disassembly view shortcuts
+| Shortcut   | Function                         |
+| ---------- | -------------------------------- |
+| Esc        | Seek to previous position        |
+| Space      | Switch to disassembly graph view |
+| Ctrl/Cmd+C | Copy                             |
+| ;          | Add comment                      |
+| N          | Rename current function/flag     |
+| Shift+N    | Rename flag/function used here   |
+| X          | Show Xrefs                       |
 
+### Graph view shortcuts
+| Shortcut            | Function                   |
+| ------------------- | -------------------------- |
+| Esc                 | Seek to previous position  |
+| Space               | Switch to disassembly view |
+| Ctrl/Cmd+MouseWheel | Zoom                       |
+| +                   | Zoom in                    |
+| -                   | Zoom out                   |
+| =                   | Reset zoom                 |
+| J                   | Next instruction           |
+| K                   | Previous instruction       |
+
+### Debug shortcuts
+| Shortcut        | Function       |
+| --------------- | -------------- |
+| F9              | Start debug    |
+| F7              | Step into      |
+| F8              | Step over      |
+| F5              | Continue       |
+| F2/(Ctrl/Cmd)+B | Add breakpoint |
 
 ## Help
 
