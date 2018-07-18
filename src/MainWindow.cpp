@@ -267,10 +267,11 @@ void MainWindow::initUI()
     connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
 
     updateTasksIndicator();
-    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this, &MainWindow::updateTasksIndicator);
+    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
+            &MainWindow::updateTasksIndicator);
 
     /* Load plugins */
-    QList<CutterPlugin*> plugins = Core()->getCutterPlugins();
+    QList<CutterPlugin *> plugins = Core()->getCutterPlugins();
     for (auto plugin : plugins) {
         CutterDockWidget *pluginDock = plugin->setupInterface(this);
         tabifyDockWidget(dashboardDock, pluginDock);
@@ -337,7 +338,8 @@ void MainWindow::openNewFileFailed()
     mb.setIcon(QMessageBox::Critical);
     mb.setStandardButtons(QMessageBox::Ok);
     mb.setWindowTitle(tr("Cannot open file!"));
-    mb.setText(tr("Could not open the file! Make sure the file exists and that you have the correct permissions."));
+    mb.setText(
+        tr("Could not open the file! Make sure the file exists and that you have the correct permissions."));
     mb.exec();
 }
 
@@ -557,9 +559,9 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, vTablesDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
-    addExtraWidget(stackDock);
+    splitDockWidget(sidebarDock, stackDock, Qt::Horizontal);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
-    splitDockWidget(stackDock, backtraceDock, Qt::Vertical);
+    tabifyDockWidget(stackDock, backtraceDock);
     // MemoryMap/Breakpoint widget goes in the center tabs
     tabifyDockWidget(dashboardDock, memoryMapDock);
     tabifyDockWidget(dashboardDock, breakpointDock);
@@ -625,7 +627,7 @@ void MainWindow::showZenDocks()
                                             disassemblyDock,
                                             hexdumpDock,
                                             searchDock
-                                            };
+                                          };
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w)) {
             w->show();
@@ -637,16 +639,16 @@ void MainWindow::showZenDocks()
 void MainWindow::showDebugDocks()
 {
     const QList<QDockWidget *> debugDocks = { functionsDock,
-                                            stringsDock,
-                                            graphDock,
-                                            disassemblyDock,
-                                            hexdumpDock,
-                                            searchDock,
-                                            stackDock,
-                                            registersDock,
-                                            backtraceDock,
-                                            memoryMapDock,
-                                            breakpointDock
+                                              stringsDock,
+                                              graphDock,
+                                              disassemblyDock,
+                                              hexdumpDock,
+                                              searchDock,
+                                              stackDock,
+                                              registersDock,
+                                              backtraceDock,
+                                              memoryMapDock,
+                                              breakpointDock
                                             };
     for (auto w : dockWidgets) {
         if (debugDocks.contains(w)) {
@@ -954,7 +956,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 bool MainWindow::eventFilter(QObject *, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->button() == Qt::ForwardButton || mouseEvent->button() == Qt::BackButton) {
             mousePressEvent(mouseEvent);
             return true;

@@ -18,12 +18,13 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     modelBacktrace->setHorizontalHeaderItem(2, new QStandardItem(tr("Frame Size")));
     modelBacktrace->setHorizontalHeaderItem(3, new QStandardItem(tr("Func Name")));
     modelBacktrace->setHorizontalHeaderItem(4, new QStandardItem(tr("Description")));
-    viewBacktrace->setStyleSheet("QTableView {font-family: mono}");
+    viewBacktrace->setFont(Config()->getFont());
     viewBacktrace->setModel(modelBacktrace);
     ui->verticalLayout->addWidget(viewBacktrace);
 
     connect(Core(), &CutterCore::refreshAll, this, &BacktraceWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &BacktraceWidget::updateContents);
+    connect(Config(), &Configuration::fontsUpdated, this, &BacktraceWidget::fontsUpdatedSlot);
 }
 
 BacktraceWidget::~BacktraceWidget() {}
@@ -60,4 +61,9 @@ void BacktraceWidget::setBacktraceGrid()
     }
     viewBacktrace->setModel(modelBacktrace);
     viewBacktrace->resizeColumnsToContents();;
+}
+
+void BacktraceWidget::fontsUpdatedSlot()
+{
+    viewBacktrace->setFont(Config()->getFont());
 }
