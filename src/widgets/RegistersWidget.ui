@@ -13,21 +13,26 @@
   <property name="windowTitle">
    <string notr="true">Registers</string>
   </property>
+  <widget class="QScrollArea" name="scrollArea">
+  <property name="widgetResizable">
+  <bool>true</bool>
+  </property>
   <widget class="QWidget" name="dockWidgetContents">
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">
        <number>10</number>
       </property>
       <property name="leftMargin">
-       <number>0</number>
+       <number>6</number>
       </property>
       <property name="topMargin">
-       <number>0</number>
+       <number>6</number>
       </property>
       <property name="rightMargin">
-       <number>0</number>
+       <number>6</number>
       </property>
      </layout>
+  </widget>
   </widget>
  </widget>
  <resources/>
