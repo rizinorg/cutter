@@ -565,7 +565,7 @@ QString CutterCore::getConfig(const QString &k)
 
 void CutterCore::setConfig(const QString &k, const QVariant &v)
 {
-    switch(v.type()) {
+    switch (v.type()) {
     case QVariant::Type::Bool:
         setConfig(k, v.toBool());
         break;
@@ -778,10 +778,10 @@ void CutterCore::startDebug()
     emit registersChanged();
     if (!currentlyDebugging) {
         setConfig("asm.flags", false);
+        currentlyDebugging = true;
         emit changeDebugView();
         emit flagsChanged();
         emit refreshCodeViews();
-        currentlyDebugging = true;
     }
 }
 
@@ -798,11 +798,11 @@ void CutterCore::startEmulation()
         setConfig("asm.flags", false);
         // allows to view self-modifying code changes or other binary changes
         setConfig("io.cache", true);
+        currentlyDebugging = true;
+        currentlyEmulating = true;
         emit changeDebugView();
         emit flagsChanged();
         emit refreshCodeViews();
-        currentlyDebugging = true;
-        currentlyEmulating = true;
     }
 }
 
@@ -819,9 +819,9 @@ void CutterCore::attachDebug(int pid)
     if (!currentlyDebugging || !currentlyEmulating) {
         // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
+        currentlyDebugging = true;
         emit changeDebugView();
         emit flagsChanged();
-        currentlyDebugging = true;
     }
 }
 
@@ -2051,12 +2051,12 @@ void CutterCore::deleteTask(RCoreTask *task)
     r_core_task_del(core_, task->id);
 }
 
-void CutterCore::setCutterPlugins(QList<CutterPlugin*> plugins)
+void CutterCore::setCutterPlugins(QList<CutterPlugin *> plugins)
 {
     this->plugins = plugins;
 }
 
-QList<CutterPlugin*> CutterCore::getCutterPlugins()
+QList<CutterPlugin *> CutterCore::getCutterPlugins()
 {
     return plugins;
 }

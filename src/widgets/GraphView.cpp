@@ -127,8 +127,8 @@ void GraphView::adjustSize(int new_width, int new_height, QPoint mouse)
 
     int dx = newMaxX - originalRangeX;
     int dy = newMaxY - originalRangeY;
-    horizontalScrollBar()->setValue(topX + dx*((float)mouseLocal.x()/new_width));
-    verticalScrollBar()->setValue(topY + dy*((float)mouseLocal.y()/new_height));
+    horizontalScrollBar()->setValue(topX + dx * ((float)mouseLocal.x() / new_width));
+    verticalScrollBar()->setValue(topY + dy * ((float)mouseLocal.y() / new_height));
 }
 
 bool GraphView::event(QEvent *event)
@@ -411,9 +411,9 @@ void GraphView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
     QPainter p(viewport());
-    
+
     p.setRenderHint(QPainter::Antialiasing);
-    
+
     int render_offset_x = -horizontalScrollBar()->value() * current_scale;
     int render_offset_y = -verticalScrollBar()->value() * current_scale;
     int render_width = viewport()->size().width() / current_scale;
@@ -864,8 +864,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
         int y_delta = scroll_base_y - event->y();
         scroll_base_x = event->x();
         scroll_base_y = event->y();
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1/current_scale));
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1/current_scale));
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1 / current_scale));
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1 / current_scale));
     }
 }
 
@@ -912,7 +912,7 @@ void GraphView::wheelEvent(QWheelEvent *event)
     const QPoint delta = -event->angleDelta();
     int x_delta = delta.x();
     int y_delta = delta.y();
-    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1/current_scale));
-    verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1/current_scale));
+    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1 / current_scale));
+    verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1 / current_scale));
     event->accept();
 }

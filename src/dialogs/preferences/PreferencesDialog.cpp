@@ -21,8 +21,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
 
-    QList<PreferenceCategory> prefs
-    {
+    QList<PreferenceCategory> prefs {
         {
             "General",
             new GeneralOptionsWidget(this),
@@ -51,8 +50,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         c.addItem(*ui->configCategories, *ui->configPanel);
 
     connect(ui->configCategories,
-            SIGNAL(currentItemChanged(QTreeWidgetItem*, QTreeWidgetItem*)),
-            this, SLOT(changePage(QTreeWidgetItem*, QTreeWidgetItem*)));
+            SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
+            this, SLOT(changePage(QTreeWidgetItem *, QTreeWidgetItem *)));
     connect(ui->saveButtons,
             SIGNAL(accepted()),
             this, SLOT(close()));
@@ -67,12 +66,17 @@ PreferencesDialog::~PreferencesDialog()
 
 void PreferencesDialog::showSection(PreferencesDialog::Section section)
 {
+    QTreeWidgetItem *defitem;
     switch (section) {
     case Section::General:
         ui->configPanel->setCurrentIndex(0);
+        defitem = ui->configCategories->topLevelItem(0);
+        ui->configCategories->setCurrentItem(defitem, 0);
         break;
     case Section::Disassembly:
         ui->configPanel->setCurrentIndex(1);
+        defitem = ui->configCategories->topLevelItem(1);
+        ui->configCategories->setCurrentItem(defitem, 1);
         break;
     }
 }
@@ -85,5 +89,5 @@ void PreferencesDialog::changePage(QTreeWidgetItem *current, QTreeWidgetItem *pr
     int index = current->data(0, Qt::UserRole).toInt();
 
     if (index)
-        ui->configPanel->setCurrentIndex(index-1);
+        ui->configPanel->setCurrentIndex(index - 1);
 }

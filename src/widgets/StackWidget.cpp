@@ -16,7 +16,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     modelStack->setHorizontalHeaderItem(0, new QStandardItem(tr("Offset")));
     modelStack->setHorizontalHeaderItem(1, new QStandardItem(tr("Value")));
     modelStack->setHorizontalHeaderItem(2, new QStandardItem(tr("Reference")));
-    viewStack->setStyleSheet("QTableView {font-family: mono}");
+    viewStack->setFont(Config()->getFont());
     viewStack->setModel(modelStack);
     viewStack->verticalHeader()->hide();
     viewStack->setSortingEnabled(true);
@@ -24,6 +24,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
 
     connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &StackWidget::updateContents);
+    connect(Config(), &Configuration::fontsUpdated, this, &StackWidget::fontsUpdatedSlot);
 }
 
 StackWidget::~StackWidget() {}
@@ -55,4 +56,9 @@ void StackWidget::setStackGrid()
     }
     viewStack->setModel(modelStack);
     viewStack->resizeColumnsToContents();;
+}
+
+void StackWidget::fontsUpdatedSlot()
+{
+    viewStack->setFont(Config()->getFont());
 }

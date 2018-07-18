@@ -376,21 +376,21 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                block.width, block.height);
 
     // Draw different background for selected instruction
-    bool paintedSelected = false;
     if (selected_instruction != RVA_INVALID) {
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
         for (Instr &instr : db.instrs) {
+            if (instr.addr > selected_instruction) {
+                break;
+            }
             auto selected = instr.addr == selected_instruction;
             //auto traceCount = dbgfunctions->GetTraceRecordHitCount(instr.addr);
             auto traceCount = 0;
             if (selected && traceCount) {
                 p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
                                  int(instr.text.lines.size()) * charHeight), disassemblyTracedSelectionColor);
-                paintedSelected = true;
             } else if (selected) {
                 p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
-                paintedSelected = true;
             } else if (traceCount) {
                 // Color depending on how often a sequence of code is executed
                 int exponent = 1;
@@ -407,10 +407,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                            QColor(disassemblyTracedColor.red(),
                                   disassemblyTracedColor.green(),
                                   std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
-                paintedSelected = true;
-            }
-            if (paintedSelected) {
-                break;
             }
             y += int(instr.text.lines.size()) * charHeight;
         }
@@ -420,11 +416,13 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     if (PCInBlock) {
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
         for (Instr &instr : db.instrs) {
+            if (instr.addr > PCAddr) {
+                break;
+            }
             auto PC = instr.addr == PCAddr;
             if (PC) {
                 p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
                                  int(instr.text.lines.size()) * charHeight), PCSelectionColor);
-                break;
             }
             y += int(instr.text.lines.size()) * charHeight;
         }
@@ -677,8 +675,7 @@ void DisassemblerGraphView::seekPrev()
 {
     if (seekable->getSyncWithCore()) {
         Core()->seekPrev();
-    }
-    else {
+    } else {
         seekable->seek(seekable->getPrevIndependentOffset());
     }
 }
