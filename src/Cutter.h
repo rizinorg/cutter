@@ -319,6 +319,12 @@ struct ProcessDescription {
     QString path;
 };
 
+struct RegisterRefDescription {
+    QString reg;
+    QString value;
+    QString ref;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -350,6 +356,7 @@ Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(MemoryMapDescription)
 Q_DECLARE_METATYPE(BreakpointDescription)
 Q_DECLARE_METATYPE(ProcessDescription)
+Q_DECLARE_METATYPE(RegisterRefDescription)
 
 class CutterCore: public QObject
 {
@@ -566,6 +573,7 @@ public:
     BlockStatistics getBlockStatistics(unsigned int blocksCount);
     QList<BreakpointDescription> getBreakpoints();
     QList<ProcessDescription> getAllProcesses();
+    QList<RegisterRefDescription> getRegisterRefs();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
