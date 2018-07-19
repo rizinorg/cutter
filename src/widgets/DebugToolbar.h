@@ -20,6 +20,7 @@ public:
     QAction *actionContinueUntilSyscall;
     QAction *actionStep;
     QAction *actionStepOver;
+    QAction *actionStepOut;
 
 private:
     MainWindow *main;

@@ -23,6 +23,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QIcon continueUntilSyscallIcon = QIcon(":/img/icons/continue_until_syscall.svg");
     QIcon stepIcon = QIcon(":/img/icons/step_light.svg");
     QIcon stepOverIcon = QIcon(":/img/icons/step_over_light.svg");
+    QIcon stepOutIcon = QIcon(":/img/icons/step_out_light.svg");
 
     actionStart = new QAction(startDebugIcon, tr("Start debug"), parent);
     actionStart->setShortcut(QKeySequence(Qt::Key_F9));
@@ -38,6 +39,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     actionStep->setShortcut(QKeySequence(Qt::Key_F7));
     actionStepOver = new QAction(stepOverIcon, tr("Step over"), parent);
     actionStepOver->setShortcut(QKeySequence(Qt::Key_F8));
+    actionStepOut = new QAction(stepOutIcon, tr("Step out"), parent);
+    actionStepOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F8));
 
     QToolButton *startButton = new QToolButton;
     startButton->setPopupMode(QToolButton::MenuButtonPopup);
@@ -65,6 +68,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     addWidget(continueUntilButton);
     addAction(actionStep);
     addAction(actionStepOver);
+    addAction(actionStepOut);
 
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
     connect(actionStop, &QAction::triggered, [=]() {
@@ -103,6 +107,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         this->colorToolbar(true);
     });
     connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
+    connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
     connect(actionContinue, &QAction::triggered, Core(), &CutterCore::continueDebug);
     connect(actionContinueUntilMain, &QAction::triggered, this, &DebugToolbar::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
