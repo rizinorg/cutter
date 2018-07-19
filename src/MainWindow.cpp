@@ -76,6 +76,7 @@
 #include "widgets/DebugToolbar.h"
 #include "widgets/MemoryMapWidget.h"
 #include "widgets/BreakpointWidget.h"
+#include "widgets/RegisterRefsWidget.h"
 
 // Graphics
 #include <QGraphicsEllipseItem>
@@ -219,6 +220,7 @@ void MainWindow::initUI()
     registersDock = new RegistersWidget(this, ui->actionRegisters);
     memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
     breakpointDock = new BreakpointWidget(this, ui->actionBreakpoint);
+    registerRefsDock = new RegisterRefsWidget(this, ui->actionRegisterRefs);
 #ifdef CUTTER_ENABLE_JUPYTER
     jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else
@@ -562,9 +564,10 @@ void MainWindow::restoreDocks()
     splitDockWidget(sidebarDock, stackDock, Qt::Horizontal);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
-    // MemoryMap/Breakpoint widget goes in the center tabs
+    // MemoryMap/Breakpoint/RegRefs widget goes in the center tabs
     tabifyDockWidget(dashboardDock, memoryMapDock);
     tabifyDockWidget(dashboardDock, breakpointDock);
+    tabifyDockWidget(dashboardDock, registerRefsDock);
 #ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
 #endif
