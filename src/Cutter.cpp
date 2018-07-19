@@ -774,7 +774,9 @@ void CutterCore::startDebug()
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
-    cmd("ood");
+    // FIXME: we do a 'ds' here since otherwise the continue until commands
+    // sometimes do not work in r2.
+    cmd("ood; ds");
     emit registersChanged();
     if (!currentlyDebugging) {
         setConfig("asm.flags", false);
