@@ -746,6 +746,26 @@ QJsonDocument CutterCore::getRegisterValues()
     return cmdj("drj");
 }
 
+QList<RegisterRefDescription> CutterCore::getRegisterRefs()
+{
+    QList<RegisterRefDescription> ret;
+    QJsonArray registerRefArray = cmdj("drrj").array();
+
+    for (QJsonValue value : registerRefArray) {
+        QJsonObject regRefObject = value.toObject();
+
+        RegisterRefDescription regRef;
+
+        regRef.reg = regRefObject["reg"].toString();
+        regRef.value = regRefObject["value"].toString();
+        regRef.ref = regRefObject["ref"].toString();
+
+        ret << regRef;
+    }
+
+    return ret;
+}
+
 QString CutterCore::getRegisterName(QString registerRole)
 {
     return cmd("drn " + registerRole).trimmed();
