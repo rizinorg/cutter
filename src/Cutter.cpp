@@ -7,6 +7,7 @@
 #include "utils/TempConfig.h"
 #include "utils/Configuration.h"
 #include "utils/AsyncTask.h"
+#include "utils/R2Task.h"
 #include "Cutter.h"
 #include "sdb.h"
 
@@ -194,20 +195,18 @@ QJsonDocument CutterCore::cmdj(const QString &str)
 
 QString CutterCore::cmdTask(const QString &str)
 {
-    RCoreTask *task = startTask(str);
-    joinTask(task);
-    QString ret = QString::fromUtf8(task->res);
-    deleteTask(task);
-    return ret;
+    R2Task task(str);
+    task.startTask();
+    task.joinTask();
+    return task.getResult();
 }
 
 QJsonDocument CutterCore::cmdjTask(const QString &str)
 {
-    RCoreTask *task = startTask(str);
-    joinTask(task);
-    QJsonDocument ret = parseJson(task->res, str);
-    deleteTask(task);
-    return ret;
+    R2Task task(str);
+    task.startTask();
+    task.joinTask();
+    return parseJson(task.getResultRaw(), str);
 }
 
 QJsonDocument CutterCore::parseJson(const char *res, const QString &cmd)
@@ -1747,22 +1746,6 @@ QList<QString> CutterCore::getColorThemes()
     for (auto s : themes.array())
         r << s.toString();
     return r;
-}
-
-RCoreTask *CutterCore::startTask(const QString &cmd)
-{
-    RCoreTask *task = r_core_task_new (core_, true, cmd.toLocal8Bit().constData(), nullptr, nullptr);
-    r_core_task_enqueue(core_, task);
-    return task;
-}
-
-void CutterCore::joinTask(RCoreTask *task)
-{
-    r_core_task_join(core_, nullptr, task);
-}
-void CutterCore::deleteTask(RCoreTask *task)
-{
-    r_core_task_del(core_, task->id);
 }
 
 void CutterCore::setCutterPlugins(QList<CutterPlugin*> plugins)

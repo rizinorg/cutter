@@ -524,10 +524,6 @@ public:
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
 
-    RCoreTask *startTask(const QString &cmd);
-    void joinTask(RCoreTask *task);
-    void deleteTask(RCoreTask *task);
-
     void setCutterPlugins(QList<CutterPlugin*> plugins);
     QList<CutterPlugin*> getCutterPlugins();
 
