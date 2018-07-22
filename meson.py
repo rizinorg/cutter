@@ -6,9 +6,6 @@ import pprint
 import subprocess
 import sys
 
-VARS = {'QT':[], 'SOURCES':[], 'HEADERS':[], 'FORMS':[], 'RESOURCES':[],
-        'VERSION':[], 'ICON':[]}
-
 ROOT = None
 log = None
 r2_meson_mod = None
@@ -35,34 +32,6 @@ def set_global_vars():
 
     r2_meson_mod.set_global_variables()
 
-def parse_qmake_file():
-    log.info('Parsing qmake file')
-    with open(os.path.join(ROOT, 'src', 'Cutter.pro')) as qmake_file:
-        lines = qmake_file.readlines()
-    var_name = None
-    end_of_def = True
-    for line in lines:
-        words = line.split()
-        if not words:
-            continue
-        if words[0].startswith('#'):
-            continue
-        if not var_name and words[0] in VARS:
-            var_name = words[0]
-            words = words[2:]
-        if not var_name:
-            continue
-        end_of_def = words[-1] != '\\'
-        if not end_of_def:
-            words = words[:-1]
-        for word in words:
-            VARS[var_name].append(word)
-        if end_of_def:
-            var_name = None
-    qt_mod_translation = { "webenginewidgets": "WebEngineWidgets" }
-    VARS['QT'] = list(map(lambda s: qt_mod_translation.get(s, str.title(s)), VARS['QT']))
-    log.debug('Variables: \n%s', pprint.pformat(VARS, compact=True))
-
 def win_dist(args):
     build = os.path.join(ROOT, args.dir)
     dist = os.path.join(ROOT, args.dist)
@@ -77,16 +46,8 @@ def win_dist(args):
 
 def build(args):
     cutter_builddir = os.path.join(ROOT, args.dir)
-    if not args.webengine:
-        VARS['QT'].remove('WebEngineWidgets')
     if not os.path.exists(cutter_builddir):
         defines = []
-        defines.append('-Dversion=%s' % VARS['VERSION'][0])
-        defines.append('-Dqt_modules=%s' % ','.join(VARS['QT']))
-        defines.append('-Dsources=%s' % ','.join(VARS['SOURCES']))
-        defines.append('-Dheaders=%s' % ','.join(VARS['HEADERS']))
-        defines.append('-Dui_files=%s' % ','.join(VARS['FORMS']))
-        defines.append('-Dqresources=%s' % ','.join(VARS['RESOURCES']))
         defines.append('-Denable_jupyter=%s' % str(args.jupyter).lower())
         defines.append('-Denable_webengine=%s' % str(args.webengine).lower())
         if os.name == 'nt':
@@ -102,21 +63,6 @@ def build(args):
     else:
         project = os.path.join(cutter_builddir, 'Cutter.sln')
         r2_meson_mod.msbuild(project, '/m')
-
-def create_sp_dir():
-    sp_dir = os.path.join(ROOT, 'src', 'subprojects')
-    sp_r2_dir = os.path.join(sp_dir, 'radare2')
-    if not os.path.exists(sp_r2_dir):
-        os.makedirs(sp_dir, exist_ok=True)
-        r2_dir = os.path.join(ROOT, 'radare2')
-        try:
-            os.symlink(r2_dir, sp_r2_dir, target_is_directory=True)
-        except OSError as e:
-            log.error('%s', e)
-            if os.name == 'nt':
-                log.info('Execute command as Administrator:\n'
-                          'MKLINK /D "%s" "%s"', sp_r2_dir, r2_dir)
-            sys.exit(1)
 
 def main():
     set_global_vars()
@@ -139,9 +85,6 @@ def main():
         sys.exit(1)
 
     log.debug('Arguments: %s', args)
-
-    create_sp_dir()
-    parse_qmake_file()
 
     build(args)
 
