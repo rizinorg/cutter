@@ -117,8 +117,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
             SLOT(on_actionAddBreakpoint_triggered()));
     actionContinueUntil.setText(tr("Continue until line"));
     debugMenu->addAction(&actionContinueUntil);
-    QString progCounterName = Core()->getRegisterName("PC");
-    actionSetPC.setText("Set " + progCounterName + " here");
     debugMenu->addAction(&actionSetPC);
 
     connect(&actionEditInstruction, SIGNAL(triggered(bool)), this,
@@ -240,6 +238,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
     // currently there are is no breakpoint support in ESIL so
     // we dont show the option in case we are emulating
     actionAddBreakpoint.setVisible(!Core()->currentlyEmulating);
+    QString progCounterName = Core()->getRegisterName("PC");
+    actionSetPC.setText("Set " + progCounterName + " here");
 
 }
 
