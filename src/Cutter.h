@@ -492,7 +492,7 @@ public:
     QString getRegisterName(QString registerRole);
     RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
-    QJsonDocument getStack(int size = 0x40);
+    QJsonDocument getStack(int size = 0x100);
     QJsonDocument getBacktrace();
     void startDebug();
     void startEmulation();
