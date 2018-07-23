@@ -174,7 +174,7 @@ void DisassemblerGraphView::loadCurrentGraph()
             layout->setAlignment(emptyText, Qt::AlignHCenter);
         }
         emptyText->setVisible(true);
-    } else {
+    } else if (emptyText) {
         emptyText->setVisible(false);
     }
 
