@@ -787,6 +787,7 @@ void CutterCore::setRegister(QString regName, QString regValue)
 {
     cmd("dr " + regName + "=" + regValue);
     emit registersChanged();
+    emit refreshCodeViews();
 }
 
 void CutterCore::startDebug()
@@ -824,8 +825,8 @@ void CutterCore::startEmulation()
         currentlyEmulating = true;
         emit changeDebugView();
         emit flagsChanged();
-        emit refreshCodeViews();
     }
+    emit refreshCodeViews();
 }
 
 void CutterCore::attachDebug(int pid)
@@ -842,8 +843,8 @@ void CutterCore::attachDebug(int pid)
         // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
         currentlyDebugging = true;
-        emit changeDebugView();
         emit flagsChanged();
+        emit changeDebugView();
     }
 }
 
@@ -861,8 +862,8 @@ void CutterCore::stopDebug()
         setConfig("asm.flags", true);
         setConfig("io.cache", false);
         currentlyDebugging = false;
-        emit changeDefinedView();
         emit flagsChanged();
+        emit changeDefinedView();
     }
 }
 
