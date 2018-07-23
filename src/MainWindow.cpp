@@ -439,11 +439,15 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (ret == QMessageBox::Save) {
         if (saveProject(true) && !Core()->currentlyDebugging) {
             saveSettings();
+        } else if (Core()->currentlyDebugging) {
+            Core()->stopDebug();
         }
         QMainWindow::closeEvent(event);
     } else if (ret == QMessageBox::Discard) {
         if (!Core()->currentlyDebugging) {
             saveSettings();
+        } else if (Core()->currentlyDebugging) {
+            Core()->stopDebug();
         }
         QMainWindow::closeEvent(event);
     } else {
