@@ -33,7 +33,7 @@ win32 {
         -lr_fs \
         -lr_magic \
         -lr_crypto \
-        -lr_shlr
+        -lr_sdb
 } else {
     macx {
         PREFIX=/usr/local
