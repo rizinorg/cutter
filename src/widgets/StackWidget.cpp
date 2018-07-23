@@ -20,6 +20,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     viewStack->setModel(modelStack);
     viewStack->verticalHeader()->hide();
     viewStack->setSortingEnabled(true);
+    viewStack->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewStack);
 
     connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
