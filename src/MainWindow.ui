@@ -232,6 +232,7 @@ border-top: 0px;
     <addaction name="actionBacktrace"/>
     <addaction name="actionMemoryMap"/>
     <addaction name="actionBreakpoint"/>
+    <addaction name="actionRegisterRefs"/>
    </widget>
    <widget class="QMenu" name="addInfoWidgets">
     <property name="title">
@@ -1059,6 +1060,14 @@ border-top: 0px;
    </property>
    <property name="text">
     <string>Breakpoints</string>
+   </property>
+  </action>
+  <action name="actionRegisterRefs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Register References</string>
    </property>
   </action>
   <action name="actionClasses">

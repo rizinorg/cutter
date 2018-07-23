@@ -91,6 +91,8 @@ public:
     void closeEvent(QCloseEvent *event) override;
     void readSettings();
     void saveSettings();
+    void readDebugSettings();
+    void saveDebugSettings();
     void setFilename(const QString &fn);
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
@@ -227,6 +229,7 @@ private:
     QDockWidget        *memoryMapDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
     QDockWidget        *breakpointDock = nullptr;
+    QDockWidget        *registerRefsDock = nullptr;
 #ifdef CUTTER_ENABLE_JUPYTER
     JupyterWidget      *jupyterDock = nullptr;
 #endif

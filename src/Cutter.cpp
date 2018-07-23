@@ -746,6 +746,26 @@ QJsonDocument CutterCore::getRegisterValues()
     return cmdj("drj");
 }
 
+QList<RegisterRefDescription> CutterCore::getRegisterRefs()
+{
+    QList<RegisterRefDescription> ret;
+    QJsonArray registerRefArray = cmdj("drrj").array();
+
+    for (QJsonValue value : registerRefArray) {
+        QJsonObject regRefObject = value.toObject();
+
+        RegisterRefDescription regRef;
+
+        regRef.reg = regRefObject["reg"].toString();
+        regRef.value = regRefObject["value"].toString();
+        regRef.ref = regRefObject["ref"].toString();
+
+        ret << regRef;
+    }
+
+    return ret;
+}
+
 QString CutterCore::getRegisterName(QString registerRole)
 {
     return cmd("drn " + registerRole).trimmed();
@@ -767,6 +787,7 @@ void CutterCore::setRegister(QString regName, QString regValue)
 {
     cmd("dr " + regName + "=" + regValue);
     emit registersChanged();
+    emit refreshCodeViews();
 }
 
 void CutterCore::startDebug()
@@ -804,8 +825,8 @@ void CutterCore::startEmulation()
         currentlyEmulating = true;
         emit changeDebugView();
         emit flagsChanged();
-        emit refreshCodeViews();
     }
+    emit refreshCodeViews();
 }
 
 void CutterCore::attachDebug(int pid)
@@ -822,8 +843,8 @@ void CutterCore::attachDebug(int pid)
         // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
         currentlyDebugging = true;
-        emit changeDebugView();
         emit flagsChanged();
+        emit changeDebugView();
     }
 }
 
@@ -841,8 +862,8 @@ void CutterCore::stopDebug()
         setConfig("asm.flags", true);
         setConfig("io.cache", false);
         currentlyDebugging = false;
-        emit changeDefinedView();
         emit flagsChanged();
+        emit changeDefinedView();
     }
 }
 
