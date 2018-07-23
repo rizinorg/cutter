@@ -66,6 +66,8 @@ void RegistersWidget::setRegisterGrid()
         // check if we already filled this grid space with label/value
         if (!registerLayout->itemAtPosition(i, col)) {
             registerLabel = new QLabel;
+            registerLabel->setAlignment(Qt::AlignRight);
+            registerLabel->setFixedWidth(70);
             registerLabel->setStyleSheet("font-weight: bold; font-family: mono;");
             registerEditValue = new QLineEdit;
             registerEditValue->setFixedWidth(140);
@@ -73,6 +75,12 @@ void RegistersWidget::setRegisterGrid()
             // add label and register value to grid
             registerLayout->addWidget(registerLabel, i, col);
             registerLayout->addWidget(registerEditValue, i, col + 1);
+            connect(registerEditValue, &QLineEdit::editingFinished, [=]() {
+                QString regNameString = registerLabel->text();
+                QString regValueString = registerEditValue->text();
+                Core()->setRegister(regNameString, regValueString);
+                printf("dr %s %s\n", regNameString.toLocal8Bit().constData(), regValueString.toLocal8Bit().constData());
+            });
         } else {
             QWidget *regNameWidget = registerLayout->itemAtPosition(i, col)->widget();
             QWidget *regValueWidget = registerLayout->itemAtPosition(i, col + 1)->widget();
