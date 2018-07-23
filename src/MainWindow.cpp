@@ -467,6 +467,10 @@ void MainWindow::readSettings()
     setPanelLock();
     tabsOnTop = settings.value("tabsOnTop").toBool();
     setTabLocation();
+    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
+    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    resize(size);
+    move(pos);
     updateDockActionsChecked();
 }
 
@@ -479,6 +483,29 @@ void MainWindow::saveSettings()
     settings.setValue("state", saveState());
     settings.setValue("panelLock", panelLock);
     settings.setValue("tabsOnTop", tabsOnTop);
+}
+
+void MainWindow::readDebugSettings()
+{
+    QSettings settings;
+    QByteArray geo = settings.value("debug.geometry", QByteArray()).toByteArray();
+    restoreGeometry(geo);
+    QByteArray state = settings.value("debug.state", QByteArray()).toByteArray();
+    restoreState(state);
+    QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
+    QSize size = settings.value("size", QSize(400, 400)).toSize();
+    resize(size);
+    move(pos);
+    updateDockActionsChecked();
+}
+
+void MainWindow::saveDebugSettings()
+{
+    QSettings settings;
+    settings.setValue("debug.geometry", saveGeometry());
+    settings.setValue("debug.state", saveState());
+    settings.setValue("size", size());
+    settings.setValue("pos", pos());
 }
 
 void MainWindow::setPanelLock()
@@ -705,22 +732,12 @@ void MainWindow::resetToZenLayout()
 
 void MainWindow::resetToDebugLayout()
 {
+    CutterCore::MemoryWidgetType memType = Core()->getMemoryWidgetPriority();
     hideAllDocks();
     restoreDocks();
     showDebugDocks();
-    disassemblyDock->raise();
-
-    // ugly workaround to set the default widths of functions/stack
-    // if anyone finds a way to do this cleaner that also works, feel free to change it!
-    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 150);
-    auto restoreStackDock = qhelpers::forceWidth(stackDock->widget(), 350);
-
-    qApp->processEvents();
-
-    restoreFunctionDock.restoreWidth(functionsDock->widget());
-    restoreStackDock.restoreWidth(stackDock->widget());
-
-    Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+    readDebugSettings();
+    Core()->raisePrioritizedMemoryWidget(memType);
 }
 
 void MainWindow::addOutput(const QString &msg)
@@ -939,11 +956,12 @@ void MainWindow::changeDebugView()
 
 void MainWindow::changeDefinedView()
 {
-    resetToDefaultLayout();
+    saveDebugSettings();
+    CutterCore::MemoryWidgetType memType = Core()->getMemoryWidgetPriority();
+    hideAllDocks();
+    restoreDocks();
     readSettings();
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+    Core()->raisePrioritizedMemoryWidget(memType);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
