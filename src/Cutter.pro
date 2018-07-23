@@ -46,8 +46,8 @@ win32 {
     QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
     QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
 	
-	# Multithreaded compilation
-	QMAKE_CXXFLAGS += -MP
+    # Multithreaded compilation
+    QMAKE_CXXFLAGS += -MP
 }
 
 macx {
