@@ -45,6 +45,9 @@ win32 {
     # Generate debug symbols in release mode
     QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
     QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
+	
+	# Multithreaded compilation
+	QMAKE_CXXFLAGS += -MP
 }
 
 macx {
