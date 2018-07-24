@@ -359,9 +359,6 @@ void MainWindow::finalizeOpen()
     core->setSettings();
 
     addOutput(tr(" > Populating UI"));
-    // FIXME: initialization order frakup. the next line is needed so that the
-    // comments widget displays the function names.
-    core->cmd("fs sections");
     refreshAll();
 
     addOutput(tr(" > Finished, happy reversing :)"));
