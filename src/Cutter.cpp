@@ -2036,22 +2036,6 @@ QList<QString> CutterCore::getColorThemes()
     return r;
 }
 
-RCoreTask *CutterCore::startTask(const QString &cmd)
-{
-    RCoreTask *task = r_core_task_new (core_, true, cmd.toLocal8Bit().constData(), nullptr, nullptr);
-    r_core_task_enqueue(core_, task);
-    return task;
-}
-
-void CutterCore::joinTask(RCoreTask *task)
-{
-    r_core_task_join(core_, nullptr, task);
-}
-void CutterCore::deleteTask(RCoreTask *task)
-{
-    r_core_task_del(core_, task->id);
-}
-
 void CutterCore::setCutterPlugins(QList<CutterPlugin *> plugins)
 {
     this->plugins = plugins;
