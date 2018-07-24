@@ -66,8 +66,8 @@ void RegistersWidget::setRegisterGrid()
         // check if we already filled this grid space with label/value
         if (!registerLayout->itemAtPosition(i, col)) {
             registerLabel = new QLabel;
-            registerLabel->setAlignment(Qt::AlignRight);
-            registerLabel->setFixedWidth(70);
+            registerLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+            registerLabel->setMaximumWidth(60);
             registerLabel->setStyleSheet("font-weight: bold; font-family: mono;");
             registerEditValue = new QLineEdit;
             registerEditValue->setFixedWidth(140);
