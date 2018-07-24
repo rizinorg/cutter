@@ -733,11 +733,17 @@ void MainWindow::resetToZenLayout()
 void MainWindow::resetToDebugLayout()
 {
     CutterCore::MemoryWidgetType memType = Core()->getMemoryWidgetPriority();
+    bool isMaxim = isMaximized();
     hideAllDocks();
     restoreDocks();
     showDebugDocks();
     readDebugSettings();
     Core()->raisePrioritizedMemoryWidget(memType);
+    if (isMaxim) {
+        showMaximized();
+    } else {
+        showNormal();
+    }
 }
 
 void MainWindow::addOutput(const QString &msg)
