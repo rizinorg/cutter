@@ -397,6 +397,12 @@ void CutterCore::editBytes(RVA addr, const QString &bytes)
     emit instructionChanged(addr);
 }
 
+void CutterCore::editBytesEndian(RVA addr, const QString &bytes)
+{
+    cmd("wv " + bytes + " @ " + RAddressString(addr));
+    emit stackChanged();
+}
+
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     cmd("CCu base64:" + cmt.toLocal8Bit().toBase64() + " @ " + QString::number(addr));
@@ -806,6 +812,7 @@ void CutterCore::startDebug()
         emit flagsChanged();
         emit refreshCodeViews();
     }
+    emit stackChanged();
 }
 
 void CutterCore::startEmulation()
@@ -826,6 +833,7 @@ void CutterCore::startEmulation()
         emit changeDebugView();
         emit flagsChanged();
     }
+    emit stackChanged();
     emit refreshCodeViews();
 }
 
