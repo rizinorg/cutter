@@ -176,7 +176,7 @@ void BreakpointWidget::showBreakpointContextMenu(const QPoint &pt)
     menu->addAction(actionDelBreakpoint);
     menu->addAction(actionToggleBreakpoint);
 
-    menu->exec(ui->breakpointTreeView->mapToGlobal(pt));
+    menu->exec(ui->breakpointTreeView->viewport()->mapToGlobal(pt));
     this->setContextMenuPolicy(Qt::CustomContextMenu);
 
     delete menu;
