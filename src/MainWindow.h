@@ -71,7 +71,7 @@ public:
                      QList<QString> advancedOptions = QList<QString>());
     void displayNewFileDialog();
     void closeNewFileDialog();
-    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions);
+    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script);
     void openProject(const QString &project_name);
 
     void initUI();

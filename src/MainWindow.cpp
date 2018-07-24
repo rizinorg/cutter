@@ -286,18 +286,19 @@ void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> ad
 
     /* Prompt to load filename.r2 script */
     QString script = QString("%1.r2").arg(this->filename);
+    QString loadScript;
     if (r_file_exists(script.toStdString().data())) {
         QMessageBox mb;
         mb.setWindowTitle(tr("Script loading"));
         mb.setText(tr("Do you want to load the '%1' script?").arg(script));
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         if (mb.exec() == QMessageBox::Yes) {
-            core->loadScript(script);
+            loadScript = script;
         }
     }
 
     /* Show analysis options dialog */
-    displayAnalysisOptionsDialog(analLevel, advancedOptions);
+    displayAnalysisOptionsDialog(analLevel, advancedOptions, loadScript);
 }
 
 void MainWindow::openNewFileFailed()
@@ -327,10 +328,11 @@ void MainWindow::closeNewFileDialog()
     newFileDialog = nullptr;
 }
 
-void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions)
+void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script)
 {
     OptionsDialog *o = new OptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
+    o->setInitialScript(script);
     o->show();
 
     if (analLevel >= 0) {
@@ -823,7 +825,7 @@ void MainWindow::on_actionRefresh_Panels_triggered()
 
 void MainWindow::on_actionAnalyze_triggered()
 {
-    displayAnalysisOptionsDialog(-1, QList<QString>());
+    displayAnalysisOptionsDialog(-1, QList<QString>(), nullptr);
 }
 
 void MainWindow::on_actionImportPDB_triggered()

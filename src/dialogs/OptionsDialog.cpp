@@ -82,6 +82,15 @@ void OptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
 
+void OptionsDialog::setInitialScript(const QString &script)
+{
+    ui->scriptCheckBox->setChecked(!script.isEmpty());
+    ui->scriptLineEdit->setText(script);
+    if (!script.isEmpty()) {
+        ui->analSlider->setValue(0);
+    }
+}
+
 QString OptionsDialog::getSelectedArch()
 {
     QVariant archValue = ui->archComboBox->currentData();

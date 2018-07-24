@@ -40,6 +40,8 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
+    std::unique_ptr<Ui::OptionsDialog> ui;
+
     MainWindow *main;
     CutterCore *core;
     int defaultAnalLevel;
@@ -49,7 +51,7 @@ private:
     void updateCPUComboBox();
 
 public:
-    std::unique_ptr<Ui::OptionsDialog> ui;
+    void setInitialScript(const QString &script);
 
     QString getSelectedArch();
     QString getSelectedCPU();
