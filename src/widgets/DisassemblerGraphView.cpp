@@ -733,7 +733,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmd("ag -");
+    fileOut << Core()->cmd("agfd $FB");
 }
 
 void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
