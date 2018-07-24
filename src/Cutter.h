@@ -410,6 +410,7 @@ public:
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
     void editBytes(RVA addr, const QString &inst);
+    void editBytesEndian(RVA addr, const QString &bytes);
 
     /* Comments */
     void setComment(RVA addr, const QString &cmt);
@@ -609,6 +610,7 @@ signals:
     void instructionChanged(RVA offset);
     void breakpointsChanged();
     void refreshCodeViews();
+    void stackChanged();
 
     void notesChanged(const QString &notes);
     void projectSaved(const QString &name);
