@@ -575,6 +575,7 @@ public:
     QList<BreakpointDescription> getBreakpoints();
     QList<ProcessDescription> getAllProcesses();
     QList<RegisterRefDescription> getRegisterRefs();
+    QJsonObject getRegisterJson();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);

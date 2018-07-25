@@ -59,8 +59,9 @@ void RegistersWidget::setRegisterGrid()
     QLabel *registerLabel;
     QLineEdit *registerEditValue;
     QJsonObject registerValues = Core()->getRegisterValues().object();
+    QJsonObject registerRefs = Core()->getRegisterJson();
     QStringList registerNames = registerValues.keys();
-    registerLen = registerNames.size();
+    registerLen = registerValues.size();
     for (const QString &key : registerNames) {
         regValue = RAddressString(registerValues[key].toVariant().toULongLong());
         // check if we already filled this grid space with label/value
@@ -79,7 +80,8 @@ void RegistersWidget::setRegisterGrid()
                 QString regNameString = registerLabel->text();
                 QString regValueString = registerEditValue->text();
                 Core()->setRegister(regNameString, regValueString);
-                printf("dr %s %s\n", regNameString.toLocal8Bit().constData(), regValueString.toLocal8Bit().constData());
+                printf("dr %s %s\n", regNameString.toLocal8Bit().constData(),
+                       regValueString.toLocal8Bit().constData());
             });
         } else {
             QWidget *regNameWidget = registerLayout->itemAtPosition(i, col)->widget();
@@ -96,6 +98,12 @@ void RegistersWidget::setRegisterGrid()
         }
         // define register label and value
         registerLabel->setText(key);
+        if (registerRefs.contains(key)) {
+            // add register references to tooltips
+            QString reference = registerRefs[key].toObject()["ref"].toString();
+            registerLabel->setToolTip(reference);
+            registerEditValue->setToolTip(reference);
+        }
         registerEditValue->setPlaceholderText(regValue);
         registerEditValue->setText(regValue);
         i++;
