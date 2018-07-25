@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QToolButton>
 #include <QMenu>
+#include <QFileInfo>
 
 DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QToolBar(parent),
@@ -76,11 +77,19 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         this->colorToolbar(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
-    connect(actionStart, &QAction::triggered, Core(), &CutterCore::startDebug);
     connect(actionStart, &QAction::triggered, [=]() {
+        QString filename = Core()->getConfig("file.lastpath");
+        QFileInfo info(filename);
+        if (!info.isExecutable()) {
+            QMessageBox msgBox;
+            msgBox.setText(QString("File '%1' does not have executable permissions.").arg(filename));
+            msgBox.exec();
+            return;
+        }
         this->colorToolbar(true);
         actionAttach->setVisible(false);
         actionStartEmul->setVisible(false);
+        Core()->startDebug();
     });
     connect(actionAttach, &QAction::triggered, this, &DebugToolbar::attachProcessDialog);
     connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
