@@ -69,6 +69,8 @@ public:
 private slots:
     void on_registerRefTreeView_doubleClicked(const QModelIndex &index);
     void refreshRegisterRef();
+    void copyClip(int column);
+    void showRegRefContextMenu(const QPoint &pt);
 
 private:
     std::unique_ptr<Ui::RegisterRefsWidget> ui;
@@ -76,6 +78,7 @@ private:
     RegisterRefModel *registerRefModel;
     RegisterRefProxyModel *registerRefProxyModel;
     QList<RegisterRefDescription> registerRefs;
-
+    QAction *actionCopyValue;
+    QAction *actionCopyRef;
     void setScrollMode();
 };
