@@ -3,6 +3,7 @@
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 #include <QMenu>
+#include <QClipboard>
 
 RegisterRefModel::RegisterRefModel(QList<RegisterRefDescription> *registerRefs, QObject *parent)
     : QAbstractListModel(parent),
@@ -121,6 +122,9 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     ui->registerRefTreeView->setModel(registerRefProxyModel);
     ui->registerRefTreeView->sortByColumn(RegisterRefModel::RegColumn, Qt::AscendingOrder);
 
+    actionCopyValue = new QAction(tr("Copy register value"));
+    actionCopyRef = new QAction(tr("Copy register reference"));
+
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
@@ -132,6 +136,15 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     setScrollMode();
     connect(Core(), &CutterCore::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);
     connect(Core(), &CutterCore::registersChanged, this, &RegisterRefsWidget::refreshRegisterRef);
+    connect(actionCopyValue, &QAction::triggered, [=] () {
+        copyClip(RegisterRefModel::ValueColumn);
+    });
+    connect(actionCopyRef, &QAction::triggered, [=] () {
+        copyClip(RegisterRefModel::RefColumn);
+    });
+    ui->registerRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->registerRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
+        this, SLOT(showRegRefContextMenu(const QPoint &)));
 }
 
 RegisterRefsWidget::~RegisterRefsWidget() {}
@@ -157,4 +170,23 @@ void RegisterRefsWidget::on_registerRefTreeView_doubleClicked(const QModelIndex 
     RegisterRefDescription item = index.data(
                                       RegisterRefModel::RegisterRefDescriptionRole).value<RegisterRefDescription>();
     Core()->seek(item.value);
+}
+
+void RegisterRefsWidget::showRegRefContextMenu(const QPoint &pt)
+{
+    QMenu *menu = new QMenu(ui->registerRefTreeView);
+    menu->clear();
+    menu->addAction(actionCopyValue);
+    menu->addAction(actionCopyRef);
+
+    menu->exec(ui->registerRefTreeView->viewport()->mapToGlobal(pt));
+    delete menu;
+}
+
+void RegisterRefsWidget::copyClip(int column)
+{
+    int row = ui->registerRefTreeView->selectionModel()->currentIndex().row();
+    QString value = ui->registerRefTreeView->selectionModel()->currentIndex().sibling(row, column).data().toString();
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(value);
 }
