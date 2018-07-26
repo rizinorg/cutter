@@ -43,10 +43,11 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     startButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(startButton, &QToolButton::triggered, startButton, &QToolButton::setDefaultAction);
     QMenu *startMenu = new QMenu;
-    startMenu->addAction(actionStart);
+    // startMenu->addAction(actionStart);
     startMenu->addAction(actionStartEmul);
-    startMenu->addAction(actionAttach);
-    startButton->setDefaultAction(actionStart);
+    // startMenu->addAction(actionAttach);
+    // startButton->setDefaultAction(actionStart);
+    startButton->setDefaultAction(actionStartEmul);
     startButton->setMenu(startMenu);
 
     QToolButton *continueUntilButton = new QToolButton;
