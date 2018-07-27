@@ -645,6 +645,14 @@ QString CutterCore::cmdFunctionAt(RVA addr)
     return cmdFunctionAt(QString::number(addr));
 }
 
+void CutterCore::cmdEsil(QString command)
+{
+    QString res = cmd(command);
+    if (res.contains("[ESIL] Stopped execution in an invalid instruction")) {
+        msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable this in Preferences");
+    }
+}
+
 QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
     name.remove(QRegExp("[^a-zA-Z0-9_]"));
@@ -908,7 +916,7 @@ void CutterCore::continueUntilDebug(QString offset)
         if (!currentlyEmulating) {
             cmd("dcu " + offset);
         } else {
-            cmd("aecu " + offset);
+            cmdEsil("aecu " + offset);
         }
         emit registersChanged();
         emit refreshCodeViews();
@@ -929,7 +937,7 @@ void CutterCore::continueUntilSyscall()
 {
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmd("aecs");
+            cmdEsil("aecs");
         } else {
             cmd("dcs");
         }
@@ -942,7 +950,7 @@ void CutterCore::continueUntilSyscall()
 void CutterCore::stepDebug()
 {
     if (currentlyDebugging) {
-        cmd("ds");
+        cmdEsil("ds");
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
         seek(programCounterValue);
         emit registersChanged();
@@ -952,7 +960,7 @@ void CutterCore::stepDebug()
 void CutterCore::stepOverDebug()
 {
     if (currentlyDebugging) {
-        cmd("dso");
+        cmdEsil("dso");
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
         seek(programCounterValue);
         emit registersChanged();

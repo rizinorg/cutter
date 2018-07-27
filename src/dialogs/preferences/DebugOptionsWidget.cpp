@@ -10,10 +10,11 @@
 #include "utils/Helpers.h"
 #include "utils/Configuration.h"
 
-DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
+DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::DebugOptionsWidget)
 {
+    Q_UNUSED(dialog);
     ui->setupUi(this);
 
     updateDebugPlugin();
@@ -23,6 +24,7 @@ DebugOptionsWidget::~DebugOptionsWidget() {}
 
 void DebugOptionsWidget::updateDebugPlugin()
 {
+    ui->esilBreakOnInvalid->setChecked(Config()->getConfigBool("esil.breakoninvalid"));
     disconnect(ui->pluginComboBox, SIGNAL(currentIndexChanged(const QString &)), this,
                SLOT(on_pluginComboBox_currentIndexChanged(const QString &)));
 
@@ -75,4 +77,9 @@ void DebugOptionsWidget::updateStackAddr()
     QString newAddr = ui->stackAddr->text();
     Core()->setConfig("esil.stack.addr", newAddr);
     ui->stackAddr->setPlaceholderText(newAddr);
+}
+
+void DebugOptionsWidget::on_esilBreakOnInvalid_toggled(bool checked)
+{
+    Config()->setConfig("esil.breakoninvalid", checked);
 }

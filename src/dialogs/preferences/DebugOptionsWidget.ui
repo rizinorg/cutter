@@ -103,6 +103,13 @@
                             </item>
                         </layout>
                     </item>
+                    <item row="4" column="0">
+                        <widget class="QCheckBox" name="esilBreakOnInvalid">
+                            <property name="text">
+                                <string>Break esil execution when instruction is invalid (esil.breakoninvalid)</string>
+                            </property>
+                        </widget>
+                    </item>
                 </layout>
             </item>
         </layout>
