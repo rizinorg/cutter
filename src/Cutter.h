@@ -15,6 +15,7 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QJsonDocument>
+#include <QErrorMessage>
 
 #define HAVE_LATEST_LIBR2 false
 
@@ -385,6 +386,7 @@ public:
     }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
+    void cmdEsil(QString command);
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const QString &cmd = QString());
@@ -641,6 +643,7 @@ private:
     RCore *core_;
     AsyncTaskManager *asyncTaskManager;
     RVA offsetPriorDebugging = RVA_INVALID;
+    QErrorMessage msgBox;
 
     QList<CutterPlugin*> plugins;
 };
