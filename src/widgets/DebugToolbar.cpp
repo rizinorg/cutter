@@ -78,6 +78,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionAttach->setVisible(true);
         actionContinueUntilMain->setVisible(true);
         actionContinueUntilCall->setVisible(true);
+        actionStepOut->setVisible(true);
         this->colorToolbar(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
@@ -103,6 +104,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionAttach->setVisible(false);
         actionContinueUntilMain->setVisible(false);
         actionContinueUntilCall->setVisible(false);
+        actionStepOut->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
         this->colorToolbar(true);
     });
