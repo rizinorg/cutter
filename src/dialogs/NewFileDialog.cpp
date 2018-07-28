@@ -346,7 +346,7 @@ void NewFileDialog::loadFile(const QString &filename)
     }
     ioFile += filename;
     main->openNewFile(ioFile);
-    
+
     close();
 }
 

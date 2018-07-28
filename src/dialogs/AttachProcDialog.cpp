@@ -5,15 +5,29 @@
 
 #include "utils/Helpers.h"
 
-ProcessModel::ProcessModel(QList<ProcessDescription> *processes, QObject *parent)
-    : QAbstractListModel(parent),
-      processes(processes)
+#include <QScrollBar>
+
+// ------------
+// ProcessModel
+// ------------
+ProcessModel::ProcessModel(QObject *parent)
+    : QAbstractListModel(parent)
 {
+    updateData();
+}
+
+void ProcessModel::updateData()
+{
+    beginResetModel();
+
+    processes = Core()->getAllProcesses();
+
+    endResetModel();
 }
 
 int ProcessModel::rowCount(const QModelIndex &) const
 {
-    return processes->count();
+    return processes.count();
 }
 
 int ProcessModel::columnCount(const QModelIndex &) const
@@ -23,10 +37,10 @@ int ProcessModel::columnCount(const QModelIndex &) const
 
 QVariant ProcessModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= processes->count())
+    if (index.row() >= processes.count())
         return QVariant();
 
-    const ProcessDescription &proc = processes->at(index.row());
+    const ProcessDescription &proc = processes.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -70,35 +84,10 @@ QVariant ProcessModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void ProcessModel::beginReloadProcess()
+bool ProcessModel::lessThan(const ProcessDescription &leftProc, const ProcessDescription &rightProc,
+                            int column)
 {
-    beginResetModel();
-}
-
-void ProcessModel::endReloadProcess()
-{
-    endResetModel();
-}
-
-ProcessProxyModel::ProcessProxyModel(ProcessModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
-{
-    setSourceModel(sourceModel);
-}
-
-bool ProcessProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
-{
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    ProcessDescription item = index.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
-    return item.path.contains(filterRegExp());
-}
-
-bool ProcessProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    ProcessDescription leftProc = left.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
-    ProcessDescription rightProc = right.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
-
-    switch (left.column()) {
+    switch (column) {
     case ProcessModel::PidColumn:
         return leftProc.pid < rightProc.pid;
     case ProcessModel::UidColumn:
@@ -114,6 +103,74 @@ bool ProcessProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftProc.pid < rightProc.pid;
 }
 
+// ------------------------------
+// ProcessBeingAnalysedProxyModel
+// ------------------------------
+ProcessBeingAnalysedProxyModel::ProcessBeingAnalysedProxyModel(ProcessModel *sourceModel,
+                                                               QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+    setSourceModel(sourceModel);
+
+    // @SEE: Should there be a getFilename() in Core()? Not the first time I use this
+    processBeingAnalysedFilename = processPathToFilename(Core()->getConfig("file.path"));
+}
+
+QString ProcessBeingAnalysedProxyModel::processPathToFilename(const QString &path) const
+{
+    // removes the arguments and gets filename from the process path
+    return path.split(" ").first().split("/").last();
+}
+
+bool ProcessBeingAnalysedProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+{
+    QModelIndex index = sourceModel()->index(row, 0, parent);
+    ProcessDescription item = index.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+
+    QString procFilename = processPathToFilename(item.path);
+    return procFilename == processBeingAnalysedFilename;
+}
+
+bool ProcessBeingAnalysedProxyModel::lessThan(const QModelIndex &left,
+                                              const QModelIndex &right) const
+{
+    ProcessDescription leftProc = left.data(
+                                      ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+    ProcessDescription rightProc = right.data(
+                                       ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+
+    return ProcessModel::lessThan(leftProc, rightProc, left.column());
+}
+
+// -----------------
+// ProcessProxyModel
+// -----------------
+ProcessProxyModel::ProcessProxyModel(ProcessModel *sourceModel, QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+    setSourceModel(sourceModel);
+}
+
+bool ProcessProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+{
+    QModelIndex index = sourceModel()->index(row, 0, parent);
+    ProcessDescription item = index.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+    return item.path.contains(filterRegExp());
+}
+
+bool ProcessProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    ProcessDescription leftProc = left.data(
+                                      ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+    ProcessDescription rightProc = right.data(
+                                       ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+
+    return ProcessModel::lessThan(leftProc, rightProc, left.column());
+}
+
+// ----------------
+// AttachProcDialog
+// ----------------
 AttachProcDialog::AttachProcDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AttachProcDialog)
@@ -121,22 +178,97 @@ AttachProcDialog::AttachProcDialog(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    processes = Core()->getAllProcesses();
-    processModel = new ProcessModel(&processes, this);
+    processModel = new ProcessModel(this);
     processProxyModel = new ProcessProxyModel(processModel, this);
-    ui->procTreeView->setModel(processProxyModel);
-    ui->procTreeView->sortByColumn(ProcessModel::PidColumn, Qt::AscendingOrder);
-    connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), processProxyModel,
-            SLOT(setFilterWildcard(const QString &)));
-    qhelpers::setVerticalScrollMode(ui->procTreeView);
+    processBeingAnalyzedProxyModel = new ProcessBeingAnalysedProxyModel(processModel, this);
+
+    // View of all processes
+    auto allView = ui->allProcView;
+    allView->setModel(processProxyModel);
+    allView->sortByColumn(ProcessModel::PidColumn, Qt::DescendingOrder);
+
+    // View of the processes with the same name as the one being analyzed
+    auto smallView = ui->procBeingAnalyzedView;
+    smallView->setModel(processBeingAnalyzedProxyModel);
+    smallView->setCurrentIndex(smallView->model()->index(0, 0));
+
+    // To get the 'FocusIn' events
+    allView->installEventFilter(this);
+    smallView->installEventFilter(this);
 
     // focus on filter line
     ui->filterLineEdit->setFocus();
-    // Event filter for capturing Ctrl/Cmd+Return
-    ui->filterLineEdit->installEventFilter(this);
+    connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), processProxyModel,
+            SLOT(setFilterWildcard(const QString &)));
+
+    // Update the processes every 'updateIntervalMs' seconds
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(updateModelData()));
+    timer->start(updateIntervalMs);
 }
 
-AttachProcDialog::~AttachProcDialog() {}
+AttachProcDialog::~AttachProcDialog()
+{
+    timer->stop();
+    delete timer;
+    delete processBeingAnalyzedProxyModel;
+    delete processProxyModel;
+    delete processModel;
+}
+
+void AttachProcDialog::updateModelData()
+{
+    auto allView = ui->allProcView;
+    auto smallView = ui->procBeingAnalyzedView;
+
+    // Save the old selection and scroll position so that we can update and
+    // model and then restore it.
+    bool allViewHadSelection = allView->selectionModel()->hasSelection();
+    bool smallViewHadSelection = smallView->selectionModel()->hasSelection();
+    int allViewPrevScrollPos = 0;
+    int smallViewPrevScrollPos = 0;
+    int allViewPrevPID = 0;
+    int smallViewPrevPID = 0;
+
+    if (allViewHadSelection) {
+        allViewPrevScrollPos = allView->verticalScrollBar()->value();
+        allViewPrevPID = allView->selectionModel()->currentIndex().data(
+                             ProcessModel::ProcDescriptionRole).value<ProcessDescription>().pid;
+    }
+    if (smallViewHadSelection) {
+        smallViewPrevScrollPos = smallView->verticalScrollBar()->value();
+        smallViewPrevPID = smallView->selectionModel()->currentIndex().data(
+                               ProcessModel::ProcDescriptionRole).value<ProcessDescription>().pid;
+    }
+
+    // Let the model update
+    processModel->updateData();
+
+    // Restore the selection and scroll position
+    if (allViewHadSelection) {
+        QModelIndexList idx = allView->model()->match(
+                                  allView->model()->index(0, 0), Qt::DisplayRole, QVariant::fromValue(allViewPrevPID));
+        if (!idx.isEmpty()) {
+            allView->setCurrentIndex(idx.first());
+            allView->verticalScrollBar()->setValue(allViewPrevScrollPos);
+        }
+    }
+    if (smallViewHadSelection) {
+        QModelIndexList idx = smallView->model()->match(
+                                  smallView->model()->index(0, 0), Qt::DisplayRole, QVariant::fromValue(smallViewPrevPID));
+
+        if (!idx.isEmpty()) {
+            smallView->setCurrentIndex(idx.first());
+            smallView->verticalScrollBar()->setValue(smallViewPrevScrollPos);
+        }
+    }
+
+    // Init selection if nothing was ever selected yet, and a new process with the same name
+    // as the one being analysed was launched.
+    if (!allView->selectionModel()->hasSelection() && !smallView->selectionModel()->hasSelection()) {
+        smallView->setCurrentIndex(smallView->model()->index(0, 0));
+    }
+}
 
 void AttachProcDialog::on_buttonBox_accepted()
 {
@@ -147,23 +279,16 @@ void AttachProcDialog::on_buttonBox_rejected()
     close();
 }
 
-int AttachProcDialog::getPID()
-{
-    ProcessDescription proc = ui->procTreeView->selectionModel()->currentIndex().data(
-                    ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
-    return proc.pid;
-}
-
 bool AttachProcDialog::eventFilter(QObject *obj, QEvent *event)
 {
-    Q_UNUSED(obj);
-    if (event -> type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast <QKeyEvent *> (event);
-
-        // Confirm comment by pressing Ctrl/Cmd+Return
-        if ((keyEvent -> modifiers() & Qt::ControlModifier) &&
-                ((keyEvent -> key() == Qt::Key_Enter) || (keyEvent -> key() == Qt::Key_Return))) {
-            this->accept();
+    if (event->type() == QEvent::FocusIn) {
+        if (obj == ui->allProcView) {
+            ui->procBeingAnalyzedView->selectionModel()->clearSelection();
+            wasAllProcViewLastPressed = true;
+            return true;
+        } else if (obj == ui->procBeingAnalyzedView) {
+            ui->allProcView->selectionModel()->clearSelection();
+            wasAllProcViewLastPressed = false;
             return true;
         }
     }
@@ -171,8 +296,37 @@ bool AttachProcDialog::eventFilter(QObject *obj, QEvent *event)
     return false;
 }
 
-void AttachProcDialog::on_procTreeView_doubleClicked(const QModelIndex &index)
+int AttachProcDialog::getPID()
 {
-    ProcessDescription proc = index.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+    int pid;
+
+    // Here we need to know which table was selected last to get the proper PID
+    if (wasAllProcViewLastPressed && ui->allProcView->selectionModel()->hasSelection()) {
+        pid = ui->allProcView->selectionModel()->currentIndex().
+              data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>().pid;
+    } else if (!wasAllProcViewLastPressed
+               && ui->procBeingAnalyzedView->selectionModel()->hasSelection()) {
+        pid = ui->procBeingAnalyzedView->selectionModel()->currentIndex().
+              data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>().pid;
+    } else {
+        // Error attaching. No process selected! Happens when you press ENTER but
+        // there was no process with the same name as the one being analyzed.
+        pid = -1;
+    }
+
+    return pid;
+}
+
+void AttachProcDialog::on_allProcView_doubleClicked(const QModelIndex &index)
+{
+    Q_UNUSED(index);
+
+    accept();
+}
+
+void AttachProcDialog::on_procBeingAnalyzedView_doubleClicked(const QModelIndex &index)
+{
+    Q_UNUSED(index);
+
     accept();
 }

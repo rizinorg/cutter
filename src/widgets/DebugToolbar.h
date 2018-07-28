@@ -21,6 +21,7 @@ public:
     QAction *actionStep;
     QAction *actionStepOver;
     QAction *actionStepOut;
+    QAction *actionStop;
 
 private:
     MainWindow *main;
