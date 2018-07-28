@@ -866,6 +866,8 @@ void CutterCore::attachDebug(int pid)
         // prevent register flags from appearing during debug/emul
         setConfig("asm.flags", false);
         currentlyDebugging = true;
+        currentlyOpenFile = getConfig("file.path");
+        currentlyAttachedToPID = pid;
         emit flagsChanged();
         emit changeDebugView();
     }
@@ -877,8 +879,12 @@ void CutterCore::stopDebug()
         if (currentlyEmulating) {
             cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
+        } else if (currentlyAttachedToPID != -1) {
+            cmd(QString("dp- %1; o %2; .ar-").arg(QString::number(currentlyAttachedToPID), currentlyOpenFile));
+            currentlyAttachedToPID = -1;
         } else {
             // we do a ds since otherwise the process does not die.
+            // BUG: This breaks in Windows
             cmd("dk 9; ds; oo; .ar-");
         }
         seek(offsetPriorDebugging);
