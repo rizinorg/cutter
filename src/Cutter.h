@@ -414,6 +414,11 @@ public:
     void editBytes(RVA addr, const QString &inst);
     void editBytesEndian(RVA addr, const QString &bytes);
 
+    /* Code/Data */
+    void setToCode(RVA addr);
+    void setToData(RVA addr, int size, int repeat = 1);
+    int sizeofDataMeta(RVA addr);
+
     /* Comments */
     void setComment(RVA addr, const QString &cmt);
     void delComment(RVA addr);

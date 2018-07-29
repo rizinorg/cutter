@@ -182,7 +182,8 @@ SOURCES += \
     widgets/BreakpointWidget.cpp \
     dialogs/BreakpointsDialog.cpp \
     dialogs/AttachProcDialog.cpp \
-    widgets/RegisterRefsWidget.cpp
+    widgets/RegisterRefsWidget.cpp \
+    dialogs/SetToDataDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -276,7 +277,8 @@ HEADERS  += \
     widgets/BreakpointWidget.h \
     dialogs/BreakpointsDialog.h \
     dialogs/AttachProcDialog.h \
-    widgets/RegisterRefsWidget.h
+    widgets/RegisterRefsWidget.h \
+    dialogs/SetToDataDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -330,7 +332,8 @@ FORMS    += \
     widgets/BreakpointWidget.ui \
     dialogs/BreakpointsDialog.ui \
     dialogs/AttachProcDialog.ui \
-    widgets/RegisterRefsWidget.ui
+    widgets/RegisterRefsWidget.ui \
+    dialogs/SetToDataDialog.ui
 
 RESOURCES += \
     resources.qrc \
