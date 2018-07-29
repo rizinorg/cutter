@@ -85,9 +85,9 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
     connect(actionStart, &QAction::triggered, [=]() {
-        QString filename = Core()->getConfig("file.lastpath");
+        QString filename = Core()->getConfig("file.path").split(" ").first();
         QFileInfo info(filename);
-        if (!info.isExecutable()) {
+        if (!Core()->currentlyDebugging && !info.isExecutable()) {
             QMessageBox msgBox;
             msgBox.setText(QString("File '%1' does not have executable permissions.").arg(filename));
             msgBox.exec();

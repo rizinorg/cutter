@@ -816,9 +816,8 @@ void CutterCore::startDebug()
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
-    // FIXME: we do a 'ds' here since otherwise the continue until commands
-    // sometimes do not work in r2.
-    cmd("ood; ds");
+    // FIXME: we do a 'dr' here since otherwise the process continues
+    cmd("ood; dr");
     emit registersChanged();
     if (!currentlyDebugging) {
         setConfig("asm.flags", false);
@@ -883,9 +882,7 @@ void CutterCore::stopDebug()
             cmd(QString("dp- %1; o %2; .ar-").arg(QString::number(currentlyAttachedToPID), currentlyOpenFile));
             currentlyAttachedToPID = -1;
         } else {
-            // we do a ds since otherwise the process does not die.
-            // BUG: This breaks in Windows
-            cmd("dk 9; ds; oo; .ar-");
+            cmd("dk 9; oo; .ar-");
         }
         seek(offsetPriorDebugging);
         setConfig("asm.flags", true);
