@@ -923,7 +923,11 @@ void CutterCore::continueUntilDebug(QString offset)
 void CutterCore::continueUntilCall()
 {
     if (currentlyDebugging) {
-        cmd("dcc");
+        if (currentlyEmulating) {
+            cmdEsil("aecc");
+        } else {
+            cmd("dcc");
+        }
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
         seek(programCounterValue);
         emit registersChanged();
