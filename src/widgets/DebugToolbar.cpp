@@ -77,7 +77,6 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionStartEmul->setVisible(true);
         actionAttach->setVisible(true);
         actionContinueUntilMain->setVisible(true);
-        actionContinueUntilCall->setVisible(true);
         actionStepOut->setVisible(true);
         this->colorToolbar(false);
         actionStop->setText("Stop debug");
@@ -105,7 +104,6 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionStart->setVisible(false);
         actionAttach->setVisible(false);
         actionContinueUntilMain->setVisible(false);
-        actionContinueUntilCall->setVisible(false);
         actionStepOut->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
         actionStop->setText("Stop emulation");
