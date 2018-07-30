@@ -29,6 +29,7 @@
         <file>img/icons/continue_until_syscall.svg</file>
         <file>img/icons/step_light.svg</file>
         <file>img/icons/step_over_light.svg</file>
+        <file>img/icons/step_out_light.svg</file>
         <file>img/icons/cloud.svg</file>
         <file>img/icons/down.svg</file>
         <file>img/icons/down_white.svg</file>
