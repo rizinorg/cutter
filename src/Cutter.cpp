@@ -956,6 +956,16 @@ void CutterCore::stepOverDebug()
     }
 }
 
+void CutterCore::stepOutDebug()
+{
+    if (currentlyDebugging) {
+        cmd("dsf");
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seek(programCounterValue);
+        emit registersChanged();
+    }
+}
+
 QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
