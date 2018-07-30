@@ -138,6 +138,7 @@ void MainWindow::initUI()
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugToolbar->actionStep);
     ui->menuDebug->addAction(debugToolbar->actionStepOver);
+    ui->menuDebug->addAction(debugToolbar->actionStepOut);
     ui->menuDebug->addSeparator();
     // ui->menuDebug->addAction(debugToolbar->actionContinue);
     // ui->menuDebug->addAction(debugToolbar->actionContinueUntilCall);
