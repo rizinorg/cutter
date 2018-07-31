@@ -5,6 +5,7 @@
 #include <memory>
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <QTimer>
 
 namespace Ui {
 class AttachProcDialog;
@@ -20,22 +21,23 @@ class ProcessModel: public QAbstractListModel
     Q_OBJECT
 
 private:
-    QList<ProcessDescription> *processes;
+    QList<ProcessDescription> processes;
 
 public:
     enum Column { PidColumn = 0, UidColumn, StatusColumn, PathColumn, ColumnCount };
     enum Role { ProcDescriptionRole = Qt::UserRole };
 
-    ProcessModel(QList<ProcessDescription> *processes, QObject *parent = 0);
+    ProcessModel(QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    static bool lessThan(const ProcessDescription &left, const ProcessDescription &right, int column);
 
-    void beginReloadProcess();
-    void endReloadProcess();
+public slots:
+    void updateData();
 };
 
 
@@ -53,6 +55,23 @@ protected:
 };
 
 
+class ProcessBeingAnalysedProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    ProcessBeingAnalysedProxyModel(ProcessModel *sourceModel, QObject *parent = nullptr);
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+
+private:
+    QString processBeingAnalysedFilename;
+    QString processPathToFilename(const QString &path) const;
+};
+
+
 
 class AttachProcDialog : public QDialog
 {
@@ -67,16 +86,21 @@ public:
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
-    void on_procTreeView_doubleClicked(const QModelIndex &index);
+    void on_allProcView_doubleClicked(const QModelIndex &index);
+    void on_procBeingAnalyzedView_doubleClicked(const QModelIndex &index);
+    void updateModelData();
 
-signals:
-    void attachProcess(int pid);
 private:
     std::unique_ptr<Ui::AttachProcDialog> ui;
     bool eventFilter(QObject *obj, QEvent *event);
 
     ProcessModel *processModel;
     ProcessProxyModel *processProxyModel;
-    QList<ProcessDescription> processes;
+    ProcessBeingAnalysedProxyModel *processBeingAnalyzedProxyModel;
 
+    // whether the 'small table' or 'table with all procs' was last focused
+    bool wasAllProcViewLastPressed = false;
+
+    QTimer *timer;
+    const int updateIntervalMs = 1000;
 };

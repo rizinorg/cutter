@@ -528,6 +528,8 @@ public:
     void setDebugPlugin(QString plugin);
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
+    int currentlyAttachedToPID = -1;
+    QString currentlyOpenFile;
 
     QString getDecompiledCodePDC(RVA addr);
     bool getR2DecAvailable();

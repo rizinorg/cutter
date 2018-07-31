@@ -29,7 +29,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     actionStart->setShortcut(QKeySequence(Qt::Key_F9));
     actionStartEmul = new QAction(startEmulIcon, tr("Start emulation"), parent);
     actionAttach = new QAction(startAttachIcon, tr("Attach to process"), parent);
-    QAction *actionStop = new QAction(stopIcon, tr("Stop debug"), parent);
+    actionStop = new QAction(stopIcon, tr("Stop debug"), parent);
     actionContinue = new QAction(continueIcon, tr("Continue"), parent);
     actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
     actionContinueUntilMain = new QAction(continueUntilMainIcon, tr("Continue until main"), parent);
@@ -82,18 +82,20 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionContinueUntilMain->setVisible(true);
         actionStepOut->setVisible(true);
         this->colorToolbar(false);
+        actionStop->setText("Stop debug");
+        colorToolbar(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
-    connect(actionStart, &QAction::triggered, [ = ]() {
-        QString filename = Core()->getConfig("file.lastpath");
+    connect(actionStart, &QAction::triggered, [=]() {
+        QString filename = Core()->getConfig("file.path").split(" ").first();
         QFileInfo info(filename);
-        if (!info.isExecutable()) {
+        if (!Core()->currentlyDebugging && !info.isExecutable()) {
             QMessageBox msgBox;
             msgBox.setText(QString("File '%1' does not have executable permissions.").arg(filename));
             msgBox.exec();
             return;
         }
-        this->colorToolbar(true);
+        colorToolbar(true);
         actionAttach->setVisible(false);
         actionStartEmul->setVisible(false);
         Core()->startDebug();
@@ -107,7 +109,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionContinueUntilMain->setVisible(false);
         actionStepOut->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
-        this->colorToolbar(true);
+        actionStop->setText("Stop emulation");
+        colorToolbar(true);
     });
     connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
@@ -125,28 +128,40 @@ void DebugToolbar::continueUntilMain()
 void DebugToolbar::colorToolbar(bool p)
 {
     if (p) {
-        this->setStyleSheet("QToolBar {background: green;}");
+        setStyleSheet("QToolBar {background: green;}");
     } else {
-        this->setStyleSheet("");
+        setStyleSheet("");
     }
 }
 
 void DebugToolbar::attachProcessDialog()
 {
     AttachProcDialog *dialog = new AttachProcDialog(this);
-
-    if (dialog->exec()) {
-        int pid = dialog->getPID();
-        attachProcess(pid);
+    bool success = false;
+    while (!success) {
+        success = true;
+        if (dialog->exec()) {
+            int pid = dialog->getPID();
+            if (pid >= 0) {
+                attachProcess(pid);
+            } else {
+                success = false;
+                QMessageBox msgBox;
+                msgBox.setText("Error attaching. No process selected!");
+                msgBox.exec();
+            }
+        }
     }
+    delete dialog;
 }
 
 void DebugToolbar::attachProcess(int pid)
 {
     // hide unwanted buttons
-    this->colorToolbar(true);
-    this->actionStart->setVisible(false);
-    this->actionStartEmul->setVisible(false);
+    colorToolbar(true);
+    actionStart->setVisible(false);
+    actionStartEmul->setVisible(false);
+    actionStop->setText("Detach from process");
     // attach
     Core()->attachDebug(pid);
 }
