@@ -26,12 +26,10 @@ public:
 private slots:
     void updateContents();
     void setRegisterGrid();
-    void handleButton();
 
 private:
     std::unique_ptr<Ui::RegistersWidget> ui;
     QGridLayout *registerLayout = new QGridLayout;
     int numCols = 2;
     int registerLen = 0;
-    QPushButton *buttonSetRegisters;
 };
