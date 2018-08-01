@@ -269,6 +269,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 
 void OptionsDialog::on_okButton_clicked()
 {
+    ui->okButton->setEnabled(false);
     setupAndStartAnalysis(ui->analSlider->value(), getSelectedAdvancedAnalCmds());
 }
 
