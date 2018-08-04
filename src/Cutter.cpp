@@ -422,7 +422,7 @@ void CutterCore::setToData(RVA addr, int size, int repeat)
 int CutterCore::sizeofDataMeta(RVA addr)
 {
     bool ok;
-    int size = cmd("Cd.. @ " + RAddressString(addr)).toInt(&ok);
+    int size = cmd("Cd. @ " + RAddressString(addr)).toInt(&ok);
     return (ok ? size : 0);
 }
 
