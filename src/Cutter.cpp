@@ -403,6 +403,29 @@ void CutterCore::editBytesEndian(RVA addr, const QString &bytes)
     emit stackChanged();
 }
 
+void CutterCore::setToCode(RVA addr)
+{
+    cmd("Cd- @ " + RAddressString(addr));
+    emit instructionChanged(addr);
+}
+
+void CutterCore::setToData(RVA addr, int size, int repeat)
+{
+    if (size <= 0 || repeat <= 0) {
+        return;
+    }
+    cmd("Cd- @ " + RAddressString(addr));
+    cmd(QString::asprintf("Cd %d %d @ %lld", size, repeat, addr));
+    emit instructionChanged(addr);
+}
+
+int CutterCore::sizeofDataMeta(RVA addr)
+{
+    bool ok;
+    int size = cmd("Cd. @ " + RAddressString(addr)).toInt(&ok);
+    return (ok ? size : 0);
+}
+
 void CutterCore::setComment(RVA addr, const QString &cmt)
 {
     cmd("CCu base64:" + cmt.toLocal8Bit().toBase64() + " @ " + QString::number(addr));
