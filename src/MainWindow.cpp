@@ -132,16 +132,16 @@ void MainWindow::initUI()
     DebugToolbar *debugToolbar = new DebugToolbar(this);
     ui->mainToolBar->addWidget(debugToolbar);
     // Debug menu
-    // ui->menuDebug->addAction(debugToolbar->actionStart);
+    ui->menuDebug->addAction(debugToolbar->actionStart);
     ui->menuDebug->addAction(debugToolbar->actionStartEmul);
-    // ui->menuDebug->addAction(debugToolbar->actionAttach);
+    ui->menuDebug->addAction(debugToolbar->actionAttach);
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugToolbar->actionStep);
     ui->menuDebug->addAction(debugToolbar->actionStepOver);
     ui->menuDebug->addAction(debugToolbar->actionStepOut);
     ui->menuDebug->addSeparator();
-    // ui->menuDebug->addAction(debugToolbar->actionContinue);
-    // ui->menuDebug->addAction(debugToolbar->actionContinueUntilCall);
+    ui->menuDebug->addAction(debugToolbar->actionContinue);
+    ui->menuDebug->addAction(debugToolbar->actionContinueUntilCall);
     ui->menuDebug->addAction(debugToolbar->actionContinueUntilSyscall);
 
     // Sepparator between undo/redo and goto lineEdit

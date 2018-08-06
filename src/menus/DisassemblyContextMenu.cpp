@@ -299,9 +299,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
-    // currently there are is no breakpoint support in ESIL so
-    // we dont show the option in case we are emulating
-    actionAddBreakpoint.setVisible(!Core()->currentlyEmulating);
     QString progCounterName = Core()->getRegisterName("PC");
     actionSetPC.setText("Set " + progCounterName + " here");
 
