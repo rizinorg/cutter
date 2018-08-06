@@ -884,8 +884,7 @@ void CutterCore::startDebug()
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
-    // FIXME: we do a 'dr' here since otherwise the process continues
-    cmd("ood; dr");
+    cmd("ood");
     emit registersChanged();
     if (!currentlyDebugging) {
         setConfig("asm.flags", false);
