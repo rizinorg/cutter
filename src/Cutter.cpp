@@ -964,7 +964,11 @@ void CutterCore::stopDebug()
 void CutterCore::continueDebug()
 {
     if (currentlyDebugging) {
-        cmd("dc");
+        if (currentlyEmulating) {
+            cmdEsil("aec");
+        } else {
+            cmd("dc");
+        }
         emit registersChanged();
         emit refreshCodeViews();
     }
