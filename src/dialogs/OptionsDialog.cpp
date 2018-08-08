@@ -199,6 +199,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     InitialOptions options;
 
     options.filename = main->getFilename();
+    options.shellcode = main->getShellcode();
 
     // Where the bin header is located in the file (-B)
     if (ui->entry_loadOffset->text().length() > 0) {

@@ -127,6 +127,11 @@ void NewFileDialog::on_loadProjectButton_clicked()
     loadProject(item->data(Qt::UserRole).toString());
 }
 
+void NewFileDialog::on_shellcodeButton_clicked()
+{
+    loadShellcode(ui->shellcodeText->toPlainText());
+}
+
 void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
 {
     QVariant data = item->data(Qt::UserRole);
@@ -355,6 +360,23 @@ void NewFileDialog::loadProject(const QString &project)
     MainWindow *main = new MainWindow();
     main->openProject(project);
 
+    close();
+}
+
+void NewFileDialog::loadShellcode(const QString &shellcode)
+{
+    QString extractedCode = "";
+    for (int i = 0; i < shellcode.size(); i++) {
+        QChar c = shellcode[i];
+        if (c != QChar('\\') && c != QChar('x') && c != QChar('"') && c != QChar('\n')) {
+            extractedCode.append(c);
+        }
+    }
+    MainWindow *main = new MainWindow();
+    int shellcodeSize = extractedCode.size() * 0.5;
+    QString ioFile = QString("malloc://%1").arg(shellcodeSize);
+    main->setShellcode(extractedCode);
+    main->openNewFile(ioFile);
     close();
 }
 

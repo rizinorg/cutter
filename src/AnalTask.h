@@ -37,6 +37,8 @@ struct InitialOptions
 	int bbsize = 0;
 
 	QList<QString> analCmd;
+
+	QString shellcode;
 };
 
 class AnalTask : public AsyncTask

@@ -94,6 +94,7 @@ public:
     void readDebugSettings();
     void saveDebugSettings();
     void setFilename(const QString &fn);
+    void setShellcode(const QString &shellcode);
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void refreshOmniBar(const QStringList &flags);
@@ -183,6 +184,7 @@ private:
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
+    QString shellcode;
     std::unique_ptr<Ui::MainWindow> ui;
     Highlighter *highlighter;
     AsciiHighlighter *hex_highlighter;
@@ -251,6 +253,10 @@ public:
     QString getFilename() const
     {
         return filename;
+    }
+    QString getShellcode() const
+    {
+        return shellcode;
     }
 };
 

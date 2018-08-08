@@ -480,7 +480,7 @@
             </item>
 
             <item>
-             <widget class="QTextEdit" name="shellcodeLine">
+             <widget class="QTextEdit" name="shellcodeText">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                 <horstretch>1</horstretch>

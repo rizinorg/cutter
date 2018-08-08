@@ -71,6 +71,11 @@ void AnalTask::runTask()
         return;
     }
 
+    if (!options.shellcode.isNull()) {
+        log(tr("Loading shellcode...\n"));
+        Core()->cmd("wx " + options.shellcode);
+    }
+
     if (options.endian != InitialOptions::Endianness::Auto) {
         Core()->setEndianness(options.endian == InitialOptions::Endianness::Big);
     }

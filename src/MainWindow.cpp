@@ -431,6 +431,12 @@ void MainWindow::setFilename(const QString &fn)
     this->setWindowTitle(APPNAME" - " + fn);
 }
 
+void MainWindow::setShellcode(const QString &shellcode)
+{
+    this->shellcode = shellcode;
+    this->setWindowTitle("Shellcode");
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
