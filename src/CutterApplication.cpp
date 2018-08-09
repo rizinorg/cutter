@@ -8,10 +8,13 @@
 #include <QTextCodec>
 #include <QStringList>
 #include <QProcess>
+#include <QPluginLoader>
+#include <QDir>
 
 #ifdef CUTTER_ENABLE_JUPYTER
 #include "utils/JupyterConnection.h"
 #endif
+#include "plugins/CutterPlugin.h"
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
@@ -19,6 +22,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     setApplicationName("Cutter");
     setApplicationVersion(APP_VERSION);
     setWindowIcon(QIcon(":/img/cutter.svg"));
+    setAttribute(Qt::AA_DontShowIconsInMenus);
 
     // Set QString codec to UTF-8
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
@@ -72,6 +76,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     bool analLevelSpecified = false;
     int analLevel = 0;
 
+    // Initialize CutterCore and set default settings
+    Core()->setSettings();
+
     if (cmd_parser.isSet(analOption)) {
         analLevel = cmd_parser.value(analOption).toInt(&analLevelSpecified);
 
@@ -96,6 +103,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     } else { // filename specified as positional argument
         mainWindow->openNewFile(args[0], analLevelSpecified ? analLevel : -1);
     }
+
+    // Load plugins
+    loadPlugins();
 }
 
 CutterApplication::~CutterApplication()
@@ -125,4 +135,34 @@ bool CutterApplication::event(QEvent *e)
         }
     }
     return QApplication::event(e);
+}
+
+void CutterApplication::loadPlugins()
+{
+    QList<CutterPlugin*> plugins;
+    QDir pluginsDir(qApp->applicationDirPath());
+    #if defined(Q_OS_WIN)
+        if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+            pluginsDir.cdUp();
+    #elif defined(Q_OS_MAC)
+        if (pluginsDir.dirName() == "MacOS") {
+            pluginsDir.cdUp();
+            pluginsDir.cdUp();
+            pluginsDir.cdUp();
+        }
+    #endif
+    pluginsDir.cd("plugins");
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+        QObject *plugin = pluginLoader.instance();
+        if (plugin) {
+            CutterPlugin *cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
+            if (cutterPlugin) {
+                cutterPlugin->setupPlugin(Core());
+                plugins.append(cutterPlugin);
+            }
+        }
+    }
+
+    Core()->setCutterPlugins(plugins);
 }

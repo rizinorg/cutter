@@ -36,6 +36,8 @@ private slots:
     void on_actionClear_all_triggered();
     void on_actionRemove_project_triggered();
 
+    void on_tabWidget_currentChanged(int index);
+
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
@@ -52,6 +54,7 @@ private:
      * @return true if list is not empty
      */
     bool fillProjectsList();
+    void fillIOPluginsList();
 
     void loadFile(const QString &filename);
     void loadProject(const QString &project);

@@ -5,6 +5,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "utils/StringsTask.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -66,9 +67,12 @@ private slots:
     void on_stringsTreeView_doubleClicked(const QModelIndex &index);
 
     void refreshStrings();
+    void stringSearchFinished(const QList<StringDescription> &strings);
 
 private:
     std::unique_ptr<Ui::StringsWidget> ui;
+
+    QSharedPointer<StringsTask> task;
 
     StringsModel *model;
     StringsSortFilterProxyModel *proxy_model;

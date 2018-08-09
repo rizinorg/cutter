@@ -6,6 +6,7 @@
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
+#include "utils/FunctionsTask.h"
 
 #include <algorithm>
 #include <QMenu>
@@ -439,20 +440,29 @@ FunctionsWidget::~FunctionsWidget() {}
 
 void FunctionsWidget::refreshTree()
 {
-    functionModel->beginReloadFunctions();
+    if (task) {
+        task->wait();
+    }
 
-    functions = Core()->getAllFunctions();
+    task = QSharedPointer<FunctionsTask>(new FunctionsTask());
+    connect(task.data(), &FunctionsTask::fetchFinished, this, [this] (const QList<FunctionDescription> &functions) {
+        functionModel->beginReloadFunctions();
 
-    importAddresses.clear();
-    for (ImportDescription import : Core()->getAllImports())
-        importAddresses.insert(import.plt);
+        this->functions = functions;
 
-    mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();
+        importAddresses.clear();
+        for (ImportDescription import : Core()->getAllImports()) {
+            importAddresses.insert(import.plt);
+        }
 
-    functionModel->endReloadFunctions();
+        mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();
 
-    // resize offset and size columns
-    qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
+        functionModel->endReloadFunctions();
+
+        // resize offset and size columns
+        qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
+    });
+    Core()->getAsyncTaskManager()->start(task);
 }
 
 void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)

@@ -100,8 +100,8 @@ private:
     void updateParseWindow(RVA start_address, int size);
     void clearParseWindow();
 
-    int bufferLines;
-    int cols;
+    int bufferLines = 0;
+    int cols = 0;
     QAction syncAction;
     CutterSeekableWidget *seekable;
 

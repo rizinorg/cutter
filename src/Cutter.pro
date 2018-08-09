@@ -3,7 +3,7 @@ TEMPLATE = app
 TARGET = Cutter
 
 # The application version
-VERSION = 1.4
+VERSION = 1.6
 
 ICON = img/cutter.icns
 
@@ -45,6 +45,9 @@ win32 {
     # Generate debug symbols in release mode
     QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
     QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
+	
+    # Multithreaded compilation
+    QMAKE_CXXFLAGS += -MP
 }
 
 macx {
@@ -54,6 +57,9 @@ macx {
 
 unix:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
+}
+unix {
+    QMAKE_LFLAGS += -rdynamic # Export dynamic symbols for plugins
 }
 
 # Libraries
@@ -165,7 +171,19 @@ SOURCES += \
     dialogs/AsyncTaskDialog.cpp \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
-    widgets/BacktraceWidget.cpp
+    widgets/BacktraceWidget.cpp \
+    dialogs/OpenFileDialog.cpp \
+    utils/CommandTask.cpp \
+    utils/ProgressIndicator.cpp \
+    utils/R2Task.cpp \
+    widgets/DebugToolbar.cpp \
+    widgets/MemoryMapWidget.cpp \
+    dialogs/preferences/DebugOptionsWidget.cpp \
+    widgets/BreakpointWidget.cpp \
+    dialogs/BreakpointsDialog.cpp \
+    dialogs/AttachProcDialog.cpp \
+    widgets/RegisterRefsWidget.cpp \
+    dialogs/SetToDataDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -245,7 +263,22 @@ HEADERS  += \
     dialogs/AsyncTaskDialog.h \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
-    widgets/BacktraceWidget.h
+    widgets/BacktraceWidget.h \
+    dialogs/OpenFileDialog.h \
+    utils/StringsTask.h \
+    utils/FunctionsTask.h \
+    utils/CommandTask.h \
+    utils/ProgressIndicator.h \
+    plugins/CutterPlugin.h \
+    utils/R2Task.h \
+    widgets/DebugToolbar.h \
+    widgets/MemoryMapWidget.h \
+    dialogs/preferences/DebugOptionsWidget.h \
+    widgets/BreakpointWidget.h \
+    dialogs/BreakpointsDialog.h \
+    dialogs/AttachProcDialog.h \
+    widgets/RegisterRefsWidget.h \
+    dialogs/SetToDataDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -292,7 +325,15 @@ FORMS    += \
     dialogs/AsyncTaskDialog.ui \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
-    widgets/BacktraceWidget.ui
+    widgets/BacktraceWidget.ui \
+    dialogs/OpenFileDialog.ui \
+    widgets/MemoryMapWidget.ui \
+    dialogs/preferences/DebugOptionsWidget.ui \
+    widgets/BreakpointWidget.ui \
+    dialogs/BreakpointsDialog.ui \
+    dialogs/AttachProcDialog.ui \
+    widgets/RegisterRefsWidget.ui \
+    dialogs/SetToDataDialog.ui
 
 RESOURCES += \
     resources.qrc \

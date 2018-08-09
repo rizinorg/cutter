@@ -151,7 +151,7 @@
               <property name="horizontalSpacing">
                <number>5</number>
               </property>
-              <item row="1" column="1">
+              <item row="1" column="3">
                <widget class="QPushButton" name="selectFileButton">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -164,7 +164,7 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="0">
+              <item row="1" column="2">
                <widget class="QLineEdit" name="newFileEdit">
                 <property name="frame">
                  <bool>false</bool>
@@ -174,7 +174,7 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="0">
+              <item row="0" column="2">
                <widget class="QLabel" name="newFileLabel">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -183,7 +183,24 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Select new file&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;b&gt;Select new file&lt;b&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QComboBox" name="ioPlugin"/>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="ioLabel">
+                <property name="text">
+                 <string>&lt;b&gt;IO&lt;/b&gt;</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="label">
+                <property name="text">
+                 <string>://</string>
                 </property>
                </widget>
               </item>

@@ -33,6 +33,7 @@ public:
 
     const QString &getLog()             { return logBuffer; }
     const QElapsedTimer &getTimer()     { return timer; }
+    qint64 getElapsedTime()             { return timer.isValid() ? timer.elapsed() : 0; }
 
     virtual QString getTitle()          { return QString(); }
 
@@ -56,7 +57,6 @@ private:
     void prepareRun();
 };
 
-
 class AsyncTaskManager : public QObject
 {
     Q_OBJECT
@@ -70,6 +70,10 @@ public:
     ~AsyncTaskManager();
 
     void start(AsyncTask::Ptr task);
+    bool getTasksRunning();
+
+signals:
+    void tasksChanged();
 };
 
 

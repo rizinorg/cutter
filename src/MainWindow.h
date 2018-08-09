@@ -19,6 +19,7 @@
 
 class CutterCore;
 class Omnibar;
+class ProgressIndicator;
 class PreviewWidget;
 class Highlighter;
 class AsciiHighlighter;
@@ -70,7 +71,7 @@ public:
                      QList<QString> advancedOptions = QList<QString>());
     void displayNewFileDialog();
     void closeNewFileDialog();
-    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions);
+    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script);
     void openProject(const QString &project_name);
 
     void initUI();
@@ -90,6 +91,8 @@ public:
     void closeEvent(QCloseEvent *event) override;
     void readSettings();
     void saveSettings();
+    void readDebugSettings();
+    void saveDebugSettings();
     void setFilename(const QString &fn);
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
@@ -165,8 +168,12 @@ private slots:
 
     void projectSaved(const QString &name);
 
+    void updateTasksIndicator();
+
     void mousePressEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *object, QEvent *event);
+    void changeDebugView();
+    void changeDefinedView();
 
 private:
     CutterCore *core;
@@ -181,6 +188,8 @@ private:
     AsciiHighlighter *hex_highlighter;
     VisualNavbar *visualNavbar;
     Omnibar *omnibar;
+    ProgressIndicator *tasksProgressIndicator;
+
     Configuration *configuration;
 
     QList<QDockWidget *> dockWidgets;
@@ -217,18 +226,23 @@ private:
     QDockWidget        *stackDock = nullptr;
     QDockWidget        *registersDock = nullptr;
     QDockWidget        *backtraceDock = nullptr;
+    QDockWidget        *memoryMapDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
+    QDockWidget        *breakpointDock = nullptr;
+    QDockWidget        *registerRefsDock = nullptr;
 #ifdef CUTTER_ENABLE_JUPYTER
     JupyterWidget      *jupyterDock = nullptr;
 #endif
 
     void resetToDefaultLayout();
     void resetToZenLayout();
+    void resetToDebugLayout();
 
     void restoreDocks();
     void hideAllDocks();
     void showDefaultDocks();
     void showZenDocks();
+    void showDebugDocks();
     void updateDockActionsChecked();
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);

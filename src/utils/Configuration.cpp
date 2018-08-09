@@ -22,6 +22,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.flags.offset",   false },
     { "asm.emu",            false },
     { "asm.cmt.right",      true },
+    { "asm.cmt.col",        70 },
     { "asm.var.summary",    false },
     { "asm.bytes",          false },
     { "asm.size",           false },
@@ -34,7 +35,9 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.capitalize",     false },
     { "asm.var.sub",        true },
     { "asm.var.subonly",    true },
-    { "asm.tabs",           5 }
+    { "asm.tabs",           5 },
+    { "asm.tabs.off",       5 },
+    { "esil.breakoninvalid",   true }
 };
 
 
@@ -53,7 +56,7 @@ Configuration *Configuration::instance()
 
 void Configuration::loadInitial()
 {
-    setDarkTheme(getDarkTheme());
+    setTheme(getTheme());
     setColorTheme(getCurrentTheme());
     applySavedAsmOptions();
 }
@@ -72,6 +75,21 @@ QString Configuration::getDirProjects()
 void Configuration::setDirProjects(const QString &dir)
 {
     s.setValue("dir.projects", dir);
+}
+
+/**
+ * @brief Configuration::setFilesTabLastClicked
+ * Set the new file dialog last clicked tab
+ * @param lastClicked
+ */
+void Configuration::setNewFileLastClicked(int lastClicked)
+{
+    s.setValue("newFileLastClicked", lastClicked);
+}
+
+int Configuration::getNewFileLastClicked()
+{
+    return s.value("newFileLastClicked").toInt();
 }
 
 void Configuration::resetAll()
@@ -102,6 +120,8 @@ void Configuration::loadDefaultTheme()
     setColor("gui.border",  QColor(0, 0, 0));
     setColor("highlight",   QColor(210, 210, 255));
     setColor("highlightWord", QColor(210, 210, 255));
+    // RIP line selection in debug
+    setColor("highlightPC", QColor(214, 255, 210));
     // Windows background
     setColor("gui.background", QColor(255, 255, 255));
     setColor("gui.disass_selected", QColor(255, 255, 255));
@@ -154,27 +174,14 @@ void Configuration::loadBaseDark()
     setColor("gui.navbar.str", QColor(69, 104, 229));
     setColor("gui.navbar.sym", QColor(229, 150, 69));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
+    // RIP line selection in debug
+    setColor("highlightPC", QColor(87, 26, 7));
 }
 
 void Configuration::loadDarkTheme()
 {
     loadBaseDark();
-    setColor("gui.border",  QColor(255, 255, 255));
-    // Windows background
-    setColor("gui.background", QColor(36, 66, 79));
-    // Disassembly nodes background
-    setColor("gui.alt_background", QColor(58, 100, 128));
-    // Disassembly nodes background when selected
-    setColor("gui.disass_selected", QColor(36, 66, 79));
-    // Disassembly line selected
-    setColor("highlight", QColor(64, 115, 115));
-    setColor("highlightWord", QColor(64, 115, 115));
-}
-
-void Configuration::loadDarkGreyTheme()
-{
-    loadBaseDark();
-    setColor("gui.border",  QColor(100,100,100));
+    setColor("gui.border",  QColor(100, 100, 100));
     // Windows background
     setColor("gui.background", QColor(37, 40, 43));
     // Disassembly nodes background
@@ -198,15 +205,15 @@ void Configuration::setFont(const QFont &font)
     emit fontsUpdated();
 }
 
-void Configuration::setDarkTheme(int theme)
+void Configuration::setTheme(int theme)
 {
-    s.setValue("dark", theme);
+    s.setValue("ColorPalette", theme);
     switch(theme){
+    case 0:
+        loadDefaultTheme();
+        break;
     case 1:
         loadDarkTheme();
-        break;
-    case 2:
-        loadDarkGreyTheme();
         break;
     default:
         loadDefaultTheme();
@@ -307,6 +314,12 @@ QString Configuration::getConfigString(const QString &key)
     return getConfigVar(key).toString();
 }
 
+/**
+ * @brief Configuration::setConfig
+ * Set radare2 configuration value (e.g. "asm.lines")
+ * @param key
+ * @param value
+ */
 void Configuration::setConfig(const QString &key, const QVariant &value)
 {
     if (asmOptions.contains(key)) {

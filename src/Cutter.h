@@ -15,6 +15,7 @@
 #include <QStringList>
 #include <QMessageBox>
 #include <QJsonDocument>
+#include <QErrorMessage>
 
 #define HAVE_LATEST_LIBR2 false
 
@@ -25,7 +26,7 @@
 #define __question(x) (QMessageBox::Yes==QMessageBox::question (this, "Alert", QString(x), QMessageBox::Yes| QMessageBox::No))
 
 #define APPNAME "Cutter"
-#define CUTTER_VERSION "1.4"
+#define CUTTER_VERSION "1.6"
 
 #define Core() (CutterCore::getInstance())
 
@@ -45,6 +46,8 @@ typedef ut64 RVA;
 #define RVA_INVALID RVA_MAX
 
 class AsyncTaskManager;
+class CutterCore;
+#include "plugins/CutterPlugin.h"
 
 class RCoreLocked
 {
@@ -273,6 +276,56 @@ struct VTableDescription {
     QList<ClassMethodDescription> methods;
 };
 
+struct BlockDescription {
+    RVA addr;
+    RVA size;
+    int flags;
+    int functions;
+    int inFunctions;
+    int comments;
+    int symbols;
+    int strings;
+    ut8 rwx;
+};
+
+struct BlockStatistics {
+    RVA from;
+    RVA to;
+    RVA blocksize;
+    QList<BlockDescription> blocks;
+};
+
+struct MemoryMapDescription {
+    RVA addrStart;
+    RVA addrEnd;
+    QString name;
+    QString fileName;
+    QString type;
+    QString permission;
+};
+
+struct BreakpointDescription {
+    RVA addr;
+    int size;
+    QString permission;
+    bool hw;
+    bool trace;
+    bool enabled;
+};
+
+struct ProcessDescription {
+    int pid;
+    int uid;
+    QString status;
+    QString path;
+};
+
+struct RegisterRefDescription {
+    QString reg;
+    QString value;
+    QString ref;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -301,6 +354,10 @@ Q_DECLARE_METATYPE(HeaderDescription)
 Q_DECLARE_METATYPE(ZignatureDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
+Q_DECLARE_METATYPE(MemoryMapDescription)
+Q_DECLARE_METATYPE(BreakpointDescription)
+Q_DECLARE_METATYPE(ProcessDescription)
+Q_DECLARE_METATYPE(RegisterRefDescription)
 
 class CutterCore: public QObject
 {
@@ -316,6 +373,7 @@ public:
 
     RVA getOffset() const                   { return core_->offset; }
 
+    /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
     QString cmd(const QString &str);
     QString cmdRaw(const QString &str);
@@ -326,43 +384,68 @@ public:
         l.removeAll("");
         return l;
     }
+    QString cmdTask(const QString &str);
+    QJsonDocument cmdjTask(const QString &str);
+    void cmdEsil(QString command);
+    QString getVersionInformation();
 
-    QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
+    QJsonDocument parseJson(const char *res, const QString &cmd = QString());
 
+    /* Functions methods */
     void renameFunction(const QString &oldName, const QString &newName);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
+    RAnalFunction *functionAt(ut64 addr);
+    QString cmdFunctionAt(QString addr);
+    QString cmdFunctionAt(RVA addr);
+    QString createFunctionAt(RVA addr, QString name);
+    void markString(RVA addr);
+
+    /* Flags */
     void delFlag(RVA addr);
     void delFlag(const QString &name);
+    void addFlag(RVA offset, QString name, RVA size);
+    void triggerFlagsChanged();
 
+    /* Edition functions */
     void editInstruction(RVA addr, const QString &inst);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);
-
     void editBytes(RVA addr, const QString &inst);
+    void editBytesEndian(RVA addr, const QString &bytes);
 
+    /* Code/Data */
+    void setToCode(RVA addr);
+    void setToData(RVA addr, int size, int repeat = 1);
+    int sizeofDataMeta(RVA addr);
+
+    /* Comments */
     void setComment(RVA addr, const QString &cmt);
     void delComment(RVA addr);
-
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
+    /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_IO_READ,
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
+    void openFile(QString path, RVA mapaddr);
+    void loadScript(const QString &scriptname);
+    QJsonArray getOpenedFiles();
+
+    /* Analysis functions */
     void analyze(int level, QList<QString> advanced);
 
-    // Seek functions
+    /* Seek functions */
     void seek(QString thing);
     void seek(ut64 offset);
     void seekPrev();
     void seekNext();
     RVA getOffset();
-
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
 
-    // Disassembly/Graph/Hexdump/Pseudocode view priority
+    /* Disassembly/Graph/Hexdump/Pseudocode view priority */
     enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Pseudocode };
     MemoryWidgetType getMemoryWidgetPriority() const
     {
@@ -377,10 +460,11 @@ public:
         emit raisePrioritizedMemoryWidget(memoryWidgetPriority);
     }
 
+    /* Math functions */
     ut64 math(const QString &expr);
     QString itoa(ut64 num, int rdx = 16);
 
-    /* Config related */
+    /* Config functions */
     void setConfig(const QString &k, const QString &v);
     void setConfig(const QString &k, int v);
     void setConfig(const QString &k, bool v);
@@ -389,20 +473,16 @@ public:
     int getConfigi(const QString &k);
     bool getConfigb(const QString &k);
     QString getConfig(const QString &k);
+    QList<QString> getColorThemes();
 
+    /* Assembly related methods */
     QString assemble(const QString &code);
     QString disassemble(const QString &hex);
     QString disassembleSingleInstruction(RVA addr);
+    QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
     void setCPU(QString arch, QString cpu, int bits);
     void setEndianness(bool big);
     void setBBSize(int size);
-
-    RAnalFunction *functionAt(ut64 addr);
-    QString cmdFunctionAt(QString addr);
-    QString cmdFunctionAt(RVA addr);
-
-    QString createFunctionAt(RVA addr, QString name);
-    void markString(RVA addr);
 
     /* SDB */
     QList<QString> sdbList(QString path);
@@ -413,12 +493,37 @@ public:
     ulong get_baddr();
     QList<QList<QString>> get_exec_sections();
     QString getOffsetInfo(QString addr);
+
+    // Debug
     QJsonDocument getRegistersInfo();
     QJsonDocument getRegisterValues();
     QString getRegisterName(QString registerRole);
+    RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
-    QJsonDocument getStack(int size = 0x40);
+    QJsonDocument getStack(int size = 0x100);
     QJsonDocument getBacktrace();
+    void startDebug();
+    void startEmulation();
+    void attachDebug(int pid);
+    void stopDebug();
+    void continueDebug();
+    void continueUntilCall();
+    void continueUntilSyscall();
+    void continueUntilDebug(QString offset);
+    void stepDebug();
+    void stepOverDebug();
+    void toggleBreakpoint(RVA addr);
+    void toggleBreakpoint(QString addr);
+    void delBreakpoint(RVA addr);
+    void delAllBreakpoints();
+    void enableBreakpoint(RVA addr);
+    void disableBreakpoint(RVA addr);
+    QString getActiveDebugPlugin();
+    QStringList getDebugPlugins();
+    void setDebugPlugin(QString plugin);
+    bool currentlyDebugging = false;
+    bool currentlyEmulating = false;
+
     RVA getOffsetJump(RVA addr);
     QString getDecompiledCode(RVA addr);
     QString getDecompiledCode(QString addr);
@@ -437,21 +542,22 @@ public:
 
     QList<RVA> getSeekHistory();
 
+    /* Plugins */
     QStringList getAsmPluginNames();
     QStringList getAnalPluginNames();
 
+    /* Projects */
     QStringList getProjectNames();
     void openProject(const QString &name);
     void saveProject(const QString &name);
     void deleteProject(const QString &name);
-
     static bool isProjectNameValid(const QString &name);
 
+    /* Widgets */
     QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
     QList<RIOPluginDescription> getRIOPluginDescriptions();
     QList<RCorePluginDescription> getRCorePluginDescriptions();
     QList<RAsmPluginDescription> getRAsmPluginDescriptions();
-
     QList<FunctionDescription> getAllFunctions();
     QList<ImportDescription> getAllImports();
     QList<ExportDescription> getAllExports();
@@ -470,27 +576,29 @@ public:
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
     QList<TypeDescription> getAllTypes();
+    QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
+    BlockStatistics getBlockStatistics(unsigned int blocksCount);
+    QList<BreakpointDescription> getBreakpoints();
+    QList<ProcessDescription> getAllProcesses();
+    QList<RegisterRefDescription> getRegisterRefs();
+    QJsonObject getRegisterJson();
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
 
-    void addFlag(RVA offset, QString name, RVA size);
-    void triggerFlagsChanged();
+    QList<StringDescription> parseStringsJson(const QJsonDocument &doc);
+    QList<FunctionDescription> parseFunctionsJson(const QJsonDocument &doc);
 
+    /* Signals related */
     void triggerVarsChanged();
     void triggerFunctionRenamed(const QString &prevName, const QString &newName);
-
     void triggerRefreshAll();
-
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
 
-    void loadScript(const QString &scriptname);
-    QString getVersionInformation();
-    QJsonArray getOpenedFiles();
-
-    QList<QString> getColorThemes();
+    void setCutterPlugins(QList<CutterPlugin*> plugins);
+    QList<CutterPlugin*> getCutterPlugins();
 
     RCoreLocked core() const;
 
@@ -502,7 +610,11 @@ signals:
     void functionsChanged();
     void flagsChanged();
     void commentsChanged();
+    void registersChanged();
     void instructionChanged(RVA offset);
+    void breakpointsChanged();
+    void refreshCodeViews();
+    void stackChanged();
 
     void notesChanged(const QString &notes);
     void projectSaved(const QString &name);
@@ -524,6 +636,8 @@ signals:
     void seekChanged(RVA offset);
 
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
+    void changeDefinedView();
+    void changeDebugView();
 
 public slots:
 
@@ -531,9 +645,12 @@ private:
     MemoryWidgetType memoryWidgetPriority;
 
     QString notes;
-
     RCore *core_;
     AsyncTaskManager *asyncTaskManager;
+    RVA offsetPriorDebugging = RVA_INVALID;
+    QErrorMessage msgBox;
+
+    QList<CutterPlugin*> plugins;
 };
 
 class ccClass : public CutterCore

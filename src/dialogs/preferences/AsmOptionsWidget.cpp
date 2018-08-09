@@ -40,9 +40,15 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.lines.fcn"));
     qhelpers::setCheckedWithoutSignals(ui->flgoffCheckBox, Config()->getConfigBool("asm.flags.offset"));
     qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Config()->getConfigBool("asm.emu"));
-    qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, Config()->getConfigBool("asm.cmt.right"));
     qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Config()->getConfigBool("asm.var.summary"));
     qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Config()->getConfigBool("asm.size"));
+
+    bool cmtRightEnabled = Config()->getConfigBool("asm.cmt.right");
+    qhelpers::setCheckedWithoutSignals(ui->cmtrightCheckBox, cmtRightEnabled);
+    ui->cmtcolSpinBox->blockSignals(true);
+    ui->cmtcolSpinBox->setValue(Config()->getConfigInt("asm.cmt.col"));
+    ui->cmtcolSpinBox->blockSignals(false);
+    ui->cmtcolSpinBox->setEnabled(cmtRightEnabled);
 
     bool bytesEnabled = Config()->getConfigBool("asm.bytes");
     qhelpers::setCheckedWithoutSignals(ui->bytesCheckBox, bytesEnabled);
@@ -80,6 +86,10 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->asmTabsSpinBox->blockSignals(true);
     ui->asmTabsSpinBox->setValue(Config()->getConfigInt("asm.tabs"));
     ui->asmTabsSpinBox->blockSignals(false);
+
+    ui->asmTabsOffSpinBox->blockSignals(true);
+    ui->asmTabsOffSpinBox->setValue(Config()->getConfigInt("asm.tabs.off"));
+    ui->asmTabsOffSpinBox->blockSignals(false);
 
     qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, Config()->getConfigBool("asm.bbline"));
 
@@ -167,6 +177,13 @@ void AsmOptionsWidget::on_emuCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_cmtrightCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.cmt.right", checked);
+    ui->cmtcolSpinBox->setEnabled(checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_cmtcolSpinBox_valueChanged(int value)
+{
+    Config()->setConfig("asm.cmt.col", value);
     triggerAsmOptionsChanged();
 }
 
@@ -251,6 +268,12 @@ void AsmOptionsWidget::on_caseComboBox_currentIndexChanged(int index)
 void AsmOptionsWidget::on_asmTabsSpinBox_valueChanged(int value)
 {
     Config()->setConfig("asm.tabs", value);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_asmTabsOffSpinBox_valueChanged(int value)
+{
+    Config()->setConfig("asm.tabs.off", value);
     triggerAsmOptionsChanged();
 }
 

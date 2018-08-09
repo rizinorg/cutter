@@ -55,7 +55,7 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     connect(ui->pdbCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updatePDBLayout()));
 
     updateScriptLayout();
-    
+
     connect(ui->scriptCheckBox, SIGNAL(stateChanged(int)), this, SLOT(updateScriptLayout()));
 
     connect(ui->cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
@@ -80,6 +80,15 @@ void OptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->addItems(core->cmdList(cmd));
 
     ui->cpuComboBox->lineEdit()->setText(currentText);
+}
+
+void OptionsDialog::setInitialScript(const QString &script)
+{
+    ui->scriptCheckBox->setChecked(!script.isEmpty());
+    ui->scriptLineEdit->setText(script);
+    if (!script.isEmpty()) {
+        ui->analSlider->setValue(0);
+    }
 }
 
 QString OptionsDialog::getSelectedArch()
@@ -237,22 +246,30 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     AnalTask *analTask = new AnalTask();
     analTask->setOptions(options);
 
+    MainWindow *main = this->main;
     connect(analTask, &AnalTask::openFileFailed, main, &MainWindow::openNewFileFailed);
-    connect(analTask, &AsyncTask::finished, main, &MainWindow::finalizeOpen);
+    connect(analTask, &AsyncTask::finished, main, [analTask, main]() {
+        if (analTask->getOpenFileFailed()) {
+            return;
+        }
+        main->finalizeOpen();
+    });
 
     AsyncTask::Ptr analTaskPtr(analTask);
 
-    Core()->getAsyncTaskManager()->start(analTaskPtr);
-
     AsyncTaskDialog *taskDialog = new AsyncTaskDialog(analTaskPtr);
+    taskDialog->setInterruptOnClose(true);
     taskDialog->setAttribute(Qt::WA_DeleteOnClose);
     taskDialog->show();
+
+    Core()->getAsyncTaskManager()->start(analTaskPtr);
 
     done(0);
 }
 
 void OptionsDialog::on_okButton_clicked()
 {
+    ui->okButton->setEnabled(false);
     setupAndStartAnalysis(ui->analSlider->value(), getSelectedAdvancedAnalCmds());
 }
 

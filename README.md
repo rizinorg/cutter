@@ -18,9 +18,9 @@ Cutter is not aimed at existing radare2 users. It instead focuses on those whose
 
 Cutter is available for all platforms (Linux, OS X, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
- *  Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.4/Cutter-v1.4-x86_64.AppImage) file. Then just make it executable and run it: 
-     * `chmod +x Cutter-v1.4-x86_64.AppImage`
-     * `./Cutter-v1.4-x86_64.AppImage`
+ *  Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.6/Cutter-v1.6-x86_64.AppImage) file. Then just make it executable and run it:
+     * `chmod +x Cutter-v1.6-x86_64.AppImage`
+     * `./Cutter-v1.6-x86_64.AppImage`
 
 ### Building from source
 
@@ -29,7 +29,7 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 Cutter is based on Qt so you will need to have it installed.
 - Download: [Qt Open Source](https://www.qt.io/download-qt-for-application-development)
 - Add Qt 5.9.1: http://doc.qt.io/qtcreator/creator-project-qmake.html
-    
+
 #### Building
 
 First you must clone the repository:
@@ -68,31 +68,48 @@ If any of those do not work, check the more detailed version [here](https://gith
 
 Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
 
-## Keyboard shortcuts
+### Docker
 
-| Shortcut | Function |
-| --- | --- |
-| Global shortcuts: ||
-| . | Focus console input |
-| G & S | Focus search bar |
-| F5 | Refresh contents |
-| Disassembly view: ||
-| Esc | Seek to previous position |
-| Space | Switch to disassembly graph view |
-| Ctrl/Cmd+C | Copy |
-| ; | Add comment |
-| N | Rename current function/flag |
-| Shift+N | Rename flag/function used here |
-| X | Show Xrefs |
-| Disassembly graph view: ||
-| Esc | Seek to previous position |
-| Space | Switch to disassembly view |
-| + | Zoom in |
-| - | Zoom out |
-| = | Reset zoom |
-| J | Next instruction |
-| K | Previous instruction |
+To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
 
+### Global shortcuts
+| Shortcut   | Function            |
+| ---------- | ------------------- |
+| .          | Focus console input |
+| G/S        | Focus search bar    |
+| Ctrl/Cmd+R | Refresh contents    |
+
+### Disassembly view shortcuts
+| Shortcut   | Function                         |
+| ---------- | -------------------------------- |
+| Esc        | Seek to previous position        |
+| Space      | Switch to disassembly graph view |
+| Ctrl/Cmd+C | Copy                             |
+| ;          | Add comment                      |
+| N          | Rename current function/flag     |
+| Shift+N    | Rename flag/function used here   |
+| X          | Show Xrefs                       |
+
+### Graph view shortcuts
+| Shortcut            | Function                   |
+| ------------------- | -------------------------- |
+| Esc                 | Seek to previous position  |
+| Space               | Switch to disassembly view |
+| Ctrl/Cmd+MouseWheel | Zoom                       |
+| +                   | Zoom in                    |
+| -                   | Zoom out                   |
+| =                   | Reset zoom                 |
+| J                   | Next instruction           |
+| K                   | Previous instruction       |
+
+### Debug shortcuts
+| Shortcut        | Function       |
+| --------------- | -------------- |
+| F9              | Start debug    |
+| F7              | Step into      |
+| F8              | Step over      |
+| F5              | Continue       |
+| F2/(Ctrl/Cmd)+B | Add breakpoint |
 
 ## Help
 

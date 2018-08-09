@@ -136,16 +136,16 @@ private:
     void adjustGraphLayout(GraphBlock &block, int col, int row);
 
     // Layout type
-    LayoutType layoutType;
+    LayoutType layoutType = LayoutType::Medium;
 
-    int width;
-    int height;
-    bool ready;
+    int width = 0;
+    int height = 0;
+    bool ready = false;
 
     // Scrolling data
-    int scroll_base_x;
-    int scroll_base_y;
-    bool scroll_mode;
+    int scroll_base_x = 0;
+    int scroll_base_y = 0;
+    bool scroll_mode = false;
 
 
     // Todo: remove charheight/charwidth cause it should be handled in child class

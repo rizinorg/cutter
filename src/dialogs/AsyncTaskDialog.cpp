@@ -7,8 +7,8 @@
 
 AsyncTaskDialog::AsyncTaskDialog(AsyncTask::Ptr task, QWidget *parent)
     : QDialog(parent),
-      task(task),
-      ui(new Ui::AsyncTaskDialog)
+      ui(new Ui::AsyncTaskDialog),
+      task(task)
 {
     ui->setupUi(this);
 
@@ -43,7 +43,7 @@ void AsyncTaskDialog::updateLog(const QString &log)
 
 void AsyncTaskDialog::updateProgressTimer()
 {
-    int secondsElapsed = (task->getTimer().elapsed() + 500) / 1000;
+    int secondsElapsed = (task->getElapsedTime() + 500) / 1000;
     int minutesElapsed = secondsElapsed / 60;
     int hoursElapsed = minutesElapsed / 60;
 
