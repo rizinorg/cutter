@@ -10,6 +10,7 @@
 #include <QTextDocument>
 #include <QFileDialog>
 #include <QFile>
+#include <QVBoxLayout>
 
 #include "Cutter.h"
 #include "utils/Colors.h"
@@ -35,6 +36,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(graphOptionsChanged()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshView()));
+    connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshView()));
 
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
@@ -157,6 +159,25 @@ void DisassemblerGraphView::loadCurrentGraph()
     disassembly_blocks.clear();
     blocks.clear();
 
+    bool emptyGraph = functions.isEmpty();
+    if (emptyGraph) {
+        // If there's no function to print, just move to disassembly and add a message
+        if (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Graph) {
+            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+        }
+        if (!emptyText) {
+            QVBoxLayout *layout = new QVBoxLayout(this);
+            emptyText = new QLabel(this);
+            emptyText->setText(tr("No function detected. Cannot display graph."));
+            emptyText->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+            layout->addWidget(emptyText);
+            layout->setAlignment(emptyText, Qt::AlignHCenter);
+        }
+        emptyText->setVisible(true);
+    } else if (emptyText) {
+        emptyText->setVisible(false);
+    }
+
     Analysis anal;
     anal.ready = true;
 
@@ -168,7 +189,9 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     windowTitle = tr("Graph");
     QString funcName = func["name"].toString().trimmed();
-    if (!funcName.isEmpty()) {
+    if (emptyGraph) {
+        windowTitle += " (Empty)";
+    } else if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
     }
     if (!seekable->getSyncWithCore()) {
@@ -262,7 +285,6 @@ void DisassemblerGraphView::loadCurrentGraph()
     }
 }
 
-
 void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
@@ -314,14 +336,19 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     // Render node
     DisassemblyBlock &db = disassembly_blocks[block.entry];
     bool block_selected = false;
+    bool PCInBlock = false;
     RVA selected_instruction = RVA_INVALID;
 
     // Figure out if the current block is selected
+    RVA addr = seekable->getOffset();
+    RVA PCAddr = Core()->getProgramCounterValue();
     for (const Instr &instr : db.instrs) {
-        RVA addr = seekable->getOffset();
         if ((instr.addr <= addr) && (addr <= instr.addr + instr.size)) {
             block_selected = true;
             selected_instruction = instr.addr;
+        }
+        if ((instr.addr <= PCAddr) && (PCAddr <= instr.addr + instr.size)) {
+            PCInBlock = true;
         }
         // TODO: L219
     }
@@ -352,6 +379,9 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     if (selected_instruction != RVA_INVALID) {
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
         for (Instr &instr : db.instrs) {
+            if (instr.addr > selected_instruction) {
+                break;
+            }
             auto selected = instr.addr == selected_instruction;
             //auto traceCount = dbgfunctions->GetTraceRecordHitCount(instr.addr);
             auto traceCount = 0;
@@ -382,6 +412,21 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
     }
 
+    // highlight program counter
+    if (PCInBlock) {
+        int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
+        for (Instr &instr : db.instrs) {
+            if (instr.addr > PCAddr) {
+                break;
+            }
+            auto PC = instr.addr == PCAddr;
+            if (PC) {
+                p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
+                                 int(instr.text.lines.size()) * charHeight), PCSelectionColor);
+            }
+            y += int(instr.text.lines.size()) * charHeight;
+        }
+    }
 
     // Render node text
     auto x = block.x + (2 * charWidth);
@@ -483,6 +528,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
     disassemblySelectionColor = ConfigColor("highlight");
+    PCSelectionColor = ConfigColor("highlightPC");
 
     jmpColor = ConfigColor("graph.trufae");
     brtrueColor = ConfigColor("graph.true");
@@ -629,8 +675,7 @@ void DisassemblerGraphView::seekPrev()
 {
     if (seekable->getSyncWithCore()) {
         Core()->seekPrev();
-    }
-    else {
+    } else {
         seekable->seek(seekable->getPrevIndependentOffset());
     }
 }
@@ -645,8 +690,8 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 
     seekLocal(instr);
 
+    mMenu->setOffset(instr);
     if (event->button() == Qt::RightButton) {
-        mMenu->setOffset(instr);
         mMenu->exec(event->globalPos());
     }
 }
@@ -712,8 +757,9 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmd("ag -");
+    fileOut << Core()->cmd("agfd $FB");
 }
+
 void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
 {
     // when CTRL is pressed, we zoom in/out with mouse wheel

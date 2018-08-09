@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BreakpointWidget</class>
+ <widget class="QDockWidget" name="BreakpointWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string notr="true">Breakpoints</string>
+  </property>
+  <widget class="QWidget" name="dockWidgetContents">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTreeView" name="breakpointTreeView">
+      <property name="styleSheet">
+       <string notr="true">QTreeView::item
+{
+    padding-top: 1px;
+    padding-bottom: 1px;
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <property name="indentation">
+       <number>8</number>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="hLayout">
+       <item>
+       <widget class="QToolButton" name="addBreakpoint">
+        <property name="text">
+         <string>Add new breakpoint</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="delBreakpoint">
+        <property name="text">
+         <string>Delete breakpoint</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignLeft">
+       <widget class="QToolButton" name="delAllBreakpoints">
+        <property name="text">
+         <string>Delete all breakpoints</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

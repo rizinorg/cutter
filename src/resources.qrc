@@ -1,6 +1,8 @@
 <RCC>
     <qresource prefix="/">
+        <file>img/icons/arrow_left_light.svg</file>
         <file>img/icons/arrow_left.svg</file>
+        <file>img/icons/arrow_right_light.svg</file>
         <file>img/icons/arrow_right.svg</file>
         <file>img/icons/sidebar.svg</file>
         <file>img/icons/undo.svg</file>
@@ -17,6 +19,16 @@
         <file>img/icons/spin.svg</file>
         <file>img/icons/plus.svg</file>
         <file>img/icons/play.svg</file>
+        <file>img/icons/play_light_debug.svg</file>
+        <file>img/icons/play_light_emul.svg</file>
+        <file>img/icons/play_light_attach.svg</file>
+        <file>img/icons/media-stop_light.svg</file>
+        <file>img/icons/media-skip-forward_light.svg</file>
+        <file>img/icons/continue_until_main.svg</file>
+        <file>img/icons/continue_until_call.svg</file>
+        <file>img/icons/continue_until_syscall.svg</file>
+        <file>img/icons/step_light.svg</file>
+        <file>img/icons/step_over_light.svg</file>
         <file>img/icons/cloud.svg</file>
         <file>img/icons/down.svg</file>
         <file>img/icons/down_white.svg</file>
@@ -34,6 +46,7 @@
         <file>img/icons/graph.svg</file>
         <file>img/icons/hexdump_light.svg</file>
         <file>img/icons/hexdump_white.svg</file>
+        <file>img/icons/bug_light.svg</file>
         <file>img/icons/cog_light.svg</file>
         <file>img/icons/cog_white.svg</file>
         <file>img/icons/new_light.svg</file>

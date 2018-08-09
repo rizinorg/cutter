@@ -59,7 +59,9 @@ int CommentsModel::rowCount(const QModelIndex &parent) const
 
 int CommentsModel::columnCount(const QModelIndex&) const
 {
-    return (isNested() ? CommentsModel::NestedColumnCount : CommentsModel::ColumnCount);
+    return (isNested()
+            ? static_cast<int>(CommentsModel::NestedColumnCount)
+            : static_cast<int>(CommentsModel::ColumnCount));
 }
 
 QVariant CommentsModel::data(const QModelIndex &index, int role) const

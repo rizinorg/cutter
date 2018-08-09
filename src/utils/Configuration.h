@@ -21,7 +21,6 @@ private:
     void loadBaseDark();
     void loadDefaultTheme();
     void loadDarkTheme();
-    void loadDarkGreyTheme();
     void setColor(const QString &name, const QColor &color);
 
     // Images
@@ -43,14 +42,17 @@ public:
 
     // Colors
     const QColor getColor(const QString &name) const;
-    void setDarkTheme(int theme);
-    int getDarkTheme()
+    void setTheme(int theme);
+    int getTheme()
     {
-        return s.value("dark").toInt();
+        return s.value("ColorPalette").toInt();
     }
 
     QString getDirProjects();
     void setDirProjects(const QString& dir);
+
+    void setNewFileLastClicked(int lastClicked);
+    int getNewFileLastClicked();
 
     // Images
     QString getLogoFile();
@@ -61,7 +63,7 @@ public:
     // Graph
     int getGraphBlockMaxChars() const
     {
-        return s.value("graph.maxcols", 50).toInt();
+        return s.value("graph.maxcols", 100).toInt();
     }
     void setGraphBlockMaxChars(int ch)
     {

@@ -18,12 +18,13 @@ AnalTask::~AnalTask()
 void AnalTask::interrupt()
 {
     AsyncTask::interrupt();
-    r_cons_singleton()->breaked = true;
+    r_cons_singleton()->context->breaked = true;
 }
 
 void AnalTask::runTask()
 {
     log(tr("Loading Binary...\n"));
+    openFailed = false;
 
     Core()->setCPU(options.arch, options.cpu, options.bits);
 
@@ -36,7 +37,7 @@ void AnalTask::runTask()
 
     // Do not reload the file if already loaded
     QJsonArray openedFiles = Core()->getOpenedFiles();
-    if (!openedFiles.size()) {
+    if (!openedFiles.size() && options.filename.length()) {
         bool fileLoaded = Core()->loadFile(options.filename,
                                            options.binLoadAddr,
                                            options.mapAddr,
@@ -46,8 +47,9 @@ void AnalTask::runTask()
                                            options.forceBinPlugin);
         if (!fileLoaded) {
             // Something wrong happened, fallback to open dialog
+            openFailed = true;
             emit openFileFailed();
-            AsyncTask::interrupt();
+            interrupt();
             return;
         }
     }
@@ -60,17 +62,9 @@ void AnalTask::runTask()
         Core()->cmd("e asm.os=" + options.os);
     }
 
-    // Load PDB and/or scripts
     if (!options.pdbFile.isNull()) {
+        log(tr("Loading PDB file...\n"));
         Core()->loadPDB(options.pdbFile);
-    }
-
-    if (isInterrupted()) {
-        return;
-    }
-
-    if (!options.script.isNull()) {
-        Core()->loadScript(options.script);
     }
 
     if (isInterrupted()) {
@@ -82,6 +76,17 @@ void AnalTask::runTask()
     }
 
     Core()->setBBSize(options.bbsize);
+
+    Core()->cmd("fs *");
+
+    if (!options.script.isNull()) {
+        log(tr("Executing script...\n"));
+        Core()->loadScript(options.script);
+    }
+
+    if (isInterrupted()) {
+        return;
+    }
 
     // Use prj.simple as default as long as regular projects are broken
     Core()->setConfig("prj.simple", true);

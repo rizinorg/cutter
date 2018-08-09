@@ -39,6 +39,9 @@ private slots:
 
     void cursorPositionChanged();
 
+    void zoomIn();
+    void zoomOut();
+
 private:
     DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;

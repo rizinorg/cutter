@@ -173,11 +173,24 @@ void StringsWidget::on_stringsTreeView_doubleClicked(const QModelIndex &index)
 
 void StringsWidget::refreshStrings()
 {
+    if (task) {
+        task->wait();
+    }
+
+    task = QSharedPointer<StringsTask>(new StringsTask());
+    connect(task.data(), &StringsTask::stringSearchFinished, this, &StringsWidget::stringSearchFinished);
+    Core()->getAsyncTaskManager()->start(task);
+}
+
+void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
+{
     model->beginReload();
-    strings = Core()->getAllStrings();
+    this->strings = strings;
     model->endReload();
 
     qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
+
+    task = nullptr;
 }

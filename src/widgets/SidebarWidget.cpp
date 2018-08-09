@@ -202,7 +202,7 @@ void SidebarWidget::fillOffsetInfo(QString off)
     qhelpers::adjustColumns(ui->offsetTreeWidget, 0);
 
     // Add opcode description
-    QStringList description = Core()->cmd("?d. @ " + off).split(": ");
+    QStringList description = Core()->cmd("aod @ " + off).split(": ");
     if (description.length() >= 2) {
         ui->opcodeDescText->setPlainText("# " + description[0] + ":\n" + description[1]);
     }

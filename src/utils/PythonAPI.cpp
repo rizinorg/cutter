@@ -180,7 +180,7 @@ PyObject *api_internal_thread_set_async_exc(PyObject *, PyObject *args)
 
 PyMethodDef CutterInternalMethods[] = {
     {
-        "launch_ipykernel", (PyCFunction)api_internal_launch_ipykernel, METH_VARARGS | METH_KEYWORDS,
+        "launch_ipykernel", reinterpret_cast<PyCFunction>((void *)api_internal_launch_ipykernel), METH_VARARGS | METH_KEYWORDS,
         "Launch an IPython Kernel in a subinterpreter"
     },
     {"kernel_interface_send_signal", (PyCFunction)api_internal_kernel_interface_send_signal, METH_VARARGS, ""},

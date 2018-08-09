@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>Cutter.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0</project_license>
+  <name>Cutter</name>
+  <summary>A Qt and C++ GUI for radare2 reverse engineering framework</summary>
+  <description>
+    <p>
+      Cutter is Qt and C++ GUI for radare2, originally named Iaito. It is not aimed at existing radare2 users, but focuses on those whose aren’t fluent yet with the command line, likely because of the steep learning curve.
+    </p>
+  </description>
+  <screenshots>
+    <screenshot>
+      <image>https://raw.githubusercontent.com/radareorg/cutter/master/docs/screenshot.png</image>
+      <caption>Main UI</caption>
+    </screenshot>
+    <screenshot>
+      <image>http://beta.rada.re/en/latest/_images/cutter.png</image>
+      <caption>Light Theme</caption>
+    </screenshot>
+    <screenshot>
+      <image>http://beta.rada.re/en/latest/_images/cutter_dark.jpg</image>
+      <caption>Dark Theme</caption>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">http://beta.rada.re/en/latest/cutter.html</url>
+  <releases>
+    <release version="1.6" date="2018-07-13" />
+    <release version="1.5" date="2018-07-02" />
+    <release version="1.4" date="2018-04-24" />
+    <release version="1.3" date="2018-03-09" />
+    <release version="1.2" date="2018-01-30" />
+    <release version="1.1" date="2017-12-25" />
+    <release version="1.0" date="2017-12-03" />
+  </releases>
+</component>

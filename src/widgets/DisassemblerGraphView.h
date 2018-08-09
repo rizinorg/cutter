@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QShortcut>
+#include <QLabel>
 
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
@@ -200,6 +201,7 @@ private:
     QColor disassemblyBackgroundColor;
     QColor disassemblySelectedBackgroundColor;
     QColor disassemblySelectionColor;
+    QColor PCSelectionColor;
     QColor disassemblyTracedColor;
     QColor disassemblyTracedSelectionColor;
     QColor jmpColor;
@@ -222,6 +224,8 @@ private:
 
     QAction actionExportGraph;
     QAction actionSyncOffset;
+
+    QLabel *emptyText = nullptr;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

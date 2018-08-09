@@ -230,6 +230,9 @@ border-top: 0px;
     <addaction name="actionStack"/>
     <addaction name="actionRegisters"/>
     <addaction name="actionBacktrace"/>
+    <addaction name="actionMemoryMap"/>
+    <addaction name="actionBreakpoint"/>
+    <addaction name="actionRegisterRefs"/>
    </widget>
    <widget class="QMenu" name="addInfoWidgets">
     <property name="title">
@@ -275,10 +278,16 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="addExtraWidgets"/>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>Debug</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuWindows"/>
+   <addaction name="menuDebug"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -293,23 +302,6 @@ border-top: 0px;
    </property>
    <property name="windowTitle">
     <string notr="true">Main toolbar</string>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">
-QToolButton {
-margin: 1px;
-margin-left: 2px;
-margin-right: 2px;
-padding: 2px;
-padding-left: 7px;
-padding-right: 7px;
-border-radius: 6px;
-background-color: #ffffff;
-}
-QToolButton:pressed {
-background-color: palette(dark);
-}
-     </string>
    </property>
    <property name="movable">
     <bool>false</bool>
@@ -457,7 +449,7 @@ background-color: palette(dark);
   <action name="actionBackward">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/img/icons/arrow_left.svg</normaloff>:/img/icons/arrow_left.svg</iconset>
+     <normaloff>:/img/icons/arrow_left_light.svg</normaloff>:/img/icons/arrow_left_light.svg</iconset>
    </property>
    <property name="text">
     <string>Back</string>
@@ -469,7 +461,7 @@ background-color: palette(dark);
   <action name="actionForward">
    <property name="icon">
     <iconset resource="resources.qrc">
-     <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
+     <normaloff>:/img/icons/arrow_right_light.svg</normaloff>:/img/icons/arrow_right_light.svg</iconset>
    </property>
    <property name="text">
     <string>Forward</string>
@@ -1052,6 +1044,30 @@ background-color: palette(dark);
    </property>
    <property name="text">
     <string>Backtrace</string>
+   </property>
+  </action>
+  <action name="actionMemoryMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Memory map</string>
+   </property>
+  </action>
+  <action name="actionBreakpoint">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Breakpoints</string>
+   </property>
+  </action>
+  <action name="actionRegisterRefs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Register References</string>
    </property>
   </action>
   <action name="actionClasses">

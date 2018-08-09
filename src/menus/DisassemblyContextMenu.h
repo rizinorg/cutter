@@ -43,29 +43,28 @@ private slots:
     void on_actionDeleteFlag_triggered();
     void on_actionDeleteFunction_triggered();
 
-    void on_actionSetBaseBinary_triggered();
-    void on_actionSetBaseOctal_triggered();
-    void on_actionSetBaseDecimal_triggered();
-    void on_actionSetBaseHexadecimal_triggered();
-    void on_actionSetBasePort_triggered();
-    void on_actionSetBaseIPAddr_triggered();
-    void on_actionSetBaseSyscall_triggered();
-    void on_actionSetBaseString_triggered();
+    void on_actionAddBreakpoint_triggered();
+    void on_actionContinueUntil_triggered();
+    void on_actionSetPC_triggered();
 
-    void on_actionSetBits16_triggered();
-    void on_actionSetBits32_triggered();
-    void on_actionSetBits64_triggered();
+    void on_actionSetToCode_triggered();
+    void on_actionSetToData_triggered();
+    void on_actionSetToDataEx_triggered();
 
     void on_actionSetConstName_triggered();
 
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
+    QKeySequence getSetToCodeSequence() const;
+    QKeySequence getSetToDataSequence() const;
+    QKeySequence getSetToDataExSequence() const;
     QKeySequence getAddFlagSequence() const;
     QKeySequence getRenameSequence() const;
     QKeySequence getRenameUsedHereSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
+    QList<QKeySequence> getAddBPSequence() const;
 
     RVA offset;
     bool canCopy;
@@ -73,7 +72,6 @@ private:
     QList<QAction *> anonymousActions;
 
     QMenu *editMenu;
-    QAction *editMenuAction;
     QAction actionEditInstruction;
     QAction actionNopInstruction;
     QAction actionJmpReverse;
@@ -97,7 +95,6 @@ private:
     QAction actionDeleteFunction;
 
     QMenu *setBaseMenu;
-    QAction *setBaseMenuAction;
     QAction actionSetBaseBinary;
     QAction actionSetBaseOctal;
     QAction actionSetBaseDecimal;
@@ -109,13 +106,39 @@ private:
     QAction actionSetConstName;
 
     QMenu *setBitsMenu;
-    QAction *setBitsMenuAction;
     QAction actionSetBits16;
     QAction actionSetBits32;
     QAction actionSetBits64;
 
+    QMenu *debugMenu;
+    QAction actionContinueUntil;
+    QAction actionAddBreakpoint;
+    QAction actionSetPC;
+
+    QAction actionSetToCode;
+
+    QMenu *setToDataMenu;
+    QAction actionSetToDataEx;
+    QAction actionSetToDataByte;
+    QAction actionSetToDataWord;
+    QAction actionSetToDataDword;
+    QAction actionSetToDataQword;
+
     // For creating anonymous entries (that are always visible)
-    void createAction(QString name, QKeySequence keySequence, const char *slot);
-    void createAction(QAction *action, QString name, QKeySequence keySequence, const char *slot);
+    QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
+
+    void initAction(QAction *action, QString name, const char *slot = nullptr);
+    void initAction(QAction *action, QString name, const char *slot, QKeySequence keySequence);
+    void initAction(QAction *action, QString name, const char *slot, QList<QKeySequence> keySequence);
+
+    void setBase(QString base);
+    void setToData(int size, int repeat = 1);
+    void setBits(int bits);
+
+    void addSetBaseMenu();
+    void addSetBitsMenu();
+    void addSetToDataMenu();
+    void addEditMenu();
+    void addDebugMenu();
 };
 #endif // DISASSEMBLYCONTEXTMENU_H
