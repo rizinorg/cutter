@@ -56,7 +56,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     addAction(&actionDeleteFunction);
 
     initAction(&actionSetConstName, tr("Lookup standard constant"), SLOT(on_actionSetConstName_triggered()));
-    addAction(%actionSetConstName);
+    addAction(&actionSetConstName);
 
     addSetBaseMenu();
 
@@ -380,6 +380,7 @@ void DisassemblyContextMenu::on_actionSetConstName_triggered()
             Core()->setComment(offset, constname);    
         }
     }
+}
 
 QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 {
