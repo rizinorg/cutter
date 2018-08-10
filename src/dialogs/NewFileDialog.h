@@ -23,6 +23,7 @@ private slots:
 
     void on_selectProjectsDirButton_clicked();
     void on_loadProjectButton_clicked();
+    void on_shellcodeButton_clicked();
 
     void on_aboutButton_clicked();
 
@@ -58,6 +59,7 @@ private:
 
     void loadFile(const QString &filename);
     void loadProject(const QString &project);
+    void loadShellcode(const QString &shellcode, const int size);
 
     static const int MaxRecentFiles = 5;
 };

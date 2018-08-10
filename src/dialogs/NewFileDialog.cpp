@@ -127,6 +127,22 @@ void NewFileDialog::on_loadProjectButton_clicked()
     loadProject(item->data(Qt::UserRole).toString());
 }
 
+void NewFileDialog::on_shellcodeButton_clicked()
+{
+    QString shellcode = ui->shellcodeText->toPlainText();
+    QString extractedCode = "";
+    static const QRegularExpression rx("([0-9a-f]{2})", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatchIterator i = rx.globalMatch(shellcode);
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        extractedCode.append(match.captured(1));
+    }
+    int size = extractedCode.size() / 2;
+    if (size > 0) {
+        loadShellcode(extractedCode, size);
+    }
+}
+
 void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
 {
     QVariant data = item->data(Qt::UserRole);
@@ -355,6 +371,14 @@ void NewFileDialog::loadProject(const QString &project)
     MainWindow *main = new MainWindow();
     main->openProject(project);
 
+    close();
+}
+
+void NewFileDialog::loadShellcode(const QString &shellcode, const int size)
+{
+    MainWindow *main = new MainWindow();
+    QString ioFile = QString("malloc://%1").arg(size);
+    main->openNewFile(ioFile, -1, QList<QString>(), shellcode);
     close();
 }
 

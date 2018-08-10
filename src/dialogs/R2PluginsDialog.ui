@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>radare2 plugin information</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_6">
+  <layout class="QVBoxLayout" name="verticalLayout_1">
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">

@@ -91,6 +91,11 @@ void OptionsDialog::setInitialScript(const QString &script)
     }
 }
 
+void OptionsDialog::setShellcode(const QString &shellcode)
+{
+    this->shellcode = shellcode;
+}
+
 QString OptionsDialog::getSelectedArch()
 {
     QVariant archValue = ui->archComboBox->currentData();
@@ -199,6 +204,7 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     InitialOptions options;
 
     options.filename = main->getFilename();
+    options.shellcode = this->shellcode;
 
     // Where the bin header is located in the file (-B)
     if (ui->entry_loadOffset->text().length() > 0) {

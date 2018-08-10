@@ -68,10 +68,10 @@ public:
     ~MainWindow();
 
     void openNewFile(const QString &fn, int analLevel = -1,
-                     QList<QString> advancedOptions = QList<QString>());
+                     QList<QString> advancedOptions = QList<QString>(), const QString &shellcode = QString());
     void displayNewFileDialog();
     void closeNewFileDialog();
-    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script);
+    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script, const QString &shellcode = QString());
     void openProject(const QString &project_name);
 
     void initUI();
