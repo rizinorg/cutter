@@ -101,6 +101,8 @@ To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [pro
 | =                   | Reset zoom                 |
 | J                   | Next instruction           |
 | K                   | Previous instruction       |
+| T                   | Follow True/Unconditional branch       |
+| F                   | Follow False/Unconditional branch       |
 
 ### Debug shortcuts
 | Shortcut        | Function       |
