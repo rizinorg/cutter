@@ -312,7 +312,7 @@ void MainWindow::addExtraWidget(QDockWidget *extraDock)
     restoreExtraDock.restoreWidth(extraDock->widget());
 }
 
-void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> advancedOptions)
+void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> advancedOptions, const QString &shellcode)
 {
     setFilename(fn);
 
@@ -330,7 +330,7 @@ void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> ad
     }
 
     /* Show analysis options dialog */
-    displayAnalysisOptionsDialog(analLevel, advancedOptions, loadScript);
+    displayAnalysisOptionsDialog(analLevel, advancedOptions, loadScript, shellcode);
 }
 
 void MainWindow::openNewFileFailed()
@@ -361,11 +361,12 @@ void MainWindow::closeNewFileDialog()
     newFileDialog = nullptr;
 }
 
-void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script)
+void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script, const QString &shellcode)
 {
     OptionsDialog *o = new OptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->setInitialScript(script);
+    o->setShellcode(shellcode);
     o->show();
 
     if (analLevel >= 0) {
@@ -429,12 +430,6 @@ void MainWindow::setFilename(const QString &fn)
     // Add file name to window title
     this->filename = fn;
     this->setWindowTitle(APPNAME" - " + fn);
-}
-
-void MainWindow::setShellcode(const QString &shellcode)
-{
-    this->shellcode = shellcode;
-    this->setWindowTitle("Shellcode");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

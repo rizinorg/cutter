@@ -68,10 +68,10 @@ public:
     ~MainWindow();
 
     void openNewFile(const QString &fn, int analLevel = -1,
-                     QList<QString> advancedOptions = QList<QString>());
+                     QList<QString> advancedOptions = QList<QString>(), const QString &shellcode = QString());
     void displayNewFileDialog();
     void closeNewFileDialog();
-    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script);
+    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script, const QString &shellcode = QString());
     void openProject(const QString &project_name);
 
     void initUI();
@@ -94,7 +94,6 @@ public:
     void readDebugSettings();
     void saveDebugSettings();
     void setFilename(const QString &fn);
-    void setShellcode(const QString &shellcode);
     void addOutput(const QString &msg);
     void addDebugOutput(const QString &msg);
     void refreshOmniBar(const QStringList &flags);
@@ -184,7 +183,6 @@ private:
     ut64 hexdumpTopOffset;
     ut64 hexdumpBottomOffset;
     QString filename;
-    QString shellcode;
     std::unique_ptr<Ui::MainWindow> ui;
     Highlighter *highlighter;
     AsciiHighlighter *hex_highlighter;
@@ -253,10 +251,6 @@ public:
     QString getFilename() const
     {
         return filename;
-    }
-    QString getShellcode() const
-    {
-        return shellcode;
     }
 };
 

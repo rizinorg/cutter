@@ -314,6 +314,65 @@
            </layout>
           </widget>
 
+          <widget class="QWidget" name="shellcodeTab">
+           <attribute name="title">
+            <string>Open Shellcode</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="shellcodeLayout">
+
+            <item>
+             <widget class="QLabel" name="shellcodeLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>&lt;b&gt;Paste Shellcode&lt;b&gt;</string>
+              </property>
+             </widget>
+            </item>
+
+            <item>
+             <widget class="QPlainTextEdit" name="shellcodeText">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                <horstretch>1</horstretch>
+                <verstretch>1</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+
+            <item>
+             <layout class="QHBoxLayout" name="shellcodeLayout_1">
+              <item>
+               <spacer name="shellcodeSpacer">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="spacerSize" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="shellcodeButton">
+                <property name="text">
+                 <string>Open</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+
+           </layout>
+          </widget>>
+
           <widget class="QWidget" name="projectsTab">
            <attribute name="title">
             <string>Projects</string>
@@ -458,65 +517,6 @@
             </item>
            </layout>
           </widget>
-
-          <widget class="QWidget" name="shellcodeTab">
-           <attribute name="title">
-            <string>Open Shellcode</string>
-           </attribute>
-           <layout class="QVBoxLayout" name="shellcodeLayout">
-
-            <item>
-             <widget class="QLabel" name="shellcodeLabel">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>&lt;b&gt;Paste Shellcode&lt;b&gt;</string>
-              </property>
-             </widget>
-            </item>
-
-            <item>
-             <widget class="QTextEdit" name="shellcodeText">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                <horstretch>1</horstretch>
-                <verstretch>1</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_2">
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="shellcodeButton">
-                <property name="text">
-                 <string>Open</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-
-           </layout>
-          </widget>>
 
          </widget>
         </item>

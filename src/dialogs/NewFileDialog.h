@@ -59,7 +59,7 @@ private:
 
     void loadFile(const QString &filename);
     void loadProject(const QString &project);
-    void loadShellcode(const QString &shellcode);
+    void loadShellcode(const QString &shellcode, const int size);
 
     static const int MaxRecentFiles = 5;
 };

@@ -47,11 +47,13 @@ private:
     int defaultAnalLevel;
 
     QString analysisDescription(int level);
+    QString shellcode;
 
     void updateCPUComboBox();
 
 public:
     void setInitialScript(const QString &script);
+    void setShellcode(const QString &shellcode);
 
     QString getSelectedArch();
     QString getSelectedCPU();

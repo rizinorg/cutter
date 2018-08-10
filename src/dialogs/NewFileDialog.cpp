@@ -129,7 +129,18 @@ void NewFileDialog::on_loadProjectButton_clicked()
 
 void NewFileDialog::on_shellcodeButton_clicked()
 {
-    loadShellcode(ui->shellcodeText->toPlainText());
+    QString shellcode = ui->shellcodeText->toPlainText();
+    QString extractedCode = "";
+    QRegExp rx("([0-9A-Fa-f]{2})");
+    int pos = 0;
+    while ((pos = rx.indexIn(shellcode, pos)) != -1) {
+        extractedCode.append(rx.cap(1));
+        pos += rx.matchedLength();
+    }
+    int size = extractedCode.size() * 0.5;
+    if (size > 0) {
+        loadShellcode(extractedCode, size);
+    }
 }
 
 void NewFileDialog::on_recentsListWidget_itemClicked(QListWidgetItem *item)
@@ -363,20 +374,12 @@ void NewFileDialog::loadProject(const QString &project)
     close();
 }
 
-void NewFileDialog::loadShellcode(const QString &shellcode)
+void NewFileDialog::loadShellcode(const QString &shellcode, const int size)
 {
-    QString extractedCode = "";
-    for (int i = 0; i < shellcode.size(); i++) {
-        QChar c = shellcode[i];
-        if (c != QChar('\\') && c != QChar('x') && c != QChar('"') && c != QChar('\n')) {
-            extractedCode.append(c);
-        }
-    }
     MainWindow *main = new MainWindow();
-    int shellcodeSize = extractedCode.size() * 0.5;
-    QString ioFile = QString("malloc://%1").arg(shellcodeSize);
-    main->setShellcode(extractedCode);
-    main->openNewFile(ioFile);
+    QString ioFile = QString("malloc://%1").arg(size);
+    main->setWindowTitle("Shellcode");
+    main->openNewFile(ioFile, -1, QList<QString>(), shellcode);
     close();
 }
 
