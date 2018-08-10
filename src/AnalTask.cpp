@@ -71,7 +71,7 @@ void AnalTask::runTask()
         return;
     }
 
-    if (!options.shellcode.isNull() && options.shellcode.size() * 0.5 > 0) {
+    if (!options.shellcode.isNull() && options.shellcode.size() / 2 > 0) {
         log(tr("Loading shellcode...\n"));
         Core()->cmd("wx " + options.shellcode);
     }

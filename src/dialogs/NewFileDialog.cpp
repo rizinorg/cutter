@@ -131,13 +131,13 @@ void NewFileDialog::on_shellcodeButton_clicked()
 {
     QString shellcode = ui->shellcodeText->toPlainText();
     QString extractedCode = "";
-    QRegExp rx("([0-9A-Fa-f]{2})");
-    int pos = 0;
-    while ((pos = rx.indexIn(shellcode, pos)) != -1) {
-        extractedCode.append(rx.cap(1));
-        pos += rx.matchedLength();
+    static const QRegularExpression rx("([0-9a-f]{2})", QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatchIterator i = rx.globalMatch(shellcode);
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        extractedCode.append(match.captured(1));
     }
-    int size = extractedCode.size() * 0.5;
+    int size = extractedCode.size() / 2;
     if (size > 0) {
         loadShellcode(extractedCode, size);
     }
@@ -378,7 +378,6 @@ void NewFileDialog::loadShellcode(const QString &shellcode, const int size)
 {
     MainWindow *main = new MainWindow();
     QString ioFile = QString("malloc://%1").arg(size);
-    main->setWindowTitle("Shellcode");
     main->openNewFile(ioFile, -1, QList<QString>(), shellcode);
     close();
 }
