@@ -14,7 +14,6 @@ ConstNameDialog::ConstNameDialog(QWidget *parent) :
         
     if (ConstNameDialog::constMap.empty())
     {
-        qDebug() << "hi";
         QFile file(":/data/constants.txt");
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         {

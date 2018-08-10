@@ -8,7 +8,6 @@
 #include <QStringListModel>
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
-#include <QDebug>
 #include <memory>
 
 namespace Ui {
