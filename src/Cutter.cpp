@@ -1078,6 +1078,25 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
     return ret;
 }
 
+
+QList<RVA> CutterCore::getBreakpointsAddresses()
+{
+    QList<BreakpointDescription> bps = getBreakpoints();
+    BreakpointDescription bp;
+    QList<RVA> bpAddresses;
+    foreach (bp, bps)
+    {
+        bpAddresses << bp.addr;
+    }
+
+    return bpAddresses;
+}
+
+bool CutterCore::isBreakpoint(QList<RVA> breakpoints, RVA addr)
+{
+    return breakpoints.contains(addr);
+}
+
 QJsonDocument CutterCore::getBacktrace()
 {
     return cmdj("dbtj");
