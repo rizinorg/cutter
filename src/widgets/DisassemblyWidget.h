@@ -61,6 +61,8 @@ private:
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event);
 
+    QList<RVA> breakpoints;
+
     void setupFonts();
     void setupColors();
 

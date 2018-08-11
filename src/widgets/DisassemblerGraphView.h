@@ -197,6 +197,7 @@ private:
     void seekInstruction(bool previous_instr);
     CutterSeekableWidget *seekable = nullptr;
     QList<QShortcut *> shortcuts;
+    QList<RVA> breakpoints;
 
     QColor disassemblyBackgroundColor;
     QColor disassemblySelectedBackgroundColor;

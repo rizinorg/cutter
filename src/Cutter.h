@@ -518,6 +518,8 @@ public:
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
     void disableBreakpoint(RVA addr);
+    bool isBreakpoint(QList<RVA> breakpoints, RVA addr);
+    QList<RVA> getBreakpointsAddresses();
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
