@@ -8,6 +8,8 @@ Cutter supports different build systems:
 
 Each time in the section below, the prefered method will be explained. For other methods check associated documentation.
 
+**Before compiling, note that we also provide binaries available for windows/linux/MacOS X [here](https://github.com/radareorg/cutter/releases).**
+
 ## Requirements
 
 * Qt (version differs from time to time but >= 5.6.1 should be fine)
