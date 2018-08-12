@@ -38,7 +38,8 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.tabs",           5 },
     { "asm.tabs.off",       5 },
     { "asm.marks",          false },
-    { "esil.breakoninvalid",   true }
+    { "esil.breakoninvalid",   true },
+    { "graph.offset",       false}
 };
 
 

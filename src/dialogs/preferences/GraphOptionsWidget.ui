@@ -13,28 +13,51 @@
   <property name="windowTitle">
    <string>Graph</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="maxColsLabel">
-     <property name="text">
-      <string>Maximum Line Length:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QSpinBox" name="maxColsSpinBox">
-     <property name="minimum">
-      <number>10</number>
-     </property>
-     <property name="maximum">
-      <number>999999999</number>
-     </property>
-     <property name="singleStep">
-      <number>5</number>
-     </property>
-    </widget>
-   </item>
-  </layout>
+  <widget class="QLabel" name="maxColsLabel">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>10</y>
+     <width>141</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Maximum Line Length:</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="maxColsSpinBox">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>10</y>
+     <width>104</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>10</number>
+   </property>
+   <property name="maximum">
+    <number>999999999</number>
+   </property>
+   <property name="singleStep">
+    <number>5</number>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="graphOffsetCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>44</y>
+     <width>162</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Show offsets in Graph</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
