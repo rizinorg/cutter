@@ -55,7 +55,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Show offsets in Graph</string>
+    <string>Show offsets (graph.offset) </string>
    </property>
   </widget>
  </widget>
