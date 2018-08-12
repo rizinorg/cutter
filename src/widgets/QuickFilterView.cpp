@@ -35,6 +35,7 @@ void QuickFilterView::clearFilter()
 
 void QuickFilterView::closeFilter()
 {
+    ui->filterLineEdit->setText("");
     hide();
     emit filterClosed();
 }

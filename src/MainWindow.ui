@@ -206,8 +206,6 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionLock"/>
     <addaction name="actionTabs_on_Top"/>
-    <addaction name="separator"/>
-    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -222,6 +220,8 @@ border-top: 0px;
     <addaction name="actionSearch"/>
     <addaction name="actionUndoSeek"/>
     <addaction name="actionRedoSeek"/>
+    <addaction name="separator"/>
+    <addaction name="actionPreferences"/>
    </widget>
    <widget class="QMenu" name="addDebugWidgets">
     <property name="title">

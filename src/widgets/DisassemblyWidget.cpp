@@ -209,6 +209,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
         return;
     }
 
+    breakpoints = Core()->getBreakpointsAddresses();
     int horizontalScrollValue = mDisasTextEdit->horizontalScrollBar()->value();
     mDisasTextEdit->setLockScroll(true); // avoid flicker
 
@@ -224,14 +225,21 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->document()->clear();
     QTextCursor cursor(mDisasTextEdit->document());
+    QTextBlockFormat regular = cursor.blockFormat();
     for (DisassemblyLine line : disassemblyLines) {
         if (line.offset < topOffset) { // overflow
             break;
         }
         cursor.insertHtml(line.text);
+        if(Core()->isBreakpoint(breakpoints,line.offset)) {
+            QTextBlockFormat f;
+            f.setBackground(ConfigColor("gui.breakpoint_background"));
+            cursor.setBlockFormat(f);
+        }
         auto a = new DisassemblyTextBlockUserData(line);
         cursor.block().setUserData(a);
         cursor.insertBlock();
+        cursor.setBlockFormat(regular);
     }
 
     if (!disassemblyLines.isEmpty()) {

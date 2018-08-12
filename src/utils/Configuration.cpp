@@ -22,7 +22,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.flags.offset",   false },
     { "asm.emu",            false },
     { "asm.cmt.right",      true },
-    { "asm.cmt.col",        70 },
+    { "asm.cmt.col",        35 },
     { "asm.var.summary",    false },
     { "asm.bytes",          false },
     { "asm.size",           false },
@@ -37,7 +37,9 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.var.subonly",    true },
     { "asm.tabs",           5 },
     { "asm.tabs.off",       5 },
-    { "esil.breakoninvalid",   true }
+    { "asm.marks",          false },
+    { "esil.breakoninvalid",   true },
+    { "graph.offset",       false}
 };
 
 
@@ -118,7 +120,7 @@ void Configuration::loadDefaultTheme()
     setColor("gui.cflow",   QColor(0, 0, 0));
     setColor("gui.dataoffset", QColor(0, 0, 0));
     setColor("gui.border",  QColor(0, 0, 0));
-    setColor("highlight",   QColor(210, 210, 255));
+    setColor("highlight",   QColor(210, 210, 255, 150));
     setColor("highlightWord", QColor(210, 210, 255));
     // RIP line selection in debug
     setColor("highlightPC", QColor(214, 255, 210));
@@ -135,6 +137,7 @@ void Configuration::loadDefaultTheme()
     setColor("gui.navbar.str", QColor(69, 104, 229));
     setColor("gui.navbar.sym", QColor(229, 150, 69));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
+    setColor("gui.breakpoint_background", QColor(233, 143, 143));
 }
 
 void Configuration::loadBaseDark()
@@ -176,6 +179,7 @@ void Configuration::loadBaseDark()
     setColor("gui.navbar.empty", QColor(100, 100, 100));
     // RIP line selection in debug
     setColor("highlightPC", QColor(87, 26, 7));
+    setColor("gui.breakpoint_background", QColor(140, 76, 76));
 }
 
 void Configuration::loadDarkTheme()
@@ -187,15 +191,16 @@ void Configuration::loadDarkTheme()
     // Disassembly nodes background
     setColor("gui.alt_background", QColor(28, 31, 36));
     // Disassembly nodes background when selected
-    setColor("gui.disass_selected", QColor(44, 53, 54));
+    setColor("gui.disass_selected", QColor(31, 34, 40));
     // Disassembly line selected
-    setColor("highlight", QColor(21, 29, 29));
+    setColor("highlight", QColor(21, 29, 29, 150));
     setColor("highlightWord", QColor(100, 100, 100));
+
 }
 
 const QFont Configuration::getFont() const
 {
-    QFont font = s.value("font", QFont("Inconsolata", 12)).value<QFont>();
+    QFont font = s.value("font", QFont("Inconsolata", 11)).value<QFont>();
     return font;
 }
 

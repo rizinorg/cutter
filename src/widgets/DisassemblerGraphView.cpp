@@ -332,6 +332,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setBrush(Qt::gray);
     p.drawRect(block.x, block.y, block.width, block.height);
 
+    breakpoints = Core()->getBreakpointsAddresses();
 
     // Render node
     DisassemblyBlock &db = disassembly_blocks[block.entry];
@@ -350,6 +351,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         if ((instr.addr <= PCAddr) && (PCAddr <= instr.addr + instr.size)) {
             PCInBlock = true;
         }
+
         // TODO: L219
     }
 
@@ -359,12 +361,13 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     } else if (db.indirectcall) {
         p.setBrush(indirectcallShadowColor);
     } else {
-        p.setBrush(QColor(0, 0, 0, 128));
+        p.setBrush(QColor(0, 0, 0, 100));
     }
 
-    p.drawRect(block.x + 4, block.y + 4,
-               block.width + 4, block.height + 4);
-    p.setPen(graphNodeColor);
+    // Node's shadow effect
+    p.drawRect(block.x + 2, block.y + 2,
+               block.width, block.height);
+    p.setPen(QPen(graphNodeColor, 1));
 
     if (block_selected) {
         p.setBrush(disassemblySelectedBackgroundColor);
@@ -436,6 +439,14 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         y += charHeight;
     }
     for (Instr &instr : db.instrs) {
+        if (Core()->isBreakpoint(breakpoints, instr.addr)) {
+            p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
+                             int(instr.text.lines.size()) * charHeight), ConfigColor("gui.breakpoint_background"));
+            if (instr.addr == selected_instruction) {
+                p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
+                                 int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
+            }
+        }
         for (auto &line : instr.text.lines) {
             int rectSize = qRound(charWidth);
             if (rectSize % 2) {
