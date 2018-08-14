@@ -1,6 +1,7 @@
 /* x64dbg RichTextPainter */
 #include "RichTextPainter.h"
 #include "CachedFontMetrics.h"
+#include "utils/Configuration.h"
 #include <QPainter>
 #include <QTextBlock>
 #include <QTextFragment>
@@ -21,6 +22,8 @@ void RichTextPainter::paintRichText(QPainter *painter, int x, int y, int w, int 
             break;
         switch (curRichText.flags) {
         case FlagNone: //defaults
+            pen.setColor(ConfigColor("btext").name());
+            painter->setPen(pen);
             break;
         case FlagColor: //color only
             pen.setColor(curRichText.textColor);
