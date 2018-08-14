@@ -1068,15 +1068,13 @@ void HexdumpWidget::on_copySHA1_clicked()
 void HexdumpWidget::selectHexPreview()
 {
     // Pre-select arch and bits in the hexdump sidebar
-    QString arch = Core()->cmd("e asm.arch").trimmed();
-    QString bits = Core()->cmd("e asm.bits").trimmed();
+    QString arch = Core()->getConfig("asm.arch");
+    QString bits = Core()->getConfig("asm.bits");
 
-    //int arch_index = ui->hexArchComboBox_2->findText(arch);
     if (ui->parseArchComboBox->findText(arch) != -1) {
         ui->parseArchComboBox->setCurrentIndex(ui->parseArchComboBox->findText(arch));
     }
 
-    //int bits_index = ui->hexBitsComboBox_2->findText(bits);
     if (ui->parseBitsComboBox->findText(bits) != -1) {
         ui->parseBitsComboBox->setCurrentIndex(ui->parseBitsComboBox->findText(bits));
     }
