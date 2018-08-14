@@ -609,8 +609,12 @@ void CutterCore::setConfig(const QString &k, const QVariant &v)
 
 void CutterCore::setCPU(QString arch, QString cpu, int bits)
 {
-    setConfig("asm.arch", arch);
-    setConfig("asm.cpu", cpu);
+    if (arch != nullptr) {
+        setConfig("asm.arch", arch);
+    }
+    if (cpu != nullptr) {
+        setConfig("asm.cpu", cpu);
+    }
     setConfig("asm.bits", bits);
 }
 
