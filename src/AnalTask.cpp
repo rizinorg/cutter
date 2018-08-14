@@ -26,8 +26,6 @@ void AnalTask::runTask()
     log(tr("Loading Binary...\n"));
     openFailed = false;
 
-    Core()->setCPU(options.arch, options.cpu, options.bits);
-
     int perms = R_IO_READ | R_IO_EXEC;
     if (options.writeEnabled)
         perms |= R_IO_WRITE;
@@ -53,6 +51,9 @@ void AnalTask::runTask()
             return;
         }
     }
+
+    // r_core_bin_load might change asm.bits, so let's set that after the bin is loaded
+    Core()->setCPU(options.arch, options.cpu, options.bits);
 
     if (isInterrupted()) {
         return;
