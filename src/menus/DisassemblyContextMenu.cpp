@@ -22,7 +22,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     copySeparator = addSeparator();
 
-    initAction(&actionCopyAddr, tr("Copy address", SLOT(on_actionCopyAddr_triggered())));
+    initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()));
     addAction(&actionCopyAddr);
 
     initAction(&actionAddComment, tr("Add Comment"),
