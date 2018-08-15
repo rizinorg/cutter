@@ -13,11 +13,11 @@
 #include <QFileDialog>
 
 OptionsDialog::OptionsDialog(MainWindow *main):
-    QDialog(0), // parent may not be main
+    QDialog(0), // parent must not be main
+    ui(new Ui::OptionsDialog),
     main(main),
     core(Core()),
-    defaultAnalLevel(1),
-    ui(new Ui::OptionsDialog)
+    defaultAnalLevel(1)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
