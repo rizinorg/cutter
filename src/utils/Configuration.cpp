@@ -265,7 +265,7 @@ void Configuration::setColorTheme(QString theme)
     QJsonObject colorsObject = colors.object();
     QJsonObject::iterator it;
     for (it = colorsObject.begin(); it != colorsObject.end(); it++) {
-        if (!it.key().contains("graph"))
+        if (it.key().contains("gui"))
             continue;
         QJsonArray rgb = it.value().toArray();
         s.setValue("colors." + it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()));
