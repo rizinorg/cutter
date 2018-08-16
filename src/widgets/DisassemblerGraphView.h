@@ -89,6 +89,7 @@ class DisassemblerGraphView : public GraphView
         ut64 size = 0;
         Text text;
         Text fullText;
+        QString plainText;
         std::vector<unsigned char> opcode; //instruction bytes
     };
 

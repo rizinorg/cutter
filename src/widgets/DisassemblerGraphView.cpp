@@ -249,6 +249,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
             QTextDocument textDoc;
             textDoc.setHtml(disas);
+            i.plainText = textDoc.toPlainText();
 
             RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);
             //Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
