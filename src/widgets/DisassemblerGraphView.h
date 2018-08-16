@@ -17,38 +17,6 @@ class DisassemblerGraphView : public GraphView
 {
     Q_OBJECT
 
-
-    struct Token {
-        int start; //token[0]
-        int length; //token[1]
-        QString type; //token[2]
-        ut64 addr; //token[3]
-        QString name; //token[4]
-    };
-
-    struct HighlightToken {
-        QString type; //highlight_token[0]
-        ut64 addr; //highlight_token[1]
-        QString name; //highlight_token[2]
-
-        bool equalsToken(const Token &token)
-        {
-            return this->type == token.type &&
-                   this->addr == token.addr &&
-                   this->name == token.name;
-        }
-
-        static HighlightToken *fromToken(const Token &token)
-        {
-            //TODO: memory leaks
-            auto result = new HighlightToken();
-            result->type = token.type;
-            result->addr = token.addr;
-            result->name = token.name;
-            return result;
-        }
-    };
-
     struct Text {
         std::vector<RichTextPainter::List> lines;
 
@@ -89,9 +57,18 @@ class DisassemblerGraphView : public GraphView
         ut64 size = 0;
         Text text;
         Text fullText;
+        QString plainText;
         std::vector<unsigned char> opcode; //instruction bytes
     };
 
+    struct Token {
+        int start;
+        int length;
+        QString type;
+        Instr * instr;
+        QString name;
+        QString content;
+    };
 
     struct DisassemblyBlock {
         Text header_text;
@@ -176,7 +153,7 @@ private:
     bool first_draw = true;
     bool transition_dont_seek = false;
 
-    HighlightToken *highlight_token;
+    Token *highlight_token;
     // Font data
     CachedFontMetrics *mFontMetrics;
     qreal charWidth;
@@ -190,6 +167,7 @@ private:
 
     void initFont();
     void prepareGraphNode(GraphBlock &block);
+    Token *getToken(Instr * instr, int x);
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
     DisassemblyBlock *blockForAddress(RVA addr);
