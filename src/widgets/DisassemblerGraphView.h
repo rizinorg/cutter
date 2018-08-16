@@ -65,33 +65,9 @@ class DisassemblerGraphView : public GraphView
         int start;
         int length;
         QString type;
-        ut64 addr;
         Instr * instr;
         QString name;
         QString content;
-    };
-
-    struct HighlightToken {
-        QString type; //highlight_token[0]
-        ut64 addr; //highlight_token[1]
-        QString name; //highlight_token[2]
-
-        bool equalsToken(const Token &token)
-        {
-            return this->type == token.type &&
-                   this->addr == token.addr &&
-                   this->name == token.name;
-        }
-
-        static HighlightToken *fromToken(const Token &token)
-        {
-            //TODO: memory leaks
-            auto result = new HighlightToken();
-            result->type = token.type;
-            result->addr = token.addr;
-            result->name = token.name;
-            return result;
-        }
     };
 
     struct DisassemblyBlock {
