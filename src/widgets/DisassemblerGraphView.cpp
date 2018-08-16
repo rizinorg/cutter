@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QFile>
 #include <QVBoxLayout>
+#include <QRegularExpression>
 
 #include "Cutter.h"
 #include "utils/Colors.h"
@@ -158,6 +159,11 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     disassembly_blocks.clear();
     blocks.clear();
+
+    if (highlight_token) {
+        delete highlight_token;
+        highlight_token = nullptr;
+    }
 
     bool emptyGraph = functions.isEmpty();
     if (emptyGraph) {
@@ -412,6 +418,29 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                                   disassemblyTracedColor.green(),
                                   std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
             }
+            y += int(instr.text.lines.size()) * charHeight;
+        }
+    }
+
+    // highlight selected tokens
+    if (highlight_token != nullptr) {
+        int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
+
+        for (Instr &instr : db.instrs) {
+            int pos = -1;
+
+            while ((pos = instr.plainText.indexOf(highlight_token->content, pos + 1)) != -1) {
+                int tokenEnd = pos + highlight_token->content.length();
+
+                if ((pos > 0 && instr.plainText[pos - 1].isLetterOrNumber()) 
+                    || (tokenEnd < instr.plainText.length() && instr.plainText[tokenEnd].isLetterOrNumber())) {
+                    continue;
+                }
+
+                p.fillRect(QRect(block.x + charWidth * 3 + pos * charWidth, y, highlight_token->length * charWidth,
+                             charHeight), disassemblySelectionColor.lighter(250));
+            }
+
             y += int(instr.text.lines.size()) * charHeight;
         }
     }
@@ -692,17 +721,48 @@ void DisassemblerGraphView::seekPrev()
     }
 }
 
+DisassemblerGraphView::Token * DisassemblerGraphView::getToken(Instr * instr, int x)
+{
+    int clickedCharPos = x / charWidth - 3;
+
+    if (clickedCharPos > instr->plainText.length()) {
+        return nullptr;
+    }
+
+    static const QRegularExpression tokenRegExp("\\b(?<!\\.)([^\\s]+)\\b(?!\\.)");
+    QRegularExpressionMatchIterator i = tokenRegExp.globalMatch(instr->plainText);
+
+    while (i.hasNext()) {
+        QRegularExpressionMatch match = i.next();
+        
+        if (match.capturedStart() <= clickedCharPos && match.capturedEnd() > clickedCharPos) {
+            Token * t = new Token;
+            t->start = match.capturedStart();
+            t->length = match.capturedLength();
+            t->content = match.captured();
+            t->instr = instr;
+
+            return t;
+        }
+    }
+
+    return nullptr;
+}
+
 void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                                          QPoint pos)
 {
-    RVA instr = getAddrForMouseEvent(block, &pos);
-    if (instr == RVA_INVALID) {
+    Instr *instr = getInstrForMouseEvent(block, &pos);
+    if (!instr) {
         return;
     }
 
-    seekLocal(instr);
+    highlight_token = getToken(instr, pos.x());
 
-    mMenu->setOffset(instr);
+    RVA addr = instr->addr;
+    seekLocal(addr);
+
+    mMenu->setOffset(addr);
     if (event->button() == Qt::RightButton) {
         mMenu->exec(event->globalPos());
     }
