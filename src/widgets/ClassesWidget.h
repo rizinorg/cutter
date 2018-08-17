@@ -18,38 +18,68 @@ class QTreeWidgetItem;
 class MainWindow;
 class ClassesWidget;
 
-
 class ClassesModel: public QAbstractItemModel
 {
-    Q_OBJECT
-
-    friend ClassesWidget;
-
-private:
-    QList<ClassDescription> *classes;
-
 public:
-    enum Columns { NAME = 0, TYPE, OFFSET, COUNT };
-    enum RowType { CLASS = 0, METHOD = 1, FIELD = 2 };
+    enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
+    enum RowType { CLASS = 0, METHOD = 1, FIELD = 2, BASE = 3 };
 
     static const int OffsetRole = Qt::UserRole;
     static const int NameRole = Qt::UserRole + 1;
     static const int TypeRole = Qt::UserRole + 2;
+    static const int VTableOffsetRole = Qt::UserRole + 3;
+    static const int DataRole = Qt::UserRole + 4;
 
-    explicit ClassesModel(QList<ClassDescription> *classes, QObject *parent = nullptr);
+    explicit ClassesModel(QObject *parent = nullptr) : QAbstractItemModel(parent) {}
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-    QModelIndex parent(const QModelIndex &index) const override;
-
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-
-    QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 };
 
 Q_DECLARE_METATYPE(ClassesModel::RowType)
+
+class BinClassesModel: public ClassesModel
+{
+    Q_OBJECT
+
+private:
+    QList<BinClassDescription> classes;
+
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+
+public:
+    explicit BinClassesModel(QObject *parent = nullptr);
+    void setClasses(const QList<BinClassDescription> &classes);
+};
+
+
+class AnalClassesModel: public ClassesModel
+{
+Q_OBJECT
+
+private:
+    QList<QString> classes;
+
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+
+    QModelIndex parent(const QModelIndex &index) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
+
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+
+public:
+    explicit AnalClassesModel(QObject *parent = nullptr);
+    void setClasses(const QList<QString> &classes);
+};
+
 
 
 class ClassesSortFilterProxyModel : public QSortFilterProxyModel
@@ -57,7 +87,7 @@ class ClassesSortFilterProxyModel : public QSortFilterProxyModel
     Q_OBJECT
 
 public:
-    explicit ClassesSortFilterProxyModel(ClassesModel *source_model, QObject *parent = nullptr);
+    explicit ClassesSortFilterProxyModel(QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
@@ -77,19 +107,24 @@ public:
 private slots:
     void on_classesTreeView_doubleClicked(const QModelIndex &index);
 
+    void on_seekToVTableAction_triggered();
+    void on_addMethodAction_triggered();
+    void on_editMethodAction_triggered();
+
+    void showContextMenu(const QPoint &pt);
+
     void refreshClasses();
-    void flagsChanged();
 
 private:
-    enum class Source { BIN, FLAGS };
+    enum class Source { BIN, ANAL };
 
     Source getSource();
 
     std::unique_ptr<Ui::ClassesWidget> ui;
 
-    ClassesModel *model;
+    BinClassesModel *bin_model = nullptr;
+    AnalClassesModel *anal_model = nullptr;
     ClassesSortFilterProxyModel *proxy_model;
-    QList<ClassDescription> classes;
 };
 
 
