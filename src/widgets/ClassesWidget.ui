@@ -95,7 +95,7 @@
         </item>
         <item>
          <property name="text">
-          <string>Flags (Editable)</string>
+          <string>Anal (Editable)</string>
          </property>
         </item>
        </widget>
@@ -104,6 +104,21 @@
     </item>
    </layout>
   </widget>
+  <action name="seekToVTableAction">
+   <property name="text">
+    <string>Seek to VTable</string>
+   </property>
+  </action>
+  <action name="editMethodAction">
+   <property name="text">
+    <string>Edit Method</string>
+   </property>
+  </action>
+  <action name="addMethodAction">
+   <property name="text">
+    <string>Add Method</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

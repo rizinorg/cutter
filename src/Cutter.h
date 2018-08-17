@@ -251,20 +251,28 @@ struct DisassemblyLine {
     QString text;
 };
 
+struct ClassBaseClassDescription {
+    QString name;
+    RVA offset;
+};
+
 struct ClassMethodDescription {
     QString name;
-    RVA addr;
+    RVA addr = RVA_INVALID;
+    st64 vtableOffset = -1;
 };
 
 struct ClassFieldDescription {
     QString name;
-    RVA addr;
+    RVA addr = RVA_INVALID;
 };
 
-struct ClassDescription {
+struct BinClassDescription {
     QString name;
-    RVA addr;
-    ut64 index;
+    RVA addr = RVA_INVALID;
+    RVA vtableAddr = RVA_INVALID;
+    ut64 index = 0;
+    QList<ClassBaseClassDescription> baseClasses;
     QList<ClassMethodDescription> methods;
     QList<ClassFieldDescription> fields;
 };
@@ -357,8 +365,8 @@ Q_DECLARE_METATYPE(RCorePluginDescription)
 Q_DECLARE_METATYPE(RAsmPluginDescription)
 Q_DECLARE_METATYPE(ClassMethodDescription)
 Q_DECLARE_METATYPE(ClassFieldDescription)
-Q_DECLARE_METATYPE(ClassDescription)
-Q_DECLARE_METATYPE(const ClassDescription *)
+Q_DECLARE_METATYPE(BinClassDescription)
+Q_DECLARE_METATYPE(const BinClassDescription *)
 Q_DECLARE_METATYPE(const ClassMethodDescription *)
 Q_DECLARE_METATYPE(const ClassFieldDescription *)
 Q_DECLARE_METATYPE(ResourcesDescription)
@@ -446,6 +454,10 @@ public:
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
+    /* Classes */
+    void setClassMethod(const QString &className, const ClassMethodDescription &meth);
+    void renameClassMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName);
+
     /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_PERM_R,
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
@@ -481,6 +493,8 @@ public:
 
     /* Math functions */
     ut64 math(const QString &expr);
+    ut64 num(const QString &expr);
+    QString itoa(ut64 num, int rdx = 16);
 
     /* Config functions */
     void setConfig(const char *k, const QString &v);
@@ -603,8 +617,9 @@ public:
     QList<SectionDescription> getAllSections();
     QList<SegmentDescription> getAllSegments();
     QList<EntrypointDescription> getAllEntrypoint();
-    QList<ClassDescription> getAllClassesFromBin();
-    QList<ClassDescription> getAllClassesFromFlags();
+    QList<BinClassDescription> getAllClassesFromBin();
+    QList<BinClassDescription> getAllClassesFromFlags();
+    QList<QString> getAllClassesFromAnal();
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
 
@@ -677,6 +692,7 @@ signals:
     void functionsChanged();
     void flagsChanged();
     void commentsChanged();
+    void classesChanged();
     void registersChanged();
     void instructionChanged(RVA offset);
     void breakpointsChanged();
