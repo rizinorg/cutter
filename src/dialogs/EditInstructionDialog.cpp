@@ -20,7 +20,7 @@ void EditInstructionDialog::on_buttonBox_accepted()
 
 void EditInstructionDialog::on_buttonBox_rejected()
 {
-    reject();
+    close();
 }
 
 QString EditInstructionDialog::getInstruction()
