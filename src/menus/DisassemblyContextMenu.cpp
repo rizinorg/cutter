@@ -353,7 +353,7 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
     QString oldInstruction = Core()->cmdj("aoj").array().first().toObject()["opcode"].toString();
     e->setInstruction(oldInstruction);
 
-    if (e->exec()) {}
+    if (e->exec())
     {
         QString instruction = e->getInstruction();
         if (instruction != oldInstruction) {
@@ -397,7 +397,7 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
     QString oldBytes = Core()->cmdj("aoj").array().first().toObject()["bytes"].toString();
     e->setInstruction(oldBytes);
 
-    if (e->exec()) {}
+    if (e->exec())
     {
         QString bytes = e->getInstruction();
         if (bytes != oldBytes) {
