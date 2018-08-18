@@ -51,6 +51,8 @@ private slots:
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
+    void on_actionSetConstName_triggered();
+
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
@@ -101,6 +103,7 @@ private:
     QAction actionSetBaseIPAddr;
     QAction actionSetBaseSyscall;
     QAction actionSetBaseString;
+    QAction actionSetConstName;
 
     QMenu *setBitsMenu;
     QAction actionSetBits16;
