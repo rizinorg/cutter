@@ -361,7 +361,9 @@ void NewFileDialog::loadFile(const QString &filename)
         ioFile = ui->ioPlugin->currentText() + "://";
     }
     ioFile += filename;
-    main->openNewFile(ioFile);
+    InitialOptions options;
+    options.filename = ioFile;
+    main->openNewFile(options);
     
     close();
 }
@@ -377,8 +379,10 @@ void NewFileDialog::loadProject(const QString &project)
 void NewFileDialog::loadShellcode(const QString &shellcode, const int size)
 {
     MainWindow *main = new MainWindow();
-    QString ioFile = QString("malloc://%1").arg(size);
-    main->openNewFile(ioFile, -1, QList<QString>(), shellcode);
+    InitialOptions options;
+    options.filename = QString("malloc://%1").arg(size);
+    options.shellcode = shellcode;
+    main->openNewFile(options);
     close();
 }
 

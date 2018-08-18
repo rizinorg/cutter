@@ -13,6 +13,7 @@
 #include "widgets/PseudocodeWidget.h"
 #include "dialogs/NewFileDialog.h"
 #include "utils/Configuration.h"
+#include "utils/InitialOptions.h"
 
 #include <QMainWindow>
 #include <QList>
@@ -67,11 +68,9 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void openNewFile(const QString &fn, int analLevel = -1,
-                     QList<QString> advancedOptions = QList<QString>(), const QString &shellcode = QString());
+    void openNewFile(InitialOptions options = InitialOptions(), bool skipOptionsDialog = false);
     void displayNewFileDialog();
     void closeNewFileDialog();
-    void displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script, const QString &shellcode = QString());
     void openProject(const QString &project_name);
 
     void initUI();
@@ -233,6 +232,8 @@ private:
 #ifdef CUTTER_ENABLE_JUPYTER
     JupyterWidget      *jupyterDock = nullptr;
 #endif
+
+    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
     void resetToZenLayout();

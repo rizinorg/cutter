@@ -82,18 +82,41 @@ void InitialOptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
 
-void InitialOptionsDialog::setInitialScript(const QString &script)
+void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 {
-    ui->scriptCheckBox->setChecked(!script.isEmpty());
-    ui->scriptLineEdit->setText(script);
-    if (!script.isEmpty()) {
+    if (options.analCmd.isEmpty()) {
         ui->analSlider->setValue(0);
+    } else if (options.analCmd == QList<QString>({ "aaa" })) {
+        ui->analSlider->setValue(1);
+    } else if (options.analCmd == QList<QString>({ "aaaa" })){
+        // TODO: These checks must always be in sync with getSelectedAdvancedAnalCmds(), which is dangerous
+        ui->aa_symbols->setChecked(options.analCmd.contains("aa"));
+        ui->aar_references->setChecked(options.analCmd.contains("aar"));
+        ui->aac_calls->setChecked(options.analCmd.contains("aac"));
+        ui->aab_basicblocks->setChecked(options.analCmd.contains("aab"));
+        ui->aan_rename->setChecked(options.analCmd.contains("aan"));
+        ui->aae_emulate->setChecked(options.analCmd.contains("aae"));
+        ui->aat_consecutive->setChecked(options.analCmd.contains("aat"));
+        ui->afta_typeargument->setChecked(options.analCmd.contains("afta"));
+        ui->aaT_aftertrap->setChecked(options.analCmd.contains("aaT"));
+        ui->aap_preludes->setChecked(options.analCmd.contains("aap"));
+        ui->jmptbl->setChecked(options.analCmd.contains("e! anal.jmptbl"));
+        ui->pushret->setChecked(options.analCmd.contains("e! anal.pushret"));
+        ui->hasnext->setChecked(options.analCmd.contains("e! anal.hasnext"));
     }
-}
 
-void InitialOptionsDialog::setShellcode(const QString &shellcode)
-{
-    this->shellcode = shellcode;
+    if (!options.script.isEmpty()) {
+        ui->scriptCheckBox->setChecked(false);
+        ui->scriptLineEdit->setText("");
+        ui->analSlider->setValue(0);
+    } else {
+        ui->scriptCheckBox->setChecked(true);
+        ui->scriptLineEdit->setText(options.script);
+    }
+
+    shellcode = options.shellcode;
+
+    // TODO: all other options should also be applied to the ui
 }
 
 QString InitialOptionsDialog::getSelectedArch()
@@ -195,10 +218,8 @@ QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds()
     return advanced;
 }
 
-void InitialOptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
+void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> advanced*/)
 {
-    ui->analSlider->setValue(level);
-
     main->initUI();
 
     InitialOptions options;
@@ -233,6 +254,7 @@ void InitialOptionsDialog::setupAndStartAnalysis(int level, QList<QString> advan
     options.endian = getSelectedEndianness();
     options.bbsize = getSelectedBBSize();
 
+    int level = ui->analSlider->value();
     switch(level) {
         case 1:
             options.analCmd = { "aaa" };
@@ -241,7 +263,7 @@ void InitialOptionsDialog::setupAndStartAnalysis(int level, QList<QString> advan
             options.analCmd = { "aaaa" };
             break;
         case 3:
-            options.analCmd = advanced;
+            options.analCmd = getSelectedAdvancedAnalCmds();
             break;
         default:
             options.analCmd = {};
@@ -276,7 +298,7 @@ void InitialOptionsDialog::setupAndStartAnalysis(int level, QList<QString> advan
 void InitialOptionsDialog::on_okButton_clicked()
 {
     ui->okButton->setEnabled(false);
-    setupAndStartAnalysis(ui->analSlider->value(), getSelectedAdvancedAnalCmds());
+    setupAndStartAnalysis();
 }
 
 void InitialOptionsDialog::closeEvent(QCloseEvent *event)

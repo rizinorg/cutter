@@ -101,7 +101,23 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
-        mainWindow->openNewFile(args[0], analLevelSpecified ? analLevel : -1);
+        InitialOptions options;
+        options.filename = args[0];
+        if (analLevelSpecified) {
+            switch (analLevel) {
+            case 0:
+            default:
+                options.analCmd = {};
+                break;
+            case 1:
+                options.analCmd = { "aaa" };
+                break;
+            case 2:
+                options.analCmd = { "aaaa" };
+                break;
+            }
+        }
+        mainWindow->openNewFile(options, analLevelSpecified);
     }
 
     // Load plugins
@@ -130,7 +146,9 @@ bool CutterApplication::event(QEvent *e)
                 QString fileName = openEvent->file();
                 m_FileAlreadyDropped = true;
                 mainWindow->closeNewFileDialog();
-                mainWindow->openNewFile(fileName, -1);
+                InitialOptions options;
+                options.filename = fileName;
+                mainWindow->openNewFile(options);
             }
         }
     }
