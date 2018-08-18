@@ -32,7 +32,7 @@ struct InitialOptions
 
     int bbsize = 0;
 
-    QList<QString> analCmd;
+    QList<QString> analCmd = { "aaa" };
 
     QString shellcode;
 };

@@ -49,10 +49,10 @@ private:
 
     MainWindow *main;
     CutterCore *core;
-    int defaultAnalLevel;
 
     QString analysisDescription(int level);
     QString shellcode;
+    int analLevel;
 
     void updateCPUComboBox();
 
