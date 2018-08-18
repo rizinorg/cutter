@@ -106,12 +106,12 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     }
 
     if (!options.script.isEmpty()) {
-        ui->scriptCheckBox->setChecked(false);
-        ui->scriptLineEdit->setText("");
-        ui->analSlider->setValue(0);
-    } else {
         ui->scriptCheckBox->setChecked(true);
         ui->scriptLineEdit->setText(options.script);
+        ui->analSlider->setValue(0);
+    } else {
+        ui->scriptCheckBox->setChecked(false);
+        ui->scriptLineEdit->setText("");
     }
 
     shellcode = options.shellcode;
