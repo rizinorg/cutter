@@ -3,43 +3,11 @@
 
 #include "utils/AsyncTask.h"
 #include "Cutter.h"
+#include "utils/InitialOptions.h"
 
 class CutterCore;
 class MainWindow;
-class OptionsDialog;
-
-struct InitialOptions
-{
-	enum class Endianness { Auto, Little, Big };
-
-	QString filename;
-
-	bool useVA = true;
-	RVA binLoadAddr = RVA_INVALID;
-	RVA mapAddr = RVA_INVALID;
-
-	QString arch;
-	QString cpu;
-	int bits = 0;
-	QString os;
-
-	Endianness endian;
-
-	bool writeEnabled = false;
-	bool loadBinInfo = true;
-	QString forceBinPlugin;
-
-	bool demangle = true;
-
-	QString pdbFile;
-	QString script;
-
-	int bbsize = 0;
-
-	QList<QString> analCmd;
-
-	QString shellcode;
-};
+class InitialOptionsDialog;
 
 class AnalTask : public AsyncTask
 {

@@ -1,8 +1,8 @@
 
 #include "utils/AsyncTask.h"
 
-#include "OptionsDialog.h"
-#include "ui_OptionsDialog.h"
+#include "InitialOptionsDialog.h"
+#include "ui_InitialOptionsDialog.h"
 #include "MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
@@ -12,9 +12,9 @@
 #include <QFileInfo>
 #include <QFileDialog>
 
-OptionsDialog::OptionsDialog(MainWindow *main):
+InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     QDialog(0), // parent must not be main
-    ui(new Ui::OptionsDialog),
+    ui(new Ui::InitialOptionsDialog),
     main(main),
     core(Core()),
     defaultAnalLevel(1)
@@ -63,9 +63,9 @@ OptionsDialog::OptionsDialog(MainWindow *main):
     ui->programLineEdit->setText(main->getFilename());
 }
 
-OptionsDialog::~OptionsDialog() {}
+InitialOptionsDialog::~InitialOptionsDialog() {}
 
-void OptionsDialog::updateCPUComboBox()
+void InitialOptionsDialog::updateCPUComboBox()
 {
     QString currentText = ui->cpuComboBox->lineEdit()->text();
     ui->cpuComboBox->clear();
@@ -82,7 +82,7 @@ void OptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
 
-void OptionsDialog::setInitialScript(const QString &script)
+void InitialOptionsDialog::setInitialScript(const QString &script)
 {
     ui->scriptCheckBox->setChecked(!script.isEmpty());
     ui->scriptLineEdit->setText(script);
@@ -91,18 +91,18 @@ void OptionsDialog::setInitialScript(const QString &script)
     }
 }
 
-void OptionsDialog::setShellcode(const QString &shellcode)
+void InitialOptionsDialog::setShellcode(const QString &shellcode)
 {
     this->shellcode = shellcode;
 }
 
-QString OptionsDialog::getSelectedArch()
+QString InitialOptionsDialog::getSelectedArch()
 {
     QVariant archValue = ui->archComboBox->currentData();
     return archValue.isValid() ? archValue.toString() : nullptr;
 }
 
-QString OptionsDialog::getSelectedCPU()
+QString InitialOptionsDialog::getSelectedCPU()
 {
     QString cpu = ui->cpuComboBox->currentText();
     if (cpu.isNull() || cpu.isEmpty())
@@ -110,7 +110,7 @@ QString OptionsDialog::getSelectedCPU()
     return cpu;
 }
 
-int OptionsDialog::getSelectedBits()
+int InitialOptionsDialog::getSelectedBits()
 {
     QString sel_bits = ui->bitsComboBox->currentText();
     if (sel_bits != "Auto") {
@@ -120,7 +120,7 @@ int OptionsDialog::getSelectedBits()
     return 0;
 }
 
-int OptionsDialog::getSelectedBBSize()
+int InitialOptionsDialog::getSelectedBBSize()
 {
     QString sel_bbsize = ui->entry_analbb->text();
     bool ok;
@@ -130,7 +130,7 @@ int OptionsDialog::getSelectedBBSize()
     return 1024;
 }
 
-InitialOptions::Endianness OptionsDialog::getSelectedEndianness()
+InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness()
 {
     switch (ui->endiannessComboBox->currentIndex()) {
     case 1:
@@ -142,13 +142,13 @@ InitialOptions::Endianness OptionsDialog::getSelectedEndianness()
     }
 }
 
-QString OptionsDialog::getSelectedOS()
+QString InitialOptionsDialog::getSelectedOS()
 {
     QVariant os = ui->kernelComboBox->currentData();
     return os.isValid() ? os.toString() : nullptr;
 }
 
-QList<QString> OptionsDialog::getSelectedAdvancedAnalCmds()
+QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds()
 {
     QList<QString> advanced = QList<QString>();
     if (ui->analSlider->value() == 3) {
@@ -195,7 +195,7 @@ QList<QString> OptionsDialog::getSelectedAdvancedAnalCmds()
     return advanced;
 }
 
-void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
+void InitialOptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
 {
     ui->analSlider->setValue(level);
 
@@ -273,18 +273,18 @@ void OptionsDialog::setupAndStartAnalysis(int level, QList<QString> advanced)
     done(0);
 }
 
-void OptionsDialog::on_okButton_clicked()
+void InitialOptionsDialog::on_okButton_clicked()
 {
     ui->okButton->setEnabled(false);
     setupAndStartAnalysis(ui->analSlider->value(), getSelectedAdvancedAnalCmds());
 }
 
-void OptionsDialog::closeEvent(QCloseEvent *event)
+void InitialOptionsDialog::closeEvent(QCloseEvent *event)
 {
     event->accept();
 }
 
-QString OptionsDialog::analysisDescription(int level)
+QString InitialOptionsDialog::analysisDescription(int level)
 {
     //TODO: replace this with meaningful descriptions
     switch (level) {
@@ -301,7 +301,7 @@ QString OptionsDialog::analysisDescription(int level)
     }
 }
 
-void OptionsDialog::on_analSlider_valueChanged(int value)
+void InitialOptionsDialog::on_analSlider_valueChanged(int value)
 {
     ui->analDescription->setText(tr("Level") + QString(": %1").arg(analysisDescription(value)));
     if (value == 0) {
@@ -318,7 +318,7 @@ void OptionsDialog::on_analSlider_valueChanged(int value)
     }
 }
 
-void OptionsDialog::on_AdvOptButton_clicked()
+void InitialOptionsDialog::on_AdvOptButton_clicked()
 {
     if (ui->AdvOptButton->isChecked()) {
         ui->hideFrame->setVisible(true);
@@ -329,24 +329,24 @@ void OptionsDialog::on_AdvOptButton_clicked()
     }
 }
 
-void OptionsDialog::on_analCheckBox_clicked(bool checked)
+void InitialOptionsDialog::on_analCheckBox_clicked(bool checked)
 {
     if (!checked)
         defaultAnalLevel = ui->analSlider->value();
     ui->analSlider->setValue(checked ? defaultAnalLevel : 0);
 }
 
-void OptionsDialog::on_archComboBox_currentIndexChanged(int)
+void InitialOptionsDialog::on_archComboBox_currentIndexChanged(int)
 {
     updateCPUComboBox();
 }
 
-void OptionsDialog::updatePDBLayout()
+void InitialOptionsDialog::updatePDBLayout()
 {
     ui->pdbWidget->setEnabled(ui->pdbCheckBox->isChecked());
 }
 
-void OptionsDialog::on_pdbSelectButton_clicked()
+void InitialOptionsDialog::on_pdbSelectButton_clicked()
 {
     QFileDialog dialog(this);
     dialog.setWindowTitle(tr("Select PDB file"));
@@ -364,12 +364,12 @@ void OptionsDialog::on_pdbSelectButton_clicked()
 }
 
 
-void OptionsDialog::updateScriptLayout()
+void InitialOptionsDialog::updateScriptLayout()
 {
     ui->scriptWidget->setEnabled(ui->scriptCheckBox->isChecked());
 }
 
-void OptionsDialog::on_scriptSelectButton_clicked()
+void InitialOptionsDialog::on_scriptSelectButton_clicked()
 {
     QFileDialog dialog(this);
     dialog.setWindowTitle(tr("Select radare2 script file"));
@@ -387,7 +387,7 @@ void OptionsDialog::on_scriptSelectButton_clicked()
 }
 
 
-void OptionsDialog::reject()
+void InitialOptionsDialog::reject()
 {
     done(0);
     NewFileDialog *n = new NewFileDialog(nullptr);

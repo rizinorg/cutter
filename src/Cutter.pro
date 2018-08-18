@@ -98,7 +98,7 @@ SOURCES += \
     Cutter.cpp \
     widgets/DisassemblerGraphView.cpp \
     utils/RichTextPainter.cpp \
-    dialogs/OptionsDialog.cpp \
+    dialogs/InitialOptionsDialog.cpp \
     dialogs/AboutDialog.cpp \
     dialogs/CommentsDialog.cpp \
     dialogs/EditInstructionDialog.cpp \
@@ -203,7 +203,7 @@ HEADERS  += \
     MainWindow.h \
     utils/Highlighter.h \
     utils/MdHighlighter.h \
-    dialogs/OptionsDialog.h \
+    dialogs/InitialOptionsDialog.h \
     dialogs/NewFileDialog.h \
     AnalTask.h \
     widgets/CommentsWidget.h \
@@ -278,7 +278,8 @@ HEADERS  += \
     dialogs/BreakpointsDialog.h \
     dialogs/AttachProcDialog.h \
     widgets/RegisterRefsWidget.h \
-    dialogs/SetToDataDialog.h
+    dialogs/SetToDataDialog.h \
+    utils/InitialOptions.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -289,7 +290,7 @@ FORMS    += \
     dialogs/RenameDialog.ui \
     dialogs/XrefsDialog.ui \
     dialogs/NewfileDialog.ui \
-    dialogs/OptionsDialog.ui \
+    dialogs/InitialOptionsDialog.ui \
     MainWindow.ui \
     widgets/CommentsWidget.ui \
     widgets/ConsoleWidget.ui \

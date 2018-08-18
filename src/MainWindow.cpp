@@ -39,7 +39,7 @@
 #include "utils/ProgressIndicator.h"
 
 #include "dialogs/NewFileDialog.h"
-#include "dialogs/OptionsDialog.h"
+#include "dialogs/InitialOptionsDialog.h"
 #include "dialogs/SaveProjectDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/AboutDialog.h"
@@ -363,7 +363,7 @@ void MainWindow::closeNewFileDialog()
 
 void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script, const QString &shellcode)
 {
-    OptionsDialog *o = new OptionsDialog(this);
+    InitialOptionsDialog *o = new InitialOptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->setInitialScript(script);
     o->setShellcode(shellcode);

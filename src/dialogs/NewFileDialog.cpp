@@ -1,4 +1,4 @@
-#include "OptionsDialog.h"
+#include "InitialOptionsDialog.h"
 #include "MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AboutDialog.h"
@@ -354,7 +354,7 @@ void NewFileDialog::loadFile(const QString &filename)
 
     settings.setValue("recentFileList", files);
 
-    // Close dialog and open MainWindow/OptionsDialog
+    // Close dialog and open MainWindow/InitialOptionsDialog
     MainWindow *main = new MainWindow();
     QString ioFile = "";
     if (ui->ioPlugin->currentIndex()) {

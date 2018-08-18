@@ -1,7 +1,7 @@
 #include "Cutter.h"
 #include "AnalTask.h"
 #include "MainWindow.h"
-#include "dialogs/OptionsDialog.h"
+#include "dialogs/InitialOptionsDialog.h"
 #include <QJsonArray>
 #include <QDebug>
 #include <QCheckBox>
