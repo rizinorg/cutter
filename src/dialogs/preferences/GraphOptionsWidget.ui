@@ -6,57 +6,51 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>567</width>
     <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Graph</string>
   </property>
-  <widget class="QLabel" name="maxColsLabel">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
      <x>30</x>
      <y>10</y>
-     <width>141</width>
-     <height>18</height>
+     <width>253</width>
+     <height>62</height>
     </rect>
    </property>
-   <property name="text">
-    <string>Maximum Line Length:</string>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="maxColsSpinBox">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>10</y>
-     <width>104</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="minimum">
-    <number>10</number>
-   </property>
-   <property name="maximum">
-    <number>999999999</number>
-   </property>
-   <property name="singleStep">
-    <number>5</number>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="graphOffsetCheckBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>44</y>
-     <width>162</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Show offsets (graph.offset) </string>
-   </property>
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QLabel" name="maxColsLabel">
+      <property name="text">
+       <string>Maximum Line Length:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QSpinBox" name="maxColsSpinBox">
+      <property name="minimum">
+       <number>10</number>
+      </property>
+      <property name="maximum">
+       <number>999999999</number>
+      </property>
+      <property name="singleStep">
+       <number>5</number>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0" colspan="2">
+     <widget class="QCheckBox" name="graphOffsetCheckBox">
+      <property name="text">
+       <string>Show offsets (graph.offset) </string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
