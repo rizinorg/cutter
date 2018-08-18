@@ -8,17 +8,21 @@
 #include <memory>
 #include "Cutter.h"
 #include "AnalTask.h"
-#include "ui_OptionsDialog.h"
+
+namespace Ui
+{
+class InitialOptionsDialog;
+}
 
 class MainWindow;
 
-class OptionsDialog : public QDialog
+class InitialOptionsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit OptionsDialog(MainWindow *main);
-    ~OptionsDialog();
+    explicit InitialOptionsDialog(MainWindow *main);
+    ~InitialOptionsDialog();
 
     QStringList    asm_plugins;
 
@@ -40,7 +44,7 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
-    std::unique_ptr<Ui::OptionsDialog> ui;
+    std::unique_ptr<Ui::InitialOptionsDialog> ui;
 
     MainWindow *main;
     CutterCore *core;
