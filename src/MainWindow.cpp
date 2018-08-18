@@ -312,25 +312,27 @@ void MainWindow::addExtraWidget(QDockWidget *extraDock)
     restoreExtraDock.restoreWidth(extraDock->widget());
 }
 
-void MainWindow::openNewFile(const QString &fn, int analLevel, QList<QString> advancedOptions, const QString &shellcode)
+void MainWindow::openNewFile(InitialOptions options, bool skipOptionsDialog)
 {
-    setFilename(fn);
+    setFilename(options.filename);
 
     /* Prompt to load filename.r2 script */
-    QString script = QString("%1.r2").arg(this->filename);
-    QString loadScript;
-    if (r_file_exists(script.toStdString().data())) {
-        QMessageBox mb;
-        mb.setWindowTitle(tr("Script loading"));
-        mb.setText(tr("Do you want to load the '%1' script?").arg(script));
-        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        if (mb.exec() == QMessageBox::Yes) {
-            loadScript = script;
+    if (options.script.isEmpty()) {
+        QString script = QString("%1.r2").arg(this->filename);
+        QString loadScript;
+        if (r_file_exists(script.toStdString().data())) {
+            QMessageBox mb;
+            mb.setWindowTitle(tr("Script loading"));
+            mb.setText(tr("Do you want to load the '%1' script?").arg(script));
+            mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            if (mb.exec() == QMessageBox::Yes) {
+                loadScript = script;
+            }
         }
     }
 
     /* Show analysis options dialog */
-    displayAnalysisOptionsDialog(analLevel, advancedOptions, loadScript, shellcode);
+    displayInitialOptionsDialog(options, skipOptionsDialog);
 }
 
 void MainWindow::openNewFileFailed()
@@ -361,16 +363,15 @@ void MainWindow::closeNewFileDialog()
     newFileDialog = nullptr;
 }
 
-void MainWindow::displayAnalysisOptionsDialog(int analLevel, QList<QString> advancedOptions, const QString &script, const QString &shellcode)
+void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool skipOptionsDialog)
 {
-    InitialOptionsDialog *o = new InitialOptionsDialog(this);
+    auto o = new InitialOptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
-    o->setInitialScript(script);
-    o->setShellcode(shellcode);
+    o->loadOptions(options);
     o->show();
 
-    if (analLevel >= 0) {
-        o->setupAndStartAnalysis(analLevel, advancedOptions);
+    if (skipOptionsDialog) {
+        o->setupAndStartAnalysis();
     }
 }
 
@@ -929,7 +930,7 @@ void MainWindow::on_actionRefresh_Panels_triggered()
 
 void MainWindow::on_actionAnalyze_triggered()
 {
-    displayAnalysisOptionsDialog(-1, QList<QString>(), nullptr);
+    // TODO: implement this, but do NOT open InitialOptionsDialog!!
 }
 
 void MainWindow::on_actionImportPDB_triggered()

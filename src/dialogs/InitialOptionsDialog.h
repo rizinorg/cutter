@@ -8,6 +8,7 @@
 #include <memory>
 #include "Cutter.h"
 #include "AnalTask.h"
+#include "utils/InitialOptions.h"
 
 namespace Ui
 {
@@ -26,7 +27,7 @@ public:
 
     QStringList    asm_plugins;
 
-    void setupAndStartAnalysis(int level, QList<QString> advanced);
+    void setupAndStartAnalysis(/*int level, QList<QString> advanced*/);
 
 private slots:
     void on_okButton_clicked();
@@ -55,10 +56,6 @@ private:
 
     void updateCPUComboBox();
 
-public:
-    void setInitialScript(const QString &script);
-    void setShellcode(const QString &shellcode);
-
     QString getSelectedArch();
     QString getSelectedCPU();
     int getSelectedBits();
@@ -66,6 +63,9 @@ public:
     InitialOptions::Endianness getSelectedEndianness();
     QString getSelectedOS();
     QList<QString> getSelectedAdvancedAnalCmds();
+
+public:
+    void loadOptions(const InitialOptions &options);
 
     void reject() override;
 };
