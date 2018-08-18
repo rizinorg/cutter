@@ -31,3 +31,8 @@ QString RenameDialog::getName() const
 {
     return ui->nameEdit->text();
 }
+
+void RenameDialog::setPlaceholderText(const QString &text)
+{
+    ui->nameEdit->setPlaceholderText(text);
+}

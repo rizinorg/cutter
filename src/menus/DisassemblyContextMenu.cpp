@@ -33,10 +33,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
                SLOT(on_actionAddFlag_triggered()), getAddFlagSequence());
     addAction(&actionAddFlag);
 
-    initAction(&actionCreateFunction, tr("Create Function"),
-               SLOT(on_actionCreateFunction_triggered()));
-    addAction(&actionCreateFunction);
-
     initAction(&actionRename, tr("Rename"),
                SLOT(on_actionRename_triggered()), getRenameSequence());
     addAction(&actionRename);
@@ -53,6 +49,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     initAction(&actionDeleteFunction, tr("Undefine function"), SLOT(on_actionDeleteFunction_triggered()));
     addAction(&actionDeleteFunction);
+
+    addAnalyzeMenu();
 
     addSetBaseMenu();
 
@@ -90,6 +88,16 @@ DisassemblyContextMenu::~DisassemblyContextMenu()
     for (QAction *action : anonymousActions) {
         delete action;
     }
+}
+
+void DisassemblyContextMenu::addAnalyzeMenu()
+{
+    analyzeMenu = addMenu(tr("Analyze..."));
+
+    initAction(&actionAnalyzeFunction, tr("Create Function"));
+    analyzeMenu->addAction(&actionAnalyzeFunction);
+    connect(&actionAnalyzeFunction, &QAction::triggered, this,
+            &DisassemblyContextMenu::on_actionAnalyzeFunction_triggered);
 }
 
 void DisassemblyContextMenu::addSetBaseMenu()
@@ -228,7 +236,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     setBaseMenu->menuAction()->setVisible(immBase);
     setBitsMenu->menuAction()->setVisible(true);
 
-    actionCreateFunction.setVisible(true);
+    actionAnalyzeFunction.setVisible(true);
 
     QString comment = Core()->cmd("CC." + RAddressString(offset));
     if (comment.isNull() || comment.isEmpty()) {
@@ -251,7 +259,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     actionDeleteFunction.setVisible(fcn ? true : false);
 
     if (fcn) {
-        actionCreateFunction.setVisible(false);
+        actionAnalyzeFunction.setVisible(false);
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
     } else if (f) {
@@ -457,10 +465,11 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
     }
 }
 
-void DisassemblyContextMenu::on_actionCreateFunction_triggered()
+void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
     RenameDialog *dialog = new RenameDialog(this);
-    dialog->setWindowTitle(tr("Add function at %1").arg(RAddressString(offset)));
+    dialog->setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
+    dialog->setPlaceholderText(tr("Auto"));
     if (dialog->exec()) {
         QString function_name = dialog->getName();
         Core()->createFunctionAt(offset, function_name);

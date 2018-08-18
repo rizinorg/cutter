@@ -32,7 +32,7 @@ private slots:
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();
     void on_actionAddComment_triggered();
-    void on_actionCreateFunction_triggered();
+    void on_actionAnalyzeFunction_triggered();
     void on_actionAddFlag_triggered();
     void on_actionRename_triggered();
     void on_actionRenameUsedHere_triggered();
@@ -82,7 +82,8 @@ private:
 
     QAction actionAddComment;
     QAction actionAddFlag;
-    QAction actionCreateFunction;
+    QMenu *analyzeMenu;
+    QAction actionAnalyzeFunction;
     QAction actionRename;
     QAction actionRenameUsedHere;
     QAction actionXRefs;
@@ -132,6 +133,7 @@ private:
     void setToData(int size, int repeat = 1);
     void setBits(int bits);
 
+    void addAnalyzeMenu();
     void addSetBaseMenu();
     void addSetBitsMenu();
     void addSetToDataMenu();
