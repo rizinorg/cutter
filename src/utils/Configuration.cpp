@@ -172,11 +172,14 @@ void Configuration::loadBaseDark()
     // Custom
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
-    setColor("gui.navbar.err", QColor(255, 0, 0));
-    setColor("gui.navbar.code", QColor(104, 229, 69));
-    setColor("gui.navbar.str", QColor(69, 104, 229));
-    setColor("gui.navbar.sym", QColor(229, 150, 69));
+
+    // GUI: navbar
+    setColor("gui.navbar.err", QColor(233, 86, 86));
+    setColor("gui.navbar.code", QColor(130, 200, 111));
+    setColor("angui.navbar.str", QColor(111, 134, 216));
+    setColor("gui.navbar.sym", QColor(221, 163, 104));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
+
     // RIP line selection in debug
     setColor("highlightPC", QColor(87, 26, 7));
     setColor("gui.breakpoint_background", QColor(140, 76, 76));
