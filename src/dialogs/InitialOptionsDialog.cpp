@@ -16,13 +16,11 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     QDialog(0), // parent must not be main
     ui(new Ui::InitialOptionsDialog),
     main(main),
-    core(Core()),
-    defaultAnalLevel(1)
+    core(Core())
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->logoSvgWidget->load(Config()->getLogoFile());
-    ui->analSlider->setValue(defaultAnalLevel);
 
     // Fill the plugins combo
     asm_plugins = core->getAsmPluginNames();
@@ -85,10 +83,13 @@ void InitialOptionsDialog::updateCPUComboBox()
 void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 {
     if (options.analCmd.isEmpty()) {
-        ui->analSlider->setValue(0);
+        analLevel = 0;
     } else if (options.analCmd == QList<QString>({ "aaa" })) {
-        ui->analSlider->setValue(1);
-    } else if (options.analCmd == QList<QString>({ "aaaa" })){
+        analLevel = 1;
+    } else if (options.analCmd == QList<QString>({ "aaaa" })) {
+        analLevel = 2;
+    } else {
+        analLevel = 3;
         // TODO: These checks must always be in sync with getSelectedAdvancedAnalCmds(), which is dangerous
         ui->aa_symbols->setChecked(options.analCmd.contains("aa"));
         ui->aar_references->setChecked(options.analCmd.contains("aar"));
@@ -108,11 +109,13 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     if (!options.script.isEmpty()) {
         ui->scriptCheckBox->setChecked(true);
         ui->scriptLineEdit->setText(options.script);
-        ui->analSlider->setValue(0);
+        analLevel = 0;
     } else {
         ui->scriptCheckBox->setChecked(false);
         ui->scriptLineEdit->setText("");
     }
+
+    ui->analSlider->setValue(analLevel);
 
     shellcode = options.shellcode;
 
@@ -353,9 +356,10 @@ void InitialOptionsDialog::on_AdvOptButton_clicked()
 
 void InitialOptionsDialog::on_analCheckBox_clicked(bool checked)
 {
-    if (!checked)
-        defaultAnalLevel = ui->analSlider->value();
-    ui->analSlider->setValue(checked ? defaultAnalLevel : 0);
+    if (!checked) {
+        analLevel = ui->analSlider->value();
+    }
+    ui->analSlider->setValue(checked ? analLevel : 0);
 }
 
 void InitialOptionsDialog::on_archComboBox_currentIndexChanged(int)
