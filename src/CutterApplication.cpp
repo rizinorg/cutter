@@ -42,6 +42,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                   QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
+    QCommandLineOption scriptOption("i",
+                                    QObject::tr("Run script file"),
+                                    QObject::tr("file"));
+    cmd_parser.addOption(scriptOption);
+
 #ifdef CUTTER_ENABLE_JUPYTER
     QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for Jupyter"),
                                         "PYTHONHOME");
@@ -117,6 +122,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                 break;
             }
         }
+        options.script = cmd_parser.value(scriptOption);
         mainWindow->openNewFile(options, analLevelSpecified);
     }
 
