@@ -19,6 +19,8 @@ public:
     void setName(QString fcnName);
     QString getName() const;
 
+    void setPlaceholderText(const QString &text);
+
 private slots:
     void on_buttonBox_accepted();
 
