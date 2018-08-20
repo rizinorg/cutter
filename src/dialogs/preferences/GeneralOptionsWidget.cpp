@@ -63,7 +63,7 @@ void GeneralOptionsWidget::on_fontSelectionButton_clicked()
 {
     QFont currentFont = Config()->getFont();
     bool ok;
-    QFont newFont = QFontDialog::getFont(&ok, currentFont, this);
+    QFont newFont = QFontDialog::getFont(&ok, currentFont, this, QString(), QFontDialog::DontUseNativeDialog);
     if (ok) {
         Config()->setFont(newFont);
     }
