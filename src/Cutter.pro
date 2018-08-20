@@ -5,6 +5,9 @@ TARGET = Cutter
 # The application version
 VERSION = 1.7
 
+#required QT version
+lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
+
 ICON = img/cutter.icns
 
 QT += core gui widgets svg
