@@ -823,9 +823,10 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 void DisassemblerGraphView::on_actionExportGraph_triggered()
 {
     QStringList filters;
-    filters.append(tr("Dot file (*.dot)"));
+    filters.append(tr("Graphiz dot (*.dot)"));
     if (!QStandardPaths::findExecutable("dot").isEmpty()
             || !QStandardPaths::findExecutable("xdot").isEmpty()) {
+        filters.append(tr("GIF (*.gif)"));
         filters.append(tr("PNG (*.png)"));
         filters.append(tr("JPEG (*.jpg)"));
         filters.append(tr("Photoshop PS file (*.ps)"));
@@ -836,9 +837,9 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     QFileDialog dialog(this, tr("Export Graph"));
     dialog.setAcceptMode(QFileDialog::AcceptSave);
     dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setDefaultSuffix("dot");
     dialog.setNameFilters(filters);
     dialog.selectFile("graph");
+    dialog.setDefaultSuffix("dot");
     if (!dialog.exec())
         return;
     int startIdx = dialog.selectedNameFilter().lastIndexOf("*.") + 2;
@@ -848,7 +849,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     if (format != "dot") {
         TempConfig tempConfig;
         tempConfig.set("graph.gv.format", format);
-        qWarning() << Core()->cmd("aggw " + fileName);
+        qWarning() << Core()->cmd(QString("agw \"%1\" @ $FB").arg(fileName));
         return;
     }
     QFile file(fileName);
