@@ -12,6 +12,7 @@
 #include <QFile>
 #include <QVBoxLayout>
 #include <QRegularExpression>
+#include <QStandardPaths>
 
 #include "Cutter.h"
 #include "utils/Colors.h"
@@ -821,8 +822,35 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 
 void DisassemblerGraphView::on_actionExportGraph_triggered()
 {
-    QString fileName = QFileDialog::getSaveFileName(this,
-                                                    tr("Export Graph"), "", tr("Dot file (*.dot)"));
+    QStringList filters;
+    filters.append(tr("Dot file (*.dot)"));
+    if (!QStandardPaths::findExecutable("dot").isEmpty()
+            || !QStandardPaths::findExecutable("xdot").isEmpty()) {
+        filters.append(tr("PNG (*.png)"));
+        filters.append(tr("JPEG (*.jpg)"));
+        filters.append(tr("Photoshop PS file (*.ps)"));
+        filters.append(tr("SVG (*.svg)"));
+        filters.append(tr("JSON (*.json)"));
+    }
+
+    QFileDialog dialog(this, tr("Export Graph"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setDefaultSuffix("dot");
+    dialog.setNameFilters(filters);
+    dialog.selectFile("graph");
+    if (!dialog.exec())
+        return;
+    int startIdx = dialog.selectedNameFilter().lastIndexOf("*.") + 2;
+    int count = dialog.selectedNameFilter().length() - startIdx - 1;
+    QString format = dialog.selectedNameFilter().mid(startIdx, count);
+    QString fileName = dialog.selectedFiles()[0];
+    if (format != "dot") {
+        TempConfig tempConfig;
+        tempConfig.set("graph.gv.format", format);
+        qWarning() << Core()->cmd("aggw " + fileName);
+        return;
+    }
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         qWarning() << "Can't open file";
