@@ -37,7 +37,7 @@ void R2Task::breakTask()
 
 void R2Task::joinTask()
 {
-    r_core_task_join(Core()->core(), nullptr, task);
+    r_core_task_join(Core()->core(), nullptr, task->id);
 }
 
 QString R2Task::getResult()
