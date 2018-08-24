@@ -1571,8 +1571,7 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
 {
     QList<StringDescription> ret;
 
-    QJsonObject stringsObj = doc.object();
-    QJsonArray stringsArray = stringsObj["strings"].toArray();
+    QJsonArray stringsArray = doc.array();
     for (QJsonValue value : stringsArray) {
         QJsonObject stringObject = value.toObject();
 
