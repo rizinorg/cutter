@@ -849,7 +849,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     if (format != "dot") {
         TempConfig tempConfig;
         tempConfig.set("graph.gv.format", format);
-        qWarning() << Core()->cmd(QString("agw \"%1\" @ $FB").arg(fileName));
+        qWarning() << Core()->cmd(QString("agfw \"%1\" @ $FB").arg(fileName));
         return;
     }
     QFile file(fileName);
