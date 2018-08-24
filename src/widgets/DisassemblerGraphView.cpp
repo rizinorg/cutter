@@ -829,7 +829,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
         filters.append(tr("GIF (*.gif)"));
         filters.append(tr("PNG (*.png)"));
         filters.append(tr("JPEG (*.jpg)"));
-        filters.append(tr("Photoshop PS file (*.ps)"));
+        filters.append(tr("PostScript (*.ps)"));
         filters.append(tr("SVG (*.svg)"));
         filters.append(tr("JSON (*.json)"));
     }
