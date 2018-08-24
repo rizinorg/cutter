@@ -37,6 +37,7 @@
 #include "utils/Helpers.h"
 #include "utils/SvgIconEngine.h"
 #include "utils/ProgressIndicator.h"
+#include "utils/TempConfig.h"
 
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/InitialOptionsDialog.h"
@@ -120,9 +121,6 @@ void MainWindow::initUI()
     /*
     * Toolbar
     */
-    // Hide central tab widget tabs
-    QTabBar *centralbar = ui->centralTabWidget->tabBar();
-    centralbar->setVisible(false);
 
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
@@ -197,9 +195,6 @@ void MainWindow::initUI()
 
     // Add graph view as dockable
     graphDock = new GraphWidget(this, ui->actionGraph);
-
-    // Hide centralWidget as we do not need it
-    ui->centralWidget->hide();
 
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
@@ -950,6 +945,58 @@ void MainWindow::on_actionImportPDB_triggered()
         addOutput(tr("%1 loaded.").arg(pdbFile));
     }
 }
+
+void MainWindow::on_actionExport_as_code_triggered()
+{
+    QStringList filters;
+    QMap<QString, QString> cmdMap;
+
+    filters << tr("C uin8_t array (*.c)");
+    cmdMap[filters.last()] = "pc";
+    filters << tr("C uin16_t array (*.c)");
+    cmdMap[filters.last()] = "pch";
+    filters << tr("C uin32_t array (*.c)");
+    cmdMap[filters.last()] = "pcw";
+    filters << tr("C uin64_t array (*.c)");
+    cmdMap[filters.last()] = "pcd";
+    filters << tr("C string (*.c)");
+    cmdMap[filters.last()] = "pcs";
+    filters << tr("Shell-script that reconstructs the bin (*.sh)");
+    cmdMap[filters.last()] = "pcS";
+    filters << tr("JSON array (*.json)");
+    cmdMap[filters.last()] = "pcj";
+    filters << tr("JavaScript array (*.js)");
+    cmdMap[filters.last()] = "pcJ";
+    filters << tr("Python array (*.py)");
+    cmdMap[filters.last()] = "pcp";
+    filters << tr("Print 'wx' r2 commands (*.r2)");
+    cmdMap[filters.last()] = "pc*";
+    filters << tr("GAS .byte blob (*.txt)");
+    cmdMap[filters.last()] = "pca";
+    filters << tr(".bytes with instructions in comments (*.txt)");
+    cmdMap[filters.last()] = "pcA";
+
+    QFileDialog dialog(this, tr("Export as code"));
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilters(filters);
+    dialog.selectFile("dump");
+    dialog.setDefaultSuffix("c");
+    if (!dialog.exec())
+        return;
+
+    QFile file(dialog.selectedFiles()[0]);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qWarning() << "Can't open file";
+        return;
+    }
+    TempConfig tempConfig;
+    tempConfig.set("io.va", false);
+    QTextStream fileOut(&file);
+    QString &cmd = cmdMap[dialog.selectedNameFilter()];
+    fileOut << Core()->cmd(cmd + " $s @ 0");
+}
+
 
 void MainWindow::projectSaved(const QString &name)
 {

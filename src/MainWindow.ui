@@ -69,88 +69,13 @@ QToolTip {
   <property name="dockNestingEnabled">
    <bool>true</bool>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
+  <widget class="QMenu" name="addExtraWidgets">
+   <property name="title">
+    <string>Add extra...</string>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_10">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>5</number>
-    </property>
-    <item>
-     <widget class="QTabWidget" name="centralTabWidget">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QTabWidget::pane { /* The tab widget frame */
-border-top: 0px;
-}</string>
-      </property>
-      <property name="tabPosition">
-       <enum>QTabWidget::South</enum>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <property name="usesScrollButtons">
-       <bool>false</bool>
-      </property>
-      <property name="documentMode">
-       <bool>false</bool>
-      </property>
-      <property name="tabsClosable">
-       <bool>false</bool>
-      </property>
-      <widget class="QWidget" name="tab">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <attribute name="title">
-        <string notr="true">Console</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="tabVerticalLayout">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="sizeConstraint">
-         <enum>QLayout::SetNoConstraint</enum>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-       </layout>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+   <addaction name="actionExtraGraph"/>
+   <addaction name="actionExtraHexdump"/>
+   <addaction name="actionExtraDisassembly"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -158,7 +83,7 @@ border-top: 0px;
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -170,10 +95,10 @@ border-top: 0px;
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>345</x>
-      <y>96</y>
-      <width>148</width>
-      <height>215</height>
+      <x>378</x>
+      <y>100</y>
+      <width>136</width>
+      <height>271</height>
      </rect>
     </property>
     <property name="title">
@@ -186,10 +111,12 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="actionExport_as_code"/>
     <addaction name="separator"/>
     <addaction name="actionRun_Script"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -223,36 +150,6 @@ border-top: 0px;
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
-   <widget class="QMenu" name="addDebugWidgets">
-    <property name="title">
-     <string>Debug...</string>
-    </property>
-    <addaction name="actionStack"/>
-    <addaction name="actionRegisters"/>
-    <addaction name="actionBacktrace"/>
-    <addaction name="actionMemoryMap"/>
-    <addaction name="actionBreakpoint"/>
-    <addaction name="actionRegisterRefs"/>
-   </widget>
-   <widget class="QMenu" name="addInfoWidgets">
-    <property name="title">
-     <string>Info...</string>
-    </property>
-    <addaction name="actionEntrypoints"/>
-    <addaction name="actionClasses"/>
-    <addaction name="actionImports"/>
-    <addaction name="actionExports"/>
-    <addaction name="actionSymbols"/>
-    <addaction name="actionSDBBrowser"/>
-    <addaction name="actionResources"/>
-    <addaction name="actionVTables"/>
-    <addaction name="actionTypes"/>
-    <addaction name="actionFlags"/>
-    <addaction name="actionSections"/>
-    <addaction name="actionHeaders"/>
-    <addaction name="actionZignatures"/>
-    <addaction name="actionRelocs"/>
-   </widget>
    <widget class="QMenu" name="menuWindows">
     <property name="title">
      <string>Windows</string>
@@ -269,14 +166,11 @@ border-top: 0px;
     <addaction name="actionStrings"/>
     <addaction name="actionSearch"/>
     <addaction name="separator"/>
-    <addaction name="addInfoWidgets"/>
-    <addaction name="addDebugWidgets"/>
     <addaction name="separator"/>
     <addaction name="actionComments"/>
     <addaction name="actionConsole"/>
     <addaction name="actionJupyter"/>
     <addaction name="separator"/>
-    <addaction name="addExtraWidgets"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
@@ -1174,14 +1068,11 @@ border-top: 0px;
     <string>Disassembly view</string>
    </property>
   </action>
-   <widget class="QMenu" name="addExtraWidgets">
-    <property name="title">
-     <string>Add extra...</string>
-    </property>
-    <addaction name="actionExtraGraph"/>
-    <addaction name="actionExtraHexdump"/>
-    <addaction name="actionExtraDisassembly"/>
-   </widget>
+  <action name="actionExport_as_code">
+   <property name="text">
+    <string>Export as code</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>

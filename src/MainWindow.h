@@ -165,6 +165,8 @@ private slots:
 
     void on_actionImportPDB_triggered();
 
+    void on_actionExport_as_code_triggered();
+
     void projectSaved(const QString &name);
 
     void updateTasksIndicator();
