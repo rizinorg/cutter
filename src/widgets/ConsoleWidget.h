@@ -20,9 +20,6 @@ public:
 
     ~ConsoleWidget();
 
-    void addOutput(const QString &msg);
-    void addDebugOutput(const QString &msg);
-
     void setDebugOutputEnabled(bool enabled)
     {
         debugOutputEnabled = enabled;
@@ -35,6 +32,9 @@ public:
 
 public slots:
     void focusInputLineEdit();
+
+    void addOutput(const QString &msg);
+    void addDebugOutput(const QString &msg);
 
 private slots:
     void setupFont();

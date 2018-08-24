@@ -268,6 +268,11 @@ void MainWindow::initUI()
     connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
     connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
 
+    connect(core, SIGNAL(newMessage(const QString &)),
+            this->consoleDock, SLOT(addOutput(const QString &)));
+    connect(core, SIGNAL(newDebugMessage(const QString &)),
+            this->consoleDock, SLOT(addDebugOutput(const QString &)));
+
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
