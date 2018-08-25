@@ -2,8 +2,11 @@ TEMPLATE = app
 
 TARGET = Cutter
 
-# The application version
-VERSION = 1.7.1
+CUTTER_VERSION_MAJOR = 1
+CUTTER_VERSION_MINOR = 7
+CUTTER_VERSION_PATCH = 1
+
+VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PATCH}
 
 #required QT version
 lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
@@ -95,6 +98,8 @@ macx:CUTTER_BUNDLE_R2_APPBUNDLE {
     message("Using r2 rom AppBundle")
     DEFINES += MACOS_R2_BUNDLED
 }
+
+QMAKE_SUBSTITUTES += CutterConfig.h.in
 
 SOURCES += \
     Main.cpp \

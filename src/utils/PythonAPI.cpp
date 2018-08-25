@@ -6,13 +6,15 @@
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
 
+#include "CutterConfig.h"
+
 #include <QFile>
 
 PyObject *api_version(PyObject *self, PyObject *null)
 {
     Q_UNUSED(self)
     Q_UNUSED(null)
-    return PyUnicode_FromString("Cutter version " CUTTER_VERSION);
+    return PyUnicode_FromString("Cutter version " CUTTER_VERSION_FULL);
 }
 
 PyObject *api_cmd(PyObject *self, PyObject *args)
