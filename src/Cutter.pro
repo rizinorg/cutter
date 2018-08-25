@@ -3,7 +3,7 @@ TEMPLATE = app
 TARGET = Cutter
 
 # The application version
-VERSION = 1.7
+VERSION = 1.7.1
 
 #required QT version
 lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")

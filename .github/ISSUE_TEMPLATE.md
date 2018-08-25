@@ -9,7 +9,7 @@
 | OS/arch/bits (mandatory)                             | Debian arm 64, Ubuntu x86 32
 | File format of the file you reverse (mandatory)      | PE, ELF etc.
 | Architecture/bits of the file (mandatory)            | PPC, x86/32, x86/64 etc.
-| Cutter and r2 version, See About Cutter (mandatory)  | Version 1.7 / Using r2 2.8.0
+| Cutter and r2 version, See About Cutter (mandatory)  | Version 1.7.1 / Using r2 2.8.0
 | Show version information **full output** (See About Cutter) in a pastebin document (mandatory) | https://gist.github.com/
 
 ### Expected behavior
