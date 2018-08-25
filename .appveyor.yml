@@ -1,4 +1,4 @@
-version: '1.7-git-{build}'
+version: '1.7.1-git-{build}'
 image: 'Visual Studio 2015'
 clone_depth: 1
 
