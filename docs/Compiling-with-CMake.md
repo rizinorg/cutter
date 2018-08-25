@@ -5,7 +5,7 @@ The "official" way to build Cutter is by using qmake, but as an alternative, a [
 ## Requirements
 * CMake >= 3.1
 * Radare2 installed from submodule, see [README.md](https://github.com/radareorg/cutter#requirements)
-* Qt 5.9.1
+* Qt 5.9
 
 ## Building
 
