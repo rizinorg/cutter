@@ -398,12 +398,12 @@ void MainWindow::finalizeOpen()
     // Override any incorrect setting saved in the project
     core->setSettings();
 
-    addOutput(tr(" > Populating UI"));
+    Core()->message(tr(" > Populating UI"));
     refreshAll();
 
-    addOutput(tr(" > Finished, happy reversing :)"));
+    Core()->message(tr(" > Finished, happy reversing :)"));
     // Add fortune message
-    addOutput("\n" + core->cmd("fo"));
+    Core()->message("\n" + core->cmd("fo"));
     showMaximized();
 }
 
@@ -753,17 +753,6 @@ void MainWindow::resetToDebugLayout()
     }
 }
 
-void MainWindow::addOutput(const QString &msg)
-{
-    consoleDock->addOutput(msg);
-}
-
-void MainWindow::addDebugOutput(const QString &msg)
-{
-    printf("debug output: %s\n", msg.toLocal8Bit().constData());
-    consoleDock->addDebugOutput(msg);
-}
-
 void MainWindow::on_actionLock_triggered()
 {
     panelLock = !panelLock;
@@ -952,13 +941,13 @@ void MainWindow::on_actionImportPDB_triggered()
 
     if (!pdbFile.isEmpty()) {
         Core()->loadPDB(pdbFile);
-        addOutput(tr("%1 loaded.").arg(pdbFile));
+        Core()->message(tr("%1 loaded.").arg(pdbFile));
     }
 }
 
 void MainWindow::projectSaved(const QString &name)
 {
-    addOutput(tr("Project saved: ") + name);
+    Core()->message(tr("Project saved: ") + name);
 }
 
 void MainWindow::changeDebugView()

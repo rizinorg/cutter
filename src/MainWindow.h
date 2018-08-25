@@ -93,8 +93,6 @@ public:
     void readDebugSettings();
     void saveDebugSettings();
     void setFilename(const QString &fn);
-    void addOutput(const QString &msg);
-    void addDebugOutput(const QString &msg);
     void refreshOmniBar(const QStringList &flags);
 
     void addToDockWidgetList(QDockWidget *dockWidget);
