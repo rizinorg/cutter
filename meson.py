@@ -56,13 +56,14 @@ def build(args):
             defines.append('-Dradare2:r2_datdir=radare2/share')
         r2_meson_mod.meson(os.path.join(ROOT, 'src'), cutter_builddir,
                            prefix=cutter_builddir, backend=args.backend,
-                           release=True, shared=False, options=defines)
-    log.info('Building cutter')
-    if args.backend == 'ninja':
-        r2_meson_mod.ninja(cutter_builddir)
-    else:
-        project = os.path.join(cutter_builddir, 'Cutter.sln')
-        r2_meson_mod.msbuild(project, '/m')
+                           release=args.release, shared=False, options=defines)
+    if not args.nobuild:
+        log.info('Building cutter')
+        if args.backend == 'ninja':
+            r2_meson_mod.ninja(cutter_builddir)
+        else:
+            project = os.path.join(cutter_builddir, 'Cutter.sln')
+            r2_meson_mod.msbuild(project, '/m')
 
 def main():
     set_global_vars()
@@ -76,6 +77,10 @@ def main():
                         help='Enable Jupyter support')
     parser.add_argument('--webengine', action='store_true',
                         help='Enable QtWebEngine support')
+    parser.add_argument('--release', action='store_true',
+                        help='Set the build as Release (remove debug info)')
+    parser.add_argument('--nobuild', action='store_true',
+                        help='Only run meson and do not build.')
     if os.name == 'nt':
         parser.add_argument('--dist', help='dist directory')
     args = parser.parse_args()
