@@ -16,11 +16,13 @@
 #endif
 #include "plugins/CutterPlugin.h"
 
+#include "CutterConfig.h"
+
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
     setOrganizationName("Cutter");
     setApplicationName("Cutter");
-    setApplicationVersion(APP_VERSION);
+    setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
     setAttribute(Qt::AA_DontShowIconsInMenus);
 

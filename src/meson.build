@@ -24,7 +24,18 @@ sources = run_command(parse_cmd + ['SOURCES'], check: true).stdout().split(';')
 headers = run_command(parse_cmd + ['HEADERS'], check: true).stdout().split(';')
 ui_files = run_command(parse_cmd + ['FORMS'], check: true).stdout().split(';')
 qresources = run_command(parse_cmd + ['RESOURCES'], check: true).stdout().split(';')
-version = run_command(parse_cmd + ['VERSION'], check: true).stdout()
+version_major = run_command(parse_cmd + ['CUTTER_VERSION_MAJOR'], check: true).stdout()
+version_minor = run_command(parse_cmd + ['CUTTER_VERSION_MINOR'], check: true).stdout()
+version_patch = run_command(parse_cmd + ['CUTTER_VERSION_PATCH'], check: true).stdout()
+
+conf_json = '''{"CUTTER_VERSION_MAJOR":@0@,
+                "CUTTER_VERSION_MINOR":@1@,
+                "CUTTER_VERSION_PATCH":@2@}'''.format(
+                version_major, version_minor, version_patch)
+configure_file(input: 'CutterConfig.h.in',
+               output: 'CutterConfig.h',
+               command: [py3_exe, '../scripts/meson_configure_qmake_in.py', '@INPUT@', '@OUTPUT0@', conf_json])
+conf_inc = include_directories('.')
 
 sp_dir = join_paths(meson.source_root(), 'subprojects')
 sp_r2_dir = join_paths(sp_dir, 'radare2')
@@ -76,13 +87,11 @@ if host_machine.system() == 'windows'
   add_project_link_arguments(join_paths(qt_host_libs, qtmain_libname), language: 'cpp')
 endif
 
-add_project_arguments('-DAPP_VERSION="@0@"'.format(version), language: 'cpp')
-
 cutter_exe = executable(
   'Cutter',
   moc_files,
   gui_app: true,
   sources: sources,
-  include_directories: platform_inc,
+  include_directories: [platform_inc, conf_inc],
   dependencies: deps,
 )

@@ -5,6 +5,8 @@
 #include "r_version.h"
 #include "utils/Configuration.h"
 
+#include "CutterConfig.h"
+
 AboutDialog::AboutDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::AboutDialog)
@@ -14,7 +16,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     ui->label->setText(tr("<h1>Cutter</h1>"
-                          "Version " CUTTER_VERSION "<br/>"
+                          "Version " CUTTER_VERSION_FULL "<br/>"
                           "Using r2-" R2_GITTAP
                           "<p><b>Optional Features:</b><br/>"
                           "Jupyter: %1<br/>"

@@ -3,8 +3,6 @@ import sys
 
 name = sys.argv[1]
 value = []
-if name not in ('QT', 'SOURCES', 'HEADERS', 'FORMS', 'RESOURCES', 'VERSION', 'ICON'):
-    sys.exit(1)
 root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 with open(os.path.join(root, 'src', 'Cutter.pro')) as f:
     text = f.read()
