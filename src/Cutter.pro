@@ -28,8 +28,6 @@ equals(CUTTER_ENABLE_JUPYTER, true) {
 !defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)   CUTTER_BUNDLE_R2_APPBUNDLE=false
 equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)    CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
 
-# Define the preprocessor macro to get the application version in our application.
-DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 CUTTER_ENABLE_JUPYTER {
     message("Jupyter support enabled.")
     DEFINES += CUTTER_ENABLE_JUPYTER
