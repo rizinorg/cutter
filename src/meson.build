@@ -68,7 +68,12 @@ if host_machine.system() == 'windows'
   platform_inc = include_directories('../radare2/libr/include/msvc')
   # Workaround for https://github.com/mesonbuild/meson/issues/2327
   qt_host_libs = run_command('qmake', '-query', 'QT_HOST_LIBS').stdout().strip()
-  add_project_link_arguments(join_paths(qt_host_libs, 'qtmain.lib'), language: 'cpp')
+  if get_option('buildtype').startswith('debug')
+    qtmain_libname = 'qtmaind.lib'
+  else
+    qtmain_libname = 'qtmain.lib'
+  endif
+  add_project_link_arguments(join_paths(qt_host_libs, qtmain_libname), language: 'cpp')
 endif
 
 add_project_arguments('-DAPP_VERSION="@0@"'.format(version), language: 'cpp')
