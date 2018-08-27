@@ -598,6 +598,8 @@ public:
     void triggerAsmOptionsChanged();
     void triggerGraphOptionsChanged();
 
+    void message(const QString &msg, bool debug = false);
+
     void setCutterPlugins(QList<CutterPlugin*> plugins);
     QList<CutterPlugin*> getCutterPlugins();
 
@@ -639,6 +641,9 @@ signals:
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
     void changeDefinedView();
     void changeDebugView();
+
+    void newMessage(const QString &msg);
+    void newDebugMessage(const QString &msg);
 
 public slots:
 

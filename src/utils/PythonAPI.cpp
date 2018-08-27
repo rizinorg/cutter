@@ -62,6 +62,22 @@ PyObject *api_refresh(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+PyObject *api_message(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    Q_UNUSED(self);
+    char *message;
+    int debug = 0;
+    static const char *kwlist[] = { "", "debug", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|i",
+                                     const_cast<char**>(kwlist),
+                                     &message, &debug)) {
+        return NULL;
+    }
+    Core()->message(QString(message), debug);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 PyMethodDef CutterMethods[] = {
     {
         "version", api_version, METH_NOARGS,
@@ -78,6 +94,10 @@ PyMethodDef CutterMethods[] = {
     {
         "refresh", api_refresh, METH_NOARGS,
         "Refresh Cutter widgets"
+    },
+    {
+        "message", (PyCFunction) api_message, METH_VARARGS | METH_KEYWORDS,
+        "Print message"
     },
     {NULL, NULL, 0, NULL}
 };

@@ -263,12 +263,17 @@ void MainWindow::initUI()
     connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
     connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
 
+    connect(core, SIGNAL(newMessage(const QString &)),
+            this->consoleDock, SLOT(addOutput(const QString &)));
+    connect(core, SIGNAL(newDebugMessage(const QString &)),
+            this->consoleDock, SLOT(addDebugOutput(const QString &)));
+
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
     /* Load plugins */
-    QList<CutterPlugin *> plugins = Core()->getCutterPlugins();
+    QList<CutterPlugin *> plugins = core->getCutterPlugins();
     for (auto plugin : plugins) {
         CutterDockWidget *pluginDock = plugin->setupInterface(this);
         tabifyDockWidget(dashboardDock, pluginDock);
@@ -277,7 +282,7 @@ void MainWindow::initUI()
 
 void MainWindow::updateTasksIndicator()
 {
-    bool running = Core()->getAsyncTaskManager()->getTasksRunning();
+    bool running = core->getAsyncTaskManager()->getTasksRunning();
     tasksProgressIndicator->setProgressIndicatorVisible(running);
 }
 
@@ -387,12 +392,12 @@ void MainWindow::finalizeOpen()
     // Override any incorrect setting saved in the project
     core->setSettings();
 
-    addOutput(tr(" > Populating UI"));
+    core->message(tr(" > Populating UI"));
     refreshAll();
 
-    addOutput(tr(" > Finished, happy reversing :)"));
+    core->message(tr(" > Finished, happy reversing :)"));
     // Add fortune message
-    addOutput("\n" + core->cmd("fo"));
+    core->message("\n" + core->cmd("fo"));
     showMaximized();
 }
 
@@ -433,17 +438,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
                                                             tr("Do you really want to exit?\nSave your project before closing!"),
                                                             (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
     if (ret == QMessageBox::Save) {
-        if (saveProject(true) && !Core()->currentlyDebugging) {
+        if (saveProject(true) && !core->currentlyDebugging) {
             saveSettings();
-        } else if (Core()->currentlyDebugging) {
-            Core()->stopDebug();
+        } else if (core->currentlyDebugging) {
+            core->stopDebug();
         }
         QMainWindow::closeEvent(event);
     } else if (ret == QMessageBox::Discard) {
-        if (!Core()->currentlyDebugging) {
+        if (!core->currentlyDebugging) {
             saveSettings();
-        } else if (Core()->currentlyDebugging) {
-            Core()->stopDebug();
+        } else if (core->currentlyDebugging) {
+            core->stopDebug();
         }
         QMainWindow::closeEvent(event);
     } else {
@@ -534,7 +539,7 @@ void MainWindow::setTabLocation()
 
 void MainWindow::refreshAll()
 {
-    Core()->triggerRefreshAll();
+    core->triggerRefreshAll();
 }
 
 void MainWindow::lockUnlock_Docks(bool what)
@@ -705,7 +710,7 @@ void MainWindow::resetToDefaultLayout()
     restoreFunctionDock.restoreWidth(functionsDock->widget());
     restoreSidebarDock.restoreWidth(sidebarDock->widget());
 
-    Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+    core->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
 void MainWindow::resetToZenLayout()
@@ -723,34 +728,23 @@ void MainWindow::resetToZenLayout()
 
     restoreFunctionDock.restoreWidth(functionsDock->widget());
 
-    Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
+    core->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
 void MainWindow::resetToDebugLayout()
 {
-    CutterCore::MemoryWidgetType memType = Core()->getMemoryWidgetPriority();
+    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
     bool isMaxim = isMaximized();
     hideAllDocks();
     restoreDocks();
     showDebugDocks();
     readDebugSettings();
-    Core()->raisePrioritizedMemoryWidget(memType);
+    core->raisePrioritizedMemoryWidget(memType);
     if (isMaxim) {
         showMaximized();
     } else {
         showNormal();
     }
-}
-
-void MainWindow::addOutput(const QString &msg)
-{
-    consoleDock->addOutput(msg);
-}
-
-void MainWindow::addDebugOutput(const QString &msg)
-{
-    printf("debug output: %s\n", msg.toLocal8Bit().constData());
-    consoleDock->addDebugOutput(msg);
 }
 
 void MainWindow::on_actionLock_triggered()
@@ -825,7 +819,7 @@ void MainWindow::on_actionRun_Script_triggered()
     fileName = dialog.getOpenFileName(this, tr("Select radare2 script"));
     if (!fileName.length()) // Cancel was pressed
         return;
-    Core()->loadScript(fileName);
+    core->loadScript(fileName);
 }
 
 /**
@@ -869,22 +863,22 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionBackward_triggered()
 {
-    Core()->seekPrev();
+    core->seekPrev();
 }
 
 void MainWindow::on_actionForward_triggered()
 {
-    Core()->seekNext();
+    core->seekNext();
 }
 
 void MainWindow::on_actionUndoSeek_triggered()
 {
-    Core()->seekPrev();
+    core->seekPrev();
 }
 
 void MainWindow::on_actionRedoSeek_triggered()
 {
-    Core()->seekNext();
+    core->seekNext();
 }
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
@@ -940,8 +934,8 @@ void MainWindow::on_actionImportPDB_triggered()
     QString pdbFile = dialog.selectedFiles().first();
 
     if (!pdbFile.isEmpty()) {
-        Core()->loadPDB(pdbFile);
-        addOutput(tr("%1 loaded.").arg(pdbFile));
+        core->loadPDB(pdbFile);
+        core->message(tr("%1 loaded.").arg(pdbFile));
     }
 }
 
@@ -999,7 +993,7 @@ void MainWindow::on_actionExport_as_code_triggered()
 
 void MainWindow::projectSaved(const QString &name)
 {
-    addOutput(tr("Project saved: ") + name);
+    core->message(tr("Project saved: ") + name);
 }
 
 void MainWindow::changeDebugView()
@@ -1011,21 +1005,21 @@ void MainWindow::changeDebugView()
 void MainWindow::changeDefinedView()
 {
     saveDebugSettings();
-    CutterCore::MemoryWidgetType memType = Core()->getMemoryWidgetPriority();
+    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
     hideAllDocks();
     restoreDocks();
     readSettings();
-    Core()->raisePrioritizedMemoryWidget(memType);
+    core->raisePrioritizedMemoryWidget(memType);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
     switch (event->button()) {
     case Qt::BackButton:
-        Core()->seekPrev();
+        core->seekPrev();
         break;
     case Qt::ForwardButton:
-        Core()->seekNext();
+        core->seekNext();
         break;
     default:
         break;

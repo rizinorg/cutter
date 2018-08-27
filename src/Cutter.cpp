@@ -585,6 +585,18 @@ void CutterCore::triggerGraphOptionsChanged()
     emit graphOptionsChanged();
 }
 
+void CutterCore::message(const QString &msg, bool debug)
+{
+    if (msg.isEmpty())
+        return;
+    if (debug) {
+        qDebug() << msg;
+        emit newDebugMessage(msg);
+        return;
+    }
+    emit newMessage(msg);
+}
+
 QString CutterCore::getConfig(const QString &k)
 {
     CORE_LOCK();
