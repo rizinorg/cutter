@@ -1,11 +1,6 @@
-#include <QMenu>
-#include <QSplitter>
 #include <QTreeView>
-#include <QResizeEvent>
 
 #include "SectionsWidget.h"
-#include "ui_SectionsWidget.h"
-#include "PieView.h"
 
 #include "MainWindow.h"
 #include "utils/Helpers.h"
@@ -105,8 +100,6 @@ void SectionsModel::beginReloadSections()
 void SectionsModel::endReloadSections()
 {
     endResetModel();
-    // Update PieChart
-    emit dataChanged(QModelIndex(), QModelIndex());
 }
 
 SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *parent)
@@ -115,16 +108,6 @@ SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *pare
     setSourceModel(sourceModel);
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
-    connect(sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)),
-            this, SLOT(onSourceModelDataChanged(QModelIndex,QModelIndex,QVector<int>)));
-}
-
-void SectionsProxyModel::onSourceModelDataChanged(const QModelIndex &topLeft,
-                                                  const QModelIndex &bottomRight,
-                                                  const QVector<int> &roles)
-{
-    // Pass the signal further to update PieChart
-    emit dataChanged(topLeft, bottomRight, roles);
 }
 
 bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -152,58 +135,31 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 
 SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::SectionsWidget),
     main(main)
 {
-    ui->setupUi(this);
+    setWindowTitle(QStringLiteral("Sections"));
 
+    sectionsTable = new QTreeView;
     sectionsModel = new SectionsModel(&sections, this);
-    sectionsProxyModel = new SectionsProxyModel(sectionsModel, this);
+    auto proxyModel = new SectionsProxyModel(sectionsModel, this);
 
-    setupViews();
+    sectionsTable->setModel(proxyModel);
+
+    sectionsTable->setIndentation(10);
+    sectionsTable->setSortingEnabled(true);
+    sectionsTable->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
+
+    connect(sectionsTable, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
+
+    setWidget(sectionsTable);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-    setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showSectionsContextMenu(const QPoint &)));
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
 }
 
 SectionsWidget::~SectionsWidget() {}
-
-void SectionsWidget::resizeEvent(QResizeEvent *event)
-{
-    if (main->responsive && isVisible()) {
-        if (event->size().width() >= event->size().height()) {
-            on_actionHorizontal_triggered();
-        } else {
-            on_actionVertical_triggered();
-        }
-    }
-    QWidget::resizeEvent(event);
-}
-
-void SectionsWidget::showSectionsContextMenu(const QPoint &pt)
-{
-    // Set functions popup menu
-    QMenu *menu = new QMenu(this);
-    menu->clear();
-    menu->addAction(ui->actionHorizontal);
-    menu->addAction(ui->actionVertical);
-
-    if (splitter->orientation() == 1) {
-        ui->actionHorizontal->setChecked(true);
-        ui->actionVertical->setChecked(false);
-    } else {
-        ui->actionVertical->setChecked(true);
-        ui->actionHorizontal->setChecked(false);
-    }
-
-    menu->exec(mapToGlobal(pt));
-    delete menu;
-}
 
 void SectionsWidget::refreshSections()
 {
@@ -214,37 +170,6 @@ void SectionsWidget::refreshSections()
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
 }
 
-void SectionsWidget::setupViews()
-{
-    splitter = new QSplitter;
-    sectionsTable = new QTreeView;
-    sectionsPieChart = new PieView;
-
-    splitter->addWidget(sectionsTable);
-    splitter->addWidget(sectionsPieChart);
-    //splitter->setStretchFactor(0, 4);
-
-    sectionsTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    sectionsTable->setIndentation(10);
-    sectionsTable->setFrameShape(QFrame::NoFrame);
-    sectionsTable->setSortingEnabled(true);
-    sectionsTable->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
-    connect(sectionsTable, SIGNAL(doubleClicked(const QModelIndex &)),
-            this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
-
-    sectionsPieChart->setFrameShape(QFrame::NoFrame);
-    sectionsPieChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-    sectionsTable->setModel(sectionsProxyModel);
-    sectionsPieChart->setModel(sectionsProxyModel);
-
-    QItemSelectionModel *selectionModel = new QItemSelectionModel(sectionsProxyModel);
-    sectionsTable->setSelectionModel(selectionModel);
-    sectionsPieChart->setSelectionModel(selectionModel);
-
-    setWidget(splitter);
-}
-
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 {
     if (!index.isValid())
@@ -252,14 +177,4 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
     Core()->seek(section.vaddr);
-}
-
-void SectionsWidget::on_actionVertical_triggered()
-{
-    splitter->setOrientation(Qt::Vertical);
-}
-
-void SectionsWidget::on_actionHorizontal_triggered()
-{
-    splitter->setOrientation(Qt::Horizontal);
 }

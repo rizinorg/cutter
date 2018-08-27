@@ -129,7 +129,6 @@ SOURCES += \
     widgets/FunctionsWidget.cpp \
     widgets/ImportsWidget.cpp \
     widgets/Omnibar.cpp \
-    widgets/PieView.cpp \
     widgets/RelocsWidget.cpp \
     widgets/SdbDock.cpp \
     widgets/SectionsWidget.cpp \
@@ -221,7 +220,6 @@ HEADERS  += \
     widgets/FunctionsWidget.h \
     widgets/ImportsWidget.h \
     widgets/Omnibar.h \
-    widgets/PieView.h \
     widgets/RelocsWidget.h \
     widgets/SdbDock.h \
     widgets/SectionsWidget.h \
@@ -308,7 +306,6 @@ FORMS    += \
     widgets/ImportsWidget.ui \
     widgets/SdbDock.ui \
     widgets/RelocsWidget.ui \
-    widgets/SectionsWidget.ui \
     widgets/Sidebar.ui \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
