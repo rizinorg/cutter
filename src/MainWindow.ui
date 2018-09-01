@@ -73,9 +73,6 @@ QToolTip {
    <property name="title">
     <string>Add extra...</string>
    </property>
-   <addaction name="actionExtraGraph"/>
-   <addaction name="actionExtraHexdump"/>
-   <addaction name="actionExtraDisassembly"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -154,6 +151,44 @@ QToolTip {
     <property name="title">
      <string>Windows</string>
     </property>
+    <widget class="QMenu" name="menuAddExtraWidget">
+     <property name="title">
+      <string>Add extra...</string>
+     </property>
+     <addaction name="actionExtraGraph"/>
+     <addaction name="actionExtraHexdump"/>
+     <addaction name="actionExtraDisassembly"/>
+    </widget>
+    <widget class="QMenu" name="menuAddInfoWidgets">
+     <property name="title">
+      <string>Info...</string>
+     </property>
+     <addaction name="actionEntrypoints"/>
+     <addaction name="actionClasses"/>
+     <addaction name="actionImports"/>
+     <addaction name="actionExports"/>
+     <addaction name="actionSymbols"/>
+     <addaction name="actionSDBBrowser"/>
+     <addaction name="actionResources"/>
+     <addaction name="actionVTables"/>
+     <addaction name="actionTypes"/>
+     <addaction name="actionFlags"/>
+     <addaction name="actionSections"/>
+     <addaction name="actionHeaders"/>
+     <addaction name="actionZignatures"/>
+     <addaction name="actionRelocs"/>
+    </widget>
+    <widget class="QMenu" name="menuAddDebugWidgets">
+     <property name="title">
+      <string>Debug...</string>
+     </property>
+     <addaction name="actionStack"/>
+     <addaction name="actionRegisters"/>
+     <addaction name="actionBacktrace"/>
+     <addaction name="actionMemoryMap"/>
+     <addaction name="actionBreakpoint"/>
+     <addaction name="actionRegisterRefs"/>
+    </widget>
     <addaction name="actionDashboard"/>
     <addaction name="separator"/>
     <addaction name="actionDisassembly"/>
@@ -166,11 +201,14 @@ QToolTip {
     <addaction name="actionStrings"/>
     <addaction name="actionSearch"/>
     <addaction name="separator"/>
+    <addaction name="menuAddInfoWidgets"/>
+    <addaction name="menuAddDebugWidgets"/>
     <addaction name="separator"/>
     <addaction name="actionComments"/>
     <addaction name="actionConsole"/>
     <addaction name="actionJupyter"/>
     <addaction name="separator"/>
+    <addaction name="menuAddExtraWidget"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
@@ -1053,9 +1091,9 @@ QToolTip {
     <string>Jupyter</string>
    </property>
   </action>
-  <action name="actionExtraGraph">
+  <action name="actionExport_as_code">
    <property name="text">
-    <string>Graph view</string>
+    <string>Export as code</string>
    </property>
   </action>
   <action name="actionExtraHexdump">
@@ -1068,9 +1106,9 @@ QToolTip {
     <string>Disassembly view</string>
    </property>
   </action>
-  <action name="actionExport_as_code">
+  <action name="actionExtraGraph">
    <property name="text">
-    <string>Export as code</string>
+    <string>Graph view</string>
    </property>
   </action>
  </widget>
