@@ -137,6 +137,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     main(main)
 {
+    setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
 
     sectionsTable = new QTreeView;
