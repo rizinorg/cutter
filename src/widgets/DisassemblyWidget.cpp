@@ -231,7 +231,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
             break;
         }
         cursor.insertHtml(line.text);
-        if(Core()->isBreakpoint(breakpoints,line.offset)) {
+        if(Core()->isBreakpoint(breakpoints, line.offset)) {
             QTextBlockFormat f;
             f.setBackground(ConfigColor("gui.breakpoint_background"));
             cursor.setBlockFormat(f);
@@ -325,14 +325,6 @@ void DisassemblyWidget::highlightCurrentLine()
     QColor highlightWordCurrentLineColor = ConfigColor("gui.background");
     highlightWordCurrentLineColor.setAlpha(128);
 
-    // Highlight the current line
-    QTextEdit::ExtraSelection selection;
-    selection.format.setBackground(highlightColor);
-    selection.format.setProperty(QTextFormat::FullWidthSelection, true);
-    selection.cursor = mDisasTextEdit->textCursor();
-    selection.cursor.clearSelection();
-    extraSelections.append(selection);
-
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
@@ -343,10 +335,31 @@ void DisassemblyWidget::highlightCurrentLine()
     cursor.movePosition(QTextCursor::EndOfLine);
     int lineEndPos = cursor.position();
 
+    // Highlight the current line
+    QTextEdit::ExtraSelection highlightSelection;
+    highlightSelection.cursor = cursor;
+    highlightSelection.cursor.movePosition(QTextCursor::Start);
+    while (true) {
+        RVA lineOffset = readDisassemblyOffset(highlightSelection.cursor);
+        if (lineOffset == seekable->getOffset()) {
+            highlightSelection.format.setBackground(highlightColor);
+            highlightSelection.format.setProperty(QTextFormat::FullWidthSelection, true);
+            highlightSelection.cursor.clearSelection();
+            extraSelections.append(highlightSelection);
+        } else if (lineOffset != RVA_INVALID && lineOffset > seekable->getOffset()) {
+            break;
+        }
+        highlightSelection.cursor.movePosition(QTextCursor::EndOfLine);
+        if (highlightSelection.cursor.atEnd()) {
+            break;
+        }
+
+        highlightSelection.cursor.movePosition(QTextCursor::Down);
+    }
+
     // Highlight all the words in the document same as the current one
     QTextDocument *document = mDisasTextEdit->document();
 
-    QTextEdit::ExtraSelection highlightSelection;
     highlightSelection.cursor = cursor;
     highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
