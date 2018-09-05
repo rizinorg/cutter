@@ -8,10 +8,14 @@ CUTTER_VERSION_PATCH = 1
 
 VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PATCH}
 
-#required QT version
+# Required QT version
 lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 
+# Icon for OS X
 ICON = img/cutter.icns
+
+# Icon/resources for Windows
+RC_FILE = cutter.rc
 
 QT += core gui widgets svg
 QT_CONFIG -= no-pkg-config
