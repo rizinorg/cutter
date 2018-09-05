@@ -54,6 +54,7 @@ private:
 
     wchar_t *pythonHome = nullptr;
 
+    void initPythonHome();
     void initPython();
     void createCutterJupyterModule();
 };
