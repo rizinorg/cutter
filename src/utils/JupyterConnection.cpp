@@ -25,6 +25,10 @@ JupyterConnection *JupyterConnection::getInstance()
 
 JupyterConnection::JupyterConnection(QObject *parent) : QObject(parent)
 {
+    /* Will be removed/reworked with python plugins PR */
+    initPythonHome();
+    initPython();
+    qDebug() << "Python init";
 }
 
 JupyterConnection::~JupyterConnection()
@@ -46,8 +50,7 @@ JupyterConnection::~JupyterConnection()
     }
 }
 
-
-void JupyterConnection::initPython()
+void JupyterConnection::initPythonHome()
 {
 #if defined(APPIMAGE) || defined(MACOS_PYTHON_FRAMEWORK_BUNDLED)
     if (customPythonHome.isNull()) {
@@ -72,6 +75,10 @@ void JupyterConnection::initPython()
         Py_SetPythonHome(pythonHome);
     }
 
+}
+
+void JupyterConnection::initPython()
+{
     PyImport_AppendInittab("cutter", &PyInit_api);
     PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
     Py_Initialize();
