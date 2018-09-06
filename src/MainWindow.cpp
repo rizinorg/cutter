@@ -392,6 +392,7 @@ void MainWindow::finalizeOpen()
     // Override any incorrect setting saved in the project
     core->setSettings();
 
+    core->updateSeek();
     core->message(tr(" > Populating UI"));
     refreshAll();
 
