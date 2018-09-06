@@ -15,7 +15,7 @@ lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 ICON = img/cutter.icns
 
 # Icon/resources for Windows
-RC_FILE = cutter.rc
+win32: RC_ICONS = img/cutter.ico
 
 QT += core gui widgets svg
 QT_CONFIG -= no-pkg-config
