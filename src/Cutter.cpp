@@ -490,6 +490,11 @@ void CutterCore::seekNext()
     triggerRaisePrioritizedMemoryWidget();
 }
 
+void CutterCore::updateSeek()
+{
+    emit seekChanged(core_->offset);
+}
+
 RVA CutterCore::prevOpAddr(RVA startAddr, int count)
 {
     CORE_LOCK();
