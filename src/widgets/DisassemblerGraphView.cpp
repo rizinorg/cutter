@@ -433,7 +433,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             while ((pos = instr.plainText.indexOf(highlight_token->content, pos + 1)) != -1) {
                 int tokenEnd = pos + highlight_token->content.length();
 
-                if ((pos > 0 && instr.plainText[pos - 1].isLetterOrNumber()) 
+                if ((pos > 0 && instr.plainText[pos - 1].isLetterOrNumber())
                     || (tokenEnd < instr.plainText.length() && instr.plainText[tokenEnd].isLetterOrNumber())) {
                     continue;
                 }
@@ -653,6 +653,10 @@ void DisassemblerGraphView::zoomReset()
 void DisassemblerGraphView::takeTrue()
 {
     DisassemblyBlock *db = blockForAddress(seekable->getOffset());
+    if (!db) {
+        return;
+    }
+
     if (db->true_path != RVA_INVALID) {
         seekable->seek(db->true_path);
     } else if (blocks[db->entry].exits.size()) {
@@ -663,6 +667,10 @@ void DisassemblerGraphView::takeTrue()
 void DisassemblerGraphView::takeFalse()
 {
     DisassemblyBlock *db = blockForAddress(seekable->getOffset());
+    if (!db) {
+        return;
+    }
+
     if (db->false_path != RVA_INVALID) {
         seekable->seek(db->false_path);
     } else if (blocks[db->entry].exits.size()) {
@@ -735,7 +743,7 @@ DisassemblerGraphView::Token * DisassemblerGraphView::getToken(Instr * instr, in
 
     while (i.hasNext()) {
         QRegularExpressionMatch match = i.next();
-        
+
         if (match.capturedStart() <= clickedCharPos && match.capturedEnd() > clickedCharPos) {
             Token * t = new Token;
             t->start = match.capturedStart();
