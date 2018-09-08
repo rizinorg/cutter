@@ -443,7 +443,19 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
 
 void DisassemblyContextMenu::writeFailed()
 {
-    QMessageBox::critical(this, tr("Write error"), tr("Unable to complete write operation. Consider opening in write mode."));
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Icon::Critical);
+    msgBox.setWindowTitle(tr("Write error"));
+    msgBox.setText(tr("Unable to complete write operation. Consider opening in write mode."));
+    msgBox.addButton(tr("OK"), QMessageBox::NoRole);
+    QAbstractButton* reopenButton = msgBox.addButton(tr("Reopen in write mode"), QMessageBox::YesRole);
+
+    msgBox.exec();
+
+    if (msgBox.clickedButton() == reopenButton) {
+        QMessageBox::warning(this, "File reopened in write mode", "WARNING: Any chages will now be commited to disk");
+        Core()->cmd("oo+");
+    }
 }
 
 void DisassemblyContextMenu::on_actionCopy_triggered()
