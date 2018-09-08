@@ -769,15 +769,21 @@ RVA CutterCore::getOffsetJump(RVA addr)
     return value;
 }
 
-QString CutterCore::getDecompiledCode(RVA addr)
+QString CutterCore::getDecompiledCodePDC(RVA addr)
 {
     return cmd("pdc @ " + QString::number(addr));
 }
 
-QString CutterCore::getDecompiledCode(QString addr)
+bool CutterCore::getR2DecAvailable()
 {
-    return cmd("pdc @ " + addr);
+    return cmd("e cmd.pdc=?").split('\n').contains("r2dec");
 }
+
+QString CutterCore::getDecompiledCodeR2Dec(RVA addr)
+{
+    return cmd("pdd @ " + QString::number(addr));
+}
+
 
 QJsonDocument CutterCore::getFileInfo()
 {
