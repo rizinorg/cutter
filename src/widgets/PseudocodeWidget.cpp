@@ -34,6 +34,14 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         refresh(Core()->getOffset());
     });
 
+    if (Core()->getR2DecAvailable()) {
+        ui->decompilerComboBox->setEnabled(true);
+        ui->decompilerComboBox->setCurrentIndex(DecompilerCBR2Dec);
+    } else {
+        ui->decompilerComboBox->setEnabled(false);
+        ui->decompilerComboBox->setCurrentIndex(DecompilerCBPdc);
+    }
+
     refresh(RVA_INVALID);
 }
 
@@ -47,7 +55,19 @@ void PseudocodeWidget::refresh(RVA addr)
         return;
     }
 
-    const QString &decompiledCode = Core()->getDecompiledCode(addr);
+    QString decompiledCode;
+    switch (ui->decompilerComboBox->currentIndex()) {
+    case DecompilerCBR2Dec:
+        if (Core()->getR2DecAvailable()) {
+            decompiledCode = Core()->getDecompiledCodeR2Dec(addr);
+            break;
+        } // else fallthrough
+    case DecompilerCBPdc:
+    default:
+        decompiledCode = Core()->getDecompiledCodePDC(addr);
+        break;
+    }
+
     if (decompiledCode.length() == 0) {
         ui->textEdit->setText(tr("Cannot decompile at") + " " + RAddressString(
                                   addr) + " " + tr("(Not a function?)"));

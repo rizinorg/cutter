@@ -526,9 +526,11 @@ public:
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
 
+    QString getDecompiledCodePDC(RVA addr);
+    bool getR2DecAvailable();
+    QString getDecompiledCodeR2Dec(RVA addr);
+
     RVA getOffsetJump(RVA addr);
-    QString getDecompiledCode(RVA addr);
-    QString getDecompiledCode(QString addr);
     QJsonDocument getFileInfo();
     QJsonDocument getSignatureInfo();
     QJsonDocument getFileVersionInfo();

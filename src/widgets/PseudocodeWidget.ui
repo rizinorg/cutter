@@ -62,6 +62,27 @@
         </property>
        </spacer>
       </item>
+      <item>
+       <widget class="QLabel" name="decompilerLabel">
+        <property name="text">
+         <string>Decompiler:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="decompilerComboBox">
+        <item>
+         <property name="text">
+          <string>r2dec</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>pdc</string>
+         </property>
+        </item>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>

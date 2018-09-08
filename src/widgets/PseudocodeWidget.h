@@ -28,6 +28,7 @@ private slots:
     void refreshPseudocode();
 
 private:
+    enum DecompilerComboBoxValues { DecompilerCBR2Dec, DecompilerCBPdc };
     std::unique_ptr<Ui::PseudocodeWidget> ui;
 
     SyntaxHighlighter *syntaxHighLighter;
