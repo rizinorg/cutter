@@ -407,6 +407,8 @@ public:
     void triggerFlagsChanged();
 
     /* Edition functions */
+    QString getInstructionBytes(RVA addr);
+    QString getInstructionOpcode(RVA addr);
     void editInstruction(RVA addr, const QString &inst);
     void nopInstruction(RVA addr);
     void jmpReverse(RVA addr);

@@ -373,6 +373,16 @@ void CutterCore::delFlag(const QString &name)
     emit flagsChanged();
 }
 
+QString CutterCore::getInstructionBytes(RVA addr)
+{
+    return cmdj("aoj @ " + RAddressString(addr)).array().first().toObject()["bytes"].toString();
+}
+
+QString CutterCore::getInstructionOpcode(RVA addr)
+{
+    return cmdj("aoj @ " + RAddressString(addr)).array().first().toObject()["opcode"].toString();
+}
+
 void CutterCore::editInstruction(RVA addr, const QString &inst)
 {
     cmd("wa " + inst + " @ " + RAddressString(addr));
