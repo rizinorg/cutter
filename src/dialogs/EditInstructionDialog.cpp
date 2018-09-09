@@ -1,5 +1,6 @@
 #include "EditInstructionDialog.h"
 #include "ui_EditInstructionDialog.h"
+#include "Cutter.h"
 
 EditInstructionDialog::EditInstructionDialog(QWidget *parent) :
     QDialog(parent),
@@ -32,6 +33,16 @@ QString EditInstructionDialog::getInstruction()
 void EditInstructionDialog::setInstruction(const QString &instruction)
 {
     ui->lineEdit->setText(instruction);
+    updatePreview(instruction);
+}
+
+void EditInstructionDialog::updatePreview(const QString &hex) {
+    QString result = Core()->disassemble(hex).trimmed();
+    if (result.isEmpty() || result.contains("\n")) {
+        ui->instructionLabel->setText("Unknown Instruction");
+    } else {
+        ui->instructionLabel->setText(result);
+    }
 }
 
 bool EditInstructionDialog::eventFilter(QObject *obj, QEvent *event)
@@ -46,6 +57,14 @@ bool EditInstructionDialog::eventFilter(QObject *obj, QEvent *event)
                 ((keyEvent -> key() == Qt::Key_Enter) || (keyEvent -> key() == Qt::Key_Return))) {
             this->accept();
             return true;
+        }
+        
+        // Update instruction preview
+        QString lineText = ui->lineEdit->text();
+        if (keyEvent -> key() == Qt::Key_Backspace) {
+            updatePreview(lineText.left(lineText.size() - 1));
+        } else {
+            updatePreview(lineText + keyEvent->text());
         }
     }
 
