@@ -19,6 +19,8 @@ public:
 
     QString getInstruction();
     void setInstruction(const QString &instruction);
+    
+    void updatePreview(const QString &hex);
 
 private slots:
     void on_buttonBox_accepted();
