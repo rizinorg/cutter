@@ -2010,7 +2010,17 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
             continue;
 
         xref.from = xrefObject["from"].toVariant().toULongLong();
-        xref.from_str = Core()->cmd("fd " + QString::number(xrefObject["from"].toInt())).trimmed();
+        if (!to) {
+            xref.from_str = RAddressString(xref.from);
+        } else {
+            QString fcn = xrefObject["fcn_name"].toString();
+            if (!fcn.isEmpty()) {
+                RVA fcnAddr = xrefObject["fcn_addr"].toVariant().toULongLong();
+                xref.from_str = fcn + " + 0x" + QString::number(xref.from - fcnAddr, 16);
+            } else {
+                xref.from_str = RAddressString(xref.from);
+            }
+        }
 
         if (!whole_function && !to && xref.from != addr)
             continue;
@@ -2019,7 +2029,7 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
             xref.to = addr;
         else
             xref.to = xrefObject["to"].toVariant().toULongLong();
-        xref.to_str = Core()->cmd("fd " + xrefObject["to"].toString()).trimmed();
+        xref.to_str = Core()->cmd("fd " + QString::number(xref.to)).trimmed();
 
         ret << xref;
     }
