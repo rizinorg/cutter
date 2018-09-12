@@ -5,7 +5,6 @@
 #include "r_version.h"
 #include "utils/Configuration.h"
 
-#include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QUrl>
@@ -26,7 +25,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     ui->label->setText(tr("<h1>Cutter</h1>"
                           "Version " CUTTER_VERSION_FULL "<br/>"
-                          "Using r2-" R2_GITTAP
+                                                         "Using r2-" R2_GITTAP
                           "<p><b>Optional Features:</b><br/>"
                           "Jupyter: %1<br/>"
                           "QtWebEngine: %2</p>"
@@ -36,18 +35,18 @@ AboutDialog::AboutDialog(QWidget *parent) :
                           "xarkes, thestr4ng3r, ballessay<br/>"
                           "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).")
                        .arg(
-#ifdef CUTTER_ENABLE_JUPYTER
+                       #ifdef CUTTER_ENABLE_JUPYTER
                            "ON"
-#else
+                       #else
                            "OFF"
-#endif
+                       #endif
                            ,
-#ifdef CUTTER_ENABLE_QTWEBENGINE
+                       #ifdef CUTTER_ENABLE_QTWEBENGINE
                            "ON"
-#else
+                       #else
                            "OFF"
-#endif
-                       ));
+                       #endif
+                           ));
 }
 
 AboutDialog::~AboutDialog() {}
@@ -75,7 +74,7 @@ void AboutDialog::on_showPluginsButton_clicked()
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
     QString currVersion = "";
-    QUrl url("https://github.com/radareorg/cutter/releases/latest");
+    QUrl url("https://api.github.com/repos/radareorg/cutter/releases/latest");
     QNetworkRequest request;
     request.setUrl(url);
 
@@ -88,49 +87,60 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 
     QNetworkAccessManager nm;
 
-    connect(&nm, &QNetworkAccessManager::finished,
-    [&currVersion, &waitDialog](QNetworkReply * reply) {
+    QTimer timeoutTimer;
+    timeoutTimer.setSingleShot(true);
+    timeoutTimer.setInterval(7000);
+
+    connect(&nm, &QNetworkAccessManager::finished, &timeoutTimer, &QTimer::stop);
+    connect(&nm, &QNetworkAccessManager::finished, &waitDialog, &QProgressDialog::cancel);
+    connect(&nm, &QNetworkAccessManager::finished, this, &AboutDialog::serveVersionCheckReply);
+
+    QNetworkReply *reply = nm.get(request);
+    timeoutTimer.start();
+
+    connect(&timeoutTimer, &QTimer::timeout, [&waitDialog]() {
         waitDialog.cancel();
         QMessageBox mb;
-        if (reply->error()) {
-            mb.setIcon(QMessageBox::Critical);
-            mb.setStandardButtons(QMessageBox::Ok);
-            mb.setWindowTitle(QObject::tr("Error!"));
-            mb.setText(reply->errorString());
-        } else {
-            currVersion = reply->readAll();
-            currVersion.remove(0, currVersion.indexOf("/tag/") + 6);
-            currVersion = currVersion.left(currVersion.indexOf('>') - 1);
-            if (currVersion == CUTTER_VERSION_FULL) {
-                mb.setIcon(QMessageBox::Information);
-                mb.setStandardButtons(QMessageBox::Ok);
-                mb.setWindowTitle(QObject::tr("Version control"));
-                mb.setText(QObject::tr("You have latest version and no need to update!"));
-            } else {
-                mb.setIcon(QMessageBox::Information);
-                mb.setStandardButtons(QMessageBox::Ok);
-                mb.setWindowTitle(QObject::tr("Version control"));
-                mb.setText(tr("<b>Current version</b>: " CUTTER_VERSION_FULL "<br/>"
-                              "<b>Latest version</b>: %1<br/><br/>"
-                              "For update, please check the link: <a href=\"%2\">%2</a>")
-                           .arg(currVersion, "https://github.com/radareorg/cutter/releases"));
-            }
-        }
+        mb.setIcon(QMessageBox::Critical);
+        mb.setStandardButtons(QMessageBox::Ok);
+        mb.setWindowTitle(QObject::tr("Timeout error!"));
+        mb.setText(tr("Please check your internet connection and try again."));
         mb.exec();
     });
 
-    QTimer::singleShot(15000, this, [&currVersion, &waitDialog]() {
-        if (currVersion.isEmpty()) {
-            waitDialog.cancel();
-            QMessageBox mb;
-            mb.setIcon(QMessageBox::Critical);
-            mb.setStandardButtons(QMessageBox::Ok);
-            mb.setWindowTitle(QObject::tr("Timeout error!"));
-            mb.setText(tr("Please check your internet connection and try again."));
-            mb.exec();
-        }
-    });
-
-    nm.get(request);
     waitDialog.exec();
+    delete reply;
+}
+
+void AboutDialog::serveVersionCheckReply(QNetworkReply* reply)
+{
+    QString currVersion = "";
+    QMessageBox mb;
+    mb.setStandardButtons(QMessageBox::Ok);
+    if (reply->error()) {
+        mb.setIcon(QMessageBox::Critical);
+        mb.setWindowTitle(QObject::tr("Error!"));
+        mb.setText(reply->errorString());
+    } else {
+        for(const auto& it : reply->readAll().split(',')) {
+            if(it.left(10) == QString("\"tag_name\"")) {
+                currVersion = it;
+                break;
+            }
+        }
+        currVersion = currVersion.right(currVersion.length() - currVersion.lastIndexOf('v') - 1);
+        currVersion.remove('\"');
+
+        mb.setWindowTitle(QObject::tr("Version control"));
+        mb.setIcon(QMessageBox::Information);
+        if (currVersion == CUTTER_VERSION_FULL) {
+            mb.setText(QObject::tr("You have latest version and no need to update!"));
+        } else {
+            mb.setText(tr("<b>Current version</b>: " CUTTER_VERSION_FULL "<br/>"
+                          "<b>Latest version</b>: %1<br/><br/>"
+                          "For update, please check the link: <a href=\"%2\">%2</a>")
+                       .arg(currVersion, "https://github.com/radareorg/cutter/releases"));
+        }
+    }
+    mb.exec();
 }

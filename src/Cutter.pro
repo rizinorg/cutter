@@ -17,7 +17,7 @@ ICON = img/cutter.icns
 # Icon/resources for Windows
 win32: RC_ICONS = img/cutter.ico
 
-QT += core gui widgets svg
+QT += core gui widgets svg network
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
