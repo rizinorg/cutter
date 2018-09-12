@@ -5,14 +5,13 @@
 #include "r_version.h"
 #include "utils/Configuration.h"
 
-#include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkAccessManager>
 #include <QUrl>
-#include <QDebug>
-#include <QJsonObject>
 #include <QTimer>
+#include <QJsonObject>
 #include <QProgressBar>
 #include <QProgressDialog>
+#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkAccessManager>
 
 #include "CutterConfig.h"
 
@@ -98,8 +97,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     QNetworkReply *reply = nm.get(request);
     timeoutTimer.start();
 
-    connect(&timeoutTimer, &QTimer::timeout, [&waitDialog]() {
-        waitDialog.cancel();
+    connect(&timeoutTimer, &QTimer::timeout, []() {
         QMessageBox mb;
         mb.setIcon(QMessageBox::Critical);
         mb.setStandardButtons(QMessageBox::Ok);
