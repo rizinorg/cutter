@@ -59,7 +59,7 @@ void AboutDialog::on_buttonBox_rejected()
 void AboutDialog::on_showVersionButton_clicked()
 {
     QMessageBox popup(this);
-    popup.setWindowTitle("radare2 version information");
+    popup.setWindowTitle(tr("radare2 version information"));
     auto versionInformation = Core()->getVersionInformation();
     popup.setText(versionInformation);
     popup.exec();
@@ -82,7 +82,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     bar->setMaximum(0);
 
     waitDialog.setBar(bar);
-    waitDialog.setLabel(new QLabel("Checking for updates...", &waitDialog));
+    waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
     QNetworkAccessManager nm;
 
