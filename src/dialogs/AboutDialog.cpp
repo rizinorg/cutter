@@ -9,6 +9,7 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QUrl>
 #include <QDebug>
+#include <QJsonObject>
 #include <QTimer>
 #include <QProgressBar>
 #include <QProgressDialog>
@@ -73,7 +74,6 @@ void AboutDialog::on_showPluginsButton_clicked()
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
-    QString currVersion = "";
     QUrl url("https://api.github.com/repos/radareorg/cutter/releases/latest");
     QNetworkRequest request;
     request.setUrl(url);
@@ -103,7 +103,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
         QMessageBox mb;
         mb.setIcon(QMessageBox::Critical);
         mb.setStandardButtons(QMessageBox::Ok);
-        mb.setWindowTitle(QObject::tr("Timeout error!"));
+        mb.setWindowTitle(tr("Timeout error!"));
         mb.setText(tr("Please check your internet connection and try again."));
         mb.exec();
     });
@@ -119,22 +119,16 @@ void AboutDialog::serveVersionCheckReply(QNetworkReply *reply)
     mb.setStandardButtons(QMessageBox::Ok);
     if (reply->error()) {
         mb.setIcon(QMessageBox::Critical);
-        mb.setWindowTitle(QObject::tr("Error!"));
+        mb.setWindowTitle(tr("Error!"));
         mb.setText(reply->errorString());
     } else {
-        for (const auto &it : reply->readAll().split(',')) {
-            if (it.left(10) == QString("\"tag_name\"")) {
-                currVersion = it;
-                break;
-            }
-        }
-        currVersion = currVersion.right(currVersion.length() - currVersion.lastIndexOf('v') - 1);
-        currVersion.remove('\"');
+        currVersion = QJsonDocument::fromJson(reply->readAll()).object().value("tag_name").toString();
+        currVersion.remove('v');
 
-        mb.setWindowTitle(QObject::tr("Version control"));
+        mb.setWindowTitle(tr("Version control"));
         mb.setIcon(QMessageBox::Information);
         if (currVersion == CUTTER_VERSION_FULL) {
-            mb.setText(QObject::tr("You have latest version and no need to update!"));
+            mb.setText(tr("You have latest version and no need to update!"));
         } else {
             mb.setText(tr("<b>Current version</b>: " CUTTER_VERSION_FULL "<br/>"
                           "<b>Latest version</b>: %1<br/><br/>"
