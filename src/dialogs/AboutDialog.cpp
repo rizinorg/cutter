@@ -25,7 +25,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     ui->label->setText(tr("<h1>Cutter</h1>"
                           "Version " CUTTER_VERSION_FULL "<br/>"
-                                                         "Using r2-" R2_GITTAP
+                          "Using r2-" R2_GITTAP
                           "<p><b>Optional Features:</b><br/>"
                           "Jupyter: %1<br/>"
                           "QtWebEngine: %2</p>"
@@ -35,18 +35,18 @@ AboutDialog::AboutDialog(QWidget *parent) :
                           "xarkes, thestr4ng3r, ballessay<br/>"
                           "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).")
                        .arg(
-                       #ifdef CUTTER_ENABLE_JUPYTER
+#ifdef CUTTER_ENABLE_JUPYTER
                            "ON"
-                       #else
+#else
                            "OFF"
-                       #endif
+#endif
                            ,
-                       #ifdef CUTTER_ENABLE_QTWEBENGINE
+#ifdef CUTTER_ENABLE_QTWEBENGINE
                            "ON"
-                       #else
+#else
                            "OFF"
-                       #endif
-                           ));
+#endif
+                       ));
 }
 
 AboutDialog::~AboutDialog() {}
@@ -79,7 +79,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     request.setUrl(url);
 
     QProgressDialog waitDialog;
-    QProgressBar* bar = new QProgressBar(&waitDialog);
+    QProgressBar *bar = new QProgressBar(&waitDialog);
     bar->setMaximum(0);
 
     waitDialog.setBar(bar);
@@ -112,7 +112,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     delete reply;
 }
 
-void AboutDialog::serveVersionCheckReply(QNetworkReply* reply)
+void AboutDialog::serveVersionCheckReply(QNetworkReply *reply)
 {
     QString currVersion = "";
     QMessageBox mb;
@@ -122,8 +122,8 @@ void AboutDialog::serveVersionCheckReply(QNetworkReply* reply)
         mb.setWindowTitle(QObject::tr("Error!"));
         mb.setText(reply->errorString());
     } else {
-        for(const auto& it : reply->readAll().split(',')) {
-            if(it.left(10) == QString("\"tag_name\"")) {
+        for (const auto &it : reply->readAll().split(',')) {
+            if (it.left(10) == QString("\"tag_name\"")) {
                 currVersion = it;
                 break;
             }
