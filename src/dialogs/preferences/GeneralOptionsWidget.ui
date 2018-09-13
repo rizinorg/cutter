@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>442</width>
-    <height>225</height>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -102,6 +102,9 @@
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="ColorSchemePrefWidget" name="colorSchemePrefWidget" native="true"/>
+   </item>
   </layout>
   <action name="actionSaveAsDefault">
    <property name="text">
@@ -109,6 +112,14 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ColorSchemePrefWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/ColorSchemePrefWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
