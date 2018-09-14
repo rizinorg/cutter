@@ -87,7 +87,7 @@ void SetFunctionVarTypes::on_ComboBoxChanged(QString varName)
 }
 
 
-QStringList SetFunctionVarTypes::populateTypesComboBox()
+void SetFunctionVarTypes::populateTypesComboBox()
 {
     //gets all loaded types, structures and enums and puts them in a list
 
