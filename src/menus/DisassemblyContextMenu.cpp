@@ -618,7 +618,6 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 
 void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 {
-    RCore *core = Core()->core();
     SetFunctionVarTypes *dialog;
 
 
@@ -630,7 +629,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
     {
         dialog->setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcn->name));
     }
-    dialog->setFcn(core, fcn);
+    dialog->setFcn(fcn);
 
     dialog->exec();
 

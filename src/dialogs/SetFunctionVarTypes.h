@@ -17,7 +17,7 @@ public:
     ~SetFunctionVarTypes();
 
     void setUserMessage(const QString userMessage);
-    void setFcn(RCore* core, RAnalFunction *fcn);
+    void setFcn(RAnalFunction *fcn);
 
 public slots:
     void on_OkPressed();

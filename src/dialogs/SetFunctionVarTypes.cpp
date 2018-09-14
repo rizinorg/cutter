@@ -10,7 +10,8 @@ SetFunctionVarTypes::SetFunctionVarTypes(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(on_OkPressed()));
-    connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(QString)), SLOT(on_ComboBoxChanged(QString)));
+    connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(QString)),
+            SLOT(on_ComboBoxChanged(QString)));
 
     populateTypesComboBox();
 
@@ -26,13 +27,12 @@ void SetFunctionVarTypes::setUserMessage(const QString userMessage)
     ui->userMessage->setText(userMessage);
 }
 
-void SetFunctionVarTypes::setFcn(RCore* core, RAnalFunction *fcn)
+void SetFunctionVarTypes::setFcn(RAnalFunction *fcn)
 {
     RListIter *iter;
     RAnalVar *var;
 
-    if(!fcn)
-    {
+    if (fcn == nullptr) {
         ui->userMessage->setText(tr("You must be in a function to define variable types."));
         ui->labelSetTypeTo->setVisible(false);
         ui->selectedTypeForVar->setVisible(false);
@@ -48,12 +48,12 @@ void SetFunctionVarTypes::setFcn(RCore* core, RAnalFunction *fcn)
 
     this->validFcn = true;
     this->fcn = fcn;
-    this->fcnVars = r_anal_var_list(core->anal, this->fcn, R_ANAL_VAR_KIND_ANY);
+    this->fcnVars = r_anal_var_list(Core()->core()->anal, this->fcn, R_ANAL_VAR_KIND_ANY);
 
-    for (iter = this->fcnVars->head; iter && (var = static_cast<RAnalVar*>(iter->data)); iter = iter->n)
-    {
+    for (iter = this->fcnVars->head; iter
+            && (var = static_cast<RAnalVar *>(iter->data)); iter = iter->n) {
         ui->dropdownLocalVars->addItem(var->name,
-                                       QVariant::fromValue(static_cast<void*>(var)));
+                                       QVariant::fromValue(static_cast<void *>(var)));
     }
 }
 
@@ -63,22 +63,21 @@ void SetFunctionVarTypes::on_OkPressed()
     RAnalVar *selectedVar;
     QVariant selectedVarVariant;
 
-    if(!this->validFcn)
-    {
+    if (!this->validFcn) {
         return;
     }
 
     selectedVarVariant = ui->dropdownLocalVars->currentData();
-    selectedVar = static_cast<RAnalVar*>(selectedVarVariant.value<void*>());
+    selectedVar = static_cast<RAnalVar *>(selectedVarVariant.value<void *>());
 
     Core()->cmd(QString("afvt %1 %2")
                 .arg(selectedVar->name)
-                .arg(ui->selectedTypeForVar->currentText().toStdString().c_str()));
+                .arg(ui->selectedTypeForVar->currentText()));
 
     //TODO: Switch argument names when new version of afvn new_type (old_type) is implmented
     Core()->cmd(QString("afvn %1 %2")
-                .arg(ui->dropdownLocalVars->currentText().toStdString().c_str())
-                .arg(ui->newVarName->text().replace(" ", "_").toStdString().c_str()));
+                .arg(ui->dropdownLocalVars->currentText())
+                .arg(ui->newVarName->text().replace(" ", "_")));
 }
 
 void SetFunctionVarTypes::on_ComboBoxChanged(QString varName)
