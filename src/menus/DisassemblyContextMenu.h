@@ -26,8 +26,9 @@ private slots:
     void on_actionEditInstruction_triggered();
     void on_actionNopInstruction_triggered();
     void on_actionJmpReverse_triggered();
-    void showReverseJmpQuery();
     void on_actionEditBytes_triggered();
+    void showReverseJmpQuery();
+    void writeFailed();
 
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();
