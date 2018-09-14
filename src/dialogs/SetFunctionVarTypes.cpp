@@ -12,7 +12,7 @@ SetFunctionVarTypes::SetFunctionVarTypes(QWidget *parent) :
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(on_OkPressed()));
     connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(QString)), SLOT(on_ComboBoxChanged(QString)));
 
-    allLoadedTypes = getAllTypes();
+    populateTypesComboBox();
 
 }
 
@@ -71,11 +71,12 @@ void SetFunctionVarTypes::on_OkPressed()
     selectedVarVariant = ui->dropdownLocalVars->currentData();
     selectedVar = static_cast<RAnalVar*>(selectedVarVariant.value<void*>());
 
-    Core()->cmd(tr("afvt %1 %2")
+    Core()->cmd(QString("afvt %1 %2")
                 .arg(selectedVar->name)
                 .arg(ui->selectedTypeForVar->currentText().toStdString().c_str()));
 
-    Core()->cmd(tr("afvn %1 %2")
+    //TODO: Switch argument names when new version of afvn new_type (old_type) is implmented
+    Core()->cmd(QString("afvn %1 %2")
                 .arg(ui->dropdownLocalVars->currentText().toStdString().c_str())
                 .arg(ui->newVarName->text().replace(" ", "_").toStdString().c_str()));
 }
@@ -86,32 +87,34 @@ void SetFunctionVarTypes::on_ComboBoxChanged(QString varName)
 }
 
 
-QStringList SetFunctionVarTypes::getAllTypes()
+QStringList SetFunctionVarTypes::populateTypesComboBox()
 {
     //gets all loaded types, structures and enums and puts them in a list
 
     QString res;
-    QStringList primitiveTypes;
     QStringList userStructures;
     QStringList userEnumerations;
+    QList<TypeDescription> primitiveTypesTypeList;
 
-    res = Core()->cmd(tr("ts"));
+    res = Core()->cmd(QString("ts"));
     userStructures = res.split("\n");
     userStructures.removeAll(QString(""));
     ui->selectedTypeForVar->addItems(userStructures);
     ui->selectedTypeForVar->insertSeparator(ui->selectedTypeForVar->count());
 
-    res = Core()->cmd(tr("t"));
-    primitiveTypes = res.split("\n");
-    primitiveTypes.removeAll(QString(""));
-    ui->selectedTypeForVar->addItems(primitiveTypes);
+    primitiveTypesTypeList = Core()->getAllTypes();
+
+    for (TypeDescription thisType : primitiveTypesTypeList) {
+        ui->selectedTypeForVar->addItem(thisType.type);
+    }
+
     ui->selectedTypeForVar->insertSeparator(ui->selectedTypeForVar->count());
 
-    res = Core()->cmd(tr("te"));
+    res = Core()->cmd(QString("te"));
     userStructures = res.split("\n");
     userStructures.removeAll(QString(""));
     ui->selectedTypeForVar->addItems(userStructures);
 
-    return userStructures + primitiveTypes + userEnumerations;
+    return
 
 }

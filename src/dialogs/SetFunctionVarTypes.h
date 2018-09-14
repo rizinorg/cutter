@@ -29,8 +29,7 @@ private:
     RAnalFunction           *fcn;
     Ui::SetFunctionVarTypes *ui;
     bool                    validFcn;
-    QStringList          allLoadedTypes;
-    QStringList           getAllTypes();
+    QStringList           populateTypesComboBox();
 
 };
 
