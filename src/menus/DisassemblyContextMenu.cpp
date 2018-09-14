@@ -5,6 +5,7 @@
 #include "dialogs/FlagDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
+#include "dialogs/SetFunctionVarTypes.h"
 #include "dialogs/SetToDataDialog.h"
 #include <QtCore>
 #include <QShortcut>
@@ -40,6 +41,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     initAction(&actionRenameUsedHere, tr("Rename Flag/Fcn/Var Used Here"),
                SLOT(on_actionRenameUsedHere_triggered()), getRenameUsedHereSequence());
     addAction(&actionRenameUsedHere);
+
+    initAction(&actionSetFunctionVarTypes, tr("Re-type function local vars"),
+               SLOT(on_actionSetFunctionVarTypes_triggered()), getRetypeSequence());
+    addAction(&actionSetFunctionVarTypes);
 
     initAction(&actionDeleteComment, tr("Delete comment"), SLOT(on_actionDeleteComment_triggered()));
     addAction(&actionDeleteComment);
@@ -253,6 +258,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     RCore *core = Core()->core();
     RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
+    RAnalFunction *in_fcn = Core()->functionAt(offset);
     RFlagItem *f = r_flag_get_i (core->flags, offset);
 
     actionDeleteFlag.setVisible(f ? true : false);
@@ -267,6 +273,16 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionRename.setText(tr("Rename flag \"%1\"").arg(f->name));
     } else {
         actionRename.setVisible(false);
+    }
+
+    //only show retype for local vars if in a function
+    if(in_fcn)
+    {
+        actionSetFunctionVarTypes.setVisible(true);
+    }
+    else
+    {
+        actionSetFunctionVarTypes.setVisible(false);
     }
 
 
@@ -336,6 +352,11 @@ QKeySequence DisassemblyContextMenu::getRenameSequence() const
 QKeySequence DisassemblyContextMenu::getRenameUsedHereSequence() const
 {
     return {Qt::SHIFT + Qt::Key_N};
+}
+
+QKeySequence DisassemblyContextMenu::getRetypeSequence() const
+{
+     return {Qt::Key_Y};
 }
 
 QKeySequence DisassemblyContextMenu::getXRefSequence() const
@@ -593,6 +614,26 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
             }
         }
     }
+}
+
+void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
+{
+    RCore *core = Core()->core();
+    SetFunctionVarTypes *dialog;
+
+
+    RAnalFunction *fcn = Core()->functionAt(offset);
+
+    dialog = new SetFunctionVarTypes(this);
+
+    if(fcn)
+    {
+        dialog->setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcn->name));
+    }
+    dialog->setFcn(core, fcn);
+
+    dialog->exec();
+
 }
 
 void DisassemblyContextMenu::on_actionXRefs_triggered()
