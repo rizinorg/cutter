@@ -115,6 +115,6 @@ QStringList SetFunctionVarTypes::populateTypesComboBox()
     userStructures.removeAll(QString(""));
     ui->selectedTypeForVar->addItems(userStructures);
 
-    return
+    return;
 
 }
