@@ -36,6 +36,7 @@ private slots:
     void on_actionAddFlag_triggered();
     void on_actionRename_triggered();
     void on_actionRenameUsedHere_triggered();
+    void on_actionSetFunctionVarTypes_triggered();
     void on_actionXRefs_triggered();
     void on_actionDisplayOptions_triggered();
 
@@ -60,6 +61,7 @@ private:
     QKeySequence getAddFlagSequence() const;
     QKeySequence getRenameSequence() const;
     QKeySequence getRenameUsedHereSequence() const;
+    QKeySequence getRetypeSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
     QList<QKeySequence> getAddBPSequence() const;
@@ -86,6 +88,7 @@ private:
     QAction actionAnalyzeFunction;
     QAction actionRename;
     QAction actionRenameUsedHere;
+    QAction actionSetFunctionVarTypes;
     QAction actionXRefs;
     QAction actionDisplayOptions;
 
