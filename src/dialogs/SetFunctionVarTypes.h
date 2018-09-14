@@ -21,6 +21,7 @@ public:
 
 public slots:
     void on_OkPressed();
+    void on_ComboBoxChanged(QString varName);
 
 
 private:

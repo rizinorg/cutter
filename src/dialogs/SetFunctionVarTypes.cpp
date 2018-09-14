@@ -2,6 +2,7 @@
 #include "ui_SetFunctionVarTypes.h"
 
 #include <QMetaType>
+#include <QComboBox>
 
 SetFunctionVarTypes::SetFunctionVarTypes(QWidget *parent) :
     QDialog(parent),
@@ -9,6 +10,7 @@ SetFunctionVarTypes::SetFunctionVarTypes(QWidget *parent) :
 {
     ui->setupUi(this);
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(on_OkPressed()));
+    connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(QString)), SLOT(on_ComboBoxChanged(QString)));
 
     allLoadedTypes = getAllTypes();
 
@@ -72,7 +74,17 @@ void SetFunctionVarTypes::on_OkPressed()
     Core()->cmd(tr("afvt %1 %2")
                 .arg(selectedVar->name)
                 .arg(ui->selectedTypeForVar->currentText().toStdString().c_str()));
+
+    Core()->cmd(tr("afvn %1 %2")
+                .arg(ui->dropdownLocalVars->currentText().toStdString().c_str())
+                .arg(ui->newVarName->text().replace(" ", "_").toStdString().c_str()));
 }
+
+void SetFunctionVarTypes::on_ComboBoxChanged(QString varName)
+{
+    ui->newVarName->setText(varName);
+}
+
 
 QStringList SetFunctionVarTypes::getAllTypes()
 {
