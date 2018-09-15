@@ -1,0 +1,42 @@
+{
+    "bin": {
+        "background": "#2f343f",
+        "text": "#4fb100"
+    },
+    "invalid": {
+        "background": "#2f343f",
+        "text": "#ff0004"
+    },
+    "jne": {
+        "background": "#2f343f",
+        "text": "#ff007f"
+    },
+    "kek": {
+        "background": "#aaff00",
+        "text": "#0004ff"
+    },
+    "lol": {
+        "background": "#2f343f",
+        "text": "#ffffff"
+    },
+    "mov": {
+        "background": "#aaff00",
+        "text": "#000000"
+    },
+    "movs": {
+        "background": "#aaff00",
+        "text": "#000000"
+    },
+    "op": {
+        "background": "#ffaaff",
+        "text": "#ff0004"
+    },
+    "pop": {
+        "background": "#ffaaff",
+        "text": "#ff0004"
+    },
+    "push": {
+        "background": "#2f343f",
+        "text": "#00a243"
+    }
+}
