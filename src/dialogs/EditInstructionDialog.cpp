@@ -10,7 +10,7 @@ EditInstructionDialog::EditInstructionDialog(QWidget *parent, bool isEditingByte
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    ui->lineEdit->installEventFilter(this);
+    connect(ui->lineEdit, SIGNAL(textEdited(const QString &)), this, SLOT(updatePreview(const QString &)));
 }
 
 EditInstructionDialog::~EditInstructionDialog() {}
@@ -50,23 +50,4 @@ void EditInstructionDialog::updatePreview(const QString &input)
     } else {
         ui->instructionLabel->setText(result);
     }
-}
-
-bool EditInstructionDialog::eventFilter(QObject *obj, QEvent *event)
-{
-    Q_UNUSED(obj);
-
-    if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast <QKeyEvent *>(event);
-
-        // Update instruction preview
-        QString lineText = ui->lineEdit->text();
-        if (keyEvent->key() == Qt::Key_Backspace) {
-            updatePreview(lineText.left(lineText.size() - 1));
-        } else {
-            updatePreview(lineText + keyEvent->text());
-        }
-    }
-
-    return false;
 }
