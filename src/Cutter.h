@@ -427,7 +427,7 @@ public:
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     /* File related methods */
-    bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_IO_READ,
+    bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_PERM_R,
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
     bool tryFile(QString path, bool rw);
     void openFile(QString path, RVA mapaddr);

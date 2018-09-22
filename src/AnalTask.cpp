@@ -26,9 +26,9 @@ void AnalTask::runTask()
     log(tr("Loading Binary...\n"));
     openFailed = false;
 
-    int perms = R_IO_READ | R_IO_EXEC;
+    int perms = R_PERM_RX;
     if (options.writeEnabled)
-        perms |= R_IO_WRITE;
+        perms |= R_PERM_W;
 
     // Demangle (must be before file Core()->loadFile)
     Core()->setConfig("bin.demangle", options.demangle);
