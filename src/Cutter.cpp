@@ -289,7 +289,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
         r_core_cmd0 (core_, "s entry0");
     }
 
-    if (perms & R_IO_WRITE) {
+    if (perms & R_PERM_W) {
         r_core_cmd0 (core_, "omfg+w");
     }
 
@@ -302,8 +302,8 @@ bool CutterCore::tryFile(QString path, bool rw)
 {
     CORE_LOCK();
     RCoreFile *cf;
-    int flags = R_IO_READ;
-    if (rw) flags |= R_IO_WRITE;
+    int flags = R_PERM_R;
+    if (rw) flags = R_PERM_RW;
     cf = r_core_file_open(this->core_, path.toUtf8().constData(), flags, 0LL);
     if (!cf) {
         return false;
