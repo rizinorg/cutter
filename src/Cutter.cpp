@@ -2120,7 +2120,9 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 
 void CutterCore::loadScript(const QString &scriptname)
 {
+    r_core_task_sync_begin(core_);
     r_core_cmd_file(core_, scriptname.toUtf8().constData());
+    r_core_task_sync_end(core_);
 }
 
 QString CutterCore::getVersionInformation()
