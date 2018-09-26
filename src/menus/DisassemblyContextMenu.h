@@ -83,7 +83,6 @@ private:
 
     QAction actionAddComment;
     QAction actionAddFlag;
-    QMenu *analyzeMenu;
     QAction actionAnalyzeFunction;
     QAction actionRename;
     QAction actionRenameUsedHere;
@@ -134,7 +133,6 @@ private:
     void setToData(int size, int repeat = 1);
     void setBits(int bits);
 
-    void addAnalyzeMenu();
     void addSetBaseMenu();
     void addSetBitsMenu();
     void addSetToDataMenu();
