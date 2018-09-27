@@ -251,7 +251,7 @@ void NewFileDialog::dropEvent(QDropEvent *event)
     }
 
     event->acceptProposedAction();
-    loadFile(event->mimeData()->urls().first().path());
+    loadFile(event->mimeData()->urls().first().toLocalFile());
 }
 
 bool NewFileDialog::fillRecentFilesList()
