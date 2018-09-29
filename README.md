@@ -6,7 +6,7 @@ A Qt and C++ GUI for radare2 reverse engineering framework (originally named Iai
 
 ## Screenshot
 
-![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/images/screenshot.png)
 
 ## Disclaimer
 
