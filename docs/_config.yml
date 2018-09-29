@@ -1,1 +1,12 @@
+title: Cutter
+description: >-
+  Cutter is a Qt and C++ graphical user interface for the reverse
+  engineering framework radare2.
+twitter_username: r2gui
+github_username: radareorg
+
+markdown: kramdown
 remote_theme: allejo/jekyll-docs-theme
+
+plugins:
+  - jekyll-remote-theme
