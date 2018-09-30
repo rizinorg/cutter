@@ -6,7 +6,7 @@ homepage: true
 
 Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced, customizable and FOSS reverse-engineering platform while keeping the user experience at mind. Cutter is created by reverse engineers for reverse engineers.
 
-<img src="/images/screenshot.png" alt="Cutter screenshot">
+<img src="images/screenshot.png" alt="Cutter screenshot">
 
 ---
 
