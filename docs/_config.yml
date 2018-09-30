@@ -12,6 +12,8 @@ license:
   docs: CC BY 3.0
   docs_url: http://creativecommons.org/licenses/by/3.0/
 
+git_edit_address: https://github.com/radareorg/cutter/tree/master/docs
+
 links:
   header:
     - title: GitHub
