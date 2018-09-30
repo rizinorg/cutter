@@ -14,7 +14,7 @@ int RelocsModel::rowCount(const QModelIndex &parent) const
     return parent.isValid() ? 0 : relocs->count();
 }
 
-int RelocsModel::columnCount(const QModelIndex&) const
+int RelocsModel::columnCount(const QModelIndex &) const
 {
     return RelocsModel::ColumnCount;
 }
@@ -22,11 +22,9 @@ int RelocsModel::columnCount(const QModelIndex&) const
 QVariant RelocsModel::data(const QModelIndex &index, int role) const
 {
     const RelocDescription &reloc = relocs->at(index.row());
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
-        switch (index.column())
-        {
+        switch (index.column()) {
         case RelocsModel::VAddrColumn:
             return RAddressString(reloc.vaddr);
         case RelocsModel::TypeColumn:
@@ -50,8 +48,7 @@ QVariant RelocsModel::data(const QModelIndex &index, int role) const
 QVariant RelocsModel::headerData(int section, Qt::Orientation, int role) const
 {
     if (role == Qt::DisplayRole)
-        switch (section)
-        {
+        switch (section) {
         case RelocsModel::VAddrColumn:
             return tr("Address");
         case RelocsModel::TypeColumn:

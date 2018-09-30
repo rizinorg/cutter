@@ -10,7 +10,8 @@ EditInstructionDialog::EditInstructionDialog(QWidget *parent, bool isEditingByte
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    connect(ui->lineEdit, SIGNAL(textEdited(const QString &)), this, SLOT(updatePreview(const QString &)));
+    connect(ui->lineEdit, SIGNAL(textEdited(const QString &)), this,
+            SLOT(updatePreview(const QString &)));
 }
 
 EditInstructionDialog::~EditInstructionDialog() {}

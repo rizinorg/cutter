@@ -11,9 +11,8 @@
 class MainWindow;
 class QTreeWidget;
 
-namespace Ui
-{
-    class MemoryMapWidget;
+namespace Ui {
+class MemoryMapWidget;
 }
 
 

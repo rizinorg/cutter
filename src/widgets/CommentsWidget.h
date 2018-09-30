@@ -29,7 +29,8 @@ public:
     enum NestedColumn { OffsetNestedColumn = 0, CommentNestedColumn, NestedColumnCount };
     enum Role { CommentDescriptionRole = Qt::UserRole, FunctionRole };
 
-    CommentsModel(QList<CommentDescription> *comments, QMap<QString, QList<CommentDescription>> *nestedComments,
+    CommentsModel(QList<CommentDescription> *comments,
+                  QMap<QString, QList<CommentDescription>> *nestedComments,
                   QObject *parent = nullptr);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;

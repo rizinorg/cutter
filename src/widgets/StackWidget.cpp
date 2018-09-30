@@ -69,13 +69,17 @@ void StackWidget::setStackGrid()
             QStandardItem *rowRef = new QStandardItem(ref);
             modelStack->setItem(i, 2, rowRef);
             if (refObject.toString().contains("ascii") && refObject.toString().count("-->") == 1) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(243, 156, 17)), Qt::ForegroundRole); // orange
+                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(243, 156, 17)),
+                                    Qt::ForegroundRole); // orange
             } else if (ref.contains("program R X") && ref.count("-->") == 0) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::red)), Qt::ForegroundRole);
+                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::red)),
+                                    Qt::ForegroundRole);
             } else if (ref.contains("stack") && ref.count("-->") == 0) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::cyan)), Qt::ForegroundRole);
+                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::cyan)),
+                                    Qt::ForegroundRole);
             } else if (ref.contains("library") && ref.count("-->") == 0) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::green)), Qt::ForegroundRole);
+                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::green)),
+                                    Qt::ForegroundRole);
             }
         }
         i++;

@@ -10,8 +10,7 @@
 #include "AnalTask.h"
 #include "utils/InitialOptions.h"
 
-namespace Ui
-{
+namespace Ui {
 class InitialOptionsDialog;
 }
 

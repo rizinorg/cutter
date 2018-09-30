@@ -76,7 +76,7 @@ void RegistersWidget::setRegisterGrid()
             // add label and register value to grid
             registerLayout->addWidget(registerLabel, i, col);
             registerLayout->addWidget(registerEditValue, i, col + 1);
-            connect(registerEditValue, &QLineEdit::editingFinished, [=]() {
+            connect(registerEditValue, &QLineEdit::editingFinished, [ = ]() {
                 QString regNameString = registerLabel->text();
                 QString regValueString = registerEditValue->text();
                 Core()->setRegister(regNameString, regValueString);

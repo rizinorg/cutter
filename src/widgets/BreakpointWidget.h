@@ -11,9 +11,8 @@
 class MainWindow;
 class QTreeWidget;
 
-namespace Ui
-{
-    class BreakpointWidget;
+namespace Ui {
+class BreakpointWidget;
 }
 
 

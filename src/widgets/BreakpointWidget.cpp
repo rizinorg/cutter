@@ -93,14 +93,17 @@ BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject
 bool BreakpointProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    BreakpointDescription item = index.data(BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
+    BreakpointDescription item = index.data(
+                                     BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
     return item.permission.contains(filterRegExp());
 }
 
 bool BreakpointProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    BreakpointDescription leftBreakpt = left.data(BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    BreakpointDescription rightBreakpt = right.data(BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
+    BreakpointDescription leftBreakpt = left.data(
+                                            BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
+    BreakpointDescription rightBreakpt = right.data(
+                                             BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
 
     switch (left.column()) {
     case BreakpointModel::AddrColumn:
@@ -142,7 +145,7 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     connect(ui->delAllBreakpoints, &QAbstractButton::clicked, Core(), &CutterCore::delAllBreakpoints);
     ui->breakpointTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->breakpointTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
-        this, SLOT(showBreakpointContextMenu(const QPoint &)));
+            this, SLOT(showBreakpointContextMenu(const QPoint &)));
 }
 
 BreakpointWidget::~BreakpointWidget() {}
@@ -165,7 +168,8 @@ void BreakpointWidget::setScrollMode()
 
 void BreakpointWidget::on_breakpointTreeView_doubleClicked(const QModelIndex &index)
 {
-    BreakpointDescription item = index.data(BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
+    BreakpointDescription item = index.data(
+                                     BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
     Core()->seek(item.addr);
 }
 
@@ -200,14 +204,14 @@ void BreakpointWidget::addBreakpointDialog()
 void BreakpointWidget::delBreakpoint()
 {
     BreakpointDescription bp = ui->breakpointTreeView->selectionModel()->currentIndex().data(
-                    BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
+                                   BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
     Core()->delBreakpoint(bp.addr);
 }
 
 void BreakpointWidget::toggleBreakpoint()
 {
     BreakpointDescription bp = ui->breakpointTreeView->selectionModel()->currentIndex().data(
-                    BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
+                                   BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
     if (bp.enabled) {
         Core()->disableBreakpoint(bp.addr);
     } else {

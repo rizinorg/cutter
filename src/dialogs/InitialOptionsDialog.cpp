@@ -224,7 +224,7 @@ QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds()
 void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> advanced*/)
 {
     main->initUI();
-    
+
     InitialOptions options;
 
     options.filename = main->getFilename();
@@ -238,7 +238,8 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
         options.binLoadAddr = Core()->math(ui->entry_loadOffset->text());
     }
 
-    options.mapAddr = Core()->math(ui->entry_mapOffset->text());      // Where to map the file once loaded (-m)
+    options.mapAddr = Core()->math(
+                          ui->entry_mapOffset->text());      // Where to map the file once loaded (-m)
     options.arch = getSelectedArch();
     options.cpu = getSelectedCPU();
     options.bits = getSelectedBits();
@@ -261,19 +262,19 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
     options.bbsize = getSelectedBBSize();
 
     int level = ui->analSlider->value();
-    switch(level) {
-        case 1:
-            options.analCmd = { "aaa" };
-            break;
-        case 2:
-            options.analCmd = { "aaaa" };
-            break;
-        case 3:
-            options.analCmd = getSelectedAdvancedAnalCmds();
-            break;
-        default:
-            options.analCmd = {};
-            break;
+    switch (level) {
+    case 1:
+        options.analCmd = { "aaa" };
+        break;
+    case 2:
+        options.analCmd = { "aaaa" };
+        break;
+    case 3:
+        options.analCmd = getSelectedAdvancedAnalCmds();
+        break;
+    default:
+        options.analCmd = {};
+        break;
     }
 
 

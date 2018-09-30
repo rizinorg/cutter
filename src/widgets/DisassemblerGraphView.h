@@ -65,7 +65,7 @@ class DisassemblerGraphView : public GraphView
         int start;
         int length;
         QString type;
-        Instr * instr;
+        Instr *instr;
         QString name;
         QString content;
     };
@@ -168,7 +168,7 @@ private:
 
     void initFont();
     void prepareGraphNode(GraphBlock &block);
-    Token *getToken(Instr * instr, int x);
+    Token *getToken(Instr *instr, int x);
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
     DisassemblyBlock *blockForAddress(RVA addr);

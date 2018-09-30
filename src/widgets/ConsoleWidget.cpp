@@ -179,7 +179,8 @@ void ConsoleWidget::executeCommand(const QString &command)
     QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
 
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
-    connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line, command] (const QString &result) {
+    connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
+          command] (const QString & result) {
         ui->outputTextEdit->appendPlainText(cmd_line + result);
         scrollOutputToEnd();
         historyAdd(command);

@@ -23,7 +23,8 @@ VersionInfoDialog::VersionInfoDialog(QWidget *parent) :
 
 VersionInfoDialog::~VersionInfoDialog() {}
 
-void VersionInfoDialog::fillVersionInfo(){
+void VersionInfoDialog::fillVersionInfo()
+{
 
     QJsonDocument doc = Core()->getFileVersionInfo();
 
@@ -143,7 +144,7 @@ void VersionInfoDialog::fillVersionInfo(){
         ui->rightLabel->setText("String table");
 
         // Left tree
-        for (QString key : vs.keys()){
+        for (QString key : vs.keys()) {
             QTreeWidgetItem *tempItem = new QTreeWidgetItem();
             tempItem->setText(0, key);
             if (vs[key].isDouble())
@@ -157,7 +158,7 @@ void VersionInfoDialog::fillVersionInfo(){
         }
 
         // Right tree
-        for (QString key : strings.keys()){
+        for (QString key : strings.keys()) {
             QTreeWidgetItem *tempItem = new QTreeWidgetItem();
             tempItem->setText(0, key);
             tempItem->setText(1, strings[key].toString());
