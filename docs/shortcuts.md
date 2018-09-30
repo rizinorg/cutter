@@ -4,6 +4,7 @@ This page regroups the common shortcuts available in Cutter.
 
 # Global shortcuts
 
+{:.table}
 | Shortcut   | Function            |
 | ---------- | ------------------- |
 | .          | Focus console input |
@@ -12,6 +13,7 @@ This page regroups the common shortcuts available in Cutter.
 
 # Disassembly view shortcuts
 
+{:.table}
 | Shortcut   | Function                         |
 | ---------- | -------------------------------- |
 | Esc        | Seek to previous position        |
@@ -24,6 +26,7 @@ This page regroups the common shortcuts available in Cutter.
 
 # Graph view shortcuts
 
+{:.table}
 | Shortcut            | Function                   |
 | ------------------- | -------------------------- |
 | Esc                 | Seek to previous position  |
@@ -39,6 +42,7 @@ This page regroups the common shortcuts available in Cutter.
 
 # Debug shortcuts
 
+{:.table}
 | Shortcut        | Function       |
 | --------------- | -------------- |
 | F9              | Start debug    |
