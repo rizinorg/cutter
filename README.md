@@ -20,11 +20,10 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
      * `chmod +x Cutter-v1.7.1-x86_64.AppImage`
      * `./Cutter-v1.7.1-x86_64.AppImage`
 
-## [Building from source](https://radareorg.github.io/cutter/building.html)
+## Building from sources
 
-```sh
-./build.sh
-```
+To build Cutter on your local machine, please follow this guide: [Building from source](https://radareorg.github.io/cutter/building.html)
+
 ## Docker
 
 To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
