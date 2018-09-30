@@ -3,7 +3,7 @@
 Cutter supports different build systems:
 
 * Building with qmake
-* [Building with cmake](https://github.com/radareorg/cutter/blob/master/docs/Compiling-with-CMake.md)
+* [Building with cmake](cmake.md)
 * Building with meson (see ./meson.py)
 
 Each time in the section below, the prefered method will be explained. For other methods check associated documentation.
@@ -45,9 +45,7 @@ CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
 :: Add qmake to PATH
 SET "PATH=C:\Qt\5.10.1\msvc2015_64\bin;%PATH%"
 :: Add Python to PATH
-SET "PATH=C:\Program Files\Python36;%PATH%"
-```
-
+SET "PATH=C:\Program Files\Python36;%PATH%" ``` 
 Install Meson:
 ```batch
 python -m pip install meson
@@ -62,4 +60,4 @@ Pass `CUTTER_ENABLE_JUPYTER=false` argument to `build.bat` if you want to disabl
 
 ## It doesn't work!
 
-Check this [page](https://github.com/radareorg/cutter/blob/master/docs/Common-errors.md) for common issues.
+Check this [page](common-errors.md) for common issues.

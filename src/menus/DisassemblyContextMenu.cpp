@@ -52,10 +52,13 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     initAction(&actionDeleteFlag, tr("Delete flag"), SLOT(on_actionDeleteFlag_triggered()));
     addAction(&actionDeleteFlag);
 
-    initAction(&actionDeleteFunction, tr("Undefine function"), SLOT(on_actionDeleteFunction_triggered()));
+    initAction(&actionDeleteFunction, tr("Undefine function"),
+               SLOT(on_actionDeleteFunction_triggered()));
     addAction(&actionDeleteFunction);
 
-    addAnalyzeMenu();
+    initAction(&actionAnalyzeFunction, tr("Define function here..."),
+               SLOT(on_actionAnalyzeFunction_triggered()));
+    addAction(&actionAnalyzeFunction);
 
     addSetBaseMenu();
 
@@ -93,16 +96,6 @@ DisassemblyContextMenu::~DisassemblyContextMenu()
     for (QAction *action : anonymousActions) {
         delete action;
     }
-}
-
-void DisassemblyContextMenu::addAnalyzeMenu()
-{
-    analyzeMenu = addMenu(tr("Analyze..."));
-
-    initAction(&actionAnalyzeFunction, tr("Create Function"));
-    analyzeMenu->addAction(&actionAnalyzeFunction);
-    connect(&actionAnalyzeFunction, &QAction::triggered, this,
-            &DisassemblyContextMenu::on_actionAnalyzeFunction_triggered);
 }
 
 void DisassemblyContextMenu::addSetBaseMenu()
@@ -384,8 +377,7 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 
     e->setInstruction(oldInstructionOpcode);
 
-    if (e->exec())
-    {
+    if (e->exec()) {
         QString userInstructionOpcode = e->getInstruction();
         if (userInstructionOpcode != oldInstructionOpcode) {
             Core()->editInstruction(offset, userInstructionOpcode);
@@ -448,8 +440,7 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
     QString oldBytes = Core()->getInstructionBytes(offset);
     e->setInstruction(oldBytes);
 
-    if (e->exec())
-    {
+    if (e->exec()) {
         QString bytes = e->getInstruction();
         if (bytes != oldBytes) {
             Core()->editBytes(offset, bytes);
@@ -469,12 +460,13 @@ void DisassemblyContextMenu::writeFailed()
     msgBox.setWindowTitle(tr("Write error"));
     msgBox.setText(tr("Unable to complete write operation. Consider opening in write mode."));
     msgBox.addButton(tr("OK"), QMessageBox::NoRole);
-    QAbstractButton* reopenButton = msgBox.addButton(tr("Reopen in write mode"), QMessageBox::YesRole);
+    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode"), QMessageBox::YesRole);
 
     msgBox.exec();
 
     if (msgBox.clickedButton() == reopenButton) {
-        QMessageBox::warning(this, "File reopened in write mode", "WARNING: Any chages will now be commited to disk");
+        QMessageBox::warning(this, "File reopened in write mode",
+                             "WARNING: Any chages will now be commited to disk");
         Core()->cmd("oo+");
     }
 }
@@ -534,7 +526,7 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
     RenameDialog *dialog = new RenameDialog(this);
     dialog->setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
-    dialog->setPlaceholderText(tr("Auto"));
+    dialog->setPlaceholderText(tr("Function name"));
     if (dialog->exec()) {
         QString function_name = dialog->getName();
         Core()->createFunctionAt(offset, function_name);

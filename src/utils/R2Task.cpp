@@ -12,7 +12,9 @@ R2Task::R2Task(const QString &cmd)
 
 R2Task::~R2Task()
 {
-    r_core_task_del(Core()->core(), task->id);
+    // Don't delete current task as it might be still running
+    // TODO
+    // For now tasks are not freed, so find we need to something
 }
 
 void R2Task::taskFinishedCallback(void *user, char *)

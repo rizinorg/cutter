@@ -289,7 +289,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
         r_core_cmd0 (core_, "s entry0");
     }
 
-    if (perms & R_IO_WRITE) {
+    if (perms & R_PERM_W) {
         r_core_cmd0 (core_, "omfg+w");
     }
 
@@ -302,8 +302,8 @@ bool CutterCore::tryFile(QString path, bool rw)
 {
     CORE_LOCK();
     RCoreFile *cf;
-    int flags = R_IO_READ;
-    if (rw) flags |= R_IO_WRITE;
+    int flags = R_PERM_R;
+    if (rw) flags = R_PERM_RW;
     cf = r_core_file_open(this->core_, path.toUtf8().constData(), flags, 0LL);
     if (!cf) {
         return false;
@@ -1253,7 +1253,6 @@ void CutterCore::setSettings()
     setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
     setConfig("anal.autoname", true);
-    setConfig("anal.jmptbl", false);
 
     setConfig("cfg.fortunes.tts", false);
 
@@ -2121,7 +2120,10 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 
 void CutterCore::loadScript(const QString &scriptname)
 {
+    r_core_task_sync_begin(core_);
     r_core_cmd_file(core_, scriptname.toUtf8().constData());
+    r_core_task_sync_end(core_);
+    triggerRefreshAll();
 }
 
 QString CutterCore::getVersionInformation()

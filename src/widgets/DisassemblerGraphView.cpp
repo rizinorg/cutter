@@ -233,6 +233,21 @@ void DisassemblerGraphView::loadCurrentGraph()
             }
             gb.exits.push_back(block_jump);
         }
+
+        QJsonObject switchOp = block["switchop"].toObject();
+        if (!switchOp.isEmpty()) {
+            QJsonArray caseArray = switchOp["cases"].toArray();
+            for (QJsonValue caseOpValue : caseArray) {
+                QJsonObject caseOp = caseOpValue.toObject();
+                bool ok;
+                RVA caseJump = caseOp["jump"].toVariant().toULongLong(&ok);
+                if (!ok) {
+                    continue;
+                }
+                gb.exits.push_back(caseJump);
+            }
+        }
+
         QJsonArray opArray = block["ops"].toArray();
         for (int opIndex = 0; opIndex < opArray.size(); opIndex++) {
             QJsonObject op = opArray[opIndex].toObject();

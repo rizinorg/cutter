@@ -20,18 +20,16 @@ public:
     QString getInstruction();
     void setInstruction(const QString &instruction);
 
-    void updatePreview(const QString &input);
-
 private slots:
     void on_buttonBox_accepted();
 
     void on_buttonBox_rejected();
 
+    void updatePreview(const QString &input);
+
 private:
     std::unique_ptr<Ui::EditInstructionDialog> ui;
     bool isEditingBytes; // true if editing intruction **bytes**; false if editing instruction **text**
-
-    bool eventFilter(QObject *obj, QEvent *event);
 };
 
 #endif // EDITINSTRUCTIONDIALOG_H

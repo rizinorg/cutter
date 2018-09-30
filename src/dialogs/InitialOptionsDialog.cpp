@@ -224,10 +224,13 @@ QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds()
 void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> advanced*/)
 {
     main->initUI();
-
+    
     InitialOptions options;
 
     options.filename = main->getFilename();
+    if (!options.filename.isEmpty()) {
+        main->setWindowTitle("Cutter – " + options.filename);
+    }
     options.shellcode = this->shellcode;
 
     // Where the bin header is located in the file (-B)

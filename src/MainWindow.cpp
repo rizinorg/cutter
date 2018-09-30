@@ -430,7 +430,7 @@ void MainWindow::setFilename(const QString &fn)
 {
     // Add file name to window title
     this->filename = fn;
-    this->setWindowTitle(APPNAME" - " + fn);
+    this->setWindowTitle(APPNAME" – " + fn);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
