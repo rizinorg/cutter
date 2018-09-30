@@ -1229,6 +1229,16 @@ QString CutterCore::getSimpleGraph(QString function)
     return dot;
 }
 
+void CutterCore::setGraphEmpty(bool empty)
+{
+    emptyGraph = empty;
+}
+
+bool CutterCore::isGraphEmpty()
+{
+    return emptyGraph;
+}
+
 void CutterCore::getOpcodes()
 {
     QString opcodes = cmd("?O");

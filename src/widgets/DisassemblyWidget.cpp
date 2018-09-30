@@ -125,7 +125,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        if (visibility) {
+        bool emptyGraph = (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
+        if (visibility && !emptyGraph) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
         }
     });
@@ -623,7 +624,8 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
 
 void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
 {
-    if (type == CutterCore::MemoryWidgetType::Disassembly) {
+    bool emptyGraph = (type == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
+    if (type == CutterCore::MemoryWidgetType::Disassembly || emptyGraph) {
         raise();
         setFocus();
     }

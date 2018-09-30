@@ -108,7 +108,7 @@ class DisassemblerGraphView : public GraphView
 
 public:
     DisassemblerGraphView(QWidget *parent);
-    ~DisassemblerGraphView();
+    ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
@@ -122,7 +122,7 @@ public:
 
     void loadCurrentGraph();
     QString windowTitle;
-//    bool navigate(ut64 addr);
+    bool isGraphEmpty();
 
 public slots:
     void refreshView();
@@ -160,6 +160,7 @@ private:
     int charHeight;
     int charOffset;
     int baseline;
+    bool emptyGraph;
 
     DisassemblyContextMenu *mMenu;
 
