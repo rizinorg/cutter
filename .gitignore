@@ -30,8 +30,8 @@ moc_*.cpp
 qrc_*.cpp
 moc_*.h
 ui_*.h
-build*
-cmake-build-*
+build*/
+cmake-build-*/
 
 # QtCreator
 *.autosave
