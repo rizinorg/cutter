@@ -1,10 +1,48 @@
+name: Cutter
 title: Cutter
+
+project:
+  version: 1.7.1
+  download_url: https://github.com/radareorg/cutter/releases
+
+license:
+  software: GPLv3
+  software_url: https://opensource.org/licenses/GPL-3.0
+
+  docs: CC BY 3.0
+  docs_url: http://creativecommons.org/licenses/by/3.0/
+
+links:
+  header:
+    - title: GitHub
+      url: https://github.com/radareorg/cutter
+  footer:
+    - title: GitHub
+      url: https://github.com/radareorg/cutter
+    - title: Issues
+      url: https://github.com/radareorg/cutter/issues
+
+ui:
+  header:
+    color1: "#080331"
+    color2: "#673051"
+    trianglify: true
+
+social:
+  github:
+    user: radareorg
+    repo: cutter
+  twitter:
+    enabled: false
+    via: r2gui
+    hash:
+    account: r2gui
+
 description: >-
   Cutter is a Qt and C++ graphical user interface for the reverse
   engineering framework radare2.
-twitter_username: r2gui
-github_username: radareorg
 
+# Build settings
 markdown: kramdown
 remote_theme: allejo/jekyll-docs-theme
 
