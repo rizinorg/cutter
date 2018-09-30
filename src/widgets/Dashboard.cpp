@@ -62,7 +62,7 @@ void Dashboard::updateContents()
         this->ui->relroEdit->setText(relro);
     }
 
-    this->ui->baddrEdit->setText("0x"+QString::number(Core()->get_baddr(), 16));
+    this->ui->baddrEdit->setText("0x" + QString::number(Core()->get_baddr(), 16));
 
     if (item2["va"].toBool() == true) {
         this->ui->vaEdit->setText("True");
@@ -158,10 +158,10 @@ void Dashboard::updateContents()
     QStringList stats = Core()->getStats();
 
     // Check if signature info and version info available
-    if (Core()->getSignatureInfo().isEmpty()){
+    if (Core()->getSignatureInfo().isEmpty()) {
         ui->certificateButton->setEnabled(false);
     }
-    if (Core()->getFileVersionInfo().isEmpty()){
+    if (Core()->getFileVersionInfo().isEmpty()) {
         ui->versioninfoButton->setEnabled(false);
     }
 
@@ -204,7 +204,7 @@ void Dashboard::on_versioninfoButton_clicked()
 
     static QDialog *infoDialog = nullptr;
 
-    if (!infoDialog){
+    if (!infoDialog) {
         infoDialog = new VersionInfoDialog(this);
     }
 

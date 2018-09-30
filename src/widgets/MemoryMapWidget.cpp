@@ -87,14 +87,17 @@ MemoryProxyModel::MemoryProxyModel(MemoryMapModel *sourceModel, QObject *parent)
 bool MemoryProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    MemoryMapDescription item = index.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
+    MemoryMapDescription item = index.data(
+                                    MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
     return item.name.contains(filterRegExp());
 }
 
 bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    MemoryMapDescription leftMemMap = left.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
-    MemoryMapDescription rightMemMap = right.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
+    MemoryMapDescription leftMemMap = left.data(
+                                          MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
+    MemoryMapDescription rightMemMap = right.data(
+                                           MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
 
     switch (left.column()) {
     case MemoryMapModel::AddrStartColumn:
@@ -149,6 +152,7 @@ void MemoryMapWidget::setScrollMode()
 
 void MemoryMapWidget::on_memoryTreeView_doubleClicked(const QModelIndex &index)
 {
-    MemoryMapDescription item = index.data(MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
+    MemoryMapDescription item = index.data(
+                                    MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
     Core()->seek(item.addrStart);
 }

@@ -116,7 +116,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
 {
     if (disconn) {
-        disconnect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblerGraphView::onSeekChanged);
+        disconnect(seekable, &CutterSeekableWidget::seekChanged, this,
+                   &DisassemblerGraphView::onSeekChanged);
     } else {
         connect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblerGraphView::onSeekChanged);
     }
@@ -448,12 +449,12 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                 int tokenEnd = pos + highlight_token->content.length();
 
                 if ((pos > 0 && instr.plainText[pos - 1].isLetterOrNumber())
-                    || (tokenEnd < instr.plainText.length() && instr.plainText[tokenEnd].isLetterOrNumber())) {
+                        || (tokenEnd < instr.plainText.length() && instr.plainText[tokenEnd].isLetterOrNumber())) {
                     continue;
                 }
 
                 p.fillRect(QRect(block.x + charWidth * 3 + pos * charWidth, y, highlight_token->length * charWidth,
-                             charHeight), disassemblySelectionColor.lighter(250));
+                                 charHeight), disassemblySelectionColor.lighter(250));
             }
 
             y += int(instr.text.lines.size()) * charHeight;
@@ -744,7 +745,7 @@ void DisassemblerGraphView::seekPrev()
     }
 }
 
-DisassemblerGraphView::Token * DisassemblerGraphView::getToken(Instr * instr, int x)
+DisassemblerGraphView::Token *DisassemblerGraphView::getToken(Instr *instr, int x)
 {
     int clickedCharPos = x / charWidth - 3;
 
@@ -759,7 +760,7 @@ DisassemblerGraphView::Token * DisassemblerGraphView::getToken(Instr * instr, in
         QRegularExpressionMatch match = i.next();
 
         if (match.capturedStart() <= clickedCharPos && match.capturedEnd() > clickedCharPos) {
-            Token * t = new Token;
+            Token *t = new Token;
             t->start = match.capturedStart();
             t->length = match.capturedLength();
             t->content = match.captured();

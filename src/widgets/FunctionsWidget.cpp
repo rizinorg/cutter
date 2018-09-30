@@ -354,24 +354,24 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
         case FunctionModel::NameColumn:
             return left_function.name < right_function.name;
         case FunctionModel::NargsColumn:
-          if (left_function.nargs != right_function.nargs)
-              return left_function.nargs < right_function.nargs;
-          break;
+            if (left_function.nargs != right_function.nargs)
+                return left_function.nargs < right_function.nargs;
+            break;
         case FunctionModel::NbbsColumn:
-          if (left_function.nbbs != right_function.nbbs)
-              return left_function.nbbs < right_function.nbbs;
-          break;
+            if (left_function.nbbs != right_function.nbbs)
+                return left_function.nbbs < right_function.nbbs;
+            break;
         case FunctionModel::NlocalsColumn:
-          if (left_function.nlocals != right_function.nlocals)
-              return left_function.nlocals < right_function.nlocals;
-          break;
+            if (left_function.nlocals != right_function.nlocals)
+                return left_function.nlocals < right_function.nlocals;
+            break;
         case FunctionModel::CcColumn:
-          if (left_function.cc != right_function.cc)
-              return left_function.cc < right_function.cc;
-          break;
+            if (left_function.cc != right_function.cc)
+                return left_function.cc < right_function.cc;
+            break;
         case FunctionModel::CalltypeColumn:
-          return left_function.calltype < right_function.calltype;
-          break;
+            return left_function.calltype < right_function.calltype;
+            break;
         default:
             return false;
         }
@@ -445,7 +445,8 @@ void FunctionsWidget::refreshTree()
     }
 
     task = QSharedPointer<FunctionsTask>(new FunctionsTask());
-    connect(task.data(), &FunctionsTask::fetchFinished, this, [this] (const QList<FunctionDescription> &functions) {
+    connect(task.data(), &FunctionsTask::fetchFinished,
+    this, [this] (const QList<FunctionDescription> &functions) {
         functionModel->beginReloadFunctions();
 
         this->functions = functions;

@@ -15,10 +15,10 @@ ImportsModel::ImportsModel(QList<ImportDescription> *imports, QObject *parent) :
 
 int ImportsModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid()? 0 : imports->count();
+    return parent.isValid() ? 0 : imports->count();
 }
 
-int ImportsModel::columnCount(const QModelIndex&) const
+int ImportsModel::columnCount(const QModelIndex &) const
 {
     return ImportsModel::ColumnCount;
 }
@@ -26,8 +26,7 @@ int ImportsModel::columnCount(const QModelIndex&) const
 QVariant ImportsModel::data(const QModelIndex &index, int role) const
 {
     const ImportDescription &import = imports->at(index.row());
-    switch (role)
-    {
+    switch (role) {
     case Qt::ForegroundRole:
         if (index.column() < ImportsModel::ColumnCount) {
             if (banned.match(import.name).hasMatch())
@@ -35,14 +34,13 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
         }
         break;
     case Qt::DisplayRole:
-        switch(index.column())
-        {
+        switch (index.column()) {
         case ImportsModel::AddressColumn:
             return RAddressString(import.plt);
         case ImportsModel::TypeColumn:
             return import.type;
         case ImportsModel::SafetyColumn:
-            return banned.match(import.name).hasMatch()? tr("Unsafe") : QStringLiteral("");
+            return banned.match(import.name).hasMatch() ? tr("Unsafe") : QStringLiteral("");
         case ImportsModel::NameColumn:
             return import.name;
         default:
@@ -61,10 +59,8 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
 
 QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
 {
-    if(role == Qt::DisplayRole)
-    {
-        switch(section)
-        {
+    if (role == Qt::DisplayRole) {
+        switch (section) {
         case ImportsModel::AddressColumn:
             return tr("Address");
         case ImportsModel::TypeColumn:

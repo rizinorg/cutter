@@ -2,7 +2,7 @@
 #include "CutterSeekableWidget.h"
 
 CutterSeekableWidget::CutterSeekableWidget(QObject *parent)
- :
+    :
     QObject(parent)
 {
     connect(Core(), &CutterCore::seekChanged, this, &CutterSeekableWidget::onSeekChanged);

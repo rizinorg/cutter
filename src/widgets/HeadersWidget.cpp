@@ -89,8 +89,10 @@ bool HeadersProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
 
 bool HeadersProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    HeaderDescription leftHeader = left.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
-    HeaderDescription rightHeader = right.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
+    HeaderDescription leftHeader = left.data(
+                                       HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
+    HeaderDescription rightHeader = right.data(
+                                        HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
 
     switch (left.column()) {
     case HeadersModel::OffsetColumn:

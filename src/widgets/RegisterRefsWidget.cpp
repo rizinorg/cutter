@@ -136,15 +136,15 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     setScrollMode();
     connect(Core(), &CutterCore::refreshAll, this, &RegisterRefsWidget::refreshRegisterRef);
     connect(Core(), &CutterCore::registersChanged, this, &RegisterRefsWidget::refreshRegisterRef);
-    connect(actionCopyValue, &QAction::triggered, [=] () {
+    connect(actionCopyValue, &QAction::triggered, [ = ] () {
         copyClip(RegisterRefModel::ValueColumn);
     });
-    connect(actionCopyRef, &QAction::triggered, [=] () {
+    connect(actionCopyRef, &QAction::triggered, [ = ] () {
         copyClip(RegisterRefModel::RefColumn);
     });
     ui->registerRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->registerRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
-        this, SLOT(showRegRefContextMenu(const QPoint &)));
+            this, SLOT(showRegRefContextMenu(const QPoint &)));
 }
 
 RegisterRefsWidget::~RegisterRefsWidget() {}
@@ -186,7 +186,8 @@ void RegisterRefsWidget::showRegRefContextMenu(const QPoint &pt)
 void RegisterRefsWidget::copyClip(int column)
 {
     int row = ui->registerRefTreeView->selectionModel()->currentIndex().row();
-    QString value = ui->registerRefTreeView->selectionModel()->currentIndex().sibling(row, column).data().toString();
+    QString value = ui->registerRefTreeView->selectionModel()->currentIndex().sibling(row,
+                                                                                      column).data().toString();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(value);
 }

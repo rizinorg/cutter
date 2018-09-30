@@ -57,7 +57,7 @@ int CommentsModel::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-int CommentsModel::columnCount(const QModelIndex&) const
+int CommentsModel::columnCount(const QModelIndex &) const
 {
     return (isNested()
             ? static_cast<int>(CommentsModel::NestedColumnCount)
@@ -92,8 +92,7 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
         comment = comments->at(commentIndex);
     }
 
-    switch (role)
-    {
+    switch (role) {
     case Qt::DisplayRole:
         if (isNested()) {
             if (isSubnode) {

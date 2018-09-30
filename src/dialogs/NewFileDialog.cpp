@@ -337,7 +337,8 @@ void NewFileDialog::fillIOPluginsList()
 
 void NewFileDialog::loadFile(const QString &filename)
 {
-    if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(filename, false) && !ui->checkBox_FilelessOpen->isChecked()) {
+    if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(filename, false)
+            && !ui->checkBox_FilelessOpen->isChecked()) {
         QMessageBox msgBox(this);
         msgBox.setText(tr("Select a new program or a previous one before continuing."));
         msgBox.exec();
@@ -364,7 +365,7 @@ void NewFileDialog::loadFile(const QString &filename)
     InitialOptions options;
     options.filename = ioFile;
     main->openNewFile(options);
-    
+
     close();
 }
 

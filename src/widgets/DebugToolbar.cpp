@@ -33,7 +33,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
     actionContinueUntilMain = new QAction(continueUntilMainIcon, tr("Continue until main"), parent);
     actionContinueUntilCall = new QAction(continueUntilCallIcon, tr("Continue until call"), parent);
-    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, tr("Continue until syscall"), parent);
+    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, tr("Continue until syscall"),
+                                             parent);
     actionStep = new QAction(stepIcon, tr("Step"), parent);
     actionStep->setShortcut(QKeySequence(Qt::Key_F7));
     actionStepOver = new QAction(stepOverIcon, tr("Step over"), parent);
@@ -52,7 +53,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 
     QToolButton *continueUntilButton = new QToolButton;
     continueUntilButton->setPopupMode(QToolButton::MenuButtonPopup);
-    connect(continueUntilButton, &QToolButton::triggered, continueUntilButton, &QToolButton::setDefaultAction);
+    connect(continueUntilButton, &QToolButton::triggered, continueUntilButton,
+            &QToolButton::setDefaultAction);
     QMenu *continueUntilMenu = new QMenu;
     continueUntilMenu->addAction(actionContinueUntilMain);
     continueUntilMenu->addAction(actionContinueUntilCall);
@@ -68,7 +70,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     addAction(actionStepOver);
 
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
-    connect(actionStop, &QAction::triggered, [=]() {
+    connect(actionStop, &QAction::triggered, [ = ]() {
         actionContinue->setVisible(true);
         actionStart->setVisible(true);
         actionStartEmul->setVisible(true);
@@ -77,7 +79,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         this->colorToolbar(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
-    connect(actionStart, &QAction::triggered, [=]() {
+    connect(actionStart, &QAction::triggered, [ = ]() {
         QString filename = Core()->getConfig("file.lastpath");
         QFileInfo info(filename);
         if (!info.isExecutable()) {
@@ -93,7 +95,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     });
     connect(actionAttach, &QAction::triggered, this, &DebugToolbar::attachProcessDialog);
     connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
-    connect(actionStartEmul, &QAction::triggered, [=]() {
+    connect(actionStartEmul, &QAction::triggered, [ = ]() {
         actionContinue->setVisible(false);
         actionStart->setVisible(false);
         actionAttach->setVisible(false);

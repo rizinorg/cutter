@@ -95,8 +95,10 @@ bool ProcessProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
 
 bool ProcessProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    ProcessDescription leftProc = left.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
-    ProcessDescription rightProc = right.data(ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+    ProcessDescription leftProc = left.data(
+                                      ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+    ProcessDescription rightProc = right.data(
+                                       ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
 
     switch (left.column()) {
     case ProcessModel::PidColumn:
@@ -150,7 +152,7 @@ void AttachProcDialog::on_buttonBox_rejected()
 int AttachProcDialog::getPID()
 {
     ProcessDescription proc = ui->procTreeView->selectionModel()->currentIndex().data(
-                    ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
+                                  ProcessModel::ProcDescriptionRole).value<ProcessDescription>();
     return proc.pid;
 }
 

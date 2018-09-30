@@ -178,7 +178,8 @@ void StringsWidget::refreshStrings()
     }
 
     task = QSharedPointer<StringsTask>(new StringsTask());
-    connect(task.data(), &StringsTask::stringSearchFinished, this, &StringsWidget::stringSearchFinished);
+    connect(task.data(), &StringsTask::stringSearchFinished, this,
+            &StringsWidget::stringSearchFinished);
     Core()->getAsyncTaskManager()->start(task);
 }
 

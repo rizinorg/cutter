@@ -13,9 +13,8 @@ class MainWindow;
 class QTreeWidget;
 class QTreeWidgetItem;
 
-namespace Ui
-{
-    class ZignaturesWidget;
+namespace Ui {
+class ZignaturesWidget;
 }
 
 class ZignaturesModel : public QAbstractListModel

@@ -12,9 +12,8 @@
 class MainWindow;
 class QTreeWidget;
 
-namespace Ui
-{
-    class HeadersWidget;
+namespace Ui {
+class HeadersWidget;
 }
 
 

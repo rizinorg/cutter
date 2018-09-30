@@ -44,10 +44,10 @@ QVariant ZignaturesModel::data(const QModelIndex &index, int role) const
 
     case Qt::ToolTipRole: {
         QString tmp = QString("Graph:\n\n    Cyclomatic complexity: " + RSizeString(zignature.cc) +
-                       "\n    Nodes / basicblocks: " + RSizeString(zignature.nbbs) +
-                       "\n    Edges: " + RSizeString(zignature.edges) +
-                       "\n    Ebbs: " + RSizeString(zignature.ebbs) +
-                       "\n\nRefs:\n");
+                              "\n    Nodes / basicblocks: " + RSizeString(zignature.nbbs) +
+                              "\n    Edges: " + RSizeString(zignature.edges) +
+                              "\n    Ebbs: " + RSizeString(zignature.ebbs) +
+                              "\n\nRefs:\n");
         for (QString ref : zignature.refs) {
             tmp.append("\n    " + ref);
         }
@@ -97,14 +97,17 @@ ZignaturesProxyModel::ZignaturesProxyModel(ZignaturesModel *sourceModel, QObject
 bool ZignaturesProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
-    ZignatureDescription item = index.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
+    ZignatureDescription item = index.data(
+                                    ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
     return item.name.contains(filterRegExp());
 }
 
 bool ZignaturesProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    ZignatureDescription leftZignature = left.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
-    ZignatureDescription rightZignature = right.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
+    ZignatureDescription leftZignature = left.data(
+                                             ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
+    ZignatureDescription rightZignature = right.data(
+                                              ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
 
     switch (left.column()) {
     case ZignaturesModel::OffsetColumn:
@@ -156,6 +159,7 @@ void ZignaturesWidget::setScrollMode()
 
 void ZignaturesWidget::on_zignaturesTreeView_doubleClicked(const QModelIndex &index)
 {
-    ZignatureDescription item = index.data(ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
+    ZignatureDescription item = index.data(
+                                    ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
     Core()->seek(item.offset);
 }

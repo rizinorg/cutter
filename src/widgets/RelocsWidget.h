@@ -25,7 +25,7 @@ public:
     enum Column { VAddrColumn = 0, TypeColumn, NameColumn, ColumnCount };
     enum Role { RelocDescriptionRole = Qt::UserRole, AddressRole };
 
-    RelocsModel(QList<RelocDescription> *relocs, QObject* parent = nullptr);
+    RelocsModel(QList<RelocDescription> *relocs, QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;

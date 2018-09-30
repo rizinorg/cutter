@@ -146,7 +146,7 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
     });
 
     connect(ui->searchspaceCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            [=](int index){ updatePlaceholderText(index);});
+    [ = ](int index) { updatePlaceholderText(index);});
 
 }
 
@@ -206,20 +206,20 @@ void SearchWidget::setScrollMode()
 
 void SearchWidget::updatePlaceholderText(int index)
 {
-    switch(index){
-        case 1: // string
-            ui->filterLineEdit->setPlaceholderText("foobar");
-            break;
-        case 2: // hex string
-            ui->filterLineEdit->setPlaceholderText("deadbeef");
-            break;
-        case 3: // ROP gadgets
-            ui->filterLineEdit->setPlaceholderText("pop,,pop");
-            break;
-        case 4: // 32bit value
-            ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
-            break;
-        default:
-            ui->filterLineEdit->setPlaceholderText("jmp rax");
+    switch (index) {
+    case 1: // string
+        ui->filterLineEdit->setPlaceholderText("foobar");
+        break;
+    case 2: // hex string
+        ui->filterLineEdit->setPlaceholderText("deadbeef");
+        break;
+    case 3: // ROP gadgets
+        ui->filterLineEdit->setPlaceholderText("pop,,pop");
+        break;
+    case 4: // 32bit value
+        ui->filterLineEdit->setPlaceholderText("0xdeadbeef");
+        break;
+    default:
+        ui->filterLineEdit->setPlaceholderText("jmp rax");
     }
 }

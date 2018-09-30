@@ -86,7 +86,7 @@ void VisualNavbar::paintEvent(QPaintEvent *event)
     if (statsWidth < w) {
         statsWidth = nextPow2(w);
         fetch = true;
-    } else if (statsWidth > w*4) {
+    } else if (statsWidth > w * 4) {
         statsWidth = statsWidth > 0 ? statsWidth / 2 : 0;
         fetch = true;
     }
@@ -110,7 +110,7 @@ void VisualNavbar::fetchStats()
     stats = Core()->getBlockStatistics(statsWidth);
 }
 
-enum class DataType: int { Empty, Code, String, Symbol, Count };
+enum class DataType : int { Empty, Code, String, Symbol, Count };
 
 void VisualNavbar::updateGraphicsScene()
 {
