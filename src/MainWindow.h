@@ -66,7 +66,7 @@ public:
     bool responsive;
 
     explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    ~MainWindow() override;
 
     void openNewFile(InitialOptions options = InitialOptions(), bool skipOptionsDialog = false);
     void displayNewFileDialog();
@@ -133,7 +133,6 @@ private slots:
     void on_actionDisasAdd_comment_triggered();
 
     void on_actionDefault_triggered();
-    void on_actionZen_triggered();
 
     void on_actionFunctionsRename_triggered();
 
@@ -170,7 +169,7 @@ private slots:
     void updateTasksIndicator();
 
     void mousePressEvent(QMouseEvent *event) override;
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
     void changeDebugView();
     void changeDefinedView();
 
@@ -236,12 +235,10 @@ private:
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
-    void resetToZenLayout();
     void resetToDebugLayout();
 
     void restoreDocks();
     void hideAllDocks();
-    void showDefaultDocks();
     void showZenDocks();
     void showDebugDocks();
     void updateDockActionsChecked();
