@@ -628,12 +628,13 @@ void MainWindow::updateDockActionsChecked()
 void MainWindow::showZenDocks()
 {
     const QList<QDockWidget *> zenDocks = { functionsDock,
+                                            dashboardDock,
                                             stringsDock,
                                             graphDock,
                                             disassemblyDock,
                                             hexdumpDock,
                                             searchDock,
-                                            dashboardDock,
+					    importsDock,
 #ifdef CUTTER_ENABLE_JUPYTER
                                             jupyterDock
 #endif
