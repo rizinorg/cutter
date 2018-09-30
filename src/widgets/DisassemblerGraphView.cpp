@@ -168,10 +168,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     bool emptyGraph = functions.isEmpty();
     if (emptyGraph) {
-        // If there's no function to print, just move to disassembly and add a message
-        if (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Graph) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
-        }
+        // If there's no function to print, just add a message
         if (!emptyText) {
             QVBoxLayout *layout = new QVBoxLayout(this);
             emptyText = new QLabel(this);
@@ -184,6 +181,8 @@ void DisassemblerGraphView::loadCurrentGraph()
     } else if (emptyText) {
         emptyText->setVisible(false);
     }
+    // Refresh global "empty graph" variable so other widget know there is nothing to show here
+    Core()->setGraphEmpty(emptyGraph);
 
     Analysis anal;
     anal.ready = true;
@@ -707,7 +706,7 @@ void DisassemblerGraphView::seekInstruction(bool previous_instr)
             continue;
         }
 
-        // Found the instructon. Check if a next one exists
+        // Found the instruction. Check if a next one exists
         if (!previous_instr && (i < db->instrs.size() - 1)) {
             seekable->seek(db->instrs[i + 1].addr);
         } else if (previous_instr && (i > 0)) {

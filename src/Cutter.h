@@ -538,6 +538,8 @@ public:
     QJsonDocument getFileVersionInfo();
     QStringList getStats();
     QString getSimpleGraph(QString function);
+    void setGraphEmpty(bool empty);
+    bool isGraphEmpty();
 
     void getOpcodes();
     QList<QString> opcodes;
@@ -660,6 +662,8 @@ private:
     AsyncTaskManager *asyncTaskManager;
     RVA offsetPriorDebugging = RVA_INVALID;
     QErrorMessage msgBox;
+
+    bool emptyGraph = false;
 
     QList<CutterPlugin*> plugins;
 };

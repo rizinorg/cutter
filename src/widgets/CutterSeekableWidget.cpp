@@ -19,8 +19,7 @@ void CutterSeekableWidget::seek(RVA addr)
 {
     if (isInSyncWithCore) {
         Core()->seek(addr);
-    }
-    else {
+    } else {
         prevIdenpendentOffset = independentOffset;
         independentOffset = addr;
         emit seekChanged(addr);
@@ -32,8 +31,7 @@ RVA CutterSeekableWidget::getOffset()
     RVA addr;
     if (isInSyncWithCore) {
         addr = Core()->getOffset();
-    }
-    else {
+    } else {
         addr = independentOffset;
     }
     return addr;
