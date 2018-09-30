@@ -2,13 +2,11 @@
 #ifdef CUTTER_ENABLE_JUPYTER
 
 #include <Python.h>
-#include <marshal.h>
-
-#include <QFile>
 #include <csignal>
 
 #include "Cutter.h"
 #include "NestedIPyKernel.h"
+#include "QtResImporter.h"
 
 NestedIPyKernel *NestedIPyKernel::start(const QStringList &argv)
 {
@@ -20,29 +18,8 @@ NestedIPyKernel *NestedIPyKernel::start(const QStringList &argv)
         return nullptr;
     }
 
-    QFile moduleFile(":/python/cutter_ipykernel.pyc");
-    bool isBytecode = moduleFile.exists();
-    if (!isBytecode) {
-        moduleFile.setFileName(":/python/cutter_ipykernel.py");
-    }
-    moduleFile.open(QIODevice::ReadOnly);
-    QByteArray moduleCode = moduleFile.readAll();
-    moduleFile.close();
-
-    PyObject *moduleCodeObject;
-    if (isBytecode) {
-        moduleCodeObject = PyMarshal_ReadObjectFromString(moduleCode.constData() + 12,
-                                                          moduleCode.size() - 12);
-    } else {
-        moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_ipykernel.py",
-                                            Py_file_input);
-    }
-    if (!moduleCodeObject) {
-        qWarning() << "Could not compile cutter_ipykernel.";
-        return nullptr;
-    }
-    auto cutterIPykernelModule = PyImport_ExecCodeModule("cutter_ipykernel", moduleCodeObject);
-    Py_DECREF(moduleCodeObject);
+    RegQtResImporter();
+    auto cutterIPykernelModule = QtResImport("cutter_ipykernel");
     if (!cutterIPykernelModule) {
         qWarning() << "Could not import cutter_ipykernel.";
         return nullptr;

@@ -218,7 +218,8 @@ SOURCES += \
     dialogs/EditFunctionDialog.cpp \
     widgets/CutterTreeView.cpp \
     widgets/ComboQuickFilterView.cpp \
-    dialogs/HexdumpRangeDialog.cpp
+    dialogs/HexdumpRangeDialog.cpp \
+    common/QtResImporter.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -320,7 +321,8 @@ HEADERS  += \
     dialogs/EditFunctionDialog.h \
     widgets/CutterTreeView.h \
     widgets/ComboQuickFilterView.h \
-    dialogs/HexdumpRangeDialog.h
+    dialogs/HexdumpRangeDialog.h \
+    common/QtResImporter.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

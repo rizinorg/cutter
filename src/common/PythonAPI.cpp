@@ -32,28 +32,6 @@ PyObject *api_cmd(PyObject *self, PyObject *args)
     return PyUnicode_FromString(result);
 }
 
-PyObject *api_cmdj(PyObject *self, PyObject *args)
-{
-    Q_UNUSED(self);
-    char *command;
-    char *result = (char *) "";
-    QString cmdRes;
-    QByteArray cmdBytes;
-    if (PyArg_ParseTuple(args, "s:command", &command)) {
-        cmdRes = Core()->cmd(command);
-        cmdBytes = cmdRes.toLocal8Bit();
-        result = cmdBytes.data();
-        PyObject *jsonModule = PyImport_ImportModule("json");
-        PyObject *loadsFunc = PyObject_GetAttrString(jsonModule, "loads");
-        if (!PyCallable_Check(loadsFunc)) {
-            PyErr_SetString(PyExc_SystemError, "Could not parse JSON.");
-            return NULL;
-        }
-        return PyEval_CallFunction(loadsFunc, "(s)", result);
-    }
-    return Py_None;
-}
-
 PyObject *api_refresh(PyObject *self, PyObject *args)
 {
     Q_UNUSED(self);
@@ -88,10 +66,6 @@ PyMethodDef CutterMethods[] = {
         "Execute a command inside Cutter"
     },
     {
-        "cmdj", api_cmdj, METH_VARARGS,
-        "Execute a JSON command and return the result as a dictionnary"
-    },
-    {
         "refresh", api_refresh, METH_NOARGS,
         "Refresh Cutter widgets"
     },
@@ -103,7 +77,7 @@ PyMethodDef CutterMethods[] = {
 };
 
 PyModuleDef CutterModule = {
-    PyModuleDef_HEAD_INIT, "cutter", NULL, -1, CutterMethods,
+    PyModuleDef_HEAD_INIT, "_cutter", NULL, -1, CutterMethods,
     NULL, NULL, NULL, NULL
 };
 
@@ -111,7 +85,6 @@ PyObject *PyInit_api()
 {
     return PyModule_Create(&CutterModule);
 }
-
 
 // -----------------------------
 
