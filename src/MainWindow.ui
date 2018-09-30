@@ -80,7 +80,7 @@ QToolTip {
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -94,8 +94,8 @@ QToolTip {
      <rect>
       <x>378</x>
       <y>100</y>
-      <width>136</width>
-      <height>271</height>
+      <width>151</width>
+      <height>240</height>
      </rect>
     </property>
     <property name="title">
@@ -125,7 +125,6 @@ QToolTip {
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefault"/>
-    <addaction name="actionZen"/>
     <addaction name="actionReset_settings"/>
     <addaction name="separator"/>
     <addaction name="actionLock"/>
