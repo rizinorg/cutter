@@ -2,9 +2,14 @@
 
 This page lists common issues met by our users.
 
+---
+
 # AppImage crashes
 
+
 If the linux AppImage binary crashes upon startup, make sure your `LD_LIBRARY_PATH` environment variable is empty. [#579](https://github.com/radareorg/cutter/issues/579)
+
+---
 
 # Compilation error
 > r_core development package not found
@@ -17,7 +22,7 @@ On OS X you can also try:
 - `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
 - `PKG_CONFIG_PATH=$HOME/cutter/radare2/pkgcfg qmake` (for modern version and if radare2 was installed like the submodule)
 
-![PATH variable settings](images/cutter_path_settings.png)
+<img src="/images/cutter_path_settings.png" alt="Cutter screenshot">
 
 Or radare2 libs could be installed to `/usr/lib/pkgconfig/`, so you can add variable `PKG_CONFIG_PATH` with value `/usr/lib/pkgconfig/`
 

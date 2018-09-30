@@ -8,17 +8,22 @@ In any case, there are obviously some requirements:
 
 **Before compiling, note that we also provide binaries available for windows/linux/MacOS X [here](https://github.com/radareorg/cutter/releases).**
 
-## Building options
+---
+
+
+# Building options
 
 Note that there are two major building options available:
 * `CUTTER_ENABLE_JUPYTER` is used to compile Cutter with bundled Python and Jupyter module
 * `CUTTER_ENABLE_QTWEBENGINE` is used to compile Cutter with bundled QtWebEngine (to ease jupyter console usage)
 
+---
+
 # Building with Qmake
 
-## Requirements
+### Requirements
 
-### Compiling on Linux / OsX
+#### Compiling on Linux / OsX
 
 The easy way is to simply run `./build.sh` from the root directory, and let the magic happen. The script will use qmake to build Cutter.
 
@@ -29,12 +34,15 @@ qmake ../src/Cutter.pro
 make
 cd ..
 ```
+
+---
+
 # Building with Cmake
 
-## Requirements
+### Requirements
 * CMake >= 3.1
 
-## Building on Linux
+### Building on Linux
 
 The root for CMake is in src/. In-source builds are **not allowed**, so you **must** run CMake from a separate directory:
 ```
@@ -49,7 +57,9 @@ If all went well, you should now have a working Makefile in your build directory
 make
 ```
 
-## Building on Windows
+---
+
+# Building on Windows
 
 Alternatively, on Windows you can run something like this (depending on your Cmake installation)
 ```batch
@@ -85,7 +95,7 @@ This can be resolved by either:
 pip3 install notebook jupyter_client
 ```
 
-# Building with Meson (Windows)
+## Building with Meson (Windows)
 
 Additional requirements:
 

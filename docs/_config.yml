@@ -44,7 +44,7 @@ description: >-
 
 # Build settings
 markdown: kramdown
-remote_theme: allejo/jekyll-docs-theme
+remote_theme: radareorg/cutter-jekyll-docs-theme
 
 plugins:
   - jekyll-remote-theme
