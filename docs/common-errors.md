@@ -22,7 +22,7 @@ On OS X you can also try:
 - `PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake`
 - `PKG_CONFIG_PATH=$HOME/cutter/radare2/pkgcfg qmake` (for modern version and if radare2 was installed like the submodule)
 
-<img src="/images/cutter_path_settings.png" alt="Cutter screenshot">
+<img src="images/cutter_path_settings.png" alt="Cutter screenshot">
 
 Or radare2 libs could be installed to `/usr/lib/pkgconfig/`, so you can add variable `PKG_CONFIG_PATH` with value `/usr/lib/pkgconfig/`
 
