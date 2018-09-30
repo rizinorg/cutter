@@ -74,10 +74,9 @@ void SetFunctionVarTypes::on_OkPressed()
                 .arg(selectedVar->name)
                 .arg(ui->selectedTypeForVar->currentText()));
 
-    //TODO: Switch argument names when new version of afvn new_type (old_type) is implmented
     Core()->cmd(QString("afvn %1 %2")
-                .arg(ui->dropdownLocalVars->currentText())
-                .arg(ui->newVarName->text().replace(" ", "_")));
+                .arg(ui->newVarName->text().replace(" ", "_"))
+                .arg(ui->dropdownLocalVars->currentText()));
 }
 
 void SetFunctionVarTypes::on_ComboBoxChanged(QString varName)
