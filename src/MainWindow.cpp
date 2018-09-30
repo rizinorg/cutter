@@ -634,7 +634,7 @@ void MainWindow::showZenDocks()
                                             disassemblyDock,
                                             hexdumpDock,
                                             searchDock,
-					    importsDock,
+                                            importsDock,
 #ifdef CUTTER_ENABLE_JUPYTER
                                             jupyterDock
 #endif
@@ -674,6 +674,7 @@ void MainWindow::resetToDefaultLayout()
     hideAllDocks();
     restoreDocks();
     showZenDocks();
+    dashboardDock->raise();
 
     // Ugly workaround to set the default widths of functions docks
     // if anyone finds a way to do this cleaner that also works, feel free to change it!
