@@ -21,8 +21,6 @@ Note that there are two major building options available:
 
 # Building with Qmake
 
-### Requirements
-
 #### Compiling on Linux / OsX
 
 The easy way is to simply run `./build.sh` from the root directory, and let the magic happen. The script will use qmake to build Cutter.
