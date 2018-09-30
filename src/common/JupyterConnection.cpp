@@ -1,19 +1,18 @@
 #ifdef CUTTER_ENABLE_JUPYTER
 
 #include <Python.h>
-#include <marshal.h>
 
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QDebug>
 #include <QThread>
-#include <QFile>
 #include <QCoreApplication>
 #include <QDir>
 
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
+#include "QtResImporter.h"
 #include "PythonAPI.h"
 
 Q_GLOBAL_STATIC(JupyterConnection, uniqueInstance)
@@ -79,8 +78,9 @@ void JupyterConnection::initPythonHome()
 
 void JupyterConnection::initPython()
 {
-    PyImport_AppendInittab("cutter", &PyInit_api);
+    PyImport_AppendInittab("_cutter", &PyInit_api);
     PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
+    PyImport_AppendInittab("_qtres", &PyInit_qtres);
     Py_Initialize();
     PyEval_InitThreads();
 
@@ -93,31 +93,7 @@ void JupyterConnection::createCutterJupyterModule()
         PyEval_RestoreThread(pyThreadState);
     }
 
-    QFile moduleFile(":/python/cutter_jupyter.pyc");
-    bool isBytecode = moduleFile.exists();
-    if (!isBytecode) {
-        moduleFile.setFileName(":/python/cutter_jupyter.py");
-    }
-    moduleFile.open(QIODevice::ReadOnly);
-    QByteArray moduleCode = moduleFile.readAll();
-    moduleFile.close();
-
-    PyObject *moduleCodeObject;
-    if (isBytecode) {
-        moduleCodeObject = PyMarshal_ReadObjectFromString(moduleCode.constData() + 12,
-                                                          moduleCode.size() - 12);
-    } else {
-        moduleCodeObject = Py_CompileString(moduleCode.constData(), "cutter_jupyter.py",
-                                            Py_file_input);
-    }
-    if (!moduleCodeObject) {
-        PyErr_Print();
-        qWarning() << "Could not compile cutter_jupyter.";
-        emit creationFailed();
-        pyThreadState = PyEval_SaveThread();
-        return;
-    }
-    cutterJupyterModule = PyImport_ExecCodeModule("cutter_jupyter", moduleCodeObject);
+    cutterJupyterModule = QtResImport("cutter_jupyter");
     if (!cutterJupyterModule) {
         PyErr_Print();
         qWarning() << "Could not import cutter_jupyter.";
@@ -125,7 +101,6 @@ void JupyterConnection::createCutterJupyterModule()
         pyThreadState = PyEval_SaveThread();
         return;
     }
-    Py_DECREF(moduleCodeObject);
 
     pyThreadState = PyEval_SaveThread();
 }
