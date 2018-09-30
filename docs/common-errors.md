@@ -26,6 +26,8 @@ On OS X you can also try:
 
 Or radare2 libs could be installed to `/usr/lib/pkgconfig/`, so you can add variable `PKG_CONFIG_PATH` with value `/usr/lib/pkgconfig/`
 
+---
+
 > OS X libjpeg error
 
 On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib installed with brew. Run this command to workaround the issue:
