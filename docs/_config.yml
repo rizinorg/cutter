@@ -40,6 +40,8 @@ social:
     hash:
     account: r2gui
 
+disqus: false
+
 description: >-
   Cutter is a Qt and C++ graphical user interface for the reverse
   engineering framework radare2.
