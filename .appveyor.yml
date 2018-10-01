@@ -63,8 +63,8 @@ after_build:
   - cmd: python -m pip install -I --no-compile -t "%ARTIFACT_PATH%\python36\site-packages" jupyter
   - cmd: if exist "%ARTIFACT_PATH%\python36\site-packages\test" ( rd /s /q "%ARTIFACT_PATH%\python36\site-packages\test" )
   - cmd: for /d %%p in ("%ARTIFACT_PATH%\python36\site-packages\*.dist-info" "%ARTIFACT_PATH%\python36\site-packages\*.egg-info") do rd /s /q "%%p"
-  - cmd: python -O -m compileall -b -q "%ARTIFACT_PATH%\python36\site-packages"
-  - cmd: del /s "%ARTIFACT_PATH%\python36\site-packages\*.py"
+  #- cmd: python -O -m compileall -b -q "%ARTIFACT_PATH%\python36\site-packages"
+  #- cmd: del /s "%ARTIFACT_PATH%\python36\site-packages\*.py"
   - cmd: powershell -c "Get-ChildItem -Path \"%ARTIFACT_PATH%\python36\site-packages\" -Include '__pycache__' -Recurse -Force | Remove-Item -Force -Recurse"
   - cmd: copy python_embed\python36.zip "%ARTIFACT_PATH%\python36\"
   - cmd: copy python_embed\*.pyd "%ARTIFACT_PATH%\python36\"
