@@ -26,5 +26,12 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 
 To build Cutter on your local machine, please follow this guide: [Building from source](building.html)
 
+---
 
+# Help
 
+You can contact the *Cutter* developers and on:
+
+- Telegram: https://t.me/r2cutter
+- #cutter on irc.freenode.net
+- Twitter: [@r2gui](https://twitter.com/r2gui)
