@@ -30,7 +30,7 @@ To build Cutter on your local machine, please follow this guide: [Building from 
 
 # Help
 
-You can contact the *Cutter* developers and on:
+You can contact the *Cutter* developers and community on:
 
 - Telegram: https://t.me/r2cutter
 - #cutter on irc.freenode.net
