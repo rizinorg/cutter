@@ -38,6 +38,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
                SLOT(on_actionRename_triggered()), getRenameSequence());
     addAction(&actionRename);
 
+    initAction(&actionEditFunction, tr("Edit function"),
+            SLOT(on_actionEditFunction_triggered()));
+    addAction(&actionEditFunction);
+
     initAction(&actionRenameUsedHere, tr("Rename Flag/Fcn/Var Used Here"),
                SLOT(on_actionRenameUsedHere_triggered()), getRenameUsedHereSequence());
     addAction(&actionRenameUsedHere);
@@ -59,6 +63,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     initAction(&actionAnalyzeFunction, tr("Define function here..."),
                SLOT(on_actionAnalyzeFunction_triggered()));
     addAction(&actionAnalyzeFunction);
+
 
     addSetBaseMenu();
 
@@ -261,6 +266,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionAnalyzeFunction.setVisible(false);
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
+        actionEditFunction.setVisible(true);
+        actionEditFunction.setText(tr("Edit function \"%1\"").arg(fcn->name));
     } else if (f) {
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename flag \"%1\"").arg(f->name));
@@ -679,6 +686,11 @@ void DisassemblyContextMenu::on_actionDeleteFlag_triggered()
 void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 {
     Core()->delFunction(offset);
+}
+
+void DisassemblyContextMenu::on_actionEditFunction_triggered()
+{
+   puts("you pressed the button"); 
 }
 
 void DisassemblyContextMenu::setBase(QString base)

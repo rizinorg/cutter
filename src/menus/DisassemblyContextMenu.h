@@ -23,6 +23,7 @@ public slots:
 private slots:
     void aboutToShowSlot();
 
+    void on_actionEditFunction_triggered();
     void on_actionEditInstruction_triggered();
     void on_actionNopInstruction_triggered();
     void on_actionJmpReverse_triggered();
@@ -86,6 +87,7 @@ private:
     QAction actionAddComment;
     QAction actionAddFlag;
     QAction actionAnalyzeFunction;
+    QAction actionEditFunction;
     QAction actionRename;
     QAction actionRenameUsedHere;
     QAction actionSetFunctionVarTypes;
