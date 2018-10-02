@@ -6,13 +6,6 @@ clone_depth: 1
 configuration:
   - Release
 
-# Branches to build
-branches:
-  only:
-    - master
-    - /v\d.*/
-    - deploy-test
-
 # Environment
 environment:
   NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip
@@ -92,3 +85,12 @@ deploy:
   on:
     appveyor_repo_tag: true
     DEPLOY: true
+
+for:
+  -
+    branches:
+      only:
+        - master
+  -
+    skip_non_tags: true
+
