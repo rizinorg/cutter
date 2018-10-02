@@ -11,6 +11,7 @@ branches:
   only:
     - master
     - /v\d.*/
+    - deploy-test
 
 # Environment
 environment:
@@ -89,6 +90,5 @@ deploy:
   draft: true
   prerelease: false
   on:
-    branch: master
     appveyor_repo_tag: true
     DEPLOY: true
