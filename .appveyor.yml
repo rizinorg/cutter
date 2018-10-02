@@ -61,7 +61,7 @@ after_build:
   - ps: $env:py_url = "https://www.python.org/ftp/python/${env:py_version}/python-${env:py_version}-embed-${env:py_platform}.zip"
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %py_url% -OutFile python_embed.zip; Expand-Archive .\python_embed.zip -DestinationPath .\python_embed"
   - cmd: python -m pip install -I --no-compile -t "%ARTIFACT_PATH%\python36\site-packages" jupyter
-  - cmd: if exist "%ARTIFACT_PATH%\python36\site-packages\test" ( rd /s /q "%ARTIFACT_PATH%\python36\site-packages\test" )
+  #- cmd: if exist "%ARTIFACT_PATH%\python36\site-packages\test" ( rd /s /q "%ARTIFACT_PATH%\python36\site-packages\test" )
   - cmd: for /d %%p in ("%ARTIFACT_PATH%\python36\site-packages\*.dist-info" "%ARTIFACT_PATH%\python36\site-packages\*.egg-info") do rd /s /q "%%p"
   #- cmd: python -O -m compileall -b -q "%ARTIFACT_PATH%\python36\site-packages"
   #- cmd: del /s "%ARTIFACT_PATH%\python36\site-packages\*.py"
