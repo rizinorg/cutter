@@ -8,6 +8,8 @@
 	<string>Cutter.sh</string>
 	<key>CFBundleVersion</key>
 	<string>@FULL_VERSION@</string>
+	<key>CFBundleShortVersionString</key>
+	<string>@FULL_VERSION@</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Licensed under the GPLv3 by the Cutter developers.</string>
 	<key>CFBundleIconFile</key>
