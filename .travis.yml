@@ -55,13 +55,13 @@ script:
   - cd build
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" qmake CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=true PREFIX=/usr APPIMAGE=1 ../src && make -j4;
+            PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" qmake CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
         elif [[ "$BUILD_SYSTEM" == "qmake" ]]; then
             cmake ../src && make -j4;
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=true CUTTER_BUNDLE_R2_APPBUNDLE=true PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
+            qmake CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_BUNDLE_R2_APPBUNDLE=true PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "qmake" ]]; then
             cmake ../src && make -j4;
@@ -69,9 +69,9 @@ script:
     fi
 
 after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then  
-      macdeployqt Cutter.app &&
-      "$TRAVIS_BUILD_DIR/scripts/appbundle_patch_qtwebengine.sh" Cutter.app &&
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      cp ../src/macos/Cutter.sh Cutter.app/Contents/MacOS/Cutter.sh && chmod +x Cutter.app/Contents/MacOS/Cutter.sh &&
+      macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter &&
       "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
       mkdir -p Cutter.app/Contents/Resources/r2/share &&
       cp -a /usr/local/share/radare2 Cutter.app/Contents/Resources/r2/share/ &&

@@ -60,7 +60,9 @@ win32 {
 
 macx {
     QMAKE_CXXFLAGS = -mmacosx-version-min=10.7 -std=gnu0x -stdlib=libc++
-    QMAKE_INFO_PLIST = apple/Info.plist
+    QMAKE_TARGET_BUNDLE_PREFIX = org.radare
+    QMAKE_BUNDLE = cutter
+    QMAKE_INFO_PLIST = macos/Info.plist
 }
 
 unix:exists(/usr/local/include/libr) {
