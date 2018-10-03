@@ -29,23 +29,38 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QIcon stepOutIcon = QIcon(":/img/icons/step_out_light.svg");
     QIcon restartIcon = QIcon(":/img/icons/spin_light.svg");
 
+    // define action labels
+    QString startDebugLabel = tr("Start debug");
+    QString startEmulLabel = tr("Start emulation");
+    QString startAttachLabel = tr("Attach to process");
+    QString stopDebugLabel = tr("Stop debug");
+    QString stopEmulLabel = tr("Stop emulation");
+    QString restartDebugLabel = tr("Restart program");
+    QString restartEmulLabel = tr("Restart emulation");
+    QString continueLabel = tr("Continue");
+    QString continueUMLabel = tr("Continue until main");
+    QString continueUCLabel = tr("Continue until call");
+    QString continueUSLabel = tr("Continue until syscall");
+    QString stepLabel = tr("Step");
+    QString stepOverLabel = tr("Step over");
+    QString stepOutLabel = tr("Step out");
+
     // define actions
-    actionStart = new QAction(startDebugIcon, tr("Start debug"), parent);
+    actionStart = new QAction(startDebugIcon, startDebugLabel, parent);
     actionStart->setShortcut(QKeySequence(Qt::Key_F9));
-    actionStartEmul = new QAction(startEmulIcon, tr("Start emulation"), parent);
-    actionAttach = new QAction(startAttachIcon, tr("Attach to process"), parent);
-    actionStop = new QAction(stopIcon, tr("Stop debug"), parent);
-    actionContinue = new QAction(continueIcon, tr("Continue"), parent);
+    actionStartEmul = new QAction(startEmulIcon, startEmulLabel, parent);
+    actionAttach = new QAction(startAttachIcon, startAttachLabel, parent);
+    actionStop = new QAction(stopIcon, stopDebugLabel, parent);
+    actionContinue = new QAction(continueIcon, continueLabel, parent);
     actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
-    actionContinueUntilMain = new QAction(continueUntilMainIcon, tr("Continue until main"), parent);
-    actionContinueUntilCall = new QAction(continueUntilCallIcon, tr("Continue until call"), parent);
-    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, tr("Continue until syscall"),
-                                             parent);
-    actionStep = new QAction(stepIcon, tr("Step"), parent);
+    actionContinueUntilMain = new QAction(continueUntilMainIcon, continueUMLabel, parent);
+    actionContinueUntilCall = new QAction(continueUntilCallIcon, continueUCLabel, parent);
+    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, continueUSLabel, parent);
+    actionStep = new QAction(stepIcon, stepLabel, parent);
     actionStep->setShortcut(QKeySequence(Qt::Key_F7));
-    actionStepOver = new QAction(stepOverIcon, tr("Step over"), parent);
+    actionStepOver = new QAction(stepOverIcon, stepOverLabel, parent);
     actionStepOver->setShortcut(QKeySequence(Qt::Key_F8));
-    actionStepOut = new QAction(stepOutIcon, tr("Step out"), parent);
+    actionStepOut = new QAction(stepOutIcon, stepOutLabel, parent);
     actionStepOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F8));
 
     QToolButton *startButton = new QToolButton;
@@ -90,10 +105,10 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionStart->setVisible(true);
         actionStartEmul->setVisible(true);
         actionAttach->setVisible(true);
-        actionStop->setText("Stop session");
-        actionStart->setText("Start debug");
-        actionStartEmul->setText("Start emulation");
+        actionStop->setText(stopDebugLabel);
+        actionStart->setText(startDebugLabel);
         actionStart->setIcon(startDebugIcon);
+        actionStartEmul->setText(startEmulLabel);
         actionStartEmul->setIcon(startEmulIcon);
         setAllActionsVisible(false);
     });
@@ -104,14 +119,14 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         QFileInfo info(filename);
         if (!Core()->currentlyDebugging && !info.isExecutable()) {
             QMessageBox msgBox;
-            msgBox.setText(QString("File '%1' does not have executable permissions.").arg(filename));
+            msgBox.setText(tr("File '%1' does not have executable permissions.").arg(filename));
             msgBox.exec();
             return;
         }
         setAllActionsVisible(true);
         actionAttach->setVisible(false);
         actionStartEmul->setVisible(false);
-        actionStart->setText("Restart program");
+        actionStart->setText(restartDebugLabel);
         actionStart->setIcon(restartIcon);
         Core()->startDebug();
     });
@@ -125,9 +140,9 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionContinueUntilMain->setVisible(false);
         actionStepOut->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
-        actionStartEmul->setText("Restart emulation");
+        actionStartEmul->setText(restartEmulLabel);
         actionStartEmul->setIcon(restartIcon);
-        actionStop->setText("Stop emulation");
+        actionStop->setText(stopEmulLabel);
     });
     connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
@@ -139,7 +154,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 
 void DebugToolbar::continueUntilMain()
 {
-    Core()->continueUntilDebug(tr("main"));
+    Core()->continueUntilDebug("main");
 }
 
 void DebugToolbar::attachProcessDialog()
@@ -155,7 +170,7 @@ void DebugToolbar::attachProcessDialog()
             } else {
                 success = false;
                 QMessageBox msgBox;
-                msgBox.setText("Error attaching. No process selected!");
+                msgBox.setText(tr("Error attaching. No process selected!"));
                 msgBox.exec();
             }
         }
@@ -165,11 +180,12 @@ void DebugToolbar::attachProcessDialog()
 
 void DebugToolbar::attachProcess(int pid)
 {
+    QString stopAttachLabel = tr("Detach from process");
     // hide unwanted buttons
     setAllActionsVisible(true);
     actionStart->setVisible(false);
     actionStartEmul->setVisible(false);
-    actionStop->setText("Detach from process");
+    actionStop->setText(stopAttachLabel);
     // attach
     Core()->attachDebug(pid);
 }
