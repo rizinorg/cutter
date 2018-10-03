@@ -4,8 +4,8 @@
 
 #include <QAction>
 #include <QPainter>
-#include <QToolButton>
 #include <QMenu>
+#include <QList>
 #include <QFileInfo>
 
 DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
@@ -13,6 +13,9 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     main(main)
 {
     setObjectName("debugToolbar");
+    setIconSize(QSize(20, 20));
+
+    // define icons
     QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
     QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
     QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
@@ -24,7 +27,9 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QIcon stepIcon = QIcon(":/img/icons/step_light.svg");
     QIcon stepOverIcon = QIcon(":/img/icons/step_over_light.svg");
     QIcon stepOutIcon = QIcon(":/img/icons/step_out_light.svg");
+    QIcon restartIcon = QIcon(":/img/icons/spin_light.svg");
 
+    // define actions
     actionStart = new QAction(startDebugIcon, tr("Start debug"), parent);
     actionStart->setShortcut(QKeySequence(Qt::Key_F9));
     actionStartEmul = new QAction(startEmulIcon, tr("Start emulation"), parent);
@@ -47,10 +52,12 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     startButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(startButton, &QToolButton::triggered, startButton, &QToolButton::setDefaultAction);
     QMenu *startMenu = new QMenu;
+
+    // only emulation is currently allowed
     // startMenu->addAction(actionStart);
-    startMenu->addAction(actionStartEmul);
     // startMenu->addAction(actionAttach);
     // startButton->setDefaultAction(actionStart);
+    startMenu->addAction(actionStartEmul);
     startButton->setDefaultAction(actionStartEmul);
     startButton->setMenu(startMenu);
 
@@ -65,13 +72,18 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     continueUntilButton->setMenu(continueUntilMenu);
     continueUntilButton->setDefaultAction(actionContinueUntilMain);
 
+    // define toolbar widgets and actions
     addWidget(startButton);
     addAction(actionStop);
     addAction(actionContinue);
-    addWidget(continueUntilButton);
+    actionAllContinues = addWidget(continueUntilButton);
     addAction(actionStep);
     addAction(actionStepOver);
     addAction(actionStepOut);
+
+    allActions = {actionStop, actionAllContinues, actionContinue, actionContinueUntilCall, actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut, actionStepOver};
+    // hide allactions
+    setAllActionsVisible(false);
 
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
     connect(actionStop, &QAction::triggered, [ = ]() {
@@ -82,11 +94,18 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionContinueUntilMain->setVisible(true);
         actionStepOut->setVisible(true);
         this->colorToolbar(false);
-        actionStop->setText("Stop debug");
+        actionStop->setText("Stop session");
+        actionStart->setText("Start debug");
+        actionStartEmul->setText("Start emulation");
+        actionStart->setIcon(startDebugIcon);
+        actionStartEmul->setIcon(startEmulIcon);
         colorToolbar(false);
+        setAllActionsVisible(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
-    connect(actionStart, &QAction::triggered, [=]() {
+    connect(actionStart, &QAction::triggered, [ = ]() {
+        setAllActionsVisible(true);
+
         QString filename = Core()->getConfig("file.path").split(" ").first();
         QFileInfo info(filename);
         if (!Core()->currentlyDebugging && !info.isExecutable()) {
@@ -98,17 +117,22 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         colorToolbar(true);
         actionAttach->setVisible(false);
         actionStartEmul->setVisible(false);
+        actionStart->setText("Restart program");
+        actionStart->setIcon(restartIcon);
         Core()->startDebug();
     });
+
     connect(actionAttach, &QAction::triggered, this, &DebugToolbar::attachProcessDialog);
     connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
     connect(actionStartEmul, &QAction::triggered, [ = ]() {
-        actionContinue->setVisible(false);
+        setAllActionsVisible(true);
         actionStart->setVisible(false);
         actionAttach->setVisible(false);
         actionContinueUntilMain->setVisible(false);
         actionStepOut->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
+        actionStartEmul->setText("Restart emulation");
+        actionStartEmul->setIcon(restartIcon);
         actionStop->setText("Stop emulation");
         colorToolbar(true);
     });
@@ -158,10 +182,18 @@ void DebugToolbar::attachProcessDialog()
 void DebugToolbar::attachProcess(int pid)
 {
     // hide unwanted buttons
+    setAllActionsVisible(true);
     colorToolbar(true);
     actionStart->setVisible(false);
     actionStartEmul->setVisible(false);
     actionStop->setText("Detach from process");
     // attach
     Core()->attachDebug(pid);
+}
+
+void DebugToolbar::setAllActionsVisible(bool visible)
+{
+    for (QAction *action : allActions) {
+        action->setVisible(visible);
+    }
 }

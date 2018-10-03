@@ -22,13 +22,16 @@ public:
     QAction *actionStepOver;
     QAction *actionStepOut;
     QAction *actionStop;
+    QAction *actionAllContinues;
 
 private:
     MainWindow *main;
+    QList<QAction *> allActions;
 
 private slots:
     void continueUntilMain();
     void colorToolbar(bool p);
     void attachProcessDialog();
     void attachProcess(int pid);
+    void setAllActionsVisible(bool visible);
 };

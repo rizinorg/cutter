@@ -906,7 +906,7 @@ void CutterCore::startEmulation()
     emit registersChanged();
     if (!currentlyDebugging || !currentlyEmulating) {
         // prevent register flags from appearing during debug/emul
-        // setConfig("asm.flags", false);
+        setConfig("asm.flags", false);
         // allows to view self-modifying code changes or other binary changes
         setConfig("io.cache", true);
         currentlyDebugging = true;
