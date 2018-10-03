@@ -69,11 +69,11 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QMenu *startMenu = new QMenu;
 
     // only emulation is currently allowed
-    // startMenu->addAction(actionStart);
-    // startMenu->addAction(actionAttach);
-    // startButton->setDefaultAction(actionStart);
+    startMenu->addAction(actionStart);
     startMenu->addAction(actionStartEmul);
-    startButton->setDefaultAction(actionStartEmul);
+    startMenu->addAction(actionAttach);
+    startButton->setDefaultAction(actionStart);
+    // startButton->setDefaultAction(actionStartEmul);
     startButton->setMenu(startMenu);
 
     QToolButton *continueUntilButton = new QToolButton;
