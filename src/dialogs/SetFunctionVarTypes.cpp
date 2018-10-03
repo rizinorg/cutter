@@ -48,7 +48,7 @@ void SetFunctionVarTypes::setFcn(RAnalFunction *fcn)
 
     this->validFcn = true;
     this->fcn = fcn;
-    this->fcnVars = r_anal_var_list(Core()->core()->anal, this->fcn, R_ANAL_VAR_KIND_ANY);
+    this->fcnVars = r_anal_var_all_list(Core()->core()->anal, this->fcn);
 
     for (iter = this->fcnVars->head; iter
             && (var = static_cast<RAnalVar *>(iter->data)); iter = iter->n) {
