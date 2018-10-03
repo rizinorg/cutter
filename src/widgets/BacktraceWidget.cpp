@@ -20,6 +20,7 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     modelBacktrace->setHorizontalHeaderItem(4, new QStandardItem(tr("Frame Size")));
     viewBacktrace->setFont(Config()->getFont());
     viewBacktrace->setModel(modelBacktrace);
+    viewBacktrace->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewBacktrace);
 
     connect(Core(), &CutterCore::refreshAll, this, &BacktraceWidget::updateContents);
