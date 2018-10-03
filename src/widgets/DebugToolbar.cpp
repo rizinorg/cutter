@@ -87,25 +87,19 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
     connect(actionStop, &QAction::triggered, [ = ]() {
-        actionContinue->setVisible(true);
         actionStart->setVisible(true);
         actionStartEmul->setVisible(true);
         actionAttach->setVisible(true);
-        actionContinueUntilMain->setVisible(true);
-        actionStepOut->setVisible(true);
-        this->colorToolbar(false);
         actionStop->setText("Stop session");
         actionStart->setText("Start debug");
         actionStartEmul->setText("Start emulation");
         actionStart->setIcon(startDebugIcon);
         actionStartEmul->setIcon(startEmulIcon);
-        colorToolbar(false);
         setAllActionsVisible(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
     connect(actionStart, &QAction::triggered, [ = ]() {
-        setAllActionsVisible(true);
-
+        // check if file is executable before starting debug
         QString filename = Core()->getConfig("file.path").split(" ").first();
         QFileInfo info(filename);
         if (!Core()->currentlyDebugging && !info.isExecutable()) {
@@ -114,7 +108,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
             msgBox.exec();
             return;
         }
-        colorToolbar(true);
+        setAllActionsVisible(true);
         actionAttach->setVisible(false);
         actionStartEmul->setVisible(false);
         actionStart->setText("Restart program");
@@ -134,7 +128,6 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         actionStartEmul->setText("Restart emulation");
         actionStartEmul->setIcon(restartIcon);
         actionStop->setText("Stop emulation");
-        colorToolbar(true);
     });
     connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
@@ -147,15 +140,6 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 void DebugToolbar::continueUntilMain()
 {
     Core()->continueUntilDebug(tr("main"));
-}
-
-void DebugToolbar::colorToolbar(bool p)
-{
-    if (p) {
-        setStyleSheet("QToolBar {background: green;}");
-    } else {
-        setStyleSheet("");
-    }
 }
 
 void DebugToolbar::attachProcessDialog()
@@ -183,7 +167,6 @@ void DebugToolbar::attachProcess(int pid)
 {
     // hide unwanted buttons
     setAllActionsVisible(true);
-    colorToolbar(true);
     actionStart->setVisible(false);
     actionStartEmul->setVisible(false);
     actionStop->setText("Detach from process");
