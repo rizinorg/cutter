@@ -135,19 +135,27 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
     ui->flagsTreeView->setModel(flags_proxy_model);
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
-    // Ctrl-F to show/hide the filter entry
+    // Ctrl-F to move the focus to the Filter search box
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    connect(searchShortcut, &QShortcut::activated, [this] {
+        ui->filterLineEdit->setFocus();
+    });
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Esc to clear the filter entry
     QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
+    connect(clearShortcut, &QShortcut::activated, [this] {
+        if (ui->filterLineEdit->text().isEmpty()) {
+            ui->flagsTreeView->setFocus();
+        } else {
+            ui->filterLineEdit->setText("");
+        }
+    });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)),
+    connect(ui->filterLineEdit, SIGNAL(filterTextChanged(const QString &)),
             flags_proxy_model, SLOT(setFilterWildcard(const QString &)));
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->flagsTreeView, SLOT(setFocus()));
+    connect(ui->filterLineEdit, SIGNAL(filterClosed()), ui->flagsTreeView, SLOT(setFocus()));
     
     setScrollMode();
 
