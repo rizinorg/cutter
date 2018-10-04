@@ -135,6 +135,24 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
     ui->flagsTreeView->setModel(flags_proxy_model);
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
+    // Ctrl-F to move the focus to the Filter search box
+    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(searchShortcut, &QShortcut::activated, [this] {
+        ui->filterLineEdit->setFocus();
+    });
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // Esc to clear the filter entry
+    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clearShortcut, &QShortcut::activated, [this] {
+        if (ui->filterLineEdit->text().isEmpty()) {
+            ui->flagsTreeView->setFocus();
+        } else {
+            ui->filterLineEdit->setText("");
+        }
+    });
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    
     setScrollMode();
 
     ui->flagsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
