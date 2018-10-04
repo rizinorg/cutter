@@ -30,7 +30,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QIcon restartIcon = QIcon(":/img/icons/spin_light.svg");
 
     // define action labels
-    QString startDebugLabel          = tr("Start debug");
+    QString startDebugLabel = tr("Start debug");
     QString startEmulLabel = tr("Start emulation");
     QString startAttachLabel = tr("Attach to process");
     QString stopDebugLabel = tr("Stop debug");
