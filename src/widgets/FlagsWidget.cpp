@@ -152,10 +152,6 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
         }
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    connect(ui->filterLineEdit, SIGNAL(filterTextChanged(const QString &)),
-            flags_proxy_model, SLOT(setFilterWildcard(const QString &)));
-    connect(ui->filterLineEdit, SIGNAL(filterClosed()), ui->flagsTreeView, SLOT(setFocus()));
     
     setScrollMode();
 
