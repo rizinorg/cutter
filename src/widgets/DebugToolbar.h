@@ -30,7 +30,6 @@ private:
 
 private slots:
     void continueUntilMain();
-    void colorToolbar(bool p);
     void attachProcessDialog();
     void attachProcess(int pid);
     void setAllActionsVisible(bool visible);
