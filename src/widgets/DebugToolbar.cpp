@@ -13,7 +13,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     main(main)
 {
     setObjectName("debugToolbar");
-    setIconSize(QSize(20, 20));
+    setIconSize(QSize(16, 16));
 
     // define icons
     QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
@@ -89,8 +89,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 
     // define toolbar widgets and actions
     addWidget(startButton);
-    addAction(actionStop);
     addAction(actionContinue);
+    addAction(actionStop);
     actionAllContinues = addWidget(continueUntilButton);
     addAction(actionStep);
     addAction(actionStepOver);

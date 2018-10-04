@@ -94,7 +94,7 @@ QToolTip {
      <rect>
       <x>378</x>
       <y>100</y>
-      <width>151</width>
+      <width>139</width>
       <height>240</height>
      </rect>
     </property>
@@ -239,8 +239,8 @@ QToolTip {
    </property>
    <property name="iconSize">
     <size>
-     <width>18</width>
-     <height>18</height>
+     <width>16</width>
+     <height>16</height>
     </size>
    </property>
    <property name="toolButtonStyle">

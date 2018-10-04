@@ -51,8 +51,8 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     graphicsScene->setBackgroundBrush(bg);
 
     this->graphicsView->setAlignment(Qt::AlignLeft);
-    this->graphicsView->setMinimumHeight(20);
-    this->graphicsView->setMaximumHeight(20);
+    this->graphicsView->setMinimumHeight(15);
+    this->graphicsView->setMaximumHeight(15);
     this->graphicsView->setFrameShape(QFrame::NoFrame);
     this->graphicsView->setRenderHints(0);
     this->graphicsView->setScene(graphicsScene);
