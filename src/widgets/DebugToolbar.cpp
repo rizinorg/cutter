@@ -13,7 +13,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     main(main)
 {
     setObjectName("debugToolbar");
-    setIconSize(QSize(20, 20));
+    setIconSize(QSize(16, 16));
 
     // define icons
     QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
@@ -30,7 +30,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QIcon restartIcon = QIcon(":/img/icons/spin_light.svg");
 
     // define action labels
-    QString startDebugLabel = tr("Start debug");
+    QString startDebugLabel          = tr("Start debug");
     QString startEmulLabel = tr("Start emulation");
     QString startAttachLabel = tr("Attach to process");
     QString stopDebugLabel = tr("Stop debug");
@@ -89,8 +89,8 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
 
     // define toolbar widgets and actions
     addWidget(startButton);
-    addAction(actionStop);
     addAction(actionContinue);
+    addAction(actionStop);
     actionAllContinues = addWidget(continueUntilButton);
     addAction(actionStep);
     addAction(actionStepOver);
