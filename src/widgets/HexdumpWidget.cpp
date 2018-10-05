@@ -1,5 +1,6 @@
 #include "HexdumpWidget.h"
 #include "ui_HexdumpWidget.h"
+#include "dialogs/HexdumpRangeDialog.h"
 
 #include "common/Helpers.h"
 #include "common/Configuration.h"
@@ -12,6 +13,8 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QScrollBar>
+#include <QInputDialog>
+
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -475,6 +478,7 @@ std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA addr, int lines)
 
 void HexdumpWidget::selectionChanged()
 {
+
     if (scroll_disabled) {
         return;
     }
@@ -606,6 +610,9 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
     QMenu *formatSubmenu = menu->addMenu(tr("Format"));
     formatSubmenu->addAction(ui->actionFormatHex);
     formatSubmenu->addAction(ui->actionFormatOctal);
+
+    menu->addAction(ui->actionSeekToAddr);
+    menu->addAction(ui->actionSelect_Block);
 
     menu->addSeparator();
     syncAction.setText(tr("Sync/unsync offset"));
@@ -1015,6 +1022,69 @@ void HexdumpWidget::on_actionFormatOctal_triggered()
 {
     format = Format::Octal;
     refresh();
+}
+
+void HexdumpWidget::on_actionSeekToAddr_triggered()
+{
+    QString addressToSeek;
+    bool    dialogOk=false;
+
+
+    addressToSeek= QInputDialog::getText(this, "Enter Address to Seek to", "Address", QLineEdit::Normal,nullptr,&dialogOk);
+
+    if(dialogOk == false)
+    {
+        return;
+    }
+
+    seekable->seek(Core()->math(addressToSeek));
+
+    return;
+}
+
+void HexdumpWidget::on_actionSelect_Block_triggered()
+{
+    HexdumpRangeDialog  rangeDialog;
+    bool                dialogResult;
+    ut64                startAddress;
+    ut64                endAddress;
+    int                 startPosition;
+    int                 endPosition;
+    QTextCursor         targetTextCursor;
+
+    dialogResult = rangeDialog.exec();
+
+    if (dialogResult != QDialog::Accepted)  //user canceled or closed
+    {
+        return;
+    }
+
+    startAddress = Core()->math(rangeDialog.getStartAddress());
+    endAddress = rangeDialog.getEndAddressRadioButtonChecked() ?
+                Core()->math(rangeDialog.getEndAddress()) :
+                startAddress + Core()->math(rangeDialog.getLength());
+
+    //not sure what the accepted user feedback mechanism is, output to console or a QMessageBox alert
+    if(endAddress <= startAddress)
+    {
+        Core()->message("Error: Could not select range, end address is less then start address");
+        return;
+    }
+
+    //seek to the start address and create a text cursor to highlight the desired range
+    seekable->seek(startAddress);
+
+    startPosition = hexAddressToPosition(startAddress);
+    endPosition = hexAddressToPosition(endAddress);
+
+    targetTextCursor = ui->hexHexText->textCursor();
+
+    targetTextCursor.setPosition(startPosition);
+    targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+
+    ui->hexHexText->setTextCursor(targetTextCursor);
+
+    return;
 }
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)

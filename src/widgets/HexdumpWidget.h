@@ -137,6 +137,9 @@ private slots:
     void on_actionFormatHex_triggered();
     void on_actionFormatOctal_triggered();
 
+    void on_actionSeekToAddr_triggered();
+    void on_actionSelect_Block_triggered();
+
     void fontsUpdated();
     void colorsUpdatedSlot();
 
