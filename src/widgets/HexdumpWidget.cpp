@@ -1027,13 +1027,17 @@ void HexdumpWidget::on_actionFormatOctal_triggered()
 void HexdumpWidget::on_actionSeekToAddr_triggered()
 {
     QString addressToSeek;
-    bool    dialogOk=false;
+    bool    dialogOk = false;
 
 
-    addressToSeek= QInputDialog::getText(this, "Enter Address to Seek to", "Address", QLineEdit::Normal,nullptr,&dialogOk);
+    addressToSeek = QInputDialog::getText(this,
+                                          tr("Enter Address to Seek to"),
+                                          tr("Address"),
+                                          QLineEdit::Normal,
+                                          nullptr,
+                                          &dialogOk);
 
-    if(dialogOk == false)
-    {
+    if (dialogOk == false) {
         return;
     }
 
@@ -1054,20 +1058,18 @@ void HexdumpWidget::on_actionSelect_Block_triggered()
 
     dialogResult = rangeDialog.exec();
 
-    if (dialogResult != QDialog::Accepted)  //user canceled or closed
-    {
+    if (dialogResult != QDialog::Accepted) { //user canceled or closed
         return;
     }
 
     startAddress = Core()->math(rangeDialog.getStartAddress());
     endAddress = rangeDialog.getEndAddressRadioButtonChecked() ?
-                Core()->math(rangeDialog.getEndAddress()) :
-                startAddress + Core()->math(rangeDialog.getLength());
+                 Core()->math(rangeDialog.getEndAddress()) :
+                 startAddress + Core()->math(rangeDialog.getLength());
 
     //not sure what the accepted user feedback mechanism is, output to console or a QMessageBox alert
-    if(endAddress <= startAddress)
-    {
-        Core()->message("Error: Could not select range, end address is less then start address");
+    if (endAddress <= startAddress) {
+        Core()->message(tr("Error: Could not select range, end address is less then start address"));
         return;
     }
 
