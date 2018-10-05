@@ -44,7 +44,7 @@
       <item>
        <widget class="QRadioButton" name="endAddressRadioButton">
         <property name="text">
-         <string>End Address</string>
+         <string>End Address:</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -75,7 +75,7 @@
     <item row="3" column="0">
      <widget class="QRadioButton" name="lengthRadioButton">
       <property name="text">
-       <string>Length</string>
+       <string>Length:</string>
       </property>
       <attribute name="buttonGroup">
        <string notr="true">buttonGroup</string>

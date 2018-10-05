@@ -1,6 +1,8 @@
 #ifndef HEXDUMPRANGEDIALOG_H
 #define HEXDUMPRANGEDIALOG_H
 
+#include "Cutter.h"
+
 #include <QDialog>
 
 namespace Ui {
@@ -20,8 +22,14 @@ public:
     bool    getEndAddressRadioButtonChecked();
     bool    getLengthRadioButtonChecked();
 
+public slots:
+    void textEdited();
+
 private:
     Ui::HexdumpRangeDialog *ui;
+
+
+
 };
 
 #endif // HEXDUMPRANGEDIALOG_H

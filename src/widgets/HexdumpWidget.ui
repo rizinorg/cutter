@@ -914,12 +914,12 @@
   </action>
   <action name="actionSeekToAddr">
    <property name="text">
-    <string>Seek to Address</string>
+    <string>Seek to Address...</string>
    </property>
   </action>
   <action name="actionSelect_Block">
    <property name="text">
-    <string>Select Block</string>
+    <string>Select Block...</string>
    </property>
   </action>
  </widget>
