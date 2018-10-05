@@ -329,6 +329,10 @@ void NewFileDialog::fillIOPluginsList()
     int index = 1;
     QList<RIOPluginDescription> ioPlugins = Core()->getRIOPluginDescriptions();
     for (RIOPluginDescription plugin : ioPlugins) {
+        // Hide debug plugins
+        if (plugin.permissions.contains('d')) {
+            continue;
+        }
         ui->ioPlugin->addItem(plugin.name);
         ui->ioPlugin->setItemData(index, plugin.description, Qt::ToolTipRole);
         index++;
