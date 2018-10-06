@@ -48,7 +48,6 @@ void GeneralOptionsWidget::updateThemeFromConfig()
     ui->themeComboBox->setCurrentIndex(Config()->getTheme());
 
     QList<QString> themes = Core()->getColorThemes();
-    themes.append(ColorSchemeFileWorker().getCustomSchemes());
     ui->colorComboBox->clear();
     ui->colorComboBox->addItem("default");
     for (QString str : themes)
