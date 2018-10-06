@@ -21,6 +21,7 @@ public:
     QString getLength();
     bool    getEndAddressRadioButtonChecked();
     bool    getLengthRadioButtonChecked();
+    void    setStartAddress(ut64 start);
 
 public slots:
     void textEdited();
@@ -28,7 +29,8 @@ public slots:
 private:
     Ui::HexdumpRangeDialog *ui;
 
-
+private slots:
+    void on_radioButtonClicked(bool checked);
 
 };
 

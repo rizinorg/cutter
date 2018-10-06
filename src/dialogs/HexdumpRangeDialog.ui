@@ -70,7 +70,11 @@
      <widget class="QLineEdit" name="endAddressLineEdit"/>
     </item>
     <item row="3" column="1">
-     <widget class="QLineEdit" name="lengthLineEdit"/>
+     <widget class="QLineEdit" name="lengthLineEdit">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
     </item>
     <item row="3" column="0">
      <widget class="QRadioButton" name="lengthRadioButton">
