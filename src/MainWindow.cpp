@@ -182,6 +182,9 @@ void MainWindow::initUI()
     this->visualNavbar->setMovable(false);
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(visualNavbar);
+    QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
+        this->visualNavbar->updateGraphicsScene();
+    });
 
     /*
      * Dock Widgets

@@ -195,7 +195,9 @@ SOURCES += \
     dialogs/AttachProcDialog.cpp \
     widgets/RegisterRefsWidget.cpp \
     dialogs/SetToDataDialog.cpp \
-    dialogs/SetFunctionVarTypes.cpp
+    dialogs/SetFunctionVarTypes.cpp \
+    widgets/ColorSchemePrefWidget.cpp \
+    utils/ColorSchemeFileSaver.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -291,7 +293,9 @@ HEADERS  += \
     widgets/RegisterRefsWidget.h \
     dialogs/SetToDataDialog.h \
     utils/InitialOptions.h \
-    dialogs/SetFunctionVarTypes.h
+    dialogs/SetFunctionVarTypes.h \
+    utils/ColorSchemeFileSaver.h \
+    widgets/ColorSchemePrefWidget.h 
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -346,7 +350,8 @@ FORMS    += \
     dialogs/AttachProcDialog.ui \
     widgets/RegisterRefsWidget.ui \
     dialogs/SetToDataDialog.ui \
-    dialogs/SetFunctionVarTypes.ui
+    dialogs/SetFunctionVarTypes.ui \
+    widgets/ColorSchemePrefWidget.ui
 
 RESOURCES += \
     resources.qrc \
