@@ -76,6 +76,8 @@ CutterCore::CutterCore(QObject *parent) :
     setConfig("scr.interactive", false);
 
     asyncTaskManager = new AsyncTaskManager(this);
+
+    qRegisterMetaType<RVA>("RVA");
 }
 
 
@@ -167,7 +169,7 @@ QString CutterCore::cmd(const QString &str)
     QString o = QString(res ? res : "");
     r_mem_free(res);
     if (offset != core_->offset) {
-        emit seekChanged(core_->offset);
+        updateSeek();
     }
     return o;
 }

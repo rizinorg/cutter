@@ -78,7 +78,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         Python()->setPythonHome(cmd_parser.value(pythonHomeOption));
     }
     Python()->initialize();
-
+    Python()->setCutterCore(static_cast<void *>Core());
 
     bool analLevelSpecified = false;
     int analLevel = 0;

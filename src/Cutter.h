@@ -16,6 +16,7 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 #include <QErrorMessage>
+#include <QMetaType>
 
 #define HAVE_LATEST_LIBR2 false
 
