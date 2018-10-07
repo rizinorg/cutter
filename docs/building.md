@@ -21,7 +21,7 @@ Note that there are two major building options available:
 
 # Building with Qmake
 
-#### Compiling on Linux / OsX
+#### Compiling on Linux / macOS
 
 The easy way is to simply run `./build.sh` from the root directory, and let the magic happen. The script will use qmake to build Cutter.
 
@@ -31,6 +31,13 @@ mkdir build; cd build
 qmake ../src/Cutter.pro
 make
 cd ..
+```
+
+#### Additional steps for macOS
+
+On macOS you will also have to copy the launcher bash script:
+```sh
+cp ../src/macos/Cutter.sh Cutter.app/Contents/MacOS/Cutter.sh && chmod +x Cutter.app/Contents/MacOS/Cutter.sh
 ```
 
 ---
