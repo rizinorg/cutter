@@ -4,6 +4,7 @@
 #include <memory>
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -66,6 +67,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::SymbolsWidget> ui;
+    QStatusBar *bar;
+
     QList<SymbolDescription> symbols;
     SymbolsModel *symbolsModel;
     SymbolsProxyModel *symbolsProxyModel;

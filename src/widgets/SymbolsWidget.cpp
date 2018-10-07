@@ -116,6 +116,12 @@ SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     symbolsModel = new SymbolsModel(&symbols, this);
     symbolsProxyModel = new SymbolsProxyModel(symbolsModel, this);
     ui->symbolsTreeView->setModel(symbolsProxyModel);
@@ -135,6 +141,10 @@ SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
             symbolsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->symbolsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(symbolsProxyModel->rowCount()));
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSymbols()));
@@ -159,6 +169,8 @@ void SymbolsWidget::refreshSymbols()
     symbolsModel->endReloadSymbols();
 
     qhelpers::adjustColumns(ui->symbolsTreeView, SymbolsModel::ColumnCount, 0);
+
+    bar->showMessage(tr("Showing items: %1").arg(symbolsProxyModel->rowCount()));
 }
 
 void SymbolsWidget::setScrollMode()

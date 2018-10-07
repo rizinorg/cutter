@@ -8,6 +8,7 @@
 #include <QRegularExpression>
 #include <QStyledItemDelegate>
 #include <QTreeWidgetItem>
+#include <QStatusBar>
 
 #include "CutterDockWidget.h"
 #include "Cutter.h"
@@ -84,6 +85,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::ImportsWidget> ui;
+    QStatusBar *bar;
+
     ImportsModel *importsModel;
     ImportsProxyModel *importsProxyModel;
     QList<ImportDescription> imports;

@@ -127,6 +127,12 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+    
     exportsModel = new ExportsModel(&exports, this);
     exportsProxyModel = new ExportsProxyModel(exportsModel, this);
     ui->exportsTreeView->setModel(exportsProxyModel);
@@ -146,6 +152,10 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
             exportsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->exportsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(exportsProxyModel->rowCount()));
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshExports()));
@@ -160,6 +170,8 @@ void ExportsWidget::refreshExports()
     exportsModel->endReloadExports();
 
     qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
+
+    bar->showMessage(tr("Showing items: %1").arg(exportsProxyModel->rowCount()));
 }
 
 

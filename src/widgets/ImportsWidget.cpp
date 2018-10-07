@@ -141,6 +141,12 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     ui->importsTreeView->setModel(importsProxyModel);
     ui->importsTreeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
 
@@ -158,6 +164,10 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
             importsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->importsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(importsProxyModel->rowCount()));
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshImports()));
@@ -171,6 +181,8 @@ void ImportsWidget::refreshImports()
     imports = Core()->getAllImports();
     importsModel->endReload();
     qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
+
+    bar->showMessage(tr("Showing items: %1").arg(importsProxyModel->rowCount()));
 }
 
 void ImportsWidget::setScrollMode()

@@ -117,6 +117,12 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     registerRefModel = new RegisterRefModel(&registerRefs, this);
     registerRefProxyModel = new RegisterRefProxyModel(registerRefModel, this);
     ui->registerRefTreeView->setModel(registerRefProxyModel);
@@ -145,6 +151,10 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     ui->registerRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->registerRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showRegRefContextMenu(const QPoint &)));
+
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(registerRefProxyModel->rowCount()));
+    });
 }
 
 RegisterRefsWidget::~RegisterRefsWidget() {}
@@ -158,6 +168,8 @@ void RegisterRefsWidget::refreshRegisterRef()
     ui->registerRefTreeView->resizeColumnToContents(0);
     ui->registerRefTreeView->resizeColumnToContents(1);
     ui->registerRefTreeView->resizeColumnToContents(2);
+
+    bar->showMessage(tr("Showing items: %1").arg(registerRefProxyModel->rowCount()));
 }
 
 void RegisterRefsWidget::setScrollMode()

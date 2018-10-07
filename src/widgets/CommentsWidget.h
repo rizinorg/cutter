@@ -4,6 +4,7 @@
 #include <memory>
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
+#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -85,6 +86,7 @@ private slots:
 private:
     std::unique_ptr<Ui::CommentsWidget> ui;
     MainWindow *main;
+    QStatusBar *bar;
 
     CommentsModel *commentsModel;
     CommentsProxyModel *commentsProxyModel;

@@ -118,6 +118,12 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     ui->relocsTreeView->setModel(relocsProxyModel);
     ui->relocsTreeView->sortByColumn(RelocsModel::NameColumn, Qt::AscendingOrder);
 
@@ -135,6 +141,10 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
             relocsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->relocsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(relocsProxyModel->rowCount()));
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshRelocs()));
@@ -156,6 +166,8 @@ void RelocsWidget::refreshRelocs()
     relocs = Core()->getAllRelocs();
     relocsModel->endReload();
     qhelpers::adjustColumns(ui->relocsTreeView, 3, 0);
+
+    bar->showMessage(tr("Showing items: %1").arg(relocsProxyModel->rowCount()));
 }
 
 void RelocsWidget::setScrollMode()

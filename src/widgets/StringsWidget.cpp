@@ -136,6 +136,12 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
     // Ctrl-F to show/hide the filter entry
@@ -157,6 +163,10 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
             SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->stringsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(proxy_model->rowCount()));
+    });
+    
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
 }
 
@@ -192,6 +202,8 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
+
+    bar->showMessage(tr("Showing items: %1").arg(proxy_model->rowCount()));
 
     task = nullptr;
 }

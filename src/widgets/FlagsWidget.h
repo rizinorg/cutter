@@ -5,6 +5,7 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
+#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -79,6 +80,7 @@ private slots:
 private:
     std::unique_ptr<Ui::FlagsWidget> ui;
     MainWindow      *main;
+    QStatusBar *bar;
 
     FlagsModel *flags_model;
     FlagsSortFilterProxyModel *flags_proxy_model;

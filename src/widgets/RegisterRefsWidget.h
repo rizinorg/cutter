@@ -7,6 +7,7 @@
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <QStatusBar>
 
 class MainWindow;
 class QTreeWidget;
@@ -74,6 +75,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::RegisterRefsWidget> ui;
+    QStatusBar *bar;
 
     RegisterRefModel *registerRefModel;
     RegisterRefProxyModel *registerRefProxyModel;

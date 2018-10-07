@@ -231,6 +231,12 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     commentsModel = new CommentsModel(&comments, &nestedComments, this);
     commentsProxyModel = new CommentsProxyModel(commentsModel, this);
     ui->commentsTreeView->setModel(commentsProxyModel);
@@ -250,6 +256,10 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
             commentsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->commentsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(commentsProxyModel->rowCount()));
+    });
+    
     setScrollMode();
 
     ui->actionHorizontal->setChecked(true);
@@ -337,6 +347,8 @@ void CommentsWidget::refreshTree()
     commentsModel->endReloadComments();
 
     qhelpers::adjustColumns(ui->commentsTreeView, 3, 0);
+
+    bar->showMessage(tr("Showing items: %1").arg(commentsProxyModel->rowCount()));
 }
 
 void CommentsWidget::setScrollMode()

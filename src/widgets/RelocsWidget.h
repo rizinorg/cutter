@@ -4,6 +4,7 @@
 #include <memory>
 #include <QAbstractTableModel>
 #include <QSortFilterProxyModel>
+#include <QStatusBar>
 
 #include "CutterDockWidget.h"
 #include "Cutter.h"
@@ -63,6 +64,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::RelocsWidget> ui;
+    QStatusBar *bar;
+
     RelocsModel *relocsModel;
     RelocsProxyModel *relocsProxyModel;
     QList<RelocDescription> relocs;

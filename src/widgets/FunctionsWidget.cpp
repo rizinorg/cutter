@@ -386,6 +386,12 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer 
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     // Radare core found in:
     this->main = main;
 
@@ -416,6 +422,10 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
             SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->functionsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(functionProxyModel->rowCount()));
+    });
+    
     setScrollMode();
 
     // Set Functions context menu
@@ -462,6 +472,8 @@ void FunctionsWidget::refreshTree()
 
         // resize offset and size columns
         qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
+
+        bar->showMessage(tr("Showing items: %1").arg(functionProxyModel->rowCount()));
     });
     Core()->getAsyncTaskManager()->start(task);
 }

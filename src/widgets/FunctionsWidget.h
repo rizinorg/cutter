@@ -5,6 +5,7 @@
 
 #include <QSortFilterProxyModel>
 #include <QTreeView>
+#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -122,6 +123,7 @@ protected:
 private:
     std::unique_ptr<Ui::FunctionsWidget> ui;
     MainWindow      *main;
+    QStatusBar *bar;
 
     QSharedPointer<FunctionsTask> task;
 

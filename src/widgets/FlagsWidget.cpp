@@ -128,6 +128,12 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    bar = new QStatusBar;
+    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    bar->setSizePolicy(sizePolicy);
+    ui->verticalLayout->addWidget(bar);
+
     flags_model = new FlagsModel(&flags, this);
     flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), flags_proxy_model,
@@ -150,7 +156,11 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
         }
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    
+
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, this, [this] {
+        bar->showMessage(tr("Showing items: %1").arg(flags_proxy_model->rowCount()));
+    });
+        
     setScrollMode();
 
     ui->flagsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -248,7 +258,8 @@ void FlagsWidget::refreshFlags()
 
     qhelpers::adjustColumns(ui->flagsTreeView, 2, 0);
 
-
+    bar->showMessage(tr("Showing items: %1").arg(flags_proxy_model->rowCount()));
+    
     // TODO: this is not a very good place for the following:
     QStringList flagNames;
     for (auto i : flags)
