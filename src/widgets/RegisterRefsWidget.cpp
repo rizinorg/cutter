@@ -153,7 +153,7 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
             this, SLOT(showRegRefContextMenu(const QPoint &)));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(registerRefProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(registerRefProxyModel->rowCount()));
     });
 }
 
@@ -169,7 +169,7 @@ void RegisterRefsWidget::refreshRegisterRef()
     ui->registerRefTreeView->resizeColumnToContents(1);
     ui->registerRefTreeView->resizeColumnToContents(2);
 
-    bar->showMessage(tr("Showing items: %1").arg(registerRefProxyModel->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(registerRefProxyModel->rowCount()));
 }
 
 void RegisterRefsWidget::setScrollMode()

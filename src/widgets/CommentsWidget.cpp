@@ -257,7 +257,7 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->commentsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(commentsProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(commentsProxyModel->rowCount()));
     });
     
     setScrollMode();
@@ -348,7 +348,7 @@ void CommentsWidget::refreshTree()
 
     qhelpers::adjustColumns(ui->commentsTreeView, 3, 0);
 
-    bar->showMessage(tr("Showing items: %1").arg(commentsProxyModel->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(commentsProxyModel->rowCount()));
 }
 
 void CommentsWidget::setScrollMode()

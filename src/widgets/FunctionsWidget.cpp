@@ -423,7 +423,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->functionsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(functionProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(functionProxyModel->rowCount()));
     });
     
     setScrollMode();
@@ -473,7 +473,7 @@ void FunctionsWidget::refreshTree()
         // resize offset and size columns
         qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
 
-        bar->showMessage(tr("Showing items: %1").arg(functionProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(functionProxyModel->rowCount()));
     });
     Core()->getAsyncTaskManager()->start(task);
 }

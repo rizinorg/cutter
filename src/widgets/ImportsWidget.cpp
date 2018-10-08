@@ -165,7 +165,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->importsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(importsProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(importsProxyModel->rowCount()));
     });
     
     setScrollMode();
@@ -182,7 +182,7 @@ void ImportsWidget::refreshImports()
     importsModel->endReload();
     qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
 
-    bar->showMessage(tr("Showing items: %1").arg(importsProxyModel->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(importsProxyModel->rowCount()));
 }
 
 void ImportsWidget::setScrollMode()

@@ -142,7 +142,7 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->relocsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(relocsProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(relocsProxyModel->rowCount()));
     });
     
     setScrollMode();
@@ -167,7 +167,7 @@ void RelocsWidget::refreshRelocs()
     relocsModel->endReload();
     qhelpers::adjustColumns(ui->relocsTreeView, 3, 0);
 
-    bar->showMessage(tr("Showing items: %1").arg(relocsProxyModel->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(relocsProxyModel->rowCount()));
 }
 
 void RelocsWidget::setScrollMode()

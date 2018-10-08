@@ -142,7 +142,7 @@ SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->symbolsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(symbolsProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(symbolsProxyModel->rowCount()));
     });
     
     setScrollMode();
@@ -170,7 +170,7 @@ void SymbolsWidget::refreshSymbols()
 
     qhelpers::adjustColumns(ui->symbolsTreeView, SymbolsModel::ColumnCount, 0);
 
-    bar->showMessage(tr("Showing items: %1").arg(symbolsProxyModel->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(symbolsProxyModel->rowCount()));
 }
 
 void SymbolsWidget::setScrollMode()

@@ -167,7 +167,7 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->vTableTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(proxy->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(proxy->rowCount()));
     });
     
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshVTables()));
@@ -187,7 +187,7 @@ void VTablesWidget::refreshVTables()
 
     ui->vTableTreeView->setColumnWidth(0, 200);
 
-    bar->showMessage(tr("Showing items: %1").arg(proxy->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(proxy->rowCount()));
 }
 
 void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)

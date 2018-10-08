@@ -153,7 +153,7 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->exportsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(exportsProxyModel->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(exportsProxyModel->rowCount()));
     });
     
     setScrollMode();
@@ -171,7 +171,7 @@ void ExportsWidget::refreshExports()
 
     qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
 
-    bar->showMessage(tr("Showing items: %1").arg(exportsProxyModel->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(exportsProxyModel->rowCount()));
 }
 
 

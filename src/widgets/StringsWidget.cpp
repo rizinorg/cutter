@@ -164,7 +164,7 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->stringsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("Showing items: %1").arg(proxy_model->rowCount()));
+        bar->showMessage(tr("%1 Items").arg(proxy_model->rowCount()));
     });
     
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
@@ -203,7 +203,7 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
 
-    bar->showMessage(tr("Showing items: %1").arg(proxy_model->rowCount()));
+    bar->showMessage(tr("%1 Items").arg(proxy_model->rowCount()));
 
     task = nullptr;
 }
