@@ -70,7 +70,7 @@ public:
         s.setValue("graph.maxcols", ch);
     }
 
-    QString getCurrentTheme() const     { return s.value("theme", "solarized").toString(); }
+    QString getCurrentTheme() const     { return s.value("theme", "cutter").toString(); }
     void setColorTheme(QString theme);
 
     /*!
