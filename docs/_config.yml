@@ -2,7 +2,7 @@ name: Cutter
 title: Cutter
 
 project:
-  version: 1.7.1
+  version: 1.7.2
   download_url: https://github.com/radareorg/cutter/releases
 
 license:
