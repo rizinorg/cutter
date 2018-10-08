@@ -7,6 +7,7 @@
 #include "dialogs/XrefsDialog.h"
 #include "dialogs/SetFunctionVarTypes.h"
 #include "dialogs/SetToDataDialog.h"
+#include "dialogs/EditFunctionDialog.h"
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
@@ -690,7 +691,35 @@ void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 
 void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
-   puts("you pressed the button"); 
+    RCore *core = Core()->core();
+    EditFunctionDialog *dialog = new EditFunctionDialog(this);
+    RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
+
+    dialog->setWindowTitle(tr("Edit function %1").arg(fcn->name));
+    dialog->setNameText(fcn->name);
+
+    QString startAddrText;
+    startAddrText.sprintf("0x%llx", fcn->addr);
+    dialog->setStartAddrText(startAddrText);
+
+    QString endAddrText;
+    endAddrText.sprintf("0x%llx", fcn->addr + fcn->_size);
+    dialog->setEndAddrText(endAddrText);
+
+    QString stackSizeText;
+    stackSizeText.sprintf("%d", fcn->stack);
+    dialog->setStackSizeText(stackSizeText);
+
+    if (dialog->exec()) {
+        QString new_name = dialog->getNameText();
+        Core()->renameFunction(fcn->name, new_name);
+        QString new_start_addr = dialog->getStartAddrText();
+        QString new_end_addr = dialog->getEndAddrText();
+        QString new_stack_size = dialog->getStackSizeText();
+        emit Core()->functionsChanged();
+    } else {
+        return;
+    }
 }
 
 void DisassemblyContextMenu::setBase(QString base)

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EDITFUNCTIONDIALOG_H
+#define EDITFUNCTIONDIALOG_H
 
 #include <QDialog>
 #include <memory>
@@ -14,6 +15,14 @@ class EditFunctionDialog : public QDialog
 public:
     explicit EditFunctionDialog(QWidget *parent = nullptr);
     ~EditFunctionDialog();
+    QString getNameText();
+    void setNameText(const QString &name);
+    QString getStartAddrText();
+    void setStartAddrText(const QString &startAddr);
+    QString getEndAddrText();
+    void setEndAddrText(const QString &endAddr);
+    QString getStackSizeText();
+    void setStackSizeText(const QString &stackSize);
 
 private slots:
     void on_buttonBox_accepted();
@@ -22,6 +31,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::EditFunctionDialog> ui;
-
-    bool eventFilter(QObject *obj, QEvent *event);
 };
+
+#endif // EDITFUNCTIONDIALOG_H
