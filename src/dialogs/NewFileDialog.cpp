@@ -369,7 +369,7 @@ void NewFileDialog::loadFile(const QString &filename)
     ioFile += filename;
     InitialOptions options;
     options.filename = ioFile;
-    main->openNewFile(options);
+    main->openNewFile(options, ui->checkBox_FilelessOpen->isChecked());
 
     close();
 }
