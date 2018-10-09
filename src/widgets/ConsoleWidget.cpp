@@ -168,6 +168,18 @@ void ConsoleWidget::focusInputLineEdit()
     ui->inputLineEdit->setFocus();
 }
 
+void ConsoleWidget::removeLastLine()
+{
+    ui->outputTextEdit->setFocus();
+    QTextCursor cur = ui->outputTextEdit->textCursor();
+    ui->outputTextEdit->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+    ui->outputTextEdit->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+    ui->outputTextEdit->moveCursor(QTextCursor::End, QTextCursor::KeepAnchor);
+    ui->outputTextEdit->textCursor().removeSelectedText();
+    ui->outputTextEdit->textCursor().deletePreviousChar();
+    ui->outputTextEdit->setTextCursor(cur);
+}
+
 void ConsoleWidget::executeCommand(const QString &command)
 {
     if (!commandTask.isNull()) {
@@ -181,6 +193,7 @@ void ConsoleWidget::executeCommand(const QString &command)
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
           command] (const QString & result) {
+        removeLastLine();
         ui->outputTextEdit->appendPlainText(cmd_line + result);
         scrollOutputToEnd();
         historyAdd(command);
@@ -189,6 +202,7 @@ void ConsoleWidget::executeCommand(const QString &command)
         ui->inputLineEdit->setFocus();
     });
     Core()->getAsyncTaskManager()->start(commandTask);
+    ui->outputTextEdit->appendPlainText("Executing the command...");
 }
 
 void ConsoleWidget::on_inputLineEdit_returnPressed()

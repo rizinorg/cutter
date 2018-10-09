@@ -54,6 +54,7 @@ private:
     void scrollOutputToEnd();
     void historyAdd(const QString &input);
     void invalidateHistoryPosition();
+    void removeLastLine();
     void executeCommand(const QString &command);
 
     QSharedPointer<CommandTask> commandTask;
