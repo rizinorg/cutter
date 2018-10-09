@@ -265,6 +265,7 @@ HEADERS  += \
     utils/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
+    widgets/CutterTreeWidget.h \
     widgets/CutterSeekableWidget.h \
     widgets/GraphWidget.h \
     utils/JsonTreeItem.h \
