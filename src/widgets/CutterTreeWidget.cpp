@@ -4,9 +4,7 @@
 CutterTreeWidget::CutterTreeWidget(QObject *parent) :
     QObject(parent),
     bar(nullptr)
-{
-
-}
+{}
 
 void CutterTreeWidget::addStatusBar(QVBoxLayout *pos)
 {

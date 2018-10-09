@@ -14,11 +14,11 @@ class CutterTreeWidget : public QObject
 public:
     explicit CutterTreeWidget(QObject *parent = nullptr);
     ~CutterTreeWidget();
-	void addStatusBar(QVBoxLayout *pos);
-	void showItemsNumber(int count);
+    void addStatusBar(QVBoxLayout *pos);
+    void showItemsNumber(int count);
 
 private:
-	QStatusBar *bar;
+    QStatusBar *bar;
 
 };
 #endif // CUTTERTREEWIDGET_H
