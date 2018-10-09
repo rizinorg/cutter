@@ -396,6 +396,22 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
         case FunctionModel::CalltypeColumn:
             return left_function.calltype < right_function.calltype;
             break;
+        case FunctionModel::EdgesColumn:
+            if (left_function.edges != right_function.edges)
+                return left_function.edges < right_function.edges;
+            break;
+        case FunctionModel::CostColumn:
+            if (left_function.cost != right_function.cost)
+                return left_function.cost < right_function.cost;
+            break;
+        case FunctionModel::CallsColumn:
+            if (left_function.calls != right_function.calls)
+                return left_function.calls < right_function.calls;
+            break;
+        case FunctionModel::FrameColumn:
+            if (left_function.stackframe != right_function.stackframe)
+                return left_function.stackframe < right_function.stackframe;
+            break;
         default:
             return false;
         }
