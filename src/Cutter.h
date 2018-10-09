@@ -88,6 +88,10 @@ struct FunctionDescription {
     RVA cc;
     QString calltype;
     QString name;
+    RVA edges;
+    RVA cost;
+    RVA calls;
+    RVA stackframe;
 
     bool contains(RVA addr) const
     {
