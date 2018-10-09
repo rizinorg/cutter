@@ -64,6 +64,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 
     fillRecentFilesList();
     fillIOPluginsList();
+    fillProjectsList();
 
     // Set last clicked tab
     ui->tabWidget->setCurrentIndex(Config()->getNewFileLastClicked());
