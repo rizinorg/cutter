@@ -1,21 +1,21 @@
+<img width="150" height="150" align="left" style="float: left; margin: 0 10px 0 0;" alt="Cutter logo" src="https://raw.githubusercontent.com/radareorg/cutter/master/src/img/cutter.svg?sanitize=true">
+
 # Cutter
+
+Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced, customizable and FOSS reverse-engineering platform while keeping the user experience at mind. Cutter is created by reverse engineers for reverse engineers.  
 [![Build Status](https://travis-ci.org/radareorg/cutter.svg?branch=master)](https://travis-ci.org/radareorg/cutter)
 [![Build status](https://ci.appveyor.com/api/projects/status/s9rkx1dn3uy4bfdx/branch/master?svg=true)](https://ci.appveyor.com/project/radare/cutter/branch/master)
 
-Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced, customizable and FOSS reverse-engineering platform while keeping the user experience at mind. Cutter is created by reverse engineers for reverse engineers.
 
 ![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/images/screenshot.png)
 
-# Disclaimer
-
-Cutter is not aimed at existing radare2 users. It instead focuses on those whose are not yet radare2 users because of the learning curve, because they don't like CLI applications or because of the difficulty/instability of radare2.
 
 # Downloading a release
 
 Cutter is available for all platforms (Linux, OS X, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
  * OSX: Download the latest `.dmg` file.
- * Windows: Download the latest archive.
+ * Windows: Download the latest Zip archive.
  * Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.7.2/Cutter-v1.7.2-x86_64.Linux.AppImage) file. Then just make it executable and run it:
      * `chmod +x Cutter-v1.7.2-x86_64.Linux.AppImage`
      * `./Cutter-v1.7.2-x86_64.Linux.AppImage`
