@@ -66,16 +66,6 @@ QVariant RegisterRefModel::headerData(int section, Qt::Orientation, int role) co
     }
 }
 
-void RegisterRefModel::beginReloadRegisterRef()
-{
-    beginResetModel();
-}
-
-void RegisterRefModel::endReloadRegisterRef()
-{
-    endResetModel();
-}
-
 RegisterRefProxyModel::RegisterRefProxyModel(RegisterRefModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -151,9 +141,9 @@ RegisterRefsWidget::~RegisterRefsWidget() {}
 
 void RegisterRefsWidget::refreshRegisterRef()
 {
-    registerRefModel->beginReloadRegisterRef();
+    registerRefModel->beginResetModel();
     registerRefs = Core()->getRegisterRefs();
-    registerRefModel->endReloadRegisterRef();
+    registerRefModel->endResetModel();
 
     ui->registerRefTreeView->resizeColumnToContents(0);
     ui->registerRefTreeView->resizeColumnToContents(1);

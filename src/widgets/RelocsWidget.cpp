@@ -59,16 +59,6 @@ QVariant RelocsModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-void RelocsModel::beginReload()
-{
-    beginResetModel();
-}
-
-void RelocsModel::endReload()
-{
-    endResetModel();
-}
-
 RelocsProxyModel::RelocsProxyModel(RelocsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -152,9 +142,9 @@ void RelocsWidget::on_relocsTreeView_doubleClicked(const QModelIndex &index)
 
 void RelocsWidget::refreshRelocs()
 {
-    relocsModel->beginReload();
+    relocsModel->beginResetModel();
     relocs = Core()->getAllRelocs();
-    relocsModel->endReload();
+    relocsModel->endResetModel();
     qhelpers::adjustColumns(ui->relocsTreeView, 3, 0);
 }
 

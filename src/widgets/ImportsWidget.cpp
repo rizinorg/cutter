@@ -76,16 +76,6 @@ QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-void ImportsModel::beginReload()
-{
-    beginResetModel();
-}
-
-void ImportsModel::endReload()
-{
-    endResetModel();
-}
-
 ImportsProxyModel::ImportsProxyModel(ImportsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -167,9 +157,9 @@ ImportsWidget::~ImportsWidget() {}
 
 void ImportsWidget::refreshImports()
 {
-    importsModel->beginReload();
+    importsModel->beginResetModel();
     imports = Core()->getAllImports();
-    importsModel->endReload();
+    importsModel->endResetModel();
     qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
 }
 

@@ -161,16 +161,6 @@ QVariant CommentsModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-void CommentsModel::beginReloadComments()
-{
-    beginResetModel();
-}
-
-void CommentsModel::endReloadComments()
-{
-    endResetModel();
-}
-
 CommentsProxyModel::CommentsProxyModel(CommentsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -325,7 +315,7 @@ void CommentsWidget::resizeEvent(QResizeEvent *event)
 
 void CommentsWidget::refreshTree()
 {
-    commentsModel->beginReloadComments();
+    commentsModel->beginResetModel();
 
     comments = Core()->getAllComments("CCu");
     nestedComments.clear();
@@ -334,7 +324,7 @@ void CommentsWidget::refreshTree()
         nestedComments[fcnName].append(comment);
     }
 
-    commentsModel->endReloadComments();
+    commentsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->commentsTreeView, 3, 0);
 }

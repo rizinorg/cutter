@@ -65,16 +65,6 @@ QVariant SymbolsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void SymbolsModel::beginReloadSymbols()
-{
-    beginResetModel();
-}
-
-void SymbolsModel::endReloadSymbols()
-{
-    endResetModel();
-}
-
 SymbolsProxyModel::SymbolsProxyModel(SymbolsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -154,9 +144,9 @@ void SymbolsWidget::on_symbolsTreeView_doubleClicked(const QModelIndex &index)
 
 void SymbolsWidget::refreshSymbols()
 {
-    symbolsModel->beginReloadSymbols();
+    symbolsModel->beginResetModel();
     symbols = Core()->getAllSymbols();
-    symbolsModel->endReloadSymbols();
+    symbolsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->symbolsTreeView, SymbolsModel::ColumnCount, 0);
 }

@@ -92,16 +92,6 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void SectionsModel::beginReloadSections()
-{
-    beginResetModel();
-}
-
-void SectionsModel::endReloadSections()
-{
-    endResetModel();
-}
-
 SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -164,9 +154,9 @@ SectionsWidget::~SectionsWidget() {}
 
 void SectionsWidget::refreshSections()
 {
-    sectionsModel->beginReloadSections();
+    sectionsModel->beginResetModel();
     sections = Core()->getAllSections();
-    sectionsModel->endReloadSections();
+    sectionsModel->endResetModel();
 
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
 }

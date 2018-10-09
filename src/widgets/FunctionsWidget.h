@@ -12,6 +12,7 @@
 class MainWindow;
 class QTreeWidgetItem;
 class FunctionsTask;
+class FunctionsWidget;
 
 namespace Ui {
 class FunctionsWidget;
@@ -21,6 +22,8 @@ class FunctionsWidget;
 class FunctionModel : public QAbstractItemModel
 {
     Q_OBJECT
+
+    friend FunctionsWidget;
 
 private:
     QList<FunctionDescription> *functions;
@@ -57,9 +60,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadFunctions();
-    void endReloadFunctions();
 
     /*!
      * @return true if the index changed

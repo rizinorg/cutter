@@ -12,6 +12,7 @@
 
 class MainWindow;
 class QTreeWidgetItem;
+class StringsWidget;
 
 namespace Ui {
 class StringsWidget;
@@ -20,6 +21,8 @@ class StringsWidget;
 class StringsModel: public QAbstractListModel
 {
     Q_OBJECT
+
+    friend StringsWidget;
 
 private:
     QList<StringDescription> *strings;
@@ -35,9 +38,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReload();
-    void endReload();
 };
 
 

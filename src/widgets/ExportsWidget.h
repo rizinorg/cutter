@@ -11,6 +11,7 @@
 
 class MainWindow;
 class QTreeWidget;
+class ExportsWidget;
 
 namespace Ui {
 class ExportsWidget;
@@ -19,6 +20,8 @@ class ExportsWidget;
 class ExportsModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    friend ExportsWidget;
 
 private:
     QList<ExportDescription> *exports;
@@ -34,9 +37,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadExports();
-    void endReloadExports();
 };
 
 class ExportsProxyModel : public QSortFilterProxyModel

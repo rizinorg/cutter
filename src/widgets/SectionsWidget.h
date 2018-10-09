@@ -12,10 +12,13 @@
 class QTreeView;
 class QAbstractItemView;
 class MainWindow;
+class SectionsWidget;
 
 class SectionsModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    friend SectionsWidget;
 
 private:
     QList<SectionDescription> *sections;
@@ -31,9 +34,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadSections();
-    void endReloadSections();
 };
 
 class SectionsProxyModel : public QSortFilterProxyModel

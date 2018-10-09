@@ -68,16 +68,6 @@ QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void ExportsModel::beginReloadExports()
-{
-    beginResetModel();
-}
-
-void ExportsModel::endReloadExports()
-{
-    endResetModel();
-}
-
 ExportsProxyModel::ExportsProxyModel(ExportsModel *source_model, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -155,9 +145,9 @@ ExportsWidget::~ExportsWidget() {}
 
 void ExportsWidget::refreshExports()
 {
-    exportsModel->beginReloadExports();
+    exportsModel->beginResetModel();
     exports = Core()->getAllExports();
-    exportsModel->endReloadExports();
+    exportsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
 }

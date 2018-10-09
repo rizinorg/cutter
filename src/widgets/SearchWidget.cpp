@@ -71,16 +71,6 @@ QVariant SearchModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void SearchModel::beginReloadSearch()
-{
-    beginResetModel();
-}
-
-void SearchModel::endReloadSearch()
-{
-    endResetModel();
-}
-
 
 SearchSortFilterProxyModel::SearchSortFilterProxyModel(SearchModel *source_model, QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -192,9 +182,9 @@ void SearchWidget::refreshSearch()
     QVariant searchspace_data = ui->searchspaceCombo->currentData();
     QString searchspace = searchspace_data.toString();
 
-    search_model->beginReloadSearch();
+    search_model->beginResetModel();
     search = Core()->getAllSearch(search_for, searchspace);
-    search_model->endReloadSearch();
+    search_model->endResetModel();
 
     qhelpers::adjustColumns(ui->searchTreeView, 3, 0);
 }

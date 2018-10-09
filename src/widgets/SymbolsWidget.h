@@ -10,6 +10,7 @@
 
 class MainWindow;
 class QTreeWidgetItem;
+class SymbolsWidget;
 
 namespace Ui {
 class SymbolsWidget;
@@ -18,6 +19,8 @@ class SymbolsWidget;
 class SymbolsModel: public QAbstractListModel
 {
     Q_OBJECT
+
+    friend SymbolsWidget;
 
 private:
     QList<SymbolDescription> *symbols;
@@ -33,9 +36,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadSymbols();
-    void endReloadSymbols();
 };
 
 class SymbolsProxyModel : public QSortFilterProxyModel

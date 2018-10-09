@@ -164,16 +164,6 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void ClassesModel::beginReload()
-{
-    beginResetModel();
-}
-
-void ClassesModel::endReload()
-{
-    endResetModel();
-}
-
 
 
 
@@ -254,11 +244,11 @@ void ClassesWidget::flagsChanged()
 
 void ClassesWidget::refreshClasses()
 {
-    model->beginReload();
+    model->beginResetModel();
     classes = getSource() == Source::BIN
               ? Core()->getAllClassesFromBin()
               : Core()->getAllClassesFromFlags();
-    model->endReload();
+    model->endResetModel();
 
     qhelpers::adjustColumns(ui->classesTreeView, 3, 0);
 

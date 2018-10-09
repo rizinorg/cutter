@@ -92,15 +92,6 @@ QVariant VTableModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-void VTableModel::beginReload()
-{
-    beginResetModel();
-}
-
-void VTableModel::endReload()
-{
-    endResetModel();
-}
 
 VTableSortFilterProxyModel::VTableSortFilterProxyModel(VTableModel *model, QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -169,9 +160,9 @@ VTablesWidget::~VTablesWidget()
 
 void VTablesWidget::refreshVTables()
 {
-    model->beginReload();
+    model->beginResetModel();
     vtables = Core()->getAllVTables();
-    model->endReload();
+    model->endResetModel();
 
     qhelpers::adjustColumns(ui->vTableTreeView, 3, 0);
 

@@ -11,11 +11,14 @@
 
 class MainWindow;
 class QTreeWidgetItem;
+class SearchWidget;
 
 
 class SearchModel: public QAbstractListModel
 {
     Q_OBJECT
+
+    friend SearchWidget;
 
 private:
     QList<SearchDescription> *search;
@@ -31,9 +34,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadSearch();
-    void endReloadSearch();
 };
 
 
