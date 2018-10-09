@@ -57,12 +57,9 @@ void EditFunctionDialog::setStackSizeText(const QString &stackSize)
 
 void EditFunctionDialog::on_buttonBox_accepted()
 {
-
 }
 
 void EditFunctionDialog::on_buttonBox_rejected()
 {
     close();
 }
-
-

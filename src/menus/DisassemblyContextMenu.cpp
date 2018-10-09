@@ -713,12 +713,13 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
     if (dialog->exec()) {
         QString new_name = dialog->getNameText();
         Core()->renameFunction(fcn->name, new_name);
-        QString new_start_addr = dialog->getStartAddrText();
-        QString new_end_addr = dialog->getEndAddrText();
-        QString new_stack_size = dialog->getStackSizeText();
-        emit Core()->functionsChanged();
-    } else {
-        return;
+        //QString new_start_addr = dialog->getStartAddrText();
+        //fcn->addr = Core()->math(new_start_addr); 
+        //QString new_end_addr = dialog->getEndAddrText();
+        //fcn->_size = Core()->math(new_end_addr+ " - " + new_start_addr);
+        //QString new_stack_size = dialog->getStackSizeText();
+        //Core()->cmd("afS " + new_stack_size);
+        //emit Core()->functionsChanged();
     }
 }
 
