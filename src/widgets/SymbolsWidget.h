@@ -4,10 +4,10 @@
 #include <memory>
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
-#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -67,11 +67,11 @@ private slots:
 
 private:
     std::unique_ptr<Ui::SymbolsWidget> ui;
-    QStatusBar *bar;
 
     QList<SymbolDescription> symbols;
     SymbolsModel *symbolsModel;
     SymbolsProxyModel *symbolsProxyModel;
+    CutterTreeWidget *tree;
 
     void setScrollMode();
 };

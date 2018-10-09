@@ -382,15 +382,13 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
 
 FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::FunctionsWidget)
+    ui(new Ui::FunctionsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
     // Add Status Bar footer 
-    bar = new QStatusBar;
-    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    bar->setSizePolicy(sizePolicy);
-    ui->verticalLayout->addWidget(bar);
+    tree->addStatusBar(ui->verticalLayout);
 
     // Radare core found in:
     this->main = main;
@@ -423,7 +421,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->functionsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("%1 Items").arg(functionProxyModel->rowCount()));
+        tree->showItemsNumber(functionProxyModel->rowCount());
     });
     
     setScrollMode();
@@ -473,7 +471,7 @@ void FunctionsWidget::refreshTree()
         // resize offset and size columns
         qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
 
-        bar->showMessage(tr("%1 Items").arg(functionProxyModel->rowCount()));
+        tree->showItemsNumber(functionProxyModel->rowCount());
     });
     Core()->getAsyncTaskManager()->start(task);
 }

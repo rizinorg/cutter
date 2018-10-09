@@ -4,10 +4,10 @@
 #include <memory>
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -86,10 +86,10 @@ private slots:
 private:
     std::unique_ptr<Ui::CommentsWidget> ui;
     MainWindow *main;
-    QStatusBar *bar;
 
     CommentsModel *commentsModel;
     CommentsProxyModel *commentsProxyModel;
+    CutterTreeWidget *tree;
 
     QList<CommentDescription> comments;
     QMap<QString, QList<CommentDescription>> nestedComments;

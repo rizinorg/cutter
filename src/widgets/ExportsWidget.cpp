@@ -123,15 +123,13 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 
 ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::ExportsWidget)
+    ui(new Ui::ExportsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
     // Add Status Bar footer
-    bar = new QStatusBar;
-    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    bar->setSizePolicy(sizePolicy);
-    ui->verticalLayout->addWidget(bar);
+    tree->addStatusBar(ui->verticalLayout);
     
     exportsModel = new ExportsModel(&exports, this);
     exportsProxyModel = new ExportsProxyModel(exportsModel, this);
@@ -153,7 +151,7 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->exportsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("%1 Items").arg(exportsProxyModel->rowCount()));
+        tree->showItemsNumber(exportsProxyModel->rowCount());
     });
     
     setScrollMode();
@@ -171,7 +169,7 @@ void ExportsWidget::refreshExports()
 
     qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
 
-    bar->showMessage(tr("%1 Items").arg(exportsProxyModel->rowCount()));
+    tree->showItemsNumber(exportsProxyModel->rowCount());
 }
 
 

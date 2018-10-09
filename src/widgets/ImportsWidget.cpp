@@ -137,15 +137,13 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::ImportsWidget),
     importsModel(new ImportsModel(&imports, this)),
-    importsProxyModel(new ImportsProxyModel(importsModel, this))
+    importsProxyModel(new ImportsProxyModel(importsModel, this)),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
     // Add Status Bar footer
-    bar = new QStatusBar;
-    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    bar->setSizePolicy(sizePolicy);
-    ui->verticalLayout->addWidget(bar);
+    tree->addStatusBar(ui->verticalLayout);
 
     ui->importsTreeView->setModel(importsProxyModel);
     ui->importsTreeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
@@ -165,7 +163,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->importsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("%1 Items").arg(importsProxyModel->rowCount()));
+        tree->showItemsNumber(importsProxyModel->rowCount());
     });
     
     setScrollMode();
@@ -182,7 +180,7 @@ void ImportsWidget::refreshImports()
     importsModel->endReload();
     qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
 
-    bar->showMessage(tr("%1 Items").arg(importsProxyModel->rowCount()));
+    tree->showItemsNumber(importsProxyModel->rowCount());
 }
 
 void ImportsWidget::setScrollMode()

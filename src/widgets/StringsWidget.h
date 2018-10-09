@@ -6,10 +6,10 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 #include "utils/StringsTask.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
-#include <QStatusBar>
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -72,13 +72,13 @@ private slots:
 
 private:
     std::unique_ptr<Ui::StringsWidget> ui;
-    QStatusBar *bar;
 
     QSharedPointer<StringsTask> task;
 
     StringsModel *model;
     StringsSortFilterProxyModel *proxy_model;
     QList<StringDescription> strings;
+    CutterTreeWidget *tree;
 };
 
 #endif // STRINGSWIDGET_H

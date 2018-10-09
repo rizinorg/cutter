@@ -5,10 +5,10 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
-#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -79,12 +79,12 @@ private slots:
 
 private:
     std::unique_ptr<Ui::FlagsWidget> ui;
-    MainWindow      *main;
-    QStatusBar *bar;
+    MainWindow *main;
 
     FlagsModel *flags_model;
     FlagsSortFilterProxyModel *flags_proxy_model;
     QList<FlagDescription> flags;
+    CutterTreeWidget *tree;
 
     void refreshFlags();
     void setScrollMode();

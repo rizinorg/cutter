@@ -112,15 +112,13 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 
 SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::SymbolsWidget)
+    ui(new Ui::SymbolsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
     // Add Status Bar footer
-    bar = new QStatusBar;
-    QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    bar->setSizePolicy(sizePolicy);
-    ui->verticalLayout->addWidget(bar);
+    tree->addStatusBar(ui->verticalLayout);
 
     symbolsModel = new SymbolsModel(&symbols, this);
     symbolsProxyModel = new SymbolsProxyModel(symbolsModel, this);
@@ -142,7 +140,7 @@ SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->symbolsTreeView, SLOT(setFocus()));
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        bar->showMessage(tr("%1 Items").arg(symbolsProxyModel->rowCount()));
+        tree->showItemsNumber(symbolsProxyModel->rowCount());
     });
     
     setScrollMode();
@@ -170,7 +168,7 @@ void SymbolsWidget::refreshSymbols()
 
     qhelpers::adjustColumns(ui->symbolsTreeView, SymbolsModel::ColumnCount, 0);
 
-    bar->showMessage(tr("%1 Items").arg(symbolsProxyModel->rowCount()));
+    tree->showItemsNumber(symbolsProxyModel->rowCount());
 }
 
 void SymbolsWidget::setScrollMode()

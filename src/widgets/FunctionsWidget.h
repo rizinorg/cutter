@@ -5,10 +5,10 @@
 
 #include <QSortFilterProxyModel>
 #include <QTreeView>
-#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -122,8 +122,7 @@ protected:
 
 private:
     std::unique_ptr<Ui::FunctionsWidget> ui;
-    MainWindow      *main;
-    QStatusBar *bar;
+    MainWindow *main;
 
     QSharedPointer<FunctionsTask> task;
 
@@ -133,6 +132,8 @@ private:
 
     FunctionModel *functionModel;
     FunctionSortFilterProxyModel *functionProxyModel;
+
+    CutterTreeWidget *tree;
 
     void setScrollMode();
 };

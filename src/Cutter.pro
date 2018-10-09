@@ -173,6 +173,7 @@ SOURCES += \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
     widgets/CutterSeekableWidget.cpp \
+    widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
     utils/JsonTreeItem.cpp \
     utils/JsonModel.cpp \

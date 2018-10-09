@@ -5,10 +5,10 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
-#include <QStatusBar>
 
 class MainWindow;
 class QTreeWidget;
@@ -67,11 +67,11 @@ private slots:
 
 private:
     std::unique_ptr<Ui::ExportsWidget> ui;
-    QStatusBar *bar;
 
     ExportsModel *exportsModel;
     ExportsProxyModel *exportsProxyModel;
     QList<ExportDescription> exports;
+    CutterTreeWidget *tree;
 
     void setScrollMode();
 };

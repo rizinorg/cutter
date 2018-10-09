@@ -5,10 +5,10 @@
 
 #include <QTreeView>
 #include <QSortFilterProxyModel>
-#include <QStatusBar>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 namespace Ui {
 class VTablesWidget;
@@ -65,11 +65,11 @@ private slots:
 
 private:
     std::unique_ptr<Ui::VTablesWidget> ui;
-    QStatusBar *bar;
 
     VTableModel *model;
     QSortFilterProxyModel *proxy;
     QList<VTableDescription> vtables;
+    CutterTreeWidget *tree;
 };
 
 #endif // VTABLESWIDGET_H
