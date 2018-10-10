@@ -52,7 +52,11 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
         currDir = currDir.filePath(versionList.at(2) + QDir::separator() + "cons");
         standardR2ThemesLocationPath = currDir.absolutePath();
     }
-    assert(found);
+    if (!found) {
+        // TODO show an error message to the user
+        standardR2ThemesLocationPath = QDir::tempPath() + QDir::separator() + "alwaysemptydirectory";
+        QDir().mkpath(standardR2ThemesLocationPath);
+    }
 
     customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
                                  QDir::separator() +
