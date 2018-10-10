@@ -44,8 +44,9 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
 
         // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
         // so it takes first (and only) dir using .at(2)
-        currDir = currDir.filePath(currDir.entryList(QDir::Dirs,
-                                                     QDir::Name).at(2) + QDir::separator() + "cons");
+        QStringList versionList = currDir.entryList(QDir::Dirs, QDir::Name);
+        assert(versionList.size() >= 3);
+        currDir = currDir.filePath(versionList.at(2) + QDir::separator() + "cons");
         standardR2ThemesLocationPath = currDir.absolutePath();
     }
     assert(found);
