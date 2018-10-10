@@ -9,6 +9,7 @@
 #include "Cutter.h"
 
 class MainWindow;
+class RelocsWidget;
 
 namespace Ui {
 class RelocsWidget;
@@ -17,6 +18,8 @@ class RelocsWidget;
 class RelocsModel : public QAbstractTableModel
 {
     Q_OBJECT
+
+    friend RelocsWidget;
 
 private:
     QList<RelocDescription> *relocs;
@@ -32,9 +35,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
-    void beginReload();
-    void endReload();
 };
 
 class RelocsProxyModel : public QSortFilterProxyModel

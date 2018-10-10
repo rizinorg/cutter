@@ -260,17 +260,6 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
     return QVariant();
 }
 
-void FunctionModel::beginReloadFunctions()
-{
-    beginResetModel();
-}
-
-void FunctionModel::endReloadFunctions()
-{
-    updateCurrentIndex();
-    endResetModel();
-}
-
 void FunctionModel::setNested(bool nested)
 {
     beginResetModel();
@@ -487,7 +476,7 @@ void FunctionsWidget::refreshTree()
     task = QSharedPointer<FunctionsTask>(new FunctionsTask());
     connect(task.data(), &FunctionsTask::fetchFinished,
     this, [this] (const QList<FunctionDescription> &functions) {
-        functionModel->beginReloadFunctions();
+        functionModel->beginResetModel();
 
         this->functions = functions;
 
@@ -498,7 +487,8 @@ void FunctionsWidget::refreshTree()
 
         mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();
 
-        functionModel->endReloadFunctions();
+        functionModel->updateCurrentIndex();
+        functionModel->endResetModel();
 
         // resize offset and size columns
         qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);

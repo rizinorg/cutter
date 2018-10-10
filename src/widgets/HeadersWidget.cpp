@@ -64,16 +64,6 @@ QVariant HeadersModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void HeadersModel::beginReloadHeaders()
-{
-    beginResetModel();
-}
-
-void HeadersModel::endReloadHeaders()
-{
-    endResetModel();
-}
-
 HeadersProxyModel::HeadersProxyModel(HeadersModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -128,9 +118,9 @@ HeadersWidget::~HeadersWidget() {}
 
 void HeadersWidget::refreshHeaders()
 {
-    headersModel->beginReloadHeaders();
+    headersModel->beginResetModel();
     headers = Core()->getAllHeaders();
-    headersModel->endReloadHeaders();
+    headersModel->endResetModel();
 
     ui->headersTreeView->resizeColumnToContents(0);
     ui->headersTreeView->resizeColumnToContents(1);

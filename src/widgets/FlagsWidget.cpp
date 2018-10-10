@@ -69,16 +69,6 @@ QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void FlagsModel::beginReloadFlags()
-{
-    beginResetModel();
-}
-
-void FlagsModel::endReloadFlags()
-{
-    endResetModel();
-}
-
 
 
 
@@ -242,9 +232,9 @@ void FlagsWidget::refreshFlags()
         flagspace = flagspace_data.value<FlagspaceDescription>().name;
 
 
-    flags_model->beginReloadFlags();
+    flags_model->beginResetModel();
     flags = Core()->getAllFlags(flagspace);
-    flags_model->endReloadFlags();
+    flags_model->endResetModel();
 
     qhelpers::adjustColumns(ui->flagsTreeView, 2, 0);
 

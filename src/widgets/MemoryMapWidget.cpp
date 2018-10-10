@@ -68,16 +68,6 @@ QVariant MemoryMapModel::headerData(int section, Qt::Orientation, int role) cons
     }
 }
 
-void MemoryMapModel::beginReloadMemoryMap()
-{
-    beginResetModel();
-}
-
-void MemoryMapModel::endReloadMemoryMap()
-{
-    endResetModel();
-}
-
 MemoryProxyModel::MemoryProxyModel(MemoryMapModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -136,9 +126,9 @@ MemoryMapWidget::~MemoryMapWidget() {}
 
 void MemoryMapWidget::refreshMemoryMap()
 {
-    memoryModel->beginReloadMemoryMap();
+    memoryModel->beginResetModel();
     memoryMaps = Core()->getMemoryMap();
-    memoryModel->endReloadMemoryMap();
+    memoryModel->endResetModel();
 
     ui->memoryTreeView->resizeColumnToContents(0);
     ui->memoryTreeView->resizeColumnToContents(1);

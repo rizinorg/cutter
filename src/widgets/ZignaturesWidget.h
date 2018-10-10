@@ -12,6 +12,7 @@
 class MainWindow;
 class QTreeWidget;
 class QTreeWidgetItem;
+class ZignaturesWidget;
 
 namespace Ui {
 class ZignaturesWidget;
@@ -20,6 +21,8 @@ class ZignaturesWidget;
 class ZignaturesModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    friend ZignaturesWidget;
 
 public:
     enum Column { OffsetColumn = 0, NameColumn, ValueColumn, ColumnCount };
@@ -32,9 +35,6 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
-
-    void beginReloadZignatures();
-    void endReloadZignatures();
 
 private:
     QList<ZignatureDescription> *zignatures;

@@ -73,16 +73,6 @@ QVariant ResourcesModel::headerData(int section, Qt::Orientation, int role) cons
     }
 }
 
-void ResourcesModel::beginReload()
-{
-    beginResetModel();
-}
-
-void ResourcesModel::endReload()
-{
-    endResetModel();
-}
-
 ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
@@ -106,9 +96,9 @@ ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
 
 void ResourcesWidget::refreshResources()
 {
-    model->beginReload();
+    model->beginResetModel();
     resources = Core()->getAllResources();
-    model->endReload();
+    model->endResetModel();
 }
 
 void ResourcesWidget::onDoubleClicked(const QModelIndex &index)

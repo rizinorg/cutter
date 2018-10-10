@@ -64,15 +64,6 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void TypesModel::beginReloadTypes()
-{
-    beginResetModel();
-}
-
-void TypesModel::endReloadTypes()
-{
-    endResetModel();
-}
 
 TypesSortFilterProxyModel::TypesSortFilterProxyModel(TypesModel *source_model, QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -128,9 +119,9 @@ TypesWidget::~TypesWidget() {}
 
 void TypesWidget::refreshTypes()
 {
-    types_model->beginReloadTypes();
+    types_model->beginResetModel();
     types = Core()->getAllTypes();
-    types_model->endReloadTypes();
+    types_model->endResetModel();
 
     qhelpers::adjustColumns(ui->typesTreeView, 3, 0);
 }

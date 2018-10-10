@@ -77,16 +77,6 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void StringsModel::beginReload()
-{
-    beginResetModel();
-}
-
-void StringsModel::endReload()
-{
-    endResetModel();
-}
-
 StringsSortFilterProxyModel::StringsSortFilterProxyModel(StringsModel *source_model,
                                                          QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -185,9 +175,9 @@ void StringsWidget::refreshStrings()
 
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
 {
-    model->beginReload();
+    model->beginResetModel();
     this->strings = strings;
-    model->endReload();
+    model->endResetModel();
 
     qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
     if (ui->stringsTreeView->columnWidth(1) > 300)
