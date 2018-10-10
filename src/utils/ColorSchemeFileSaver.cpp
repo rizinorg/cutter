@@ -30,12 +30,24 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
     QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
     dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
 
-    currDir = QDir(dirs.at(0)).filePath("radare2");
-    // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
-    // so it takes first (and only) dir using .at(2)
-    currDir = currDir.filePath(currDir.entryList(QDir::Dirs,
-                                                 QDir::Name).at(2) + QDir::separator() + "cons");
-    standardR2ThemesLocationPath = currDir.absolutePath();
+    // on Ubuntu the first standard location is not the correct one. Therefore we need to iterate over all of them.
+
+    bool found = false;
+    for (QString dir : dirs) {
+        currDir = QDir(dir).filePath("radare2");
+
+        if (!currDir.exists()) {
+            continue;
+        }
+        found = true;
+
+        // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
+        // so it takes first (and only) dir using .at(2)
+        currDir = currDir.filePath(currDir.entryList(QDir::Dirs,
+                                                     QDir::Name).at(2) + QDir::separator() + "cons");
+        standardR2ThemesLocationPath = currDir.absolutePath();
+    }
+    assert(found);
 
     customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
                                  QDir::separator() +
