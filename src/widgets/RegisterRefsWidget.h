@@ -4,6 +4,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -80,5 +81,6 @@ private:
     QList<RegisterRefDescription> registerRefs;
     QAction *actionCopyValue;
     QAction *actionCopyRef;
+    CutterTreeWidget *tree;
     void setScrollMode();
 };

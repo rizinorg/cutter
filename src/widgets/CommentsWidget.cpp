@@ -217,9 +217,13 @@ bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::CommentsWidget),
-    main(main)
+    main(main),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
 
     commentsModel = new CommentsModel(&comments, &nestedComments, this);
     commentsProxyModel = new CommentsProxyModel(commentsModel, this);
@@ -240,6 +244,10 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
             commentsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->commentsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(commentsProxyModel->rowCount());
+    });
+    
     setScrollMode();
 
     ui->actionHorizontal->setChecked(true);
@@ -327,6 +335,8 @@ void CommentsWidget::refreshTree()
     commentsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->commentsTreeView, 3, 0);
+
+    tree->showItemsNumber(commentsProxyModel->rowCount());
 }
 
 void CommentsWidget::setScrollMode()

@@ -7,6 +7,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -66,9 +67,11 @@ private slots:
 
 private:
     std::unique_ptr<Ui::SymbolsWidget> ui;
+
     QList<SymbolDescription> symbols;
     SymbolsModel *symbolsModel;
     SymbolsProxyModel *symbolsProxyModel;
+    CutterTreeWidget *tree;
 
     void setScrollMode();
 };

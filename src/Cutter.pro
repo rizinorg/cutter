@@ -173,6 +173,7 @@ SOURCES += \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
     widgets/CutterSeekableWidget.cpp \
+    widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
     utils/JsonTreeItem.cpp \
     utils/JsonModel.cpp \
@@ -266,6 +267,7 @@ HEADERS  += \
     utils/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
+    widgets/CutterTreeWidget.h \
     widgets/CutterSeekableWidget.h \
     widgets/GraphWidget.h \
     utils/JsonTreeItem.h \

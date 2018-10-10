@@ -7,6 +7,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
@@ -88,6 +89,7 @@ private:
 
     CommentsModel *commentsModel;
     CommentsProxyModel *commentsProxyModel;
+    CutterTreeWidget *tree;
 
     QList<CommentDescription> comments;
     QMap<QString, QList<CommentDescription>> nestedComments;

@@ -103,9 +103,13 @@ bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
 
 RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::RegisterRefsWidget)
+    ui(new Ui::RegisterRefsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
 
     registerRefModel = new RegisterRefModel(&registerRefs, this);
     registerRefProxyModel = new RegisterRefProxyModel(registerRefModel, this);
@@ -135,6 +139,10 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     ui->registerRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->registerRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showRegRefContextMenu(const QPoint &)));
+
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(registerRefProxyModel->rowCount());
+    });
 }
 
 RegisterRefsWidget::~RegisterRefsWidget() {}
@@ -148,6 +156,8 @@ void RegisterRefsWidget::refreshRegisterRef()
     ui->registerRefTreeView->resizeColumnToContents(0);
     ui->registerRefTreeView->resizeColumnToContents(1);
     ui->registerRefTreeView->resizeColumnToContents(2);
+
+    tree->showItemsNumber(registerRefProxyModel->rowCount());
 }
 
 void RegisterRefsWidget::setScrollMode()

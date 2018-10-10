@@ -122,9 +122,13 @@ bool StringsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::StringsWidget)
+    ui(new Ui::StringsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
 
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
@@ -147,6 +151,10 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
             SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->stringsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(proxy_model->rowCount());
+    });
+    
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
 }
 
@@ -182,6 +190,8 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
+
+    tree->showItemsNumber(proxy_model->rowCount());
 
     task = nullptr;
 }

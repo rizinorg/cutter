@@ -113,10 +113,14 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 
 ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::ExportsWidget)
+    ui(new Ui::ExportsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
+    
     exportsModel = new ExportsModel(&exports, this);
     exportsProxyModel = new ExportsProxyModel(exportsModel, this);
     ui->exportsTreeView->setModel(exportsProxyModel);
@@ -136,6 +140,10 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
             exportsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->exportsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(exportsProxyModel->rowCount());
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshExports()));
@@ -150,6 +158,8 @@ void ExportsWidget::refreshExports()
     exportsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
+
+    tree->showItemsNumber(exportsProxyModel->rowCount());
 }
 
 

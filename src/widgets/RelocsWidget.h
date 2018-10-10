@@ -7,6 +7,7 @@
 
 #include "CutterDockWidget.h"
 #include "Cutter.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class RelocsWidget;
@@ -63,9 +64,11 @@ private slots:
 
 private:
     std::unique_ptr<Ui::RelocsWidget> ui;
+
     RelocsModel *relocsModel;
     RelocsProxyModel *relocsProxyModel;
     QList<RelocDescription> relocs;
+    CutterTreeWidget *tree;
 
     void setScrollMode();
 };

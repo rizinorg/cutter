@@ -128,9 +128,13 @@ bool VTableSortFilterProxyModel::filterAcceptsRow(int source_row,
 
 VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::VTablesWidget)
+    ui(new Ui::VTablesWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
 
     model = new VTableModel(&vtables, this);
     proxy = new VTableSortFilterProxyModel(model);
@@ -151,6 +155,10 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
             SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->vTableTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(proxy->rowCount());
+    });
+    
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshVTables()));
 }
 
@@ -167,6 +175,8 @@ void VTablesWidget::refreshVTables()
     qhelpers::adjustColumns(ui->vTableTreeView, 3, 0);
 
     ui->vTableTreeView->setColumnWidth(0, 200);
+
+    tree->showItemsNumber(proxy->rowCount());
 }
 
 void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)

@@ -5,6 +5,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -70,6 +71,7 @@ private:
     ExportsModel *exportsModel;
     ExportsProxyModel *exportsProxyModel;
     QList<ExportDescription> exports;
+    CutterTreeWidget *tree;
 
     void setScrollMode();
 };

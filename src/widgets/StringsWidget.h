@@ -6,6 +6,7 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 #include "utils/StringsTask.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -77,6 +78,7 @@ private:
     StringsModel *model;
     StringsSortFilterProxyModel *proxy_model;
     QList<StringDescription> strings;
+    CutterTreeWidget *tree;
 };
 
 #endif // STRINGSWIDGET_H
