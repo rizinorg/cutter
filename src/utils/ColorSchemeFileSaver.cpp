@@ -60,7 +60,12 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
 
     standardR2ThemesLocationPath = currDir.absolutePath();
     if (standardR2ThemesLocationPath == "") {
-        qDebug() << "Can't open radare2 themes folder.";
+        QMessageBox mb;
+        mb.setIcon(QMessageBox::Critical);
+        mb.setStandardButtons(QMessageBox::Ok);
+        mb.setWindowTitle(tr("Standard themes not found!"));
+        mb.setText(tr("The radare2 standard themes could not be found! This probably means radare2 is not properly installed. If you think it is open an issue please."));
+        mb.exec();
     }
 }
 
@@ -102,16 +107,18 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
         src = QString(fIn.readAll()).split('\n');
     }
 
+    QStringList tmp;
     for (auto &it : src) {
         if (it.isEmpty()) {
             continue;
         }
         fOut.write(it.toUtf8() + '\n');
 
+        tmp = it.split(' ');
         if (it.length() > 2 && it.left(2) == "#~") {
-            options.removeOne(it.split(' ')[0].remove("#~").toUtf8());
-        } else {
-            options.removeOne(it.split(' ').at(1));
+            options.removeOne(tmp[0].remove("#~").toUtf8());
+        } else if (tmp.size() > 1) {
+            options.removeOne(tmp.at(1));
         }
     }
 
@@ -153,7 +160,7 @@ bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 bool ColorSchemeFileSaver::isNameEngaged(const QString &name) const
 {
     return QFile::exists(standardR2ThemesLocationPath + QDir::separator() + name) ||
-            QFile::exists(customR2ThemesLocationPath + QDir::separator() + name);
+           QFile::exists(customR2ThemesLocationPath + QDir::separator() + name);
 }
 
 QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
@@ -167,7 +174,9 @@ QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
     for (auto &it : data) {
         if (it.length() > 2 && it.left(2) == "#~") {
             QStringList currLine = it.split(' ');
-            ret.insert(currLine[0].remove("#~"), currLine[1].replace("rgb:", "#"));
+            if (currLine.size() > 1) {
+                ret.insert(currLine[0].remove("#~"), currLine[1].replace("rgb:", "#"));
+            }
         }
     }
 
