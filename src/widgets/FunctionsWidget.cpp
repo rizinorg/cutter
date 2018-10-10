@@ -130,7 +130,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 case 9:
                     return tr("Cost: %1").arg(function.cost);
                 case 10:
-                    return tr("Calls/OutDeg.: %1").arg(function.calls);
+                    return tr("Calls/OutDegree: %1").arg(function.calls);
                 case 11:
                     return tr("StackFrame: %1").arg(function.stackframe);
                 default:
