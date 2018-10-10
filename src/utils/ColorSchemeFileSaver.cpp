@@ -40,12 +40,15 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
         if (!currDir.exists()) {
             continue;
         }
-        found = true;
 
         // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
-        // so it takes first (and only) dir using .at(2)
+        // so if no version directory is found continue searching
         QStringList versionList = currDir.entryList(QDir::Dirs, QDir::Name);
-        assert(versionList.size() >= 3);
+        if (versionList.size() < 3) {
+            continue;
+        }
+
+        found = true;
         currDir = currDir.filePath(versionList.at(2) + QDir::separator() + "cons");
         standardR2ThemesLocationPath = currDir.absolutePath();
     }
