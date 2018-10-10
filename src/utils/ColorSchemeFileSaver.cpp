@@ -53,7 +53,13 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
         standardR2ThemesLocationPath = currDir.absolutePath();
     }
     if (!found) {
-        // TODO show an error message to the user
+        QMessageBox mb;
+        mb.setIcon(QMessageBox::Critical);
+        mb.setStandardButtons(QMessageBox::Ok);
+        mb.setWindowTitle(tr("Standard themes not found!"));
+        mb.setText(
+            tr("The radare2 standard themes could not be found! This probably means radare2 is not properly installed. If you think it is open an issue please."));
+        mb.exec();
     }
 
     customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
