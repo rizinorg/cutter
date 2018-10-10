@@ -54,8 +54,6 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
     }
     if (!found) {
         // TODO show an error message to the user
-        standardR2ThemesLocationPath = QDir::tempPath() + QDir::separator() + "alwaysemptydirectory";
-        QDir().mkpath(standardR2ThemesLocationPath);
     }
 
     customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
