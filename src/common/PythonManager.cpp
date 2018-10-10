@@ -202,3 +202,13 @@ void PythonManager::saveThread()
 {
     pyThreadState = PyEval_SaveThread();
 }
+
+void PythonManager::setCutterCore(void *addr)
+{
+    restoreThread();
+
+    auto arg = PyLong_FromVoidPtr(addr);
+    PyObject_CallMethod(cutterPluginModule, "set_cutter_core", "N", arg);
+
+    saveThread();
+}

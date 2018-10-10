@@ -112,11 +112,11 @@ CutterDockWidget *CutterPythonPlugin::setupInterface(MainWindow *main, QAction *
         return nullptr;
     }
 
-    auto dockWidget = reinterpret_cast<QDockWidget *>(PyLong_AsLong(pWidget));
+    auto dockWidget = reinterpret_cast<QDockWidget *>(PyLong_AsVoidPtr(pWidget));
     if (!dockWidget) {
         qWarning() << "Cannot instantiate QDockWidget.";
-	Python()->saveThread();
-	return nullptr;
+        Python()->saveThread();
+        return nullptr;
     }
 
     CutterDockWidget *cutterWidget = new CutterDockWidget(main, dockWidget, nullptr);

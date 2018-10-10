@@ -31,6 +31,8 @@ public:
     void restoreThread();
     void saveThread();
 
+    void setCutterCore(void *addr);
+
 private:
     QString customPythonHome;
     wchar_t *pythonHome = nullptr;

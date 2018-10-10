@@ -1,6 +1,6 @@
-from PySide2 import QtCore, QtWidgets
-import shiboken2
+from PySide2 import QtCore, QtWidgets, shiboken2
 
+cutter_core = None
 
 class CutterPlugin(object):
     name = ''
@@ -20,6 +20,7 @@ class CutterPlugin(object):
     def makeCppPointer(self, widget):
         ptr = shiboken2.getCppPointer(widget)[0]
         return ptr
-        
 
-
+def set_cutter_core(addr):
+    global cutter_core
+    cutter_core = shiboken2.wrapInstance(addr, QtCore.QObject)
