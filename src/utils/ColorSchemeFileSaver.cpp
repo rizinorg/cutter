@@ -30,12 +30,36 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
     QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
     dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
 
-    currDir = QDir(dirs.at(0)).filePath("radare2");
-    // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
-    // so it takes first (and only) dir using .at(2)
-    currDir = currDir.filePath(currDir.entryList(QDir::Dirs,
-                                                 QDir::Name).at(2) + QDir::separator() + "cons");
-    standardR2ThemesLocationPath = currDir.absolutePath();
+    // on Ubuntu the first standard location is not the correct one. Therefore we need to iterate over all of them.
+
+    bool found = false;
+    for (QString dir : dirs) {
+        currDir = QDir(dir).filePath("radare2");
+
+        if (!currDir.exists()) {
+            continue;
+        }
+
+        // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
+        // so if no version directory is found continue searching
+        QStringList versionList = currDir.entryList(QDir::Dirs, QDir::Name);
+        if (versionList.size() < 3) {
+            continue;
+        }
+
+        found = true;
+        currDir = currDir.filePath(versionList.at(2) + QDir::separator() + "cons");
+        standardR2ThemesLocationPath = currDir.absolutePath();
+    }
+    if (!found) {
+        QMessageBox mb;
+        mb.setIcon(QMessageBox::Critical);
+        mb.setStandardButtons(QMessageBox::Ok);
+        mb.setWindowTitle(tr("Standard themes not found!"));
+        mb.setText(
+            tr("The radare2 standard themes could not be found! This probably means radare2 is not properly installed. If you think it is open an issue please."));
+        mb.exec();
+    }
 
     customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
                                  QDir::separator() +
