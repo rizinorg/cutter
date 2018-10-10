@@ -60,7 +60,7 @@ int FunctionModel::rowCount(const QModelIndex &parent) const
 
     if (nested) {
         if (parent.internalId() == 0)
-            return ColumnCount; // sub-nodes for nested functions
+            return ColumnCount - 1; // sub-nodes for nested functions
         return 0;
     } else
         return 0;
