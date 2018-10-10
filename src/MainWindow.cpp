@@ -370,12 +370,12 @@ void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool
 {
     auto o = new InitialOptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
-    o->loadOptions(options);
-    o->show();
 
     if (skipOptionsDialog) {
         o->setupAndStartAnalysis();
     }
+    o->loadOptions(options);
+    o->show();
 }
 
 void MainWindow::openProject(const QString &project_name)
