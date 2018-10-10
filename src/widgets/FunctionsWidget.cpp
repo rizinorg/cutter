@@ -60,7 +60,7 @@ int FunctionModel::rowCount(const QModelIndex &parent) const
 
     if (nested) {
         if (parent.internalId() == 0)
-            return 8; // sub-nodes for nested functions
+            return ColumnCount; // sub-nodes for nested functions
         return 0;
     } else
         return 0;
@@ -125,6 +125,14 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                     return tr("Cyclomatic complexity: %1").arg(RSizeString(function.cc));
                 case 7:
                     return tr("Call type: %1").arg(function.calltype);
+                case 8:
+                    return tr("Edges: %1").arg(function.edges);
+                case 9:
+                    return tr("Cost: %1").arg(function.cost);
+                case 10:
+                    return tr("Calls/OutDeg.: %1").arg(function.calls);
+                case 11:
+                    return tr("StackFrame: %1").arg(function.stackframe);
                 default:
                     return QVariant();
                 }
@@ -148,6 +156,14 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 return function.cc;
             case CalltypeColumn:
                 return function.calltype;
+            case EdgesColumn:
+                return function.edges;
+            case CostColumn:
+                return function.cost;
+            case CallsColumn:
+                return function.calls;
+            case FrameColumn:
+                return function.stackframe;
             default:
                 return QVariant();
             }
@@ -227,6 +243,14 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
                 return tr("Cyclo. Comp.");
             case CalltypeColumn:
                 return tr("Call type");
+            case EdgesColumn:
+                return tr("Edges");
+            case CostColumn:
+                return tr("Cost");
+            case CallsColumn:
+                return tr("Calls/OutDeg.");
+            case FrameColumn:
+                return tr("StackFrame");
             default:
                 return QVariant();
             }
@@ -371,6 +395,22 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
             break;
         case FunctionModel::CalltypeColumn:
             return left_function.calltype < right_function.calltype;
+            break;
+        case FunctionModel::EdgesColumn:
+            if (left_function.edges != right_function.edges)
+                return left_function.edges < right_function.edges;
+            break;
+        case FunctionModel::CostColumn:
+            if (left_function.cost != right_function.cost)
+                return left_function.cost < right_function.cost;
+            break;
+        case FunctionModel::CallsColumn:
+            if (left_function.calls != right_function.calls)
+                return left_function.calls < right_function.calls;
+            break;
+        case FunctionModel::FrameColumn:
+            if (left_function.stackframe != right_function.stackframe)
+                return left_function.stackframe < right_function.stackframe;
             break;
         default:
             return false;
