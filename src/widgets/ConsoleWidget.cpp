@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QShortcut>
 #include <QStringListModel>
+#include <QTimer>
 #include "Cutter.h"
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
@@ -185,15 +186,23 @@ void ConsoleWidget::executeCommand(const QString &command)
     if (!commandTask.isNull()) {
         return;
     }
-
     ui->inputLineEdit->setEnabled(false);
 
-    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
+    const int originalLines = ui->outputTextEdit->blockCount();
+    QTimer *timer = new QTimer(this);
+    timer->setInterval(500);
+    timer->setSingleShot(true);
+    connect(timer, &QTimer::timeout, [this]() {
+        ui->outputTextEdit->appendPlainText("Executing the command...");
+    });
 
+    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
-          command] (const QString & result) {
-        removeLastLine();
+          command, originalLines] (const QString & result) {
+        if (originalLines < ui->outputTextEdit->blockCount()) {
+            removeLastLine();
+        }
         ui->outputTextEdit->appendPlainText(cmd_line + result);
         scrollOutputToEnd();
         historyAdd(command);
@@ -201,8 +210,10 @@ void ConsoleWidget::executeCommand(const QString &command)
         ui->inputLineEdit->setEnabled(true);
         ui->inputLineEdit->setFocus();
     });
+    connect(commandTask.data(), &CommandTask::finished, timer, &QTimer::stop);
+
+    timer->start();
     Core()->getAsyncTaskManager()->start(commandTask);
-    ui->outputTextEdit->appendPlainText("Executing the command...");
 }
 
 void ConsoleWidget::on_inputLineEdit_returnPressed()
