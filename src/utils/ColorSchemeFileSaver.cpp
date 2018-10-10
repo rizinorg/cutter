@@ -7,6 +7,7 @@
 #include <QJsonObject>
 #include <QStandardPaths>
 #include "utils/Configuration.h"
+#include <cassert>
 
 static const QStringList cutterSpecificOptions = {
     "gui.main",
