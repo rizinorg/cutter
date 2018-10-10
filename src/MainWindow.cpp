@@ -371,8 +371,11 @@ void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool
     if (skipOptionsDialog) {
         o->setupAndStartAnalysis();
     }
-    o->loadOptions(options);
-    o->show();
+    else
+    {
+        o->loadOptions(options);
+        o->show();
+    }
 }
 
 void MainWindow::openProject(const QString &project_name)
