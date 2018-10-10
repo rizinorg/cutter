@@ -26,23 +26,41 @@ static const QStringList cutterSpecificOptions = {
 
 ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
 {
-    QDir currDir;
-    QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
-    dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
-
-    currDir = QDir(dirs.at(0)).filePath("radare2");
-    // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
-    // so it takes first (and only) dir using .at(2)
-    currDir = currDir.filePath(currDir.entryList(QDir::Dirs,
-                                                 QDir::Name).at(2) + QDir::separator() + "cons");
-    standardR2ThemesLocationPath = currDir.absolutePath();
-
     customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
                                  QDir::separator() +
                                  "radare2" + QDir::separator() +
                                  "cons";
     if (!QDir(customR2ThemesLocationPath).exists()) {
         QDir().mkpath(customR2ThemesLocationPath);
+    }
+
+    QDir currDir;
+    QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+    dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
+    standardR2ThemesLocationPath = "";
+
+    for (auto &it : dirs) {
+        currDir = QDir(it).filePath("radare2");
+        if (currDir.exists()) {
+            break;
+        }
+        currDir.setPath("");
+    }
+
+    QStringList entry = currDir.entryList(QDir::Dirs, QDir::Name);
+    standardR2ThemesLocationPath = currDir.absolutePath();
+    currDir.setPath("");
+    for (auto it : entry) {
+        it = standardR2ThemesLocationPath + QDir::separator() + it + QDir::separator() + "cons";
+        if (QDir(it).exists()) {
+            currDir = it;
+            break;
+        }
+    }
+
+    standardR2ThemesLocationPath = currDir.absolutePath();
+    if (standardR2ThemesLocationPath == "") {
+        qDebug() << "Can't open radare2 themes folder.";
     }
 }
 
@@ -135,7 +153,7 @@ bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 bool ColorSchemeFileSaver::isNameEngaged(const QString &name) const
 {
     return QFile::exists(standardR2ThemesLocationPath + QDir::separator() + name) ||
-           QFile::exists(customR2ThemesLocationPath + QDir::separator() + name);
+            QFile::exists(customR2ThemesLocationPath + QDir::separator() + name);
 }
 
 QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
