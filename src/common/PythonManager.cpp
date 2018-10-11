@@ -5,6 +5,8 @@
 #include <marshal.h>
 #include <QDebug>
 #include <QFile>
+#include <QDir>
+#include <QCoreApplication>
 
 static PythonManager *uniqueInstance = nullptr;
 
@@ -30,8 +32,7 @@ PythonManager::~PythonManager()
     restoreThread();
 
     if (cutterNotebookAppInstance) {
-        auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
-        PyObject_CallObject(stopFunc, nullptr);
+        PyObject_CallMethod(cutterNotebookAppInstance, "stop", nullptr);
         Py_DECREF(cutterNotebookAppInstance);
     }
 
@@ -82,19 +83,18 @@ void PythonManager::initialize()
 void PythonManager::addPythonPath(char *path) {
     restoreThread();
 
-    PyObject *sysModule = PyImport_ImportModule("sys");
-    if (!sysModule) {
-        return;
-    }
-    PyObject *pythonPath = PyObject_GetAttrString(sysModule, "path");
+    PyObject *pythonPath = PySys_GetObject("path");
     if (!pythonPath) {
+        saveThread();
         return;
     }
-    PyObject *append = PyObject_GetAttrString(pythonPath, "append");
-    if (!append) {
+    PyObject *_path = PyUnicode_FromString(path);
+    if (!_path) {
+        Py_DECREF(pythonPath);
+        saveThread();
         return;
     }
-    PyEval_CallFunction(append, "(s)", path);
+    PyList_Append(pythonPath, _path);
 
     saveThread();
 }
@@ -149,7 +149,7 @@ PyObject* PythonManager::createModule(QString module)
         moduleCodeObject = PyMarshal_ReadObjectFromString(moduleCode.constData() + 12,
                                                           moduleCode.size() - 12);
     } else {
-        moduleCodeObject = Py_CompileString(moduleCode.constData(), QString("%1.py").arg(module).toLatin1().constData(),
+        moduleCodeObject = Py_CompileString(moduleCode.constData(), moduleFile.fileName().toLatin1().constData(),
                                             Py_file_input);
     }
     if (!moduleCodeObject) {
@@ -175,7 +175,7 @@ PyObject* PythonManager::createModule(QString module)
 CutterPythonPlugin* PythonManager::loadPlugin(const char *pluginName) {
     CutterPythonPlugin *plugin = nullptr;
     if (!cutterPluginModule) {
-        return plugin;
+        return nullptr;
     }
 
     restoreThread();

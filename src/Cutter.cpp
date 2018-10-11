@@ -3,6 +3,7 @@
 #include <QRegularExpression>
 #include <QDir>
 #include <QCoreApplication>
+#include <QMetaType>
 
 #include "common/TempConfig.h"
 #include "common/Configuration.h"

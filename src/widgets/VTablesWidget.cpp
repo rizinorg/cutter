@@ -156,6 +156,10 @@ VTablesWidget::VTablesWidget(MainWindow *main) :
             SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->vTableTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(proxy->rowCount());
+    });
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshVTables()));
 }
 

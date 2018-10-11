@@ -16,7 +16,6 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 #include <QErrorMessage>
-#include <QMetaType>
 
 #define CutterRListForeach(list, it, type, x) \
     if (list) for (it = list->head; it && ((x=(type*)it->data)); it = it->n)
