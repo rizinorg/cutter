@@ -60,7 +60,7 @@ int FunctionModel::rowCount(const QModelIndex &parent) const
 
     if (nested) {
         if (parent.internalId() == 0)
-            return ColumnCount; // sub-nodes for nested functions
+            return ColumnCount - 1; // sub-nodes for nested functions
         return 0;
     } else
         return 0;
@@ -130,7 +130,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 case 9:
                     return tr("Cost: %1").arg(function.cost);
                 case 10:
-                    return tr("Calls/OutDeg.: %1").arg(function.calls);
+                    return tr("Calls/OutDegree: %1").arg(function.calls);
                 case 11:
                     return tr("StackFrame: %1").arg(function.stackframe);
                 default:
