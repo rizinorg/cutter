@@ -46,7 +46,6 @@ private:
     DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;
     DisassemblyTextEdit *mDisasTextEdit;
-    QLabel *headerLabel;
 
     RVA topOffset;
     RVA bottomOffset;

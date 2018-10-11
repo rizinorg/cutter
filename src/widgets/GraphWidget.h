@@ -3,6 +3,7 @@
 
 #include "CutterDockWidget.h"
 
+class QLabel;
 class MainWindow;
 class DisassemblerGraphView;
 
@@ -16,6 +17,7 @@ public:
 
 private:
     DisassemblerGraphView *graphView;
+    QLabel *headerLabel;
 
 };
 

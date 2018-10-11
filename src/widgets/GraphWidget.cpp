@@ -2,13 +2,17 @@
 #include "GraphWidget.h"
 #include "DisassemblerGraphView.h"
 
-GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+GraphWidget::GraphWidget(MainWindow *main, QAction *action)
+    : CutterDockWidget(main, action)
+    , headerLabel(new QLabel(this))
 {
     this->setObjectName("Graph");
     this->setAllowedAreas(Qt::AllDockWidgetAreas);
     this->graphView = new DisassemblerGraphView(this);
     this->setWidget(graphView);
+    this->setWidget(headerLabel);
+
+    headerLabel->setText(Core()->cmd("afcf").trimmed());
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
         if (visibility) {
