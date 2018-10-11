@@ -26,23 +26,46 @@ static const QStringList cutterSpecificOptions = {
 
 ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
 {
-    QDir currDir;
-    QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
-    dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
-
-    currDir = QDir(dirs.at(0)).filePath("radare2");
-    // currDir.entryList(QDir::Dirs, QDir::Name) returns { current dir, upper dir, dirs ... }
-    // so it takes first (and only) dir using .at(2)
-    currDir = currDir.filePath(currDir.entryList(QDir::Dirs,
-                                                 QDir::Name).at(2) + QDir::separator() + "cons");
-    standardR2ThemesLocationPath = currDir.absolutePath();
-
     customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
                                  QDir::separator() +
                                  "radare2" + QDir::separator() +
                                  "cons";
     if (!QDir(customR2ThemesLocationPath).exists()) {
         QDir().mkpath(customR2ThemesLocationPath);
+    }
+
+    QDir currDir;
+    QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
+    dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
+    standardR2ThemesLocationPath = "";
+
+    for (auto &it : dirs) {
+        currDir = QDir(it).filePath("radare2");
+        if (currDir.exists()) {
+            break;
+        }
+        currDir.setPath("");
+    }
+
+    QStringList entry = currDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
+    standardR2ThemesLocationPath = currDir.absolutePath();
+    currDir.setPath("");
+    for (auto it : entry) {
+        it = standardR2ThemesLocationPath + QDir::separator() + it + QDir::separator() + "cons";
+        if (QDir(it).exists()) {
+            currDir = it;
+            break;
+        }
+    }
+
+    standardR2ThemesLocationPath = currDir.absolutePath();
+    if (standardR2ThemesLocationPath == "") {
+        QMessageBox mb;
+        mb.setIcon(QMessageBox::Critical);
+        mb.setStandardButtons(QMessageBox::Ok);
+        mb.setWindowTitle(tr("Standard themes not found!"));
+        mb.setText(tr("The radare2 standard themes could not be found! This probably means radare2 is not properly installed. If you think it is open an issue please."));
+        mb.exec();
     }
 }
 
@@ -77,6 +100,9 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
         _obj[standardBackgroundOptionName] = QJsonArray({back.red(), back.green(), back.blue()});
         for (auto &it : _obj.keys()) {
             QJsonArray rgb = _obj[it].toArray();
+            if (rgb.size() != 3) {
+                continue;
+            }
             src.push_back("ec " + it + " " +
                           QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()).name().replace("#", "rgb:"));
         }
@@ -84,16 +110,18 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
         src = QString(fIn.readAll()).split('\n');
     }
 
+    QStringList tmp;
     for (auto &it : src) {
         if (it.isEmpty()) {
             continue;
         }
         fOut.write(it.toUtf8() + '\n');
 
+        tmp = it.split(' ');
         if (it.length() > 2 && it.left(2) == "#~") {
-            options.removeOne(it.split(' ')[0].remove("#~").toUtf8());
-        } else {
-            options.removeOne(it.split(' ').at(1));
+            options.removeOne(tmp[0].remove("#~").toUtf8());
+        } else if (tmp.size() > 1) {
+            options.removeOne(tmp.at(1));
         }
     }
 
@@ -149,7 +177,9 @@ QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
     for (auto &it : data) {
         if (it.length() > 2 && it.left(2) == "#~") {
             QStringList currLine = it.split(' ');
-            ret.insert(currLine[0].remove("#~"), currLine[1].replace("rgb:", "#"));
+            if (currLine.size() > 1) {
+                ret.insert(currLine[0].remove("#~"), currLine[1].replace("rgb:", "#"));
+            }
         }
     }
 
@@ -160,9 +190,7 @@ QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
 QStringList ColorSchemeFileSaver::getCustomSchemes() const
 {
     QStringList sl;
-    sl = QDir(customR2ThemesLocationPath).entryList(QDir::Files, QDir::Name);
-    sl.removeOne(".");
-    sl.removeOne("..");
+    sl = QDir(customR2ThemesLocationPath).entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
     return sl;
 }
 
