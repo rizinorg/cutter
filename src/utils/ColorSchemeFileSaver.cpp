@@ -47,7 +47,7 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
         currDir.setPath("");
     }
 
-    QStringList entry = currDir.entryList(QDir::Dirs, QDir::Name);
+    QStringList entry = currDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
     standardR2ThemesLocationPath = currDir.absolutePath();
     currDir.setPath("");
     for (auto it : entry) {
@@ -187,9 +187,7 @@ QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
 QStringList ColorSchemeFileSaver::getCustomSchemes() const
 {
     QStringList sl;
-    sl = QDir(customR2ThemesLocationPath).entryList(QDir::Files, QDir::Name);
-    sl.removeOne(".");
-    sl.removeOne("..");
+    sl = QDir(customR2ThemesLocationPath).entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
     return sl;
 }
 
