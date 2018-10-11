@@ -100,6 +100,9 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
         _obj[standardBackgroundOptionName] = QJsonArray({back.red(), back.green(), back.blue()});
         for (auto &it : _obj.keys()) {
             QJsonArray rgb = _obj[it].toArray();
+            if (rgb.size() != 3) {
+                continue;
+            }
             src.push_back("ec " + it + " " +
                           QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()).name().replace("#", "rgb:"));
         }
