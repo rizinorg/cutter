@@ -93,9 +93,9 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
 
     qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, Config()->getConfigBool("asm.bbline"));
 
-    bool varsubEnabled = Config()->getConfigBool("asm.varsub");
+    bool varsubEnabled = Config()->getConfigBool("asm.var.sub");
     qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
-    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, Config()->getConfigBool("asm.varsub_only"));
+    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, Config()->getConfigBool("asm.var.subonly"));
     ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 }
 
