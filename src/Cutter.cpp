@@ -111,7 +111,7 @@ QList<QString> CutterCore::sdbListKeys(QString path)
         SdbList *l = sdb_foreach_list(root, false);
         ls_foreach(l, iter, vsi) {
             SdbKv *nsi = (SdbKv *)vsi;
-            list << nsi->key;
+            list << nsi->base.key;
         }
     }
     return list;
