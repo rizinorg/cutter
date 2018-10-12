@@ -370,13 +370,11 @@ void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool
 {
     auto o = new InitialOptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
+    o->loadOptions(options);
 
     if (skipOptionsDialog) {
         o->setupAndStartAnalysis();
-    }
-    else
-    {
-        o->loadOptions(options);
+    } else {
         o->show();
     }
 }
