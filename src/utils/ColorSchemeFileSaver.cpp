@@ -47,19 +47,11 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
         currDir.setPath("");
     }
 
-    QStringList entry = currDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name);
-    standardR2ThemesLocationPath = currDir.absolutePath();
-    currDir.setPath("");
-    for (auto it : entry) {
-        it = standardR2ThemesLocationPath + QDir::separator() + it + QDir::separator() + "cons";
-        if (QDir(it).exists()) {
-            currDir = it;
-            break;
-        }
-    }
-
-    standardR2ThemesLocationPath = currDir.absolutePath();
-    if (standardR2ThemesLocationPath == "") {
+    currDir.setPath(QString(r_sys_prefix(nullptr)) + QString(R_SYS_DIR) + R2_THEMES);
+    if (currDir.exists()) {
+        standardR2ThemesLocationPath = currDir.absolutePath();
+    } else {
+        standardR2ThemesLocationPath = "";
         QMessageBox mb;
         mb.setIcon(QMessageBox::Critical);
         mb.setStandardButtons(QMessageBox::Ok);
