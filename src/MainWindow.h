@@ -83,7 +83,7 @@ public:
 
     /*!
      * @param quit whether to show destructive button in dialog
-     * @return if quit is true, false if the application should not close
+     * @return false if the application should not close
      */
     bool saveProjectAs(bool quit = false);
 
