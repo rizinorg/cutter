@@ -72,7 +72,7 @@ private slots:
 
     void showStringsContextMenu(const QPoint &pt);
     void on_actionX_refs_triggered();
-    void on_actionCopy_triggered();
+    void on_actionCopy();
 
 private:
     std::unique_ptr<Ui::StringsWidget> ui;

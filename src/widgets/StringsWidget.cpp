@@ -145,10 +145,9 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->actionX_refs, SIGNAL(triggered()), this, SLOT(on_actionX_refs_triggered()), Qt::UniqueConnection);
     connect(ui->actionFilter, SIGNAL(triggered()), ui->quickFilterView, SLOT(showFilter()));
-    connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy_triggered()));
-    connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy_triggered()));
+    connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
+    connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
 
     connect(ui->stringsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showStringsContextMenu(const QPoint &)));
@@ -238,7 +237,7 @@ void StringsWidget::on_actionX_refs_triggered()
     x->exec();
 }
 
-void StringsWidget::on_actionCopy_triggered()
+void StringsWidget::on_actionCopy()
 {
     QModelIndex current_item = ui->stringsTreeView->currentIndex();
     int row = current_item.row();
