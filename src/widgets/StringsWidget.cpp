@@ -132,6 +132,10 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
 
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
+    // Shift-F12 to toggle strings window
+    QShortcut *toggle_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F12), main);
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ toggleDockWidget(true); } );
+
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
