@@ -7,6 +7,8 @@
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 
+#include "WidgetShortcuts.h"
+
 
 StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
     : QAbstractListModel(parent),
@@ -133,7 +135,7 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
 
     // Shift-F12 to toggle strings window
-    QShortcut *toggle_shortcut = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_F12), main);
+    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ toggleDockWidget(true); } );
 
     // Ctrl-F to show/hide the filter entry
