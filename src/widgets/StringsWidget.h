@@ -70,6 +70,10 @@ private slots:
     void refreshStrings();
     void stringSearchFinished(const QList<StringDescription> &strings);
 
+    void showStringsContextMenu(const QPoint &pt);
+    void on_actionX_refs_triggered();
+    void on_actionCopy_triggered();
+
 private:
     std::unique_ptr<Ui::StringsWidget> ui;
 

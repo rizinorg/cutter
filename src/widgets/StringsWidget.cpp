@@ -6,7 +6,10 @@
 
 #include "MainWindow.h"
 #include "utils/Helpers.h"
+#include "dialogs/XrefsDialog.h"
 
+#include <QMenu>
+#include <QClipboard>
 
 StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
     : QAbstractListModel(parent),
@@ -142,6 +145,18 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
+    connect(ui->actionX_refs, SIGNAL(triggered()), this, SLOT(on_actionX_refs_triggered()), Qt::UniqueConnection);
+    connect(ui->actionFilter, SIGNAL(triggered()), ui->quickFilterView, SLOT(showFilter()));
+    connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy_triggered()));
+    connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy_triggered()));
+
+    connect(ui->stringsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showStringsContextMenu(const QPoint &)));
+
+    ui->actionFilter->setShortcut(QKeySequence::Find);
+
+    ui->stringsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
     model = new StringsModel(&strings, this);
     proxy_model = new StringsSortFilterProxyModel(model, this);
     ui->stringsTreeView->setModel(proxy_model);
@@ -194,4 +209,47 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     tree->showItemsNumber(proxy_model->rowCount());
 
     task = nullptr;
+}
+
+void StringsWidget::showStringsContextMenu(const QPoint &pt)
+{
+    QMenu *menu = new QMenu(ui->stringsTreeView);
+
+    menu->clear();
+    menu->addAction(ui->actionCopy_String);
+    menu->addAction(ui->actionCopy_Address);
+    menu->addAction(ui->actionFilter);
+    menu->addSeparator();
+    menu->addAction(ui->actionX_refs);
+
+    menu->exec(ui->stringsTreeView->mapToGlobal(pt));
+
+    delete menu;
+}
+
+void StringsWidget::on_actionX_refs_triggered()
+{
+    StringDescription str = ui->stringsTreeView->selectionModel()->currentIndex().data(
+                StringsModel::StringDescriptionRole).value<StringDescription>();
+
+    XrefsDialog *x = new XrefsDialog(this);
+    x->fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
+    x->setAttribute(Qt::WA_DeleteOnClose);
+    x->exec();
+}
+
+void StringsWidget::on_actionCopy_triggered()
+{
+    QModelIndex current_item = ui->stringsTreeView->currentIndex();
+    int row = current_item.row();
+
+    QModelIndex index;
+
+    if(sender() == ui->actionCopy_String)
+        index = ui->stringsTreeView->model()->index(row, 1);
+    else if(sender() == ui->actionCopy_Address)
+        index = ui->stringsTreeView->model()->index(row, 0);
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(index.data().toString());
 }
