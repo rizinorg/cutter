@@ -6,6 +6,7 @@
 #include "utils/Helpers.h"
 #include "utils/TempConfig.h"
 
+#include <QLabel>
 #include <QScrollBar>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -41,6 +42,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
+    ,   headerLabel(new QLabel(this))
     ,   seekable(new CutterSeekableWidget(this))
 {
     topOffset = bottomOffset = RVA_INVALID;
@@ -50,12 +52,14 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     setWindowTitle(tr("Disassembly"));
 
     QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(headerLabel);
     layout->addWidget(mDisasTextEdit);
     layout->setMargin(0);
     mDisasScrollArea->viewport()->setLayout(layout);
     mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     setWidget(mDisasScrollArea);
+
 
     setAllowedAreas(Qt::AllDockWidgetAreas);
     setObjectName("DisassemblyWidget");
@@ -267,6 +271,8 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
+
+    headerLabel->setText(Core()->cmd("afcf").trimmed());
 }
 
 
@@ -623,6 +629,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         refreshDisasm(offset);
     }
     mCtxMenu->setOffset(offset);
+    headerLabel->setText(Core()->cmd("afcf").trimmed());
 }
 
 void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
