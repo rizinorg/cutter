@@ -23,6 +23,9 @@ public:
     void setEndAddrText(const QString &endAddr);
     QString getStackSizeText();
     void setStackSizeText(const QString &stackSize);
+    void setCallConList(const QStringList callConList);
+    void setCallConSelected(const QString selected);
+    QString getCallConSelected();
 
 private slots:
     void on_buttonBox_accepted();
