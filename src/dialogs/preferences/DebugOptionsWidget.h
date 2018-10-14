@@ -1,6 +1,5 @@
-
-#pragma once
-
+#ifndef DEBUGOPTIONSWIDGET_H
+#define DEBUGOPTIONSWIDGET_H
 #include <memory>
 
 #include "Cutter.h"
@@ -34,3 +33,5 @@ private slots:
     void on_pluginComboBox_currentIndexChanged(const QString &index);
     void on_esilBreakOnInvalid_toggled(bool checked);
 };
+
+#endif // DEBUGOPTIONSWIDGET_H
