@@ -155,7 +155,6 @@ SOURCES += \
     widgets/VisualNavbar.cpp \
     widgets/GraphView.cpp \
     dialogs/preferences/PreferencesDialog.cpp \
-    dialogs/preferences/GeneralOptionsWidget.cpp \
     dialogs/preferences/GraphOptionsWidget.cpp \
     dialogs/preferences/PreferenceCategory.cpp \
     widgets/QuickFilterView.cpp \
@@ -198,7 +197,9 @@ SOURCES += \
     dialogs/SetToDataDialog.cpp \
     dialogs/SetFunctionVarTypes.cpp \
     widgets/ColorSchemePrefWidget.cpp \
-    utils/ColorSchemeFileSaver.cpp
+    utils/ColorSchemeFileSaver.cpp \
+    dialogs/preferences/AbstractOptionWidget.cpp \
+    dialogs/preferences/AppearanceOptionsWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -250,7 +251,6 @@ HEADERS  += \
     widgets/VisualNavbar.h \
     widgets/GraphView.h \
     dialogs/preferences/PreferencesDialog.h \
-    dialogs/preferences/GeneralOptionsWidget.h \
     dialogs/preferences/PreferenceCategory.h \
     dialogs/preferences/GraphOptionsWidget.h \
     widgets/QuickFilterView.h \
@@ -297,7 +297,9 @@ HEADERS  += \
     utils/InitialOptions.h \
     dialogs/SetFunctionVarTypes.h \
     utils/ColorSchemeFileSaver.h \
-    widgets/ColorSchemePrefWidget.h 
+    widgets/ColorSchemePrefWidget.h \  
+    dialogs/preferences/AbstractOptionWidget.h \
+    dialogs/preferences/AppearanceOptionsWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -327,7 +329,6 @@ FORMS    += \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
-    dialogs/preferences/GeneralOptionsWidget.ui \
     dialogs/preferences/GraphOptionsWidget.ui \
     widgets/QuickFilterView.ui \
     widgets/PseudocodeWidget.ui \
@@ -353,7 +354,8 @@ FORMS    += \
     widgets/RegisterRefsWidget.ui \
     dialogs/SetToDataDialog.ui \
     dialogs/SetFunctionVarTypes.ui \
-    widgets/ColorSchemePrefWidget.ui
+    widgets/ColorSchemePrefWidget.ui \
+    dialogs/preferences/AppearanceOptionsWidget.ui
 
 RESOURCES += \
     resources.qrc \

@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "Cutter.h"
+#include "AbstractOptionWidget.h"
 
 class PreferencesDialog;
 
@@ -11,13 +12,16 @@ namespace Ui {
 class DebugOptionsWidget;
 }
 
-class DebugOptionsWidget : public QDialog
+class DebugOptionsWidget : public AbstractOptionWidget
 {
     Q_OBJECT
 
 public:
     explicit DebugOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
     ~DebugOptionsWidget();
+
+    void apply() override;
+    void discard() override;
 
 private:
     std::unique_ptr<Ui::DebugOptionsWidget> ui;

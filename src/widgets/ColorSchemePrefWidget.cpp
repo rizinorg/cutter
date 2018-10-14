@@ -3,6 +3,7 @@
 #include "ColorSchemePrefWidget.h"
 #include "ui_ColorSchemePrefWidget.h"
 #include "utils/ColorSchemeFileSaver.h"
+#include "dialogs/preferences/AppearanceOptionsWidget.h"
 
 #include <QMap>
 #include <QFile>
@@ -372,8 +373,14 @@ void PreferencesListView::setStandardColors()
     delegate = new ColorOptionDelegate(this);
     ColorSettingsModel *model = static_cast<ColorSettingsModel *>(this->model());
 
+
+    QString currTheme = Config()->getCurrentTheme();
+    Config()->setColorTheme(qobject_cast<ColorSchemePrefWidget *>(parent())->getCurrTheme());
+
     delegate->setBackgroundColor(model->getBackroundColor());
     delegate->setTextColor(model->getTextColor());
+
+    Config()->setColorTheme(currTheme);
     // I can't free last delegate, but PreferencesListView will delete it,
     // because every delegate is its child.
     setItemDelegate(static_cast<QAbstractItemDelegate *>(delegate));
@@ -400,7 +407,6 @@ ColorSchemePrefWidget::ColorSchemePrefWidget(QWidget *parent) : QWidget (parent)
 
 ColorSchemePrefWidget::~ColorSchemePrefWidget()
 {
-    apply();
     delete ui;
 }
 
@@ -423,8 +429,7 @@ void ColorSchemePrefWidget::apply()
         }
         scheme += curr.optionName + " rgb:" + curr.color.name().remove("#").toLower() + "\n";
     }
-    ColorSchemeFileWorker().save(scheme, Config()->getCurrentTheme());
-    Config()->setColorTheme(Config()->getCurrentTheme());
+    ColorSchemeFileWorker().save(scheme, getCurrTheme());
 }
 
 void ColorSchemePrefWidget::newColor()
@@ -440,18 +445,20 @@ void ColorSchemePrefWidget::newColor()
 
     static_cast<ColorSettingsModel *>(ui->preferencesListView->model())->setColor(currCO.optionName,
                                                                                   d.selectedColor());
-
     static_cast<ColorViewButton *>(QObject::sender())->setColor(d.selectedColor());
-    if (currCO.optionName == standardBackgroundOptionName) {
-        static_cast<PreferencesListView *>(ui->preferencesListView)->setStandardColors();
-    } else {
-        static_cast<PreferencesListView *>(ui->preferencesListView)->setStandardColors();
-    }
+    static_cast<PreferencesListView *>(ui->preferencesListView)->setStandardColors();
+    emit colorChanged();
 }
 
 void ColorSchemePrefWidget::indexChanged(const QModelIndex &ni)
 {
     ui->colorViewFore->setColor(ni.data(Qt::UserRole).value<ColorOption>().color);
+}
+
+QString ColorSchemePrefWidget::getCurrTheme() const
+{
+    qDebug() << parent()->objectName();
+    return qobject_cast<AppearanceOptionsWidget *>(parent())->getChoosenTheme();
 }
 
 void ColorSchemePrefWidget::setNewScheme(const QString &schemeName)
@@ -513,7 +520,10 @@ QColor ColorSettingsModel::getTextColor() const
 void ColorSettingsModel::updateScheme()
 {
     m_data.clear();
+    QString currTheme = Config()->getCurrentTheme();
+    Config()->setColorTheme(getCurrTheme());
     QJsonObject obj = Core()->cmdj("ecj").object();
+    Config()->setColorTheme(currTheme);
 
     m_data.reserve(obj.size());
     for (auto &it : obj.keys()) {
@@ -526,4 +536,10 @@ void ColorSettingsModel::updateScheme()
         m_data.push_back({it, optionInfoMap[it].displayingtext, cutterSpecific[it]});
 
     qobject_cast<PreferencesListView *>(parent())->setStandardColors();
+}
+
+QString ColorSettingsModel::getCurrTheme() const
+{
+    ColorSchemePrefWidget *cpf = qobject_cast<ColorSchemePrefWidget *>(parent()->parent());
+    return cpf->getCurrTheme();
 }
