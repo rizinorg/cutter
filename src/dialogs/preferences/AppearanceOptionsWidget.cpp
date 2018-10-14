@@ -73,6 +73,7 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
     disconnect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this,
                SLOT(on_colorComboBox_currentIndexChanged(int)));
     ui->themeComboBox->setCurrentIndex(Config()->getTheme());
+    currSettings.setValue("Qt theme", Config()->getTheme());
 
     QList<QString> themes = Core()->getColorThemes();
     ui->colorComboBox->clear();
@@ -111,7 +112,7 @@ void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
 void AppearanceOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
     //disconnect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
-    currSettings.setValue("QT theme", index);
+    currSettings.setValue("Qt theme", index);
     isChanged = true;
     //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
 }
