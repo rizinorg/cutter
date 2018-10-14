@@ -111,6 +111,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
     initFont();
     colorsUpdatedSlot();
+
+    header = new QLabel(viewport());
+    header->setMargin(5);
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -627,14 +630,28 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
         // This is a local address! We animated to it.
         transition_dont_seek = true;
         showBlock(&blocks[db->entry], true);
+        QString afcf = Core()->cmd("afcf").trimmed();
+        if (afcf.length() > 0) {
+            header->setText(afcf);
+            header->show();
+        } else {
+            header->hide();
+        }
         return;
     } else {
         refreshView();
-        DisassemblyBlock *db = blockForAddress(addr);
+        db = blockForAddress(addr);
         if (db) {
             // This is a local address! We animated to it.
             transition_dont_seek = true;
             showBlock(&blocks[db->entry], false);
+            QString afcf = Core()->cmd("afcf").trimmed();
+            if (afcf.length() > 0) {
+                header->setText(afcf);
+                header->show();
+            } else {
+                header->hide();
+            }
             return;
         }
     }

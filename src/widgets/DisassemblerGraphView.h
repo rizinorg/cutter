@@ -123,6 +123,7 @@ public:
     void loadCurrentGraph();
     QString windowTitle;
     bool isGraphEmpty();
+    QLabel *header = nullptr;
 
 public slots:
     void refreshView();
