@@ -25,24 +25,24 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         {
             "Appearance",
             new AppearanceOptionsWidget(this),
-                    QIcon(":/img/icons/cog_light.svg")
+            QIcon(":/img/icons/cog_light.svg")
         },
         {
             "Assembly",
             new AsmOptionsWidget(this),
-                    QIcon(":/img/icons/disas_light.svg"),
+            QIcon(":/img/icons/disas_light.svg"),
             {
                 {
                     "Graph",
                     new GraphOptionsWidget(this),
-                            QIcon(":/img/icons/graph_light.svg")
+                    QIcon(":/img/icons/graph_light.svg")
                 },
             }
         },
         {
             "Debug",
             new DebugOptionsWidget(this),
-                    QIcon(":/img/icons/bug_light.svg")
+            QIcon(":/img/icons/bug_light.svg")
         }
     };
 
@@ -85,7 +85,7 @@ void PreferencesDialog::changePage(QTreeWidgetItem *current, QTreeWidgetItem *pr
     if (previous) {
         QString lastCategory = previous->text(0);
         AbstractOptionWidget *currentWidget =
-                qobject_cast<AbstractOptionWidget *>(ui->configPanel->currentWidget());
+            qobject_cast<AbstractOptionWidget *>(ui->configPanel->currentWidget());
         if (currentWidget->getIsChanged()) {
             int ret = showNotAppliedDialog();
             if (ret == QMessageBox::Apply)
@@ -94,7 +94,7 @@ void PreferencesDialog::changePage(QTreeWidgetItem *current, QTreeWidgetItem *pr
                 discard(lastCategory, currentWidget);
             else if (ret == QMessageBox::Cancel) {
                 disconnect(ui->configCategories, &QTreeWidget::currentItemChanged,
-                        this, &PreferencesDialog::changePage);
+                           this, &PreferencesDialog::changePage);
                 ui->configCategories->setCurrentItem(previous);
 //                ui->configCategories->setCurrentIndex(ui->configCategories->currentIndex());
                 connect(ui->configCategories, &QTreeWidget::currentItemChanged,
@@ -113,9 +113,10 @@ void PreferencesDialog::changePage(QTreeWidgetItem *current, QTreeWidgetItem *pr
         ui->configPanel->setCurrentIndex(index - 1);
 }
 
-void PreferencesDialog::buttonBoxClicked(QAbstractButton* b)
+void PreferencesDialog::buttonBoxClicked(QAbstractButton *b)
 {
-    AbstractOptionWidget *currWidget = qobject_cast<AbstractOptionWidget *>(ui->configPanel->currentWidget());
+    AbstractOptionWidget *currWidget = qobject_cast<AbstractOptionWidget *>
+                                       (ui->configPanel->currentWidget());
     QString currCategory = ui->configCategories->currentItem()->text(0);
     int ret = -1;
     switch (ui->saveButtons->buttonRole(b)) {
@@ -148,7 +149,7 @@ int PreferencesDialog::showNotAppliedDialog() const
     return mb.exec();
 }
 
-void PreferencesDialog::apply(const QString& category, QWidget *currentWidget)
+void PreferencesDialog::apply(const QString &category, QWidget *currentWidget)
 {
     if (category == "Appearance") {
         AppearanceOptionsWidget *w = qobject_cast<AppearanceOptionsWidget *>(currentWidget);
@@ -165,7 +166,7 @@ void PreferencesDialog::apply(const QString& category, QWidget *currentWidget)
     }
 }
 
-void PreferencesDialog::discard(const QString& category, QWidget *currentWidget)
+void PreferencesDialog::discard(const QString &category, QWidget *currentWidget)
 {
 
     if (category == "Appearance") {

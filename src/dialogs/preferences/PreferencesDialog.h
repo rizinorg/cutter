@@ -29,15 +29,15 @@ public slots:
     void changePage(QTreeWidgetItem *current, QTreeWidgetItem *previous);
 
 private slots:
-    void buttonBoxClicked(QAbstractButton* b);
+    void buttonBoxClicked(QAbstractButton *b);
 
 private:
     std::unique_ptr<Ui::PreferencesDialog> ui;
 
     int showNotAppliedDialog() const;
 
-    void apply(const QString& category, QWidget* currentWidget);
-    void discard(const QString& category, QWidget *currentWidget);
+    void apply(const QString &category, QWidget *currentWidget);
+    void discard(const QString &category, QWidget *currentWidget);
 };
 
 #endif //PREFERENCESDIALOG_H

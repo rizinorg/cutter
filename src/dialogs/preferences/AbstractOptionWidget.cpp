@@ -1,7 +1,7 @@
 #include "dialogs/preferences/AbstractOptionWidget.h"
 #include <QVariant>
 
-AbstractOptionWidget::AbstractOptionWidget(QWidget* parent) : QDialog(parent),
+AbstractOptionWidget::AbstractOptionWidget(QWidget *parent) : QDialog(parent),
     isChanged(false)
 {
 
@@ -20,12 +20,12 @@ AbstractOptionWidgetNamespace::Settings::~Settings()
 {
 }
 
-void AbstractOptionWidgetNamespace::Settings::setValue(const QString& key, const QVariant& data)
+void AbstractOptionWidgetNamespace::Settings::setValue(const QString &key, const QVariant &data)
 {
     insert(key, QJsonValue::fromVariant(data));
 }
 
-QVariant AbstractOptionWidgetNamespace::Settings::value(const QString& key)
+QVariant AbstractOptionWidgetNamespace::Settings::value(const QString &key)
 {
     return QJsonObject::value(key).toVariant();
 }

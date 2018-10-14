@@ -37,7 +37,8 @@ void GraphOptionsWidget::discard()
 
 void GraphOptionsWidget::updateOptionsFromVars()
 {
-    qhelpers::setCheckedWithoutSignals(ui->graphOffsetCheckBox, Config()->getConfigBool("graph.offset"));
+    qhelpers::setCheckedWithoutSignals(ui->graphOffsetCheckBox,
+                                       Config()->getConfigBool("graph.offset"));
     currSettings.setValue("graph.offset", Config()->getConfigBool("graph.offset"));
     ui->maxColsSpinBox->blockSignals(true);
     ui->maxColsSpinBox->setValue(Config()->getGraphBlockMaxChars());

@@ -53,7 +53,8 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     currSettings.setValue("asm.offset", Config()->getConfigBool("asm.offset"));
     qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Config()->getConfigBool("asm.describe"));
     currSettings.setValue("asm.describe", Config()->getConfigBool("asm.describe"));
-    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Config()->getConfigBool("asm.stackptr"));
+    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox,
+                                       Config()->getConfigBool("asm.stackptr"));
     currSettings.setValue("asm.stackptr", Config()->getConfigBool("asm.stackptr"));
     qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Config()->getConfigBool("asm.slow"));
     currSettings.setValue("asm.slow", Config()->getConfigBool("asm.slow"));
@@ -137,7 +138,8 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     bool varsubEnabled = Config()->getConfigBool("asm.var.sub");
     currSettings.setValue("asm.var.sub", Config()->getConfigBool("asm.var.sub"));
     qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
-    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, Config()->getConfigBool("asm.var.subonly"));
+    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox,
+                                       Config()->getConfigBool("asm.var.subonly"));
     currSettings.setValue("asm.var.subonly", Config()->getConfigBool("asm.var.subonly"));
     ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 }
@@ -278,7 +280,7 @@ void AsmOptionsWidget::on_nbytesSpinBox_valueChanged(int value)
 void AsmOptionsWidget::on_syntaxComboBox_currentIndexChanged(int index)
 {
     currSettings.setValue("asm.syntax",
-                      ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
+                          ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
     isChanged = true;
 }
 

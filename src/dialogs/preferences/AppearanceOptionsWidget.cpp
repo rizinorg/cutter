@@ -24,7 +24,8 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     updateFontFromConfig();
     updateThemeFromConfig();
 
-    connect(Config(), &Configuration::fontsUpdated, this, &AppearanceOptionsWidget::updateFontFromConfig);
+    connect(Config(), &Configuration::fontsUpdated, this,
+            &AppearanceOptionsWidget::updateFontFromConfig);
     connect(ui->colorComboBox, &QComboBox::currentTextChanged, [&](const QString & name) {
         static_cast<ColorSchemePrefWidget *>(ui->colorSchemePrefWidget)->setNewScheme(name);
     });

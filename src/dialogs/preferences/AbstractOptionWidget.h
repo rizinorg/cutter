@@ -5,12 +5,13 @@
 #include <QJsonObject>
 
 namespace AbstractOptionWidgetNamespace {
-class Settings : public QJsonObject {
+class Settings : public QJsonObject
+{
 public:
     Settings();
     ~Settings();
-    void setValue(const QString& key, const QVariant& data);
-    QVariant value(const QString& key);
+    void setValue(const QString &key, const QVariant &data);
+    QVariant value(const QString &key);
 };
 }
 
