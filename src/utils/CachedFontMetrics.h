@@ -52,6 +52,29 @@ public:
         return mHeight;
     }
 
+    int position(const QString &text, int offset)
+    {
+        int curWidth = 0;
+        QChar temp;
+
+        for (int i = 0; i < text.length(); i++) {
+            QChar ch = text[i];
+
+            if (ch.isHighSurrogate())
+                temp = ch;
+            else if (ch.isLowSurrogate())
+                curWidth += mFontMetrics.width(QString(temp) + ch);
+            else
+                curWidth += width(ch);
+
+            if (curWidth >= offset) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
 private:
     QFontMetrics mFontMetrics;
     uchar mWidths[0x10000 - 0xE000 + 0xD800];
