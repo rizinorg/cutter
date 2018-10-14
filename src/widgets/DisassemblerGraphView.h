@@ -13,6 +13,9 @@
 #include "utils/RichTextPainter.h"
 #include "CutterSeekableWidget.h"
 
+class QTextEdit;
+class SyntaxHighlighter;
+
 class DisassemblerGraphView : public GraphView
 {
     Q_OBJECT
@@ -123,7 +126,8 @@ public:
     void loadCurrentGraph();
     QString windowTitle;
     bool isGraphEmpty();
-    QLabel *header = nullptr;
+    QTextEdit *header = nullptr;
+    SyntaxHighlighter *highlighter = nullptr;
 
 public slots:
     void refreshView();

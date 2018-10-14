@@ -8,6 +8,7 @@
 #include <QShortcut>
 #include <QToolTip>
 #include <QTextDocument>
+#include <QTextEdit>
 #include <QFileDialog>
 #include <QFile>
 #include <QVBoxLayout>
@@ -19,6 +20,7 @@
 #include "utils/Configuration.h"
 #include "utils/CachedFontMetrics.h"
 #include "utils/TempConfig.h"
+#include "utils/SyntaxHighlighter.h"
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
@@ -112,8 +114,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     initFont();
     colorsUpdatedSlot();
 
-    header = new QLabel(viewport());
-    header->setMargin(5);
+    header = new QTextEdit(viewport());
+    header->setFixedHeight(30);
+    highlighter = new SyntaxHighlighter(header->document());
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -632,7 +635,7 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
         showBlock(&blocks[db->entry], true);
         QString afcf = Core()->cmd("afcf").trimmed();
         if (afcf.length() > 0) {
-            header->setText(afcf);
+            header->setPlainText(afcf);
             header->show();
         } else {
             header->hide();
@@ -647,7 +650,7 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
             showBlock(&blocks[db->entry], false);
             QString afcf = Core()->cmd("afcf").trimmed();
             if (afcf.length() > 0) {
-                header->setText(afcf);
+                header->setPlainText(afcf);
                 header->show();
             } else {
                 header->hide();
