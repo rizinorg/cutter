@@ -421,7 +421,7 @@ bool MainWindow::saveProject(bool quit)
 bool MainWindow::saveProjectAs(bool quit)
 {
     SaveProjectDialog dialog(quit, this);
-    return SaveProjectDialog::Rejected == dialog.exec();
+    return SaveProjectDialog::Rejected != dialog.exec();
 }
 
 void MainWindow::refreshOmniBar(const QStringList &flags)

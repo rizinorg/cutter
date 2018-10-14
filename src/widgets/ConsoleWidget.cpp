@@ -60,32 +60,10 @@ static const QStringList radareArgs( {
     "#!pipe"
 });
 
-static const QStringList forbiddenArgs({"e", "et", "e-", "e*", "e!", "e?", "env"});
-
 
 static const int invalidHistoryPos = -1;
 
 
-
-static bool isForbidden(const QString &input)
-{
-    static const QRegExp delimiters("[;&]");
-
-
-    const QStringList &commands = input.split(delimiters, QString::SkipEmptyParts);
-
-    for (const QString &command : commands) {
-        const QString &trimmedCommand = command.trimmed();
-
-        if (forbiddenArgs.contains(trimmedCommand)) return true;
-
-        for (const QString &arg : forbiddenArgs) {
-            if (trimmedCommand.startsWith(arg + " ")) return true;
-        }
-    }
-
-    return false;
-}
 
 ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -218,15 +196,11 @@ void ConsoleWidget::executeCommand(const QString &command)
 void ConsoleWidget::on_inputLineEdit_returnPressed()
 {
     QString input = ui->inputLineEdit->text();
-    if (!input.isEmpty()) {
-        if (!isForbidden(input)) {
-            executeCommand(input);
-        } else {
-            addDebugOutput(tr("command forbidden: ") + input);
-        }
-
-        ui->inputLineEdit->clear();
+    if (input.isEmpty()) {
+        return;
     }
+    executeCommand(input);
+    ui->inputLineEdit->clear();
 }
 
 void ConsoleWidget::on_execButton_clicked()
