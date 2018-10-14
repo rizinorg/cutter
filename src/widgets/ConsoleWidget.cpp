@@ -5,6 +5,7 @@
 #include <QShortcut>
 #include <QStringListModel>
 #include <QTimer>
+#include <iostream>
 #include "Cutter.h"
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
@@ -177,6 +178,10 @@ void ConsoleWidget::executeCommand(const QString &command)
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
           command, originalLines] (const QString & result) {
+
+        std::cout << "Command: " << command.toStdString() <<'\n'
+                  << " Output: " << result.toStdString() << '\n';
+
         if (originalLines < ui->outputTextEdit->blockCount()) {
             removeLastLine();
         }
