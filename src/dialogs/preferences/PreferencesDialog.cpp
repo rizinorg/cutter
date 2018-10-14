@@ -142,8 +142,8 @@ void PreferencesDialog::buttonBoxClicked(QAbstractButton* b)
 int PreferencesDialog::showNotAppliedDialog() const
 {
     QMessageBox mb;
-    mb.setWindowTitle("Options apply");
-    mb.setText("You have some unsaved changes. Do you want to apply it?");
+    mb.setWindowTitle(tr("Options apply"));
+    mb.setText(tr("You have some unsaved changes. Do you want to apply it?"));
     mb.setStandardButtons(QMessageBox::Apply | QMessageBox::Discard | QMessageBox::Cancel);
     return mb.exec();
 }
