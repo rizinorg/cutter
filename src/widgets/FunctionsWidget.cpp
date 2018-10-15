@@ -7,6 +7,7 @@
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include "utils/FunctionsTask.h"
+#include "utils/TempConfig.h"
 
 #include <algorithm>
 #include <QMenu>
@@ -14,7 +15,16 @@
 #include <QString>
 #include <QResource>
 #include <QShortcut>
+#include <QJsonArray>
 #include <QJsonObject>
+
+namespace {
+
+static const int kMaxTooltipWidth = 400;
+static const int kMaxTooltipDisasmPreviewLines = 10;
+static const int kMaxTooltipHighlightsLines = 5;
+
+}
 
 FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses,
                              ut64 *mainAdress, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
@@ -186,16 +196,69 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::ToolTipRole: {
-        QList<QString> info = Core()->cmd("afi @ " + function.name).split("\n");
-        if (info.length() > 2) {
-            QString size = info[4].split(" ")[1];
-            QString complex = info[8].split(" ")[1];
-            QString bb = info[11].split(" ")[1];
-            return QString("Summary:\n\n    Size: " + size +
-                           "\n    Cyclomatic complexity: " + complex +
-                           "\n    Basic blocks: " + bb +
-                           "\n\nDisasm preview:\n\n" + Core()->cmd("pdi 10 @ " + function.name) +
-                           "\nStrings:\n\n" + Core()->cmd("pdsf @ " + function.name));
+        const QStringList& info = Core()->cmd("afi @ " + function.name).split("\n");
+        if (info.length() > 11) {
+            QString size = info[4].split(" ")[1]; // FIXME
+            QString complex = info[8].split(" ")[1]; // FIXME
+            QString bb = info[11].split(" ")[1]; // FIXME
+            QStringList disasmPreview;
+
+            {
+                TempConfig tempConfig;
+                tempConfig.set("scr.html", true)
+                    .set("scr.color", COLOR_MODE_16M)
+                    .set("asm.lines", false)
+                    .set("asm.var", false)
+                    .set("asm.comments", false)
+                    .set("asm.bytes", false)
+                    .set("asm.lines.fcn", false)
+                    .set("asm.lines.out", false)
+                    .set("asm.lines.bb", false)
+                    .set("asm.bbline", false);
+
+                const QJsonArray &array = Core()->cmdj(QString("pDJ ") + QString::number(function.size) + QString(" @ ") + QString::number(
+                    function.offset)).array();
+
+                for (const QJsonValue &value : array) {
+                    QJsonObject object = value.toObject();
+
+                    disasmPreview << object["text"].toString();
+                    if (disasmPreview.length() >= kMaxTooltipDisasmPreviewLines) {
+                        disasmPreview << "...";
+                        break;
+                    }
+                }
+            }
+            QStringList summ = Core()->cmd("pdsf @ " + function.name).split("\n", QString::SkipEmptyParts);
+            QStringList highlights;
+
+            const QFont &fnt = Config()->getFont();
+            QFontMetrics fm{ fnt };
+
+            for (const QString &s : summ) {
+                highlights << fm.elidedText(s, Qt::ElideRight, kMaxTooltipWidth);
+                if (highlights.length() > kMaxTooltipHighlightsLines) {
+                    highlights << "...";
+                    break;
+                }
+            }
+            QString v = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
+                .arg(fnt.family())
+                .arg(qMax(6, fnt.pointSize() - 1))
+
+                + "<div style=\"text-overflow: ellipsis; overflow: hidden\">"
+                + "<b>Summary</b>:<br>"
+                + QString("Size:&nbsp;%1,&nbsp;Cyclomatic complexity:&nbsp;%2,&nbsp;Basic blocks:&nbsp;%3")
+                    .arg(size)
+                    .arg(complex)
+                    .arg(bb)
+                + "<br><b>Disasm preview</b>:<br>" + disasmPreview.join("<br>");
+
+            if (!highlights.isEmpty()) {
+                v += "<br><b>Highlights</b>:<br>" + highlights.join("\n").toHtmlEscaped().replace("\n", "<br>");
+            }
+            v += "</div></div></html>";
+            return v;
         }
         return QVariant();
     }
@@ -421,6 +484,8 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
 
     // Radare core found in:
     this->main = main;
+
+    setStyleSheet(QString("QToolTip { max-width: %2px }").arg(kMaxTooltipWidth));
 
     // leave the filter visible by default so users know it exists
     //ui->filterLineEdit->setVisible(false);
