@@ -174,7 +174,7 @@ void ConsoleWidget::executeCommand(const QString &command)
         ui->outputTextEdit->appendPlainText("Executing the command...");
     });
 
-    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
+    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "<br>";
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
           command, originalLines] (const QString & result) {
@@ -185,7 +185,7 @@ void ConsoleWidget::executeCommand(const QString &command)
         if (originalLines < ui->outputTextEdit->blockCount()) {
             removeLastLine();
         }
-        ui->outputTextEdit->appendPlainText(cmd_line + result);
+        ui->outputTextEdit->document()->setHtml(cmd_line + result);
         scrollOutputToEnd();
         historyAdd(command);
         commandTask = nullptr;

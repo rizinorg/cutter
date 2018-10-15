@@ -14,6 +14,7 @@ void CommandTask::runTask()
     int newValue = COLOR_MODE_256;
 
     tempConfig.set("scr.color", newValue);
+    tempConfig.set("scr.html", true);
     auto res = Core()->cmdTask(cmd);
     tempConfig.set("scr.color", oldValue);
 
