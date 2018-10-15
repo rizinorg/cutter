@@ -71,6 +71,26 @@
     </item>
    </layout>
   </widget>
+  <action name="actionCopy_Address">
+   <property name="text">
+    <string>Copy Address</string>
+   </property>
+  </action>
+  <action name="actionCopy_String">
+   <property name="text">
+    <string>Copy String</string>
+   </property>
+  </action>
+  <action name="actionX_refs">
+   <property name="text">
+    <string>Xrefs</string>
+   </property>
+  </action>
+  <action name="actionFilter">
+   <property name="text">
+    <string>Filter</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
