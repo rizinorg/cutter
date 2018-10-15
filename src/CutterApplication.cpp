@@ -177,7 +177,9 @@ void CutterApplication::loadPlugins()
         pluginsDir.cdUp();
     }
 #endif
-    pluginsDir.cd("plugins");
+    if (!pluginsDir.cd("plugins"))
+        return;
+
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
         QObject *plugin = pluginLoader.instance();
