@@ -71,6 +71,11 @@
     </item>
    </layout>
   </widget>
+  <action name="actionXrefs">
+    <property name="text">
+      <string>X-Refs</string>
+    </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
