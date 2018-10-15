@@ -66,9 +66,12 @@ public:
 
 private slots:
     void on_stringsTreeView_doubleClicked(const QModelIndex &index);
+    void on_actionXrefs_triggered();
 
     void refreshStrings();
     void stringSearchFinished(const QList<StringDescription> &strings);
+
+    void showContextMenu(const QPoint &pt);
 
 private:
     std::unique_ptr<Ui::StringsWidget> ui;

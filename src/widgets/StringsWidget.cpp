@@ -1,11 +1,13 @@
 
 #include <QModelIndex>
+#include <QMenu>
 
 #include "StringsWidget.h"
 #include "ui_StringsWidget.h"
 
 #include "MainWindow.h"
 #include "utils/Helpers.h"
+#include "dialogs/XrefsDialog.h"
 
 
 StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
@@ -156,6 +158,9 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     });
     
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
+
+    ui->stringsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->stringsTreeView, &QTreeView::customContextMenuRequested, this, &StringsWidget::showContextMenu);
 }
 
 StringsWidget::~StringsWidget() {}
@@ -194,4 +199,25 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     tree->showItemsNumber(proxy_model->rowCount());
 
     task = nullptr;
+}
+
+void StringsWidget::showContextMenu(const QPoint &pt)
+{
+    QMenu menu(ui->stringsTreeView);
+    menu.addAction(ui->actionXrefs);
+    menu.exec(ui->stringsTreeView->mapToGlobal(pt));
+}
+
+void StringsWidget::on_actionXrefs_triggered()
+{
+    StringDescription str = ui->stringsTreeView->selectionModel()->currentIndex()
+        .data(StringsModel::StringDescriptionRole).value<StringDescription>();
+    XrefsDialog dialog(this);
+    QString s = str.string;
+    if (s.length() > 16) {
+        s.truncate(13);
+        s += "...";
+    }
+    dialog.fillRefsForAddress(str.vaddr, "\"" + s + "\"", true);
+    dialog.exec();
 }
