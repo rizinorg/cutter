@@ -129,7 +129,10 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
     ui->exportsTreeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
 
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ExportsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ toggleDockWidget(true); } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+            toggleDockWidget(true); 
+            main->updateDockActionChecked(action);
+            } );
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);

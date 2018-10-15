@@ -139,7 +139,10 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
 
     // Shift-F12 to toggle strings window
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ toggleDockWidget(true); } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+            toggleDockWidget(true);
+            main->updateDockActionChecked(action);
+            } );
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);

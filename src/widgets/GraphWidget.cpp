@@ -16,7 +16,10 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     //QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts[typeid(this).name()], main);
     
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["GraphWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ toggleDockWidget(true); } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+            toggleDockWidget(true); 
+            main->updateDockActionChecked(action);
+            } );
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
         if (visibility) {

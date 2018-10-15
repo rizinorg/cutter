@@ -141,7 +141,10 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     ui->importsTreeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
 
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ toggleDockWidget(true); } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+            toggleDockWidget(true); 
+            main->updateDockActionChecked(action);
+            } );
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
