@@ -18,7 +18,7 @@ class PreferencesDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum class Section { General, Disassembly };
+    enum class Section { Appearance, Disassembly };
 
     explicit PreferencesDialog(QWidget *parent = nullptr);
     ~PreferencesDialog();

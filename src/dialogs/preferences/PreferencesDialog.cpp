@@ -3,7 +3,7 @@
 #include "PreferencesDialog.h"
 #include "ui_PreferencesDialog.h"
 
-#include "GeneralOptionsWidget.h"
+#include "AppearanceOptionsWidget.h"
 #include "AsmOptionsWidget.h"
 #include "GraphOptionsWidget.h"
 #include "DebugOptionsWidget.h"
@@ -22,11 +22,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     ui->setupUi(this);
 
     QList<PreferenceCategory> prefs {
-        {
-            "General",
-            new GeneralOptionsWidget(this),
-            QIcon(":/img/icons/cog_light.svg")
-        },
+
         {
             "Assembly",
             new AsmOptionsWidget(this),
@@ -43,6 +39,11 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
             "Debug",
             new DebugOptionsWidget(this),
             QIcon(":/img/icons/bug_light.svg")
+        },
+        {
+            "Appearance",
+            new AppearanceOptionsWidget(this),
+            QIcon(":/img/icons/polar_light.svg")
         }
     };
 
@@ -68,7 +69,7 @@ void PreferencesDialog::showSection(PreferencesDialog::Section section)
 {
     QTreeWidgetItem *defitem;
     switch (section) {
-    case Section::General:
+    case Section::Appearance:
         ui->configPanel->setCurrentIndex(0);
         defitem = ui->configCategories->topLevelItem(0);
         ui->configCategories->setCurrentItem(defitem, 0);
