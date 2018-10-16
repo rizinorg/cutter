@@ -14,16 +14,16 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     // getting the name of the class is implementation defined, and cannot be
     // used reliably across different compilers.
     //QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts[typeid(this).name()], main);
-    
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["GraphWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+    connect(toggle_shortcut, &QShortcut::activated, this, [ = ]() {
             toggleDockWidget(true); 
             main->updateDockActionChecked(action);
-            } );
+    });
 
-    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
+    connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
+            this->graphView->header->setFixedWidth(width());
         }
     });
 
@@ -33,6 +33,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
         if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
             this->raise();
             this->graphView->setFocus();
+            this->graphView->header->setFixedWidth(width());
         }
     });
 }

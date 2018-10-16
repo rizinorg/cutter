@@ -8,6 +8,7 @@
 #include <QShortcut>
 #include <QToolTip>
 #include <QTextDocument>
+#include <QTextEdit>
 #include <QFileDialog>
 #include <QFile>
 #include <QVBoxLayout>
@@ -19,6 +20,7 @@
 #include "utils/Configuration.h"
 #include "utils/CachedFontMetrics.h"
 #include "utils/TempConfig.h"
+#include "utils/SyntaxHighlighter.h"
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
@@ -111,6 +113,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
     initFont();
     colorsUpdatedSlot();
+
+    header = new QTextEdit(viewport());
+    header->setFixedHeight(30);
+    header->setReadOnly(true);
+    header->setLineWrapMode(QTextEdit::NoWrap);
+    highlighter = new SyntaxHighlighter(header->document());
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -334,6 +342,44 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
     int extra = 4 * charWidth + 4;
     block.width = width + extra + charWidth;
     block.height = (height * charHeight) + extra;
+}
+
+void DisassemblerGraphView::prepareHeader()
+{
+    QString afcf = Core()->cmd("afcf").trimmed();
+    if (afcf.length() > 0) {
+        header->setPlainText(afcf);
+        header->show();
+        return;
+    }
+    QJsonArray func = Core()->cmdj("afij").array();
+    QJsonValue value = func.first();
+    QJsonObject obj = value.toObject();
+    QString name = obj["name"].toString().trimmed();
+    if (name.isEmpty()) {
+        header->hide();
+        return;
+    }
+    QString ret = obj["calltype"].toString().trimmed();
+    ret += (" ") + name + ("(");
+    QJsonArray args = obj["bpvars"].toArray();
+    QString argNames = QString();
+    for (QJsonValue value : args) {
+        QJsonObject obj = value.toObject();
+        QString kind = obj["kind"].toString();
+        if (kind == "arg") {
+            QString typeName = obj["type"].toString().trimmed();
+            QString argName = obj["name"].toString().trimmed();
+            if (argNames.isEmpty()) {
+                argNames += typeName + (" ") + argName;
+            } else {
+                argNames += (", ") + typeName + (" ") + argName;
+            }
+        }
+    }
+    ret += argNames + (")");
+    header->setPlainText(ret);
+    header->show();
 }
 
 void DisassemblerGraphView::initFont()
@@ -629,14 +675,16 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
         // This is a local address! We animated to it.
         transition_dont_seek = true;
         showBlock(&blocks[db->entry], true);
+        prepareHeader();
         return;
     } else {
         refreshView();
-        DisassemblyBlock *db = blockForAddress(addr);
+        db = blockForAddress(addr);
         if (db) {
             // This is a local address! We animated to it.
             transition_dont_seek = true;
-            showBlock(&blocks[db->entry], false);
+            showBlock(&blocks[db->entry], true);
+            prepareHeader();
             return;
         }
     }
