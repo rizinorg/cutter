@@ -254,7 +254,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
             QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
                     .arg(fnt.family())
-                    .arg(qMax(6, fnt.pointSize() - 1)) // slightly decrease font size, to keep more text in the same 
+                    .arg(qMax(6, fnt.pointSize() - 1)) // slightly decrease font size, to keep more text in the same box
                 + tr("<div><strong>Summary</strong>:<br>")
                 + tr("Size:&nbsp;%1,&nbsp;Cyclomatic complexity:&nbsp;%2,&nbsp;Basic blocks:&nbsp;%3")
                     .arg(size)
@@ -495,7 +495,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     // Radare core found in:
     this->main = main;
 
-    setStyleSheet(QString("QToolTip { max-width: %2px; opacity: 230; }").arg(kMaxTooltipWidth));
+    setStyleSheet(QString("QToolTip { max-width: %1px; opacity: 230; }").arg(kMaxTooltipWidth));
 
     // leave the filter visible by default so users know it exists
     //ui->filterLineEdit->setVisible(false);
