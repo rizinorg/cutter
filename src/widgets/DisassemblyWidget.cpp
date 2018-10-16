@@ -706,9 +706,8 @@ void DisassemblyTextEdit::scrollContentsBy(int dx, int dy)
     }
 }
 
-void DisassemblyTextEdit::keyPressEvent(QKeyEvent *event)
+void DisassemblyTextEdit::keyPressEvent(QKeyEvent */*event*/)
 {
-    Q_UNUSED(event)
     //QPlainTextEdit::keyPressEvent(event);
 }
 
