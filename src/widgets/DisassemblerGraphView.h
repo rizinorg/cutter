@@ -127,7 +127,6 @@ public:
     QString windowTitle;
     bool isGraphEmpty();
     QTextEdit *header = nullptr;
-    SyntaxHighlighter *highlighter = nullptr;
 
 public slots:
     void refreshView();
@@ -173,6 +172,7 @@ private:
 
     void initFont();
     void prepareGraphNode(GraphBlock &block);
+    void prepareHeader();
     Token *getToken(Instr *instr, int x);
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
@@ -211,6 +211,7 @@ private:
     QAction actionSyncOffset;
 
     QLabel *emptyText = nullptr;
+    SyntaxHighlighter *highlighter = nullptr;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

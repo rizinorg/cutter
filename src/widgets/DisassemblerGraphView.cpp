@@ -116,6 +116,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 
     header = new QTextEdit(viewport());
     header->setFixedHeight(30);
+    header->setReadOnly(true);
+    header->setLineWrapMode(QTextEdit::NoWrap);
     highlighter = new SyntaxHighlighter(header->document());
 }
 
@@ -340,6 +342,44 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
     int extra = 4 * charWidth + 4;
     block.width = width + extra + charWidth;
     block.height = (height * charHeight) + extra;
+}
+
+void DisassemblerGraphView::prepareHeader()
+{
+    QString afcf = Core()->cmd("afcf").trimmed();
+    if (afcf.length() > 0) {
+        header->setPlainText(afcf);
+        header->show();
+        return;
+    }
+    QJsonArray func = Core()->cmdj("afij").array();
+    QJsonValue value = func.first();
+    QJsonObject obj = value.toObject();
+    QString name = obj["name"].toString().trimmed();
+    if (name.isEmpty()) {
+        header->hide();
+        return;
+    }
+    QString ret = obj["calltype"].toString().trimmed();
+    ret += (" ") + name + ("(");
+    QJsonArray args = obj["bpvars"].toArray();
+    QString argNames = QString();
+    for (QJsonValue value : args) {
+        QJsonObject obj = value.toObject();
+        QString kind = obj["kind"].toString();
+        if (kind == "arg") {
+            QString typeName = obj["type"].toString().trimmed();
+            QString argName = obj["name"].toString().trimmed();
+            if (argNames.isEmpty()) {
+                argNames += typeName + (" ") + argName;
+            } else {
+                argNames += (", ") + typeName + (" ") + argName;
+            }
+        }
+    }
+    ret += argNames + (")");
+    header->setPlainText(ret);
+    header->show();
 }
 
 void DisassemblerGraphView::initFont()
@@ -633,13 +673,7 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
         // This is a local address! We animated to it.
         transition_dont_seek = true;
         showBlock(&blocks[db->entry], true);
-        QString afcf = Core()->cmd("afcf").trimmed();
-        if (afcf.length() > 0) {
-            header->setPlainText(afcf);
-            header->show();
-        } else {
-            header->hide();
-        }
+        prepareHeader();
         return;
     } else {
         refreshView();
@@ -647,14 +681,8 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
         if (db) {
             // This is a local address! We animated to it.
             transition_dont_seek = true;
-            showBlock(&blocks[db->entry], false);
-            QString afcf = Core()->cmd("afcf").trimmed();
-            if (afcf.length() > 0) {
-                header->setPlainText(afcf);
-                header->show();
-            } else {
-                header->hide();
-            }
+            showBlock(&blocks[db->entry], true);
+            prepareHeader();
             return;
         }
     }
