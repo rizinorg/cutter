@@ -99,6 +99,8 @@ public:
     void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
     void addExtraWidget(QDockWidget *extraDock);
 
+    void updateDockActionChecked(QAction * action);
+
 
 public slots:
     void finalizeOpen();
@@ -241,9 +243,10 @@ private:
     void hideAllDocks();
     void showZenDocks();
     void showDebugDocks();
-    void updateDockActionsChecked();
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
+
+    void updateDockActionsChecked();
 
 public:
     QString getFilename() const

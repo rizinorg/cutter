@@ -627,6 +627,11 @@ void MainWindow::updateDockActionsChecked()
     }
 }
 
+void MainWindow::updateDockActionChecked(QAction * action)
+{
+    action->setChecked(!dockWidgetActions[action]->isHidden());
+}
+
 void MainWindow::showZenDocks()
 {
     const QList<QDockWidget *> zenDocks = { functionsDock,
