@@ -13,7 +13,7 @@ This page regroups the common shortcuts available in Cutter.
   
 # Widget shortcuts
 
-{.table} 
+{:.table} 
 | Widget  | Shortcut  |
 |---------|-----------|
 | Strings | Shift+F12 |
