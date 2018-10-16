@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "Cutter.h"
+#include "AbstractOptionWidget.h"
 
 class PreferencesDialog;
 
@@ -14,13 +15,16 @@ namespace Ui {
 class GraphOptionsWidget;
 }
 
-class GraphOptionsWidget : public QDialog
+class GraphOptionsWidget : public AbstractOptionWidget
 {
     Q_OBJECT
 
 public:
     explicit GraphOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
     ~GraphOptionsWidget();
+
+    void apply() override;
+    void discard() override;
 
 private:
     std::unique_ptr<Ui::GraphOptionsWidget> ui;

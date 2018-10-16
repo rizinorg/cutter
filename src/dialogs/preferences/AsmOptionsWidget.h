@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "Cutter.h"
+#include "AbstractOptionWidget.h"
 
 class PreferencesDialog;
 
@@ -14,13 +15,16 @@ namespace Ui {
 class AsmOptionsWidget;
 }
 
-class AsmOptionsWidget : public QDialog
+class AsmOptionsWidget : public AbstractOptionWidget
 {
     Q_OBJECT
 
 public:
     explicit AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
     ~AsmOptionsWidget();
+
+    void apply() override;
+    void discard() override;
 
 private:
     std::unique_ptr<Ui::AsmOptionsWidget> ui;

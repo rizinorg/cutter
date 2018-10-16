@@ -18,6 +18,11 @@ public:
     ColorSchemePrefWidget(QWidget *parent = nullptr);
     virtual ~ColorSchemePrefWidget();
 
+    QString getCurrTheme() const;
+
+signals:
+    void colorChanged();
+
 public slots:
     void apply();
 
@@ -80,8 +85,11 @@ public:
 
     void updateScheme();
 
+
 private:
     QList<ColorOption> m_data;
+
+    QString getCurrTheme() const;
 };
 
 class ColorOptionDelegate : public QStyledItemDelegate
