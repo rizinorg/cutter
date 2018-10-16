@@ -10,6 +10,16 @@ This page regroups the common shortcuts available in Cutter.
 | .          | Focus console input |
 | G/S        | Focus search bar    |
 | Ctrl/Cmd+R | Refresh contents    |
+  
+# Widget shortcuts
+
+{.table} 
+| Widget  | Shortcut  |
+|---------|-----------|
+| Strings | Shift+F12 |
+| Graph   | Shift+G   |
+| Imports | Shift+I   |
+| Exports | Shift+E   |  
 
 # Disassembly view shortcuts
 
