@@ -64,6 +64,7 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
 
     fillRecentFilesList();
     fillIOPluginsList();
+    fillProjectsList();
 
     // Set last clicked tab
     ui->tabWidget->setCurrentIndex(Config()->getNewFileLastClicked());
@@ -329,6 +330,10 @@ void NewFileDialog::fillIOPluginsList()
     int index = 1;
     QList<RIOPluginDescription> ioPlugins = Core()->getRIOPluginDescriptions();
     for (RIOPluginDescription plugin : ioPlugins) {
+        // Hide debug plugins
+        if (plugin.permissions.contains('d')) {
+            continue;
+        }
         ui->ioPlugin->addItem(plugin.name);
         ui->ioPlugin->setItemData(index, plugin.description, Qt::ToolTipRole);
         index++;
@@ -364,7 +369,7 @@ void NewFileDialog::loadFile(const QString &filename)
     ioFile += filename;
     InitialOptions options;
     options.filename = ioFile;
-    main->openNewFile(options);
+    main->openNewFile(options, ui->checkBox_FilelessOpen->isChecked());
 
     close();
 }

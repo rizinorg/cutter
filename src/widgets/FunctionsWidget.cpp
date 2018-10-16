@@ -7,6 +7,7 @@
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include "utils/FunctionsTask.h"
+#include "utils/TempConfig.h"
 
 #include <algorithm>
 #include <QMenu>
@@ -14,7 +15,16 @@
 #include <QString>
 #include <QResource>
 #include <QShortcut>
+#include <QJsonArray>
 #include <QJsonObject>
+
+namespace {
+
+static const int kMaxTooltipWidth = 400;
+static const int kMaxTooltipDisasmPreviewLines = 10;
+static const int kMaxTooltipHighlightsLines = 5;
+
+}
 
 FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses,
                              ut64 *mainAdress, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
@@ -60,7 +70,7 @@ int FunctionModel::rowCount(const QModelIndex &parent) const
 
     if (nested) {
         if (parent.internalId() == 0)
-            return 8; // sub-nodes for nested functions
+            return ColumnCount - 1; // sub-nodes for nested functions
         return 0;
     } else
         return 0;
@@ -125,6 +135,14 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                     return tr("Cyclomatic complexity: %1").arg(RSizeString(function.cc));
                 case 7:
                     return tr("Call type: %1").arg(function.calltype);
+                case 8:
+                    return tr("Edges: %1").arg(function.edges);
+                case 9:
+                    return tr("Cost: %1").arg(function.cost);
+                case 10:
+                    return tr("Calls/OutDegree: %1").arg(function.calls);
+                case 11:
+                    return tr("StackFrame: %1").arg(function.stackframe);
                 default:
                     return QVariant();
                 }
@@ -148,6 +166,14 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 return function.cc;
             case CalltypeColumn:
                 return function.calltype;
+            case EdgesColumn:
+                return function.edges;
+            case CostColumn:
+                return function.cost;
+            case CallsColumn:
+                return function.calls;
+            case FrameColumn:
+                return function.stackframe;
             default:
                 return QVariant();
             }
@@ -170,16 +196,79 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::ToolTipRole: {
-        QList<QString> info = Core()->cmd("afi @ " + function.name).split("\n");
-        if (info.length() > 2) {
-            QString size = info[4].split(" ")[1];
-            QString complex = info[8].split(" ")[1];
-            QString bb = info[11].split(" ")[1];
-            return QString("Summary:\n\n    Size: " + size +
-                           "\n    Cyclomatic complexity: " + complex +
-                           "\n    Basic blocks: " + bb +
-                           "\n\nDisasm preview:\n\n" + Core()->cmd("pdi 10 @ " + function.name) +
-                           "\nStrings:\n\n" + Core()->cmd("pdsf @ " + function.name));
+        const QJsonArray &info = Core()->cmdj("afij @ " + function.name).array();
+        if (!info.isEmpty()) {
+            const QJsonObject &funcInfo = info[0].toObject();
+
+            static const QStringList kRequiredFields{ "size", "cc", "nbbs" };
+            for (const auto& key : kRequiredFields) {
+                if (!funcInfo.contains(key)) {
+                    return QVariant();
+                }
+            }
+            const int size = funcInfo["size"].toInt();
+            const int complex = funcInfo["cc"].toInt();
+            const int bb = funcInfo["nbbs"].toInt();
+            QStringList disasmPreview;
+
+            QJsonArray jDisasmEntries;
+            {
+                // temporarily simplify the disasm output to get it colorful and simple to read
+                TempConfig tempConfig;
+                tempConfig.set("scr.html", true)
+                    .set("scr.color", COLOR_MODE_16M)
+                    .set("asm.lines", false)
+                    .set("asm.var", false)
+                    .set("asm.comments", false)
+                    .set("asm.bytes", false)
+                    .set("asm.lines.fcn", false)
+                    .set("asm.lines.out", false)
+                    .set("asm.lines.bb", false)
+                    .set("asm.bbline", false);
+
+                jDisasmEntries = Core()->cmdj(QString("pDJ %1 @ %2").arg(function.size).arg(function.offset)).array();
+            }
+            for (const QJsonValue &value : jDisasmEntries) {
+                const QJsonObject &object = value.toObject();
+
+                disasmPreview << object["text"].toString();
+                if (disasmPreview.length() >= kMaxTooltipDisasmPreviewLines) {
+                    disasmPreview << "...";
+                    break;
+                }
+            }
+
+            const QStringList &summary = Core()->cmd("pdsf @ " + function.name).split("\n", QString::SkipEmptyParts);
+
+            const QFont &fnt = Config()->getFont();
+            QFontMetrics fm{ fnt };
+
+            // elide long strings using current didsam font metrics
+            QStringList highlights;
+            for (const QString &s : summary) {
+                highlights << fm.elidedText(s, Qt::ElideRight, kMaxTooltipWidth);
+                if (highlights.length() > kMaxTooltipHighlightsLines) {
+                    highlights << "...";
+                    break;
+                }
+            }
+            QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
+                    .arg(fnt.family())
+                    .arg(qMax(6, fnt.pointSize() - 1)) // slightly decrease font size, to keep more text in the same box
+                + tr("<div><strong>Summary</strong>:<br>")
+                + tr("Size:&nbsp;%1,&nbsp;Cyclomatic complexity:&nbsp;%2,&nbsp;Basic blocks:&nbsp;%3")
+                    .arg(size)
+                    .arg(complex)
+                    .arg(bb)
+                + tr("</div><div style=\"margin-top: 10px;\"><strong>Disassembly preview</strong>:<br>%1</div>")
+                    .arg(disasmPreview.join("<br>"));
+
+            if (!highlights.isEmpty()) {
+                toolTipContent += tr("<div style=\"margin-top: 10px;\"><strong>Highlights</strong>:<br>%1</div>")
+                    .arg(highlights.join("\n").toHtmlEscaped().replace("\n", "<br>"));
+            }
+            toolTipContent += "</div></html>";
+            return toolTipContent;
         }
         return QVariant();
     }
@@ -227,6 +316,14 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
                 return tr("Cyclo. Comp.");
             case CalltypeColumn:
                 return tr("Call type");
+            case EdgesColumn:
+                return tr("Edges");
+            case CostColumn:
+                return tr("Cost");
+            case CallsColumn:
+                return tr("Calls/OutDeg.");
+            case FrameColumn:
+                return tr("StackFrame");
             default:
                 return QVariant();
             }
@@ -234,17 +331,6 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
     }
 
     return QVariant();
-}
-
-void FunctionModel::beginReloadFunctions()
-{
-    beginResetModel();
-}
-
-void FunctionModel::endReloadFunctions()
-{
-    updateCurrentIndex();
-    endResetModel();
 }
 
 void FunctionModel::setNested(bool nested)
@@ -372,6 +458,22 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
         case FunctionModel::CalltypeColumn:
             return left_function.calltype < right_function.calltype;
             break;
+        case FunctionModel::EdgesColumn:
+            if (left_function.edges != right_function.edges)
+                return left_function.edges < right_function.edges;
+            break;
+        case FunctionModel::CostColumn:
+            if (left_function.cost != right_function.cost)
+                return left_function.cost < right_function.cost;
+            break;
+        case FunctionModel::CallsColumn:
+            if (left_function.calls != right_function.calls)
+                return left_function.calls < right_function.calls;
+            break;
+        case FunctionModel::FrameColumn:
+            if (left_function.stackframe != right_function.stackframe)
+                return left_function.stackframe < right_function.stackframe;
+            break;
         default:
             return false;
         }
@@ -382,12 +484,18 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
 
 FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::FunctionsWidget)
+    ui(new Ui::FunctionsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer 
+    tree->addStatusBar(ui->verticalLayout);
+
     // Radare core found in:
     this->main = main;
+
+    setStyleSheet(QString("QToolTip { max-width: %1px; opacity: 230; }").arg(kMaxTooltipWidth));
 
     // leave the filter visible by default so users know it exists
     //ui->filterLineEdit->setVisible(false);
@@ -416,6 +524,10 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
             SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->functionsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(functionProxyModel->rowCount());
+    });
+    
     setScrollMode();
 
     // Set Functions context menu
@@ -447,7 +559,7 @@ void FunctionsWidget::refreshTree()
     task = QSharedPointer<FunctionsTask>(new FunctionsTask());
     connect(task.data(), &FunctionsTask::fetchFinished,
     this, [this] (const QList<FunctionDescription> &functions) {
-        functionModel->beginReloadFunctions();
+        functionModel->beginResetModel();
 
         this->functions = functions;
 
@@ -458,10 +570,13 @@ void FunctionsWidget::refreshTree()
 
         mainAdress = (ut64)Core()->cmdj("iMj").object()["vaddr"].toInt();
 
-        functionModel->endReloadFunctions();
+        functionModel->updateCurrentIndex();
+        functionModel->endResetModel();
 
         // resize offset and size columns
         qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
+
+        tree->showItemsNumber(functionProxyModel->rowCount());
     });
     Core()->getAsyncTaskManager()->start(task);
 }

@@ -74,16 +74,6 @@ QVariant BreakpointModel::headerData(int section, Qt::Orientation, int role) con
     }
 }
 
-void BreakpointModel::beginReloadBreakpoint()
-{
-    beginResetModel();
-}
-
-void BreakpointModel::endReloadBreakpoint()
-{
-    endResetModel();
-}
-
 BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -152,9 +142,9 @@ BreakpointWidget::~BreakpointWidget() {}
 
 void BreakpointWidget::refreshBreakpoint()
 {
-    breakpointModel->beginReloadBreakpoint();
+    breakpointModel->beginResetModel();
     breakpoints = Core()->getBreakpoints();
-    breakpointModel->endReloadBreakpoint();
+    breakpointModel->endResetModel();
 
     ui->breakpointTreeView->resizeColumnToContents(0);
     ui->breakpointTreeView->resizeColumnToContents(1);

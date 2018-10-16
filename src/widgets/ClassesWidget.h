@@ -16,11 +16,14 @@ class ClassesWidget;
 class QTreeWidget;
 class QTreeWidgetItem;
 class MainWindow;
+class ClassesWidget;
 
 
 class ClassesModel: public QAbstractItemModel
 {
     Q_OBJECT
+
+    friend ClassesWidget;
 
 private:
     QList<ClassDescription> *classes;
@@ -44,9 +47,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
-
-    void beginReload();
-    void endReload();
 };
 
 Q_DECLARE_METATYPE(ClassesModel::RowType)

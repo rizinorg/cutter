@@ -4,12 +4,14 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
 class MainWindow;
 class QTreeWidget;
+class RegisterRefsWidget;
 
 namespace Ui {
 class RegisterRefsWidget;
@@ -23,6 +25,8 @@ class QTreeWidgetItem;
 class RegisterRefModel: public QAbstractListModel
 {
     Q_OBJECT
+
+    friend RegisterRefsWidget;
 
 private:
     QList<RegisterRefDescription> *registerRefs;
@@ -38,9 +42,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadRegisterRef();
-    void endReloadRegisterRef();
 };
 
 
@@ -80,5 +81,6 @@ private:
     QList<RegisterRefDescription> registerRefs;
     QAction *actionCopyValue;
     QAction *actionCopyRef;
+    CutterTreeWidget *tree;
     void setScrollMode();
 };

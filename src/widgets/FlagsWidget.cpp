@@ -69,16 +69,6 @@ QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void FlagsModel::beginReloadFlags()
-{
-    beginResetModel();
-}
-
-void FlagsModel::endReloadFlags()
-{
-    endResetModel();
-}
-
 
 
 
@@ -124,9 +114,13 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
 FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::FlagsWidget),
-    main(main)
+    main(main),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
 
     flags_model = new FlagsModel(&flags, this);
     flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
@@ -150,7 +144,11 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
         }
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    
+
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, this, [this] {
+        tree->showItemsNumber(flags_proxy_model->rowCount());
+    });
+        
     setScrollMode();
 
     ui->flagsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -242,13 +240,14 @@ void FlagsWidget::refreshFlags()
         flagspace = flagspace_data.value<FlagspaceDescription>().name;
 
 
-    flags_model->beginReloadFlags();
+    flags_model->beginResetModel();
     flags = Core()->getAllFlags(flagspace);
-    flags_model->endReloadFlags();
+    flags_model->endResetModel();
 
     qhelpers::adjustColumns(ui->flagsTreeView, 2, 0);
 
-
+    tree->showItemsNumber(flags_proxy_model->rowCount());
+    
     // TODO: this is not a very good place for the following:
     QStringList flagNames;
     for (auto i : flags)

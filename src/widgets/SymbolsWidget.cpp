@@ -65,16 +65,6 @@ QVariant SymbolsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void SymbolsModel::beginReloadSymbols()
-{
-    beginResetModel();
-}
-
-void SymbolsModel::endReloadSymbols()
-{
-    endResetModel();
-}
-
 SymbolsProxyModel::SymbolsProxyModel(SymbolsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -112,9 +102,13 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 
 SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::SymbolsWidget)
+    ui(new Ui::SymbolsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
 
     symbolsModel = new SymbolsModel(&symbols, this);
     symbolsProxyModel = new SymbolsProxyModel(symbolsModel, this);
@@ -135,6 +129,10 @@ SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
             symbolsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->symbolsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(symbolsProxyModel->rowCount());
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSymbols()));
@@ -154,11 +152,13 @@ void SymbolsWidget::on_symbolsTreeView_doubleClicked(const QModelIndex &index)
 
 void SymbolsWidget::refreshSymbols()
 {
-    symbolsModel->beginReloadSymbols();
+    symbolsModel->beginResetModel();
     symbols = Core()->getAllSymbols();
-    symbolsModel->endReloadSymbols();
+    symbolsModel->endResetModel();
 
     qhelpers::adjustColumns(ui->symbolsTreeView, SymbolsModel::ColumnCount, 0);
+
+    tree->showItemsNumber(symbolsProxyModel->rowCount());
 }
 
 void SymbolsWidget::setScrollMode()

@@ -8,10 +8,12 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
 class FunctionsTask;
+class FunctionsWidget;
 
 namespace Ui {
 class FunctionsWidget;
@@ -21,6 +23,8 @@ class FunctionsWidget;
 class FunctionModel : public QAbstractItemModel
 {
     Q_OBJECT
+
+    friend FunctionsWidget;
 
 private:
     QList<FunctionDescription> *functions;
@@ -43,7 +47,8 @@ public:
     static const int IsImportRole = Qt::UserRole + 1;
 
     enum Column { NameColumn = 0, SizeColumn, ImportColumn, OffsetColumn, NargsColumn, NbbsColumn,
-                  NlocalsColumn, CcColumn, CalltypeColumn, ColumnCount
+                  NlocalsColumn, CcColumn, CalltypeColumn, EdgesColumn, CostColumn, CallsColumn,
+                  FrameColumn, ColumnCount
                 };
 
     FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses, ut64 *mainAdress,
@@ -57,9 +62,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadFunctions();
-    void endReloadFunctions();
 
     /*!
      * @return true if the index changed
@@ -121,7 +123,7 @@ protected:
 
 private:
     std::unique_ptr<Ui::FunctionsWidget> ui;
-    MainWindow      *main;
+    MainWindow *main;
 
     QSharedPointer<FunctionsTask> task;
 
@@ -131,6 +133,8 @@ private:
 
     FunctionModel *functionModel;
     FunctionSortFilterProxyModel *functionProxyModel;
+
+    CutterTreeWidget *tree;
 
     void setScrollMode();
 };

@@ -8,16 +8,20 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 namespace Ui {
 class VTablesWidget;
 }
 
 class MainWindow;
+class VTablesWidget;
 
 class VTableModel : public QAbstractItemModel
 {
     Q_OBJECT
+
+    friend VTablesWidget;
 
 private:
     QList<VTableDescription> *vtables;
@@ -36,9 +40,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReload();
-    void endReload();
 };
 
 class VTableSortFilterProxyModel : public QSortFilterProxyModel
@@ -68,6 +69,7 @@ private:
     VTableModel *model;
     QSortFilterProxyModel *proxy;
     QList<VTableDescription> vtables;
+    CutterTreeWidget *tree;
 };
 
 #endif // VTABLESWIDGET_H

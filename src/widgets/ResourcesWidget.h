@@ -8,10 +8,13 @@
 #include <QTreeView>
 
 class MainWindow;
+class ResourcesWidget;
 
 class ResourcesModel : public QAbstractListModel
 {
     Q_OBJECT
+
+    friend ResourcesWidget;
 
 private:
     QList<ResourcesDescription> *resources;
@@ -26,9 +29,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
-
-    void beginReload();
-    void endReload();
 };
 
 class ResourcesWidget : public CutterDockWidget

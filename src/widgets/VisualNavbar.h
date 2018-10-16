@@ -25,11 +25,11 @@ public:
 
 public slots:
     void paintEvent(QPaintEvent *event) override;
+    void updateGraphicsScene();
 
 private slots:
     void fetchAndPaintData();
     void fetchStats();
-    void updateGraphicsScene();
     void drawCursor();
     void on_seekChanged(RVA addr);
 

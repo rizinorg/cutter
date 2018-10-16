@@ -4,6 +4,8 @@
 #include "MainWindow.h"
 #include "utils/Helpers.h"
 
+#include "WidgetShortcuts.h"
+
 #include <QTreeWidget>
 #include <QPen>
 #include <QPainter>
@@ -76,16 +78,6 @@ QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-void ImportsModel::beginReload()
-{
-    beginResetModel();
-}
-
-void ImportsModel::endReload()
-{
-    endResetModel();
-}
-
 ImportsProxyModel::ImportsProxyModel(ImportsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -137,12 +129,22 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::ImportsWidget),
     importsModel(new ImportsModel(&imports, this)),
-    importsProxyModel(new ImportsProxyModel(importsModel, this))
+    importsProxyModel(new ImportsProxyModel(importsModel, this)),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
+
     ui->importsTreeView->setModel(importsProxyModel);
     ui->importsTreeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
+
+    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+            toggleDockWidget(true); 
+            main->updateDockActionChecked(action);
+            } );
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
@@ -158,6 +160,10 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
             importsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->importsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(importsProxyModel->rowCount());
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshImports()));
@@ -167,10 +173,12 @@ ImportsWidget::~ImportsWidget() {}
 
 void ImportsWidget::refreshImports()
 {
-    importsModel->beginReload();
+    importsModel->beginResetModel();
     imports = Core()->getAllImports();
-    importsModel->endReload();
+    importsModel->endResetModel();
     qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
+
+    tree->showItemsNumber(importsProxyModel->rowCount());
 }
 
 void ImportsWidget::setScrollMode()

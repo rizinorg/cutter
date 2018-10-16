@@ -61,22 +61,19 @@ void SaveProjectDialog::on_selectProjectsDirButton_clicked()
 
 void SaveProjectDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
-    switch (ui->buttonBox->buttonRole(button)) {
-    case QDialogButtonBox::DestructiveRole:
-        QDialog::done(Destructive);
-        break;
-
-    case QDialogButtonBox::RejectRole:
-        QDialog::done(Rejected);
-        break;
-
-    default:
-        break;
+    if (QDialogButtonBox::DestructiveRole == ui->buttonBox->buttonRole(button)) { 
+        QDialog::done(QDialog::Accepted);
     }
 }
 
 void SaveProjectDialog::accept()
 {
+    const QString& projectName = ui->nameEdit->text().trimmed();
+    if (!CutterCore::isProjectNameValid(projectName)) {
+        QMessageBox::critical(this, tr("Save project"), tr("Invalid project name."));
+        ui->nameEdit->setFocus();
+        return;
+    }
     TempConfig tempConfig;
     Config()->setDirProjects(ui->projectsDirEdit->text().toUtf8().constData());
     tempConfig.set("dir.projects", Config()->getDirProjects())
@@ -85,18 +82,7 @@ void SaveProjectDialog::accept()
     .set("prj.git", ui->gitCheckBox->isChecked())
     .set("prj.zip", ui->zipCheckBox->isChecked());
 
-    QString projectName = ui->nameEdit->text().trimmed();
-    if (!CutterCore::isProjectNameValid(projectName)) {
-        QMessageBox::critical(this, tr("Save project"), tr("Invalid project name."));
-        return;
-    }
-
     Core()->saveProject(projectName);
 
-    QDialog::done(Saved);
-}
-
-void SaveProjectDialog::reject()
-{
-    done(Rejected);
+    QDialog::accept();
 }

@@ -6,7 +6,12 @@
 
 #include "MainWindow.h"
 #include "utils/Helpers.h"
+#include "dialogs/XrefsDialog.h"
 
+#include "WidgetShortcuts.h"
+
+#include <QMenu>
+#include <QClipboard>
 
 StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
     : QAbstractListModel(parent),
@@ -77,16 +82,6 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-void StringsModel::beginReload()
-{
-    beginResetModel();
-}
-
-void StringsModel::endReload()
-{
-    endResetModel();
-}
-
 StringsSortFilterProxyModel::StringsSortFilterProxyModel(StringsModel *source_model,
                                                          QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -132,11 +127,22 @@ bool StringsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
 
 StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::StringsWidget)
+    ui(new Ui::StringsWidget),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
 
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
+
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
+
+    // Shift-F12 to toggle strings window
+    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+            toggleDockWidget(true);
+            main->updateDockActionChecked(action);
+            } );
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
@@ -148,6 +154,17 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
+    connect(ui->actionFilter, SIGNAL(triggered()), ui->quickFilterView, SLOT(showFilter()));
+    connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
+    connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
+
+    connect(ui->stringsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showStringsContextMenu(const QPoint &)));
+
+    ui->actionFilter->setShortcut(QKeySequence::Find);
+
+    ui->stringsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
     model = new StringsModel(&strings, this);
     proxy_model = new StringsSortFilterProxyModel(model, this);
     ui->stringsTreeView->setModel(proxy_model);
@@ -157,6 +174,10 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
             SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->stringsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(proxy_model->rowCount());
+    });
+    
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
 }
 
@@ -185,13 +206,58 @@ void StringsWidget::refreshStrings()
 
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
 {
-    model->beginReload();
+    model->beginResetModel();
     this->strings = strings;
-    model->endReload();
+    model->endResetModel();
 
     qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
 
+    tree->showItemsNumber(proxy_model->rowCount());
+
     task = nullptr;
+}
+
+void StringsWidget::showStringsContextMenu(const QPoint &pt)
+{
+    QMenu *menu = new QMenu(ui->stringsTreeView);
+
+    menu->clear();
+    menu->addAction(ui->actionCopy_String);
+    menu->addAction(ui->actionCopy_Address);
+    menu->addAction(ui->actionFilter);
+    menu->addSeparator();
+    menu->addAction(ui->actionX_refs);
+
+    menu->exec(ui->stringsTreeView->mapToGlobal(pt));
+
+    delete menu;
+}
+
+void StringsWidget::on_actionX_refs_triggered()
+{
+    StringDescription str = ui->stringsTreeView->selectionModel()->currentIndex().data(
+                StringsModel::StringDescriptionRole).value<StringDescription>();
+
+    XrefsDialog *x = new XrefsDialog(this);
+    x->fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
+    x->setAttribute(Qt::WA_DeleteOnClose);
+    x->exec();
+}
+
+void StringsWidget::on_actionCopy()
+{
+    QModelIndex current_item = ui->stringsTreeView->currentIndex();
+    int row = current_item.row();
+
+    QModelIndex index;
+
+    if(sender() == ui->actionCopy_String)
+        index = ui->stringsTreeView->model()->index(row, 1);
+    else if(sender() == ui->actionCopy_Address)
+        index = ui->stringsTreeView->model()->index(row, 0);
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(index.data().toString());
 }

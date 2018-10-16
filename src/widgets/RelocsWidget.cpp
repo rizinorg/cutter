@@ -59,16 +59,6 @@ QVariant RelocsModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-void RelocsModel::beginReload()
-{
-    beginResetModel();
-}
-
-void RelocsModel::endReload()
-{
-    endResetModel();
-}
-
 RelocsProxyModel::RelocsProxyModel(RelocsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -114,9 +104,13 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::RelocsWidget),
     relocsModel(new RelocsModel(&relocs, this)),
-    relocsProxyModel(new RelocsProxyModel(relocsModel, this))
+    relocsProxyModel(new RelocsProxyModel(relocsModel, this)),
+    tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+
+    // Add Status Bar footer
+    tree->addStatusBar(ui->verticalLayout);
 
     ui->relocsTreeView->setModel(relocsProxyModel);
     ui->relocsTreeView->sortByColumn(RelocsModel::NameColumn, Qt::AscendingOrder);
@@ -135,6 +129,10 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
             relocsProxyModel, SLOT(setFilterWildcard(const QString &)));
     connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->relocsTreeView, SLOT(setFocus()));
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(relocsProxyModel->rowCount());
+    });
+    
     setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshRelocs()));
@@ -152,10 +150,12 @@ void RelocsWidget::on_relocsTreeView_doubleClicked(const QModelIndex &index)
 
 void RelocsWidget::refreshRelocs()
 {
-    relocsModel->beginReload();
+    relocsModel->beginResetModel();
     relocs = Core()->getAllRelocs();
-    relocsModel->endReload();
+    relocsModel->endResetModel();
     qhelpers::adjustColumns(ui->relocsTreeView, 3, 0);
+
+    tree->showItemsNumber(relocsProxyModel->rowCount());
 }
 
 void RelocsWidget::setScrollMode()

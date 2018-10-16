@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "GraphWidget.h"
 #include "DisassemblerGraphView.h"
+#include "WidgetShortcuts.h"
 
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
@@ -9,6 +10,15 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     this->setAllowedAreas(Qt::AllDockWidgetAreas);
     this->graphView = new DisassemblerGraphView(this);
     this->setWidget(graphView);
+
+    // getting the name of the class is implementation defined, and cannot be
+    // used reliably across different compilers.
+    //QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts[typeid(this).name()], main);
+    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["GraphWidget"], main);
+    connect(toggle_shortcut, &QShortcut::activated, this, [ = ]() {
+            toggleDockWidget(true); 
+            main->updateDockActionChecked(action);
+    });
 
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (visibility) {

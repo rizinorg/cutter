@@ -182,6 +182,9 @@ void MainWindow::initUI()
     this->visualNavbar->setMovable(false);
     addToolBarBreak(Qt::TopToolBarArea);
     addToolBar(visualNavbar);
+    QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
+        this->visualNavbar->updateGraphicsScene();
+    });
 
     /*
      * Dock Widgets
@@ -368,10 +371,11 @@ void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool
     auto o = new InitialOptionsDialog(this);
     o->setAttribute(Qt::WA_DeleteOnClose);
     o->loadOptions(options);
-    o->show();
 
     if (skipOptionsDialog) {
         o->setupAndStartAnalysis();
+    } else {
+        o->show();
     }
 }
 
@@ -417,9 +421,7 @@ bool MainWindow::saveProject(bool quit)
 bool MainWindow::saveProjectAs(bool quit)
 {
     SaveProjectDialog dialog(quit, this);
-    int result = dialog.exec();
-
-    return !quit || result != SaveProjectDialog::Rejected;
+    return SaveProjectDialog::Rejected != dialog.exec();
 }
 
 void MainWindow::refreshOmniBar(const QStringList &flags)
@@ -439,23 +441,22 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                                             tr("Do you really want to exit?\nSave your project before closing!"),
                                                             (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
-    if (ret == QMessageBox::Save) {
-        if (saveProject(true) && !core->currentlyDebugging) {
-            saveSettings();
-        } else if (core->currentlyDebugging) {
-            core->stopDebug();
-        }
-        QMainWindow::closeEvent(event);
-    } else if (ret == QMessageBox::Discard) {
-        if (!core->currentlyDebugging) {
-            saveSettings();
-        } else if (core->currentlyDebugging) {
-            core->stopDebug();
-        }
-        QMainWindow::closeEvent(event);
-    } else {
+    if (ret == QMessageBox::Cancel) {
         event->ignore();
+        return;
     }
+
+    if (ret == QMessageBox::Save && !saveProject(true)) {
+        event->ignore();
+        return;
+    }
+
+    if (!core->currentlyDebugging) {
+        saveSettings();
+    } else {
+        core->stopDebug();
+    }
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::readSettings()
@@ -624,6 +625,11 @@ void MainWindow::updateDockActionsChecked()
     for (auto i = dockWidgetActions.constBegin(); i != dockWidgetActions.constEnd(); i++) {
         i.key()->setChecked(!i.value()->isHidden());
     }
+}
+
+void MainWindow::updateDockActionChecked(QAction * action)
+{
+    action->setChecked(!dockWidgetActions[action]->isHidden());
 }
 
 void MainWindow::showZenDocks()

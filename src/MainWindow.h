@@ -83,7 +83,7 @@ public:
 
     /*!
      * @param quit whether to show destructive button in dialog
-     * @return if quit is true, false if the application should not close
+     * @return false if the application should not close
      */
     bool saveProjectAs(bool quit = false);
 
@@ -98,6 +98,8 @@ public:
     void addToDockWidgetList(QDockWidget *dockWidget);
     void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
     void addExtraWidget(QDockWidget *extraDock);
+
+    void updateDockActionChecked(QAction * action);
 
 
 public slots:
@@ -241,9 +243,10 @@ private:
     void hideAllDocks();
     void showZenDocks();
     void showDebugDocks();
-    void updateDockActionsChecked();
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
+
+    void updateDockActionsChecked();
 
 public:
     QString getFilename() const

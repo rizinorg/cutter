@@ -15,13 +15,11 @@ class SaveProjectDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum Result { Saved, Rejected, Destructive };
 
     explicit SaveProjectDialog(bool quit, QWidget *parent = nullptr);
     ~SaveProjectDialog();
 
     virtual void accept() override;
-    virtual void reject() override;
 
 private slots:
     void on_buttonBox_clicked(QAbstractButton *button);

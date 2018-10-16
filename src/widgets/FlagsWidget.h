@@ -8,14 +8,18 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
+class FlagsWidget;
 
 
 class FlagsModel: public QAbstractListModel
 {
     Q_OBJECT
+
+    friend FlagsWidget;
 
 private:
     QList<FlagDescription> *flags;
@@ -31,9 +35,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadFlags();
-    void endReloadFlags();
 };
 
 
@@ -78,11 +79,12 @@ private slots:
 
 private:
     std::unique_ptr<Ui::FlagsWidget> ui;
-    MainWindow      *main;
+    MainWindow *main;
 
     FlagsModel *flags_model;
     FlagsSortFilterProxyModel *flags_proxy_model;
     QList<FlagDescription> flags;
+    CutterTreeWidget *tree;
 
     void refreshFlags();
     void setScrollMode();

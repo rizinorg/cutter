@@ -5,6 +5,8 @@
 #include <QFile>
 #include <QApplication>
 
+#include "utils/ColorSchemeFileSaver.h"
+
 Configuration *Configuration::mPtr = nullptr;
 
 /*!
@@ -216,7 +218,7 @@ void Configuration::setFont(const QFont &font)
 void Configuration::setTheme(int theme)
 {
     s.setValue("ColorPalette", theme);
-    switch(theme){
+    switch (theme) {
     case 0:
         loadDefaultTheme();
         break;
@@ -268,11 +270,21 @@ void Configuration::setColorTheme(QString theme)
     QJsonObject colorsObject = colors.object();
     QJsonObject::iterator it;
     for (it = colorsObject.begin(); it != colorsObject.end(); it++) {
-        if (it.key().contains("gui"))
-            continue;
         QJsonArray rgb = it.value().toArray();
+        if (rgb.size() != 3) {
+            continue;
+        }
         s.setValue("colors." + it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()));
     }
+
+    QMap<QString, QColor> cutterSpecific = ColorSchemeFileWorker().getCutterSpecific();
+    for (auto &it : cutterSpecific.keys())
+        setColor(it, cutterSpecific[it]);
+
+    if (!ColorSchemeFileWorker().isCustomScheme(theme)) {
+        setTheme(getTheme());
+    }
+
     emit colorsUpdated();
 }
 
@@ -294,7 +306,7 @@ QVariant Configuration::getConfigVar(const QString &key)
 {
     QHash<QString, QVariant>::const_iterator it = asmOptions.find(key);
     if (it != asmOptions.end()) {
-        switch(it.value().type()) {
+        switch (it.value().type()) {
         case QVariant::Type::Bool:
             return Core()->getConfigb(key);
         case QVariant::Type::Int:

@@ -1,17 +1,26 @@
 # Building
 
-The "official" way to build Cutter is by using qmake, but there are two alternatives, such as cmake and meson.
+First you must get the source of Cutter by cloning the repository:
+
+```
+git clone --recurse-submodules https://github.com/radareorg/cutter
+```
+
+The "official" way to build Cutter is by using qmake, but there are two alternatives -- cmake and meson.
+
 In any case, there are obviously some requirements:
-* Radare2 installed from submodule, see [README.md](https://github.com/radareorg/cutter#requirements)
+* Radare2 installed from submodule
 * Qt 5.9 or above
 * Python3.6
 
 **Before compiling, note that we also provide binaries available for windows/linux/MacOS X [here](https://github.com/radareorg/cutter/releases).**
 
+
 ---
 
 
 # Building options
+
 
 Note that there are two major building options available:
 * `CUTTER_ENABLE_JUPYTER` is used to compile Cutter with bundled Python and Jupyter module
@@ -21,7 +30,7 @@ Note that there are two major building options available:
 
 # Building with Qmake
 
-#### Compiling on Linux / OsX
+#### Compiling on Linux / macOS
 
 The easy way is to simply run `./build.sh` from the root directory, and let the magic happen. The script will use qmake to build Cutter.
 
@@ -31,6 +40,13 @@ mkdir build; cd build
 qmake ../src/Cutter.pro
 make
 cd ..
+```
+
+#### Additional steps for macOS
+
+On macOS you will also have to copy the launcher bash script:
+```sh
+cp ../src/macos/Cutter.sh Cutter.app/Contents/MacOS/Cutter.sh && chmod +x Cutter.app/Contents/MacOS/Cutter.sh
 ```
 
 ---

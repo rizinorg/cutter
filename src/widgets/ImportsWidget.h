@@ -11,9 +11,11 @@
 
 #include "CutterDockWidget.h"
 #include "Cutter.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidget;
+class ImportsWidget;
 
 namespace Ui {
 class ImportsWidget;
@@ -22,6 +24,8 @@ class ImportsWidget;
 class ImportsModel : public QAbstractTableModel
 {
     Q_OBJECT
+
+    friend ImportsWidget;
 
 private:
     const QRegularExpression banned = QRegularExpression(QStringLiteral(
@@ -52,9 +56,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-
-    void beginReload();
-    void endReload();
 };
 
 class ImportsProxyModel : public QSortFilterProxyModel
@@ -84,9 +85,11 @@ private slots:
 
 private:
     std::unique_ptr<Ui::ImportsWidget> ui;
+
     ImportsModel *importsModel;
     ImportsProxyModel *importsProxyModel;
     QList<ImportDescription> imports;
+    CutterTreeWidget *tree;
 
     void highlightUnsafe();
     void setScrollMode();

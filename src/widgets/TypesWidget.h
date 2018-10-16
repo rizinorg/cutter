@@ -11,6 +11,7 @@
 
 class MainWindow;
 class QTreeWidget;
+class TypesWidget;
 
 namespace Ui {
 class TypesWidget;
@@ -24,6 +25,8 @@ class QTreeWidgetItem;
 class TypesModel: public QAbstractListModel
 {
     Q_OBJECT
+
+    friend TypesWidget;
 
 private:
     QList<TypeDescription> *types;
@@ -39,9 +42,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadTypes();
-    void endReloadTypes();
 };
 
 

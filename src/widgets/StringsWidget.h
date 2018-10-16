@@ -6,12 +6,14 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 #include "utils/StringsTask.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
 class MainWindow;
 class QTreeWidgetItem;
+class StringsWidget;
 
 namespace Ui {
 class StringsWidget;
@@ -20,6 +22,8 @@ class StringsWidget;
 class StringsModel: public QAbstractListModel
 {
     Q_OBJECT
+
+    friend StringsWidget;
 
 private:
     QList<StringDescription> *strings;
@@ -35,9 +39,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReload();
-    void endReload();
 };
 
 
@@ -69,6 +70,10 @@ private slots:
     void refreshStrings();
     void stringSearchFinished(const QList<StringDescription> &strings);
 
+    void showStringsContextMenu(const QPoint &pt);
+    void on_actionX_refs_triggered();
+    void on_actionCopy();
+
 private:
     std::unique_ptr<Ui::StringsWidget> ui;
 
@@ -77,6 +82,7 @@ private:
     StringsModel *model;
     StringsSortFilterProxyModel *proxy_model;
     QList<StringDescription> strings;
+    CutterTreeWidget *tree;
 };
 
 #endif // STRINGSWIDGET_H

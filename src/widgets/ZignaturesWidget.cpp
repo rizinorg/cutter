@@ -78,16 +78,6 @@ QVariant ZignaturesModel::headerData(int section, Qt::Orientation, int role) con
     }
 }
 
-void ZignaturesModel::beginReloadZignatures()
-{
-    beginResetModel();
-}
-
-void ZignaturesModel::endReloadZignatures()
-{
-    endResetModel();
-}
-
 ZignaturesProxyModel::ZignaturesProxyModel(ZignaturesModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -143,9 +133,9 @@ ZignaturesWidget::~ZignaturesWidget() {}
 
 void ZignaturesWidget::refreshZignatures()
 {
-    zignaturesModel->beginReloadZignatures();
+    zignaturesModel->beginResetModel();
     zignatures = Core()->getAllZignatures();
-    zignaturesModel->endReloadZignatures();
+    zignaturesModel->endResetModel();
 
     ui->zignaturesTreeView->resizeColumnToContents(0);
     ui->zignaturesTreeView->resizeColumnToContents(1);

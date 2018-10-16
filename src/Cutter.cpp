@@ -111,7 +111,7 @@ QList<QString> CutterCore::sdbListKeys(QString path)
         SdbList *l = sdb_foreach_list(root, false);
         ls_foreach(l, iter, vsi) {
             SdbKv *nsi = (SdbKv *)vsi;
-            list << nsi->key;
+            list << nsi->base.key;
         }
     }
     return list;
@@ -1663,6 +1663,10 @@ QList<FunctionDescription> CutterCore::parseFunctionsJson(const QJsonDocument &d
         function.cc = (RVA)jsonObject["cc"].toVariant().toULongLong();
         function.calltype = jsonObject["calltype"].toString();
         function.name = jsonObject["name"].toString();
+        function.edges = (RVA)jsonObject["edges"].toVariant().toULongLong();
+        function.cost = (RVA)jsonObject["cost"].toVariant().toULongLong();
+        function.calls = (RVA)jsonObject["outdegree"].toVariant().toULongLong();
+        function.stackframe = (RVA)jsonObject["stackframe"].toVariant().toULongLong();
 
         ret << function;
     }

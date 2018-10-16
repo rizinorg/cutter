@@ -7,9 +7,11 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 class MainWindow;
 class QTreeWidgetItem;
+class CommentsWidget;
 
 namespace Ui {
 class CommentsWidget;
@@ -18,6 +20,8 @@ class CommentsWidget;
 class CommentsModel : public QAbstractItemModel
 {
     Q_OBJECT
+
+    friend CommentsWidget;
 
 private:
     QList<CommentDescription> *comments;
@@ -41,9 +45,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    void beginReloadComments();
-    void endReloadComments();
 
     bool isNested() const;
     void setNested(bool nested);
@@ -88,6 +89,7 @@ private:
 
     CommentsModel *commentsModel;
     CommentsProxyModel *commentsProxyModel;
+    CutterTreeWidget *tree;
 
     QList<CommentDescription> comments;
     QMap<QString, QList<CommentDescription>> nestedComments;

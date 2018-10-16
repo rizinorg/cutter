@@ -487,6 +487,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     // highlight selected tokens
     if (highlight_token != nullptr) {
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
+        int tokenWidth = mFontMetrics->width(highlight_token->content);
 
         for (Instr &instr : db.instrs) {
             int pos = -1;
@@ -499,7 +500,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                     continue;
                 }
 
-                p.fillRect(QRect(block.x + charWidth * 3 + pos * charWidth, y, highlight_token->length * charWidth,
+                int widthBefore = mFontMetrics->width(instr.plainText.left(pos));
+                p.fillRect(QRect(block.x + charWidth * 3 + widthBefore, y, tokenWidth,
                                  charHeight), disassemblySelectionColor.lighter(250));
             }
 
@@ -795,8 +797,12 @@ void DisassemblerGraphView::seekPrev()
 
 DisassemblerGraphView::Token *DisassemblerGraphView::getToken(Instr *instr, int x)
 {
-    int clickedCharPos = x / charWidth - 3;
+    x -= (3 * charWidth); // Ignore left margin
+    if (x < 0) {
+        return nullptr;
+    }
 
+    int clickedCharPos = mFontMetrics->position(instr->plainText, x);
     if (clickedCharPos > instr->plainText.length()) {
         return nullptr;
     }

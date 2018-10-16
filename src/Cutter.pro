@@ -4,7 +4,7 @@ TARGET = Cutter
 
 CUTTER_VERSION_MAJOR = 1
 CUTTER_VERSION_MINOR = 7
-CUTTER_VERSION_PATCH = 1
+CUTTER_VERSION_PATCH = 2
 
 VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PATCH}
 
@@ -173,6 +173,7 @@ SOURCES += \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
     widgets/CutterSeekableWidget.cpp \
+    widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
     utils/JsonTreeItem.cpp \
     utils/JsonModel.cpp \
@@ -195,7 +196,9 @@ SOURCES += \
     dialogs/AttachProcDialog.cpp \
     widgets/RegisterRefsWidget.cpp \
     dialogs/SetToDataDialog.cpp \
-    dialogs/SetFunctionVarTypes.cpp
+    dialogs/SetFunctionVarTypes.cpp \
+    widgets/ColorSchemePrefWidget.cpp \
+    utils/ColorSchemeFileSaver.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -264,6 +267,7 @@ HEADERS  += \
     utils/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
+    widgets/CutterTreeWidget.h \
     widgets/CutterSeekableWidget.h \
     widgets/GraphWidget.h \
     utils/JsonTreeItem.h \
@@ -291,7 +295,9 @@ HEADERS  += \
     widgets/RegisterRefsWidget.h \
     dialogs/SetToDataDialog.h \
     utils/InitialOptions.h \
-    dialogs/SetFunctionVarTypes.h
+    dialogs/SetFunctionVarTypes.h \
+    utils/ColorSchemeFileSaver.h \
+    widgets/ColorSchemePrefWidget.h 
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -346,7 +352,8 @@ FORMS    += \
     dialogs/AttachProcDialog.ui \
     widgets/RegisterRefsWidget.ui \
     dialogs/SetToDataDialog.ui \
-    dialogs/SetFunctionVarTypes.ui
+    dialogs/SetFunctionVarTypes.ui \
+    widgets/ColorSchemePrefWidget.ui
 
 RESOURCES += \
     resources.qrc \

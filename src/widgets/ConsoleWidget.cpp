@@ -4,6 +4,7 @@
 #include <QAction>
 #include <QShortcut>
 #include <QStringListModel>
+#include <QTimer>
 #include "Cutter.h"
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
@@ -59,33 +60,10 @@ static const QStringList radareArgs( {
     "#!pipe"
 });
 
-static const QStringList forbiddenArgs({"e", "et", "e-", "e*", "e!", "e?", "env"});
-
 
 static const int invalidHistoryPos = -1;
 
 
-
-static bool isForbidden(const QString &input)
-{
-    return false;
-    static const QRegExp delimiters("[;&]");
-
-
-    const QStringList &commands = input.split(delimiters, QString::SkipEmptyParts);
-
-    for (const QString &command : commands) {
-        const QString &trimmedCommand = command.trimmed();
-
-        if (forbiddenArgs.contains(trimmedCommand)) return true;
-
-        for (const QString &arg : forbiddenArgs) {
-            if (trimmedCommand.startsWith(arg + " ")) return true;
-        }
-    }
-
-    return false;
-}
 
 ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -168,19 +146,40 @@ void ConsoleWidget::focusInputLineEdit()
     ui->inputLineEdit->setFocus();
 }
 
+void ConsoleWidget::removeLastLine()
+{
+    ui->outputTextEdit->setFocus();
+    QTextCursor cur = ui->outputTextEdit->textCursor();
+    ui->outputTextEdit->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+    ui->outputTextEdit->moveCursor(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+    ui->outputTextEdit->moveCursor(QTextCursor::End, QTextCursor::KeepAnchor);
+    ui->outputTextEdit->textCursor().removeSelectedText();
+    ui->outputTextEdit->textCursor().deletePreviousChar();
+    ui->outputTextEdit->setTextCursor(cur);
+}
+
 void ConsoleWidget::executeCommand(const QString &command)
 {
     if (!commandTask.isNull()) {
         return;
     }
-
     ui->inputLineEdit->setEnabled(false);
 
-    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
+    const int originalLines = ui->outputTextEdit->blockCount();
+    QTimer *timer = new QTimer(this);
+    timer->setInterval(500);
+    timer->setSingleShot(true);
+    connect(timer, &QTimer::timeout, [this]() {
+        ui->outputTextEdit->appendPlainText("Executing the command...");
+    });
 
+    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "\n";
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
-          command] (const QString & result) {
+          command, originalLines] (const QString & result) {
+        if (originalLines < ui->outputTextEdit->blockCount()) {
+            removeLastLine();
+        }
         ui->outputTextEdit->appendPlainText(cmd_line + result);
         scrollOutputToEnd();
         historyAdd(command);
@@ -188,21 +187,20 @@ void ConsoleWidget::executeCommand(const QString &command)
         ui->inputLineEdit->setEnabled(true);
         ui->inputLineEdit->setFocus();
     });
+    connect(commandTask.data(), &CommandTask::finished, timer, &QTimer::stop);
+
+    timer->start();
     Core()->getAsyncTaskManager()->start(commandTask);
 }
 
 void ConsoleWidget::on_inputLineEdit_returnPressed()
 {
     QString input = ui->inputLineEdit->text();
-    if (!input.isEmpty()) {
-        if (!isForbidden(input)) {
-            executeCommand(input);
-        } else {
-            addDebugOutput(tr("command forbidden: ") + input);
-        }
-
-        ui->inputLineEdit->clear();
+    if (input.isEmpty()) {
+        return;
     }
+    executeCommand(input);
+    ui->inputLineEdit->clear();
 }
 
 void ConsoleWidget::on_execButton_clicked()
