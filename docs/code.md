@@ -1,7 +1,8 @@
 # Contributing
 
 This page shows some hints about the coding conventions.
-**Disclaimer:** It is a work and progress and we will provide soon a fully documented API.
+
+*Disclaimer: It is a work and progress and we will provide soon a fully documented API.*
 
 ## Coding advices
 
@@ -78,5 +79,4 @@ The main reason is that this syntax allows the use of lambda functions.
 
 ### Functions documentation
 
-It's good to add some documentation to your functions when needed. To do so we follow these [rules](http://doc.qt.io/qt-5/qdoc-guide-writing.html).
-
+*TODO*
