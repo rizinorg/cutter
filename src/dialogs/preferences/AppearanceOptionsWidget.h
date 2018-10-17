@@ -1,6 +1,6 @@
 
-#ifndef GENERALOPTIONSWIDGET_H
-#define GENERALOPTIONSWIDGET_H
+#ifndef AppearanceOptionsWidget_H
+#define AppearanceOptionsWidget_H
 
 #include <QDialog>
 #include <QPushButton>
@@ -11,19 +11,19 @@
 class PreferencesDialog;
 
 namespace Ui {
-class GeneralOptionsWidget;
+class AppearanceOptionsWidget;
 }
 
-class GeneralOptionsWidget : public QDialog
+class AppearanceOptionsWidget : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit GeneralOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
-    ~GeneralOptionsWidget();
+    explicit AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
+    ~AppearanceOptionsWidget();
 
 private:
-    std::unique_ptr<Ui::GeneralOptionsWidget> ui;
+    std::unique_ptr<Ui::AppearanceOptionsWidget> ui;
 
 private slots:
     void updateFontFromConfig();
