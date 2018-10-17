@@ -2,7 +2,7 @@
 #include "ui_ImportsWidget.h"
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include "WidgetShortcuts.h"
 

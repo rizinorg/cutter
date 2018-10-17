@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QTreeWidgetItem>
 #include <memory>
-#include "utils/Highlighter.h"
+#include "common/Highlighter.h"
 #include "Cutter.h"
 
 class MainWindow;

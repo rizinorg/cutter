@@ -1,9 +1,9 @@
 #include "HexdumpWidget.h"
 #include "ui_HexdumpWidget.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
-#include "utils/TempConfig.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
+#include "common/TempConfig.h"
 
 #include <QJsonObject>
 #include <QJsonArray>

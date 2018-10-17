@@ -9,7 +9,7 @@
 #include <QAbstractButton>
 
 #include "CutterDockWidget.h"
-#include "utils/JupyterConnection.h"
+#include "common/JupyterConnection.h"
 
 namespace Ui {
 class JupyterWidget;

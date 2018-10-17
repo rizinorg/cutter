@@ -6,8 +6,8 @@
 
 #include "PreferencesDialog.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
 
 AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
     : QDialog(parent),

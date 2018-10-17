@@ -2,7 +2,7 @@
 #ifndef STRINGSASYNCTASK_H
 #define STRINGSASYNCTASK_H
 
-#include "utils/AsyncTask.h"
+#include "common/AsyncTask.h"
 #include "Cutter.h"
 
 class StringsTask : public AsyncTask

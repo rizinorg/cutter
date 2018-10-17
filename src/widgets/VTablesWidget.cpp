@@ -2,7 +2,7 @@
 #include <QModelIndex>
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include "VTablesWidget.h"
 #include "ui_VTablesWidget.h"

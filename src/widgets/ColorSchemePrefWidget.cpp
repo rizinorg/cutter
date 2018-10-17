@@ -1,8 +1,8 @@
-#include "utils/Configuration.h"
-#include "utils/Configuration.h"
+#include "common/Configuration.h"
+#include "common/Configuration.h"
 #include "ColorSchemePrefWidget.h"
 #include "ui_ColorSchemePrefWidget.h"
-#include "utils/ColorSchemeFileSaver.h"
+#include "common/ColorSchemeFileSaver.h"
 
 #include <QMap>
 #include <QFile>

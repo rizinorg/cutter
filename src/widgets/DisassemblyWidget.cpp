@@ -1,10 +1,10 @@
 #include "DisassemblyWidget.h"
 #include "menus/DisassemblyContextMenu.h"
-#include "utils/HexAsciiHighlighter.h"
-#include "utils/HexHighlighter.h"
-#include "utils/Configuration.h"
-#include "utils/Helpers.h"
-#include "utils/TempConfig.h"
+#include "common/HexAsciiHighlighter.h"
+#include "common/HexHighlighter.h"
+#include "common/Configuration.h"
+#include "common/Helpers.h"
+#include "common/TempConfig.h"
 
 #include <QScrollBar>
 #include <QJsonArray>

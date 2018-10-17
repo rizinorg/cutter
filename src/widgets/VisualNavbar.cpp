@@ -1,7 +1,7 @@
 #include "VisualNavbar.h"
 
 #include "MainWindow.h"
-#include "utils/TempConfig.h"
+#include "common/TempConfig.h"
 
 #include <cmath>
 #include <QGraphicsView>

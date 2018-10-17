@@ -1,7 +1,7 @@
 #include "ExportsWidget.h"
 #include "ui_ExportsWidget.h"
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include "WidgetShortcuts.h"
 

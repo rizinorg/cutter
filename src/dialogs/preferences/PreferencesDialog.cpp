@@ -10,8 +10,8 @@
 
 #include "PreferenceCategory.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
 
 
 PreferencesDialog::PreferencesDialog(QWidget *parent)

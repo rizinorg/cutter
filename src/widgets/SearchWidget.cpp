@@ -4,7 +4,7 @@
 #include "SearchWidget.h"
 #include "ui_SearchWidget.h"
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
     : QAbstractListModel(parent),

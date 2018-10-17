@@ -1,6 +1,6 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -32,12 +32,12 @@
 #include <QTreeWidgetItem>
 #include <QSvgRenderer>
 
-#include "utils/Highlighter.h"
-#include "utils/HexAsciiHighlighter.h"
-#include "utils/Helpers.h"
-#include "utils/SvgIconEngine.h"
-#include "utils/ProgressIndicator.h"
-#include "utils/TempConfig.h"
+#include "common/Highlighter.h"
+#include "common/HexAsciiHighlighter.h"
+#include "common/Helpers.h"
+#include "common/SvgIconEngine.h"
+#include "common/ProgressIndicator.h"
+#include "common/TempConfig.h"
 
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/InitialOptionsDialog.h"

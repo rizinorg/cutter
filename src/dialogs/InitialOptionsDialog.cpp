@@ -1,12 +1,12 @@
 
-#include "utils/AsyncTask.h"
+#include "common/AsyncTask.h"
 
 #include "InitialOptionsDialog.h"
 #include "ui_InitialOptionsDialog.h"
 #include "MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include <QSettings>
 #include <QFileInfo>

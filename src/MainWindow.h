@@ -12,8 +12,8 @@
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
 #include "dialogs/NewFileDialog.h"
-#include "utils/Configuration.h"
-#include "utils/InitialOptions.h"
+#include "common/Configuration.h"
+#include "common/InitialOptions.h"
 
 #include <QMainWindow>
 #include <QList>

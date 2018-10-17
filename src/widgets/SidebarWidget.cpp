@@ -2,8 +2,8 @@
 #include "ui_SidebarWidget.h"
 #include "DisassemblerGraphView.h"
 
-#include "utils/Helpers.h"
-#include "utils/TempConfig.h"
+#include "common/Helpers.h"
+#include "common/TempConfig.h"
 
 #include <QTemporaryFile>
 #include <QFontDialog>

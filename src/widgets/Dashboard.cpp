@@ -1,9 +1,9 @@
 #include "Dashboard.h"
 #include "ui_Dashboard.h"
-#include "utils/Helpers.h"
-#include "utils/JsonModel.h"
-#include "utils/JsonTreeItem.h"
-#include "utils/TempConfig.h"
+#include "common/Helpers.h"
+#include "common/JsonModel.h"
+#include "common/JsonTreeItem.h"
+#include "common/TempConfig.h"
 #include "dialogs/VersionInfoDialog.h"
 
 

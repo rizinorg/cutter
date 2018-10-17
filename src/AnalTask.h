@@ -1,9 +1,9 @@
 #ifndef ANALTHREAD_H
 #define ANALTHREAD_H
 
-#include "utils/AsyncTask.h"
+#include "common/AsyncTask.h"
 #include "Cutter.h"
-#include "utils/InitialOptions.h"
+#include "common/InitialOptions.h"
 
 class CutterCore;
 class MainWindow;

@@ -14,9 +14,9 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
-#include "utils/Highlighter.h"
-#include "utils/HexAsciiHighlighter.h"
-#include "utils/HexHighlighter.h"
+#include "common/Highlighter.h"
+#include "common/HexAsciiHighlighter.h"
+#include "common/HexHighlighter.h"
 #include "Dashboard.h"
 
 

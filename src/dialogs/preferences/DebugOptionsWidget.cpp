@@ -7,8 +7,8 @@
 #include <QFontDialog>
 #include "PreferencesDialog.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
 
 DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),

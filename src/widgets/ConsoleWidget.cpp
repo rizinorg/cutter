@@ -8,8 +8,8 @@
 #include "Cutter.h"
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
-#include "utils/Helpers.h"
-#include "utils/SvgIconEngine.h"
+#include "common/Helpers.h"
+#include "common/SvgIconEngine.h"
 
 
 // TODO: Find a way to get to this without copying it here

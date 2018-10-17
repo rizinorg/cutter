@@ -1,7 +1,7 @@
 #include "ZignaturesWidget.h"
 #include "ui_ZignaturesWidget.h"
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 ZignaturesModel::ZignaturesModel(QList<ZignatureDescription> *zignatures, QObject *parent)
     : QAbstractListModel(parent),

@@ -1,6 +1,6 @@
 #include "BacktraceWidget.h"
 #include "ui_BacktraceWidget.h"
-#include "utils/JsonModel.h"
+#include "common/JsonModel.h"
 
 #include "MainWindow.h"
 
