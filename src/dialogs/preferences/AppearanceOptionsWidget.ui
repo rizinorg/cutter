@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+\<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>AppearanceOptionsWidget</class>
  <widget class="QWidget" name="AppearanceOptionsWidget">
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>General</string>
+   <string>Appearance</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">

@@ -155,7 +155,7 @@ SOURCES += \
     widgets/VisualNavbar.cpp \
     widgets/GraphView.cpp \
     dialogs/preferences/PreferencesDialog.cpp \
-    dialogs/preferences/GeneralOptionsWidget.cpp \
+    dialogs/preferences/AppearanceOptionsWidget.cpp \
     dialogs/preferences/GraphOptionsWidget.cpp \
     dialogs/preferences/PreferenceCategory.cpp \
     widgets/QuickFilterView.cpp \
@@ -250,7 +250,7 @@ HEADERS  += \
     widgets/VisualNavbar.h \
     widgets/GraphView.h \
     dialogs/preferences/PreferencesDialog.h \
-    dialogs/preferences/GeneralOptionsWidget.h \
+    dialogs/preferences/AppearanceOptionsWidget.h \
     dialogs/preferences/PreferenceCategory.h \
     dialogs/preferences/GraphOptionsWidget.h \
     widgets/QuickFilterView.h \
@@ -327,7 +327,7 @@ FORMS    += \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
-    dialogs/preferences/GeneralOptionsWidget.ui \
+    dialogs/preferences/AppearanceOptionsWidget.ui \
     dialogs/preferences/GraphOptionsWidget.ui \
     widgets/QuickFilterView.ui \
     widgets/PseudocodeWidget.ui \
