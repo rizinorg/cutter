@@ -3,10 +3,10 @@
 
 #include <QTextEdit>
 
-#include "utils/Configuration.h"
-#include "utils/Helpers.h"
-#include "utils/SyntaxHighlighter.h"
-#include "utils/TempConfig.h"
+#include "common/Configuration.h"
+#include "common/Helpers.h"
+#include "common/SyntaxHighlighter.h"
+#include "common/TempConfig.h"
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),

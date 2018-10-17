@@ -16,11 +16,11 @@
 #include <QStandardPaths>
 
 #include "Cutter.h"
-#include "utils/Colors.h"
-#include "utils/Configuration.h"
-#include "utils/CachedFontMetrics.h"
-#include "utils/TempConfig.h"
-#include "utils/SyntaxHighlighter.h"
+#include "common/Colors.h"
+#include "common/Configuration.h"
+#include "common/CachedFontMetrics.h"
+#include "common/TempConfig.h"
+#include "common/SyntaxHighlighter.h"
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),

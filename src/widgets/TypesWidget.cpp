@@ -1,7 +1,7 @@
 #include "TypesWidget.h"
 #include "ui_TypesWidget.h"
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 TypesModel::TypesModel(QList<TypeDescription> *types, QObject *parent)
     : QAbstractListModel(parent),

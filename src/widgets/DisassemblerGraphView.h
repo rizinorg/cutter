@@ -10,7 +10,7 @@
 
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
-#include "utils/RichTextPainter.h"
+#include "common/RichTextPainter.h"
 #include "CutterSeekableWidget.h"
 
 class QTextEdit;

@@ -3,8 +3,8 @@
 #include <QPushButton>
 
 #include "CutterSamplePlugin.h"
-#include "utils/TempConfig.h"
-#include "utils/Configuration.h"
+#include "common/TempConfig.h"
+#include "common/Configuration.h"
 
 void CutterSamplePlugin::setupPlugin(CutterCore *core)
 {

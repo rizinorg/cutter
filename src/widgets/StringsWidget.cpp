@@ -5,7 +5,7 @@
 #include "ui_StringsWidget.h"
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 #include "dialogs/XrefsDialog.h"
 
 #include "WidgetShortcuts.h"

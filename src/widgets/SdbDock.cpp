@@ -2,7 +2,7 @@
 #include "ui_SdbDock.h"
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include <QDebug>
 #include <QTreeWidget>

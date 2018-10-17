@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "utils/MdHighlighter.h"
+#include "common/MdHighlighter.h"
 
 MdHighlighter::MdHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)

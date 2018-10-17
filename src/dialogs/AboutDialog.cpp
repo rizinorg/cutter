@@ -3,7 +3,7 @@
 #include "ui_AboutDialog.h"
 #include "R2PluginsDialog.h"
 #include "r_version.h"
-#include "utils/Configuration.h"
+#include "common/Configuration.h"
 
 #include <QUrl>
 #include <QTimer>

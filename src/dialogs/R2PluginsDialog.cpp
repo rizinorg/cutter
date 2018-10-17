@@ -2,7 +2,7 @@
 #include "ui_R2PluginsDialog.h"
 
 #include "Cutter.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     QDialog(parent),

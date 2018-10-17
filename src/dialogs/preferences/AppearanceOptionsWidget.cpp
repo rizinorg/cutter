@@ -8,10 +8,10 @@
 #include "AppearanceOptionsWidget.h"
 #include "ui_AppearanceOptionsWidget.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
 
-#include "utils/ColorSchemeFileSaver.h"
+#include "common/ColorSchemeFileSaver.h"
 #include "widgets/ColorSchemePrefWidget.h"
 
 AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent)

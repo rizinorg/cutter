@@ -1,4 +1,4 @@
-#include "utils/ColorSchemeFileSaver.h"
+#include "common/ColorSchemeFileSaver.h"
 
 #include <QDir>
 #include <QDebug>
@@ -6,7 +6,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QStandardPaths>
-#include "utils/Configuration.h"
+#include "common/Configuration.h"
 
 static const QStringList cutterSpecificOptions = {
     "gui.main",

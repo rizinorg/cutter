@@ -2,7 +2,7 @@
 #include "ui_EntrypointWidget.h"
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include <QTreeWidget>
 #include <QPen>

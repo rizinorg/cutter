@@ -3,7 +3,7 @@
 #include "AttachProcDialog.h"
 #include "ui_AttachProcDialog.h"
 
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include <QScrollBar>
 

@@ -12,7 +12,7 @@
 #include <QDir>
 
 #ifdef CUTTER_ENABLE_JUPYTER
-#include "utils/JupyterConnection.h"
+#include "common/JupyterConnection.h"
 #endif
 #include "plugins/CutterPlugin.h"
 

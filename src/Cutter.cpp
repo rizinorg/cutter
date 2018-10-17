@@ -4,10 +4,10 @@
 #include <QDir>
 #include <QCoreApplication>
 
-#include "utils/TempConfig.h"
-#include "utils/Configuration.h"
-#include "utils/AsyncTask.h"
-#include "utils/R2Task.h"
+#include "common/TempConfig.h"
+#include "common/Configuration.h"
+#include "common/AsyncTask.h"
+#include "common/R2Task.h"
 #include "Cutter.h"
 #include "sdb.h"
 

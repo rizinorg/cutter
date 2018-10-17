@@ -4,8 +4,8 @@
 #include <Cutter.h>
 #include "SaveProjectDialog.h"
 #include "ui_SaveProjectDialog.h"
-#include "utils/TempConfig.h"
-#include "utils/Configuration.h"
+#include "common/TempConfig.h"
+#include "common/Configuration.h"
 
 SaveProjectDialog::SaveProjectDialog(bool quit, QWidget *parent) :
     QDialog(parent),

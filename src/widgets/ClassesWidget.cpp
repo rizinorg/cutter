@@ -4,7 +4,7 @@
 #include "ClassesWidget.h"
 #include "MainWindow.h"
 #include "ui_ClassesWidget.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 ClassesModel::ClassesModel(QList<ClassDescription> *classes, QObject *parent)
     : QAbstractItemModel(parent),

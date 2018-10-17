@@ -1,8 +1,8 @@
 #include "XrefsDialog.h"
 #include "ui_XrefsDialog.h"
 
-#include "utils/TempConfig.h"
-#include "utils/Helpers.h"
+#include "common/TempConfig.h"
+#include "common/Helpers.h"
 
 #include "MainWindow.h"
 

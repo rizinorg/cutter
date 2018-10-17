@@ -2,7 +2,7 @@
 #include "ui_SymbolsWidget.h"
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 SymbolsModel::SymbolsModel(QList<SymbolDescription> *symbols, QObject *parent)
     : QAbstractListModel(parent),

@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "utils/HexAsciiHighlighter.h"
+#include "common/HexAsciiHighlighter.h"
 
 AsciiHighlighter::AsciiHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)

@@ -7,7 +7,7 @@
 #include <QDialog>
 #include <QTimer>
 
-#include "utils/AsyncTask.h"
+#include "common/AsyncTask.h"
 
 namespace Ui {
 class AsyncTaskDialog;

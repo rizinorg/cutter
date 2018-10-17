@@ -1,6 +1,6 @@
 #include "RegistersWidget.h"
 #include "ui_RegistersWidget.h"
-#include "utils/JsonModel.h"
+#include "common/JsonModel.h"
 
 #include "MainWindow.h"
 

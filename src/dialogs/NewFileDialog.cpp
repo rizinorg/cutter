@@ -3,7 +3,7 @@
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "ui_NewfileDialog.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include <QFileDialog>
 #include <QtGui>

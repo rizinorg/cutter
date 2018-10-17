@@ -2,7 +2,7 @@
 #ifndef FUNCTIONSTASK_H
 #define FUNCTIONSTASK_H
 
-#include "utils/AsyncTask.h"
+#include "common/AsyncTask.h"
 #include "Cutter.h"
 
 class FunctionsTask : public AsyncTask
