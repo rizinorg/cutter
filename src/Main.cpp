@@ -13,9 +13,7 @@ int main(int argc, char *argv[])
     QTranslator t;
     QString language = Config()->getCurrLanguage();
 
-    if (language == "English") {
-        t.load("");
-    } else if (language == "Русский") {
+    if (language == "Русский") {
         t.load(":/translations/cutter_ru.qm");
     }
     a.installTranslator(&t);
