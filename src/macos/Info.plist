@@ -5,7 +5,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Cutter</string>
 	<key>CFBundleExecutable</key>
-	<string>Cutter.sh</string>
+	<string>Cutter</string>
 	<key>CFBundleVersion</key>
 	<string>@FULL_VERSION@</string>
 	<key>CFBundleShortVersionString</key>

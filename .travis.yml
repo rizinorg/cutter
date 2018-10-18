@@ -71,7 +71,7 @@ script:
 after_success:
   - export CUTTER_VERSION=$(python ../scripts/get_version.py)
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      cp ../src/macos/Cutter.sh Cutter.app/Contents/MacOS/Cutter.sh && chmod +x Cutter.app/Contents/MacOS/Cutter.sh &&
+      cp ../src/macos/Cutter Cutter.app/Contents/MacOS/Cutter && chmod +x Cutter.app/Contents/MacOS/Cutter &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter &&
       "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
       mkdir -p Cutter.app/Contents/Resources/r2/share &&
