@@ -21,6 +21,12 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
@@ -38,8 +44,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>553</width>
-          <height>764</height>
+          <width>515</width>
+          <height>770</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0,0,1">
@@ -243,6 +249,9 @@
          <string>Parsing</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_23">
+         <property name="spacing">
+          <number>6</number>
+         </property>
          <property name="leftMargin">
           <number>0</number>
          </property>
@@ -655,6 +664,31 @@
         </layout>
        </widget>
       </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QToolButton" name="openSideViewB">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>25</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="autoRaise">
+       <bool>true</bool>
+      </property>
+      <property name="arrowType">
+       <enum>Qt::LeftArrow</enum>
+      </property>
      </widget>
     </item>
    </layout>
