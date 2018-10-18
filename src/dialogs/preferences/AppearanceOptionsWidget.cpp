@@ -104,9 +104,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
             &AppearanceOptionsWidget::updateFontFromConfig);
 
     connect(ui->colorComboBox, &QComboBox::currentTextChanged,
-    [&](const QString & name) {
-        ui->colorSchemePrefWidget->setNewScheme(name);
-    });
+            ui->colorSchemePrefWidget, &ColorSchemePrefWidget::setNewScheme);
 
     ui->colorSchemePrefWidget->setNewScheme(Config()->getCurrentTheme());
 }
