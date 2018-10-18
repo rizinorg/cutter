@@ -77,8 +77,8 @@
         <file>img/cutter_plain.svg</file>
         <file>img/cutter_white_plain.svg</file>
         <file>img/cutter.svg</file>
-
         <file>python/cutter_jupyter.py</file>
         <file>python/cutter_ipykernel.py</file>
+        <file>translations/cutter_ru.qm</file>
     </qresource>
 </RCC>

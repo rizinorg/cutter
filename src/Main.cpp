@@ -1,6 +1,7 @@
 
 #include "CutterApplication.h"
 #include "MainWindow.h"
+#include <QTranslator>
 
 int main(int argc, char *argv[])
 {
@@ -8,6 +9,16 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QList<FunctionDescription>>();
 
     CutterApplication a(argc, argv);
+
+    QTranslator t;
+    QString language = Config()->getCurrLanguage();
+
+    if (language == "English") {
+        t.load("");
+    } else if (language == "Русский") {
+        t.load(":/translations/cutter_ru.qm");
+    }
+    a.installTranslator(&t);
 
     int ret = a.exec();
 

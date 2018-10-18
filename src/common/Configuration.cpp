@@ -109,6 +109,16 @@ void Configuration::resetAll()
     emit fontsUpdated();
 }
 
+QString Configuration::getCurrLanguage() const
+{
+    return s.value("language", QVariant::fromValue(QLocale().name())).toString();
+}
+
+void Configuration::setLanguage(const QString &l)
+{
+    s.setValue("language", l);
+}
+
 void Configuration::loadDefaultTheme()
 {
     /* Load Qt Theme */

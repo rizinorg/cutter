@@ -14,6 +14,11 @@
 #include "common/ColorSchemeFileSaver.h"
 #include "widgets/ColorSchemePrefWidget.h"
 
+static const QString translations[] = {
+    "English",
+    "Русский"
+};
+
 AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::AppearanceOptionsWidget)
@@ -23,6 +28,15 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
 
     updateFontFromConfig();
     updateThemeFromConfig();
+
+    for (auto &it : translations) {
+        ui->languageComboBox->addItem(it);
+    }
+    ui->languageComboBox->setCurrentText(Config()->getCurrLanguage());
+    connect(ui->languageComboBox,
+               static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+               this,
+               &AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged);
 
     connect(Config(), &Configuration::fontsUpdated, this, &AppearanceOptionsWidget::updateFontFromConfig);
     connect(ui.get()->colorComboBox, &QComboBox::currentTextChanged, [&](const QString & name) {
@@ -113,4 +127,17 @@ void AppearanceOptionsWidget::on_copyButton_clicked()
 void AppearanceOptionsWidget::on_deleteButton_clicked()
 {
     ColorSchemeFileWorker().deleteScheme(Config()->getCurrentTheme());
+}
+
+void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
+{
+    QString language = ui->languageComboBox->itemText(index);
+    Config()->setLanguage(language);
+
+    QMessageBox mb;
+    mb.setText(tr("Language settings"));
+    mb.setText(tr("Language will be changed after next application start."));
+    mb.setIcon(QMessageBox::Information);
+    mb.setStandardButtons(QMessageBox::Ok);
+    mb.exec();
 }

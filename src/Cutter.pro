@@ -11,6 +11,8 @@ VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PA
 # Required QT version
 lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 
+TRANSLATIONS += translations/cutter_ru.ts
+
 # Icon for OS X
 ICON = img/cutter.icns
 
