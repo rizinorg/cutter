@@ -57,8 +57,11 @@ bool shouldShow(const QString &s)
         { "darkda", darkTheme },
         { "solarized", darkTheme },
         { "onedark", darkTheme },
+        { "consonance", darkTheme },
+        { "ayu", darkTheme },
 
         { "cutter", defaultTheme },
+        { "tango", defaultTheme },
         { "white", defaultTheme },
         { "dark", defaultTheme },
         { "matrix", defaultTheme }
