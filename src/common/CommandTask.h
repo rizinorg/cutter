@@ -2,7 +2,7 @@
 #ifndef COMMANDTASK_H
 #define COMMANDTASK_H
 
-#include "utils/AsyncTask.h"
+#include "common/AsyncTask.h"
 #include "Cutter.h"
 
 class CommandTask : public AsyncTask

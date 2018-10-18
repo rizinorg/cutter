@@ -1,9 +1,9 @@
 #include "HexdumpWidget.h"
 #include "ui_HexdumpWidget.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
-#include "utils/TempConfig.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
+#include "common/TempConfig.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -38,7 +38,24 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     margin = static_cast<int>(ui->hexASCIIText->document()->documentMargin());
     ui->asciiHeaderLabel->setContentsMargins(margin, 0, margin, 0);
 
-    ui->splitter->setCollapsible(0, false); // Only Sidebar should collapse
+    ui->splitter->setChildrenCollapsible(false);
+
+    QToolButton *closeButton = new QToolButton;
+    QIcon closeIcon = qApp->style()->standardIcon(QStyle::SP_DialogCloseButton);
+    closeButton->setIcon(closeIcon);
+    ui->hexSideTab_2->setCornerWidget(closeButton);
+
+    ui->openSideViewB->hide();  // hide button at startup since side view is visible
+
+    connect(closeButton, &QToolButton::clicked, this, [this]{
+       ui->hexSideTab_2->hide();
+       ui->openSideViewB->show();
+    });
+
+    connect(ui->openSideViewB, &QToolButton::clicked, this, [this]{
+        ui->hexSideTab_2->show();
+        ui->openSideViewB->hide();
+    });
 
     setupFonts();
 

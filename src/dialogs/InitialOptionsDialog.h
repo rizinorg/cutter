@@ -8,7 +8,7 @@
 #include <memory>
 #include "Cutter.h"
 #include "AnalTask.h"
-#include "utils/InitialOptions.h"
+#include "common/InitialOptions.h"
 
 namespace Ui {
 class InitialOptionsDialog;

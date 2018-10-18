@@ -5,7 +5,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
-#include "utils/StringsTask.h"
+#include "common/StringsTask.h"
 #include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>

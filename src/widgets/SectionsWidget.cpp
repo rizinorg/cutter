@@ -3,7 +3,7 @@
 #include "SectionsWidget.h"
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
     : QAbstractListModel(parent),

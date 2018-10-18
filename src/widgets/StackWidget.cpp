@@ -1,7 +1,7 @@
 #include "StackWidget.h"
 #include "ui_StackWidget.h"
-#include "utils/JsonModel.h"
-#include "utils/Helpers.h"
+#include "common/JsonModel.h"
+#include "common/Helpers.h"
 #include "dialogs/EditInstructionDialog.h"
 
 #include "MainWindow.h"

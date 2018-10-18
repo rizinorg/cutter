@@ -109,7 +109,7 @@ SOURCES += \
     Main.cpp \
     Cutter.cpp \
     widgets/DisassemblerGraphView.cpp \
-    utils/RichTextPainter.cpp \
+    common/RichTextPainter.cpp \
     dialogs/InitialOptionsDialog.cpp \
     dialogs/AboutDialog.cpp \
     dialogs/CommentsDialog.cpp \
@@ -118,11 +118,11 @@ SOURCES += \
     dialogs/RenameDialog.cpp \
     dialogs/XrefsDialog.cpp \
     MainWindow.cpp \
-    utils/Helpers.cpp \
-    utils/HexAsciiHighlighter.cpp \
-    utils/HexHighlighter.cpp \
-    utils/Highlighter.cpp \
-    utils/MdHighlighter.cpp \
+    common/Helpers.cpp \
+    common/HexAsciiHighlighter.cpp \
+    common/HexHighlighter.cpp \
+    common/Highlighter.cpp \
+    common/MdHighlighter.cpp \
     dialogs/preferences/AsmOptionsWidget.cpp \
     dialogs/NewFileDialog.cpp \
     AnalTask.cpp \
@@ -146,17 +146,17 @@ SOURCES += \
     widgets/DisassemblyWidget.cpp \
     widgets/SidebarWidget.cpp \
     widgets/HexdumpWidget.cpp \
-    utils/Configuration.cpp \
-    utils/Colors.cpp \
+    common/Configuration.cpp \
+    common/Colors.cpp \
     dialogs/SaveProjectDialog.cpp \
-    utils/TempConfig.cpp \
-    utils/SvgIconEngine.cpp \
-    utils/SyntaxHighlighter.cpp \
+    common/TempConfig.cpp \
+    common/SvgIconEngine.cpp \
+    common/SyntaxHighlighter.cpp \
     widgets/PseudocodeWidget.cpp \
     widgets/VisualNavbar.cpp \
     widgets/GraphView.cpp \
     dialogs/preferences/PreferencesDialog.cpp \
-    dialogs/preferences/GeneralOptionsWidget.cpp \
+    dialogs/preferences/AppearanceOptionsWidget.cpp \
     dialogs/preferences/GraphOptionsWidget.cpp \
     dialogs/preferences/PreferenceCategory.cpp \
     widgets/QuickFilterView.cpp \
@@ -167,28 +167,28 @@ SOURCES += \
     widgets/HeadersWidget.cpp \
     widgets/SearchWidget.cpp \
     CutterApplication.cpp \
-    utils/JupyterConnection.cpp \
+    common/JupyterConnection.cpp \
     widgets/JupyterWidget.cpp \
-    utils/PythonAPI.cpp \
-    utils/NestedIPyKernel.cpp \
+    common/PythonAPI.cpp \
+    common/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
     widgets/CutterSeekableWidget.cpp \
     widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
-    utils/JsonTreeItem.cpp \
-    utils/JsonModel.cpp \
+    common/JsonTreeItem.cpp \
+    common/JsonModel.cpp \
     dialogs/VersionInfoDialog.cpp \
     widgets/ZignaturesWidget.cpp \
-    utils/AsyncTask.cpp \
+    common/AsyncTask.cpp \
     dialogs/AsyncTaskDialog.cpp \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
     widgets/BacktraceWidget.cpp \
     dialogs/OpenFileDialog.cpp \
-    utils/CommandTask.cpp \
-    utils/ProgressIndicator.cpp \
-    utils/R2Task.cpp \
+    common/CommandTask.cpp \
+    common/ProgressIndicator.cpp \
+    common/R2Task.cpp \
     widgets/DebugToolbar.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
@@ -199,13 +199,13 @@ SOURCES += \
     dialogs/SetToDataDialog.cpp \
     dialogs/SetFunctionVarTypes.cpp \
     widgets/ColorSchemePrefWidget.cpp \
-    utils/ColorSchemeFileSaver.cpp
+    common/ColorSchemeFileSaver.cpp
 
 HEADERS  += \
     Cutter.h \
     widgets/DisassemblerGraphView.h \
-    utils/RichTextPainter.h \
-    utils/CachedFontMetrics.h \
+    common/RichTextPainter.h \
+    common/CachedFontMetrics.h \
     dialogs/AboutDialog.h \
     dialogs/preferences/AsmOptionsWidget.h \
     dialogs/CommentsDialog.h \
@@ -213,12 +213,12 @@ HEADERS  += \
     dialogs/FlagDialog.h \
     dialogs/RenameDialog.h \
     dialogs/XrefsDialog.h \
-    utils/Helpers.h \
-    utils/HexAsciiHighlighter.h \
-    utils/HexHighlighter.h \
+    common/Helpers.h \
+    common/HexAsciiHighlighter.h \
+    common/HexHighlighter.h \
     MainWindow.h \
-    utils/Highlighter.h \
-    utils/MdHighlighter.h \
+    common/Highlighter.h \
+    common/MdHighlighter.h \
     dialogs/InitialOptionsDialog.h \
     dialogs/NewFileDialog.h \
     AnalTask.h \
@@ -242,17 +242,17 @@ HEADERS  += \
     widgets/DisassemblyWidget.h \
     widgets/SidebarWidget.h \
     widgets/HexdumpWidget.h \
-    utils/Configuration.h \
-    utils/Colors.h \
+    common/Configuration.h \
+    common/Colors.h \
     dialogs/SaveProjectDialog.h \
-    utils/TempConfig.h \
-    utils/SvgIconEngine.h \
-    utils/SyntaxHighlighter.h \
+    common/TempConfig.h \
+    common/SvgIconEngine.h \
+    common/SyntaxHighlighter.h \
     widgets/PseudocodeWidget.h \
     widgets/VisualNavbar.h \
     widgets/GraphView.h \
     dialogs/preferences/PreferencesDialog.h \
-    dialogs/preferences/GeneralOptionsWidget.h \
+    dialogs/preferences/AppearanceOptionsWidget.h \
     dialogs/preferences/PreferenceCategory.h \
     dialogs/preferences/GraphOptionsWidget.h \
     widgets/QuickFilterView.h \
@@ -263,31 +263,31 @@ HEADERS  += \
     widgets/TypesWidget.h \
     widgets/HeadersWidget.h \
     widgets/SearchWidget.h \
-    utils/JupyterConnection.h \
+    common/JupyterConnection.h \
     widgets/JupyterWidget.h \
-    utils/PythonAPI.h \
-    utils/NestedIPyKernel.h \
+    common/PythonAPI.h \
+    common/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
     widgets/CutterTreeWidget.h \
     widgets/CutterSeekableWidget.h \
     widgets/GraphWidget.h \
-    utils/JsonTreeItem.h \
-    utils/JsonModel.h \
+    common/JsonTreeItem.h \
+    common/JsonModel.h \
     dialogs/VersionInfoDialog.h \
     widgets/ZignaturesWidget.h \
-    utils/AsyncTask.h \
+    common/AsyncTask.h \
     dialogs/AsyncTaskDialog.h \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
     widgets/BacktraceWidget.h \
     dialogs/OpenFileDialog.h \
-    utils/StringsTask.h \
-    utils/FunctionsTask.h \
-    utils/CommandTask.h \
-    utils/ProgressIndicator.h \
+    common/StringsTask.h \
+    common/FunctionsTask.h \
+    common/CommandTask.h \
+    common/ProgressIndicator.h \
     plugins/CutterPlugin.h \
-    utils/R2Task.h \
+    common/R2Task.h \
     widgets/DebugToolbar.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
@@ -296,9 +296,9 @@ HEADERS  += \
     dialogs/AttachProcDialog.h \
     widgets/RegisterRefsWidget.h \
     dialogs/SetToDataDialog.h \
-    utils/InitialOptions.h \
+    common/InitialOptions.h \
     dialogs/SetFunctionVarTypes.h \
-    utils/ColorSchemeFileSaver.h \
+    common/ColorSchemeFileSaver.h \
     widgets/ColorSchemePrefWidget.h 
 
 FORMS    += \
@@ -329,7 +329,7 @@ FORMS    += \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
-    dialogs/preferences/GeneralOptionsWidget.ui \
+    dialogs/preferences/AppearanceOptionsWidget.ui \
     dialogs/preferences/GraphOptionsWidget.ui \
     widgets/QuickFilterView.ui \
     widgets/PseudocodeWidget.ui \

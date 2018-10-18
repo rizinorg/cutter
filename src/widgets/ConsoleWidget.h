@@ -4,7 +4,7 @@
 #include <memory>
 #include "MainWindow.h"
 #include "CutterDockWidget.h"
-#include "utils/CommandTask.h"
+#include "common/CommandTask.h"
 
 namespace Ui {
 class ConsoleWidget;

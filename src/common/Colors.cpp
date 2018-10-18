@@ -1,5 +1,5 @@
 #include "Colors.h"
-#include "utils/Configuration.h"
+#include "common/Configuration.h"
 
 Colors::Colors()
 {

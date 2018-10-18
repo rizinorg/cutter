@@ -1,7 +1,7 @@
 #include "HeadersWidget.h"
 #include "ui_HeadersWidget.h"
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 HeadersModel::HeadersModel(QList<HeaderDescription> *headers, QObject *parent)
     : QAbstractListModel(parent),

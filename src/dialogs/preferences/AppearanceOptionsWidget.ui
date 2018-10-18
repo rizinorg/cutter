@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GeneralOptionsWidget</class>
- <widget class="QWidget" name="GeneralOptionsWidget">
+ <class>AppearanceOptionsWidget</class>
+ <widget class="QWidget" name="AppearanceOptionsWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>General</string>
+   <string>Appearance</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="sizeConstraint">

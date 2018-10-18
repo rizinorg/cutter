@@ -5,18 +5,18 @@
 
 #include <QComboBox>
 #include "PreferencesDialog.h"
-#include "GeneralOptionsWidget.h"
-#include "ui_GeneralOptionsWidget.h"
+#include "AppearanceOptionsWidget.h"
+#include "ui_AppearanceOptionsWidget.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
 
-#include "utils/ColorSchemeFileSaver.h"
+#include "common/ColorSchemeFileSaver.h"
 #include "widgets/ColorSchemePrefWidget.h"
 
-GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
+AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),
-      ui(new Ui::GeneralOptionsWidget)
+      ui(new Ui::AppearanceOptionsWidget)
 {
     Q_UNUSED(dialog);
     ui->setupUi(this);
@@ -24,7 +24,7 @@ GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog *dialog, QWidget *p
     updateFontFromConfig();
     updateThemeFromConfig();
 
-    connect(Config(), &Configuration::fontsUpdated, this, &GeneralOptionsWidget::updateFontFromConfig);
+    connect(Config(), &Configuration::fontsUpdated, this, &AppearanceOptionsWidget::updateFontFromConfig);
     connect(ui.get()->colorComboBox, &QComboBox::currentTextChanged, [&](const QString & name) {
         static_cast<ColorSchemePrefWidget *>(ui.get()->colorSchemePrefWidget)->setNewScheme(name);
     });
@@ -32,15 +32,15 @@ GeneralOptionsWidget::GeneralOptionsWidget(PreferencesDialog *dialog, QWidget *p
     (ui.get()->colorSchemePrefWidget)->setNewScheme(Config()->getCurrentTheme());
 }
 
-GeneralOptionsWidget::~GeneralOptionsWidget() {}
+AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
 
-void GeneralOptionsWidget::updateFontFromConfig()
+void AppearanceOptionsWidget::updateFontFromConfig()
 {
     QFont currentFont = Config()->getFont();
     ui->fontSelectionLabel->setText(currentFont.toString());
 }
 
-void GeneralOptionsWidget::updateThemeFromConfig()
+void AppearanceOptionsWidget::updateThemeFromConfig()
 {
     // Disconnect currentIndexChanged because clearing the comboxBox and refiling it causes its index to change.
     disconnect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this,
@@ -68,7 +68,7 @@ void GeneralOptionsWidget::updateThemeFromConfig()
             SLOT(on_colorComboBox_currentIndexChanged(int)));
 }
 
-void GeneralOptionsWidget::on_fontSelectionButton_clicked()
+void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
 {
     QFont currentFont = Config()->getFont();
     bool ok;
@@ -79,20 +79,20 @@ void GeneralOptionsWidget::on_fontSelectionButton_clicked()
     }
 }
 
-void GeneralOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
+void AppearanceOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
     //disconnect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
     Config()->setTheme(index);
     //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
 }
 
-void GeneralOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
+void AppearanceOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
 {
     QString theme = ui->colorComboBox->itemText(index);
     Config()->setColorTheme(theme);
 }
 
-void GeneralOptionsWidget::on_copyButton_clicked()
+void AppearanceOptionsWidget::on_copyButton_clicked()
 {
     QString newSchemeName;
     do {
@@ -110,7 +110,7 @@ void GeneralOptionsWidget::on_copyButton_clicked()
     ui.get()->colorComboBox->setCurrentIndex(ui.get()->colorComboBox->findText(newSchemeName));
 }
 
-void GeneralOptionsWidget::on_deleteButton_clicked()
+void AppearanceOptionsWidget::on_deleteButton_clicked()
 {
     ColorSchemeFileWorker().deleteScheme(Config()->getCurrentTheme());
 }

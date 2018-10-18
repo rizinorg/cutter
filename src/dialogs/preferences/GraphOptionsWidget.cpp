@@ -6,8 +6,8 @@
 
 #include "PreferencesDialog.h"
 
-#include "utils/Helpers.h"
-#include "utils/Configuration.h"
+#include "common/Helpers.h"
+#include "common/Configuration.h"
 
 GraphOptionsWidget::GraphOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
     : QDialog(parent),

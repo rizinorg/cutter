@@ -1,7 +1,7 @@
 /* x64dbg RichTextPainter */
 #include "RichTextPainter.h"
 #include "CachedFontMetrics.h"
-#include "utils/Configuration.h"
+#include "common/Configuration.h"
 #include <QPainter>
 #include <QTextBlock>
 #include <QTextFragment>

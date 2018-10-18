@@ -2,7 +2,7 @@
 #define COLORS_H
 
 #include "Cutter.h"
-#include "utils/RichTextPainter.h"
+#include "common/RichTextPainter.h"
 #include <r_anal.h>
 
 class Colors

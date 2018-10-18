@@ -6,7 +6,7 @@
 #include "ui_FlagsWidget.h"
 #include "MainWindow.h"
 #include "dialogs/RenameDialog.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
     : QAbstractListModel(parent),

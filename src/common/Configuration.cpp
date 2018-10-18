@@ -5,7 +5,7 @@
 #include <QFile>
 #include <QApplication>
 
-#include "utils/ColorSchemeFileSaver.h"
+#include "common/ColorSchemeFileSaver.h"
 
 Configuration *Configuration::mPtr = nullptr;
 

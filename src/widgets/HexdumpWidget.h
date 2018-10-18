@@ -11,10 +11,10 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 #include "CutterSeekableWidget.h"
-#include "utils/Highlighter.h"
-#include "utils/HexAsciiHighlighter.h"
-#include "utils/HexHighlighter.h"
-#include "utils/SvgIconEngine.h"
+#include "common/Highlighter.h"
+#include "common/HexAsciiHighlighter.h"
+#include "common/HexHighlighter.h"
+#include "common/SvgIconEngine.h"
 
 #include "Dashboard.h"
 

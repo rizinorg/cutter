@@ -1,7 +1,7 @@
 #include "VersionInfoDialog.h"
 #include "ui_VersionInfoDialog.h"
 
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 #include <QJsonArray>
 #include <QStringList>

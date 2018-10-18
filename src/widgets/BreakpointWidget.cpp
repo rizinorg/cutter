@@ -2,7 +2,7 @@
 #include "ui_BreakpointWidget.h"
 #include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 #include <QMenu>
 
 BreakpointModel::BreakpointModel(QList<BreakpointDescription> *breakpoints, QObject *parent)

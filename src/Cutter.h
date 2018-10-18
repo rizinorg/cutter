@@ -17,13 +17,8 @@
 #include <QJsonDocument>
 #include <QErrorMessage>
 
-#define HAVE_LATEST_LIBR2 false
-
 #define CutterRListForeach(list, it, type, x) \
     if (list) for (it = list->head; it && ((x=(type*)it->data)); it = it->n)
-
-#define __alert(x) QMessageBox::question (this, "Alert", QString(x), QMessageBox::Ok)
-#define __question(x) (QMessageBox::Yes==QMessageBox::question (this, "Alert", QString(x), QMessageBox::Yes| QMessageBox::No))
 
 #define APPNAME "Cutter"
 
@@ -60,8 +55,6 @@ public:
     ~RCoreLocked();
     operator RCore *() const;
     RCore *operator->() const;
-    RVA seek(RVA offset);
-    RVA getSeek();
 };
 
 inline QString RAddressString(RVA addr)
@@ -412,7 +405,6 @@ public:
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
     QString createFunctionAt(RVA addr, QString name);
-    void markString(RVA addr);
 
     /* Flags */
     void delFlag(RVA addr);
@@ -448,9 +440,6 @@ public:
     void loadScript(const QString &scriptname);
     QJsonArray getOpenedFiles();
 
-    /* Analysis functions */
-    void analyze(int level, QList<QString> advanced);
-
     /* Seek functions */
     void seek(QString thing);
     void seek(ut64 offset);
@@ -478,7 +467,6 @@ public:
 
     /* Math functions */
     ut64 math(const QString &expr);
-    QString itoa(ut64 num, int rdx = 16);
 
     /* Config functions */
     void setConfig(const QString &k, const QString &v);
@@ -505,12 +493,8 @@ public:
     QList<QString> sdbListKeys(QString path);
     QString sdbGet(QString path, QString key);
     bool sdbSet(QString path, QString key, QString val);
-    int get_size();
-    ulong get_baddr();
-    QList<QList<QString>> get_exec_sections();
-    QString getOffsetInfo(QString addr);
 
-    // Debug
+    /* Debug */
     QJsonDocument getRegistersInfo();
     QJsonDocument getRegisterValues();
     QString getRegisterName(QString registerRole);
@@ -545,6 +529,7 @@ public:
     int currentlyAttachedToPID = -1;
     QString currentlyOpenFile;
 
+    /* Pseudocode */
     QString getDecompiledCodePDC(RVA addr);
     bool getR2DecAvailable();
     QString getDecompiledCodeR2Dec(RVA addr);
@@ -554,7 +539,6 @@ public:
     QJsonDocument getSignatureInfo();
     QJsonDocument getFileVersionInfo();
     QStringList getStats();
-    QString getSimpleGraph(QString function);
     void setGraphEmpty(bool empty);
     bool isGraphEmpty();
 
@@ -644,7 +628,6 @@ signals:
     void refreshCodeViews();
     void stackChanged();
 
-    void notesChanged(const QString &notes);
     void projectSaved(const QString &name);
 
     /*!
@@ -669,8 +652,6 @@ signals:
 
     void newMessage(const QString &msg);
     void newDebugMessage(const QString &msg);
-
-public slots:
 
 private:
     MemoryWidgetType memoryWidgetPriority;
