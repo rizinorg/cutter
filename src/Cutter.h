@@ -196,6 +196,15 @@ struct SectionDescription {
     QString entropy;
 };
 
+struct SegmentDescription {
+    RVA vaddr;
+    RVA paddr;
+    RVA size;
+    RVA vsize;
+    QString name;
+    QString perm;
+};
+
 struct EntrypointDescription {
     RVA vaddr;
     RVA paddr;
@@ -357,6 +366,7 @@ Q_DECLARE_METATYPE(HeaderDescription)
 Q_DECLARE_METATYPE(ZignatureDescription)
 Q_DECLARE_METATYPE(SearchDescription)
 Q_DECLARE_METATYPE(SectionDescription)
+Q_DECLARE_METATYPE(SegmentDescription)
 Q_DECLARE_METATYPE(MemoryMapDescription)
 Q_DECLARE_METATYPE(BreakpointDescription)
 Q_DECLARE_METATYPE(ProcessDescription)
@@ -585,6 +595,7 @@ public:
     QList<FlagspaceDescription> getAllFlagspaces();
     QList<FlagDescription> getAllFlags(QString flagspace = NULL);
     QList<SectionDescription> getAllSections();
+    QList<SegmentDescription> getAllSegments();
     QList<EntrypointDescription> getAllEntrypoint();
     QList<ClassDescription> getAllClassesFromBin();
     QList<ClassDescription> getAllClassesFromFlags();

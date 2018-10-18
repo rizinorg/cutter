@@ -1745,6 +1745,33 @@ QList<SectionDescription> CutterCore::getAllSections()
     return ret;
 }
 
+QList<SegmentDescription> CutterCore::getAllSegments()
+{
+    CORE_LOCK();
+    QList<SegmentDescription> ret;
+
+    QJsonArray segments = cmdj("iSSj").array();
+
+    for (QJsonValue value : segments) {
+        QJsonObject segmentObject = value.toObject();
+
+        QString name = segmentObject["name"].toString();
+        if (name.isEmpty())
+            continue;
+
+        SegmentDescription segment;
+        segment.name = name;
+        segment.vaddr = segmentObject["vaddr"].toVariant().toULongLong();
+        segment.paddr = segmentObject["paddr"].toVariant().toULongLong();
+        segment.size = segmentObject["size"].toVariant().toULongLong();
+        segment.vsize = segmentObject["vsize"].toVariant().toULongLong();
+        segment.perm =  segmentObject["perm"].toString();
+
+        ret << segment;
+    }
+    return ret;
+}
+
 QList<EntrypointDescription> CutterCore::getAllEntrypoint()
 {
     CORE_LOCK();

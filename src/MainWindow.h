@@ -38,6 +38,7 @@ class QLineEdit;
 class SdbDock;
 class QAction;
 class SectionsWidget;
+class SegmentsWidget;
 class ConsoleWidget;
 class EntrypointWidget;
 class DisassemblerGraphView;
@@ -215,6 +216,7 @@ private:
     QLineEdit          *gotoEntry = nullptr;
     SdbDock            *sdbDock = nullptr;
     SectionsWidget     *sectionsDock = nullptr;
+    SegmentsWidget     *segmentsDock = nullptr;
     ZignaturesWidget   *zignaturesDock = nullptr;
     ConsoleWidget      *consoleDock = nullptr;
     ClassesWidget      *classesDock = nullptr;

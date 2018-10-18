@@ -52,6 +52,7 @@
 #include "widgets/GraphWidget.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
+#include "widgets/SegmentsWidget.h"
 #include "widgets/CommentsWidget.h"
 #include "widgets/ImportsWidget.h"
 #include "widgets/ExportsWidget.h"
@@ -201,6 +202,7 @@ void MainWindow::initUI()
     graphDock = new GraphWidget(this, ui->actionGraph);
 
     sectionsDock = new SectionsWidget(this, ui->actionSections);
+    segmentsDock = new SegmentsWidget(this, ui->actionSegments);
     entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
     functionsDock = new FunctionsWidget(this, ui->actionFunctions);
     importsDock = new ImportsWidget(this, ui->actionImports);
@@ -573,9 +575,11 @@ void MainWindow::restoreDocks()
 
     // Console | Sections
     splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
+    splitDockWidget(consoleDock, segmentsDock, Qt::Horizontal);
 
     // Tabs for center (must be applied after splitDockWidget())
     tabifyDockWidget(sectionsDock, commentsDock);
+    tabifyDockWidget(segmentsDock, commentsDock);
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
