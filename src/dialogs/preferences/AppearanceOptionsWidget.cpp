@@ -43,6 +43,39 @@ QStringList findLanguages()
     return languages << "English";
 }
 
+
+//static constexpr int lightTheme = 4; // If we finally add light theme
+static constexpr int defaultTheme = 1;
+static constexpr int darkTheme = 2;
+
+
+bool shouldShow(const QString &s)
+{
+    static const QMap<QString, int> relevantSchemes = {
+        //       { "default", darkTheme },
+        { "zenburn", darkTheme },
+        { "darkda", darkTheme },
+        { "solarized", darkTheme },
+        { "onedark", darkTheme },
+
+        { "cutter", defaultTheme },
+        { "white", defaultTheme },
+        { "dark", defaultTheme },
+        { "matrix", defaultTheme }
+    };
+
+    int res = relevantSchemes[s];
+    if ((Config()->getTheme() == CONFIG_DARK_THEME &&
+            res & darkTheme) ||
+            (Config()->getTheme() == CONFIG_DEFAULT_THEME &&
+             res & defaultTheme)) {
+        return true;
+    }
+
+    return false;
+}
+
+
 AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::AppearanceOptionsWidget)
@@ -71,9 +104,15 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
             &AppearanceOptionsWidget::updateFontFromConfig);
     connect(ui.get()->colorComboBox, &QComboBox::currentTextChanged, [&](const QString & name) {
         static_cast<ColorSchemePrefWidget *>(ui.get()->colorSchemePrefWidget)->setNewScheme(name);
+    connect(Config(), &Configuration::fontsUpdated, this,
+            &AppearanceOptionsWidget::updateFontFromConfig);
+    connect(ui->colorComboBox,
+            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+    [&](const QString & name) {
+        static_cast<ColorSchemePrefWidget *>(ui->colorSchemePrefWidget)->setNewScheme(name);
     });
     static_cast<ColorSchemePrefWidget *>
-    (ui.get()->colorSchemePrefWidget)->setNewScheme(Config()->getCurrentTheme());
+    (ui->colorSchemePrefWidget)->setNewScheme(Config()->getCurrentTheme());
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
@@ -93,11 +132,16 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
 
     QList<QString> themes = Core()->getColorThemes();
     ui->colorComboBox->clear();
-    ui->colorComboBox->addItem("default");
+    //    ui->colorComboBox->addItem("default");
     for (QString str : themes)
-        ui->colorComboBox->addItem(str);
+        if (ColorSchemeFileWorker().isCustomScheme(str) || shouldShow(str))
+            ui->colorComboBox->addItem(str);
     QString curTheme = Config()->getCurrentTheme();
-    int index = themes.indexOf(curTheme) + 1;
+    int index = ui->colorComboBox->findText(curTheme);
+    if (index == -1) {
+        index = 0;
+        Config()->setColorTheme(ui->colorComboBox->itemText(0));
+    }
     ui->colorComboBox->setCurrentIndex(index);
     int maxThemeLen = 0;
     for (QString str : themes) {
@@ -106,6 +150,8 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
             maxThemeLen = strLen;
         }
     }
+    static_cast<ColorSchemePrefWidget *>(ui->colorSchemePrefWidget)->setNewScheme(
+        Config()->getCurrentTheme());
     ui->colorComboBox->setMinimumContentsLength(maxThemeLen);
     ui->colorComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     connect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this,
@@ -127,6 +173,7 @@ void AppearanceOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
     //disconnect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
     Config()->setTheme(index);
+    updateThemeFromConfig();
     //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
 }
 
@@ -149,14 +196,23 @@ void AppearanceOptionsWidget::on_copyButton_clicked()
         return;
     ColorSchemeFileWorker().copy(Config()->getCurrentTheme(), newSchemeName);
     Config()->setColorTheme(newSchemeName);
-    ui.get()->colorSchemePrefWidget->setNewScheme(newSchemeName);
+    ui->colorSchemePrefWidget->setNewScheme(newSchemeName);
     updateThemeFromConfig();
-    ui.get()->colorComboBox->setCurrentIndex(ui.get()->colorComboBox->findText(newSchemeName));
 }
 
 void AppearanceOptionsWidget::on_deleteButton_clicked()
 {
-    ColorSchemeFileWorker().deleteScheme(Config()->getCurrentTheme());
+    if (ColorSchemeFileWorker().isCustomScheme(Config()->getCurrentTheme())) {
+        QMessageBox mb;
+        mb.setWindowTitle(tr("Delete"));
+        mb.setText(tr("Are you sure you want to delete theme ") + Config()->getCurrentTheme());
+        mb.setIcon(QMessageBox::Question);
+        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        if (mb.exec() == QMessageBox::Yes) {
+            ColorSchemeFileWorker().deleteScheme(Config()->getCurrentTheme());
+            updateThemeFromConfig();
+        }
+    }
 }
 
 void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)

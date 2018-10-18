@@ -230,10 +230,10 @@ void Configuration::setTheme(int theme)
 {
     s.setValue("ColorPalette", theme);
     switch (theme) {
-    case 0:
+    case CONFIG_DEFAULT_THEME:
         loadDefaultTheme();
         break;
-    case 1:
+    case CONFIG_DARK_THEME:
         loadDarkTheme();
         break;
     default:

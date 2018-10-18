@@ -8,6 +8,10 @@
 #define Config() (Configuration::instance())
 #define ConfigColor(x) Config()->getColor(x)
 
+constexpr int CONFIG_DEFAULT_THEME = 0;
+constexpr int CONFIG_DARK_THEME = 1;
+//constexpr int CONFIG_LIGHT_THEME = 2;
+
 class Configuration : public QObject
 {
     Q_OBJECT
