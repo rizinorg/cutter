@@ -3,7 +3,7 @@
 #include "SegmentsWidget.h"
 
 #include "MainWindow.h"
-#include "utils/Helpers.h"
+#include "common/Helpers.h"
 
 SegmentsModel::SegmentsModel(QList<SegmentDescription> *segments, QObject *parent)
     : QAbstractListModel(parent),
