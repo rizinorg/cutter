@@ -102,17 +102,13 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
 
     connect(Config(), &Configuration::fontsUpdated, this,
             &AppearanceOptionsWidget::updateFontFromConfig);
-    connect(ui.get()->colorComboBox, &QComboBox::currentTextChanged, [&](const QString & name) {
-        static_cast<ColorSchemePrefWidget *>(ui.get()->colorSchemePrefWidget)->setNewScheme(name);
-    connect(Config(), &Configuration::fontsUpdated, this,
-            &AppearanceOptionsWidget::updateFontFromConfig);
-    connect(ui->colorComboBox,
-            static_cast<void (QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged),
+
+    connect(ui->colorComboBox, &QComboBox::currentTextChanged,
     [&](const QString & name) {
-        static_cast<ColorSchemePrefWidget *>(ui->colorSchemePrefWidget)->setNewScheme(name);
+        ui->colorSchemePrefWidget->setNewScheme(name);
     });
-    static_cast<ColorSchemePrefWidget *>
-    (ui->colorSchemePrefWidget)->setNewScheme(Config()->getCurrentTheme());
+
+    ui->colorSchemePrefWidget->setNewScheme(Config()->getCurrentTheme());
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
@@ -150,8 +146,7 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
             maxThemeLen = strLen;
         }
     }
-    static_cast<ColorSchemePrefWidget *>(ui->colorSchemePrefWidget)->setNewScheme(
-        Config()->getCurrentTheme());
+    ui->colorSchemePrefWidget->setNewScheme(Config()->getCurrentTheme());
     ui->colorComboBox->setMinimumContentsLength(maxThemeLen);
     ui->colorComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
     connect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this,
@@ -171,10 +166,16 @@ void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
 
 void AppearanceOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
-    //disconnect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
-    Config()->setTheme(index);
-    updateThemeFromConfig();
-    //connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(updateThemeFromConfig()));
+    QString theme = ui->themeComboBox->itemText(index);
+    int th = defaultTheme;
+
+    if (theme == "Dark") {
+        th = darkTheme;
+    } else if (theme == "Light") {
+        th = lightTheme;
+    }
+
+    Config()->setTheme(th);
 }
 
 void AppearanceOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
