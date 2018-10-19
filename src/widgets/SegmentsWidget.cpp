@@ -3,6 +3,7 @@
 #include "SegmentsWidget.h"
 
 #include "MainWindow.h"
+#include "QuickFilterView.h"
 #include "common/Helpers.h"
 
 SegmentsModel::SegmentsModel(QList<SegmentDescription> *segments, QObject *parent)
@@ -122,6 +123,7 @@ SegmentsWidget::SegmentsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     main(main)
 {
+
     setObjectName("SegmentsWidget");
     setWindowTitle(QStringLiteral("Segments"));
 
@@ -130,19 +132,42 @@ SegmentsWidget::SegmentsWidget(MainWindow *main, QAction *action) :
     auto proxyModel = new SegmentsProxyModel(segmentsModel, this);
 
     segmentsTable->setModel(proxyModel);
-
     segmentsTable->setIndentation(10);
     segmentsTable->setSortingEnabled(true);
     segmentsTable->sortByColumn(SegmentsModel::NameColumn, Qt::AscendingOrder);
 
     connect(segmentsTable, SIGNAL(doubleClicked(const QModelIndex &)),
             this, SLOT(onSegmentsDoubleClicked(const QModelIndex &)));
-
-    setWidget(segmentsTable);
-
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSegments()));
+
+    quickFilterView = new QuickFilterView(this);
+    quickFilterView->setObjectName(QStringLiteral("quickFilterView"));
+    QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    sizePolicy1.setHorizontalStretch(0);
+    sizePolicy1.setVerticalStretch(0);
+    sizePolicy1.setHeightForWidth(quickFilterView->sizePolicy().hasHeightForWidth());
+    quickFilterView->setSizePolicy(sizePolicy1);
+
+    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
+    connect(search_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::showFilter);
+    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clear_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::clearFilter);
+    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    connect(quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
+            SLOT(setFilterWildcard(const QString &)));
+    connect(quickFilterView, SIGNAL(filterClosed()), segmentsTable, SLOT(setFocus()));
+
+    dockWidgetContents = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(segmentsTable);
+    layout->addWidget(quickFilterView);
+    layout->setMargin(0);
+    dockWidgetContents->setLayout(layout);
+    setWidget(dockWidgetContents);
 }
 
 SegmentsWidget::~SegmentsWidget() {}
