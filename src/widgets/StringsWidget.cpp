@@ -146,7 +146,7 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
 
     // Shift-F12 to toggle strings window
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
+    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){
             toggleDockWidget(true);
             main->updateDockActionChecked(action);
             } );
@@ -166,13 +166,18 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     ui->stringsTreeView->setModel(proxyModel);
     ui->stringsTreeView->sortByColumn(StringsModel::OffsetColumn, Qt::AscendingOrder);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
+    auto xRefShortcut = new QShortcut(QKeySequence{Qt::Key_X}, this);
+    xRefShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    ui->actionX_refs->setShortcut(Qt::Key_X);
+    connect(xRefShortcut, SIGNAL(activated()), this, SLOT(on_actionX_refs_triggered()));
+
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxy_model,
             SLOT(setFilterWildcard(const QString &)));
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, [this] {
         tree->showItemsNumber(proxyModel->rowCount());
     });
-    
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
 
     connect(
