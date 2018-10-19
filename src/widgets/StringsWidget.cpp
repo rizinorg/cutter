@@ -264,7 +264,7 @@ void StringsWidget::showStringsContextMenu(const QPoint &pt)
 void StringsWidget::on_actionX_refs_triggered()
 {
     StringDescription str = ui->stringsTreeView->selectionModel()->currentIndex().data(
-                StringsModel::StringDescriptionRole).value<StringDescription>();
+                                StringsModel::StringDescriptionRole).value<StringDescription>();
 
     XrefsDialog *x = new XrefsDialog(this);
     x->fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
