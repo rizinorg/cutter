@@ -81,9 +81,9 @@ QVariant SegmentsModel::headerData(int segment, Qt::Orientation, int role) const
         case SegmentsModel::AddressColumn:
             return tr("Address");
         case SegmentsModel::EndAddressColumn:
-            return tr("EndAddress");
+            return tr("End Address");
         case SegmentsModel::PermColumn:
-            return tr("Perms");
+            return tr("Permissions");
         default:
             return QVariant();
         }

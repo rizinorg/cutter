@@ -81,7 +81,7 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
         case SectionsModel::AddressColumn:
             return tr("Address");
         case SectionsModel::EndAddressColumn:
-            return tr("EndAddress");
+            return tr("End Address");
         case SectionsModel::EntropyColumn:
             return tr("Entropy");
         default:
