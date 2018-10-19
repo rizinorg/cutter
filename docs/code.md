@@ -2,7 +2,7 @@
 
 This page shows some hints about the coding conventions.
 
-*Disclaimer: It is a work and progress and we will provide soon a fully documented API.*
+*Disclaimer: It is a work in progress and we will provide soon a fully documented API.*
 
 ## Coding advices
 
@@ -33,7 +33,7 @@ Never ever call `cmd("s offset")`;
 
 Example:
 ```c++
-Core()->seek(0xdeadbeef);
+Core()->seek(0x00C0FFEE);
 ```
 
 ### Creating a widget
