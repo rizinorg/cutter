@@ -374,20 +374,25 @@ unix {
     share_pixmaps.files = $$icon_file
 
 
-    desktop_file = Cutter.desktop
+    desktop_file = org.radare.Cutter.desktop
 
     share_applications.path = $$PREFIX/share/applications
     share_applications.files = $$desktop_file
 
-    appstream_file = Cutter.appdata.xml
+    appstream_file = org.radare.Cutter.appdata.xml
 
+    # Used by ???
     share_appdata.path = $$PREFIX/share/appdata
+    share_appdata.files = $$appstream_file
+
+    # Used by AppImageHub (See https://www.freedesktop.org/software/appstream)
+    share_appdata.path = $$PREFIX/share/metainfo
     share_appdata.files = $$appstream_file
 
     # built-in no need for files atm
     target.path = $$PREFIX/bin
 
-    INSTALLS += target share_appdata share_applications share_pixmaps
+    INSTALLS += target share_appdata share_metadata share_applications share_pixmaps
 
     # Triggered for example by 'qmake APPIMAGE=1'
     !isEmpty(APPIMAGE){
