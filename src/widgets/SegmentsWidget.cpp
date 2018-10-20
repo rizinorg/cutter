@@ -141,7 +141,7 @@ SegmentsWidget::SegmentsWidget(MainWindow *main, QAction *action) :
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSegments()));
 
-    quickFilterView = new QuickFilterView(this);
+    quickFilterView = new QuickFilterView(this, false);
     quickFilterView->setObjectName(QStringLiteral("quickFilterView"));
     QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Maximum);
     sizePolicy1.setHorizontalStretch(0);
