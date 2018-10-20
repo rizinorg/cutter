@@ -13,6 +13,7 @@ class QTreeView;
 class QAbstractItemView;
 class MainWindow;
 class SectionsWidget;
+class QuickFilterView;
 
 class SectionsModel : public QAbstractListModel
 {
@@ -64,6 +65,8 @@ private:
     SectionsModel *sectionsModel;
     QTreeView *sectionsTable;
     MainWindow *main;
+    QWidget *dockWidgetContents;
+    QuickFilterView *quickFilterView;
 };
 
 #endif // SECTIONSWIDGET_H

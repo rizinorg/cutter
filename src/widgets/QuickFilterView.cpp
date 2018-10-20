@@ -2,7 +2,7 @@
 #include "QuickFilterView.h"
 #include "ui_QuickFilterView.h"
 
-QuickFilterView::QuickFilterView(QWidget *parent) :
+QuickFilterView::QuickFilterView(QWidget *parent, bool defaultOn) :
     QWidget(parent),
     ui(new Ui::QuickFilterView())
 {
@@ -13,6 +13,10 @@ QuickFilterView::QuickFilterView(QWidget *parent) :
     connect(ui->filterLineEdit, &QLineEdit::textChanged, this, [this](const QString & text) {
         emit filterTextChanged(text);
     });
+
+    if (!defaultOn) {
+        closeFilter();
+    }
 }
 
 QuickFilterView::~QuickFilterView() {}

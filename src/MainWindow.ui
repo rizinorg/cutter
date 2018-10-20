@@ -173,6 +173,7 @@ QToolTip {
      <addaction name="actionTypes"/>
      <addaction name="actionFlags"/>
      <addaction name="actionSections"/>
+     <addaction name="actionSegments"/>
      <addaction name="actionHeaders"/>
      <addaction name="actionZignatures"/>
      <addaction name="actionRelocs"/>
@@ -450,6 +451,17 @@ QToolTip {
    </property>
    <property name="toolTip">
     <string>Show/Hide Sections panel</string>
+   </property>
+  </action>
+  <action name="actionSegments">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Segments</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/Hide Segments panel</string>
    </property>
   </action>
   <action name="actionFunctions">

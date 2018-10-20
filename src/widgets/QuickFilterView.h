@@ -15,7 +15,7 @@ class QuickFilterView : public QWidget
     Q_OBJECT
 
 public:
-    explicit QuickFilterView(QWidget *parent = nullptr);
+    explicit QuickFilterView(QWidget *parent = nullptr, bool defaultOn = true);
     ~QuickFilterView();
 
 public slots:

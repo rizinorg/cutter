@@ -138,6 +138,7 @@ SOURCES += \
     widgets/RelocsWidget.cpp \
     widgets/SdbDock.cpp \
     widgets/SectionsWidget.cpp \
+    widgets/SegmentsWidget.cpp \
     widgets/Sidebar.cpp \
     widgets/StringsWidget.cpp \
     widgets/SymbolsWidget.cpp \
@@ -233,6 +234,7 @@ HEADERS  += \
     widgets/RelocsWidget.h \
     widgets/SdbDock.h \
     widgets/SectionsWidget.h \
+    widgets/SegmentsWidget.h \
     widgets/Sidebar.h \
     widgets/StringsWidget.h \
     widgets/SymbolsWidget.h \

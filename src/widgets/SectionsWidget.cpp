@@ -3,6 +3,7 @@
 #include "SectionsWidget.h"
 
 #include "MainWindow.h"
+#include "QuickFilterView.h"
 #include "common/Helpers.h"
 
 SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
@@ -81,7 +82,7 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
         case SectionsModel::AddressColumn:
             return tr("Address");
         case SectionsModel::EndAddressColumn:
-            return tr("EndAddress");
+            return tr("End Address");
         case SectionsModel::EntropyColumn:
             return tr("Entropy");
         default:
@@ -135,19 +136,41 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     auto proxyModel = new SectionsProxyModel(sectionsModel, this);
 
     sectionsTable->setModel(proxyModel);
-
     sectionsTable->setIndentation(10);
     sectionsTable->setSortingEnabled(true);
     sectionsTable->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
 
     connect(sectionsTable, SIGNAL(doubleClicked(const QModelIndex &)),
             this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
-
-    setWidget(sectionsTable);
-
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
+    quickFilterView = new QuickFilterView(this, false);
+    quickFilterView->setObjectName(QStringLiteral("quickFilterView"));
+    QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Maximum);
+    sizePolicy1.setHorizontalStretch(0);
+    sizePolicy1.setVerticalStretch(0);
+    sizePolicy1.setHeightForWidth(quickFilterView->sizePolicy().hasHeightForWidth());
+    quickFilterView->setSizePolicy(sizePolicy1);
+
+    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
+    connect(search_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::showFilter);
+    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clear_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::clearFilter);
+    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    connect(quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
+            SLOT(setFilterWildcard(const QString &)));
+    connect(quickFilterView, SIGNAL(filterClosed()), sectionsTable, SLOT(setFocus()));
+    dockWidgetContents = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(sectionsTable);
+    layout->addWidget(quickFilterView);
+    layout->setMargin(0);
+    dockWidgetContents->setLayout(layout);
+    setWidget(dockWidgetContents);
 }
 
 SectionsWidget::~SectionsWidget() {}
