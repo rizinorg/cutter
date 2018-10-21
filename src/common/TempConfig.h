@@ -15,8 +15,6 @@ public:
     TempConfig &set(const QString &key, int value);
     TempConfig &set(const QString &key, bool value);
 
-    int get(const QString &key);
-
 private:
     QMap<QString, QVariant> resetValues;
 };

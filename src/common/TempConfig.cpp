@@ -53,7 +53,3 @@ TempConfig &TempConfig::set(const QString &key, bool value)
     Core()->setConfig(key, value);
     return *this;
 }
-
-int TempConfig::get(const QString &key) {
-    return Core()->getConfigi(key);
-}
