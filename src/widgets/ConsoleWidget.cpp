@@ -182,7 +182,7 @@ void ConsoleWidget::executeCommand(const QString &command)
         if (originalLines < ui->outputTextEdit->blockCount()) {
             removeLastLine();
         }
-        ui->outputTextEdit->document()->setHtml(cmd_line + result);
+        ui->outputTextEdit->appendHtml(cmd_line + result);
         scrollOutputToEnd();
         historyAdd(command);
         commandTask = nullptr;
