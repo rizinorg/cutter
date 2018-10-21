@@ -174,7 +174,7 @@ void ConsoleWidget::executeCommand(const QString &command)
         ui->outputTextEdit->appendPlainText("Executing the command...");
     });
 
-    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command + "<br>";
+    QString cmd_line = "<br>[" + RAddressString(Core()->getOffset()) + "]> " + command + "<br>";
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
           command, originalLines] (const QString & result) {
