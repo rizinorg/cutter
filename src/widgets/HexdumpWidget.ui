@@ -676,18 +676,31 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>25</width>
+        <width>24</width>
         <height>16777215</height>
        </size>
       </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="text">
-       <string/>
+       <string notr="true"/>
+      </property>
+      <property name="icon">
+       <iconset resource="../resources.qrc">
+        <normaloff>:/img/icons/previous.svg</normaloff>:/img/icons/previous.svg</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>12</height>
+       </size>
       </property>
       <property name="autoRaise">
        <bool>true</bool>
       </property>
       <property name="arrowType">
-       <enum>Qt::LeftArrow</enum>
+       <enum>Qt::NoArrow</enum>
       </property>
      </widget>
     </item>
@@ -900,6 +913,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

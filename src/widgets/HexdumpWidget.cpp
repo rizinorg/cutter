@@ -24,10 +24,8 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
     //highlightHexCurrentLine();
 
-    ui->copyMD5->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"),
-                                                 palette().buttonText().color())));
-    ui->copySHA1->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/transfer.svg"),
-                                                  palette().buttonText().color())));
+    ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
+    ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));
 
     int margin = static_cast<int>(ui->hexOffsetText->document()->documentMargin());
     ui->offsetHeaderLabel->setContentsMargins(margin, 0, margin, 0);
@@ -41,8 +39,9 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     ui->splitter->setChildrenCollapsible(false);
 
     QToolButton *closeButton = new QToolButton;
-    QIcon closeIcon = qApp->style()->standardIcon(QStyle::SP_DialogCloseButton);
+    QIcon closeIcon = QIcon(":/img/icons/delete.svg");
     closeButton->setIcon(closeIcon);
+    closeButton->setAutoRaise(true);
     ui->hexSideTab_2->setCornerWidget(closeButton);
 
     ui->openSideViewB->hide();  // hide button at startup since side view is visible
@@ -57,7 +56,24 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
         ui->openSideViewB->hide();
     });
 
+    ui->bytesMD5->setPlaceholderText("Select bytes to display information");
+    ui->bytesEntropy->setPlaceholderText("Select bytes to display information");
+    ui->bytesSHA1->setPlaceholderText("Select bytes to display information");
+    ui->hexDisasTextEdit->setPlaceholderText("Select bytes to display information");
+
     setupFonts();
+
+    ui->openSideViewB->setStyleSheet(""
+                                     "QToolButton {"
+                                     "   border : 0px;"
+                                     "   padding : 0px;"
+                                     "   margin : 0px;"
+                                     "}"
+                                     "QToolButton:hover {"
+                                     "  border : 1px solid;"
+                                     "  border-width : 1px;"
+                                     "  border-color : #3daee9"
+                                     "}");
 
     colorsUpdatedSlot();
     updateHeaders();
