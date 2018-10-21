@@ -63,6 +63,18 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     setupFonts();
 
+    ui->openSideViewB->setStyleSheet(""
+                                     "QToolButton {"
+                                     "   border : 0px;"
+                                     "   padding : 0px;"
+                                     "   margin : 0px;"
+                                     "}"
+                                     "QToolButton:hover {"
+                                     "  border : 1px solid;"
+                                     "  border-width : 1px;"
+                                     "  border-color : #3daee9"
+                                     "}");
+
     colorsUpdatedSlot();
     updateHeaders();
 

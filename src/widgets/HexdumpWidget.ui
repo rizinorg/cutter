@@ -44,7 +44,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>518</width>
+          <width>515</width>
           <height>770</height>
          </rect>
         </property>
@@ -676,15 +676,15 @@
       </property>
       <property name="maximumSize">
        <size>
-        <width>25</width>
+        <width>24</width>
         <height>16777215</height>
        </size>
       </property>
       <property name="styleSheet">
-       <string notr="true">QToolButton{border : 0px; padding : 0px; margin : 0px; }</string>
+       <string notr="true"/>
       </property>
       <property name="text">
-       <string/>
+       <string notr="true"/>
       </property>
       <property name="icon">
        <iconset resource="../resources.qrc">
@@ -693,7 +693,7 @@
       <property name="iconSize">
        <size>
         <width>16</width>
-        <height>16</height>
+        <height>12</height>
        </size>
       </property>
       <property name="autoRaise">
