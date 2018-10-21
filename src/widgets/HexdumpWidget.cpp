@@ -56,10 +56,10 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
         ui->openSideViewB->hide();
     });
 
-    ui->bytesMD5->setPlaceholderText("Select Bytes To Display Information");
-    ui->bytesEntropy->setPlaceholderText("Select Bytes To Display Information");
-    ui->bytesSHA1->setPlaceholderText("Select Bytes To Display Information");
-    ui->hexDisasTextEdit->setPlaceholderText("Select Bytes To Display Information");
+    ui->bytesMD5->setPlaceholderText("Select bytes to display information");
+    ui->bytesEntropy->setPlaceholderText("Select bytes to display information");
+    ui->bytesSHA1->setPlaceholderText("Select bytes to display information");
+    ui->hexDisasTextEdit->setPlaceholderText("Select bytes to display information");
 
     setupFonts();
 
