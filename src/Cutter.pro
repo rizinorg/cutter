@@ -199,7 +199,7 @@ SOURCES += \
     dialogs/SetToDataDialog.cpp \
     dialogs/SetFunctionVarTypes.cpp \
     widgets/ColorSchemePrefWidget.cpp \
-    common/ColorSchemeFileSaver.cpp
+    common/ColorSchemeFileSaver.cpp \
     dialogs/EditFunctionDialog.cpp
 
 HEADERS  += \
@@ -300,7 +300,7 @@ HEADERS  += \
     common/InitialOptions.h \
     dialogs/SetFunctionVarTypes.h \
     common/ColorSchemeFileSaver.h \
-    widgets/ColorSchemePrefWidget.h 
+    widgets/ColorSchemePrefWidget.h \
     dialogs/EditFunctionDialog.h 
 
 FORMS    += \
