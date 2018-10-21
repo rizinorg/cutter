@@ -18,6 +18,8 @@
 
 #include "CutterConfig.h"
 
+#include <cstdlib>
+
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
     setOrganizationName("Cutter");
@@ -70,8 +72,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         msg.setText(QString(
                         QObject::tr("The version used to compile Cutter (%1) does not match the binary version of radare2 (%2). This could result in unexpected behaviour. Are you sure you want to continue?")).arg(
                         localVersion, r2version));
-        if (msg.exec() == QMessageBox::No)
-            exit(1);
+        if (msg.exec() == QMessageBox::No) {
+            std::exit(1);
+        }
     }
 
 #ifdef CUTTER_ENABLE_JUPYTER
@@ -92,7 +95,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         if (!analLevelSpecified || analLevel < 0 || analLevel > 2) {
             printf("%s\n",
                    QObject::tr("Invalid Analysis Level. May be a value between 0 and 2.").toLocal8Bit().constData());
-            exit(1);
+            std::exit(1);
         }
     }
 
@@ -103,7 +106,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         if (analLevelSpecified) {
             printf("%s\n",
                    QObject::tr("Filename must be specified to start analysis automatically.").toLocal8Bit().constData());
-            exit(1);
+            std::exit(1);
         }
 
         mainWindow->displayNewFileDialog();
