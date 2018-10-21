@@ -44,7 +44,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>515</width>
+          <width>518</width>
           <height>770</height>
          </rect>
         </property>
@@ -680,14 +680,27 @@
         <height>16777215</height>
        </size>
       </property>
+      <property name="styleSheet">
+       <string notr="true">QToolButton{border : 0px; padding : 0px; margin : 0px; }</string>
+      </property>
       <property name="text">
        <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../resources.qrc">
+        <normaloff>:/img/icons/previous.svg</normaloff>:/img/icons/previous.svg</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>16</width>
+        <height>16</height>
+       </size>
       </property>
       <property name="autoRaise">
        <bool>true</bool>
       </property>
       <property name="arrowType">
-       <enum>Qt::LeftArrow</enum>
+       <enum>Qt::NoArrow</enum>
       </property>
      </widget>
     </item>
@@ -900,6 +913,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
