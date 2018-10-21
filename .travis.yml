@@ -31,7 +31,8 @@ before_install:
     ; fi
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew bundle --file=scripts/Brewfile       ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew uninstall -f gdal postgis numpy geos libpq postgresql mercurial libspatialite ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew bundle --file=scripts/Brewfile -v    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
