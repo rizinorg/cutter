@@ -237,6 +237,7 @@ void MainWindow::initUI()
 
     // Set up dock widgets default layout
     resetToDefaultLayout();
+    enableDebugWidgetsMenu(false);
 
     // Restore saved settings
     this->readSettings();
@@ -680,6 +681,11 @@ void MainWindow::showDebugDocks()
     updateDockActionsChecked();
 }
 
+void MainWindow::enableDebugWidgetsMenu(bool enable)
+{
+    ui->menuAddDebugWidgets->setEnabled(enable);
+}
+
 void MainWindow::resetToDefaultLayout()
 {
     hideAllDocks();
@@ -960,6 +966,7 @@ void MainWindow::changeDebugView()
 {
     saveSettings();
     resetToDebugLayout();
+    enableDebugWidgetsMenu(true);
 }
 
 void MainWindow::changeDefinedView()
@@ -969,6 +976,7 @@ void MainWindow::changeDefinedView()
     hideAllDocks();
     restoreDocks();
     readSettings();
+    enableDebugWidgetsMenu(false);
     core->raisePrioritizedMemoryWidget(memType);
 }
 
