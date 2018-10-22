@@ -267,8 +267,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionAnalyzeFunction.setVisible(false);
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
-        actionEditFunction.setVisible(true);
-        actionEditFunction.setText(tr("Edit function \"%1\"").arg(fcn->name));
     } else if (f) {
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename flag \"%1\"").arg(f->name));
@@ -280,10 +278,13 @@ void DisassemblyContextMenu::aboutToShowSlot()
     if(in_fcn)
     {
         actionSetFunctionVarTypes.setVisible(true);
+        actionEditFunction.setVisible(true);
+        actionEditFunction.setText(tr("Edit function \"%1\"").arg(in_fcn->name));
     }
     else
     {
         actionSetFunctionVarTypes.setVisible(false);
+        actionEditFunction.setVisible(false);
     }
 
 
@@ -693,38 +694,40 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
     RCore *core = Core()->core();
     EditFunctionDialog *dialog = new EditFunctionDialog(this);
-    RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
+    RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, offset, 0);
 
-    dialog->setWindowTitle(tr("Edit function %1").arg(fcn->name));
-    dialog->setNameText(fcn->name);
+    if (fcn) {
+        dialog->setWindowTitle(tr("Edit function %1").arg(fcn->name));
+        dialog->setNameText(fcn->name);
 
-    QString startAddrText = "0x" + QString::number(fcn->addr, 16);
-    dialog->setStartAddrText(startAddrText);
+        QString startAddrText = "0x" + QString::number(fcn->addr, 16);
+        dialog->setStartAddrText(startAddrText);
 
-    QString endAddrText = "0x" + QString::number(fcn->addr + fcn->_size, 16);
-    dialog->setEndAddrText(endAddrText);
+        QString endAddrText = "0x" + QString::number(fcn->addr + fcn->_size, 16);
+        dialog->setEndAddrText(endAddrText);
 
-    QString stackSizeText;
-    stackSizeText.sprintf("%d", fcn->stack);
-    dialog->setStackSizeText(stackSizeText);
+        QString stackSizeText;
+        stackSizeText.sprintf("%d", fcn->stack);
+        dialog->setStackSizeText(stackSizeText);
 
-    QStringList callConList = Core()->cmd("afcl").split("\n");
-    callConList.removeLast();
-    dialog->setCallConList(callConList);
-    dialog->setCallConSelected(fcn->cc);
+        QStringList callConList = Core()->cmd("afcl").split("\n");
+        callConList.removeLast();
+        dialog->setCallConList(callConList);
+        dialog->setCallConSelected(fcn->cc);
 
 
-    if (dialog->exec()) {
-        QString new_name = dialog->getNameText();
-        Core()->renameFunction(fcn->name, new_name);
-        QString new_start_addr = dialog->getStartAddrText();
-        fcn->addr = Core()->math(new_start_addr);
-        QString new_end_addr = dialog->getEndAddrText();
-        Core()->cmd("afu " + new_end_addr);
-        QString new_stack_size = dialog->getStackSizeText();
-        fcn->stack = int(Core()->math(new_stack_size));
-        Core()->cmd("afc " + dialog->getCallConSelected());
-        emit Core()->functionsChanged();
+        if (dialog->exec()) {
+            QString new_name = dialog->getNameText();
+            Core()->renameFunction(fcn->name, new_name);
+            QString new_start_addr = dialog->getStartAddrText();
+            fcn->addr = Core()->math(new_start_addr);
+            QString new_end_addr = dialog->getEndAddrText();
+            Core()->cmd("afu " + new_end_addr);
+            QString new_stack_size = dialog->getStackSizeText();
+            fcn->stack = int(Core()->math(new_stack_size));
+            Core()->cmd("afc " + dialog->getCallConSelected());
+            emit Core()->functionsChanged();
+        }
     }
 }
 
