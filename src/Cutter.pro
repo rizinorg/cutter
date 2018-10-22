@@ -199,7 +199,8 @@ SOURCES += \
     dialogs/SetToDataDialog.cpp \
     dialogs/SetFunctionVarTypes.cpp \
     widgets/ColorSchemePrefWidget.cpp \
-    common/ColorSchemeFileSaver.cpp
+    common/ColorSchemeFileSaver.cpp \
+    dialogs/EditFunctionDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -299,7 +300,8 @@ HEADERS  += \
     common/InitialOptions.h \
     dialogs/SetFunctionVarTypes.h \
     common/ColorSchemeFileSaver.h \
-    widgets/ColorSchemePrefWidget.h 
+    widgets/ColorSchemePrefWidget.h \
+    dialogs/EditFunctionDialog.h 
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -311,6 +313,7 @@ FORMS    += \
     dialogs/XrefsDialog.ui \
     dialogs/NewfileDialog.ui \
     dialogs/InitialOptionsDialog.ui \
+    dialogs/EditFunctionDialog.ui \
     MainWindow.ui \
     widgets/CommentsWidget.ui \
     widgets/ConsoleWidget.ui \
