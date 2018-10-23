@@ -6,6 +6,19 @@
 #include "MainWindow.h"
 #include "common/Helpers.h"
 
+static const QMap<QString, QString> kSearchBoundariesValues {
+    {"io.maps", "All maps"},
+    {"io.map", "Current map"},
+    {"raw", "Raw"},
+    {"dbg.maps", "All memory maps"},
+    {"dbg.map", "Memory map"},
+    {"block", "Current block"},
+    {"bin.section", "Current mapped section"},
+    {"bin.sections", "All mapped sections"},
+    {"dbg.stack", "Stack"},
+    {"dbg.heap", "Heap"}
+   };
+
 SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
     : QAbstractListModel(parent),
       search(search)
@@ -116,6 +129,12 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    ui->searchInCombo->blockSignals(true);
+    QMap<QString, QString>::const_iterator mapIter;
+    for (mapIter = kSearchBoundariesValues.begin(); mapIter != kSearchBoundariesValues.end(); ++mapIter)
+        ui->searchInCombo->addItem(mapIter.value(), mapIter.key());
+    ui->searchInCombo->blockSignals(false);
+
     search_model = new SearchModel(&search, this);
     search_proxy_model = new SearchSortFilterProxyModel(search_model, this);
     ui->searchTreeView->setModel(search_proxy_model);
@@ -138,6 +157,8 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
     connect(ui->searchspaceCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
     [ = ](int index) { updatePlaceholderText(index);});
 
+    QString currentSearchBoundary = Core()->getConfig("search.in");
+    ui->searchInCombo->setCurrentIndex(ui->searchInCombo->findData(currentSearchBoundary));
 }
 
 SearchWidget::~SearchWidget() {}
@@ -212,4 +233,11 @@ void SearchWidget::updatePlaceholderText(int index)
     default:
         ui->filterLineEdit->setPlaceholderText("jmp rax");
     }
+}
+
+
+void SearchWidget::on_searchInCombo_currentIndexChanged(int index)
+{
+    Config()->setConfig("search.in",
+                      ui->searchInCombo->itemData(index).toString());
 }
