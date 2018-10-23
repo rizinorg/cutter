@@ -40,7 +40,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     addAction(&actionRename);
 
     initAction(&actionEditFunction, tr("Edit function"),
-            SLOT(on_actionEditFunction_triggered()));
+               SLOT(on_actionEditFunction_triggered()));
     addAction(&actionEditFunction);
 
     initAction(&actionRenameUsedHere, tr("Rename Flag/Fcn/Var Used Here"),
@@ -234,7 +234,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
     QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(
-                                              offset)).array().first().toObject();
+            offset)).array().first().toObject();
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenu->menuAction()->setVisible(immBase);
@@ -354,7 +354,7 @@ QKeySequence DisassemblyContextMenu::getRenameUsedHereSequence() const
 
 QKeySequence DisassemblyContextMenu::getRetypeSequence() const
 {
-     return {Qt::Key_Y};
+    return {Qt::Key_Y};
 }
 
 QKeySequence DisassemblyContextMenu::getXRefSequence() const
@@ -744,7 +744,7 @@ void DisassemblyContextMenu::setToData(int size, int repeat)
 }
 
 QAction *DisassemblyContextMenu::addAnonymousAction(QString name, const char *slot,
-                                                    QKeySequence keySequence)
+        QKeySequence keySequence)
 {
     auto action = new QAction();
     addAction(action);
