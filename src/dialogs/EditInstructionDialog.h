@@ -9,12 +9,16 @@ namespace Ui {
 class EditInstructionDialog;
 }
 
+enum InstructionEditMode {
+    EDIT_NONE, EDIT_BYTES, EDIT_TEXT
+};
+
 class EditInstructionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit EditInstructionDialog(QWidget *parent, bool isEditingBytes);
+    explicit EditInstructionDialog(QWidget *parent, InstructionEditMode isEditingBytes);
     ~EditInstructionDialog();
 
     QString getInstruction();
@@ -29,7 +33,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::EditInstructionDialog> ui;
-    bool isEditingBytes; // true if editing intruction **bytes**; false if editing instruction **text**
+    InstructionEditMode editMode; // true if editing intruction **bytes**; false if editing instruction **text**
 };
 
 #endif // EDITINSTRUCTIONDIALOG_H
