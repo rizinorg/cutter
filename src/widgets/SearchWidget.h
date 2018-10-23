@@ -76,7 +76,7 @@ private:
     SearchModel *search_model;
     SearchSortFilterProxyModel *search_proxy_model;
     QList<SearchDescription> search;
-   
+
     void refreshSearch();
     void setScrollMode();
     void updatePlaceholderText(int index);
