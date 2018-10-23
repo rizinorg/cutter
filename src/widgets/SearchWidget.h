@@ -66,7 +66,7 @@ public:
 
 private slots:
     void on_searchTreeView_doubleClicked(const QModelIndex &index);
-
+    void on_searchInCombo_currentIndexChanged(int index);
     void searchChanged();
     void refreshSearchspaces();
 
@@ -76,7 +76,7 @@ private:
     SearchModel *search_model;
     SearchSortFilterProxyModel *search_proxy_model;
     QList<SearchDescription> search;
-
+   
     void refreshSearch();
     void setScrollMode();
     void updatePlaceholderText(int index);
