@@ -239,5 +239,5 @@ void SearchWidget::updatePlaceholderText(int index)
 void SearchWidget::on_searchInCombo_currentIndexChanged(int index)
 {
     Config()->setConfig("search.in",
-                      ui->searchInCombo->itemData(index).toString().toUtf8().constData());
+                      ui->searchInCombo->itemData(index).toString());
 }
