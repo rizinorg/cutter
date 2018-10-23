@@ -40,7 +40,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     addAction(&actionRename);
 
     initAction(&actionEditFunction, tr("Edit function"),
-            SLOT(on_actionEditFunction_triggered()));
+               SLOT(on_actionEditFunction_triggered()));
     addAction(&actionEditFunction);
 
     initAction(&actionRenameUsedHere, tr("Rename Flag/Fcn/Var Used Here"),
@@ -234,7 +234,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
     QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(
-                                              offset)).array().first().toObject();
+            offset)).array().first().toObject();
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenu->menuAction()->setVisible(immBase);
@@ -355,7 +355,7 @@ QKeySequence DisassemblyContextMenu::getRenameUsedHereSequence() const
 
 QKeySequence DisassemblyContextMenu::getRetypeSequence() const
 {
-     return {Qt::Key_Y};
+    return {Qt::Key_Y};
 }
 
 QKeySequence DisassemblyContextMenu::getXRefSequence() const
@@ -375,7 +375,7 @@ QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
-    EditInstructionDialog *e = new EditInstructionDialog(this, false);
+    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_TEXT);
     e->setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
 
     QString oldInstructionOpcode = Core()->getInstructionOpcode(offset);
@@ -440,7 +440,7 @@ void DisassemblyContextMenu::on_actionJmpReverse_triggered()
 
 void DisassemblyContextMenu::on_actionEditBytes_triggered()
 {
-    EditInstructionDialog *e = new EditInstructionDialog(this, true);
+    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_BYTES);
     e->setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
 
     QString oldBytes = Core()->getInstructionBytes(offset);
@@ -747,7 +747,7 @@ void DisassemblyContextMenu::setToData(int size, int repeat)
 }
 
 QAction *DisassemblyContextMenu::addAnonymousAction(QString name, const char *slot,
-                                                    QKeySequence keySequence)
+        QKeySequence keySequence)
 {
     auto action = new QAction();
     addAction(action);

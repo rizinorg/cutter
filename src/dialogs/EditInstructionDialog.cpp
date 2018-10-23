@@ -2,10 +2,10 @@
 #include "ui_EditInstructionDialog.h"
 #include "Cutter.h"
 
-EditInstructionDialog::EditInstructionDialog(QWidget *parent, bool isEditingBytes) :
+EditInstructionDialog::EditInstructionDialog(QWidget *parent, InstructionEditMode editMode) :
     QDialog(parent),
     ui(new Ui::EditInstructionDialog),
-    isEditingBytes(isEditingBytes)
+    editMode(editMode)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -40,9 +40,13 @@ void EditInstructionDialog::setInstruction(const QString &instruction)
 void EditInstructionDialog::updatePreview(const QString &input)
 {
     QString result;
-    if (isEditingBytes) {
+
+    if (editMode == EDIT_NONE) {
+        ui->instructionLabel->setText("");
+        return;
+    } else if (editMode == EDIT_BYTES) {
         result = Core()->disassemble(input).trimmed();
-    } else {
+    } else if (editMode == EDIT_TEXT) {
         result = Core()->assemble(input).trimmed();
     }
 

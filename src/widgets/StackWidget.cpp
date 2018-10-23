@@ -123,8 +123,7 @@ void StackWidget::editStack()
     bool ok;
     int row = viewStack->selectionModel()->currentIndex().row();
     QString offset = viewStack->selectionModel()->currentIndex().sibling(row, 0).data().toString();
-    // FIXME: This is not correct because there should be no preview of anything
-    EditInstructionDialog *e = new EditInstructionDialog(this, false);
+    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_NONE);
     e->setWindowTitle(tr("Edit stack at %1").arg(offset));
 
     QString oldBytes = viewStack->selectionModel()->currentIndex().sibling(row, 1).data().toString();
