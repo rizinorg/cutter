@@ -60,6 +60,7 @@ void AboutDialog::on_showVersionButton_clicked()
 {
     QMessageBox popup(this);
     popup.setWindowTitle(tr("radare2 version information"));
+    popup.setTextInteractionFlags(Qt::TextSelectableByMouse);
     auto versionInformation = Core()->getVersionInformation();
     popup.setText(versionInformation);
     popup.exec();
