@@ -40,13 +40,13 @@ void EditInstructionDialog::setInstruction(const QString &instruction)
 void EditInstructionDialog::updatePreview(const QString &input)
 {
     QString result;
-    
+
     if (editMode == EDIT_NONE) {
         ui->instructionLabel->setText("");
         return;
     } else if (editMode == EDIT_BYTES) {
         result = Core()->disassemble(input).trimmed();
-    } else if (editMode == EDIT_TEXT){
+    } else if (editMode == EDIT_TEXT) {
         result = Core()->assemble(input).trimmed();
     }
 
