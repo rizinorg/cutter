@@ -13,6 +13,7 @@ private:
 
     static void taskFinishedCallback(void *user, char *);
     void taskFinished();
+    ut64 offset;
 
 public:
     explicit R2Task(const QString &cmd);

@@ -3,6 +3,7 @@
 
 R2Task::R2Task(const QString &cmd)
 {
+    offset = Core()->core()->offset;
     task = r_core_task_new(Core()->core(),
         true,
         cmd.toLocal8Bit().constData(),
@@ -24,6 +25,9 @@ void R2Task::taskFinishedCallback(void *user, char *)
 
 void R2Task::taskFinished()
 {
+    if (offset != Core()->core()->offset) {
+        Core()->updateSeek();
+    }
     emit finished();
 }
 
