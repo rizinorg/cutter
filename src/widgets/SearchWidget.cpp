@@ -131,7 +131,7 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
 
     ui->searchInCombo->blockSignals(true);
     QMap<QString, QString>::const_iterator mapIter;
-    for (mapIter = kSearchBoundariesValues.begin(); mapIter != kSearchBoundariesValues.end(); ++mapIter)
+    for (mapIter = kSearchBoundariesValues.cbegin(); mapIter != kSearchBoundariesValues.cend(); ++mapIter)
         ui->searchInCombo->addItem(mapIter.value(), mapIter.key());
     ui->searchInCombo->blockSignals(false);
 
