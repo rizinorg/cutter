@@ -69,6 +69,3 @@ compile_commands.json
 
 # vscode
 **/.vscode
-
-# Translations
-src/translations/*.qm
