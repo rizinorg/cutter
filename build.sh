@@ -3,12 +3,13 @@
 # This script is a work in progress
 
 ####   Constants    ####
-BUILDR2=1
+BUILDR2=0
 ERR=0
 
 #### User variables ####
 BUILD="build"
 QMAKE_CONF=""
+SRC_DIR=`pwd`
 #QMAKE_CONF="CUTTER_ENABLE_JUPYTER=false CUTTER_ENABLE_QTWEBENGINE=false"
 
 # Create translations
@@ -59,6 +60,13 @@ cd "$BUILD" || exit 1
 "$qmakepath" "$QMAKE_CONF" ../src/Cutter.pro
 make -j4
 ERR=$((ERR+$?))
+
+# Move translations
+mkdir "`pwd`/translations"
+find "$SRC_DIR/src/translations" -maxdepth 1  -type f | grep "cutter_..\.qm" | while read SRC_FILE; do
+    mv $SRC_FILE "`pwd`/translations"
+done
+
 cd ..
 
 # Done
