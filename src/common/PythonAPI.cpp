@@ -1,4 +1,4 @@
-
+#include <Python.h>
 #include "PythonAPI.h"
 #include "Cutter.h"
 
@@ -219,6 +219,12 @@ PyModuleDef CutterInternalModule = {
 PyObject *PyInit_api_internal()
 {
     return PyModule_Create(&CutterInternalModule);
+}
+
+void addApiModulesToInittab()
+{
+    PyImport_AppendInittab(CutterModule.m_name, &PyInit_api);
+    PyImport_AppendInittab(CutterInternalModule.m_name, &PyInit_api_internal);
 }
 
 #endif // CUTTER_ENABLE_JUPYTER

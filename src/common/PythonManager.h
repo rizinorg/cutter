@@ -1,7 +1,7 @@
 #ifndef PYTHONMANAGER_H
 #define PYTHONMANAGER_H
 
-#include "Python.h"
+#include <Python.h>
 #include <QObject>
 
 class CutterPythonPlugin;

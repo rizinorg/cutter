@@ -3,19 +3,10 @@
 
 #ifdef CUTTER_ENABLE_JUPYTER
 
-#include "PythonManager.h"
-
 #include <QProcess>
 #include <QMap>
-#include <cwchar>
 
 class NestedIPyKernel;
-
-struct _object;
-typedef _object PyObject;
-
-struct _ts;
-typedef _ts PyThreadState;
 
 class JupyterConnection : public QObject
 {

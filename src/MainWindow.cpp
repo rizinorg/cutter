@@ -242,7 +242,7 @@ void MainWindow::initUI()
      */
     // Period goes to command entry
     QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
+    connect(cmd_shortcut, SIGNAL(activated()), consoleDock->getDockWidget(), SLOT(focusInputLineEdit()));
 
     // G and S goes to goto entry
     QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
@@ -259,9 +259,9 @@ void MainWindow::initUI()
     connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
 
     connect(core, SIGNAL(newMessage(const QString &)),
-            this->consoleDock, SLOT(addOutput(const QString &)));
+            this->consoleDock->getDockWidget(), SLOT(addOutput(const QString &)));
     connect(core, SIGNAL(newDebugMessage(const QString &)),
-            this->consoleDock, SLOT(addDebugOutput(const QString &)));
+            this->consoleDock->getDockWidget(), SLOT(addDebugOutput(const QString &)));
 
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
@@ -650,11 +650,6 @@ void MainWindow::updateDockActionsChecked()
     }
 }
 
-void MainWindow::updateDockActionChecked(QAction *action)
-{
-    action->setChecked(!dockWidgetActions[action]->isHidden());
-}
-
 void MainWindow::showZenDocks()
 {
     const QList<CutterDockWidget *> zenDocks = { functionsDock,
@@ -1027,12 +1022,12 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
-void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
+void MainWindow::addToDockWidgetList(CutterDockWidget *dockWidget)
 {
     this->dockWidgets.push_back(dockWidget);
 }
 
-void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
+void MainWindow::addDockWidgetAction(CutterDockWidget *dockWidget, QAction *action)
 {
     this->dockWidgetActions[action] = dockWidget;
 }

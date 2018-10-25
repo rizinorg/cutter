@@ -7,6 +7,7 @@
 #include "common/Helpers.h"
 #include "common/SyntaxHighlighter.h"
 #include "common/TempConfig.h"
+#include "MainWindow.h"
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main) :
     QDockWidget(main),

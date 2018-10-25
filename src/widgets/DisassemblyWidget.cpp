@@ -5,6 +5,7 @@
 #include "common/Configuration.h"
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
+#include "MainWindow.h"
 
 #include <QScrollBar>
 #include <QJsonArray>

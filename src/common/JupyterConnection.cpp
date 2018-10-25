@@ -14,7 +14,7 @@
 
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
-#include "PythonAPI.h"
+#include "PythonManager.h"
 
 Q_GLOBAL_STATIC(JupyterConnection, uniqueInstance)
 

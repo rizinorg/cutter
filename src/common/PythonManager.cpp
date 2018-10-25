@@ -1,12 +1,14 @@
-#include "PythonManager.h"
-#include "plugins/CutterPythonPlugin.h"
-#include "PythonAPI.h"
-
+#include <Python.h>
 #include <marshal.h>
+
 #include <QDebug>
 #include <QFile>
 #include <QDir>
 #include <QCoreApplication>
+
+#include "plugins/CutterPythonPlugin.h"
+#include "PythonManager.h"
+#include "PythonAPI.h"
 
 static PythonManager *uniqueInstance = nullptr;
 
@@ -68,8 +70,7 @@ void PythonManager::initialize()
         Py_SetPythonHome(pythonHome);
     }
 
-    PyImport_AppendInittab("cutter", &PyInit_api);
-    PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
+    addApiModulesToInittab();
     Py_Initialize();
     PyEval_InitThreads();
 

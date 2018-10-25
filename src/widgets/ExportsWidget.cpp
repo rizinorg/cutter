@@ -3,8 +3,6 @@
 #include "MainWindow.h"
 #include "common/Helpers.h"
 
-#include "WidgetShortcuts.h"
-
 ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
     : QAbstractListModel(parent),
       exports(exports)
@@ -127,12 +125,6 @@ ExportsWidget::ExportsWidget(MainWindow *main) :
     exportsProxyModel = new ExportsProxyModel(exportsModel, this);
     ui->exportsTreeView->setModel(exportsProxyModel);
     ui->exportsTreeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
-
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ExportsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true); 
-            main->updateDockActionChecked(action);
-            } );
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);

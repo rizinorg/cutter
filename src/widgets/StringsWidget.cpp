@@ -66,15 +66,15 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
     switch (role) {
     case Qt::DisplayRole:
         switch (section) {
-        case StringsModel::OffsetColumn:
+        case OFFSET:
             return tr("Address");
-        case StringsModel::StringColumn:
+        case STRING:
             return tr("String");
-        case StringsModel::TypeColumn:
+        case TYPE:
             return tr("Type");
-        case StringsModel::LengthColumn:
+        case LENGTH:
             return tr("Length");
-        case StringsModel::SizeColumn:
+        case SIZE:
             return tr("Size");
         case StringsModel::SectionColumn:
             return tr("Section");

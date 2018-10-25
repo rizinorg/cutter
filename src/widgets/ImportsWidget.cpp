@@ -4,8 +4,6 @@
 #include "MainWindow.h"
 #include "common/Helpers.h"
 
-#include "WidgetShortcuts.h"
-
 #include <QTreeWidget>
 #include <QPen>
 #include <QPainter>
@@ -139,12 +137,6 @@ ImportsWidget::ImportsWidget(MainWindow *main) :
 
     ui->importsTreeView->setModel(importsProxyModel);
     ui->importsTreeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
-
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true); 
-            main->updateDockActionChecked(action);
-            } );
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);

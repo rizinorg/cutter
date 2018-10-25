@@ -49,12 +49,12 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class SegmentsWidget : public CutterDockWidget
+class SegmentsWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SegmentsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SegmentsWidget(MainWindow *main);
     ~SegmentsWidget();
 
 private slots:

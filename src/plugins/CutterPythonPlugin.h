@@ -1,7 +1,7 @@
 #ifndef CUTTERPYTHONPLUGIN_H
 #define CUTTERPYTHONPLUGIN_H
 
-#include "utils/PythonManager.h"
+#include "common/PythonManager.h"
 #include "CutterPlugin.h"
 
 class CutterPythonPlugin : public CutterPlugin

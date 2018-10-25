@@ -1,5 +1,6 @@
 #include "CutterDockWidget.h"
 #include "MainWindow.h"
+#include "WidgetShortcuts.h"
 
 
 CutterDockWidget::CutterDockWidget(MainWindow *main, QDockWidget *dockWidget, QAction *action) :
@@ -7,13 +8,23 @@ CutterDockWidget::CutterDockWidget(MainWindow *main, QDockWidget *dockWidget, QA
     dockWidget(dockWidget),
     action(action)
 {
-    if (action) {
-        main->addToDockWidgetList(this);
-        main->addDockWidgetAction(this, action);
-        connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
-    }
-
     dockWidget->installEventFilter(this);
+
+    if (!action)
+        return;
+
+    main->addToDockWidgetList(this);
+    main->addDockWidgetAction(this, action);
+    connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
+
+    QKeySequence keySequence = widgetShortcuts[dockWidget->objectName()];
+    if (keySequence.isEmpty())
+        return;
+    auto *toggleShortcut = new QShortcut(keySequence, main);
+    connect(toggleShortcut, &QShortcut::activated, this, [=] () {
+            toggleDockWidget(true);
+            action->setChecked(dockWidget->isHidden());
+    } );
 }
 
 CutterDockWidget::~CutterDockWidget() = default;

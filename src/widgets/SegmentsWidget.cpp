@@ -118,12 +118,12 @@ bool SegmentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     return false;
 }
 
-SegmentsWidget::SegmentsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+SegmentsWidget::SegmentsWidget(MainWindow *main) :
+    QDockWidget(main),
     main(main)
 {
 
-    setObjectName("SegmentsWidget");
+    setObjectName(QStringLiteral("SegmentsWidget"));
     setWindowTitle(QStringLiteral("Segments"));
 
     segmentsTable = new CutterTreeView;
