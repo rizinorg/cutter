@@ -11,6 +11,9 @@ BUILD="build"
 QMAKE_CONF=""
 #QMAKE_CONF="CUTTER_ENABLE_JUPYTER=false CUTTER_ENABLE_QTWEBENGINE=false"
 
+# Create translations
+lrelease ./src/Cutter.pro
+
 # Checking for radare2
 r2 -v >/dev/null 2>&1
 if [ $? = 0 ]; then

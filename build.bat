@@ -17,6 +17,8 @@ RMDIR /S /Q %BUILDDIR%
 MKDIR %BUILDDIR%
 CD %BUILDDIR%
 
+lrelease.exe ..\src\cutter.pro
+
 ECHO Building cutter
 qmake %* ..\src\cutter.pro -config release -tp vc
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
