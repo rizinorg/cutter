@@ -23,7 +23,7 @@ void AnalTask::interrupt()
 
 void AnalTask::runTask()
 {
-    log(tr("Loading Binary...\n"));
+    log(tr("Loading the file...\n"));
     openFailed = false;
 
     int perms = R_PERM_RX;

@@ -53,8 +53,8 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
     },
     {
         "fline", {
-            QObject::tr(""),
-            QObject::tr("fline"), false
+            "",
+            "fline", false
         }
     },
     {
@@ -63,10 +63,10 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("Flag"), false
         }
     },
-    { "label", { QObject::tr(""), QObject::tr("Label"), false } },
-    { "help", { QObject::tr(""), QObject::tr("Help"), false } },
-    { "flow", { QObject::tr(""), QObject::tr("flow"), false } },
-    { "flow2", { QObject::tr(""), QObject::tr("flow2"), false } },
+    { "label", { "", QObject::tr("Label"), false } },
+    { "help", { "", QObject::tr("Help"), false } },
+    { "flow", { "", QObject::tr("flow"), false } },
+    { "flow2", { "", QObject::tr("flow2"), false } },
     { "prompt", { QObject::tr("Info"), QObject::tr("prompt"), false } },
     {
         "offset", {
@@ -81,71 +81,71 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("invalid"), false
         }
     },
-    { "other", { QObject::tr(""), QObject::tr("other"), false } },
+    { "other", { "", QObject::tr("other"), false } },
     {
         "b0x00", {
             QObject::tr("0x00 opcode color"),
-            QObject::tr("b0x00"), false
+            "b0x00", false
         }
     },
     {
         "b0x7f", {
             QObject::tr("0x7f opcode color"),
-            QObject::tr("b0x7f"), false
+            "b0x7f", false
         }
     },
     {
         "b0xff", {
             QObject::tr("0xff opcode color"),
-            QObject::tr("b0xff"), false
+            "b0xff", false
         }
     },
     {
         "math", {
             QObject::tr("arithmetic color (+, -, *, / etc.)"),
-            QObject::tr("math"), false
+            "math", false
         }
     },
-    { "bin", { QObject::tr(""), QObject::tr("bin"), false } },
-    { "btext", { QObject::tr(""), QObject::tr("btext"), false } },
-    { "push", { QObject::tr("push opcode color"), QObject::tr("push"), false } },
-    { "pop", { QObject::tr("pop opcode color"), QObject::tr("pop"), false } },
-    { "crypto", { QObject::tr("Cryptographic color"), QObject::tr("crypto"), false } },
+    { "bin", { "", QObject::tr("bin"), false } },
+    { "btext", { "", QObject::tr("btext"), false } },
+    { "push", { QObject::tr("push opcode color"), "push", false } },
+    { "pop", { QObject::tr("pop opcode color"), "pop", false } },
+    { "crypto", { QObject::tr("Cryptographic color"), "crypto", false } },
     {
         "jmp", {
             QObject::tr("jmp instructions color"),
-            QObject::tr("jmp"), false
+            "jmp", false
         }
     },
     {
         "cjmp", {
-            QObject::tr(""),
-            QObject::tr("cjmp"), false
+            "",
+            "cjmp", false
         }
     },
     {
         "call", {
             QObject::tr("call instructions color (ccall, rcall, call etc)"),
-            QObject::tr("call"), false
+            "call", false
         }
     },
-    { "nop", { QObject::tr("nop opcode color"), QObject::tr("nop"), false } },
+    { "nop", { QObject::tr("nop opcode color"), "nop", false } },
     {
         "ret", {
             QObject::tr("ret opcode color"),
-            QObject::tr("ret"), false
+            "ret", false
         }
     },
     {
         "trap", {
-            QObject::tr("Color of interrputs"),
-            QObject::tr("Interrputs"), false
+            QObject::tr("Color of interrupts"),
+            QObject::tr("Interrupts"), false
         }
     },
-    { "swi", { QObject::tr("swi opcode color"), QObject::tr("swi"), false } },
-    { "cmp", { QObject::tr("cmp opcode color"), QObject::tr("cmp"), false } },
+    { "swi", { QObject::tr("swi opcode color"), "swi", false } },
+    { "cmp", { QObject::tr("cmp opcode color"), "cmp", false } },
     { "reg", { QObject::tr("Registers color"), QObject::tr("Register"), false } },
-    { "creg", { QObject::tr("Info"), QObject::tr("creg"), false } },
+    { "creg", { QObject::tr("Info"), "creg", false } },
     { "num", { QObject::tr("Numeric constants color"), QObject::tr("Numbers"), false } },
     {
         "mov", {
@@ -171,17 +171,17 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("Variable address"), false
         }
     },
-    { "widget_bg", { QObject::tr(""), QObject::tr("widget_bg"), false } },
-    { "widget_sel", { QObject::tr(""), QObject::tr("widget_sel"), false } },
-    { "ai.read", { QObject::tr(""), QObject::tr("ai.read"), false } },
-    { "ai.write", { QObject::tr(""), QObject::tr("ai.write"), false } },
-    { "ai.exec", { QObject::tr(""), QObject::tr("ai.exec"), false } },
-    { "ai.seq", { QObject::tr(""), QObject::tr("ai.seq"), false } },
-    { "ai.ascii", { QObject::tr(""), QObject::tr("ai.ascii"), false } },
-    { "graph.box", { QObject::tr(""), QObject::tr("graph.box"), false } },
-    { "graph.box2", { QObject::tr(""), QObject::tr("graph.box2"), false } },
-    { "graph.box3", { QObject::tr(""), QObject::tr("graph.box3"), false } },
-    { "graph.box4", { QObject::tr(""), QObject::tr("graph.box4"), false } },
+    { "widget_bg", { "", "widget_bg", false } },
+    { "widget_sel", { "", "widget_sel", false } },
+    { "ai.read", { "", "ai.read", false } },
+    { "ai.write", { "", "ai.write", false } },
+    { "ai.exec", { "", "ai.exec", false } },
+    { "ai.seq", { "", "ai.seq", false } },
+    { "ai.ascii", { "", "ai.ascii", false } },
+    { "graph.box", { "", "graph.box", false } },
+    { "graph.box2", { "", "graph.box2", false } },
+    { "graph.box3", { "", "graph.box3", false } },
+    { "graph.box4", { "", "graph.box4", false } },
     {
         "graph.true", {
             QObject::tr("In graph view jump arrow true"),
@@ -200,10 +200,10 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("Arrow"), false
         }
     },
-    { "graph.current", { QObject::tr(""), QObject::tr("graph.current"), false } },
-    { "graph.traced", { QObject::tr(""), QObject::tr("graph.traced"), false } },
-    { "gui.cflow", { QObject::tr(""), QObject::tr("gui.cflow"), true } },
-    { "gui.dataoffset", { QObject::tr(""), QObject::tr("gui.dataoffset"), true } },
+    { "graph.current", { "", "graph.current", false } },
+    { "graph.traced", { "", "graph.traced", false } },
+    { "gui.cflow", { "", "gui.cflow", true } },
+    { "gui.dataoffset", { "", "gui.dataoffset", true } },
     {
         "gui.background", {
             QObject::tr("General background color"),
@@ -212,7 +212,7 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
     },
     {
         "gui.alt_background", {
-            QObject::tr(""),
+            "",
             QObject::tr("Alt. background"), true
         }
     },
@@ -222,7 +222,7 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("Current graph node"), true
         }
     },
-    { "gui.border", { QObject::tr(""), QObject::tr("gui.border"), true } },
+    { "gui.border", { "", "gui.border", true } },
 
     // TODO: find out different
     {
@@ -258,11 +258,10 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("Main"), true
         }
     },
-    { "gui.imports", { QObject::tr(""), QObject::tr("gui.imports"), true } },
-    { "highlightPC", { QObject::tr(""), QObject::tr("highlightPC"), true } },
-    { "gui.navbar.err", { QObject::tr(""), QObject::tr("gui.navbar.err"), true } },
-    { "gui.navbar.sym", { QObject::tr(""), QObject::tr("gui.navbar.sym"), true } },
-    { "gui.dataoffset", { QObject::tr(""), QObject::tr("gui.dataoffset"), true } },
+    { "gui.imports", { "", "gui.imports", true } },
+    { "highlightPC", { "", "highlightPC", true } },
+    { "gui.navbar.err", { "", "gui.navbar.err", true } },
+    { "gui.navbar.sym", { "", "gui.navbar.sym", true } },
     {
         "gui.navbar.code", {
             QObject::tr("Code section color in navigation bar"),
@@ -275,8 +274,7 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("Navbar empty"), true
         }
     },
-    { "angui.navbar.str", { QObject::tr(""), QObject::tr("angui.navbar.str"), true } },
-    { "gui.breakpoint_background", { QObject::tr(""), QObject::tr("Breakpoint background"), true } }
+    { "gui.breakpoint_background", { "", QObject::tr("Breakpoint background"), true } }
 };
 
 void ColorOptionDelegate::paint(QPainter *painter,
@@ -317,8 +315,9 @@ void ColorOptionDelegate::paint(QPainter *painter,
     ColorOption co = index.data(Qt::UserRole).value<ColorOption>();
     txtColor = co.color;
 
-    if (optionInfoMap[co.optionName].isUsedStandardTextColor)
+    if (optionInfoMap[co.optionName].isUsedStandardTextColor) {
         txtColor = textColor;
+    }
     pal.setColor(QPalette::Text, txtColor);
 
     op.palette = pal;
@@ -352,8 +351,9 @@ void ColorViewButton::setColor(const QColor &c)
 
 void ColorViewButton::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton)
+    if (event->button() != Qt::LeftButton) {
         return;
+    }
 
     emit clicked();
 }
@@ -406,8 +406,9 @@ ColorSchemePrefWidget::~ColorSchemePrefWidget()
 
 void ColorSchemePrefWidget::apply()
 {
-    if (!isEditable)
+    if (!isEditable) {
         return;
+    }
     ColorSettingsModel *model = static_cast<ColorSettingsModel *>(ui->preferencesListView->model());
 
     QString scheme = "";
@@ -429,8 +430,9 @@ void ColorSchemePrefWidget::apply()
 
 void ColorSchemePrefWidget::newColor()
 {
-    if (ui->preferencesListView->currentIndex().row() == -1 || !isEditable)
+    if (ui->preferencesListView->currentIndex().row() == -1 || !isEditable) {
         return;
+    }
 
     ColorOption currCO = ui->preferencesListView->model()->data(ui->preferencesListView->currentIndex(),
                                                                 Qt::UserRole).value<ColorOption>();
@@ -464,11 +466,13 @@ ColorSettingsModel::ColorSettingsModel(QObject *parent) : QAbstractListModel (pa
 
 QVariant ColorSettingsModel::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::DisplayRole)
+    if (role == Qt::DisplayRole) {
         return QVariant::fromValue(m_data.at(index.row()).displayingText);
+    }
 
-    if (role == Qt::UserRole)
+    if (role == Qt::UserRole) {
         return QVariant::fromValue(m_data.at(index.row()));
+    }
 
     return QVariant();
 }
@@ -492,9 +496,11 @@ QColor ColorSettingsModel::getBackroundColor() const
         return Config()->getColor(standardBackgroundOptionName);
     }
 
-    for (auto &it : m_data)
-        if (it.optionName == standardBackgroundOptionName)
+    for (auto &it : m_data) {
+        if (it.optionName == standardBackgroundOptionName) {
             return it.color;
+        }
+    }
     return QColor();
 }
 
@@ -504,9 +510,11 @@ QColor ColorSettingsModel::getTextColor() const
         return Config()->getColor(standardTextOptionName);
     }
 
-    for (auto &it : m_data)
-        if (it.optionName == standardTextOptionName)
+    for (auto &it : m_data) {
+        if (it.optionName == standardTextOptionName) {
             return it.color;
+        }
+    }
     return QColor();
 }
 
@@ -522,8 +530,9 @@ void ColorSettingsModel::updateScheme()
     }
 
     QMap<QString, QColor> cutterSpecific = ColorSchemeFileWorker().getCutterSpecific();
-    for (auto &it : cutterSpecific.keys())
+    for (auto &it : cutterSpecific.keys()) {
         m_data.push_back({it, optionInfoMap[it].displayingtext, cutterSpecific[it]});
+    }
 
     qobject_cast<PreferencesListView *>(parent())->setStandardColors();
 }
