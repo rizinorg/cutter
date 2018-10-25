@@ -632,7 +632,7 @@ void MainWindow::updateDockActionsChecked()
     }
 }
 
-void MainWindow::updateDockActionChecked(QAction * action)
+void MainWindow::updateDockActionChecked(QAction *action)
 {
     action->setChecked(!dockWidgetActions[action]->isHidden());
 }
@@ -930,7 +930,7 @@ void MainWindow::on_actionExport_as_code_triggered()
     cmdMap[filters.last()] = "pcp";
     filters << tr("Print 'wx' r2 commands (*.r2)");
     cmdMap[filters.last()] = "pc*";
-    filters << tr("GAS .byte blob (*.txt)");
+    filters << tr("GAS .byte blob (*.asm, *.s)");
     cmdMap[filters.last()] = "pca";
     filters << tr(".bytes with instructions in comments (*.txt)");
     cmdMap[filters.last()] = "pcA";
