@@ -1,6 +1,7 @@
 #include <QDir>
 #include <QLabel>
 #include <QFontDialog>
+#include <QTranslator>
 #include <QInputDialog>
 
 #include <QComboBox>
@@ -14,10 +15,31 @@
 #include "common/ColorSchemeFileSaver.h"
 #include "widgets/ColorSchemePrefWidget.h"
 
-static const QString translations[] = {
-    "English",
-    "Русский"
-};
+QStringList findLanguages()
+{
+    QDir dir(":/translations");
+    QStringList fileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
+                                          QDir::Name);
+
+    QStringList languages;
+    QString currLanguageName;
+    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
+
+    for (auto i : fileNames) {
+        QString localeName = i.mid(sizeof("cutter_") - 1, 2);
+        for (auto j : allLocales) {
+            if (j.name().startsWith(localeName)) {
+                currLanguageName = j.nativeLanguageName();
+                currLanguageName = currLanguageName.at(0).toUpper() +
+                                   currLanguageName.right(currLanguageName.length() - 1);
+                languages << currLanguageName;
+                break;
+            }
+        }
+    }
+
+    return languages << "English";
+}
 
 AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),
@@ -29,9 +51,8 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     updateFontFromConfig();
     updateThemeFromConfig();
 
-    for (auto &it : translations) {
-        ui->languageComboBox->addItem(it);
-    }
+    ui->languageComboBox->addItems(findLanguages());
+
     ui->languageComboBox->setCurrentText(Config()->getCurrLanguage());
     connect(ui->languageComboBox,
                static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
