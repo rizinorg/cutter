@@ -226,6 +226,12 @@ void Configuration::setFont(const QFont &font)
     emit fontsUpdated();
 }
 
+QString Configuration::getLastThemeOf(const CutterQtThemes& currQtTheme) const
+{
+    return s.value("lastThemeOf" + QString::number(currQtTheme),
+                   Config()->getCurrentTheme()).toString();
+}
+
 void Configuration::setTheme(int theme)
 {
     s.setValue("ColorPalette", theme);
@@ -255,6 +261,11 @@ QString Configuration::getLogoFile()
 void Configuration::setColor(const QString &name, const QColor &color)
 {
     s.setValue("colors." + name, color);
+}
+
+void Configuration::setLastThemeOf(const CutterQtThemes& currQtTheme, const QString &theme)
+{
+    s.setValue("lastThemeOf" + QString::number(currQtTheme), theme);
 }
 
 const QColor Configuration::getColor(const QString &name) const

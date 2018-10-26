@@ -49,11 +49,13 @@ public:
     void setFont(const QFont &font);
 
     // Colors
+    void setLastThemeOf(const CutterQtThemes &currQtTheme, const QString& theme);
+    QString getLastThemeOf(const CutterQtThemes &currQtTheme) const;
     const QColor getColor(const QString &name) const;
     void setTheme(int theme);
     int getTheme()
     {
-        return s.value("ColorPalette").toInt();
+        return s.value("ColorPalette", defaultTheme).toInt();
     }
 
     QString getDirProjects();

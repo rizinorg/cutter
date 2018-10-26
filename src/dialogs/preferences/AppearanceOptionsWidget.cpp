@@ -106,9 +106,6 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     connect(Config(), &Configuration::fontsUpdated, this,
             &AppearanceOptionsWidget::updateFontFromConfig);
 
-    connect(ui->colorComboBox, &QComboBox::currentTextChanged,
-            ui->colorSchemePrefWidget, &ColorSchemePrefWidget::setNewScheme);
-
     ui->colorSchemePrefWidget->setNewScheme(Config()->getCurrentTheme());
 }
 
@@ -123,9 +120,20 @@ void AppearanceOptionsWidget::updateFontFromConfig()
 void AppearanceOptionsWidget::updateThemeFromConfig()
 {
     // Disconnect currentIndexChanged because clearing the comboxBox and refiling it causes its index to change.
-    disconnect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this,
-               SLOT(on_colorComboBox_currentIndexChanged(int)));
-    ui->themeComboBox->setCurrentIndex(Config()->getTheme());
+    disconnect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)),
+               this, SLOT(on_colorComboBox_currentIndexChanged(int)));
+    disconnect(ui->colorComboBox, &QComboBox::currentTextChanged,
+               ui->colorSchemePrefWidget, &ColorSchemePrefWidget::setNewScheme);
+    disconnect(ui->themeComboBox, SIGNAL(currentIndexChanged(int)),
+               this, SLOT(on_themeComboBox_currentIndexChanged(int)));
+
+    CutterQtThemes curQtTheme = CutterQtThemes(Config()->getTheme());
+    if (curQtTheme == defaultTheme)
+        ui->themeComboBox->setCurrentText("Default");
+    else if (curQtTheme == darkTheme)
+        ui->themeComboBox->setCurrentText("Dark");
+    else if (curQtTheme == lightTheme)
+        ui->themeComboBox->setCurrentText("Light");
 
     QList<QString> themes = Core()->getColorThemes();
     ui->colorComboBox->clear();
@@ -133,13 +141,22 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
     for (QString str : themes)
         if (ColorSchemeFileWorker().isCustomScheme(str) || shouldShow(str))
             ui->colorComboBox->addItem(str);
+        }
+    }
     QString curTheme = Config()->getCurrentTheme();
     int index = ui->colorComboBox->findText(curTheme);
-    if (index == -1) {
+    if (index == -1)
         index = 0;
-        Config()->setColorTheme(ui->colorComboBox->itemText(0));
-    }
+
+    connect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(on_colorComboBox_currentIndexChanged(int)));
+    connect(ui->colorComboBox, &QComboBox::currentTextChanged,
+            ui->colorSchemePrefWidget, &ColorSchemePrefWidget::setNewScheme);
+    connect(ui->themeComboBox, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(on_themeComboBox_currentIndexChanged(int)));
+
     ui->colorComboBox->setCurrentIndex(index);
+    ui->colorSchemePrefWidget->setNewScheme(ui->colorComboBox->currentText());
     int maxThemeLen = 0;
     for (QString str : themes) {
         int strLen = str.length();
@@ -147,11 +164,8 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
             maxThemeLen = strLen;
         }
     }
-    ui->colorSchemePrefWidget->setNewScheme(Config()->getCurrentTheme());
     ui->colorComboBox->setMinimumContentsLength(maxThemeLen);
     ui->colorComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-    connect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)), this,
-            SLOT(on_colorComboBox_currentIndexChanged(int)));
 }
 
 void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
@@ -182,6 +196,8 @@ void AppearanceOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 void AppearanceOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
 {
     QString theme = ui->colorComboBox->itemText(index);
+    Config()->setLastThemeOf(CutterQtThemes(Config()->getTheme()), theme);
+    ui->colorSchemePrefWidget->setNewScheme(theme);
     Config()->setColorTheme(theme);
 }
 
