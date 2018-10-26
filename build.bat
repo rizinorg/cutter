@@ -18,6 +18,9 @@ MKDIR %BUILDDIR%
 
 ECHO Prepare translations
 lrelease.exe ..\src\cutter.pro
+
+RMDIR /S /Q translations
+MKDIR translations
 FOR %%i in (src\translations\*.qm) DO MOVE "%%~fi" "%CD%\%BUILDDIR%\translations"
 
 CD %BUILDDIR%
