@@ -156,7 +156,9 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
             this, SLOT(on_themeComboBox_currentIndexChanged(int)));
 
     ui->colorComboBox->setCurrentIndex(index);
-    ui->colorSchemePrefWidget->setNewScheme(ui->colorComboBox->currentText());
+    curTheme = ui->colorComboBox->currentText();
+    Config()->setColorTheme(curTheme);
+    ui->colorSchemePrefWidget->setNewScheme(curTheme);
     int maxThemeLen = 0;
     for (QString str : themes) {
         int strLen = str.length();
