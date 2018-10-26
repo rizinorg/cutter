@@ -315,9 +315,14 @@ void HexdumpWidget::highlightHexWords(const QString &str)
 
 void HexdumpWidget::refresh(RVA addr)
 {
+    ut64 loadLines = 0;
+    ut64 curAddrLineOffset = 0;
+
     connectScroll(true);
 
     updateHeaders();
+
+    Core()->message("Refresh called");
 
     if (addr == RVA_INVALID) {
         addr = seekable->getOffset();
@@ -328,11 +333,22 @@ void HexdumpWidget::refresh(RVA addr)
     if (cols == 0)
         cols = 16;
 
-    // TODO: Figure out how to calculate a sane value for this
-    bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText);
 
-    ut64 loadLines = bufferLines * 3; // total lines to load
-    ut64 curAddrLineOffset = bufferLines; // line number where seek should be
+
+    // TODO: Figure out how to calculate a sane value for this
+    bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText)*10;
+
+
+    if(requestedSelectionEndAddress !=0 && requestedSelectionStartAddress!=0)
+    {
+        loadLines = ((requestedSelectionEndAddress - requestedSelectionStartAddress) / cols) + (bufferLines*2);
+        curAddrLineOffset = bufferLines;
+    }
+    else
+    {
+        loadLines = bufferLines * 3; // total lines to load
+        curAddrLineOffset = bufferLines; // line number where seek should be
+    }
 
     if (addr < curAddrLineOffset * cols) {
         curAddrLineOffset = static_cast<int>(addr / cols);
@@ -432,6 +448,7 @@ void HexdumpWidget::initParsing()
 
 std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA addr, int lines)
 {
+    Core()->message(QString("Fetching %1; %2 lines").arg(RAddressString(addr)).arg(lines));
     // Main bytes to fetch:
     int bytes = cols * lines;
 
@@ -1133,36 +1150,38 @@ void HexdumpWidget::selectHexPreview()
 
 void HexdumpWidget::on_rangeDialogAccepted()
 {
-    ut64                startAddress;
-    ut64                endAddress;
     int                 startPosition;
     int                 endPosition;
     QTextCursor         targetTextCursor;
 
-    startAddress = Core()->math(rangeDialog.getStartAddress());
-    endAddress = rangeDialog.getEndAddressRadioButtonChecked() ?
+    requestedSelectionStartAddress = Core()->math(rangeDialog.getStartAddress());
+    requestedSelectionEndAddress = rangeDialog.getEndAddressRadioButtonChecked() ?
                  Core()->math(rangeDialog.getEndAddress()) :
-                 startAddress + Core()->math(rangeDialog.getLength());
+                 requestedSelectionStartAddress + Core()->math(rangeDialog.getLength());
 
     //not sure what the accepted user feedback mechanism is, output to console or a QMessageBox alert
-    if (endAddress <= startAddress) {
+    if (requestedSelectionEndAddress <= requestedSelectionStartAddress) {
         Core()->message(tr("Error: Could not select range, end address is less then start address"));
         return;
     }
 
     //seek to the start address and create a text cursor to highlight the desired range
-    seekable->seek(startAddress);
+    refresh(requestedSelectionStartAddress);
 
-    startPosition = hexAddressToPosition(startAddress);
-    endPosition = hexAddressToPosition(endAddress);
+    //for large selections, won't be able to calculate the endPosition because hexAddressToPosition assumes the address is loaded?
+    startPosition = hexAddressToPosition(requestedSelectionStartAddress);
+    endPosition = hexAddressToPosition(requestedSelectionEndAddress)-1;
+
 
     targetTextCursor = ui->hexHexText->textCursor();
+
+    Core()->message(QString("Start Position: %1").arg(startPosition));
+    Core()->message(QString("End Position: %1").arg(endPosition));
 
     targetTextCursor.setPosition(startPosition);
     targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
 
     ui->hexHexText->setTextCursor(targetTextCursor);
-
 }
 
 void HexdumpWidget::showOffsets(bool show)

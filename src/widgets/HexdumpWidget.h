@@ -103,6 +103,8 @@ private:
 
     int bufferLines = 0;
     int cols = 0;
+    ut64 requestedSelectionStartAddress=0;
+    ut64 requestedSelectionEndAddress=0;
     HexdumpRangeDialog  rangeDialog;
     QAction syncAction;
     CutterSeekableWidget *seekable;
