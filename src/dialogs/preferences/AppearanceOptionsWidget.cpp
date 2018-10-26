@@ -24,7 +24,8 @@ QStringList findLanguages()
 
     QStringList languages;
     QString currLanguageName;
-    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
+    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+                                               QLocale::AnyCountry);
 
     for (auto i : fileNames) {
         QString localeName = i.mid(sizeof("cutter_") - 1, 2);
@@ -56,11 +57,12 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
 
     ui->languageComboBox->setCurrentText(Config()->getCurrLanguage());
     connect(ui->languageComboBox,
-               static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-               this,
-               &AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged);
+            static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this,
+            &AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged);
 
-    connect(Config(), &Configuration::fontsUpdated, this, &AppearanceOptionsWidget::updateFontFromConfig);
+    connect(Config(), &Configuration::fontsUpdated, this,
+            &AppearanceOptionsWidget::updateFontFromConfig);
     connect(ui.get()->colorComboBox, &QComboBox::currentTextChanged, [&](const QString & name) {
         static_cast<ColorSchemePrefWidget *>(ui.get()->colorSchemePrefWidget)->setNewScheme(name);
     });

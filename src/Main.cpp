@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
 
     QTranslator t;
     QString language = Config()->getCurrLanguage().toLower();
-    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript, QLocale::AnyCountry);
+    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+                                               QLocale::AnyCountry);
 
     if (language != "English") {
         for (auto &it : allLocales) {
