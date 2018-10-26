@@ -322,8 +322,6 @@ void HexdumpWidget::refresh(RVA addr)
 
     updateHeaders();
 
-    Core()->message("Refresh called");
-
     if (addr == RVA_INVALID) {
         addr = seekable->getOffset();
     }
@@ -448,7 +446,6 @@ void HexdumpWidget::initParsing()
 
 std::array<QString, 3> HexdumpWidget::fetchHexdump(RVA addr, int lines)
 {
-    Core()->message(QString("Fetching %1; %2 lines").arg(RAddressString(addr)).arg(lines));
     // Main bytes to fetch:
     int bytes = cols * lines;
 
@@ -1172,11 +1169,7 @@ void HexdumpWidget::on_rangeDialogAccepted()
     startPosition = hexAddressToPosition(requestedSelectionStartAddress);
     endPosition = hexAddressToPosition(requestedSelectionEndAddress)-1;
 
-
     targetTextCursor = ui->hexHexText->textCursor();
-
-    Core()->message(QString("Start Position: %1").arg(startPosition));
-    Core()->message(QString("End Position: %1").arg(endPosition));
 
     targetTextCursor.setPosition(startPosition);
     targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
