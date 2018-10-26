@@ -18,7 +18,7 @@
 QStringList findLanguages()
 {
     QDir dir(QCoreApplication::applicationDirPath() + QDir::separator() +
-             "/translations");
+             "translations");
     QStringList fileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
                                           QDir::Name);
 
