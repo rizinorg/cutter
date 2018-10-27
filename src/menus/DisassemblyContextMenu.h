@@ -29,7 +29,7 @@ private slots:
     void on_actionJmpReverse_triggered();
     void on_actionEditBytes_triggered();
     void showReverseJmpQuery();
-    void writeFailed();
+    bool writeFailed();
 
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();

@@ -234,7 +234,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
     QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(
-            offset)).array().first().toObject();
+                                              offset)).array().first().toObject();
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenu->menuAction()->setVisible(immBase);
@@ -275,14 +275,11 @@ void DisassemblyContextMenu::aboutToShowSlot()
     }
 
     //only show retype for local vars if in a function
-    if(in_fcn)
-    {
+    if (in_fcn) {
         actionSetFunctionVarTypes.setVisible(true);
         actionEditFunction.setVisible(true);
         actionEditFunction.setText(tr("Edit function \"%1\"").arg(in_fcn->name));
-    }
-    else
-    {
+    } else {
         actionSetFunctionVarTypes.setVisible(false);
         actionEditFunction.setVisible(false);
     }
@@ -391,7 +388,9 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
             // check if the write failed
             auto newInstructionBytes = Core()->getInstructionBytes(offset);
             if (newInstructionBytes == oldInstructionBytes) {
-                writeFailed();
+                if (!writeFailed()) {
+                    Core()->editInstruction(offset, userInstructionOpcode);
+                }
             }
         }
     }
@@ -405,7 +404,9 @@ void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 
     QString newBytes = Core()->getInstructionBytes(offset);
     if (oldBytes == newBytes) {
-        writeFailed();
+        if (!writeFailed()) {
+            Core()->nopInstruction(offset);
+        }
     }
 }
 
@@ -434,7 +435,9 @@ void DisassemblyContextMenu::on_actionJmpReverse_triggered()
 
     QString newBytes = Core()->getInstructionBytes(offset);
     if (oldBytes == newBytes) {
-        writeFailed();
+        if (!writeFailed()) {
+            Core()->jmpReverse(offset);
+        }
     }
 }
 
@@ -453,28 +456,33 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
 
             QString newBytes = Core()->getInstructionBytes(offset);
             if (oldBytes == newBytes) {
-                writeFailed();
+                if (!writeFailed()) {
+                    Core()->editBytes(offset, bytes);
+                }
             }
         }
     }
 }
 
-void DisassemblyContextMenu::writeFailed()
+bool DisassemblyContextMenu::writeFailed()
 {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Icon::Critical);
     msgBox.setWindowTitle(tr("Write error"));
-    msgBox.setText(tr("Unable to complete write operation. Consider opening in write mode."));
+    msgBox.setText(
+        tr("Unable to complete write operation. Consider opening in write mode. \n\nWARNING: In write mode any changes will be commited to disk"));
     msgBox.addButton(tr("OK"), QMessageBox::NoRole);
-    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode"), QMessageBox::YesRole);
+    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode and try again"),
+                                                     QMessageBox::YesRole);
 
     msgBox.exec();
 
     if (msgBox.clickedButton() == reopenButton) {
-        QMessageBox::warning(this, "File reopened in write mode",
-                             "WARNING: Any chages will now be commited to disk");
         Core()->cmd("oo+");
+        return false;
     }
+
+    return true;
 }
 
 void DisassemblyContextMenu::on_actionCopy_triggered()
@@ -623,8 +631,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 
     dialog = new SetFunctionVarTypes(this);
 
-    if(fcn)
-    {
+    if (fcn) {
         dialog->setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcn->name));
     }
     dialog->setFcn(fcn);
@@ -747,7 +754,7 @@ void DisassemblyContextMenu::setToData(int size, int repeat)
 }
 
 QAction *DisassemblyContextMenu::addAnonymousAction(QString name, const char *slot,
-        QKeySequence keySequence)
+                                                    QKeySequence keySequence)
 {
     auto action = new QAction();
     addAction(action);
