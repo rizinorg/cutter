@@ -234,7 +234,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 {
     // check if set immediate base menu makes sense
     QJsonObject instObject = Core()->cmdj("aoj @ " + QString::number(
-            offset)).array().first().toObject();
+                                              offset)).array().first().toObject();
     auto keys = instObject.keys();
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenu->menuAction()->setVisible(immBase);
@@ -275,14 +275,11 @@ void DisassemblyContextMenu::aboutToShowSlot()
     }
 
     //only show retype for local vars if in a function
-    if(in_fcn)
-    {
+    if (in_fcn) {
         actionSetFunctionVarTypes.setVisible(true);
         actionEditFunction.setVisible(true);
         actionEditFunction.setText(tr("Edit function \"%1\"").arg(in_fcn->name));
-    }
-    else
-    {
+    } else {
         actionSetFunctionVarTypes.setVisible(false);
         actionEditFunction.setVisible(false);
     }
@@ -391,7 +388,7 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
             // check if the write failed
             auto newInstructionBytes = Core()->getInstructionBytes(offset);
             if (newInstructionBytes == oldInstructionBytes) {
-                if(!writeFailed()) {
+                if (!writeFailed()) {
                     Core()->editInstruction(offset, userInstructionOpcode);
                 }
             }
@@ -472,9 +469,11 @@ bool DisassemblyContextMenu::writeFailed()
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Icon::Critical);
     msgBox.setWindowTitle(tr("Write error"));
-    msgBox.setText(tr("Unable to complete write operation. Consider opening in write mode. \n\nWARNING: In write mode any changes will be commited to disk"));
+    msgBox.setText(
+        tr("Unable to complete write operation. Consider opening in write mode. \n\nWARNING: In write mode any changes will be commited to disk"));
     msgBox.addButton(tr("OK"), QMessageBox::NoRole);
-    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode and try again"), QMessageBox::YesRole);
+    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode and try again"),
+                                                     QMessageBox::YesRole);
 
     msgBox.exec();
 
@@ -632,8 +631,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 
     dialog = new SetFunctionVarTypes(this);
 
-    if(fcn)
-    {
+    if (fcn) {
         dialog->setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcn->name));
     }
     dialog->setFcn(fcn);
@@ -756,7 +754,7 @@ void DisassemblyContextMenu::setToData(int size, int repeat)
 }
 
 QAction *DisassemblyContextMenu::addAnonymousAction(QString name, const char *slot,
-        QKeySequence keySequence)
+                                                    QKeySequence keySequence)
 {
     auto action = new QAction();
     addAction(action);
