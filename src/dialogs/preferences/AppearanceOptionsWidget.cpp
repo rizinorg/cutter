@@ -57,8 +57,9 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     ui->languageComboBox->addItems(langs);
 
     QString curr = Config()->getCurrLanguage();
-    if (!langs.contains(curr))
+    if (!langs.contains(curr)) {
         curr = "English";
+    }
     ui->languageComboBox->setCurrentText(curr);
     connect(ui->languageComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),

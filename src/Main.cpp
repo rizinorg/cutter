@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 
     if (language != "English") {
         for (auto &it : allLocales) {
-            if (it.nativeLanguageName() == language) {
+            if (it.nativeLanguageName().toLower() == language) {
                 QString langPrefix = it.bcp47Name().left(2);
                 t.load(QString(QCoreApplication::applicationDirPath() + QDir::separator() +
                                "translations" + QDir::separator() +
