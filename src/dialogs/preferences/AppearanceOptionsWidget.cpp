@@ -53,9 +53,13 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     updateFontFromConfig();
     updateThemeFromConfig();
 
-    ui->languageComboBox->addItems(findLanguages());
+    QStringList langs = findLanguages();
+    ui->languageComboBox->addItems(langs);
 
-    ui->languageComboBox->setCurrentText(Config()->getCurrLanguage());
+    QString curr = Config()->getCurrLanguage();
+    if (!langs.contains(curr))
+        curr = "English";
+    ui->languageComboBox->setCurrentText(curr);
     connect(ui->languageComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,

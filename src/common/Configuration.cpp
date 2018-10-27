@@ -111,7 +111,9 @@ void Configuration::resetAll()
 
 QString Configuration::getCurrLanguage() const
 {
-    return s.value("language", QVariant::fromValue(QLocale().name())).toString();
+    QString nativeLang = QLocale().nativeLanguageName();
+    nativeLang = nativeLang[0].toUpper() + nativeLang.right(nativeLang.length() - 1);
+    return s.value("language", nativeLang).toString();
 }
 
 void Configuration::setLanguage(const QString &l)
