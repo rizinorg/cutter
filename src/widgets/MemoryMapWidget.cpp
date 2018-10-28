@@ -134,6 +134,9 @@ void MemoryMapWidget::refreshMemoryMap()
         return;
     }
 
+    if (Core()->currentlyEmulating) {
+        return;
+    }
     memoryModel->beginResetModel();
     memoryMaps = Core()->getMemoryMap();
     memoryModel->endResetModel();
