@@ -49,6 +49,9 @@ static const QHash<QString, QVariant> asmOptions = {
 Configuration::Configuration() : QObject()
 {
     mPtr = this;
+    if (s.contains("ColorPalette") && !s.contains("Not first start after #846")) {
+        setTheme(getTheme() + 1);
+    }
     loadInitial();
 }
 
@@ -61,6 +64,7 @@ Configuration *Configuration::instance()
 
 void Configuration::loadInitial()
 {
+    s.setValue("Not first start after #846", true);
     setTheme(getTheme());
     setColorTheme(getCurrentTheme());
     applySavedAsmOptions();
