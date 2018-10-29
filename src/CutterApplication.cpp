@@ -42,11 +42,18 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                 QLocale::setDefault(it);
 
                 QString translationsPath(QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-                if (qtTranslator->load(it, "qt", "_", translationsPath))
+                if (qtTranslator->load(it, "qt", "_", translationsPath)) {
                     installTranslator(qtTranslator);
+                } else {
+                    delete qtTranslator;
+                }
 
-                if (qtBaseTranslator->load(it, "qtbase", "_", translationsPath))
+                if (qtBaseTranslator->load(it, "qtbase", "_", translationsPath)) {
                     installTranslator(qtBaseTranslator);
+                } else {
+                    delete qtBaseTranslator;
+                }
+
                 break;
             }
         }
