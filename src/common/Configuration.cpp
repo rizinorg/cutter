@@ -109,16 +109,14 @@ void Configuration::resetAll()
     emit fontsUpdated();
 }
 
-QString Configuration::getCurrLanguage() const
+QLocale Configuration::getCurrLocale() const
 {
-    QString nativeLang = QLocale().nativeLanguageName();
-    nativeLang = nativeLang[0].toUpper() + nativeLang.right(nativeLang.length() - 1);
-    return s.value("language", nativeLang).toString();
+    return s.value("locale", QLocale().system()).toLocale();
 }
 
-void Configuration::setLanguage(const QString &l)
+void Configuration::setLocale(const QLocale &l)
 {
-    s.setValue("language", l);
+    s.setValue("locale", l);
 }
 
 void Configuration::loadDefaultTheme()

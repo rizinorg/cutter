@@ -37,8 +37,8 @@ public:
     void resetAll();
 
     // Languages
-    QString getCurrLanguage() const;
-    void setLanguage(const QString &l);
+    QLocale getCurrLocale() const;
+    void setLocale(const QLocale &l);
 
     // Fonts
     const QFont getFont() const;

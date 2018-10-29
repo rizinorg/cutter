@@ -56,7 +56,8 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     QStringList langs = findLanguages();
     ui->languageComboBox->addItems(langs);
 
-    QString curr = Config()->getCurrLanguage();
+    QString curr = Config()->getCurrLocale().nativeLanguageName();
+    curr = curr.at(0).toUpper() + curr.right(curr.length() - 1);
     if (!langs.contains(curr)) {
         curr = "English";
     }
@@ -160,8 +161,16 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
 
 void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
 {
-    QString language = ui->languageComboBox->itemText(index);
-    Config()->setLanguage(language);
+    QString language = ui->languageComboBox->itemText(index).toLower();
+    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+                                               QLocale::AnyCountry);
+
+    for (auto &it : allLocales) {
+        if (it.nativeLanguageName().toLower() == language) {
+            Config()->setLocale(it);
+            break;
+        }
+    }
 
     QMessageBox mb;
     mb.setWindowTitle(tr("Language settings"));
