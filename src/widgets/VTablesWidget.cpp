@@ -59,7 +59,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
             switch (index.column()) {
             case NAME:
-                return tr("VTable ") + QString::number(index.row() + 1);
+                return tr("VTable") + " " + QString::number(index.row() + 1);
             case ADDRESS:
                 return RAddressString(vtables->at(index.row()).addr);
             }
@@ -86,6 +86,7 @@ QVariant VTableModel::headerData(int section, Qt::Orientation, int role) const
         default:
             break;
         }
+        break;
     default:
         break;
     }
