@@ -23,7 +23,7 @@ void AnalTask::interrupt()
 
 void AnalTask::runTask()
 {
-    log(tr("Loading the file...\n"));
+    log(tr("Loading the file..."));
     openFailed = false;
 
     int perms = R_PERM_RX;
@@ -64,7 +64,7 @@ void AnalTask::runTask()
     }
 
     if (!options.pdbFile.isNull()) {
-        log(tr("Loading PDB file...\n"));
+        log(tr("Loading PDB file..."));
         Core()->loadPDB(options.pdbFile);
     }
 
@@ -73,7 +73,7 @@ void AnalTask::runTask()
     }
 
     if (!options.shellcode.isNull() && options.shellcode.size() / 2 > 0) {
-        log(tr("Loading shellcode...\n"));
+        log(tr("Loading shellcode..."));
         Core()->cmd("wx " + options.shellcode);
     }
 
@@ -86,7 +86,7 @@ void AnalTask::runTask()
     Core()->cmd("fs *");
 
     if (!options.script.isNull()) {
-        log(tr("Executing script...\n"));
+        log(tr("Executing script..."));
         Core()->loadScript(options.script);
     }
 
@@ -98,16 +98,16 @@ void AnalTask::runTask()
     Core()->setConfig("prj.simple", true);
 
     if (!options.analCmd.empty()) {
-        log(tr("Analyzing...\n"));
+        log(tr("Analyzing..."));
         for (QString cmd : options.analCmd) {
             if (isInterrupted()) {
                 return;
             }
-            log("  " + tr("Running") + " " + cmd + "\n");
+            log("  " + tr("Running") + " " + cmd);
             Core()->cmd(cmd);
         }
-        log(tr("Analysis complete!\n"));
+        log(tr("Analysis complete!"));
     } else {
-        log(tr("Skipping Analysis.\n"));
+        log(tr("Skipping Analysis."));
     }
 }

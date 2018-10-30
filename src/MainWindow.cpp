@@ -959,7 +959,7 @@ void MainWindow::on_actionExport_as_code_triggered()
 
 void MainWindow::projectSaved(const QString &name)
 {
-    core->message(tr("Project saved: ") + name);
+    core->message(tr("Project saved:") + " " + name);
 }
 
 void MainWindow::changeDebugView()
