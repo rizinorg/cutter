@@ -39,7 +39,13 @@ void Dashboard::updateContents()
     QJsonObject item = docu.object()["core"].toObject();
     QJsonObject item2 = docu.object()["bin"].toObject();
 
-    this->ui->fileEdit->setText(item["file"].toString());
+#ifdef Q_OS_WIN
+    QString fname = item["file"].toString();
+    fname = QString::fromUtf8(fname.toLatin1());
+#else // Q_OS_WIN
+    QString fname = item["file"].toString();
+#endif // Q_OS_WIN
+    this->ui->fileEdit->setText(fname);
     this->ui->formatEdit->setText(item["format"].toString());
     this->ui->modeEdit->setText(item["mode"].toString());
     this->ui->typeEdit->setText(item["type"].toString());
