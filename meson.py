@@ -54,6 +54,7 @@ def build(args):
             defines.append('-Dradare2:r2_incdir=radare2/include')
             defines.append('-Dradare2:r2_libdir=radare2/lib')
             defines.append('-Dradare2:r2_datdir=radare2/share')
+            defines.append('c_args=-D_UNICODE -DUNICODE')
         r2_meson_mod.meson(os.path.join(ROOT, 'src'), cutter_builddir,
                            prefix=cutter_builddir, backend=args.backend,
                            release=args.release, shared=False, options=defines)
