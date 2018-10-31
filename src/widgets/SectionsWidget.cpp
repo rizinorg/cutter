@@ -133,9 +133,8 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     main(main),
-    scrollArea(new SectionScrollArea),
-    graphicsView(new QGraphicsView),
-    graphicsView2(new QGraphicsView)
+    rawAddrDock(new SectionAddrDock),
+    virtualAddrDock(new SectionAddrDock)
 {
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
@@ -174,37 +173,14 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
             SLOT(setFilterWildcard(const QString &)));
     connect(quickFilterView, SIGNAL(filterClosed()), sectionsTable, SLOT(setFocus()));
 
-    QDockWidget *dock = new QDockWidget();
-    QDockWidget *dock2 = new QDockWidget();
-
-    const QBrush bg = QBrush(ConfigColor("gui.background"));
-    graphicsScene = new QGraphicsScene(this);
-    graphicsScene->setBackgroundBrush(bg);
-    graphicsScene->addRect(QRectF(0, 0, 100, 100));
-
-    graphicsScene2 = new QGraphicsScene(this);
-    graphicsScene2->setBackgroundBrush(bg);
-    graphicsScene2->addRect(QRectF(0, 0, 100, 100));
-
-    graphicsView->setScene(graphicsScene);
-    dock->setWidget(graphicsView);
-
-    graphicsView2->setScene(graphicsScene2);
-    dock2->setWidget(graphicsView2);
-
-    QVBoxLayout *l = new QVBoxLayout();
-    l->addWidget(sectionsTable);
-    l->setMargin(0);
-    scrollArea->viewport()->setLayout(l);
-
     dockWidgetContents = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(scrollArea);
+    layout->addWidget(sectionsTable);
     layout->addWidget(quickFilterView);
     QWidget *hw = new QWidget();
     QHBoxLayout *layouth = new QHBoxLayout();
-    layouth->addWidget(dock);
-    layouth->addWidget(dock2);
+    layouth->addWidget(rawAddrDock);
+    layouth->addWidget(virtualAddrDock);
     hw->setLayout(layouth);
     layout->addWidget(hw);
     layout->setMargin(0);
@@ -232,11 +208,21 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
     Core()->seek(section.vaddr);
 }
 
-SectionScrollArea::SectionScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
+SectionAddrDock::SectionAddrDock(QWidget *parent) :
+    QDockWidget(parent),
+    scrollArea(new QScrollArea),
+    graphicsView(new QGraphicsView),
+    graphicsScene(new QGraphicsScene)
 {
-}
+    scrollArea->setStyleSheet(QString("background-color: %1").arg(ConfigColor("gui.background").name()));
 
-bool SectionScrollArea::viewportEvent(QEvent *event)
-{
-    return true;
+    //const QBrush bg = QBrush(Qt::black);
+    graphicsScene = new QGraphicsScene(this);
+    //graphicsScene->setBackgroundBrush(bg);
+    graphicsView->setScene(graphicsScene);
+    graphicsView->setFixedHeight(1000);
+
+    scrollArea->setWidget(graphicsView);
+    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setWidget(scrollArea);
 }

@@ -4,9 +4,9 @@
 #include <memory>
 
 #include <QAbstractListModel>
-#include <QAbstractScrollArea>
 #include <QSortFilterProxyModel>
 #include <QGraphicsScene>
+#include <QScrollArea>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -15,7 +15,7 @@ class QTreeView;
 class QAbstractItemView;
 class MainWindow;
 class SectionsWidget;
-class SectionScrollArea;
+class SectionAddrDock;
 class QuickFilterView;
 class QGraphicsView;
 
@@ -69,25 +69,24 @@ private:
     SectionsModel *sectionsModel;
     QTreeView *sectionsTable;
     MainWindow *main;
-    SectionScrollArea *scrollArea;
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;
 
-    QGraphicsView *graphicsView;
-    QGraphicsView *graphicsView2;
-    QGraphicsScene *graphicsScene;
-    QGraphicsScene *graphicsScene2;
+    SectionAddrDock *rawAddrDock;
+    SectionAddrDock *virtualAddrDock;
 };
 
-class SectionScrollArea : public QAbstractScrollArea
+class SectionAddrDock : public QDockWidget
 {
     Q_OBJECT
 
-    public:
-        explicit SectionScrollArea(QWidget *parent = nullptr);
-signals:
-    protected:
-        bool viewportEvent(QEvent *event) override;
+public:
+    explicit SectionAddrDock(QWidget *parent = nullptr);
+
+private:
+    QScrollArea *scrollArea;
+    QGraphicsView *graphicsView;
+    QGraphicsScene *graphicsScene;
 };
 
 #endif // SECTIONSWIDGET_H
