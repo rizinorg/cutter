@@ -501,13 +501,13 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                 }
 
                 int widthBefore = mFontMetrics->width(instr.plainText.left(pos));
-                if (widthBefore + charWidth * 7 > block.width) {
+                if (charWidth * 3 + widthBefore > block.width - (10 + 2 * charWidth)) {
                     continue;
                 }
 
                 int highlightWidth = tokenWidth;
-                if (widthBefore + tokenWidth >= block.width) {
-                    highlightWidth = block.width - widthBefore - charWidth * 5;
+                if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + 2 * charWidth)) {
+                    highlightWidth = block.width - widthBefore - (10 + 4 * charWidth);
                 }
 
                 p.fillRect(QRect(block.x + charWidth * 3 + widthBefore, y, highlightWidth,
