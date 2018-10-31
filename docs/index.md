@@ -28,10 +28,14 @@ To build Cutter on your local machine, please follow this guide: [Building from 
 
 ---
 
-# Help
+# Need help?
 
 You can contact the *Cutter* developers and community on:
 
 - Telegram: https://t.me/r2cutter
 - #cutter on irc.freenode.net
 - Twitter: [@r2gui](https://twitter.com/r2gui)
+
+# Want to help the project?
+
+If you want to contribute to Cutter, take a look [here](https://github.com/radareorg/cutter/blob/master/CONTRIBUTING.md) to know what you can do to help the project!
