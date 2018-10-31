@@ -109,6 +109,16 @@ void Configuration::resetAll()
     emit fontsUpdated();
 }
 
+QLocale Configuration::getCurrLocale() const
+{
+    return s.value("locale", QLocale().system()).toLocale();
+}
+
+void Configuration::setLocale(const QLocale &l)
+{
+    s.setValue("locale", l);
+}
+
 void Configuration::loadDefaultTheme()
 {
     /* Load Qt Theme */

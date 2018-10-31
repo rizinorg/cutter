@@ -15,6 +15,14 @@ SET "BUILDDIR=build_%PLATFORM%"
 ECHO Preparing directory
 RMDIR /S /Q %BUILDDIR%
 MKDIR %BUILDDIR%
+
+ECHO Prepare translations
+lrelease.exe ..\src\cutter.pro
+
+RMDIR /S /Q %BUILDDIR%\translations
+MKDIR %BUILDDIR%\translations
+FOR %%i in (src\translations\*.qm) DO MOVE "%%~fi" "%CD%\%BUILDDIR%\translations"
+
 CD %BUILDDIR%
 
 ECHO Building cutter
