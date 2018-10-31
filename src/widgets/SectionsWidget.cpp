@@ -1,7 +1,13 @@
 #include <QTreeView>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include "SectionsWidget.h"
-
 #include "MainWindow.h"
 #include "QuickFilterView.h"
 #include "common/Helpers.h"
@@ -126,7 +132,10 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 
 SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    main(main)
+    main(main),
+    scrollArea(new SectionScrollArea),
+    graphicsView(new QGraphicsView),
+    graphicsView2(new QGraphicsView)
 {
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
@@ -164,10 +173,40 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     connect(quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
             SLOT(setFilterWildcard(const QString &)));
     connect(quickFilterView, SIGNAL(filterClosed()), sectionsTable, SLOT(setFocus()));
+
+    QDockWidget *dock = new QDockWidget();
+    QDockWidget *dock2 = new QDockWidget();
+
+    const QBrush bg = QBrush(ConfigColor("gui.background"));
+    graphicsScene = new QGraphicsScene(this);
+    graphicsScene->setBackgroundBrush(bg);
+    graphicsScene->addRect(QRectF(0, 0, 100, 100));
+
+    graphicsScene2 = new QGraphicsScene(this);
+    graphicsScene2->setBackgroundBrush(bg);
+    graphicsScene2->addRect(QRectF(0, 0, 100, 100));
+
+    graphicsView->setScene(graphicsScene);
+    dock->setWidget(graphicsView);
+
+    graphicsView2->setScene(graphicsScene2);
+    dock2->setWidget(graphicsView2);
+
+    QVBoxLayout *l = new QVBoxLayout();
+    l->addWidget(sectionsTable);
+    l->setMargin(0);
+    scrollArea->viewport()->setLayout(l);
+
     dockWidgetContents = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(sectionsTable);
+    layout->addWidget(scrollArea);
     layout->addWidget(quickFilterView);
+    QWidget *hw = new QWidget();
+    QHBoxLayout *layouth = new QHBoxLayout();
+    layouth->addWidget(dock);
+    layouth->addWidget(dock2);
+    hw->setLayout(layouth);
+    layout->addWidget(hw);
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
@@ -191,4 +230,13 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
     Core()->seek(section.vaddr);
+}
+
+SectionScrollArea::SectionScrollArea(QWidget *parent) : QAbstractScrollArea(parent)
+{
+}
+
+bool SectionScrollArea::viewportEvent(QEvent *event)
+{
+    return true;
 }
