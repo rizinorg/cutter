@@ -6,7 +6,6 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 #include <QGraphicsScene>
-#include <QScrollArea>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -84,7 +83,6 @@ public:
     explicit SectionAddrDock(QWidget *parent = nullptr);
 
 private:
-    QScrollArea *scrollArea;
     QGraphicsView *graphicsView;
     QGraphicsScene *graphicsScene;
 };

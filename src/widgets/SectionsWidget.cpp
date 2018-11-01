@@ -210,19 +210,14 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 
 SectionAddrDock::SectionAddrDock(QWidget *parent) :
     QDockWidget(parent),
-    scrollArea(new QScrollArea),
     graphicsView(new QGraphicsView),
     graphicsScene(new QGraphicsScene)
 {
-    scrollArea->setStyleSheet(QString("background-color: %1").arg(ConfigColor("gui.background").name()));
-
-    //const QBrush bg = QBrush(Qt::black);
+    const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene = new QGraphicsScene(this);
-    //graphicsScene->setBackgroundBrush(bg);
+    graphicsScene->addRect(QRectF(0, 0, 300, 1000));
+    graphicsScene->setBackgroundBrush(bg);
     graphicsView->setScene(graphicsScene);
-    graphicsView->setFixedHeight(1000);
-
-    scrollArea->setWidget(graphicsView);
-    scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    setWidget(scrollArea);
+    setWidget(graphicsView);
+    setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 }
