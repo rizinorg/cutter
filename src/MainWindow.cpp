@@ -265,7 +265,7 @@ void MainWindow::initUI()
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
-    connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
+    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool, const QString &)));
 
     connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
     connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
@@ -781,9 +781,8 @@ void MainWindow::on_actionRun_Script_triggered()
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setDirectory(QDir::home());
 
-    QString fileName;
-    fileName = dialog.getOpenFileName(this, tr("Select radare2 script"));
-    if (!fileName.length()) // Cancel was pressed
+    const QString &fileName = QDir::toNativeSeparators(dialog.getOpenFileName(this, tr("Select radare2 script")));
+    if (fileName.isEmpty()) // Cancel was pressed
         return;
     core->loadScript(fileName);
 }
@@ -897,7 +896,7 @@ void MainWindow::on_actionImportPDB_triggered()
         return;
     }
 
-    QString pdbFile = dialog.selectedFiles().first();
+    const QString &pdbFile = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!pdbFile.isEmpty()) {
         core->loadPDB(pdbFile);
@@ -957,9 +956,12 @@ void MainWindow::on_actionExport_as_code_triggered()
 }
 
 
-void MainWindow::projectSaved(const QString &name)
+void MainWindow::projectSaved(bool successfully, const QString &name)
 {
-    core->message(tr("Project saved:") + " " + name);
+    if (successfully)
+        core->message(tr("Project saved: %1").arg(name));
+    else
+        core->message(tr("Failed to save project: %1").arg(name));
 }
 
 void MainWindow::changeDebugView()

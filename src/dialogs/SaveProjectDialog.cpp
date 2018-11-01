@@ -38,22 +38,15 @@ SaveProjectDialog::~SaveProjectDialog()
 
 void SaveProjectDialog::on_selectProjectsDirButton_clicked()
 {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::DirectoryOnly);
-
     QString currentDir = ui->projectsDirEdit->text();
     if (currentDir.startsWith("~")) {
         currentDir = QDir::homePath() + currentDir.mid(1);
     }
-    dialog.setDirectory(currentDir);
 
-    dialog.setWindowTitle(tr("Select project path (dir.projects)"));
+    const QString& dir = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this,
+        tr("Select project path (dir.projects)"),
+        currentDir));
 
-    if (!dialog.exec()) {
-        return;
-    }
-
-    QString dir = dialog.selectedFiles().first();
     if (!dir.isEmpty()) {
         ui->projectsDirEdit->setText(dir);
     }

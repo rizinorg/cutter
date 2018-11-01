@@ -84,7 +84,7 @@ void NewFileDialog::on_loadFileButton_clicked()
 
 void NewFileDialog::on_selectFileButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath());
+    const QString &fileName = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath()));
 
     if (!fileName.isEmpty()) {
         ui->newFileEdit->setText(fileName);
@@ -94,27 +94,21 @@ void NewFileDialog::on_selectFileButton_clicked()
 
 void NewFileDialog::on_selectProjectsDirButton_clicked()
 {
-    QFileDialog dialog(this);
-    dialog.setFileMode(QFileDialog::DirectoryOnly);
-
     auto currentDir = Config()->getDirProjects();
 
     if (currentDir.startsWith("~")) {
         currentDir = QDir::homePath() + currentDir.mid(1);
     }
-    dialog.setDirectory(currentDir);
+    const QString &dir = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this,
+        tr("Select project path (dir.projects)"),
+        currentDir));
 
-    dialog.setWindowTitle(tr("Select project path (dir.projects)"));
-
-    if (!dialog.exec()) {
+    if (!dir.isEmpty()) {
         return;
     }
 
-    QString dir = dialog.selectedFiles().first();
-    if (!dir.isEmpty()) {
-        Config()->setDirProjects(dir);
-        fillProjectsList();
-    }
+    Config()->setDirProjects(dir);
+    fillProjectsList();
 }
 
 void NewFileDialog::on_loadProjectButton_clicked()
@@ -265,7 +259,7 @@ bool NewFileDialog::fillRecentFilesList()
     QMutableListIterator<QString> it(files);
     int i = 0;
     while (it.hasNext()) {
-        const QString &file = it.next();
+        const QString &file = QDir::toNativeSeparators(it.next());
         // Get stored files
 
         // Remove all but the file name
@@ -310,7 +304,7 @@ bool NewFileDialog::fillProjectsList()
 
     int i = 0;
     for (const QString &project : projects) {
-        QString info = core->cmd("Pi " + project);
+        QString info = QDir::toNativeSeparators(core->cmd("Pi " + project));
 
         QListWidgetItem *item = new QListWidgetItem(getIconFor(project, i++), project + "\n" + info);
 
@@ -342,7 +336,8 @@ void NewFileDialog::fillIOPluginsList()
 
 void NewFileDialog::loadFile(const QString &filename)
 {
-    if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(filename, false)
+    const QString &nativeFn = QDir::toNativeSeparators(filename);
+    if (ui->ioPlugin->currentIndex() == 0 && !Core()->tryFile(nativeFn, false)
             && !ui->checkBox_FilelessOpen->isChecked()) {
         QMessageBox msgBox(this);
         msgBox.setText(tr("Select a new program or a previous one before continuing."));
@@ -353,8 +348,8 @@ void NewFileDialog::loadFile(const QString &filename)
     // Add file to recent file list
     QSettings settings;
     QStringList files = settings.value("recentFileList").toStringList();
-    files.removeAll(filename);
-    files.prepend(filename);
+    files.removeAll(nativeFn);
+    files.prepend(nativeFn);
     while (files.size() > MaxRecentFiles)
         files.removeLast();
 
@@ -366,7 +361,7 @@ void NewFileDialog::loadFile(const QString &filename)
     if (ui->ioPlugin->currentIndex()) {
         ioFile = ui->ioPlugin->currentText() + "://";
     }
-    ioFile += filename;
+    ioFile += nativeFn;
     InitialOptions options;
     options.filename = ioFile;
     main->openNewFile(options, ui->checkBox_FilelessOpen->isChecked());
