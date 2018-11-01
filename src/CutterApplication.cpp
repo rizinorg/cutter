@@ -24,6 +24,7 @@
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
+    // Load translations
     QTranslator *t = new QTranslator;
     QTranslator *qtBaseTranslator = new QTranslator;
     QTranslator *qtTranslator = new QTranslator;
@@ -61,11 +62,24 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
     }
 
+    // Setup application information
     setOrganizationName("Cutter");
     setApplicationName("Cutter");
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
     setAttribute(Qt::AA_DontShowIconsInMenus);
+
+    // Load fonts
+    int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
+    if (ret == -1) {
+        qWarning() << "Cannot load Anonymous Pro font.";
+    }
+
+    ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
+    if (ret == -1) {
+        qWarning() << "Cannot load Incosolata-Regular font.";
+    }
+
 
     // Set QString codec to UTF-8
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

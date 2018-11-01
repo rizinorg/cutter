@@ -85,20 +85,6 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-#include <cassert>
-
-static void registerCustomFonts()
-{
-    int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
-    assert(-1 != ret && "unable to register Anonymous Pro.ttf");
-
-    ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
-    assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
-
-    // Do not issue a warning in release
-    Q_UNUSED(ret)
-}
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(Core()),
@@ -117,12 +103,9 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
-    registerCustomFonts();
-
     /*
-    * Toolbar
-    */
-
+     * Toolbar
+     */
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -133,9 +116,7 @@ void MainWindow::initUI()
     DebugToolbar *debugToolbar = new DebugToolbar(this);
     ui->mainToolBar->addWidget(debugToolbar);
     // Debug menu
-    // ui->menuDebug->addAction(debugToolbar->actionStart);
     ui->menuDebug->addAction(debugToolbar->actionStartEmul);
-    // ui->menuDebug->addAction(debugToolbar->actionAttach);
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugToolbar->actionStep);
     ui->menuDebug->addAction(debugToolbar->actionStepOver);
@@ -279,7 +260,7 @@ void MainWindow::initUI()
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
-    /* Load plugins */
+    /* Setup plugins interfaces */
     QList<CutterPlugin *> plugins = core->getCutterPlugins();
     for (auto plugin : plugins) {
         CutterDockWidget *pluginDock = plugin->setupInterface(this);
