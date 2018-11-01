@@ -379,7 +379,6 @@ void DisassemblyWidget::highlightCurrentLine()
                 highlightSelection.format.setBackground(highlightWordColor);
             }
 
-            highlightSelection.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             extraSelections.append(highlightSelection);
         }
     }
