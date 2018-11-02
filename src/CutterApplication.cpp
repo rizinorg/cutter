@@ -24,6 +24,14 @@
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
+    // Setup application information
+    setOrganizationName("Cutter");
+    setApplicationName("Cutter");
+    setApplicationVersion(CUTTER_VERSION_FULL);
+    setWindowIcon(QIcon(":/img/cutter.svg"));
+    setAttribute(Qt::AA_DontShowIconsInMenus);
+
+    // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run First
     // Load translations
     QTranslator *t = new QTranslator;
     QTranslator *qtBaseTranslator = new QTranslator;
@@ -37,10 +45,12 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         for (auto &it : allLocales) {
             langPrefix = it.bcp47Name();
             if (langPrefix == language) {
-                t->load(QString(QCoreApplication::applicationDirPath() + QDir::separator() +
-                                "translations" + QDir::separator() +
-                                "cutter_%1.qm").arg(langPrefix));
-                installTranslator(t);
+                const QString &cutterTranslationPath = QCoreApplication::applicationDirPath() + QDir::separator()
+                    + "translations" + QDir::separator() + QString("cutter_%1.qm").arg(langPrefix);
+
+                if (t->load(cutterTranslationPath)) {
+                    installTranslator(t);
+                }
                 QApplication::setLayoutDirection(it.textDirection());
                 QLocale::setDefault(it);
 
@@ -61,14 +71,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
             }
         }
     }
-
-    // Setup application information
-    setOrganizationName("Cutter");
-    setApplicationName("Cutter");
-    setApplicationVersion(CUTTER_VERSION_FULL);
-    setWindowIcon(QIcon(":/img/cutter.svg"));
-    setAttribute(Qt::AA_DontShowIconsInMenus);
-
+ 
     // Load fonts
     int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
     if (ret == -1) {
