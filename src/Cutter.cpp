@@ -2045,9 +2045,10 @@ void CutterCore::openProject(const QString &name)
 
 void CutterCore::saveProject(const QString &name)
 {
-    cmd("Ps " + name);
+    const QString &rv = cmd("Ps " + name.trimmed()).trimmed();
+    const bool ok = rv == name.trimmed();
     cmd("Pnj " + notes.toUtf8().toBase64());
-    emit projectSaved(name);
+    emit projectSaved(ok, name);
 }
 
 void CutterCore::deleteProject(const QString &name)

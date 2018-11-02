@@ -23,10 +23,10 @@ void OpenFileDialog::on_selectFileButton_clicked()
 
 void OpenFileDialog::on_buttonBox_accepted()
 {
-    QString filePath = ui->filenameLineEdit->text();
+    const QString &filePath = QDir::toNativeSeparators(ui->filenameLineEdit->text());
     RVA mapAddress = RVA_INVALID;
     QString mapAddressStr = ui->mapAddressLineEdit->text();
-    if (mapAddressStr.length()) {
+    if (!mapAddressStr.isEmpty()) {
         mapAddress = Core()->math(mapAddressStr);
     }
     Core()->openFile(filePath, mapAddress);
