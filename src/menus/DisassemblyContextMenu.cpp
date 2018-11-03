@@ -301,8 +301,6 @@ void DisassemblyContextMenu::aboutToShowSlot()
                 actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere["name"].toString()));
             }
         }
-
-        }
     } else {
         actionRenameUsedHere.setVisible(false);
     }
