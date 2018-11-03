@@ -6,6 +6,8 @@
 #include <QLayout>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QPainter>
+#include <QPen>
 
 #include "SectionsWidget.h"
 #include "MainWindow.h"
@@ -99,6 +101,18 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
+QColor SectionsModel::getColor(int colorIndex)
+{
+    QModelIndex i = index(colorIndex, 0);
+    return i.data(Qt::DecorationRole).value<QColor>();
+}
+
+SectionDescription SectionsModel::getSectionDescription(int stringIndex)
+{
+    QModelIndex i = index(stringIndex, 0);
+    return i.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
+}
+
 SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -186,6 +200,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
+    rawAddrDock->updateDock(sectionsTable);
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -197,6 +212,7 @@ void SectionsWidget::refreshSections()
     sectionsModel->endResetModel();
 
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
+    rawAddrDock->updateDock(sectionsTable);
 }
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
@@ -206,6 +222,8 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
     Core()->seek(section.vaddr);
+    auto color = index.data(Qt::DecorationRole).value<QColor>();
+    eprintf ("%s\n", color.name().toUtf8().constData());
 }
 
 SectionAddrDock::SectionAddrDock(QWidget *parent) :
@@ -220,4 +238,32 @@ SectionAddrDock::SectionAddrDock(QWidget *parent) :
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+}
+
+void SectionAddrDock::updateDock(QTreeView *table)
+{
+    int y = 0;
+    QPen pen = QPen();
+    //for (int i = 0; i < model->rowCount(); i++) {
+    //    y += 10;
+    //    //pen.setColor(model->getColor(i));
+    //    //graphicsScene->addLine(0, y, 500, y, pen);
+    //    SectionDescription desc = model->getSectionDescription(i);
+    //    eprintf ("%s\n", desc.name.toUtf8().constData());
+    //    //graphicsScene->addSimpleText(desc.name);
+    //}
+
+    bool b = false;
+    QModelIndex idx;
+    for (int i = 0; i < table->model()->rowCount(); i++) {
+        y += 10;
+        if (!b) {
+            idx = table->indexAt(QPoint(0, 0));
+        } else {
+            idx = table->indexBelow(idx);
+        }
+        pen.setColor(idx.data(Qt::DecorationRole).value<QColor>());
+        graphicsScene->addLine(0, y, 500, y, pen);
+        b = true;
+    }
 }

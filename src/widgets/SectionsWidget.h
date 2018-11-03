@@ -38,6 +38,9 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    QColor getColor(int colorIndex);
+    SectionDescription getSectionDescription(int stringIndex);
 };
 
 class SectionsProxyModel : public QSortFilterProxyModel
@@ -63,9 +66,11 @@ private slots:
     void refreshSections();
     void onSectionsDoubleClicked(const QModelIndex &index);
 
+
 private:
     QList<SectionDescription> sections;
     SectionsModel *sectionsModel;
+    SectionsProxyModel *proxyModel;
     QTreeView *sectionsTable;
     MainWindow *main;
     QWidget *dockWidgetContents;
@@ -81,6 +86,9 @@ class SectionAddrDock : public QDockWidget
 
 public:
     explicit SectionAddrDock(QWidget *parent = nullptr);
+
+public slots:
+    void updateDock(QTreeView *table);
 
 private:
     QGraphicsView *graphicsView;
