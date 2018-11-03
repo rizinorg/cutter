@@ -294,7 +294,12 @@ void DisassemblyContextMenu::aboutToShowSlot()
             RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
             actionRenameUsedHere.setText(tr("Add flag at %1 (used here)").arg(RAddressString(offset)));
         } else {
-            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere["name"].toString()));
+            if (thingUsedHere["type"] == "function") {
+                actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere["name"].toString()));
+            }
+            else {
+                actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere["name"].toString()));
+            }
         }
     } else {
         actionRenameUsedHere.setVisible(false);
