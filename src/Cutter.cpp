@@ -1545,6 +1545,7 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
         string.type = stringObject["type"].toString();
         string.size = stringObject["size"].toVariant().toUInt();
         string.length = stringObject["length"].toVariant().toUInt();
+        string.section = stringObject["section"].toString();
 
         ret << string;
     }
@@ -1648,6 +1649,18 @@ QList<SectionDescription> CutterCore::getAllSections()
         section.entropy =  sectionObject["entropy"].toString();
 
         ret << section;
+    }
+    return ret;
+}
+
+QStringList CutterCore::getSectionList()
+{
+    CORE_LOCK();
+    QStringList ret;
+
+    QJsonArray sectionsArray = cmdj("iSj").array();
+    for (QJsonValue value : sectionsArray) {
+        ret << value.toObject()["name"].toString();
     }
     return ret;
 }
