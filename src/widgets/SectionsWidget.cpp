@@ -200,7 +200,8 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
-    rawAddrDock->updateDock(sectionsTable);
+
+    connect(sectionsTable->model(), SIGNAL(layoutChanged()), this, SLOT(onSortTriggered()));
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -226,6 +227,10 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
     eprintf ("%s\n", color.name().toUtf8().constData());
 }
 
+void SectionsWidget::onSortTriggered() {
+    rawAddrDock->updateDock(sectionsTable);
+}
+
 SectionAddrDock::SectionAddrDock(QWidget *parent) :
     QDockWidget(parent),
     graphicsView(new QGraphicsView),
@@ -243,27 +248,15 @@ SectionAddrDock::SectionAddrDock(QWidget *parent) :
 void SectionAddrDock::updateDock(QTreeView *table)
 {
     int y = 0;
+    int n = table->model()->rowCount();
     QPen pen = QPen();
-    //for (int i = 0; i < model->rowCount(); i++) {
-    //    y += 10;
-    //    //pen.setColor(model->getColor(i));
-    //    //graphicsScene->addLine(0, y, 500, y, pen);
-    //    SectionDescription desc = model->getSectionDescription(i);
-    //    eprintf ("%s\n", desc.name.toUtf8().constData());
-    //    //graphicsScene->addSimpleText(desc.name);
-    //}
-
-    bool b = false;
-    QModelIndex idx;
-    for (int i = 0; i < table->model()->rowCount(); i++) {
+    QModelIndex idx = table->indexAt(QPoint(0, 0));
+    for (int i = 0; i < n; i++) {
         y += 10;
-        if (!b) {
-            idx = table->indexAt(QPoint(0, 0));
-        } else {
-            idx = table->indexBelow(idx);
-        }
         pen.setColor(idx.data(Qt::DecorationRole).value<QColor>());
         graphicsScene->addLine(0, y, 500, y, pen);
-        b = true;
+        if (i != n - 1) {
+            idx = table->indexBelow(idx);
+        }
     }
 }

@@ -65,6 +65,7 @@ public:
 private slots:
     void refreshSections();
     void onSectionsDoubleClicked(const QModelIndex &index);
+    void onSortTriggered();
 
 
 private:
