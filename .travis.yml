@@ -78,7 +78,7 @@ after_success:
       mkdir -p Cutter.app/Contents/Resources/r2/share &&
       cp -a /usr/local/share/radare2 Cutter.app/Contents/Resources/r2/share/ &&
       mkdir image && cp -a Cutter.app image/ &&
-      export DMG_FILE="Cutter-v$CUTTER_VERSION.dmg" &&
+      export DMG_FILE="Cutter-v$CUTTER_VERSION-x64.macOS.dmg" &&
       hdiutil create -srcfolder image -volname Cutter -fs HFS+ "$DMG_FILE" &&
       export FILE_TO_UPLOAD="$DMG_FILE"
     ; fi
@@ -92,7 +92,7 @@ after_success:
       LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
       LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
       find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
-      export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x86_64.AppImage" &&
+      export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x64.Linux.AppImage" &&
       mv Cutter-x86_64.AppImage "$APPIMAGE_FILE" &&
       export FILE_TO_UPLOAD="$APPIMAGE_FILE"
     ; fi
