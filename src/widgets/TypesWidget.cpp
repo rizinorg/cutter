@@ -130,12 +130,3 @@ void TypesWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->typesTreeView);
 }
-
-void TypesWidget::on_typesTreeView_doubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    // TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    // Core()->seek(exp.vaddr);
-}
