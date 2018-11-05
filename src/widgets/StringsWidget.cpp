@@ -185,8 +185,9 @@ StringsWidget::~StringsWidget() {}
 
 void StringsWidget::on_stringsTreeView_doubleClicked(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
     StringDescription str = index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
     Core()->seek(str.vaddr);
@@ -253,10 +254,11 @@ void StringsWidget::on_actionCopy()
 
     QModelIndex index;
 
-    if(sender() == ui->actionCopy_String)
+    if (sender() == ui->actionCopy_String) {
         index = ui->stringsTreeView->model()->index(row, 1);
-    else if(sender() == ui->actionCopy_Address)
+    } else if (sender() == ui->actionCopy_Address) {
         index = ui->stringsTreeView->model()->index(row, 0);
+    }
 
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(index.data().toString());

@@ -130,10 +130,7 @@ void SidebarWidget::on_regInfoToolButton_clicked()
 
 void SidebarWidget::updateRefs(RVA addr)
 {
-    // refs = calls q hace esa funcion
     QList<XrefDescription> refs = Core()->getXRefs(addr, false, false);
-
-    // xrefs = calls a esa funcion
     QList<XrefDescription> xrefs = Core()->getXRefs(addr, true, false);
 
     // Update disasm side bar
@@ -171,12 +168,9 @@ void SidebarWidget::fillRefs(QList<XrefDescription> refs, QList<XrefDescription>
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         QString tooltip = Core()->cmd("pdi 10 @ " + QString::number(xref.from)).trimmed();
 
-        // TODO wtf is this?
-        //tempItem->setToolTip(0, this->core->cmd("pdi 10 @ " + tooltip).trimmed());
-        //tempItem->setToolTip(1, this->core->cmd("pdi 10 @ " + tooltip).trimmed());
-
         ui->xrefToTreeWidget->insertTopLevelItem(0, tempItem);
     }
+
     // Adjust columns to content
     qhelpers::adjustColumns(ui->xrefToTreeWidget, 0);
 }

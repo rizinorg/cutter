@@ -9,7 +9,6 @@
 SideBar::SideBar(MainWindow *main) :
     QWidget(main),
     ui(new Ui::SideBar),
-    // Radare core found in:
     main(main)
 {
     ui->setupUi(this);

@@ -182,14 +182,16 @@ void VTablesWidget::refreshVTables()
 
 void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
     QModelIndex parent = index.parent();
-    if (parent.isValid())
+    if (parent.isValid()) {
         Core()->seek(index.data(
                          VTableModel::VTableDescriptionRole).value<ClassMethodDescription>().addr);
-    else
+    } else {
         Core()->seek(index.data(
                          VTableModel::VTableDescriptionRole).value<VTableDescription>().addr);
+    }
 }
