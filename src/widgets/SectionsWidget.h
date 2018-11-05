@@ -65,8 +65,6 @@ public:
 private slots:
     void refreshSections();
     void onSectionsDoubleClicked(const QModelIndex &index);
-    void onSortTriggered();
-
 
 private:
     QList<SectionDescription> sections;
@@ -86,14 +84,15 @@ class SectionAddrDock : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit SectionAddrDock(QWidget *parent = nullptr);
+    explicit SectionAddrDock(SectionsModel *model, QWidget *parent = nullptr);
 
 public slots:
-    void updateDock(QTreeView *table);
+    void updateDock();
 
 private:
     QGraphicsView *graphicsView;
     QGraphicsScene *graphicsScene;
+    SectionsProxyModel *proxyModel;
 };
 
 #endif // SECTIONSWIDGET_H

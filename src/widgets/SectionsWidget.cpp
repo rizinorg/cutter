@@ -133,7 +133,10 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
         return leftSection.size < rightSection.size;
     case SectionsModel::AddressColumn:
     case SectionsModel::EndAddressColumn:
-        return leftSection.vaddr < rightSection.vaddr;
+        if (leftSection.vaddr != rightSection.vaddr) {
+            return leftSection.vaddr < rightSection.vaddr;
+        }
+        return leftSection.size < rightSection.size;
     case SectionsModel::EntropyColumn:
         return leftSection.entropy < rightSection.entropy;
 
@@ -146,9 +149,7 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 
 SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    main(main),
-    rawAddrDock(new SectionAddrDock),
-    virtualAddrDock(new SectionAddrDock)
+    main(main)
 {
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
@@ -156,6 +157,9 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     sectionsTable = new QTreeView;
     sectionsModel = new SectionsModel(&sections, this);
     auto proxyModel = new SectionsProxyModel(sectionsModel, this);
+
+    rawAddrDock = new SectionAddrDock(sectionsModel, this);
+    virtualAddrDock = new SectionAddrDock(sectionsModel, this);
 
     sectionsTable->setModel(proxyModel);
     sectionsTable->setIndentation(10);
@@ -200,8 +204,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
-
-    connect(sectionsTable->model(), SIGNAL(layoutChanged()), this, SLOT(onSortTriggered()));
+    connect(sectionsTable->model(), SIGNAL(layoutChanged()), rawAddrDock, SLOT(updateDock()));
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -213,7 +216,7 @@ void SectionsWidget::refreshSections()
     sectionsModel->endResetModel();
 
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
-    rawAddrDock->updateDock(sectionsTable);
+    rawAddrDock->updateDock();
 }
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
@@ -223,15 +226,11 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
     Core()->seek(section.vaddr);
-    auto color = index.data(Qt::DecorationRole).value<QColor>();
-    eprintf ("%s\n", color.name().toUtf8().constData());
+    //auto color = index.data(Qt::DecorationRole).value<QColor>();
+    //eprintf ("%s\n", color.name().toUtf8().constData());
 }
 
-void SectionsWidget::onSortTriggered() {
-    rawAddrDock->updateDock(sectionsTable);
-}
-
-SectionAddrDock::SectionAddrDock(QWidget *parent) :
+SectionAddrDock::SectionAddrDock(SectionsModel *model, QWidget *parent) :
     QDockWidget(parent),
     graphicsView(new QGraphicsView),
     graphicsScene(new QGraphicsScene)
@@ -243,20 +242,27 @@ SectionAddrDock::SectionAddrDock(QWidget *parent) :
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+
+    proxyModel = new SectionsProxyModel(model, this);
 }
 
-void SectionAddrDock::updateDock(QTreeView *table)
+void SectionAddrDock::updateDock()
 {
     int y = 0;
-    int n = table->model()->rowCount();
+    int n = proxyModel->rowCount();
+    proxyModel->sort(2, Qt::AscendingOrder);
     QPen pen = QPen();
-    QModelIndex idx = table->indexAt(QPoint(0, 0));
+    pen.setWidth(10);
     for (int i = 0; i < n; i++) {
-        y += 10;
+        QModelIndex idx = proxyModel->index(i, 0);
         pen.setColor(idx.data(Qt::DecorationRole).value<QColor>());
+        //int s = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
+        y += 10;
+        //pen.setWidth(s/5);
         graphicsScene->addLine(0, y, 500, y, pen);
-        if (i != n - 1) {
-            idx = table->indexBelow(idx);
-        }
     }
+    //for (int i = 0; i < n; i++) {
+    //    QModelIndex idx = proxyModel->index(i, 0);
+    //    eprintf ("%x\n", idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr + idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size);
+    //}
 }
