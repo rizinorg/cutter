@@ -46,6 +46,7 @@ cd ..
 
 On macOS you will also have to copy the launcher bash script:
 ```sh
+mv Cutter.app/Contents/MacOS/Cutter Cutter.app/Contents/MacOS/Cutter.bin
 cp ../src/macos/Cutter Cutter.app/Contents/MacOS/Cutter && chmod +x Cutter.app/Contents/MacOS/Cutter
 ```
 
