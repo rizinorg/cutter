@@ -22,6 +22,11 @@ QStringList findLanguages()
     QStringList fileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
                                           QDir::Name);
 
+static inline size_t qtThemeToFlag(const CutterQtThemes& t)
+{
+    return t + 1;
+}
+
     QStringList languages;
     QString currLanguageName;
     auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
@@ -51,27 +56,26 @@ static constexpr int darkTheme = 2;
 
 bool shouldShow(const QString &s)
 {
-    static const QMap<QString, int> relevantSchemes = {
-        //       { "default", darkTheme },
-        { "zenburn", darkTheme },
-        { "darkda", darkTheme },
-        { "solarized", darkTheme },
-        { "onedark", darkTheme },
-        { "consonance", darkTheme },
-        { "ayu", darkTheme },
+    static const QMap<QString, size_t> relevantSchemes = {
+        { "zenburn", qtThemeToFlag(darkTheme) },
+        { "darkda", qtThemeToFlag(darkTheme) },
+        { "solarized", qtThemeToFlag(darkTheme) },
+        { "onedark", qtThemeToFlag(darkTheme) },
+        { "consonance", qtThemeToFlag(darkTheme) },
+        { "ayu", qtThemeToFlag(darkTheme) },
 
-        { "cutter", defaultTheme },
-        { "tango", defaultTheme },
-        { "white", defaultTheme },
-        { "dark", defaultTheme },
-        { "matrix", defaultTheme }
+        { "cutter", qtThemeToFlag(defaultTheme) },
+        { "tango", qtThemeToFlag(defaultTheme) },
+        { "white", qtThemeToFlag(defaultTheme) },
+        { "dark", qtThemeToFlag(defaultTheme) },
+        { "matrix", qtThemeToFlag(defaultTheme) }
     };
 
-    int res = relevantSchemes[s];
-    if ((Config()->getTheme() == CONFIG_DARK_THEME &&
-            res & darkTheme) ||
-            (Config()->getTheme() == CONFIG_DEFAULT_THEME &&
-             res & defaultTheme)) {
+    size_t res = relevantSchemes[s];
+    if ((Config()->getTheme() == darkTheme &&
+            res & qtThemeToFlag(darkTheme)) ||
+            (Config()->getTheme() == defaultTheme &&
+             res & qtThemeToFlag(defaultTheme))) {
         return true;
     }
 
