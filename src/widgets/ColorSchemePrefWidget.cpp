@@ -452,7 +452,6 @@ void ColorSchemePrefWidget::indexChanged(const QModelIndex &ni)
 
 void ColorSchemePrefWidget::updateSchemeFromConfig()
 {
-    qDebug() << "kek";
     isEditable = ColorSchemeFileWorker().isCustomScheme(Config()->getCurrentTheme());
     static_cast<ColorSettingsModel *>(ui->preferencesListView->model())->updateScheme();
 }
