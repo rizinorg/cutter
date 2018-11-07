@@ -15,6 +15,7 @@
 #include "MainWindow.h"
 #include "QuickFilterView.h"
 #include "common/Helpers.h"
+#include "common/Configuration.h"
 
 SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
     : QAbstractListModel(parent),
@@ -206,8 +207,11 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
-    connect(sectionsTable->model(), SIGNAL(layoutChanged()), rawAddrDock, SLOT(updateDock()));
-    connect(sectionsTable->model(), SIGNAL(layoutChanged()), virtualAddrDock, SLOT(updateDock()));
+
+    connect(Config(), SIGNAL(colorsUpdated()), rawAddrDock, SLOT(updateDock()));
+    connect(Config(), SIGNAL(colorsUpdated()), virtualAddrDock, SLOT(updateDock()));
+    //connect(sectionsTable->model(), SIGNAL(layoutChanged()), rawAddrDock, SLOT(updateDock()));
+    //connect(sectionsTable->model(), SIGNAL(layoutChanged()), virtualAddrDock, SLOT(updateDock()));
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -239,9 +243,7 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *
     graphicsView(new QGraphicsView),
     graphicsScene(new QGraphicsScene)
 {
-    const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene = new QGraphicsScene(this);
-    graphicsScene->setBackgroundBrush(bg);
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -252,6 +254,8 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *
 
 void SectionAddrDock::updateDock()
 {
+    const QBrush bg = QBrush(ConfigColor("gui.background"));
+    graphicsScene->setBackgroundBrush(bg);
     const int threshold = 30;
     int y = 0;
     int n = proxyModel->rowCount();
@@ -281,10 +285,9 @@ void SectionAddrDock::updateDock()
         }
         QGraphicsRectItem *item = new QGraphicsRectItem(100, y, 400, s);
         QGraphicsTextItem *text = new QGraphicsTextItem;
-        //text->setDefaultTextColor(ConfigColor("btext"));
-        text->setDefaultTextColor(Qt::white);
+        text->setDefaultTextColor(ConfigColor("gui.dataoffset"));
         QGraphicsTextItem *text2 = new QGraphicsTextItem;
-        text2->setDefaultTextColor(Qt::white);
+        text2->setDefaultTextColor(ConfigColor("gui.dataoffset"));
         text->setPos(0, y);
         text->setPlainText(QString("0x%1").arg(t, 0, 16));
         text2->setPos(500, y);
