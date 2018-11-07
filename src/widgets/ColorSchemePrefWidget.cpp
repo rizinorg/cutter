@@ -442,13 +442,7 @@ void ColorSchemePrefWidget::newColor()
 
     static_cast<ColorSettingsModel *>(ui->preferencesListView->model())->setColor(currCO.optionName,
                                                                                   d.selectedColor());
-
-    static_cast<ColorViewButton *>(QObject::sender())->setColor(d.selectedColor());
-    if (currCO.optionName == standardBackgroundOptionName) {
-        static_cast<PreferencesListView *>(ui->preferencesListView)->setStandardColors();
-    } else {
-        static_cast<PreferencesListView *>(ui->preferencesListView)->setStandardColors();
-    }
+    ui->preferencesListView->setStandardColors();
 }
 
 void ColorSchemePrefWidget::indexChanged(const QModelIndex &ni)
@@ -456,9 +450,10 @@ void ColorSchemePrefWidget::indexChanged(const QModelIndex &ni)
     ui->colorViewFore->setColor(ni.data(Qt::UserRole).value<ColorOption>().color);
 }
 
-void ColorSchemePrefWidget::setNewScheme(const QString &schemeName)
+void ColorSchemePrefWidget::updateSchemeFromConfig()
 {
-    isEditable = ColorSchemeFileWorker().isCustomScheme(schemeName);
+    qDebug() << "kek";
+    isEditable = ColorSchemeFileWorker().isCustomScheme(Config()->getCurrentTheme());
     static_cast<ColorSettingsModel *>(ui->preferencesListView->model())->updateScheme();
 }
 

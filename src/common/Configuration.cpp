@@ -8,6 +8,11 @@
 
 #include "common/ColorSchemeFileSaver.h"
 
+const QList<CutterQtTheme> kCutterQtThemesList = {
+    { "Default", LightFlag },
+    { "Dark",    DarkFlag }
+};
+
 Configuration *Configuration::mPtr = nullptr;
 
 /*!
@@ -226,27 +231,32 @@ void Configuration::setFont(const QFont &font)
     emit fontsUpdated();
 }
 
-QString Configuration::getLastThemeOf(const CutterQtThemes& currQtTheme) const
+QString Configuration::getLastThemeOf(const CutterQtTheme &currQtTheme) const
 {
-    return s.value("lastThemeOf" + QString::number(currQtTheme),
+    return s.value("lastThemeOf." + currQtTheme.name,
                    Config()->getCurrentTheme()).toString();
 }
 
 void Configuration::setTheme(int theme)
 {
+    if (theme >= kCutterQtThemesList.size() ||
+        theme < 0) {
+        theme = 0;
+    }
     s.setValue("ColorPalette", theme);
-    switch (theme) {
-    case CONFIG_DEFAULT_THEME:
+    QString themeName = kCutterQtThemesList[theme].name;
+
+    if (themeName == "Default") {
         loadDefaultTheme();
-        break;
-    case CONFIG_DARK_THEME:
+    } else if (themeName == "Dark") {
         loadDarkTheme();
-        break;
-    default:
+    } else {
         loadDefaultTheme();
     }
+
     emit colorsUpdated();
 }
+
 
 QString Configuration::getLogoFile()
 {
@@ -263,9 +273,9 @@ void Configuration::setColor(const QString &name, const QColor &color)
     s.setValue("colors." + name, color);
 }
 
-void Configuration::setLastThemeOf(const CutterQtThemes& currQtTheme, const QString &theme)
+void Configuration::setLastThemeOf(const CutterQtTheme &currQtTheme, const QString &theme)
 {
-    s.setValue("lastThemeOf" + QString::number(currQtTheme), theme);
+    s.setValue("lastThemeOf." + currQtTheme.name, theme);
 }
 
 const QColor Configuration::getColor(const QString &name) const

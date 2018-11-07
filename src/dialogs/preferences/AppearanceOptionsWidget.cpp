@@ -3,6 +3,7 @@
 #include <QFontDialog>
 #include <QTranslator>
 #include <QInputDialog>
+#include <QSignalBlocker>
 
 #include <QComboBox>
 #include "PreferencesDialog.h"
@@ -15,18 +16,26 @@
 #include "common/ColorSchemeFileSaver.h"
 #include "widgets/ColorSchemePrefWidget.h"
 
+static const QHash<QString, ColorFlags> kRelevantSchemes = {
+    { "ayu", DarkFlag },
+    { "consonance", DarkFlag },
+    { "darkda", DarkFlag },
+    { "onedark", DarkFlag },
+    { "solarized", DarkFlag },
+    { "zenburn", DarkFlag },
+     { "cutter", LightFlag },
+    { "dark", LightFlag },
+    { "matrix", LightFlag },
+    { "tango", LightFlag },
+    { "white", LightFlag }
+};
+
 QStringList findLanguages()
 {
     QDir dir(QCoreApplication::applicationDirPath() + QDir::separator() +
              "translations");
     QStringList fileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
                                           QDir::Name);
-
-static inline size_t qtThemeToFlag(const CutterQtThemes& t)
-{
-    return t + 1;
-}
-
     QStringList languages;
     QString currLanguageName;
     auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
@@ -46,40 +55,6 @@ static inline size_t qtThemeToFlag(const CutterQtThemes& t)
     }
 
     return languages << "English";
-}
-
-
-//static constexpr int lightTheme = 4; // If we finally add light theme
-static constexpr int defaultTheme = 1;
-static constexpr int darkTheme = 2;
-
-
-bool shouldShow(const QString &s)
-{
-    static const QMap<QString, size_t> relevantSchemes = {
-        { "zenburn", qtThemeToFlag(darkTheme) },
-        { "darkda", qtThemeToFlag(darkTheme) },
-        { "solarized", qtThemeToFlag(darkTheme) },
-        { "onedark", qtThemeToFlag(darkTheme) },
-        { "consonance", qtThemeToFlag(darkTheme) },
-        { "ayu", qtThemeToFlag(darkTheme) },
-
-        { "cutter", qtThemeToFlag(defaultTheme) },
-        { "tango", qtThemeToFlag(defaultTheme) },
-        { "white", qtThemeToFlag(defaultTheme) },
-        { "dark", qtThemeToFlag(defaultTheme) },
-        { "matrix", qtThemeToFlag(defaultTheme) }
-    };
-
-    size_t res = relevantSchemes[s];
-    if ((Config()->getTheme() == darkTheme &&
-            res & qtThemeToFlag(darkTheme)) ||
-            (Config()->getTheme() == defaultTheme &&
-             res & qtThemeToFlag(defaultTheme))) {
-        return true;
-    }
-
-    return false;
 }
 
 
@@ -109,8 +84,6 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
 
     connect(Config(), &Configuration::fontsUpdated, this,
             &AppearanceOptionsWidget::updateFontFromConfig);
-
-    ui->colorSchemePrefWidget->setNewScheme(Config()->getCurrentTheme());
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
@@ -124,45 +97,38 @@ void AppearanceOptionsWidget::updateFontFromConfig()
 void AppearanceOptionsWidget::updateThemeFromConfig()
 {
     // Disconnect currentIndexChanged because clearing the comboxBox and refiling it causes its index to change.
-    disconnect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)),
-               this, SLOT(on_colorComboBox_currentIndexChanged(int)));
-    disconnect(ui->colorComboBox, &QComboBox::currentTextChanged,
-               ui->colorSchemePrefWidget, &ColorSchemePrefWidget::setNewScheme);
-    disconnect(ui->themeComboBox, SIGNAL(currentIndexChanged(int)),
-               this, SLOT(on_themeComboBox_currentIndexChanged(int)));
-
-    CutterQtThemes curQtTheme = CutterQtThemes(Config()->getTheme());
-    if (curQtTheme == defaultTheme)
-        ui->themeComboBox->setCurrentText("Default");
-    else if (curQtTheme == darkTheme)
-        ui->themeComboBox->setCurrentText("Dark");
-    else if (curQtTheme == lightTheme)
-        ui->themeComboBox->setCurrentText("Light");
+    QSignalBlocker signalBlockerColorBox(ui->colorComboBox);
+    QSignalBlocker signalBlockerThemeBox(ui->themeComboBox);
+     ui->themeComboBox->clear();
+    for (auto &it : kCutterQtThemesList) {
+        ui->themeComboBox->addItem(it.name);
+    }
+    uint curQtThemeIndex = Config()->getTheme();
+    if (curQtThemeIndex >= kCutterQtThemesList.size()) {
+        curQtThemeIndex = 0;
+        Config()->setTheme(curQtThemeIndex);
+    }
+    ui->themeComboBox->setCurrentIndex(curQtThemeIndex);
 
     QList<QString> themes = Core()->getColorThemes();
     ui->colorComboBox->clear();
-    //    ui->colorComboBox->addItem("default");
-    for (QString str : themes)
-        if (ColorSchemeFileWorker().isCustomScheme(str) || shouldShow(str))
-            ui->colorComboBox->addItem(str);
+    for (QString theme : themes) {
+        if (ColorSchemeFileWorker().isCustomScheme(theme) ||
+            (kCutterQtThemesList[curQtThemeIndex].flag & kRelevantSchemes[theme])) {
+            ui->colorComboBox->addItem(theme);
         }
     }
-    QString curTheme = Config()->getCurrentTheme();
-    int index = ui->colorComboBox->findText(curTheme);
-    if (index == -1)
-        index = 0;
 
-    connect(ui->colorComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(on_colorComboBox_currentIndexChanged(int)));
-    connect(ui->colorComboBox, &QComboBox::currentTextChanged,
-            ui->colorSchemePrefWidget, &ColorSchemePrefWidget::setNewScheme);
-    connect(ui->themeComboBox, SIGNAL(currentIndexChanged(int)),
-            this, SLOT(on_themeComboBox_currentIndexChanged(int)));
+    QString curTheme = Config()->getLastThemeOf(kCutterQtThemesList[curQtThemeIndex]);
+    int index = ui->colorComboBox->findText(curTheme);
+    if (index == -1) {
+        index = 0;
+    }
 
     ui->colorComboBox->setCurrentIndex(index);
     curTheme = ui->colorComboBox->currentText();
     Config()->setColorTheme(curTheme);
-    ui->colorSchemePrefWidget->setNewScheme(curTheme);
+    ui->colorSchemePrefWidget->updateSchemeFromConfig();
     int maxThemeLen = 0;
     for (QString str : themes) {
         int strLen = str.length();
@@ -187,24 +153,23 @@ void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
 
 void AppearanceOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
-    QString theme = ui->themeComboBox->itemText(index);
-    int th = defaultTheme;
-
-    if (theme == "Dark") {
-        th = darkTheme;
-    } else if (theme == "Light") {
-        th = lightTheme;
-    }
-
-    Config()->setTheme(th);
+    Config()->setTheme(index);
+    updateThemeFromConfig();
 }
 
 void AppearanceOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
 {
     QString theme = ui->colorComboBox->itemText(index);
-    Config()->setLastThemeOf(CutterQtThemes(Config()->getTheme()), theme);
-    ui->colorSchemePrefWidget->setNewScheme(theme);
+
+    uint curQtThemeIndex = Config()->getTheme();
+    if (curQtThemeIndex >= kCutterQtThemesList.size()) {
+        curQtThemeIndex = 0;
+        Config()->setTheme(curQtThemeIndex);
+    }
+
+    Config()->setLastThemeOf(kCutterQtThemesList[curQtThemeIndex], theme);
     Config()->setColorTheme(theme);
+    ui->colorSchemePrefWidget->updateSchemeFromConfig();
 }
 
 void AppearanceOptionsWidget::on_copyButton_clicked()
@@ -220,7 +185,7 @@ void AppearanceOptionsWidget::on_copyButton_clicked()
         return;
     ColorSchemeFileWorker().copy(Config()->getCurrentTheme(), newSchemeName);
     Config()->setColorTheme(newSchemeName);
-    ui->colorSchemePrefWidget->setNewScheme(newSchemeName);
+    ui->colorSchemePrefWidget->updateSchemeFromConfig();
     updateThemeFromConfig();
 }
 
