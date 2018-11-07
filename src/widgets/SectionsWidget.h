@@ -84,15 +84,18 @@ class SectionAddrDock : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit SectionAddrDock(SectionsModel *model, QWidget *parent = nullptr);
+    enum AddrType { Raw = 0, Virtual };
+    explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
 
 public slots:
     void updateDock();
+    void drawCursor();
 
 private:
     QGraphicsView *graphicsView;
     QGraphicsScene *graphicsScene;
     SectionsProxyModel *proxyModel;
+    AddrType addrType;
 };
 
 #endif // SECTIONSWIDGET_H
