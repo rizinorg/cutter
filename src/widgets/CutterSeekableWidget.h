@@ -6,7 +6,6 @@ class MainWindow;
 
 class CutterSeekableWidget : public QObject
 {
-
     Q_OBJECT
 
 public:
@@ -20,6 +19,8 @@ public:
     bool getSyncWithCore();
     void setIndependentOffset(RVA addr);
     void onSeekChanged(RVA addr);
+
+    static const QString UNSYNCED_TEXT;
 
 private:
     RVA independentOffset = RVA_INVALID;
