@@ -1,5 +1,4 @@
 #include <QTreeView>
-#include <QGraphicsRectItem>
 #include <QGraphicsTextItem>
 #include <QGraphicsView>
 #include <QGraphicsScene>
@@ -202,6 +201,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     addrDocks << rawAddrDock << virtualAddrDock;
     //connect(sectionsTable->model(), SIGNAL(layoutChanged()), rawAddrDock, SLOT(updateDock()));
     //connect(sectionsTable->model(), SIGNAL(layoutChanged()), virtualAddrDock, SLOT(updateDock()));
+    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(refreshSections()));
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -226,15 +226,12 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
     Core()->seek(section.vaddr);
-    //auto color = index.data(Qt::DecorationRole).value<QColor>();
-    //eprintf ("%s\n", color.name().toUtf8().constData());
 }
 
 void SectionsWidget::drawCursorOnAddrDocks()
 {
-    const int rectOffset = 100;
-    const int rectWidth = 400;
-    const int size = 10;
+    const int rectWidth = 600;
+    const int size = 5;
     RVA offset = Core()->getOffset();
     std::map<RVA, int>::iterator it;
     for (int i = 0; i < addrDocks.count(); i++) {
@@ -245,22 +242,20 @@ void SectionsWidget::drawCursorOnAddrDocks()
             if (offset < it->first) {
                 int y = it->second;
                 QString name = addrDocks[i]->mp3[y];
-
-                QGraphicsRectItem *rect;
                 for (int i = 0; i < addrDocks.count(); i++) {
                     SectionAddrDock *addrDock = addrDocks[i];
                     switch (addrDock->addrType) {
                         case SectionAddrDock::Raw:
-                            rect = new QGraphicsRectItem(rectOffset, addrDock->mp1[name], rectWidth, size);
+                            addrDock->indicator->setRect(0, addrDock->mp1[name], rectWidth, size);
+                            addrDock->indicator->setZValue(addrDock->graphicsScene->items().count() - 1);
                             break;
                         case SectionAddrDock::Virtual:
-                            rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
+                            addrDock->indicator->setRect(0, y, rectWidth, size);
+                            addrDock->indicator->setZValue(addrDock->graphicsScene->items().count() - 1);
                             break;
                         default:
                             return;
                     }
-                    rect->setBrush(QBrush(Qt::red));
-                    addrDock->graphicsScene->addItem(rect);
                 }
                 return;
             }
@@ -271,8 +266,11 @@ void SectionsWidget::drawCursorOnAddrDocks()
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *parent) :
     QDockWidget(parent),
     graphicsScene(new QGraphicsScene),
+    indicator(new QGraphicsRectItem),
     graphicsView(new QGraphicsView)
 {
+    indicator->setBrush(QBrush(Qt::red));
+    graphicsScene->addItem(indicator);
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);

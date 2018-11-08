@@ -19,6 +19,7 @@ class SectionsWidget;
 class SectionAddrDock;
 class QuickFilterView;
 class QGraphicsView;
+class QGraphicsRectItem;
 
 class SectionsModel : public QAbstractListModel
 {
@@ -86,6 +87,7 @@ public:
     enum AddrType { Raw = 0, Virtual };
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
     QGraphicsScene *graphicsScene;
+    QGraphicsRectItem *indicator;
     AddrType addrType;
     QHash<QString, int> mp1;
     std::map<RVA, int> mp2;
