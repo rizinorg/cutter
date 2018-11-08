@@ -216,6 +216,7 @@ void SectionsWidget::refreshSections()
     for (int i = 0; i < addrDocks.count(); i++) {
         addrDocks[i]->updateDock();
     }
+    drawCursorOnAddrDocks();
 }
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
@@ -229,10 +230,48 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
     //eprintf ("%s\n", color.name().toUtf8().constData());
 }
 
+void SectionsWidget::drawCursorOnAddrDocks()
+{
+    const int rectOffset = 100;
+    const int rectWidth = 400;
+    const int size = 10;
+    RVA offset = Core()->getOffset();
+    std::map<RVA, int>::iterator it;
+    for (int i = 0; i < addrDocks.count(); i++) {
+        if (addrDocks[i]->addrType != SectionAddrDock::Virtual) {
+            continue;
+        }
+        for (it = addrDocks[i]->mp2.begin(); it != addrDocks[i]->mp2.end(); it++) {
+            if (offset < it->first) {
+                int y = it->second;
+                QString name = addrDocks[i]->mp3[y];
+
+                QGraphicsRectItem *rect;
+                for (int i = 0; i < addrDocks.count(); i++) {
+                    SectionAddrDock *addrDock = addrDocks[i];
+                    switch (addrDock->addrType) {
+                        case SectionAddrDock::Raw:
+                            rect = new QGraphicsRectItem(rectOffset, addrDock->mp1[name], rectWidth, size);
+                            break;
+                        case SectionAddrDock::Virtual:
+                            rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
+                            break;
+                        default:
+                            return;
+                    }
+                    rect->setBrush(QBrush(Qt::red));
+                    addrDock->graphicsScene->addItem(rect);
+                }
+                return;
+            }
+        }
+    }
+}
+
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *parent) :
     QDockWidget(parent),
-    graphicsView(new QGraphicsView),
-    graphicsScene(new QGraphicsScene)
+    graphicsScene(new QGraphicsScene),
+    graphicsView(new QGraphicsView)
 {
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
@@ -289,22 +328,10 @@ void SectionAddrDock::updateDock()
         graphicsScene->addItem(addrText);
         graphicsScene->addItem(nameText);
 
-        y += size;
-    }
-    //for (int i = 0; i < n; i++) {
-    //    QModelIndex idx = proxyModel->index(i, 0);
-    //    eprintf ("%x\n", idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr + idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize);
-    //}
-}
+        mp1[name] = y;
+        mp2[addr + size] = y;
+        mp3[y] = name;
 
-void SectionAddrDock::drawCursor()
-{
-    RVA offset = Core()->getOffset();
-    proxyModel->sort(2, Qt::AscendingOrder);
-    for (int i = 0; i < proxyModel->rowCount(); i++) {
-        QModelIndex idx = proxyModel->index(i, 0);
-        RVA t = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr + idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
-        if (offset < t) {
-        }
+        y += size;
     }
 }

@@ -75,6 +75,7 @@ private:
     QuickFilterView *quickFilterView;
 
     QList<SectionAddrDock *> addrDocks;
+    void drawCursorOnAddrDocks();
 };
 
 class SectionAddrDock : public QDockWidget
@@ -84,22 +85,19 @@ class SectionAddrDock : public QDockWidget
 public:
     enum AddrType { Raw = 0, Virtual };
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
+    QGraphicsScene *graphicsScene;
+    AddrType addrType;
+    QHash<QString, int> mp1;
+    std::map<RVA, int> mp2;
+    std::map<int, QString> mp3;
 
 public slots:
     void updateDock();
-    void drawCursor();
+
 
 private:
     QGraphicsView *graphicsView;
-    QGraphicsScene *graphicsScene;
     SectionsProxyModel *proxyModel;
-    AddrType addrType;
-
-    // section name and y on view
-    QHash<QString, int> mp;
-    // vaddr + vsize and y on view
-    // only for virtual addr map and not for raw
-    std::map<RVA, int> mp_sub;
 };
 
 #endif // SECTIONSWIDGET_H
