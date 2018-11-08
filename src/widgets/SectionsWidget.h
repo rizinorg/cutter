@@ -2,10 +2,12 @@
 #define SECTIONSWIDGET_H
 
 #include <memory>
+#include <map>
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 #include <QGraphicsScene>
+#include <QHash>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -38,9 +40,6 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-
-    QColor getColor(int colorIndex);
-    SectionDescription getSectionDescription(int stringIndex);
 };
 
 class SectionsProxyModel : public QSortFilterProxyModel
@@ -75,8 +74,7 @@ private:
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;
 
-    SectionAddrDock *rawAddrDock;
-    SectionAddrDock *virtualAddrDock;
+    QList<SectionAddrDock *> addrDocks;
 };
 
 class SectionAddrDock : public QDockWidget
@@ -96,6 +94,12 @@ private:
     QGraphicsScene *graphicsScene;
     SectionsProxyModel *proxyModel;
     AddrType addrType;
+
+    // section name and y on view
+    QHash<QString, int> mp;
+    // vaddr + vsize and y on view
+    // only for virtual addr map and not for raw
+    std::map<RVA, int> mp_sub;
 };
 
 #endif // SECTIONSWIDGET_H

@@ -104,18 +104,6 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-QColor SectionsModel::getColor(int colorIndex)
-{
-    QModelIndex i = index(colorIndex, 0);
-    return i.data(Qt::DecorationRole).value<QColor>();
-}
-
-SectionDescription SectionsModel::getSectionDescription(int stringIndex)
-{
-    QModelIndex i = index(stringIndex, 0);
-    return i.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
-}
-
 SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
@@ -161,9 +149,6 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     sectionsModel = new SectionsModel(&sections, this);
     auto proxyModel = new SectionsProxyModel(sectionsModel, this);
 
-    rawAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Raw, this);
-    virtualAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Virtual, this);
-
     sectionsTable->setModel(proxyModel);
     sectionsTable->setIndentation(10);
     sectionsTable->setSortingEnabled(true);
@@ -198,18 +183,23 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(sectionsTable);
     layout->addWidget(quickFilterView);
-    QWidget *hw = new QWidget();
-    QHBoxLayout *layouth = new QHBoxLayout();
-    layouth->addWidget(rawAddrDock);
-    layouth->addWidget(virtualAddrDock);
-    hw->setLayout(layouth);
-    layout->addWidget(hw);
+    SectionAddrDock *rawAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Raw, this);
+    SectionAddrDock *virtualAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Virtual, this);
+
+    QWidget *addrDockWidget = new QWidget();
+    QHBoxLayout *addrDockLayout = new QHBoxLayout();
+    addrDockLayout->addWidget(rawAddrDock);
+    addrDockLayout->addWidget(virtualAddrDock);
+    addrDockWidget->setLayout(addrDockLayout);
+    layout->addWidget(addrDockWidget);
+
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
 
     connect(Config(), SIGNAL(colorsUpdated()), rawAddrDock, SLOT(updateDock()));
     connect(Config(), SIGNAL(colorsUpdated()), virtualAddrDock, SLOT(updateDock()));
+    addrDocks << rawAddrDock << virtualAddrDock;
     //connect(sectionsTable->model(), SIGNAL(layoutChanged()), rawAddrDock, SLOT(updateDock()));
     //connect(sectionsTable->model(), SIGNAL(layoutChanged()), virtualAddrDock, SLOT(updateDock()));
 }
@@ -223,8 +213,9 @@ void SectionsWidget::refreshSections()
     sectionsModel->endResetModel();
 
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
-    rawAddrDock->updateDock();
-    virtualAddrDock->updateDock();
+    for (int i = 0; i < addrDocks.count(); i++) {
+        addrDocks[i]->updateDock();
+    }
 }
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
@@ -243,11 +234,9 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *
     graphicsView(new QGraphicsView),
     graphicsScene(new QGraphicsScene)
 {
-    graphicsScene = new QGraphicsScene(this);
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
-
     proxyModel = new SectionsProxyModel(model, this);
     addrType = type;
 }
@@ -256,47 +245,51 @@ void SectionAddrDock::updateDock()
 {
     const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene->setBackgroundBrush(bg);
-    const int threshold = 30;
+
+    const int heightThreshold = 30;
+    const int rectOffset = 100;
+    const int rectWidth = 400;
     int y = 0;
-    int n = proxyModel->rowCount();
     proxyModel->sort(2, Qt::AscendingOrder);
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
-        RVA t;
-        int s;
+        RVA addr;
+        int size;
         switch (addrType) {
             case SectionAddrDock::Raw:
-                t = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().paddr;
-                s = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
+                addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().paddr;
+                size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
                 break;
             case SectionAddrDock::Virtual:
-                t = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
-                s = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+                addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
+                size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
                 break;
             default:
                 return;
         }
-        QString t2 = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
-        if (s < threshold) {
-            s = threshold;
+        QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+        if (size < heightThreshold) {
+            size = heightThreshold;
         } else {
-            s /= threshold;
-            s = std::max(s, threshold);
+            size /= heightThreshold;
+            size = std::max(size, heightThreshold);
         }
-        QGraphicsRectItem *item = new QGraphicsRectItem(100, y, 400, s);
-        QGraphicsTextItem *text = new QGraphicsTextItem;
-        text->setDefaultTextColor(ConfigColor("gui.dataoffset"));
-        QGraphicsTextItem *text2 = new QGraphicsTextItem;
-        text2->setDefaultTextColor(ConfigColor("gui.dataoffset"));
-        text->setPos(0, y);
-        text->setPlainText(QString("0x%1").arg(t, 0, 16));
-        text2->setPos(500, y);
-        text2->setPlainText(t2);
-        item->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
-        graphicsScene->addItem(text);
-        graphicsScene->addItem(item);
-        graphicsScene->addItem(text2);
-        y += s;
+        QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
+        rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
+        graphicsScene->addItem(rect);
+
+        QGraphicsTextItem *addrText = new QGraphicsTextItem;
+        QGraphicsTextItem *nameText = new QGraphicsTextItem;
+        addrText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
+        nameText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
+        addrText->setPos(0, y);
+        nameText->setPos(rectOffset + rectWidth, y);
+        addrText->setPlainText(QString("0x%1").arg(addr, 0, 16));
+        nameText->setPlainText(name);
+        graphicsScene->addItem(addrText);
+        graphicsScene->addItem(nameText);
+
+        y += size;
     }
     //for (int i = 0; i < n; i++) {
     //    QModelIndex idx = proxyModel->index(i, 0);
@@ -306,4 +299,12 @@ void SectionAddrDock::updateDock()
 
 void SectionAddrDock::drawCursor()
 {
+    RVA offset = Core()->getOffset();
+    proxyModel->sort(2, Qt::AscendingOrder);
+    for (int i = 0; i < proxyModel->rowCount(); i++) {
+        QModelIndex idx = proxyModel->index(i, 0);
+        RVA t = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr + idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+        if (offset < t) {
+        }
+    }
 }
