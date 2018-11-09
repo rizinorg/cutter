@@ -90,7 +90,8 @@ public:
     QGraphicsRectItem *indicator;
     SectionsProxyModel *proxyModel;
     AddrType addrType;
-    QHash<QString, int> mp;
+    QHash<QString, int> namePosYMap;
+    QHash<QString, int> nameHeightMap;
 
 public slots:
     void updateDock();

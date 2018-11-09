@@ -245,9 +245,14 @@ void SectionsWidget::drawCursorOnAddrDocks()
             RVA end = vaddr + vsize;
             if (offset < end) {
                 QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+                float ratio = 0;
+                if (vsize > 0 && offset > vaddr) {
+                    ratio = (float)(offset - vaddr) / (float)vsize;
+                }
                 for (int k = 0; k < addrDocks.count(); k++) {
                     SectionAddrDock *addrDock2 = addrDocks[k];
-                    addrDock2->indicator->setRect(0, addrDock2->mp[name], rectWidth, size);
+                    float padding = addrDock2->nameHeightMap[name] * ratio;
+                    addrDock2->indicator->setRect(0, addrDock2->namePosYMap[name] + (int)padding, rectWidth, size);
                     addrDock2->indicator->setZValue(addrDock2->graphicsScene->items().count() - 1);
                 }
                 return;
@@ -319,7 +324,8 @@ void SectionAddrDock::updateDock()
         graphicsScene->addItem(addrText);
         graphicsScene->addItem(nameText);
 
-        mp[name] = y;
+        namePosYMap[name] = y;
+        nameHeightMap[name] = size;
 
         y += size;
     }
