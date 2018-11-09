@@ -233,29 +233,22 @@ void SectionsWidget::drawCursorOnAddrDocks()
     const int rectWidth = 600;
     const int size = 5;
     RVA offset = Core()->getOffset();
-    std::map<RVA, int>::iterator it;
     for (int i = 0; i < addrDocks.count(); i++) {
-        if (addrDocks[i]->addrType != SectionAddrDock::Virtual) {
+        SectionAddrDock *addrDock = addrDocks[i];
+        if (addrDock->addrType != SectionAddrDock::Virtual) {
             continue;
         }
-        for (it = addrDocks[i]->mp2.begin(); it != addrDocks[i]->mp2.end(); it++) {
-            if (offset < it->first) {
-                int y = it->second;
-                QString name = addrDocks[i]->mp3[y];
-                for (int i = 0; i < addrDocks.count(); i++) {
-                    SectionAddrDock *addrDock = addrDocks[i];
-                    switch (addrDock->addrType) {
-                        case SectionAddrDock::Raw:
-                            addrDock->indicator->setRect(0, addrDock->mp1[name], rectWidth, size);
-                            addrDock->indicator->setZValue(addrDock->graphicsScene->items().count() - 1);
-                            break;
-                        case SectionAddrDock::Virtual:
-                            addrDock->indicator->setRect(0, y, rectWidth, size);
-                            addrDock->indicator->setZValue(addrDock->graphicsScene->items().count() - 1);
-                            break;
-                        default:
-                            return;
-                    }
+        for (int j = 0; j != addrDock->proxyModel->rowCount(); j++) {
+            QModelIndex idx = addrDock->proxyModel->index(j, 0);
+            RVA vaddr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
+            int vsize = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+            RVA end = vaddr + vsize;
+            if (offset < end) {
+                QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+                for (int k = 0; k < addrDocks.count(); k++) {
+                    SectionAddrDock *addrDock2 = addrDocks[k];
+                    addrDock2->indicator->setRect(0, addrDock2->mp[name], rectWidth, size);
+                    addrDock2->indicator->setZValue(addrDock2->graphicsScene->items().count() - 1);
                 }
                 return;
             }
@@ -326,9 +319,7 @@ void SectionAddrDock::updateDock()
         graphicsScene->addItem(addrText);
         graphicsScene->addItem(nameText);
 
-        mp1[name] = y;
-        mp2[addr + size] = y;
-        mp3[y] = name;
+        mp[name] = y;
 
         y += size;
     }

@@ -88,10 +88,9 @@ public:
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
     QGraphicsScene *graphicsScene;
     QGraphicsRectItem *indicator;
+    SectionsProxyModel *proxyModel;
     AddrType addrType;
-    QHash<QString, int> mp1;
-    std::map<RVA, int> mp2;
-    std::map<int, QString> mp3;
+    QHash<QString, int> mp;
 
 public slots:
     void updateDock();
@@ -99,7 +98,6 @@ public slots:
 
 private:
     QGraphicsView *graphicsView;
-    SectionsProxyModel *proxyModel;
 };
 
 #endif // SECTIONSWIDGET_H
