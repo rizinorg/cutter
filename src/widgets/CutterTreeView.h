@@ -2,6 +2,7 @@
 #define CUTTERTREEVIEW_H
 
 #include <memory>
+#include <QAbstractItemView>
 #include <QTreeView>
 
 namespace Ui {

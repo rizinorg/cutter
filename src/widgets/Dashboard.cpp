@@ -6,8 +6,8 @@
 #include "common/TempConfig.h"
 #include "dialogs/VersionInfoDialog.h"
 
-
 #include "MainWindow.h"
+#include "CutterTreeView.h"
 
 #include <QDebug>
 #include <QJsonArray>
@@ -19,7 +19,6 @@
 #include <QString>
 #include <QMessageBox>
 #include <QDialog>
-#include <QTreeView>
 #include <QTreeWidget>
 
 Dashboard::Dashboard(MainWindow *main, QAction *action) :
@@ -176,12 +175,12 @@ void Dashboard::updateContents()
 void Dashboard::on_certificateButton_clicked()
 {
     static QDialog *viewDialog = nullptr;
-    static QTreeView *view = nullptr;
+    static CutterTreeView *view = nullptr;
     static JsonModel *model = nullptr;
     static QString qstrCertificates;
     if (!viewDialog) {
         viewDialog = new QDialog(this);
-        view = new QTreeView(viewDialog);
+        view = new CutterTreeView(viewDialog);
         model = new JsonModel();
         QJsonDocument qjsonCertificatesDoc = Core()->getSignatureInfo();
         qstrCertificates = qjsonCertificatesDoc.toJson(QJsonDocument::Compact);

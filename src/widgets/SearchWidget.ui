@@ -31,9 +31,9 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTreeView" name="searchTreeView">
+     <widget class="CutterTreeView" name="searchTreeView">
       <property name="styleSheet">
-       <string notr="true">QTreeView::item
+       <string notr="true">CutterTreeView::item
 {
     padding-top: 1px;
     padding-bottom: 1px;
@@ -116,6 +116,14 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CutterTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

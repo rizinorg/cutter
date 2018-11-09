@@ -3,9 +3,9 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeView.h"
 
 #include <QAbstractListModel>
-#include <QTreeView>
 
 class MainWindow;
 class ResourcesWidget;
@@ -37,7 +37,7 @@ class ResourcesWidget : public CutterDockWidget
 
 private:
     ResourcesModel *model;
-    QTreeView *view;
+    CutterTreeView *view;
     QList<ResourcesDescription> resources;
 
 public:
