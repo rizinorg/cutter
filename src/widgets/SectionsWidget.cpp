@@ -274,6 +274,10 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     proxyModel = new SectionsProxyModel(model, this);
     addrType = type;
+
+    heightThreshold = 30;
+    rectOffset = 100;
+    rectWidth = 400;
 }
 
 void SectionAddrDock::updateDock()
@@ -281,9 +285,6 @@ void SectionAddrDock::updateDock()
     const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene->setBackgroundBrush(bg);
 
-    const int heightThreshold = 30;
-    const int rectOffset = 100;
-    const int rectWidth = 400;
     int y = 0;
     proxyModel->sort(2, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
@@ -314,14 +315,23 @@ void SectionAddrDock::updateDock()
         graphicsScene->addItem(rect);
 
         QGraphicsTextItem *addrText = new QGraphicsTextItem;
+        QGraphicsTextItem *sizeText = new QGraphicsTextItem;
         QGraphicsTextItem *nameText = new QGraphicsTextItem;
+
         addrText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
+        sizeText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
         nameText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
+
         addrText->setPos(0, y);
+        sizeText->setPos(rectOffset, y);
         nameText->setPos(rectOffset + rectWidth, y);
+
         addrText->setPlainText(QString("0x%1").arg(addr, 0, 16));
+        sizeText->setPlainText(QString::number(size));
         nameText->setPlainText(name);
+
         graphicsScene->addItem(addrText);
+        graphicsScene->addItem(sizeText);
         graphicsScene->addItem(nameText);
 
         namePosYMap[name] = y;

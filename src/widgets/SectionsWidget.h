@@ -99,6 +99,9 @@ public slots:
 
 private:
     QGraphicsView *graphicsView;
+    int heightThreshold;
+    int rectOffset;
+    int rectWidth;
 };
 
 #endif // SECTIONSWIDGET_H
