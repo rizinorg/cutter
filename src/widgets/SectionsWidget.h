@@ -75,8 +75,13 @@ private:
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;
 
-    QList<SectionAddrDock *> addrDocks;
-    void drawCursorOnAddrDocks();
+    SectionAddrDock *rawAddrDock;
+    SectionAddrDock *virtualAddrDock;
+
+    int indicatorWidth;
+    int indicatorHeight;
+    void drawIndicatorOnAddrDocks();
+    void updateIndicator(SectionAddrDock *targetDock, QString name, float ratio);
 };
 
 class SectionAddrDock : public QDockWidget

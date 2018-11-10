@@ -3,12 +3,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QVBoxLayout>
-#include <QGridLayout>
-#include <QLayout>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QPainter>
-#include <QPen>
 
 #include "SectionsWidget.h"
 #include "MainWindow.h"
@@ -182,8 +177,8 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(sectionsTable);
     layout->addWidget(quickFilterView);
-    SectionAddrDock *rawAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Raw, this);
-    SectionAddrDock *virtualAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Virtual, this);
+    rawAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Raw, this);
+    virtualAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Virtual, this);
 
     QWidget *addrDockWidget = new QWidget();
     QHBoxLayout *addrDockLayout = new QHBoxLayout();
@@ -198,10 +193,10 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
 
     connect(Config(), SIGNAL(colorsUpdated()), rawAddrDock, SLOT(updateDock()));
     connect(Config(), SIGNAL(colorsUpdated()), virtualAddrDock, SLOT(updateDock()));
-    addrDocks << rawAddrDock << virtualAddrDock;
-    //connect(sectionsTable->model(), SIGNAL(layoutChanged()), rawAddrDock, SLOT(updateDock()));
-    //connect(sectionsTable->model(), SIGNAL(layoutChanged()), virtualAddrDock, SLOT(updateDock()));
     connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(refreshSections()));
+
+    indicatorWidth = 600;
+    indicatorHeight = 5;
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -213,10 +208,9 @@ void SectionsWidget::refreshSections()
     sectionsModel->endResetModel();
 
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
-    for (int i = 0; i < addrDocks.count(); i++) {
-        addrDocks[i]->updateDock();
-    }
-    drawCursorOnAddrDocks();
+    rawAddrDock->updateDock();
+    virtualAddrDock->updateDock();
+    drawIndicatorOnAddrDocks();
 }
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
@@ -228,41 +222,36 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
     Core()->seek(section.vaddr);
 }
 
-void SectionsWidget::drawCursorOnAddrDocks()
+void SectionsWidget::drawIndicatorOnAddrDocks()
 {
-    const int rectWidth = 600;
-    const int size = 5;
     RVA offset = Core()->getOffset();
-    for (int i = 0; i < addrDocks.count(); i++) {
-        SectionAddrDock *addrDock = addrDocks[i];
-        if (addrDock->addrType != SectionAddrDock::Virtual) {
-            continue;
-        }
-        for (int j = 0; j != addrDock->proxyModel->rowCount(); j++) {
-            QModelIndex idx = addrDock->proxyModel->index(j, 0);
-            RVA vaddr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
-            int vsize = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
-            RVA end = vaddr + vsize;
-            if (offset < end) {
-                QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
-                float ratio = 0;
-                if (vsize > 0 && offset > vaddr) {
-                    ratio = (float)(offset - vaddr) / (float)vsize;
-                }
-                for (int k = 0; k < addrDocks.count(); k++) {
-                    SectionAddrDock *addrDock2 = addrDocks[k];
-                    float padding = addrDock2->nameHeightMap[name] * ratio;
-                    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, addrDock2->namePosYMap[name] + (int)padding, rectWidth, size));
-                    indicator->setBrush(QBrush(Qt::red));
-                    addrDock2->graphicsScene->addItem(indicator);
-                }
-                return;
+    for (int i = 0; i != virtualAddrDock->proxyModel->rowCount(); i++) {
+        QModelIndex idx = virtualAddrDock->proxyModel->index(i, 0);
+        RVA vaddr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
+        int vsize = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+        RVA end = vaddr + vsize;
+        if (offset < end) {
+            QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+            float ratio = 0;
+            if (vsize > 0 && offset > vaddr) {
+                ratio = (float)(offset - vaddr) / (float)vsize;
             }
+            updateIndicator(rawAddrDock, name, ratio);
+            updateIndicator(virtualAddrDock, name, ratio);
+            return;
         }
     }
 }
 
-SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *parent) :
+void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, float ratio)
+{
+    float padding = targetDock->nameHeightMap[name] * ratio;
+    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, targetDock->namePosYMap[name] + (int)padding, indicatorWidth, indicatorHeight));
+    indicator->setBrush(QBrush(Qt::red));
+    targetDock->graphicsScene->addItem(indicator);
+}
+
+SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent) :
     QDockWidget(parent),
     graphicsScene(new QGraphicsScene),
     graphicsView(new QGraphicsView)
