@@ -1,7 +1,6 @@
 #include <QTreeView>
 #include <QGraphicsTextItem>
 #include <QGraphicsView>
-#include <QGraphicsScene>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 

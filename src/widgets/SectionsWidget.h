@@ -100,7 +100,6 @@ public:
 public slots:
     void updateDock();
 
-
 private:
     QGraphicsView *graphicsView;
     int heightThreshold;
