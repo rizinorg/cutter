@@ -35,10 +35,11 @@ QMainWindow &gt; QTabBar::tab {
     border-bottom-color: #2180a9;
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
-    min-width: 8ex;
+    min-width: 8px;
+    max-width: 200px;
     padding: 5px;
-	margin-bottom: 3px;
-	margin-top: 3px;
+    margin-bottom: 3px;
+    margin-top: 3px;
 }
 
 QMainWindow &gt; QTabBar::tab:selected {

@@ -85,20 +85,6 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
-#include <cassert>
-
-static void registerCustomFonts()
-{
-    int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
-    assert(-1 != ret && "unable to register Anonymous Pro.ttf");
-
-    ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
-    assert(-1 != ret && "unable to register Inconsolata-Regular.ttf");
-
-    // Do not issue a warning in release
-    Q_UNUSED(ret)
-}
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(Core()),
@@ -117,12 +103,9 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
-    registerCustomFonts();
-
     /*
-    * Toolbar
-    */
-
+     * Toolbar
+     */
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -133,9 +116,7 @@ void MainWindow::initUI()
     DebugToolbar *debugToolbar = new DebugToolbar(this);
     ui->mainToolBar->addWidget(debugToolbar);
     // Debug menu
-    // ui->menuDebug->addAction(debugToolbar->actionStart);
     ui->menuDebug->addAction(debugToolbar->actionStartEmul);
-    // ui->menuDebug->addAction(debugToolbar->actionAttach);
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugToolbar->actionStep);
     ui->menuDebug->addAction(debugToolbar->actionStepOver);
@@ -265,7 +246,7 @@ void MainWindow::initUI()
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
-    connect(core, SIGNAL(projectSaved(const QString &)), this, SLOT(projectSaved(const QString &)));
+    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool, const QString &)));
 
     connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
     connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
@@ -279,7 +260,7 @@ void MainWindow::initUI()
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
-    /* Load plugins */
+    /* Setup plugins interfaces */
     QList<CutterPlugin *> plugins = core->getCutterPlugins();
     for (auto plugin : plugins) {
         CutterDockWidget *pluginDock = plugin->setupInterface(this);
@@ -781,9 +762,8 @@ void MainWindow::on_actionRun_Script_triggered()
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setDirectory(QDir::home());
 
-    QString fileName;
-    fileName = dialog.getOpenFileName(this, tr("Select radare2 script"));
-    if (!fileName.length()) // Cancel was pressed
+    const QString &fileName = QDir::toNativeSeparators(dialog.getOpenFileName(this, tr("Select radare2 script")));
+    if (fileName.isEmpty()) // Cancel was pressed
         return;
     core->loadScript(fileName);
 }
@@ -897,7 +877,7 @@ void MainWindow::on_actionImportPDB_triggered()
         return;
     }
 
-    QString pdbFile = dialog.selectedFiles().first();
+    const QString &pdbFile = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!pdbFile.isEmpty()) {
         core->loadPDB(pdbFile);
@@ -957,9 +937,12 @@ void MainWindow::on_actionExport_as_code_triggered()
 }
 
 
-void MainWindow::projectSaved(const QString &name)
+void MainWindow::projectSaved(bool successfully, const QString &name)
 {
-    core->message(tr("Project saved: ") + name);
+    if (successfully)
+        core->message(tr("Project saved: %1").arg(name));
+    else
+        core->message(tr("Failed to save project: %1").arg(name));
 }
 
 void MainWindow::changeDebugView()

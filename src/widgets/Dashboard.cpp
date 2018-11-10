@@ -6,8 +6,8 @@
 #include "common/TempConfig.h"
 #include "dialogs/VersionInfoDialog.h"
 
-
 #include "MainWindow.h"
+#include "CutterTreeView.h"
 
 #include <QDebug>
 #include <QJsonArray>
@@ -19,7 +19,6 @@
 #include <QString>
 #include <QMessageBox>
 #include <QDialog>
-#include <QTreeView>
 #include <QTreeWidget>
 
 Dashboard::Dashboard(MainWindow *main, QAction *action) :
@@ -39,7 +38,13 @@ void Dashboard::updateContents()
     QJsonObject item = docu.object()["core"].toObject();
     QJsonObject item2 = docu.object()["bin"].toObject();
 
-    this->ui->fileEdit->setText(item["file"].toString());
+#ifdef Q_OS_WIN
+    QString fname = item["file"].toString();
+    fname = QString::fromUtf8(fname.toLatin1());
+#else // Q_OS_WIN
+    QString fname = item["file"].toString();
+#endif // Q_OS_WIN
+    this->ui->fileEdit->setText(fname);
     this->ui->formatEdit->setText(item["format"].toString());
     this->ui->modeEdit->setText(item["mode"].toString());
     this->ui->typeEdit->setText(item["type"].toString());
@@ -170,12 +175,12 @@ void Dashboard::updateContents()
 void Dashboard::on_certificateButton_clicked()
 {
     static QDialog *viewDialog = nullptr;
-    static QTreeView *view = nullptr;
+    static CutterTreeView *view = nullptr;
     static JsonModel *model = nullptr;
     static QString qstrCertificates;
     if (!viewDialog) {
         viewDialog = new QDialog(this);
-        view = new QTreeView(viewDialog);
+        view = new CutterTreeView(viewDialog);
         model = new JsonModel();
         QJsonDocument qjsonCertificatesDoc = Core()->getSignatureInfo();
         qstrCertificates = qjsonCertificatesDoc.toJson(QJsonDocument::Compact);

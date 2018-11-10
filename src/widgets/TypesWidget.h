@@ -69,8 +69,6 @@ public:
     ~TypesWidget();
 
 private slots:
-    void on_typesTreeView_doubleClicked(const QModelIndex &index);
-
     void refreshTypes();
 
 private:

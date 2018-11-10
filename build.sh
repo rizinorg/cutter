@@ -9,7 +9,11 @@ ERR=0
 #### User variables ####
 BUILD="build"
 QMAKE_CONF=""
+ROOT_DIR=`pwd`
 #QMAKE_CONF="CUTTER_ENABLE_JUPYTER=false CUTTER_ENABLE_QTWEBENGINE=false"
+
+# Create translations
+lrelease ./src/Cutter.pro
 
 # Checking for radare2
 r2 -v >/dev/null 2>&1
@@ -56,6 +60,13 @@ cd "$BUILD" || exit 1
 "$qmakepath" "$QMAKE_CONF" ../src/Cutter.pro
 make -j4
 ERR=$((ERR+$?))
+
+# Move translations
+mkdir "`pwd`/translations"
+find "$ROOT_DIR/src/translations" -maxdepth 1  -type f | grep "cutter_..\.qm" | while read SRC_FILE; do
+    mv $SRC_FILE "`pwd`/translations"
+done
+
 cd ..
 
 # Done

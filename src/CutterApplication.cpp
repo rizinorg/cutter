@@ -10,6 +10,8 @@
 #include <QProcess>
 #include <QPluginLoader>
 #include <QDir>
+#include <QTranslator>
+#include <QLibraryInfo>
 
 #ifdef CUTTER_ENABLE_JUPYTER
 #include "common/JupyterConnection.h"
@@ -22,11 +24,65 @@
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
+    // Setup application information
     setOrganizationName("Cutter");
     setApplicationName("Cutter");
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
     setAttribute(Qt::AA_DontShowIconsInMenus);
+
+    // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run First
+    // Load translations
+    QTranslator *t = new QTranslator;
+    QTranslator *qtBaseTranslator = new QTranslator;
+    QTranslator *qtTranslator = new QTranslator;
+    QString language = Config()->getCurrLocale().bcp47Name();
+    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+                                               QLocale::AnyCountry);
+
+    QString langPrefix;
+    if (language != "en") {
+        for (auto &it : allLocales) {
+            langPrefix = it.bcp47Name();
+            if (langPrefix == language) {
+                const QString &cutterTranslationPath = QCoreApplication::applicationDirPath() + QDir::separator()
+                    + "translations" + QDir::separator() + QString("cutter_%1.qm").arg(langPrefix);
+
+                if (t->load(cutterTranslationPath)) {
+                    installTranslator(t);
+                }
+                QApplication::setLayoutDirection(it.textDirection());
+                QLocale::setDefault(it);
+
+                QString translationsPath(QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+                if (qtTranslator->load(it, "qt", "_", translationsPath)) {
+                    installTranslator(qtTranslator);
+                } else {
+                    delete qtTranslator;
+                }
+
+                if (qtBaseTranslator->load(it, "qtbase", "_", translationsPath)) {
+                    installTranslator(qtBaseTranslator);
+                } else {
+                    delete qtBaseTranslator;
+                }
+
+                break;
+            }
+        }
+    }
+ 
+    // Load fonts
+    int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
+    if (ret == -1) {
+        qWarning() << "Cannot load Anonymous Pro font.";
+    }
+
+    ret = QFontDatabase::addApplicationFont(":/fonts/Inconsolata-Regular.ttf");
+    if (ret == -1) {
+        qWarning() << "Cannot load Incosolata-Regular font.";
+    }
+
 
     // Set QString codec to UTF-8
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
@@ -133,6 +189,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     // Load plugins
     loadPlugins();
+
+#ifdef CUTTER_APPVEYOR_R2DEC
+    qputenv("R2DEC_HOME", "radare2\\lib\\plugins\\r2dec-js");
+#endif
 }
 
 CutterApplication::~CutterApplication()
@@ -180,8 +240,9 @@ void CutterApplication::loadPlugins()
         pluginsDir.cdUp();
     }
 #endif
-    if (!pluginsDir.cd("plugins"))
+    if (!pluginsDir.cd("plugins")) {
         return;
+    }
 
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));

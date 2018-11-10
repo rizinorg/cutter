@@ -1,6 +1,7 @@
 #include "Configuration.h"
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QDir>
 #include <QFontDatabase>
 #include <QFile>
 #include <QApplication>
@@ -73,12 +74,12 @@ QString Configuration::getDirProjects()
         setDirProjects(projectsDir);
     }
 
-    return projectsDir;
+    return QDir::toNativeSeparators(projectsDir);
 }
 
 void Configuration::setDirProjects(const QString &dir)
 {
-    s.setValue("dir.projects", dir);
+    s.setValue("dir.projects", QDir::toNativeSeparators(dir));
 }
 
 /**
@@ -107,6 +108,16 @@ void Configuration::resetAll()
 
     loadInitial();
     emit fontsUpdated();
+}
+
+QLocale Configuration::getCurrLocale() const
+{
+    return s.value("locale", QLocale().system()).toLocale();
+}
+
+void Configuration::setLocale(const QLocale &l)
+{
+    s.setValue("locale", l);
 }
 
 void Configuration::loadDefaultTheme()

@@ -14,7 +14,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    // setup stack model
+    // Setup stack model
     modelStack->setHorizontalHeaderItem(0, new QStandardItem(tr("Offset")));
     modelStack->setHorizontalHeaderItem(1, new QStandardItem(tr("Value")));
     modelStack->setHorizontalHeaderItem(2, new QStandardItem(tr("Reference")));
@@ -97,7 +97,7 @@ void StackWidget::onDoubleClicked(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
-    // check if we are clicking on the offset or value columns and seek if it is the case
+    // Check if we are clicking on the offset or value columns and seek if it is the case
     if (index.column() <= 1) {
         QString item = index.data().toString();
         Core()->seek(item);
@@ -132,7 +132,7 @@ void StackWidget::editStack()
     if (e->exec()) {
         QString bytes = e->getInstruction();
         if (bytes != oldBytes) {
-            Core()->editBytesEndian((RVA)offset.toULongLong(&ok, 16), bytes);
+            Core()->editBytesEndian(offset.toULongLong(&ok, 16), bytes);
         }
     }
 }

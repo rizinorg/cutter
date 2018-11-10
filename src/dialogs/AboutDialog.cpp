@@ -23,30 +23,30 @@ AboutDialog::AboutDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
-    ui->label->setText(tr("<h1>Cutter</h1>"
-                          "Version " CUTTER_VERSION_FULL "<br/>"
-                          "Using r2-" R2_GITTAP
-                          "<p><b>Optional Features:</b><br/>"
-                          "Jupyter: %1<br/>"
-                          "QtWebEngine: %2</p>"
-                          "<h2>License</h2>"
-                          "This Software is released under the GNU General Public License v3.0"
-                          "<h2>Authors</h2>"
-                          "xarkes, thestr4ng3r, ballessay<br/>"
-                          "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).")
-                       .arg(
+    QString aboutString("<h1>Cutter</h1>"
+                          + tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
+                          + tr("Using r2-") + R2_GITTAP
+                          + "<p><b>" + tr("Optional Features:") + "</b><br/>"
+                          + QString("Jupyter: %1<br/>").arg(
 #ifdef CUTTER_ENABLE_JUPYTER
-                           "ON"
+                          "ON"
 #else
-                           "OFF"
+                          "OFF"
 #endif
-                           ,
+                           )
+                          + QString("QtWebEngine: %2</p>").arg(
 #ifdef CUTTER_ENABLE_QTWEBENGINE
-                           "ON"
+                          "ON"
 #else
-                           "OFF"
+                          "OFF"
 #endif
-                       ));
+                           )
+                          + "<h2>" + tr("License") + "</h2>"
+                          + tr("This Software is released under the GNU General Public License v3.0")
+                          + "<h2>" + tr("Authors") + "</h2>"
+                          "xarkes, thestr4ng3r, ballessay<br/>"
+                          "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
+    ui->label->setText(aboutString);
 }
 
 AboutDialog::~AboutDialog() {}
@@ -129,10 +129,10 @@ void AboutDialog::serveVersionCheckReply(QNetworkReply *reply)
         if (currVersion == CUTTER_VERSION_FULL) {
             mb.setText(tr("You have latest version and no need to update!"));
         } else {
-            mb.setText(tr("<b>Current version</b>: " CUTTER_VERSION_FULL "<br/>"
-                          "<b>Latest version</b>: %1<br/><br/>"
-                          "For update, please check the link: <a href=\"%2\">%2</a>")
-                       .arg(currVersion, "https://github.com/radareorg/cutter/releases"));
+            mb.setText("<b>" + tr("Current version:") + "</b>" CUTTER_VERSION_FULL "<br/>"
+                          + "<b>" + tr("Latest version:") + "</b> " + currVersion + "<br/><br/>"
+                          + tr("For update, please check the link:")
+                          + "<a href=\"https://github.com/radareorg/cutter/releases\">%2</a>");
         }
     }
     mb.exec();

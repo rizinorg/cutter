@@ -22,8 +22,9 @@ int SymbolsModel::columnCount(const QModelIndex &) const
 
 QVariant SymbolsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= symbols->count())
+    if (index.row() >= symbols->count()) {
         return QVariant();
+    }
 
     const SymbolDescription &symbol = symbols->at(index.row());
 
@@ -143,8 +144,9 @@ SymbolsWidget::~SymbolsWidget() {}
 
 void SymbolsWidget::on_symbolsTreeView_doubleClicked(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
     auto symbol = index.data(SymbolsModel::SymbolDescriptionRole).value<SymbolDescription>();
     Core()->seek(symbol.vaddr);

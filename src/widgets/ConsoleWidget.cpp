@@ -188,6 +188,7 @@ void ConsoleWidget::executeCommand(const QString &command)
         commandTask = nullptr;
         ui->inputLineEdit->setEnabled(true);
         ui->inputLineEdit->setFocus();
+        Core()->updateSeek();
     });
     connect(commandTask.data(), &CommandTask::finished, timer, &QTimer::stop);
 

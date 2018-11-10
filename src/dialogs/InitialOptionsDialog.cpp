@@ -386,7 +386,7 @@ void InitialOptionsDialog::on_pdbSelectButton_clicked()
         return;
     }
 
-    QString fileName = dialog.selectedFiles().first();
+    const QString &fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!fileName.isEmpty()) {
         ui->pdbLineEdit->setText(fileName);
@@ -409,7 +409,7 @@ void InitialOptionsDialog::on_scriptSelectButton_clicked()
         return;
     }
 
-    QString fileName = dialog.selectedFiles().first();
+    const QString &fileName = QDir::toNativeSeparators(dialog.selectedFiles().first());
 
     if (!fileName.isEmpty()) {
         ui->scriptLineEdit->setText(fileName);

@@ -643,7 +643,7 @@ void HexdumpWidget::toggleSync()
     if (seekable->getSyncWithCore()) {
         setWindowTitle(windowTitle);
     } else {
-        setWindowTitle(windowTitle + " (not synced)");
+        setWindowTitle(windowTitle + CutterSeekableWidget::UNSYNCED_TEXT);
         seekable->setIndependentOffset(Core()->getOffset());
     }
 }

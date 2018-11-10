@@ -60,7 +60,7 @@ void AsyncTask::run()
 
 void AsyncTask::log(QString s)
 {
-    logBuffer += s;
+    logBuffer += s + "\n";
     emit logChanged(logBuffer);
 }
 

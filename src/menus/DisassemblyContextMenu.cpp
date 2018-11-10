@@ -274,7 +274,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionRename.setVisible(false);
     }
 
-    //only show retype for local vars if in a function
+    // Only show retype for local vars if in a function
     if (in_fcn) {
         actionSetFunctionVarTypes.setVisible(true);
         actionEditFunction.setVisible(true);
@@ -285,7 +285,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     }
 
 
-    // only show "rename X used here" if there is something to rename
+    // Only show "rename X used here" if there is something to rename
     QJsonArray thingUsedHereArray = Core()->cmdj("anj @ " + QString::number(offset)).array();
     if (!thingUsedHereArray.isEmpty()) {
         actionRenameUsedHere.setVisible(true);
@@ -294,16 +294,21 @@ void DisassemblyContextMenu::aboutToShowSlot()
             RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
             actionRenameUsedHere.setText(tr("Add flag at %1 (used here)").arg(RAddressString(offset)));
         } else {
-            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere["name"].toString()));
+            if (thingUsedHere["type"] == "function") {
+                actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere["name"].toString()));
+            }
+            else {
+                actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere["name"].toString()));
+            }
         }
     } else {
         actionRenameUsedHere.setVisible(false);
     }
 
-    // decide to show Reverse jmp option
+    // Decide to show Reverse jmp option
     showReverseJmpQuery();
 
-    // only show debug options if we are currently debugging
+    // Only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
     QString progCounterName = Core()->getRegisterName("PC");
     actionSetPC.setText("Set " + progCounterName + " here");
@@ -385,7 +390,7 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
         if (userInstructionOpcode != oldInstructionOpcode) {
             Core()->editInstruction(offset, userInstructionOpcode);
 
-            // check if the write failed
+            // Check if the write failed
             auto newInstructionBytes = Core()->getInstructionBytes(offset);
             if (newInstructionBytes == oldInstructionBytes) {
                 if (!writeFailed()) {

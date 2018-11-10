@@ -18,3 +18,7 @@ Please follow our contribution guidelines: https://radareorg.github.io/cutter/co
 
 The documentation is something important for newcomers. As of today the documentation can be found [here](https://radareorg.github.io/cutter/) and it stands in the [docs](https://github.com/radareorg/cutter/tree/master/docs) folder.
 Check issues marked as "Documentation" on our issues [list](https://github.com/radareorg/cutter/issues?q=is%3Aissue+is%3Aopen+label%3ADocumentation).
+
+## Translations
+
+You can help Cutter by adding translations to the project! We use the [Crowdin](https://crowdin.com/project/cutter) platform to help us share translations. Feel free to contribute and add translations to the project. If you need to add a language, ask any radareorg developer.

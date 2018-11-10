@@ -12,7 +12,7 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 
-class QTreeView;
+class CutterTreeView;
 class QAbstractItemView;
 class MainWindow;
 class SectionsWidget;
@@ -70,7 +70,7 @@ private:
     QList<SectionDescription> sections;
     SectionsModel *sectionsModel;
     SectionsProxyModel *proxyModel;
-    QTreeView *sectionsTable;
+    CutterTreeView *sectionsTable;
     MainWindow *main;
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;

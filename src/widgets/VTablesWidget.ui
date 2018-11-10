@@ -38,7 +38,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTreeView" name="vTableTreeView">
+     <widget class="CutterTreeView" name="vTableTreeView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -50,7 +50,7 @@
       </property>
       <property name="styleSheet">
        <string notr="true">
-QTreeView::item
+CutterTreeView::item
 {
    padding-top: 1px;
    padding-bottom: 1px;
@@ -81,6 +81,12 @@ QTreeView::item
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>CutterTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>QuickFilterView</class>
    <extends>QWidget</extends>

@@ -34,6 +34,7 @@ private slots:
     void on_colorComboBox_currentIndexChanged(int index);
     void on_copyButton_clicked();
     void on_deleteButton_clicked();
+    void onLanguageComboBoxCurrentIndexChanged(int index);
 };
 
 

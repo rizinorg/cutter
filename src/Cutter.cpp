@@ -1967,10 +1967,11 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
 
     QJsonArray xrefsArray;
 
-    if (to)
+    if (to) {
         xrefsArray = cmdj("axtj@" + QString::number(addr)).array();
-    else
+    } else {
         xrefsArray = cmdj("axfj@" + QString::number(addr)).array();
+    }
 
     for (QJsonValue value : xrefsArray) {
         QJsonObject xrefObject = value.toObject();
@@ -1994,13 +1995,15 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
             }
         }
 
-        if (!whole_function && !to && xref.from != addr)
+        if (!whole_function && !to && xref.from != addr) {
             continue;
+        }
 
-        if (to && !xrefObject.contains("to"))
+        if (to && !xrefObject.contains("to")) {
             xref.to = addr;
-        else
+        } else {
             xref.to = xrefObject["to"].toVariant().toULongLong();
+        }
         xref.to_str = Core()->cmd("fd " + QString::number(xref.to)).trimmed();
 
         ret << xref;
@@ -2045,9 +2048,10 @@ void CutterCore::openProject(const QString &name)
 
 void CutterCore::saveProject(const QString &name)
 {
-    cmd("Ps " + name);
+    const QString &rv = cmd("Ps " + name.trimmed()).trimmed();
+    const bool ok = rv == name.trimmed();
     cmd("Pnj " + notes.toUtf8().toBase64());
-    emit projectSaved(name);
+    emit projectSaved(ok, name);
 }
 
 void CutterCore::deleteProject(const QString &name)
@@ -2140,8 +2144,9 @@ QList<QString> CutterCore::getColorThemes()
 {
     QList<QString> r;
     QJsonDocument themes = cmdj("ecoj");
-    for (auto s : themes.array())
+    for (auto s : themes.array()) {
         r << s.toString();
+    }
     return r;
 }
 

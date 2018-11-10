@@ -184,7 +184,7 @@ void DisassemblyWidget::toggleSync()
     if (seekable->getSyncWithCore()) {
         setWindowTitle(windowTitle);
     } else {
-        setWindowTitle(windowTitle + " (not synced)");
+        setWindowTitle(windowTitle + CutterSeekableWidget::UNSYNCED_TEXT);
         seekable->setIndependentOffset(Core()->getOffset());
     }
 }
@@ -379,7 +379,6 @@ void DisassemblyWidget::highlightCurrentLine()
                 highlightSelection.format.setBackground(highlightWordColor);
             }
 
-            highlightSelection.cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
             extraSelections.append(highlightSelection);
         }
     }

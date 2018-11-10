@@ -11,6 +11,15 @@ VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PA
 # Required QT version
 lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 
+TRANSLATIONS += translations/cutter_ca.ts \
+                translations/cutter_de.ts \
+                translations/cutter_es-ES.ts \
+                translations/cutter_fr.ts \
+                translations/cutter_it.ts \
+                translations/cutter_nl.ts \
+                translations/cutter_pt-PT.ts \
+                translations/cutter_ru.ts
+
 # Icon for OS X
 ICON = img/cutter.icns
 
@@ -31,6 +40,9 @@ equals(CUTTER_ENABLE_JUPYTER, true) {
 
 !defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)   CUTTER_BUNDLE_R2_APPBUNDLE=false
 equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)    CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
+
+!defined(CUTTER_APPVEYOR_R2DEC, var)        CUTTER_APPVEYOR_R2DEC=false
+equals(CUTTER_APPVEYOR_R2DEC, true)         CONFIG += CUTTER_APPVEYOR_R2DEC
 
 CUTTER_ENABLE_JUPYTER {
     message("Jupyter support enabled.")
@@ -101,6 +113,11 @@ unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
 macx:CUTTER_BUNDLE_R2_APPBUNDLE {
     message("Using r2 rom AppBundle")
     DEFINES += MACOS_R2_BUNDLED
+}
+
+CUTTER_APPVEYOR_R2DEC {
+    message("Appveyor r2dec")
+    DEFINES += CUTTER_APPVEYOR_R2DEC
 }
 
 QMAKE_SUBSTITUTES += CutterConfig.h.in
@@ -200,7 +217,8 @@ SOURCES += \
     dialogs/SetFunctionVarTypes.cpp \
     widgets/ColorSchemePrefWidget.cpp \
     common/ColorSchemeFileSaver.cpp \
-    dialogs/EditFunctionDialog.cpp
+    dialogs/EditFunctionDialog.cpp \
+    widgets/CutterTreeView.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -301,7 +319,8 @@ HEADERS  += \
     dialogs/SetFunctionVarTypes.h \
     common/ColorSchemeFileSaver.h \
     widgets/ColorSchemePrefWidget.h \
-    dialogs/EditFunctionDialog.h 
+    dialogs/EditFunctionDialog.h \
+    widgets/CutterTreeView.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -358,7 +377,8 @@ FORMS    += \
     widgets/RegisterRefsWidget.ui \
     dialogs/SetToDataDialog.ui \
     dialogs/SetFunctionVarTypes.ui \
-    widgets/ColorSchemePrefWidget.ui
+    widgets/ColorSchemePrefWidget.ui \
+    widgets/CutterTreeView.ui
 
 RESOURCES += \
     resources.qrc \

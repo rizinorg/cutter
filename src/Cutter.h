@@ -628,7 +628,7 @@ signals:
     void refreshCodeViews();
     void stackChanged();
 
-    void projectSaved(const QString &name);
+    void projectSaved(bool successfully, const QString &name);
 
     /*!
      * emitted when config regarding disassembly display changes

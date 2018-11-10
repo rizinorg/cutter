@@ -167,7 +167,7 @@ private slots:
 
     void on_actionExport_as_code_triggered();
 
-    void projectSaved(const QString &name);
+    void projectSaved(bool successfully, const QString &name);
 
     void updateTasksIndicator();
 

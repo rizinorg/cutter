@@ -59,7 +59,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
         case Qt::DisplayRole:
             switch (index.column()) {
             case NAME:
-                return tr("VTable ") + QString::number(index.row() + 1);
+                return tr("VTable") + " " + QString::number(index.row() + 1);
             case ADDRESS:
                 return RAddressString(vtables->at(index.row()).addr);
             }
@@ -86,6 +86,7 @@ QVariant VTableModel::headerData(int section, Qt::Orientation, int role) const
         default:
             break;
         }
+        break;
     default:
         break;
     }
@@ -181,14 +182,16 @@ void VTablesWidget::refreshVTables()
 
 void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
     QModelIndex parent = index.parent();
-    if (parent.isValid())
+    if (parent.isValid()) {
         Core()->seek(index.data(
                          VTableModel::VTableDescriptionRole).value<ClassMethodDescription>().addr);
-    else
+    } else {
         Core()->seek(index.data(
                          VTableModel::VTableDescriptionRole).value<VTableDescription>().addr);
+    }
 }
