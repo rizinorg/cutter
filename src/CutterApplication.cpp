@@ -189,6 +189,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     // Load plugins
     loadPlugins();
+
+#ifdef CUTTER_APPVEYOR_R2DEC
+    qputenv("R2DEC_HOME", "radare2\\lib\\plugins\\r2dec-js");
+#endif
 }
 
 CutterApplication::~CutterApplication()
