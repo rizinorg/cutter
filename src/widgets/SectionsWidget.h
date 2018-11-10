@@ -87,7 +87,6 @@ public:
     enum AddrType { Raw = 0, Virtual };
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
     QGraphicsScene *graphicsScene;
-    QGraphicsRectItem *indicator;
     SectionsProxyModel *proxyModel;
     AddrType addrType;
     QHash<QString, int> namePosYMap;

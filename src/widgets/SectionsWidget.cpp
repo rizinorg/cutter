@@ -252,8 +252,9 @@ void SectionsWidget::drawCursorOnAddrDocks()
                 for (int k = 0; k < addrDocks.count(); k++) {
                     SectionAddrDock *addrDock2 = addrDocks[k];
                     float padding = addrDock2->nameHeightMap[name] * ratio;
-                    addrDock2->indicator->setRect(0, addrDock2->namePosYMap[name] + (int)padding, rectWidth, size);
-                    addrDock2->indicator->setZValue(addrDock2->graphicsScene->items().count() - 1);
+                    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, addrDock2->namePosYMap[name] + (int)padding, rectWidth, size));
+                    indicator->setBrush(QBrush(Qt::red));
+                    addrDock2->graphicsScene->addItem(indicator);
                 }
                 return;
             }
@@ -264,11 +265,8 @@ void SectionsWidget::drawCursorOnAddrDocks()
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *parent) :
     QDockWidget(parent),
     graphicsScene(new QGraphicsScene),
-    indicator(new QGraphicsRectItem),
     graphicsView(new QGraphicsView)
 {
-    indicator->setBrush(QBrush(Qt::red));
-    graphicsScene->addItem(indicator);
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -282,6 +280,7 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type,  QWidget *
 
 void SectionAddrDock::updateDock()
 {
+    graphicsScene->clear();
     const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene->setBackgroundBrush(bg);
 
