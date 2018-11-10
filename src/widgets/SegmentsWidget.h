@@ -7,9 +7,10 @@
 #include <QSortFilterProxyModel>
 
 #include "Cutter.h"
+#include "CutterTreeView.h"
 #include "CutterDockWidget.h"
 
-class QTreeView;
+class CutterTreeView;
 class QAbstractItemView;
 class MainWindow;
 class SegmentsWidget;
@@ -63,7 +64,7 @@ private slots:
 private:
     QList<SegmentDescription> segments;
     SegmentsModel *segmentsModel;
-    QTreeView *segmentsTable;
+    CutterTreeView *segmentsTable;
     MainWindow *main;
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;

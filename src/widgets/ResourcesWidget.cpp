@@ -84,7 +84,7 @@ ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
     this->setWindowTitle(tr("Resources"));
 
     // Add resources tree view
-    view = new QTreeView(this);
+    view = new CutterTreeView(this);
     view->setModel(model);
     view->show();
     this->setWidget(view);

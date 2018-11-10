@@ -31,7 +31,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTreeView" name="commentsTreeView">
+     <widget class="CutterTreeView" name="commentsTreeView">
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
@@ -69,6 +69,12 @@
   </action>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>CutterTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>QuickFilterView</class>
    <extends>QWidget</extends>

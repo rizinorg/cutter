@@ -1,7 +1,6 @@
-#include <QTreeView>
-
 #include "SectionsWidget.h"
 
+#include "CutterTreeView.h"
 #include "MainWindow.h"
 #include "QuickFilterView.h"
 #include "common/Helpers.h"
@@ -131,7 +130,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
 
-    sectionsTable = new QTreeView;
+    sectionsTable = new CutterTreeView;
     sectionsModel = new SectionsModel(&sections, this);
     auto proxyModel = new SectionsProxyModel(sectionsModel, this);
 
