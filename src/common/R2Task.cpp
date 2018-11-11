@@ -1,20 +1,20 @@
 
 #include "R2Task.h"
 
-R2Task::R2Task(const QString &cmd)
+R2Task::R2Task(const QString &cmd, bool transient)
 {
     task = r_core_task_new(Core()->core(),
         true,
         cmd.toLocal8Bit().constData(),
         static_cast<RCoreTaskCallback>(&R2Task::taskFinishedCallback),
         this);
+    task->transient = transient;
+    r_core_task_incref(task);
 }
 
 R2Task::~R2Task()
 {
-    // Don't delete current task as it might be still running
-    // TODO
-    // For now tasks are not freed, so find we need to something
+    r_core_task_decref(task);
 }
 
 void R2Task::taskFinishedCallback(void *user, char *)
