@@ -207,18 +207,7 @@ void SidebarWidget::fillOffsetInfo(QString off)
 
 void SidebarWidget::setFcnName(RVA addr)
 {
-    RAnalFunction *fcn;
-    QString addr_string;
-
-    fcn = Core()->functionAt(addr);
-    if (fcn) {
-        QString segment = Core()->cmd("S. @ " + QString::number(addr)).split(" ").last();
-        addr_string = segment.trimmed() + ":" + fcn->name;
-    } else {
-        addr_string = Core()->cmdFunctionAt(addr);
-    }
-
-    ui->fcnNameEdit->setText(addr_string);
+    ui->fcnNameEdit->setText(Core()->cmdFunctionAt(addr));
 }
 
 void SidebarWidget::setScrollMode()
