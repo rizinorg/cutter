@@ -81,6 +81,7 @@ private:
 
     int indicatorWidth;
     int indicatorHeight;
+    int indicatorParamPosY;
     void drawIndicatorOnAddrDocks();
     void updateIndicator(SectionAddrDock *targetDock, QString name, float ratio);
 };
@@ -91,6 +92,9 @@ class SectionAddrDock : public QDockWidget
 
 public:
     enum AddrType { Raw = 0, Virtual };
+    int heightThreshold;
+    int rectOffset;
+    int rectWidth;
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
     QLabel *header;
     QGraphicsScene *graphicsScene;
@@ -101,12 +105,10 @@ public:
 
 public slots:
     void updateDock();
+    void addTextItem(QColor color, QPoint pos, QString string);
 
 private:
     QGraphicsView *graphicsView;
-    int heightThreshold;
-    int rectOffset;
-    int rectWidth;
 };
 
 #endif // SECTIONSWIDGET_H

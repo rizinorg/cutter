@@ -196,6 +196,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
 
     indicatorWidth = 600;
     indicatorHeight = 5;
+    indicatorParamPosY = 20;
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -244,10 +245,15 @@ void SectionsWidget::drawIndicatorOnAddrDocks()
 
 void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, float ratio)
 {
+    RVA offset = Core()->getOffset();
     float padding = targetDock->nameHeightMap[name] * ratio;
-    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, targetDock->namePosYMap[name] + (int)padding, indicatorWidth, indicatorHeight));
+    int y = targetDock->namePosYMap[name] + (int)padding;
+    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, indicatorWidth, indicatorHeight));
     indicator->setBrush(QBrush(Qt::red));
     targetDock->graphicsScene->addItem(indicator);
+
+    targetDock->addTextItem(Qt::red, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - indicatorParamPosY), name);
+    targetDock->addTextItem(Qt::red, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
 }
 
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent) :
@@ -322,29 +328,22 @@ void SectionAddrDock::updateDock()
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
         graphicsScene->addItem(rect);
 
-        QGraphicsTextItem *addrText = new QGraphicsTextItem;
-        QGraphicsTextItem *sizeText = new QGraphicsTextItem;
-        QGraphicsTextItem *nameText = new QGraphicsTextItem;
-
-        addrText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
-        sizeText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
-        nameText->setDefaultTextColor(ConfigColor("gui.dataoffset"));
-
-        addrText->setPos(0, y);
-        sizeText->setPos(rectOffset, y);
-        nameText->setPos(rectOffset + rectWidth, y);
-
-        addrText->setPlainText(QString("0x%1").arg(addr, 0, 16));
-        sizeText->setPlainText(QString::number(size));
-        nameText->setPlainText(name);
-
-        graphicsScene->addItem(addrText);
-        graphicsScene->addItem(sizeText);
-        graphicsScene->addItem(nameText);
+        addTextItem(ConfigColor("gui.dataoffset"), QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
+        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset, y), QString::number(size));
+        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset + rectWidth, y), name);
 
         namePosYMap[name] = y;
         nameHeightMap[name] = size;
 
         y += size;
     }
+}
+
+void SectionAddrDock::addTextItem(QColor color, QPoint pos, QString string)
+{
+    QGraphicsTextItem *text = new QGraphicsTextItem;
+    text->setDefaultTextColor(color);
+    text->setPos(pos);
+    text->setPlainText(string);
+    graphicsScene->addItem(text);
 }
