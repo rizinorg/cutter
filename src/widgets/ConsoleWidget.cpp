@@ -175,9 +175,10 @@ void ConsoleWidget::executeCommand(const QString &command)
     });
 
     QString cmd_line = "<br>[" + RAddressString(Core()->getOffset()) + "]> " + command + "<br>";
+    RVA oldOffset = Core()->getOffset();
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
-          command, originalLines] (const QString & result) {
+          command, originalLines, oldOffset] (const QString & result) {
 
         if (originalLines < ui->outputTextEdit->blockCount()) {
             removeLastLine();
@@ -188,7 +189,9 @@ void ConsoleWidget::executeCommand(const QString &command)
         commandTask = nullptr;
         ui->inputLineEdit->setEnabled(true);
         ui->inputLineEdit->setFocus();
-        Core()->updateSeek();
+        if (oldOffset != Core()->getOffset()) {
+            Core()->updateSeek();
+        }
     });
     connect(commandTask.data(), &CommandTask::finished, timer, &QTimer::stop);
 
