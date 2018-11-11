@@ -56,17 +56,15 @@ void HexdumpRangeDialog::setStartAddress(ut64 start)
 void HexdumpRangeDialog::textEdited()
 {
     QString startAddress = ui->startAddressLineEdit->text();
-    ut64 endAddress;
-    ut64 length;
 
     if (sender() == ui->endAddressLineEdit) {
-        length = Core()->math(getEndAddress() + " - " + startAddress);
+        ut64 length = Core()->math(getEndAddress() + " - " + startAddress);
 
         ui->lengthLineEdit->setText(
             QString("0x%1").arg(length, 0, 16));
     } else if ( sender() == ui->lengthLineEdit) {
         //we edited the length, so update the end address to be start address + length
-        endAddress = Core()->math(startAddress + " + " + getLength());
+        ut64 endAddress = Core()->math(startAddress + " + " + getLength());
         ui->endAddressLineEdit->setText(
             QString("0x%1").arg(endAddress, 0, 16));
     }
