@@ -16,11 +16,11 @@ class HexdumpRangeDialog : public QDialog
 public:
     explicit HexdumpRangeDialog(QWidget *parent = nullptr);
     ~HexdumpRangeDialog();
-    QString getStartAddress();
-    QString getEndAddress();
-    QString getLength();
-    bool    getEndAddressRadioButtonChecked();
-    bool    getLengthRadioButtonChecked();
+    QString getStartAddress() const;
+    QString getEndAddress() const;
+    QString getLength() const;
+    bool    getEndAddressRadioButtonChecked() const;
+    bool    getLengthRadioButtonChecked() const;
     void    setStartAddress(ut64 start);
 
 public slots:

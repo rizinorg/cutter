@@ -48,12 +48,12 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     ui->openSideViewB->hide();  // hide button at startup since side view is visible
 
-    connect(closeButton, &QToolButton::clicked, this, [this]{
-       ui->hexSideTab_2->hide();
-       ui->openSideViewB->show();
+    connect(closeButton, &QToolButton::clicked, this, [this] {
+        ui->hexSideTab_2->hide();
+        ui->openSideViewB->show();
     });
 
-    connect(ui->openSideViewB, &QToolButton::clicked, this, [this]{
+    connect(ui->openSideViewB, &QToolButton::clicked, this, [this] {
         ui->hexSideTab_2->show();
         ui->openSideViewB->hide();
     });
@@ -334,16 +334,15 @@ void HexdumpWidget::refresh(RVA addr)
 
 
     // TODO: Figure out how to calculate a sane value for this
-    bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText)*10;
+    bufferLines = qhelpers::getMaxFullyDisplayedLines(ui->hexHexText) * 10;
 
 
-    if(requestedSelectionEndAddress !=0 && requestedSelectionStartAddress!=0)
-    {
-        loadLines = ((requestedSelectionEndAddress - requestedSelectionStartAddress) / cols) + (bufferLines*2);
+    if (requestedSelectionEndAddress != 0 && requestedSelectionStartAddress != 0
+            && requestedSelectionEndAddress > requestedSelectionStartAddress) {
+        loadLines = ((requestedSelectionEndAddress - requestedSelectionStartAddress) / cols) +
+                    (bufferLines * 2);
         curAddrLineOffset = bufferLines;
-    }
-    else
-    {
+    } else {
         loadLines = bufferLines * 3; // total lines to load
         curAddrLineOffset = bufferLines; // line number where seek should be
     }
@@ -1042,11 +1041,12 @@ void HexdumpWidget::on_actionSelect_Block_triggered()
 
     //get the current hex address from current cursor location
     rangeDialog.setStartAddress(
-                hexPositionToAddress(ui->hexHexText->textCursor().position()));
+        hexPositionToAddress(ui->hexHexText->textCursor().position()));
     rangeDialog.setModal(false);
     rangeDialog.show();
+    rangeDialog.activateWindow();
+    rangeDialog.raise();
 
-    return;
 }
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
@@ -1153,8 +1153,8 @@ void HexdumpWidget::on_rangeDialogAccepted()
 
     requestedSelectionStartAddress = Core()->math(rangeDialog.getStartAddress());
     requestedSelectionEndAddress = rangeDialog.getEndAddressRadioButtonChecked() ?
-                 Core()->math(rangeDialog.getEndAddress()) :
-                 requestedSelectionStartAddress + Core()->math(rangeDialog.getLength());
+                                   Core()->math(rangeDialog.getEndAddress()) :
+                                   requestedSelectionStartAddress + Core()->math(rangeDialog.getLength());
 
     //not sure what the accepted user feedback mechanism is, output to console or a QMessageBox alert
     if (requestedSelectionEndAddress <= requestedSelectionStartAddress) {
@@ -1167,7 +1167,7 @@ void HexdumpWidget::on_rangeDialogAccepted()
 
     //for large selections, won't be able to calculate the endPosition because hexAddressToPosition assumes the address is loaded?
     startPosition = hexAddressToPosition(requestedSelectionStartAddress);
-    endPosition = hexAddressToPosition(requestedSelectionEndAddress)-1;
+    endPosition = hexAddressToPosition(requestedSelectionEndAddress) - 1;
 
     targetTextCursor = ui->hexHexText->textCursor();
 

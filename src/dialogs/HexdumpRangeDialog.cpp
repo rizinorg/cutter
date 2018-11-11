@@ -10,8 +10,10 @@ HexdumpRangeDialog::HexdumpRangeDialog(QWidget *parent) :
     //subscribe to a text change slot
     connect(ui->endAddressLineEdit, &QLineEdit::textEdited, this, &HexdumpRangeDialog::textEdited);
     connect(ui->lengthLineEdit, &QLineEdit::textEdited, this, &HexdumpRangeDialog::textEdited);
-    connect(ui->endAddressRadioButton, &QRadioButton::clicked, this, &HexdumpRangeDialog::on_radioButtonClicked);
-    connect(ui->lengthRadioButton, &QRadioButton::clicked, this, &HexdumpRangeDialog::on_radioButtonClicked);
+    connect(ui->endAddressRadioButton, &QRadioButton::clicked, this,
+            &HexdumpRangeDialog::on_radioButtonClicked);
+    connect(ui->lengthRadioButton, &QRadioButton::clicked, this,
+            &HexdumpRangeDialog::on_radioButtonClicked);
 
 }
 
@@ -20,27 +22,27 @@ HexdumpRangeDialog::~HexdumpRangeDialog()
     delete ui;
 }
 
-QString HexdumpRangeDialog::getStartAddress()
+QString HexdumpRangeDialog::getStartAddress() const
 {
     return ui->startAddressLineEdit->text();
 }
 
-QString HexdumpRangeDialog::getEndAddress()
+QString HexdumpRangeDialog::getEndAddress() const
 {
     return ui->endAddressLineEdit->text();
 }
 
-QString HexdumpRangeDialog::getLength()
+QString HexdumpRangeDialog::getLength() const
 {
     return ui->lengthLineEdit->text();
 }
 
-bool HexdumpRangeDialog::getEndAddressRadioButtonChecked()
+bool HexdumpRangeDialog::getEndAddressRadioButtonChecked() const
 {
     return ui->endAddressRadioButton->isChecked();
 }
 
-bool HexdumpRangeDialog::getLengthRadioButtonChecked()
+bool HexdumpRangeDialog::getLengthRadioButtonChecked() const
 {
     return ui->lengthRadioButton->isChecked();
 }
@@ -48,9 +50,7 @@ bool HexdumpRangeDialog::getLengthRadioButtonChecked()
 void HexdumpRangeDialog::setStartAddress(ut64 start)
 {
     ui->startAddressLineEdit->setText(
-                QString("0x%1").arg(start, 0, 16));
-
-    return;
+        QString("0x%1").arg(start, 0, 16));
 }
 
 void HexdumpRangeDialog::textEdited()
@@ -71,18 +71,16 @@ void HexdumpRangeDialog::textEdited()
             QString("0x%1").arg(endAddress, 0, 16));
     }
 
-    return;
 }
 
 void HexdumpRangeDialog::on_radioButtonClicked(bool checked)
 {
 
-    if(sender() == ui->endAddressRadioButton && checked == true){
+    if (sender() == ui->endAddressRadioButton && checked == true) {
         ui->lengthLineEdit->setEnabled(false);
         ui->endAddressLineEdit->setEnabled(true);
         ui->endAddressLineEdit->setFocus();
-    }
-    else if (sender() == ui->lengthRadioButton && checked == true){
+    } else if (sender() == ui->lengthRadioButton && checked == true) {
         ui->lengthLineEdit->setEnabled(true);
         ui->endAddressLineEdit->setEnabled(false);
         ui->lengthLineEdit->setFocus();
