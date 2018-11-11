@@ -15,7 +15,7 @@ private:
     void taskFinished();
 
 public:
-    explicit R2Task(const QString &cmd);
+    explicit R2Task(const QString &cmd, bool transient = true);
     ~R2Task();
 
     void startTask();
