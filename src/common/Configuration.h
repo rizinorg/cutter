@@ -8,6 +8,18 @@
 #define Config() (Configuration::instance())
 #define ConfigColor(x) Config()->getColor(x)
 
+enum ColorFlags {
+    LightFlag = 1,
+    DarkFlag = 2
+};
+
+struct CutterQtTheme {
+    QString name;
+    ColorFlags flag;
+};
+
+extern const QList<CutterQtTheme> kCutterQtThemesList;
+
 class Configuration : public QObject
 {
     Q_OBJECT
@@ -45,11 +57,13 @@ public:
     void setFont(const QFont &font);
 
     // Colors
+    void setLastThemeOf(const CutterQtTheme &currQtTheme, const QString& theme);
+    QString getLastThemeOf(const CutterQtTheme &currQtTheme) const;
     const QColor getColor(const QString &name) const;
     void setTheme(int theme);
     int getTheme()
     {
-        return s.value("ColorPalette").toInt();
+        return s.value("ColorPalette", 0).toInt();
     }
 
     QString getDirProjects();

@@ -21,7 +21,7 @@ public:
 public slots:
     void apply();
 
-    void setNewScheme(const QString &schemeName);
+    void updateSchemeFromConfig();
 
 private slots:
     void newColor();
