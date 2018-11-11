@@ -7,6 +7,7 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 #include <QGraphicsScene>
+#include <QLabel>
 #include <QHash>
 
 #include "Cutter.h"
@@ -91,6 +92,7 @@ class SectionAddrDock : public QDockWidget
 public:
     enum AddrType { Raw = 0, Virtual };
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
+    QLabel *header;
     QGraphicsScene *graphicsScene;
     SectionsProxyModel *proxyModel;
     AddrType addrType;

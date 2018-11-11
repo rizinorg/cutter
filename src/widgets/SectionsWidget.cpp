@@ -252,14 +252,33 @@ void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, 
 
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent) :
     QDockWidget(parent),
+    header(new QLabel),
     graphicsScene(new QGraphicsScene),
     graphicsView(new QGraphicsView)
 {
+    switch (type) {
+        case SectionAddrDock::Raw:
+            header->setText("Raw");
+            break;
+        case SectionAddrDock::Virtual:
+            header->setText("Virtual");
+            break;
+        default:
+            return;
+    }
+
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     proxyModel = new SectionsProxyModel(model, this);
     addrType = type;
+
+    QWidget *w = new QWidget();
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(header);
+    layout->addWidget(graphicsView);
+    w->setLayout(layout);
+    setWidget(w);
 
     heightThreshold = 30;
     rectOffset = 100;
@@ -269,6 +288,8 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *p
 void SectionAddrDock::updateDock()
 {
     graphicsScene->clear();
+
+    header->setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
     const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene->setBackgroundBrush(bg);
 
