@@ -2,9 +2,13 @@
 #define SECTIONSWIDGET_H
 
 #include <memory>
+#include <map>
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
+#include <QGraphicsScene>
+#include <QLabel>
+#include <QHash>
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
@@ -13,7 +17,10 @@ class CutterTreeView;
 class QAbstractItemView;
 class MainWindow;
 class SectionsWidget;
+class SectionAddrDock;
 class QuickFilterView;
+class QGraphicsView;
+class QGraphicsRectItem;
 
 class SectionsModel : public QAbstractListModel
 {
@@ -59,14 +66,51 @@ public:
 private slots:
     void refreshSections();
     void onSectionsDoubleClicked(const QModelIndex &index);
+    void onSectionsSeekChanged(RVA addr);
 
 private:
     QList<SectionDescription> sections;
     SectionsModel *sectionsModel;
+    SectionsProxyModel *proxyModel;
     CutterTreeView *sectionsTable;
     MainWindow *main;
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;
+
+    SectionAddrDock *rawAddrDock;
+    SectionAddrDock *virtualAddrDock;
+
+    int indicatorWidth;
+    int indicatorHeight;
+    int indicatorParamPosY;
+    void drawIndicatorOnAddrDocks();
+    void updateIndicator(SectionAddrDock *targetDock, QString name, float ratio);
+};
+
+class SectionAddrDock : public QDockWidget
+{
+    Q_OBJECT
+
+public:
+    enum AddrType { Raw = 0, Virtual };
+    int heightThreshold;
+    int rectOffset;
+    int rectWidth;
+    QColor indicatorColor;
+    explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
+    QLabel *header;
+    QGraphicsScene *graphicsScene;
+    SectionsProxyModel *proxyModel;
+    AddrType addrType;
+    QHash<QString, int> namePosYMap;
+    QHash<QString, int> nameHeightMap;
+
+public slots:
+    void updateDock();
+    void addTextItem(QColor color, QPoint pos, QString string);
+
+private:
+    QGraphicsView *graphicsView;
 };
 
 #endif // SECTIONSWIDGET_H
