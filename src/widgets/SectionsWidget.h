@@ -95,6 +95,7 @@ public:
     int heightThreshold;
     int rectOffset;
     int rectWidth;
+    QColor indicatorColor;
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
     QLabel *header;
     QGraphicsScene *graphicsScene;

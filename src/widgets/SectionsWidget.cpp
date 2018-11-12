@@ -190,9 +190,11 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
 
-    connect(Config(), SIGNAL(colorsUpdated()), rawAddrDock, SLOT(updateDock()));
-    connect(Config(), SIGNAL(colorsUpdated()), virtualAddrDock, SLOT(updateDock()));
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this, SLOT(refreshSections()));
+    connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
+        if (visibility) {
+            refreshSections();
+        }
+    });
 
     indicatorWidth = 600;
     indicatorHeight = 5;
@@ -208,6 +210,8 @@ void SectionsWidget::refreshSections()
     sectionsModel->endResetModel();
 
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
+    rawAddrDock->show();
+    virtualAddrDock->show();
     rawAddrDock->updateDock();
     virtualAddrDock->updateDock();
     drawIndicatorOnAddrDocks();
@@ -248,12 +252,13 @@ void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, 
     RVA offset = Core()->getOffset();
     float padding = targetDock->nameHeightMap[name] * ratio;
     int y = targetDock->namePosYMap[name] + (int)padding;
+    QColor color = targetDock->indicatorColor;
     QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, indicatorWidth, indicatorHeight));
-    indicator->setBrush(QBrush(Qt::red));
+    indicator->setBrush(QBrush(color));
     targetDock->graphicsScene->addItem(indicator);
 
-    targetDock->addTextItem(Qt::red, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - indicatorParamPosY), name);
-    targetDock->addTextItem(Qt::red, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
+    targetDock->addTextItem(color, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - indicatorParamPosY), name);
+    targetDock->addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
 }
 
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent) :
@@ -264,10 +269,10 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *p
 {
     switch (type) {
         case SectionAddrDock::Raw:
-            header->setText("Raw");
+            header->setText(tr("Raw"));
             break;
         case SectionAddrDock::Virtual:
-            header->setText("Virtual");
+            header->setText(tr("Virtual"));
             break;
         default:
             return;
@@ -289,10 +294,13 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *p
     heightThreshold = 30;
     rectOffset = 100;
     rectWidth = 400;
+    indicatorColor = ConfigColor("gui.navbar.err");
 }
 
 void SectionAddrDock::updateDock()
 {
+    setFeatures(QDockWidget::DockWidgetClosable);
+
     graphicsScene->clear();
 
     header->setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
