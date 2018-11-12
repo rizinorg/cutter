@@ -66,6 +66,7 @@ public:
 private slots:
     void refreshSections();
     void onSectionsDoubleClicked(const QModelIndex &index);
+    void onSectionsSeekChanged(RVA addr);
 
 private:
     QList<SectionDescription> sections;

@@ -195,6 +195,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
             refreshSections();
         }
     });
+    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSectionsSeekChanged(RVA)));
 
     indicatorWidth = 600;
     indicatorHeight = 5;
@@ -224,6 +225,14 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
     Core()->seek(section.vaddr);
+}
+
+void SectionsWidget::onSectionsSeekChanged(RVA addr)
+{
+    Q_UNUSED(addr);
+    rawAddrDock->updateDock();
+    virtualAddrDock->updateDock();
+    drawIndicatorOnAddrDocks();
 }
 
 void SectionsWidget::drawIndicatorOnAddrDocks()
