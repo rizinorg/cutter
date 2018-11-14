@@ -19,12 +19,14 @@ class GraphView : public QAbstractScrollArea
 {
     Q_OBJECT
 
+public:
     enum class LayoutType {
         Medium,
         Wide,
         Narrow,
+        Count
     };
-public:
+
     struct GraphBlock;
 
     struct Point {
@@ -94,6 +96,9 @@ public:
     void showBlock(GraphBlock &block, bool animated = false);
     void showBlock(GraphBlock *block, bool animated = false);
 
+protected slots:
+    virtual void changeLayoutType();
+
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);
@@ -106,6 +111,7 @@ protected:
 
     // Zoom data
     double current_scale = 1.0;
+    double prev_scale = 1.0;
 
     int unscrolled_render_offset_x = 0;
     int unscrolled_render_offset_y = 0;
@@ -127,6 +133,9 @@ protected:
     void adjustSize(int new_width, int new_height, QPoint mouse = QPoint(0, 0));
 
     bool event(QEvent *event) override;
+
+    // Layout type
+    LayoutType layoutType = LayoutType::Medium;
 private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y = false);
 
@@ -135,8 +144,6 @@ private:
     void computeGraphLayout(GraphBlock &block);
     void adjustGraphLayout(GraphBlock &block, int col, int row);
 
-    // Layout type
-    LayoutType layoutType = LayoutType::Medium;
 
     int width = 0;
     int height = 0;

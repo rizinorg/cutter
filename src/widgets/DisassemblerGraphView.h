@@ -123,6 +123,7 @@ public:
                                                            GraphView::GraphBlock *to) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
 
+
     void loadCurrentGraph();
     QString windowTitle;
     bool isGraphEmpty();
@@ -145,8 +146,13 @@ public slots:
     void nextInstr();
     void prevInstr();
 
+
+protected slots:
+    virtual void changeLayoutType() override;
+
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;
+
 
 private slots:
     void seekPrev();

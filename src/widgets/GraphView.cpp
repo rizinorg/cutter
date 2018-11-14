@@ -916,3 +916,7 @@ void GraphView::wheelEvent(QWheelEvent *event)
     verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1 / current_scale));
     event->accept();
 }
+
+void GraphView::changeLayoutType()
+{
+}
