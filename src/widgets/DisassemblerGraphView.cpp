@@ -69,6 +69,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
 
+    // Graph Overview shortcut
     QShortcut *shortcut_change_layout = new QShortcut(QKeySequence(Qt::Key_P), this);
     shortcut_change_layout->setContext(Qt::WidgetShortcut);
     connect(shortcut_change_layout, SIGNAL(activated()), this, SLOT(changeLayoutType()));
@@ -99,12 +100,11 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcuts.append(shortcut_zoom_in);
     shortcuts.append(shortcut_zoom_out);
     shortcuts.append(shortcut_zoom_reset);
+    shortcuts.append(shortcut_change_layout);
     shortcuts.append(shortcut_next_instr);
     shortcuts.append(shortcut_prev_instr);
     shortcuts.append(shortcut_next_instr_arrow);
     shortcuts.append(shortcut_prev_instr_arrow);
-
-    shortcuts.append(shortcut_change_layout);
 
     //Export Graph menu
     mMenu->addSeparator();
@@ -159,31 +159,23 @@ void DisassemblerGraphView::changeLayoutType()
 {
     switch (layoutType) {
         case LayoutType::Medium:
-            {
-                layoutType = LayoutType::Narrow;
-                prev_scale = current_scale;
-                current_scale = 0.3;
-                refreshView();
-                DisassemblyBlock *db = blockForAddress(Core()->getOffset());
-                transition_dont_seek = true;
-                showBlock(&blocks[db->entry], true);
-                prepareHeader();
-            }
+            layoutType = LayoutType::Narrow;
+            prev_scale = current_scale;
+            current_scale = 0.3;
             break;
         case LayoutType::Narrow:
-            {
-                layoutType = LayoutType::Medium;
-                current_scale = prev_scale;
-                refreshView();
-                DisassemblyBlock *db = blockForAddress(Core()->getOffset());
-                transition_dont_seek = true;
-                showBlock(&blocks[db->entry], true);
-                prepareHeader();
-            }
+            layoutType = LayoutType::Medium;
+            current_scale = prev_scale;
             break;
         default:
+            msgBox.showMessage("DisassemblerGraphView::changeLayoutType: Illegal LayoutType");
             break;
     }
+    refreshView();
+    DisassemblyBlock *db = blockForAddress(Core()->getOffset());
+    transition_dont_seek = true;
+    showBlock(&blocks[db->entry], true);
+    prepareHeader();
 }
 
 void DisassemblerGraphView::refreshView()

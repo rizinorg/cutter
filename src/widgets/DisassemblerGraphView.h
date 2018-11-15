@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QShortcut>
 #include <QLabel>
+#include <QErrorMessage>
 
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
@@ -218,6 +219,8 @@ private:
 
     QLabel *emptyText = nullptr;
     SyntaxHighlighter *highlighter = nullptr;
+
+    QErrorMessage msgBox;
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H
