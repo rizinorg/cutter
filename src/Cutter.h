@@ -423,6 +423,7 @@ public:
 
     /* Code/Data */
     void setToCode(RVA addr);
+    void setAsString(RVA addr);
     void setToData(RVA addr, int size, int repeat = 1);
     int sizeofDataMeta(RVA addr);
 

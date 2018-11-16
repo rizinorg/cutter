@@ -51,6 +51,7 @@ private slots:
     void on_actionSetPC_triggered();
 
     void on_actionSetToCode_triggered();
+    void on_actionSetAsString_triggered();
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
@@ -58,6 +59,7 @@ private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
     QKeySequence getSetToCodeSequence() const;
+    QKeySequence getSetAsStringSequence() const;
     QKeySequence getSetToDataSequence() const;
     QKeySequence getSetToDataExSequence() const;
     QKeySequence getAddFlagSequence() const;
@@ -119,6 +121,7 @@ private:
     QAction actionSetPC;
 
     QAction actionSetToCode;
+    QAction actionSetAsString;
 
     QMenu *setToDataMenu;
     QAction actionSetToDataEx;
