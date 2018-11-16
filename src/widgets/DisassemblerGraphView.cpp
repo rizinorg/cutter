@@ -59,13 +59,13 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
 
     // Zoom shortcuts
-    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
+    shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
     shortcut_zoom_in->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_in, SIGNAL(activated()), this, SLOT(zoomIn()));
-    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
+    shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
     shortcut_zoom_out->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_out, SIGNAL(activated()), this, SLOT(zoomOut()));
-    QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::Key_Equal), this);
+    shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::Key_Equal), this);
     shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
 
@@ -162,10 +162,16 @@ void DisassemblerGraphView::changeLayoutType()
             layoutType = LayoutType::Narrow;
             prev_scale = current_scale;
             current_scale = 0.3;
+            disconnect(shortcut_zoom_in, SIGNAL(activated()), this, SLOT(zoomIn()));
+            disconnect(shortcut_zoom_out, SIGNAL(activated()), this, SLOT(zoomOut()));
+            disconnect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
             break;
         case LayoutType::Narrow:
             layoutType = LayoutType::Medium;
             current_scale = prev_scale;
+            connect(shortcut_zoom_in, SIGNAL(activated()), this, SLOT(zoomIn()));
+            connect(shortcut_zoom_out, SIGNAL(activated()), this, SLOT(zoomOut()));
+            connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
             break;
         default:
             msgBox.showMessage("DisassemblerGraphView::changeLayoutType: Illegal LayoutType");

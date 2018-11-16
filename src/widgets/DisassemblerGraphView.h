@@ -187,6 +187,9 @@ private:
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
     CutterSeekableWidget *seekable = nullptr;
+    QShortcut *shortcut_zoom_in;
+    QShortcut *shortcut_zoom_out;
+    QShortcut *shortcut_zoom_reset;
     QList<QShortcut *> shortcuts;
     QList<RVA> breakpoints;
 
