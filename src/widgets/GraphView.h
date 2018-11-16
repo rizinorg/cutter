@@ -24,7 +24,6 @@ public:
         Medium,
         Wide,
         Narrow,
-        Count
     };
 
     struct GraphBlock;

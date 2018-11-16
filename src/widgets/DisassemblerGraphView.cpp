@@ -884,10 +884,8 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
     mMenu->setOffset(addr);
     switch (layoutType) {
         case LayoutType::Medium:
-            {
-                if (event->button() == Qt::RightButton) {
-                    mMenu->exec(event->globalPos());
-                }
+            if (event->button() == Qt::RightButton) {
+                mMenu->exec(event->globalPos());
             }
             break;
         case LayoutType::Narrow:
@@ -902,6 +900,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
             }
             break;
         default:
+            msgBox.showMessage("DisassemblerGraphView::blockClicked: Illegal LayoutType");
             break;
     }
 }
@@ -927,23 +926,33 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
 void DisassemblerGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
                                            QPoint pos)
 {
-    if (layoutType == LayoutType::Narrow) {
-        QString s = QString();
-        DisassemblyBlock &db = disassembly_blocks[block.entry];
-        for (Instr &instr : db.instrs) {
-            s += instr.text.ToQString();
-            s += '\n';
-        }
-        QToolTip::showText(event->globalPos(), s);
-        return;
+    switch (layoutType) {
+        case LayoutType::Narrow:
+            {
+                QString s = QString();
+                DisassemblyBlock &db = disassembly_blocks[block.entry];
+                for (Instr &instr : db.instrs) {
+                    s += instr.text.ToQString();
+                    s += '\n';
+                }
+                QToolTip::showText(event->globalPos(), s);
+            }
+            break;
+        case LayoutType::Medium:
+            {
+                Instr *instr = getInstrForMouseEvent(block, &pos);
+                if (!instr || instr->fullText.lines.empty()) {
+                    QToolTip::hideText();
+                    event->ignore();
+                    return;
+                }
+                QToolTip::showText(event->globalPos(), instr->fullText.ToQString());
+            }
+            break;
+        default:
+            msgBox.showMessage("DisassemblerGraphView::changeLayoutType: Illegal LayoutType");
+            break;
     }
-    Instr *instr = getInstrForMouseEvent(block, &pos);
-    if (!instr || instr->fullText.lines.empty()) {
-        QToolTip::hideText();
-        event->ignore();
-        return;
-    }
-    QToolTip::showText(event->globalPos(), instr->fullText.ToQString());
 }
 
 bool DisassemblerGraphView::helpEvent(QHelpEvent *event)
