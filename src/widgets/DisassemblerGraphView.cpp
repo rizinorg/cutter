@@ -921,13 +921,22 @@ void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMo
 void DisassemblerGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
                                            QPoint pos)
 {
+    if (layoutType == LayoutType::Narrow) {
+        QString s = QString();
+        DisassemblyBlock &db = disassembly_blocks[block.entry];
+        for (Instr &instr : db.instrs) {
+            s += instr.text.ToQString();
+            s += '\n';
+        }
+        QToolTip::showText(event->globalPos(), s);
+        return;
+    }
     Instr *instr = getInstrForMouseEvent(block, &pos);
     if (!instr || instr->fullText.lines.empty()) {
         QToolTip::hideText();
         event->ignore();
         return;
     }
-
     QToolTip::showText(event->globalPos(), instr->fullText.ToQString());
 }
 
