@@ -399,6 +399,12 @@ void CutterCore::setToCode(RVA addr)
     emit instructionChanged(addr);
 }
 
+void CutterCore::setAsString(RVA addr)
+{
+    cmd("Cs @ " + RAddressString(addr));
+    emit instructionChanged(addr);
+}
+
 void CutterCore::setToData(RVA addr, int size, int repeat)
 {
     if (size <= 0 || repeat <= 0) {

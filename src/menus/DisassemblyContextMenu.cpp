@@ -70,9 +70,13 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     addSetBitsMenu();
 
-    initAction(&actionSetToCode, tr("Set to Code"),
+    initAction(&actionSetToCode, tr("Set as Code"),
                SLOT(on_actionSetToCode_triggered()), getSetToCodeSequence());
     addAction(&actionSetToCode);
+
+    initAction(&actionSetAsString, tr("Set as String"),
+               SLOT(on_actionSetAsString_triggered()), getSetAsStringSequence());
+    addAction(&actionSetAsString);
 
     addSetToDataMenu();
 
@@ -329,6 +333,12 @@ QKeySequence DisassemblyContextMenu::getSetToCodeSequence() const
 {
     return {Qt::Key_C};
 }
+
+QKeySequence DisassemblyContextMenu::getSetAsStringSequence() const
+{
+    return {Qt::Key_A};
+}
+
 
 QKeySequence DisassemblyContextMenu::getSetToDataSequence() const
 {
@@ -663,6 +673,12 @@ void DisassemblyContextMenu::on_actionSetToCode_triggered()
 {
     Core()->setToCode(offset);
 }
+
+void DisassemblyContextMenu::on_actionSetAsString_triggered()
+{
+    Core()->setAsString(offset);
+}
+
 
 void DisassemblyContextMenu::on_actionSetToData_triggered()
 {
