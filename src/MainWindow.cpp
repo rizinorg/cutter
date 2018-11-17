@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 #include "common/Helpers.h"
 
+// Qt Headers
 #include <QApplication>
 #include <QComboBox>
 #include <QCompleter>
@@ -32,6 +33,7 @@
 #include <QTreeWidgetItem>
 #include <QSvgRenderer>
 
+// Common Headers
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
 #include "common/Helpers.h"
@@ -39,6 +41,7 @@
 #include "common/ProgressIndicator.h"
 #include "common/TempConfig.h"
 
+// Dialogs
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/InitialOptionsDialog.h"
 #include "dialogs/SaveProjectDialog.h"
@@ -48,6 +51,7 @@
 #include "dialogs/preferences/PreferencesDialog.h"
 #include "dialogs/OpenFileDialog.h"
 
+// Widgets Headers
 #include "widgets/DisassemblerGraphView.h"
 #include "widgets/GraphWidget.h"
 #include "widgets/FunctionsWidget.h"
@@ -882,6 +886,7 @@ void MainWindow::on_actionImportPDB_triggered()
     if (!pdbFile.isEmpty()) {
         core->loadPDB(pdbFile);
         core->message(tr("%1 loaded.").arg(pdbFile));
+        this->refreshAll();
     }
 }
 
