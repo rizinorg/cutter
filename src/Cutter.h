@@ -165,6 +165,7 @@ struct StringDescription {
     RVA vaddr;
     QString string;
     QString type;
+    QString section;
     ut32 length;
     ut32 size;
 };
@@ -612,6 +613,8 @@ public:
 
     void setCutterPlugins(QList<CutterPlugin*> plugins);
     QList<CutterPlugin*> getCutterPlugins();
+
+    QStringList getSectionList();
 
     RCoreLocked core() const;
 

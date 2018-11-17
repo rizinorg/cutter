@@ -26,7 +26,7 @@ int StringsModel::rowCount(const QModelIndex &) const
 
 int StringsModel::columnCount(const QModelIndex &) const
 {
-    return Columns::COUNT;
+    return StringsModel::ColumnCount;
 }
 
 QVariant StringsModel::data(const QModelIndex &index, int role) const
@@ -39,16 +39,18 @@ QVariant StringsModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DisplayRole:
         switch (index.column()) {
-        case OFFSET:
+        case StringsModel::OffsetColumn:
             return RAddressString(str.vaddr);
-        case STRING:
+        case StringsModel::StringColumn:
             return str.string;
-        case TYPE:
+        case StringsModel::TypeColumn:
             return str.type.toUpper();
-        case LENGTH:
+        case StringsModel::LengthColumn:
             return str.length;
-        case SIZE:
+        case StringsModel::SizeColumn:
             return str.size;
+        case StringsModel::SectionColumn:
+            return str.section;
         default:
             return QVariant();
         }
@@ -64,16 +66,18 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
     switch (role) {
     case Qt::DisplayRole:
         switch (section) {
-        case OFFSET:
+        case StringsModel::OffsetColumn:
             return tr("Address");
-        case STRING:
+        case StringsModel::StringColumn:
             return tr("String");
-        case TYPE:
+        case StringsModel::TypeColumn:
             return tr("Type");
-        case LENGTH:
+        case StringsModel::LengthColumn:
             return tr("Length");
-        case SIZE:
+        case StringsModel::SizeColumn:
             return tr("Size");
+        case StringsModel::SectionColumn:
+            return tr("Section");
         default:
             return QVariant();
         }
@@ -82,46 +86,48 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-StringsSortFilterProxyModel::StringsSortFilterProxyModel(StringsModel *source_model,
-                                                         QObject *parent)
+StringsProxyModel::StringsProxyModel(StringsModel *sourceModel, QObject *parent)
     : QSortFilterProxyModel(parent)
 {
-    setSourceModel(source_model);
+    setSourceModel(sourceModel);
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
 
-bool StringsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+bool StringsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     StringDescription str = index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
-    return str.string.contains(filterRegExp());
+    if (selectedSection.isEmpty())
+        return str.string.contains(filterRegExp());
+    else
+        return selectedSection == str.section && str.string.contains(filterRegExp());
 }
 
-bool StringsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    StringDescription left_str = left.data(
-                                     StringsModel::StringDescriptionRole).value<StringDescription>();
-    StringDescription right_str = right.data(
-                                      StringsModel::StringDescriptionRole).value<StringDescription>();
+    auto leftStr = left.data(StringsModel::StringDescriptionRole).value<StringDescription>();
+    auto rightStr = right.data(StringsModel::StringDescriptionRole).value<StringDescription>();
 
     switch (left.column()) {
-    case StringsModel::OFFSET:
-        return left_str.vaddr < right_str.vaddr;
-    case StringsModel::STRING: // sort by string
-        return left_str.string < right_str.string;
-    case StringsModel::TYPE: // sort by type
-        return left_str.type < right_str.type;
-    case StringsModel::SIZE: // sort by size
-        return left_str.size < right_str.size;
-    case StringsModel::LENGTH: // sort by length
-        return left_str.length < right_str.length;
+    case StringsModel::OffsetColumn:
+        return leftStr.vaddr < rightStr.vaddr;
+    case StringsModel::StringColumn: // sort by string
+        return leftStr.string < rightStr.string;
+    case StringsModel::TypeColumn: // sort by type
+        return leftStr.type < rightStr.type;
+    case StringsModel::SizeColumn: // sort by size
+        return leftStr.size < rightStr.size;
+    case StringsModel::LengthColumn: // sort by length
+        return leftStr.length < rightStr.length;
+    case StringsModel::SectionColumn:
+        return leftStr.section < rightStr.section;
     default:
         break;
     }
 
     // fallback
-    return left_str.vaddr < right_str.vaddr;
+    return leftStr.vaddr < rightStr.vaddr;
 }
 
 
@@ -131,6 +137,7 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     tree(new CutterTreeWidget(this))
 {
     ui->setupUi(this);
+    ui->quickFilterView->setLabelText(tr("Section:"));
 
     // Add Status Bar footer
     tree->addStatusBar(ui->verticalLayout);
@@ -144,17 +151,6 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
             main->updateDockActionChecked(action);
             } );
 
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
-    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    // Esc to clear the filter entry
-    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
-    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    connect(ui->actionFilter, SIGNAL(triggered()), ui->quickFilterView, SLOT(showFilter()));
     connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
     connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
 
@@ -166,19 +162,27 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     ui->stringsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
     model = new StringsModel(&strings, this);
-    proxy_model = new StringsSortFilterProxyModel(model, this);
-    ui->stringsTreeView->setModel(proxy_model);
-    ui->stringsTreeView->sortByColumn(StringsModel::OFFSET, Qt::AscendingOrder);
+    proxyModel = new StringsProxyModel(model, this);
+    ui->stringsTreeView->setModel(proxyModel);
+    ui->stringsTreeView->sortByColumn(StringsModel::OffsetColumn, Qt::AscendingOrder);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxy_model,
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
             SLOT(setFilterWildcard(const QString &)));
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->stringsTreeView, SLOT(setFocus()));
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(proxy_model->rowCount());
+    connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, [this] {
+        tree->showItemsNumber(proxyModel->rowCount());
     });
     
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
+
+    connect(
+        ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this,
+        [this]() {
+            proxyModel->selectedSection = ui->quickFilterView->comboBox()->currentData().toString();
+            proxyModel->setFilterRegExp(proxyModel->filterRegExp());
+            tree->showItemsNumber(proxyModel->rowCount());
+        }
+    );
 }
 
 StringsWidget::~StringsWidget() {}
@@ -203,6 +207,22 @@ void StringsWidget::refreshStrings()
     connect(task.data(), &StringsTask::stringSearchFinished, this,
             &StringsWidget::stringSearchFinished);
     Core()->getAsyncTaskManager()->start(task);
+
+    refreshSectionCombo();
+}
+
+void StringsWidget::refreshSectionCombo()
+{
+    QComboBox *combo = ui->quickFilterView->comboBox();
+
+    combo->clear();
+    combo->addItem(tr("(all)"));
+
+    for (QString &section : Core()->getSectionList()) {
+        combo->addItem(section, section);
+    }
+
+    proxyModel->selectedSection.clear();
 }
 
 void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings)
@@ -215,7 +235,7 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
 
-    tree->showItemsNumber(proxy_model->rowCount());
+    tree->showItemsNumber(proxyModel->rowCount());
 
     task = nullptr;
 }
