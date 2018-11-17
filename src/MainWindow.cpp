@@ -886,7 +886,7 @@ void MainWindow::on_actionImportPDB_triggered()
     if (!pdbFile.isEmpty()) {
         core->loadPDB(pdbFile);
         core->message(tr("%1 loaded.").arg(pdbFile));
-        MainWindow->refreshAll();
+        this->refreshAll();
     }
 }
 
