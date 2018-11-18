@@ -66,15 +66,15 @@ QVariant StringsModel::headerData(int section, Qt::Orientation, int role) const
     switch (role) {
     case Qt::DisplayRole:
         switch (section) {
-        case OFFSET:
+        case StringsModel::OffsetColumn:
             return tr("Address");
-        case STRING:
+        case StringsModel::StringColumn:
             return tr("String");
-        case TYPE:
+        case StringsModel::TypeColumn:
             return tr("Type");
-        case LENGTH:
+        case StringsModel::LengthColumn:
             return tr("Length");
-        case SIZE:
+        case StringsModel::SizeColumn:
             return tr("Size");
         case StringsModel::SectionColumn:
             return tr("Section");
@@ -143,13 +143,6 @@ StringsWidget::StringsWidget(MainWindow *main) :
     tree->addStatusBar(ui->verticalLayout);
 
     qhelpers::setVerticalScrollMode(ui->stringsTreeView);
-
-    // Shift-F12 to toggle strings window
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true);
-            main->updateDockActionChecked(action);
-            } );
 
     connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
     connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
