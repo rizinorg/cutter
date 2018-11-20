@@ -184,7 +184,7 @@ void DisassemblyWidget::toggleSync()
     if (seekable->getSyncWithCore()) {
         setWindowTitle(windowTitle);
     } else {
-        setWindowTitle(windowTitle + CutterSeekableWidget::UNSYNCED_TEXT);
+        setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
         seekable->setIndependentOffset(Core()->getOffset());
     }
 }

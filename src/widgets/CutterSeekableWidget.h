@@ -20,8 +20,6 @@ public:
     void setIndependentOffset(RVA addr);
     void onSeekChanged(RVA addr);
 
-    static const QString UNSYNCED_TEXT;
-
 private:
     RVA independentOffset = RVA_INVALID;
     RVA prevIdenpendentOffset = RVA_INVALID;
