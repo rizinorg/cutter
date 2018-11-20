@@ -1,6 +1,7 @@
 
 import asyncio
 import queue
+import sys
 from jupyter_client.ioloop import IOLoopKernelManager
 from notebook.notebookapp import *
 import cutter_internal
@@ -116,6 +117,12 @@ def start_jupyter():
     q = queue.Queue()
 
     def start_jupyter_async():
+        # workaround for misbehavior under certain circumstances
+        # with argumentparser and jupyter accessing out of bounds
+        # program name via argv[0]
+        if not sys.argv:
+            sys.argv.append("Cutter")
+
         asyncio.set_event_loop(asyncio.new_event_loop())
         app = CutterNotebookApp()
         # app.log_level = logging.DEBUG
