@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 #include "CutterSeekableWidget.h"
 
-const QString CutterSeekableWidget::UNSYNCED_TEXT = tr(" (unsynced)");
 
 CutterSeekableWidget::CutterSeekableWidget(QObject *parent)
     :

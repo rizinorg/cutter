@@ -144,7 +144,7 @@ void DisassemblerGraphView::toggleSync()
     if (seekable->getSyncWithCore()) {
         parentWidget()->setWindowTitle(windowTitle);
     } else {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::UNSYNCED_TEXT);
+        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
         seekable->setIndependentOffset(Core()->getOffset());
     }
 }
@@ -210,7 +210,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         windowTitle += " (" + funcName + ")";
     }
     if (!seekable->getSyncWithCore()) {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::UNSYNCED_TEXT);
+        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
     } else {
         parentWidget()->setWindowTitle(windowTitle);
     }
