@@ -98,7 +98,6 @@ public:
     int rectWidth;
     QColor indicatorColor;
     explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
-    QLabel *header;
     QGraphicsScene *graphicsScene;
     SectionsProxyModel *proxyModel;
     AddrType addrType;

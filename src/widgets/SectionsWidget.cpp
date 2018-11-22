@@ -3,6 +3,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include "common/Configuration.h"
 #include "SectionsWidget.h"
 #include "CutterTreeView.h"
 #include "MainWindow.h"
@@ -196,6 +197,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
         }
     });
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSectionsSeekChanged(RVA)));
+    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(refreshSections()));
 
     indicatorWidth = 600;
     indicatorHeight = 5;
@@ -272,16 +274,16 @@ void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, 
 
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent) :
     QDockWidget(parent),
-    header(new QLabel),
     graphicsScene(new QGraphicsScene),
     graphicsView(new QGraphicsView)
 {
+    setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
     switch (type) {
         case SectionAddrDock::Raw:
-            header->setText(tr("Raw"));
+            setWindowTitle(tr("Raw"));
             break;
         case SectionAddrDock::Virtual:
-            header->setText(tr("Virtual"));
+            setWindowTitle(tr("Virtual"));
             break;
         default:
             return;
@@ -295,7 +297,6 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *p
 
     QWidget *w = new QWidget();
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(header);
     layout->addWidget(graphicsView);
     w->setLayout(layout);
     setWidget(w);
@@ -304,6 +305,10 @@ SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *p
     rectOffset = 100;
     rectWidth = 400;
     indicatorColor = ConfigColor("gui.navbar.err");
+
+    connect(this, &QDockWidget::featuresChanged, this, [ = ](){
+        setFeatures(QDockWidget::DockWidgetClosable);
+    });
 }
 
 void SectionAddrDock::updateDock()
@@ -312,7 +317,7 @@ void SectionAddrDock::updateDock()
 
     graphicsScene->clear();
 
-    header->setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
+    setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
     const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene->setBackgroundBrush(bg);
 
