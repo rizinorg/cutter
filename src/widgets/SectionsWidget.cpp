@@ -267,6 +267,7 @@ void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, 
     QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, indicatorWidth, indicatorHeight));
     indicator->setBrush(QBrush(color));
     targetDock->graphicsScene->addItem(indicator);
+    targetDock->graphicsView->centerOn(indicator);
 
     targetDock->addTextItem(color, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - indicatorParamPosY), name);
     targetDock->addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
