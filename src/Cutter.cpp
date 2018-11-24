@@ -13,7 +13,7 @@
 
 Q_GLOBAL_STATIC(ccClass, uniqueInstance)
 
-#define R_JSON_KEY(name) static const QLatin1String name = QLatin1Literal(#name)
+#define R_JSON_KEY(name) static const QString name = QStringLiteral(#name)
 
 namespace RJsonKey {
     R_JSON_KEY(addr);
@@ -50,6 +50,7 @@ namespace RJsonKey {
     R_JSON_KEY(hw);
     R_JSON_KEY(in_functions);
     R_JSON_KEY(index);
+    R_JSON_KEY(jump);
     R_JSON_KEY(laddr);
     R_JSON_KEY(lang);
     R_JSON_KEY(len);
@@ -228,7 +229,7 @@ CutterCore::~CutterCore()
 QString CutterCore::sanitizeStringForCommand(QString s)
 {
     static const QRegExp regexp(";|@");
-    return s.replace(regexp, "_");
+    return s.replace(regexp, QStringLiteral("_"));
 }
 
 /**
@@ -237,14 +238,13 @@ QString CutterCore::sanitizeStringForCommand(QString s)
  * Note that if you want to seek to an address, you should use CutterCore::seek
  * @return command output
  */
-QString CutterCore::cmd(const QString &str)
+QString CutterCore::cmd(const char *str)
 {
     CORE_LOCK();
 
     RVA offset = core_->offset;
-    QByteArray cmd = str.toUtf8();
     r_core_task_sync_begin(core_);
-    char *res = r_core_cmd_str(this->core_, cmd.constData());
+    char *res = r_core_cmd_str(this->core_, str);
     r_core_task_sync_end(core_);
     QString o = QString(res ? res : "");
     r_mem_free(res);
@@ -254,25 +254,34 @@ QString CutterCore::cmd(const QString &str)
     return o;
 }
 
+QString CutterCore::cmd(const QString &str)
+{
+    return cmd(str.toUtf8().constData());
+}
+
 QString CutterCore::cmdRaw(const QString &str)
 {
     QString cmdStr = str;
-    cmdStr.replace('\"', "\\\"");
+    cmdStr.replace('\"', QStringLiteral("\\\""));
     return cmd("\"" + cmdStr + "\"");
 }
 
-QJsonDocument CutterCore::cmdj(const QString &str)
+QJsonDocument CutterCore::cmdj(const char *str)
 {
     CORE_LOCK();
-    QByteArray cmd = str.toUtf8();
 
     r_core_task_sync_begin(core_);
-    char *res = r_core_cmd_str(this->core_, cmd.constData());
+    char *res = r_core_cmd_str(this->core_, str);
     r_core_task_sync_end(core_);
     QJsonDocument doc = parseJson(res, str);
     r_mem_free(res);
 
     return doc;
+}
+
+QJsonDocument CutterCore::cmdj(const QString &str)
+{
+    return cmdj(str.toUtf8().constData());
 }
 
 QString CutterCore::cmdTask(const QString &str)
@@ -291,7 +300,7 @@ QJsonDocument CutterCore::cmdjTask(const QString &str)
     return parseJson(task.getResultRaw(), str);
 }
 
-QJsonDocument CutterCore::parseJson(const char *res, const QString &cmd)
+QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
 {
     QString resString = QString(res);
 
@@ -303,8 +312,8 @@ QJsonDocument CutterCore::parseJson(const char *res, const QString &cmd)
     QJsonDocument doc = res ? QJsonDocument::fromJson(resString.toUtf8(), &jsonError) : QJsonDocument();
 
     if (jsonError.error != QJsonParseError::NoError) {
-        if (!cmd.isNull()) {
-            eprintf("Failed to parse JSON for command \"%s\": %s\n", cmd.toLocal8Bit().constData(),
+        if (cmd) {
+            eprintf("Failed to parse JSON for command \"%s\": %s\n", cmd,
                     jsonError.errorString().toLocal8Bit().constData());
         } else {
             eprintf("Failed to parse JSON: %s\n", jsonError.errorString().toLocal8Bit().constData());
@@ -313,6 +322,11 @@ QJsonDocument CutterCore::parseJson(const char *res, const QString &cmd)
     }
 
     return doc;
+}
+
+QJsonDocument CutterCore::parseJson(const char *res, const QString &cmd)
+{
+    return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
 }
 
 /**
@@ -762,17 +776,23 @@ QString CutterCore::cmdFunctionAt(RVA addr)
     return cmdFunctionAt(QString::number(addr));
 }
 
-void CutterCore::cmdEsil(QString command)
+void CutterCore::cmdEsil(const char *command)
 {
     QString res = cmd(command);
-    if (res.contains("[ESIL] Stopped execution in an invalid instruction")) {
+    if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
         msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable this in Preferences");
     }
 }
 
+void CutterCore::cmdEsil(QString command)
+{
+    cmdEsil(command.toUtf8().constData());
+}
+
 QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
-    name.remove(QRegExp("[^a-zA-Z0-9_]"));
+    static const QRegExp pattern("[^a-zA-Z0-9_]");
+    name.remove(pattern);
     QString command = "af " + name + " " + RAddressString(addr);
     QString ret = cmd(command);
     emit functionsChanged();
@@ -788,7 +808,7 @@ RVA CutterCore::getOffsetJump(RVA addr)
 {
     bool ok;
     RVA value = cmdj("aoj @" + QString::number(
-                         addr)).array().first().toObject().value("jump").toVariant().toULongLong(&ok);
+                         addr)).array().first().toObject().value(RJsonKey::jump).toVariant().toULongLong(&ok);
 
     if (!ok) {
         return RVA_INVALID;
@@ -804,7 +824,7 @@ QString CutterCore::getDecompiledCodePDC(RVA addr)
 
 bool CutterCore::getR2DecAvailable()
 {
-    return cmd("e cmd.pdc=?").split('\n').contains("r2dec");
+    return cmd("e cmd.pdc=?").split('\n').contains(QStringLiteral("r2dec"));
 }
 
 QString CutterCore::getDecompiledCodeR2Dec(RVA addr)
@@ -843,7 +863,7 @@ QList<RegisterRefDescription> CutterCore::getRegisterRefs()
     QList<RegisterRefDescription> ret;
     QJsonArray registerRefArray = cmdj("drrj").array();
 
-    for (QJsonValue value : registerRefArray) {
+    for (const QJsonValue &value : registerRefArray) {
         QJsonObject regRefObject = value.toObject();
 
         RegisterRefDescription regRef;
@@ -862,12 +882,15 @@ QJsonObject CutterCore::getRegisterJson()
 {
     QJsonArray registerRefArray = cmdj("drrj").array();
     QJsonObject registerJson;
-    for (QJsonValue value : registerRefArray) {
+
+    for (const QJsonValue &value : registerRefArray) {
         QJsonObject regRefObject = value.toObject();
 
         QJsonObject registers;
+
         registers.insert(RJsonKey::value, regRefObject[RJsonKey::value]);
         registers.insert(RJsonKey::ref, regRefObject[RJsonKey::ref]);
+
         registerJson.insert(regRefObject[RJsonKey::reg].toString(), registers);
     }
     return registerJson;
@@ -1067,9 +1090,11 @@ QStringList CutterCore::getDebugPlugins()
     QStringList plugins;
     QJsonArray pluginArray = cmdj("dLj").array();
 
-    for (QJsonValue value : pluginArray) {
+    for (const QJsonValue &value : pluginArray) {
         QJsonObject pluginObject = value.toObject();
+
         QString plugin = pluginObject[RJsonKey::name].toString();
+
         plugins << plugin;
     }
     return plugins;
@@ -1131,13 +1156,13 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
     QList<BreakpointDescription> ret;
     QJsonArray breakpointArray = cmdj("dbj").array();
 
-    for (QJsonValue value : breakpointArray) {
+    for (const QJsonValue &value : breakpointArray) {
         QJsonObject bpObject = value.toObject();
 
         BreakpointDescription bp;
 
         bp.addr = bpObject[RJsonKey::addr].toVariant().toULongLong();
-        bp.size = bpObject[RJsonKey::size].toVariant().toInt();
+        bp.size = bpObject[RJsonKey::size].toInt();
         bp.permission = bpObject[RJsonKey::prot].toString();
         bp.hw = bpObject[RJsonKey::hw].toBool();
         bp.trace = bpObject[RJsonKey::trace].toBool();
@@ -1152,17 +1177,15 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
 
 QList<RVA> CutterCore::getBreakpointsAddresses()
 {
-    QList<BreakpointDescription> bps = getBreakpoints();
-    BreakpointDescription bp;
     QList<RVA> bpAddresses;
-    foreach (bp, bps) {
+    for (const BreakpointDescription &bp : getBreakpoints()) {
         bpAddresses << bp.addr;
     }
 
     return bpAddresses;
 }
 
-bool CutterCore::isBreakpoint(QList<RVA> breakpoints, RVA addr)
+bool CutterCore::isBreakpoint(const QList<RVA> &breakpoints, RVA addr)
 {
     return breakpoints.contains(addr);
 }
@@ -1175,15 +1198,15 @@ QJsonDocument CutterCore::getBacktrace()
 QList<ProcessDescription> CutterCore::getAllProcesses()
 {
     QList<ProcessDescription> ret;
-    QJsonArray ProcessArray = cmdj("dplj").array();
+    QJsonArray processArray = cmdj("dplj").array();
 
-    for (QJsonValue value : ProcessArray) {
+    for (const QJsonValue &value : processArray) {
         QJsonObject procObject = value.toObject();
 
         ProcessDescription proc;
 
-        proc.pid = procObject[RJsonKey::pid].toVariant().toInt();
-        proc.uid = procObject[RJsonKey::uid].toVariant().toInt();
+        proc.pid = procObject[RJsonKey::pid].toInt();
+        proc.uid = procObject[RJsonKey::uid].toInt();
         proc.status = procObject[RJsonKey::status].toString();
         proc.path = procObject[RJsonKey::path].toString();
 
@@ -1198,7 +1221,7 @@ QList<MemoryMapDescription> CutterCore::getMemoryMap()
     QList<MemoryMapDescription> ret;
     QJsonArray memoryMapArray = cmdj("dmj").array();
 
-    for (QJsonValue value : memoryMapArray) {
+    for (const QJsonValue &value : memoryMapArray) {
         QJsonObject memMapObject = value.toObject();
 
         MemoryMapDescription memMap;
@@ -1289,7 +1312,7 @@ QList<RVA> CutterCore::getSeekHistory()
     QList<RVA> ret;
 
     QJsonArray jsonArray = cmdj("sj").array();
-    for (QJsonValue value : jsonArray)
+    for (const QJsonValue &value : jsonArray)
         ret << value.toVariant().toULongLong();
 
     return ret;
@@ -1329,7 +1352,7 @@ QStringList CutterCore::getProjectNames()
     QStringList ret;
 
     QJsonArray jsonArray = cmdj("Pj").array();
-    for (QJsonValue value : jsonArray)
+    for (const QJsonValue &value : jsonArray)
         ret.append(value.toString());
 
     return ret;
@@ -1346,13 +1369,16 @@ QList<RBinPluginDescription> CutterCore::getRBinPluginDescriptions(const QString
 
         QJsonArray pluginArray = jsonRoot[key].toArray();
 
-        for (const auto &pluginValue : pluginArray) {
+        for (const QJsonValue &pluginValue : pluginArray) {
             QJsonObject pluginObject = pluginValue.toObject();
+
             RBinPluginDescription desc;
+
             desc.name = pluginObject[RJsonKey::name].toString();
             desc.description = pluginObject[RJsonKey::description].toString();
             desc.license = pluginObject[RJsonKey::license].toString();
             desc.type = key;
+
             ret.append(desc);
         }
     }
@@ -1365,8 +1391,9 @@ QList<RIOPluginDescription> CutterCore::getRIOPluginDescriptions()
     QList<RIOPluginDescription> ret;
 
     QJsonArray plugins = cmdj("oLj").object()["IO_Plugins"].toArray();
-    for (QJsonValueRef pluginValue : plugins) {
+    for (const QJsonValue &pluginValue : plugins) {
         QJsonObject pluginObject = pluginValue.toObject();
+
         RIOPluginDescription plugin;
 
         plugin.name = pluginObject["Name"].toString();
@@ -1385,8 +1412,9 @@ QList<RCorePluginDescription> CutterCore::getRCorePluginDescriptions()
     QList<RCorePluginDescription> ret;
 
     QJsonArray plugins = cmdj("Lsj").array();
-    for (QJsonValueRef pluginValue : plugins) {
+    for (const QJsonValue &pluginValue : plugins) {
         QJsonObject pluginObject = pluginValue.toObject();
+
         RCorePluginDescription plugin;
 
         plugin.name = pluginObject["Name"].toString();
@@ -1434,7 +1462,7 @@ QList<ImportDescription> CutterCore::getAllImports()
 
     QJsonArray importsArray = cmdj("iij").array();
 
-    for (QJsonValue value : importsArray) {
+    for (const QJsonValue &value : importsArray) {
         QJsonObject importObject = value.toObject();
 
         ImportDescription import;
@@ -1456,19 +1484,19 @@ QList<ExportDescription> CutterCore::getAllExports()
     CORE_LOCK();
     QList<ExportDescription> ret;
 
-    QJsonArray importsArray = cmdj("iEj").array();
+    QJsonArray exportsArray = cmdj("iEj").array();
 
-    for (QJsonValue value : importsArray) {
-        QJsonObject importObject = value.toObject();
+    for (const QJsonValue &value : exportsArray) {
+        QJsonObject exportObject = value.toObject();
 
         ExportDescription exp;
 
-        exp.vaddr = importObject[RJsonKey::vaddr].toVariant().toULongLong();
-        exp.paddr = importObject[RJsonKey::paddr].toVariant().toULongLong();
-        exp.size = importObject[RJsonKey::size].toVariant().toULongLong();
-        exp.type = importObject[RJsonKey::type].toString();
-        exp.name = importObject[RJsonKey::name].toString();
-        exp.flag_name = importObject[RJsonKey::flagname].toString();
+        exp.vaddr = exportObject[RJsonKey::vaddr].toVariant().toULongLong();
+        exp.paddr = exportObject[RJsonKey::paddr].toVariant().toULongLong();
+        exp.size = exportObject[RJsonKey::size].toVariant().toULongLong();
+        exp.type = exportObject[RJsonKey::type].toString();
+        exp.name = exportObject[RJsonKey::name].toString();
+        exp.flag_name = exportObject[RJsonKey::flagname].toString();
 
         ret << exp;
     }
@@ -1518,7 +1546,7 @@ QList<HeaderDescription> CutterCore::getAllHeaders()
 
     QJsonArray headersArray = cmdj("ihj").array();
 
-    for (QJsonValue value : headersArray) {
+    for (const QJsonValue &value : headersArray) {
         QJsonObject headerObject = value.toObject();
 
         HeaderDescription header;
@@ -1541,7 +1569,7 @@ QList<ZignatureDescription> CutterCore::getAllZignatures()
 
     QJsonArray zignaturesArray = cmdj("zj").array();
 
-    for (QJsonValue value : zignaturesArray) {
+    for (const QJsonValue &value : zignaturesArray) {
         QJsonObject zignatureObject = value.toObject();
 
         ZignatureDescription zignature;
@@ -1549,7 +1577,7 @@ QList<ZignatureDescription> CutterCore::getAllZignatures()
         zignature.name = zignatureObject[RJsonKey::name].toString();
         zignature.bytes = zignatureObject[RJsonKey::bytes].toString();
         zignature.offset = zignatureObject[RJsonKey::offset].toVariant().toULongLong();
-        for (QJsonValue ref : zignatureObject[RJsonKey::refs].toArray()) {
+        for (const QJsonValue &ref : zignatureObject[RJsonKey::refs].toArray()) {
             zignature.refs << ref.toString();
         }
 
@@ -1571,7 +1599,7 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
     QList<CommentDescription> ret;
 
     QJsonArray commentsArray = cmdj("CCj").array();
-    for (QJsonValue value : commentsArray) {
+    for (const QJsonValue &value : commentsArray) {
         QJsonObject commentObject = value.toObject();
 
         QString type = commentObject[RJsonKey::type].toString();
@@ -1624,10 +1652,11 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
     QList<StringDescription> ret;
 
     QJsonArray stringsArray = doc.array();
-    for (QJsonValue value : stringsArray) {
+    for (const QJsonValue &value : stringsArray) {
         QJsonObject stringObject = value.toObject();
 
         StringDescription string;
+
         string.string = QString(QByteArray::fromBase64(stringObject[RJsonKey::string].toVariant().toByteArray()));
         string.vaddr = stringObject[RJsonKey::vaddr].toVariant().toULongLong();
         string.type = stringObject[RJsonKey::type].toString();
@@ -1646,23 +1675,23 @@ QList<FunctionDescription> CutterCore::parseFunctionsJson(const QJsonDocument &d
     QList<FunctionDescription> ret;
     QJsonArray jsonArray = doc.array();
 
-    for (QJsonValue value : jsonArray) {
+    for (const QJsonValue &value : jsonArray) {
         QJsonObject jsonObject = value.toObject();
 
         FunctionDescription function;
 
-        function.offset = (RVA)jsonObject[RJsonKey::offset].toVariant().toULongLong();
-        function.size = (RVA)jsonObject[RJsonKey::size].toVariant().toULongLong();
-        function.nargs = (RVA)jsonObject[RJsonKey::nargs].toVariant().toULongLong();
-        function.nbbs = (RVA)jsonObject[RJsonKey::nbbs].toVariant().toULongLong();
-        function.nlocals = (RVA)jsonObject[RJsonKey::nlocals].toVariant().toULongLong();
-        function.cc = (RVA)jsonObject[RJsonKey::cc].toVariant().toULongLong();
+        function.offset = jsonObject[RJsonKey::offset].toVariant().toULongLong();
+        function.size = jsonObject[RJsonKey::size].toVariant().toULongLong();
+        function.nargs = jsonObject[RJsonKey::nargs].toVariant().toULongLong();
+        function.nbbs = jsonObject[RJsonKey::nbbs].toVariant().toULongLong();
+        function.nlocals = jsonObject[RJsonKey::nlocals].toVariant().toULongLong();
+        function.cc = jsonObject[RJsonKey::cc].toVariant().toULongLong();
         function.calltype = jsonObject[RJsonKey::calltype].toString();
         function.name = jsonObject[RJsonKey::name].toString();
-        function.edges = (RVA)jsonObject[RJsonKey::edges].toVariant().toULongLong();
-        function.cost = (RVA)jsonObject[RJsonKey::cost].toVariant().toULongLong();
-        function.calls = (RVA)jsonObject[RJsonKey::outdegree].toVariant().toULongLong();
-        function.stackframe = (RVA)jsonObject[RJsonKey::stackframe].toVariant().toULongLong();
+        function.edges = jsonObject[RJsonKey::edges].toVariant().toULongLong();
+        function.cost = jsonObject[RJsonKey::cost].toVariant().toULongLong();
+        function.calls = jsonObject[RJsonKey::outdegree].toVariant().toULongLong();
+        function.stackframe = jsonObject[RJsonKey::stackframe].toVariant().toULongLong();
 
         ret << function;
     }
@@ -1676,10 +1705,11 @@ QList<FlagspaceDescription> CutterCore::getAllFlagspaces()
     QList<FlagspaceDescription> ret;
 
     QJsonArray flagspacesArray = cmdj("fsj").array();
-    for (QJsonValue value : flagspacesArray) {
+    for (const QJsonValue &value : flagspacesArray) {
         QJsonObject flagspaceObject = value.toObject();
 
         FlagspaceDescription flagspace;
+
         flagspace.name = flagspaceObject[RJsonKey::name].toString();
 
         ret << flagspace;
@@ -1698,10 +1728,11 @@ QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
         cmd("fs *");
 
     QJsonArray flagsArray = cmdj("fj").array();
-    for (QJsonValue value : flagsArray) {
+    for (const QJsonValue &value : flagsArray) {
         QJsonObject flagObject = value.toObject();
 
         FlagDescription flag;
+
         flag.offset = flagObject[RJsonKey::offset].toVariant().toULongLong();
         flag.size = flagObject[RJsonKey::size].toVariant().toULongLong();
         flag.name = flagObject[RJsonKey::name].toString();
@@ -1720,7 +1751,7 @@ QList<SectionDescription> CutterCore::getAllSections()
     QJsonObject sectionsObj = sectionsDoc.object();
     QJsonArray sectionsArray = sectionsObj[RJsonKey::sections].toArray();
 
-    for (QJsonValue value : sectionsArray) {
+    for (const QJsonValue &value : sectionsArray) {
         QJsonObject sectionObject = value.toObject();
 
         QString name = sectionObject[RJsonKey::name].toString();
@@ -1747,7 +1778,7 @@ QStringList CutterCore::getSectionList()
     QStringList ret;
 
     QJsonArray sectionsArray = cmdj("iSj").array();
-    for (QJsonValue value : sectionsArray) {
+    for (const QJsonValue &value : sectionsArray) {
         ret << value.toObject()[RJsonKey::name].toString();
     }
     return ret;
@@ -1760,7 +1791,7 @@ QList<SegmentDescription> CutterCore::getAllSegments()
 
     QJsonArray segments = cmdj("iSSj").array();
 
-    for (QJsonValue value : segments) {
+    for (const QJsonValue &value : segments) {
         QJsonObject segmentObject = value.toObject();
 
         QString name = segmentObject[RJsonKey::name].toString();
@@ -1786,10 +1817,11 @@ QList<EntrypointDescription> CutterCore::getAllEntrypoint()
     QList<EntrypointDescription> ret;
 
     QJsonArray entrypointsArray = cmdj("iej").array();
-    for (QJsonValue value : entrypointsArray) {
+    for (const QJsonValue &value : entrypointsArray) {
         QJsonObject entrypointObject = value.toObject();
 
         EntrypointDescription entrypoint;
+
         entrypoint.vaddr = entrypointObject[RJsonKey::vaddr].toVariant().toULongLong();
         entrypoint.paddr = entrypointObject[RJsonKey::paddr].toVariant().toULongLong();
         entrypoint.baddr = entrypointObject[RJsonKey::baddr].toVariant().toULongLong();
@@ -1808,29 +1840,34 @@ QList<ClassDescription> CutterCore::getAllClassesFromBin()
     QList<ClassDescription> ret;
 
     QJsonArray classesArray = cmdj("icj").array();
-    for (QJsonValueRef value : classesArray) {
+    for (const QJsonValue &value : classesArray) {
         QJsonObject classObject = value.toObject();
 
         ClassDescription cls;
+
         cls.name = classObject[RJsonKey::classname].toString();
         cls.addr = classObject[RJsonKey::addr].toVariant().toULongLong();
         cls.index = classObject[RJsonKey::index].toVariant().toULongLong();
 
-        for (QJsonValueRef value2 : classObject[RJsonKey::methods].toArray()) {
+        for (const QJsonValue &value2 : classObject[RJsonKey::methods].toArray()) {
             QJsonObject methObject = value2.toObject();
 
             ClassMethodDescription meth;
+
             meth.name = methObject[RJsonKey::name].toString();
             meth.addr = methObject[RJsonKey::addr].toVariant().toULongLong();
+
             cls.methods << meth;
         }
 
-        for (QJsonValueRef value2 : classObject[RJsonKey::fields].toArray()) {
+        for (const QJsonValue &value2 : classObject[RJsonKey::fields].toArray()) {
             QJsonObject fieldObject = value2.toObject();
 
             ClassFieldDescription field;
+
             field.name = fieldObject[RJsonKey::name].toString();
             field.addr = fieldObject[RJsonKey::addr].toVariant().toULongLong();
+
             cls.fields << field;
         }
 
@@ -1851,8 +1888,9 @@ QList<ClassDescription> CutterCore::getAllClassesFromFlags()
     QMap<QString, ClassDescription *> classesCache;
 
     QJsonArray flagsArray = cmdj("fj@F:classes").array();
-    for (QJsonValueRef value : flagsArray) {
+    for (const QJsonValue &value : flagsArray) {
         QJsonObject flagObject = value.toObject();
+
         QString flagName = flagObject[RJsonKey::name].toString();
 
         QRegularExpressionMatch match = classFlagRegExp.match(flagName);
@@ -1908,10 +1946,11 @@ QList<ResourcesDescription> CutterCore::getAllResources()
     QList<ResourcesDescription> ret;
 
     QJsonArray resourcesArray = cmdj("iRj").array();
-    for (QJsonValueRef value : resourcesArray) {
+    for (const QJsonValue &value : resourcesArray) {
         QJsonObject resourceObject = value.toObject();
 
         ResourcesDescription res;
+
         res.name = resourceObject[RJsonKey::name].toInt();
         res.vaddr = resourceObject[RJsonKey::vaddr].toVariant().toULongLong();
         res.index = resourceObject[RJsonKey::index].toVariant().toULongLong();
@@ -1930,17 +1969,19 @@ QList<VTableDescription> CutterCore::getAllVTables()
     QList<VTableDescription> ret;
 
     QJsonArray vTablesArray = cmdj("avj").array();
-    for (QJsonValueRef vTableValue : vTablesArray) {
+    for (const QJsonValue &vTableValue : vTablesArray) {
         QJsonObject vTableObject = vTableValue.toObject();
 
         VTableDescription res;
+
         res.addr = vTableObject[RJsonKey::offset].toVariant().toULongLong();
         QJsonArray methodArray = vTableObject[RJsonKey::methods].toArray();
 
-        for (QJsonValueRef methodValue : methodArray) {
+        for (const QJsonValue &methodValue : methodArray) {
             QJsonObject methodObject = methodValue.toObject();
 
             ClassMethodDescription method;
+
             method.addr = methodObject[RJsonKey::offset].toVariant().toULongLong();
             method.name = methodObject[RJsonKey::name].toString();
 
@@ -1959,7 +2000,7 @@ QList<TypeDescription> CutterCore::getAllTypes()
 
     QJsonArray typesArray = cmdj("tj").array();
 
-    for (QJsonValue value : typesArray) {
+    for (const QJsonValue &value : typesArray) {
         QJsonObject typeObject = value.toObject();
 
         TypeDescription exp;
@@ -1982,11 +2023,13 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
     QJsonArray searchArray = cmdj(space + QString(" ") + search_for).array();
 
     if (space == "/Rj") {
-        for (QJsonValue value : searchArray) {
+        for (const QJsonValue &value : searchArray) {
             QJsonObject searchObject = value.toObject();
+
             SearchDescription exp;
+
             exp.code = QString("");
-            for (QJsonValue value2 : searchObject[RJsonKey::opcodes].toArray()) {
+            for (const QJsonValue &value2 : searchObject[RJsonKey::opcodes].toArray()) {
                 QJsonObject gadget = value2.toObject();
                 exp.code += gadget[RJsonKey::opcode].toString() + ";  ";
             }
@@ -1998,8 +2041,9 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
             ret << exp;
         }
     } else {
-        for (QJsonValue value : searchArray) {
+        for (const QJsonValue &value : searchArray) {
             QJsonObject searchObject = value.toObject();
+
             SearchDescription exp;
 
             exp.offset = searchObject[RJsonKey::offset].toVariant().toULongLong();
@@ -2031,7 +2075,9 @@ BlockStatistics CutterCore::getBlockStatistics(unsigned int blocksCount)
 
     for (const QJsonValue &value : blocksArray) {
         QJsonObject blockObj = value.toObject();
+
         BlockDescription block;
+
         block.addr = blockObj[RJsonKey::offset].toVariant().toULongLong();
         block.size = blockObj[RJsonKey::size].toVariant().toULongLong();
         block.flags = blockObj[RJsonKey::flags].toInt(0);
@@ -2074,10 +2120,11 @@ QList<XrefDescription> CutterCore::getXRefs(RVA addr, bool to, bool whole_functi
         xrefsArray = cmdj("axfj@" + QString::number(addr)).array();
     }
 
-    for (QJsonValue value : xrefsArray) {
+    for (const QJsonValue &value : xrefsArray) {
         QJsonObject xrefObject = value.toObject();
 
         XrefDescription xref;
+
         xref.type = xrefObject[RJsonKey::type].toString();
 
         if (!filterType.isNull() && filterType != xref.type)
@@ -2151,7 +2198,7 @@ void CutterCore::saveProject(const QString &name)
 {
     const QString &rv = cmd("Ps " + name.trimmed()).trimmed();
     const bool ok = rv == name.trimmed();
-    cmd("Pnj " + notes.toUtf8().toBase64());
+    cmd(QString("Pnj ") + notes.toUtf8().toBase64());
     emit projectSaved(ok, name);
 }
 
@@ -2173,10 +2220,11 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
                                 offset)).array();
     QList<DisassemblyLine> r;
 
-    for (QJsonValue value : array) {
+    for (const QJsonValue &value : array) {
         QJsonObject object = value.toObject();
 
         DisassemblyLine line;
+
         line.offset = object[RJsonKey::offset].toVariant().toULongLong();
         line.text = object[RJsonKey::text].toString();
 
@@ -2245,7 +2293,7 @@ QList<QString> CutterCore::getColorThemes()
 {
     QList<QString> r;
     QJsonDocument themes = cmdj("ecoj");
-    for (auto s : themes.array()) {
+    for (const QJsonValue &s : themes.array()) {
         r << s.toString();
     }
     return r;

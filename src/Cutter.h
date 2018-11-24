@@ -382,8 +382,10 @@ public:
 
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
+    QString cmd(const char *str);
     QString cmd(const QString &str);
     QString cmdRaw(const QString &str);
+    QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str);
     QStringList cmdList(const QString &str)
     {
@@ -393,9 +395,11 @@ public:
     }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
+    void cmdEsil(const char *command);
     void cmdEsil(QString command);
     QString getVersionInformation();
 
+    QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
     QJsonDocument parseJson(const char *res, const QString &cmd = QString());
 
     /* Functions methods */
@@ -521,7 +525,7 @@ public:
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
     void disableBreakpoint(RVA addr);
-    bool isBreakpoint(QList<RVA> breakpoints, RVA addr);
+    bool isBreakpoint(const QList<RVA> &breakpoints, RVA addr);
     QList<RVA> getBreakpointsAddresses();
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();

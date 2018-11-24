@@ -6,7 +6,7 @@
 
 TempConfig::~TempConfig()
 {
-    for (auto i = resetValues.begin(); i != resetValues.end(); i++) {
+    for (auto i = resetValues.constBegin(); i != resetValues.constEnd(); i++) {
         switch (i.value().type()) {
         case QVariant::String:
             Core()->setConfig(i.key(), i.value().toString());
