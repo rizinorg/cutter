@@ -166,9 +166,9 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     ui->stringsTreeView->setModel(proxyModel);
     ui->stringsTreeView->sortByColumn(StringsModel::OffsetColumn, Qt::AscendingOrder);
 
-    auto xRefShortcut = new QShortcut(QKeySequence{Qt::Key_X}, this);
+    auto xRefShortcut = new QShortcut(QKeySequence{Qt::CTRL + Qt::Key_X}, this);
     xRefShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    ui->actionX_refs->setShortcut(Qt::Key_X);
+    ui->actionX_refs->setShortcut(Qt::CTRL + Qt::Key_X);
     connect(xRefShortcut, SIGNAL(activated()), this, SLOT(on_actionX_refs_triggered()));
 
     connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxy_model,
