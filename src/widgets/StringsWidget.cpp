@@ -146,10 +146,10 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
 
     // Shift-F12 to toggle strings window
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){
-            toggleDockWidget(true);
-            main->updateDockActionChecked(action);
-            } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [ = ] () {
+        toggleDockWidget(true);
+        main->updateDockActionChecked(action);
+    } );
 
     connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
     connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
@@ -171,7 +171,7 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     ui->actionX_refs->setShortcut(Qt::CTRL + Qt::Key_X);
     connect(xRefShortcut, SIGNAL(activated()), this, SLOT(on_actionX_refs_triggered()));
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxy_model,
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
             SLOT(setFilterWildcard(const QString &)));
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, [this] {
