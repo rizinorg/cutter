@@ -314,11 +314,6 @@ QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
     return doc;
 }
 
-QJsonDocument CutterCore::parseJson(const char *res, const QString &cmd)
-{
-    return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
-}
-
 /**
  * @brief CutterCore::loadFile
  * Load initial file. TODO Maybe use the "o" commands?
@@ -772,15 +767,10 @@ void CutterCore::cmdEsil(const char *command)
     }
 }
 
-void CutterCore::cmdEsil(QString command)
-{
-    cmdEsil(command.toUtf8().constData());
-}
-
 QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
-    static const QRegExp pattern("[^a-zA-Z0-9_]");
-    name.remove(pattern);
+    static const QRegExp regExp("[^a-zA-Z0-9_]");
+    name.remove(regExp);
     QString command = "af " + name + " " + RAddressString(addr);
     QString ret = cmd(command);
     emit functionsChanged();

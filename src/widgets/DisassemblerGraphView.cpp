@@ -218,8 +218,8 @@ void DisassemblerGraphView::loadCurrentGraph()
     RVA entry = func["offset"].toVariant().toULongLong();
 
     setEntry(entry);
-    for (QJsonValueRef blockRef : func["blocks"].toArray()) {
-        QJsonObject block = blockRef.toObject();
+    for (const QJsonValue &value : func["blocks"].toArray()) {
+        QJsonObject block = value.toObject();
         RVA block_entry = block["offset"].toVariant().toULongLong();
         RVA block_size = block["size"].toVariant().toULongLong();
         RVA block_fail = block["fail"].toVariant().toULongLong();

@@ -69,14 +69,17 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    void setColor(const QString &option,
-                  const QColor &color);
+    void setColor(const QString &option, const QColor &color);
 
     QColor getBackroundColor() const;
 
     QColor getTextColor() const;
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override { return m_data.size(); }
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override
+    {
+        Q_UNUSED(parent)
+        return m_data.size();
+    }
 
     void updateScheme();
 

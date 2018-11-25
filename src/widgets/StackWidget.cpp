@@ -51,7 +51,7 @@ void StackWidget::setStackGrid()
 {
     QJsonArray stackValues = Core()->getStack().array();
     int i = 0;
-    for (QJsonValueRef value : stackValues) {
+    for (const QJsonValue &value : stackValues) {
         QJsonObject stackItem = value.toObject();
         QString addr = RAddressString(stackItem["addr"].toVariant().toULongLong());
         QString valueStack = RAddressString(stackItem["value"].toVariant().toULongLong());

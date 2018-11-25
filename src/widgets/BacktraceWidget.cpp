@@ -39,7 +39,7 @@ void BacktraceWidget::setBacktraceGrid()
 {
     QJsonArray backtraceValues = Core()->getBacktrace().array();
     int i = 0;
-    for (QJsonValueRef value : backtraceValues) {
+    for (const QJsonValue &value : backtraceValues) {
         QJsonObject backtraceItem = value.toObject();
         QString progCounter = RAddressString(backtraceItem["pc"].toVariant().toULongLong());
         QString stackPointer = RAddressString(backtraceItem["sp"].toVariant().toULongLong());

@@ -392,11 +392,14 @@ public:
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
     void cmdEsil(const char *command);
-    void cmdEsil(QString command);
+    void cmdEsil(QString command) { cmdEsil(command.toUtf8().constData()); }
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
-    QJsonDocument parseJson(const char *res, const QString &cmd = QString());
+    QJsonDocument parseJson(const char *res, const QString &cmd = QString())
+    {
+        return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
+    }
 
     /* Functions methods */
     void renameFunction(const QString &oldName, const QString &newName);
@@ -436,7 +439,7 @@ public:
 
     /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_PERM_R,
-                  int va = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
+                  int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
     bool tryFile(QString path, bool rw);
     void openFile(QString path, RVA mapaddr);
     void loadScript(const QString &scriptname);
@@ -477,8 +480,6 @@ public:
     void setConfig(const QString &k, int v) { setConfig(k.toUtf8().constData(), v); }
     void setConfig(const char *k, bool v);
     void setConfig(const QString &k, bool v) { setConfig(k.toUtf8().constData(), v); }
-    void setConfig(const char *k, const char *v) { setConfig(k, QString(v)); }
-    void setConfig(const QString &k, const char *v) { setConfig(k, QString(v)); }
     void setConfig(const char *k, const QVariant &v);
     void setConfig(const QString &k, const QVariant &v) { setConfig(k.toUtf8().constData(), v); }
     int getConfigi(const char *k);
@@ -573,7 +574,7 @@ public:
     static bool isProjectNameValid(const QString &name);
 
     /* Widgets */
-    QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
+    QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
     QList<RIOPluginDescription> getRIOPluginDescriptions();
     QList<RCorePluginDescription> getRCorePluginDescriptions();
     QList<RAsmPluginDescription> getRAsmPluginDescriptions();
@@ -587,7 +588,7 @@ public:
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();
     QList<FlagspaceDescription> getAllFlagspaces();
-    QList<FlagDescription> getAllFlags(QString flagspace = NULL);
+    QList<FlagDescription> getAllFlags(QString flagspace = QString());
     QList<SectionDescription> getAllSections();
     QList<SegmentDescription> getAllSegments();
     QList<EntrypointDescription> getAllEntrypoint();
