@@ -57,7 +57,7 @@ fi
 # Build
 mkdir "$BUILD"
 cd "$BUILD" || exit 1
-"$qmakepath" "$QMAKE_CONF" ../src/Cutter.pro
+"$qmakepath" ../src/Cutter.pro $QMAKE_CONF
 make -j4
 ERR=$((ERR+$?))
 
