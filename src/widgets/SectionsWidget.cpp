@@ -180,12 +180,24 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     rawAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Raw, this);
     virtualAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Virtual, this);
 
-    QWidget *addrDockWidget = new QWidget();
+    addrDockWidget = new QWidget();
     QHBoxLayout *addrDockLayout = new QHBoxLayout();
     addrDockLayout->addWidget(rawAddrDock);
     addrDockLayout->addWidget(virtualAddrDock);
     addrDockWidget->setLayout(addrDockLayout);
     layout->addWidget(addrDockWidget);
+
+    toggleButton = new QToolButton;
+    toggleButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toggleButton->setFixedHeight(30);
+    QIcon icon;
+    icon.addFile(QStringLiteral(":/img/icons/previous.svg"), QSize(), QIcon::Normal, QIcon::Off);
+    toggleButton->setIcon(icon);
+    toggleButton->setIconSize(QSize(16, 12));
+    toggleButton->setAutoRaise(true);
+    toggleButton->setArrowType(Qt::NoArrow);
+    toggleButton->hide();
+    layout->addWidget(toggleButton);
 
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
@@ -198,10 +210,27 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     });
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSectionsSeekChanged(RVA)));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(refreshSections()));
+    connect(toggleButton, &QToolButton::clicked, this, [ = ] {
+        toggleButton->hide();
+        addrDockWidget->show();
+        rawAddrDock->show();
+        virtualAddrDock->show();
+    });
 
     indicatorWidth = 600;
     indicatorHeight = 5;
     indicatorParamPosY = 20;
+
+    connect(rawAddrDock, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
+        if (!visibility) {
+            updateToggle();
+        }
+    });
+    connect(virtualAddrDock, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
+        if (!visibility) {
+            updateToggle();
+        }
+    });
 }
 
 SectionsWidget::~SectionsWidget() {}
@@ -271,6 +300,14 @@ void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, 
 
     targetDock->addTextItem(color, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - indicatorParamPosY), name);
     targetDock->addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
+}
+
+void SectionsWidget::updateToggle()
+{
+    if (!rawAddrDock->isVisible() && !virtualAddrDock->isVisible()) {
+        addrDockWidget->hide();
+        toggleButton->show();
+    }
 }
 
 SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent) :

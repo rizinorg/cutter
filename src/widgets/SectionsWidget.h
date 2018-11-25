@@ -4,6 +4,7 @@
 #include <memory>
 #include <map>
 
+#include <QtWidgets/QToolButton>
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 #include <QGraphicsScene>
@@ -77,14 +78,17 @@ private:
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;
 
+    QWidget *addrDockWidget;
     SectionAddrDock *rawAddrDock;
     SectionAddrDock *virtualAddrDock;
+    QToolButton *toggleButton;
 
     int indicatorWidth;
     int indicatorHeight;
     int indicatorParamPosY;
     void drawIndicatorOnAddrDocks();
     void updateIndicator(SectionAddrDock *targetDock, QString name, float ratio);
+    void updateToggle();
 };
 
 class SectionAddrDock : public QDockWidget
