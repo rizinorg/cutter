@@ -29,7 +29,7 @@ void DebugOptionsWidget::updateDebugPlugin()
                SLOT(on_pluginComboBox_currentIndexChanged(const QString &)));
 
     QStringList plugins = Core()->getDebugPlugins();
-    for (QString str : plugins)
+    for (const QString &str : plugins)
         ui->pluginComboBox->addItem(str);
 
     QString plugin = Core()->getActiveDebugPlugin();

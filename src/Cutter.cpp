@@ -254,16 +254,11 @@ QString CutterCore::cmd(const char *str)
     return o;
 }
 
-QString CutterCore::cmd(const QString &str)
-{
-    return cmd(str.toUtf8().constData());
-}
-
 QString CutterCore::cmdRaw(const QString &str)
 {
     QString cmdStr = str;
     cmdStr.replace('\"', QStringLiteral("\\\""));
-    return cmd("\"" + cmdStr + "\"");
+    return cmd(cmdStr.prepend('\"').append('\"'));
 }
 
 QJsonDocument CutterCore::cmdj(const char *str)
@@ -277,11 +272,6 @@ QJsonDocument CutterCore::cmdj(const char *str)
     r_mem_free(res);
 
     return doc;
-}
-
-QJsonDocument CutterCore::cmdj(const QString &str)
-{
-    return cmdj(str.toUtf8().constData());
 }
 
 QString CutterCore::cmdTask(const QString &str)
@@ -631,35 +621,34 @@ ut64 CutterCore::math(const QString &expr)
     return r_num_math(this->core_ ? this->core_->num : NULL, expr.toUtf8().constData());
 }
 
-void CutterCore::setConfig(const QString &k, const QString &v)
+void CutterCore::setConfig(const char *k, const QString &v)
 {
     CORE_LOCK();
-    r_config_set(core_->config, k.toUtf8().constData(), v.toUtf8().constData());
+    r_config_set(core_->config, k, v.toUtf8().constData());
 }
 
-void CutterCore::setConfig(const QString &k, int v)
+void CutterCore::setConfig(const char *k, int v)
 {
     CORE_LOCK();
-    r_config_set_i(core_->config, k.toUtf8().constData(), static_cast<ut64>(v));
+    r_config_set_i(core_->config, k, static_cast<ut64>(v));
 }
 
-void CutterCore::setConfig(const QString &k, bool v)
+void CutterCore::setConfig(const char *k, bool v)
 {
     CORE_LOCK();
-    r_config_set_i(core_->config, k.toUtf8().constData(), v ? 1 : 0);
+    r_config_set_i(core_->config, k, v ? 1 : 0);
 }
 
-int CutterCore::getConfigi(const QString &k)
+int CutterCore::getConfigi(const char *k)
 {
     CORE_LOCK();
-    QByteArray key = k.toUtf8();
-    return static_cast<int>(r_config_get_i(core_->config, key.constData()));
+    return static_cast<int>(r_config_get_i(core_->config, k));
 }
 
-bool CutterCore::getConfigb(const QString &k)
+bool CutterCore::getConfigb(const char *k)
 {
     CORE_LOCK();
-    return r_config_get_i(core_->config, k.toUtf8().constData()) != 0;
+    return r_config_get_i(core_->config, k) != 0;
 }
 
 void CutterCore::triggerRefreshAll()
@@ -689,14 +678,13 @@ void CutterCore::message(const QString &msg, bool debug)
     emit newMessage(msg);
 }
 
-QString CutterCore::getConfig(const QString &k)
+QString CutterCore::getConfig(const char *k)
 {
     CORE_LOCK();
-    QByteArray key = k.toUtf8();
-    return QString(r_config_get(core_->config, key.constData()));
+    return QString(r_config_get(core_->config, k));
 }
 
-void CutterCore::setConfig(const QString &k, const QVariant &v)
+void CutterCore::setConfig(const char *k, const QVariant &v)
 {
     switch (v.type()) {
     case QVariant::Type::Bool:

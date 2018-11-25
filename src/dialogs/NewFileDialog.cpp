@@ -323,7 +323,7 @@ void NewFileDialog::fillIOPluginsList()
 
     int index = 1;
     QList<RIOPluginDescription> ioPlugins = Core()->getRIOPluginDescriptions();
-    for (RIOPluginDescription plugin : ioPlugins) {
+    for (const RIOPluginDescription &plugin : ioPlugins) {
         // Hide debug plugins
         if (plugin.permissions.contains('d')) {
             continue;

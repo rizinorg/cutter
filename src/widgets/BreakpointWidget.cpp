@@ -183,8 +183,8 @@ void BreakpointWidget::addBreakpointDialog()
     if (dialog->exec()) {
         QString bps = dialog->getBreakpoints();
         if (!bps.isEmpty()) {
-            QStringList bpList = bps.split(" ", QString::SkipEmptyParts);
-            for ( QString bp : bpList) {
+            QStringList bpList = bps.split(' ', QString::SkipEmptyParts);
+            for (const QString &bp : bpList) {
                 Core()->toggleBreakpoint(bp);
             }
         }

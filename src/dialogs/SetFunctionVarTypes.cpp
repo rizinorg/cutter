@@ -75,7 +75,7 @@ void SetFunctionVarTypes::on_OkPressed()
                 .arg(ui->selectedTypeForVar->currentText()));
 
     Core()->cmd(QString("afvn %1 %2")
-                .arg(ui->newVarName->text().replace(" ", "_"))
+                .arg(ui->newVarName->text().replace(' ', '_'))
                 .arg(ui->dropdownLocalVars->currentText()));
 }
 
@@ -89,29 +89,24 @@ void SetFunctionVarTypes::populateTypesComboBox()
 {
     //gets all loaded types, structures and enums and puts them in a list
 
-    QString res;
     QStringList userStructures;
     QStringList userEnumerations;
     QList<TypeDescription> primitiveTypesTypeList;
 
-    res = Core()->cmd(QString("ts"));
-    userStructures = res.split("\n");
-    userStructures.removeAll(QString(""));
+    userStructures = Core()->cmdList("ts");
     ui->selectedTypeForVar->addItems(userStructures);
     ui->selectedTypeForVar->insertSeparator(ui->selectedTypeForVar->count());
 
     primitiveTypesTypeList = Core()->getAllTypes();
 
-    for (TypeDescription thisType : primitiveTypesTypeList) {
+    for (const TypeDescription &thisType : primitiveTypesTypeList) {
         ui->selectedTypeForVar->addItem(thisType.type);
     }
 
     ui->selectedTypeForVar->insertSeparator(ui->selectedTypeForVar->count());
 
-    res = Core()->cmd(QString("te"));
-    userStructures = res.split("\n");
-    userStructures.removeAll(QString(""));
-    ui->selectedTypeForVar->addItems(userStructures);
+    userEnumerations = Core()->cmdList("te");
+    ui->selectedTypeForVar->addItems(userEnumerations);
 
     return;
 

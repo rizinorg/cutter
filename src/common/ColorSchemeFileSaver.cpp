@@ -39,7 +39,7 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
     dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
     standardR2ThemesLocationPath = "";
 
-    for (auto &it : dirs) {
+    for (const QString &it : dirs) {
         currDir = QDir(it).filePath("radare2");
         if (currDir.exists()) {
             break;
@@ -90,7 +90,7 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
         Core()->cmd(QString("eco %1").arg(theme));
         QColor back = Config()->getColor(standardBackgroundOptionName);
         _obj[standardBackgroundOptionName] = QJsonArray({back.red(), back.green(), back.blue()});
-        for (auto &it : _obj.keys()) {
+        for (const QString &it : _obj.keys()) {
             QJsonArray rgb = _obj[it].toArray();
             if (rgb.size() != 3) {
                 continue;
@@ -103,7 +103,7 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
     }
 
     QStringList tmp;
-    for (auto &it : src) {
+    for (const QString &it : src) {
         if (it.isEmpty()) {
             continue;
         }
@@ -117,7 +117,7 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
         }
     }
 
-    for (auto &it : options) {
+    for (const QString &it : options) {
         if (cutterSpecificOptions.contains(it))  {
             fOut.write("#~");
         } else {
@@ -146,7 +146,7 @@ QFile::FileError ColorSchemeFileSaver::save(const QString &scheme, const QString
 
 bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 {
-    for (auto &it : QDir(customR2ThemesLocationPath).entryInfoList())
+    for (const QFileInfo &it : QDir(customR2ThemesLocationPath).entryInfoList())
         if (it.fileName() == schemeName)
             return true;
     return false;
@@ -166,7 +166,7 @@ QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
 
     QMap<QString, QColor> ret;
     QStringList data = QString(f.readAll()).split('\n');
-    for (auto &it : data) {
+    for (const QString &it : data) {
         if (it.length() > 2 && it.left(2) == "#~") {
             QStringList currLine = it.split(' ');
             if (currLine.size() > 1) {

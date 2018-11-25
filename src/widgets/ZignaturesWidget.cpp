@@ -48,7 +48,7 @@ QVariant ZignaturesModel::data(const QModelIndex &index, int role) const
                               "\n    Edges: " + RSizeString(zignature.edges) +
                               "\n    Ebbs: " + RSizeString(zignature.ebbs) +
                               "\n\nRefs:\n");
-        for (QString ref : zignature.refs) {
+        for (const QString &ref : zignature.refs) {
             tmp.append("\n    " + ref);
         }
         return tmp;

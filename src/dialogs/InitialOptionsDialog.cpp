@@ -24,7 +24,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
 
     // Fill the plugins combo
     asm_plugins = core->getAsmPluginNames();
-    for (auto plugin : asm_plugins)
+    for (const auto &plugin : asm_plugins)
         ui->archComboBox->addItem(plugin, plugin);
     ui->archComboBox->setToolTip(core->cmd("e? asm.arch").trimmed());
 
@@ -42,7 +42,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
 
     ui->entry_analbb->setToolTip(core->cmd("e? anal.bb.maxsize").trimmed());
 
-    for (auto plugin : core->getRBinPluginDescriptions("bin"))
+    for (const auto &plugin : core->getRBinPluginDescriptions("bin"))
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
 
     ui->hideFrame->setVisible(false);

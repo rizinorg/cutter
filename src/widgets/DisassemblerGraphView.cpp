@@ -450,7 +450,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     // Draw different background for selected instruction
     if (selected_instruction != RVA_INVALID) {
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
-        for (Instr &instr : db.instrs) {
+        for (const Instr &instr : db.instrs) {
             if (instr.addr > selected_instruction) {
                 break;
             }
@@ -489,7 +489,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
         int tokenWidth = mFontMetrics->width(highlight_token->content);
 
-        for (Instr &instr : db.instrs) {
+        for (const Instr &instr : db.instrs) {
             int pos = -1;
 
             while ((pos = instr.plainText.indexOf(highlight_token->content, pos + 1)) != -1) {
@@ -521,7 +521,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     // highlight program counter
     if (PCInBlock) {
         int y = block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight);
-        for (Instr &instr : db.instrs) {
+        for (const Instr &instr : db.instrs) {
             if (instr.addr > PCAddr) {
                 break;
             }
@@ -541,7 +541,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         RichTextPainter::paintRichText(&p, x, y, block.width, charHeight, 0, line, mFontMetrics);
         y += charHeight;
     }
-    for (Instr &instr : db.instrs) {
+    for (const Instr &instr : db.instrs) {
         if (Core()->isBreakpoint(breakpoints, instr.addr)) {
             p.fillRect(QRect(block.x + charWidth, y, block.width - (10 + 2 * charWidth),
                              int(instr.text.lines.size()) * charHeight), ConfigColor("gui.breakpoint_background"));
@@ -663,7 +663,7 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
 {
     for (auto &blockIt : disassembly_blocks) {
         DisassemblyBlock &db = blockIt.second;
-        for (Instr i : db.instrs) {
+        for (const Instr &i : db.instrs) {
             if (i.addr == RVA_INVALID || i.size == RVA_INVALID) {
                 continue;
             }

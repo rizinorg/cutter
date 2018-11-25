@@ -184,7 +184,7 @@ void SidebarWidget::fillOffsetInfo(QString off)
     ui->offsetTreeWidget->clear();
     QString raw = Core()->cmd(QString("ao@") + off).trimmed();
     QList<QString> lines = raw.split("\n", QString::SkipEmptyParts);
-    for (QString line : lines) {
+    for (const QString &line : lines) {
         QList<QString> eles = line.split(":", QString::SkipEmptyParts);
         if (eles.length() < 2) {
             continue;
@@ -225,11 +225,11 @@ void SidebarWidget::fillRegistersInfo()
     ui->regInfoTreeWidget->clear();
 
     QJsonObject jsonRoot = Core()->getRegistersInfo().object();
-    for (QString key : jsonRoot.keys()) {
+    for (const QString &key : jsonRoot.keys()) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         QString tempString;
         tempItem->setText(0, key.toUpper());
-        for (QJsonValue value : jsonRoot[key].toArray()) {
+        for (const QJsonValue &value : jsonRoot[key].toArray()) {
             tempString.append(value.toString() + " ");
         }
         tempItem->setText(1, tempString);

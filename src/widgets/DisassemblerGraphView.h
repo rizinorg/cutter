@@ -46,8 +46,8 @@ class DisassemblerGraphView : public GraphView
         QString ToQString() const
         {
             QString result;
-            for (auto &line : lines) {
-                for (auto &t : line) {
+            for (const auto &line : lines) {
+                for (const auto &t : line) {
                     result += t.text;
                 }
             }

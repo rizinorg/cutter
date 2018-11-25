@@ -18,7 +18,7 @@
 #include <QErrorMessage>
 
 #define CutterRListForeach(list, it, type, x) \
-    if (list) for (it = list->head; it && ((x=(type*)it->data)); it = it->n)
+    if (list) for (it = list->head; it && ((x=static_cast<type*>(it->data))); it = it->n)
 
 #define APPNAME "Cutter"
 
@@ -383,16 +383,12 @@ public:
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
     QString cmd(const char *str);
-    QString cmd(const QString &str);
+    QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
     QString cmdRaw(const QString &str);
     QJsonDocument cmdj(const char *str);
-    QJsonDocument cmdj(const QString &str);
-    QStringList cmdList(const QString &str)
-    {
-        auto l = cmd(str).split("\n");
-        l.removeAll("");
-        return l;
-    }
+    QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
+    QStringList cmdList(const char *str) { return cmd(str).split('\n', QString::SkipEmptyParts); }
+    QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
     void cmdEsil(const char *command);
@@ -475,14 +471,22 @@ public:
     ut64 math(const QString &expr);
 
     /* Config functions */
-    void setConfig(const QString &k, const QString &v);
-    void setConfig(const QString &k, int v);
-    void setConfig(const QString &k, bool v);
+    void setConfig(const char *k, const QString &v);
+    void setConfig(const QString &k, const QString &v) { setConfig(k.toUtf8().constData(), v); }
+    void setConfig(const char *k, int v);
+    void setConfig(const QString &k, int v) { setConfig(k.toUtf8().constData(), v); }
+    void setConfig(const char *k, bool v);
+    void setConfig(const QString &k, bool v) { setConfig(k.toUtf8().constData(), v); }
+    void setConfig(const char *k, const char *v) { setConfig(k, QString(v)); }
     void setConfig(const QString &k, const char *v) { setConfig(k, QString(v)); }
-    void setConfig(const QString &k, const QVariant &v);
-    int getConfigi(const QString &k);
-    bool getConfigb(const QString &k);
-    QString getConfig(const QString &k);
+    void setConfig(const char *k, const QVariant &v);
+    void setConfig(const QString &k, const QVariant &v) { setConfig(k.toUtf8().constData(), v); }
+    int getConfigi(const char *k);
+    int getConfigi(const QString &k) { return getConfigi(k.toUtf8().constData()); }
+    bool getConfigb(const char *k);
+    bool getConfigb(const QString &k) { return getConfigb(k.toUtf8().constData()); }
+    QString getConfig(const char *k);
+    QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QList<QString> getColorThemes();
 
     /* Assembly related methods */

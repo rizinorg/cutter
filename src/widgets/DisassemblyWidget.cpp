@@ -228,7 +228,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     mDisasTextEdit->document()->clear();
     QTextCursor cursor(mDisasTextEdit->document());
     QTextBlockFormat regular = cursor.blockFormat();
-    for (DisassemblyLine line : disassemblyLines) {
+    for (const DisassemblyLine &line : disassemblyLines) {
         if (line.offset < topOffset) { // overflow
             break;
         }

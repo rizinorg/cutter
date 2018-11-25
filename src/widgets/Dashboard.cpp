@@ -136,7 +136,7 @@ void Dashboard::updateContents()
         }
     }
 
-    for (QString lib : lines) {
+    for (const QString &lib : lines) {
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);

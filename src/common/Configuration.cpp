@@ -322,14 +322,14 @@ void Configuration::setColorTheme(QString theme)
 
 void Configuration::resetToDefaultAsmOptions()
 {
-    for (auto it = asmOptions.begin(); it != asmOptions.end(); it++) {
+    for (auto it = asmOptions.cbegin(); it != asmOptions.cend(); it++) {
         setConfig(it.key(), it.value());
     }
 }
 
 void Configuration::applySavedAsmOptions()
 {
-    for (auto it = asmOptions.begin(); it != asmOptions.end(); it++) {
+    for (auto it = asmOptions.cbegin(); it != asmOptions.cend(); it++) {
         Core()->setConfig(it.key(), s.value(it.key(), it.value()));
     }
 }

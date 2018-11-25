@@ -218,7 +218,7 @@ void StringsWidget::refreshSectionCombo()
     combo->clear();
     combo->addItem(tr("(all)"));
 
-    for (QString &section : Core()->getSectionList()) {
+    for (const QString &section : Core()->getSectionList()) {
         combo->addItem(section, section);
     }
 
