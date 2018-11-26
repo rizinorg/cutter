@@ -187,10 +187,10 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     addrDockWidget->setLayout(addrDockLayout);
     layout->addWidget(addrDockWidget);
 
-    QPixmap base(":/img/icons/previous.svg");
+    QPixmap map(":/img/icons/previous.svg");
     QTransform transform;
-    QTransform trans = transform.rotate(90);
-    QPixmap map(base.transformed(trans));
+    transform = transform.rotate(90);
+    map = map.transformed(transform);
     QIcon icon;
     icon.addPixmap(map);
 
