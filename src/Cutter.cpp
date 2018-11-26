@@ -292,14 +292,14 @@ QJsonDocument CutterCore::cmdjTask(const QString &str)
 
 QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
 {
-    QString resString = QString(res);
+    QByteArray json(res);
 
-    if (resString.isEmpty()) {
+    if (json.isEmpty()) {
         return QJsonDocument();
     }
 
     QJsonParseError jsonError;
-    QJsonDocument doc = res ? QJsonDocument::fromJson(resString.toUtf8(), &jsonError) : QJsonDocument();
+    QJsonDocument doc = QJsonDocument::fromJson(json, &jsonError);
 
     if (jsonError.error != QJsonParseError::NoError) {
         if (cmd) {
@@ -308,7 +308,7 @@ QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
         } else {
             eprintf("Failed to parse JSON: %s\n", jsonError.errorString().toLocal8Bit().constData());
         }
-        eprintf("%s\n", resString.toLocal8Bit().constData());
+        eprintf("%s\n", json.constData());
     }
 
     return doc;

@@ -392,7 +392,7 @@ public:
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
     void cmdEsil(const char *command);
-    void cmdEsil(QString command) { cmdEsil(command.toUtf8().constData()); }
+    void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
