@@ -28,7 +28,7 @@ EntrypointWidget::~EntrypointWidget() {}
 void EntrypointWidget::fillEntrypoint()
 {
     ui->entrypointTreeWidget->clear();
-    for (auto i : Core()->getAllEntrypoint()) {
+    for (const EntrypointDescription &i : Core()->getAllEntrypoint()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, RAddressString(i.vaddr));
         item->setText(1, i.type);

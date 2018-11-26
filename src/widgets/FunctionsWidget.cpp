@@ -564,7 +564,7 @@ void FunctionsWidget::refreshTree()
         this->functions = functions;
 
         importAddresses.clear();
-        for (ImportDescription import : Core()->getAllImports()) {
+        for (const ImportDescription &import : Core()->getAllImports()) {
             importAddresses.insert(import.plt);
         }
 

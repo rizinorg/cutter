@@ -327,7 +327,7 @@ void CommentsWidget::refreshTree()
 
     comments = Core()->getAllComments("CCu");
     nestedComments.clear();
-    for (CommentDescription comment : comments) {
+    for (const CommentDescription &comment : comments) {
         QString fcnName = Core()->cmdFunctionAt(comment.offset);
         nestedComments[fcnName].append(comment);
     }

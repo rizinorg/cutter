@@ -18,7 +18,7 @@
 #include <QErrorMessage>
 
 #define CutterRListForeach(list, it, type, x) \
-    if (list) for (it = list->head; it && ((x=(type*)it->data)); it = it->n)
+    if (list) for (it = list->head; it && ((x=static_cast<type*>(it->data))); it = it->n)
 
 #define APPNAME "Cutter"
 
@@ -382,21 +382,24 @@ public:
 
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
-    QString cmd(const QString &str);
+    QString cmd(const char *str);
+    QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
     QString cmdRaw(const QString &str);
-    QJsonDocument cmdj(const QString &str);
-    QStringList cmdList(const QString &str)
-    {
-        auto l = cmd(str).split("\n");
-        l.removeAll("");
-        return l;
-    }
+    QJsonDocument cmdj(const char *str);
+    QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
+    QStringList cmdList(const char *str) { return cmd(str).split('\n', QString::SkipEmptyParts); }
+    QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
-    void cmdEsil(QString command);
+    void cmdEsil(const char *command);
+    void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
     QString getVersionInformation();
 
-    QJsonDocument parseJson(const char *res, const QString &cmd = QString());
+    QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
+    QJsonDocument parseJson(const char *res, const QString &cmd = QString())
+    {
+        return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
+    }
 
     /* Functions methods */
     void renameFunction(const QString &oldName, const QString &newName);
@@ -436,7 +439,7 @@ public:
 
     /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_PERM_R,
-                  int va = 0, bool loadbin = false, const QString &forceBinPlugin = nullptr);
+                  int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
     bool tryFile(QString path, bool rw);
     void openFile(QString path, RVA mapaddr);
     void loadScript(const QString &scriptname);
@@ -471,14 +474,20 @@ public:
     ut64 math(const QString &expr);
 
     /* Config functions */
-    void setConfig(const QString &k, const QString &v);
-    void setConfig(const QString &k, int v);
-    void setConfig(const QString &k, bool v);
-    void setConfig(const QString &k, const char *v) { setConfig(k, QString(v)); }
-    void setConfig(const QString &k, const QVariant &v);
-    int getConfigi(const QString &k);
-    bool getConfigb(const QString &k);
-    QString getConfig(const QString &k);
+    void setConfig(const char *k, const QString &v);
+    void setConfig(const QString &k, const QString &v) { setConfig(k.toUtf8().constData(), v); }
+    void setConfig(const char *k, int v);
+    void setConfig(const QString &k, int v) { setConfig(k.toUtf8().constData(), v); }
+    void setConfig(const char *k, bool v);
+    void setConfig(const QString &k, bool v) { setConfig(k.toUtf8().constData(), v); }
+    void setConfig(const char *k, const QVariant &v);
+    void setConfig(const QString &k, const QVariant &v) { setConfig(k.toUtf8().constData(), v); }
+    int getConfigi(const char *k);
+    int getConfigi(const QString &k) { return getConfigi(k.toUtf8().constData()); }
+    bool getConfigb(const char *k);
+    bool getConfigb(const QString &k) { return getConfigb(k.toUtf8().constData()); }
+    QString getConfig(const char *k);
+    QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QList<QString> getColorThemes();
 
     /* Assembly related methods */
@@ -521,7 +530,7 @@ public:
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
     void disableBreakpoint(RVA addr);
-    bool isBreakpoint(QList<RVA> breakpoints, RVA addr);
+    bool isBreakpoint(const QList<RVA> &breakpoints, RVA addr);
     QList<RVA> getBreakpointsAddresses();
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
@@ -565,7 +574,7 @@ public:
     static bool isProjectNameValid(const QString &name);
 
     /* Widgets */
-    QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = nullptr);
+    QList<RBinPluginDescription> getRBinPluginDescriptions(const QString &type = QString());
     QList<RIOPluginDescription> getRIOPluginDescriptions();
     QList<RCorePluginDescription> getRCorePluginDescriptions();
     QList<RAsmPluginDescription> getRAsmPluginDescriptions();
@@ -579,7 +588,7 @@ public:
     QList<RelocDescription> getAllRelocs();
     QList<StringDescription> getAllStrings();
     QList<FlagspaceDescription> getAllFlagspaces();
-    QList<FlagDescription> getAllFlags(QString flagspace = NULL);
+    QList<FlagDescription> getAllFlags(QString flagspace = QString());
     QList<SectionDescription> getAllSections();
     QList<SegmentDescription> getAllSegments();
     QList<EntrypointDescription> getAllEntrypoint();

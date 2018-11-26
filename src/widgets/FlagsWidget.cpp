@@ -221,7 +221,7 @@ void FlagsWidget::refreshFlagspaces()
     ui->flagspaceCombo->clear();
     ui->flagspaceCombo->addItem(tr("(all)"));
 
-    for (auto i : Core()->getAllFlagspaces()) {
+    for (const FlagspaceDescription &i : Core()->getAllFlagspaces()) {
         ui->flagspaceCombo->addItem(i.name, QVariant::fromValue(i));
     }
 
@@ -250,7 +250,7 @@ void FlagsWidget::refreshFlags()
     
     // TODO: this is not a very good place for the following:
     QStringList flagNames;
-    for (auto i : flags)
+    for (const FlagDescription &i : flags)
         flagNames.append(i.name);
     main->refreshOmniBar(flagNames);
 }

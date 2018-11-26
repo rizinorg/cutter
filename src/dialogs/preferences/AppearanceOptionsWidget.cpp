@@ -23,7 +23,7 @@ static const QHash<QString, ColorFlags> kRelevantSchemes = {
     { "onedark", DarkFlag },
     { "solarized", DarkFlag },
     { "zenburn", DarkFlag },
-     { "cutter", LightFlag },
+    { "cutter", LightFlag },
     { "dark", LightFlag },
     { "matrix", LightFlag },
     { "tango", LightFlag },
@@ -103,7 +103,7 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
     for (auto &it : kCutterQtThemesList) {
         ui->themeComboBox->addItem(it.name);
     }
-    uint curQtThemeIndex = Config()->getTheme();
+    int curQtThemeIndex = Config()->getTheme();
     if (curQtThemeIndex >= kCutterQtThemesList.size()) {
         curQtThemeIndex = 0;
         Config()->setTheme(curQtThemeIndex);
@@ -161,7 +161,7 @@ void AppearanceOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
 {
     QString theme = ui->colorComboBox->itemText(index);
 
-    uint curQtThemeIndex = Config()->getTheme();
+    int curQtThemeIndex = Config()->getTheme();
     if (curQtThemeIndex >= kCutterQtThemesList.size()) {
         curQtThemeIndex = 0;
         Config()->setTheme(curQtThemeIndex);

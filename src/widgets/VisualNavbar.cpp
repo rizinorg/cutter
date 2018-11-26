@@ -241,7 +241,7 @@ void VisualNavbar::mouseMoveEvent(QMouseEvent *event)
 
 RVA VisualNavbar::localXToAddress(double x)
 {
-    for (auto x2a : xToAddress) {
+    for (const XToAddress &x2a : xToAddress) {
         if ((x2a.x_start <= x) && (x <= x2a.x_end)) {
             double offset = (x - x2a.x_start) / (x2a.x_end - x2a.x_start);
             double size = x2a.address_to - x2a.address_from;
@@ -253,7 +253,7 @@ RVA VisualNavbar::localXToAddress(double x)
 
 double VisualNavbar::addressToLocalX(RVA address)
 {
-    for (auto x2a : xToAddress) {
+    for (const XToAddress &x2a : xToAddress) {
         if ((x2a.address_from <= address) && (address < x2a.address_to)) {
             double offset = (double)(address - x2a.address_from) / (double)(x2a.address_to - x2a.address_from);
             double size = x2a.x_end - x2a.x_start;
@@ -267,7 +267,7 @@ QList<QString> VisualNavbar::sectionsForAddress(RVA address)
 {
     QList<QString> ret;
     QList<SectionDescription> sections = Core()->getAllSections();
-    for (const auto &section : sections) {
+    for (const SectionDescription &section : sections) {
         if (address >= section.vaddr && address < section.vaddr + section.vsize) {
             ret << section.name;
         }
@@ -282,7 +282,7 @@ QString VisualNavbar::toolTipForAddress(RVA address)
     if (sections.count()) {
         ret += "\nSections: \n";
         bool first = true;
-        for (auto section : sections) {
+        for (const QString &section : sections) {
             if (!first) {
                 ret += "\n";
             } else {

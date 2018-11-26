@@ -9,10 +9,12 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 
-AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog */*dialog*/, QWidget *parent)
+AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
     : QDialog(parent),
       ui(new Ui::AsmOptionsWidget)
 {
+    Q_UNUSED(dialog)
+
     ui->setupUi(this);
 
     ui->syntaxComboBox->blockSignals(true);

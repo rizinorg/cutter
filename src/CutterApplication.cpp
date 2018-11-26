@@ -42,7 +42,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     QString langPrefix;
     if (language != "en") {
-        for (auto &it : allLocales) {
+        for (const QLocale &it : allLocales) {
             langPrefix = it.bcp47Name();
             if (langPrefix == language) {
                 const QString &cutterTranslationPath = QCoreApplication::applicationDirPath() + QDir::separator()

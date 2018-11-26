@@ -10,7 +10,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    for (auto plugin : Core()->getRBinPluginDescriptions()) {
+    for (const auto &plugin : Core()->getRBinPluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
@@ -20,7 +20,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     }
     qhelpers::adjustColumns(ui->RBinTreeWidget, 0);
 
-    for (auto plugin : Core()->getRIOPluginDescriptions()) {
+    for (const auto &plugin : Core()->getRIOPluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
@@ -30,7 +30,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     }
     qhelpers::adjustColumns(ui->RIOTreeWidget, 0);
 
-    for (auto plugin : Core()->getRCorePluginDescriptions()) {
+    for (const auto &plugin : Core()->getRCorePluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.description);
@@ -38,7 +38,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     }
     qhelpers::adjustColumns(ui->RCoreTreeWidget, 0);
 
-    for (auto plugin : Core()->getRAsmPluginDescriptions()) {
+    for (const auto &plugin : Core()->getRAsmPluginDescriptions()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin.name);
         item->setText(1, plugin.architecture);
