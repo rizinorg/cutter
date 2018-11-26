@@ -187,11 +187,16 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     addrDockWidget->setLayout(addrDockLayout);
     layout->addWidget(addrDockWidget);
 
+    QPixmap base(":/img/icons/previous.svg");
+    QTransform transform;
+    QTransform trans = transform.rotate(90);
+    QPixmap map(base.transformed(trans));
+    QIcon icon;
+    icon.addPixmap(map);
+
     toggleButton = new QToolButton;
     toggleButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toggleButton->setFixedHeight(30);
-    QIcon icon;
-    icon.addFile(QStringLiteral(":/img/icons/previous.svg"), QSize(), QIcon::Normal, QIcon::Off);
     toggleButton->setIcon(icon);
     toggleButton->setIconSize(QSize(16, 12));
     toggleButton->setAutoRaise(true);
