@@ -146,10 +146,10 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
 
     // Shift-F12 to toggle strings window
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["StringsWidget"], main);
-    connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true);
-            main->updateDockActionChecked(action);
-            } );
+    connect(toggle_shortcut, &QShortcut::activated, this, [ = ] () {
+        toggleDockWidget(true);
+        main->updateDockActionChecked(action);
+    } );
 
     connect(ui->actionCopy_String, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
     connect(ui->actionCopy_Address, SIGNAL(triggered()), this, SLOT(on_actionCopy()));
@@ -166,13 +166,18 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     ui->stringsTreeView->setModel(proxyModel);
     ui->stringsTreeView->sortByColumn(StringsModel::OffsetColumn, Qt::AscendingOrder);
 
+    auto xRefShortcut = new QShortcut(QKeySequence{Qt::CTRL + Qt::Key_X}, this);
+    xRefShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    ui->actionX_refs->setShortcut(Qt::CTRL + Qt::Key_X);
+    connect(xRefShortcut, SIGNAL(activated()), this, SLOT(on_actionX_refs_triggered()));
+
     connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
             SLOT(setFilterWildcard(const QString &)));
 
     connect(ui->quickFilterView, &ComboQuickFilterView::filterTextChanged, this, [this] {
         tree->showItemsNumber(proxyModel->rowCount());
     });
-    
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
 
     connect(
@@ -259,7 +264,7 @@ void StringsWidget::showStringsContextMenu(const QPoint &pt)
 void StringsWidget::on_actionX_refs_triggered()
 {
     StringDescription str = ui->stringsTreeView->selectionModel()->currentIndex().data(
-                StringsModel::StringDescriptionRole).value<StringDescription>();
+                                StringsModel::StringDescriptionRole).value<StringDescription>();
 
     XrefsDialog *x = new XrefsDialog(this);
     x->fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
