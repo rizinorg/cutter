@@ -27,7 +27,7 @@ private:
 
 private slots:
     void updateFontFromConfig();
-    void updateThemeFromConfig();
+    void updateThemeFromConfig(bool qtThemeChanged = true);
 
     void on_fontSelectionButton_clicked();
     void on_themeComboBox_currentIndexChanged(int index);

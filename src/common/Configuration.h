@@ -88,8 +88,8 @@ public:
         s.setValue("graph.maxcols", ch);
     }
 
-    QString getCurrentTheme() const     { return s.value("theme", "cutter").toString(); }
-    void setColorTheme(QString theme);
+    QString getColorTheme() const     { return s.value("theme", "cutter").toString(); }
+    void setColorTheme(const QString &theme);
 
     /*!
      * \brief Get the value of a config var either from r2 or settings, depending on the key.

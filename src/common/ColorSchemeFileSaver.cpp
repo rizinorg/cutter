@@ -26,38 +26,25 @@ static const QStringList cutterSpecificOptions = {
 
 ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
 {
-    customR2ThemesLocationPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-                                 QDir::separator() +
-                                 "radare2" + QDir::separator() +
-                                 "cons";
+    char* szThemes = r_str_home(R2_HOME_THEMES);
+    customR2ThemesLocationPath = szThemes;
+    R_FREE(szThemes);
     if (!QDir(customR2ThemesLocationPath).exists()) {
         QDir().mkpath(customR2ThemesLocationPath);
     }
 
-    QDir currDir;
-    QStringList dirs = QStandardPaths::standardLocations(QStandardPaths::GenericDataLocation);
-    dirs.removeOne(QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation));
-    standardR2ThemesLocationPath = "";
-
-    for (const QString &it : dirs) {
-        currDir = QDir(it).filePath("radare2");
-        if (currDir.exists()) {
-            break;
-        }
-        currDir.setPath("");
-    }
-
-    currDir.setPath(QString(r_sys_prefix(nullptr)) + QString(R_SYS_DIR) + R2_THEMES);
+    QDir currDir { QStringLiteral("%1%2%3")
+        .arg(r_sys_prefix(nullptr))
+        .arg(R_SYS_DIR)
+        .arg(R2_THEMES)
+    };
     if (currDir.exists()) {
         standardR2ThemesLocationPath = currDir.absolutePath();
     } else {
-        standardR2ThemesLocationPath = "";
-        QMessageBox mb;
-        mb.setIcon(QMessageBox::Critical);
-        mb.setStandardButtons(QMessageBox::Ok);
-        mb.setWindowTitle(tr("Standard themes not found!"));
-        mb.setText(tr("The radare2 standard themes could not be found! This probably means radare2 is not properly installed. If you think it is open an issue please."));
-        mb.exec();
+        QMessageBox::critical(nullptr,
+            tr("Standard themes not found!"),
+            tr("The radare2 standard themes could not be found! This probably means radare2 is not properly installed. If you think it is open an issue please.")
+        );
     }
 }
 
@@ -67,15 +54,17 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
     QFile fIn(standardR2ThemesLocationPath + QDir::separator() + srcThemeName);
     QFile fOut(customR2ThemesLocationPath + QDir::separator() + copyThemeName);
 
-    if (srcThemeName != "default" && !fIn.open(QFile::ReadOnly)) {
+    if (srcThemeName != QStringLiteral("default") && !fIn.open(QFile::ReadOnly)) {
         fIn.setFileName(customR2ThemesLocationPath + QDir::separator() + srcThemeName);
         if (!fIn.open(QFile::ReadOnly)) {
             return fIn.error();
         }
     }
 
+    const QString &srcTheme = fIn.readAll();
+    fIn.close();
+
     if (!fOut.open(QFile::WriteOnly | QFile::Truncate)) {
-        fIn.close();
         return fOut.error();
     }
 
@@ -84,22 +73,23 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
     QStringList src;
 
     if (srcThemeName == "default") {
-        QString theme = Config()->getCurrentTheme();
+        const QString &theme = Config()->getColorTheme();
         Core()->cmd("ecd");
-        QJsonObject _obj = Core()->cmdj("ecj").object();
-        Core()->cmd(QString("eco %1").arg(theme));
+        QJsonObject obj = Core()->cmdj("ecj").object();
+        Core()->cmd(QStringLiteral("eco %1").arg(theme));
         QColor back = Config()->getColor(standardBackgroundOptionName);
-        _obj[standardBackgroundOptionName] = QJsonArray({back.red(), back.green(), back.blue()});
-        for (const QString &it : _obj.keys()) {
-            QJsonArray rgb = _obj[it].toArray();
+        obj[standardBackgroundOptionName] = QJsonArray({back.red(), back.green(), back.blue()});
+        for (const QString &it : obj.keys()) {
+            QJsonArray rgb = obj[it].toArray();
             if (rgb.size() != 3) {
                 continue;
             }
-            src.push_back("ec " + it + " " +
-                          QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()).name().replace("#", "rgb:"));
+            src.push_back(QStringLiteral("ec %1 rgb:%2")
+                .arg(it)
+                .arg(QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()).name().remove('#')));
         }
     } else {
-        src = QString(fIn.readAll()).split('\n');
+        src = srcTheme.split('\n');
     }
 
     QStringList tmp;
@@ -123,12 +113,12 @@ QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
         } else {
             fOut.write("ec ");
         }
-        fOut.write(QString(it + " rgb:%1\n").
-                   arg(Config()->getColor(it).name().remove("#")).toUtf8());
+        fOut.write(QStringLiteral("%1 rgb:%2\n")
+            .arg(it)
+            .arg(Config()->getColor(it).name().remove('#')).toUtf8());
     }
 
     fOut.close();
-    fIn.close();
 
     return QFile::FileError::NoError;
 }
@@ -146,26 +136,25 @@ QFile::FileError ColorSchemeFileSaver::save(const QString &scheme, const QString
 
 bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 {
-    for (const QFileInfo &it : QDir(customR2ThemesLocationPath).entryInfoList())
-        if (it.fileName() == schemeName)
-            return true;
-    return false;
+    return QFile::exists(QDir(customR2ThemesLocationPath).filePath(schemeName));
 }
 
 bool ColorSchemeFileSaver::isNameEngaged(const QString &name) const
 {
-    return QFile::exists(standardR2ThemesLocationPath + QDir::separator() + name) ||
+    return (!standardR2ThemesLocationPath.isEmpty() && QFile::exists(standardR2ThemesLocationPath + QDir::separator() + name)) ||
            QFile::exists(customR2ThemesLocationPath + QDir::separator() + name);
 }
 
 QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
 {
-    QFile f(customR2ThemesLocationPath + QDir::separator() + Config()->getCurrentTheme());
+    QFile f(customR2ThemesLocationPath + QDir::separator() + Config()->getColorTheme());
     if (!f.open(QFile::ReadOnly))
         return  QMap<QString, QColor>();
 
+    const QStringList &data = QString(f.readAll()).split('\n');
+    f.close();
+
     QMap<QString, QColor> ret;
-    QStringList data = QString(f.readAll()).split('\n');
     for (const QString &it : data) {
         if (it.length() > 2 && it.left(2) == "#~") {
             QStringList currLine = it.split(' ');
@@ -175,15 +164,12 @@ QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
         }
     }
 
-    f.close();
     return ret;
 }
 
 QStringList ColorSchemeFileSaver::getCustomSchemes() const
 {
-    QStringList sl;
-    sl = QDir(customR2ThemesLocationPath).entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
-    return sl;
+    return QDir(customR2ThemesLocationPath).entryList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
 }
 
 void ColorSchemeFileSaver::deleteScheme(const QString &schemeName) const
