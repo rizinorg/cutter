@@ -66,7 +66,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     ui->setupUi(this);
 
     updateFontFromConfig();
-    updateThemeFromConfig();
+    updateThemeFromConfig(false);
 
     QStringList langs = findLanguages();
     ui->languageComboBox->addItems(langs);
@@ -94,12 +94,15 @@ void AppearanceOptionsWidget::updateFontFromConfig()
     ui->fontSelectionLabel->setText(currentFont.toString());
 }
 
-void AppearanceOptionsWidget::updateThemeFromConfig()
+void AppearanceOptionsWidget::updateThemeFromConfig(bool qtThemeChanged)
 {
     // Disconnect currentIndexChanged because clearing the comboxBox and refiling it causes its index to change.
     QSignalBlocker signalBlockerColorBox(ui->colorComboBox);
     QSignalBlocker signalBlockerThemeBox(ui->themeComboBox);
-     ui->themeComboBox->clear();
+    Q_UNUSED(signalBlockerColorBox);
+    Q_UNUSED(signalBlockerThemeBox);
+
+    ui->themeComboBox->clear();
     for (auto &it : kCutterQtThemesList) {
         ui->themeComboBox->addItem(it.name);
     }
@@ -112,25 +115,26 @@ void AppearanceOptionsWidget::updateThemeFromConfig()
 
     QList<QString> themes = Core()->getColorThemes();
     ui->colorComboBox->clear();
-    for (QString theme : themes) {
+    for (const QString &theme : themes) {
         if (ColorSchemeFileWorker().isCustomScheme(theme) ||
             (kCutterQtThemesList[curQtThemeIndex].flag & kRelevantSchemes[theme])) {
             ui->colorComboBox->addItem(theme);
         }
     }
 
-    QString curTheme = Config()->getLastThemeOf(kCutterQtThemesList[curQtThemeIndex]);
-    int index = ui->colorComboBox->findText(curTheme);
-    if (index == -1) {
-        index = 0;
-    }
+    QString curTheme = qtThemeChanged
+        ? Config()->getLastThemeOf(kCutterQtThemesList[curQtThemeIndex])
+        : Config()->getColorTheme();
+    const int index = ui->colorComboBox->findText(curTheme);
 
-    ui->colorComboBox->setCurrentIndex(index);
-    curTheme = ui->colorComboBox->currentText();
-    Config()->setColorTheme(curTheme);
+    ui->colorComboBox->setCurrentIndex(index == -1 ? 0 : index);
+    if (qtThemeChanged || index == -1) {
+        curTheme = ui->colorComboBox->currentText();
+        Config()->setColorTheme(curTheme);
+    }
     ui->colorSchemePrefWidget->updateSchemeFromConfig();
     int maxThemeLen = 0;
-    for (QString str : themes) {
+    for (const QString &str : themes) {
         int strLen = str.length();
         if (strLen > maxThemeLen) {
             maxThemeLen = strLen;
@@ -179,27 +183,29 @@ void AppearanceOptionsWidget::on_copyButton_clicked()
         newSchemeName = QInputDialog::getText(this, tr("Enter scheme name"),
                                               tr("Name:"), QLineEdit::Normal,
                                               QDir::home().dirName());
-    } while (ColorSchemeFileWorker().isNameEngaged(newSchemeName) && !newSchemeName.isEmpty());
+    } while ((!newSchemeName.isEmpty() && ColorSchemeFileWorker().isNameEngaged(newSchemeName))
+        || newSchemeName.contains(QRegExp("[^\\w.()\\[\\]_-]"))
+        || newSchemeName.startsWith('.'));
 
     if (newSchemeName.isEmpty())
         return;
-    ColorSchemeFileWorker().copy(Config()->getCurrentTheme(), newSchemeName);
+    ColorSchemeFileWorker().copy(Config()->getColorTheme(), newSchemeName);
     Config()->setColorTheme(newSchemeName);
     ui->colorSchemePrefWidget->updateSchemeFromConfig();
-    updateThemeFromConfig();
+    updateThemeFromConfig(false);
 }
 
 void AppearanceOptionsWidget::on_deleteButton_clicked()
 {
-    if (ColorSchemeFileWorker().isCustomScheme(Config()->getCurrentTheme())) {
+    if (ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme())) {
         QMessageBox mb;
         mb.setWindowTitle(tr("Delete"));
-        mb.setText(tr("Are you sure you want to delete theme ") + Config()->getCurrentTheme());
+        mb.setText(tr("Are you sure you want to delete theme ") + Config()->getColorTheme());
         mb.setIcon(QMessageBox::Question);
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         if (mb.exec() == QMessageBox::Yes) {
-            ColorSchemeFileWorker().deleteScheme(Config()->getCurrentTheme());
-            updateThemeFromConfig();
+            ColorSchemeFileWorker().deleteScheme(Config()->getColorTheme());
+            updateThemeFromConfig(false);
         }
     }
 }

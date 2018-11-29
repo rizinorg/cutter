@@ -424,8 +424,8 @@ void ColorSchemePrefWidget::apply()
         }
         scheme += curr.optionName + " rgb:" + curr.color.name().remove("#").toLower() + "\n";
     }
-    ColorSchemeFileWorker().save(scheme, Config()->getCurrentTheme());
-    Config()->setColorTheme(Config()->getCurrentTheme());
+    ColorSchemeFileWorker().save(scheme, Config()->getColorTheme());
+    Config()->setColorTheme(Config()->getColorTheme());
 }
 
 void ColorSchemePrefWidget::newColor()
@@ -436,13 +436,15 @@ void ColorSchemePrefWidget::newColor()
 
     ColorOption currCO = ui->preferencesListView->model()->data(ui->preferencesListView->currentIndex(),
                                                                 Qt::UserRole).value<ColorOption>();
-    QColorDialog d;
-    d.setCurrentColor(currCO.color);
-    d.exec();
+    QColorDialog d(currCO.color, this);
+    if (QDialog::Accepted != d.exec())
+        return;
 
     static_cast<ColorSettingsModel *>(ui->preferencesListView->model())->setColor(currCO.optionName,
                                                                                   d.selectedColor());
     ui->preferencesListView->setStandardColors();
+    if (ui->preferencesListView->model()->rowCount())
+        indexChanged(ui->preferencesListView->selectionModel()->selectedIndexes().first());
 }
 
 void ColorSchemePrefWidget::indexChanged(const QModelIndex &ni)
@@ -452,7 +454,7 @@ void ColorSchemePrefWidget::indexChanged(const QModelIndex &ni)
 
 void ColorSchemePrefWidget::updateSchemeFromConfig()
 {
-    isEditable = ColorSchemeFileWorker().isCustomScheme(Config()->getCurrentTheme());
+    isEditable = ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme());
     static_cast<ColorSettingsModel *>(ui->preferencesListView->model())->updateScheme();
 }
 
@@ -486,7 +488,7 @@ void ColorSettingsModel::setColor(const QString &option, const QColor &color)
 
 QColor ColorSettingsModel::getBackroundColor() const
 {
-    if (!ColorSchemeFileWorker().isCustomScheme(Config()->getCurrentTheme())) {
+    if (!ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme())) {
         return Config()->getColor(standardBackgroundOptionName);
     }
 
@@ -500,7 +502,7 @@ QColor ColorSettingsModel::getBackroundColor() const
 
 QColor ColorSettingsModel::getTextColor() const
 {
-    if (!ColorSchemeFileWorker().isCustomScheme(Config()->getCurrentTheme())) {
+    if (!ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme())) {
         return Config()->getColor(standardTextOptionName);
     }
 
