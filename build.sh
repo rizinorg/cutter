@@ -55,14 +55,14 @@ else
 fi
 
 # Build
-mkdir "$BUILD"
+mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
 "$qmakepath" ../src/Cutter.pro $QMAKE_CONF
 make -j4
 ERR=$((ERR+$?))
 
 # Move translations
-mkdir "`pwd`/translations"
+mkdir -p "`pwd`/translations"
 find "$ROOT_DIR/src/translations" -maxdepth 1  -type f | grep "cutter_..\.qm" | while read SRC_FILE; do
     mv $SRC_FILE "`pwd`/translations"
 done
