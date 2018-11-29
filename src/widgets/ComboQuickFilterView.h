@@ -19,8 +19,14 @@ public:
     void setLabelText(const QString &text);
     QComboBox *comboBox();
 
+public slots:
+    void showFilter();
+    void closeFilter();
+    void clearFilter();
+
 signals:
     void filterTextChanged(const QString &text);
+    void filterClosed();
 
 private:
     Ui::ComboQuickFilterView *ui;

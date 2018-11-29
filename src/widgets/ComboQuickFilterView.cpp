@@ -26,3 +26,21 @@ QComboBox *ComboQuickFilterView::comboBox()
 {
     return ui->comboBox;
 }
+
+void ComboQuickFilterView::showFilter()
+{
+    show();
+    ui->lineEdit->setFocus();
+}
+
+void ComboQuickFilterView::clearFilter()
+{
+    ui->lineEdit->setText("");
+}
+
+void ComboQuickFilterView::closeFilter()
+{
+    ui->lineEdit->setText("");
+    hide();
+    emit filterClosed();
+}

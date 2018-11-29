@@ -178,6 +178,14 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
         tree->showItemsNumber(proxyModel->rowCount());
     });
 
+    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &ComboQuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &ComboQuickFilterView::clearFilter);
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
 
     connect(
