@@ -99,7 +99,8 @@ after_success:
 deploy:
   skip_cleanup: true
   provider: releases
-  draft: true
+  draft: false
+  prerelease: true
   tag_name: $TRAVIS_TAG
   api_key:
     secure: ZXuSX8JXyL0HlJvSIda3ftMkvYsrxoWDcWm2LxO+f0uNFghCHNnISuH/btdipn2mjCBaBQl6/1IK5cg/AZ5OSkiaVsJJqY8kkPsZvR8K+k4oarsr2ApetlLZiZWtydC3J+UyNhsgCt4iuYPsvusANFPZBpVmqT+A5CHS7aPIqP00awbkJYG1uOENe2XVZ0vyotBqU0E7A9f8UO5ps0+qysS8W+NDB+CGLgKLeBfCk3U+IYKGYXcv66xCmSSZ5f7IVIXEjG4voFHGp9XLRY2R/iJgiKQKDbu519vUB3iKPzmLTB/Q9bNz4VMZCREa4SHaLDen730fMHbfm6ZhGZDzXg1DgZoh6RHptWf0WjcHTr1ch8ajpnBMxh/qmoRpaS00FJQMraMT3Il38ekYd+hOhsP58Bj1Db2vjBKopGEHGmVyFQZKuynrdKmpmY+kRNUT3QerIsiAHwHV2QXnMARHYXJrM0T7LNACa2mhiwQD2vNIqLRieIbHbSWgDUrTVTDeII23AAHCzD0YxcCAjSExjun/rc9dJjevgCoBpTM/NHPLCW4big1myx+vRQGPNdlf+dI7igm6bPVWB7znp5uXlI8q5irvqTVtRSvKbcaeDWOz/ki7QgOzaxmGFtaw30hxeY0wFlnSMXc8m42udWLkp/l0b4L0hcoaMTc1TvVU0i4=
