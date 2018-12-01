@@ -510,8 +510,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                     highlightWidth = block.width - widthBefore - (10 + 4 * charWidth);
                 }
 
+                QColor selectionColor = disassemblySelectionColor.blue() > 160 ? QColor(179, 119, 214, 50) :
+                                 QColor(52, 58, 71, 255);
+
                 p.fillRect(QRect(block.x + charWidth * 3 + widthBefore, y, highlightWidth,
-                                 charHeight), disassemblySelectionColor.lighter(250));
+                                 charHeight), selectionColor);
             }
 
             y += int(instr.text.lines.size()) * charHeight;
