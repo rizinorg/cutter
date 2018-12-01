@@ -55,6 +55,8 @@ ninja.exe
 r2_dist_x86/
 r2_dist_x64/
 *.pdb
+r2-bins
+r2-build
 
 # Mesonbuild
 src/subprojects/
