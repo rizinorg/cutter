@@ -65,6 +65,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
                SLOT(on_actionAnalyzeFunction_triggered()));
     addAction(&actionAnalyzeFunction);
 
+    addSeparator();
 
     addSetBaseMenu();
 
