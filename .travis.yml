@@ -77,8 +77,17 @@ after_success:
       mkdir -p Cutter.app/Contents/Resources/r2/share &&
       cp -a /usr/local/share/radare2 Cutter.app/Contents/Resources/r2/share/ &&
       mkdir image && cp -a Cutter.app image/ &&
+      export VOL_NAME="Cutter v${CUTTER_VERSION}" &&
+      export DMG_TMP_FILE="Cutter-v$CUTTER_VERSION-x64.macOS-tmp.dmg" &&
       export DMG_FILE="Cutter-v$CUTTER_VERSION-x64.macOS.dmg" &&
-      hdiutil create -srcfolder image -volname Cutter -fs HFS+ "$DMG_FILE" &&
+      export SIZE=`du -sh "image" | sed 's/\([0-9\.]*\)M\(.*\)/\1/'` &&
+      export SIZE=`echo "${SIZE} + 10.0" | bc | awk '{print int($1+0.5)}'` &&
+      hdiutil create -srcfolder image -volname "${VOL_NAME}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${SIZE}M "$DMG_TMP_FILE" &&
+      export DEVICE=$(hdiutil attach -readwrite -noverify "${DMG_TMP_FILE}" | egrep '^/dev/' | sed 1q | awk '{print $1}') &&
+      sleep 2 &&
+      ../scripts/prepare_package_ui_macos.sh "Cutter" "${PWD}/../src/macos/cutter_mac_app.png" "${VOL_NAME}" &&
+      hdiutil detach "${DEVICE}" &&
+      hdiutil convert "${DMG_TMP_FILE}" -format UDZO -imagekey zlib-level=9 -o "${DMG_FILE}" &&
       export FILE_TO_UPLOAD="$DMG_FILE"
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
