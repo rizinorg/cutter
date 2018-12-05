@@ -65,6 +65,7 @@
 #include "widgets/BacktraceWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
+#include "widgets/HexWidget.h"
 
 // Qt Headers
 #include <QApplication>
@@ -295,6 +296,13 @@ void MainWindow::initLayout()
     // Adjust the DockWidget areas
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    /* FIXME: for testing purpose only */
+    QDockWidget *ddd = new QDockWidget("HexView", this);
+    auto hex = new HexWidget();
+    hex->setFont(Config()->getFont());
+    ddd->setWidget(hex);
+    connect(Core(), &CutterCore::seekChanged, hex, &HexWidget::onSeekChanged);
+    addExtraWidget(ddd);
 }
 
 void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
