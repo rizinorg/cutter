@@ -349,7 +349,8 @@ SOURCES += \
     common/CrashHandler.cpp \
     common/BugReporting.cpp \
     common/HighDpiPixmap.cpp \
-    widgets/GraphGridLayout.cpp
+    widgets/GraphGridLayout.cpp \
+    widgets/HexWidget.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -475,7 +476,8 @@ HEADERS  += \
     common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
-    widgets/GraphGridLayout.h
+    widgets/GraphGridLayout.h \
+    widgets/HexWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

@@ -263,6 +263,8 @@ public:
 
     void loadPDB(const QString &file);
 
+    QByteArray ioRead(RVA addr, int len);
+
     QList<RVA> getSeekHistory();
 
     /* Plugins */

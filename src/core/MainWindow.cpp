@@ -65,6 +65,7 @@
 #include "widgets/BacktraceWidget.h"
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
+#include "widgets/HexWidget.h"
 
 // Qt Headers
 #include <QApplication>
