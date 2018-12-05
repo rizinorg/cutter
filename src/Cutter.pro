@@ -340,7 +340,8 @@ SOURCES += \
     plugins/PluginManager.cpp \
     common/BasicBlockHighlighter.cpp \
     dialogs/LinkTypeDialog.cpp \
-    common/UpdateWorker.cpp
+    common/UpdateWorker.cpp \
+    widgets/HexWidget.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -459,7 +460,8 @@ HEADERS  += \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
     common/UpdateWorker.h \
-    dialogs/LinkTypeDialog.h
+    dialogs/LinkTypeDialog.h \
+    widgets/HexWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

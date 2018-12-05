@@ -2657,3 +2657,22 @@ BasicBlockHighlighter* CutterCore::getBBHighlighter()
 {
     return bbHighlighter;
 }
+
+QByteArray CutterCore::ioRead(RVA addr, int len)
+{
+    CORE_LOCK();
+
+    QByteArray array;
+
+    if (len <= 0)
+        return array;
+
+    /* Zero-copy */
+    array.resize(len);
+    if (!r_io_read_at(core_->io, addr, (uint8_t *)array.data(), len)) {
+        qWarning() << "Can't read data" << addr << len;
+        array.fill(0xff);
+    }
+
+    return  array;
+}
