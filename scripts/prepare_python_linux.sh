@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPTPATH=$(readlink -f "$(dirname "${BASH_SOURCE[0]}")")
+
 mkdir -p python && cd python || exit 1
 
 export CUSTOM_PYTHON_PREFIX="`pwd`/prefix"
@@ -31,6 +33,6 @@ done
 
 PYTHONHOME=$CUSTOM_PYTHON_PREFIX \
        LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib \
-       "$CUSTOM_PYTHON_PREFIX/bin/pip3" install jupyter || exit 1
+       "$CUSTOM_PYTHON_PREFIX/bin/pip3" install -r "$SCRIPTPATH/pip_requirements.txt" || exit 1
 
 cd ..
