@@ -1,0 +1,2 @@
+jupyter
+ipykernel==4.10.0

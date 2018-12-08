@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
+
 mkdir python && cd python
 
 wget "https://www.python.org/ftp/python/3.6.4/Python-3.6.4.tar.xz" || exit 1
@@ -18,6 +20,6 @@ make -j4 || exit 1
 make frameworkinstallframework > /dev/null || exit 1
 
 PYTHONHOME=$PYTHON_FRAMEWORK_DIR/Python.framework/Versions/Current \
-       $PYTHON_FRAMEWORK_DIR/Python.framework/Versions/Current/bin/pip3 install jupyter || exit 1
+       $PYTHON_FRAMEWORK_DIR/Python.framework/Versions/Current/bin/pip3 install -r "$SCRIPTPATH/pip_requirements.txt" || exit 1
 
 cd ../..
