@@ -138,7 +138,18 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
 {
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
+    initSectionsTable();
+    initQuickFilter();
+    initAddrMapDocks();
+    initConnects();
+}
+
+SectionsWidget::~SectionsWidget() {}
+
+void SectionsWidget::initSectionsTable()
+{
     sectionsTable = new CutterTreeView;
     sectionsModel = new SectionsModel(&sections, this);
     auto proxyModel = new SectionsProxyModel(sectionsModel, this);
@@ -147,12 +158,10 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     sectionsTable->setIndentation(10);
     sectionsTable->setSortingEnabled(true);
     sectionsTable->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
+}
 
-    connect(sectionsTable, SIGNAL(doubleClicked(const QModelIndex &)),
-            this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
+void SectionsWidget::initQuickFilter()
+{
     quickFilterView = new QuickFilterView(this, false);
     quickFilterView->setObjectName(QStringLiteral("quickFilterView"));
     QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Maximum);
@@ -162,23 +171,22 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     quickFilterView->setSizePolicy(sizePolicy1);
 
     QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(search_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::showFilter);
     search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(search_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::showFilter);
 
     QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clear_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::clearFilter);
     clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(clear_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::clearFilter);
+}
 
-    connect(quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
-            SLOT(setFilterWildcard(const QString &)));
-    connect(quickFilterView, SIGNAL(filterClosed()), sectionsTable, SLOT(setFocus()));
-
+void SectionsWidget::initAddrMapDocks()
+{
     dockWidgetContents = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(sectionsTable);
     layout->addWidget(quickFilterView);
-    rawAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Raw, this);
-    virtualAddrDock = new SectionAddrDock(sectionsModel, SectionAddrDock::Virtual, this);
+    rawAddrDock = new RawAddrDock(sectionsModel, this);
+    virtualAddrDock = new VirtualAddrDock(sectionsModel, this);
 
     addrDockWidget = new QWidget();
     QHBoxLayout *addrDockLayout = new QHBoxLayout();
@@ -207,7 +215,16 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     layout->setMargin(0);
     dockWidgetContents->setLayout(layout);
     setWidget(dockWidgetContents);
+}
 
+void SectionsWidget::initConnects()
+{
+    connect(sectionsTable, SIGNAL(doubleClicked(const QModelIndex &)),
+            this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
+    connect(quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
+            SLOT(setFilterWildcard(const QString &)));
+    connect(quickFilterView, SIGNAL(filterClosed()), sectionsTable, SLOT(setFocus()));
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (visibility) {
             refreshSections();
@@ -218,18 +235,7 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     connect(toggleButton, &QToolButton::clicked, this, [ = ] {
         toggleButton->hide();
         addrDockWidget->show();
-        rawAddrDock->show();
         virtualAddrDock->show();
-    });
-
-    indicatorWidth = 600;
-    indicatorHeight = 5;
-    indicatorParamPosY = 20;
-
-    connect(rawAddrDock, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
-        if (!visibility) {
-            updateToggle();
-        }
     });
     connect(virtualAddrDock, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (!visibility) {
@@ -237,8 +243,6 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
         }
     });
 }
-
-SectionsWidget::~SectionsWidget() {}
 
 void SectionsWidget::refreshSections()
 {
@@ -292,69 +296,55 @@ void SectionsWidget::drawIndicatorOnAddrDocks()
     }
 }
 
-void SectionsWidget::updateIndicator(SectionAddrDock *targetDock, QString name, float ratio)
+void SectionsWidget::updateIndicator(AbstractAddrDock *targetDock, QString name, float ratio)
 {
     RVA offset = Core()->getOffset();
     float padding = targetDock->nameHeightMap[name] * ratio;
     int y = targetDock->namePosYMap[name] + (int)padding;
     QColor color = targetDock->indicatorColor;
-    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, indicatorWidth, indicatorHeight));
+    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, targetDock->indicatorWidth, targetDock->indicatorHeight));
     indicator->setBrush(QBrush(color));
     targetDock->graphicsScene->addItem(indicator);
     targetDock->graphicsView->centerOn(indicator);
 
-    targetDock->addTextItem(color, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - indicatorParamPosY), name);
-    targetDock->addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
+    targetDock->addTextItem(color, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - targetDock->indicatorParamPosY), name);
+    targetDock->addTextItem(color, QPoint(0, y - targetDock->indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
 }
 
 void SectionsWidget::updateToggle()
 {
-    if (!rawAddrDock->isVisible() && !virtualAddrDock->isVisible()) {
+    if (!virtualAddrDock->isVisible()) {
         addrDockWidget->hide();
         toggleButton->show();
     }
 }
 
-SectionAddrDock::SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent) :
+AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     QDockWidget(parent),
     graphicsScene(new QGraphicsScene),
     graphicsView(new QGraphicsView)
 {
     setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
-    switch (type) {
-        case SectionAddrDock::Raw:
-            setWindowTitle(tr("Raw"));
-            break;
-        case SectionAddrDock::Virtual:
-            setWindowTitle(tr("Virtual"));
-            break;
-        default:
-            return;
-    }
 
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     proxyModel = new SectionsProxyModel(model, this);
-    addrType = type;
 
-    QWidget *w = new QWidget();
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(graphicsView);
-    w->setLayout(layout);
-    setWidget(w);
+    setWidget(graphicsView);
 
+    indicatorWidth = 600;
+    indicatorHeight = 5;
+    indicatorParamPosY = 20;
     heightThreshold = 30;
     rectOffset = 100;
     rectWidth = 400;
     indicatorColor = ConfigColor("gui.navbar.err");
-
-    connect(this, &QDockWidget::featuresChanged, this, [ = ](){
-        setFeatures(QDockWidget::DockWidgetClosable);
-    });
 }
 
-void SectionAddrDock::updateDock()
+AbstractAddrDock::~AbstractAddrDock() {}
+
+void AbstractAddrDock::updateDock()
 {
     setFeatures(QDockWidget::DockWidgetClosable);
 
@@ -363,25 +353,37 @@ void SectionAddrDock::updateDock()
     setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
     const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene->setBackgroundBrush(bg);
+}
 
+void AbstractAddrDock::addTextItem(QColor color, QPoint pos, QString string)
+{
+    QGraphicsTextItem *text = new QGraphicsTextItem;
+    text->setDefaultTextColor(color);
+    text->setPos(pos);
+    text->setPlainText(string);
+    graphicsScene->addItem(text);
+}
+
+RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) :
+    AbstractAddrDock(model, parent)
+{
+    setWindowTitle(tr("Raw"));
+    connect(this, &QDockWidget::featuresChanged, this, [ = ](){
+        setFeatures(QDockWidget::NoDockWidgetFeatures);
+    });
+}
+
+RawAddrDock::~RawAddrDock() {}
+
+void RawAddrDock::updateDock()
+{
+    AbstractAddrDock::updateDock();
     int y = 0;
     proxyModel->sort(2, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
-        RVA addr;
-        int size;
-        switch (addrType) {
-            case SectionAddrDock::Raw:
-                addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().paddr;
-                size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
-                break;
-            case SectionAddrDock::Virtual:
-                addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
-                size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
-                break;
-            default:
-                return;
-        }
+        RVA addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().paddr;
+        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
         QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
         if (size < heightThreshold) {
             size = heightThreshold;
@@ -404,11 +406,44 @@ void SectionAddrDock::updateDock()
     }
 }
 
-void SectionAddrDock::addTextItem(QColor color, QPoint pos, QString string)
+VirtualAddrDock::VirtualAddrDock(SectionsModel *model, QWidget *parent) :
+    AbstractAddrDock(model, parent)
 {
-    QGraphicsTextItem *text = new QGraphicsTextItem;
-    text->setDefaultTextColor(color);
-    text->setPos(pos);
-    text->setPlainText(string);
-    graphicsScene->addItem(text);
+    setWindowTitle(tr("Virtual"));
+    connect(this, &QDockWidget::featuresChanged, this, [ = ](){
+        setFeatures(QDockWidget::DockWidgetClosable);
+    });
+}
+
+VirtualAddrDock::~VirtualAddrDock() {}
+
+void VirtualAddrDock::updateDock()
+{
+    AbstractAddrDock::updateDock();
+    int y = 0;
+    proxyModel->sort(2, Qt::AscendingOrder);
+    for (int i = 0; i < proxyModel->rowCount(); i++) {
+        QModelIndex idx = proxyModel->index(i, 0);
+        RVA addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
+        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+        QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+        if (size < heightThreshold) {
+            size = heightThreshold;
+        } else {
+            size /= heightThreshold;
+            size = std::max(size, heightThreshold);
+        }
+        QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
+        rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
+        graphicsScene->addItem(rect);
+
+        addTextItem(ConfigColor("gui.dataoffset"), QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
+        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset, y), QString::number(size));
+        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset + rectWidth, y), name);
+
+        namePosYMap[name] = y;
+        nameHeightMap[name] = size;
+
+        y += size;
+    }
 }
