@@ -31,8 +31,12 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::ForegroundRole:
         if (index.column() < ImportsModel::ColumnCount) {
+            // Red color for unsafe functions
             if (banned.match(import.name).hasMatch())
                 return QColor(255, 129, 123);
+            // Grey color for symbols at offset 0 which can only be filled at runtime
+            if (import.plt == 0)
+                return QColor(155, 155, 155);
         }
         break;
     case Qt::DisplayRole:
