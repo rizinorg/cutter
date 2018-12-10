@@ -33,10 +33,10 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
         if (index.column() < ImportsModel::ColumnCount) {
             // Red color for unsafe functions
             if (banned.match(import.name).hasMatch())
-                return QColor(255, 129, 123);
+                return Config()->getColor("gui.item_unsafe");
             // Grey color for symbols at offset 0 which can only be filled at runtime
             if (import.plt == 0)
-                return QColor(155, 155, 155);
+                return Config()->getColor("gui.item_invalid");
         }
         break;
     case Qt::DisplayRole:
