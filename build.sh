@@ -19,7 +19,7 @@ lrelease ./src/Cutter.pro
 r2 -v >/dev/null 2>&1
 if [ $? = 0 ]; then
 	R2COMMIT=$(r2 -v | tail -n1 | sed "s,commit: \\(.*\\) build.*,\\1,")
-	SUBMODULE=$(git submodule | awk '{print $1}')
+	SUBMODULE=$(git submodule | grep "radare2" | awk '{print $1}')
 	if [ "$R2COMMIT" = "$SUBMODULE" ]; then
 		BUILDR2=0
 	fi
@@ -36,15 +36,29 @@ if [ -z "$qmakepath" ]; then
 	exit 1
 fi
 
+# Check if GNU make is available
+gmakepath=$(which gmake)
+if [ -z "$qmakepath" ]; then
+	gmakepath=$(which make)
+fi
+
+${gmakepath} --help 2>&1 | grep -q gnu
+if [ -z "$gmakepath" ]; then
+	echo "You need GNU make to build Cutter."
+	echo "Please make sure qmake is in your PATH environment variable."
+	exit 1
+fi
+
 # Build radare2
 if [ $BUILDR2 -eq 1 ]; then
 	answer="Y"
 	printf "A (new?) version of radare2 will be installed. Do you agree? [Y/n] "
 	read answer
 	if [ -z "$answer" -o "$answer" = "Y" -o "$answer" = "y" ]; then
+		R2PREFIX=${1:-"/usr"}
 		git submodule init && git submodule update
 		cd radare2 || exit 1
-		./sys/install.sh
+		./sys/install.sh "$R2PREFIX"
 		cd ..
 	else
 		echo "Sorry but this script won't work otherwise. Read the README."
@@ -58,7 +72,7 @@ fi
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
 "$qmakepath" ../src/Cutter.pro $QMAKE_CONF
-make -j4
+"$gmakepath" -j4
 ERR=$((ERR+$?))
 
 # Move translations
