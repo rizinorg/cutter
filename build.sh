@@ -43,7 +43,7 @@ if [ -z "$qmakepath" ]; then
 fi
 
 ${gmakepath} --help 2>&1 | grep -q gnu
-if [$? = 0 -o -z "$gmakepath" ]; then
+if [ $? != 0 ]; then
     echo "You need GNU make to build Cutter."
     echo "Please make sure qmake is in your PATH environment variable."
     exit 1
