@@ -18,7 +18,6 @@ class CutterTreeView;
 class QAbstractItemView;
 class MainWindow;
 class SectionsWidget;
-class SectionAddrDock;
 class AbstractAddrDock;
 class RawAddrDock;
 class VirtualAddrDock;
