@@ -183,11 +183,12 @@ void SectionsWidget::initAddrMapDocks()
 {
     dockWidgetContents = new QWidget(this);
     QVBoxLayout *layout = new QVBoxLayout();
+
     layout->addWidget(sectionsTable);
     layout->addWidget(quickFilterView);
+
     rawAddrDock = new RawAddrDock(sectionsModel, this);
     virtualAddrDock = new VirtualAddrDock(sectionsModel, this);
-
     addrDockWidget = new QWidget();
     QHBoxLayout *addrDockLayout = new QHBoxLayout();
     addrDockLayout->addWidget(rawAddrDock);
@@ -249,10 +250,7 @@ void SectionsWidget::refreshSections()
     sectionsModel->beginResetModel();
     sections = Core()->getAllSections();
     sectionsModel->endResetModel();
-
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
-    rawAddrDock->show();
-    virtualAddrDock->show();
     rawAddrDock->updateDock();
     virtualAddrDock->updateDock();
     drawIndicatorOnAddrDocks();
@@ -289,26 +287,11 @@ void SectionsWidget::drawIndicatorOnAddrDocks()
             if (vsize > 0 && offset > vaddr) {
                 ratio = (float)(offset - vaddr) / (float)vsize;
             }
-            updateIndicator(rawAddrDock, name, ratio);
-            updateIndicator(virtualAddrDock, name, ratio);
+            rawAddrDock->drawIndicator(name, ratio);
+            virtualAddrDock->drawIndicator(name, ratio);
             return;
         }
     }
-}
-
-void SectionsWidget::updateIndicator(AbstractAddrDock *targetDock, QString name, float ratio)
-{
-    RVA offset = Core()->getOffset();
-    float padding = targetDock->nameHeightMap[name] * ratio;
-    int y = targetDock->namePosYMap[name] + (int)padding;
-    QColor color = targetDock->indicatorColor;
-    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, targetDock->indicatorWidth, targetDock->indicatorHeight));
-    indicator->setBrush(QBrush(color));
-    targetDock->graphicsScene->addItem(indicator);
-    targetDock->graphicsView->centerOn(indicator);
-
-    targetDock->addTextItem(color, QPoint(targetDock->rectOffset + targetDock->rectWidth, y - targetDock->indicatorParamPosY), name);
-    targetDock->addTextItem(color, QPoint(0, y - targetDock->indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
 }
 
 void SectionsWidget::updateToggle()
@@ -324,8 +307,6 @@ AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     graphicsScene(new QGraphicsScene),
     graphicsView(new QGraphicsView)
 {
-    setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
-
     graphicsView->setScene(graphicsScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
@@ -340,19 +321,19 @@ AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     rectOffset = 100;
     rectWidth = 400;
     indicatorColor = ConfigColor("gui.navbar.err");
+    textColor = ConfigColor("gui.dataoffset");
 }
 
 AbstractAddrDock::~AbstractAddrDock() {}
 
 void AbstractAddrDock::updateDock()
 {
-    setFeatures(QDockWidget::DockWidgetClosable);
-
     graphicsScene->clear();
 
-    setStyleSheet(QString("color:%1;").arg(ConfigColor("gui.dataoffset").name()));
     const QBrush bg = QBrush(ConfigColor("gui.background"));
     graphicsScene->setBackgroundBrush(bg);
+
+    textColor = ConfigColor("gui.dataoffset");
 }
 
 void AbstractAddrDock::addTextItem(QColor color, QPoint pos, QString string)
@@ -362,6 +343,21 @@ void AbstractAddrDock::addTextItem(QColor color, QPoint pos, QString string)
     text->setPos(pos);
     text->setPlainText(string);
     graphicsScene->addItem(text);
+}
+
+void AbstractAddrDock::drawIndicator(QString name, float ratio)
+{
+    RVA offset = Core()->getOffset();
+    float padding = nameHeightMap[name] * ratio;
+    int y = namePosYMap[name] + (int)padding;
+    QColor color = indicatorColor;
+    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, indicatorWidth, indicatorHeight));
+    indicator->setBrush(QBrush(color));
+    graphicsScene->addItem(indicator);
+    graphicsView->centerOn(indicator);
+
+    addTextItem(color, QPoint(rectOffset + rectWidth, y - indicatorParamPosY), name);
+    addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
 }
 
 RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) :
@@ -378,6 +374,7 @@ RawAddrDock::~RawAddrDock() {}
 void RawAddrDock::updateDock()
 {
     AbstractAddrDock::updateDock();
+    setFeatures(QDockWidget::DockWidgetClosable);
     int y = 0;
     proxyModel->sort(2, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
@@ -395,9 +392,9 @@ void RawAddrDock::updateDock()
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
         graphicsScene->addItem(rect);
 
-        addTextItem(ConfigColor("gui.dataoffset"), QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
-        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset, y), QString::number(size));
-        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset + rectWidth, y), name);
+        addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
+        addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
+        addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
 
         namePosYMap[name] = y;
         nameHeightMap[name] = size;
@@ -420,6 +417,7 @@ VirtualAddrDock::~VirtualAddrDock() {}
 void VirtualAddrDock::updateDock()
 {
     AbstractAddrDock::updateDock();
+    setFeatures(QDockWidget::NoDockWidgetFeatures);
     int y = 0;
     proxyModel->sort(2, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
@@ -437,9 +435,9 @@ void VirtualAddrDock::updateDock()
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
         graphicsScene->addItem(rect);
 
-        addTextItem(ConfigColor("gui.dataoffset"), QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
-        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset, y), QString::number(size));
-        addTextItem(ConfigColor("gui.dataoffset"), QPoint(rectOffset + rectWidth, y), name);
+        addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
+        addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
+        addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
 
         namePosYMap[name] = y;
         nameHeightMap[name] = size;

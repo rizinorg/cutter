@@ -91,7 +91,6 @@ private:
     void initConnects();
     void initAddrMapDocks();
     void drawIndicatorOnAddrDocks();
-    void updateIndicator(AbstractAddrDock *targetDock, QString name, float ratio);
     void updateToggle();
 };
 
@@ -118,11 +117,15 @@ protected:
     int rectOffset;
     int rectWidth;
     QColor indicatorColor;
+    QColor textColor;
     QGraphicsScene *graphicsScene;
     QGraphicsView *graphicsView;
     SectionsProxyModel *proxyModel;
     QHash<QString, int> namePosYMap;
     QHash<QString, int> nameHeightMap;
+
+private:
+    void drawIndicator(QString name, float ratio);
 };
 
 class RawAddrDock : public AbstractAddrDock
