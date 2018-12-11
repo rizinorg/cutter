@@ -1,7 +1,7 @@
 project('Cutter', 'cpp', default_options: 'cpp_std=c++11', meson_version: '>=0.47.0')
 
 qt5_mod = import('qt5')
-py3_exe = import('python3').find_python()
+py3_exe = import('python').find_installation('python3')
 
 qt_modules = []
 feature_define_args = []
