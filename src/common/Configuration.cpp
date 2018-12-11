@@ -156,6 +156,8 @@ void Configuration::loadDefaultTheme()
     setColor("gui.navbar.sym", QColor(229, 150, 69));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
     setColor("gui.breakpoint_background", QColor(233, 143, 143));
+    setColor("gui.item_invalid", QColor(155, 155, 155));
+    setColor("gui.item_unsafe", QColor(255, 129, 123));
 }
 
 void Configuration::loadBaseDark()
@@ -189,6 +191,8 @@ void Configuration::loadBaseDark()
     setColor("gui.dataoffset", QColor(255, 255, 255));
     // Custom
     setColor("gui.imports", QColor(50, 140, 255));
+    setColor("gui.item_invalid", QColor(155, 155, 155));
+    setColor("gui.item_unsafe", QColor(255, 129, 123));
     setColor("gui.main", QColor(0, 128, 0));
 
     // GUI: navbar
