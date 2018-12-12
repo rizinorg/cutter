@@ -462,11 +462,13 @@ ColorSettingsModel::ColorSettingsModel(QObject *parent) : QAbstractListModel (pa
 
 QVariant ColorSettingsModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
       return QVariant();
+    }
     
-    if (index.row() < 0 || index.row() >= m_data.size())
+    if (index.row() < 0 || index.row() >= m_data.size()) {
       return QVariant();
+    }
     
     if (role == Qt::DisplayRole) {
         return QVariant::fromValue(m_data.at(index.row()).displayingText);
