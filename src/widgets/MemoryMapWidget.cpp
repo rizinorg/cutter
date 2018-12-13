@@ -116,6 +116,15 @@ MemoryMapWidget::MemoryMapWidget(MainWindow *main, QAction *action) :
     ui->memoryTreeView->setModel(memoryProxyModel);
     ui->memoryTreeView->sortByColumn(MemoryMapModel::AddrStartColumn, Qt::AscendingOrder);
 
+    // Ctrl-F to show/hide the filter entry
+    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
+    connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), memoryProxyModel,
+            SLOT(setFilterWildcard(const QString &)));
+    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->memoryTreeView, SLOT(setFocus()));
+
     setScrollMode();
 
     refreshDeferrer = createRefreshDeferrer([this]() {
