@@ -50,6 +50,9 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QuickFilterView" name="quickFilterView" native="true"/>
+    </item>
    </layout>
   </widget>
  </widget>
@@ -58,6 +61,12 @@
    <class>CutterTreeView</class>
    <extends>QTreeView</extends>
    <header>widgets/CutterTreeView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
