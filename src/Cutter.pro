@@ -77,7 +77,7 @@ macx {
     QMAKE_INFO_PLIST = macos/Info.plist
 }
 
-unix:exists(/usr/local/include/libr) {
+unix:exists(/usr/local/include/libr)|bsd:exists(/usr/local/include/libr) {
     INCLUDEPATH += /usr/local/include/libr
 }
 unix {
@@ -95,7 +95,7 @@ win32:CUTTER_ENABLE_JUPYTER {
     INCLUDEPATH += $${pythonpath}/include
 }
 
-unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER {
+unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER|bsd:CUTTER_ENABLE_JUPYTER {
     defined(PYTHON_FRAMEWORK_DIR, var) {
         message("Using Python.framework at $$PYTHON_FRAMEWORK_DIR")
         INCLUDEPATH += $$PYTHON_FRAMEWORK_DIR/Python.framework/Headers

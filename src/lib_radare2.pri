@@ -35,7 +35,7 @@ win32 {
         -lr_crypto \
         -lr_sdb
 } else {
-    macx {
+    macx|bsd {
         PREFIX=/usr/local
     } else {
         PREFIX=/usr
@@ -53,12 +53,19 @@ win32 {
                 LIBS += -L$$PREFIX/lib
                 INCLUDEPATH += $$PREFIX/include/libr
                 USE_PKGCONFIG = 0
-           }
+            }
         }
         macx {
             LIBS += -L$$PREFIX/lib
             INCLUDEPATH += $$PREFIX/include/libr
             USE_PKGCONFIG = 0
+        }
+        bsd {
+            !exists($$PKG_CONFIG_PATH/r_core.pc) {
+                LIBS += -L$$PREFIX/lib
+                INCLUDEPATH += $$PREFIX/include/libr
+                USE_PKGCONFIG = 0
+            }
         }
     }
 
