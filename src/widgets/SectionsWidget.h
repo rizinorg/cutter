@@ -18,7 +18,9 @@ class CutterTreeView;
 class QAbstractItemView;
 class MainWindow;
 class SectionsWidget;
-class SectionAddrDock;
+class AbstractAddrDock;
+class RawAddrDock;
+class VirtualAddrDock;
 class QuickFilterView;
 class QGraphicsView;
 class QGraphicsRectItem;
@@ -79,41 +81,72 @@ private:
     QuickFilterView *quickFilterView;
 
     QWidget *addrDockWidget;
-    SectionAddrDock *rawAddrDock;
-    SectionAddrDock *virtualAddrDock;
+    RawAddrDock *rawAddrDock;
+    VirtualAddrDock *virtualAddrDock;
     QToolButton *toggleButton;
 
-    int indicatorWidth;
-    int indicatorHeight;
-    int indicatorParamPosY;
+    void initSectionsTable();
+    void initQuickFilter();
+    void initConnects();
+    void initAddrMapDocks();
     void drawIndicatorOnAddrDocks();
-    void updateIndicator(SectionAddrDock *targetDock, QString name, float ratio);
     void updateToggle();
 };
 
-class SectionAddrDock : public QDockWidget
+class AbstractAddrDock : public QDockWidget
 {
     Q_OBJECT
 
     friend SectionsWidget;
 
-private slots:
-    void updateDock();
+public:
+    explicit AbstractAddrDock(SectionsModel *model, QWidget *parent = nullptr);
+    ~AbstractAddrDock();
+
+    virtual void updateDock();
+
+protected slots:
     void addTextItem(QColor color, QPoint pos, QString string);
 
-private:
-    enum AddrType { Raw = 0, Virtual };
+protected:
+    int indicatorWidth;
+    int indicatorHeight;
+    int indicatorParamPosY;
     int heightThreshold;
     int rectOffset;
     int rectWidth;
     QColor indicatorColor;
-    explicit SectionAddrDock(SectionsModel *model, AddrType type, QWidget *parent = nullptr);
+    QColor textColor;
     QGraphicsScene *graphicsScene;
     QGraphicsView *graphicsView;
     SectionsProxyModel *proxyModel;
-    AddrType addrType;
     QHash<QString, int> namePosYMap;
     QHash<QString, int> nameHeightMap;
+
+private:
+    void drawIndicator(QString name, float ratio);
+};
+
+class RawAddrDock : public AbstractAddrDock
+{
+    Q_OBJECT
+
+public:
+    explicit RawAddrDock(SectionsModel *model, QWidget *parent = nullptr);
+    ~RawAddrDock();
+
+    void updateDock() override;
+};
+
+class VirtualAddrDock : public AbstractAddrDock
+{
+    Q_OBJECT
+
+public:
+    explicit VirtualAddrDock(SectionsModel *model, QWidget *parent = nullptr);
+    ~VirtualAddrDock();
+
+    void updateDock() override;
 };
 
 #endif // SECTIONSWIDGET_H
