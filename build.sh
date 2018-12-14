@@ -3,7 +3,6 @@
 # This script is a work in progress
 
 ####   Constants    ####
-BUILDR2=1
 ERR=0
 
 #### User variables ####
@@ -15,43 +14,49 @@ ROOT_DIR=`pwd`
 # Create translations
 lrelease ./src/Cutter.pro
 
-# Checking for radare2
-r2 -v >/dev/null 2>&1
-if [ $? = 0 ]; then
-    R2COMMIT=$(r2 -v | tail -n1 | sed "s,commit: \\(.*\\) build.*,\\1,")
-    SUBMODULE=$(git submodule | grep "radare2" | awk '{print $1}')
-    if [ "$R2COMMIT" = "$SUBMODULE" ]; then
-        BUILDR2=0
-    fi
-fi
+check_r2() {
+	r2 -v >/dev/null 2>&1
+	if [ $? = 0 ]; then
+		R2COMMIT=$(r2 -v | tail -n1 | sed "s,commit: \\(.*\\) build.*,\\1,")
+		SUBMODULE=$(git submodule | grep "radare2" | awk '{print $1}')
+		if [ "$R2COMMIT" = "$SUBMODULE" ]; then
+			return 0
+		fi
+	fi
+	return 1
+}
 
-# Check if either qmake or qmake-qt5 is available
-qmakepath=$(which qmake-qt5)
-if [ -z "$qmakepath" ]; then
-    qmakepath=$(which qmake)
-fi
-if [ -z "$qmakepath" ]; then
-    echo "You need qmake to build Cutter."
-    echo "Please make sure qmake is in your PATH environment variable."
-    exit 1
-fi
+find_qmake() {
+	qmakepath=$(which qmake-qt5)
+	if [ -z "$qmakepath" ]; then
+		qmakepath=$(which qmake)
+	fi
+	if [ -z "$qmakepath" ]; then
+		echo "You need qmake to build Cutter."
+		echo "Please make sure qmake is in your PATH environment variable."
+		exit 1
+	fi
+	echo "$qmakepath"
+}
 
-# Check if GNU make is available
-gmakepath=$(which gmake)
-if [ -z "$qmakepath" ]; then
-    gmakepath=$(which make)
-fi
+find_gmake() {
+	gmakepath=$(which gmake)
+	if [ -z "$gmakepath" ]; then
+		gmakepath=$(which make)
+	fi
 
-${gmakepath} --help 2>&1 | grep -q gnu
-if [ $? != 0 ]; then
-    echo "You need GNU make to build Cutter."
-    echo "Please make sure qmake is in your PATH environment variable."
-    exit 1
-fi
+	${gmakepath} --help 2>&1 | grep -q gnu
+	if [ $? != 0 ]; then
+		echo "You need GNU make to build Cutter."
+		echo "Please make sure gmake is in your PATH environment variable."
+		exit 1
+	fi
+	echo "$gmakepath"
+}
 
 # Build radare2
-if [ $BUILDR2 -eq 1 ]; then
-    answer="Y"
+check_r2
+if [ $? -eq 1 ]; then
     printf "A (new?) version of radare2 will be installed. Do you agree? [Y/n] "
     read answer
     if [ -z "$answer" -o "$answer" = "Y" -o "$answer" = "y" ]; then
@@ -71,8 +76,8 @@ fi
 # Build
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
-"$qmakepath" ../src/Cutter.pro $QMAKE_CONF
-"$gmakepath" -j4
+$(find_qmake) ../src/Cutter.pro $QMAKE_CONF
+$(find_gmake) -j4
 ERR=$((ERR+$?))
 
 # Move translations
@@ -81,12 +86,18 @@ find "$ROOT_DIR/src/translations" -maxdepth 1  -type f | grep "cutter_..\.qm" | 
     mv $SRC_FILE "`pwd`/translations"
 done
 
-cd ..
-
-# Done
+# Finish
 if [ ${ERR} -gt 0 ]; then
     echo "Something went wrong!"
 else
-    echo "Build complete. Binary available at: $BUILD/Cutter"
+    echo "Build complete."
+	printf "This build of Cutter will be installed. Do you agree? [Y/n] "
+    read answer
+    if [ -z "$answer" -o "$answer" = "Y" -o "$answer" = "y" ]; then
+		$(find_gmake) install
+	else
+		echo "Binary available at $BUILD/Cutter"
+	fi
 fi
 
+cd ..
