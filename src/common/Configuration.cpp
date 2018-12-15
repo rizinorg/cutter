@@ -139,7 +139,7 @@ void Configuration::loadDefaultTheme()
     setColor("gui.dataoffset", QColor(0, 0, 0));
     setColor("gui.border",  QColor(0, 0, 0));
     setColor("highlight",   QColor(210, 210, 255, 150));
-    setColor("highlightWord", QColor(210, 210, 255));
+    setColor("highlightWord", QColor(179, 119, 214, 60));
     // RIP line selection in debug
     setColor("highlightPC", QColor(214, 255, 210));
     // Windows background
@@ -219,7 +219,7 @@ void Configuration::loadDarkTheme()
     setColor("gui.disass_selected", QColor(31, 34, 40));
     // Disassembly line selected
     setColor("highlight", QColor(21, 29, 29, 150));
-    setColor("highlightWord", QColor(100, 100, 100));
+    setColor("highlightWord", QColor(52, 58, 71, 255));
 
 }
 

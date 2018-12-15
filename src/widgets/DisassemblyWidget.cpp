@@ -325,9 +325,6 @@ void DisassemblyWidget::highlightCurrentLine()
     QColor highlightColor = ConfigColor("highlight");
     QColor highlightPCColor = ConfigColor("highlightPC");
     QColor highlightWordColor = ConfigColor("highlightWord");
-    highlightWordColor.setAlpha(128);
-    QColor highlightWordCurrentLineColor = ConfigColor("gui.background");
-    highlightWordCurrentLineColor.setAlpha(128);
 
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
@@ -374,7 +371,7 @@ void DisassemblyWidget::highlightCurrentLine()
         if (!highlightSelection.cursor.isNull()) {
             if (highlightSelection.cursor.position() >= listStartPos
                     && highlightSelection.cursor.position() <= lineEndPos) {
-                highlightSelection.format.setBackground(highlightWordCurrentLineColor);
+                highlightSelection.format.setBackground(highlightWordColor);
             } else {
                 highlightSelection.format.setBackground(highlightWordColor);
             }
