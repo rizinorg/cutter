@@ -152,7 +152,7 @@ void SectionsWidget::initSectionsTable()
 {
     sectionsTable = new CutterTreeView;
     sectionsModel = new SectionsModel(&sections, this);
-    auto proxyModel = new SectionsProxyModel(sectionsModel, this);
+    proxyModel = new SectionsProxyModel(sectionsModel, this);
 
     sectionsTable->setModel(proxyModel);
     sectionsTable->setIndentation(10);
