@@ -25,13 +25,12 @@ dist: trusty
 
 addons:
   apt:
-    source:
+    sources:
       - sourceline: "ppa:beineri/opt-qt596-trusty"
     packages:
       - qt59base
       - qt59svg
       - qt59webengine
-    
   homebrew:
     update: true
     brewfile: scripts/Brewfile
