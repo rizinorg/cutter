@@ -24,21 +24,22 @@ sudo: required
 dist: trusty
 
 addons:
+  apt:
+    source:
+      - sourceline: "ppa:beineri/opt-qt596-trusty"
+    packages:
+      - qt59base
+      - qt59svg
+      - qt59webengine
+    
   homebrew:
     update: true
     brewfile: scripts/Brewfile
-
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo add-apt-repository ppa:beineri/opt-qt596-trusty -y &&  
-      sudo apt-get update -qq  
-    ; fi
 
 install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo apt-get -y install qt59base qt59svg qt59webengine --allow-unauthenticated &&
       source /opt/qt5*/bin/qt5*-env.sh
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_python_linux.sh    ; fi
