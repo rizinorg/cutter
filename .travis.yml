@@ -23,20 +23,22 @@ matrix:
 sudo: required
 dist: trusty
 
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update          ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo add-apt-repository ppa:beineri/opt-qt596-trusty -y &&  
-      sudo apt-get update -qq  
-    ; fi
+addons:
+  apt:
+    sources:
+      - sourceline: "ppa:beineri/opt-qt596-trusty"
+    packages:
+      - qt59base
+      - qt59svg
+      - qt59webengine
+  homebrew:
+    update: true
+    brewfile: scripts/Brewfile
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew uninstall -f gdal postgis numpy geos libpq postgresql mercurial libspatialite ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   brew bundle --file=scripts/Brewfile -v    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo apt-get -y install qt59base qt59svg qt59webengine --allow-unauthenticated &&
       source /opt/qt5*/bin/qt5*-env.sh
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_python_linux.sh    ; fi
