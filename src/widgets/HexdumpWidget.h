@@ -11,6 +11,7 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 #include "CutterSeekableWidget.h"
+#include "dialogs/HexdumpRangeDialog.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
 #include "common/HexHighlighter.h"
@@ -44,7 +45,7 @@ public:
 
 public slots:
     void initParsing();
-
+    void on_rangeDialogAccepted();
     void showOffsets(bool show);
 
     void zoomIn(int range = 1);
@@ -102,6 +103,9 @@ private:
 
     int bufferLines = 0;
     int cols = 0;
+    ut64 requestedSelectionStartAddress=0;
+    ut64 requestedSelectionEndAddress=0;
+    HexdumpRangeDialog  rangeDialog;
     QAction syncAction;
     CutterSeekableWidget *seekable;
 
@@ -136,6 +140,8 @@ private slots:
 
     void on_actionFormatHex_triggered();
     void on_actionFormatOctal_triggered();
+
+    void on_actionSelect_Block_triggered();
 
     void fontsUpdated();
     void colorsUpdatedSlot();
