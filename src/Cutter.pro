@@ -219,7 +219,8 @@ SOURCES += \
     common/ColorSchemeFileSaver.cpp \
     dialogs/EditFunctionDialog.cpp \
     widgets/CutterTreeView.cpp \
-    widgets/ComboQuickFilterView.cpp
+    widgets/ComboQuickFilterView.cpp \
+    dialogs/HexdumpRangeDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -322,7 +323,8 @@ HEADERS  += \
     widgets/ColorSchemePrefWidget.h \
     dialogs/EditFunctionDialog.h \
     widgets/CutterTreeView.h \
-    widgets/ComboQuickFilterView.h
+    widgets/ComboQuickFilterView.h \
+    dialogs/HexdumpRangeDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -381,7 +383,8 @@ FORMS    += \
     dialogs/SetFunctionVarTypes.ui \
     widgets/ColorSchemePrefWidget.ui \
     widgets/CutterTreeView.ui \
-    widgets/ComboQuickFilterView.ui
+    widgets/ComboQuickFilterView.ui \
+    dialogs/HexdumpRangeDialog.ui
 
 RESOURCES += \
     resources.qrc \
