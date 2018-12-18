@@ -214,7 +214,7 @@ SOURCES += \
     dialogs/AttachProcDialog.cpp \
     widgets/RegisterRefsWidget.cpp \
     dialogs/SetToDataDialog.cpp \
-    dialogs/SetFunctionVarTypes.cpp \
+    dialogs/EditVariablesDialog.cpp \
     widgets/ColorSchemePrefWidget.cpp \
     common/ColorSchemeFileSaver.cpp \
     dialogs/EditFunctionDialog.cpp \
@@ -318,7 +318,7 @@ HEADERS  += \
     widgets/RegisterRefsWidget.h \
     dialogs/SetToDataDialog.h \
     common/InitialOptions.h \
-    dialogs/SetFunctionVarTypes.h \
+    dialogs/EditVariablesDialog.h \
     common/ColorSchemeFileSaver.h \
     widgets/ColorSchemePrefWidget.h \
     dialogs/EditFunctionDialog.h \
@@ -380,7 +380,7 @@ FORMS    += \
     dialogs/AttachProcDialog.ui \
     widgets/RegisterRefsWidget.ui \
     dialogs/SetToDataDialog.ui \
-    dialogs/SetFunctionVarTypes.ui \
+    dialogs/EditVariablesDialog.ui \
     widgets/ColorSchemePrefWidget.ui \
     widgets/CutterTreeView.ui \
     widgets/ComboQuickFilterView.ui \

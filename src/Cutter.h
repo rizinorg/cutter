@@ -332,6 +332,13 @@ struct RegisterRefDescription {
     QString ref;
 };
 
+struct VariableDescription {
+    enum class RefType { SP, BP, Reg };
+    RefType refType;
+    QString name;
+    QString type;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -365,6 +372,7 @@ Q_DECLARE_METATYPE(MemoryMapDescription)
 Q_DECLARE_METATYPE(BreakpointDescription)
 Q_DECLARE_METATYPE(ProcessDescription)
 Q_DECLARE_METATYPE(RegisterRefDescription)
+Q_DECLARE_METATYPE(VariableDescription)
 
 class CutterCore: public QObject
 {
@@ -604,6 +612,7 @@ public:
     QList<ProcessDescription> getAllProcesses();
     QList<RegisterRefDescription> getRegisterRefs();
     QJsonObject getRegisterJson();
+    QList<VariableDescription> getVariables(RVA at);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);

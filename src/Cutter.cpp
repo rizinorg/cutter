@@ -856,6 +856,29 @@ QList<RegisterRefDescription> CutterCore::getRegisterRefs()
     return ret;
 }
 
+QList<VariableDescription> CutterCore::getVariables(RVA at)
+{
+    QList<VariableDescription> ret;
+    QJsonObject varsObject = cmdj(QString("afvj @ %1").arg(at)).object();
+
+    auto addVars = [&](VariableDescription::RefType refType, const QJsonArray &array) {
+        for (const QJsonValue &varValue : array) {
+            QJsonObject varObject = varValue.toObject();
+            VariableDescription desc;
+            desc.refType = refType;
+            desc.name = varObject["name"].toString();
+            desc.type = varObject["type"].toString();
+            ret << desc;
+        }
+    };
+
+    addVars(VariableDescription::RefType::SP, varsObject["sp"].toArray());
+    addVars(VariableDescription::RefType::BP, varsObject["bp"].toArray());
+    addVars(VariableDescription::RefType::Reg, varsObject["reg"].toArray());
+
+    return ret;
+}
+
 QJsonObject CutterCore::getRegisterJson()
 {
     QJsonArray registerRefArray = cmdj("drrj").array();

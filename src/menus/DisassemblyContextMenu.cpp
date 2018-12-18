@@ -5,7 +5,7 @@
 #include "dialogs/FlagDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
-#include "dialogs/SetFunctionVarTypes.h"
+#include "dialogs/EditVariablesDialog.h"
 #include "dialogs/SetToDataDialog.h"
 #include "dialogs/EditFunctionDialog.h"
 #include <QtCore>
@@ -640,20 +640,15 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 
 void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 {
-    SetFunctionVarTypes *dialog;
-
-
     RAnalFunction *fcn = Core()->functionAt(offset);
 
-    dialog = new SetFunctionVarTypes(this);
-
-    if (fcn) {
-        dialog->setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcn->name));
+    if (!fcn) {
+        QMessageBox::critical(this, tr("Re-type function local vars"), tr("You must be in a function to define variable types."));
+        return;
     }
-    dialog->setFcn(fcn);
 
-    dialog->exec();
-
+    EditVariablesDialog dialog(Core()->getOffset(), this);
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionXRefs_triggered()
