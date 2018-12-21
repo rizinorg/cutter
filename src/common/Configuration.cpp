@@ -9,7 +9,7 @@
 #include "common/ColorSchemeFileSaver.h"
 
 const QList<CutterQtTheme> kCutterQtThemesList = {
-    { "Default", static_cast<ColorFlags>(LightFlag | DarkFlag) },
+    { "Native", static_cast<ColorFlags>(LightFlag | DarkFlag) },
     { "Dark",    DarkFlag }
 };
 
@@ -125,13 +125,16 @@ void Configuration::setLocale(const QLocale &l)
     s.setValue("locale", l);
 }
 
+bool Configuration::windowColorIsDark()
+{
+    auto windowColor = QPalette().color(QPalette::Window).toRgb();
+    return (windowColor.red() + windowColor.green() + windowColor.blue()) < 382;
+}
+
 void Configuration::loadBaseThemeNative()
 {
     /* Load Qt Theme */
     qApp->setStyleSheet("");
-
-    /* Images */
-    logoFile = QString(":/img/cutter_plain.svg");
 
     /* Colors */
     // GUI
@@ -151,11 +154,12 @@ void Configuration::loadBaseThemeNative()
     setColor("gui.item_invalid", QColor(155, 155, 155));
     setColor("gui.item_unsafe", QColor(255, 129, 123));
 }
-void Configuration::loadNativeTheme(bool dark)
+
+void Configuration::loadNativeTheme()
 {
     loadBaseThemeNative();
 
-    if(dark)
+    if(windowColorIsDark())
     {
         setColor("gui.border",  QColor(0, 0, 0));
         setColor("gui.background", QColor(30, 30, 30));
@@ -197,9 +201,6 @@ void Configuration::loadBaseThemeDark()
         qApp->setStyleSheet(stylesheet);
     }
 
-    /* Images */
-    logoFile = QString(":/img/cutter_white_plain.svg");
-
     /* Colors */
     // GUI
     setColor("gui.cflow",   QColor(255, 255, 255));
@@ -235,7 +236,6 @@ void Configuration::loadDarkTheme()
     // Disassembly line selected
     setColor("highlight", QColor(21, 29, 29, 150));
     setColor("highlightWord", QColor(52, 58, 71, 255));
-
 }
 
 const QFont Configuration::getFont() const
@@ -265,7 +265,7 @@ void Configuration::setTheme(int theme)
     s.setValue("ColorPalette", theme);
     QString themeName = kCutterQtThemesList[theme].name;
 
-    if (themeName == "Default") {
+    if (themeName == "Native") {
         loadNativeTheme();
     } else if (themeName == "Dark") {
         loadDarkTheme();
@@ -279,7 +279,9 @@ void Configuration::setTheme(int theme)
 
 QString Configuration::getLogoFile()
 {
-    return logoFile;
+    return windowColorIsDark()
+        ? QString(":/img/cutter_white_plain.svg")
+        : QString(":/img/cutter_plain.svg");
 }
 
 /*!

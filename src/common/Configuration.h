@@ -30,14 +30,12 @@ private:
     void loadInitial();
 
     // Colors
+    bool windowColorIsDark();
     void loadBaseThemeNative();
     void loadBaseThemeDark();
-    void loadNativeTheme(bool dark = false);
+    void loadNativeTheme();
     void loadDarkTheme();
     void setColor(const QString &name, const QColor &color);
-
-    // Images
-    QString logoFile;
 
     // Asm Options
     void applySavedAsmOptions();
