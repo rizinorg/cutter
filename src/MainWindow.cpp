@@ -79,7 +79,7 @@
 #include "widgets/JupyterWidget.h"
 #include "widgets/HeadersWidget.h"
 #include "widgets/ZignaturesWidget.h"
-#include "widgets/DebugToolbar.h"
+#include "widgets/DebugActions.h"
 #include "widgets/MemoryMapWidget.h"
 #include "widgets/BreakpointWidget.h"
 #include "widgets/RegisterRefsWidget.h"
@@ -117,18 +117,17 @@ void MainWindow::initUI()
     spacer3->setMaximumWidth(100);
     ui->mainToolBar->addWidget(spacer3);
 
-    DebugToolbar *debugToolbar = new DebugToolbar(this);
-    ui->mainToolBar->addWidget(debugToolbar);
+    DebugActions *debugActions = new DebugActions(ui->mainToolBar, this);
     // Debug menu
-    ui->menuDebug->addAction(debugToolbar->actionStartEmul);
+    ui->menuDebug->addAction(debugActions->actionStartEmul);
     ui->menuDebug->addSeparator();
-    ui->menuDebug->addAction(debugToolbar->actionStep);
-    ui->menuDebug->addAction(debugToolbar->actionStepOver);
-    ui->menuDebug->addAction(debugToolbar->actionStepOut);
+    ui->menuDebug->addAction(debugActions->actionStep);
+    ui->menuDebug->addAction(debugActions->actionStepOver);
+    ui->menuDebug->addAction(debugActions->actionStepOut);
     ui->menuDebug->addSeparator();
-    ui->menuDebug->addAction(debugToolbar->actionContinue);
-    ui->menuDebug->addAction(debugToolbar->actionContinueUntilCall);
-    ui->menuDebug->addAction(debugToolbar->actionContinueUntilSyscall);
+    ui->menuDebug->addAction(debugActions->actionContinue);
+    ui->menuDebug->addAction(debugActions->actionContinueUntilCall);
+    ui->menuDebug->addAction(debugActions->actionContinueUntilSyscall);
 
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer4 = new QWidget();
