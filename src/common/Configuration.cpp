@@ -9,7 +9,7 @@
 #include "common/ColorSchemeFileSaver.h"
 
 const QList<CutterQtTheme> kCutterQtThemesList = {
-    { "Default", LightFlag },
+    { "Default", static_cast<ColorFlags>(LightFlag | DarkFlag) },
     { "Dark",    DarkFlag }
 };
 
@@ -125,7 +125,7 @@ void Configuration::setLocale(const QLocale &l)
     s.setValue("locale", l);
 }
 
-void Configuration::loadDefaultTheme()
+void Configuration::loadBaseThemeNative()
 {
     /* Load Qt Theme */
     qApp->setStyleSheet("");
@@ -137,16 +137,8 @@ void Configuration::loadDefaultTheme()
     // GUI
     setColor("gui.cflow",   QColor(0, 0, 0));
     setColor("gui.dataoffset", QColor(0, 0, 0));
-    setColor("gui.border",  QColor(0, 0, 0));
-    setColor("highlight",   QColor(210, 210, 255, 150));
-    setColor("highlightWord", QColor(179, 119, 214, 60));
     // RIP line selection in debug
     setColor("highlightPC", QColor(214, 255, 210));
-    // Windows background
-    setColor("gui.background", QColor(255, 255, 255));
-    setColor("gui.disass_selected", QColor(255, 255, 255));
-    // Disassembly nodes background
-    setColor("gui.alt_background", QColor(245, 250, 255));
     // Custom
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
@@ -159,8 +151,31 @@ void Configuration::loadDefaultTheme()
     setColor("gui.item_invalid", QColor(155, 155, 155));
     setColor("gui.item_unsafe", QColor(255, 129, 123));
 }
+void Configuration::loadNativeTheme(bool dark)
+{
+    loadBaseThemeNative();
 
-void Configuration::loadBaseDark()
+    if(dark)
+    {
+        setColor("gui.border",  QColor(0, 0, 0));
+        setColor("gui.background", QColor(30, 30, 30));
+        setColor("gui.alt_background", QColor(42, 42, 42));
+        setColor("gui.disass_selected", QColor(35, 35, 35));
+        setColor("highlight",   QColor(255, 255, 255, 15));
+        setColor("highlightWord", QColor(20, 20, 20, 255));
+    }
+    else
+    {
+        setColor("gui.border",  QColor(0, 0, 0));
+        setColor("gui.background", QColor(255, 255, 255));
+        setColor("gui.alt_background", QColor(245, 250, 255));
+        setColor("gui.disass_selected", QColor(255, 255, 255));
+        setColor("highlight",   QColor(210, 210, 255, 150));
+        setColor("highlightWord", QColor(179, 119, 214, 60));
+    }
+}
+
+void Configuration::loadBaseThemeDark()
 {
     /* Load Qt Theme */
     QFile f(":qdarkstyle/style.qss");
@@ -209,7 +224,7 @@ void Configuration::loadBaseDark()
 
 void Configuration::loadDarkTheme()
 {
-    loadBaseDark();
+    loadBaseThemeDark();
     setColor("gui.border",  QColor(100, 100, 100));
     // Windows background
     setColor("gui.background", QColor(37, 40, 43));
@@ -251,11 +266,11 @@ void Configuration::setTheme(int theme)
     QString themeName = kCutterQtThemesList[theme].name;
 
     if (themeName == "Default") {
-        loadDefaultTheme();
+        loadNativeTheme();
     } else if (themeName == "Dark") {
         loadDarkTheme();
     } else {
-        loadDefaultTheme();
+        loadNativeTheme();
     }
 
     emit colorsUpdated();

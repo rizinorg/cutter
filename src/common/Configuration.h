@@ -30,8 +30,9 @@ private:
     void loadInitial();
 
     // Colors
-    void loadBaseDark();
-    void loadDefaultTheme();
+    void loadBaseThemeNative();
+    void loadBaseThemeDark();
+    void loadNativeTheme(bool dark = false);
     void loadDarkTheme();
     void setColor(const QString &name, const QColor &color);
 
