@@ -206,7 +206,7 @@ SOURCES += \
     common/CommandTask.cpp \
     common/ProgressIndicator.cpp \
     common/R2Task.cpp \
-    widgets/DebugToolbar.cpp \
+    widgets/DebugActions.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
     widgets/BreakpointWidget.cpp \
@@ -309,7 +309,7 @@ HEADERS  += \
     common/ProgressIndicator.h \
     plugins/CutterPlugin.h \
     common/R2Task.h \
-    widgets/DebugToolbar.h \
+    widgets/DebugActions.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
     widgets/BreakpointWidget.h \

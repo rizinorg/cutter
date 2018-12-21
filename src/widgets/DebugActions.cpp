@@ -1,4 +1,4 @@
-#include "DebugToolbar.h"
+#include "DebugActions.h"
 #include "MainWindow.h"
 #include "dialogs/AttachProcDialog.h"
 
@@ -7,13 +7,14 @@
 #include <QMenu>
 #include <QList>
 #include <QFileInfo>
+#include <QToolBar>
 
-DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
-    QToolBar(parent),
+DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
+    QObject(main),
     main(main)
 {
-    setObjectName("debugToolbar");
-    setIconSize(QSize(16, 16));
+    setObjectName("DebugActions");
+    // setIconSize(QSize(16, 16));
 
     // define icons
     QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
@@ -46,21 +47,21 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     QString stepOutLabel = tr("Step out");
 
     // define actions
-    actionStart = new QAction(startDebugIcon, startDebugLabel, parent);
+    actionStart = new QAction(startDebugIcon, startDebugLabel, this);
     actionStart->setShortcut(QKeySequence(Qt::Key_F9));
-    actionStartEmul = new QAction(startEmulIcon, startEmulLabel, parent);
-    actionAttach = new QAction(startAttachIcon, startAttachLabel, parent);
-    actionStop = new QAction(stopIcon, stopDebugLabel, parent);
-    actionContinue = new QAction(continueIcon, continueLabel, parent);
+    actionStartEmul = new QAction(startEmulIcon, startEmulLabel, this);
+    actionAttach = new QAction(startAttachIcon, startAttachLabel, this);
+    actionStop = new QAction(stopIcon, stopDebugLabel, this);
+    actionContinue = new QAction(continueIcon, continueLabel, this);
     actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
-    actionContinueUntilMain = new QAction(continueUntilMainIcon, continueUMLabel, parent);
-    actionContinueUntilCall = new QAction(continueUntilCallIcon, continueUCLabel, parent);
-    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, continueUSLabel, parent);
-    actionStep = new QAction(stepIcon, stepLabel, parent);
+    actionContinueUntilMain = new QAction(continueUntilMainIcon, continueUMLabel, this);
+    actionContinueUntilCall = new QAction(continueUntilCallIcon, continueUCLabel, this);
+    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, continueUSLabel, this);
+    actionStep = new QAction(stepIcon, stepLabel, this);
     actionStep->setShortcut(QKeySequence(Qt::Key_F7));
-    actionStepOver = new QAction(stepOverIcon, stepOverLabel, parent);
+    actionStepOver = new QAction(stepOverIcon, stepOverLabel, this);
     actionStepOver->setShortcut(QKeySequence(Qt::Key_F8));
-    actionStepOut = new QAction(stepOutIcon, stepOutLabel, parent);
+    actionStepOut = new QAction(stepOutIcon, stepOutLabel, this);
     actionStepOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F8));
 
     QToolButton *startButton = new QToolButton;
@@ -88,13 +89,13 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     continueUntilButton->setDefaultAction(actionContinueUntilMain);
 
     // define toolbar widgets and actions
-    addWidget(startButton);
-    addAction(actionContinue);
-    addAction(actionStop);
-    actionAllContinues = addWidget(continueUntilButton);
-    addAction(actionStep);
-    addAction(actionStepOver);
-    addAction(actionStepOut);
+    toolBar->addWidget(startButton);
+    toolBar->addAction(actionContinue);
+    toolBar->addAction(actionStop);
+    actionAllContinues = toolBar->addWidget(continueUntilButton);
+    toolBar->addAction(actionStep);
+    toolBar->addAction(actionStepOver);
+    toolBar->addAction(actionStepOut);
 
     allActions = {actionStop, actionAllContinues, actionContinue, actionContinueUntilCall, actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut, actionStepOver};
     // hide allactions
@@ -131,7 +132,7 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
         Core()->startDebug();
     });
 
-    connect(actionAttach, &QAction::triggered, this, &DebugToolbar::attachProcessDialog);
+    connect(actionAttach, &QAction::triggered, this, &DebugActions::attachProcessDialog);
     connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
     connect(actionStartEmul, &QAction::triggered, [ = ]() {
         setAllActionsVisible(true);
@@ -147,19 +148,19 @@ DebugToolbar::DebugToolbar(MainWindow *main, QWidget *parent) :
     connect(actionStepOver, &QAction::triggered, Core(), &CutterCore::stepOverDebug);
     connect(actionStepOut, &QAction::triggered, Core(), &CutterCore::stepOutDebug);
     connect(actionContinue, &QAction::triggered, Core(), &CutterCore::continueDebug);
-    connect(actionContinueUntilMain, &QAction::triggered, this, &DebugToolbar::continueUntilMain);
+    connect(actionContinueUntilMain, &QAction::triggered, this, &DebugActions::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
     connect(actionContinueUntilSyscall, &QAction::triggered, Core(), &CutterCore::continueUntilSyscall);
 }
 
-void DebugToolbar::continueUntilMain()
+void DebugActions::continueUntilMain()
 {
     Core()->continueUntilDebug("main");
 }
 
-void DebugToolbar::attachProcessDialog()
+void DebugActions::attachProcessDialog()
 {
-    AttachProcDialog *dialog = new AttachProcDialog(this);
+    AttachProcDialog *dialog = new AttachProcDialog(main);
     bool success = false;
     while (!success) {
         success = true;
@@ -178,7 +179,7 @@ void DebugToolbar::attachProcessDialog()
     delete dialog;
 }
 
-void DebugToolbar::attachProcess(int pid)
+void DebugActions::attachProcess(int pid)
 {
     QString stopAttachLabel = tr("Detach from process");
     // hide unwanted buttons
@@ -190,7 +191,7 @@ void DebugToolbar::attachProcess(int pid)
     Core()->attachDebug(pid);
 }
 
-void DebugToolbar::setAllActionsVisible(bool visible)
+void DebugActions::setAllActionsVisible(bool visible)
 {
     for (QAction *action : allActions) {
         action->setVisible(visible);

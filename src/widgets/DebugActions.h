@@ -1,16 +1,19 @@
 #pragma once
 
-#include <QToolBar>
 #include "Cutter.h"
 
 class MainWindow;
+class QToolBar;
 
-class DebugToolbar : public QToolBar
+class DebugActions : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit DebugToolbar(MainWindow *main, QWidget *parent = nullptr);
+    explicit DebugActions(QToolBar *toolBar, MainWindow *main);
+
+    void addToToolBar(QToolBar *toolBar);
+
     QAction *actionStart;
     QAction *actionStartEmul;
     QAction *actionAttach;
