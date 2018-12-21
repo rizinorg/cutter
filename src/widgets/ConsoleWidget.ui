@@ -109,36 +109,20 @@
          <string>Execute command</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">
-QToolButton { /* all types of tool button */
-    margin-bottom: 1px;
-    margin-top: 1px;
-    padding-left: 8px;
-    padding-right: 5px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-  background-color: palette(light);
-    border-radius: 6px;
-    border-top: 2px solid palette(light);
-    border-bottom: 2px solid palette(light);
-    border-left: 2px solid palette(light);
-    border-right: 2px solid palette(light);
-}
-
-QToolButton:pressed {
-  background-color: palette(dark);
-    border-top: 2px solid palette(dark);
-    border-bottom: 2px solid palette(dark);
-    border-left: 2px solid palette(dark);
-    border-right: 2px solid palette(dark);
-}</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>...</string>
         </property>
         <property name="icon">
          <iconset resource="../resources.qrc">
-          <normaloff>:/img/icons/play.svg</normaloff>:/img/icons/play.svg</iconset>
+          <normaloff>:/img/icons/arrow_right_light.svg</normaloff>:/img/icons/arrow_right_light.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>16</height>
+         </size>
         </property>
        </widget>
       </item>

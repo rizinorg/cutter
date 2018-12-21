@@ -78,9 +78,6 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     // Adjust console lineedit
     ui->inputLineEdit->setTextMargins(10, 0, 0, 0);
 
-    ui->execButton->setIcon(QIcon(new SvgIconEngine(QString(":/img/icons/arrow_right.svg"),
-                                                    palette().buttonText().color())));
-
     setupFont();
 
     // Adjust text margins of consoleOutputTextEdit
