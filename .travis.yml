@@ -16,8 +16,10 @@ matrix:
   - os: linux
     env: BUILD_SYSTEM=cmake
   - os: osx
+    osx_image: xcode10.1
     env: BUILD_SYSTEM=qmake DEPLOY=1
   - os: osx
+    osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
 
 sudo: required
