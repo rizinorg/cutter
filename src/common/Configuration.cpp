@@ -127,7 +127,15 @@ void Configuration::setLocale(const QLocale &l)
 
 bool Configuration::windowColorIsDark()
 {
-    auto windowColor = QPalette().color(QPalette::Window).toRgb();
+    ColorFlags currentThemeColorFlags = getCurrentTheme()->flag;
+    if (currentThemeColorFlags == ColorFlags::LightFlag) {
+        return false;
+    } else if (currentThemeColorFlags == ColorFlags::DarkFlag) {
+        return true;
+    }
+
+    const QPalette &palette = qApp->palette();
+    auto windowColor = palette.color(QPalette::Window).toRgb();
     return (windowColor.red() + windowColor.green() + windowColor.blue()) < 382;
 }
 
@@ -276,6 +284,15 @@ void Configuration::setTheme(int theme)
     emit colorsUpdated();
 }
 
+const CutterQtTheme *Configuration::getCurrentTheme()
+{
+    int i = getTheme();
+    if (i < 0 || i >= kCutterQtThemesList.size()) {
+        i = 0;
+        setTheme(i);
+    }
+    return &kCutterQtThemesList[i];
+}
 
 QString Configuration::getLogoFile()
 {

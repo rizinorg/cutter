@@ -65,6 +65,8 @@ public:
         return s.value("ColorPalette", 0).toInt();
     }
 
+    const CutterQtTheme *getCurrentTheme();
+
     QString getDirProjects();
     void setDirProjects(const QString &dir);
 
