@@ -164,8 +164,13 @@ void DisassemblerGraphView::loadCurrentGraph()
     .set("asm.bbline", false)
     .set("asm.lines", false)
     .set("asm.lines.fcn", false);
-    QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(seekable->getOffset()));
-    QJsonArray functions = functionsDoc.array();
+
+    QJsonArray functions;
+    RAnalFunction *fcn = Core()->functionAt(seekable->getOffset());
+    if (fcn) {
+        QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(fcn->addr));
+        functions = functionsDoc.array();
+    }
 
     disassembly_blocks.clear();
     blocks.clear();
