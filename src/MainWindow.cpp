@@ -68,7 +68,6 @@
 #include "widgets/FlagsWidget.h"
 #include "widgets/VisualNavbar.h"
 #include "widgets/Dashboard.h"
-#include "widgets/Sidebar.h"
 #include "widgets/SdbDock.h"
 #include "widgets/Omnibar.h"
 #include "widgets/ConsoleWidget.h"
@@ -177,7 +176,6 @@ void MainWindow::initUI()
     dockWidgets.reserve(20);
 
     disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
-    sidebarDock = new SidebarWidget(this, ui->actionSidebar);
     hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
     pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
@@ -551,9 +549,8 @@ void MainWindow::restoreDocks()
     // In the upper half the functions are the first widget
     addDockWidget(Qt::TopDockWidgetArea, functionsDock);
 
-    // Function | Dashboard | Sidebar
+    // Function | Dashboard
     splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
-    splitDockWidget(dashboardDock, sidebarDock, Qt::Horizontal);
 
     // In the lower half the console is the first widget
     addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
@@ -585,7 +582,6 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, vTablesDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
-    splitDockWidget(sidebarDock, stackDock, Qt::Horizontal);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
     // MemoryMap/Breakpoint/RegRefs widget goes in the center tabs

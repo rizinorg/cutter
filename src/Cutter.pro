@@ -156,12 +156,10 @@ SOURCES += \
     widgets/SdbDock.cpp \
     widgets/SectionsWidget.cpp \
     widgets/SegmentsWidget.cpp \
-    widgets/Sidebar.cpp \
     widgets/StringsWidget.cpp \
     widgets/SymbolsWidget.cpp \
     menus/DisassemblyContextMenu.cpp \
     widgets/DisassemblyWidget.cpp \
-    widgets/SidebarWidget.cpp \
     widgets/HexdumpWidget.cpp \
     common/Configuration.cpp \
     common/Colors.cpp \
@@ -256,12 +254,10 @@ HEADERS  += \
     widgets/SdbDock.h \
     widgets/SectionsWidget.h \
     widgets/SegmentsWidget.h \
-    widgets/Sidebar.h \
     widgets/StringsWidget.h \
     widgets/SymbolsWidget.h \
     menus/DisassemblyContextMenu.h \
     widgets/DisassemblyWidget.h \
-    widgets/SidebarWidget.h \
     widgets/HexdumpWidget.h \
     common/Configuration.h \
     common/Colors.h \
@@ -348,10 +344,8 @@ FORMS    += \
     widgets/ImportsWidget.ui \
     widgets/SdbDock.ui \
     widgets/RelocsWidget.ui \
-    widgets/Sidebar.ui \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
-    widgets/SidebarWidget.ui \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \

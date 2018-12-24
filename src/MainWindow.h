@@ -5,7 +5,6 @@
 
 #include "Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
-#include "widgets/SidebarWidget.h"
 #include "widgets/StackWidget.h"
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
@@ -196,7 +195,6 @@ private:
     QList<QDockWidget *> dockWidgets;
     QMap<QAction *, QDockWidget *> dockWidgetActions;
     DisassemblyWidget  *disassemblyDock = nullptr;
-    SidebarWidget      *sidebarDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
     QDockWidget        *graphDock = nullptr;

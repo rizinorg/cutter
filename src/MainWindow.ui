@@ -197,7 +197,6 @@ QToolTip {
     <addaction name="actionHexdump"/>
     <addaction name="actionPseudocode"/>
     <addaction name="actionFunctions"/>
-    <addaction name="actionSidebar"/>
     <addaction name="separator"/>
     <addaction name="actionStrings"/>
     <addaction name="actionSearch"/>
@@ -948,14 +947,6 @@ QToolTip {
    </property>
    <property name="text">
     <string>Hexdump</string>
-   </property>
-  </action>
-  <action name="actionSidebar">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Sidebar</string>
    </property>
   </action>
   <action name="actionConsole">
