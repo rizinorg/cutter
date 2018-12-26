@@ -37,7 +37,7 @@ install:
   - cmd: python -m pip install meson==0.48.2
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
   # Artifacts
-  - cmd: set "ARTIFACT_NAME=Cutter_win_%ARCH%"
+  - cmd: set "ARTIFACT_NAME=Cutter-v1.7.3-%ARCH%.Windows"
   - cmd: if not %APPVEYOR_REPO_TAG% equ true ( echo "This is not tagged as release, will deploy nightly..." )
   - cmd: if not %APPVEYOR_REPO_TAG% equ true ( set "ARTIFACT_NAME=%ARTIFACT_NAME%-nightly" && set "DEPLOY_RELEASE=nightly" ) else ( set "DEPLOY_RELEASE=%APPVEYOR_REPO_TAG_NAME%" )
   - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )

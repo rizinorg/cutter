@@ -46,7 +46,9 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_python_linux.sh    ; fi
 
 before_script:
+  - echo "Using tag: '$TRAVIS_TAG'"
   - if [[ "$TRAVIS_TAG" == "" ]]; then export TAGNAME="nightly" && export NIGHTLY="-nightly" ; else export TAGNAME="$TRAVIS_TAG" && export NIGHTLY="" ; fi
+  - echo "TAGNAME: '$TAGNAME', NIGHTLY: '$NIGHTLY'"
   - git submodule init ; git submodule update
   - cd radare2
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
