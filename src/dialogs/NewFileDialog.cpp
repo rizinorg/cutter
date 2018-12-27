@@ -318,7 +318,7 @@ bool NewFileDialog::fillProjectsList()
 void NewFileDialog::fillIOPluginsList()
 {
     ui->ioPlugin->clear();
-    ui->ioPlugin->addItem("");
+    ui->ioPlugin->addItem("file");
     ui->ioPlugin->setItemData(0, tr("Open a file with no extra treatment."), Qt::ToolTipRole);
 
     int index = 1;
