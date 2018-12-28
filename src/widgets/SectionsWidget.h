@@ -19,6 +19,8 @@ class QAbstractItemView;
 class MainWindow;
 class SectionsWidget;
 class AbstractAddrDock;
+class AddrDockScene;
+class QGraphicsSceneMouseEvent;
 class RawAddrDock;
 class VirtualAddrDock;
 class QuickFilterView;
@@ -105,9 +107,6 @@ public:
 
     virtual void updateDock();
 
-protected slots:
-    void addTextItem(QColor color, QPoint pos, QString string);
-
 protected:
     int indicatorWidth;
     int indicatorHeight;
@@ -117,14 +116,40 @@ protected:
     int rectWidth;
     QColor indicatorColor;
     QColor textColor;
-    QGraphicsScene *graphicsScene;
+    AddrDockScene *addrDockScene;
     QGraphicsView *graphicsView;
     SectionsProxyModel *proxyModel;
-    QHash<QString, int> namePosYMap;
-    QHash<QString, int> nameHeightMap;
+
+    void addTextItem(QColor color, QPoint pos, QString string);
 
 private:
     void drawIndicator(QString name, float ratio);
+};
+
+class AddrDockScene : public QGraphicsScene
+{
+    Q_OBJECT
+
+public:
+    explicit AddrDockScene(QWidget *parent = nullptr);
+    ~AddrDockScene();
+
+    bool disableMouseEvent;
+
+    QHash<QString, RVA> nameAddrMap;
+    QHash<QString, int> nameAddrSizeMap;
+    QHash<QString, RVA> seekAddrMap;
+    QHash<QString, int> seekAddrSizeMap;
+    QHash<QString, int> namePosYMap;
+    QHash<QString, int> nameHeightMap;
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
+
+private:
+    RVA posToAddr(int posY);
+    RVA posToSeekAddr(int posY);
 };
 
 class RawAddrDock : public AbstractAddrDock
