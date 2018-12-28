@@ -357,9 +357,9 @@ void AbstractAddrDock::drawIndicator(QString name, float ratio)
     indicator->setBrush(QBrush(color));
     addrDockScene->addItem(indicator);
 
-    addrDockScene->disableMouseEvent = true;
-    graphicsView->centerOn(indicator);
-    addrDockScene->disableMouseEvent = false;
+    if (!addrDockScene->disableCenterOn) {
+        graphicsView->centerOn(indicator);
+    }
 
     addTextItem(color, QPoint(rectOffset + rectWidth, y - indicatorParamPosY), name);
     addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
@@ -368,19 +368,21 @@ void AbstractAddrDock::drawIndicator(QString name, float ratio)
 AddrDockScene::AddrDockScene(QWidget *parent) :
     QGraphicsScene(parent)
 {
-    disableMouseEvent = false;
+    disableCenterOn = false;
 }
 
 AddrDockScene::~AddrDockScene() {}
 
 void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-    RVA addr = posToAddr((int)event->scenePos().y());
+    RVA addr = getAddrFromPos((int)event->scenePos().y(), false);
     if (addr != RVA_INVALID) {
         QToolTip::showText(event->screenPos(), RAddressString(addr));
         if (event->buttons() & Qt::LeftButton) {
-            RVA seekAddr = posToSeekAddr((int)event->scenePos().y());
+            RVA seekAddr = getAddrFromPos((int)event->scenePos().y(), true);
+            disableCenterOn = true;
             Core()->seek(seekAddr);
+            disableCenterOn = false;
             return;
         }
     }
@@ -388,41 +390,23 @@ void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void AddrDockScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    if (!disableMouseEvent) {
-        mousePressEvent(event);
-    }
+    mousePressEvent(event);
 }
 
-RVA AddrDockScene::posToAddr(int posY)
+RVA AddrDockScene::getAddrFromPos(int posY, bool seek)
 {
     QHash<QString, int>::const_iterator i = namePosYMap.constBegin();
+    QHash<QString, RVA> addrMap = seek ? seekAddrMap : nameAddrMap;
+    QHash<QString, int> addrSizeMap = seek ? seekAddrSizeMap : nameAddrSizeMap;
     while (i != namePosYMap.constEnd()) {
         QString name = i.key();
         int y = i.value();
         int h = nameHeightMap[name];
         if (posY >= y && y + h >= posY) {
             if (h == 0) {
-                return nameAddrMap[name];
+                return addrMap[name];
             }
-            return nameAddrMap[name] + (float)nameAddrSizeMap[name] * ((float)(posY - y) / (float)h);
-        }
-        i++;
-    }
-    return 0;
-}
-
-RVA AddrDockScene::posToSeekAddr(int posY)
-{
-    QHash<QString, int>::const_iterator i = namePosYMap.constBegin();
-    while (i != namePosYMap.constEnd()) {
-        QString name = i.key();
-        int y = i.value();
-        int h = nameHeightMap[name];
-        if (posY >= y && y + h >= posY) {
-            if (h == 0) {
-                return seekAddrMap[name];
-            }
-            return seekAddrMap[name] + (float)seekAddrSizeMap[name] * ((float)(posY - y) / (float)h);
+            return addrMap[name] + (float)addrSizeMap[name] * ((float)(posY - y) / (float)h);
         }
         i++;
     }

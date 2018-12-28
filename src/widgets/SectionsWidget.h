@@ -134,7 +134,7 @@ public:
     explicit AddrDockScene(QWidget *parent = nullptr);
     ~AddrDockScene();
 
-    bool disableMouseEvent;
+    bool disableCenterOn;
 
     QHash<QString, RVA> nameAddrMap;
     QHash<QString, int> nameAddrSizeMap;
@@ -148,8 +148,7 @@ protected:
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
-    RVA posToAddr(int posY);
-    RVA posToSeekAddr(int posY);
+    RVA getAddrFromPos(int posY, bool seek);
 };
 
 class RawAddrDock : public AbstractAddrDock
