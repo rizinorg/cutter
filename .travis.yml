@@ -46,9 +46,6 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_python_linux.sh    ; fi
 
 before_script:
-  - echo "Using tag $TRAVIS_TAG"
-  - if [[ "$TRAVIS_TAG" == "" ]]; then export TAGNAME="nightly" && export NIGHTLY="-nightly" ; else export TAGNAME="$TRAVIS_TAG" && export NIGHTLY="" ; fi
-  - echo "TAGNAME $TAGNAME NIGHTLY $NIGHTLY"
   - git submodule init ; git submodule update
   - cd radare2
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
@@ -87,7 +84,7 @@ after_success:
       mkdir image && cp -a Cutter.app image/ &&
       export VOL_NAME="Cutter v${CUTTER_VERSION}" &&
       export DMG_TMP_FILE="Cutter-v$CUTTER_VERSION-x64.macOS-tmp.dmg" &&
-      export DMG_FILE="Cutter-v$CUTTER_VERSION-x64$NIGHTLY.macOS.dmg" &&
+      export DMG_FILE="Cutter-v$CUTTER_VERSION-x64.macOS.dmg" &&
       export SIZE=`du -sh "image" | sed 's/\([0-9\.]*\)M\(.*\)/\1/'` &&
       export SIZE=`echo "${SIZE} + 10.0" | bc | awk '{print int($1+0.5)}'` &&
       hdiutil create -srcfolder image -volname "${VOL_NAME}" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size ${SIZE}M "$DMG_TMP_FILE" &&
@@ -108,7 +105,7 @@ after_success:
       LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
       LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
       find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
-      export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x64$NIGHTLY.Linux.AppImage" &&
+      export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x64.Linux.AppImage" &&
       mv Cutter-x86_64.AppImage "$APPIMAGE_FILE" &&
       export FILE_TO_UPLOAD="$APPIMAGE_FILE"
     ; fi
@@ -118,11 +115,12 @@ deploy:
   provider: releases
   draft: false
   prerelease: true
-  tag_name: $TAGNAME
+  tag_name: $TRAVIS_TAG
   api_key:
     secure: ZXuSX8JXyL0HlJvSIda3ftMkvYsrxoWDcWm2LxO+f0uNFghCHNnISuH/btdipn2mjCBaBQl6/1IK5cg/AZ5OSkiaVsJJqY8kkPsZvR8K+k4oarsr2ApetlLZiZWtydC3J+UyNhsgCt4iuYPsvusANFPZBpVmqT+A5CHS7aPIqP00awbkJYG1uOENe2XVZ0vyotBqU0E7A9f8UO5ps0+qysS8W+NDB+CGLgKLeBfCk3U+IYKGYXcv66xCmSSZ5f7IVIXEjG4voFHGp9XLRY2R/iJgiKQKDbu519vUB3iKPzmLTB/Q9bNz4VMZCREa4SHaLDen730fMHbfm6ZhGZDzXg1DgZoh6RHptWf0WjcHTr1ch8ajpnBMxh/qmoRpaS00FJQMraMT3Il38ekYd+hOhsP58Bj1Db2vjBKopGEHGmVyFQZKuynrdKmpmY+kRNUT3QerIsiAHwHV2QXnMARHYXJrM0T7LNACa2mhiwQD2vNIqLRieIbHbSWgDUrTVTDeII23AAHCzD0YxcCAjSExjun/rc9dJjevgCoBpTM/NHPLCW4big1myx+vRQGPNdlf+dI7igm6bPVWB7znp5uXlI8q5irvqTVtRSvKbcaeDWOz/ki7QgOzaxmGFtaw30hxeY0wFlnSMXc8m42udWLkp/l0b4L0hcoaMTc1TvVU0i4=
   file:
     - "${FILE_TO_UPLOAD}"
   on:
+    tags: true
     condition: $DEPLOY = 1
 

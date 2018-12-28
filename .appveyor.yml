@@ -38,8 +38,6 @@ install:
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
   # Artifacts
   - cmd: set "ARTIFACT_NAME=Cutter-v1.7.3-%ARCH%.Windows"
-  - cmd: if not %APPVEYOR_REPO_TAG% equ true ( echo "This is not tagged as release, will deploy nightly..." )
-  - cmd: if not %APPVEYOR_REPO_TAG% equ true ( set "ARTIFACT_NAME=%ARTIFACT_NAME%-nightly" && set "DEPLOY_RELEASE=nightly" ) else ( set "DEPLOY_RELEASE=%APPVEYOR_REPO_TAG_NAME%" )
   - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )
 
 before_build:
@@ -81,18 +79,20 @@ artifacts:
 deploy:
   description: 'Cutter binaries'
   provider: GitHub
-  release: "%DEPLOY_RELEASE%"
   auth_token:
     secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
   artifact: "%ARTIFACT_NAME%"
   draft: false
   prerelease: true
-  force_update: true
   on:
     appveyor_repo_tag: true
     DEPLOY: true
 
 for:
-  - branches:
+  -
+    branches:
       only:
         - master
+  -
+    skip_non_tags: true
+
