@@ -2,6 +2,8 @@
 #include <QGraphicsView>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QGraphicsSceneMouseEvent>
+#include <QToolTip>
 
 #include "common/Configuration.h"
 #include "SectionsWidget.h"
@@ -304,10 +306,10 @@ void SectionsWidget::updateToggle()
 
 AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     QDockWidget(parent),
-    graphicsScene(new QGraphicsScene),
+    addrDockScene(new AddrDockScene),
     graphicsView(new QGraphicsView)
 {
-    graphicsView->setScene(graphicsScene);
+    graphicsView->setScene(addrDockScene);
     setWidget(graphicsView);
     setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     proxyModel = new SectionsProxyModel(model, this);
@@ -328,10 +330,10 @@ AbstractAddrDock::~AbstractAddrDock() {}
 
 void AbstractAddrDock::updateDock()
 {
-    graphicsScene->clear();
+    addrDockScene->clear();
 
     const QBrush bg = QBrush(ConfigColor("gui.background"));
-    graphicsScene->setBackgroundBrush(bg);
+    addrDockScene->setBackgroundBrush(bg);
 
     textColor = ConfigColor("gui.dataoffset");
 }
@@ -342,22 +344,73 @@ void AbstractAddrDock::addTextItem(QColor color, QPoint pos, QString string)
     text->setDefaultTextColor(color);
     text->setPos(pos);
     text->setPlainText(string);
-    graphicsScene->addItem(text);
+    addrDockScene->addItem(text);
 }
 
 void AbstractAddrDock::drawIndicator(QString name, float ratio)
 {
     RVA offset = Core()->getOffset();
-    float padding = nameHeightMap[name] * ratio;
-    int y = namePosYMap[name] + (int)padding;
+    float padding = addrDockScene->nameHeightMap[name] * ratio;
+    int y = addrDockScene->namePosYMap[name] + (int)padding;
     QColor color = indicatorColor;
     QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, indicatorWidth, indicatorHeight));
     indicator->setBrush(QBrush(color));
-    graphicsScene->addItem(indicator);
-    graphicsView->centerOn(indicator);
+    addrDockScene->addItem(indicator);
+
+    if (!addrDockScene->disableCenterOn) {
+        graphicsView->centerOn(indicator);
+    }
 
     addTextItem(color, QPoint(rectOffset + rectWidth, y - indicatorParamPosY), name);
     addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
+}
+
+AddrDockScene::AddrDockScene(QWidget *parent) :
+    QGraphicsScene(parent)
+{
+    disableCenterOn = false;
+}
+
+AddrDockScene::~AddrDockScene() {}
+
+void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    RVA addr = getAddrFromPos((int)event->scenePos().y(), false);
+    if (addr != RVA_INVALID) {
+        QToolTip::showText(event->screenPos(), RAddressString(addr));
+        if (event->buttons() & Qt::LeftButton) {
+            RVA seekAddr = getAddrFromPos((int)event->scenePos().y(), true);
+            disableCenterOn = true;
+            Core()->seek(seekAddr);
+            disableCenterOn = false;
+            return;
+        }
+    }
+}
+
+void AddrDockScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    mousePressEvent(event);
+}
+
+RVA AddrDockScene::getAddrFromPos(int posY, bool seek)
+{
+    QHash<QString, int>::const_iterator i = namePosYMap.constBegin();
+    QHash<QString, RVA> addrMap = seek ? seekAddrMap : nameAddrMap;
+    QHash<QString, int> addrSizeMap = seek ? seekAddrSizeMap : nameAddrSizeMap;
+    while (i != namePosYMap.constEnd()) {
+        QString name = i.key();
+        int y = i.value();
+        int h = nameHeightMap[name];
+        if (posY >= y && y + h >= posY) {
+            if (h == 0) {
+                return addrMap[name];
+            }
+            return addrMap[name] + (float)addrSizeMap[name] * ((float)(posY - y) / (float)h);
+        }
+        i++;
+    }
+    return 0;
 }
 
 RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) :
@@ -379,9 +432,18 @@ void RawAddrDock::updateDock()
     proxyModel->sort(2, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
+        QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+
+        RVA vaddr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
+        int vsize = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+        addrDockScene->seekAddrMap[name] = vaddr;
+        addrDockScene->seekAddrSizeMap[name] = vsize;
+
         RVA addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().paddr;
         int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
-        QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+        addrDockScene->nameAddrMap[name] = addr;
+        addrDockScene->nameAddrSizeMap[name] = size;
+
         if (size < heightThreshold) {
             size = heightThreshold;
         } else {
@@ -390,14 +452,14 @@ void RawAddrDock::updateDock()
         }
         QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
-        graphicsScene->addItem(rect);
+        addrDockScene->addItem(rect);
 
         addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
         addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
         addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
 
-        namePosYMap[name] = y;
-        nameHeightMap[name] = size;
+        addrDockScene->namePosYMap[name] = y;
+        addrDockScene->nameHeightMap[name] = size;
 
         y += size;
     }
@@ -425,6 +487,12 @@ void VirtualAddrDock::updateDock()
         RVA addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
         int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
         QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+
+        addrDockScene->seekAddrMap[name] = addr;
+        addrDockScene->seekAddrSizeMap[name] = size;
+        addrDockScene->nameAddrMap[name] = addr;
+        addrDockScene->nameAddrSizeMap[name] = size;
+
         if (size < heightThreshold) {
             size = heightThreshold;
         } else {
@@ -433,14 +501,14 @@ void VirtualAddrDock::updateDock()
         }
         QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
-        graphicsScene->addItem(rect);
+        addrDockScene->addItem(rect);
 
         addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
         addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
         addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
 
-        namePosYMap[name] = y;
-        nameHeightMap[name] = size;
+        addrDockScene->namePosYMap[name] = y;
+        addrDockScene->nameHeightMap[name] = size;
 
         y += size;
     }
