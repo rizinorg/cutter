@@ -378,10 +378,6 @@ void MainWindow::openProject(const QString &project_name)
 void MainWindow::finalizeOpen()
 {
     core->getOpcodes();
-
-    // Override any incorrect setting saved in the project
-    core->setSettings();
-
     core->updateSeek();
     core->message(tr(" > Populating UI"));
     refreshAll();
