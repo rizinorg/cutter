@@ -18,6 +18,9 @@ XrefsDialog::XrefsDialog(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
+    // Modify the splitter's location to show more Disassembly instead of empty space. Not possible via Designer
+    ui->splitter->setSizes(QList<int>() << 100 << 200);
+
     // Increase asm text edit margin
     QTextDocument *asm_docu = ui->previewTextEdit->document();
     asm_docu->setDocumentMargin(10);
