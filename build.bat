@@ -17,7 +17,7 @@ RMDIR /S /Q %BUILDDIR%
 MKDIR %BUILDDIR%
 
 ECHO Prepare translations
-lrelease.exe ..\src\cutter.pro
+lrelease.exe .\src\cutter.pro
 
 RMDIR /S /Q %BUILDDIR%\translations
 MKDIR %BUILDDIR%\translations
