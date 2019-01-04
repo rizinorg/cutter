@@ -31,6 +31,9 @@ RUN git clone --recurse-submodules https://github.com/radareorg/cutter.git && \
 WORKDIR /opt/cutter
 RUN bash build.sh
 
+# Check it afterwards
+RUN bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
+
 # Add r2 user
 RUN useradd r2
 
