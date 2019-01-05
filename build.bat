@@ -17,11 +17,7 @@ RMDIR /S /Q %BUILDDIR%
 MKDIR %BUILDDIR%
 
 ECHO Prepare translations
-lrelease.exe ..\src\cutter.pro
-
-RMDIR /S /Q %BUILDDIR%\translations
-MKDIR %BUILDDIR%\translations
-FOR %%i in (src\translations\*.qm) DO MOVE "%%~fi" "%CD%\%BUILDDIR%\translations"
+FOR %%i in (src\translations\*.ts) DO lrelease %%i
 
 CD %BUILDDIR%
 
@@ -37,3 +33,4 @@ COPY release\cutter.exe cutter\cutter.exe
 XCOPY /S /I ..\%R2DIST%\radare2 cutter\radare2
 COPY ..\%R2DIST%\*.dll cutter\
 windeployqt cutter\cutter.exe
+FOR %%i in (..\src\translations\*.qm) DO MOVE "%%~fi" cutter\translations
