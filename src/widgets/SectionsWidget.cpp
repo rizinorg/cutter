@@ -320,6 +320,7 @@ AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     indicatorHeight = 5;
     indicatorParamPosY = 20;
     heightThreshold = 30;
+    heightDivisor = 1000;
     rectOffset = 100;
     rectWidth = 400;
     indicatorColor = ConfigColor("gui.navbar.err");
@@ -345,6 +346,20 @@ void AbstractAddrDock::addTextItem(QColor color, QPoint pos, QString string)
     text->setPos(pos);
     text->setPlainText(string);
     addrDockScene->addItem(text);
+}
+
+int AbstractAddrDock::getAdjustedSize(int size, int validMinSize)
+{
+    if (size == 0) {
+        return size;
+    }
+    if (size == validMinSize) {
+        return heightThreshold;
+    }
+    float r = (float)size / (float)validMinSize;
+    r /= heightDivisor;
+    r += 1;
+    return heightThreshold * r;
 }
 
 void AbstractAddrDock::drawIndicator(QString name, float ratio)
@@ -429,6 +444,7 @@ void RawAddrDock::updateDock()
     AbstractAddrDock::updateDock();
     setFeatures(QDockWidget::DockWidgetClosable);
     int y = 0;
+    int validMinSize = getValidMinSize();
     proxyModel->sort(2, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
@@ -444,12 +460,8 @@ void RawAddrDock::updateDock()
         addrDockScene->nameAddrMap[name] = addr;
         addrDockScene->nameAddrSizeMap[name] = size;
 
-        if (size < heightThreshold) {
-            size = heightThreshold;
-        } else {
-            size /= heightThreshold;
-            size = std::max(size, heightThreshold);
-        }
+        size = getAdjustedSize(size, validMinSize);
+
         QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
         addrDockScene->addItem(rect);
@@ -463,6 +475,19 @@ void RawAddrDock::updateDock()
 
         y += size;
     }
+}
+
+int RawAddrDock::getValidMinSize()
+{
+    proxyModel->sort(1, Qt::AscendingOrder);
+    for (int i = 0; i < proxyModel->rowCount(); i++) {
+        QModelIndex idx = proxyModel->index(i, 0);
+        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
+        if (size > 0) {
+            return size;
+        }
+    }
+    return 0;
 }
 
 VirtualAddrDock::VirtualAddrDock(SectionsModel *model, QWidget *parent) :
@@ -481,6 +506,7 @@ void VirtualAddrDock::updateDock()
     AbstractAddrDock::updateDock();
     setFeatures(QDockWidget::NoDockWidgetFeatures);
     int y = 0;
+    int validMinSize = getValidMinSize();
     proxyModel->sort(2, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
@@ -493,12 +519,8 @@ void VirtualAddrDock::updateDock()
         addrDockScene->nameAddrMap[name] = addr;
         addrDockScene->nameAddrSizeMap[name] = size;
 
-        if (size < heightThreshold) {
-            size = heightThreshold;
-        } else {
-            size /= heightThreshold;
-            size = std::max(size, heightThreshold);
-        }
+        size = getAdjustedSize(size, validMinSize);
+
         QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
         addrDockScene->addItem(rect);
@@ -512,4 +534,17 @@ void VirtualAddrDock::updateDock()
 
         y += size;
     }
+}
+
+int VirtualAddrDock::getValidMinSize()
+{
+    proxyModel->sort(1, Qt::AscendingOrder);
+    for (int i = 0; i < proxyModel->rowCount(); i++) {
+        QModelIndex idx = proxyModel->index(i, 0);
+        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+        if (size > 0) {
+            return size;
+        }
+    }
+    return 0;
 }

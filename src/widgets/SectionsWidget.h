@@ -111,7 +111,8 @@ protected:
     int indicatorWidth;
     int indicatorHeight;
     int indicatorParamPosY;
-    int heightThreshold;
+    float heightThreshold;
+    float heightDivisor;
     int rectOffset;
     int rectWidth;
     QColor indicatorColor;
@@ -121,6 +122,7 @@ protected:
     SectionsProxyModel *proxyModel;
 
     void addTextItem(QColor color, QPoint pos, QString string);
+    int getAdjustedSize(int size, int validMinSize);
 
 private:
     void drawIndicator(QString name, float ratio);
@@ -160,6 +162,7 @@ public:
     ~RawAddrDock();
 
     void updateDock() override;
+    int getValidMinSize();
 };
 
 class VirtualAddrDock : public AbstractAddrDock
@@ -171,6 +174,7 @@ public:
     ~VirtualAddrDock();
 
     void updateDock() override;
+    int getValidMinSize();
 };
 
 #endif // SECTIONSWIDGET_H
