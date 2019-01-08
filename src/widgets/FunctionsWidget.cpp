@@ -196,81 +196,60 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::ToolTipRole: {
-        const QJsonArray &info = Core()->cmdj("afij @ " + function.name).array();
-        if (!info.isEmpty()) {
-            const QJsonObject &funcInfo = info[0].toObject();
+        QJsonArray jDisasmEntries;
+        {
+            // temporarily simplify the disasm output to get it colorful and simple to read
+            TempConfig tempConfig;
+            tempConfig.set("scr.html", true)
+                .set("scr.color", COLOR_MODE_16M)
+                .set("asm.lines", false)
+                .set("asm.var", false)
+                .set("asm.comments", false)
+                .set("asm.bytes", false)
+                .set("asm.lines.fcn", false)
+                .set("asm.lines.out", false)
+                .set("asm.lines.bb", false)
+                .set("asm.bbline", false);
 
-            static const QStringList kRequiredFields{ "size", "cc", "nbbs" };
-            for (const auto& key : kRequiredFields) {
-                if (!funcInfo.contains(key)) {
-                    return QVariant();
-                }
-            }
-            const int size = funcInfo["size"].toInt();
-            const int complex = funcInfo["cc"].toInt();
-            const int bb = funcInfo["nbbs"].toInt();
-            QStringList disasmPreview;
-
-            QJsonArray jDisasmEntries;
-            {
-                // temporarily simplify the disasm output to get it colorful and simple to read
-                TempConfig tempConfig;
-                tempConfig.set("scr.html", true)
-                    .set("scr.color", COLOR_MODE_16M)
-                    .set("asm.lines", false)
-                    .set("asm.var", false)
-                    .set("asm.comments", false)
-                    .set("asm.bytes", false)
-                    .set("asm.lines.fcn", false)
-                    .set("asm.lines.out", false)
-                    .set("asm.lines.bb", false)
-                    .set("asm.bbline", false);
-
-                jDisasmEntries = Core()->cmdj(QString("pDJ %1 @ %2").arg(function.size).arg(function.offset)).array();
-            }
-            for (const QJsonValue &value : jDisasmEntries) {
-                const QJsonObject &object = value.toObject();
-
-                disasmPreview << object["text"].toString();
-                if (disasmPreview.length() >= kMaxTooltipDisasmPreviewLines) {
-                    disasmPreview << "...";
-                    break;
-                }
-            }
-
-            const QStringList &summary = Core()->cmd("pdsf @ " + function.name).split("\n", QString::SkipEmptyParts);
-
-            const QFont &fnt = Config()->getFont();
-            QFontMetrics fm{ fnt };
-
-            // elide long strings using current didsam font metrics
-            QStringList highlights;
-            for (const QString &s : summary) {
-                highlights << fm.elidedText(s, Qt::ElideRight, kMaxTooltipWidth);
-                if (highlights.length() > kMaxTooltipHighlightsLines) {
-                    highlights << "...";
-                    break;
-                }
-            }
-            QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
-                    .arg(fnt.family())
-                    .arg(qMax(6, fnt.pointSize() - 1)) // slightly decrease font size, to keep more text in the same box
-                + tr("<div><strong>Summary</strong>:<br>")
-                + tr("Size:&nbsp;%1,&nbsp;Cyclomatic complexity:&nbsp;%2,&nbsp;Basic blocks:&nbsp;%3")
-                    .arg(size)
-                    .arg(complex)
-                    .arg(bb)
-                + tr("</div><div style=\"margin-top: 10px;\"><strong>Disassembly preview</strong>:<br>%1</div>")
-                    .arg(disasmPreview.join("<br>"));
-
-            if (!highlights.isEmpty()) {
-                toolTipContent += tr("<div style=\"margin-top: 10px;\"><strong>Highlights</strong>:<br>%1</div>")
-                    .arg(highlights.join("\n").toHtmlEscaped().replace("\n", "<br>"));
-            }
-            toolTipContent += "</div></html>";
-            return toolTipContent;
+            jDisasmEntries = Core()->cmdj(QString("pDJ %1 @ %2").arg(function.size).arg(function.offset)).array();
         }
-        return QVariant();
+        QStringList disasmPreview;
+        for (const QJsonValue &value : jDisasmEntries) {
+            const QJsonObject &object = value.toObject();
+
+            disasmPreview << object["text"].toString();
+            if (disasmPreview.length() >= kMaxTooltipDisasmPreviewLines) {
+                disasmPreview << "...";
+                break;
+            }
+        }
+
+        const QStringList &summary = Core()->cmd("pdsf @ " + function.name).split("\n", QString::SkipEmptyParts);
+
+        const QFont &fnt = Config()->getFont();
+        QFontMetrics fm{ fnt };
+
+        // elide long strings using current didsam font metrics
+        QStringList highlights;
+        for (const QString &s : summary) {
+            highlights << fm.elidedText(s, Qt::ElideRight, kMaxTooltipWidth);
+            if (highlights.length() > kMaxTooltipHighlightsLines) {
+                highlights << "...";
+                break;
+            }
+        }
+        QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
+                .arg(fnt.family())
+                .arg(qMax(6, fnt.pointSize() - 1)) // slightly decrease font size, to keep more text in the same box
+            + tr("<div><strong>Disassembly preview</strong>:<br>%1</div>")
+                .arg(disasmPreview.join("<br>"));
+
+        if (!highlights.isEmpty()) {
+            toolTipContent += tr("<div style=\"margin-top: 10px;\"><strong>Highlights</strong>:<br>%1</div>")
+                .arg(highlights.join("\n").toHtmlEscaped().replace("\n", "<br>"));
+        }
+        toolTipContent += "</div></html>";
+        return toolTipContent;
     }
 
     case Qt::ForegroundRole:
