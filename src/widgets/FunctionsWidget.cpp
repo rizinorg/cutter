@@ -211,12 +211,18 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 .set("asm.lines.bb", false)
                 .set("asm.bbline", false);
 
-            jDisasmEntries = Core()->cmdj(QString("pDJ %1 @ %2").arg(function.size).arg(function.offset)).array();
+            jDisasmEntries = Core()->cmdj(QString("pdJ %1 @ %2")
+                .arg(kMaxTooltipDisasmPreviewLines + 1)
+                .arg(function.offset)).array();
         }
         QStringList disasmPreview;
         for (const QJsonValue &value : jDisasmEntries) {
             const QJsonObject &object = value.toObject();
 
+            const RVA insnOffset = object["offset"].toVariant().toULongLong();
+            if (!function.contains(insnOffset)) {
+                break;
+            }
             disasmPreview << object["text"].toString();
             if (disasmPreview.length() >= kMaxTooltipDisasmPreviewLines) {
                 disasmPreview << "...";
@@ -229,7 +235,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
 
-        // elide long strings using current didsam font metrics
+        // elide long strings using current disasm font metrics
         QStringList highlights;
         for (const QString &s : summary) {
             highlights << fm.elidedText(s, Qt::ElideRight, kMaxTooltipWidth);
@@ -238,14 +244,19 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 break;
             }
         }
+        if (disasmPreview.isEmpty() && highlights.isEmpty())
+            return QVariant();
+
         QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
                 .arg(fnt.family())
-                .arg(qMax(6, fnt.pointSize() - 1)) // slightly decrease font size, to keep more text in the same box
-            + tr("<div><strong>Disassembly preview</strong>:<br>%1</div>")
+                .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep more text in the same box
+
+        if (!disasmPreview.isEmpty())
+            toolTipContent += tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly preview</strong>:<br>%1</div>")
                 .arg(disasmPreview.join("<br>"));
 
         if (!highlights.isEmpty()) {
-            toolTipContent += tr("<div style=\"margin-top: 10px;\"><strong>Highlights</strong>:<br>%1</div>")
+            toolTipContent += tr("<div><strong>Highlights</strong>:<br>%1</div>")
                 .arg(highlights.join("\n").toHtmlEscaped().replace("\n", "<br>"));
         }
         toolTipContent += "</div></html>";
