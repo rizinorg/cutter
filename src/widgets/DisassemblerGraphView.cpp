@@ -352,39 +352,12 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
 void DisassemblerGraphView::prepareHeader()
 {
     QString afcf = Core()->cmd("afcf").trimmed();
-    if (afcf.length() > 0) {
-        header->setPlainText(afcf);
-        header->show();
-        return;
-    }
-    QJsonArray func = Core()->cmdj("afij").array();
-    QJsonValue value = func.first();
-    QJsonObject obj = value.toObject();
-    QString name = obj["name"].toString().trimmed();
-    if (name.isEmpty()) {
+    if (afcf.isEmpty()) {
         header->hide();
         return;
     }
-    QString ret = obj["calltype"].toString().trimmed();
-    ret += (" ") + name + ("(");
-    QJsonArray args = obj["bpvars"].toArray();
-    QString argNames = QString();
-    for (QJsonValue value : args) {
-        QJsonObject obj = value.toObject();
-        QString kind = obj["kind"].toString();
-        if (kind == "arg") {
-            QString typeName = obj["type"].toString().trimmed();
-            QString argName = obj["name"].toString().trimmed();
-            if (argNames.isEmpty()) {
-                argNames += typeName + (" ") + argName;
-            } else {
-                argNames += (", ") + typeName + (" ") + argName;
-            }
-        }
-    }
-    ret += argNames + (")");
-    header->setPlainText(ret);
     header->show();
+    header->setPlainText(afcf);
 }
 
 void DisassemblerGraphView::initFont()
@@ -692,7 +665,6 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
         transition_dont_seek = true;
         showBlock(&blocks[db->entry], true);
         prepareHeader();
-        return;
     } else {
         refreshView();
         db = blockForAddress(addr);
@@ -701,7 +673,8 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
             transition_dont_seek = true;
             showBlock(&blocks[db->entry], true);
             prepareHeader();
-            return;
+        } else {
+            header->hide();
         }
     }
 }
