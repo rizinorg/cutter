@@ -54,6 +54,7 @@
 // Widgets Headers
 #include "widgets/DisassemblerGraphView.h"
 #include "widgets/GraphWidget.h"
+#include "widgets/MiniGraphWidget.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
 #include "widgets/SegmentsWidget.h"
@@ -182,6 +183,7 @@ void MainWindow::initUI()
 
     // Add graph view as dockable
     graphDock = new GraphWidget(this, ui->actionGraph);
+    miniGraphDock = new MiniGraphWidget(this, ui->actionGraph);
 
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);
@@ -560,6 +562,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(segmentsDock, commentsDock);
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
+    tabifyDockWidget(dashboardDock, miniGraphDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
     tabifyDockWidget(dashboardDock, pseudocodeDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
@@ -619,6 +622,7 @@ void MainWindow::showZenDocks()
                                             dashboardDock,
                                             stringsDock,
                                             graphDock,
+                                            miniGraphDock,
                                             disassemblyDock,
                                             hexdumpDock,
                                             searchDock,
@@ -640,6 +644,7 @@ void MainWindow::showDebugDocks()
     const QList<QDockWidget *> debugDocks = { functionsDock,
                                               stringsDock,
                                               graphDock,
+                                              miniGraphDock,
                                               disassemblyDock,
                                               hexdumpDock,
                                               searchDock,
