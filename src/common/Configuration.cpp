@@ -221,6 +221,8 @@ void Configuration::loadBaseThemeDark()
 
     // GUI: navbar
     setColor("gui.navbar.err", QColor(233, 86, 86));
+    setColor("gui.navbar.seek", QColor(233, 86, 86));
+    setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(130, 200, 111));
     setColor("angui.navbar.str", QColor(111, 134, 216));
     setColor("gui.navbar.sym", QColor(221, 163, 104));

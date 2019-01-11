@@ -15,6 +15,8 @@ static const QStringList cutterSpecificOptions = {
     "highlightPC",
     "highlightWord",
     "gui.navbar.err",
+    "gui.navbar.seek",
+    "gui.navbar.pc",
     "gui.navbar.sym",
     "gui.dataoffset",
     "gui.navbar.code",

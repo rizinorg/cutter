@@ -261,6 +261,8 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
     { "gui.imports", { "", "gui.imports", true } },
     { "highlightPC", { "", "highlightPC", true } },
     { "gui.navbar.err", { "", "gui.navbar.err", true } },
+    { "gui.navbar.seek", { "", "gui.navbar.seek", true } },
+    { "gui.navbar.pc", { "", "gui.navbar.pc", true } },
     { "gui.navbar.sym", { "", "gui.navbar.sym", true } },
     {
         "gui.navbar.code", {
