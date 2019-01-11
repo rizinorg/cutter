@@ -53,6 +53,7 @@
 
 // Widgets Headers
 #include "widgets/DisassemblerGraphView.h"
+#include "widgets/GraphView.h"
 #include "widgets/GraphWidget.h"
 #include "widgets/MiniGraphWidget.h"
 #include "widgets/FunctionsWidget.h"
@@ -184,6 +185,9 @@ void MainWindow::initUI()
     // Add graph view as dockable
     graphDock = new GraphWidget(this, ui->actionGraph);
     miniGraphDock = new MiniGraphWidget(this, ui->actionGraph);
+    QObject::connect(graphDock->graphView, &GraphView::scrollBarChanged, [this]() {
+        eprintf("hey hey\n");
+    });
 
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);

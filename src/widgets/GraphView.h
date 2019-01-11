@@ -127,6 +127,13 @@ protected:
     void adjustSize(int new_width, int new_height, QPoint mouse = QPoint(0, 0));
 
     bool event(QEvent *event) override;
+
+    void resizeEvent(QResizeEvent *event) override;
+    // Mouse events
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y = false);
 
@@ -164,14 +171,8 @@ private:
     GraphEdge routeEdge(EdgesVector &horiz_edges, EdgesVector &vert_edges, Matrix<bool> &edge_valid,
                         GraphBlock &start, GraphBlock &end, QColor color);
 
-private slots:
-    void resizeEvent(QResizeEvent *event) override;
-    // Mouse events
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mouseDoubleClickEvent(QMouseEvent *event) override;
-
+signals:
+    void scrollBarChanged();
 };
 
 #endif // GRAPHVIEW_H

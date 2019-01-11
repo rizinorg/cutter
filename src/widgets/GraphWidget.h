@@ -13,9 +13,9 @@ class GraphWidget : public CutterDockWidget
 public:
     explicit GraphWidget(MainWindow *main, QAction *action = nullptr);
     ~GraphWidget();
+    DisassemblerGraphView *graphView;
 
 private:
-    DisassemblerGraphView *graphView;
 
 };
 

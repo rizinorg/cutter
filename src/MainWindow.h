@@ -5,6 +5,8 @@
 
 #include "Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
+#include "widgets/GraphWidget.h"
+#include "widgets/MiniGraphWidget.h"
 #include "widgets/StackWidget.h"
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
@@ -197,8 +199,8 @@ private:
     DisassemblyWidget  *disassemblyDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
-    QDockWidget        *graphDock = nullptr;
-    QDockWidget        *miniGraphDock = nullptr;
+    GraphWidget        *graphDock = nullptr;
+    MiniGraphWidget    *miniGraphDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;
