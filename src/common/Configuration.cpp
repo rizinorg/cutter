@@ -152,6 +152,8 @@ void Configuration::loadBaseThemeNative()
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
     setColor("gui.navbar.err", QColor(255, 0, 0));
+    setColor("gui.navbar.seek", QColor(233, 86, 86));
+    setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(104, 229, 69));
     setColor("gui.navbar.str", QColor(69, 104, 229));
     setColor("gui.navbar.sym", QColor(229, 150, 69));
