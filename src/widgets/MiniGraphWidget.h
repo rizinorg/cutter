@@ -13,9 +13,9 @@ class MiniGraphWidget : public CutterDockWidget
 public:
     explicit MiniGraphWidget(MainWindow *main, QAction *action = nullptr);
     ~MiniGraphWidget();
+    MiniGraphView *graphView;
 
 private:
-    MiniGraphView *graphView;
 
 };
 
