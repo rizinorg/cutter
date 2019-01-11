@@ -14,6 +14,8 @@
 #include <QVBoxLayout>
 #include <QRegularExpression>
 #include <QStandardPaths>
+#include <QClipboard>
+#include <QApplication>
 
 #include "Cutter.h"
 #include "common/Colors.h"
@@ -113,6 +115,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
     initFont();
     colorsUpdatedSlot();
+
+    connect(mMenu, SIGNAL(copy()), this, SLOT(copySelection()));
 
     header = new QTextEdit(viewport());
     header->setFixedHeight(30);
@@ -784,6 +788,12 @@ void DisassemblerGraphView::seekPrev()
     }
 }
 
+void DisassemblerGraphView::copySelection()
+{
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(highlight_token->content);
+}
+
 DisassemblerGraphView::Token *DisassemblerGraphView::getToken(Instr *instr, int x)
 {
     x -= (3 * charWidth); // Ignore left margin
@@ -830,6 +840,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
     seekLocal(addr);
 
     mMenu->setOffset(addr);
+    mMenu->setCanCopy(highlight_token);
     if (event->button() == Qt::RightButton) {
         mMenu->exec(event->globalPos());
     }
