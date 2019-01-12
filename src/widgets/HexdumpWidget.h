@@ -72,6 +72,7 @@ private:
     RVA last_loaded_address = RVA_INVALID;
 
     void refresh(RVA addr = RVA_INVALID);
+    void refreshContent() override { refresh(); }
     void selectHexPreview();
     void updateHeaders();
 
@@ -110,7 +111,7 @@ private:
     CutterSeekableWidget *seekable;
 
 private slots:
-    void on_seekChanged(RVA addr);
+    void onSeekChanged(RVA addr);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     // Currently unused/untested
