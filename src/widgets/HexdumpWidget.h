@@ -71,8 +71,9 @@ private:
     RVA first_loaded_address = RVA_INVALID;
     RVA last_loaded_address = RVA_INVALID;
 
+    bool hexdumpDirty = false;
+
     void refresh(RVA addr = RVA_INVALID);
-    void refreshContent() override { refresh(); }
     void selectHexPreview();
     void updateHeaders();
 

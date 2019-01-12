@@ -175,6 +175,13 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Plus), &DisassemblyWidget::zoomIn)
     ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Minus), &DisassemblyWidget::zoomOut)
 #undef ADD_SHORTCUT
+
+    connect(this, &CutterDockWidget::becameVisibleToUser, this, [this]() {
+        printf("ooh! we became visible!\n");
+        if (disasmDirty) {
+            refreshDisasm(disasmDirtyOffset);
+        }
+    });
 }
 
 void DisassemblyWidget::toggleSync()
@@ -195,6 +202,16 @@ QWidget *DisassemblyWidget::getTextWidget()
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
+    if (!isVisibleToUser()) {
+        printf("setting dirty\n");
+        disasmDirty = true;
+        disasmDirtyOffset = offset;
+        return;
+    } else {
+        printf("now refreshing\n");
+        disasmDirty = false;
+    }
+
     if (offset != RVA_INVALID) {
         topOffset = offset;
     }
@@ -266,11 +283,6 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
 
     mDisasTextEdit->setLockScroll(false);
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
-}
-
-void DisassemblyWidget::refreshContent()
-{
-    refreshDisasm();
 }
 
 

@@ -137,8 +137,6 @@ private:
     CutterTreeWidget *tree;
 
     void setScrollMode();
-
-    void refreshContent() override { }
 };
 
 

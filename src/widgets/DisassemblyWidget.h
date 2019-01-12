@@ -57,13 +57,14 @@ private:
     int cursorLineOffset;
     bool seekFromCursor;
 
+    bool disasmDirty = false;
+    RVA disasmDirtyOffset = RVA_INVALID;
+
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     QList<RVA> breakpoints;
-
-    void refreshContent() override;
 
     void setupFonts();
     void setupColors();

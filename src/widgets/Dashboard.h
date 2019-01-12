@@ -25,8 +25,6 @@ private slots:
 
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
-
-    void refreshContent() override { };
 };
 
 #endif // DASHBOARD_H

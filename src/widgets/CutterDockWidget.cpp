@@ -12,6 +12,8 @@ CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
         connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
     }
 
+    isVisibleToUserCurrent = false;
+
     // Install event filter to catch redraw widgets when needed
     installEventFilter(this);
 }
@@ -20,9 +22,13 @@ CutterDockWidget::~CutterDockWidget() {}
 
 bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::FocusIn || event->type() == QEvent::Paint) {
-        qDebug() << object << "is now focused in";
-        refreshIfNeeded();
+    if (event->type() == QEvent::FocusIn
+        || event->type() == QEvent::ZOrderChange
+        || event->type() == QEvent::Paint
+        || event->type() == QEvent::Close
+        || event->type() == QEvent::Show
+        || event->type() == QEvent::Hide) {
+        updateIsVisibleToUser();
     }
     return QDockWidget::eventFilter(object, event);
 }
@@ -34,15 +40,20 @@ void CutterDockWidget::toggleDockWidget(bool show)
     } else {
         this->show();
         this->raise();
-        this->refreshIfNeeded();
     }
 }
 
-void CutterDockWidget::refreshIfNeeded()
+void CutterDockWidget::updateIsVisibleToUser()
 {
-    if (doRefresh) {
-        refreshContent();
-        doRefresh = false;
+    // Check if the user can actually see the widget.
+    bool visibleToUser = isVisible() && !visibleRegion().isEmpty();
+    if (visibleToUser == isVisibleToUserCurrent) {
+        return;
+    }
+    isVisibleToUserCurrent = visibleToUser;
+    qDebug() << this << "isVisibleToUser changed to" << isVisibleToUserCurrent;
+    if (isVisibleToUserCurrent) {
+        emit becameVisibleToUser();
     }
 }
 
@@ -54,13 +65,3 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
     QDockWidget::closeEvent(event);
 }
 
-bool CutterDockWidget::isVisibleToUser()
-{
-    // Check if the user can actually see the widget.
-    bool visibleToUser = this->isVisible() && !this->visibleRegion().isEmpty();
-    if (!visibleToUser) {
-        // If this is called and not visible, it must be refreshed later
-        doRefresh = true;
-    }
-    return visibleToUser;
-}

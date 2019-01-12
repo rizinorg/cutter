@@ -17,19 +17,18 @@ public:
 public slots:
     void toggleDockWidget(bool show);
 
+signals:
+    void becameVisibleToUser();
+
 private:
     QAction *action;
 
-    /**
-     * @brief doRefresh tells if the widget must refresh its content.
-     */
-    bool doRefresh = false;
-    void refreshIfNeeded();
+    bool isVisibleToUserCurrent;
+    void updateIsVisibleToUser();
 
 protected:
     void closeEvent(QCloseEvent *event) override;
-    bool isVisibleToUser();
-    virtual void refreshContent() = 0;
+    bool isVisibleToUser()      { return isVisibleToUserCurrent; }
 };
 
 #endif // CUTTERWIDGET_H
