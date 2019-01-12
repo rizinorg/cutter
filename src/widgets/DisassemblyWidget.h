@@ -24,7 +24,6 @@ public:
 public slots:
     void highlightCurrentLine();
     void showDisasContextMenu(const QPoint &pt);
-    void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void seekPrev();
@@ -32,6 +31,7 @@ public slots:
 
 private slots:
     void on_seekChanged(RVA offset);
+    void refreshDisasm(RVA offset = RVA_INVALID);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     void scrollInstructions(int count);
@@ -59,9 +59,11 @@ private:
 
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     QList<RVA> breakpoints;
+
+    void refreshContent() override;
 
     void setupFonts();
     void setupColors();

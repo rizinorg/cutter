@@ -31,7 +31,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     });
 
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
-        refresh(Core()->getOffset());
+        doRefresh(Core()->getOffset());
     });
 
     if (Core()->getR2DecAvailable()) {
@@ -42,13 +42,13 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         ui->decompilerComboBox->setCurrentIndex(DecompilerCBPdc);
     }
 
-    refresh(RVA_INVALID);
+    doRefresh(RVA_INVALID);
 }
 
 PseudocodeWidget::~PseudocodeWidget() {}
 
 
-void PseudocodeWidget::refresh(RVA addr)
+void PseudocodeWidget::doRefresh(RVA addr)
 {
     if (addr == RVA_INVALID) {
         ui->textEdit->setText(tr("Click Refresh to generate Pseudocode from current offset."));
@@ -78,7 +78,7 @@ void PseudocodeWidget::refresh(RVA addr)
 
 void PseudocodeWidget::refreshPseudocode()
 {
-    refresh(Core()->getOffset());
+    doRefresh(Core()->getOffset());
 }
 
 void PseudocodeWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
