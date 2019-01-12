@@ -17,7 +17,8 @@
 VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     QToolBar(main),
     graphicsView(new QGraphicsView),
-    cursorGraphicsItem(nullptr),
+    seekGraphicsItem(nullptr),
+    PCGraphicsItem(nullptr),
     main(main)
 {
     Q_UNUSED(parent);
@@ -40,6 +41,7 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     //addWidget(addsCombo);
 
     connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(on_seekChanged(RVA)));
+    connect(Core(), SIGNAL(registersChanged()), this, SLOT(drawPCCursor()));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(fetchAndPaintData()));
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(fetchAndPaintData()));
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(fetchAndPaintData()));
@@ -116,8 +118,8 @@ void VisualNavbar::updateGraphicsScene()
 {
     graphicsScene->clear();
     xToAddress.clear();
-    cursorGraphicsItem = nullptr;
-
+    seekGraphicsItem = nullptr;
+    PCGraphicsItem = nullptr;
     graphicsScene->setBackgroundBrush(QBrush(Config()->getColor("gui.navbar.empty")));
 
     if (stats.to <= stats.from) {
@@ -191,33 +193,42 @@ void VisualNavbar::updateGraphicsScene()
     // Update scene width
     graphicsScene->setSceneRect(0, 0, w, h);
 
-    drawCursor();
+    drawSeekCursor();
 }
 
-void VisualNavbar::drawCursor()
+void VisualNavbar::drawCursor(RVA addr, QColor color, QGraphicsRectItem *&graphicsItem)
 {
-    RVA offset = Core()->getOffset();
-    double cursor_x = addressToLocalX(offset);
-    if (cursorGraphicsItem != nullptr) {
-        graphicsScene->removeItem(cursorGraphicsItem);
-        delete cursorGraphicsItem;
-        cursorGraphicsItem = nullptr;
+    double cursor_x = addressToLocalX(addr);
+    if (graphicsItem != nullptr) {
+        graphicsScene->removeItem(graphicsItem);
+        delete graphicsItem;
+        graphicsItem = nullptr;
     }
     if (std::isnan(cursor_x)) {
         return;
     }
     int h = this->graphicsView->height();
-    cursorGraphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, h);
-    cursorGraphicsItem->setPen(Qt::NoPen);
-    cursorGraphicsItem->setBrush(QBrush(Config()->getColor("gui.navbar.err")));
-    graphicsScene->addItem(cursorGraphicsItem);
+    graphicsItem = new QGraphicsRectItem(cursor_x, 0, 2, h);
+    graphicsItem->setPen(Qt::NoPen);
+    graphicsItem->setBrush(QBrush(color));
+    graphicsScene->addItem(graphicsItem);
+}
+
+void VisualNavbar::drawPCCursor()
+{
+    drawCursor(Core()->getProgramCounterValue(), Config()->getColor("gui.navbar.pc"), PCGraphicsItem);
+}
+
+void VisualNavbar::drawSeekCursor()
+{
+    drawCursor(Core()->getOffset(), Config()->getColor("gui.navbar.err"), seekGraphicsItem);
 }
 
 void VisualNavbar::on_seekChanged(RVA addr)
 {
     Q_UNUSED(addr);
     // Update cursor
-    this->drawCursor();
+    this->drawSeekCursor();
 }
 
 void VisualNavbar::mousePressEvent(QMouseEvent *event)
