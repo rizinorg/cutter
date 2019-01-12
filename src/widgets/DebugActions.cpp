@@ -78,7 +78,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // startButton->setDefaultAction(actionStartEmul);
     startButton->setMenu(startMenu);
 
-    QToolButton *continueUntilButton = new QToolButton;
+    continueUntilButton = new QToolButton;
     continueUntilButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(continueUntilButton, &QToolButton::triggered, continueUntilButton,
             &QToolButton::setDefaultAction);
@@ -112,6 +112,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         actionStart->setIcon(startDebugIcon);
         actionStartEmul->setText(startEmulLabel);
         actionStartEmul->setIcon(startEmulIcon);
+        continueUntilButton->setDefaultAction(actionContinueUntilMain);
         setAllActionsVisible(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
@@ -130,6 +131,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         actionStartEmul->setVisible(false);
         actionStart->setText(restartDebugLabel);
         actionStart->setIcon(restartIcon);
+        setButtonVisibleIfMainExists();
         Core()->startDebug();
     });
 
@@ -152,6 +154,16 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     connect(actionContinueUntilMain, &QAction::triggered, this, &DebugActions::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
     connect(actionContinueUntilSyscall, &QAction::triggered, Core(), &CutterCore::continueUntilSyscall);
+}
+
+void DebugActions::setButtonVisibleIfMainExists()
+{
+    int mainExists = Core()->cmd("f?main; ??").toInt();
+    // if main is not a flag we hide the continue until main button
+    if (!mainExists) {
+        actionContinueUntilMain->setVisible(false);
+        continueUntilButton->setDefaultAction(actionContinueUntilCall);
+    }
 }
 
 void DebugActions::continueUntilMain()
