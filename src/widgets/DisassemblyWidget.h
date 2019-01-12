@@ -4,6 +4,8 @@
 #include "Cutter.h"
 #include "CutterDockWidget.h"
 #include "CutterSeekable.h"
+#include "common/RefreshDeferrer.h"
+
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QShortcut>
@@ -57,8 +59,7 @@ private:
     int cursorLineOffset;
     bool seekFromCursor;
 
-    bool disasmDirty = false;
-    RVA disasmDirtyOffset = RVA_INVALID;
+    RefreshDeferrer disasmRefresh;
 
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);

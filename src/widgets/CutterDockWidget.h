@@ -13,6 +13,7 @@ public:
     explicit CutterDockWidget(MainWindow *main, QAction *action = nullptr);
     ~CutterDockWidget() override;
     bool eventFilter(QObject *object, QEvent *event) override;
+    bool isVisibleToUser()      { return isVisibleToUserCurrent; }
 
 public slots:
     void toggleDockWidget(bool show);
@@ -28,7 +29,6 @@ private:
 
 protected:
     void closeEvent(QCloseEvent *event) override;
-    bool isVisibleToUser()      { return isVisibleToUserCurrent; }
 };
 
 #endif // CUTTERWIDGET_H

@@ -12,10 +12,9 @@ CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
         connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
     }
 
-    isVisibleToUserCurrent = false;
-
     // Install event filter to catch redraw widgets when needed
     installEventFilter(this);
+    updateIsVisibleToUser();
 }
 
 CutterDockWidget::~CutterDockWidget() {}
