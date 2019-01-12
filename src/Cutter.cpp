@@ -249,7 +249,7 @@ QString CutterCore::cmd(const char *str)
     QString o = QString(res ? res : "");
     r_mem_free(res);
     if (offset != core_->offset) {
-        emit seekChanged(core_->offset);
+        updateSeek();
     }
     return o;
 }

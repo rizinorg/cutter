@@ -188,7 +188,6 @@ SOURCES += \
     common/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
-    widgets/CutterSeekableWidget.cpp \
     widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
     common/JsonTreeItem.cpp \
@@ -219,7 +218,8 @@ SOURCES += \
     widgets/CutterTreeView.cpp \
     widgets/ComboQuickFilterView.cpp \
     dialogs/HexdumpRangeDialog.cpp \
-    common/QtResImporter.cpp
+    common/QtResImporter.cpp \
+    widgets/CutterSeekable.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -288,7 +288,6 @@ HEADERS  += \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
     widgets/CutterTreeWidget.h \
-    widgets/CutterSeekableWidget.h \
     widgets/GraphWidget.h \
     common/JsonTreeItem.h \
     common/JsonModel.h \
@@ -322,7 +321,8 @@ HEADERS  += \
     widgets/CutterTreeView.h \
     widgets/ComboQuickFilterView.h \
     dialogs/HexdumpRangeDialog.h \
-    common/QtResImporter.h
+    common/QtResImporter.h \
+    widgets/CutterSeekable.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
