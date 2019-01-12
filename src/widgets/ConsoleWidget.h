@@ -57,8 +57,6 @@ private:
     void removeLastLine();
     void executeCommand(const QString &command);
 
-    void refreshContent() override { }
-
     QSharedPointer<CommandTask> commandTask;
 
     std::unique_ptr<Ui::ConsoleWidget> ui;

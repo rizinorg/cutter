@@ -119,6 +119,12 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
     connect(&rangeDialog, &QDialog::accepted, this, &HexdumpWidget::on_rangeDialogAccepted);
 
+    connect(this, &CutterDockWidget::becameVisibleToUser, this, [this]() {
+        if (hexdumpDirty) {
+            refresh();
+        }
+    });
+
     format = Format::Hex;
     initParsing();
     selectHexPreview();
@@ -214,9 +220,7 @@ void HexdumpWidget::onSeekChanged(RVA addr)
         sent_seek = false;
         return;
     }
-    if (isVisibleToUser()) {
-        refreshContent();
-    }
+    refresh();
 }
 
 void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
@@ -316,6 +320,13 @@ void HexdumpWidget::highlightHexWords(const QString &str)
 
 void HexdumpWidget::refresh(RVA addr)
 {
+    if (!isVisibleToUser()) {
+        hexdumpDirty = true;
+        return;
+    } else {
+        hexdumpDirty = false;
+    }
+
     ut64 loadLines = 0;
     ut64 curAddrLineOffset = 0;
     connectScroll(true);

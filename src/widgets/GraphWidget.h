@@ -16,9 +16,6 @@ public:
 
 private:
     DisassemblerGraphView *graphView;
-
-    void refreshContent() override;
-
 };
 
 #endif // GRAPHWIDGET_H
