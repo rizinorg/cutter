@@ -790,6 +790,8 @@ void DisassemblerGraphView::seekPrev()
 
 void DisassemblerGraphView::copySelection()
 {
+    if (!highlight_token) return;
+
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(highlight_token->content);
 }
