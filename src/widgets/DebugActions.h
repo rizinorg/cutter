@@ -4,6 +4,7 @@
 
 class MainWindow;
 class QToolBar;
+class QToolButton;
 
 class DebugActions : public QObject
 {
@@ -30,10 +31,12 @@ public:
 private:
     MainWindow *main;
     QList<QAction *> allActions;
+    QToolButton *continueUntilButton;
 
 private slots:
     void continueUntilMain();
     void attachProcessDialog();
     void attachProcess(int pid);
     void setAllActionsVisible(bool visible);
+    void setButtonVisibleIfMainExists();
 };
