@@ -42,6 +42,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
     ,   seekable(new CutterSeekable(this))
+    ,   disasmRefresh(new ReplacingRefreshDeferrerAccumulator<RVA>)
 {
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
@@ -62,6 +63,13 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
     setupFonts();
     setupColors();
+
+    disasmRefresh.registerFor(this);
+    connect(&disasmRefresh, &RefreshDeferrer::refreshNow, this, [this](RefreshDeferrerParamsResult paramsResult) {
+        printf("got refresh now!\n");
+        RVA *offset = static_cast<RVA *>(paramsResult);
+        refreshDisasm(*offset);
+    });
 
     maxLines = 0;
     updateMaxLines();
@@ -175,13 +183,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Plus), &DisassemblyWidget::zoomIn)
     ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Minus), &DisassemblyWidget::zoomOut)
 #undef ADD_SHORTCUT
-
-    connect(this, &CutterDockWidget::becameVisibleToUser, this, [this]() {
-        printf("ooh! we became visible!\n");
-        if (disasmDirty) {
-            refreshDisasm(disasmDirtyOffset);
-        }
-    });
 }
 
 void DisassemblyWidget::toggleSync()
@@ -202,15 +203,11 @@ QWidget *DisassemblyWidget::getTextWidget()
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
-    if (!isVisibleToUser()) {
-        printf("setting dirty\n");
-        disasmDirty = true;
-        disasmDirtyOffset = offset;
+    if(!disasmRefresh.attemptRefresh(new RVA(offset))) {
+        printf("we tried to refresh, but shouldn't yet.\n");
         return;
-    } else {
-        printf("now refreshing\n");
-        disasmDirty = false;
     }
+    printf("ok, actually refreshing now!\n");
 
     if (offset != RVA_INVALID) {
         topOffset = offset;
