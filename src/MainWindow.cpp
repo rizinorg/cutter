@@ -118,7 +118,9 @@ void MainWindow::initUI()
 
     DebugActions *debugActions = new DebugActions(ui->mainToolBar, this);
     // Debug menu
+    ui->menuDebug->addAction(debugActions->actionStart);
     ui->menuDebug->addAction(debugActions->actionStartEmul);
+    ui->menuDebug->addAction(debugActions->actionAttach);
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugActions->actionStep);
     ui->menuDebug->addAction(debugActions->actionStepOver);
@@ -578,6 +580,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, vTablesDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
+    addDockWidget(Qt::TopDockWidgetArea, stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
     // MemoryMap/Breakpoint/RegRefs widget goes in the center tabs
@@ -681,6 +684,19 @@ void MainWindow::resetToDefaultLayout()
 void MainWindow::resetToDebugLayout()
 {
     CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
+    hideAllDocks();
+    restoreDocks();
+    showDebugDocks();
+    core->raisePrioritizedMemoryWidget(memType);
+
+    auto restoreStackDock = qhelpers::forceWidth(stackDock->widget(), 400);
+    qApp->processEvents();
+    restoreStackDock.restoreWidth(stackDock->widget());
+}
+
+void MainWindow::restoreDebugLayout()
+{
+    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
     bool isMaxim = isMaximized();
     hideAllDocks();
     restoreDocks();
@@ -725,8 +741,13 @@ void MainWindow::on_actionFunctionsRename_triggered()
 
 void MainWindow::on_actionDefault_triggered()
 {
-    resetToDefaultLayout();
+    if (core->currentlyDebugging) {
+        resetToDebugLayout();
+    } else {
+        resetToDefaultLayout();
+    }
 }
+
 
 /**
  * @brief MainWindow::on_actionNew_triggered
@@ -944,7 +965,7 @@ void MainWindow::projectSaved(bool successfully, const QString &name)
 void MainWindow::changeDebugView()
 {
     saveSettings();
-    resetToDebugLayout();
+    restoreDebugLayout();
     enableDebugWidgetsMenu(true);
 }
 
