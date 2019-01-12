@@ -12,10 +12,12 @@ class GraphWidget : public CutterDockWidget
 
 public:
     explicit GraphWidget(MainWindow *main, QAction *action = nullptr);
-    ~GraphWidget();
+    ~GraphWidget() override;
 
 private:
     DisassemblerGraphView *graphView;
+
+    void refreshContent() override;
 
 };
 

@@ -116,7 +116,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this,
             &HexdumpWidget::selectionChanged);
-    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::on_seekChanged);
+    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
     connect(&rangeDialog, &QDialog::accepted, this, &HexdumpWidget::on_rangeDialogAccepted);
 
     format = Format::Hex;
@@ -208,13 +208,15 @@ void HexdumpWidget::setupScrollSync()
             asciiHexFunc);
 }
 
-void HexdumpWidget::on_seekChanged(RVA addr)
+void HexdumpWidget::onSeekChanged(RVA addr)
 {
     if (sent_seek) {
         sent_seek = false;
         return;
     }
-    refresh(addr);
+    if (isVisibleToUser()) {
+        refreshContent();
+    }
 }
 
 void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)

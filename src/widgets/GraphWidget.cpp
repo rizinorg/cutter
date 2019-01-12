@@ -39,3 +39,8 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
 }
 
 GraphWidget::~GraphWidget() {}
+
+void GraphWidget::refreshContent()
+{
+    graphView->refreshView();
+}

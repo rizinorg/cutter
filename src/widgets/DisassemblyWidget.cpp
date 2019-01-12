@@ -268,6 +268,11 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     mDisasTextEdit->horizontalScrollBar()->setValue(horizontalScrollValue);
 }
 
+void DisassemblyWidget::refreshContent()
+{
+    refreshDisasm();
+}
+
 
 void DisassemblyWidget::scrollInstructions(int count)
 {
@@ -576,7 +581,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())
+    /*if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())
             && event->type() == QEvent::MouseButtonDblClick) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
@@ -599,8 +604,8 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         }
 
         return true;
-    }
-    return QDockWidget::eventFilter(obj, event);
+    }*/
+    return CutterDockWidget::eventFilter(obj, event);
 }
 
 void DisassemblyWidget::on_seekChanged(RVA offset)
