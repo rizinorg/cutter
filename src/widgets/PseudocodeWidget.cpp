@@ -30,6 +30,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         }
     });
 
+    // TODO Use RefreshDeferrer and remove the refresh button
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
         doRefresh(Core()->getOffset());
     });
@@ -45,7 +46,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     doRefresh(RVA_INVALID);
 }
 
-PseudocodeWidget::~PseudocodeWidget() {}
+PseudocodeWidget::~PseudocodeWidget() = default;
 
 
 void PseudocodeWidget::doRefresh(RVA addr)

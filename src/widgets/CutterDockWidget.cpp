@@ -17,7 +17,7 @@ CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
     updateIsVisibleToUser();
 }
 
-CutterDockWidget::~CutterDockWidget() {}
+CutterDockWidget::~CutterDockWidget() = default;
 
 bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
 {

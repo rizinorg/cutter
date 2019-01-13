@@ -29,17 +29,18 @@ void CommentsModel::setNested(bool nested)
 
 QModelIndex CommentsModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (!parent.isValid())
-        return createIndex(row, column, (quintptr)0);
+    if (!parent.isValid()) {
+        return createIndex(row, column, (quintptr) 0);
+    }
 
     return createIndex(row, column, (quintptr)(parent.row() + 1));
 }
 
-QModelIndex CommentsModel::parent(const QModelIndex &index) const
-{
+QModelIndex CommentsModel::parent(const QModelIndex &index) const {
     /* Ignore invalid indexes and root nodes */
-    if (!index.isValid() || index.internalId() == 0)
+    if (!index.isValid() || index.internalId() == 0) {
         return QModelIndex();
+    }
 
     return this->index((int)(index.internalId() - 1), 0);
 }
