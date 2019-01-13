@@ -42,6 +42,7 @@
 #include "common/TempConfig.h"
 
 // Dialogs
+#include "dialogs/WelcomeDialog.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/InitialOptionsDialog.h"
 #include "dialogs/SaveProjectDialog.h"
@@ -333,6 +334,15 @@ void MainWindow::openNewFileFailed()
     mb.setText(
         tr("Could not open the file! Make sure the file exists and that you have the correct permissions."));
     mb.exec();
+}
+
+void MainWindow::displayWelcomeDialog()
+{
+    WelcomeDialog *w = new WelcomeDialog();
+    welcomeDialog = w;
+    w->setAttribute(Qt::WA_DeleteOnClose);
+    w->show();
+
 }
 
 void MainWindow::displayNewFileDialog()

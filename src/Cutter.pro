@@ -219,7 +219,8 @@ SOURCES += \
     widgets/ComboQuickFilterView.cpp \
     dialogs/HexdumpRangeDialog.cpp \
     common/QtResImporter.cpp \
-    widgets/CutterSeekable.cpp
+    widgets/CutterSeekable.cpp \
+    dialogs/WelcomeDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -322,7 +323,8 @@ HEADERS  += \
     widgets/ComboQuickFilterView.h \
     dialogs/HexdumpRangeDialog.h \
     common/QtResImporter.h \
-    widgets/CutterSeekable.h
+    widgets/CutterSeekable.h \
+    dialogs/WelcomeDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -380,7 +382,8 @@ FORMS    += \
     widgets/ColorSchemePrefWidget.ui \
     widgets/CutterTreeView.ui \
     widgets/ComboQuickFilterView.ui \
-    dialogs/HexdumpRangeDialog.ui
+    dialogs/HexdumpRangeDialog.ui \
+    dialogs/WelcomeDialog.ui
 
 RESOURCES += \
     resources.qrc \
