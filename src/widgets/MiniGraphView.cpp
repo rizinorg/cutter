@@ -120,8 +120,8 @@ MiniGraphView::MiniGraphView(QWidget *parent)
     header->setLineWrapMode(QTextEdit::NoWrap);
     highlighter = new SyntaxHighlighter(header->document());
 
-    //current_scale = 0.15;
-    current_scale = 1;
+    current_scale = 0.15;
+    //current_scale = 1;
 }
 
 void MiniGraphView::connectSeekChanged(bool disconn)

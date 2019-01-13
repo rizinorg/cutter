@@ -98,6 +98,8 @@ public:
     void showBlock(GraphBlock &block, bool animated = false);
     void showBlock(GraphBlock *block, bool animated = false);
 
+    // Zoom data
+    double current_scale = 1.0;
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);
@@ -108,8 +110,6 @@ protected:
     // Padding inside the block
     int block_padding = 16;
 
-    // Zoom data
-    double current_scale = 1.0;
 
     int unscrolled_render_offset_x = 0;
     int unscrolled_render_offset_y = 0;
