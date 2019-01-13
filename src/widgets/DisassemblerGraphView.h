@@ -109,6 +109,9 @@ class DisassemblerGraphView : public GraphView
         //dummy class
     };
 
+signals:
+    void refreshGraph();
+
 public:
     DisassemblerGraphView(QWidget *parent);
     ~DisassemblerGraphView() override;

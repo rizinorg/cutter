@@ -103,6 +103,7 @@ public:
 
     void updateDockActionChecked(QAction * action);
 
+    MiniGraphWidget *miniGraphDock = nullptr;
 
 public slots:
     void finalizeOpen();
@@ -200,7 +201,6 @@ private:
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
     GraphWidget        *graphDock = nullptr;
-    MiniGraphWidget    *miniGraphDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;

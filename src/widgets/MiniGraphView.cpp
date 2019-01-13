@@ -120,7 +120,8 @@ MiniGraphView::MiniGraphView(QWidget *parent)
     header->setLineWrapMode(QTextEdit::NoWrap);
     highlighter = new SyntaxHighlighter(header->document());
 
-    current_scale = 0.15;
+    //current_scale = 0.15;
+    current_scale = 1;
 }
 
 void MiniGraphView::connectSeekChanged(bool disconn)
@@ -422,6 +423,18 @@ void MiniGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     p.drawRect(block.x, block.y,
                block.width, block.height);
+
+    p.setPen(Qt::red);
+    p.setBrush(Qt::transparent);
+}
+
+void MiniGraphView::paintEvent(QPaintEvent *event)
+{
+    GraphView::paintEvent(event);
+    QPainter p(viewport());
+    p.setPen(Qt::red);
+    p.drawRect(rangeRect);
+    eprintf("hey hey hey\n");
 }
 
 GraphView::EdgeConfiguration MiniGraphView::edgeConfiguration(GraphView::GraphBlock &from,

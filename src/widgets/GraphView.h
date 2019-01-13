@@ -24,6 +24,10 @@ class GraphView : public QAbstractScrollArea
         Wide,
         Narrow,
     };
+
+signals:
+    void refreshBlock();
+
 public:
     struct GraphBlock;
 

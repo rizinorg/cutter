@@ -760,6 +760,8 @@ void GraphView::showBlock(GraphBlock *block, bool animated)
     blockTransitionedTo(block);
 
     viewport()->update();
+
+    emit refreshBlock();
 }
 
 void GraphView::adjustGraphLayout(GraphBlock &block, int col, int row)

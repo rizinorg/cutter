@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QShortcut>
 #include <QLabel>
+#include <QRect>
 
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
@@ -125,6 +126,9 @@ public:
     QString windowTitle;
     bool isGraphEmpty();
     QTextEdit *header = nullptr;
+
+    void paintEvent(QPaintEvent *event) override;
+    QRect rangeRect;
 
 public slots:
     void refreshView();

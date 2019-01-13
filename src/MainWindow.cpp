@@ -15,6 +15,7 @@
 #include <QFont>
 #include <QFontDialog>
 #include <QLabel>
+#include <QRect>
 #include <QLineEdit>
 #include <QList>
 #include <QMessageBox>
@@ -186,9 +187,86 @@ void MainWindow::initUI()
     // Add graph view as dockable
     graphDock = new GraphWidget(this, ui->actionGraph);
     miniGraphDock = new MiniGraphWidget(this, ui->actionGraph);
-    //QObject::connect(graphDock->graphView, &GraphView::scrollBarChanged, [this]() {
-    //    eprintf("hey hey\n");
-    //});
+    QObject::connect(graphDock->graphView, &DisassemblerGraphView::refreshGraph, [this]() {
+        int x = graphDock->graphView->viewport()->rect().topLeft().x();
+        int y = graphDock->graphView->viewport()->rect().topLeft().y();
+        int w = graphDock->graphView->viewport()->rect().bottomRight().x();
+        int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
+            x = graphDock->graphView->horizontalScrollBar()->minimum();
+            w = graphDock->graphView->horizontalScrollBar()->maximum() + graphDock->graphView->horizontalScrollBar()->pageStep() - graphDock->graphView->horizontalScrollBar()->minimum();
+            eprintf("1.5\n");
+        }
+        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
+            y = graphDock->graphView->verticalScrollBar()->minimum();
+            h = graphDock->graphView->verticalScrollBar()->maximum() + graphDock->graphView->verticalScrollBar()->pageStep() - graphDock->graphView->verticalScrollBar()->minimum();
+            eprintf("1.5\n");
+        }
+        QPoint p1(x, y);
+        QPoint p2(w, h);
+        miniGraphDock->graphView->rangeRect = QRect(p1, p2 - QPoint(1, 1));
+        eprintf("1\n");
+    });
+    QObject::connect(graphDock->graphView, &GraphView::refreshBlock, [this]() {
+        int x = graphDock->graphView->viewport()->rect().topLeft().x();
+        int y = graphDock->graphView->viewport()->rect().topLeft().y();
+        int w = graphDock->graphView->viewport()->rect().bottomRight().x();
+        int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
+            x = graphDock->graphView->horizontalScrollBar()->minimum();
+            w = graphDock->graphView->horizontalScrollBar()->maximum() + graphDock->graphView->horizontalScrollBar()->pageStep() - graphDock->graphView->horizontalScrollBar()->minimum();
+            eprintf("2.5\n");
+        }
+        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
+            y = graphDock->graphView->verticalScrollBar()->minimum();
+            h = graphDock->graphView->verticalScrollBar()->maximum() + graphDock->graphView->verticalScrollBar()->pageStep() - graphDock->graphView->verticalScrollBar()->minimum();
+            eprintf("2.5\n");
+        }
+        QPoint p1(x, y);
+        QPoint p2(w, h);
+        miniGraphDock->graphView->rangeRect = QRect(p1, p2 - QPoint(1, 1));
+        eprintf("2\n");
+    });
+    QObject::connect(graphDock->graphView->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
+        int x = graphDock->graphView->viewport()->rect().topLeft().x();
+        int y = graphDock->graphView->viewport()->rect().topLeft().y();
+        int w = graphDock->graphView->viewport()->rect().bottomRight().x();
+        int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
+            x = graphDock->graphView->horizontalScrollBar()->minimum();
+            w = graphDock->graphView->viewport()->width();
+            eprintf("3.5\n");
+        }
+        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
+            y = graphDock->graphView->verticalScrollBar()->minimum();
+            h = graphDock->graphView->viewport()->height();
+            eprintf("3.5\n");
+        }
+        QPoint p1(x, y);
+        QPoint p2(w, h);
+        miniGraphDock->graphView->rangeRect = QRect(p1, p2 - QPoint(1, 1));
+        eprintf("3\n");
+    });
+    QObject::connect(graphDock->graphView->verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
+        int x = graphDock->graphView->viewport()->rect().topLeft().x();
+        int y = graphDock->graphView->viewport()->rect().topLeft().y();
+        int w = graphDock->graphView->viewport()->rect().bottomRight().x();
+        int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
+            x = graphDock->graphView->horizontalScrollBar()->minimum();
+            w = graphDock->graphView->viewport()->width();
+            eprintf("4.5\n");
+        }
+        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
+            y = graphDock->graphView->verticalScrollBar()->minimum();
+            h = graphDock->graphView->viewport()->height();
+            eprintf("4.5\n");
+        }
+        QPoint p1(x, y);
+        QPoint p2(w, h);
+        miniGraphDock->graphView->rangeRect = QRect(p1, p2 - QPoint(1, 1));
+        eprintf("4\n");
+    });
     QObject::connect(graphDock->graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), miniGraphDock->graphView->horizontalScrollBar(), SLOT(setValue(int)));
     QObject::connect(graphDock->graphView->verticalScrollBar(), SIGNAL(valueChanged(int)), miniGraphDock->graphView->verticalScrollBar(), SLOT(setValue(int)));
     QObject::connect(miniGraphDock->graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), graphDock->graphView->horizontalScrollBar(), SLOT(setValue(int)));
