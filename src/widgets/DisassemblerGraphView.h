@@ -11,7 +11,7 @@
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "common/RichTextPainter.h"
-#include "CutterSeekableWidget.h"
+#include "CutterSeekable.h"
 
 class QTextEdit;
 class SyntaxHighlighter;
@@ -151,8 +151,6 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
 
 private slots:
-    void seekPrev();
-
     void on_actionExportGraph_triggered();
 
 private:
@@ -181,7 +179,7 @@ private:
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
-    CutterSeekableWidget *seekable = nullptr;
+    CutterSeekable *seekable = nullptr;
     QList<QShortcut *> shortcuts;
     QList<RVA> breakpoints;
 

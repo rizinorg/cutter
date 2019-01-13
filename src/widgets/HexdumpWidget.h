@@ -10,7 +10,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterSeekableWidget.h"
+#include "CutterSeekable.h"
 #include "dialogs/HexdumpRangeDialog.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
@@ -107,7 +107,7 @@ private:
     ut64 requestedSelectionEndAddress=0;
     HexdumpRangeDialog  rangeDialog;
     QAction syncAction;
-    CutterSeekableWidget *seekable;
+    CutterSeekable *seekable;
 
 private slots:
     void on_seekChanged(RVA addr);

@@ -17,7 +17,7 @@
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::HexdumpWidget),
-    seekable(new CutterSeekableWidget(this))
+    seekable(new CutterSeekable(this))
 {
     ui->setupUi(this);
 
@@ -116,7 +116,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this,
             &HexdumpWidget::selectionChanged);
-    connect(seekable, &CutterSeekableWidget::seekChanged, this, &HexdumpWidget::on_seekChanged);
+    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::on_seekChanged);
     connect(&rangeDialog, &QDialog::accepted, this, &HexdumpWidget::on_rangeDialogAccepted);
 
     format = Format::Hex;
@@ -652,12 +652,11 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
 void HexdumpWidget::toggleSync()
 {
     QString windowTitle = tr("Hexdump");
-    seekable->toggleSyncWithCore();
-    if (seekable->getSyncWithCore()) {
+    seekable->toggleSynchronization();
+    if (seekable->isSynchronized()) {
         setWindowTitle(windowTitle);
     } else {
-        setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
-        seekable->setIndependentOffset(Core()->getOffset());
+        setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     }
 }
 

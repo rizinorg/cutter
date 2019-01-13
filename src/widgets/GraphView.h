@@ -53,8 +53,8 @@ public:
     };
 
     struct GraphBlock {
-        qreal x = 0.0;
-        qreal y = 0.0;
+        int x = 0;
+        int y = 0;
         int width = 0;
         int height = 0;
         // This is a unique identifier, e.g. offset in the case of r2 blocks
@@ -86,8 +86,8 @@ public:
         bool end_arrow = true;
     };
 
-    GraphView(QWidget *parent);
-    ~GraphView();
+    explicit GraphView(QWidget *parent);
+    ~GraphView() override;
     void paintEvent(QPaintEvent *event) override;
 
     // Show a block centered. Animates to it if animated=true

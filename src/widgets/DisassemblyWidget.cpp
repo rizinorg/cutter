@@ -41,7 +41,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
-    ,   seekable(new CutterSeekableWidget(this))
+    ,   seekable(new CutterSeekable(this))
 {
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
@@ -147,7 +147,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     syncIt.setText(tr("Sync/unsync offset"));
     mCtxMenu->addAction(&syncIt);
     connect(&syncIt, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
-    connect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblyWidget::on_seekChanged);
+    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblyWidget::on_seekChanged);
 
 #define ADD_SHORTCUT(ksq, slot) { \
     QShortcut *s = new QShortcut((ksq), this); \
@@ -180,12 +180,11 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 void DisassemblyWidget::toggleSync()
 {
     QString windowTitle = tr("Disassembly");
-    seekable->toggleSyncWithCore();
-    if (seekable->getSyncWithCore()) {
+    seekable->toggleSynchronization();
+    if (seekable->isSynchronized()) {
         setWindowTitle(windowTitle);
     } else {
-        setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
-        seekable->setIndependentOffset(Core()->getOffset());
+        setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     }
 }
 

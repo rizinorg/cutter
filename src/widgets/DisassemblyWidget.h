@@ -3,7 +3,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterSeekableWidget.h"
+#include "CutterSeekable.h"
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QShortcut>
@@ -72,7 +72,7 @@ private:
 
     void moveCursorRelative(bool up, bool page);
     QAction syncIt;
-    CutterSeekableWidget *seekable;
+    CutterSeekable *seekable;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
