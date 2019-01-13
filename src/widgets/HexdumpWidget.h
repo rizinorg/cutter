@@ -21,6 +21,8 @@
 
 #include "ui_HexdumpWidget.h"
 
+class RefreshDeferrer;
+
 class HexdumpWidget : public CutterDockWidget
 {
     Q_OBJECT
@@ -71,7 +73,7 @@ private:
     RVA first_loaded_address = RVA_INVALID;
     RVA last_loaded_address = RVA_INVALID;
 
-    bool hexdumpDirty = false;
+    RefreshDeferrer *refreshDeferrer;
 
     void refresh(RVA addr = RVA_INVALID);
     void selectHexPreview();

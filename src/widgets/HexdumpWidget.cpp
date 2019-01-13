@@ -80,6 +80,11 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     updateHeaders();
 
     this->setWindowTitle(tr("Hexdump"));
+
+    refreshDeferrer = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
+        refresh(offset ? *offset : RVA_INVALID);
+    });
+
     connect(&syncAction, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
 
     // Set hexdump context menu
@@ -118,12 +123,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
             &HexdumpWidget::selectionChanged);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
     connect(&rangeDialog, &QDialog::accepted, this, &HexdumpWidget::on_rangeDialogAccepted);
-
-    connect(this, &CutterDockWidget::becameVisibleToUser, this, [this]() {
-        if (hexdumpDirty) {
-            refresh();
-        }
-    });
 
     format = Format::Hex;
     initParsing();
@@ -320,11 +319,8 @@ void HexdumpWidget::highlightHexWords(const QString &str)
 
 void HexdumpWidget::refresh(RVA addr)
 {
-    if (!isVisibleToUser()) {
-        hexdumpDirty = true;
+    if (!refreshDeferrer->attemptRefresh(addr == RVA_INVALID ? nullptr : new RVA(addr))) {
         return;
-    } else {
-        hexdumpDirty = false;
     }
 
     ut64 loadLines = 0;

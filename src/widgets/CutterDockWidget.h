@@ -26,7 +26,7 @@ signals:
 private:
     QAction *action;
 
-    bool isVisibleToUserCurrent;
+    bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();
 
 protected:
