@@ -35,14 +35,12 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
     return static_cast<DisassemblyTextBlockUserData *>(userData);
 }
 
-
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     :   CutterDockWidget(main, action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
     ,   seekable(new CutterSeekable(this))
-    ,   disasmRefresh(new ReplacingRefreshDeferrerAccumulator<RVA>)
 {
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
@@ -64,10 +62,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     setupFonts();
     setupColors();
 
-    disasmRefresh.registerFor(this);
-    connect(&disasmRefresh, &RefreshDeferrer::refreshNow, this, [this](RefreshDeferrerParamsResult paramsResult) {
+    disasmRefresh = createReplacingRefreshDeferrer<RVA>([this](const RVA *offset) {
         printf("got refresh now!\n");
-        RVA *offset = static_cast<RVA *>(paramsResult);
         refreshDisasm(*offset);
     });
 
@@ -203,7 +199,7 @@ QWidget *DisassemblyWidget::getTextWidget()
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
-    if(!disasmRefresh.attemptRefresh(new RVA(offset))) {
+    if(!disasmRefresh->attemptRefresh(new RVA(offset))) {
         printf("we tried to refresh, but shouldn't yet.\n");
         return;
     }

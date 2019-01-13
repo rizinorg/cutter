@@ -59,7 +59,7 @@ private:
     int cursorLineOffset;
     bool seekFromCursor;
 
-    RefreshDeferrer disasmRefresh;
+    RefreshDeferrer *disasmRefresh;
 
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);

@@ -77,7 +77,7 @@ public:
     void registerFor(CutterDockWidget *dockWidget);
 
 signals:
-    void refreshNow(RefreshDeferrerParamsResult paramsResult);
+    void refreshNow(const RefreshDeferrerParamsResult paramsResult);
 };
 
 #endif //REFRESHDEFERRER_H
