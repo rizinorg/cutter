@@ -33,14 +33,13 @@ protected:
     void closeEvent(QCloseEvent *event) override;
 
     template<class ParamResult, typename Func>
-    RefreshDeferrer *createReplacingRefreshDeferrer(Func refreshNowFunc)
+    RefreshDeferrer *createReplacingRefreshDeferrer(bool replaceIfNull, Func refreshNowFunc)
     {
-        auto *deferrer = new RefreshDeferrer(new ReplacingRefreshDeferrerAccumulator<ParamResult>(), this);
+        auto *deferrer = new RefreshDeferrer(new ReplacingRefreshDeferrerAccumulator<ParamResult>(replaceIfNull), this);
         deferrer->registerFor(this);
         connect(deferrer, &RefreshDeferrer::refreshNow, this, [refreshNowFunc](const RefreshDeferrerParamsResult paramsResult) {
-            printf("got refresh now!\n");
-            auto *offset = static_cast<const ParamResult *>(paramsResult);
-            refreshNowFunc(offset);
+            auto *result = static_cast<const ParamResult *>(paramsResult);
+            refreshNowFunc(result);
         });
         return deferrer;
     }

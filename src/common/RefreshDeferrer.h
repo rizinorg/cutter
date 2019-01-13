@@ -29,8 +29,12 @@ class ReplacingRefreshDeferrerAccumulator: public RefreshDeferrerAccumulator
 {
 private:
     T *value = nullptr;
+    bool replaceIfNull;
 
 public:
+    explicit ReplacingRefreshDeferrerAccumulator(bool replaceIfNull = true)
+        : replaceIfNull(replaceIfNull) {}
+
     ~ReplacingRefreshDeferrerAccumulator() override
     {
         delete value;
@@ -39,6 +43,9 @@ public:
 protected:
     void accumulate(RefreshDeferrerParams params) override
     {
+        if (!replaceIfNull && !params) {
+            return;
+        }
         delete value;
         value = static_cast<T *>(params);
     }
