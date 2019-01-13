@@ -23,6 +23,10 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     viewBacktrace->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewBacktrace);
 
+    refreshDeferrer = createRefreshDeferrer([this]() {
+        updateContents();
+    });
+
     connect(Core(), &CutterCore::refreshAll, this, &BacktraceWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &BacktraceWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &BacktraceWidget::fontsUpdatedSlot);
@@ -32,6 +36,9 @@ BacktraceWidget::~BacktraceWidget() {}
 
 void BacktraceWidget::updateContents()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
     setBacktraceGrid();
 }
 

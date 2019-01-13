@@ -32,4 +32,5 @@ private:
     QGridLayout *registerLayout = new QGridLayout;
     int numCols = 2;
     int registerLen = 0;
+    RefreshDeferrer *refreshDeferrer;
 };

@@ -198,12 +198,12 @@ void MainWindow::initUI()
     commentsDock = new CommentsWidget(this, ui->actionComments);
     stringsDock = new StringsWidget(this, ui->actionStrings);
     flagsDock = new FlagsWidget(this, ui->actionFlags);
-    //stackDock = new StackWidget(this, ui->actionStack);
-    //backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
-    //registersDock = new RegistersWidget(this, ui->actionRegisters);
-    //memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
-    //breakpointDock = new BreakpointWidget(this, ui->actionBreakpoint);
-    //registerRefsDock = new RegisterRefsWidget(this, ui->actionRegisterRefs);
+    stackDock = new StackWidget(this, ui->actionStack);
+    backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
+    registersDock = new RegistersWidget(this, ui->actionRegisters);
+    memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
+    breakpointDock = new BreakpointWidget(this, ui->actionBreakpoint);
+    registerRefsDock = new RegisterRefsWidget(this, ui->actionRegisterRefs);
 #ifdef CUTTER_ENABLE_JUPYTER
     jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else
@@ -578,13 +578,14 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, vTablesDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
-    //addDockWidget(Qt::TopDockWidgetArea, stackDock);
-    //splitDockWidget(stackDock, registersDock, Qt::Vertical);
-    //tabifyDockWidget(stackDock, backtraceDock);
+    addDockWidget(Qt::TopDockWidgetArea, stackDock);
+    splitDockWidget(stackDock, registersDock, Qt::Vertical);
+    tabifyDockWidget(stackDock, backtraceDock);
+
     // MemoryMap/Breakpoint/RegRefs widget goes in the center tabs
-    //tabifyDockWidget(dashboardDock, memoryMapDock);
-    //tabifyDockWidget(dashboardDock, breakpointDock);
-    //tabifyDockWidget(dashboardDock, registerRefsDock);
+    tabifyDockWidget(dashboardDock, memoryMapDock);
+    tabifyDockWidget(dashboardDock, breakpointDock);
+    tabifyDockWidget(dashboardDock, registerRefsDock);
 #ifdef CUTTER_ENABLE_JUPYTER
     tabifyDockWidget(dashboardDock, jupyterDock);
 #endif

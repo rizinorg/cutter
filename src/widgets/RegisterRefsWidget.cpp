@@ -119,6 +119,10 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     actionCopyValue = new QAction(tr("Copy register value"));
     actionCopyRef = new QAction(tr("Copy register reference"));
 
+    refreshDeferrer = createRefreshDeferrer([this](){
+        refreshRegisterRef();
+    });
+
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
     connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
@@ -145,10 +149,14 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     });
 }
 
-RegisterRefsWidget::~RegisterRefsWidget() {}
+RegisterRefsWidget::~RegisterRefsWidget() = default;
 
 void RegisterRefsWidget::refreshRegisterRef()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     registerRefModel->beginResetModel();
     registerRefs = Core()->getRegisterRefs();
     registerRefModel->endResetModel();
