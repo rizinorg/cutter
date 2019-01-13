@@ -177,13 +177,13 @@ void MainWindow::initUI()
 
     disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
     hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
-    //pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
+    pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
 
     // Add graph view as dockable
     graphDock = new GraphWidget(this, ui->actionGraph);
 
-    //sectionsDock = new SectionsWidget(this, ui->actionSections);
+    sectionsDock = new SectionsWidget(this, ui->actionSections);
     //segmentsDock = new SegmentsWidget(this, ui->actionSegments);
     //entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
     functionsDock = new FunctionsWidget(this, ui->actionFunctions);
@@ -195,7 +195,7 @@ void MainWindow::initUI()
     //searchDock = new SearchWidget(this, ui->actionSearch);
     //symbolsDock = new SymbolsWidget(this, ui->actionSymbols);
     //relocsDock = new RelocsWidget(this, ui->actionRelocs);
-    //commentsDock = new CommentsWidget(this, ui->actionComments);
+    commentsDock = new CommentsWidget(this, ui->actionComments);
     //stringsDock = new StringsWidget(this, ui->actionStrings);
     //flagsDock = new FlagsWidget(this, ui->actionFlags);
     //stackDock = new StackWidget(this, ui->actionStack);

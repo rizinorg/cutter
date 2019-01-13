@@ -32,7 +32,7 @@ void RefreshDeferrer::registerFor(CutterDockWidget *dockWidget)
 {
     this->dockWidget = dockWidget;
     connect(dockWidget, &CutterDockWidget::becameVisibleToUser, this, [this]() {
-        if(dirty) {
+        if (dirty) {
             emit refreshNow(acc ? acc->result() : nullptr);
             if (acc) {
                 acc->clear();
