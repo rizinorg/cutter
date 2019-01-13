@@ -118,14 +118,22 @@ MemoryMapWidget::MemoryMapWidget(MainWindow *main, QAction *action) :
 
     setScrollMode();
 
+    refreshDeferrer = createRefreshDeferrer([this]() {
+        refreshMemoryMap();
+    });
+
     connect(Core(), &CutterCore::refreshAll, this, &MemoryMapWidget::refreshMemoryMap);
     connect(Core(), &CutterCore::registersChanged, this, &MemoryMapWidget::refreshMemoryMap);
 }
 
-MemoryMapWidget::~MemoryMapWidget() {}
+MemoryMapWidget::~MemoryMapWidget() = default;
 
 void MemoryMapWidget::refreshMemoryMap()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     memoryModel->beginResetModel();
     memoryMaps = Core()->getMemoryMap();
     memoryModel->endResetModel();
