@@ -62,9 +62,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     setupFonts();
     setupColors();
 
-    disasmRefresh = createReplacingRefreshDeferrer<RVA>([this](const RVA *offset) {
-        printf("got refresh now!\n");
-        refreshDisasm(*offset);
+    disasmRefresh = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
+        refreshDisasm(offset ? *offset : RVA_INVALID);
     });
 
     maxLines = 0;
@@ -199,11 +198,9 @@ QWidget *DisassemblyWidget::getTextWidget()
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
-    if(!disasmRefresh->attemptRefresh(new RVA(offset))) {
-        printf("we tried to refresh, but shouldn't yet.\n");
+    if(!disasmRefresh->attemptRefresh(offset == RVA_INVALID ? nullptr : new RVA(offset))) {
         return;
     }
-    printf("ok, actually refreshing now!\n");
 
     if (offset != RVA_INVALID) {
         topOffset = offset;
