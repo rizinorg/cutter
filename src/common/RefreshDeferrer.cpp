@@ -15,6 +15,9 @@ RefreshDeferrer::~RefreshDeferrer()
 bool RefreshDeferrer::attemptRefresh(RefreshDeferrerParams params)
 {
     if (dockWidget->isVisibleToUser()) {
+        if (acc) {
+            acc->ignoreParams(params);
+        }
         return true;
     } else {
         dirty = true;

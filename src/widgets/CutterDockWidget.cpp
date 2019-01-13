@@ -50,7 +50,6 @@ void CutterDockWidget::updateIsVisibleToUser()
         return;
     }
     isVisibleToUserCurrent = visibleToUser;
-    qDebug() << this << "isVisibleToUser changed to" << isVisibleToUserCurrent;
     if (isVisibleToUserCurrent) {
         emit becameVisibleToUser();
     }
