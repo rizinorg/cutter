@@ -1,5 +1,5 @@
 #include "DisassemblerGraphView.h"
-#include "CutterSeekableWidget.h"
+#include "CutterSeekable.h"
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -26,7 +26,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
       mMenu(new DisassemblyContextMenu(this)),
-      seekable(new CutterSeekableWidget(this))
+      seekable(new CutterSeekable(this))
 {
     highlight_token = nullptr;
     // Signals that require a refresh all
@@ -56,7 +56,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     // ESC for previous
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
-    connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
+    connect(shortcut_escape, SIGNAL(activated()), seekable, SLOT(seekPrev()));
 
     // Zoom shortcuts
     QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
@@ -100,7 +100,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcuts.append(shortcut_next_instr_arrow);
     shortcuts.append(shortcut_prev_instr_arrow);
 
-    //Export Graph menu
+    // Export Graph menu
     mMenu->addSeparator();
     actionExportGraph.setText(tr("Export Graph"));
     mMenu->addAction(&actionExportGraph);
@@ -124,10 +124,10 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
 {
     if (disconn) {
-        disconnect(seekable, &CutterSeekableWidget::seekChanged, this,
+        disconnect(seekable, &CutterSeekable::seekableSeekChanged, this,
                    &DisassemblerGraphView::onSeekChanged);
     } else {
-        connect(seekable, &CutterSeekableWidget::seekChanged, this, &DisassemblerGraphView::onSeekChanged);
+        connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblerGraphView::onSeekChanged);
     }
 }
 
@@ -140,12 +140,11 @@ DisassemblerGraphView::~DisassemblerGraphView()
 
 void DisassemblerGraphView::toggleSync()
 {
-    seekable->toggleSyncWithCore();
-    if (seekable->getSyncWithCore()) {
+    seekable->toggleSynchronization();
+    if (seekable->isSynchronized()) {
         parentWidget()->setWindowTitle(windowTitle);
     } else {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
-        seekable->setIndependentOffset(Core()->getOffset());
+        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     }
 }
 
@@ -214,8 +213,8 @@ void DisassemblerGraphView::loadCurrentGraph()
     } else if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
     }
-    if (!seekable->getSyncWithCore()) {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
+    if (!seekable->isSynchronized()) {
+        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     } else {
         parentWidget()->setWindowTitle(windowTitle);
     }
@@ -772,15 +771,6 @@ void DisassemblerGraphView::seekLocal(RVA addr, bool update_viewport)
     connectSeekChanged(false);
     if (update_viewport) {
         viewport()->update();
-    }
-}
-
-void DisassemblerGraphView::seekPrev()
-{
-    if (seekable->getSyncWithCore()) {
-        Core()->seekPrev();
-    } else {
-        seekable->seek(seekable->getPrevIndependentOffset());
     }
 }
 
