@@ -32,6 +32,26 @@ private:
 protected:
     void closeEvent(QCloseEvent *event) override;
 
+    /*!
+     * \brief Convenience method for creating and registering a RefreshDeferrer without any parameters
+     * \param refreshNowFunc lambda taking no parameters, called when a refresh should occur
+     */
+    template<typename Func>
+    RefreshDeferrer *createRefreshDeferrer(Func refreshNowFunc)
+    {
+        auto *deferrer = new RefreshDeferrer(nullptr, this);
+        deferrer->registerFor(this);
+        connect(deferrer, &RefreshDeferrer::refreshNow, this, [refreshNowFunc](const RefreshDeferrerParamsResult) {
+            refreshNowFunc();
+        });
+        return deferrer;
+    }
+
+    /*!
+     * \brief Convenience method for creating and registering a RefreshDeferrer with a replacing Accumulator
+     * \param replaceIfNull passed to the ReplacingRefreshDeferrerAccumulator
+     * \param refreshNowFunc lambda taking a single parameter of type ParamResult, called when a refresh should occur
+     */
     template<class ParamResult, typename Func>
     RefreshDeferrer *createReplacingRefreshDeferrer(bool replaceIfNull, Func refreshNowFunc)
     {

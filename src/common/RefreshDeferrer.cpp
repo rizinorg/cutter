@@ -18,7 +18,9 @@ bool RefreshDeferrer::attemptRefresh(RefreshDeferrerParams params)
         return true;
     } else {
         dirty = true;
-        acc->accumulate(params);
+        if (acc) {
+            acc->accumulate(params);
+        }
         return false;
     }
 }
@@ -28,8 +30,10 @@ void RefreshDeferrer::registerFor(CutterDockWidget *dockWidget)
     this->dockWidget = dockWidget;
     connect(dockWidget, &CutterDockWidget::becameVisibleToUser, this, [this]() {
         if(dirty) {
-            emit refreshNow(acc->result());
-            acc->clear();
+            emit refreshNow(acc ? acc->result() : nullptr);
+            if (acc) {
+                acc->clear();
+            }
             dirty = false;
         }
     });
