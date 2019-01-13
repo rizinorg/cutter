@@ -184,20 +184,20 @@ void MainWindow::initUI()
     graphDock = new GraphWidget(this, ui->actionGraph);
 
     sectionsDock = new SectionsWidget(this, ui->actionSections);
-    //segmentsDock = new SegmentsWidget(this, ui->actionSegments);
-    //entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
+    segmentsDock = new SegmentsWidget(this, ui->actionSegments);
+    entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
     functionsDock = new FunctionsWidget(this, ui->actionFunctions);
-    //importsDock = new ImportsWidget(this, ui->actionImports);
-    //exportsDock = new ExportsWidget(this, ui->actionExports);
-    //headersDock = new HeadersWidget(this, ui->actionHeaders);
-    //zignaturesDock = new ZignaturesWidget(this, ui->actionZignatures);
-    //typesDock = new TypesWidget(this, ui->actionTypes);
-    //searchDock = new SearchWidget(this, ui->actionSearch);
-    //symbolsDock = new SymbolsWidget(this, ui->actionSymbols);
-    //relocsDock = new RelocsWidget(this, ui->actionRelocs);
+    importsDock = new ImportsWidget(this, ui->actionImports);
+    exportsDock = new ExportsWidget(this, ui->actionExports);
+    headersDock = new HeadersWidget(this, ui->actionHeaders);
+    zignaturesDock = new ZignaturesWidget(this, ui->actionZignatures);
+    typesDock = new TypesWidget(this, ui->actionTypes);
+    searchDock = new SearchWidget(this, ui->actionSearch);
+    symbolsDock = new SymbolsWidget(this, ui->actionSymbols);
+    relocsDock = new RelocsWidget(this, ui->actionRelocs);
     commentsDock = new CommentsWidget(this, ui->actionComments);
-    //stringsDock = new StringsWidget(this, ui->actionStrings);
-    //flagsDock = new FlagsWidget(this, ui->actionFlags);
+    stringsDock = new StringsWidget(this, ui->actionStrings);
+    flagsDock = new FlagsWidget(this, ui->actionFlags);
     //stackDock = new StackWidget(this, ui->actionStack);
     //backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
     //registersDock = new RegistersWidget(this, ui->actionRegisters);
@@ -205,16 +205,16 @@ void MainWindow::initUI()
     //breakpointDock = new BreakpointWidget(this, ui->actionBreakpoint);
     //registerRefsDock = new RegisterRefsWidget(this, ui->actionRegisterRefs);
 #ifdef CUTTER_ENABLE_JUPYTER
-    //jupyterDock = new JupyterWidget(this, ui->actionJupyter);
+    jupyterDock = new JupyterWidget(this, ui->actionJupyter);
 #else
     ui->actionJupyter->setEnabled(false);
     ui->actionJupyter->setVisible(false);
 #endif
     dashboardDock = new Dashboard(this, ui->actionDashboard);
-    //sdbDock = new SdbDock(this, ui->actionSDBBrowser);
-    //classesDock = new ClassesWidget(this, ui->actionClasses);
-    //resourcesDock = new ResourcesWidget(this, ui->actionResources);
-    //vTablesDock = new VTablesWidget(this, ui->actionVTables);
+    sdbDock = new SdbDock(this, ui->actionSDBBrowser);
+    classesDock = new ClassesWidget(this, ui->actionClasses);
+    resourcesDock = new ResourcesWidget(this, ui->actionResources);
+    vTablesDock = new VTablesWidget(this, ui->actionVTables);
 
 
     // Set up dock widgets default layout
@@ -543,7 +543,7 @@ void MainWindow::lockUnlock_Docks(bool what)
 void MainWindow::restoreDocks()
 {
     // In the upper half the functions are the first widget
-    //addDockWidget(Qt::TopDockWidgetArea, functionsDock);
+    addDockWidget(Qt::TopDockWidgetArea, functionsDock);
 
     // Function | Dashboard
     splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
@@ -552,30 +552,30 @@ void MainWindow::restoreDocks()
     addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
 
     // Console | Sections
-    //splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
-    //splitDockWidget(consoleDock, segmentsDock, Qt::Horizontal);
+    splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
+    splitDockWidget(consoleDock, segmentsDock, Qt::Horizontal);
 
     // Tabs for center (must be applied after splitDockWidget())
-    //tabifyDockWidget(sectionsDock, commentsDock);
-    //tabifyDockWidget(segmentsDock, commentsDock);
+    tabifyDockWidget(sectionsDock, commentsDock);
+    tabifyDockWidget(segmentsDock, commentsDock);
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
-    //tabifyDockWidget(dashboardDock, pseudocodeDock);
-    //tabifyDockWidget(dashboardDock, entrypointDock);
-    //tabifyDockWidget(dashboardDock, flagsDock);
-    //tabifyDockWidget(dashboardDock, stringsDock);
-    //tabifyDockWidget(dashboardDock, relocsDock);
-    //tabifyDockWidget(dashboardDock, importsDock);
-    //tabifyDockWidget(dashboardDock, exportsDock);
-    //tabifyDockWidget(dashboardDock, typesDock);
-    //tabifyDockWidget(dashboardDock, searchDock);
-    //tabifyDockWidget(dashboardDock, headersDock);
-    //tabifyDockWidget(dashboardDock, zignaturesDock);
-    //tabifyDockWidget(dashboardDock, symbolsDock);
-    //tabifyDockWidget(dashboardDock, classesDock);
-    //tabifyDockWidget(dashboardDock, resourcesDock);
-    //tabifyDockWidget(dashboardDock, vTablesDock);
+    tabifyDockWidget(dashboardDock, pseudocodeDock);
+    tabifyDockWidget(dashboardDock, entrypointDock);
+    tabifyDockWidget(dashboardDock, flagsDock);
+    tabifyDockWidget(dashboardDock, stringsDock);
+    tabifyDockWidget(dashboardDock, relocsDock);
+    tabifyDockWidget(dashboardDock, importsDock);
+    tabifyDockWidget(dashboardDock, exportsDock);
+    tabifyDockWidget(dashboardDock, typesDock);
+    tabifyDockWidget(dashboardDock, searchDock);
+    tabifyDockWidget(dashboardDock, headersDock);
+    tabifyDockWidget(dashboardDock, zignaturesDock);
+    tabifyDockWidget(dashboardDock, symbolsDock);
+    tabifyDockWidget(dashboardDock, classesDock);
+    tabifyDockWidget(dashboardDock, resourcesDock);
+    tabifyDockWidget(dashboardDock, vTablesDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
     //addDockWidget(Qt::TopDockWidgetArea, stackDock);
@@ -586,7 +586,7 @@ void MainWindow::restoreDocks()
     //tabifyDockWidget(dashboardDock, breakpointDock);
     //tabifyDockWidget(dashboardDock, registerRefsDock);
 #ifdef CUTTER_ENABLE_JUPYTER
-    //tabifyDockWidget(dashboardDock, jupyterDock);
+    tabifyDockWidget(dashboardDock, jupyterDock);
 #endif
 
     updateDockActionsChecked();
