@@ -145,6 +145,8 @@ public slots:
     void nextInstr();
     void prevInstr();
 
+    void copySelection();
+
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;
 
