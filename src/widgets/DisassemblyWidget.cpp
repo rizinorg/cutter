@@ -595,7 +595,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         if (jump == RVA_INVALID) {
             bool ok;
             RVA xref = Core()->cmdj("axfj@" + QString::number(
-                                        offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
+                offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
             if (ok) {
                 jump = xref;
             }
