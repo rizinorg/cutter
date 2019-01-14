@@ -445,6 +445,30 @@ void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
     eprintf("pos x is %d\n", event->pos().x());
     eprintf("pos y is %d\n", event->pos().y());
     //if (rangeRect.contains(event->pos())) {
+        int a = x + w + horizontalScrollBar()->value();
+        int b = horizontalScrollBar()->value() + viewport()->width();
+        int c = y + h + verticalScrollBar()->value();
+        int d = verticalScrollBar()->value() + viewport()->height();
+        if (a >= b) {
+            eprintf("horizontalScrollBar\n");
+
+            horizontalScrollBar()->setValue(horizontalScrollBar()->value() + a - b);
+            x = rangeRect.x();
+        }
+        if (c >= d) {
+            eprintf("verticalScrollBar\n");
+
+            verticalScrollBar()->setValue(verticalScrollBar()->value() + c - d);
+            y = rangeRect.y();
+        }
+        if (x <= 0) {
+            horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x);
+            x = rangeRect.x();
+        }
+        if (y <= 0) {
+            verticalScrollBar()->setValue(verticalScrollBar()->value() + y);
+            y = rangeRect.y();
+        }
         rangeRect = QRect(x, y, w, h);
         viewport()->update();
     //}
@@ -513,8 +537,6 @@ MiniGraphView::Instr *MiniGraphView::getInstrForMouseEvent(
 
     return nullptr;
 }
-
-// Public Slots
 
 void MiniGraphView::colorsUpdatedSlot()
 {
