@@ -436,42 +436,53 @@ void MiniGraphView::paintEvent(QPaintEvent *event)
     p.drawRect(rangeRect);
 }
 
+void MiniGraphView::mouseReleaseEvent(QMouseEvent *event)
+{
+    mouseActive = false;
+    GraphView::mouseReleaseEvent(event);
+}
+
 void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
 {
+    if (rangeRect.contains(event->pos())) {
+        mouseActive = true;
+    }
+    if (!mouseActive) {
+        return;
+    }
     int x = event->pos().x();
     int y = event->pos().y();
     int w = rangeRect.width();
     int h = rangeRect.height();
     eprintf("pos x is %d\n", event->pos().x());
     eprintf("pos y is %d\n", event->pos().y());
-    //if (rangeRect.contains(event->pos())) {
-        int a = x + w + horizontalScrollBar()->value();
-        int b = horizontalScrollBar()->value() + viewport()->width();
-        int c = y + h + verticalScrollBar()->value();
-        int d = verticalScrollBar()->value() + viewport()->height();
-        if (a >= b) {
-            eprintf("horizontalScrollBar\n");
+    viewport()->grabMouse();
+    int a = x + w + horizontalScrollBar()->value();
+    int b = horizontalScrollBar()->value() + viewport()->width();
+    int c = y + h + verticalScrollBar()->value();
+    int d = verticalScrollBar()->value() + viewport()->height();
+    if (a >= b) {
+        eprintf("horizontalScrollBar\n");
 
-            horizontalScrollBar()->setValue(horizontalScrollBar()->value() + a - b);
-            x = rangeRect.x();
-        }
-        if (c >= d) {
-            eprintf("verticalScrollBar\n");
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + a - b);
+        x = rangeRect.x();
+    }
+    if (c >= d) {
+        eprintf("verticalScrollBar\n");
 
-            verticalScrollBar()->setValue(verticalScrollBar()->value() + c - d);
-            y = rangeRect.y();
-        }
-        if (x <= 0) {
-            horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x);
-            x = rangeRect.x();
-        }
-        if (y <= 0) {
-            verticalScrollBar()->setValue(verticalScrollBar()->value() + y);
-            y = rangeRect.y();
-        }
-        rangeRect = QRect(x, y, w, h);
-        viewport()->update();
-    //}
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + c - d);
+        y = rangeRect.y();
+    }
+    if (x <= 0) {
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x);
+        x = rangeRect.x();
+    }
+    if (y <= 0) {
+        verticalScrollBar()->setValue(verticalScrollBar()->value() + y);
+        y = rangeRect.y();
+    }
+    rangeRect = QRect(x, y, w, h);
+    viewport()->update();
     emit mouseMoved();
 }
 

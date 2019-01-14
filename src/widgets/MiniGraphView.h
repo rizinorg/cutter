@@ -153,6 +153,7 @@ public slots:
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;
 
+    void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:
@@ -163,6 +164,8 @@ private slots:
 private:
     bool first_draw = true;
     bool transition_dont_seek = false;
+
+    bool mouseActive = false;
 
     Token *highlight_token;
     // Font data
