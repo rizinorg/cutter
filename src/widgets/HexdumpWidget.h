@@ -10,7 +10,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterSeekable.h"
+#include "common/CutterSeekable.h"
 #include "dialogs/HexdumpRangeDialog.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"

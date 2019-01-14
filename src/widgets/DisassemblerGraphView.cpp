@@ -1,5 +1,5 @@
 #include "DisassemblerGraphView.h"
-#include "CutterSeekable.h"
+#include "common/CutterSeekable.h"
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>

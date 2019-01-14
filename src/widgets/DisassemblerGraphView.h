@@ -11,7 +11,7 @@
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "common/RichTextPainter.h"
-#include "CutterSeekable.h"
+#include "common/CutterSeekable.h"
 
 class QTextEdit;
 class SyntaxHighlighter;
