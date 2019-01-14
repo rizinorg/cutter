@@ -219,7 +219,7 @@ SOURCES += \
     widgets/ComboQuickFilterView.cpp \
     dialogs/HexdumpRangeDialog.cpp \
     common/QtResImporter.cpp \
-    widgets/CutterSeekable.cpp \
+    common/CutterSeekable.cpp \
     common/RefreshDeferrer.cpp
 
 HEADERS  += \
@@ -323,7 +323,7 @@ HEADERS  += \
     widgets/ComboQuickFilterView.h \
     dialogs/HexdumpRangeDialog.h \
     common/QtResImporter.h \
-    widgets/CutterSeekable.h \
+    common/CutterSeekable.h \
     common/RefreshDeferrer.h
 
 FORMS    += \
