@@ -442,10 +442,13 @@ void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
     int y = event->pos().y();
     int w = rangeRect.width();
     int h = rangeRect.height();
+    eprintf("pos x is %d\n", event->pos().x());
+    eprintf("pos y is %d\n", event->pos().y());
     //if (rangeRect.contains(event->pos())) {
         rangeRect = QRect(x, y, w, h);
         viewport()->update();
     //}
+    emit mouseMoved();
 }
 
 GraphView::EdgeConfiguration MiniGraphView::edgeConfiguration(GraphView::GraphBlock &from,

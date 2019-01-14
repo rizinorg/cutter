@@ -108,6 +108,9 @@ class MiniGraphView : public GraphView
         //dummy class
     };
 
+signals:
+    void mouseMoved();
+
 public:
     MiniGraphView(QWidget *parent);
     ~MiniGraphView() override;
