@@ -150,6 +150,8 @@ public slots:
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;
 
+    void mouseMoveEvent(QMouseEvent *event) override;
+
 private slots:
     void seekPrev();
 

@@ -434,7 +434,18 @@ void MiniGraphView::paintEvent(QPaintEvent *event)
     QPainter p(viewport());
     p.setPen(Qt::red);
     p.drawRect(rangeRect);
-    eprintf("hey hey hey\n");
+}
+
+void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
+{
+    int x = event->pos().x();
+    int y = event->pos().y();
+    int w = rangeRect.width();
+    int h = rangeRect.height();
+    //if (rangeRect.contains(event->pos())) {
+        rangeRect = QRect(x, y, w, h);
+        viewport()->update();
+    //}
 }
 
 GraphView::EdgeConfiguration MiniGraphView::edgeConfiguration(GraphView::GraphBlock &from,
@@ -453,7 +464,6 @@ GraphView::EdgeConfiguration MiniGraphView::edgeConfiguration(GraphView::GraphBl
     ec.end_arrow = true;
     return ec;
 }
-
 
 RVA MiniGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
 {
