@@ -741,7 +741,6 @@ void GraphView::showBlock(GraphBlock *block, bool animated)
     target_y = std::min(verticalScrollBar()->maximum(), target_y);
     if (animated) {
         QPropertyAnimation *animation_x = new QPropertyAnimation(horizontalScrollBar(), "value", this);
-        animation_x->deleteLater();
         animation_x->setDuration(500);
         animation_x->setStartValue(horizontalScrollBar()->value());
         animation_x->setEndValue(target_x);
