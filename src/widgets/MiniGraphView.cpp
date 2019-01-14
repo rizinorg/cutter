@@ -465,21 +465,21 @@ void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
         eprintf("horizontalScrollBar\n");
 
         horizontalScrollBar()->setValue(horizontalScrollBar()->value() + a - b);
-        x = rangeRect.x();
+        x = horizontalScrollBar()->minimum() + viewport()->width() - w;
     }
     if (c >= d) {
         eprintf("verticalScrollBar\n");
 
         verticalScrollBar()->setValue(verticalScrollBar()->value() + c - d);
-        y = rangeRect.y();
+        y = verticalScrollBar()->minimum() + viewport()->height() - h;
     }
     if (x <= 0) {
         horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x);
-        x = rangeRect.x();
+        x = horizontalScrollBar()->minimum();
     }
     if (y <= 0) {
         verticalScrollBar()->setValue(verticalScrollBar()->value() + y);
-        y = rangeRect.y();
+        y = verticalScrollBar()->minimum();
     }
     rangeRect = QRect(x, y, w, h);
     viewport()->update();
