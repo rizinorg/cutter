@@ -158,7 +158,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
 
 void DebugActions::setButtonVisibleIfMainExists()
 {
-    int mainExists = Core()->cmd("f?main; ??").toInt();
+    int mainExists = Core()->cmd("f?sym.main; ??").toInt();
     // if main is not a flag we hide the continue until main button
     if (!mainExists) {
         actionContinueUntilMain->setVisible(false);
@@ -168,7 +168,8 @@ void DebugActions::setButtonVisibleIfMainExists()
 
 void DebugActions::continueUntilMain()
 {
-    Core()->continueUntilDebug("main");
+    QString mainAddr = Core()->cmd("?v sym.main");
+    Core()->continueUntilDebug(mainAddr);
 }
 
 void DebugActions::attachProcessDialog()
