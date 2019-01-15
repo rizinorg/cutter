@@ -1189,7 +1189,7 @@ void CutterCore::stopDebug()
             cmd(QString("dp- %1; o %2; .ar-").arg(QString::number(currentlyAttachedToPID), currentlyOpenFile));
             currentlyAttachedToPID = -1;
         } else {
-            cmd(QString("dk 9; e cfg.debug=false; o %1; .ar-").arg(currentlyOpenFile));
+            cmd("dk 9; oo; .ar-");
             // close ptrace file descriptors left open
             QJsonArray openFilesArray = cmdj("oj").array();;
             for (QJsonValue value : openFilesArray) {
@@ -2858,7 +2858,7 @@ QString CutterCore::getVersionInformation()
         { "r_hash", &r_hash_version },
         { "r_fs", &r_fs_version },
         { "r_io", &r_io_version },
-#if !USE_LIB_MAGIC        
+#if !USE_LIB_MAGIC
         { "r_magic", &r_magic_version },
 #endif
         { "r_parse", &r_parse_version },
