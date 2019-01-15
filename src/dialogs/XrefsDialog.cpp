@@ -33,6 +33,8 @@ XrefsDialog::XrefsDialog(QWidget *parent) :
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setupPreviewColors()));
 }
 
+XrefsDialog::~XrefsDialog() { }
+
 void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs)
 {
     // Fill refs
@@ -153,10 +155,9 @@ void XrefsDialog::updatePreview(RVA addr)
     TempConfig tempConfig;
     tempConfig.set("scr.html", true);
     tempConfig.set("scr.color", COLOR_MODE_16M);
-    // The addr - 45 here is totally arbitrary...
-    // TODO Use another DisassemblyWidget and center view on current offset
-    QString disass = Core()->cmd("pd 50 @ " + QString::number(addr - 45));
-    ui->previewTextEdit->document()->setHtml(disass);
+
+    QString disas = Core()->cmd("pd--20 @ " + QString::number(addr));
+    ui->previewTextEdit->document()->setHtml(disas);
 
     // Does it make any sense?
     ui->previewTextEdit->find(normalizeAddr(RAddressString(addr)), QTextDocument::FindBackward);
@@ -203,3 +204,4 @@ QString XrefsDialog::xrefTypeString(const QString &type)
     }
     return type;
 }
+

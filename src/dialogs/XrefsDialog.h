@@ -19,6 +19,7 @@ class XrefsDialog : public QDialog
 
 public:
     explicit XrefsDialog(QWidget *parent = nullptr);
+    ~XrefsDialog();
 
     void fillRefsForAddress(RVA addr, QString name, bool whole_function);
 
