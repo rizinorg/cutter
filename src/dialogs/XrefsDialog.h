@@ -19,7 +19,7 @@ class XrefsDialog : public QDialog
 
 public:
     explicit XrefsDialog(QWidget *parent = nullptr);
-    ~XrefsDialog();
+    ~XrefsDialog() override;
 
     void fillRefsForAddress(RVA addr, QString name, bool whole_function);
 
@@ -42,7 +42,6 @@ private:
     QString func_name;
 
     std::unique_ptr<Ui::XrefsDialog> ui;
-    CutterCore *core;
 
     void fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs);
     void updateLabels(QString name);
