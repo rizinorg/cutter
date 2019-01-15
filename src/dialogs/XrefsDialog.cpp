@@ -33,8 +33,6 @@ XrefsDialog::XrefsDialog(QWidget *parent) :
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setupPreviewColors()));
 }
 
-XrefsDialog::~XrefsDialog() = default;
-
 void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs)
 {
     // Fill refs
