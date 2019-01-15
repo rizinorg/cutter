@@ -583,8 +583,8 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    /*if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())
-            && event->type() == QEvent::MouseButtonDblClick) {
+    if (event->type() == QEvent::MouseButtonDblClick
+        && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
         QTextCursor cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
@@ -595,7 +595,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         if (jump == RVA_INVALID) {
             bool ok;
             RVA xref = Core()->cmdj("axfj@" + QString::number(
-                                        offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
+                offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
             if (ok) {
                 jump = xref;
             }
@@ -606,7 +606,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         }
 
         return true;
-    }*/
+    }
     return CutterDockWidget::eventFilter(obj, event);
 }
 
