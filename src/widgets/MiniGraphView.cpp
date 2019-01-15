@@ -431,6 +431,9 @@ void MiniGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 void MiniGraphView::paintEvent(QPaintEvent *event)
 {
     GraphView::paintEvent(event);
+    if (rangeRect.width() == 0 && rangeRect.height() == 0) {
+        return;
+    }
     QPainter p(viewport());
     p.setPen(Qt::red);
     p.drawRect(rangeRect);

@@ -188,11 +188,17 @@ void MainWindow::initUI()
     graphDock = new GraphWidget(this, ui->actionGraph);
     miniGraphDock = new MiniGraphWidget(this, ui->actionGraph);
     QObject::connect(graphDock->graphView, &DisassemblerGraphView::refreshGraph, [this]() {
-        int x = graphDock->graphView->viewport()->rect().topLeft().x();
-        int y = graphDock->graphView->viewport()->rect().topLeft().y();
-        int w = graphDock->graphView->viewport()->rect().bottomRight().x();
-        int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+        //int x = graphDock->graphView->viewport()->rect().topLeft().x();
+        //int y = graphDock->graphView->viewport()->rect().topLeft().y();
+        //int w = graphDock->graphView->viewport()->rect().bottomRight().x();
+        //int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+
+        int x = 0;
+        int y = 0;
+        int w = 0;
+        int h = 0;
         double m = miniGraphDock->graphView->current_scale;
+
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->minimum();
             w = graphDock->graphView->viewport()->width();
@@ -213,11 +219,17 @@ void MainWindow::initUI()
         eprintf("1\n");
     });
     QObject::connect(graphDock->graphView, &GraphView::refreshBlock, [this]() {
-        int x = graphDock->graphView->viewport()->rect().topLeft().x();
-        int y = graphDock->graphView->viewport()->rect().topLeft().y();
-        int w = graphDock->graphView->viewport()->rect().bottomRight().x();
-        int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+        //int x = graphDock->graphView->viewport()->rect().topLeft().x();
+        //int y = graphDock->graphView->viewport()->rect().topLeft().y();
+        //int w = graphDock->graphView->viewport()->rect().bottomRight().x();
+        //int h = graphDock->graphView->viewport()->rect().bottomRight().y();
+
+        int x = 0;
+        int y = 0;
+        int w = 0;
+        int h = 0;
         double m = miniGraphDock->graphView->current_scale;
+
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->minimum();
             w = graphDock->graphView->viewport()->width();
