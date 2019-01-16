@@ -119,9 +119,6 @@ MiniGraphView::MiniGraphView(QWidget *parent)
     header->setReadOnly(true);
     header->setLineWrapMode(QTextEdit::NoWrap);
     highlighter = new SyntaxHighlighter(header->document());
-
-    current_scale = 0.15;
-    //current_scale = 1;
 }
 
 void MiniGraphView::connectSeekChanged(bool disconn)
@@ -155,8 +152,22 @@ void MiniGraphView::toggleSync()
 void MiniGraphView::refreshView()
 {
     initFont();
+    current_scale = 1.0;
+    adjustSize(viewport()->size().width(), viewport()->size().height());
     loadCurrentGraph();
     viewport()->update();
+    if (horizontalScrollBar()->maximum() > 0) {
+        current_scale = (double)viewport()->width() / (double)(horizontalScrollBar()->maximum() + horizontalScrollBar()->pageStep());
+    }
+    if (verticalScrollBar()->maximum() > 0) {
+        double b = (double)viewport()->height() / (double)(verticalScrollBar()->maximum() + verticalScrollBar()->pageStep());
+        if (current_scale > b) {
+            current_scale = b;
+        }
+    }
+    adjustSize(viewport()->size().width(), viewport()->size().height());
+    viewport()->update();
+    eprintf("100\n");
 }
 
 void MiniGraphView::loadCurrentGraph()
@@ -437,6 +448,9 @@ void MiniGraphView::paintEvent(QPaintEvent *event)
     QPainter p(viewport());
     p.setPen(Qt::red);
     p.drawRect(rangeRect);
+
+    eprintf("whole view size is %d\n", horizontalScrollBar()->maximum());
+    eprintf("view size is %d\n", viewport()->width());
 }
 
 void MiniGraphView::mouseReleaseEvent(QMouseEvent *event)
