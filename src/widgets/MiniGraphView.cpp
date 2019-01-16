@@ -210,7 +210,7 @@ void MiniGraphView::loadCurrentGraph()
     f.ready = true;
     f.entry = func["offset"].toVariant().toULongLong();
 
-    windowTitle = tr("Graph");
+    windowTitle = tr("Mini Graph");
     QString funcName = func["name"].toString().trimmed();
     if (emptyGraph) {
         windowTitle += " (Empty)";

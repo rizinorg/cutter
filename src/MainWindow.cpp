@@ -186,7 +186,7 @@ void MainWindow::initUI()
 
     // Add graph view as dockable
     graphDock = new GraphWidget(this, ui->actionGraph);
-    miniGraphDock = new MiniGraphWidget(this, ui->actionGraph);
+    miniGraphDock = new MiniGraphWidget(this, ui->actionMiniGraph);
     QObject::connect(graphDock->graphView, &DisassemblerGraphView::refreshGraph, [this]() {
         //int x = graphDock->graphView->viewport()->rect().topLeft().x();
         //int y = graphDock->graphView->viewport()->rect().topLeft().y();

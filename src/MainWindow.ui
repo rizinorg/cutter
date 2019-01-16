@@ -194,6 +194,7 @@ QToolTip {
     <addaction name="separator"/>
     <addaction name="actionDisassembly"/>
     <addaction name="actionGraph"/>
+    <addaction name="actionMiniGraph"/>
     <addaction name="actionHexdump"/>
     <addaction name="actionPseudocode"/>
     <addaction name="actionFunctions"/>
@@ -931,6 +932,14 @@ QToolTip {
    </property>
    <property name="text">
     <string>Graph</string>
+   </property>
+  </action>
+  <action name="actionMiniGraph">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Mini Graph</string>
    </property>
   </action>
   <action name="actionPseudocode">
