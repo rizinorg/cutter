@@ -515,6 +515,7 @@ GraphView::EdgeConfiguration MiniGraphView::edgeConfiguration(GraphView::GraphBl
     }
     ec.start_arrow = false;
     ec.end_arrow = true;
+    ec.width_scale = current_scale;
     return ec;
 }
 

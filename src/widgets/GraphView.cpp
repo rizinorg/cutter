@@ -469,6 +469,7 @@ void GraphView::paintEvent(QPaintEvent *event)
             QPen pen(edge.color);
 //            if(blockSelected)
 //                pen.setStyle(Qt::DashLine);
+            pen.setWidth(pen.width()/ec.width_scale);
             p.setPen(pen);
             p.setBrush(edge.color);
             p.drawPolyline(edge.polyline);

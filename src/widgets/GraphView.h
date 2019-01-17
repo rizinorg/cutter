@@ -88,6 +88,7 @@ public:
         QColor color = QColor(128, 128, 128);
         bool start_arrow = false;
         bool end_arrow = true;
+        qreal width_scale = 1.0;
     };
 
     GraphView(QWidget *parent);
