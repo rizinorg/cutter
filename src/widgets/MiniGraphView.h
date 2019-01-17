@@ -131,7 +131,7 @@ public:
     QTextEdit *header = nullptr;
 
     void paintEvent(QPaintEvent *event) override;
-    QRect rangeRect;
+    QRectF rangeRect;
 
 public slots:
     void refreshView();
@@ -153,6 +153,7 @@ public slots:
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;
 
+    void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
 
@@ -175,6 +176,8 @@ private:
     int charOffset;
     int baseline;
     bool emptyGraph;
+
+    QPointF initialDiff;
 
     DisassemblyContextMenu *mMenu;
 

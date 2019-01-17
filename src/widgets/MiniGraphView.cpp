@@ -167,7 +167,6 @@ void MiniGraphView::refreshView()
     }
     adjustSize(viewport()->size().width(), viewport()->size().height());
     viewport()->update();
-    eprintf("100\n");
 }
 
 void MiniGraphView::loadCurrentGraph()
@@ -448,9 +447,15 @@ void MiniGraphView::paintEvent(QPaintEvent *event)
     QPainter p(viewport());
     p.setPen(Qt::red);
     p.drawRect(rangeRect);
+}
 
-    eprintf("whole view size is %d\n", horizontalScrollBar()->maximum());
-    eprintf("view size is %d\n", viewport()->width());
+void MiniGraphView::mousePressEvent(QMouseEvent *event)
+{
+    if (rangeRect.contains(event->pos())) {
+        mouseActive = true;
+    }
+    initialDiff = QPointF(event->localPos().x() - rangeRect.x(), event->localPos().y() - rangeRect.y());
+    GraphView::mousePressEvent(event);
 }
 
 void MiniGraphView::mouseReleaseEvent(QMouseEvent *event)
@@ -461,32 +466,25 @@ void MiniGraphView::mouseReleaseEvent(QMouseEvent *event)
 
 void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (rangeRect.contains(event->pos())) {
-        mouseActive = true;
-    }
     if (!mouseActive) {
         return;
     }
-    int x = event->pos().x();
-    int y = event->pos().y();
-    int w = rangeRect.width();
-    int h = rangeRect.height();
-    eprintf("pos x is %d\n", event->pos().x());
-    eprintf("pos y is %d\n", event->pos().y());
+    //int x = event->pos().x();
+    //int y = event->pos().y();
+    qreal x = event->localPos().x() - initialDiff.x();
+    qreal y = event->localPos().y() - initialDiff.y();
+    qreal w = rangeRect.width();
+    qreal h = rangeRect.height();
     viewport()->grabMouse();
     int a = x + w + horizontalScrollBar()->value();
     int b = horizontalScrollBar()->value() + viewport()->width();
     int c = y + h + verticalScrollBar()->value();
     int d = verticalScrollBar()->value() + viewport()->height();
     if (a >= b) {
-        eprintf("horizontalScrollBar\n");
-
         horizontalScrollBar()->setValue(horizontalScrollBar()->value() + a - b);
         x = horizontalScrollBar()->minimum() + viewport()->width() - w;
     }
     if (c >= d) {
-        eprintf("verticalScrollBar\n");
-
         verticalScrollBar()->setValue(verticalScrollBar()->value() + c - d);
         y = verticalScrollBar()->minimum() + viewport()->height() - h;
     }
@@ -498,7 +496,7 @@ void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
         verticalScrollBar()->setValue(verticalScrollBar()->value() + y);
         y = verticalScrollBar()->minimum();
     }
-    rangeRect = QRect(x, y, w, h);
+    rangeRect = QRectF(x, y, w, h);
     viewport()->update();
     emit mouseMoved();
 }

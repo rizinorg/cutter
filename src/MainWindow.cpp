@@ -202,12 +202,10 @@ void MainWindow::initUI()
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->value();
             w = graphDock->graphView->viewport()->width();
-            eprintf("3.5\n");
         }
         if (graphDock->graphView->verticalScrollBar()->isVisible()) {
             y = graphDock->graphView->verticalScrollBar()->value();
             h = graphDock->graphView->viewport()->height();
-            eprintf("3.5\n");
         }
         //double xx = (double)x / m - miniGraphDock->graphView->horizontalScrollBar()->value();
         //double yy = (double)y / m - miniGraphDock->graphView->verticalScrollBar()->value();
@@ -215,14 +213,9 @@ void MainWindow::initUI()
         double yy = (double)(y - miniGraphDock->graphView->verticalScrollBar()->value()) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        eprintf("x1 is %d, y is %d\n", x, y);
-        eprintf("m1 is %f\n", m);
-        eprintf("xx1 is %f, yy is %f\n", xx, yy);
-        eprintf("ww1 is %f, hh is %f\n", ww, hh);
         QPoint p1(xx, yy);
         QPoint p2(ww, hh);
-        miniGraphDock->graphView->rangeRect = QRect(xx, yy, ww, hh);
-        eprintf("1\n");
+        miniGraphDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
     });
     QObject::connect(graphDock->graphView, &GraphView::refreshBlock, [this]() {
         //int x = graphDock->graphView->viewport()->rect().topLeft().x();
@@ -239,12 +232,10 @@ void MainWindow::initUI()
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->value();
             w = graphDock->graphView->viewport()->width();
-            eprintf("3.5\n");
         }
         if (graphDock->graphView->verticalScrollBar()->isVisible()) {
             y = graphDock->graphView->verticalScrollBar()->value();
             h = graphDock->graphView->viewport()->height();
-            eprintf("3.5\n");
         }
         //double xx = (double)x / m - miniGraphDock->graphView->horizontalScrollBar()->value();
         //double yy = (double)y / m - miniGraphDock->graphView->verticalScrollBar()->value();
@@ -252,14 +243,9 @@ void MainWindow::initUI()
         double yy = (double)(y - miniGraphDock->graphView->verticalScrollBar()->value()) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        eprintf("x is %d, y is %d\n", x, y);
-        eprintf("m is %f\n", m);
-        eprintf("xx is %f, yy is %f\n", xx, yy);
-        eprintf("ww is %f, hh is %f\n", ww, hh);
         QPoint p1(xx, yy);
         QPoint p2(ww, hh);
-        miniGraphDock->graphView->rangeRect = QRect(xx, yy, ww, hh);
-        eprintf("2\n");
+        miniGraphDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
     });
 
     QObject::connect(graphDock->graphView->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
@@ -272,12 +258,10 @@ void MainWindow::initUI()
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->value();
             w = graphDock->graphView->viewport()->width();
-            eprintf("3.5\n");
         }
         if (graphDock->graphView->verticalScrollBar()->isVisible()) {
             y = graphDock->graphView->verticalScrollBar()->value();
             h = graphDock->graphView->viewport()->height();
-            eprintf("3.5\n");
         }
         //double xx = (double)x / m - miniGraphDock->graphView->horizontalScrollBar()->value();
         //double yy = (double)y / m - miniGraphDock->graphView->verticalScrollBar()->value();
@@ -285,13 +269,8 @@ void MainWindow::initUI()
         double yy = (double)(y - miniGraphDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        eprintf("x is %d, y is %d\n", x, y);
-        eprintf("m is %f\n", m);
-        eprintf("xx is %f, yy is %f\n", xx, yy);
-        eprintf("ww is %f, hh is %f\n", ww, hh);
-        miniGraphDock->graphView->rangeRect = QRect(xx, yy, ww, hh);
+        miniGraphDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
         miniGraphDock->graphView->viewport()->update();
-        eprintf("3\n");
     });
     QObject::connect(graphDock->graphView->verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
         int x = 0;
@@ -303,12 +282,10 @@ void MainWindow::initUI()
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->value();
             w = graphDock->graphView->viewport()->width();
-            eprintf("3.5\n");
         }
         if (graphDock->graphView->verticalScrollBar()->isVisible()) {
             y = graphDock->graphView->verticalScrollBar()->value();
             h = graphDock->graphView->viewport()->height();
-            eprintf("3.5\n");
         }
         //double xx = (double)x / m - miniGraphDock->graphView->horizontalScrollBar()->value();
         //double yy = (double)y / m - miniGraphDock->graphView->verticalScrollBar()->value();
@@ -316,13 +293,8 @@ void MainWindow::initUI()
         double yy = (double)(y - miniGraphDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        eprintf("x is %d, y is %d\n", x, y);
-        eprintf("m is %f\n", m);
-        eprintf("xx is %f, yy is %f\n", xx, yy);
-        eprintf("ww is %f, hh is %f\n", ww, hh);
-        miniGraphDock->graphView->rangeRect = QRect(xx, yy, ww, hh);
+        miniGraphDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
         miniGraphDock->graphView->viewport()->update();
-        eprintf("4\n");
     });
 
     QObject::connect(miniGraphDock->graphView->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
@@ -335,12 +307,10 @@ void MainWindow::initUI()
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->value();
             w = graphDock->graphView->viewport()->width();
-            eprintf("3.5\n");
         }
         if (graphDock->graphView->verticalScrollBar()->isVisible()) {
             y = graphDock->graphView->verticalScrollBar()->value();
             h = graphDock->graphView->viewport()->height();
-            eprintf("3.5\n");
         }
         //double xx = (double)x / m - miniGraphDock->graphView->horizontalScrollBar()->value();
         //double yy = (double)y / m - miniGraphDock->graphView->verticalScrollBar()->value();
@@ -348,12 +318,7 @@ void MainWindow::initUI()
         double yy = (double)(y - miniGraphDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        eprintf("x is %d, y is %d\n", x, y);
-        eprintf("m is %f\n", m);
-        eprintf("xx is %f, yy is %f\n", xx, yy);
-        eprintf("ww is %f, hh is %f\n", ww, hh);
-        miniGraphDock->graphView->rangeRect = QRect(xx, yy, ww, hh);
-        eprintf("5\n");
+        miniGraphDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
     });
     QObject::connect(miniGraphDock->graphView->verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
         int x = 0;
@@ -365,12 +330,10 @@ void MainWindow::initUI()
         if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
             x = graphDock->graphView->horizontalScrollBar()->value();
             w = graphDock->graphView->viewport()->width();
-            eprintf("3.5\n");
         }
         if (graphDock->graphView->verticalScrollBar()->isVisible()) {
             y = graphDock->graphView->verticalScrollBar()->value();
             h = graphDock->graphView->viewport()->height();
-            eprintf("3.5\n");
         }
         //double xx = (double)x / m - miniGraphDock->graphView->horizontalScrollBar()->value();
         //double yy = (double)y / m - miniGraphDock->graphView->verticalScrollBar()->value();
@@ -378,12 +341,7 @@ void MainWindow::initUI()
         double yy = (double)(y - miniGraphDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        eprintf("x is %d, y is %d\n", x, y);
-        eprintf("m is %f\n", m);
-        eprintf("xx is %f, yy is %f\n", xx, yy);
-        eprintf("ww is %f, hh is %f\n", ww, hh);
-        miniGraphDock->graphView->rangeRect = QRect(xx, yy, ww, hh);
-        eprintf("6\n");
+        miniGraphDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
     });
 
     QObject::connect(miniGraphDock->graphView, &MiniGraphView::mouseMoved, [this]() {
@@ -396,7 +354,6 @@ void MainWindow::initUI()
 
         graphDock->graphView->horizontalScrollBar()->setValue(x + xx);
         graphDock->graphView->verticalScrollBar()->setValue(y + yy);
-        eprintf("7\n");
     });
 
     //QObject::connect(graphDock->graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), miniGraphDock->graphView->horizontalScrollBar(), SLOT(setValue(int)));
