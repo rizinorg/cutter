@@ -1,17 +1,17 @@
 #include "MainWindow.h"
-#include "MiniGraphWidget.h"
-#include "MiniGraphView.h"
+#include "OverviewWidget.h"
+#include "OverviewView.h"
 #include "WidgetShortcuts.h"
 
-MiniGraphWidget::MiniGraphWidget(MainWindow *main, QAction *action) :
+OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
     this->setObjectName("Graph");
     this->setAllowedAreas(Qt::AllDockWidgetAreas);
-    this->graphView = new MiniGraphView(this);
+    this->graphView = new OverviewView(this);
     this->setWidget(graphView);
 
-    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["MiniGraphWidget"], main);
+    QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["OverviewWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [ = ]() {
             toggleDockWidget(true); 
             main->updateDockActionChecked(action);
@@ -35,9 +35,9 @@ MiniGraphWidget::MiniGraphWidget(MainWindow *main, QAction *action) :
     });
 }
 
-MiniGraphWidget::~MiniGraphWidget() {}
+OverviewWidget::~OverviewWidget() {}
 
-void MiniGraphWidget::resizeEvent(QResizeEvent *event)
+void OverviewWidget::resizeEvent(QResizeEvent *event)
 {
 
     graphView->refreshView();

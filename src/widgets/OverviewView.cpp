@@ -1,4 +1,4 @@
-#include "MiniGraphView.h"
+#include "OverviewView.h"
 #include "CutterSeekableWidget.h"
 #include <QPainter>
 #include <QJsonObject>
@@ -22,7 +22,7 @@
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
 
-MiniGraphView::MiniGraphView(QWidget *parent)
+OverviewView::OverviewView(QWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
       mMenu(new DisassemblyContextMenu(this)),
@@ -121,24 +121,24 @@ MiniGraphView::MiniGraphView(QWidget *parent)
     highlighter = new SyntaxHighlighter(header->document());
 }
 
-void MiniGraphView::connectSeekChanged(bool disconn)
+void OverviewView::connectSeekChanged(bool disconn)
 {
     if (disconn) {
         disconnect(seekable, &CutterSeekableWidget::seekChanged, this,
-                   &MiniGraphView::onSeekChanged);
+                   &OverviewView::onSeekChanged);
     } else {
-        connect(seekable, &CutterSeekableWidget::seekChanged, this, &MiniGraphView::onSeekChanged);
+        connect(seekable, &CutterSeekableWidget::seekChanged, this, &OverviewView::onSeekChanged);
     }
 }
 
-MiniGraphView::~MiniGraphView()
+OverviewView::~OverviewView()
 {
     for (QShortcut *shortcut : shortcuts) {
         delete shortcut;
     }
 }
 
-void MiniGraphView::toggleSync()
+void OverviewView::toggleSync()
 {
     seekable->toggleSyncWithCore();
     if (seekable->getSyncWithCore()) {
@@ -149,7 +149,7 @@ void MiniGraphView::toggleSync()
     }
 }
 
-void MiniGraphView::refreshView()
+void OverviewView::refreshView()
 {
     initFont();
     current_scale = 1.0;
@@ -169,7 +169,7 @@ void MiniGraphView::refreshView()
     viewport()->update();
 }
 
-void MiniGraphView::loadCurrentGraph()
+void OverviewView::loadCurrentGraph()
 {
     TempConfig tempConfig;
     tempConfig.set("scr.html", true)
@@ -220,7 +220,7 @@ void MiniGraphView::loadCurrentGraph()
     f.ready = true;
     f.entry = func["offset"].toVariant().toULongLong();
 
-    windowTitle = tr("Mini Graph");
+    windowTitle = tr("Graph Overview");
     QString funcName = func["name"].toString().trimmed();
     if (emptyGraph) {
         windowTitle += " (Empty)";
@@ -334,7 +334,7 @@ void MiniGraphView::loadCurrentGraph()
     }
 }
 
-void MiniGraphView::prepareGraphNode(GraphBlock &block)
+void OverviewView::prepareGraphNode(GraphBlock &block)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
     int width = 0;
@@ -362,7 +362,7 @@ void MiniGraphView::prepareGraphNode(GraphBlock &block)
     block.height = (height * charHeight) + extra;
 }
 
-void MiniGraphView::prepareHeader()
+void OverviewView::prepareHeader()
 {
     QString afcf = Core()->cmd("afcf").trimmed();
     if (afcf.isEmpty()) {
@@ -373,7 +373,7 @@ void MiniGraphView::prepareHeader()
     header->setPlainText(afcf);
 }
 
-void MiniGraphView::initFont()
+void OverviewView::initFont()
 {
     setFont(Config()->getFont());
     QFontMetricsF metrics(font());
@@ -386,7 +386,7 @@ void MiniGraphView::initFont()
     mFontMetrics = new CachedFontMetrics(this, font());
 }
 
-void MiniGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
+void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -438,7 +438,7 @@ void MiniGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setBrush(Qt::transparent);
 }
 
-void MiniGraphView::paintEvent(QPaintEvent *event)
+void OverviewView::paintEvent(QPaintEvent *event)
 {
     GraphView::paintEvent(event);
     if (rangeRect.width() == 0 && rangeRect.height() == 0) {
@@ -449,7 +449,7 @@ void MiniGraphView::paintEvent(QPaintEvent *event)
     p.drawRect(rangeRect);
 }
 
-void MiniGraphView::mousePressEvent(QMouseEvent *event)
+void OverviewView::mousePressEvent(QMouseEvent *event)
 {
     if (rangeRect.contains(event->pos())) {
         mouseActive = true;
@@ -458,13 +458,13 @@ void MiniGraphView::mousePressEvent(QMouseEvent *event)
     GraphView::mousePressEvent(event);
 }
 
-void MiniGraphView::mouseReleaseEvent(QMouseEvent *event)
+void OverviewView::mouseReleaseEvent(QMouseEvent *event)
 {
     mouseActive = false;
     GraphView::mouseReleaseEvent(event);
 }
 
-void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
+void OverviewView::mouseMoveEvent(QMouseEvent *event)
 {
     if (!mouseActive) {
         return;
@@ -501,7 +501,7 @@ void MiniGraphView::mouseMoveEvent(QMouseEvent *event)
     emit mouseMoved();
 }
 
-GraphView::EdgeConfiguration MiniGraphView::edgeConfiguration(GraphView::GraphBlock &from,
+GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,
                                                                       GraphView::GraphBlock *to)
 {
     EdgeConfiguration ec;
@@ -519,7 +519,7 @@ GraphView::EdgeConfiguration MiniGraphView::edgeConfiguration(GraphView::GraphBl
     return ec;
 }
 
-RVA MiniGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
+RVA OverviewView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
 
@@ -542,7 +542,7 @@ RVA MiniGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
     return RVA_INVALID;
 }
 
-MiniGraphView::Instr *MiniGraphView::getInstrForMouseEvent(
+OverviewView::Instr *OverviewView::getInstrForMouseEvent(
     GraphView::GraphBlock &block, QPoint *point)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
@@ -565,7 +565,7 @@ MiniGraphView::Instr *MiniGraphView::getInstrForMouseEvent(
     return nullptr;
 }
 
-void MiniGraphView::colorsUpdatedSlot()
+void OverviewView::colorsUpdatedSlot()
 {
     disassemblyBackgroundColor = ConfigColor("gui.border");
     disassemblySelectedBackgroundColor = ConfigColor("gui.disass_selected");
@@ -584,13 +584,13 @@ void MiniGraphView::colorsUpdatedSlot()
     refreshView();
 }
 
-void MiniGraphView::fontsUpdatedSlot()
+void OverviewView::fontsUpdatedSlot()
 {
     initFont();
     refreshView();
 }
 
-MiniGraphView::DisassemblyBlock *MiniGraphView::blockForAddress(RVA addr)
+OverviewView::DisassemblyBlock *OverviewView::blockForAddress(RVA addr)
 {
     for (auto &blockIt : disassembly_blocks) {
         DisassemblyBlock &db = blockIt.second;
@@ -607,7 +607,7 @@ MiniGraphView::DisassemblyBlock *MiniGraphView::blockForAddress(RVA addr)
     return nullptr;
 }
 
-void MiniGraphView::onSeekChanged(RVA addr)
+void OverviewView::onSeekChanged(RVA addr)
 {
     mMenu->setOffset(addr);
     DisassemblyBlock *db = blockForAddress(addr);
@@ -630,7 +630,7 @@ void MiniGraphView::onSeekChanged(RVA addr)
     }
 }
 
-void MiniGraphView::zoomIn(QPoint mouse)
+void OverviewView::zoomIn(QPoint mouse)
 {
     current_scale += 0.1;
     auto areaSize = viewport()->size();
@@ -638,7 +638,7 @@ void MiniGraphView::zoomIn(QPoint mouse)
     viewport()->update();
 }
 
-void MiniGraphView::zoomOut(QPoint mouse)
+void OverviewView::zoomOut(QPoint mouse)
 {
     current_scale -= 0.1;
     current_scale = std::max(current_scale, 0.3);
@@ -647,7 +647,7 @@ void MiniGraphView::zoomOut(QPoint mouse)
     viewport()->update();
 }
 
-void MiniGraphView::zoomReset()
+void OverviewView::zoomReset()
 {
     current_scale = 1.0;
     auto areaSize = viewport()->size();
@@ -655,7 +655,7 @@ void MiniGraphView::zoomReset()
     viewport()->update();
 }
 
-void MiniGraphView::takeTrue()
+void OverviewView::takeTrue()
 {
     DisassemblyBlock *db = blockForAddress(seekable->getOffset());
     if (!db) {
@@ -669,7 +669,7 @@ void MiniGraphView::takeTrue()
     }
 }
 
-void MiniGraphView::takeFalse()
+void OverviewView::takeFalse()
 {
     DisassemblyBlock *db = blockForAddress(seekable->getOffset());
     if (!db) {
@@ -683,7 +683,7 @@ void MiniGraphView::takeFalse()
     }
 }
 
-void MiniGraphView::seekInstruction(bool previous_instr)
+void OverviewView::seekInstruction(bool previous_instr)
 {
     RVA addr = seekable->getOffset();
     DisassemblyBlock *db = blockForAddress(addr);
@@ -706,17 +706,17 @@ void MiniGraphView::seekInstruction(bool previous_instr)
     }
 }
 
-void MiniGraphView::nextInstr()
+void OverviewView::nextInstr()
 {
     seekInstruction(false);
 }
 
-void MiniGraphView::prevInstr()
+void OverviewView::prevInstr()
 {
     seekInstruction(true);
 }
 
-void MiniGraphView::seekLocal(RVA addr, bool update_viewport)
+void OverviewView::seekLocal(RVA addr, bool update_viewport)
 {
     connectSeekChanged(true);
     seekable->seek(addr);
@@ -726,7 +726,7 @@ void MiniGraphView::seekLocal(RVA addr, bool update_viewport)
     }
 }
 
-void MiniGraphView::seekPrev()
+void OverviewView::seekPrev()
 {
     if (seekable->getSyncWithCore()) {
         Core()->seekPrev();
@@ -735,7 +735,7 @@ void MiniGraphView::seekPrev()
     }
 }
 
-MiniGraphView::Token *MiniGraphView::getToken(Instr *instr, int x)
+OverviewView::Token *OverviewView::getToken(Instr *instr, int x)
 {
     x -= (3 * charWidth); // Ignore left margin
     if (x < 0) {
@@ -767,7 +767,7 @@ MiniGraphView::Token *MiniGraphView::getToken(Instr *instr, int x)
     return nullptr;
 }
 
-void MiniGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
+void OverviewView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                                          QPoint pos)
 {
     Instr *instr = getInstrForMouseEvent(block, &pos);
@@ -786,7 +786,7 @@ void MiniGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *even
     }
 }
 
-void MiniGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
+void OverviewView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                                                QPoint pos)
 {
     Q_UNUSED(event);
@@ -804,7 +804,7 @@ void MiniGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent
     }
 }
 
-void MiniGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
+void OverviewView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
                                            QPoint pos)
 {
     Instr *instr = getInstrForMouseEvent(block, &pos);
@@ -817,7 +817,7 @@ void MiniGraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *eve
     QToolTip::showText(event->globalPos(), instr->fullText.ToQString());
 }
 
-bool MiniGraphView::helpEvent(QHelpEvent *event)
+bool OverviewView::helpEvent(QHelpEvent *event)
 {
     if (!GraphView::helpEvent(event)) {
         QToolTip::hideText();
@@ -827,7 +827,7 @@ bool MiniGraphView::helpEvent(QHelpEvent *event)
     return true;
 }
 
-void MiniGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
+void OverviewView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
     if (transition_dont_seek) {
         transition_dont_seek = false;
@@ -837,7 +837,7 @@ void MiniGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 }
 
 
-void MiniGraphView::on_actionExportGraph_triggered()
+void OverviewView::on_actionExportGraph_triggered()
 {
     QStringList filters;
     filters.append(tr("Graphiz dot (*.dot)"));
@@ -878,7 +878,7 @@ void MiniGraphView::on_actionExportGraph_triggered()
     fileOut << Core()->cmd("agfd $FB");
 }
 
-void MiniGraphView::wheelEvent(QWheelEvent *event)
+void OverviewView::wheelEvent(QWheelEvent *event)
 {
     // when CTRL is pressed, we zoom in/out with mouse wheel
     if (Qt::ControlModifier == event->modifiers()) {

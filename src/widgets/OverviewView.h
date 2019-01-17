@@ -1,5 +1,5 @@
-#ifndef MINIGRAPHVIEW_H
-#define MINIGRAPHVIEW_H
+#ifndef OVERVIEWVIEW_H
+#define OVERVIEWVIEW_H
 
 #include <QWidget>
 #include <QPainter>
@@ -15,7 +15,7 @@
 class QTextEdit;
 class SyntaxHighlighter;
 
-class MiniGraphView : public GraphView
+class OverviewView : public GraphView
 {
     Q_OBJECT
 
@@ -112,8 +112,8 @@ signals:
     void mouseMoved();
 
 public:
-    MiniGraphView(QWidget *parent);
-    ~MiniGraphView() override;
+    OverviewView(QWidget *parent);
+    ~OverviewView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
@@ -227,4 +227,4 @@ private:
     SyntaxHighlighter *highlighter = nullptr;
 };
 
-#endif // MINIGRAPHVIEW_H
+#endif // OVERVIEWVIEW_H

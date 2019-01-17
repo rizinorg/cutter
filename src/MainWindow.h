@@ -6,7 +6,7 @@
 #include "Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/GraphWidget.h"
-#include "widgets/MiniGraphWidget.h"
+#include "widgets/OverviewWidget.h"
 #include "widgets/StackWidget.h"
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
@@ -103,7 +103,7 @@ public:
 
     void updateDockActionChecked(QAction * action);
 
-    MiniGraphWidget *miniGraphDock = nullptr;
+    OverviewWidget *overviewDock = nullptr;
 
 public slots:
     void finalizeOpen();

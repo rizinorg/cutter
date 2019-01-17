@@ -126,7 +126,7 @@ SOURCES += \
     Main.cpp \
     Cutter.cpp \
     widgets/DisassemblerGraphView.cpp \
-    widgets/MiniGraphView.cpp \
+    widgets/OverviewView.cpp \
     common/RichTextPainter.cpp \
     dialogs/InitialOptionsDialog.cpp \
     dialogs/AboutDialog.cpp \
@@ -192,7 +192,7 @@ SOURCES += \
     widgets/CutterSeekableWidget.cpp \
     widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
-    widgets/MiniGraphWidget.cpp \
+    widgets/OverviewWidget.cpp \
     common/JsonTreeItem.cpp \
     common/JsonModel.cpp \
     dialogs/VersionInfoDialog.cpp \
@@ -226,7 +226,7 @@ SOURCES += \
 HEADERS  += \
     Cutter.h \
     widgets/DisassemblerGraphView.h \
-    widgets/MiniGraphView.h \
+    widgets/OverviewView.h \
     common/RichTextPainter.h \
     common/CachedFontMetrics.h \
     dialogs/AboutDialog.h \
@@ -293,7 +293,7 @@ HEADERS  += \
     widgets/CutterTreeWidget.h \
     widgets/CutterSeekableWidget.h \
     widgets/GraphWidget.h \
-    widgets/MiniGraphWidget.h \
+    widgets/OverviewWidget.h \
     common/JsonTreeItem.h \
     common/JsonModel.h \
     dialogs/VersionInfoDialog.h \
