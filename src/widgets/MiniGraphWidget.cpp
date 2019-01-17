@@ -36,3 +36,10 @@ MiniGraphWidget::MiniGraphWidget(MainWindow *main, QAction *action) :
 }
 
 MiniGraphWidget::~MiniGraphWidget() {}
+
+void MiniGraphWidget::resizeEvent(QResizeEvent *event)
+{
+
+    graphView->refreshView();
+    QDockWidget::resizeEvent(event);
+}

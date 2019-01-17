@@ -15,6 +15,9 @@ public:
     ~MiniGraphWidget();
     MiniGraphView *graphView;
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
 
 };
