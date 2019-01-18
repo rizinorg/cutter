@@ -166,7 +166,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
             std::exit(1);
         }
         mainWindow->displayWelcomeDialog();
-        //mainWindow->displayNewFileDialog();
+        mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
         InitialOptions options;
         options.filename = args[0];

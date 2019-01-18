@@ -18,6 +18,8 @@ public:
 private slots:
     void on_themeComboBox_currentIndexChanged(int index);
 
+    void onLanguageComboBox_currentIndexChanged(int index);
+
 private:
     Ui::WelcomeDialog *ui;
 };

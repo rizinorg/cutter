@@ -128,6 +128,9 @@
      <property name="verticalSpacing">
       <number>6</number>
      </property>
+     <item row="1" column="0">
+      <widget class="QComboBox" name="languageComboBox"/>
+     </item>
      <item row="2" column="0" alignment="Qt::AlignHCenter">
       <widget class="QPushButton" name="pushButton_2">
        <property name="sizePolicy">
@@ -153,53 +156,22 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" alignment="Qt::AlignHCenter">
-      <widget class="QPushButton" name="pushButton_3">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>200</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>200</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>PushButton</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" alignment="Qt::AlignHCenter">
+     <item row="0" column="0">
       <widget class="QComboBox" name="themeComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="minimumSize">
         <size>
-         <width>200</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>2000</width>
+         <width>16777215</width>
          <height>16777215</height>
         </size>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <item>
         <property name="text">
