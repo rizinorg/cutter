@@ -185,8 +185,8 @@ void MainWindow::initUI()
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
 
     // Add graph view as dockable
-    graphDock = new GraphWidget(this, ui->actionGraph);
     overviewDock = new OverviewWidget(this, ui->actionOverview);
+    graphDock = new GraphWidget(this, ui->actionGraph);
     QObject::connect(graphDock->graphView, &DisassemblerGraphView::refreshGraph, [this]() {
         adjustOverview();
     });
@@ -302,6 +302,8 @@ void MainWindow::initUI()
 
 void MainWindow::adjustOverview()
 {
+    bool scrollXVisible = graphDock->graphView->unscrolled_render_offset_x == 0;
+    bool scrollYVisible = graphDock->graphView->unscrolled_render_offset_y == 0;
     int x = 0;
     int y = 0;
     int w = overviewDock->graphView->viewport()->width();
@@ -309,23 +311,27 @@ void MainWindow::adjustOverview()
     double m = overviewDock->graphView->current_scale;
     double ww;
     double hh;
+    qreal xoff = overviewDock->graphView->unscrolled_render_offset_x;;
+    qreal yoff = overviewDock->graphView->unscrolled_render_offset_y;;
 
-    if (graphDock->graphView->unscrolled_render_offset_x == 0) {
+    if (scrollXVisible) {
         x = graphDock->graphView->horizontalScrollBar()->value();
         w = graphDock->graphView->viewport()->width();
         h = graphDock->graphView->viewport()->height();
         ww = (double)w * m;
     } else {
         ww = w;
+        xoff = 0;
     }
 
-    if (graphDock->graphView->unscrolled_render_offset_y == 0) {
+    if (scrollYVisible) {
         y = graphDock->graphView->verticalScrollBar()->value();
         w = graphDock->graphView->viewport()->width();
         h = graphDock->graphView->viewport()->height();
         hh = (double)h * m;
     } else {
         hh = h;
+        yoff = 0;
     }
 
     if (graphDock->graphView->unscrolled_render_offset_x > 0 && graphDock->graphView->unscrolled_render_offset_y > 0) {
@@ -335,7 +341,7 @@ void MainWindow::adjustOverview()
     }
     double xx = (double)(x) * m;
     double yy = (double)(y) * m;
-    overviewDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
+    overviewDock->graphView->rangeRect = QRectF(xx + xoff, yy + yoff, ww, hh);
     overviewDock->graphView->viewport()->update();
     eprintf("2\n");
 }
