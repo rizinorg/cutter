@@ -188,158 +188,18 @@ void MainWindow::initUI()
     graphDock = new GraphWidget(this, ui->actionGraph);
     overviewDock = new OverviewWidget(this, ui->actionOverview);
     QObject::connect(graphDock->graphView, &DisassemblerGraphView::refreshGraph, [this]() {
-        int x = 0;
-        int y = 0;
-        int w = overviewDock->graphView->viewport()->width();
-        int h = overviewDock->graphView->viewport()->height();
-        int offx = overviewDock->graphView->unscrolled_render_offset_x;
-        int offy = overviewDock->graphView->unscrolled_render_offset_y;
-        double m = overviewDock->graphView->current_scale;
-
-        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
-            x = graphDock->graphView->horizontalScrollBar()->value();
-            w = graphDock->graphView->viewport()->width();
-        } else {
-            offx = 0;
-        }
-
-        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
-            y = graphDock->graphView->verticalScrollBar()->value();
-            h = graphDock->graphView->viewport()->height();
-        } else {
-            offy = 0;
-        }
-        if (graphDock->graphView->unscrolled_render_offset_x > 0 && graphDock->graphView->unscrolled_render_offset_y > 0) {
-            overviewDock->graphView->rangeRect = QRectF(0, 0, 0, 0);
-            overviewDock->graphView->viewport()->update();
-            return;
-        }
-        double xx = (double)(x) * m;
-        double yy = (double)(y) * m;
-        double ww = (double)w * m;
-        double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(offx + xx, offy + yy, ww, hh);
-        overviewDock->graphView->viewport()->update();
-        eprintf("1\n");
+        adjustOverview();
     });
     QObject::connect(graphDock->graphView, &GraphView::refreshBlock, [this]() {
-        int x = 0;
-        int y = 0;
-        int w = overviewDock->graphView->viewport()->width();
-        int h = overviewDock->graphView->viewport()->height();
-        int offx = overviewDock->graphView->unscrolled_render_offset_x;
-        int offy = overviewDock->graphView->unscrolled_render_offset_y;
-        double m = overviewDock->graphView->current_scale;
-
-        if (graphDock->graphView->unscrolled_render_offset_x == 0) {
-            x = graphDock->graphView->horizontalScrollBar()->value();
-            w = graphDock->graphView->viewport()->width();
-            h = graphDock->graphView->viewport()->height();
-        } else {
-            offx = overviewDock->graphView->unscrolled_render_offset_x;
-        }
-
-        eprintf("render offset is %d\n", graphDock->graphView->unscrolled_render_offset_y);
-        if (graphDock->graphView->unscrolled_render_offset_y == 0) {
-            y = graphDock->graphView->verticalScrollBar()->value();
-            w = graphDock->graphView->viewport()->width();
-            h = graphDock->graphView->viewport()->height();
-        } else {
-            offy = overviewDock->graphView->unscrolled_render_offset_y;
-        }
-        if (graphDock->graphView->unscrolled_render_offset_x > 0 && graphDock->graphView->unscrolled_render_offset_y > 0) {
-            overviewDock->graphView->rangeRect = QRectF(0, 0, 0, 0);
-            overviewDock->graphView->viewport()->update();
-            eprintf("invisible\n");
-            return;
-        }
-        double xx = (double)(x) * m;
-        double yy = (double)(y) * m;
-        double ww = (double)w * m;
-        double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(offx + xx, offy + yy, ww, hh);
-        overviewDock->graphView->viewport()->update();
-        eprintf("2\n");
+        adjustOverview();
     });
 
     QObject::connect(graphDock->graphView->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
-        int x = 0;
-        int y = 0;
-        int w = overviewDock->graphView->viewport()->width();
-        int h = overviewDock->graphView->viewport()->height();
-        int offx = overviewDock->graphView->unscrolled_render_offset_x;
-        int offy = overviewDock->graphView->unscrolled_render_offset_y;
-        double m = overviewDock->graphView->current_scale;
-        bool active = false;
-
-        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
-            x = graphDock->graphView->horizontalScrollBar()->value();
-            w = graphDock->graphView->viewport()->width();
-            active = true;
-        } else {
-            offx = 0;
-        }
-
-        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
-            y = graphDock->graphView->verticalScrollBar()->value();
-            h = graphDock->graphView->viewport()->height();
-            active = true;
-        } else {
-            offy = 0;
-        }
-        if (!active) {
-            overviewDock->graphView->rangeRect = QRectF(0, 0, 0, 0);
-            overviewDock->graphView->viewport()->update();
-            eprintf("horizontal not visible");
-            return;
-        }
-        double xx = (double)(x) * m;
-        double yy = (double)(y) * m;
-        double ww = (double)w * m;
-        double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(offx + xx, offy + yy, ww, hh);
-        overviewDock->graphView->viewport()->update();
-        eprintf("3\n");
+        adjustOverview();
     });
 
     QObject::connect(graphDock->graphView->verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
-        int x = 0;
-        int y = 0;
-        int w = overviewDock->graphView->viewport()->width();
-        int h = overviewDock->graphView->viewport()->height();
-        int offx = overviewDock->graphView->unscrolled_render_offset_x;
-        int offy = overviewDock->graphView->unscrolled_render_offset_y;
-        double m = overviewDock->graphView->current_scale;
-        bool active = false;
-
-        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
-            x = graphDock->graphView->horizontalScrollBar()->value();
-            w = graphDock->graphView->viewport()->width();
-            active = true;
-        } else {
-            offx = 0;
-        }
-
-        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
-            y = graphDock->graphView->verticalScrollBar()->value();
-            h = graphDock->graphView->viewport()->height();
-            active = true;
-        } else {
-            offy = 0;
-        }
-        if (!active) {
-            overviewDock->graphView->rangeRect = QRectF(0, 0, 0, 0);
-            overviewDock->graphView->viewport()->update();
-            eprintf("vertical not visible");
-            return;
-        }
-        double xx = (double)(x) * m;
-        double yy = (double)(y) * m;
-        double ww = (double)w * m;
-        double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(offx + xx, offy + yy, ww, hh);
-        overviewDock->graphView->viewport()->update();
-        eprintf("4\n");
+        adjustOverview();
     });
 
     //QObject::connect(overviewDock->graphView->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
@@ -481,6 +341,47 @@ void MainWindow::initUI()
         CutterDockWidget *pluginDock = plugin->setupInterface(this);
         tabifyDockWidget(dashboardDock, pluginDock);
     }
+}
+
+void MainWindow::adjustOverview()
+{
+    int x = 0;
+    int y = 0;
+    int w = overviewDock->graphView->viewport()->width();
+    int h = overviewDock->graphView->viewport()->height();
+    int offx = overviewDock->graphView->unscrolled_render_offset_x;
+    int offy = overviewDock->graphView->unscrolled_render_offset_y;
+    double m = overviewDock->graphView->current_scale;
+
+    if (graphDock->graphView->unscrolled_render_offset_x == 0) {
+        x = graphDock->graphView->horizontalScrollBar()->value();
+        w = graphDock->graphView->viewport()->width();
+        h = graphDock->graphView->viewport()->height();
+    } else {
+        offx = overviewDock->graphView->unscrolled_render_offset_x;
+    }
+
+    eprintf("render offset is %d\n", graphDock->graphView->unscrolled_render_offset_y);
+    if (graphDock->graphView->unscrolled_render_offset_y == 0) {
+        y = graphDock->graphView->verticalScrollBar()->value();
+        w = graphDock->graphView->viewport()->width();
+        h = graphDock->graphView->viewport()->height();
+    } else {
+        offy = overviewDock->graphView->unscrolled_render_offset_y;
+    }
+    if (graphDock->graphView->unscrolled_render_offset_x > 0 && graphDock->graphView->unscrolled_render_offset_y > 0) {
+        overviewDock->graphView->rangeRect = QRectF(0, 0, 0, 0);
+        overviewDock->graphView->viewport()->update();
+        eprintf("invisible\n");
+        return;
+    }
+    double xx = (double)(x) * m;
+    double yy = (double)(y) * m;
+    double ww = (double)w * m;
+    double hh = (double)h * m;
+    overviewDock->graphView->rangeRect = QRectF(offx + xx, offy + yy, ww, hh);
+    overviewDock->graphView->viewport()->update();
+    eprintf("2\n");
 }
 
 void MainWindow::updateTasksIndicator()
