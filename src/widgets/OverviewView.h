@@ -13,7 +13,6 @@
 #include "CutterSeekableWidget.h"
 
 class QTextEdit;
-class SyntaxHighlighter;
 
 class OverviewView : public GraphView
 {
@@ -128,7 +127,6 @@ public:
     void loadCurrentGraph();
     QString windowTitle;
     bool isGraphEmpty();
-    QTextEdit *header = nullptr;
 
     void paintEvent(QPaintEvent *event) override;
     QRectF rangeRect;
@@ -186,7 +184,6 @@ private:
 
     void initFont();
     void prepareGraphNode(GraphBlock &block);
-    void prepareHeader();
     Token *getToken(Instr *instr, int x);
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
@@ -225,7 +222,6 @@ private:
     QAction actionSyncOffset;
 
     QLabel *emptyText = nullptr;
-    SyntaxHighlighter *highlighter = nullptr;
 };
 
 #endif // OVERVIEWVIEW_H

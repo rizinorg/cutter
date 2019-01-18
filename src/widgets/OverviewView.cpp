@@ -20,7 +20,6 @@
 #include "common/Configuration.h"
 #include "common/CachedFontMetrics.h"
 #include "common/TempConfig.h"
-#include "common/SyntaxHighlighter.h"
 
 OverviewView::OverviewView(QWidget *parent)
     : GraphView(parent),
@@ -113,12 +112,6 @@ OverviewView::OverviewView(QWidget *parent)
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
     initFont();
     colorsUpdatedSlot();
-
-    header = new QTextEdit(viewport());
-    header->setFixedHeight(30);
-    header->setReadOnly(true);
-    header->setLineWrapMode(QTextEdit::NoWrap);
-    highlighter = new SyntaxHighlighter(header->document());
 }
 
 void OverviewView::connectSeekChanged(bool disconn)
@@ -360,17 +353,6 @@ void OverviewView::prepareGraphNode(GraphBlock &block)
     int extra = 4 * charWidth + 4;
     block.width = width + extra + charWidth;
     block.height = (height * charHeight) + extra;
-}
-
-void OverviewView::prepareHeader()
-{
-    QString afcf = Core()->cmd("afcf").trimmed();
-    if (afcf.isEmpty()) {
-        header->hide();
-        return;
-    }
-    header->show();
-    header->setPlainText(afcf);
 }
 
 void OverviewView::initFont()
@@ -615,7 +597,6 @@ void OverviewView::onSeekChanged(RVA addr)
         // This is a local address! We animated to it.
         transition_dont_seek = true;
         showBlock(&blocks[db->entry], true);
-        prepareHeader();
     } else {
         refreshView();
         db = blockForAddress(addr);
@@ -623,9 +604,6 @@ void OverviewView::onSeekChanged(RVA addr)
             // This is a local address! We animated to it.
             transition_dont_seek = true;
             showBlock(&blocks[db->entry], true);
-            prepareHeader();
-        } else {
-            header->hide();
         }
     }
 }

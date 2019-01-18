@@ -20,7 +20,6 @@ OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-            this->graphView->header->setFixedWidth(width());
         }
     });
 
@@ -30,7 +29,6 @@ OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
         if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
             this->raise();
             this->graphView->setFocus();
-            this->graphView->header->setFixedWidth(width());
         }
     });
 }
