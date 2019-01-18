@@ -101,6 +101,10 @@ public:
 
     // Zoom data
     double current_scale = 1.0;
+
+    int unscrolled_render_offset_x = 0;
+    int unscrolled_render_offset_y = 0;
+
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);
@@ -111,9 +115,6 @@ protected:
     // Padding inside the block
     int block_padding = 16;
 
-
-    int unscrolled_render_offset_x = 0;
-    int unscrolled_render_offset_y = 0;
 
     void addBlock(GraphView::GraphBlock block);
     void setEntry(ut64 e);

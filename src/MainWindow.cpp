@@ -208,7 +208,7 @@ void MainWindow::initUI()
         double hh = (double)h * m;
         QPoint p1(xx, yy);
         QPoint p2(ww, hh);
-        overviewDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
+        overviewDock->graphView->rangeRect = QRectF(overviewDock->graphView->unscrolled_render_offset_x + xx, overviewDock->graphView->unscrolled_render_offset_y + yy, ww, hh);
     });
     QObject::connect(graphDock->graphView, &GraphView::refreshBlock, [this]() {
         int x = 0;
@@ -231,7 +231,7 @@ void MainWindow::initUI()
         double hh = (double)h * m;
         QPoint p1(xx, yy);
         QPoint p2(ww, hh);
-        overviewDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
+        overviewDock->graphView->rangeRect = QRectF(overviewDock->graphView->unscrolled_render_offset_x + xx, overviewDock->graphView->unscrolled_render_offset_y + yy, ww, hh);
     });
 
     QObject::connect(graphDock->graphView->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
@@ -253,7 +253,7 @@ void MainWindow::initUI()
         double yy = (double)(y - overviewDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
+        overviewDock->graphView->rangeRect = QRectF(overviewDock->graphView->unscrolled_render_offset_x + xx, overviewDock->graphView->unscrolled_render_offset_y + yy, ww, hh);
         overviewDock->graphView->viewport()->update();
     });
     QObject::connect(graphDock->graphView->verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
@@ -275,7 +275,7 @@ void MainWindow::initUI()
         double yy = (double)(y - overviewDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
+        overviewDock->graphView->rangeRect = QRectF(overviewDock->graphView->unscrolled_render_offset_x + xx, overviewDock->graphView->unscrolled_render_offset_y + yy, ww, hh);
         overviewDock->graphView->viewport()->update();
     });
 
@@ -298,7 +298,7 @@ void MainWindow::initUI()
         double yy = (double)(y - overviewDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
+        overviewDock->graphView->rangeRect = QRectF(overviewDock->graphView->unscrolled_render_offset_x + xx, overviewDock->graphView->unscrolled_render_offset_y + yy, ww, hh);
     });
     QObject::connect(overviewDock->graphView->verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
         int x = 0;
@@ -319,7 +319,7 @@ void MainWindow::initUI()
         double yy = (double)(y - overviewDock->graphView->verticalScrollBar()->value() - 1) * m;
         double ww = (double)w * m;
         double hh = (double)h * m;
-        overviewDock->graphView->rangeRect = QRectF(xx, yy, ww, hh);
+        overviewDock->graphView->rangeRect = QRectF(overviewDock->graphView->unscrolled_render_offset_x + xx, overviewDock->graphView->unscrolled_render_offset_y + yy, ww, hh);
     });
 
     QObject::connect(overviewDock->graphView, &OverviewView::mouseMoved, [this]() {
@@ -327,8 +327,8 @@ void MainWindow::initUI()
         int y = overviewDock->graphView->verticalScrollBar()->value();
         //double xx = (double)x * m;
         //double yy = (double)y * m;
-        double xx = (double)overviewDock->graphView->rangeRect.x() / overviewDock->graphView->current_scale;
-        double yy = (double)overviewDock->graphView->rangeRect.y() / overviewDock->graphView->current_scale;
+        double xx = (double)(overviewDock->graphView->rangeRect.x() - overviewDock->graphView->unscrolled_render_offset_x)/ overviewDock->graphView->current_scale;
+        double yy = (double)(overviewDock->graphView->rangeRect.y() - overviewDock->graphView->unscrolled_render_offset_y)/ overviewDock->graphView->current_scale;
 
         graphDock->graphView->horizontalScrollBar()->setValue(x + xx);
         graphDock->graphView->verticalScrollBar()->setValue(y + yy);

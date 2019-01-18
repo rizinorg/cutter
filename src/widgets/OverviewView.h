@@ -132,6 +132,7 @@ public:
 
     void paintEvent(QPaintEvent *event) override;
     QRectF rangeRect;
+    QPoint graph_offset;
 
 public slots:
     void refreshView();
