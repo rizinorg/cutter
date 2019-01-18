@@ -231,18 +231,21 @@ void MainWindow::initUI()
         int offy = overviewDock->graphView->unscrolled_render_offset_y;
         double m = overviewDock->graphView->current_scale;
 
-        if (graphDock->graphView->horizontalScrollBar()->isVisible()) {
+        if (graphDock->graphView->unscrolled_render_offset_x == 0) {
             x = graphDock->graphView->horizontalScrollBar()->value();
             w = graphDock->graphView->viewport()->width();
-        } else {
-            offx = 0;
-        }
-
-        if (graphDock->graphView->verticalScrollBar()->isVisible()) {
-            y = graphDock->graphView->verticalScrollBar()->value();
             h = graphDock->graphView->viewport()->height();
         } else {
-            offy = 0;
+            offx = overviewDock->graphView->unscrolled_render_offset_x;
+        }
+
+        eprintf("render offset is %d\n", graphDock->graphView->unscrolled_render_offset_y);
+        if (graphDock->graphView->unscrolled_render_offset_y == 0) {
+            y = graphDock->graphView->verticalScrollBar()->value();
+            w = graphDock->graphView->viewport()->width();
+            h = graphDock->graphView->viewport()->height();
+        } else {
+            offy = overviewDock->graphView->unscrolled_render_offset_y;
         }
         if (graphDock->graphView->unscrolled_render_offset_x > 0 && graphDock->graphView->unscrolled_render_offset_y > 0) {
             overviewDock->graphView->rangeRect = QRectF(0, 0, 0, 0);
