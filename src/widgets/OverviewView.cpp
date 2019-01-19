@@ -358,24 +358,6 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     // Render node
     DisassemblyBlock &db = disassembly_blocks[block.entry];
-    bool block_selected = false;
-    bool PCInBlock = false;
-    RVA selected_instruction = RVA_INVALID;
-
-    // Figure out if the current block is selected
-    RVA addr = seekable->getOffset();
-    RVA PCAddr = Core()->getProgramCounterValue();
-    for (const Instr &instr : db.instrs) {
-        if ((instr.addr <= addr) && (addr <= instr.addr + instr.size)) {
-            block_selected = true;
-            selected_instruction = instr.addr;
-        }
-        if ((instr.addr <= PCAddr) && (PCAddr <= instr.addr + instr.size)) {
-            PCInBlock = true;
-        }
-
-        // TODO: L219
-    }
 
     p.setPen(QColor(0, 0, 0, 0));
     if (db.terminal) {
