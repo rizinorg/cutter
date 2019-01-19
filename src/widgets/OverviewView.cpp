@@ -438,7 +438,13 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
         initialDiff = QPointF(event->localPos().x() - rangeRect.x(), event->localPos().y() - rangeRect.y());
         return;
     }
-    GraphView::mousePressEvent(event);
+    qreal w = rangeRect.width();
+    qreal h = rangeRect.height();
+    qreal x = event->localPos().x() - w/2;
+    qreal y = event->localPos().y() - h/2;
+    rangeRect = QRectF(x, y, w, h);
+    viewport()->update();
+    emit mouseMoved();
 }
 
 void OverviewView::mouseReleaseEvent(QMouseEvent *event)
@@ -456,7 +462,6 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     qreal y = event->localPos().y() - initialDiff.y();
     qreal w = rangeRect.width();
     qreal h = rangeRect.height();
-    viewport()->grabMouse();
     int a = x + w + horizontalScrollBar()->value();
     int b = horizontalScrollBar()->value() + viewport()->width();
     int c = y + h + verticalScrollBar()->value();
