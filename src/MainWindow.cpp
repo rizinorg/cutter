@@ -548,9 +548,11 @@ void MainWindow::restoreDocks()
 {
     // In the upper half the functions are the first widget
     addDockWidget(Qt::TopDockWidgetArea, functionsDock);
+    addDockWidget(Qt::TopDockWidgetArea, overviewDock);
 
     // Function | Dashboard
-    splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
+    splitDockWidget(overviewDock, dashboardDock, Qt::Horizontal);
+    splitDockWidget(functionsDock, overviewDock, Qt::Vertical);
 
     // In the lower half the console is the first widget
     addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
@@ -564,7 +566,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(segmentsDock, commentsDock);
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
-    tabifyDockWidget(dashboardDock, overviewDock);
+    //tabifyDockWidget(dashboardDock, overviewDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
     tabifyDockWidget(dashboardDock, pseudocodeDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
@@ -621,10 +623,10 @@ void MainWindow::updateDockActionChecked(QAction *action)
 void MainWindow::showZenDocks()
 {
     const QList<QDockWidget *> zenDocks = { functionsDock,
+                                            overviewDock,
                                             dashboardDock,
                                             stringsDock,
                                             graphDock,
-                                            overviewDock,
                                             disassemblyDock,
                                             hexdumpDock,
                                             searchDock,
@@ -644,9 +646,9 @@ void MainWindow::showZenDocks()
 void MainWindow::showDebugDocks()
 {
     const QList<QDockWidget *> debugDocks = { functionsDock,
+                                              overviewDock,
                                               stringsDock,
                                               graphDock,
-                                              overviewDock,
                                               disassemblyDock,
                                               hexdumpDock,
                                               searchDock,
@@ -679,8 +681,10 @@ void MainWindow::resetToDefaultLayout()
     // Ugly workaround to set the default widths of functions docks
     // if anyone finds a way to do this cleaner that also works, feel free to change it!
     auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
+    auto restoreOverviewDock = qhelpers::forceWidth(overviewDock->widget(), 200);
     qApp->processEvents();
     restoreFunctionDock.restoreWidth(functionsDock->widget());
+    restoreOverviewDock.restoreWidth(overviewDock->widget());
 
     core->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
