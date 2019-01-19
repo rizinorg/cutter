@@ -115,7 +115,6 @@ public:
     ~OverviewView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
-    virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
     virtual bool helpEvent(QHelpEvent *event) override;
     virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos) override;
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
@@ -140,9 +139,6 @@ public slots:
     void takeTrue();
     void takeFalse();
 
-    void nextInstr();
-    void prevInstr();
-
 protected:
 
     void mousePressEvent(QMouseEvent *event) override;
@@ -150,8 +146,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private slots:
-    void seekPrev();
-
     void on_actionExportGraph_triggered();
 
 private:

@@ -44,18 +44,6 @@ OverviewView::OverviewView(QWidget *parent)
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connectSeekChanged(false);
 
-    // Space to switch to disassembly
-    QShortcut *shortcut_disassembly = new QShortcut(QKeySequence(Qt::Key_Space), this);
-    shortcut_disassembly->setContext(Qt::WidgetShortcut);
-    connect(shortcut_disassembly, &QShortcut::activated, this, [] {
-        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
-        Core()->triggerRaisePrioritizedMemoryWidget();
-    });
-    // ESC for previous
-    QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    shortcut_escape->setContext(Qt::WidgetShortcut);
-    connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
-
     // Branch shortcuts
     QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
     shortcut_take_true->setContext(Qt::WidgetShortcut);
@@ -63,26 +51,6 @@ OverviewView::OverviewView(QWidget *parent)
     QShortcut *shortcut_take_false = new QShortcut(QKeySequence(Qt::Key_F), this);
     shortcut_take_false->setContext(Qt::WidgetShortcut);
     connect(shortcut_take_false, SIGNAL(activated()), this, SLOT(takeFalse()));
-
-    // Navigation shortcuts
-    QShortcut *shortcut_next_instr = new QShortcut(QKeySequence(Qt::Key_J), this);
-    shortcut_next_instr->setContext(Qt::WidgetShortcut);
-    connect(shortcut_next_instr, SIGNAL(activated()), this, SLOT(nextInstr()));
-    QShortcut *shortcut_prev_instr = new QShortcut(QKeySequence(Qt::Key_K), this);
-    shortcut_prev_instr->setContext(Qt::WidgetShortcut);
-    connect(shortcut_prev_instr, SIGNAL(activated()), this, SLOT(prevInstr()));
-    QShortcut *shortcut_next_instr_arrow = new QShortcut(QKeySequence::MoveToNextLine, this);
-    shortcut_next_instr_arrow->setContext(Qt::WidgetShortcut);
-    connect(shortcut_next_instr_arrow, SIGNAL(activated()), this, SLOT(nextInstr()));
-    QShortcut *shortcut_prev_instr_arrow = new QShortcut(QKeySequence::MoveToPreviousLine, this);
-    shortcut_prev_instr_arrow->setContext(Qt::WidgetShortcut);
-    connect(shortcut_prev_instr_arrow, SIGNAL(activated()), this, SLOT(prevInstr()));
-    shortcuts.append(shortcut_disassembly);
-    shortcuts.append(shortcut_escape);
-    shortcuts.append(shortcut_next_instr);
-    shortcuts.append(shortcut_prev_instr);
-    shortcuts.append(shortcut_next_instr_arrow);
-    shortcuts.append(shortcut_prev_instr_arrow);
 
     //Export Graph menu
     mMenu->addSeparator();
@@ -625,16 +593,6 @@ void OverviewView::seekInstruction(bool previous_instr)
     }
 }
 
-void OverviewView::nextInstr()
-{
-    seekInstruction(false);
-}
-
-void OverviewView::prevInstr()
-{
-    seekInstruction(true);
-}
-
 void OverviewView::seekLocal(RVA addr, bool update_viewport)
 {
     connectSeekChanged(true);
@@ -642,15 +600,6 @@ void OverviewView::seekLocal(RVA addr, bool update_viewport)
     connectSeekChanged(false);
     if (update_viewport) {
         viewport()->update();
-    }
-}
-
-void OverviewView::seekPrev()
-{
-    if (seekable->getSyncWithCore()) {
-        Core()->seekPrev();
-    } else {
-        seekable->seek(seekable->getPrevIndependentOffset());
     }
 }
 
@@ -684,23 +633,6 @@ OverviewView::Token *OverviewView::getToken(Instr *instr, int x)
     }
 
     return nullptr;
-}
-
-void OverviewView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
-                                         QPoint pos)
-{
-    Instr *instr = getInstrForMouseEvent(block, &pos);
-    if (!instr) {
-        return;
-    }
-
-    RVA addr = instr->addr;
-    seekLocal(addr);
-
-    mMenu->setOffset(addr);
-    if (event->button() == Qt::RightButton) {
-        mMenu->exec(event->globalPos());
-    }
 }
 
 void OverviewView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
