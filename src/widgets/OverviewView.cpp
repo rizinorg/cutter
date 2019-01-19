@@ -27,7 +27,6 @@ OverviewView::OverviewView(QWidget *parent)
       mMenu(new DisassemblyContextMenu(this)),
       seekable(new CutterSeekableWidget(this))
 {
-    highlight_token = nullptr;
     // Signals that require a refresh all
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
@@ -57,17 +56,6 @@ OverviewView::OverviewView(QWidget *parent)
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
 
-    // Zoom shortcuts
-    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
-    shortcut_zoom_in->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_in, SIGNAL(activated()), this, SLOT(zoomIn()));
-    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
-    shortcut_zoom_out->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_out, SIGNAL(activated()), this, SLOT(zoomOut()));
-    QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::Key_Equal), this);
-    shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
-
     // Branch shortcuts
     QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
     shortcut_take_true->setContext(Qt::WidgetShortcut);
@@ -91,9 +79,6 @@ OverviewView::OverviewView(QWidget *parent)
     connect(shortcut_prev_instr_arrow, SIGNAL(activated()), this, SLOT(prevInstr()));
     shortcuts.append(shortcut_disassembly);
     shortcuts.append(shortcut_escape);
-    shortcuts.append(shortcut_zoom_in);
-    shortcuts.append(shortcut_zoom_out);
-    shortcuts.append(shortcut_zoom_reset);
     shortcuts.append(shortcut_next_instr);
     shortcuts.append(shortcut_prev_instr);
     shortcuts.append(shortcut_next_instr_arrow);
@@ -180,11 +165,6 @@ void OverviewView::loadCurrentGraph()
 
     disassembly_blocks.clear();
     blocks.clear();
-
-    if (highlight_token) {
-        delete highlight_token;
-        highlight_token = nullptr;
-    }
 
     bool emptyGraph = functions.isEmpty();
     if (emptyGraph) {
@@ -612,31 +592,6 @@ void OverviewView::onSeekChanged(RVA addr)
     }
 }
 
-void OverviewView::zoomIn(QPoint mouse)
-{
-    current_scale += 0.1;
-    auto areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height(), mouse);
-    viewport()->update();
-}
-
-void OverviewView::zoomOut(QPoint mouse)
-{
-    current_scale -= 0.1;
-    current_scale = std::max(current_scale, 0.3);
-    auto areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height(), mouse);
-    viewport()->update();
-}
-
-void OverviewView::zoomReset()
-{
-    current_scale = 1.0;
-    auto areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height());
-    viewport()->update();
-}
-
 void OverviewView::takeTrue()
 {
     DisassemblyBlock *db = blockForAddress(seekable->getOffset());
@@ -757,8 +712,6 @@ void OverviewView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event
         return;
     }
 
-    highlight_token = getToken(instr, pos.x());
-
     RVA addr = instr->addr;
     seekLocal(addr);
 
@@ -858,25 +811,4 @@ void OverviewView::on_actionExportGraph_triggered()
     }
     QTextStream fileOut(&file);
     fileOut << Core()->cmd("agfd $FB");
-}
-
-void OverviewView::wheelEvent(QWheelEvent *event)
-{
-    // when CTRL is pressed, we zoom in/out with mouse wheel
-    if (Qt::ControlModifier == event->modifiers()) {
-        const QPoint numDegrees = event->angleDelta() / 8;
-        if (!numDegrees.isNull()) {
-            const QPoint numSteps = numDegrees / 15;
-            QPoint mouse = event->globalPos();
-            if (numSteps.y() > 0) {
-                zoomIn(mouse);
-            } else if (numSteps.y() < 0) {
-                zoomOut(mouse);
-            }
-        }
-        event->accept();
-    } else {
-        // use mouse wheel for scrolling when CTRL is not pressed
-        GraphView::wheelEvent(event);
-    }
 }

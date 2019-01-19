@@ -139,10 +139,6 @@ public slots:
     void onSeekChanged(RVA addr);
     void toggleSync();
 
-    void zoomIn(QPoint mouse = QPoint(0, 0));
-    void zoomOut(QPoint mouse = QPoint(0, 0));
-    void zoomReset();
-
     void takeTrue();
     void takeFalse();
 
@@ -150,7 +146,6 @@ public slots:
     void prevInstr();
 
 protected:
-    virtual void wheelEvent(QWheelEvent *event) override;
 
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
@@ -167,7 +162,6 @@ private:
 
     bool mouseActive = false;
 
-    Token *highlight_token;
     // Font data
     CachedFontMetrics *mFontMetrics;
     qreal charWidth;
