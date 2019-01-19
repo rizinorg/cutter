@@ -435,8 +435,9 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
 {
     if (rangeRect.contains(event->pos())) {
         mouseActive = true;
+        initialDiff = QPointF(event->localPos().x() - rangeRect.x(), event->localPos().y() - rangeRect.y());
+        return;
     }
-    initialDiff = QPointF(event->localPos().x() - rangeRect.x(), event->localPos().y() - rangeRect.y());
     GraphView::mousePressEvent(event);
 }
 
@@ -451,8 +452,6 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     if (!mouseActive) {
         return;
     }
-    //int x = event->pos().x();
-    //int y = event->pos().y();
     qreal x = event->localPos().x() - initialDiff.x();
     qreal y = event->localPos().y() - initialDiff.y();
     qreal w = rangeRect.width();

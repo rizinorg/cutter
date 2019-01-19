@@ -100,7 +100,7 @@ public:
     void showBlock(GraphBlock *block, bool animated = false);
 
     // Zoom data
-    double current_scale = 1.0;
+    qreal current_scale = 1.0;
 
     int unscrolled_render_offset_x = 0;
     int unscrolled_render_offset_y = 0;

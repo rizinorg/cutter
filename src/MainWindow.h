@@ -252,6 +252,7 @@ private:
 
     void updateDockActionsChecked();
     void adjustOverview();
+    void disableOverviewRect();
 
 public:
     QString getFilename() const
