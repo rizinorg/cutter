@@ -159,6 +159,7 @@ void Configuration::loadBaseThemeNative()
     setColor("gui.breakpoint_background", QColor(233, 143, 143));
     setColor("gui.item_invalid", QColor(155, 155, 155));
     setColor("gui.item_unsafe", QColor(255, 129, 123));
+    setColor("gui.overview.node",  QColor(200, 200, 200));
 }
 
 void Configuration::loadNativeTheme()
@@ -229,6 +230,8 @@ void Configuration::loadBaseThemeDark()
     // RIP line selection in debug
     setColor("highlightPC", QColor(87, 26, 7));
     setColor("gui.breakpoint_background", QColor(140, 76, 76));
+
+    setColor("gui.overview.node",  QColor(100, 100, 100));
 }
 
 void Configuration::loadDarkTheme()

@@ -483,7 +483,7 @@ OverviewView::Instr *OverviewView::getInstrForMouseEvent(
 
 void OverviewView::colorsUpdatedSlot()
 {
-    disassemblyBackgroundColor = ConfigColor("gui.border");
+    disassemblyBackgroundColor = ConfigColor("gui.overview.node");
     disassemblySelectedBackgroundColor = ConfigColor("gui.disass_selected");
     mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
