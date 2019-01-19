@@ -122,6 +122,10 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     ui->breakpointTreeView->setModel(breakpointProxyModel);
     ui->breakpointTreeView->sortByColumn(BreakpointModel::AddrColumn, Qt::AscendingOrder);
 
+    refreshDeferrer = createRefreshDeferrer([this]() {
+        refreshBreakpoint();
+    });
+
     setScrollMode();
     actionDelBreakpoint = new QAction(tr("Delete breakpoint"));
     actionToggleBreakpoint = new QAction(tr("Toggle breakpoint"));
@@ -138,10 +142,14 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
             this, SLOT(showBreakpointContextMenu(const QPoint &)));
 }
 
-BreakpointWidget::~BreakpointWidget() {}
+BreakpointWidget::~BreakpointWidget() = default;
 
 void BreakpointWidget::refreshBreakpoint()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     breakpointModel->beginResetModel();
     breakpoints = Core()->getBreakpoints();
     breakpointModel->endResetModel();

@@ -45,8 +45,9 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
                                           QColor("#95A5A6")     //COBCRETE
                                         };
 
-    if (index.row() >= sections->count())
+    if (index.row() >= sections->count()) {
         return QVariant();
+    }
 
     const SectionDescription &section = sections->at(index.row());
 
@@ -142,13 +143,17 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     setWindowTitle(QStringLiteral("Sections"));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
+    refreshDeferrer = createRefreshDeferrer([this]() {
+        drawIndicatorOnAddrDocks();
+    });
+
     initSectionsTable();
     initQuickFilter();
     initAddrMapDocks();
     initConnects();
 }
 
-SectionsWidget::~SectionsWidget() {}
+SectionsWidget::~SectionsWidget() = default;
 
 void SectionsWidget::initSectionsTable()
 {
@@ -260,8 +265,9 @@ void SectionsWidget::refreshSections()
 
 void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
 {
-    if (!index.isValid())
+    if (!index.isValid()) {
         return;
+    }
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
     Core()->seek(section.vaddr);
@@ -277,6 +283,10 @@ void SectionsWidget::onSectionsSeekChanged(RVA addr)
 
 void SectionsWidget::drawIndicatorOnAddrDocks()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     RVA offset = Core()->getOffset();
     for (int i = 0; i != virtualAddrDock->proxyModel->rowCount(); i++) {
         QModelIndex idx = virtualAddrDock->proxyModel->index(i, 0);

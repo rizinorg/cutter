@@ -11,7 +11,7 @@
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "common/RichTextPainter.h"
-#include "CutterSeekable.h"
+#include "common/CutterSeekable.h"
 
 class QTextEdit;
 class SyntaxHighlighter;
@@ -144,6 +144,8 @@ public slots:
 
     void nextInstr();
     void prevInstr();
+
+    void copySelection();
 
 protected:
     virtual void wheelEvent(QWheelEvent *event) override;

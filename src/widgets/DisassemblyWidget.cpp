@@ -35,7 +35,6 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
     return static_cast<DisassemblyTextBlockUserData *>(userData);
 }
 
-
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     :   CutterDockWidget(main, action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
@@ -62,6 +61,10 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
     setupFonts();
     setupColors();
+
+    disasmRefresh = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
+        refreshDisasm(offset ? *offset : RVA_INVALID);
+    });
 
     maxLines = 0;
     updateMaxLines();
@@ -195,6 +198,10 @@ QWidget *DisassemblyWidget::getTextWidget()
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
+    if(!disasmRefresh->attemptRefresh(offset == RVA_INVALID ? nullptr : new RVA(offset))) {
+        return;
+    }
+
     if (offset != RVA_INVALID) {
         topOffset = offset;
     }
@@ -576,8 +583,8 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
-    if ((obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())
-            && event->type() == QEvent::MouseButtonDblClick) {
+    if (event->type() == QEvent::MouseButtonDblClick
+        && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
         QTextCursor cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
@@ -588,7 +595,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         if (jump == RVA_INVALID) {
             bool ok;
             RVA xref = Core()->cmdj("axfj@" + QString::number(
-                                        offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
+                offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
             if (ok) {
                 jump = xref;
             }
@@ -600,7 +607,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
         return true;
     }
-    return QDockWidget::eventFilter(obj, event);
+    return CutterDockWidget::eventFilter(obj, event);
 }
 
 void DisassemblyWidget::on_seekChanged(RVA offset)

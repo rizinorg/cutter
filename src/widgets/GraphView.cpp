@@ -740,18 +740,18 @@ void GraphView::showBlock(GraphBlock *block, bool animated)
     target_x = std::min(horizontalScrollBar()->maximum(), target_x);
     target_y = std::min(verticalScrollBar()->maximum(), target_y);
     if (animated) {
-        QPropertyAnimation *animation_x = new QPropertyAnimation(horizontalScrollBar(), "value");
+        QPropertyAnimation *animation_x = new QPropertyAnimation(horizontalScrollBar(), "value", this);
         animation_x->setDuration(500);
         animation_x->setStartValue(horizontalScrollBar()->value());
         animation_x->setEndValue(target_x);
         animation_x->setEasingCurve(QEasingCurve::InOutQuad);
-        animation_x->start();
-        QPropertyAnimation *animation_y = new QPropertyAnimation(verticalScrollBar(), "value");
+        animation_x->start(QAbstractAnimation::DeleteWhenStopped);
+        QPropertyAnimation *animation_y = new QPropertyAnimation(verticalScrollBar(), "value", this);
         animation_y->setDuration(500);
         animation_y->setStartValue(verticalScrollBar()->value());
         animation_y->setEndValue(target_y);
         animation_y->setEasingCurve(QEasingCurve::InOutQuad);
-        animation_y->start();
+        animation_y->start(QAbstractAnimation::DeleteWhenStopped);
     } else {
         horizontalScrollBar()->setValue(target_x);
         verticalScrollBar()->setValue(target_y);

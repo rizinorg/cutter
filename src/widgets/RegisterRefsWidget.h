@@ -83,4 +83,6 @@ private:
     QAction *actionCopyRef;
     CutterTreeWidget *tree;
     void setScrollMode();
+
+    RefreshDeferrer *refreshDeferrer;
 };

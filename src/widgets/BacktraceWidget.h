@@ -31,4 +31,5 @@ private:
     std::unique_ptr<Ui::BacktraceWidget> ui;
     QStandardItemModel *modelBacktrace = new QStandardItemModel(1, 5, this);
     QTableView *viewBacktrace = new QTableView;
+    RefreshDeferrer *refreshDeferrer;
 };

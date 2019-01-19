@@ -80,4 +80,6 @@ private:
     QList<MemoryMapDescription> memoryMaps;
 
     void setScrollMode();
+
+    RefreshDeferrer *refreshDeferrer;
 };

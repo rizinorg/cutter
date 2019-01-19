@@ -220,7 +220,9 @@ SOURCES += \
     dialogs/HexdumpRangeDialog.cpp \
     common/QtResImporter.cpp \
     widgets/CutterSeekable.cpp \
+    common/RefreshDeferrer.cpp \
     dialogs/WelcomeDialog.cpp
+
 
 HEADERS  += \
     Cutter.h \
@@ -324,6 +326,7 @@ HEADERS  += \
     dialogs/HexdumpRangeDialog.h \
     common/QtResImporter.h \
     widgets/CutterSeekable.h \
+    common/RefreshDeferrer.h \
     dialogs/WelcomeDialog.h
 
 FORMS    += \

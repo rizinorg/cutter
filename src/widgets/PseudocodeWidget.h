@@ -33,7 +33,7 @@ private:
 
     SyntaxHighlighter *syntaxHighLighter;
 
-    void refresh(RVA addr);
+    void doRefresh(RVA addr);
     void setupFonts();
 };
 
