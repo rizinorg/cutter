@@ -80,6 +80,11 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     updateHeaders();
 
     this->setWindowTitle(tr("Hexdump"));
+
+    refreshDeferrer = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
+        refresh(offset ? *offset : RVA_INVALID);
+    });
+
     connect(&syncAction, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
 
     // Set hexdump context menu
@@ -116,7 +121,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(ui->hexHexText, &QTextEdit::cursorPositionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexASCIIText, &QTextEdit::cursorPositionChanged, this,
             &HexdumpWidget::selectionChanged);
-    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::on_seekChanged);
+    connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
     connect(&rangeDialog, &QDialog::accepted, this, &HexdumpWidget::on_rangeDialogAccepted);
 
     format = Format::Hex;
@@ -208,13 +213,13 @@ void HexdumpWidget::setupScrollSync()
             asciiHexFunc);
 }
 
-void HexdumpWidget::on_seekChanged(RVA addr)
+void HexdumpWidget::onSeekChanged(RVA addr)
 {
     if (sent_seek) {
         sent_seek = false;
         return;
     }
-    refresh(addr);
+    refresh();
 }
 
 void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
@@ -314,6 +319,10 @@ void HexdumpWidget::highlightHexWords(const QString &str)
 
 void HexdumpWidget::refresh(RVA addr)
 {
+    if (!refreshDeferrer->attemptRefresh(addr == RVA_INVALID ? nullptr : new RVA(addr))) {
+        return;
+    }
+
     ut64 loadLines = 0;
     ut64 curAddrLineOffset = 0;
     connectScroll(true);

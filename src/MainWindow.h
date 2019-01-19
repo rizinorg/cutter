@@ -241,6 +241,7 @@ private:
 
     void resetToDefaultLayout();
     void resetToDebugLayout();
+    void restoreDebugLayout();
 
     void restoreDocks();
     void hideAllDocks();

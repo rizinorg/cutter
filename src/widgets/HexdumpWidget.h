@@ -10,7 +10,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterSeekable.h"
+#include "common/CutterSeekable.h"
 #include "dialogs/HexdumpRangeDialog.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
@@ -20,6 +20,8 @@
 #include "Dashboard.h"
 
 #include "ui_HexdumpWidget.h"
+
+class RefreshDeferrer;
 
 class HexdumpWidget : public CutterDockWidget
 {
@@ -71,6 +73,8 @@ private:
     RVA first_loaded_address = RVA_INVALID;
     RVA last_loaded_address = RVA_INVALID;
 
+    RefreshDeferrer *refreshDeferrer;
+
     void refresh(RVA addr = RVA_INVALID);
     void selectHexPreview();
     void updateHeaders();
@@ -110,7 +114,7 @@ private:
     CutterSeekable *seekable;
 
 private slots:
-    void on_seekChanged(RVA addr);
+    void onSeekChanged(RVA addr);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     // Currently unused/untested

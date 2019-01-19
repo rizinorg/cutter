@@ -37,4 +37,5 @@ private:
     QStandardItemModel *modelStack = new QStandardItemModel(1, 3, this);
     QAction *seekAction;
     QAction *editAction;
+    RefreshDeferrer *refreshDeferrer;
 };

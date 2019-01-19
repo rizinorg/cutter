@@ -84,4 +84,6 @@ private:
     QAction *actionToggleBreakpoint = nullptr;
 
     void setScrollMode();
+
+    RefreshDeferrer *refreshDeferrer;
 };

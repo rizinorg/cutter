@@ -29,6 +29,10 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     editAction = new QAction(tr("Edit stack value..."));
     viewStack->setContextMenuPolicy(Qt::CustomContextMenu);
 
+    refreshDeferrer = createRefreshDeferrer([this]() {
+        updateContents();
+    });
+
     connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::stackChanged, this, &StackWidget::updateContents);
@@ -40,10 +44,14 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     connect(editAction, &QAction::triggered, this, &StackWidget::editStack);
 }
 
-StackWidget::~StackWidget() {}
+StackWidget::~StackWidget() = default;
 
 void StackWidget::updateContents()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     setStackGrid();
 }
 

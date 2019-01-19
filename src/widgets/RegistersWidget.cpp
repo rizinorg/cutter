@@ -14,14 +14,21 @@ RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
     registerLayout->setVerticalSpacing(0);
     ui->verticalLayout->addLayout(registerLayout);
 
+    refreshDeferrer = createRefreshDeferrer([this]() {
+        updateContents();
+    });
+
     connect(Core(), &CutterCore::refreshAll, this, &RegistersWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &RegistersWidget::updateContents);
 }
 
-RegistersWidget::~RegistersWidget() {}
+RegistersWidget::~RegistersWidget() = default;
 
 void RegistersWidget::updateContents()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
     setRegisterGrid();
 }
 
