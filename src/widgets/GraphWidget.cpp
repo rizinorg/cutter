@@ -105,11 +105,11 @@ void GraphWidget::adjustOverview()
 
 void GraphWidget::adjustGraph()
 {
-    int x = overviewWidget->graphView->horizontalScrollBar()->value();
-    int y = overviewWidget->graphView->verticalScrollBar()->value();
-    qreal xx = (qreal)(overviewWidget->graphView->rangeRect.x() - overviewWidget->graphView->unscrolled_render_offset_x)/ overviewWidget->graphView->current_scale;
-    qreal yy = (qreal)(overviewWidget->graphView->rangeRect.y() - overviewWidget->graphView->unscrolled_render_offset_y)/ overviewWidget->graphView->current_scale;
+    int x1 = overviewWidget->graphView->horizontalScrollBar()->value();
+    int y1 = overviewWidget->graphView->verticalScrollBar()->value();
+    qreal x2 = (overviewWidget->graphView->rangeRect.x() - (qreal)overviewWidget->graphView->unscrolled_render_offset_x)/ overviewWidget->graphView->current_scale;
+    qreal y2 = (overviewWidget->graphView->rangeRect.y() - (qreal)overviewWidget->graphView->unscrolled_render_offset_y)/ overviewWidget->graphView->current_scale;
 
-    graphView->horizontalScrollBar()->setValue(x + xx);
-    graphView->verticalScrollBar()->setValue(y + yy);
+    graphView->horizontalScrollBar()->setValue(x1 + x2);
+    graphView->verticalScrollBar()->setValue(y1 + y2);
 }
