@@ -267,8 +267,11 @@ p, li { white-space: pre-wrap; }
        <property name="wordWrap">
         <bool>true</bool>
        </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
        <property name="textInteractionFlags">
-        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        <set>Qt::TextBrowserInteraction</set>
        </property>
       </widget>
      </item>
@@ -283,8 +286,11 @@ p, li { white-space: pre-wrap; }
        <property name="indent">
         <number>20</number>
        </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
+       </property>
        <property name="textInteractionFlags">
-        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+        <set>Qt::TextBrowserInteraction</set>
        </property>
       </widget>
      </item>
