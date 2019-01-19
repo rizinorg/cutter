@@ -143,7 +143,7 @@ void Configuration::setLocaleByName(const QString &language)
                                                QLocale::AnyCountry);
 
     for (auto &it : allLocales) {
-        if (it.nativeLanguageName().toLower() == language) {
+        if (QString::compare(it.nativeLanguageName(), language, Qt::CaseInsensitive) == 0) {
             setLocale(it);
             break;
         }
