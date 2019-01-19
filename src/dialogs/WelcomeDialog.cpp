@@ -3,8 +3,14 @@
 
 #include "common/Helpers.h"
 #include "WelcomeDialog.h"
+#include "AboutDialog.h"
+
 #include "ui_WelcomeDialog.h"
 
+/*!
+ * \brief Constructs a WelcomeDialog object
+ * \param parent
+ */
 WelcomeDialog::WelcomeDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::WelcomeDialog)
@@ -16,7 +22,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
     ui->themeComboBox->setFixedWidth(200);
     ui->themeComboBox->view()->setFixedWidth(200);
 
-    QStringList langs = Core()->getAvailableTranslations();
+    QStringList langs = Config()->getAvailableTranslations();
     ui->languageComboBox->addItems(langs);
     QString curr = Config()->getCurrLocale().nativeLanguageName();
     curr = curr.at(0).toUpper() + curr.right(curr.length() - 1);
@@ -31,30 +37,34 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
 
 }
 
+/*!
+ * \brief Destroys the WelcomeDialog
+ */
 WelcomeDialog::~WelcomeDialog()
 {
     delete ui;
 }
 
+/*!
+ * \brief change Cutter's QT Theme as selected by the user
+ * \param index - a Slot being called after theme's value changes its index
+ */
 void WelcomeDialog::on_themeComboBox_currentIndexChanged(int index)
 {
     Config()->setTheme(index);
+
+    // make sure that Cutter's logo changes its color according to the selected theme
     ui->logoSvgWidget->load(Config()->getLogoFile());
 }
 
-
+/*!
+ * \brief change Cutter's interface language as selected by the user
+ * \param index - a Slot being called after language combo box value changes its index
+ */
 void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
 {
     QString language = ui->languageComboBox->itemText(index).toLower();
-    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-                                               QLocale::AnyCountry);
-
-    for (auto &it : allLocales) {
-        if (it.nativeLanguageName().toLower() == language) {
-            Config()->setLocale(it);
-            break;
-        }
-    }
+    Config()->setLocaleByName(language);
 
     QMessageBox mb;
     mb.setWindowTitle(tr("Language settings"));
@@ -62,4 +72,21 @@ void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
     mb.setIcon(QMessageBox::Information);
     mb.setStandardButtons(QMessageBox::Ok);
     mb.exec();
+}
+
+/*!
+ * \brief show Cutter's About dialog
+ */
+void WelcomeDialog::on_checkUpdateButton_clicked()
+{
+    AboutDialog *a = new AboutDialog(this);
+    a->open();
+}
+
+/*!
+ * \brief accept user preferences, close the window and continue Cutter's execution
+ */
+void WelcomeDialog::on_continueButton_clicked()
+{
+    accept();
 }

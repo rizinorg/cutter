@@ -40,7 +40,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     updateFontFromConfig();
     updateThemeFromConfig(false);
 
-    QStringList langs = Core()->getAvailableTranslations();
+    QStringList langs = Config()->getAvailableTranslations();
     ui->languageComboBox->addItems(langs);
 
     QString curr = Config()->getCurrLocale().nativeLanguageName();
@@ -185,15 +185,7 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
 void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
 {
     QString language = ui->languageComboBox->itemText(index).toLower();
-    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-                                               QLocale::AnyCountry);
-
-    for (auto &it : allLocales) {
-        if (it.nativeLanguageName().toLower() == language) {
-            Config()->setLocale(it);
-            break;
-        }
-    }
+    Config()->setLocaleByName(language);
 
     QMessageBox mb;
     mb.setWindowTitle(tr("Language settings"));

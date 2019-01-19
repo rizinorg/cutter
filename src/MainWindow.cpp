@@ -336,12 +336,19 @@ void MainWindow::openNewFileFailed()
     mb.exec();
 }
 
+/*!
+ * \brief displays the WelocmeDialog
+ *
+ * Upon first execution of Cutter, the WelcomeDialog would be showed to the user.
+ * The Welcome dialog would be showed after a reset of Cutter's preferences by the user.
+ */
+
 void MainWindow::displayWelcomeDialog()
 {
     WelcomeDialog *w = new WelcomeDialog();
     welcomeDialog = w;
     w->setAttribute(Qt::WA_DeleteOnClose);
-    w->show();
+    w->exec();
 
 }
 

@@ -2310,30 +2310,3 @@ QList<CutterPlugin *> CutterCore::getCutterPlugins()
     return plugins;
 }
 
-
-QStringList CutterCore::getAvailableTranslations()
-{
-    QDir dir(QCoreApplication::applicationDirPath() + QDir::separator() +
-             "translations");
-    QStringList fileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
-                                          QDir::Name);
-    QStringList languages;
-    QString currLanguageName;
-    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-                                               QLocale::AnyCountry);
-
-    for (auto i : fileNames) {
-        QString localeName = i.mid(sizeof("cutter_") - 1, 2);
-        for (auto j : allLocales) {
-            if (j.name().startsWith(localeName)) {
-                currLanguageName = j.nativeLanguageName();
-                currLanguageName = currLanguageName.at(0).toUpper() +
-                                   currLanguageName.right(currLanguageName.length() - 1);
-                languages << currLanguageName;
-                break;
-            }
-        }
-    }
-
-    return languages << "English";
-}

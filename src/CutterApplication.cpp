@@ -165,7 +165,12 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                    QObject::tr("Filename must be specified to start analysis automatically.").toLocal8Bit().constData());
             std::exit(1);
         }
-        mainWindow->displayWelcomeDialog();
+
+        // check if this is the first execution of Cutter in this computer
+        // Note: the execution after the preferences benn reset, will be considered as first-execution
+        if (Config()->isFirstExecution()) {
+            mainWindow->displayWelcomeDialog();
+        }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
         InitialOptions options;

@@ -497,7 +497,6 @@ public:
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QList<QString> getColorThemes();
-    QStringList getAvailableTranslations();
 
     /* Assembly related methods */
     QString assemble(const QString &code);
