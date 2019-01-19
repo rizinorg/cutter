@@ -42,6 +42,7 @@
 #include "common/TempConfig.h"
 
 // Dialogs
+#include "dialogs/WelcomeDialog.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/InitialOptionsDialog.h"
 #include "dialogs/SaveProjectDialog.h"
@@ -333,6 +334,19 @@ void MainWindow::openNewFileFailed()
     mb.setText(
         tr("Could not open the file! Make sure the file exists and that you have the correct permissions."));
     mb.exec();
+}
+
+/*!
+ * \brief displays the WelocmeDialog
+ *
+ * Upon first execution of Cutter, the WelcomeDialog would be showed to the user.
+ * The Welcome dialog would be showed after a reset of Cutter's preferences by the user.
+ */
+
+void MainWindow::displayWelcomeDialog()
+{
+    WelcomeDialog w;
+    w.exec();
 }
 
 void MainWindow::displayNewFileDialog()

@@ -11,6 +11,7 @@
 #include "widgets/HexdumpWidget.h"
 #include "widgets/PseudocodeWidget.h"
 #include "dialogs/NewFileDialog.h"
+#include "dialogs/WelcomeDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
 
@@ -70,6 +71,7 @@ public:
 
     void openNewFile(InitialOptions options = InitialOptions(), bool skipOptionsDialog = false);
     void displayNewFileDialog();
+    void displayWelcomeDialog();
     void closeNewFileDialog();
     void openProject(const QString &project_name);
 

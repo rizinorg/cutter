@@ -10,6 +10,12 @@
     <height>599</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="windowTitle">
    <string>Open File</string>
   </property>
@@ -138,7 +144,6 @@
           <property name="currentIndex">
            <number>0</number>
           </property>
-
           <widget class="QWidget" name="filesTab">
            <attribute name="title">
             <string>Open File</string>
@@ -313,13 +318,11 @@
             </item>
            </layout>
           </widget>
-
           <widget class="QWidget" name="shellcodeTab">
            <attribute name="title">
             <string>Open Shellcode</string>
            </attribute>
            <layout class="QVBoxLayout" name="shellcodeLayout">
-
             <item>
              <widget class="QLabel" name="shellcodeLabel">
               <property name="sizePolicy">
@@ -333,7 +336,6 @@
               </property>
              </widget>
             </item>
-
             <item>
              <widget class="QPlainTextEdit" name="shellcodeText">
               <property name="sizePolicy">
@@ -344,7 +346,6 @@
               </property>
              </widget>
             </item>
-
             <item>
              <layout class="QHBoxLayout" name="shellcodeLayout_1">
               <item>
@@ -352,10 +353,10 @@
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="spacerSize" stdset="0">
+                <property name="sizeHint" stdset="0">
                  <size>
-                  <width>40</width>
-                  <height>20</height>
+                  <width>0</width>
+                  <height>0</height>
                  </size>
                 </property>
                </spacer>
@@ -369,10 +370,8 @@
               </item>
              </layout>
             </item>
-
            </layout>
-          </widget>>
-
+          </widget>
           <widget class="QWidget" name="projectsTab">
            <attribute name="title">
             <string>Projects</string>
@@ -517,7 +516,6 @@
             </item>
            </layout>
           </widget>
-
          </widget>
         </item>
        </layout>

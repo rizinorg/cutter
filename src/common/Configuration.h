@@ -50,6 +50,8 @@ public:
     // Languages
     QLocale getCurrLocale() const;
     void setLocale(const QLocale &l);
+    void setLocaleByName(const QString &language);
+    QStringList getAvailableTranslations();
 
     // Fonts
     const QFont getFont() const;
@@ -104,6 +106,8 @@ public:
      * \brief Set the value of a config var either to r2 or settings, depending on the key.
      */
     void setConfig(const QString &key, const QVariant &value);
+    bool isFirstExecution();
+
 
 signals:
     void fontsUpdated();

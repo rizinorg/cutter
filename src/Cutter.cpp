@@ -2311,3 +2311,4 @@ QList<CutterPlugin *> CutterCore::getCutterPlugins()
 {
     return plugins;
 }
+

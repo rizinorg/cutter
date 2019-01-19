@@ -166,6 +166,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
             std::exit(1);
         }
 
+        // check if this is the first execution of Cutter in this computer
+        // Note: the execution after the preferences benn reset, will be considered as first-execution
+        if (Config()->isFirstExecution()) {
+            mainWindow->displayWelcomeDialog();
+        }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
         InitialOptions options;

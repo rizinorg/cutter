@@ -220,7 +220,9 @@ SOURCES += \
     dialogs/HexdumpRangeDialog.cpp \
     common/QtResImporter.cpp \
     common/CutterSeekable.cpp \
-    common/RefreshDeferrer.cpp
+    common/RefreshDeferrer.cpp \
+    dialogs/WelcomeDialog.cpp
+
 
 HEADERS  += \
     Cutter.h \
@@ -324,7 +326,8 @@ HEADERS  += \
     dialogs/HexdumpRangeDialog.h \
     common/QtResImporter.h \
     common/CutterSeekable.h \
-    common/RefreshDeferrer.h
+    common/RefreshDeferrer.h \
+    dialogs/WelcomeDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -382,7 +385,8 @@ FORMS    += \
     widgets/ColorSchemePrefWidget.ui \
     widgets/CutterTreeView.ui \
     widgets/ComboQuickFilterView.ui \
-    dialogs/HexdumpRangeDialog.ui
+    dialogs/HexdumpRangeDialog.ui \
+    dialogs/WelcomeDialog.ui
 
 RESOURCES += \
     resources.qrc \
