@@ -345,11 +345,8 @@ void MainWindow::openNewFileFailed()
 
 void MainWindow::displayWelcomeDialog()
 {
-    WelcomeDialog *w = new WelcomeDialog();
-    welcomeDialog = w;
-    w->setAttribute(Qt::WA_DeleteOnClose);
-    w->exec();
-
+    WelcomeDialog w;
+    w.exec();
 }
 
 void MainWindow::displayNewFileDialog()
