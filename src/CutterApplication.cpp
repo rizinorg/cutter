@@ -248,13 +248,23 @@ bool CutterApplication::loadTranslations()
                 + QStringLiteral("translations");
             const QString &translationsPath(QLibraryInfo::location(QLibraryInfo::TranslationsPath));
 
-            // const QString &cutterDirectPath = cutterTranslationPath + QDir::separator() + QString("cutter_%1.qm").arg(langPrefix);
+            const QStringList &cutterTrPaths = {
+                cutterTranslationPath,
+                translationsPath,
+#ifdef Q_OS_MAC
+                QStringLiteral("%1/../Resources/translations").arg(QCoreApplication::applicationDirPath()),
+#endif // Q_OS_MAC
+            };
 
-            if (t->load(it, QLatin1String("cutter"), QLatin1String("_"), cutterTranslationPath) ||
-                t->load(it, QLatin1String("cutter"), QLatin1String("_"), translationsPath)) {
-                installTranslator(t);
+            bool cutterTrLoaded = false;
+            for (const auto &trPath : cutterTrPaths) {
+                if (t->load(it, QLatin1String("cutter"), QLatin1String("_"), trPath)) {
+                    installTranslator(t);
+                    cutterTrLoaded = true;
+                    break;
+                }
             }
-            else {
+            if (!cutterTrLoaded) {
                 qWarning() << "Cannot load Cutter's translation for " << language;
                 delete t;
             }
