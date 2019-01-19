@@ -13,12 +13,14 @@ lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 
 TRANSLATIONS += translations/cutter_ca.ts \
                 translations/cutter_de.ts \
-                translations/cutter_es-ES.ts \
+                translations/cutter_es.ts \
                 translations/cutter_fr.ts \
                 translations/cutter_it.ts \
                 translations/cutter_nl.ts \
-                translations/cutter_pt-PT.ts \
-                translations/cutter_ru.ts
+                translations/cutter_pt.ts \
+                translations/cutter_ro.ts \
+                translations/cutter_ru.ts \
+                translations/cutter_tr.ts
 
 # Icon for OS X
 ICON = img/cutter.icns
