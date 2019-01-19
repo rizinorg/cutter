@@ -25,8 +25,6 @@
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
     // Setup application information
-    setOrganizationName("Cutter");
-    setApplicationName("Cutter");
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
     setAttribute(Qt::AA_DontShowIconsInMenus);
@@ -34,45 +32,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run First
     // Load translations
-    QTranslator *t = new QTranslator;
-    QTranslator *qtBaseTranslator = new QTranslator;
-    QTranslator *qtTranslator = new QTranslator;
-    QString language = Config()->getCurrLocale().bcp47Name();
-    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-                                               QLocale::AnyCountry);
-
-    QString langPrefix;
-    if (language != "en") {
-        for (const QLocale &it : allLocales) {
-            langPrefix = it.bcp47Name();
-            if (langPrefix == language) {
-                const QString &cutterTranslationPath = QCoreApplication::applicationDirPath() + QDir::separator()
-                    + "translations" + QDir::separator() + QString("cutter_%1.qm").arg(langPrefix);
-
-                if (t->load(cutterTranslationPath)) {
-                    installTranslator(t);
-                }
-                QApplication::setLayoutDirection(it.textDirection());
-                QLocale::setDefault(it);
-
-                QString translationsPath(QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-                if (qtTranslator->load(it, "qt", "_", translationsPath)) {
-                    installTranslator(qtTranslator);
-                } else {
-                    delete qtTranslator;
-                }
-
-                if (qtBaseTranslator->load(it, "qtbase", "_", translationsPath)) {
-                    installTranslator(qtBaseTranslator);
-                } else {
-                    delete qtBaseTranslator;
-                }
-
-                break;
-            }
-        }
+    if (!loadTranslations()) {
+        qWarning() << "Cannot load translations";
     }
- 
+
     // Load fonts
     int ret = QFontDatabase::addApplicationFont(":/fonts/Anonymous Pro.ttf");
     if (ret == -1) {
@@ -263,4 +226,57 @@ void CutterApplication::loadPlugins()
     }
 
     Core()->setCutterPlugins(plugins);
+}
+
+bool CutterApplication::loadTranslations()
+{
+    const QString &language = Config()->getCurrLocale().bcp47Name();
+    if (language == QStringLiteral("en") || language.startsWith(QStringLiteral("en-")))
+        return true;
+
+    const auto &allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+        QLocale::AnyCountry);
+
+    for (const QLocale &it : allLocales) {
+        const QString &langPrefix = it.bcp47Name();
+        if (langPrefix == language) {
+            QTranslator *t = new QTranslator;
+            QTranslator *qtBaseTranslator = new QTranslator;
+            QTranslator *qtTranslator = new QTranslator;
+
+            const QString &cutterTranslationPath = QCoreApplication::applicationDirPath() + QDir::separator()
+                + QStringLiteral("translations");
+            const QString &translationsPath(QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+
+            // const QString &cutterDirectPath = cutterTranslationPath + QDir::separator() + QString("cutter_%1.qm").arg(langPrefix);
+
+            if (t->load(it, QLatin1String("cutter"), QLatin1String("_"), cutterTranslationPath) ||
+                t->load(it, QLatin1String("cutter"), QLatin1String("_"), translationsPath)) {
+                installTranslator(t);
+            }
+            else {
+                qWarning() << "Cannot load Cutter's translation for " << language;
+                delete t;
+            }
+            QApplication::setLayoutDirection(it.textDirection());
+            QLocale::setDefault(it);
+
+            if (qtTranslator->load(it, "qt", "_", translationsPath)) {
+                installTranslator(qtTranslator);
+            }
+            else {
+                delete qtTranslator;
+            }
+
+            if (qtBaseTranslator->load(it, "qtbase", "_", translationsPath)) {
+                installTranslator(qtBaseTranslator);
+            }
+            else {
+                delete qtBaseTranslator;
+            }
+
+            return true;
+        }
+    }
+    return false;
 }

@@ -27,6 +27,9 @@ protected:
     bool event(QEvent *e);
 
 private:
+    bool loadTranslations();
+
+private:
     bool m_FileAlreadyDropped;
     MainWindow *mainWindow;
 };

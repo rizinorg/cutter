@@ -50,7 +50,7 @@ public:
     // Languages
     QLocale getCurrLocale() const;
     void setLocale(const QLocale &l);
-    void setLocaleByName(const QString &language);
+    bool setLocaleByName(const QString &language);
     QStringList getAvailableTranslations();
 
     // Fonts

@@ -185,12 +185,12 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
 void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
 {
     QString language = ui->languageComboBox->itemText(index).toLower();
-    Config()->setLocaleByName(language);
+    if (Config()->setLocaleByName(language)) {
+        QMessageBox::information(this,
+            tr("Language settings"),
+            tr("Language will be changed after next application start."));
+        return;
+    }
 
-    QMessageBox mb;
-    mb.setWindowTitle(tr("Language settings"));
-    mb.setText(tr("Language will be changed after next application start."));
-    mb.setIcon(QMessageBox::Information);
-    mb.setStandardButtons(QMessageBox::Ok);
-    mb.exec();
+    qWarning() << tr("Cannot set language, not found in available ones");
 }

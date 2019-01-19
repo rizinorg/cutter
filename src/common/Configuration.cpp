@@ -54,6 +54,12 @@ static const QHash<QString, QVariant> asmOptions = {
 Configuration::Configuration() : QObject()
 {
     mPtr = this;
+    if (!s.isWritable())
+        QMessageBox::critical(nullptr,
+            tr("Critical!"),
+            tr("!!! Settings are not writable! Make sure you have a write access to \"%1\"")
+                .arg(s.fileName())
+        );
     loadInitial();
 }
 
@@ -74,7 +80,7 @@ void Configuration::loadInitial()
 QString Configuration::getDirProjects()
 {
     auto projectsDir = s.value("dir.projects").toString();
-    if (projectsDir == "") {
+    if (projectsDir.isEmpty()) {
         projectsDir = Core()->getConfig("dir.projects");
         setDirProjects(projectsDir);
     }
@@ -126,7 +132,7 @@ QLocale Configuration::getCurrLocale() const
 
 /*!
  * \brief sets Cutter's locale
- * \param l - a QLocale object describes the locate to confugre
+ * \param l - a QLocale object describes the locate to configure
  */
 void Configuration::setLocale(const QLocale &l)
 {
@@ -136,18 +142,20 @@ void Configuration::setLocale(const QLocale &l)
 /*!
  * \brief set Cutter's interface language by a given locale name
  * \param language - a string represents the name of a locale language
+ * \return true on success
  */
-void Configuration::setLocaleByName(const QString &language)
+bool Configuration::setLocaleByName(const QString &language)
 {
-    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+    const auto &allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
                                                QLocale::AnyCountry);
 
     for (auto &it : allLocales) {
         if (QString::compare(it.nativeLanguageName(), language, Qt::CaseInsensitive) == 0) {
             setLocale(it);
-            break;
+            return true;
         }
     }
+    return false;
 }
 
 bool Configuration::windowColorIsDark()
