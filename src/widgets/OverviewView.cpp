@@ -721,24 +721,6 @@ void OverviewView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event
     }
 }
 
-void OverviewView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
-                                               QPoint pos)
-{
-    Q_UNUSED(event);
-
-    RVA instr = getAddrForMouseEvent(block, &pos);
-    if (instr == RVA_INVALID) {
-        return;
-    }
-    QList<XrefDescription> refs = Core()->getXRefs(instr, false, false);
-    if (refs.length()) {
-        seekable->seek(refs.at(0).to);
-    }
-    if (refs.length() > 1) {
-        qWarning() << "Too many references here. Weird behaviour expected.";
-    }
-}
-
 void OverviewView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
                                            QPoint pos)
 {
