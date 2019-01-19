@@ -54,7 +54,6 @@
 
 // Widgets Headers
 #include "widgets/DisassemblerGraphView.h"
-#include "widgets/OverviewView.h"
 #include "widgets/GraphView.h"
 #include "widgets/GraphWidget.h"
 #include "widgets/OverviewWidget.h"
@@ -186,40 +185,7 @@ void MainWindow::initUI()
 
     // Add graph view as dockable
     overviewDock = new OverviewWidget(this, ui->actionOverview);
-    graphDock = new GraphWidget(this, ui->actionGraph);
-
-    QObject::connect(graphDock, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
-        if (!visibility) {
-            disableOverviewRect();
-        }
-    });
-
-    QObject::connect(graphDock->graphView, &DisassemblerGraphView::refreshGraph, [this]() {
-        adjustOverview();
-    });
-    QObject::connect(graphDock->graphView, &GraphView::refreshBlock, [this]() {
-        adjustOverview();
-    });
-
-    QObject::connect(graphDock->graphView->horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
-        adjustOverview();
-    });
-
-    QObject::connect(graphDock->graphView->verticalScrollBar(), &QScrollBar::valueChanged, this, [this]() {
-        adjustOverview();
-    });
-
-    QObject::connect(overviewDock->graphView, &OverviewView::mouseMoved, [this]() {
-        int x = overviewDock->graphView->horizontalScrollBar()->value();
-        int y = overviewDock->graphView->verticalScrollBar()->value();
-        //double xx = (double)x * m;
-        //double yy = (double)y * m;
-        double xx = (double)(overviewDock->graphView->rangeRect.x() - overviewDock->graphView->unscrolled_render_offset_x)/ overviewDock->graphView->current_scale;
-        double yy = (double)(overviewDock->graphView->rangeRect.y() - overviewDock->graphView->unscrolled_render_offset_y)/ overviewDock->graphView->current_scale;
-
-        graphDock->graphView->horizontalScrollBar()->setValue(x + xx);
-        graphDock->graphView->verticalScrollBar()->setValue(y + yy);
-    });
+    graphDock = new GraphWidget(this, overviewDock, ui->actionGraph);
 
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);
@@ -305,50 +271,6 @@ void MainWindow::initUI()
         CutterDockWidget *pluginDock = plugin->setupInterface(this);
         tabifyDockWidget(dashboardDock, pluginDock);
     }
-}
-
-void MainWindow::adjustOverview()
-{
-    bool scrollXVisible = graphDock->graphView->unscrolled_render_offset_x == 0;
-    bool scrollYVisible = graphDock->graphView->unscrolled_render_offset_y == 0;
-    if (!scrollXVisible && !scrollYVisible) {
-        disableOverviewRect();
-        return;
-    }
-    qreal x = 0;
-    qreal y = 0;
-    qreal w = overviewDock->graphView->viewport()->width();
-    qreal h = overviewDock->graphView->viewport()->height();
-    qreal curScale = overviewDock->graphView->current_scale;
-    qreal xoff = overviewDock->graphView->unscrolled_render_offset_x;;
-    qreal yoff = overviewDock->graphView->unscrolled_render_offset_y;;
-
-    w = graphDock->graphView->viewport()->width();
-    h = graphDock->graphView->viewport()->height();
-
-    if (scrollXVisible) {
-        x = graphDock->graphView->horizontalScrollBar()->value();
-        w *= curScale;
-    } else {
-        xoff = 0;
-    }
-
-    if (scrollYVisible) {
-        y = graphDock->graphView->verticalScrollBar()->value();
-        h *= curScale;
-    } else {
-        yoff = 0;
-    }
-    x *= curScale;
-    y *= curScale;
-    overviewDock->graphView->rangeRect = QRectF(x + xoff, y + yoff, w, h);
-    overviewDock->graphView->viewport()->update();
-}
-
-void MainWindow::disableOverviewRect()
-{
-    overviewDock->graphView->rangeRect = QRectF(0, 0, 0, 0);
-    overviewDock->graphView->viewport()->update();
 }
 
 void MainWindow::updateTasksIndicator()

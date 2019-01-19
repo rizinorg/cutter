@@ -251,8 +251,6 @@ private:
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
     void updateDockActionsChecked();
-    void adjustOverview();
-    void disableOverviewRect();
 
 public:
     QString getFilename() const
