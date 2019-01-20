@@ -55,12 +55,13 @@ static const QHash<QString, QVariant> asmOptions = {
 Configuration::Configuration() : QObject()
 {
     mPtr = this;
-    if (!s.isWritable())
+    if (!s.isWritable()) {
         QMessageBox::critical(nullptr,
             tr("Critical!"),
             tr("!!! Settings are not writable! Make sure you have a write access to \"%1\"")
                 .arg(s.fileName())
         );
+    }
     loadInitial();
 }
 
@@ -468,12 +469,14 @@ QStringList Configuration::getAvailableTranslations()
     QSet<QString> fileNamesSet;
     for (const auto &trDir : trDirs) {
         QDir dir(trDir);
-        if (!dir.exists())
+        if (!dir.exists()) {
             continue;
+        }
         const QStringList &currTrFileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
             QDir::Name);
-        for (const auto &trFile : currTrFileNames)
+        for (const auto &trFile : currTrFileNames) {
             fileNamesSet << trFile;
+        }
     }
 
     QStringList fileNames = fileNamesSet.toList();

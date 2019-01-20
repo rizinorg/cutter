@@ -231,9 +231,9 @@ void CutterApplication::loadPlugins()
 bool CutterApplication::loadTranslations()
 {
     const QString &language = Config()->getCurrLocale().bcp47Name();
-    if (language == QStringLiteral("en") || language.startsWith(QStringLiteral("en-")))
+    if (language == QStringLiteral("en") || language.startsWith(QStringLiteral("en-"))) {
         return true;
-
+    }
     const auto &allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
         QLocale::AnyCountry);
 
@@ -268,13 +268,15 @@ bool CutterApplication::loadTranslations()
                 }
             }
             
-            if (trCutter)
+            if (trCutter) {
                 delete trCutter;
-            if (trQt)
+            }
+            if (trQt) {
                 delete trQt;
-            if (trQtBase)
+            }
+            if (trQtBase) {
                 delete trQtBase;
-
+            }
             return true;
         }
     }

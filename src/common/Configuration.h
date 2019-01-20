@@ -107,7 +107,11 @@ public:
      */
     void setConfig(const QString &key, const QVariant &value);
     bool isFirstExecution();
-
+    
+    /*!
+     * \brief Get list of available translation directories (depends on configuration and OS)
+     * \return list of directories
+     */
     QStringList getTranslationsDirectories() const;
 
 signals:
