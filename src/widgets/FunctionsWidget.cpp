@@ -230,7 +230,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
 
-        const QStringList &summary = Core()->cmd("pdsf @ " + function.name).split("\n", QString::SkipEmptyParts);
+        const QStringList &summary = Core()->cmd(QString("pdsf @ %1").arg(function.offset)).split("\n", QString::SkipEmptyParts);
 
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
