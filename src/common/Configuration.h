@@ -50,7 +50,7 @@ public:
     // Languages
     QLocale getCurrLocale() const;
     void setLocale(const QLocale &l);
-    void setLocaleByName(const QString &language);
+    bool setLocaleByName(const QString &language);
     QStringList getAvailableTranslations();
 
     // Fonts
@@ -107,7 +107,12 @@ public:
      */
     void setConfig(const QString &key, const QVariant &value);
     bool isFirstExecution();
-
+    
+    /*!
+     * \brief Get list of available translation directories (depends on configuration and OS)
+     * \return list of directories
+     */
+    QStringList getTranslationsDirectories() const;
 
 signals:
     void fontsUpdated();

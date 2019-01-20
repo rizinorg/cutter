@@ -16,6 +16,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
     ui(new Ui::WelcomeDialog)
 {
     ui->setupUi(this);
+    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     ui->logoSvgWidget->load(Config()->getLogoFile());
     ui->versionLabel->setText("<font color='#a4a9b2'>" + tr("Version ") + CUTTER_VERSION_FULL + "</font>");
     ui->themeComboBox->setCurrentIndex(Config()->getTheme());
