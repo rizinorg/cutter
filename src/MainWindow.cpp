@@ -187,6 +187,15 @@ void MainWindow::initUI()
     overviewDock = new OverviewWidget(this, ui->actionOverview);
     graphDock = new GraphWidget(this, overviewDock, ui->actionGraph);
 
+    connect(graphDock, &QDockWidget::visibilityChanged, this, [ = ](bool visible) {
+        ui->actionOverview->setChecked(visible);
+        if (visible) {
+            overviewDock->show();
+        } else {
+            overviewDock->hide();
+        }
+    });
+
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);
     entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
@@ -566,7 +575,6 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(segmentsDock, commentsDock);
     tabifyDockWidget(dashboardDock, disassemblyDock);
     tabifyDockWidget(dashboardDock, graphDock);
-    //tabifyDockWidget(dashboardDock, overviewDock);
     tabifyDockWidget(dashboardDock, hexdumpDock);
     tabifyDockWidget(dashboardDock, pseudocodeDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
@@ -623,7 +631,6 @@ void MainWindow::updateDockActionChecked(QAction *action)
 void MainWindow::showZenDocks()
 {
     const QList<QDockWidget *> zenDocks = { functionsDock,
-                                            overviewDock,
                                             dashboardDock,
                                             stringsDock,
                                             graphDock,
@@ -646,7 +653,6 @@ void MainWindow::showZenDocks()
 void MainWindow::showDebugDocks()
 {
     const QList<QDockWidget *> debugDocks = { functionsDock,
-                                              overviewDock,
                                               stringsDock,
                                               graphDock,
                                               disassemblyDock,
