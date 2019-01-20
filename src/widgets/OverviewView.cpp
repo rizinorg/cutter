@@ -397,25 +397,23 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     qreal y = event->localPos().y() - initialDiff.y();
     qreal w = rangeRect.width();
     qreal h = rangeRect.height();
-    int a = x + w + horizontalScrollBar()->value();
-    int b = horizontalScrollBar()->value() + viewport()->width();
-    int c = y + h + verticalScrollBar()->value();
-    int d = verticalScrollBar()->value() + viewport()->height();
-    if (a >= b) {
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + a - b);
-        x = horizontalScrollBar()->minimum() + viewport()->width() - w;
+    qreal real_width = width * current_scale;
+    qreal real_height = height * current_scale;
+    qreal max_right = unscrolled_render_offset_x + real_width;
+    qreal max_bottom = unscrolled_render_offset_y + real_height;
+    qreal rect_right = x + w;
+    qreal rect_bottom = y + h;
+    if (rect_right >= max_right) {
+        x = real_width - w;
     }
-    if (c >= d) {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + c - d);
-        y = verticalScrollBar()->minimum() + viewport()->height() - h;
+    if (rect_bottom >= max_bottom) {
+        y = real_height - h;
     }
     if (x <= 0) {
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x);
-        x = horizontalScrollBar()->minimum();
+        x = 0;
     }
     if (y <= 0) {
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + y);
-        y = verticalScrollBar()->minimum();
+        y = 0;
     }
     rangeRect = QRectF(x, y, w, h);
     viewport()->update();

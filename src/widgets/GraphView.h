@@ -140,6 +140,9 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+    int width = 0;
+    int height = 0;
 private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y = false);
 
@@ -151,8 +154,6 @@ private:
     // Layout type
     LayoutType layoutType = LayoutType::Medium;
 
-    int width = 0;
-    int height = 0;
     bool ready = false;
 
     // Scrolling data
