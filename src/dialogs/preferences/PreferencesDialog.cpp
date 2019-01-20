@@ -20,6 +20,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
+    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
 
     QList<PreferenceCategory> prefs {
 

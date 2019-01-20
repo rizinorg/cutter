@@ -5,6 +5,7 @@
 #include <QFontDatabase>
 #include <QFile>
 #include <QApplication>
+#include <QLibraryInfo>
 
 #include "common/ColorSchemeFileSaver.h"
 
@@ -462,10 +463,21 @@ void Configuration::setConfig(const QString &key, const QVariant &value)
  */
 QStringList Configuration::getAvailableTranslations()
 {
-    QDir dir(QCoreApplication::applicationDirPath() + QDir::separator() +
-             "translations");
-    QStringList fileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
-                                          QDir::Name);
+    const auto &trDirs = getTranslationsDirectories();
+
+    QSet<QString> fileNamesSet;
+    for (const auto &trDir : trDirs) {
+        QDir dir(trDir);
+        if (!dir.exists())
+            continue;
+        const QStringList &currTrFileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
+            QDir::Name);
+        for (const auto &trFile : currTrFileNames)
+            fileNamesSet << trFile;
+    }
+
+    QStringList fileNames = fileNamesSet.toList();
+    qSort(fileNames);
     QStringList languages;
     QString currLanguageName;
     auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
@@ -483,7 +495,7 @@ QStringList Configuration::getAvailableTranslations()
             }
         }
     }
-    return languages << "English";
+    return languages << QLatin1String("English");
 }
 
 /*!
@@ -499,4 +511,18 @@ bool Configuration::isFirstExecution()
         s.setValue("firstExecution", false);
         return true;
     }
+}
+
+QStringList Configuration::getTranslationsDirectories() const
+{
+    static const QString cutterTranslationPath = QCoreApplication::applicationDirPath() + QDir::separator()
+        + QLatin1String("translations");
+
+    return {
+        cutterTranslationPath,
+        QLibraryInfo::location(QLibraryInfo::TranslationsPath),
+#ifdef Q_OS_MAC
+        QStringLiteral("%1/../Resources/translations").arg(QCoreApplication::applicationDirPath()),
+#endif // Q_OS_MAC
+    };
 }

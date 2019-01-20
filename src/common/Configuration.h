@@ -108,6 +108,7 @@ public:
     void setConfig(const QString &key, const QVariant &value);
     bool isFirstExecution();
 
+    QStringList getTranslationsDirectories() const;
 
 signals:
     void fontsUpdated();
