@@ -15,7 +15,6 @@
 #include <QFont>
 #include <QFontDialog>
 #include <QLabel>
-#include <QRect>
 #include <QLineEdit>
 #include <QList>
 #include <QMessageBox>
