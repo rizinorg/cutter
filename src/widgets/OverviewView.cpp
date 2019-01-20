@@ -95,6 +95,21 @@ void OverviewView::toggleSync()
     }
 }
 
+void OverviewView::adjustScale()
+{
+    if (horizontalScrollBar()->maximum() > 0) {
+        current_scale = (qreal)viewport()->width() / (qreal)(horizontalScrollBar()->maximum() + horizontalScrollBar()->pageStep());
+    }
+    if (verticalScrollBar()->maximum() > 0) {
+        qreal h_scale = (qreal)viewport()->height() / (qreal)(verticalScrollBar()->maximum() + verticalScrollBar()->pageStep());
+        if (current_scale > h_scale) {
+            current_scale = h_scale;
+        }
+    }
+    adjustSize(viewport()->size().width(), viewport()->size().height());
+    viewport()->update();
+}
+
 void OverviewView::refreshView()
 {
     initFont();
@@ -102,17 +117,7 @@ void OverviewView::refreshView()
     adjustSize(viewport()->size().width(), viewport()->size().height());
     loadCurrentGraph();
     viewport()->update();
-    if (horizontalScrollBar()->maximum() > 0) {
-        current_scale = (double)viewport()->width() / (double)(horizontalScrollBar()->maximum() + horizontalScrollBar()->pageStep());
-    }
-    if (verticalScrollBar()->maximum() > 0) {
-        double b = (double)viewport()->height() / (double)(verticalScrollBar()->maximum() + verticalScrollBar()->pageStep());
-        if (current_scale > b) {
-            current_scale = b;
-        }
-    }
-    adjustSize(viewport()->size().width(), viewport()->size().height());
-    viewport()->update();
+    adjustScale();
 }
 
 void OverviewView::loadCurrentGraph()

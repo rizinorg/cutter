@@ -20,6 +20,7 @@ OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
+            graphView->refreshView();
         }
     });
 

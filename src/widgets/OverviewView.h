@@ -166,6 +166,8 @@ private:
 
     DisassemblyContextMenu *mMenu;
 
+    void adjustScale();
+
     void connectSeekChanged(bool disconnect);
 
     void initFont();
