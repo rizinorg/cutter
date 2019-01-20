@@ -20,7 +20,7 @@ public:
      * In any case, CutterSeekable::seekableSeekChanged is emitted.
      * @param addr the location to seek at.
      */
-    void seek(RVA addr);
+    void seek(RVA addr) { updateSeek(addr, false); }
 
     /**
      * @brief toggleSyncWithCore toggles
@@ -73,6 +73,12 @@ private:
      * synchronized with core or not.
      */
     bool synchronized = true;
+
+    /**
+     * @brief internal method for changing the seek
+     * @param localOnly whether the seek should be updated globally if synchronized
+     */
+    void updateSeek(RVA addr, bool localOnly);
 
 signals:
     void seekableSeekChanged(RVA addr);
