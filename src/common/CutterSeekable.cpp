@@ -16,17 +16,15 @@ CutterSeekable::~CutterSeekable() {}
 void CutterSeekable::onCoreSeekChanged(RVA addr)
 {
     if (synchronized && widgetOffset != addr) {
-        synchronized = false;
-        seek(addr);
-        synchronized = true;
+        updateSeek(addr, true);
     }
 }
 
-void CutterSeekable::seek(RVA addr)
+void CutterSeekable::updateSeek(RVA addr, bool localOnly)
 {
     previousOffset = widgetOffset;
     widgetOffset = addr;
-    if (synchronized) {
+    if (synchronized && !localOnly) {
         Core()->seek(addr);
     }
 
@@ -51,6 +49,7 @@ RVA CutterSeekable::getOffset()
 void CutterSeekable::toggleSynchronization()
 {
     synchronized = !synchronized;
+    onCoreSeekChanged(Core()->getOffset());
 }
 
 bool CutterSeekable::isSynchronized()
