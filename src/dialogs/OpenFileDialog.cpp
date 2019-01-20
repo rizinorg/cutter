@@ -29,7 +29,16 @@ void OpenFileDialog::on_buttonBox_accepted()
     if (!mapAddressStr.isEmpty()) {
         mapAddress = Core()->math(mapAddressStr);
     }
+
+    if(filePath.contains(';') || filePath.contains('|')){
+        QMessageBox msgBox(this);
+        msgBox.setText(tr("File name contains invalid characters"));
+        msgBox.exec();
+        return;
+    }
+
     Core()->openFile(filePath, mapAddress);
+    close();
 }
 
 void OpenFileDialog::on_buttonBox_rejected()
