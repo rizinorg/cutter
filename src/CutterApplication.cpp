@@ -30,6 +30,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
     setAttribute(Qt::AA_DontShowIconsInMenus);
+    setLayoutDirection(Qt::LeftToRight);
 
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run First
     // Load translations
@@ -165,6 +166,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
             std::exit(1);
         }
 
+        // check if this is the first execution of Cutter in this computer
+        // Note: the execution after the preferences benn reset, will be considered as first-execution
+        if (Config()->isFirstExecution()) {
+            mainWindow->displayWelcomeDialog();
+        }
         mainWindow->displayNewFileDialog();
     } else { // filename specified as positional argument
         InitialOptions options;

@@ -42,7 +42,6 @@ private:
     QString func_name;
 
     std::unique_ptr<Ui::XrefsDialog> ui;
-    CutterCore *core;
 
     void fillRefs(QList<XrefDescription> refs, QList<XrefDescription> xrefs);
     void updateLabels(QString name);

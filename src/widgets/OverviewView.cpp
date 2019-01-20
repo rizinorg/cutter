@@ -1,5 +1,5 @@
 #include "OverviewView.h"
-#include "CutterSeekableWidget.h"
+#include "common/CutterSeekable.h"
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -25,7 +25,7 @@ OverviewView::OverviewView(QWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
       mMenu(new DisassemblyContextMenu(this)),
-      seekable(new CutterSeekableWidget(this))
+      seekable(new CutterSeekable(this))
 {
     // Signals that require a refresh all
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
@@ -70,10 +70,10 @@ OverviewView::OverviewView(QWidget *parent)
 void OverviewView::connectSeekChanged(bool disconn)
 {
     if (disconn) {
-        disconnect(seekable, &CutterSeekableWidget::seekChanged, this,
+        disconnect(seekable, &CutterSeekable::seekableSeekChanged, this,
                    &OverviewView::onSeekChanged);
     } else {
-        connect(seekable, &CutterSeekableWidget::seekChanged, this, &OverviewView::onSeekChanged);
+        connect(seekable, &CutterSeekable::seekableSeekChanged, this, &OverviewView::onSeekChanged);
     }
 }
 
@@ -86,12 +86,11 @@ OverviewView::~OverviewView()
 
 void OverviewView::toggleSync()
 {
-    seekable->toggleSyncWithCore();
-    if (seekable->getSyncWithCore()) {
+    seekable->toggleSynchronization();
+    if (seekable->isSynchronized()) {
         parentWidget()->setWindowTitle(windowTitle);
     } else {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
-        seekable->setIndependentOffset(Core()->getOffset());
+        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     }
 }
 
@@ -173,8 +172,8 @@ void OverviewView::loadCurrentGraph()
     } else if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
     }
-    if (!seekable->getSyncWithCore()) {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekableWidget::tr(" (unsynced)"));
+    if (!seekable->isSynchronized()) {
+        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     } else {
         parentWidget()->setWindowTitle(windowTitle);
     }

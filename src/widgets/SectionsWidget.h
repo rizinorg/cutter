@@ -82,6 +82,8 @@ private:
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;
 
+    RefreshDeferrer *refreshDeferrer;
+
     QWidget *addrDockWidget;
     RawAddrDock *rawAddrDock;
     VirtualAddrDock *virtualAddrDock;

@@ -115,14 +115,39 @@ void Configuration::resetAll()
     emit fontsUpdated();
 }
 
+/*!
+ * \brief get the current Locale set in Cutter's user configuration
+ * \return a QLocale object describes user's current locale
+ */
 QLocale Configuration::getCurrLocale() const
 {
     return s.value("locale", QLocale().system()).toLocale();
 }
 
+/*!
+ * \brief sets Cutter's locale
+ * \param l - a QLocale object describes the locate to confugre
+ */
 void Configuration::setLocale(const QLocale &l)
 {
     s.setValue("locale", l);
+}
+
+/*!
+ * \brief set Cutter's interface language by a given locale name
+ * \param language - a string represents the name of a locale language
+ */
+void Configuration::setLocaleByName(const QString &language)
+{
+    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+                                               QLocale::AnyCountry);
+
+    for (auto &it : allLocales) {
+        if (QString::compare(it.nativeLanguageName(), language, Qt::CaseInsensitive) == 0) {
+            setLocale(it);
+            break;
+        }
+    }
 }
 
 bool Configuration::windowColorIsDark()
@@ -152,6 +177,8 @@ void Configuration::loadBaseThemeNative()
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
     setColor("gui.navbar.err", QColor(255, 0, 0));
+    setColor("gui.navbar.seek", QColor(233, 86, 86));
+    setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(104, 229, 69));
     setColor("gui.navbar.str", QColor(69, 104, 229));
     setColor("gui.navbar.sym", QColor(229, 150, 69));
@@ -222,6 +249,8 @@ void Configuration::loadBaseThemeDark()
 
     // GUI: navbar
     setColor("gui.navbar.err", QColor(233, 86, 86));
+    setColor("gui.navbar.seek", QColor(233, 86, 86));
+    setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(130, 200, 111));
     setColor("angui.navbar.str", QColor(111, 134, 216));
     setColor("gui.navbar.sym", QColor(221, 163, 104));
@@ -420,4 +449,49 @@ void Configuration::setConfig(const QString &key, const QVariant &value)
     }
 
     Core()->setConfig(key, value);
+}
+
+/*!
+ * \brief this function will gather and return available translation for Cutter
+ * \return a list of all available translations
+ */
+QStringList Configuration::getAvailableTranslations()
+{
+    QDir dir(QCoreApplication::applicationDirPath() + QDir::separator() +
+             "translations");
+    QStringList fileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
+                                          QDir::Name);
+    QStringList languages;
+    QString currLanguageName;
+    auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
+                                               QLocale::AnyCountry);
+
+    for (auto i : fileNames) {
+        QString localeName = i.mid(sizeof("cutter_") - 1, 2);
+        for (auto j : allLocales) {
+            if (j.name().startsWith(localeName)) {
+                currLanguageName = j.nativeLanguageName();
+                currLanguageName = currLanguageName.at(0).toUpper() +
+                                   currLanguageName.right(currLanguageName.length() - 1);
+                languages << currLanguageName;
+                break;
+            }
+        }
+    }
+    return languages << "English";
+}
+
+/*!
+ * \brief check if this is the first time Cutter's is executed on this computer
+ * \return true if this is first execution; otherwise returns false.
+ */
+bool Configuration::isFirstExecution()
+{
+    // check if a variable named firstExecution existed in the configuration
+    if (s.contains("firstExecution")) {
+        return false;
+    } else {
+        s.setValue("firstExecution", false);
+        return true;
+    }
 }

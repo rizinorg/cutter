@@ -15,6 +15,8 @@ static const QStringList cutterSpecificOptions = {
     "highlightPC",
     "highlightWord",
     "gui.navbar.err",
+    "gui.navbar.seek",
+    "gui.navbar.pc",
     "gui.navbar.sym",
     "gui.dataoffset",
     "gui.navbar.code",
@@ -28,7 +30,7 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
 {
     char* szThemes = r_str_home(R2_HOME_THEMES);
     customR2ThemesLocationPath = szThemes;
-    R_FREE(szThemes);
+    r_mem_free(szThemes);
     if (!QDir(customR2ThemesLocationPath).exists()) {
         QDir().mkpath(customR2ThemesLocationPath);
     }

@@ -3,7 +3,9 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterSeekableWidget.h"
+#include "common/CutterSeekable.h"
+#include "common/RefreshDeferrer.h"
+
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QShortcut>
@@ -24,7 +26,6 @@ public:
 public slots:
     void highlightCurrentLine();
     void showDisasContextMenu(const QPoint &pt);
-    void refreshDisasm(RVA offset = RVA_INVALID);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void seekPrev();
@@ -32,6 +33,7 @@ public slots:
 
 private slots:
     void on_seekChanged(RVA offset);
+    void refreshDisasm(RVA offset = RVA_INVALID);
     void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     void scrollInstructions(int count);
@@ -57,9 +59,11 @@ private:
     int cursorLineOffset;
     bool seekFromCursor;
 
+    RefreshDeferrer *disasmRefresh;
+
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     QList<RVA> breakpoints;
 
@@ -72,7 +76,7 @@ private:
 
     void moveCursorRelative(bool up, bool page);
     QAction syncIt;
-    CutterSeekableWidget *seekable;
+    CutterSeekable *seekable;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

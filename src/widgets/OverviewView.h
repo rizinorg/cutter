@@ -10,7 +10,7 @@
 #include "widgets/GraphView.h"
 #include "menus/DisassemblyContextMenu.h"
 #include "common/RichTextPainter.h"
-#include "CutterSeekableWidget.h"
+#include "common/CutterSeekable.h"
 
 class QTextEdit;
 
@@ -178,7 +178,7 @@ private:
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
-    CutterSeekableWidget *seekable = nullptr;
+    CutterSeekable *seekable = nullptr;
     QList<QShortcut *> shortcuts;
     QList<RVA> breakpoints;
 

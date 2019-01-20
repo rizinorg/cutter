@@ -13,12 +13,14 @@ lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 
 TRANSLATIONS += translations/cutter_ca.ts \
                 translations/cutter_de.ts \
-                translations/cutter_es-ES.ts \
+                translations/cutter_es.ts \
                 translations/cutter_fr.ts \
                 translations/cutter_it.ts \
                 translations/cutter_nl.ts \
-                translations/cutter_pt-PT.ts \
-                translations/cutter_ru.ts
+                translations/cutter_pt.ts \
+                translations/cutter_ro.ts \
+                translations/cutter_ru.ts \
+                translations/cutter_tr.ts
 
 # Icon for OS X
 ICON = img/cutter.icns
@@ -189,7 +191,6 @@ SOURCES += \
     common/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
-    widgets/CutterSeekableWidget.cpp \
     widgets/CutterTreeWidget.cpp \
     widgets/GraphWidget.cpp \
     widgets/OverviewWidget.cpp \
@@ -221,7 +222,11 @@ SOURCES += \
     widgets/CutterTreeView.cpp \
     widgets/ComboQuickFilterView.cpp \
     dialogs/HexdumpRangeDialog.cpp \
-    common/QtResImporter.cpp
+    common/QtResImporter.cpp \
+    common/CutterSeekable.cpp \
+    common/RefreshDeferrer.cpp \
+    dialogs/WelcomeDialog.cpp
+
 
 HEADERS  += \
     Cutter.h \
@@ -291,7 +296,6 @@ HEADERS  += \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
     widgets/CutterTreeWidget.h \
-    widgets/CutterSeekableWidget.h \
     widgets/GraphWidget.h \
     widgets/OverviewWidget.h \
     common/JsonTreeItem.h \
@@ -326,7 +330,10 @@ HEADERS  += \
     widgets/CutterTreeView.h \
     widgets/ComboQuickFilterView.h \
     dialogs/HexdumpRangeDialog.h \
-    common/QtResImporter.h
+    common/QtResImporter.h \
+    common/CutterSeekable.h \
+    common/RefreshDeferrer.h \
+    dialogs/WelcomeDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -384,7 +391,8 @@ FORMS    += \
     widgets/ColorSchemePrefWidget.ui \
     widgets/CutterTreeView.ui \
     widgets/ComboQuickFilterView.ui \
-    dialogs/HexdumpRangeDialog.ui
+    dialogs/HexdumpRangeDialog.ui \
+    dialogs/WelcomeDialog.ui
 
 RESOURCES += \
     resources.qrc \
