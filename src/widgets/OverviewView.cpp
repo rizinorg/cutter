@@ -43,27 +43,11 @@ OverviewView::OverviewView(QWidget *parent)
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(this, SIGNAL(dataSet()), this, SLOT(refreshView()));
-    connectSeekChanged(false);
-
-    // Branch shortcuts
-    QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
-    shortcut_take_true->setContext(Qt::WidgetShortcut);
-    connect(shortcut_take_true, SIGNAL(activated()), this, SLOT(takeTrue()));
-    QShortcut *shortcut_take_false = new QShortcut(QKeySequence(Qt::Key_F), this);
-    shortcut_take_false->setContext(Qt::WidgetShortcut);
-    connect(shortcut_take_false, SIGNAL(activated()), this, SLOT(takeFalse()));
-
-    //Export Graph menu
-    mMenu->addSeparator();
-    actionExportGraph.setText(tr("Export Graph"));
-    mMenu->addAction(&actionExportGraph);
-    connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
 
     mMenu->addSeparator();
     actionSyncOffset.setText(tr("Sync/unsync offset"));
     mMenu->addAction(&actionSyncOffset);
 
-    connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
     initFont();
     colorsUpdatedSlot();
 }
@@ -76,30 +60,10 @@ void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut6
     emit dataSet();
 }
 
-void OverviewView::connectSeekChanged(bool disconn)
-{
-    if (disconn) {
-        disconnect(seekable, &CutterSeekable::seekableSeekChanged, this,
-                   &OverviewView::onSeekChanged);
-    } else {
-        connect(seekable, &CutterSeekable::seekableSeekChanged, this, &OverviewView::onSeekChanged);
-    }
-}
-
 OverviewView::~OverviewView()
 {
     for (QShortcut *shortcut : shortcuts) {
         delete shortcut;
-    }
-}
-
-void OverviewView::toggleSync()
-{
-    seekable->toggleSynchronization();
-    if (seekable->isSynchronized()) {
-        parentWidget()->setWindowTitle(windowTitle);
-    } else {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     }
 }
 
@@ -226,17 +190,9 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
 GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,
                                                                       GraphView::GraphBlock *to)
 {
+    Q_UNUSED(from);
+    Q_UNUSED(to);
     EdgeConfiguration ec;
-    DisassemblyBlock &db = disassembly_blocks[from.entry];
-    if (to->entry == db.true_path) {
-        ec.color = brtrueColor;
-    } else if (to->entry == db.false_path) {
-        ec.color = brfalseColor;
-    } else {
-        ec.color = jmpColor;
-    }
-    ec.start_arrow = false;
-    ec.end_arrow = true;
     ec.width_scale = current_scale;
     return ec;
 }
@@ -264,184 +220,4 @@ void OverviewView::fontsUpdatedSlot()
 {
     initFont();
     refreshView();
-}
-
-OverviewView::DisassemblyBlock *OverviewView::blockForAddress(RVA addr)
-{
-    for (auto &blockIt : disassembly_blocks) {
-        DisassemblyBlock &db = blockIt.second;
-        for (const Instr &i : db.instrs) {
-            if (i.addr == RVA_INVALID || i.size == RVA_INVALID) {
-                continue;
-            }
-
-            if ((i.addr <= addr) && (addr <= i.addr + i.size)) {
-                return &db;
-            }
-        }
-    }
-    return nullptr;
-}
-
-void OverviewView::onSeekChanged(RVA addr)
-{
-    mMenu->setOffset(addr);
-    DisassemblyBlock *db = blockForAddress(addr);
-    if (db) {
-        // This is a local address! We animated to it.
-        transition_dont_seek = true;
-        showBlock(&blocks[db->entry], true);
-    } else {
-        refreshView();
-        db = blockForAddress(addr);
-        if (db) {
-            // This is a local address! We animated to it.
-            transition_dont_seek = true;
-            showBlock(&blocks[db->entry], true);
-        }
-    }
-}
-
-void OverviewView::takeTrue()
-{
-    DisassemblyBlock *db = blockForAddress(seekable->getOffset());
-    if (!db) {
-        return;
-    }
-
-    if (db->true_path != RVA_INVALID) {
-        seekable->seek(db->true_path);
-    } else if (blocks[db->entry].exits.size()) {
-        seekable->seek(blocks[db->entry].exits[0]);
-    }
-}
-
-void OverviewView::takeFalse()
-{
-    DisassemblyBlock *db = blockForAddress(seekable->getOffset());
-    if (!db) {
-        return;
-    }
-
-    if (db->false_path != RVA_INVALID) {
-        seekable->seek(db->false_path);
-    } else if (blocks[db->entry].exits.size()) {
-        seekable->seek(blocks[db->entry].exits[0]);
-    }
-}
-
-void OverviewView::seekInstruction(bool previous_instr)
-{
-    RVA addr = seekable->getOffset();
-    DisassemblyBlock *db = blockForAddress(addr);
-    if (!db) {
-        return;
-    }
-
-    for (size_t i = 0; i < db->instrs.size(); i++) {
-        Instr &instr = db->instrs[i];
-        if (!((instr.addr <= addr) && (addr <= instr.addr + instr.size))) {
-            continue;
-        }
-
-        // Found the instruction. Check if a next one exists
-        if (!previous_instr && (i < db->instrs.size() - 1)) {
-            seekable->seek(db->instrs[i + 1].addr);
-        } else if (previous_instr && (i > 0)) {
-            seekable->seek(db->instrs[i - 1].addr);
-        }
-    }
-}
-
-void OverviewView::seekLocal(RVA addr, bool update_viewport)
-{
-    connectSeekChanged(true);
-    seekable->seek(addr);
-    connectSeekChanged(false);
-    if (update_viewport) {
-        viewport()->update();
-    }
-}
-
-OverviewView::Token *OverviewView::getToken(Instr *instr, int x)
-{
-    x -= (3 * charWidth); // Ignore left margin
-    if (x < 0) {
-        return nullptr;
-    }
-
-    int clickedCharPos = mFontMetrics->position(instr->plainText, x);
-    if (clickedCharPos > instr->plainText.length()) {
-        return nullptr;
-    }
-
-    static const QRegularExpression tokenRegExp("\\b(?<!\\.)([^\\s]+)\\b(?!\\.)");
-    QRegularExpressionMatchIterator i = tokenRegExp.globalMatch(instr->plainText);
-
-    while (i.hasNext()) {
-        QRegularExpressionMatch match = i.next();
-
-        if (match.capturedStart() <= clickedCharPos && match.capturedEnd() > clickedCharPos) {
-            Token *t = new Token;
-            t->start = match.capturedStart();
-            t->length = match.capturedLength();
-            t->content = match.captured();
-            t->instr = instr;
-
-            return t;
-        }
-    }
-
-    return nullptr;
-}
-
-void OverviewView::blockTransitionedTo(GraphView::GraphBlock *to)
-{
-    if (transition_dont_seek) {
-        transition_dont_seek = false;
-        return;
-    }
-    seekLocal(to->entry);
-}
-
-
-void OverviewView::on_actionExportGraph_triggered()
-{
-    QStringList filters;
-    filters.append(tr("Graphiz dot (*.dot)"));
-    if (!QStandardPaths::findExecutable("dot").isEmpty()
-            || !QStandardPaths::findExecutable("xdot").isEmpty()) {
-        filters.append(tr("GIF (*.gif)"));
-        filters.append(tr("PNG (*.png)"));
-        filters.append(tr("JPEG (*.jpg)"));
-        filters.append(tr("PostScript (*.ps)"));
-        filters.append(tr("SVG (*.svg)"));
-        filters.append(tr("JSON (*.json)"));
-    }
-
-    QFileDialog dialog(this, tr("Export Graph"));
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilters(filters);
-    dialog.selectFile("graph");
-    dialog.setDefaultSuffix("dot");
-    if (!dialog.exec())
-        return;
-    int startIdx = dialog.selectedNameFilter().lastIndexOf("*.") + 2;
-    int count = dialog.selectedNameFilter().length() - startIdx - 1;
-    QString format = dialog.selectedNameFilter().mid(startIdx, count);
-    QString fileName = dialog.selectedFiles()[0];
-    if (format != "dot") {
-        TempConfig tempConfig;
-        tempConfig.set("graph.gv.format", format);
-        qWarning() << Core()->cmd(QString("agfw \"%1\" @ $FB").arg(fileName));
-        return;
-    }
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Can't open file";
-        return;
-    }
-    QTextStream fileOut(&file);
-    fileOut << Core()->cmd("agfd $FB");
 }

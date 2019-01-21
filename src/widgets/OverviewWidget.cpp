@@ -6,7 +6,8 @@
 OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
-    this->setObjectName("Graph");
+    this->setWindowTitle("Graph Overview");
+    this->setObjectName("Graph Overview");
     this->setAllowedAreas(Qt::AllDockWidgetAreas);
     this->graphView = new OverviewView(this);
     this->setWidget(graphView);
