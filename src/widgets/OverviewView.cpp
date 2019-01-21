@@ -1,54 +1,17 @@
 #include "OverviewView.h"
-#include "common/CutterSeekable.h"
 #include <QPainter>
-#include <QJsonObject>
-#include <QJsonArray>
 #include <QMouseEvent>
-#include <QPropertyAnimation>
-#include <QShortcut>
-#include <QToolTip>
-#include <QTextDocument>
-#include <QTextEdit>
-#include <QFileDialog>
-#include <QFile>
-#include <QVBoxLayout>
-#include <QRegularExpression>
-#include <QStandardPaths>
 
 #include "Cutter.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
-#include "common/CachedFontMetrics.h"
 #include "common/TempConfig.h"
 
 OverviewView::OverviewView(QWidget *parent)
-    : GraphView(parent),
-      mFontMetrics(nullptr),
-      mMenu(new DisassemblyContextMenu(this)),
-      seekable(new CutterSeekable(this))
+    : GraphView(parent)
 {
-    // Signals that require a refresh all
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(functionRenamed(const QString &, const QString &)), this,
-            SLOT(refreshView()));
-    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(varsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(instructionChanged(RVA)), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(graphOptionsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(refreshView()));
-    connect(Core(), SIGNAL(refreshCodeViews()), this, SLOT(refreshView()));
-
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(this, SIGNAL(dataSet()), this, SLOT(refreshView()));
-
-    mMenu->addSeparator();
-    actionSyncOffset.setText(tr("Sync/unsync offset"));
-    mMenu->addAction(&actionSyncOffset);
-
-    initFont();
     colorsUpdatedSlot();
 }
 
@@ -62,9 +25,6 @@ void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut6
 
 OverviewView::~OverviewView()
 {
-    for (QShortcut *shortcut : shortcuts) {
-        delete shortcut;
-    }
 }
 
 void OverviewView::adjustScale()
@@ -88,21 +48,7 @@ void OverviewView::refreshView()
     current_scale = 1.0;
     viewport()->update();
     adjustSize(viewport()->size().width(), viewport()->size().height());
-    viewport()->update();
     adjustScale();
-}
-
-void OverviewView::initFont()
-{
-    setFont(Config()->getFont());
-    QFontMetricsF metrics(font());
-    baseline = int(metrics.ascent());
-    charWidth = metrics.width('X');
-    charHeight = metrics.height();
-    charOffset = 0;
-    if (mFontMetrics)
-        delete mFontMetrics;
-    mFontMetrics = new CachedFontMetrics(this, font());
 }
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
@@ -110,7 +56,6 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
     p.drawRect(block.x, block.y, block.width, block.height);
-    breakpoints = Core()->getBreakpointsAddresses();
     p.setBrush(QColor(0, 0, 0, 100));
     p.drawRect(block.x + 2, block.y + 2,
                block.width, block.height);
@@ -200,24 +145,7 @@ GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlo
 void OverviewView::colorsUpdatedSlot()
 {
     disassemblyBackgroundColor = ConfigColor("gui.overview.node");
-    disassemblySelectedBackgroundColor = ConfigColor("gui.disass_selected");
-    mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
-    disassemblySelectionColor = ConfigColor("highlight");
-    PCSelectionColor = ConfigColor("highlightPC");
-
-    jmpColor = ConfigColor("graph.trufae");
-    brtrueColor = ConfigColor("graph.true");
-    brfalseColor = ConfigColor("graph.false");
-
-    mCommentColor = ConfigColor("comment");
-    initFont();
-    refreshView();
-}
-
-void OverviewView::fontsUpdatedSlot()
-{
-    initFont();
     refreshView();
 }
