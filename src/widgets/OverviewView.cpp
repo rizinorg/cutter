@@ -63,8 +63,6 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setBrush(disassemblyBackgroundColor);
     p.drawRect(block.x, block.y,
                block.width, block.height);
-    p.setPen(Qt::red);
-    p.setBrush(Qt::transparent);
 }
 
 void OverviewView::paintEvent(QPaintEvent *event)
