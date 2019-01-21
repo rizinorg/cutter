@@ -129,10 +129,11 @@ void AboutDialog::serveVersionCheckReply(QNetworkReply *reply)
         if (currVersion == CUTTER_VERSION_FULL) {
             mb.setText(tr("You have latest version and no need to update!"));
         } else {
-            mb.setText("<b>" + tr("Current version:") + "</b>" CUTTER_VERSION_FULL "<br/>"
+            mb.setText("<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
                           + "<b>" + tr("Latest version:") + "</b> " + currVersion + "<br/><br/>"
                           + tr("For update, please check the link:")
-                          + "<a href=\"https://github.com/radareorg/cutter/releases\">%2</a>");
+                          + "<a href=\"https://github.com/radareorg/cutter/releases\">"
+                          + "https://github.com/radareorg/cutter/releases</a>");
         }
     }
     mb.exec();
