@@ -42,6 +42,7 @@ OverviewView::OverviewView(QWidget *parent)
 
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
+    connect(this, SIGNAL(dataSet()), this, SLOT(refreshView()));
     connectSeekChanged(false);
 
     // Branch shortcuts
@@ -65,6 +66,14 @@ OverviewView::OverviewView(QWidget *parent)
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
     initFont();
     colorsUpdatedSlot();
+}
+
+void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut64, GraphBlock> baseBlocks)
+{
+    width = baseWidth;
+    height = baseHeight;
+    blocks = baseBlocks;
+    emit dataSet();
 }
 
 void OverviewView::connectSeekChanged(bool disconn)
@@ -106,205 +115,17 @@ void OverviewView::adjustScale()
         }
     }
     adjustSize(viewport()->size().width(), viewport()->size().height());
+    eprintf("scale is %f\n",current_scale);
     viewport()->update();
 }
 
 void OverviewView::refreshView()
 {
-    initFont();
     current_scale = 1.0;
+    viewport()->update();
     adjustSize(viewport()->size().width(), viewport()->size().height());
-    loadCurrentGraph();
     viewport()->update();
     adjustScale();
-}
-
-void OverviewView::loadCurrentGraph()
-{
-    TempConfig tempConfig;
-    tempConfig.set("scr.html", true)
-    .set("scr.color", COLOR_MODE_16M)
-    .set("asm.bbline", false)
-    .set("asm.lines", false)
-    .set("asm.lines.fcn", false);
-
-    QJsonArray functions;
-    RAnalFunction *fcn = Core()->functionAt(seekable->getOffset());
-    if (fcn) {
-        QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(fcn->addr));
-        functions = functionsDoc.array();
-    }
-
-    disassembly_blocks.clear();
-    blocks.clear();
-
-    bool emptyGraph = functions.isEmpty();
-    if (emptyGraph) {
-        // If there's no function to print, just add a message
-        if (!emptyText) {
-            QVBoxLayout *layout = new QVBoxLayout(this);
-            emptyText = new QLabel(this);
-            emptyText->setText(tr("No function detected. Cannot display graph."));
-            emptyText->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-            layout->addWidget(emptyText);
-            layout->setAlignment(emptyText, Qt::AlignHCenter);
-        }
-        emptyText->setVisible(true);
-    } else if (emptyText) {
-        emptyText->setVisible(false);
-    }
-    // Refresh global "empty graph" variable so other widget know there is nothing to show here
-    Core()->setGraphEmpty(emptyGraph);
-
-    Analysis anal;
-    anal.ready = true;
-
-    QJsonValue funcRef = functions.first();
-    QJsonObject func = funcRef.toObject();
-    Function f;
-    f.ready = true;
-    f.entry = func["offset"].toVariant().toULongLong();
-
-    windowTitle = tr("Graph Overview");
-    QString funcName = func["name"].toString().trimmed();
-    if (emptyGraph) {
-        windowTitle += " (Empty)";
-    } else if (!funcName.isEmpty()) {
-        windowTitle += " (" + funcName + ")";
-    }
-    if (!seekable->isSynchronized()) {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    } else {
-        parentWidget()->setWindowTitle(windowTitle);
-    }
-
-    RVA entry = func["offset"].toVariant().toULongLong();
-
-    setEntry(entry);
-    for (const QJsonValue &value : func["blocks"].toArray()) {
-        QJsonObject block = value.toObject();
-        RVA block_entry = block["offset"].toVariant().toULongLong();
-        RVA block_size = block["size"].toVariant().toULongLong();
-        RVA block_fail = block["fail"].toVariant().toULongLong();
-        RVA block_jump = block["jump"].toVariant().toULongLong();
-
-        DisassemblyBlock db;
-        GraphBlock gb;
-        gb.entry = block_entry;
-        db.entry = block_entry;
-        db.true_path = RVA_INVALID;
-        db.false_path = RVA_INVALID;
-        if (block_fail) {
-            db.false_path = block_fail;
-            gb.exits.push_back(block_fail);
-        }
-        if (block_jump) {
-            if (block_fail) {
-                db.true_path = block_jump;
-            }
-            gb.exits.push_back(block_jump);
-        }
-
-        QJsonObject switchOp = block["switchop"].toObject();
-        if (!switchOp.isEmpty()) {
-            QJsonArray caseArray = switchOp["cases"].toArray();
-            for (QJsonValue caseOpValue : caseArray) {
-                QJsonObject caseOp = caseOpValue.toObject();
-                bool ok;
-                RVA caseJump = caseOp["jump"].toVariant().toULongLong(&ok);
-                if (!ok) {
-                    continue;
-                }
-                gb.exits.push_back(caseJump);
-            }
-        }
-
-        QJsonArray opArray = block["ops"].toArray();
-        for (int opIndex = 0; opIndex < opArray.size(); opIndex++) {
-            QJsonObject op = opArray[opIndex].toObject();
-            Instr i;
-            i.addr = op["offset"].toVariant().toULongLong();
-
-            if (opIndex < opArray.size() - 1) {
-                // get instruction size from distance to next instruction ...
-                RVA nextOffset = opArray[opIndex + 1].toObject()["offset"].toVariant().toULongLong();
-                i.size = nextOffset - i.addr;
-            } else {
-                // or to the end of the block.
-                i.size = (block_entry + block_size) - i.addr;
-            }
-
-            // Skip last byte, otherwise it will overlap with next instruction
-            i.size -= 1;
-
-            QString disas;
-            disas = op["text"].toString();
-
-            QTextDocument textDoc;
-            textDoc.setHtml(disas);
-            i.plainText = textDoc.toPlainText();
-
-            RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);
-            //Colors::colorizeAssembly(richText, textDoc.toPlainText(), 0);
-
-            bool cropped;
-            int blockLength = Config()->getGraphBlockMaxChars() + Core()->getConfigb("asm.bytes") * 24 +
-                              Core()->getConfigb("asm.emu") * 10;
-            i.text = Text(RichTextPainter::cropped(richText, blockLength, "...", &cropped));
-            if (cropped)
-                i.fullText = richText;
-            else
-                i.fullText = Text();
-            db.instrs.push_back(i);
-        }
-        disassembly_blocks[db.entry] = db;
-        prepareGraphNode(gb);
-        f.blocks.push_back(db);
-
-        addBlock(gb);
-    }
-
-    anal.functions[f.entry] = f;
-    anal.status = "Ready.";
-    anal.entry = f.entry;
-
-    if (func["blocks"].toArray().size() > 0) {
-        computeGraph(entry);
-        viewport()->update();
-
-        if (first_draw) {
-            showBlock(blocks[entry]);
-            first_draw = false;
-        }
-    }
-}
-
-void OverviewView::prepareGraphNode(GraphBlock &block)
-{
-    DisassemblyBlock &db = disassembly_blocks[block.entry];
-    int width = 0;
-    int height = 0;
-    for (auto &line : db.header_text.lines) {
-        int lw = 0;
-        for (auto &part : line)
-            lw += mFontMetrics->width(part.text);
-        if (lw > width)
-            width = lw;
-        height += 1;
-    }
-    for (Instr &instr : db.instrs) {
-        for (auto &line : instr.text.lines) {
-            int lw = 0;
-            for (auto &part : line)
-                lw += mFontMetrics->width(part.text);
-            if (lw > width)
-                width = lw;
-            height += 1;
-        }
-    }
-    int extra = 4 * charWidth + 4;
-    block.width = width + extra + charWidth;
-    block.height = (height * charHeight) + extra;
 }
 
 void OverviewView::initFont()
@@ -325,31 +146,14 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
     p.drawRect(block.x, block.y, block.width, block.height);
-
     breakpoints = Core()->getBreakpointsAddresses();
-
-    // Render node
-    DisassemblyBlock &db = disassembly_blocks[block.entry];
-
-    p.setPen(QColor(0, 0, 0, 0));
-    if (db.terminal) {
-        p.setBrush(retShadowColor);
-    } else if (db.indirectcall) {
-        p.setBrush(indirectcallShadowColor);
-    } else {
-        p.setBrush(QColor(0, 0, 0, 100));
-    }
-
-    // Node's shadow effect
+    p.setBrush(QColor(0, 0, 0, 100));
     p.drawRect(block.x + 2, block.y + 2,
                block.width, block.height);
     p.setPen(QPen(graphNodeColor, 1));
-
     p.setBrush(disassemblyBackgroundColor);
-
     p.drawRect(block.x, block.y,
                block.width, block.height);
-
     p.setPen(Qt::red);
     p.setBrush(Qt::transparent);
 }
@@ -435,52 +239,6 @@ GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlo
     ec.end_arrow = true;
     ec.width_scale = current_scale;
     return ec;
-}
-
-RVA OverviewView::getAddrForMouseEvent(GraphBlock &block, QPoint *point)
-{
-    DisassemblyBlock &db = disassembly_blocks[block.entry];
-
-    // Remove header and margin
-    int off_y = (2 * charWidth) + (db.header_text.lines.size() * charHeight);
-    // Get mouse coordinate over the actual text
-    int text_point_y = point->y() - off_y;
-    int mouse_row = text_point_y / charHeight;
-
-    int cur_row = db.header_text.lines.size();
-    if (mouse_row < cur_row) {
-        return db.entry;
-    }
-
-    Instr *instr = getInstrForMouseEvent(block, point);
-    if (instr) {
-        return instr->addr;
-    }
-
-    return RVA_INVALID;
-}
-
-OverviewView::Instr *OverviewView::getInstrForMouseEvent(
-    GraphView::GraphBlock &block, QPoint *point)
-{
-    DisassemblyBlock &db = disassembly_blocks[block.entry];
-
-    // Remove header and margin
-    int off_y = (2 * charWidth) + (db.header_text.lines.size() * charHeight);
-    // Get mouse coordinate over the actual text
-    int text_point_y = point->y() - off_y;
-    int mouse_row = text_point_y / charHeight;
-
-    int cur_row = db.header_text.lines.size();
-
-    for (Instr &instr : db.instrs) {
-        if (mouse_row < cur_row + (int)instr.text.lines.size()) {
-            return &instr;
-        }
-        cur_row += instr.text.lines.size();
-    }
-
-    return nullptr;
 }
 
 void OverviewView::colorsUpdatedSlot()
@@ -635,29 +393,6 @@ OverviewView::Token *OverviewView::getToken(Instr *instr, int x)
     }
 
     return nullptr;
-}
-
-void OverviewView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event,
-                                           QPoint pos)
-{
-    Instr *instr = getInstrForMouseEvent(block, &pos);
-    if (!instr || instr->fullText.lines.empty()) {
-        QToolTip::hideText();
-        event->ignore();
-        return;
-    }
-
-    QToolTip::showText(event->globalPos(), instr->fullText.ToQString());
-}
-
-bool OverviewView::helpEvent(QHelpEvent *event)
-{
-    if (!GraphView::helpEvent(event)) {
-        QToolTip::hideText();
-        event->ignore();
-    }
-
-    return true;
 }
 
 void OverviewView::blockTransitionedTo(GraphView::GraphBlock *to)

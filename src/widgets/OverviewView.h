@@ -109,25 +109,25 @@ class OverviewView : public GraphView
 
 signals:
     void mouseMoved();
+    void dataSet();
 
 public:
     OverviewView(QWidget *parent);
     ~OverviewView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
-    virtual bool helpEvent(QHelpEvent *event) override;
-    virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos) override;
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
                                                            GraphView::GraphBlock *to) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
 
-    void loadCurrentGraph();
     QString windowTitle;
     bool isGraphEmpty();
 
     void paintEvent(QPaintEvent *event) override;
     QRectF rangeRect;
     QPoint graph_offset;
+
+    void setData(int baseWidth, int baseHeight, std::unordered_map<ut64, GraphBlock> baseBlocks);
 
 public slots:
     void refreshView();
@@ -171,10 +171,7 @@ private:
     void connectSeekChanged(bool disconnect);
 
     void initFont();
-    void prepareGraphNode(GraphBlock &block);
     Token *getToken(Instr *instr, int x);
-    RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
-    Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);

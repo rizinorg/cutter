@@ -30,6 +30,10 @@ GraphWidget::GraphWidget(MainWindow *main, OverviewWidget *overview, QAction *ac
         }
     });
 
+    connect(graphView, &DisassemblerGraphView::viewRefreshed, this, [ = ]() {
+        overviewWidget->graphView->setData(graphView->getWidth(), graphView->getHeight(), graphView->getBlocks());
+    });
+
     connect(Core(), &CutterCore::raisePrioritizedMemoryWidget,
     this, [ = ](CutterCore::MemoryWidgetType type) {
         bool emptyGraph = (type == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
