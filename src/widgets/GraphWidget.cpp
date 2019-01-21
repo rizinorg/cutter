@@ -65,12 +65,18 @@ void GraphWidget::toggleOverview(bool visibility)
 
 void GraphWidget::disableOverviewRect()
 {
+    if (!overviewWidget) {
+        return;
+    }
     overviewWidget->graphView->rangeRect = QRectF(0, 0, 0, 0);
     overviewWidget->graphView->viewport()->update();
 }
 
 void GraphWidget::adjustOverview()
 {
+    if (!overviewWidget) {
+        return;
+    }
     bool scrollXVisible = graphView->unscrolled_render_offset_x == 0;
     bool scrollYVisible = graphView->unscrolled_render_offset_y == 0;
     if (!scrollXVisible && !scrollYVisible) {
@@ -109,6 +115,9 @@ void GraphWidget::adjustOverview()
 
 void GraphWidget::adjustGraph()
 {
+    if (!overviewWidget) {
+        return;
+    }
     int x1 = overviewWidget->graphView->horizontalScrollBar()->value();
     int y1 = overviewWidget->graphView->verticalScrollBar()->value();
     qreal x2 = (overviewWidget->graphView->rangeRect.x() - (qreal)overviewWidget->graphView->unscrolled_render_offset_x)/ overviewWidget->graphView->current_scale;
