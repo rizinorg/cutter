@@ -18,6 +18,11 @@ public:
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
+private:
+    RefreshDeferrer *refreshDeferrer;
+
+private slots:
+    void updateContents();
 };
 
 #endif // OverviewWIDGET_H
