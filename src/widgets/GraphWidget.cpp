@@ -51,13 +51,13 @@ void GraphWidget::toggleOverview(bool visibility)
 {
     if (visibility) {
         connect(graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
-        connect(graphView->horizontalScrollBar(), SIGNAL(valueChanged()), this, SLOT(adjustOverview()));
-        connect(graphView->verticalScrollBar(), SIGNAL(valueChanged()), this, SLOT(adjustOverview()));
+        connect(graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
+        connect(graphView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         connect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
     } else {
         disconnect(graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
-        disconnect(graphView->horizontalScrollBar(), SIGNAL(valueChanged()), this, SLOT(adjustOverview()));
-        disconnect(graphView->verticalScrollBar(), SIGNAL(valueChanged()), this, SLOT(adjustOverview()));
+        disconnect(graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
+        disconnect(graphView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         disconnect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         disableOverviewRect();
     }

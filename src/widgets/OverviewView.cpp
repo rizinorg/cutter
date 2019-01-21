@@ -39,7 +39,6 @@ void OverviewView::adjustScale()
         }
     }
     adjustSize(viewport()->size().width(), viewport()->size().height());
-    eprintf("scale is %f\n",current_scale);
     viewport()->update();
 }
 
