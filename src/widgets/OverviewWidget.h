@@ -18,8 +18,6 @@ public:
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
-private:
-
 };
 
 #endif // OverviewWIDGET_H
