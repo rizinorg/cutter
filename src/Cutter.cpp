@@ -1619,12 +1619,13 @@ QList<CommentDescription> CutterCore::getAllComments(const QString &filterType)
 QList<RelocDescription> CutterCore::getAllRelocs()
 {
     CORE_LOCK();
-    RListIter *it;
     QList<RelocDescription> ret;
 
-    RBinReloc *br;
     if (core_ && core_->bin && core_->bin->cur && core_->bin->cur->o) {
-        CutterRListForeach(core_->bin->cur->o->relocs, it, RBinReloc, br) {
+        auto relocs = core_->bin->cur->o->relocs;
+        RBIter iter;
+        RBinReloc *br;
+        r_rbtree_foreach (relocs, iter, br, RBinReloc, vrb) {
             RelocDescription reloc;
 
             reloc.vaddr = br->vaddr;
