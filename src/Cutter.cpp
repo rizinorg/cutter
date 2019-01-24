@@ -374,7 +374,9 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
         r_core_cmd0 (core_, "omfg+w");
     }
 
-    r_core_hash_load(core_, path.toUtf8().constData());
+    ut64 hashLimit = getConfigut64("cfg.hashlimit");
+    r_bin_file_hash(core_->bin, hashLimit, path.toUtf8().constData());
+
     fflush(stdout);
     return true;
 }
@@ -638,6 +640,12 @@ int CutterCore::getConfigi(const char *k)
 {
     CORE_LOCK();
     return static_cast<int>(r_config_get_i(core_->config, k));
+}
+
+ut64 CutterCore::getConfigut64(const char *k)
+{
+    CORE_LOCK();
+    return r_config_get_i(core_->config, k);
 }
 
 bool CutterCore::getConfigb(const char *k)

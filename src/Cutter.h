@@ -492,6 +492,8 @@ public:
     void setConfig(const QString &k, const QVariant &v) { setConfig(k.toUtf8().constData(), v); }
     int getConfigi(const char *k);
     int getConfigi(const QString &k) { return getConfigi(k.toUtf8().constData()); }
+    ut64 getConfigut64(const char *k);
+    ut64 getConfigut64(const QString &k) { return getConfigut64(k.toUtf8().constData()); }
     bool getConfigb(const char *k);
     bool getConfigb(const QString &k) { return getConfigb(k.toUtf8().constData()); }
     QString getConfig(const char *k);
