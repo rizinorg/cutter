@@ -81,7 +81,7 @@ QToolTip {
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -95,8 +95,8 @@ QToolTip {
      <rect>
       <x>378</x>
       <y>100</y>
-      <width>139</width>
-      <height>240</height>
+      <width>162</width>
+      <height>260</height>
      </rect>
     </property>
     <property name="title">
@@ -171,7 +171,6 @@ QToolTip {
      <addaction name="actionSDBBrowser"/>
      <addaction name="actionResources"/>
      <addaction name="actionVTables"/>
-     <addaction name="actionTypes"/>
      <addaction name="actionFlags"/>
      <addaction name="actionSections"/>
      <addaction name="actionSegments"/>
@@ -201,6 +200,7 @@ QToolTip {
     <addaction name="separator"/>
     <addaction name="actionStrings"/>
     <addaction name="actionSearch"/>
+    <addaction name="actionTypes"/>
     <addaction name="separator"/>
     <addaction name="menuAddInfoWidgets"/>
     <addaction name="menuAddDebugWidgets"/>
