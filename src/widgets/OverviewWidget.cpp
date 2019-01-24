@@ -24,12 +24,6 @@ OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
 
 OverviewWidget::~OverviewWidget() {}
 
-void OverviewWidget::resizeEvent(QResizeEvent *event)
-{
-    graphView->refreshView();
-    QDockWidget::resizeEvent(event);
-}
-
 void OverviewWidget::updateContents()
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {

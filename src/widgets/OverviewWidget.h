@@ -15,13 +15,13 @@ public:
     ~OverviewWidget();
     OverviewView *graphView;
 
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-
 private:
     RefreshDeferrer *refreshDeferrer;
 
 private slots:
+    /**
+     * @brief update the overview
+     */
     void updateContents();
 };
 

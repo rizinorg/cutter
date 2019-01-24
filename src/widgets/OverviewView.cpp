@@ -11,7 +11,6 @@ OverviewView::OverviewView(QWidget *parent)
     : GraphView(parent)
 {
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-    connect(this, SIGNAL(dataSet()), this, SLOT(refreshView()));
     colorsUpdatedSlot();
 }
 
@@ -20,7 +19,7 @@ void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut6
     width = baseWidth;
     height = baseHeight;
     blocks = baseBlocks;
-    emit dataSet();
+    refreshView();
 }
 
 OverviewView::~OverviewView()
