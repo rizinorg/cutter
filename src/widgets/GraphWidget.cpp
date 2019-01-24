@@ -49,6 +49,9 @@ GraphWidget::~GraphWidget() {}
 
 void GraphWidget::toggleOverview(bool visibility)
 {
+    if (!overviewWidget) {
+        return;
+    }
     if (visibility) {
         connect(graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         connect(graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
