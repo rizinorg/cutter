@@ -54,7 +54,9 @@
 
 // Widgets Headers
 #include "widgets/DisassemblerGraphView.h"
+#include "widgets/GraphView.h"
 #include "widgets/GraphWidget.h"
+#include "widgets/OverviewWidget.h"
 #include "widgets/FunctionsWidget.h"
 #include "widgets/SectionsWidget.h"
 #include "widgets/SegmentsWidget.h"
@@ -182,7 +184,17 @@ void MainWindow::initUI()
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
 
     // Add graph view as dockable
-    graphDock = new GraphWidget(this, ui->actionGraph);
+    overviewDock = new OverviewWidget(this, ui->actionOverview);
+    graphDock = new GraphWidget(this, overviewDock, ui->actionGraph);
+
+    connect(graphDock, &QDockWidget::visibilityChanged, this, [ = ](bool visible) {
+        ui->actionOverview->setChecked(visible);
+        if (visible) {
+            overviewDock->show();
+        } else {
+            overviewDock->hide();
+        }
+    });
 
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);
@@ -558,9 +570,11 @@ void MainWindow::restoreDocks()
 {
     // In the upper half the functions are the first widget
     addDockWidget(Qt::TopDockWidgetArea, functionsDock);
+    addDockWidget(Qt::TopDockWidgetArea, overviewDock);
 
     // Function | Dashboard
-    splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
+    splitDockWidget(overviewDock, dashboardDock, Qt::Horizontal);
+    splitDockWidget(functionsDock, overviewDock, Qt::Vertical);
 
     // In the lower half the console is the first widget
     addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
@@ -688,8 +702,10 @@ void MainWindow::resetToDefaultLayout()
     // Ugly workaround to set the default widths of functions docks
     // if anyone finds a way to do this cleaner that also works, feel free to change it!
     auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
+    auto restoreOverviewDock = qhelpers::forceWidth(overviewDock->widget(), 200);
     qApp->processEvents();
     restoreFunctionDock.restoreWidth(functionsDock->widget());
+    restoreOverviewDock.restoreWidth(overviewDock->widget());
 
     core->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }

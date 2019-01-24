@@ -128,6 +128,10 @@ public:
     bool isGraphEmpty();
     QTextEdit *header = nullptr;
 
+    int getWidth() { return width; }
+    int getHeight() { return height; }
+
+    std::unordered_map<ut64, GraphBlock> getBlocks() { return blocks; }
 public slots:
     void refreshView();
     void colorsUpdatedSlot();
@@ -212,6 +216,9 @@ private:
 
     QLabel *emptyText = nullptr;
     SyntaxHighlighter *highlighter = nullptr;
+
+signals:
+    void viewRefreshed();
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

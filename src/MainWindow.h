@@ -5,6 +5,8 @@
 
 #include "Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
+#include "widgets/GraphWidget.h"
+#include "widgets/OverviewWidget.h"
 #include "widgets/StackWidget.h"
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
@@ -103,6 +105,7 @@ public:
 
     void updateDockActionChecked(QAction * action);
 
+    OverviewWidget *overviewDock = nullptr;
 
 public slots:
     void finalizeOpen();
@@ -199,7 +202,7 @@ private:
     DisassemblyWidget  *disassemblyDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
-    QDockWidget        *graphDock = nullptr;
+    GraphWidget        *graphDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;

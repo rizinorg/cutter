@@ -157,6 +157,7 @@ void DisassemblerGraphView::refreshView()
     initFont();
     loadCurrentGraph();
     viewport()->update();
+    emit viewRefreshed();
 }
 
 void DisassemblerGraphView::loadCurrentGraph()
