@@ -17,6 +17,10 @@ public:
 
 private:
     RefreshDeferrer *refreshDeferrer;
+    /**
+     * @brief this takes care of scaling the overview when the widget is resized
+     */
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     /**
