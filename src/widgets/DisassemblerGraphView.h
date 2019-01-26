@@ -219,6 +219,7 @@ private:
 
 signals:
     void viewRefreshed();
+    void viewZoomed();
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

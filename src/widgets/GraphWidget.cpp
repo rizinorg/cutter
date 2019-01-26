@@ -54,11 +54,13 @@ void GraphWidget::toggleOverview(bool visibility)
     }
     if (visibility) {
         connect(graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
+        connect(graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
         connect(graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         connect(graphView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         connect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
     } else {
         disconnect(graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
+        disconnect(graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
         disconnect(graphView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         disconnect(graphView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         disconnect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
@@ -80,8 +82,8 @@ void GraphWidget::adjustOverview()
     if (!overviewWidget) {
         return;
     }
-    bool scrollXVisible = graphView->unscrolled_render_offset_x == 0;
-    bool scrollYVisible = graphView->unscrolled_render_offset_y == 0;
+    bool scrollXVisible = graphView->horizontalScrollBar()->isVisible();
+    bool scrollYVisible = graphView->verticalScrollBar()->isVisible();
     if (!scrollXVisible && !scrollYVisible) {
         disableOverviewRect();
         return;
@@ -91,6 +93,7 @@ void GraphWidget::adjustOverview()
     qreal w = overviewWidget->graphView->viewport()->width();
     qreal h = overviewWidget->graphView->viewport()->height();
     qreal curScale = overviewWidget->graphView->current_scale;
+    qreal baseScale = graphView->current_scale;
     qreal xoff = overviewWidget->graphView->unscrolled_render_offset_x;;
     qreal yoff = overviewWidget->graphView->unscrolled_render_offset_y;;
 
@@ -99,14 +102,14 @@ void GraphWidget::adjustOverview()
 
     if (scrollXVisible) {
         x = graphView->horizontalScrollBar()->value();
-        w *= curScale;
+        w *= curScale / baseScale;
     } else {
         xoff = 0;
     }
 
     if (scrollYVisible) {
         y = graphView->verticalScrollBar()->value();
-        h *= curScale;
+        h *= curScale / baseScale;
     } else {
         yoff = 0;
     }
