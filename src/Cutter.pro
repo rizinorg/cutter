@@ -225,7 +225,8 @@ SOURCES += \
     common/QtResImporter.cpp \
     common/CutterSeekable.cpp \
     common/RefreshDeferrer.cpp \
-    dialogs/WelcomeDialog.cpp
+    dialogs/WelcomeDialog.cpp \
+    RunScriptTask.cpp
 
 
 HEADERS  += \
@@ -333,7 +334,8 @@ HEADERS  += \
     common/QtResImporter.h \
     common/CutterSeekable.h \
     common/RefreshDeferrer.h \
-    dialogs/WelcomeDialog.h
+    dialogs/WelcomeDialog.h \
+    RunScriptTask.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

@@ -51,6 +51,7 @@
 #include "dialogs/RenameDialog.h"
 #include "dialogs/preferences/PreferencesDialog.h"
 #include "dialogs/OpenFileDialog.h"
+#include "dialogs/AsyncTaskDialog.h"
 
 // Widgets Headers
 #include "widgets/DisassemblerGraphView.h"
@@ -85,6 +86,8 @@
 #include "widgets/MemoryMapWidget.h"
 #include "widgets/BreakpointWidget.h"
 #include "widgets/RegisterRefsWidget.h"
+
+#include "RunScriptTask.h"
 
 // Graphics
 #include <QGraphicsEllipseItem>
@@ -446,8 +449,8 @@ void MainWindow::setFilename(const QString &fn)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
-                                                            tr("Do you really want to exit?\nSave your project before closing!"),
-                                                            (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+                                      tr("Do you really want to exit?\nSave your project before closing!"),
+                                      (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
     if (ret == QMessageBox::Cancel) {
         event->ignore();
         return;
@@ -810,7 +813,18 @@ void MainWindow::on_actionRun_Script_triggered()
     const QString &fileName = QDir::toNativeSeparators(dialog.getOpenFileName(this, tr("Select radare2 script")));
     if (fileName.isEmpty()) // Cancel was pressed
         return;
-    core->loadScript(fileName);
+
+    RunScriptTask *runScriptTask = new RunScriptTask();
+    runScriptTask->setFileName(fileName);
+
+    AsyncTask::Ptr runScriptTaskPtr(runScriptTask);
+
+    AsyncTaskDialog *taskDialog = new AsyncTaskDialog(runScriptTaskPtr, this);
+    taskDialog->setInterruptOnClose(true);
+    taskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    taskDialog->show();
+
+    Core()->getAsyncTaskManager()->start(runScriptTaskPtr);
 }
 
 /**
@@ -840,8 +854,8 @@ void MainWindow::on_actionReset_settings_triggered()
 {
     QMessageBox::StandardButton ret =
         (QMessageBox::StandardButton)QMessageBox::question(this, APPNAME,
-                                                           tr("Do you really want to clear all settings?"),
-                                                           QMessageBox::Ok | QMessageBox::Cancel);
+                tr("Do you really want to clear all settings?"),
+                QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
         Config()->resetAll();
     }
