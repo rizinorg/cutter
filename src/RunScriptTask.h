@@ -4,9 +4,6 @@
 #include "common/AsyncTask.h"
 #include "Cutter.h"
 
-class CutterCore;
-class MainWindow;
-
 class RunScriptTask : public AsyncTask
 {
     Q_OBJECT
@@ -15,11 +12,11 @@ public:
     explicit RunScriptTask();
     ~RunScriptTask();
 
-    QString getTitle() override                     {
+    QString getTitle() override {
         return tr("Run Script");
     }
 
-    void setFileName(const QString &fileName)	{
+    void setFileName(const QString &fileName) {
         this->fileName = fileName;
     }
 

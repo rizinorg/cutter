@@ -21,7 +21,7 @@ void RunScriptTask::runTask()
 {
     if (!this->fileName.isNull()) {
         log(tr("Executing script..."));
-        Core()->loadScript(this->fileName);
+        Core()->cmdTask(". " + this->fileName);
         if (isInterrupted()) {
             return;
         }
