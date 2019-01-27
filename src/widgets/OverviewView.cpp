@@ -88,7 +88,7 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
     rangeRect = QRectF(x, y, w, h);
     viewport()->update();
     emit mouseMoved();
-    mousePressEvent(event);
+    GraphView::mousePressEvent(event);
 }
 
 void OverviewView::mouseReleaseEvent(QMouseEvent *event)
