@@ -84,11 +84,14 @@ void NewFileDialog::on_loadFileButton_clicked()
 
 void NewFileDialog::on_selectFileButton_clicked()
 {
-    const QString &fileName = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath()));
+    QSettings settings;
+    QString currentDir = settings.value("recentFolder", QDir::homePath()).toString();
+    const QString &fileName = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, tr("Select file"), currentDir));
 
     if (!fileName.isEmpty()) {
         ui->newFileEdit->setText(fileName);
         ui->loadFileButton->setFocus();
+        settings.setValue("recentFolder", QDir::toNativeSeparators(QFileInfo(fileName).absolutePath()));
     }
 }
 

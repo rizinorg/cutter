@@ -2,6 +2,7 @@
 #include "ui_OpenFileDialog.h"
 
 #include <QFileDialog>
+#include <QSettings>
 
 OpenFileDialog::OpenFileDialog(QWidget *parent):
     QDialog(parent),
@@ -14,10 +15,13 @@ OpenFileDialog::~OpenFileDialog() {}
 
 void OpenFileDialog::on_selectFileButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath());
+    QSettings settings;
+    QString currentDir = settings.value("recentFolder", QDir::homePath()).toString();
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), currentDir);
 
     if (!fileName.isEmpty()) {
         ui->filenameLineEdit->setText(fileName);
+        settings.setValue("recentFolder", QDir::toNativeSeparators(QFileInfo(fileName).absolutePath()));
     }
 }
 
