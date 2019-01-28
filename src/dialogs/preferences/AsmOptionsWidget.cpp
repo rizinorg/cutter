@@ -35,6 +35,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->esilCheckBox, Config()->getConfigBool("asm.esil"));
     qhelpers::setCheckedWithoutSignals(ui->pseudoCheckBox, Config()->getConfigBool("asm.pseudo"));
     qhelpers::setCheckedWithoutSignals(ui->offsetCheckBox, Config()->getConfigBool("asm.offset"));
+    qhelpers::setCheckedWithoutSignals(ui->xrefCheckBox, Config()->getConfigBool("asm.xrefs"));
     qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Config()->getConfigBool("asm.describe"));
     qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Config()->getConfigBool("asm.stackptr"));
     qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Config()->getConfigBool("asm.slow"));
@@ -131,6 +132,12 @@ void AsmOptionsWidget::on_pseudoCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_offsetCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.offset", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_xrefCheckBox_toggled(bool checked)
+{
+    Config()->setConfig("asm.xrefs", checked);
     triggerAsmOptionsChanged();
 }
 
