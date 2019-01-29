@@ -95,6 +95,18 @@ void Configuration::setDirProjects(const QString &dir)
     s.setValue("dir.projects", QDir::toNativeSeparators(dir));
 }
 
+QString Configuration::getRecentFolder()
+{
+    QString recentFolder = s.value("dir.recentFolder", QDir::homePath()).toString();
+
+    return QDir::toNativeSeparators(recentFolder);
+}
+
+void Configuration::setRecentFolder(const QString &dir)
+{
+    s.setValue("dir.recentFolder", QDir::toNativeSeparators(dir));
+}
+
 /**
  * @brief Configuration::setFilesTabLastClicked
  * Set the new file dialog last clicked tab
