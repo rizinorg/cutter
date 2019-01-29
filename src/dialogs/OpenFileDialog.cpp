@@ -1,6 +1,8 @@
 #include "OpenFileDialog.h"
 #include "ui_OpenFileDialog.h"
 
+#include "common/Configuration.h"
+
 #include <QFileDialog>
 
 OpenFileDialog::OpenFileDialog(QWidget *parent):
@@ -14,10 +16,12 @@ OpenFileDialog::~OpenFileDialog() {}
 
 void OpenFileDialog::on_selectFileButton_clicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), QDir::homePath());
+    QString currentDir = Config()->getRecentFolder();
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), currentDir);
 
     if (!fileName.isEmpty()) {
         ui->filenameLineEdit->setText(fileName);
+        Config()->setRecentFolder(QFileInfo(fileName).absolutePath());
     }
 }
 

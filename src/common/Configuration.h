@@ -72,6 +72,9 @@ public:
     QString getDirProjects();
     void setDirProjects(const QString &dir);
 
+    QString getRecentFolder();
+    void setRecentFolder(const QString &dir);
+
     void setNewFileLastClicked(int lastClicked);
     int getNewFileLastClicked();
 
