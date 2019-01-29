@@ -84,7 +84,6 @@ void NewFileDialog::on_loadFileButton_clicked()
 
 void NewFileDialog::on_selectFileButton_clicked()
 {
-    QSettings settings;
     QString currentDir = Config()->getRecentFolder();
     const QString &fileName = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, tr("Select file"), currentDir));
 
