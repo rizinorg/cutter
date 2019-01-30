@@ -46,6 +46,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="xrefCheckBox">
+         <property name="text">
+          <string>Show xrefs (asm.xrefs)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="describeCheckBox">
          <property name="text">
           <string>Show opcode description (asm.describe)</string>
