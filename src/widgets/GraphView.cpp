@@ -420,8 +420,10 @@ void GraphView::paintEvent(QPaintEvent *event)
     int render_height = viewport()->size().height() / current_scale;
 
     // Do we have scrollbars?
-    bool hscrollbar = horizontalScrollBar()->pageStep() < width;
-    bool vscrollbar = verticalScrollBar()->pageStep() < height;
+    //bool hscrollbar = horizontalScrollBar()->pageStep() < width;
+    //bool vscrollbar = verticalScrollBar()->pageStep() < height;
+    bool hscrollbar = horizontalScrollBar()->pageStep() < width * current_scale;
+    bool vscrollbar = verticalScrollBar()->pageStep() < height * current_scale;
 
     // Draw background
     QRect viewportRect(viewport()->rect().topLeft(), viewport()->rect().bottomRight() - QPoint(1, 1));
@@ -442,6 +444,13 @@ void GraphView::paintEvent(QPaintEvent *event)
         render_offset_y += unscrolled_render_offset_y;
     }
 
+    eprintf("render offset x is %d\n", render_offset_x);
+    //if (render_offset_x < 0){
+    //    render_offset_x = 0;
+    //}
+    //if (render_offset_y < 0){
+    //    render_offset_y = 0;
+    //}
     p.translate(render_offset_x, render_offset_y);
     p.scale(current_scale, current_scale);
 
