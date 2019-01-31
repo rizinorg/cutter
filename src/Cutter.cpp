@@ -2009,7 +2009,6 @@ QList<TypeDescription> CutterCore::getAllTypes()
     QList<TypeDescription> ret;
 
     QJsonArray typesArray = cmdj("tj").array();
-
     for (const QJsonValue &value : typesArray) {
         QJsonObject typeObject = value.toObject();
 
@@ -2018,7 +2017,43 @@ QList<TypeDescription> CutterCore::getAllTypes()
         exp.type = typeObject[RJsonKey::type].toString();
         exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
         exp.format = typeObject[RJsonKey::format].toString();
+        exp.category = tr("primitive");
+        ret << exp;
+    }
 
+    typesArray = cmdj("tuj").array();
+    for (auto value: typesArray) {
+        TypeDescription exp;
+        exp.type = value.toString();
+        exp.size = 0;
+        exp.category = tr("union");
+        ret << exp;
+    }
+
+    typesArray = cmdj("tsj").array();
+    for (auto value: typesArray) {
+        TypeDescription exp;
+        exp.type = value.toString();
+        exp.size = 0;
+        exp.category = tr("struct");
+        ret << exp;
+    }
+
+    QJsonObject typesObject = cmdj("tej").object();
+    for (QString key: typesObject.keys()) {
+        TypeDescription exp;
+        exp.type = key;
+        exp.size = 0;
+        exp.category = tr("enum");
+        ret << exp;
+    }
+
+    typesObject = cmdj("ttj").object();
+    for (QString key: typesObject.keys()) {
+        TypeDescription exp;
+        exp.type = key;
+        exp.size = 0;
+        exp.category = tr("typedef");
         ret << exp;
     }
 

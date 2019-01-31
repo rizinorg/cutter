@@ -133,6 +133,7 @@ struct TypeDescription {
     QString type;
     int size;
     QString format;
+    QString category;
 };
 
 struct SearchDescription {
