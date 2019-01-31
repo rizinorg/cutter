@@ -137,7 +137,7 @@ void GraphWidget::adjustOffset()
     if (!scrollXVisible) {
         overviewWidget->graphView->unscrolled_render_offset_x = 0;
     }
-    if (!scrollXVisible) {
+    if (!scrollYVisible) {
         overviewWidget->graphView->unscrolled_render_offset_y = 0;
     }
 }
