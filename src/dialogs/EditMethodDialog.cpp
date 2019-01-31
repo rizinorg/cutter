@@ -74,7 +74,7 @@ void EditMethodDialog::setClass(const QString &className)
     validateInput();
 }
 
-void EditMethodDialog::setMethod(const ClassMethodDescription &meth)
+void EditMethodDialog::setMethod(const BinClassMethodDescription &meth)
 {
     ui->nameEdit->setText(meth.name);
     ui->addressEdit->setText(meth.addr != RVA_INVALID ? RAddressString(meth.addr) : nullptr);
@@ -100,9 +100,9 @@ QString EditMethodDialog::getClass()
     return ui->classComboBox->itemData(index).value<BinClassDescription>().name;
 }
 
-ClassMethodDescription EditMethodDialog::getMethod()
+BinClassMethodDescription EditMethodDialog::getMethod()
 {
-    ClassMethodDescription ret;
+    BinClassMethodDescription ret;
     ret.name = ui->nameEdit->text();
     ret.addr = Core()->num(ui->addressEdit->text());
     if (ui->virtualCheckBox->isChecked()) {
@@ -113,7 +113,7 @@ ClassMethodDescription EditMethodDialog::getMethod()
     return ret;
 }
 
-bool EditMethodDialog::showDialog(const QString &title, const QString &className, ClassMethodDescription *meth, QWidget *parent)
+bool EditMethodDialog::showDialog(const QString &title, const QString &className, BinClassMethodDescription *meth, QWidget *parent)
 {
     auto dialog = new EditMethodDialog(parent);
     dialog->setWindowTitle(title);
@@ -124,7 +124,7 @@ bool EditMethodDialog::showDialog(const QString &title, const QString &className
     return result == QDialog::DialogCode::Accepted;
 }
 
-void EditMethodDialog::newMethod(const QString &className, ClassMethodDescription meth)
+void EditMethodDialog::newMethod(const QString &className, BinClassMethodDescription meth)
 {
     if (!showDialog(tr("Create Method"), className, &meth)) {
         return;
@@ -132,7 +132,7 @@ void EditMethodDialog::newMethod(const QString &className, ClassMethodDescriptio
     Core()->setClassMethod(className, meth);
 }
 
-void EditMethodDialog::editMethod(const QString &className, ClassMethodDescription meth)
+void EditMethodDialog::editMethod(const QString &className, BinClassMethodDescription meth)
 {
     QString oldName = meth.name;
     if (!showDialog(tr("Edit Method"), className, &meth)) {

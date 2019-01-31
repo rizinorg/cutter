@@ -77,7 +77,8 @@ private:
 
 public:
     explicit AnalClassesModel(QObject *parent = nullptr);
-    void setClasses(const QList<QString> &classes);
+
+    void refreshClasses();
 };
 
 

@@ -259,6 +259,8 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
     if (ui->scriptCheckBox->isChecked()) {
         options.script = ui->scriptLineEdit->text();
     }
+
+
     options.endian = getSelectedEndianness();
     options.bbsize = getSelectedBBSize();
 
