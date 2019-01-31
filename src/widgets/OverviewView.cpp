@@ -113,16 +113,16 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     qreal rect_right = x + w;
     qreal rect_bottom = y + h;
     if (rect_right >= max_right) {
-        x = real_width - w;
+        x = unscrolled_render_offset_x + real_width - w;
     }
     if (rect_bottom >= max_bottom) {
-        y = real_height - h;
+        y = unscrolled_render_offset_y + real_height - h;
     }
-    if (x <= 0) {
-        x = 0;
+    if (x <= unscrolled_render_offset_x) {
+        x = unscrolled_render_offset_x;
     }
-    if (y <= 0) {
-        y = 0;
+    if (y <= unscrolled_render_offset_y) {
+        y = unscrolled_render_offset_y;
     }
     rangeRect = QRectF(x, y, w, h);
     viewport()->update();

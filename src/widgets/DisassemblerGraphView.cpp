@@ -697,6 +697,7 @@ void DisassemblerGraphView::zoomIn(QPoint mouse)
     auto areaSize = viewport()->size();
     adjustSize(areaSize.width(), areaSize.height(), mouse);
     viewport()->update();
+    emit viewZoomed();
 }
 
 void DisassemblerGraphView::zoomOut(QPoint mouse)
@@ -706,6 +707,7 @@ void DisassemblerGraphView::zoomOut(QPoint mouse)
     auto areaSize = viewport()->size();
     adjustSize(areaSize.width(), areaSize.height(), mouse);
     viewport()->update();
+    emit viewZoomed();
 }
 
 void DisassemblerGraphView::zoomReset()
@@ -714,6 +716,7 @@ void DisassemblerGraphView::zoomReset()
     auto areaSize = viewport()->size();
     adjustSize(areaSize.width(), areaSize.height());
     viewport()->update();
+    emit viewZoomed();
 }
 
 void DisassemblerGraphView::takeTrue()
