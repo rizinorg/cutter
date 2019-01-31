@@ -87,9 +87,9 @@ int BinClassesModel::columnCount(const QModelIndex &) const
 QVariant BinClassesModel::data(const QModelIndex &index, int role) const
 {
     const BinClassDescription *cls;
-    const ClassMethodDescription *meth = nullptr;
-    const ClassFieldDescription *field = nullptr;
-    const ClassBaseClassDescription *base = nullptr;
+    const BinClassMethodDescription *meth = nullptr;
+    const BinClassFieldDescription *field = nullptr;
+    const BinClassBaseClassDescription *base = nullptr;
     if (index.internalId() == 0) { // class row
         if (index.row() >= classes.count()) {
             return QVariant();
@@ -218,10 +218,10 @@ AnalClassesModel::AnalClassesModel(QObject *parent)
 {
 }
 
-void AnalClassesModel::setClasses(const QList<QString> &classes)
+void AnalClassesModel::refreshClasses()
 {
     beginResetModel();
-    this->classes = classes;
+    classes = Core()->getAllAnalClasses();
     endResetModel();
 }
 
@@ -273,9 +273,9 @@ int AnalClassesModel::columnCount(const QModelIndex &) const
 QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
 {
     QString cls;
-    const ClassMethodDescription *meth = nullptr;
-    const ClassFieldDescription *field = nullptr;
-    const ClassBaseClassDescription *base = nullptr;
+    const BinClassMethodDescription *meth = nullptr;
+    const BinClassFieldDescription *field = nullptr;
+    const BinClassBaseClassDescription *base = nullptr;
     if (index.internalId() == 0) { // class row
         if (index.row() >= classes.count()) {
             return QVariant();
@@ -497,7 +497,7 @@ void ClassesWidget::refreshClasses()
             ui->classesTreeView->setModel(anal_model);
             //proxy_model->setSourceModel(anal_model);
         }
-        anal_model->setClasses(Core()->getAllClassesFromAnal());
+        anal_model->refreshClasses();
         break;
     }
 
@@ -561,7 +561,7 @@ void ClassesWidget::on_addMethodAction_triggered()
         className = index.parent().data(ClassesModel::NameRole).toString();
     }
 
-    ClassMethodDescription meth;
+    BinClassMethodDescription meth;
     meth.addr = Core()->getOffset();
 
     EditMethodDialog::newMethod(className, meth);
@@ -575,6 +575,6 @@ void ClassesWidget::on_editMethodAction_triggered()
     }
 
     QString className = index.parent().data(ClassesModel::NameRole).toString();
-    ClassMethodDescription meth = index.data(ClassesModel::DataRole).value<ClassMethodDescription>();
+    BinClassMethodDescription meth = index.data(ClassesModel::DataRole).value<BinClassMethodDescription>();
     EditMethodDialog::editMethod(className, meth);
 }

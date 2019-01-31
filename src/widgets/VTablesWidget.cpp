@@ -39,7 +39,7 @@ QVariant VTableModel::data(const QModelIndex &index, int role) const
 {
     QModelIndex parent = index.parent();
     if (parent.isValid()) {
-        const ClassMethodDescription &res = vtables->at(parent.row()).methods.at(index.row());
+        const BinClassMethodDescription &res = vtables->at(parent.row()).methods.at(index.row());
         switch (role) {
         case Qt::DisplayRole:
             switch (index.column()) {
@@ -189,7 +189,7 @@ void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)
     QModelIndex parent = index.parent();
     if (parent.isValid()) {
         Core()->seek(index.data(
-                         VTableModel::VTableDescriptionRole).value<ClassMethodDescription>().addr);
+                         VTableModel::VTableDescriptionRole).value<BinClassMethodDescription>().addr);
     } else {
         Core()->seek(index.data(
                          VTableModel::VTableDescriptionRole).value<VTableDescription>().addr);

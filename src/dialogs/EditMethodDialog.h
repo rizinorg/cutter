@@ -19,14 +19,14 @@ public:
     ~EditMethodDialog();
 
     void setClass(const QString &className);
-    void setMethod(const ClassMethodDescription &meth);
+    void setMethod(const BinClassMethodDescription &meth);
 
     QString getClass();
-    ClassMethodDescription getMethod();
+    BinClassMethodDescription getMethod();
 
-    static bool showDialog(const QString &title, const QString &className, ClassMethodDescription *meth, QWidget *parent = nullptr);
-    static void newMethod(const QString &className = nullptr, ClassMethodDescription meth = ClassMethodDescription());
-    static void editMethod(const QString &className, ClassMethodDescription meth);
+    static bool showDialog(const QString &title, const QString &className, BinClassMethodDescription *meth, QWidget *parent = nullptr);
+    static void newMethod(const QString &className = nullptr, BinClassMethodDescription meth = BinClassMethodDescription());
+    static void editMethod(const QString &className, BinClassMethodDescription meth);
 
 private slots:
     void on_buttonBox_accepted();

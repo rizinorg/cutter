@@ -538,7 +538,7 @@ void CutterCore::setCurrentBits(int bits, RVA offset)
     emit instructionChanged(offset);
 }
 
-void CutterCore::setClassMethod(const QString &className, const ClassMethodDescription &meth)
+void CutterCore::setClassMethod(const QString &className, const BinClassMethodDescription &meth)
 {
     RAnalMethod analMeth;
     analMeth.name = strdup (meth.name.toUtf8().constData());
@@ -1891,7 +1891,7 @@ QList<BinClassDescription> CutterCore::getAllClassesFromBin()
         for (const QJsonValue &value2 : classObject[RJsonKey::methods].toArray()) {
             QJsonObject methObject = value2.toObject();
 
-            ClassMethodDescription meth;
+            BinClassMethodDescription meth;
 
             meth.name = methObject[RJsonKey::name].toString();
             meth.addr = methObject[RJsonKey::addr].toVariant().toULongLong();
@@ -1902,7 +1902,7 @@ QList<BinClassDescription> CutterCore::getAllClassesFromBin()
         for (const QJsonValue &value2 : classObject[RJsonKey::fields].toArray()) {
             QJsonObject fieldObject = value2.toObject();
 
-            ClassFieldDescription field;
+            BinClassFieldDescription field;
 
             field.name = fieldObject[RJsonKey::name].toString();
             field.addr = fieldObject[RJsonKey::addr].toVariant().toULongLong();
@@ -1967,7 +1967,7 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
                 classDesc = it.value();
             }
 
-            ClassMethodDescription meth;
+            BinClassMethodDescription meth;
             meth.name = match.captured(2);
             meth.addr = flagObject[RJsonKey::offset].toVariant().toULongLong();
             classDesc->methods << meth;
@@ -1977,7 +1977,7 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
     return ret;
 }
 
-QList<QString> CutterCore::getAllClassesFromAnal()
+QList<QString> CutterCore::getAllAnalClasses()
 {
     QList<QString> ret;
 
@@ -1985,6 +1985,7 @@ QList<QString> CutterCore::getAllClassesFromAnal()
     if (!l) {
         return ret;
     }
+    ret.reserve(static_cast<int>(l->length));
 
     SdbListIter *it;
     void *entry;
@@ -1993,6 +1994,72 @@ QList<QString> CutterCore::getAllClassesFromAnal()
         ret.append(QString::fromUtf8(reinterpret_cast<const char *>(kv->base.key)));
     }
     ls_free(l);
+
+    return ret;
+}
+
+QList<AnalMethodDescription> CutterCore::getAnalClassMethods(const QString &cls)
+{
+    QList<AnalMethodDescription> ret;
+
+    RVector *meths = r_anal_class_method_get_all(core_->anal, cls.toUtf8().constData());
+    if (!meths) {
+        return ret;
+    }
+
+    ret.reserve(static_cast<int>(meths->len));
+    RAnalMethod *meth;
+    CutterRVectorForeach(meths, meth, RAnalMethod) {
+        AnalMethodDescription desc;
+        desc.name = QString::fromUtf8(meth->name);
+        desc.addr = meth->addr;
+        desc.vtableOffset = meth->vtable_offset;
+    }
+    r_vector_free(meths);
+
+    return ret;
+}
+
+QList<AnalBaseClassDescription> CutterCore::getAnalClassBaseClasses(const QString &cls)
+{
+    QList<AnalBaseClassDescription> ret;
+
+    RVector *bases = r_anal_class_base_get_all(core_->anal, cls.toUtf8().constData());
+    if (!bases) {
+        return ret;
+    }
+
+    ret.reserve(static_cast<int>(bases->len));
+    RAnalBaseClass *base;
+    CutterRVectorForeach(bases, base, RAnalBaseClass) {
+        AnalBaseClassDescription desc;
+        desc.id = QString::fromUtf8(base->id);
+        desc.offset = base->offset;
+        desc.className = QString::fromUtf8(base->class_name);
+    }
+    r_vector_free(bases);
+
+    return ret;
+}
+
+QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
+{
+    QList<AnalVTableDescription> ret;
+
+    RVector *vtables = r_anal_class_base_get_all(core_->anal, cls.toUtf8().constData());
+    if (!vtables) {
+        return ret;
+    }
+
+    ret.reserve(static_cast<int>(vtables->len));
+    RAnalVTable *vtable;
+    CutterRVectorForeach(vtables, vtable, RAnalVTable) {
+        AnalVTableDescription desc;
+        desc.id = QString::fromUtf8(vtable->id);
+        desc.offset = vtable->offset;
+        desc.addr = vtable->addr;
+    }
+    r_vector_free(vtables);
 
     return ret;
 }
@@ -2037,7 +2104,7 @@ QList<VTableDescription> CutterCore::getAllVTables()
         for (const QJsonValue &methodValue : methodArray) {
             QJsonObject methodObject = methodValue.toObject();
 
-            ClassMethodDescription method;
+            BinClassMethodDescription method;
 
             method.addr = methodObject[RJsonKey::offset].toVariant().toULongLong();
             method.name = methodObject[RJsonKey::name].toString();

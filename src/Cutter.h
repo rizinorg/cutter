@@ -20,6 +20,10 @@
 #define CutterRListForeach(list, it, type, x) \
     if (list) for (it = list->head; it && ((x=static_cast<type*>(it->data))); it = it->n)
 
+#define CutterRVectorForeach(vec, it, type) \
+	if ((vec) && (vec)->a) \
+		for (it = (type *)(vec)->a; (char *)it != (char *)(vec)->a + ((vec)->len * (vec)->elem_size); it = (type *)((char *)it + (vec)->elem_size))
+
 #define APPNAME "Cutter"
 
 #define Core() (CutterCore::getInstance())
@@ -250,18 +254,18 @@ struct DisassemblyLine {
     QString text;
 };
 
-struct ClassBaseClassDescription {
+struct BinClassBaseClassDescription {
     QString name;
     RVA offset;
 };
 
-struct ClassMethodDescription {
+struct BinClassMethodDescription {
     QString name;
     RVA addr = RVA_INVALID;
     st64 vtableOffset = -1;
 };
 
-struct ClassFieldDescription {
+struct BinClassFieldDescription {
     QString name;
     RVA addr = RVA_INVALID;
 };
@@ -271,9 +275,27 @@ struct BinClassDescription {
     RVA addr = RVA_INVALID;
     RVA vtableAddr = RVA_INVALID;
     ut64 index = 0;
-    QList<ClassBaseClassDescription> baseClasses;
-    QList<ClassMethodDescription> methods;
-    QList<ClassFieldDescription> fields;
+    QList<BinClassBaseClassDescription> baseClasses;
+    QList<BinClassMethodDescription> methods;
+    QList<BinClassFieldDescription> fields;
+};
+
+struct AnalMethodDescription {
+    QString name;
+    RVA addr;
+    st64 vtableOffset;
+};
+
+struct AnalBaseClassDescription {
+    QString id;
+    RVA offset;
+    QString className;
+};
+
+struct AnalVTableDescription {
+    QString id;
+    ut64 offset;
+    ut64 addr;
 };
 
 struct ResourcesDescription {
@@ -287,7 +309,7 @@ struct ResourcesDescription {
 
 struct VTableDescription {
     RVA addr;
-    QList<ClassMethodDescription> methods;
+    QList<BinClassMethodDescription> methods;
 };
 
 struct BlockDescription {
@@ -362,12 +384,12 @@ Q_DECLARE_METATYPE(RBinPluginDescription)
 Q_DECLARE_METATYPE(RIOPluginDescription)
 Q_DECLARE_METATYPE(RCorePluginDescription)
 Q_DECLARE_METATYPE(RAsmPluginDescription)
-Q_DECLARE_METATYPE(ClassMethodDescription)
-Q_DECLARE_METATYPE(ClassFieldDescription)
+Q_DECLARE_METATYPE(BinClassMethodDescription)
+Q_DECLARE_METATYPE(BinClassFieldDescription)
 Q_DECLARE_METATYPE(BinClassDescription)
 Q_DECLARE_METATYPE(const BinClassDescription *)
-Q_DECLARE_METATYPE(const ClassMethodDescription *)
-Q_DECLARE_METATYPE(const ClassFieldDescription *)
+Q_DECLARE_METATYPE(const BinClassMethodDescription *)
+Q_DECLARE_METATYPE(const BinClassFieldDescription *)
 Q_DECLARE_METATYPE(ResourcesDescription)
 Q_DECLARE_METATYPE(VTableDescription)
 Q_DECLARE_METATYPE(TypeDescription)
@@ -454,7 +476,7 @@ public:
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     /* Classes */
-    void setClassMethod(const QString &className, const ClassMethodDescription &meth);
+    void setClassMethod(const QString &className, const BinClassMethodDescription &meth);
     void renameClassMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName);
 
     /* File related methods */
@@ -618,7 +640,6 @@ public:
     QList<EntrypointDescription> getAllEntrypoint();
     QList<BinClassDescription> getAllClassesFromBin();
     QList<BinClassDescription> getAllClassesFromFlags();
-    QList<QString> getAllClassesFromAnal();
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
     QList<TypeDescription> getAllTypes();
@@ -630,6 +651,11 @@ public:
     QList<RegisterRefDescription> getRegisterRefs();
     QJsonObject getRegisterJson();
     QList<VariableDescription> getVariables(RVA at);
+
+    QList<QString> getAllAnalClasses();
+    QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
+    QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
+    QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);
