@@ -538,23 +538,6 @@ void CutterCore::setCurrentBits(int bits, RVA offset)
     emit instructionChanged(offset);
 }
 
-void CutterCore::setClassMethod(const QString &className, const BinClassMethodDescription &meth)
-{
-    RAnalMethod analMeth;
-    analMeth.name = strdup (meth.name.toUtf8().constData());
-    analMeth.addr = meth.addr;
-    analMeth.vtable_offset = meth.vtableOffset;
-    r_anal_class_method_set(core_->anal, className.toUtf8().constData(), &analMeth);
-    r_anal_class_method_fini(&analMeth);
-    emit classesChanged();
-}
-
-void CutterCore::renameClassMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName)
-{
-    r_anal_class_method_rename(core_->anal, className.toUtf8().constData(), oldMethodName.toUtf8().constData(), newMethodName.toUtf8().constData());
-    emit classesChanged();
-}
-
 void CutterCore::seek(ut64 offset)
 {
     // Slower than using the API, but the API is not complete
@@ -2065,6 +2048,36 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
     r_vector_free(vtables);
 
     return ret;
+}
+
+bool CutterCore::getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc)
+{
+    RAnalMethod analMeth;
+    if (r_anal_class_method_get(core_->anal, cls.toUtf8().constData(), meth.toUtf8().constData(), &analMeth) != R_ANAL_CLASS_ERR_SUCCESS) {
+        return false;
+    }
+    desc->name = QString::fromUtf8(analMeth.name);
+    desc->addr = analMeth.addr;
+    desc->vtableOffset = analMeth.vtable_offset;
+    r_anal_class_method_fini(&analMeth);
+    return true;
+}
+
+void CutterCore::setAnalMethod(const QString &className, const AnalMethodDescription &meth)
+{
+    RAnalMethod analMeth;
+    analMeth.name = strdup (meth.name.toUtf8().constData());
+    analMeth.addr = meth.addr;
+    analMeth.vtable_offset = meth.vtableOffset;
+    r_anal_class_method_set(core_->anal, className.toUtf8().constData(), &analMeth);
+    r_anal_class_method_fini(&analMeth);
+    emit classesChanged();
+}
+
+void CutterCore::renameAnalMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName)
+{
+    r_anal_class_method_rename(core_->anal, className.toUtf8().constData(), oldMethodName.toUtf8().constData(), newMethodName.toUtf8().constData());
+    emit classesChanged();
 }
 
 QList<ResourcesDescription> CutterCore::getAllResources()

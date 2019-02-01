@@ -480,8 +480,13 @@ public:
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     /* Classes */
-    void setClassMethod(const QString &className, const BinClassMethodDescription &meth);
-    void renameClassMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName);
+    QList<QString> getAllAnalClasses();
+    QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
+    QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
+    QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
+    bool getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc);
+    void renameAnalMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName);
+    void setAnalMethod(const QString &cls, const AnalMethodDescription &meth);
 
     /* File related methods */
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_PERM_R,
@@ -685,11 +690,6 @@ public:
     QList<RegisterRefDescription> getRegisterRefs();
     QJsonObject getRegisterJson();
     QList<VariableDescription> getVariables(RVA at);
-
-    QList<QString> getAllAnalClasses();
-    QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
-    QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
-    QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
                                     const QString &filterType = QString::null);

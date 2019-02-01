@@ -321,6 +321,8 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
             }
         case TypeRole:
             return QVariant::fromValue(RowType::Class);
+        case NameRole:
+            return cls;
         default:
             return QVariant();
         }
@@ -596,10 +598,7 @@ void ClassesWidget::on_addMethodAction_triggered()
         className = index.parent().data(ClassesModel::NameRole).toString();
     }
 
-    BinClassMethodDescription meth;
-    meth.addr = Core()->getOffset();
-
-    EditMethodDialog::newMethod(className, meth);
+    EditMethodDialog::newMethod(className, QString(), this);
 }
 
 void ClassesWidget::on_editMethodAction_triggered()
@@ -608,8 +607,7 @@ void ClassesWidget::on_editMethodAction_triggered()
     if (!index.isValid() || index.data(ClassesModel::TypeRole).toInt() != static_cast<int>(ClassesModel::RowType::Method)) {
         return;
     }
-
     QString className = index.parent().data(ClassesModel::NameRole).toString();
-    BinClassMethodDescription meth = index.data(ClassesModel::DataRole).value<BinClassMethodDescription>();
-    EditMethodDialog::editMethod(className, meth);
+    QString methName = index.data(ClassesModel::NameRole).toString();
+    EditMethodDialog::editMethod(className, methName, this);
 }
