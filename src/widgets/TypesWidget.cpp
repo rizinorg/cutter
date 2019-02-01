@@ -32,7 +32,7 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
         case TYPE:
             return exp.type;
         case SIZE:
-            return exp.category == "Primitive" ? exp.size : QVariant();
+            return exp.category == tr("Primitive") ? exp.size : QVariant();
         case FORMAT:
             return exp.format;
         case CATEGORY:
@@ -81,8 +81,7 @@ bool TypesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &par
     TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
     if (selectedCategory.isEmpty()) {
         return exp.type.contains(filterRegExp());
-    }
-    else {
+    } else {
         return selectedCategory == exp.category && exp.type.contains(filterRegExp());
     }
 }
