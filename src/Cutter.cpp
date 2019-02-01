@@ -2048,7 +2048,7 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
 {
     QList<AnalVTableDescription> ret;
 
-    RVector *vtables = r_anal_class_base_get_all(core_->anal, cls.toUtf8().constData());
+    RVector *vtables = r_anal_class_vtable_get_all(core_->anal, cls.toUtf8().constData());
     if (!vtables) {
         return ret;
     }
