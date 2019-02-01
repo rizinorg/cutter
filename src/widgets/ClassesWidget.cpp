@@ -463,6 +463,11 @@ bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
     }
 }
 
+bool ClassesSortFilterProxyModel::hasChildren(const QModelIndex &parent) const
+{
+    return !parent.isValid() || !parent.parent().isValid();
+}
+
 
 
 ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
@@ -474,7 +479,7 @@ ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
     ui->classesTreeView->setIconSize(QSize(10, 10));
 
     proxy_model = new ClassesSortFilterProxyModel(this);
-    ui->classesTreeView->setModel(nullptr);
+    ui->classesTreeView->setModel(proxy_model);
     ui->classesTreeView->sortByColumn(ClassesModel::TYPE, Qt::AscendingOrder);
     ui->classesTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -511,8 +516,7 @@ void ClassesWidget::refreshClasses()
             delete anal_model;
             anal_model = nullptr;
             bin_model = new BinClassesModel(this);
-            ui->classesTreeView->setModel(bin_model);
-            //proxy_model->setSourceModel(bin_model);
+            proxy_model->setSourceModel(bin_model);
         }
         bin_model->setClasses(Core()->getAllClassesFromBin());
         break;
@@ -522,8 +526,7 @@ void ClassesWidget::refreshClasses()
             delete bin_model;
             bin_model = nullptr;
             anal_model = new AnalClassesModel(this);
-            ui->classesTreeView->setModel(anal_model);
-            //proxy_model->setSourceModel(anal_model);
+            proxy_model->setSourceModel(anal_model);
         }
         anal_model->refreshClasses();
         break;
