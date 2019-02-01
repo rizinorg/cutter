@@ -9,9 +9,9 @@ EditMethodDialog::EditMethodDialog(QWidget *parent) :
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
     ui->classComboBox->clear();
-    /* TODO for (auto &cls : Core()->getAllClassesFromAnal()) {
-        ui->classComboBox->addItem(cls.name, QVariant::fromValue<BinClassDescription>(cls));
-    }*/
+    for (auto &cls : Core()->getAllAnalClasses()) {
+        ui->classComboBox->addItem(cls, cls);
+    }
 
     updateVirtualUI();
     validateInput();
@@ -64,8 +64,8 @@ void EditMethodDialog::setClass(const QString &className)
     }
 
     for (int i=0; i<ui->classComboBox->count(); i++) {
-        BinClassDescription cls = ui->classComboBox->itemData(i).value<BinClassDescription>();
-        if (cls.name == className) {
+        QString cls = ui->classComboBox->itemData(i).toString();
+        if (cls == className) {
             ui->classComboBox->setCurrentIndex(i);
             break;
         }
@@ -74,14 +74,14 @@ void EditMethodDialog::setClass(const QString &className)
     validateInput();
 }
 
-void EditMethodDialog::setMethod(const BinClassMethodDescription &meth)
+void EditMethodDialog::setMethod(const AnalMethodDescription &desc)
 {
-    ui->nameEdit->setText(meth.name);
-    ui->addressEdit->setText(meth.addr != RVA_INVALID ? RAddressString(meth.addr) : nullptr);
+    ui->nameEdit->setText(desc.name);
+    ui->addressEdit->setText(desc.addr != RVA_INVALID ? RAddressString(desc.addr) : nullptr);
 
-    if (meth.vtableOffset >= 0) {
+    if (desc.vtableOffset >= 0) {
         ui->virtualCheckBox->setChecked(true);
-        ui->vtableOffsetEdit->setText(QString::number(meth.vtableOffset));
+        ui->vtableOffsetEdit->setText(QString::number(desc.vtableOffset));
     } else {
         ui->virtualCheckBox->setChecked(false);
         ui->vtableOffsetEdit->setText(nullptr);
@@ -100,9 +100,9 @@ QString EditMethodDialog::getClass()
     return ui->classComboBox->itemData(index).value<BinClassDescription>().name;
 }
 
-BinClassMethodDescription EditMethodDialog::getMethod()
+AnalMethodDescription EditMethodDialog::getMethod()
 {
-    BinClassMethodDescription ret;
+    AnalMethodDescription ret;
     ret.name = ui->nameEdit->text();
     ret.addr = Core()->num(ui->addressEdit->text());
     if (ui->virtualCheckBox->isChecked()) {
@@ -113,33 +113,45 @@ BinClassMethodDescription EditMethodDialog::getMethod()
     return ret;
 }
 
-bool EditMethodDialog::showDialog(const QString &title, const QString &className, BinClassMethodDescription *meth, QWidget *parent)
+bool EditMethodDialog::showDialog(const QString &title, QString *className, AnalMethodDescription *desc, QWidget *parent)
 {
     auto dialog = new EditMethodDialog(parent);
     dialog->setWindowTitle(title);
-    dialog->setClass(className);
-    dialog->setMethod(*meth);
+    dialog->setClass(*className);
+    dialog->setMethod(*desc);
     int result = dialog->exec();
-    *meth = dialog->getMethod();
+    *className = dialog->getClass();
+    *desc = dialog->getMethod();
     return result == QDialog::DialogCode::Accepted;
 }
 
-void EditMethodDialog::newMethod(const QString &className, BinClassMethodDescription meth)
+void EditMethodDialog::newMethod(QString className, const QString &meth, QWidget *parent)
 {
-    if (!showDialog(tr("Create Method"), className, &meth)) {
+    AnalMethodDescription desc;
+    desc.name = meth;
+    desc.vtableOffset = -1;
+    desc.addr = Core()->getOffset();
+
+    if (!showDialog(tr("Create Method"), &className, &desc, parent)) {
         return;
     }
-    Core()->setClassMethod(className, meth);
+
+    Core()->setAnalMethod(className, desc);
 }
 
-void EditMethodDialog::editMethod(const QString &className, BinClassMethodDescription meth)
+void EditMethodDialog::editMethod(const QString &className, const QString &meth, QWidget *parent)
 {
-    QString oldName = meth.name;
-    if (!showDialog(tr("Edit Method"), className, &meth)) {
+    AnalMethodDescription desc;
+    if (!Core()->getAnalMethod(className, meth, &desc)) {
         return;
     }
-    if (meth.name != oldName) {
-        Core()->renameClassMethod(className, oldName, meth.name);
+
+    QString classNameCopy = className;
+    if (!showDialog(tr("Edit Method"), &classNameCopy, &desc, parent)) {
+        return;
     }
-    Core()->setClassMethod(className, meth);
+    if (desc.name != meth) {
+        Core()->renameAnalMethod(className, meth, desc.name);
+    }
+    Core()->setAnalMethod(className, desc);
 }
