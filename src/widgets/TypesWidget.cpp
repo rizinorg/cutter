@@ -32,7 +32,7 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
         case TYPE:
             return exp.type;
         case SIZE:
-            return exp.category == "primitive" ? exp.size : QVariant();
+            return exp.category == "Primitive" ? exp.size : QVariant();
         case FORMAT:
             return exp.format;
         case CATEGORY:
@@ -79,10 +79,12 @@ bool TypesSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &par
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    if(selectedCategory.isEmpty())
+    if (selectedCategory.isEmpty()) {
         return exp.type.contains(filterRegExp());
-    else
+    }
+    else {
         return selectedCategory == exp.category && exp.type.contains(filterRegExp());
+    }
 }
 
 bool TypesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -176,7 +178,7 @@ void TypesWidget::refreshCategoryCombo(const QStringList &categories)
     QComboBox *combo = ui->quickFilterView->comboBox();
 
     combo->clear();
-    combo->addItem(tr("(all)"));
+    combo->addItem(tr("(All)"));
 
     for (const QString &category : categories) {
         combo->addItem(category, category);

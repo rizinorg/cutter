@@ -75,7 +75,6 @@ public:
 
 private slots:
     void refreshTypes();
-    void refreshCategoryCombo(const QStringList &);
 
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
@@ -86,6 +85,12 @@ private:
     CutterTreeWidget *tree;
 
     void setScrollMode();
+
+    /*!
+     * \brief Sets the contents of the ComboBox to the supplied contents
+     * \param categories The list of categories which has to be added to the ComboBox
+     */
+    void refreshCategoryCombo(const QStringList &categories);
 };
 
 

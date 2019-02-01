@@ -2005,6 +2005,19 @@ QList<VTableDescription> CutterCore::getAllVTables()
 
 QList<TypeDescription> CutterCore::getAllTypes()
 {
+    QList<TypeDescription> ret;
+
+    ret.append(getAllPrimitiveTypes());
+    ret.append(getAllUnions());
+    ret.append(getAllStructs());
+    ret.append(getAllEnums());
+    ret.append(getAllTypedefs());
+
+    return ret;
+}
+
+QList<TypeDescription> CutterCore::getAllPrimitiveTypes()
+{
     CORE_LOCK();
     QList<TypeDescription> ret;
 
@@ -2017,43 +2030,75 @@ QList<TypeDescription> CutterCore::getAllTypes()
         exp.type = typeObject[RJsonKey::type].toString();
         exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
         exp.format = typeObject[RJsonKey::format].toString();
-        exp.category = tr("primitive");
+        exp.category = tr("Primitive");
         ret << exp;
     }
 
-    typesArray = cmdj("tuj").array();
+    return ret;
+}
+
+QList<TypeDescription> CutterCore::getAllUnions()
+{
+    CORE_LOCK();
+    QList<TypeDescription> ret;
+
+    QJsonArray typesArray = cmdj("tuj").array();
     for (auto value: typesArray) {
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
-        exp.category = tr("union");
+        exp.category = tr("Union");
         ret << exp;
     }
 
-    typesArray = cmdj("tsj").array();
+    return ret;
+}
+
+QList<TypeDescription> CutterCore::getAllStructs()
+{
+    CORE_LOCK();
+    QList<TypeDescription> ret;
+
+    QJsonArray typesArray = cmdj("tsj").array();
     for (auto value: typesArray) {
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
-        exp.category = tr("struct");
+        exp.category = tr("Struct");
         ret << exp;
     }
+
+    return ret;
+}
+
+QList<TypeDescription> CutterCore::getAllEnums()
+{
+    CORE_LOCK();
+    QList<TypeDescription> ret;
 
     QJsonObject typesObject = cmdj("tej").object();
     for (QString key: typesObject.keys()) {
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
-        exp.category = tr("enum");
+        exp.category = tr("Enum");
         ret << exp;
     }
 
-    typesObject = cmdj("ttj").object();
+    return ret;
+}
+
+QList<TypeDescription> CutterCore::getAllTypedefs()
+{
+    CORE_LOCK();
+    QList<TypeDescription> ret;
+
+    QJsonObject typesObject = cmdj("ttj").object();
     for (QString key: typesObject.keys()) {
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
-        exp.category = tr("typedef");
+        exp.category = tr("Typedef");
         ret << exp;
     }
 
