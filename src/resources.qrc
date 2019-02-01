@@ -82,6 +82,8 @@
         <file>img/icons/copy.svg</file>
         <file>img/icons/delete.svg</file>
         <file>img/icons/previous.svg</file>
+        <file>img/icons/list.svg</file>
+        <file>img/icons/fork.svg</file>
         <file>python/cutter.py</file>
         <file>python/reg_qtres_importer.py</file>
     </qresource>

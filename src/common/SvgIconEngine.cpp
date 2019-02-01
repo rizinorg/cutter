@@ -14,19 +14,14 @@ SvgIconEngine::SvgIconEngine(const QString &filename)
     this->svgData = file.readAll();
 }
 
-SvgIconEngine::SvgIconEngine(const QByteArray &svgData)
-{
-    this->svgData = svgData;
-}
-
-SvgIconEngine::SvgIconEngine(const QString &filename, QColor tintColor) : SvgIconEngine(filename)
+SvgIconEngine::SvgIconEngine(const QString &filename, const QColor &tintColor) : SvgIconEngine(filename)
 {
     this->svgData = qhelpers::applyColorToSvg(svgData, tintColor);
 }
 
-SvgIconEngine::SvgIconEngine(const QByteArray &svgData, QColor tintColor)
+SvgIconEngine::SvgIconEngine(const QString &filename, QPalette::ColorRole colorRole)
+    : SvgIconEngine(filename, QPalette().color(colorRole))
 {
-    this->svgData = qhelpers::applyColorToSvg(svgData, tintColor);
 }
 
 void SvgIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode /*mode*/,
@@ -48,7 +43,7 @@ QPixmap SvgIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State 
     QPixmap pix = QPixmap::fromImage(img, Qt::NoFormatConversion);
     {
         QPainter painter(&pix);
-        QRect r(QPoint(0.0, 0.0), size);
+        QRect r(QPoint(0, 0), size);
         this->paint(&painter, r, mode, state);
     }
     return pix;

@@ -343,6 +343,11 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 default:
                     return QVariant();
                 }
+            case Qt::DecorationRole:
+                if (index.column() == NAME) {
+                    return QIcon(new SvgIconEngine(QString(":/img/icons/home.svg"), QPalette::WindowText));
+                }
+                return QVariant();
             case NameRole:
                 return base.className;
             case TypeRole:
@@ -368,6 +373,11 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 default:
                     return QVariant();
                 }
+            case Qt::DecorationRole:
+                if (index.column() == NAME) {
+                    return QIcon(new SvgIconEngine(QString(":/img/icons/fork.svg"), QPalette::WindowText));
+                }
+                return QVariant();
             case OffsetRole:
                 return QVariant::fromValue(meth.addr);
             case VTableOffsetRole:
@@ -395,6 +405,11 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 default:
                     return QVariant();
                 }
+            case Qt::DecorationRole:
+                if (index.column() == NAME) {
+                    return QIcon(new SvgIconEngine(QString(":/img/icons/list.svg"), QPalette::WindowText));
+                }
+                return QVariant();
             case OffsetRole:
                 return QVariant::fromValue(vtable.addr);
             case TypeRole:
