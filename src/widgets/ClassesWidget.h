@@ -22,7 +22,7 @@ class ClassesModel: public QAbstractItemModel
 {
 public:
     enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
-    enum RowType { CLASS = 0, METHOD = 1, FIELD = 2, BASE = 3 };
+    enum class RowType { Class = 0, Method = 1, Field = 2, Base = 3, VTable = 4 };
 
     static const int OffsetRole = Qt::UserRole;
     static const int NameRole = Qt::UserRole + 1;
@@ -64,7 +64,20 @@ class AnalClassesModel: public ClassesModel
 Q_OBJECT
 
 private:
+    struct Attribute
+    {
+        enum class Type { VTable, Base, Method };
+        Type type;
+        QVariant data;
+
+        Attribute() = default;
+        Attribute(Type type, const QVariant &data) : type(type), data(data) {}
+    };
+
     QList<QString> classes;
+    std::unique_ptr<QMap<QString, QVector<Attribute>>> attrs;
+
+    const QVector<Attribute> &getAttrs(const QString &cls) const;
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 
