@@ -2014,6 +2014,7 @@ QList<AnalMethodDescription> CutterCore::getAnalClassMethods(const QString &cls)
         desc.name = QString::fromUtf8(meth->name);
         desc.addr = meth->addr;
         desc.vtableOffset = meth->vtable_offset;
+        ret.append(desc);
     }
     r_vector_free(meths);
 
@@ -2036,6 +2037,7 @@ QList<AnalBaseClassDescription> CutterCore::getAnalClassBaseClasses(const QStrin
         desc.id = QString::fromUtf8(base->id);
         desc.offset = base->offset;
         desc.className = QString::fromUtf8(base->class_name);
+        ret.append(desc);
     }
     r_vector_free(bases);
 
@@ -2058,6 +2060,7 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
         desc.id = QString::fromUtf8(vtable->id);
         desc.offset = vtable->offset;
         desc.addr = vtable->addr;
+        ret.append(desc);
     }
     r_vector_free(vtables);
 
