@@ -5,6 +5,7 @@
 
 #include "Cutter.h"
 #include "CutterDockWidget.h"
+#include "CutterTreeWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -32,7 +33,7 @@ private:
     QList<TypeDescription> *types;
 
 public:
-    enum Columns { TYPE = 0, SIZE, FORMAT, COUNT };
+    enum Columns { TYPE = 0, SIZE, FORMAT, CATEGORY, COUNT };
     static const int TypeDescriptionRole = Qt::UserRole;
 
     TypesModel(QList<TypeDescription> *types, QObject *parent = nullptr);
@@ -50,12 +51,16 @@ class TypesSortFilterProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
+    friend TypesWidget;
+
 public:
     TypesSortFilterProxyModel(TypesModel *source_model, QObject *parent = nullptr);
 
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+
+    QString selectedCategory;
 };
 
 
@@ -77,8 +82,15 @@ private:
     TypesModel *types_model;
     TypesSortFilterProxyModel *types_proxy_model;
     QList<TypeDescription> types;
+    CutterTreeWidget *tree;
 
     void setScrollMode();
+
+    /*!
+     * \brief Sets the contents of the ComboBox to the supplied contents
+     * \param categories The list of categories which has to be added to the ComboBox
+     */
+    void refreshCategoryCombo(const QStringList &categories);
 };
 
 

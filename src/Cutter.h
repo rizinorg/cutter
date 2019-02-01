@@ -133,6 +133,7 @@ struct TypeDescription {
     QString type;
     int size;
     QString format;
+    QString category;
 };
 
 struct SearchDescription {
@@ -606,7 +607,37 @@ public:
     QList<ClassDescription> getAllClassesFromFlags();
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
+
+    /*!
+     * \return all loaded types
+     */
     QList<TypeDescription> getAllTypes();
+
+    /*!
+     * \return all loaded primitive types
+     */
+    QList<TypeDescription> getAllPrimitiveTypes();
+
+    /*!
+     * \return all loaded unions
+     */
+    QList<TypeDescription> getAllUnions();
+
+    /*!
+     * \return all loaded structs
+     */
+    QList<TypeDescription> getAllStructs();
+
+    /*!
+     * \return all loaded enums
+     */
+    QList<TypeDescription> getAllEnums();
+
+    /*!
+     * \return all loaded typedefs
+     */
+    QList<TypeDescription> getAllTypedefs();
+
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
     BlockStatistics getBlockStatistics(unsigned int blocksCount);
