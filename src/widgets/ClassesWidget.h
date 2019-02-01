@@ -22,7 +22,7 @@ class ClassesModel: public QAbstractItemModel
 {
 public:
     enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
-    enum class RowType { Class = 0, Method = 1, Field = 2, Base = 3, VTable = 4 };
+    enum class RowType { Class = 0, Base, VTable, Method, Field };
 
     static const int OffsetRole = Qt::UserRole;
     static const int NameRole = Qt::UserRole + 1;
@@ -106,6 +106,7 @@ public:
 protected:
     bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+    bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
 };
 
 
