@@ -471,6 +471,8 @@ ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    ui->classesTreeView->setIconSize(QSize(10, 10));
+
     proxy_model = new ClassesSortFilterProxyModel(this);
     ui->classesTreeView->setModel(nullptr);
     ui->classesTreeView->sortByColumn(ClassesModel::TYPE, Qt::AscendingOrder);
@@ -537,7 +539,11 @@ void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    RVA offset = index.data(ClassesModel::OffsetRole).value<RVA>();
+    QVariant offsetData = index.data(ClassesModel::OffsetRole);
+    if(!offsetData.isValid()) {
+        return;
+    }
+    RVA offset = offsetData.value<RVA>();
     Core()->seek(offset);
 }
 
