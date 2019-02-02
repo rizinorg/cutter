@@ -224,6 +224,7 @@ AnalClassesModel::AnalClassesModel(QObject *parent)
 void AnalClassesModel::refreshClasses()
 {
     beginResetModel();
+    attrs->clear();
     classes = Core()->getAllAnalClasses();
     endResetModel();
 }
