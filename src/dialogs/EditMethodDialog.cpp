@@ -59,6 +59,7 @@ bool EditMethodDialog::inputValid()
     if (ui->nameEdit->text().isEmpty()) {
         return false;
     }
+    // TODO: do more checks here, for example for name clashes
     return true;
 }
 
@@ -128,9 +129,9 @@ AnalMethodDescription EditMethodDialog::getMethod()
     return ret;
 }
 
-bool EditMethodDialog::showDialog(const QString &title, QString *className, AnalMethodDescription *desc, QWidget *parent)
+bool EditMethodDialog::showDialog(const QString &title, bool classFixed, QString *className, AnalMethodDescription *desc, QWidget *parent)
 {
-    auto dialog = new EditMethodDialog(parent);
+    auto dialog = new EditMethodDialog(classFixed, parent);
     dialog->setWindowTitle(title);
     dialog->setClass(*className);
     dialog->setMethod(*desc);
@@ -147,7 +148,7 @@ void EditMethodDialog::newMethod(QString className, const QString &meth, QWidget
     desc.vtableOffset = -1;
     desc.addr = Core()->getOffset();
 
-    if (!showDialog(tr("Create Method"), &className, &desc, parent)) {
+    if (!showDialog(tr("Create Method"), false, &className, &desc, parent)) {
         return;
     }
 
@@ -162,7 +163,7 @@ void EditMethodDialog::editMethod(const QString &className, const QString &meth,
     }
 
     QString classNameCopy = className;
-    if (!showDialog(tr("Edit Method"), &classNameCopy, &desc, parent)) {
+    if (!showDialog(tr("Edit Method"), false, &classNameCopy, &desc, parent)) {
         return;
     }
     if (desc.name != meth) {

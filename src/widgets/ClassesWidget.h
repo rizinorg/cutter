@@ -18,17 +18,40 @@ class QTreeWidgetItem;
 class MainWindow;
 class ClassesWidget;
 
+/*!
+ * \brief Common abstract base class for Bin and Anal classes models
+ */
 class ClassesModel: public QAbstractItemModel
 {
 public:
     enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
+
+    /*!
+     * \brief values for TypeRole data
+     */
     enum class RowType { Class = 0, Base, VTable, Method, Field };
 
+    /*!
+     * \brief Offset role of data for QModelIndex
+     *
+     * will contain values of type RVA
+     */
     static const int OffsetRole = Qt::UserRole;
+
+    /*!
+     * \brief Name role of data for QModelIndex
+     *
+     * will contain values of QString, used for sorting,
+     * as well as identifying classes and methods
+     */
     static const int NameRole = Qt::UserRole + 1;
+
+    /*!
+     * \brief Type role of data for QModelIndex
+     *
+     * will contain values of RowType
+     */
     static const int TypeRole = Qt::UserRole + 2;
-    static const int VTableOffsetRole = Qt::UserRole + 3;
-    static const int DataRole = Qt::UserRole + 4;
 
     explicit ClassesModel(QObject *parent = nullptr) : QAbstractItemModel(parent) {}
 
@@ -64,6 +87,13 @@ class AnalClassesModel: public ClassesModel
 Q_OBJECT
 
 private:
+    /*!
+     * \brief List entry below a class
+     *
+     * This roughly corresponds to attributes of r2 anal classes, which means it is not an attribute in the sense of
+     * a class member variable, but any kind of sub-info associated with the class.
+     * This struct in particular is used to provide a model for the list entries below a class.
+     */
     struct Attribute
     {
         enum class Type { VTable, Base, Method };
@@ -75,6 +105,17 @@ private:
     };
 
     QList<QString> classes;
+
+    /*!
+     * \brief Cache for class attributes
+     *
+     * Maps class names to a list of Attributes.
+     * This is filled only when the attributes of a specific class are requested.
+     * (i.e. the user expands the class in the QTreeView)
+     *
+     * This must be a pointer instead of just a QMap, because it has to be modified
+     * in methods that are defined as const by QAbstractItemModel.
+     */
     std::unique_ptr<QMap<QString, QVector<Attribute>>> attrs;
 
     const QVector<Attribute> &getAttrs(const QString &cls) const;

@@ -132,14 +132,10 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             }
         case OffsetRole:
             return QVariant::fromValue(meth->addr);
-        case VTableOffsetRole:
-            return QVariant::fromValue(index.parent().data(VTableOffsetRole).toULongLong() + meth->vtableOffset);
         case NameRole:
             return meth->name;
         case TypeRole:
             return QVariant::fromValue(RowType::Method);
-        case DataRole:
-            return QVariant::fromValue(*meth);
         default:
             return QVariant();
         }
@@ -203,8 +199,6 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
             }
         case OffsetRole:
             return QVariant::fromValue(cls->addr);
-        case VTableOffsetRole:
-            return QVariant::fromValue(cls->vtableAddr);
         case NameRole:
             return cls->name;
         case TypeRole:
@@ -383,8 +377,6 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                 return QVariant();
             case OffsetRole:
                 return QVariant::fromValue(meth.addr);
-            case VTableOffsetRole:
-                return QVariant::fromValue(index.parent().data(VTableOffsetRole).toULongLong() + meth.vtableOffset);
             case NameRole:
                 return meth.name;
             case TypeRole:
@@ -555,6 +547,11 @@ void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
 
 void ClassesWidget::showContextMenu(const QPoint &pt)
 {
+    if(!anal_model) {
+        // no context menu for bin classes
+        return;
+    }
+
     QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
     if (!index.isValid()) {
         return;
@@ -562,15 +559,19 @@ void ClassesWidget::showContextMenu(const QPoint &pt)
 
     QMenu menu(ui->classesTreeView);
 
-    QVariant vtableOffsetVariant = index.data(ClassesModel::VTableOffsetRole);
-    if (vtableOffsetVariant.isValid() && vtableOffsetVariant.toULongLong() != RVA_INVALID) {
-        menu.addAction(ui->seekToVTableAction);
-    }
-
     menu.addAction(ui->addMethodAction);
 
     if (index.data(ClassesModel::TypeRole).toInt() == static_cast<int>(ClassesModel::RowType::Method)) {
         menu.addAction(ui->editMethodAction);
+
+        QString className = index.parent().data(ClassesModel::NameRole).toString();
+        QString methodName = index.data(ClassesModel::NameRole).toString();
+        AnalMethodDescription desc;
+        if (Core()->getAnalMethod(className, methodName, &desc)) {
+            if (desc.vtableOffset >= 0) {
+                menu.addAction(ui->seekToVTableAction);
+            }
+        }
     }
 
     menu.exec(ui->classesTreeView->mapToGlobal(pt));
@@ -578,11 +579,22 @@ void ClassesWidget::showContextMenu(const QPoint &pt)
 
 void ClassesWidget::on_seekToVTableAction_triggered()
 {
-    RVA vtableOffset = ui->classesTreeView->selectionModel()->currentIndex()
-        .data(ClassesModel::VTableOffsetRole).value<RVA>();
-    if (vtableOffset != RVA_INVALID) {
-        Core()->seek(vtableOffset);
+    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    QString className = index.parent().data(ClassesModel::NameRole).toString();
+
+    QList<AnalVTableDescription> vtables = Core()->getAnalClassVTables(className);
+    if (vtables.isEmpty()) {
+        QMessageBox::warning(this, tr("Missing VTable in class"), tr("The class %1 does not have any VTable!").arg(className));
+        return;
     }
+
+    QString methodName = index.data(ClassesModel::NameRole).toString();
+    AnalMethodDescription desc;
+    if (!Core()->getAnalMethod(className, methodName, &desc) || desc.vtableOffset < 0) {
+        return;
+    }
+
+    Core()->seek(vtables[0].addr + desc.vtableOffset);
 }
 
 void ClassesWidget::on_addMethodAction_triggered()
