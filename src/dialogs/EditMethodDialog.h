@@ -2,6 +2,8 @@
 #define EDITMETHODDIALOG_H
 
 #include <QDialog>
+#include <QComboBox>
+
 #include <memory>
 
 #include "Cutter.h"
@@ -15,7 +17,7 @@ class EditMethodDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditMethodDialog(QWidget *parent = nullptr);
+    explicit EditMethodDialog(bool classFixed, QWidget *parent = nullptr);
     ~EditMethodDialog();
 
     void setClass(const QString &className);
@@ -37,6 +39,10 @@ private slots:
 
 private:
     std::unique_ptr<Ui::EditMethodDialog> ui;
+
+    QComboBox *classComboBox = nullptr;
+    QLabel *classLabel = nullptr;
+    QString fixedClass;
 
     bool inputValid();
 };

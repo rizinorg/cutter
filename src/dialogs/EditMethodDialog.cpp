@@ -1,16 +1,22 @@
 #include "EditMethodDialog.h"
 #include "ui_EditMethodDialog.h"
 
-EditMethodDialog::EditMethodDialog(QWidget *parent) :
+EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EditMethodDialog)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    ui->classComboBox->clear();
-    for (auto &cls : Core()->getAllAnalClasses()) {
-        ui->classComboBox->addItem(cls, cls);
+    if (classFixed) {
+        classLabel = new QLabel(this);
+        ui->formLayout->setItem(0, QFormLayout::FieldRole, new QWidgetItem(classLabel));
+    } else {
+        classComboBox = new QComboBox(this);
+        ui->formLayout->setItem(0, QFormLayout::FieldRole, new QWidgetItem(classComboBox));
+        for (auto &cls : Core()->getAllAnalClasses()) {
+            classComboBox->addItem(cls, cls);
+        }
     }
 
     updateVirtualUI();
@@ -58,17 +64,22 @@ bool EditMethodDialog::inputValid()
 
 void EditMethodDialog::setClass(const QString &className)
 {
-    if (className.isEmpty()) {
-        ui->classComboBox->setCurrentIndex(0);
-        return;
-    }
-
-    for (int i=0; i<ui->classComboBox->count(); i++) {
-        QString cls = ui->classComboBox->itemData(i).toString();
-        if (cls == className) {
-            ui->classComboBox->setCurrentIndex(i);
-            break;
+    if (classComboBox) {
+        if (className.isEmpty()) {
+            classComboBox->setCurrentIndex(0);
+            return;
         }
+
+        for (int i=0; i<classComboBox->count(); i++) {
+            QString cls = classComboBox->itemData(i).toString();
+            if (cls == className) {
+                classComboBox->setCurrentIndex(i);
+                break;
+            }
+        }
+    } else {
+        classLabel->setText(className);
+        fixedClass = className;
     }
 
     validateInput();
@@ -93,11 +104,15 @@ void EditMethodDialog::setMethod(const AnalMethodDescription &desc)
 
 QString EditMethodDialog::getClass()
 {
-    int index = ui->classComboBox->currentIndex();
-    if (index < 0) {
-        return nullptr;
+    if (classComboBox) {
+        int index = classComboBox->currentIndex();
+        if (index < 0) {
+            return nullptr;
+        }
+        return classComboBox->itemData(index).toString();
+    } else {
+        return fixedClass;
     }
-    return ui->classComboBox->itemData(index).value<BinClassDescription>().name;
 }
 
 AnalMethodDescription EditMethodDialog::getMethod()
@@ -105,7 +120,7 @@ AnalMethodDescription EditMethodDialog::getMethod()
     AnalMethodDescription ret;
     ret.name = ui->nameEdit->text();
     ret.addr = Core()->num(ui->addressEdit->text());
-    if (ui->virtualCheckBox->isChecked()) {
+    if (!ui->virtualCheckBox->isChecked()) {
         ret.vtableOffset = -1;
     } else {
         ret.vtableOffset = Core()->num(ui->vtableOffsetEdit->text());
