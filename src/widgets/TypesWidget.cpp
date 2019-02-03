@@ -3,6 +3,8 @@
 #include "MainWindow.h"
 #include "common/Helpers.h"
 
+#include "dialogs/LoadNewTypesDialog.h"
+
 #include <QMenu>
 #include <QFileDialog>
 
@@ -207,6 +209,7 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
     QMenu *menu = new QMenu(ui->typesTreeView);
 
     menu->clear();
+    menu->addAction(ui->actionLoad_New_Types);
     menu->addAction(ui->actionExport_Types);
 
     menu->exec(ui->typesTreeView->mapToGlobal(pt));
@@ -227,4 +230,11 @@ void TypesWidget::on_actionExport_Types_triggered()
     file.close();
 
     Config()->setRecentFolder(QFileInfo(fileName).absolutePath());
+}
+
+void TypesWidget::on_actionLoad_New_Types_triggered()
+{
+    LoadNewTypesDialog *dialog = new LoadNewTypesDialog(this);
+    dialog->setWindowTitle(tr("Load New Types"));
+    dialog->exec();
 }

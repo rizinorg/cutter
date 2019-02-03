@@ -79,6 +79,14 @@
     <string>Export Types</string>
    </property>
   </action>
+  <action name="actionLoad_New_Types">
+   <property name="text">
+    <string>Load New Types</string>
+   </property>
+   <property name="toolTip">
+    <string>Load New Types</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

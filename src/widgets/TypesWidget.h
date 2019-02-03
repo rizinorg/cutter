@@ -87,6 +87,11 @@ private slots:
      */
     void on_actionExport_Types_triggered();
 
+    /*!
+     * \brief Executed on clicking the Load New types option in the context menu
+     */
+    void on_actionLoad_New_Types_triggered();
+
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
 

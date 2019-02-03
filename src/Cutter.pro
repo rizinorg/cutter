@@ -227,7 +227,8 @@ SOURCES += \
     common/RefreshDeferrer.cpp \
     dialogs/WelcomeDialog.cpp \
     RunScriptTask.cpp \
-    dialogs/EditMethodDialog.cpp
+    dialogs/EditMethodDialog.cpp \
+    dialogs/LoadNewTypesDialog.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -337,7 +338,8 @@ HEADERS  += \
     dialogs/WelcomeDialog.h \
     RunScriptTask.h \
     common/Json.h \
-    dialogs/EditMethodDialog.h
+    dialogs/EditMethodDialog.h \
+    dialogs/LoadNewTypesDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -397,7 +399,8 @@ FORMS    += \
     widgets/ComboQuickFilterView.ui \
     dialogs/HexdumpRangeDialog.ui \
     dialogs/WelcomeDialog.ui \
-    dialogs/EditMethodDialog.ui
+    dialogs/EditMethodDialog.ui \
+    dialogs/LoadNewTypesDialog.ui
 
 RESOURCES += \
     resources.qrc \
