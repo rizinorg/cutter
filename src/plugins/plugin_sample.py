@@ -3,7 +3,7 @@ from cutter_plugin import CutterPlugin
 from PySide2 import QtWidgets
 from PySide2.QtCore import QObject, SIGNAL, Qt
 from PySide2.QtGui import QFont
-
+import CutterBindings
 
 class CutterSamplePlugin(CutterPlugin):
     name = "SamplePlugin"
@@ -36,14 +36,13 @@ class CutterSamplePlugin(CutterPlugin):
         layout.addWidget(button)
         layout.setAlignment(button, Qt.AlignHCenter)
 
-        # TODO How to access CutterCore::seekChanged?
-        # QObject.connect(cutter.core() ?, cutter.???)
-        QObject.connect(button, SIGNAL("clicked()"), self.on_button_clicked)
+        QObject.connect(CutterBindings.CutterCore.getInstance(), SIGNAL("seekChanged(RVA)"), self.generate_fortune)
+        QObject.connect(button, SIGNAL("clicked()"), self.generate_fortune)
 
         return self.makeCppPointer(dock_widget)
 
 
-    def on_button_clicked(self):
+    def generate_fortune(self):
         res = cutter.cmd("?E `fo`")
         self.text.setText(res)
 
