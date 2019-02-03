@@ -19,7 +19,7 @@ LoadNewTypesDialog::~LoadNewTypesDialog() {}
 
 void LoadNewTypesDialog::on_selectFileButton_clicked()
 {
-    QString filename = QFileDialog::getOpenFileName(this, "Select file", Config()->getRecentFolder(), "*.h");
+    QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), Config()->getRecentFolder(), "*.h");
     ui->filenameLineEdit->setText(filename);
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -37,7 +37,6 @@ void LoadNewTypesDialog::on_buttonBox_accepted()
         qWarning() << "Unable to open file";
         return;
     }
-    file.setAutoRemove(false);
     QTextStream fileOut(&file);
     fileOut << ui->plainTextEdit->toPlainText();
     file.close();
