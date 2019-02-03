@@ -43,6 +43,8 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 };
 
 
@@ -91,6 +93,11 @@ private slots:
      * \brief Executed on clicking the Load New types option in the context menu
      */
     void on_actionLoad_New_Types_triggered();
+
+    /*!
+     * \brief Executed on clicking the Delete Type option in the context menu
+     */
+    void on_actionDelete_Type_triggered();
 
 private:
     std::unique_ptr<Ui::TypesWidget> ui;

@@ -87,6 +87,14 @@
     <string>Load New Types</string>
    </property>
   </action>
+  <action name="actionDelete_Type">
+   <property name="text">
+    <string>Delete Type</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete Type</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

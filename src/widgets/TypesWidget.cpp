@@ -73,6 +73,17 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
+bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    Core()->cmd("t-" + types->at(row).type);
+    beginRemoveRows(parent, row, row + count - 1);
+    while (count--) {
+        types->removeAt(row);
+    }
+    endRemoveRows();
+    return true;
+}
+
 
 TypesSortFilterProxyModel::TypesSortFilterProxyModel(TypesModel *source_model, QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -124,6 +135,9 @@ TypesWidget::TypesWidget(MainWindow *main, QAction *action) :
 
     // Add status bar which displays the count
     tree->addStatusBar(ui->verticalLayout);
+
+    // Set single select mode
+    ui->typesTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
 
     // Setup up the model and the proxy model
     types_model = new TypesModel(&types, this);
@@ -182,7 +196,7 @@ void TypesWidget::refreshTypes()
     categories.removeDuplicates();
     refreshCategoryCombo(categories);
 
-    qhelpers::adjustColumns(ui->typesTreeView, 3, 0);
+    qhelpers::adjustColumns(ui->typesTreeView, 4, 0);
 }
 
 void TypesWidget::refreshCategoryCombo(const QStringList &categories)
@@ -212,6 +226,15 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
     menu->addAction(ui->actionLoad_New_Types);
     menu->addAction(ui->actionExport_Types);
 
+    QModelIndex index = ui->typesTreeView->indexAt(pt);
+    if (index.isValid()) {
+        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        if (t.category != tr("Typedef")) {
+            menu->addSeparator();
+            menu->addAction(ui->actionDelete_Type);
+        }
+    }
+
     menu->exec(ui->typesTreeView->mapToGlobal(pt));
 
     delete menu;
@@ -237,4 +260,11 @@ void TypesWidget::on_actionLoad_New_Types_triggered()
     LoadNewTypesDialog *dialog = new LoadNewTypesDialog(this);
     dialog->setWindowTitle(tr("Load New Types"));
     dialog->exec();
+}
+
+void TypesWidget::on_actionDelete_Type_triggered()
+{
+    QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
+    QModelIndex index = types_proxy_model->mapToSource(proxyIndex);
+    types_model->removeRow(index.row());
 }
