@@ -5,6 +5,7 @@
 #include "JupyterConnection.h"
 #include "NestedIPyKernel.h"
 #include "PythonManager.h"
+#include "QtResImporter.h"
 
 #include <QVariant>
 #include <QDebug>
@@ -18,6 +19,7 @@ JupyterConnection *JupyterConnection::getInstance()
 
 JupyterConnection::JupyterConnection(QObject *parent) : QObject(parent)
 {
+    connect(Python(), &PythonManager::willShutDown, this, &JupyterConnection::stop);
 }
 
 JupyterConnection::~JupyterConnection()
@@ -31,9 +33,20 @@ void JupyterConnection::start()
         return;
     }
 
-    notebookInstanceExists = Python()->startJupyterNotebook();
+    notebookInstanceExists = startJupyterNotebook();
 
     emit urlReceived(getUrl());
+}
+
+void JupyterConnection::stop()
+{
+    if (cutterNotebookAppInstance) {
+        Python()->restoreThread();
+        auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
+        PyObject_CallObject(stopFunc, nullptr);
+        Py_DECREF(cutterNotebookAppInstance);
+        Python()->saveThread();
+    }
 }
 
 QString JupyterConnection::getUrl()
@@ -42,7 +55,7 @@ QString JupyterConnection::getUrl()
         return nullptr;
     }
 
-    QString url = Python()->getJupyterUrl();
+    QString url = getJupyterUrl();
     return url;
 }
 
@@ -92,6 +105,41 @@ QVariant JupyterConnection::pollNestedIPyKernel(long id)
     }
 
     return v;
+}
+
+bool JupyterConnection::startJupyterNotebook()
+{
+    Python()->restoreThread();
+
+    if (!cutterJupyterModule) {
+        cutterJupyterModule = QtResImport("cutter_jupyter");
+    }
+
+    PyObject* startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
+    if (!startFunc) {
+        qWarning() << "Couldn't get attribute start_jupyter.";
+        return false;
+    }
+
+    cutterNotebookAppInstance = PyObject_CallObject(startFunc, nullptr);
+    Python()->saveThread();
+
+    return cutterNotebookAppInstance != nullptr;
+}
+
+QString JupyterConnection::getJupyterUrl()
+{
+    Python()->restoreThread();
+
+    auto urlWithToken = PyObject_GetAttrString(cutterNotebookAppInstance, "url_with_token");
+    auto asciiBytes = PyUnicode_AsASCIIString(urlWithToken);
+    auto urlWithTokenString = QString::fromUtf8(PyBytes_AsString(asciiBytes));
+    Py_DECREF(asciiBytes);
+    Py_DECREF(urlWithToken);
+
+    Python()->saveThread();
+
+    return urlWithTokenString;
 }
 
 #endif

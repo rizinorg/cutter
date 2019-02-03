@@ -7,6 +7,7 @@
 #include <QMap>
 
 class NestedIPyKernel;
+typedef struct _object PyObject;
 
 class JupyterConnection : public QObject
 {
@@ -25,6 +26,9 @@ public:
     NestedIPyKernel *getNestedIPyKernel(long id);
     QVariant pollNestedIPyKernel(long id);
 
+public slots:
+    void stop();
+
 signals:
     void urlReceived(const QString &url);
     void creationFailed();
@@ -34,6 +38,12 @@ private:
     long nextKernelId = 1;
 
     bool notebookInstanceExists = false;
+
+    PyObject *cutterJupyterModule = nullptr;
+    PyObject *cutterNotebookAppInstance = nullptr;
+
+    bool startJupyterNotebook();
+    QString getJupyterUrl();
 };
 
 
