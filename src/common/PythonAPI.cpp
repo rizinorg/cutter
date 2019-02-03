@@ -66,7 +66,7 @@ PyMethodDef CutterMethods[] = {
         "Refresh Cutter widgets"
     },
     {
-        "message", (PyCFunction) api_message, METH_VARARGS | METH_KEYWORDS,
+        "message", (PyCFunction)(void *)/* don't remove this double cast! */api_message, METH_VARARGS | METH_KEYWORDS,
         "Print message"
     },
     {NULL, NULL, 0, NULL}

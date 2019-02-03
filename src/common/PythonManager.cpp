@@ -32,11 +32,7 @@ PythonManager::~PythonManager()
 
     restoreThread();
 
-    if (cutterNotebookAppInstance) {
-        auto stopFunc = PyObject_GetAttrString(cutterNotebookAppInstance, "stop");
-        PyObject_CallObject(stopFunc, nullptr);
-        Py_DECREF(cutterNotebookAppInstance);
-    }
+    emit willShutDown();
 
     Py_Finalize();
 
@@ -81,8 +77,9 @@ void PythonManager::initialize()
     Py_Initialize();
     PyEval_InitThreads();
 
+    RegQtResImporter();
+
     // Import other modules
-    cutterJupyterModule = QtResImport("cutter_jupyter");
     cutterPluginModule = QtResImport("cutter_plugin");
 
     saveThread();
@@ -108,36 +105,6 @@ void PythonManager::addPythonPath(char *path) {
     saveThread();
 }
 
-bool PythonManager::startJupyterNotebook()
-{
-    restoreThread();
-
-    PyObject* startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
-    if (!startFunc) {
-        qWarning() << "Couldn't get attribute start_jupyter.";
-        return false;
-    }
-
-    cutterNotebookAppInstance = PyObject_CallObject(startFunc, nullptr);
-    saveThread();
-
-    return cutterNotebookAppInstance != nullptr;
-}
-
-QString PythonManager::getJupyterUrl()
-{
-    restoreThread();
-
-    auto urlWithToken = PyObject_GetAttrString(cutterNotebookAppInstance, "url_with_token");
-    auto asciiBytes = PyUnicode_AsASCIIString(urlWithToken);
-    auto urlWithTokenString = QString::fromUtf8(PyBytes_AsString(asciiBytes));
-    Py_DECREF(asciiBytes);
-    Py_DECREF(urlWithToken);
-
-    saveThread();
-
-    return urlWithTokenString;
-}
 
 CutterPythonPlugin* PythonManager::loadPlugin(const char *pluginName) {
     CutterPythonPlugin *plugin = nullptr;
