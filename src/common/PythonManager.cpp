@@ -25,20 +25,6 @@ PythonManager::PythonManager()
 
 PythonManager::~PythonManager()
 {
-    QList<CutterPlugin *> plugins = Core()->getCutterPlugins();
-    for (CutterPlugin *plugin : plugins) {
-        delete plugin;
-    }
-
-    restoreThread();
-
-    emit willShutDown();
-
-    Py_Finalize();
-
-    if (pythonHome) {
-        PyMem_RawFree(pythonHome);
-    }
 }
 
 void PythonManager::initPythonHome()
@@ -83,6 +69,19 @@ void PythonManager::initialize()
     cutterPluginModule = QtResImport("cutter_plugin");
 
     saveThread();
+}
+
+void PythonManager::shutdown()
+{
+    emit willShutDown();
+
+    restoreThread();
+
+    Py_Finalize();
+
+    if (pythonHome) {
+        PyMem_RawFree(pythonHome);
+    }
 }
 
 void PythonManager::addPythonPath(char *path) {
