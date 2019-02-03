@@ -21,6 +21,8 @@ public:
 
     void initPythonHome();
     void initialize();
+    void shutdown();
+
     void addPythonPath(char *path);
 
 

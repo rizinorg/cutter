@@ -170,8 +170,13 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 CutterApplication::~CutterApplication()
 {
+    QList<CutterPlugin *> plugins = Core()->getCutterPlugins();
+    for (CutterPlugin *plugin : plugins) {
+        delete plugin;
+    }
+
     delete mainWindow;
-    delete Python();
+    Python()->shutdown();
 }
 
 bool CutterApplication::event(QEvent *e)
@@ -220,8 +225,8 @@ void CutterApplication::loadPlugins()
 
     Python()->addPythonPath(pluginsDir.absolutePath().toLatin1().data());
 
-    CutterPlugin *cutterPlugin = nullptr;
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        CutterPlugin *cutterPlugin = nullptr;
         if (fileName.endsWith(".py")) {
             // Load python plugins
             QStringList l = fileName.split(".py");
@@ -241,7 +246,7 @@ void CutterApplication::loadPlugins()
         }
     }
 
-    qInfo() << "Loaded" << plugins.length() << "plugins.";
+    qInfo() << "Loaded" << plugins.length() << "plugin(s).";
     Core()->setCutterPlugins(plugins);
 }
 
