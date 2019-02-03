@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<typesystem package="CutterBindings">
+    <load-typesystem name="typesystem_core.xml" generate="no" />
+    <primitive-type name="bool"/>
+    <primitive-type name="std::string"/>
+    <!--<object-type name="CutterDockWidget" />-->
+    <object-type name="CutterCore" />
+</typesystem>
