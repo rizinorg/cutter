@@ -77,6 +77,8 @@ void PythonManager::initialize()
     Py_Initialize();
     PyEval_InitThreads();
 
+    RegQtResImporter();
+
     // Import other modules
     cutterPluginModule = QtResImport("cutter_plugin");
 
