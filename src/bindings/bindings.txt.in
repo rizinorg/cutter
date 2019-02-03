@@ -1,0 +1,15 @@
+[generator-project]
+
+generator-set = shiboken
+
+header-file = @CMAKE_CURRENT_SOURCE_DIR@/bindings/bindings.h
+typesystem-file = @CMAKE_CURRENT_SOURCE_DIR@/bindings/bindings.xml
+
+output-directory = @CMAKE_CURRENT_BINARY_DIR@/bindings
+
+include-path = @CMAKE_CURRENT_SOURCE_DIR@
+include-path = /usr/include/qt/QtCore
+include-path = /usr/include/qt/QtWidgets
+include-path = /usr/include/qt
+include-path = /home/florian/bin/prefix/radare2/include/libr
+

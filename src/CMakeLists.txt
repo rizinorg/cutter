@@ -94,8 +94,41 @@ qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
         "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.h")
 
 
+find_package(Shiboken2 REQUIRED)
+include_directories(${SHIBOKEN_INCLUDE_DIR})
 
-add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
+find_package(PySide2 REQUIRED)
+include_directories(${PYSIDE_INCLUDE_DIR})
+include_directories(${PYSIDE_INCLUDE_DIR}/QtCore)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.txt.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt" @ONLY)
+
+set(BINDINGS_SOURCE
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterbindings_module_wrapper.cpp"
+        #"${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterdockwidget_wrapper.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cuttercore_wrapper.cpp")
+
+set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
+
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
+
+set(GENERATOR_EXTRA_FLAGS --generator-set=shiboken
+        --enable-parent-ctor-heuristic
+        --enable-pyside-extensions
+        --enable-return-value-heuristic
+        --use-isnull-as-nb_nonzero
+        --typesystem-paths=${PYSIDE_TYPESYSTEMS})
+
+add_custom_command(OUTPUT ${BINDINGS_SOURCE}
+        COMMAND shiboken2 --project-file=${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt ${GENERATOR_EXTRA_FLAGS}
+        #DEPENDS ${sample_TYPESYSTEM} ${CMAKE_CURRENT_SOURCE_DIR}/global.h shiboken2
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating Python bindings with shiboken2")
+
+
+add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
 target_link_libraries(Cutter ${RADARE2_LIBRARIES})
@@ -105,4 +138,6 @@ if(CUTTER_ENABLE_JUPYTER)
         target_link_libraries(Cutter Qt5::WebEngineWidgets)
     endif()
 endif()
+
+target_link_libraries(Cutter ${SHIBOKEN_LIBRARY} ${PYSIDE_LIBRARY})
 

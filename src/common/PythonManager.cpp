@@ -53,6 +53,8 @@ void PythonManager::initPythonHome()
     }
 }
 
+extern "C" PyObject *PyInit_CutterBindings();
+
 void PythonManager::initialize()
 {
     initPythonHome();
@@ -60,6 +62,7 @@ void PythonManager::initialize()
     PyImport_AppendInittab("_cutter", &PyInit_api);
     PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
     PyImport_AppendInittab("_qtres", &PyInit_qtres);
+    PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);
     Py_Initialize();
     PyEval_InitThreads();
 
