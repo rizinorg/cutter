@@ -76,6 +76,17 @@ public:
 private slots:
     void refreshTypes();
 
+    /*!
+     * \brief Show custom context menu
+     * \param pt Position of the place where the right mouse button was clicked
+     */
+    void showTypesContextMenu(const QPoint &pt);
+
+    /*!
+     * \brief Executed on clicking the Export Types option in the context menu
+     */
+    void on_actionExport_Types_triggered();
+
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
 

@@ -3,6 +3,9 @@
 #include "MainWindow.h"
 #include "common/Helpers.h"
 
+#include <QMenu>
+#include <QFileDialog>
+
 TypesModel::TypesModel(QList<TypeDescription> *types, QObject *parent)
     : QAbstractListModel(parent),
       types(types)
@@ -120,12 +123,20 @@ TypesWidget::TypesWidget(MainWindow *main, QAction *action) :
     // Add status bar which displays the count
     tree->addStatusBar(ui->verticalLayout);
 
+    // Setup up the model and the proxy model
     types_model = new TypesModel(&types, this);
     types_proxy_model = new TypesSortFilterProxyModel(types_model, this);
     ui->typesTreeView->setModel(types_proxy_model);
     ui->typesTreeView->sortByColumn(TypesModel::TYPE, Qt::AscendingOrder);
 
     setScrollMode();
+
+    // Setup custom context menu
+    connect(ui->typesTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showTypesContextMenu(const QPoint &)));
+
+    ui->typesTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
 
     connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), types_proxy_model,
             SLOT(setFilterWildcard(const QString &)));
@@ -189,4 +200,31 @@ void TypesWidget::refreshCategoryCombo(const QStringList &categories)
 void TypesWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->typesTreeView);
+}
+
+void TypesWidget::showTypesContextMenu(const QPoint &pt)
+{
+    QMenu *menu = new QMenu(ui->typesTreeView);
+
+    menu->clear();
+    menu->addAction(ui->actionExport_Types);
+
+    menu->exec(ui->typesTreeView->mapToGlobal(pt));
+
+    delete menu;
+}
+
+void TypesWidget::on_actionExport_Types_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), Config()->getRecentFolder());
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Can't save file";
+        return;
+    }
+    QTextStream fileOut(&file);
+    fileOut << Core()->cmd("tc");
+    file.close();
+
+    Config()->setRecentFolder(QFileInfo(fileName).absolutePath());
 }

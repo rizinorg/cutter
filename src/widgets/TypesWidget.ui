@@ -71,6 +71,14 @@
     </item>
    </layout>
   </widget>
+  <action name="actionExport_Types">
+   <property name="text">
+    <string>Export Types</string>
+   </property>
+   <property name="toolTip">
+    <string>Export Types</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
