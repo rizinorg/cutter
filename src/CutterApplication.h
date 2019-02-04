@@ -40,7 +40,6 @@ private:
 };
 
 
-#if QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
 /*!
  * \brief CutterProxyStyle is used to force shortcuts displaying in context menu
  */
@@ -53,7 +52,5 @@ public:
      */
     void polish(QWidget *widget) override;
 };
-
-#endif // QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
 
 #endif // CUTTERAPPLICATION_H
