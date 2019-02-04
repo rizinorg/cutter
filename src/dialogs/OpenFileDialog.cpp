@@ -30,16 +30,6 @@ void OpenFileDialog::on_buttonBox_accepted()
         mapAddress = Core()->math(mapAddressStr);
     }
 
-    // check for invalid characters to prevent r2 injection
-
-    if(filePath.contains(';') || filePath.contains('|')){
-        QMessageBox msgBox(this);
-        msgBox.setText(tr("File name contains invalid characters"));
-        msgBox.setWindowTitle("Invalid filename");
-        msgBox.exec();
-        return;     // keep the dialog open
-    }
-
     Core()->openFile(filePath, mapAddress);
     close();
 }
