@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QFileOpenEvent>
 #include <QEvent>
+#include <QMenu>
 #include <QMessageBox>
 #include <QCommandLineParser>
 #include <QTextCodec>
@@ -121,6 +122,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     mainWindow = new MainWindow();
     installEventFilter(mainWindow);
+
+    // set up context menu shortcut display fix
+#if QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
+    setStyle(new CutterProxyStyle());
+#endif // QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
 
     if (args.empty()) {
         if (analLevelSpecified) {
@@ -285,3 +291,21 @@ bool CutterApplication::loadTranslations()
     }
     return false;
 }
+
+
+#if QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
+void CutterProxyStyle::polish(QWidget *widget)
+{
+    QProxyStyle::polish(widget);
+    // HACK: This is the only way I've found to force Qt (5.10 and newer) to
+    //       display shortcuts in context menus on all platforms. It's ugly,
+    //       but it gets the job done.
+    if (auto menu = qobject_cast<QMenu*>(widget)) {
+        const auto &actions = menu->actions();
+        for (auto action : actions) {
+            action->setShortcutVisibleInContextMenu(true);
+        }
+    }
+}
+
+#endif // QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
