@@ -915,6 +915,10 @@ void MainWindow::on_actionAbout_triggered()
     AboutDialog *a = new AboutDialog(this);
     a->open();
 }
+void MainWindow::on_actionIssue_triggered()
+{
+  
+}
 
 void MainWindow::on_actionRefresh_Panels_triggered()
 {

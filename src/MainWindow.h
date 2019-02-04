@@ -131,6 +131,7 @@ public slots:
 
 private slots:
     void on_actionAbout_triggered();
+    void on_actionIssue_triggered();
     void on_actionExtraGraph_triggered();
     void on_actionExtraHexdump_triggered();
     void on_actionExtraDisassembly_triggered();
