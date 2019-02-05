@@ -395,17 +395,18 @@ bool CutterCore::tryFile(QString path, bool rw)
     return true;
 }
 
-void CutterCore::openFile(QString path, RVA mapaddr)
+bool CutterCore::openFile(QString path, RVA mapaddr)
 {
     CORE_LOCK();
     RVA addr = mapaddr != RVA_INVALID ? mapaddr : 0;
     ut64 baddr = Core()->getFileInfo().object()["bin"].toObject()["baddr"].toVariant().toULongLong();
-    if(r_core_file_open(core_, path.toUtf8().constData(), R_PERM_RX, addr)){
+    if (r_core_file_open(core_, path.toUtf8().constData(), R_PERM_RX, addr)) {
         r_core_bin_load(core_, path.toUtf8().constData(), baddr);
     }
     else{
-        eprintf("Cannot open file\n");
+        return false;
     }
+    return true;
 }
 
 void CutterCore::renameFunction(const QString &oldName, const QString &newName)
