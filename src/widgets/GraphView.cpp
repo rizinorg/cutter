@@ -416,8 +416,8 @@ void GraphView::paintEvent(QPaintEvent *event)
 
     int render_offset_x = -horizontalScrollBar()->value() * current_scale;
     int render_offset_y = -verticalScrollBar()->value() * current_scale;
-    int render_width = viewport()->size().width() / current_scale;
-    int render_height = viewport()->size().height() / current_scale;
+    int render_width = viewport()->size().width();
+    int render_height = viewport()->size().height();
 
     // Do we have scrollbars?
     bool hscrollbar = horizontalScrollBar()->pageStep() < width * current_scale;
@@ -450,12 +450,16 @@ void GraphView::paintEvent(QPaintEvent *event)
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
+        qreal blockXRender = block.x * current_scale;
+        qreal blockYRender = block.y * current_scale;
+        qreal blockWidthRender = block.width * current_scale;
+        qreal blockHeightRender = block.height * current_scale;
+
         // Check if block is visible
-        if ((block.x + block.width > -render_offset_x) ||
-                (block.y + block.height > -render_offset_y) ||
-                (-render_offset_x + render_width > block.x) ||
-                (-render_offset_y + render_height > block.y)) {
-            // Only draw block if it is visible
+        if (-render_offset_x < blockXRender + blockWidthRender
+                && -render_offset_x + render_width > blockXRender
+                && -render_offset_y < blockYRender + blockHeightRender
+                && -render_offset_y + render_height > blockYRender) {
             drawBlock(p, block);
         }
 
@@ -469,7 +473,7 @@ void GraphView::paintEvent(QPaintEvent *event)
             QPen pen(edge.color);
 //            if(blockSelected)
 //                pen.setStyle(Qt::DashLine);
-            pen.setWidth(pen.width()/ec.width_scale);
+            pen.setWidth(pen.width() / ec.width_scale);
             p.setPen(pen);
             p.setBrush(edge.color);
             p.drawPolyline(edge.polyline);
