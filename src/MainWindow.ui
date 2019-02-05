@@ -281,7 +281,7 @@ QToolTip {
   </action>
   <action name="actionIssue">
    <property name="text">
-    <string>Report issue</string>
+    <string>Report an issue</string>
    </property>
   </action>
   <action name="actionNew">

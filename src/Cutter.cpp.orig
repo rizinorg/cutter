@@ -17,82 +17,82 @@ Q_GLOBAL_STATIC(ccClass, uniqueInstance)
 #define R_JSON_KEY(name) static const QString name = QStringLiteral(#name)
 
 namespace RJsonKey {
-R_JSON_KEY(addr);
-R_JSON_KEY(addr_end);
-R_JSON_KEY(baddr);
-R_JSON_KEY(bind);
-R_JSON_KEY(blocks);
-R_JSON_KEY(blocksize);
-R_JSON_KEY(bytes);
-R_JSON_KEY(calltype);
-R_JSON_KEY(cc);
-R_JSON_KEY(classname);
-R_JSON_KEY(code);
-R_JSON_KEY(comment);
-R_JSON_KEY(comments);
-R_JSON_KEY(cost);
-R_JSON_KEY(data);
-R_JSON_KEY(description);
-R_JSON_KEY(ebbs);
-R_JSON_KEY(edges);
-R_JSON_KEY(enabled);
-R_JSON_KEY(entropy);
-R_JSON_KEY(fcn_addr);
-R_JSON_KEY(fcn_name);
-R_JSON_KEY(fields);
-R_JSON_KEY(file);
-R_JSON_KEY(flags);
-R_JSON_KEY(flagname);
-R_JSON_KEY(format);
-R_JSON_KEY(from);
-R_JSON_KEY(functions);
-R_JSON_KEY(graph);
-R_JSON_KEY(haddr);
-R_JSON_KEY(hw);
-R_JSON_KEY(in_functions);
-R_JSON_KEY(index);
-R_JSON_KEY(jump);
-R_JSON_KEY(laddr);
-R_JSON_KEY(lang);
-R_JSON_KEY(len);
-R_JSON_KEY(length);
-R_JSON_KEY(license);
-R_JSON_KEY(methods);
-R_JSON_KEY(name);
-R_JSON_KEY(nargs);
-R_JSON_KEY(nbbs);
-R_JSON_KEY(nlocals);
-R_JSON_KEY(offset);
-R_JSON_KEY(opcode);
-R_JSON_KEY(opcodes);
-R_JSON_KEY(ordinal);
-R_JSON_KEY(outdegree);
-R_JSON_KEY(paddr);
-R_JSON_KEY(path);
-R_JSON_KEY(perm);
-R_JSON_KEY(pid);
-R_JSON_KEY(plt);
-R_JSON_KEY(prot);
-R_JSON_KEY(ref);
-R_JSON_KEY(refs);
-R_JSON_KEY(reg);
-R_JSON_KEY(rwx);
-R_JSON_KEY(section);
-R_JSON_KEY(sections);
-R_JSON_KEY(size);
-R_JSON_KEY(stackframe);
-R_JSON_KEY(status);
-R_JSON_KEY(string);
-R_JSON_KEY(strings);
-R_JSON_KEY(symbols);
-R_JSON_KEY(text);
-R_JSON_KEY(to);
-R_JSON_KEY(trace);
-R_JSON_KEY(type);
-R_JSON_KEY(uid);
-R_JSON_KEY(vaddr);
-R_JSON_KEY(value);
-R_JSON_KEY(vsize);
+    R_JSON_KEY(addr);
+    R_JSON_KEY(addr_end);
+    R_JSON_KEY(baddr);
+    R_JSON_KEY(bind);
+    R_JSON_KEY(blocks);
+    R_JSON_KEY(blocksize);
+    R_JSON_KEY(bytes);
+    R_JSON_KEY(calltype);
+    R_JSON_KEY(cc);
+    R_JSON_KEY(classname);
+    R_JSON_KEY(code);
+    R_JSON_KEY(comment);
+    R_JSON_KEY(comments);
+    R_JSON_KEY(cost);
+    R_JSON_KEY(data);
+    R_JSON_KEY(description);
+    R_JSON_KEY(ebbs);
+    R_JSON_KEY(edges);
+    R_JSON_KEY(enabled);
+    R_JSON_KEY(entropy);
+    R_JSON_KEY(fcn_addr);
+    R_JSON_KEY(fcn_name);
+    R_JSON_KEY(fields);
+    R_JSON_KEY(file);
+    R_JSON_KEY(flags);
+    R_JSON_KEY(flagname);
+    R_JSON_KEY(format);
+    R_JSON_KEY(from);
+    R_JSON_KEY(functions);
+    R_JSON_KEY(graph);
+    R_JSON_KEY(haddr);
+    R_JSON_KEY(hw);
+    R_JSON_KEY(in_functions);
+    R_JSON_KEY(index);
+    R_JSON_KEY(jump);
+    R_JSON_KEY(laddr);
+    R_JSON_KEY(lang);
+    R_JSON_KEY(len);
+    R_JSON_KEY(length);
+    R_JSON_KEY(license);
+    R_JSON_KEY(methods);
+    R_JSON_KEY(name);
+    R_JSON_KEY(nargs);
+    R_JSON_KEY(nbbs);
+    R_JSON_KEY(nlocals);
+    R_JSON_KEY(offset);
+    R_JSON_KEY(opcode);
+    R_JSON_KEY(opcodes);
+    R_JSON_KEY(ordinal);
+    R_JSON_KEY(outdegree);
+    R_JSON_KEY(paddr);
+    R_JSON_KEY(path);
+    R_JSON_KEY(perm);
+    R_JSON_KEY(pid);
+    R_JSON_KEY(plt);
+    R_JSON_KEY(prot);
+    R_JSON_KEY(ref);
+    R_JSON_KEY(refs);
+    R_JSON_KEY(reg);
+    R_JSON_KEY(rwx);
+    R_JSON_KEY(section);
+    R_JSON_KEY(sections);
+    R_JSON_KEY(size);
+    R_JSON_KEY(stackframe);
+    R_JSON_KEY(status);
+    R_JSON_KEY(string);
+    R_JSON_KEY(strings);
+    R_JSON_KEY(symbols);
+    R_JSON_KEY(text);
+    R_JSON_KEY(to);
+    R_JSON_KEY(trace);
+    R_JSON_KEY(type);
+    R_JSON_KEY(uid);
+    R_JSON_KEY(vaddr);
+    R_JSON_KEY(value);
+    R_JSON_KEY(vsize);
 }
 
 #undef R_JSON_KEY
@@ -444,8 +444,7 @@ QString CutterCore::getInstructionBytes(RVA addr)
 
 QString CutterCore::getInstructionOpcode(RVA addr)
 {
-    return cmdj("aoj @ " + RAddressString(
-                    addr)).array().first().toObject()[RJsonKey::opcode].toString();
+    return cmdj("aoj @ " + RAddressString(addr)).array().first().toObject()[RJsonKey::opcode].toString();
 }
 
 void CutterCore::editInstruction(RVA addr, const QString &inst)
@@ -882,7 +881,7 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
     QList<VariableDescription> ret;
     QJsonObject varsObject = cmdj(QString("afvj @ %1").arg(at)).object();
 
-    auto addVars = [&](VariableDescription::RefType refType, const QJsonArray & array) {
+    auto addVars = [&](VariableDescription::RefType refType, const QJsonArray &array) {
         for (const QJsonValue &varValue : array) {
             QJsonObject varObject = varValue.toObject();
             VariableDescription desc;
@@ -1680,8 +1679,7 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
 
         StringDescription string;
 
-        string.string = QString(QByteArray::fromBase64(
-                                    stringObject[RJsonKey::string].toVariant().toByteArray()));
+        string.string = QString(QByteArray::fromBase64(stringObject[RJsonKey::string].toVariant().toByteArray()));
         string.vaddr = stringObject[RJsonKey::vaddr].toVariant().toULongLong();
         string.type = stringObject[RJsonKey::type].toString();
         string.size = stringObject[RJsonKey::size].toVariant().toUInt();
@@ -2055,8 +2053,7 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
 bool CutterCore::getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc)
 {
     RAnalMethod analMeth;
-    if (r_anal_class_method_get(core_->anal, cls.toUtf8().constData(), meth.toUtf8().constData(),
-                                &analMeth) != R_ANAL_CLASS_ERR_SUCCESS) {
+    if (r_anal_class_method_get(core_->anal, cls.toUtf8().constData(), meth.toUtf8().constData(), &analMeth) != R_ANAL_CLASS_ERR_SUCCESS) {
         return false;
     }
     desc->name = QString::fromUtf8(analMeth.name);
@@ -2077,11 +2074,9 @@ void CutterCore::setAnalMethod(const QString &className, const AnalMethodDescrip
     emit classesChanged();
 }
 
-void CutterCore::renameAnalMethod(const QString &className, const QString &oldMethodName,
-                                  const QString &newMethodName)
+void CutterCore::renameAnalMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName)
 {
-    r_anal_class_method_rename(core_->anal, className.toUtf8().constData(),
-                               oldMethodName.toUtf8().constData(), newMethodName.toUtf8().constData());
+    r_anal_class_method_rename(core_->anal, className.toUtf8().constData(), oldMethodName.toUtf8().constData(), newMethodName.toUtf8().constData());
     emit classesChanged();
 }
 
@@ -2178,7 +2173,7 @@ QList<TypeDescription> CutterCore::getAllUnions()
     QList<TypeDescription> ret;
 
     QJsonArray typesArray = cmdj("tuj").array();
-    for (auto value : typesArray) {
+    for (auto value: typesArray) {
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
@@ -2195,7 +2190,7 @@ QList<TypeDescription> CutterCore::getAllStructs()
     QList<TypeDescription> ret;
 
     QJsonArray typesArray = cmdj("tsj").array();
-    for (auto value : typesArray) {
+    for (auto value: typesArray) {
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
@@ -2212,7 +2207,7 @@ QList<TypeDescription> CutterCore::getAllEnums()
     QList<TypeDescription> ret;
 
     QJsonObject typesObject = cmdj("tej").object();
-    for (QString key : typesObject.keys()) {
+    for (QString key: typesObject.keys()) {
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
@@ -2229,7 +2224,7 @@ QList<TypeDescription> CutterCore::getAllTypedefs()
     QList<TypeDescription> ret;
 
     QJsonObject typesObject = cmdj("ttj").object();
-    for (QString key : typesObject.keys()) {
+    for (QString key: typesObject.keys()) {
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
@@ -2489,7 +2484,7 @@ QString CutterCore::getVersionInformation()
         { "r_hash", &r_hash_version },
         { "r_fs", &r_fs_version },
         { "r_io", &r_io_version },
-#if !USE_LIB_MAGIC
+#if !USE_LIB_MAGIC        
         { "r_magic", &r_magic_version },
 #endif
         { "r_parse", &r_parse_version },

@@ -235,7 +235,7 @@ bool CutterApplication::loadTranslations()
         return true;
     }
     const auto &allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-                                                      QLocale::AnyCountry);
+        QLocale::AnyCountry);
 
     bool cutterTrLoaded = false;
 
@@ -267,7 +267,7 @@ bool CutterApplication::loadTranslations()
                     trQtBase = nullptr;
                 }
             }
-
+            
             if (trCutter) {
                 delete trCutter;
             }
