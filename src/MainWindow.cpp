@@ -22,6 +22,7 @@
 #include <QProcess>
 #include <QPropertyAnimation>
 #include <QSysInfo>
+#include <QJsonObject>
 
 #include <QScrollBar>
 #include <QSettings>
@@ -922,11 +923,18 @@ void MainWindow::on_actionAbout_triggered()
 }
 void MainWindow::on_actionIssue_triggered()
 {
-    QString OSInfo = QString(QSysInfo::productType()) + " " + QString(QSysInfo::productVersion());
+  //Pull in info needed for git issue
+  QString OSInfo = QString(QSysInfo::productType()) + " " + QString(QSysInfo::productVersion());
+    QJsonDocument docu = Core()->getFileInfo();
+    QJsonObject item = docu.object()["core"].toObject();
+    QJsonObject item2 = docu.object()["bin"].toObject();
+    QString format = item["format"].toString();
+    QString arch = item2["arch"].toString();
+    QString type = item["type"].toString();
     QString url =
         "https://github.com/radareorg/cutter/issues/new?title=&body=**Environment information**\n* Operating System: "
         + OSInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
-        "\n* File format:\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
+        "\n* File format: " + format + "\n * Arch: " + arch + "\n * Type: " + type + "\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
     QDesktopServices::openUrl(QUrl(url,  QUrl::TolerantMode));
 }
 
