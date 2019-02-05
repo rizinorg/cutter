@@ -455,11 +455,12 @@ void GraphView::paintEvent(QPaintEvent *event)
         qreal blockWidthRender = block.width * current_scale;
         qreal blockHeightRender = block.height * current_scale;
 
-        // Check if block is visible
+        // Check if block is visible by checking if block intersects with view area
         if (-render_offset_x < blockXRender + blockWidthRender
                 && -render_offset_x + render_width > blockXRender
                 && -render_offset_y < blockYRender + blockHeightRender
                 && -render_offset_y + render_height > blockYRender) {
+            // If it intersects then draw it
             drawBlock(p, block);
         }
 
