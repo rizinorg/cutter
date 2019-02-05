@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "common/Helpers.h"
+#include "CutterConfig.h"
 
 // Qt Headers
 #include <QApplication>
@@ -921,10 +922,15 @@ void MainWindow::on_actionAbout_triggered()
 }
 void MainWindow::on_actionIssue_triggered()
 {
-    qDebug() << QSysInfo::productType() + QSysInfo::productVersion();
-    QDesktopServices::openUrl(
-        QUrl("https://github.com/radareorg/cutter/issues/new?title=Enter Title &body=**Environment information**\n* Operating System:\n* Cutter version:\n* File format:\n**Describe the bug**\nA clear and concise description of what the bug is.\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n**Additional context**\nAdd any other context about the problem here.",
-             QUrl::TolerantMode));
+    QString OSInfo = QString(QSysInfo::productType()) + " " + QString(QSysInfo::productVersion());
+    QString url =
+        "https://github.com/radareorg/cutter/issues/new?title=Enter Title &body=**Environment information**\n* Operating System: "
+        + OSInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
+        "\n* File format:\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
+
+    QDesktopServices::openUrl(QUrl(url,  QUrl::TolerantMode));
+
+
 }
 
 void MainWindow::on_actionRefresh_Panels_triggered()
