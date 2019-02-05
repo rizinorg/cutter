@@ -33,7 +33,12 @@ void OpenFileDialog::on_buttonBox_accepted()
     if (!mapAddressStr.isEmpty()) {
         mapAddress = Core()->math(mapAddressStr);
     }
-    Core()->openFile(filePath, mapAddress);
+
+    if (!Core()->openFile(filePath, mapAddress)) {
+        QMessageBox::critical(this, tr("Open file"), tr("Failed to open file"));
+        return;
+    }
+    close();
 }
 
 void OpenFileDialog::on_buttonBox_rejected()

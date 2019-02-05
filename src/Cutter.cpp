@@ -398,13 +398,23 @@ bool CutterCore::tryFile(QString path, bool rw)
     return true;
 }
 
-void CutterCore::openFile(QString path, RVA mapaddr)
+/*!
+ * \brief Opens a file using r2 API
+ * \param path Path to file
+ * \param mapaddr Map Address
+ * \return bool
+ */
+bool CutterCore::openFile(QString path, RVA mapaddr)
 {
-    if (mapaddr != RVA_INVALID) {
-        cmd("o " + path + QString(" %1").arg(mapaddr));
+    CORE_LOCK();
+    RVA addr = mapaddr != RVA_INVALID ? mapaddr : 0;
+    ut64 baddr = Core()->getFileInfo().object()["bin"].toObject()["baddr"].toVariant().toULongLong();
+    if (r_core_file_open(core_, path.toUtf8().constData(), R_PERM_RX, addr)) {
+        r_core_bin_load(core_, path.toUtf8().constData(), baddr);
     } else {
-        cmd("o " + path);
+        return false;
     }
+    return true;
 }
 
 void CutterCore::renameFunction(const QString &oldName, const QString &newName)
