@@ -395,6 +395,12 @@ bool CutterCore::tryFile(QString path, bool rw)
     return true;
 }
 
+/*!
+ * \brief Opens a file using r2 API
+ * \param path Path to file
+ * \param mapaddr Map Address
+ * \return bool
+ */
 bool CutterCore::openFile(QString path, RVA mapaddr)
 {
     CORE_LOCK();
@@ -402,8 +408,7 @@ bool CutterCore::openFile(QString path, RVA mapaddr)
     ut64 baddr = Core()->getFileInfo().object()["bin"].toObject()["baddr"].toVariant().toULongLong();
     if (r_core_file_open(core_, path.toUtf8().constData(), R_PERM_RX, addr)) {
         r_core_bin_load(core_, path.toUtf8().constData(), baddr);
-    }
-    else{
+    } else {
         return false;
     }
     return true;
