@@ -132,7 +132,7 @@ private:
 public:
     explicit AnalClassesModel(QObject *parent = nullptr);
 
-    void refreshClasses();
+    void refreshAll();
 };
 
 

@@ -215,7 +215,7 @@ AnalClassesModel::AnalClassesModel(QObject *parent)
 {
 }
 
-void AnalClassesModel::refreshClasses()
+void AnalClassesModel::refreshAll()
 {
     beginResetModel();
     attrs->clear();
@@ -480,8 +480,23 @@ ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
 
     ui->classSourceCombo->setCurrentIndex(1);
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshClasses()));
-    connect(Core(), &CutterCore::classesChanged, this, [this]() {
+    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshAll()));
+    connect(Core(), &CutterCore::classNew, this, [this]() {
+        if (getSource() == Source::ANAL) {
+            refreshClasses();
+        }
+    });
+    connect(Core(), &CutterCore::classDeleted, this, [this]() {
+        if (getSource() == Source::ANAL) {
+            refreshClasses();
+        }
+    });
+    connect(Core(), &CutterCore::classRenamed, this, [this]() {
+        if (getSource() == Source::ANAL) {
+            refreshClasses();
+        }
+    });
+    connect(Core(), &CutterCore::classAttrsChanged, this, [this]() {
         if (getSource() == Source::ANAL) {
             refreshClasses();
         }
@@ -523,7 +538,7 @@ void ClassesWidget::refreshClasses()
             anal_model = new AnalClassesModel(this);
             proxy_model->setSourceModel(anal_model);
         }
-        anal_model->refreshClasses();
+        anal_model->refreshAll();
         break;
     }
 

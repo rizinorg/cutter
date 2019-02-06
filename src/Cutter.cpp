@@ -131,11 +131,19 @@ RCoreLocked CutterCore::core() const
 
 #define CORE_LOCK() RCoreLocked core_lock__(this->core_)
 
+static void cutterREventCallback(REvent *ev, int type, void *user, void *data)
+{
+    auto core = reinterpret_cast<CutterCore *>(user);
+    core->handleREvent(type, data);
+}
+
 CutterCore::CutterCore(QObject *parent) :
     QObject(parent)
 {
     r_cons_new();  // initialize console
-    this->core_ = r_core_new();
+    core_ = r_core_new();
+
+    r_event_hook(core_->anal->ev, R_EVENT_ALL, cutterREventCallback, this);
 
 #if defined(APPIMAGE) || defined(MACOS_R2_BUNDLED)
     auto prefix = QDir(QCoreApplication::applicationDirPath());
@@ -2081,13 +2089,11 @@ void CutterCore::setAnalMethod(const QString &className, const AnalMethodDescrip
     analMeth.vtable_offset = meth.vtableOffset;
     r_anal_class_method_set(core_->anal, className.toUtf8().constData(), &analMeth);
     r_anal_class_method_fini(&analMeth);
-    emit classesChanged();
 }
 
 void CutterCore::renameAnalMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName)
 {
     r_anal_class_method_rename(core_->anal, className.toUtf8().constData(), oldMethodName.toUtf8().constData(), newMethodName.toUtf8().constData());
-    emit classesChanged();
 }
 
 QList<ResourcesDescription> CutterCore::getAllResources()
@@ -2395,6 +2401,34 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
     name = sanitizeStringForCommand(name);
     cmd(QString("f %1 %2 @ %3").arg(name).arg(size).arg(offset));
     emit flagsChanged();
+}
+
+void CutterCore::handleREvent(int type, void *data)
+{
+    switch (type) {
+    case R_EVENT_CLASS_NEW: {
+        auto ev = reinterpret_cast<REventClass *>(data);
+        emit classNew(QString::fromUtf8(ev->name));
+        break;
+    }
+    case R_EVENT_CLASS_DEL: {
+        auto ev = reinterpret_cast<REventClass *>(data);
+        emit classDeleted(QString::fromUtf8(ev->name));
+        break;
+    }
+    case R_EVENT_CLASS_RENAME: {
+        auto ev = reinterpret_cast<REventClassRename *>(data);
+        emit classRenamed(QString::fromUtf8(ev->name_old), QString::fromUtf8(ev->name_new));
+        break;
+    }
+    case R_EVENT_CLASS_ATTR_CHANGE: {
+        auto ev = reinterpret_cast<REventClass *>(data);
+        emit classAttrsChanged(QString::fromUtf8(ev->name));
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void CutterCore::triggerFlagsChanged()
