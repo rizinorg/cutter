@@ -2421,9 +2421,19 @@ void CutterCore::handleREvent(int type, void *data)
         emit classRenamed(QString::fromUtf8(ev->name_old), QString::fromUtf8(ev->name_new));
         break;
     }
-    case R_EVENT_CLASS_ATTR_CHANGE: {
-        auto ev = reinterpret_cast<REventClass *>(data);
-        emit classAttrsChanged(QString::fromUtf8(ev->name));
+    case R_EVENT_CLASS_ATTR_SET: {
+        auto ev = reinterpret_cast<REventClassAttrSet *>(data);
+        emit classAttrsChanged(QString::fromUtf8(ev->attr.class_name));
+        break;
+    }
+    case R_EVENT_CLASS_ATTR_DEL: {
+        auto ev = reinterpret_cast<REventClassAttr *>(data);
+        emit classAttrsChanged(QString::fromUtf8(ev->class_name));
+        break;
+    }
+    case R_EVENT_CLASS_ATTR_RENAME: {
+        auto ev = reinterpret_cast<REventClassAttrRename *>(data);
+        emit classAttrsChanged(QString::fromUtf8(ev->attr.class_name));
         break;
     }
     default:
