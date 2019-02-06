@@ -913,6 +913,7 @@ void MainWindow::on_actionTabs_triggered()
 void MainWindow::on_actionAbout_triggered()
 {
     AboutDialog *a = new AboutDialog(this);
+    a->setAttribute(Qt::WA_DeleteOnClose);
     a->open();
 }
 

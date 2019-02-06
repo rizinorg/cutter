@@ -165,6 +165,7 @@ void NewFileDialog::on_projectsListWidget_itemDoubleClicked(QListWidgetItem *ite
 void NewFileDialog::on_aboutButton_clicked()
 {
     AboutDialog *a = new AboutDialog(this);
+    a->setAttribute(Qt::WA_DeleteOnClose);
     a->open();
 }
 
