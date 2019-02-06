@@ -81,6 +81,7 @@ void WelcomeDialog::onLanguageComboBox_currentIndexChanged(int index)
 void WelcomeDialog::on_checkUpdateButton_clicked()
 {
     AboutDialog *a = new AboutDialog(this);
+    a->setAttribute(Qt::WA_DeleteOnClose);
     a->open();
 }
 
