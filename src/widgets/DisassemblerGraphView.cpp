@@ -131,7 +131,8 @@ void DisassemblerGraphView::connectSeekChanged(bool disconn)
         disconnect(seekable, &CutterSeekable::seekableSeekChanged, this,
                    &DisassemblerGraphView::onSeekChanged);
     } else {
-        connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblerGraphView::onSeekChanged);
+        connect(seekable, &CutterSeekable::seekableSeekChanged, this,
+                &DisassemblerGraphView::onSeekChanged);
     }
 }
 
@@ -521,13 +522,29 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
     }
 
+    qreal render_offset_y = -verticalScrollBar()->value() * current_scale + unscrolled_render_offset_y;
+    qreal render_height = viewport()->size().height();
+
     // Render node text
     auto x = block.x + (2 * charWidth);
     int y = static_cast<int>(block.y + (2 * charWidth));
     for (auto &line : db.header_text.lines) {
-        RichTextPainter::paintRichText(&p, static_cast<int>(x), y, block.width, charHeight, 0, line, mFontMetrics);
+        qreal lineYRender = y * current_scale;
+        qreal lineHeightRender = charHeight * current_scale;
+
+        // Check if line does NOT intersects with view area
+        if (-render_offset_y >= lineYRender + lineHeightRender
+                || -render_offset_y + render_height <= lineYRender) {
+            // Skip if it does not intersects
+            y += charHeight;
+            continue;
+        }
+
+        RichTextPainter::paintRichText(&p, static_cast<int>(x), y, block.width, charHeight, 0, line,
+                                       mFontMetrics);
         y += charHeight;
     }
+
     for (const Instr &instr : db.instrs) {
         if (Core()->isBreakpoint(breakpoints, instr.addr)) {
             p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
@@ -540,6 +557,17 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             }
         }
         for (auto &line : instr.text.lines) {
+            qreal lineYRender = y * current_scale;
+            qreal lineHeightRender = charHeight * current_scale;
+
+            // Check if line does NOT intersects with view area
+            if (-render_offset_y >= lineYRender + lineHeightRender
+                    || -render_offset_y + render_height <= lineYRender) {
+                // Skip if it does not intersects
+                y += charHeight;
+                continue;
+            }
+
             int rectSize = qRound(charWidth);
             if (rectSize % 2) {
                 rectSize++;
