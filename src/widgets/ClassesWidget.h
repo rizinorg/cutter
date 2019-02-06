@@ -104,7 +104,12 @@ private:
         Attribute(Type type, const QVariant &data) : type(type), data(data) {}
     };
 
+    /*!
+     * This must always stay sorted alphabetically.
+     */
     QList<QString> classes;
+
+    RefreshDeferrer *refreshDeferrer;
 
     /*!
      * \brief Cache for class attributes
@@ -130,9 +135,14 @@ private:
     QVariant data(const QModelIndex &index, int role) const override;
 
 public:
-    explicit AnalClassesModel(QObject *parent = nullptr);
+    explicit AnalClassesModel(CutterDockWidget *parent);
 
+public slots:
     void refreshAll();
+    void classNew(const QString &cls);
+    void classDeleted(const QString &cls);
+    void classRenamed(const QString &oldName, const QString &newName);
+    void classAttrsChanged(const QString &cls);
 };
 
 

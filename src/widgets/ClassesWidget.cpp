@@ -210,17 +210,112 @@ QVariant BinClassesModel::data(const QModelIndex &index, int role) const
 }
 
 
-AnalClassesModel::AnalClassesModel(QObject *parent)
+AnalClassesModel::AnalClassesModel(CutterDockWidget *parent)
     : ClassesModel(parent), attrs(new QMap<QString, QVector<Attribute>>)
 {
+    // Just use a simple refresh deferrer. If an event was triggered in the background, simply refresh everything later.
+    refreshDeferrer = parent->createRefreshDeferrer([this]() {
+        this->refreshAll();
+    });
+
+    connect(Core(), &CutterCore::refreshAll, this, &AnalClassesModel::refreshAll);
+    connect(Core(), &CutterCore::classNew, this, &AnalClassesModel::classNew);
+    connect(Core(), &CutterCore::classDeleted, this, &AnalClassesModel::classDeleted);
+    connect(Core(), &CutterCore::classRenamed, this, &AnalClassesModel::classRenamed);
+    connect(Core(), &CutterCore::classAttrsChanged, this, &AnalClassesModel::classAttrsChanged);
+
+    refreshAll();
 }
 
 void AnalClassesModel::refreshAll()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     beginResetModel();
     attrs->clear();
-    classes = Core()->getAllAnalClasses();
+    classes = Core()->getAllAnalClasses(true); // must be sorted
     endResetModel();
+}
+
+void AnalClassesModel::classNew(const QString &cls)
+{
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
+    // find the destination position using binary search and add the row
+    auto it = std::lower_bound(classes.begin(), classes.end(), cls);
+    int index = it - classes.begin();
+    beginInsertRows(QModelIndex(), index, index);
+    classes.insert(it, cls);
+    endInsertRows();
+}
+
+void AnalClassesModel::classDeleted(const QString &cls)
+{
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
+    // find the position using binary search and remove the row
+    auto it = std::lower_bound(classes.begin(), classes.end(), cls);
+    if(it == classes.end() || *it != cls) {
+        return;
+    }
+    int index = it - classes.begin();
+    beginRemoveRows(QModelIndex(), index, index);
+    classes.erase(it);
+    endRemoveRows();
+}
+
+void AnalClassesModel::classRenamed(const QString &oldName, const QString &newName)
+{
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
+    auto oldIt = std::lower_bound(classes.begin(), classes.end(), oldName);
+    if (oldIt == classes.end() || *oldIt != oldName) {
+        return;
+    }
+    auto newIt = std::lower_bound(classes.begin(), classes.end(), newName);
+    int oldRow = oldIt - classes.begin();
+    int newRow = newIt - classes.begin();
+    // oldRow == newRow means the name stayed the same.
+    // oldRow == newRow - 1 means the name changed, but the row stays the same.
+    if (oldRow != newRow && oldRow != newRow - 1) {
+        beginMoveRows(QModelIndex(), oldRow, oldRow, QModelIndex(), newRow);
+        classes.erase(oldIt);
+        // iterators are invalid now, so we calculate the new position from the rows.
+        if (oldRow < newRow) {
+            // if we move down, we need to account for the removed old element above.
+            newRow--;
+        }
+        classes.insert(newRow, newName);
+        endMoveRows();
+    } else if (oldRow == newRow - 1) { // class name changed, but not the row
+        newRow--;
+        classes[newRow] = newName;
+    }
+    emit dataChanged(index(newRow, 0), index(newRow, 0));
+}
+
+void AnalClassesModel::classAttrsChanged(const QString &cls)
+{
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
+    auto it = std::lower_bound(classes.begin(), classes.end(), cls);
+    if(it == classes.end() || *it != cls) {
+        return;
+    }
+    QPersistentModelIndex persistentIndex = QPersistentModelIndex(index(it - classes.begin(), 0));
+    layoutAboutToBeChanged({persistentIndex});
+    attrs->remove(cls);
+    layoutChanged({persistentIndex});
 }
 
 const QVector<AnalClassesModel::Attribute> &AnalClassesModel::getAttrs(const QString &cls) const
@@ -439,22 +534,24 @@ bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
     case ClassesModel::OFFSET: {
         RVA left_offset = left.data(ClassesModel::OffsetRole).toULongLong();
         RVA right_offset = right.data(ClassesModel::OffsetRole).toULongLong();
-        if (left_offset != right_offset)
+        if (left_offset != right_offset) {
             return left_offset < right_offset;
+        }
     }
     // fallthrough
     case ClassesModel::TYPE: {
         auto left_type = left.data(ClassesModel::TypeRole).value<ClassesModel::RowType>();
         auto right_type = right.data(ClassesModel::TypeRole).value<ClassesModel::RowType>();
-        if (left_type != right_type)
+        if (left_type != right_type) {
             return left_type < right_type;
+        }
     }
     // fallthrough
     case ClassesModel::NAME:
     default:
         QString left_name = left.data(ClassesModel::NameRole).toString();
         QString right_name = right.data(ClassesModel::NameRole).toString();
-        return left_name < right_name;
+        return QString::compare(left_name, right_name, Qt::CaseInsensitive) < 0;
     }
 }
 
@@ -480,29 +577,10 @@ ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
 
     ui->classSourceCombo->setCurrentIndex(1);
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshAll()));
-    connect(Core(), &CutterCore::classNew, this, [this]() {
-        if (getSource() == Source::ANAL) {
-            refreshClasses();
-        }
-    });
-    connect(Core(), &CutterCore::classDeleted, this, [this]() {
-        if (getSource() == Source::ANAL) {
-            refreshClasses();
-        }
-    });
-    connect(Core(), &CutterCore::classRenamed, this, [this]() {
-        if (getSource() == Source::ANAL) {
-            refreshClasses();
-        }
-    });
-    connect(Core(), &CutterCore::classAttrsChanged, this, [this]() {
-        if (getSource() == Source::ANAL) {
-            refreshClasses();
-        }
-    });
     connect(ui->classSourceCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(refreshClasses()));
     connect(ui->classesTreeView, &QTreeView::customContextMenuRequested, this, &ClassesWidget::showContextMenu);
+
+    refreshClasses();
 }
 
 ClassesWidget::~ClassesWidget() {}
@@ -538,7 +616,6 @@ void ClassesWidget::refreshClasses()
             anal_model = new AnalClassesModel(this);
             proxy_model->setSourceModel(anal_model);
         }
-        anal_model->refreshAll();
         break;
     }
 

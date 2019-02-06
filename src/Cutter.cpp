@@ -131,7 +131,7 @@ RCoreLocked CutterCore::core() const
 
 #define CORE_LOCK() RCoreLocked core_lock__(this->core_)
 
-static void cutterREventCallback(REvent *ev, int type, void *user, void *data)
+static void cutterREventCallback(REvent *, int type, void *user, void *data)
 {
     auto core = reinterpret_cast<CutterCore *>(user);
     core->handleREvent(type, data);
@@ -1978,11 +1978,11 @@ QList<BinClassDescription> CutterCore::getAllClassesFromFlags()
     return ret;
 }
 
-QList<QString> CutterCore::getAllAnalClasses()
+QList<QString> CutterCore::getAllAnalClasses(bool sorted)
 {
     QList<QString> ret;
 
-    SdbList *l = r_anal_class_get_all(core_->anal, true);
+    SdbList *l = r_anal_class_get_all(core_->anal, sorted);
     if (!l) {
         return ret;
     }

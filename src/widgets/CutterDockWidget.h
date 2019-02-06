@@ -17,21 +17,6 @@ public:
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isVisibleToUser()      { return isVisibleToUserCurrent; }
 
-public slots:
-    void toggleDockWidget(bool show);
-
-signals:
-    void becameVisibleToUser();
-
-private:
-    QAction *action;
-
-    bool isVisibleToUserCurrent = false;
-    void updateIsVisibleToUser();
-
-protected:
-    void closeEvent(QCloseEvent *event) override;
-
     /*!
      * \brief Convenience method for creating and registering a RefreshDeferrer without any parameters
      * \param refreshNowFunc lambda taking no parameters, called when a refresh should occur
@@ -63,6 +48,21 @@ protected:
         });
         return deferrer;
     }
+
+public slots:
+    void toggleDockWidget(bool show);
+
+signals:
+    void becameVisibleToUser();
+
+private:
+    QAction *action;
+
+    bool isVisibleToUserCurrent = false;
+    void updateIsVisibleToUser();
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // CUTTERWIDGET_H

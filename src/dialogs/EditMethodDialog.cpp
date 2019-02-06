@@ -14,7 +14,7 @@ EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent) :
     } else {
         classComboBox = new QComboBox(this);
         ui->formLayout->setItem(0, QFormLayout::FieldRole, new QWidgetItem(classComboBox));
-        for (auto &cls : Core()->getAllAnalClasses()) {
+        for (auto &cls : Core()->getAllAnalClasses(true)) {
             classComboBox->addItem(cls, cls);
         }
     }

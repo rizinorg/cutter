@@ -480,7 +480,7 @@ public:
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     /* Classes */
-    QList<QString> getAllAnalClasses();
+    QList<QString> getAllAnalClasses(bool sorted);
     QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
     QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
     QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
