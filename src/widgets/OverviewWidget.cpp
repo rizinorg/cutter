@@ -28,6 +28,7 @@ void OverviewWidget::resizeEvent(QResizeEvent *event)
 {
     graphView->refreshView();
     QDockWidget::resizeEvent(event);
+    emit resized();
 }
 
 void OverviewWidget::updateContents()
