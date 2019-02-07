@@ -53,6 +53,13 @@
         </widget>
        </item>
        <item>
+	<widget class="QCheckBox" name="indentCheckBox">
+	 <property name="text">
+	  <string>Indent disassembly based on reflines depth (asm.indent)</string>
+	 </property>
+	</widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="describeCheckBox">
          <property name="text">
           <string>Show opcode description (asm.describe)</string>
