@@ -480,7 +480,7 @@ public:
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
     /* Classes */
-    QList<QString> getAllAnalClasses();
+    QList<QString> getAllAnalClasses(bool sorted);
     QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
     QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
     QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
@@ -697,6 +697,8 @@ public:
     QList<StringDescription> parseStringsJson(const QJsonDocument &doc);
     QList<FunctionDescription> parseFunctionsJson(const QJsonDocument &doc);
 
+    void handleREvent(int type, void *data);
+
     /* Signals related */
     void triggerVarsChanged();
     void triggerFunctionRenamed(const QString &prevName, const QString &newName);
@@ -721,12 +723,16 @@ signals:
     void functionsChanged();
     void flagsChanged();
     void commentsChanged();
-    void classesChanged();
     void registersChanged();
     void instructionChanged(RVA offset);
     void breakpointsChanged();
     void refreshCodeViews();
     void stackChanged();
+
+    void classNew(const QString &cls);
+    void classDeleted(const QString &cls);
+    void classRenamed(const QString &oldName, const QString &newName);
+    void classAttrsChanged(const QString &cls);
 
     void projectSaved(bool successfully, const QString &name);
 
