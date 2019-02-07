@@ -30,7 +30,6 @@ private:
     void loadInitial();
 
     // Colors
-    bool windowColorIsDark();
     void loadBaseThemeNative();
     void loadBaseThemeDark();
     void loadNativeTheme();
@@ -58,6 +57,7 @@ public:
     void setFont(const QFont &font);
 
     // Colors
+    bool windowColorIsDark();
     void setLastThemeOf(const CutterQtTheme &currQtTheme, const QString& theme);
     QString getLastThemeOf(const CutterQtTheme &currQtTheme) const;
     const QColor getColor(const QString &name) const;
