@@ -13,7 +13,7 @@ class CutterSamplePlugin : public QObject, CutterPlugin
 
 public:
     void setupPlugin(CutterCore *core) override;
-    CutterDockWidget* setupInterface(MainWindow *main, QAction *action = nullptr) override;
+    void setupInterface(MainWindow *main) override;
 };
 
 class CutterSamplePluginWidget : public CutterDockWidget

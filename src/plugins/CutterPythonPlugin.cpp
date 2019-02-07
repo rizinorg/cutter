@@ -93,10 +93,9 @@ QString CutterPythonPlugin::getAttributeFromPython(const char *attribute)
     return result;
 }
 
-QDockWidget *CutterPythonPlugin::setupInterface(MainWindow *main, QAction *action)
+void CutterPythonPlugin::setupInterface(MainWindow *main)
 {
     Q_UNUSED(main)
-    Q_UNUSED(action)
 
     PyObject *pWidget = nullptr;
     Python()->restoreThread();
@@ -106,23 +105,8 @@ QDockWidget *CutterPythonPlugin::setupInterface(MainWindow *main, QAction *actio
         qWarning() << "Error in setupInterface().";
         PyErr_Print();
         Python()->saveThread();
-        return nullptr;
-    }
-
-    if (!PyLong_Check(pWidget)) {
-        qWarning() << "Value returned by setupInterface() is not PyLong.";
-        Python()->saveThread();
-        return nullptr;
-    }
-
-    auto dockWidget = reinterpret_cast<QDockWidget *>(PyLong_AsLong(pWidget));
-    if (!dockWidget) {
-        qWarning() << "Cannot instantiate QDockWidget.";
-	    Python()->saveThread();
-	    return nullptr;
+        return;
     }
 
     Python()->saveThread();
-
-    return dockWidget;
 }
