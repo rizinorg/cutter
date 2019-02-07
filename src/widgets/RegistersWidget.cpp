@@ -4,6 +4,9 @@
 
 #include "MainWindow.h"
 
+#include <QLabel>
+#include <QLineEdit>
+
 RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::RegistersWidget)

@@ -16,10 +16,3 @@ class CutterPlugin(object):
             if widget.objectName() == "MainWindow":
                 self.main = widget
                 break
-
-    def makeCppPointer(self, widget):
-        ptr = shiboken2.getCppPointer(widget)[0]
-        return ptr
-        
-
-

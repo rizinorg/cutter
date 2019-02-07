@@ -8,6 +8,7 @@
 #include <QList>
 #include <QFileInfo>
 #include <QToolBar>
+#include <QToolButton>
 
 DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QObject(main),
