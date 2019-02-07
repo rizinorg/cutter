@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "common/Helpers.h"
+#include "CutterConfig.h"
 
 // Qt Headers
 #include <QApplication>
@@ -20,6 +21,9 @@
 #include <QMessageBox>
 #include <QProcess>
 #include <QPropertyAnimation>
+#include <QSysInfo>
+#include <QJsonObject>
+
 #include <QScrollBar>
 #include <QSettings>
 #include <QShortcut>
@@ -263,7 +267,8 @@ void MainWindow::initUI()
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
-    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool, const QString &)));
+    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
+                                                                                       const QString &)));
 
     connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
     connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
@@ -449,8 +454,8 @@ void MainWindow::setFilename(const QString &fn)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
-                                      tr("Do you really want to exit?\nSave your project before closing!"),
-                                      (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+                                                            tr("Do you really want to exit?\nSave your project before closing!"),
+                                                            (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
     if (ret == QMessageBox::Cancel) {
         event->ignore();
         return;
@@ -810,7 +815,8 @@ void MainWindow::on_actionRun_Script_triggered()
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setDirectory(QDir::home());
 
-    const QString &fileName = QDir::toNativeSeparators(dialog.getOpenFileName(this, tr("Select radare2 script")));
+    const QString &fileName = QDir::toNativeSeparators(dialog.getOpenFileName(this,
+                                                                              tr("Select radare2 script")));
     if (fileName.isEmpty()) // Cancel was pressed
         return;
 
@@ -854,8 +860,8 @@ void MainWindow::on_actionReset_settings_triggered()
 {
     QMessageBox::StandardButton ret =
         (QMessageBox::StandardButton)QMessageBox::question(this, APPNAME,
-                tr("Do you really want to clear all settings?"),
-                QMessageBox::Ok | QMessageBox::Cancel);
+                                                           tr("Do you really want to clear all settings?"),
+                                                           QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
         Config()->resetAll();
     }
@@ -915,6 +921,35 @@ void MainWindow::on_actionAbout_triggered()
     AboutDialog *a = new AboutDialog(this);
     a->setAttribute(Qt::WA_DeleteOnClose);
     a->open();
+}
+void MainWindow::on_actionIssue_triggered()
+{
+    QString url, osInfo, format, arch, type;
+    //Pull in info needed for git issue
+    osInfo = QString(QSysInfo::productType()) + " " + QString(QSysInfo::productVersion());
+    QJsonDocument docu = Core()->getFileInfo();
+    QJsonObject coreObj = docu.object()["core"].toObject();
+    QJsonObject binObj = docu.object()["bin"].toObject();
+    if (!binObj.QJsonObject::isEmpty()) {
+        format = coreObj["format"].toString();
+        arch = binObj["arch"].toString();
+        if (!binObj["type"].isUndefined()) {
+            type = coreObj["type"].toString();
+        } else {
+            type = "N/A";
+        }
+    } else {
+        format = coreObj["format"].toString();
+        arch = "N/A";
+        type = "N/A";
+    }
+    url =
+        "https://github.com/radareorg/cutter/issues/new?&body=**Environment information**\n* Operating System: "
+        + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
+        "\n* File format: " + format + "\n * Arch: " + arch + "\n * Type: " + type +
+        "\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
+
+    QDesktopServices::openUrl(QUrl(url,  QUrl::TolerantMode));
 }
 
 void MainWindow::on_actionRefresh_Panels_triggered()

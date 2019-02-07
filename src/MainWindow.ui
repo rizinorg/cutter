@@ -136,6 +136,7 @@ QToolTip {
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionIssue"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -276,6 +277,11 @@ QToolTip {
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionIssue">
+   <property name="text">
+    <string>Report an issue</string>
    </property>
   </action>
   <action name="actionNew">
