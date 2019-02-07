@@ -6,6 +6,7 @@
 #include "ui_ClassesWidget.h"
 #include "common/Helpers.h"
 #include "dialogs/EditMethodDialog.h"
+#include "dialogs/RenameDialog.h"
 
 #include <QMenu>
 
@@ -648,12 +649,22 @@ void ClassesWidget::showContextMenu(const QPoint &pt)
     if (!index.isValid()) {
         return;
     }
+    auto type = static_cast<ClassesModel::RowType>(index.data(ClassesModel::TypeRole).toInt());
 
     QMenu menu(ui->classesTreeView);
 
+    menu.addAction(ui->newClassAction);
+
+    if (type == ClassesModel::RowType::Class) {
+        menu.addAction(ui->renameClassAction);
+        menu.addAction(ui->deleteClassAction);
+    }
+
+    menu.addSeparator();
+
     menu.addAction(ui->addMethodAction);
 
-    if (index.data(ClassesModel::TypeRole).toInt() == static_cast<int>(ClassesModel::RowType::Method)) {
+    if (type == ClassesModel::RowType::Method) {
         menu.addAction(ui->editMethodAction);
 
         QString className = index.parent().data(ClassesModel::NameRole).toString();
@@ -715,4 +726,41 @@ void ClassesWidget::on_editMethodAction_triggered()
     QString className = index.parent().data(ClassesModel::NameRole).toString();
     QString methName = index.data(ClassesModel::NameRole).toString();
     EditMethodDialog::editMethod(className, methName, this);
+}
+
+
+void ClassesWidget::on_newClassAction_triggered()
+{
+    QString name;
+    if (!RenameDialog::showDialog(tr("Create new Class"), &name, tr("Class Name"), this) || name.isEmpty()) {
+        return;
+    }
+    Core()->createNewClass(name);
+}
+
+void ClassesWidget::on_deleteClassAction_triggered()
+{
+    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    if (!index.isValid() || index.data(ClassesModel::TypeRole).toInt() != static_cast<int>(ClassesModel::RowType::Class)) {
+        return;
+    }
+    QString className = index.data(ClassesModel::NameRole).toString();
+    if (QMessageBox::question(this, tr("Delete Class"), tr("Are you sure you want to delete the class %1?").arg(className)) != QMessageBox::StandardButton::Yes) {
+        return;
+    }
+    Core()->deleteClass(className);
+}
+
+void ClassesWidget::on_renameClassAction_triggered()
+{
+    QModelIndex index = ui->classesTreeView->selectionModel()->currentIndex();
+    if (!index.isValid() || index.data(ClassesModel::TypeRole).toInt() != static_cast<int>(ClassesModel::RowType::Class)) {
+        return;
+    }
+    QString oldName = index.data(ClassesModel::NameRole).toString();
+    QString newName = oldName;
+    if (!RenameDialog::showDialog(tr("Rename Class %1").arg(oldName), &newName, tr("Class Name"), this) || newName.isEmpty()) {
+        return;
+    }
+    Core()->renameClass(oldName, newName);
 }

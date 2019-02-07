@@ -131,13 +131,13 @@ AnalMethodDescription EditMethodDialog::getMethod()
 
 bool EditMethodDialog::showDialog(const QString &title, bool classFixed, QString *className, AnalMethodDescription *desc, QWidget *parent)
 {
-    auto dialog = new EditMethodDialog(classFixed, parent);
-    dialog->setWindowTitle(title);
-    dialog->setClass(*className);
-    dialog->setMethod(*desc);
-    int result = dialog->exec();
-    *className = dialog->getClass();
-    *desc = dialog->getMethod();
+    EditMethodDialog dialog(classFixed, parent);
+    dialog.setWindowTitle(title);
+    dialog.setClass(*className);
+    dialog.setMethod(*desc);
+    int result = dialog.exec();
+    *className = dialog.getClass();
+    *desc = dialog.getMethod();
     return result == QDialog::DialogCode::Accepted;
 }
 
