@@ -36,6 +36,7 @@ private slots:
     void on_pseudoCheckBox_toggled(bool checked);
     void on_offsetCheckBox_toggled(bool checked);
     void on_xrefCheckBox_toggled(bool checked);
+    void on_indentCheckBox_toggled(bool checked);
     void on_describeCheckBox_toggled(bool checked);
     void on_stackpointerCheckBox_toggled(bool checked);
     void on_slowCheckBox_toggled(bool checked);

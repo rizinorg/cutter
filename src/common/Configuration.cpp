@@ -24,6 +24,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.pseudo",         false },
     { "asm.offset",         true },
     { "asm.xrefs",          false },
+    { "asm.indent",         false},
     { "asm.describe",       false },
     { "asm.stackptr",       false },
     { "asm.slow",           true },
@@ -58,10 +59,10 @@ Configuration::Configuration() : QObject()
     mPtr = this;
     if (!s.isWritable()) {
         QMessageBox::critical(nullptr,
-            tr("Critical!"),
-            tr("!!! Settings are not writable! Make sure you have a write access to \"%1\"")
-                .arg(s.fileName())
-        );
+                              tr("Critical!"),
+                              tr("!!! Settings are not writable! Make sure you have a write access to \"%1\"")
+                              .arg(s.fileName())
+                             );
     }
     loadInitial();
 }
@@ -162,7 +163,7 @@ void Configuration::setLocale(const QLocale &l)
 bool Configuration::setLocaleByName(const QString &language)
 {
     const auto &allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-                                               QLocale::AnyCountry);
+                                                      QLocale::AnyCountry);
 
     for (auto &it : allLocales) {
         if (QString::compare(it.nativeLanguageName(), language, Qt::CaseInsensitive) == 0) {
@@ -216,8 +217,7 @@ void Configuration::loadNativeTheme()
 {
     loadBaseThemeNative();
 
-    if (windowColorIsDark())
-    {
+    if (windowColorIsDark()) {
         setColor("gui.border",  QColor(0, 0, 0));
         setColor("gui.background", QColor(30, 30, 30));
         setColor("gui.alt_background", QColor(42, 42, 42));
@@ -225,9 +225,7 @@ void Configuration::loadNativeTheme()
         setColor("highlight",   QColor(255, 255, 255, 15));
         setColor("highlightWord", QColor(20, 20, 20, 255));
         setColor("highlightPC", QColor(87, 26, 7));
-    }
-    else
-    {
+    } else {
         setColor("gui.border",  QColor(0, 0, 0));
         setColor("gui.background", QColor(255, 255, 255));
         setColor("gui.alt_background", QColor(245, 250, 255));
@@ -322,7 +320,7 @@ QString Configuration::getLastThemeOf(const CutterQtTheme &currQtTheme) const
 void Configuration::setTheme(int theme)
 {
     if (theme >= kCutterQtThemesList.size() ||
-        theme < 0) {
+            theme < 0) {
         theme = 0;
     }
     s.setValue("ColorPalette", theme);
@@ -352,8 +350,8 @@ const CutterQtTheme *Configuration::getCurrentTheme()
 QString Configuration::getLogoFile()
 {
     return windowColorIsDark()
-        ? QString(":/img/cutter_white_plain.svg")
-        : QString(":/img/cutter_plain.svg");
+           ? QString(":/img/cutter_white_plain.svg")
+           : QString(":/img/cutter_plain.svg");
 }
 
 /*!
@@ -489,7 +487,7 @@ QStringList Configuration::getAvailableTranslations()
             continue;
         }
         const QStringList &currTrFileNames = dir.entryList(QStringList("cutter_*.qm"), QDir::Files,
-            QDir::Name);
+                                                           QDir::Name);
         for (const auto &trFile : currTrFileNames) {
             fileNamesSet << trFile;
         }
@@ -534,8 +532,9 @@ bool Configuration::isFirstExecution()
 
 QStringList Configuration::getTranslationsDirectories() const
 {
-    static const QString cutterTranslationPath = QCoreApplication::applicationDirPath() + QDir::separator()
-        + QLatin1String("translations");
+    static const QString cutterTranslationPath = QCoreApplication::applicationDirPath() +
+                                                 QDir::separator()
+                                                 + QLatin1String("translations");
 
     return {
         cutterTranslationPath,

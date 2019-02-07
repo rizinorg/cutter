@@ -36,8 +36,10 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->pseudoCheckBox, Config()->getConfigBool("asm.pseudo"));
     qhelpers::setCheckedWithoutSignals(ui->offsetCheckBox, Config()->getConfigBool("asm.offset"));
     qhelpers::setCheckedWithoutSignals(ui->xrefCheckBox, Config()->getConfigBool("asm.xrefs"));
+    qhelpers::setCheckedWithoutSignals(ui->indentCheckBox, Config()->getConfigBool("asm.indent"));
     qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Config()->getConfigBool("asm.describe"));
-    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox, Config()->getConfigBool("asm.stackptr"));
+    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox,
+                                       Config()->getConfigBool("asm.stackptr"));
     qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Config()->getConfigBool("asm.slow"));
     qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Config()->getConfigBool("asm.lines"));
     qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.lines.fcn"));
@@ -98,7 +100,8 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
 
     bool varsubEnabled = Config()->getConfigBool("asm.var.sub");
     qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
-    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox, Config()->getConfigBool("asm.var.subonly"));
+    qhelpers::setCheckedWithoutSignals(ui->varsubOnlyCheckBox,
+                                       Config()->getConfigBool("asm.var.subonly"));
     ui->varsubOnlyCheckBox->setEnabled(varsubEnabled);
 }
 
@@ -138,6 +141,12 @@ void AsmOptionsWidget::on_offsetCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_xrefCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.xrefs", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_indentCheckBox_toggled(bool checked)
+{
+    Config()->setConfig("asm.indent", checked);
     triggerAsmOptionsChanged();
 }
 
@@ -239,7 +248,7 @@ void AsmOptionsWidget::on_nbytesSpinBox_valueChanged(int value)
 void AsmOptionsWidget::on_syntaxComboBox_currentIndexChanged(int index)
 {
     Config()->setConfig("asm.syntax",
-                      ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
+                        ui->syntaxComboBox->itemData(index).toString().toUtf8().constData());
     triggerAsmOptionsChanged();
 }
 
