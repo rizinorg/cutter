@@ -80,6 +80,7 @@ If you do not want to build Cutter with Python, re-run CMake with -DCUTTER_ENABL
     endif()
 
     include_directories(${PYTHON_INCLUDE_DIRS})
+    add_definitions(-DCUTTER_ENABLE_PYTHON)
 
     if(CUTTER_ENABLE_JUPYTER)
         add_definitions(-DCUTTER_ENABLE_JUPYTER)
@@ -144,14 +145,17 @@ add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} $
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
 target_link_libraries(Cutter ${RADARE2_LIBRARIES})
-if(CUTTER_ENABLE_JUPYTER)
+if(CUTTER_ENABLE_PYTHON)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
-    if(CUTTER_ENABLE_QTWEBENGINE)
-        target_link_libraries(Cutter Qt5::WebEngineWidgets)
+    if(CUTTER_ENABLE_PYTHON_BINDINGS)
+        target_link_libraries(Cutter ${SHIBOKEN_LIBRARY} ${PYSIDE_LIBRARY})
     endif()
 endif()
 
-target_link_libraries(Cutter ${SHIBOKEN_LIBRARY} ${PYSIDE_LIBRARY})
+if(CUTTER_ENABLE_PYTHON AND CUTTER_ENABLE_JUPYTER AND CUTTER_ENABLE_QTWEBENGINE)
+    target_link_libraries(Cutter Qt5::WebEngineWidgets)
+endif()
+
 
 get_target_property(BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
 list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
