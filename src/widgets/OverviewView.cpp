@@ -91,8 +91,8 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
     }
     qreal w = rangeRect.width();
     qreal h = rangeRect.height();
-    qreal x = event->localPos().x() - w/2;
-    qreal y = event->localPos().y() - h/2;
+    qreal x = event->localPos().x() - w/2 + h_offset;
+    qreal y = event->localPos().y() - h/2 + v_offset;
     rangeRect = QRectF(x, y, w, h);
     viewport()->update();
     emit mouseMoved();
@@ -132,6 +132,8 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     if (y <= unscrolled_render_offset_y) {
         y = unscrolled_render_offset_y;
     }
+    x += h_offset;
+    y += v_offset;
     rangeRect = QRectF(x, y, w, h);
     viewport()->update();
     emit mouseMoved();

@@ -27,6 +27,13 @@ public:
     QRectF rangeRect;
 
     /**
+     * @brief offset for the rect which is put when either of the scrollbar of
+     * Graph is not visible.
+     */
+    qreal h_offset = 0;
+    qreal v_offset = 0;
+
+    /**
      * @brief Graph access this function to set minimum set of the data
      * @param baseWidth width of Graph when it computed the blocks
      * @param baseHeigh height of Graph when it computed the blocks

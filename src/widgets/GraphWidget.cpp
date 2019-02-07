@@ -59,6 +59,7 @@ void GraphWidget::toggleOverview(bool visibility)
         connect(graphView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         connect(overviewWidget->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOffset()));
         connect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+        connect(overviewWidget, &QDockWidget::dockLocationChanged, this, &GraphWidget::adjustOverview);
     } else {
         disconnect(graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         disconnect(graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
@@ -66,6 +67,7 @@ void GraphWidget::toggleOverview(bool visibility)
         disconnect(graphView->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(adjustOverview()));
         disconnect(overviewWidget->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOffset()));
         disconnect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+        disconnect(overviewWidget, &QDockWidget::dockLocationChanged, this, &GraphWidget::adjustOverview);
         disableOverviewRect();
     }
 }
@@ -84,6 +86,8 @@ void GraphWidget::adjustOverview()
     if (!overviewWidget) {
         return;
     }
+    overviewWidget->graphView->h_offset = 0;
+    overviewWidget->graphView->v_offset = 0;
     bool scrollXVisible = graphView->horizontalScrollBar()->isVisible();
     bool scrollYVisible = graphView->verticalScrollBar()->isVisible();
     if (!scrollXVisible && !scrollYVisible) {
@@ -92,25 +96,29 @@ void GraphWidget::adjustOverview()
     }
     qreal x = 0;
     qreal y = 0;
-    qreal w = overviewWidget->graphView->viewport()->width();
-    qreal h = overviewWidget->graphView->viewport()->height();
+    qreal w = graphView->viewport()->width();
+    qreal h = graphView->viewport()->height();
     qreal curScale = overviewWidget->graphView->current_scale;
     qreal baseScale = graphView->current_scale;
 
-    w = graphView->viewport()->width();
-    h = graphView->viewport()->height();
-
+    w *= curScale / baseScale;
+    h *= curScale / baseScale;
     if (scrollXVisible) {
         x = graphView->horizontalScrollBar()->value();
-        w *= curScale / baseScale;
+        x *= curScale;
+    } else {
+        x = (overviewWidget->graphView->viewport()->width() - w) / 2;
+        overviewWidget->graphView->h_offset = x;
     }
 
     if (scrollYVisible) {
         y = graphView->verticalScrollBar()->value();
-        h *= curScale / baseScale;
+        y *= curScale;
+    } else {
+        y = (overviewWidget->graphView->viewport()->height() - h) / 2;
+        overviewWidget->graphView->v_offset = y;
     }
-    x *= curScale;
-    y *= curScale;
+
     overviewWidget->graphView->rangeRect = QRectF(x + overviewWidget->graphView->unscrolled_render_offset_x,
             y + overviewWidget->graphView->unscrolled_render_offset_y, w, h);
     overviewWidget->graphView->viewport()->update();
@@ -123,8 +131,8 @@ void GraphWidget::adjustGraph()
     }
     int x1 = overviewWidget->graphView->horizontalScrollBar()->value();
     int y1 = overviewWidget->graphView->verticalScrollBar()->value();
-    qreal x2 = (overviewWidget->graphView->rangeRect.x() - (qreal)overviewWidget->graphView->unscrolled_render_offset_x)/ overviewWidget->graphView->current_scale;
-    qreal y2 = (overviewWidget->graphView->rangeRect.y() - (qreal)overviewWidget->graphView->unscrolled_render_offset_y)/ overviewWidget->graphView->current_scale;
+    qreal x2 = (overviewWidget->graphView->rangeRect.x() - (qreal)overviewWidget->graphView->unscrolled_render_offset_x) / overviewWidget->graphView->current_scale;
+    qreal y2 = (overviewWidget->graphView->rangeRect.y() - (qreal)overviewWidget->graphView->unscrolled_render_offset_y) / overviewWidget->graphView->current_scale;
 
     graphView->horizontalScrollBar()->setValue(x1 + x2);
     graphView->verticalScrollBar()->setValue(y1 + y2);
