@@ -55,7 +55,7 @@
        <item>
 	<widget class="QCheckBox" name="indentCheckBox">
 	 <property name="text">
-	  <string>Show indents (asm.indent)</string>
+	  <string>Indent disassembly based on reflines depth (asm.indent)</string>
 	 </property>
 	</widget>
        </item>
