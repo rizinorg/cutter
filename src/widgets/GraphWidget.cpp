@@ -60,6 +60,7 @@ void GraphWidget::toggleOverview(bool visibility)
         connect(overviewWidget->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOffset()));
         connect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         connect(overviewWidget, &QDockWidget::dockLocationChanged, this, &GraphWidget::adjustOverview);
+        connect(overviewWidget, &OverviewWidget::resized, this, &GraphWidget::adjustOverview);
     } else {
         disconnect(graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         disconnect(graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
@@ -68,6 +69,7 @@ void GraphWidget::toggleOverview(bool visibility)
         disconnect(overviewWidget->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOffset()));
         disconnect(overviewWidget->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         disconnect(overviewWidget, &QDockWidget::dockLocationChanged, this, &GraphWidget::adjustOverview);
+        disconnect(overviewWidget, &OverviewWidget::resized, this, &GraphWidget::adjustOverview);
         disableOverviewRect();
     }
 }
