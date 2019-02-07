@@ -119,6 +119,21 @@
     <string>Add Method</string>
    </property>
   </action>
+  <action name="newClassAction">
+   <property name="text">
+    <string>Create new Class</string>
+   </property>
+  </action>
+  <action name="renameClassAction">
+   <property name="text">
+    <string>Rename Class</string>
+   </property>
+  </action>
+  <action name="deleteClassAction">
+   <property name="text">
+    <string>Delete Class</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

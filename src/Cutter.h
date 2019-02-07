@@ -484,6 +484,9 @@ public:
     QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
     QList<AnalBaseClassDescription> getAnalClassBaseClasses(const QString &cls);
     QList<AnalVTableDescription> getAnalClassVTables(const QString &cls);
+    void createNewClass(const QString &cls);
+    void renameClass(const QString &oldName, const QString &newName);
+    void deleteClass(const QString &cls);
     bool getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc);
     void renameAnalMethod(const QString &className, const QString &oldMethodName, const QString &newMethodName);
     void setAnalMethod(const QString &cls, const AnalMethodDescription &meth);

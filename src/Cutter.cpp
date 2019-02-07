@@ -2068,6 +2068,21 @@ QList<AnalVTableDescription> CutterCore::getAnalClassVTables(const QString &cls)
     return ret;
 }
 
+void CutterCore::createNewClass(const QString &cls)
+{
+    r_anal_class_create(core_->anal, cls.toUtf8().constData());
+}
+
+void CutterCore::renameClass(const QString &oldName, const QString &newName)
+{
+    r_anal_class_rename(core_->anal, oldName.toUtf8().constData(), newName.toUtf8().constData());
+}
+
+void CutterCore::deleteClass(const QString &cls)
+{
+    r_anal_class_delete(core_->anal, cls.toUtf8().constData());
+}
+
 bool CutterCore::getAnalMethod(const QString &cls, const QString &meth, AnalMethodDescription *desc)
 {
     RAnalMethod analMeth;

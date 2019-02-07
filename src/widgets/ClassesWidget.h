@@ -176,6 +176,9 @@ private slots:
     void on_seekToVTableAction_triggered();
     void on_addMethodAction_triggered();
     void on_editMethodAction_triggered();
+    void on_newClassAction_triggered();
+    void on_deleteClassAction_triggered();
+    void on_renameClassAction_triggered();
 
     void showContextMenu(const QPoint &pt);
 
