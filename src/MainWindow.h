@@ -103,6 +103,8 @@ public:
     void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
     void addExtraWidget(QDockWidget *extraDock);
 
+    void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
+
     void updateDockActionChecked(QAction * action);
 
     QString getFilename() const

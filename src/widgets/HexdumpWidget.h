@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QTextEdit>
 #include <QMouseEvent>
+#include <QAction>
 
 #include <array>
 #include <memory>
@@ -19,7 +20,9 @@
 
 #include "Dashboard.h"
 
-#include "ui_HexdumpWidget.h"
+namespace Ui {
+    class HexdumpWidget;
+}
 
 class RefreshDeferrer;
 

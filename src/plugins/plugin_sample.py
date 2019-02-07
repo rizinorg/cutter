@@ -1,9 +1,45 @@
+
 import cutter
 from cutter_plugin import CutterPlugin
-from PySide2 import QtWidgets
-from PySide2.QtCore import QObject, SIGNAL, Qt
-from PySide2.QtGui import QFont
 import CutterBindings
+
+from PySide2.QtCore import QObject, SIGNAL, Qt
+from PySide2.QtWidgets import QAction, QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
+
+
+class FortuneWidget(CutterBindings.CutterDockWidget):
+    def __init__(self, main, action):
+        super(FortuneWidget, self).__init__(main, action)
+        self.setObjectName("FancyDockWidgetFromCoolPlugin")
+        self.setWindowTitle("Test Widget")
+
+        content = QWidget()
+        self.setWidget(content)
+
+        # Create layout and label
+        layout = QVBoxLayout(self)
+        content.setLayout(layout)
+        self.text = QLabel(content)
+        self.text.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        layout.addWidget(self.text)
+
+        button = QPushButton(content)
+        button.setText("Want a fortune?")
+        button.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        button.setMaximumHeight(50)
+        button.setMaximumWidth(200)
+        layout.addWidget(button)
+        layout.setAlignment(button, Qt.AlignHCenter)
+
+        QObject.connect(CutterBindings.CutterCore.getInstance(), SIGNAL("seekChanged(RVA)"), self.generate_fortune)
+        QObject.connect(button, SIGNAL("clicked()"), self.generate_fortune)
+
+        self.show()
+
+    def generate_fortune(self):
+        res = cutter.cmd("?E `fo`")
+        self.text.setText(res)
+
 
 class CutterSamplePlugin(CutterPlugin):
     name = "SamplePlugin"
@@ -14,37 +50,10 @@ class CutterSamplePlugin(CutterPlugin):
     def setupInterface(self):
         super().setupInterface()
 
-        # Create dock widget and content widget
-        dock_widget = QtWidgets.QDockWidget(self.main)
-        dock_widget.setObjectName("FancyDockWidgetFromCoolPlugin")
-        dock_widget.setWindowTitle("Test Widget")
-        content = QtWidgets.QWidget()
-        dock_widget.setWidget(content)
-
-        # Create layout and label
-        layout = QtWidgets.QVBoxLayout(dock_widget)
-        content.setLayout(layout)
-        self.text = QtWidgets.QLabel(content)
-        self.text.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        layout.addWidget(self.text)
-
-        button = QtWidgets.QPushButton(content)
-        button.setText("Want a fortune?")
-        button.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
-        button.setMaximumHeight(50)
-        button.setMaximumWidth(200)
-        layout.addWidget(button)
-        layout.setAlignment(button, Qt.AlignHCenter)
-
-        QObject.connect(CutterBindings.CutterCore.getInstance(), SIGNAL("seekChanged(RVA)"), self.generate_fortune)
-        QObject.connect(button, SIGNAL("clicked()"), self.generate_fortune)
-
-        return self.makeCppPointer(dock_widget)
-
-
-    def generate_fortune(self):
-        res = cutter.cmd("?E `fo`")
-        self.text.setText(res)
+        self.action = QAction("Fortune Widget", self.main)
+        self.action.setCheckable(True)
+        self.widget = FortuneWidget(self.main, self.action) # we MUST keep a reference to this!
+        self.main.addPluginDockWidget(self.widget, self.action)
 
 
 # Instantiate our plugin

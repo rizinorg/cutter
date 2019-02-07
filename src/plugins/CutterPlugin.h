@@ -12,7 +12,7 @@ class CutterPlugin
 public:
     virtual ~CutterPlugin() {}
     virtual void setupPlugin(CutterCore *core) = 0;
-    virtual QDockWidget *setupInterface(MainWindow *main, QAction *action = nullptr) = 0;
+    virtual void setupInterface(MainWindow *main, QAction *action = nullptr) = 0;
 
     QString name;
     QString description;
@@ -21,7 +21,6 @@ public:
 
 protected:
     CutterCore *core;
-    CutterDockWidget *dockable;
 };
 
 #define CutterPlugin_iid "org.radare.cutter.plugins.CutterPlugin"

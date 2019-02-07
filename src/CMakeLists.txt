@@ -97,16 +97,10 @@ or, if you don't want to build with Python at all, use -DCUTTER_ENABLE_PYTHON=OF
         endif()
 
         include_directories(${SHIBOKEN_INCLUDE_DIR})
-        include_directories(${PYSIDE_INCLUDE_DIR})
-        include_directories(${PYSIDE_INCLUDE_DIR}/QtCore)
+        include_directories(${PYSIDE_INCLUDE_DIR} ${PYSIDE_INCLUDE_DIR}/QtCore ${PYSIDE_INCLUDE_DIR}/QtGui ${PYSIDE_INCLUDE_DIR}/QtWidgets)
     endif()
 endif()
 
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-        OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-Wall -Wextra)
-endif()
 
 
 message(STATUS "")
@@ -126,8 +120,9 @@ qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
 
 set(BINDINGS_SOURCE
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterbindings_module_wrapper.cpp"
-        #"${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterdockwidget_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cuttercore_wrapper.cpp")
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cuttercore_wrapper.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterdockwidget_wrapper.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/mainwindow_wrapper.cpp")
 
 set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
 
@@ -135,10 +130,18 @@ include_directories("${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
 
 add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-        COMMAND shiboken2 --project-file=${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt
-        #DEPENDS ${sample_TYPESYSTEM} ${CMAKE_CURRENT_SOURCE_DIR}/global.h shiboken2
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND shiboken2 --project-file="${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt"
+        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.xml"
+        IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
         COMMENT "Generating Python bindings with shiboken2")
+
+
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+        OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_definitions(-Wall -Wextra)
+    set_source_files_properties(${BINDINGS_SOURCE} PROPERTIES COMPILE_FLAGS -w)
+endif()
 
 
 add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})

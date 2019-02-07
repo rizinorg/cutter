@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
 <typesystem package="CutterBindings">
     <load-typesystem name="typesystem_core.xml" generate="no" />
+    <load-typesystem name="typesystem_gui.xml" generate="no" />
+    <load-typesystem name="typesystem_widgets.xml" generate="no" />
     <primitive-type name="bool"/>
-    <primitive-type name="std::string"/>
-    <!--<object-type name="CutterDockWidget" />-->
     <object-type name="CutterCore" />
+    <object-type name="MainWindow" />
+    <object-type name="CutterDockWidget" />
 </typesystem>
