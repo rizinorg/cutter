@@ -923,37 +923,32 @@ void MainWindow::on_actionAbout_triggered()
 }
 void MainWindow::on_actionIssue_triggered()
 {
-    QString url;
+    QString url, osInfo, format, arch, type;
     //Pull in info needed for git issue
-    QString osInfo = QString(QSysInfo::productType()) + " " + QString(QSysInfo::productVersion());
+    osInfo = QString(QSysInfo::productType()) + " " + QString(QSysInfo::productVersion());
     QJsonDocument docu = Core()->getFileInfo();
     QJsonObject coreObj = docu.object()["core"].toObject();
     QJsonObject binObj = docu.object()["bin"].toObject();
-    if (!binObj.QJsonObject::isEmpty()){
-      QString format = coreObj["format"].toString();
-      QString arch = binObj["arch"].toString();
-      if (!binObj["type"].isUndefined()){
-	QString type = coreObj["type"].toString();
-	 url =
-	  "https://github.com/radareorg/cutter/issues/new?title=&body=**Environment information**\n* Operating System: "
-	  + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
-	  "\n* File format: " + format + "\n * Arch: " + arch + "\n * Type: " + type +
-	  "\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
-      }
-      else{
-	 url =
-  "https://github.com/radareorg/cutter/issues/new?title=&body=**Environment information**\n* Operating System: "
-  + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
-  "\n* File format: " + format + "\n * Arch: " + arch + "\n * Type: N/A \n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
-      }
+    if (!binObj.QJsonObject::isEmpty()) {
+        format = coreObj["format"].toString();
+        arch = binObj["arch"].toString();
+        if (!binObj["type"].isUndefined()) {
+            type = coreObj["type"].toString();
+        } else {
+            type = "N/A";
+        }
+    } else {
+        format = coreObj["format"].toString();
+        arch = "N/A";
+        type = "N/A";
     }
-    else {
-     url =
-        "https://github.com/radareorg/cutter/issues/new?title=&body=**Environment information**\n* Operating System: "
+    url =
+        "https://github.com/radareorg/cutter/issues/new?&body=**Environment information**\n* Operating System: "
         + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
-        "\n* File format: N/A \n * Arch: N/A \n * Type: N/A \n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
-    }
-   QDesktopServices::openUrl(QUrl(url,  QUrl::TolerantMode));
+        "\n* File format: " + format + "\n * Arch: " + arch + "\n * Type: " + type +
+        "\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
+
+    QDesktopServices::openUrl(QUrl(url,  QUrl::TolerantMode));
 }
 
 void MainWindow::on_actionRefresh_Panels_triggered()
