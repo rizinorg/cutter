@@ -9,8 +9,10 @@ Welcome to Cutter's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :glob:
+
+   *
    
-   reference.rst
 
 
 Indices and tables

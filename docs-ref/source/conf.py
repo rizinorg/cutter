@@ -71,6 +71,7 @@ pygments_style = None
 
 breathe_projects = { "cutter": "../doxygen-out/xml" }
 breathe_default_project = "cutter"
+breathe_default_members = ('members', 'undoc-members')
 
 # -- Options for HTML output -------------------------------------------------
 
