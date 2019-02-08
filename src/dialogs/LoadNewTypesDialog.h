@@ -23,6 +23,12 @@ private slots:
 
 private:
     std::unique_ptr<Ui::LoadNewTypesDialog> ui;
+
+signals:
+    /*!
+     * \brief Emitted when new types are loaded
+     */
+    void newTypesLoaded();
 };
 
 #endif // LOADNEWTYPESDIALOG_H

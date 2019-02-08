@@ -2208,7 +2208,7 @@ QList<TypeDescription> CutterCore::getAllUnions()
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
-        exp.category = tr("Union");
+        exp.category = "Union";
         ret << exp;
     }
 
@@ -2225,7 +2225,7 @@ QList<TypeDescription> CutterCore::getAllStructs()
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
-        exp.category = tr("Struct");
+        exp.category = "Struct";
         ret << exp;
     }
 
@@ -2242,7 +2242,7 @@ QList<TypeDescription> CutterCore::getAllEnums()
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
-        exp.category = tr("Enum");
+        exp.category = "Enum";
         ret << exp;
     }
 
@@ -2259,7 +2259,7 @@ QList<TypeDescription> CutterCore::getAllTypedefs()
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
-        exp.category = tr("Typedef");
+        exp.category = "Typedef";
         ret << exp;
     }
 

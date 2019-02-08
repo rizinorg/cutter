@@ -3,6 +3,7 @@
 
 #include "Cutter.h"
 #include "common/Configuration.h"
+#include "widgets/TypesWidget.h"
 
 #include <QFileDialog>
 #include <QTemporaryFile>
@@ -23,7 +24,15 @@ void LoadNewTypesDialog::on_selectFileButton_clicked()
     ui->filenameLineEdit->setText(filename);
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
-        qWarning() << "Unable to open file";
+        QMessageBox popup(this);
+        popup.setWindowTitle(tr("Error"));
+        popup.setText(file.errorString());
+        popup.setInformativeText(tr("Do you want to try again?"));
+        popup.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+        popup.setDefaultButton(QMessageBox::Yes);
+        if (popup.exec() == QMessageBox::Yes) {
+            on_selectFileButton_clicked();
+        }
         return;
     }
     ui->plainTextEdit->setPlainText(file.readAll());
@@ -41,5 +50,5 @@ void LoadNewTypesDialog::on_buttonBox_accepted()
     fileOut << ui->plainTextEdit->toPlainText();
     file.close();
     Core()->cmd("to " + file.fileName());
-    Core()->refreshAll();
+    emit newTypesLoaded();
 }

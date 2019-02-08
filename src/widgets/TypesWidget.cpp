@@ -75,7 +75,7 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
 
 bool TypesModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    Core()->cmd("t-" + types->at(row).type);
+    Core()->cmdRaw("t-" + types->at(row).type);
     beginRemoveRows(parent, row, row + count - 1);
     while (count--) {
         types->removeAt(row);
@@ -220,24 +220,20 @@ void TypesWidget::setScrollMode()
 
 void TypesWidget::showTypesContextMenu(const QPoint &pt)
 {
-    QMenu *menu = new QMenu(ui->typesTreeView);
-
-    menu->clear();
-    menu->addAction(ui->actionLoad_New_Types);
-    menu->addAction(ui->actionExport_Types);
+    QMenu menu(ui->typesTreeView);
+    menu.addAction(ui->actionLoad_New_Types);
+    menu.addAction(ui->actionExport_Types);
 
     QModelIndex index = ui->typesTreeView->indexAt(pt);
     if (index.isValid()) {
         TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-        if (t.category != tr("Typedef")) {
-            menu->addSeparator();
-            menu->addAction(ui->actionDelete_Type);
+        if (t.category != "Typedef") {
+            menu.addSeparator();
+            menu.addAction(ui->actionDelete_Type);
         }
     }
 
-    menu->exec(ui->typesTreeView->mapToGlobal(pt));
-
-    delete menu;
+    menu.exec(ui->typesTreeView->mapToGlobal(pt));
 }
 
 void TypesWidget::on_actionExport_Types_triggered()
@@ -245,7 +241,15 @@ void TypesWidget::on_actionExport_Types_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), Config()->getRecentFolder());
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "Can't save file";
+        QMessageBox popup(this);
+        popup.setWindowTitle(tr("Error"));
+        popup.setText(file.errorString());
+        popup.setInformativeText(tr("Do you want to try again?"));
+        popup.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+        popup.setDefaultButton(QMessageBox::Yes);
+        if (popup.exec() == QMessageBox::Yes) {
+            on_actionExport_Types_triggered();
+        }
         return;
     }
     QTextStream fileOut(&file);
@@ -258,6 +262,7 @@ void TypesWidget::on_actionExport_Types_triggered()
 void TypesWidget::on_actionLoad_New_Types_triggered()
 {
     LoadNewTypesDialog *dialog = new LoadNewTypesDialog(this);
+    connect(dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
     dialog->setWindowTitle(tr("Load New Types"));
     dialog->exec();
 }

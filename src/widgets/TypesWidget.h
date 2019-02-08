@@ -44,6 +44,13 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
+    /*!
+     * \brief removeRows
+     * \param row The number of the row to be deleted
+     * \param count The number of rows to delete
+     * \param parent Parent of the row
+     * \return returns true if successfully removed, false otherwise
+     */
     bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 };
 
