@@ -7,7 +7,6 @@
 #include <QDebug>
 
 #include "QtResImporter.h"
-#include "plugins/CutterPythonPlugin.h"
 
 static PythonManager *uniqueInstance = nullptr;
 
@@ -70,9 +69,6 @@ void PythonManager::initialize()
     pyThreadStateCounter = 1; // we have the thread now => 1
 
     RegQtResImporter();
-
-    // Import other modules
-    cutterPluginModule = QtResImport("cutter_plugin");
 
     saveThread();
 }

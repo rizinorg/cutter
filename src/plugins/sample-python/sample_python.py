@@ -1,6 +1,5 @@
 
 import cutter
-from cutter_plugin import CutterPlugin
 import CutterBindings
 
 from PySide2.QtCore import QObject, SIGNAL, Qt
@@ -32,31 +31,36 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
         layout.addWidget(button)
         layout.setAlignment(button, Qt.AlignHCenter)
 
-        QObject.connect(CutterBindings.CutterCore.getInstance(), SIGNAL("seekChanged(RVA)"), self.generate_fortune)
+        QObject.connect(cutter.core(), SIGNAL("seekChanged(RVA)"), self.generate_fortune)
         QObject.connect(button, SIGNAL("clicked()"), self.generate_fortune)
 
         self.show()
 
     def generate_fortune(self):
         fortune = cutter.cmd("fo").replace("\n", "")
-        res = CutterBindings.CutterCore.getInstance().cmdRaw(f"?E {fortune}")
+        res = cutter.core().cmdRaw(f"?E {fortune}")
         self.text.setText(res)
 
 
-class CutterSamplePlugin(CutterPlugin):
+class CutterSamplePlugin(CutterBindings.CutterPlugin):
     name = "SamplePlugin"
     description = "A sample plugin written in python."
     version = "1.0"
     author = "xarkes and thestr4ng3r :-P"
 
-    def setupInterface(self):
-        super().setupInterface()
+    def __init__(self):
+        super(CutterSamplePlugin, self).__init__()
 
-        self.action = QAction("Sample Python Plugin", self.main)
+    def setupPlugin(self):
+        pass
+
+    def setupInterface(self, main):
+        self.action = QAction("Sample Python Plugin", main)
         self.action.setCheckable(True)
-        self.widget = FortuneWidget(self.main, self.action) # we MUST keep a reference to this!
-        self.main.addPluginDockWidget(self.widget, self.action)
+        self.widget = FortuneWidget(main, self.action) # we MUST keep a reference to this!
+        main.addPluginDockWidget(self.widget, self.action)
 
 
-# Instantiate our plugin
-plugin = CutterSamplePlugin()
+# This function will be called by Cutter and should return an instance of the plugin.
+def create_cutter_plugin():
+    return CutterSamplePlugin()

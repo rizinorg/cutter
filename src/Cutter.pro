@@ -229,7 +229,6 @@ SOURCES += \
     dialogs/EditMethodDialog.cpp \
     dialogs/LoadNewTypesDialog.cpp \
     widgets/SdbWidget.cpp \
-    plugins/CutterPythonPlugin.cpp \
     common/PythonManager.cpp \
     plugins/PluginManager.cpp
 
@@ -343,7 +342,6 @@ HEADERS  += \
     dialogs/EditMethodDialog.h \
     dialogs/LoadNewTypesDialog.h \
     widgets/SdbWidget.h \
-    plugins/CutterPythonPlugin.h \
     common/PythonManager.h \
     plugins/PluginManager.h
 
