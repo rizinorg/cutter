@@ -70,9 +70,6 @@ void PythonManager::initialize()
 
     RegQtResImporter();
 
-    // Import other modules
-    cutterPluginModule = QtResImport("cutter_plugin");
-
     saveThread();
 }
 

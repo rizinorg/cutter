@@ -1,6 +1,5 @@
 
 import cutter
-from cutter_plugin import CutterPlugin
 import CutterBindings
 
 from PySide2.QtCore import QObject, SIGNAL, Qt
@@ -51,19 +50,6 @@ class CutterSamplePlugin(CutterBindings.CutterPlugin):
 
     def __init__(self):
         super(CutterSamplePlugin, self).__init__()
-
-    # TODO: these getters will eventually be killed, ignore them for now
-    def getName(self):
-        return self.__class__.name
-
-    def getDescription(self):
-        return self.__class__.description
-
-    def getVersion(self):
-        return self.__class__.version
-
-    def getAuthor(self):
-        return self.__class__.author
 
     def setupPlugin(self):
         pass

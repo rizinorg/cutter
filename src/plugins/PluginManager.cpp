@@ -111,11 +111,6 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
 {
     PythonManager::ThreadHolder threadHolder;
 
-    PyObject *cutterPluginModule = Python()->getCutterPluginModule();
-    if (!cutterPluginModule) {
-        return nullptr;
-    }
-
     PyObject *pluginModule = PyImport_ImportModule(moduleName);
     if (!pluginModule) {
         qWarning() << "Couldn't load module for plugin:" << QString(moduleName);
