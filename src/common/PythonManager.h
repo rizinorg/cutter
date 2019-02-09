@@ -25,11 +25,22 @@ public:
 
     void addPythonPath(char *path);
 
-
-    CutterPythonPlugin *loadPlugin(const char *pluginName);
-
     void restoreThread();
     void saveThread();
+
+    PyObject *getCutterPluginModule()           { return cutterPluginModule; }
+
+    /*!
+     * \brief RAII Helper class to call restoreThread() and saveThread() automatically
+     *
+     * As long as an object of this class is in scope, the Python thread will remain restored.
+     */
+    class ThreadHolder
+    {
+    public:
+        ThreadHolder()    { getInstance()->restoreThread(); }
+        ~ThreadHolder()   { getInstance()->saveThread(); }
+    };
 
 signals:
     void willShutDown();
@@ -38,6 +49,7 @@ private:
     QString customPythonHome;
     wchar_t *pythonHome = nullptr;
     PyThreadState *pyThreadState = nullptr;
+    int pyThreadStateCounter = 0;
 
     PyObject *cutterPluginModule;
 };

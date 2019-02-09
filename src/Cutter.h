@@ -723,9 +723,6 @@ public:
 
     void message(const QString &msg, bool debug = false);
 
-    void setCutterPlugins(QList<CutterPlugin*> plugins);
-    QList<CutterPlugin*> getCutterPlugins();
-
     QStringList getSectionList();
 
     RCoreLocked core() const;
@@ -787,7 +784,6 @@ private:
 
     bool emptyGraph = false;
 
-    QList<CutterPlugin*> plugins;
 };
 
 class ccClass : public CutterCore
