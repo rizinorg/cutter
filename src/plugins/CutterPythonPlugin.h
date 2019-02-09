@@ -10,7 +10,7 @@ public:
     CutterPythonPlugin(PyObject* pluginModule);
     ~CutterPythonPlugin();
     void setupPlugin(CutterCore *core);
-    void setupInterface(MainWindow *main, QAction *action);
+    void setupInterface(MainWindow *main);
 
 private:
     PyObject *pluginModule = nullptr;

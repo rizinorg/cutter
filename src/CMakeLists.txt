@@ -121,6 +121,7 @@ qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
 set(BINDINGS_SOURCE
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterbindings_module_wrapper.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cuttercore_wrapper.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/configuration_wrapper.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterdockwidget_wrapper.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/mainwindow_wrapper.cpp")
 
@@ -128,6 +129,7 @@ set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
 
 add_custom_command(OUTPUT ${BINDINGS_SOURCE}
         COMMAND shiboken2 --project-file="${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt"

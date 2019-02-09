@@ -1,10 +1,12 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QAction>
 
 #include "CutterSamplePlugin.h"
 #include "common/TempConfig.h"
 #include "common/Configuration.h"
+#include "MainWindow.h"
 
 void CutterSamplePlugin::setupPlugin(CutterCore *core)
 {
@@ -15,22 +17,23 @@ void CutterSamplePlugin::setupPlugin(CutterCore *core)
     this->author = "xarkes";
 }
 
-CutterDockWidget* CutterSamplePlugin::setupInterface(MainWindow *main, QAction* actions)
+void CutterSamplePlugin::setupInterface(MainWindow *main)
 {
-    // Instantiate dock widget
-    dockable = new CutterSamplePluginWidget(main, actions);
-    return dockable;
+    QAction *action = new QAction("Sample C++ Plugin", main);
+    action->setCheckable(true);
+    CutterSamplePluginWidget *widget = new CutterSamplePluginWidget(main, action);
+    main->addPluginDockWidget(widget, action);
 }
 
 CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
     this->setObjectName("CutterSamplePluginWidget");
-    this->setWindowTitle("Sample Plugin");
+    this->setWindowTitle("Sample C++ Plugin");
     QWidget *content = new QWidget();
     this->setWidget(content);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(content);
     content->setLayout(layout);
     text = new QLabel(content);
     text->setFont(Config()->getFont());
@@ -63,6 +66,7 @@ void CutterSamplePluginWidget::on_seekChanged(RVA addr)
 
 void CutterSamplePluginWidget::on_buttonClicked()
 {
-    QString res = Core()->cmd("?E `fo`");
+    QString fortune = Core()->cmd("fo").replace("\n", "");
+    QString res = Core()->cmdRaw("?E " + fortune);
     text->setText(res);
 }

@@ -93,10 +93,9 @@ QString CutterPythonPlugin::getAttributeFromPython(const char *attribute)
     return result;
 }
 
-void CutterPythonPlugin::setupInterface(MainWindow *main, QAction *action)
+void CutterPythonPlugin::setupInterface(MainWindow *main)
 {
     Q_UNUSED(main)
-    Q_UNUSED(action)
 
     PyObject *pWidget = nullptr;
     Python()->restoreThread();

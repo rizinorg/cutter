@@ -3,6 +3,7 @@
 #define CUTTER_BINDINGS_H
 
 #include "../Cutter.h"
+#include "../common/Configuration.h"
 #include "../MainWindow.h"
 #include "../widgets/CutterDockWidget.h"
 

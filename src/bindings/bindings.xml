@@ -5,6 +5,7 @@
     <load-typesystem name="typesystem_widgets.xml" generate="no" />
     <primitive-type name="bool"/>
     <object-type name="CutterCore" />
+    <object-type name="Configuration" />
     <object-type name="MainWindow" />
     <object-type name="CutterDockWidget" />
 </typesystem>

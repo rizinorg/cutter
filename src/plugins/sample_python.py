@@ -11,16 +11,17 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
     def __init__(self, main, action):
         super(FortuneWidget, self).__init__(main, action)
         self.setObjectName("FancyDockWidgetFromCoolPlugin")
-        self.setWindowTitle("Test Widget")
+        self.setWindowTitle("Sample Python Plugin")
 
         content = QWidget()
         self.setWidget(content)
 
         # Create layout and label
-        layout = QVBoxLayout(self)
+        layout = QVBoxLayout(content)
         content.setLayout(layout)
         self.text = QLabel(content)
         self.text.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.text.setFont(CutterBindings.Configuration.instance().getFont())
         layout.addWidget(self.text)
 
         button = QPushButton(content)
@@ -37,7 +38,8 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
         self.show()
 
     def generate_fortune(self):
-        res = cutter.cmd("?E `fo`")
+        fortune = cutter.cmd("fo").replace("\n", "")
+        res = CutterBindings.CutterCore.getInstance().cmdRaw(f"?E {fortune}")
         self.text.setText(res)
 
 
@@ -50,7 +52,7 @@ class CutterSamplePlugin(CutterPlugin):
     def setupInterface(self):
         super().setupInterface()
 
-        self.action = QAction("Fortune Widget", self.main)
+        self.action = QAction("Sample Python Plugin", self.main)
         self.action.setCheckable(True)
         self.widget = FortuneWidget(self.main, self.action) # we MUST keep a reference to this!
         self.main.addPluginDockWidget(self.widget, self.action)
