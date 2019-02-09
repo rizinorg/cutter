@@ -67,6 +67,7 @@ void PythonManager::initialize()
     PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);
     Py_Initialize();
     PyEval_InitThreads();
+    pyThreadStateCounter = 1; // we have the thread now => 1
 
     RegQtResImporter();
 
@@ -109,34 +110,19 @@ void PythonManager::addPythonPath(char *path) {
     saveThread();
 }
 
-
-CutterPythonPlugin* PythonManager::loadPlugin(const char *pluginName) {
-    CutterPythonPlugin *plugin = nullptr;
-    if (!cutterPluginModule) {
-        return plugin;
-    }
-
-    restoreThread();
-    PyObject *pluginModule = PyImport_ImportModule(pluginName);
-    if (!pluginModule) {
-        qWarning() << "Couldn't load the plugin" << QString(pluginName);
-        PyErr_PrintEx(10);
-    } else {
-        plugin = new CutterPythonPlugin(pluginModule);
-    }
-    saveThread();
-
-    return plugin;
-}
-
 void PythonManager::restoreThread()
 {
-    if (pyThreadState) {
+    pyThreadStateCounter++;
+    if (pyThreadStateCounter == 1 && pyThreadState) {
         PyEval_RestoreThread(pyThreadState);
     }
 }
 
 void PythonManager::saveThread()
 {
-    pyThreadState = PyEval_SaveThread();
+    pyThreadStateCounter--;
+    assert(pyThreadStateCounter >= 0);
+    if (pyThreadStateCounter == 0) {
+        pyThreadState = PyEval_SaveThread();
+    }
 }
