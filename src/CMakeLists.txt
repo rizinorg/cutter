@@ -123,6 +123,7 @@ set(BINDINGS_SOURCE
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cuttercore_wrapper.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/configuration_wrapper.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterdockwidget_wrapper.cpp"
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterplugin_wrapper.cpp"
         "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/mainwindow_wrapper.cpp")
 
 set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
@@ -130,6 +131,7 @@ set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 
 add_custom_command(OUTPUT ${BINDINGS_SOURCE}
         COMMAND shiboken2 --project-file="${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt"

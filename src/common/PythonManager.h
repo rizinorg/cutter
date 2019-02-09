@@ -28,8 +28,6 @@ public:
     void restoreThread();
     void saveThread();
 
-    PyObject *getCutterPluginModule()           { return cutterPluginModule; }
-
     /*!
      * \brief RAII Helper class to call restoreThread() and saveThread() automatically
      *
@@ -50,8 +48,6 @@ private:
     wchar_t *pythonHome = nullptr;
     PyThreadState *pyThreadState = nullptr;
     int pyThreadStateCounter = 0;
-
-    PyObject *cutterPluginModule;
 };
 
 #define Python() (PythonManager::getInstance())

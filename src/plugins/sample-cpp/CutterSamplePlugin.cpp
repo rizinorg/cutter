@@ -8,13 +8,8 @@
 #include "common/Configuration.h"
 #include "MainWindow.h"
 
-void CutterSamplePlugin::setupPlugin(CutterCore *core)
+void CutterSamplePlugin::setupPlugin()
 {
-    this->core = core;
-    this->name = "SamplePlugin";
-    this->description = "Just a sample plugin.";
-    this->version = "1.0";
-    this->author = "xarkes";
 }
 
 void CutterSamplePlugin::setupInterface(MainWindow *main)

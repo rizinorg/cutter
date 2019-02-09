@@ -11,16 +11,13 @@ class CutterPlugin
 {
 public:
     virtual ~CutterPlugin() {}
-    virtual void setupPlugin(CutterCore *core) = 0;
+    virtual void setupPlugin() = 0;
     virtual void setupInterface(MainWindow *main) = 0;
 
-    QString name;
-    QString description;
-    QString version;
-    QString author;
-
-protected:
-    CutterCore *core;
+    virtual QString getName() const = 0;
+    virtual QString getAuthor() const = 0;
+    virtual QString getDescription() const = 0;
+    virtual QString getVersion() const = 0;
 };
 
 #define CutterPlugin_iid "org.radare.cutter.plugins.CutterPlugin"
