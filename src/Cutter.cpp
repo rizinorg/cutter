@@ -2266,6 +2266,19 @@ QList<TypeDescription> CutterCore::getAllTypedefs()
     return ret;
 }
 
+QString CutterCore::addTypes(const char *str)
+{
+    char *error_msg = nullptr;
+    char *parsed = r_parse_c_string(core_->anal, str, &error_msg);
+
+    if (!parsed && error_msg) {
+        return QString(error_msg);
+    }
+
+    sdb_query_lines(core_->anal->sdb_types, parsed);
+    return QString();
+}
+
 QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
 {
     CORE_LOCK();

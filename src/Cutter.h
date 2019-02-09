@@ -685,6 +685,14 @@ public:
      */
     QList<TypeDescription> getAllTypedefs();
 
+    /*!
+     * \brief Adds
+     * \param str Contains the definition of the data types
+     * \return returns an empty QString if there was no error, else returns the error
+     */
+    QString addTypes(const char *str);
+    QString addTypes(const QString &str) { return addTypes(str.toUtf8().constData()); }
+
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
     BlockStatistics getBlockStatistics(unsigned int blocksCount);

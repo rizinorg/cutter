@@ -14,6 +14,7 @@ LoadNewTypesDialog::LoadNewTypesDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->plainTextEdit->setPlainText("");
+    ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 }
 
 LoadNewTypesDialog::~LoadNewTypesDialog() {}
@@ -21,6 +22,9 @@ LoadNewTypesDialog::~LoadNewTypesDialog() {}
 void LoadNewTypesDialog::on_selectFileButton_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), Config()->getRecentFolder(), "*.h");
+    if (filename.isEmpty()) {
+        return;
+    }
     ui->filenameLineEdit->setText(filename);
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
@@ -39,16 +43,32 @@ void LoadNewTypesDialog::on_selectFileButton_clicked()
     Config()->setRecentFolder(QFileInfo(filename).absolutePath());
 }
 
-void LoadNewTypesDialog::on_buttonBox_accepted()
+void LoadNewTypesDialog::on_plainTextEdit_textChanged()
 {
-    QTemporaryFile file(QDir(QDir::tempPath()).filePath("fileXXXXXX.h"));
-    if (!file.open()) {
-        qWarning() << "Unable to open file";
-        return;
+    if (ui->plainTextEdit->toPlainText().isEmpty()) {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    } else {
+        ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
     }
-    QTextStream fileOut(&file);
-    fileOut << ui->plainTextEdit->toPlainText();
-    file.close();
-    Core()->cmd("to " + file.fileName());
-    emit newTypesLoaded();
+}
+
+void LoadNewTypesDialog::done(int r)
+{
+    if (r == QDialog::Accepted) {
+        QString error = Core()->addTypes(ui->plainTextEdit->toPlainText());
+        if (error.isEmpty()) {
+            emit newTypesLoaded();
+            QDialog::done(r);
+            return;
+        }
+
+        QMessageBox popup(this);
+        popup.setWindowTitle(tr("Error"));
+        popup.setText(tr("There was some error while loading new types"));
+        popup.setDetailedText(error);
+        popup.setStandardButtons(QMessageBox::Ok);
+        popup.exec();
+    } else {
+        QDialog::done(r);
+    }
 }

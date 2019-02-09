@@ -18,12 +18,12 @@ public:
 
 private slots:
     void on_selectFileButton_clicked();
-
-    void on_buttonBox_accepted();
+    void on_plainTextEdit_textChanged();
+    void done(int r);
 
 private:
-    std::unique_ptr<Ui::LoadNewTypesDialog> ui;
-
+    //std::unique_ptr<Ui::LoadNewTypesDialog> ui;
+    Ui::LoadNewTypesDialog *ui;
 signals:
     /*!
      * \brief Emitted when new types are loaded

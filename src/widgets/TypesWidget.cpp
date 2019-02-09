@@ -238,8 +238,11 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
 
 void TypesWidget::on_actionExport_Types_triggered()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), Config()->getRecentFolder());
-    QFile file(fileName);
+    QString filename = QFileDialog::getSaveFileName(this, tr("Save File"), Config()->getRecentFolder());
+    if (filename.isEmpty()) {
+        return;
+    }
+    QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox popup(this);
         popup.setWindowTitle(tr("Error"));
@@ -256,7 +259,7 @@ void TypesWidget::on_actionExport_Types_triggered()
     fileOut << Core()->cmd("tc");
     file.close();
 
-    Config()->setRecentFolder(QFileInfo(fileName).absolutePath());
+    Config()->setRecentFolder(QFileInfo(filename).absolutePath());
 }
 
 void TypesWidget::on_actionLoad_New_Types_triggered()
