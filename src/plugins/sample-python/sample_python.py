@@ -43,20 +43,24 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
         self.text.setText(res)
 
 
-class CutterSamplePlugin(CutterPlugin):
-    name = "SamplePlugin"
-    description = "A sample plugin written in python."
-    version = "1.0"
-    author = "xarkes and thestr4ng3r :-P"
+class CutterSamplePlugin(CutterBindings.CutterPlugin):
+    def __init__(self):
+        super(CutterSamplePlugin, self).__init__()
+        self.name = "SamplePlugin"
+        self.description = "A sample plugin written in python."
+        self.version = "1.0"
+        self.author = "xarkes and thestr4ng3r :-P"
 
-    def setupInterface(self):
-        super().setupInterface()
+    def setupPlugin(self, core):
+        pass
 
-        self.action = QAction("Sample Python Plugin", self.main)
+    def setupInterface(self, main):
+        self.action = QAction("Sample Python Plugin", main)
         self.action.setCheckable(True)
-        self.widget = FortuneWidget(self.main, self.action) # we MUST keep a reference to this!
-        self.main.addPluginDockWidget(self.widget, self.action)
+        self.widget = FortuneWidget(main, self.action) # we MUST keep a reference to this!
+        main.addPluginDockWidget(self.widget, self.action)
 
 
-# Instantiate our plugin
-plugin = CutterSamplePlugin()
+# This function will be called by Cutter and should return an instance of the plugin.
+def create_plugin():
+    return CutterSamplePlugin()

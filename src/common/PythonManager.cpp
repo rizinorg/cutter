@@ -7,7 +7,6 @@
 #include <QDebug>
 
 #include "QtResImporter.h"
-#include "plugins/CutterPythonPlugin.h"
 
 static PythonManager *uniqueInstance = nullptr;
 

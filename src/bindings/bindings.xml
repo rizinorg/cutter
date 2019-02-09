@@ -8,4 +8,5 @@
     <object-type name="Configuration" />
     <object-type name="MainWindow" />
     <object-type name="CutterDockWidget" />
+    <object-type name="CutterPlugin" />
 </typesystem>
