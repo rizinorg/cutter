@@ -156,51 +156,51 @@ QToolTip {
      <property name="title">
       <string>Add extra...</string>
      </property>
+     <addaction name="actionExtraDisassembly"/>
      <addaction name="actionExtraGraph"/>
      <addaction name="actionExtraHexdump"/>
-     <addaction name="actionExtraDisassembly"/>
     </widget>
     <widget class="QMenu" name="menuAddInfoWidgets">
      <property name="title">
       <string>Info...</string>
      </property>
-     <addaction name="actionEntrypoints"/>
      <addaction name="actionClasses"/>
-     <addaction name="actionImports"/>
+     <addaction name="actionEntrypoints"/>
      <addaction name="actionExports"/>
-     <addaction name="actionSymbols"/>
-     <addaction name="actionSDBBrowser"/>
-     <addaction name="actionResources"/>
-     <addaction name="actionVTables"/>
      <addaction name="actionFlags"/>
+     <addaction name="actionHeaders"/>
+     <addaction name="actionImports"/>
+     <addaction name="actionRelocs"/>
+     <addaction name="actionResources"/>
+     <addaction name="actionSDBBrowser"/>
      <addaction name="actionSections"/>
      <addaction name="actionSegments"/>
-     <addaction name="actionHeaders"/>
+     <addaction name="actionSymbols"/>
+     <addaction name="actionVTables"/>
      <addaction name="actionZignatures"/>
-     <addaction name="actionRelocs"/>
     </widget>
     <widget class="QMenu" name="menuAddDebugWidgets">
      <property name="title">
       <string>Debug...</string>
      </property>
-     <addaction name="actionStack"/>
-     <addaction name="actionRegisters"/>
      <addaction name="actionBacktrace"/>
-     <addaction name="actionMemoryMap"/>
      <addaction name="actionBreakpoint"/>
+     <addaction name="actionMemoryMap"/>
+     <addaction name="actionRegisters"/>
      <addaction name="actionRegisterRefs"/>
+     <addaction name="actionStack"/>
     </widget>
     <addaction name="actionDashboard"/>
     <addaction name="separator"/>
     <addaction name="actionDisassembly"/>
     <addaction name="actionGraph"/>
-    <addaction name="actionOverview"/>
+    <addaction name="actionFunctions"/>
     <addaction name="actionHexdump"/>
     <addaction name="actionPseudocode"/>
-    <addaction name="actionFunctions"/>
+    <addaction name="actionOverview"/>
     <addaction name="separator"/>
-    <addaction name="actionStrings"/>
     <addaction name="actionSearch"/>
+    <addaction name="actionStrings"/>
     <addaction name="actionTypes"/>
     <addaction name="separator"/>
     <addaction name="menuAddInfoWidgets"/>
