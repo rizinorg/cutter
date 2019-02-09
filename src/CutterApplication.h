@@ -22,8 +22,6 @@ public:
         return mainWindow;
     }
 
-    void loadPlugins();
-
 protected:
     bool event(QEvent *e);
 

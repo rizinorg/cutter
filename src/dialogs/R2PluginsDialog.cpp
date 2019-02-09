@@ -3,6 +3,7 @@
 
 #include "Cutter.h"
 #include "common/Helpers.h"
+#include "plugins/PluginManager.h"
 
 R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     QDialog(parent),
@@ -51,7 +52,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
     }
     qhelpers::adjustColumns(ui->RAsmTreeWidget, 0);
 
-    for (CutterPlugin *plugin : Core()->getCutterPlugins()) {
+    for (CutterPlugin *plugin : Plugins()->getPlugins()) {
         QTreeWidgetItem *item = new QTreeWidgetItem();
         item->setText(0, plugin->name);
         item->setText(1, plugin->description);

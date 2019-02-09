@@ -3,7 +3,7 @@
 #ifdef CUTTER_ENABLE_JUPYTER
 #include "common/JupyterConnection.h"
 #endif
-#include "plugins/CutterPythonPlugin.h"
+#include "plugins/PluginManager.h"
 
 #include <QApplication>
 #include <QFileOpenEvent>
@@ -119,7 +119,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
     }
 
-    loadPlugins();
+    Plugins()->loadPlugins();
 
     mainWindow = new MainWindow();
     installEventFilter(mainWindow);
@@ -170,11 +170,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 CutterApplication::~CutterApplication()
 {
-    QList<CutterPlugin *> plugins = Core()->getCutterPlugins();
-    for (CutterPlugin *plugin : plugins) {
-        delete plugin;
-    }
-
+    Plugins()->destroyPlugins();
     delete mainWindow;
     Python()->shutdown();
 }
@@ -203,51 +199,6 @@ bool CutterApplication::event(QEvent *e)
         }
     }
     return QApplication::event(e);
-}
-
-void CutterApplication::loadPlugins()
-{
-    QList<CutterPlugin *> plugins;
-    QDir pluginsDir(qApp->applicationDirPath());
-#if defined(Q_OS_WIN)
-    if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
-        pluginsDir.cdUp();
-#elif defined(Q_OS_MAC)
-    if (pluginsDir.dirName() == "MacOS") {
-        pluginsDir.cdUp();
-        pluginsDir.cdUp();
-        pluginsDir.cdUp();
-    }
-#endif
-    if (!pluginsDir.cd("plugins")) {
-        return;
-    }
-
-    Python()->addPythonPath(pluginsDir.absolutePath().toLatin1().data());
-
-    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-        CutterPlugin *cutterPlugin = nullptr;
-        if (fileName.endsWith(".py")) {
-            // Load python plugins
-            QStringList l = fileName.split(".py");
-            cutterPlugin = (CutterPlugin*) Python()->loadPlugin(l.at(0).toLatin1().constData());
-        } else {
-            // Load C++ plugins
-            QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
-            QObject *plugin = pluginLoader.instance();
-            if (plugin) {
-                cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
-            }
-        }
-
-        if (cutterPlugin) {
-            cutterPlugin->setupPlugin(Core());
-            plugins.append(cutterPlugin);
-        }
-    }
-
-    qInfo() << "Loaded" << plugins.length() << "plugin(s).";
-    Core()->setCutterPlugins(plugins);
 }
 
 bool CutterApplication::loadTranslations()
