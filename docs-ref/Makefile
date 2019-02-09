@@ -17,5 +17,5 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	doxygen
-	breathe-apidoc -g class,interface,struct,union -f -o source/api doxygen-out/xml/
+	python3 apidoc.py -g class,interface,struct,union -f -o source/api doxygen-out/xml/
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
