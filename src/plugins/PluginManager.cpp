@@ -79,7 +79,7 @@ void PluginManager::loadNativePlugins(const QDir &directory)
         if (!cutterPlugin) {
             continue;
         }
-        cutterPlugin->setupPlugin(Core());
+        cutterPlugin->setupPlugin();
         plugins.append(cutterPlugin);
     }
 }
@@ -100,7 +100,7 @@ void PluginManager::loadPythonPlugins(const QDir &directory)
         if (!cutterPlugin) {
             continue;
         }
-        cutterPlugin->setupPlugin(Core());
+        cutterPlugin->setupPlugin();
         plugins.append(cutterPlugin);
     }
 
@@ -124,7 +124,7 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
         return nullptr;
     }
 
-    PyObject *createPluginFunc = PyObject_GetAttrString(pluginModule, "create_plugin");
+    PyObject *createPluginFunc = PyObject_GetAttrString(pluginModule, "create_cutter_plugin");
     if (!createPluginFunc || !PyCallable_Check(createPluginFunc)) {
         qWarning() << "Plugin module does not contain create_plugin() function:" << QString(moduleName);
         Py_DECREF(createPluginFunc);

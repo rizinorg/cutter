@@ -8,5 +8,12 @@
     <object-type name="Configuration" />
     <object-type name="MainWindow" />
     <object-type name="CutterDockWidget" />
-    <object-type name="CutterPlugin" />
+    <object-type name="CutterPlugin">
+        <modify-function signature="getName()const">
+            <inject-code class="shell" position="beginning">
+                // TODO: SbkObject *wrapper = Shiboken::BindingManager::instance().retrieveWrapper(this);
+                // then fetch the static class variable name from python
+            </inject-code>
+        </modify-function>
+    </object-type>
 </typesystem>

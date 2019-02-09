@@ -12,8 +12,13 @@ class CutterSamplePlugin : public QObject, CutterPlugin
     Q_INTERFACES(CutterPlugin)
 
 public:
-    void setupPlugin(CutterCore *core) override;
+    void setupPlugin() override;
     void setupInterface(MainWindow *main) override;
+
+    const QString &getName() const          { return "SamplePlugin"; }
+    const QString &getAuthor() const        { return "xarkes"; }
+    const QString &getDescription() const   { return "Just a sample plugin."; }
+    const QString &getVersion() const       { return "1.0"; }
 };
 
 class CutterSamplePluginWidget : public CutterDockWidget
