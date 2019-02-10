@@ -19,7 +19,7 @@ public:
 private slots:
     void on_selectFileButton_clicked();
     void on_plainTextEdit_textChanged();
-    void done(int r);
+    void done(int r) override;
 
 private:
     //std::unique_ptr<Ui::LoadNewTypesDialog> ui;

@@ -686,7 +686,7 @@ public:
     QList<TypeDescription> getAllTypedefs();
 
     /*!
-     * \brief Adds
+     * \brief Adds new types
      * \param str Contains the definition of the data types
      * \return returns an empty QString if there was no error, else returns the error
      */
