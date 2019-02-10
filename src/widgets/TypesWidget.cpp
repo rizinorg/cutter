@@ -270,5 +270,14 @@ void TypesWidget::on_actionDelete_Type_triggered()
 {
     QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
     QModelIndex index = types_proxy_model->mapToSource(proxyIndex);
-    types_model->removeRow(index.row());
+
+    TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    QMessageBox popup(this);
+    popup.setIcon(QMessageBox::Question);
+    popup.setText(tr("Are you sure you want to delete \"%1\"?").arg(exp.type));
+    popup.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
+    popup.setDefaultButton(QMessageBox::Yes);
+    if (popup.exec() == QMessageBox::Yes) {
+        types_model->removeRow(index.row());
+    }
 }

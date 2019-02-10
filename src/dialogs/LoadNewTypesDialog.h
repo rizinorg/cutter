@@ -19,11 +19,14 @@ public:
 private slots:
     /*!
      * \brief Executed when the user clicks the selectFileButton
+     * Opens a File Dialog from where the user can select a file from where
+     * the types will be loaded.
      */
     void on_selectFileButton_clicked();
 
     /*!
      * \brief Executed whenever the text inside the textbox changes
+     * When the text box is empty, the OK button is disabled.
      */
     void on_plainTextEdit_textChanged();
 

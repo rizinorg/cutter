@@ -687,6 +687,10 @@ public:
 
     /*!
      * \brief Adds new types
+     * It first uses the r_parse_c_string() function from radare2 API to parse the
+     * supplied C file (in the form of a string). If there were errors, they are displayed.
+     * If there were no errors, it uses sdb_query_lines() function from radare2 API
+     * to save the parsed types returned by r_parse_c_string()
      * \param str Contains the definition of the data types
      * \return returns an empty QString if there was no error, else returns the error
      */

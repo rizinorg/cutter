@@ -21,7 +21,7 @@ LoadNewTypesDialog::~LoadNewTypesDialog() {}
 
 void LoadNewTypesDialog::on_selectFileButton_clicked()
 {
-    QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), Config()->getRecentFolder(), "*.h");
+    QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), Config()->getRecentFolder(), "Header files (*.h *.hpp);;All files (*)");
     if (filename.isEmpty()) {
         return;
     }
