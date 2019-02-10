@@ -25,22 +25,19 @@ void LoadNewTypesDialog::on_selectFileButton_clicked()
     if (filename.isEmpty()) {
         return;
     }
-    ui->filenameLineEdit->setText(filename);
+    Config()->setRecentFolder(QFileInfo(filename).absolutePath());
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
         QMessageBox popup(this);
         popup.setWindowTitle(tr("Error"));
         popup.setText(file.errorString());
-        popup.setInformativeText(tr("Do you want to try again?"));
-        popup.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
-        popup.setDefaultButton(QMessageBox::Yes);
-        if (popup.exec() == QMessageBox::Yes) {
-            on_selectFileButton_clicked();
-        }
+        popup.setStandardButtons(QMessageBox::Ok);
+        popup.exec();
+        on_selectFileButton_clicked();
         return;
     }
+    ui->filenameLineEdit->setText(filename);
     ui->plainTextEdit->setPlainText(file.readAll());
-    Config()->setRecentFolder(QFileInfo(filename).absolutePath());
 }
 
 void LoadNewTypesDialog::on_plainTextEdit_textChanged()

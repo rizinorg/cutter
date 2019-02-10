@@ -242,24 +242,20 @@ void TypesWidget::on_actionExport_Types_triggered()
     if (filename.isEmpty()) {
         return;
     }
+    Config()->setRecentFolder(QFileInfo(filename).absolutePath());
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) {
         QMessageBox popup(this);
         popup.setWindowTitle(tr("Error"));
         popup.setText(file.errorString());
-        popup.setInformativeText(tr("Do you want to try again?"));
-        popup.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
-        popup.setDefaultButton(QMessageBox::Yes);
-        if (popup.exec() == QMessageBox::Yes) {
-            on_actionExport_Types_triggered();
-        }
+        popup.setStandardButtons(QMessageBox::Ok);
+        popup.exec();
+        on_actionExport_Types_triggered();
         return;
     }
     QTextStream fileOut(&file);
     fileOut << Core()->cmd("tc");
     file.close();
-
-    Config()->setRecentFolder(QFileInfo(filename).absolutePath());
 }
 
 void TypesWidget::on_actionLoad_New_Types_triggered()

@@ -17,13 +17,25 @@ public:
     ~LoadNewTypesDialog();
 
 private slots:
+    /*!
+     * \brief Executed when the user clicks the selectFileButton
+     */
     void on_selectFileButton_clicked();
+
+    /*!
+     * \brief Executed whenever the text inside the textbox changes
+     */
     void on_plainTextEdit_textChanged();
+
+    /*!
+     * \brief done Closes the dialog and sets its result code to r
+     * \param r The value which will be returned by exec()
+     */
     void done(int r) override;
 
 private:
-    //std::unique_ptr<Ui::LoadNewTypesDialog> ui;
-    Ui::LoadNewTypesDialog *ui;
+    std::unique_ptr<Ui::LoadNewTypesDialog> ui;
+
 signals:
     /*!
      * \brief Emitted when new types are loaded
