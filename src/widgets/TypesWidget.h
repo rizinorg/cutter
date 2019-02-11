@@ -38,11 +38,13 @@ public:
 
     TypesModel(QList<TypeDescription> *types, QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+    bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
 };
 
 
@@ -75,6 +77,32 @@ public:
 
 private slots:
     void refreshTypes();
+
+    /*!
+     * \brief Show custom context menu
+     * \param pt Position of the place where the right mouse button was clicked
+     */
+    void showTypesContextMenu(const QPoint &pt);
+
+    /*!
+     * \brief Executed on clicking the Export Types option in the context menu
+     * It shows the user a file dialog box to select a file where the types
+     * will be exported. It uses the "tc" command of radare2 to export the types.
+     */
+    void on_actionExport_Types_triggered();
+
+    /*!
+     * \brief Executed on clicking the Load New types option in the context menu
+     * It will open the LoadNewTypesDialog where the user can either enter the
+     * types manually, or can select a file from where the types will be loaded
+     */
+    void on_actionLoad_New_Types_triggered();
+
+    /*!
+     * \brief Executed on clicking the Delete Type option in the context menu
+     * Upon confirmation from the user, it will delete the selected type.
+     */
+    void on_actionDelete_Type_triggered();
 
 private:
     std::unique_ptr<Ui::TypesWidget> ui;

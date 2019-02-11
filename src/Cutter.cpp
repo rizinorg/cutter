@@ -2208,7 +2208,7 @@ QList<TypeDescription> CutterCore::getAllUnions()
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
-        exp.category = tr("Union");
+        exp.category = "Union";
         ret << exp;
     }
 
@@ -2225,7 +2225,7 @@ QList<TypeDescription> CutterCore::getAllStructs()
         TypeDescription exp;
         exp.type = value.toString();
         exp.size = 0;
-        exp.category = tr("Struct");
+        exp.category = "Struct";
         ret << exp;
     }
 
@@ -2242,7 +2242,7 @@ QList<TypeDescription> CutterCore::getAllEnums()
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
-        exp.category = tr("Enum");
+        exp.category = "Enum";
         ret << exp;
     }
 
@@ -2259,11 +2259,24 @@ QList<TypeDescription> CutterCore::getAllTypedefs()
         TypeDescription exp;
         exp.type = key;
         exp.size = 0;
-        exp.category = tr("Typedef");
+        exp.category = "Typedef";
         ret << exp;
     }
 
     return ret;
+}
+
+QString CutterCore::addTypes(const char *str)
+{
+    char *error_msg = nullptr;
+    char *parsed = r_parse_c_string(core_->anal, str, &error_msg);
+
+    if (!parsed && error_msg) {
+        return QString(error_msg);
+    }
+
+    sdb_query_lines(core_->anal->sdb_types, parsed);
+    return QString();
 }
 
 QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
