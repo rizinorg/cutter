@@ -32,25 +32,54 @@ QT += core gui widgets svg network
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
-!defined(CUTTER_ENABLE_JUPYTER, var)        CUTTER_ENABLE_JUPYTER=true
-equals(CUTTER_ENABLE_JUPYTER, true)         CONFIG += CUTTER_ENABLE_JUPYTER
+!defined(CUTTER_ENABLE_PYTHON, var)             CUTTER_ENABLE_PYTHON=true
+equals(CUTTER_ENABLE_PYTHON, true)              CONFIG += CUTTER_ENABLE_PYTHON
 
-!defined(CUTTER_ENABLE_QTWEBENGINE, var)    CUTTER_ENABLE_QTWEBENGINE=false
-equals(CUTTER_ENABLE_JUPYTER, true) {
-    equals(CUTTER_ENABLE_QTWEBENGINE, true)  CONFIG += CUTTER_ENABLE_QTWEBENGINE
+!defined(CUTTER_ENABLE_PYTHON_BINDINGS, var)    CUTTER_ENABLE_PYTHON_BINDINGS=true
+equals(CUTTER_ENABLE_PYTHON, true) {
+    equals(CUTTER_ENABLE_PYTHON_BINDINGS, true) {
+        CONFIG += CUTTER_ENABLE_PYTHON_BINDINGS
+        !defined(SHIBOKEN_EXECUTABLE, var) SHIBOKEN_EXECUTABLE=shiboken2
+    }
 }
 
-!defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)   CUTTER_BUNDLE_R2_APPBUNDLE=false
-equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)    CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
+!defined(CUTTER_ENABLE_JUPYTER, var)            CUTTER_ENABLE_JUPYTER=true
+equals(CUTTER_ENABLE_PYTHON, true) {
+    equals(CUTTER_ENABLE_JUPYTER, true)         CONFIG += CUTTER_ENABLE_JUPYTER
+}
 
-!defined(CUTTER_APPVEYOR_R2DEC, var)        CUTTER_APPVEYOR_R2DEC=false
-equals(CUTTER_APPVEYOR_R2DEC, true)         CONFIG += CUTTER_APPVEYOR_R2DEC
+!defined(CUTTER_ENABLE_QTWEBENGINE, var)        CUTTER_ENABLE_QTWEBENGINE=false
+equals(CUTTER_ENABLE_JUPYTER, true) {
+    equals(CUTTER_ENABLE_QTWEBENGINE, true)     CONFIG += CUTTER_ENABLE_QTWEBENGINE
+}
+
+!defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)       CUTTER_BUNDLE_R2_APPBUNDLE=false
+equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)        CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
+
+!defined(CUTTER_APPVEYOR_R2DEC, var)            CUTTER_APPVEYOR_R2DEC=false
+equals(CUTTER_APPVEYOR_R2DEC, true)             CONFIG += CUTTER_APPVEYOR_R2DEC
+
+!defined(CUTTER_APPVEYOR_R2DEC, var)            CUTTER_APPVEYOR_R2DEC=false
+
+CUTTER_ENABLE_PYTHON {
+    message("Python enabled.")
+    DEFINES += CUTTER_ENABLE_PYTHON
+} else {
+    message("Python disabled.")
+}
+
+CUTTER_ENABLE_PYTHON_BINDINGS {
+    message("Python Bindings enabled.")
+    DEFINES += CUTTER_ENABLE_PYTHON_BINDINGS
+} else {
+    message("Python Bindings disabled. (requires CUTTER_ENABLE_PYTHON=true)")
+}
 
 CUTTER_ENABLE_JUPYTER {
     message("Jupyter support enabled.")
     DEFINES += CUTTER_ENABLE_JUPYTER
 } else {
-    message("Jupyter support disabled.")
+    message("Jupyter support disabled. (requires CUTTER_ENABLE_PYTHON=true)")
 }
 
 CUTTER_ENABLE_QTWEBENGINE {
@@ -58,10 +87,10 @@ CUTTER_ENABLE_QTWEBENGINE {
     DEFINES += CUTTER_ENABLE_QTWEBENGINE
     QT += webenginewidgets
 } else {
-    message("QtWebEngine support disabled.")
+    message("QtWebEngine support disabled. (requires CUTTER_ENABLE_JUPYTER=true)")
 }
 
-INCLUDEPATH *= .
+INCLUDEPATH *= . widgets dialogs common plugins
 
 win32 {
     # Generate debug symbols in release mode
@@ -88,29 +117,62 @@ unix {
 
 # Libraries
 include(lib_radare2.pri)
-win32:CUTTER_ENABLE_JUPYTER {
-    pythonpath = $$quote($$system("where python"))
-    pythonpath = $$replace(pythonpath, ".exe ", ".exe;")
-    pythonpath = $$section(pythonpath, ";", 0, 0)
-    pythonpath = $$clean_path($$dirname(pythonpath))
-    LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
-    INCLUDEPATH += $${pythonpath}/include
-}
 
-unix:CUTTER_ENABLE_JUPYTER|macx:CUTTER_ENABLE_JUPYTER|bsd:CUTTER_ENABLE_JUPYTER {
-    defined(PYTHON_FRAMEWORK_DIR, var) {
-        message("Using Python.framework at $$PYTHON_FRAMEWORK_DIR")
-        INCLUDEPATH += $$PYTHON_FRAMEWORK_DIR/Python.framework/Headers
-        LIBS += -F$$PYTHON_FRAMEWORK_DIR -framework Python
-        DEFINES += MACOS_PYTHON_FRAMEWORK_BUNDLED
-    } else {
-        CONFIG += link_pkgconfig
-        !packagesExist(python3) {
-            error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
+CUTTER_ENABLE_PYTHON {
+    win32 {
+        PYTHON_EXECUTABLE = $$quote($$system("where python"))
+        pythonpath = $$replace(PYTHON_EXECUTABLE, ".exe ", ".exe;")
+        pythonpath = $$section(pythonpath, ";", 0, 0)
+        pythonpath = $$clean_path($$dirname(pythonpath))
+        LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
+        INCLUDEPATH += $${pythonpath}/include
+        BINDINGS_SRC_LIST_CMD = "${PYTHON_EXECUTABLE} bindings/src_list.py"
+    }
+
+    unix|macx|bsd {
+        defined(PYTHON_FRAMEWORK_DIR, var) {
+            message("Using Python.framework at $$PYTHON_FRAMEWORK_DIR")
+            INCLUDEPATH += $$PYTHON_FRAMEWORK_DIR/Python.framework/Headers
+            LIBS += -F$$PYTHON_FRAMEWORK_DIR -framework Python
+            DEFINES += MACOS_PYTHON_FRAMEWORK_BUNDLED
+        } else {
+            CONFIG += link_pkgconfig
+            !packagesExist(python3) {
+                error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
+            }
+            PKGCONFIG += python3
         }
-        PKGCONFIG += python3
+        BINDINGS_SRC_LIST_CMD = "bindings/src_list.py"
+    }
+
+    CUTTER_ENABLE_PYTHON_BINDINGS {
+        BINDINGS_SRC_DIR = "$${PWD}/bindings"
+        BINDINGS_BUILD_DIR = "$${OUT_PWD}/bindings"
+        BINDINGS_SOURCE = $$system("$${BINDINGS_SRC_LIST_CMD} qmake \"$${BINDINGS_BUILD_DIR}\"")
+        BINDINGS_INCLUDE_DIRS = "$$[QT_INSTALL_HEADERS]" \
+                                "$$[QT_INSTALL_HEADERS]/QtCore" \
+                                "$$[QT_INSTALL_HEADERS]/QtWidgets" \
+                                "$$[QT_INSTALL_HEADERS]/QtGui" \
+                                "$$R2_INCLUDEPATH"
+        for(path, INCLUDEPATH) {
+            BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
+        }
+        BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, ":")
+        message("Joined: $$BINDINGS_INCLUDE_DIRS")
+        PYSIDE_TYPESYSTEM = $$system("pkg-config --variable=typesystemdir pyside2")
+        PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
+        QMAKE_SUBSTITUTES += bindings/bindings.txt.in
+        bindings.target = bindings_target
+        bindings.commands = shiboken2 --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
+        QMAKE_EXTRA_TARGETS += bindings
+        GENERATED_SOURCES += $${BINDINGS_SOURCE}
+        INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
+        PRE_TARGETDEPS += bindings_target
+        PKGCONFIG += shiboken2 pyside2
+        INCLUDEPATH += "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
     }
 }
+
 
 macx:CUTTER_BUNDLE_R2_APPBUNDLE {
     message("Using r2 rom AppBundle")
@@ -443,7 +505,7 @@ unix {
     # built-in no need for files atm
     target.path = $$PREFIX/bin
 
-    INSTALLS += target share_appdata share_metadata share_applications share_pixmaps
+    INSTALLS += target share_appdata share_applications share_pixmaps
 
     # Triggered for example by 'qmake APPIMAGE=1'
     !isEmpty(APPIMAGE){

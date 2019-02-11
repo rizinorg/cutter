@@ -124,23 +124,22 @@ qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
 
 
 if(CUTTER_ENABLE_PYTHON_BINDINGS)
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.xml"
-            "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
-            COPYONLY) # trigger reconfigure if file changes
+    set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
+    set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
 
-    execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/bindings/src_list.py" cmake "${CMAKE_CURRENT_BINARY_DIR}/bindings"
-            OUTPUT_VARIABLE BINDINGS_SOURCE)
+    configure_file("${BINDINGS_SRC_DIR}/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.xml" COPYONLY) # trigger reconfigure if file changes
 
+    execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${BINDINGS_SRC_DIR}/src_list.py" cmake "${BINDINGS_BUILD_DIR}" OUTPUT_VARIABLE BINDINGS_SOURCE)
 
     set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
 
-    include_directories("${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings")
+    include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-            COMMAND shiboken2 --project-file="${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt"
+            COMMAND shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
@@ -170,8 +169,7 @@ if(CUTTER_ENABLE_PYTHON)
         list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
         string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
 
-        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.txt.in"
-                "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt" @ONLY)
+        qmake_configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
     endif()
 endif()
 
