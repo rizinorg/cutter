@@ -10,7 +10,7 @@ PyObject *api_version(PyObject *self, PyObject *null)
 {
     Q_UNUSED(self)
     Q_UNUSED(null)
-    return PyUnicode_FromString("Cutter version " CUTTER_VERSION_FULL);
+    return PyUnicode_FromString(CUTTER_VERSION_FULL);
 }
 
 PyObject *api_cmd(PyObject *self, PyObject *args)

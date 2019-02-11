@@ -104,6 +104,7 @@ public:
     void addExtraWidget(QDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
+    void addMenuFileAction(QAction *action);
 
     void updateDockActionChecked(QAction * action);
 
@@ -111,6 +112,7 @@ public:
     {
         return filename;
     }
+    void messageBoxWarning(QString title, QString message);
 
 public slots:
     void finalizeOpen();

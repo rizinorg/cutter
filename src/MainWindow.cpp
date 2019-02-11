@@ -389,6 +389,11 @@ void MainWindow::addPluginDockWidget(QDockWidget *dockWidget, QAction *action)
     updateDockActionChecked(action);
 }
 
+void MainWindow::addMenuFileAction(QAction *action)
+{
+    ui->menuFile->addAction(action);
+}
+
 void MainWindow::openNewFile(InitialOptions options, bool skipOptionsDialog)
 {
     setFilename(options.filename);
@@ -1161,4 +1166,19 @@ void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
 void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
 {
     this->dockWidgetActions[action] = dockWidget;
+}
+
+/*!
+ * \brief Show a warning message box.
+ *
+ * This API can either be used in Cutter internals, or by Python plugins.
+ */
+void MainWindow::messageBoxWarning(QString title, QString message)
+{
+    QMessageBox mb(this);
+    mb.setIcon(QMessageBox::Warning);
+    mb.setStandardButtons(QMessageBox::Ok);
+    mb.setWindowTitle(title);
+    mb.setText(message);
+    mb.exec();
 }
