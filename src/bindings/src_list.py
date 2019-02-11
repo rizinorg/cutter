@@ -1,3 +1,4 @@
+#!/bin/env python3
 
 import os
 import xml.etree.ElementTree as et
@@ -30,7 +31,7 @@ def cmd_cmake(args):
 
 
 def cmd_qmake(args):
-    sys.stdout.write(" ".join(get_cpp_files_gen(args)))
+    sys.stdout.write("\n".join(get_cpp_files_gen(args)) + "\n")
 
 
 cmds = {"cmake": cmd_cmake, "qmake": cmd_qmake}

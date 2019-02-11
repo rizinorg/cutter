@@ -1,3 +1,5 @@
+#ifdef CUTTER_ENABLE_PYTHON
+
 #include "PythonAPI.h"
 #include "PythonManager.h"
 
@@ -122,3 +124,5 @@ void PythonManager::saveThread()
         pyThreadState = PyEval_SaveThread();
     }
 }
+
+#endif
