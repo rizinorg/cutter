@@ -126,7 +126,7 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
 
     PyObject *createPluginFunc = PyObject_GetAttrString(pluginModule, "create_cutter_plugin");
     if (!createPluginFunc || !PyCallable_Check(createPluginFunc)) {
-        qWarning() << "Plugin module does not contain create_plugin() function:" << QString(moduleName);
+        qWarning() << "Plugin module does not contain create_cutter_plugin() function:" << QString(moduleName);
         if (createPluginFunc) {
             Py_DECREF(createPluginFunc);
         }
@@ -137,14 +137,23 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
     PyObject *pluginObject = PyObject_CallFunction(createPluginFunc, nullptr);
     Py_DECREF(createPluginFunc);
     Py_DECREF(pluginModule);
+    if (!pluginObject) {
+        qWarning() << "Plugin's create_cutter_plugin() function failed.";
+        PyErr_Print();
+        return nullptr;
+    }
 
     PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppPointerConvertible(reinterpret_cast<SbkObjectType *>(SbkCutterBindingsTypes[SBK_CUTTERPLUGIN_IDX]), pluginObject);
     if (!pythonToCpp) {
-        qWarning() << "Plugin's create_plugin() function did not return an instance of CutterPlugin:" << QString(moduleName);
+        qWarning() << "Plugin's create_cutter_plugin() function did not return an instance of CutterPlugin:" << QString(moduleName);
         return nullptr;
     }
     CutterPlugin *plugin;
     pythonToCpp(pluginObject, &plugin);
+    if (!plugin) {
+        qWarning() << "Error during the setup of CutterPlugin:" << QString(moduleName);
+        return nullptr;
+    }
     return plugin;
 }
 #endif
