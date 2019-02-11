@@ -28,11 +28,7 @@ void LoadNewTypesDialog::on_selectFileButton_clicked()
     Config()->setRecentFolder(QFileInfo(filename).absolutePath());
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly)) {
-        QMessageBox popup(this);
-        popup.setWindowTitle(tr("Error"));
-        popup.setText(file.errorString());
-        popup.setStandardButtons(QMessageBox::Ok);
-        popup.exec();
+        QMessageBox::critical(this, tr("Error"), file.errorString());
         on_selectFileButton_clicked();
         return;
     }

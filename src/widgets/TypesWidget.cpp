@@ -245,11 +245,7 @@ void TypesWidget::on_actionExport_Types_triggered()
     Config()->setRecentFolder(QFileInfo(filename).absolutePath());
     QFile file(filename);
     if (!file.open(QIODevice::WriteOnly)) {
-        QMessageBox popup(this);
-        popup.setWindowTitle(tr("Error"));
-        popup.setText(file.errorString());
-        popup.setStandardButtons(QMessageBox::Ok);
-        popup.exec();
+        QMessageBox::critical(this, tr("Error"), file.errorString());
         on_actionExport_Types_triggered();
         return;
     }
@@ -260,24 +256,26 @@ void TypesWidget::on_actionExport_Types_triggered()
 
 void TypesWidget::on_actionLoad_New_Types_triggered()
 {
-    LoadNewTypesDialog *dialog = new LoadNewTypesDialog(this);
-    connect(dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
-    dialog->setWindowTitle(tr("Load New Types"));
-    dialog->exec();
+    LoadNewTypesDialog dialog(this);
+    connect(&dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
+    dialog.setWindowTitle(tr("Load New Types"));
+    dialog.exec();
 }
 
 void TypesWidget::on_actionDelete_Type_triggered()
 {
     QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
+    if (!proxyIndex.isValid()) {
+        return;
+    }
     QModelIndex index = types_proxy_model->mapToSource(proxyIndex);
+    if (!index.isValid()) {
+        return;
+    }
 
     TypeDescription exp = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-    QMessageBox popup(this);
-    popup.setIcon(QMessageBox::Question);
-    popup.setText(tr("Are you sure you want to delete \"%1\"?").arg(exp.type));
-    popup.setStandardButtons(QMessageBox::No | QMessageBox::Yes);
-    popup.setDefaultButton(QMessageBox::Yes);
-    if (popup.exec() == QMessageBox::Yes) {
+    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Cutter"), tr("Are you sure you want to delete \"%1\"?").arg(exp.type));
+    if (reply == QMessageBox::Yes) {
         types_model->removeRow(index.row());
     }
 }
