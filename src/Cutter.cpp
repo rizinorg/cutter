@@ -2271,11 +2271,22 @@ QString CutterCore::addTypes(const char *str)
     char *error_msg = nullptr;
     char *parsed = r_parse_c_string(core_->anal, str, &error_msg);
 
-    if (!parsed && error_msg) {
-        return QString(error_msg);
+    if (!parsed) {
+         QString ret;
+         if (error_msg) {
+             ret = error_msg;
+             r_mem_free(error_msg);
+         }
+         return ret;
     }
 
     sdb_query_lines(core_->anal->sdb_types, parsed);
+    r_mem_free(parsed);
+
+    if (error_msg) {
+        r_mem_free(error_msg);
+    }
+
     return QString();
 }
 
