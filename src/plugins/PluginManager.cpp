@@ -90,11 +90,16 @@ void PluginManager::loadPythonPlugins(const QDir &directory)
 {
     Python()->addPythonPath(directory.absolutePath().toLocal8Bit().data());
 
-    for (const QString &fileName : directory.entryList(QDir::Files)) {
+    for (const QString &fileName : directory.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+        if (fileName == "__pycache__") {
+            continue;
+        }
         QString moduleName;
         if (fileName.endsWith(".py")) {
             QStringList l = fileName.split(".py");
             moduleName = l[0];
+        } else {
+            moduleName = fileName;
         }
         CutterPlugin *cutterPlugin = loadPythonPlugin(moduleName.toLocal8Bit().constData());
         if (!cutterPlugin) {
@@ -114,15 +119,16 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
     PyObject *pluginModule = PyImport_ImportModule(moduleName);
     if (!pluginModule) {
         qWarning() << "Couldn't load module for plugin:" << QString(moduleName);
-        PyErr_PrintEx(10);
-        Py_DECREF(pluginModule);
+        PyErr_Print();
         return nullptr;
     }
 
     PyObject *createPluginFunc = PyObject_GetAttrString(pluginModule, "create_cutter_plugin");
     if (!createPluginFunc || !PyCallable_Check(createPluginFunc)) {
         qWarning() << "Plugin module does not contain create_plugin() function:" << QString(moduleName);
-        Py_DECREF(createPluginFunc);
+        if (createPluginFunc) {
+            Py_DECREF(createPluginFunc);
+        }
         Py_DECREF(pluginModule);
         return nullptr;
     }
