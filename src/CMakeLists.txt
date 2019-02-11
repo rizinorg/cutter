@@ -11,6 +11,10 @@ option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shi
 option(CUTTER_ENABLE_JUPYTER "Enable Jupyter integration. Unused if CUTTER_ENABLE_PYTHON=OFF." ON)
 option(CUTTER_ENABLE_QTWEBENGINE "Use QtWebEngine for in-app Jupyter Browser. Unused if CUTTER_ENABLE_JUPYTER=OFF." OFF)
 
+if(NOT CUTTER_ENABLE_PYTHON)
+    set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
+endif()
+
 
 # Parse Cutter.pro to get filenames
 include(QMakeProParse)
@@ -87,6 +91,7 @@ If you do not want to build Cutter with Python, re-run CMake with -DCUTTER_ENABL
     endif()
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
+        find_package(PythonInterp REQUIRED)
         find_package(Shiboken2)
         find_package(PySide2)
 
@@ -118,26 +123,30 @@ qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
         "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.h")
 
 
-set(BINDINGS_SOURCE
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterbindings_module_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cuttercore_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/configuration_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterdockwidget_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterplugin_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/mainwindow_wrapper.cpp")
+if(CUTTER_ENABLE_PYTHON_BINDINGS)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.xml"
+            "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
+            COPYONLY) # trigger reconfigure if file changes
 
-set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
+    execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/bindings/src_list.py" cmake "${CMAKE_CURRENT_BINARY_DIR}/bindings"
+            OUTPUT_VARIABLE BINDINGS_SOURCE)
 
-include_directories("${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 
-add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-        COMMAND shiboken2 --project-file="${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.xml"
-        IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
-        COMMENT "Generating Python bindings with shiboken2")
+    set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
+
+    include_directories("${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
+    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
+
+    add_custom_command(OUTPUT ${BINDINGS_SOURCE}
+            COMMAND shiboken2 --project-file="${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt"
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
+            IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
+            COMMENT "Generating Python bindings with shiboken2")
+else()
+    set(BINDINGS_SOURCE "")
+endif()
 
 
 
@@ -156,17 +165,16 @@ if(CUTTER_ENABLE_PYTHON)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
         target_link_libraries(Cutter ${SHIBOKEN_LIBRARY} ${PYSIDE_LIBRARY})
+
+        get_target_property(BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
+        list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
+        string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
+
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.txt.in"
+                "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt" @ONLY)
     endif()
 endif()
 
 if(CUTTER_ENABLE_PYTHON AND CUTTER_ENABLE_JUPYTER AND CUTTER_ENABLE_QTWEBENGINE)
     target_link_libraries(Cutter Qt5::WebEngineWidgets)
 endif()
-
-
-get_target_property(BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
-list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
-string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
-
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.txt.in"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt" @ONLY)
