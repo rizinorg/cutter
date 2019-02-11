@@ -87,6 +87,7 @@ If you do not want to build Cutter with Python, re-run CMake with -DCUTTER_ENABL
     endif()
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
+        find_package(PythonInterp REQUIRED)
         find_package(Shiboken2)
         find_package(PySide2)
 
@@ -118,13 +119,13 @@ qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
         "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.h")
 
 
-set(BINDINGS_SOURCE
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterbindings_module_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cuttercore_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/configuration_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterdockwidget_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/cutterplugin_wrapper.cpp"
-        "${CMAKE_CURRENT_BINARY_DIR}/bindings/CutterBindings/mainwindow_wrapper.cpp")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.xml"
+        "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
+        COPYONLY) # trigger reconfigure if file changes
+
+execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/bindings/src_list.py" "${CMAKE_CURRENT_BINARY_DIR}/bindings"
+        OUTPUT_VARIABLE BINDINGS_SOURCE)
+
 
 set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
 
@@ -135,7 +136,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 
 add_custom_command(OUTPUT ${BINDINGS_SOURCE}
         COMMAND shiboken2 --project-file="${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.txt"
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.xml"
+        DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
         IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
         COMMENT "Generating Python bindings with shiboken2")
 
