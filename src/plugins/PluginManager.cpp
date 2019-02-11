@@ -2,10 +2,10 @@
 #ifdef CUTTER_ENABLE_PYTHON
 #include <Python.h>
 #include <cutterbindings_python.h>
+#include "PythonManager.h"
 #endif
 
 #include "PluginManager.h"
-#include "PythonManager.h"
 #include "CutterPlugin.h"
 
 #include <QDir>
@@ -51,11 +51,13 @@ void PluginManager::loadPlugins()
         loadNativePlugins(nativePluginsDir);
     }
 
+#ifdef CUTTER_ENABLE_PYTHON
     QDir pythonPluginsDir = pluginsDir;
     pythonPluginsDir.mkdir("python");
     if (pythonPluginsDir.cd("python")) {
         loadPythonPlugins(pythonPluginsDir.absolutePath());
     }
+#endif
 
     qInfo() << "Loaded" << plugins.length() << "plugin(s).";
 }
