@@ -171,7 +171,7 @@ CutterCore::CutterCore(QObject *parent) :
 }
 
 
-CutterCore *CutterCore::getInstance()
+CutterCore *CutterCore::instance()
 {
     return uniqueInstance;
 }

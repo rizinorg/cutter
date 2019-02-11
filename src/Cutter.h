@@ -26,7 +26,7 @@
 
 #define APPNAME "Cutter"
 
-#define Core() (CutterCore::getInstance())
+#define Core() (CutterCore::instance())
 
 /*!
  * \brief Type to be used for all kinds of addresses/offsets in r2 address space.
@@ -416,7 +416,7 @@ class CutterCore: public QObject
 public:
     explicit CutterCore(QObject *parent = nullptr);
     ~CutterCore();
-    static CutterCore *getInstance();
+    static CutterCore *instance();
 
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 

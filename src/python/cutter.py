@@ -9,4 +9,4 @@ def cmdj(command):
 
 
 def core():
-    return CutterCore.getInstance()
+    return CutterCore.instance()
