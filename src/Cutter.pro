@@ -159,7 +159,7 @@ CUTTER_ENABLE_PYTHON {
         }
         BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, ":")
         message("Joined: $$BINDINGS_INCLUDE_DIRS")
-        PYSIDE_TYPESYSTEM = $$system("pkg-config --variable=typesystemdir pyside2")
+        PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
         PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
         QMAKE_SUBSTITUTES += bindings/bindings.txt.in
         bindings.target = bindings_target

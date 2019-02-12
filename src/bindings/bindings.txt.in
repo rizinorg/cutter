@@ -9,7 +9,7 @@ output-directory = $${BINDINGS_BUILD_DIR}
 
 include-path = $${BINDINGS_INCLUDE_DIRS}
 
-typesystem-paths = $${PYSIDE_TYPESYSTEM}
+typesystem-paths = $${PYSIDE_TYPESYSTEMS}
 
 enable-parent-ctor-heuristic
 enable-pyside-extensions
