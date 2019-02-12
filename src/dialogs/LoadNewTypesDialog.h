@@ -7,6 +7,7 @@
 namespace Ui {
 class LoadNewTypesDialog;
 }
+class SyntaxHighlighter;
 
 class LoadNewTypesDialog : public QDialog
 {
@@ -38,6 +39,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::LoadNewTypesDialog> ui;
+    SyntaxHighlighter *syntaxHighLighter;
 
 signals:
     /*!
