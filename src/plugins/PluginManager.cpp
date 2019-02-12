@@ -38,6 +38,7 @@ void PluginManager::loadPlugins()
         return;
     }
     QDir pluginsDir(locations.first());
+    pluginsDir.mkpath(".");
 
     pluginsDir.mkdir("plugins");
     if (!pluginsDir.cd("plugins")) {
