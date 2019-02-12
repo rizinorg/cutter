@@ -522,7 +522,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
     }
 
-    qreal render_offset_y = -verticalScrollBar()->value() * current_scale + unscrolled_render_offset_y;
+    qreal render_offset_y = -verticalScrollBar()->value() * current_scale + offset_y;
     qreal render_height = viewport()->size().height();
 
     // Render node text

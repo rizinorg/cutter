@@ -9,10 +9,6 @@
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    horizontalScrollBar()->setSingleStep(charWidth);
-    verticalScrollBar()->setSingleStep(charWidth);
     QSize areaSize = viewport()->size();
     adjustSize(areaSize.width(), areaSize.height());
 }
@@ -70,10 +66,8 @@ void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, 
 
 bool GraphView::helpEvent(QHelpEvent *event)
 {
-    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) +
-            horizontalScrollBar()->value();
-    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) +
-            verticalScrollBar()->value();
+    int x = event->pos().x() + offset_x;
+    int y = event->pos().y() - offset_y;
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -107,28 +101,6 @@ GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock 
 
 void GraphView::adjustSize(int new_width, int new_height, QPoint mouse)
 {
-    int originalRangeX = horizontalScrollBar()->maximum();
-    int originalRangeY = verticalScrollBar()->maximum();
-    int newMaxX = width - (new_width / current_scale);
-    int newMaxY = height - (new_height / current_scale);
-
-    // Update scroll bar information
-    horizontalScrollBar()->setPageStep(new_width);
-    horizontalScrollBar()->setRange(0, newMaxX);
-    verticalScrollBar()->setPageStep(new_height);
-    verticalScrollBar()->setRange(0, newMaxY);
-
-    // Compute new scrollBar values so that the mouse always points
-    // to the same place when zooming
-    QPoint mouseLocal = mapFromGlobal(mouse);
-
-    int topX = horizontalScrollBar()->value();
-    int topY = verticalScrollBar()->value();
-
-    int dx = newMaxX - originalRangeX;
-    int dy = newMaxY - originalRangeY;
-    horizontalScrollBar()->setValue(topX + dx * ((float)mouseLocal.x() / new_width));
-    verticalScrollBar()->setValue(topY + dy * ((float)mouseLocal.y() / new_height));
 }
 
 bool GraphView::event(QEvent *event)
@@ -414,53 +386,29 @@ void GraphView::paintEvent(QPaintEvent *event)
 
     p.setRenderHint(QPainter::Antialiasing);
 
-    int render_offset_x = -horizontalScrollBar()->value() * current_scale;
-    int render_offset_y = -verticalScrollBar()->value() * current_scale;
     int render_width = viewport()->size().width();
     int render_height = viewport()->size().height();
 
-    // Do we have scrollbars?
-    bool hscrollbar = horizontalScrollBar()->pageStep() < width * current_scale;
-    bool vscrollbar = verticalScrollBar()->pageStep() < height * current_scale;
-
-    // Draw background
     QRect viewportRect(viewport()->rect().topLeft(), viewport()->rect().bottomRight() - QPoint(1, 1));
     p.setBrush(backgroundColor);
     p.drawRect(viewportRect);
     p.setBrush(Qt::black);
 
-    unscrolled_render_offset_x = 0;
-    unscrolled_render_offset_y = 0;
-
-    // We do not have a scrollbar on this axis, so we center the view
-    if (!hscrollbar) {
-        unscrolled_render_offset_x = (viewport()->size().width() - (width * current_scale)) / 2;
-        render_offset_x += unscrolled_render_offset_x;
-    }
-    if (!vscrollbar) {
-        unscrolled_render_offset_y = (viewport()->size().height() - (height * current_scale)) / 2;
-        render_offset_y += unscrolled_render_offset_y;
-    }
-
-    p.translate(render_offset_x, render_offset_y);
     p.scale(current_scale, current_scale);
 
-
-    // Draw blocks
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
-        qreal blockXRender = block.x * current_scale;
-        qreal blockYRender = block.y * current_scale;
-        qreal blockWidthRender = block.width * current_scale;
-        qreal blockHeightRender = block.height * current_scale;
+        qreal blockX = block.x * current_scale;
+        qreal blockY = block.y * current_scale;
+        qreal blockWidth = block.width * current_scale;
+        qreal blockHeight = block.height * current_scale;
 
         // Check if block is visible by checking if block intersects with view area
-        if (-render_offset_x < blockXRender + blockWidthRender
-                && -render_offset_x + render_width > blockXRender
-                && -render_offset_y < blockYRender + blockHeightRender
-                && -render_offset_y + render_height > blockYRender) {
-            // If it intersects then draw it
+        if (offset_x < blockX + blockWidth
+                && offset_x + render_width > blockX
+                && offset_y < blockY + blockHeight
+                && offset_y + render_height > blockY) {
             drawBlock(p, block);
         }
 
@@ -736,37 +684,12 @@ void GraphView::showBlock(GraphBlock *block, bool animated)
 {
     int render_width = viewport()->size().width() / current_scale;
 
-
+    offset_x = block->x + ((render_width - block->width) / 2);
     // Show block middle of X
-    int target_x = (block->x + (block->width / 2)) - (render_width / 2);
     int show_block_offset_y = 30;
-    // But beginning of Y (so we show the top of the block)
-    int target_y = block->y - show_block_offset_y;
-
-    target_x = std::max(0, target_x);
-    target_y = std::max(0, target_y);
-    target_x = std::min(horizontalScrollBar()->maximum(), target_x);
-    target_y = std::min(verticalScrollBar()->maximum(), target_y);
-    if (animated) {
-        QPropertyAnimation *animation_x = new QPropertyAnimation(horizontalScrollBar(), "value", this);
-        animation_x->setDuration(500);
-        animation_x->setStartValue(horizontalScrollBar()->value());
-        animation_x->setEndValue(target_x);
-        animation_x->setEasingCurve(QEasingCurve::InOutQuad);
-        animation_x->start(QAbstractAnimation::DeleteWhenStopped);
-        QPropertyAnimation *animation_y = new QPropertyAnimation(verticalScrollBar(), "value", this);
-        animation_y->setDuration(500);
-        animation_y->setStartValue(verticalScrollBar()->value());
-        animation_y->setEndValue(target_y);
-        animation_y->setEasingCurve(QEasingCurve::InOutQuad);
-        animation_y->start(QAbstractAnimation::DeleteWhenStopped);
-    } else {
-        horizontalScrollBar()->setValue(target_x);
-        verticalScrollBar()->setValue(target_y);
-    }
+    offset_y = block->y - show_block_offset_y;
 
     blockTransitionedTo(block);
-
     viewport()->update();
 }
 
@@ -810,10 +733,8 @@ void GraphView::resizeEvent(QResizeEvent *event)
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
-    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) +
-            horizontalScrollBar()->value();
-    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) +
-            verticalScrollBar()->value();
+    int x = event->pos().x() + offset_x;
+    int y = event->pos().y() + offset_y;
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -868,21 +789,17 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        int x_delta = scroll_base_x - event->x();
-        int y_delta = scroll_base_y - event->y();
+        offset_x = scroll_base_x - event->x();
+        offset_y = scroll_base_y - event->y();
         scroll_base_x = event->x();
         scroll_base_y = event->y();
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1 / current_scale));
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1 / current_scale));
     }
 }
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) +
-            horizontalScrollBar()->value();
-    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) +
-            verticalScrollBar()->value();
+    int x = event->pos().x() + offset_x;
+    int y = event->pos().y() + offset_y;
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -918,9 +835,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 void GraphView::wheelEvent(QWheelEvent *event)
 {
     const QPoint delta = -event->angleDelta();
-    int x_delta = delta.x();
-    int y_delta = delta.y();
-    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1 / current_scale));
-    verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1 / current_scale));
+    offset_x = delta.x();
+    offset_y = delta.y();
     event->accept();
 }

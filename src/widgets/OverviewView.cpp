@@ -28,17 +28,17 @@ OverviewView::~OverviewView()
 
 void OverviewView::adjustScale()
 {
-    if (horizontalScrollBar()->maximum() > 0) {
-        current_scale = (qreal)viewport()->width() / (qreal)(horizontalScrollBar()->maximum() + horizontalScrollBar()->pageStep());
-    }
-    if (verticalScrollBar()->maximum() > 0) {
-        qreal h_scale = (qreal)viewport()->height() / (qreal)(verticalScrollBar()->maximum() + verticalScrollBar()->pageStep());
-        if (current_scale > h_scale) {
-            current_scale = h_scale;
-        }
-    }
-    adjustSize(viewport()->size().width(), viewport()->size().height());
-    viewport()->update();
+    //if (horizontalScrollBar()->maximum() > 0) {
+    //    current_scale = (qreal)viewport()->width() / (qreal)(horizontalScrollBar()->maximum() + horizontalScrollBar()->pageStep());
+    //}
+    //if (verticalScrollBar()->maximum() > 0) {
+    //    qreal h_scale = (qreal)viewport()->height() / (qreal)(verticalScrollBar()->maximum() + verticalScrollBar()->pageStep());
+    //    if (current_scale > h_scale) {
+    //        current_scale = h_scale;
+    //    }
+    //}
+    //adjustSize(viewport()->size().width(), viewport()->size().height());
+    //viewport()->update();
 }
 
 void OverviewView::refreshView()
@@ -107,36 +107,36 @@ void OverviewView::mouseReleaseEvent(QMouseEvent *event)
 
 void OverviewView::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!mouseActive) {
-        return;
-    }
-    qreal x = event->localPos().x() - initialDiff.x();
-    qreal y = event->localPos().y() - initialDiff.y();
-    qreal w = rangeRect.width();
-    qreal h = rangeRect.height();
-    qreal real_width = width * current_scale;
-    qreal real_height = height * current_scale;
-    qreal max_right = unscrolled_render_offset_x + real_width;
-    qreal max_bottom = unscrolled_render_offset_y + real_height;
-    qreal rect_right = x + w;
-    qreal rect_bottom = y + h;
-    if (rect_right >= max_right) {
-        x = unscrolled_render_offset_x + real_width - w;
-    }
-    if (rect_bottom >= max_bottom) {
-        y = unscrolled_render_offset_y + real_height - h;
-    }
-    if (x <= unscrolled_render_offset_x) {
-        x = unscrolled_render_offset_x;
-    }
-    if (y <= unscrolled_render_offset_y) {
-        y = unscrolled_render_offset_y;
-    }
-    x += h_offset;
-    y += v_offset;
-    rangeRect = QRectF(x, y, w, h);
-    viewport()->update();
-    emit mouseMoved();
+//    if (!mouseActive) {
+//        return;
+//    }
+//    qreal x = event->localPos().x() - initialDiff.x();
+//    qreal y = event->localPos().y() - initialDiff.y();
+//    qreal w = rangeRect.width();
+//    qreal h = rangeRect.height();
+//    qreal real_width = width * current_scale;
+//    qreal real_height = height * current_scale;
+//    qreal max_right = unscrolled_render_offset_x + real_width;
+//    qreal max_bottom = unscrolled_render_offset_y + real_height;
+//    qreal rect_right = x + w;
+//    qreal rect_bottom = y + h;
+//    if (rect_right >= max_right) {
+//        x = unscrolled_render_offset_x + real_width - w;
+//    }
+//    if (rect_bottom >= max_bottom) {
+//        y = unscrolled_render_offset_y + real_height - h;
+//    }
+//    if (x <= unscrolled_render_offset_x) {
+//        x = unscrolled_render_offset_x;
+//    }
+//    if (y <= unscrolled_render_offset_y) {
+//        y = unscrolled_render_offset_y;
+//    }
+//    x += h_offset;
+//    y += v_offset;
+//    rangeRect = QRectF(x, y, w, h);
+//    viewport()->update();
+//    emit mouseMoved();
 }
 
 GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,
