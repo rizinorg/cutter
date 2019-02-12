@@ -379,9 +379,11 @@ void DisassemblerGraphView::initFont()
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
+    int blockX = block.x - offset_x;
+    int blockY = block.y - offset_y;
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
-    p.drawRect(block.x, block.y, block.width, block.height);
+    p.drawRect(blockX, blockY, block.width, block.height);
 
     breakpoints = Core()->getBreakpointsAddresses();
 
@@ -416,7 +418,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     }
 
     // Node's shadow effect
-    p.drawRect(block.x + 2, block.y + 2,
+    p.drawRect(blockX + 2, blockY + 2,
                block.width, block.height);
     p.setPen(QPen(graphNodeColor, 1));
 
@@ -426,12 +428,12 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         p.setBrush(disassemblyBackgroundColor);
     }
 
-    p.drawRect(block.x, block.y,
+    p.drawRect(blockX, blockY,
                block.width, block.height);
 
     // Draw different background for selected instruction
     if (selected_instruction != RVA_INVALID) {
-        int y = static_cast<int>(block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
+        int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
         for (const Instr &instr : db.instrs) {
             if (instr.addr > selected_instruction) {
                 break;
@@ -440,11 +442,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             //auto traceCount = dbgfunctions->GetTraceRecordHitCount(instr.addr);
             auto traceCount = 0;
             if (selected && traceCount) {
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
                                  static_cast<int>(block.width - (10 + 2 * charWidth)),
                                  int(instr.text.lines.size()) * charHeight), disassemblyTracedSelectionColor);
             } else if (selected) {
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
                                  static_cast<int>(block.width - (10 + 2 * charWidth)),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
             } else if (traceCount) {
@@ -458,7 +460,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                 if (disassemblyTracedColor.blue() > 160)
                     colorDiff *= -1;
 
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
                                  static_cast<int>(block.width - (10 + 2 * charWidth)),
                                  int(instr.text.lines.size()) * charHeight),
                            QColor(disassemblyTracedColor.red(),
@@ -471,7 +473,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     // highlight selected tokens
     if (highlight_token != nullptr) {
-        int y = static_cast<int>(block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
+        int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
         int tokenWidth = mFontMetrics->width(highlight_token->content);
 
         for (const Instr &instr : db.instrs) {
@@ -497,7 +499,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
                 QColor selectionColor = ConfigColor("highlightWord");
 
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth * 3 + widthBefore), y, highlightWidth,
+                p.fillRect(QRect(static_cast<int>(blockX + charWidth * 3 + widthBefore), y, highlightWidth,
                                  charHeight), selectionColor);
             }
 
@@ -507,14 +509,14 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     // highlight program counter
     if (PCInBlock) {
-        int y = static_cast<int>(block.y + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
+        int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
         for (const Instr &instr : db.instrs) {
             if (instr.addr > PCAddr) {
                 break;
             }
             auto PC = instr.addr == PCAddr;
             if (PC) {
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
                                  static_cast<int>(block.width - (10 + 2 * charWidth)),
                                  int(instr.text.lines.size()) * charHeight), PCSelectionColor);
             }
@@ -526,8 +528,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     qreal render_height = viewport()->size().height();
 
     // Render node text
-    auto x = block.x + (2 * charWidth);
-    int y = static_cast<int>(block.y + (2 * charWidth));
+    auto x = blockX + (2 * charWidth);
+    int y = static_cast<int>(blockY + (2 * charWidth));
     for (auto &line : db.header_text.lines) {
         qreal lineYRender = y * current_scale;
         qreal lineHeightRender = charHeight * current_scale;
@@ -547,11 +549,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     for (const Instr &instr : db.instrs) {
         if (Core()->isBreakpoint(breakpoints, instr.addr)) {
-            p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
+            p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
                              static_cast<int>(block.width - (10 + 2 * charWidth)),
                              int(instr.text.lines.size()) * charHeight), ConfigColor("gui.breakpoint_background"));
             if (instr.addr == selected_instruction) {
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
                                  static_cast<int>(block.width - (10 + 2 * charWidth)),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
             }

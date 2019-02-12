@@ -379,6 +379,15 @@ void GraphView::computeGraph(ut64 entry)
     adjustSize(areaSize.width(), areaSize.height());
 }
 
+QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
+{
+    QPolygonF ret;
+    for (int i = 0; i < polygon.size(); i++) {
+        ret << QPointF(polygon[i].x() - offset_x, polygon[i].y() - offset_y);
+    }
+    return ret;
+}
+
 void GraphView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
@@ -406,9 +415,9 @@ void GraphView::paintEvent(QPaintEvent *event)
 
         // Check if block is visible by checking if block intersects with view area
         if (offset_x < blockX + blockWidth
-                && offset_x + render_width > blockX
+                && blockX < offset_x + render_width
                 && offset_y < blockY + blockHeight
-                && offset_y + render_height > blockY) {
+                && blockY < offset_y + render_height) {
             drawBlock(p, block);
         }
 
@@ -418,6 +427,9 @@ void GraphView::paintEvent(QPaintEvent *event)
         // TODO: Only draw edges if they are actually visible ...
         // Draw edges
         for (GraphEdge &edge : block.edges) {
+            QPolygonF polyline = recalculatePolygon(edge.polyline);
+            QPolygonF arrow_start = recalculatePolygon(edge.arrow_start);
+            QPolygonF arrow_end = recalculatePolygon(edge.arrow_end);
             EdgeConfiguration ec = edgeConfiguration(block, edge.dest);
             QPen pen(edge.color);
 //            if(blockSelected)
@@ -425,14 +437,14 @@ void GraphView::paintEvent(QPaintEvent *event)
             pen.setWidth(pen.width() / ec.width_scale);
             p.setPen(pen);
             p.setBrush(edge.color);
-            p.drawPolyline(edge.polyline);
+            p.drawPolyline(polyline);
             pen.setStyle(Qt::SolidLine);
             p.setPen(pen);
             if (ec.start_arrow) {
-                p.drawConvexPolygon(edge.arrow_start);
+                p.drawConvexPolygon(arrow_start);
             }
             if (ec.end_arrow) {
-                p.drawConvexPolygon(edge.arrow_end);
+                p.drawConvexPolygon(arrow_end);
             }
         }
     }
@@ -835,7 +847,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 void GraphView::wheelEvent(QWheelEvent *event)
 {
     const QPoint delta = -event->angleDelta();
-    offset_x = delta.x();
-    offset_y = delta.y();
+    offset_x += delta.x();
+    offset_y += delta.y();
+    viewport()->update();
     event->accept();
 }

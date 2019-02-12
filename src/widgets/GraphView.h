@@ -177,6 +177,7 @@ private:
     int findVertEdgeIndex(EdgesVector &edges, int col, int min_row, int max_row);
     GraphEdge routeEdge(EdgesVector &horiz_edges, EdgesVector &vert_edges, Matrix<bool> &edge_valid,
                         GraphBlock &start, GraphBlock &end, QColor color);
+    QPolygonF recalculatePolygon(QPolygonF polygon);
 };
 
 #endif // GRAPHVIEW_H
