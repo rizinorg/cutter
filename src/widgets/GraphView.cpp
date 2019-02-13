@@ -687,6 +687,22 @@ int GraphView::findVertEdgeIndex(EdgesVector &edges, int col, int min_row, int m
     return i;
 }
 
+void GraphView::center()
+{
+    centerX();
+    centerY();
+}
+
+void GraphView::centerX()
+{
+    offset_x = -((viewport()->width() - width * current_scale) / 2);
+}
+
+void GraphView::centerY()
+{
+    offset_y = -((viewport()->height() - height * current_scale) / 2);
+}
+
 void GraphView::showBlock(GraphBlock &block, bool animated)
 {
     showBlock(&block, animated);
@@ -694,13 +710,17 @@ void GraphView::showBlock(GraphBlock &block, bool animated)
 
 void GraphView::showBlock(GraphBlock *block, bool animated)
 {
-    int render_width = viewport()->size().width() / current_scale;
-
-    offset_x = block->x - ((render_width - block->width) / 2);
-    // Show block middle of X
-    int show_block_offset_y = 30;
-    offset_y = block->y + show_block_offset_y;
-
+    if (width * current_scale <= viewport()->width()) {
+        centerX();
+    } else {
+        int render_width = viewport()->width() / current_scale;
+        offset_x = block->x - ((render_width - block->width) / 2);
+    }
+    if (height * current_scale <= viewport()->height()) {
+        centerY();
+    } else {
+        offset_y = block->y - 30;
+    }
     blockTransitionedTo(block);
     viewport()->update();
 }
@@ -847,8 +867,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 void GraphView::wheelEvent(QWheelEvent *event)
 {
     const QPoint delta = -event->angleDelta();
-    offset_x += delta.x();
-    offset_y += delta.y();
+    offset_x += delta.x() * current_scale;
+    offset_y += delta.y() * current_scale;
     viewport()->update();
     event->accept();
 }

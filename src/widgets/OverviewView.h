@@ -67,6 +67,10 @@ protected:
      * \brief mouseMoveEvent to move the rect.
      */
     void mouseMoveEvent(QMouseEvent *event) override;
+    /*
+     * \brief override this to prevent scrolling
+     */
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
     /*

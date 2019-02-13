@@ -141,6 +141,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
 
+    void center();
+    void centerX();
+    void centerY();
     int width = 0;
     int height = 0;
 private:

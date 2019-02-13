@@ -145,6 +145,11 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
 //    emit mouseMoved();
 }
 
+void OverviewView::wheelEvent(QWheelEvent *event)
+{
+    event->ignore();
+}
+
 GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,
                                                                       GraphView::GraphBlock *to)
 {
