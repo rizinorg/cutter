@@ -130,11 +130,8 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
-    void adjustSize(int new_width, int new_height, QPoint mouse = QPoint(0, 0));
-
     bool event(QEvent *event) override;
 
-    void resizeEvent(QResizeEvent *event) override;
     // Mouse events
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;

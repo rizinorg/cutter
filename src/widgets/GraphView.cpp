@@ -10,7 +10,6 @@ GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
     QSize areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height());
 }
 
 GraphView::~GraphView()
@@ -97,10 +96,6 @@ GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock 
     qWarning() << "Edge configuration not overridden!";
     EdgeConfiguration ec;
     return ec;
-}
-
-void GraphView::adjustSize(int new_width, int new_height, QPoint mouse)
-{
 }
 
 bool GraphView::event(QEvent *event)
@@ -376,7 +371,6 @@ void GraphView::computeGraph(ut64 entry)
 
     viewport()->update();
     areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height());
 }
 
 QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
@@ -757,11 +751,6 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
     return false;
 }
 
-void GraphView::resizeEvent(QResizeEvent *event)
-{
-    adjustSize(event->size().width(), event->size().height());
-}
-
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
@@ -821,10 +810,11 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        offset_x = scroll_base_x - event->x();
-        offset_y = scroll_base_y - event->y();
+        offset_x += scroll_base_x - event->x();
+        offset_y += scroll_base_y - event->y();
         scroll_base_x = event->x();
         scroll_base_y = event->y();
+        viewport()->update();
     }
 }
 
