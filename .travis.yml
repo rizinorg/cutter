@@ -23,16 +23,16 @@ matrix:
     env: BUILD_SYSTEM=cmake
 
 sudo: required
-dist: trusty
+dist: xenial
 
 addons:
   apt:
     sources:
-      - sourceline: "ppa:beineri/opt-qt596-trusty"
+      - sourceline: "ppa:beineri/opt-qt-5.12.0-xenial"
     packages:
-      - qt59base
-      - qt59svg
-      - qt59webengine
+      - qt512base
+      - qt512svg
+      - qt512webengine
   homebrew:
     update: true
     brewfile: scripts/Brewfile
