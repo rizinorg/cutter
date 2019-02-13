@@ -26,7 +26,6 @@ GraphWidget::GraphWidget(MainWindow *main, OverviewWidget *overview, QAction *ac
         toggleOverview(visibility);
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-            this->graphView->header->setFixedWidth(width());
         }
     });
 
@@ -40,7 +39,6 @@ GraphWidget::GraphWidget(MainWindow *main, OverviewWidget *overview, QAction *ac
         if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
             this->raise();
             this->graphView->setFocus();
-            this->graphView->header->setFixedWidth(width());
         }
     });
 }

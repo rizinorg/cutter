@@ -118,10 +118,15 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 
     connect(mMenu, SIGNAL(copy()), this, SLOT(copySelection()));
 
-    header = new QTextEdit(viewport());
+    header = new QTextEdit();
     header->setFixedHeight(30);
     header->setReadOnly(true);
     header->setLineWrapMode(QTextEdit::NoWrap);
+
+    this->layout()->setContentsMargins(0,0,0,0);
+    this->layout()->setAlignment(Qt::AlignTop);
+    this->layout()->addWidget(header);
+
     highlighter = new SyntaxHighlighter(header->document());
 }
 
