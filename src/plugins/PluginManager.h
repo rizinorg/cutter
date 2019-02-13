@@ -34,7 +34,7 @@ private:
 
     void loadNativePlugins(const QDir &directory);
 
-#ifdef CUTTER_ENABLE_PYTHON
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     void loadPythonPlugins(const QDir &directory);
     CutterPlugin *loadPythonPlugin(const char *moduleName);
 #endif

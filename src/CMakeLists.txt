@@ -103,6 +103,8 @@ or, if you don't want to build with Python at all, use -DCUTTER_ENABLE_PYTHON=OF
 
         include_directories(${SHIBOKEN_INCLUDE_DIR})
         include_directories(${PYSIDE_INCLUDE_DIR} ${PYSIDE_INCLUDE_DIR}/QtCore ${PYSIDE_INCLUDE_DIR}/QtGui ${PYSIDE_INCLUDE_DIR}/QtWidgets)
+
+        add_definitions(-DCUTTER_ENABLE_PYTHON)
     endif()
 endif()
 
