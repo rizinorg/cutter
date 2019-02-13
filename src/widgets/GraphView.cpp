@@ -696,10 +696,10 @@ void GraphView::showBlock(GraphBlock *block, bool animated)
 {
     int render_width = viewport()->size().width() / current_scale;
 
-    offset_x = block->x + ((render_width - block->width) / 2);
+    offset_x = block->x - ((render_width - block->width) / 2);
     // Show block middle of X
     int show_block_offset_y = 30;
-    offset_y = block->y - show_block_offset_y;
+    offset_y = block->y + show_block_offset_y;
 
     blockTransitionedTo(block);
     viewport()->update();

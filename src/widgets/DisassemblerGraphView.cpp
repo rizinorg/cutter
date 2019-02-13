@@ -524,20 +524,18 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
     }
 
-    qreal render_offset_y = -verticalScrollBar()->value() * current_scale + offset_y;
     qreal render_height = viewport()->size().height();
 
     // Render node text
     auto x = blockX + (2 * charWidth);
     int y = static_cast<int>(blockY + (2 * charWidth));
+    qreal lineHeightRender = charHeight * current_scale;
     for (auto &line : db.header_text.lines) {
         qreal lineYRender = y * current_scale;
-        qreal lineHeightRender = charHeight * current_scale;
 
         // Check if line does NOT intersects with view area
-        if (-render_offset_y >= lineYRender + lineHeightRender
-                || -render_offset_y + render_height <= lineYRender) {
-            // Skip if it does not intersects
+        if (0 > lineYRender + lineHeightRender
+                || render_height < lineYRender) {
             y += charHeight;
             continue;
         }
@@ -560,12 +558,9 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
         for (auto &line : instr.text.lines) {
             qreal lineYRender = y * current_scale;
-            qreal lineHeightRender = charHeight * current_scale;
 
-            // Check if line does NOT intersects with view area
-            if (-render_offset_y >= lineYRender + lineHeightRender
-                    || -render_offset_y + render_height <= lineYRender) {
-                // Skip if it does not intersects
+            if (0 > lineYRender + lineHeightRender
+                    || render_height < lineYRender) {
                 y += charHeight;
                 continue;
             }
