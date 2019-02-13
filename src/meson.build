@@ -17,7 +17,7 @@ if get_option('enable_jupyter')
   endif
 endif
 
-parse_cmd = [py3_exe, '../scripts/meson_parse_qmake.py']
+parse_cmd = [py3_exe, join_paths(meson.current_source_dir(), '../scripts/meson_parse_qmake.py')]
 
 qt_modules += run_command(parse_cmd + ['QT'], check: true).stdout().split(';')
 sources = run_command(parse_cmd + ['SOURCES'], check: true).stdout().split(';')
@@ -34,7 +34,7 @@ conf_json = '''{"CUTTER_VERSION_MAJOR":@0@,
                 version_major, version_minor, version_patch)
 configure_file(input: 'CutterConfig.h.in',
                output: 'CutterConfig.h',
-               command: [py3_exe, '../scripts/meson_configure_qmake_in.py', '@INPUT@', '@OUTPUT0@', conf_json])
+               command: [py3_exe, join_paths(meson.current_source_dir(), '../scripts/meson_configure_qmake_in.py'), '@INPUT@', '@OUTPUT0@', conf_json])
 conf_inc = include_directories('.')
 
 sp_dir = join_paths(meson.source_root(), 'subprojects')
