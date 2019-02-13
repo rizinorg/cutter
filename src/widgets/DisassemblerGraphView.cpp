@@ -123,7 +123,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     header->setReadOnly(true);
     header->setLineWrapMode(QTextEdit::NoWrap);
 
-    layout()->setContentsMargins(0,0,0,0);
+    layout()->setContentsMargins(0, 0, 0, 0);
     layout()->setAlignment(Qt::AlignTop);
     layout()->addWidget(header);
 
