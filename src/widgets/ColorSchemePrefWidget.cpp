@@ -254,7 +254,7 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
 
     {
         "gui.main", {
-            QObject::tr("Color of main function color"),
+            QObject::tr("Main function color"),
             QObject::tr("Main"), true
         }
     },
