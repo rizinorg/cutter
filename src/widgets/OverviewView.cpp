@@ -97,8 +97,8 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
     }
     qreal w = rangeRect.width();
     qreal h = rangeRect.height();
-    qreal x = event->localPos().x() - w/2;
-    qreal y = event->localPos().y() - h/2;
+    qreal x = event->localPos().x() - w / 2;
+    qreal y = event->localPos().y() - h / 2;
     rangeRect = QRectF(x, y, w, h);
     viewport()->update();
     emit mouseMoved();
@@ -113,34 +113,14 @@ void OverviewView::mouseReleaseEvent(QMouseEvent *event)
 
 void OverviewView::mouseMoveEvent(QMouseEvent *event)
 {
-//    if (!mouseActive) {
-//        return;
-//    }
-//    qreal x = event->localPos().x() - initialDiff.x();
-//    qreal y = event->localPos().y() - initialDiff.y();
-//    qreal w = rangeRect.width();
-//    qreal h = rangeRect.height();
-//    qreal real_width = width * current_scale;
-//    qreal real_height = height * current_scale;
-//    qreal max_right = unscrolled_render_offset_x + real_width;
-//    qreal max_bottom = unscrolled_render_offset_y + real_height;
-//    qreal rect_right = x + w;
-//    qreal rect_bottom = y + h;
-//    if (rect_right >= max_right) {
-//        x = unscrolled_render_offset_x + real_width - w;
-//    }
-//    if (rect_bottom >= max_bottom) {
-//        y = unscrolled_render_offset_y + real_height - h;
-//    }
-//    if (x <= unscrolled_render_offset_x) {
-//        x = unscrolled_render_offset_x;
-//    }
-//    if (y <= unscrolled_render_offset_y) {
-//        y = unscrolled_render_offset_y;
-//    }
-//    rangeRect = QRectF(x, y, w, h);
-//    viewport()->update();
-//    emit mouseMoved();
+    if (!mouseActive) {
+        return;
+    }
+    qreal x = event->localPos().x() - initialDiff.x();
+    qreal y = event->localPos().y() - initialDiff.y();
+    rangeRect = QRectF(x, y, rangeRect.width(), rangeRect.height());
+    viewport()->update();
+    emit mouseMoved();
 }
 
 void OverviewView::wheelEvent(QWheelEvent *event)
