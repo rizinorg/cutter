@@ -395,8 +395,8 @@ void GraphView::paintEvent(QPaintEvent *event)
 
     p.setRenderHint(QPainter::Antialiasing);
 
-    int render_width = viewport()->size().width();
-    int render_height = viewport()->size().height();
+    int render_width = viewport()->width();
+    int render_height = viewport()->height();
 
     QRect viewportRect(viewport()->rect().topLeft(), viewport()->rect().bottomRight() - QPoint(1, 1));
     p.setBrush(backgroundColor);

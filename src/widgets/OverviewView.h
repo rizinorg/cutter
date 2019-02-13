@@ -106,6 +106,11 @@ private:
     void adjustScale();
 
     /*
+     * \brief centerize the position
+     */
+    void center();
+
+    /*
      * \brief if the mouse is in the rect in Overview.
      */
     bool mouseContainsRect(QMouseEvent *event);

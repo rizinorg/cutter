@@ -28,38 +28,42 @@ OverviewView::~OverviewView()
 
 void OverviewView::adjustScale()
 {
-    //if (horizontalScrollBar()->maximum() > 0) {
-    //    current_scale = (qreal)viewport()->width() / (qreal)(horizontalScrollBar()->maximum() + horizontalScrollBar()->pageStep());
-    //}
-    //if (verticalScrollBar()->maximum() > 0) {
-    //    qreal h_scale = (qreal)viewport()->height() / (qreal)(verticalScrollBar()->maximum() + verticalScrollBar()->pageStep());
-    //    if (current_scale > h_scale) {
-    //        current_scale = h_scale;
-    //    }
-    //}
-    //adjustSize(viewport()->size().width(), viewport()->size().height());
-    //viewport()->update();
+    current_scale = (qreal)viewport()->width() / width;
+    qreal h_scale = (qreal)viewport()->height() / height;
+    if (current_scale > h_scale) {
+        current_scale = h_scale;
+    }
+    center();
+    viewport()->update();
+}
+
+void OverviewView::center()
+{
+    offset_x = -((viewport()->width() - width * current_scale) / 2);
+    offset_y = -((viewport()->height() - height * current_scale) / 2);
 }
 
 void OverviewView::refreshView()
 {
     current_scale = 1.0;
     viewport()->update();
-    adjustSize(viewport()->size().width(), viewport()->size().height());
     adjustScale();
 }
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
+    int blockX = block.x - offset_x;
+    int blockY = block.y - offset_y;
+
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
-    p.drawRect(block.x, block.y, block.width, block.height);
+    p.drawRect(blockX, blockY, block.width, block.height);
     p.setBrush(QColor(0, 0, 0, 100));
-    p.drawRect(block.x + 2, block.y + 2,
+    p.drawRect(blockX + 2, blockY + 2,
                block.width, block.height);
     p.setPen(QPen(graphNodeColor, 1));
     p.setBrush(disassemblyBackgroundColor);
-    p.drawRect(block.x, block.y,
+    p.drawRect(blockX, blockY,
                block.width, block.height);
 }
 
