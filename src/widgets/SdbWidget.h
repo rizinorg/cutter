@@ -1,5 +1,5 @@
-#ifndef SDBDOCK_H
-#define SDBDOCK_H
+#ifndef SDBWIDGET_H
+#define SDBWIDGET_H
 
 #include <memory>
 
@@ -9,16 +9,16 @@ class MainWindow;
 class QTreeWidgetItem;
 
 namespace Ui {
-class SdbDock;
+class SdbWidget;
 }
 
-class SdbDock : public CutterDockWidget
+class SdbWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit SdbDock(MainWindow *main, QAction *action = nullptr);
-    ~SdbDock();
+    explicit SdbWidget(MainWindow *main, QAction *action = nullptr);
+    ~SdbWidget();
 
 private slots:
     void on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column);
@@ -28,9 +28,9 @@ private slots:
     void reload(QString _path = nullptr);
 
 private:
-    std::unique_ptr<Ui::SdbDock> ui;
+    std::unique_ptr<Ui::SdbWidget> ui;
     QString path;
 
 };
 
-#endif // SDBDOCK_H
+#endif // SDBWIDGET_H

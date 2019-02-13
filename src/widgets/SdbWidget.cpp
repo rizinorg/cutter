@@ -1,5 +1,5 @@
-#include "SdbDock.h"
-#include "ui_SdbDock.h"
+#include "SdbWidget.h"
+#include "ui_SdbWidget.h"
 
 #include "MainWindow.h"
 #include "common/Helpers.h"
@@ -8,9 +8,9 @@
 #include <QTreeWidget>
 
 
-SdbDock::SdbDock(MainWindow *main, QAction *action) :
+SdbWidget::SdbWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::SdbDock)
+    ui(new Ui::SdbWidget)
 {
     ui->setupUi(this);
 
@@ -20,7 +20,7 @@ SdbDock::SdbDock(MainWindow *main, QAction *action) :
     reload(nullptr);
 }
 
-void SdbDock::reload(QString _path)
+void SdbWidget::reload(QString _path)
 {
     if (!_path.isNull()) {
         path = _path;
@@ -55,7 +55,7 @@ void SdbDock::reload(QString _path)
 }
 
 
-void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
+void SdbWidget::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
 {
     if (column < 0)
         return;
@@ -84,9 +84,9 @@ void SdbDock::on_treeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
     }
 }
 
-SdbDock::~SdbDock() {}
+SdbWidget::~SdbWidget() {}
 
-void SdbDock::on_lockButton_clicked()
+void SdbWidget::on_lockButton_clicked()
 {
     if (ui->lockButton->isChecked()) {
         this->setAllowedAreas(Qt::NoDockWidgetArea);
@@ -97,7 +97,7 @@ void SdbDock::on_lockButton_clicked()
     }
 }
 
-void SdbDock::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
+void SdbWidget::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
 {
     Core()->sdbSet(path, item->text(0), item->text(column));
 }

@@ -37,7 +37,7 @@ class StringsWidget;
 class FlagsWidget;
 class Dashboard;
 class QLineEdit;
-class SdbDock;
+class SdbWidget;
 class QAction;
 class SectionsWidget;
 class SegmentsWidget;
@@ -218,7 +218,7 @@ private:
     FlagsWidget        *flagsDock = nullptr;
     Dashboard          *dashboardDock = nullptr;
     QLineEdit          *gotoEntry = nullptr;
-    SdbDock            *sdbDock = nullptr;
+    SdbWidget          *sdbDock = nullptr;
     SectionsWidget     *sectionsDock = nullptr;
     SegmentsWidget     *segmentsDock = nullptr;
     ZignaturesWidget   *zignaturesDock = nullptr;

@@ -76,7 +76,7 @@
 #include "widgets/FlagsWidget.h"
 #include "widgets/VisualNavbar.h"
 #include "widgets/Dashboard.h"
-#include "widgets/SdbDock.h"
+#include "widgets/SdbWidget.h"
 #include "widgets/Omnibar.h"
 #include "widgets/ConsoleWidget.h"
 #include "widgets/EntrypointWidget.h"
@@ -231,7 +231,7 @@ void MainWindow::initUI()
     ui->actionJupyter->setVisible(false);
 #endif
     dashboardDock = new Dashboard(this, ui->actionDashboard);
-    sdbDock = new SdbDock(this, ui->actionSDBBrowser);
+    sdbDock = new SdbWidget(this, ui->actionSDBBrowser);
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
@@ -612,6 +612,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, classesDock);
     tabifyDockWidget(dashboardDock, resourcesDock);
     tabifyDockWidget(dashboardDock, vTablesDock);
+    tabifyDockWidget(dashboardDock, sdbDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
     addDockWidget(Qt::TopDockWidgetArea, stackDock);

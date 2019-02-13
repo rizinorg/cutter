@@ -156,7 +156,6 @@ SOURCES += \
     widgets/ImportsWidget.cpp \
     widgets/Omnibar.cpp \
     widgets/RelocsWidget.cpp \
-    widgets/SdbDock.cpp \
     widgets/SectionsWidget.cpp \
     widgets/SegmentsWidget.cpp \
     widgets/StringsWidget.cpp \
@@ -228,7 +227,8 @@ SOURCES += \
     dialogs/WelcomeDialog.cpp \
     RunScriptTask.cpp \
     dialogs/EditMethodDialog.cpp \
-    dialogs/LoadNewTypesDialog.cpp
+    dialogs/LoadNewTypesDialog.cpp \
+    widgets/SdbWidget.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -262,7 +262,6 @@ HEADERS  += \
     widgets/ImportsWidget.h \
     widgets/Omnibar.h \
     widgets/RelocsWidget.h \
-    widgets/SdbDock.h \
     widgets/SectionsWidget.h \
     widgets/SegmentsWidget.h \
     widgets/StringsWidget.h \
@@ -339,7 +338,8 @@ HEADERS  += \
     RunScriptTask.h \
     common/Json.h \
     dialogs/EditMethodDialog.h \
-    dialogs/LoadNewTypesDialog.h
+    dialogs/LoadNewTypesDialog.h \
+    widgets/SdbWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -361,7 +361,6 @@ FORMS    += \
     widgets/ExportsWidget.ui \
     widgets/FunctionsWidget.ui \
     widgets/ImportsWidget.ui \
-    widgets/SdbDock.ui \
     widgets/RelocsWidget.ui \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
@@ -400,7 +399,8 @@ FORMS    += \
     dialogs/HexdumpRangeDialog.ui \
     dialogs/WelcomeDialog.ui \
     dialogs/EditMethodDialog.ui \
-    dialogs/LoadNewTypesDialog.ui
+    dialogs/LoadNewTypesDialog.ui \
+    widgets/SdbWidget.ui
 
 RESOURCES += \
     resources.qrc \
