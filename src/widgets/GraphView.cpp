@@ -383,7 +383,7 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 {
     QPolygonF ret;
     for (int i = 0; i < polygon.size(); i++) {
-        ret << QPointF(polygon[i].x() - offset_x, polygon[i].y() - offset_y);
+        ret << QPointF(polygon[i].x() * current_scale - offset_x, polygon[i].y() * current_scale - offset_y);
     }
     return ret;
 }
@@ -403,7 +403,7 @@ void GraphView::paintEvent(QPaintEvent *event)
     p.drawRect(viewportRect);
     p.setBrush(Qt::black);
 
-    p.scale(current_scale, current_scale);
+    //p.scale(current_scale, current_scale);
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -434,7 +434,7 @@ void GraphView::paintEvent(QPaintEvent *event)
             QPen pen(edge.color);
 //            if(blockSelected)
 //                pen.setStyle(Qt::DashLine);
-            pen.setWidth(pen.width() / ec.width_scale);
+            pen.setWidth(pen.width());
             p.setPen(pen);
             p.setBrush(edge.color);
             p.drawPolyline(polyline);
