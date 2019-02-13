@@ -54,7 +54,9 @@ void PythonManager::initPythonHome()
     }
 }
 
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 extern "C" PyObject *PyInit_CutterBindings();
+#endif
 
 void PythonManager::initialize()
 {
@@ -65,7 +67,9 @@ void PythonManager::initialize()
     PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
 #endif
     PyImport_AppendInittab("_qtres", &PyInit_qtres);
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);
+#endif
     Py_Initialize();
     PyEval_InitThreads();
     pyThreadStateCounter = 1; // we have the thread now => 1

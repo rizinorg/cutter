@@ -1,5 +1,5 @@
 
-#ifdef CUTTER_ENABLE_PYTHON
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 #include <Python.h>
 #include <cutterbindings_python.h>
 #include "PythonManager.h"
@@ -51,7 +51,7 @@ void PluginManager::loadPlugins()
         loadNativePlugins(nativePluginsDir);
     }
 
-#ifdef CUTTER_ENABLE_PYTHON
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     QDir pythonPluginsDir = pluginsDir;
     pythonPluginsDir.mkdir("python");
     if (pythonPluginsDir.cd("python")) {
@@ -87,7 +87,7 @@ void PluginManager::loadNativePlugins(const QDir &directory)
     }
 }
 
-#ifdef CUTTER_ENABLE_PYTHON
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 
 void PluginManager::loadPythonPlugins(const QDir &directory)
 {
