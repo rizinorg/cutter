@@ -96,11 +96,13 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         }
     }
 
+#ifdef CUTTER_ENABLE_PYTHON
     // Init python
     if (cmd_parser.isSet(pythonHomeOption)) {
         Python()->setPythonHome(cmd_parser.value(pythonHomeOption));
     }
     Python()->initialize();
+#endif
 
 
     bool analLevelSpecified = false;
@@ -170,9 +172,13 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 CutterApplication::~CutterApplication()
 {
+#ifdef CUTTER_ENABLE_PYTHON
     Plugins()->destroyPlugins();
+#endif
     delete mainWindow;
+#ifdef CUTTER_ENABLE_PYTHON
     Python()->shutdown();
+#endif
 }
 
 bool CutterApplication::event(QEvent *e)

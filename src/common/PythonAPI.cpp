@@ -1,4 +1,6 @@
 
+#ifdef CUTTER_ENABLE_PYTHON
+
 #include "PythonAPI.h"
 #include "Cutter.h"
 
@@ -195,3 +197,5 @@ PyObject *PyInit_api_internal()
 }
 
 #endif // CUTTER_ENABLE_JUPYTER
+
+#endif  // CUTTER_ENABLE_PYTHON
