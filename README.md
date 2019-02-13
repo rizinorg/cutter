@@ -13,13 +13,13 @@ Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced, customiz
 
 # Downloading a release
 
-Cutter is available for all platforms (Linux, OS X, Windows).
+Cutter is available for all platforms (Linux, macOS, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
- * OSX: Download the latest `.dmg` file.
+ * macOS: Download the latest `.dmg` file or use [Homebrew Cask](https://github.com/Homebrew/homebrew-cask) `brew cask install cutter`.
  * Windows: Download the latest Zip archive.
- * Linux: use the [AppImage](https://github.com/radareorg/cutter/releases/download/v1.7.4/Cutter-v1.7.4-x64.Linux.AppImage) file. Then just make it executable and run it:
-     * `chmod +x Cutter-v1.7.4-x64.Linux.AppImage`
-     * `./Cutter-v1.7.4-x64.Linux.AppImage`
+ * Linux: Download the latest AppImage file. Then just make it executable and run it:
+   * `chmod +x <appimage_file>`
+   * `./<appimage_file>`
 
 ## Building from sources
 
