@@ -5,17 +5,21 @@ py3_exe = import('python').find_installation('python3')
 
 qt_modules = []
 feature_define_args = []
-if get_option('enable_jupyter')
-  message('Jupyter support enabled')
-  add_project_arguments('-DCUTTER_ENABLE_JUPYTER', language: 'cpp')
-  feature_define_args += ['-DCUTTER_ENABLE_JUPYTER']
-  if get_option('enable_webengine')
-    message('QtWebEngine support enabled')
-    add_project_arguments('-DCUTTER_ENABLE_QTWEBENGINE', language: 'cpp')
-    feature_define_args += ['-DCUTTER_ENABLE_QTWEBENGINE']
-    qt_modules += 'WebEngineWidgets'
+if get_option('enable_python')
+  message('Python is enabled')
+  feature_define_args += ['-DCUTTER_ENABLE_PYTHON']
+  if get_option('enable_jupyter')
+    message('Jupyter support enabled')
+    feature_define_args += ['-DCUTTER_ENABLE_JUPYTER']
+    if get_option('enable_webengine')
+      message('QtWebEngine support enabled')
+      feature_define_args += ['-DCUTTER_ENABLE_QTWEBENGINE']
+      qt_modules += 'WebEngineWidgets'
+    endif
   endif
 endif
+
+add_project_arguments(feature_define_args, language: 'cpp')
 
 parse_cmd = [py3_exe, join_paths(meson.current_source_dir(), '../scripts/meson_parse_qmake.py')]
 
@@ -59,7 +63,7 @@ libr2_dep = r2.get_variable('libr2_dep')
 qt5dep = dependency('qt5', modules: qt_modules)
 
 deps = [libr2_dep, qt5dep]
-if get_option('enable_jupyter')
+if get_option('enable_python')
   deps += [dependency('python3')]
 endif
 
