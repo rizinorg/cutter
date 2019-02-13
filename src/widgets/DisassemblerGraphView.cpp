@@ -123,9 +123,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     header->setReadOnly(true);
     header->setLineWrapMode(QTextEdit::NoWrap);
 
-    this->layout()->setContentsMargins(0,0,0,0);
-    this->layout()->setAlignment(Qt::AlignTop);
-    this->layout()->addWidget(header);
+    layout()->setContentsMargins(0,0,0,0);
+    layout()->setAlignment(Qt::AlignTop);
+    layout()->addWidget(header);
 
     highlighter = new SyntaxHighlighter(header->document());
 }
