@@ -1,9 +1,10 @@
 #ifndef PYTHONMANAGER_H
 #define PYTHONMANAGER_H
 
+#ifdef CUTTER_ENABLE_PYTHON
+
 #include <QObject>
 
-class CutterPythonPlugin;
 typedef struct _ts PyThreadState;
 typedef struct _object PyObject;
 
@@ -51,5 +52,7 @@ private:
 };
 
 #define Python() (PythonManager::getInstance())
+
+#endif // CUTTER_ENABLE_PYTHON
 
 #endif // PYTHONMANAGER_H
