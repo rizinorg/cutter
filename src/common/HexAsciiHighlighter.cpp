@@ -1,4 +1,3 @@
-#include <QtGui>
 
 #include "common/HexAsciiHighlighter.h"
 

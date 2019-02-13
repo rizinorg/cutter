@@ -1,8 +1,6 @@
 #include "Highlighter.h"
 #include "MainWindow.h"
 
-#include <QtGui>
-
 Highlighter::Highlighter(QTextDocument *parent) :
     QSyntaxHighlighter(parent)
 {

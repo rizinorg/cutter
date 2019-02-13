@@ -6,11 +6,12 @@
 #include "common/Helpers.h"
 
 #include <QFileDialog>
-#include <QtGui>
 #include <QMessageBox>
 #include <QDir>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QPainter>
+#include <QMimeData>
 
 const int NewFileDialog::MaxRecentFiles;
 
