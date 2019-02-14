@@ -224,8 +224,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     QList<DisassemblyLine> disassemblyLines;
     {
         TempConfig tempConfig;
-        tempConfig.set("scr.html", true)
-        .set("scr.color", COLOR_MODE_16M);
+        tempConfig.set("scr.color", COLOR_MODE_16M);
         disassemblyLines = Core()->disassembleLines(topOffset, maxLines);
     }
 

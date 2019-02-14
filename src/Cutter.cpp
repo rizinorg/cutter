@@ -2535,11 +2535,16 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
 
     for (const QJsonValue &value : array) {
         QJsonObject object = value.toObject();
+        char *html = r_cons_html_filter(object[RJsonKey::text].toString().toUtf8(), nullptr);
+        if (!html) {
+            continue;
+        }
 
         DisassemblyLine line;
 
         line.offset = object[RJsonKey::offset].toVariant().toULongLong();
-        line.text = object[RJsonKey::text].toString();
+        line.text = QString::fromUtf8(html);
+        free (html);
 
         r << line;
     }
