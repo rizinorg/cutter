@@ -427,7 +427,7 @@ void GraphView::paintEvent(QPaintEvent *event)
             QPolygonF arrow_end = recalculatePolygon(edge.arrow_end);
             EdgeConfiguration ec = edgeConfiguration(block, edge.dest);
             QPen pen(edge.color);
-            pen.setWidth(pen.width());
+            pen.setWidth(pen.width() / ec.width_scale);
             p.setPen(pen);
             p.setBrush(edge.color);
             p.drawPolyline(polyline);
