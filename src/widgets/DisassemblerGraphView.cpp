@@ -386,6 +386,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     qreal blockCharW = charWidth * current_scale;
     int blockCharH = charHeight * current_scale;
 
+    p.save();
+    p.scale(current_scale, current_scale);
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -587,6 +589,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
         }
     }
+    p.restore();
 }
 
 GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView::GraphBlock &from,
@@ -725,7 +728,6 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
 void DisassemblerGraphView::zoomIn(QPoint mouse)
 {
     current_scale += 0.1;
-    auto areaSize = viewport()->size();
     viewport()->update();
     emit viewZoomed();
 }
@@ -734,7 +736,6 @@ void DisassemblerGraphView::zoomOut(QPoint mouse)
 {
     current_scale -= 0.1;
     current_scale = std::max(current_scale, 0.3);
-    auto areaSize = viewport()->size();
     viewport()->update();
     emit viewZoomed();
 }
@@ -742,7 +743,6 @@ void DisassemblerGraphView::zoomOut(QPoint mouse)
 void DisassemblerGraphView::zoomReset()
 {
     current_scale = 1.0;
-    auto areaSize = viewport()->size();
     viewport()->update();
     emit viewZoomed();
 }

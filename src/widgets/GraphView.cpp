@@ -420,14 +420,14 @@ void GraphView::paintEvent(QPaintEvent *event)
         // Always draw edges
         // TODO: Only draw edges if they are actually visible ...
         // Draw edges
+        p.save();
+        p.scale(current_scale, current_scale);
         for (GraphEdge &edge : block.edges) {
             QPolygonF polyline = recalculatePolygon(edge.polyline);
             QPolygonF arrow_start = recalculatePolygon(edge.arrow_start);
             QPolygonF arrow_end = recalculatePolygon(edge.arrow_end);
             EdgeConfiguration ec = edgeConfiguration(block, edge.dest);
             QPen pen(edge.color);
-//            if(blockSelected)
-//                pen.setStyle(Qt::DashLine);
             pen.setWidth(pen.width());
             p.setPen(pen);
             p.setBrush(edge.color);
@@ -441,6 +441,7 @@ void GraphView::paintEvent(QPaintEvent *event)
                 p.drawConvexPolygon(arrow_end);
             }
         }
+        p.restore();
     }
 
     emit refreshBlock();
