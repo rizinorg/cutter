@@ -90,8 +90,8 @@ void GraphWidget::adjustOverview()
     int graph_offset_y = graphView->offset_y;
     int overview_offset_x = overviewWidget->graphView->offset_x;
     int overview_offset_y = overviewWidget->graphView->offset_y;
-    int rangeRectX = graph_offset_x * curScale - overview_offset_x;
-    int rangeRectY = graph_offset_y * curScale - overview_offset_y;
+    int rangeRectX = graph_offset_x * curScale - overview_offset_x * curScale;
+    int rangeRectY = graph_offset_y * curScale - overview_offset_y * curScale;
 
     overviewWidget->graphView->rangeRect = QRectF(rangeRectX, rangeRectY, w, h);
     overviewWidget->graphView->viewport()->update();
@@ -108,7 +108,7 @@ void GraphWidget::adjustGraph()
     int recty = overviewWidget->graphView->rangeRect.y();
     int overview_offset_x = overviewWidget->graphView->offset_x;
     int overview_offset_y = overviewWidget->graphView->offset_y;
-    graphView->offset_x = (rectx + overview_offset_x) / curScale;
-    graphView->offset_y = (recty + overview_offset_y) / curScale;
+    graphView->offset_x = rectx /curScale + overview_offset_x;
+    graphView->offset_y = recty /curScale + overview_offset_y;
     graphView->viewport()->update();
 }
