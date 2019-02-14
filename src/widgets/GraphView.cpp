@@ -377,7 +377,8 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 {
     QPolygonF ret;
     for (int i = 0; i < polygon.size(); i++) {
-        ret << QPointF(polygon[i].x() * current_scale - offset_x, polygon[i].y() * current_scale - offset_y);
+        //ret << QPointF(polygon[i].x() * current_scale - offset_x, polygon[i].y() * current_scale - offset_y);
+        ret << QPointF(polygon[i].x() - offset_x, polygon[i].y() - offset_y);
     }
     return ret;
 }
@@ -397,7 +398,7 @@ void GraphView::paintEvent(QPaintEvent *event)
     p.drawRect(viewportRect);
     p.setBrush(Qt::black);
 
-    //p.scale(current_scale, current_scale);
+    p.scale(current_scale, current_scale);
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -408,10 +409,10 @@ void GraphView::paintEvent(QPaintEvent *event)
         qreal blockHeight = block.height * current_scale;
 
         // Check if block is visible by checking if block intersects with view area
-        if (offset_x < blockX + blockWidth
-                && blockX < offset_x + render_width
-                && offset_y < blockY + blockHeight
-                && blockY < offset_y + render_height) {
+        if (offset_x * current_scale < blockX + blockWidth
+                && blockX < offset_x * current_scale + render_width
+                && offset_y * current_scale < blockY + blockHeight
+                && blockY < offset_y * current_scale + render_height) {
             drawBlock(p, block);
         }
 
@@ -420,8 +421,6 @@ void GraphView::paintEvent(QPaintEvent *event)
         // Always draw edges
         // TODO: Only draw edges if they are actually visible ...
         // Draw edges
-        p.save();
-        p.scale(current_scale, current_scale);
         for (GraphEdge &edge : block.edges) {
             QPolygonF polyline = recalculatePolygon(edge.polyline);
             QPolygonF arrow_start = recalculatePolygon(edge.arrow_start);
@@ -441,7 +440,6 @@ void GraphView::paintEvent(QPaintEvent *event)
                 p.drawConvexPolygon(arrow_end);
             }
         }
-        p.restore();
     }
 
     emit refreshBlock();
@@ -691,11 +689,13 @@ void GraphView::center()
 void GraphView::centerX()
 {
     offset_x = -((viewport()->width() - width * current_scale) / 2);
+    offset_x /= current_scale;
 }
 
 void GraphView::centerY()
 {
     offset_y = -((viewport()->height() - height * current_scale) / 2);
+    offset_y /= current_scale;
 }
 
 void GraphView::showBlock(GraphBlock &block, bool animated)

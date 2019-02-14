@@ -379,15 +379,12 @@ void DisassemblerGraphView::initFont()
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x * current_scale - offset_x;
-    int blockY = block.y * current_scale - offset_y;
-    int blockW = block.width * current_scale;
-    int blockH = block.height * current_scale;
-    qreal blockCharW = charWidth * current_scale;
-    int blockCharH = charHeight * current_scale;
-
-    p.save();
-    p.scale(current_scale, current_scale);
+    int blockX = block.x - offset_x;
+    int blockY = block.y - offset_y;
+    int blockW = block.width;
+    int blockH = block.height;
+    qreal blockCharW = charWidth;
+    int blockCharH = charHeight;
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -532,14 +529,14 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
     }
 
-    qreal render_height = viewport()->size().height() * current_scale;
+    qreal render_height = viewport()->size().height();
 
     // Render node text
     auto x = blockX + (2 * blockCharW);
     int y = static_cast<int>(blockY + (2 * blockCharW));
     qreal lineHeightRender = blockCharH;
     for (auto &line : db.header_text.lines) {
-        qreal lineYRender = y * current_scale;
+        qreal lineYRender = y;
 
         // Check if line does NOT intersects with view area
         if (0 > lineYRender + lineHeightRender
@@ -565,7 +562,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             }
         }
         for (auto &line : instr.text.lines) {
-            qreal lineYRender = y * current_scale;
+            qreal lineYRender = y;
 
             if (0 > lineYRender + lineHeightRender
                     || render_height < lineYRender) {
@@ -589,7 +586,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
         }
     }
-    p.restore();
 }
 
 GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView::GraphBlock &from,

@@ -37,12 +37,6 @@ void OverviewView::adjustScale()
     viewport()->update();
 }
 
-void OverviewView::center()
-{
-    offset_x = -((viewport()->width() - width * current_scale) / 2);
-    offset_y = -((viewport()->height() - height * current_scale) / 2);
-}
-
 void OverviewView::refreshView()
 {
     current_scale = 1.0;
@@ -52,10 +46,10 @@ void OverviewView::refreshView()
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x * current_scale - offset_x;
-    int blockY = block.y * current_scale - offset_y;
-    int blockW = block.width * current_scale;
-    int blockH = block.height * current_scale;
+    int blockX = block.x - offset_x;
+    int blockY = block.y - offset_y;
+    int blockW = block.width;
+    int blockH = block.height;
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
