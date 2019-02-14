@@ -3,6 +3,7 @@
 
 #include "Cutter.h"
 #include "common/Configuration.h"
+#include "common/SyntaxHighlighter.h"
 #include "widgets/TypesWidget.h"
 
 #include <QFileDialog>
@@ -14,6 +15,8 @@ LoadNewTypesDialog::LoadNewTypesDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->plainTextEdit->setPlainText("");
+    syntaxHighLighter = new SyntaxHighlighter(ui->plainTextEdit->document());
+
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 }
 

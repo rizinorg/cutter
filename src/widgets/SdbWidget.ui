@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SdbDock</class>
- <widget class="QDockWidget" name="SdbDock">
+ <class>SdbWidget</class>
+ <widget class="QDockWidget" name="SdbWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,10 +11,10 @@
    </rect>
   </property>
   <property name="floating">
-   <bool>true</bool>
+   <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string notr="true">SDB Browser</string>
+   <string>SDB Browser</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">

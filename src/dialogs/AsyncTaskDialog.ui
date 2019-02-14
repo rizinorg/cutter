@@ -26,6 +26,9 @@
      <property name="maximum">
       <number>0</number>
      </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

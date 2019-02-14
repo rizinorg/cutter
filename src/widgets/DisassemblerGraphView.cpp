@@ -118,10 +118,16 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 
     connect(mMenu, SIGNAL(copy()), this, SLOT(copySelection()));
 
-    header = new QTextEdit(viewport());
+    header = new QTextEdit();
     header->setFixedHeight(30);
     header->setReadOnly(true);
     header->setLineWrapMode(QTextEdit::NoWrap);
+
+    // Add header as widget to layout so it stretches to the layout width
+    layout()->setContentsMargins(0, 0, 0, 0);
+    layout()->setAlignment(Qt::AlignTop);
+    layout()->addWidget(header);
+
     highlighter = new SyntaxHighlighter(header->document());
 }
 
@@ -718,6 +724,7 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
 
 void DisassemblerGraphView::zoomIn(QPoint mouse)
 {
+    Q_UNUSED(mouse);
     current_scale += 0.1;
     viewport()->update();
     emit viewZoomed();
@@ -725,6 +732,7 @@ void DisassemblerGraphView::zoomIn(QPoint mouse)
 
 void DisassemblerGraphView::zoomOut(QPoint mouse)
 {
+    Q_UNUSED(mouse);
     current_scale -= 0.1;
     current_scale = std::max(current_scale, 0.3);
     viewport()->update();

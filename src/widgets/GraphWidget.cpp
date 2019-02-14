@@ -26,9 +26,6 @@ GraphWidget::GraphWidget(MainWindow *main, OverviewWidget *overview, QAction *ac
         toggleOverview(visibility);
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-            this->graphView->header->setFixedWidth(width());
-            eprintf("viewport X is %d\n", this->graphView->viewport()->width());
-            eprintf("viewport Y is %d\n", this->graphView->viewport()->height());
             this->graphView->refreshView();
         }
     });
@@ -43,7 +40,6 @@ GraphWidget::GraphWidget(MainWindow *main, OverviewWidget *overview, QAction *ac
         if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
             this->raise();
             this->graphView->setFocus();
-            this->graphView->header->setFixedWidth(width());
         }
     });
 }
@@ -106,7 +102,6 @@ void GraphWidget::adjustGraph()
         return;
     }
     qreal curScale = overviewWidget->graphView->current_scale;
-    qreal baseScale = graphView->current_scale;
     int rectx = overviewWidget->graphView->rangeRect.x();
     int recty = overviewWidget->graphView->rangeRect.y();
     int overview_offset_x = overviewWidget->graphView->offset_x;
