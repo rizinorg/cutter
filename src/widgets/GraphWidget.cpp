@@ -27,6 +27,9 @@ GraphWidget::GraphWidget(MainWindow *main, OverviewWidget *overview, QAction *ac
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
             this->graphView->header->setFixedWidth(width());
+            eprintf("viewport X is %d\n", this->graphView->viewport()->width());
+            eprintf("viewport Y is %d\n", this->graphView->viewport()->height());
+            this->graphView->refreshView();
         }
     });
 

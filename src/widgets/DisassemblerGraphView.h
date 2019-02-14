@@ -158,7 +158,6 @@ private slots:
     void on_actionExportGraph_triggered();
 
 private:
-    bool first_draw = true;
     bool transition_dont_seek = false;
 
     Token *highlight_token;

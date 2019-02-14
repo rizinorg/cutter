@@ -317,12 +317,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     if (!func["blocks"].toArray().isEmpty()) {
         computeGraph(entry);
-        viewport()->update();
-
-        if (first_draw) {
-            showBlock(blocks[entry]);
-            first_draw = false;
-        }
+        showBlock(blocks[entry]);
     }
 }
 
