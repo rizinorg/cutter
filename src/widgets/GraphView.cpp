@@ -9,7 +9,6 @@
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
-    QSize areaSize = viewport()->size();
 }
 
 GraphView::~GraphView()
@@ -112,8 +111,6 @@ bool GraphView::event(QEvent *event)
 // This calculates the full graph starting at block entry.
 void GraphView::computeGraph(ut64 entry)
 {
-    QSize areaSize = viewport()->size();
-
     // Populate incoming lists
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -370,14 +367,12 @@ void GraphView::computeGraph(ut64 entry)
     ready = true;
 
     viewport()->update();
-    areaSize = viewport()->size();
 }
 
 QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 {
     QPolygonF ret;
     for (int i = 0; i < polygon.size(); i++) {
-        //ret << QPointF(polygon[i].x() * current_scale - offset_x, polygon[i].y() * current_scale - offset_y);
         ret << QPointF(polygon[i].x() - offset_x, polygon[i].y() - offset_y);
     }
     return ret;
@@ -698,12 +693,12 @@ void GraphView::centerY()
     offset_y /= current_scale;
 }
 
-void GraphView::showBlock(GraphBlock &block, bool animated)
+void GraphView::showBlock(GraphBlock &block)
 {
-    showBlock(&block, animated);
+    showBlock(&block);
 }
 
-void GraphView::showBlock(GraphBlock *block, bool animated)
+void GraphView::showBlock(GraphBlock *block)
 {
     if (width * current_scale <= viewport()->width()) {
         centerX();
@@ -782,13 +777,13 @@ void GraphView::mousePressEvent(QMouseEvent *event)
             QPointF start = edge.polyline.first();
             QPointF end = edge.polyline.last();
             if (checkPointClicked(start, x, y)) {
-                showBlock(edge.dest, true);
+                showBlock(edge.dest);
                 // TODO: Callback to child
                 return;
                 break;
             }
             if (checkPointClicked(end, x, y, true)) {
-                showBlock(block, true);
+                showBlock(block);
                 // TODO: Callback to child
                 return;
                 break;

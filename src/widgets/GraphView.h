@@ -95,9 +95,8 @@ public:
     ~GraphView() override;
     void paintEvent(QPaintEvent *event) override;
 
-    // Show a block centered. Animates to it if animated=true
-    void showBlock(GraphBlock &block, bool animated = false);
-    void showBlock(GraphBlock *block, bool animated = false);
+    void showBlock(GraphBlock &block);
+    void showBlock(GraphBlock *block);
 
     // Zoom data
     qreal current_scale = 1.0;
