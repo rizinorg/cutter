@@ -170,8 +170,7 @@ void DisassemblerGraphView::refreshView()
 void DisassemblerGraphView::loadCurrentGraph()
 {
     TempConfig tempConfig;
-    tempConfig.set("scr.html", true)
-    .set("scr.color", COLOR_MODE_16M)
+    tempConfig.set("scr.color", COLOR_MODE_16M)
     .set("asm.bbline", false)
     .set("asm.lines", false)
     .set("asm.lines.fcn", false);
@@ -290,11 +289,13 @@ void DisassemblerGraphView::loadCurrentGraph()
             // Skip last byte, otherwise it will overlap with next instruction
             i.size -= 1;
 
-            QString disas;
-            disas = op["text"].toString();
-
             QTextDocument textDoc;
-            textDoc.setHtml(disas);
+            char *html = r_cons_html_filter(op["text"].toString().toUtf8().constData(), nullptr);
+            if (html) {
+                textDoc.setHtml(QString::fromUtf8(html));
+                free (html);
+            }
+
             i.plainText = textDoc.toPlainText();
 
             RichTextPainter::List richText = RichTextPainter::fromTextDocument(textDoc);

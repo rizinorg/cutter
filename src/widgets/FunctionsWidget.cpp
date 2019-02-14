@@ -200,7 +200,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         {
             // temporarily simplify the disasm output to get it colorful and simple to read
             TempConfig tempConfig;
-            tempConfig.set("scr.html", true)
+            tempConfig
                 .set("scr.color", COLOR_MODE_16M)
                 .set("asm.lines", false)
                 .set("asm.var", false)
