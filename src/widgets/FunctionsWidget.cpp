@@ -196,7 +196,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::ToolTipRole: {
-        QJsonArray jDisasmEntries;
+        QList<DisassemblyLine> disassemblyLines;
         {
             // temporarily simplify the disasm output to get it colorful and simple to read
             TempConfig tempConfig;
@@ -209,21 +209,17 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 .set("asm.lines.fcn", false)
                 .set("asm.lines.out", false)
                 .set("asm.lines.bb", false)
-                .set("asm.bbline", false);
+                .set("asm.bbline", false)
+                .set("asm.stackptr", false);
 
-            jDisasmEntries = Core()->cmdj(QString("pdJ %1 @ %2")
-                .arg(kMaxTooltipDisasmPreviewLines + 1)
-                .arg(function.offset)).array();
+            disassemblyLines = Core()->disassembleLines(function.offset, kMaxTooltipDisasmPreviewLines + 1);
         }
         QStringList disasmPreview;
-        for (const QJsonValue &value : jDisasmEntries) {
-            const QJsonObject &object = value.toObject();
-
-            const RVA insnOffset = object["offset"].toVariant().toULongLong();
-            if (!function.contains(insnOffset)) {
+        for (const DisassemblyLine &line : disassemblyLines) {
+            if (!function.contains(line.offset)) {
                 break;
             }
-            disasmPreview << object["text"].toString();
+            disasmPreview << line.text;
             if (disasmPreview.length() >= kMaxTooltipDisasmPreviewLines) {
                 disasmPreview << "...";
                 break;

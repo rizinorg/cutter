@@ -730,6 +730,8 @@ public:
 
     RCoreLocked core() const;
 
+    static QString ansiEscapeToHtml(const QString &text);
+
 signals:
     void refreshAll();
 

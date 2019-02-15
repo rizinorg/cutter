@@ -290,11 +290,7 @@ void DisassemblerGraphView::loadCurrentGraph()
             i.size -= 1;
 
             QTextDocument textDoc;
-            char *html = r_cons_html_filter(op["text"].toString().toUtf8().constData(), nullptr);
-            if (html) {
-                textDoc.setHtml(QString::fromUtf8(html));
-                free (html);
-            }
+            textDoc.setHtml(CutterCore::ansiEscapeToHtml(op["text"].toString()));
 
             i.plainText = textDoc.toPlainText();
 
