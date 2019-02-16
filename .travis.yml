@@ -30,6 +30,7 @@ addons:
     sources:
       - sourceline: "ppa:beineri/opt-qt-5.12.0-xenial"
     packages:
+      - libgl1-mesa-dev
       - qt512base
       - qt512svg
       - qt512webengine
