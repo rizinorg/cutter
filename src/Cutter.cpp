@@ -2533,14 +2533,11 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
                                 offset)).array();
     QList<DisassemblyLine> r;
 
-    for (const QJsonValue &value : array) {
+    for (const QJsonValueRef &value : array) {
         QJsonObject object = value.toObject();
-
         DisassemblyLine line;
-
         line.offset = object[RJsonKey::offset].toVariant().toULongLong();
-        line.text = object[RJsonKey::text].toString();
-
+        line.text = ansiEscapeToHtml(object[RJsonKey::text].toString());
         r << line;
     }
 
@@ -2624,3 +2621,14 @@ QList<CutterPlugin *> CutterCore::getCutterPlugins()
     return plugins;
 }
 
+QString CutterCore::ansiEscapeToHtml(const QString &text)
+{
+    int len;
+    char *html = r_cons_html_filter(text.toUtf8().constData(), &len);
+    if (!html) {
+        return QString();
+    }
+    QString r = QString::fromUtf8(html, len);
+    free(html);
+    return r;
+}

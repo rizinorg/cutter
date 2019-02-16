@@ -213,7 +213,7 @@ void HexdumpWidget::setupScrollSync()
             asciiHexFunc);
 }
 
-void HexdumpWidget::onSeekChanged(RVA addr)
+void HexdumpWidget::onSeekChanged(RVA)
 {
     if (sent_seek) {
         sent_seek = false;
