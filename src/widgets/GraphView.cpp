@@ -9,12 +9,6 @@
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
 {
-    setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    horizontalScrollBar()->setSingleStep(charWidth);
-    verticalScrollBar()->setSingleStep(charWidth);
-    QSize areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height());
 }
 
 GraphView::~GraphView()
@@ -70,10 +64,8 @@ void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, 
 
 bool GraphView::helpEvent(QHelpEvent *event)
 {
-    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) +
-            horizontalScrollBar()->value();
-    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) +
-            verticalScrollBar()->value();
+    int x = event->pos().x() + offset_x;
+    int y = event->pos().y() - offset_y;
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -105,32 +97,6 @@ GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock 
     return ec;
 }
 
-void GraphView::adjustSize(int new_width, int new_height, QPoint mouse)
-{
-    int originalRangeX = horizontalScrollBar()->maximum();
-    int originalRangeY = verticalScrollBar()->maximum();
-    int newMaxX = width - (new_width / current_scale);
-    int newMaxY = height - (new_height / current_scale);
-
-    // Update scroll bar information
-    horizontalScrollBar()->setPageStep(new_width);
-    horizontalScrollBar()->setRange(0, newMaxX);
-    verticalScrollBar()->setPageStep(new_height);
-    verticalScrollBar()->setRange(0, newMaxY);
-
-    // Compute new scrollBar values so that the mouse always points
-    // to the same place when zooming
-    QPoint mouseLocal = mapFromGlobal(mouse);
-
-    int topX = horizontalScrollBar()->value();
-    int topY = verticalScrollBar()->value();
-
-    int dx = newMaxX - originalRangeX;
-    int dy = newMaxY - originalRangeY;
-    horizontalScrollBar()->setValue(topX + dx * ((float)mouseLocal.x() / new_width));
-    verticalScrollBar()->setValue(topY + dy * ((float)mouseLocal.y() / new_height));
-}
-
 bool GraphView::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
@@ -145,8 +111,6 @@ bool GraphView::event(QEvent *event)
 // This calculates the full graph starting at block entry.
 void GraphView::computeGraph(ut64 entry)
 {
-    QSize areaSize = viewport()->size();
-
     // Populate incoming lists
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -403,8 +367,15 @@ void GraphView::computeGraph(ut64 entry)
     ready = true;
 
     viewport()->update();
-    areaSize = viewport()->size();
-    adjustSize(areaSize.width(), areaSize.height());
+}
+
+QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
+{
+    QPolygonF ret;
+    for (int i = 0; i < polygon.size(); i++) {
+        ret << QPointF(polygon[i].x() - offset_x, polygon[i].y() - offset_y);
+    }
+    return ret;
 }
 
 void GraphView::paintEvent(QPaintEvent *event)
@@ -414,53 +385,29 @@ void GraphView::paintEvent(QPaintEvent *event)
 
     p.setRenderHint(QPainter::Antialiasing);
 
-    int render_offset_x = -horizontalScrollBar()->value() * current_scale;
-    int render_offset_y = -verticalScrollBar()->value() * current_scale;
-    int render_width = viewport()->size().width();
-    int render_height = viewport()->size().height();
+    int render_width = viewport()->width();
+    int render_height = viewport()->height();
 
-    // Do we have scrollbars?
-    bool hscrollbar = horizontalScrollBar()->pageStep() < width * current_scale;
-    bool vscrollbar = verticalScrollBar()->pageStep() < height * current_scale;
-
-    // Draw background
     QRect viewportRect(viewport()->rect().topLeft(), viewport()->rect().bottomRight() - QPoint(1, 1));
     p.setBrush(backgroundColor);
     p.drawRect(viewportRect);
     p.setBrush(Qt::black);
 
-    unscrolled_render_offset_x = 0;
-    unscrolled_render_offset_y = 0;
-
-    // We do not have a scrollbar on this axis, so we center the view
-    if (!hscrollbar) {
-        unscrolled_render_offset_x = (viewport()->size().width() - (width * current_scale)) / 2;
-        render_offset_x += unscrolled_render_offset_x;
-    }
-    if (!vscrollbar) {
-        unscrolled_render_offset_y = (viewport()->size().height() - (height * current_scale)) / 2;
-        render_offset_y += unscrolled_render_offset_y;
-    }
-
-    p.translate(render_offset_x, render_offset_y);
     p.scale(current_scale, current_scale);
 
-
-    // Draw blocks
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
-        qreal blockXRender = block.x * current_scale;
-        qreal blockYRender = block.y * current_scale;
-        qreal blockWidthRender = block.width * current_scale;
-        qreal blockHeightRender = block.height * current_scale;
+        qreal blockX = block.x * current_scale;
+        qreal blockY = block.y * current_scale;
+        qreal blockWidth = block.width * current_scale;
+        qreal blockHeight = block.height * current_scale;
 
         // Check if block is visible by checking if block intersects with view area
-        if (-render_offset_x < blockXRender + blockWidthRender
-                && -render_offset_x + render_width > blockXRender
-                && -render_offset_y < blockYRender + blockHeightRender
-                && -render_offset_y + render_height > blockYRender) {
-            // If it intersects then draw it
+        if (offset_x * current_scale < blockX + blockWidth
+                && blockX < offset_x * current_scale + render_width
+                && offset_y * current_scale < blockY + blockHeight
+                && blockY < offset_y * current_scale + render_height) {
             drawBlock(p, block);
         }
 
@@ -470,21 +417,22 @@ void GraphView::paintEvent(QPaintEvent *event)
         // TODO: Only draw edges if they are actually visible ...
         // Draw edges
         for (GraphEdge &edge : block.edges) {
+            QPolygonF polyline = recalculatePolygon(edge.polyline);
+            QPolygonF arrow_start = recalculatePolygon(edge.arrow_start);
+            QPolygonF arrow_end = recalculatePolygon(edge.arrow_end);
             EdgeConfiguration ec = edgeConfiguration(block, edge.dest);
             QPen pen(edge.color);
-//            if(blockSelected)
-//                pen.setStyle(Qt::DashLine);
             pen.setWidth(pen.width() / ec.width_scale);
             p.setPen(pen);
             p.setBrush(edge.color);
-            p.drawPolyline(edge.polyline);
+            p.drawPolyline(polyline);
             pen.setStyle(Qt::SolidLine);
             p.setPen(pen);
             if (ec.start_arrow) {
-                p.drawConvexPolygon(edge.arrow_start);
+                p.drawConvexPolygon(arrow_start);
             }
             if (ec.end_arrow) {
-                p.drawConvexPolygon(edge.arrow_end);
+                p.drawConvexPolygon(arrow_end);
             }
         }
     }
@@ -727,46 +675,43 @@ int GraphView::findVertEdgeIndex(EdgesVector &edges, int col, int min_row, int m
     return i;
 }
 
-void GraphView::showBlock(GraphBlock &block, bool animated)
+void GraphView::center()
 {
-    showBlock(&block, animated);
+    centerX();
+    centerY();
 }
 
-void GraphView::showBlock(GraphBlock *block, bool animated)
+void GraphView::centerX()
 {
-    int render_width = viewport()->size().width() / current_scale;
+    offset_x = -((viewport()->width() - width * current_scale) / 2);
+    offset_x /= current_scale;
+}
 
+void GraphView::centerY()
+{
+    offset_y = -((viewport()->height() - height * current_scale) / 2);
+    offset_y /= current_scale;
+}
 
-    // Show block middle of X
-    int target_x = (block->x + (block->width / 2)) - (render_width / 2);
-    int show_block_offset_y = 30;
-    // But beginning of Y (so we show the top of the block)
-    int target_y = block->y - show_block_offset_y;
+void GraphView::showBlock(GraphBlock &block)
+{
+    showBlock(&block);
+}
 
-    target_x = std::max(0, target_x);
-    target_y = std::max(0, target_y);
-    target_x = std::min(horizontalScrollBar()->maximum(), target_x);
-    target_y = std::min(verticalScrollBar()->maximum(), target_y);
-    if (animated) {
-        QPropertyAnimation *animation_x = new QPropertyAnimation(horizontalScrollBar(), "value", this);
-        animation_x->setDuration(500);
-        animation_x->setStartValue(horizontalScrollBar()->value());
-        animation_x->setEndValue(target_x);
-        animation_x->setEasingCurve(QEasingCurve::InOutQuad);
-        animation_x->start(QAbstractAnimation::DeleteWhenStopped);
-        QPropertyAnimation *animation_y = new QPropertyAnimation(verticalScrollBar(), "value", this);
-        animation_y->setDuration(500);
-        animation_y->setStartValue(verticalScrollBar()->value());
-        animation_y->setEndValue(target_y);
-        animation_y->setEasingCurve(QEasingCurve::InOutQuad);
-        animation_y->start(QAbstractAnimation::DeleteWhenStopped);
+void GraphView::showBlock(GraphBlock *block)
+{
+    if (width * current_scale <= viewport()->width()) {
+        centerX();
     } else {
-        horizontalScrollBar()->setValue(target_x);
-        verticalScrollBar()->setValue(target_y);
+        int render_width = viewport()->width() / current_scale;
+        offset_x = block->x - ((render_width - block->width) / 2);
     }
-
+    if (height * current_scale <= viewport()->height()) {
+        centerY();
+    } else {
+        offset_y = block->y - 30;
+    }
     blockTransitionedTo(block);
-
     viewport()->update();
 }
 
@@ -802,18 +747,11 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
     return false;
 }
 
-void GraphView::resizeEvent(QResizeEvent *event)
-{
-    adjustSize(event->size().width(), event->size().height());
-}
-
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
-    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) +
-            horizontalScrollBar()->value();
-    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) +
-            verticalScrollBar()->value();
+    int x = event->pos().x() + offset_x;
+    int y = event->pos().y() + offset_y;
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -839,13 +777,13 @@ void GraphView::mousePressEvent(QMouseEvent *event)
             QPointF start = edge.polyline.first();
             QPointF end = edge.polyline.last();
             if (checkPointClicked(start, x, y)) {
-                showBlock(edge.dest, true);
+                showBlock(edge.dest);
                 // TODO: Callback to child
                 return;
                 break;
             }
             if (checkPointClicked(end, x, y, true)) {
-                showBlock(block, true);
+                showBlock(block);
                 // TODO: Callback to child
                 return;
                 break;
@@ -868,21 +806,18 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        int x_delta = scroll_base_x - event->x();
-        int y_delta = scroll_base_y - event->y();
+        offset_x += scroll_base_x - event->x();
+        offset_y += scroll_base_y - event->y();
         scroll_base_x = event->x();
         scroll_base_y = event->y();
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1 / current_scale));
-        verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1 / current_scale));
+        viewport()->update();
     }
 }
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = ((event->pos().x() - unscrolled_render_offset_x) / current_scale) +
-            horizontalScrollBar()->value();
-    int y = ((event->pos().y() - unscrolled_render_offset_y) / current_scale) +
-            verticalScrollBar()->value();
+    int x = event->pos().x() + offset_x;
+    int y = event->pos().y() + offset_y;
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -918,9 +853,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 void GraphView::wheelEvent(QWheelEvent *event)
 {
     const QPoint delta = -event->angleDelta();
-    int x_delta = delta.x();
-    int y_delta = delta.y();
-    horizontalScrollBar()->setValue(horizontalScrollBar()->value() + x_delta * (1 / current_scale));
-    verticalScrollBar()->setValue(verticalScrollBar()->value() + y_delta * (1 / current_scale));
+    offset_x += delta.x() * current_scale;
+    offset_y += delta.y() * current_scale;
+    viewport()->update();
     event->accept();
 }

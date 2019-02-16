@@ -28,16 +28,12 @@ OverviewView::~OverviewView()
 
 void OverviewView::adjustScale()
 {
-    if (horizontalScrollBar()->maximum() > 0) {
-        current_scale = (qreal)viewport()->width() / (qreal)(horizontalScrollBar()->maximum() + horizontalScrollBar()->pageStep());
+    current_scale = (qreal)viewport()->width() / width;
+    qreal h_scale = (qreal)viewport()->height() / height;
+    if (current_scale > h_scale) {
+        current_scale = h_scale;
     }
-    if (verticalScrollBar()->maximum() > 0) {
-        qreal h_scale = (qreal)viewport()->height() / (qreal)(verticalScrollBar()->maximum() + verticalScrollBar()->pageStep());
-        if (current_scale > h_scale) {
-            current_scale = h_scale;
-        }
-    }
-    adjustSize(viewport()->size().width(), viewport()->size().height());
+    center();
     viewport()->update();
 }
 
@@ -45,21 +41,23 @@ void OverviewView::refreshView()
 {
     current_scale = 1.0;
     viewport()->update();
-    adjustSize(viewport()->size().width(), viewport()->size().height());
     adjustScale();
 }
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
+    int blockX = block.x - offset_x;
+    int blockY = block.y - offset_y;
+
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
-    p.drawRect(block.x, block.y, block.width, block.height);
+    p.drawRect(blockX, blockY, block.width, block.height);
     p.setBrush(QColor(0, 0, 0, 100));
-    p.drawRect(block.x + 2, block.y + 2,
+    p.drawRect(blockX + 2, blockY + 2,
                block.width, block.height);
     p.setPen(QPen(graphNodeColor, 1));
     p.setBrush(disassemblyBackgroundColor);
-    p.drawRect(block.x, block.y,
+    p.drawRect(blockX, blockY,
                block.width, block.height);
 }
 
@@ -91,8 +89,8 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
     }
     qreal w = rangeRect.width();
     qreal h = rangeRect.height();
-    qreal x = event->localPos().x() - w/2 + h_offset;
-    qreal y = event->localPos().y() - h/2 + v_offset;
+    qreal x = event->localPos().x() - w / 2;
+    qreal y = event->localPos().y() - h / 2;
     rangeRect = QRectF(x, y, w, h);
     viewport()->update();
     emit mouseMoved();
@@ -112,31 +110,14 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     }
     qreal x = event->localPos().x() - initialDiff.x();
     qreal y = event->localPos().y() - initialDiff.y();
-    qreal w = rangeRect.width();
-    qreal h = rangeRect.height();
-    qreal real_width = width * current_scale;
-    qreal real_height = height * current_scale;
-    qreal max_right = unscrolled_render_offset_x + real_width;
-    qreal max_bottom = unscrolled_render_offset_y + real_height;
-    qreal rect_right = x + w;
-    qreal rect_bottom = y + h;
-    if (rect_right >= max_right) {
-        x = unscrolled_render_offset_x + real_width - w;
-    }
-    if (rect_bottom >= max_bottom) {
-        y = unscrolled_render_offset_y + real_height - h;
-    }
-    if (x <= unscrolled_render_offset_x) {
-        x = unscrolled_render_offset_x;
-    }
-    if (y <= unscrolled_render_offset_y) {
-        y = unscrolled_render_offset_y;
-    }
-    x += h_offset;
-    y += v_offset;
-    rangeRect = QRectF(x, y, w, h);
+    rangeRect = QRectF(x, y, rangeRect.width(), rangeRect.height());
     viewport()->update();
     emit mouseMoved();
+}
+
+void OverviewView::wheelEvent(QWheelEvent *event)
+{
+    event->ignore();
 }
 
 GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,

@@ -23,7 +23,6 @@ private:
 private slots:
     void adjustOverview();
     void adjustGraph();
-    void adjustOffset();
 };
 
 #endif // GRAPHWIDGET_H
