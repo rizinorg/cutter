@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "Cutter.h" // only needed for ut64
+#include "core/Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/GraphWidget.h"
 #include "widgets/OverviewWidget.h"

@@ -2,7 +2,7 @@
 #ifndef CUTTER_JSON_H
 #define CUTTER_JSON_H
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 #include <QJsonValue>
 

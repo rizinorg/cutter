@@ -1,7 +1,7 @@
 #include "R2PluginsDialog.h"
 #include "ui_R2PluginsDialog.h"
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "common/Helpers.h"
 #include "plugins/PluginManager.h"
 

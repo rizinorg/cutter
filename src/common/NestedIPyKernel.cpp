@@ -4,7 +4,7 @@
 #include <Python.h>
 #include <csignal>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "NestedIPyKernel.h"
 #include "QtResImporter.h"
 

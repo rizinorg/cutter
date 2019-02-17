@@ -4,7 +4,7 @@
 class CutterPlugin;
 class MainWindow;
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "widgets/CutterDockWidget.h"
 
 class CutterPlugin 

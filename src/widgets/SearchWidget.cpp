@@ -3,7 +3,7 @@
 #include <QComboBox>
 #include "SearchWidget.h"
 #include "ui_SearchWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 static const QMap<QString, QString> kSearchBoundariesValues {

@@ -1,7 +1,7 @@
 #ifndef HEXDUMPRANGEDIALOG_H
 #define HEXDUMPRANGEDIALOG_H
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 #include <QDialog>
 #include <QRegExpValidator>

@@ -1,5 +1,5 @@
 #include "common/PythonManager.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "ui_MainWindow.h"
 #include "common/Helpers.h"
 #include "CutterConfig.h"
@@ -94,7 +94,7 @@
 #include "widgets/BreakpointWidget.h"
 #include "widgets/RegisterRefsWidget.h"
 
-#include "RunScriptTask.h"
+#include "common/RunScriptTask.h"
 
 // Graphics
 #include <QGraphicsEllipseItem>

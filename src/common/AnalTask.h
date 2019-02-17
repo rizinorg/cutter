@@ -2,7 +2,7 @@
 #define ANALTHREAD_H
 
 #include "common/AsyncTask.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "common/InitialOptions.h"
 
 class CutterCore;

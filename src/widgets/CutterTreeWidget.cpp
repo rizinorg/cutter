@@ -1,5 +1,5 @@
 #include "CutterTreeWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 CutterTreeWidget::CutterTreeWidget(QObject *parent) :
     QObject(parent),

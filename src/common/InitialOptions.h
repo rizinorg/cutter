@@ -2,7 +2,7 @@
 #ifndef CUTTER_INITIALOPTIONS_H
 #define CUTTER_INITIALOPTIONS_H
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 struct InitialOptions
 {

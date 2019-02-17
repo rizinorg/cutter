@@ -9,7 +9,7 @@
 #include <array>
 #include <memory>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "dialogs/HexdumpRangeDialog.h"

@@ -1,6 +1,6 @@
 #include "RegisterRefsWidget.h"
 #include "ui_RegisterRefsWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include <QMenu>
 #include <QClipboard>

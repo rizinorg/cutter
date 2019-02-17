@@ -1,5 +1,5 @@
 #include "CutterDockWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 
 CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :

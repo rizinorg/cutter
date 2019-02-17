@@ -9,7 +9,7 @@
 #include "common/AsyncTask.h"
 #include "common/R2Task.h"
 #include "common/Json.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "sdb.h"
 
 Q_GLOBAL_STATIC(CutterCore, uniqueInstance)

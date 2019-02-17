@@ -17,7 +17,7 @@
 #include <QClipboard>
 #include <QApplication>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
 #include "common/CachedFontMetrics.h"

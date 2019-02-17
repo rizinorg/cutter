@@ -3,7 +3,7 @@
 #define COMMANDTASK_H
 
 #include "common/AsyncTask.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 class CommandTask : public AsyncTask
 {

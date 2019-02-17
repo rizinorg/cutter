@@ -1,7 +1,7 @@
 #include "FunctionsWidget.h"
 #include "ui_FunctionsWidget.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/RenameDialog.h"

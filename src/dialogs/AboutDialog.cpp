@@ -1,8 +1,9 @@
-#include <Cutter.h>
+#include "r_version.h"
+#include "core/Cutter.h"
 #include "AboutDialog.h"
+
 #include "ui_AboutDialog.h"
 #include "R2PluginsDialog.h"
-#include "r_version.h"
 #include "common/Configuration.h"
 
 #include <QUrl>

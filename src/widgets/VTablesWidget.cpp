@@ -1,7 +1,7 @@
 #include <QShortcut>
 #include <QModelIndex>
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 #include "VTablesWidget.h"

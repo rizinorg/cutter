@@ -1,6 +1,6 @@
 #include "TypesWidget.h"
 #include "ui_TypesWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 #include "dialogs/LoadNewTypesDialog.h"

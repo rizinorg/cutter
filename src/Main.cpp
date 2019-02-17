@@ -1,6 +1,6 @@
 
 #include "CutterApplication.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 /*!
  * \brief Migrate Settings used before Cutter 1.8

@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <QAbstractTableModel>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 namespace Ui {
 class R2PluginsDialog;

@@ -42,6 +42,11 @@ project(Cutter VERSION "${CUTTER_VERSION_FULL}")
 
 set(CMAKE_CXX_STANDARD 11)
 
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/core")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
+
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
@@ -136,9 +141,6 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
     set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
 
     include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
-    include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
             COMMAND "${SHIBOKEN_BINARY}" --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"

@@ -90,7 +90,7 @@ CUTTER_ENABLE_QTWEBENGINE {
     message("QtWebEngine support disabled. (requires CUTTER_ENABLE_JUPYTER=true)")
 }
 
-INCLUDEPATH *= . widgets dialogs common plugins
+INCLUDEPATH *= . core widgets dialogs common plugins
 
 win32 {
     # Generate debug symbols in release mode
@@ -194,7 +194,7 @@ QMAKE_SUBSTITUTES += CutterConfig.h.in
 
 SOURCES += \
     Main.cpp \
-    Cutter.cpp \
+    core/Cutter.cpp \
     widgets/DisassemblerGraphView.cpp \
     widgets/OverviewView.cpp \
     common/RichTextPainter.cpp \
@@ -205,7 +205,7 @@ SOURCES += \
     dialogs/FlagDialog.cpp \
     dialogs/RenameDialog.cpp \
     dialogs/XrefsDialog.cpp \
-    MainWindow.cpp \
+    core/MainWindow.cpp \
     common/Helpers.cpp \
     common/HexAsciiHighlighter.cpp \
     common/HexHighlighter.cpp \
@@ -213,7 +213,7 @@ SOURCES += \
     common/MdHighlighter.cpp \
     dialogs/preferences/AsmOptionsWidget.cpp \
     dialogs/NewFileDialog.cpp \
-    AnalTask.cpp \
+    common/AnalTask.cpp \
     widgets/CommentsWidget.cpp \
     widgets/ConsoleWidget.cpp \
     widgets/Dashboard.cpp \
@@ -293,7 +293,7 @@ SOURCES += \
     common/CutterSeekable.cpp \
     common/RefreshDeferrer.cpp \
     dialogs/WelcomeDialog.cpp \
-    RunScriptTask.cpp \
+    common/RunScriptTask.cpp \
     dialogs/EditMethodDialog.cpp \
     dialogs/LoadNewTypesDialog.cpp \
     widgets/SdbWidget.cpp \
@@ -302,7 +302,9 @@ SOURCES += \
     common/BasicBlockHighlighter.cpp
 
 HEADERS  += \
-    Cutter.h \
+    core/Cutter.h \
+    core/CutterCommon.h \
+    core/CutterDescriptions.h \
     widgets/DisassemblerGraphView.h \
     widgets/OverviewView.h \
     common/RichTextPainter.h \
@@ -317,12 +319,12 @@ HEADERS  += \
     common/Helpers.h \
     common/HexAsciiHighlighter.h \
     common/HexHighlighter.h \
-    MainWindow.h \
+    core/MainWindow.h \
     common/Highlighter.h \
     common/MdHighlighter.h \
     dialogs/InitialOptionsDialog.h \
     dialogs/NewFileDialog.h \
-    AnalTask.h \
+    common/AnalTask.h \
     widgets/CommentsWidget.h \
     widgets/ConsoleWidget.h \
     widgets/Dashboard.h \
@@ -406,7 +408,7 @@ HEADERS  += \
     common/CutterSeekable.h \
     common/RefreshDeferrer.h \
     dialogs/WelcomeDialog.h \
-    RunScriptTask.h \
+    common/RunScriptTask.h \
     common/Json.h \
     dialogs/EditMethodDialog.h \
     dialogs/LoadNewTypesDialog.h \
@@ -426,7 +428,7 @@ FORMS    += \
     dialogs/NewfileDialog.ui \
     dialogs/InitialOptionsDialog.ui \
     dialogs/EditFunctionDialog.ui \
-    MainWindow.ui \
+    core/MainWindow.ui \
     widgets/CommentsWidget.ui \
     widgets/ConsoleWidget.ui \
     widgets/Dashboard.ui \

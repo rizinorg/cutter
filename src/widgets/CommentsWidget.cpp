@@ -3,7 +3,7 @@
 
 #include "CommentsWidget.h"
 #include "ui_CommentsWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 CommentsModel::CommentsModel(QList<CommentDescription> *comments,

@@ -4,7 +4,7 @@
 
 #include "FlagsWidget.h"
 #include "ui_FlagsWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "dialogs/RenameDialog.h"
 #include "common/Helpers.h"
 
