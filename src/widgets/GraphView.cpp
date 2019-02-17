@@ -816,8 +816,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() + offset_x;
-    int y = event->pos().y() + offset_y;
+    int x = event->pos().x() / current_scale + offset_x;
+    int y = event->pos().y() / current_scale + offset_y;
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
