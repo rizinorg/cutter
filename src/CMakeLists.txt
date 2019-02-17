@@ -141,7 +141,7 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
     include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-            COMMAND shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
+            COMMAND "${SHIBOKEN_BINARY}" --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
