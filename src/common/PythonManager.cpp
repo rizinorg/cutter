@@ -2,6 +2,7 @@
 
 #include "PythonAPI.h"
 #include "PythonManager.h"
+#include "Cutter.h"
 
 #include <marshal.h>
 #include <QDebug>
@@ -82,6 +83,9 @@ void PythonManager::initialize()
 void PythonManager::shutdown()
 {
     emit willShutDown();
+
+    // This is necessary to prevent a segfault when the CutterCore instance is deleted after the Shiboken::BindingManager
+    Core()->setProperty("_PySideInvalidatePtr", QVariant());
 
     restoreThread();
 
