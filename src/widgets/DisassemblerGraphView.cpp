@@ -531,7 +531,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     qreal lineHeightRender = charHeight;
     for (auto &line : db.header_text.lines) {
         qreal lineYRender = y;
-
+        lineYRender *= current_scale;
         // Check if line does NOT intersects with view area
         if (0 > lineYRender + lineHeightRender
                 || render_height < lineYRender) {
@@ -557,7 +557,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
         for (auto &line : instr.text.lines) {
             qreal lineYRender = y;
-
+            lineYRender *= current_scale;
             if (0 > lineYRender + lineHeightRender
                     || render_height < lineYRender) {
                 y += charHeight;
