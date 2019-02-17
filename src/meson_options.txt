@@ -1,3 +1,4 @@
 option('enable_python', type: 'boolean', value: true)
+option('enable_python_bindings', type: 'boolean', value: true)
 option('enable_jupyter', type: 'boolean', value: false)
 option('enable_webengine', type: 'boolean', value: false)
