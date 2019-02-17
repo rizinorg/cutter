@@ -750,8 +750,8 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() + offset_x;
-    int y = event->pos().y() + offset_y;
+    int x = event->pos().x() / current_scale + offset_x;
+    int y = event->pos().y() / current_scale + offset_y;
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -806,8 +806,8 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        offset_x += scroll_base_x - event->x();
-        offset_y += scroll_base_y - event->y();
+        offset_x += (scroll_base_x - event->x()) / current_scale;
+        offset_y += (scroll_base_y - event->y()) / current_scale;
         scroll_base_x = event->x();
         scroll_base_y = event->y();
         viewport()->update();
@@ -853,8 +853,8 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 void GraphView::wheelEvent(QWheelEvent *event)
 {
     const QPoint delta = -event->angleDelta();
-    offset_x += delta.x() * current_scale;
-    offset_y += delta.y() * current_scale;
+    offset_x += delta.x() / current_scale;
+    offset_y += delta.y() / current_scale;
     viewport()->update();
     event->accept();
 }
