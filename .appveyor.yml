@@ -47,7 +47,7 @@ before_build:
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_APPVEYOR_R2DEC=true )
+  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_APPVEYOR_R2DEC=true )
   - cmd: if defined MESON ( python meson.py --release --dist=%ARTIFACT_PATH% --backend=%BACKEND% --jupyter )
 
 after_build:
