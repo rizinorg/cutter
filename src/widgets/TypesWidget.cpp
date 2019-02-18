@@ -37,7 +37,7 @@ QVariant TypesModel::data(const QModelIndex &index, int role) const
         case TYPE:
             return exp.type;
         case SIZE:
-            return exp.category == tr("Primitive") ? exp.size : QVariant();
+            return exp.size ? exp.size : QVariant();
         case FORMAT:
             return exp.format;
         case CATEGORY:
