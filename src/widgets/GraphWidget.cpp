@@ -21,8 +21,8 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     });
 
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
+        main->toggleOverview(visibility, this);
         if (visibility) {
-            main->toggleOverview(visibility, this);
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
             this->graphView->refreshView();
         }

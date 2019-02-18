@@ -193,6 +193,7 @@ void MainWindow::initUI()
 
     // Add graph view as dockable
     overviewDock = new OverviewWidget(this, ui->actionOverview);
+    overviewDock->hide();
     graphDock = new GraphWidget(this, ui->actionGraph);
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);
@@ -297,11 +298,11 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
         connect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
         overviewDock->show();
     } else {
-        disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(MainWindow::setOverviewData()));
+        disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(setOverviewData()));
         disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
         disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-        disconnect(overviewDock, SIGNAL(QDockWidget::dockLocationChanged()), this, SLOT(adjustOverview()));
+        disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
         disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
         overviewDock->hide();
     }
