@@ -8,6 +8,9 @@
 #include <QDebug>
 #include <QFile>
 #include <QDebug>
+#include <QCoreApplication>
+
+#include <assert.h>
 
 #include "QtResImporter.h"
 
