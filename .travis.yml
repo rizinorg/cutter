@@ -60,16 +60,16 @@ script:
   - cd build
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" qmake CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
-        elif [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            cmake ../src && make -j4;
+            PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
+        elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
+            cmake -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF -DCUTTER_ENABLE_JUPYTER=ON -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src && make -j4;
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_BUNDLE_R2_APPBUNDLE=true PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
+            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_BUNDLE_R2_APPBUNDLE=true PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
             make -j4;
-        elif [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            cmake ../src && make -j4;
+        elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
+            cmake -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF -DCUTTER_ENABLE_JUPYTER=ON -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src && make -j4;
        fi
     fi
 
