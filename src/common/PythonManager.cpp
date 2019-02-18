@@ -1,5 +1,7 @@
 #ifdef CUTTER_ENABLE_PYTHON
 
+#include <cassert>
+
 #include "PythonAPI.h"
 #include "PythonManager.h"
 #include "Cutter.h"
@@ -10,8 +12,6 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QDir>
-
-#include <assert.h>
 
 #include "QtResImporter.h"
 
