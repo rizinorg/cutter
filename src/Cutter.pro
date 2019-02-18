@@ -126,7 +126,7 @@ CUTTER_ENABLE_PYTHON {
         pythonpath = $$clean_path($$dirname(pythonpath))
         LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
         INCLUDEPATH += $${pythonpath}/include
-        BINDINGS_SRC_LIST_CMD = "${PYTHON_EXECUTABLE} bindings/src_list.py"
+        BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
     }
 
     unix|macx|bsd {
@@ -146,6 +146,12 @@ CUTTER_ENABLE_PYTHON {
     }
 
     CUTTER_ENABLE_PYTHON_BINDINGS {
+        !packagesExist(shiboken2) {
+            error("ERROR: Shiboken2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
+        }
+        !packagesExist(pyside2) {
+            error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
+        }
         BINDINGS_SRC_DIR = "$${PWD}/bindings"
         BINDINGS_BUILD_DIR = "$${OUT_PWD}/bindings"
         BINDINGS_SOURCE = $$system("$${BINDINGS_SRC_LIST_CMD} qmake \"$${BINDINGS_BUILD_DIR}\"")
@@ -158,10 +164,10 @@ CUTTER_ENABLE_PYTHON {
             BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
         }
         BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, ":")
-        message("Joined: $$BINDINGS_INCLUDE_DIRS")
         PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
         PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
         QMAKE_SUBSTITUTES += bindings/bindings.txt.in
+        #SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable="
         bindings.target = bindings_target
         bindings.commands = shiboken2 --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
         QMAKE_EXTRA_TARGETS += bindings
