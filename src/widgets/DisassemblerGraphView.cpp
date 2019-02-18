@@ -964,6 +964,18 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     fileOut << Core()->cmd("agfd $FB");
 }
 
+void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
+{
+    GraphView::mousePressEvent(event);
+    emit graphMoved();
+}
+
+void DisassemblerGraphView::mouseMoveEvent(QMouseEvent *event)
+{
+    GraphView::mouseMoveEvent(event);
+    emit graphMoved();
+}
+
 void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
 {
     // when CTRL is pressed, we zoom in/out with mouse wheel
@@ -983,4 +995,5 @@ void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
         // use mouse wheel for scrolling when CTRL is not pressed
         GraphView::wheelEvent(event);
     }
+    emit graphMoved();
 }

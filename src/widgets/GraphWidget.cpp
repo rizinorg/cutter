@@ -28,6 +28,10 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
         }
     });
 
+    connect(graphView, &DisassemblerGraphView::graphMoved, this, [ = ]() {
+        main->toggleOverview(true, this);
+    });
+
     connect(Core(), &CutterCore::raisePrioritizedMemoryWidget,
     this, [ = ](CutterCore::MemoryWidgetType type) {
         bool emptyGraph = (type == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());

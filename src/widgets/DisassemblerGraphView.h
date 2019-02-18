@@ -152,7 +152,9 @@ public slots:
     void copySelection();
 
 protected:
-    virtual void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private slots:
     void on_actionExportGraph_triggered();
@@ -219,6 +221,7 @@ private:
 signals:
     void viewRefreshed();
     void viewZoomed();
+    void graphMoved();
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H
