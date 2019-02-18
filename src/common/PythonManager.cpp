@@ -9,6 +9,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QDir>
 
 #include <assert.h>
 
