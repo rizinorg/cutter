@@ -105,7 +105,10 @@ public:
 
     void updateDockActionChecked(QAction * action);
 
-    OverviewWidget *overviewDock = nullptr;
+    QString getFilename() const
+    {
+        return filename;
+    }
 
 public slots:
     void finalizeOpen();
@@ -128,6 +131,11 @@ public slots:
     void toggleResponsive(bool maybe);
 
     void openNewFileFailed();
+
+    void toggleOverview(bool visibility, GraphWidget *targetGraph);
+    void setOverviewData();
+    void adjustOverview();
+    void adjustGraph();
 
 private slots:
     void on_actionAbout_triggered();
@@ -204,6 +212,8 @@ private:
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
     GraphWidget        *graphDock = nullptr;
+    GraphWidget        *targetGraphDock = nullptr;
+    OverviewWidget     *overviewDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;
@@ -255,12 +265,6 @@ private:
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
     void updateDockActionsChecked();
-
-public:
-    QString getFilename() const
-    {
-        return filename;
-    }
 };
 
 #endif // MAINWINDOW_H

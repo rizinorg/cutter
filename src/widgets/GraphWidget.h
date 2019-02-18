@@ -5,24 +5,15 @@
 
 class MainWindow;
 class DisassemblerGraphView;
-class OverviewWidget;
 
 class GraphWidget : public CutterDockWidget
 {
     Q_OBJECT
 
 public:
-    explicit GraphWidget(MainWindow *main, OverviewWidget *overview,  QAction *action = nullptr);
+    explicit GraphWidget(MainWindow *main, QAction *action = nullptr);
     ~GraphWidget();
-private:
     DisassemblerGraphView *graphView;
-    OverviewWidget *overviewWidget;
-
-    void toggleOverview(bool visibility);
-    void disableOverviewRect();
-private slots:
-    void adjustOverview();
-    void adjustGraph();
 };
 
 #endif // GRAPHWIDGET_H
