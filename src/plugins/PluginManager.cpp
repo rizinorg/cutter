@@ -1,4 +1,6 @@
 
+#include <cassert>
+
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
 #include <Python.h>
 #include <cutterbindings_python.h>
