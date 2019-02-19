@@ -133,7 +133,6 @@ public slots:
     void openNewFileFailed();
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
-    void setOverviewData();
     void adjustOverview();
     void adjustGraph();
 
@@ -265,6 +264,7 @@ private:
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
     void updateDockActionsChecked();
+    void setOverviewData();
 };
 
 #endif // MAINWINDOW_H

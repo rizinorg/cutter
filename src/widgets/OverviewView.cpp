@@ -26,7 +26,7 @@ OverviewView::~OverviewView()
 {
 }
 
-void OverviewView::adjustScale()
+void OverviewView::refreshView()
 {
     current_scale = (qreal)viewport()->width() / width;
     qreal h_scale = (qreal)viewport()->height() / height;
@@ -35,13 +35,6 @@ void OverviewView::adjustScale()
     }
     center();
     viewport()->update();
-}
-
-void OverviewView::refreshView()
-{
-    current_scale = 1.0;
-    viewport()->update();
-    adjustScale();
 }
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)

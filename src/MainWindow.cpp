@@ -290,7 +290,6 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     targetGraphDock = targetGraph;
     ui->actionOverview->setChecked(visibility);
     if (visibility) {
-        connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(setOverviewData()));
         connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
         connect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
@@ -298,7 +297,6 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
         connect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
         overviewDock->show();
     } else {
-        disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(setOverviewData()));
         disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
         disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
@@ -319,6 +317,7 @@ void MainWindow::adjustOverview()
     if (!overviewDock) {
         return;
     }
+    setOverviewData();
     qreal curScale = overviewDock->graphView->current_scale;
     qreal baseScale = targetGraphDock->graphView->current_scale;
     qreal w = targetGraphDock->graphView->viewport()->width() * curScale / baseScale;
