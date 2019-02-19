@@ -2204,10 +2204,13 @@ QList<TypeDescription> CutterCore::getAllUnions()
     QList<TypeDescription> ret;
 
     QJsonArray typesArray = cmdj("tuj").array();
-    for (auto value: typesArray) {
+    for (const QJsonValue value: typesArray) {
+        QJsonObject typeObject = value.toObject();
+
         TypeDescription exp;
-        exp.type = value.toString();
-        exp.size = 0;
+
+        exp.type = typeObject[RJsonKey::type].toString();
+        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
         exp.category = "Union";
         ret << exp;
     }
@@ -2221,10 +2224,13 @@ QList<TypeDescription> CutterCore::getAllStructs()
     QList<TypeDescription> ret;
 
     QJsonArray typesArray = cmdj("tsj").array();
-    for (auto value: typesArray) {
+    for (const QJsonValue value: typesArray) {
+        QJsonObject typeObject = value.toObject();
+
         TypeDescription exp;
-        exp.type = value.toString();
-        exp.size = 0;
+
+        exp.type = typeObject[RJsonKey::type].toString();
+        exp.size = typeObject[RJsonKey::size].toVariant().toULongLong();
         exp.category = "Struct";
         ret << exp;
     }
@@ -2280,7 +2286,7 @@ QString CutterCore::addTypes(const char *str)
          return ret;
     }
 
-    sdb_query_lines(core_->anal->sdb_types, parsed);
+    r_core_save_parsed_type(core_, parsed);
     r_mem_free(parsed);
 
     if (error_msg) {
