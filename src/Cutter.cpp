@@ -167,6 +167,10 @@ CutterCore::CutterCore(QObject *parent) :
     // Otherwise r2 may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
 
+    // Initialize graph node highlighter
+    bbHighlighter = new BasicBlockHighlighter();
+
+    // Initialize Async tasks manager
     asyncTaskManager = new AsyncTaskManager(this);
 }
 
@@ -231,6 +235,7 @@ bool CutterCore::sdbSet(QString path, QString key, QString val)
 
 CutterCore::~CutterCore()
 {
+    delete bbHighlighter;
     r_core_free(this->core_);
     r_cons_free();
 }
@@ -2627,4 +2632,9 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
     QString r = QString::fromUtf8(html, len);
     free(html);
     return r;
+}
+
+BasicBlockHighlighter* CutterCore::getBBHighlighter()
+{
+    return bbHighlighter;
 }
