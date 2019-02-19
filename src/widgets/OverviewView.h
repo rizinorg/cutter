@@ -98,11 +98,6 @@ private:
     void paintEvent(QPaintEvent *event) override;
 
     /*
-     * \brief apply scale properly on the view
-     */
-    void adjustScale();
-
-    /*
      * \brief if the mouse is in the rect in Overview.
      */
     bool mouseContainsRect(QMouseEvent *event);

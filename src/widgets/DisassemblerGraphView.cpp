@@ -31,6 +31,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
       seekable(new CutterSeekable(this))
 {
     highlight_token = nullptr;
+    auto *layout = new QVBoxLayout(this);
     // Signals that require a refresh all
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshView()));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshView()));
@@ -124,9 +125,11 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     header->setLineWrapMode(QTextEdit::NoWrap);
 
     // Add header as widget to layout so it stretches to the layout width
-    layout()->setContentsMargins(0, 0, 0, 0);
-    layout()->setAlignment(Qt::AlignTop);
-    layout()->addWidget(header);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setAlignment(Qt::AlignTop);
+    layout->addWidget(header);
+
+    prepareHeader();
 
     highlighter = new SyntaxHighlighter(header->document());
 }
@@ -194,12 +197,11 @@ void DisassemblerGraphView::loadCurrentGraph()
     if (emptyGraph) {
         // If there's no function to print, just add a message
         if (!emptyText) {
-            auto *layout = new QVBoxLayout(this);
             emptyText = new QLabel(this);
             emptyText->setText(tr("No function detected. Cannot display graph."));
             emptyText->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-            layout->addWidget(emptyText);
-            layout->setAlignment(emptyText, Qt::AlignHCenter);
+            layout()->addWidget(emptyText);
+            layout()->setAlignment(emptyText, Qt::AlignHCenter);
         }
         emptyText->setVisible(true);
     } else if (emptyText) {
@@ -962,6 +964,18 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     fileOut << Core()->cmd("agfd $FB");
 }
 
+void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
+{
+    GraphView::mousePressEvent(event);
+    emit graphMoved();
+}
+
+void DisassemblerGraphView::mouseMoveEvent(QMouseEvent *event)
+{
+    GraphView::mouseMoveEvent(event);
+    emit graphMoved();
+}
+
 void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
 {
     // when CTRL is pressed, we zoom in/out with mouse wheel
@@ -981,4 +995,5 @@ void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
         // use mouse wheel for scrolling when CTRL is not pressed
         GraphView::wheelEvent(event);
     }
+    emit graphMoved();
 }
