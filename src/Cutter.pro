@@ -298,7 +298,8 @@ SOURCES += \
     dialogs/LoadNewTypesDialog.cpp \
     widgets/SdbWidget.cpp \
     common/PythonManager.cpp \
-    plugins/PluginManager.cpp
+    plugins/PluginManager.cpp \
+    common/BasicBlockHighlighter.cpp
 
 HEADERS  += \
     Cutter.h \
@@ -411,7 +412,8 @@ HEADERS  += \
     dialogs/LoadNewTypesDialog.h \
     widgets/SdbWidget.h \
     common/PythonManager.h \
-    plugins/PluginManager.h
+    plugins/PluginManager.h \
+    common/BasicBlockHighlighter.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

@@ -52,6 +52,15 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setBrush(disassemblyBackgroundColor);
     p.drawRect(blockX, blockY,
                block.width, block.height);
+    // Draw basic block highlighting/tracing
+    auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
+    if (bb) {
+        QColor color(bb->color);
+        color.setAlphaF(0.5);
+        p.setBrush(color);
+        p.drawRect(block.x, block.y,
+                   block.width, block.height);
+    }
 }
 
 void OverviewView::paintEvent(QPaintEvent *event)
