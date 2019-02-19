@@ -46,6 +46,7 @@ typedef ut64 RVA;
 class AsyncTaskManager;
 class CutterCore;
 #include "plugins/CutterPlugin.h"
+#include "common/BasicBlockHighlighter.h"
 
 class RCoreLocked
 {
@@ -728,6 +729,7 @@ public:
     RCoreLocked core() const;
 
     static QString ansiEscapeToHtml(const QString &text);
+    BasicBlockHighlighter *getBBHighlighter();
 
 signals:
     void refreshAll();
@@ -783,6 +785,7 @@ private:
     QErrorMessage msgBox;
 
     bool emptyGraph = false;
+    BasicBlockHighlighter *bbHighlighter;
 
 };
 
