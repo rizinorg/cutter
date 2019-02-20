@@ -27,8 +27,6 @@ private:
     QSettings s;
     static Configuration *mPtr;
 
-    void loadInitial();
-
     // Colors
     void loadBaseThemeNative();
     void loadBaseThemeDark();
@@ -43,6 +41,8 @@ public:
     // Functions
     Configuration();
     static Configuration *instance();
+
+    void loadInitial();
 
     void resetAll();
 
