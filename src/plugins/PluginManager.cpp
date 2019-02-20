@@ -142,7 +142,8 @@ CutterPlugin *PluginManager::loadPythonPlugin(const char *moduleName)
     Py_DECREF(createPluginFunc);
     Py_DECREF(pluginModule);
     if (!pluginObject) {
-        qWarning() << "Plugin's create_cutter_plugin() function did not return anything.";
+        qWarning() << "Plugin's create_cutter_plugin() function failed.";
+        PyErr_Print();
         return nullptr;
     }
 
