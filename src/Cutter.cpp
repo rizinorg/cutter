@@ -12,7 +12,7 @@
 #include "Cutter.h"
 #include "sdb.h"
 
-Q_GLOBAL_STATIC(ccClass, uniqueInstance)
+Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
 
 #define R_JSON_KEY(name) static const QString name = QStringLiteral(#name)
 
@@ -140,6 +140,16 @@ static void cutterREventCallback(REvent *, int type, void *user, void *data)
 CutterCore::CutterCore(QObject *parent) :
     QObject(parent)
 {
+}
+
+
+CutterCore *CutterCore::instance()
+{
+    return uniqueInstance;
+}
+
+void CutterCore::initialize()
+{
     r_cons_new();  // initialize console
     core_ = r_core_new();
 
@@ -172,12 +182,6 @@ CutterCore::CutterCore(QObject *parent) :
 
     // Initialize Async tasks manager
     asyncTaskManager = new AsyncTaskManager(this);
-}
-
-
-CutterCore *CutterCore::instance()
-{
-    return uniqueInstance;
 }
 
 QList<QString> CutterCore::sdbList(QString path)

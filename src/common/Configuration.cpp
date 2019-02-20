@@ -64,7 +64,6 @@ Configuration::Configuration() : QObject()
                               .arg(s.fileName())
                              );
     }
-    loadInitial();
 }
 
 Configuration *Configuration::instance()

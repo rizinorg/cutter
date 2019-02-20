@@ -412,12 +412,13 @@ Q_DECLARE_METATYPE(VariableDescription)
 class CutterCore: public QObject
 {
     Q_OBJECT
-    friend class ccClass;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
     ~CutterCore();
     static CutterCore *instance();
+
+    void initialize();
 
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 
@@ -779,7 +780,7 @@ private:
     MemoryWidgetType memoryWidgetPriority;
 
     QString notes;
-    RCore *core_;
+    RCore *core_ = nullptr;
     AsyncTaskManager *asyncTaskManager;
     RVA offsetPriorDebugging = RVA_INVALID;
     QErrorMessage msgBox;
@@ -787,10 +788,6 @@ private:
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
 
-};
-
-class ccClass : public CutterCore
-{
 };
 
 #endif // CUTTER_H
