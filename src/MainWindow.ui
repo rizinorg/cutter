@@ -160,6 +160,11 @@ QToolTip {
      <addaction name="actionExtraGraph"/>
      <addaction name="actionExtraHexdump"/>
     </widget>
+    <widget class="QMenu" name="menuPlugins">
+     <property name="title">
+      <string>Plugins</string>
+     </property>
+    </widget>
     <widget class="QMenu" name="menuAddInfoWidgets">
      <property name="title">
       <string>Info...</string>
@@ -211,6 +216,7 @@ QToolTip {
     <addaction name="actionJupyter"/>
     <addaction name="separator"/>
     <addaction name="menuAddExtraWidget"/>
+    <addaction name="menuPlugins"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
