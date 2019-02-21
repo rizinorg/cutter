@@ -384,7 +384,7 @@ void MainWindow::addPluginDockWidget(QDockWidget *dockWidget, QAction *action)
 {
     addDockWidget(Qt::TopDockWidgetArea, dockWidget);
     addDockWidgetAction(dockWidget, action);
-    ui->menuWindows->addAction(action);
+    ui->menuPlugins->addAction(action);
     tabifyDockWidget(dashboardDock, dockWidget);
     updateDockActionChecked(action);
 }
