@@ -109,20 +109,23 @@ QVariant JupyterConnection::pollNestedIPyKernel(long id)
 
 bool JupyterConnection::startJupyterNotebook()
 {
-    Python()->restoreThread();
+    PythonManager::ThreadHolder threadHolder;
 
     if (!cutterJupyterModule) {
         cutterJupyterModule = QtResImport("cutter_jupyter");
+        if (!cutterJupyterModule) {
+            qWarning() << "Failed to load cutter_jupyter module. Make sure jupyter is installed.";
+            return false;
+        }
     }
 
-    PyObject* startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
+    PyObject *startFunc = PyObject_GetAttrString(cutterJupyterModule, "start_jupyter");
     if (!startFunc) {
         qWarning() << "Couldn't get attribute start_jupyter.";
         return false;
     }
 
     cutterNotebookAppInstance = PyObject_CallObject(startFunc, nullptr);
-    Python()->saveThread();
 
     return cutterNotebookAppInstance != nullptr;
 }
