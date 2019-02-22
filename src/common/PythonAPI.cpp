@@ -2,7 +2,7 @@
 #ifdef CUTTER_ENABLE_PYTHON
 
 #include "PythonAPI.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 #include "CutterConfig.h"
 

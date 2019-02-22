@@ -1,7 +1,7 @@
 #include "BreakpointWidget.h"
 #include "ui_BreakpointWidget.h"
 #include "dialogs/BreakpointsDialog.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include <QMenu>
 

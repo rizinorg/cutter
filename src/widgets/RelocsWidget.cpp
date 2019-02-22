@@ -1,7 +1,7 @@
 #include <QTreeWidget>
 #include "RelocsWidget.h"
 #include "ui_RelocsWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 RelocsModel::RelocsModel(QList<RelocDescription> *relocs, QObject *parent) :

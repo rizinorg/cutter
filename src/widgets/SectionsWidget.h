@@ -11,7 +11,7 @@
 #include <QLabel>
 #include <QHash>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 
 class CutterTreeView;

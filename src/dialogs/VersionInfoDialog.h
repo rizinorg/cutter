@@ -4,7 +4,7 @@
 #include <QDialog>
 #include <memory>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 namespace Ui {
 class VersionInfoDialog;

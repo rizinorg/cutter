@@ -6,7 +6,7 @@
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterTreeView.h"
 #include "CutterDockWidget.h"
 

@@ -6,7 +6,7 @@
 #include <QList>
 #include <QProxyStyle>
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 
 class CutterApplication : public QApplication

@@ -3,7 +3,7 @@
 #define STRINGSASYNCTASK_H
 
 #include "common/AsyncTask.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 class StringsTask : public AsyncTask
 {

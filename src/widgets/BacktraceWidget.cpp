@@ -2,7 +2,7 @@
 #include "ui_BacktraceWidget.h"
 #include "common/JsonModel.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),

@@ -8,7 +8,7 @@
 #include "common/Configuration.h"
 #include "SectionsWidget.h"
 #include "CutterTreeView.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "QuickFilterView.h"
 #include "common/Helpers.h"
 #include "common/Configuration.h"

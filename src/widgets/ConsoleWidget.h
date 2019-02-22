@@ -2,7 +2,7 @@
 #define CONSOLEWIDGET_H
 
 #include <memory>
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "CutterDockWidget.h"
 #include "common/CommandTask.h"
 

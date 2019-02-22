@@ -6,7 +6,7 @@
 #include <QTreeView>
 #include <QSortFilterProxyModel>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "CutterTreeWidget.h"
 

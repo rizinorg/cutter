@@ -1,6 +1,6 @@
 #include "EditInstructionDialog.h"
 #include "ui_EditInstructionDialog.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 EditInstructionDialog::EditInstructionDialog(QWidget *parent, InstructionEditMode editMode) :
     QDialog(parent),

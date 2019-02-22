@@ -1,7 +1,7 @@
 #ifndef DISASSEMBLYWIDGET_H
 #define DISASSEMBLYWIDGET_H
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "common/RefreshDeferrer.h"

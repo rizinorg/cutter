@@ -1,6 +1,6 @@
-#include "Cutter.h"
-#include "AnalTask.h"
-#include "MainWindow.h"
+#include "core/Cutter.h"
+#include "common/AnalTask.h"
+#include "core/MainWindow.h"
 #include "dialogs/InitialOptionsDialog.h"
 #include <QJsonArray>
 #include <QDebug>

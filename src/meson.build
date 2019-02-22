@@ -83,6 +83,7 @@ if get_option('enable_python')
     shiboken_exe = shiboken_dep.get_pkgconfig_variable('generator_location')
     qt5core_dep = dependency('Qt5Core', method: 'pkg-config')
     bindings_generate_inc = [meson.current_source_dir(),
+                             join_paths(meson.current_source_dir(), 'core'),
                              join_paths(meson.current_source_dir(), 'common'),
                              join_paths(meson.current_source_dir(), 'widgets'),
                              join_paths(meson.current_source_dir(), 'plugins'),
@@ -127,6 +128,6 @@ cutter_exe = executable(
   moc_files,
   gui_app: true,
   sources: sources,
-  include_directories: [include_directories('common', 'widgets', 'plugins'), platform_inc, conf_inc],
+  include_directories: [include_directories('core', 'common', 'widgets', 'plugins'), platform_inc, conf_inc],
   dependencies: deps,
 )

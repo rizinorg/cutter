@@ -1,6 +1,6 @@
 #include "VisualNavbar.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/TempConfig.h"
 
 #include <cmath>

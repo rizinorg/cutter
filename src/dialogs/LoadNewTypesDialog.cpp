@@ -1,7 +1,7 @@
 #include "dialogs/LoadNewTypesDialog.h"
 #include "ui_LoadNewTypesDialog.h"
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "common/Configuration.h"
 #include "common/SyntaxHighlighter.h"
 #include "widgets/TypesWidget.h"

@@ -5,7 +5,7 @@
 #include <QStandardItem>
 #include <QTableView>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 
 class MainWindow;

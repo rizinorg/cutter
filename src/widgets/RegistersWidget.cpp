@@ -2,7 +2,7 @@
 #include "ui_RegistersWidget.h"
 #include "common/JsonModel.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 #include <QLabel>
 #include <QLineEdit>

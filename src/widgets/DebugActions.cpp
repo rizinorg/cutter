@@ -1,5 +1,5 @@
 #include "DebugActions.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "dialogs/AttachProcDialog.h"
 
 #include <QAction>

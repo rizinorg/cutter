@@ -10,7 +10,7 @@
 #include <QTreeWidgetItem>
 
 #include "CutterDockWidget.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterTreeWidget.h"
 
 class MainWindow;

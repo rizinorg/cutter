@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include <QDialog>
 #include <memory>
 #include <QAbstractListModel>

@@ -1,6 +1,6 @@
 #include "MemoryMapWidget.h"
 #include "ui_MemoryMapWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 MemoryMapModel::MemoryMapModel(QList<MemoryMapDescription> *memoryMaps, QObject *parent)

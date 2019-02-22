@@ -3,7 +3,7 @@
 
 #include "InitialOptionsDialog.h"
 #include "ui_InitialOptionsDialog.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
 #include "common/Helpers.h"

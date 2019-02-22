@@ -4,7 +4,7 @@
 #include "common/Helpers.h"
 #include "dialogs/EditInstructionDialog.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "QHeaderView"
 #include "QMenu"
 

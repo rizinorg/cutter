@@ -6,7 +6,7 @@
 #include "common/TempConfig.h"
 #include "dialogs/VersionInfoDialog.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "CutterTreeView.h"
 
 #include <QDebug>
