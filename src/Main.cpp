@@ -11,6 +11,9 @@ static void migrateSettings(QSettings &newSettings)
     for (const QString &key : oldSettings.allKeys()) {
         newSettings.setValue(key, oldSettings.value(key));
     }
+    oldSettings.clear();
+    QFile settingsFile(oldSettings.fileName());
+    settingsFile.remove();
 }
 
 int main(int argc, char *argv[])
@@ -18,6 +21,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QList<StringDescription>>();
     qRegisterMetaType<QList<FunctionDescription>>();
 
+    QCoreApplication::setOrganizationName("RadareOrg");
     QCoreApplication::setApplicationName("Cutter");
     QSettings::setDefaultFormat(QSettings::IniFormat);
 
