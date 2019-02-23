@@ -32,10 +32,10 @@ QT += core gui widgets svg network
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
-!defined(CUTTER_ENABLE_PYTHON, var)             CUTTER_ENABLE_PYTHON=true
+!defined(CUTTER_ENABLE_PYTHON, var)             CUTTER_ENABLE_PYTHON=false
 equals(CUTTER_ENABLE_PYTHON, true)              CONFIG += CUTTER_ENABLE_PYTHON
 
-!defined(CUTTER_ENABLE_PYTHON_BINDINGS, var)    CUTTER_ENABLE_PYTHON_BINDINGS=true
+!defined(CUTTER_ENABLE_PYTHON_BINDINGS, var)    CUTTER_ENABLE_PYTHON_BINDINGS=false
 equals(CUTTER_ENABLE_PYTHON, true) {
     equals(CUTTER_ENABLE_PYTHON_BINDINGS, true) {
         CONFIG += CUTTER_ENABLE_PYTHON_BINDINGS
@@ -43,7 +43,7 @@ equals(CUTTER_ENABLE_PYTHON, true) {
     }
 }
 
-!defined(CUTTER_ENABLE_JUPYTER, var)            CUTTER_ENABLE_JUPYTER=true
+!defined(CUTTER_ENABLE_JUPYTER, var)            CUTTER_ENABLE_JUPYTER=false
 equals(CUTTER_ENABLE_PYTHON, true) {
     equals(CUTTER_ENABLE_JUPYTER, true)         CONFIG += CUTTER_ENABLE_JUPYTER
 }
