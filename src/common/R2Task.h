@@ -2,7 +2,7 @@
 #ifndef R2TASK_H
 #define R2TASK_H
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 class R2Task: public QObject
 {

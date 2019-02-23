@@ -1,6 +1,6 @@
-#include "Cutter.h"
-#include "RunScriptTask.h"
-#include "MainWindow.h"
+#include "core/Cutter.h"
+#include "common/RunScriptTask.h"
+#include "core/MainWindow.h"
 
 RunScriptTask::RunScriptTask() :
     AsyncTask()

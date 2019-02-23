@@ -386,6 +386,8 @@ void HexdumpWidget::refresh(RVA addr)
     ui->hexOffsetText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
     ui->hexASCIIText->verticalScrollBar()->setValue(ui->hexHexText->verticalScrollBar()->value());
 
+    selectHexPreview();
+
     connectScroll(false);
 }
 

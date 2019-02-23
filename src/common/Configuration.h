@@ -3,7 +3,7 @@
 
 #include <QSettings>
 #include <QFont>
-#include <Cutter.h>
+#include <core/Cutter.h>
 
 #define Config() (Configuration::instance())
 #define ConfigColor(x) Config()->getColor(x)
@@ -27,8 +27,6 @@ private:
     QSettings s;
     static Configuration *mPtr;
 
-    void loadInitial();
-
     // Colors
     void loadBaseThemeNative();
     void loadBaseThemeDark();
@@ -43,6 +41,8 @@ public:
     // Functions
     Configuration();
     static Configuration *instance();
+
+    void loadInitial();
 
     void resetAll();
 

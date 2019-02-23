@@ -6,8 +6,8 @@
 #include <QTimer>
 #include <QElapsedTimer>
 #include <memory>
-#include "Cutter.h"
-#include "AnalTask.h"
+#include "core/Cutter.h"
+#include "common/AnalTask.h"
 #include "common/InitialOptions.h"
 
 namespace Ui {

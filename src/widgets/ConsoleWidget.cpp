@@ -6,7 +6,7 @@
 #include <QStringListModel>
 #include <QTimer>
 #include <iostream>
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
 #include "common/Helpers.h"

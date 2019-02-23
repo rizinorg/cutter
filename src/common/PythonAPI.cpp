@@ -1,10 +1,8 @@
 
-#ifdef CUTTER_ENABLE_JUPYTER
+#ifdef CUTTER_ENABLE_PYTHON
 
 #include "PythonAPI.h"
-#include "Cutter.h"
-#include "JupyterConnection.h"
-#include "NestedIPyKernel.h"
+#include "core/Cutter.h"
 
 #include "CutterConfig.h"
 
@@ -14,7 +12,7 @@ PyObject *api_version(PyObject *self, PyObject *null)
 {
     Q_UNUSED(self)
     Q_UNUSED(null)
-    return PyUnicode_FromString("Cutter version " CUTTER_VERSION_FULL);
+    return PyUnicode_FromString(CUTTER_VERSION_FULL);
 }
 
 PyObject *api_cmd(PyObject *self, PyObject *args)
@@ -70,7 +68,7 @@ PyMethodDef CutterMethods[] = {
         "Refresh Cutter widgets"
     },
     {
-        "message", (PyCFunction) api_message, METH_VARARGS | METH_KEYWORDS,
+        "message", (PyCFunction)(void *)/* don't remove this double cast! */api_message, METH_VARARGS | METH_KEYWORDS,
         "Print message"
     },
     {NULL, NULL, 0, NULL}
@@ -88,6 +86,9 @@ PyObject *PyInit_api()
 
 // -----------------------------
 
+#ifdef CUTTER_ENABLE_JUPYTER
+#include "JupyterConnection.h"
+#include "NestedIPyKernel.h"
 
 PyObject *api_internal_launch_ipykernel(PyObject *self, PyObject *args, PyObject *kw)
 {
@@ -195,4 +196,6 @@ PyObject *PyInit_api_internal()
     return PyModule_Create(&CutterInternalModule);
 }
 
-#endif
+#endif // CUTTER_ENABLE_JUPYTER
+
+#endif  // CUTTER_ENABLE_PYTHON

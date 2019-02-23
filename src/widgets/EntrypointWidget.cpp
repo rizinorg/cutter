@@ -1,7 +1,7 @@
 #include "EntrypointWidget.h"
 #include "ui_EntrypointWidget.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 #include <QTreeWidget>

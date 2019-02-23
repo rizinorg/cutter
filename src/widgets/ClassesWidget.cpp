@@ -2,7 +2,7 @@
 #include <QList>
 
 #include "ClassesWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "ui_ClassesWidget.h"
 #include "common/Helpers.h"
 #include "dialogs/EditMethodDialog.h"

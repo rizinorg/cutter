@@ -2,7 +2,7 @@
 #define SETTODATADIALOG_H
 
 #include <QDialog>
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 namespace Ui {
 class SetToDataDialog;

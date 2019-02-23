@@ -1,5 +1,5 @@
-#include "MainWindow.h"
-#include "Cutter.h"
+#include "core/MainWindow.h"
+#include "core/Cutter.h"
 #include "AttachProcDialog.h"
 #include "ui_AttachProcDialog.h"
 

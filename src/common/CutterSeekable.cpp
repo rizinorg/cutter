@@ -1,4 +1,4 @@
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "CutterSeekable.h"
 
 #include <QPlainTextEdit>

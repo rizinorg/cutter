@@ -1,7 +1,7 @@
 #ifndef PYTHONAPI_H
 #define PYTHONAPI_H
 
-#ifdef CUTTER_ENABLE_JUPYTER
+#ifdef CUTTER_ENABLE_PYTHON
 
 #include <Python.h>
 

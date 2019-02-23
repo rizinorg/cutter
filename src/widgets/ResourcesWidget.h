@@ -1,7 +1,7 @@
 #ifndef RESOURCESWIDGET_H
 #define RESOURCESWIDGET_H
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "CutterTreeView.h"
 

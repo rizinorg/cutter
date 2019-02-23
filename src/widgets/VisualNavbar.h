@@ -4,7 +4,7 @@
 #include <QToolBar>
 #include <QGraphicsScene>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 class MainWindow;
 class QGraphicsView;

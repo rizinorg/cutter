@@ -4,24 +4,20 @@
 class CutterPlugin;
 class MainWindow;
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "widgets/CutterDockWidget.h"
 
 class CutterPlugin 
 {
 public:
     virtual ~CutterPlugin() {}
-    virtual void setupPlugin(CutterCore *core) = 0;
-    virtual CutterDockWidget* setupInterface(MainWindow *main, QAction *action = nullptr) = 0;
+    virtual void setupPlugin() = 0;
+    virtual void setupInterface(MainWindow *main) = 0;
 
-    QString name;
-    QString description;
-    QString version;
-    QString author;
-
-protected:
-    CutterCore *core;
-    CutterDockWidget *dockable;
+    virtual QString getName() const = 0;
+    virtual QString getAuthor() const = 0;
+    virtual QString getDescription() const = 0;
+    virtual QString getVersion() const = 0;
 };
 
 #define CutterPlugin_iid "org.radare.cutter.plugins.CutterPlugin"

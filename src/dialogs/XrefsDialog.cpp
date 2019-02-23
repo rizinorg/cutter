@@ -4,7 +4,7 @@
 #include "common/TempConfig.h"
 #include "common/Helpers.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 #include <QJsonArray>
 

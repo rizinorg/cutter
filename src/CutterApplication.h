@@ -6,7 +6,7 @@
 #include <QList>
 #include <QProxyStyle>
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 
 
 class CutterApplication : public QApplication
@@ -21,8 +21,6 @@ public:
     {
         return mainWindow;
     }
-
-    void loadPlugins();
 
 protected:
     bool event(QEvent *e);

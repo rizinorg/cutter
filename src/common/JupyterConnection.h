@@ -5,15 +5,9 @@
 
 #include <QProcess>
 #include <QMap>
-#include <cwchar>
 
 class NestedIPyKernel;
-
-struct _object;
-typedef _object PyObject;
-
-struct _ts;
-typedef _ts PyThreadState;
+typedef struct _object PyObject;
 
 class JupyterConnection : public QObject
 {
@@ -25,11 +19,6 @@ public:
     JupyterConnection(QObject *parent = nullptr);
     ~JupyterConnection();
 
-    void setPythonHome(const QString pythonHome)
-    {
-        customPythonHome = pythonHome;
-    }
-
     void start();
     QString getUrl();
 
@@ -37,31 +26,29 @@ public:
     NestedIPyKernel *getNestedIPyKernel(long id);
     QVariant pollNestedIPyKernel(long id);
 
+public slots:
+    void stop();
+
 signals:
     void urlReceived(const QString &url);
     void creationFailed();
 
 private:
-    PyObject *cutterJupyterModule = nullptr;
-    PyObject *cutterNotebookAppInstance = nullptr;
-
-    PyThreadState *pyThreadState = nullptr;
-
     QMap<long, NestedIPyKernel *> kernels;
     long nextKernelId = 1;
 
-    QString customPythonHome;
+    bool notebookInstanceExists = false;
 
-    wchar_t *pythonHome = nullptr;
+    PyObject *cutterJupyterModule = nullptr;
+    PyObject *cutterNotebookAppInstance = nullptr;
 
-    void initPythonHome();
-    void initPython();
-    void createCutterJupyterModule();
+    bool startJupyterNotebook();
+    QString getJupyterUrl();
 };
 
 
 #define Jupyter() (JupyterConnection::getInstance())
 
-#endif
+#endif // CUTTER_ENABLE_JUPYTER
 
-#endif //JUPYTERCONNECTION_H
+#endif // JUPYTERCONNECTION_H

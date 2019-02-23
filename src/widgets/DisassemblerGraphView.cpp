@@ -17,12 +17,13 @@
 #include <QClipboard>
 #include <QApplication>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
 #include "common/CachedFontMetrics.h"
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
+#include "common/BasicBlockHighlighter.h"
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
@@ -429,8 +430,18 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         p.setBrush(disassemblyBackgroundColor);
     }
 
+    // Draw basic block background
     p.drawRect(blockX, blockY,
                block.width, block.height);
+    auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
+    if (bb) {
+        QColor color(bb->color);
+        color.setAlphaF(0.5);
+        p.setBrush(color);
+        // Add basic block highlighting transparent color
+        p.drawRect(blockX, blockY,
+                   block.width, block.height);
+    }
 
     // Draw different background for selected instruction
     if (selected_instruction != RVA_INVALID) {
@@ -440,39 +451,16 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                 break;
             }
             auto selected = instr.addr == selected_instruction;
-            //auto traceCount = dbgfunctions->GetTraceRecordHitCount(instr.addr);
-            auto traceCount = 0;
-            if (selected && traceCount) {
-                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
-                                 static_cast<int>(block.width - (10 + 2 * charWidth)),
-                                 int(instr.text.lines.size()) * charHeight), disassemblyTracedSelectionColor);
-            } else if (selected) {
+            if (selected) {
                 p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
                                  static_cast<int>(block.width - (10 + 2 * charWidth)),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
-            } else if (traceCount) {
-                // Color depending on how often a sequence of code is executed
-                int exponent = 1;
-                while (traceCount >>= 1) //log2(traceCount)
-                    exponent++;
-                int colorDiff = (exponent * exponent) / 2;
-
-                // If the user has a light trace background color, substract
-                if (disassemblyTracedColor.blue() > 160)
-                    colorDiff *= -1;
-
-                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
-                                 static_cast<int>(block.width - (10 + 2 * charWidth)),
-                                 int(instr.text.lines.size()) * charHeight),
-                           QColor(disassemblyTracedColor.red(),
-                                  disassemblyTracedColor.green(),
-                                  std::max(0, std::min(256, disassemblyTracedColor.blue() + colorDiff))));
             }
             y += int(instr.text.lines.size()) * charHeight;
         }
     }
 
-    // highlight selected tokens
+    // Highlight selected tokens
     if (highlight_token != nullptr) {
         int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
         int tokenWidth = mFontMetrics->width(highlight_token->content);
@@ -508,7 +496,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
     }
 
-    // highlight program counter
+    // Highlight program counter
     if (PCInBlock) {
         int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
         for (const Instr &instr : db.instrs) {

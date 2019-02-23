@@ -4,11 +4,12 @@
 #include <QDebug>
 #include <QTextEdit>
 #include <QMouseEvent>
+#include <QAction>
 
 #include <array>
 #include <memory>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "dialogs/HexdumpRangeDialog.h"
@@ -19,7 +20,9 @@
 
 #include "Dashboard.h"
 
-#include "ui_HexdumpWidget.h"
+namespace Ui {
+    class HexdumpWidget;
+}
 
 class RefreshDeferrer;
 

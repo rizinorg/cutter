@@ -1,7 +1,7 @@
 #include "SymbolsWidget.h"
 #include "ui_SymbolsWidget.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 SymbolsModel::SymbolsModel(QList<SymbolDescription> *symbols, QObject *parent)

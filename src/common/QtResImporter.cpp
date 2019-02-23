@@ -1,4 +1,4 @@
-#ifdef CUTTER_ENABLE_JUPYTER
+#ifdef CUTTER_ENABLE_PYTHON
 
 #include <Python.h>
 #include <marshal.h>
@@ -100,4 +100,4 @@ PyObject *PyInit_qtres()
     return PyModule_Create(&QtResModule);
 }
 
-#endif // CUTTER_ENABLE_JUPYTER
+#endif // CUTTER_ENABLE_PYTHON

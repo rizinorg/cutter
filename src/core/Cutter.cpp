@@ -9,10 +9,10 @@
 #include "common/AsyncTask.h"
 #include "common/R2Task.h"
 #include "common/Json.h"
-#include "Cutter.h"
+#include "core/Cutter.h"
 #include "sdb.h"
 
-Q_GLOBAL_STATIC(ccClass, uniqueInstance)
+Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
 
 #define R_JSON_KEY(name) static const QString name = QStringLiteral(#name)
 
@@ -140,6 +140,16 @@ static void cutterREventCallback(REvent *, int type, void *user, void *data)
 CutterCore::CutterCore(QObject *parent) :
     QObject(parent)
 {
+}
+
+
+CutterCore *CutterCore::instance()
+{
+    return uniqueInstance;
+}
+
+void CutterCore::initialize()
+{
     r_cons_new();  // initialize console
     core_ = r_core_new();
 
@@ -167,13 +177,11 @@ CutterCore::CutterCore(QObject *parent) :
     // Otherwise r2 may ask the user for input and Cutter would freeze
     setConfig("scr.interactive", false);
 
+    // Initialize graph node highlighter
+    bbHighlighter = new BasicBlockHighlighter();
+
+    // Initialize Async tasks manager
     asyncTaskManager = new AsyncTaskManager(this);
-}
-
-
-CutterCore *CutterCore::getInstance()
-{
-    return uniqueInstance;
 }
 
 QList<QString> CutterCore::sdbList(QString path)
@@ -231,6 +239,7 @@ bool CutterCore::sdbSet(QString path, QString key, QString val)
 
 CutterCore::~CutterCore()
 {
+    delete bbHighlighter;
     r_core_free(this->core_);
     r_cons_free();
 }
@@ -2617,16 +2626,6 @@ QList<QString> CutterCore::getColorThemes()
     return r;
 }
 
-void CutterCore::setCutterPlugins(QList<CutterPlugin *> plugins)
-{
-    this->plugins = plugins;
-}
-
-QList<CutterPlugin *> CutterCore::getCutterPlugins()
-{
-    return plugins;
-}
-
 QString CutterCore::ansiEscapeToHtml(const QString &text)
 {
     int len;
@@ -2637,4 +2636,9 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
     QString r = QString::fromUtf8(html, len);
     free(html);
     return r;
+}
+
+BasicBlockHighlighter* CutterCore::getBBHighlighter()
+{
+    return bbHighlighter;
 }

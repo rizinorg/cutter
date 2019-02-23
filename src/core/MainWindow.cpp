@@ -1,7 +1,9 @@
-#include "MainWindow.h"
+#include "common/PythonManager.h"
+#include "core/MainWindow.h"
 #include "ui_MainWindow.h"
 #include "common/Helpers.h"
 #include "CutterConfig.h"
+#include "plugins/PluginManager.h"
 
 // Qt Headers
 #include <QApplication>
@@ -92,7 +94,7 @@
 #include "widgets/BreakpointWidget.h"
 #include "widgets/RegisterRefsWidget.h"
 
-#include "RunScriptTask.h"
+#include "common/RunScriptTask.h"
 
 // Graphics
 #include <QGraphicsEllipseItem>
@@ -275,10 +277,8 @@ void MainWindow::initUI()
             &MainWindow::updateTasksIndicator);
 
     /* Setup plugins interfaces */
-    QList<CutterPlugin *> plugins = core->getCutterPlugins();
-    for (auto plugin : plugins) {
-        CutterDockWidget *pluginDock = plugin->setupInterface(this);
-        tabifyDockWidget(dashboardDock, pluginDock);
+    for (auto plugin : Plugins()->getPlugins()) {
+        plugin->setupInterface(this);
     }
 }
 
@@ -383,6 +383,20 @@ void MainWindow::addExtraWidget(QDockWidget *extraDock)
     auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
     qApp->processEvents();
     restoreExtraDock.restoreWidth(extraDock->widget());
+}
+
+void MainWindow::addPluginDockWidget(QDockWidget *dockWidget, QAction *action)
+{
+    addDockWidget(Qt::TopDockWidgetArea, dockWidget);
+    addDockWidgetAction(dockWidget, action);
+    ui->menuPlugins->addAction(action);
+    tabifyDockWidget(dashboardDock, dockWidget);
+    updateDockActionChecked(action);
+}
+
+void MainWindow::addMenuFileAction(QAction *action)
+{
+    ui->menuFile->addAction(action);
 }
 
 void MainWindow::openNewFile(InitialOptions options, bool skipOptionsDialog)
@@ -1163,4 +1177,19 @@ void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
 void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
 {
     this->dockWidgetActions[action] = dockWidget;
+}
+
+/*!
+ * \brief Show a warning message box.
+ *
+ * This API can either be used in Cutter internals, or by Python plugins.
+ */
+void MainWindow::messageBoxWarning(QString title, QString message)
+{
+    QMessageBox mb(this);
+    mb.setIcon(QMessageBox::Warning);
+    mb.setStandardButtons(QMessageBox::Ok);
+    mb.setWindowTitle(title);
+    mb.setText(message);
+    mb.exec();
 }

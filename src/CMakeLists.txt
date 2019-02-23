@@ -4,8 +4,16 @@ cmake_minimum_required(VERSION 3.1)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
 
-option(CUTTER_ENABLE_JUPYTER "Enable Jupyter integration. Requires Python >= 3.3." ON)
+set(CUTTER_PYTHON_MIN 3.5)
+
+option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." ON)
+option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." ON)
+option(CUTTER_ENABLE_JUPYTER "Enable Jupyter integration. Unused if CUTTER_ENABLE_PYTHON=OFF." ON)
 option(CUTTER_ENABLE_QTWEBENGINE "Use QtWebEngine for in-app Jupyter Browser. Unused if CUTTER_ENABLE_JUPYTER=OFF." OFF)
+
+if(NOT CUTTER_ENABLE_PYTHON)
+    set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
+endif()
 
 
 # Parse Cutter.pro to get filenames
@@ -33,6 +41,11 @@ message(STATUS "resources from Cutter.pro: ${QRC_FILES}")
 project(Cutter VERSION "${CUTTER_VERSION_FULL}")
 
 set(CMAKE_CXX_STANDARD 11)
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/core")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -68,25 +81,48 @@ find_package(Radare2 REQUIRED)
 include_directories(${RADARE2_INCLUDE_DIRS})
 link_directories(${RADARE2_LIBRARY_DIRS})
 
-if(CUTTER_ENABLE_JUPYTER)
-    find_package(PythonLibs 3.3)
+if(CUTTER_ENABLE_PYTHON)
+    find_package(PythonLibs ${CUTTER_PYTHON_MIN})
     if(NOT PythonLibs_FOUND)
-        message(FATAL_ERROR "Python >= 3.3 could not be found which is required for Jupyter integration.
-If you do not want to enable Jupyter, re-run CMake with -DCUTTER_ENABLE_JUPYTER=OFF.")
+        message(FATAL_ERROR "Python >= ${CUTTER_PYTHON_MIN} could not be found.
+If you do not want to build Cutter with Python, re-run CMake with -DCUTTER_ENABLE_PYTHON=OFF.")
     endif()
 
     include_directories(${PYTHON_INCLUDE_DIRS})
-    add_definitions(-DCUTTER_ENABLE_JUPYTER)
+    add_definitions(-DCUTTER_ENABLE_PYTHON)
+
+    if(CUTTER_ENABLE_JUPYTER)
+        add_definitions(-DCUTTER_ENABLE_JUPYTER)
+    endif()
+
+    if(CUTTER_ENABLE_PYTHON_BINDINGS)
+        find_package(PythonInterp REQUIRED)
+        find_package(Shiboken2)
+        find_package(PySide2)
+
+        if((NOT Shiboken2_FOUND) OR (NOT PySide2_FOUND))
+            message(FATAL_ERROR "Generating Python bindings is enabled, but Shiboken2 or PySide2 was not found.
+If you explicitly want to not generate bindings, re-run CMake with -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF
+or, if you don't want to build with Python at all, use -DCUTTER_ENABLE_PYTHON=OFF.")
+        endif()
+
+        include_directories(${SHIBOKEN_INCLUDE_DIR})
+        include_directories(${PYSIDE_INCLUDE_DIR} ${PYSIDE_INCLUDE_DIR}/QtCore ${PYSIDE_INCLUDE_DIR}/QtGui ${PYSIDE_INCLUDE_DIR}/QtWidgets)
+
+        add_definitions(-DCUTTER_ENABLE_PYTHON_BINDINGS)
+    endif()
 endif()
 
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
-        OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_definitions(-Wall -Wextra)
-endif()
 
-
+message(STATUS "")
 message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
+message(STATUS "Options:")
+message(STATUS "- Python: ${CUTTER_ENABLE_PYTHON}")
+message(STATUS "- Python Bindings: ${CUTTER_ENABLE_PYTHON_BINDINGS}")
+message(STATUS "- Jupyter: ${CUTTER_ENABLE_JUPYTER}")
+message(STATUS "- QtWebEngine: ${CUTTER_ENABLE_QTWEBENGINE}")
+message(STATUS "")
 
 
 include(QMakeConfigureFile)
@@ -94,15 +130,53 @@ qmake_configure_file("${CMAKE_CURRENT_SOURCE_DIR}/CutterConfig.h.in"
         "${CMAKE_CURRENT_BINARY_DIR}/CutterConfig.h")
 
 
+if(CUTTER_ENABLE_PYTHON_BINDINGS)
+    set(BINDINGS_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bindings")
+    set(BINDINGS_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/bindings")
 
-add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES})
+    configure_file("${BINDINGS_SRC_DIR}/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.xml" COPYONLY) # trigger reconfigure if file changes
+
+    execute_process(COMMAND "${PYTHON_EXECUTABLE}" "${BINDINGS_SRC_DIR}/src_list.py" cmake "${BINDINGS_BUILD_DIR}" OUTPUT_VARIABLE BINDINGS_SOURCE)
+
+    set_property(SOURCE ${BINDINGS_SOURCE} PROPERTY SKIP_AUTOGEN ON)
+
+    include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
+
+    add_custom_command(OUTPUT ${BINDINGS_SOURCE}
+            COMMAND "${SHIBOKEN_BINARY}" --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
+            IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
+            COMMENT "Generating Python bindings with shiboken2")
+else()
+    set(BINDINGS_SOURCE "")
+endif()
+
+
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
+        OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    add_definitions(-Wall -Wextra)
+    set_source_files_properties(${BINDINGS_SOURCE} PROPERTIES COMPILE_FLAGS -w)
+endif()
+
+
+add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
 target_link_libraries(Cutter ${RADARE2_LIBRARIES})
-if(CUTTER_ENABLE_JUPYTER)
+if(CUTTER_ENABLE_PYTHON)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
-    if(CUTTER_ENABLE_QTWEBENGINE)
-        target_link_libraries(Cutter Qt5::WebEngineWidgets)
+    if(CUTTER_ENABLE_PYTHON_BINDINGS)
+        target_link_libraries(Cutter ${SHIBOKEN_LIBRARY} ${PYSIDE_LIBRARY})
+
+        get_target_property(BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
+        list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
+        string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
+
+        qmake_configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
     endif()
 endif()
 
+if(CUTTER_ENABLE_PYTHON AND CUTTER_ENABLE_JUPYTER AND CUTTER_ENABLE_QTWEBENGINE)
+    target_link_libraries(Cutter Qt5::WebEngineWidgets)
+endif()

@@ -1,0 +1,106 @@
+<?xml version="1.0"?>
+<typesystem package="CutterBindings">
+    <load-typesystem name="typesystem_core.xml" generate="no" />
+    <load-typesystem name="typesystem_gui.xml" generate="no" />
+    <load-typesystem name="typesystem_widgets.xml" generate="no" />
+    <primitive-type name="bool"/>
+    <object-type name="CutterCore" />
+    <object-type name="Configuration" />
+    <object-type name="MainWindow" />
+    <object-type name="BasicBlockHighlighter" />
+    <object-type name="CutterDockWidget" />
+    <object-type name="CutterPlugin">
+        <modify-function signature="getName()const">
+            <inject-code class="shell" position="beginning">
+                SbkObject *wrapper = Shiboken::BindingManager::instance().retrieveWrapper(this);
+                PyObject *classObject = PyObject_GetAttrString(reinterpret_cast&lt;PyObject *&gt;(wrapper), "__class__");
+                if (!classObject) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PyObject *pyResult = PyObject_GetAttrString(classObject, "name");
+                if (!pyResult) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(SbkPySide2_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
+                if (!pythonToCpp) {
+                    Shiboken::warning(PyExc_RuntimeWarning, 2, "Invalid return value in function %s, expected %s, got %s.", "CutterPlugin.getName", "QString", Py_TYPE(pyResult)->tp_name);
+                    return ::QString();
+                }
+                QString cppResult;
+                pythonToCpp(pyResult, &amp;cppResult);
+                return cppResult;
+            </inject-code>
+        </modify-function>
+        <modify-function signature="getAuthor()const">
+            <inject-code class="shell" position="beginning">
+                SbkObject *wrapper = Shiboken::BindingManager::instance().retrieveWrapper(this);
+                PyObject *classObject = PyObject_GetAttrString(reinterpret_cast&lt;PyObject *&gt;(wrapper), "__class__");
+                if (!classObject) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PyObject *pyResult = PyObject_GetAttrString(classObject, "author");
+                if (!pyResult) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(SbkPySide2_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
+                if (!pythonToCpp) {
+                    Shiboken::warning(PyExc_RuntimeWarning, 2, "Invalid return value in function %s, expected %s, got %s.", "CutterPlugin.getAuthor", "QString", Py_TYPE(pyResult)->tp_name);
+                    return ::QString();
+                }
+                QString cppResult;
+                pythonToCpp(pyResult, &amp;cppResult);
+                return cppResult;
+            </inject-code>
+        </modify-function>
+        <modify-function signature="getDescription()const">
+            <inject-code class="shell" position="beginning">
+                SbkObject *wrapper = Shiboken::BindingManager::instance().retrieveWrapper(this);
+                PyObject *classObject = PyObject_GetAttrString(reinterpret_cast&lt;PyObject *&gt;(wrapper), "__class__");
+                if (!classObject) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PyObject *pyResult = PyObject_GetAttrString(classObject, "description");
+                if (!pyResult) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(SbkPySide2_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
+                if (!pythonToCpp) {
+                    Shiboken::warning(PyExc_RuntimeWarning, 2, "Invalid return value in function %s, expected %s, got %s.", "CutterPlugin.getDescription", "QString", Py_TYPE(pyResult)->tp_name);
+                    return ::QString();
+                }
+                QString cppResult;
+                pythonToCpp(pyResult, &amp;cppResult);
+                return cppResult;
+            </inject-code>
+        </modify-function>
+        <modify-function signature="getVersion()const">
+            <inject-code class="shell" position="beginning">
+                SbkObject *wrapper = Shiboken::BindingManager::instance().retrieveWrapper(this);
+                PyObject *classObject = PyObject_GetAttrString(reinterpret_cast&lt;PyObject *&gt;(wrapper), "__class__");
+                if (!classObject) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PyObject *pyResult = PyObject_GetAttrString(classObject, "version");
+                if (!pyResult) {
+                    PyErr_Print();
+                    return QString();
+                }
+                PythonToCppFunc pythonToCpp = Shiboken::Conversions::isPythonToCppConvertible(SbkPySide2_QtCoreTypeConverters[SBK_QSTRING_IDX], pyResult);
+                if (!pythonToCpp) {
+                    Shiboken::warning(PyExc_RuntimeWarning, 2, "Invalid return value in function %s, expected %s, got %s.", "CutterPlugin.getVersion", "QString", Py_TYPE(pyResult)->tp_name);
+                    return ::QString();
+                }
+                QString cppResult;
+                pythonToCpp(pyResult, &amp;cppResult);
+                return cppResult;
+            </inject-code>
+        </modify-function>
+    </object-type>
+</typesystem>

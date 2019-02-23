@@ -1,5 +1,5 @@
 #include "DebugActions.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "dialogs/AttachProcDialog.h"
 
 #include <QAction>
@@ -8,6 +8,7 @@
 #include <QList>
 #include <QFileInfo>
 #include <QToolBar>
+#include <QToolButton>
 
 DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QObject(main),

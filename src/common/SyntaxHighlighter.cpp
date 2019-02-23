@@ -20,8 +20,6 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
                     << "\\bdefault\\b" << "\\bgoto\\b" << "\\bsizeof\\b"
                     << "\\bvolatile\\b" << "\\bdo\\b" << "\\bif\\b"
                     << "\\static\\b" << "\\while\\b";
-    //Special words
-    keywordPatterns << "\\bloc_*\\b" << "\\bsym.*\\b";
 
     QTextCharFormat keywordFormat;
     keywordFormat.setForeground(Qt::red);

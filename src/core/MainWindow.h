@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "Cutter.h" // only needed for ut64
+#include "core/Cutter.h" // only needed for ut64
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/GraphWidget.h"
 #include "widgets/OverviewWidget.h"
@@ -103,12 +103,16 @@ public:
     void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
     void addExtraWidget(QDockWidget *extraDock);
 
+    void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
+    void addMenuFileAction(QAction *action);
+
     void updateDockActionChecked(QAction * action);
 
     QString getFilename() const
     {
         return filename;
     }
+    void messageBoxWarning(QString title, QString message);
 
 public slots:
     void finalizeOpen();

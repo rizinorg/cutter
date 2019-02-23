@@ -1,6 +1,6 @@
 #include "common/Helpers.h"
 #include "ResourcesWidget.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include <QVBoxLayout>
 
 ResourcesModel::ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent)

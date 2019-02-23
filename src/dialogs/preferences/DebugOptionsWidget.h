@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "Cutter.h"
+#include "core/Cutter.h"
 
 class PreferencesDialog;
 

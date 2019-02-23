@@ -1,0 +1,17 @@
+[generator-project]
+
+generator-set = shiboken
+
+header-file = $${BINDINGS_SRC_DIR}/bindings.h
+typesystem-file = $${BINDINGS_SRC_DIR}/bindings.xml
+
+output-directory = $${BINDINGS_BUILD_DIR}
+
+include-path = $${BINDINGS_INCLUDE_DIRS}
+
+typesystem-paths = $${PYSIDE_TYPESYSTEMS}
+
+enable-parent-ctor-heuristic
+enable-pyside-extensions
+enable-return-value-heuristic
+use-isnull-as-nb_nonzero

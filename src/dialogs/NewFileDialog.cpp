@@ -1,5 +1,5 @@
 #include "InitialOptionsDialog.h"
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AboutDialog.h"
 #include "ui_NewfileDialog.h"

@@ -1,7 +1,7 @@
 #include "SdbWidget.h"
 #include "ui_SdbWidget.h"
 
-#include "MainWindow.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 #include <QDebug>

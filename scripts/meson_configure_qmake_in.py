@@ -20,7 +20,7 @@ for name, value in vars.items():
 
     pattern = "\\$\\$({}|\\{{{}\\}})".format(name, name)
     print(pattern)
-    content = re.sub(pattern, re.escape(str(value)), content)
+    content = re.sub(pattern, str(value), content)
 
 with open(out_filename, "w") as f:
     f.write(content)
