@@ -260,6 +260,7 @@ private:
     void showZenDocks();
     void showDebugDocks();
     void enableDebugWidgetsMenu(bool enable);
+    void enableOverviewMenu(bool enable);
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 

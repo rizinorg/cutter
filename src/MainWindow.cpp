@@ -288,7 +288,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
         return;
     }
     targetGraphDock = targetGraph;
-    ui->actionOverview->setChecked(visibility);
+    enableOverviewMenu(visibility);
     if (visibility && !core->isGraphEmpty()) {
         connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
@@ -762,6 +762,12 @@ void MainWindow::showDebugDocks()
 void MainWindow::enableDebugWidgetsMenu(bool enable)
 {
     ui->menuAddDebugWidgets->setEnabled(enable);
+}
+
+void MainWindow::enableOverviewMenu(bool enable)
+{
+    ui->actionOverview->setEnabled(enable);
+    ui->actionOverview->setChecked(enable);
 }
 
 void MainWindow::resetToDefaultLayout()
