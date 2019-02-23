@@ -106,6 +106,15 @@ public:
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
+    /*!
+     * \brief Changes immediate displacement to structure offset
+     * This function makes use of the "ta" command of r2 to apply structure
+     * offset to the immediate displacement used in the given instruction
+     * \param structureOffset The name of struct which will be applied
+     * \param offset The address of the instruction where the struct will be applied
+     */
+    void applyStructureOffset(const QString &structureOffset, RVA offset = RVA_INVALID);
+
     /* Classes */
     QList<QString> getAllAnalClasses(bool sorted);
     QList<AnalMethodDescription> getAnalClassMethods(const QString &cls);
