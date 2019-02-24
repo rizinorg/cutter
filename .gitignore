@@ -70,8 +70,4 @@ compile_commands.json
 **/.vscode
 
 # cutter-deps
-/cutter-deps.tar.gz
-/pyside
-/qt
-/env.sh
-/relocate.sh
+/cutter-deps

@@ -35,7 +35,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       scripts/fetch_deps.sh && 
-      source env.sh &&
+      source cutter-deps/env.sh &&
       export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
     ; fi
 
