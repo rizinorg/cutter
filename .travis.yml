@@ -23,16 +23,9 @@ matrix:
     env: BUILD_SYSTEM=cmake
 
 sudo: required
-dist: trusty
+dist: xenial
 
 addons:
-  apt:
-    sources:
-      - sourceline: "ppa:beineri/opt-qt596-trusty"
-    packages:
-      - qt59base
-      - qt59svg
-      - qt59webengine
   homebrew:
     update: true
     brewfile: scripts/Brewfile
@@ -41,9 +34,9 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      source /opt/qt5*/bin/qt5*-env.sh
+      scripts/fetch_deps.sh && 
+      source env.sh
     ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_python_linux.sh    ; fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -60,9 +53,19 @@ script:
   - cd build
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
+            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-            cmake -DPYTHON_LIBRARY="$CUSTOM_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" -DPYTHON_INCLUDE_DIR="$CUSTOM_PYTHON_PREFIX/include/python3.6m" -DPYTHON_EXECUTABLE="$CUSTOM_PYTHON_PREFIX/bin/python3" -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF -DCUTTER_ENABLE_JUPYTER=ON -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src && make -j4;
+            cmake
+                -DCMAKE_BUILD_TYPE=Release
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
+                -DCUTTER_ENABLE_PYTHON=ON
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_JUPYTER=ON
+                -DCUTTER_ENABLE_QTWEBENGINE=OFF
+                ../src &&
+                make -j4;
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
