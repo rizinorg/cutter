@@ -565,6 +565,16 @@ void CutterCore::setCurrentBits(int bits, RVA offset)
     emit instructionChanged(offset);
 }
 
+void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset)
+{
+    if (offset == RVA_INVALID) {
+        offset = getOffset();
+    }
+
+    this->cmdRaw("ta " + structureOffset + " @ " + QString::number(offset));
+    emit instructionChanged(offset);
+}
+
 void CutterCore::seek(ut64 offset)
 {
     // Slower than using the API, but the API is not complete

@@ -71,6 +71,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     addSetBitsMenu();
 
+    structureOffsetMenu = addMenu(tr("Structure offset"));
+    connect(structureOffsetMenu, SIGNAL(triggered(QAction*)),
+            this, SLOT(on_actionStructureOffsetMenu_triggered(QAction*)));
+
     initAction(&actionSetToCode, tr("Set as Code"),
                SLOT(on_actionSetToCode_triggered()), getSetToCodeSequence());
     addAction(&actionSetToCode);
@@ -244,6 +248,48 @@ void DisassemblyContextMenu::aboutToShowSlot()
     bool immBase = keys.contains("val") || keys.contains("ptr");
     setBaseMenu->menuAction()->setVisible(immBase);
     setBitsMenu->menuAction()->setVisible(true);
+
+    // Create structure offset menu if it makes sense
+    QString memBaseReg; // Base register
+    QVariant memDisp; // Displacement
+    if (instObject.contains("opex") && instObject["opex"].toObject().contains("operands")) {
+        // Loop through both the operands of the instruction
+        for (const QJsonValue value: instObject["opex"].toObject()["operands"].toArray()) {
+            QJsonObject operand = value.toObject();
+            if (operand.contains("type") && operand["type"].toString() == "mem" &&
+                    operand.contains("base") && !operand["base"].toString().contains("bp") &&
+                    operand.contains("disp") && operand["disp"].toVariant().toLongLong() > 0) {
+
+                    // The current operand is the one which has an immediate displacement
+                    memBaseReg = operand["base"].toString();
+                    memDisp = operand["disp"].toVariant();
+                    break;
+
+            }
+        }
+    }
+    if (memBaseReg.isEmpty()) {
+        // hide structure offset menu
+        structureOffsetMenu->menuAction()->setVisible(false);
+    } else {
+        // show structure offset menu
+        structureOffsetMenu->menuAction()->setVisible(true);
+        structureOffsetMenu->clear();
+
+        // Get the possible offsets using the "tas" command
+        // TODO: add tasj command to radare2 and then use it here
+        QString ret = Core()->cmd("tas " + memDisp.toString());
+        for (QString val: ret.split("\n")) {
+            if (val.isEmpty()) {
+                continue;
+            }
+            structureOffsetMenu->addAction("[" + memBaseReg + " + " + val + "]")->setData(val);
+        }
+        if (structureOffsetMenu->isEmpty()) {
+            // No possible offset was found so hide the menu
+            structureOffsetMenu->menuAction()->setVisible(false);
+        }
+    }
 
     actionAnalyzeFunction.setVisible(true);
 
@@ -697,6 +743,11 @@ void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
         return;
     }
     setToData(dialog->getItemSize(), dialog->getItemCount());
+}
+
+void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *action)
+{
+    Core()->applyStructureOffset(action->data().toString(), offset);
 }
 
 void DisassemblyContextMenu::on_actionDeleteComment_triggered()

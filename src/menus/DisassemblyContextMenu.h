@@ -55,6 +55,14 @@ private slots:
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
+    /*!
+     * \brief Executed on selecting an offset from the structureOffsetMenu
+     * Uses the applyStructureOffset() function of CutterCore to apply the
+     * structure offset
+     * \param action The action which trigered the event
+     */
+    void on_actionStructureOffsetMenu_triggered(QAction *action);
+
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
@@ -99,6 +107,8 @@ private:
     QAction actionDeleteComment;
     QAction actionDeleteFlag;
     QAction actionDeleteFunction;
+
+    QMenu *structureOffsetMenu;
 
     QMenu *setBaseMenu;
     QAction actionSetBaseBinary;

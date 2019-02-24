@@ -41,6 +41,9 @@ void EditVariablesDialog::applyFields()
     if (newName != desc.name) {
         Core()->cmdRaw(QString("afvn %1 %2").arg(desc.name).arg(newName));
     }
+
+    // Refresh the views to reflect the changes to vars
+    emit Core()->refreshCodeViews();
 }
 
 void EditVariablesDialog::updateFields()
@@ -63,7 +66,7 @@ void EditVariablesDialog::populateTypesComboBox()
     ui->typeComboBox->addItems(userStructures);
     ui->typeComboBox->insertSeparator(ui->typeComboBox->count());
 
-    primitiveTypesTypeList = Core()->getAllTypes();
+    primitiveTypesTypeList = Core()->getAllPrimitiveTypes();
 
     for (const TypeDescription &thisType : primitiveTypesTypeList) {
         ui->typeComboBox->addItem(thisType.type);
