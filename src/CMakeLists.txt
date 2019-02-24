@@ -1,6 +1,8 @@
 
 cmake_minimum_required(VERSION 3.1)
 
+cmake_policy(SET CMP0074 NEW)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
 
@@ -32,11 +34,11 @@ set(CUTTER_VERSION_PATCH "${CUTTER_PRO_CUTTER_VERSION_PATCH}")
 
 set(CUTTER_VERSION_FULL "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
 
-message(STATUS "version from Cutter.pro: ${CUTTER_VERSION_FULL}")
-message(STATUS "sources from Cutter.pro: ${SOURCE_FILES}")
-message(STATUS "headers from Cutter.pro: ${HEADER_FILES}")
-message(STATUS "forms from Cutter.pro: ${UI_FILES}")
-message(STATUS "resources from Cutter.pro: ${QRC_FILES}")
+#message(STATUS "version from Cutter.pro: ${CUTTER_VERSION_FULL}")
+#message(STATUS "sources from Cutter.pro: ${SOURCE_FILES}")
+#message(STATUS "headers from Cutter.pro: ${HEADER_FILES}")
+#message(STATUS "forms from Cutter.pro: ${UI_FILES}")
+#message(STATUS "resources from Cutter.pro: ${QRC_FILES}")
 
 project(Cutter VERSION "${CUTTER_VERSION_FULL}")
 
@@ -106,8 +108,27 @@ If you explicitly want to not generate bindings, re-run CMake with -DCUTTER_ENAB
 or, if you don't want to build with Python at all, use -DCUTTER_ENABLE_PYTHON=OFF.")
         endif()
 
-        include_directories(${SHIBOKEN_INCLUDE_DIR})
-        include_directories(${PYSIDE_INCLUDE_DIR} ${PYSIDE_INCLUDE_DIR}/QtCore ${PYSIDE_INCLUDE_DIR}/QtGui ${PYSIDE_INCLUDE_DIR}/QtWidgets)
+        if(NOT SHIBOKEN_BINARY)
+			# Newer Versions of Shiboken2 export targets
+            set(SHIBOKEN_BINARY Shiboken2::shiboken2)
+            set(SHIBOKEN_LIBRARY Shiboken2::libshiboken)
+        else()
+	        include_directories(${SHIBOKEN_INCLUDE_DIR})
+		endif()
+
+		if(NOT PYSIDE_LIBRARY)
+			# Newer Versions of PySide2 export targets
+			set(PYSIDE_LIBRARY PySide2::pyside2)
+			get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
+			list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
+		endif()
+
+		if(PYSIDE_INCLUDE_DIR)
+		    include_directories(${PYSIDE_INCLUDE_DIR}
+				${PYSIDE_INCLUDE_DIR}/QtCore
+				${PYSIDE_INCLUDE_DIR}/QtGui
+				${PYSIDE_INCLUDE_DIR}/QtWidgets)
+		endif()
 
         add_definitions(-DCUTTER_ENABLE_PYTHON_BINDINGS)
     endif()
