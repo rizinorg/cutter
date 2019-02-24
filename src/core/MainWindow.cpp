@@ -288,10 +288,16 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
         return;
     }
     targetGraphDock = targetGraph;
-    ui->actionOverview->setChecked(visibility);
-    if (visibility) {
+    enableOverviewMenu(visibility);
+    if (visibility && !core->isGraphEmpty()) {
         connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
+        connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
+            overviewDock->hide();
+        });
+        connect(targetGraphDock, &GraphWidget::graphEmpty, [this]() {
+            overviewDock->hide();
+        });
         connect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
         connect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
@@ -302,7 +308,6 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
         disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
         disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
-        overviewDock->hide();
     }
 }
 
@@ -771,6 +776,12 @@ void MainWindow::showDebugDocks()
 void MainWindow::enableDebugWidgetsMenu(bool enable)
 {
     ui->menuAddDebugWidgets->setEnabled(enable);
+}
+
+void MainWindow::enableOverviewMenu(bool enable)
+{
+    ui->actionOverview->setEnabled(enable);
+    ui->actionOverview->setChecked(enable);
 }
 
 void MainWindow::resetToDefaultLayout()

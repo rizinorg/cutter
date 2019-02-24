@@ -125,7 +125,6 @@ public:
 
     void loadCurrentGraph();
     QString windowTitle;
-    bool isGraphEmpty();
     QTextEdit *header = nullptr;
 
     int getWidth() { return width; }
