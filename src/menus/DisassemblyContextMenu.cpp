@@ -8,6 +8,7 @@
 #include "dialogs/EditVariablesDialog.h"
 #include "dialogs/SetToDataDialog.h"
 #include "dialogs/EditFunctionDialog.h"
+#include "dialogs/LinkTypeDialog.h"
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
@@ -74,6 +75,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     structureOffsetMenu = addMenu(tr("Structure offset"));
     connect(structureOffsetMenu, SIGNAL(triggered(QAction*)),
             this, SLOT(on_actionStructureOffsetMenu_triggered(QAction*)));
+
+    initAction(&actionLinkType, tr("Link Type to Address"),
+               SLOT(on_actionLinkType_triggered()), getLinkTypeSequence());
+    addAction(&actionLinkType);
 
     initAction(&actionSetToCode, tr("Set as Code"),
                SLOT(on_actionSetToCode_triggered()), getSetToCodeSequence());
@@ -237,6 +242,11 @@ void DisassemblyContextMenu::setOffset(RVA offset)
 void DisassemblyContextMenu::setCanCopy(bool enabled)
 {
     this->canCopy = enabled;
+}
+
+void DisassemblyContextMenu::setCurHighlightedWord(const QString &text)
+{
+    this->curHighlightedWord = text;
 }
 
 void DisassemblyContextMenu::aboutToShowSlot()
@@ -425,6 +435,11 @@ QKeySequence DisassemblyContextMenu::getXRefSequence() const
 QKeySequence DisassemblyContextMenu::getDisplayOptionsSequence() const
 {
     return {}; //TODO insert correct sequence
+}
+
+QKeySequence DisassemblyContextMenu::getLinkTypeSequence() const
+{
+    return {Qt::Key_L};
 }
 
 QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
@@ -748,6 +763,13 @@ void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
 void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *action)
 {
     Core()->applyStructureOffset(action->data().toString(), offset);
+}
+
+void DisassemblyContextMenu::on_actionLinkType_triggered()
+{
+    LinkTypeDialog dialog(this);
+    dialog.setDefaultAddress(curHighlightedWord);
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionDeleteComment_triggered()

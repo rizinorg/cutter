@@ -104,6 +104,12 @@ private slots:
      */
     void on_actionDelete_Type_triggered();
 
+    /*!
+     * \brief Executed on clicking the Link To Address option in the context menu
+     * Opens the LinkTypeDialog box from where the user can link a address to a type
+     */
+    void on_actionLink_Type_To_Address_triggered();
+
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
 

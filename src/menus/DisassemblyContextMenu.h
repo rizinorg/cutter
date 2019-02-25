@@ -20,6 +20,12 @@ public slots:
     void setOffset(RVA offset);
     void setCanCopy(bool enabled);
 
+    /*!
+     * \brief Sets the value of curHighlightedWord
+     * \param text The current highlighted word
+     */
+    void setCurHighlightedWord(const QString &text);
+
 private slots:
     void aboutToShowSlot();
 
@@ -63,6 +69,13 @@ private slots:
      */
     void on_actionStructureOffsetMenu_triggered(QAction *action);
 
+    /*!
+     * \brief Executed on selecting the "Link Type to Address" option
+     * Opens the LinkTypeDialog box from where the user can link the address
+     * to a type
+     */
+    void on_actionLinkType_triggered();
+
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
@@ -78,8 +91,15 @@ private:
     QKeySequence getDisplayOptionsSequence() const;
     QList<QKeySequence> getAddBPSequence() const;
 
+    /*!
+     * \return the shortcut key for "Link Type to Address" option
+     */
+    QKeySequence getLinkTypeSequence() const;
+
+
     RVA offset;
     bool canCopy;
+    QString curHighlightedWord; // The current highlighted word
 
     QList<QAction *> anonymousActions;
 
@@ -109,6 +129,8 @@ private:
     QAction actionDeleteFunction;
 
     QMenu *structureOffsetMenu;
+
+    QAction actionLinkType;
 
     QMenu *setBaseMenu;
     QAction actionSetBaseBinary;

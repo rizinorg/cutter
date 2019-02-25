@@ -4,6 +4,7 @@
 #include "common/Helpers.h"
 
 #include "dialogs/LoadNewTypesDialog.h"
+#include "dialogs/LinkTypeDialog.h"
 
 #include <QMenu>
 #include <QFileDialog>
@@ -231,6 +232,10 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
             menu.addSeparator();
             menu.addAction(ui->actionDelete_Type);
         }
+        if (t.category == "Struct") {
+            // Add "Link To Address" option
+            menu.addAction(ui->actionLink_Type_To_Address);
+        }
     }
 
     menu.exec(ui->typesTreeView->mapToGlobal(pt));
@@ -278,4 +283,17 @@ void TypesWidget::on_actionDelete_Type_triggered()
     if (reply == QMessageBox::Yes) {
         types_model->removeRow(index.row());
     }
+}
+
+void TypesWidget::on_actionLink_Type_To_Address_triggered()
+{
+    LinkTypeDialog dialog(this);
+
+    QModelIndex index = ui->typesTreeView->currentIndex();
+    if (index.isValid()) {
+        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        dialog.setDefaultType(t.type);
+    }
+
+    dialog.exec();
 }
