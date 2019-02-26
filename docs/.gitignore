@@ -1,4 +1,3 @@
-_site/
-.sass-cache
-.jekyll-metadata
-Gemfile.lock
+/doxygen-out
+/build
+/source/api
