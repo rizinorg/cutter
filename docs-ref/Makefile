@@ -17,5 +17,11 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	doxygen
-	python3 apidoc.py -g class,interface,struct,union -f -o source/api doxygen-out/xml/
+	python3 apidoc.py
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+clean:
+	rm -fr doxygen-out
+	rm -fr source/api
+	rm -fr build
+	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS)
