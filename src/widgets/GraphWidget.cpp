@@ -39,7 +39,6 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
             emit graphEmpty();
         }
         if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
-            this->raise();
             this->graphView->setFocus();
         }
     });
