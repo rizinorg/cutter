@@ -15,6 +15,10 @@ public:
     ~OverviewWidget();
     OverviewView *graphView;
 
+    /*
+     * \brief if user closed this widget explicitly
+     */
+    bool userClosed = false;
 private:
     RefreshDeferrer *refreshDeferrer;
     /*
