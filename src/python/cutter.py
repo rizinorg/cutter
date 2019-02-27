@@ -1,6 +1,13 @@
 import json
 from _cutter import *
-from CutterBindings import *
+
+try:
+    from CutterBindings import *
+
+    def core():
+        return CutterCore.instance()
+except ImportError:
+    pass
 
 
 def cmdj(command):
@@ -8,5 +15,3 @@ def cmdj(command):
     return json.loads(cmd(command))
 
 
-def core():
-    return CutterCore.instance()
