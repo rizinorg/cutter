@@ -55,9 +55,13 @@ PyObject *QtResGetCode(const char *name)
 PyObject *QtResImport(const char *name)
 {
     PyObject *codeObject = QtResGetCode(name);
-    if (!codeObject)
+    if (!codeObject) {
         return nullptr;
+    }
     PyObject *module = PyImport_ExecCodeModule(name, codeObject);
+    if (!module) {
+        PyErr_Print();
+    }
     Py_DECREF(codeObject);
     return module;
 }
