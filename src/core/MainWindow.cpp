@@ -289,26 +289,22 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     }
     targetGraphDock = targetGraph;
     enableOverviewMenu(visibility);
-    if (visibility && !core->isGraphEmpty()) {
+    //if (visibility) {
         connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
         connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
         connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
             overviewDock->hide();
         });
-        connect(targetGraphDock, &GraphWidget::graphEmpty, [this]() {
-            overviewDock->hide();
-        });
         connect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
         connect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
-        overviewDock->show();
-    } else {
-        disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
-        disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
-        disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-        disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
-        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
-    }
+    //} else {
+        //disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
+        //disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
+        //disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+        //disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
+        //disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
+    //}
 }
 
 void MainWindow::setOverviewData()
@@ -320,6 +316,10 @@ void MainWindow::setOverviewData()
 void MainWindow::adjustOverview()
 {
     if (!overviewDock) {
+        return;
+    }
+    if (core->isGraphEmpty()) {
+        overviewDock->hide();
         return;
     }
     setOverviewData();
@@ -336,6 +336,7 @@ void MainWindow::adjustOverview()
 
     overviewDock->graphView->rangeRect = QRectF(rangeRectX, rangeRectY, w, h);
     overviewDock->graphView->viewport()->update();
+    overviewDock->show();
 }
 
 void MainWindow::adjustGraph()
