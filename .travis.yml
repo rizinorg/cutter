@@ -55,7 +55,7 @@ script:
   - cd build
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
+            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
             cmake
                 -DCMAKE_BUILD_TYPE=Release
