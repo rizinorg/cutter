@@ -14,11 +14,10 @@ Get Cutter
 
 Cutter is available for all platforms (Linux, OS X, Windows). You can
 download the latest release
-`here <https://github.com/radareorg/cutter/releases>`__. \* OSX:
-Download the latest ``.dmg`` file. \* Windows: Download the latest
-archive. \* Linux: use the AppImage file. Then just make it executable
-and run it: \* ``chmod +x Cutter-v1.7.4-x86_64.AppImage`` \*
-``./Cutter-v1.7.4-x86_64.AppImage``
+`here <https://github.com/radareorg/cutter/releases>`__.
+- OSX: Download the latest ``.dmg`` file.
+- Windows: Download the latest archive.
+- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.7.4-x86_64.AppImage``
 
 
 Building from sources
@@ -34,7 +33,7 @@ You can contact the *Cutter* developers and community on:
 
 -  Telegram: https://t.me/r2cutter
 -  #cutter on irc.freenode.net
--  Twitter: [@r2gui](https://twitter.com/r2gui)
+-  Twitter: https://twitter.com/r2gui
 
 Want to help the project?
 -------------------------

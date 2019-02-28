@@ -12,11 +12,12 @@ You can create an issue by clicking on [this link](https://github.com/radareorg/
 
 Note that cutter is still under development and many parts of the code are to be improved.
 The best way is to check the opened issues [here](https://github.com/radareorg/cutter/issues) or discuss with radareorg team.
-Please follow our contribution guidelines: https://radareorg.github.io/cutter/code.html
+Please follow our contribution guidelines: https://cutter.re/docs/code.html
 
 ## Contributing to the documentation
 
-The documentation is something important for newcomers. As of today the documentation can be found [here](https://radareorg.github.io/cutter/) and it stands in the [docs](https://github.com/radareorg/cutter/tree/master/docs) folder.
+The documentation is something important for newcomers. As of today the documentation can be found [here](https://cutter.re/docs/) and it stands in the [docs](https://github.com/radareorg/cutter/tree/master/docs) folder.
+The API Reference is automatically generated from the source code, so it is strongly advised to document your code.
 Check issues marked as "Documentation" on our issues [list](https://github.com/radareorg/cutter/issues?q=is%3Aissue+is%3Aopen+label%3ADocumentation).
 
 ## Translations

@@ -10,22 +10,22 @@ First you must get the source of Cutter by cloning the repository:
 The “official” way to build Cutter is by using qmake, but there are two
 alternatives – cmake and meson.
 
-In any case, there are obviously some requirements: \* Radare2 installed
-from submodule \* Qt 5.9 or above \* Python3.6
+In any case, there are obviously some requirements:
+- Radare2 installed from submodule
+- Qt 5.9 or above
+- Python3.6
 
 **Before compiling, note that we also provide binaries available for
-windows/linux/MacOS
-X**\ `here <https://github.com/radareorg/cutter/releases>`__\ **.**
+windows/linux/MacOS **\ `here <https://github.com/radareorg/cutter/releases>`__\ **.**
 
 --------------
 
 Building options
 ----------------
 
-Note that there are two major building options available: \*
-``CUTTER_ENABLE_JUPYTER`` is used to compile Cutter with bundled Python
-and Jupyter module \* ``CUTTER_ENABLE_QTWEBENGINE`` is used to compile
-Cutter with bundled QtWebEngine (to ease jupyter console usage)
+Note that there are two major building options available:
+- ``CUTTER_ENABLE_JUPYTER`` is used to compile Cutter with bundled Python and Jupyter module
+- ``CUTTER_ENABLE_QTWEBENGINE`` is used to compile Cutter with bundled QtWebEngine (to ease jupyter console usage)
 
 --------------
 
@@ -156,15 +156,20 @@ Download and unpack
 source root directory.
 
 Environment settings (example for x64 version):
-``batch :: Export MSVC variables CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64 :: Add qmake to PATH SET "PATH=C:\Qt\5.10.1\msvc2015_64\bin;%PATH%" :: Add Python to PATH SET "PATH=C:\Program Files\Python36;%PATH%"``
-Install Meson:
+.. code:: batch
+    :: Export MSVC variables
+    CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
+    :: Add qmake to PATH
+    SET "PATH=C:\Qt\5.10.1\msvc2015_64\bin;%PATH%"
+    :: Add Python to PATH
+    SET "PATH=C:\Program Files\Python36;%PATH%"
 
+Install Meson:
 .. code:: batch
 
    python -m pip install meson
 
 To compile Cutter run:
-
 .. code:: batch
 
    CALL prepare_r2.bat
