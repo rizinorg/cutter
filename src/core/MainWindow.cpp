@@ -323,9 +323,10 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
             disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
             disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
             disconnect(overviewDock, &QDockWidget::visibilityChanged, this, nullptr);
-            overviewDock->hide();
             ui->actionOverview->setChecked(false);
-            overviewDock->userClosed = true;
+            if (!core->isGraphEmpty()) {
+                overviewDock->userClosed = true;
+            }
         }
     });
     connect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
@@ -343,7 +344,7 @@ void MainWindow::adjustOverview()
         return;
     }
     if (core->isGraphEmpty()) {
-        ui->actionOverview->setChecked(false);
+        enableOverviewMenu(false);
         overviewDock->hide();
         return;
     }
@@ -361,7 +362,7 @@ void MainWindow::adjustOverview()
 
     overviewDock->graphView->rangeRect = QRectF(rangeRectX, rangeRectY, w, h);
     overviewDock->graphView->viewport()->update();
-    ui->actionOverview->setChecked(true);
+    enableOverviewMenu(true);
     overviewDock->show();
 }
 
