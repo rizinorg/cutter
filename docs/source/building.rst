@@ -15,8 +15,8 @@ In any case, there are obviously some requirements:
 - Qt 5.9 or above
 - Python3.6
 
-**Before compiling, note that we also provide binaries available for
-windows/linux/MacOS **\ `here <https://github.com/radareorg/cutter/releases>`__\ **.**
+Before compiling, note that we also provide binaries available for
+windows/linux/MacOS `here <https://github.com/radareorg/cutter/releases>`_.
 
 --------------
 
@@ -156,7 +156,9 @@ Download and unpack
 source root directory.
 
 Environment settings (example for x64 version):
+
 .. code:: batch
+
     :: Export MSVC variables
     CALL "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x64
     :: Add qmake to PATH
@@ -165,11 +167,13 @@ Environment settings (example for x64 version):
     SET "PATH=C:\Program Files\Python36;%PATH%"
 
 Install Meson:
+
 .. code:: batch
 
    python -m pip install meson
 
 To compile Cutter run:
+
 .. code:: batch
 
    CALL prepare_r2.bat
