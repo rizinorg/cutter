@@ -23,16 +23,9 @@ matrix:
     env: BUILD_SYSTEM=cmake
 
 sudo: required
-dist: trusty
+dist: xenial
 
 addons:
-  apt:
-    sources:
-      - sourceline: "ppa:beineri/opt-qt596-trusty"
-    packages:
-      - qt59base
-      - qt59svg
-      - qt59webengine
   homebrew:
     update: true
     brewfile: scripts/Brewfile
@@ -41,9 +34,11 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      source /opt/qt5*/bin/qt5*-env.sh
+      scripts/fetch_deps.sh && 
+      source cutter-deps/env.sh &&
+      export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH" &&
+      python3 -m pip install -r scripts/pip_requirements.txt
     ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_python_linux.sh    ; fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -60,9 +55,19 @@ script:
   - cd build
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            PKG_CONFIG_PATH="$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
+            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-            cmake -DPYTHON_LIBRARY="$CUSTOM_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" -DPYTHON_INCLUDE_DIR="$CUSTOM_PYTHON_PREFIX/include/python3.6m" -DPYTHON_EXECUTABLE="$CUSTOM_PYTHON_PREFIX/bin/python3" -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF -DCUTTER_ENABLE_JUPYTER=ON -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src && make -j4;
+            cmake
+                -DCMAKE_BUILD_TYPE=Release
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
+                -DCUTTER_ENABLE_PYTHON=ON
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_JUPYTER=ON
+                -DCUTTER_ENABLE_QTWEBENGINE=OFF
+                ../src &&
+                make -j4;
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
@@ -103,12 +108,11 @@ after_success:
       cp -r /usr/share/radare2 appdir/usr/share/ &&
       mkdir -p appdir/usr/bin/translations &&
       cp ../src/translations/*.qm appdir/usr/bin/translations/ &&
-      "$TRAVIS_BUILD_DIR/scripts/appimage_embed_python.sh" "$CUSTOM_PYTHON_PREFIX" appdir &&
+      "$TRAVIS_BUILD_DIR/scripts/appimage_embed_python.sh" appdir &&
       wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
       chmod a+x linuxdeployqt*.AppImage &&
-      unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH &&
-      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
-      LD_LIBRARY_PATH=$CUSTOM_PYTHON_PREFIX/lib ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
+      ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
+      ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
       find ./appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq &&
       export APPIMAGE_FILE="Cutter-v$CUTTER_VERSION-x64.Linux.AppImage" &&
       mv Cutter-*-x86_64.AppImage "$APPIMAGE_FILE" &&

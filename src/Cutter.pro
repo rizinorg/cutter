@@ -126,7 +126,6 @@ CUTTER_ENABLE_PYTHON {
         pythonpath = $$clean_path($$dirname(pythonpath))
         LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
         INCLUDEPATH += $${pythonpath}/include
-        BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
     }
 
     unix|macx|bsd {
@@ -142,7 +141,6 @@ CUTTER_ENABLE_PYTHON {
             }
             PKGCONFIG += python3
         }
-        BINDINGS_SRC_LIST_CMD = "bindings/src_list.py"
     }
 
     CUTTER_ENABLE_PYTHON_BINDINGS {
@@ -151,6 +149,11 @@ CUTTER_ENABLE_PYTHON {
         }
         !packagesExist(pyside2) {
             error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
+        }
+        win32 {
+            BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
+        } else {
+            BINDINGS_SRC_LIST_CMD = "python3 bindings/src_list.py"
         }
         BINDINGS_SRC_DIR = "$${PWD}/bindings"
         BINDINGS_BUILD_DIR = "$${OUT_PWD}/bindings"
@@ -167,9 +170,9 @@ CUTTER_ENABLE_PYTHON {
         PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
         PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
         QMAKE_SUBSTITUTES += bindings/bindings.txt.in
-        #SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable="
+        SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
         bindings.target = bindings_target
-        bindings.commands = shiboken2 --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
+        bindings.commands = "$${SHIBOKEN_EXECUTABLE}" --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
         QMAKE_EXTRA_TARGETS += bindings
         GENERATED_SOURCES += $${BINDINGS_SOURCE}
         INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
