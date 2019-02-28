@@ -10,7 +10,7 @@ Demonstrate the code is solid. Example: The exact commands you ran and their out
 
 **Code formatting**
 
-Make sure you ran astyle on your code before making the PR. Check our contribution guidelines here: https://radareorg.github.io/cutter/code.html
+Make sure you ran astyle on your code before making the PR. Check our contribution guidelines here: https://cutter.re/docs/code.html
 
 **Closing issues**
 

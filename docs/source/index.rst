@@ -34,7 +34,7 @@ You can contact the *Cutter* developers and community on:
 
 -  Telegram: https://t.me/r2cutter
 -  #cutter on irc.freenode.net
--  Twitter: [@r2gui](https://twitter.com/r2gui)
+-  Twitter: https://twitter.com/r2gui
 
 Want to help the project?
 -------------------------
