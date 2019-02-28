@@ -151,9 +151,9 @@ CUTTER_ENABLE_PYTHON {
             error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
         }
         win32 {
-            BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} \"$$absolute_path(bindings/src_list.py)\""
+            BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
         } else {
-            BINDINGS_SRC_LIST_CMD = "\"$$absolute_path(bindings/src_list.py)\""
+            BINDINGS_SRC_LIST_CMD = "python3 bindings/src_list.py"
         }
         BINDINGS_SRC_DIR = "$${PWD}/bindings"
         BINDINGS_BUILD_DIR = "$${OUT_PWD}/bindings"
