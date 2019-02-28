@@ -137,6 +137,7 @@ public slots:
     void openNewFileFailed();
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
+    void disconnectOverview();
     void adjustOverview();
     void adjustGraph();
 

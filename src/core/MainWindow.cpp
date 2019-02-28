@@ -302,13 +302,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(adjustOverview()));
     connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
     connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
-        disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
-        disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(adjustOverview()));
-        disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
-        disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-        disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
-        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
-        disconnect(overviewDock, &QDockWidget::visibilityChanged, this, nullptr);
+        disconnectOverview();
         enableOverviewMenu(false);
         overviewDock->hide();
     });
@@ -316,20 +310,25 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
     connect(overviewDock, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (!visibility) {
-            disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
-            disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(adjustOverview()));
-            disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
-            disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-            disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
-            disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
-            disconnect(overviewDock, &QDockWidget::visibilityChanged, this, nullptr);
             ui->actionOverview->setChecked(false);
             if (!core->isGraphEmpty()) {
+                disconnectOverview();
                 overviewDock->userClosed = true;
             }
         }
     });
     connect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
+}
+
+void MainWindow::disconnectOverview()
+{
+    disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
+    disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(adjustOverview()));
+    disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
+    disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+    disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
+    disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
+    disconnect(overviewDock, &QDockWidget::visibilityChanged, this, nullptr);
 }
 
 void MainWindow::setOverviewData()
