@@ -206,6 +206,7 @@ CUTTER_ENABLE_CRASH_REPORTS {
             LIBS += -F$$BREAKPAD_FRAMEWORK_DIR -framework Breakpad
         }
         defined(BREAKPAD_SOURCE_DIR, var)) {
+            message(BREAKPAD_SOURCE_DIR=$$BREAKPAD_SOURCE_DIR)
             INCLUDEPATH += $$BREAKPAD_SOURCE_DIR
             win32:LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\handler\release\lib -lexception_handler
             unix:LIBS += -L$$BREAKPAD_SOURCE_DIR\client\linux -lbreakpad-client
