@@ -5,8 +5,12 @@ set "PATH=%CD%\depot_tools;%PATH%"
   
 mkdir %CD%\breakpad
 cd %CD%\breakpad
+ECHO klsejgseklgjseklgjseklgjseklgjseklgjsel
+DIR
 fetch breakpad
 gclient sync
+ECHO klsejgseklgjseklgjseklgjseklgjseklgjsel 22
+DIR
 cd ..
 
 msbuild /m %CD%\breakpad\src\src\client\windows\handler\exception_handler.vcxproj /p:Configuration=release
