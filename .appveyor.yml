@@ -42,7 +42,7 @@ install:
   # Artifacts
   - cmd: set "ARTIFACT_NAME=Cutter-v1.8.0-%ARCH%.Windows"
   - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )
-
+  
 before_build:
   - cmd: git submodule update --init
   - cmd: python scripts\compile_python_resources.py

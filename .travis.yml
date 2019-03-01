@@ -19,11 +19,11 @@ matrix:
     env: BUILD_SYSTEM=cmake
   - name: macOS QMake + Deploy
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10
     env: BUILD_SYSTEM=qmake DEPLOY=1
   - name: macOS CMake
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10
     env: BUILD_SYSTEM=cmake
   - name: Documentation + Deploy
     os: linux
@@ -70,6 +70,8 @@ install:
   - source cutter-deps/env.sh
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then source scripts/prepare_breakpad_macos.sh  ; fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_breakpad_linux.sh  ; fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -116,8 +118,8 @@ script:
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
             cmake
                 -DCMAKE_BUILD_TYPE=Release
-                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib"
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib"
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
