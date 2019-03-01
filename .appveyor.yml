@@ -46,6 +46,24 @@ install:
 before_build:
   - cmd: git submodule update --init
   - cmd: python scripts\compile_python_resources.py
+  # Prepare breakpad
+  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget https://storage.googleapis.com/chrome-infra/depot_tools.zip -OutFile depot_tools.zip "
+  - cmd: 7z -bd x %CD%\depot_tools.zip -odepot_tools
+  - cmd: %CD%\depot_tools\update_depot_tools
+  - cmd: ECHO KEK
+  - cmd: set "PATH=%CD%\depot_tools;%PATH%"
+  - cmd: DIR
+  - cmd: mkdir %CD%\breakpad
+  - cmd: DIR
+  - cmd: cd %CD%\breakpad
+  - cmd: ECHO klsejgseklgjseklgjseklgjseklgjseklgjsel
+  - cmd: DIR
+  - cmd: fetch breakpad
+  - cmd: gclient sync
+  - cmd: ECHO klsejgseklgjseklgjseklgjseklgjseklgjsel 22
+  - cmd: DIR
+  - cmd: cd ..
+  - cmd: msbuild /m %CD%\breakpad\src\src\client\windows\handler\exception_handler.vcxproj /p:Configuration=release
 
 # Build config
 build_script:
