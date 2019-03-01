@@ -49,7 +49,7 @@ before_build:
   # Prepare breakpad
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget https://storage.googleapis.com/chrome-infra/depot_tools.zip -OutFile depot_tools.zip "
   - cmd: 7z -bd x %CD%\depot_tools.zip -odepot_tools
-  - cmd: %CD%\depot_tools\update_depot_tools
+  - cmd: depot_tools\update_depot_tools
   - cmd: ECHO KEK
   - cmd: set "PATH=%CD%\depot_tools;%PATH%"
   - cmd: DIR
