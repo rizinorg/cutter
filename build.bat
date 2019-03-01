@@ -22,6 +22,7 @@ ECHO Prepare translations
 FOR %%i in (src\translations\*.ts) DO lrelease %%i
 
 CD %BREAKPAD_SOURCE_DIR%
+ECHO test-kek
 DIR
 
 CD %BUILDDIR%

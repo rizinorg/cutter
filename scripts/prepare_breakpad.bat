@@ -3,8 +3,8 @@ powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.Security
 depot_tools\update_depot_tools
 set "PATH=%CD%\depot_tools;%PATH%"
   
-mkdir breakpad
-cd breakpad
+mkdir %CD%\breakpad
+cd %CD%\breakpad
 fetch breakpad
 gclient sync
 cd ..
