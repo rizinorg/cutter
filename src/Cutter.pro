@@ -304,6 +304,7 @@ SOURCES += \
     plugins/PluginManager.cpp \
     common/BasicBlockHighlighter.cpp \
     dialogs/LinkTypeDialog.cpp
+    common/VersionChecker.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -421,6 +422,7 @@ HEADERS  += \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
     dialogs/LinkTypeDialog.h
+    common/VersionChecker.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

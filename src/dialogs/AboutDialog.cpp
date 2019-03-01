@@ -8,9 +8,11 @@
 
 #include <QUrl>
 #include <QTimer>
+#include <QEventLoop>
 #include <QJsonObject>
 #include <QProgressBar>
 #include <QProgressDialog>
+#include <VersionChecker.h>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkAccessManager>
 
@@ -75,9 +77,7 @@ void AboutDialog::on_showPluginsButton_clicked()
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
-    QUrl url("https://api.github.com/repos/radareorg/cutter/releases/latest");
-    QNetworkRequest request;
-    request.setUrl(url);
+    VersionChecker versionChecker;
 
     QProgressDialog waitDialog;
     QProgressBar *bar = new QProgressBar(&waitDialog);
@@ -86,56 +86,38 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.setBar(bar);
     waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
-    QNetworkAccessManager nm;
+    connect(&versionChecker, &VersionChecker::checkComplete, this, &AboutDialog::serveVersionCheckReply);
+    connect(&versionChecker, &VersionChecker::checkComplete, &waitDialog, &QProgressDialog::cancel);
 
-    QTimer timeoutTimer;
-    timeoutTimer.setSingleShot(true);
-    timeoutTimer.setInterval(7000);
-
-    connect(&nm, &QNetworkAccessManager::finished, &timeoutTimer, &QTimer::stop);
-    connect(&nm, &QNetworkAccessManager::finished, &waitDialog, &QProgressDialog::cancel);
-    connect(&nm, &QNetworkAccessManager::finished, this, &AboutDialog::serveVersionCheckReply);
-
-    QNetworkReply *reply = nm.get(request);
-    timeoutTimer.start();
-
-    connect(&timeoutTimer, &QTimer::timeout, []() {
-        QMessageBox mb;
-        mb.setIcon(QMessageBox::Critical);
-        mb.setStandardButtons(QMessageBox::Ok);
-        mb.setWindowTitle(tr("Timeout error!"));
-        mb.setText(tr("Please check your internet connection and try again."));
-        mb.exec();
+    versionChecker.checkCurrentVersion(7000, [&]() {
+        waitDialog.cancel();
+        QMessageBox::critical(this,
+                              tr("Timeout error!"),
+                              tr("Time limit exceeded during version check. Please check your "
+                                 "internet connection and try again."));
     });
-
     waitDialog.exec();
-    delete reply;
+    disconnect(&versionChecker, 0, 0, 0);
 }
 
-void AboutDialog::serveVersionCheckReply(QNetworkReply *reply)
+void AboutDialog::serveVersionCheckReply(const QString& version, const QString& error)
 {
-    QString currVersion = "";
-    QMessageBox mb;
-    mb.setStandardButtons(QMessageBox::Ok);
-    if (reply->error()) {
-        mb.setIcon(QMessageBox::Critical);
-        mb.setWindowTitle(tr("Error!"));
-        mb.setText(reply->errorString());
+    if (error != "") {
+        QMessageBox::critical(this, tr("Error!"), error);
     } else {
-        currVersion = QJsonDocument::fromJson(reply->readAll()).object().value("tag_name").toString();
-        currVersion.remove('v');
-
+        QMessageBox mb;
+        mb.setStandardButtons(QMessageBox::Ok);
         mb.setWindowTitle(tr("Version control"));
         mb.setIcon(QMessageBox::Information);
-        if (currVersion == CUTTER_VERSION_FULL) {
+        if (version == CUTTER_VERSION_FULL) {
             mb.setText(tr("You have latest version and no need to update!"));
         } else {
             mb.setText("<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
-                          + "<b>" + tr("Latest version:") + "</b> " + currVersion + "<br/><br/>"
+                          + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
                           + tr("For update, please check the link:")
                           + "<a href=\"https://github.com/radareorg/cutter/releases\">"
                           + "https://github.com/radareorg/cutter/releases</a>");
         }
+        mb.exec();
     }
-    mb.exec();
 }

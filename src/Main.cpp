@@ -1,6 +1,9 @@
 
 #include "CutterApplication.h"
 #include "core/MainWindow.h"
+#include "common/VersionChecker.h"
+#include <CutterConfig.h>
+#include <QPushButton>
 
 /**
  * @brief Migrate Settings used before Cutter 1.8
@@ -33,6 +36,29 @@ int main(int argc, char *argv[])
     }
 
     CutterApplication a(argc, argv);
+
+    if (Config()->getAutoUpdateEnabled()) {
+        VersionChecker versionChecker;
+        QObject::connect(&versionChecker, &VersionChecker::checkComplete,
+                         [](const QString& version, const QString& error) {
+            if (error == "" && version != CUTTER_VERSION_FULL) {
+                QMessageBox mb;
+                mb.setWindowTitle(QObject::tr("Version control"));
+                mb.setText("<b>" + QObject::tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
+                           + "<b>" + QObject::tr("Latest version:") + "</b> " + version + "<br/><br/>"
+                           + QObject::tr("For update, please check the link:")
+                           + "<a href=\"https://github.com/radareorg/cutter/releases\">"
+                           + "https://github.com/radareorg/cutter/releases</a>");
+                mb.setStandardButtons(QMessageBox::Ok | QMessageBox::No);
+                mb.button(QMessageBox::No)->setText(QObject::tr("Do not reminde it again."));
+                int ret = mb.exec();
+                if (ret == QMessageBox::No) {
+                    Config()->setAutoUpdateEnabled(false);
+                }
+            }
+        });
+        versionChecker.checkCurrentVersion(7000);
+    }
 
     int ret = a.exec();
 
