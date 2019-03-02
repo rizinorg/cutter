@@ -125,6 +125,7 @@ void MainWindow::initUI()
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    spacer3->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacer3->setMinimumSize(20, 20);
     spacer3->setMaximumWidth(100);
     ui->mainToolBar->addWidget(spacer3);
@@ -144,8 +145,9 @@ void MainWindow::initUI()
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer4 = new QWidget();
     spacer4->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    spacer4->setMinimumSize(20, 20);
-    spacer4->setMaximumWidth(100);
+    spacer4->setStyleSheet("background-color: rgba(0,0,0,0)");
+    spacer4->setMinimumSize(10, 10);
+    spacer4->setMaximumWidth(10);
     ui->mainToolBar->addWidget(spacer4);
 
     // Omnibar LineEdit
@@ -155,6 +157,7 @@ void MainWindow::initUI()
     // Add special separators to the toolbar that expand to separate groups of elements
     QWidget *spacer2 = new QWidget();
     spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    spacer2->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacer2->setMinimumSize(10, 10);
     spacer2->setMaximumWidth(300);
     ui->mainToolBar->addWidget(spacer2);
@@ -162,14 +165,17 @@ void MainWindow::initUI()
     // Separator between back/forward and undo/redo buttons
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    spacer->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacer->setMinimumSize(20, 20);
     ui->mainToolBar->addWidget(spacer);
 
     tasksProgressIndicator = new ProgressIndicator();
+    tasksProgressIndicator->setStyleSheet("background-color: rgba(0,0,0,0)");
     ui->mainToolBar->addWidget(tasksProgressIndicator);
 
     QWidget *spacerEnd = new QWidget();
     spacerEnd->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    spacerEnd->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacerEnd->setMinimumSize(4, 0);
     spacerEnd->setMaximumWidth(4);
     ui->mainToolBar->addWidget(spacerEnd);

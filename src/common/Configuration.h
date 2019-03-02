@@ -31,6 +31,7 @@ private:
     void loadBaseThemeNative();
     void loadBaseThemeDark();
     void loadNativeTheme();
+    void loadLightTheme();
     void loadDarkTheme();
     void setColor(const QString &name, const QColor &color);
 
@@ -110,7 +111,7 @@ public:
      */
     void setConfig(const QString &key, const QVariant &value);
     bool isFirstExecution();
-    
+
     /*!
      * \brief Get list of available translation directories (depends on configuration and OS)
      * \return list of directories

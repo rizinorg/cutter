@@ -11,7 +11,8 @@
 
 const QList<CutterQtTheme> kCutterQtThemesList = {
     { "Native", static_cast<ColorFlags>(LightFlag | DarkFlag) },
-    { "Dark",    DarkFlag }
+    { "Dark",   DarkFlag },
+    { "Light",  LightFlag }
 };
 
 Configuration *Configuration::mPtr = nullptr;
@@ -235,12 +236,35 @@ void Configuration::loadNativeTheme()
     }
 }
 
+void Configuration::loadLightTheme()
+{
+    /* Load Qt Theme */
+    QFile f(":lightstyle/light.qss");
+    if (!f.exists()) {
+        qWarning() << "Can't find Light theme stylesheet.";
+    } else {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        QString stylesheet = ts.readAll();
+        qApp->setStyleSheet(stylesheet);
+    }
+
+    setColor("gui.border",  QColor(0, 0, 0));
+    setColor("gui.background", QColor(255, 255, 255));
+    setColor("gui.alt_background", QColor(245, 250, 255));
+    setColor("gui.disass_selected", QColor(255, 255, 255));
+    setColor("highlight",   QColor(210, 210, 255, 150));
+    setColor("highlightWord", QColor(179, 119, 214, 60));
+    setColor("highlightPC", QColor(214, 255, 210));
+
+}
+
 void Configuration::loadBaseThemeDark()
 {
     /* Load Qt Theme */
     QFile f(":qdarkstyle/style.qss");
     if (!f.exists()) {
-        qWarning() << "Can't find dark theme stylesheet.";
+        qWarning() << "Can't find Dark theme stylesheet.";
     } else {
         f.open(QFile::ReadOnly | QFile::Text);
         QTextStream ts(&f);
@@ -329,6 +353,8 @@ void Configuration::setTheme(int theme)
         loadNativeTheme();
     } else if (themeName == "Dark") {
         loadDarkTheme();
+    } else if (themeName == "Light") {
+        loadLightTheme();
     } else {
         loadNativeTheme();
     }
