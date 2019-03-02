@@ -792,6 +792,10 @@ void DisassemblerGraphView::prevInstr()
 
 void DisassemblerGraphView::seekLocal(RVA addr, bool update_viewport)
 {
+    RVA curAddr = seekable->getOffset();
+    if (addr == curAddr) {
+        return;
+    }
     connectSeekChanged(true);
     seekable->seek(addr);
     connectSeekChanged(false);
