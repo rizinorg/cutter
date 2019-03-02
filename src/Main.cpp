@@ -46,11 +46,12 @@ int main(int argc, char *argv[])
                 mb.setWindowTitle(QObject::tr("Version control"));
                 mb.setText("<b>" + QObject::tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
                            + "<b>" + QObject::tr("Latest version:") + "</b> " + version + "<br/><br/>"
-                           + QObject::tr("For update, please check the link:")
+                           + QObject::tr("For update, please check the link:<br/>")
                            + "<a href=\"https://github.com/radareorg/cutter/releases\">"
                            + "https://github.com/radareorg/cutter/releases</a>");
                 mb.setStandardButtons(QMessageBox::Ok | QMessageBox::No);
                 mb.button(QMessageBox::No)->setText(QObject::tr("Do not reminde it again."));
+                mb.setDefaultButton(QMessageBox::Ok);
                 int ret = mb.exec();
                 if (ret == QMessageBox::No) {
                     Config()->setAutoUpdateEnabled(false);
