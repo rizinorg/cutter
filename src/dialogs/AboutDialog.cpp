@@ -86,16 +86,10 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.setBar(bar);
     waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
-    connect(&versionChecker, &VersionChecker::checkComplete, this, &AboutDialog::serveVersionCheckReply);
     connect(&versionChecker, &VersionChecker::checkComplete, &waitDialog, &QProgressDialog::cancel);
+    connect(&versionChecker, &VersionChecker::checkComplete, this, &AboutDialog::serveVersionCheckReply);
 
-    versionChecker.checkCurrentVersion(7000, [&]() {
-        waitDialog.cancel();
-        QMessageBox::critical(this,
-                              tr("Timeout error!"),
-                              tr("Time limit exceeded during version check. Please check your "
-                                 "internet connection and try again."));
-    });
+    versionChecker.checkCurrentVersion(7000);
     waitDialog.exec();
 }
 

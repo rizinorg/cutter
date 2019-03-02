@@ -12,18 +12,16 @@
 VersionChecker::VersionChecker(QObject *parent) :
     QObject(parent), nm(new QNetworkAccessManager), pending(false) { }
 
-void VersionChecker::checkCurrentVersion(time_t timeoutMs, std::function<void (void)> timeoutCallback)
+void VersionChecker::checkCurrentVersion(time_t timeoutMs)
 {
     QUrl url("https://api.github.com/repos/radareorg/cutter/releases/latest");
     QNetworkRequest request;
     request.setUrl(url);
 
-    connect(&t, &QTimer::timeout, [timeoutCallback, this]() {
+    connect(&t, &QTimer::timeout, [this]() {
         if (pending) {
-            disconnect(nm, &QNetworkAccessManager::finished, this, &VersionChecker::serveVersionCheckReply);
-            if (timeoutCallback) {
-                timeoutCallback();
-            }
+            emit checkComplete("", tr("Time limit exceeded during version check. Please check your "
+                                      "internet connection and try again."));
         }
     });
     t.setInterval(timeoutMs);
