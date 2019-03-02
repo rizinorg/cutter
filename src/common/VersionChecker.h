@@ -41,13 +41,13 @@ signals:
       of error.
 
     */
-    void checkComplete(const QString& currVerson, const QString& errorMsg);
+    void checkComplete(const QString &currVerson, const QString &errorMsg);
 
 private slots:
     void serveVersionCheckReply(QNetworkReply *reply);
 
 private:
-    QNetworkAccessManager* nm;
+    QNetworkAccessManager *nm;
     QTimer t;
     bool pending;
 };

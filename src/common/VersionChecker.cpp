@@ -34,7 +34,7 @@ void VersionChecker::checkCurrentVersion(time_t timeoutMs)
     pending = true;
 }
 
-void VersionChecker::serveVersionCheckReply(QNetworkReply* reply)
+void VersionChecker::serveVersionCheckReply(QNetworkReply *reply)
 {
     pending = false;
     QString currVersion = "";

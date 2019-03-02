@@ -27,28 +27,28 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     QString aboutString("<h1>Cutter</h1>"
-                          + tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
-                          + tr("Using r2-") + R2_GITTAP
-                          + "<p><b>" + tr("Optional Features:") + "</b><br/>"
-                          + QString("Jupyter: %1<br/>").arg(
+                        + tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
+                        + tr("Using r2-") + R2_GITTAP
+                        + "<p><b>" + tr("Optional Features:") + "</b><br/>"
+                        + QString("Jupyter: %1<br/>").arg(
 #ifdef CUTTER_ENABLE_JUPYTER
-                          "ON"
+                            "ON"
 #else
-                          "OFF"
+                            "OFF"
 #endif
-                           )
-                          + QString("QtWebEngine: %2</p>").arg(
+                        )
+                        + QString("QtWebEngine: %2</p>").arg(
 #ifdef CUTTER_ENABLE_QTWEBENGINE
-                          "ON"
+                            "ON"
 #else
-                          "OFF"
+                            "OFF"
 #endif
-                           )
-                          + "<h2>" + tr("License") + "</h2>"
-                          + tr("This Software is released under the GNU General Public License v3.0")
-                          + "<h2>" + tr("Authors") + "</h2>"
-                          "xarkes, thestr4ng3r, ballessay<br/>"
-                          "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
+                        )
+                        + "<h2>" + tr("License") + "</h2>"
+                        + tr("This Software is released under the GNU General Public License v3.0")
+                        + "<h2>" + tr("Authors") + "</h2>"
+                        "xarkes, thestr4ng3r, ballessay<br/>"
+                        "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
     ui->label->setText(aboutString);
 }
 
@@ -87,13 +87,14 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
     connect(&versionChecker, &VersionChecker::checkComplete, &waitDialog, &QProgressDialog::cancel);
-    connect(&versionChecker, &VersionChecker::checkComplete, this, &AboutDialog::serveVersionCheckReply);
+    connect(&versionChecker, &VersionChecker::checkComplete, this,
+            &AboutDialog::serveVersionCheckReply);
 
     versionChecker.checkCurrentVersion(7000);
     waitDialog.exec();
 }
 
-void AboutDialog::serveVersionCheckReply(const QString& version, const QString& error)
+void AboutDialog::serveVersionCheckReply(const QString &version, const QString &error)
 {
     if (error != "") {
         QMessageBox::critical(this, tr("Error!"), error);
@@ -106,10 +107,10 @@ void AboutDialog::serveVersionCheckReply(const QString& version, const QString& 
             mb.setText(tr("You have latest version and no need to update!"));
         } else {
             mb.setText("<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
-                          + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
-                          + tr("For update, please check the link:")
-                          + "<a href=\"https://github.com/radareorg/cutter/releases\">"
-                          + "https://github.com/radareorg/cutter/releases</a>");
+                       + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
+                       + tr("For update, please check the link:")
+                       + "<a href=\"https://github.com/radareorg/cutter/releases\">"
+                       + "https://github.com/radareorg/cutter/releases</a>");
         }
         mb.exec();
     }
