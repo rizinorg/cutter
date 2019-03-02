@@ -23,7 +23,6 @@ private slots:
     void on_showPluginsButton_clicked();
     void on_checkForUpdatesButton_clicked();
     void on_updatesCheckBox_stateChanged(int state);
-    void serveVersionCheckReply(const QString &version, const QString &error);
 
 private:
     std::unique_ptr<Ui::AboutDialog> ui;

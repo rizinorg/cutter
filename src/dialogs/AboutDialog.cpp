@@ -90,33 +90,30 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
     connect(&versionChecker, &VersionChecker::checkComplete, &waitDialog, &QProgressDialog::cancel);
-    connect(&versionChecker, &VersionChecker::checkComplete, this,
-            &AboutDialog::serveVersionCheckReply);
+    connect(&versionChecker, &VersionChecker::checkComplete,
+    [](const QString & version, const QString & error) {
+        if (error != "") {
+            QMessageBox::critical(nullptr, tr("Error!"), error);
+        } else {
+            QMessageBox mb;
+            mb.setStandardButtons(QMessageBox::Ok);
+            mb.setWindowTitle(tr("Version control"));
+            mb.setIcon(QMessageBox::Information);
+            if (version == CUTTER_VERSION_FULL) {
+                mb.setText(tr("You have latest version and no need to update!"));
+            } else {
+                mb.setText("<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
+                           + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
+                           + tr("For update, please check the link:")
+                           + "<a href=\"https://github.com/radareorg/cutter/releases\">"
+                           + "https://github.com/radareorg/cutter/releases</a>");
+            }
+            mb.exec();
+        }
+    });
 
     versionChecker.checkCurrentVersion(7000);
     waitDialog.exec();
-}
-
-void AboutDialog::serveVersionCheckReply(const QString &version, const QString &error)
-{
-    if (error != "") {
-        QMessageBox::critical(this, tr("Error!"), error);
-    } else {
-        QMessageBox mb;
-        mb.setStandardButtons(QMessageBox::Ok);
-        mb.setWindowTitle(tr("Version control"));
-        mb.setIcon(QMessageBox::Information);
-        if (version == CUTTER_VERSION_FULL) {
-            mb.setText(tr("You have latest version and no need to update!"));
-        } else {
-            mb.setText("<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
-                       + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
-                       + tr("For update, please check the link:")
-                       + "<a href=\"https://github.com/radareorg/cutter/releases\">"
-                       + "https://github.com/radareorg/cutter/releases</a>");
-        }
-        mb.exec();
-    }
 }
 
 void AboutDialog::on_updatesCheckBox_stateChanged(int state)
