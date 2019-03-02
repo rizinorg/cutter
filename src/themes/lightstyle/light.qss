@@ -7,40 +7,40 @@ Last updated: 04/12/2018, 15:00.
 Available at: https://github.com/GTRONICK/QSS/blob/master/MaterialDark.qss
 */
 QMainWindow {
-	background-color:#ffffff;
+	background-color:#fafcfe;
 }
 QDialog {
-	background-color:#ffffff;
+	background-color:#fafcfe;
 }
 QColorDialog {
 	background-color:#ffffff;
 }
 QTextEdit {
-	background-color:#ffffff;
+	background-color:#fafcfe;
 	color: #00162e;
 }
 
 
 QWidget {
-    color: #eff0f1;
-    background-color: #ffffff;
+    color: #00162e;
+    background-color: #fafcfe;
     selection-background-color: #3daee9;
     selection-color: #eff0f1;
     background-clip: border;
     border-image: none;
     border: 0px transparent black;
-    outline: 0;
+	outline: 0;
 }
 
 QDockWidget {
-    background: #ffffff;
-	border: 1px solid #403F3F;
+    background: #fafcfe;
+	border: 1px solid #e0e0e0;
 }
 
 
 QPlainTextEdit {
 	selection-background-color:#007ac1;
-	background-color:#ffffff;
+	background-color:#fafcfe;
 	border-style: solid;
 	border-top-color: transparent;
 	border-right-color: transparent;
@@ -177,9 +177,15 @@ QMenuBar::item {
 }
 
 QMenuBar::item:selected {
+	border-left-color:#e1f5fe;
+	color: #00162e;
+}
+
+QMenuBar::item:hover {
 	border-left-color:#03a9f4;
 	color: #00162e;
 }
+
 QMenu::item:selected {
 	border-style: solid;
 	border-top-color: transparent;
@@ -223,6 +229,7 @@ QTabWidget::pane {
 		border-width: 1px;
     	border-radius: 6px;
 }
+
 QTabBar::tab {
 	border-style: solid;
 	border-top-color: transparent;
@@ -369,7 +376,7 @@ QComboBox::drop-down {
     subcontrol-position: top right;
     width: 15px;
     border-left-width: 0px;
-    border-left-color: darkgray;
+    border-left-color: #e0e0e0;
     border-left-style: solid;
     border-top-right-radius: 3px;
     border-bottom-right-radius: 3px;
@@ -471,7 +478,9 @@ QListView::item:selected:active {
 QTableView {
     border: 1px solid #76797C;
     gridline-color: #bdbdbd;
-    background-color: #ffffff;
+	background-color: #ffffff;
+	color: #00162e;
+
 }
 
 QTableView,
@@ -616,6 +625,4 @@ QScrollBar::add-page:vertical,
 QScrollBar::sub-page:vertical {
     background: none;
 }
-
-
 
