@@ -50,6 +50,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
                         "xarkes, thestr4ng3r, ballessay<br/>"
                         "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
     ui->label->setText(aboutString);
+
+    QSignalBlocker s(ui->updatesCheckBox);
+    ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
 }
 
 AboutDialog::~AboutDialog() {}
@@ -114,4 +117,9 @@ void AboutDialog::serveVersionCheckReply(const QString &version, const QString &
         }
         mb.exec();
     }
+}
+
+void AboutDialog::on_updatesCheckBox_stateChanged(int state)
+{
+    Config()->setAutoUpdateEnabled(!Config()->getAutoUpdateEnabled());
 }

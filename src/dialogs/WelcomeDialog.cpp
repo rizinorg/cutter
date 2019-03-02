@@ -21,6 +21,9 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
     ui->versionLabel->setText("<font color='#a4a9b2'>" + tr("Version ") + CUTTER_VERSION_FULL + "</font>");
     ui->themeComboBox->setCurrentIndex(Config()->getTheme());
 
+    QSignalBlocker s(ui->updatesCheckBox);
+    ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
+
     QStringList langs = Config()->getAvailableTranslations();
     ui->languageComboBox->addItems(langs);
     QString curr = Config()->getCurrLocale().nativeLanguageName();
