@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
     CutterApplication a(argc, argv);
 
     if (Config()->getAutoUpdateEnabled()) {
-        VersionChecker versionChecker;
-        QObject::connect(&versionChecker, &VersionChecker::checkComplete,
-                         [](const QString& version, const QString& error) {
+        VersionChecker* versionChecker = new VersionChecker;
+        QObject::connect(versionChecker, &VersionChecker::checkComplete,
+                         [versionChecker](const QString& version, const QString& error) {
             if (error == "" && version != CUTTER_VERSION_FULL) {
                 QMessageBox mb;
                 mb.setWindowTitle(QObject::tr("Version control"));
@@ -56,8 +56,9 @@ int main(int argc, char *argv[])
                     Config()->setAutoUpdateEnabled(false);
                 }
             }
+            delete versionChecker;
         });
-        versionChecker.checkCurrentVersion(7000);
+        versionChecker->checkCurrentVersion(7000);
     }
 
     int ret = a.exec();
