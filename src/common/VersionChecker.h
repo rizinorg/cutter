@@ -3,9 +3,9 @@
 
 #include <QTimer>
 #include <QObject>
+#include <QtNetwork/QNetworkAccessManager>
 
 class QNetworkReply;
-class QNetworkAccessManager;
 
 /*!
     \class VersionChecker
@@ -47,7 +47,7 @@ private slots:
     void serveVersionCheckReply(QNetworkReply *reply);
 
 private:
-    QNetworkAccessManager *nm;
+    QNetworkAccessManager nm;
     QTimer t;
     bool pending;
 };

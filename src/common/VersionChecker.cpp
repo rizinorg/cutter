@@ -4,13 +4,22 @@
 #include <QTimer>
 #include <QEventLoop>
 #include <QJsonObject>
+#include <QApplication>
 #include <QJsonDocument>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkAccessManager>
 
 VersionChecker::VersionChecker(QObject *parent) :
-    QObject(parent), nm(new QNetworkAccessManager), pending(false) { }
+    QObject(parent), nm(QApplication::instance()), pending(false)
+{
+    connect(&nm, &QNetworkAccessManager::finished, this, &VersionChecker::serveVersionCheckReply);
+    connect(&t, &QTimer::timeout, [this]() {
+        if (pending) {
+            emit checkComplete("", tr("Time limit exceeded during version check. Please check your "
+                                      "internet connection and try again."));
+        }
+    });
+}
 
 void VersionChecker::checkCurrentVersion(time_t timeoutMs)
 {
@@ -18,19 +27,11 @@ void VersionChecker::checkCurrentVersion(time_t timeoutMs)
     QNetworkRequest request;
     request.setUrl(url);
 
-    connect(&t, &QTimer::timeout, [this]() {
-        if (pending) {
-            emit checkComplete("", tr("Time limit exceeded during version check. Please check your "
-                                      "internet connection and try again."));
-        }
-    });
     t.setInterval(timeoutMs);
     t.setSingleShot(true);
     t.start();
 
-    connect(nm, &QNetworkAccessManager::finished, this, &VersionChecker::serveVersionCheckReply);
-
-    nm->get(request);
+    nm.get(request);
     pending = true;
 }
 
@@ -38,12 +39,13 @@ void VersionChecker::serveVersionCheckReply(QNetworkReply *reply)
 {
     pending = false;
     QString currVersion = "";
+    QString errStr = "";
     if (reply->error()) {
-        emit checkComplete("", reply->errorString());
+        errStr = reply->errorString();
     } else {
         currVersion = QJsonDocument::fromJson(reply->readAll()).object().value("tag_name").toString();
         currVersion.remove('v');
-        emit checkComplete(currVersion, "");
     }
     delete reply;
+    emit checkComplete(currVersion, errStr);
 }
