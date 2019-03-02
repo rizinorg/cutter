@@ -60,7 +60,8 @@ before_build:
   - cmd: DIR
   - cmd: cd ..
   - cmd: set "PATH=%BUFF_PATH%"
-  - cmd: msbuild /m %CD%\breakpad\src\src\client\windows\handler\exception_handler.vcxproj /p:Configuration=release
+  - cmd: msbuild /m %CD%\breakpad\src\src\client\windows\handler\exception_handler.vcxproj /p:Configuration=release /p:win_release_RuntimeLibrary=2 /p:win_debug_RuntimeLibrary=2
+  
 
 # Build config
 build_script:
