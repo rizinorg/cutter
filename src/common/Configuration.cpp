@@ -138,7 +138,7 @@ void Configuration::resetAll()
 
 bool Configuration::getAutoUpdateEnabled() const
 {
-    return s.value("autoUpdateEnabled", true).toBool();
+    return s.value("autoUpdateEnabled", false).toBool();
 }
 
 void Configuration::setAutoUpdateEnabled(bool au)

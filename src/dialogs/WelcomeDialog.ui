@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>806</width>
-    <height>488</height>
+    <height>620</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -122,84 +122,118 @@
       </spacer>
      </item>
      <item>
-      <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0" columnstretch="3,2,3,0,0,0">
-       <property name="sizeConstraint">
-        <enum>QLayout::SetFixedSize</enum>
-       </property>
-       <property name="horizontalSpacing">
-        <number>0</number>
-       </property>
-       <property name="verticalSpacing">
-        <number>9</number>
-       </property>
-       <item row="28" column="1">
-        <widget class="QComboBox" name="languageComboBox"/>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
        </item>
-       <item row="27" column="1">
-        <widget class="QComboBox" name="themeComboBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <property name="spacing">
+          <number>9</number>
          </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>160</width>
-           <height>16</height>
-          </size>
+         <property name="sizeConstraint">
+          <enum>QLayout::SetMaximumSize</enum>
          </property>
          <item>
-          <property name="text">
-           <string>Native Theme</string>
-          </property>
+          <widget class="QPushButton" name="checkUpdateButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>About</string>
+           </property>
+          </widget>
          </item>
          <item>
-          <property name="text">
-           <string>Dark Theme</string>
-          </property>
+          <widget class="QComboBox" name="themeComboBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>16</width>
+             <height>16</height>
+            </size>
+           </property>
+           <item>
+            <property name="text">
+             <string>Native Theme</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Dark Theme</string>
+            </property>
+           </item>
+          </widget>
          </item>
-        </widget>
+         <item>
+          <widget class="QComboBox" name="languageComboBox"/>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="updatesCheckBox">
+           <property name="text">
+            <string>Check for updates on start</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="26" column="1">
-        <widget class="QPushButton" name="checkUpdateButton">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+       <item>
+        <spacer name="horizontalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
          </property>
-         <property name="minimumSize">
+         <property name="sizeHint" stdset="0">
           <size>
-           <width>0</width>
-           <height>0</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
-         <property name="maximumSize">
-          <size>
-           <width>16777215</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="text">
-          <string>About</string>
-         </property>
-        </widget>
+        </spacer>
        </item>
       </layout>
      </item>

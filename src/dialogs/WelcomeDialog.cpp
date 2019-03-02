@@ -20,8 +20,6 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
     ui->logoSvgWidget->load(Config()->getLogoFile());
     ui->versionLabel->setText("<font color='#a4a9b2'>" + tr("Version ") + CUTTER_VERSION_FULL + "</font>");
     ui->themeComboBox->setCurrentIndex(Config()->getTheme());
-    ui->themeComboBox->setFixedWidth(200);
-    ui->themeComboBox->view()->setFixedWidth(200);
 
     QStringList langs = Config()->getAvailableTranslations();
     ui->languageComboBox->addItems(langs);
@@ -96,4 +94,9 @@ void WelcomeDialog::on_checkUpdateButton_clicked()
 void WelcomeDialog::on_continueButton_clicked()
 {
     accept();
+}
+
+void WelcomeDialog::on_updatesCheckBox_stateChanged(int state)
+{
+    Config()->setAutoUpdateEnabled(!Config()->getAutoUpdateEnabled());
 }

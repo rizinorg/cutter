@@ -30,6 +30,7 @@ private slots:
     void onLanguageComboBox_currentIndexChanged(int index);
     void on_checkUpdateButton_clicked();
     void on_continueButton_clicked();
+    void on_updatesCheckBox_stateChanged(int state);
 
 private:
     Ui::WelcomeDialog *ui;
