@@ -97,7 +97,6 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
                                  "internet connection and try again."));
     });
     waitDialog.exec();
-    disconnect(&versionChecker, 0, 0, 0);
 }
 
 void AboutDialog::serveVersionCheckReply(const QString& version, const QString& error)
