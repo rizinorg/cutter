@@ -1,6 +1,7 @@
 #ifndef VERSIONCHECKER_H
 #define VERSIONCHECKER_H
 
+#include <QTimer>
 #include <QObject>
 #include <functional>
 
@@ -18,12 +19,12 @@ public:
 signals:
     void checkComplete(const QString& verson, const QString& errorMsg);
 
-
 private slots:
     void serveVersionCheckReply(QNetworkReply *reply);
 
 private:
     QNetworkAccessManager* nm;
+    QTimer t;
     bool pending;
 
 };

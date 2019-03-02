@@ -18,7 +18,7 @@ void VersionChecker::checkCurrentVersion(time_t timeoutMs, std::function<void (v
     QNetworkRequest request;
     request.setUrl(url);
 
-    QTimer::singleShot(timeoutMs, [this, timeoutCallback]() {
+    connect(&t, &QTimer::timeout, [timeoutCallback, this]() {
         if (pending) {
             disconnect(nm, &QNetworkAccessManager::finished, this, &VersionChecker::serveVersionCheckReply);
             if (timeoutCallback) {
@@ -26,6 +26,9 @@ void VersionChecker::checkCurrentVersion(time_t timeoutMs, std::function<void (v
             }
         }
     });
+    t.setInterval(timeoutMs);
+    t.setSingleShot(true);
+    t.start();
 
     connect(nm, &QNetworkAccessManager::finished, this, &VersionChecker::serveVersionCheckReply);
 
