@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
                            + "<a href=\"https://github.com/radareorg/cutter/releases\">"
                            + "https://github.com/radareorg/cutter/releases</a>");
                 mb.setStandardButtons(QMessageBox::Ok | QMessageBox::No);
-                mb.button(QMessageBox::No)->setText(QObject::tr("Do not reminde it again."));
+                mb.button(QMessageBox::No)->setText(QObject::tr("Don't check for updates."));
                 mb.setDefaultButton(QMessageBox::Ok);
                 int ret = mb.exec();
                 if (ret == QMessageBox::No) {
