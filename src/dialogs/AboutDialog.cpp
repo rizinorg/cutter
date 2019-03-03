@@ -96,7 +96,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
             QMessageBox::critical(nullptr, tr("Error!"), error);
         } else {
             QString text = (version == CUTTER_VERSION_FULL)
-                           ? tr("You have latest version and no need to update!")
+                           ? tr("Cutter is up to date!")
                            : "<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
                            + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
                            + tr("For update, please check the link:")
