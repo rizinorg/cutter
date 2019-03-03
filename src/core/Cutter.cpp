@@ -2317,17 +2317,8 @@ QString CutterCore::addTypes(const char *str)
 
 bool CutterCore::isAddressMapped(RVA addr)
 {
-    QJsonArray mappedRegions = cmdj("omj").array();
-    for (const QJsonValue value: mappedRegions) {
-        QJsonObject region = value.toObject();
-        RVA from = region[RJsonKey::from].toVariant().toULongLong();
-        RVA to = region[RJsonKey::to].toVariant().toULongLong();
-        if (addr >= from && addr <= to) {
-            return true;
-        }
-    }
-    // addr was not mapped to any region so return false
-    return false;
+    // If value returned by "om. @ addr" is empty means that address is not mapped
+    return !Core()->cmd(QString("om. @ %1").arg(addr)).isEmpty();
 }
 
 QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
