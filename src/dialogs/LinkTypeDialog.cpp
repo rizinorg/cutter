@@ -50,7 +50,7 @@ void LinkTypeDialog::done(int r)
 {
     if (r == QDialog::Accepted) {
         QString address = ui->addressLineEdit->text();
-        if (Core()->math(address)) {
+        if (Core()->isAddressMapped(Core()->math(address))) {
             // Address is valid so link the type to the address
             QString type = ui->structureTypeComboBox->currentText();
             if (type == tr("(No Type)")) {
