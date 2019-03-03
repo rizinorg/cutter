@@ -22,7 +22,7 @@ public:
       \fn void VersionChecker::checkCurrentVersion(time_t timeoutMs)
 
       Sends request to determine current version of Cutter.
-      If there are no respond in \a timeoutMs milliseconds, emits
+      If there is no response in \a timeoutMs milliseconds, emits
       \fn VersionChecker::checkComplete(const QString& currVerson, const QString& errorMsg)
       with timeout error message.
 
@@ -36,8 +36,8 @@ signals:
     /*!
       \fn VersionChecker::checkComplete(const QString& verson, const QString& errorMsg)
 
-      The signal is emited when check has been done with empty \a errorMsg string.
-      In case of error \a currVerson is empty and \a errorMsg contains description
+      The signal is emitted when check has been done with an empty \a errorMsg string.
+      In case of an error \a currVerson is empty and \a errorMsg contains description
       of error.
 
     */
