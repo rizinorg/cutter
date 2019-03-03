@@ -71,7 +71,7 @@ void LinkTypeDialog::done(int r)
         }
 
         // Address is invalid so display error message
-        QMessageBox::warning(this, tr("Error"), tr("The given address is not valid"));
+        QMessageBox::warning(this, tr("Error"), tr("The given address is invalid"));
     } else {
         QDialog::done(r);
     }
@@ -98,7 +98,7 @@ QString LinkTypeDialog::findLinkedType(RVA address)
 void LinkTypeDialog::on_exprLineEdit_textChanged(const QString &text)
 {
     RVA addr = Core()->math(text);
-    if (addr) {
+    if (Core()->isAddressMapped(addr)) {
         ui->addressLineEdit->setText("0x" + QString::number(addr, 16));
     } else {
         ui->addressLineEdit->setText(tr("Invalid Address"));

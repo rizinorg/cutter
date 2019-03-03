@@ -2315,6 +2315,21 @@ QString CutterCore::addTypes(const char *str)
     return QString();
 }
 
+bool CutterCore::isAddressMapped(RVA addr)
+{
+    QJsonArray mappedRegions = cmdj("omj").array();
+    for (const QJsonValue value: mappedRegions) {
+        QJsonObject region = value.toObject();
+        RVA from = region[RJsonKey::from].toVariant().toULongLong();
+        RVA to = region[RJsonKey::to].toVariant().toULongLong();
+        if (addr >= from && addr <= to) {
+            return true;
+        }
+    }
+    // addr was not mapped to any region so return false
+    return false;
+}
+
 QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
 {
     CORE_LOCK();

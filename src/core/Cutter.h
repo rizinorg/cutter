@@ -333,6 +333,13 @@ public:
     QString addTypes(const char *str);
     QString addTypes(const QString &str) { return addTypes(str.toUtf8().constData()); }
 
+    /*!
+     * \brief Checks if the given address is mapped to a region
+     * \param addr The address to be checked
+     * \return true if addr is mapped, false otherwise
+     */
+    bool isAddressMapped(RVA addr);
+
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
     BlockStatistics getBlockStatistics(unsigned int blocksCount);
