@@ -10,7 +10,7 @@
 #include <QtNetwork/QNetworkRequest>
 
 VersionChecker::VersionChecker(QObject *parent) :
-    QObject(parent), nm(QApplication::instance()), pending(false)
+    QObject(parent), pending(false)
 {
     connect(&nm, &QNetworkAccessManager::finished, this, &VersionChecker::serveVersionCheckReply);
     connect(&t, &QTimer::timeout, [this]() {
