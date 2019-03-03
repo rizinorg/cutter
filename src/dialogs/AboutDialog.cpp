@@ -31,24 +31,24 @@ AboutDialog::AboutDialog(QWidget *parent) :
                         + tr("Using r2-") + R2_GITTAP
                         + "<p><b>" + tr("Optional Features:") + "</b><br/>"
                         + QString("Jupyter: %1<br/>").arg(
-                        #ifdef CUTTER_ENABLE_JUPYTER
+#ifdef CUTTER_ENABLE_JUPYTER
                             "ON"
-                        #else
+#else
                             "OFF"
-                        #endif
-                            )
+#endif
+                        )
                         + QString("QtWebEngine: %2</p>").arg(
-                        #ifdef CUTTER_ENABLE_QTWEBENGINE
+#ifdef CUTTER_ENABLE_QTWEBENGINE
                             "ON"
-                        #else
+#else
                             "OFF"
-                        #endif
-                            )
+#endif
+                        )
                         + "<h2>" + tr("License") + "</h2>"
                         + tr("This Software is released under the GNU General Public License v3.0")
                         + "<h2>" + tr("Authors") + "</h2>"
-                                                   "xarkes, thestr4ng3r, ballessay<br/>"
-                                                   "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
+                        "xarkes, thestr4ng3r, ballessay<br/>"
+                        "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
     ui->label->setText(aboutString);
 
     QSignalBlocker s(ui->updatesCheckBox);
@@ -91,17 +91,17 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 
     connect(&versionChecker, &VersionChecker::checkComplete, &waitDialog, &QProgressDialog::cancel);
     connect(&versionChecker, &VersionChecker::checkComplete,
-            [](const QString & version, const QString & error) {
+    [](const QString & version, const QString & error) {
         if (error != "") {
             QMessageBox::critical(nullptr, tr("Error!"), error);
         } else {
             QString text = (version == CUTTER_VERSION_FULL)
                            ? tr("You have latest version and no need to update!")
                            : "<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
-                             + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
-                             + tr("For update, please check the link:")
-                             + "<a href=\"https://github.com/radareorg/cutter/releases\">"
-                             + "https://github.com/radareorg/cutter/releases</a>";
+                           + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
+                           + tr("For update, please check the link:")
+                           + "<a href=\"https://github.com/radareorg/cutter/releases\">"
+                           + "https://github.com/radareorg/cutter/releases</a>";
 
             QMessageBox::information(nullptr, tr("Version control"), text);
         }
