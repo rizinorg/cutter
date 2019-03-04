@@ -27,7 +27,6 @@ dist: xenial
 
 addons:
   homebrew:
-    update: true
     brewfile: scripts/Brewfile
 
 install:
