@@ -35,7 +35,7 @@ install:
   - source cutter-deps/env.sh
   - python3 -m pip install -r scripts/pip_requirements.txt
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH" &&
+      export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
     ; fi
 
 before_script:
