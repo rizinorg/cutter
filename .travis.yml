@@ -31,13 +31,11 @@ addons:
     brewfile: scripts/Brewfile
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
+  - scripts/fetch_deps.sh
+  - source cutter-deps/env.sh
+  - python3 -m pip install -r scripts/pip_requirements.txt
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      scripts/fetch_deps.sh && 
-      source cutter-deps/env.sh &&
       export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH" &&
-      python3 -m pip install -r scripts/pip_requirements.txt
     ; fi
 
 before_script:
@@ -71,7 +69,7 @@ script:
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_BUNDLE_R2_APPBUNDLE=true PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
+            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_BUNDLE_R2_APPBUNDLE=true PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
             cmake -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF -DCUTTER_ENABLE_JUPYTER=ON -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src && make -j4;
