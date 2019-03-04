@@ -46,6 +46,7 @@ void VersionChecker::serveVersionCheckReply(QNetworkReply *reply)
         currVersion = QJsonDocument::fromJson(reply->readAll()).object().value("tag_name").toString();
         currVersion.remove('v');
     }
-    delete reply;
+    reply->close();
+    reply->deleteLater();
     emit checkComplete(currVersion, errStr);
 }
