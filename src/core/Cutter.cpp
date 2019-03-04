@@ -2315,6 +2315,12 @@ QString CutterCore::addTypes(const char *str)
     return QString();
 }
 
+bool CutterCore::isAddressMapped(RVA addr)
+{
+    // If value returned by "om. @ addr" is empty means that address is not mapped
+    return !Core()->cmd(QString("om. @ %1").arg(addr)).isEmpty();
+}
+
 QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
 {
     CORE_LOCK();

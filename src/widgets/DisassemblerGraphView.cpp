@@ -859,6 +859,9 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 
     mMenu->setOffset(addr);
     mMenu->setCanCopy(highlight_token);
+    if (highlight_token) {
+        mMenu->setCurHighlightedWord(highlight_token->content);
+    }
     if (event->button() == Qt::RightButton) {
         mMenu->exec(event->globalPos());
     }

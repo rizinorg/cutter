@@ -335,6 +335,7 @@ void DisassemblyWidget::highlightCurrentLine()
     QTextCursor cursor = mDisasTextEdit->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
     QString searchString = cursor.selectedText();
+    curHighlightedWord = searchString;
 
     cursor.movePosition(QTextCursor::StartOfLine);
     int listStartPos = cursor.position();
@@ -517,6 +518,13 @@ void DisassemblyWidget::cursorPositionChanged()
     seekFromCursor = false;
     highlightCurrentLine();
     mCtxMenu->setCanCopy(mDisasTextEdit->textCursor().hasSelection());
+    if (mDisasTextEdit->textCursor().hasSelection()) {
+        // A word is selected so use it
+        mCtxMenu->setCurHighlightedWord(mDisasTextEdit->textCursor().selectedText());
+    } else {
+        // No word is selected so use the word under the cursor
+        mCtxMenu->setCurHighlightedWord(curHighlightedWord);
+    }
 }
 
 void DisassemblyWidget::moveCursorRelative(bool up, bool page)

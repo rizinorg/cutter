@@ -53,6 +53,8 @@ private:
     RVA bottomOffset;
     int maxLines;
 
+    QString curHighlightedWord;
+
     /*!
      * offset of lines below the first line of the current seek
      */

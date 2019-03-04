@@ -302,7 +302,8 @@ SOURCES += \
     widgets/SdbWidget.cpp \
     common/PythonManager.cpp \
     plugins/PluginManager.cpp \
-    common/BasicBlockHighlighter.cpp
+    common/BasicBlockHighlighter.cpp \
+    dialogs/LinkTypeDialog.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -418,7 +419,8 @@ HEADERS  += \
     widgets/SdbWidget.h \
     common/PythonManager.h \
     plugins/PluginManager.h \
-    common/BasicBlockHighlighter.h
+    common/BasicBlockHighlighter.h \
+    dialogs/LinkTypeDialog.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -479,7 +481,8 @@ FORMS    += \
     dialogs/WelcomeDialog.ui \
     dialogs/EditMethodDialog.ui \
     dialogs/LoadNewTypesDialog.ui \
-    widgets/SdbWidget.ui
+    widgets/SdbWidget.ui \
+    dialogs/LinkTypeDialog.ui
 
 RESOURCES += \
     resources.qrc \
