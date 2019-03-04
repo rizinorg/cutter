@@ -36,7 +36,7 @@ for platform in platforms:
 		print(f"Failed to download {platform_url}, skipping.")
 		continue
 
-	md5sum = re.fullmatch("([a-zA-Z0-9]+)( -)?\n?", md5sum).group(1)
+	md5sum = re.fullmatch("([a-zA-Z0-9]+)( +-)?\n?", md5sum).group(1)
 
 	print(f"MD5: {md5sum}")
 	fetch_deps = re.sub(f"^{platform.upper()}_URL=.*$", f"{platform.upper()}_URL={platform_url}".replace("\\", r"\\"), fetch_deps, flags=re.MULTILINE)
