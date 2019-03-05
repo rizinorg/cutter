@@ -50,7 +50,6 @@ before_build:
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget https://storage.googleapis.com/chrome-infra/depot_tools.zip -OutFile depot_tools.zip "
   - cmd: 7z -bd x %CD%\depot_tools.zip -odepot_tools
   - cmd: depot_tools\update_depot_tools
-  - cmd: ECHO KEK
   - cmd: set "BUFF_PATH=%PATH%"
   - cmd: set "PATH=%CD%\depot_tools;%PATH%"
   - cmd: mkdir %CD%\breakpad
@@ -59,9 +58,9 @@ before_build:
   - cmd: fetch breakpad
   - cmd: gclient sync
   - cmd: cd %CD%\src\src
-  - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\handler\exception_handler.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
-  - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\sender\crash_report_sender.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
-  - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\crash_generation\crash_generation.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
+  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\handler\exception_handler.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
+  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\sender\crash_report_sender.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
+  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\crash_generation\crash_generation.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
   - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_client.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_server.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\handler\exception_handler.vcxproj /p:Configuration=release 
