@@ -43,6 +43,17 @@ public:
     */
     void download(QDir downloadDir, QString version);
 
+    /*!
+      \fn void UpdateWorker::showUpdateDialog()
+
+      Shows dialog that allows user to either download latest version of Cutter from website
+      or download it by clicking on a button. This dialog also has "Don't check for updates"
+      button which disables on-start update checks if \a showDontCheckForUpdatesButton is true.
+
+      \sa downloadProcess(size_t bytesReceived, size_t bytesTotal)
+    */
+    void showUpdateDialog(bool showDontCheckForUpdatesButton);
+
 public slots:
     /*!
       \fn void UpdateWorker::abortDownload()
@@ -84,6 +95,7 @@ signals:
     */
     void downloadFinished(QString filename);
 
+    void downloadError(QString errorStr);
 
 private slots:
     void serveVersionCheckReply();
@@ -94,10 +106,12 @@ private slots:
 
 private:
     QNetworkAccessManager nm;
+    QString latestVersion;
     QTimer t;
     bool pending;
     QFile downloadFile;
     QNetworkReply *downloadReply;
+    QNetworkReply *checkReply;
 };
 
 #endif // UPDATEWORKER_H

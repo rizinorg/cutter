@@ -80,7 +80,7 @@ void AboutDialog::on_showPluginsButton_clicked()
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
-    UpdateWorker versionChecker;
+    UpdateWorker updateWorker;
 
     QProgressDialog waitDialog;
     QProgressBar *bar = new QProgressBar(&waitDialog);
@@ -89,25 +89,21 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.setBar(bar);
     waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
-    connect(&versionChecker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
-    connect(&versionChecker, &UpdateWorker::checkComplete,
-    [](const QString & version, const QString & error) {
+    connect(&updateWorker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
+    connect(&updateWorker, &UpdateWorker::checkComplete,
+    [&updateWorker](const QString & version, const QString & error) {
         if (error != "") {
             QMessageBox::critical(nullptr, tr("Error!"), error);
         } else {
-            QString text = (version == CUTTER_VERSION_FULL)
-                           ? tr("Cutter is up to date!")
-                           : "<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
-                           + "<b>" + tr("Latest version:") + "</b> " + version + "<br/><br/>"
-                           + tr("For update, please check the link:")
-                           + "<a href=\"https://github.com/radareorg/cutter/releases\">"
-                           + "https://github.com/radareorg/cutter/releases</a>";
-
-            QMessageBox::information(nullptr, tr("Version control"), text);
+            if (version != CUTTER_VERSION_FULL) {
+                QMessageBox::information(nullptr, tr("Version control"), tr("Cutter is up to date!"));
+            } else {
+                updateWorker.showUpdateDialog(false);
+            }
         }
     });
 
-    versionChecker.checkCurrentVersion(7000);
+    updateWorker.checkCurrentVersion(7000);
     waitDialog.exec();
 }
 
