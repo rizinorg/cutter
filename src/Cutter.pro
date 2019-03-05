@@ -180,7 +180,13 @@ CUTTER_ENABLE_PYTHON {
         GENERATED_SOURCES += $${BINDINGS_SOURCE}
         INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
         PRE_TARGETDEPS += bindings_target
-        PKGCONFIG += shiboken2 pyside2
+        macx {
+            # Hack needed because with regular PKGCONFIG qmake will mess up everything
+            QMAKE_CXXFLAGS += $$system("pkg-config --cflags shiboken2 pyside2")
+            LIBS += $$system("pkg-config --libs shiboken2 pyside2")
+        } else {
+            PKGCONFIG += shiboken2 pyside2
+        }
         INCLUDEPATH += "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
     }
 }
