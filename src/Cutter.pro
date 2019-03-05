@@ -210,7 +210,7 @@ CUTTER_ENABLE_CRASH_REPORTS {
             INCLUDEPATH += $$BREAKPAD_SOURCE_DIR
             win32 {
                 LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\handler\release\lib -lexception_handler
-                LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\crash_generation\release\lib -lcrash_generation_server -lcrash_generation_client -lcommon
+                LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\crash_generation\release\lib -lcrash_generation_server -lcrash_generation_client
                 LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\sender\release\lib -lcrash_report_sender
             }
             unix:LIBS += -L$$BREAKPAD_SOURCE_DIR\client\linux -lbreakpad-client
