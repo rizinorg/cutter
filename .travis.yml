@@ -112,7 +112,7 @@ after_success:
       cp ../src/translations/*.qm Cutter.app/Contents/Resources/translations/ &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
-      "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
+      "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
       mkdir -p Cutter.app/Contents/Resources/r2/share &&
       cp -a /usr/local/share/radare2 Cutter.app/Contents/Resources/r2/share/ &&
       mkdir image && cp -a Cutter.app image/ &&
