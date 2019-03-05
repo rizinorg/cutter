@@ -95,7 +95,7 @@ script:
             cmake
                 -DCMAKE_BUILD_TYPE=Release
                 -DCUTTER_ENABLE_PYTHON=ON
-                -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_JUPYTER=ON
                 -DCUTTER_ENABLE_QTWEBENGINE=OFF
                 ../src &&
