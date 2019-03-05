@@ -50,7 +50,7 @@ void UpdateWorker::download(QDir downloadDir, QString version)
 #endif
     downloadFileName = downloadFileName
                        .arg(version)
-                       .arg(QSysInfo::currentCpuArchitecture().contains("64")
+                       .arg(QSysInfo::buildAbi().split('-').at(2).contains("64")
                             ? "64"
                             : "32");
 
