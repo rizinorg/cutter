@@ -118,6 +118,10 @@ unix {
 # Libraries
 include(lib_radare2.pri)
 
+!win32 {
+    CONFIG += link_pkgconfig
+}
+
 CUTTER_ENABLE_PYTHON {
     win32 {
         PYTHON_EXECUTABLE = $$quote($$system("where python"))
@@ -135,7 +139,6 @@ CUTTER_ENABLE_PYTHON {
             LIBS += -F$$PYTHON_FRAMEWORK_DIR -framework Python
             DEFINES += MACOS_PYTHON_FRAMEWORK_BUNDLED
         } else {
-            CONFIG += link_pkgconfig
             !packagesExist(python3) {
                 error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
             }
