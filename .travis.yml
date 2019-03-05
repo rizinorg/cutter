@@ -8,6 +8,7 @@ branches:
   - debug
   - /^v\d.*$/
   - deploy-test
+  - deps-test
 
 matrix:
   include:
