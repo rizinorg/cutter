@@ -9,8 +9,9 @@
 class QNetworkReply;
 
 /*!
-    \class VersionChecker
-    \brief The VersionChecker class is a class providing API to check for current Cutter version.
+    \class UpdateWorker
+    \brief The UpdateWorker class is a class providing API to check for current Cutter version
+           and download specific version of one.
 */
 
 class UpdateWorker : public QObject
@@ -43,6 +44,15 @@ public:
     void download(QDir downloadDir, QString version);
 
 public slots:
+    /*!
+      \fn void UpdateWorker::abortDownload()
+
+      \brief Stops current process of downloading.
+
+      \note UpdateWorker::downloadFinished(QString filename) is not send after this function.
+
+      \sa download(QDir downloadDir, QString version)
+    */
     void abortDownload();
 
 signals:
@@ -65,6 +75,13 @@ signals:
     */
     void downloadProcess(size_t bytesReceived, size_t bytesTotal);
 
+
+    /*!
+      \fn UpdateWorker::downloadFinished(QString filename)
+
+      \brief The signal is emitted as soon as downloading completes.
+
+    */
     void downloadFinished(QString filename);
 
 
