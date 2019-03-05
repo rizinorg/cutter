@@ -82,7 +82,7 @@ script:
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake
+            qmake -d
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
                 CUTTER_ENABLE_JUPYTER=true
