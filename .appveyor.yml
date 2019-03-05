@@ -67,6 +67,7 @@ before_build:
   - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_server.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\handler\exception_handler.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\sender\crash_report_sender.vcxproj /p:Configuration=release
+  - cmd: cd %DAT_DIR%
   
 
 # Build config
