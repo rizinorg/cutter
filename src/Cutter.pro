@@ -304,7 +304,7 @@ SOURCES += \
     plugins/PluginManager.cpp \
     common/BasicBlockHighlighter.cpp \
     dialogs/LinkTypeDialog.cpp
-    common/VersionChecker.cpp
+    common/UpdateWorker.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -421,8 +421,8 @@ HEADERS  += \
     common/PythonManager.h \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
+    common/UpdateWorker.h
     dialogs/LinkTypeDialog.h
-    common/VersionChecker.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

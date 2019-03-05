@@ -12,7 +12,7 @@
 #include <QJsonObject>
 #include <QProgressBar>
 #include <QProgressDialog>
-#include <VersionChecker.h>
+#include <UpdateWorker.h>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkAccessManager>
 
@@ -80,7 +80,7 @@ void AboutDialog::on_showPluginsButton_clicked()
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
-    VersionChecker versionChecker;
+    UpdateWorker versionChecker;
 
     QProgressDialog waitDialog;
     QProgressBar *bar = new QProgressBar(&waitDialog);
@@ -89,8 +89,8 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.setBar(bar);
     waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
-    connect(&versionChecker, &VersionChecker::checkComplete, &waitDialog, &QProgressDialog::cancel);
-    connect(&versionChecker, &VersionChecker::checkComplete,
+    connect(&versionChecker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
+    connect(&versionChecker, &UpdateWorker::checkComplete,
     [](const QString & version, const QString & error) {
         if (error != "") {
             QMessageBox::critical(nullptr, tr("Error!"), error);
