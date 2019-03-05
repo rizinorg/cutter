@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
                            + "<b>" + QObject::tr("Latest version:") + "</b> " + version + "<br/><br/>"
                            + QObject::tr("For update, please check the link:<br/>")
                            + QString("<a href=\"https://github.com/radareorg/cutter/releases/tag/v%1\">"
-                            "https://github.com/radareorg/cutter/releases/tag/v%1</a><br/>").arg(version)
+                                     "https://github.com/radareorg/cutter/releases/tag/v%1</a><br/>").arg(version)
                            + QObject::tr("or click \"Download\" to download latest version of Cutter."));
                 mb.setStandardButtons(QMessageBox::Ok |
                                       QMessageBox::No |
@@ -89,8 +89,10 @@ int main(int argc, char *argv[])
                                                                           "for downloading"),
                                                               QStandardPaths::writableLocation(
                                                                   QStandardPaths::HomeLocation));
-                    updateWorker->download(downloadDir, version);
-                    progressDial.exec();
+                    if (downloadDir.path() != ".") {
+                        updateWorker->download(downloadDir, version);
+                        progressDial.exec();
+                    }
                 } else {
                     updateWorker->deleteLater();
                     QObject::connect(updateWorker, &UpdateWorker::downloadFinished,
