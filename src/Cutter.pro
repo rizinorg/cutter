@@ -465,6 +465,7 @@ HEADERS  += \
     common/UpdateWorker.h \
     dialogs/LinkTypeDialog.h \
     widgets/MemoryDockWidget.h
+    common/CrashHandler.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
