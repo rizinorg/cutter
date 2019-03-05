@@ -60,9 +60,9 @@ before_build:
   - cmd: gclient sync
   - cmd: set "PATH=%BUFF_PATH%"
   - cmd: cd %CD%\src\src
-  - cmd: %CD%\tools\gyp\gyp.bat —no-circular-check %CD%\client\windows\handler\exception_handler.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
-  - cmd: %CD%\tools\gyp\gyp.bat —no-circular-check %CD%\client\windows\sender\crash_report_sender.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
-  - cmd: %CD%\tools\gyp\gyp.bat —no-circular-check %CD%\client\windows\crash_generation\crash_generation.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
+  - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\handler\exception_handler.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
+  - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\sender\crash_report_sender.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
+  - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\crash_generation\crash_generation.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
   - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_client.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_server.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\handler\exception_handler.vcxproj /p:Configuration=release 
