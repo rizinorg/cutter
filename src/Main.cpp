@@ -49,9 +49,9 @@ int main(int argc, char *argv[])
                 mb.setText("<b>" + QObject::tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
                            + "<b>" + QObject::tr("Latest version:") + "</b> " + version + "<br/><br/>"
                            + QObject::tr("For update, please check the link:<br/>")
-                           + "<a href=\"https://github.com/radareorg/cutter/releases\">"
-                           + "https://github.com/radareorg/cutter/releases</a><br/>"
-                           + QObject::tr("or click \"Download\" to download latest version of Cutter"));
+                           + QString("<a href=\"https://github.com/radareorg/cutter/releases/tag/v%1\">"
+                            "https://github.com/radareorg/cutter/releases/tag/v%1</a><br/>").arg(version)
+                           + QObject::tr("or click \"Download\" to download latest version of Cutter."));
                 mb.setStandardButtons(QMessageBox::Ok |
                                       QMessageBox::No |
                                       QMessageBox::Yes);

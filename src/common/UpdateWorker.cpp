@@ -42,15 +42,17 @@ void UpdateWorker::download(QDir downloadDir, QString version)
 
     QString downloadFileName;
 #ifdef Q_OS_LINUX
-    downloadFileName = "Cutter-v%1-x64.Linux.AppImage";
-#elif defined (Q_OS_WIN32) && !defined (Q_OS_WIN64)
-    downloadFileName = "Cutter-v%1-x32.Windows.zip";
-#elif defined (Q_OS_WIN64)
-    downloadFileName = "Cutter-v%1-x64.Windows.zip";
+    downloadFileName = "Cutter-v%1-x%2.Linux.AppImage";
+#elif defined (Q_OS_WIN64) || defined (Q_OS_WIN32)
+    downloadFileName = "Cutter-v%1-x%2.Windows.zip";
 #elif defined (Q_OS_MACOS)
-    downloadFileName = "Cutter-v%1-x64.macOS.dmg";
+    downloadFileName = "Cutter-v%1-x%2.macOS.dmg";
 #endif
-    downloadFileName = downloadFileName.arg(version);
+    downloadFileName = downloadFileName
+                       .arg(version)
+                       .arg(QSysInfo::currentCpuArchitecture().contains("64")
+                            ? "64"
+                            : "32");
 
     downloadFile.setFileName(downloadDir.filePath(downloadFileName));
     downloadFile.open(QIODevice::WriteOnly);
