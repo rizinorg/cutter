@@ -58,7 +58,6 @@ before_build:
   - cmd: cd %CD%\breakpad
   - cmd: fetch breakpad
   - cmd: gclient sync
-  - cmd: set "PATH=%BUFF_PATH%"
   - cmd: cd %CD%\src\src
   - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\handler\exception_handler.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
   - cmd: tools\gyp\gyp.bat —no-circular-check client\windows\sender\crash_report_sender.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
@@ -67,6 +66,7 @@ before_build:
   - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_server.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\handler\exception_handler.vcxproj /p:Configuration=release 
   - cmd: msbuild /m %CD%\client\windows\sender\crash_report_sender.vcxproj /p:Configuration=release
+  - cmd: set "PATH=%BUFF_PATH%"
   - cmd: cd %DAT_DIR%
   
 
