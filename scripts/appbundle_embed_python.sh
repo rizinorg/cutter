@@ -34,7 +34,7 @@ fi
 
 echo "PySide is at $pyside_prefix"
 
-cp -var "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version" || exit 1
+cp -va "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version" || exit 1
 cd .. # $appbundle/Contents/Frameworks
 cp -va "$pyside_prefix/lib/"*.dylib . || exit 1
 
