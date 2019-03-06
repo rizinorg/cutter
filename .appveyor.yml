@@ -58,14 +58,9 @@ before_build:
   - cmd: fetch breakpad
   - cmd: gclient sync
   - cmd: cd %CD%\src\src
-  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\handler\exception_handler.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
-  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\sender\crash_report_sender.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
-  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\crash_generation\crash_generation.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2 
-  - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_client.vcxproj /p:Configuration=release 
-  - cmd: msbuild /m %CD%\client\windows\crash_generation\crash_generation_server.vcxproj /p:Configuration=release 
-  - cmd: msbuild /m %CD%\client\windows\handler\exception_handler.vcxproj /p:Configuration=release 
-  - cmd: msbuild /m %CD%\client\windows\sender\crash_report_sender.vcxproj /p:Configuration=release
+  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=x64 -Dconfiguration=Release
   - cmd: set "PATH=%BUFF_PATH%"
+  - cmd: msbuild /m %CD%\client\windows\build_all.vcxproj /p:Configuration=release /p:Platform=x64
   - cmd: cd %DAT_DIR%
   
 

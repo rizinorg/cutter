@@ -209,9 +209,7 @@ CUTTER_ENABLE_CRASH_REPORTS {
             message(BREAKPAD_SOURCE_DIR=$$BREAKPAD_SOURCE_DIR)
             INCLUDEPATH += $$BREAKPAD_SOURCE_DIR
             win32 {
-                LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\handler\release\lib -lexception_handler
-                LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\crash_generation\release\lib -lcrash_generation_server -lcrash_generation_client
-                LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\sender\release\lib -lcrash_report_sender
+                LIBS += -L$$BREAKPAD_SOURCE_DIR\client\windows\Release\lib -lexception_handler -lcrash_report_sender -lcrash_generation_server -lcrash_generation_client -lcommon
             }
             unix:LIBS += -L$$BREAKPAD_SOURCE_DIR\client\linux -lbreakpad-client
             macos:error("Please use scripts\prepare_breakpad_macos.sh script to provide breakpad framework.")
