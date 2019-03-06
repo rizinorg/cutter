@@ -34,9 +34,6 @@ fi
 
 echo "PySide is at $pyside_prefix"
 
-if [ "$pyside_prefix" == "$python_prefix" ]; then
-	echo "Prefixes are equal, not copying anything from lib"
-else
-	cp -r "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version" || exit 1
-fi
+cp -r "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version" || exit 1
+cp "$pyside_prefix/lib/"*.dylib "Versions/Current/lib" || exit 1
 
