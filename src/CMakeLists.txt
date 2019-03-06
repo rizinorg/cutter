@@ -109,26 +109,26 @@ or, if you don't want to build with Python at all, use -DCUTTER_ENABLE_PYTHON=OF
         endif()
 
         if(NOT SHIBOKEN_BINARY)
-			# Newer Versions of Shiboken2 export targets
+            # Newer Versions of Shiboken2 export targets
             set(SHIBOKEN_BINARY Shiboken2::shiboken2)
             set(SHIBOKEN_LIBRARY Shiboken2::libshiboken)
         else()
-	        include_directories(${SHIBOKEN_INCLUDE_DIR})
-		endif()
+            include_directories(${SHIBOKEN_INCLUDE_DIR})
+        endif()
 
-		if(NOT PYSIDE_LIBRARY)
-			# Newer Versions of PySide2 export targets
-			set(PYSIDE_LIBRARY PySide2::pyside2)
-			get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
-			list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
-		endif()
+        if(NOT PYSIDE_LIBRARY)
+            # Newer Versions of PySide2 export targets
+            set(PYSIDE_LIBRARY PySide2::pyside2)
+            get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
+            list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
+        endif()
 
-		if(PYSIDE_INCLUDE_DIR)
-		    include_directories(${PYSIDE_INCLUDE_DIR}
-				${PYSIDE_INCLUDE_DIR}/QtCore
-				${PYSIDE_INCLUDE_DIR}/QtGui
-				${PYSIDE_INCLUDE_DIR}/QtWidgets)
-		endif()
+        if(PYSIDE_INCLUDE_DIR)
+            include_directories(${PYSIDE_INCLUDE_DIR}
+                ${PYSIDE_INCLUDE_DIR}/QtCore
+                ${PYSIDE_INCLUDE_DIR}/QtGui
+                ${PYSIDE_INCLUDE_DIR}/QtWidgets)
+        endif()
 
         add_definitions(-DCUTTER_ENABLE_PYTHON_BINDINGS)
     endif()
@@ -191,7 +191,14 @@ if(CUTTER_ENABLE_PYTHON)
         target_link_libraries(Cutter ${SHIBOKEN_LIBRARY} ${PYSIDE_LIBRARY})
 
         get_target_property(BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
-        list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS} "${CMAKE_CURRENT_SOURCE_DIR}")
+        if(APPLE AND _qt5Core_install_prefix)
+            list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include")
+            list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtCore")
+            list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtGui")
+            list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtWidgets")
+        endif()
+        list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+        list(APPEND BINDINGS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
         string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
 
         qmake_configure_file("${BINDINGS_SRC_DIR}/bindings.txt.in" "${BINDINGS_BUILD_DIR}/bindings.txt")
@@ -201,3 +208,9 @@ endif()
 if(CUTTER_ENABLE_PYTHON AND CUTTER_ENABLE_JUPYTER AND CUTTER_ENABLE_QTWEBENGINE)
     target_link_libraries(Cutter Qt5::WebEngineWidgets)
 endif()
+
+get_cmake_property(_variableNames VARIABLES)
+list (SORT _variableNames)
+foreach (_variableName ${_variableNames})
+    message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
