@@ -58,7 +58,7 @@ before_build:
   - cmd: fetch breakpad
   - cmd: gclient sync
   - cmd: cd %DAT_DIR%
-  - cmd: COPY %CD%\scripts\breakpad.gyp %CD%\breakpad\src\src
+  - cmd: COPY %CD%\scripts\breakpad.gyp %CD%\breakpad\src\src\client\windows\breakpad.gyp
   - cmd: cd %CD%\breakpad\src\src
   - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\breakpad.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=x64 -Dconfiguration=Release
   - cmd: set "PATH=%BUFF_PATH%"
