@@ -415,11 +415,11 @@ bool CutterCore::tryFile(QString path, bool rw)
     return true;
 }
 
-/*!
- * \brief Opens a file using r2 API
- * \param path Path to file
- * \param mapaddr Map Address
- * \return bool
+/**
+ * @brief Opens a file using r2 API
+ * @param path Path to file
+ * @param mapaddr Map Address
+ * @return bool
  */
 bool CutterCore::openFile(QString path, RVA mapaddr)
 {

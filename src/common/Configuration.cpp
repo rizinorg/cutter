@@ -16,8 +16,8 @@ const QList<CutterQtTheme> kCutterQtThemesList = {
 
 Configuration *Configuration::mPtr = nullptr;
 
-/*!
- * \brief All asm.* options saved as settings. Values are the default values.
+/**
+ * @brief All asm.* options saved as settings. Values are the default values.
  */
 static const QHash<QString, QVariant> asmOptions = {
     { "asm.esil",           false },
@@ -136,28 +136,28 @@ void Configuration::resetAll()
     emit fontsUpdated();
 }
 
-/*!
- * \brief get the current Locale set in Cutter's user configuration
- * \return a QLocale object describes user's current locale
+/**
+ * @brief get the current Locale set in Cutter's user configuration
+ * @return a QLocale object describes user's current locale
  */
 QLocale Configuration::getCurrLocale() const
 {
     return s.value("locale", QLocale().system()).toLocale();
 }
 
-/*!
- * \brief sets Cutter's locale
- * \param l - a QLocale object describes the locate to configure
+/**
+ * @brief sets Cutter's locale
+ * @param l - a QLocale object describes the locate to configure
  */
 void Configuration::setLocale(const QLocale &l)
 {
     s.setValue("locale", l);
 }
 
-/*!
- * \brief set Cutter's interface language by a given locale name
- * \param language - a string represents the name of a locale language
- * \return true on success
+/**
+ * @brief set Cutter's interface language by a given locale name
+ * @param language - a string represents the name of a locale language
+ * @return true on success
  */
 bool Configuration::setLocaleByName(const QString &language)
 {
@@ -353,10 +353,10 @@ QString Configuration::getLogoFile()
            : QString(":/img/cutter_plain.svg");
 }
 
-/*!
- * \brief Configuration::setColor sets the local Cutter configuration color
- * \param name Color Name
- * \param color The color you want to set
+/**
+ * @brief Configuration::setColor sets the local Cutter configuration color
+ * @param name Color Name
+ * @param color The color you want to set
  */
 void Configuration::setColor(const QString &name, const QColor &color)
 {
@@ -471,9 +471,9 @@ void Configuration::setConfig(const QString &key, const QVariant &value)
     Core()->setConfig(key, value);
 }
 
-/*!
- * \brief this function will gather and return available translation for Cutter
- * \return a list of all available translations
+/**
+ * @brief this function will gather and return available translation for Cutter
+ * @return a list of all available translations
  */
 QStringList Configuration::getAvailableTranslations()
 {
@@ -514,9 +514,9 @@ QStringList Configuration::getAvailableTranslations()
     return languages << QLatin1String("English");
 }
 
-/*!
- * \brief check if this is the first time Cutter's is executed on this computer
- * \return true if this is first execution; otherwise returns false.
+/**
+ * @brief check if this is the first time Cutter's is executed on this computer
+ * @return true if this is first execution; otherwise returns false.
  */
 bool Configuration::isFirstExecution()
 {

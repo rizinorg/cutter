@@ -55,7 +55,7 @@ private:
 
     QString curHighlightedWord;
 
-    /*!
+    /**
      * offset of lines below the first line of the current seek
      */
     int cursorLineOffset;

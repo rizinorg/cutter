@@ -11,8 +11,8 @@ BasicBlockHighlighter::~BasicBlockHighlighter()
     }
 }
 
-/*!
- * \brief Highlight the basic block at address
+/**
+ * @brief Highlight the basic block at address
  */
 void BasicBlockHighlighter::highlight(RVA address, const QColor &color)
 {
@@ -22,16 +22,16 @@ void BasicBlockHighlighter::highlight(RVA address, const QColor &color)
     bbMap[address] = block;
 }
 
-/*!
- * \brief Clear the basic block highlighting
+/**
+ * @brief Clear the basic block highlighting
  */
 void BasicBlockHighlighter::clear(RVA address)
 {
     bbMap.erase(address);
 }
 
-/*!
- * \brief Return a highlighted basic block
+/**
+ * @brief Return a highlighted basic block
  *
  * If there is nothing to highlight at specified address, returns nullptr
  */

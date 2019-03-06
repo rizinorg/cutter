@@ -63,7 +63,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-    /*!
+    /**
      * @return true if the index changed
      */
     bool updateCurrentIndex();
@@ -138,9 +138,5 @@ private:
 
     void setScrollMode();
 };
-
-
-
-
 
 #endif // FUNCTIONSWIDGET_H

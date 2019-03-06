@@ -20,9 +20,9 @@ public slots:
     void setOffset(RVA offset);
     void setCanCopy(bool enabled);
 
-    /*!
-     * \brief Sets the value of curHighlightedWord
-     * \param text The current highlighted word
+    /**
+     * @brief Sets the value of curHighlightedWord
+     * @param text The current highlighted word
      */
     void setCurHighlightedWord(const QString &text);
 
@@ -61,16 +61,16 @@ private slots:
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
-    /*!
-     * \brief Executed on selecting an offset from the structureOffsetMenu
+    /**
+     * @brief Executed on selecting an offset from the structureOffsetMenu
      * Uses the applyStructureOffset() function of CutterCore to apply the
      * structure offset
      * \param action The action which trigered the event
      */
     void on_actionStructureOffsetMenu_triggered(QAction *action);
 
-    /*!
-     * \brief Executed on selecting the "Link Type to Address" option
+    /**
+     * @brief Executed on selecting the "Link Type to Address" option
      * Opens the LinkTypeDialog box from where the user can link the address
      * to a type
      */
@@ -91,8 +91,8 @@ private:
     QKeySequence getDisplayOptionsSequence() const;
     QList<QKeySequence> getAddBPSequence() const;
 
-    /*!
-     * \return the shortcut key for "Link Type to Address" option
+    /**
+     * @return the shortcut key for "Link Type to Address" option
      */
     QKeySequence getLinkTypeSequence() const;
 

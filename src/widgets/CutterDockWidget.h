@@ -17,9 +17,9 @@ public:
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isVisibleToUser()      { return isVisibleToUserCurrent; }
 
-    /*!
-     * \brief Convenience method for creating and registering a RefreshDeferrer without any parameters
-     * \param refreshNowFunc lambda taking no parameters, called when a refresh should occur
+    /**
+     * @brief Convenience method for creating and registering a RefreshDeferrer without any parameters
+     * @param refreshNowFunc lambda taking no parameters, called when a refresh should occur
      */
     template<typename Func>
     RefreshDeferrer *createRefreshDeferrer(Func refreshNowFunc)
@@ -32,10 +32,10 @@ public:
         return deferrer;
     }
 
-    /*!
-     * \brief Convenience method for creating and registering a RefreshDeferrer with a replacing Accumulator
-     * \param replaceIfNull passed to the ReplacingRefreshDeferrerAccumulator
-     * \param refreshNowFunc lambda taking a single parameter of type ParamResult, called when a refresh should occur
+    /**
+     * @brief Convenience method for creating and registering a RefreshDeferrer with a replacing Accumulator
+     * @param replaceIfNull passed to the ReplacingRefreshDeferrerAccumulator
+     * @param refreshNowFunc lambda taking a single parameter of type ParamResult, called when a refresh should occur
      */
     template<class ParamResult, typename Func>
     RefreshDeferrer *createReplacingRefreshDeferrer(bool replaceIfNull, Func refreshNowFunc)

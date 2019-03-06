@@ -2,8 +2,8 @@
 #include "CutterApplication.h"
 #include "core/MainWindow.h"
 
-/*!
- * \brief Migrate Settings used before Cutter 1.8
+/**
+ * @brief Migrate Settings used before Cutter 1.8
  */
 static void migrateSettings(QSettings &newSettings)
 {

@@ -17,13 +17,13 @@ public:
     PluginManager();
     ~PluginManager();
 
-    /*!
-     * \brief Load all plugins, should be called once on application start
+    /**
+     * @brief Load all plugins, should be called once on application start
      */
     void loadPlugins();
 
-    /*!
-     * \brief Destroy all loaded plugins, should be called once on application shutdown
+    /**
+     * @brief Destroy all loaded plugins, should be called once on application shutdown
      */
     void destroyPlugins();
 

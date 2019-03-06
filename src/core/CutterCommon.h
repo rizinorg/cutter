@@ -25,18 +25,18 @@
 // Global information for Cutter
 #define APPNAME "Cutter"
 
-/*!
- * \brief Type to be used for all kinds of addresses/offsets in r2 address space.
+/**
+ * @brief Type to be used for all kinds of addresses/offsets in r2 address space.
  */
 typedef ut64 RVA;
 
-/*!
- * \brief Maximum value of RVA. Do NOT use this for specifying invalid values, use RVA_INVALID instead.
+/**
+ * @brief Maximum value of RVA. Do NOT use this for specifying invalid values, use RVA_INVALID instead.
  */
 #define RVA_MAX UT64_MAX
 
-/*!
- * \brief Value for specifying an invalid RVA.
+/**
+ * @brief Value for specifying an invalid RVA.
  */
 #define RVA_INVALID RVA_MAX
 
