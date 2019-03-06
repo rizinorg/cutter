@@ -333,7 +333,7 @@ AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     heightDivisor = 1000;
     rectOffset = 100;
     rectWidth = 400;
-    indicatorColor = ConfigColor("gui.navbar.err");
+    indicatorColor = ConfigColor("gui.navbar.seekDebugActions.h");
     textColor = ConfigColor("gui.dataoffset");
 }
 
