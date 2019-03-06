@@ -16,7 +16,7 @@ public:
     OverviewView *graphView;
 
     /*
-     * \brief if user closed this widget explicitly
+     * @brief if user closed this widget explicitly
      */
     bool userClosed = false;
 private:
@@ -32,7 +32,7 @@ private slots:
      */
     void updateContents();
     /*
-     * \brief override closeEvent to emit graphClose
+     * @brief override closeEvent to emit graphClose
      */
     void closeEvent(QCloseEvent *event) override;
 
@@ -42,7 +42,7 @@ signals:
      */
     void resized();
     /*
-     * \brief emit signal to notify when this widget is closed
+     * @brief emit signal to notify when this widget is closed
      */
     void graphClose();
 };
