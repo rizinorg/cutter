@@ -4,7 +4,7 @@
     ],
     'targets': [
         {
-            'target_name': 'build_breakpad',
+            'target_name': 'build_all',
             'type': 'none',
             'dependencies': [
                 './crash_generation/crash_generation.gyp:*',
