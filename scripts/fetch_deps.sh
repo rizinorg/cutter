@@ -4,12 +4,12 @@ cd $(dirname "${BASH_SOURCE[0]}")/..
 mkdir -p cutter-deps && cd cutter-deps
 
 LINUX_FILE="cutter-deps-linux.tar.gz"
-LINUX_MD5=09df05714023fc44dae8baeeb141bb55
-LINUX_URL=https://github.com/radareorg/cutter-deps/releases/download/v3/cutter-deps-linux.tar.gz
+LINUX_MD5=aaaa0c3d517505e5b12430e0641bd9f2
+LINUX_URL=https://github.com/radareorg/cutter-deps/releases/download/v4/cutter-deps-linux.tar.gz
 
 MACOS_FILE="cutter-deps-macos.tar.gz"
-MACOS_MD5=df8dc332bed4cda056f50c61e27512b7
-MACOS_URL=https://github.com/radareorg/cutter-deps/releases/download/v3/cutter-deps-macos.tar.gz
+MACOS_MD5=ba74bd51c961471d4fe67c2b48a2bba5
+MACOS_URL=https://github.com/radareorg/cutter-deps/releases/download/v4/cutter-deps-macos.tar.gz
 
 UNAME_S="$(uname -s)"
 if [ "$UNAME_S" == "Linux" ]; then
