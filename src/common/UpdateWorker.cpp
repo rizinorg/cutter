@@ -103,7 +103,7 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
     int ret = mb.exec();
     if (ret == QMessageBox::No) {
         Config()->setAutoUpdateEnabled(false);
-    } else if (ret == QMessageBox::Save && showDontCheckForUpdatesButton) {
+    } else if (ret == QMessageBox::Save) {
         QDir downloadDir =
                 QFileDialog::getExistingDirectory(nullptr,
                                                   tr("Choose directory "
