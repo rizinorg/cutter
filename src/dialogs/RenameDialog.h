@@ -8,8 +8,8 @@ namespace Ui {
 class RenameDialog;
 }
 
-/*!
- * \brief General Dialog for entering a name
+/**
+ * @brief General Dialog for entering a name
  */
 class RenameDialog : public QDialog
 {
@@ -24,13 +24,13 @@ public:
 
     void setPlaceholderText(const QString &text);
 
-    /*!
-     * \brief Helper function to display and execute the dialog
+    /**
+     * @brief Helper function to display and execute the dialog
      *
-     * \param title title of the dialog
-     * \param name initial name, will be overwritten if the user entered something else
-     * \param placeholder placeholder text for the QLineEdit
-     * \return whether the dialog was accepted by the user
+     * @param title title of the dialog
+     * @param name initial name, will be overwritten if the user entered something else
+     * @param placeholder placeholder text for the QLineEdit
+     * @return whether the dialog was accepted by the user
      */
     static bool showDialog(const QString &title, QString *name, const QString &placeholder, QWidget *parent = nullptr);
 

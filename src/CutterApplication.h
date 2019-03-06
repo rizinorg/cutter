@@ -26,9 +26,9 @@ protected:
     bool event(QEvent *e);
 
 private:
-    /*!
-     * \brief Load and translations depending on Language settings
-     * \return true on success
+    /**
+     * @brief Load and translations depending on Language settings
+     * @return true on success
      */
     bool loadTranslations();
 
@@ -38,15 +38,15 @@ private:
 };
 
 
-/*!
- * \brief CutterProxyStyle is used to force shortcuts displaying in context menu
+/**
+ * @brief CutterProxyStyle is used to force shortcuts displaying in context menu
  */
 class CutterProxyStyle : public QProxyStyle
 {
     Q_OBJECT
 public:
-    /*!
-     * \brief it is enough to get notification about QMenu polishing to force shortcut displaying
+    /**
+     * @brief it is enough to get notification about QMenu polishing to force shortcut displaying
      */
     void polish(QWidget *widget) override;
 };

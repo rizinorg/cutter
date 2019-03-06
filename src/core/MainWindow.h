@@ -79,13 +79,13 @@ public:
 
     void initUI();
 
-    /*!
+    /**
      * @param quit whether to show destructive button in dialog
      * @return if quit is true, false if the application should not close
      */
     bool saveProject(bool quit = false);
 
-    /*!
+    /**
      * @param quit whether to show destructive button in dialog
      * @return false if the application should not close
      */

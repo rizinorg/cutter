@@ -106,8 +106,8 @@ public:
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
-    /*!
-     * \brief Changes immediate displacement to structure offset
+    /**
+     * @brief Changes immediate displacement to structure offset
      * This function makes use of the "ta" command of r2 to apply structure
      * offset to the immediate displacement used in the given instruction
      * \param structureOffset The name of struct which will be applied
@@ -291,38 +291,38 @@ public:
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
 
-    /*!
-     * \return all loaded types
+    /**
+     * @return all loaded types
      */
     QList<TypeDescription> getAllTypes();
 
-    /*!
-     * \return all loaded primitive types
+    /**
+     * @return all loaded primitive types
      */
     QList<TypeDescription> getAllPrimitiveTypes();
 
-    /*!
-     * \return all loaded unions
+    /**
+     * @return all loaded unions
      */
     QList<TypeDescription> getAllUnions();
 
-    /*!
-     * \return all loaded structs
+    /**
+     * @return all loaded structs
      */
     QList<TypeDescription> getAllStructs();
 
-    /*!
-     * \return all loaded enums
+    /**
+     * @return all loaded enums
      */
     QList<TypeDescription> getAllEnums();
 
-    /*!
-     * \return all loaded typedefs
+    /**
+     * @return all loaded typedefs
      */
     QList<TypeDescription> getAllTypedefs();
 
-    /*!
-     * \brief Adds new types
+    /**
+     * @brief Adds new types
      * It first uses the r_parse_c_string() function from radare2 API to parse the
      * supplied C file (in the form of a string). If there were errors, they are displayed.
      * If there were no errors, it uses sdb_query_lines() function from radare2 API
@@ -333,10 +333,10 @@ public:
     QString addTypes(const char *str);
     QString addTypes(const QString &str) { return addTypes(str.toUtf8().constData()); }
 
-    /*!
-     * \brief Checks if the given address is mapped to a region
-     * \param addr The address to be checked
-     * \return true if addr is mapped, false otherwise
+    /**
+     * @brief Checks if the given address is mapped to a region
+     * @param addr The address to be checked
+     * @return true if addr is mapped, false otherwise
      */
     bool isAddressMapped(RVA addr);
 
@@ -394,19 +394,19 @@ signals:
 
     void projectSaved(bool successfully, const QString &name);
 
-    /*!
+    /**
      * emitted when config regarding disassembly display changes
      */
     void asmOptionsChanged();
 
-    /*!
+    /**
      * emitted when config regarding graph display changes
      */
     void graphOptionsChanged();
 
-    /*!
-     * \brief seekChanged is emitted each time radare2 seek value is modified
-     * \param offset
+    /**
+     * @brief seekChanged is emitted each time radare2 seek value is modified
+     * @param offset
      */
     void seekChanged(RVA offset);
 

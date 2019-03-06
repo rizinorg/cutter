@@ -97,23 +97,23 @@ public:
     QString getColorTheme() const     { return s.value("theme", "cutter").toString(); }
     void setColorTheme(const QString &theme);
 
-    /*!
-     * \brief Get the value of a config var either from r2 or settings, depending on the key.
+    /**
+     * @brief Get the value of a config var either from r2 or settings, depending on the key.
      */
     QVariant getConfigVar(const QString &key);
     bool getConfigBool(const QString &key);
     int getConfigInt(const QString &key);
     QString getConfigString(const QString &key);
 
-    /*!
-     * \brief Set the value of a config var either to r2 or settings, depending on the key.
+    /**
+     * @brief Set the value of a config var either to r2 or settings, depending on the key.
      */
     void setConfig(const QString &key, const QVariant &value);
     bool isFirstExecution();
     
-    /*!
-     * \brief Get list of available translation directories (depends on configuration and OS)
-     * \return list of directories
+    /**
+     * @brief Get list of available translation directories (depends on configuration and OS)
+     * @return list of directories
      */
     QStringList getTranslationsDirectories() const;
 

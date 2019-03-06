@@ -433,8 +433,8 @@ void MainWindow::openNewFileFailed()
     mb.exec();
 }
 
-/*!
- * \brief displays the WelocmeDialog
+/**
+ * @brief displays the WelocmeDialog
  *
  * Upon first execution of Cutter, the WelcomeDialog would be showed to the user.
  * The Welcome dialog would be showed after a reset of Cutter's preferences by the user.
@@ -1179,8 +1179,8 @@ void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
     this->dockWidgetActions[action] = dockWidget;
 }
 
-/*!
- * \brief Show a warning message box.
+/**
+ * @brief Show a warning message box.
  *
  * This API can either be used in Cutter internals, or by Python plugins.
  */

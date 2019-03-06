@@ -18,36 +18,36 @@ class QTreeWidgetItem;
 class MainWindow;
 class ClassesWidget;
 
-/*!
- * \brief Common abstract base class for Bin and Anal classes models
+/**
+ * @brief Common abstract base class for Bin and Anal classes models
  */
 class ClassesModel: public QAbstractItemModel
 {
 public:
     enum Columns { NAME = 0, TYPE, OFFSET, VTABLE, COUNT };
 
-    /*!
-     * \brief values for TypeRole data
+    /**
+     * @brief values for TypeRole data
      */
     enum class RowType { Class = 0, Base, VTable, Method, Field };
 
-    /*!
-     * \brief Offset role of data for QModelIndex
+    /**
+     * @brief Offset role of data for QModelIndex
      *
      * will contain values of type RVA
      */
     static const int OffsetRole = Qt::UserRole;
 
-    /*!
-     * \brief Name role of data for QModelIndex
+    /**
+     * @brief Name role of data for QModelIndex
      *
      * will contain values of QString, used for sorting,
      * as well as identifying classes and methods
      */
     static const int NameRole = Qt::UserRole + 1;
 
-    /*!
-     * \brief Type role of data for QModelIndex
+    /**
+     * @brief Type role of data for QModelIndex
      *
      * will contain values of RowType
      */
@@ -87,8 +87,8 @@ class AnalClassesModel: public ClassesModel
 Q_OBJECT
 
 private:
-    /*!
-     * \brief List entry below a class
+    /**
+     * @brief List entry below a class
      *
      * This roughly corresponds to attributes of r2 anal classes, which means it is not an attribute in the sense of
      * a class member variable, but any kind of sub-info associated with the class.
@@ -104,15 +104,15 @@ private:
         Attribute(Type type, const QVariant &data) : type(type), data(data) {}
     };
 
-    /*!
+    /**
      * This must always stay sorted alphabetically.
      */
     QList<QString> classes;
 
     RefreshDeferrer *refreshDeferrer;
 
-    /*!
-     * \brief Cache for class attributes
+    /**
+     * @brief Cache for class attributes
      *
      * Maps class names to a list of Attributes.
      * This is filled only when the attributes of a specific class are requested.

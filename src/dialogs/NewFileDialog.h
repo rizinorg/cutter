@@ -46,12 +46,12 @@ protected:
 private:
     std::unique_ptr<Ui::NewFileDialog> ui;
 
-    /*!
+    /**
      * @return true if list is not empty
      */
     bool fillRecentFilesList();
 
-    /*!
+    /**
      * @return true if list is not empty
      */
     bool fillProjectsList();
