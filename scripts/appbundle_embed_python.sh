@@ -5,6 +5,8 @@ if ! [[ $# -eq 3 ]]; then
     exit 1
 fi
 
+python_version=python3.6
+
 py_framework=$1
 appbundle=$2
 executable=$3
@@ -35,6 +37,6 @@ echo "PySide is at $pyside_prefix"
 if [ "$pyside_prefix" == "$python_prefix" ]; then
 	echo "Prefixes are equal, not copying anything from lib"
 else
-	cp -RT "$pyside_prefix/lib/$python_version" "Versions/Current/lib/$python_version" || exit 1
+	cp -r "$pyside_prefix/lib/$python_version/" "Versions/Current/lib/$python_version" || exit 1
 fi
 

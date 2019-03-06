@@ -36,10 +36,6 @@ install:
   - python3 -m pip install -r scripts/pip_requirements.txt
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
-  - pkg-config --libs shiboken2
-  - pkg-config --cflags shiboken2
-  - pkg-config --libs pyside2
-  - pkg-config --cflags pyside2
 
 after_failure:
   - cat "$TRAVIS_BUILD_DIR/build/Makefile"
