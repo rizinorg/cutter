@@ -42,6 +42,8 @@ void PluginManager::loadPlugins()
     QDir pluginsDir(locations.first());
     pluginsDir.mkpath(".");
 
+    qInfo() << "Plugins are loaded from" << pluginsDir.absolutePath();
+
     pluginsDir.mkdir("plugins");
     if (!pluginsDir.cd("plugins")) {
         return;
