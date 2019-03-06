@@ -24,7 +24,7 @@ QTextEdit {
 QWidget {
     color: #00162e;
     background-color: #fafcfe;
-    selection-background-color: #3daee9;
+    selection-background-color: #fafcfe;
     selection-color: #eff0f1;
     background-clip: border;
     border-image: none;
@@ -35,6 +35,10 @@ QWidget {
 QDockWidget {
     background: #fafcfe;
 	border: 1px solid #e0e0e0;
+}
+
+QDockWidget::title {
+	background-color: #fafcfe;
 }
 
 
@@ -167,6 +171,7 @@ QToolBar {
 
 QMenuBar {
 	background-color: #007ac1;
+	height: 40px;
 }
 
 
@@ -174,11 +179,18 @@ QMenuBar {
 QMenuBar::item {
 	background: transparent;
 	color: #ffffff;
+	height: 40px;
+	max-width: 40px;
+	text-align: center;
+	padding-left: 10px;
+    padding-right: 10px;
 }
 
 QMenuBar::item:selected {
     background: transparent;
-    border-bottom: 2px solid #ffffff;
+	border-bottom: 2px solid #ffffff;
+	background-color: #1386c9;
+
 }
 
 QMenuBar::item:pressed {
@@ -189,7 +201,7 @@ QMenuBar::item:pressed {
     padding-bottom: 1px;
 }
 
-QMenu{
+QMenu {
 	background-color:#fafcfe;
 	border: 1px solid #cfcfcf;
 	padding: 2px;
@@ -197,21 +209,8 @@ QMenu{
 }
 
 
-QMenu::item:selected {
-	border-style: solid;
-	border-top-color: transparent;
-	border-right-color: transparent;
-	border-left-color: #039be5;
-	border-bottom-color: transparent;
-	border-left-width: 2px;
-	color: #039be5;
-	padding-left:12px;
-	padding-top:4px;
-	padding-bottom:4px;
-	padding-right:7px;
-	
-}
 QMenu::item {
+	background-color: #fafcfe;
 	border-style: solid;
 	border-top-color: transparent;
 	border-right-color: transparent;
@@ -224,8 +223,17 @@ QMenu::item {
 	padding-top:4px;
 	padding-bottom:4px;
 	padding-right:7px;
-	background-color: #fafcfe;
 }
+
+QMenu::item:selected {
+	background-color: #fafcfe;
+	border-left-color: #039be5;
+	border-left-width: 2px;
+	color: #039be5;
+	background-color: #f4f9ff;
+
+}
+
 
 QTabWidget {
 	color:rgb(0,0,0);
@@ -501,6 +509,12 @@ QHeaderView {
 
 }
 
+QHeaderView {
+	border-radius: 0px;
+	background-color: #ffffff;
+	color: #007ac1;
+}
+
 
 
 QTableCornerButton::section {
@@ -512,12 +526,10 @@ QTableCornerButton::section {
 }
 
 QHeaderView::section {
-    background-color: #efefef;
-    color: #007ac1;
+    background-color: #fafcfe;
     padding: 5px;
-    border: 1px solid rgb(226, 226, 226);
     border-radius: 0px;
-    text-align: center;
+	text-align: center;	
 }
 
 
@@ -643,3 +655,5 @@ QLineEdit:hover, QLineEdit:focus {
 QPushButton:hover {
 	border: 1px solid #039be5;
 }
+
+
