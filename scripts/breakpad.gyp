@@ -5,7 +5,7 @@
     'targets': [
         {
             'target_name': 'build_all',
-            'type': none,
+            'type': 'none',
             'dependencies': [
                 './crash_generation/crash_generation.gyp:*',
                 './handler/exception_handler.gyp:*',
