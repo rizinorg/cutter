@@ -323,7 +323,6 @@ void DisassemblerGraphView::loadCurrentGraph()
 
     if (!func["blocks"].toArray().isEmpty()) {
         computeGraph(entry);
-        showBlock(blocks[entry]);
     }
 }
 
