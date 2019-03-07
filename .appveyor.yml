@@ -59,6 +59,10 @@ before_build:
   - cmd: gclient sync
   - cmd: cd %DAT_DIR%
   - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\breakpad_client.gyp
+  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\breakpad_client.sln
+  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\common.vcxproj
+  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\common.vcxproj.filters
+  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\build_all.vcxproj
   - cmd: COPY %CD%\scripts\breakpad_client.gyp %CD%\breakpad\src\src\client\windows
   - cmd: cd %CD%\breakpad\src\src
   - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=x64 -Dconfiguration=Release
