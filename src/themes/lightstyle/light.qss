@@ -39,8 +39,10 @@ QDockWidget {
 
 QDockWidget::title {
 	background-color: #fafcfe;
-}
+	border-top: 1px solid #dee8f3;
+	border-bottom: 1px solid #a1c7dd;
 
+}
 
 QPlainTextEdit {
 	selection-background-color:#007ac1;
@@ -510,6 +512,7 @@ QHeaderView {
 }
 
 QHeaderView {
+
 	border-radius: 0px;
 	background-color: #ffffff;
 	color: #007ac1;
@@ -656,4 +659,8 @@ QPushButton:hover {
 	border: 1px solid #039be5;
 }
 
-
+QToolTip {
+    border: 1px solid rgb(191, 194, 197);
+    padding: 20px;                /*remove padding, for fix combobox tooltip.*/
+    opacity: 200;
+}
