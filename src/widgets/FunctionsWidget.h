@@ -115,7 +115,7 @@ private slots:
     void on_actionVertical_triggered();
 
     void showTitleContextMenu(const QPoint &pt);
-
+    void setTooltipStylesheet();
     void refreshTree();
 
 protected:

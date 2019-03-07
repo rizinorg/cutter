@@ -276,7 +276,19 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
             QObject::tr("Navbar empty"), true
         }
     },
-    { "gui.breakpoint_background", { "", QObject::tr("Breakpoint background"), true } }
+    { "gui.breakpoint_background", { "", QObject::tr("Breakpoint background"), true } },
+    {
+        "gui.tooltip.background", {
+            QObject::tr("Background color for tooltips"),
+            QObject::tr("Tooltip background"), true
+        }
+    },
+    {
+        "gui.tooltip.foreground", {
+            QObject::tr("Foregorund color for tooltips"),
+            QObject::tr("Tooltip foreground"), true
+        }
+    }
 };
 
 void ColorOptionDelegate::paint(QPainter *painter,

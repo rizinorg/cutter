@@ -211,6 +211,8 @@ void Configuration::loadBaseThemeNative()
     setColor("gui.item_invalid", QColor(155, 155, 155));
     setColor("gui.item_unsafe", QColor(255, 129, 123));
     setColor("gui.overview.node",  QColor(200, 200, 200));
+    setColor("gui.tooltip.background", QColor(250, 252, 254));
+    setColor("gui.tooltip.foreground", QColor(42, 44, 46));
 }
 
 void Configuration::loadNativeTheme()
@@ -225,6 +227,8 @@ void Configuration::loadNativeTheme()
         setColor("highlight",   QColor(255, 255, 255, 15));
         setColor("highlightWord", QColor(20, 20, 20, 255));
         setColor("highlightPC", QColor(87, 26, 7));
+        setColor("gui.tooltip.background", QColor(42, 44, 46));
+        setColor("gui.tooltip.foreground", QColor(250, 252, 254));
     } else {
         setColor("gui.border",  QColor(0, 0, 0));
         setColor("gui.background", QColor(255, 255, 255));
@@ -258,6 +262,9 @@ void Configuration::loadLightTheme()
     setColor("highlightPC", QColor(214, 255, 210));
     setColor("gui.navbar.empty", QColor(220, 236, 245));
     setColor("gui.navbar.err", QColor(3, 170, 245));
+    setColor("gui.tooltip.background", QColor(250, 252, 254));
+    setColor("gui.tooltip.foreground", QColor(42, 44, 46));
+
 
 }
 
@@ -298,7 +305,7 @@ void Configuration::loadBaseThemeDark()
     setColor("gui.navbar.seek", QColor(233, 86, 86));
     setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(130, 200, 111));
-    setColor("angui.navbar.str", QColor(111, 134, 216));
+    setColor("gui.navbar.str", QColor(111, 134, 216));
     setColor("gui.navbar.sym", QColor(221, 163, 104));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
 
@@ -322,6 +329,8 @@ void Configuration::loadDarkTheme()
     // Disassembly line selected
     setColor("highlight", QColor(21, 29, 29, 150));
     setColor("highlightWord", QColor(52, 58, 71, 255));
+    setColor("gui.tooltip.background", QColor(42, 44, 46));
+    setColor("gui.tooltip.foreground", QColor(250, 252, 254));
 }
 
 const QFont Configuration::getFont() const

@@ -480,8 +480,9 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
 
     // Radare core found in:
     this->main = main;
+    setTooltipStylesheet();
+    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setTooltipStylesheet()));
 
-    setStyleSheet(QString("QToolTip { max-width: %1px; opacity: 230; }").arg(kMaxTooltipWidth));
 
     // leave the filter visible by default so users know it exists
     //ui->filterLineEdit->setVisible(false);
@@ -705,4 +706,12 @@ void FunctionsWidget::resizeEvent(QResizeEvent *event)
 void FunctionsWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->functionsTreeView);
+}
+
+void FunctionsWidget::setTooltipStylesheet()
+{
+    setStyleSheet(QString("QToolTip { border: 2px rgb(191, 194, 197); max-width: %1px; opacity: 230; background-color: %2; padding: 10px; color: %3; }")
+                  .arg(kMaxTooltipWidth)
+                  .arg(Config()->getColor("gui.tooltip.background").name())
+                  .arg(Config()->getColor("gui.tooltip.foreground").name()));
 }
