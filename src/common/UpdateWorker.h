@@ -41,7 +41,7 @@ public:
 
       \sa downloadProcess(size_t bytesReceived, size_t bytesTotal)
     */
-    void download(QDir downloadDir, QString version);
+    void download(QString filename, QString version);
 
     /*!
       \fn void UpdateWorker::showUpdateDialog()
@@ -103,6 +103,10 @@ private slots:
     void serveDownloadFinish();
 
     void process(size_t bytesReceived, size_t bytesTotal);
+
+private:
+    QString getRepositeryExt() const;
+    QString getRepositoryFileName() const;
 
 private:
     QNetworkAccessManager nm;

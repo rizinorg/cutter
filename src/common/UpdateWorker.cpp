@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QApplication>
 #include <QJsonDocument>
+#include <QDesktopServices>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkRequest>
 
@@ -48,30 +49,15 @@ void UpdateWorker::checkCurrentVersion(time_t timeoutMs)
     pending = true;
 }
 
-void UpdateWorker::download(QDir downloadDir, QString version)
+void UpdateWorker::download(QString filename, QString version)
 {
-
-    QString downloadFileName;
-#ifdef Q_OS_LINUX
-    downloadFileName = "Cutter-v%1-x%2.Linux.AppImage";
-#elif defined (Q_OS_WIN64) || defined (Q_OS_WIN32)
-    downloadFileName = "Cutter-v%1-x%2.Windows.zip";
-#elif defined (Q_OS_MACOS)
-    downloadFileName = "Cutter-v%1-x%2.macOS.dmg";
-#endif
-    downloadFileName = downloadFileName
-                       .arg(version)
-                       .arg(QSysInfo::buildAbi().split('-').at(2).contains("64")
-                            ? "64"
-                            : "32");
-
-    downloadFile.setFileName(downloadDir.filePath(downloadFileName));
+    downloadFile.setFileName(filename);
     downloadFile.open(QIODevice::WriteOnly);
 
     QNetworkRequest request;
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     QUrl url(QString("https://github.com/radareorg/cutter/releases/"
-                     "download/v%1/%2").arg(version).arg(downloadFileName));
+                     "download/v%1/%2").arg(version).arg(getRepositoryFileName()));
     request.setUrl(url);
 
     downloadReply = nm.get(request);
@@ -104,13 +90,13 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
     if (ret == QMessageBox::No) {
         Config()->setAutoUpdateEnabled(false);
     } else if (ret == QMessageBox::Save) {
-        QDir downloadDir =
-                QFileDialog::getExistingDirectory(nullptr,
-                                                  tr("Choose directory "
-                                                     "for downloading"),
-                                                  QStandardPaths::writableLocation(
-                                                      QStandardPaths::HomeLocation));
-        if (downloadDir.path() != ".") {
+        QString fullFileName =
+                QFileDialog::getSaveFileName(nullptr,
+                                             tr("Choose directory for downloading"),
+                                             QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+                                             QDir::separator() + getRepositoryFileName(),
+                                             QString("%1 (*.%1)").arg(getRepositeryExt()));
+        if (fullFileName != "") {
             QProgressDialog progressDial(tr("Downloading..."),
                                          tr("Cancel"),
                                          0, 100);
@@ -124,13 +110,23 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
                     &progressDial, &QProgressDialog::cancel);
             connect(this, &UpdateWorker::downloadFinished,
                     [](QString filePath){
-                // I couldnt figure out what to write here
-                // so by now I left it as it is
-                QMessageBox::information(nullptr,
-                                         tr("Download finished!"),
-                                         filePath);
+                QMessageBox info(QMessageBox::Information,
+                                 tr("Download finished!"),
+                                 tr("Latest version of Cutter was succesfully downloaded!"),
+                                 QMessageBox::Yes | QMessageBox::Open | QMessageBox::Ok,
+                                 nullptr);
+                info.button(QMessageBox::Open)->setText(tr("Open file"));
+                info.button(QMessageBox::Yes)->setText(tr("Open download folder"));
+                int r = info.exec();
+                if (r == QMessageBox::Open) {
+                    QDesktopServices::openUrl(filePath);
+                } else if (r == QMessageBox::Yes) {
+                    auto path = filePath.split(QDir::separator());
+                    path.removeLast();
+                    QDesktopServices::openUrl(path.join(QDir::separator()));
+                }
             });
-            download(downloadDir, latestVersion);
+            download(fullFileName, latestVersion);
             progressDial.exec();
         }
     }
@@ -179,4 +175,34 @@ void UpdateWorker::process(size_t bytesReceived, size_t bytesTotal)
 {
     downloadFile.write(downloadReply->readAll());
     emit downloadProcess(bytesReceived, bytesTotal);
+}
+
+QString UpdateWorker::getRepositeryExt() const
+{
+#ifdef Q_OS_LINUX
+    return "AppImage";
+#elif defined (Q_OS_WIN64) || defined (Q_OS_WIN32)
+    return "zip";
+#elif defined (Q_OS_MACOS)
+    return "dmg";
+#endif
+}
+
+QString UpdateWorker::getRepositoryFileName() const
+{
+    QString downloadFileName;
+#ifdef Q_OS_LINUX
+    downloadFileName = "Cutter-v%1-x%2.Linux.AppImage";
+#elif defined (Q_OS_WIN64) || defined (Q_OS_WIN32)
+    downloadFileName = "Cutter-v%1-x%2.Windows.zip";
+#elif defined (Q_OS_MACOS)
+    downloadFileName = "Cutter-v%1-x%2.macOS.dmg";
+#endif
+    downloadFileName = downloadFileName
+                       .arg(latestVersion)
+                       .arg(QSysInfo::buildAbi().split('-').at(2).contains("64")
+                            ? "64"
+                            : "32");
+
+    return downloadFileName;
 }
