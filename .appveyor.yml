@@ -65,7 +65,7 @@ before_build:
   - cmd: CD %CD%\client\windows
   - cmd: DIR
   - cmd: set "PATH=%BUFF_PATH%"
-  - cmd: msbuild /m %CD%\client\windows\build_breakpad.vcxproj /p:Configuration=release /p:Platform=x64
+  - cmd: msbuild /m %CD%\client\windows\build_all.vcxproj /p:Configuration=release /p:Platform=x64
   - cmd: cd %DAT_DIR%
   
 
