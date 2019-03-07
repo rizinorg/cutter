@@ -221,7 +221,7 @@ void VisualNavbar::drawPCCursor()
 
 void VisualNavbar::drawSeekCursor()
 {
-    drawCursor(Core()->getOffset(), Config()->getColor("gui.navbar.err"), seekGraphicsItem);
+    drawCursor(Core()->getOffset(), Config()->getColor("gui.navbar.seek"), seekGraphicsItem);
 }
 
 void VisualNavbar::on_seekChanged(RVA addr)
