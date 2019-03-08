@@ -46,35 +46,7 @@ install:
 before_build:
   - cmd: git submodule update --init
   - cmd: python scripts\compile_python_resources.py
-  # Prepare breakpad
-  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget https://storage.googleapis.com/chrome-infra/depot_tools.zip -OutFile depot_tools.zip "
-  - cmd: 7z -bd x %CD%\depot_tools.zip -odepot_tools
-  - cmd: depot_tools\update_depot_tools
-  - cmd: set "BUFF_PATH=%PATH%"
-  - cmd: set "PATH=%CD%\depot_tools;%PATH%"
-  - cmd: mkdir %CD%\breakpad
-  - cmd: SET "DAT_DIR=%CD%"
-  - cmd: cd %CD%\breakpad
-  - cmd: fetch breakpad
-  - cmd: gclient sync
-  - cmd: cd %DAT_DIR%
-  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\breakpad_client.gyp
-  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\breakpad_client.sln
-  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\common.vcxproj
-  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\common.vcxproj.filters
-  - cmd: del %DAT_DIR%\breakpad\src\src\client\windows\build_all.vcxproj
-  - cmd: COPY %CD%\scripts\breakpad_client.gyp %CD%\breakpad\src\src\client\windows
-  - cmd: cd %CD%\breakpad\src\src
-  - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release
-  - cmd: set "PATH=%BUFF_PATH%"
-  - cmd: msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH%
-  - cmd: cd %CD%\client\windows
-  - cmd: DIR
-  - cmd: cd %CD%\release
-  - cmd: DIR
-  - cmd: cd %CD%\lib
-  - cmd: DIR
-  - cmd: cd %DAT_DIR%
+  - cmd: call scripts\prepare_breakpad.bat
   
 
 # Build config
