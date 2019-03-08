@@ -127,6 +127,9 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
                 }
             });
             download(fullFileName, latestVersion);
+            // Calling show() before exec() is only way make dialog non-modal
+            // it seems wierd, but it works
+            progressDial.show();
             progressDial.exec();
         }
     }
