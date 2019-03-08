@@ -40,7 +40,7 @@ QDockWidget {
 QDockWidget::title {
 	background-color: #fafcfe;
 	border-top: 1px solid #dee8f3;
-	border-bottom: 1px solid #a1c7dd;
+	/* border-bottom: 1px solid #a1c7dd; */
 
 }
 
@@ -512,7 +512,6 @@ QHeaderView {
 }
 
 QHeaderView {
-
 	border-radius: 0px;
 	background-color: #ffffff;
 	color: #007ac1;
@@ -659,8 +658,29 @@ QPushButton:hover {
 	border: 1px solid #039be5;
 }
 
-QToolTip {
-    border: 1px solid rgb(191, 194, 197);
-    padding: 20px;                /*remove padding, for fix combobox tooltip.*/
+QToolTip
+{
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 2px;
+    padding: 5px;                /*remove padding, for fix combobox tooltip.*/
     opacity: 200;
+}
+
+
+
+QFrame {
+    border-radius: 2px;
+    border: 1px solid #c7dce9;
+}
+
+QFrame[frameShape="0"] {
+    border-radius: 2px;
+    border: 1px transparent #c7dce9;
+}
+
+QFrame[height="3"],
+QFrame[width="3"] {
+ 
+	background-color: #c7dce9;
 }
