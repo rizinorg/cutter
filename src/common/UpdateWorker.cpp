@@ -79,15 +79,15 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
                          "https://github.com/radareorg/cutter/releases/tag/v%1</a><br/>").arg(latestVersion)
                + tr("or click \"Download\" to download latest version of Cutter."));
     if (showDontCheckForUpdatesButton) {
-        mb.setStandardButtons(QMessageBox::Save | QMessageBox::No | QMessageBox::Ok);
-        mb.button(QMessageBox::No)->setText(tr("Don't check for updates"));
+        mb.setStandardButtons(QMessageBox::Save | QMessageBox::Reset | QMessageBox::Ok);
+        mb.button(QMessageBox::Reset)->setText(tr("Don't check for updates"));
     } else {
         mb.setStandardButtons(QMessageBox::Save | QMessageBox::Ok);
     }
     mb.button(QMessageBox::Save)->setText(tr("Download"));
     mb.setDefaultButton(QMessageBox::Ok);
     int ret = mb.exec();
-    if (ret == QMessageBox::No) {
+    if (ret == QMessageBox::Reset) {
         Config()->setAutoUpdateEnabled(false);
     } else if (ret == QMessageBox::Save) {
         QString fullFileName =
