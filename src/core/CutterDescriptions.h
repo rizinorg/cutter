@@ -5,6 +5,11 @@
 #ifndef DESCRIPTIONS_H
 #define DESCRIPTIONS_H
 
+#include <QString>
+#include <QList>
+#include <QStringList>
+#include <QMetaType>
+
 struct FunctionDescription {
     RVA offset;
     RVA size;

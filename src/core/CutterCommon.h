@@ -6,7 +6,7 @@
 #define CUTTERCORE_H
 
 #include "r_core.h"
-#include <QtCore/QtCore>
+#include <QString>
 
 // Workaround for compile errors on Windows
 #ifdef _WIN32

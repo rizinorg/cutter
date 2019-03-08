@@ -118,6 +118,10 @@ unix {
 # Libraries
 include(lib_radare2.pri)
 
+!win32 {
+    CONFIG += link_pkgconfig
+}
+
 CUTTER_ENABLE_PYTHON {
     win32 {
         PYTHON_EXECUTABLE = $$quote($$system("where python"))
@@ -135,7 +139,6 @@ CUTTER_ENABLE_PYTHON {
             LIBS += -F$$PYTHON_FRAMEWORK_DIR -framework Python
             DEFINES += MACOS_PYTHON_FRAMEWORK_BUNDLED
         } else {
-            CONFIG += link_pkgconfig
             !packagesExist(python3) {
                 error("ERROR: Python 3 could not be found. Make sure it is available to pkg-config.")
             }
@@ -177,7 +180,13 @@ CUTTER_ENABLE_PYTHON {
         GENERATED_SOURCES += $${BINDINGS_SOURCE}
         INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
         PRE_TARGETDEPS += bindings_target
-        PKGCONFIG += shiboken2 pyside2
+        macx {
+            # Hack needed because with regular PKGCONFIG qmake will mess up everything
+            QMAKE_CXXFLAGS += $$system("pkg-config --cflags shiboken2 pyside2")
+            LIBS += $$system("pkg-config --libs shiboken2 pyside2")
+        } else {
+            PKGCONFIG += shiboken2 pyside2
+        }
         INCLUDEPATH += "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
     }
 }
