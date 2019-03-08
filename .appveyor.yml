@@ -67,7 +67,7 @@ before_build:
   - cmd: cd %CD%\breakpad\src\src
   - cmd: tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release
   - cmd: set "PATH=%BUFF_PATH%"
-  - cmd: msbuild /m %CD%\client\windows\build_all.vcxproj /p:Configuration=release /p:Platform=%ARCH%
+  - cmd: msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH%
   - cmd: cd %CD%\client\windows
   - cmd: DIR
   - cmd: cd %CD%\release
