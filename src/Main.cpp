@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
         UpdateWorker *updateWorker = new UpdateWorker;
         QObject::connect(updateWorker, &UpdateWorker::checkComplete,
                          [=](const QString & version, const QString & error) {
-            if (error == "" && version == CUTTER_VERSION_FULL) {
+            if (error == "" && version != CUTTER_VERSION_FULL) {
                 updateWorker->showUpdateDialog(true);
             }
             updateWorker->deleteLater();
