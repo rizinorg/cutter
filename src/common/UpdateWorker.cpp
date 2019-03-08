@@ -121,9 +121,9 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
                 if (r == QMessageBox::Open) {
                     QDesktopServices::openUrl(filePath);
                 } else if (r == QMessageBox::Yes) {
-                    auto path = filePath.split(QDir::separator());
+                    auto path = filePath.split('/');
                     path.removeLast();
-                    QDesktopServices::openUrl(path.join(QDir::separator()));
+                    QDesktopServices::openUrl(path.join('/'));
                 }
             });
             download(fullFileName, latestVersion);
