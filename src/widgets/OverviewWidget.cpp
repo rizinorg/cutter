@@ -37,3 +37,9 @@ void OverviewWidget::updateContents()
     }
     graphView->refreshView();
 }
+
+void OverviewWidget::closeEvent(QCloseEvent *event)
+{
+    CutterDockWidget::closeEvent(event);
+    emit graphClose();
+}

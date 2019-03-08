@@ -15,6 +15,10 @@ public:
     ~OverviewWidget();
     OverviewView *graphView;
 
+    /*
+     * @brief if user closed this widget explicitly
+     */
+    bool userClosed = false;
 private:
     RefreshDeferrer *refreshDeferrer;
     /**
@@ -27,12 +31,20 @@ private slots:
      * @brief update the overview
      */
     void updateContents();
+    /*
+     * @brief override closeEvent to emit graphClose
+     */
+    void closeEvent(QCloseEvent *event) override;
 
 signals:
     /**
      * @brief emit signal to update the rect
      */
     void resized();
+    /*
+     * @brief emit signal to notify when this widget is closed
+     */
+    void graphClose();
 };
 
 #endif // OverviewWIDGET_H

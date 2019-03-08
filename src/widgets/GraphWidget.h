@@ -20,7 +20,6 @@ private:
 
 signals:
     void graphClose();
-    void graphEmpty();
 };
 
 #endif // GRAPHWIDGET_H
