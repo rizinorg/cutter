@@ -72,6 +72,20 @@ to the style is:
 
    astyle --project=src/Cutter.astylerc src/filename.cpp
 
+
+Docstrings
+^^^^^^^^^^
+
+Our API reference is generated using Doxygen, so when it comes to
+function documentation, please use the following format:
+
+.. code:: cpp
+
+   /**
+    * @brief Add a new param to the accumulator
+    */
+   virtual void accumulate(RefreshDeferrerParams params) =0;
+
 Loops
 ^^^^^
 
