@@ -37,9 +37,6 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
 
-after_failure:
-  - cat "$TRAVIS_BUILD_DIR/build/Makefile"
-
 before_script:
   - git submodule init ; git submodule update
   - cd radare2
