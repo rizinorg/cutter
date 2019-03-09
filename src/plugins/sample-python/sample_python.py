@@ -1,12 +1,11 @@
 
 import cutter
-import CutterBindings
 
 from PySide2.QtCore import QObject, SIGNAL, Qt
 from PySide2.QtWidgets import QAction, QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
 
 
-class FortuneWidget(CutterBindings.CutterDockWidget):
+class FortuneWidget(cutter.CutterDockWidget):
     def __init__(self, main, action):
         super(FortuneWidget, self).__init__(main, action)
         self.setObjectName("FancyDockWidgetFromCoolPlugin")
@@ -20,7 +19,7 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
         content.setLayout(layout)
         self.text = QLabel(content)
         self.text.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.text.setFont(CutterBindings.Configuration.instance().getFont())
+        self.text.setFont(cutter.Configuration.instance().getFont())
         layout.addWidget(self.text)
 
         button = QPushButton(content)
@@ -42,7 +41,7 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
         self.text.setText(res)
 
 
-class CutterSamplePlugin(CutterBindings.CutterPlugin):
+class CutterSamplePlugin(cutter.CutterPlugin):
     name = "SamplePlugin"
     description = "A sample plugin written in python."
     version = "1.0"
