@@ -1,6 +1,8 @@
 
 #include "CutterApplication.h"
 #include "core/MainWindow.h"
+#include "common/UpdateWorker.h"
+#include "CutterConfig.h"
 
 /**
  * @brief Migrate Settings used before Cutter 1.8
@@ -33,6 +35,18 @@ int main(int argc, char *argv[])
     }
 
     CutterApplication a(argc, argv);
+
+    if (Config()->getAutoUpdateEnabled()) {
+        UpdateWorker *updateWorker = new UpdateWorker;
+        QObject::connect(updateWorker, &UpdateWorker::checkComplete,
+                         [=](const QString & version, const QString & error) {
+            if (error == "" && version != CUTTER_VERSION_FULL) {
+                updateWorker->showUpdateDialog(true);
+            }
+            updateWorker->deleteLater();
+        });
+        updateWorker->checkCurrentVersion(7000);
+    }
 
     int ret = a.exec();
 

@@ -46,6 +46,10 @@ public:
 
     void resetAll();
 
+    // Auto update
+    bool getAutoUpdateEnabled() const;
+    void setAutoUpdateEnabled(bool au);
+
     // Languages
     QLocale getCurrLocale() const;
     void setLocale(const QLocale &l);
@@ -58,7 +62,7 @@ public:
 
     // Colors
     bool windowColorIsDark();
-    void setLastThemeOf(const CutterQtTheme &currQtTheme, const QString& theme);
+    void setLastThemeOf(const CutterQtTheme &currQtTheme, const QString &theme);
     QString getLastThemeOf(const CutterQtTheme &currQtTheme) const;
     const QColor getColor(const QString &name) const;
     void setTheme(int theme);

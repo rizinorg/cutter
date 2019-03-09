@@ -312,7 +312,8 @@ SOURCES += \
     common/PythonManager.cpp \
     plugins/PluginManager.cpp \
     common/BasicBlockHighlighter.cpp \
-    dialogs/LinkTypeDialog.cpp
+    dialogs/LinkTypeDialog.cpp \
+    common/UpdateWorker.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -429,6 +430,7 @@ HEADERS  += \
     common/PythonManager.h \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
+    common/UpdateWorker.h \
     dialogs/LinkTypeDialog.h
 
 FORMS    += \

@@ -136,6 +136,16 @@ void Configuration::resetAll()
     emit fontsUpdated();
 }
 
+bool Configuration::getAutoUpdateEnabled() const
+{
+    return s.value("autoUpdateEnabled", false).toBool();
+}
+
+void Configuration::setAutoUpdateEnabled(bool au)
+{
+    s.setValue("autoUpdateEnabled", au);
+}
+
 /**
  * @brief get the current Locale set in Cutter's user configuration
  * @return a QLocale object describes user's current locale
