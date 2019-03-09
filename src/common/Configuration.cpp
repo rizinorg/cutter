@@ -253,7 +253,7 @@ void Configuration::loadLightTheme()
         qApp->setStyleSheet(stylesheet);
     }
 
-    setColor("gui.border",  QColor(0, 0, 0));
+    setColor("gui.border",  QColor(145, 200, 250));
     setColor("gui.background", QColor(255, 255, 255));
     setColor("gui.alt_background", QColor(245, 250, 255));
     setColor("gui.disass_selected", QColor(255, 255, 255));
@@ -264,7 +264,6 @@ void Configuration::loadLightTheme()
     setColor("gui.navbar.err", QColor(3, 170, 245));
     setColor("gui.tooltip.background", QColor(250, 252, 254));
     setColor("gui.tooltip.foreground", QColor(42, 44, 46));
-
 
 }
 
