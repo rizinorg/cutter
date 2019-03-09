@@ -273,6 +273,8 @@ private:
 
     void updateDockActionsChecked();
     void setOverviewData();
+
+    bool isOverviewActive();
 };
 
 #endif // MAINWINDOW_H

@@ -334,14 +334,22 @@ void MainWindow::setOverviewData()
             targetGraphDock->graphView->getHeight(), targetGraphDock->graphView->getBlocks());
 }
 
-void MainWindow::overviewCacheOn()
+bool MainWindow::isOverviewActive()
 {
     if (!overviewDock || overviewDock->userClosed) {
-        return;
+        return false;
     }
     if (core->isGraphEmpty()) {
         enableOverviewMenu(false);
         overviewDock->hide();
+        return false;
+    }
+    return true;
+}
+
+void MainWindow::overviewCacheOn()
+{
+    if (!isOverviewActive()) {
         return;
     }
     overviewDock->graphView->useCache = true;
@@ -350,12 +358,7 @@ void MainWindow::overviewCacheOn()
 
 void MainWindow::overviewCacheOff()
 {
-    if (!overviewDock || overviewDock->userClosed) {
-        return;
-    }
-    if (core->isGraphEmpty()) {
-        enableOverviewMenu(false);
-        overviewDock->hide();
+    if (!isOverviewActive()) {
         return;
     }
     overviewDock->graphView->useCache = false;
