@@ -1353,7 +1353,6 @@ void CutterCore::setSettings()
 
     setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
-    setConfig("anal.autoname", true);
 
     setConfig("cfg.fortunes.tts", false);
 
