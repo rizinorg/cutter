@@ -336,19 +336,19 @@ void MainWindow::setOverviewData()
 
 void MainWindow::overviewCacheOn()
 {
-    eprintf("hey hey hye\n");
+    if (!overviewDock || overviewDock->userClosed) {
+        return;
+    }
+    if (core->isGraphEmpty()) {
+        enableOverviewMenu(false);
+        overviewDock->hide();
+        return;
+    }
     overviewDock->graphView->useCache = true;
     adjustOverview();
 }
 
 void MainWindow::overviewCacheOff()
-{
-    eprintf("what what what\n");
-    overviewDock->graphView->useCache = false;
-    adjustOverview();
-}
-
-void MainWindow::adjustOverview()
 {
     if (!overviewDock || overviewDock->userClosed) {
         return;
@@ -358,7 +358,13 @@ void MainWindow::adjustOverview()
         overviewDock->hide();
         return;
     }
+    overviewDock->graphView->useCache = false;
     setOverviewData();
+    adjustOverview();
+}
+
+void MainWindow::adjustOverview()
+{
     qreal curScale = overviewDock->graphView->current_scale;
     qreal baseScale = targetGraphDock->graphView->current_scale;
     qreal w = targetGraphDock->graphView->viewport()->width() * curScale / baseScale;
