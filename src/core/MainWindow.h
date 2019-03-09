@@ -138,6 +138,8 @@ public slots:
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
     void disconnectOverview();
+    void overviewCacheOn();
+    void overviewCacheOff();
     void adjustOverview();
     void adjustGraph();
 

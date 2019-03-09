@@ -104,6 +104,11 @@ public:
     int offset_x = 0;
     int offset_y = 0;
 
+    /**
+     * @brief flag to control if the cached pixmap should be used
+     */
+    bool useCache = false;
+
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);
@@ -129,6 +134,7 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
 
+    void drawGraph();
     bool event(QEvent *event) override;
 
     // Mouse events
@@ -142,6 +148,12 @@ protected:
     void centerY();
     int width = 0;
     int height = 0;
+
+    /**
+     * @brief pixmap that caches the graph nodes
+     */
+    QPixmap pixmap;
+
 private:
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y = false);
 

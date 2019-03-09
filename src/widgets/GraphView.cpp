@@ -381,7 +381,12 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 void GraphView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    QPainter p(viewport());
+    if (useCache) {
+        drawGraph();
+        return;
+    }
+    pixmap = QPixmap(viewport()->width(), viewport()->height());
+    QPainter p(&pixmap);
 
     p.setRenderHint(QPainter::Antialiasing);
 
@@ -436,8 +441,16 @@ void GraphView::paintEvent(QPaintEvent *event)
             }
         }
     }
-
+    drawGraph();
     emit refreshBlock();
+}
+
+void GraphView::drawGraph()
+{
+    QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
+    QRectF source(0.0, 0.0, viewport()->width(), viewport()->height());
+    QPainter p(viewport());
+    p.drawPixmap(target, pixmap, source);
 }
 
 // Prepare graph

@@ -200,7 +200,7 @@ void MainWindow::initUI()
     connect(ui->actionOverview, &QAction::toggled, [this](bool checked) {
         if (checked) {
             overviewDock->userClosed = false;
-            adjustOverview();
+            overviewCacheOff();
         }
     });
     sectionsDock = new SectionsWidget(this, ui->actionSections);
@@ -298,33 +298,33 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
         return;
     }
     targetGraphDock = targetGraph;
-    connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
-    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(adjustOverview()));
-    connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
+    connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(overviewCacheOn()));
+    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(overviewCacheOff()));
+    connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(overviewCacheOff()));
     connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
         disconnectOverview();
         enableOverviewMenu(false);
         overviewDock->hide();
     });
     connect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-    connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
+    connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::overviewCacheOff);
     connect(overviewDock, &OverviewWidget::graphClose, [this]() {
         ui->actionOverview->setChecked(false);
         if (!core->isGraphEmpty()) {
             overviewDock->userClosed = true;
         }
     });
-    connect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
+    connect(overviewDock, SIGNAL(resized()), this, SLOT(overviewCacheOff()));
 }
 
 void MainWindow::disconnectOverview()
 {
-    disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(adjustOverview()));
-    disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(adjustOverview()));
-    disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(adjustOverview()));
+    disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(overviewCacheOn()));
+    disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(overviewCacheOff()));
+    disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(overviewCacheOff()));
     disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-    disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::adjustOverview);
-    disconnect(overviewDock, SIGNAL(resized()), this, SLOT(adjustOverview()));
+    disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::overviewCacheOff);
+    disconnect(overviewDock, SIGNAL(resized()), this, SLOT(overviewCacheOff()));
     disconnect(overviewDock, &QDockWidget::visibilityChanged, this, nullptr);
 }
 
@@ -332,6 +332,20 @@ void MainWindow::setOverviewData()
 {
     overviewDock->graphView->setData(targetGraphDock->graphView->getWidth(),
             targetGraphDock->graphView->getHeight(), targetGraphDock->graphView->getBlocks());
+}
+
+void MainWindow::overviewCacheOn()
+{
+    eprintf("hey hey hye\n");
+    overviewDock->graphView->useCache = true;
+    adjustOverview();
+}
+
+void MainWindow::overviewCacheOff()
+{
+    eprintf("what what what\n");
+    overviewDock->graphView->useCache = false;
+    adjustOverview();
 }
 
 void MainWindow::adjustOverview()
