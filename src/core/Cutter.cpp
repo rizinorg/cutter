@@ -3,6 +3,7 @@
 #include <QRegularExpression>
 #include <QDir>
 #include <QCoreApplication>
+#include <QUrl>
 #include <QDesktopServices>
 
 #include "CutterConfig.h"
