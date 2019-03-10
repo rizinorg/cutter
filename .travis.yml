@@ -68,10 +68,15 @@ addons:
 install:
   - scripts/fetch_deps.sh
   - source cutter-deps/env.sh
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]];   then source scripts/prepare_breakpad_macos.sh  ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then source scripts/prepare_breakpad_linux.sh  ; fi
+  - python3 -m pip install -r scripts/pip_requirements.txt
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        export PATH=/usr/local/opt/llvm/bin:$PATH
+        source scripts/prepare_breakpad_macos.sh
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+        source scripts/prepare_breakpad_linux.sh
+    fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -86,17 +91,21 @@ before_script:
 script:
   - mkdir build
   - cd build
+  - export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
+                CUTTER_ENABLE_JUPYTER=true
+                CUTTER_ENABLE_QTWEBENGINE=false
+                CUTTER_ENABLE_CRASH_REPORTS=true
                 PREFIX=/usr
                 APPIMAGE=1
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-            PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" cmake
+            cmake
                 -DCMAKE_BUILD_TYPE=Release
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
@@ -104,8 +113,8 @@ script:
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_JUPYTER=ON
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 -DCUTTER_ENABLE_QTWEBENGINE=OFF
-                -DCUTTER_ENABLE_CRASH_REPORTS=true
                 ../src &&
             make -j4;
        fi
@@ -114,21 +123,25 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
+                CUTTER_ENABLE_JUPYTER=true
+                CUTTER_ENABLE_QTWEBENGINE=false
                 CUTTER_BUNDLE_R2_APPBUNDLE=true
+                CUTTER_ENABLE_CRASH_REPORTS=true
                 PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
+                BREAKPAD_FRAMEWORK_DIR=$BREAKPAD_FRAMEWORK_DIR
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
             cmake
                 -DCMAKE_BUILD_TYPE=Release
-                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib"
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_JUPYTER=ON
                 -DCUTTER_ENABLE_QTWEBENGINE=OFF
-                -DCUTTER_ENABLE_CRASH_REPORTS=true
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"
                 ../src &&
             make -j4;
@@ -139,6 +152,7 @@ after_success:
   - export CUTTER_VERSION=$(python ../scripts/get_version.py)
   - lrelease ../src/Cutter.pro
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      $BREAKPAD_DUMP_SYS_DIR/dump_syms $BUILD/Cutter > $BUILD/Cutter.sym
       mkdir -p Cutter.app/Contents/Resources/translations &&
       cp ../src/translations/*.qm Cutter.app/Contents/Resources/translations/ &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
@@ -162,6 +176,7 @@ after_success:
       export FILE_TO_UPLOAD="$DMG_FILE"
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      $CUSTOM_BREAKPAD_PREFIX/bin/dump_syms Cutter > Cutter.sym
       make INSTALL_ROOT=appdir install &&
       cp -r /usr/share/radare2 appdir/usr/share/ &&
       mkdir -p appdir/usr/bin/translations &&
@@ -190,4 +205,3 @@ deploy:
   on:
     tags: true
     condition: $DEPLOY = 1
-

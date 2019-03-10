@@ -200,6 +200,7 @@ CUTTER_ENABLE_PYTHON {
 }
 
 CUTTER_ENABLE_CRASH_REPORTS {
+QMAKE_CXXFLAGS += -g
     defined(BREAKPAD_FRAMEWORK_DIR, var)|defined(BREAKPAD_SOURCE_DIR, var) {
         defined(BREAKPAD_FRAMEWORK_DIR, var) {
             INCLUDEPATH += $$BREAKPAD_FRAMEWORK_DIR/Breakpad.framework/Headers
