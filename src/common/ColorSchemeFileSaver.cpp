@@ -23,7 +23,8 @@ static const QStringList cutterSpecificOptions = {
     "gui.navbar.empty",
     "angui.navbar.str",
     "gui.disass_selected",
-    "gui.breakpoint_background"
+    "gui.breakpoint_background",
+    "gui.overview.node"
 };
 
 ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
