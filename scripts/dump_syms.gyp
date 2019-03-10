@@ -10,7 +10,7 @@
                 'dump_syms.cc',
             ],
             'dependencies': [
-                '../../../common/windows/common_windows.gyp:common_windows.lib',
+                '../../../common/windows/common.gyp:common.lib',
             ],
         },
     ],
