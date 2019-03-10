@@ -18,10 +18,13 @@
 #ifdef CUTTER_ENABLE_CRASH_REPORTS
 #if defined (Q_OS_LINUX)
 #include "client/linux/handler/exception_handler.h"
+#include "Cutter.h"
 #elif defined (Q_OS_WIN32)
+#include "Cutter.h"
 #include "client/windows/handler/exception_handler.h"
 #elif defined (Q_OS_MACOS)
 #include "client/mac/handler/exception_handler.h"
+#include "Cutter.h"
 #endif // Q_OS
 #endif // CUTTER_ENABLE_CRASH_REPORTS
 
@@ -187,7 +190,6 @@ void initCrashHandler()
 #endif // SIGSYS
 }
 
-#include "Cutter.h"
 void openIssue()
 {
     QString url, osInfo, format, arch, type;
