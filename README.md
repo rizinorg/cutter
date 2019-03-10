@@ -8,7 +8,7 @@ Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced, customiz
 [![Build status](https://ci.appveyor.com/api/projects/status/s9rkx1dn3uy4bfdx/branch/master?svg=true)](https://ci.appveyor.com/project/radare/cutter/branch/master)
 
 
-![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/images/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/source/images/screenshot.png)
 
 
 # Downloading a release
