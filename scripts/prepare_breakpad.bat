@@ -8,7 +8,7 @@ set PATH=%DEPOT_TOOLS%;%BUFF_PATH%
 mkdir %CD%\breakpad
 SET DAT_DIR=%CD%
 CD %CD%\breakpad
-fetch breakpad
+powershell -Command "fetch breakpad"
 powershell -Command "gclient sync"
 CD %DAT_DIR%
 DEL %DAT_DIR%\breakpad\src\src\client\windows\breakpad_client.gyp
