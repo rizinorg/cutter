@@ -201,6 +201,9 @@ void MainWindow::initUI()
         if (checked) {
             overviewDock->userClosed = false;
             overviewCacheOff();
+            if (targetGraphDock) {
+                toggleOverview(true, targetGraphDock);
+            }
         }
     });
     sectionsDock = new SectionsWidget(this, ui->actionSections);
