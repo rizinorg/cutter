@@ -1,10 +1,26 @@
 
 set(_module Shiboken2)
 
-find_package(${_module} ${${_module}_FIND_VERSION} CONFIG)
+find_package(${_module} ${${_module}_FIND_VERSION} CONFIG QUIET)
 
 if(NOT ${_module}_FOUND)
-    # TODO
+    include(PythonInfo)
+    find_python_site_packages(PYTHON_SITE_PACKAGES)
+    get_python_extension_suffix(PYTHON_EXTENSION_SUFFIX)
+
+    find_library(SHIBOKEN_LIBRARY
+            NAMES
+            "shiboken2${PYTHON_EXTENSION_SUFFIX}"
+            "shiboken2${PYTHON_EXTENSION_SUFFIX}.${${_module}_FIND_VERSION_MAJOR}.${${_module}_FIND_VERSION_MINOR}"
+            PATH_SUFFIXES "${PYTHON_SITE_PACKAGES}/shiboken2")
+
+    find_path(SHIBOKEN_INCLUDE_DIR
+            shiboken.h
+            PATH_SUFFIXES "${PYTHON_SITE_PACKAGES}/shiboken2_generator/include")
+
+    find_file(SHIBOKEN_BINARY
+            shiboken2
+            PATH_SUFFIXES "${PYTHON_SITE_PACKAGES}/shiboken2_generator")
 endif()
 
 include(FindPackageHandleStandardArgs)
