@@ -1,5 +1,6 @@
 #include "core/MainWindow.h"
 #include "ui_MainWindow.h"
+#include "common/CrashHandler.h"
 
 // Common Headers
 #include "common/Highlighter.h"
@@ -1088,9 +1089,10 @@ void MainWindow::on_actionAbout_triggered()
     a->setAttribute(Qt::WA_DeleteOnClose);
     a->open();
 }
+
 void MainWindow::on_actionIssue_triggered()
 {
-    Core()->openIssue();
+    openIssue();
 }
 
 void MainWindow::on_actionRefresh_Panels_triggered()

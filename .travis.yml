@@ -96,13 +96,16 @@ script:
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-            cmake
+            PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig" cmake
                 -DCMAKE_BUILD_TYPE=Release
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_JUPYTER=ON
+                -DCUTTER_ENABLE_QTWEBENGINE=OFF
+                -DCUTTER_ENABLE_CRASH_REPORTS=true
                 ../src &&
             make -j4;
        fi
@@ -123,6 +126,10 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_JUPYTER=ON
+                -DCUTTER_ENABLE_QTWEBENGINE=OFF
+                -DCUTTER_ENABLE_CRASH_REPORTS=true
+                -DBREAKPAD_FRAMEWORK_DIR=$BREAKPAD_FRAMEWORK_DIR
                 ../src &&
             make -j4;
        fi

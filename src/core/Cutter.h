@@ -377,8 +377,6 @@ public:
     static QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
 
-    void openIssue();
-
 signals:
     void refreshAll();
 

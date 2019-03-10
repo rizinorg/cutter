@@ -32,7 +32,7 @@ QT += core gui widgets svg network
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
-!defined(CUTTER_ENABLE_CRASH_REPORTS, var)        CUTTER_ENABLE_CRASH_REPORTS=false
+!defined(CUTTER_ENABLE_CRASH_REPORTS, var)        CUTTER_ENABLE_CRASH_REPORTS=true
 equals(CUTTER_ENABLE_CRASH_REPORTS, true)         CONFIG += CUTTER_ENABLE_CRASH_REPORTS
 !defined(CUTTER_ENABLE_PYTHON, var)             CUTTER_ENABLE_PYTHON=false
 equals(CUTTER_ENABLE_PYTHON, true)              CONFIG += CUTTER_ENABLE_PYTHON
