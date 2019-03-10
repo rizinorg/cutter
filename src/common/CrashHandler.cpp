@@ -1,4 +1,14 @@
 #include "CrashHandler.h"
+#include <QStandardPaths>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QFileDialog>
+#include <signal.h>
+#include <QString>
+#include <QTime>
+#include <QFile>
+#include <QDir>
+#include <QMap>
 
 #ifdef CUTTER_ENABLE_CRASH_REPORTS
 #if defined (Q_OS_LINUX)
@@ -10,17 +20,7 @@
 #endif // Q_OS
 #endif // CUTTER_ENABLE_CRASH_REPORTS
 
-#include <QStandardPaths>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QFileDialog>
-#include <signal.h>
 #include "Cutter.h"
-#include <QString>
-#include <QTime>
-#include <QFile>
-#include <QDir>
-#include <QMap>
 
 static const QMap<int, QString> sigNumDescription = {
     #ifdef SIGSEGV
