@@ -1,4 +1,5 @@
 #include "CrashHandler.h"
+
 #include <QStandardPaths>
 #include <QMessageBox>
 #include <QPushButton>
@@ -20,7 +21,7 @@
 #endif // Q_OS
 #endif // CUTTER_ENABLE_CRASH_REPORTS
 
-#include "Cutter.h"
+//#include "Cutter.h"
 
 static const QMap<int, QString> sigNumDescription = {
     #ifdef SIGSEGV
@@ -123,7 +124,7 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 
             int ret = info.exec();
             if (ret == QMessageBox::Yes) {
-                Core()->openIssue();
+//                Core()->openIssue();
             }
         } else {
             QMessageBox::critical(nullptr,
@@ -153,7 +154,7 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 
     int ret = mb.exec();
     if (ret == QMessageBox::Yes) {
-        Core()->openIssue();
+//        Core()->openIssue();
     }
     exit(3);
 }
