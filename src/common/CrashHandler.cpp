@@ -113,13 +113,6 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
                                                               nullptr);
 #endif // Q_OS
         if (ok) {
-            QMessageBox::information(nullptr,
-                                     QObject::tr("Success"),
-                                     QObject::tr("<a href=\"%1\">Crash dump</a> was successfully created."
-                                                 "<a href=\"https://github.com/radareorg/cutter/issues"
-                                                 "/new?template=bug_report.md\">Click here</a> to create an "
-                                                 "issue on Cutter github page.").arg(dir));
-
             QMessageBox info;
             info.setWindowTitle(QObject::tr("Success"));
             info.setText(QObject::tr("<a href=\"%1\">Crash dump</a> was successfully created.").arg(dir));
@@ -132,7 +125,6 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
             if (ret == QMessageBox::Yes) {
                 Core()->openIssue();
             }
-
         } else {
             QMessageBox::critical(nullptr,
                                   QObject::tr("Error!"),
