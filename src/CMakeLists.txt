@@ -86,8 +86,8 @@ if(CUTTER_ENABLE_PYTHON)
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
         find_package(PythonInterp REQUIRED)
-        find_package(Shiboken2 REQUIRED)
-        find_package(PySide2 REQUIRED)
+        find_package(Shiboken2 "${Qt5_VERSION}" REQUIRED)
+        find_package(PySide2 "${Qt5_VERSION}" REQUIRED)
 
         set(PYSIDE_LIBRARY PySide2::pyside2)
         get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
