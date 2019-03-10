@@ -34,20 +34,11 @@ set(CUTTER_VERSION_PATCH "${CUTTER_PRO_CUTTER_VERSION_PATCH}")
 
 set(CUTTER_VERSION_FULL "${CUTTER_VERSION_MAJOR}.${CUTTER_VERSION_MINOR}.${CUTTER_VERSION_PATCH}")
 
-#message(STATUS "version from Cutter.pro: ${CUTTER_VERSION_FULL}")
-#message(STATUS "sources from Cutter.pro: ${SOURCE_FILES}")
-#message(STATUS "headers from Cutter.pro: ${HEADER_FILES}")
-#message(STATUS "forms from Cutter.pro: ${UI_FILES}")
-#message(STATUS "resources from Cutter.pro: ${QRC_FILES}")
-
 project(Cutter VERSION "${CUTTER_VERSION_FULL}")
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/core")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/common")
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/plugins")
+include_directories(core widgets common plugins)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -84,11 +75,7 @@ include_directories(${RADARE2_INCLUDE_DIRS})
 link_directories(${RADARE2_LIBRARY_DIRS})
 
 if(CUTTER_ENABLE_PYTHON)
-    find_package(PythonLibs ${CUTTER_PYTHON_MIN})
-    if(NOT PythonLibs_FOUND)
-        message(FATAL_ERROR "Python >= ${CUTTER_PYTHON_MIN} could not be found.
-If you do not want to build Cutter with Python, re-run CMake with -DCUTTER_ENABLE_PYTHON=OFF.")
-    endif()
+    find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
 
     include_directories(${PYTHON_INCLUDE_DIRS})
     add_definitions(-DCUTTER_ENABLE_PYTHON)
@@ -99,36 +86,16 @@ If you do not want to build Cutter with Python, re-run CMake with -DCUTTER_ENABL
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
         find_package(PythonInterp REQUIRED)
-        find_package(Shiboken2)
-        find_package(PySide2)
+        find_package(Shiboken2 REQUIRED)
+        find_package(PySide2 REQUIRED)
 
-        if((NOT Shiboken2_FOUND) OR (NOT PySide2_FOUND))
-            message(FATAL_ERROR "Generating Python bindings is enabled, but Shiboken2 or PySide2 was not found.
-If you explicitly want to not generate bindings, re-run CMake with -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF
-or, if you don't want to build with Python at all, use -DCUTTER_ENABLE_PYTHON=OFF.")
-        endif()
-
-        if(NOT SHIBOKEN_BINARY)
-            # Newer Versions of Shiboken2 export targets
-            set(SHIBOKEN_BINARY Shiboken2::shiboken2)
-            set(SHIBOKEN_LIBRARY Shiboken2::libshiboken)
-        else()
-            include_directories(${SHIBOKEN_INCLUDE_DIR})
-        endif()
-
-        if(NOT PYSIDE_LIBRARY)
-            # Newer Versions of PySide2 export targets
-            set(PYSIDE_LIBRARY PySide2::pyside2)
-            get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
-            list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
-        endif()
-
-        if(PYSIDE_INCLUDE_DIR)
-            include_directories(${PYSIDE_INCLUDE_DIR}
-                ${PYSIDE_INCLUDE_DIR}/QtCore
-                ${PYSIDE_INCLUDE_DIR}/QtGui
-                ${PYSIDE_INCLUDE_DIR}/QtWidgets)
-        endif()
+        set(PYSIDE_LIBRARY PySide2::pyside2)
+        get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
+        list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
+        include_directories(${PYSIDE_INCLUDE_DIR}
+            ${PYSIDE_INCLUDE_DIR}/QtCore
+            ${PYSIDE_INCLUDE_DIR}/QtGui
+            ${PYSIDE_INCLUDE_DIR}/QtWidgets)
 
         add_definitions(-DCUTTER_ENABLE_PYTHON_BINDINGS)
     endif()
@@ -164,7 +131,7 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
     include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
 
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-            COMMAND "${SHIBOKEN_BINARY}" --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
+            COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
@@ -188,7 +155,7 @@ target_link_libraries(Cutter ${RADARE2_LIBRARIES})
 if(CUTTER_ENABLE_PYTHON)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
-        target_link_libraries(Cutter ${SHIBOKEN_LIBRARY} ${PYSIDE_LIBRARY})
+        target_link_libraries(Cutter Shiboken2::libshiboken PySide2::pyside2)
 
         get_target_property(BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
         if(APPLE AND _qt5Core_install_prefix)
