@@ -9,6 +9,5 @@
 */
 void initCrashHandler();
 
-void openIssue();
 
 #endif // CRASH_HANDLER_H
