@@ -6,8 +6,8 @@ from PySide2.QtWidgets import QAction, QVBoxLayout, QLabel, QWidget, QSizePolicy
 
 
 class FortuneWidget(cutter.CutterDockWidget):
-    def __init__(self, main, action):
-        super(FortuneWidget, self).__init__(main, action)
+    def __init__(self, parent, action):
+        super(FortuneWidget, self).__init__(parent, action)
         self.setObjectName("FancyDockWidgetFromCoolPlugin")
         self.setWindowTitle("Sample Python Plugin")
 
@@ -54,10 +54,10 @@ class CutterSamplePlugin(cutter.CutterPlugin):
         pass
 
     def setupInterface(self, main):
-        self.action = QAction("Sample Python Plugin", main)
-        self.action.setCheckable(True)
-        self.widget = FortuneWidget(main, self.action) # we MUST keep a reference to this!
-        main.addPluginDockWidget(self.widget, self.action)
+        action = QAction("Sample Python Plugin", main)
+        action.setCheckable(True)
+        widget = FortuneWidget(main, action)
+        main.addPluginDockWidget(widget, action)
 
 
 # This function will be called by Cutter and should return an instance of the plugin.

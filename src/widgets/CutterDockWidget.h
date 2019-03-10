@@ -12,7 +12,7 @@ class CutterDockWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit CutterDockWidget(MainWindow *main, QAction *action = nullptr);
+    explicit CutterDockWidget(MainWindow *parent, QAction *action = nullptr);
     ~CutterDockWidget() override;
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isVisibleToUser()      { return isVisibleToUserCurrent; }
