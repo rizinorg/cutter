@@ -207,7 +207,6 @@ QMAKE_CXXFLAGS += -g
             LIBS += -F$$BREAKPAD_FRAMEWORK_DIR -framework Breakpad
         }
         defined(BREAKPAD_SOURCE_DIR, var) {
-            message(BREAKPAD_SOURCE_DIR=$$BREAKPAD_SOURCE_DIR)
             INCLUDEPATH += $$BREAKPAD_SOURCE_DIR
             win32 {
                 LIBS += -L$$quote($$BREAKPAD_SOURCE_DIR\\client\\windows\\release\\lib) -lexception_handler -lcrash_report_sender -lcrash_generation_server -lcrash_generation_client -lcommon

@@ -14,17 +14,17 @@ powershell -Command "fetch breakpad"
 powershell -Command "gclient sync"
 
 CD %ROOT_DIR%\breakpad\src\src\client\windows
-DEL %ROOT_DIR%\breakpad_client.gyp
-DEL %ROOT_DIR%\breakpad_client.sln
-DEL %ROOT_DIR%\common.vcxproj
-DEL %ROOT_DIR%\common.vcxproj.filters
-DEL %ROOT_DIR%\build_all.vcxproj
+DEL %CD%\breakpad_client.gyp
+DEL %CD%\breakpad_client.sln
+DEL %CD%\common.vcxproj
+DEL %CD%\common.vcxproj.filters
+DEL %CD%\build_all.vcxproj
 
 CD %ROOT_DIR%\breakpad\src\src\tools\windows\dump_syms
-DEL %ROOT_DIR%\dump_syms.gyp
-DEL %ROOT_DIR%\dump_syms.vcxproj
-DEL %ROOT_DIR%\dump_syms.vcproj
-DEL %ROOT_DIR%\dump_syms.sln
+DEL %CD%\dump_syms.gyp
+DEL %CD%\dump_syms.vcxproj
+DEL %CD%\dump_syms.vcproj
+DEL %CD%\dump_syms.sln
 
 COPY %ROOT_DIR%\scripts\breakpad_client.gyp %ROOT_DIR%\breakpad\src\src\client\windows
 COPY %ROOT_DIR%\scripts\dump_syms.gyp %ROOT_DIR%\breakpad\src\src\tools\windows\dump_syms
