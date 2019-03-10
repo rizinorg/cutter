@@ -3,7 +3,7 @@ powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.Security
 depot_tools\update_depot_tools
 SET "BUFF_PATH=%PATH%"
 SET "DEPOT_TOOLS=%CD%\depot_tools"
-setx PATH %DEPOT_TOOLS%%BUFF_PATH% \m
+set "PATH=%DEPOT_TOOLS%%BUFF_PATH%"
 mkdir %CD%\breakpad
 SET "DAT_DIR=%CD%"
 CD %CD%\breakpad
@@ -18,6 +18,6 @@ DEL %DAT_DIR%\breakpad\src\src\client\windows\build_all.vcxproj
 COPY %CD%\scripts\breakpad_client.gyp %CD%\breakpad\src\src\client\windows
 CD %CD%\breakpad\src\src
 tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release
-setx PATH %BUFF_PATH% \m
+set "PATH=%BUFF_PATH%"
 msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH%
 CD %DAT_DIR%
