@@ -46,7 +46,7 @@ install:
 before_build:
   - cmd: git submodule update --init
   - cmd: python scripts\compile_python_resources.py
-  - cmd: start scripts\prepare_breakpad.bat
+  - scripts\prepare_breakpad.bat
   
 
 # Build config
