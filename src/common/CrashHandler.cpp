@@ -1,4 +1,6 @@
 #include "CrashHandler.h"
+
+#ifdef CUTTER_ENABLE_CRASH_REPORTS
 #include "BugReporting.h"
 
 #include <QStandardPaths>
@@ -13,7 +15,6 @@
 #include <QMap>
 
 
-#ifdef CUTTER_ENABLE_CRASH_REPORTS
 #if defined (Q_OS_LINUX)
 #include "client/linux/handler/exception_handler.h"
 #elif defined (Q_OS_WIN32)
@@ -21,7 +22,6 @@
 #elif defined (Q_OS_MACOS)
 #include "client/mac/handler/exception_handler.h"
 #endif // Q_OS
-#endif // CUTTER_ENABLE_CRASH_REPORTS
 
 static const QMap<int, QString> sigNumDescription = {
     #ifdef SIGSEGV
@@ -46,8 +46,6 @@ static const QMap<int, QString> sigNumDescription = {
     { SIGSYS, "SIGSYS" }
     #endif // SIGSYS
 };
-
-#ifdef CUTTER_ENABLE_CRASH_REPORTS
 
 static QString dumpFileFullPath = "";
 
@@ -135,30 +133,6 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 
     exit(3);
 }
-#else
-[[noreturn]] void crashHandler(int signum)
-{
-    QString err = sigNumDescription.contains(signum) ?
-                      sigNumDescription[signum] :
-                      QObject::tr("undefined");
-
-    QMessageBox mb;
-    mb.setWindowTitle(QObject::tr("Cutter encountered a problem"));
-    mb.setText(QObject::tr("Cutter got a <b>%1</b> signal and can't handle it, so "
-                           "programm will close.<br/>"
-                           "Would you like to create an issue for bug report?"
-                           ).arg(err));
-    mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    mb.button(QMessageBox::Yes)->setText(QObject::tr("Open an issue"));
-    mb.button(QMessageBox::No)->setText(QObject::tr("Do not report"));
-
-    int ret = mb.exec();
-    if (ret == QMessageBox::Yes) {
-        openIssue();
-    }
-    exit(3);
-}
-#endif // CUTTER_ENABLE_CRASH_REPORTS
 
 void initCrashHandler()
 {
@@ -184,3 +158,12 @@ void initCrashHandler()
     signal(SIGSYS, crashHandler);
 #endif // SIGSYS
 }
+
+#else // CUTTER_ENABLE_CRASH_REPORTS
+
+void initCrashHandler()
+{
+
+}
+
+#endif // CUTTER_ENABLE_CRASH_REPORTS
