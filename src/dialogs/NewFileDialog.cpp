@@ -51,7 +51,7 @@ static QIcon getIconFor(const QString &str, int pos)
 }
 
 NewFileDialog::NewFileDialog(MainWindow *main) :
-    QDialog(main),
+    QDialog(nullptr), // no parent on purpose, using main causes weird positioning
     ui(new Ui::NewFileDialog),
     main(main)
 {
