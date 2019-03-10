@@ -472,7 +472,7 @@ void MainWindow::displayWelcomeDialog()
 
 void MainWindow::displayNewFileDialog()
 {
-    NewFileDialog *n = new NewFileDialog();
+    NewFileDialog *n = new NewFileDialog(this);
     newFileDialog = n;
     n->setAttribute(Qt::WA_DeleteOnClose);
     n->show();

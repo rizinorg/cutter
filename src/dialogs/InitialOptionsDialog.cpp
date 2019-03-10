@@ -423,6 +423,5 @@ void InitialOptionsDialog::on_scriptSelectButton_clicked()
 void InitialOptionsDialog::reject()
 {
     done(0);
-    NewFileDialog *n = new NewFileDialog(nullptr);
-    n->show();
+    main->displayNewFileDialog();
 }

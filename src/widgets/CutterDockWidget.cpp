@@ -2,13 +2,13 @@
 #include "core/MainWindow.h"
 
 
-CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
-    QDockWidget(main),
+CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
+    QDockWidget(parent),
     action(action)
 {
     if (action) {
-        main->addToDockWidgetList(this);
-        main->addDockWidgetAction(this, action);
+        parent->addToDockWidgetList(this);
+        parent->addDockWidgetAction(this, action);
         connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
     }
 

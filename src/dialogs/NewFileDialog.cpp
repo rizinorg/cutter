@@ -50,9 +50,10 @@ static QIcon getIconFor(const QString &str, int pos)
     return QIcon(pixmap);
 }
 
-NewFileDialog::NewFileDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::NewFileDialog)
+NewFileDialog::NewFileDialog(MainWindow *main) :
+    QDialog(main),
+    ui(new Ui::NewFileDialog),
+    main(main)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -359,7 +360,6 @@ void NewFileDialog::loadFile(const QString &filename)
     settings.setValue("recentFileList", files);
 
     // Close dialog and open MainWindow/InitialOptionsDialog
-    MainWindow *main = new MainWindow();
     QString ioFile = "";
     if (ui->ioPlugin->currentIndex()) {
         ioFile = ui->ioPlugin->currentText() + "://";
