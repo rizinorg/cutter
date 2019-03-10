@@ -1,6 +1,7 @@
 @ECHO ON
 powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget https://storage.googleapis.com/chrome-infra/depot_tools.zip -OutFile depot_tools.zip "
 7z -bd x %CD%\depot_tools.zip -odepot_tools
+powershell -Command "depot_tools\update_depot_tools"
 SET BUFF_PATH=%PATH%
 SET DEPOT_TOOLS=%CD%\depot_tools
 set PATH=%DEPOT_TOOLS%%BUFF_PATH%
