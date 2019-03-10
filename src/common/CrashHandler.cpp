@@ -134,8 +134,7 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 
     exit(3);
 }
-#endif // CUTTER_ENABLE_CRASH_REPORTS
-
+#else
 [[noreturn]] void crashHandler(int signum)
 {
     QString err = sigNumDescription.contains(signum) ?
@@ -158,6 +157,7 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
     }
     exit(3);
 }
+#endif // CUTTER_ENABLE_CRASH_REPORTS
 
 void initCrashHandler()
 {
