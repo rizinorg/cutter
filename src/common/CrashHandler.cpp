@@ -187,6 +187,7 @@ void initCrashHandler()
 #endif // SIGSYS
 }
 
+#include "Cutter.h"
 void openIssue()
 {
     QString url, osInfo, format, arch, type;
