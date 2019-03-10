@@ -9,7 +9,7 @@ mkdir %CD%\breakpad
 SET DAT_DIR=%CD%
 CD %CD%\breakpad
 fetch breakpad
-gclient sync
+powershell -Command "gclient sync"
 CD %DAT_DIR%
 DEL %DAT_DIR%\breakpad\src\src\client\windows\breakpad_client.gyp
 DEL %DAT_DIR%\breakpad\src\src\client\windows\breakpad_client.sln
