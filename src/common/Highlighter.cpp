@@ -11,7 +11,6 @@ Highlighter::Highlighter(QTextDocument *parent) :
     core = Core();
 
     keywordFormat.setForeground(QColor(65, 131, 215));
-    keywordFormat.setFontWeight(QFont::Bold);
 
     for (const QString &pattern : this->core->opcodes) {
         rule.pattern = QRegExp("\\b" + pattern + "\\b");
@@ -21,7 +20,6 @@ Highlighter::Highlighter(QTextDocument *parent) :
     }
 
     regFormat.setForeground(QColor(236, 100, 75));
-    regFormat.setFontWeight(QFont::Bold);
 
     for (const QString &pattern : this->core->regs) {
         rule.pattern = QRegExp("\\b" + pattern + "\\b");

@@ -22,8 +22,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent)
                     << "\\static\\b" << "\\while\\b";
 
     QTextCharFormat keywordFormat;
-    keywordFormat.setForeground(Qt::red);
-    keywordFormat.setFontWeight(QFont::Bold);
+    keywordFormat.setForeground(QColor(80, 200, 215));
 
     for ( const auto &pattern : keywordPatterns ) {
         rule.pattern.setPattern(pattern);
