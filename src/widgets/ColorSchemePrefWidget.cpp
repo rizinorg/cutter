@@ -202,6 +202,12 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
     },
     { "graph.current", { "", "graph.current", false } },
     { "graph.traced", { "", "graph.traced", false } },
+    {
+        "gui.overview.node", {
+            QObject::tr("Background color of Graph Overview's node"),
+            QObject::tr("Graph Overview node"), true
+        }
+    },
     { "gui.cflow", { "", "gui.cflow", true } },
     { "gui.dataoffset", { "", "gui.dataoffset", true } },
     {
