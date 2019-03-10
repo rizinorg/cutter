@@ -4,7 +4,7 @@ powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.Security
 powershell -Command "depot_tools\update_depot_tools"
 SET BUFF_PATH=%PATH%
 SET DEPOT_TOOLS=%CD%\depot_tools
-set PATH=%DEPOT_TOOLS%%BUFF_PATH%
+set PATH=%DEPOT_TOOLS%;%BUFF_PATH%
 mkdir %CD%\breakpad
 SET DAT_DIR=%CD%
 CD %CD%\breakpad
