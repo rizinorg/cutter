@@ -19,14 +19,14 @@ void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut6
     width = baseWidth;
     height = baseHeight;
     blocks = baseBlocks;
-    refreshView();
+    scaleAndCenter();
 }
 
 OverviewView::~OverviewView()
 {
 }
 
-void OverviewView::refreshView()
+void OverviewView::scaleAndCenter()
 {
     current_scale = (qreal)viewport()->width() / width;
     qreal h_scale = (qreal)viewport()->height() / height;
@@ -34,6 +34,11 @@ void OverviewView::refreshView()
         current_scale = h_scale;
     }
     center();
+}
+
+void OverviewView::refreshView()
+{
+    scaleAndCenter();
     viewport()->update();
 }
 

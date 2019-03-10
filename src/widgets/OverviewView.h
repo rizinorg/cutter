@@ -36,7 +36,11 @@ public:
 
 public slots:
     /**
-     * @brief refresh the view and adjust the scale
+     * @brief calculate the scale to fit the all nodes in and center them in the viewport
+     */
+    void scaleAndCenter();
+    /**
+     * @brief scale and center all nodes in, then run update
      */
     void refreshView();
 
