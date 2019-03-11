@@ -86,7 +86,7 @@ bool writeMinidump()
                                                           callback,
                                                           nullptr);
 #elif defined (Q_OS_WIN32)
-    ok = google_breakpad::ExceptionHandler::WriteMinidump(".",
+    ok = google_breakpad::ExceptionHandler::WriteMinidump(std::wstring(L"."),
                                                           callback,
                                                           nullptr);
 #endif // Q_OS
