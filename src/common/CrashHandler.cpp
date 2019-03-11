@@ -178,8 +178,6 @@ void initCrashHandler()
 #ifdef SIGSYS
     signal(SIGSYS, crashHandler);
 #endif // SIGSYS
-    int *p = 0;
-    *p=1;
 }
 
 #else // CUTTER_ENABLE_CRASH_REPORTS
