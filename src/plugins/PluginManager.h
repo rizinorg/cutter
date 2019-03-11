@@ -29,6 +29,8 @@ public:
 
     const QList<CutterPlugin *> &getPlugins()   { return plugins; }
 
+    QString getPluginsDirectory() const;
+
 private:
     QList<CutterPlugin *> plugins;
 
