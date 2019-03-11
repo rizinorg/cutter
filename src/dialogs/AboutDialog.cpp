@@ -107,7 +107,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.exec();
 }
 
-void AboutDialog::on_updatesCheckBox_stateChanged(int state)
+void AboutDialog::on_updatesCheckBox_stateChanged(int)
 {
     Config()->setAutoUpdateEnabled(!Config()->getAutoUpdateEnabled());
 }
