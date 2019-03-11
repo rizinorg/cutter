@@ -4,6 +4,7 @@
 #include "BugReporting.h"
 
 #include <QStandardPaths>
+#include <QApplication>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QFileDialog>
@@ -58,24 +59,53 @@ bool callback(const wchar_t *_dump_dir,
 {
     QString dir = QString::fromWCharArray(_dump_dir);
     QString id = QString::fromWCharArray(_minidump_id);
-    return QFile::rename(QDir(dir).filePath(id + ".dmp"), dumpFileFullPath);
+    dumpFileFullPath = QDir(dir).filePath(id + ".dmp");
+    return true;
 }
 #elif defined (Q_OS_LINUX)
 bool callback(const google_breakpad::MinidumpDescriptor &md, void *context, bool b)
 {
-    return QFile::rename(md.path(), dumpFileFullPath);
+    dumpFileFullPath = md.path();
+    return true;
 }
 #elif defined (Q_OS_MACOS)
 bool callback(const char *dump_dir, const char *minidump_id, void *context, bool succeeded)
 {
     QString dir = QString::fromUtf8(dump_dir);
     QString id = QString::fromUtf8(minidump_id);
-    return QFile::rename(QDir(dir).filePath(id + ".dmp"), dumpFileFullPath);
+    dumpFileFullPath = QDir(dir).filePath(id + ".dmp");
+    return true;
 }
 #endif // Q_OS
 
+bool writeMinidump()
+{
+    bool ok;
+#if defined (Q_OS_LINUX) || defined (Q_OS_MACOS)
+    ok = google_breakpad::ExceptionHandler::WriteMinidump(".",
+                                                          callback,
+                                                          nullptr);
+#elif defined (Q_OS_WIN32)
+    ok = google_breakpad::ExceptionHandler::WriteMinidump(".",
+                                                          callback,
+                                                          nullptr);
+#endif // Q_OS
+    return ok;
+}
+
+bool placeMinidump(QString dir)
+{
+    QFile f(QDir(QApplication::applicationDirPath()).filePath("Cutter.sym"));
+    QString replaceFilePath = QDir(dir).filePath("Cutter_crash_dump_"
+                                                 + QDate().currentDate().toString("dd.MM.yy") + "_"
+                                                 + QTime().currentTime().toString() + ".dmp");
+    return f.copy(QString(replaceFilePath).replace("dmp", "sym")) &&
+            QFile::rename(dumpFileFullPath, replaceFilePath);
+}
+
 [[noreturn]] void crashHandler(int signum)
 {
+    bool ok = writeMinidump();
     QString err = sigNumDescription.contains(signum) ?
                       sigNumDescription[signum] :
                       QObject::tr("undefined");
@@ -98,19 +128,7 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
                                                   QObject::tr("Choose a directory to save the crash dump in"),
                                                   QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
                                                   QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-
-        dumpFileFullPath = QDir(dir).filePath("Cutter_crash_dump_" + QDate().currentDate().toString("dd.MM.yy") + "_"
-                                              + QTime().currentTime().toString() + ".dmp");
-        bool ok;
-#if defined (Q_OS_LINUX) || defined (Q_OS_MACOS)
-        ok = google_breakpad::ExceptionHandler::WriteMinidump(dir.toStdString(),
-                                                              callback,
-                                                              nullptr);
-#elif defined (Q_OS_WIN32)
-        ok = google_breakpad::ExceptionHandler::WriteMinidump(dir.toStdWString(),
-                                                              callback,
-                                                              nullptr);
-#endif // Q_OS
+        ok = ok && placeMinidump(dir);
         if (ok) {
             QMessageBox info;
             info.setWindowTitle(QObject::tr("Success"));
@@ -129,6 +147,9 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
                                   QObject::tr("Error!"),
                                   QObject::tr("Error occured during crash dump creation."));
         }
+    } else {
+        QFile f(dumpFileFullPath);
+        f.remove();
     }
 
     exit(3);
@@ -157,6 +178,8 @@ void initCrashHandler()
 #ifdef SIGSYS
     signal(SIGSYS, crashHandler);
 #endif // SIGSYS
+    int *p = 0;
+    *p=1;
 }
 
 #else // CUTTER_ENABLE_CRASH_REPORTS
