@@ -83,32 +83,6 @@ class DisassemblerGraphView : public GraphView
         bool indirectcall = false;
     };
 
-    struct Function {
-        bool ready;
-        ut64 entry;
-        ut64 update_id;
-        std::vector<DisassemblyBlock> blocks;
-    };
-
-    struct Analysis {
-        ut64 entry = 0;
-        std::unordered_map<ut64, Function> functions;
-        bool ready = false;
-        ut64 update_id = 0;
-        QString status = "Analyzing...";
-
-        bool find_instr(ut64 addr, ut64 &func, ut64 &instr)
-        {
-            //TODO implement
-            Q_UNUSED(addr);
-            Q_UNUSED(func);
-            Q_UNUSED(instr);
-            return false;
-        }
-
-        //dummy class
-    };
-
 public:
     DisassemblerGraphView(QWidget *parent);
     ~DisassemblerGraphView() override;
@@ -129,7 +103,6 @@ public:
 
     int getWidth() { return width; }
     int getHeight() { return height; }
-
     std::unordered_map<ut64, GraphBlock> getBlocks() { return blocks; }
 public slots:
     void refreshView();

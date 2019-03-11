@@ -109,6 +109,13 @@ public:
      */
     bool useCache = false;
 
+    /**
+     * @brief keep the current addr of the fcn of Graph
+     * Everytime overview updates its contents, it compares this value with the one in Graph
+     * if they aren't same, then Overview needs to update the pixmap cache.
+     */
+    ut64 currentFcnAddr = 0;
+
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);

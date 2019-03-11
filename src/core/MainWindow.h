@@ -137,12 +137,6 @@ public slots:
     void openNewFileFailed();
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
-    void disconnectOverview();
-    void overviewCacheOn();
-    void overviewCacheOff();
-    void adjustOverview();
-    void adjustGraph();
-
 private slots:
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
@@ -194,6 +188,12 @@ private slots:
     bool eventFilter(QObject *object, QEvent *event) override;
     void changeDebugView();
     void changeDefinedView();
+
+    void disconnectOverview();
+    void updateOverview();
+    void updateOverviewAddr();
+    void drawOverview();
+    void adjustGraph();
 
 private:
     CutterCore *core;
@@ -273,7 +273,6 @@ private:
 
     void updateDockActionsChecked();
     void setOverviewData();
-
     bool isOverviewActive();
 };
 
