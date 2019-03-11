@@ -24,6 +24,13 @@
 #include "client/mac/handler/exception_handler.h"
 #endif // Q_OS
 
+
+#if defined (Q_OS_LINUX) || defined (Q_OS_MACOS)
+static std::string tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
+#else
+static std::wstring tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdWString();
+#endif
+
 static const QMap<int, QString> sigNumDescription = {
     #ifdef SIGSEGV
     { SIGSEGV, "SIGSEGV" },
@@ -78,34 +85,54 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 }
 #endif // Q_OS
 
+
+/**
+ * @brief Writes minidump and put its name in dumpFileFullPath.
+ * @return true on succes
+ */
 bool writeMinidump()
 {
     bool ok;
 #if defined (Q_OS_LINUX) || defined (Q_OS_MACOS)
-    ok = google_breakpad::ExceptionHandler::WriteMinidump(".",
+    ok = google_breakpad::ExceptionHandler::WriteMinidump(tmpLocation,
                                                           callback,
                                                           nullptr);
 #elif defined (Q_OS_WIN32)
-    ok = google_breakpad::ExceptionHandler::WriteMinidump(std::wstring(L"."),
+    ok = google_breakpad::ExceptionHandler::WriteMinidump(tmpLocation,
                                                           callback,
                                                           nullptr);
 #endif // Q_OS
     return ok;
 }
 
+/**
+ * @brief Moves dump file to specified @a dir and renames it to
+ * "Cutter_crash_dump_DD.MM.YY_HH:MM:SS.dmp" format.
+
+ * @param dir is directory where dump file will be placed
+ * @return true on success
+ */
 bool placeMinidump(QString dir)
 {
-    QFile f(QDir(QApplication::applicationDirPath()).filePath("Cutter.sym"));
     QString replaceFilePath = QDir(dir).filePath("Cutter_crash_dump_"
                                                  + QDate().currentDate().toString("dd.MM.yy") + "_"
                                                  + QTime().currentTime().toString() + ".dmp");
-    return f.copy(QString(replaceFilePath).replace("dmp", "sym")) &&
-            QFile::rename(dumpFileFullPath, replaceFilePath);
+    return QFile::rename(dumpFileFullPath, replaceFilePath);
+}
+
+void showErrorMesage()
+{
+    QMessageBox::critical(nullptr,
+                          QObject::tr("Error!"),
+                          QObject::tr("Error occured during crash dump creation."));
 }
 
 [[noreturn]] void crashHandler(int signum)
 {
+    // As soon as Cutter crashed, crash dump is created, so core and memory state
+    // is not changed by all stuff with user interation going on below.
     bool ok = writeMinidump();
+
     QString err = sigNumDescription.contains(signum) ?
                       sigNumDescription[signum] :
                       QObject::tr("undefined");
@@ -123,12 +150,29 @@ bool placeMinidump(QString dir)
 
     int ret = mb.exec();
     if (ret == QMessageBox::Yes) {
-        QString dir =
-                QFileDialog::getExistingDirectory(nullptr,
-                                                  QObject::tr("Choose a directory to save the crash dump in"),
-                                                  QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
-                                                  QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
-        ok = ok && placeMinidump(dir);
+        QString dir;
+        int placementFailCounter = 0;
+        do {
+            placementFailCounter++;
+            if (placementFailCounter == 4) {
+                showErrorMesage();
+                break;
+            }
+            dir = QFileDialog::getExistingDirectory(nullptr,
+                                                    QObject::tr("Choose a directory to save the crash dump in"),
+                                                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+            if (placeMinidump(dir)) {
+                break;
+            }
+            QMessageBox::critical(nullptr,
+                                  QObject::tr("Error"),
+                                  QObject::tr("Error occured during writing to the %1.<br/>"
+                                              "Please, make sure you have access to that directory "
+                                              "and try again.").arg(dir));
+        } while (true);
+
         if (ok) {
             QMessageBox info;
             info.setWindowTitle(QObject::tr("Success"));
@@ -143,9 +187,7 @@ bool placeMinidump(QString dir)
                 openIssue();
             }
         } else {
-            QMessageBox::critical(nullptr,
-                                  QObject::tr("Error!"),
-                                  QObject::tr("Error occured during crash dump creation."));
+            showErrorMesage();
         }
     } else {
         QFile f(dumpFileFullPath);
@@ -155,6 +197,10 @@ bool placeMinidump(QString dir)
     exit(3);
 }
 
+/**
+ * @brief initCrashHandler
+ * Installs crashHandler() as a handler of crash signals.
+ */
 void initCrashHandler()
 {
 #ifdef SIGSEGV
