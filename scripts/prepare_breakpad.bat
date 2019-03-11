@@ -1,4 +1,4 @@
-@ECHO ON
+@ECHO OFF
 SET ROOT_DIR=%CD%
 
 powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget https://storage.googleapis.com/chrome-infra/depot_tools.zip -OutFile depot_tools.zip "
