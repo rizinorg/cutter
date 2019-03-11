@@ -191,6 +191,7 @@ private slots:
 
     void disconnectOverview();
     void updateOverview();
+    void forceUpdateOverview();
     void updateOverviewAddr();
     void drawOverview();
     void adjustGraph();

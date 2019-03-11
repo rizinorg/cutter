@@ -200,7 +200,7 @@ void MainWindow::initUI()
     connect(ui->actionOverview, &QAction::toggled, [this](bool checked) {
         if (checked) {
             overviewDock->userClosed = false;
-            updateOverview();
+            forceUpdateOverview();
             if (targetGraphDock) {
                 toggleOverview(true, targetGraphDock);
             }
@@ -311,14 +311,14 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     });
     connect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
     connect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
-    connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::updateOverview);
+    connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
     connect(overviewDock, &OverviewWidget::graphClose, [this]() {
         ui->actionOverview->setChecked(false);
         if (!core->isGraphEmpty()) {
             overviewDock->userClosed = true;
         }
     });
-    connect(overviewDock, SIGNAL(resized()), this, SLOT(updateOverview()));
+    connect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
 }
 
 void MainWindow::disconnectOverview()
@@ -328,9 +328,8 @@ void MainWindow::disconnectOverview()
     disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
     disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
     disconnect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
-    disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::updateOverview);
-    disconnect(overviewDock, SIGNAL(resized()), this, SLOT(updateOverview()));
-    disconnect(overviewDock, &QDockWidget::visibilityChanged, this, nullptr);
+    disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
+    disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
 }
 
 void MainWindow::setOverviewData()
@@ -355,6 +354,16 @@ bool MainWindow::isOverviewActive()
 void MainWindow::updateOverviewAddr()
 {
     overviewDock->graphView->currentFcnAddr = targetGraphDock->graphView->currentFcnAddr;
+}
+
+void MainWindow::forceUpdateOverview()
+{
+    if (!isOverviewActive()) {
+        return;
+    }
+    overviewDock->graphView->useCache = false;
+    setOverviewData();
+    drawOverview();
 }
 
 void MainWindow::updateOverview()
