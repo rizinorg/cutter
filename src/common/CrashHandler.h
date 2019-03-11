@@ -4,8 +4,8 @@
 /**
  * @fn void initCrashHandler()
  *
- * Initializes crash handling and reporting. If CUTTER_ENABLE_CRASH_REPORTS is true
- * also initializes crash dump system.
+ * If CUTTER_ENABLE_CRASH_REPORTS is true, initializes
+ * crash handling and reporting, otherwise do nothing.
 */
 void initCrashHandler();
 
