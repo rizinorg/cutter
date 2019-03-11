@@ -30,24 +30,32 @@ PluginManager::~PluginManager()
 {
 }
 
+QString PluginManager::getPluginsDirectory() const
+{
+    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    if (locations.isEmpty()) {
+        return QString();
+    }
+    QDir pluginsDir(locations.first());
+    pluginsDir.mkpath("plugins");
+    if (!pluginsDir.cd("plugins")) {
+        return QString();
+    }
+    return pluginsDir.absolutePath();
+}
+
 void PluginManager::loadPlugins()
 {
     assert(plugins.isEmpty());
 
-    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    if (locations.isEmpty()) {
-        qCritical() << "Failed to get a standard path to load plugins from.";
+    QString pluginsDirStr = getPluginsDirectory();
+    if (pluginsDirStr.isEmpty()) {
+        qCritical() << "Failed to get a path to load plugins from.";
         return;
     }
-    QDir pluginsDir(locations.first());
-    pluginsDir.mkpath(".");
+    QDir pluginsDir(pluginsDirStr);
 
     qInfo() << "Plugins are loaded from" << pluginsDir.absolutePath();
-
-    pluginsDir.mkdir("plugins");
-    if (!pluginsDir.cd("plugins")) {
-        return;
-    }
 
     QDir nativePluginsDir = pluginsDir;
     nativePluginsDir.mkdir("native");
