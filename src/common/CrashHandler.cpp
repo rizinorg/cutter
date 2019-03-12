@@ -25,6 +25,9 @@
 #endif // Q_OS
 
 
+
+// Here will be placed crash dump at the first place
+// and then moved if needed
 #if defined (Q_OS_LINUX) || defined (Q_OS_MACOS)
 static std::string tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
 #else
@@ -58,6 +61,8 @@ static const QMap<int, QString> sigNumDescription = {
 static QString dumpFileFullPath = "";
 
 #ifdef Q_OS_WIN32
+// Called if crash dump was successfully created
+// Saves path to file
 bool callback(const wchar_t *_dump_dir,
               const wchar_t *_minidump_id,
               void *context, EXCEPTION_POINTERS *exinfo,
@@ -70,12 +75,16 @@ bool callback(const wchar_t *_dump_dir,
     return true;
 }
 #elif defined (Q_OS_LINUX)
+// Called if crash dump was successfully created
+// Saves path to file
 bool callback(const google_breakpad::MinidumpDescriptor &md, void *context, bool b)
 {
     dumpFileFullPath = md.path();
     return true;
 }
 #elif defined (Q_OS_MACOS)
+// Called if crash dump was successfully created
+// Saves path to file
 bool callback(const char *dump_dir, const char *minidump_id, void *context, bool succeeded)
 {
     QString dir = QString::fromUtf8(dump_dir);
@@ -108,7 +117,7 @@ bool writeMinidump()
 /**
  * @brief Moves dump file to specified @a dir and renames it to
  * "Cutter_crash_dump_DD.MM.YY_HH:MM:SS.dmp" format.
-
+ *
  * @param dir is directory where dump file will be placed
  * @return true on success
  */
@@ -118,13 +127,6 @@ bool placeMinidump(QString dir)
                                                  + QDate().currentDate().toString("dd.MM.yy") + "_"
                                                  + QTime().currentTime().toString() + ".dmp");
     return QFile::rename(dumpFileFullPath, replaceFilePath);
-}
-
-void showErrorMesage()
-{
-    QMessageBox::critical(nullptr,
-                          QObject::tr("Error!"),
-                          QObject::tr("Error occured during crash dump creation."));
 }
 
 [[noreturn]] void crashHandler(int signum)
@@ -155,7 +157,7 @@ void showErrorMesage()
         do {
             placementFailCounter++;
             if (placementFailCounter == 4) {
-                showErrorMesage();
+                ok = false;
                 break;
             }
             dir = QFileDialog::getExistingDirectory(nullptr,
@@ -187,7 +189,9 @@ void showErrorMesage()
                 openIssue();
             }
         } else {
-            showErrorMesage();
+            QMessageBox::critical(nullptr,
+                                  QObject::tr("Error!"),
+                                  QObject::tr("Error occured during crash dump creation."));
         }
     } else {
         QFile f(dumpFileFullPath);
