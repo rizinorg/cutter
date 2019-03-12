@@ -182,6 +182,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     QJsonArray functions;
     RAnalFunction *fcn = Core()->functionAt(seekable->getOffset());
     if (fcn) {
+        currentFcnAddr = fcn->addr;
         QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(fcn->addr));
         functions = functionsDoc.array();
     }
@@ -211,14 +212,8 @@ void DisassemblerGraphView::loadCurrentGraph()
     // Refresh global "empty graph" variable so other widget know there is nothing to show here
     Core()->setGraphEmpty(emptyGraph);
 
-    Analysis anal;
-    anal.ready = true;
-
     QJsonValue funcRef = functions.first();
     QJsonObject func = funcRef.toObject();
-    Function f;
-    f.ready = true;
-    f.entry = func["offset"].toVariant().toULongLong();
 
     windowTitle = tr("Graph");
     QString funcName = func["name"].toString().trimmed();
@@ -312,14 +307,9 @@ void DisassemblerGraphView::loadCurrentGraph()
         }
         disassembly_blocks[db.entry] = db;
         prepareGraphNode(gb);
-        f.blocks.push_back(db);
 
         addBlock(gb);
     }
-
-    anal.functions[f.entry] = f;
-    anal.status = "Ready.";
-    anal.entry = f.entry;
 
     if (!func["blocks"].toArray().isEmpty()) {
         computeGraph(entry);

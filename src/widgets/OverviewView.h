@@ -36,7 +36,7 @@ public:
 
 public slots:
     /**
-     * @brief refresh the view and adjust the scale
+     * @brief scale and center all nodes in, then run update
      */
     void refreshView();
 
@@ -78,6 +78,11 @@ private:
      * so as to change the rect point properly along with mouse.
      */
     QPointF initialDiff;
+
+    /**
+     * @brief calculate the scale to fit the all nodes in and center them in the viewport
+     */
+    void scaleAndCenter();
 
     /**
      * @brief draw the computed blocks passed by Graph

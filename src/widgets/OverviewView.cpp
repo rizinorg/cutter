@@ -19,14 +19,14 @@ void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut6
     width = baseWidth;
     height = baseHeight;
     blocks = baseBlocks;
-    refreshView();
+    scaleAndCenter();
 }
 
 OverviewView::~OverviewView()
 {
 }
 
-void OverviewView::refreshView()
+void OverviewView::scaleAndCenter()
 {
     current_scale = (qreal)viewport()->width() / width;
     qreal h_scale = (qreal)viewport()->height() / height;
@@ -34,6 +34,11 @@ void OverviewView::refreshView()
         current_scale = h_scale;
     }
     center();
+}
+
+void OverviewView::refreshView()
+{
+    scaleAndCenter();
     viewport()->update();
 }
 
@@ -94,6 +99,7 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
     qreal x = event->localPos().x() - w / 2;
     qreal y = event->localPos().y() - h / 2;
     rangeRect = QRectF(x, y, w, h);
+    useCache = true;
     viewport()->update();
     emit mouseMoved();
     mouseContainsRect(event);
@@ -113,6 +119,7 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     qreal x = event->localPos().x() - initialDiff.x();
     qreal y = event->localPos().y() - initialDiff.y();
     rangeRect = QRectF(x, y, rangeRect.width(), rangeRect.height());
+    useCache = true;
     viewport()->update();
     emit mouseMoved();
 }
