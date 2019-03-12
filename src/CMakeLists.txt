@@ -12,7 +12,7 @@ option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUT
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_ENABLE_JUPYTER "Enable Jupyter integration. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_ENABLE_QTWEBENGINE "Use QtWebEngine for in-app Jupyter Browser. Unused if CUTTER_ENABLE_JUPYTER=OFF." OFF)
-option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" ON)
+option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
