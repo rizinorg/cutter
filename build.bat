@@ -41,7 +41,4 @@ COPY ..\%R2DIST%\*.dll cutter\
 windeployqt cutter\cutter.exe
 FOR %%i in (..\src\translations\*.qm) DO MOVE "%%~fi" cutter\translations
 
-ECHO Generating symbols
-%BREAKPAD_SOURCE_DIR%\tools\windows\dump_syms\release\dump_syms.exe cutter\cutter.exe > cutter\cutter.sym
-
 ENDLOCAL
