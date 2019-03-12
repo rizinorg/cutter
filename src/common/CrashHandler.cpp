@@ -197,10 +197,6 @@ void showErrorMesage()
     exit(3);
 }
 
-/**
- * @brief initCrashHandler
- * Installs crashHandler() as a handler of crash signals.
- */
 void initCrashHandler()
 {
 #ifdef SIGSEGV
