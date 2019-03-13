@@ -15,7 +15,6 @@
 #include <QDir>
 #include <QMap>
 
-
 #if defined (Q_OS_LINUX)
 #include "client/linux/handler/exception_handler.h"
 #elif defined (Q_OS_WIN32)
