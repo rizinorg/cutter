@@ -153,11 +153,7 @@ CUTTER_ENABLE_PYTHON {
         isEmpty(PYSIDE_LIBRARY):!packagesExist(pyside2) {
             error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
         }
-        win32 {
-            BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
-        } else {
-            BINDINGS_SRC_LIST_CMD = "python3 bindings/src_list.py"
-        }
+        BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
         BINDINGS_SRC_DIR = "$${PWD}/bindings"
         BINDINGS_BUILD_DIR = "$${OUT_PWD}/bindings"
         BINDINGS_SOURCE = $$system("$${BINDINGS_SRC_LIST_CMD} qmake \"$${BINDINGS_BUILD_DIR}\"")
@@ -166,6 +162,7 @@ CUTTER_ENABLE_PYTHON {
                                 "$$[QT_INSTALL_HEADERS]/QtWidgets" \
                                 "$$[QT_INSTALL_HEADERS]/QtGui" \
                                 "$$R2_INCLUDEPATH"
+        message("using bindings source $$BINDINGS_SOURCE")
         for(path, INCLUDEPATH) {
             BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
         }
@@ -174,6 +171,7 @@ CUTTER_ENABLE_PYTHON {
         isEmpty(SHIBOKEN_EXECUTABLE) {
             SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
         }
+        message("Using shiboken2 at $$SHIBOKEN_EXECUTABLE")
 
         isEmpty(PYSIDE_TYPESYSTEMS) {
             PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
