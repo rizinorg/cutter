@@ -31,7 +31,7 @@ environment:
       DEPLOY: false
 
 install:
-  - cmd: C:\msys64\usr\bin\bash -lc "scripts/fetch_deps.sh"
+  - cmd: C:\msys64\usr\bin\bash -lc "pwd; ls; scripts/fetch_deps.sh"
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
