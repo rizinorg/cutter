@@ -125,6 +125,7 @@ include(lib_radare2.pri)
 CUTTER_ENABLE_PYTHON {
     win32 {
         PYTHON_EXECUTABLE = $$quote($$system("where python"))
+        message("using python executable $$PYTHON_EXECUTABLE")
         pythonpath = $$replace(PYTHON_EXECUTABLE, ".exe ", ".exe;")
         pythonpath = $$section(pythonpath, ";", 0, 0)
         pythonpath = $$clean_path($$dirname(pythonpath))
@@ -152,6 +153,11 @@ CUTTER_ENABLE_PYTHON {
         }
         isEmpty(PYSIDE_LIBRARY):!packagesExist(pyside2) {
             error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
+        }
+        win32 {
+            BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
+        } else {
+            BINDINGS_SRC_LIST_CMD = "python3 bindings/src_list.py"
         }
         BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
         BINDINGS_SRC_DIR = "$${PWD}/bindings"
