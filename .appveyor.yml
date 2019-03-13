@@ -31,8 +31,9 @@ environment:
       DEPLOY: false
 
 install:
-  - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
+  - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
+  - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%/cutter-deps"
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
   - cmd: if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" )
@@ -48,7 +49,7 @@ before_build:
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_APPVEYOR_R2DEC=true )
+  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_APPVEYOR_R2DEC=true CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true SHIBOKEN_EXECUTABLE="%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.exe" SHIBOKEN_INCLUDEDIR="%CUTTER_DEPS_DIR%/pyside/include/shiboken2" SHIBOKEN_LIBRARY="%CUTTER_DEPS_DIR%/pyside/lib/shiboken2.cp36-win_amd64.lib" PYSIDE_INCLUDEDIR="%CUTTER_DEPS_DIR%/pyside/include/shiboken2/PySide2" PYSIDE_LIBRARY="%CUTTER_DEPS_DIR%/pyside/lib/pyside.cp36-win_amd64.lib" PYSIDE_TYPESYSTEMS="%CUTTER_DEPS_DIR%/pyside/share/PySide2/typesystems")
   - cmd: if defined MESON ( python meson.py --release --dist=%ARTIFACT_PATH% --backend=%BACKEND% --python --jupyter )
 
 after_build:

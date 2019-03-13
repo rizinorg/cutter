@@ -147,10 +147,10 @@ CUTTER_ENABLE_PYTHON {
     }
 
     CUTTER_ENABLE_PYTHON_BINDINGS {
-        !packagesExist(shiboken2) {
+        isEmpty(SHIBOKEN_EXECUTABLE):!packagesExist(shiboken2) {
             error("ERROR: Shiboken2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
         }
-        !packagesExist(pyside2) {
+        isEmpty(PYSIDE_LIBRARY):!packagesExist(pyside2) {
             error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
         }
         win32 {
@@ -170,24 +170,37 @@ CUTTER_ENABLE_PYTHON {
             BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
         }
         BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, ":")
-        PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
-        PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
+
+        isEmpty(SHIBOKEN_EXECUTABLE) {
+            SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
+        }
+
+        isEmpty(PYSIDE_TYPESYSTEMS) {
+            PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
+        }
+        isEmpty(PYSIDE_INCLUDEDIR) {
+            PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
+        }
+
         QMAKE_SUBSTITUTES += bindings/bindings.txt.in
-        SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
         bindings.target = bindings_target
         bindings.commands = "$${SHIBOKEN_EXECUTABLE}" --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
         QMAKE_EXTRA_TARGETS += bindings
         GENERATED_SOURCES += $${BINDINGS_SOURCE}
         INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
         PRE_TARGETDEPS += bindings_target
-        macx {
+
+        !isEmpty(PYSIDE_LIBRARY) {
+            LIBS += "$$SHIBOKEN_LIBRARY" "$$PYSIDE_LIBRARY"
+            INCLUDEPATH += "$$SHIBOKEN_INCLUDEDIR"
+        } else:macx {
             # Hack needed because with regular PKGCONFIG qmake will mess up everything
             QMAKE_CXXFLAGS += $$system("pkg-config --cflags shiboken2 pyside2")
             LIBS += $$system("pkg-config --libs shiboken2 pyside2")
         } else {
             PKGCONFIG += shiboken2 pyside2
         }
-        INCLUDEPATH += "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
+        INCLUDEPATH += "$$PYSIDE_INCLUDEDIR" "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
     }
 }
 
