@@ -1,8 +1,4 @@
 
-#ifdef _WIN32
-#include <winsock2.h>
-#endif
-
 #include <cassert>
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
