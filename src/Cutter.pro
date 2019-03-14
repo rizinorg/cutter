@@ -188,12 +188,17 @@ CUTTER_ENABLE_PYTHON {
         }
 
         QMAKE_SUBSTITUTES += bindings/bindings.txt.in
-        bindings.target = bindings_target
-        bindings.commands = "$${SHIBOKEN_EXECUTABLE}" --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
-        QMAKE_EXTRA_TARGETS += bindings
+
         GENERATED_SOURCES += $${BINDINGS_SOURCE}
+        SHIBOKEN_INPUT = bindings/bindings.h
+        shiboken.output = bindings/CutterBindings/cutterbindings_python.h
+        shiboken.commands = "$${SHIBOKEN_EXECUTABLE}" --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
+        shiboken.input = SHIBOKEN_INPUT
+        shiboken.dependency_type = TYPE_C
+        shiboken.variable_out = GENERATED_SOURCES
+        QMAKE_EXTRA_COMPILERS += shiboken
+
         INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
-        PRE_TARGETDEPS += bindings_target
 
         !isEmpty(PYSIDE_LIBRARY) {
             LIBS += "$$SHIBOKEN_LIBRARY" "$$PYSIDE_LIBRARY"
