@@ -73,6 +73,39 @@ to the style is:
    astyle --project=src/Cutter.astylerc src/filename.cpp
 
 
+Includes
+^^^^^^^^
+
+Always try to include only the **needed** definitions inside any header file.
+The less include in a header file, the better. That is that a header file is
+meant to be included elsewhere, and we want to avoid to trigger every file
+compilation when developping because of a single change in a header file.
+
+If you only need to know that a class exists but don't need the prototype,
+you can declare the class like this:
+
+.. code:: cpp
+
+   class MyClassThatExists;
+
+   /** ... **/
+
+   private:
+       MyClassThatExists *classInstance;
+
+And then include the class header inside your .cpp so you can use that class.
+
+If you need something in the source file (.cpp) that is not a class member,
+then add the include in the source file.
+
+The includes must be ordered from local to global. That is you will first include
+any local header file (with doublequotes like `#include "common/Helpers.h"`.
+Then after an empty newline you can include Qt definitions like
+`#include <QShortcut>`.
+And then after when needed, include the standard C++ headers you need.
+
+Includes must be sorted by alphabetical order.
+
 Docstrings
 ^^^^^^^^^^
 
