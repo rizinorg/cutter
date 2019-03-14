@@ -374,6 +374,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
+    p.setFont(Config()->getFont());
     p.drawRect(blockX, blockY, block.width, block.height);
 
     breakpoints = Core()->getBreakpointsAddresses();
