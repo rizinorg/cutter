@@ -23,6 +23,10 @@ CD %BUILDDIR%
 
 ECHO Building cutter
 qmake %* ..\src\cutter.pro -config release
+echo "------------"
+echo "bindings.txt"
+type bindings\bindings.txt
+echo "------------"
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 rem msbuild /m cutter.vcxproj /p:Configuration=Release
 nmake
