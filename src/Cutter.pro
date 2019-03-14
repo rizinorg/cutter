@@ -96,7 +96,7 @@ win32 {
     # Generate debug symbols in release mode
     QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
     QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
-	
+
     # Multithreaded compilation
     QMAKE_CXXFLAGS += -MP
 }
@@ -126,7 +126,6 @@ CUTTER_ENABLE_PYTHON {
     win32 {
         PYTHON_EXECUTABLE = $$system("where python", lines)
         PYTHON_EXECUTABLE = $$first(PYTHON_EXECUTABLE)
-        message("using python executable $$PYTHON_EXECUTABLE")
         pythonpath = $$replace(PYTHON_EXECUTABLE, ".exe ", ".exe;")
         pythonpath = $$section(pythonpath, ";", 0, 0)
         pythonpath = $$clean_path($$dirname(pythonpath))
@@ -169,14 +168,13 @@ CUTTER_ENABLE_PYTHON {
                                 "$$[QT_INSTALL_HEADERS]/QtWidgets" \
                                 "$$[QT_INSTALL_HEADERS]/QtGui" \
                                 "$$R2_INCLUDEPATH"
-        message("using bindings source $$BINDINGS_SOURCE")
         for(path, INCLUDEPATH) {
             BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
         }
 
         win32 {
             PATH_SEP = ";"
-		} else {
+        } else {
             PATH_SEP = ":"
         }
         BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, $$PATH_SEP)
@@ -184,7 +182,6 @@ CUTTER_ENABLE_PYTHON {
         isEmpty(SHIBOKEN_EXECUTABLE) {
             SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
         }
-        message("Using shiboken2 at $$SHIBOKEN_EXECUTABLE")
 
         isEmpty(PYSIDE_TYPESYSTEMS) {
             PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
