@@ -2,12 +2,13 @@
 #include "ui_TypesWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-
 #include "dialogs/LoadNewTypesDialog.h"
 #include "dialogs/LinkTypeDialog.h"
 
 #include <QMenu>
 #include <QFileDialog>
+#include <QShortcut>
+#include <QIcon>
 
 TypesModel::TypesModel(QList<TypeDescription> *types, QObject *parent)
     : QAbstractListModel(parent),

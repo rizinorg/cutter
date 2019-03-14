@@ -2,8 +2,10 @@
 #include "ui_RegisterRefsWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+
 #include <QMenu>
 #include <QClipboard>
+#include <QShortcut>
 
 RegisterRefModel::RegisterRefModel(QList<RegisterRefDescription> *registerRefs, QObject *parent)
     : QAbstractListModel(parent),
