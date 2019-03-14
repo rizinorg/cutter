@@ -124,7 +124,8 @@ include(lib_radare2.pri)
 
 CUTTER_ENABLE_PYTHON {
     win32 {
-        PYTHON_EXECUTABLE = $$quote($$system("where python"))
+        PYTHON_EXECUTABLE = $$system("where python", lines)
+        PYTHON_EXECUTABLE = $$first(PYTHON_EXECUTABLE)
         message("using python executable $$PYTHON_EXECUTABLE")
         pythonpath = $$replace(PYTHON_EXECUTABLE, ".exe ", ".exe;")
         pythonpath = $$section(pythonpath, ";", 0, 0)
