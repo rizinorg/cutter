@@ -1,14 +1,13 @@
 #include "ImportsWidget.h"
 #include "ui_ImportsWidget.h"
-
+#include "WidgetShortcuts.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
-#include "WidgetShortcuts.h"
-
-#include <QTreeWidget>
-#include <QPen>
 #include <QPainter>
+#include <QPen>
+#include <QShortcut>
+#include <QTreeWidget>
 
 ImportsModel::ImportsModel(QList<ImportDescription> *imports, QObject *parent) :
     QAbstractTableModel(parent),

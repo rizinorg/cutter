@@ -1,12 +1,13 @@
-#include <QTreeWidget>
-#include <QComboBox>
-#include <QMenu>
-
 #include "FlagsWidget.h"
 #include "ui_FlagsWidget.h"
 #include "core/MainWindow.h"
 #include "dialogs/RenameDialog.h"
 #include "common/Helpers.h"
+
+#include <QComboBox>
+#include <QMenu>
+#include <QShortcut>
+#include <QTreeWidget>
 
 FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
     : QAbstractListModel(parent),

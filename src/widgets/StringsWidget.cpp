@@ -1,17 +1,14 @@
-
-#include <QModelIndex>
-
 #include "StringsWidget.h"
 #include "ui_StringsWidget.h"
-
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/XrefsDialog.h"
-
 #include "WidgetShortcuts.h"
 
-#include <QMenu>
 #include <QClipboard>
+#include <QMenu>
+#include <QModelIndex>
+#include <QShortcut>
 
 StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
     : QAbstractListModel(parent),
