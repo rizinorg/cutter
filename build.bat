@@ -24,6 +24,7 @@ CD %BUILDDIR%
 ECHO Building cutter
 qmake %* ..\src\cutter.pro -config release -tp vc
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
+msbuild /m cutter.vcxproj /p:Configuration=Release /t:bindings_target
 msbuild /m cutter.vcxproj /p:Configuration=Release
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
 
