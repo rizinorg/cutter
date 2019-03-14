@@ -168,13 +168,18 @@ CUTTER_ENABLE_PYTHON {
                                 "$$[QT_INSTALL_HEADERS]/QtCore" \
                                 "$$[QT_INSTALL_HEADERS]/QtWidgets" \
                                 "$$[QT_INSTALL_HEADERS]/QtGui" \
-                                "$$R2_INCLUDEPATH" \
-                                "$$PWD"
+                                "$$R2_INCLUDEPATH"
         message("using bindings source $$BINDINGS_SOURCE")
         for(path, INCLUDEPATH) {
             BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
         }
-        BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, ":")
+
+        win32 {
+            PATH_SEP = ";"
+		} else {
+            PATH_SEP = ":"
+        }
+        BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, $$PATH_SEP)
 
         isEmpty(SHIBOKEN_EXECUTABLE) {
             SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
