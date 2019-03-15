@@ -210,7 +210,7 @@ void AppearanceOptionsWidget::on_exportButton_clicked()
     QString file = QFileDialog::getSaveFileName(this,
                                                "",
                                                QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
-                                               + "/" + scheme);
+                                               + QDir::separator() + scheme);
     if (file.isEmpty()) {
         return;
     }

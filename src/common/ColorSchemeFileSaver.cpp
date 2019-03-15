@@ -153,9 +153,7 @@ QString ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
         return tr("There is %1 color scheme already.").arg(name);
     }
 
-    // Use "/" instead of QDir::separator() because
-    // QFile uses "/" as separator on all platforms
-    if (src.copy(customR2ThemesLocationPath + "/" + name)) {
+    if (src.copy(customR2ThemesLocationPath + QDir::separator() + name)) {
         return "";
     } else {
         return tr("Error occured during importing. Please, make sure that "
@@ -169,7 +167,7 @@ QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QStri
     QFile src((isCustomScheme(srcScheme)
               ? customR2ThemesLocationPath
               : standardR2ThemesLocationPath)
-              + "/" + srcScheme);
+              + QDir::separator() + srcScheme);
 
     if (!src.open(QFile::ReadOnly)) {
         return tr("Seems like there are no %1 color scheme.").arg(srcScheme);
@@ -182,8 +180,6 @@ QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QStri
     if (src.copy(destFile)) {
         return "";
     } else {
-        // Use "/" instead of QDir::separator() because
-        // QFile uses "/" as separator on all platforms
         return tr("Error occured during exporting. Please, make sure that "
                   "you have access to directory <b>%1</b> and try again.")
                 .arg(destFile.left(destFile.lastIndexOf('/')));
