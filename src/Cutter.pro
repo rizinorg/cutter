@@ -192,6 +192,7 @@ CUTTER_ENABLE_PYTHON {
         QMAKE_SUBSTITUTES += bindings/bindings.txt.in
 
         SHIBOKEN_OPTIONS = --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
+        win32:SHIBOKEN_OPTIONS += --avoid-protected-hack
         bindings.target = bindings_target
         bindings.commands = "$${SHIBOKEN_EXECUTABLE}" --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
         QMAKE_EXTRA_TARGETS += bindings
