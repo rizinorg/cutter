@@ -1,6 +1,7 @@
 #ifndef COLORSCHEMEFILESAVER_H
 #define COLORSCHEMEFILESAVER_H
 
+#include <QDir>
 #include <QFile>
 #include <QColor>
 #include <QObject>
@@ -24,6 +25,10 @@ public:
     QFile::FileError copy(const QString &srcSchemeName, const QString &copySchemeName) const;
 
     QFile::FileError save(const QString &scheme, const QString &schemeName) const;
+
+    bool importScheme(const QString &srcScheme) const;
+
+    bool exportScheme(const QString &srcScheme, const QDir &dest) const;
 
     bool isCustomScheme(const QString &schemeName) const;
 

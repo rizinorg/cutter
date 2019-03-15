@@ -137,6 +137,34 @@ QFile::FileError ColorSchemeFileSaver::save(const QString &scheme, const QString
     return QFile::FileError::NoError;
 }
 
+bool ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
+{
+    QString name = srcScheme.right(srcScheme.length() - srcScheme.lastIndexOf('/') - 1);
+    name.replace(".csch", "");
+    QFile src(srcScheme);
+    if (!src.open(QFile::ReadOnly) || isNameEngaged(name)) {
+        return false;
+    }
+
+    // Use "/" instead of QDir::separator() because
+    // QFile uses "/" as separator on all platforms
+    return src.copy(customR2ThemesLocationPath + "/" + name);
+}
+
+bool ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QDir& dest) const
+{
+    QFile src((isCustomScheme(srcScheme)
+              ? customR2ThemesLocationPath
+              : standardR2ThemesLocationPath)
+              + "/" + srcScheme);
+
+    if (!src.open(QFile::ReadOnly)) {
+        return false;
+    }
+
+    return src.copy(dest.filePath(srcScheme + ".csch"));
+}
+
 bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 {
     return QFile::exists(QDir(customR2ThemesLocationPath).filePath(schemeName));

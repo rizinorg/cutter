@@ -1,9 +1,11 @@
 #include <QDir>
 #include <QLabel>
 #include <QFontDialog>
+#include <QFileDialog>
 #include <QTranslator>
 #include <QInputDialog>
 #include <QSignalBlocker>
+#include <QStandardPaths>
 
 #include <QComboBox>
 #include "PreferencesDialog.h"
@@ -178,6 +180,56 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
             ColorSchemeFileWorker().deleteScheme(Config()->getColorTheme());
             updateThemeFromConfig(false);
         }
+    }
+}
+
+void AppearanceOptionsWidget::on_importButton_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                tr(""),
+                                                QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+                                                "Cutter Scheme (*.csch)");
+    if (fileName == "") {
+        return;
+    }
+
+    bool ok = ColorSchemeFileWorker().importScheme(fileName);
+    QString schemeName = fileName.right(fileName.length() - fileName.lastIndexOf('/') - 1);
+    schemeName.replace(".csch", "");
+    updateThemeFromConfig();
+    if (ok) {
+        QMessageBox::information(this,
+                                 tr("Success"),
+                                 tr("Color scheme <b>%1</b> was successfully imported.").arg(schemeName));
+    } else {
+        QMessageBox::critical(this,
+                              tr("Error"),
+                              tr("Error occured during importing. Please, make sure that "
+                                 "you don't have theme named <b>%1</b> and try again.").arg(schemeName));
+    }
+}
+
+void AppearanceOptionsWidget::on_exportButton_clicked()
+{
+    QString scheme = ui->colorComboBox->currentText();
+    QString dir = QFileDialog::getExistingDirectory(this,
+                                                    tr(""),
+                                                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+    qDebug() << scheme;
+    if (dir == "") {
+        return;
+    }
+
+    bool ok = ColorSchemeFileWorker().exportScheme(scheme, dir);
+    if (ok) {
+        QMessageBox::information(this,
+                                 tr("Success"),
+                                 tr("Color scheme <b>%1</b> was successfully exported.").arg(scheme));
+    } else {
+        QMessageBox::critical(this,
+                              tr("Error"),
+                              tr("Error occured during exporting. Please, make sure that "
+                                 "you have access to directory <b>%1</b> and try again.").arg(dir));
     }
 }
 
