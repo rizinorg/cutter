@@ -1,8 +1,9 @@
 #include "core/MainWindow.h"
 #include "ui_MainWindow.h"
-#include "common/CrashHandler.h"
 
 // Common Headers
+#include "common/BugReporting.h"
+#include "common/CrashHandler.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
 #include "common/Helpers.h"
