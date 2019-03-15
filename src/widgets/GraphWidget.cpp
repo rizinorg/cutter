@@ -6,10 +6,13 @@
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
-    this->setObjectName("Graph");
-    this->setAllowedAreas(Qt::AllDockWidgetAreas);
-    this->graphView = new DisassemblerGraphView(this);
-    this->setWidget(graphView);
+    int num = main->randomNumber();
+    QString name = QString("Graph%1").arg(num);
+    eprintf("Graph%d\n", num);
+    setObjectName(name);
+    setAllowedAreas(Qt::AllDockWidgetAreas);
+    graphView = new DisassemblerGraphView(this);
+    setWidget(graphView);
 
     // getting the name of the class is implementation defined, and cannot be
     // used reliably across different compilers.
@@ -24,8 +27,8 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
         main->toggleOverview(visibility, this);
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-            this->graphView->refreshView();
-            this->graphView->onSeekChanged(Core()->getOffset());
+            graphView->refreshView();
+            graphView->onSeekChanged(Core()->getOffset());
         }
     });
 
@@ -37,8 +40,8 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     this, [ = ](CutterCore::MemoryWidgetType type) {
         bool emptyGraph = (type == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
         if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
-            this->raise();
-            this->graphView->setFocus();
+            raise();
+            graphView->setFocus();
         }
     });
 }

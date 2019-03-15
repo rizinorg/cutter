@@ -119,9 +119,62 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
+    initToolBar();
+    initDocks();
+
+    // Set up dock widgets default layout
+    resetToDefaultLayout();
+    enableDebugWidgetsMenu(false);
+
+    // Restore saved settings
+    readSettings();
+    // TODO: Allow the user to select this option visually in the GUI settings
+    // Adjust the DockWidget areas
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    //setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
+
+
     /*
-     * Toolbar
+     *  Some global shortcuts
      */
+    // Period goes to command entry
+    QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
+    connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
+
+    // G and S goes to goto entry
+    QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
+    connect(goto_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
+    QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
+    connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
+
+    QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
+    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
+
+    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
+                                                                                       const QString &)));
+
+    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
+    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
+
+    connect(core, SIGNAL(newMessage(const QString &)),
+            this->consoleDock, SLOT(addOutput(const QString &)));
+    connect(core, SIGNAL(newDebugMessage(const QString &)),
+            this->consoleDock, SLOT(addDebugOutput(const QString &)));
+
+    updateTasksIndicator();
+    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
+            &MainWindow::updateTasksIndicator);
+
+    /* Setup plugins interfaces */
+    for (auto plugin : Plugins()->getPlugins()) {
+        plugin->setupInterface(this);
+    }
+}
+
+void MainWindow::initToolBar()
+{
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -182,18 +235,15 @@ void MainWindow::initUI()
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
+}
 
-    /*
-     * Dock Widgets
-     */
+void MainWindow::initDocks()
+{
     dockWidgets.reserve(20);
-
     disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
     hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
     pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
-
-    // Add graph view as dockable
     overviewDock = new OverviewWidget(this, ui->actionOverview);
     overviewDock->hide();
     graphDock = new GraphWidget(this, ui->actionGraph);
@@ -238,57 +288,6 @@ void MainWindow::initUI()
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
-
-
-    // Set up dock widgets default layout
-    resetToDefaultLayout();
-    enableDebugWidgetsMenu(false);
-
-    // Restore saved settings
-    this->readSettings();
-    // TODO: Allow the user to select this option visually in the GUI settings
-    // Adjust the DockWidget areas
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    //setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
-
-
-    /*
-     *  Some global shortcuts
-     */
-    // Period goes to command entry
-    QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
-
-    // G and S goes to goto entry
-    QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
-    connect(goto_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
-    QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
-    connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
-
-    QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
-    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
-
-    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
-                                                                                       const QString &)));
-
-    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
-    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
-
-    connect(core, SIGNAL(newMessage(const QString &)),
-            this->consoleDock, SLOT(addOutput(const QString &)));
-    connect(core, SIGNAL(newDebugMessage(const QString &)),
-            this->consoleDock, SLOT(addDebugOutput(const QString &)));
-
-    updateTasksIndicator();
-    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
-            &MainWindow::updateTasksIndicator);
-
-    /* Setup plugins interfaces */
-    for (auto plugin : Plugins()->getPlugins()) {
-        plugin->setupInterface(this);
-    }
 }
 
 void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
@@ -412,6 +411,12 @@ void MainWindow::adjustGraph()
     targetGraphDock->graphView->offset_x = rectx /curScale + overview_offset_x;
     targetGraphDock->graphView->offset_y = recty /curScale + overview_offset_y;
     targetGraphDock->graphView->viewport()->update();
+}
+
+int MainWindow::randomNumber()
+{
+    qsrand(QTime::currentTime().msec());
+    return qrand();
 }
 
 void MainWindow::updateTasksIndicator()

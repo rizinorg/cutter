@@ -18,6 +18,8 @@
 #include "common/InitialOptions.h"
 
 #include <QMainWindow>
+#include <QtGlobal>
+#include <QTime>
 #include <QList>
 
 class CutterCore;
@@ -113,6 +115,7 @@ public:
         return filename;
     }
     void messageBoxWarning(QString title, QString message);
+    int randomNumber();
 
 public slots:
     void finalizeOpen();
@@ -257,6 +260,8 @@ private:
     JupyterWidget      *jupyterDock = nullptr;
 #endif
 
+    void initToolBar();
+    void initDocks();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
