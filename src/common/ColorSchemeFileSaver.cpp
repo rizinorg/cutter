@@ -238,39 +238,20 @@ bool ColorSchemeFileSaver::isSchemeFile(const QString& file) const
         return false;
     }
 
+    QString colors = "black|red|white|green|magenta|yellow|cyan|blue|gray|none";
+    auto options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions).join('|');
+    QRegExp regexp = QRegExp(QString("(ec (%1) (rgb:[0-9a-fA-F]{3})|(%2))|([ ]{0,}#.*)")
+                             .arg(options).arg(colors));
+
     for (auto &line : QString(f.readAll()).split('\n')) {
         if (line.isEmpty()) {
             continue;
         }
-        bool isComment = false;
-        for (auto &ch : line) {
-            if (ch == '#') {
-                isComment = true;
-                break;
-            }
-            if (ch != ' ') {
-                break;
-            }
-        }
-        if (isComment && line.contains("#~")) {
-            line.replace("#~", "ec ");
-            QStringList cutterCommon = line.split(' ');
-            cutterCommon.removeAll("");
-            if (!cutterCommon.isEmpty() && cutterCommon[0] == "ec" &&
-                cutterCommon.size() != 3 && !cutterSpecificOptions.contains(cutterCommon[1]) &&
-                QRegExp("rgb:[0-9a-fA-F]{6}").exactMatch(cutterCommon[2])) {
-                return false;
-            }
-        }
-        if (!isComment) {
-            QStringList cmd = line.split(' ');
-            cmd.removeAll("");
-            if (cmd[0] != "ec" || !(QRegExp("rgb:[0-9a-fA-F]{6}").exactMatch(cmd[2]) ||
-                                    QRegExp("rgb:[0-9a-fA-F]{3}").exactMatch(cmd[2]) ||
-                                    QRegExp("[a-z]{1,}").exactMatch(cmd[2]))) {
-                return false;
-            }
+        line.replace("#~", "ec ");
+        if (!QRegExp(regexp).exactMatch(line)) {
+            return false;
         }
     }
+
     return true;
 }
