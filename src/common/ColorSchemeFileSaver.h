@@ -54,6 +54,14 @@ public:
     void deleteScheme(const QString &schemeName) const;
 
 private:
+    /**
+     * @brief Checks whether or not @a file is Cutter color scheme file.
+     * Returns false if file is not accessible or does not exist.
+     * @param file
+     * Path to file to be checked.
+     * @return true if given @a file is Cutter color scheme file or
+     * false if file is not accessible or does not exist.
+     */
     bool isSchemeFile(const QString &file) const;
 
     QString standardR2ThemesLocationPath;
