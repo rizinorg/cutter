@@ -1,9 +1,9 @@
 # - Find Breakpad
 #
-#  BREAKPAD_FOUND          - True if libr has been found.
-#  BREAKPAD_INCLUDE_DIRS   - libr include directory
-#  BREAKPAD_LIBRARIES      - List of libraries when using libr.
-#  BREAKPAD_LIBRARY_DIRS   - libr library directories
+#  BREAKPAD_FOUND          - True if Breakpad has been found.
+#  BREAKPAD_INCLUDE_DIRS   - Breakpad include directory
+#  BREAKPAD_LIBRARIES      - List of libraries when using Breakpad.
+#  BREAKPAD_LIBRARY_DIRS   - Breakpad library directories
 
 if(WIN32)
 	find_path(BREAKPAD_INCLUDE_DIRS
@@ -28,7 +28,6 @@ if(WIN32)
 
 	set(BREAKPAD_LIBRARY_DIRS "")
 else()
-	# support sys/user.sh install
 	set(BREAKPAD_CMAKE_PREFIX_PATH_TEMP ${CMAKE_PREFIX_PATH})
 	list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../breakpad/prefix")
 
