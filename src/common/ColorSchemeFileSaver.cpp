@@ -151,7 +151,7 @@ bool ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
     return src.copy(customR2ThemesLocationPath + "/" + name);
 }
 
-bool ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QDir& dest) const
+bool ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QString& destFile) const
 {
     QFile src((isCustomScheme(srcScheme)
               ? customR2ThemesLocationPath
@@ -162,7 +162,11 @@ bool ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QDir& de
         return false;
     }
 
-    return src.copy(dest.filePath(srcScheme + ".csch"));
+    QFile dst(destFile);
+    if (dst.exists()) {
+        dst.remove();
+    }
+    return src.copy(destFile);
 }
 
 bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const

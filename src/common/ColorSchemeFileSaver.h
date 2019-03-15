@@ -28,7 +28,7 @@ public:
 
     bool importScheme(const QString &srcScheme) const;
 
-    bool exportScheme(const QString &srcScheme, const QDir &dest) const;
+    bool exportScheme(const QString &srcScheme, const QString& destFile) const;
 
     bool isCustomScheme(const QString &schemeName) const;
 

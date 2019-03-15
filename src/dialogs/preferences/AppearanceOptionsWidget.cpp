@@ -212,15 +212,16 @@ void AppearanceOptionsWidget::on_importButton_clicked()
 void AppearanceOptionsWidget::on_exportButton_clicked()
 {
     QString scheme = ui->colorComboBox->currentText();
-    QString dir = QFileDialog::getExistingDirectory(this,
-                                                    tr(""),
-                                                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
-    qDebug() << scheme;
-    if (dir == "") {
+    QString file = QFileDialog::getSaveFileName(this,
+                                               tr(""),
+                                               QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+                                               + "/" + scheme,
+                                               "Cutter Scheme (*.csch)");
+    if (file == "") {
         return;
     }
 
-    bool ok = ColorSchemeFileWorker().exportScheme(scheme, dir);
+    bool ok = ColorSchemeFileWorker().exportScheme(scheme, file);
     if (ok) {
         QMessageBox::information(this,
                                  tr("Success"),
@@ -229,7 +230,8 @@ void AppearanceOptionsWidget::on_exportButton_clicked()
         QMessageBox::critical(this,
                               tr("Error"),
                               tr("Error occured during exporting. Please, make sure that "
-                                 "you have access to directory <b>%1</b> and try again.").arg(dir));
+                                 "you have access to directory <b>%1</b> and try again.")
+                              .arg(file.left(file.lastIndexOf('/'))));
     }
 }
 
