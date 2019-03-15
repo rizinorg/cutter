@@ -69,9 +69,9 @@ after_build:
   - cmd: copy python_embed\*.pyd "%ARTIFACT_PATH%\python36\"
   - cmd: copy python_embed\sqlite3.dll "%ARTIFACT_PATH%\python36\"
   - cmd: copy python_embed\python*.dll "%ARTIFACT_PATH%\"
-  - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\python36\site-packages "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.cp36-win_amd64.dll "%ARTIFACT_PATH%\"
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.cp36-win_amd64.dll "%ARTIFACT_PATH%\"
+  - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\python36\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
+  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.cp36-win_amd64.dll" "%ARTIFACT_PATH%\"
+  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.cp36-win_amd64.dll" "%ARTIFACT_PATH%\"
   - cmd: powershell -Command "[System.IO.File]::WriteAllLines(\"%ARTIFACT_PATH%\python36._pth\", \"python36`r`npython36\python36.zip`r`npython36\site-packages\")"
 
 # Tests
