@@ -34,6 +34,9 @@ install:
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
   - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
+  - cmd: dir "%CUTTER_DEPS_DIR%\pyside\lib"
+  - cmd: dir "%CUTTER_DEPS_DIR%\pyside\lib\python36"
+  - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\python36\site-packages" "test-site-packages" /e /i /h
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
   - cmd: if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" )
