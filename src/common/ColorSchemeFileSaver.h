@@ -26,9 +26,22 @@ public:
 
     QFile::FileError save(const QString &scheme, const QString &schemeName) const;
 
-    bool importScheme(const QString &srcScheme) const;
+    /**
+     * @brief Imports file @a srcScheme as a scheme with name of file.
+     * @param Full path to Cutter scheme, where name of file is name of scheme.
+     * @return "" on succes or error string.
+     */
+    QString importScheme(const QString &srcScheme) const;
 
-    bool exportScheme(const QString &srcScheme, const QString& destFile) const;
+    /**
+     * @brief Exports @a srcScheme color scheme to @a destFile file.
+     * @param srcScheme
+     * Name of scheme to be exported. It can be either standard or custom one.
+     * @param destFile
+     * Full path to file where scheme will be imported.
+     * @return "" on success or error string.
+     */
+    QString exportScheme(const QString &srcScheme, const QString& destFile) const;
 
     bool isCustomScheme(const QString &schemeName) const;
 
@@ -41,6 +54,8 @@ public:
     void deleteScheme(const QString &schemeName) const;
 
 private:
+    bool isSchemeFile(const QString &file) const;
+
     QString standardR2ThemesLocationPath;
     QString customR2ThemesLocationPath;
 

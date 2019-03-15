@@ -137,21 +137,34 @@ QFile::FileError ColorSchemeFileSaver::save(const QString &scheme, const QString
     return QFile::FileError::NoError;
 }
 
-bool ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
+QString ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
 {
-    QString name = srcScheme.right(srcScheme.length() - srcScheme.lastIndexOf('/') - 1);
-    name.replace(".csch", "");
     QFile src(srcScheme);
-    if (!src.open(QFile::ReadOnly) || isNameEngaged(name)) {
-        return false;
+    if (!src.open(QFile::ReadOnly)) {
+        return tr("File %1 can not be opened").arg(srcScheme);
+    }
+
+    if (!isSchemeFile(srcScheme)) {
+        return tr("File %1 is not a Cutter color scheme").arg(srcScheme);
+    }
+
+    QString name = srcScheme.right(srcScheme.length() - srcScheme.lastIndexOf('/') - 1);
+    if (isNameEngaged(name)) {
+        return tr("There is %1 color scheme already.").arg(name);
     }
 
     // Use "/" instead of QDir::separator() because
     // QFile uses "/" as separator on all platforms
-    return src.copy(customR2ThemesLocationPath + "/" + name);
+    if (src.copy(customR2ThemesLocationPath + "/" + name)) {
+        return "";
+    } else {
+        return tr("Error occured during importing. Please, make sure that "
+                  "you have access to directory <b>%1</b> and try again.")
+                .arg(srcScheme.left(srcScheme.lastIndexOf('/')));
+    }
 }
 
-bool ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QString& destFile) const
+QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QString& destFile) const
 {
     QFile src((isCustomScheme(srcScheme)
               ? customR2ThemesLocationPath
@@ -159,14 +172,22 @@ bool ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QString&
               + "/" + srcScheme);
 
     if (!src.open(QFile::ReadOnly)) {
-        return false;
+        return tr("Seems like there are no %1 color scheme.").arg(srcScheme);
     }
 
     QFile dst(destFile);
     if (dst.exists()) {
         dst.remove();
     }
-    return src.copy(destFile);
+    if (src.copy(destFile)) {
+        return "";
+    } else {
+        // Use "/" instead of QDir::separator() because
+        // QFile uses "/" as separator on all platforms
+        return tr("Error occured during exporting. Please, make sure that "
+                  "you have access to directory <b>%1</b> and try again.")
+                .arg(destFile.left(destFile.lastIndexOf('/')));
+    }
 }
 
 bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
@@ -212,4 +233,48 @@ void ColorSchemeFileSaver::deleteScheme(const QString &schemeName) const
     if (!isCustomScheme(schemeName))
         return;
     QFile::remove(customR2ThemesLocationPath + QDir::separator() + schemeName);
+}
+
+bool ColorSchemeFileSaver::isSchemeFile(const QString& file) const
+{
+    QFile f(file);
+    if (!f.open(QFile::ReadOnly)) {
+        return false;
+    }
+
+    for (auto &line : QString(f.readAll()).split('\n')) {
+        if (line.isEmpty()) {
+            continue;
+        }
+        bool isComment = false;
+        for (auto &ch : line) {
+            if (ch == '#') {
+                isComment = true;
+                break;
+            }
+            if (ch != ' ') {
+                break;
+            }
+        }
+        if (isComment && line.contains("#~")) {
+            line.replace("#~", "ec ");
+            QStringList cutterCommon = line.split(' ');
+            cutterCommon.removeAll("");
+            if (!cutterCommon.isEmpty() && cutterCommon[0] == "ec" &&
+                cutterCommon.size() != 3 && !cutterSpecificOptions.contains(cutterCommon[1]) &&
+                QRegExp("rgb:[0-9a-fA-F]{6}").exactMatch(cutterCommon[2])) {
+                return false;
+            }
+        }
+        if (!isComment) {
+            QStringList cmd = line.split(' ');
+            cmd.removeAll("");
+            if (cmd[0] != "ec" || !(QRegExp("rgb:[0-9a-fA-F]{6}").exactMatch(cmd[2]) ||
+                                    QRegExp("rgb:[0-9a-fA-F]{3}").exactMatch(cmd[2]) ||
+                                    QRegExp("[a-z]{1,}").exactMatch(cmd[2]))) {
+                return false;
+            }
+        }
+    }
+    return true;
 }

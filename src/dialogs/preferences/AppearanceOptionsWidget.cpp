@@ -186,26 +186,21 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
 void AppearanceOptionsWidget::on_importButton_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-                                                tr(""),
-                                                QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
-                                                "Cutter Scheme (*.csch)");
-    if (fileName == "") {
+                                                "",
+                                                QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+    if (fileName.isEmpty()) {
         return;
     }
 
-    bool ok = ColorSchemeFileWorker().importScheme(fileName);
+    QString err = ColorSchemeFileWorker().importScheme(fileName);
     QString schemeName = fileName.right(fileName.length() - fileName.lastIndexOf('/') - 1);
-    schemeName.replace(".csch", "");
     updateThemeFromConfig();
-    if (ok) {
+    if (err.isEmpty()) {
         QMessageBox::information(this,
                                  tr("Success"),
                                  tr("Color scheme <b>%1</b> was successfully imported.").arg(schemeName));
     } else {
-        QMessageBox::critical(this,
-                              tr("Error"),
-                              tr("Error occured during importing. Please, make sure that "
-                                 "you don't have theme named <b>%1</b> and try again.").arg(schemeName));
+        QMessageBox::critical(this, tr("Error"), err);
     }
 }
 
@@ -213,25 +208,20 @@ void AppearanceOptionsWidget::on_exportButton_clicked()
 {
     QString scheme = ui->colorComboBox->currentText();
     QString file = QFileDialog::getSaveFileName(this,
-                                               tr(""),
+                                               "",
                                                QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
-                                               + "/" + scheme,
-                                               "Cutter Scheme (*.csch)");
-    if (file == "") {
+                                               + "/" + scheme);
+    if (file.isEmpty()) {
         return;
     }
 
-    bool ok = ColorSchemeFileWorker().exportScheme(scheme, file);
-    if (ok) {
+    QString err = ColorSchemeFileWorker().exportScheme(scheme, file);
+    if (err.isEmpty()) {
         QMessageBox::information(this,
                                  tr("Success"),
                                  tr("Color scheme <b>%1</b> was successfully exported.").arg(scheme));
     } else {
-        QMessageBox::critical(this,
-                              tr("Error"),
-                              tr("Error occured during exporting. Please, make sure that "
-                                 "you have access to directory <b>%1</b> and try again.")
-                              .arg(file.left(file.lastIndexOf('/'))));
+        QMessageBox::critical(this, tr("Error"), err);
     }
 }
 
