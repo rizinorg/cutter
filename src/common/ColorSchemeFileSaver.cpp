@@ -180,8 +180,8 @@ QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QStri
     if (src.copy(destFile)) {
         return "";
     } else {
-        return tr("Error occured during exporting. Please, make sure that "
-                  "you have access to directory <b>%1</b> and try again.")
+        return tr("Error occured during exporting. Please make sure you have "
+                  "an access to the directory <b>%1</b> and try again.")
                 .arg(destFile.left(destFile.lastIndexOf('/')));
     }
 }
