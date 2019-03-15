@@ -34,9 +34,6 @@ install:
   - ps: $env:path = ($env:path -split ";").Where({!($_ -like "*Microsoft SQL Server*")}) -join ";"
   - cmd: C:\msys64\usr\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER && scripts/fetch_deps.sh"
   - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
-  - cmd: dir "%CUTTER_DEPS_DIR%\pyside\lib"
-  - cmd: dir "%CUTTER_DEPS_DIR%\pyside\lib\python36"
-  - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\python36\site-packages" "test-site-packages" /e /i /h
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
   - cmd: if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" )
@@ -72,7 +69,7 @@ after_build:
   - cmd: copy python_embed\*.pyd "%ARTIFACT_PATH%\python36\"
   - cmd: copy python_embed\sqlite3.dll "%ARTIFACT_PATH%\python36\"
   - cmd: copy python_embed\python*.dll "%ARTIFACT_PATH%\"
-  - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\python36\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
+  - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
   - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.cp36-win_amd64.dll" "%ARTIFACT_PATH%\"
   - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.cp36-win_amd64.dll" "%ARTIFACT_PATH%\"
   - cmd: powershell -Command "[System.IO.File]::WriteAllLines(\"%ARTIFACT_PATH%\python36._pth\", \"python36`r`npython36\python36.zip`r`npython36\site-packages\")"
