@@ -12,13 +12,13 @@ branches:
 
 matrix:
   include:
-  - name: Linux QMake
+  - name: Linux QMake + Deploy
     os: linux
     env: BUILD_SYSTEM=qmake DEPLOY=1
   - name: Linux CMake
     os: linux
     env: BUILD_SYSTEM=cmake
-  - name: macOS QMake
+  - name: macOS QMake + Deploy
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=qmake DEPLOY=1
@@ -26,8 +26,12 @@ matrix:
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
-  - name: Documentation
+  - name: Documentation + Deploy
     os: linux
+    addons:
+      apt:
+        update: true
+        packages: doxygen
     install: ~
     before_script: ~
     after_success: ~
