@@ -789,7 +789,6 @@ void MainWindow::hideAllDocks()
     for (auto w : dockWidgets) {
         removeDockWidget(w);
     }
-    //updateDockActionsChecked();
 }
 
 void MainWindow::updateDockActionsChecked()
