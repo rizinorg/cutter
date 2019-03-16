@@ -9,7 +9,6 @@ branches:
   - /^v\d.*$/
   - deploy-test
   - deps-test
-  - check-docs-time
 
 matrix:
   include:
@@ -57,7 +56,7 @@ matrix:
       script: bash scripts/deploy_docs.sh
       on:
         repo: radareorg/cutter
-        branch: check-docs-time
+        branch: master
 
 
 sudo: required
