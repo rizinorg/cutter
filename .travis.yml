@@ -50,7 +50,8 @@ matrix:
       provider: script
       script: bash "$TRAVIS_BUILD_DIR/scripts/deploy_docs.sh"
       on:
-        branch: deploy-docs
+        branch: master
+        tags: true
 
 
 sudo: required
