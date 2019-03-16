@@ -8,6 +8,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QTimer>
 
 #ifdef CUTTER_ENABLE_QTWEBENGINE
 #include <QWebEngineSettings>
@@ -39,7 +40,11 @@ JupyterWidget::JupyterWidget(MainWindow *main, QAction *action) :
 
     connect(Jupyter(), &JupyterConnection::urlReceived, this, &JupyterWidget::urlReceived);
     connect(Jupyter(), &JupyterConnection::creationFailed, this, &JupyterWidget::creationFailed);
-    Jupyter()->start();
+
+    auto delayTimer = new QTimer(this);
+    delayTimer->setSingleShot(true);
+    connect(delayTimer, &QTimer::timeout, this, [=]() { Jupyter()->start(); });
+    delayTimer->start(1000);
 }
 
 JupyterWidget::~JupyterWidget()
