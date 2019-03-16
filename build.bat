@@ -12,7 +12,7 @@ IF !ERRORLEVEL! NEQ 0 (
 
 SET "R2DIST=r2_dist_%PLATFORM%"
 SET "BUILDDIR=build_%PLATFORM%"
-SET "BREAKPAD_SOURCE_DIR=%CD%\breakpad\src\src"
+SET "BREAKPAD_SOURCE_DIR=%CD%\src\breakpad\src\src"
 
 ECHO Preparing directory
 RMDIR /S /Q %BUILDDIR%

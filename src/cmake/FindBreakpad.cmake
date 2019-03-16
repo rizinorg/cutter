@@ -8,7 +8,7 @@
 if(WIN32)
 	find_path(BREAKPAD_INCLUDE_DIRS
 			HINTS
-				"${CMAKE_CURRENT_SOURCE_DIR}/../breakpad/prefix/include/breakpad")
+				"${CMAKE_CURRENT_SOURCE_DIR}/breakpad/prefix/include/breakpad")
 
 	set(BREAKPAD_LIBRARY_NAMES
 			BREAKPAD_CLIENT
@@ -20,7 +20,7 @@ if(WIN32)
 		find_library(BREAKPAD_LIBRARY_${libname}
 				${libname}
 				HINTS
-					"${CMAKE_CURRENT_SOURCE_DIR}/../breakpad/prefix/lib")
+					"${CMAKE_CURRENT_SOURCE_DIR}/breakpad/prefix/lib")
 
 		list(APPEND BREAKPAD_LIBRARIES ${BREAKPAD_LIBRARY_${libname}})
 		list(APPEND BREAKPAD_LIBRARIES_VARS "BREAKPAD_LIBRARY_${libname}")
@@ -29,7 +29,7 @@ if(WIN32)
 	set(BREAKPAD_LIBRARY_DIRS "")
 else()
 	set(BREAKPAD_CMAKE_PREFIX_PATH_TEMP ${CMAKE_PREFIX_PATH})
-	list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../breakpad/prefix")
+	list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}/breakpad/prefix")
 
 	find_package(PkgConfig REQUIRED)
 	pkg_search_module(BREAKPAD REQUIRED breakpad-client)
