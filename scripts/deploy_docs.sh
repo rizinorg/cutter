@@ -15,5 +15,7 @@ echo "Committing new changes"
 
 cd cutter.re || exit 1
 git add . || exit 1
+git diff --cached --exit-code && echo "No changes." && exit 0
+git commit -m "Update docs from radareorg/cutter"
 git push origin master || exit 1
 
