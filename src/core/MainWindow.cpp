@@ -934,6 +934,7 @@ void MainWindow::on_actionFunctionsRename_triggered()
 
 void MainWindow::on_actionDefault_triggered()
 {
+    disconnectOverview();
     if (core->currentlyDebugging) {
         resetToDebugLayout();
     } else {
