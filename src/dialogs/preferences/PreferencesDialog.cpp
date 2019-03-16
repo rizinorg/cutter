@@ -1,5 +1,3 @@
-#include <QDialogButtonBox>
-
 #include "PreferencesDialog.h"
 #include "ui_PreferencesDialog.h"
 
@@ -7,11 +5,14 @@
 #include "AsmOptionsWidget.h"
 #include "GraphOptionsWidget.h"
 #include "DebugOptionsWidget.h"
+#include "PluginsOptionsWidget.h"
 
 #include "PreferenceCategory.h"
 
 #include "common/Helpers.h"
 #include "common/Configuration.h"
+
+#include <QDialogButtonBox>
 
 
 PreferencesDialog::PreferencesDialog(QWidget *parent)
@@ -25,7 +26,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     QList<PreferenceCategory> prefs {
 
         {
-            "Assembly",
+            tr("Disassembly"),
             new AsmOptionsWidget(this),
             QIcon(":/img/icons/disas_light.svg"),
             {
@@ -37,14 +38,19 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
             }
         },
         {
-            "Debug",
+            tr("Debug"),
             new DebugOptionsWidget(this),
             QIcon(":/img/icons/bug_light.svg")
         },
         {
-            "Appearance",
+            tr("Appearance"),
             new AppearanceOptionsWidget(this),
             QIcon(":/img/icons/polar_light.svg")
+        },
+        {
+            tr("Plugins"),
+            new PluginsOptionsWidget(this),
+            QIcon(":/img/icons/plugins_light.svg")
         }
     };
 

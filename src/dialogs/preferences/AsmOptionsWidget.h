@@ -19,7 +19,7 @@ class AsmOptionsWidget : public QDialog
     Q_OBJECT
 
 public:
-    explicit AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
+    explicit AsmOptionsWidget(PreferencesDialog *dialog);
     ~AsmOptionsWidget();
 
 private:

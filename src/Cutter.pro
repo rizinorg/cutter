@@ -315,6 +315,7 @@ SOURCES += \
     widgets/DebugActions.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
+    dialogs/preferences/PluginsOptionsWidget.cpp \
     widgets/BreakpointWidget.cpp \
     dialogs/BreakpointsDialog.cpp \
     dialogs/AttachProcDialog.cpp \
@@ -431,6 +432,7 @@ HEADERS  += \
     widgets/DebugActions.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
+    dialogs/preferences/PluginsOptionsWidget.h \
     widgets/BreakpointWidget.h \
     dialogs/BreakpointsDialog.h \
     dialogs/AttachProcDialog.h \

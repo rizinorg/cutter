@@ -2,12 +2,13 @@
 #ifndef PREFERENCESDIALOG_H
 #define PREFERENCESDIALOG_H
 
+#include "core/Cutter.h"
+
 #include <QDialog>
-#include <QPushButton>
-#include <QTreeWidget>
+
 #include <memory>
 
-#include "core/Cutter.h"
+class QTreeWidgetItem;
 
 namespace Ui {
 class PreferencesDialog;
