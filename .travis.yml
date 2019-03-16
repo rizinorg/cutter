@@ -12,17 +12,25 @@ branches:
 
 matrix:
   include:
-  - os: linux
+  - name: Linux QMake
+    os: linux
     env: BUILD_SYSTEM=qmake DEPLOY=1
-  - os: linux
+  - name: Linux CMake
+    os: linux
     env: BUILD_SYSTEM=cmake
-  - os: osx
+  - name: macOS QMake
+    os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=qmake DEPLOY=1
-  - os: osx
+  - name: macOS CMake
+    os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
-  - os: linux
+  - name: Documentation
+    os: linux
+    install: ~
+    before_script: ~
+    after_success: ~
     script:
     - cd docs
     - make html
