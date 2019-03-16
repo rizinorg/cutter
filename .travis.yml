@@ -44,8 +44,8 @@ matrix:
     - cd docs
     - make html
     before_deploy:
-    - git config --global user.name="Travis CI"
-    - git config --global user.email="travis@travis-ci.org"
+    - git config --global user.name "Travis CI"
+    - git config --global user.email "travis@travis-ci.org"
     deploy:
       skip_cleanup: true
       provider: script
