@@ -9,7 +9,6 @@ branches:
   - /^v\d.*$/
   - deploy-test
   - deps-test
-  - deploy-docs
 
 matrix:
   include:
@@ -57,7 +56,7 @@ matrix:
       script: bash scripts/deploy_docs.sh
       on:
         repo: radareorg/cutter
-        branch: deploy-docs
+        branch: master
 
 
 sudo: required
