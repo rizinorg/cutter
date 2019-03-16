@@ -129,7 +129,8 @@ CUTTER_ENABLE_PYTHON {
         pythonpath = $$replace(PYTHON_EXECUTABLE, ".exe ", ".exe;")
         pythonpath = $$section(pythonpath, ";", 0, 0)
         pythonpath = $$clean_path($$dirname(pythonpath))
-        LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
+        py_version = $$quote($$system("python -c print(__import__('sys').winver.replace('.',''))"))
+        LIBS += -L$${pythonpath}/libs -lpython$${py_version}
         INCLUDEPATH += $${pythonpath}/include
     }
 
