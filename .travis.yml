@@ -37,6 +37,8 @@ matrix:
         - doxygen
         - python3-sphinx
         - python3-breathe
+    before_install:
+    - openssl aes-256-cbc -K $encrypted_bd0ed4c1fd75_key -iv $encrypted_bd0ed4c1fd75_iv -in "$TRAVIS_BUILD_DIR/deploy_docs_rsa.enc" -out "$TRAVIS_BUILD_DIR/scripts/deploy_docs_rsa" -d
     install: ~
     before_script: ~
     after_success: ~
@@ -44,7 +46,6 @@ matrix:
     - cd docs
     - make html
     before_deploy:
-    - openssl aes-256-cbc -K $encrypted_bd0ed4c1fd75_key -iv $encrypted_bd0ed4c1fd75_iv -in "$TRAVIS_BUILD_DIR/deploy_docs_rsa.enc" -out "$TRAVIS_BUILD_DIR/scripts/deploy_docs_rsa" -d
     - export GIT_SSH_COMMAND="/usr/bin/ssh -i $TRAVIS_BUILD_DIR/scripts/deploy_docs_rsa"
     - git config --global user.name "Travis CI"
     - git config --global user.email "travis@travis-ci.org"
