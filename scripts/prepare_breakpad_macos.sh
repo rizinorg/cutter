@@ -21,3 +21,4 @@ cd $DIR
 # 
 # export BREAKPAD_DUMP_SYMS_DIR=$BREAKPAD_DUMP_SYMS_DIR
 # cd $DIR
+cd ..
