@@ -9,6 +9,7 @@ branches:
   - /^v\d.*$/
   - deploy-test
   - deps-test
+  - deploy-docs
 
 matrix:
   include:
@@ -50,8 +51,7 @@ matrix:
       provider: script
       script: bash "$TRAVIS_BUILD_DIR/scripts/deploy_docs.sh"
       on:
-        branch: master
-        tags: true
+        branch: deploy-docs
 
 
 sudo: required
