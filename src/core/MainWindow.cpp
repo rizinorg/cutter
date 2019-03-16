@@ -226,10 +226,6 @@ void MainWindow::initToolBar()
 
 void MainWindow::initDocks()
 {
-    //vane11ope
-    //TODO: Save the number of each Widget that was added to the MainWindow.
-    //Here, take the number of each Widget saved in the QSettings in advance then initialize Widget(s) according to the number.
-
     dockWidgets.reserve(20);
     disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
     hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
