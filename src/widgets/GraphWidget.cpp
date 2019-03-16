@@ -6,10 +6,7 @@
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
-    int num = main->randomNumber();
-    QString name = QString("Graph%1").arg(num);
-    eprintf("Graph%d\n", num);
-    setObjectName(name);
+    setObjectName("Graph");
     setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new DisassemblerGraphView(this);
     setWidget(graphView);

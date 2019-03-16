@@ -121,20 +121,7 @@ void MainWindow::initUI()
 
     initToolBar();
     initDocks();
-
-    // Set up dock widgets default layout
-    resetToDefaultLayout();
-    enableDebugWidgetsMenu(false);
-
-    // Restore saved settings
-    readSettings();
-    // TODO: Allow the user to select this option visually in the GUI settings
-    // Adjust the DockWidget areas
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    //setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
-
+    initLayout();
 
     /*
      *  Some global shortcuts
@@ -290,6 +277,18 @@ void MainWindow::initDocks()
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
 }
 
+void MainWindow::initLayout()
+{
+    // Set up dock widgets default layout
+    enableDebugWidgetsMenu(false);
+    // Restore saved settings
+    readSettings();
+    // TODO: Allow the user to select this option visually in the GUI settings
+    // Adjust the DockWidget areas
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+}
+
 void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
 {
     if (!overviewDock) {
@@ -411,12 +410,6 @@ void MainWindow::adjustGraph()
     targetGraphDock->graphView->offset_x = rectx /curScale + overview_offset_x;
     targetGraphDock->graphView->offset_y = recty /curScale + overview_offset_y;
     targetGraphDock->graphView->viewport()->update();
-}
-
-int MainWindow::randomNumber()
-{
-    qsrand(QTime::currentTime().msec());
-    return qrand();
 }
 
 void MainWindow::updateTasksIndicator()
@@ -621,8 +614,13 @@ void MainWindow::readSettings()
 {
     QSettings settings;
     QByteArray geo = settings.value("geometry", QByteArray()).toByteArray();
-    restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
+    if (!geo.length() && !state.length()) {
+        resetToDefaultLayout();
+        return;
+    }
+    hideAllDocks();
+    restoreGeometry(geo);
     restoreState(state);
     this->responsive = settings.value("responsive").toBool();
     panelLock = settings.value("panelLock").toBool();
@@ -856,16 +854,6 @@ void MainWindow::resetToDefaultLayout()
     restoreDocks();
     showZenDocks();
     dashboardDock->raise();
-
-    // Ugly workaround to set the default widths of functions docks
-    // if anyone finds a way to do this cleaner that also works, feel free to change it!
-    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
-    auto restoreOverviewDock = qhelpers::forceWidth(overviewDock->widget(), 200);
-    qApp->processEvents();
-    restoreFunctionDock.restoreWidth(functionsDock->widget());
-    restoreOverviewDock.restoreWidth(overviewDock->widget());
-
-    core->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
 void MainWindow::resetToDebugLayout()
