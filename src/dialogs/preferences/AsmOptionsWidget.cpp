@@ -9,11 +9,10 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 
-AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
-    : QDialog(parent),
+AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
+    : QDialog(dialog),
       ui(new Ui::AsmOptionsWidget)
 {
-    Q_UNUSED(dialog)
 
     ui->setupUi(this);
 
