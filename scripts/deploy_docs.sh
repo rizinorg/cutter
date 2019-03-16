@@ -2,6 +2,8 @@
 
 cd $(dirname "${BASH_SOURCE[0]}")/..
 
+cutter_timestamp=$(git show -s --format=%ct)
+
 echo "Cloning current cutter.re"
 
 git clone git@github.com:radareorg/cutter.re.git || exit 1
@@ -14,6 +16,12 @@ cp -a docs/build/html cutter.re/docs || exit 1
 echo "Committing new changes"
 
 cd cutter.re || exit 1
+docs_timestamp=$(git show -s --format=%ct)
+if [ $docs_timestamp -ge $cutter_timestamp ]; then
+	echo "Last commit on cutter.re is newer than this commit on cutter. Skipping."
+	exit 0
+fi
+
 git add . || exit 1
 git diff --cached --quiet && echo "No changes." && exit 0
 git commit -m "Update docs from radareorg/cutter"
