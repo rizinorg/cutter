@@ -93,7 +93,7 @@ public:
 
     void closeEvent(QCloseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-    void readSettings();
+    void readSettingsOrDefault();
     void saveSettings();
     void readDebugSettings();
     void saveDebugSettings();

@@ -282,7 +282,7 @@ void MainWindow::initLayout()
     // Set up dock widgets default layout
     enableDebugWidgetsMenu(false);
     // Restore saved settings
-    readSettings();
+    readSettingsOrDefault();
     // TODO: Allow the user to select this option visually in the GUI settings
     // Adjust the DockWidget areas
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
@@ -617,16 +617,26 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::paintEvent(QPaintEvent *event)
 {
     QMainWindow::paintEvent(event);
+    /*
+     * Dirty hack
+     * Just to adjust the width of Functions Widget to fixed size
+     * After everything is drawn, safely make it Preferred size policy
+     * So that user can change the widget size with the mouse
+     */
     if (functionsDock) {
         functionsDock->changeSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     }
 }
 
-void MainWindow::readSettings()
+void MainWindow::readSettingsOrDefault()
 {
     QSettings settings;
     QByteArray geo = settings.value("geometry", QByteArray()).toByteArray();
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
+    /*
+     * Check if saved settings exist
+     * If not, then read the default layout
+     */
     if (!geo.length() && !state.length()) {
         resetToDefaultLayout();
         return;
@@ -634,7 +644,7 @@ void MainWindow::readSettings()
     hideAllDocks();
     restoreGeometry(geo);
     restoreState(state);
-    this->responsive = settings.value("responsive").toBool();
+    responsive = settings.value("responsive").toBool();
     panelLock = settings.value("panelLock").toBool();
     setPanelLock();
     tabsOnTop = settings.value("tabsOnTop").toBool();
@@ -1203,7 +1213,7 @@ void MainWindow::changeDefinedView()
     CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
     hideAllDocks();
     restoreDocks();
-    readSettings();
+    readSettingsOrDefault();
     enableDebugWidgetsMenu(false);
     core->raisePrioritizedMemoryWidget(memType);
 }
