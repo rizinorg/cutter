@@ -98,7 +98,7 @@ look like:
        doSomething(value);
    }
 
-Nullptr
+nullptr
 ^^^^^^^
 
 Please do not use ``0`` nor ``Q_NULLPTR``, only use ``nullptr``.
