@@ -28,6 +28,7 @@ matrix:
     env: BUILD_SYSTEM=cmake
   - name: Documentation + Deploy
     os: linux
+    cache: ~
     addons:
       apt:
         update: true
@@ -41,6 +42,16 @@ matrix:
     script:
     - cd docs
     - make html
+    before_deploy:
+    - git config --global user.name="Travis CI"
+    - git config --global user.email="travis@travis-ci.org"
+    deploy:
+      skip_cleanup: true
+      provider: script
+      script: bash "$TRAVIS_BUILD_DIR/scripts/deploy_docs.sh"
+      on:
+        branch: deploy-docs
+
 
 sudo: required
 dist: xenial
