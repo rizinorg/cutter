@@ -279,12 +279,6 @@ void MainWindow::initDocks()
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
-
-    //for (int i = 0; i < 5; i++) {
-    //    on_actionExtraGraph_triggered();
-    //    on_actionExtraDisassembly_triggered();
-    //    on_actionExtraHexdump_triggered();
-    //}
 }
 
 void MainWindow::initLayout()
@@ -331,13 +325,17 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
 
 void MainWindow::disconnectOverview()
 {
-    disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-    disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
-    disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
-    disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-    disconnect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
-    disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
-    disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+    if (targetGraphDock) {
+        disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
+        disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
+        disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
+    }
+    if (overviewDock) {
+        disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+        disconnect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
+        disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
+        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+    }
 }
 
 void MainWindow::setOverviewData()
@@ -795,8 +793,7 @@ void MainWindow::hideAllDocks()
     for (auto w : dockWidgets) {
         removeDockWidget(w);
     }
-
-    updateDockActionsChecked();
+    //updateDockActionsChecked();
 }
 
 void MainWindow::updateDockActionsChecked()

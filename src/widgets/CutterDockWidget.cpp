@@ -6,8 +6,8 @@ CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     QDockWidget(parent),
     action(action)
 {
+    parent->addToDockWidgetList(this);
     if (action) {
-        parent->addToDockWidgetList(this);
         parent->addDockWidgetAction(this, action);
         connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
     }
