@@ -7,4 +7,4 @@ git clone https://chromium.googlesource.com/linux-syscall-support src/third_part
 CFLAGS=-w CXXFLAGS=-w ./configure --prefix=`pwd`/prefix && make && make install
 
 export CUSTOM_BREAKPAD_PREFIX="`pwd`/prefix"
-cd ..
+cd ../..
