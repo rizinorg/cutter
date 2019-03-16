@@ -46,6 +46,11 @@ to know what you can do to help the project!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   :glob:
 
-   *
+   shortcuts
+   building
+   common-errors
+   code
+   plugins
+   api
+
