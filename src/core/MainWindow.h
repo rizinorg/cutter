@@ -92,6 +92,7 @@ public:
     bool saveProjectAs(bool quit = false);
 
     void closeEvent(QCloseEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
     void readSettings();
     void saveSettings();
     void readDebugSettings();

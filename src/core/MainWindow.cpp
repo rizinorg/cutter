@@ -226,6 +226,10 @@ void MainWindow::initToolBar()
 
 void MainWindow::initDocks()
 {
+    //vane11ope
+    //TODO: Save the number of each Widget that was added to the MainWindow.
+    //Here, take the number of each Widget saved in the QSettings in advance then initialize Widget(s) according to the number.
+
     dockWidgets.reserve(20);
     disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
     hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
@@ -275,6 +279,12 @@ void MainWindow::initDocks()
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
+
+    //for (int i = 0; i < 5; i++) {
+    //    on_actionExtraGraph_triggered();
+    //    on_actionExtraDisassembly_triggered();
+    //    on_actionExtraHexdump_triggered();
+    //}
 }
 
 void MainWindow::initLayout()
@@ -608,6 +618,14 @@ void MainWindow::closeEvent(QCloseEvent *event)
         core->stopDebug();
     }
     QMainWindow::closeEvent(event);
+}
+
+void MainWindow::paintEvent(QPaintEvent *event)
+{
+    QMainWindow::paintEvent(event);
+    if (functionsDock) {
+        functionsDock->changeSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    }
 }
 
 void MainWindow::readSettings()

@@ -567,6 +567,11 @@ void FunctionsWidget::refreshTree()
     Core()->getAsyncTaskManager()->start(task);
 }
 
+void FunctionsWidget::changeSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver)
+{
+    ui->dockWidgetContents->setSizePolicy(hor, ver);
+}
+
 void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
 {
     if (!index.isValid())
