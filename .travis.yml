@@ -31,7 +31,10 @@ matrix:
     addons:
       apt:
         update: true
-        packages: doxygen
+        packages:
+        - doxygen
+        - python3-sphinx
+        - python3-breathe
     install: ~
     before_script: ~
     after_success: ~
