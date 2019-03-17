@@ -306,7 +306,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     }
     targetGraphDock = targetGraph;
     connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
+    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(forceUpdateOverview()));
     connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
     connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
         disconnectOverview();
@@ -328,7 +328,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
 void MainWindow::disconnectOverview()
 {
     disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-    disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
+    disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(forceUpdateOverview()));
     disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
     disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
     disconnect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
