@@ -113,21 +113,6 @@ bool writeMinidump()
     return ok;
 }
 
-/**
- * @brief Moves dump file to specified @a dir and renames it to
- * "Cutter_crash_dump_DD.MM.YY_HH:MM:SS.dmp" format.
- *
- * @param dir is directory where dump file will be placed
- * @return true on success
- */
-bool placeMinidump(QString dir)
-{
-    QString replaceFilePath = QDir(dir).filePath("Cutter_crash_dump_"
-                                                 + QDate().currentDate().toString("dd.MM.yy") + "_"
-                                                 + QTime().currentTime().toString() + ".dmp");
-    return QFile::rename(dumpFileFullPath, replaceFilePath);
-}
-
 [[noreturn]] void crashHandler(int signum)
 {
     // As soon as Cutter crashed, crash dump is created, so core and memory state
@@ -151,7 +136,7 @@ bool placeMinidump(QString dir)
 
     int ret = mb.exec();
     if (ret == QMessageBox::Yes) {
-        QString dir;
+        QString dumpSaveFileName;
         int placementFailCounter = 0;
         do {
             placementFailCounter++;
@@ -159,25 +144,33 @@ bool placeMinidump(QString dir)
                 ok = false;
                 break;
             }
-            dir = QFileDialog::getExistingDirectory(nullptr,
-                                                    QObject::tr("Choose a directory to save the crash dump in"),
-                                                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
-                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+            dumpSaveFileName = QFileDialog::getSaveFileName(nullptr,
+                                                            QObject::tr("Choose a directory to save the crash dump in"),
+                                                            QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
+                                                            QDir::separator() +
+                                                            "Cutter_crash_dump_"
+                                                            + QDate().currentDate().toString("dd.MM.yy") + "_"
+                                                            + QTime().currentTime().toString() + ".dmp",
+                                                            QObject::tr("Dump files (*.dmp)"));
 
-            if (placeMinidump(dir)) {
+            if (dumpSaveFileName.isEmpty()) {
+                exit(3);
+            }
+            if (QFile::rename(dumpFileFullPath, dumpSaveFileName)) {
                 break;
             }
             QMessageBox::critical(nullptr,
                                   QObject::tr("Error"),
                                   QObject::tr("Error occured during writing to the %1.<br/>"
                                               "Please, make sure you have access to that directory "
-                                              "and try again.").arg(dir));
+                                              "and try again.").arg(QFileInfo(dumpSaveFileName).dir().path()));
         } while (true);
 
         if (ok) {
             QMessageBox info;
             info.setWindowTitle(QObject::tr("Success"));
-            info.setText(QObject::tr("<a href=\"%1\">Crash dump</a> was successfully created.").arg(dir));
+            info.setText(QObject::tr("<a href=\"%1\">Crash dump</a> was successfully created.")
+                         .arg(QFileInfo(dumpSaveFileName).dir().path()));
             info.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
             info.button(QMessageBox::Yes)->setText(QObject::tr("Open an issue"));
