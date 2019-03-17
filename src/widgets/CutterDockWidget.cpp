@@ -8,10 +8,12 @@ CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     QDockWidget(parent),
     action(action)
 {
-    parent->addToDockWidgetList(this);
-    if (action) {
-        parent->addDockWidgetAction(this, action);
-        connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
+    if (parent) {
+        parent->addToDockWidgetList(this);
+        if (action) {
+            parent->addDockWidgetAction(this, action);
+            connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
+        }
     }
 
     // Install event filter to catch redraw widgets when needed

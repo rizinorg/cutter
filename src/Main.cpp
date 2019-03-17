@@ -2,8 +2,11 @@
 #include "CutterApplication.h"
 #include "core/MainWindow.h"
 #include "common/UpdateWorker.h"
+#include "common/ColorThemeWorker.h"
 #include "CutterConfig.h"
 #include "common/CrashHandler.h"
+
+#include <QJsonObject>
 
 /**
  * @brief Migrate Settings used before Cutter 1.8
@@ -47,6 +50,27 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts); // needed for QtWebEngine inside Plugins
 
     CutterApplication a(argc, argv);
+
+    // Removes obsolete color options (highlight and highlightWord) from custom theme files
+    if (!settings.value("updated_custom_themes", false).toBool()) {
+        const QStringList options = Core()->cmdj("ecj").object().keys()
+                                    << ColorThemeWorker::cutterSpecificOptions;
+        for (auto theme : Core()->cmd("eco*").split('\n', QString::SkipEmptyParts)) {
+            theme = theme.trimmed();
+            if (!ThemeWorker().isCustomTheme(theme)) {
+                continue;
+            }
+            QJsonObject updatedTheme;
+            auto sch = ThemeWorker().getTheme(theme);
+            for (auto key : sch.object().keys()) {
+                if (options.contains(key)) {
+                    updatedTheme.insert(key, sch[key]);
+                }
+            }
+            ThemeWorker().save(QJsonDocument(updatedTheme), theme);
+        }
+        settings.setValue("updated_custom_themes", true);
+    }
 
     if (Config()->getAutoUpdateEnabled()) {
         UpdateWorker *updateWorker = new UpdateWorker;

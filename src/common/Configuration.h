@@ -13,17 +13,18 @@ enum ColorFlags {
     DarkFlag = 2
 };
 
-struct CutterQtTheme {
+struct CutterInterfaceTheme {
     QString name;
     ColorFlags flag;
 };
 
-extern const QList<CutterQtTheme> kCutterQtThemesList;
+extern const QList<CutterInterfaceTheme> kCutterInterfaceThemesList;
 
 class Configuration : public QObject
 {
     Q_OBJECT
 private:
+    QPalette nativePalette;
     QSettings s;
     static Configuration *mPtr;
 
@@ -33,7 +34,6 @@ private:
     void loadNativeTheme();
     void loadLightTheme();
     void loadDarkTheme();
-    void setColor(const QString &name, const QColor &color);
 
     // Asm Options
     void applySavedAsmOptions();
@@ -63,16 +63,15 @@ public:
 
     // Colors
     bool windowColorIsDark();
-    void setLastThemeOf(const CutterQtTheme &currQtTheme, const QString &theme);
-    QString getLastThemeOf(const CutterQtTheme &currQtTheme) const;
-    const QColor getColor(const QString &name) const;
-    void setTheme(int theme);
-    int getTheme()
+    void setLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme, const QString &theme);
+    QString getLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme) const;
+    void setInterfaceTheme(int theme);
+    int getInterfaceTheme()
     {
         return s.value("ColorPalette", 0).toInt();
     }
 
-    const CutterQtTheme *getCurrentTheme();
+    const CutterInterfaceTheme *getCurrentTheme();
 
     QString getDirProjects();
     void setDirProjects(const QString &dir);
@@ -101,6 +100,9 @@ public:
 
     QString getColorTheme() const     { return s.value("theme", "cutter").toString(); }
     void setColorTheme(const QString &theme);
+
+    void setColor(const QString &name, const QColor &color);
+    const QColor getColor(const QString &name) const;
 
     /**
      * @brief Get the value of a config var either from r2 or settings, depending on the key.

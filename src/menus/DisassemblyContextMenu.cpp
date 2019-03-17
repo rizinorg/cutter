@@ -879,10 +879,7 @@ void DisassemblyContextMenu::initAction(QAction *action, QString name,
         return;
     }
     action->setShortcut(keySequence);
-    auto pWidget = parentWidget();
-    auto shortcut = new QShortcut(keySequence, pWidget);
-    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut, SIGNAL(activated()), this, slot);
+    action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }
 
 void DisassemblyContextMenu::initAction(QAction *action, QString name,
@@ -893,10 +890,5 @@ void DisassemblyContextMenu::initAction(QAction *action, QString name,
         return;
     }
     action->setShortcuts(keySequenceList);
-    auto pWidget = parentWidget();
-    for (auto keySequence : keySequenceList) {
-        auto shortcut = new QShortcut(keySequence, pWidget);
-        shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-        connect(shortcut, SIGNAL(activated()), this, slot);
-    }
+    action->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 }

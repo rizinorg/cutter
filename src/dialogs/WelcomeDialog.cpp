@@ -19,7 +19,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
     setWindowFlag(Qt::WindowContextHelpButtonHint, false);
     ui->logoSvgWidget->load(Config()->getLogoFile());
     ui->versionLabel->setText("<font color='#a4a9b2'>" + tr("Version ") + CUTTER_VERSION_FULL + "</font>");
-    ui->themeComboBox->setCurrentIndex(Config()->getTheme());
+    ui->themeComboBox->setCurrentIndex(Config()->getInterfaceTheme());
 
     QSignalBlocker s(ui->updatesCheckBox);
     ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
@@ -53,7 +53,7 @@ WelcomeDialog::~WelcomeDialog()
  */
 void WelcomeDialog::on_themeComboBox_currentIndexChanged(int index)
 {
-    Config()->setTheme(index);
+    Config()->setInterfaceTheme(index);
 
     // use "ayu" as the default color theme for dark interface
     if (Config()->windowColorIsDark()) {

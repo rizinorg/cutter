@@ -322,8 +322,6 @@ SOURCES += \
     widgets/RegisterRefsWidget.cpp \
     dialogs/SetToDataDialog.cpp \
     dialogs/EditVariablesDialog.cpp \
-    widgets/ColorSchemePrefWidget.cpp \
-    common/ColorSchemeFileSaver.cpp \
     dialogs/EditFunctionDialog.cpp \
     widgets/CutterTreeView.cpp \
     widgets/ComboQuickFilterView.cpp \
@@ -340,6 +338,11 @@ SOURCES += \
     plugins/PluginManager.cpp \
     common/BasicBlockHighlighter.cpp \
     dialogs/LinkTypeDialog.cpp \
+    widgets/ColorPicker.cpp \
+    common/ColorThemeWorker.cpp \
+    widgets/ColorThemeComboBox.cpp \
+    widgets/ColorThemeListView.cpp \
+    dialogs/preferences/ColorThemeEditDialog.cpp \
     common/UpdateWorker.cpp \
     widgets/MemoryDockWidget.cpp \
     common/CrashHandler.cpp \
@@ -442,8 +445,6 @@ HEADERS  += \
     dialogs/SetToDataDialog.h \
     common/InitialOptions.h \
     dialogs/EditVariablesDialog.h \
-    common/ColorSchemeFileSaver.h \
-    widgets/ColorSchemePrefWidget.h \
     dialogs/EditFunctionDialog.h \
     widgets/CutterTreeView.h \
     widgets/ComboQuickFilterView.h \
@@ -462,8 +463,13 @@ HEADERS  += \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
     common/UpdateWorker.h \
-    dialogs/LinkTypeDialog.h \
+    widgets/ColorPicker.h \
+    common/ColorThemeWorker.h \
+    widgets/ColorThemeComboBox.h \
     widgets/MemoryDockWidget.h \
+    widgets/ColorThemeListView.h \
+    dialogs/preferences/ColorThemeEditDialog.h \
+    dialogs/LinkTypeDialog.h \
     common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
@@ -520,7 +526,6 @@ FORMS    += \
     widgets/RegisterRefsWidget.ui \
     dialogs/SetToDataDialog.ui \
     dialogs/EditVariablesDialog.ui \
-    widgets/ColorSchemePrefWidget.ui \
     widgets/CutterTreeView.ui \
     widgets/ComboQuickFilterView.ui \
     dialogs/HexdumpRangeDialog.ui \
@@ -528,7 +533,9 @@ FORMS    += \
     dialogs/EditMethodDialog.ui \
     dialogs/LoadNewTypesDialog.ui \
     widgets/SdbWidget.ui \
-    dialogs/LinkTypeDialog.ui
+    dialogs/LinkTypeDialog.ui \
+    widgets/ColorPicker.ui \
+    dialogs/preferences/ColorThemeEditDialog.ui
 
 RESOURCES += \
     resources.qrc \

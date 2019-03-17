@@ -6,19 +6,22 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>442</width>
-    <height>268</height>
+    <width>619</width>
+    <height>225</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Appearance</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="sizeConstraint">
-    <enum>QLayout::SetMinAndMaxSize</enum>
-   </property>
    <item>
     <layout class="QFormLayout" name="formLayout">
+     <property name="labelAlignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="formAlignment">
+      <set>Qt::AlignCenter</set>
+     </property>
      <item row="0" column="0">
       <widget class="QLabel" name="fontLabel">
        <property name="text">
@@ -56,10 +59,27 @@
        </item>
       </layout>
      </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="languageLabel">
+       <property name="text">
+        <string>Language:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="languageComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="themeLabel">
        <property name="text">
-        <string>Qt Theme:</string>
+        <string>Interface Theme:</string>
        </property>
       </widget>
      </item>
@@ -86,19 +106,47 @@
      <item row="3" column="0">
       <widget class="QLabel" name="colorLabel">
        <property name="text">
-        <string>Color Theme</string>
+        <string>Color Theme:</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1">
       <layout class="QHBoxLayout" name="horizontalLayout_3">
        <item>
-        <widget class="QComboBox" name="colorComboBox">
+        <widget class="ColorThemeComboBox" name="colorComboBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="editButton">
+         <property name="toolTip">
+          <string>Edit Theme</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/pencil_thin.svg</normaloff>:/img/icons/pencil_thin.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="renameButton">
+         <property name="toolTip">
+          <string>Rename</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/rename.svg</normaloff>:/img/icons/rename.svg</iconset>
          </property>
         </widget>
        </item>
@@ -110,17 +158,62 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text">
+         <property name="toolTip">
           <string>Copy</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/copy.svg</normaloff>:/img/icons/copy.svg</iconset>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="deleteButton">
-         <property name="text">
+         <property name="toolTip">
           <string>Delete</string>
          </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/trash_bin.svg</normaloff>:/img/icons/trash_bin.svg</iconset>
+         </property>
         </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="exportButton">
+         <property name="toolTip">
+          <string>Export</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/upload_black.svg</normaloff>:/img/icons/upload_black.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="importButton">
+         <property name="toolTip">
+          <string>Import</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/download_black.svg</normaloff>:/img/icons/download_black.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3"/>
        </item>
        <item>
         <spacer name="horizontalSpacer">
@@ -137,27 +230,20 @@
        </item>
       </layout>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="languageLabel">
-       <property name="text">
-        <string>Language</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="languageComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item>
-    <widget class="ColorSchemePrefWidget" name="colorSchemePrefWidget" native="true"/>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
   <action name="actionSaveAsDefault">
@@ -168,12 +254,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ColorSchemePrefWidget</class>
-   <extends>QWidget</extends>
-   <header>widgets/ColorSchemePrefWidget.h</header>
-   <container>1</container>
+   <class>ColorThemeComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets/ColorThemeComboBox.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

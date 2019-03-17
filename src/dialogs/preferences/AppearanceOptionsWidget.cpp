@@ -1,9 +1,14 @@
 #include <QDir>
+#include <QFile>
 #include <QLabel>
+#include <QPainter>
 #include <QFontDialog>
+#include <QFileDialog>
 #include <QTranslator>
 #include <QInputDialog>
 #include <QSignalBlocker>
+#include <QStandardPaths>
+#include <QtSvg/QSvgRenderer>
 
 #include <QComboBox>
 #include "PreferencesDialog.h"
@@ -13,22 +18,9 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 
-#include "common/ColorSchemeFileSaver.h"
-#include "widgets/ColorSchemePrefWidget.h"
-
-static const QHash<QString, ColorFlags> kRelevantSchemes = {
-    { "ayu", DarkFlag },
-    { "consonance", DarkFlag },
-    { "darkda", DarkFlag },
-    { "onedark", DarkFlag },
-    { "solarized", DarkFlag },
-    { "zenburn", DarkFlag },
-    { "cutter", LightFlag },
-    { "dark", LightFlag },
-    { "matrix", LightFlag },
-    { "tango", LightFlag },
-    { "white", LightFlag }
-};
+#include "common/ColorThemeWorker.h"
+#include "dialogs/preferences/ColorThemeEditDialog.h"
+#include "widgets/ColorPicker.h"
 
 AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
     : QDialog(dialog),
@@ -47,6 +39,20 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
         curr = "English";
     }
     ui->languageComboBox->setCurrentText(curr);
+
+    auto setIcons = [this]() {
+        QColor textColor = palette().buttonText().color();
+        ui->editButton->setIcon(getIconFromSvg(":/img/icons/pencil_thin.svg", textColor));
+        ui->deleteButton->setIcon(getIconFromSvg(":/img/icons/trash_bin.svg", textColor));
+        ui->copyButton->setIcon(getIconFromSvg(":/img/icons/copy.svg", textColor));
+        ui->importButton->setIcon(getIconFromSvg(":/img/icons/download_black.svg", textColor));
+        ui->exportButton->setIcon(getIconFromSvg(":/img/icons/upload_black.svg", textColor));
+        ui->renameButton->setIcon(getIconFromSvg(":/img/icons/rename.svg", textColor));
+    };
+    setIcons();
+    connect(Config(), &Configuration::themeUpdated,
+            this, setIcons);
+
     connect(ui->languageComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
@@ -54,6 +60,11 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
 
     connect(Config(), &Configuration::fontsUpdated, this,
             &AppearanceOptionsWidget::updateFontFromConfig);
+
+    connect(ui->colorComboBox, &QComboBox::currentTextChanged,
+            this, [this](const QString &str) {
+        ui->editButton->setEnabled(ThemeWorker().isCustomTheme(str));
+    });
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
@@ -64,54 +75,23 @@ void AppearanceOptionsWidget::updateFontFromConfig()
     ui->fontSelectionLabel->setText(currentFont.toString());
 }
 
-void AppearanceOptionsWidget::updateThemeFromConfig(bool qtThemeChanged)
+void AppearanceOptionsWidget::updateThemeFromConfig(bool interfaceThemeChanged)
 {
     // Disconnect currentIndexChanged because clearing the comboxBox and refiling it causes its index to change.
-    QSignalBlocker signalBlockerColorBox(ui->colorComboBox);
     QSignalBlocker signalBlockerThemeBox(ui->themeComboBox);
-    Q_UNUSED(signalBlockerColorBox);
-    Q_UNUSED(signalBlockerThemeBox);
 
     ui->themeComboBox->clear();
-    for (auto &it : kCutterQtThemesList) {
+    for (auto &it : kCutterInterfaceThemesList) {
         ui->themeComboBox->addItem(it.name);
     }
-    int curQtThemeIndex = Config()->getTheme();
-    if (curQtThemeIndex >= kCutterQtThemesList.size()) {
-        curQtThemeIndex = 0;
-        Config()->setTheme(curQtThemeIndex);
+    int currInterfaceThemeIndex = Config()->getInterfaceTheme();
+    if (currInterfaceThemeIndex >= kCutterInterfaceThemesList.size()) {
+        currInterfaceThemeIndex = 0;
+        Config()->setInterfaceTheme(currInterfaceThemeIndex);
     }
-    ui->themeComboBox->setCurrentIndex(curQtThemeIndex);
-
-    QList<QString> themes = Core()->getColorThemes();
-    ui->colorComboBox->clear();
-    for (const QString &theme : themes) {
-        if (ColorSchemeFileWorker().isCustomScheme(theme) ||
-            (kCutterQtThemesList[curQtThemeIndex].flag & kRelevantSchemes[theme])) {
-            ui->colorComboBox->addItem(theme);
-        }
-    }
-
-    QString curTheme = qtThemeChanged
-        ? Config()->getLastThemeOf(kCutterQtThemesList[curQtThemeIndex])
-        : Config()->getColorTheme();
-    const int index = ui->colorComboBox->findText(curTheme);
-
-    ui->colorComboBox->setCurrentIndex(index == -1 ? 0 : index);
-    if (qtThemeChanged || index == -1) {
-        curTheme = ui->colorComboBox->currentText();
-        Config()->setColorTheme(curTheme);
-    }
-    ui->colorSchemePrefWidget->updateSchemeFromConfig();
-    int maxThemeLen = 0;
-    for (const QString &str : themes) {
-        int strLen = str.length();
-        if (strLen > maxThemeLen) {
-            maxThemeLen = strLen;
-        }
-    }
-    ui->colorComboBox->setMinimumContentsLength(maxThemeLen);
-    ui->colorComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
+    ui->themeComboBox->setCurrentIndex(currInterfaceThemeIndex);
+    ui->colorComboBox->updateFromConfig(interfaceThemeChanged);
+    ui->editButton->setEnabled(ThemeWorker().isCustomTheme(ui->colorComboBox->currentText()));
 }
 
 void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
@@ -127,56 +107,122 @@ void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
 
 void AppearanceOptionsWidget::on_themeComboBox_currentIndexChanged(int index)
 {
-    Config()->setTheme(index);
+    Config()->setInterfaceTheme(index);
     updateThemeFromConfig();
 }
 
-void AppearanceOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
+void AppearanceOptionsWidget::on_editButton_clicked()
 {
-    QString theme = ui->colorComboBox->itemText(index);
-
-    int curQtThemeIndex = Config()->getTheme();
-    if (curQtThemeIndex >= kCutterQtThemesList.size()) {
-        curQtThemeIndex = 0;
-        Config()->setTheme(curQtThemeIndex);
-    }
-
-    Config()->setLastThemeOf(kCutterQtThemesList[curQtThemeIndex], theme);
-    Config()->setColorTheme(theme);
-    ui->colorSchemePrefWidget->updateSchemeFromConfig();
+    ColorThemeEditDialog dial;
+    dial.setWindowTitle(tr("Theme Editor - <%1>").arg(ui->colorComboBox->currentText()));
+    dial.exec();
+    ui->colorComboBox->updateFromConfig(false);
 }
 
 void AppearanceOptionsWidget::on_copyButton_clicked()
 {
-    QString newSchemeName;
-    do {
-        newSchemeName = QInputDialog::getText(this, tr("Enter scheme name"),
-                                              tr("Name:"), QLineEdit::Normal,
-                                              QDir::home().dirName());
-    } while ((!newSchemeName.isEmpty() && ColorSchemeFileWorker().isNameEngaged(newSchemeName))
-        || newSchemeName.contains(QRegExp("[^\\w.()\\[\\]_-]"))
-        || newSchemeName.startsWith('.'));
+    QString currColorTheme = ui->colorComboBox->currentText();
 
-    if (newSchemeName.isEmpty())
+    QString newThemeName;
+    do {
+        newThemeName = QInputDialog::getText(this, tr("Enter theme name"),
+                                             tr("Name:"), QLineEdit::Normal,
+                                             currColorTheme + tr(" - copy"));
+    } while (!newThemeName.isEmpty() && ThemeWorker().isThemeExist(newThemeName));
+
+    if (newThemeName.isEmpty()) {
         return;
-    ColorSchemeFileWorker().copy(Config()->getColorTheme(), newSchemeName);
-    Config()->setColorTheme(newSchemeName);
-    ui->colorSchemePrefWidget->updateSchemeFromConfig();
+    }
+    ThemeWorker().copy(currColorTheme, newThemeName);
+    Config()->setColorTheme(newThemeName);
     updateThemeFromConfig(false);
 }
 
 void AppearanceOptionsWidget::on_deleteButton_clicked()
 {
-    if (ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme())) {
-        QMessageBox mb;
-        mb.setWindowTitle(tr("Delete"));
-        mb.setText(tr("Are you sure you want to delete theme ") + Config()->getColorTheme());
-        mb.setIcon(QMessageBox::Question);
-        mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        if (mb.exec() == QMessageBox::Yes) {
-            ColorSchemeFileWorker().deleteScheme(Config()->getColorTheme());
-            updateThemeFromConfig(false);
+    QString currTheme = ui->colorComboBox->currentText();
+    if (!ThemeWorker().isCustomTheme(currTheme)) {
+        QMessageBox::critical(nullptr, tr("Error"), ThemeWorker().deleteTheme(currTheme));
+        return;
+    }
+    int ret = QMessageBox::question(nullptr,
+                                    tr("Delete"),
+                                    tr("Are you sure you want to delete <b>%1</b>?")
+                                    .arg(currTheme));
+    if (ret == QMessageBox::Yes) {
+        QString err = ThemeWorker().deleteTheme(currTheme);
+        updateThemeFromConfig(false);
+        if (!err.isEmpty()) {
+            QMessageBox::critical(nullptr, tr("Error"), err);
         }
+    }
+}
+
+void AppearanceOptionsWidget::on_importButton_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                                    "",
+                                                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    QString err = ThemeWorker().importTheme(fileName);
+    QString themeName = QFileInfo(fileName).fileName();
+    if (err.isEmpty()) {
+        QMessageBox::information(this,
+                                 tr("Success"),
+                                 tr("Color theme <b>%1</b> was successfully imported.").arg(themeName));
+        Config()->setColorTheme(themeName);
+        updateThemeFromConfig(false);
+    } else {
+        QMessageBox::critical(this, tr("Error"), err);
+    }
+}
+
+void AppearanceOptionsWidget::on_exportButton_clicked()
+{
+    QString theme = ui->colorComboBox->currentText();
+    QString file = QFileDialog::getSaveFileName(this,
+                                                "",
+                                                QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+                                                + QDir::separator() + theme);
+    if (file.isEmpty()) {
+        return;
+    }
+
+    // User already gave his consent for this in QFileDialog::getSaveFileName()
+    if (QFileInfo(file).exists()) {
+        QFile(file).remove();
+    }
+    QString err = ThemeWorker().save(ThemeWorker().getTheme(theme), file);
+    if (err.isEmpty()) {
+        QMessageBox::information(this,
+                                 tr("Success"),
+                                 tr("Color theme <b>%1</b> was successfully exported.").arg(theme));
+    } else {
+        QMessageBox::critical(this, tr("Error"), err);
+    }
+}
+
+void AppearanceOptionsWidget::on_renameButton_clicked()
+{
+    QString currColorTheme = Config()->getColorTheme();
+    QString newName = QInputDialog::getText(this,
+                                            tr("Enter new theme name"),
+                                            tr("Name:"),
+                                            QLineEdit::Normal,
+                                            currColorTheme);
+    if (newName.isEmpty() || newName == currColorTheme) {
+        return;
+    }
+
+    QString err = ThemeWorker().renameTheme(currColorTheme, newName);
+    if (!err.isEmpty()) {
+        QMessageBox::critical(this, tr("Error"), err);
+    } else {
+        Config()->setColorTheme(newName);
+        updateThemeFromConfig(false);
     }
 }
 
@@ -185,10 +231,30 @@ void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
     QString language = ui->languageComboBox->itemText(index).toLower();
     if (Config()->setLocaleByName(language)) {
         QMessageBox::information(this,
-            tr("Language settings"),
-            tr("Language will be changed after next application start."));
+                                 tr("Language settings"),
+                                 tr("Language will be changed after next application start."));
         return;
     }
 
     qWarning() << tr("Cannot set language, not found in available ones");
+}
+
+QIcon AppearanceOptionsWidget::getIconFromSvg(const QString& fileName, const QColor& after, const QColor& before)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QIcon();
+    }
+    QString data = file.readAll();
+    data.replace(QRegExp(QString("#%1").arg(before.isValid() ? before.name().remove(0, 1) : "[0-9a-fA-F]{6}")),
+                 QString("%1").arg(after.name()));
+
+    QSvgRenderer svgRenderer(data.toUtf8());
+    QPixmap pix(svgRenderer.defaultSize());
+    pix.fill(Qt::transparent);
+
+    QPainter pixPainter(&pix);
+    svgRenderer.render(&pixPainter);
+
+    return pix;
 }
