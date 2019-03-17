@@ -30,6 +30,5 @@ Creating Plugins
 
 .. toctree::
    :glob:
-   :hidden:
 
    plugins/*
