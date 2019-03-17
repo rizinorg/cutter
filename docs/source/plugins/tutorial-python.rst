@@ -143,6 +143,10 @@ Many commands in radare2 can be suffixed with a ``j`` to return JSON output.
 ``cmdj()`` will automatically deserialize the JSON into python dicts and lists, so the
 information can be easily accessed.
 
+.. warning::
+   When fetching data that is not meant to be used only as readable text, **always** use the JSON variant of a command!
+   Regular command output is not meant to be parsed and is subject to change at any time, which will break your code.
+
 In our case, we use the two commands ``pd`` (Print Disassembly) and ``pdj`` (Print Disassembly as JSON)
 with a parameter of 1 to fetch a single line of disassembly.
 
