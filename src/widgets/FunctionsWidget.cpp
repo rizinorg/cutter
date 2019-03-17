@@ -209,8 +209,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 .set("asm.lines.fcn", false)
                 .set("asm.lines.out", false)
                 .set("asm.lines.bb", false)
-                .set("asm.bbline", false)
-                .set("asm.stackptr", false);
+                .set("asm.bbline", false);
 
             disassemblyLines = Core()->disassembleLines(function.offset, kMaxTooltipDisasmPreviewLines + 1);
         }

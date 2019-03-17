@@ -1,10 +1,12 @@
-#include <QDockWidget>
-#include <QTreeWidget>
-#include <QComboBox>
 #include "SearchWidget.h"
 #include "ui_SearchWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+
+#include <QDockWidget>
+#include <QTreeWidget>
+#include <QComboBox>
+#include <QShortcut>
 
 static const QMap<QString, QString> kSearchBoundariesValues {
     {"io.maps", "All maps"},

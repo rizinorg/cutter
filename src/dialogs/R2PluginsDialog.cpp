@@ -51,15 +51,6 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         ui->RAsmTreeWidget->addTopLevelItem(item);
     }
     qhelpers::adjustColumns(ui->RAsmTreeWidget, 0);
-
-    for (CutterPlugin *plugin : Plugins()->getPlugins()) {
-        QTreeWidgetItem *item = new QTreeWidgetItem();
-        item->setText(0, plugin->getName());
-        item->setText(1, plugin->getDescription());
-        item->setText(2, plugin->getVersion());
-        item->setText(3, plugin->getAuthor());
-        ui->CutterTreeWidget->addTopLevelItem(item);
-    }
 }
 
 R2PluginsDialog::~R2PluginsDialog()

@@ -1,17 +1,17 @@
-#include <QGraphicsTextItem>
-#include <QGraphicsView>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGraphicsSceneMouseEvent>
-#include <QToolTip>
-
-#include "common/Configuration.h"
 #include "SectionsWidget.h"
 #include "CutterTreeView.h"
-#include "core/MainWindow.h"
 #include "QuickFilterView.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "common/Configuration.h"
+
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsTextItem>
+#include <QGraphicsView>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QShortcut>
+#include <QToolTip>
 
 SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
     : QAbstractListModel(parent),

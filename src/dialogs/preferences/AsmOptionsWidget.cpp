@@ -9,11 +9,10 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 
-AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
-    : QDialog(parent),
+AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
+    : QDialog(dialog),
       ui(new Ui::AsmOptionsWidget)
 {
-    Q_UNUSED(dialog)
 
     ui->setupUi(this);
 
@@ -38,8 +37,6 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->xrefCheckBox, Config()->getConfigBool("asm.xrefs"));
     qhelpers::setCheckedWithoutSignals(ui->indentCheckBox, Config()->getConfigBool("asm.indent"));
     qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Config()->getConfigBool("asm.describe"));
-    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox,
-                                       Config()->getConfigBool("asm.stackptr"));
     qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Config()->getConfigBool("asm.slow"));
     qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Config()->getConfigBool("asm.lines"));
     qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.lines.fcn"));
@@ -153,12 +150,6 @@ void AsmOptionsWidget::on_indentCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_describeCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.describe", checked);
-    triggerAsmOptionsChanged();
-}
-
-void AsmOptionsWidget::on_stackpointerCheckBox_toggled(bool checked)
-{
-    Config()->setConfig("asm.stackptr", checked);
     triggerAsmOptionsChanged();
 }
 

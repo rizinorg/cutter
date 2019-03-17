@@ -1,15 +1,14 @@
-
-#include <QList>
-
 #include "ClassesWidget.h"
 #include "core/MainWindow.h"
 #include "ui_ClassesWidget.h"
 #include "common/Helpers.h"
+#include "common/SvgIconEngine.h"
 #include "dialogs/EditMethodDialog.h"
 #include "dialogs/RenameDialog.h"
 
+#include <QList>
 #include <QMenu>
-
+#include <QMouseEvent>
 
 QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
 {

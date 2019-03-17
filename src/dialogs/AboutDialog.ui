@@ -59,7 +59,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Show plugin information</string>
+          <string>Show radare2 plugin information</string>
          </property>
         </widget>
        </item>

@@ -1,8 +1,10 @@
-#include <QTreeWidget>
 #include "RelocsWidget.h"
 #include "ui_RelocsWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+
+#include <QShortcut>
+#include <QTreeWidget>
 
 RelocsModel::RelocsModel(QList<RelocDescription> *relocs, QObject *parent) :
     QAbstractTableModel(parent),

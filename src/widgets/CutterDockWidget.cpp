@@ -1,6 +1,8 @@
 #include "CutterDockWidget.h"
 #include "core/MainWindow.h"
 
+#include <QAction>
+#include <QEvent>
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     QDockWidget(parent),

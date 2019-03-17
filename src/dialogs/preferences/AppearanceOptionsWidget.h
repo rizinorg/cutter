@@ -19,7 +19,7 @@ class AppearanceOptionsWidget : public QDialog
     Q_OBJECT
 
 public:
-    explicit AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
+    explicit AppearanceOptionsWidget(PreferencesDialog *dialog);
     ~AppearanceOptionsWidget();
 
 private:

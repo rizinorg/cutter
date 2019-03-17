@@ -205,13 +205,6 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QCheckBox" name="stackpointerCheckBox">
-         <property name="text">
-          <string>Show stack pointer (asm.stackptr)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="slowCheckBox">
          <property name="text">
           <string>Slow Analysis (asm.slow)</string>

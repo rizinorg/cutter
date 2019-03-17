@@ -4,6 +4,7 @@
 #include "common/JupyterConnection.h"
 #endif
 #include "plugins/PluginManager.h"
+#include "CutterConfig.h"
 
 #include <QApplication>
 #include <QFileOpenEvent>
@@ -18,14 +19,12 @@
 #include <QDir>
 #include <QTranslator>
 #include <QLibraryInfo>
-
-#include "CutterConfig.h"
-
-#include <cstdlib>
-
+#include <QFontDatabase>
 #ifdef Q_OS_WIN
 #include <QtNetwork/QtNetwork>
 #endif // Q_OS_WIN
+
+#include <cstdlib>
 
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {

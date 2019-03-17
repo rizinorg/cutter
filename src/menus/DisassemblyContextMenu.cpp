@@ -9,11 +9,13 @@
 #include "dialogs/SetToDataDialog.h"
 #include "dialogs/EditFunctionDialog.h"
 #include "dialogs/LinkTypeDialog.h"
+
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
 #include <QClipboard>
 #include <QApplication>
+#include <QPushButton>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
     :   QMenu(parent),

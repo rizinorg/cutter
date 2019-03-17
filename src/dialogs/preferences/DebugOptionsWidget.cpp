@@ -10,11 +10,10 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 
-DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
-    : QDialog(parent),
+DebugOptionsWidget::DebugOptionsWidget(PreferencesDialog *dialog)
+    : QDialog(dialog),
       ui(new Ui::DebugOptionsWidget)
 {
-    Q_UNUSED(dialog);
     ui->setupUi(this);
 
     updateDebugPlugin();

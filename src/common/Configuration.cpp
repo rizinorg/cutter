@@ -26,7 +26,6 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.xrefs",          false },
     { "asm.indent",         false },
     { "asm.describe",       false },
-    { "asm.stackptr",       false },
     { "asm.slow",           true },
     { "asm.lines",          true },
     { "asm.lines.fcn",      true },

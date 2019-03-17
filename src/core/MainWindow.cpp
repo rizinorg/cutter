@@ -1,43 +1,5 @@
-#include "common/PythonManager.h"
 #include "core/MainWindow.h"
 #include "ui_MainWindow.h"
-#include "common/Helpers.h"
-#include "CutterConfig.h"
-#include "plugins/PluginManager.h"
-
-// Qt Headers
-#include <QApplication>
-#include <QComboBox>
-#include <QCompleter>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QDir>
-#include <QDockWidget>
-#include <QFile>
-#include <QFileDialog>
-#include <QFont>
-#include <QFontDialog>
-#include <QLabel>
-#include <QLineEdit>
-#include <QList>
-#include <QMessageBox>
-#include <QProcess>
-#include <QPropertyAnimation>
-#include <QSysInfo>
-#include <QJsonObject>
-
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QStringListModel>
-#include <QStyledItemDelegate>
-#include <QStyleFactory>
-#include <QTextCursor>
-#include <QtGlobal>
-#include <QToolButton>
-#include <QToolTip>
-#include <QTreeWidgetItem>
-#include <QSvgRenderer>
 
 // Common Headers
 #include "common/Highlighter.h"
@@ -46,6 +8,10 @@
 #include "common/SvgIconEngine.h"
 #include "common/ProgressIndicator.h"
 #include "common/TempConfig.h"
+#include "common/RunScriptTask.h"
+#include "common/PythonManager.h"
+#include "plugins/PluginManager.h"
+#include "CutterConfig.h"
 
 // Dialogs
 #include "dialogs/WelcomeDialog.h"
@@ -93,8 +59,46 @@
 #include "widgets/MemoryMapWidget.h"
 #include "widgets/BreakpointWidget.h"
 #include "widgets/RegisterRefsWidget.h"
+#include "widgets/DisassemblyWidget.h"
+#include "widgets/StackWidget.h"
+#include "widgets/RegistersWidget.h"
+#include "widgets/BacktraceWidget.h"
+#include "widgets/HexdumpWidget.h"
+#include "widgets/PseudocodeWidget.h"
 
-#include "common/RunScriptTask.h"
+// Qt Headers
+#include <QApplication>
+#include <QComboBox>
+#include <QCompleter>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QDir>
+#include <QDockWidget>
+#include <QFile>
+#include <QFileDialog>
+#include <QFont>
+#include <QFontDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QList>
+#include <QMessageBox>
+#include <QProcess>
+#include <QPropertyAnimation>
+#include <QSysInfo>
+#include <QJsonObject>
+
+#include <QScrollBar>
+#include <QSettings>
+#include <QShortcut>
+#include <QStringListModel>
+#include <QStyledItemDelegate>
+#include <QStyleFactory>
+#include <QTextCursor>
+#include <QtGlobal>
+#include <QToolButton>
+#include <QToolTip>
+#include <QTreeWidgetItem>
+#include <QSvgRenderer>
 
 // Graphics
 #include <QGraphicsEllipseItem>
@@ -300,7 +304,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     }
     targetGraphDock = targetGraph;
     connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
+    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(forceUpdateOverview()));
     connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
     connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
         disconnectOverview();
