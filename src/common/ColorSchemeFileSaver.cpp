@@ -141,28 +141,28 @@ QString ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
 {
     QFileInfo src(srcScheme);
     if (!src.exists()) {
-        return tr("File %1 does not exist.").arg(srcScheme);
+        return tr("File <b>\"%1\"</b> does not exist.").arg(srcScheme);
     }
 
     bool isScheme;
     bool ok = isSchemeFile(srcScheme, &isScheme);
     if (ok && !isScheme) {
-        return tr("File %1 is not a Cutter color scheme").arg(srcScheme);
+        return tr("File <b>\"%1\"</b> is not a Cutter color scheme").arg(srcScheme);
     } else if (!ok) {
-        return tr("File %1 could not be opened. Please make sure you have access to it and "
+        return tr("File <b>\"%1\"</b> could not be opened. Please make sure you have access to it and "
                   "try again.").arg(srcScheme);
     }
 
     QString name = src.fileName();
     if (isNameEngaged(name)) {
-        return tr("There is %1 color scheme already.").arg(name);
+        return tr("A color scheme named <b>\"%1\"</b> already exists.").arg(name);
     }
 
     if (QFile::copy(srcScheme, customR2ThemesLocationPath + QDir::separator() + name)) {
         return "";
     } else {
         return tr("Error occured during importing. Please, make sure that "
-                  "you have access to directory <b>%1</b> and try again.")
+                  "you have access to directory <b>\"%1\"</b> and try again.")
                 .arg(src.dir().path());
     }
 }
@@ -175,14 +175,14 @@ QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QStri
                    + QDir::separator() + srcScheme);
 
     if (!src.exists()) {
-        return tr("Seems like the color scheme %1 does not exist.").arg(srcScheme);
+        return tr("Seems like the color scheme <b>\"%1\"</b> does not exist.").arg(srcScheme);
     }
 
     if (QFile::copy(src.path(), destFile)) {
         return "";
     } else {
         return tr("Error occured during exporting. Please make sure you have "
-                  "an access to the directory <b>%1</b> and try again.")
+                  "an access to the directory <b>\"%1\"</b> and try again.")
                 .arg(QFileInfo(destFile).dir().path());
     }
 }
@@ -195,7 +195,7 @@ bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 QString ColorSchemeFileSaver::rename(const QString& schemeName, const QString& newName) const
 {
     if (isNameEngaged(newName)) {
-        return tr("Seems like there already are scheme named %1").arg(newName);
+        return tr("Seems like there already are scheme named <b>\"%1\"</b>").arg(newName);
     }
 
     QDir dir = (isCustomScheme(schemeName)
@@ -204,7 +204,7 @@ QString ColorSchemeFileSaver::rename(const QString& schemeName, const QString& n
     bool ok = QFile::rename(dir.filePath(schemeName), dir.filePath(newName));
     if (!ok) {
         return tr("Something went wrong during renaming. Please make sure you have acces to "
-                  "%1 directory").arg(dir.path());
+                  "<b>\"%1\"</b> directory").arg(dir.path());
     }
     return "";
 }
