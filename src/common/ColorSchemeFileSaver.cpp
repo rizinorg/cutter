@@ -139,56 +139,74 @@ QFile::FileError ColorSchemeFileSaver::save(const QString &scheme, const QString
 
 QString ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
 {
-    QFile src(srcScheme);
-    if (!src.open(QFile::ReadOnly)) {
-        return tr("File %1 can not be opened").arg(srcScheme);
+    QFileInfo src(srcScheme);
+    if (!src.exists()) {
+        return tr("File %1 does not exist.").arg(srcScheme);
     }
 
-    if (!isSchemeFile(srcScheme)) {
+    bool isScheme;
+    bool ok = isSchemeFile(srcScheme, &isScheme);
+    if (ok && !isScheme) {
         return tr("File %1 is not a Cutter color scheme").arg(srcScheme);
+    } else if (!ok) {
+        return tr("File %1 could not be opened. Please make sure you have access to it and "
+                  "try again.").arg(srcScheme);
     }
 
-    QString name = srcScheme.right(srcScheme.length() - srcScheme.lastIndexOf('/') - 1);
+    QString name = src.fileName();
     if (isNameEngaged(name)) {
         return tr("There is %1 color scheme already.").arg(name);
     }
 
-    if (src.copy(customR2ThemesLocationPath + QDir::separator() + name)) {
+    if (QFile::copy(srcScheme, customR2ThemesLocationPath + QDir::separator() + name)) {
         return "";
     } else {
         return tr("Error occured during importing. Please, make sure that "
                   "you have access to directory <b>%1</b> and try again.")
-                .arg(srcScheme.left(srcScheme.lastIndexOf('/')));
+                .arg(src.dir().path());
     }
 }
 
 QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QString& destFile) const
 {
-    QFile src((isCustomScheme(srcScheme)
-              ? customR2ThemesLocationPath
-              : standardR2ThemesLocationPath)
-              + QDir::separator() + srcScheme);
+    QFileInfo src((isCustomScheme(srcScheme)
+                   ? customR2ThemesLocationPath
+                   : standardR2ThemesLocationPath)
+                   + QDir::separator() + srcScheme);
 
-    if (!src.open(QFile::ReadOnly)) {
-        return tr("Seems like there are no %1 color scheme.").arg(srcScheme);
+    if (!src.exists()) {
+        return tr("Seems like the color scheme %1 does not exist.").arg(srcScheme);
     }
 
-    QFile dst(destFile);
-    if (dst.exists()) {
-        dst.remove();
-    }
-    if (src.copy(destFile)) {
+    if (QFile::copy(src.path(), destFile)) {
         return "";
     } else {
         return tr("Error occured during exporting. Please make sure you have "
                   "an access to the directory <b>%1</b> and try again.")
-                .arg(destFile.left(destFile.lastIndexOf('/')));
+                .arg(QFileInfo(destFile).dir().path());
     }
 }
 
 bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 {
     return QFile::exists(QDir(customR2ThemesLocationPath).filePath(schemeName));
+}
+
+QString ColorSchemeFileSaver::rename(const QString& schemeName, const QString& newName) const
+{
+    if (isNameEngaged(newName)) {
+        return tr("Seems like there already are scheme named %1").arg(newName);
+    }
+
+    QDir dir = (isCustomScheme(schemeName)
+                    ? customR2ThemesLocationPath
+                    : standardR2ThemesLocationPath);
+    bool ok = QFile::rename(dir.filePath(schemeName), dir.filePath(newName));
+    if (!ok) {
+        return tr("Something went wrong during renaming. Please make sure you have acces to "
+                  "%1 directory").arg(dir.path());
+    }
+    return "";
 }
 
 bool ColorSchemeFileSaver::isNameEngaged(const QString &name) const
@@ -231,27 +249,28 @@ void ColorSchemeFileSaver::deleteScheme(const QString &schemeName) const
     QFile::remove(customR2ThemesLocationPath + QDir::separator() + schemeName);
 }
 
-bool ColorSchemeFileSaver::isSchemeFile(const QString& file) const
+bool ColorSchemeFileSaver::isSchemeFile(const QString& file, bool *output) const
 {
+    *output = false;
+
     QFile f(file);
     if (!f.open(QFile::ReadOnly)) {
         return false;
     }
 
-    QString colors = "black|red|white|green|magenta|yellow|cyan|blue|gray|none";
-    auto options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions).join('|');
-    QRegExp regexp = QRegExp(QString("(ec (%1) (rgb:[0-9a-fA-F]{3})|(%2))|([ ]{0,}#.*)")
+    const QString colors = "black|red|white|green|magenta|yellow|cyan|blue|gray|none";
+    auto ff=Core()->cmdj("ecj").object().keys();
+    auto options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions).join('|').replace(".", "\\.");
+    QRegExp regexp = QRegExp(QString("(ec (%1) (((rgb:|#)([0-9a-fA-F]{3}){1,2})|(%2)))|([ ]{0,}#.*)")
                              .arg(options).arg(colors));
 
-    for (auto &line : QString(f.readAll()).split('\n')) {
-        if (line.isEmpty()) {
-            continue;
-        }
+    for (auto &line : QString(f.readAll()).split('\n', QString::SkipEmptyParts)) {
         line.replace("#~", "ec ");
-        if (!QRegExp(regexp).exactMatch(line)) {
-            return false;
+        if (!regexp.exactMatch(line)) {
+            return true;
         }
     }
 
+    *output = true;
     return true;
 }

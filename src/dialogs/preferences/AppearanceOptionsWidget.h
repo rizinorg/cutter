@@ -34,9 +34,25 @@ private slots:
     void on_colorComboBox_currentIndexChanged(int index);
     void on_copyButton_clicked();
     void on_deleteButton_clicked();
+
+    /**
+     * @brief Imports scheme file specified by user to custom schemes
+     * directory.
+     */
     void on_importButton_clicked();
+
+    /**
+     * @brief Exports current color scheme to file
+     * specified by user.
+     */
     void on_exportButton_clicked();
+
+    /**
+     * @brief Shows dialog to rename current color scheme.
+     */
+    void on_renameButton_clicked();
     void onLanguageComboBoxCurrentIndexChanged(int index);
+
 };
 
 

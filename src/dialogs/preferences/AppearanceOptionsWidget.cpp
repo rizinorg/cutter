@@ -151,17 +151,18 @@ void AppearanceOptionsWidget::on_colorComboBox_currentIndexChanged(int index)
 
 void AppearanceOptionsWidget::on_copyButton_clicked()
 {
+    QString currColorTheme = Config()->getColorTheme();
+
     QString newSchemeName;
     do {
         newSchemeName = QInputDialog::getText(this, tr("Enter scheme name"),
                                               tr("Name:"), QLineEdit::Normal,
-                                              QDir::home().dirName());
-    } while ((!newSchemeName.isEmpty() && ColorSchemeFileWorker().isNameEngaged(newSchemeName))
-        || newSchemeName.contains(QRegExp("[^\\w.()\\[\\]_-]"))
-        || newSchemeName.startsWith('.'));
+                                              currColorTheme + tr(" - copy"));
+    } while (!newSchemeName.isEmpty() && ColorSchemeFileWorker().isNameEngaged(newSchemeName));
 
-    if (newSchemeName.isEmpty())
+    if (newSchemeName.isEmpty()){
         return;
+    }
     ColorSchemeFileWorker().copy(Config()->getColorTheme(), newSchemeName);
     Config()->setColorTheme(newSchemeName);
     ui->colorSchemePrefWidget->updateSchemeFromConfig();
@@ -193,7 +194,7 @@ void AppearanceOptionsWidget::on_importButton_clicked()
     }
 
     QString err = ColorSchemeFileWorker().importScheme(fileName);
-    QString schemeName = fileName.right(fileName.length() - fileName.lastIndexOf('/') - 1);
+    QString schemeName = QFileInfo(fileName).fileName();
     updateThemeFromConfig();
     if (err.isEmpty()) {
         QMessageBox::information(this,
@@ -215,11 +216,38 @@ void AppearanceOptionsWidget::on_exportButton_clicked()
         return;
     }
 
+    // User already gave his consent for this in QFileDialog::getSaveFileName()
+    if (QFileInfo(file).exists()) {
+        QFile(file).remove();
+    }
     QString err = ColorSchemeFileWorker().exportScheme(scheme, file);
     if (err.isEmpty()) {
         QMessageBox::information(this,
                                  tr("Success"),
                                  tr("Color scheme <b>%1</b> was successfully exported.").arg(scheme));
+    } else {
+        QMessageBox::critical(this, tr("Error"), err);
+    }
+}
+
+void AppearanceOptionsWidget::on_renameButton_clicked()
+{
+    QString currColorTheme = Config()->getColorTheme();
+    QString newName = QInputDialog::getText(this,
+                                        tr("Enter new scheme name"),
+                                        tr("Name:"),
+                                        QLineEdit::Normal,
+                                        currColorTheme);
+    if (newName.isEmpty() || newName == currColorTheme) {
+        return;
+    }
+    QString err = ColorSchemeFileWorker().rename(currColorTheme, newName);
+    if (err.isEmpty()) {
+        Config()->setColorTheme(newName);
+        updateThemeFromConfig(false);
+        QMessageBox::information(this,
+                                 tr("Success"),
+                                 tr("Scheme was successfully renamed!"));
     } else {
         QMessageBox::critical(this, tr("Error"), err);
     }
