@@ -393,8 +393,8 @@ void Configuration::setColorTheme(const QString &theme)
         Core()->cmd(QStringLiteral("eco %1").arg(theme));
         s.setValue("theme", theme);
     }
+
     // Duplicate interesting colors into our Cutter Settings
-    // Dirty fix for arrow colors, TODO refactor getColor, setColor, etc.
     QJsonDocument colors = Core()->cmdj("ecj");
     QJsonObject colorsObject = colors.object();
 
@@ -403,13 +403,15 @@ void Configuration::setColorTheme(const QString &theme)
         if (rgb.size() != 3) {
             continue;
         }
-        s.setValue("colors." + it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()));
+        setColor(it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()));
     }
 
     QMap<QString, QColor> cutterSpecific = ColorSchemeFileWorker().getCutterSpecific();
-    for (auto &it : cutterSpecific.keys())
+    for (auto &it : cutterSpecific.keys()){
         setColor(it, cutterSpecific[it]);
+    }
 
+    // Trick Cutter to load colors that are not specified in standard scheme
     if (!ColorSchemeFileWorker().isCustomScheme(theme)) {
         setTheme(getTheme());
     }

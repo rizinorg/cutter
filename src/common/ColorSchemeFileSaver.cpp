@@ -1,5 +1,6 @@
 #include "common/ColorSchemeFileSaver.h"
 
+#include <QRgb>
 #include <QDir>
 #include <QDebug>
 #include <QColor>
@@ -51,90 +52,54 @@ ColorSchemeFileSaver::ColorSchemeFileSaver(QObject *parent) : QObject (parent)
     }
 }
 
-QFile::FileError ColorSchemeFileSaver::copy(const QString &srcThemeName,
-                                            const QString &copyThemeName) const
+QString ColorSchemeFileSaver::copy(const QString &srcThemeName,
+                                   const QString &copyThemeName) const
 {
-    QFile fIn(standardR2ThemesLocationPath + QDir::separator() + srcThemeName);
-    QFile fOut(customR2ThemesLocationPath + QDir::separator() + copyThemeName);
+    if (!isSchemeExist(srcThemeName)) {
+        return tr("TODO");
+    }
+    QString currTheme = Config()->getColorTheme();
+    Config()->setColorTheme(srcThemeName);
 
-    if (srcThemeName != QStringLiteral("default") && !fIn.open(QFile::ReadOnly)) {
-        fIn.setFileName(customR2ThemesLocationPath + QDir::separator() + srcThemeName);
-        if (!fIn.open(QFile::ReadOnly)) {
-            return fIn.error();
-        }
+    QJsonObject scheme;
+    QStringList options = Core()->cmdj("ecj").object().keys() << cutterSpecificOptions;
+    for (auto &currOption : options) {
+        QString color = Config()->getColor(currOption).name();
+        scheme.insert(currOption, color);
     }
 
-    const QString &srcTheme = fIn.readAll();
-    fIn.close();
+    Config()->setColorTheme(currTheme);
 
-    if (!fOut.open(QFile::WriteOnly | QFile::Truncate)) {
-        return fOut.error();
-    }
-
-    QStringList options = Core()->cmdj("ecj").object().keys();
-    options << cutterSpecificOptions;
-    QStringList src;
-
-    if (srcThemeName == "default") {
-        const QString &theme = Config()->getColorTheme();
-        Core()->cmd("ecd");
-        QJsonObject obj = Core()->cmdj("ecj").object();
-        Core()->cmd(QStringLiteral("eco %1").arg(theme));
-        QColor back = Config()->getColor(standardBackgroundOptionName);
-        obj[standardBackgroundOptionName] = QJsonArray({back.red(), back.green(), back.blue()});
-        for (const QString &it : obj.keys()) {
-            QJsonArray rgb = obj[it].toArray();
-            if (rgb.size() != 3) {
-                continue;
-            }
-            src.push_back(QStringLiteral("ec %1 rgb:%2")
-                .arg(it)
-                .arg(QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()).name().remove('#')));
-        }
-    } else {
-        src = srcTheme.split('\n');
-    }
-
-    QStringList tmp;
-    for (const QString &it : src) {
-        if (it.isEmpty()) {
-            continue;
-        }
-        fOut.write(it.toUtf8() + '\n');
-
-        tmp = it.split(' ');
-        if (it.length() > 2 && it.left(2) == "#~") {
-            options.removeOne(tmp[0].remove("#~").toUtf8());
-        } else if (tmp.size() > 1) {
-            options.removeOne(tmp.at(1));
-        }
-    }
-
-    for (const QString &it : options) {
-        if (cutterSpecificOptions.contains(it))  {
-            fOut.write("#~");
-        } else {
-            fOut.write("ec ");
-        }
-        fOut.write(QStringLiteral("%1 rgb:%2\n")
-            .arg(it)
-            .arg(Config()->getColor(it).name().remove('#')).toUtf8());
-    }
-
-    fOut.close();
-
-    return QFile::FileError::NoError;
+    return save(QJsonDocument(scheme), copyThemeName);
 }
 
-QFile::FileError ColorSchemeFileSaver::save(const QString &scheme, const QString &schemeName) const
+QString ColorSchemeFileSaver::save(const QJsonDocument &scheme, const QString &schemeName) const
 {
     QFile fOut(customR2ThemesLocationPath + QDir::separator() + schemeName);
-    if (!fOut.open(QFile::WriteOnly | QFile::Truncate))
-        return fOut.error();
+    if (!fOut.open(QFile::WriteOnly | QFile::Truncate)) {
+        return "TODO";
+    }
 
-    fOut.write(scheme.toUtf8());
+    QJsonObject obj = scheme.object();
+    for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
+        QString line;
+        if (cutterSpecificOptions.contains(it.key())) {
+            line = "#~%1 %2\n";
+        } else {
+            line = "ec %1 %2\n";
+        }
+        QJsonArray arr = it.value().toArray();
+        if (arr.isEmpty()) {
+            fOut.write(line.arg(it.key())
+                       .arg(it.value().toVariant().value<QColor>().name()).toUtf8());
+        } else if (arr.size() == 3) {
+            fOut.write(line.arg(it.key())
+                       .arg(QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt()).name()).toUtf8());
+        }
+    }
+
     fOut.close();
-    return QFile::FileError::NoError;
+    return "";
 }
 
 bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
@@ -142,7 +107,7 @@ bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
     return QFile::exists(QDir(customR2ThemesLocationPath).filePath(schemeName));
 }
 
-bool ColorSchemeFileSaver::isNameEngaged(const QString &name) const
+bool ColorSchemeFileSaver::isSchemeExist(const QString &name) const
 {
     return (!standardR2ThemesLocationPath.isEmpty() && QFile::exists(standardR2ThemesLocationPath + QDir::separator() + name)) ||
            QFile::exists(customR2ThemesLocationPath + QDir::separator() + name);
@@ -150,23 +115,10 @@ bool ColorSchemeFileSaver::isNameEngaged(const QString &name) const
 
 QMap<QString, QColor> ColorSchemeFileSaver::getCutterSpecific() const
 {
-    QFile f(customR2ThemesLocationPath + QDir::separator() + Config()->getColorTheme());
-    if (!f.open(QFile::ReadOnly))
-        return  QMap<QString, QColor>();
-
-    const QStringList &data = QString(f.readAll()).split('\n');
-    f.close();
-
     QMap<QString, QColor> ret;
-    for (const QString &it : data) {
-        if (it.length() > 2 && it.left(2) == "#~") {
-            QStringList currLine = it.split(' ');
-            if (currLine.size() > 1) {
-                ret.insert(currLine[0].remove("#~"), currLine[1].replace("rgb:", "#"));
-            }
-        }
+    for (auto &currOption : cutterSpecificOptions) {
+        ret.insert(currOption, Config()->getColor(currOption));
     }
-
     return ret;
 }
 

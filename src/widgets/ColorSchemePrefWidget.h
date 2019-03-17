@@ -11,6 +11,14 @@ namespace Ui {
 class ColorSchemePrefWidget;
 }
 
+
+struct ColorOption {
+    QString optionName;
+    QString displayingText;
+    QColor color;
+};
+Q_DECLARE_METATYPE(ColorOption);
+
 class ColorSchemePrefWidget : public QWidget
 {
     Q_OBJECT
@@ -24,9 +32,16 @@ public slots:
     void updateSchemeFromConfig();
 
 private slots:
-    void newColor();
+    /**
+     * @brief Shows color choose dialog and changes current color.
+     * Triggered when ColorViewButton is clicked.
+     */
+    void changeCurrentColor();
 
-    void indexChanged(const QModelIndex &ni);
+    void colorOptionChanged(const ColorOption& option);
+
+    void resetCurrentColor();
+
 
 private:
     Ui::ColorSchemePrefWidget *ui;
@@ -52,13 +67,6 @@ signals:
     void clicked();
 };
 
-struct ColorOption {
-    QString optionName;
-    QString displayingText;
-    QColor color;
-};
-Q_DECLARE_METATYPE(ColorOption);
-
 
 class ColorSettingsModel : public QAbstractListModel
 {
@@ -69,11 +77,7 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    void setColor(const QString &option, const QColor &color);
-
-    QColor getBackroundColor() const;
-
-    QColor getTextColor() const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override
     {
@@ -82,6 +86,8 @@ public:
     }
 
     void updateScheme();
+
+    QJsonDocument getScheme() const;
 
 private:
     QList<ColorOption> m_data;
@@ -104,7 +110,7 @@ public:
 
 private:
     QColor backgroundColor;
-    QColor textColor;
+    QColor standardTextColor;
 };
 
 class PreferencesListView : public QListView
@@ -120,8 +126,12 @@ protected slots:
     void currentChanged(const QModelIndex &current,
                         const QModelIndex &previous) override;
 
+    void dataChanged(const QModelIndex & topLeft, const QModelIndex & bottomRight,
+                     const QVector<int> &roles = QVector<int>()) override;
+
 signals:
     void indexChanged(const QModelIndex &ni);
+    void colorOptionChanged(const ColorOption& option);
 
 private:
     ColorOptionDelegate *delegate;

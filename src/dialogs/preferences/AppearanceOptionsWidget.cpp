@@ -154,7 +154,7 @@ void AppearanceOptionsWidget::on_copyButton_clicked()
         newSchemeName = QInputDialog::getText(this, tr("Enter scheme name"),
                                               tr("Name:"), QLineEdit::Normal,
                                               QDir::home().dirName());
-    } while ((!newSchemeName.isEmpty() && ColorSchemeFileWorker().isNameEngaged(newSchemeName))
+    } while ((!newSchemeName.isEmpty() && ColorSchemeFileWorker().isSchemeExist(newSchemeName))
         || newSchemeName.contains(QRegExp("[^\\w.()\\[\\]_-]"))
         || newSchemeName.startsWith('.'));
 

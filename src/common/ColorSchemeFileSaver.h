@@ -21,14 +21,27 @@ public:
 
     virtual ~ColorSchemeFileSaver() {}
 
-    QFile::FileError copy(const QString &srcSchemeName, const QString &copySchemeName) const;
 
-    QFile::FileError save(const QString &scheme, const QString &schemeName) const;
+    /**
+     * @brief Copies @a srcSchemeName with name @a copySchemeName.
+     * @param srcSchemeName
+     * Name of scheme to be copied.
+     * @param copySchemeName
+     * Name of copy.
+     * @return "" on success or error message.
+     */
+    QString copy(const QString &srcSchemeName, const QString &copySchemeName) const;
+
+    QString save(const QJsonDocument& scheme, const QString &schemeName) const;
 
     bool isCustomScheme(const QString &schemeName) const;
 
-    bool isNameEngaged(const QString &name) const;
+    bool isSchemeExist(const QString &name) const;
 
+    /**
+     * @brief Returns colors for color options used in Cutter, but not
+     * in radare2 (such as navbar colors, breakpoint colors, etc).
+     */
     QMap<QString, QColor> getCutterSpecific() const;
 
     QStringList getCustomSchemes() const;

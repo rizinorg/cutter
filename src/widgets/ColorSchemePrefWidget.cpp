@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QPainter>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QMouseEvent>
 #include <QApplication>
 #include <QColorDialog>
@@ -289,7 +290,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
                                 const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
-    painter->setPen(QPen(Qt::OpaqueMode));
+    painter->setPen(backgroundColor);
     painter->setBrush(QBrush(backgroundColor));
     painter->drawRect(option.rect);
 
@@ -324,7 +325,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
     txtColor = co.color;
 
     if (optionInfoMap[co.optionName].isUsedStandardTextColor) {
-        txtColor = textColor;
+        txtColor = standardTextColor;
     }
     pal.setColor(QPalette::Text, txtColor);
 
@@ -339,7 +340,7 @@ void ColorOptionDelegate::setBackgroundColor(const QColor &c)
 
 void ColorOptionDelegate::setTextColor(const QColor &c)
 {
-    textColor = c;
+    standardTextColor = c;
 }
 
 ColorViewButton::ColorViewButton(QWidget *parent) : QFrame (parent)
@@ -378,12 +379,12 @@ PreferencesListView::PreferencesListView(QWidget *parent) :
 void PreferencesListView::setStandardColors()
 {
     delegate = new ColorOptionDelegate(this);
-    ColorSettingsModel *model = static_cast<ColorSettingsModel *>(this->model());
 
-    delegate->setBackgroundColor(model->getBackroundColor());
-    delegate->setTextColor(model->getTextColor());
-    // I can't free last delegate, but PreferencesListView will delete it,
-    // because every delegate is its child.
+    auto scheme = qobject_cast<ColorSettingsModel*>(model())->getScheme().object();
+    delegate->setBackgroundColor(scheme[standardBackgroundOptionName].toVariant().value<QColor>());
+    delegate->setTextColor(scheme[standardTextOptionName].toVariant().value<QColor>());
+
+    itemDelegate()->deleteLater();
     setItemDelegate(static_cast<QAbstractItemDelegate *>(delegate));
 }
 
@@ -394,16 +395,30 @@ void PreferencesListView::currentChanged(const QModelIndex &current,
     QListView::currentChanged(current, previous);
 }
 
+void PreferencesListView::dataChanged(const QModelIndex& topLeft, const QModelIndex& bottomRight,
+                                      const QVector<int>& roles)
+{
+    ColorOption curr = topLeft.data(Qt::UserRole).value<ColorOption>();
+    QListView::dataChanged(topLeft, bottomRight, roles);
+    emit colorOptionChanged(curr);
+}
+
 ColorSchemePrefWidget::ColorSchemePrefWidget(QWidget *parent) : QWidget (parent),
     ui (new Ui::ColorSchemePrefWidget), isEditable (false)
 {
     ui->setupUi(this);
-    connect(ui->colorViewFore, &ColorViewButton::clicked, this, &ColorSchemePrefWidget::newColor);
-    connect(ui->preferencesListView, &PreferencesListView::indexChanged, this,
-            &ColorSchemePrefWidget::indexChanged);
-    connect(ui->preferencesListView, &PreferencesListView::indexChanged, [this](const QModelIndex & i) {
+    connect(ui->colorViewButton, &ColorViewButton::clicked, this, &ColorSchemePrefWidget::changeCurrentColor);
+    connect(ui->preferencesListView, &PreferencesListView::indexChanged,
+            [this] (const QModelIndex &ni) {
+        ui->colorViewButton->setColor(ni.data(Qt::UserRole).value<ColorOption>().color);
+    });
+    connect(ui->preferencesListView, &PreferencesListView::indexChanged,
+            [this](const QModelIndex & i) {
         ui->infoBoard->setText(optionInfoMap[i.data(Qt::UserRole).value<ColorOption>().optionName].info);
     });
+    connect(ui->setDefFore, &QPushButton::clicked, this, &ColorSchemePrefWidget::resetCurrentColor);
+    connect(ui->preferencesListView, &PreferencesListView::colorOptionChanged,
+            this, &ColorSchemePrefWidget::colorOptionChanged);
 }
 
 ColorSchemePrefWidget::~ColorSchemePrefWidget()
@@ -419,45 +434,63 @@ void ColorSchemePrefWidget::apply()
     }
     ColorSettingsModel *model = static_cast<ColorSettingsModel *>(ui->preferencesListView->model());
 
-    QString scheme = "";
-    ColorOption curr;
-    QMap<QString, QColor> cutterSpecific = ColorSchemeFileWorker().getCutterSpecific();
-
-    for (int i = 0; i < model->rowCount(); i++) {
-        curr = model->data(model->index(i), Qt::UserRole).value<ColorOption>();
-        if (cutterSpecific.contains(curr.optionName)) {
-            scheme += "#~";
-        } else {
-            scheme += "ec ";
-        }
-        scheme += curr.optionName + " rgb:" + curr.color.name().remove(QLatin1Char('#')).toLower() + "\n";
-    }
-    ColorSchemeFileWorker().save(scheme, Config()->getColorTheme());
+    ColorSchemeFileWorker().save(model->getScheme(), Config()->getColorTheme());
     Config()->setColorTheme(Config()->getColorTheme());
 }
 
-void ColorSchemePrefWidget::newColor()
+void ColorSchemePrefWidget::changeCurrentColor()
 {
-    if (ui->preferencesListView->currentIndex().row() == -1 || !isEditable) {
+    if (!isEditable) {
+        QMessageBox::critical(this, tr("Permission denied"),
+                              tr("You do not have permissions to change this color scheme."));
         return;
     }
 
-    ColorOption currCO = ui->preferencesListView->model()->data(ui->preferencesListView->currentIndex(),
-                                                                Qt::UserRole).value<ColorOption>();
-    QColorDialog d(currCO.color, this);
-    if (QDialog::Accepted != d.exec())
+    QModelIndex currIndex = ui->preferencesListView->currentIndex();
+    if (!currIndex.isValid()) {
         return;
+    }
 
-    static_cast<ColorSettingsModel *>(ui->preferencesListView->model())->setColor(currCO.optionName,
-                                                                                  d.selectedColor());
+    auto model = ui->preferencesListView->model();
+    ColorOption currCO = model->data(currIndex, Qt::UserRole).value<ColorOption>();
+    QColorDialog d(currCO.color, this);
+    if (QDialog::Accepted != d.exec()) {
+        return;
+    }
+
+    currCO.color = d.selectedColor();
+    model->setData(currIndex, QVariant::fromValue(currCO));
     ui->preferencesListView->setStandardColors();
-    if (ui->preferencesListView->model()->rowCount())
-        indexChanged(ui->preferencesListView->selectionModel()->selectedIndexes().first());
+    if (model->rowCount()) {
+        ui->colorViewButton->setColor(currCO.color);
+    }
 }
 
-void ColorSchemePrefWidget::indexChanged(const QModelIndex &ni)
+void ColorSchemePrefWidget::colorOptionChanged(const ColorOption& option)
 {
-    ui->colorViewFore->setColor(ni.data(Qt::UserRole).value<ColorOption>().color);
+    ui->colorViewButton->setColor(option.color);
+}
+
+void ColorSchemePrefWidget::resetCurrentColor()
+{
+    if (!isEditable) {
+        QMessageBox::critical(this, tr("Permission denied"),
+                              tr("You do not have permissions to change this color scheme."));
+        return;
+    }
+    QModelIndex currIndex = ui->preferencesListView->currentIndex();
+    if (!currIndex.isValid()) {
+        return;
+    }
+    auto model = ui->preferencesListView->model();
+    ColorOption curr = model->data(currIndex, Qt::UserRole).value<ColorOption>();
+    if (optionInfoMap[curr.optionName].isUsedStandardTextColor) {
+        curr.color = palette().background().color();
+    } else {
+        curr.color = palette().text().color();
+    }
+    model->setData(currIndex, QVariant::fromValue(curr));
+    ui->preferencesListView->setStandardColors();
 }
 
 void ColorSchemePrefWidget::updateSchemeFromConfig()
@@ -489,62 +522,40 @@ QVariant ColorSettingsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void ColorSettingsModel::setColor(const QString &option, const QColor &color)
+bool ColorSettingsModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-    int row = 0;
-    for (auto &it : m_data) {
-        if (it.optionName == option) {
-            it.color = color;
-            emit dataChanged(index(row), index(row));
-            return;
-        }
-        row++;
-    }
-}
-
-QColor ColorSettingsModel::getBackroundColor() const
-{
-    if (!ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme())) {
-        return Config()->getColor(standardBackgroundOptionName);
+    if (!index.isValid() || role != Qt::EditRole) {
+        return false;
     }
 
-    for (auto &it : m_data) {
-        if (it.optionName == standardBackgroundOptionName) {
-            return it.color;
-        }
-    }
-    return QColor();
-}
-
-QColor ColorSettingsModel::getTextColor() const
-{
-    if (!ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme())) {
-        return Config()->getColor(standardTextOptionName);
-    }
-
-    for (auto &it : m_data) {
-        if (it.optionName == standardTextOptionName) {
-            return it.color;
-        }
-    }
-    return QColor();
+    m_data[index.row()] = value.value<ColorOption>();
+    emit dataChanged(index, index);
+    return true;
 }
 
 void ColorSettingsModel::updateScheme()
 {
     m_data.clear();
     QJsonObject obj = Core()->cmdj("ecj").object();
+    QMap<QString, QColor> cutterSpecific = ColorSchemeFileWorker().getCutterSpecific();
 
-    m_data.reserve(obj.size());
+    m_data.reserve(obj.size() + cutterSpecific.size());
     for (auto &it : obj.keys()) {
-        QJsonArray rgb = obj[it].toArray();
-        m_data.push_back({it, optionInfoMap[it].displayingtext, QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt())});
+        m_data.push_back({it, optionInfoMap[it].displayingtext, Config()->getColor(it)});
     }
 
-    QMap<QString, QColor> cutterSpecific = ColorSchemeFileWorker().getCutterSpecific();
     for (auto &it : cutterSpecific.keys()) {
         m_data.push_back({it, optionInfoMap[it].displayingtext, cutterSpecific[it]});
     }
 
     qobject_cast<PreferencesListView *>(parent())->setStandardColors();
+}
+
+QJsonDocument ColorSettingsModel::getScheme() const
+{
+    QJsonObject obj;
+    for (auto &it : m_data) {
+        obj.insert(it.optionName, QJsonValue::fromVariant(it.color));
+    }
+    return QJsonDocument(obj);
 }
