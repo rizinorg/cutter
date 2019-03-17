@@ -15,6 +15,7 @@ OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
     });
 
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
+        isVisible = visibility;
         if (visibility) {
             updateContents();
         }
