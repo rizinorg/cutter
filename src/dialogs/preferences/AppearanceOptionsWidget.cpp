@@ -178,6 +178,9 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
             ColorSchemeFileWorker().deleteScheme(Config()->getColorTheme());
             updateThemeFromConfig(false);
         }
+    } else {
+        QMessageBox::critical(this, tr("Permission denied"),
+                              tr("You do not have permissions to change this color scheme."));
     }
 }
 
