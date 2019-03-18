@@ -91,11 +91,11 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 
     connect(&updateWorker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
     connect(&updateWorker, &UpdateWorker::checkComplete,
-    [&updateWorker](const QString & version, const QString & error) {
+    [&updateWorker](const QVersionNumber &version, const QString & error) {
         if (error != "") {
             QMessageBox::critical(nullptr, tr("Error!"), error);
         } else {
-            if (version == CUTTER_VERSION_FULL) {
+            if (version <= UpdateWorker::currentVersionNumber()) {
                 QMessageBox::information(nullptr, tr("Version control"), tr("Cutter is up to date!"));
             } else {
                 updateWorker.showUpdateDialog(false);

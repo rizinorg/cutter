@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     if (Config()->getAutoUpdateEnabled()) {
         UpdateWorker *updateWorker = new UpdateWorker;
         QObject::connect(updateWorker, &UpdateWorker::checkComplete,
-                         [=](const QString & version, const QString & error) {
-            if (error == "" && version != CUTTER_VERSION_FULL) {
+                         [=](const QVersionNumber &version, const QString & error) {
+            if (error == "" && version > UpdateWorker::currentVersionNumber()) {
                 updateWorker->showUpdateDialog(true);
             }
             updateWorker->deleteLater();
