@@ -53,6 +53,17 @@ private slots:
     void on_renameButton_clicked();
     void onLanguageComboBoxCurrentIndexChanged(int index);
 
+
+    /**
+     * @brief Changes all @a before colors in given @a fileName svg file to @a after
+     * and returns result icon. If @a before is not specified, changes all colors.
+     * @param fileName
+     * Path to svg file.
+     * @param after
+     * What color should be inserted instead of old one.
+     * @param before
+     * Color that should be repalced.
+     */
     QIcon getIconFromSvg(const QString &fileName, const QColor &after, const QColor &before = QColor());
 
 };
