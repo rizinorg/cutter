@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QObject>
 #include <QtNetwork/QNetworkAccessManager>
+#include <QVersionNumber>
 
 class QNetworkReply;
 
@@ -54,6 +55,11 @@ public:
      */
     void showUpdateDialog(bool showDontCheckForUpdatesButton);
 
+    /**
+     * @return the version of this Cutter binary, derived from CUTTER_VERSION_MAJOR, CUTTER_VERSION_MINOR and CUTTER_VERSION_PATCH.
+     */
+    static QVersionNumber currentVersionNumber();
+
 public slots:
     /**
      * @fn void UpdateWorker::abortDownload()
@@ -71,10 +77,10 @@ signals:
      * @fn UpdateWorker::checkComplete(const QString& verson, const QString& errorMsg)
      *
      * The signal is emitted when check has been done with an empty @a errorMsg string.
-     * In case of an error @a currVerson is empty and @a errorMsg contains description
+     * In case of an error @a currVerson is null and @a errorMsg contains description
      * of error.
      */
-    void checkComplete(const QString &currVerson, const QString &errorMsg);
+    void checkComplete(const QVersionNumber &currVerson, const QString &errorMsg);
 
     /**
      * @fn UpdateWorker::downloadProcess(size_t bytesReceived, size_t bytesTotal)
@@ -112,7 +118,7 @@ private:
 
 private:
     QNetworkAccessManager nm;
-    QString latestVersion;
+    QVersionNumber latestVersion;
     QTimer t;
     bool pending;
     QFile downloadFile;

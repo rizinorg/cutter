@@ -20,15 +20,15 @@
 #include "CutterConfig.h"
 
 UpdateWorker::UpdateWorker(QObject *parent) :
-    QObject(parent), latestVersion(""), pending(false)
+    QObject(parent), pending(false)
 {
     connect(&t, &QTimer::timeout, [this]() {
         if (pending) {
             disconnect(checkReply, nullptr, this, nullptr);
             checkReply->close();
             checkReply->deleteLater();
-            emit checkComplete("", tr("Time limit exceeded during version check. Please check your "
-                                      "internet connection and try again."));
+            emit checkComplete(QVersionNumber(), tr("Time limit exceeded during version check. Please check your "
+                                                    "internet connection and try again."));
         }
     });
 }
@@ -73,10 +73,10 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
     mb.setWindowTitle(tr("Version control"));
     mb.setText(tr("There is an update available for Cutter.<br/>")
                + "<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
-               + "<b>" + tr("Latest version:") + "</b> " + latestVersion + "<br/><br/>"
+               + "<b>" + tr("Latest version:") + "</b> " + latestVersion.toString() + "<br/><br/>"
                + tr("For update, please check the link:<br/>")
                + QString("<a href=\"https://github.com/radareorg/cutter/releases/tag/v%1\">"
-                         "https://github.com/radareorg/cutter/releases/tag/v%1</a><br/>").arg(latestVersion)
+                         "https://github.com/radareorg/cutter/releases/tag/v%1</a><br/>").arg(latestVersion.toString())
                + tr("or click \"Download\" to download latest version of Cutter."));
     if (showDontCheckForUpdatesButton) {
         mb.setStandardButtons(QMessageBox::Save | QMessageBox::Reset | QMessageBox::Ok);
@@ -126,7 +126,7 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
                     QDesktopServices::openUrl(path.join('/'));
                 }
             });
-            download(fullFileName, latestVersion);
+            download(fullFileName, latestVersion.toString());
             // Calling show() before exec() is only way make dialog non-modal
             // it seems wierd, but it works
             progressDial.show();
@@ -149,15 +149,18 @@ void UpdateWorker::abortDownload()
 void UpdateWorker::serveVersionCheckReply()
 {
     pending = false;
-    QString versionReply = "";
+    QString versionReplyStr = "";
     QString errStr = "";
     if (checkReply->error()) {
         errStr = checkReply->errorString();
     } else {
-        versionReply = QJsonDocument::fromJson(checkReply->readAll()).object().value("tag_name").toString();
-        versionReply.remove('v');
+        versionReplyStr = QJsonDocument::fromJson(checkReply->readAll()).object().value("tag_name").toString();
+        versionReplyStr.remove('v');
     }
-    latestVersion = versionReply;
+    QVersionNumber versionReply = QVersionNumber::fromString(versionReplyStr);
+    if (!versionReply.isNull()) {
+        latestVersion = versionReply;
+    }
     checkReply->close();
     checkReply->deleteLater();
     emit checkComplete(versionReply, errStr);
@@ -202,10 +205,15 @@ QString UpdateWorker::getRepositoryFileName() const
     downloadFileName = "Cutter-v%1-x%2.macOS.dmg";
 #endif
     downloadFileName = downloadFileName
-                       .arg(latestVersion)
+                       .arg(latestVersion.toString())
                        .arg(QSysInfo::buildAbi().split('-').at(2).contains("64")
                             ? "64"
                             : "32");
 
     return downloadFileName;
+}
+
+QVersionNumber UpdateWorker::currentVersionNumber()
+{
+    return QVersionNumber(CUTTER_VERSION_MAJOR, CUTTER_VERSION_MINOR, CUTTER_VERSION_PATCH);
 }
