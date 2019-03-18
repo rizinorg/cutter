@@ -6,10 +6,20 @@
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
-    this->setObjectName("Graph");
-    this->setAllowedAreas(Qt::AllDockWidgetAreas);
-    this->graphView = new DisassemblerGraphView(this);
-    this->setWidget(graphView);
+    /*
+     * Ugly hack just for the layout issue
+     * QSettings saves the state with the object names
+     * By doing this hack,
+     * you can at least avoid some mess by dismissing all the Extra Widgets
+     */
+    QString name = "Graph";
+    if (!action) {
+        name = "Extra Graph";
+    }
+    setObjectName(name);
+    setAllowedAreas(Qt::AllDockWidgetAreas);
+    graphView = new DisassemblerGraphView(this);
+    setWidget(graphView);
 
     // getting the name of the class is implementation defined, and cannot be
     // used reliably across different compilers.
@@ -24,8 +34,8 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
         main->toggleOverview(visibility, this);
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-            this->graphView->refreshView();
-            this->graphView->onSeekChanged(Core()->getOffset());
+            graphView->refreshView();
+            graphView->onSeekChanged(Core()->getOffset());
         }
     });
 
@@ -37,8 +47,8 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     this, [ = ](CutterCore::MemoryWidgetType type) {
         bool emptyGraph = (type == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
         if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
-            this->raise();
-            this->graphView->setFocus();
+            raise();
+            graphView->setFocus();
         }
     });
 }

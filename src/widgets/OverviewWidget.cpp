@@ -5,11 +5,11 @@
 OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action)
 {
-    this->setWindowTitle("Graph Overview");
-    this->setObjectName("Graph Overview");
-    this->setAllowedAreas(Qt::AllDockWidgetAreas);
-    this->graphView = new OverviewView(this);
-    this->setWidget(graphView);
+    setWindowTitle("Graph Overview");
+    setObjectName("Graph Overview");
+    setAllowedAreas(Qt::AllDockWidgetAreas);
+    graphView = new OverviewView(this);
+    setWidget(graphView);
     refreshDeferrer = createRefreshDeferrer([this]() {
         updateContents();
     });

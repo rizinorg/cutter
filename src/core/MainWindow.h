@@ -89,7 +89,8 @@ public:
     bool saveProjectAs(bool quit = false);
 
     void closeEvent(QCloseEvent *event) override;
-    void readSettings();
+    void paintEvent(QPaintEvent *event) override;
+    void readSettingsOrDefault();
     void saveSettings();
     void readDebugSettings();
     void saveDebugSettings();
@@ -254,6 +255,9 @@ private:
     JupyterWidget      *jupyterDock = nullptr;
 #endif
 
+    void initToolBar();
+    void initDocks();
+    void initLayout();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
