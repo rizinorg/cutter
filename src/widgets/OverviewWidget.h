@@ -19,6 +19,7 @@ public:
      * @brief if user closed this widget explicitly
      */
     bool userClosed = false;
+    bool isVisible = false;
 private:
     RefreshDeferrer *refreshDeferrer;
     /**
