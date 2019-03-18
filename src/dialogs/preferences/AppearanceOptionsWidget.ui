@@ -25,77 +25,10 @@
      <property name="formAlignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <item row="3" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <item>
-        <widget class="QComboBox" name="colorComboBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3"/>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="themeComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <item>
-        <property name="text">
-         <string>Default</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Dark</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="themeLabel">
+     <item row="0" column="0">
+      <widget class="QLabel" name="fontLabel">
        <property name="text">
-        <string>Qt Theme:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="languageComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="languageLabel">
-       <property name="text">
-        <string>Language</string>
+        <string>Font:</string>
        </property>
       </widget>
      </item>
@@ -129,11 +62,48 @@
        </item>
       </layout>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="fontLabel">
+     <item row="1" column="0">
+      <widget class="QLabel" name="languageLabel">
        <property name="text">
-        <string>Font:</string>
+        <string>Language</string>
        </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="languageComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="themeLabel">
+       <property name="text">
+        <string>Qt Theme:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QComboBox" name="themeComboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <item>
+        <property name="text">
+         <string>Default</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Dark</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="3" column="0">
@@ -143,8 +113,32 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <layout class="QHBoxLayout" name="horizontalLayout">
+     <item row="3" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QComboBox" name="colorComboBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="renameButton">
+         <property name="toolTip">
+          <string>Rename</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/edit_light.svg</normaloff>:/img/icons/edit_light.svg</iconset>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QPushButton" name="copyButton">
          <property name="sizePolicy">
@@ -153,41 +147,65 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
-         <property name="text">
+         <property name="toolTip">
           <string>Copy</string>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="renameButton">
          <property name="text">
-          <string>Rename</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/copy.svg</normaloff>:/img/icons/copy.svg</iconset>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="deleteButton">
-         <property name="text">
+         <property name="toolTip">
           <string>Delete</string>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="importButton">
          <property name="text">
-          <string>Import</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/delete.svg</normaloff>:/img/icons/delete.svg</iconset>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="exportButton">
-         <property name="text">
+         <property name="toolTip">
           <string>Export</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/right_light.svg</normaloff>:/img/icons/right_light.svg</iconset>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="horizontalSpacer_2">
+        <widget class="QPushButton" name="importButton">
+         <property name="toolTip">
+          <string>Import</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../resources.qrc">
+           <normaloff>:/img/icons/down_white.svg</normaloff>:/img/icons/down_white.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3"/>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -221,6 +239,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

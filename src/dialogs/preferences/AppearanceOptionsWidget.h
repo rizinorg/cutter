@@ -53,6 +53,8 @@ private slots:
     void on_renameButton_clicked();
     void onLanguageComboBoxCurrentIndexChanged(int index);
 
+    QIcon getIconFromSvg(const QString &fileName, const QColor &after, const QColor &before = QColor());
+
 };
 
 

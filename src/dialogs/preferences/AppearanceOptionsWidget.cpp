@@ -1,4 +1,5 @@
 #include <QDir>
+#include <QFile>
 #include <QLabel>
 #include <QFontDialog>
 #include <QFileDialog>
@@ -6,6 +7,7 @@
 #include <QInputDialog>
 #include <QSignalBlocker>
 #include <QStandardPaths>
+#include <QtSvg/QSvgRenderer>
 
 #include <QComboBox>
 #include "PreferencesDialog.h"
@@ -50,6 +52,14 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
         curr = "English";
     }
     ui->languageComboBox->setCurrentText(curr);
+
+    QColor textColor = palette().buttonText().color();
+    ui->renameButton->setIcon(getIconFromSvg(":/img/icons/pencil_thin.svg", textColor));
+    ui->deleteButton->setIcon(getIconFromSvg(":/img/icons/trash_bin.svg", textColor));
+    ui->copyButton->setIcon(getIconFromSvg(":/img/icons/copy.svg", textColor));
+    ui->importButton->setIcon(getIconFromSvg(":/img/icons/download_black.svg", textColor));
+    ui->exportButton->setIcon(getIconFromSvg(":/img/icons/upload_black.svg", textColor));
+
     connect(ui->languageComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this,
@@ -264,4 +274,24 @@ void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
     }
 
     qWarning() << tr("Cannot set language, not found in available ones");
+}
+
+QIcon AppearanceOptionsWidget::getIconFromSvg(const QString& fileName, const QColor& after, const QColor& before)
+{
+    QFile file(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QIcon();
+    }
+    QString data = file.readAll();
+    data.replace(QRegExp(QString("#%1").arg(before.isValid() ? before.name() : "[0-9a-fA-F]{6}")),
+                   QString("%1").arg(after.name()));
+
+    QSvgRenderer svgRenderer(data.toUtf8());
+    QPixmap pix(svgRenderer.defaultSize());
+    pix.fill(Qt::transparent);
+
+    QPainter pixPainter(&pix);
+    svgRenderer.render(&pixPainter);
+
+    return pix;
 }
