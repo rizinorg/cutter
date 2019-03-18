@@ -1,6 +1,7 @@
 #include <QDir>
 #include <QFile>
 #include <QLabel>
+#include <QPainter>
 #include <QFontDialog>
 #include <QFileDialog>
 #include <QTranslator>
