@@ -346,7 +346,7 @@ void MainWindow::setOverviewData()
 
 bool MainWindow::isOverviewActive()
 {
-    if (!overviewDock || overviewDock->userClosed || !overviewDock->isVisible) {
+    if (!overviewDock || overviewDock->userClosed) {
         return false;
     }
     if (core->isGraphEmpty()) {
