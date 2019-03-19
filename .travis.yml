@@ -180,6 +180,7 @@ after_success:
 deploy:
   skip_cleanup: true
   provider: releases
+  draft: true
   prerelease: true
   tag_name: $TRAVIS_TAG
   api_key:
