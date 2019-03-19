@@ -55,28 +55,7 @@
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">QToolButton { /* all types of tool button */
-     border: 2px solid #333;
-     border-left: 2px solid #333;
-	 border-right: 2px solid #333;
-     background-color: #333;
-     color: rgb(255, 255, 255)
-}
-
-QToolButton:hover {
-     border: 2px solid rgb(128, 128, 128);
-     border-left: 2px solid rgb(128, 128, 128);
-     border-right: 2px solid rgb(128, 128, 128);
-     background-color: rgb(128, 128, 128);
-     color: rgb(255, 255, 255)
- }
-
-QToolButton:pressed {
-     border: 2px solid #2180a9;
-     border-left: 2px solid #2180a9;
-	 border-right: 2px solid #2180a9;
-     background-color: #2180a9;
-}</string>
+      <string notr="true"></string>
      </property>
      <property name="text">
       <string>X</string>

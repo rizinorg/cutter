@@ -4,7 +4,6 @@ Author: Jaime A. Quiroga P.
 Inspired on https://github.com/jxfwinter/qt-material-stylesheet
 Company: GTRONICK
 Last updated: 04/12/2018, 15:00.
-Available at: https://github.com/GTRONICK/QSS/blob/master/MaterialDark.qss
 */
 QMainWindow {
 	background-color:#fafcfe;
@@ -683,4 +682,10 @@ QFrame[height="3"],
 QFrame[width="3"] {
  
 	background-color: #c7dce9;
+}
+
+
+QMainWindow &gt; QTabBar::tab:hover {
+    background: #a92165;      /* #3C879E; */
+    color: #FFFFFF;
 }

@@ -191,7 +191,15 @@ bool Configuration::windowColorIsDark()
 void Configuration::loadBaseThemeNative()
 {
     /* Load Qt Theme */
-    qApp->setStyleSheet("");
+    QFile f(":native/native.qss");
+    if (!f.exists()) {
+        qWarning() << "Can't find Native theme stylesheet.";
+    } else {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        QString stylesheet = ts.readAll();
+        qApp->setStyleSheet(stylesheet);
+    }
 
     /* Colors */
     // GUI

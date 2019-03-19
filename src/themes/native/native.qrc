@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="native">
+      <file>native.qss</file>
+  </qresource>
+</RCC>
