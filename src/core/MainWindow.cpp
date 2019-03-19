@@ -1026,6 +1026,7 @@ void MainWindow::on_actionReset_settings_triggered()
                                                            tr("Do you really want to clear all settings?"),
                                                            QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
+        on_actionDefault_triggered();
         Config()->resetAll();
     }
 }
