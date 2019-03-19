@@ -88,7 +88,6 @@ deploy:
   auth_token:
     secure: 2SmsqS2RaX2N5c9UwUcfBwNmMX64FfPAZFShLyxIkZXiC8vLaYCHToWxBYEuWRSk
   artifact: "%ARTIFACT_NAME%"
-  draft: false
   prerelease: true
   on:
     appveyor_repo_tag: true
