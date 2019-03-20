@@ -60,7 +60,7 @@ class Test
 public:
     QSharedPointer<T> child;
 
-    Test(const QString &name)
+    explicit Test(const QString &name)
         : child(new T)
     {
         child->setObjectName(name);

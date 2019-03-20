@@ -39,7 +39,7 @@
 #define CUTTER_COMPILE_TIME_RZ_VERSION "" RZ_VERSION
 #endif
 
-CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
+CutterApplication::CutterApplication(int &argc, char **argv, bool test) : QApplication(argc, argv)
 {
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
@@ -193,6 +193,42 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         Core()->setConfig("ghidra.sleighhome", sleighHome.absolutePath());
     }
 #endif
+
+    if (!test) {
+        if (args.empty()) {
+            if (analLevelSpecified) {
+                printf("%s\n",
+                       QObject::tr("Filename must be specified to start analysis automatically.").toLocal8Bit().constData());
+                std::exit(1);
+            }
+
+            // check if this is the first execution of Cutter in this computer
+            // Note: the execution after the preferences benn reset, will be considered as first-execution
+            if (Config()->isFirstExecution()) {
+                mainWindow->displayWelcomeDialog();
+            }
+            mainWindow->displayNewFileDialog();
+        } else { // filename specified as positional argument
+            InitialOptions options;
+            options.filename = args[0];
+            if (analLevelSpecified) {
+                switch (analLevel) {
+                case 0:
+                default:
+                    options.analCmd = {};
+                    break;
+                case 1:
+                    options.analCmd = { {"aaa", "Auto analysis"} };
+                    break;
+                case 2:
+                    options.analCmd = { {"aaaa", "Auto analysis (experimental)"} };
+                    break;
+                }
+            }
+            options.script = cmd_parser.value(scriptOption);
+            mainWindow->openNewFile(options, analLevelSpecified);
+        }
+    }
 }
 
 CutterApplication::~CutterApplication()
