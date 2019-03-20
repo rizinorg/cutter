@@ -96,7 +96,7 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
                                              QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
                                              QDir::separator() + getRepositoryFileName(),
                                              QString("%1 (*.%1)").arg(getRepositeryExt()));
-        if (fullFileName != "") {
+        if (!fullFileName.isEmpty()) {
             QProgressDialog progressDial(tr("Downloading update..."),
                                          tr("Cancel"),
                                          0, 100);

@@ -91,7 +91,7 @@ QString LinkTypeDialog::findLinkedType(RVA address)
 
     // Extract the given type from returned data
     // TODO: Implement "tlsj" in radare2 or some other function to directly get linked type
-    QString s = ret.split("\n").first();
+    QString s = ret.section(QLatin1Char('\n'), 0, 0);
     return s.mid(1, s.size() - 2);
 }
 

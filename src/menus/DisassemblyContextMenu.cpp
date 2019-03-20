@@ -290,8 +290,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
         // Get the possible offsets using the "tas" command
         // TODO: add tasj command to radare2 and then use it here
-        QString ret = Core()->cmd("tas " + memDisp.toString());
-        for (QString val: ret.split("\n")) {
+        QStringList ret = Core()->cmdList("tas " + memDisp.toString());
+        for (const QString &val : ret) {
             if (val.isEmpty()) {
                 continue;
             }

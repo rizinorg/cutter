@@ -56,7 +56,7 @@ void Dashboard::updateContents()
     this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
 
     if (!item2["relro"].isUndefined()) {
-        QString relro = item2["relro"].toString().split(" ").at(0);
+        QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
         relro[0] = relro[0].toUpper();
         this->ui->relroEdit->setText(relro);
     }
@@ -110,11 +110,10 @@ void Dashboard::updateContents()
     ui->md5Edit->setText(md5);
     ui->sha1Edit->setText(sha1);
 
-    QString libs = Core()->cmd("il");
-    QStringList lines = libs.split("\n", QString::SkipEmptyParts);
-    if (!lines.isEmpty()) {
-        lines.removeFirst();
-        lines.removeLast();
+    QStringList libs = Core()->cmdList("il");
+    if (!libs.isEmpty()) {
+        libs.removeFirst();
+        libs.removeLast();
     }
 
     // dunno: why not label->setText(lines.join("\n")?
@@ -130,7 +129,7 @@ void Dashboard::updateContents()
         }
     }
 
-    for (const QString &lib : lines) {
+    for (const QString &lib : libs) {
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);

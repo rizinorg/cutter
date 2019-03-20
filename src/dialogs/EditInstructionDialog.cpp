@@ -50,7 +50,7 @@ void EditInstructionDialog::updatePreview(const QString &input)
         result = Core()->assemble(input).trimmed();
     }
 
-    if (result.isEmpty() || result.contains("\n")) {
+    if (result.isEmpty() || result.contains(QLatin1Char('\n'))) {
         ui->instructionLabel->setText("Unknown Instruction");
     } else {
         ui->instructionLabel->setText(result);

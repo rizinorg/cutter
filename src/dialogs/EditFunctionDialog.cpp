@@ -55,11 +55,11 @@ void EditFunctionDialog::setStackSizeText(const QString &stackSize)
     ui->stackSizeLineEdit->setText(stackSize);
 }
 
-void EditFunctionDialog::setCallConList(const QStringList callConList) {
+void EditFunctionDialog::setCallConList(const QStringList &callConList) {
     ui->callConComboBox->addItems(callConList);
 }
 
-void EditFunctionDialog::setCallConSelected(const QString selected) {
+void EditFunctionDialog::setCallConSelected(const QString &selected) {
     ui->callConComboBox->setCurrentText(selected);
 }
 

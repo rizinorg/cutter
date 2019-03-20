@@ -430,7 +430,7 @@ void ColorSchemePrefWidget::apply()
         } else {
             scheme += "ec ";
         }
-        scheme += curr.optionName + " rgb:" + curr.color.name().remove("#").toLower() + "\n";
+        scheme += curr.optionName + " rgb:" + curr.color.name().remove(QLatin1Char('#')).toLower() + "\n";
     }
     ColorSchemeFileWorker().save(scheme, Config()->getColorTheme());
     Config()->setColorTheme(Config()->getColorTheme());
