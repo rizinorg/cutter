@@ -685,7 +685,46 @@ QFrame[width="3"] {
 }
 
 
-QMainWindow &gt; QTabBar::tab:hover {
-    background: #a92165;      /* #3C879E; */
+
+QMainWindow > QTabBar
+{
+    qproperty-drawBase: 0;
+}
+
+QMainWindow > QTabBar::tab {
+    border-bottom-color: #007ac1;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    min-width: 8px;
+    max-width: 200px;
+    padding: 5px;
+    margin-bottom: 3px;
+	margin-top: 3px;
+	background-color: #fafcfe;
+
+}
+
+QMainWindow > QTabBar::tab:selected {
+    background: #03a9f4;
     color: #FFFFFF;
 }
+
+
+QMainWindow > QTabBar::tab:hover {
+    background: #03a9f4;      /* #3C879E; */
+    color: #FFFFFF;
+}
+
+QDockWidget::title {
+    text-align: center;
+}
+
+
+QHeaderView::section {
+	padding: 3px;
+	padding-left: 10px;
+/*     border: 2px solid white;*/
+}
+
+
+
