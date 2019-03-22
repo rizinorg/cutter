@@ -753,11 +753,11 @@ void DisassemblyContextMenu::on_actionSetToData_triggered()
 
 void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
 {
-    auto dialog = new SetToDataDialog(offset, this->window());
-    if (!dialog->exec()) {
+    SetToDataDialog dialog(offset, this->window());
+    if (!dialog.exec()) {
         return;
     }
-    setToData(dialog->getItemSize(), dialog->getItemCount());
+    setToData(dialog.getItemSize(), dialog.getItemCount());
 }
 
 void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *action)
