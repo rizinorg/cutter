@@ -615,11 +615,11 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
-    RenameDialog *dialog = new RenameDialog(this);
-    dialog->setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
-    dialog->setPlaceholderText(tr("Function name"));
-    if (dialog->exec()) {
-        QString function_name = dialog->getName();
+    RenameDialog dialog(this);
+    dialog.setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
+    dialog.setPlaceholderText(tr("Function name"));
+    if (dialog.exec()) {
+        QString function_name = dialog.getName();
         Core()->createFunctionAt(offset, function_name);
     }
 }
@@ -634,24 +634,24 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 {
     RCore *core = Core()->core();
 
-    RenameDialog *dialog = new RenameDialog(this);
+    RenameDialog dialog(this);
 
     RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
     RFlagItem *f = r_flag_get_i (core->flags, offset);
     if (fcn) {
         /* Rename function */
-        dialog->setWindowTitle(tr("Rename function %1").arg(fcn->name));
-        dialog->setName(fcn->name);
-        if (dialog->exec()) {
-            QString new_name = dialog->getName();
+        dialog.setWindowTitle(tr("Rename function %1").arg(fcn->name));
+        dialog.setName(fcn->name);
+        if (dialog.exec()) {
+            QString new_name = dialog.getName();
             Core()->renameFunction(fcn->name, new_name);
         }
     } else if (f) {
         /* Rename current flag */
-        dialog->setWindowTitle(tr("Rename flag %1").arg(f->name));
-        dialog->setName(f->name);
-        if (dialog->exec()) {
-            QString new_name = dialog->getName();
+        dialog.setWindowTitle(tr("Rename flag %1").arg(f->name));
+        dialog.setName(f->name);
+        if (dialog.exec()) {
+            QString new_name = dialog.getName();
             Core()->renameFlag(f->name, new_name);
         }
     } else {
@@ -669,22 +669,22 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
     QJsonObject thingUsedHere = array.first().toObject();
     QString type = thingUsedHere.value("type").toString();
 
-    RenameDialog *dialog = new RenameDialog(this);
+    RenameDialog dialog(this);
 
     QString oldName;
 
     if (type == "address") {
         RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
-        dialog->setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
-        dialog->setName("label." + QString::number(offset, 16));
+        dialog.setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
+        dialog.setName("label." + QString::number(offset, 16));
     } else {
         oldName = thingUsedHere.value("name").toString();
-        dialog->setWindowTitle(tr("Rename %1").arg(oldName));
-        dialog->setName(oldName);
+        dialog.setWindowTitle(tr("Rename %1").arg(oldName));
+        dialog.setName(oldName);
     }
 
-    if (dialog->exec()) {
-        QString newName = dialog->getName().trimmed();
+    if (dialog.exec()) {
+        QString newName = dialog.getName().trimmed();
         if (!newName.isEmpty()) {
             Core()->cmd("an " + newName + " @ " + QString::number(offset));
 

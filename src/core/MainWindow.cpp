@@ -915,10 +915,10 @@ void MainWindow::on_actionLockUnlock_triggered()
 
 void MainWindow::on_actionFunctionsRename_triggered()
 {
-    RenameDialog *r = new RenameDialog(this);
+    RenameDialog r(this);
     // Get function based on click position
     //r->setFunctionName(fcn_name);
-    r->open();
+    r.exec();
 }
 
 void MainWindow::on_actionDefault_triggered()

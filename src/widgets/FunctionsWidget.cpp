@@ -620,14 +620,14 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
-    RenameDialog *r = new RenameDialog(this);
+    RenameDialog r(this);
 
     // Set function name in dialog
-    r->setName(function.name);
+    r.setName(function.name);
     // If user accepted
-    if (r->exec()) {
+    if (r.exec()) {
         // Get new function name
-        QString new_name = r->getName();
+        QString new_name = r.getName();
 
         // Rename function in r2 core
         Core()->renameFunction(function.name, new_name);
