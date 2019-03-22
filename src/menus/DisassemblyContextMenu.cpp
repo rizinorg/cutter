@@ -790,39 +790,39 @@ void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
     RCore *core = Core()->core();
-    EditFunctionDialog *dialog = new EditFunctionDialog(this);
+    EditFunctionDialog dialog(this);
     RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, offset, 0);
 
     if (fcn) {
-        dialog->setWindowTitle(tr("Edit function %1").arg(fcn->name));
-        dialog->setNameText(fcn->name);
+        dialog.setWindowTitle(tr("Edit function %1").arg(fcn->name));
+        dialog.setNameText(fcn->name);
 
         QString startAddrText = "0x" + QString::number(fcn->addr, 16);
-        dialog->setStartAddrText(startAddrText);
+        dialog.setStartAddrText(startAddrText);
 
         QString endAddrText = "0x" + QString::number(fcn->addr + fcn->_size, 16);
-        dialog->setEndAddrText(endAddrText);
+        dialog.setEndAddrText(endAddrText);
 
         QString stackSizeText;
         stackSizeText.sprintf("%d", fcn->stack);
-        dialog->setStackSizeText(stackSizeText);
+        dialog.setStackSizeText(stackSizeText);
 
         QStringList callConList = Core()->cmd("afcl").split("\n");
         callConList.removeLast();
-        dialog->setCallConList(callConList);
-        dialog->setCallConSelected(fcn->cc);
+        dialog.setCallConList(callConList);
+        dialog.setCallConSelected(fcn->cc);
 
 
-        if (dialog->exec()) {
-            QString new_name = dialog->getNameText();
+        if (dialog.exec()) {
+            QString new_name = dialog.getNameText();
             Core()->renameFunction(fcn->name, new_name);
-            QString new_start_addr = dialog->getStartAddrText();
+            QString new_start_addr = dialog.getStartAddrText();
             fcn->addr = Core()->math(new_start_addr);
-            QString new_end_addr = dialog->getEndAddrText();
+            QString new_end_addr = dialog.getEndAddrText();
             Core()->cmd("afu " + new_end_addr);
-            QString new_stack_size = dialog->getStackSizeText();
+            QString new_stack_size = dialog.getStackSizeText();
             fcn->stack = int(Core()->math(new_stack_size));
-            Core()->cmd("afc " + dialog->getCallConSelected());
+            Core()->cmd("afc " + dialog.getCallConSelected());
             emit Core()->functionsChanged();
         }
     }
