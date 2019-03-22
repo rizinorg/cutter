@@ -714,9 +714,9 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 
 void DisassemblyContextMenu::on_actionXRefs_triggered()
 {
-    XrefsDialog *dialog = new XrefsDialog(this);
-    dialog->fillRefsForAddress(offset, RAddressString(offset), false);
-    dialog->exec();
+    XrefsDialog dialog(this);
+    dialog.fillRefsForAddress(offset, RAddressString(offset), false);
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()

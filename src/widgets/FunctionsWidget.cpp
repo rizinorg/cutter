@@ -649,9 +649,9 @@ void FunctionsWidget::on_action_References_triggered()
     // Get selected item in functions tree view
     FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    XrefsDialog *x = new XrefsDialog(this);
-    x->fillRefsForAddress(function.offset, function.name, true);
-    x->exec();
+    XrefsDialog x(this);
+    x.fillRefsForAddress(function.offset, function.name, true);
+    x.exec();
 }
 
 void FunctionsWidget::showTitleContextMenu(const QPoint &pt)
