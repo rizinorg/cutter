@@ -865,9 +865,10 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 
 void GraphView::wheelEvent(QWheelEvent *event)
 {
-    const QPoint delta = -event->angleDelta();
+    QPoint delta = -event->angleDelta();
+
+    delta /= current_scale;
     offset += delta;
-    offset /= current_scale;
 
     viewport()->update();
     event->accept();
