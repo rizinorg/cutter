@@ -699,17 +699,15 @@ void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
 {
     mouseRelativePos.rx() *= size().width();
     mouseRelativePos.ry() *= size().height();
-
     mouseRelativePos /= current_scale;
+
     auto globalMouse = mouseRelativePos + offset;
-
     mouseRelativePos *= current_scale;
-
     current_scale *= std::pow(1.25, velocity);
     current_scale = std::max(current_scale, 0.3);
-
     mouseRelativePos /= current_scale;
 
+    // Adjusting offset, so that zooming will be approaching to the cursor.
     offset = globalMouse.toPoint() - mouseRelativePos.toPoint();
 
     viewport()->update();
