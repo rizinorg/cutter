@@ -161,12 +161,12 @@ void DebugActions::continueUntilMain()
 
 void DebugActions::attachProcessDialog()
 {
-    AttachProcDialog *dialog = new AttachProcDialog(main);
+    AttachProcDialog dialog(main);
     bool success = false;
     while (!success) {
         success = true;
-        if (dialog->exec()) {
-            int pid = dialog->getPID();
+        if (dialog.exec()) {
+            int pid = dialog.getPID();
             if (pid >= 0) {
                 attachProcess(pid);
             } else {
@@ -177,7 +177,6 @@ void DebugActions::attachProcessDialog()
             }
         }
     }
-    delete dialog;
 }
 
 void DebugActions::attachProcess(int pid)
