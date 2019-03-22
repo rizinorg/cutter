@@ -18,7 +18,7 @@ class EditInstructionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit EditInstructionDialog(QWidget *parent, InstructionEditMode isEditingBytes);
+    explicit EditInstructionDialog(InstructionEditMode isEditingBytes, QWidget *parent = nullptr);
     ~EditInstructionDialog();
 
     QString getInstruction();

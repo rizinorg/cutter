@@ -449,16 +449,16 @@ QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
-    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_TEXT);
-    e->setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
+    EditInstructionDialog e(EDIT_TEXT, this);
+    e.setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
 
     QString oldInstructionOpcode = Core()->getInstructionOpcode(offset);
     QString oldInstructionBytes = Core()->getInstructionBytes(offset);
 
-    e->setInstruction(oldInstructionOpcode);
+    e.setInstruction(oldInstructionOpcode);
 
-    if (e->exec()) {
-        QString userInstructionOpcode = e->getInstruction();
+    if (e.exec()) {
+        QString userInstructionOpcode = e.getInstruction();
         if (userInstructionOpcode != oldInstructionOpcode) {
             Core()->editInstruction(offset, userInstructionOpcode);
 
@@ -520,14 +520,14 @@ void DisassemblyContextMenu::on_actionJmpReverse_triggered()
 
 void DisassemblyContextMenu::on_actionEditBytes_triggered()
 {
-    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_BYTES);
-    e->setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
+    EditInstructionDialog e(EDIT_BYTES, this);
+    e.setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
 
     QString oldBytes = Core()->getInstructionBytes(offset);
-    e->setInstruction(oldBytes);
+    e.setInstruction(oldBytes);
 
-    if (e->exec()) {
-        QString bytes = e->getInstruction();
+    if (e.exec()) {
+        QString bytes = e.getInstruction();
         if (bytes != oldBytes) {
             Core()->editBytes(offset, bytes);
 
