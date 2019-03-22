@@ -721,9 +721,9 @@ void DisassemblyContextMenu::on_actionXRefs_triggered()
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
-    auto *dialog = new PreferencesDialog(this->window());
-    dialog->showSection(PreferencesDialog::Section::Disassembly);
-    dialog->show();
+    PreferencesDialog dialog(this->window());
+    dialog.showSection(PreferencesDialog::Section::Disassembly);
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionSetToCode_triggered()
