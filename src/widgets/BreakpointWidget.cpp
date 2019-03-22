@@ -186,10 +186,10 @@ void BreakpointWidget::showBreakpointContextMenu(const QPoint &pt)
 
 void BreakpointWidget::addBreakpointDialog()
 {
-    BreakpointsDialog *dialog = new BreakpointsDialog(this);
+    BreakpointsDialog dialog(this);
 
-    if (dialog->exec()) {
-        QString bps = dialog->getBreakpoints();
+    if (dialog.exec()) {
+        QString bps = dialog.getBreakpoints();
         if (!bps.isEmpty()) {
             QStringList bpList = bps.split(' ', QString::SkipEmptyParts);
             for (const QString &bp : bpList) {
