@@ -392,10 +392,10 @@ void MainWindow::drawOverview()
     qreal baseScale = targetGraphDock->graphView->current_scale;
     qreal w = targetGraphDock->graphView->viewport()->width() * curScale / baseScale;
     qreal h = targetGraphDock->graphView->viewport()->height() * curScale / baseScale;
-    int graph_offset_x = targetGraphDock->graphView->offset_x;
-    int graph_offset_y = targetGraphDock->graphView->offset_y;
-    int overview_offset_x = overviewDock->graphView->offset_x;
-    int overview_offset_y = overviewDock->graphView->offset_y;
+    int graph_offset_x = targetGraphDock->graphView->offset.x();
+    int graph_offset_y = targetGraphDock->graphView->offset.y();
+    int overview_offset_x = overviewDock->graphView->offset.x();
+    int overview_offset_y = overviewDock->graphView->offset.y();
     int rangeRectX = graph_offset_x * curScale - overview_offset_x * curScale;
     int rangeRectY = graph_offset_y * curScale - overview_offset_y * curScale;
 
@@ -413,10 +413,10 @@ void MainWindow::adjustGraph()
     qreal curScale = overviewDock->graphView->current_scale;
     int rectx = overviewDock->graphView->rangeRect.x();
     int recty = overviewDock->graphView->rangeRect.y();
-    int overview_offset_x = overviewDock->graphView->offset_x;
-    int overview_offset_y = overviewDock->graphView->offset_y;
-    targetGraphDock->graphView->offset_x = rectx /curScale + overview_offset_x;
-    targetGraphDock->graphView->offset_y = recty /curScale + overview_offset_y;
+    int overview_offset_x = overviewDock->graphView->offset.x();
+    int overview_offset_y = overviewDock->graphView->offset.y();
+    targetGraphDock->graphView->offset.rx() = rectx /curScale + overview_offset_x;
+    targetGraphDock->graphView->offset.ry() = recty /curScale + overview_offset_y;
     targetGraphDock->graphView->viewport()->update();
 }
 
