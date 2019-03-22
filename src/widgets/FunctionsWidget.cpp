@@ -600,11 +600,11 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
-    CommentsDialog *c = new CommentsDialog(this);
+    CommentsDialog c(this);
 
-    if (c->exec()) {
+    if (c.exec()) {
         // Get new function name
-        QString comment = c->getComment();
+        QString comment = c.getComment();
         // Rename function in r2 core
         Core()->setComment(function.offset, comment);
         // Seek to new renamed function

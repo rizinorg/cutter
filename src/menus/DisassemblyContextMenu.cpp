@@ -594,17 +594,17 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
     QString oldComment = Core()->cmd("CC." + RAddressString(offset));
     // Remove newline at the end added by cmd
     oldComment.remove(oldComment.length() - 1, 1);
-    CommentsDialog *c = new CommentsDialog(this);
+    CommentsDialog c(this);
 
     if (oldComment.isNull() || oldComment.isEmpty()) {
-        c->setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
+        c.setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
     } else {
-        c->setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
+        c.setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
     }
 
-    c->setComment(oldComment);
-    if (c->exec()) {
-        QString comment = c->getComment();
+    c.setComment(oldComment);
+    if (c.exec()) {
+        QString comment = c.getComment();
         if (comment.isEmpty()) {
             Core()->delComment(offset);
         } else {

@@ -1039,9 +1039,8 @@ void MainWindow::on_actionRedoSeek_triggered()
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
-    CommentsDialog *c = new CommentsDialog(this);
-    c->exec();
-    delete c;
+    CommentsDialog c(this);
+    c.exec();
 }
 
 void MainWindow::on_actionRefresh_contents_triggered()
