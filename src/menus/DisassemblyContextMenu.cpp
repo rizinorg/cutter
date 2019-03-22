@@ -626,8 +626,8 @@ void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 
 void DisassemblyContextMenu::on_actionAddFlag_triggered()
 {
-    FlagDialog *dialog = new FlagDialog(offset, this->parentWidget());
-    dialog->exec();
+    FlagDialog dialog(offset, this->parentWidget());
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionRename_triggered()
