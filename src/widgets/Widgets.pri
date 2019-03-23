@@ -46,7 +46,6 @@ SOURCES += \
     $$PWD/SdbWidget.cpp \
 
 HEADERS  += \
-    CutterApplication.h \
     $$PWD/DisassemblerGraphView.h \
     $$PWD/OverviewView.h \
     $$PWD/CommentsWidget.h \
