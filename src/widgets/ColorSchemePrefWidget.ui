@@ -47,8 +47,11 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="toolTip">
+            <string>Sets color depending on system palette.</string>
+           </property>
            <property name="text">
-            <string>Set Default</string>
+            <string>Use Native</string>
            </property>
           </widget>
          </item>
