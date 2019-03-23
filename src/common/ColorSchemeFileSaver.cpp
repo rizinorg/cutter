@@ -178,7 +178,7 @@ QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QStri
         return tr("Seems like the color scheme <b>\"%1\"</b> does not exist.").arg(srcScheme);
     }
 
-    if (QFile::copy(src.path(), destFile)) {
+    if (QFile::copy(src.filePath(), destFile)) {
         return "";
     } else {
         return tr("Error occured during exporting. Please make sure you have "
