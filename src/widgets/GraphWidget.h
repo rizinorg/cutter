@@ -2,7 +2,6 @@
 #define GRAPHWIDGET_H
 
 #include "MemoryDockWidget.h"
-#include "core/Cutter.h"
 
 class MainWindow;
 class DisassemblerGraphView;
