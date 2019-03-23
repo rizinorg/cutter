@@ -185,7 +185,7 @@ void AppearanceOptionsWidget::on_deleteButton_clicked()
     if (ColorSchemeFileWorker().isCustomScheme(Config()->getColorTheme())) {
         QMessageBox mb;
         mb.setWindowTitle(tr("Delete"));
-        mb.setText(tr("Are you sure you want to delete theme ") + Config()->getColorTheme());
+        mb.setText(tr("Are you sure you want to delete theme <b>%1</b>?").arg(Config()->getColorTheme()));
         mb.setIcon(QMessageBox::Question);
         mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         if (mb.exec() == QMessageBox::Yes) {
@@ -258,7 +258,7 @@ void AppearanceOptionsWidget::on_renameButton_clicked()
         updateThemeFromConfig(false);
         QMessageBox::information(this,
                                  tr("Success"),
-                                 tr("Scheme was successfully renamed!"));
+                                 tr("Scheme was successfully renamed."));
     } else {
         QMessageBox::critical(this, tr("Error"), err);
     }

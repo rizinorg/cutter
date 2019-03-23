@@ -161,8 +161,9 @@ QString ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
     if (QFile::copy(srcScheme, customR2ThemesLocationPath + QDir::separator() + name)) {
         return "";
     } else {
-        return tr("Error occured during importing. Please, make sure that "
-                  "you have access to directory <b>\"%1\"</b> and try again.")
+        return tr("Error occurred during importing. "
+                  "Please make sure you have an access to "
+                  "the directory <b>\"%1\"</b> and try again.")
                 .arg(src.dir().path());
     }
 }
@@ -181,7 +182,7 @@ QString ColorSchemeFileSaver::exportScheme(const QString& srcScheme, const QStri
     if (QFile::copy(src.filePath(), destFile)) {
         return "";
     } else {
-        return tr("Error occured during exporting. Please make sure you have "
+        return tr("Error occurred during exporting. Please make sure you have "
                   "an access to the directory <b>\"%1\"</b> and try again.")
                 .arg(QFileInfo(destFile).dir().path());
     }
@@ -195,7 +196,7 @@ bool ColorSchemeFileSaver::isCustomScheme(const QString &schemeName) const
 QString ColorSchemeFileSaver::rename(const QString& schemeName, const QString& newName) const
 {
     if (isNameEngaged(newName)) {
-        return tr("Seems like there already are scheme named <b>\"%1\"</b>").arg(newName);
+        return tr("A color scheme named <b>\"%1\"</b> already exists.").arg(newName);
     }
 
     QDir dir = (isCustomScheme(schemeName)
@@ -203,8 +204,8 @@ QString ColorSchemeFileSaver::rename(const QString& schemeName, const QString& n
                     : standardR2ThemesLocationPath);
     bool ok = QFile::rename(dir.filePath(schemeName), dir.filePath(newName));
     if (!ok) {
-        return tr("Something went wrong during renaming. Please make sure you have acces to "
-                  "<b>\"%1\"</b> directory").arg(dir.path());
+        return tr("Something went wrong during renaming. "
+                  "Please make sure you have access to the directory <b>\"%1\"</b>.").arg(dir.path());
     }
     return "";
 }
