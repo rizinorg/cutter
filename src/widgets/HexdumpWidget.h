@@ -10,7 +10,7 @@
 #include <memory>
 
 #include "core/Cutter.h"
-#include "CutterDockWidget.h"
+#include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "dialogs/HexdumpRangeDialog.h"
 #include "common/Highlighter.h"
@@ -26,11 +26,9 @@ namespace Ui {
 
 class RefreshDeferrer;
 
-class HexdumpWidget : public CutterDockWidget
+class HexdumpWidget : public MemoryDockWidget
 {
     Q_OBJECT
-
-
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
@@ -118,7 +116,6 @@ private:
 
 private slots:
     void onSeekChanged(RVA addr);
-    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     // Currently unused/untested
     // void highlightHexCurrentLine();

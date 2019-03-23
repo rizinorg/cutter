@@ -868,6 +868,7 @@ void GraphView::wheelEvent(QWheelEvent *event)
     const QPoint delta = -event->angleDelta();
     offset_x += delta.x() / current_scale;
     offset_y += delta.y() / current_scale;
+
     viewport()->update();
     event->accept();
 }
