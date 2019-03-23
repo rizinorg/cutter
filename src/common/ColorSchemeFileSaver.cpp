@@ -56,7 +56,7 @@ QString ColorSchemeFileSaver::copy(const QString &srcThemeName,
                                    const QString &copyThemeName) const
 {
     if (!isSchemeExist(srcThemeName)) {
-        return tr("TODO");
+        return tr("Scheme <b>%1</b> does not exist.").arg(srcThemeName);
     }
     QString currTheme = Config()->getColorTheme();
     Config()->setColorTheme(srcThemeName);
@@ -77,7 +77,8 @@ QString ColorSchemeFileSaver::save(const QJsonDocument &scheme, const QString &s
 {
     QFile fOut(customR2ThemesLocationPath + QDir::separator() + schemeName);
     if (!fOut.open(QFile::WriteOnly | QFile::Truncate)) {
-        return "TODO";
+        return tr("Error occurred during copying. Please make sure you have access to %1")
+                .arg(customR2ThemesLocationPath);
     }
 
     QJsonObject obj = scheme.object();
