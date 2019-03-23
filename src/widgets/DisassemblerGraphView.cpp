@@ -855,6 +855,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
     if (event->button() == Qt::RightButton) {
         mMenu->exec(event->globalPos());
     }
+    viewport()->update();
 }
 
 void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
