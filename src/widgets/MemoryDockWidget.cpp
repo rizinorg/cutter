@@ -12,8 +12,9 @@ MemoryDockWidget::MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow
 void MemoryDockWidget::handleRaiseMemoryWidget(CutterCore::MemoryWidgetType raiseType)
 {
     bool raisingEmptyGraph = (raiseType == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
-    if (raisingEmptyGraph)
+    if (raisingEmptyGraph) {
         raiseType = CutterCore::MemoryWidgetType::Disassembly;
+    }
 
     if (raiseType == mType) {
         getBoundAction()->setChecked(true);
