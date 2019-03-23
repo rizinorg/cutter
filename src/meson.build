@@ -112,6 +112,13 @@ platform_inc = []
 if host_machine.system() == 'windows'
   add_project_arguments('-D_CRT_NONSTDC_NO_DEPRECATE', language: 'cpp')
   add_project_arguments('-D_CRT_SECURE_NO_WARNINGS', language: 'cpp')
+  qt_host_libs = run_command('qmake', '-query', 'QT_HOST_LIBS').stdout().strip()
+  if get_option('buildtype').startswith('debug')
+    qtmain_libname = 'qtmaind.lib'
+  else
+    qtmain_libname = 'qtmain.lib'
+  endif
+  add_project_link_arguments(join_paths(qt_host_libs, qtmain_libname), language: 'cpp')
 endif
 
 cutter_exe = executable(
