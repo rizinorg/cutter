@@ -105,10 +105,9 @@ void Dashboard::updateContents()
     }
 
     // Add file hashes and libraries
-    QString md5 = Core()->cmd("e file.md5");
-    QString sha1 = Core()->cmd("e file.sha1");
-    ui->md5Edit->setText(md5);
-    ui->sha1Edit->setText(sha1);
+    QJsonObject hashes = Core()->cmdj("itj").object();
+    ui->md5Edit->setText(hashes["md5"].toString());
+    ui->sha1Edit->setText(hashes["sha1"].toString());
 
     QStringList libs = Core()->cmdList("il");
     if (!libs.isEmpty()) {
