@@ -78,6 +78,7 @@ void PluginManager::loadPlugins()
 void PluginManager::destroyPlugins()
 {
     for (CutterPlugin *plugin : plugins) {
+        plugin->terminate();
         delete plugin;
     }
 }
