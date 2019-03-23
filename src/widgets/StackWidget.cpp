@@ -131,14 +131,14 @@ void StackWidget::editStack()
     bool ok;
     int row = viewStack->selectionModel()->currentIndex().row();
     QString offset = viewStack->selectionModel()->currentIndex().sibling(row, 0).data().toString();
-    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_NONE);
-    e->setWindowTitle(tr("Edit stack at %1").arg(offset));
+    EditInstructionDialog e(EDIT_NONE, this);
+    e.setWindowTitle(tr("Edit stack at %1").arg(offset));
 
     QString oldBytes = viewStack->selectionModel()->currentIndex().sibling(row, 1).data().toString();
-    e->setInstruction(oldBytes);
+    e.setInstruction(oldBytes);
 
-    if (e->exec()) {
-        QString bytes = e->getInstruction();
+    if (e.exec()) {
+        QString bytes = e.getInstruction();
         if (bytes != oldBytes) {
             Core()->editBytesEndian(offset.toULongLong(&ok, 16), bytes);
         }

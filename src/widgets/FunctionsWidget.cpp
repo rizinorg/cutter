@@ -604,11 +604,11 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
-    CommentsDialog *c = new CommentsDialog(this);
+    CommentsDialog c(this);
 
-    if (c->exec()) {
+    if (c.exec()) {
         // Get new function name
-        QString comment = c->getComment();
+        QString comment = c.getComment();
         // Rename function in r2 core
         Core()->setComment(function.offset, comment);
         // Seek to new renamed function
@@ -624,14 +624,14 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
-    RenameDialog *r = new RenameDialog(this);
+    RenameDialog r(this);
 
     // Set function name in dialog
-    r->setName(function.name);
+    r.setName(function.name);
     // If user accepted
-    if (r->exec()) {
+    if (r.exec()) {
         // Get new function name
-        QString new_name = r->getName();
+        QString new_name = r.getName();
 
         // Rename function in r2 core
         Core()->renameFunction(function.name, new_name);
@@ -653,9 +653,9 @@ void FunctionsWidget::on_action_References_triggered()
     // Get selected item in functions tree view
     FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    XrefsDialog *x = new XrefsDialog(this);
-    x->fillRefsForAddress(function.offset, function.name, true);
-    x->exec();
+    XrefsDialog x(this);
+    x.fillRefsForAddress(function.offset, function.name, true);
+    x.exec();
 }
 
 void FunctionsWidget::showTitleContextMenu(const QPoint &pt)

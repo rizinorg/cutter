@@ -932,10 +932,10 @@ void MainWindow::on_actionLockUnlock_triggered()
 
 void MainWindow::on_actionFunctionsRename_triggered()
 {
-    RenameDialog *r = new RenameDialog(this);
+    RenameDialog r(this);
     // Get function based on click position
     //r->setFunctionName(fcn_name);
-    r->open();
+    r.exec();
 }
 
 void MainWindow::on_actionDefault_triggered()
@@ -1058,9 +1058,8 @@ void MainWindow::on_actionRedoSeek_triggered()
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
-    CommentsDialog *c = new CommentsDialog(this);
-    c->exec();
-    delete c;
+    CommentsDialog c(this);
+    c.exec();
 }
 
 void MainWindow::on_actionRefresh_contents_triggered()

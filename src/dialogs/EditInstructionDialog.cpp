@@ -2,7 +2,7 @@
 #include "ui_EditInstructionDialog.h"
 #include "core/Cutter.h"
 
-EditInstructionDialog::EditInstructionDialog(QWidget *parent, InstructionEditMode editMode) :
+EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EditInstructionDialog),
     editMode(editMode)
