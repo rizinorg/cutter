@@ -59,6 +59,9 @@ class CutterSamplePlugin(cutter.CutterPlugin):
         widget = FortuneWidget(main, action)
         main.addPluginDockWidget(widget, action)
 
+    def terminate(self): # optional
+        print("CutterSamplePlugin shutting down")
+
 
 # This function will be called by Cutter and should return an instance of the plugin.
 def create_cutter_plugin():
