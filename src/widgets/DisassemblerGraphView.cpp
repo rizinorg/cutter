@@ -1,5 +1,14 @@
+
 #include "DisassemblerGraphView.h"
 #include "common/CutterSeekable.h"
+#include "core/Cutter.h"
+#include "common/Colors.h"
+#include "common/Configuration.h"
+#include "common/CachedFontMetrics.h"
+#include "common/TempConfig.h"
+#include "common/SyntaxHighlighter.h"
+#include "common/BasicBlockHighlighter.h"
+
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -17,13 +26,7 @@
 #include <QClipboard>
 #include <QApplication>
 
-#include "core/Cutter.h"
-#include "common/Colors.h"
-#include "common/Configuration.h"
-#include "common/CachedFontMetrics.h"
-#include "common/TempConfig.h"
-#include "common/SyntaxHighlighter.h"
-#include "common/BasicBlockHighlighter.h"
+#include <cmath>
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
