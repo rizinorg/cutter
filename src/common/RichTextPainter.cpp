@@ -109,7 +109,7 @@ RichTextPainter::List RichTextPainter::fromTextDocument(const QTextDocument &doc
     List r;
 
     for (QTextBlock block = doc.begin(); block != doc.end(); block = block.next()) {
-        for (QTextBlock::iterator it = block.begin(); it != block.end(); it++) {
+        for (QTextBlock::iterator it = block.begin(); it != block.end(); ++it) {
             QTextFragment fragment = it.fragment();
             QTextCharFormat format = fragment.charFormat();
 

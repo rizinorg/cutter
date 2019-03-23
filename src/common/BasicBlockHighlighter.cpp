@@ -6,8 +6,8 @@ BasicBlockHighlighter::BasicBlockHighlighter()
 
 BasicBlockHighlighter::~BasicBlockHighlighter()
 {
-    for (BasicBlockIt itr = bbMap.begin(); itr != bbMap.end(); itr++) {
-	delete itr->second;
+    for (BasicBlockIt itr = bbMap.begin(); itr != bbMap.end(); ++itr) {
+        delete itr->second;
     }
 }
 

@@ -181,8 +181,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     case Qt::DecorationRole:
         if (importAddresses->contains(function.offset) &&
-                (nested ? false : index.column() == ImportColumn))
-            return QIcon(":/img/icons/import_light.svg");
+                (nested ? false : index.column() == ImportColumn)) {
+            const static QIcon importIcon(":/img/icons/import_light.svg");
+            return importIcon;
+        }
         return QVariant();
 
     case Qt::FontRole:
@@ -225,7 +227,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
 
-        const QStringList &summary = Core()->cmd(QString("pdsf @ %1").arg(function.offset)).split("\n", QString::SkipEmptyParts);
+        const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
 
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
@@ -252,7 +254,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
         if (!highlights.isEmpty()) {
             toolTipContent += tr("<div><strong>Highlights</strong>:<br>%1</div>")
-                .arg(highlights.join("\n").toHtmlEscaped().replace("\n", "<br>"));
+                .arg(highlights.join(QLatin1Char('\n')).toHtmlEscaped().replace(QLatin1Char('\n'), "<br>"));
         }
         toolTipContent += "</div></html>";
         return toolTipContent;

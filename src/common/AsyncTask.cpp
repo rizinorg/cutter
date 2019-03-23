@@ -47,7 +47,7 @@ void AsyncTask::run()
 
     running = true;
 
-    logBuffer = "";
+    logBuffer.clear();
     emit logChanged(logBuffer);
     runTask();
 
@@ -60,7 +60,7 @@ void AsyncTask::run()
 
 void AsyncTask::log(QString s)
 {
-    logBuffer += s + "\n";
+    logBuffer += s.append(QLatin1Char('\n'));
     emit logChanged(logBuffer);
 }
 

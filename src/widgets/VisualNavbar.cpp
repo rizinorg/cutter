@@ -297,7 +297,7 @@ QString VisualNavbar::toolTipForAddress(RVA address)
         bool first = true;
         for (const QString &section : sections) {
             if (!first) {
-                ret += "\n";
+                ret.append(QLatin1Char('\n'));
             } else {
                 first = false;
             }
