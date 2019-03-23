@@ -506,15 +506,9 @@ QHeaderView {
 	border-radius: 0px;
 	background-color: #ffffff;
 	color: #007ac1;
-
-
 }
 
-QHeaderView {
-	border-radius: 0px;
-	background-color: #ffffff;
-	color: #007ac1;
-}
+
 
 
 
@@ -728,3 +722,55 @@ QHeaderView::section {
 
 
 
+
+
+QMenu::indicator {
+	border: 1px solid #009be2;
+	border-radius: 2px;
+	margin: 2px;
+
+}
+
+/* non-exclusive indicator = check box style indicator
+   (see QActionGroup::setExclusive) */
+
+QMenu::indicator:non-exclusive:unchecked {
+	background: #ebeef1;
+}
+
+QMenu::indicator:non-exclusive:unchecked:selected {
+	background: #ebeef1;
+}
+
+QMenu::indicator:non-exclusive:checked {
+	background: #03a9f4;
+}
+
+QMenu::indicator:non-exclusive:checked:selected {
+	background: #03a9f4;
+}
+
+
+/* exclusive indicator = radio button style indicator (see QActionGroup::setExclusive) */
+
+QMenu::indicator:exclusive:unchecked {
+	background: #ebeef1;
+}
+
+QMenu::indicator:exclusive:unchecked:selected {
+	background: #03a9f4;
+}
+
+QMenu::indicator:exclusive:checked {
+	background: #03a9f4;
+}
+
+QMenu::indicator:exclusive:checked:selected {
+	background: #03a9f4;
+}
+
+
+QHeaderView::section::horizontal {
+	background-color: red;
+	text-color: yellow;
+}
