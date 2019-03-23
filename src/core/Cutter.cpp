@@ -2649,7 +2649,7 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
         return QString();
     }
     QString r = QString::fromUtf8(html, len);
-    free(html);
+    r_free(html);
     return r;
 }
 
