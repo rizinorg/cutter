@@ -65,10 +65,10 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     // Zoom shortcuts
     QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
     shortcut_zoom_in->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_in, SIGNAL(activated()), this, SLOT(zoomIn()));
+    connect(shortcut_zoom_in, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom, this, QPointF(0.5, 0.5), 1));
     QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
     shortcut_zoom_out->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_out, SIGNAL(activated()), this, SLOT(zoomOut()));
+    connect(shortcut_zoom_out, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom, this, QPointF(0.5, 0.5), -1));
     QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::Key_Equal), this);
     shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
@@ -369,8 +369,8 @@ void DisassemblerGraphView::initFont()
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x - offset_x;
-    int blockY = block.y - offset_y;
+    int blockX = block.x - offset.x();
+    int blockY = block.y - offset.y();
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -695,19 +695,21 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
     }
 }
 
-void DisassemblerGraphView::zoomIn(QPoint mouse)
+void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
 {
-    Q_UNUSED(mouse);
-    current_scale += 0.1;
-    viewport()->update();
-    emit viewZoomed();
-}
+    mouseRelativePos.rx() *= size().width();
+    mouseRelativePos.ry() *= size().height();
+    mouseRelativePos /= current_scale;
 
-void DisassemblerGraphView::zoomOut(QPoint mouse)
-{
-    Q_UNUSED(mouse);
-    current_scale -= 0.1;
+    auto globalMouse = mouseRelativePos + offset;
+    mouseRelativePos *= current_scale;
+    current_scale *= std::pow(1.25, velocity);
     current_scale = std::max(current_scale, 0.3);
+    mouseRelativePos /= current_scale;
+
+    // Adjusting offset, so that zooming will be approaching to the cursor.
+    offset = globalMouse.toPoint() - mouseRelativePos.toPoint();
+
     viewport()->update();
     emit viewZoomed();
 }
@@ -968,13 +970,13 @@ void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
     if (Qt::ControlModifier == event->modifiers()) {
         const QPoint numDegrees = event->angleDelta() / 8;
         if (!numDegrees.isNull()) {
-            const QPoint numSteps = numDegrees / 15;
-            QPoint mouse = event->globalPos();
-            if (numSteps.y() > 0) {
-                zoomIn(mouse);
-            } else if (numSteps.y() < 0) {
-                zoomOut(mouse);
-            }
+            int numSteps = numDegrees.y() / 15;
+
+            QPointF relativeMousePos = event->pos();
+            relativeMousePos.rx() /= size().width();
+            relativeMousePos.ry() /= size().height();
+
+            zoom(relativeMousePos, numSteps);
         }
         event->accept();
     } else {
