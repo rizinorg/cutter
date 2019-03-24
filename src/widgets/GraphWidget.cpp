@@ -34,7 +34,6 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
         main->toggleOverview(visibility, this);
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-            graphView->refreshView();
             graphView->onSeekChanged(Core()->getOffset());
         }
     });
