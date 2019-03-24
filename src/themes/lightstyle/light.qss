@@ -220,10 +220,10 @@ QMenu::item {
 	border-bottom-width: 1px;
 	border-style: solid;
 	color: #00162e;
-	padding-left:12px;
+	padding-left:30px;
 	padding-top:4px;
 	padding-bottom:4px;
-	padding-right:7px;
+	padding-right:30px;
 }
 
 QMenu::item:selected {
@@ -721,14 +721,11 @@ QHeaderView::section {
 }
 
 
-
-
-
 QMenu::indicator {
 	border: 1px solid #009be2;
 	border-radius: 2px;
-	margin: 2px;
-
+	margin: 3px;
+	margin-left: 4px;
 }
 
 /* non-exclusive indicator = check box style indicator
@@ -769,3 +766,7 @@ QMenu::indicator:exclusive:checked:selected {
 	background: #03a9f4;
 }
 
+QHeaderView::section::horizontal {
+    background-color: #fafcfe;
+    color: #0046af;
+}
