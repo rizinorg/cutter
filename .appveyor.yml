@@ -8,7 +8,7 @@ configuration:
 
 # Environment
 environment:
-  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.8.2/ninja-win.zip
+  NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip
   QT32PATH: 'C:\Qt\5.12\msvc2017'
   QT64PATH: 'C:\Qt\5.12\msvc2017_64'
   VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
@@ -55,24 +55,10 @@ build_script:
 after_build:
   - cmd: if defined QMAKE ( set "PATH=%CD%\r2_dist_%ARCH%;%PATH%" && powershell scripts\bundle_r2dec.ps1 "%CD%\%ARTIFACT_PATH%" )
   - cmd: powershell scripts\bundle_openssl.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
-  - ps: $env:py_version = (python --version).Split()[1]
-  - ps: $env:py_platform = If ($env:ARCH -eq "x64") {"amd64"} Else {"win32"}
-  - ps: $env:py_url = "https://www.python.org/ftp/python/${env:py_version}/python-${env:py_version}-embed-${env:py_platform}.zip"
-  - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %py_url% -OutFile python_embed.zip; Expand-Archive .\python_embed.zip -DestinationPath .\python_embed"
-  - cmd: python -m pip install -I --no-compile -t "%ARTIFACT_PATH%\python36\site-packages" jupyter ipykernel==4.8.2 jsonschema==2.6.0 pyzmq==17.1.2 notebook==5.6.0 tornado==5.1.1
-  - cmd: if exist "%ARTIFACT_PATH%\python36\site-packages\test" ( rd /s /q "%ARTIFACT_PATH%\python36\site-packages\test" )
-  - cmd: for /d %%p in ("%ARTIFACT_PATH%\python36\site-packages\*.dist-info" "%ARTIFACT_PATH%\python36\site-packages\*.egg-info") do rd /s /q "%%p"
-  - cmd: python -O -m compileall -b -q "%ARTIFACT_PATH%\python36\site-packages"
-  - cmd: del /s "%ARTIFACT_PATH%\python36\site-packages\*.py"
-  - cmd: powershell -c "Get-ChildItem -Path \"%ARTIFACT_PATH%\python36\site-packages\" -Include '__pycache__' -Recurse -Force | Remove-Item -Force -Recurse"
-  - cmd: copy python_embed\python36.zip "%ARTIFACT_PATH%\python36\"
-  - cmd: copy python_embed\*.pyd "%ARTIFACT_PATH%\python36\"
-  - cmd: copy python_embed\sqlite3.dll "%ARTIFACT_PATH%\python36\"
-  - cmd: copy python_embed\python*.dll "%ARTIFACT_PATH%\"
+  - cmd: powershell scripts\bundle_python.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
   - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
   - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.cp36-win_amd64.dll" "%ARTIFACT_PATH%\"
   - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.cp36-win_amd64.dll" "%ARTIFACT_PATH%\"
-  - cmd: powershell -Command "[System.IO.File]::WriteAllLines(\"%ARTIFACT_PATH%\python36._pth\", \"python36`r`npython36\python36.zip`r`npython36\site-packages\")"
 
 # Tests
 test: off
