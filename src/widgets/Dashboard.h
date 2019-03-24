@@ -5,6 +5,7 @@
 #include "CutterDockWidget.h"
 
 class MainWindow;
+class QLineEdit;
 
 namespace Ui {
 class Dashboard;
@@ -25,6 +26,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
+    void setPlainText(QLineEdit *textBox, const QString &text);
 };
 
 #endif // DASHBOARD_H
