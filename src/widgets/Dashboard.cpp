@@ -197,7 +197,7 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
 }
 
 /**
- * @brief Set the text of a QLineEdit as True or False
+ * @brief Set the text of a QLineEdit as True, False or N/A if it does not exist
  * @param textBox
  * @param isTrue
  */
