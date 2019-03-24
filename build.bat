@@ -24,7 +24,7 @@ FOR %%i in (src\translations\*.ts) DO lrelease %%i
 CD %BUILDDIR%
 
 IF NOT DEFINED CUTTER_ENABLE_CRASH_REPORTS (
-SET "CUTTER_ENABLE_CRASH_REPORTS=false"
+SET "CUTTER_ENABLE_CRASH_REPORTS=true"
 )
 
 ECHO Building cutter

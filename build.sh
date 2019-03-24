@@ -7,7 +7,7 @@ ERR=0
 
 #### User variables ####
 BUILD="`pwd`/build"
-QMAKE_CONF=""
+QMAKE_CONF="CUTTER_ENABLE_CRASH_REPORTS=true"
 ROOT_DIR=`pwd`
 
 check_r2() {
@@ -65,9 +65,11 @@ find_gmake() {
 
 prepare_breakpad() {
 	if [[ $OSTYPE == "linux-gnu" ]]; then
-		$ROOT_DIR/scripts/prepare_breakpad_linux.sh
+		source $ROOT_DIR/scripts/prepare_breakpad_linux.sh
+        export PKG_CONFIG_PARH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        echo $PKG_CONFIG_PARH
 	elif [[ $OSTYPE == "darwin" ]]; then
-		$ROOT_DIR/scripts/prepare_breakpad_macos.sh
+		source $ROOT_DIR/scripts/prepare_breakpad_macos.sh
 	fi
 	return 1
 }
@@ -104,9 +106,9 @@ fi
 $(find_lrelease) ./src/Cutter.pro
 
 # Build
+prepare_breakpad
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
-prepare_breakpad
 $(find_qmake) ../src/Cutter.pro $QMAKE_CONF
 $(find_gmake) -j4
 ERR=$((ERR+$?))
