@@ -769,8 +769,3 @@ QMenu::indicator:exclusive:checked:selected {
 	background: #03a9f4;
 }
 
-
-QHeaderView::section::horizontal {
-	background-color: red;
-	text-color: yellow;
-}
