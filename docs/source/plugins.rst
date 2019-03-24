@@ -20,9 +20,10 @@ To get the location of this directory and a list of currently loaded plugins, na
 The plugins directory contains two subdirectories, ``native`` and ``python`` for C++ and Python plugins respectively,
 which will be created automatically by Cutter.
 
-Note that support for Python plugins is only available if Cutter was built with the options ``CUTTER_ENABLE_PYTHON``
-and ``CUTTER_ENABLE_PYTHON_BINDINGS`` enabled.
-This is the case for all official builds from GitHub Releases starting with version 1.8.0.
+.. note::
+   The support for Python plugins is only available if Cutter was built with the options ``CUTTER_ENABLE_PYTHON``
+   and ``CUTTER_ENABLE_PYTHON_BINDINGS`` enabled.
+   This is the case for all official builds from GitHub Releases starting with version 1.8.0.
 
 
 Creating Plugins
