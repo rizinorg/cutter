@@ -10,6 +10,7 @@
 #include "common/R2Task.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
+#include "r_asm.h"
 #include "sdb.h"
 
 Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
@@ -393,7 +394,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
     }
 
     ut64 hashLimit = getConfigut64("cfg.hashlimit");
-    r_bin_file_hash(core_->bin, hashLimit, path.toUtf8().constData());
+    r_bin_file_hash(core_->bin, hashLimit, path.toUtf8().constData(), NULL);
 
     fflush(stdout);
     return true;
@@ -784,7 +785,7 @@ QString CutterCore::assemble(const QString &code)
 QString CutterCore::disassemble(const QString &hex)
 {
     CORE_LOCK();
-    RAsmCode *ac = r_asm_mdisassemble_hexstr(core_->assembler, hex.toUtf8().constData());
+    RAsmCode *ac = r_asm_mdisassemble_hexstr(core_->assembler, NULL, hex.toUtf8().constData());
     QString code = QString(ac != nullptr ? ac->buf_asm : "");
     r_asm_code_free(ac);
     return code;
