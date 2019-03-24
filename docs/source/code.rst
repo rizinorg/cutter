@@ -3,9 +3,6 @@ Contributing
 
 This page shows some hints about the coding conventions.
 
-*Disclaimer: It is a work in progress and we will provide soon a fully
-documented API.*
-
 Coding advices
 --------------
 
@@ -62,7 +59,7 @@ General coding guidelines
 Coding style
 ~~~~~~~~~~~~
 
-We follow `these guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ to
+In general, we follow `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ to
 format the code. If in doubt, you can use `AStyle
 2.06 <https://sourceforge.net/projects/astyle/files/astyle/astyle%202.06/>`__
 to format the code. The command line for formatting the code according
@@ -71,6 +68,28 @@ to the style is:
 .. code:: bash
 
    astyle --project=src/Cutter.astylerc src/filename.cpp
+
+In contrast to the official guidelines of Qt, in Cutter we always use curly braces in conditional statements, even if the body of a conditional statement contains only one line.
+
+.. code:: cpp
+
+   // Wrong
+   if (address.isEmpty())
+      return false;
+   
+   // Correct
+   if (address.isEmpty()) {
+      return false;
+   }
+   
+   // Wrong
+   for (int i = 0; i < 10; ++i)
+      qDebug("%i", i);
+   
+   // Correct
+   for (int i = 0; i < 10; ++i) {
+      qDebug("%i", i);
+   }
 
 
 Includes
