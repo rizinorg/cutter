@@ -42,6 +42,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.lines.fcn"));
     qhelpers::setCheckedWithoutSignals(ui->flgoffCheckBox, Config()->getConfigBool("asm.flags.offset"));
     qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Config()->getConfigBool("asm.emu"));
+    qhelpers::setCheckedWithoutSignals(ui->emuStrCheckBox, Config()->getConfigBool("emu.str"));
     qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Config()->getConfigBool("asm.var.summary"));
     qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Config()->getConfigBool("asm.size"));
 
@@ -180,6 +181,12 @@ void AsmOptionsWidget::on_flgoffCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_emuCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.emu", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_emuStrCheckBox_toggled(bool checked)
+{
+    Config()->setConfig("emu.str", checked);
     triggerAsmOptionsChanged();
 }
 

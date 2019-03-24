@@ -43,6 +43,7 @@ private slots:
     void on_fcnlinesCheckBox_toggled(bool checked);
     void on_flgoffCheckBox_toggled(bool checked);
     void on_emuCheckBox_toggled(bool checked);
+    void on_emuStrCheckBox_toggled(bool checked);
     void on_cmtrightCheckBox_toggled(bool checked);
     void on_cmtcolSpinBox_valueChanged(int value);
     void on_varsumCheckBox_toggled(bool checked);
