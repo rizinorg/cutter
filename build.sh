@@ -66,8 +66,7 @@ find_gmake() {
 prepare_breakpad() {
 	if [[ $OSTYPE == "linux-gnu" ]]; then
 		source $ROOT_DIR/scripts/prepare_breakpad_linux.sh
-        export PKG_CONFIG_PARH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
-        echo $PKG_CONFIG_PARH
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 	elif [[ $OSTYPE == "darwin" ]]; then
 		source $ROOT_DIR/scripts/prepare_breakpad_macos.sh
 	fi
@@ -109,6 +108,7 @@ $(find_lrelease) ./src/Cutter.pro
 prepare_breakpad
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
+echo $PKG_CONFIG_PARH
 $(find_qmake) ../src/Cutter.pro $QMAKE_CONF
 $(find_gmake) -j4
 ERR=$((ERR+$?))
