@@ -211,6 +211,11 @@ void Dashboard::on_versioninfoButton_clicked()
     }
 }
 
+/**
+ * @brief Set the text of a QLineEdit. If no text, then "N/A" is set.
+ * @param textBox
+ * @param text
+ */
 void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
 {
     if (!text.isEmpty()) {
