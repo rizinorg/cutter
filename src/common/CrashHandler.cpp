@@ -126,13 +126,13 @@ bool writeMinidump()
 
     QMessageBox mb;
     mb.setWindowTitle(QObject::tr("Cutter encountered a problem"));
-    mb.setText(QObject::tr("Cutter got a <b>%1</b> signal and can't handle it, so "
-                           "programm will close.<br/>"
+    mb.setText(QObject::tr("Cutter received a <b>%1</b> it can't handle and will close.<br/>"
                            "Would you like to create a crash dump for bug report?"
                            ).arg(err));
     mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     mb.button(QMessageBox::Yes)->setText(QObject::tr("Create a crash dump"));
     mb.button(QMessageBox::No)->setText(QObject::tr("Do not report"));
+    mb.setDefaultButton(QMessageBox::Yes);
 
     int ret = mb.exec();
     if (ret == QMessageBox::Yes) {
