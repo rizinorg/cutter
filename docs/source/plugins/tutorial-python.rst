@@ -21,6 +21,9 @@ Create a python file, called ``myplugin.py`` for example, and add the following 
        def setupInterface(self, main):
            pass
 
+       def terminate(self):
+           pass
+
    def create_cutter_plugin():
        return MyCutterPlugin()
 
@@ -39,6 +42,7 @@ The ``CutterPlugin`` subclass contains some meta-info and two callback methods:
 
 * ``setupPlugin()`` is called right after the plugin is loaded and can be used to initialize the plugin itself.
 * ``setupInterface()`` is called with the instance of MainWindow as an argument and should create and register any UI components.
+* ``terminate()`` is called on shutdown and should clean up any resources used by the plugin.
 
 Copy this file into the ``python`` subdirectory located under the plugins directory of Cutter and start the application.
 You should see an entry for your plugin in the list under Edit -> Preferences -> Plugins.
@@ -250,6 +254,9 @@ Full Code
            action.setCheckable(True)
            widget = MyDockWidget(main, action)
            main.addPluginDockWidget(widget, action)
+
+       def terminate(self):
+           pass
 
    def create_cutter_plugin():
        return MyCutterPlugin()
