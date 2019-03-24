@@ -4,8 +4,12 @@
 #include <memory>
 #include "CutterDockWidget.h"
 
+QT_BEGIN_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QLineEdit)
+QT_FORWARD_DECLARE_CLASS(QJsonValueRef)
+QT_END_NAMESPACE
+
 class MainWindow;
-class QLineEdit;
 
 namespace Ui {
 class Dashboard;
@@ -27,7 +31,7 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
     void setPlainText(QLineEdit *textBox, const QString &text);
-    void setBool(QLineEdit *textBox, const bool &isTrue);
+    void setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key);
 };
 
 #endif // DASHBOARD_H

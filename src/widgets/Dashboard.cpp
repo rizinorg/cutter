@@ -65,14 +65,14 @@ void Dashboard::updateContents()
     setPlainText(this->ui->baddrEdit, RAddressString(item2["baddr"].toVariant().toULongLong()));
 
     // set booleans
-    setBool(this->ui->vaEdit, item2["va"].toBool());
-    setBool(this->ui->canaryEdit, item2["canary"].toBool());
-    setBool(this->ui->cryptoEdit, item2["crypto"].toBool());
-    setBool(this->ui->nxEdit, item2["nx"].toBool());
-    setBool(this->ui->picEdit, item2["pic"].toBool());
-    setBool(this->ui->staticEdit, item2["static"].toBool());
-    setBool(this->ui->strippedEdit, item2["stripped"].toBool());
-    setBool(this->ui->relocsEdit, item2["relocs"].toBool());
+    setBool(this->ui->vaEdit, item2, "va");
+    setBool(this->ui->canaryEdit, item2, "canary");
+    setBool(this->ui->cryptoEdit, item2, "crypto");
+    setBool(this->ui->nxEdit, item2, "nx");
+    setBool(this->ui->picEdit, item2, "pic");
+    setBool(this->ui->staticEdit, item2, "static");
+    setBool(this->ui->strippedEdit, item2, "stripped");
+    setBool(this->ui->relocsEdit, item2, "relocs");
 
     // Add file hashes and libraries
     QJsonObject hashes = Core()->cmdj("itj").object();
@@ -201,11 +201,15 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
  * @param textBox
  * @param isTrue
  */
-void Dashboard::setBool(QLineEdit *textBox, const bool &isTrue)
+void Dashboard::setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key)
 {
-    if (isTrue) {
-        setPlainText(textBox, "True");
+    if (jsonObject.contains(key)) {
+        if (jsonObject[key].toBool()) {
+            setPlainText(textBox, "True");
+        } else {
+            setPlainText(textBox, "False");
+        }
     } else {
-        setPlainText(textBox, "False");
+        setPlainText(textBox, "N/A");
     }
 }
