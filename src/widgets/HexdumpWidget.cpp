@@ -1225,8 +1225,8 @@ void HexdumpWidget::zoomOut(int range)
 void HexdumpWidget::updateWidths()
 {
     // Update width
-    ui->hexHexText->document()->adjustSize();
-    ui->hexHexText->setFixedWidth(ui->hexHexText->document()->size().width());
+    auto idealWidth = ui->hexHexText->document()->idealWidth();
+    ui->hexHexText->document()->setTextWidth(idealWidth);
 
     ui->hexOffsetText->document()->adjustSize();
     ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width());
