@@ -271,7 +271,7 @@ void StringsWidget::on_actionX_refs_triggered()
     StringDescription str = ui->stringsTreeView->selectionModel()->currentIndex().data(
                                 StringsModel::StringDescriptionRole).value<StringDescription>();
 
-    XrefsDialog x(this);
+    XrefsDialog x(nullptr);
     x.fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
     x.setAttribute(Qt::WA_DeleteOnClose);
     x.exec();
