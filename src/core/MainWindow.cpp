@@ -392,10 +392,10 @@ void MainWindow::drawOverview()
     qreal baseScale = targetGraphDock->getGraphView()->current_scale;
     qreal w = targetGraphDock->getGraphView()->viewport()->width() * curScale / baseScale;
     qreal h = targetGraphDock->getGraphView()->viewport()->height() * curScale / baseScale;
-    int graph_offset_x = targetGraphDock->getGraphView()->offset_x;
-    int graph_offset_y = targetGraphDock->getGraphView()->offset_y;
-    int overview_offset_x = overviewDock->getGraphView()->offset_x;
-    int overview_offset_y = overviewDock->getGraphView()->offset_y;
+    int graph_offset_x = targetGraphDock->getGraphView()->offset.x();
+    int graph_offset_y = targetGraphDock->getGraphView()->offset.y();
+    int overview_offset_x = overviewDock->getGraphView()->offset.x();
+    int overview_offset_y = overviewDock->getGraphView()->offset.y();
     int rangeRectX = graph_offset_x * curScale - overview_offset_x * curScale;
     int rangeRectY = graph_offset_y * curScale - overview_offset_y * curScale;
 
@@ -414,10 +414,10 @@ void MainWindow::adjustGraph()
     qreal curScale = overviewDock->getGraphView()->current_scale;
     int rectx = overviewDock->getGraphView()->rangeRect.x();
     int recty = overviewDock->getGraphView()->rangeRect.y();
-    int overview_offset_x = overviewDock->getGraphView()->offset_x;
-    int overview_offset_y = overviewDock->getGraphView()->offset_y;
-    targetGraphDock->getGraphView()->offset_x = rectx /curScale + overview_offset_x;
-    targetGraphDock->getGraphView()->offset_y = recty /curScale + overview_offset_y;
+    int overview_offset_x = overviewDock->getGraphView()->offset.x();
+    int overview_offset_y = overviewDock->getGraphView()->offset.y();
+    targetGraphDock->getGraphView()->offset.rx() = rectx /curScale + overview_offset_x;
+    targetGraphDock->getGraphView()->offset.ry() = recty /curScale + overview_offset_y;
     targetGraphDock->getGraphView()->viewport()->update();
 }
 
@@ -933,10 +933,10 @@ void MainWindow::on_actionLockUnlock_triggered()
 
 void MainWindow::on_actionFunctionsRename_triggered()
 {
-    RenameDialog *r = new RenameDialog(this);
+    RenameDialog r(this);
     // Get function based on click position
     //r->setFunctionName(fcn_name);
-    r->open();
+    r.exec();
 }
 
 void MainWindow::on_actionDefault_triggered()
@@ -1027,8 +1027,8 @@ void MainWindow::on_actionReset_settings_triggered()
                                                            tr("Do you really want to clear all settings?"),
                                                            QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
-        on_actionDefault_triggered();
         Config()->resetAll();
+        on_actionDefault_triggered();
     }
 }
 
@@ -1059,9 +1059,8 @@ void MainWindow::on_actionRedoSeek_triggered()
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
-    CommentsDialog *c = new CommentsDialog(this);
-    c->exec();
-    delete c;
+    CommentsDialog c(this);
+    c.exec();
 }
 
 void MainWindow::on_actionRefresh_contents_triggered()

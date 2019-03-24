@@ -267,9 +267,7 @@ bool NewFileDialog::fillRecentFilesList()
         // Get stored files
 
         // Remove all but the file name
-        const QString sep = QDir::separator();
-        const QStringList name_list = file.split(sep);
-        const QString name = name_list.last();
+        const QString name = file.section(QDir::separator(), -1);
 
         // Get file info
         QFileInfo info(file);

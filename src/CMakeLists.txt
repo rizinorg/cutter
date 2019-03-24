@@ -89,7 +89,6 @@ if(CUTTER_ENABLE_PYTHON)
         find_package(Shiboken2 "${Qt5_VERSION}" REQUIRED)
         find_package(PySide2 "${Qt5_VERSION}" REQUIRED)
 
-        set(PYSIDE_LIBRARY PySide2::pyside2)
         get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
         list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
         include_directories(${PYSIDE_INCLUDE_DIR}
@@ -148,7 +147,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
 endif()
 
 
-add_executable(Cutter ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
+add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
+set_target_properties(Cutter PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
 target_link_libraries(Cutter ${RADARE2_LIBRARIES})

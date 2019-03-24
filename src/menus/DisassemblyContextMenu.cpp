@@ -290,8 +290,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
         // Get the possible offsets using the "tas" command
         // TODO: add tasj command to radare2 and then use it here
-        QString ret = Core()->cmd("tas " + memDisp.toString());
-        for (QString val: ret.split("\n")) {
+        QStringList ret = Core()->cmdList("tas " + memDisp.toString());
+        for (const QString &val : ret) {
             if (val.isEmpty()) {
                 continue;
             }
@@ -451,16 +451,16 @@ QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
-    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_TEXT);
-    e->setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
+    EditInstructionDialog e(EDIT_TEXT, this);
+    e.setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
 
     QString oldInstructionOpcode = Core()->getInstructionOpcode(offset);
     QString oldInstructionBytes = Core()->getInstructionBytes(offset);
 
-    e->setInstruction(oldInstructionOpcode);
+    e.setInstruction(oldInstructionOpcode);
 
-    if (e->exec()) {
-        QString userInstructionOpcode = e->getInstruction();
+    if (e.exec()) {
+        QString userInstructionOpcode = e.getInstruction();
         if (userInstructionOpcode != oldInstructionOpcode) {
             Core()->editInstruction(offset, userInstructionOpcode);
 
@@ -522,14 +522,14 @@ void DisassemblyContextMenu::on_actionJmpReverse_triggered()
 
 void DisassemblyContextMenu::on_actionEditBytes_triggered()
 {
-    EditInstructionDialog *e = new EditInstructionDialog(this, EDIT_BYTES);
-    e->setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
+    EditInstructionDialog e(EDIT_BYTES, this);
+    e.setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
 
     QString oldBytes = Core()->getInstructionBytes(offset);
-    e->setInstruction(oldBytes);
+    e.setInstruction(oldBytes);
 
-    if (e->exec()) {
-        QString bytes = e->getInstruction();
+    if (e.exec()) {
+        QString bytes = e.getInstruction();
         if (bytes != oldBytes) {
             Core()->editBytes(offset, bytes);
 
@@ -596,17 +596,17 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
     QString oldComment = Core()->cmd("CC." + RAddressString(offset));
     // Remove newline at the end added by cmd
     oldComment.remove(oldComment.length() - 1, 1);
-    CommentsDialog *c = new CommentsDialog(this);
+    CommentsDialog c(this);
 
     if (oldComment.isNull() || oldComment.isEmpty()) {
-        c->setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
+        c.setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
     } else {
-        c->setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
+        c.setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
     }
 
-    c->setComment(oldComment);
-    if (c->exec()) {
-        QString comment = c->getComment();
+    c.setComment(oldComment);
+    if (c.exec()) {
+        QString comment = c.getComment();
         if (comment.isEmpty()) {
             Core()->delComment(offset);
         } else {
@@ -617,43 +617,43 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
-    RenameDialog *dialog = new RenameDialog(this);
-    dialog->setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
-    dialog->setPlaceholderText(tr("Function name"));
-    if (dialog->exec()) {
-        QString function_name = dialog->getName();
+    RenameDialog dialog(this);
+    dialog.setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
+    dialog.setPlaceholderText(tr("Function name"));
+    if (dialog.exec()) {
+        QString function_name = dialog.getName();
         Core()->createFunctionAt(offset, function_name);
     }
 }
 
 void DisassemblyContextMenu::on_actionAddFlag_triggered()
 {
-    FlagDialog *dialog = new FlagDialog(offset, this->parentWidget());
-    dialog->exec();
+    FlagDialog dialog(offset, this->parentWidget());
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionRename_triggered()
 {
     RCore *core = Core()->core();
 
-    RenameDialog *dialog = new RenameDialog(this);
+    RenameDialog dialog(this);
 
     RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
     RFlagItem *f = r_flag_get_i (core->flags, offset);
     if (fcn) {
         /* Rename function */
-        dialog->setWindowTitle(tr("Rename function %1").arg(fcn->name));
-        dialog->setName(fcn->name);
-        if (dialog->exec()) {
-            QString new_name = dialog->getName();
+        dialog.setWindowTitle(tr("Rename function %1").arg(fcn->name));
+        dialog.setName(fcn->name);
+        if (dialog.exec()) {
+            QString new_name = dialog.getName();
             Core()->renameFunction(fcn->name, new_name);
         }
     } else if (f) {
         /* Rename current flag */
-        dialog->setWindowTitle(tr("Rename flag %1").arg(f->name));
-        dialog->setName(f->name);
-        if (dialog->exec()) {
-            QString new_name = dialog->getName();
+        dialog.setWindowTitle(tr("Rename flag %1").arg(f->name));
+        dialog.setName(f->name);
+        if (dialog.exec()) {
+            QString new_name = dialog.getName();
             Core()->renameFlag(f->name, new_name);
         }
     } else {
@@ -671,22 +671,22 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
     QJsonObject thingUsedHere = array.first().toObject();
     QString type = thingUsedHere.value("type").toString();
 
-    RenameDialog *dialog = new RenameDialog(this);
+    RenameDialog dialog(this);
 
     QString oldName;
 
     if (type == "address") {
         RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
-        dialog->setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
-        dialog->setName("label." + QString::number(offset, 16));
+        dialog.setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
+        dialog.setName("label." + QString::number(offset, 16));
     } else {
         oldName = thingUsedHere.value("name").toString();
-        dialog->setWindowTitle(tr("Rename %1").arg(oldName));
-        dialog->setName(oldName);
+        dialog.setWindowTitle(tr("Rename %1").arg(oldName));
+        dialog.setName(oldName);
     }
 
-    if (dialog->exec()) {
-        QString newName = dialog->getName().trimmed();
+    if (dialog.exec()) {
+        QString newName = dialog.getName().trimmed();
         if (!newName.isEmpty()) {
             Core()->cmd("an " + newName + " @ " + QString::number(offset));
 
@@ -716,16 +716,16 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
 
 void DisassemblyContextMenu::on_actionXRefs_triggered()
 {
-    XrefsDialog *dialog = new XrefsDialog(this);
-    dialog->fillRefsForAddress(offset, RAddressString(offset), false);
-    dialog->exec();
+    XrefsDialog dialog(this);
+    dialog.fillRefsForAddress(offset, RAddressString(offset), false);
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
 {
-    auto *dialog = new PreferencesDialog(this->window());
-    dialog->showSection(PreferencesDialog::Section::Disassembly);
-    dialog->show();
+    PreferencesDialog dialog(this->window());
+    dialog.showSection(PreferencesDialog::Section::Disassembly);
+    dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionSetToCode_triggered()
@@ -755,11 +755,11 @@ void DisassemblyContextMenu::on_actionSetToData_triggered()
 
 void DisassemblyContextMenu::on_actionSetToDataEx_triggered()
 {
-    auto dialog = new SetToDataDialog(offset, this->window());
-    if (!dialog->exec()) {
+    SetToDataDialog dialog(offset, this->window());
+    if (!dialog.exec()) {
         return;
     }
-    setToData(dialog->getItemSize(), dialog->getItemCount());
+    setToData(dialog.getItemSize(), dialog.getItemCount());
 }
 
 void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *action)
@@ -792,39 +792,39 @@ void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
     RCore *core = Core()->core();
-    EditFunctionDialog *dialog = new EditFunctionDialog(this);
+    EditFunctionDialog dialog(this);
     RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, offset, 0);
 
     if (fcn) {
-        dialog->setWindowTitle(tr("Edit function %1").arg(fcn->name));
-        dialog->setNameText(fcn->name);
+        dialog.setWindowTitle(tr("Edit function %1").arg(fcn->name));
+        dialog.setNameText(fcn->name);
 
         QString startAddrText = "0x" + QString::number(fcn->addr, 16);
-        dialog->setStartAddrText(startAddrText);
+        dialog.setStartAddrText(startAddrText);
 
         QString endAddrText = "0x" + QString::number(fcn->addr + fcn->_size, 16);
-        dialog->setEndAddrText(endAddrText);
+        dialog.setEndAddrText(endAddrText);
 
         QString stackSizeText;
         stackSizeText.sprintf("%d", fcn->stack);
-        dialog->setStackSizeText(stackSizeText);
+        dialog.setStackSizeText(stackSizeText);
 
         QStringList callConList = Core()->cmd("afcl").split("\n");
         callConList.removeLast();
-        dialog->setCallConList(callConList);
-        dialog->setCallConSelected(fcn->cc);
+        dialog.setCallConList(callConList);
+        dialog.setCallConSelected(fcn->cc);
 
 
-        if (dialog->exec()) {
-            QString new_name = dialog->getNameText();
+        if (dialog.exec()) {
+            QString new_name = dialog.getNameText();
             Core()->renameFunction(fcn->name, new_name);
-            QString new_start_addr = dialog->getStartAddrText();
+            QString new_start_addr = dialog.getStartAddrText();
             fcn->addr = Core()->math(new_start_addr);
-            QString new_end_addr = dialog->getEndAddrText();
+            QString new_end_addr = dialog.getEndAddrText();
             Core()->cmd("afu " + new_end_addr);
-            QString new_stack_size = dialog->getStackSizeText();
+            QString new_stack_size = dialog.getStackSizeText();
             fcn->stack = int(Core()->math(new_stack_size));
-            Core()->cmd("afc " + dialog->getCallConSelected());
+            Core()->cmd("afc " + dialog.getCallConSelected());
             emit Core()->functionsChanged();
         }
     }

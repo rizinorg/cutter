@@ -181,8 +181,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     case Qt::DecorationRole:
         if (importAddresses->contains(function.offset) &&
-                (nested ? false : index.column() == ImportColumn))
-            return QIcon(":/img/icons/import_light.svg");
+                (nested ? false : index.column() == ImportColumn)) {
+            const static QIcon importIcon(":/img/icons/import_light.svg");
+            return importIcon;
+        }
         return QVariant();
 
     case Qt::FontRole:
@@ -225,7 +227,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             }
         }
 
-        const QStringList &summary = Core()->cmd(QString("pdsf @ %1").arg(function.offset)).split("\n", QString::SkipEmptyParts);
+        const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
 
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
@@ -252,7 +254,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
         if (!highlights.isEmpty()) {
             toolTipContent += tr("<div><strong>Highlights</strong>:<br>%1</div>")
-                .arg(highlights.join("\n").toHtmlEscaped().replace("\n", "<br>"));
+                .arg(highlights.join(QLatin1Char('\n')).toHtmlEscaped().replace(QLatin1Char('\n'), "<br>"));
         }
         toolTipContent += "</div></html>";
         return toolTipContent;
@@ -604,11 +606,11 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
-    CommentsDialog *c = new CommentsDialog(this);
+    CommentsDialog c(this);
 
-    if (c->exec()) {
+    if (c.exec()) {
         // Get new function name
-        QString comment = c->getComment();
+        QString comment = c.getComment();
         // Rename function in r2 core
         Core()->setComment(function.offset, comment);
         // Seek to new renamed function
@@ -624,14 +626,14 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
-    RenameDialog *r = new RenameDialog(this);
+    RenameDialog r(this);
 
     // Set function name in dialog
-    r->setName(function.name);
+    r.setName(function.name);
     // If user accepted
-    if (r->exec()) {
+    if (r.exec()) {
         // Get new function name
-        QString new_name = r->getName();
+        QString new_name = r.getName();
 
         // Rename function in r2 core
         Core()->renameFunction(function.name, new_name);
@@ -653,9 +655,9 @@ void FunctionsWidget::on_action_References_triggered()
     // Get selected item in functions tree view
     FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    XrefsDialog *x = new XrefsDialog(this);
-    x->fillRefsForAddress(function.offset, function.name, true);
-    x->exec();
+    XrefsDialog x(this);
+    x.fillRefsForAddress(function.offset, function.name, true);
+    x.exec();
 }
 
 void FunctionsWidget::showTitleContextMenu(const QPoint &pt)

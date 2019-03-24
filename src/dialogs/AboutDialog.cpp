@@ -92,7 +92,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     connect(&updateWorker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
     connect(&updateWorker, &UpdateWorker::checkComplete,
     [&updateWorker](const QVersionNumber &version, const QString & error) {
-        if (error != "") {
+        if (!error.isEmpty()) {
             QMessageBox::critical(nullptr, tr("Error!"), error);
         } else {
             if (version <= UpdateWorker::currentVersionNumber()) {

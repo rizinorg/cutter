@@ -44,8 +44,8 @@ void OverviewView::refreshView()
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x - offset_x;
-    int blockY = block.y - offset_y;
+    int blockX = block.x - offset.x();
+    int blockY = block.y - offset.y();
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);

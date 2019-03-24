@@ -226,7 +226,7 @@ QString CutterCore::sdbGet(QString path, QString key)
         if (val && *val)
             return val;
     }
-    return QString("");
+    return QString();
 }
 
 bool CutterCore::sdbSet(QString path, QString key, QString val)
@@ -859,7 +859,7 @@ QString CutterCore::getDecompiledCodePDC(RVA addr)
 
 bool CutterCore::getR2DecAvailable()
 {
-    return cmd("e cmd.pdc=?").split('\n').contains(QStringLiteral("r2dec"));
+    return cmdList("e cmd.pdc=?").contains(QStringLiteral("r2dec"));
 }
 
 QString CutterCore::getDecompiledCodeR2Dec(RVA addr)
@@ -1332,13 +1332,8 @@ bool CutterCore::isGraphEmpty()
 
 void CutterCore::getOpcodes()
 {
-    QString opcodes = cmd("?O");
-    this->opcodes = opcodes.split("\n");
-    // Remove the last empty element
-    this->opcodes.removeLast();
-    QString registers = cmd("drp~[1]");
-    this->regs = registers.split("\n");
-    this->regs.removeLast();
+    this->opcodes = cmdList("?O");
+    this->regs = cmdList("drp~[1]");
 }
 
 void CutterCore::setSettings()
@@ -1587,7 +1582,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
             symbol.name = QString("entry") + QString::number(n++);
-            symbol.bind = "";
+            symbol.bind.clear();
             symbol.type = "entry";
             ret << symbol;
         }
@@ -2333,7 +2328,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
 
             SearchDescription exp;
 
-            exp.code = QString("");
+            exp.code.clear();
             for (const QJsonValue &value2 : searchObject[RJsonKey::opcodes].toArray()) {
                 QJsonObject gadget = value2.toObject();
                 exp.code += gadget[RJsonKey::opcode].toString() + ";  ";
@@ -2649,7 +2644,7 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
         return QString();
     }
     QString r = QString::fromUtf8(html, len);
-    free(html);
+    r_free(html);
     return r;
 }
 
