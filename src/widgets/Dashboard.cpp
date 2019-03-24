@@ -46,7 +46,7 @@ void Dashboard::updateContents()
     setPlainText(this->ui->fdEdit, QString::number(item["fd"].toDouble()));
 
     setPlainText(this->ui->archEdit, item2["arch"].toString());
-    setPlainText(this->ui->langEdit, item2["lang"].toString());
+    setPlainText(this->ui->langEdit, item2["lang"].toString().toUpper());
     setPlainText(this->ui->classEdit, item2["class"].toString());
     setPlainText(this->ui->machineEdit, item2["machine"].toString());
     setPlainText(this->ui->osEdit, item2["os"].toString());
