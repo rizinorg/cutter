@@ -27,6 +27,7 @@ private slots:
 private:
     std::unique_ptr<Ui::Dashboard>   ui;
     void setPlainText(QLineEdit *textBox, const QString &text);
+    void setBool(QLineEdit *textBox, const bool &isTrue);
 };
 
 #endif // DASHBOARD_H

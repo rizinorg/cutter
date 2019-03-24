@@ -64,46 +64,15 @@ void Dashboard::updateContents()
 
     setPlainText(this->ui->baddrEdit, RAddressString(item2["baddr"].toVariant().toULongLong()));
 
-    if (item2["va"].toBool() == true) {
-        setPlainText(this->ui->vaEdit, "True");
-    } else {
-        setPlainText(this->ui->vaEdit, "False");
-    }
-    if (item2["canary"].toBool() == true) {
-        setPlainText(this->ui->canaryEdit, "True");
-    } else {
-        setPlainText(this->ui->canaryEdit, "False");
-    }
-    if (item2["crypto"].toBool() == true) {
-        setPlainText(this->ui->cryptoEdit, "True");
-    } else {
-        setPlainText(this->ui->cryptoEdit, "False");
-    }
-    if (item2["nx"].toBool() == true) {
-        setPlainText(this->ui->nxEdit, "True");
-    } else {
-        setPlainText(this->ui->nxEdit, "False");
-    }
-    if (item2["pic"].toBool() == true) {
-        setPlainText(this->ui->picEdit, "True");
-    } else {
-        setPlainText(this->ui->picEdit, "False");
-    }
-    if (item2["static"].toBool() == true) {
-        setPlainText(this->ui->staticEdit, "True");
-    } else {
-        setPlainText(this->ui->staticEdit, "False");
-    }
-    if (item2["stripped"].toBool() == true) {
-        setPlainText(this->ui->strippedEdit, "True");
-    } else {
-        setPlainText(this->ui->strippedEdit, "False");
-    }
-    if (item2["relocs"].toBool() == true) {
-        setPlainText(this->ui->relocsEdit, "True");
-    } else {
-        setPlainText(this->ui->relocsEdit, "False");
-    }
+    // set booleans
+    setBool(this->ui->vaEdit, item2["va"].toBool());
+    setBool(this->ui->canaryEdit, item2["canary"].toBool());
+    setBool(this->ui->cryptoEdit, item2["crypto"].toBool());
+    setBool(this->ui->nxEdit, item2["nx"].toBool());
+    setBool(this->ui->picEdit, item2["pic"].toBool());
+    setBool(this->ui->staticEdit, item2["static"].toBool());
+    setBool(this->ui->strippedEdit, item2["stripped"].toBool());
+    setBool(this->ui->relocsEdit, item2["relocs"].toBool());
 
     // Add file hashes and libraries
     QJsonObject hashes = Core()->cmdj("itj").object();
@@ -225,4 +194,18 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
     }
 
     textBox->setCursorPosition(0);
+}
+
+/**
+ * @brief Set the text of a QLineEdit as True or False
+ * @param textBox
+ * @param isTrue
+ */
+void Dashboard::setBool(QLineEdit *textBox, const bool &isTrue)
+{
+    if (isTrue) {
+        setPlainText(textBox, "True");
+    } else {
+        setPlainText(textBox, "False");
+    }
 }
