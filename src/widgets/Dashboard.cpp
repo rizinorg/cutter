@@ -190,7 +190,7 @@ void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
     if (!text.isEmpty()) {
         textBox->setText(text);
     } else {
-        textBox->setText("N/A");
+        textBox->setText(tr("N/A"));
     }
 
     textBox->setCursorPosition(0);
@@ -205,11 +205,11 @@ void Dashboard::setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const
 {
     if (jsonObject.contains(key)) {
         if (jsonObject[key].toBool()) {
-            setPlainText(textBox, "True");
+            setPlainText(textBox, tr("True"));
         } else {
-            setPlainText(textBox, "False");
+            setPlainText(textBox, tr("False"));
         }
     } else {
-        setPlainText(textBox, "N/A");
+        setPlainText(textBox, tr("N/A"));
     }
 }
