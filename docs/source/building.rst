@@ -40,9 +40,16 @@ For this simply run one of the scripts (according to your OS) from root Cutter d
     
 .. code:: sh
 
-   scripts/prepare_breakpad_linux.sh # Linux
-   scripts/prepare_breakpad_macos.sh # MacOS
+   source scripts/prepare_breakpad_linux.sh # Linux
+   source scripts/prepare_breakpad_macos.sh # MacOS
    scripts/prepare_breakpad.bat # Windows
+   
+Then if you are building on Linux you want to change ``PKG_CONFIG_PATH`` environment variable
+so it contains ``$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig``. For this simply run
+
+.. code:: sh
+
+   export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 
 --------------
