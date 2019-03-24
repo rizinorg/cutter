@@ -53,6 +53,7 @@ void Dashboard::updateContents()
     this->ui->subsysEdit->setText(item2["subsys"].toString());
     this->ui->endianEdit->setText(item2["endian"].toString());
     this->ui->compiledEdit->setText(item2["compiled"].toString());
+    this->ui->compilerEdit->setText(item2["compiler"].toString());
     this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
 
     if (!item2["relro"].isUndefined()) {
