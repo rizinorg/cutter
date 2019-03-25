@@ -13,16 +13,6 @@ if get_option('enable_python')
     message('Python Bindings are enabled')
     feature_define_args += ['-DCUTTER_ENABLE_PYTHON_BINDINGS']
   endif
-
-  if get_option('enable_jupyter')
-    message('Jupyter support enabled')
-    feature_define_args += ['-DCUTTER_ENABLE_JUPYTER']
-    if get_option('enable_webengine')
-      message('QtWebEngine support enabled')
-      feature_define_args += ['-DCUTTER_ENABLE_QTWEBENGINE']
-      qt_modules += 'WebEngineWidgets'
-    endif
-  endif
 endif
 
 add_project_arguments(feature_define_args, language: 'cpp')

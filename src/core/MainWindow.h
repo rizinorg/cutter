@@ -43,9 +43,6 @@ class TypesWidget;
 class HeadersWidget;
 class ZignaturesWidget;
 class SearchWidget;
-#ifdef CUTTER_ENABLE_JUPYTER
-class JupyterWidget;
-#endif
 class QDockWidget;
 class DisassemblyWidget;
 class GraphWidget;
@@ -251,9 +248,6 @@ private:
     NewFileDialog      *newFileDialog = nullptr;
     QDockWidget        *breakpointDock = nullptr;
     QDockWidget        *registerRefsDock = nullptr;
-#ifdef CUTTER_ENABLE_JUPYTER
-    JupyterWidget      *jupyterDock = nullptr;
-#endif
 
     void initToolBar();
     void initDocks();

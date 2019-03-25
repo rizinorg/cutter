@@ -68,7 +68,6 @@ addons:
 install:
   - scripts/fetch_deps.sh
   - source cutter-deps/env.sh
-  - python3 -m pip install -r scripts/pip_requirements.txt
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
 
@@ -90,8 +89,6 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
-                CUTTER_ENABLE_JUPYTER=true
-                CUTTER_ENABLE_QTWEBENGINE=false
                 PREFIX=/usr
                 APPIMAGE=1
                 ../src &&
@@ -104,8 +101,6 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_JUPYTER=ON
-                -DCUTTER_ENABLE_QTWEBENGINE=OFF
                 ../src &&
             make -j4;
        fi
@@ -114,8 +109,6 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
-                CUTTER_ENABLE_JUPYTER=true
-                CUTTER_ENABLE_QTWEBENGINE=false
                 CUTTER_BUNDLE_R2_APPBUNDLE=true
                 PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
                 ../src &&
@@ -128,8 +121,6 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_JUPYTER=ON
-                -DCUTTER_ENABLE_QTWEBENGINE=OFF
                 ../src &&
             make -j4;
        fi

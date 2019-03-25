@@ -74,9 +74,6 @@ void PythonManager::initialize()
     initPythonHome();
 
     PyImport_AppendInittab("_cutter", &PyInit_api);
-#ifdef CUTTER_ENABLE_JUPYTER
-    PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
-#endif
     PyImport_AppendInittab("_qtres", &PyInit_qtres);
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);

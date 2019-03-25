@@ -1,8 +1,5 @@
 #include "common/PythonManager.h"
 #include "CutterApplication.h"
-#ifdef CUTTER_ENABLE_JUPYTER
-#include "common/JupyterConnection.h"
-#endif
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
 
