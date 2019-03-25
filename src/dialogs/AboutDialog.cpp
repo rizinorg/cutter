@@ -30,15 +30,15 @@ AboutDialog::AboutDialog(QWidget *parent) :
                         + tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
                         + tr("Using r2-") + R2_GITTAP
                         + "<p><b>" + tr("Optional Features:") + "</b><br/>"
-                        + QString("Jupyter: %1<br/>").arg(
-#ifdef CUTTER_ENABLE_JUPYTER
+                        + QString("Python: %1<br/>").arg(
+#ifdef CUTTER_ENABLE_PYTHON
                             "ON"
 #else
                             "OFF"
 #endif
                         )
-                        + QString("QtWebEngine: %2</p>").arg(
-#ifdef CUTTER_ENABLE_QTWEBENGINE
+                        + QString("Python Bindings: %2</p>").arg(
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
                             "ON"
 #else
                             "OFF"

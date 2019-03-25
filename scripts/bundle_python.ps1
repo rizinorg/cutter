@@ -12,5 +12,4 @@ Copy-Item .\python_embed\${py_base}.zip -Destination $dist\$py_base
 Copy-Item .\python_embed\*.pyd -Destination $dist\$py_base
 Copy-Item .\python_embed\sqlite3.dll -Destination $dist\$py_base
 Copy-Item .\python_embed\python*.dll -Destination $dist
-& python -m pip install -I --no-compile -t "${dist}\${py_base}\site-packages" jupyter ipykernel==4.8.2 jsonschema==2.6.0 pyzmq==17.1.2 notebook==5.6.0 tornado==5.1.1
 [System.IO.File]::WriteAllLines("${dist}\${py_base}._pth", "${py_base}`r`n${py_base}\${py_base}.zip`r`n${py_base}\site-packages")

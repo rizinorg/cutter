@@ -43,16 +43,6 @@ equals(CUTTER_ENABLE_PYTHON, true) {
     }
 }
 
-!defined(CUTTER_ENABLE_JUPYTER, var)            CUTTER_ENABLE_JUPYTER=false
-equals(CUTTER_ENABLE_PYTHON, true) {
-    equals(CUTTER_ENABLE_JUPYTER, true)         CONFIG += CUTTER_ENABLE_JUPYTER
-}
-
-!defined(CUTTER_ENABLE_QTWEBENGINE, var)        CUTTER_ENABLE_QTWEBENGINE=false
-equals(CUTTER_ENABLE_JUPYTER, true) {
-    equals(CUTTER_ENABLE_QTWEBENGINE, true)     CONFIG += CUTTER_ENABLE_QTWEBENGINE
-}
-
 !defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)       CUTTER_BUNDLE_R2_APPBUNDLE=false
 equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)        CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
 
@@ -73,21 +63,6 @@ CUTTER_ENABLE_PYTHON_BINDINGS {
     DEFINES += CUTTER_ENABLE_PYTHON_BINDINGS
 } else {
     message("Python Bindings disabled. (requires CUTTER_ENABLE_PYTHON=true)")
-}
-
-CUTTER_ENABLE_JUPYTER {
-    message("Jupyter support enabled.")
-    DEFINES += CUTTER_ENABLE_JUPYTER
-} else {
-    message("Jupyter support disabled. (requires CUTTER_ENABLE_PYTHON=true)")
-}
-
-CUTTER_ENABLE_QTWEBENGINE {
-    message("QtWebEngine support enabled.")
-    DEFINES += CUTTER_ENABLE_QTWEBENGINE
-    QT += webenginewidgets
-} else {
-    message("QtWebEngine support disabled. (requires CUTTER_ENABLE_JUPYTER=true)")
 }
 
 INCLUDEPATH *= . core widgets dialogs common plugins
@@ -290,10 +265,7 @@ SOURCES += \
     widgets/HeadersWidget.cpp \
     widgets/SearchWidget.cpp \
     CutterApplication.cpp \
-    common/JupyterConnection.cpp \
-    widgets/JupyterWidget.cpp \
     common/PythonAPI.cpp \
-    common/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
     widgets/CutterTreeWidget.cpp \
@@ -404,10 +376,7 @@ HEADERS  += \
     widgets/TypesWidget.h \
     widgets/HeadersWidget.h \
     widgets/SearchWidget.h \
-    common/JupyterConnection.h \
-    widgets/JupyterWidget.h \
     common/PythonAPI.h \
-    common/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
     widgets/CutterTreeWidget.h \
@@ -496,7 +465,6 @@ FORMS    += \
     widgets/TypesWidget.ui \
     widgets/HeadersWidget.ui \
     widgets/SearchWidget.ui \
-    widgets/JupyterWidget.ui \
     dialogs/R2PluginsDialog.ui \
     dialogs/VersionInfoDialog.ui \
     widgets/ZignaturesWidget.ui \

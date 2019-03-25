@@ -34,6 +34,8 @@ int main(int argc, char *argv[])
         settings.setValue("settings_migrated", true);
     }
 
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts); // needed for QtWebEngine inside Plugins
+
     CutterApplication a(argc, argv);
 
     if (Config()->getAutoUpdateEnabled()) {

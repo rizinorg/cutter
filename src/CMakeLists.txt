@@ -10,8 +10,6 @@ set(CUTTER_PYTHON_MIN 3.5)
 
 option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." OFF)
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
-option(CUTTER_ENABLE_JUPYTER "Enable Jupyter integration. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
-option(CUTTER_ENABLE_QTWEBENGINE "Use QtWebEngine for in-app Jupyter Browser. Unused if CUTTER_ENABLE_JUPYTER=OFF." OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -45,14 +43,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg Network)
-if(CUTTER_ENABLE_JUPYTER AND CUTTER_ENABLE_QTWEBENGINE)
-    find_package(Qt5 COMPONENTS WebEngineWidgets)
-    if(NOT Qt5_FOUND)
-        message(FATAL_ERROR "QtWebEngine could not be found which is required for the in-app Jupyter Browser.
-If you do not want to enable this in-app Browser, re-run CMake with -DCUTTER_ENABLE_QTWEBENGINE=OFF.")
-    endif()
-    add_definitions(-DCUTTER_ENABLE_QTWEBENGINE)
-endif()
 
 
 if(WIN32)
@@ -80,10 +70,6 @@ if(CUTTER_ENABLE_PYTHON)
     include_directories(${PYTHON_INCLUDE_DIRS})
     add_definitions(-DCUTTER_ENABLE_PYTHON)
 
-    if(CUTTER_ENABLE_JUPYTER)
-        add_definitions(-DCUTTER_ENABLE_JUPYTER)
-    endif()
-
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
         find_package(PythonInterp REQUIRED)
         find_package(Shiboken2 "${Qt5_VERSION}" REQUIRED)
@@ -107,8 +93,6 @@ message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
 message(STATUS "Options:")
 message(STATUS "- Python: ${CUTTER_ENABLE_PYTHON}")
 message(STATUS "- Python Bindings: ${CUTTER_ENABLE_PYTHON_BINDINGS}")
-message(STATUS "- Jupyter: ${CUTTER_ENABLE_JUPYTER}")
-message(STATUS "- QtWebEngine: ${CUTTER_ENABLE_QTWEBENGINE}")
 message(STATUS "")
 
 
@@ -172,7 +156,4 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
 endif()
 
-if(CUTTER_ENABLE_PYTHON AND CUTTER_ENABLE_JUPYTER AND CUTTER_ENABLE_QTWEBENGINE)
-    target_link_libraries(Cutter Qt5::WebEngineWidgets)
-endif()
 

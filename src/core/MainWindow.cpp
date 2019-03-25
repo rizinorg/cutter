@@ -52,7 +52,6 @@
 #include "widgets/ClassesWidget.h"
 #include "widgets/ResourcesWidget.h"
 #include "widgets/VTablesWidget.h"
-#include "widgets/JupyterWidget.h"
 #include "widgets/HeadersWidget.h"
 #include "widgets/ZignaturesWidget.h"
 #include "widgets/DebugActions.h"
@@ -268,12 +267,6 @@ void MainWindow::initDocks()
     memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
     breakpointDock = new BreakpointWidget(this, ui->actionBreakpoint);
     registerRefsDock = new RegisterRefsWidget(this, ui->actionRegisterRefs);
-#ifdef CUTTER_ENABLE_JUPYTER
-    jupyterDock = new JupyterWidget(this, ui->actionJupyter);
-#else
-    ui->actionJupyter->setEnabled(false);
-    ui->actionJupyter->setVisible(false);
-#endif
     dashboardDock = new Dashboard(this, ui->actionDashboard);
     sdbDock = new SdbWidget(this, ui->actionSDBBrowser);
     classesDock = new ClassesWidget(this, ui->actionClasses);
@@ -790,9 +783,6 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, memoryMapDock);
     tabifyDockWidget(dashboardDock, breakpointDock);
     tabifyDockWidget(dashboardDock, registerRefsDock);
-#ifdef CUTTER_ENABLE_JUPYTER
-    tabifyDockWidget(dashboardDock, jupyterDock);
-#endif
 
     updateDockActionsChecked();
 }
@@ -827,9 +817,6 @@ void MainWindow::showZenDocks()
                                             hexdumpDock,
                                             searchDock,
                                             importsDock,
-#ifdef CUTTER_ENABLE_JUPYTER
-                                            jupyterDock
-#endif
                                           };
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w)) {
