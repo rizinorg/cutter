@@ -161,6 +161,10 @@ void MainWindow::initUI()
     for (auto plugin : Plugins()->getPlugins()) {
         plugin->setupInterface(this);
     }
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+    setDockOptions(dockOptions() | DockOption::GroupedDragging);
+#endif
 }
 
 void MainWindow::initToolBar()
