@@ -64,6 +64,13 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
 
     // Adjust columns to content
     qhelpers::adjustColumns(ui->toTreeWidget, 0);
+
+    // try to select first item from refs or xrefs
+    if (!qhelpers::selectFirstItem(ui->toTreeWidget))
+    {
+        qhelpers::selectFirstItem(ui->fromTreeWidget);
+    }
+
 }
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
