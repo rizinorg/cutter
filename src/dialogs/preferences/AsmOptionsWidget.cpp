@@ -94,7 +94,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->asmTabsOffSpinBox->setValue(Config()->getConfigInt("asm.tabs.off"));
     ui->asmTabsOffSpinBox->blockSignals(false);
 
-    qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, Config()->getConfigBool("asm.bbline"));
+    qhelpers::setCheckedWithoutSignals(ui->bblineCheckBox, Config()->getConfigBool("asm.bb.line"));
 
     bool varsubEnabled = Config()->getConfigBool("asm.var.sub");
     qhelpers::setCheckedWithoutSignals(ui->varsubCheckBox, varsubEnabled);
@@ -295,7 +295,7 @@ void AsmOptionsWidget::on_asmTabsOffSpinBox_valueChanged(int value)
 
 void AsmOptionsWidget::on_bblineCheckBox_toggled(bool checked)
 {
-    Config()->setConfig("asm.bbline", checked);
+    Config()->setConfig("asm.bb.line", checked);
     triggerAsmOptionsChanged();
 }
 
