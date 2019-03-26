@@ -44,8 +44,8 @@ void OverviewView::refreshView()
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x - offset_x;
-    int blockY = block.y - offset_y;
+    int blockX = block.x - offset.x();
+    int blockY = block.y - offset.y();
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -53,19 +53,19 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setBrush(QColor(0, 0, 0, 100));
     p.drawRect(blockX + 2, blockY + 2,
                block.width, block.height);
-    p.setPen(QPen(graphNodeColor, 1));
-    p.setBrush(disassemblyBackgroundColor);
-    p.drawRect(blockX, blockY,
-               block.width, block.height);
+
     // Draw basic block highlighting/tracing
     auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
     if (bb) {
         QColor color(bb->color);
         color.setAlphaF(0.5);
         p.setBrush(color);
-        p.drawRect(block.x, block.y,
-                   block.width, block.height);
+    } else {
+        p.setBrush(disassemblyBackgroundColor);
     }
+    p.setPen(QPen(graphNodeColor, 1));
+    p.drawRect(blockX, blockY,
+               block.width, block.height);
 }
 
 void OverviewView::paintEvent(QPaintEvent *event)

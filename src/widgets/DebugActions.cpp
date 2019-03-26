@@ -117,7 +117,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
     connect(actionStart, &QAction::triggered, [ = ]() {
         // check if file is executable before starting debug
-        QString filename = Core()->getConfig("file.path").split(" ").first();
+        QString filename = Core()->getConfig("file.path").section(QLatin1Char(' '), 0, 0);
         QFileInfo info(filename);
         if (!Core()->currentlyDebugging && !info.isExecutable()) {
             QMessageBox msgBox;
@@ -161,12 +161,12 @@ void DebugActions::continueUntilMain()
 
 void DebugActions::attachProcessDialog()
 {
-    AttachProcDialog *dialog = new AttachProcDialog(main);
+    AttachProcDialog dialog(main);
     bool success = false;
     while (!success) {
         success = true;
-        if (dialog->exec()) {
-            int pid = dialog->getPID();
+        if (dialog.exec()) {
+            int pid = dialog.getPID();
             if (pid >= 0) {
                 attachProcess(pid);
             } else {
@@ -177,7 +177,6 @@ void DebugActions::attachProcessDialog()
             }
         }
     }
-    delete dialog;
 }
 
 void DebugActions::attachProcess(int pid)

@@ -15,7 +15,8 @@ If the linux AppImage binary crashes upon startup, make sure your
 Compilation error
 -----------------
 
-   r_core development package not found
+r_core development package not found
+~~~~~~~~~~~~~~~~~~
 
 If you installed radare2 and still encounter this error, could be your
 ``PATH`` environment variable is set improperly (doesn’t contain
@@ -38,7 +39,8 @@ can add variable ``PKG_CONFIG_PATH`` with value ``/usr/lib/pkgconfig/``
 
 --------------
 
-   OS X libjpeg error
+OS X libjpeg error
+~~~~~~~~~~~~~~~~~~
 
 On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib
 installed with brew. Run this command to workaround the issue:

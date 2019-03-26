@@ -101,21 +101,18 @@ class FunctionsWidget : public CutterDockWidget
 public:
     explicit FunctionsWidget(MainWindow *main, QAction *action = nullptr);
     ~FunctionsWidget();
+    void changeSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver);
 
 private slots:
     void onFunctionsDoubleClicked(const QModelIndex &index);
     void showFunctionsContextMenu(const QPoint &pt);
-
     void on_actionDisasAdd_comment_triggered();
     void on_actionFunctionsRename_triggered();
     void on_action_References_triggered();
     void on_actionFunctionsUndefine_triggered();
-
     void on_actionHorizontal_triggered();
     void on_actionVertical_triggered();
-
     void showTitleContextMenu(const QPoint &pt);
-
     void refreshTree();
 
 protected:
@@ -124,18 +121,13 @@ protected:
 private:
     std::unique_ptr<Ui::FunctionsWidget> ui;
     MainWindow *main;
-
     QSharedPointer<FunctionsTask> task;
-
     QList<FunctionDescription> functions;
     QSet<RVA> importAddresses;
     ut64 mainAdress;
-
     FunctionModel *functionModel;
     FunctionSortFilterProxyModel *functionProxyModel;
-
     CutterTreeWidget *tree;
-
     void setScrollMode();
 };
 

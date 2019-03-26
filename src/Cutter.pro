@@ -3,8 +3,8 @@ TEMPLATE = app
 TARGET = Cutter
 
 CUTTER_VERSION_MAJOR = 1
-CUTTER_VERSION_MINOR = 7
-CUTTER_VERSION_PATCH = 4
+CUTTER_VERSION_MINOR = 8
+CUTTER_VERSION_PATCH = 0
 
 VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PATCH}
 
@@ -43,16 +43,6 @@ equals(CUTTER_ENABLE_PYTHON, true) {
     }
 }
 
-!defined(CUTTER_ENABLE_JUPYTER, var)            CUTTER_ENABLE_JUPYTER=false
-equals(CUTTER_ENABLE_PYTHON, true) {
-    equals(CUTTER_ENABLE_JUPYTER, true)         CONFIG += CUTTER_ENABLE_JUPYTER
-}
-
-!defined(CUTTER_ENABLE_QTWEBENGINE, var)        CUTTER_ENABLE_QTWEBENGINE=false
-equals(CUTTER_ENABLE_JUPYTER, true) {
-    equals(CUTTER_ENABLE_QTWEBENGINE, true)     CONFIG += CUTTER_ENABLE_QTWEBENGINE
-}
-
 !defined(CUTTER_BUNDLE_R2_APPBUNDLE, var)       CUTTER_BUNDLE_R2_APPBUNDLE=false
 equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)        CONFIG += CUTTER_BUNDLE_R2_APPBUNDLE
 
@@ -75,28 +65,13 @@ CUTTER_ENABLE_PYTHON_BINDINGS {
     message("Python Bindings disabled. (requires CUTTER_ENABLE_PYTHON=true)")
 }
 
-CUTTER_ENABLE_JUPYTER {
-    message("Jupyter support enabled.")
-    DEFINES += CUTTER_ENABLE_JUPYTER
-} else {
-    message("Jupyter support disabled. (requires CUTTER_ENABLE_PYTHON=true)")
-}
-
-CUTTER_ENABLE_QTWEBENGINE {
-    message("QtWebEngine support enabled.")
-    DEFINES += CUTTER_ENABLE_QTWEBENGINE
-    QT += webenginewidgets
-} else {
-    message("QtWebEngine support disabled. (requires CUTTER_ENABLE_JUPYTER=true)")
-}
-
 INCLUDEPATH *= . core widgets dialogs common plugins
 
 win32 {
     # Generate debug symbols in release mode
     QMAKE_CXXFLAGS_RELEASE += -Zi   # Compiler
     QMAKE_LFLAGS_RELEASE += /DEBUG  # Linker
-	
+
     # Multithreaded compilation
     QMAKE_CXXFLAGS += -MP
 }
@@ -124,7 +99,8 @@ include(lib_radare2.pri)
 
 CUTTER_ENABLE_PYTHON {
     win32 {
-        PYTHON_EXECUTABLE = $$quote($$system("where python"))
+        PYTHON_EXECUTABLE = $$system("where python", lines)
+        PYTHON_EXECUTABLE = $$first(PYTHON_EXECUTABLE)
         pythonpath = $$replace(PYTHON_EXECUTABLE, ".exe ", ".exe;")
         pythonpath = $$section(pythonpath, ";", 0, 0)
         pythonpath = $$clean_path($$dirname(pythonpath))
@@ -147,10 +123,10 @@ CUTTER_ENABLE_PYTHON {
     }
 
     CUTTER_ENABLE_PYTHON_BINDINGS {
-        !packagesExist(shiboken2) {
+        isEmpty(SHIBOKEN_EXECUTABLE):!packagesExist(shiboken2) {
             error("ERROR: Shiboken2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
         }
-        !packagesExist(pyside2) {
+        isEmpty(PYSIDE_LIBRARY):!packagesExist(pyside2) {
             error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
         }
         win32 {
@@ -169,25 +145,50 @@ CUTTER_ENABLE_PYTHON {
         for(path, INCLUDEPATH) {
             BINDINGS_INCLUDE_DIRS += $$absolute_path("$$path")
         }
-        BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, ":")
-        PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
-        PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
+
+        win32 {
+            PATH_SEP = ";"
+        } else {
+            PATH_SEP = ":"
+        }
+        BINDINGS_INCLUDE_DIRS = $$join(BINDINGS_INCLUDE_DIRS, $$PATH_SEP)
+
+        isEmpty(SHIBOKEN_EXECUTABLE) {
+            SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
+        }
+
+        isEmpty(PYSIDE_TYPESYSTEMS) {
+            PYSIDE_TYPESYSTEMS = $$system("pkg-config --variable=typesystemdir pyside2")
+        }
+        isEmpty(PYSIDE_INCLUDEDIR) {
+            PYSIDE_INCLUDEDIR = $$system("pkg-config --variable=includedir pyside2")
+        }
+
         QMAKE_SUBSTITUTES += bindings/bindings.txt.in
-        SHIBOKEN_EXECUTABLE = $$system("pkg-config --variable=generator_location shiboken2")
+
+        SHIBOKEN_OPTIONS = --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
+        win32:SHIBOKEN_OPTIONS += --avoid-protected-hack
         bindings.target = bindings_target
-        bindings.commands = "$${SHIBOKEN_EXECUTABLE}" --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
+        bindings.commands = "$${SHIBOKEN_EXECUTABLE}" $${SHIBOKEN_OPTIONS}
         QMAKE_EXTRA_TARGETS += bindings
-        GENERATED_SOURCES += $${BINDINGS_SOURCE}
-        INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
         PRE_TARGETDEPS += bindings_target
-        macx {
+        GENERATED_SOURCES += $${BINDINGS_SOURCE}
+
+        INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
+
+        win32:DEFINES += WIN32_LEAN_AND_MEAN
+
+        !isEmpty(PYSIDE_LIBRARY) {
+            LIBS += "$$SHIBOKEN_LIBRARY" "$$PYSIDE_LIBRARY"
+            INCLUDEPATH += "$$SHIBOKEN_INCLUDEDIR"
+        } else:macx {
             # Hack needed because with regular PKGCONFIG qmake will mess up everything
             QMAKE_CXXFLAGS += $$system("pkg-config --cflags shiboken2 pyside2")
             LIBS += $$system("pkg-config --libs shiboken2 pyside2")
         } else {
             PKGCONFIG += shiboken2 pyside2
         }
-        INCLUDEPATH += "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
+        INCLUDEPATH += "$$PYSIDE_INCLUDEDIR" "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
     }
 }
 
@@ -264,10 +265,7 @@ SOURCES += \
     widgets/HeadersWidget.cpp \
     widgets/SearchWidget.cpp \
     CutterApplication.cpp \
-    common/JupyterConnection.cpp \
-    widgets/JupyterWidget.cpp \
     common/PythonAPI.cpp \
-    common/NestedIPyKernel.cpp \
     dialogs/R2PluginsDialog.cpp \
     widgets/CutterDockWidget.cpp \
     widgets/CutterTreeWidget.cpp \
@@ -289,6 +287,7 @@ SOURCES += \
     widgets/DebugActions.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
+    dialogs/preferences/PluginsOptionsWidget.cpp \
     widgets/BreakpointWidget.cpp \
     dialogs/BreakpointsDialog.cpp \
     dialogs/AttachProcDialog.cpp \
@@ -377,10 +376,7 @@ HEADERS  += \
     widgets/TypesWidget.h \
     widgets/HeadersWidget.h \
     widgets/SearchWidget.h \
-    common/JupyterConnection.h \
-    widgets/JupyterWidget.h \
     common/PythonAPI.h \
-    common/NestedIPyKernel.h \
     dialogs/R2PluginsDialog.h \
     widgets/CutterDockWidget.h \
     widgets/CutterTreeWidget.h \
@@ -405,6 +401,7 @@ HEADERS  += \
     widgets/DebugActions.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
+    dialogs/preferences/PluginsOptionsWidget.h \
     widgets/BreakpointWidget.h \
     dialogs/BreakpointsDialog.h \
     dialogs/AttachProcDialog.h \
@@ -468,7 +465,6 @@ FORMS    += \
     widgets/TypesWidget.ui \
     widgets/HeadersWidget.ui \
     widgets/SearchWidget.ui \
-    widgets/JupyterWidget.ui \
     dialogs/R2PluginsDialog.ui \
     dialogs/VersionInfoDialog.ui \
     widgets/ZignaturesWidget.ui \

@@ -9,11 +9,10 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 
-AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
-    : QDialog(parent),
+AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
+    : QDialog(dialog),
       ui(new Ui::AsmOptionsWidget)
 {
-    Q_UNUSED(dialog)
 
     ui->setupUi(this);
 
@@ -38,13 +37,12 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     qhelpers::setCheckedWithoutSignals(ui->xrefCheckBox, Config()->getConfigBool("asm.xrefs"));
     qhelpers::setCheckedWithoutSignals(ui->indentCheckBox, Config()->getConfigBool("asm.indent"));
     qhelpers::setCheckedWithoutSignals(ui->describeCheckBox, Config()->getConfigBool("asm.describe"));
-    qhelpers::setCheckedWithoutSignals(ui->stackpointerCheckBox,
-                                       Config()->getConfigBool("asm.stackptr"));
     qhelpers::setCheckedWithoutSignals(ui->slowCheckBox, Config()->getConfigBool("asm.slow"));
     qhelpers::setCheckedWithoutSignals(ui->linesCheckBox, Config()->getConfigBool("asm.lines"));
     qhelpers::setCheckedWithoutSignals(ui->fcnlinesCheckBox, Config()->getConfigBool("asm.lines.fcn"));
     qhelpers::setCheckedWithoutSignals(ui->flgoffCheckBox, Config()->getConfigBool("asm.flags.offset"));
     qhelpers::setCheckedWithoutSignals(ui->emuCheckBox, Config()->getConfigBool("asm.emu"));
+    qhelpers::setCheckedWithoutSignals(ui->emuStrCheckBox, Config()->getConfigBool("emu.str"));
     qhelpers::setCheckedWithoutSignals(ui->varsumCheckBox, Config()->getConfigBool("asm.var.summary"));
     qhelpers::setCheckedWithoutSignals(ui->sizeCheckBox, Config()->getConfigBool("asm.size"));
 
@@ -156,12 +154,6 @@ void AsmOptionsWidget::on_describeCheckBox_toggled(bool checked)
     triggerAsmOptionsChanged();
 }
 
-void AsmOptionsWidget::on_stackpointerCheckBox_toggled(bool checked)
-{
-    Config()->setConfig("asm.stackptr", checked);
-    triggerAsmOptionsChanged();
-}
-
 void AsmOptionsWidget::on_slowCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.slow", checked);
@@ -189,6 +181,12 @@ void AsmOptionsWidget::on_flgoffCheckBox_toggled(bool checked)
 void AsmOptionsWidget::on_emuCheckBox_toggled(bool checked)
 {
     Config()->setConfig("asm.emu", checked);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::on_emuStrCheckBox_toggled(bool checked)
+{
+    Config()->setConfig("emu.str", checked);
     triggerAsmOptionsChanged();
 }
 

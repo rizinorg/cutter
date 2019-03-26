@@ -1,21 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <memory>
-
 #include "core/Cutter.h" // only needed for ut64
-#include "widgets/DisassemblyWidget.h"
-#include "widgets/GraphWidget.h"
-#include "widgets/OverviewWidget.h"
-#include "widgets/StackWidget.h"
-#include "widgets/RegistersWidget.h"
-#include "widgets/BacktraceWidget.h"
-#include "widgets/HexdumpWidget.h"
-#include "widgets/PseudocodeWidget.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/WelcomeDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
+
+#include <memory>
 
 #include <QMainWindow>
 #include <QList>
@@ -51,10 +43,12 @@ class TypesWidget;
 class HeadersWidget;
 class ZignaturesWidget;
 class SearchWidget;
-#ifdef CUTTER_ENABLE_JUPYTER
-class JupyterWidget;
-#endif
 class QDockWidget;
+class DisassemblyWidget;
+class GraphWidget;
+class HexdumpWidget;
+class PseudocodeWidget;
+class OverviewWidget;
 
 namespace Ui {
 class MainWindow;
@@ -92,7 +86,8 @@ public:
     bool saveProjectAs(bool quit = false);
 
     void closeEvent(QCloseEvent *event) override;
-    void readSettings();
+    void paintEvent(QPaintEvent *event) override;
+    void readSettingsOrDefault();
     void saveSettings();
     void readDebugSettings();
     void saveDebugSettings();
@@ -253,10 +248,10 @@ private:
     NewFileDialog      *newFileDialog = nullptr;
     QDockWidget        *breakpointDock = nullptr;
     QDockWidget        *registerRefsDock = nullptr;
-#ifdef CUTTER_ENABLE_JUPYTER
-    JupyterWidget      *jupyterDock = nullptr;
-#endif
 
+    void initToolBar();
+    void initDocks();
+    void initLayout();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();

@@ -16,7 +16,7 @@ class DebugOptionsWidget : public QDialog
     Q_OBJECT
 
 public:
-    explicit DebugOptionsWidget(PreferencesDialog *dialog, QWidget *parent = nullptr);
+    explicit DebugOptionsWidget(PreferencesDialog *dialog);
     ~DebugOptionsWidget();
 
 private:

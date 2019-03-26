@@ -7,21 +7,56 @@ branches:
   - master
   - debug
   - /^v\d.*$/
-  - deploy-test
-  - deps-test
+  - /^deploy-test(-.*)?$/
 
 matrix:
   include:
-  - os: linux
+  - name: Linux QMake + Deploy
+    os: linux
     env: BUILD_SYSTEM=qmake DEPLOY=1
-  - os: linux
+  - name: Linux CMake
+    os: linux
     env: BUILD_SYSTEM=cmake
-  - os: osx
+  - name: macOS QMake + Deploy
+    os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=qmake DEPLOY=1
-  - os: osx
+  - name: macOS CMake
+    os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
+  - name: Documentation + Deploy
+    os: linux
+    cache: ~
+    addons:
+      apt:
+        update: true
+        packages:
+        - doxygen
+        - python3-sphinx
+        - python3-breathe
+    before_install: ~
+    install: ~
+    before_script: ~
+    after_success: ~
+    script:
+    - cd docs
+    - make html
+    before_deploy:
+    - cd "$TRAVIS_BUILD_DIR"
+    - openssl aes-256-cbc -K $encrypted_bd0ed4c1fd75_key -iv $encrypted_bd0ed4c1fd75_iv -in scripts/deploy_docs_rsa.enc -out scripts/deploy_docs_rsa -d
+    - chmod 600 scripts/deploy_docs_rsa
+    - export GIT_SSH_COMMAND="/usr/bin/ssh -i $TRAVIS_BUILD_DIR/scripts/deploy_docs_rsa"
+    - git config --global user.name "Travis CI"
+    - git config --global user.email "travis@travis-ci.org"
+    deploy:
+      skip_cleanup: true
+      provider: script
+      script: bash scripts/deploy_docs.sh
+      on:
+        repo: radareorg/cutter
+        branch: master
+
 
 sudo: required
 dist: xenial
@@ -33,7 +68,6 @@ addons:
 install:
   - scripts/fetch_deps.sh
   - source cutter-deps/env.sh
-  - python3 -m pip install -r scripts/pip_requirements.txt
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
 
@@ -55,8 +89,6 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
-                CUTTER_ENABLE_JUPYTER=true
-                CUTTER_ENABLE_QTWEBENGINE=false
                 PREFIX=/usr
                 APPIMAGE=1
                 ../src &&
@@ -69,8 +101,6 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_JUPYTER=ON
-                -DCUTTER_ENABLE_QTWEBENGINE=OFF
                 ../src &&
             make -j4;
        fi
@@ -79,8 +109,6 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
-                CUTTER_ENABLE_JUPYTER=true
-                CUTTER_ENABLE_QTWEBENGINE=false
                 CUTTER_BUNDLE_R2_APPBUNDLE=true
                 PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
                 ../src &&
@@ -93,8 +121,6 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_JUPYTER=ON
-                -DCUTTER_ENABLE_QTWEBENGINE=OFF
                 ../src &&
             make -j4;
        fi
@@ -145,7 +171,7 @@ after_success:
 deploy:
   skip_cleanup: true
   provider: releases
-  draft: false
+  draft: true
   prerelease: true
   tag_name: $TRAVIS_TAG
   api_key:

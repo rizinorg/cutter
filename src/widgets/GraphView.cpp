@@ -64,8 +64,8 @@ void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, 
 
 bool GraphView::helpEvent(QHelpEvent *event)
 {
-    int x = event->pos().x() + offset_x;
-    int y = event->pos().y() - offset_y;
+    int x = event->pos().x() + offset.x();
+    int y = event->pos().y() - offset.y();
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -373,7 +373,7 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 {
     QPolygonF ret;
     for (int i = 0; i < polygon.size(); i++) {
-        ret << QPointF(polygon[i].x() - offset_x, polygon[i].y() - offset_y);
+        ret << QPointF(polygon[i].x() - offset.x(), polygon[i].y() - offset.y());
     }
     return ret;
 }
@@ -409,10 +409,10 @@ void GraphView::paintEvent(QPaintEvent *event)
         qreal blockHeight = block.height * current_scale;
 
         // Check if block is visible by checking if block intersects with view area
-        if (offset_x * current_scale < blockX + blockWidth
-                && blockX < offset_x * current_scale + render_width
-                && offset_y * current_scale < blockY + blockHeight
-                && blockY < offset_y * current_scale + render_height) {
+        if (offset.x() * current_scale < blockX + blockWidth
+                && blockX < offset.x() * current_scale + render_width
+                && offset.y() * current_scale < blockY + blockHeight
+                && blockY < offset.y() * current_scale + render_height) {
             drawBlock(p, block);
         }
 
@@ -696,14 +696,14 @@ void GraphView::center()
 
 void GraphView::centerX()
 {
-    offset_x = -((viewport()->width() - width * current_scale) / 2);
-    offset_x /= current_scale;
+    offset.rx() = -((viewport()->width() - width * current_scale) / 2);
+    offset.rx() /= current_scale;
 }
 
 void GraphView::centerY()
 {
-    offset_y = -((viewport()->height() - height * current_scale) / 2);
-    offset_y /= current_scale;
+    offset.ry() = -((viewport()->height() - height * current_scale) / 2);
+    offset.ry() /= current_scale;
 }
 
 void GraphView::showBlock(GraphBlock &block)
@@ -717,12 +717,12 @@ void GraphView::showBlock(GraphBlock *block)
         centerX();
     } else {
         int render_width = viewport()->width() / current_scale;
-        offset_x = block->x - ((render_width - block->width) / 2);
+        offset.rx() = block->x - ((render_width - block->width) / 2);
     }
     if (height * current_scale <= viewport()->height()) {
         centerY();
     } else {
-        offset_y = block->y - 30;
+        offset.ry() = block->y - 30;
     }
     blockTransitionedTo(block);
     viewport()->update();
@@ -763,8 +763,8 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() / current_scale + offset_x;
-    int y = event->pos().y() / current_scale + offset_y;
+    int x = event->pos().x() / current_scale + offset.x();
+    int y = event->pos().y() / current_scale + offset.y();
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -819,8 +819,8 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        offset_x += (scroll_base_x - event->x()) / current_scale;
-        offset_y += (scroll_base_y - event->y()) / current_scale;
+        offset.rx() += (scroll_base_x - event->x()) / current_scale;
+        offset.ry() += (scroll_base_y - event->y()) / current_scale;
         scroll_base_x = event->x();
         scroll_base_y = event->y();
         viewport()->update();
@@ -829,8 +829,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() / current_scale + offset_x;
-    int y = event->pos().y() / current_scale + offset_y;
+    int x = event->pos().x() / current_scale + offset.x();
+    int y = event->pos().y() / current_scale + offset.y();
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -865,9 +865,11 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 
 void GraphView::wheelEvent(QWheelEvent *event)
 {
-    const QPoint delta = -event->angleDelta();
-    offset_x += delta.x() / current_scale;
-    offset_y += delta.y() / current_scale;
+    QPoint delta = -event->angleDelta();
+
+    delta /= current_scale;
+    offset += delta;
+
     viewport()->update();
     event->accept();
 }

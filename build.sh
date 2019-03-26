@@ -9,7 +9,6 @@ ERR=0
 BUILD="build"
 QMAKE_CONF=""
 ROOT_DIR=`pwd`
-#QMAKE_CONF="CUTTER_ENABLE_JUPYTER=false CUTTER_ENABLE_QTWEBENGINE=false"
 
 # Create translations
 lrelease ./src/Cutter.pro

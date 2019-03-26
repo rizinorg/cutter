@@ -34,13 +34,15 @@ int main(int argc, char *argv[])
         settings.setValue("settings_migrated", true);
     }
 
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts); // needed for QtWebEngine inside Plugins
+
     CutterApplication a(argc, argv);
 
     if (Config()->getAutoUpdateEnabled()) {
         UpdateWorker *updateWorker = new UpdateWorker;
         QObject::connect(updateWorker, &UpdateWorker::checkComplete,
-                         [=](const QString & version, const QString & error) {
-            if (error == "" && version != CUTTER_VERSION_FULL) {
+                         [=](const QVersionNumber &version, const QString & error) {
+            if (error.isEmpty() && version > UpdateWorker::currentVersionNumber()) {
                 updateWorker->showUpdateDialog(true);
             }
             updateWorker->deleteLater();

@@ -2,7 +2,7 @@
 #include "ui_EditInstructionDialog.h"
 #include "core/Cutter.h"
 
-EditInstructionDialog::EditInstructionDialog(QWidget *parent, InstructionEditMode editMode) :
+EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EditInstructionDialog),
     editMode(editMode)
@@ -50,7 +50,7 @@ void EditInstructionDialog::updatePreview(const QString &input)
         result = Core()->assemble(input).trimmed();
     }
 
-    if (result.isEmpty() || result.contains("\n")) {
+    if (result.isEmpty() || result.contains(QLatin1Char('\n'))) {
         ui->instructionLabel->setText("Unknown Instruction");
     } else {
         ui->instructionLabel->setText(result);

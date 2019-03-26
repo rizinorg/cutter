@@ -104,6 +104,7 @@ public:
     int getWidth() { return width; }
     int getHeight() { return height; }
     std::unordered_map<ut64, GraphBlock> getBlocks() { return blocks; }
+
 public slots:
     void refreshView();
     void colorsUpdatedSlot();
@@ -111,8 +112,7 @@ public slots:
     void onSeekChanged(RVA addr);
     void toggleSync();
 
-    void zoomIn(QPoint mouse = QPoint(0, 0));
-    void zoomOut(QPoint mouse = QPoint(0, 0));
+    void zoom(QPointF mouseRelativePos, double velocity);
     void zoomReset();
 
     void takeTrue();

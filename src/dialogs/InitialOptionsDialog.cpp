@@ -1,8 +1,7 @@
-
 #include "common/AsyncTask.h"
-
 #include "InitialOptionsDialog.h"
 #include "ui_InitialOptionsDialog.h"
+
 #include "core/MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
@@ -11,6 +10,7 @@
 #include <QSettings>
 #include <QFileInfo>
 #include <QFileDialog>
+#include <QCloseEvent>
 
 InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     QDialog(0), // parent must not be main

@@ -24,8 +24,8 @@ Building options
 ----------------
 
 Note that there are two major building options available:
-- ``CUTTER_ENABLE_JUPYTER`` is used to compile Cutter with bundled Python and Jupyter module
-- ``CUTTER_ENABLE_QTWEBENGINE`` is used to compile Cutter with bundled QtWebEngine (to ease jupyter console usage)
+- ``CUTTER_ENABLE_PYTHON`` compile with Python support
+- ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
 
 --------------
 
@@ -123,24 +123,6 @@ containing bin/, lib/, include/, etc.) and specify it to CMake using
 
    rm CMakeCache.txt # the cache may be polluted with unwanted libraries found before
    cmake -DCMAKE_PREFIX_PATH=/opt/Qt/5.9.1/gcc_64 ..
-
-..
-
-   ``ModuleNotFoundError`` upon starting Cutter.
-
-This can be resolved by either: 1. Disabling the optional jupyter
-support during building by modifying ``build.sh`` as follows:
-
--  Uncomment
-   ``#QMAKE_CONF="CUTTER_ENABLE_JUPYTER=false CUTTER_ENABLE_QTWEBENGINE=false"``
--  Comment out the prior empty ``QMAKE_CONF=""``
-
-2. Or alternatively by installing the two python dependencies manually
-   afterwards via:
-
-::
-
-   pip3 install notebook jupyter_client
 
 Building with Meson (Windows)
 -----------------------------

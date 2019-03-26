@@ -56,7 +56,7 @@
          <x>0</x>
          <y>0</y>
          <width>1055</width>
-         <height>979</height>
+         <height>982</height>
         </rect>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -827,7 +827,33 @@
                 </widget>
                </item>
                <item row="8" column="1">
-                <widget class="QLineEdit" name="compiledEdit">
+                <widget class="QLineEdit" name="compilationDateEdit">
+                 <property name="text">
+                  <string>--</string>
+                 </property>
+                 <property name="frame">
+                  <bool>false</bool>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0">
+                <widget class="QLabel" name="label_5">
+                 <property name="font">
+                  <font>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Compiler:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="1">
+                <widget class="QLineEdit" name="compilerEdit">
                  <property name="text">
                   <string>--</string>
                  </property>

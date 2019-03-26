@@ -188,47 +188,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="CutterTab">
-      <attribute name="title">
-       <string>Cutter</string>
-      </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <item>
-        <widget class="QLabel" name="CutterLabel">
-         <property name="text">
-          <string>Cutter plugins</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QTreeWidget" name="CutterTreeWidget">
-         <property name="sortingEnabled">
-          <bool>true</bool>
-         </property>
-         <column>
-          <property name="text">
-           <string>Name</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Description</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Version</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Author</string>
-          </property>
-         </column>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
    <item>

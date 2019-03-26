@@ -78,6 +78,7 @@ void PluginManager::loadPlugins()
 void PluginManager::destroyPlugins()
 {
     for (CutterPlugin *plugin : plugins) {
+        plugin->terminate();
         delete plugin;
     }
 }
@@ -111,8 +112,7 @@ void PluginManager::loadPythonPlugins(const QDir &directory)
         }
         QString moduleName;
         if (fileName.endsWith(".py")) {
-            QStringList l = fileName.split(".py");
-            moduleName = l[0];
+            moduleName = fileName.chopped(3);
         } else {
             moduleName = fileName;
         }

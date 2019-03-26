@@ -1,9 +1,7 @@
 #include "VisualNavbar.h"
-
 #include "core/MainWindow.h"
 #include "common/TempConfig.h"
 
-#include <cmath>
 #include <QGraphicsView>
 #include <QComboBox>
 #include <QGraphicsScene>
@@ -13,6 +11,10 @@
 #include <QJsonArray>
 #include <QJsonParseError>
 #include <QToolTip>
+#include <QMouseEvent>
+
+#include <array>
+#include <cmath>
 
 VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     QToolBar(main),
@@ -295,7 +297,7 @@ QString VisualNavbar::toolTipForAddress(RVA address)
         bool first = true;
         for (const QString &section : sections) {
             if (!first) {
-                ret += "\n";
+                ret.append(QLatin1Char('\n'));
             } else {
                 first = false;
             }

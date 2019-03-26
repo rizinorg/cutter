@@ -21,6 +21,18 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
+    /*
+     * Ugly hack just for the layout issue
+     * QSettings saves the state with the object names
+     * By doing this hack,
+     * you can at least avoid some mess by dismissing all the Extra Widgets
+     */
+    QString name = "Hexdump";
+    if (!action) {
+        name = "Extra Hexdump";
+    }
+    setObjectName(name);
+
     // Setup hex highlight
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
     //highlightHexCurrentLine();
@@ -1213,8 +1225,8 @@ void HexdumpWidget::zoomOut(int range)
 void HexdumpWidget::updateWidths()
 {
     // Update width
-    ui->hexHexText->document()->adjustSize();
-    ui->hexHexText->setFixedWidth(ui->hexHexText->document()->size().width());
+    auto idealWidth = ui->hexHexText->document()->idealWidth();
+    ui->hexHexText->document()->setTextWidth(idealWidth);
 
     ui->hexOffsetText->document()->adjustSize();
     ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width());

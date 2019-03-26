@@ -1,9 +1,11 @@
 #include "SegmentsWidget.h"
-
 #include "CutterTreeView.h"
 #include "core/MainWindow.h"
 #include "QuickFilterView.h"
 #include "common/Helpers.h"
+
+#include <QVBoxLayout>
+#include <QShortcut>
 
 SegmentsModel::SegmentsModel(QList<SegmentDescription> *segments, QObject *parent)
     : QAbstractListModel(parent),

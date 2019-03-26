@@ -1,43 +1,5 @@
-#include "common/PythonManager.h"
 #include "core/MainWindow.h"
 #include "ui_MainWindow.h"
-#include "common/Helpers.h"
-#include "CutterConfig.h"
-#include "plugins/PluginManager.h"
-
-// Qt Headers
-#include <QApplication>
-#include <QComboBox>
-#include <QCompleter>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QDir>
-#include <QDockWidget>
-#include <QFile>
-#include <QFileDialog>
-#include <QFont>
-#include <QFontDialog>
-#include <QLabel>
-#include <QLineEdit>
-#include <QList>
-#include <QMessageBox>
-#include <QProcess>
-#include <QPropertyAnimation>
-#include <QSysInfo>
-#include <QJsonObject>
-
-#include <QScrollBar>
-#include <QSettings>
-#include <QShortcut>
-#include <QStringListModel>
-#include <QStyledItemDelegate>
-#include <QStyleFactory>
-#include <QTextCursor>
-#include <QtGlobal>
-#include <QToolButton>
-#include <QToolTip>
-#include <QTreeWidgetItem>
-#include <QSvgRenderer>
 
 // Common Headers
 #include "common/Highlighter.h"
@@ -46,6 +8,10 @@
 #include "common/SvgIconEngine.h"
 #include "common/ProgressIndicator.h"
 #include "common/TempConfig.h"
+#include "common/RunScriptTask.h"
+#include "common/PythonManager.h"
+#include "plugins/PluginManager.h"
+#include "CutterConfig.h"
 
 // Dialogs
 #include "dialogs/WelcomeDialog.h"
@@ -86,15 +52,52 @@
 #include "widgets/ClassesWidget.h"
 #include "widgets/ResourcesWidget.h"
 #include "widgets/VTablesWidget.h"
-#include "widgets/JupyterWidget.h"
 #include "widgets/HeadersWidget.h"
 #include "widgets/ZignaturesWidget.h"
 #include "widgets/DebugActions.h"
 #include "widgets/MemoryMapWidget.h"
 #include "widgets/BreakpointWidget.h"
 #include "widgets/RegisterRefsWidget.h"
+#include "widgets/DisassemblyWidget.h"
+#include "widgets/StackWidget.h"
+#include "widgets/RegistersWidget.h"
+#include "widgets/BacktraceWidget.h"
+#include "widgets/HexdumpWidget.h"
+#include "widgets/PseudocodeWidget.h"
 
-#include "common/RunScriptTask.h"
+// Qt Headers
+#include <QApplication>
+#include <QComboBox>
+#include <QCompleter>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QDir>
+#include <QDockWidget>
+#include <QFile>
+#include <QFileDialog>
+#include <QFont>
+#include <QFontDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QList>
+#include <QMessageBox>
+#include <QProcess>
+#include <QPropertyAnimation>
+#include <QSysInfo>
+#include <QJsonObject>
+
+#include <QScrollBar>
+#include <QSettings>
+#include <QShortcut>
+#include <QStringListModel>
+#include <QStyledItemDelegate>
+#include <QStyleFactory>
+#include <QTextCursor>
+#include <QtGlobal>
+#include <QToolButton>
+#include <QToolTip>
+#include <QTreeWidgetItem>
+#include <QSvgRenderer>
 
 // Graphics
 #include <QGraphicsEllipseItem>
@@ -119,9 +122,49 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
+    initToolBar();
+    initDocks();
+    initLayout();
+
     /*
-     * Toolbar
+     *  Some global shortcuts
      */
+    // Period goes to command entry
+    QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
+    connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
+
+    // G and S goes to goto entry
+    QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
+    connect(goto_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
+    QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
+    connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
+
+    QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
+    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
+
+    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
+                                                                                       const QString &)));
+
+    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
+    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
+
+    connect(core, SIGNAL(newMessage(const QString &)),
+            this->consoleDock, SLOT(addOutput(const QString &)));
+    connect(core, SIGNAL(newDebugMessage(const QString &)),
+            this->consoleDock, SLOT(addDebugOutput(const QString &)));
+
+    updateTasksIndicator();
+    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
+            &MainWindow::updateTasksIndicator);
+
+    /* Setup plugins interfaces */
+    for (auto plugin : Plugins()->getPlugins()) {
+        plugin->setupInterface(this);
+    }
+}
+
+void MainWindow::initToolBar()
+{
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -182,18 +225,15 @@ void MainWindow::initUI()
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
+}
 
-    /*
-     * Dock Widgets
-     */
+void MainWindow::initDocks()
+{
     dockWidgets.reserve(20);
-
     disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
     hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
     pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
-
-    // Add graph view as dockable
     overviewDock = new OverviewWidget(this, ui->actionOverview);
     overviewDock->hide();
     graphDock = new GraphWidget(this, ui->actionGraph);
@@ -227,68 +267,23 @@ void MainWindow::initUI()
     memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
     breakpointDock = new BreakpointWidget(this, ui->actionBreakpoint);
     registerRefsDock = new RegisterRefsWidget(this, ui->actionRegisterRefs);
-#ifdef CUTTER_ENABLE_JUPYTER
-    jupyterDock = new JupyterWidget(this, ui->actionJupyter);
-#else
-    ui->actionJupyter->setEnabled(false);
-    ui->actionJupyter->setVisible(false);
-#endif
     dashboardDock = new Dashboard(this, ui->actionDashboard);
     sdbDock = new SdbWidget(this, ui->actionSDBBrowser);
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
+}
 
-
+void MainWindow::initLayout()
+{
     // Set up dock widgets default layout
-    resetToDefaultLayout();
     enableDebugWidgetsMenu(false);
-
     // Restore saved settings
-    this->readSettings();
+    readSettingsOrDefault();
     // TODO: Allow the user to select this option visually in the GUI settings
     // Adjust the DockWidget areas
     setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    //setCorner( Qt::TopRightCorner, Qt::RightDockWidgetArea );
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-    //setCorner( Qt::BottomRightCorner, Qt::RightDockWidgetArea );
-
-
-    /*
-     *  Some global shortcuts
-     */
-    // Period goes to command entry
-    QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
-    connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
-
-    // G and S goes to goto entry
-    QShortcut *goto_shortcut = new QShortcut(QKeySequence(Qt::Key_G), this);
-    connect(goto_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
-    QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
-    connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
-
-    QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
-    connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
-
-    connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
-                                                                                       const QString &)));
-
-    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
-    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
-
-    connect(core, SIGNAL(newMessage(const QString &)),
-            this->consoleDock, SLOT(addOutput(const QString &)));
-    connect(core, SIGNAL(newDebugMessage(const QString &)),
-            this->consoleDock, SLOT(addDebugOutput(const QString &)));
-
-    updateTasksIndicator();
-    connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
-            &MainWindow::updateTasksIndicator);
-
-    /* Setup plugins interfaces */
-    for (auto plugin : Plugins()->getPlugins()) {
-        plugin->setupInterface(this);
-    }
 }
 
 void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
@@ -302,7 +297,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     }
     targetGraphDock = targetGraph;
     connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
+    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(forceUpdateOverview()));
     connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
     connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
         disconnectOverview();
@@ -323,13 +318,17 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
 
 void MainWindow::disconnectOverview()
 {
-    disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-    disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
-    disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
-    disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-    disconnect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
-    disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
-    disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+    if (targetGraphDock) {
+        disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
+        disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
+        disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
+    }
+    if (overviewDock) {
+        disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+        disconnect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
+        disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
+        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+    }
 }
 
 void MainWindow::setOverviewData()
@@ -386,10 +385,10 @@ void MainWindow::drawOverview()
     qreal baseScale = targetGraphDock->graphView->current_scale;
     qreal w = targetGraphDock->graphView->viewport()->width() * curScale / baseScale;
     qreal h = targetGraphDock->graphView->viewport()->height() * curScale / baseScale;
-    int graph_offset_x = targetGraphDock->graphView->offset_x;
-    int graph_offset_y = targetGraphDock->graphView->offset_y;
-    int overview_offset_x = overviewDock->graphView->offset_x;
-    int overview_offset_y = overviewDock->graphView->offset_y;
+    int graph_offset_x = targetGraphDock->graphView->offset.x();
+    int graph_offset_y = targetGraphDock->graphView->offset.y();
+    int overview_offset_x = overviewDock->graphView->offset.x();
+    int overview_offset_y = overviewDock->graphView->offset.y();
     int rangeRectX = graph_offset_x * curScale - overview_offset_x * curScale;
     int rangeRectY = graph_offset_y * curScale - overview_offset_y * curScale;
 
@@ -407,10 +406,10 @@ void MainWindow::adjustGraph()
     qreal curScale = overviewDock->graphView->current_scale;
     int rectx = overviewDock->graphView->rangeRect.x();
     int recty = overviewDock->graphView->rangeRect.y();
-    int overview_offset_x = overviewDock->graphView->offset_x;
-    int overview_offset_y = overviewDock->graphView->offset_y;
-    targetGraphDock->graphView->offset_x = rectx /curScale + overview_offset_x;
-    targetGraphDock->graphView->offset_y = recty /curScale + overview_offset_y;
+    int overview_offset_x = overviewDock->graphView->offset.x();
+    int overview_offset_y = overviewDock->graphView->offset.y();
+    targetGraphDock->graphView->offset.rx() = rectx /curScale + overview_offset_x;
+    targetGraphDock->graphView->offset.ry() = recty /curScale + overview_offset_y;
     targetGraphDock->graphView->viewport()->update();
 }
 
@@ -612,14 +611,37 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QMainWindow::closeEvent(event);
 }
 
-void MainWindow::readSettings()
+void MainWindow::paintEvent(QPaintEvent *event)
+{
+    QMainWindow::paintEvent(event);
+    /*
+     * Dirty hack
+     * Just to adjust the width of Functions Widget to fixed size
+     * After everything is drawn, safely make it Preferred size policy
+     * So that user can change the widget size with the mouse
+     */
+    if (functionsDock) {
+        functionsDock->changeSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    }
+}
+
+void MainWindow::readSettingsOrDefault()
 {
     QSettings settings;
     QByteArray geo = settings.value("geometry", QByteArray()).toByteArray();
-    restoreGeometry(geo);
     QByteArray state = settings.value("state", QByteArray()).toByteArray();
+    /*
+     * Check if saved settings exist
+     * If not, then read the default layout
+     */
+    if (!geo.length() && !state.length()) {
+        resetToDefaultLayout();
+        return;
+    }
+    hideAllDocks();
+    restoreGeometry(geo);
     restoreState(state);
-    this->responsive = settings.value("responsive").toBool();
+    responsive = settings.value("responsive").toBool();
     panelLock = settings.value("panelLock").toBool();
     setPanelLock();
     tabsOnTop = settings.value("tabsOnTop").toBool();
@@ -761,9 +783,6 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, memoryMapDock);
     tabifyDockWidget(dashboardDock, breakpointDock);
     tabifyDockWidget(dashboardDock, registerRefsDock);
-#ifdef CUTTER_ENABLE_JUPYTER
-    tabifyDockWidget(dashboardDock, jupyterDock);
-#endif
 
     updateDockActionsChecked();
 }
@@ -774,8 +793,6 @@ void MainWindow::hideAllDocks()
     for (auto w : dockWidgets) {
         removeDockWidget(w);
     }
-
-    updateDockActionsChecked();
 }
 
 void MainWindow::updateDockActionsChecked()
@@ -800,9 +817,6 @@ void MainWindow::showZenDocks()
                                             hexdumpDock,
                                             searchDock,
                                             importsDock,
-#ifdef CUTTER_ENABLE_JUPYTER
-                                            jupyterDock
-#endif
                                           };
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w)) {
@@ -851,16 +865,6 @@ void MainWindow::resetToDefaultLayout()
     restoreDocks();
     showZenDocks();
     dashboardDock->raise();
-
-    // Ugly workaround to set the default widths of functions docks
-    // if anyone finds a way to do this cleaner that also works, feel free to change it!
-    auto restoreFunctionDock = qhelpers::forceWidth(functionsDock->widget(), 200);
-    auto restoreOverviewDock = qhelpers::forceWidth(overviewDock->widget(), 200);
-    qApp->processEvents();
-    restoreFunctionDock.restoreWidth(functionsDock->widget());
-    restoreOverviewDock.restoreWidth(overviewDock->widget());
-
-    core->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
 }
 
 void MainWindow::resetToDebugLayout()
@@ -915,14 +919,15 @@ void MainWindow::on_actionLockUnlock_triggered()
 
 void MainWindow::on_actionFunctionsRename_triggered()
 {
-    RenameDialog *r = new RenameDialog(this);
+    RenameDialog r(this);
     // Get function based on click position
     //r->setFunctionName(fcn_name);
-    r->open();
+    r.exec();
 }
 
 void MainWindow::on_actionDefault_triggered()
 {
+    disconnectOverview();
     if (core->currentlyDebugging) {
         resetToDebugLayout();
     } else {
@@ -1009,6 +1014,7 @@ void MainWindow::on_actionReset_settings_triggered()
                                                            QMessageBox::Ok | QMessageBox::Cancel);
     if (ret == QMessageBox::Ok) {
         Config()->resetAll();
+        on_actionDefault_triggered();
     }
 }
 
@@ -1039,9 +1045,8 @@ void MainWindow::on_actionRedoSeek_triggered()
 
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
-    CommentsDialog *c = new CommentsDialog(this);
-    c->exec();
-    delete c;
+    CommentsDialog c(this);
+    c.exec();
 }
 
 void MainWindow::on_actionRefresh_contents_triggered()
@@ -1199,7 +1204,7 @@ void MainWindow::changeDefinedView()
     CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
     hideAllDocks();
     restoreDocks();
-    readSettings();
+    readSettingsOrDefault();
     enableDebugWidgetsMenu(false);
     core->raisePrioritizedMemoryWidget(memType);
 }

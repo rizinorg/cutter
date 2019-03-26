@@ -48,9 +48,7 @@ def build(args):
     cutter_builddir = os.path.join(ROOT, args.dir)
     if not os.path.exists(cutter_builddir):
         defines = ['-Denable_python=%s' % str(args.python).lower(),
-                   '-Denable_python_bindings=%s' % str(args.python_bindings).lower(),
-                   '-Denable_jupyter=%s' % str(args.jupyter).lower(),
-                   '-Denable_webengine=%s' % str(args.webengine).lower()]
+                   '-Denable_python_bindings=%s' % str(args.python_bindings).lower()]
         if os.name == 'nt':
             defines.append('-Dradare2:r2_incdir=radare2/include')
             defines.append('-Dradare2:r2_libdir=radare2/lib')
@@ -79,10 +77,6 @@ def main():
                         help='Enable Python support')
     parser.add_argument('--python-bindings', action='store_true',
                         help='Enable Python Bindings')
-    parser.add_argument('--jupyter', action='store_true',
-                        help='Enable Jupyter support')
-    parser.add_argument('--webengine', action='store_true',
-                        help='Enable QtWebEngine support')
     parser.add_argument('--release', action='store_true',
                         help='Set the build as Release (remove debug info)')
     parser.add_argument('--nobuild', action='store_true',

@@ -101,8 +101,7 @@ public:
     // Zoom data
     qreal current_scale = 1.0;
 
-    int offset_x = 0;
-    int offset_y = 0;
+    QPoint offset = QPoint(0, 0);
 
     /**
      * @brief flag to control if the cached pixmap should be used
