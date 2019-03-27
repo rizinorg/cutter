@@ -239,7 +239,7 @@ void MainWindow::initDocks()
     graphDock = new GraphWidget(this, ui->actionGraph);
     connect(ui->actionOverview, &QAction::toggled, [this](bool checked) {
         if (checked) {
-            overviewDock->userClosed = false;
+            overviewDock->setUserClosed(false);
             forceUpdateOverview();
             if (targetGraphDock) {
                 toggleOverview(true, targetGraphDock);
@@ -292,25 +292,25 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
         return;
     }
     ui->actionOverview->setEnabled(visibility);
-    if (overviewDock->userClosed || !visibility) {
+    if (overviewDock->getUserClosed() || !visibility) {
         return;
     }
     targetGraphDock = targetGraph;
-    connect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-    connect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(forceUpdateOverview()));
-    connect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
+    connect(targetGraphDock->getGraphView(), SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
+    connect(targetGraphDock->getGraphView(), SIGNAL(viewRefreshed()), this, SLOT(forceUpdateOverview()));
+    connect(targetGraphDock->getGraphView(), SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
     connect(targetGraphDock, &GraphWidget::graphClose, [this]() {
         disconnectOverview();
         enableOverviewMenu(false);
         overviewDock->hide();
     });
-    connect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-    connect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
+    connect(overviewDock->getGraphView(), SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+    connect(overviewDock->getGraphView(), SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
     connect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
     connect(overviewDock, &OverviewWidget::graphClose, [this]() {
         ui->actionOverview->setChecked(false);
         if (!core->isGraphEmpty()) {
-            overviewDock->userClosed = true;
+            overviewDock->setUserClosed(true);
         }
     });
     connect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
@@ -319,13 +319,13 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
 void MainWindow::disconnectOverview()
 {
     if (targetGraphDock) {
-        disconnect(targetGraphDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
-        disconnect(targetGraphDock->graphView, SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
-        disconnect(targetGraphDock->graphView, SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
+        disconnect(targetGraphDock->getGraphView(), SIGNAL(refreshBlock()), this, SLOT(updateOverview()));
+        disconnect(targetGraphDock->getGraphView(), SIGNAL(viewRefreshed()), this, SLOT(updateOverview()));
+        disconnect(targetGraphDock->getGraphView(), SIGNAL(viewZoomed()), this, SLOT(updateOverview()));
     }
     if (overviewDock) {
-        disconnect(overviewDock->graphView, SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
-        disconnect(overviewDock->graphView, SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
+        disconnect(overviewDock->getGraphView(), SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
+        disconnect(overviewDock->getGraphView(), SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
         disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
         disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
     }
@@ -333,13 +333,13 @@ void MainWindow::disconnectOverview()
 
 void MainWindow::setOverviewData()
 {
-    overviewDock->graphView->setData(targetGraphDock->graphView->getWidth(),
-            targetGraphDock->graphView->getHeight(), targetGraphDock->graphView->getBlocks());
+    overviewDock->getGraphView()->setData(targetGraphDock->getGraphView()->getWidth(),
+            targetGraphDock->getGraphView()->getHeight(), targetGraphDock->getGraphView()->getBlocks());
 }
 
 bool MainWindow::isOverviewActive()
 {
-    if (!overviewDock || overviewDock->userClosed) {
+    if (!overviewDock || overviewDock->getUserClosed()) {
         return false;
     }
     if (core->isGraphEmpty()) {
@@ -352,7 +352,7 @@ bool MainWindow::isOverviewActive()
 
 void MainWindow::updateOverviewAddr()
 {
-    overviewDock->graphView->currentFcnAddr = targetGraphDock->graphView->currentFcnAddr;
+    overviewDock->getGraphView()->currentFcnAddr = targetGraphDock->getGraphView()->currentFcnAddr;
 }
 
 void MainWindow::forceUpdateOverview()
@@ -360,7 +360,7 @@ void MainWindow::forceUpdateOverview()
     if (!isOverviewActive()) {
         return;
     }
-    overviewDock->graphView->useCache = false;
+    overviewDock->getGraphView()->useCache = false;
     setOverviewData();
     drawOverview();
 }
@@ -370,30 +370,30 @@ void MainWindow::updateOverview()
     if (!isOverviewActive()) {
         return;
     }
-    if (overviewDock->graphView->currentFcnAddr != targetGraphDock->graphView->currentFcnAddr) {
-        overviewDock->graphView->useCache = false;
+    if (overviewDock->getGraphView()->currentFcnAddr != targetGraphDock->getGraphView()->currentFcnAddr) {
+        overviewDock->getGraphView()->useCache = false;
         setOverviewData();
     } else {
-        overviewDock->graphView->useCache = true;
+        overviewDock->getGraphView()->useCache = true;
     }
     drawOverview();
 }
 
 void MainWindow::drawOverview()
 {
-    qreal curScale = overviewDock->graphView->current_scale;
-    qreal baseScale = targetGraphDock->graphView->current_scale;
-    qreal w = targetGraphDock->graphView->viewport()->width() * curScale / baseScale;
-    qreal h = targetGraphDock->graphView->viewport()->height() * curScale / baseScale;
-    int graph_offset_x = targetGraphDock->graphView->offset.x();
-    int graph_offset_y = targetGraphDock->graphView->offset.y();
-    int overview_offset_x = overviewDock->graphView->offset.x();
-    int overview_offset_y = overviewDock->graphView->offset.y();
+    qreal curScale = overviewDock->getGraphView()->current_scale;
+    qreal baseScale = targetGraphDock->getGraphView()->current_scale;
+    qreal w = targetGraphDock->getGraphView()->viewport()->width() * curScale / baseScale;
+    qreal h = targetGraphDock->getGraphView()->viewport()->height() * curScale / baseScale;
+    int graph_offset_x = targetGraphDock->getGraphView()->offset.x();
+    int graph_offset_y = targetGraphDock->getGraphView()->offset.y();
+    int overview_offset_x = overviewDock->getGraphView()->offset.x();
+    int overview_offset_y = overviewDock->getGraphView()->offset.y();
     int rangeRectX = graph_offset_x * curScale - overview_offset_x * curScale;
     int rangeRectY = graph_offset_y * curScale - overview_offset_y * curScale;
 
-    overviewDock->graphView->rangeRect = QRectF(rangeRectX, rangeRectY, w, h);
-    overviewDock->graphView->viewport()->update();
+    overviewDock->getGraphView()->rangeRect = QRectF(rangeRectX, rangeRectY, w, h);
+    overviewDock->getGraphView()->viewport()->update();
     enableOverviewMenu(true);
     overviewDock->show();
 }
@@ -403,14 +403,15 @@ void MainWindow::adjustGraph()
     if (!overviewDock) {
         return;
     }
-    qreal curScale = overviewDock->graphView->current_scale;
-    int rectx = overviewDock->graphView->rangeRect.x();
-    int recty = overviewDock->graphView->rangeRect.y();
-    int overview_offset_x = overviewDock->graphView->offset.x();
-    int overview_offset_y = overviewDock->graphView->offset.y();
-    targetGraphDock->graphView->offset.rx() = rectx /curScale + overview_offset_x;
-    targetGraphDock->graphView->offset.ry() = recty /curScale + overview_offset_y;
-    targetGraphDock->graphView->viewport()->update();
+
+    qreal curScale = overviewDock->getGraphView()->current_scale;
+    int rectx = overviewDock->getGraphView()->rangeRect.x();
+    int recty = overviewDock->getGraphView()->rangeRect.y();
+    int overview_offset_x = overviewDock->getGraphView()->offset.x();
+    int overview_offset_y = overviewDock->getGraphView()->offset.y();
+    targetGraphDock->getGraphView()->offset.rx() = rectx /curScale + overview_offset_x;
+    targetGraphDock->getGraphView()->offset.ry() = recty /curScale + overview_offset_y;
+    targetGraphDock->getGraphView()->viewport()->update();
 }
 
 void MainWindow::updateTasksIndicator()

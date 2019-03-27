@@ -15,7 +15,7 @@
 #include <QInputDialog>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+    MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
     ui(new Ui::HexdumpWidget),
     seekable(new CutterSeekable(this))
 {
@@ -114,9 +114,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
-            SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
         if (visibility) {
@@ -232,13 +229,6 @@ void HexdumpWidget::onSeekChanged(RVA)
         return;
     }
     refresh();
-}
-
-void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
-{
-    if (type == CutterCore::MemoryWidgetType::Hexdump) {
-        raise();
-    }
 }
 
 void HexdumpWidget::connectScroll(bool disconnect_)

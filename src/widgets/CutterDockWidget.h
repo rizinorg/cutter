@@ -49,20 +49,23 @@ public:
         return deferrer;
     }
 
+signals:
+    void becameVisibleToUser();
+
 public slots:
     void toggleDockWidget(bool show);
 
-signals:
-    void becameVisibleToUser();
+protected:
+    virtual QWidget* widgetToFocusOnRaise();
+
+    void closeEvent(QCloseEvent *event) override;
+    QAction *getBoundAction() const;
 
 private:
     QAction *action;
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();
-
-protected:
-    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // CUTTERWIDGET_H

@@ -44,6 +44,11 @@ void CutterDockWidget::toggleDockWidget(bool show)
     }
 }
 
+QWidget *CutterDockWidget::widgetToFocusOnRaise()
+{
+    return this;
+}
+
 void CutterDockWidget::updateIsVisibleToUser()
 {
     // Check if the user can actually see the widget.
@@ -63,5 +68,10 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
         this->action->setChecked(false);
     }
     QDockWidget::closeEvent(event);
+}
+
+QAction *CutterDockWidget::getBoundAction() const
+{
+    return action;
 }
 

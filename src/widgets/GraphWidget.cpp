@@ -4,7 +4,7 @@
 #include "WidgetShortcuts.h"
 
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+    MemoryDockWidget(CutterCore::MemoryWidgetType::Graph, main, action)
 {
     /*
      * Ugly hack just for the layout issue
@@ -34,7 +34,6 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
         main->toggleOverview(visibility, this);
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-            graphView->refreshView();
             graphView->onSeekChanged(Core()->getOffset());
         }
     });
@@ -42,21 +41,20 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     connect(graphView, &DisassemblerGraphView::graphMoved, this, [ = ]() {
         main->toggleOverview(true, this);
     });
-
-    connect(Core(), &CutterCore::raisePrioritizedMemoryWidget,
-    this, [ = ](CutterCore::MemoryWidgetType type) {
-        bool emptyGraph = (type == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
-        if (type == CutterCore::MemoryWidgetType::Graph && !emptyGraph) {
-            raise();
-            graphView->setFocus();
-        }
-    });
 }
 
-GraphWidget::~GraphWidget() {}
+QWidget *GraphWidget::widgetToFocusOnRaise()
+{
+    return graphView;
+}
 
 void GraphWidget::closeEvent(QCloseEvent *event)
 {
     CutterDockWidget::closeEvent(event);
     emit graphClose();
+}
+
+DisassemblerGraphView *GraphWidget::getGraphView() const
+{
+    return graphView;
 }

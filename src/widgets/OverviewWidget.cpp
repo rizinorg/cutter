@@ -43,3 +43,18 @@ void OverviewWidget::closeEvent(QCloseEvent *event)
     CutterDockWidget::closeEvent(event);
     emit graphClose();
 }
+
+void OverviewWidget::setUserClosed(bool value)
+{
+    userClosed = value;
+}
+
+bool OverviewWidget::getUserClosed() const
+{
+    return userClosed;
+}
+
+OverviewView *OverviewWidget::getGraphView() const
+{
+    return graphView;
+}

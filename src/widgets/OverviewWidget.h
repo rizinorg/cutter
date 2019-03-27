@@ -13,12 +13,15 @@ class OverviewWidget : public CutterDockWidget
 public:
     explicit OverviewWidget(MainWindow *main, QAction *action = nullptr);
     ~OverviewWidget();
-    OverviewView *graphView;
+
+    OverviewView *getGraphView() const;
 
     /*
      * @brief if user closed this widget explicitly
      */
-    bool userClosed = false;
+    bool getUserClosed() const;
+    void setUserClosed(bool value);
+
 private:
     RefreshDeferrer *refreshDeferrer;
     /**
@@ -45,6 +48,11 @@ signals:
      * @brief emit signal to notify when this widget is closed
      */
     void graphClose();
+
+private:
+    OverviewView *graphView;
+    bool userClosed = false;
+
 };
 
 #endif // OverviewWIDGET_H
