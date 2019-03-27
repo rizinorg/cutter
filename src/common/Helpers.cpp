@@ -72,6 +72,11 @@ QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &s
     return tempItem;
 }
 
+/**
+ * @brief select first item of QTreeWidget if tree is not empty.
+ * @param tw - QTreeWidget instance
+ * @return true - setCurrentItem was set, false - tree is empty
+ */
 bool selectFirstItem(QTreeWidget* tw)
 {
     if (tw->topLevelItem(0)) {
