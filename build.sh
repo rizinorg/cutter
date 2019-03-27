@@ -10,9 +10,6 @@ BUILD="build"
 QMAKE_CONF=""
 ROOT_DIR=`pwd`
 
-# Create translations
-lrelease ./src/Cutter.pro
-
 check_r2() {
 	r2 -v >/dev/null 2>&1
 	if [ $? = 0 ]; then
@@ -36,6 +33,19 @@ find_qmake() {
 		exit 1
 	fi
 	echo "$qmakepath"
+}
+
+find_lrelease() {
+	lreleasepath=$(which lrelease-qt5)
+	if [ -z "$lreleasepath" ]; then
+		lreleasepath=$(which lrelease)
+	fi
+	if [ -z "$lreleasepath" ]; then
+		echo "You need lrelease to build Cutter."
+		echo "Please make sure lrelease is in your PATH environment variable."
+		exit 1
+	fi
+	echo "$lreleasepath"
 }
 
 find_gmake() {
@@ -71,6 +81,9 @@ if [ $? -eq 1 ]; then
 else
     echo "Correct radare2 version found, skipping..."
 fi
+
+# Create translations
+$(find_lrelease) ./src/Cutter.pro
 
 # Build
 mkdir -p "$BUILD"
