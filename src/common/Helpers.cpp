@@ -74,8 +74,7 @@ QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &s
 
 bool selectFirstItem(QTreeWidget* tw)
 {
-    if (tw->topLevelItem(0))
-    {
+    if (tw->topLevelItem(0)) {
         tw->setCurrentItem(tw->topLevelItem(0));
         return true;
     }
