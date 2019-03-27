@@ -410,6 +410,8 @@ void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             disableCenterOn = false;
             return;
         }
+    } else {
+        QToolTip::hideText();
     }
 }
 
@@ -434,7 +436,7 @@ RVA AddrDockScene::getAddrFromPos(int posY, bool seek)
             return addrMap[name] + (float)addrSizeMap[name] * ((float)(posY - y) / (float)h);
         }
     }
-    return 0;
+    return RVA_INVALID;
 }
 
 RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) :
