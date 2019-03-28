@@ -55,6 +55,9 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
     ui->languageComboBox->setCurrentText(curr);
 
     QColor textColor = palette().buttonText().color();
+    if (Config()->getCurrentTheme()->flag == DarkFlag) {
+        textColor = Qt::white;
+    }
     ui->renameButton->setIcon(getIconFromSvg(":/img/icons/pencil_thin.svg", textColor));
     ui->deleteButton->setIcon(getIconFromSvg(":/img/icons/trash_bin.svg", textColor));
     ui->copyButton->setIcon(getIconFromSvg(":/img/icons/copy.svg", textColor));
