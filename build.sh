@@ -99,7 +99,6 @@ $(find_lrelease) ./src/Cutter.pro
 prepare_breakpad
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
-echo $PKG_CONFIG_PARH
 $(find_qmake) ../src/Cutter.pro $QMAKE_CONF
 $(find_gmake) -j4
 ERR=$((ERR+$?))

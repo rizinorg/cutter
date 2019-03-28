@@ -4,7 +4,6 @@
 #include <QDir>
 #include <QCoreApplication>
 
-#include "CutterConfig.h"
 #include "common/TempConfig.h"
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"

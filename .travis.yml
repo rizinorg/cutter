@@ -68,7 +68,6 @@ addons:
 install:
   - scripts/fetch_deps.sh
   - source cutter-deps/env.sh
-  - python3 -m pip install -r scripts/pip_requirements.txt
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         export PATH=/usr/local/opt/llvm/bin:$PATH;
         source scripts/prepare_breakpad_macos.sh;
@@ -97,8 +96,6 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
-                CUTTER_ENABLE_JUPYTER=true
-                CUTTER_ENABLE_QTWEBENGINE=false
                 CUTTER_ENABLE_CRASH_REPORTS=true
                 PREFIX=/usr
                 APPIMAGE=1
@@ -112,9 +109,7 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_JUPYTER=ON
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
-                -DCUTTER_ENABLE_QTWEBENGINE=OFF
                 ../src &&
             make -j4;
        fi
@@ -123,8 +118,6 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
-                CUTTER_ENABLE_JUPYTER=true
-                CUTTER_ENABLE_QTWEBENGINE=false
                 CUTTER_BUNDLE_R2_APPBUNDLE=true
                 CUTTER_ENABLE_CRASH_REPORTS=true
                 PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
@@ -139,8 +132,6 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_JUPYTER=ON
-                -DCUTTER_ENABLE_QTWEBENGINE=OFF
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"
                 ../src &&

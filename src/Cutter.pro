@@ -343,7 +343,7 @@ SOURCES += \
     common/BasicBlockHighlighter.cpp \
     dialogs/LinkTypeDialog.cpp \
     common/UpdateWorker.cpp \
-    widgets/MemoryDockWidget.cpp
+    widgets/MemoryDockWidget.cpp \
     common/CrashHandler.cpp \
     common/BugReporting.cpp
 
@@ -462,7 +462,7 @@ HEADERS  += \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
     common/UpdateWorker.h \
-    widgets/MemoryDockWidget.h
+    widgets/MemoryDockWidget.h \
     dialogs/LinkTypeDialog.h \
     common/BugReporting.h
 

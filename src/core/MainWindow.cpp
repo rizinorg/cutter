@@ -3,7 +3,6 @@
 
 // Common Headers
 #include "common/BugReporting.h"
-#include "common/CrashHandler.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
 #include "common/Helpers.h"
