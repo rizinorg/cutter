@@ -144,8 +144,8 @@ QString ColorSchemeFileSaver::importScheme(const QString& srcScheme) const
         return tr("File <b>\"%1\"</b> does not exist.").arg(srcScheme);
     }
 
-    bool isScheme;
-    bool ok = isSchemeFile(srcScheme, &isScheme);
+    bool ok;
+    bool isScheme = isSchemeFile(srcScheme, &ok);
     if (ok && !isScheme) {
         return tr("File <b>\"%1\"</b> is not a Cutter color scheme").arg(srcScheme);
     } else if (!ok) {
@@ -199,9 +199,11 @@ QString ColorSchemeFileSaver::rename(const QString& schemeName, const QString& n
         return tr("A color scheme named <b>\"%1\"</b> already exists.").arg(newName);
     }
 
-    QDir dir = (isCustomScheme(schemeName)
-                    ? customR2ThemesLocationPath
-                    : standardR2ThemesLocationPath);
+    if (!isCustomScheme(schemeName)) {
+        return tr("You can not rename standard radare2 themes.");
+    }
+
+    QDir dir = customR2ThemesLocationPath;
     bool ok = QFile::rename(dir.filePath(schemeName), dir.filePath(newName));
     if (!ok) {
         return tr("Something went wrong during renaming. "
@@ -250,28 +252,30 @@ void ColorSchemeFileSaver::deleteScheme(const QString &schemeName) const
     QFile::remove(customR2ThemesLocationPath + QDir::separator() + schemeName);
 }
 
-bool ColorSchemeFileSaver::isSchemeFile(const QString& file, bool *output) const
+bool ColorSchemeFileSaver::isSchemeFile(const QString& file, bool *ok) const
 {
-    *output = false;
-
     QFile f(file);
     if (!f.open(QFile::ReadOnly)) {
+        *ok = false;
         return false;
     }
 
     const QString colors = "black|red|white|green|magenta|yellow|cyan|blue|gray|none";
-    auto ff=Core()->cmdj("ecj").object().keys();
-    auto options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions).join('|').replace(".", "\\.");
-    QRegExp regexp = QRegExp(QString("(ec (%1) (((rgb:|#)([0-9a-fA-F]{3}){1,2})|(%2)))|([ ]{0,}#.*)")
-                             .arg(options).arg(colors));
+    QString options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions)
+                      .join('|')
+                      .replace(".", "\\.");
+    QRegExp regexp = QRegExp(QString("((ec\\s+(%1)\\s+(((rgb:|#)([0-9a-fA-F]{3}){1,2})|(%2)))|(\\s*#.*))\\s*")
+                             .arg(options)
+                             .arg(colors));
 
     for (auto &line : QString(f.readAll()).split('\n', QString::SkipEmptyParts)) {
         line.replace("#~", "ec ");
         if (!regexp.exactMatch(line)) {
-            return true;
+            *ok = true;
+            return false;
         }
     }
 
-    *output = true;
+    *ok = true;
     return true;
 }

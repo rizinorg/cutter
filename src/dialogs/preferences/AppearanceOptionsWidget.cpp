@@ -171,7 +171,7 @@ void AppearanceOptionsWidget::on_copyButton_clicked()
                                               currColorTheme + tr(" - copy"));
     } while (!newSchemeName.isEmpty() && ColorSchemeFileWorker().isNameEngaged(newSchemeName));
 
-    if (newSchemeName.isEmpty()){
+    if (newSchemeName.isEmpty()) {
         return;
     }
     ColorSchemeFileWorker().copy(Config()->getColorTheme(), newSchemeName);

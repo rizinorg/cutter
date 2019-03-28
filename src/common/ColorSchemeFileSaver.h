@@ -78,12 +78,11 @@ private:
      * @brief Checks whether or not @a file is Cutter color scheme file
      * @param file
      * Path to file to be checked.
-     * @param output
-     * Output of the check. True if @file is Cutter color scheme
-     * otherwise false.
-     * @return false if @a file can not be opened otherwise true
+     * @param ok
+     * Output parameter. Shows whether or not check was completed.
+     * @return true if @a file is a scheme otherwise false.
      */
-    bool isSchemeFile(const QString &file, bool* output) const;
+    bool isSchemeFile(const QString &file, bool* ok) const;
 
     QString standardR2ThemesLocationPath;
     QString customR2ThemesLocationPath;
