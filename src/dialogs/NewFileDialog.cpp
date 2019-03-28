@@ -20,8 +20,8 @@ static QColor getColorFor(int pos)
                                           QColor(52, 152, 219), // Blue
                                           QColor(155, 89, 182), // Violet
                                           QColor(52, 73, 94),   // Grey
-                                          QColor(231, 76, 60), // Red
-                                          QColor(243, 156, 17) // Orange
+                                          QColor(231, 76, 60),  // Red
+                                          QColor(243, 156, 17)  // Orange
                                         };
     return Colors[pos % 6];
 }
