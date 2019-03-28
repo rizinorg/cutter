@@ -101,9 +101,7 @@ CUTTER_ENABLE_PYTHON {
     win32 {
         PYTHON_EXECUTABLE = $$system("where python", lines)
         PYTHON_EXECUTABLE = $$first(PYTHON_EXECUTABLE)
-        pythonpath = $$replace(PYTHON_EXECUTABLE, ".exe ", ".exe;")
-        pythonpath = $$section(pythonpath, ";", 0, 0)
-        pythonpath = $$clean_path($$dirname(pythonpath))
+        pythonpath = $$clean_path($$dirname(PYTHON_EXECUTABLE))
         LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
         INCLUDEPATH += $${pythonpath}/include
     }
@@ -130,7 +128,7 @@ CUTTER_ENABLE_PYTHON {
             error("ERROR: PySide2, which is required to build the Python Bindings, could not be found. Make sure it is available to pkg-config.")
         }
         win32 {
-            BINDINGS_SRC_LIST_CMD = "$${PYTHON_EXECUTABLE} bindings/src_list.py"
+            BINDINGS_SRC_LIST_CMD = "\"$${PYTHON_EXECUTABLE}\" bindings/src_list.py"
         } else {
             BINDINGS_SRC_LIST_CMD = "python3 bindings/src_list.py"
         }
