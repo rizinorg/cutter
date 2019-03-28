@@ -381,11 +381,14 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 void GraphView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    if (useCache) {
+    qreal dpr = devicePixelRatioF();
+    if (useCache && qFuzzyCompare(dpr, cachePixelRatio)) {
         drawGraph();
         return;
     }
-    pixmap = QPixmap(viewport()->width(), viewport()->height());
+    cachePixelRatio = dpr;
+    pixmap = QPixmap(int(viewport()->width() * dpr), int(viewport()->height() * dpr));
+    pixmap.setDevicePixelRatio(dpr);
     QPainter p(&pixmap);
 
     p.setRenderHint(QPainter::Antialiasing);
@@ -448,7 +451,7 @@ void GraphView::paintEvent(QPaintEvent *event)
 void GraphView::drawGraph()
 {
     QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
-    QRectF source(0.0, 0.0, viewport()->width(), viewport()->height());
+    QRectF source(0.0, 0.0, viewport()->width() * cachePixelRatio, viewport()->height() * cachePixelRatio);
     QPainter p(viewport());
     p.drawPixmap(target, pixmap, source);
 }
