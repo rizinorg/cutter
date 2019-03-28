@@ -14,20 +14,16 @@
 
 const int NewFileDialog::MaxRecentFiles;
 
-static QColor getColorFor(const QString &str, int pos)
+static QColor getColorFor(int pos)
 {
-    Q_UNUSED(str);
-
-    QList<QColor> Colors;
-    Colors << QColor(29, 188, 156); // Turquoise
-    Colors << QColor(52, 152, 219); // Blue
-    Colors << QColor(155, 89, 182); // Violet
-    Colors << QColor(52, 73, 94);   // Grey
-    Colors << QColor(231, 76, 60);  // Red
-    Colors << QColor(243, 156, 17); // Orange
-
+    static const QList<QColor> Colors = { QColor(29, 188, 156), // Turquoise
+                                          QColor(52, 152, 219), // Blue
+                                          QColor(155, 89, 182), // Violet
+                                          QColor(52, 73, 94),   // Grey
+                                          QColor(231, 76, 60), // Red
+                                          QColor(243, 156, 17) // Orange
+                                        };
     return Colors[pos % 6];
-
 }
 
 static QIcon getIconFor(const QString &str, int pos)
@@ -42,7 +38,7 @@ static QIcon getIconFor(const QString &str, int pos)
     QPainter pixPaint(&pixmap);
     pixPaint.setPen(Qt::NoPen);
     pixPaint.setRenderHint(QPainter::Antialiasing);
-    pixPaint.setBrush(QBrush(QBrush(getColorFor(str, pos))));
+    pixPaint.setBrush(QBrush(QBrush(getColorFor(pos))));
     pixPaint.drawEllipse(1, 1, w - 2, h - 2);
     pixPaint.setPen(Qt::white);
     pixPaint.setFont(QFont("Verdana", 24, 1));
