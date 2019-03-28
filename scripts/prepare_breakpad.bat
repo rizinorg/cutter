@@ -21,18 +21,9 @@ DEL %CD%\common.vcxproj.filters
 DEL %CD%\build_all.vcxproj
 COPY %ROOT_DIR%\scripts\breakpad_client.gyp %CD%
 
-rem  CD %ROOT_DIR%\src\breakpad\src\src\tools\windows\dump_syms
-rem  DEL %CD%\dump_syms.gyp
-rem  DEL %CD%\dump_syms.vcxproj
-rem  DEL %CD%\dump_syms.vcproj
-rem  DEL %CD%\dump_syms.sln
-rem  COPY %ROOT_DIR%\scripts\dump_syms.gyp %CD%
-
 CD %ROOT_DIR%\src\breakpad\src\src
 powershell -Command "tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release"
-rem  powershell -Command "tools\gyp\gyp.bat --no-circular-check tools\windows\dump_syms\dump_syms.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release"
 
 set PATH=%BUFF_PATH%
 msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH%
-rem  msbuild /m %CD%\tools\windows\dump_syms\dump_syms.sln /p:Configuration=release /p:Platform=%ARCH%
 CD %ROOT_DIR%

@@ -66,7 +66,7 @@ find_gmake() {
 prepare_breakpad() {
 	if [[ $OSTYPE == "linux-gnu" ]]; then
 		source $ROOT_DIR/scripts/prepare_breakpad_linux.sh
-        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+		export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 	elif [[ $OSTYPE == "darwin" ]]; then
 		source $ROOT_DIR/scripts/prepare_breakpad_macos.sh
 	fi

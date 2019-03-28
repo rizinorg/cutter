@@ -175,6 +175,7 @@ bool writeMinidump()
 
             info.button(QMessageBox::Yes)->setText(QObject::tr("Open an issue"));
             info.button(QMessageBox::No)->setText(QObject::tr("Exit Cutter"));
+            info.setDefaultButton(QMessageBox::Yes);
 
             int ret = info.exec();
             if (ret == QMessageBox::Yes) {
