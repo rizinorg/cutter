@@ -7,7 +7,7 @@ ERR=0
 
 #### User variables ####
 BUILD="`pwd`/build"
-QMAKE_CONF="CUTTER_ENABLE_CRASH_REPORTS=true"
+QMAKE_CONF=""
 ROOT_DIR=`pwd`
 
 check_r2() {
@@ -73,15 +73,6 @@ prepare_breakpad() {
 	return 1
 }
 
-# generate_dump_symbols() {
-# 	if [[ $OSTYPE == "linux-gnu" ]]; then
-# 		$CUSTOM_BREAKPAD_PREFIX/bin/dump_syms $BUILD/Cutter > $BUILD/Cutter.sym
-# 	elif [[ $OSTYPE == "darwin" ]]; then
-# 		$BREAKPAD_DUMP_SYS_DIR/dump_syms $BUILD/Cutter > $BUILD/Cutter.sym
-# 	fi
-# 	return 1
-# }
-
 # Build radare2
 check_r2
 if [ $? -eq 1 ]; then
@@ -112,7 +103,6 @@ echo $PKG_CONFIG_PARH
 $(find_qmake) ../src/Cutter.pro $QMAKE_CONF
 $(find_gmake) -j4
 ERR=$((ERR+$?))
-# generate_dump_symbols
 
 # Move translations
 mkdir -p "`pwd`/translations"

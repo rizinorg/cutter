@@ -94,7 +94,7 @@ script:
   - export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-             qmake
+            qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
                 CUTTER_ENABLE_JUPYTER=true
@@ -105,7 +105,7 @@ script:
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-             cmake
+            cmake
                 -DCMAKE_BUILD_TYPE=Release
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
@@ -120,7 +120,7 @@ script:
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-             qmake
+            qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
                 CUTTER_ENABLE_JUPYTER=true
@@ -132,7 +132,7 @@ script:
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-             cmake
+            cmake
                 -DCMAKE_BUILD_TYPE=Release
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib"
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"

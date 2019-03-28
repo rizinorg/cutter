@@ -462,9 +462,7 @@ HEADERS  += \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
     common/UpdateWorker.h \
-    dialogs/LinkTypeDialog.h \
     widgets/MemoryDockWidget.h
-    common/CrashHandler.h
     dialogs/LinkTypeDialog.h \
     common/BugReporting.h
 

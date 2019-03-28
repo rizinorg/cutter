@@ -15,7 +15,7 @@ In any case, there are obviously some requirements:
 * Radare2 installed from submodule
 * Qt 5.9 or above
 * Python3.6
-* Breakpad installed using script
+* Breakpad installed using script (optional, disabled by default)
 
 Before compiling, note that we also provide binaries available for
 windows/linux/MacOS `here <https://github.com/radareorg/cutter/releases>`_.
@@ -36,6 +36,7 @@ Note that there are three major building options available:
 Preparing Breakpad
 -------------------
 
+If you want to build Cutter with crash handling system, you want prepare Breakpad before.
 For this simply run one of the scripts (according to your OS) from root Cutter directory:
     
 .. code:: sh
