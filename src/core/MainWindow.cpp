@@ -124,7 +124,6 @@ void MainWindow::initUI()
 
     initToolBar();
     initDocks();
-    initLayout();
 
     /*
      *  Some global shortcuts
@@ -165,6 +164,8 @@ void MainWindow::initUI()
 #if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     setDockOptions(dockOptions() | DockOption::GroupedDragging);
 #endif
+
+    initLayout();
 }
 
 void MainWindow::initToolBar()
