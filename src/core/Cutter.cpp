@@ -779,7 +779,7 @@ QByteArray CutterCore::assemble(const QString &code)
     RAsmCode *ac = r_asm_massemble(core_->assembler, code.toUtf8().constData());
     QByteArray res;
     if (ac && ac->bytes) {
-        res = QByteArray::fromRawData(reinterpret_cast<const char *>(ac->bytes), ac->len);
+        res = QByteArray(reinterpret_cast<const char *>(ac->bytes), ac->len);
     }
     r_asm_code_free(ac);
     return res;
