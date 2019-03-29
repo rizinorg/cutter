@@ -185,10 +185,14 @@ public:
     QList<QString> getColorThemes();
 
     /* Assembly related methods */
-    QString assemble(const QString &code);
-    QString disassemble(const QString &hex);
+    QByteArray assemble(const QString &code);
+    QString disassemble(const QByteArray &data);
     QString disassembleSingleInstruction(RVA addr);
     QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
+
+    static QByteArray hexStringToBytes(const QString &hex);
+    static QString bytesToHexString(const QByteArray &bytes);
+
     void setCPU(QString arch, QString cpu, int bits);
     void setEndianness(bool big);
     void setBBSize(int size);

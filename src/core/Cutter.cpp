@@ -773,20 +773,26 @@ void CutterCore::setBBSize(int size)
     setConfig("anal.bb.maxsize", size);
 }
 
-QString CutterCore::assemble(const QString &code)
+QByteArray CutterCore::assemble(const QString &code)
 {
     CORE_LOCK();
     RAsmCode *ac = r_asm_massemble(core_->assembler, code.toUtf8().constData());
-    QString hex(ac != nullptr ? ac->buf_hex : "");
+    QByteArray res;
+    if (ac && ac->bytes) {
+        res = QByteArray(reinterpret_cast<const char *>(ac->bytes), ac->len);
+    }
     r_asm_code_free(ac);
-    return hex;
+    return res;
 }
 
-QString CutterCore::disassemble(const QString &hex)
+QString CutterCore::disassemble(const QByteArray &data)
 {
     CORE_LOCK();
-    RAsmCode *ac = r_asm_mdisassemble_hexstr(core_->assembler, NULL, hex.toUtf8().constData());
-    QString code = QString(ac != nullptr ? ac->buf_asm : "");
+    RAsmCode *ac = r_asm_mdisassemble(core_->assembler, reinterpret_cast<const ut8 *>(data.constData()), data.length());
+    QString code;
+    if (ac && ac->assembly) {
+        code = QString::fromUtf8(ac->assembly);
+    }
     r_asm_code_free(ac);
     return code;
 }
@@ -2568,6 +2574,24 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     }
 
     return r;
+}
+
+QByteArray CutterCore::hexStringToBytes(const QString &hex)
+{
+    QByteArray hexChars = hex.toUtf8();
+    QByteArray bytes;
+    bytes.reserve(hexChars.length() / 2);
+    int size = r_hex_str2bin(hexChars.constData(), reinterpret_cast<ut8 *>(bytes.data()));
+    bytes.resize(size);
+    return bytes;
+}
+
+QString CutterCore::bytesToHexString(const QByteArray &bytes)
+{
+    QByteArray hex;
+    hex.resize(bytes.length() * 2);
+    r_hex_bin2str(reinterpret_cast<const ut8 *>(bytes.constData()), bytes.size(), hex.data());
+    return QString::fromUtf8(hex);
 }
 
 void CutterCore::loadScript(const QString &scriptname)
