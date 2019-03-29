@@ -45,9 +45,11 @@ void EditInstructionDialog::updatePreview(const QString &input)
         ui->instructionLabel->setText("");
         return;
     } else if (editMode == EDIT_BYTES) {
-        result = Core()->disassemble(input).trimmed();
+        QByteArray data = CutterCore::hexStringToBytes(input);
+        result = Core()->disassemble(data).trimmed();
     } else if (editMode == EDIT_TEXT) {
-        result = Core()->assemble(input).trimmed();
+        QByteArray data = Core()->assemble(input);
+        result = CutterCore::bytesToHexString(data).trimmed();
     }
 
     if (result.isEmpty() || result.contains(QLatin1Char('\n'))) {
