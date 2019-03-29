@@ -14,4 +14,5 @@ cd $DIR/breakpad
 cp -R src/. framework/Breakpad.framework/Headers
 
 export BREAKPAD_FRAMEWORK_DIR=$BREAKPAD_FRAMEWORK_DIR
-cd ../$DIR
+cd $DIR
+cd ..
