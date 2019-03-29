@@ -456,7 +456,7 @@ void MainWindow::addPluginDockWidget(QDockWidget *dockWidget, QAction *action)
     addDockWidget(Qt::TopDockWidgetArea, dockWidget);
     addDockWidgetAction(dockWidget, action);
     ui->menuPlugins->addAction(action);
-    tabifyDockWidget(dashboardDock, dockWidget);
+    addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
     updateDockActionChecked(action);
 }
 
@@ -647,6 +647,16 @@ void MainWindow::readSettingsOrDefault()
     hideAllDocks();
     restoreGeometry(geo);
     restoreState(state);
+
+    // make sure all DockWidgets are part of the MainWindow
+    // also show them, so newly installed plugin widgets are shown right away
+    for (auto dockWidget : dockWidgets) {
+        if (dockWidgetArea(dockWidget) == Qt::DockWidgetArea::NoDockWidgetArea) {
+            addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
+            dockWidget->show();
+        }
+    }
+
     responsive = settings.value("responsive").toBool();
     panelLock = settings.value("panelLock").toBool();
     setPanelLock();
