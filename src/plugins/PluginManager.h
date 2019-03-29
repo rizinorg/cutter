@@ -21,6 +21,7 @@ public:
      * @brief Load all plugins, should be called once on application start
      */
     void loadPlugins();
+    void loadPlugins(const QDir &pluginsDir);
 
     /**
      * @brief Destroy all loaded plugins, should be called once on application shutdown

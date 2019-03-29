@@ -53,9 +53,22 @@ void PluginManager::loadPlugins()
         qCritical() << "Failed to get a path to load plugins from.";
         return;
     }
-    QDir pluginsDir(pluginsDirStr);
 
+    loadPlugins(QDir(pluginsDirStr));
+
+#ifdef Q_OS_WIN
+    QDir localDir;
+    localDir.mkdir("cutter_plugins");
+    if (localDir.cd("cutter_plugins")) {
+        loadPlugins(localDir);
+    }
+#endif
+}
+
+void PluginManager::loadPlugins(const QDir &pluginsDir)
+{
     qInfo() << "Plugins are loaded from" << pluginsDir.absolutePath();
+    int loadedPlugins = plugins.length();
 
     QDir nativePluginsDir = pluginsDir;
     nativePluginsDir.mkdir("native");
@@ -71,7 +84,8 @@ void PluginManager::loadPlugins()
     }
 #endif
 
-    qInfo() << "Loaded" << plugins.length() << "plugin(s).";
+    loadedPlugins = plugins.length() - loadedPlugins;
+    qInfo() << "Loaded" << loadedPlugins << "plugin(s).";
 }
 
 
