@@ -107,7 +107,6 @@ public:
      * @brief flag to control if the cached pixmap should be used
      */
     bool useCache = false;
-    qreal cachePixelRatio = -1;
 
     /**
      * @brief keep the current addr of the fcn of Graph

@@ -4,6 +4,7 @@
 #include "dialogs/AboutDialog.h"
 #include "ui_NewfileDialog.h"
 #include "common/Helpers.h"
+#include "common/HighDpiPixmap.h"
 
 #include <QFileDialog>
 #include <QtGui>
@@ -33,7 +34,7 @@ static QIcon getIconFor(const QString &str, int pos)
     int w = 64;
     int h = 64;
 
-    QPixmap pixmap(w, h);
+    HighDpiPixmap pixmap(w, h);
     pixmap.fill(Qt::transparent);
 
     QPainter pixPaint(&pixmap);
