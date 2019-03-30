@@ -58,8 +58,8 @@ void PluginManager::loadPlugins()
 
 #ifdef Q_OS_WIN
     QDir localDir;
-    localDir.mkdir("cutter_plugins");
-    if (localDir.cd("cutter_plugins")) {
+    localDir.mkdir("plugins");
+    if (localDir.cd("plugins")) {
         loadPlugins(localDir);
     }
 #endif
