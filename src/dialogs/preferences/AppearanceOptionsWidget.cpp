@@ -209,11 +209,12 @@ void AppearanceOptionsWidget::on_importButton_clicked()
 
     QString err = ColorSchemeFileWorker().importScheme(fileName);
     QString schemeName = QFileInfo(fileName).fileName();
-    updateThemeFromConfig();
     if (err.isEmpty()) {
         QMessageBox::information(this,
                                  tr("Success"),
                                  tr("Color scheme <b>%1</b> was successfully imported.").arg(schemeName));
+        Config()->setColorTheme(schemeName);
+        updateThemeFromConfig(false);
     } else {
         QMessageBox::critical(this, tr("Error"), err);
     }
@@ -255,15 +256,13 @@ void AppearanceOptionsWidget::on_renameButton_clicked()
     if (newName.isEmpty() || newName == currColorTheme) {
         return;
     }
+
     QString err = ColorSchemeFileWorker().rename(currColorTheme, newName);
-    if (err.isEmpty()) {
+    if (!err.isEmpty()) {
+        QMessageBox::critical(this, tr("Error"), err);
+    } else {
         Config()->setColorTheme(newName);
         updateThemeFromConfig(false);
-        QMessageBox::information(this,
-                                 tr("Success"),
-                                 tr("Scheme was successfully renamed."));
-    } else {
-        QMessageBox::critical(this, tr("Error"), err);
     }
 }
 
