@@ -7,10 +7,30 @@
 #include <QMouseEvent>
 #include <QPropertyAnimation>
 
+#ifndef QT_NO_OPENGL
+#include <QOpenGLContext>
+#include <QOpenGLWidget>
+#include <QOpenGLPaintDevice>
+#include <QOpenGLExtraFunctions>
+#endif
+
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
     , graphLayoutSystem(new GraphGridLayout())
+    , useGL(false)
+#ifndef QT_NO_OPENGL
+    , cacheTexture(0)
+    , cacheFBO(0)
+#endif
 {
+#ifndef QT_NO_OPENGL
+    if (useGL) {
+        glWidget = new QOpenGLWidget(this);
+        setViewport(glWidget);
+    } else {
+        glWidget = nullptr;
+    }
+#endif
 }
 
 GraphView::~GraphView()
@@ -113,19 +133,88 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
     return ret;
 }
 
-void GraphView::paintEvent(QPaintEvent *event)
+void GraphView::paintEvent(QPaintEvent *)
 {
-    Q_UNUSED(event);
-    qreal dpr = devicePixelRatioF();
-    if (useCache && qFuzzyCompare(dpr, pixmap.devicePixelRatioF())) {
-        drawGraph();
-        return;
+#ifndef QT_NO_OPENGL
+    if (useGL) {
+        glWidget->makeCurrent();
     }
-    pixmap = QPixmap(int(viewport()->width() * dpr), int(viewport()->height() * dpr));
-    pixmap.setDevicePixelRatio(dpr);
-    QPainter p(&pixmap);
+#endif
 
-    p.setRenderHint(QPainter::Antialiasing);
+    if(!useCache || !qFuzzyCompare(devicePixelRatioF(), pixmap.devicePixelRatioF())) {
+        paintGraphCache();
+    }
+
+    if (useGL) {
+#ifndef QT_NO_OPENGL
+        auto gl = glWidget->context()->extraFunctions();
+        gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, cacheFBO);
+        gl->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glWidget->defaultFramebufferObject());
+        gl->glBlitFramebuffer(0, 0, viewport()->width(), viewport()->height(),
+                              0, 0, viewport()->width(), viewport()->height(),
+                              GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glWidget->doneCurrent();
+#endif
+    } else {
+        QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
+        QRectF source(0.0, 0.0, viewport()->width() * pixmap.devicePixelRatioF(),
+            viewport()->height() * pixmap.devicePixelRatioF());
+        QPainter p(viewport());
+        p.drawPixmap(target, pixmap, source);
+    }
+
+    if(!useCache) { // TODO: does this condition make sense?
+        emit refreshBlock();
+    }
+}
+
+void GraphView::paintGraphCache()
+{
+#ifndef QT_NO_OPENGL
+    QOpenGLPaintDevice *paintDevice = nullptr;
+#endif
+    QPainter p;
+    if (useGL) {
+#ifndef QT_NO_OPENGL
+        auto gl = QOpenGLContext::currentContext()->functions();
+
+        bool resizeTex = false;
+        if (!cacheTexture) {
+            gl->glGenTextures(1, &cacheTexture);
+            gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            resizeTex = true;
+        } else if(cacheSize != viewport()->size()) {
+            gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
+            resizeTex = true;
+        }
+        if (resizeTex) {
+            cacheSize = viewport()->size();
+            gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport()->width(), viewport()->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            gl->glGenFramebuffers(1, &cacheFBO);
+            gl->glBindFramebuffer(GL_FRAMEBUFFER, cacheFBO);
+            gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cacheTexture, 0);
+        } else {
+            gl->glBindFramebuffer(GL_FRAMEBUFFER, cacheFBO);
+        }
+        gl->glViewport(0, 0, viewport()->width(), viewport()->height());
+        gl->glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        gl->glClear(GL_COLOR_BUFFER_BIT);
+
+        paintDevice = new QOpenGLPaintDevice(viewport()->size());
+        p.begin(paintDevice);
+#endif
+    } else {
+        auto dpr = devicePixelRatioF();
+        pixmap = QPixmap(int(viewport()->width() * dpr), int(viewport()->height() * dpr));
+        pixmap.setDevicePixelRatio(dpr);
+        p.begin(&pixmap);
+        p.setRenderHint(QPainter::Antialiasing);
+    }
 
     int render_width = viewport()->width();
     int render_height = viewport()->height();
@@ -190,17 +279,11 @@ void GraphView::paintEvent(QPaintEvent *event)
             }
         }
     }
-    drawGraph();
-    emit refreshBlock();
-}
 
-void GraphView::drawGraph()
-{
-    QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
-    QRectF source(0.0, 0.0, viewport()->width() * pixmap.devicePixelRatioF(),
-                  viewport()->height() * pixmap.devicePixelRatioF());
-    QPainter p(viewport());
-    p.drawPixmap(target, pixmap, source);
+    p.end();
+#ifndef QT_NO_OPENGL
+    delete paintDevice;
+#endif
 }
 
 
