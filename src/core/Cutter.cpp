@@ -2306,7 +2306,7 @@ QString CutterCore::addTypes(const char *str)
          return ret;
     }
 
-    r_core_save_parsed_type(core_, parsed);
+    r_anal_save_parsed_type(core_->anal, parsed);
     r_mem_free(parsed);
 
     if (error_msg) {
