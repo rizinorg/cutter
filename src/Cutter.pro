@@ -312,7 +312,9 @@ SOURCES += \
     dialogs/LinkTypeDialog.cpp \
     common/UpdateWorker.cpp \
     widgets/MemoryDockWidget.cpp \
-    common/HighDpiPixmap.cpp
+    common/HighDpiPixmap.cpp \
+    widgets/GraphLayout.cpp \
+    widgets/GraphGridLayout.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -430,7 +432,9 @@ HEADERS  += \
     common/UpdateWorker.h \
     dialogs/LinkTypeDialog.h \
     widgets/MemoryDockWidget.h \
-    common/HighDpiPixmap.h
+    common/HighDpiPixmap.h \
+    widgets/GraphLayout.h \
+    widgets/GraphGridLayout.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
