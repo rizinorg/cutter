@@ -99,30 +99,6 @@ bool GraphView::event(QEvent *event)
 void GraphView::computeGraph(ut64 entry)
 {
     graphLayoutSystem->CalculateLayout(blocks, entry, width, height);
-
-    // Update edge look
-    for (auto &block : blocks) {
-        for (auto &edge : block.second.edges) {
-            EdgeConfiguration ec = edgeConfiguration(block.second, edge.dest);
-            edge.color = ec.color;
-            auto first_pt = edge.polyline.first();
-            auto last_pt = edge.polyline.last();
-            if (ec.start_arrow) {
-                edge.arrow_start.clear();
-                edge.arrow_start.append(QPoint(first_pt.x() - 3, first_pt.y() + 6));
-                edge.arrow_start.append(QPoint(first_pt.x() + 3, first_pt.y() + 6));
-                edge.arrow_start.append(first_pt);
-
-            }
-            if (ec.end_arrow) {
-                edge.arrow_end.clear();
-                edge.arrow_end.append(QPoint(last_pt.x() - 3, last_pt.y() - 6));
-                edge.arrow_end.append(QPoint(last_pt.x() + 3, last_pt.y() - 6));
-                edge.arrow_end.append(last_pt);
-            }
-        }
-    }
-
     ready = true;
 
     viewport()->update();
@@ -183,21 +159,31 @@ void GraphView::paintEvent(QPaintEvent *event)
         // Draw edges
         for (GraphEdge &edge : block.edges) {
             QPolygonF polyline = recalculatePolygon(edge.polyline);
-            QPolygonF arrow_start = recalculatePolygon(edge.arrow_start);
-            QPolygonF arrow_end = recalculatePolygon(edge.arrow_end);
-            EdgeConfiguration ec = edgeConfiguration(block, edge.dest);
-            QPen pen(edge.color);
+            EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
+            QPen pen(ec.color);
             pen.setWidth(pen.width() / ec.width_scale);
             p.setPen(pen);
-            p.setBrush(edge.color);
+            p.setBrush(ec.color);
             p.drawPolyline(polyline);
             pen.setStyle(Qt::SolidLine);
             p.setPen(pen);
-            if (ec.start_arrow) {
-                p.drawConvexPolygon(arrow_start);
-            }
-            if (ec.end_arrow) {
-                p.drawConvexPolygon(arrow_end);
+            if (!polyline.empty()) {
+                if (ec.start_arrow) {
+                    auto firstPt = edge.polyline.first();
+                    QPolygonF arrowStart;
+                    arrowStart << QPointF(firstPt.x() - 3, firstPt.y() + 6);
+                    arrowStart << QPointF(firstPt.x() + 3, firstPt.y() + 6);
+                    arrowStart << QPointF(firstPt);
+                    p.drawConvexPolygon(recalculatePolygon(arrowStart));
+                }
+                if (ec.end_arrow) {
+                    auto lastPt = edge.polyline.last();
+                    QPolygonF arrowEnd;
+                    arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() - 6);
+                    arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() - 6);
+                    arrowEnd << QPointF(lastPt);
+                    p.drawConvexPolygon(recalculatePolygon(arrowEnd));
+                }
             }
         }
     }
@@ -307,7 +293,7 @@ void GraphView::mousePressEvent(QMouseEvent *event)
             QPointF start = edge.polyline.first();
             QPointF end = edge.polyline.last();
             if (checkPointClicked(start, x, y)) {
-                showBlock(edge.dest);
+                showBlock(blocks[edge.target]);
                 // TODO: Callback to child
                 return;
                 break;

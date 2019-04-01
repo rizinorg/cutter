@@ -16,14 +16,14 @@ GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
 {
 }
 
-void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
-                                      int &width, int &height) const
+std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, unsigned long long entry)
 {
+    auto &blocks = *state.blocks;
     // Populate incoming lists
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
-        for (auto &edge : block.exits) {
-            blocks[edge].incoming.push_back(block.entry);
+        for (auto &edge : block.edges) {
+            state.grid_blocks[edge.target].incoming.push_back(blockIt.first);
         }
     }
 
@@ -42,7 +42,8 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
             GraphBlock &block = blocks[queue.front()];
             queue.pop();
             block_order.push_back(block.entry);
-            for (ut64 edge : block.exits) {
+            for (const auto &edgeDescr : block.edges) {
+                ut64 edge = edgeDescr.target;
                 // Skip edge if we already visited it
                 if (visited.count(edge)) {
                     continue;
@@ -54,15 +55,15 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
                 }
 
                 // If this node has no other incoming edges, add it to the graph layout
-                if (blocks[edge].incoming.size() == 1) {
-                    removeFromVec(blocks[edge].incoming, block.entry);
-                    block.new_exits.push_back(edge);
+                if (state.grid_blocks[edge].incoming.size() == 1) {
+                    removeFromVec(state.grid_blocks[edge].incoming, block.entry);
+                    state.grid_blocks[block.entry].tree_edge.push_back(edge);
                     queue.push(blocks[edge].entry);
                     visited.insert(edge);
                     changed = true;
                 } else {
                     // Remove from incoming edges
-                    removeFromVec(blocks[edge].incoming, block.entry);
+                    removeFromVec(state.grid_blocks[edge].incoming, block.entry);
                 }
             }
         }
@@ -70,14 +71,15 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
         // No more nodes satisfy constraints, pick a node to continue constructing the graph
         ut64 best = 0;
         int best_edges;
-        ut64 best_parent;
+        ut64 best_parent = 0;
         for (auto &blockIt : blocks) {
             GraphBlock &block = blockIt.second;
             // Skip blocks we haven't visited yet
             if (!visited.count(block.entry)) {
                 continue;
             }
-            for (ut64 edge : block.exits) {
+            for (const auto &edgeDescr : block.edges) {
+                ut64 edge = edgeDescr.target;
                 // If we already visited the exit, skip it
                 if (visited.count(edge)) {
                     continue;
@@ -86,28 +88,43 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
                     continue;
                 }
                 // find best edge
-                if ((best == 0) || ((int)blocks[edge].incoming.size() < best_edges) || (
-                            ((int)blocks[edge].incoming.size() == best_edges) && (edge < best))) {
+                if ((best == 0) || ((int)state.grid_blocks[edge].incoming.size() < best_edges) || (
+                            ((int)state.grid_blocks[edge].incoming.size() == best_edges) && (edge < best))) {
                     best = edge;
-                    best_edges = blocks[edge].incoming.size();
+                    best_edges = state.grid_blocks[edge].incoming.size();
                     best_parent = block.entry;
                 }
             }
         }
         if (best != 0) {
-            GraphBlock &best_parentb = blocks[best_parent];
-            removeFromVec(blocks[best].incoming, best_parentb.entry);
-            best_parentb.new_exits.push_back(best);
+            auto &best_parentb = state.grid_blocks[best_parent];
+            removeFromVec(state.grid_blocks[best].incoming, best_parent);
+            best_parentb.tree_edge.push_back(best);
             visited.insert(best);
             queue.push(best);
             changed = true;
         }
     }
+    return block_order;
+}
 
-    computeBlockPlacement(blocks[entry], blocks);
+void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
+                                      int &width, int &height) const
+{
+    LayoutState layoutState;
+    layoutState.blocks = &blocks;
+
+    for (auto &it : blocks) {
+        GridBlock block;
+        block.id = it.first;
+        layoutState.grid_blocks[it.first] = block;
+    }
+
+    auto block_order = topoSort(layoutState, entry);
+    computeBlockPlacement(entry, layoutState);
 
     // Prepare edge routing
-    GraphBlock &entryb = blocks[entry];
+    auto &entryb = layoutState.grid_blocks[entry];
     EdgesVector horiz_edges, vert_edges;
     horiz_edges.resize(entryb.row_count + 1);
     vert_edges.resize(entryb.row_count + 1);
@@ -119,18 +136,18 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
         edge_valid[row].assign(entryb.col_count + 1, true);
     }
 
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
+    for (auto &blockIt : layoutState.grid_blocks) {
+        auto &block = blockIt.second;
         edge_valid[block.row][block.col + 1] = false;
     }
 
     // Perform edge routing
-    for (ut64 block_id : block_order) {
-        GraphBlock &block = blocks[block_id];
-        GraphBlock &start = block;
-        for (ut64 edge : block.exits) {
-            GraphBlock &end = blocks[edge];
-            start.edges.push_back(routeEdge(horiz_edges, vert_edges, edge_valid, start, end));
+    for (ut64 blockId : block_order) {
+        GraphBlock &block = blocks[blockId];
+        GridBlock &start = layoutState.grid_blocks[blockId];
+        for (const auto &edge : block.edges) {
+            GridBlock &end = layoutState.grid_blocks[edge.target];
+            layoutState.edge[blockId].push_back(routeEdge(horiz_edges, vert_edges, edge_valid, start, end));
         }
     }
 
@@ -154,12 +171,13 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     row_height.assign(entryb.row_count + 1, 0);
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
-        if ((int(block.width / 2)) > col_width[block.col])
-            col_width[block.col] = int(block.width / 2);
-        if ((int(block.width / 2)) > col_width[block.col + 1])
-            col_width[block.col + 1] = int(block.width / 2);
-        if (int(block.height) > row_height[block.row])
-            row_height[block.row] = int(block.height);
+        GridBlock &grid_block = layoutState.grid_blocks[blockIt.first];
+        if ((int(block.width / 2)) > col_width[grid_block.col])
+            col_width[grid_block.col] = int(block.width / 2);
+        if ((int(block.width / 2)) > col_width[grid_block.col + 1])
+            col_width[grid_block.col + 1] = int(block.width / 2);
+        if (int(block.height) > row_height[grid_block.row])
+            row_height[grid_block.row] = int(block.height);
     }
 
     // Compute row and column positions
@@ -196,27 +214,29 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     //Compute node positions
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
-        block.x = int(
-                      (col_x[block.col] + col_width[block.col] + ((layoutConfig.block_horizontal_margin / 2) *
-                                                                  col_edge_count[block.col
-                                                                                 + 1])) - (block.width / 2));
+        GridBlock &grid_block = layoutState.grid_blocks[blockIt.first];
+        auto column = grid_block.col;
+        auto row = grid_block.row;
+        block.x = int(col_x[column] + col_width[column] +
+                      ((layoutConfig.block_horizontal_margin / 2) * col_edge_count[column + 1])
+                      - (block.width / 2));
         if ((block.x + block.width) > (
-                    col_x[block.col] + col_width[block.col] + col_width[block.col + 1] +
+                    col_x[column] + col_width[column] + col_width[column + 1] +
                     layoutConfig.block_horizontal_margin *
-                    col_edge_count[
-                 block.col + 1])) {
-            block.x = int((col_x[block.col] + col_width[block.col] + col_width[block.col + 1] +
-                           layoutConfig.block_horizontal_margin * col_edge_count[
-                    block.col + 1]) - block.width);
+                    col_edge_count[column + 1])) {
+            block.x = int((col_x[column] + col_width[column] + col_width[column + 1] +
+                           layoutConfig.block_horizontal_margin * col_edge_count[column + 1]) - block.width);
         }
-        block.y = row_y[block.row];
+        block.y = row_y[row];
     }
 
-    // Precompute coordinates for edges
+    // Compute coordinates for edges
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
-        for (GraphEdge &edge : block.edges) {
+        size_t index = 0;
+        assert(block.edges.size() == layoutState.edge[block.entry].size());
+        for (GridEdge &edge : layoutState.edge[block.entry]) {
             auto start = edge.points[0];
             auto start_col = start.col;
             auto last_index = edge.start_index;
@@ -247,10 +267,11 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
                 start_col = end_col;
             }
 
-
-            auto new_pt = QPoint(last_pt.x(), edge.dest->y - 1);
+            const auto &target = blocks[edge.dest];
+            auto new_pt = QPoint(last_pt.x(), target.y - 1);
             pts.push_back(new_pt);
-            edge.polyline = pts;
+            block.edges[index].polyline = pts;
+            index++;
         }
     }
 }
@@ -259,32 +280,33 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
 // Prepare graph
 // This computes the position and (row/col based) size of the block
 // Recursively calls itself for each child of the GraphBlock
-void GraphGridLayout::computeBlockPlacement(GraphBlock &block,
-                                            std::unordered_map<ut64, GraphBlock> &blocks) const
+void GraphGridLayout::computeBlockPlacement(ut64 blockId, LayoutState &layoutState) const
 {
+    auto &block = layoutState.grid_blocks[blockId];
+    auto &blocks = layoutState.grid_blocks;
     int col = 0;
     int row_count = 1;
     int childColumn = 0;
-    bool singleChild = block.new_exits.size() == 1;
+    bool singleChild = block.tree_edge.size() == 1;
     // Compute all children nodes
-    for (size_t i = 0; i < block.new_exits.size(); i++) {
-        ut64 edge = block.new_exits[i];
-        GraphBlock &edgeb = blocks[edge];
-        computeBlockPlacement(edgeb, blocks);
+    for (size_t i = 0; i < block.tree_edge.size(); i++) {
+        ut64 edge = block.tree_edge[i];
+        auto &edgeb = blocks[edge];
+        computeBlockPlacement(edge, layoutState);
         row_count = std::max(edgeb.row_count + 1, row_count);
         childColumn = edgeb.col;
     }
 
-    if (layoutType != LayoutType::Wide && block.new_exits.size() == 2) {
-        GraphBlock &left = blocks[block.new_exits[0]];
-        GraphBlock &right = blocks[block.new_exits[1]];
-        if (left.new_exits.size() == 0) {
+    if (layoutType != LayoutType::Wide && block.tree_edge.size() == 2) {
+        auto &left = blocks[block.tree_edge[0]];
+        auto &right = blocks[block.tree_edge[1]];
+        if (left.tree_edge.size() == 0) {
             left.col = right.col - 2;
             int add = left.col < 0 ? - left.col : 0;
             adjustGraphLayout(right, blocks, add, 1);
             adjustGraphLayout(left, blocks, add, 1);
             col = right.col_count + add;
-        } else if (right.new_exits.size() == 0) {
+        } else if (right.tree_edge.size() == 0) {
             adjustGraphLayout(left, blocks, 0, 1);
             adjustGraphLayout(right, blocks, left.col + 2, 1);
             col = std::max(left.col_count, right.col + 2);
@@ -300,7 +322,7 @@ void GraphGridLayout::computeBlockPlacement(GraphBlock &block,
             block.col = singleChild ? childColumn : (col - 2) / 2;
         }
     } else {
-        for (ut64 edge : block.new_exits) {
+        for (ut64 edge : block.tree_edge) {
             adjustGraphLayout(blocks[edge], blocks, col, 1);
             col += blocks[edge].col_count;
         }
@@ -319,12 +341,12 @@ void GraphGridLayout::computeBlockPlacement(GraphBlock &block,
     block.row_count = row_count;
 }
 
-void GraphGridLayout::adjustGraphLayout(GraphBlock &block,
-                                        std::unordered_map<ut64, GraphBlock> &blocks, int col, int row) const
+void GraphGridLayout::adjustGraphLayout(GridBlock &block,
+                                        std::unordered_map<ut64, GridBlock> &blocks, int col, int row) const
 {
     block.col += col;
     block.row += row;
-    for (ut64 edge : block.new_exits) {
+    for (ut64 edge : block.tree_edge) {
         adjustGraphLayout(blocks[edge], blocks, col, row);
     }
 }
@@ -344,18 +366,16 @@ void GraphGridLayout::markEdge(EdgesVector &edges, int row, int col, int index, 
     edges[row][col][index] = used;
 }
 
-GraphGridLayout::GraphEdge GraphGridLayout::routeEdge(EdgesVector &horiz_edges,
-                                                      EdgesVector &vert_edges,
-                                                      Matrix<bool> &edge_valid, GraphBlock &start, GraphBlock &end) const
+GraphGridLayout::GridEdge GraphGridLayout::routeEdge(EdgesVector &horiz_edges,
+                                                     EdgesVector &vert_edges,
+                                                     Matrix<bool> &edge_valid, GridBlock &start, GridBlock &end) const
 {
-    GraphEdge edge;
-    edge.dest = &end;
+    GridEdge edge;
+    edge.dest = end.id;
 
     //Find edge index for initial outgoing line
     int i = 0;
-    while (true) {
-        if (!isEdgeMarked(vert_edges, start.row + 1, start.col + 1, i))
-            break;
+    while (isEdgeMarked(vert_edges, start.row + 1, start.col + 1, i)) {
         i += 1;
     }
     markEdge(vert_edges, start.row + 1, start.col + 1, i);

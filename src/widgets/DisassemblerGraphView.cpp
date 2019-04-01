@@ -249,13 +249,13 @@ void DisassemblerGraphView::loadCurrentGraph()
         db.false_path = RVA_INVALID;
         if (block_fail) {
             db.false_path = block_fail;
-            gb.exits.push_back(block_fail);
+            gb.edges.push_back({block_fail});
         }
         if (block_jump) {
             if (block_fail) {
                 db.true_path = block_jump;
             }
-            gb.exits.push_back(block_jump);
+            gb.edges.push_back({block_jump});
         }
 
         QJsonObject switchOp = block["switchop"].toObject();
@@ -268,7 +268,7 @@ void DisassemblerGraphView::loadCurrentGraph()
                 if (!ok) {
                     continue;
                 }
-                gb.exits.push_back(caseJump);
+                gb.edges.push_back({caseJump});
             }
         }
 
@@ -733,8 +733,8 @@ void DisassemblerGraphView::takeTrue()
 
     if (db->true_path != RVA_INVALID) {
         seekable->seek(db->true_path);
-    } else if (!blocks[db->entry].exits.empty()) {
-        seekable->seek(blocks[db->entry].exits[0]);
+    } else if (!blocks[db->entry].edges.empty()) {
+        seekable->seek(blocks[db->entry].edges[0].target);
     }
 }
 
@@ -747,8 +747,8 @@ void DisassemblerGraphView::takeFalse()
 
     if (db->false_path != RVA_INVALID) {
         seekable->seek(db->false_path);
-    } else if (!blocks[db->entry].exits.empty()) {
-        seekable->seek(blocks[db->entry].exits[0]);
+    } else if (!blocks[db->entry].edges.empty()) {
+        seekable->seek(blocks[db->entry].edges[0].target);
     }
 }
 

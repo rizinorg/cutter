@@ -24,7 +24,6 @@ signals:
     void refreshBlock();
 
 public:
-    // TODO: split layout specific data from visual look that doesn't affect layout
     using GraphBlock = GraphLayout::GraphBlock;
     using GraphEdge = GraphLayout::GraphEdge;
 

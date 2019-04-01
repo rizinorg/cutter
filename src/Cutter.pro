@@ -313,7 +313,6 @@ SOURCES += \
     common/UpdateWorker.cpp \
     widgets/MemoryDockWidget.cpp \
     common/HighDpiPixmap.cpp \
-    widgets/GraphLayout.cpp \
     widgets/GraphGridLayout.cpp
 
 HEADERS  += \
