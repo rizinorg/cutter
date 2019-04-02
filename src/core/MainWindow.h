@@ -99,6 +99,8 @@ public:
     void addExtraWidget(QDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
+    enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
+    QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
 
     void updateDockActionChecked(QAction * action);

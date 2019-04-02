@@ -11,6 +11,9 @@
     <object-type name="MainWindow" />
     <object-type name="BasicBlockHighlighter" />
     <object-type name="CutterDockWidget" />
+    <object-type name="MainWindow">
+        <enum-type name="MenuType" />
+    </object-type>
 
     <template name="plugin_meta_get">
         SbkObject *wrapper = Shiboken::BindingManager::instance().retrieveWrapper(this);
