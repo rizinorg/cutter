@@ -338,8 +338,9 @@ void MainWindow::disconnectOverview()
 
 void MainWindow::setOverviewData()
 {
-    overviewDock->getGraphView()->setData(targetGraphDock->getGraphView()->getWidth(),
-            targetGraphDock->getGraphView()->getHeight(), targetGraphDock->getGraphView()->getBlocks());
+    auto &mainGraphView = *targetGraphDock->getGraphView();
+    overviewDock->getGraphView()->setData(mainGraphView.getWidth(), mainGraphView.getHeight(),
+                                          mainGraphView.getBlocks(), mainGraphView.getEdgeConfigurations());
 }
 
 bool MainWindow::isOverviewActive()

@@ -319,6 +319,17 @@ void DisassemblerGraphView::loadCurrentGraph()
     }
 }
 
+DisassemblerGraphView::EdgeConfigurationMapping DisassemblerGraphView::getEdgeConfigurations()
+{
+    EdgeConfigurationMapping result;
+    for (auto &block : blocks) {
+        for (const auto &edge : block.second.edges) {
+            result[ {block.first, edge.target}] = edgeConfiguration(block.second, &blocks[edge.target]);
+        }
+    }
+    return result;
+}
+
 void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
