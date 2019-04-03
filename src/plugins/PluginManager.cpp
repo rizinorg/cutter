@@ -54,18 +54,18 @@ void PluginManager::loadPlugins()
         return;
     }
 
-    loadPlugins(QDir(pluginsDirStr));
+    loadPluginsFromDir(QDir(pluginsDirStr));
 
 #ifdef Q_OS_WIN
-    QDir localDir;
-    localDir.mkdir("plugins");
-    if (localDir.cd("plugins")) {
-        loadPlugins(localDir);
+    QDir appDir;
+    appDir.mkdir("plugins");
+    if (appDir.cd("plugins")) {
+        loadPluginsFromDir(appDir);
     }
 #endif
 }
 
-void PluginManager::loadPlugins(const QDir &pluginsDir)
+void PluginManager::loadPluginsFromDir(const QDir &pluginsDir)
 {
     qInfo() << "Plugins are loaded from" << pluginsDir.absolutePath();
     int loadedPlugins = plugins.length();
