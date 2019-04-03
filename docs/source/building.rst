@@ -27,8 +27,8 @@ Building options
 
 Note that there are three major building options available:
 
-* ``CUTTER_ENABLE_JUPYTER`` is used to compile Cutter with bundled Python and Jupyter module
-* ``CUTTER_ENABLE_QTWEBENGINE`` is used to compile Cutter with bundled QtWebEngine (to easy jupyter console usage)
+* ``CUTTER_ENABLE_PYTHON`` compile with Python support
+* ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
 * ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad)
 
 --------------
