@@ -451,6 +451,33 @@ void MainWindow::addExtraWidget(QDockWidget *extraDock)
     restoreExtraDock.restoreWidth(extraDock->widget());
 }
 
+/**
+ * @brief Getter for MainWindow's different menus
+ * @param type The type which represents the desired menu
+ * @return The requested menu or nullptr if "type" is invalid
+**/
+QMenu *MainWindow::getMenuByType(MenuType type)
+{
+    switch (type) {
+    case MenuType::File:
+        return ui->menuFile;
+    case MenuType::Edit:
+        return ui->menuEdit;
+    case MenuType::View:
+        return ui->menuView;
+    case MenuType::Windows:
+        return ui->menuWindows;
+    case MenuType::Debug:
+        return ui->menuDebug;
+    case MenuType::Help:
+        return ui->menuHelp;
+    case MenuType::Plugins:
+        return ui->menuPlugins;
+    default:
+        return nullptr;
+    }
+}
+
 void MainWindow::addPluginDockWidget(QDockWidget *dockWidget, QAction *action)
 {
     addDockWidget(Qt::TopDockWidgetArea, dockWidget);

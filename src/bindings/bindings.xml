@@ -8,7 +8,9 @@
 
     <object-type name="CutterCore" />
     <object-type name="Configuration" />
-    <object-type name="MainWindow" />
+    <object-type name="MainWindow" >
+        <enum-type name="MenuType" />
+    </object-type>
     <object-type name="BasicBlockHighlighter" />
     <object-type name="CutterDockWidget" />
 
