@@ -381,11 +381,13 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 void GraphView::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
-    if (useCache) {
+    qreal dpr = devicePixelRatioF();
+    if (useCache && qFuzzyCompare(dpr, pixmap.devicePixelRatioF())) {
         drawGraph();
         return;
     }
-    pixmap = QPixmap(viewport()->width(), viewport()->height());
+    pixmap = QPixmap(int(viewport()->width() * dpr), int(viewport()->height() * dpr));
+    pixmap.setDevicePixelRatio(dpr);
     QPainter p(&pixmap);
 
     p.setRenderHint(QPainter::Antialiasing);
@@ -393,9 +395,8 @@ void GraphView::paintEvent(QPaintEvent *event)
     int render_width = viewport()->width();
     int render_height = viewport()->height();
 
-    QRect viewportRect(viewport()->rect().topLeft(), viewport()->rect().bottomRight() - QPoint(1, 1));
     p.setBrush(backgroundColor);
-    p.drawRect(viewportRect);
+    p.drawRect(viewport()->rect());
     p.setBrush(Qt::black);
 
     p.scale(current_scale, current_scale);
@@ -448,7 +449,8 @@ void GraphView::paintEvent(QPaintEvent *event)
 void GraphView::drawGraph()
 {
     QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
-    QRectF source(0.0, 0.0, viewport()->width(), viewport()->height());
+    QRectF source(0.0, 0.0, viewport()->width() * pixmap.devicePixelRatioF(),
+                  viewport()->height() * pixmap.devicePixelRatioF());
     QPainter p(viewport());
     p.drawPixmap(target, pixmap, source);
 }

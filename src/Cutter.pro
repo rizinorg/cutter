@@ -311,7 +311,8 @@ SOURCES += \
     common/BasicBlockHighlighter.cpp \
     dialogs/LinkTypeDialog.cpp \
     common/UpdateWorker.cpp \
-    widgets/MemoryDockWidget.cpp
+    widgets/MemoryDockWidget.cpp \
+    common/HighDpiPixmap.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -428,7 +429,8 @@ HEADERS  += \
     common/BasicBlockHighlighter.h \
     common/UpdateWorker.h \
     dialogs/LinkTypeDialog.h \
-    widgets/MemoryDockWidget.h
+    widgets/MemoryDockWidget.h \
+    common/HighDpiPixmap.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
