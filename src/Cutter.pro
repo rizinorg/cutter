@@ -345,8 +345,9 @@ SOURCES += \
     common/UpdateWorker.cpp \
     widgets/MemoryDockWidget.cpp \
     common/CrashHandler.cpp \
-    common/BugReporting.cpp
-
+    common/BugReporting.cpp \
+    common/HighDpiPixmap.cpp
+    
 HEADERS  += \
     core/Cutter.h \
     core/CutterCommon.h \
@@ -464,7 +465,9 @@ HEADERS  += \
     common/UpdateWorker.h \
     widgets/MemoryDockWidget.h \
     dialogs/LinkTypeDialog.h \
-    common/BugReporting.h
+    common/BugReporting.h \
+    widgets/MemoryDockWidget.h \
+    common/HighDpiPixmap.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
