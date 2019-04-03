@@ -100,7 +100,7 @@ CUTTER_ENABLE_PYTHON {
         PYTHON_EXECUTABLE = $$system("where python", lines)
         PYTHON_EXECUTABLE = $$first(PYTHON_EXECUTABLE)
         pythonpath = $$clean_path($$dirname(PYTHON_EXECUTABLE))
-        LIBS += -L$${pythonpath} -L$${pythonpath}/libs -lpython3
+        LIBS += -L$${pythonpath}/libs -lpython3
         INCLUDEPATH += $${pythonpath}/include
     }
 

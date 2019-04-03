@@ -6,7 +6,6 @@
 #include "PythonManager.h"
 #include "Cutter.h"
 
-#include <marshal.h>
 #include <QDebug>
 #include <QFile>
 #include <QDebug>
@@ -103,11 +102,14 @@ static void pySideDestructionVisitor(SbkObject* pyObj, void* data)
 
     const char *reprStr = "";
     PyObject *repr = PyObject_Repr(reinterpret_cast<PyObject *>(pyObj));
+    PyObject *reprBytes;
     if (repr) {
-        reprStr = PyUnicode_AsUTF8(repr);
+        reprBytes = PyUnicode_AsUTF8String(repr);
+        reprStr = PyBytes_AsString(reprBytes);
     }
     qWarning() << "Warning: QObject from Python remaining (leaked from plugin?):" << reprStr;
     if (repr) {
+        Py_DecRef(reprBytes);
         Py_DecRef(repr);
     }
 
@@ -139,11 +141,11 @@ void PythonManager::shutdown()
     PySide::runCleanupFunctions();
 #endif
 
-    Py_Finalize();
-
     if (pythonHome) {
-        PyMem_RawFree(pythonHome);
+        PyMem_Free(pythonHome);
     }
+
+    Py_Finalize();
 }
 
 void PythonManager::addPythonPath(char *path) {
