@@ -466,7 +466,6 @@ HEADERS  += \
     widgets/MemoryDockWidget.h \
     dialogs/LinkTypeDialog.h \
     common/BugReporting.h \
-    widgets/MemoryDockWidget.h \
     common/HighDpiPixmap.h
 
 FORMS    += \
