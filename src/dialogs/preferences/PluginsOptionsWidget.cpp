@@ -21,8 +21,9 @@ PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
     setLayout(layout);
 
     auto dirLabel = new QLabel(this);
+    dirLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
     layout->addWidget(dirLabel);
-    dirLabel->setText(tr("Plugins are loaded from %1").arg(Plugins()->getPluginsDirectory()));
+    dirLabel->setText(tr("Plugins are loaded from <b>%1</b>").arg(Plugins()->getPluginsDirectory()));
 
     auto treeWidget = new QTreeWidget(this);
     layout->addWidget(treeWidget);
