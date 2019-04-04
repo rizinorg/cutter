@@ -104,6 +104,8 @@ public:
     int getWidth() { return width; }
     int getHeight() { return height; }
     std::unordered_map<ut64, GraphBlock> getBlocks() { return blocks; }
+    using EdgeConfigurationMapping = std::map<std::pair<ut64, ut64>, EdgeConfiguration>;
+    EdgeConfigurationMapping getEdgeConfigurations();
 
 public slots:
     void refreshView();

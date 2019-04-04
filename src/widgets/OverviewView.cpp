@@ -14,11 +14,14 @@ OverviewView::OverviewView(QWidget *parent)
     colorsUpdatedSlot();
 }
 
-void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut64, GraphBlock> baseBlocks)
+void OverviewView::setData(int baseWidth, int baseHeight,
+                           std::unordered_map<ut64, GraphBlock> baseBlocks,
+                           DisassemblerGraphView::EdgeConfigurationMapping baseEdgeConfigurations)
 {
     width = baseWidth;
     height = baseHeight;
     blocks = baseBlocks;
+    edgeConfigurations = baseEdgeConfigurations;
     scaleAndCenter();
 }
 
@@ -130,11 +133,12 @@ void OverviewView::wheelEvent(QWheelEvent *event)
 }
 
 GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,
-                                                                      GraphView::GraphBlock *to)
+                                                             GraphView::GraphBlock *to)
 {
-    Q_UNUSED(from);
-    Q_UNUSED(to);
     EdgeConfiguration ec;
+    auto baseEcIt = edgeConfigurations.find({from.entry, to->entry});
+    if (baseEcIt != edgeConfigurations.end())
+        ec = baseEcIt->second;
     ec.width_scale = current_scale;
     return ec;
 }
