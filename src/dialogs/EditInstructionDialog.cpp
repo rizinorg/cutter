@@ -25,10 +25,9 @@ void EditInstructionDialog::on_buttonBox_rejected()
     close();
 }
 
-QString EditInstructionDialog::getInstruction()
+QString EditInstructionDialog::getInstruction() const
 {
-    QString ret = ui->lineEdit->text();
-    return ret;
+    return ui->lineEdit->text();
 }
 
 void EditInstructionDialog::setInstruction(const QString &instruction)

@@ -1,10 +1,9 @@
 #ifndef HEXDUMPRANGEDIALOG_H
 #define HEXDUMPRANGEDIALOG_H
 
-#include "core/Cutter.h"
-
+#include "core/CutterCommon.h"
 #include <QDialog>
-#include <QRegExpValidator>
+
 
 namespace Ui {
 class HexdumpRangeDialog;

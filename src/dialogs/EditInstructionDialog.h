@@ -2,7 +2,6 @@
 #define EDITINSTRUCTIONDIALOG_H
 
 #include <QDialog>
-#include <QKeyEvent>
 #include <memory>
 
 namespace Ui {
@@ -21,7 +20,7 @@ public:
     explicit EditInstructionDialog(InstructionEditMode isEditingBytes, QWidget *parent = nullptr);
     ~EditInstructionDialog();
 
-    QString getInstruction();
+    QString getInstruction() const;
     void setInstruction(const QString &instruction);
 
 private slots:

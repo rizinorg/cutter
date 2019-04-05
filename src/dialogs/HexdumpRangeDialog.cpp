@@ -1,6 +1,9 @@
 #include "HexdumpRangeDialog.h"
 #include "ui_HexdumpRangeDialog.h"
 
+#include <QRegExpValidator>
+#include "core/Cutter.h"
+
 HexdumpRangeDialog::HexdumpRangeDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::HexdumpRangeDialog)
