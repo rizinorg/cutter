@@ -123,6 +123,10 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     auto block_order = topoSort(layoutState, entry);
     computeBlockPlacement(entry, layoutState);
 
+    for (auto &blockIt : blocks) {
+        layoutState.edge[blockIt.first].resize(blockIt.second.edges.size());
+    }
+
     // Prepare edge routing
     auto &entryb = layoutState.grid_blocks[entry];
     EdgesVector horiz_edges, vert_edges;
@@ -145,9 +149,10 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     for (ut64 blockId : block_order) {
         GraphBlock &block = blocks[blockId];
         GridBlock &start = layoutState.grid_blocks[blockId];
+        size_t i = 0;
         for (const auto &edge : block.edges) {
             GridBlock &end = layoutState.grid_blocks[edge.target];
-            layoutState.edge[blockId].push_back(routeEdge(horiz_edges, vert_edges, edge_valid, start, end));
+            layoutState.edge[blockId][i++] = routeEdge(horiz_edges, vert_edges, edge_valid, start, end);
         }
     }
 
@@ -237,6 +242,10 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
         size_t index = 0;
         assert(block.edges.size() == layoutState.edge[block.entry].size());
         for (GridEdge &edge : layoutState.edge[block.entry]) {
+            if (edge.points.empty()) {
+                qDebug() << "Warning, unrouted edge.";
+                continue;
+            }
             auto start = edge.points[0];
             auto start_col = start.col;
             auto last_index = edge.start_index;

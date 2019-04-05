@@ -158,6 +158,9 @@ void GraphView::paintEvent(QPaintEvent *event)
         // TODO: Only draw edges if they are actually visible ...
         // Draw edges
         for (GraphEdge &edge : block.edges) {
+            if (edge.polyline.empty()) {
+                continue;
+            }
             QPolygonF polyline = recalculatePolygon(edge.polyline);
             EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
             QPen pen(ec.color);
