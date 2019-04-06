@@ -19,6 +19,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         item->setText(3, plugin.type);
         ui->RBinTreeWidget->addTopLevelItem(item);
     }
+    ui->RBinTreeWidget->sortByColumn(0, Qt::AscendingOrder);
     qhelpers::adjustColumns(ui->RBinTreeWidget, 0);
 
     for (const auto &plugin : Core()->getRIOPluginDescriptions()) {
@@ -29,6 +30,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         item->setText(3, plugin.permissions);
         ui->RIOTreeWidget->addTopLevelItem(item);
     }
+    ui->RIOTreeWidget->sortByColumn(0, Qt::AscendingOrder);
     qhelpers::adjustColumns(ui->RIOTreeWidget, 0);
 
     for (const auto &plugin : Core()->getRCorePluginDescriptions()) {
@@ -37,6 +39,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         item->setText(1, plugin.description);
         ui->RCoreTreeWidget->addTopLevelItem(item);
     }
+    ui->RCoreTreeWidget->sortByColumn(0, Qt::AscendingOrder);
     qhelpers::adjustColumns(ui->RCoreTreeWidget, 0);
 
     for (const auto &plugin : Core()->getRAsmPluginDescriptions()) {
@@ -50,6 +53,7 @@ R2PluginsDialog::R2PluginsDialog(QWidget *parent) :
         item->setText(6, plugin.author);
         ui->RAsmTreeWidget->addTopLevelItem(item);
     }
+    ui->RAsmTreeWidget->sortByColumn(0, Qt::AscendingOrder);
     qhelpers::adjustColumns(ui->RAsmTreeWidget, 0);
 }
 
