@@ -46,18 +46,10 @@ std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, ut64 entry)
                 if (targetState == 0) {
                     targetState = 1;
                     stack.push({target, 0});
-                    //state.grid_blocks[v].tree_edge.push_back(target);
-                    //state.grid_blocks[target].has_parent = true;
                     state.grid_blocks[v].dag_edge.push_back(target);
-                } else if (targetState == 1) {
-                    // in stack, loop edge
-                } else {
-                    if (!state.grid_blocks[target].has_parent) {
-                        //state.grid_blocks[v].tree_edge.push_back(target);
-                        //state.grid_blocks[target].has_parent = true;
-                    }
+                } else if (targetState == 2) {
                     state.grid_blocks[v].dag_edge.push_back(target);
-                }
+                } // else {  targetState == 1 in stack, loop edge }
             } else {
                 stack.pop();
                 visited[v] = 2;
