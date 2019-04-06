@@ -23,8 +23,10 @@ private:
 
     struct GridBlock {
         ut64 id;
-        std::vector<ut64> incoming;
         std::vector<ut64> tree_edge; // subset of outgoing edges that form a tree
+        std::vector<ut64> dag_edge; // subset of outgoing edges that form a tree
+        std::size_t has_parent = false;
+        int level = 0;
 
         // Number of rows in block
         int row_count = 0;
@@ -63,9 +65,13 @@ private:
         std::unordered_map<ut64, std::vector<GridEdge>> edge;
     };
 
+    using GridBlockMap = std::unordered_map<ut64, GridBlock>;
+
+    void computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
+                                  LayoutState &layoutState) const;
     void computeBlockPlacement(ut64 blockId,
                                LayoutState &layoutState) const;
-    void adjustGraphLayout(GridBlock &block, std::unordered_map<ut64, GridBlock> &blocks,
+    void adjustGraphLayout(GridBlock &block, GridBlockMap &blocks,
                            int col, int row) const;
     static std::vector<ut64> topoSort(LayoutState &state, ut64 entry);
 
