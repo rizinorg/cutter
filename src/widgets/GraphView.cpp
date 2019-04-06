@@ -133,6 +133,15 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
     return ret;
 }
 
+void GraphView::beginMouseDrag(QMouseEvent *event)
+{
+    scroll_base_x = event->x();
+    scroll_base_y = event->y();
+    scroll_mode = true;
+    setCursor(Qt::ClosedHandCursor);
+    viewport()->grabMouse();
+}
+
 void GraphView::paintEvent(QPaintEvent *)
 {
 #ifndef QT_NO_OPENGL
@@ -352,6 +361,11 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
+    if (event->button() == Qt::MiddleButton) {
+        beginMouseDrag(event);
+        return;
+    }
+
     int x = event->pos().x() / current_scale + offset.x();
     int y = event->pos().y() / current_scale + offset.y();
 
@@ -396,11 +410,7 @@ void GraphView::mousePressEvent(QMouseEvent *event)
     // No block was clicked
     if (event->button() == Qt::LeftButton) {
         //Left click outside any block, enter scrolling mode
-        scroll_base_x = event->x();
-        scroll_base_y = event->y();
-        scroll_mode = true;
-        setCursor(Qt::ClosedHandCursor);
-        viewport()->grabMouse();
+        beginMouseDrag(event);
     }
 
 }
@@ -442,10 +452,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 //    else if(event->button() == Qt::BackButton)
 //        gotoPreviousSlot();
 
-    if (event->button() != Qt::LeftButton)
-        return;
-
-    if (scroll_mode) {
+    if (scroll_mode && (event->buttons() & (Qt::LeftButton | Qt::MiddleButton)) == 0) {
         scroll_mode = false;
         setCursor(Qt::ArrowCursor);
         viewport()->releaseMouse();
@@ -454,6 +461,11 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 
 void GraphView::wheelEvent(QWheelEvent *event)
 {
+    if (scroll_mode) {
+        // With some mice it's easy to hit sideway scroll button while holding middle mouse.
+        // That would result in unwanted scrolling while panning.
+        return;
+    }
     QPoint delta = -event->angleDelta();
 
     delta /= current_scale;
