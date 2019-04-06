@@ -12,8 +12,12 @@
 #include <QFileDialog>
 #include <QCloseEvent>
 
+#include "core/Cutter.h"
+#include "common/AnalTask.h"
+
+
 InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
-    QDialog(0), // parent must not be main
+    QDialog(nullptr), // parent must not be main
     ui(new Ui::InitialOptionsDialog),
     main(main),
     core(Core())
@@ -122,13 +126,13 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     // TODO: all other options should also be applied to the ui
 }
 
-QString InitialOptionsDialog::getSelectedArch()
+QString InitialOptionsDialog::getSelectedArch() const
 {
     QVariant archValue = ui->archComboBox->currentData();
     return archValue.isValid() ? archValue.toString() : nullptr;
 }
 
-QString InitialOptionsDialog::getSelectedCPU()
+QString InitialOptionsDialog::getSelectedCPU() const
 {
     QString cpu = ui->cpuComboBox->currentText();
     if (cpu.isNull() || cpu.isEmpty())
@@ -136,7 +140,7 @@ QString InitialOptionsDialog::getSelectedCPU()
     return cpu;
 }
 
-int InitialOptionsDialog::getSelectedBits()
+int InitialOptionsDialog::getSelectedBits() const
 {
     QString sel_bits = ui->bitsComboBox->currentText();
     if (sel_bits != "Auto") {
@@ -146,7 +150,7 @@ int InitialOptionsDialog::getSelectedBits()
     return 0;
 }
 
-int InitialOptionsDialog::getSelectedBBSize()
+int InitialOptionsDialog::getSelectedBBSize() const
 {
     QString sel_bbsize = ui->entry_analbb->text();
     bool ok;
@@ -156,7 +160,7 @@ int InitialOptionsDialog::getSelectedBBSize()
     return 1024;
 }
 
-InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness()
+InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness() const
 {
     switch (ui->endiannessComboBox->currentIndex()) {
     case 1:
@@ -168,13 +172,13 @@ InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness()
     }
 }
 
-QString InitialOptionsDialog::getSelectedOS()
+QString InitialOptionsDialog::getSelectedOS() const
 {
     QVariant os = ui->kernelComboBox->currentData();
     return os.isValid() ? os.toString() : nullptr;
 }
 
-QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds()
+QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds() const
 {
     QList<QString> advanced = QList<QString>();
     if (ui->analSlider->value() == 3) {
