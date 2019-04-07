@@ -318,7 +318,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
             overviewDock->setUserClosed(true);
         }
     });
-    connect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+    connect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview())); // TODO: remove this, overviewDock handles resize itself!
 }
 
 void MainWindow::disconnectOverview()
@@ -332,7 +332,7 @@ void MainWindow::disconnectOverview()
         disconnect(overviewDock->getGraphView(), SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         disconnect(overviewDock->getGraphView(), SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
         disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
-        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview())); // TODO: remove this, overviewDock handles resize itself!
     }
 }
 
