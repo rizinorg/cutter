@@ -41,20 +41,16 @@ public:
     explicit GraphView(QWidget *parent);
     ~GraphView() override;
 
-    void paintEvent(QPaintEvent *event) override;
-
     void showBlock(GraphBlock &block);
     void showBlock(GraphBlock *block);
+
+    void setCacheDirty()    { cacheDirty = true; }
+    bool getCacheDirty()    { return cacheDirty; }
 
     // Zoom data
     qreal current_scale = 1.0;
 
     QPoint offset = QPoint(0, 0);
-
-    /**
-     * @brief flag to control if the cached pixmap should be used
-     */
-    bool useCache = false;
 
     /**
      * @brief keep the current addr of the fcn of Graph
@@ -92,6 +88,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+    void paintEvent(QPaintEvent *event) override;
 
     void center();
     void centerX();
@@ -131,6 +129,15 @@ private:
     QSize cacheSize;
     QOpenGLWidget *glWidget;
 #endif
+
+    /**
+     * @brief flag to control if the cached pixmap should be used
+     */
+    bool cacheDirty = true;
+    QSize getCacheSize();
+    qreal getCacheDevicePixelRatioF();
+    QSize getRequiredCacheSize();
+    qreal getRequiredCacheDevicePixelRatioF();
 
     QPolygonF recalculatePolygon(QPolygonF polygon);
     void beginMouseDrag(QMouseEvent *event);

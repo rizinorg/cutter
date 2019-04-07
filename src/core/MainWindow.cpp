@@ -366,7 +366,6 @@ void MainWindow::forceUpdateOverview()
     if (!isOverviewActive()) {
         return;
     }
-    overviewDock->getGraphView()->useCache = false;
     setOverviewData();
     drawOverview();
 }
@@ -377,10 +376,7 @@ void MainWindow::updateOverview()
         return;
     }
     if (overviewDock->getGraphView()->currentFcnAddr != targetGraphDock->getGraphView()->currentFcnAddr) {
-        overviewDock->getGraphView()->useCache = false;
         setOverviewData();
-    } else {
-        overviewDock->getGraphView()->useCache = true;
     }
     drawOverview();
 }

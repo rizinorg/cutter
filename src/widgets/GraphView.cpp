@@ -142,6 +142,42 @@ void GraphView::beginMouseDrag(QMouseEvent *event)
     viewport()->grabMouse();
 }
 
+QSize GraphView::getCacheSize()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? cacheSize :
+#endif
+        pixmap.size();
+}
+
+qreal GraphView::getCacheDevicePixelRatioF()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? 1.0 :
+#endif
+        pixmap.devicePixelRatioF();
+}
+
+QSize GraphView::getRequiredCacheSize()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? viewport()->size() :
+#endif
+        viewport()->size() * devicePixelRatioF();
+}
+
+qreal GraphView::getRequiredCacheDevicePixelRatioF()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? 1.0f :
+#endif
+        devicePixelRatioF();
+}
+
 void GraphView::paintEvent(QPaintEvent *)
 {
 #ifndef QT_NO_OPENGL
@@ -150,8 +186,15 @@ void GraphView::paintEvent(QPaintEvent *)
     }
 #endif
 
-    if(!useCache || !qFuzzyCompare(devicePixelRatioF(), pixmap.devicePixelRatioF())) {
+    if (!qFuzzyCompare(getCacheDevicePixelRatioF(), getRequiredCacheDevicePixelRatioF())
+        || getCacheSize() != getRequiredCacheSize()) {
+        setCacheDirty();
+    }
+
+    bool cacheWasDirty = cacheDirty;
+    if(cacheDirty) {
         paintGraphCache();
+        cacheDirty = false;
     }
 
     if (useGL) {
@@ -159,20 +202,19 @@ void GraphView::paintEvent(QPaintEvent *)
         auto gl = glWidget->context()->extraFunctions();
         gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, cacheFBO);
         gl->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glWidget->defaultFramebufferObject());
-        gl->glBlitFramebuffer(0, 0, viewport()->width(), viewport()->height(),
+        gl->glBlitFramebuffer(0, 0, cacheSize.width(), cacheSize.height(),
                               0, 0, viewport()->width(), viewport()->height(),
                               GL_COLOR_BUFFER_BIT, GL_NEAREST);
         glWidget->doneCurrent();
 #endif
     } else {
         QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
-        QRectF source(0.0, 0.0, viewport()->width() * pixmap.devicePixelRatioF(),
-            viewport()->height() * pixmap.devicePixelRatioF());
+        QRectF source(0.0, 0.0, pixmap.width(), pixmap.height());
         QPainter p(viewport());
         p.drawPixmap(target, pixmap, source);
     }
 
-    if(!useCache) { // TODO: does this condition make sense?
+    if(cacheWasDirty) { // TODO: does this condition make sense?
         emit refreshBlock();
     }
 }
@@ -219,7 +261,7 @@ void GraphView::paintGraphCache()
 #endif
     } else {
         auto dpr = devicePixelRatioF();
-        pixmap = QPixmap(int(viewport()->width() * dpr), int(viewport()->height() * dpr));
+        pixmap = QPixmap(getRequiredCacheSize());
         pixmap.setDevicePixelRatio(dpr);
         p.begin(&pixmap);
         p.setRenderHint(QPainter::Antialiasing);

@@ -23,6 +23,7 @@ void OverviewView::setData(int baseWidth, int baseHeight,
     blocks = baseBlocks;
     edgeConfigurations = baseEdgeConfigurations;
     scaleAndCenter();
+    setCacheDirty();
 }
 
 OverviewView::~OverviewView()
@@ -102,7 +103,6 @@ void OverviewView::mousePressEvent(QMouseEvent *event)
     qreal x = event->localPos().x() - w / 2;
     qreal y = event->localPos().y() - h / 2;
     rangeRect = QRectF(x, y, w, h);
-    useCache = true;
     viewport()->update();
     emit mouseMoved();
     mouseContainsRect(event);
@@ -122,7 +122,6 @@ void OverviewView::mouseMoveEvent(QMouseEvent *event)
     qreal x = event->localPos().x() - initialDiff.x();
     qreal y = event->localPos().y() - initialDiff.y();
     rangeRect = QRectF(x, y, rangeRect.width(), rangeRect.height());
-    useCache = true;
     viewport()->update();
     emit mouseMoved();
 }

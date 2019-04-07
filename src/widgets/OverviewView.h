@@ -68,6 +68,11 @@ protected:
      */
     void wheelEvent(QWheelEvent *event) override;
 
+    /**
+     * @brief override the paintEvent to draw the rect on Overview
+     */
+    void paintEvent(QPaintEvent *event) override;
+
 private:
     /**
      * @brief this will be handled in mouse events to move the rect properly
@@ -99,11 +104,6 @@ private:
      */
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
                                                            GraphView::GraphBlock *to) override;
-
-    /**
-     * @brief override the paintEvent to draw the rect on Overview
-     */
-    void paintEvent(QPaintEvent *event) override;
 
     /**
      * @brief if the mouse is in the rect in Overview.
