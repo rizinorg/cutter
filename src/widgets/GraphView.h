@@ -133,6 +133,7 @@ private:
 #endif
 
     QPolygonF recalculatePolygon(QPolygonF polygon);
+    void beginMouseDrag(QMouseEvent *event);
 };
 
 #endif // GRAPHVIEW_H
