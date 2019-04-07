@@ -11,6 +11,8 @@ public:
     struct GraphEdge {
         ut64 target;
         QPolygonF polyline;
+
+        explicit GraphEdge(ut64 target): target(target) {}
     };
 
     struct GraphBlock {

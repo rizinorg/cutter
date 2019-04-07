@@ -249,13 +249,13 @@ void DisassemblerGraphView::loadCurrentGraph()
         db.false_path = RVA_INVALID;
         if (block_fail) {
             db.false_path = block_fail;
-            gb.edges.push_back({block_fail});
+            gb.edges.emplace_back(block_fail);
         }
         if (block_jump) {
             if (block_fail) {
                 db.true_path = block_jump;
             }
-            gb.edges.push_back({block_jump});
+            gb.edges.emplace_back(block_jump);
         }
 
         QJsonObject switchOp = block["switchop"].toObject();
@@ -268,7 +268,7 @@ void DisassemblerGraphView::loadCurrentGraph()
                 if (!ok) {
                     continue;
                 }
-                gb.edges.push_back({caseJump});
+                gb.edges.emplace_back(caseJump);
             }
         }
 
