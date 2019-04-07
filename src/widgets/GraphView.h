@@ -44,9 +44,6 @@ public:
     void showBlock(GraphBlock &block);
     void showBlock(GraphBlock *block);
 
-    void setCacheDirty()    { cacheDirty = true; }
-    bool getCacheDirty()    { return cacheDirty; }
-
     // Zoom data
     qreal current_scale = 1.0;
 
@@ -66,6 +63,7 @@ protected:
     // Padding inside the block
     int block_padding = 16;
 
+    void setCacheDirty()    { cacheDirty = true; }
 
     void addBlock(GraphView::GraphBlock block);
     void setEntry(ut64 e);
@@ -131,7 +129,7 @@ private:
 #endif
 
     /**
-     * @brief flag to control if the cached pixmap should be used
+     * @brief flag to control if the cache is invalid and should be re-created in the next draw
      */
     bool cacheDirty = true;
     QSize getCacheSize();
