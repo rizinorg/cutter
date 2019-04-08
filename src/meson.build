@@ -101,6 +101,7 @@ cpp = meson.get_compiler('cpp')
 if host_machine.system() == 'windows'
   add_project_arguments('-D_CRT_NONSTDC_NO_DEPRECATE', language: 'cpp')
   add_project_arguments('-D_CRT_SECURE_NO_WARNINGS', language: 'cpp')
+  add_project_link_arguments(join_paths(py3_exe.get_variable('BINDIR'), 'libs', 'python3.lib'), language: 'cpp')
 endif
 
 cutter_exe = executable(

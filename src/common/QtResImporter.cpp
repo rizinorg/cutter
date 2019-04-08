@@ -1,53 +1,37 @@
 #ifdef CUTTER_ENABLE_PYTHON
 
+#define Py_LIMITED_API 0x03050000
 #include <Python.h>
-#include <marshal.h>
 
 #include "QtResImporter.h"
 
 #include <QFile>
 #include <QDebug>
 
-int QtResExists(const char *name, QFile &file)
+bool QtResExists(const char *name, QFile &file)
 {
     QString fname = QString::asprintf(":/python/%s.py", name);
     file.setFileName(fname);
-    if (file.exists())
-        return 1;
-    fname.append('c');
-    file.setFileName(fname);
-    if (file.exists())
-        return 2;
-    return 0;
+    return file.exists();
 }
 
 PyObject *QtResGetCode(const char *name)
 {
     QFile moduleFile;
-    bool isBytecode = false;
 
-    switch (QtResExists(name, moduleFile)) {
-    case 0:
+    if (!QtResExists(name, moduleFile)) {
         return nullptr;
-    case 2:
-        isBytecode = true;
     }
 
     moduleFile.open(QIODevice::ReadOnly);
     QByteArray data = moduleFile.readAll();
     moduleFile.close();
 
-    PyObject *codeObject;
-    if (isBytecode) {
-        codeObject = PyMarshal_ReadObjectFromString(data.constData() + 12,
-                                                    data.size() - 12);
-    } else {
-        codeObject = Py_CompileString(data.constData(),
-                                      moduleFile.fileName().toLocal8Bit().constData(),
-                                      Py_file_input);
-    }
+    PyObject *codeObject = Py_CompileString(data.constData(),
+                                            moduleFile.fileName().toLocal8Bit().constData(),
+                                            Py_file_input);
     if (!codeObject) {
-        qWarning() << "Couldn't unmarshal/compile " << moduleFile.fileName();
+        qWarning() << "Couldn't compile " << moduleFile.fileName();
     }
     return codeObject;
 }
