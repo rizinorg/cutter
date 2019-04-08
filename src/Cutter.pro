@@ -462,8 +462,8 @@ HEADERS  += \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
     common/UpdateWorker.h \
-    widgets/MemoryDockWidget.h \
     dialogs/LinkTypeDialog.h \
+    widgets/MemoryDockWidget.h \
     common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
