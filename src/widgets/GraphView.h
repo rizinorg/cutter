@@ -41,8 +41,6 @@ public:
     explicit GraphView(QWidget *parent);
     ~GraphView() override;
 
-    void paintEvent(QPaintEvent *event) override;
-
     void showBlock(GraphBlock &block);
     void showBlock(GraphBlock *block);
 
@@ -50,11 +48,6 @@ public:
     qreal current_scale = 1.0;
 
     QPoint offset = QPoint(0, 0);
-
-    /**
-     * @brief flag to control if the cached pixmap should be used
-     */
-    bool useCache = false;
 
     /**
      * @brief keep the current addr of the fcn of Graph
@@ -70,6 +63,7 @@ protected:
     // Padding inside the block
     int block_padding = 16;
 
+    void setCacheDirty()    { cacheDirty = true; }
 
     void addBlock(GraphView::GraphBlock block);
     void setEntry(ut64 e);
@@ -92,6 +86,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseDoubleClickEvent(QMouseEvent *event) override;
+
+    void paintEvent(QPaintEvent *event) override;
 
     void center();
     void centerX();
@@ -131,6 +127,15 @@ private:
     QSize cacheSize;
     QOpenGLWidget *glWidget;
 #endif
+
+    /**
+     * @brief flag to control if the cache is invalid and should be re-created in the next draw
+     */
+    bool cacheDirty = true;
+    QSize getCacheSize();
+    qreal getCacheDevicePixelRatioF();
+    QSize getRequiredCacheSize();
+    qreal getRequiredCacheDevicePixelRatioF();
 
     QPolygonF recalculatePolygon(QPolygonF polygon);
     void beginMouseDrag(QMouseEvent *event);

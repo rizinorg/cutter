@@ -130,6 +130,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
+    void paintEvent(QPaintEvent *event) override;
+
 private slots:
     void on_actionExportGraph_triggered();
 

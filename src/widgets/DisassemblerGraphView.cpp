@@ -999,3 +999,10 @@ void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
     }
     emit graphMoved();
 }
+
+void DisassemblerGraphView::paintEvent(QPaintEvent *event)
+{
+    // DisassemblerGraphView is always dirty
+    setCacheDirty();
+    GraphView::paintEvent(event);
+}
