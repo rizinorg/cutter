@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <queue>
 #include <stack>
+#include <assert.h>
 
 // Vector functions
 template<class T>
