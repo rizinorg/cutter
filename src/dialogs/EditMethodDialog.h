@@ -2,8 +2,6 @@
 #define EDITMETHODDIALOG_H
 
 #include <QDialog>
-#include <QComboBox>
-
 #include <memory>
 
 #include "core/Cutter.h"
@@ -12,6 +10,7 @@ namespace Ui {
 class EditMethodDialog;
 }
 
+class QComboBox;
 class EditMethodDialog : public QDialog
 {
     Q_OBJECT
@@ -26,8 +25,8 @@ public:
     void setClass(const QString &className);
     void setMethod(const AnalMethodDescription &desc);
 
-    QString getClass();
-    AnalMethodDescription getMethod();
+    QString getClass() const;
+    AnalMethodDescription getMethod() const;
 
     /**
      * @brief Helper function to display the dialog

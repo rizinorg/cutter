@@ -58,8 +58,6 @@ CUTTER_ENABLE_CRASH_REPORTS {
     message("Crash report support disabled.")
 }
 
-!defined(CUTTER_APPVEYOR_R2DEC, var)            CUTTER_APPVEYOR_R2DEC=false
-
 CUTTER_ENABLE_PYTHON {
     message("Python enabled.")
     DEFINES += CUTTER_ENABLE_PYTHON
@@ -345,9 +343,10 @@ SOURCES += \
     common/UpdateWorker.cpp \
     widgets/MemoryDockWidget.cpp \
     common/CrashHandler.cpp \
-    common/BugReporting.cpp \
-    common/HighDpiPixmap.cpp
-    
+    common/BugReporting.cpp \    
+    common/HighDpiPixmap.cpp \
+    widgets/GraphGridLayout.cpp
+
 HEADERS  += \
     core/Cutter.h \
     core/CutterCommon.h \
@@ -466,7 +465,9 @@ HEADERS  += \
     widgets/MemoryDockWidget.h \
     dialogs/LinkTypeDialog.h \
     common/BugReporting.h \
-    common/HighDpiPixmap.h
+    common/HighDpiPixmap.h \
+    widgets/GraphLayout.h \
+    widgets/GraphGridLayout.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

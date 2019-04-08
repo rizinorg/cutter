@@ -35,6 +35,7 @@ private:
     QList<CutterPlugin *> plugins;
 
     void loadNativePlugins(const QDir &directory);
+    void loadPluginsFromDir(const QDir &pluginsDir);
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     void loadPythonPlugins(const QDir &directory);

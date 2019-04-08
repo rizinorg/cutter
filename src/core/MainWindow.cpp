@@ -319,7 +319,7 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
             overviewDock->setUserClosed(true);
         }
     });
-    connect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+    connect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview())); // TODO: remove this, overviewDock handles resize itself!
 }
 
 void MainWindow::disconnectOverview()
@@ -333,14 +333,15 @@ void MainWindow::disconnectOverview()
         disconnect(overviewDock->getGraphView(), SIGNAL(mouseMoved()), this, SLOT(adjustGraph()));
         disconnect(overviewDock->getGraphView(), SIGNAL(refreshBlock()), this, SLOT(updateOverviewAddr()));
         disconnect(overviewDock, &QDockWidget::dockLocationChanged, this, &MainWindow::forceUpdateOverview);
-        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview()));
+        disconnect(overviewDock, SIGNAL(resized()), this, SLOT(forceUpdateOverview())); // TODO: remove this, overviewDock handles resize itself!
     }
 }
 
 void MainWindow::setOverviewData()
 {
-    overviewDock->getGraphView()->setData(targetGraphDock->getGraphView()->getWidth(),
-            targetGraphDock->getGraphView()->getHeight(), targetGraphDock->getGraphView()->getBlocks());
+    auto &mainGraphView = *targetGraphDock->getGraphView();
+    overviewDock->getGraphView()->setData(mainGraphView.getWidth(), mainGraphView.getHeight(),
+                                          mainGraphView.getBlocks(), mainGraphView.getEdgeConfigurations());
 }
 
 bool MainWindow::isOverviewActive()
@@ -366,7 +367,6 @@ void MainWindow::forceUpdateOverview()
     if (!isOverviewActive()) {
         return;
     }
-    overviewDock->getGraphView()->useCache = false;
     setOverviewData();
     drawOverview();
 }
@@ -377,10 +377,7 @@ void MainWindow::updateOverview()
         return;
     }
     if (overviewDock->getGraphView()->currentFcnAddr != targetGraphDock->getGraphView()->currentFcnAddr) {
-        overviewDock->getGraphView()->useCache = false;
         setOverviewData();
-    } else {
-        overviewDock->getGraphView()->useCache = true;
     }
     drawOverview();
 }

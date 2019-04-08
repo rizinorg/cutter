@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QRect>
 #include "widgets/GraphView.h"
+#include "widgets/DisassemblerGraphView.h"
 
 class OverviewView : public GraphView
 {
@@ -31,8 +32,10 @@ public:
      * @param baseWidth width of Graph when it computed the blocks
      * @param baseHeigh height of Graph when it computed the blocks
      * @param baseBlocks computed blocks passed by Graph
+     * @param baseEdgeConfigurations computed by DisassamblerGraphview
      */
-    void setData(int baseWidth, int baseHeight, std::unordered_map<ut64, GraphBlock> baseBlocks);
+    void setData(int baseWidth, int baseHeight, std::unordered_map<ut64, GraphBlock> baseBlocks,
+                 DisassemblerGraphView::EdgeConfigurationMapping baseEdgeConfigurations);
 
 public slots:
     /**
@@ -64,6 +67,11 @@ protected:
      * @brief override this to prevent scrolling
      */
     void wheelEvent(QWheelEvent *event) override;
+
+    /**
+     * @brief override the paintEvent to draw the rect on Overview
+     */
+    void paintEvent(QPaintEvent *event) override;
 
 private:
     /**
@@ -98,11 +106,6 @@ private:
                                                            GraphView::GraphBlock *to) override;
 
     /**
-     * @brief override the paintEvent to draw the rect on Overview
-     */
-    void paintEvent(QPaintEvent *event) override;
-
-    /**
      * @brief if the mouse is in the rect in Overview.
      */
     bool mouseContainsRect(QMouseEvent *event);
@@ -116,6 +119,11 @@ private:
      * @brief color for each node changing depending on the theme
      */
     QColor graphNodeColor;
+
+    /**
+     * @brief edgeConfigurations edge styles computed by DisassemblerGraphView
+     */
+    DisassemblerGraphView::EdgeConfigurationMapping edgeConfigurations;
 };
 
 #endif // OVERVIEWVIEW_H
