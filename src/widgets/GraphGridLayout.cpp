@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <queue>
 #include <stack>
-#include <assert.h>
+#include <cassert>
 
 // Vector functions
 template<class T>
