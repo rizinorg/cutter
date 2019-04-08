@@ -32,6 +32,8 @@ QT += core gui widgets svg network
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
+!defined(CUTTER_ENABLE_CRASH_REPORTS, var)        CUTTER_ENABLE_CRASH_REPORTS=false
+equals(CUTTER_ENABLE_CRASH_REPORTS, true)         CONFIG += CUTTER_ENABLE_CRASH_REPORTS
 !defined(CUTTER_ENABLE_PYTHON, var)             CUTTER_ENABLE_PYTHON=false
 equals(CUTTER_ENABLE_PYTHON, true)              CONFIG += CUTTER_ENABLE_PYTHON
 
@@ -48,6 +50,13 @@ equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)        CONFIG += CUTTER_BUNDLE_R2_APPBU
 
 !defined(CUTTER_APPVEYOR_R2DEC, var)            CUTTER_APPVEYOR_R2DEC=false
 equals(CUTTER_APPVEYOR_R2DEC, true)             CONFIG += CUTTER_APPVEYOR_R2DEC
+
+CUTTER_ENABLE_CRASH_REPORTS {
+    message("Crash report support enabled.")
+    DEFINES += CUTTER_ENABLE_CRASH_REPORTS
+} else {
+    message("Crash report support disabled.")
+}
 
 CUTTER_ENABLE_PYTHON {
     message("Python enabled.")
@@ -188,6 +197,29 @@ CUTTER_ENABLE_PYTHON {
     }
 }
 
+CUTTER_ENABLE_CRASH_REPORTS {
+QMAKE_CXXFLAGS += -g
+    defined(BREAKPAD_FRAMEWORK_DIR, var)|defined(BREAKPAD_SOURCE_DIR, var) {
+        defined(BREAKPAD_FRAMEWORK_DIR, var) {
+            INCLUDEPATH += $$BREAKPAD_FRAMEWORK_DIR/Breakpad.framework/Headers
+            LIBS += -F$$BREAKPAD_FRAMEWORK_DIR -framework Breakpad
+        }
+        defined(BREAKPAD_SOURCE_DIR, var) {
+            INCLUDEPATH += $$BREAKPAD_SOURCE_DIR
+            win32 {
+                LIBS += -L$$quote($$BREAKPAD_SOURCE_DIR\\client\\windows\\release\\lib) -lexception_handler -lcrash_report_sender -lcrash_generation_server -lcrash_generation_client -lcommon
+            }
+            unix:LIBS += -L$$BREAKPAD_SOURCE_DIR/client/linux -lbreakpad-client
+            macos:error("Please use scripts\prepare_breakpad_macos.sh script to provide breakpad framework.")
+        }
+    } else {
+        CONFIG += link_pkgconfig
+        !packagesExist(breakpad-client) {
+            error("ERROR: Breakpad could not be found. Make sure it is available to pkg-config.")
+        }
+        PKGCONFIG += breakpad-client
+    }
+}
 
 macx:CUTTER_BUNDLE_R2_APPBUNDLE {
     message("Using r2 rom AppBundle")
@@ -310,6 +342,8 @@ SOURCES += \
     dialogs/LinkTypeDialog.cpp \
     common/UpdateWorker.cpp \
     widgets/MemoryDockWidget.cpp \
+    common/CrashHandler.cpp \
+    common/BugReporting.cpp \    
     common/HighDpiPixmap.cpp \
     widgets/GraphGridLayout.cpp
 
@@ -421,14 +455,16 @@ HEADERS  += \
     common/RunScriptTask.h \
     common/Json.h \
     dialogs/EditMethodDialog.h \
+    common/CrashHandler.h \
     dialogs/LoadNewTypesDialog.h \
     widgets/SdbWidget.h \
     common/PythonManager.h \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
     common/UpdateWorker.h \
-    dialogs/LinkTypeDialog.h \
     widgets/MemoryDockWidget.h \
+    dialogs/LinkTypeDialog.h \
+    common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
     widgets/GraphGridLayout.h

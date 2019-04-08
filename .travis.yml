@@ -19,11 +19,11 @@ matrix:
     env: BUILD_SYSTEM=cmake
   - name: macOS QMake + Deploy
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10
     env: BUILD_SYSTEM=qmake DEPLOY=1
   - name: macOS CMake
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10
     env: BUILD_SYSTEM=cmake
   - name: Documentation + Deploy
     os: linux
@@ -68,8 +68,14 @@ addons:
 install:
   - scripts/fetch_deps.sh
   - source cutter-deps/env.sh
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        export PATH=/usr/local/opt/llvm/bin:$PATH;
+        source scripts/prepare_breakpad_macos.sh;
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH";
+        source scripts/prepare_breakpad_linux.sh;
+    fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -84,11 +90,13 @@ before_script:
 script:
   - mkdir build
   - cd build
+  - export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
+                CUTTER_ENABLE_CRASH_REPORTS=true
                 PREFIX=/usr
                 APPIMAGE=1
                 ../src &&
@@ -101,6 +109,7 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 ../src &&
             make -j4;
        fi
@@ -110,7 +119,9 @@ script:
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
                 CUTTER_BUNDLE_R2_APPBUNDLE=true
+                CUTTER_ENABLE_CRASH_REPORTS=true
                 PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
+                BREAKPAD_FRAMEWORK_DIR=$BREAKPAD_FRAMEWORK_DIR
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
@@ -121,6 +132,8 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"
                 ../src &&
             make -j4;
        fi
@@ -184,4 +197,3 @@ deploy:
   on:
     tags: true
     condition: $DEPLOY = 1
-

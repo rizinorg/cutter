@@ -10,6 +10,7 @@ set(CUTTER_PYTHON_MIN 3.5)
 
 option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." OFF)
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
+option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -93,6 +94,7 @@ message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
 message(STATUS "Options:")
 message(STATUS "- Python: ${CUTTER_ENABLE_PYTHON}")
 message(STATUS "- Python Bindings: ${CUTTER_ENABLE_PYTHON_BINDINGS}")
+message(STATUS "- Crash Handling: ${CUTTER_ENABLE_CRASH_REPORTS}")
 message(STATUS "")
 
 
@@ -133,6 +135,24 @@ endif()
 
 add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
+
+if(CUTTER_ENABLE_CRASH_REPORTS)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    target_link_libraries(Cutter Threads::Threads)
+    
+    add_definitions(-DCUTTER_ENABLE_CRASH_REPORTS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ")
+    if(DEFINED BREAKPAD_FRAMEWORK_DIR)
+        include_directories("${BREAKPAD_FRAMEWORK_DIR}/Breakpad.framework/Headers")
+        set_target_properties(Cutter PROPERTIES LINK_FLAGS "-Wl,-F${BREAKPAD_FRAMEWORK_DIR}")
+        target_link_libraries(Cutter "-framework Breakpad")
+    else()
+        find_package(Breakpad REQUIRED)
+        include_directories(${BREAKPAD_INCLUDE_DIRS})
+        target_link_libraries(Cutter ${BREAKPAD_LINK_LIBRARIES})
+    endif()
+endif()
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
 target_link_libraries(Cutter ${RADARE2_LIBRARIES})
