@@ -489,20 +489,20 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 
 void GraphView::keyPressEvent(QKeyEvent* event)
 {
-    constexpr qreal delta = 30.0;
+    const int delta = static_cast<int>(30.0 / current_scale);
     int dx = 0, dy = 0;
     switch (event->key()) {
     case Qt::Key_Up:
-        dy = -static_cast<int>(delta / current_scale);
+        dy = -delta;
         break;
     case Qt::Key_Down:
-        dy = static_cast<int>(delta / current_scale);
+        dy = delta;
         break;
     case Qt::Key_Left:
-        dx = -static_cast<int>(delta / current_scale);
+        dx = -delta;
         break;
     case Qt::Key_Right:
-        dx = static_cast<int>(delta / current_scale);
+        dx = delta;
         break;
     default:
         QAbstractScrollArea::keyPressEvent(event);
