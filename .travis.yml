@@ -148,6 +148,7 @@ after_success:
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
       cp -a "$QTDIR/lib/QtDBus.framework" "$QTDIR/lib/QtPrintSupport.framework" Cutter.app/Contents/Frameworks &&
+      cp -a "$BREAKPAD_FRAMEWORK_DIR/Breakpad.framework" Cutter.app/Contents/Frameworks &&
       "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
       mv Cutter.app/Contents/MacOS/Cutter Cutter.app/Contents/MacOS/Cutter.bin &&
       cp ../src/macos/Cutter.sh Cutter.app/Contents/MacOS/Cutter &&
