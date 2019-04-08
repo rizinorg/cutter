@@ -343,7 +343,7 @@ SOURCES += \
     common/UpdateWorker.cpp \
     widgets/MemoryDockWidget.cpp \
     common/CrashHandler.cpp \
-    common/BugReporting.cpp \    
+    common/BugReporting.cpp \
     common/HighDpiPixmap.cpp \
     widgets/GraphGridLayout.cpp
 
