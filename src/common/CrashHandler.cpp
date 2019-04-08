@@ -191,7 +191,7 @@ bool writeMinidump()
         f.remove();
     }
 
-    exit(3);
+    _exit(3);
 }
 
 void initCrashHandler()
