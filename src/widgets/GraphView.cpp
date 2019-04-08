@@ -5,6 +5,7 @@
 #include <vector>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QPropertyAnimation>
 
 #ifndef QT_NO_OPENGL
@@ -484,6 +485,33 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
             return;
         }
     }
+}
+
+void GraphView::keyPressEvent(QKeyEvent* event)
+{
+    constexpr qreal delta = 30.0;
+    int dx = 0, dy = 0;
+    switch (event->key()) {
+    case Qt::Key_Up:
+        dy = -static_cast<int>(delta / current_scale);
+        break;
+    case Qt::Key_Down:
+        dy = static_cast<int>(delta / current_scale);
+        break;
+    case Qt::Key_Left:
+        dx = -static_cast<int>(delta / current_scale);
+        break;
+    case Qt::Key_Right:
+        dx = static_cast<int>(delta / current_scale);
+        break;
+    default:
+        QAbstractScrollArea::keyPressEvent(event);
+        return;
+    }
+    offset.rx() += dx;
+    offset.ry() += dy;
+    viewport()->update();
+    event->accept();
 }
 
 void GraphView::mouseReleaseEvent(QMouseEvent *event)

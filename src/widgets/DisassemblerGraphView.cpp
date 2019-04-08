@@ -91,12 +91,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     QShortcut *shortcut_prev_instr = new QShortcut(QKeySequence(Qt::Key_K), this);
     shortcut_prev_instr->setContext(Qt::WidgetShortcut);
     connect(shortcut_prev_instr, SIGNAL(activated()), this, SLOT(prevInstr()));
-    QShortcut *shortcut_next_instr_arrow = new QShortcut(QKeySequence::MoveToNextLine, this);
-    shortcut_next_instr_arrow->setContext(Qt::WidgetShortcut);
-    connect(shortcut_next_instr_arrow, SIGNAL(activated()), this, SLOT(nextInstr()));
-    QShortcut *shortcut_prev_instr_arrow = new QShortcut(QKeySequence::MoveToPreviousLine, this);
-    shortcut_prev_instr_arrow->setContext(Qt::WidgetShortcut);
-    connect(shortcut_prev_instr_arrow, SIGNAL(activated()), this, SLOT(prevInstr()));
     shortcuts.append(shortcut_disassembly);
     shortcuts.append(shortcut_escape);
     shortcuts.append(shortcut_zoom_in);
@@ -104,8 +98,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcuts.append(shortcut_zoom_reset);
     shortcuts.append(shortcut_next_instr);
     shortcuts.append(shortcut_prev_instr);
-    shortcuts.append(shortcut_next_instr_arrow);
-    shortcuts.append(shortcut_prev_instr_arrow);
 
     // Export Graph menu
     mMenu->addSeparator();
