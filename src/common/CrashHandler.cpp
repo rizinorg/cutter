@@ -71,6 +71,13 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 }
 #endif // Q_OS
 
+static google_breakpad::ExceptionHandler *exceptionHandler = nullptr;
+
+static void finishCrashHandler()
+{
+    delete exceptionHandler;
+}
+
 void initCrashHandler()
 {
     if (exceptionHandler) {
