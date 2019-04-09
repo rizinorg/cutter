@@ -89,12 +89,12 @@ void initCrashHandler()
                                                              -1);
 #elif defined (Q_OS_MACOS)
     static std::string tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
-    exceptionHandler = new google_breakpad::ExceptionHandler eh(tmpLocation,
-                                                                nullptr,
-                                                                callback,
-                                                                nullptr,
-                                                                true,
-                                                                nullptr);
+    exceptionHandler = new google_breakpad::ExceptionHandler(tmpLocation,
+                                                             nullptr,
+                                                             callback,
+                                                             nullptr,
+                                                             true,
+                                                             nullptr);
 #else
     static std::wstring tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdWString();
     exceptionHandler = new google_breakpad::ExceptionHandler(tmpLocation,
