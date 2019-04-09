@@ -675,11 +675,25 @@ void MainWindow::readSettingsOrDefault()
 
     // make sure all DockWidgets are part of the MainWindow
     // also show them, so newly installed plugin widgets are shown right away
+    const QString disasmWidgetClassName = disassemblyDock->metaObject()->className();
+    const QString graphWidgetClassName = graphDock->metaObject()->className();
     for (auto dockWidget : dockWidgets) {
         if (dockWidgetArea(dockWidget) == Qt::DockWidgetArea::NoDockWidgetArea) {
             addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
             dockWidget->show();
         }
+        const QString className = dockWidget->metaObject()->className();
+        if ((className == disasmWidgetClassName ||
+             className == graphWidgetClassName) &&
+            dockWidget->isVisibleTo(this)) {
+            dockWidget->setFocus();
+        }
+    }
+
+    if (disassemblyDock->isVisibleTo(this)) {
+        disassemblyDock->setFocus();
+    } else if (graphDock->isVisibleTo(this)) {
+        graphDock->setFocus();
     }
 
     responsive = settings.value("responsive").toBool();
