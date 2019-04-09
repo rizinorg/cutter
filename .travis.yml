@@ -68,8 +68,14 @@ addons:
 install:
   - scripts/fetch_deps.sh
   - source cutter-deps/env.sh
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=/usr/local/opt/llvm/bin:$PATH; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        export PATH=/usr/local/opt/llvm/bin:$PATH;
+        source scripts/prepare_breakpad_macos.sh;
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH";
+        source scripts/prepare_breakpad_linux.sh;
+    fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -84,11 +90,13 @@ before_script:
 script:
   - mkdir build
   - cd build
+  - export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
+                CUTTER_ENABLE_CRASH_REPORTS=true
                 PREFIX=/usr
                 APPIMAGE=1
                 ../src &&
@@ -101,6 +109,7 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 ../src &&
             make -j4;
        fi
@@ -110,7 +119,9 @@ script:
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
                 CUTTER_BUNDLE_R2_APPBUNDLE=true
+                CUTTER_ENABLE_CRASH_REPORTS=true
                 PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
+                BREAKPAD_FRAMEWORK_DIR=$BREAKPAD_FRAMEWORK_DIR
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
@@ -121,6 +132,8 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"
                 ../src &&
             make -j4;
        fi
@@ -135,6 +148,7 @@ after_success:
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
       cp -a "$QTDIR/lib/QtDBus.framework" "$QTDIR/lib/QtPrintSupport.framework" Cutter.app/Contents/Frameworks &&
+      cp -a "$BREAKPAD_FRAMEWORK_DIR/Breakpad.framework" Cutter.app/Contents/Frameworks &&
       "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
       mv Cutter.app/Contents/MacOS/Cutter Cutter.app/Contents/MacOS/Cutter.bin &&
       cp ../src/macos/Cutter.sh Cutter.app/Contents/MacOS/Cutter &&

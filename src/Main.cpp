@@ -3,6 +3,7 @@
 #include "core/MainWindow.h"
 #include "common/UpdateWorker.h"
 #include "CutterConfig.h"
+#include "common/CrashHandler.h"
 
 /**
  * @brief Migrate Settings used before Cutter 1.8
@@ -20,6 +21,8 @@ static void migrateSettings(QSettings &newSettings)
 
 int main(int argc, char *argv[])
 {
+    initCrashHandler();
+
     qRegisterMetaType<QList<StringDescription>>();
     qRegisterMetaType<QList<FunctionDescription>>();
 

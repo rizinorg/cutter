@@ -6,7 +6,7 @@
 ERR=0
 
 #### User variables ####
-BUILD="build"
+BUILD="`pwd`/build"
 QMAKE_CONF=""
 ROOT_DIR=`pwd`
 
@@ -63,6 +63,16 @@ find_gmake() {
 	echo "$gmakepath"
 }
 
+prepare_breakpad() {
+	if [[ $OSTYPE == "linux-gnu" ]]; then
+		source $ROOT_DIR/scripts/prepare_breakpad_linux.sh
+		export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+	elif [[ $OSTYPE == "darwin" ]]; then
+		source $ROOT_DIR/scripts/prepare_breakpad_macos.sh
+	fi
+	return 1
+}
+
 # Build radare2
 check_r2
 if [ $? -eq 1 ]; then
@@ -86,6 +96,7 @@ fi
 $(find_lrelease) ./src/Cutter.pro
 
 # Build
+prepare_breakpad
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
 $(find_qmake) ../src/Cutter.pro $QMAKE_CONF

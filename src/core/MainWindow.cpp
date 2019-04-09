@@ -2,6 +2,7 @@
 #include "ui_MainWindow.h"
 
 // Common Headers
+#include "common/BugReporting.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
 #include "common/Helpers.h"
@@ -1112,34 +1113,10 @@ void MainWindow::on_actionAbout_triggered()
     a->setAttribute(Qt::WA_DeleteOnClose);
     a->open();
 }
+
 void MainWindow::on_actionIssue_triggered()
 {
-    QString url, osInfo, format, arch, type;
-    //Pull in info needed for git issue
-    osInfo = QString(QSysInfo::productType()) + " " + QString(QSysInfo::productVersion());
-    QJsonDocument docu = Core()->getFileInfo();
-    QJsonObject coreObj = docu.object()["core"].toObject();
-    QJsonObject binObj = docu.object()["bin"].toObject();
-    if (!binObj.QJsonObject::isEmpty()) {
-        format = coreObj["format"].toString();
-        arch = binObj["arch"].toString();
-        if (!binObj["type"].isUndefined()) {
-            type = coreObj["type"].toString();
-        } else {
-            type = "N/A";
-        }
-    } else {
-        format = coreObj["format"].toString();
-        arch = "N/A";
-        type = "N/A";
-    }
-    url =
-        "https://github.com/radareorg/cutter/issues/new?&body=**Environment information**\n* Operating System: "
-        + osInfo + "\n* Cutter version: " + CUTTER_VERSION_FULL +
-        "\n* File format: " + format + "\n * Arch: " + arch + "\n * Type: " + type +
-        "\n\n**Describe the bug**\nA clear and concise description of what the bug is.\n\n**To Reproduce**\nSteps to reproduce the behavior:\n1. Go to '...'\n2. Click on '....'\n3. Scroll down to '....'\n4. See error\n\n**Expected behavior**\nA clear and concise description of what you expected to happen.\n\n**Screenshots**\nIf applicable, add screenshots to help explain your problem.\n\n**Additional context**\nAdd any other context about the problem here.";
-
-    QDesktopServices::openUrl(QUrl(url,  QUrl::TolerantMode));
+    openIssue();
 }
 
 void MainWindow::on_actionRefresh_Panels_triggered()

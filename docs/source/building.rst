@@ -11,9 +11,11 @@ The “official” way to build Cutter is by using qmake, but there are two
 alternatives – cmake and meson.
 
 In any case, there are obviously some requirements:
-- Radare2 installed from submodule
-- Qt 5.9 or above
-- Python3.6
+
+* Radare2 installed from submodule
+* Qt 5.9 or above
+* Python3.6
+* Breakpad installed using script (optional, disabled by default)
 
 Before compiling, note that we also provide binaries available for
 windows/linux/MacOS `here <https://github.com/radareorg/cutter/releases>`_.
@@ -23,9 +25,33 @@ windows/linux/MacOS `here <https://github.com/radareorg/cutter/releases>`_.
 Building options
 ----------------
 
-Note that there are two major building options available:
-- ``CUTTER_ENABLE_PYTHON`` compile with Python support
-- ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
+Note that there are three major building options available:
+
+* ``CUTTER_ENABLE_PYTHON`` compile with Python support
+* ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
+* ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad)
+
+--------------
+
+Preparing Breakpad
+-------------------
+
+If you want to build Cutter with crash handling system, you want prepare Breakpad before.
+For this simply run one of the scripts (according to your OS) from root Cutter directory:
+    
+.. code:: sh
+
+   source scripts/prepare_breakpad_linux.sh # Linux
+   source scripts/prepare_breakpad_macos.sh # MacOS
+   scripts/prepare_breakpad.bat # Windows
+   
+Then if you are building on Linux you want to change ``PKG_CONFIG_PATH`` environment variable
+so it contains ``$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig``. For this simply run
+
+.. code:: sh
+
+   export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+
 
 --------------
 
@@ -73,12 +99,12 @@ Building on Linux
 The root for CMake is in src/. In-source builds are **not allowed**, so
 you **must** run CMake from a separate directory:
 
-::
+.. code:: sh
 
    cd src
    mkdir build
    cd build
-   cmake ..
+   cmake .. # Don't forget to provide build options
 
 If all went well, you should now have a working Makefile in your build
 directory:
