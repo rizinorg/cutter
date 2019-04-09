@@ -64,8 +64,18 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 }
 #endif // Q_OS
 
+static google_breakpad::ExceptionHandler *exceptionHandler = nullptr;
+
+static void finishCrashHandler()
+{
+    delete exceptionHandler;
+}
+
 void initCrashHandler()
 {
+    if (exceptionHandler) {
+        return;
+    }
     // Here will be placed crash dump at the first place
     // and then moved if needed
     #if defined (Q_OS_LINUX) || defined (Q_OS_MACOS)
@@ -73,12 +83,9 @@ void initCrashHandler()
     #else
     static std::wstring tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdWString();
     #endif
-    google_breakpad::ExceptionHandler eh(google_breakpad::MinidumpDescriptor(tmpLocation),
-                                         nullptr,
-                                         callback,
-                                         nullptr,
-                                         true,
-                                         -1);
+    exceptionHandler = new google_breakpad::ExceptionHandler(google_breakpad::MinidumpDescriptor(tmpLocation),
+                                                             nullptr, callback, nullptr, true, -1);
+    atexit(finishCrashHandler);
 }
 
 #else // CUTTER_ENABLE_CRASH_REPORTS
