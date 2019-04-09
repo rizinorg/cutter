@@ -71,13 +71,6 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 }
 #endif // Q_OS
 
-static google_breakpad::ExceptionHandler *exceptionHandler = nullptr;
-
-static void finishCrashHandler()
-{
-    delete exceptionHandler;
-}
-
 void initCrashHandler()
 {
     if (exceptionHandler) {
@@ -85,29 +78,30 @@ void initCrashHandler()
     }
     // Here will be placed crash dump at the first place
     // and then moved if needed
+
 #if defined (Q_OS_LINUX)
     static std::string tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
-    google_breakpad::ExceptionHandler eh(google_breakpad::MinidumpDescriptor(tmpLocation),
-                                         nullptr,
-                                         callback,
-                                         nullptr,
-                                         true,
-                                         -1);
+    exceptionHandler = new google_breakpad::ExceptionHandler(google_breakpad::MinidumpDescriptor(tmpLocation),
+                                                             nullptr,
+                                                             callback,
+                                                             nullptr,
+                                                             true,
+                                                             -1);
 #elif defined (Q_OS_MACOS)
     static std::string tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdString();
-    google_breakpad::ExceptionHandler eh(tmpLocation,
-                                         nullptr,
-                                         callback,
-                                         nullptr,
-                                         true,
-                                         nullptr);
+    exceptionHandler = new google_breakpad::ExceptionHandler eh(tmpLocation,
+                                                                nullptr,
+                                                                callback,
+                                                                nullptr,
+                                                                true,
+                                                                nullptr);
 #else
     static std::wstring tmpLocation = QStandardPaths::writableLocation(QStandardPaths::TempLocation).toStdWString();
-    google_breakpad::ExceptionHandler eh(tmpLocation,
-                                         nullptr,
-                                         callback,
-                                         nullptr,
-                                         google_breakpad::ExceptionHandler::HANDLER_ALL);
+    exceptionHandler = new google_breakpad::ExceptionHandler(tmpLocation,
+                                                             nullptr,
+                                                             callback,
+                                                             nullptr,
+                                                             google_breakpad::ExceptionHandler::HANDLER_ALL);
 #endif
     atexit(finishCrashHandler);
 }
