@@ -21,8 +21,6 @@ static void migrateSettings(QSettings &newSettings)
 
 int main(int argc, char *argv[])
 {
-    initCrashHandler();
-
     qRegisterMetaType<QList<StringDescription>>();
     qRegisterMetaType<QList<FunctionDescription>>();
 

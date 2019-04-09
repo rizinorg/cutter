@@ -1,4 +1,5 @@
 #include "common/PythonManager.h"
+#include "common/CrashHandler.h"
 #include "CutterApplication.h"
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
@@ -70,6 +71,9 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     cmd_parser.addVersionOption();
     cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
+    QCommandLineOption startCrashHandler("start-crash-handler");
+    cmd_parser.addOption(startCrashHandler);
+
     QCommandLineOption analOption({"A", "anal"},
                                   QObject::tr("Automatically open file and optionally start analysis. Needs filename to be specified. May be a value between 0 and 2: 0 = no analysis, 1 = aaa, 2 = aaaa (experimental)"),
                                   QObject::tr("level"));
@@ -128,6 +132,12 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
             std::exit(1);
         }
     }
+    if (cmd_parser.isSet(startCrashHandler)) {
+        if (!args.isEmpty()) {
+            showCrashDialog(args[0]);
+        }
+        std::exit(0);
+    }
 
     Plugins()->loadPlugins();
 
@@ -176,6 +186,8 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 #ifdef CUTTER_APPVEYOR_R2DEC
     qputenv("R2DEC_HOME", "radare2\\lib\\plugins\\r2dec-js");
 #endif
+
+    initCrashHandler();
 }
 
 CutterApplication::~CutterApplication()
