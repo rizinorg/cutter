@@ -32,8 +32,9 @@ QT += core gui widgets svg network
 QT_CONFIG -= no-pkg-config
 CONFIG += c++11
 
-!defined(CUTTER_ENABLE_CRASH_REPORTS, var)        CUTTER_ENABLE_CRASH_REPORTS=false
-equals(CUTTER_ENABLE_CRASH_REPORTS, true)         CONFIG += CUTTER_ENABLE_CRASH_REPORTS
+!defined(CUTTER_ENABLE_CRASH_REPORTS, var)      CUTTER_ENABLE_CRASH_REPORTS=false
+equals(CUTTER_ENABLE_CRASH_REPORTS, true)       CONFIG += CUTTER_ENABLE_CRASH_REPORTS
+
 !defined(CUTTER_ENABLE_PYTHON, var)             CUTTER_ENABLE_PYTHON=false
 equals(CUTTER_ENABLE_PYTHON, true)              CONFIG += CUTTER_ENABLE_PYTHON
 
@@ -69,6 +70,15 @@ CUTTER_ENABLE_PYTHON_BINDINGS {
     DEFINES += CUTTER_ENABLE_PYTHON_BINDINGS
 } else {
     message("Python Bindings disabled. (requires CUTTER_ENABLE_PYTHON=true)")
+}
+
+win32:defined(CUTTER_DEPS_DIR, var) {
+    !defined(SHIBOKEN_EXECUTABLE, var)          SHIBOKEN_EXECUTABLE="$${CUTTER_DEPS_DIR}/pyside/bin/shiboken2.exe"
+    !defined(SHIBOKEN_INCLUDEDIR, var)          SHIBOKEN_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/shiboken2"
+    !defined(SHIBOKEN_LIBRARY, var)             SHIBOKEN_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/shiboken2.lib"
+    !defined(PYSIDE_INCLUDEDIR, var)            PYSIDE_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/PySide2"
+    !defined(PYSIDE_LIBRARY, var)               PYSIDE_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/pyside2.lib"
+    !defined(PYSIDE_TYPESYSTEMS, var)           PYSIDE_TYPESYSTEMS="$${CUTTER_DEPS_DIR}/pyside/share/PySide2/typesystems"
 }
 
 INCLUDEPATH *= . core widgets dialogs common plugins
@@ -173,7 +183,7 @@ CUTTER_ENABLE_PYTHON {
         SHIBOKEN_OPTIONS = --project-file="$${BINDINGS_BUILD_DIR}/bindings.txt"
         win32:SHIBOKEN_OPTIONS += --avoid-protected-hack
         bindings.target = bindings_target
-        bindings.commands = "$${SHIBOKEN_EXECUTABLE}" $${SHIBOKEN_OPTIONS}
+        bindings.commands = $$quote($$system_path($${SHIBOKEN_EXECUTABLE})) $${SHIBOKEN_OPTIONS}
         QMAKE_EXTRA_TARGETS += bindings
         PRE_TARGETDEPS += bindings_target
         GENERATED_SOURCES += $${BINDINGS_SOURCE}
