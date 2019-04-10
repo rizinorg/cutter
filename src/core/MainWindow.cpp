@@ -618,7 +618,8 @@ void MainWindow::finalizeOpen()
         }
         if (className == disasmWidgetClassName && !dockWidget->visibleRegion().isNull()) {
             if (!graphContainsFunc) {
-                dockWidget->widget()->setFocus();
+                auto disasm = qobject_cast<DisassemblyWidget*>(dockWidget);
+                disasm->setFocus();
             } else {
                 break;
             }
