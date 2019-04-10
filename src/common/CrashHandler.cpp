@@ -42,9 +42,8 @@ bool callback(const wchar_t *_dump_dir,
 {
     const QDir dir = QString::fromWCharArray(_dump_dir);
     const QString id = QString::fromWCharArray(_minidump_id);
-    QProcess::startDetached(QCoreApplication::applicationFilePath()
-                      + " --start-crash-handler "
-                      + dir.filePath(id + ".dmp"));
+    QProcess::startDetached(QCoreApplication::applicationFilePath(),
+        { "--start-crash-handler", dir.filePath(id + ".dmp") });
     _exit(1);
     return true;
 }
@@ -53,9 +52,8 @@ bool callback(const wchar_t *_dump_dir,
 // Saves path to file
 bool callback(const google_breakpad::MinidumpDescriptor &md, void *context, bool b)
 {
-    QProcess::startDetached(QCoreApplication::applicationFilePath()
-                      + " --start-crash-handler "
-                      + md.path());
+    QProcess::startDetached(QCoreApplication::applicationFilePath(),
+        { "--start-crash-handler", md.path() });
     _exit(1);
     return true;
 }
@@ -66,9 +64,8 @@ bool callback(const char *dump_dir, const char *minidump_id, void *context, bool
 {
     const QDir dir = QString::fromUtf8(dump_dir);
     const QString id = QString::fromUtf8(minidump_id);
-    QProcess::startDetached(QCoreApplication::applicationFilePath()
-                      + " --start-crash-handler "
-                      + dir.filePath(id + ".dmp"));
+    QProcess::startDetached(QCoreApplication::applicationFilePath(),
+        { "--start-crash-handler", dir.filePath(id + ".dmp") });
     _exit(1);
     return true;
 }
