@@ -590,6 +590,7 @@ void MainWindow::finalizeOpen()
     showMaximized();
 
     // Set focus to disasm or graph widget
+    setFocus();
     const QString disasmWidgetClassName = disassemblyDock->metaObject()->className();
     const QString graphWidgetClassName = graphDock->metaObject()->className();
     for (auto dockWidget : dockWidgets) {
