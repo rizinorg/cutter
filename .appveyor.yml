@@ -49,7 +49,7 @@ before_build:
 
 # Build config
 build_script:
-  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_APPVEYOR_R2DEC=true CUTTER_ENABLE_CRASH_REPORTS=true CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true SHIBOKEN_EXECUTABLE="%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.exe" SHIBOKEN_INCLUDEDIR="%CUTTER_DEPS_DIR%/pyside/include/shiboken2" SHIBOKEN_LIBRARY="%CUTTER_DEPS_DIR%/pyside/lib/shiboken2.lib" PYSIDE_INCLUDEDIR="%CUTTER_DEPS_DIR%/pyside/include/PySide2" PYSIDE_LIBRARY="%CUTTER_DEPS_DIR%/pyside/lib/pyside2.lib" PYSIDE_TYPESYSTEMS="%CUTTER_DEPS_DIR%/pyside/share/PySide2/typesystems")
+  - cmd: if defined QMAKE ( call prepare_r2.bat && call build.bat CUTTER_APPVEYOR_R2DEC=true CUTTER_ENABLE_CRASH_REPORTS=true CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_DEPS_DIR="%CUTTER_DEPS_DIR%" )
   - cmd: if defined MESON ( python meson.py --release --dist=%ARTIFACT_PATH% --backend=%BACKEND% --python )
 
 after_build:
