@@ -589,17 +589,45 @@ void MainWindow::finalizeOpen()
     core->message("\n" + core->cmd("fo"));
     showMaximized();
 
+
+
     // Set focus to disasm or graph widget
+
+    // Use for loop to cover cases when main disasm/graph
+    // (MainWindow::disassemblyDock and MainWindow::graphDock)
+    // widgets are invisible but extra ones are visible
+
+    // Graph with function in it has focus priority over DisasmWidget
+    // if there are bot graph and disasm.
+    // Otherwise Disasm has focus priority over Graph
     setFocus();
     const QString disasmWidgetClassName = disassemblyDock->metaObject()->className();
     const QString graphWidgetClassName = graphDock->metaObject()->className();
+    GraphWidget *focusedGraph = nullptr;
+    QWidget *focusedDisasm = nullptr;
+    bool graphContainsFunc = false;
     for (auto dockWidget : dockWidgets) {
         const QString className = dockWidget->metaObject()->className();
-        if ((className == disasmWidgetClassName ||
-             className == graphWidgetClassName) &&
-            !dockWidget->visibleRegion().isNull()) {
-            dockWidget->setFocus();
+        if (className == graphWidgetClassName && !dockWidget->visibleRegion().isNull()) {
+            focusedGraph = qobject_cast<GraphWidget*>(dockWidget->widget());
+            graphContainsFunc = !focusedGraph->getGraphView()->getBlocks().empty();
+            if (graphContainsFunc) {
+                break;
+            }
         }
+        if (className == disasmWidgetClassName && !dockWidget->visibleRegion().isNull()) {
+            focusedDisasm = dockWidget;
+            if (focusedGraph) {
+                break;
+            }
+        }
+    }
+    if (graphContainsFunc) {
+        focusedGraph->setFocus();
+    } else if (focusedDisasm) {
+        focusedDisasm->setFocus();
+    } else if (focusedGraph) {
+        focusedGraph->setFocus();
     }
 }
 
