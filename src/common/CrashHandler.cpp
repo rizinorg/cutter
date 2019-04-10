@@ -122,12 +122,12 @@ void initCrashHandler()
 void showCrashDialog(const QString &dumpFile)
 {
     QMessageBox mb;
-    mb.setWindowTitle(QObject::tr("Cutter encountered a problem"));
+    mb.setWindowTitle(QObject::tr("Crash"));
     mb.setText(QObject::tr("Cutter received a signal it can't handle and will close.<br/>"
-                           "Would you like to create a crash dump for bug report?"));
+                           "Would you like to create a crash dump for a bug report?"));
     mb.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    mb.button(QMessageBox::Yes)->setText(QObject::tr("Create a crash dump"));
-    mb.button(QMessageBox::No)->setText(QObject::tr("Do not report"));
+    mb.button(QMessageBox::Yes)->setText(QObject::tr("Create a Crash Dump"));
+    mb.button(QMessageBox::No)->setText(QObject::tr("Quit"));
     mb.setDefaultButton(QMessageBox::Yes);
 
     bool ok = false;
@@ -145,9 +145,9 @@ void showCrashDialog(const QString &dumpFile)
                                                             QStandardPaths::writableLocation(QStandardPaths::HomeLocation) +
                                                             QDir::separator() +
                                                             "Cutter_crash_dump_"
-                                                            + QDate().currentDate().toString("dd.MM.yy") + "_"
-                                                            + QTime().currentTime().toString() + ".dmp",
-                                                            QObject::tr("Dump files (*.dmp)"));
+                                                            + QDate::currentDate().toString("dd.MM.yy") + "_"
+                                                            + QTime::currentTime().toString("HH.mm.ss") + ".dmp",
+                                                            QObject::tr("Minidump (*.dmp)"));
 
             if (dumpSaveFileName.isEmpty()) {
                 return;
@@ -157,9 +157,9 @@ void showCrashDialog(const QString &dumpFile)
                 break;
             }
             QMessageBox::critical(nullptr,
-                                  QObject::tr("Error"),
-                                  QObject::tr("Error occured during writing to the %1.<br/>"
-                                              "Please, make sure you have access to that directory "
+                                  QObject::tr("Save Crash Dump"),
+                                  QObject::tr("Failed to write to %1.<br/>"
+                                              "Please make sure you have access to that directory "
                                               "and try again.").arg(QFileInfo(dumpSaveFileName).dir().path()));
         } while (true);
 
@@ -170,8 +170,8 @@ void showCrashDialog(const QString &dumpFile)
                          .arg(QFileInfo(dumpSaveFileName).dir().path()));
             info.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
-            info.button(QMessageBox::Yes)->setText(QObject::tr("Open an issue"));
-            info.button(QMessageBox::No)->setText(QObject::tr("Exit Cutter"));
+            info.button(QMessageBox::Yes)->setText(QObject::tr("Open an Issue"));
+            info.button(QMessageBox::No)->setText(QObject::tr("Quit"));
             info.setDefaultButton(QMessageBox::Yes);
 
             int ret = info.exec();
@@ -180,8 +180,8 @@ void showCrashDialog(const QString &dumpFile)
             }
         } else {
             QMessageBox::critical(nullptr,
-                                  QObject::tr("Error!"),
-                                  QObject::tr("Error occured during crash dump creation."));
+                                  QObject::tr("Error"),
+                                  QObject::tr("Error occurred during crash dump creation."));
         }
     } else {
         QFile f(dumpFile);
