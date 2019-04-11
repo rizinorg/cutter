@@ -598,7 +598,7 @@ void MainWindow::finalizeOpen()
     // widgets are invisible but extra ones are visible
 
     // Graph with function in it has focus priority over DisasmWidget
-    // if there are bot graph and disasm.
+    // if there are both graph and disasm.
     // Otherwise Disasm has focus priority over Graph
 
     // If there are no graph/disasm widgets focus on MainWindow
