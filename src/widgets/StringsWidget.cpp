@@ -273,7 +273,6 @@ void StringsWidget::on_actionX_refs_triggered()
 
     XrefsDialog x(nullptr);
     x.fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
-    x.setAttribute(Qt::WA_DeleteOnClose);
     x.exec();
 }
 
