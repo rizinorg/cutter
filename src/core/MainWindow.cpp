@@ -588,6 +588,43 @@ void MainWindow::finalizeOpen()
     // Add fortune message
     core->message("\n" + core->cmd("fo"));
     showMaximized();
+
+
+
+    // Set focus to disasm or graph widget
+
+    // Use for loop to cover cases when main disasm/graph
+    // (MainWindow::disassemblyDock and MainWindow::graphDock)
+    // widgets are invisible but extra ones are visible
+
+    // Graph with function in it has focus priority over DisasmWidget
+    // if there are both graph and disasm.
+    // Otherwise Disasm has focus priority over Graph
+
+    // If there are no graph/disasm widgets focus on MainWindow
+
+    setFocus();
+    const QString disasmWidgetClassName = disassemblyDock->metaObject()->className();
+    const QString graphWidgetClassName = graphDock->metaObject()->className();
+    bool graphContainsFunc = false;
+    for (auto dockWidget : dockWidgets) {
+        const QString className = dockWidget->metaObject()->className();
+        if (className == graphWidgetClassName && !dockWidget->visibleRegion().isNull()) {
+            graphContainsFunc = !qobject_cast<GraphWidget*>(dockWidget)->getGraphView()->getBlocks().empty();
+            if (graphContainsFunc) {
+                dockWidget->widget()->setFocus();
+                break;
+            }
+        }
+        if (className == disasmWidgetClassName && !dockWidget->visibleRegion().isNull()) {
+            if (!graphContainsFunc) {
+                auto disasm = qobject_cast<DisassemblyWidget*>(dockWidget);
+                disasm->setFocus();
+            } else {
+                break;
+            }
+        }
+    }
 }
 
 bool MainWindow::saveProject(bool quit)
