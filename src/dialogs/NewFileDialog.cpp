@@ -110,6 +110,12 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
     if (dir.isEmpty()) {
         return;
     }
+    if (!QFileInfo(dir).isWritable()) {
+        QMessageBox::critical(this, tr("Permission denied"),
+                              tr("You do not have wtire access to the %1 directory.")
+                              .arg(dir));
+        return;
+    }
 
     Config()->setDirProjects(dir);
     Core()->setConfig("dir.projects", dir);
