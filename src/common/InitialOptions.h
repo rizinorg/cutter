@@ -30,8 +30,6 @@ struct InitialOptions
     QString pdbFile;
     QString script;
 
-    int bbsize = 0;
-
     QList<QString> analCmd = { "aaa" };
 
     QString shellcode;

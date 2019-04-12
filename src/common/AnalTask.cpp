@@ -81,8 +81,6 @@ void AnalTask::runTask()
         Core()->setEndianness(options.endian == InitialOptions::Endianness::Big);
     }
 
-    Core()->setBBSize(options.bbsize);
-
     Core()->cmd("fs *");
 
     if (!options.script.isNull()) {

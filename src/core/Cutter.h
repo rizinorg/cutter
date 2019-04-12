@@ -195,7 +195,6 @@ public:
 
     void setCPU(QString arch, QString cpu, int bits);
     void setEndianness(bool big);
-    void setBBSize(int size);
 
     /* SDB */
     QList<QString> sdbList(QString path);
