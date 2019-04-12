@@ -1,9 +1,11 @@
 <RCC>
     <qresource prefix="/">
-        <file>img/icons/arrow_left_light.svg</file>
+        <file>img/icons/dark/arrow_left.svg</file>
+        <file>img/icons/dark/arrow_right.svg</file>
         <file>img/icons/arrow_left.svg</file>
-        <file>img/icons/arrow_right_light.svg</file>
         <file>img/icons/arrow_right.svg</file>
+        <file>img/icons/light/arrow_right.svg</file>
+        <file>img/icons/light/arrow_left.svg</file>
         <file>img/icons/sidebar.svg</file>
         <file>img/icons/undo.svg</file>
         <file>img/icons/redo.svg</file>

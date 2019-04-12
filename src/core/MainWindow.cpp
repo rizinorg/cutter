@@ -122,6 +122,9 @@ void MainWindow::initUI()
     /*
      * Toolbar
      */
+
+    // Set correct icons for theme
+    chooseThemeIcons();
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -187,6 +190,9 @@ void MainWindow::initUI()
     addToolBar(visualNavbar);
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
+    });
+    QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
+        chooseThemeIcons();
     });
 
     /*
@@ -1198,4 +1204,34 @@ void MainWindow::messageBoxWarning(QString title, QString message)
     mb.setWindowTitle(title);
     mb.setText(message);
     mb.exec();
+}
+
+/*!
+ * \brief When theme changed, change icons which have a special version for th theme.
+ */
+void MainWindow::chooseThemeIcons()
+{
+    // List of QActions which have alternative icons in different themes
+    const QList<QPair<QAction*, QString>> kSupportedIconsNames {
+        { ui->actionForward, QStringLiteral("arrow_right.svg") },
+        { ui->actionBackward, QStringLiteral("arrow_left.svg") }
+    };
+
+    const QString &iconsDirPath = QStringLiteral(":/img/icons/");
+    const QString &currTheme = Config()->getCurrentTheme()->name;
+    const QString &relativeThemeDir = currTheme.toLower() + "/";
+    QString iconPath;
+
+    foreach (const auto &p, kSupportedIconsNames) {
+        iconPath = iconsDirPath;
+        // Verify that indeed there is an alternative icon in this theme
+        // Otherwise, fallback to the regular icon folder
+        if (QFile::exists(iconPath + relativeThemeDir +  p.second)) {
+            iconPath += relativeThemeDir;
+        }
+
+        // Set the correct icon for the QAction
+        p.first->setIcon(QIcon(iconPath + p.second));
+    }
+
 }
