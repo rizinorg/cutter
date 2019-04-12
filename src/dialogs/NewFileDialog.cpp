@@ -61,6 +61,9 @@ NewFileDialog::NewFileDialog(MainWindow *main) :
     ui->projectsListWidget->addAction(ui->actionRemove_project);
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
+    // radare2 does not seem to save this config so here we load this manually
+    Core()->setConfig("dir.projects", Config()->getDirProjects());
+
     fillRecentFilesList();
     fillIOPluginsList();
     fillProjectsList();
@@ -104,11 +107,12 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
         tr("Select project path (dir.projects)"),
         currentDir));
 
-    if (!dir.isEmpty()) {
+    if (dir.isEmpty()) {
         return;
     }
 
     Config()->setDirProjects(dir);
+    Core()->setConfig("dir.projects", dir);
     fillProjectsList();
 }
 
