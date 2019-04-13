@@ -1,4 +1,5 @@
 #include "common/Helpers.h"
+#include "Configuration.h"
 
 #include <cmath>
 #include <QPlainTextEdit>
@@ -181,6 +182,24 @@ QByteArray applyColorToSvg(const QString &filename, QColor color)
     file.open(QIODevice::ReadOnly);
 
     return applyColorToSvg(file.readAll(), color);
+}
+
+void setThemeIcons(QList<QPair<QObject*, QString>> supportedIconsNames)
+{
+    const QString &iconsDirPath = QStringLiteral(":/img/icons/");
+    const QString &currTheme = Config()->getCurrentTheme()->name;
+    const QString &relativeThemeDir = currTheme.toLower() + "/";
+    QString iconPath;
+
+    foreach (const auto &p, supportedIconsNames) {
+        iconPath = iconsDirPath;
+        // Verify that indeed there is an alternative icon in this theme
+        // Otherwise, fallback to the regular icon folder
+        if (QFile::exists(iconPath + relativeThemeDir +  p.second)) {
+            iconPath += relativeThemeDir;
+        }
+        p.first->setProperty("icon", QIcon(iconPath + p.second));
+    }
 }
 
 } // end namespace

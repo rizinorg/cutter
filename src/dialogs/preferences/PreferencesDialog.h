@@ -30,6 +30,8 @@ public slots:
 
 private:
     std::unique_ptr<Ui::PreferencesDialog> ui;
+    void chooseThemeIcons();
+
 };
 
 #endif //PREFERENCESDIALOG_H

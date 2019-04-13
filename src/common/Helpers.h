@@ -45,6 +45,7 @@ int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 
 QByteArray applyColorToSvg(const QByteArray &data, QColor color);
 QByteArray applyColorToSvg(const QString &filename, QColor color);
+void setThemeIcons(QList<QPair<QObject*, QString>> supportedIconsNames);
 }
 
 #endif // HELPERS_H

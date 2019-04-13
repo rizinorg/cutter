@@ -27,29 +27,31 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         {
             "Assembly",
             new AsmOptionsWidget(this),
-            QIcon(":/img/icons/disas_light.svg"),
+            QIcon(":/img/icons/disas.svg"),
             {
                 {
                     "Graph",
                     new GraphOptionsWidget(this),
-                    QIcon(":/img/icons/graph_light.svg")
+                    QIcon(":/img/icons/graph.svg")
                 },
             }
         },
         {
             "Debug",
             new DebugOptionsWidget(this),
-            QIcon(":/img/icons/bug_light.svg")
+            QIcon(":/img/icons/bug.svg")
         },
         {
             "Appearance",
             new AppearanceOptionsWidget(this),
-            QIcon(":/img/icons/polar_light.svg")
+            QIcon(":/img/icons/polar.svg")
         }
     };
 
     for (auto &c : prefs)
+    {
         c.addItem(*ui->configCategories, *ui->configPanel);
+    }
 
     connect(ui->configCategories,
             SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
@@ -92,4 +94,29 @@ void PreferencesDialog::changePage(QTreeWidgetItem *current, QTreeWidgetItem *pr
 
     if (index)
         ui->configPanel->setCurrentIndex(index - 1);
+}
+
+void PreferencesDialog::chooseThemeIcons()
+{
+    // List of QActions which have alternative icons in different themes
+    const QList<QPair<QString, QString>> kCategoryIconsNames {
+        { "Debug", QStringLiteral("bug.svg") },
+        { "Assembly", QStringLiteral("disas.svg") },
+        { "Graph", QStringLiteral("graph.svg") },
+        { "Appearance", QStringLiteral("polar.svg") },
+        
+    };
+    QList<QPair<QTreeWidgetItem*, QString>> supportedIconsNames;
+
+    foreach(const auto &p, kCategoryIconsNames)
+    {
+        QList<QTreeWidgetItem *> items = ui->configCategories->findItems(p.first, Qt::MatchContains|Qt::MatchRecursive, 0);
+        supportedIconsNames.append( { items.first(), p.second } );
+    }
+
+
+        // Set the correct icon for the QAction
+        qhelpers::setThemeIcons(supportedIconsNames);
+    }
+
 }

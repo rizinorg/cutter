@@ -41,21 +41,19 @@
         <file>img/icons/load_light.svg</file>
         <file>img/icons/save_light.svg</file>
         <file>img/icons/trash_light.svg</file>
-        <file>img/icons/disas_light.svg</file>
-        <file>img/icons/disas_white.svg</file>
         <file>img/icons/disas.svg</file>
-        <file>img/icons/graph_light.svg</file>
+        <file>img/icons/disas_white.svg</file>
         <file>img/icons/graph_white.svg</file>
         <file>img/icons/graph.svg</file>
         <file>img/icons/hexdump_light.svg</file>
         <file>img/icons/hexdump_white.svg</file>
-        <file>img/icons/bug_light.svg</file>
+        <file>img/icons/bug.svg</file>
         <file>img/icons/cog_light.svg</file>
         <file>img/icons/cog_white.svg</file>
         <file>img/icons/new_light.svg</file>
         <file>img/icons/run_light.svg</file>
         <file>img/icons/edit_light.svg</file>
-        <file>img/icons/polar_light.svg</file>
+        <file>img/icons/polar.svg</file>
         <file>img/icons/radar_light.svg</file>
         <file>img/icons/polar_white.svg</file>
         <file>img/icons/radar_white.svg</file>

@@ -56,10 +56,8 @@ QPlainTextEdit {
 }
 QPushButton{
 	border-style: solid;
-	border-top-color: transparent;
-	border-right-color: transparent;
-	border-left-color: transparent;
-	border-bottom-color: transparent;
+	border-color: #039be5;
+
 	border-width: 1px;
 	border-style: solid;
 	color: #00162e;
@@ -125,16 +123,15 @@ QPushButton:pressed{
 	background-color: #ffffff;
 }
 QPushButton:disabled{
-	border-style: solid;
-	border-top-color: transparent;
-	border-right-color: transparent;
-	border-left-color: transparent;
+
 	border-bottom-color: #808086;
 	border-bottom-width: 2px;
 	border-style: solid;
 	color: #808086;
 	padding-bottom: 1px;
 	background-color: #ffffff;
+	border-style: solid;
+	border-color: #e2e3e4;
 }
 QLineEdit {
 	border-width: 1px; border-radius: 4px;
@@ -365,9 +362,10 @@ QComboBox {
     border-style: solid;
     border: 1px solid #76797C;
     border-radius: 2px;
-    padding: 5px;
+    padding: 3px;
 	min-width: 75px;
 	color: #00162e;
+	background-color: #fff;
 }
 
 QComboBox:hover {
@@ -379,14 +377,14 @@ QComboBox:hover {
 QComboBox:on {
     padding-top: 3px;
     padding-left: 4px;
-    selection-background-color: #ffffff;
+    selection-background-color: #4a4a4a;
 }
 
 QComboBox QAbstractItemView {
     background-color: #efefef;
     border-radius: 2px;
     border: 1px solid #76797C;
-    selection-background-color: #ffffff;
+    selection-background-color: #18465d;
 }
 
 QComboBox::drop-down {
@@ -401,6 +399,46 @@ QComboBox::drop-down {
 }
 
 
+QComboBox::down-arrow {
+    image: url(:/qss_icons/rc/down_arrow_disabled.png);
+}
+
+QComboBox::down-arrow:on,
+QComboBox::down-arrow:hover,
+QComboBox::down-arrow:focus {
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+QAbstractSpinBox::down-arrow,
+QAbstractSpinBox::down-arrow:disabled,
+QAbstractSpinBox::down-arrow:off {
+    image: url(:/qss_icons/rc/down_arrow_disabled.png);
+    width: 10px;
+    height: 10px;
+}
+
+QAbstractSpinBox::down-arrow:hover {
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+QToolButton::menu-indicator {
+    image: url(:/qss_icons/rc/down_arrow.png);
+    top: -7px;
+    left: -2px;
+    /* shift it a bit */
+}
+
+QToolButton::menu-arrow {
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+QHeaderView::down-arrow {
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+QHeaderView::up-arrow {
+    image: url(:/qss_icons/rc/up_arrow.png);
+}
 
 
 QToolBox {
