@@ -56,9 +56,6 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWid
     connect(Config(), &Configuration::fontsUpdated, this,
             &AppearanceOptionsWidget::updateFontFromConfig);
 
-    QObject::connect(Config(), &Configuration::colorsUpdated, [this]() {
-        chooseThemeIcons();
-    });
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}

@@ -184,8 +184,11 @@ QByteArray applyColorToSvg(const QString &filename, QColor color)
     return applyColorToSvg(file.readAll(), color);
 }
 
-void setThemeIcons(QList<QPair<QObject*, QString>> supportedIconsNames)
+void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter)
 {
+    if (supportedIconsNames.isEmpty() || !setter)
+        return;
+
     const QString &iconsDirPath = QStringLiteral(":/img/icons/");
     const QString &currTheme = Config()->getCurrentTheme()->name;
     const QString &relativeThemeDir = currTheme.toLower() + "/";
@@ -198,7 +201,8 @@ void setThemeIcons(QList<QPair<QObject*, QString>> supportedIconsNames)
         if (QFile::exists(iconPath + relativeThemeDir +  p.second)) {
             iconPath += relativeThemeDir;
         }
-        p.first->setProperty("icon", QIcon(iconPath + p.second));
+        qDebug() << iconPath + p.second;
+		setter(p.first, QIcon(iconPath + p.second));
     }
 }
 

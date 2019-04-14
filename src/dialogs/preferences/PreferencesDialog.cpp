@@ -62,6 +62,8 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
 
     QTreeWidgetItem *defitem = ui->configCategories->topLevelItem(0);
     ui->configCategories->setCurrentItem(defitem, 0);
+
+	connect(Config(), &Configuration::colorsUpdated, this, &PreferencesDialog::chooseThemeIcons);
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -100,23 +102,25 @@ void PreferencesDialog::chooseThemeIcons()
 {
     // List of QActions which have alternative icons in different themes
     const QList<QPair<QString, QString>> kCategoryIconsNames {
-        { "Debug", QStringLiteral("bug.svg") },
-        { "Assembly", QStringLiteral("disas.svg") },
-        { "Graph", QStringLiteral("graph.svg") },
-        { "Appearance", QStringLiteral("polar.svg") },
+        { QStringLiteral("Debug"), QStringLiteral("bug.svg") },
+        { QStringLiteral("Assembly"), QStringLiteral("disas.svg") },
+        { QStringLiteral("Graph"), QStringLiteral("graph.svg") },
+        { QStringLiteral("Appearance"), QStringLiteral("polar.svg") },
         
     };
-    QList<QPair<QTreeWidgetItem*, QString>> supportedIconsNames;
+    QList<QPair<void*, QString>> supportedIconsNames;
 
     foreach(const auto &p, kCategoryIconsNames)
     {
         QList<QTreeWidgetItem *> items = ui->configCategories->findItems(p.first, Qt::MatchContains|Qt::MatchRecursive, 0);
+		if (items.isEmpty())
+			continue;
         supportedIconsNames.append( { items.first(), p.second } );
     }
 
-
-        // Set the correct icon for the QAction
-        qhelpers::setThemeIcons(supportedIconsNames);
-    }
-
+    // Set the correct icon for the QAction
+	qhelpers::setThemeIcons(supportedIconsNames, [](void *obj, const QIcon &icon) {
+		// here we have our setter functor, in this case it is almost "unique" because it specified the column in `setIcon` call
+		static_cast<QTreeWidgetItem*>(obj)->setIcon(0, icon);
+	});
 }

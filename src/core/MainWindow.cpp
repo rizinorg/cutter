@@ -1212,7 +1212,7 @@ void MainWindow::messageBoxWarning(QString title, QString message)
 void MainWindow::chooseThemeIcons()
 {
     // List of QActions which have alternative icons in different themes
-    const QList<QPair<QAction*, QString>> kSupportedIconsNames {
+    const QList<QPair<void*, QString>> kSupportedIconsNames {
         { ui->actionForward, QStringLiteral("arrow_right.svg") },
         { ui->actionBackward, QStringLiteral("arrow_left.svg") },
         // { ui->actionBackward, QStringLiteral("bug.svg") },
@@ -1224,5 +1224,7 @@ void MainWindow::chooseThemeIcons()
 
 
         // Set the correct icon for the QAction
-        qhelpers::setThemeIcons(kSupportedIconsNames);
+	qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
+		static_cast<QAction*>(obj)->setIcon(icon);
+	});
 }
