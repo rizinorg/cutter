@@ -186,13 +186,6 @@ private slots:
     void changeDebugView();
     void changeDefinedView();
 
-    void disconnectOverview();
-    void updateOverview();
-    void forceUpdateOverview();
-    void updateOverviewAddr();
-    void drawOverview();
-    void adjustGraph();
-
 private:
     CutterCore *core;
 
@@ -216,7 +209,6 @@ private:
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
     GraphWidget        *graphDock = nullptr;
-    GraphWidget        *targetGraphDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
@@ -265,7 +257,6 @@ private:
     void showZenDocks();
     void showDebugDocks();
     void enableDebugWidgetsMenu(bool enable);
-    void enableOverviewMenu(bool enable);
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 

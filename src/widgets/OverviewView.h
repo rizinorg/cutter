@@ -23,11 +23,6 @@ public:
     ~OverviewView() override;
 
     /**
-     * @brief a rect on Overview to show where you are on Graph
-     */
-    QRectF rangeRect;
-
-    /**
      * @brief Graph access this function to set minimum set of the data
      * @param baseWidth width of Graph when it computed the blocks
      * @param baseHeigh height of Graph when it computed the blocks
@@ -88,6 +83,11 @@ private:
     QPointF initialDiff;
 
     /**
+     * @brief a rect on Overview to show where you are on Graph
+     */
+    QRectF rangeRect;
+
+    /**
      * @brief calculate the scale to fit the all nodes in and center them in the viewport
      */
     void scaleAndCenter();
@@ -124,6 +124,10 @@ private:
      * @brief edgeConfigurations edge styles computed by DisassemblerGraphView
      */
     DisassemblerGraphView::EdgeConfigurationMapping edgeConfigurations;
+
+public:
+    QRectF getRangeRect()       { return rangeRect; }
+    void setRangeRect(QRectF rect);
 };
 
 #endif // OVERVIEWVIEW_H

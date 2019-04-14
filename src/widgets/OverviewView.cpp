@@ -24,6 +24,7 @@ void OverviewView::setData(int baseWidth, int baseHeight,
     edgeConfigurations = baseEdgeConfigurations;
     scaleAndCenter();
     setCacheDirty();
+    viewport()->update();
 }
 
 OverviewView::~OverviewView()
@@ -32,11 +33,9 @@ OverviewView::~OverviewView()
 
 void OverviewView::scaleAndCenter()
 {
-    current_scale = (qreal)viewport()->width() / width;
-    qreal h_scale = (qreal)viewport()->height() / height;
-    if (current_scale > h_scale) {
-        current_scale = h_scale;
-    }
+    qreal wScale = (qreal)viewport()->width() / width;
+    qreal hScale = (qreal)viewport()->height() / height;
+    setViewScale(std::min(wScale, hScale));
     center();
 }
 
@@ -48,8 +47,8 @@ void OverviewView::refreshView()
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x - offset.x();
-    int blockY = block.y - offset.y();
+    int blockX = block.x - getViewOffset().x();
+    int blockY = block.y - getViewOffset().y();
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -138,7 +137,7 @@ GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlo
     auto baseEcIt = edgeConfigurations.find({from.entry, to->entry});
     if (baseEcIt != edgeConfigurations.end())
         ec = baseEcIt->second;
-    ec.width_scale = current_scale;
+    ec.width_scale = getViewScale();
     return ec;
 }
 
@@ -148,4 +147,10 @@ void OverviewView::colorsUpdatedSlot()
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
     refreshView();
+}
+
+void OverviewView::setRangeRect(QRectF rect)
+{
+    rangeRect = rect;
+    viewport()->update();
 }

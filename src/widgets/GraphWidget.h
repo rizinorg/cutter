@@ -17,7 +17,7 @@ public:
     DisassemblerGraphView *getGraphView() const;
 
 signals:
-    void graphClose();
+    void graphClosed();
 
 protected:
     QWidget *widgetToFocusOnRaise() override;

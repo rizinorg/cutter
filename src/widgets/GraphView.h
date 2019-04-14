@@ -24,8 +24,10 @@ class QOpenGLWidget;
 class GraphView : public QAbstractScrollArea
 {
     Q_OBJECT
+
 signals:
-    void refreshBlock();
+    void viewOffsetChanged(QPoint offset);
+    void viewScaleChanged(qreal scale);
 
 public:
     using GraphBlock = GraphLayout::GraphBlock;
@@ -44,17 +46,12 @@ public:
     void showBlock(GraphBlock &block);
     void showBlock(GraphBlock *block);
 
-    // Zoom data
-    qreal current_scale = 1.0;
-
-    QPoint offset = QPoint(0, 0);
-
     /**
      * @brief keep the current addr of the fcn of Graph
      * Everytime overview updates its contents, it compares this value with the one in Graph
      * if they aren't same, then Overview needs to update the pixmap cache.
      */
-    ut64 currentFcnAddr = 0; // TODO: move application specific code out of graph view
+    ut64 currentFcnAddr = RVA_INVALID; // TODO: move application specific code out of graph view
 
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
@@ -91,16 +88,21 @@ protected:
 
     void paintEvent(QPaintEvent *event) override;
 
-    void center();
-    void centerX();
-    void centerY();
     int width = 0;
     int height = 0;
 
 private:
+    void centerX(bool emitSignal);
+    void centerY(bool emitSignal);
+
     void paintGraphCache();
 
     bool checkPointClicked(QPointF &point, int x, int y, bool above_y = false);
+
+    // Zoom data
+    qreal current_scale = 1.0;
+
+    QPoint offset = QPoint(0, 0);
 
     ut64 entry;
 
@@ -141,6 +143,16 @@ private:
 
     QPolygonF recalculatePolygon(QPolygonF polygon);
     void beginMouseDrag(QMouseEvent *event);
+
+public:
+    QPoint getViewOffset() const    { return offset; }
+    void setViewOffset(QPoint offset);
+    qreal getViewScale() const      { return current_scale; }
+    void setViewScale(qreal scale);
+
+    void center();
+    void centerX()  { centerX(true); }
+    void centerY()  { centerY(true); }
 };
 
 #endif // GRAPHVIEW_H

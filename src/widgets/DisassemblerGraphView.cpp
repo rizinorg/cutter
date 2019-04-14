@@ -190,7 +190,7 @@ void DisassemblerGraphView::loadCurrentGraph()
         highlight_token = nullptr;
     }
 
-    bool emptyGraph = functions.isEmpty();
+    emptyGraph = functions.isEmpty();
     if (emptyGraph) {
         // If there's no function to print, just add a message
         if (!emptyText) {
@@ -375,8 +375,8 @@ void DisassemblerGraphView::initFont()
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x - offset.x();
-    int blockY = block.y - offset.y();
+    int blockX = block.x - getViewOffset().x();
+    int blockY = block.y - getViewOffset().y();
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -517,7 +517,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     qreal lineHeightRender = charHeight;
     for (auto &line : db.header_text.lines) {
         qreal lineYRender = y;
-        lineYRender *= current_scale;
+        lineYRender *= getViewScale();
         // Check if line does NOT intersects with view area
         if (0 > lineYRender + lineHeightRender
                 || render_height < lineYRender) {
@@ -543,7 +543,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
         for (auto &line : instr.text.lines) {
             qreal lineYRender = y;
-            lineYRender *= current_scale;
+            lineYRender *= getViewScale();
             if (0 > lineYRender + lineHeightRender
                     || render_height < lineYRender) {
                 y += charHeight;
@@ -705,16 +705,17 @@ void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
 {
     mouseRelativePos.rx() *= size().width();
     mouseRelativePos.ry() *= size().height();
-    mouseRelativePos /= current_scale;
+    mouseRelativePos /= getViewScale();
 
-    auto globalMouse = mouseRelativePos + offset;
-    mouseRelativePos *= current_scale;
-    current_scale *= std::pow(1.25, velocity);
-    current_scale = std::max(current_scale, 0.3);
-    mouseRelativePos /= current_scale;
+    auto globalMouse = mouseRelativePos + getViewOffset();
+    mouseRelativePos *= getViewScale();
+    qreal newScale = getViewScale() * std::pow(1.25, velocity);
+    newScale = std::max(newScale, 0.3);
+    mouseRelativePos /= newScale;
+    setViewScale(newScale);
 
     // Adjusting offset, so that zooming will be approaching to the cursor.
-    offset = globalMouse.toPoint() - mouseRelativePos.toPoint();
+    setViewOffset(globalMouse.toPoint() - mouseRelativePos.toPoint());
 
     viewport()->update();
     emit viewZoomed();
@@ -722,7 +723,7 @@ void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
 
 void DisassemblerGraphView::zoomReset()
 {
-    current_scale = 1.0;
+    setViewScale(1.0);
     viewport()->update();
     emit viewZoomed();
 }
@@ -990,6 +991,12 @@ void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
         GraphView::wheelEvent(event);
     }
     emit graphMoved();
+}
+
+void DisassemblerGraphView::resizeEvent(QResizeEvent *event)
+{
+    GraphView::resizeEvent(event);
+    emit resized();
 }
 
 void DisassemblerGraphView::paintEvent(QPaintEvent *event)
