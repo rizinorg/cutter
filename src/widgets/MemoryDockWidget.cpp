@@ -17,7 +17,9 @@ void MemoryDockWidget::handleRaiseMemoryWidget(CutterCore::MemoryWidgetType rais
     }
 
     if (raiseType == mType) {
-        getBoundAction()->setChecked(true);
+        if (getBoundAction()) {
+            getBoundAction()->setChecked(true);
+        }
 
         show();
         raise();
