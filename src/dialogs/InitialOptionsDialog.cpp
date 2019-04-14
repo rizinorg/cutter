@@ -28,8 +28,9 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
 
     // Fill the plugins combo
     asm_plugins = core->getAsmPluginNames();
-    for (const auto &plugin : asm_plugins)
+    for (const auto &plugin : asm_plugins) {
         ui->archComboBox->addItem(plugin, plugin);
+    }
     ui->archComboBox->setToolTip(core->cmd("e? asm.arch").trimmed());
 
     // cpu combo box
@@ -38,16 +39,16 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     updateCPUComboBox();
 
     // os combo box
-    for (const auto &plugin : core->cmdList("e asm.os=?"))
+    for (const auto &plugin : core->cmdList("e asm.os=?")) {
         ui->kernelComboBox->addItem(plugin, plugin);
+    }
     ui->kernelComboBox->setToolTip(core->cmd("e? asm.os").trimmed());
 
     ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
 
-    ui->entry_analbb->setToolTip(core->cmd("e? anal.bb.maxsize").trimmed());
-
-    for (const auto &plugin : core->getRBinPluginDescriptions("bin"))
+    for (const auto &plugin : core->getRBinPluginDescriptions("bin")) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
+    }
 
     ui->hideFrame->setVisible(false);
     ui->analoptionsFrame->setVisible(false);
@@ -75,8 +76,9 @@ void InitialOptionsDialog::updateCPUComboBox()
     QString cmd = "e asm.cpu=?";
 
     QString arch = getSelectedArch();
-    if (!arch.isNull())
+    if (!arch.isNull()) {
         cmd += " @a:" + arch;
+    }
 
     ui->cpuComboBox->addItem("");
     ui->cpuComboBox->addItems(core->cmdList(cmd));
@@ -135,8 +137,9 @@ QString InitialOptionsDialog::getSelectedArch() const
 QString InitialOptionsDialog::getSelectedCPU() const
 {
     QString cpu = ui->cpuComboBox->currentText();
-    if (cpu.isNull() || cpu.isEmpty())
+    if (cpu.isNull() || cpu.isEmpty()) {
         return nullptr;
+    }
     return cpu;
 }
 
@@ -148,16 +151,6 @@ int InitialOptionsDialog::getSelectedBits() const
     }
 
     return 0;
-}
-
-int InitialOptionsDialog::getSelectedBBSize() const
-{
-    QString sel_bbsize = ui->entry_analbb->text();
-    bool ok;
-    int bbsize = sel_bbsize.toInt(&ok);
-    if (ok)
-        return bbsize;
-    return 1024;
 }
 
 InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness() const
@@ -266,7 +259,6 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
 
 
     options.endian = getSelectedEndianness();
-    options.bbsize = getSelectedBBSize();
 
     int level = ui->analSlider->value();
     switch (level) {

@@ -53,7 +53,6 @@ private:
     QString getSelectedArch() const;
     QString getSelectedCPU() const;
     int getSelectedBits() const;
-    int getSelectedBBSize() const;
     InitialOptions::Endianness getSelectedEndianness() const;
     QString getSelectedOS() const;
     QList<QString> getSelectedAdvancedAnalCmds() const;

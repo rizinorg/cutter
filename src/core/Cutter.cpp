@@ -768,11 +768,6 @@ void CutterCore::setEndianness(bool big)
     setConfig("cfg.bigendian", big);
 }
 
-void CutterCore::setBBSize(int size)
-{
-    setConfig("anal.bb.maxsize", size);
-}
-
 QByteArray CutterCore::assemble(const QString &code)
 {
     CORE_LOCK();
