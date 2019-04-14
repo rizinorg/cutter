@@ -143,6 +143,18 @@ void GraphView::beginMouseDrag(QMouseEvent *event)
     viewport()->grabMouse();
 }
 
+void GraphView::setViewOffset(QPoint offset)
+{
+    this->offset = offset;
+    emit viewOffsetChanged(offset);
+}
+
+void GraphView::setViewScale(qreal scale)
+{
+    this->current_scale = scale;
+    emit viewScaleChanged(scale);
+}
+
 QSize GraphView::getCacheSize()
 {
     return
@@ -213,10 +225,6 @@ void GraphView::paintEvent(QPaintEvent *)
         QRectF source(0.0, 0.0, pixmap.width(), pixmap.height());
         QPainter p(viewport());
         p.drawPixmap(target, pixmap, source);
-    }
-
-    if(cacheWasDirty) { // TODO: does this condition make sense?
-        emit refreshBlock();
     }
 }
 
@@ -341,20 +349,27 @@ void GraphView::paintGraphCache()
 
 void GraphView::center()
 {
-    centerX();
-    centerY();
+    centerX(false);
+    centerY(false);
+    emit viewOffsetChanged(offset);
 }
 
-void GraphView::centerX()
+void GraphView::centerX(bool emitSignal)
 {
     offset.rx() = -((viewport()->width() - width * current_scale) / 2);
     offset.rx() /= current_scale;
+    if (emitSignal) {
+        emit viewOffsetChanged(offset);
+    }
 }
 
-void GraphView::centerY()
+void GraphView::centerY(bool emitSignal)
 {
     offset.ry() = -((viewport()->height() - height * current_scale) / 2);
     offset.ry() /= current_scale;
+    if (emitSignal) {
+        emit viewOffsetChanged(offset);
+    }
 }
 
 void GraphView::showBlock(GraphBlock &block)
@@ -365,16 +380,17 @@ void GraphView::showBlock(GraphBlock &block)
 void GraphView::showBlock(GraphBlock *block)
 {
     if (width * current_scale <= viewport()->width()) {
-        centerX();
+        centerX(false);
     } else {
         int render_width = viewport()->width() / current_scale;
         offset.rx() = block->x - ((render_width - block->width) / 2);
     }
     if (height * current_scale <= viewport()->height()) {
-        centerY();
+        centerY(false);
     } else {
         offset.ry() = block->y - 30;
     }
+    emit viewOffsetChanged(offset);
     blockTransitionedTo(block);
     viewport()->update();
 }
@@ -463,6 +479,7 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
     if (scroll_mode) {
         offset.rx() += (scroll_base_x - event->x()) / current_scale;
         offset.ry() += (scroll_base_y - event->y()) / current_scale;
+        emit viewOffsetChanged(offset);
         scroll_base_x = event->x();
         scroll_base_y = event->y();
         viewport()->update();
@@ -510,6 +527,7 @@ void GraphView::keyPressEvent(QKeyEvent* event)
     }
     offset.rx() += dx;
     offset.ry() += dy;
+    emit viewOffsetChanged(offset);
     viewport()->update();
     event->accept();
 }
@@ -540,6 +558,7 @@ void GraphView::wheelEvent(QWheelEvent *event)
 
     delta /= current_scale;
     offset += delta;
+    emit viewOffsetChanged(offset);
 
     viewport()->update();
     event->accept();

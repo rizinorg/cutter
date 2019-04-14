@@ -51,7 +51,7 @@ QWidget *GraphWidget::widgetToFocusOnRaise()
 void GraphWidget::closeEvent(QCloseEvent *event)
 {
     CutterDockWidget::closeEvent(event);
-    emit graphClose();
+    emit graphClosed();
 }
 
 DisassemblerGraphView *GraphWidget::getGraphView() const

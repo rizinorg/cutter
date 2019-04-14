@@ -129,6 +129,7 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
 
@@ -196,6 +197,10 @@ signals:
     void viewRefreshed();
     void viewZoomed();
     void graphMoved();
+    void resized();
+
+public:
+    bool isGraphEmpty()     { return emptyGraph; }
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H
