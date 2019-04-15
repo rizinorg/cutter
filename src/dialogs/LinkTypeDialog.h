@@ -27,8 +27,9 @@ public:
      * If the given address is linked to a type, then it also sets the default
      * type to the currently linked type
      * @param address The address to be used as default address
+     * @return true iff the given address string was valid
      */
-    void setDefaultAddress(QString address);
+    bool setDefaultAddress(const QString &address);
 
 private slots:
 
@@ -51,6 +52,8 @@ private slots:
 
 private:
     Ui::LinkTypeDialog *ui;
+
+    bool addrValid;
 
     /**
      * @brief Used for finding the type which is linked to the given address
