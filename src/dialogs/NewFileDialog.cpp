@@ -112,7 +112,7 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
     }
     if (!QFileInfo(dir).isWritable()) {
         QMessageBox::critical(this, tr("Permission denied"),
-                              tr("You do not have wtire access to the %1 directory.")
+                              tr("You do not have write access to <b>%1</b>")
                               .arg(dir));
         return;
     }
