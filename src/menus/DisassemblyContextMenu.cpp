@@ -770,7 +770,9 @@ void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *act
 void DisassemblyContextMenu::on_actionLinkType_triggered()
 {
     LinkTypeDialog dialog(this);
-    dialog.setDefaultAddress(curHighlightedWord);
+    if (!dialog.setDefaultAddress(curHighlightedWord)) {
+        dialog.setDefaultAddress(RAddressString(offset));
+    }
     dialog.exec();
 }
 
