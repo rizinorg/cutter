@@ -228,6 +228,9 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     }
 
     // Compute coordinates for edges
+    auto position_from_middle = [](int index, int spacing, int column_count) {
+        return spacing * (((index & 1) ? 1 : -1) * ((index + 1) / 2) + (column_count - 1) / 2);
+    };
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
@@ -242,7 +245,8 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
             auto start_col = start.col;
             auto last_index = edge.start_index;
             // This is the start point of the edge.
-            auto first_pt = QPoint(col_edge_x[start_col] + (layoutConfig.block_horizontal_margin * last_index) +
+            auto first_pt = QPoint(col_edge_x[start_col] +
+                                   position_from_middle(last_index, layoutConfig.block_horizontal_margin, col_edge_count[start_col]) +
                                    (layoutConfig.block_horizontal_margin / 2),
                                    block.y + block.height);
             auto last_pt = first_pt;
@@ -257,11 +261,12 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
                 QPoint new_pt;
                 // block_vertical_margin/2 gives the margin from block to the horizontal lines
                 if (start_col == end_col)
-                    new_pt = QPoint(last_pt.x(), row_edge_y[end_row] + (layoutConfig.block_vertical_margin * last_index)
-                                    +
+                    new_pt = QPoint(last_pt.x(), row_edge_y[end_row] +
+                                    position_from_middle(last_index, layoutConfig.block_vertical_margin, row_edge_count[end_row]) +
                                     (layoutConfig.block_vertical_margin / 2));
                 else
-                    new_pt = QPoint(col_edge_x[end_col] + (layoutConfig.block_horizontal_margin * last_index) +
+                    new_pt = QPoint(col_edge_x[end_col] +
+                                    position_from_middle(last_index, layoutConfig.block_horizontal_margin, col_edge_count[end_col]) +
                                     (layoutConfig.block_horizontal_margin / 2), last_pt.y());
                 pts.push_back(new_pt);
                 last_pt = new_pt;
