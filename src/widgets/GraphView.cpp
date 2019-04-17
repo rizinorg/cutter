@@ -443,25 +443,27 @@ void GraphView::mousePressEvent(QMouseEvent *event)
     }
 
     // Check if a line beginning/end  was clicked
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-        for (GraphEdge &edge : block.edges) {
-            if (edge.polyline.length() < 2) {
-                continue;
-            }
-            QPointF start = edge.polyline.first();
-            QPointF end = edge.polyline.last();
-            if (checkPointClicked(start, x, y)) {
-                showBlock(blocks[edge.target]);
-                // TODO: Callback to child
-                return;
-                break;
-            }
-            if (checkPointClicked(end, x, y, true)) {
-                showBlock(block);
-                // TODO: Callback to child
-                return;
-                break;
+    if (event->button() == Qt::LeftButton) {
+        for (auto &blockIt : blocks) {
+            GraphBlock &block = blockIt.second;
+            for (GraphEdge &edge : block.edges) {
+                if (edge.polyline.length() < 2) {
+                    continue;
+                }
+                QPointF start = edge.polyline.first();
+                QPointF end = edge.polyline.last();
+                if (checkPointClicked(start, x, y)) {
+                    showBlock(blocks[edge.target]);
+                    // TODO: Callback to child
+                    return;
+                    break;
+                }
+                if (checkPointClicked(end, x, y, true)) {
+                    showBlock(block);
+                    // TODO: Callback to child
+                    return;
+                    break;
+                }
             }
         }
     }
@@ -470,8 +472,10 @@ void GraphView::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         //Left click outside any block, enter scrolling mode
         beginMouseDrag(event);
+        return;
     }
 
+    QAbstractScrollArea::mousePressEvent(event);
 }
 
 void GraphView::mouseMoveEvent(QMouseEvent *event)

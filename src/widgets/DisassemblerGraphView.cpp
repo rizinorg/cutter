@@ -31,7 +31,8 @@
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
-      mMenu(new DisassemblyContextMenu(this)),
+      blockMenu(new DisassemblyContextMenu(this)),
+      contextMenu(new QMenu(this)),
       seekable(new CutterSeekable(this))
 {
     highlight_token = nullptr;
@@ -68,10 +69,12 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     // Zoom shortcuts
     QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::Key_Plus), this);
     shortcut_zoom_in->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_in, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom, this, QPointF(0.5, 0.5), 1));
+    connect(shortcut_zoom_in, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom, this,
+                                                                     QPointF(0.5, 0.5), 1));
     QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::Key_Minus), this);
     shortcut_zoom_out->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_out, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom, this, QPointF(0.5, 0.5), -1));
+    connect(shortcut_zoom_out, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom,
+                                                                      this, QPointF(0.5, 0.5), -1));
     QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::Key_Equal), this);
     shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
     connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
@@ -100,20 +103,25 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     shortcuts.append(shortcut_prev_instr);
 
     // Export Graph menu
-    mMenu->addSeparator();
     actionExportGraph.setText(tr("Export Graph"));
-    mMenu->addAction(&actionExportGraph);
     connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
-
-    mMenu->addSeparator();
     actionSyncOffset.setText(tr("Sync/unsync offset"));
-    mMenu->addAction(&actionSyncOffset);
-
     connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
+
+    // Context menu that applies to everything
+    contextMenu->addAction(&actionExportGraph);
+    contextMenu->addSeparator();
+    contextMenu->addAction(&actionSyncOffset);
+
+    // Include all actions from generic context menu in block specific menu
+    blockMenu->addSeparator();
+    blockMenu->addActions(contextMenu->actions());
+
+
     initFont();
     colorsUpdatedSlot();
 
-    connect(mMenu, SIGNAL(copy()), this, SLOT(copySelection()));
+    connect(blockMenu, &DisassemblyContextMenu::copy, this, &DisassemblerGraphView::copySelection);
 
     header = new QTextEdit();
     header->setFixedHeight(30);
@@ -680,7 +688,7 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
 
 void DisassemblerGraphView::onSeekChanged(RVA addr)
 {
-    mMenu->setOffset(addr);
+    blockMenu->setOffset(addr);
     DisassemblyBlock *db = blockForAddress(addr);
     if (db) {
         // This is a local address! We animated to it.
@@ -856,13 +864,14 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
     RVA addr = instr->addr;
     seekLocal(addr);
 
-    mMenu->setOffset(addr);
-    mMenu->setCanCopy(highlight_token);
+    blockMenu->setOffset(addr);
+    blockMenu->setCanCopy(highlight_token);
     if (highlight_token) {
-        mMenu->setCurHighlightedWord(highlight_token->content);
+        blockMenu->setCurHighlightedWord(highlight_token->content);
     }
     if (event->button() == Qt::RightButton) {
-        mMenu->exec(event->globalPos());
+        event->accept();
+        blockMenu->exec(event->globalPos());
     }
     viewport()->update();
 }
@@ -962,6 +971,10 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
 void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
 {
     GraphView::mousePressEvent(event);
+    if (!event->isAccepted() && event->button() == Qt::RightButton) {
+        contextMenu->exec(event->globalPos());
+        event->accept();
+    }
     emit graphMoved();
 }
 
