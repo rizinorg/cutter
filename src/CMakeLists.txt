@@ -149,9 +149,18 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
     set_source_files_properties(${BINDINGS_SOURCE} PROPERTIES COMPILE_FLAGS -w)
 endif()
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GVC REQUIRED libgvc)
+
+
+
 
 add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
+
+target_link_libraries(Cutter ${GVC_LIBRARIES})
+target_include_directories(Cutter PUBLIC ${GVC_INCLUDE_DIRS})
+target_compile_options(Cutter PUBLIC ${GVC_CFLAGS_OTHER})
 
 if(CUTTER_ENABLE_CRASH_REPORTS)
     set(THREADS_PREFER_PTHREAD_FLAG ON)

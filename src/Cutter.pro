@@ -360,7 +360,8 @@ SOURCES += \
     widgets/GraphGridLayout.cpp \
     widgets/HexWidget.cpp \
     common/SelectionHighlight.cpp \
-    common/Decompiler.cpp
+    common/Decompiler.cpp \
+    widgets/GraphvizLayout.cpp
 
 HEADERS  += \
     core/Cutter.h \
