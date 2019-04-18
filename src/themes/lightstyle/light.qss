@@ -79,12 +79,10 @@ QToolButton {
 	border-top-color: transparent;
 	border-right-color: transparent;
 	border-left-color: transparent;
-	border-bottom-color: #039be5;
-	border-bottom-width: 1px;
 	border-style: solid;
 	color: #00162e;
 	padding: 2px;
-	background-color: #03a9f4;
+	background-color: transparent;
 }
 QToolButton:hover{
 	border-style: solid;
@@ -96,7 +94,7 @@ QToolButton:hover{
 	border-style: solid;
 	color: #00162e;
 	padding-bottom: 1px;
-	background-color: #63ccff;
+	background-color: transparent;
 }
 QPushButton:hover{
 	border-style: solid;
@@ -441,6 +439,54 @@ QHeaderView::up-arrow {
 }
 
 
+QAbstractSpinBox::down-arrow:hover {
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+QSpinBox::down-arrow:hover {
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+QAbstractSpinBox::down-arrow,
+QAbstractSpinBox::down-arrow:disabled,
+QAbstractSpinBox::down-arrow:off {
+    image: url(:/qss_icons/rc/down_arrow_disabled.png);
+    width: 10px;
+    height: 10px;
+}
+
+
+
+QAbstractSpinBox::up-arrow,
+QSpinBox::up-arrow,
+QAbstractSpinBox::up-arrow:disabled,
+QAbstractSpinBox::up-arrow:off {
+    image: url(:/qss_icons/rc/up_arrow_disabled.png);
+    width: 10px;
+    height: 10px;
+}
+
+QAbstractSpinBox::up-arrow:hover {
+    image: url(:/qss_icons/rc/up_arrow.png);
+}
+
+
+QToolButton::menu-indicator {
+    image: url(:/qss_icons/rc/down_arrow.png);
+    top: -7px;
+    left: -2px;
+    /* shift it a bit */
+}
+
+
+QToolButton::menu-arrow {
+    image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+
+
+
+
+
 QToolBox {
 	color: #00162e;
 	background-color: #ffffff;
@@ -679,6 +725,64 @@ QScrollBar::add-page:vertical,
 QScrollBar::sub-page:vertical {
     background: none;
 }
+
+
+
+
+
+
+QScrollBar::sub-line:vertical {
+    margin: 3px 0px 3px 0px;
+    border-image: url(:/qss_icons/rc/up_arrow_disabled.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:vertical {
+    margin: 3px 0px 3px 0px;
+    border-image: url(:/qss_icons/rc/down_arrow_disabled.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical:hover,
+QScrollBar::sub-line:vertical:on {
+    border-image: url(:/qss_icons/rc/up_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::add-line:vertical:hover,
+QScrollBar::add-line:vertical:on {
+    border-image: url(:/qss_icons/rc/down_arrow.png);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::up-arrow:vertical,
+QScrollBar::down-arrow:vertical {
+    background: none;
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+
+
+
+
+
+
 
 
 QLineEdit:hover, QLineEdit:focus {
