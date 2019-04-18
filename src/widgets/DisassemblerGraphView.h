@@ -148,7 +148,8 @@ private:
     int baseline;
     bool emptyGraph;
 
-    DisassemblyContextMenu *mMenu;
+    DisassemblyContextMenu *blockMenu;
+    QMenu *contextMenu;
 
     void connectSeekChanged(bool disconnect);
 
