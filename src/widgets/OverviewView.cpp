@@ -14,33 +14,41 @@ OverviewView::OverviewView(QWidget *parent)
     colorsUpdatedSlot();
 }
 
-void OverviewView::setData(int baseWidth, int baseHeight, std::unordered_map<ut64, GraphBlock> baseBlocks)
+void OverviewView::setData(int baseWidth, int baseHeight,
+                           std::unordered_map<ut64, GraphBlock> baseBlocks,
+                           DisassemblerGraphView::EdgeConfigurationMapping baseEdgeConfigurations)
 {
     width = baseWidth;
     height = baseHeight;
     blocks = baseBlocks;
-    refreshView();
+    edgeConfigurations = baseEdgeConfigurations;
+    scaleAndCenter();
+    setCacheDirty();
+    viewport()->update();
 }
 
 OverviewView::~OverviewView()
 {
 }
 
+void OverviewView::scaleAndCenter()
+{
+    qreal wScale = (qreal)viewport()->width() / width;
+    qreal hScale = (qreal)viewport()->height() / height;
+    setViewScale(std::min(wScale, hScale));
+    center();
+}
+
 void OverviewView::refreshView()
 {
-    current_scale = (qreal)viewport()->width() / width;
-    qreal h_scale = (qreal)viewport()->height() / height;
-    if (current_scale > h_scale) {
-        current_scale = h_scale;
-    }
-    center();
+    scaleAndCenter();
     viewport()->update();
 }
 
 void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 {
-    int blockX = block.x - offset_x;
-    int blockY = block.y - offset_y;
+    int blockX = block.x - getViewOffset().x();
+    int blockY = block.y - getViewOffset().y();
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
@@ -48,19 +56,19 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     p.setBrush(QColor(0, 0, 0, 100));
     p.drawRect(blockX + 2, blockY + 2,
                block.width, block.height);
-    p.setPen(QPen(graphNodeColor, 1));
-    p.setBrush(disassemblyBackgroundColor);
-    p.drawRect(blockX, blockY,
-               block.width, block.height);
+
     // Draw basic block highlighting/tracing
     auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
     if (bb) {
         QColor color(bb->color);
         color.setAlphaF(0.5);
         p.setBrush(color);
-        p.drawRect(block.x, block.y,
-                   block.width, block.height);
+    } else {
+        p.setBrush(disassemblyBackgroundColor);
     }
+    p.setPen(QPen(graphNodeColor, 1));
+    p.drawRect(blockX, blockY,
+               block.width, block.height);
 }
 
 void OverviewView::paintEvent(QPaintEvent *event)
@@ -123,12 +131,13 @@ void OverviewView::wheelEvent(QWheelEvent *event)
 }
 
 GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,
-                                                                      GraphView::GraphBlock *to)
+                                                             GraphView::GraphBlock *to)
 {
-    Q_UNUSED(from);
-    Q_UNUSED(to);
     EdgeConfiguration ec;
-    ec.width_scale = current_scale;
+    auto baseEcIt = edgeConfigurations.find({from.entry, to->entry});
+    if (baseEcIt != edgeConfigurations.end())
+        ec = baseEcIt->second;
+    ec.width_scale = getViewScale();
     return ec;
 }
 
@@ -138,4 +147,10 @@ void OverviewView::colorsUpdatedSlot()
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
     refreshView();
+}
+
+void OverviewView::setRangeRect(QRectF rect)
+{
+    rangeRect = rect;
+    viewport()->update();
 }

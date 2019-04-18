@@ -1,8 +1,7 @@
-
 #include "common/AsyncTask.h"
-
 #include "InitialOptionsDialog.h"
 #include "ui_InitialOptionsDialog.h"
+
 #include "core/MainWindow.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
@@ -11,9 +10,14 @@
 #include <QSettings>
 #include <QFileInfo>
 #include <QFileDialog>
+#include <QCloseEvent>
+
+#include "core/Cutter.h"
+#include "common/AnalTask.h"
+
 
 InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
-    QDialog(0), // parent must not be main
+    QDialog(nullptr), // parent must not be main
     ui(new Ui::InitialOptionsDialog),
     main(main),
     core(Core())
@@ -24,8 +28,9 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
 
     // Fill the plugins combo
     asm_plugins = core->getAsmPluginNames();
-    for (const auto &plugin : asm_plugins)
+    for (const auto &plugin : asm_plugins) {
         ui->archComboBox->addItem(plugin, plugin);
+    }
     ui->archComboBox->setToolTip(core->cmd("e? asm.arch").trimmed());
 
     // cpu combo box
@@ -34,16 +39,16 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     updateCPUComboBox();
 
     // os combo box
-    for (const auto &plugin : core->cmdList("e asm.os=?"))
+    for (const auto &plugin : core->cmdList("e asm.os=?")) {
         ui->kernelComboBox->addItem(plugin, plugin);
+    }
     ui->kernelComboBox->setToolTip(core->cmd("e? asm.os").trimmed());
 
     ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
 
-    ui->entry_analbb->setToolTip(core->cmd("e? anal.bb.maxsize").trimmed());
-
-    for (const auto &plugin : core->getRBinPluginDescriptions("bin"))
+    for (const auto &plugin : core->getRBinPluginDescriptions("bin")) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
+    }
 
     ui->hideFrame->setVisible(false);
     ui->analoptionsFrame->setVisible(false);
@@ -71,8 +76,9 @@ void InitialOptionsDialog::updateCPUComboBox()
     QString cmd = "e asm.cpu=?";
 
     QString arch = getSelectedArch();
-    if (!arch.isNull())
+    if (!arch.isNull()) {
         cmd += " @a:" + arch;
+    }
 
     ui->cpuComboBox->addItem("");
     ui->cpuComboBox->addItems(core->cmdList(cmd));
@@ -122,21 +128,22 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
     // TODO: all other options should also be applied to the ui
 }
 
-QString InitialOptionsDialog::getSelectedArch()
+QString InitialOptionsDialog::getSelectedArch() const
 {
     QVariant archValue = ui->archComboBox->currentData();
     return archValue.isValid() ? archValue.toString() : nullptr;
 }
 
-QString InitialOptionsDialog::getSelectedCPU()
+QString InitialOptionsDialog::getSelectedCPU() const
 {
     QString cpu = ui->cpuComboBox->currentText();
-    if (cpu.isNull() || cpu.isEmpty())
+    if (cpu.isNull() || cpu.isEmpty()) {
         return nullptr;
+    }
     return cpu;
 }
 
-int InitialOptionsDialog::getSelectedBits()
+int InitialOptionsDialog::getSelectedBits() const
 {
     QString sel_bits = ui->bitsComboBox->currentText();
     if (sel_bits != "Auto") {
@@ -146,17 +153,7 @@ int InitialOptionsDialog::getSelectedBits()
     return 0;
 }
 
-int InitialOptionsDialog::getSelectedBBSize()
-{
-    QString sel_bbsize = ui->entry_analbb->text();
-    bool ok;
-    int bbsize = sel_bbsize.toInt(&ok);
-    if (ok)
-        return bbsize;
-    return 1024;
-}
-
-InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness()
+InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness() const
 {
     switch (ui->endiannessComboBox->currentIndex()) {
     case 1:
@@ -168,13 +165,13 @@ InitialOptions::Endianness InitialOptionsDialog::getSelectedEndianness()
     }
 }
 
-QString InitialOptionsDialog::getSelectedOS()
+QString InitialOptionsDialog::getSelectedOS() const
 {
     QVariant os = ui->kernelComboBox->currentData();
     return os.isValid() ? os.toString() : nullptr;
 }
 
-QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds()
+QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds() const
 {
     QList<QString> advanced = QList<QString>();
     if (ui->analSlider->value() == 3) {
@@ -262,7 +259,6 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
 
 
     options.endian = getSelectedEndianness();
-    options.bbsize = getSelectedBBSize();
 
     int level = ui->analSlider->value();
     switch (level) {
@@ -423,6 +419,5 @@ void InitialOptionsDialog::on_scriptSelectButton_clicked()
 void InitialOptionsDialog::reject()
 {
     done(0);
-    NewFileDialog *n = new NewFileDialog(nullptr);
-    n->show();
+    main->displayNewFileDialog();
 }

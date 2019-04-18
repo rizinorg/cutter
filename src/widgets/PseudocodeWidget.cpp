@@ -9,7 +9,7 @@
 #include "common/TempConfig.h"
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+    MemoryDockWidget(CutterCore::MemoryWidgetType::Pseudocode, main, action),
     ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);
@@ -22,8 +22,6 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
-            SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
         if (visibility) {
             Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Pseudocode);
@@ -80,13 +78,6 @@ void PseudocodeWidget::doRefresh(RVA addr)
 void PseudocodeWidget::refreshPseudocode()
 {
     doRefresh(Core()->getOffset());
-}
-
-void PseudocodeWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
-{
-    if (type == CutterCore::MemoryWidgetType::Pseudocode) {
-        raise();
-    }
 }
 
 void PseudocodeWidget::setupFonts()

@@ -2,8 +2,9 @@
 #include "ui_ExportsWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-
 #include "WidgetShortcuts.h"
+
+#include <QShortcut>
 
 ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
     : QAbstractListModel(parent),

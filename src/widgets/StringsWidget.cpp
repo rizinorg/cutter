@@ -1,17 +1,14 @@
-
-#include <QModelIndex>
-
 #include "StringsWidget.h"
 #include "ui_StringsWidget.h"
-
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/XrefsDialog.h"
-
 #include "WidgetShortcuts.h"
 
-#include <QMenu>
 #include <QClipboard>
+#include <QMenu>
+#include <QModelIndex>
+#include <QShortcut>
 
 StringsModel::StringsModel(QList<StringDescription> *strings, QObject *parent)
     : QAbstractListModel(parent),
@@ -274,10 +271,9 @@ void StringsWidget::on_actionX_refs_triggered()
     StringDescription str = ui->stringsTreeView->selectionModel()->currentIndex().data(
                                 StringsModel::StringDescriptionRole).value<StringDescription>();
 
-    XrefsDialog *x = new XrefsDialog(this);
-    x->fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
-    x->setAttribute(Qt::WA_DeleteOnClose);
-    x->exec();
+    XrefsDialog x(nullptr);
+    x.fillRefsForAddress(str.vaddr, RAddressString(str.vaddr), false);
+    x.exec();
 }
 
 void StringsWidget::on_actionCopy()

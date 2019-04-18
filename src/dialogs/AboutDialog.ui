@@ -59,7 +59,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Show plugin information</string>
+          <string>Show radare2 plugin information</string>
          </property>
         </widget>
        </item>
@@ -73,6 +73,19 @@
          </property>
          <property name="text">
           <string>Check for updates</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="updatesCheckBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Check for updates on start</string>
          </property>
         </widget>
        </item>

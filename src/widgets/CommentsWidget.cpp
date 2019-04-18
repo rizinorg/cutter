@@ -1,10 +1,11 @@
-#include <QMenu>
-#include <QResizeEvent>
-
 #include "CommentsWidget.h"
 #include "ui_CommentsWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+
+#include <QMenu>
+#include <QResizeEvent>
+#include <QShortcut>
 
 CommentsModel::CommentsModel(QList<CommentDescription> *comments,
                              QMap<QString, QList<CommentDescription> > *nestedComments,

@@ -8,9 +8,11 @@
 
 #include <QUrl>
 #include <QTimer>
+#include <QEventLoop>
 #include <QJsonObject>
 #include <QProgressBar>
 #include <QProgressDialog>
+#include <UpdateWorker.h>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkAccessManager>
 
@@ -25,29 +27,32 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->logoSvgWidget->load(Config()->getLogoFile());
 
     QString aboutString("<h1>Cutter</h1>"
-                          + tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
-                          + tr("Using r2-") + R2_GITTAP
-                          + "<p><b>" + tr("Optional Features:") + "</b><br/>"
-                          + QString("Jupyter: %1<br/>").arg(
-#ifdef CUTTER_ENABLE_JUPYTER
-                          "ON"
+                        + tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
+                        + tr("Using r2-") + R2_GITTAP
+                        + "<p><b>" + tr("Optional Features:") + "</b><br/>"
+                        + QString("Python: %1<br/>").arg(
+#ifdef CUTTER_ENABLE_PYTHON
+                            "ON"
 #else
-                          "OFF"
+                            "OFF"
 #endif
-                           )
-                          + QString("QtWebEngine: %2</p>").arg(
-#ifdef CUTTER_ENABLE_QTWEBENGINE
-                          "ON"
+                        )
+                        + QString("Python Bindings: %2</p>").arg(
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
+                            "ON"
 #else
-                          "OFF"
+                            "OFF"
 #endif
-                           )
-                          + "<h2>" + tr("License") + "</h2>"
-                          + tr("This Software is released under the GNU General Public License v3.0")
-                          + "<h2>" + tr("Authors") + "</h2>"
-                          "xarkes, thestr4ng3r, ballessay<br/>"
-                          "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
+                        )
+                        + "<h2>" + tr("License") + "</h2>"
+                        + tr("This Software is released under the GNU General Public License v3.0")
+                        + "<h2>" + tr("Authors") + "</h2>"
+                        "xarkes, thestr4ng3r, ballessay<br/>"
+                        "Based on work by Hugo Teso &lt;hugo.teso@gmail.org&gt; (originally Iaito).");
     ui->label->setText(aboutString);
+
+    QSignalBlocker s(ui->updatesCheckBox);
+    ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
 }
 
 AboutDialog::~AboutDialog() {}
@@ -75,9 +80,7 @@ void AboutDialog::on_showPluginsButton_clicked()
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
-    QUrl url("https://api.github.com/repos/radareorg/cutter/releases/latest");
-    QNetworkRequest request;
-    request.setUrl(url);
+    UpdateWorker updateWorker;
 
     QProgressDialog waitDialog;
     QProgressBar *bar = new QProgressBar(&waitDialog);
@@ -86,56 +89,25 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
     waitDialog.setBar(bar);
     waitDialog.setLabel(new QLabel(tr("Checking for updates..."), &waitDialog));
 
-    QNetworkAccessManager nm;
-
-    QTimer timeoutTimer;
-    timeoutTimer.setSingleShot(true);
-    timeoutTimer.setInterval(7000);
-
-    connect(&nm, &QNetworkAccessManager::finished, &timeoutTimer, &QTimer::stop);
-    connect(&nm, &QNetworkAccessManager::finished, &waitDialog, &QProgressDialog::cancel);
-    connect(&nm, &QNetworkAccessManager::finished, this, &AboutDialog::serveVersionCheckReply);
-
-    QNetworkReply *reply = nm.get(request);
-    timeoutTimer.start();
-
-    connect(&timeoutTimer, &QTimer::timeout, []() {
-        QMessageBox mb;
-        mb.setIcon(QMessageBox::Critical);
-        mb.setStandardButtons(QMessageBox::Ok);
-        mb.setWindowTitle(tr("Timeout error!"));
-        mb.setText(tr("Please check your internet connection and try again."));
-        mb.exec();
+    connect(&updateWorker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
+    connect(&updateWorker, &UpdateWorker::checkComplete,
+    [&updateWorker](const QVersionNumber &version, const QString & error) {
+        if (!error.isEmpty()) {
+            QMessageBox::critical(nullptr, tr("Error!"), error);
+        } else {
+            if (version <= UpdateWorker::currentVersionNumber()) {
+                QMessageBox::information(nullptr, tr("Version control"), tr("Cutter is up to date!"));
+            } else {
+                updateWorker.showUpdateDialog(false);
+            }
+        }
     });
 
+    updateWorker.checkCurrentVersion(7000);
     waitDialog.exec();
-    delete reply;
 }
 
-void AboutDialog::serveVersionCheckReply(QNetworkReply *reply)
+void AboutDialog::on_updatesCheckBox_stateChanged(int)
 {
-    QString currVersion = "";
-    QMessageBox mb;
-    mb.setStandardButtons(QMessageBox::Ok);
-    if (reply->error()) {
-        mb.setIcon(QMessageBox::Critical);
-        mb.setWindowTitle(tr("Error!"));
-        mb.setText(reply->errorString());
-    } else {
-        currVersion = QJsonDocument::fromJson(reply->readAll()).object().value("tag_name").toString();
-        currVersion.remove('v');
-
-        mb.setWindowTitle(tr("Version control"));
-        mb.setIcon(QMessageBox::Information);
-        if (currVersion == CUTTER_VERSION_FULL) {
-            mb.setText(tr("You have latest version and no need to update!"));
-        } else {
-            mb.setText("<b>" + tr("Current version:") + "</b> " CUTTER_VERSION_FULL "<br/>"
-                          + "<b>" + tr("Latest version:") + "</b> " + currVersion + "<br/><br/>"
-                          + tr("For update, please check the link:")
-                          + "<a href=\"https://github.com/radareorg/cutter/releases\">"
-                          + "https://github.com/radareorg/cutter/releases</a>");
-        }
-    }
-    mb.exec();
+    Config()->setAutoUpdateEnabled(!Config()->getAutoUpdateEnabled());
 }

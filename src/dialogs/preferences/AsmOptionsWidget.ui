@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="asmOptionsTab">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="asmStyleTab">
       <attribute name="title">
@@ -53,11 +53,11 @@
         </widget>
        </item>
        <item>
-	<widget class="QCheckBox" name="indentCheckBox">
-	 <property name="text">
-	  <string>Indent disassembly based on reflines depth (asm.indent)</string>
-	 </property>
-	</widget>
+        <widget class="QCheckBox" name="indentCheckBox">
+         <property name="text">
+          <string>Indent disassembly based on reflines depth (asm.indent)</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="describeCheckBox">
@@ -165,7 +165,7 @@
        <item>
         <widget class="QCheckBox" name="bblineCheckBox">
          <property name="text">
-          <string>Show empty line after every basic block (asm.bbline)</string>
+          <string>Show empty line after every basic block (asm.bb.line)</string>
          </property>
         </widget>
        </item>
@@ -205,13 +205,6 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QCheckBox" name="stackpointerCheckBox">
-         <property name="text">
-          <string>Show stack pointer (asm.stackptr)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <widget class="QCheckBox" name="slowCheckBox">
          <property name="text">
           <string>Slow Analysis (asm.slow)</string>
@@ -243,6 +236,13 @@
         <widget class="QCheckBox" name="emuCheckBox">
          <property name="text">
           <string>Run ESIL emulation analysis (asm.emu)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="emuStrCheckBox">
+         <property name="text">
+          <string>Show only strings if any in the asm.emu output (emu.str)</string>
          </property>
         </widget>
        </item>

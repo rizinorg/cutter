@@ -7,38 +7,75 @@ branches:
   - master
   - debug
   - /^v\d.*$/
-  - deploy-test
+  - /^deploy-test(-.*)?$/
 
 matrix:
   include:
-  - os: linux
+  - name: Linux QMake + Deploy
+    os: linux
     env: BUILD_SYSTEM=qmake DEPLOY=1
-  - os: linux
+  - name: Linux CMake
+    os: linux
     env: BUILD_SYSTEM=cmake
-  - os: osx
+  - name: macOS QMake + Deploy
+    os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=qmake DEPLOY=1
-  - os: osx
+  - name: macOS CMake
+    os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
+  - name: Documentation + Deploy
+    os: linux
+    cache: ~
+    addons:
+      apt:
+        update: true
+        packages:
+        - doxygen
+        - python3-sphinx
+        - python3-breathe
+    before_install: ~
+    install: ~
+    before_script: ~
+    after_success: ~
+    script:
+    - cd docs
+    - make html
+    before_deploy:
+    - cd "$TRAVIS_BUILD_DIR"
+    - openssl aes-256-cbc -K $encrypted_bd0ed4c1fd75_key -iv $encrypted_bd0ed4c1fd75_iv -in scripts/deploy_docs_rsa.enc -out scripts/deploy_docs_rsa -d
+    - chmod 600 scripts/deploy_docs_rsa
+    - export GIT_SSH_COMMAND="/usr/bin/ssh -i $TRAVIS_BUILD_DIR/scripts/deploy_docs_rsa"
+    - git config --global user.name "Travis CI"
+    - git config --global user.email "travis@travis-ci.org"
+    deploy:
+      skip_cleanup: true
+      provider: script
+      script: bash scripts/deploy_docs.sh
+      on:
+        repo: radareorg/cutter
+        branch: master
+
 
 sudo: required
 dist: xenial
 
 addons:
   homebrew:
-    update: true
     brewfile: scripts/Brewfile
 
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   export PATH="/usr/local/opt/qt/bin:$PATH" ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then   source scripts/prepare_python_macos.sh    ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      scripts/fetch_deps.sh && 
-      source cutter-deps/env.sh &&
-      export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH" &&
-      python3 -m pip install -r scripts/pip_requirements.txt
-    ; fi
+  - scripts/fetch_deps.sh
+  - source cutter-deps/env.sh
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+        export PATH=/usr/local/opt/llvm/bin:$PATH;
+        source scripts/prepare_breakpad_macos.sh;
+    fi
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH";
+        source scripts/prepare_breakpad_linux.sh;
+    fi
 
 before_script:
   - git submodule init ; git submodule update
@@ -53,9 +90,17 @@ before_script:
 script:
   - mkdir build
   - cd build
+  - export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=true CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false PREFIX=/usr APPIMAGE=1 ../src && make -j4;
+            qmake
+                CUTTER_ENABLE_PYTHON=true
+                CUTTER_ENABLE_PYTHON_BINDINGS=true
+                CUTTER_ENABLE_CRASH_REPORTS=true
+                PREFIX=/usr
+                APPIMAGE=1
+                ../src &&
+            make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
             cmake
                 -DCMAKE_BUILD_TYPE=Release
@@ -64,17 +109,33 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_JUPYTER=ON
-                -DCUTTER_ENABLE_QTWEBENGINE=OFF
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 ../src &&
-                make -j4;
+            make -j4;
        fi
     elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
-            qmake CUTTER_ENABLE_PYTHON=true CUTTER_ENABLE_PYTHON_BINDINGS=false CUTTER_ENABLE_JUPYTER=true CUTTER_ENABLE_QTWEBENGINE=false CUTTER_BUNDLE_R2_APPBUNDLE=true PYTHON_FRAMEWORK_DIR=$PYTHON_FRAMEWORK_DIR ../src &&
+            qmake
+                CUTTER_ENABLE_PYTHON=true
+                CUTTER_ENABLE_PYTHON_BINDINGS=true
+                CUTTER_BUNDLE_R2_APPBUNDLE=true
+                CUTTER_ENABLE_CRASH_REPORTS=true
+                PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
+                BREAKPAD_FRAMEWORK_DIR=$BREAKPAD_FRAMEWORK_DIR
+                ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-            cmake -DCUTTER_ENABLE_PYTHON=ON -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF -DCUTTER_ENABLE_JUPYTER=ON -DCUTTER_ENABLE_QTWEBENGINE=OFF ../src && make -j4;
+            cmake
+                -DCMAKE_BUILD_TYPE=Release
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib"
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
+                -DCUTTER_ENABLE_PYTHON=ON
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"
+                ../src &&
+            make -j4;
        fi
     fi
 
@@ -86,7 +147,12 @@ after_success:
       cp ../src/translations/*.qm Cutter.app/Contents/Resources/translations/ &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
       macdeployqt Cutter.app -executable=Cutter.app/Contents/MacOS/Cutter -libpath="../Frameworks" &&
-      "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
+      cp -a "$QTDIR/lib/QtDBus.framework" "$QTDIR/lib/QtPrintSupport.framework" Cutter.app/Contents/Frameworks &&
+      cp -a "$BREAKPAD_FRAMEWORK_DIR/Breakpad.framework" Cutter.app/Contents/Frameworks &&
+      "$TRAVIS_BUILD_DIR/scripts/appbundle_embed_python.sh" "$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR/Python.framework" Cutter.app Cutter.app/Contents/MacOS/Cutter &&
+      mv Cutter.app/Contents/MacOS/Cutter Cutter.app/Contents/MacOS/Cutter.bin &&
+      cp ../src/macos/Cutter.sh Cutter.app/Contents/MacOS/Cutter &&
+      chmod +x Cutter.app/Contents/MacOS/Cutter &&
       mkdir -p Cutter.app/Contents/Resources/r2/share &&
       cp -a /usr/local/share/radare2 Cutter.app/Contents/Resources/r2/share/ &&
       mkdir image && cp -a Cutter.app image/ &&
@@ -109,7 +175,7 @@ after_success:
       mkdir -p appdir/usr/bin/translations &&
       cp ../src/translations/*.qm appdir/usr/bin/translations/ &&
       "$TRAVIS_BUILD_DIR/scripts/appimage_embed_python.sh" appdir &&
-      wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage" &&
+      wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage" &&
       chmod a+x linuxdeployqt*.AppImage &&
       ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -bundle-non-qt-libs -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
       ./linuxdeployqt*.AppImage ./appdir/usr/share/applications/*.desktop -appimage -no-strip -exclude-libs=libnss3.so,libnssutil3.so -ignore-glob=usr/lib/python3.6/** -verbose=2 &&
@@ -122,7 +188,7 @@ after_success:
 deploy:
   skip_cleanup: true
   provider: releases
-  draft: false
+  draft: true
   prerelease: true
   tag_name: $TRAVIS_TAG
   api_key:

@@ -21,8 +21,20 @@ private slots:
     void on_buttonBox_rejected();
     void on_showVersionButton_clicked();
     void on_showPluginsButton_clicked();
+
+    /**
+     * @fn AboutDialog::on_checkForUpdatesButton_clicked()
+     *
+     * @brief Initiates process of checking for updates.
+    */
     void on_checkForUpdatesButton_clicked();
-    void serveVersionCheckReply(QNetworkReply *reply);
+
+    /**
+     * @fn AboutDialog::on_updatesCheckBox_stateChanged(int state)
+     *
+     * @brief Changes value of autoUpdateEnabled option in settings.
+    */
+    void on_updatesCheckBox_stateChanged(int state);
 
 private:
     std::unique_ptr<Ui::AboutDialog> ui;

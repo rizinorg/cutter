@@ -78,31 +78,37 @@ public:
 private slots:
     void refreshTypes();
 
-    /*!
-     * \brief Show custom context menu
-     * \param pt Position of the place where the right mouse button was clicked
+    /**
+     * @brief Show custom context menu
+     * @param pt Position of the place where the right mouse button was clicked
      */
     void showTypesContextMenu(const QPoint &pt);
 
-    /*!
-     * \brief Executed on clicking the Export Types option in the context menu
+    /**
+     * @brief Executed on clicking the Export Types option in the context menu
      * It shows the user a file dialog box to select a file where the types
      * will be exported. It uses the "tc" command of radare2 to export the types.
      */
     void on_actionExport_Types_triggered();
 
-    /*!
-     * \brief Executed on clicking the Load New types option in the context menu
+    /**
+     * @brief Executed on clicking the Load New types option in the context menu
      * It will open the LoadNewTypesDialog where the user can either enter the
      * types manually, or can select a file from where the types will be loaded
      */
     void on_actionLoad_New_Types_triggered();
 
-    /*!
-     * \brief Executed on clicking the Delete Type option in the context menu
+    /**
+     * @brief Executed on clicking the Delete Type option in the context menu
      * Upon confirmation from the user, it will delete the selected type.
      */
     void on_actionDelete_Type_triggered();
+
+    /**
+     * @brief Executed on clicking the Link To Address option in the context menu
+     * Opens the LinkTypeDialog box from where the user can link a address to a type
+     */
+    void on_actionLink_Type_To_Address_triggered();
 
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
@@ -114,9 +120,9 @@ private:
 
     void setScrollMode();
 
-    /*!
-     * \brief Sets the contents of the ComboBox to the supplied contents
-     * \param categories The list of categories which has to be added to the ComboBox
+    /**
+     * @brief Sets the contents of the ComboBox to the supplied contents
+     * @param categories The list of categories which has to be added to the ComboBox
      */
     void refreshCategoryCombo(const QStringList &categories);
 };

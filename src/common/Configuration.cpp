@@ -17,8 +17,8 @@ const QList<CutterQtTheme> kCutterQtThemesList = {
 
 Configuration *Configuration::mPtr = nullptr;
 
-/*!
- * \brief All asm.* options saved as settings. Values are the default values.
+/**
+ * @brief All asm.* options saved as settings. Values are the default values.
  */
 static const QHash<QString, QVariant> asmOptions = {
     { "asm.esil",           false },
@@ -27,7 +27,6 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.xrefs",          false },
     { "asm.indent",         false },
     { "asm.describe",       false },
-    { "asm.stackptr",       false },
     { "asm.slow",           true },
     { "asm.lines",          true },
     { "asm.lines.fcn",      true },
@@ -43,7 +42,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.nbytes",         10 },
     { "asm.syntax",         "intel" },
     { "asm.ucase",          false },
-    { "asm.bbline",         false },
+    { "asm.bb.line",         false },
     { "asm.capitalize",     false },
     { "asm.var.sub",        true },
     { "asm.var.subonly",    true },
@@ -137,28 +136,38 @@ void Configuration::resetAll()
     emit fontsUpdated();
 }
 
-/*!
- * \brief get the current Locale set in Cutter's user configuration
- * \return a QLocale object describes user's current locale
+bool Configuration::getAutoUpdateEnabled() const
+{
+    return s.value("autoUpdateEnabled", false).toBool();
+}
+
+void Configuration::setAutoUpdateEnabled(bool au)
+{
+    s.setValue("autoUpdateEnabled", au);
+}
+
+/**
+ * @brief get the current Locale set in Cutter's user configuration
+ * @return a QLocale object describes user's current locale
  */
 QLocale Configuration::getCurrLocale() const
 {
     return s.value("locale", QLocale().system()).toLocale();
 }
 
-/*!
- * \brief sets Cutter's locale
- * \param l - a QLocale object describes the locate to configure
+/**
+ * @brief sets Cutter's locale
+ * @param l - a QLocale object describes the locate to configure
  */
 void Configuration::setLocale(const QLocale &l)
 {
     s.setValue("locale", l);
 }
 
-/*!
- * \brief set Cutter's interface language by a given locale name
- * \param language - a string represents the name of a locale language
- * \return true on success
+/**
+ * @brief set Cutter's interface language by a given locale name
+ * @param language - a string represents the name of a locale language
+ * @return true on success
  */
 bool Configuration::setLocaleByName(const QString &language)
 {
@@ -208,8 +217,7 @@ void Configuration::loadBaseThemeNative()
     // Custom
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
-    setColor("gui.navbar.err", QColor(255, 0, 0));
-    setColor("gui.navbar.seek", QColor(233, 86, 86));
+    setColor("gui.navbar.seek", QColor(255, 0, 0));
     setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(104, 229, 69));
     setColor("gui.navbar.str", QColor(69, 104, 229));
@@ -308,7 +316,6 @@ void Configuration::loadBaseThemeDark()
     setColor("gui.main", QColor(0, 128, 0));
 
     // GUI: navbar
-    setColor("gui.navbar.err", QColor(233, 86, 86));
     setColor("gui.navbar.seek", QColor(233, 86, 86));
     setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(130, 200, 111));
@@ -397,10 +404,10 @@ QString Configuration::getLogoFile()
            : QString(":/img/cutter_plain.svg");
 }
 
-/*!
- * \brief Configuration::setColor sets the local Cutter configuration color
- * \param name Color Name
- * \param color The color you want to set
+/**
+ * @brief Configuration::setColor sets the local Cutter configuration color
+ * @param name Color Name
+ * @param color The color you want to set
  */
 void Configuration::setColor(const QString &name, const QColor &color)
 {
@@ -515,9 +522,9 @@ void Configuration::setConfig(const QString &key, const QVariant &value)
     Core()->setConfig(key, value);
 }
 
-/*!
- * \brief this function will gather and return available translation for Cutter
- * \return a list of all available translations
+/**
+ * @brief this function will gather and return available translation for Cutter
+ * @return a list of all available translations
  */
 QStringList Configuration::getAvailableTranslations()
 {
@@ -558,9 +565,9 @@ QStringList Configuration::getAvailableTranslations()
     return languages << QLatin1String("English");
 }
 
-/*!
- * \brief check if this is the first time Cutter's is executed on this computer
- * \return true if this is first execution; otherwise returns false.
+/**
+ * @brief check if this is the first time Cutter's is executed on this computer
+ * @return true if this is first execution; otherwise returns false.
  */
 bool Configuration::isFirstExecution()
 {

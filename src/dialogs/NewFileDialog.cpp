@@ -4,6 +4,7 @@
 #include "dialogs/AboutDialog.h"
 #include "ui_NewfileDialog.h"
 #include "common/Helpers.h"
+#include "common/HighDpiPixmap.h"
 
 #include <QFileDialog>
 #include <QtGui>
@@ -14,20 +15,17 @@
 
 const int NewFileDialog::MaxRecentFiles;
 
-static QColor getColorFor(const QString &str, int pos)
+static QColor getColorFor(int pos)
 {
-    Q_UNUSED(str);
-
-    QList<QColor> Colors;
-    Colors << QColor(29, 188, 156); // Turquoise
-    Colors << QColor(52, 152, 219); // Blue
-    Colors << QColor(155, 89, 182); // Violet
-    Colors << QColor(52, 73, 94);   // Grey
-    Colors << QColor(231, 76, 60);  // Red
-    Colors << QColor(243, 156, 17); // Orange
-
-    return Colors[pos % 6];
-
+    static const QList<QColor> colors = {
+        QColor(29, 188, 156), // Turquoise
+        QColor(52, 152, 219), // Blue
+        QColor(155, 89, 182), // Violet
+        QColor(52, 73, 94),   // Grey
+        QColor(231, 76, 60),  // Red
+        QColor(243, 156, 17)  // Orange
+    };
+    return colors[pos % 6];
 }
 
 static QIcon getIconFor(const QString &str, int pos)
@@ -36,13 +34,13 @@ static QIcon getIconFor(const QString &str, int pos)
     int w = 64;
     int h = 64;
 
-    QPixmap pixmap(w, h);
+    HighDpiPixmap pixmap(w, h);
     pixmap.fill(Qt::transparent);
 
     QPainter pixPaint(&pixmap);
     pixPaint.setPen(Qt::NoPen);
     pixPaint.setRenderHint(QPainter::Antialiasing);
-    pixPaint.setBrush(QBrush(QBrush(getColorFor(str, pos))));
+    pixPaint.setBrush(getColorFor(pos));
     pixPaint.drawEllipse(1, 1, w - 2, h - 2);
     pixPaint.setPen(Qt::white);
     pixPaint.setFont(QFont("Verdana", 24, 1));
@@ -50,9 +48,10 @@ static QIcon getIconFor(const QString &str, int pos)
     return QIcon(pixmap);
 }
 
-NewFileDialog::NewFileDialog(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::NewFileDialog)
+NewFileDialog::NewFileDialog(MainWindow *main) :
+    QDialog(nullptr), // no parent on purpose, using main causes weird positioning
+    ui(new Ui::NewFileDialog),
+    main(main)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
@@ -61,6 +60,9 @@ NewFileDialog::NewFileDialog(QWidget *parent) :
     ui->recentsListWidget->addAction(ui->actionClear_all);
     ui->projectsListWidget->addAction(ui->actionRemove_project);
     ui->logoSvgWidget->load(Config()->getLogoFile());
+
+    // radare2 does not seem to save this config so here we load this manually
+    Core()->setConfig("dir.projects", Config()->getDirProjects());
 
     fillRecentFilesList();
     fillIOPluginsList();
@@ -105,11 +107,18 @@ void NewFileDialog::on_selectProjectsDirButton_clicked()
         tr("Select project path (dir.projects)"),
         currentDir));
 
-    if (!dir.isEmpty()) {
+    if (dir.isEmpty()) {
+        return;
+    }
+    if (!QFileInfo(dir).isWritable()) {
+        QMessageBox::critical(this, tr("Permission denied"),
+                              tr("You do not have write access to <b>%1</b>")
+                              .arg(dir));
         return;
     }
 
     Config()->setDirProjects(dir);
+    Core()->setConfig("dir.projects", dir);
     fillProjectsList();
 }
 
@@ -266,9 +275,7 @@ bool NewFileDialog::fillRecentFilesList()
         // Get stored files
 
         // Remove all but the file name
-        const QString sep = QDir::separator();
-        const QStringList name_list = file.split(sep);
-        const QString name = name_list.last();
+        const QString name = file.section(QDir::separator(), -1);
 
         // Get file info
         QFileInfo info(file);
@@ -359,7 +366,6 @@ void NewFileDialog::loadFile(const QString &filename)
     settings.setValue("recentFileList", files);
 
     // Close dialog and open MainWindow/InitialOptionsDialog
-    MainWindow *main = new MainWindow();
     QString ioFile = "";
     if (ui->ioPlugin->currentIndex()) {
         ioFile = ui->ioPlugin->currentText() + "://";

@@ -10,8 +10,8 @@ class RefreshDeferrer;
 using RefreshDeferrerParams = void *;
 using RefreshDeferrerParamsResult = void *;
 
-/*!
- * \brief Abstract class for accumulating params in RefreshDeferrer
+/**
+ * @brief Abstract class for accumulating params in RefreshDeferrer
  */
 class RefreshDeferrerAccumulator
 {
@@ -21,31 +21,31 @@ public:
     virtual ~RefreshDeferrerAccumulator() = default;
 
 protected:
-    /*!
-     * \brief Add a new param to the accumulator
+    /**
+     * @brief Add a new param to the accumulator
      */
     virtual void accumulate(RefreshDeferrerParams params) =0;
 
-    /*!
-     * \brief Ignore the incoming params. Useful for freeing if necessary.
+    /**
+     * @brief Ignore the incoming params. Useful for freeing if necessary.
      */
     virtual void ignoreParams(RefreshDeferrerParams params) =0;
 
-    /*!
-     * \brief Clear the current accumulator
+    /**
+     * @brief Clear the current accumulator
      */
     virtual void clear() =0;
 
-    /*!
-     * \brief Return the final result of the accumulation
+    /**
+     * @brief Return the final result of the accumulation
      */
     virtual RefreshDeferrerParamsResult result() =0;
 };
 
 
-/*!
- * \brief Accumulator which simply replaces the current value by an incoming new one
- * \tparam T The type of the param to store
+/**
+ * @brief Accumulator which simply replaces the current value by an incoming new one
+ * @tparam T The type of the param to store
  *
  * This accumulator takes the ownership of all params passed to it and deletes them automatically if not needed anymore!
  */
@@ -57,7 +57,7 @@ private:
     bool replaceIfNull;
 
 public:
-    /*!
+    /**
      * \param Determines whether, if nullptr is passed, the current value should be replaced or kept.
      */
     explicit ReplacingRefreshDeferrerAccumulator(bool replaceIfNull = true)
@@ -95,8 +95,8 @@ protected:
     }
 };
 
-/*!
- * \brief Helper class for deferred refreshing in Widgets
+/**
+ * @brief Helper class for deferred refreshing in Widgets
  *
  * This class can handle the logic necessary to defer the refreshing of widgets when they are not visible.
  * It contains an optional RefreshDeferrerAccumulator, which can be used to accumulate incoming events while
@@ -138,8 +138,8 @@ private:
     bool dirty = false;
 
 public:
-    /*!
-     * \param acc The accumulator (can be nullptr). The RefreshDeferrer takes the ownership!
+    /**
+     * @param acc The accumulator (can be nullptr). The RefreshDeferrer takes the ownership!
      */
     explicit RefreshDeferrer(RefreshDeferrerAccumulator *acc, QObject *parent = nullptr);
     ~RefreshDeferrer() override;

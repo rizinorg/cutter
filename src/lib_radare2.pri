@@ -1,7 +1,6 @@
 win32 {
     DEFINES += _CRT_NONSTDC_NO_DEPRECATE
     DEFINES += _CRT_SECURE_NO_WARNINGS
-    R2_INCLUDEPATH += "$$PWD/../radare2/libr/include/msvc"
     !contains(QT_ARCH, x86_64) {
         LIBS += -L"$$PWD/../r2_dist_x86/radare2/lib"
         R2_INCLUDEPATH += "$$PWD/../r2_dist_x86/include"

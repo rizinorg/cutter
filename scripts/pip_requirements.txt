@@ -1,3 +1,0 @@
-jupyter
-ipykernel==4.10.0
-pyzmq==17.1.2

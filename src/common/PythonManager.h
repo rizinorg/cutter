@@ -29,8 +29,8 @@ public:
     void restoreThread();
     void saveThread();
 
-    /*!
-     * \brief RAII Helper class to call restoreThread() and saveThread() automatically
+    /**
+     * @brief RAII Helper class to call restoreThread() and saveThread() automatically
      *
      * As long as an object of this class is in scope, the Python thread will remain restored.
      */

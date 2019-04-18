@@ -202,6 +202,12 @@ static const QMap<QString, OptionIfo> optionInfoMap = {
     },
     { "graph.current", { "", "graph.current", false } },
     { "graph.traced", { "", "graph.traced", false } },
+    {
+        "gui.overview.node", {
+            QObject::tr("Background color of Graph Overview's node"),
+            QObject::tr("Graph Overview node"), true
+        }
+    },
     { "gui.cflow", { "", "gui.cflow", true } },
     { "gui.dataoffset", { "", "gui.dataoffset", true } },
     {
@@ -436,7 +442,7 @@ void ColorSchemePrefWidget::apply()
         } else {
             scheme += "ec ";
         }
-        scheme += curr.optionName + " rgb:" + curr.color.name().remove("#").toLower() + "\n";
+        scheme += curr.optionName + " rgb:" + curr.color.name().remove(QLatin1Char('#')).toLower() + "\n";
     }
     ColorSchemeFileWorker().save(scheme, Config()->getColorTheme());
     Config()->setColorTheme(Config()->getColorTheme());

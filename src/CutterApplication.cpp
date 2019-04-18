@@ -1,9 +1,8 @@
 #include "common/PythonManager.h"
+#include "common/CrashHandler.h"
 #include "CutterApplication.h"
-#ifdef CUTTER_ENABLE_JUPYTER
-#include "common/JupyterConnection.h"
-#endif
 #include "plugins/PluginManager.h"
+#include "CutterConfig.h"
 
 #include <QApplication>
 #include <QFileOpenEvent>
@@ -18,8 +17,10 @@
 #include <QDir>
 #include <QTranslator>
 #include <QLibraryInfo>
-
-#include "CutterConfig.h"
+#include <QFontDatabase>
+#ifdef Q_OS_WIN
+#include <QtNetwork/QtNetwork>
+#endif // Q_OS_WIN
 
 #include <cstdlib>
 
@@ -29,9 +30,17 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
     setAttribute(Qt::AA_DontShowIconsInMenus);
+    setAttribute(Qt::AA_UseHighDpiPixmaps);
     setLayoutDirection(Qt::LeftToRight);
 
     // WARN!!! Put initialization code below this line. Code above this line is mandatory to be run First
+
+#ifdef Q_OS_WIN
+    // Hack to force Cutter load internet connection related DLL's
+    QSslSocket s;
+    s.sslConfiguration();
+#endif // Q_OS_WIN
+
     // Load translations
     if (!loadTranslations()) {
         qWarning() << "Cannot load translations";

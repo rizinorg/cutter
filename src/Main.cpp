@@ -1,9 +1,12 @@
 
 #include "CutterApplication.h"
 #include "core/MainWindow.h"
+#include "common/UpdateWorker.h"
+#include "CutterConfig.h"
+#include "common/CrashHandler.h"
 
-/*!
- * \brief Migrate Settings used before Cutter 1.8
+/**
+ * @brief Migrate Settings used before Cutter 1.8
  */
 static void migrateSettings(QSettings &newSettings)
 {
@@ -18,6 +21,15 @@ static void migrateSettings(QSettings &newSettings)
 
 int main(int argc, char *argv[])
 {
+    if (argc >= 3 && QString::fromLocal8Bit(argv[1]) == "--start-crash-handler") {
+        QApplication app(argc, argv);
+        QString dumpLocation = QString::fromLocal8Bit(argv[2]);
+        showCrashDialog(dumpLocation);
+        return 0;
+    }
+
+    initCrashHandler();
+
     qRegisterMetaType<QList<StringDescription>>();
     qRegisterMetaType<QList<FunctionDescription>>();
 
@@ -32,7 +44,21 @@ int main(int argc, char *argv[])
         settings.setValue("settings_migrated", true);
     }
 
+    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts); // needed for QtWebEngine inside Plugins
+
     CutterApplication a(argc, argv);
+
+    if (Config()->getAutoUpdateEnabled()) {
+        UpdateWorker *updateWorker = new UpdateWorker;
+        QObject::connect(updateWorker, &UpdateWorker::checkComplete,
+                         [=](const QVersionNumber &version, const QString & error) {
+            if (error.isEmpty() && version > UpdateWorker::currentVersionNumber()) {
+                updateWorker->showUpdateDialog(true);
+            }
+            updateWorker->deleteLater();
+        });
+        updateWorker->checkCurrentVersion(7000);
+    }
 
     int ret = a.exec();
 

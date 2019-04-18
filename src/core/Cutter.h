@@ -56,7 +56,7 @@ public:
     QString cmdRaw(const QString &str);
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
-    QStringList cmdList(const char *str) { return cmd(str).split('\n', QString::SkipEmptyParts); }
+    QStringList cmdList(const char *str) { return cmd(str).split(QLatin1Char('\n'), QString::SkipEmptyParts); }
     QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
@@ -106,8 +106,8 @@ public:
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
-    /*!
-     * \brief Changes immediate displacement to structure offset
+    /**
+     * @brief Changes immediate displacement to structure offset
      * This function makes use of the "ta" command of r2 to apply structure
      * offset to the immediate displacement used in the given instruction
      * \param structureOffset The name of struct which will be applied
@@ -185,13 +185,16 @@ public:
     QList<QString> getColorThemes();
 
     /* Assembly related methods */
-    QString assemble(const QString &code);
-    QString disassemble(const QString &hex);
+    QByteArray assemble(const QString &code);
+    QString disassemble(const QByteArray &data);
     QString disassembleSingleInstruction(RVA addr);
     QList<DisassemblyLine> disassembleLines(RVA offset, int lines);
+
+    static QByteArray hexStringToBytes(const QString &hex);
+    static QString bytesToHexString(const QByteArray &bytes);
+
     void setCPU(QString arch, QString cpu, int bits);
     void setEndianness(bool big);
-    void setBBSize(int size);
 
     /* SDB */
     QList<QString> sdbList(QString path);
@@ -291,38 +294,38 @@ public:
     QList<ResourcesDescription> getAllResources();
     QList<VTableDescription> getAllVTables();
 
-    /*!
-     * \return all loaded types
+    /**
+     * @return all loaded types
      */
     QList<TypeDescription> getAllTypes();
 
-    /*!
-     * \return all loaded primitive types
+    /**
+     * @return all loaded primitive types
      */
     QList<TypeDescription> getAllPrimitiveTypes();
 
-    /*!
-     * \return all loaded unions
+    /**
+     * @return all loaded unions
      */
     QList<TypeDescription> getAllUnions();
 
-    /*!
-     * \return all loaded structs
+    /**
+     * @return all loaded structs
      */
     QList<TypeDescription> getAllStructs();
 
-    /*!
-     * \return all loaded enums
+    /**
+     * @return all loaded enums
      */
     QList<TypeDescription> getAllEnums();
 
-    /*!
-     * \return all loaded typedefs
+    /**
+     * @return all loaded typedefs
      */
     QList<TypeDescription> getAllTypedefs();
 
-    /*!
-     * \brief Adds new types
+    /**
+     * @brief Adds new types
      * It first uses the r_parse_c_string() function from radare2 API to parse the
      * supplied C file (in the form of a string). If there were errors, they are displayed.
      * If there were no errors, it uses sdb_query_lines() function from radare2 API
@@ -332,6 +335,13 @@ public:
      */
     QString addTypes(const char *str);
     QString addTypes(const QString &str) { return addTypes(str.toUtf8().constData()); }
+
+    /**
+     * @brief Checks if the given address is mapped to a region
+     * @param addr The address to be checked
+     * @return true if addr is mapped, false otherwise
+     */
+    bool isAddressMapped(RVA addr);
 
     QList<MemoryMapDescription> getMemoryMap();
     QList<SearchDescription> getAllSearch(QString search_for, QString space);
@@ -387,19 +397,19 @@ signals:
 
     void projectSaved(bool successfully, const QString &name);
 
-    /*!
+    /**
      * emitted when config regarding disassembly display changes
      */
     void asmOptionsChanged();
 
-    /*!
+    /**
      * emitted when config regarding graph display changes
      */
     void graphOptionsChanged();
 
-    /*!
-     * \brief seekChanged is emitted each time radare2 seek value is modified
-     * \param offset
+    /**
+     * @brief seekChanged is emitted each time radare2 seek value is modified
+     * @param offset
      */
     void seekChanged(RVA offset);
 

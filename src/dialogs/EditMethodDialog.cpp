@@ -1,6 +1,8 @@
 #include "EditMethodDialog.h"
 #include "ui_EditMethodDialog.h"
 
+#include <QComboBox>
+
 EditMethodDialog::EditMethodDialog(bool classFixed, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::EditMethodDialog)
@@ -103,7 +105,7 @@ void EditMethodDialog::setMethod(const AnalMethodDescription &desc)
     validateInput();
 }
 
-QString EditMethodDialog::getClass()
+QString EditMethodDialog::getClass() const
 {
     if (classComboBox) {
         int index = classComboBox->currentIndex();
@@ -116,7 +118,7 @@ QString EditMethodDialog::getClass()
     }
 }
 
-AnalMethodDescription EditMethodDialog::getMethod()
+AnalMethodDescription EditMethodDialog::getMethod() const
 {
     AnalMethodDescription ret;
     ret.name = ui->nameEdit->text();

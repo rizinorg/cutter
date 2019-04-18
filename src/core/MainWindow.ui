@@ -172,7 +172,6 @@
     <addaction name="separator"/>
     <addaction name="actionComments"/>
     <addaction name="actionConsole"/>
-    <addaction name="actionJupyter"/>
     <addaction name="separator"/>
     <addaction name="menuAddExtraWidget"/>
     <addaction name="menuPlugins"/>
@@ -1064,14 +1063,6 @@
    </property>
    <property name="toolTip">
     <string>Show/Hide Zignatures panel</string>
-   </property>
-  </action>
-  <action name="actionJupyter">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Jupyter</string>
    </property>
   </action>
   <action name="actionExport_as_code">

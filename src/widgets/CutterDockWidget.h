@@ -12,14 +12,14 @@ class CutterDockWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit CutterDockWidget(MainWindow *main, QAction *action = nullptr);
+    explicit CutterDockWidget(MainWindow *parent, QAction *action = nullptr);
     ~CutterDockWidget() override;
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isVisibleToUser()      { return isVisibleToUserCurrent; }
 
-    /*!
-     * \brief Convenience method for creating and registering a RefreshDeferrer without any parameters
-     * \param refreshNowFunc lambda taking no parameters, called when a refresh should occur
+    /**
+     * @brief Convenience method for creating and registering a RefreshDeferrer without any parameters
+     * @param refreshNowFunc lambda taking no parameters, called when a refresh should occur
      */
     template<typename Func>
     RefreshDeferrer *createRefreshDeferrer(Func refreshNowFunc)
@@ -32,10 +32,10 @@ public:
         return deferrer;
     }
 
-    /*!
-     * \brief Convenience method for creating and registering a RefreshDeferrer with a replacing Accumulator
-     * \param replaceIfNull passed to the ReplacingRefreshDeferrerAccumulator
-     * \param refreshNowFunc lambda taking a single parameter of type ParamResult, called when a refresh should occur
+    /**
+     * @brief Convenience method for creating and registering a RefreshDeferrer with a replacing Accumulator
+     * @param replaceIfNull passed to the ReplacingRefreshDeferrerAccumulator
+     * @param refreshNowFunc lambda taking a single parameter of type ParamResult, called when a refresh should occur
      */
     template<class ParamResult, typename Func>
     RefreshDeferrer *createReplacingRefreshDeferrer(bool replaceIfNull, Func refreshNowFunc)
@@ -49,20 +49,23 @@ public:
         return deferrer;
     }
 
+signals:
+    void becameVisibleToUser();
+
 public slots:
     void toggleDockWidget(bool show);
 
-signals:
-    void becameVisibleToUser();
+protected:
+    virtual QWidget* widgetToFocusOnRaise();
+
+    void closeEvent(QCloseEvent *event) override;
+    QAction *getBoundAction() const;
 
 private:
     QAction *action;
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();
-
-protected:
-    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // CUTTERWIDGET_H

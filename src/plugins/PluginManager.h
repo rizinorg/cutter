@@ -17,22 +17,25 @@ public:
     PluginManager();
     ~PluginManager();
 
-    /*!
-     * \brief Load all plugins, should be called once on application start
+    /**
+     * @brief Load all plugins, should be called once on application start
      */
     void loadPlugins();
 
-    /*!
-     * \brief Destroy all loaded plugins, should be called once on application shutdown
+    /**
+     * @brief Destroy all loaded plugins, should be called once on application shutdown
      */
     void destroyPlugins();
 
     const QList<CutterPlugin *> &getPlugins()   { return plugins; }
 
+    QString getPluginsDirectory() const;
+
 private:
     QList<CutterPlugin *> plugins;
 
     void loadNativePlugins(const QDir &directory);
+    void loadPluginsFromDir(const QDir &pluginsDir);
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     void loadPythonPlugins(const QDir &directory);

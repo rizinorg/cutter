@@ -15,11 +15,23 @@
 #include <QInputDialog>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+    MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
     ui(new Ui::HexdumpWidget),
     seekable(new CutterSeekable(this))
 {
     ui->setupUi(this);
+
+    /*
+     * Ugly hack just for the layout issue
+     * QSettings saves the state with the object names
+     * By doing this hack,
+     * you can at least avoid some mess by dismissing all the Extra Widgets
+     */
+    QString name = "Hexdump";
+    if (!action) {
+        name = "Extra Hexdump";
+    }
+    setObjectName(name);
 
     // Setup hex highlight
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
@@ -102,9 +114,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
-            SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
 
     connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
         if (visibility) {
@@ -220,13 +229,6 @@ void HexdumpWidget::onSeekChanged(RVA)
         return;
     }
     refresh();
-}
-
-void HexdumpWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
-{
-    if (type == CutterCore::MemoryWidgetType::Hexdump) {
-        raise();
-    }
 }
 
 void HexdumpWidget::connectScroll(bool disconnect_)
@@ -1213,8 +1215,8 @@ void HexdumpWidget::zoomOut(int range)
 void HexdumpWidget::updateWidths()
 {
     // Update width
-    ui->hexHexText->document()->adjustSize();
-    ui->hexHexText->setFixedWidth(ui->hexHexText->document()->size().width());
+    auto idealWidth = ui->hexHexText->document()->idealWidth();
+    ui->hexHexText->document()->setTextWidth(idealWidth);
 
     ui->hexOffsetText->document()->adjustSize();
     ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width());

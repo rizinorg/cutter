@@ -38,83 +38,51 @@ void Dashboard::updateContents()
     QJsonObject item = docu.object()["core"].toObject();
     QJsonObject item2 = docu.object()["bin"].toObject();
 
-    this->ui->fileEdit->setText(item["file"].toString());
-    this->ui->formatEdit->setText(item["format"].toString());
-    this->ui->modeEdit->setText(item["mode"].toString());
-    this->ui->typeEdit->setText(item["type"].toString());
-    this->ui->sizeEdit->setText(qhelpers::formatBytecount(item["size"].toDouble()));
-    this->ui->fdEdit->setText(QString::number(item["fd"].toDouble()));
+    setPlainText(this->ui->fileEdit, item["file"].toString());
+    setPlainText(this->ui->formatEdit, item["format"].toString());
+    setPlainText(this->ui->modeEdit, item["mode"].toString());
+    setPlainText(this->ui->typeEdit, item["type"].toString());
+    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toDouble()));
+    setPlainText(this->ui->fdEdit, QString::number(item["fd"].toDouble()));
 
-    this->ui->archEdit->setText(item2["arch"].toString());
-    this->ui->langEdit->setText(item2["lang"].toString().toUpper());
-    this->ui->classEdit->setText(item2["class"].toString());
-    this->ui->machineEdit->setText(item2["machine"].toString());
-    this->ui->osEdit->setText(item2["os"].toString());
-    this->ui->subsysEdit->setText(item2["subsys"].toString());
-    this->ui->endianEdit->setText(item2["endian"].toString());
-    this->ui->compiledEdit->setText(item2["compiled"].toString());
-    this->ui->bitsEdit->setText(QString::number(item2["bits"].toDouble()));
+    setPlainText(this->ui->archEdit, item2["arch"].toString());
+    setPlainText(this->ui->langEdit, item2["lang"].toString().toUpper());
+    setPlainText(this->ui->classEdit, item2["class"].toString());
+    setPlainText(this->ui->machineEdit, item2["machine"].toString());
+    setPlainText(this->ui->osEdit, item2["os"].toString());
+    setPlainText(this->ui->subsysEdit, item2["subsys"].toString());
+    setPlainText(this->ui->endianEdit, item2["endian"].toString());
+    setPlainText(this->ui->compilationDateEdit, item2["compiled"].toString());
+    setPlainText(this->ui->compilerEdit, item2["compiler"].toString());
+    setPlainText(this->ui->bitsEdit, QString::number(item2["bits"].toDouble()));
 
     if (!item2["relro"].isUndefined()) {
-        QString relro = item2["relro"].toString().split(" ").at(0);
+        QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
         relro[0] = relro[0].toUpper();
-        this->ui->relroEdit->setText(relro);
+        setPlainText(this->ui->relroEdit, relro);
     }
 
-    this->ui->baddrEdit->setText(RAddressString(item2["baddr"].toVariant().toULongLong()));
+    setPlainText(this->ui->baddrEdit, RAddressString(item2["baddr"].toVariant().toULongLong()));
 
-    if (item2["va"].toBool() == true) {
-        this->ui->vaEdit->setText("True");
-    } else {
-        this->ui->vaEdit->setText("False");
-    }
-    if (item2["canary"].toBool() == true) {
-        this->ui->canaryEdit->setText("True");
-    } else {
-        this->ui->canaryEdit->setText("False");
-    }
-    if (item2["crypto"].toBool() == true) {
-        this->ui->cryptoEdit->setText("True");
-    } else {
-        this->ui->cryptoEdit->setText("False");
-    }
-    if (item2["nx"].toBool() == true) {
-        this->ui->nxEdit->setText("True");
-    } else {
-        this->ui->nxEdit->setText("False");
-    }
-    if (item2["pic"].toBool() == true) {
-        this->ui->picEdit->setText("True");
-    } else {
-        this->ui->picEdit->setText("False");
-    }
-    if (item2["static"].toBool() == true) {
-        this->ui->staticEdit->setText("True");
-    } else {
-        this->ui->staticEdit->setText("False");
-    }
-    if (item2["stripped"].toBool() == true) {
-        this->ui->strippedEdit->setText("True");
-    } else {
-        this->ui->strippedEdit->setText("False");
-    }
-    if (item2["relocs"].toBool() == true) {
-        this->ui->relocsEdit->setText("True");
-    } else {
-        this->ui->relocsEdit->setText("False");
-    }
+    // set booleans
+    setBool(this->ui->vaEdit, item2, "va");
+    setBool(this->ui->canaryEdit, item2, "canary");
+    setBool(this->ui->cryptoEdit, item2, "crypto");
+    setBool(this->ui->nxEdit, item2, "nx");
+    setBool(this->ui->picEdit, item2, "pic");
+    setBool(this->ui->staticEdit, item2, "static");
+    setBool(this->ui->strippedEdit, item2, "stripped");
+    setBool(this->ui->relocsEdit, item2, "relocs");
 
     // Add file hashes and libraries
-    QString md5 = Core()->cmd("e file.md5");
-    QString sha1 = Core()->cmd("e file.sha1");
-    ui->md5Edit->setText(md5);
-    ui->sha1Edit->setText(sha1);
+    QJsonObject hashes = Core()->cmdj("itj").object();
+    setPlainText(ui->md5Edit, hashes["md5"].toString());
+    setPlainText(ui->sha1Edit, hashes["sha1"].toString());
 
-    QString libs = Core()->cmd("il");
-    QStringList lines = libs.split("\n", QString::SkipEmptyParts);
-    if (!lines.isEmpty()) {
-        lines.removeFirst();
-        lines.removeLast();
+    QStringList libs = Core()->cmdList("il");
+    if (!libs.isEmpty()) {
+        libs.removeFirst();
+        libs.removeLast();
     }
 
     // dunno: why not label->setText(lines.join("\n")?
@@ -130,7 +98,7 @@ void Dashboard::updateContents()
         }
     }
 
-    for (const QString &lib : lines) {
+    for (const QString &lib : libs) {
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -209,5 +177,39 @@ void Dashboard::on_versioninfoButton_clicked()
 
     if (!infoDialog->isVisible()) {
         infoDialog->show();
+    }
+}
+
+/**
+ * @brief Set the text of a QLineEdit. If no text, then "N/A" is set.
+ * @param textBox
+ * @param text
+ */
+void Dashboard::setPlainText(QLineEdit *textBox, const QString &text)
+{
+    if (!text.isEmpty()) {
+        textBox->setText(text);
+    } else {
+        textBox->setText(tr("N/A"));
+    }
+
+    textBox->setCursorPosition(0);
+}
+
+/**
+ * @brief Set the text of a QLineEdit as True, False or N/A if it does not exist
+ * @param textBox
+ * @param isTrue
+ */
+void Dashboard::setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key)
+{
+    if (jsonObject.contains(key)) {
+        if (jsonObject[key].toBool()) {
+            setPlainText(textBox, tr("True"));
+        } else {
+            setPlainText(textBox, tr("False"));
+        }
+    } else {
+        setPlainText(textBox, tr("N/A"));
     }
 }

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>LinkTypeDialog</class>
+ <widget class="QDialog" name="LinkTypeDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>500</width>
+    <height>105</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>500</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="2">
+    <widget class="QLabel" name="equalSymbolLabel">
+     <property name="text">
+      <string>=</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLineEdit" name="addressLineEdit">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="exprLineEdit">
+     <property name="placeholderText">
+      <string>Enter Address</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="structureTypeLabel">
+     <property name="text">
+      <string>Structure Type</string>
+     </property>
+     <property name="buddy">
+      <cstring>structureTypeComboBox</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="3">
+    <widget class="QComboBox" name="structureTypeComboBox"/>
+   </item>
+   <item row="2" column="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="addressLabel">
+     <property name="text">
+      <string>Address/Flag</string>
+     </property>
+     <property name="buddy">
+      <cstring>exprLineEdit</cstring>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>LinkTypeDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>LinkTypeDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

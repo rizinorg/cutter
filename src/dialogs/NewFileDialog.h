@@ -9,12 +9,14 @@ namespace Ui {
 class NewFileDialog;
 }
 
+class MainWindow;
+
 class NewFileDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit NewFileDialog(QWidget *parent = nullptr);
+    explicit NewFileDialog(MainWindow *main);
     ~NewFileDialog();
 
 private slots:
@@ -46,12 +48,14 @@ protected:
 private:
     std::unique_ptr<Ui::NewFileDialog> ui;
 
-    /*!
+    MainWindow *main;
+
+    /**
      * @return true if list is not empty
      */
     bool fillRecentFilesList();
 
-    /*!
+    /**
      * @return true if list is not empty
      */
     bool fillProjectsList();

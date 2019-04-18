@@ -30,11 +30,10 @@ static const QHash<QString, ColorFlags> kRelevantSchemes = {
     { "white", LightFlag }
 };
 
-AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog, QWidget *parent)
-    : QDialog(parent),
+AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
+    : QDialog(dialog),
       ui(new Ui::AppearanceOptionsWidget)
 {
-    Q_UNUSED(dialog);
     ui->setupUi(this);
     updateFontFromConfig();
     updateThemeFromConfig(false);

@@ -2,11 +2,13 @@
 #include "ui_TypesWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-
 #include "dialogs/LoadNewTypesDialog.h"
+#include "dialogs/LinkTypeDialog.h"
 
 #include <QMenu>
 #include <QFileDialog>
+#include <QShortcut>
+#include <QIcon>
 
 TypesModel::TypesModel(QList<TypeDescription> *types, QObject *parent)
     : QAbstractListModel(parent),
@@ -220,11 +222,21 @@ void TypesWidget::setScrollMode()
 
 void TypesWidget::showTypesContextMenu(const QPoint &pt)
 {
+    QModelIndex index = ui->typesTreeView->indexAt(pt);
+
     QMenu menu(ui->typesTreeView);
     menu.addAction(ui->actionLoad_New_Types);
+
+    if (index.isValid()) {
+        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        if (t.category == "Struct") {
+            // Add "Link To Address" option
+            menu.addAction(ui->actionLink_Type_To_Address);
+        }
+    }
+
     menu.addAction(ui->actionExport_Types);
 
-    QModelIndex index = ui->typesTreeView->indexAt(pt);
     if (index.isValid()) {
         TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
         if (t.category != "Typedef") {
@@ -278,4 +290,18 @@ void TypesWidget::on_actionDelete_Type_triggered()
     if (reply == QMessageBox::Yes) {
         types_model->removeRow(index.row());
     }
+}
+
+void TypesWidget::on_actionLink_Type_To_Address_triggered()
+{
+    LinkTypeDialog dialog(this);
+
+    QModelIndex index = ui->typesTreeView->currentIndex();
+    if (index.isValid()) {
+        TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        dialog.setDefaultType(t.type);
+        dialog.setDefaultAddress(RAddressString(Core()->getOffset()));
+    }
+
+    dialog.exec();
 }

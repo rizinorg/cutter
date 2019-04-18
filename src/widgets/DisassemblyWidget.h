@@ -2,7 +2,7 @@
 #define DISASSEMBLYWIDGET_H
 
 #include "core/Cutter.h"
-#include "CutterDockWidget.h"
+#include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "common/RefreshDeferrer.h"
 
@@ -16,7 +16,7 @@ class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
 
-class DisassemblyWidget : public CutterDockWidget
+class DisassemblyWidget : public MemoryDockWidget
 {
     Q_OBJECT
 public:
@@ -34,7 +34,6 @@ public slots:
 private slots:
     void on_seekChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
-    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
 
     void scrollInstructions(int count);
     bool updateMaxLines();
@@ -53,7 +52,9 @@ private:
     RVA bottomOffset;
     int maxLines;
 
-    /*!
+    QString curHighlightedWord;
+
+    /**
      * offset of lines below the first line of the current seek
      */
     int cursorLineOffset;

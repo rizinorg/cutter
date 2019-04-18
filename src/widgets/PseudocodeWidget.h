@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "core/Cutter.h"
-#include "CutterDockWidget.h"
+#include "MemoryDockWidget.h"
 
 namespace Ui {
 class PseudocodeWidget;
@@ -13,7 +13,7 @@ class PseudocodeWidget;
 class QTextEdit;
 class SyntaxHighlighter;
 
-class PseudocodeWidget : public CutterDockWidget
+class PseudocodeWidget : public MemoryDockWidget
 {
     Q_OBJECT
 
@@ -22,7 +22,6 @@ public:
     ~PseudocodeWidget();
 
 private slots:
-    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
     void fontsUpdated();
     void colorsUpdatedSlot();
     void refreshPseudocode();

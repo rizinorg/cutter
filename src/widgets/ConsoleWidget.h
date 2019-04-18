@@ -60,6 +60,7 @@ private:
     QSharedPointer<CommandTask> commandTask;
 
     std::unique_ptr<Ui::ConsoleWidget> ui;
+    QAction *actionWrapLines;
     QList<QAction *> actions;
     bool debugOutputEnabled;
     int maxHistoryEntries;

@@ -10,6 +10,7 @@
 #include "common/R2Task.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
+#include "r_asm.h"
 #include "sdb.h"
 
 Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
@@ -226,7 +227,7 @@ QString CutterCore::sdbGet(QString path, QString key)
         if (val && *val)
             return val;
     }
-    return QString("");
+    return QString();
 }
 
 bool CutterCore::sdbSet(QString path, QString key, QString val)
@@ -393,7 +394,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
     }
 
     ut64 hashLimit = getConfigut64("cfg.hashlimit");
-    r_bin_file_hash(core_->bin, hashLimit, path.toUtf8().constData());
+    r_bin_file_hash(core_->bin, hashLimit, path.toUtf8().constData(), NULL);
 
     fflush(stdout);
     return true;
@@ -415,11 +416,11 @@ bool CutterCore::tryFile(QString path, bool rw)
     return true;
 }
 
-/*!
- * \brief Opens a file using r2 API
- * \param path Path to file
- * \param mapaddr Map Address
- * \return bool
+/**
+ * @brief Opens a file using r2 API
+ * @param path Path to file
+ * @param mapaddr Map Address
+ * @return bool
  */
 bool CutterCore::openFile(QString path, RVA mapaddr)
 {
@@ -767,25 +768,26 @@ void CutterCore::setEndianness(bool big)
     setConfig("cfg.bigendian", big);
 }
 
-void CutterCore::setBBSize(int size)
-{
-    setConfig("anal.bb.maxsize", size);
-}
-
-QString CutterCore::assemble(const QString &code)
+QByteArray CutterCore::assemble(const QString &code)
 {
     CORE_LOCK();
     RAsmCode *ac = r_asm_massemble(core_->assembler, code.toUtf8().constData());
-    QString hex(ac != nullptr ? ac->buf_hex : "");
+    QByteArray res;
+    if (ac && ac->bytes) {
+        res = QByteArray(reinterpret_cast<const char *>(ac->bytes), ac->len);
+    }
     r_asm_code_free(ac);
-    return hex;
+    return res;
 }
 
-QString CutterCore::disassemble(const QString &hex)
+QString CutterCore::disassemble(const QByteArray &data)
 {
     CORE_LOCK();
-    RAsmCode *ac = r_asm_mdisassemble_hexstr(core_->assembler, hex.toUtf8().constData());
-    QString code = QString(ac != nullptr ? ac->buf_asm : "");
+    RAsmCode *ac = r_asm_mdisassemble(core_->assembler, reinterpret_cast<const ut8 *>(data.constData()), data.length());
+    QString code;
+    if (ac && ac->assembly) {
+        code = QString::fromUtf8(ac->assembly);
+    }
     r_asm_code_free(ac);
     return code;
 }
@@ -859,7 +861,7 @@ QString CutterCore::getDecompiledCodePDC(RVA addr)
 
 bool CutterCore::getR2DecAvailable()
 {
-    return cmd("e cmd.pdc=?").split('\n').contains(QStringLiteral("r2dec"));
+    return cmdList("e cmd.pdc=?").contains(QStringLiteral("r2dec"));
 }
 
 QString CutterCore::getDecompiledCodeR2Dec(RVA addr)
@@ -1332,13 +1334,8 @@ bool CutterCore::isGraphEmpty()
 
 void CutterCore::getOpcodes()
 {
-    QString opcodes = cmd("?O");
-    this->opcodes = opcodes.split("\n");
-    // Remove the last empty element
-    this->opcodes.removeLast();
-    QString registers = cmd("drp~[1]");
-    this->regs = registers.split("\n");
-    this->regs.removeLast();
+    this->opcodes = cmdList("?O");
+    this->regs = cmdList("drp~[1]");
 }
 
 void CutterCore::setSettings()
@@ -1353,7 +1350,6 @@ void CutterCore::setSettings()
 
     setConfig("anal.hasnext", false);
     setConfig("asm.lines.call", false);
-    setConfig("anal.autoname", true);
 
     setConfig("cfg.fortunes.tts", false);
 
@@ -1588,7 +1584,7 @@ QList<SymbolDescription> CutterCore::getAllSymbols()
             SymbolDescription symbol;
             symbol.vaddr = entry->vaddr;
             symbol.name = QString("entry") + QString::number(n++);
-            symbol.bind = "";
+            symbol.bind.clear();
             symbol.type = "entry";
             ret << symbol;
         }
@@ -2305,7 +2301,7 @@ QString CutterCore::addTypes(const char *str)
          return ret;
     }
 
-    r_core_save_parsed_type(core_, parsed);
+    r_anal_save_parsed_type(core_->anal, parsed);
     r_mem_free(parsed);
 
     if (error_msg) {
@@ -2313,6 +2309,12 @@ QString CutterCore::addTypes(const char *str)
     }
 
     return QString();
+}
+
+bool CutterCore::isAddressMapped(RVA addr)
+{
+    // If value returned by "om. @ addr" is empty means that address is not mapped
+    return !Core()->cmd(QString("om. @ %1").arg(addr)).isEmpty();
 }
 
 QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString space)
@@ -2328,7 +2330,7 @@ QList<SearchDescription> CutterCore::getAllSearch(QString search_for, QString sp
 
             SearchDescription exp;
 
-            exp.code = QString("");
+            exp.code.clear();
             for (const QJsonValue &value2 : searchObject[RJsonKey::opcodes].toArray()) {
                 QJsonObject gadget = value2.toObject();
                 exp.code += gadget[RJsonKey::opcode].toString() + ";  ";
@@ -2569,6 +2571,24 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     return r;
 }
 
+QByteArray CutterCore::hexStringToBytes(const QString &hex)
+{
+    QByteArray hexChars = hex.toUtf8();
+    QByteArray bytes;
+    bytes.reserve(hexChars.length() / 2);
+    int size = r_hex_str2bin(hexChars.constData(), reinterpret_cast<ut8 *>(bytes.data()));
+    bytes.resize(size);
+    return bytes;
+}
+
+QString CutterCore::bytesToHexString(const QByteArray &bytes)
+{
+    QByteArray hex;
+    hex.resize(bytes.length() * 2);
+    r_hex_bin2str(reinterpret_cast<const ut8 *>(bytes.constData()), bytes.size(), hex.data());
+    return QString::fromUtf8(hex);
+}
+
 void CutterCore::loadScript(const QString &scriptname)
 {
     r_core_task_sync_begin(core_);
@@ -2644,7 +2664,7 @@ QString CutterCore::ansiEscapeToHtml(const QString &text)
         return QString();
     }
     QString r = QString::fromUtf8(html, len);
-    free(html);
+    r_free(html);
     return r;
 }
 

@@ -81,13 +81,12 @@
         <file>img/cutter_plain.svg</file>
         <file>img/cutter_white_plain.svg</file>
         <file>img/cutter.svg</file>
-        <file>python/cutter_jupyter.py</file>
-        <file>python/cutter_ipykernel.py</file>
         <file>img/icons/copy.svg</file>
         <file>img/icons/delete.svg</file>
         <file>img/icons/previous.svg</file>
         <file>img/icons/list.svg</file>
         <file>img/icons/fork.svg</file>
+        <file>img/icons/plugins_light.svg</file>
         <file>python/cutter.py</file>
         <file>python/reg_qtres_importer.py</file>
     </qresource>

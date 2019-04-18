@@ -13,16 +13,6 @@ if get_option('enable_python')
     message('Python Bindings are enabled')
     feature_define_args += ['-DCUTTER_ENABLE_PYTHON_BINDINGS']
   endif
-
-  if get_option('enable_jupyter')
-    message('Jupyter support enabled')
-    feature_define_args += ['-DCUTTER_ENABLE_JUPYTER']
-    if get_option('enable_webengine')
-      message('QtWebEngine support enabled')
-      feature_define_args += ['-DCUTTER_ENABLE_QTWEBENGINE']
-      qt_modules += 'WebEngineWidgets'
-    endif
-  endif
 endif
 
 add_project_arguments(feature_define_args, language: 'cpp')
@@ -67,7 +57,7 @@ endif
 r2 = subproject('radare2')
 libr2_dep = r2.get_variable('libr2_dep')
 
-qt5dep = dependency('qt5', modules: qt_modules)
+qt5dep = dependency('qt5', modules: qt_modules, main: true)
 
 deps = [libr2_dep, qt5dep]
 if get_option('enable_python')
@@ -108,19 +98,10 @@ moc_files = qt5_mod.preprocess(
 
 cpp = meson.get_compiler('cpp')
 
-platform_inc = []
 if host_machine.system() == 'windows'
   add_project_arguments('-D_CRT_NONSTDC_NO_DEPRECATE', language: 'cpp')
   add_project_arguments('-D_CRT_SECURE_NO_WARNINGS', language: 'cpp')
-  platform_inc = include_directories('../radare2/libr/include/msvc')
-  # Workaround for https://github.com/mesonbuild/meson/issues/2327
-  qt_host_libs = run_command('qmake', '-query', 'QT_HOST_LIBS').stdout().strip()
-  if get_option('buildtype').startswith('debug')
-    qtmain_libname = 'qtmaind.lib'
-  else
-    qtmain_libname = 'qtmain.lib'
-  endif
-  add_project_link_arguments(join_paths(qt_host_libs, qtmain_libname), language: 'cpp')
+  add_project_link_arguments(join_paths(py3_exe.get_variable('BINDIR'), 'libs', 'python3.lib'), language: 'cpp')
 endif
 
 cutter_exe = executable(
@@ -128,6 +109,9 @@ cutter_exe = executable(
   moc_files,
   gui_app: true,
   sources: sources,
-  include_directories: [include_directories('core', 'common', 'widgets', 'plugins'), platform_inc, conf_inc],
+  include_directories: [
+    include_directories('core', 'common', 'widgets', 'plugins'),
+    conf_inc
+  ],
   dependencies: deps,
 )

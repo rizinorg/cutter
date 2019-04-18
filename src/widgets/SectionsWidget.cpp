@@ -1,17 +1,17 @@
-#include <QGraphicsTextItem>
-#include <QGraphicsView>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGraphicsSceneMouseEvent>
-#include <QToolTip>
-
-#include "common/Configuration.h"
 #include "SectionsWidget.h"
 #include "CutterTreeView.h"
-#include "core/MainWindow.h"
 #include "QuickFilterView.h"
+#include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "common/Configuration.h"
+
+#include <QGraphicsSceneMouseEvent>
+#include <QGraphicsTextItem>
+#include <QGraphicsView>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QShortcut>
+#include <QToolTip>
 
 SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
     : QAbstractListModel(parent),
@@ -333,7 +333,7 @@ AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     heightDivisor = 1000;
     rectOffset = 100;
     rectWidth = 400;
-    indicatorColor = ConfigColor("gui.navbar.err");
+    indicatorColor = ConfigColor("gui.navbar.seek");
     textColor = ConfigColor("gui.dataoffset");
 }
 
@@ -410,6 +410,8 @@ void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
             disableCenterOn = false;
             return;
         }
+    } else {
+        QToolTip::hideText();
     }
 }
 
@@ -420,12 +422,12 @@ void AddrDockScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 
 RVA AddrDockScene::getAddrFromPos(int posY, bool seek)
 {
-    QHash<QString, int>::const_iterator i = namePosYMap.constBegin();
+    QHash<QString, int>::const_iterator it;
     QHash<QString, RVA> addrMap = seek ? seekAddrMap : nameAddrMap;
     QHash<QString, int> addrSizeMap = seek ? seekAddrSizeMap : nameAddrSizeMap;
-    while (i != namePosYMap.constEnd()) {
-        QString name = i.key();
-        int y = i.value();
+    for (it = namePosYMap.constBegin(); it != namePosYMap.constEnd(); ++it) {
+        QString name = it.key();
+        int y = it.value();
         int h = nameHeightMap[name];
         if (posY >= y && y + h >= posY) {
             if (h == 0) {
@@ -433,9 +435,8 @@ RVA AddrDockScene::getAddrFromPos(int posY, bool seek)
             }
             return addrMap[name] + (float)addrSizeMap[name] * ((float)(posY - y) / (float)h);
         }
-        i++;
     }
-    return 0;
+    return RVA_INVALID;
 }
 
 RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) :
@@ -456,17 +457,19 @@ void RawAddrDock::updateDock()
     int y = 0;
     int validMinSize = getValidMinSize();
     proxyModel->sort(2, Qt::AscendingOrder);
-    for (int i = 0; i < proxyModel->rowCount(); i++) {
+    for (int i = 0; i < proxyModel->rowCount(); ++i) {
         QModelIndex idx = proxyModel->index(i, 0);
-        QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
+        auto desc = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
 
-        RVA vaddr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
-        int vsize = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
+        QString name = desc.name;
+
+        RVA vaddr = desc.vaddr;
+        int vsize = desc.vsize;
         addrDockScene->seekAddrMap[name] = vaddr;
         addrDockScene->seekAddrSizeMap[name] = vsize;
 
-        RVA addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().paddr;
-        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
+        RVA addr = desc.paddr;
+        int size = desc.size;
         addrDockScene->nameAddrMap[name] = addr;
         addrDockScene->nameAddrSizeMap[name] = size;
 

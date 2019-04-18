@@ -83,32 +83,6 @@ class DisassemblerGraphView : public GraphView
         bool indirectcall = false;
     };
 
-    struct Function {
-        bool ready;
-        ut64 entry;
-        ut64 update_id;
-        std::vector<DisassemblyBlock> blocks;
-    };
-
-    struct Analysis {
-        ut64 entry = 0;
-        std::unordered_map<ut64, Function> functions;
-        bool ready = false;
-        ut64 update_id = 0;
-        QString status = "Analyzing...";
-
-        bool find_instr(ut64 addr, ut64 &func, ut64 &instr)
-        {
-            //TODO implement
-            Q_UNUSED(addr);
-            Q_UNUSED(func);
-            Q_UNUSED(instr);
-            return false;
-        }
-
-        //dummy class
-    };
-
 public:
     DisassemblerGraphView(QWidget *parent);
     ~DisassemblerGraphView() override;
@@ -129,8 +103,10 @@ public:
 
     int getWidth() { return width; }
     int getHeight() { return height; }
-
     std::unordered_map<ut64, GraphBlock> getBlocks() { return blocks; }
+    using EdgeConfigurationMapping = std::map<std::pair<ut64, ut64>, EdgeConfiguration>;
+    EdgeConfigurationMapping getEdgeConfigurations();
+
 public slots:
     void refreshView();
     void colorsUpdatedSlot();
@@ -138,8 +114,7 @@ public slots:
     void onSeekChanged(RVA addr);
     void toggleSync();
 
-    void zoomIn(QPoint mouse = QPoint(0, 0));
-    void zoomOut(QPoint mouse = QPoint(0, 0));
+    void zoom(QPointF mouseRelativePos, double velocity);
     void zoomReset();
 
     void takeTrue();
@@ -154,6 +129,9 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+
+    void paintEvent(QPaintEvent *event) override;
 
 private slots:
     void on_actionExportGraph_triggered();
@@ -170,7 +148,8 @@ private:
     int baseline;
     bool emptyGraph;
 
-    DisassemblyContextMenu *mMenu;
+    DisassemblyContextMenu *blockMenu;
+    QMenu *contextMenu;
 
     void connectSeekChanged(bool disconnect);
 
@@ -219,6 +198,10 @@ signals:
     void viewRefreshed();
     void viewZoomed();
     void graphMoved();
+    void resized();
+
+public:
+    bool isGraphEmpty()     { return emptyGraph; }
 };
 
 #endif // DISASSEMBLERGRAPHVIEW_H

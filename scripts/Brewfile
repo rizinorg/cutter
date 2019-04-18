@@ -1,5 +1,5 @@
 brew "p7zip"
 brew "ccache"
-brew "qt5"
 brew "openssl"
 brew "xz"
+brew "llvm"

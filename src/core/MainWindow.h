@@ -1,21 +1,13 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <memory>
-
 #include "core/Cutter.h" // only needed for ut64
-#include "widgets/DisassemblyWidget.h"
-#include "widgets/GraphWidget.h"
-#include "widgets/OverviewWidget.h"
-#include "widgets/StackWidget.h"
-#include "widgets/RegistersWidget.h"
-#include "widgets/BacktraceWidget.h"
-#include "widgets/HexdumpWidget.h"
-#include "widgets/PseudocodeWidget.h"
 #include "dialogs/NewFileDialog.h"
 #include "dialogs/WelcomeDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
+
+#include <memory>
 
 #include <QMainWindow>
 #include <QList>
@@ -51,10 +43,12 @@ class TypesWidget;
 class HeadersWidget;
 class ZignaturesWidget;
 class SearchWidget;
-#ifdef CUTTER_ENABLE_JUPYTER
-class JupyterWidget;
-#endif
 class QDockWidget;
+class DisassemblyWidget;
+class GraphWidget;
+class HexdumpWidget;
+class PseudocodeWidget;
+class OverviewWidget;
 
 namespace Ui {
 class MainWindow;
@@ -79,20 +73,21 @@ public:
 
     void initUI();
 
-    /*!
+    /**
      * @param quit whether to show destructive button in dialog
      * @return if quit is true, false if the application should not close
      */
     bool saveProject(bool quit = false);
 
-    /*!
+    /**
      * @param quit whether to show destructive button in dialog
      * @return false if the application should not close
      */
     bool saveProjectAs(bool quit = false);
 
     void closeEvent(QCloseEvent *event) override;
-    void readSettings();
+    void paintEvent(QPaintEvent *event) override;
+    void readSettingsOrDefault();
     void saveSettings();
     void readDebugSettings();
     void saveDebugSettings();
@@ -104,6 +99,8 @@ public:
     void addExtraWidget(QDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
+    enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
+    QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
 
     void updateDockActionChecked(QAction * action);
@@ -137,9 +134,6 @@ public slots:
     void openNewFileFailed();
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
-    void adjustOverview();
-    void adjustGraph();
-
 private slots:
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
@@ -216,7 +210,6 @@ private:
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
     GraphWidget        *graphDock = nullptr;
-    GraphWidget        *targetGraphDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
@@ -250,10 +243,10 @@ private:
     NewFileDialog      *newFileDialog = nullptr;
     QDockWidget        *breakpointDock = nullptr;
     QDockWidget        *registerRefsDock = nullptr;
-#ifdef CUTTER_ENABLE_JUPYTER
-    JupyterWidget      *jupyterDock = nullptr;
-#endif
 
+    void initToolBar();
+    void initDocks();
+    void initLayout();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
@@ -265,12 +258,12 @@ private:
     void showZenDocks();
     void showDebugDocks();
     void enableDebugWidgetsMenu(bool enable);
-    void enableOverviewMenu(bool enable);
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
     void updateDockActionsChecked();
     void setOverviewData();
+    bool isOverviewActive();
 };
 
 #endif // MAINWINDOW_H

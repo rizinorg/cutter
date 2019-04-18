@@ -30,22 +30,45 @@ PluginManager::~PluginManager()
 {
 }
 
+QString PluginManager::getPluginsDirectory() const
+{
+    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    if (locations.isEmpty()) {
+        return QString();
+    }
+    QDir pluginsDir(locations.first());
+    pluginsDir.mkpath("plugins");
+    if (!pluginsDir.cd("plugins")) {
+        return QString();
+    }
+    return pluginsDir.absolutePath();
+}
+
 void PluginManager::loadPlugins()
 {
     assert(plugins.isEmpty());
 
-    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    if (locations.isEmpty()) {
-        qCritical() << "Failed to get a standard path to load plugins from.";
+    QString pluginsDirStr = getPluginsDirectory();
+    if (pluginsDirStr.isEmpty()) {
+        qCritical() << "Failed to get a path to load plugins from.";
         return;
     }
-    QDir pluginsDir(locations.first());
-    pluginsDir.mkpath(".");
 
-    pluginsDir.mkdir("plugins");
-    if (!pluginsDir.cd("plugins")) {
-        return;
+    loadPluginsFromDir(QDir(pluginsDirStr));
+
+#ifdef Q_OS_WIN
+    QDir appDir;
+    appDir.mkdir("plugins");
+    if (appDir.cd("plugins")) {
+        loadPluginsFromDir(appDir);
     }
+#endif
+}
+
+void PluginManager::loadPluginsFromDir(const QDir &pluginsDir)
+{
+    qInfo() << "Plugins are loaded from" << pluginsDir.absolutePath();
+    int loadedPlugins = plugins.length();
 
     QDir nativePluginsDir = pluginsDir;
     nativePluginsDir.mkdir("native");
@@ -61,13 +84,15 @@ void PluginManager::loadPlugins()
     }
 #endif
 
-    qInfo() << "Loaded" << plugins.length() << "plugin(s).";
+    loadedPlugins = plugins.length() - loadedPlugins;
+    qInfo() << "Loaded" << loadedPlugins << "plugin(s).";
 }
 
 
 void PluginManager::destroyPlugins()
 {
     for (CutterPlugin *plugin : plugins) {
+        plugin->terminate();
         delete plugin;
     }
 }
@@ -101,8 +126,7 @@ void PluginManager::loadPythonPlugins(const QDir &directory)
         }
         QString moduleName;
         if (fileName.endsWith(".py")) {
-            QStringList l = fileName.split(".py");
-            moduleName = l[0];
+            moduleName = fileName.chopped(3);
         } else {
             moduleName = fileName;
         }

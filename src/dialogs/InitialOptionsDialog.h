@@ -2,20 +2,15 @@
 #define OPTIONSDIALOG_H
 
 #include <QDialog>
-#include <QStringList>
-#include <QTimer>
-#include <QElapsedTimer>
 #include <memory>
-#include "core/Cutter.h"
-#include "common/AnalTask.h"
 #include "common/InitialOptions.h"
 
 namespace Ui {
 class InitialOptionsDialog;
 }
 
+class CutterCore;
 class MainWindow;
-
 class InitialOptionsDialog : public QDialog
 {
     Q_OBJECT
@@ -23,8 +18,6 @@ class InitialOptionsDialog : public QDialog
 public:
     explicit InitialOptionsDialog(MainWindow *main);
     ~InitialOptionsDialog();
-
-    QStringList    asm_plugins;
 
     void setupAndStartAnalysis(/*int level, QList<QString> advanced*/);
 
@@ -52,16 +45,17 @@ private:
     QString analysisDescription(int level);
     QString shellcode;
     int analLevel;
+    QStringList asm_plugins;
+
 
     void updateCPUComboBox();
 
-    QString getSelectedArch();
-    QString getSelectedCPU();
-    int getSelectedBits();
-    int getSelectedBBSize();
-    InitialOptions::Endianness getSelectedEndianness();
-    QString getSelectedOS();
-    QList<QString> getSelectedAdvancedAnalCmds();
+    QString getSelectedArch() const;
+    QString getSelectedCPU() const;
+    int getSelectedBits() const;
+    InitialOptions::Endianness getSelectedEndianness() const;
+    QString getSelectedOS() const;
+    QList<QString> getSelectedAdvancedAnalCmds() const;
 
 public:
     void loadOptions(const InitialOptions &options);

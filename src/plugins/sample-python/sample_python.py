@@ -1,14 +1,13 @@
 
 import cutter
-import CutterBindings
 
 from PySide2.QtCore import QObject, SIGNAL, Qt
 from PySide2.QtWidgets import QAction, QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
 
 
-class FortuneWidget(CutterBindings.CutterDockWidget):
-    def __init__(self, main, action):
-        super(FortuneWidget, self).__init__(main, action)
+class FortuneWidget(cutter.CutterDockWidget):
+    def __init__(self, parent, action):
+        super(FortuneWidget, self).__init__(parent, action)
         self.setObjectName("FancyDockWidgetFromCoolPlugin")
         self.setWindowTitle("Sample Python Plugin")
 
@@ -20,7 +19,7 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
         content.setLayout(layout)
         self.text = QLabel(content)
         self.text.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.text.setFont(CutterBindings.Configuration.instance().getFont())
+        self.text.setFont(cutter.Configuration.instance().getFont())
         layout.addWidget(self.text)
 
         button = QPushButton(content)
@@ -42,7 +41,7 @@ class FortuneWidget(CutterBindings.CutterDockWidget):
         self.text.setText(res)
 
 
-class CutterSamplePlugin(CutterBindings.CutterPlugin):
+class CutterSamplePlugin(cutter.CutterPlugin):
     name = "SamplePlugin"
     description = "A sample plugin written in python."
     version = "1.0"
@@ -55,10 +54,13 @@ class CutterSamplePlugin(CutterBindings.CutterPlugin):
         pass
 
     def setupInterface(self, main):
-        self.action = QAction("Sample Python Plugin", main)
-        self.action.setCheckable(True)
-        self.widget = FortuneWidget(main, self.action) # we MUST keep a reference to this!
-        main.addPluginDockWidget(self.widget, self.action)
+        action = QAction("Sample Python Plugin", main)
+        action.setCheckable(True)
+        widget = FortuneWidget(main, action)
+        main.addPluginDockWidget(widget, action)
+
+    def terminate(self): # optional
+        print("CutterSamplePlugin shutting down")
 
 
 # This function will be called by Cutter and should return an instance of the plugin.

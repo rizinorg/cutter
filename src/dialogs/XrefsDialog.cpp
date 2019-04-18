@@ -64,6 +64,12 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
 
     // Adjust columns to content
     qhelpers::adjustColumns(ui->toTreeWidget, 0);
+
+    // try to select first item from refs or xrefs
+    if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
+        qhelpers::selectFirstItem(ui->fromTreeWidget);
+    }
+
 }
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
@@ -86,17 +92,12 @@ void XrefsDialog::on_toTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int c
 
 QString XrefsDialog::normalizeAddr(const QString &addr) const
 {
-    QString r = addr;
-    QString base = addr.split("0x")[1].trimmed();
-    int len = base.length();
-    if (len < 8) {
-        int padding = 8 - len;
-        QString zero = "0";
-        QString zeroes = zero.repeated(padding);
-        r = "0x" + zeroes + base;
+    QString ret = addr;
+    if (addr.length() < 10) {
+        ret = ret.mid(3).rightJustified(8, QLatin1Char('0'));
+        ret.prepend(QLatin1Literal("0x"));
     }
-
-    return r;
+    return ret;
 }
 
 void XrefsDialog::setupPreviewFont()
@@ -196,7 +197,7 @@ QString XrefsDialog::xrefTypeString(const QString &type)
     case R_ANAL_REF_TYPE_DATA:
         return QString("Data");
     case R_ANAL_REF_TYPE_NULL:
-        return QString("");
+        return QString();
     case R_ANAL_REF_TYPE_STRING:
         return QString("String");
     default:

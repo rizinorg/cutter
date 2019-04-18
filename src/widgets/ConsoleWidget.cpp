@@ -88,6 +88,13 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     connect(actionClear, SIGNAL(triggered(bool)), ui->outputTextEdit, SLOT(clear()));
     actions.append(actionClear);
 
+    actionWrapLines = new QAction(tr("Wrap Lines"), ui->outputTextEdit);
+    actionWrapLines->setCheckable(true);
+    connect(actionWrapLines, &QAction::triggered, this, [this] (bool checked) {
+        ui->outputTextEdit->setLineWrapMode(checked ? QPlainTextEdit::WidgetWidth: QPlainTextEdit::NoWrap);
+    });
+    actions.append(actionWrapLines);
+
     // Completion
     QCompleter *completer = new QCompleter(radareArgs, this);
     completer->setMaxVisibleItems(20);
@@ -95,6 +102,8 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     completer->setFilterMode(Qt::MatchStartsWith);
 
     ui->inputLineEdit->setCompleter(completer);
+
+    ui->outputTextEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
 
     // Set console output context menu
     ui->outputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -213,6 +222,8 @@ void ConsoleWidget::on_execButton_clicked()
 
 void ConsoleWidget::showCustomContextMenu(const QPoint &pt)
 {
+    actionWrapLines->setChecked(ui->outputTextEdit->lineWrapMode() == QPlainTextEdit::WidgetWidth);
+
     QMenu *menu = new QMenu(ui->outputTextEdit);
     menu->addActions(actions);
     menu->exec(ui->outputTextEdit->mapToGlobal(pt));

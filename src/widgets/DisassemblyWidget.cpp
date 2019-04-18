@@ -36,12 +36,24 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 }
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
-    :   CutterDockWidget(main, action)
+    :   MemoryDockWidget(CutterCore::MemoryWidgetType::Disassembly, main, action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
     ,   seekable(new CutterSeekable(this))
 {
+    /*
+     * Ugly hack just for the layout issue
+     * QSettings saves the state with the object names
+     * By doing this hack,
+     * you can at least avoid some mess by dismissing all the Extra Widgets
+     */
+    QString name = "Disassembly";
+    if (!action) {
+        name = "Extra Disassembly";
+    }
+    setObjectName(name);
+
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
     seekFromCursor = false;
@@ -57,7 +69,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     setWidget(mDisasScrollArea);
 
     setAllowedAreas(Qt::AllDockWidgetAreas);
-    setObjectName("DisassemblyWidget");
 
     setupFonts();
     setupColors();
@@ -108,8 +119,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
         }
     });
 
-    connect(Core(), SIGNAL(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)), this,
-            SLOT(raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType)));
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(refreshDisasm()));
     connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshDisasm()));
@@ -335,6 +344,7 @@ void DisassemblyWidget::highlightCurrentLine()
     QTextCursor cursor = mDisasTextEdit->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
     QString searchString = cursor.selectedText();
+    curHighlightedWord = searchString;
 
     cursor.movePosition(QTextCursor::StartOfLine);
     int listStartPos = cursor.position();
@@ -517,6 +527,13 @@ void DisassemblyWidget::cursorPositionChanged()
     seekFromCursor = false;
     highlightCurrentLine();
     mCtxMenu->setCanCopy(mDisasTextEdit->textCursor().hasSelection());
+    if (mDisasTextEdit->textCursor().hasSelection()) {
+        // A word is selected so use it
+        mCtxMenu->setCurHighlightedWord(mDisasTextEdit->textCursor().selectedText());
+    } else {
+        // No word is selected so use the word under the cursor
+        mCtxMenu->setCurHighlightedWord(curHighlightedWord);
+    }
 }
 
 void DisassemblyWidget::moveCursorRelative(bool up, bool page)
@@ -624,15 +641,6 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
         refreshDisasm(offset);
     }
     mCtxMenu->setOffset(offset);
-}
-
-void DisassemblyWidget::raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type)
-{
-    bool emptyGraph = (type == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
-    if (type == CutterCore::MemoryWidgetType::Disassembly || emptyGraph) {
-        raise();
-        setFocus();
-    }
 }
 
 void DisassemblyWidget::fontsUpdatedSlot()

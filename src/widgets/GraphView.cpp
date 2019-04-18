@@ -1,34 +1,42 @@
 #include "GraphView.h"
 
+#include "GraphGridLayout.h"
+
 #include <vector>
 #include <QPainter>
 #include <QMouseEvent>
+#include <QKeyEvent>
 #include <QPropertyAnimation>
 
+#ifndef QT_NO_OPENGL
+#include <QOpenGLContext>
+#include <QOpenGLWidget>
+#include <QOpenGLPaintDevice>
+#include <QOpenGLExtraFunctions>
+#endif
 
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
+    , graphLayoutSystem(new GraphGridLayout())
+    , useGL(false)
+#ifndef QT_NO_OPENGL
+    , cacheTexture(0)
+    , cacheFBO(0)
+#endif
 {
+#ifndef QT_NO_OPENGL
+    if (useGL) {
+        glWidget = new QOpenGLWidget(this);
+        setViewport(glWidget);
+    } else {
+        glWidget = nullptr;
+    }
+#endif
 }
 
 GraphView::~GraphView()
 {
     // TODO: Cleanups
-}
-
-// Vector functions
-template<class T>
-static void removeFromVec(std::vector<T> &vec, T elem)
-{
-    vec.erase(std::remove(vec.begin(), vec.end(), elem), vec.end());
-}
-
-template<class T>
-static void initVec(std::vector<T> &vec, size_t size, T value)
-{
-    vec.resize(size);
-    for (size_t i = 0; i < size; i++)
-        vec[i] = value;
 }
 
 // Callbacks
@@ -64,8 +72,8 @@ void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, 
 
 bool GraphView::helpEvent(QHelpEvent *event)
 {
-    int x = event->pos().x() + offset_x;
-    int y = event->pos().y() - offset_y;
+    int x = event->pos().x() + offset.x();
+    int y = event->pos().y() - offset.y();
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -111,259 +119,7 @@ bool GraphView::event(QEvent *event)
 // This calculates the full graph starting at block entry.
 void GraphView::computeGraph(ut64 entry)
 {
-    // Populate incoming lists
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-        for (auto &edge : block.exits) {
-            blocks[edge].incoming.push_back(block.entry);
-        }
-    }
-
-    std::unordered_set<ut64> visited;
-    visited.insert(entry);
-    std::queue<ut64> queue;
-    std::vector<ut64> block_order;
-    queue.push(entry);
-
-    bool changed = true;
-    while (changed) {
-        changed = false;
-
-        // Pick nodes with single entrypoints
-        while (!queue.empty()) {
-            GraphBlock &block = blocks[queue.front()];
-            queue.pop();
-            block_order.push_back(block.entry);
-            for (ut64 edge : block.exits) {
-                // Skip edge if we already visited it
-                if (visited.count(edge)) {
-                    continue;
-                }
-
-                // Some edges might not be available
-                if (!blocks.count(edge)) {
-                    continue;
-                }
-
-                // If this node has no other incoming edges, add it to the graph layout
-                if (blocks[edge].incoming.size() == 1) {
-                    removeFromVec(blocks[edge].incoming, block.entry);
-                    block.new_exits.push_back(edge);
-                    queue.push(blocks[edge].entry);
-                    visited.insert(edge);
-                    changed = true;
-                } else {
-                    // Remove from incoming edges
-                    removeFromVec(blocks[edge].incoming, block.entry);
-                }
-            }
-        }
-
-        // No more nodes satisfy constraints, pick a node to continue constructing the graph
-        ut64 best = 0;
-        int best_edges;
-        ut64 best_parent;
-        for (auto &blockIt : blocks) {
-            GraphBlock &block = blockIt.second;
-            // Skip blocks we haven't visited yet
-            if (!visited.count(block.entry)) {
-                continue;
-            }
-            for (ut64 edge : block.exits) {
-                // If we already visited the exit, skip it
-                if (visited.count(edge)) {
-                    continue;
-                }
-                if (!blocks.count(edge)) {
-                    continue;
-                }
-                // find best edge
-                if ((best == 0) || ((int)blocks[edge].incoming.size() < best_edges) || (
-                            ((int)blocks[edge].incoming.size() == best_edges) && (edge < best))) {
-                    best = edge;
-                    best_edges = blocks[edge].incoming.size();
-                    best_parent = block.entry;
-                }
-            }
-        }
-        if (best != 0) {
-            GraphBlock &best_parentb = blocks[best_parent];
-            removeFromVec(blocks[best].incoming, best_parentb.entry);
-            best_parentb.new_exits.push_back(best);
-            visited.insert(best);
-            queue.push(best);
-            changed = true;
-        }
-    }
-
-    computeGraphLayout(blocks[entry]);
-
-    // Prepare edge routing
-    GraphBlock &entryb = blocks[entry];
-    EdgesVector horiz_edges, vert_edges;
-    horiz_edges.resize(entryb.row_count + 1);
-    vert_edges.resize(entryb.row_count + 1);
-    Matrix<bool> edge_valid;
-    edge_valid.resize(entryb.row_count + 1);
-    for (int row = 0; row < entryb.row_count + 1; row++) {
-        horiz_edges[row].resize(entryb.col_count + 1);
-        vert_edges[row].resize(entryb.col_count + 1);
-        initVec(edge_valid[row], entryb.col_count + 1, true);
-        for (int col = 0; col < entryb.col_count + 1; col++) {
-            horiz_edges[row][col].clear();
-            vert_edges[row][col].clear();
-        }
-    }
-
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-        edge_valid[block.row][block.col + 1] = false;
-    }
-
-    // Perform edge routing
-    for (ut64 block_id : block_order) {
-        GraphBlock &block = blocks[block_id];
-        GraphBlock &start = block;
-        for (ut64 edge : block.exits) {
-            GraphBlock &end = blocks[edge];
-            start.edges.push_back(routeEdge(horiz_edges, vert_edges, edge_valid, start, end, QColor(255, 0,
-                                                                                                    0)));
-        }
-    }
-
-    // Compute edge counts for each row and column
-    std::vector<int> col_edge_count, row_edge_count;
-    initVec(col_edge_count, entryb.col_count + 1, 0);
-    initVec(row_edge_count, entryb.row_count + 1, 0);
-    for (int row = 0; row < entryb.row_count + 1; row++) {
-        for (int col = 0; col < entryb.col_count + 1; col++) {
-            if (int(horiz_edges[row][col].size()) > row_edge_count[row])
-                row_edge_count[row] = int(horiz_edges[row][col].size());
-            if (int(vert_edges[row][col].size()) > col_edge_count[col])
-                col_edge_count[col] = int(vert_edges[row][col].size());
-        }
-    }
-
-
-    //Compute row and column sizes
-    std::vector<int> col_width, row_height;
-    initVec(col_width, entryb.col_count + 1, 0);
-    initVec(row_height, entryb.row_count + 1, 0);
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-        if ((int(block.width / 2)) > col_width[block.col])
-            col_width[block.col] = int(block.width / 2);
-        if ((int(block.width / 2)) > col_width[block.col + 1])
-            col_width[block.col + 1] = int(block.width / 2);
-        if (int(block.height) > row_height[block.row])
-            row_height[block.row] = int(block.height);
-    }
-
-    // Compute row and column positions
-    std::vector<int> col_x, row_y;
-    initVec(col_x, entryb.col_count, 0);
-    initVec(row_y, entryb.row_count, 0);
-    initVec(col_edge_x, entryb.col_count + 1, 0);
-    initVec(row_edge_y, entryb.row_count + 1, 0);
-    int x = block_horizontal_margin * 2;
-    for (int i = 0; i < entryb.col_count; i++) {
-        col_edge_x[i] = x;
-        x += block_horizontal_margin * col_edge_count[i];
-        col_x[i] = x;
-        x += col_width[i];
-    }
-    int y = block_vertical_margin * 2;
-    for (int i = 0; i < entryb.row_count; i++) {
-        row_edge_y[i] = y;
-        // TODO: The 1 when row_edge_count is 0 is not needed on the original.. not sure why it's required for us
-        if (!row_edge_count[i]) {
-            row_edge_count[i] = 1;
-        }
-        y += block_vertical_margin * row_edge_count[i];
-        row_y[i] = y;
-        y += row_height[i];
-    }
-    col_edge_x[entryb.col_count] = x;
-    row_edge_y[entryb.row_count] = y;
-    width = x + (block_horizontal_margin * 2) + (block_horizontal_margin *
-                                                 col_edge_count[entryb.col_count]);
-    height = y + (block_vertical_margin * 2) + (block_vertical_margin *
-                                                row_edge_count[entryb.row_count]);
-
-    //Compute node positions
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-        block.x = int(
-                      (col_x[block.col] + col_width[block.col] + ((block_horizontal_margin / 2) * col_edge_count[block.col
-                                                                                                                 + 1])) - (block.width / 2));
-        if ((block.x + block.width) > (
-                    col_x[block.col] + col_width[block.col] + col_width[block.col + 1] + block_horizontal_margin *
-                    col_edge_count[
-                 block.col + 1])) {
-            block.x = int((col_x[block.col] + col_width[block.col] + col_width[block.col + 1] +
-                           block_horizontal_margin * col_edge_count[
-                    block.col + 1]) - block.width);
-        }
-        block.y = row_y[block.row];
-    }
-
-    // Precompute coordinates for edges
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-
-        for (GraphEdge &edge : block.edges) {
-            auto start = edge.points[0];
-            auto start_col = start.col;
-            auto last_index = edge.start_index;
-            // This is the start point of the edge.
-            auto first_pt = QPoint(col_edge_x[start_col] + (block_horizontal_margin * last_index) +
-                                   (block_horizontal_margin / 2),
-                                   block.y + block.height);
-            auto last_pt = first_pt;
-            QPolygonF pts;
-            pts.append(last_pt);
-
-            for (int i = 0; i < int(edge.points.size()); i++) {
-                auto end = edge.points[i];
-                auto end_row = end.row;
-                auto end_col = end.col;
-                auto last_index = end.index;
-                QPoint new_pt;
-                // block_vertical_margin/2 gives the margin from block to the horizontal lines
-                if (start_col == end_col)
-                    new_pt = QPoint(last_pt.x(), row_edge_y[end_row] + (block_vertical_margin * last_index) +
-                                    (block_vertical_margin / 2));
-                else
-                    new_pt = QPoint(col_edge_x[end_col] + (block_horizontal_margin * last_index) +
-                                    (block_horizontal_margin / 2), last_pt.y());
-                pts.push_back(new_pt);
-                last_pt = new_pt;
-                start_col = end_col;
-            }
-
-            EdgeConfiguration ec = edgeConfiguration(block, edge.dest);
-
-            auto new_pt = QPoint(last_pt.x(), edge.dest->y - 1);
-            pts.push_back(new_pt);
-            edge.polyline = pts;
-            edge.color = ec.color;
-            if (ec.start_arrow) {
-                pts.clear();
-                pts.append(QPoint(first_pt.x() - 3, first_pt.y() + 6));
-                pts.append(QPoint(first_pt.x() + 3, first_pt.y() + 6));
-                pts.append(first_pt);
-                edge.arrow_start = pts;
-            }
-            if (ec.end_arrow) {
-                pts.clear();
-                pts.append(QPoint(new_pt.x() - 3, new_pt.y() - 6));
-                pts.append(QPoint(new_pt.x() + 3, new_pt.y() - 6));
-                pts.append(new_pt);
-                edge.arrow_end = pts;
-            }
-        }
-    }
-
+    graphLayoutSystem->CalculateLayout(blocks, entry, width, height);
     ready = true;
 
     viewport()->update();
@@ -373,24 +129,158 @@ QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
 {
     QPolygonF ret;
     for (int i = 0; i < polygon.size(); i++) {
-        ret << QPointF(polygon[i].x() - offset_x, polygon[i].y() - offset_y);
+        ret << QPointF(polygon[i].x() - offset.x(), polygon[i].y() - offset.y());
     }
     return ret;
 }
 
-void GraphView::paintEvent(QPaintEvent *event)
+void GraphView::beginMouseDrag(QMouseEvent *event)
 {
-    Q_UNUSED(event);
-    QPainter p(viewport());
+    scroll_base_x = event->x();
+    scroll_base_y = event->y();
+    scroll_mode = true;
+    setCursor(Qt::ClosedHandCursor);
+    viewport()->grabMouse();
+}
 
-    p.setRenderHint(QPainter::Antialiasing);
+void GraphView::setViewOffset(QPoint offset)
+{
+    this->offset = offset;
+    emit viewOffsetChanged(offset);
+}
+
+void GraphView::setViewScale(qreal scale)
+{
+    this->current_scale = scale;
+    emit viewScaleChanged(scale);
+}
+
+QSize GraphView::getCacheSize()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? cacheSize :
+#endif
+        pixmap.size();
+}
+
+qreal GraphView::getCacheDevicePixelRatioF()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? 1.0 :
+#endif
+        pixmap.devicePixelRatioF();
+}
+
+QSize GraphView::getRequiredCacheSize()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? viewport()->size() :
+#endif
+        viewport()->size() * devicePixelRatioF();
+}
+
+qreal GraphView::getRequiredCacheDevicePixelRatioF()
+{
+    return
+#ifndef QT_NO_OPENGL
+        useGL ? 1.0f :
+#endif
+        devicePixelRatioF();
+}
+
+void GraphView::paintEvent(QPaintEvent *)
+{
+#ifndef QT_NO_OPENGL
+    if (useGL) {
+        glWidget->makeCurrent();
+    }
+#endif
+
+    if (!qFuzzyCompare(getCacheDevicePixelRatioF(), getRequiredCacheDevicePixelRatioF())
+        || getCacheSize() != getRequiredCacheSize()) {
+        setCacheDirty();
+    }
+
+    bool cacheWasDirty = cacheDirty;
+    if(cacheDirty) {
+        paintGraphCache();
+        cacheDirty = false;
+    }
+
+    if (useGL) {
+#ifndef QT_NO_OPENGL
+        auto gl = glWidget->context()->extraFunctions();
+        gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, cacheFBO);
+        gl->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glWidget->defaultFramebufferObject());
+        gl->glBlitFramebuffer(0, 0, cacheSize.width(), cacheSize.height(),
+                              0, 0, viewport()->width(), viewport()->height(),
+                              GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        glWidget->doneCurrent();
+#endif
+    } else {
+        QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
+        QRectF source(0.0, 0.0, pixmap.width(), pixmap.height());
+        QPainter p(viewport());
+        p.drawPixmap(target, pixmap, source);
+    }
+}
+
+void GraphView::paintGraphCache()
+{
+#ifndef QT_NO_OPENGL
+    QOpenGLPaintDevice *paintDevice = nullptr;
+#endif
+    QPainter p;
+    if (useGL) {
+#ifndef QT_NO_OPENGL
+        auto gl = QOpenGLContext::currentContext()->functions();
+
+        bool resizeTex = false;
+        if (!cacheTexture) {
+            gl->glGenTextures(1, &cacheTexture);
+            gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            resizeTex = true;
+        } else if(cacheSize != viewport()->size()) {
+            gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
+            resizeTex = true;
+        }
+        if (resizeTex) {
+            cacheSize = viewport()->size();
+            gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport()->width(), viewport()->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            gl->glGenFramebuffers(1, &cacheFBO);
+            gl->glBindFramebuffer(GL_FRAMEBUFFER, cacheFBO);
+            gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cacheTexture, 0);
+        } else {
+            gl->glBindFramebuffer(GL_FRAMEBUFFER, cacheFBO);
+        }
+        gl->glViewport(0, 0, viewport()->width(), viewport()->height());
+        gl->glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        gl->glClear(GL_COLOR_BUFFER_BIT);
+
+        paintDevice = new QOpenGLPaintDevice(viewport()->size());
+        p.begin(paintDevice);
+#endif
+    } else {
+        auto dpr = devicePixelRatioF();
+        pixmap = QPixmap(getRequiredCacheSize());
+        pixmap.setDevicePixelRatio(dpr);
+        p.begin(&pixmap);
+        p.setRenderHint(QPainter::Antialiasing);
+    }
 
     int render_width = viewport()->width();
     int render_height = viewport()->height();
 
-    QRect viewportRect(viewport()->rect().topLeft(), viewport()->rect().bottomRight() - QPoint(1, 1));
     p.setBrush(backgroundColor);
-    p.drawRect(viewportRect);
+    p.drawRect(viewport()->rect());
     p.setBrush(Qt::black);
 
     p.scale(current_scale, current_scale);
@@ -404,10 +294,10 @@ void GraphView::paintEvent(QPaintEvent *event)
         qreal blockHeight = block.height * current_scale;
 
         // Check if block is visible by checking if block intersects with view area
-        if (offset_x * current_scale < blockX + blockWidth
-                && blockX < offset_x * current_scale + render_width
-                && offset_y * current_scale < blockY + blockHeight
-                && blockY < offset_y * current_scale + render_height) {
+        if (offset.x() * current_scale < blockX + blockWidth
+                && blockX < offset.x() * current_scale + render_width
+                && offset.y() * current_scale < blockY + blockHeight
+                && blockY < offset.y() * current_scale + render_height) {
             drawBlock(p, block);
         }
 
@@ -417,280 +307,69 @@ void GraphView::paintEvent(QPaintEvent *event)
         // TODO: Only draw edges if they are actually visible ...
         // Draw edges
         for (GraphEdge &edge : block.edges) {
+            if (edge.polyline.empty()) {
+                continue;
+            }
             QPolygonF polyline = recalculatePolygon(edge.polyline);
-            QPolygonF arrow_start = recalculatePolygon(edge.arrow_start);
-            QPolygonF arrow_end = recalculatePolygon(edge.arrow_end);
-            EdgeConfiguration ec = edgeConfiguration(block, edge.dest);
-            QPen pen(edge.color);
+            EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
+            QPen pen(ec.color);
             pen.setWidth(pen.width() / ec.width_scale);
             p.setPen(pen);
-            p.setBrush(edge.color);
+            p.setBrush(ec.color);
             p.drawPolyline(polyline);
             pen.setStyle(Qt::SolidLine);
             p.setPen(pen);
-            if (ec.start_arrow) {
-                p.drawConvexPolygon(arrow_start);
-            }
-            if (ec.end_arrow) {
-                p.drawConvexPolygon(arrow_end);
-            }
-        }
-    }
-
-    emit refreshBlock();
-}
-
-// Prepare graph
-// This computes the position and (row/col based) size of the block
-// Recursively calls itself for each child of the GraphBlock
-void GraphView::computeGraphLayout(GraphBlock &block)
-{
-    int col = 0;
-    int row_count = 1;
-    int childColumn = 0;
-    bool singleChild = block.new_exits.size() == 1;
-    // Compute all children nodes
-    for (size_t i = 0; i < block.new_exits.size(); i++) {
-        ut64 edge = block.new_exits[i];
-        GraphBlock &edgeb = blocks[edge];
-        computeGraphLayout(edgeb);
-        row_count = std::max(edgeb.row_count + 1, row_count);
-        childColumn = edgeb.col;
-    }
-
-    if (layoutType != LayoutType::Wide && block.new_exits.size() == 2) {
-        GraphBlock &left = blocks[block.new_exits[0]];
-        GraphBlock &right = blocks[block.new_exits[1]];
-        if (left.new_exits.size() == 0) {
-            left.col = right.col - 2;
-            int add = left.col < 0 ? - left.col : 0;
-            adjustGraphLayout(right, add, 1);
-            adjustGraphLayout(left, add, 1);
-            col = right.col_count + add;
-        } else if (right.new_exits.size() == 0) {
-            adjustGraphLayout(left, 0, 1);
-            adjustGraphLayout(right, left.col + 2, 1);
-            col = std::max(left.col_count, right.col + 2);
-        } else {
-            adjustGraphLayout(left, 0, 1);
-            adjustGraphLayout(right, left.col_count, 1);
-            col = left.col_count + right.col_count;
-        }
-        block.col_count = std::max(2, col);
-        if (layoutType == LayoutType::Medium) {
-            block.col = (left.col + right.col) / 2;
-        } else {
-            block.col = singleChild ? childColumn : (col - 2) / 2;
-        }
-    } else {
-        for (ut64 edge : block.new_exits) {
-            adjustGraphLayout(blocks[edge], col, 1);
-            col += blocks[edge].col_count;
-        }
-        if (col >= 2) {
-            // Place this node centered over the child nodes
-            block.col = singleChild ? childColumn : (col - 2) / 2;
-            block.col_count = col;
-        } else {
-            //No child nodes, set single node's width (nodes are 2 columns wide to allow
-            //centering over a branch)
-            block.col = 0;
-            block.col_count = 2;
-        }
-    }
-    block.row = 0;
-    block.row_count = row_count;
-}
-
-// Edge computing stuff
-bool GraphView::isEdgeMarked(EdgesVector &edges, int row, int col, int index)
-{
-    if (index >= int(edges[row][col].size()))
-        return false;
-    return edges[row][col][index];
-}
-
-void GraphView::markEdge(EdgesVector &edges, int row, int col, int index, bool used)
-{
-    while (int(edges[row][col].size()) <= index)
-        edges[row][col].push_back(false);
-    edges[row][col][index] = used;
-}
-
-GraphView::GraphEdge GraphView::routeEdge(EdgesVector &horiz_edges, EdgesVector &vert_edges,
-                                          Matrix<bool> &edge_valid, GraphBlock &start, GraphBlock &end, QColor color)
-{
-    GraphEdge edge;
-    edge.color = color;
-    edge.dest = &end;
-
-    //Find edge index for initial outgoing line
-    int i = 0;
-    while (true) {
-        if (!isEdgeMarked(vert_edges, start.row + 1, start.col + 1, i))
-            break;
-        i += 1;
-    }
-    markEdge(vert_edges, start.row + 1, start.col + 1, i);
-    edge.addPoint(start.row + 1, start.col + 1);
-    edge.start_index = i;
-    bool horiz = false;
-
-    //Find valid column for moving vertically to the target node
-    int min_row, max_row;
-    if (end.row < (start.row + 1)) {
-        min_row = end.row;
-        max_row = start.row + 1;
-    } else {
-        min_row = start.row + 1;
-        max_row = end.row;
-    }
-    int col = start.col + 1;
-    if (min_row != max_row) {
-        auto checkColumn = [min_row, max_row, &edge_valid](int column) {
-            if (column < 0 || column >= int(edge_valid[min_row].size()))
-                return false;
-            for (int row = min_row; row < max_row; row++) {
-                if (!edge_valid[row][column]) {
-                    return false;
+            if (!polyline.empty()) {
+                if (ec.start_arrow) {
+                    auto firstPt = edge.polyline.first();
+                    QPolygonF arrowStart;
+                    arrowStart << QPointF(firstPt.x() - 3, firstPt.y() + 6);
+                    arrowStart << QPointF(firstPt.x() + 3, firstPt.y() + 6);
+                    arrowStart << QPointF(firstPt);
+                    p.drawConvexPolygon(recalculatePolygon(arrowStart));
                 }
-            }
-            return true;
-        };
-
-        if (!checkColumn(col)) {
-            if (checkColumn(end.col + 1)) {
-                col = end.col + 1;
-            } else {
-                int ofs = 0;
-                while (true) {
-                    col = start.col + 1 - ofs;
-                    if (checkColumn(col)) {
-                        break;
-                    }
-
-                    col = start.col + 1 + ofs;
-                    if (checkColumn(col)) {
-                        break;
-                    }
-
-                    ofs += 1;
+                if (ec.end_arrow) {
+                    auto lastPt = edge.polyline.last();
+                    QPolygonF arrowEnd;
+                    arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() - 6);
+                    arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() - 6);
+                    arrowEnd << QPointF(lastPt);
+                    p.drawConvexPolygon(recalculatePolygon(arrowEnd));
                 }
             }
         }
     }
 
-    if (col != (start.col + 1)) {
-        //Not in same column, need to generate a line for moving to the correct column
-        int min_col, max_col;
-        if (col < (start.col + 1)) {
-            min_col = col;
-            max_col = start.col + 1;
-        } else {
-            min_col = start.col + 1;
-            max_col = col;
-        }
-        int index = findHorizEdgeIndex(horiz_edges, start.row + 1, min_col, max_col);
-        edge.addPoint(start.row + 1, col, index);
-        horiz = true;
-    }
-
-    if (end.row != (start.row + 1)) {
-        //Not in same row, need to generate a line for moving to the correct row
-        if (col == (start.col + 1))
-            markEdge(vert_edges, start.row + 1, start.col + 1, i, false);
-        int index = findVertEdgeIndex(vert_edges, col, min_row, max_row);
-        if (col == (start.col + 1))
-            edge.start_index = index;
-        edge.addPoint(end.row, col, index);
-        horiz = false;
-    }
-
-    if (col != (end.col + 1)) {
-        //Not in ending column, need to generate a line for moving to the correct column
-        int min_col, max_col;
-        if (col < (end.col + 1)) {
-            min_col = col;
-            max_col = end.col + 1;
-        } else {
-            min_col = end.col + 1;
-            max_col = col;
-        }
-        int index = findHorizEdgeIndex(horiz_edges, end.row, min_col, max_col);
-        edge.addPoint(end.row, end.col + 1, index);
-        horiz = true;
-    }
-
-    //If last line was horizontal, choose the ending edge index for the incoming edge
-    if (horiz) {
-        int index = findVertEdgeIndex(vert_edges, end.col + 1, end.row, end.row);
-        edge.points[int(edge.points.size()) - 1].index = index;
-    }
-
-    return edge;
+    p.end();
+#ifndef QT_NO_OPENGL
+    delete paintDevice;
+#endif
 }
 
-
-int GraphView::findHorizEdgeIndex(EdgesVector &edges, int row, int min_col, int max_col)
-{
-    //Find a valid index
-    int i = 0;
-    while (true) {
-        bool valid = true;
-        for (int col = min_col; col < max_col + 1; col++)
-            if (isEdgeMarked(edges, row, col, i)) {
-                valid = false;
-                break;
-            }
-        if (valid)
-            break;
-        i++;
-    }
-
-    //Mark chosen index as used
-    for (int col = min_col; col < max_col + 1; col++)
-        markEdge(edges, row, col, i);
-    return i;
-}
-
-int GraphView::findVertEdgeIndex(EdgesVector &edges, int col, int min_row, int max_row)
-{
-    //Find a valid index
-    int i = 0;
-    while (true) {
-        bool valid = true;
-        for (int row = min_row; row < max_row + 1; row++)
-            if (isEdgeMarked(edges, row, col, i)) {
-                valid = false;
-                break;
-            }
-        if (valid)
-            break;
-        i++;
-    }
-
-    //Mark chosen index as used
-    for (int row = min_row; row < max_row + 1; row++)
-        markEdge(edges, row, col, i);
-    return i;
-}
 
 void GraphView::center()
 {
-    centerX();
-    centerY();
+    centerX(false);
+    centerY(false);
+    emit viewOffsetChanged(offset);
 }
 
-void GraphView::centerX()
+void GraphView::centerX(bool emitSignal)
 {
-    offset_x = -((viewport()->width() - width * current_scale) / 2);
-    offset_x /= current_scale;
+    offset.rx() = -((viewport()->width() - width * current_scale) / 2);
+    offset.rx() /= current_scale;
+    if (emitSignal) {
+        emit viewOffsetChanged(offset);
+    }
 }
 
-void GraphView::centerY()
+void GraphView::centerY(bool emitSignal)
 {
-    offset_y = -((viewport()->height() - height * current_scale) / 2);
-    offset_y /= current_scale;
+    offset.ry() = -((viewport()->height() - height * current_scale) / 2);
+    offset.ry() /= current_scale;
+    if (emitSignal) {
+        emit viewOffsetChanged(offset);
+    }
 }
 
 void GraphView::showBlock(GraphBlock &block)
@@ -701,34 +380,25 @@ void GraphView::showBlock(GraphBlock &block)
 void GraphView::showBlock(GraphBlock *block)
 {
     if (width * current_scale <= viewport()->width()) {
-        centerX();
+        centerX(false);
     } else {
         int render_width = viewport()->width() / current_scale;
-        offset_x = block->x - ((render_width - block->width) / 2);
+        offset.rx() = block->x - ((render_width - block->width) / 2);
     }
     if (height * current_scale <= viewport()->height()) {
-        centerY();
+        centerY(false);
     } else {
-        offset_y = block->y - 30;
+        offset.ry() = block->y - 30;
     }
+    emit viewOffsetChanged(offset);
     blockTransitionedTo(block);
     viewport()->update();
-}
-
-void GraphView::adjustGraphLayout(GraphBlock &block, int col, int row)
-{
-    block.col += col;
-    block.row += row;
-    for (ut64 edge : block.new_exits) {
-        adjustGraphLayout(blocks[edge], col, row);
-    }
 }
 
 void GraphView::addBlock(GraphView::GraphBlock block)
 {
     blocks[block.entry] = block;
 }
-
 
 void GraphView::setEntry(ut64 e)
 {
@@ -750,8 +420,13 @@ bool GraphView::checkPointClicked(QPointF &point, int x, int y, bool above_y)
 // Mouse events
 void GraphView::mousePressEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() / current_scale + offset_x;
-    int y = event->pos().y() / current_scale + offset_y;
+    if (event->button() == Qt::MiddleButton) {
+        beginMouseDrag(event);
+        return;
+    }
+
+    int x = event->pos().x() / current_scale + offset.x();
+    int y = event->pos().y() / current_scale + offset.y();
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -768,25 +443,27 @@ void GraphView::mousePressEvent(QMouseEvent *event)
     }
 
     // Check if a line beginning/end  was clicked
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-        for (GraphEdge &edge : block.edges) {
-            if (edge.polyline.length() < 2) {
-                continue;
-            }
-            QPointF start = edge.polyline.first();
-            QPointF end = edge.polyline.last();
-            if (checkPointClicked(start, x, y)) {
-                showBlock(edge.dest);
-                // TODO: Callback to child
-                return;
-                break;
-            }
-            if (checkPointClicked(end, x, y, true)) {
-                showBlock(block);
-                // TODO: Callback to child
-                return;
-                break;
+    if (event->button() == Qt::LeftButton) {
+        for (auto &blockIt : blocks) {
+            GraphBlock &block = blockIt.second;
+            for (GraphEdge &edge : block.edges) {
+                if (edge.polyline.length() < 2) {
+                    continue;
+                }
+                QPointF start = edge.polyline.first();
+                QPointF end = edge.polyline.last();
+                if (checkPointClicked(start, x, y)) {
+                    showBlock(blocks[edge.target]);
+                    // TODO: Callback to child
+                    return;
+                    break;
+                }
+                if (checkPointClicked(end, x, y, true)) {
+                    showBlock(block);
+                    // TODO: Callback to child
+                    return;
+                    break;
+                }
             }
         }
     }
@@ -794,20 +471,19 @@ void GraphView::mousePressEvent(QMouseEvent *event)
     // No block was clicked
     if (event->button() == Qt::LeftButton) {
         //Left click outside any block, enter scrolling mode
-        scroll_base_x = event->x();
-        scroll_base_y = event->y();
-        scroll_mode = true;
-        setCursor(Qt::ClosedHandCursor);
-        viewport()->grabMouse();
+        beginMouseDrag(event);
+        return;
     }
 
+    QAbstractScrollArea::mousePressEvent(event);
 }
 
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        offset_x += (scroll_base_x - event->x()) / current_scale;
-        offset_y += (scroll_base_y - event->y()) / current_scale;
+        offset.rx() += (scroll_base_x - event->x()) / current_scale;
+        offset.ry() += (scroll_base_y - event->y()) / current_scale;
+        emit viewOffsetChanged(offset);
         scroll_base_x = event->x();
         scroll_base_y = event->y();
         viewport()->update();
@@ -816,8 +492,8 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() / current_scale + offset_x;
-    int y = event->pos().y() / current_scale + offset_y;
+    int x = event->pos().x() / current_scale + offset.x();
+    int y = event->pos().y() / current_scale + offset.y();
 
     // Check if a block was clicked
     for (auto &blockIt : blocks) {
@@ -832,6 +508,34 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
+void GraphView::keyPressEvent(QKeyEvent* event)
+{
+    const int delta = static_cast<int>(30.0 / current_scale);
+    int dx = 0, dy = 0;
+    switch (event->key()) {
+    case Qt::Key_Up:
+        dy = -delta;
+        break;
+    case Qt::Key_Down:
+        dy = delta;
+        break;
+    case Qt::Key_Left:
+        dx = -delta;
+        break;
+    case Qt::Key_Right:
+        dx = delta;
+        break;
+    default:
+        QAbstractScrollArea::keyPressEvent(event);
+        return;
+    }
+    offset.rx() += dx;
+    offset.ry() += dy;
+    emit viewOffsetChanged(offset);
+    viewport()->update();
+    event->accept();
+}
+
 void GraphView::mouseReleaseEvent(QMouseEvent *event)
 {
     // TODO
@@ -840,10 +544,7 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 //    else if(event->button() == Qt::BackButton)
 //        gotoPreviousSlot();
 
-    if (event->button() != Qt::LeftButton)
-        return;
-
-    if (scroll_mode) {
+    if (scroll_mode && (event->buttons() & (Qt::LeftButton | Qt::MiddleButton)) == 0) {
         scroll_mode = false;
         setCursor(Qt::ArrowCursor);
         viewport()->releaseMouse();
@@ -852,9 +553,17 @@ void GraphView::mouseReleaseEvent(QMouseEvent *event)
 
 void GraphView::wheelEvent(QWheelEvent *event)
 {
-    const QPoint delta = -event->angleDelta();
-    offset_x += delta.x() / current_scale;
-    offset_y += delta.y() / current_scale;
+    if (scroll_mode) {
+        // With some mice it's easy to hit sideway scroll button while holding middle mouse.
+        // That would result in unwanted scrolling while panning.
+        return;
+    }
+    QPoint delta = -event->angleDelta();
+
+    delta /= current_scale;
+    offset += delta;
+    emit viewOffsetChanged(offset);
+
     viewport()->update();
     event->accept();
 }

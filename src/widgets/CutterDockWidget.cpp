@@ -1,14 +1,16 @@
 #include "CutterDockWidget.h"
 #include "core/MainWindow.h"
 
+#include <QAction>
+#include <QEvent>
 
-CutterDockWidget::CutterDockWidget(MainWindow *main, QAction *action) :
-    QDockWidget(main),
+CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
+    QDockWidget(parent),
     action(action)
 {
+    parent->addToDockWidgetList(this);
     if (action) {
-        main->addToDockWidgetList(this);
-        main->addDockWidgetAction(this, action);
+        parent->addDockWidgetAction(this, action);
         connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
     }
 
@@ -42,6 +44,11 @@ void CutterDockWidget::toggleDockWidget(bool show)
     }
 }
 
+QWidget *CutterDockWidget::widgetToFocusOnRaise()
+{
+    return this;
+}
+
 void CutterDockWidget::updateIsVisibleToUser()
 {
     // Check if the user can actually see the widget.
@@ -61,5 +68,10 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
         this->action->setChecked(false);
     }
     QDockWidget::closeEvent(event);
+}
+
+QAction *CutterDockWidget::getBoundAction() const
+{
+    return action;
 }
 

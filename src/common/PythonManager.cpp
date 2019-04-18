@@ -6,12 +6,17 @@
 #include "PythonManager.h"
 #include "Cutter.h"
 
-#include <marshal.h>
 #include <QDebug>
 #include <QFile>
 #include <QDebug>
 #include <QCoreApplication>
 #include <QDir>
+
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
+#include <shiboken.h>
+#include <pyside.h>
+#include <signalmanager.h>
+#endif
 
 #include "QtResImporter.h"
 
@@ -68,9 +73,6 @@ void PythonManager::initialize()
     initPythonHome();
 
     PyImport_AppendInittab("_cutter", &PyInit_api);
-#ifdef CUTTER_ENABLE_JUPYTER
-    PyImport_AppendInittab("cutter_internal", &PyInit_api_internal);
-#endif
     PyImport_AppendInittab("_qtres", &PyInit_qtres);
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     PyImport_AppendInittab("CutterBindings", &PyInit_CutterBindings);
@@ -84,20 +86,66 @@ void PythonManager::initialize()
     saveThread();
 }
 
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
+static void pySideDestructionVisitor(SbkObject* pyObj, void* data)
+{
+    void **realData = reinterpret_cast<void**>(data);
+    auto pyQApp = reinterpret_cast<SbkObject*>(realData[0]);
+    auto pyQObjectType = reinterpret_cast<PyTypeObject*>(realData[1]);
+
+    if (pyObj == pyQApp || !PyObject_TypeCheck(pyObj, pyQObjectType)) {
+        return;
+    }
+    if (!Shiboken::Object::hasOwnership(pyObj) || !Shiboken::Object::isValid(pyObj, false)) {
+        return;
+    }
+
+    const char *reprStr = "";
+    PyObject *repr = PyObject_Repr(reinterpret_cast<PyObject *>(pyObj));
+    PyObject *reprBytes;
+    if (repr) {
+        reprBytes = PyUnicode_AsUTF8String(repr);
+        reprStr = PyBytes_AsString(reprBytes);
+    }
+    qWarning() << "Warning: QObject from Python remaining (leaked from plugin?):" << reprStr;
+    if (repr) {
+        Py_DecRef(reprBytes);
+        Py_DecRef(repr);
+    }
+
+    Shiboken::Object::setValidCpp(pyObj, false);
+    Py_BEGIN_ALLOW_THREADS
+    Shiboken::callCppDestructor<QObject>(Shiboken::Object::cppPointer(pyObj, pyQObjectType));
+    Py_END_ALLOW_THREADS
+};
+#endif
+
 void PythonManager::shutdown()
 {
     emit willShutDown();
 
+    restoreThread();
+
+#ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     // This is necessary to prevent a segfault when the CutterCore instance is deleted after the Shiboken::BindingManager
     Core()->setProperty("_PySideInvalidatePtr", QVariant());
 
-    restoreThread();
+    // see PySide::destroyQCoreApplication()
+    PySide::SignalManager::instance().clear();
+    Shiboken::BindingManager& bm = Shiboken::BindingManager::instance();
+    SbkObject* pyQApp = bm.retrieveWrapper(QCoreApplication::instance());
+    PyTypeObject* pyQObjectType = Shiboken::Conversions::getPythonTypeObject("QObject*");
+    void* data[2] = {pyQApp, pyQObjectType};
+    bm.visitAllPyObjects(&pySideDestructionVisitor, &data);
 
-    Py_Finalize();
+    PySide::runCleanupFunctions();
+#endif
 
     if (pythonHome) {
-        PyMem_RawFree(pythonHome);
+        PyMem_Free(pythonHome);
     }
+
+    Py_Finalize();
 }
 
 void PythonManager::addPythonPath(char *path) {

@@ -6,13 +6,9 @@
 ERR=0
 
 #### User variables ####
-BUILD="build"
+BUILD="`pwd`/build"
 QMAKE_CONF=""
 ROOT_DIR=`pwd`
-#QMAKE_CONF="CUTTER_ENABLE_JUPYTER=false CUTTER_ENABLE_QTWEBENGINE=false"
-
-# Create translations
-lrelease ./src/Cutter.pro
 
 check_r2() {
 	r2 -v >/dev/null 2>&1
@@ -39,6 +35,19 @@ find_qmake() {
 	echo "$qmakepath"
 }
 
+find_lrelease() {
+	lreleasepath=$(which lrelease-qt5)
+	if [ -z "$lreleasepath" ]; then
+		lreleasepath=$(which lrelease)
+	fi
+	if [ -z "$lreleasepath" ]; then
+		echo "You need lrelease to build Cutter."
+		echo "Please make sure lrelease is in your PATH environment variable."
+		exit 1
+	fi
+	echo "$lreleasepath"
+}
+
 find_gmake() {
 	gmakepath=$(which gmake)
 	if [ -z "$gmakepath" ]; then
@@ -52,6 +61,16 @@ find_gmake() {
 		exit 1
 	fi
 	echo "$gmakepath"
+}
+
+prepare_breakpad() {
+	if [[ $OSTYPE == "linux-gnu" ]]; then
+		source $ROOT_DIR/scripts/prepare_breakpad_linux.sh
+		export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+	elif [[ $OSTYPE == "darwin" ]]; then
+		source $ROOT_DIR/scripts/prepare_breakpad_macos.sh
+	fi
+	return 1
 }
 
 # Build radare2
@@ -73,7 +92,11 @@ else
     echo "Correct radare2 version found, skipping..."
 fi
 
+# Create translations
+$(find_lrelease) ./src/Cutter.pro
+
 # Build
+prepare_breakpad
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
 $(find_qmake) ../src/Cutter.pro $QMAKE_CONF

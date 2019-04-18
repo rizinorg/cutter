@@ -2,9 +2,9 @@
 #define FLAGDIALOG_H
 
 #include <QDialog>
-#include <QIntValidator>
 #include <memory>
-#include "core/Cutter.h"
+#include "core/CutterCommon.h"
+
 
 namespace Ui {
 class FlagDialog;
@@ -25,7 +25,6 @@ private slots:
 private:
     std::unique_ptr<Ui::FlagDialog> ui;
     RVA offset;
-    CutterCore *core;
 };
 
 #endif // FLAGDIALOG_H

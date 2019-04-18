@@ -5,9 +5,9 @@
 
 namespace Ui {
 
-/*!
- * \class WelcomeDialog
- * \brief The WelcomeDialog class will show the user the Welcome windows
+/**
+ * @class WelcomeDialog
+ * @brief The WelcomeDialog class will show the user the Welcome windows
  *  upon first execution of Cutter.
  *
  * Upon first execution of Cutter, the WelcomeDialog would be showed to the user.
@@ -30,6 +30,7 @@ private slots:
     void onLanguageComboBox_currentIndexChanged(int index);
     void on_checkUpdateButton_clicked();
     void on_continueButton_clicked();
+    void on_updatesCheckBox_stateChanged(int state);
 
 private:
     Ui::WelcomeDialog *ui;
