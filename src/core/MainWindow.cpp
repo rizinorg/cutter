@@ -1209,7 +1209,7 @@ void MainWindow::messageBoxWarning(QString title, QString message)
     mb.exec();
 }
 
-/*!
+/**
  * \brief When theme changed, change icons which have a special version for th theme.
  */
 void MainWindow::chooseThemeIcons()
@@ -1217,16 +1217,11 @@ void MainWindow::chooseThemeIcons()
     // List of QActions which have alternative icons in different themes
     const QList<QPair<void*, QString>> kSupportedIconsNames {
         { ui->actionForward, QStringLiteral("arrow_right.svg") },
-        { ui->actionBackward, QStringLiteral("arrow_left.svg") },
-        // { ui->actionBackward, QStringLiteral("bug.svg") },
-        // { ui->actionBackward, QStringLiteral("disas.svg") },
-        // { ui->actionBackward, QStringLiteral("graph.svg") },
-        // { ui->actionBackward, QStringLiteral("polar.svg") },
-        
+        { ui->actionBackward, QStringLiteral("arrow_left.svg") },      
     };
 
 
-        // Set the correct icon for the QAction
+    // Set the correct icon for the QAction
 	qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
 		static_cast<QAction*>(obj)->setIcon(icon);
 	});

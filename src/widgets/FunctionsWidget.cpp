@@ -714,6 +714,9 @@ void FunctionsWidget::setScrollMode()
     qhelpers::setVerticalScrollMode(ui->functionsTreeView);
 }
 
+/**
+ * @brief a SLOT to set the stylesheet for a tooltip
+ */ 
 void FunctionsWidget::setTooltipStylesheet()
 {
     setStyleSheet(QString("QToolTip { border-width: 1px; max-width: %1px;" \

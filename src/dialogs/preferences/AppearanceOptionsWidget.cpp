@@ -54,7 +54,6 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
 
     connect(Config(), &Configuration::fontsUpdated, this,
             &AppearanceOptionsWidget::updateFontFromConfig);
-
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}

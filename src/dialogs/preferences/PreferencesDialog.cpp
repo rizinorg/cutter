@@ -69,7 +69,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     QTreeWidgetItem *defitem = ui->configCategories->topLevelItem(0);
     ui->configCategories->setCurrentItem(defitem, 0);
 
-	connect(Config(), &Configuration::colorsUpdated, this, &PreferencesDialog::chooseThemeIcons);
+    connect(Config(), &Configuration::colorsUpdated, this, &PreferencesDialog::chooseThemeIcons);
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -119,8 +119,9 @@ void PreferencesDialog::chooseThemeIcons()
     foreach(const auto &p, kCategoryIconsNames)
     {
         QList<QTreeWidgetItem *> items = ui->configCategories->findItems(p.first, Qt::MatchContains|Qt::MatchRecursive, 0);
-		if (items.isEmpty())
+		if (items.isEmpty()) {
 			continue;
+        }
         supportedIconsNames.append( { items.first(), p.second } );
     }
 

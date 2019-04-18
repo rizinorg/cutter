@@ -48,13 +48,6 @@ int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 QByteArray applyColorToSvg(const QByteArray &data, QColor color);
 QByteArray applyColorToSvg(const QString &filename, QColor color);
 
-/**
- * !brief finds the theme-specific icon path and calls `setter` functor providing a pointer of an object which has to be used
- * and loaded icon
- * @param supportedIconsNames list of <object ptr, icon name>
- * @param setter functor which has to be called
- *   for example we need to set an action icon, the functor can be just [](void* o, const QIcon &icon) { static_cast<QAction*>(o)->setIcon(icon); }
- */
 void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter);
 
 } // qhelpers

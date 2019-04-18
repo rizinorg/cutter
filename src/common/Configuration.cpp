@@ -256,6 +256,9 @@ void Configuration::loadNativeTheme()
     }
 }
 
+/**
+ * @brief Loads the Light theme of Cutter and modify special theme colors
+ */ 
 void Configuration::loadLightTheme()
 {
     /* Load Qt Theme */
@@ -280,7 +283,6 @@ void Configuration::loadLightTheme()
     setColor("gui.navbar.err", QColor(3, 170, 245));
     setColor("gui.tooltip.background", QColor(250, 252, 254));
     setColor("gui.tooltip.foreground", QColor(42, 44, 46));
-
 }
 
 void Configuration::loadBaseThemeDark()
