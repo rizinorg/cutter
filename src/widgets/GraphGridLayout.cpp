@@ -111,7 +111,6 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     }
 
     // Prepare edge routing
-    //auto &entryb = layoutState.grid_blocks[entry];
     int col_count = 1;
     int row_count = 0;
     for (const auto &blockIt : layoutState.grid_blocks) {
@@ -183,30 +182,30 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     row_y.assign(row_count, 0);
     std::vector<int> col_edge_x(col_count + 1);
     std::vector<int> row_edge_y(row_count + 1);
-    int x = layoutConfig.block_horizontal_margin * 2;
-    for (int i = 0; i < col_count; i++) {
+    int x = layoutConfig.block_horizontal_margin;
+    for (int i = 0; i <= col_count; i++) {
         col_edge_x[i] = x;
         x += layoutConfig.block_horizontal_margin * col_edge_count[i];
-        col_x[i] = x;
-        x += col_width[i];
+        if (i < col_count) {
+            col_x[i] = x;
+            x += col_width[i];
+        }
     }
-    int y = layoutConfig.block_vertical_margin * 2;
-    for (int i = 0; i < row_count; i++) {
+    int y = layoutConfig.block_vertical_margin;
+    for (int i = 0; i <= row_count; i++) {
         row_edge_y[i] = y;
-        // TODO: The 1 when row_edge_count is 0 is not needed on the original.. not sure why it's required for us
         if (!row_edge_count[i]) {
+            // prevent 2 blocks being put on top of each other without any space
             row_edge_count[i] = 1;
         }
         y += layoutConfig.block_vertical_margin * row_edge_count[i];
-        row_y[i] = y;
-        y += row_height[i];
+        if (i < row_count) {
+            row_y[i] = y;
+            y += row_height[i];
+        }
     }
-    col_edge_x[col_count] = x;
-    row_edge_y[row_count] = y;
-    width = x + (layoutConfig.block_horizontal_margin * 2) + (layoutConfig.block_horizontal_margin *
-                                                              col_edge_count[col_count]);
-    height = y + (layoutConfig.block_vertical_margin * 2) + (layoutConfig.block_vertical_margin *
-                                                             row_edge_count[row_count]);
+    width = x + (layoutConfig.block_horizontal_margin);
+    height = y + (layoutConfig.block_vertical_margin);
 
     //Compute node positions
     for (auto &blockIt : blocks) {

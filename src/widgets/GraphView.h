@@ -91,6 +91,10 @@ protected:
     int width = 0;
     int height = 0;
 
+    void clampViewOffset();
+    void setViewOffsetInternal(QPoint pos, bool emitSignal = true);
+    void addViewOffset(QPoint move, bool emitSignal = true);
+
 private:
     void centerX(bool emitSignal);
     void centerY(bool emitSignal);

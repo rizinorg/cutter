@@ -145,8 +145,7 @@ void GraphView::beginMouseDrag(QMouseEvent *event)
 
 void GraphView::setViewOffset(QPoint offset)
 {
-    this->offset = offset;
-    emit viewOffsetChanged(offset);
+    setViewOffsetInternal(offset);
 }
 
 void GraphView::setViewScale(qreal scale)
@@ -200,12 +199,11 @@ void GraphView::paintEvent(QPaintEvent *)
 #endif
 
     if (!qFuzzyCompare(getCacheDevicePixelRatioF(), getRequiredCacheDevicePixelRatioF())
-        || getCacheSize() != getRequiredCacheSize()) {
+            || getCacheSize() != getRequiredCacheSize()) {
         setCacheDirty();
     }
 
-    bool cacheWasDirty = cacheDirty;
-    if(cacheDirty) {
+    if (cacheDirty) {
         paintGraphCache();
         cacheDirty = false;
     }
@@ -228,6 +226,30 @@ void GraphView::paintEvent(QPaintEvent *)
     }
 }
 
+void GraphView::clampViewOffset()
+{
+    const qreal edgeFraction = 0.25;
+    qreal edgeX = edgeFraction * (viewport()->width()  / current_scale);
+    qreal edgeY = edgeFraction * (viewport()->height()  / current_scale);
+    offset.rx() = std::max(std::min(qreal(offset.x()), width - edgeX),
+                           - viewport()->width() / current_scale + edgeX);
+    offset.ry() = std::max(std::min(qreal(offset.y()), height - edgeY),
+                           - viewport()->height() / current_scale + edgeY);
+}
+
+void GraphView::setViewOffsetInternal(QPoint pos, bool emitSignal)
+{
+    offset = pos;
+    clampViewOffset();
+    if (emitSignal)
+        emit viewOffsetChanged(offset);
+}
+
+void GraphView::addViewOffset(QPoint move, bool emitSignal)
+{
+    setViewOffsetInternal(offset + move, emitSignal);
+}
+
 void GraphView::paintGraphCache()
 {
 #ifndef QT_NO_OPENGL
@@ -248,13 +270,14 @@ void GraphView::paintGraphCache()
             gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             resizeTex = true;
-        } else if(cacheSize != viewport()->size()) {
+        } else if (cacheSize != viewport()->size()) {
             gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
             resizeTex = true;
         }
         if (resizeTex) {
             cacheSize = viewport()->size();
-            gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport()->width(), viewport()->height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+            gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport()->width(), viewport()->height(), 0, GL_RGBA,
+                             GL_UNSIGNED_BYTE, nullptr);
             gl->glGenFramebuffers(1, &cacheFBO);
             gl->glBindFramebuffer(GL_FRAMEBUFFER, cacheFBO);
             gl->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, cacheTexture, 0);
@@ -314,6 +337,9 @@ void GraphView::paintGraphCache()
             EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
             QPen pen(ec.color);
             pen.setWidth(pen.width() / ec.width_scale);
+            if (pen.width() * current_scale < 2) {
+                pen.setWidth(0);
+            }
             p.setPen(pen);
             p.setBrush(ec.color);
             p.drawPolyline(polyline);
@@ -358,6 +384,7 @@ void GraphView::centerX(bool emitSignal)
 {
     offset.rx() = -((viewport()->width() - width * current_scale) / 2);
     offset.rx() /= current_scale;
+    clampViewOffset();
     if (emitSignal) {
         emit viewOffsetChanged(offset);
     }
@@ -367,6 +394,7 @@ void GraphView::centerY(bool emitSignal)
 {
     offset.ry() = -((viewport()->height() - height * current_scale) / 2);
     offset.ry() /= current_scale;
+    clampViewOffset();
     if (emitSignal) {
         emit viewOffsetChanged(offset);
     }
@@ -388,8 +416,9 @@ void GraphView::showBlock(GraphBlock *block)
     if (height * current_scale <= viewport()->height()) {
         centerY(false);
     } else {
-        offset.ry() = block->y - 30;
+        offset.ry() = block->y - 35 / current_scale;
     }
+    clampViewOffset();
     emit viewOffsetChanged(offset);
     blockTransitionedTo(block);
     viewport()->update();
@@ -481,9 +510,7 @@ void GraphView::mousePressEvent(QMouseEvent *event)
 void GraphView::mouseMoveEvent(QMouseEvent *event)
 {
     if (scroll_mode) {
-        offset.rx() += (scroll_base_x - event->x()) / current_scale;
-        offset.ry() += (scroll_base_y - event->y()) / current_scale;
-        emit viewOffsetChanged(offset);
+        addViewOffset(QPoint(scroll_base_x - event->x(), scroll_base_y - event->y()) / current_scale);
         scroll_base_x = event->x();
         scroll_base_y = event->y();
         viewport()->update();
@@ -508,7 +535,7 @@ void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
     }
 }
 
-void GraphView::keyPressEvent(QKeyEvent* event)
+void GraphView::keyPressEvent(QKeyEvent *event)
 {
     const int delta = static_cast<int>(30.0 / current_scale);
     int dx = 0, dy = 0;
@@ -529,9 +556,7 @@ void GraphView::keyPressEvent(QKeyEvent* event)
         QAbstractScrollArea::keyPressEvent(event);
         return;
     }
-    offset.rx() += dx;
-    offset.ry() += dy;
-    emit viewOffsetChanged(offset);
+    addViewOffset(QPoint(dx, dy));
     viewport()->update();
     event->accept();
 }
@@ -559,11 +584,8 @@ void GraphView::wheelEvent(QWheelEvent *event)
         return;
     }
     QPoint delta = -event->angleDelta();
-
     delta /= current_scale;
-    offset += delta;
-    emit viewOffsetChanged(offset);
-
+    addViewOffset(delta);
     viewport()->update();
     event->accept();
 }
