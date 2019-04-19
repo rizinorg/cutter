@@ -27,7 +27,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
 
     copySeparator = addSeparator();
 
-    initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()));
+    initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()), getCopyAddressSequence());
     addAction(&actionCopyAddr);
 
     initAction(&actionAddComment, tr("Add Comment"),
@@ -386,6 +386,11 @@ QKeySequence DisassemblyContextMenu::getCopySequence() const
 QKeySequence DisassemblyContextMenu::getCommentSequence() const
 {
     return {Qt::Key_Semicolon};
+}
+
+QKeySequence DisassemblyContextMenu::getCopyAddressSequence() const
+{
+    return {Qt::CTRL + Qt::SHIFT + Qt::Key_C};
 }
 
 QKeySequence DisassemblyContextMenu::getSetToCodeSequence() const
