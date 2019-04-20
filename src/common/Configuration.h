@@ -125,6 +125,7 @@ public:
 signals:
     void fontsUpdated();
     void colorsUpdated();
+    void themeChanged();
 };
 
 #endif // CONFIGURATION_H

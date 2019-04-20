@@ -130,8 +130,6 @@ void MainWindow::initUI()
      *  Some global shortcuts
      */
 
-    // Set correct icons for theme
-    chooseThemeIcons();
     // Period goes to command entry
     QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
     connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
@@ -240,7 +238,7 @@ void MainWindow::initToolBar()
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
-    QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
+    QObject::connect(configuration, &Configuration::themeChanged, [this]() {
         chooseThemeIcons();
     });
 }

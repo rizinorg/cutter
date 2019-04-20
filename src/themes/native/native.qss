@@ -9,10 +9,6 @@ QHeaderView::section {
 /*     border: 2px solid white;*/
 }
 
-QMainWindow > QTabBar
-{
-    qproperty-drawBase: 0;
-}
 
 QMainWindow > QTabBar::tab {
     border-bottom-color: #2180a9;

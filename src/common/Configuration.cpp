@@ -386,6 +386,7 @@ void Configuration::setTheme(int theme)
         loadNativeTheme();
     }
 
+    emit themeChanged();
     emit colorsUpdated();
 }
 

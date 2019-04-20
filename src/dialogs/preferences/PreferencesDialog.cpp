@@ -50,7 +50,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         {
             tr("Plugins"),
             new PluginsOptionsWidget(this),
-            QIcon(":/img/icons/plugins_light.svg")
+            QIcon(":/img/icons/plugins.svg")
         }
     };
 
@@ -69,7 +69,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     QTreeWidgetItem *defitem = ui->configCategories->topLevelItem(0);
     ui->configCategories->setCurrentItem(defitem, 0);
 
-    connect(Config(), &Configuration::colorsUpdated, this, &PreferencesDialog::chooseThemeIcons);
+    connect(Config(), &Configuration::themeChanged, this, &PreferencesDialog::chooseThemeIcons);
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -112,6 +112,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Assembly"), QStringLiteral("disas.svg") },
         { QStringLiteral("Graph"), QStringLiteral("graph.svg") },
         { QStringLiteral("Appearance"), QStringLiteral("polar.svg") },
+        { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
         
     };
     QList<QPair<void*, QString>> supportedIconsNames;
