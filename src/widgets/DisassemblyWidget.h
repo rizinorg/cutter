@@ -58,6 +58,7 @@ private:
      * offset of lines below the first line of the current seek
      */
     int cursorLineOffset;
+    int cursorCharOffset;
     bool seekFromCursor;
 
     RefreshDeferrer *disasmRefresh;
@@ -76,6 +77,8 @@ private:
     void connectCursorPositionChanged(bool disconnect);
 
     void moveCursorRelative(bool up, bool page);
+    QList<QTextEdit::ExtraSelection> getSameWordsSelections();
+
     QAction syncIt;
     CutterSeekable *seekable;
 };
