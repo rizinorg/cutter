@@ -134,6 +134,8 @@ private slots:
     void on_parseTypeComboBox_currentTextChanged(const QString &arg1);
     void on_parseEndianComboBox_currentTextChanged(const QString &arg1);
 
+    void on_actionCopyAddressAtCursor_triggered();
+
     void on_action1column_triggered();
     void on_action2columns_triggered();
     void on_action4columns_triggered();
