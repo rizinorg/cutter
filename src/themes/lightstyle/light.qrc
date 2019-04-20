@@ -6,6 +6,8 @@
     <file>rc/up_arrow_disabled.png</file>
     <file>rc/right_arrow.png</file>
     <file>rc/right_arrow_disabled.png</file>
+    <file>rc/left_arrow.png</file>
+    <file>rc/left_arrow_disabled.png</file>
   </qresource>
   <qresource prefix="lightstyle">
       <file>light.qss</file>

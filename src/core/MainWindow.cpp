@@ -172,6 +172,8 @@ void MainWindow::initUI()
 
 void MainWindow::initToolBar()
 {
+    chooseThemeIcons();
+    
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

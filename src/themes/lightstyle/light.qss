@@ -375,14 +375,9 @@ QComboBox::drop-down
   border-bottom-right-radius:3px;
 }
 
-QComboBox::down-arrow
-{
-  image:url(:/qss_icons/rc/down_arrow_disabled.png);
-}
-
 QAbstractSpinBox::down-arrow,QAbstractSpinBox::down-arrow:disabled,QAbstractSpinBox::down-arrow:off
 {
-  image:url(:/qss_icons/rc/down_arrow_disabled.png);
+  image:url(:/qss_icons/rc/down_arrow.png);
   width:10px;
   height:10px;
 }
@@ -485,7 +480,7 @@ QHeaderView::section
 QScrollBar:horizontal
 {
   height:15px;
-  border:1px transparent #efefef;
+  border:1px transparent #9e9e9e;
   border-radius:4px;
   background-color:#efefef;
   margin:3px 15px;
@@ -500,6 +495,7 @@ QScrollBar::handle:horizontal
 
 QScrollBar::add-line:horizontal
 {
+  border-image:url(:/qss_icons/rc/right_arrow_disabled.png);
   width:10px;
   height:10px;
   subcontrol-position:right;
@@ -507,8 +503,18 @@ QScrollBar::add-line:horizontal
   margin:0 3px;
 }
 
+QScrollBar::add-line:horizontal:hover,QScrollBar::add-line:horizontal:on
+{
+  border-image:url(:/qss_icons/rc/right_arrow.png);
+  height:10px;
+  width:10px;
+  subcontrol-position:right;
+  subcontrol-origin:margin;
+}
+
 QScrollBar::sub-line:horizontal
 {
+  border-image:url(:/qss_icons/rc/left_arrow_disabled.png);
   height:10px;
   width:10px;
   subcontrol-position:left;
@@ -516,16 +522,9 @@ QScrollBar::sub-line:horizontal
   margin:0 3px;
 }
 
-QScrollBar::add-line:horizontal:hover,QScrollBar::add-line:horizontal:on
-{
-  height:10px;
-  width:10px;
-  subcontrol-position:right;
-  subcontrol-origin:margin;
-}
-
 QScrollBar::sub-line:horizontal:hover,QScrollBar::sub-line:horizontal:on
 {
+  border-image:url(:/qss_icons/rc/left_arrow.png);
   height:10px;
   width:10px;
   subcontrol-position:left;
@@ -617,7 +616,6 @@ QFrame[height="3"],QFrame[width="3"]
   background-color:#c7dce9;
 }
 
-
 QMainWindow > QTabBar::tab
 {
   border-bottom-color:#007ac1;
@@ -653,16 +651,6 @@ QSpinBox,QDoubleSpinBox,QTimeEdit,QDateTimeEdit,QDateEdit,QToolBox,QToolBox::tab
 {
   color:#00162e;
   background-color:#fff;
-}
-
-QComboBox::down-arrow:on,QComboBox::down-arrow:hover,QComboBox::down-arrow:focus,QAbstractSpinBox::down-arrow:hover,QToolButton::menu-arrow,QHeaderView::down-arrow,QSpinBox::down-arrow:hover
-{
-  image:url(:/qss_icons/rc/down_arrow.png);
-}
-
-QHeaderView::up-arrow,QAbstractSpinBox::up-arrow:hover
-{
-  image:url(:/qss_icons/rc/up_arrow.png);
 }
 
 QToolBox::tab:selected,QScrollArea
@@ -706,4 +694,24 @@ QMenu::indicator:non-exclusive:unchecked,QMenu::indicator:non-exclusive:unchecke
 QMenu::indicator:non-exclusive:checked,QMenu::indicator:non-exclusive:checked:selected,QMenu::indicator:exclusive:unchecked:selected,QMenu::indicator:exclusive:checked,QMenu::indicator:exclusive:checked:selected
 {
   background:#03a9f4;
+}
+
+QComboBox:hover,QPushButton:hover,QAbstractSpinBox:hover,QLineEdit:hover,QTextEdit:hover,QPlainTextEdit:hover,QAbstractView:hover,QTreeView:hover
+{
+  border:1px solid #3daee9;
+}
+
+QTreeView
+{
+  border:1px solid #b7dcf0;
+}
+
+QComboBox::down-arrow,QComboBox::down-arrow:on,QComboBox::down-arrow:hover,QComboBox::down-arrow:focus,QAbstractSpinBox::down-arrow:hover,QToolButton::menu-arrow,QHeaderView::down-arrow,QSpinBox::down-arrow:hover,QHeaderView::down-arrow,QComboBox::down-arrow:on,QComboBox::down-arrow:hover,QComboBox::down-arrow:focus,QAbstractSpinBox::down-arrow:hover,QToolButton::menu-arrow
+{
+  image:url(:/qss_icons/rc/down_arrow.png);
+}
+
+QHeaderView::up-arrow,QAbstractSpinBox::up-arrow:hover,QHeaderView::up-arrow
+{
+  image:url(:/qss_icons/rc/up_arrow.png);
 }
