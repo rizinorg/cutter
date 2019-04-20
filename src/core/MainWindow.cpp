@@ -1208,7 +1208,7 @@ void MainWindow::messageBoxWarning(QString title, QString message)
 }
 
 /**
- * \brief When theme changed, change icons which have a special version for th theme.
+ * \brief When theme changed, change icons which have a special version for the theme.
  */
 void MainWindow::chooseThemeIcons()
 {
