@@ -200,11 +200,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole: {
 
         QStringList disasmPreview = Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
-        
-        
-
         const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
-
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
 
