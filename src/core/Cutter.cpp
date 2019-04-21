@@ -2571,6 +2571,42 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
     return r;
 }
 
+
+/**
+ * @brief return hexdump of <size> from an <offset> by a given formats
+ * @param address - the address from which to print the hexdump
+ * @param size - number of bytes to print 
+ * @param format - the type of hexdump (qwords, words. decimal, etc)
+ */
+QString CutterCore::hexdump(RVA address, int size, HexdumpFormats format)
+{
+    QString command = "px";
+    switch (format) {
+    case HexdumpFormats::Normal:
+        break;
+    case HexdumpFormats::Half:
+        command += "h";
+        break;
+    case HexdumpFormats::Word:
+        command += "w";
+        break;
+    case HexdumpFormats::Quad:
+        command += "q";
+        break;
+    case HexdumpFormats::Signed:
+        command += "d";
+        break;
+    case HexdumpFormats::Octal:
+        command += "o";
+        break;
+    }
+
+    return cmd(QString("%1 %2 @ %3")
+                        .arg(command)
+                        .arg(size)
+                        .arg(address));
+}
+
 QByteArray CutterCore::hexStringToBytes(const QString &hex)
 {
     QByteArray hexChars = hex.toUtf8();
@@ -2672,3 +2708,62 @@ BasicBlockHighlighter* CutterCore::getBBHighlighter()
 {
     return bbHighlighter;
 }
+
+
+/**
+ * @brief get a compact disassembly preview for tooltips
+ * @param address - the address from which to print the disassembly
+ * @param num_of_lines - number of instructions to print 
+ */
+QStringList CutterCore::getDisassemblyPreview(RVA address, int num_of_lines)
+{
+     QList<DisassemblyLine> disassemblyLines;
+        {
+            // temporarily simplify the disasm output to get it colorful and simple to read
+            TempConfig tempConfig;
+            tempConfig
+                .set("scr.color", COLOR_MODE_16M)
+                .set("asm.lines", false)
+                .set("asm.var", false)
+                .set("asm.comments", false)
+                .set("asm.bytes", false)
+                .set("asm.lines.fcn", false)
+                .set("asm.lines.out", false)
+                .set("asm.lines.bb", false)
+                .set("asm.bb.line", false);
+
+            disassemblyLines = disassembleLines(address, num_of_lines + 1);
+        }
+        QStringList disasmPreview;
+        for (const DisassemblyLine &line : disassemblyLines) {
+            disasmPreview << line.text;
+            if (disasmPreview.length() >= num_of_lines) {
+                disasmPreview << "...";
+                break;
+            }
+        }
+        if (!disasmPreview.isEmpty()) {
+            return disasmPreview;
+        } else {
+            return QStringList();
+        }
+}
+
+/**
+ * @brief get a compact hexdump preview for tooltips
+ * @param address - the address from which to print the hexdump
+ * @param size - number of bytes to print 
+ */
+QString CutterCore::getHexdumpPreview(RVA address, int size)
+{     
+    // temporarily simplify the disasm output to get it colorful and simple to read
+    TempConfig tempConfig;
+    tempConfig
+        .set("scr.color", COLOR_MODE_16M)
+        .set("asm.offset", true)
+        .set("hex.header", false)
+        .set("hex.cols", 16);
+    return ansiEscapeToHtml(hexdump(address, size, HexdumpFormats::Normal)).replace(QLatin1Char('\n'), "<br>");
+}
+
+

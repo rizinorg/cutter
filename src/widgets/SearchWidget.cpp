@@ -8,6 +8,14 @@
 #include <QComboBox>
 #include <QShortcut>
 
+namespace {
+
+static const int kMaxTooltipWidth = 500;
+static const int kMaxTooltipDisasmPreviewLines = 10;
+static const int kMaxTooltipHexdumpBytes = 64;
+
+}
+
 static const QMap<QString, QString> kSearchBoundariesValues {
     {"io.maps", "All maps"},
     {"io.map", "Current map"},
@@ -58,6 +66,31 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
+    case Qt::ToolTipRole: {
+
+        QString previewContent = QString();
+        // if result is CODE, show disassembly
+        if (!exp.code.isEmpty()) {
+            previewContent = Core()->getDisassemblyPreview(exp.offset, kMaxTooltipDisasmPreviewLines)
+                                    .join("<br>");
+        // if result is DATA or Disassembly is N/A                                    
+        } else if (!exp.data.isEmpty() || previewContent.isEmpty()) {
+            previewContent = Core()->getHexdumpPreview(exp.offset, kMaxTooltipHexdumpBytes);
+        }
+
+        const QFont &fnt = Config()->getFont();
+        QFontMetrics fm{ fnt };
+
+        QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
+                .arg(fnt.family())
+                .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep more text in the same box
+        
+        toolTipContent += tr("<div style=\"margin-bottom: 10px;\"><strong>Preview</strong>:<br>%1</div>")
+                .arg(previewContent);
+
+        toolTipContent += "</div></html>";
+        return toolTipContent;
+    }
     case SearchDescriptionRole:
         return QVariant::fromValue(exp);
     default:
@@ -130,6 +163,7 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
     ui(new Ui::SearchWidget)
 {
     ui->setupUi(this);
+    setStyleSheet(QString("QToolTip { max-width: %1px; opacity: 230; }").arg(kMaxTooltipWidth));
 
     ui->searchInCombo->blockSignals(true);
     QMap<QString, QString>::const_iterator mapIter;

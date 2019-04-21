@@ -78,6 +78,7 @@ public:
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
     QString createFunctionAt(RVA addr, QString name);
+    QStringList getDisassemblyPreview(RVA address, int num_of_lines);
 
     /* Flags */
     void delFlag(RVA addr);
@@ -184,7 +185,7 @@ public:
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
     QList<QString> getColorThemes();
 
-    /* Assembly related methods */
+    /* Assembly\Hexdump related methods */
     QByteArray assemble(const QString &code);
     QString disassemble(const QByteArray &data);
     QString disassembleSingleInstruction(RVA addr);
@@ -192,6 +193,9 @@ public:
 
     static QByteArray hexStringToBytes(const QString &hex);
     static QString bytesToHexString(const QByteArray &bytes);
+    enum class HexdumpFormats { Normal, Half, Word, Quad, Signed, Octal };
+    QString hexdump(RVA offset, int size, HexdumpFormats format);
+    QString getHexdumpPreview(RVA offset, int size);
 
     void setCPU(QString arch, QString cpu, int bits);
     void setEndianness(bool big);
