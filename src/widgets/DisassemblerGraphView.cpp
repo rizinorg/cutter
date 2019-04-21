@@ -519,6 +519,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     qreal render_height = viewport()->size().height();
 
+    // Stop rendering text when it's too small
+    if (charHeight * getViewScale() * p.device()->devicePixelRatioF() < 4) {
+        return;
+    }
+
     // Render node text
     auto x = blockX + (2 * charWidth);
     int y = static_cast<int>(blockY + (2 * charWidth));
@@ -718,7 +723,7 @@ void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
     auto globalMouse = mouseRelativePos + getViewOffset();
     mouseRelativePos *= getViewScale();
     qreal newScale = getViewScale() * std::pow(1.25, velocity);
-    newScale = std::max(newScale, 0.3);
+    newScale = std::max(newScale, 0.05);
     mouseRelativePos /= newScale;
     setViewScale(newScale);
 
