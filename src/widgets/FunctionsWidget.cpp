@@ -198,37 +198,9 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         return static_cast<int>(Qt::AlignLeft | Qt::AlignVCenter);
 
     case Qt::ToolTipRole: {
-        QList<DisassemblyLine> disassemblyLines;
-        {
-            // temporarily simplify the disasm output to get it colorful and simple to read
-            TempConfig tempConfig;
-            tempConfig
-                .set("scr.color", COLOR_MODE_16M)
-                .set("asm.lines", false)
-                .set("asm.var", false)
-                .set("asm.comments", false)
-                .set("asm.bytes", false)
-                .set("asm.lines.fcn", false)
-                .set("asm.lines.out", false)
-                .set("asm.lines.bb", false)
-                .set("asm.bb.line", false);
 
-            disassemblyLines = Core()->disassembleLines(function.offset, kMaxTooltipDisasmPreviewLines + 1);
-        }
-        QStringList disasmPreview;
-        for (const DisassemblyLine &line : disassemblyLines) {
-            if (!function.contains(line.offset)) {
-                break;
-            }
-            disasmPreview << line.text;
-            if (disasmPreview.length() >= kMaxTooltipDisasmPreviewLines) {
-                disasmPreview << "...";
-                break;
-            }
-        }
-
+        QStringList disasmPreview = Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
         const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
-
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
 
