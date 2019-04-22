@@ -911,6 +911,20 @@
     <string>Select Block...</string>
    </property>
   </action>
+  <action name="actionResetZoom">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Reset zoom</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+0</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WindowShortcut</enum>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../resources.qrc"/>
