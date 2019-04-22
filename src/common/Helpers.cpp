@@ -222,7 +222,7 @@ void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::functi
         if (QFile::exists(iconPath + relativeThemeDir +  p.second)) {
             iconPath += relativeThemeDir;
         }
-		setter(p.first, QIcon(iconPath + p.second));
+        setter(p.first, QIcon(iconPath + p.second));
     }
 }
 

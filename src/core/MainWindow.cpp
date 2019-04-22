@@ -240,9 +240,7 @@ void MainWindow::initToolBar()
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
-    QObject::connect(configuration, &Configuration::themeChanged, [this]() {
-        chooseThemeIcons();
-    });
+    QObject::connect(configuration, &Configuration::themeChanged, this, &MainWindow::chooseThemeIcons);
 }
 
 void MainWindow::initDocks()
@@ -1223,6 +1221,6 @@ void MainWindow::chooseThemeIcons()
 
     // Set the correct icon for the QAction
 	qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
-		static_cast<QAction*>(obj)->setIcon(icon);
+	    static_cast<QAction*>(obj)->setIcon(icon);
 	});
 }

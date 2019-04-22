@@ -70,6 +70,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     ui->configCategories->setCurrentItem(defitem, 0);
 
     connect(Config(), &Configuration::themeChanged, this, &PreferencesDialog::chooseThemeIcons);
+    chooseThemeIcons();
 }
 
 PreferencesDialog::~PreferencesDialog()
