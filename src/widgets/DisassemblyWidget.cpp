@@ -1,7 +1,5 @@
 #include "DisassemblyWidget.h"
 #include "menus/DisassemblyContextMenu.h"
-#include "common/HexAsciiHighlighter.h"
-#include "common/HexHighlighter.h"
 #include "common/Configuration.h"
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
@@ -56,6 +54,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
+    cursorCharOffset = 0;
     seekFromCursor = false;
 
     setWindowTitle(tr("Disassembly"));
@@ -338,18 +337,12 @@ void DisassemblyWidget::highlightCurrentLine()
 
     QColor highlightColor = ConfigColor("highlight");
     QColor highlightPCColor = ConfigColor("highlightPC");
-    QColor highlightWordColor = ConfigColor("highlightWord");
 
     // Highlight the current word
     QTextCursor cursor = mDisasTextEdit->textCursor();
     cursor.select(QTextCursor::WordUnderCursor);
     QString searchString = cursor.selectedText();
     curHighlightedWord = searchString;
-
-    cursor.movePosition(QTextCursor::StartOfLine);
-    int listStartPos = cursor.position();
-    cursor.movePosition(QTextCursor::EndOfLine);
-    int lineEndPos = cursor.position();
 
     // Highlight the current line
     QTextEdit::ExtraSelection highlightSelection;
@@ -374,26 +367,7 @@ void DisassemblyWidget::highlightCurrentLine()
     }
 
     // Highlight all the words in the document same as the current one
-    QTextDocument *document = mDisasTextEdit->document();
-
-    highlightSelection.cursor = cursor;
-    highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-
-    while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
-        highlightSelection.cursor = document->find(searchString, highlightSelection.cursor,
-                                                   QTextDocument::FindWholeWords);
-
-        if (!highlightSelection.cursor.isNull()) {
-            if (highlightSelection.cursor.position() >= listStartPos
-                    && highlightSelection.cursor.position() <= lineEndPos) {
-                highlightSelection.format.setBackground(highlightWordColor);
-            } else {
-                highlightSelection.format.setBackground(highlightWordColor);
-            }
-
-            extraSelections.append(highlightSelection);
-        }
-    }
+    extraSelections.append(getSameWordsSelections());
 
     // highlight PC line
     RVA PCAddr = Core()->getProgramCounterValue();
@@ -457,7 +431,7 @@ void DisassemblyWidget::updateCursorPosition()
 
     if (offset < topOffset || (offset > bottomOffset && bottomOffset != RVA_INVALID)) {
         mDisasTextEdit->moveCursor(QTextCursor::Start);
-        mDisasTextEdit->setExtraSelections({});
+        mDisasTextEdit->setExtraSelections(getSameWordsSelections());
     } else {
         RVA currentCursorOffset = readCurrentDisassemblyOffset();
         QTextCursor originalCursor = mDisasTextEdit->textCursor();
@@ -470,6 +444,10 @@ void DisassemblyWidget::updateCursorPosition()
             if (lineOffset == offset) {
                 if (cursorLineOffset > 0) {
                     cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, cursorLineOffset);
+                }
+                if (cursorCharOffset > 0) {
+                    cursor.movePosition(QTextCursor::StartOfLine);
+                    cursor.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, cursorCharOffset);
                 }
 
                 mDisasTextEdit->setTextCursor(cursor);
@@ -514,6 +492,7 @@ void DisassemblyWidget::cursorPositionChanged()
 
     cursorLineOffset = 0;
     QTextCursor c = mDisasTextEdit->textCursor();
+    cursorCharOffset = c.positionInBlock();
     while (c.blockNumber() > 0) {
         c.movePosition(QTextCursor::PreviousBlock);
         if (readDisassemblyOffset(c) != offset) {
@@ -597,6 +576,33 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
     }
 }
 
+QList<QTextEdit::ExtraSelection> DisassemblyWidget::getSameWordsSelections()
+{
+    QList<QTextEdit::ExtraSelection> selections;
+    QTextEdit::ExtraSelection highlightSelection;
+    QTextDocument *document = mDisasTextEdit->document();
+    QColor highlightWordColor = ConfigColor("highlightWord");
+
+    if (curHighlightedWord.isNull()) {
+        return QList<QTextEdit::ExtraSelection>();
+    }
+
+    highlightSelection.cursor = mDisasTextEdit->textCursor();;
+    highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+
+    while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
+        highlightSelection.cursor = document->find(curHighlightedWord, highlightSelection.cursor,
+                                                   QTextDocument::FindWholeWords);
+
+        if (!highlightSelection.cursor.isNull()) {
+            highlightSelection.format.setBackground(highlightWordColor);
+
+            selections.append(highlightSelection);
+        }
+    }
+    return selections;
+}
+
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonDblClick
@@ -630,6 +636,7 @@ void DisassemblyWidget::on_seekChanged(RVA offset)
 {
     if (!seekFromCursor) {
         cursorLineOffset = 0;
+        cursorCharOffset = 0;
     }
 
     if (topOffset != RVA_INVALID
