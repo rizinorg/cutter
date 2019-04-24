@@ -13,8 +13,8 @@ QWidget
 {
   color:#00162e;
   background-color:#fafcfe;
-  selection-background-color:#fafcfe;
-  selection-color:#eff0f1;
+  selection-background-color:#03a9f4;
+  selection-color:#ffffff;
   background-clip:border;
   border-image:none;
   border:0 transparent #000;
@@ -36,8 +36,8 @@ QDockWidget::title
 
 QPlainTextEdit
 {
-  selection-background-color:#007ac1;
-  background-color:#fafcfe;
+  selection-background-color:#03a9f4;
+  selection-color:#ffffff;
   color:#00162e;
   border-color:transparent;
   border-style:solid;
@@ -588,6 +588,7 @@ QScrollBar::add-line:vertical:hover,QScrollBar::add-line:vertical:on
 QLineEdit:hover,QLineEdit:focus
 {
   border:1px solid #26adfc;
+  color: #007ac1;
 }
 
 QToolTip
@@ -671,7 +672,7 @@ QSlider::sub-page:horizontal,QSlider::sub-page:vertical
 
 QTableView::item:pressed,QListView::item:pressed,QTreeView::item:pressed,QTableView::item:selected:active,QTreeView::item:selected:active,QListView::item:selected:active
 {
-  background:#90CAF9;
+  background: #bbe0ff;
   color:#163f6b;
 }
 
@@ -704,9 +705,11 @@ QComboBox:hover,QPushButton:hover,QAbstractSpinBox:hover,QLineEdit:hover,QTextEd
 QTreeView
 {
   border:1px solid #b7dcf0;
+  selection-background-color:#bbe0ff;
+  selection-color:#163f6b;
 }
 
-QComboBox::down-arrow,QComboBox::down-arrow:on,QComboBox::down-arrow:hover,QComboBox::down-arrow:focus,QAbstractSpinBox::down-arrow:hover,QToolButton::menu-arrow,QHeaderView::down-arrow,QSpinBox::down-arrow:hover,QHeaderView::down-arrow,QComboBox::down-arrow:on,QComboBox::down-arrow:hover,QComboBox::down-arrow:focus,QAbstractSpinBox::down-arrow:hover,QToolButton::menu-arrow
+QAbstractSpinBox::down-arrow:hover,QToolButton::menu-arrow,QHeaderView::down-arrow,QSpinBox::down-arrow:hover,QHeaderView::down-arrow
 {
   image:url(:/qss_icons/rc/down_arrow.png);
 }
@@ -715,3 +718,24 @@ QHeaderView::up-arrow,QAbstractSpinBox::up-arrow:hover,QHeaderView::up-arrow
 {
   image:url(:/qss_icons/rc/up_arrow.png);
 }
+
+QComboBox::down-arrow,QComboBox::down-arrow:on,QComboBox::down-arrow:hover,QComboBox::down-arrow:focus {
+ image:url(:/qss_icons/rc/down_arrow_combo.png);
+  width: 14px;
+  height: 14px;
+}
+
+QSpinBox::down-arrow,QSpinBox::down-arrow:on,QSpinBox::down-arrow:hover,QSpinBox::down-arrow:focus {
+  image:url(:/qss_icons/rc/down_arrow_combo.png);
+  border-width: 0px;
+ }
+ 
+ QSpinBox::up-arrow,QSpinBox::up-arrow:on,QSpinBox::up-arrow:hover,QSpinBox::up-arrow:focus {
+  image:url(:/qss_icons/rc/up_arrow_combo.png);
+  border-width: 0px;
+ }
+
+QLineEdit, QLineEdit[text=""] {
+  color: #00304d;
+}
+

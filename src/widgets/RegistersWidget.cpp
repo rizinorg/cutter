@@ -75,7 +75,7 @@ void RegistersWidget::setRegisterGrid()
         }
         // decide to highlight QLine Box in case of change of register value
         if (regValue != registerEditValue->text() && registerEditValue->text() != 0) {
-            registerEditValue->setStyleSheet("QLineEdit {border: 1px solid green;} QLineEdit:hover { border: 1px solid #3daee9; color: #eff0f1;}");
+            registerEditValue->setStyleSheet("border: 1px solid green;");
         } else {
             // reset stylesheet
             registerEditValue->setStyleSheet("");
