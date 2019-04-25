@@ -1,15 +1,19 @@
 #ifndef CONSOLEWIDGET_H
 #define CONSOLEWIDGET_H
 
-#include <memory>
 #include "core/MainWindow.h"
 #include "CutterDockWidget.h"
 #include "common/CommandTask.h"
 
+#include <QStringListModel>
+
+#include <memory>
+
+class QCompleter;
+
 namespace Ui {
 class ConsoleWidget;
 }
-
 
 class ConsoleWidget : public CutterDockWidget
 {
@@ -48,6 +52,8 @@ private slots:
     void historyNext();
     void historyPrev();
 
+    void updateCompletion();
+
     void clear();
 
 private:
@@ -66,6 +72,8 @@ private:
     int maxHistoryEntries;
     int lastHistoryPosition;
     QStringList history;
+    QStringListModel completionModel;
+    QCompleter *completer;
 };
 
 #endif // CONSOLEWIDGET_H

@@ -70,6 +70,8 @@ public:
         return parseJson(res, cmd.isNull() ? nullptr : cmd.toLocal8Bit().constData());
     }
 
+    QStringList autocomplete(const QString &cmd, RLinePromptType promptType, size_t limit = 4096);
+
     /* Functions methods */
     void renameFunction(const QString &oldName, const QString &newName);
     void delFunction(RVA addr);
