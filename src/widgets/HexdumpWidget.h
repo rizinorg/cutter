@@ -53,6 +53,7 @@ public slots:
 
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
+    void zoomReset();
     void toggleSync();
 
 protected:
@@ -102,6 +103,7 @@ private:
     int hexAddressToPosition(RVA address);
     int asciiAddressToPosition(RVA address);
     void updateWidths();
+    void syncScale();
 
     void updateParseWindow(RVA start_address, int size);
     void clearParseWindow();
@@ -113,6 +115,7 @@ private:
     HexdumpRangeDialog  rangeDialog;
     QAction syncAction;
     CutterSeekable *seekable;
+    qreal defaultFontSize;
 
 private slots:
     void onSeekChanged(RVA addr);

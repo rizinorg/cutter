@@ -133,6 +133,10 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
     connect(&rangeDialog, &QDialog::accepted, this, &HexdumpWidget::on_rangeDialogAccepted);
 
+    addAction(ui->actionResetZoom);
+    connect(ui->actionResetZoom, &QAction::triggered, this, &HexdumpWidget::zoomReset);
+    defaultFontSize = ui->hexHexText->font().pointSizeF();
+
     format = Format::Hex;
     initParsing();
     selectHexPreview();
@@ -1103,11 +1107,7 @@ void HexdumpWidget::wheelEvent(QWheelEvent *event)
         if (!numDegrees.isNull()) {
             const QPoint numSteps = numDegrees / 15;
             if ( 0 != numSteps.y() ) {
-                if (numSteps.y() > 0) {
-                    zoomIn(1);
-                } else if ( numSteps.y() < 0 ) {
-                    zoomOut(1);
-                }
+                zoomIn(numSteps.y() > 0 ? 1 : -1);
             }
         }
         event->accept();
@@ -1196,20 +1196,21 @@ void HexdumpWidget::showOffsets(bool show)
 
 void HexdumpWidget::zoomIn(int range)
 {
-    ui->hexOffsetText->zoomIn(range);
-    ui->hexASCIIText->zoomIn(range);
     ui->hexHexText->zoomIn(range);
-
-    updateWidths();
+    syncScale();
 }
 
 void HexdumpWidget::zoomOut(int range)
 {
-    ui->hexOffsetText->zoomOut(range);
-    ui->hexASCIIText->zoomOut(range);
-    ui->hexHexText->zoomOut(range);
+    zoomIn(-range);
+}
 
-    updateWidths();
+void HexdumpWidget::zoomReset()
+{
+    QFont font(ui->hexHexText->font());
+    font.setPointSizeF(defaultFontSize);
+    ui->hexHexText->setFont(font);
+    syncScale();
 }
 
 void HexdumpWidget::updateWidths()
@@ -1219,8 +1220,18 @@ void HexdumpWidget::updateWidths()
     ui->hexHexText->document()->setTextWidth(idealWidth);
 
     ui->hexOffsetText->document()->adjustSize();
-    ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width());
+    ui->hexOffsetText->setFixedWidth(ui->hexOffsetText->document()->size().width() + 1);
 
     ui->hexASCIIText->document()->adjustSize();
     ui->hexASCIIText->setMinimumWidth(ui->hexASCIIText->document()->size().width());
+}
+
+void HexdumpWidget::syncScale()
+{
+    ui->hexOffsetText->setFont(ui->hexHexText->font());
+    ui->hexASCIIText->setFont(ui->hexHexText->font());
+    ui->offsetHeaderLabel->setFont(ui->hexHexText->font());
+    ui->hexHeaderLabel->setFont(ui->hexHexText->font());
+    ui->asciiHeaderLabel->setFont(ui->hexHexText->font());
+    updateWidths();
 }
