@@ -118,8 +118,7 @@ void PreferencesDialog::chooseThemeIcons()
     };
     QList<QPair<void*, QString>> supportedIconsNames;
 
-    foreach(const auto &p, kCategoryIconsNames)
-    {
+    foreach (const auto &p, kCategoryIconsNames) {
         QList<QTreeWidgetItem *> items = ui->configCategories->findItems(p.first, Qt::MatchContains|Qt::MatchRecursive, 0);
 		if (items.isEmpty()) {
 			continue;
@@ -128,8 +127,8 @@ void PreferencesDialog::chooseThemeIcons()
     }
 
     // Set the correct icon for the QAction
-	qhelpers::setThemeIcons(supportedIconsNames, [](void *obj, const QIcon &icon) {
-		// here we have our setter functor, in this case it is almost "unique" because it specified the column in `setIcon` call
-		static_cast<QTreeWidgetItem*>(obj)->setIcon(0, icon);
+    qhelpers::setThemeIcons(supportedIconsNames, [](void *obj, const QIcon &icon) {
+        // here we have our setter functor, in this case it is almost "unique" because it specified the column in `setIcon` call
+        static_cast<QTreeWidgetItem*>(obj)->setIcon(0, icon);
 	});
 }
