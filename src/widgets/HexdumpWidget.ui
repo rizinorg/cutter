@@ -764,6 +764,14 @@
     <string>Copy Text</string>
    </property>
   </action>
+  <action name="actionCopyAddressAtCursor">
+   <property name="text">
+    <string>Copy Address</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy Address at Cursor</string>
+   </property>
+  </action>
   <action name="action1column">
    <property name="text">
     <string>1</string>

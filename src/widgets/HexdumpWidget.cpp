@@ -13,6 +13,7 @@
 #include <QClipboard>
 #include <QScrollBar>
 #include <QInputDialog>
+#include <QShortcut>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
@@ -36,6 +37,11 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     // Setup hex highlight
     //connect(ui->hexHexText, SIGNAL(cursorPositionChanged()), this, SLOT(highlightHexCurrentLine()));
     //highlightHexCurrentLine();
+
+    auto cpyAddrShortcut = new QShortcut(QKeySequence{Qt::CTRL + Qt::SHIFT + Qt::Key_C}, this);
+    cpyAddrShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    ui->actionCopyAddressAtCursor->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
+    connect(cpyAddrShortcut, &QShortcut::activated, this, &HexdumpWidget::on_actionCopyAddressAtCursor_triggered);
 
     ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
     ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));
@@ -621,6 +627,11 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
     // Set Hexdump popup menu
     QMenu *menu = ui->hexHexText->createStandardContextMenu();
     menu->clear();
+
+    menu->addAction(ui->actionCopyAddressAtCursor);
+
+    menu->addSeparator();
+
     /*menu->addAction(ui->actionHexCopy_Hexpair);
     menu->addAction(ui->actionHexCopy_ASCII);
     menu->addAction(ui->actionHexCopy_Text);
@@ -982,6 +993,14 @@ void HexdumpWidget::scrollChanged()
 /*
  * Actions callback functions
  */
+
+void HexdumpWidget::on_actionCopyAddressAtCursor_triggered()
+{
+    auto addr = hexPositionToAddress(ui->hexHexText->textCursor().position());
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(RAddressString(addr));
+}
 
 void HexdumpWidget::on_actionHideHexdump_side_panel_triggered()
 {
