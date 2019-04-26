@@ -73,8 +73,14 @@ if(CUTTER_ENABLE_PYTHON)
 
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
         find_package(PythonInterp REQUIRED)
-        find_package(Shiboken2 "${Qt5_VERSION}" REQUIRED)
-        find_package(PySide2 "${Qt5_VERSION}" REQUIRED)
+        # 5.12.3 => 5.12
+        if("${Qt5_VERSION}" MATCHES "^([0-9]+\\.[0-9]+)\\.[0-9]+")
+            set(Shiboken2_VERSION_REQUIRED "${CMAKE_MATCH_1}")
+        else()
+            message(FATAL_ERROR "Failed to recognize Qt version")
+        endif()
+        find_package(Shiboken2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
+        find_package(PySide2 "${Shiboken2_VERSION_REQUIRED}" REQUIRED)
 
         get_target_property(PYSIDE_INCLUDE_DIR PySide2::pyside2 INTERFACE_INCLUDE_DIRECTORIES)
         list(GET PYSIDE_INCLUDE_DIR 0 PYSIDE_INCLUDE_DIR)
