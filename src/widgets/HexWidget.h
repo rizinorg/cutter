@@ -233,6 +233,7 @@ private:
     bool showExHex;
     bool showExAddr;
 
+    QColor borderColor;
     QColor backgroundColor;
     QColor defColor;
     QColor addrColor;

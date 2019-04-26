@@ -180,6 +180,7 @@ void HexWidget::onSeekChanged(uint64_t addr)
 
 void HexWidget::updateColors()
 {
+    borderColor = Config()->getColor("gui.border");
     backgroundColor = Config()->getColor("gui.background");
     b0x00Color = Config()->getColor("b0x00");
     b0x7fColor = Config()->getColor("b0x7f");
@@ -462,7 +463,7 @@ void HexWidget::drawAddrArea(QPainter &painter)
         painter.drawText(strRect, Qt::AlignVCenter, addrString);
     }
 
-    painter.setPen(defColor);
+    painter.setPen(borderColor);
 
     int vLineOffset = itemArea.left() - charWidth;
     painter.drawLine(vLineOffset, 0, vLineOffset, viewport()->height());
@@ -501,7 +502,7 @@ void HexWidget::drawItemArea(QPainter &painter)
         itemRect.translate(0, lineHeight);
     }
 
-    painter.setPen(defColor);
+    painter.setPen(borderColor);
 
     int vLineOffset = asciiArea.left() - charWidth;
     painter.drawLine(vLineOffset, 0, vLineOffset, viewport()->height());
