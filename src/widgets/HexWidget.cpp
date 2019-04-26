@@ -559,33 +559,35 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
         return;
     }
 
+    /* Convert absolute values to relative */
     startOffset = std::max(selection.start(), startAddress) - startAddress;
     endOffset = std::min(selection.end(), startAddress + bytesPerScreen()) - startAddress;
 
-    int startOffset2 = (startOffset + (itemRowByteLen() - 1)) & ~(itemRowByteLen() - 1);
+    /* Align values */
+    int startOffset2 = (startOffset + itemRowByteLen()) & ~(itemRowByteLen() - 1);
     int endOffset2 = endOffset & ~(itemRowByteLen() - 1);
+
+    /* Fill top/bottom parts */
     if (startOffset2 <= endOffset2) {
-        /* Fill top piece if exists */
-        if (startOffset != startOffset2) {
-            rect = ascii ? asciiRectangle(startOffset) : itemRectangle(startOffset);
-            rect.setRight(area->right());
-            painter.fillRect(rect, Qt::blue);
-        }
-        /* Fill bottom piece if exists */
-        //if (selEndOffset != selEndOffset2) {
-            rect = ascii ? asciiRectangle(endOffset) : itemRectangle(endOffset);
-            rect.setLeft(ascii ? asciiArea.left() : itemArea.left());
-            painter.fillRect(rect, Qt::blue);
-        //}
-        --endOffset2; // need to properly fill main mody
+        /* Fill the top part even if it's a whole line */
+        rect = ascii ? asciiRectangle(startOffset) : itemRectangle(startOffset);
+        rect.setRight(area->right());
+        painter.fillRect(rect, Qt::blue);
+        /* Fill the bottom part even if it's a whole line */
+        rect = ascii ? asciiRectangle(endOffset) : itemRectangle(endOffset);
+        rect.setLeft(area->left());
+        painter.fillRect(rect, Qt::blue);
+        /* Required for calculating the bottomRight() of the main part */
+        --endOffset2;
     } else {
         startOffset2 = startOffset;
         endOffset2 = endOffset;
     }
-    /* Fill main body */
+
+    /* Fill the main part */
     if (startOffset2 <= endOffset2) {
         rect = ascii ? asciiRectangle(startOffset2) : itemRectangle(startOffset2);
-        rect.setBottomRight(ascii ? asciiRectangle(endOffset2).bottomRight() : asciiRectangle(endOffset2).bottomRight());
+        rect.setBottomRight(ascii ? asciiRectangle(endOffset2).bottomRight() : itemRectangle(endOffset2).bottomRight());
         painter.fillRect(rect, Qt::blue); // FIXME: honor colortheme
     }
 }
