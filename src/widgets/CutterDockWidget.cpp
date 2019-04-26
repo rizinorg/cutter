@@ -68,6 +68,9 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
         this->action->setChecked(false);
     }
     QDockWidget::closeEvent(event);
+    if (isTransient) {
+        deleteLater();
+    }
 }
 
 QAction *CutterDockWidget::getBoundAction() const

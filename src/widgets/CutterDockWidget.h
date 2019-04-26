@@ -18,6 +18,12 @@ public:
     bool isVisibleToUser()      { return isVisibleToUserCurrent; }
 
     /**
+     * @brief Set whether the Widget should be deleted after it is closed.
+     * This is especially important for extra widgets.
+     */
+    void setTransient(bool v)   { isTransient = v; }
+
+    /**
      * @brief Convenience method for creating and registering a RefreshDeferrer without any parameters
      * @param refreshNowFunc lambda taking no parameters, called when a refresh should occur
      */
@@ -63,6 +69,8 @@ protected:
 
 private:
     QAction *action;
+
+    bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();

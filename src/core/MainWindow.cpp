@@ -315,24 +315,25 @@ void MainWindow::updateTasksIndicator()
 
 void MainWindow::on_actionExtraGraph_triggered()
 {
-    QDockWidget *extraDock = new GraphWidget(this, 0);
+    auto *extraDock = new GraphWidget(this, nullptr);
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraHexdump_triggered()
 {
-    QDockWidget *extraDock = new HexdumpWidget(this, 0);
+    auto *extraDock = new HexdumpWidget(this, nullptr);
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraDisassembly_triggered()
 {
-    QDockWidget *extraDock = new DisassemblyWidget(this, 0);
+    auto *extraDock = new DisassemblyWidget(this, nullptr);
     addExtraWidget(extraDock);
 }
 
-void MainWindow::addExtraWidget(QDockWidget *extraDock)
+void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
 {
+    extraDock->setTransient(true);
     addDockWidget(Qt::TopDockWidgetArea, extraDock);
     auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
     qApp->processEvents();
