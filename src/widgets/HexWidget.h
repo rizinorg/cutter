@@ -90,6 +90,7 @@ public:
 
 public slots:
     void onSeekChanged(uint64_t addr);
+    void updateColors();
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -232,12 +233,13 @@ private:
     bool showExHex;
     bool showExAddr;
 
-    const QColor defColor;
-    const QColor addrColor;
-    const QColor b0x00Color;
-    const QColor b0x7fColor;
-    const QColor b0xffColor;
-    const QColor printableColor;
+    QColor backgroundColor;
+    QColor defColor;
+    QColor addrColor;
+    QColor b0x00Color;
+    QColor b0x7fColor;
+    QColor b0xffColor;
+    QColor printableColor;
 
     MemoryCache memCache;
 
