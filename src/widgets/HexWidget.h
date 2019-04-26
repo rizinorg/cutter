@@ -32,39 +32,40 @@ struct MemoryCache {
 class HexSelection
 {
 public:
-    HexSelection() { _empty = true; }
-
-    uint64_t begin;
-    uint64_t end;
+    HexSelection() { m_empty = true; }
 
     inline void init(uint64_t addr)
     {
-        _empty = true;
-        _init = addr;
+        m_empty = true;
+        m_init = addr;
     }
 
     void update(uint64_t addr)
     {
-        _empty = false;
-        if (addr >= _init) {
-            begin = _init;
-            end = addr;
+        m_empty = false;
+        if (addr >= m_init) {
+            m_start = m_init;
+            m_end = addr;
         } else {
-            begin = addr;
-            end = _init;
+            m_start = addr;
+            m_end = m_init;
         }
     }
 
     bool intersects(uint64_t start, uint64_t end)
     {
-        return !_empty && !(this->end <= start || this->begin >= end);
+        return !m_empty && !(m_end <= start || m_start >= end);
     }
 
-    inline bool isEmpty() { return _empty; }
+    inline bool isEmpty() { return m_empty; }
+    inline uint64_t start() { return m_start; }
+    inline uint64_t end() { return m_end; }
 
 private:
-    uint64_t _init;
-    bool _empty;
+    uint64_t m_init;
+    uint64_t m_start;
+    uint64_t m_end;
+    bool m_empty;
 };
 
 class HexWidget : public QScrollArea
@@ -173,7 +174,7 @@ private:
 
     inline int bytesPerScreen() const
     {
-        return itemRowByteLen() * rowCount;
+        return itemRowByteLen() * visibleLines;
     }
 
     inline int itemRowWidth() const
@@ -218,11 +219,11 @@ private:
 
     bool itemBigEndian;
 
-    int rowCount;
-    uint64_t startAddr;
+    int visibleLines;
+    uint64_t startAddress;
     int charWidth;
     int byteWidth;
-    int rowHeight;
+    int lineHeight;
     int addrCharLen;
     int addrAreaWidth;
 

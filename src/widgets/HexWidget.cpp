@@ -77,7 +77,7 @@ HexWidget::HexWidget(QWidget *parent) :
     updateMetrics();
     updateItemLength();
 
-    startAddr = 0ULL;
+    startAddress = 0ULL;
     cursor.addr = 0ULL;
     updateDataCache();
     updateCursorMeta();
@@ -279,9 +279,9 @@ void HexWidget::wheelEvent(QWheelEvent *event)
     if (dy > 0)
         delta = -delta;
     if (dy != 0) {
-        startAddr += delta;
+        startAddress += delta;
         updateDataCache();
-        if (cursor.addr >= startAddr && cursor.addr <= (startAddr + bytesPerScreen())) {
+        if (cursor.addr >= startAddress && cursor.addr <= (startAddress + bytesPerScreen())) {
             /* Don't enable cursor blinking if selection isn't empty */
             if (selection.isEmpty())
                 cursorEnabled = true;
@@ -304,9 +304,9 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
     } else if (event->matches(QKeySequence::MoveToPreviousChar)) {
         moveCursor(-itemByteLen);
     } else if (event->matches(QKeySequence::MoveToNextPage)) {
-        moveCursor(rowCount * itemRowByteLen());
+        moveCursor(visibleLines * itemRowByteLen());
     } else if (event->matches(QKeySequence::MoveToPreviousPage)) {
-        moveCursor(rowCount * itemRowByteLen());
+        moveCursor(visibleLines * itemRowByteLen());
     }
     //viewport()->update();
 }
@@ -432,12 +432,12 @@ void HexWidget::drawCursor(QPainter &painter, bool shadow)
 
 void HexWidget::drawAddrArea(QPainter &painter)
 {
-    uint64_t offset = startAddr;
+    uint64_t offset = startAddress;
     QString addrString;
-    QRect strRect(addrArea.topLeft(), QSize((addrCharLen + (showExAddr ? 2 : 0)) * charWidth, rowHeight));
+    QRect strRect(addrArea.topLeft(), QSize((addrCharLen + (showExAddr ? 2 : 0)) * charWidth, lineHeight));
 
     painter.setPen(addrColor);
-    for (int line = 0; line < rowCount; ++line, strRect.translate(0, rowHeight), offset += itemRowByteLen()) {
+    for (int line = 0; line < visibleLines; ++line, strRect.translate(0, lineHeight), offset += itemRowByteLen()) {
         addrString = QString("%1").arg(offset, addrCharLen, 16, QLatin1Char('0'));
         if (showExAddr)
             addrString.prepend(hexPrefix);
@@ -452,27 +452,27 @@ void HexWidget::drawAddrArea(QPainter &painter)
 
 void HexWidget::drawItemArea(QPainter &painter)
 {
-    QRect itemRect(itemArea.topLeft(), QSize(itemWidth(), rowHeight));
+    QRect itemRect(itemArea.topLeft(), QSize(itemWidth(), lineHeight));
     QColor itemColor;
     QString itemString;
     int itemOffset;
 
     fillSelectionBackground(painter);
 
-    int selBeginOffset = -1;
+    int selStartOffset = -1;
     int selEndOffset = -1;
-    if (selection.intersects(startAddr, startAddr + bytesPerScreen())) {
-        selBeginOffset = std::max(selection.begin, startAddr) - startAddr;
-        selEndOffset = std::min(selection.end, startAddr + bytesPerScreen()) - startAddr;
+    if (selection.intersects(startAddress, startAddress + bytesPerScreen())) {
+        selStartOffset = std::max(selection.start(), startAddress) - startAddress;
+        selEndOffset = std::min(selection.end(), startAddress + bytesPerScreen()) - startAddress;
     }
 
     itemOffset = 0;
-    for (int i = 0; i < rowCount; ++i) {
+    for (int i = 0; i < visibleLines; ++i) {
         itemRect.moveLeft(itemArea.left());
         for (int j = 0; j < itemColumns; ++j) {
             for (int k = 0; k < itemGroupSize; ++k, itemOffset += itemByteLen) {
                 itemString = renderItem(itemOffset, &itemColor);
-                if (!selection.isEmpty() && itemOffset >= selBeginOffset && itemOffset <= selEndOffset)
+                if (!selection.isEmpty() && itemOffset >= selStartOffset && itemOffset <= selEndOffset)
                     itemColor = Qt::white; // FIXME: honor colortheme
                 painter.setPen(itemColor);
                 painter.drawText(itemRect, Qt::AlignVCenter, itemString);
@@ -480,7 +480,7 @@ void HexWidget::drawItemArea(QPainter &painter)
             }
             itemRect.translate(columnSpacingWidth(), 0);
         }
-        itemRect.translate(0, rowHeight);
+        itemRect.translate(0, lineHeight);
     }
 
     painter.setPen(defColor);
@@ -491,7 +491,7 @@ void HexWidget::drawItemArea(QPainter &painter)
 
 void HexWidget::drawAsciiArea(QPainter &painter)
 {
-    QRect charRect(asciiArea.topLeft(), QSize(charWidth, rowHeight));
+    QRect charRect(asciiArea.topLeft(), QSize(charWidth, lineHeight));
 
     fillSelectionBackground(painter, true);
 
@@ -499,15 +499,15 @@ void HexWidget::drawAsciiArea(QPainter &painter)
     int selBeginOffset = -1;
     int selEndOffset = -1;
 
-    if (selection.intersects(startAddr, startAddr + bytesPerScreen())) {
-        selBeginOffset = std::max(selection.begin, startAddr) - startAddr;
-        selEndOffset = std::min(selection.end, startAddr + bytesPerScreen()) - startAddr;
+    if (selection.intersects(startAddress, startAddress + bytesPerScreen())) {
+        selBeginOffset = std::max(selection.start(), startAddress) - startAddress;
+        selEndOffset = std::min(selection.end(), startAddress + bytesPerScreen()) - startAddress;
     }
 
     int byteId = 0;
     QChar ascii;
     QColor color;
-    for (int line = 0; line < rowCount; ++line, charRect.translate(0, rowHeight)) {
+    for (int line = 0; line < visibleLines; ++line, charRect.translate(0, lineHeight)) {
         charRect.moveLeft(asciiArea.left());
         for (int j = 0; j < itemRowByteLen(); ++j, ++byteId) {
             ascii = renderAscii(byteId, &color);
@@ -531,16 +531,17 @@ void HexWidget::drawAsciiArea(QPainter &painter)
 void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
 {
     QRect rect;
+    const QRect *area = ascii ? &asciiArea : &itemArea;
 
     int startOffset = -1;
     int endOffset = -1;
 
-    if (!selection.intersects(startAddr, startAddr + bytesPerScreen())) {
+    if (!selection.intersects(startAddress, startAddress + bytesPerScreen())) {
         return;
     }
 
-    startOffset = std::max(selection.begin, startAddr) - startAddr;
-    endOffset = std::min(selection.end, startAddr + bytesPerScreen()) - startAddr;
+    startOffset = std::max(selection.start(), startAddress) - startAddress;
+    endOffset = std::min(selection.end(), startAddress + bytesPerScreen()) - startAddress;
 
     int startOffset2 = (startOffset + (itemRowByteLen() - 1)) & ~(itemRowByteLen() - 1);
     int endOffset2 = endOffset & ~(itemRowByteLen() - 1);
@@ -548,7 +549,7 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
         /* Fill top piece if exists */
         if (startOffset != startOffset2) {
             rect = ascii ? asciiRectangle(startOffset) : itemRectangle(startOffset);
-            rect.setRight(ascii ? asciiArea.right() : itemArea.right());
+            rect.setRight(area->right());
             painter.fillRect(rect, Qt::blue);
         }
         /* Fill bottom piece if exists */
@@ -572,8 +573,8 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
 
 void HexWidget::updateMetrics()
 {
-    rowHeight = fontMetrics().height();
-    charWidth = fontMetrics().width('F');
+    lineHeight = fontMetrics().height();
+    charWidth = fontMetrics().width(QLatin1Char('F'));
 
     updateAreasPosition();
     updateAreasHeight();
@@ -581,8 +582,8 @@ void HexWidget::updateMetrics()
     int cursorWidth = charWidth / 3;
     if (cursorWidth == 0)
         cursorWidth = 1;
-    cursor.screenPos.setHeight(rowHeight);
-    shadowCursor.screenPos.setHeight(rowHeight);
+    cursor.screenPos.setHeight(lineHeight);
+    shadowCursor.screenPos.setHeight(lineHeight);
 
     cursor.screenPos.setWidth(cursorWidth);
     if (cursorOnAscii) {
@@ -620,9 +621,9 @@ void HexWidget::updateAreasPosition()
 
 void HexWidget::updateAreasHeight()
 {
-    rowCount = viewport()->height() / rowHeight;
+    visibleLines = viewport()->height() / lineHeight;
 
-    int height = rowCount * rowHeight;
+    int height = visibleLines * lineHeight;
     addrArea.setHeight(height);
     itemArea.setHeight(height);
     asciiArea.setHeight(height);
@@ -644,16 +645,16 @@ void HexWidget::setCursorAddr(uint64_t addr)
     cursorEnabled = false;
 
     /* Update data cache if necessary */
-    if (!(addr >= startAddr && addr < (startAddr + bytesPerScreen()))) {
+    if (!(addr >= startAddress && addr < (startAddress + bytesPerScreen()))) {
         /* Align start address */
         if (itemRowByteLen() != 1)
             addr -= addr % itemRowByteLen();
 
         /* FIXME: handling Page Up/Down */
-        if (addr == startAddr + bytesPerScreen()) {
-            startAddr += itemRowByteLen();
+        if (addr == startAddress + bytesPerScreen()) {
+            startAddress += itemRowByteLen();
         } else {
-            startAddr = addr;
+            startAddress = addr;
         }
 
         //FIXME: handle end of address space
@@ -676,12 +677,12 @@ void HexWidget::updateCursorMeta()
     QPoint point;
     QPoint pointAscii;
 
-    int offset = cursor.addr - startAddr;
+    int offset = cursor.addr - startAddress;
     int itemOffset = offset;
     int asciiOffset;
 
     /* Calc common Y coordinate */
-    point.ry() = (itemOffset / itemRowByteLen()) * rowHeight;
+    point.ry() = (itemOffset / itemRowByteLen()) * lineHeight;
     pointAscii.setY(point.y());
     itemOffset %= itemRowByteLen();
     asciiOffset = itemOffset;
@@ -837,8 +838,8 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
 void HexWidget::updateDataCache()
 {
     // FIXME: reuse data if possible
-    uint64_t alignedAddr = startAddr & ~(4096ULL - 1);
-    int offset = startAddr - alignedAddr;
+    uint64_t alignedAddr = startAddress & ~(4096ULL - 1);
+    int offset = startAddress - alignedAddr;
     int len = (offset + bytesPerScreen() + (4096 - 1)) & ~(4096 - 1);
     memCache.firstBlockAddr = alignedAddr;
     memCache.firstBlockOffset = offset;
@@ -851,10 +852,10 @@ void HexWidget::updateDataCache()
 
 uint64_t HexWidget::screenPosToAddr(const QPoint &point)
 {
-    uint64_t addr = startAddr;
+    uint64_t addr = startAddress;
     QPoint pt = point - itemArea.topLeft();
 
-    addr += (pt.y() / rowHeight) * itemRowByteLen();
+    addr += (pt.y() / lineHeight) * itemRowByteLen();
 
     addr += (pt.x() / columnExWidth()) * itemGroupByteLen();
     pt.rx() %= columnExWidth();
@@ -868,7 +869,7 @@ QRect HexWidget::itemRectangle(uint offset)
     int x;
     int y;
 
-    y = (offset / itemRowByteLen()) * rowHeight;
+    y = (offset / itemRowByteLen()) * lineHeight;
     offset %= itemRowByteLen();
 
     x = (offset / itemGroupByteLen()) * columnExWidth();
@@ -878,7 +879,7 @@ QRect HexWidget::itemRectangle(uint offset)
     x += itemArea.x();
     y += itemArea.y();
 
-    return QRect(x, y, itemWidth(), rowHeight);
+    return QRect(x, y, itemWidth(), lineHeight);
 }
 
 QRect HexWidget::asciiRectangle(uint offset)
@@ -886,7 +887,7 @@ QRect HexWidget::asciiRectangle(uint offset)
     int x;
     int y;
 
-    y = (offset / itemRowByteLen()) * rowHeight;
+    y = (offset / itemRowByteLen()) * lineHeight;
     offset %= itemRowByteLen();
 
     x = offset * charWidth;
@@ -894,7 +895,7 @@ QRect HexWidget::asciiRectangle(uint offset)
     x += asciiArea.x();
     y += asciiArea.y();
 
-    return QRect(x, y, charWidth, rowHeight);
+    return QRect(x, y, charWidth, lineHeight);
 }
 
 const void *MemoryCache::dataPtr(int offset)
