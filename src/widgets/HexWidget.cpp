@@ -736,7 +736,7 @@ void HexWidget::updateCursorMeta()
     }
 }
 
-const QColor &HexWidget::itemColor(uint8_t byte)
+const QColor HexWidget::itemColor(uint8_t byte)
 {
     QColor color(defColor);
 
