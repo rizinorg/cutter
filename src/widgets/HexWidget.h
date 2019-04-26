@@ -119,7 +119,7 @@ private:
     void moveCursor(int offset);
     void setCursorAddr(uint64_t addr);
     void updateCursorMeta();
-    const QColor &itemColor(uint8_t byte);
+    const QColor itemColor(uint8_t byte);
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
