@@ -1,5 +1,6 @@
 #include "HexWidget.h"
 #include "Cutter.h"
+#include "Configuration.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -18,11 +19,6 @@ HexWidget::HexWidget(QWidget *parent) :
     showExHex(true),
     showAscii(true),
     itemBigEndian(false),
-    addrColor(Qt::green),
-    b0x00Color(Qt::green),
-    b0x7fColor(Qt::darkCyan),
-    b0xffColor(Qt::darkRed),
-    printableColor("orange"),
     cursorOnAscii(false),
     cursorEnabled(true),
     itemByteLen(1),
@@ -85,6 +81,8 @@ HexWidget::HexWidget(QWidget *parent) :
     connect(&cursor.blinkTimer, &QTimer::timeout, this, &HexWidget::onCursorBlinked);
     cursor.setBlinkPeriod(1000);
     cursor.startBlinking();
+
+    updateColors();
 }
 
 HexWidget::~HexWidget()
@@ -180,6 +178,20 @@ void HexWidget::onSeekChanged(uint64_t addr)
     setCursorAddr(addr);
 }
 
+void HexWidget::updateColors()
+{
+    backgroundColor = Config()->getColor("gui.background");
+    b0x00Color = Config()->getColor("b0x00");
+    b0x7fColor = Config()->getColor("b0x7f");
+    b0xffColor = Config()->getColor("b0xff");
+    printableColor = Config()->getColor("ai.write");
+    defColor = Config()->getColor("btext");
+    addrColor = Config()->getColor("func_var_addr");
+
+    updateCursorMeta();
+    viewport()->update();
+}
+
 void HexWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(viewport());
@@ -194,7 +206,7 @@ void HexWidget::paintEvent(QPaintEvent *event)
         return;
     }
 
-    painter.fillRect(event->rect().translated(xOffset, 0), QColor("white"));
+    painter.fillRect(event->rect().translated(xOffset, 0), backgroundColor);
 
     drawAddrArea(painter);
     drawItemArea(painter);
@@ -422,7 +434,7 @@ void HexWidget::drawCursor(QPainter &painter, bool shadow)
     painter.setPen(cursor.cachedColor);
     QRect charRect(cursor.screenPos);
     charRect.setWidth(charWidth);
-    painter.fillRect(charRect, QColor("white")); // FIXME: honor colortheme
+    painter.fillRect(charRect, backgroundColor);
     painter.drawText(charRect, Qt::AlignVCenter, cursor.cachedString.at(0));
     if (cursor.isVisible) {
         painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
