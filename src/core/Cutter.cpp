@@ -333,6 +333,29 @@ QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
     return doc;
 }
 
+QStringList CutterCore::autocomplete(const QString &cmd, RLinePromptType promptType, size_t limit)
+{
+    RLineBuffer buf;
+    int c = snprintf(buf.data, sizeof(buf.data), "%s", cmd.toUtf8().constData());
+    if (c < 0) {
+        return {};
+    }
+    buf.index = buf.length = std::min((int)(sizeof(buf.data) - 1), c);
+
+    RLineCompletion completion;
+    r_line_completion_init(&completion, limit);
+    r_core_autocomplete(core(), &completion, &buf, promptType);
+
+    QStringList r;
+    r.reserve(r_pvector_len(&completion.args));
+    for (size_t i = 0; i< r_pvector_len(&completion.args); i++) {
+        r.push_back(QString::fromUtf8(reinterpret_cast<const char *>(r_pvector_at(&completion.args, i))));
+    }
+
+    r_line_completion_fini(&completion);
+    return r;
+}
+
 /**
  * @brief CutterCore::loadFile
  * Load initial file. TODO Maybe use the "o" commands?
