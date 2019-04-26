@@ -74,7 +74,7 @@ HexWidget::HexWidget(QWidget *parent) :
     updateItemLength();
 
     startAddress = 0ULL;
-    cursor.addr = 0ULL;
+    cursor.address = 0ULL;
     updateDataCache();
     updateCursorMeta();
 
@@ -272,7 +272,7 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton && itemArea.contains(pos)) {
         updatingSelection = true;
         setCursorAddr(screenPosToAddr(pos));
-        selection.init(cursor.addr);
+        selection.init(cursor.address);
         viewport()->update();
     }
 }
@@ -287,22 +287,28 @@ void HexWidget::mouseReleaseEvent(QMouseEvent *event)
 void HexWidget::wheelEvent(QWheelEvent *event)
 {
     int dy = event->delta();
-    uint64_t delta = 3 * itemRowByteLen();
+    int64_t delta = 3 * itemRowByteLen();
     if (dy > 0)
         delta = -delta;
-    if (dy != 0) {
+
+    if (dy == 0)
+        return;
+
+    if (delta < 0 && startAddress < -delta) {
+        startAddress = 0;
+    } else {
         startAddress += delta;
-        updateDataCache();
-        if (cursor.addr >= startAddress && cursor.addr <= (startAddress + bytesPerScreen())) {
-            /* Don't enable cursor blinking if selection isn't empty */
-            if (selection.isEmpty())
-                cursorEnabled = true;
-            updateCursorMeta();
-        } else {
-            cursorEnabled = false;
-        }
-        viewport()->update();
     }
+    updateDataCache();
+    if (cursor.address >= startAddress && cursor.address <= (startAddress + bytesPerScreen())) {
+        /* Don't enable cursor blinking if selection isn't empty */
+        if (selection.isEmpty())
+            cursorEnabled = true;
+        updateCursorMeta();
+    } else {
+        cursorEnabled = false;
+    }
+    viewport()->update();
 }
 
 void HexWidget::keyPressEvent(QKeyEvent *event)
@@ -643,15 +649,17 @@ void HexWidget::updateAreasHeight()
 
 void HexWidget::moveCursor(int offset)
 {
-    // FIXME: check on zero
-    uint64_t addr = cursor.addr + offset;
+    if (offset < 0 && cursor.address < abs(offset)) {
+        return;
+    }
+    uint64_t addr = cursor.address + offset;
     setCursorAddr(addr);
 }
 
 void HexWidget::setCursorAddr(uint64_t addr)
 {
-    uint64_t prevAddr = cursor.addr;
-    cursor.addr = addr;
+    uint64_t prevAddr = cursor.address;
+    cursor.address = addr;
 
     /* Pause cursor repainting */
     cursorEnabled = false;
@@ -689,7 +697,7 @@ void HexWidget::updateCursorMeta()
     QPoint point;
     QPoint pointAscii;
 
-    int offset = cursor.addr - startAddress;
+    int offset = cursor.address - startAddress;
     int itemOffset = offset;
     int asciiOffset;
 

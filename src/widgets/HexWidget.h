@@ -11,7 +11,7 @@ struct HexCursor {
     bool onAsciiArea;
     QTimer blinkTimer;
     QRect screenPos;
-    uint64_t addr;
+    uint64_t address;
     QString cachedString;
     QColor cachedColor;
 
