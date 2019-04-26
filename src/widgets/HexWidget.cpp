@@ -257,7 +257,7 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
     QPoint pos(event->pos());
     pos.rx() += horizontalScrollBar()->value();
 
-    if (itemArea.contains(pos)) {
+    if (event->button() == Qt::LeftButton && itemArea.contains(pos)) {
         updatingSelection = true;
         setCursorAddr(screenPosToAddr(pos));
         selection.init(cursor.addr);
@@ -267,10 +267,9 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
 
 void HexWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    updatingSelection = false;
-    /*if (selection.isValid) {
-        qDebug() << "Selection start" << QString::number(selection.begin, 16) << "Selection end" << QString::number(selection.end, 16);
-    }*/
+    if (event->button() == Qt::LeftButton) {
+        updatingSelection = false;
+    }
 }
 
 void HexWidget::wheelEvent(QWheelEvent *event)
