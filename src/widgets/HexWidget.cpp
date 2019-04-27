@@ -486,7 +486,7 @@ void HexWidget::drawItemArea(QPainter &painter)
     }
 
     itemOffset = 0;
-    for (int i = 0; i < visibleLines; ++i) {
+    for (int line = 0; line < visibleLines; ++line) {
         itemRect.moveLeft(itemArea.left());
         for (int j = 0; j < itemColumns; ++j) {
             for (int k = 0; k < itemGroupSize; ++k, itemOffset += itemByteLen) {
