@@ -561,7 +561,7 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
 
     /* Convert absolute values to relative */
     startOffset = std::max(selection.start(), startAddress) - startAddress;
-    endOffset = std::min(selection.end(), startAddress + bytesPerScreen()) - startAddress;
+    endOffset = std::min(selection.end(), startAddress + bytesPerScreen() - 1) - startAddress;
 
     /* Align values */
     int startOffset2 = (startOffset + itemRowByteLen()) & ~(itemRowByteLen() - 1);
