@@ -207,8 +207,9 @@ QByteArray applyColorToSvg(const QString &filename, QColor color)
  */
 void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter)
 {
-    if (supportedIconsNames.isEmpty() || !setter)
+    if (supportedIconsNames.isEmpty() || !setter) {
         return;
+    }
 
     const QString &iconsDirPath = QStringLiteral(":/img/icons/");
     const QString &currTheme = Config()->getCurrentTheme()->name;

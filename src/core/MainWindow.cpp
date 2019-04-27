@@ -1221,6 +1221,6 @@ void MainWindow::chooseThemeIcons()
 
     // Set the correct icon for the QAction
     qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
-	    static_cast<QAction*>(obj)->setIcon(icon);
-	});
+        static_cast<QAction*>(obj)->setIcon(icon);
+    });
 }
