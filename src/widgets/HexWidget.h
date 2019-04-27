@@ -57,6 +57,14 @@ public:
         return !m_empty && !(m_end <= start || m_start >= end);
     }
 
+    int size()
+    {
+        int size = 0;
+        if (!isEmpty())
+            size = m_end - m_start + 1;
+        return size;
+    }
+
     inline bool isEmpty() { return m_empty; }
     inline uint64_t start() { return m_start; }
     inline uint64_t end() { return m_end; }
