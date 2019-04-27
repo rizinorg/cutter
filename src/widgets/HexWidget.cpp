@@ -18,6 +18,7 @@ HexWidget::HexWidget(QWidget *parent) :
     showExAddr(true),
     showExHex(true),
     showAscii(true),
+    showHeader(true),
     itemBigEndian(false),
     cursorOnAscii(false),
     cursorEnabled(true),
@@ -221,6 +222,8 @@ void HexWidget::paintEvent(QPaintEvent *event)
     }
 
     painter.fillRect(event->rect().translated(xOffset, 0), backgroundColor);
+
+    drawHeader(painter);
 
     drawAddrArea(painter);
     drawItemArea(painter);
@@ -443,6 +446,32 @@ void HexWidget::updateItemLength()
     updateAreasPosition();
 }
 
+void HexWidget::drawHeader(QPainter &painter)
+{
+    if (!showHeader)
+        return;
+
+    int offset = 0;
+    QRect rect(itemArea.left(), 0, itemWidth(), lineHeight);
+
+    painter.setPen(addrColor);
+
+    for (int j = 0; j < itemColumns; ++j) {
+        for (int k = 0; k < itemGroupSize; ++k, offset += itemByteLen) {
+            painter.drawText(rect, Qt::AlignVCenter | Qt::AlignRight, QString::number(offset, 16).toUpper());
+            rect.translate(itemWidth(), 0);
+        }
+        rect.translate(columnSpacingWidth(), 0);
+    }
+
+    rect.moveLeft(asciiArea.left());
+    rect.setWidth(charWidth);
+    for (int j = 0; j < itemRowByteLen(); ++j) {
+        painter.drawText(rect, Qt::AlignVCenter | Qt::AlignRight, QString::number(j % 16, 16).toUpper());
+        rect.translate(charWidth, 0);
+    }
+}
+
 void HexWidget::drawCursor(QPainter &painter, bool shadow)
 {
     if (shadow) {
@@ -647,19 +676,21 @@ void HexWidget::updateAreasPosition()
 {
     const int spacingWidth = areaSpacingWidth();
 
-    addrArea.setTopLeft(QPoint(0, 0));
+    int yOffset = showHeader ? lineHeight : 0;
+
+    addrArea.setTopLeft(QPoint(0, yOffset));
     addrArea.setWidth((addrCharLen + (showExAddr ? 2 : 0)) * charWidth);
 
-    itemArea.setTopLeft(QPoint(addrArea.right() + spacingWidth, 0));
+    itemArea.setTopLeft(QPoint(addrArea.right() + spacingWidth, yOffset));
     itemArea.setWidth(itemRowWidth());
 
-    asciiArea.setTopLeft(QPoint(itemArea.right() + spacingWidth, 0));
+    asciiArea.setTopLeft(QPoint(itemArea.right() + spacingWidth, yOffset));
     asciiArea.setWidth(asciiRowWidth());
 }
 
 void HexWidget::updateAreasHeight()
 {
-    visibleLines = viewport()->height() / lineHeight;
+    visibleLines = (viewport()->height() - itemArea.top()) / lineHeight;
 
     int height = visibleLines * lineHeight;
     addrArea.setHeight(height);
