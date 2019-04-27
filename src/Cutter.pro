@@ -532,7 +532,9 @@ FORMS    += \
 
 RESOURCES += \
     resources.qrc \
-    themes/qdarkstyle/style.qrc
+    themes/native/native.qrc \
+    themes/qdarkstyle/style.qrc \
+    themes/lightstyle/light.qrc
 
 
 DISTFILES += Cutter.astylerc

@@ -52,7 +52,7 @@
        <item>
         <widget class="QTreeWidget" name="toTreeWidget">
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::Box</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>
@@ -90,7 +90,7 @@
        <item>
         <widget class="QTreeWidget" name="fromTreeWidget">
          <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
+          <enum>QFrame::Box</enum>
          </property>
          <property name="frameShadow">
           <enum>QFrame::Plain</enum>

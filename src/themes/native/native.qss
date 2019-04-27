@@ -1,0 +1,78 @@
+ 
+
+
+/* QMainWindow */
+
+QHeaderView::section {
+     padding: 3px;
+     padding-left: 10px;
+/*     border: 2px solid white;*/
+}
+
+
+QMainWindow > QTabBar::tab {
+    border-bottom-color: #2180a9;
+    border-top-left-radius: 0px;
+    border-top-right-radius: 0px;
+    min-width: 8px;
+    max-width: 200px;
+    padding: 5px;
+    margin-bottom: 3px;
+    margin-top: 3px;
+}
+
+QMainWindow > QTabBar::tab:selected {
+    background: #2180a9;
+    color: #FFFFFF;
+}
+
+QMainWindow > QTabBar::tab:hover {
+    background: #2180a9;      /* #3C879E; */
+    color: #FFFFFF;
+}
+
+QDockWidget::title {
+    text-align: center;
+}
+
+QToolTip {
+	background-color: #444;
+	border: 3px solid #444;
+	color: rgb(232, 232, 232);
+	font: 11pt "Monaco";
+}
+
+
+/* CutterTreeView */
+
+CutterTreeView::item
+{
+   padding-top: 1px;
+   padding-bottom: 1px;
+}
+
+
+/* QFilterView */
+
+QToolButton { /* all types of tool button */
+    border: 2px solid #333;
+    border-left: 2px solid #333;
+    border-right: 2px solid #333;
+    background-color: #333;
+    color: rgb(255, 255, 255)
+}
+
+QToolButton:hover {
+    border: 2px solid rgb(128, 128, 128);
+    border-left: 2px solid rgb(128, 128, 128);
+    border-right: 2px solid rgb(128, 128, 128);
+    background-color: rgb(128, 128, 128);
+    color: rgb(255, 255, 255)
+}
+
+QToolButton:pressed {
+    border: 2px solid #2180a9;
+    border-left: 2px solid #2180a9;
+    border-right: 2px solid #2180a9;
+    background-color: #2180a9;
+}

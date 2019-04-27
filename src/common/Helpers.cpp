@@ -1,4 +1,5 @@
 #include "common/Helpers.h"
+#include "Configuration.h"
 
 #include <cmath>
 #include <QPlainTextEdit>
@@ -195,6 +196,35 @@ QByteArray applyColorToSvg(const QString &filename, QColor color)
     file.open(QIODevice::ReadOnly);
 
     return applyColorToSvg(file.readAll(), color);
+}
+
+/**
+ * @brief finds the theme-specific icon path and calls `setter` functor providing a pointer of an object which has to be used
+ * and loaded icon
+ * @param supportedIconsNames list of <object ptr, icon name>
+ * @param setter functor which has to be called
+ *   for example we need to set an action icon, the functor can be just [](void* o, const QIcon &icon) { static_cast<QAction*>(o)->setIcon(icon); }
+ */
+void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter)
+{
+    if (supportedIconsNames.isEmpty() || !setter) {
+        return;
+    }
+
+    const QString &iconsDirPath = QStringLiteral(":/img/icons/");
+    const QString &currTheme = Config()->getCurrentTheme()->name;
+    const QString &relativeThemeDir = currTheme.toLower() + "/";
+    QString iconPath;
+
+    foreach (const auto &p, supportedIconsNames) {
+        iconPath = iconsDirPath;
+        // Verify that indeed there is an alternative icon in this theme
+        // Otherwise, fallback to the regular icon folder
+        if (QFile::exists(iconPath + relativeThemeDir +  p.second)) {
+            iconPath += relativeThemeDir;
+        }
+        setter(p.first, QIcon(iconPath + p.second));
+    }
 }
 
 } // end namespace

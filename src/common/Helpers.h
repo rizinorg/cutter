@@ -4,7 +4,9 @@
 #include <QString>
 #include <QColor>
 #include <QSizePolicy>
+#include <functional>
 
+class QIcon;
 class QPlainTextEdit;
 class QTextEdit;
 class QString;
@@ -45,6 +47,9 @@ int getMaxFullyDisplayedLines(QPlainTextEdit *plainTextEdit);
 
 QByteArray applyColorToSvg(const QByteArray &data, QColor color);
 QByteArray applyColorToSvg(const QString &filename, QColor color);
-}
+
+void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter);
+
+} // qhelpers
 
 #endif // HELPERS_H

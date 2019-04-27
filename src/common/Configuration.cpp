@@ -11,7 +11,8 @@
 
 const QList<CutterQtTheme> kCutterQtThemesList = {
     { "Native", static_cast<ColorFlags>(LightFlag | DarkFlag) },
-    { "Dark",    DarkFlag }
+    { "Dark",   DarkFlag },
+    { "Light",  LightFlag }
 };
 
 Configuration *Configuration::mPtr = nullptr;
@@ -199,7 +200,15 @@ bool Configuration::windowColorIsDark()
 void Configuration::loadBaseThemeNative()
 {
     /* Load Qt Theme */
-    qApp->setStyleSheet("");
+    QFile f(":native/native.qss");
+    if (!f.exists()) {
+        qWarning() << "Can't find Native theme stylesheet.";
+    } else {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        QString stylesheet = ts.readAll();
+        qApp->setStyleSheet(stylesheet);
+    }
 
     /* Colors */
     // GUI
@@ -218,6 +227,8 @@ void Configuration::loadBaseThemeNative()
     setColor("gui.item_invalid", QColor(155, 155, 155));
     setColor("gui.item_unsafe", QColor(255, 129, 123));
     setColor("gui.overview.node",  QColor(200, 200, 200));
+    setColor("gui.tooltip.background", QColor(250, 252, 254));
+    setColor("gui.tooltip.foreground", QColor(42, 44, 46));
 }
 
 void Configuration::loadNativeTheme()
@@ -232,6 +243,8 @@ void Configuration::loadNativeTheme()
         setColor("highlight",   QColor(255, 255, 255, 15));
         setColor("highlightWord", QColor(20, 20, 20, 255));
         setColor("highlightPC", QColor(87, 26, 7));
+        setColor("gui.tooltip.background", QColor(42, 44, 46));
+        setColor("gui.tooltip.foreground", QColor(250, 252, 254));
     } else {
         setColor("gui.border",  QColor(0, 0, 0));
         setColor("gui.background", QColor(255, 255, 255));
@@ -243,12 +256,41 @@ void Configuration::loadNativeTheme()
     }
 }
 
+/**
+ * @brief Loads the Light theme of Cutter and modify special theme colors
+ */ 
+void Configuration::loadLightTheme()
+{
+    /* Load Qt Theme */
+    QFile f(":lightstyle/light.qss");
+    if (!f.exists()) {
+        qWarning() << "Can't find Light theme stylesheet.";
+    } else {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        QString stylesheet = ts.readAll();
+        qApp->setStyleSheet(stylesheet);
+    }
+
+    setColor("gui.border",  QColor(145, 200, 250));
+    setColor("gui.background", QColor(255, 255, 255));
+    setColor("gui.alt_background", QColor(245, 250, 255));
+    setColor("gui.disass_selected", QColor(255, 255, 255));
+    setColor("highlight",   QColor(210, 210, 255, 150));
+    setColor("highlightWord", QColor(179, 119, 214, 60));
+    setColor("highlightPC", QColor(214, 255, 210));
+    setColor("gui.navbar.empty", QColor(220, 236, 245));
+    setColor("gui.navbar.err", QColor(3, 170, 245));
+    setColor("gui.tooltip.background", QColor(250, 252, 254));
+    setColor("gui.tooltip.foreground", QColor(42, 44, 46));
+}
+
 void Configuration::loadBaseThemeDark()
 {
     /* Load Qt Theme */
     QFile f(":qdarkstyle/style.qss");
     if (!f.exists()) {
-        qWarning() << "Can't find dark theme stylesheet.";
+        qWarning() << "Can't find Dark theme stylesheet.";
     } else {
         f.open(QFile::ReadOnly | QFile::Text);
         QTextStream ts(&f);
@@ -279,7 +321,7 @@ void Configuration::loadBaseThemeDark()
     setColor("gui.navbar.seek", QColor(233, 86, 86));
     setColor("gui.navbar.pc", QColor(66, 238, 244));
     setColor("gui.navbar.code", QColor(130, 200, 111));
-    setColor("angui.navbar.str", QColor(111, 134, 216));
+    setColor("gui.navbar.str", QColor(111, 134, 216));
     setColor("gui.navbar.sym", QColor(221, 163, 104));
     setColor("gui.navbar.empty", QColor(100, 100, 100));
 
@@ -303,6 +345,8 @@ void Configuration::loadDarkTheme()
     // Disassembly line selected
     setColor("highlight", QColor(21, 29, 29, 150));
     setColor("highlightWord", QColor(52, 58, 71, 255));
+    setColor("gui.tooltip.background", QColor(42, 44, 46));
+    setColor("gui.tooltip.foreground", QColor(250, 252, 254));
 }
 
 const QFont Configuration::getFont() const
@@ -336,10 +380,13 @@ void Configuration::setTheme(int theme)
         loadNativeTheme();
     } else if (themeName == "Dark") {
         loadDarkTheme();
+    } else if (themeName == "Light") {
+        loadLightTheme();
     } else {
         loadNativeTheme();
     }
 
+    emit themeChanged();
     emit colorsUpdated();
 }
 

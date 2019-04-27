@@ -21,9 +21,12 @@ static const QStringList cutterSpecificOptions = {
     "gui.dataoffset",
     "gui.navbar.code",
     "gui.navbar.empty",
-    "angui.navbar.str",
+    "gui.navbar.str",
     "gui.disass_selected",
     "gui.breakpoint_background",
+    "gui.overview.node",
+    "gui.tooltip.background",
+    "gui.tooltip.foreground"
     "gui.overview.node"
 };
 

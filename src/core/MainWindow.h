@@ -185,6 +185,7 @@ private slots:
     bool eventFilter(QObject *object, QEvent *event) override;
     void changeDebugView();
     void changeDefinedView();
+    void chooseThemeIcons();
 
 private:
     CutterCore *core;

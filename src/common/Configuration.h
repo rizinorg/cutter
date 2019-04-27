@@ -31,6 +31,7 @@ private:
     void loadBaseThemeNative();
     void loadBaseThemeDark();
     void loadNativeTheme();
+    void loadLightTheme();
     void loadDarkTheme();
     void setColor(const QString &name, const QColor &color);
 
@@ -124,6 +125,7 @@ public:
 signals:
     void fontsUpdated();
     void colorsUpdated();
+    void themeChanged();
 };
 
 #endif // CONFIGURATION_H

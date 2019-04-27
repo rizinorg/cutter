@@ -28,34 +28,36 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
         {
             tr("Disassembly"),
             new AsmOptionsWidget(this),
-            QIcon(":/img/icons/disas_light.svg"),
+            QIcon(":/img/icons/disas.svg"),
             {
                 {
                     "Graph",
                     new GraphOptionsWidget(this),
-                    QIcon(":/img/icons/graph_light.svg")
+                    QIcon(":/img/icons/graph.svg")
                 },
             }
         },
         {
             tr("Debug"),
             new DebugOptionsWidget(this),
-            QIcon(":/img/icons/bug_light.svg")
+            QIcon(":/img/icons/bug.svg")
         },
         {
             tr("Appearance"),
             new AppearanceOptionsWidget(this),
-            QIcon(":/img/icons/polar_light.svg")
+            QIcon(":/img/icons/polar.svg")
         },
         {
             tr("Plugins"),
             new PluginsOptionsWidget(this),
-            QIcon(":/img/icons/plugins_light.svg")
+            QIcon(":/img/icons/plugins.svg")
         }
     };
 
     for (auto &c : prefs)
+    {
         c.addItem(*ui->configCategories, *ui->configPanel);
+    }
 
     connect(ui->configCategories,
             SIGNAL(currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
@@ -66,6 +68,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
 
     QTreeWidgetItem *defitem = ui->configCategories->topLevelItem(0);
     ui->configCategories->setCurrentItem(defitem, 0);
+
+    connect(Config(), &Configuration::themeChanged, this, &PreferencesDialog::chooseThemeIcons);
+    chooseThemeIcons();
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -98,4 +103,31 @@ void PreferencesDialog::changePage(QTreeWidgetItem *current, QTreeWidgetItem *pr
 
     if (index)
         ui->configPanel->setCurrentIndex(index - 1);
+}
+
+void PreferencesDialog::chooseThemeIcons()
+{
+    // List of QActions which have alternative icons in different themes
+    const QList<QPair<QString, QString>> kCategoryIconsNames {
+        { QStringLiteral("Debug"), QStringLiteral("bug.svg") },
+        { QStringLiteral("Assembly"), QStringLiteral("disas.svg") },
+        { QStringLiteral("Graph"), QStringLiteral("graph.svg") },
+        { QStringLiteral("Appearance"), QStringLiteral("polar.svg") },
+        { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
+    };
+    QList<QPair<void*, QString>> supportedIconsNames;
+
+    foreach (const auto &p, kCategoryIconsNames) {
+        QList<QTreeWidgetItem *> items = ui->configCategories->findItems(p.first, Qt::MatchContains|Qt::MatchRecursive, 0);
+        if (items.isEmpty()) {
+            continue;
+        }
+        supportedIconsNames.append( { items.first(), p.second } );
+    }
+
+    // Set the correct icon for the QAction
+    qhelpers::setThemeIcons(supportedIconsNames, [](void *obj, const QIcon &icon) {
+        // here we have our setter functor, in this case it is almost "unique" because it specified the column in `setIcon` call
+        static_cast<QTreeWidgetItem*>(obj)->setIcon(0, icon);
+    });
 }

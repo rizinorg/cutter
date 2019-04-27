@@ -423,9 +423,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         p.setBrush(QColor(0, 0, 0, 100));
     }
 
-    // Node's shadow effect
-    p.drawRect(blockX + 2, blockY + 2,
-               block.width, block.height);
     p.setPen(QPen(graphNodeColor, 1));
 
     if (block_selected) {

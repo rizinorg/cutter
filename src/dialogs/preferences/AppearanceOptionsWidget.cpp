@@ -35,7 +35,6 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
       ui(new Ui::AppearanceOptionsWidget)
 {
     ui->setupUi(this);
-
     updateFontFromConfig();
     updateThemeFromConfig(false);
 

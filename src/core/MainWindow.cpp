@@ -129,6 +129,7 @@ void MainWindow::initUI()
     /*
      *  Some global shortcuts
      */
+
     // Period goes to command entry
     QShortcut *cmd_shortcut = new QShortcut(QKeySequence(Qt::Key_Period), this);
     connect(cmd_shortcut, SIGNAL(activated()), consoleDock, SLOT(focusInputLineEdit()));
@@ -171,9 +172,12 @@ void MainWindow::initUI()
 
 void MainWindow::initToolBar()
 {
+    chooseThemeIcons();
+    
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    spacer3->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacer3->setMinimumSize(20, 20);
     spacer3->setMaximumWidth(100);
     ui->mainToolBar->addWidget(spacer3);
@@ -193,8 +197,9 @@ void MainWindow::initToolBar()
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer4 = new QWidget();
     spacer4->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    spacer4->setMinimumSize(20, 20);
-    spacer4->setMaximumWidth(100);
+    spacer4->setStyleSheet("background-color: rgba(0,0,0,0)");
+    spacer4->setMinimumSize(10, 10);
+    spacer4->setMaximumWidth(10);
     ui->mainToolBar->addWidget(spacer4);
 
     // Omnibar LineEdit
@@ -204,6 +209,7 @@ void MainWindow::initToolBar()
     // Add special separators to the toolbar that expand to separate groups of elements
     QWidget *spacer2 = new QWidget();
     spacer2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    spacer2->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacer2->setMinimumSize(10, 10);
     spacer2->setMaximumWidth(300);
     ui->mainToolBar->addWidget(spacer2);
@@ -211,14 +217,17 @@ void MainWindow::initToolBar()
     // Separator between back/forward and undo/redo buttons
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    spacer->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacer->setMinimumSize(20, 20);
     ui->mainToolBar->addWidget(spacer);
 
     tasksProgressIndicator = new ProgressIndicator();
+    tasksProgressIndicator->setStyleSheet("background-color: rgba(0,0,0,0)");
     ui->mainToolBar->addWidget(tasksProgressIndicator);
 
     QWidget *spacerEnd = new QWidget();
     spacerEnd->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
+    spacerEnd->setStyleSheet("background-color: rgba(0,0,0,0)");
     spacerEnd->setMinimumSize(4, 0);
     spacerEnd->setMaximumWidth(4);
     ui->mainToolBar->addWidget(spacerEnd);
@@ -231,6 +240,7 @@ void MainWindow::initToolBar()
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
+    QObject::connect(configuration, &Configuration::themeChanged, this, &MainWindow::chooseThemeIcons);
 }
 
 void MainWindow::initDocks()
@@ -1196,4 +1206,22 @@ void MainWindow::messageBoxWarning(QString title, QString message)
     mb.setWindowTitle(title);
     mb.setText(message);
     mb.exec();
+}
+
+/**
+ * \brief When theme changed, change icons which have a special version for the theme.
+ */
+void MainWindow::chooseThemeIcons()
+{
+    // List of QActions which have alternative icons in different themes
+    const QList<QPair<void*, QString>> kSupportedIconsNames {
+        { ui->actionForward, QStringLiteral("arrow_right.svg") },
+        { ui->actionBackward, QStringLiteral("arrow_left.svg") },      
+    };
+
+
+    // Set the correct icon for the QAction
+    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
+        static_cast<QAction*>(obj)->setIcon(icon);
+    });
 }
