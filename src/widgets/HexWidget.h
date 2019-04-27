@@ -250,6 +250,7 @@ private:
 
     const QString hexPrefix = QStringLiteral("0x");
 
+    QList<QAction *> actionsColumnCount;
     QList<QAction *> actionsItemSize;
     QList<QAction *> actionsItemFormat;
     QAction *actionItemBigEndian;
