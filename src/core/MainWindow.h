@@ -96,7 +96,7 @@ public:
 
     void addToDockWidgetList(QDockWidget *dockWidget);
     void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
-    void addExtraWidget(QDockWidget *extraDock);
+    void addExtraWidget(CutterDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
