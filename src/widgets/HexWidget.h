@@ -108,6 +108,7 @@ private slots:
 
 private:
     void updateItemLength();
+    void drawHeader(QPainter &painter);
     void drawCursor(QPainter &painter, bool shadow = false);
     void drawAddrArea(QPainter &painter);
     void drawItemArea(QPainter &painter);
