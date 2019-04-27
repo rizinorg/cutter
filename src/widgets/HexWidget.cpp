@@ -62,6 +62,17 @@ HexWidget::HexWidget(QWidget *parent) :
     actionsItemFormat.at(0)->setChecked(true);
     actionsItemFormat.at(ItemFormatFloat)->setEnabled(false);
 
+    auto columnsActionGroup = new QActionGroup(this);
+    for (int i = 1; i <= 32; i *= 2) {
+        QAction *action = new QAction(QString::number(i), this);
+        action->setCheckable(true);
+        action->setActionGroup(columnsActionGroup);
+        if (i == 16)
+            action->setChecked(true);
+        connect(action, &QAction::triggered, this, [=]() { setColumnCount(i); });
+        actionsColumnCount.append(action);
+    }
+
     actionItemBigEndian = new QAction(tr("Big Endian"), this);
     actionItemBigEndian->setCheckable(true);
     actionItemBigEndian->setEnabled(false);
@@ -159,6 +170,7 @@ void HexWidget::setColumnCount(int columns)
     itemColumns = columns;
     actionHexPairs->setEnabled(columns > 1);
 
+    updateAreasPosition();
     updateDataCache();
     updateCursorMeta();
 
@@ -338,6 +350,8 @@ void HexWidget::showContextMenu(const QPoint &pt)
     sizeMenu->addActions(actionsItemSize);
     QMenu *formatMenu = menu->addMenu(tr("Item format:"));
     formatMenu->addActions(actionsItemFormat);
+    QMenu *columnsMenu = menu->addMenu(tr("Columns:"));
+    columnsMenu->addActions(actionsColumnCount);
     menu->addAction(actionHexPairs);
     menu->addAction(actionItemBigEndian);
     menu->exec(mapToGlobal(pt));
