@@ -31,6 +31,7 @@ HexWidget::HexWidget(QWidget *parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QScrollArea::customContextMenuRequested, this, &HexWidget::showContextMenu);
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() { viewport()->update(); });
+    connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
 
     auto sizeActionGroup = new QActionGroup(this);
     for (int i = 1; i <= 8; i *= 2) {
@@ -492,7 +493,7 @@ void HexWidget::drawItemArea(QPainter &painter)
             for (int k = 0; k < itemGroupSize; ++k, itemOffset += itemByteLen) {
                 itemString = renderItem(itemOffset, &itemColor);
                 if (!selection.isEmpty() && itemOffset >= selStartOffset && itemOffset <= selEndOffset)
-                    itemColor = Qt::white; // FIXME: honor colortheme
+                    itemColor = palette().highlightedText().color();
                 painter.setPen(itemColor);
                 painter.drawText(itemRect, Qt::AlignVCenter, itemString);
                 itemRect.translate(itemWidth(), 0);
@@ -531,7 +532,7 @@ void HexWidget::drawAsciiArea(QPainter &painter)
         for (int j = 0; j < itemRowByteLen(); ++j, ++byteId) {
             ascii = renderAscii(byteId, &color);
             if (!selection.isEmpty() && byteId >= selBeginOffset && byteId <= selEndOffset)
-                color = Qt::white; // FIXME: honor colortheme
+                color = palette().highlightedText().color();
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */
             if (ascii == '.') {
@@ -567,16 +568,18 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
     int startOffset2 = (startOffset + itemRowByteLen()) & ~(itemRowByteLen() - 1);
     int endOffset2 = endOffset & ~(itemRowByteLen() - 1);
 
+    QColor highlightColor = palette().color(QPalette::Highlight);
+
     /* Fill top/bottom parts */
     if (startOffset2 <= endOffset2) {
         /* Fill the top part even if it's a whole line */
         rect = ascii ? asciiRectangle(startOffset) : itemRectangle(startOffset);
         rect.setRight(area->right());
-        painter.fillRect(rect, Qt::blue);
+        painter.fillRect(rect, highlightColor);
         /* Fill the bottom part even if it's a whole line */
         rect = ascii ? asciiRectangle(endOffset) : itemRectangle(endOffset);
         rect.setLeft(area->left());
-        painter.fillRect(rect, Qt::blue);
+        painter.fillRect(rect, highlightColor);
         /* Required for calculating the bottomRight() of the main part */
         --endOffset2;
     } else {
@@ -588,7 +591,7 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
     if (startOffset2 <= endOffset2) {
         rect = ascii ? asciiRectangle(startOffset2) : itemRectangle(startOffset2);
         rect.setBottomRight(ascii ? asciiRectangle(endOffset2).bottomRight() : itemRectangle(endOffset2).bottomRight());
-        painter.fillRect(rect, Qt::blue); // FIXME: honor colortheme
+        painter.fillRect(rect, highlightColor);
     }
 }
 
