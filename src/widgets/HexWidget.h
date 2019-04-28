@@ -12,7 +12,7 @@ struct HexCursor {
     QTimer blinkTimer;
     QRect screenPos;
     uint64_t address;
-    QString cachedString;
+    QString cachedChar;
     QColor cachedColor;
 
     void blink() { isVisible = !isVisible; }
@@ -58,6 +58,11 @@ public:
     bool intersects(uint64_t start, uint64_t end)
     {
         return !m_empty && !(m_end <= start || m_start >= end);
+    }
+
+    bool contains(uint64_t pos) const
+    {
+        return !m_empty && m_start <= pos && pos <= m_end;
     }
 
     int size()
