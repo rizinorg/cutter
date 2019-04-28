@@ -119,7 +119,7 @@ void ColorThemeEditDialog::colorOptionChanged(const QColor& newColor)
 
 void ColorThemeEditDialog::editThemeChanged(const QString& newTheme)
 {
-    if (themeWasEdited(newTheme)) {
+    if (themeWasEdited(colorTheme)) {
         int ret = QMessageBox::question(this,
                               tr("Unsaved changes"),
                               tr("Are you sure you want to exit without saving? "
@@ -129,11 +129,11 @@ void ColorThemeEditDialog::editThemeChanged(const QString& newTheme)
             int index = ui->colorComboBox->findText(colorTheme);
             index = index == -1 ? 0 : index;
             ui->colorComboBox->setCurrentIndex(index);
+            Config()->setColorTheme(colorTheme);
             return;
-        } else {
-            colorTheme = ui->colorComboBox->currentText();
         }
     }
+    colorTheme = newTheme;
     qobject_cast<ColorSettingsModel*>(ui->colorThemeListView->model())->updateTheme();
     previewDisasmWidget->colorsUpdatedSlot();
     setWindowTitle(tr("Theme Editor - <%1>").arg(colorTheme));

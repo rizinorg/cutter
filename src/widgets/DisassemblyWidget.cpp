@@ -600,13 +600,13 @@ QList<QTextEdit::ExtraSelection> DisassemblyWidget::getSameWordsSelections()
     QList<QTextEdit::ExtraSelection> selections;
     QTextEdit::ExtraSelection highlightSelection;
     QTextDocument *document = mDisasTextEdit->document();
-    QColor highlightWordColor = ConfigColor("highlightWord");
+    QColor highlightWordColor = ConfigColor("wordhl");
 
     if (curHighlightedWord.isNull()) {
         return QList<QTextEdit::ExtraSelection>();
     }
 
-    highlightSelection.cursor = mDisasTextEdit->textCursor();;
+    highlightSelection.cursor = mDisasTextEdit->textCursor();
     highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
     while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
