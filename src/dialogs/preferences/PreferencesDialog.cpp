@@ -69,7 +69,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
     QTreeWidgetItem *defitem = ui->configCategories->topLevelItem(0);
     ui->configCategories->setCurrentItem(defitem, 0);
 
-    connect(Config(), &Configuration::themeChanged, this, &PreferencesDialog::chooseThemeIcons);
+    connect(Config(), &Configuration::interfaceThemeChanged, this, &PreferencesDialog::chooseThemeIcons);
     chooseThemeIcons();
 }
 

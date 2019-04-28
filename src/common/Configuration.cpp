@@ -278,6 +278,11 @@ void Configuration::loadLightTheme()
         f.open(QFile::ReadOnly | QFile::Text);
         QTextStream ts(&f);
         QString stylesheet = ts.readAll();
+
+        QPalette p = qApp->palette();
+        p.setColor(QPalette::Text, Qt::black);
+        qApp->setPalette(p);
+
         qApp->setStyleSheet(stylesheet);
     }
 
@@ -398,9 +403,8 @@ void Configuration::setInterfaceTheme(int theme)
         loadNativeTheme();
     }
 
-    emit themeChanged();
+    emit interfaceThemeChanged();
     emit colorsUpdated();
-    emit themeUpdated();
 }
 
 const CutterInterfaceTheme *Configuration::getCurrentTheme()

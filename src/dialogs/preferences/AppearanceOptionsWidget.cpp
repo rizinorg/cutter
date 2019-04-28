@@ -41,7 +41,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
     ui->languageComboBox->setCurrentText(curr);
 
     auto setIcons = [this]() {
-        QColor textColor = palette().buttonText().color();
+        QColor textColor = palette().text().color();
         ui->editButton->setIcon(getIconFromSvg(":/img/icons/pencil_thin.svg", textColor));
         ui->deleteButton->setIcon(getIconFromSvg(":/img/icons/trash_bin.svg", textColor));
         ui->copyButton->setIcon(getIconFromSvg(":/img/icons/copy.svg", textColor));
@@ -50,8 +50,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
         ui->renameButton->setIcon(getIconFromSvg(":/img/icons/rename.svg", textColor));
     };
     setIcons();
-    connect(Config(), &Configuration::themeUpdated,
-            this, setIcons);
+    connect(Config(), &Configuration::interfaceThemeChanged, this, setIcons);
 
     connect(ui->languageComboBox,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
