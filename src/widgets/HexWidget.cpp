@@ -508,7 +508,7 @@ void HexWidget::drawCursor(QPainter &painter, bool shadow)
     QRect charRect(cursor.screenPos);
     charRect.setWidth(charWidth);
     painter.fillRect(charRect, backgroundColor);
-    painter.drawText(charRect, Qt::AlignVCenter, cursor.cachedString.at(0));
+    painter.drawText(charRect, Qt::AlignVCenter, cursor.cachedChar);
     if (cursor.isVisible) {
         painter.setCompositionMode(QPainter::RasterOp_SourceXorDestination);
         painter.fillRect(cursor.screenPos, QColor(0xff, 0xff, 0xff));
@@ -544,24 +544,22 @@ void HexWidget::drawItemArea(QPainter &painter)
 
     fillSelectionBackground(painter);
 
-    int selStartOffset = -1;
-    int selEndOffset = -1;
-    if (selection.intersects(startAddress, startAddress + bytesPerScreen())) {
-        selStartOffset = std::max(selection.start(), startAddress) - startAddress;
-        selEndOffset = std::min(selection.end(), startAddress + bytesPerScreen()) - startAddress;
-    }
-
-    itemOffset = 0;
+    uint64_t itemAddr = startAddress;
     for (int line = 0; line < visibleLines; ++line) {
         itemRect.moveLeft(itemArea.left());
         for (int j = 0; j < itemColumns; ++j) {
-            for (int k = 0; k < itemGroupSize; ++k, itemOffset += itemByteLen) {
-                itemString = renderItem(itemOffset, &itemColor);
-                if (!selection.isEmpty() && itemOffset >= selStartOffset && itemOffset <= selEndOffset)
+            for (int k = 0; k < itemGroupSize; ++k, itemAddr += itemByteLen) {
+                itemString = renderItem(itemAddr - startAddress, &itemColor);
+                if (selection.contains(itemAddr))
                     itemColor = palette().highlightedText().color();
                 painter.setPen(itemColor);
                 painter.drawText(itemRect, Qt::AlignVCenter, itemString);
                 itemRect.translate(itemWidth(), 0);
+                if (cursor.address == itemAddr) {
+                    auto &itemCursor = cursorOnAscii ? shadowCursor : cursor;
+                    itemCursor.cachedChar = itemString.at(0);
+                    itemCursor.cachedColor = itemColor;
+                }
             }
             itemRect.translate(columnSpacingWidth(), 0);
         }
@@ -581,22 +579,15 @@ void HexWidget::drawAsciiArea(QPainter &painter)
     fillSelectionBackground(painter, true);
 
     /* FIXME: Copypasta*/
-    int selBeginOffset = -1;
-    int selEndOffset = -1;
 
-    if (selection.intersects(startAddress, startAddress + bytesPerScreen())) {
-        selBeginOffset = std::max(selection.start(), startAddress) - startAddress;
-        selEndOffset = std::min(selection.end(), startAddress + bytesPerScreen()) - startAddress;
-    }
-
-    int byteId = 0;
+    uint64_t address = startAddress;
     QChar ascii;
     QColor color;
     for (int line = 0; line < visibleLines; ++line, charRect.translate(0, lineHeight)) {
         charRect.moveLeft(asciiArea.left());
-        for (int j = 0; j < itemRowByteLen(); ++j, ++byteId) {
-            ascii = renderAscii(byteId, &color);
-            if (!selection.isEmpty() && byteId >= selBeginOffset && byteId <= selEndOffset)
+        for (int j = 0; j < itemRowByteLen(); ++j, ++address) {
+            ascii = renderAscii(address - startAddress, &color);
+            if (selection.contains(address))
                 color = palette().highlightedText().color();
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */
@@ -609,6 +600,11 @@ void HexWidget::drawAsciiArea(QPainter &painter)
                 painter.drawText(charRect, Qt::AlignVCenter, ascii);
             }
             charRect.translate(charWidth, 0);
+            if (cursor.address == address) {
+                auto &itemCursor = cursorOnAscii ? cursor : shadowCursor;
+                itemCursor.cachedChar = ascii;
+                itemCursor.cachedColor = color;
+            }
         }
     }
 }
@@ -800,19 +796,8 @@ void HexWidget::updateCursorMeta()
     point += itemArea.topLeft();
     pointAscii += asciiArea.topLeft();
 
-    if (cursorOnAscii) {
-        cursor.screenPos.moveTopLeft(pointAscii);
-        cursor.cachedString = renderAscii(offset, &cursor.cachedColor);
-
-        shadowCursor.screenPos.moveTopLeft(point);
-        shadowCursor.cachedString = renderItem(offset, &shadowCursor.cachedColor);
-    } else {
-        cursor.screenPos.moveTopLeft(point);
-        cursor.cachedString = renderItem(offset, &cursor.cachedColor);
-
-        shadowCursor.screenPos.moveTopLeft(pointAscii);
-        shadowCursor.cachedString = renderAscii(offset, &shadowCursor.cachedColor);
-    }
+    cursor.screenPos.moveTopLeft(cursorOnAscii ? pointAscii : point);
+    shadowCursor.screenPos.moveTopLeft(cursorOnAscii ? point : pointAscii);
 }
 
 void HexWidget::setCursorOnAscii(bool ascii)
