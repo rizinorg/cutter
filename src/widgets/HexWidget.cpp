@@ -273,8 +273,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
     else if (pos.x() > area.right())
         pos.setX(area.right());
     uint64_t addr = currentAreaPosToAddr(pos);
-    selection.update(addr);
-    setCursorAddr(addr);
+    setCursorAddr(addr, true);
 
     /* Stop blinking */
     cursorEnabled = false;
@@ -336,18 +335,35 @@ void HexWidget::wheelEvent(QWheelEvent *event)
 
 void HexWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->matches(QKeySequence::MoveToNextLine)) {
-        moveCursor(itemRowByteLen());
-    } else if (event->matches(QKeySequence::MoveToPreviousLine)) {
-        moveCursor(-itemRowByteLen());
-    } else if (event->matches(QKeySequence::MoveToNextChar)) {
-        moveCursor(cursorOnAscii ? 1 : itemByteLen);
-    } else if (event->matches(QKeySequence::MoveToPreviousChar)) {
-        moveCursor(cursorOnAscii ? -1 : -itemByteLen);
-    } else if (event->matches(QKeySequence::MoveToNextPage)) {
-        moveCursor(bytesPerScreen());
-    } else if (event->matches(QKeySequence::MoveToPreviousPage)) {
-        moveCursor(-bytesPerScreen());
+    bool select = false;
+    auto moveOrSelect = [event, &select](QKeySequence::StandardKey moveSeq, QKeySequence::StandardKey selectSeq) ->bool {
+        if (event->matches(moveSeq)) {
+            select = false;
+            return true;
+        } else if (event->matches(selectSeq)) {
+            select = true;
+            return true;
+        }
+        return false;
+    };
+    if (moveOrSelect(QKeySequence::MoveToNextLine, QKeySequence::SelectNextLine)) {
+        moveCursor(itemRowByteLen(), select);
+    } else if (moveOrSelect(QKeySequence::MoveToPreviousLine, QKeySequence::SelectPreviousLine)) {
+        moveCursor(-itemRowByteLen(), select);
+    } else if (moveOrSelect(QKeySequence::MoveToNextChar, QKeySequence::SelectNextChar)) {
+        moveCursor(cursorOnAscii ? 1 : itemByteLen, select);
+    } else if (moveOrSelect(QKeySequence::MoveToPreviousChar, QKeySequence::SelectPreviousChar)) {
+        moveCursor(cursorOnAscii ? -1 : -itemByteLen, select);
+    } else if (moveOrSelect(QKeySequence::MoveToNextPage, QKeySequence::SelectNextPage)) {
+        moveCursor(bytesPerScreen(), select);
+    } else if (moveOrSelect(QKeySequence::MoveToPreviousPage, QKeySequence::SelectPreviousPage)) {
+        moveCursor(-bytesPerScreen(), select);
+    } else if (moveOrSelect(QKeySequence::MoveToStartOfLine, QKeySequence::SelectStartOfLine)) {
+        int linePos = int(cursor.address - startAddress) % itemRowByteLen();
+        moveCursor(-linePos, select);
+    } else if (moveOrSelect(QKeySequence::MoveToEndOfLine, QKeySequence::SelectEndOfLine)) {
+        int linePos = int(cursor.address - startAddress) % itemRowByteLen();
+        moveCursor(itemRowByteLen() - linePos, select);
     }
     //viewport()->update();
 }
@@ -704,23 +720,31 @@ void HexWidget::updateAreasHeight()
     asciiArea.setHeight(height);
 }
 
-void HexWidget::moveCursor(int offset)
+void HexWidget::moveCursor(int offset, bool select)
 {
     if (offset < 0 && cursor.address < abs(offset)) {
+        setCursorAddr(0, select);
         return;
     }
     // TODO: prevent positive overflow
     uint64_t addr = cursor.address + offset;
-    setCursorAddr(addr);
+    setCursorAddr(addr, select);
 }
 
-void HexWidget::setCursorAddr(uint64_t addr)
+void HexWidget::setCursorAddr(uint64_t addr, bool select)
 {
-    uint64_t prevAddr = cursor.address;
+    if (!select  || (selection.isEmpty())) {
+        selection.init(cursor.address);
+    }
+
     cursor.address = addr;
 
     /* Pause cursor repainting */
     cursorEnabled = false;
+
+    if (select) {
+        selection.update(addr);
+    }
 
     /* Update data cache if necessary */
     if (!(addr >= startAddress && addr < (startAddress + bytesPerScreen()))) {
@@ -743,11 +767,11 @@ void HexWidget::setCursorAddr(uint64_t addr)
     updateCursorMeta();
 
     /* Draw cursor */
-    cursor.isVisible = true;
+    cursor.isVisible = !select;
     viewport()->update();
 
     /* Resume cursor repainting */
-    cursorEnabled = true;
+    cursorEnabled = selection.isEmpty();
 }
 
 void HexWidget::updateCursorMeta()
@@ -939,10 +963,9 @@ uint64_t HexWidget::screenPosToAddr(const QPoint &point) const
     QPoint pt = point - itemArea.topLeft();
 
     addr += (pt.y() / lineHeight) * itemRowByteLen();
-
     addr += (pt.x() / columnExWidth()) * itemGroupByteLen();
     pt.rx() %= columnExWidth();
-    addr += (pt.x() / itemWidth()) * itemByteLen;
+    addr += ((pt.x() + itemWidth() / 2) / itemWidth()) * itemByteLen;
 
     return addr;
 }
@@ -953,7 +976,7 @@ uint64_t HexWidget::asciiPosToAddr(const QPoint &point) const
     QPoint pt = point - asciiArea.topLeft();
 
     addr += (pt.y() / lineHeight) * itemRowByteLen();
-    addr += (pt.x() / charWidth);
+    addr += (pt.x() +  charWidth / 2) / charWidth;
     return addr;
 }
 

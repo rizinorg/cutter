@@ -43,12 +43,15 @@ public:
     void update(uint64_t addr)
     {
         m_empty = false;
-        if (addr >= m_init) {
+        if (addr > m_init) {
             m_start = m_init;
-            m_end = addr;
-        } else {
+            m_end = addr - 1;
+        } else if (addr < m_init) {
             m_start = addr;
-            m_end = m_init;
+            m_end = m_init - 1;
+        } else {
+            m_start = m_end = m_init;
+            m_empty = true;
         }
     }
 
@@ -125,8 +128,8 @@ private:
     void updateMetrics();
     void updateAreasPosition();
     void updateAreasHeight();
-    void moveCursor(int offset);
-    void setCursorAddr(uint64_t addr);
+    void moveCursor(int offset, bool select = false);
+    void setCursorAddr(uint64_t addr, bool select = false);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
     const QColor itemColor(uint8_t byte);
