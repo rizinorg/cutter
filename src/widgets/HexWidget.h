@@ -128,12 +128,15 @@ private:
     void moveCursor(int offset);
     void setCursorAddr(uint64_t addr);
     void updateCursorMeta();
+    void setCursorOnAscii(bool ascii);
     const QColor itemColor(uint8_t byte);
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
     void updateDataCache();
-    uint64_t screenPosToAddr(const QPoint &point);
+    uint64_t screenPosToAddr(const QPoint &point) const;
+    uint64_t asciiPosToAddr(const QPoint &point) const;
+    uint64_t currentAreaPosToAddr(const QPoint &point) const;
     QRect itemRectangle(uint offset);
     QRect asciiRectangle(uint offset);
 
@@ -205,6 +208,11 @@ private:
     static inline bool isPrintable(uint8_t byte)
     {
         return (byte >= '!' && byte <= '~');
+    }
+
+    const QRect &currentArea() const
+    {
+        return cursorOnAscii ? asciiArea : itemArea;
     }
 
     bool cursorEnabled;

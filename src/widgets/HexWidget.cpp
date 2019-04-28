@@ -267,11 +267,12 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
         return;
     }
 
-    if (pos.x() < itemArea.left())
-        pos.setX(itemArea.left());
-    else if (pos.x() > itemArea.right())
-        pos.setX(itemArea.right());
-    uint64_t addr = screenPosToAddr(pos);
+    auto &area = currentArea();
+    if (pos.x() < area.left())
+        pos.setX(area.left());
+    else if (pos.x() > area.right())
+        pos.setX(area.right());
+    uint64_t addr = currentAreaPosToAddr(pos);
     selection.update(addr);
     setCursorAddr(addr);
 
@@ -286,11 +287,16 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
     QPoint pos(event->pos());
     pos.rx() += horizontalScrollBar()->value();
 
-    if (event->button() == Qt::LeftButton && itemArea.contains(pos)) {
-        updatingSelection = true;
-        setCursorAddr(screenPosToAddr(pos));
-        selection.init(cursor.address);
-        viewport()->update();
+    if (event->button() == Qt::LeftButton) {
+        bool selectingData = itemArea.contains(pos);
+        bool selecting = selectingData || asciiArea.contains(pos);
+        if (selecting) {
+            updatingSelection = true;
+            setCursorOnAscii(!selectingData);
+            setCursorAddr(currentAreaPosToAddr(pos));
+            selection.init(cursor.address);
+            viewport()->update();
+        }
     }
 }
 
@@ -314,7 +320,7 @@ void HexWidget::wheelEvent(QWheelEvent *event)
     if (delta < 0 && startAddress < -delta) {
         startAddress = 0;
     } else {
-        startAddress += delta;
+        startAddress += delta; // TODO: handle positive overflow
     }
     updateDataCache();
     if (cursor.address >= startAddress && cursor.address <= (startAddress + bytesPerScreen())) {
@@ -335,13 +341,13 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
     } else if (event->matches(QKeySequence::MoveToPreviousLine)) {
         moveCursor(-itemRowByteLen());
     } else if (event->matches(QKeySequence::MoveToNextChar)) {
-        moveCursor(itemByteLen);
+        moveCursor(cursorOnAscii ? 1 : itemByteLen);
     } else if (event->matches(QKeySequence::MoveToPreviousChar)) {
-        moveCursor(-itemByteLen);
+        moveCursor(cursorOnAscii ? -1 : -itemByteLen);
     } else if (event->matches(QKeySequence::MoveToNextPage)) {
-        moveCursor(visibleLines * itemRowByteLen());
+        moveCursor(bytesPerScreen());
     } else if (event->matches(QKeySequence::MoveToPreviousPage)) {
-        moveCursor(visibleLines * itemRowByteLen());
+        moveCursor(-bytesPerScreen());
     }
     //viewport()->update();
 }
@@ -703,6 +709,7 @@ void HexWidget::moveCursor(int offset)
     if (offset < 0 && cursor.address < abs(offset)) {
         return;
     }
+    // TODO: prevent positive overflow
     uint64_t addr = cursor.address + offset;
     setCursorAddr(addr);
 }
@@ -782,6 +789,11 @@ void HexWidget::updateCursorMeta()
         shadowCursor.screenPos.moveTopLeft(pointAscii);
         shadowCursor.cachedString = renderAscii(offset, &shadowCursor.cachedColor);
     }
+}
+
+void HexWidget::setCursorOnAscii(bool ascii)
+{
+    cursorOnAscii = ascii;
 }
 
 const QColor HexWidget::itemColor(uint8_t byte)
@@ -921,7 +933,7 @@ void HexWidget::updateDataCache()
     }
 }
 
-uint64_t HexWidget::screenPosToAddr(const QPoint &point)
+uint64_t HexWidget::screenPosToAddr(const QPoint &point) const
 {
     uint64_t addr = startAddress;
     QPoint pt = point - itemArea.topLeft();
@@ -933,6 +945,21 @@ uint64_t HexWidget::screenPosToAddr(const QPoint &point)
     addr += (pt.x() / itemWidth()) * itemByteLen;
 
     return addr;
+}
+
+uint64_t HexWidget::asciiPosToAddr(const QPoint &point) const
+{
+    uint64_t addr = startAddress;
+    QPoint pt = point - asciiArea.topLeft();
+
+    addr += (pt.y() / lineHeight) * itemRowByteLen();
+    addr += (pt.x() / charWidth);
+    return addr;
+}
+
+uint64_t HexWidget::currentAreaPosToAddr(const QPoint &point) const
+{
+    return cursorOnAscii ? asciiPosToAddr(point) : screenPosToAddr(point);
 }
 
 QRect HexWidget::itemRectangle(uint offset)
