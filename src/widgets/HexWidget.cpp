@@ -334,11 +334,13 @@ void HexWidget::wheelEvent(QWheelEvent *event)
 
     if (delta < 0 && startAddress < -delta) {
         startAddress = 0;
+    } else if (delta > 0 && (maxIndex - startAddress) <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
+        startAddress = (maxIndex - bytesPerScreen()) + 1;
     } else {
-        startAddress += delta; // TODO: handle positive overflow
+        startAddress += delta;
     }
     updateDataCache();
-    if (cursor.address >= startAddress && cursor.address <= (startAddress + bytesPerScreen())) {
+    if (cursor.address >= startAddress && cursor.address <= lastVisibleAddr()) {
         /* Don't enable cursor blinking if selection isn't empty */
         if (selection.isEmpty())
             cursorEnabled = true;
@@ -621,8 +623,6 @@ void HexWidget::drawAsciiArea(QPainter &painter)
 
     fillSelectionBackground(painter, true);
 
-    /* FIXME: Copypasta*/
-
     uint64_t address = startAddress;
     QChar ascii;
     QColor color;
@@ -660,13 +660,13 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
     int startOffset = -1;
     int endOffset = -1;
 
-    if (!selection.intersects(startAddress, startAddress + bytesPerScreen())) {
+    if (!selection.intersects(startAddress, lastVisibleAddr())) {
         return;
     }
 
     /* Convert absolute values to relative */
     startOffset = std::max(selection.start(), startAddress) - startAddress;
-    endOffset = std::min(selection.end(), startAddress + bytesPerScreen() - 1) - startAddress;
+    endOffset = std::min(selection.end(), lastVisibleAddr()) - startAddress;
 
     /* Align values */
     int startOffset2 = (startOffset + itemRowByteLen()) & ~(itemRowByteLen() - 1);
@@ -761,12 +761,14 @@ void HexWidget::updateAreasHeight()
 
 void HexWidget::moveCursor(int offset, bool select)
 {
-    if (offset < 0 && cursor.address < abs(offset)) {
-        setCursorAddr(0, select);
-        return;
+    uint64_t addr = cursor.address;
+    if (offset < 0 && addr < static_cast<uint64_t>(abs(offset))) {
+        addr = 0;
+    } else if (offset > 0 && (maxIndex - addr) <= static_cast<uint64_t>(offset - 1)) {
+        addr = maxIndex;
+    } else {
+        addr += offset;
     }
-    // TODO: prevent positive overflow
-    uint64_t addr = cursor.address + offset;
     setCursorAddr(addr, select);
 }
 
@@ -786,10 +788,13 @@ void HexWidget::setCursorAddr(uint64_t addr, bool select)
     }
 
     /* Update data cache if necessary */
-    if (!(addr >= startAddress && addr < (startAddress + bytesPerScreen()))) {
+    if (!(addr >= startAddress && addr <= lastVisibleAddr())) {
         /* Align start address */
-        if (itemRowByteLen() != 1)
-            addr -= addr % itemRowByteLen();
+        addr -= addr % itemRowByteLen();
+
+        if (addr > (maxIndex - bytesPerScreen()) + 1) {
+            addr = (maxIndex - bytesPerScreen()) + 1;
+        }
 
         /* FIXME: handling Page Up/Down */
         if (addr == startAddress + bytesPerScreen()) {
@@ -797,8 +802,6 @@ void HexWidget::setCursorAddr(uint64_t addr, bool select)
         } else {
             startAddress = addr;
         }
-
-        //FIXME: handle end of address space
 
         updateDataCache();
     }

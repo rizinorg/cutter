@@ -215,9 +215,9 @@ private:
         return areaSpacing * charWidth;
     }
 
-    static inline bool isPrintable(uint8_t byte)
+    inline uint64_t lastVisibleAddr() const
     {
-        return (byte >= '!' && byte <= '~');
+        return (startAddress - 1) + bytesPerScreen();
     }
 
     const QRect &currentArea() const
@@ -284,6 +284,8 @@ private:
     QAction *actionHexPairs;
     QAction *actionCopy;
     QAction *actionCopyAddress;
+
+    const uint64_t maxIndex = UINT64_MAX;
 };
 
 #endif // HEXWIDGET_H
