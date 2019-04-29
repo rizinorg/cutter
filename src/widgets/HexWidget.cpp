@@ -32,7 +32,9 @@ HexWidget::HexWidget(QWidget *parent) :
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QScrollArea::customContextMenuRequested, this, &HexWidget::showContextMenu);
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() { viewport()->update(); });
+
     connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
+    connect(Config(), &Configuration::fontsUpdated, this, [this]() { setFont(Config()->getFont()); });
 
     auto sizeActionGroup = new QActionGroup(this);
     for (int i = 1; i <= 8; i *= 2) {
