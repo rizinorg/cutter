@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     if (!settings.value("updated_custom_themes", false).toBool()) {
         const QStringList options = Core()->cmdj("ecj").object().keys()
                                     << ColorThemeWorker::cutterSpecificOptions;
-        for (auto theme : Core()->cmd("eco*").split('\n', QString::SkipEmptyParts)) {
+        for (auto theme : Core()->cmdList("eco*")) {
             theme = theme.trimmed();
             if (!ThemeWorker().isCustomTheme(theme)) {
                 continue;
