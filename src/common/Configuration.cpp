@@ -290,8 +290,8 @@ void Configuration::loadLightTheme()
     setColor("gui.background", QColor(255, 255, 255));
     setColor("gui.alt_background", QColor(245, 250, 255));
     setColor("gui.disass_selected", QColor(255, 255, 255));
-    setColor("highlight",   QColor(210, 210, 255, 150));
-    setColor("highlightWord", QColor(179, 119, 214, 60));
+    setColor("linehl",   QColor(210, 210, 255, 150));
+    setColor("wordhl", QColor(179, 119, 214, 60));
     setColor("highlightPC", QColor(214, 255, 210));
     setColor("gui.navbar.empty", QColor(220, 236, 245));
     setColor("gui.navbar.err", QColor(3, 170, 245));
