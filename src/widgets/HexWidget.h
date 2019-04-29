@@ -65,9 +65,9 @@ public:
         return !m_empty && m_start <= pos && pos <= m_end;
     }
 
-    int size()
+    uint64_t size()
     {
-        int size = 0;
+        uint64_t size = 0;
         if (!isEmpty())
             size = m_end - m_start + 1;
         return size;
@@ -121,6 +121,8 @@ private slots:
     void showContextMenu(const QPoint &pt);
     void onCursorBlinked();
     void onHexPairsModeEnabled(bool enable);
+    void copy();
+    void copyAddress();
 
 private:
     void updateItemLength();
@@ -280,6 +282,8 @@ private:
     QList<QAction *> actionsItemFormat;
     QAction *actionItemBigEndian;
     QAction *actionHexPairs;
+    QAction *actionCopy;
+    QAction *actionCopyAddress;
 };
 
 #endif // HEXWIDGET_H

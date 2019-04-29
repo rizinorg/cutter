@@ -11,6 +11,10 @@
 #include <QtEndian>
 #include <QScrollBar>
 #include <QMenu>
+#include <QClipboard>
+#include <QApplication>
+
+static const uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
 
 HexWidget::HexWidget(QWidget *parent) :
     QScrollArea(parent),
@@ -84,6 +88,16 @@ HexWidget::HexWidget(QWidget *parent) :
     actionHexPairs = new QAction(tr("hex.pairs"), this);
     actionHexPairs->setCheckable(true);
     connect(actionHexPairs, &QAction::triggered, this, &HexWidget::onHexPairsModeEnabled);
+
+    actionCopy = new QAction(tr("Copy"), this);
+    addAction(actionCopy);
+    actionCopy->setShortcut(QKeySequence::Copy);
+    connect(actionCopy, &QAction::triggered, this, &HexWidget::copy);
+
+    actionCopyAddress = new QAction(tr("Copy address"), this);
+    actionCopyAddress->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
+    connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
+    addAction(actionCopyAddress);
 
     updateMetrics();
     updateItemLength();
@@ -381,6 +395,9 @@ void HexWidget::showContextMenu(const QPoint &pt)
     columnsMenu->addActions(actionsColumnCount);
     menu->addAction(actionHexPairs);
     menu->addAction(actionItemBigEndian);
+    menu->addSeparator();
+    menu->addAction(actionCopy);
+    menu->addAction(actionCopyAddress);
     menu->exec(mapToGlobal(pt));
     menu->deleteLater();
 }
@@ -402,6 +419,30 @@ void HexWidget::onHexPairsModeEnabled(bool enable)
         itemColumns *= 2;
         setItemGroupSize(1);
     }
+}
+
+void HexWidget::copy()
+{
+    if (selection.isEmpty() || selection.size() > MAX_COPY_SIZE)
+        return;
+
+    QClipboard *clipboard = QApplication::clipboard();
+    QString range = QString("%1@0x%2").arg(selection.size()).arg(selection.start(), 0, 16);
+    if (cursorOnAscii) {
+        clipboard->setText(Core()->cmd("psx " + range));
+    } else {
+        clipboard->setText(Core()->cmd("p8 " + range)); //TODO: copy in the format shown
+    }
+}
+
+void HexWidget::copyAddress()
+{
+    uint64_t addr = cursor.address;
+    if (!selection.isEmpty()) {
+        addr = selection.start();
+    }
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(RAddressString(addr));
 }
 
 void HexWidget::updateItemLength()
