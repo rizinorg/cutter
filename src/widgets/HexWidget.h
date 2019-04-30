@@ -4,6 +4,47 @@
 #include <QScrollArea>
 #include <QTimer>
 
+struct BasicCursor {
+    uint64_t address;
+    bool pastEnd;
+    BasicCursor(uint64_t pos) : address(pos), pastEnd(false) {}
+    BasicCursor() : address(0), pastEnd(false) {}
+    BasicCursor &operator+=(int64_t offset)
+    {
+        if (offset < 0 && uint64_t(-offset) > address) {
+            address = 0;
+            pastEnd = false;
+        } else if (offset > 0 && uint64_t(offset) > (UINT64_MAX - address)) {
+            address = UINT64_MAX;
+            pastEnd = true;
+        } else {
+            address += uint64_t(offset);
+            pastEnd = false;
+        }
+        return *this;
+    }
+    BasicCursor &operator+=(int offset)
+    {
+        *this += int64_t(offset);
+        return *this;
+    }
+    BasicCursor &operator+=(uint64_t offset)
+    {
+        if (uint64_t(offset) > (UINT64_MAX - address)) {
+            address = UINT64_MAX;
+            pastEnd = true;
+        } else {
+            address += offset;
+            pastEnd = false;
+        }
+        return *this;
+    }
+    bool operator<(const BasicCursor &r)
+    {
+        return  address < r.address || (pastEnd < r.pastEnd);
+    }
+};
+
 struct HexCursor {
     HexCursor() { isVisible = false; onAsciiArea = false; }
 
@@ -34,30 +75,34 @@ class HexSelection
 public:
     HexSelection() { m_empty = true; }
 
-    inline void init(uint64_t addr)
+    inline void init(BasicCursor addr)
     {
         m_empty = true;
         m_init = addr;
     }
 
-    void update(uint64_t addr)
+    void update(BasicCursor addr)
     {
         m_empty = false;
-        if (addr > m_init) {
-            m_start = m_init;
-            m_end = addr - 1;
+        if (m_init < addr) {
+            m_start = m_init.address;
+            m_end = addr.address;
+            if (!addr.pastEnd)
+                m_end -= 1;
         } else if (addr < m_init) {
-            m_start = addr;
-            m_end = m_init - 1;
+            m_start = addr.address;
+            m_end = m_init.address;
+            if (!m_init.pastEnd)
+                m_end -= 1;
         } else {
-            m_start = m_end = m_init;
+            m_start = m_end = m_init.address;
             m_empty = true;
         }
     }
 
     bool intersects(uint64_t start, uint64_t end)
     {
-        return !m_empty && !(m_end <= start || m_start >= end);
+        return !m_empty && m_end >= start && m_start <= end;
     }
 
     bool contains(uint64_t pos) const
@@ -78,7 +123,7 @@ public:
     inline uint64_t end() { return m_end; }
 
 private:
-    uint64_t m_init;
+    BasicCursor m_init;
     uint64_t m_start;
     uint64_t m_end;
     bool m_empty;
@@ -136,7 +181,7 @@ private:
     void updateAreasPosition();
     void updateAreasHeight();
     void moveCursor(int offset, bool select = false);
-    void setCursorAddr(uint64_t addr, bool select = false);
+    void setCursorAddr(BasicCursor addr, bool select = false);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
     const QColor itemColor(uint8_t byte);
@@ -144,9 +189,9 @@ private:
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
     void updateDataCache();
-    uint64_t screenPosToAddr(const QPoint &point) const;
-    uint64_t asciiPosToAddr(const QPoint &point) const;
-    uint64_t currentAreaPosToAddr(const QPoint &point) const;
+    BasicCursor screenPosToAddr(const QPoint &point) const;
+    BasicCursor asciiPosToAddr(const QPoint &point) const;
+    BasicCursor currentAreaPosToAddr(const QPoint &point) const;
     QRect itemRectangle(uint offset);
     QRect asciiRectangle(uint offset);
 

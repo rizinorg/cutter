@@ -288,7 +288,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
         pos.setX(area.left());
     else if (pos.x() > area.right())
         pos.setX(area.right());
-    uint64_t addr = currentAreaPosToAddr(pos);
+    auto addr = currentAreaPosToAddr(pos);
     setCursorAddr(addr, true);
 
     /* Stop blinking */
@@ -308,8 +308,8 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
         if (selecting) {
             updatingSelection = true;
             setCursorOnAscii(!selectingData);
-            setCursorAddr(currentAreaPosToAddr(pos));
-            selection.init(cursor.address);
+            auto cursorPosition = currentAreaPosToAddr(pos);
+            setCursorAddr(cursorPosition);
             viewport()->update();
         }
     }
@@ -318,6 +318,8 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
 void HexWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
+        if (selection.isEmpty())
+            selection.init(cursor.address);
         updatingSelection = false;
     }
 }
@@ -342,8 +344,7 @@ void HexWidget::wheelEvent(QWheelEvent *event)
     updateDataCache();
     if (cursor.address >= startAddress && cursor.address <= lastVisibleAddr()) {
         /* Don't enable cursor blinking if selection isn't empty */
-        if (selection.isEmpty())
-            cursorEnabled = true;
+        cursorEnabled = selection.isEmpty();
         updateCursorMeta();
     } else {
         cursorEnabled = false;
@@ -377,10 +378,10 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
     } else if (moveOrSelect(QKeySequence::MoveToPreviousPage, QKeySequence::SelectPreviousPage)) {
         moveCursor(-bytesPerScreen(), select);
     } else if (moveOrSelect(QKeySequence::MoveToStartOfLine, QKeySequence::SelectStartOfLine)) {
-        int linePos = int(cursor.address - startAddress) % itemRowByteLen();
+        int linePos = int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
         moveCursor(-linePos, select);
     } else if (moveOrSelect(QKeySequence::MoveToEndOfLine, QKeySequence::SelectEndOfLine)) {
-        int linePos = int(cursor.address - startAddress) % itemRowByteLen();
+        int linePos = int((cursor.address % itemRowByteLen()) - (startAddress % itemRowByteLen()));
         moveCursor(itemRowByteLen() - linePos, select);
     }
     //viewport()->update();
@@ -761,24 +762,21 @@ void HexWidget::updateAreasHeight()
 
 void HexWidget::moveCursor(int offset, bool select)
 {
-    uint64_t addr = cursor.address;
-    if (offset < 0 && addr < static_cast<uint64_t>(abs(offset))) {
-        addr = 0;
-    } else if (offset > 0 && (maxIndex - addr) <= static_cast<uint64_t>(offset - 1)) {
-        addr = maxIndex;
-    } else {
-        addr += offset;
+    BasicCursor addr = cursor.address;
+    addr += offset;
+    if (addr.address > maxIndex) {
+        addr.address = maxIndex;
     }
     setCursorAddr(addr, select);
 }
 
-void HexWidget::setCursorAddr(uint64_t addr, bool select)
+void HexWidget::setCursorAddr(BasicCursor addr, bool select)
 {
-    if (!select  || (selection.isEmpty())) {
-        selection.init(cursor.address);
+    if (!select) {
+        selection.init(addr);
     }
 
-    cursor.address = addr;
+    cursor.address = addr.address;
 
     /* Pause cursor repainting */
     cursorEnabled = false;
@@ -787,20 +785,21 @@ void HexWidget::setCursorAddr(uint64_t addr, bool select)
         selection.update(addr);
     }
 
+    uint64_t addressValue = cursor.address;
     /* Update data cache if necessary */
-    if (!(addr >= startAddress && addr <= lastVisibleAddr())) {
+    if (!(addressValue >= startAddress && addressValue <= lastVisibleAddr())) {
         /* Align start address */
-        addr -= addr % itemRowByteLen();
+        addressValue -= (addressValue % itemRowByteLen());
 
-        if (addr > (maxIndex - bytesPerScreen()) + 1) {
-            addr = (maxIndex - bytesPerScreen()) + 1;
+        if (addressValue > (maxIndex - bytesPerScreen()) + 1) {
+            addressValue = (maxIndex - bytesPerScreen()) + 1;
         }
 
         /* FIXME: handling Page Up/Down */
-        if (addr == startAddress + bytesPerScreen()) {
+        if (addressValue == startAddress + bytesPerScreen()) {
             startAddress += itemRowByteLen();
         } else {
-            startAddress = addr;
+            startAddress = addressValue;
         }
 
         updateDataCache();
@@ -988,30 +987,33 @@ void HexWidget::updateDataCache()
     }
 }
 
-uint64_t HexWidget::screenPosToAddr(const QPoint &point) const
+BasicCursor HexWidget::screenPosToAddr(const QPoint &point) const
 {
-    uint64_t addr = startAddress;
     QPoint pt = point - itemArea.topLeft();
 
-    addr += (pt.y() / lineHeight) * itemRowByteLen();
-    addr += (pt.x() / columnExWidth()) * itemGroupByteLen();
+    int relativeAddress = 0;
+    relativeAddress += (pt.y() / lineHeight) * itemRowByteLen();
+    relativeAddress += (pt.x() / columnExWidth()) * itemGroupByteLen();
     pt.rx() %= columnExWidth();
-    addr += ((pt.x() + itemWidth() / 2) / itemWidth()) * itemByteLen;
-
-    return addr;
+    relativeAddress += ((pt.x() + itemWidth() / 2) / itemWidth()) * itemByteLen;
+    BasicCursor result(startAddress);
+    result += relativeAddress;
+    return result;
 }
 
-uint64_t HexWidget::asciiPosToAddr(const QPoint &point) const
+BasicCursor HexWidget::asciiPosToAddr(const QPoint &point) const
 {
-    uint64_t addr = startAddress;
     QPoint pt = point - asciiArea.topLeft();
 
-    addr += (pt.y() / lineHeight) * itemRowByteLen();
-    addr += (pt.x() +  charWidth / 2) / charWidth;
-    return addr;
+    int relativeAddress = 0;
+    relativeAddress += (pt.y() / lineHeight) * itemRowByteLen();
+    relativeAddress += (pt.x() +  charWidth / 2) / charWidth;
+    BasicCursor result(startAddress);
+    result += relativeAddress;
+    return result;
 }
 
-uint64_t HexWidget::currentAreaPosToAddr(const QPoint &point) const
+BasicCursor HexWidget::currentAreaPosToAddr(const QPoint &point) const
 {
     return cursorOnAscii ? asciiPosToAddr(point) : screenPosToAddr(point);
 }
