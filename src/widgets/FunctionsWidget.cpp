@@ -132,16 +132,10 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 case 5:
                     return tr("Nlocals: %1").arg(RSizeString(function.nlocals));
                 case 6:
-                    return tr("Cyclomatic complexity: %1").arg(RSizeString(function.cc));
-                case 7:
                     return tr("Call type: %1").arg(function.calltype);
-                case 8:
+                case 7:
                     return tr("Edges: %1").arg(function.edges);
-                case 9:
-                    return tr("Cost: %1").arg(function.cost);
-                case 10:
-                    return tr("Calls/OutDegree: %1").arg(function.calls);
-                case 11:
+                case 8:
                     return tr("StackFrame: %1").arg(function.stackframe);
                 default:
                     return QVariant();
@@ -158,20 +152,14 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 return RAddressString(function.offset);
             case NargsColumn:
                 return function.nargs;
-            case NbbsColumn:
-                return function.nbbs;
             case NlocalsColumn:
                 return function.nlocals;
-            case CcColumn:
-                return function.cc;
+            case NbbsColumn:
+                return function.nbbs;
             case CalltypeColumn:
                 return function.calltype;
             case EdgesColumn:
                 return function.edges;
-            case CostColumn:
-                return function.cost;
-            case CallsColumn:
-                return function.calls;
             case FrameColumn:
                 return function.stackframe;
             default:
@@ -267,20 +255,14 @@ QVariant FunctionModel::headerData(int section, Qt::Orientation orientation, int
                 return tr("Offset");
             case NargsColumn:
                 return tr("Nargs");
-            case NbbsColumn:
-                return tr("Nbbs");
             case NlocalsColumn:
                 return tr("Nlocals");
-            case CcColumn:
-                return tr("Cyclo. Comp.");
+            case NbbsColumn:
+                return tr("Nbbs");
             case CalltypeColumn:
                 return tr("Call type");
             case EdgesColumn:
                 return tr("Edges");
-            case CostColumn:
-                return tr("Cost");
-            case CallsColumn:
-                return tr("Calls/OutDeg.");
             case FrameColumn:
                 return tr("StackFrame");
             default:
@@ -402,32 +384,19 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
             if (left_function.nargs != right_function.nargs)
                 return left_function.nargs < right_function.nargs;
             break;
-        case FunctionModel::NbbsColumn:
-            if (left_function.nbbs != right_function.nbbs)
-                return left_function.nbbs < right_function.nbbs;
-            break;
         case FunctionModel::NlocalsColumn:
             if (left_function.nlocals != right_function.nlocals)
                 return left_function.nlocals < right_function.nlocals;
             break;
-        case FunctionModel::CcColumn:
-            if (left_function.cc != right_function.cc)
-                return left_function.cc < right_function.cc;
+        case FunctionModel::NbbsColumn:
+            if (left_function.nbbs != right_function.nbbs)
+                return left_function.nbbs < right_function.nbbs;
             break;
         case FunctionModel::CalltypeColumn:
             return left_function.calltype < right_function.calltype;
-            break;
         case FunctionModel::EdgesColumn:
             if (left_function.edges != right_function.edges)
                 return left_function.edges < right_function.edges;
-            break;
-        case FunctionModel::CostColumn:
-            if (left_function.cost != right_function.cost)
-                return left_function.cost < right_function.cost;
-            break;
-        case FunctionModel::CallsColumn:
-            if (left_function.calls != right_function.calls)
-                return left_function.calls < right_function.calls;
             break;
         case FunctionModel::FrameColumn:
             if (left_function.stackframe != right_function.stackframe)
