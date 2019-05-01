@@ -98,10 +98,27 @@
    <property name="text">
     <string>Rename</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
   </action>
   <action name="actionDelete">
    <property name="text">
     <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionXrefs">
+   <property name="text">
+    <string>X-Refs</string>
+   </property>
+   <property name="toolTip">
+    <string>Show X-Refs of this flag</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
    </property>
   </action>
  </widget>

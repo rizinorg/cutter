@@ -71,6 +71,7 @@ private slots:
 
     void on_actionRename_triggered();
     void on_actionDelete_triggered();
+    void on_actionXrefs_triggered();
 
     void showContextMenu(const QPoint &pt);
 
