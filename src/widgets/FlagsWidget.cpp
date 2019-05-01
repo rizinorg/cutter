@@ -213,6 +213,7 @@ void FlagsWidget::on_actionXrefs_triggered()
     xresfDialog.fillRefsForAddress(flag.offset, RAddressString(flag.offset), false);
     xresfDialog.exec();
 }
+
 void FlagsWidget::showContextMenu(const QPoint &pt)
 {
     QMenu *menu = new QMenu(ui->flagsTreeView);
