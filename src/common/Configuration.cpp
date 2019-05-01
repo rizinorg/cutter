@@ -7,9 +7,9 @@
 #include <QApplication>
 #include <QLibraryInfo>
 
-#include "common/ColorSchemeFileSaver.h"
+#include "common/ColorThemeWorker.h"
 
-const QList<CutterQtTheme> kCutterQtThemesList = {
+const QList<CutterInterfaceTheme> kCutterInterfaceThemesList = {
     { "Native", static_cast<ColorFlags>(LightFlag | DarkFlag) },
     { "Dark",   DarkFlag },
     { "Light",  LightFlag }
@@ -54,7 +54,7 @@ static const QHash<QString, QVariant> asmOptions = {
 };
 
 
-Configuration::Configuration() : QObject()
+Configuration::Configuration() : QObject(), nativePalette(qApp->palette())
 {
     mPtr = this;
     if (!s.isWritable()) {
@@ -75,7 +75,7 @@ Configuration *Configuration::instance()
 
 void Configuration::loadInitial()
 {
-    setTheme(getTheme());
+    setInterfaceTheme(getInterfaceTheme());
     setColorTheme(getColorTheme());
     applySavedAsmOptions();
 }
@@ -210,6 +210,15 @@ void Configuration::loadBaseThemeNative()
         qApp->setStyleSheet(stylesheet);
     }
 
+    qApp->setPalette(nativePalette);
+    /* Some widgets does not change its palette when QApplication changes one
+     * so this loop force all widgets do this, but all widgets take palette from
+     * QApplication::palette() when they are created so line above is necessary too.
+     */
+    for (auto widget : qApp->allWidgets()) {
+        widget->setPalette(nativePalette);
+    }
+
     /* Colors */
     // GUI
     setColor("gui.cflow",   QColor(0, 0, 0));
@@ -240,18 +249,18 @@ void Configuration::loadNativeTheme()
         setColor("gui.background", QColor(30, 30, 30));
         setColor("gui.alt_background", QColor(42, 42, 42));
         setColor("gui.disass_selected", QColor(35, 35, 35));
-        setColor("highlight",   QColor(255, 255, 255, 15));
-        setColor("highlightWord", QColor(20, 20, 20, 255));
+        setColor("linehl", QColor(255, 255, 255, 15));
+        setColor("wordhl", QColor(20, 20, 20, 255));
         setColor("highlightPC", QColor(87, 26, 7));
         setColor("gui.tooltip.background", QColor(42, 44, 46));
         setColor("gui.tooltip.foreground", QColor(250, 252, 254));
     } else {
-        setColor("gui.border",  QColor(0, 0, 0));
+        setColor("gui.border", QColor(0, 0, 0));
         setColor("gui.background", QColor(255, 255, 255));
         setColor("gui.alt_background", QColor(245, 250, 255));
         setColor("gui.disass_selected", QColor(255, 255, 255));
-        setColor("highlight",   QColor(210, 210, 255, 150));
-        setColor("highlightWord", QColor(179, 119, 214, 60));
+        setColor("linehl", QColor(210, 210, 255, 150));
+        setColor("wordhl", QColor(179, 119, 214, 60));
         setColor("highlightPC", QColor(214, 255, 210));
     }
 }
@@ -269,6 +278,11 @@ void Configuration::loadLightTheme()
         f.open(QFile::ReadOnly | QFile::Text);
         QTextStream ts(&f);
         QString stylesheet = ts.readAll();
+
+        QPalette p = qApp->palette();
+        p.setColor(QPalette::Text, Qt::black);
+        qApp->setPalette(p);
+
         qApp->setStyleSheet(stylesheet);
     }
 
@@ -276,8 +290,8 @@ void Configuration::loadLightTheme()
     setColor("gui.background", QColor(255, 255, 255));
     setColor("gui.alt_background", QColor(245, 250, 255));
     setColor("gui.disass_selected", QColor(255, 255, 255));
-    setColor("highlight",   QColor(210, 210, 255, 150));
-    setColor("highlightWord", QColor(179, 119, 214, 60));
+    setColor("linehl",   QColor(210, 210, 255, 150));
+    setColor("wordhl", QColor(179, 119, 214, 60));
     setColor("highlightPC", QColor(214, 255, 210));
     setColor("gui.navbar.empty", QColor(220, 236, 245));
     setColor("gui.navbar.err", QColor(3, 170, 245));
@@ -304,6 +318,9 @@ void Configuration::loadBaseThemeDark()
                       "    height: 12px;"
                       "}";
 #endif
+        QPalette p = qApp->palette();
+        p.setColor(QPalette::Text, Qt::white);
+        qApp->setPalette(p);
         qApp->setStyleSheet(stylesheet);
     }
 
@@ -343,10 +360,10 @@ void Configuration::loadDarkTheme()
     // Disassembly nodes background when selected
     setColor("gui.disass_selected", QColor(31, 34, 40));
     // Disassembly line selected
-    setColor("highlight", QColor(21, 29, 29, 150));
-    setColor("highlightWord", QColor(52, 58, 71, 255));
     setColor("gui.tooltip.background", QColor(42, 44, 46));
     setColor("gui.tooltip.foreground", QColor(250, 252, 254));
+    setColor("linehl", QColor(21, 29, 29, 150));
+    setColor("wordhl", QColor(52, 58, 71, 255));
 }
 
 const QFont Configuration::getFont() const
@@ -361,20 +378,20 @@ void Configuration::setFont(const QFont &font)
     emit fontsUpdated();
 }
 
-QString Configuration::getLastThemeOf(const CutterQtTheme &currQtTheme) const
+QString Configuration::getLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme) const
 {
-    return s.value("lastThemeOf." + currQtTheme.name,
+    return s.value("lastThemeOf." + currInterfaceTheme.name,
                    Config()->getColorTheme()).toString();
 }
 
-void Configuration::setTheme(int theme)
+void Configuration::setInterfaceTheme(int theme)
 {
-    if (theme >= kCutterQtThemesList.size() ||
+    if (theme >= kCutterInterfaceThemesList.size() ||
             theme < 0) {
         theme = 0;
     }
     s.setValue("ColorPalette", theme);
-    QString themeName = kCutterQtThemesList[theme].name;
+    QString themeName = kCutterInterfaceThemesList[theme].name;
 
     if (themeName == "Native") {
         loadNativeTheme();
@@ -386,18 +403,18 @@ void Configuration::setTheme(int theme)
         loadNativeTheme();
     }
 
-    emit themeChanged();
+    emit interfaceThemeChanged();
     emit colorsUpdated();
 }
 
-const CutterQtTheme *Configuration::getCurrentTheme()
+const CutterInterfaceTheme *Configuration::getCurrentTheme()
 {
-    int i = getTheme();
-    if (i < 0 || i >= kCutterQtThemesList.size()) {
+    int i = getInterfaceTheme();
+    if (i < 0 || i >= kCutterInterfaceThemesList.size()) {
         i = 0;
-        setTheme(i);
+        setInterfaceTheme(i);
     }
-    return &kCutterQtThemesList[i];
+    return &kCutterInterfaceThemesList[i];
 }
 
 QString Configuration::getLogoFile()
@@ -417,9 +434,9 @@ void Configuration::setColor(const QString &name, const QColor &color)
     s.setValue("colors." + name, color);
 }
 
-void Configuration::setLastThemeOf(const CutterQtTheme &currQtTheme, const QString &theme)
+void Configuration::setLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme, const QString &theme)
 {
-    s.setValue("lastThemeOf." + currQtTheme.name, theme);
+    s.setValue("lastThemeOf." + currInterfaceTheme.name, theme);
 }
 
 const QColor Configuration::getColor(const QString &name) const
@@ -440,25 +457,19 @@ void Configuration::setColorTheme(const QString &theme)
         Core()->cmd(QStringLiteral("eco %1").arg(theme));
         s.setValue("theme", theme);
     }
-    // Duplicate interesting colors into our Cutter Settings
-    // Dirty fix for arrow colors, TODO refactor getColor, setColor, etc.
-    QJsonDocument colors = Core()->cmdj("ecj");
-    QJsonObject colorsObject = colors.object();
 
-    for (auto it = colorsObject.constBegin(); it != colorsObject.constEnd(); it++) {
+    QJsonObject colorTheme = ThemeWorker().getTheme(theme).object();
+    for (auto it = colorTheme.constBegin(); it != colorTheme.constEnd(); it++) {
         QJsonArray rgb = it.value().toArray();
         if (rgb.size() != 3) {
             continue;
         }
-        s.setValue("colors." + it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()));
+        setColor(it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()));
     }
 
-    QMap<QString, QColor> cutterSpecific = ColorSchemeFileWorker().getCutterSpecific();
-    for (auto &it : cutterSpecific.keys())
-        setColor(it, cutterSpecific[it]);
-
-    if (!ColorSchemeFileWorker().isCustomScheme(theme)) {
-        setTheme(getTheme());
+    // Trick Cutter to load colors that are not specified in standard theme
+    if (!ThemeWorker().isCustomTheme(theme)) {
+        setInterfaceTheme(getInterfaceTheme());
     }
 
     emit colorsUpdated();

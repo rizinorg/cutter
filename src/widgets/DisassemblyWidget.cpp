@@ -99,15 +99,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
 
-    // Space to switch to graph
-    QShortcut *graphShortcut = new QShortcut(QKeySequence(Qt::Key_Space), this);
-    graphShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(graphShortcut, &QShortcut::activated, this, [] {
-        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-        Core()->triggerRaisePrioritizedMemoryWidget();
-    });
-
-
     connect(mDisasScrollArea, SIGNAL(scrollLines(int)), this, SLOT(scrollInstructions(int)));
     connect(mDisasScrollArea, SIGNAL(disassemblyResized()), this, SLOT(updateMaxLines()));
 
@@ -146,13 +137,9 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(Core(), &CutterCore::refreshAll, this, [this]() {
         refreshDisasm(seekable->getOffset());
     });
+    refreshDisasm(seekable->getOffset());
 
     connect(mCtxMenu, SIGNAL(copy()), mDisasTextEdit, SLOT(copy()));
-
-    // Dirty
-    QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    shortcut_escape->setContext(Qt::WidgetShortcut);
-    connect(shortcut_escape, SIGNAL(activated()), this, SLOT(seekPrev()));
 
     mCtxMenu->addSeparator();
     syncIt.setText(tr("Sync/unsync offset"));
@@ -160,32 +147,44 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(&syncIt, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblyWidget::on_seekChanged);
 
-#define ADD_SHORTCUT(ksq, slot) { \
-    QShortcut *s = new QShortcut((ksq), this); \
-    s->setContext(Qt::WidgetShortcut); \
-    connect(s, &QShortcut::activated, this, (slot)); \
-}
-    ADD_SHORTCUT(QKeySequence(Qt::Key_J), [this]() {
+    addActions(mCtxMenu->actions());
+
+#define ADD_ACTION(ksq, ctx, slot) {\
+    QAction *a = new QAction(this); \
+    a->setShortcut(ksq); \
+    a->setShortcutContext(ctx); \
+    addAction(a); \
+    connect(a, &QAction::triggered, this, (slot)); }
+
+    // Space to switch to graph
+    ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut, [] {
+        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
+        Core()->triggerRaisePrioritizedMemoryWidget();
+    })
+
+    ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)
+
+    ADD_ACTION(Qt::Key_J, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(false, false);
     })
-    ADD_SHORTCUT(QKeySequence::MoveToNextLine, [this]() {
+    ADD_ACTION(QKeySequence::MoveToNextLine, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(false, false);
     })
-    ADD_SHORTCUT(QKeySequence(Qt::Key_K), [this]() {
+    ADD_ACTION(Qt::Key_K, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, false);
     })
-    ADD_SHORTCUT(QKeySequence::MoveToPreviousLine, [this]() {
+    ADD_ACTION(QKeySequence::MoveToPreviousLine, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, false);
     })
-    ADD_SHORTCUT(QKeySequence::MoveToNextPage, [this]() {
+    ADD_ACTION(QKeySequence::MoveToNextPage, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(false, true);
     })
-    ADD_SHORTCUT(QKeySequence::MoveToPreviousPage, [this]() {
+    ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, true);
     })
-    ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Plus), &DisassemblyWidget::zoomIn)
-    ADD_SHORTCUT(QKeySequence(Qt::CTRL + Qt::Key_Minus), &DisassemblyWidget::zoomOut)
-#undef ADD_SHORTCUT
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
+#undef ADD_ACTION
 }
 
 void DisassemblyWidget::toggleSync()
@@ -196,6 +195,26 @@ void DisassemblyWidget::toggleSync()
         setWindowTitle(windowTitle);
     } else {
         setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
+    }
+}
+
+void DisassemblyWidget::setPreviewMode(bool previewMode)
+{
+    mDisasTextEdit->setContextMenuPolicy(previewMode
+                                         ? Qt::NoContextMenu
+                                         : Qt::CustomContextMenu);
+    mCtxMenu->setEnabled(!previewMode);
+    for (auto action : mCtxMenu->actions()) {
+        action->setEnabled(!previewMode);
+    }
+    for (auto action : actions()) {
+        if (action->shortcut() == Qt::Key_Space ||
+            action->shortcut() == Qt::Key_Escape) {
+            action->setEnabled(!previewMode);
+        }
+    }
+    if (seekable->isSynchronized() && previewMode) {
+        toggleSync();
     }
 }
 
@@ -335,7 +354,7 @@ void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    QColor highlightColor = ConfigColor("highlight");
+    QColor highlightColor = ConfigColor("linehl");
     QColor highlightPCColor = ConfigColor("highlightPC");
 
     // Highlight the current word
@@ -581,13 +600,13 @@ QList<QTextEdit::ExtraSelection> DisassemblyWidget::getSameWordsSelections()
     QList<QTextEdit::ExtraSelection> selections;
     QTextEdit::ExtraSelection highlightSelection;
     QTextDocument *document = mDisasTextEdit->document();
-    QColor highlightWordColor = ConfigColor("highlightWord");
+    QColor highlightWordColor = ConfigColor("wordhl");
 
     if (curHighlightedWord.isNull()) {
         return QList<QTextEdit::ExtraSelection>();
     }
 
-    highlightSelection.cursor = mDisasTextEdit->textCursor();;
+    highlightSelection.cursor = mDisasTextEdit->textCursor();
     highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
 
     while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {

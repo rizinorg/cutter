@@ -30,8 +30,9 @@ public slots:
     void colorsUpdatedSlot();
     void seekPrev();
     void toggleSync();
+    void setPreviewMode(bool previewMode);
 
-private slots:
+protected slots:
     void on_seekChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
 
@@ -43,11 +44,12 @@ private slots:
     void zoomIn();
     void zoomOut();
 
-private:
+protected:
     DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;
     DisassemblyTextEdit *mDisasTextEdit;
 
+private:
     RVA topOffset;
     RVA bottomOffset;
     int maxLines;

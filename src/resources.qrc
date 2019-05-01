@@ -90,5 +90,12 @@
         <file>img/icons/light/plugins.svg</file>
         <file>python/cutter.py</file>
         <file>python/reg_qtres_importer.py</file>
+        <file>img/icons/download_black.svg</file>
+        <file>img/icons/pencil_thin.svg</file>
+        <file>img/icons/save_black.svg</file>
+        <file>img/icons/trash_bin.svg</file>
+        <file>img/icons/upload_black.svg</file>
+        <file>img/icons/rename.svg</file>
+        <file>img/icons/reset.svg</file>
     </qresource>
 </RCC>

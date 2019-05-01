@@ -240,7 +240,7 @@ void MainWindow::initToolBar()
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
-    QObject::connect(configuration, &Configuration::themeChanged, this, &MainWindow::chooseThemeIcons);
+    QObject::connect(configuration, &Configuration::interfaceThemeChanged, this, &MainWindow::chooseThemeIcons);
 }
 
 void MainWindow::initDocks()

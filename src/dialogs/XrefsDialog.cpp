@@ -119,7 +119,7 @@ void XrefsDialog::highlightCurrentLine()
     if (ui->previewTextEdit->isReadOnly()) {
         QTextEdit::ExtraSelection selection = QTextEdit::ExtraSelection();
 
-        selection.format.setBackground(ConfigColor("highlight"));
+        selection.format.setBackground(ConfigColor("linehl"));
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = ui->previewTextEdit->textCursor();
         selection.cursor.clearSelection();
