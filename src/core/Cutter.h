@@ -362,7 +362,6 @@ public:
                                     const QString &filterType = QString::null);
 
     QList<StringDescription> parseStringsJson(const QJsonDocument &doc);
-    QList<FunctionDescription> parseFunctionsJson(const QJsonDocument &doc);
 
     void handleREvent(int type, void *data);
 

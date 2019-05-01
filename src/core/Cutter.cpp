@@ -1529,7 +1529,32 @@ QList<RAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
 
 QList<FunctionDescription> CutterCore::getAllFunctions()
 {
-    return parseFunctionsJson(cmdjTask("aflj"));
+    CORE_LOCK();
+
+    QList<FunctionDescription> ret;
+    ret.reserve(r_list_length(core_->anal->fcns));
+
+    RListIter *iter;
+    RAnalFunction *fcn;
+    CutterRListForeach (core_->anal->fcns, iter, RAnalFunction, fcn) {
+        FunctionDescription function;
+        function.offset = fcn->addr;
+        function.size = r_anal_fcn_size(fcn);
+        function.nargs = r_anal_var_count(core_->anal, fcn, 'b', 1) +
+            r_anal_var_count(core_->anal, fcn, 'r', 1) +
+            r_anal_var_count(core_->anal, fcn, 's', 1);
+        function.nlocals = r_anal_var_count(core_->anal, fcn, 'b', 0) +
+            r_anal_var_count(core_->anal, fcn, 'r', 0) +
+            r_anal_var_count(core_->anal, fcn, 's', 0);
+        function.nbbs = r_list_length (fcn->bbs);
+        function.calltype = fcn->cc ? QString::fromUtf8(fcn->cc) : QString();
+        function.name = fcn->name ? QString::fromUtf8(fcn->name) : QString();
+        function.edges = r_anal_fcn_count_edges(fcn, nullptr);
+        function.stackframe = fcn->maxstack;
+        ret.append(function);
+    }
+
+    return ret;
 }
 
 QList<ImportDescription> CutterCore::getAllImports()
@@ -1743,35 +1768,6 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
         string.section = stringObject[RJsonKey::section].toString();
 
         ret << string;
-    }
-
-    return ret;
-}
-
-QList<FunctionDescription> CutterCore::parseFunctionsJson(const QJsonDocument &doc)
-{
-    QList<FunctionDescription> ret;
-    QJsonArray jsonArray = doc.array();
-
-    for (const QJsonValue &value : jsonArray) {
-        QJsonObject jsonObject = value.toObject();
-
-        FunctionDescription function;
-
-        function.offset = jsonObject[RJsonKey::offset].toVariant().toULongLong();
-        function.size = jsonObject[RJsonKey::size].toVariant().toULongLong();
-        function.nargs = jsonObject[RJsonKey::nargs].toVariant().toULongLong();
-        function.nbbs = jsonObject[RJsonKey::nbbs].toVariant().toULongLong();
-        function.nlocals = jsonObject[RJsonKey::nlocals].toVariant().toULongLong();
-        function.cc = jsonObject[RJsonKey::cc].toVariant().toULongLong();
-        function.calltype = jsonObject[RJsonKey::calltype].toString();
-        function.name = jsonObject[RJsonKey::name].toString();
-        function.edges = jsonObject[RJsonKey::edges].toVariant().toULongLong();
-        function.cost = jsonObject[RJsonKey::cost].toVariant().toULongLong();
-        function.calls = jsonObject[RJsonKey::outdegree].toVariant().toULongLong();
-        function.stackframe = jsonObject[RJsonKey::stackframe].toVariant().toULongLong();
-
-        ret << function;
     }
 
     return ret;
