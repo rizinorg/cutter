@@ -1,6 +1,9 @@
 FROM ubuntu:rolling
 LABEL maintainer "pschmied <ps1337@mailbox.org>"
 
+# Prevent build fails because of interactive scripts when compiling
+ENV DEBIAN_FRONTEND noninteractive
+
 # Dependencies
 RUN apt-get update && \
     apt-get -y install \
