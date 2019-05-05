@@ -264,6 +264,12 @@ private:
     void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
+
+    QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> mapper;
+
+    QString getUniqueObjectName(const QString &className) const;
+
+    void removeFromDockWidgetsList(const QString &objName);
 };
 
 #endif // MAINWINDOW_H

@@ -39,7 +39,7 @@ bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
 void CutterDockWidget::toggleDockWidget(bool show)
 {
     if (!show) {
-        this->close();
+        this->hide();
     } else {
         this->show();
         this->raise();
@@ -73,6 +73,8 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
     if (isTransient) {
         deleteLater();
     }
+
+    emit closed();
 }
 
 QAction *CutterDockWidget::getBoundAction() const

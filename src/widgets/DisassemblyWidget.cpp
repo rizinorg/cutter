@@ -40,17 +40,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
     ,   seekable(new CutterSeekable(this))
 {
-    /*
-     * Ugly hack just for the layout issue
-     * QSettings saves the state with the object names
-     * By doing this hack,
-     * you can at least avoid some mess by dismissing all the Extra Widgets
-     */
-    QString name = "Disassembly";
-    if (!action) {
-        name = "Extra Disassembly";
-    }
-    setObjectName(name);
+    setObjectName("DisassemblyWidget 0");
 
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;

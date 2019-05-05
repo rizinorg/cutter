@@ -105,6 +105,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+template<class T>
+T* getNewInstance(MainWindow *m, QAction *a) { return new T(m, a); }
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(Core()),
@@ -122,6 +125,10 @@ MainWindow::~MainWindow()
 void MainWindow::initUI()
 {
     ui->setupUi(this);
+
+    mapper.insert("GraphWidget", {getNewInstance<GraphWidget>, ui->actionGraph});
+    mapper.insert("DisassemblyWidget", {getNewInstance<DisassemblyWidget>, ui->actionDisassembly});
+    mapper.insert("HexdumpWidget", {getNewInstance<HexdumpWidget>, ui->actionHexdump});
 
     initToolBar();
     initDocks();
@@ -293,6 +300,57 @@ void MainWindow::initDocks()
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
+
+
+    disassemblyDock->setTransient(true);
+    graphDock->setTransient(true);
+    hexdumpDock->setTransient(true);
+
+    QSettings s;
+    QStringList docks = s.value("docks").toStringList();
+    docks.removeDuplicates();
+    docks.removeOne("");
+
+    /* If main widget (pointer to what is field of this class was deleted during last Cutter
+     * execution, rename current one to what left.
+     *
+     * For instance, user deleted "DisassemblyWidget 0", but there was "DisassemblyWidget 1".
+     * So now we want to rename current "DisassemblyWidget 0" to "DisassemblyWidget 1" so
+     * layout is not messed up
+     */
+    for (auto &className : QStringList(QStringList()
+                                       << "DisassemblyWidget"
+                                       << "GraphWidget"
+                                       << "HexdumpWidget")) {
+        if (!docks.contains(className + " 0")) {
+            for (auto &it : docks) {
+                if (it.contains(className)) {
+                    auto el = std::find_if(dockWidgets.begin(), dockWidgets.end(),
+                                        [&className](const QDockWidget* el) { return el->objectName().contains(className); });
+                    if (el != dockWidgets.end()) {
+                        (*el)->setObjectName(it);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    for (const auto &it : dockWidgets) {
+        docks.removeOne(it->objectName());
+    }
+
+    // Restore all extra widgets
+    QString className;
+    for (const auto &it : docks) {
+        className = it.split(' ').at(0);
+        if (mapper.contains(className)) {
+            auto widget = mapper[className].first(this, mapper[className].second);
+            addExtraWidget(widget);
+            widget->setObjectName(it);
+        }
+    }
+
 }
 
 void MainWindow::initLayout()
@@ -325,29 +383,36 @@ void MainWindow::updateTasksIndicator()
 
 void MainWindow::on_actionExtraGraph_triggered()
 {
-    auto *extraDock = new GraphWidget(this, nullptr);
+    auto *extraDock = new GraphWidget(this, ui->actionGraph);
+    extraDock->setObjectName(getUniqueObjectName("GraphWidget"));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraHexdump_triggered()
 {
-    auto *extraDock = new HexdumpWidget(this, nullptr);
+    auto *extraDock = new HexdumpWidget(this, ui->actionHexdump);
+    extraDock->setObjectName(getUniqueObjectName("HexdumpWidget"));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraDisassembly_triggered()
 {
-    auto *extraDock = new DisassemblyWidget(this, nullptr);
+    auto *extraDock = new DisassemblyWidget(this, ui->actionDisassembly);
+    extraDock->setObjectName(getUniqueObjectName("DisassemblyWidget"));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
-{
+{    
     extraDock->setTransient(true);
     addDockWidget(Qt::TopDockWidgetArea, extraDock);
     auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
     qApp->processEvents();
     restoreExtraDock.restoreWidth(extraDock->widget());
+    connect(extraDock, &CutterDockWidget::closed,
+            this, [this]() {
+        removeFromDockWidgetsList(sender()->objectName());
+    });
 }
 
 /**
@@ -641,6 +706,12 @@ void MainWindow::saveSettings()
     settings.setValue("state", saveState());
     settings.setValue("panelLock", panelLock);
     settings.setValue("tabsOnTop", tabsOnTop);
+
+    QStringList docks;
+    for (const auto &it : dockWidgets) {
+        docks.append(it->objectName());
+    }
+    settings.setValue("docks", docks);
 }
 
 void MainWindow::readDebugSettings()
@@ -778,6 +849,40 @@ void MainWindow::updateDockActionsChecked()
 {
     for (auto i = dockWidgetActions.constBegin(); i != dockWidgetActions.constEnd(); i++) {
         i.key()->setChecked(!i.value()->isHidden());
+    }
+}
+
+QString MainWindow::getUniqueObjectName(const QString& className) const
+{
+    QStringList docks;
+    docks.reserve(dockWidgets.size());
+    QString name;
+    for (const auto &it : dockWidgets) {
+        name = it->objectName();
+        if (name.contains(className)) {
+            docks.push_back(name);
+        }
+    }
+
+    if (docks.isEmpty()) {
+        return className;
+    }
+
+    int id = 0;
+    while (docks.contains(className + " " + QString::number(id))) {
+        id++;
+    }
+
+    return className + " "  + QString::number(id);
+}
+
+void MainWindow::removeFromDockWidgetsList(const QString& objName)
+{
+    for (auto &it : dockWidgets) {
+        if (it->objectName() == objName) {
+            dockWidgets.removeOne(it);
+            return;
+        }
     }
 }
 
@@ -1186,6 +1291,10 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
 void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
 {
     this->dockWidgets.push_back(dockWidget);
+    connect(qobject_cast<CutterDockWidget*>(dockWidget), &CutterDockWidget::closed,
+            this, [this]() {
+        removeFromDockWidgetsList(sender()->objectName());
+    });
 }
 
 void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
