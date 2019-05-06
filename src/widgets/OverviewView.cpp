@@ -146,6 +146,7 @@ void OverviewView::colorsUpdatedSlot()
     disassemblyBackgroundColor = ConfigColor("gui.overview.node");
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
+    setCacheDirty();
     refreshView();
 }
 
