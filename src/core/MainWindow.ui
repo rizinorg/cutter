@@ -89,6 +89,7 @@
     <addaction name="separator"/>
     <addaction name="actionLock"/>
     <addaction name="actionTabs_on_Top"/>
+    <addaction name="actionGrouped_dock_dragging"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1083,6 +1084,17 @@
   <action name="actionExtraGraph">
    <property name="text">
     <string>Graph view</string>
+   </property>
+  </action>
+  <action name="actionGrouped_dock_dragging">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Grouped dock dragging</string>
    </property>
   </action>
  </widget>
