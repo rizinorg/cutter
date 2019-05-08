@@ -1,6 +1,7 @@
 #ifndef HEXWIDGET_H
 #define HEXWIDGET_H
 
+#include "Cutter.h"
 #include <QScrollArea>
 #include <QTimer>
 
@@ -48,7 +49,7 @@ struct BasicCursor {
 struct HexCursor {
     HexCursor() { isVisible = false; onAsciiArea = false; }
 
-    bool isVisible; // FIXME: move to HexWidget
+    bool isVisible;
     bool onAsciiArea;
     QTimer blinkTimer;
     QRect screenPos;
@@ -62,12 +63,82 @@ struct HexCursor {
     void stopBlinking() { blinkTimer.stop(); }
 };
 
-struct MemoryCache {
-    QVector<QByteArray> blocks;
-    uint64_t firstBlockAddr;
-    int firstBlockOffset;
+class AbstractData {
+public:
+    virtual void fetch(uint64_t addr, int len) = 0;
+    virtual const void *dataPtr(uint64_t addr) = 0;
+    virtual uint64_t maxIndex() = 0;
+};
 
-    const void *dataPtr(int offset);
+class BufferData : public AbstractData {
+public:
+    BufferData()
+    {
+        m_buffer.fill(0, 1);
+    }
+
+    BufferData(const QByteArray &buffer)
+    {
+        if (buffer.isEmpty()) {
+            m_buffer.fill(0, 1);
+        } else {
+            m_buffer = buffer;
+        }
+    }
+
+    ~BufferData() {}
+
+    void fetch(uint64_t addr, int len) override {}
+
+    const void *dataPtr(uint64_t addr) override
+    {
+        return m_buffer.constData() + addr;
+    }
+
+    uint64_t maxIndex() override
+    {
+        return m_buffer.size() - 1;
+    }
+
+private:
+    QByteArray m_buffer;
+};
+
+class MemoryData : public AbstractData {
+public:
+    MemoryData() {}
+    ~MemoryData() {}
+
+    void fetch(uint64_t address, int length) override
+    {
+        // FIXME: reuse data if possible
+        uint64_t alignedAddr = address & ~(4096ULL - 1);
+        int offset = address - alignedAddr;
+        int len = (offset + length + (4096 - 1)) & ~(4096 - 1);
+        m_firstBlockAddr = alignedAddr;
+        m_blocks.clear();
+        uint64_t addr = alignedAddr;
+        for (int i = 0; i < len / 4096; ++i, addr += 4096) {
+            m_blocks.append(Core()->ioRead(addr, 4096));
+        }
+    }
+
+    const void *dataPtr(uint64_t addr) override
+    {
+        int totalOffset = addr - m_firstBlockAddr;
+        int blockId = totalOffset / 4096;
+        int blockOffset = totalOffset % 4096;
+        return static_cast<const void *>(m_blocks.at(blockId).constData() + blockOffset);
+    }
+
+    virtual uint64_t maxIndex() override
+    {
+        return UINT64_MAX;
+    }
+
+private:
+    QVector<QByteArray> m_blocks;
+    uint64_t m_firstBlockAddr;
 };
 
 class HexSelection
@@ -188,7 +259,7 @@ private:
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
-    void updateDataCache();
+    void fetchData();
     BasicCursor screenPosToAddr(const QPoint &point) const;
     BasicCursor asciiPosToAddr(const QPoint &point) const;
     BasicCursor currentAreaPosToAddr(const QPoint &point) const;
@@ -314,8 +385,6 @@ private:
     QColor b0xffColor;
     QColor printableColor;
 
-    MemoryCache memCache;
-
     /* Spacings in characters */
     const int columnSpacing = 1;
     const int areaSpacing = 2;
@@ -330,7 +399,7 @@ private:
     QAction *actionCopy;
     QAction *actionCopyAddress;
 
-    const uint64_t maxIndex = UINT64_MAX;
+    AbstractData *data;
 };
 
 #endif // HEXWIDGET_H
