@@ -47,6 +47,12 @@ public:
 //        SignedInt4,
     };
     void refresh(RVA addr = RVA_INVALID);
+    /**
+     * @brief Select non empty inclusive range [start; end]
+     * @param start
+     * @param end
+     */
+    void selectRange(RVA start, RVA end);
     void setupFonts();
 
     struct Selection {

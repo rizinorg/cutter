@@ -874,15 +874,7 @@ void HexTextView::on_actionFormatOctal_triggered()
 
 void HexTextView::on_actionSelect_Block_triggered()
 {
-
-    //get the current hex address from current cursor location
-    rangeDialog.setStartAddress(
-        hexPositionToAddress(ui->hexHexText->textCursor().position()));
-    rangeDialog.setModal(false);
-    rangeDialog.show();
-    rangeDialog.activateWindow();
-    rangeDialog.raise();
-
+    rangeDialog.open(hexPositionToAddress(ui->hexHexText->textCursor().position()));
 }
 
 
@@ -910,21 +902,17 @@ void HexTextView::wheelEvent(QWheelEvent *event)
     event->ignore();
 }
 
-
-
-void HexTextView::on_rangeDialogAccepted()
+void HexTextView::selectRange(RVA start, RVA end)
 {
     int                 startPosition;
     int                 endPosition;
     QTextCursor         targetTextCursor;
 
-    requestedSelectionStartAddress = Core()->math(rangeDialog.getStartAddress());
-    requestedSelectionEndAddress = rangeDialog.getEndAddressRadioButtonChecked() ?
-                                   Core()->math(rangeDialog.getEndAddress()) :
-                                   requestedSelectionStartAddress + Core()->math(rangeDialog.getLength());
+    requestedSelectionStartAddress = start;
+    requestedSelectionEndAddress = end;
 
     //not sure what the accepted user feedback mechanism is, output to console or a QMessageBox alert
-    if (requestedSelectionEndAddress <= requestedSelectionStartAddress) {
+    if (requestedSelectionEndAddress < requestedSelectionStartAddress) {
         Core()->message(tr("Error: Could not select range, end address is less then start address"));
         return;
     }
@@ -934,7 +922,7 @@ void HexTextView::on_rangeDialogAccepted()
 
     //for large selections, won't be able to calculate the endPosition because hexAddressToPosition assumes the address is loaded?
     startPosition = hexAddressToPosition(requestedSelectionStartAddress);
-    endPosition = hexAddressToPosition(requestedSelectionEndAddress) - 1;
+    endPosition = hexAddressToPosition(requestedSelectionEndAddress + 1);
 
     targetTextCursor = ui->hexHexText->textCursor();
 
@@ -942,6 +930,19 @@ void HexTextView::on_rangeDialogAccepted()
     targetTextCursor.setPosition(endPosition, QTextCursor::KeepAnchor);
 
     ui->hexHexText->setTextCursor(targetTextCursor);
+}
+
+void HexTextView::on_rangeDialogAccepted()
+{
+    if (rangeDialog.empty()) {
+        refresh(rangeDialog.getStartAddress());
+        return;
+    }
+
+    requestedSelectionStartAddress = rangeDialog.getStartAddress();
+    requestedSelectionEndAddress = rangeDialog.getEndAddress();
+
+    selectRange(requestedSelectionStartAddress, requestedSelectionEndAddress);
 }
 
 void HexTextView::showOffsets(bool show)

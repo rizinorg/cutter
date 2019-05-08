@@ -12,7 +12,6 @@
 #include "core/Cutter.h"
 #include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
-#include "dialogs/HexdumpRangeDialog.h"
 #include "common/Highlighter.h"
 #include "common/HexAsciiHighlighter.h"
 #include "common/HexHighlighter.h"
