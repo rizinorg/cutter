@@ -16,7 +16,7 @@
 #include "common/HexAsciiHighlighter.h"
 #include "common/HexHighlighter.h"
 #include "common/SvgIconEngine.h"
-#include "HexTextView.h"
+#include "HexWidget.h"
 
 #include "Dashboard.h"
 
@@ -31,8 +31,8 @@ class HexdumpWidget : public MemoryDockWidget
     Q_OBJECT
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
-    ~HexdumpWidget();
-    Highlighter        *highlighter;
+    ~HexdumpWidget() override;
+    Highlighter *highlighter;
 
 public slots:
     void initParsing();
@@ -65,7 +65,7 @@ private slots:
 
     void on_actionHideHexdump_side_panel_triggered();
 
-    void selectionChanged(HexTextView::Selection selection);
+    void selectionChanged(HexWidget::Selection selection);
 
     void on_parseArchComboBox_currentTextChanged(const QString &arg1);
     void on_parseBitsComboBox_currentTextChanged(const QString &arg1);

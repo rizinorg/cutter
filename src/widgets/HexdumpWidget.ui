@@ -32,7 +32,7 @@
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="HexTextView" name="hexTextView">
+      <widget class="HexWidget" name="hexTextView">
        <property name="frameShape">
         <enum>QFrame::NoFrame</enum>
        </property>
@@ -674,9 +674,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>HexTextView</class>
+   <class>HexWidget</class>
    <extends>QScrollArea</extends>
-   <header>HexTextView.h</header>
+   <header>HexWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

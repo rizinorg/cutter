@@ -100,14 +100,14 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     });
 
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
-    connect(ui->hexTextView, &HexTextView::positionChanged, this, [this](RVA addr) {
+    connect(ui->hexTextView, &HexWidget::positionChanged, this, [this](RVA addr) {
         if (!sent_seek) {
             sent_seek = true;
             seekable->seek(addr);
             sent_seek = false;
         }
     });
-    connect(ui->hexTextView, &HexTextView::selectionChanged, this, &HexdumpWidget::selectionChanged);
+    connect(ui->hexTextView, &HexWidget::selectionChanged, this, &HexdumpWidget::selectionChanged);
 
     initParsing();
     selectHexPreview();
@@ -130,7 +130,7 @@ void HexdumpWidget::refresh(RVA addr)
         return;
     }
     sent_seek = true;
-    ui->hexTextView->refresh(addr);
+    ui->hexTextView->onSeekChanged(addr);
     sent_seek = false;
 }
 
@@ -143,7 +143,7 @@ void HexdumpWidget::initParsing()
     ui->parseEndianComboBox->setCurrentIndex(Core()->getConfigb("cfg.bigendian") ? 1 : 0);
 }
 
-void HexdumpWidget::selectionChanged(HexTextView::Selection selection)
+void HexdumpWidget::selectionChanged(HexWidget::Selection selection)
 {
     if (selection.empty) {
         clearParseWindow();
@@ -179,7 +179,6 @@ void HexdumpWidget::setupFonts()
 {
     QFont font = Config()->getFont();
     ui->hexDisasTextEdit->setFont(font);
-    ui->hexTextView->setupFonts();
 }
 
 void HexdumpWidget::refreshSelectionInfo()

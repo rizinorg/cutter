@@ -65,6 +65,7 @@ struct HexCursor {
 
 class AbstractData {
 public:
+    virtual ~AbstractData() {}
     virtual void fetch(uint64_t addr, int len) = 0;
     virtual const void *dataPtr(uint64_t addr) = 0;
     virtual uint64_t maxIndex() = 0;
@@ -86,7 +87,7 @@ public:
         }
     }
 
-    ~BufferData() {}
+    ~BufferData() override {}
 
     void fetch(uint64_t addr, int len) override {}
 
@@ -107,7 +108,7 @@ private:
 class MemoryData : public AbstractData {
 public:
     MemoryData() {}
-    ~MemoryData() {}
+    ~MemoryData() override {}
 
     void fetch(uint64_t address, int length) override
     {
@@ -220,9 +221,25 @@ public:
     void setItemGroupSize(int size);
     void setColumnCount(int columns);
 
+    /**
+     * @brief Select non empty inclusive range [start; end]
+     * @param start
+     * @param end
+     */
+    void selectRange(RVA start, RVA end);
+
+    struct Selection {
+        bool empty;
+        RVA startAddress;
+        RVA endAddress;
+    };
+    Selection getSelection();
 public slots:
     void onSeekChanged(uint64_t addr);
     void updateColors();
+signals:
+    void selectionChanged(Selection selection);
+    void positionChanged(RVA start);
 
 protected:
     void paintEvent(QPaintEvent *event);

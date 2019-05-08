@@ -196,6 +196,11 @@ void HexWidget::setColumnCount(int columns)
     viewport()->update();
 }
 
+HexWidget::Selection HexWidget::getSelection()
+{
+    return Selection{selection.isEmpty(), selection.start(), selection.end()};
+}
+
 void HexWidget::setItemEndianess(bool bigEndian)
 {
     itemBigEndian = bigEndian;
@@ -405,6 +410,7 @@ void HexWidget::showContextMenu(const QPoint &pt)
     menu->addSeparator();
     menu->addAction(actionCopy);
     menu->addAction(actionCopyAddress);
+    menu->addActions(this->actions());
     menu->exec(mapToGlobal(pt));
     menu->deleteLater();
 }
@@ -777,8 +783,12 @@ void HexWidget::moveCursor(int offset, bool select)
 void HexWidget::setCursorAddr(BasicCursor addr, bool select)
 {
     if (!select) {
+        bool clearingSelection = !selection.isEmpty();
         selection.init(addr);
+        if (clearingSelection)
+            emit selectionChanged(getSelection());
     }
+    emit positionChanged(addr.address);
 
     cursor.address = addr.address;
 
@@ -787,6 +797,7 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
 
     if (select) {
         selection.update(addr);
+        emit selectionChanged(getSelection());
     }
 
     uint64_t addressValue = cursor.address;

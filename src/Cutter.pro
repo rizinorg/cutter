@@ -272,7 +272,6 @@ SOURCES += \
     menus/DisassemblyContextMenu.cpp \
     widgets/DisassemblyWidget.cpp \
     widgets/HexdumpWidget.cpp \
-    widgets/HexTextView.cpp \
     common/Configuration.cpp \
     common/Colors.cpp \
     dialogs/SaveProjectDialog.cpp \
@@ -393,7 +392,6 @@ HEADERS  += \
     menus/DisassemblyContextMenu.h \
     widgets/DisassemblyWidget.h \
     widgets/HexdumpWidget.h \
-    widgets/HexTextView.h \
     common/Configuration.h \
     common/Colors.h \
     dialogs/SaveProjectDialog.h \
@@ -503,7 +501,6 @@ FORMS    += \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
     widgets/HexdumpWidget.ui \
-    widgets/HexTextView.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/AppearanceOptionsWidget.ui \
