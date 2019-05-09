@@ -100,7 +100,7 @@ fi
 $(find_lrelease) ./src/Cutter.pro
 
 # Build
-if [ "${QMAKE_CONF/CUTTER_ENABLE_CRASH_REPORTS=true}" != $QMAKE_CONF ]; then
+if [ "${QMAKE_CONF/CUTTER_ENABLE_CRASH_REPORTS=true/something}" != $QMAKE_CONF ]; then
 	prepare_breakpad
 fi
 mkdir -p "$BUILD"
