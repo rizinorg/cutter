@@ -94,8 +94,7 @@ public:
     void setFilename(const QString &fn);
     void refreshOmniBar(const QStringList &flags);
 
-    void addToDockWidgetList(QDockWidget *dockWidget);
-    void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
+    void addWidget(QDockWidget* widget);
     void addExtraWidget(CutterDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
@@ -205,7 +204,7 @@ private:
     Configuration *configuration;
 
     QList<QDockWidget *> dockWidgets;
-    QMap<QAction *, QDockWidget *> dockWidgetActions;
+    QMultiMap<QAction *, QDockWidget *> dockWidgetsOfAction;
     DisassemblyWidget  *disassemblyDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
@@ -253,6 +252,7 @@ private:
     void resetToDebugLayout();
     void restoreDebugLayout();
 
+    void resetDockWidgetList();
     void restoreDocks();
     void hideAllDocks();
     void showZenDocks();
@@ -268,8 +268,6 @@ private:
     QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> mapper;
 
     QString getUniqueObjectName(const QString &className) const;
-
-    void removeFromDockWidgetsList(const QString &objName);
 };
 
 #endif // MAINWINDOW_H
