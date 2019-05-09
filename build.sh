@@ -7,7 +7,7 @@ ERR=0
 
 #### User variables ####
 BUILD="`pwd`/build"
-QMAKE_CONF=""
+QMAKE_CONF=$*
 ROOT_DIR=`pwd`
 
 check_r2() {
@@ -64,13 +64,17 @@ find_gmake() {
 }
 
 prepare_breakpad() {
-	if [[ $OSTYPE == "linux-gnu" ]]; then
-		source $ROOT_DIR/scripts/prepare_breakpad_linux.sh
-		export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
-	elif [[ $OSTYPE == "darwin" ]]; then
-		source $ROOT_DIR/scripts/prepare_breakpad_macos.sh
+	if [ -z $OSTYPE ]; then
+		echo "Could not identify OS, OSTYPE var is empty. You can try to disable breakpad to avoid this error."
+		exit 1
 	fi
-	return 1
+
+	if [ $OSTYPE = "linux-gnu" ]; then
+		. $ROOT_DIR/scripts/prepare_breakpad_linux.sh
+		export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+	elif [ $OSTYPE = "darwin" ]; then
+		. $ROOT_DIR/scripts/prepare_breakpad_macos.sh
+	fi
 }
 
 # Build radare2
@@ -96,7 +100,9 @@ fi
 $(find_lrelease) ./src/Cutter.pro
 
 # Build
-prepare_breakpad
+if [ "${QMAKE_CONF/CUTTER_ENABLE_CRASH_REPORTS=true}" != $QMAKE_CONF ]; then
+	prepare_breakpad
+fi
 mkdir -p "$BUILD"
 cd "$BUILD" || exit 1
 $(find_qmake) ../src/Cutter.pro $QMAKE_CONF
