@@ -311,31 +311,6 @@ void MainWindow::initDocks()
     docks.removeDuplicates();
     docks.removeOne("");
 
-    /* If main widget (pointer to what is field of this class was deleted during last Cutter
-     * execution, rename current one to what left.
-     *
-     * For instance, user deleted "DisassemblyWidget 0", but there was "DisassemblyWidget 1".
-     * So now we want to rename current "DisassemblyWidget 0" to "DisassemblyWidget 1" so
-     * layout is not messed up
-     */
-//    for (auto &className : QStringList(QStringList()
-//                                       << "DisassemblyWidget"
-//                                       << "GraphWidget"
-//                                       << "HexdumpWidget")) {
-//        if (!docks.contains(className + " 0")) {
-//            for (auto &it : docks) {
-//                if (it.contains(className)) {
-//                    auto el = std::find_if(dockWidgets.begin(), dockWidgets.end(),
-//                                        [&className](const QDockWidget* el) -> bool { return el->objectName().contains(className); });
-//                    if (el != dockWidgets.end()) {
-//                        (*el)->setObjectName(it);
-//                    }
-//                    break;
-//                }
-//            }
-//        }
-//    }
-
     for (const auto &it : dockWidgets) {
         docks.removeOne(it->objectName());
     }
@@ -346,8 +321,8 @@ void MainWindow::initDocks()
         className = it.split(' ').at(0);
         if (mapper.contains(className)) {
             auto widget = mapper[className].first(this, mapper[className].second);
-            addExtraWidget(widget);
             widget->setObjectName(it);
+            addExtraWidget(widget);
         }
     }
 
@@ -700,6 +675,28 @@ void MainWindow::readSettingsOrDefault()
 void MainWindow::saveSettings()
 {
     QSettings settings;
+
+    /* Save all widgets with right ID's. For instance, if there are only widgets
+     * with ID's 2, 3 and 4 (because ones with ID's 0 and 1 was deleted), save them
+     * with ID's 0, 1 and 2.
+     */
+    QMap<QString, int> instanceCounter;
+    for (auto it : dockWidgets) {
+        if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
+            QString className = it->metaObject()->className();
+            if (!instanceCounter.contains(className)) {
+                instanceCounter.insert(className, 0);
+            }
+            it->setObjectName(QString("%1 %2").arg(className).arg(instanceCounter[className]++));
+        }
+    }
+
+    QStringList docks;
+    for (const auto &it : dockWidgets) {
+        docks.append(it->objectName());
+    }
+    settings.setValue("docks", docks);
+
     settings.setValue("geometry", saveGeometry());
     settings.setValue("size", size());
     settings.setValue("pos", pos());
@@ -708,33 +705,11 @@ void MainWindow::saveSettings()
     settings.setValue("tabsOnTop", tabsOnTop);
 
 
-    QStringList hasMainWidget;
-    QMap<QString, int> biggest;
-    for (auto it : dockWidgets) {
-        if (QRegExp("\\w+ 0").exactMatch(it->objectName())) {
-            hasMainWidget.append(it->metaObject()->className());
-        }
-        if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
-            auto list = it->objectName().split(' ');
-            int curr = list.last().toInt();
-            if (!biggest.contains(list.first())) {
-                biggest.insert(list.first(), curr);
-                continue;
-            }
-            if (curr > biggest[list.first()]) {
-                biggest[list.first()] = curr;
-            }
-        }
-    }
-
-    QStringList docks;
-    for (const auto &it : dockWidgets) {
-        if (QRegExp("\\w+ \\d+").exactMatch(it->objectName()) &&
-            hasMainWidget.contains(it->metaObject()->className())) {
-        }
-        docks.append(it->objectName());
-    }
-    settings.setValue("docks", docks);
+    QFile f("/home/optizone/kekee.txt");
+    f.open(QFile::WriteOnly | QFile::Truncate);
+    qDebug() << restoreState(saveState());
+    f.write(saveState(3));
+    f.close();
 }
 
 void MainWindow::readDebugSettings()
@@ -917,9 +892,9 @@ void MainWindow::addWidget(QDockWidget* widget)
 void MainWindow::updateDockActionChecked(QAction *action)
 {
     auto actions = dockWidgetsOfAction.values(action);
-    action->setChecked(std::accumulate(actions.begin(), actions.end(), false,
+    action->setChecked(!std::accumulate(actions.begin(), actions.end(), false,
                                        [](bool a, QDockWidget* w) -> bool {
-        return a || !w->isHidden();
+        return a || w->isHidden();
     }));
 }
 
