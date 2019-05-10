@@ -99,6 +99,11 @@ HexWidget::HexWidget(QWidget *parent) :
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
 
+    actionSelectRange = new QAction(tr("Select range"), this);
+    connect(actionSelectRange, &QAction::triggered, this, [this](){ rangeDialog.open(cursor.address); });
+    addAction(actionSelectRange);
+    connect(&rangeDialog, &QDialog::accepted, this, &HexWidget::onRangeDialogAccepted);
+
     updateMetrics();
     updateItemLength();
 
@@ -194,6 +199,22 @@ void HexWidget::setColumnCount(int columns)
     updateCursorMeta();
 
     viewport()->update();
+}
+
+void HexWidget::selectRange(RVA start, RVA end)
+{
+    BasicCursor endCursor(end);
+    endCursor += 1;
+    setCursorAddr(endCursor);
+    selection.set(start, end);
+    cursorEnabled = false;
+    emit selectionChanged(getSelection());
+}
+
+void HexWidget::clearSelection()
+{
+    setCursorAddr(cursor.address, false);
+    emit selectionChanged(getSelection());
 }
 
 HexWidget::Selection HexWidget::getSelection()
@@ -456,6 +477,15 @@ void HexWidget::copyAddress()
     }
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(RAddressString(addr));
+}
+
+void HexWidget::onRangeDialogAccepted()
+{
+    if (rangeDialog.empty()) {
+        onSeekChanged(rangeDialog.getStartAddress());
+        return;
+    }
+    selectRange(rangeDialog.getStartAddress(), rangeDialog.getEndAddress());
 }
 
 void HexWidget::updateItemLength()

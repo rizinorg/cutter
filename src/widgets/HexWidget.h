@@ -2,6 +2,7 @@
 #define HEXWIDGET_H
 
 #include "Cutter.h"
+#include "dialogs/HexdumpRangeDialog.h"
 #include <QScrollArea>
 #include <QTimer>
 
@@ -153,6 +154,13 @@ public:
         m_init = addr;
     }
 
+    void set(uint64_t start, uint64_t end)
+    {
+        m_empty = false;
+        m_init = m_start = start;
+        m_end = end;
+    }
+
     void update(BasicCursor addr)
     {
         m_empty = false;
@@ -227,6 +235,7 @@ public:
      * @param end
      */
     void selectRange(RVA start, RVA end);
+    void clearSelection();
 
     struct Selection {
         bool empty;
@@ -256,6 +265,7 @@ private slots:
     void onHexPairsModeEnabled(bool enable);
     void copy();
     void copyAddress();
+    void onRangeDialogAccepted();
 
 private:
     void updateItemLength();
@@ -402,6 +412,8 @@ private:
     QColor b0xffColor;
     QColor printableColor;
 
+    HexdumpRangeDialog  rangeDialog;
+
     /* Spacings in characters */
     const int columnSpacing = 1;
     const int areaSpacing = 2;
@@ -415,6 +427,7 @@ private:
     QAction *actionHexPairs;
     QAction *actionCopy;
     QAction *actionCopyAddress;
+    QAction *actionSelectRange;
 
     AbstractData *data;
 };
