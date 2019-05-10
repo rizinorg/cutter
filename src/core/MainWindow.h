@@ -268,6 +268,8 @@ private:
     QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> mapper;
 
     QString getUniqueObjectName(const QString &className) const;
+
+    void initCorners();
 };
 
 #endif // MAINWINDOW_H

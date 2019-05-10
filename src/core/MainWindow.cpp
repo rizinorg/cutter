@@ -133,6 +133,9 @@ void MainWindow::initUI()
     initToolBar();
     initDocks();
 
+    QSettings s;
+    s.setValue("state.empty", saveState());
+
     /*
      *  Some global shortcuts
      */
@@ -301,31 +304,26 @@ void MainWindow::initDocks()
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
 
-
     disassemblyDock->setTransient(true);
     graphDock->setTransient(true);
     hexdumpDock->setTransient(true);
 
     QSettings s;
     QStringList docks = s.value("docks").toStringList();
-    docks.removeDuplicates();
-    docks.removeOne("");
-
-    for (const auto &it : dockWidgets) {
-        docks.removeOne(it->objectName());
-    }
 
     // Restore all extra widgets
     QString className;
     for (const auto &it : docks) {
-        className = it.split(' ').at(0);
-        if (mapper.contains(className)) {
-            auto widget = mapper[className].first(this, mapper[className].second);
-            widget->setObjectName(it);
-            addExtraWidget(widget);
+        if (std::none_of(dockWidgets.constBegin(), dockWidgets.constEnd(),
+                         [&it](QDockWidget *w) { return w->objectName() == it; })) {
+            className = it.split(' ').at(0);
+            if (mapper.contains(className)) {
+                auto widget = mapper[className].first(this, mapper[className].second);
+                widget->setObjectName(it);
+                addExtraWidget(widget);
+            }
         }
     }
-
 }
 
 void MainWindow::initLayout()
@@ -334,13 +332,8 @@ void MainWindow::initLayout()
     enableDebugWidgetsMenu(false);
     // Restore saved settings
     readSettingsOrDefault();
-    // TODO: Allow the user to select this option visually in the GUI settings
-    // Adjust the DockWidget areas
-    setCorner(Qt::TopRightCorner, Qt::TopDockWidgetArea);
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
 
-    setCorner(Qt::BottomLeftCorner, Qt::BottomDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    initCorners();
 }
 
 void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
@@ -381,7 +374,7 @@ void MainWindow::on_actionExtraDisassembly_triggered()
 }
 
 void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
-{    
+{
     extraDock->setTransient(true);
     addDockWidget(Qt::RightDockWidgetArea, extraDock, Qt::Orientation::Horizontal);
     auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
@@ -703,13 +696,6 @@ void MainWindow::saveSettings()
     settings.setValue("state", saveState());
     settings.setValue("panelLock", panelLock);
     settings.setValue("tabsOnTop", tabsOnTop);
-
-
-    QFile f("/home/optizone/kekee.txt");
-    f.open(QFile::WriteOnly | QFile::Truncate);
-    qDebug() << restoreState(saveState());
-    f.write(saveState(3));
-    f.close();
 }
 
 void MainWindow::readDebugSettings()
@@ -871,6 +857,17 @@ QString MainWindow::getUniqueObjectName(const QString& className) const
     }
 
     return className + " "  + QString::number(id);
+}
+
+void MainWindow::initCorners()
+{
+    // TODO: Allow the user to select this option visually in the GUI settings
+    // Adjust the DockWidget areas
+    setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+
+    setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
 }
 
 void MainWindow::addWidget(QDockWidget* widget)
@@ -1035,6 +1032,10 @@ void MainWindow::on_actionFunctionsRename_triggered()
 
 void MainWindow::on_actionDefault_triggered()
 {
+    QSettings s;
+    restoreState(s.value("state.empty").toByteArray());
+
+    initCorners();
     resetDockWidgetList();
     if (core->currentlyDebugging) {
         resetToDebugLayout();
