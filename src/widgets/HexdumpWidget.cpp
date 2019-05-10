@@ -317,6 +317,11 @@ void HexdumpWidget::resizeEvent(QResizeEvent *event)
     refresh();
 }
 
+QWidget *HexdumpWidget::widgetToFocusOnRaise()
+{
+    return ui->hexTextView;
+}
+
 
 void HexdumpWidget::on_copyMD5_clicked()
 {

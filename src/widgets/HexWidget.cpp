@@ -34,6 +34,7 @@ HexWidget::HexWidget(QWidget *parent) :
 {
     setMouseTracking(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
+    setFocusPolicy(Qt::FocusPolicy::StrongFocus);
     connect(this, &QScrollArea::customContextMenuRequested, this, &HexWidget::showContextMenu);
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() { viewport()->update(); });
 
