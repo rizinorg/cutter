@@ -197,6 +197,12 @@ QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds() const
         if (ui->aab_basicblocks->isChecked()) {
             advanced << "aab";
         }
+        if (ui->aao_objc->isChecked()) {
+            advanced << "aao";
+        }
+        if (ui->avrr_vtables->isChecked()) {
+            advanced << "avrr";
+        }
         if (ui->aan_rename->isChecked()) {
             advanced << "aan";
         }
