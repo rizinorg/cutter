@@ -179,6 +179,7 @@ void HexdumpWidget::setupFonts()
 {
     QFont font = Config()->getFont();
     ui->hexDisasTextEdit->setFont(font);
+    ui->hexTextView->setMonospaceFont(font);
 }
 
 void HexdumpWidget::refreshSelectionInfo()

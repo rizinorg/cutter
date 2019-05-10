@@ -39,7 +39,7 @@ HexWidget::HexWidget(QWidget *parent) :
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() { viewport()->update(); });
 
     connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
-    connect(Config(), &Configuration::fontsUpdated, this, [this]() { setFont(Config()->getFont()); });
+    connect(Config(), &Configuration::fontsUpdated, this, [this]() { setMonospaceFont(Config()->getFont()); });
 
     auto sizeActionGroup = new QActionGroup(this);
     for (int i = 1; i <= 8; i *= 2) {
@@ -127,13 +127,14 @@ HexWidget::~HexWidget()
 
 }
 
-void HexWidget::setFont(const QFont &font)
+void HexWidget::setMonospaceFont(const QFont &font)
 {
     if (!(font.styleHint() & QFont::Monospace)) {
         /* FIXME: Use default monospace font
         setFont(XXX); */
     }
     QScrollArea::setFont(font);
+    monospaceFont = font;
     updateMetrics();
     fetchData();
     updateCursorMeta();
@@ -255,6 +256,7 @@ void HexWidget::updateColors()
 void HexWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(viewport());
+    painter.setFont(monospaceFont);
 
     int xOffset = horizontalScrollBar()->value();
     if (xOffset > 0)

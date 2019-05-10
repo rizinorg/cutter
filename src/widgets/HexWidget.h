@@ -217,7 +217,7 @@ public:
     explicit HexWidget(QWidget *parent = nullptr);
     ~HexWidget();
 
-    void setFont(const QFont &font);
+    void setMonospaceFont(const QFont &font);
 
     enum AddrWidth { AddrWidth32 = 8, AddrWidth64 = 16 };
     enum ItemSize { ItemSizeByte = 1, ItemSizeWord = 2, ItemSizeDword = 4, ItemSizeQword = 8 };
@@ -397,6 +397,7 @@ private:
     int lineHeight;
     int addrCharLen;
     int addrAreaWidth;
+    QFont monospaceFont;
 
     bool showHeader;
     bool showAscii;
