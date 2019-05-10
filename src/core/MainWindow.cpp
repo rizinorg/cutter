@@ -158,6 +158,10 @@ void MainWindow::initUI()
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
+    //Undo and redo seek
+    ui->actionBackward->setShortcut(QKeySequence::Back);
+    ui->actionForward->setShortcut(QKeySequence::Forward);
+    
     /* Setup plugins interfaces */
     for (auto plugin : Plugins()->getPlugins()) {
         plugin->setupInterface(this);
