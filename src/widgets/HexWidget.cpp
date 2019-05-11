@@ -138,6 +138,7 @@ void HexWidget::setMonospaceFont(const QFont &font)
     updateMetrics();
     fetchData();
     updateCursorMeta();
+    updateWidth();
 
     viewport()->update();
 }
@@ -186,6 +187,7 @@ void HexWidget::setItemGroupSize(int size)
     updateAreasPosition();
     fetchData();
     updateCursorMeta();
+    updateWidth();
 
     viewport()->update();
 }
@@ -199,6 +201,7 @@ void HexWidget::setColumnCount(int columns)
     updateAreasPosition();
     fetchData();
     updateCursorMeta();
+    updateWidth();
 
     viewport()->update();
 }
@@ -288,7 +291,7 @@ void HexWidget::paintEvent(QPaintEvent *event)
     drawCursor(painter, true);
 }
 
-void HexWidget::resizeEvent(QResizeEvent *event)
+void HexWidget::updateWidth()
 {
     int max = (showAscii ? asciiArea.right() : itemArea.right()) - viewport()->width();
     if (max < 0)
@@ -297,6 +300,11 @@ void HexWidget::resizeEvent(QResizeEvent *event)
         max += charWidth;
     horizontalScrollBar()->setMaximum(max);
     horizontalScrollBar()->setSingleStep(charWidth);
+}
+
+void HexWidget::resizeEvent(QResizeEvent *event)
+{
+    updateWidth();
 
     if (event->oldSize().height() == event->size().height())
         return;
@@ -561,6 +569,7 @@ void HexWidget::updateItemLength()
     }
 
     updateAreasPosition();
+    updateWidth();
 }
 
 void HexWidget::drawHeader(QPainter &painter)

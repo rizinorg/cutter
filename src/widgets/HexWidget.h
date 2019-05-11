@@ -293,6 +293,7 @@ private:
     BasicCursor currentAreaPosToAddr(const QPoint &point) const;
     QRect itemRectangle(uint offset);
     QRect asciiRectangle(uint offset);
+    void updateWidth();
 
     inline int itemWidth() const
     {
