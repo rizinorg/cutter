@@ -17,9 +17,9 @@
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
-    ui(new Ui::HexdumpWidget),
-    seekable(new CutterSeekable(this))
+    ui(new Ui::HexdumpWidget)
 {
+    seekable = new CutterSeekable(this);
     ui->setupUi(this);
 
     setObjectName("HexdumpWidget 0");
@@ -665,17 +665,6 @@ void HexdumpWidget::showHexdumpContextMenu(const QPoint &pt)
 
     menu->exec(ui->hexHexText->mapToGlobal(pt));
     delete menu;
-}
-
-void HexdumpWidget::toggleSync()
-{
-    QString windowTitle = tr("Hexdump");
-    seekable->toggleSynchronization();
-    if (seekable->isSynchronized()) {
-        setWindowTitle(windowTitle);
-    } else {
-        setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    }
 }
 
 void HexdumpWidget::showHexASCIIContextMenu(const QPoint &pt)

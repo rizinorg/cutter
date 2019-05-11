@@ -8,7 +8,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
 {
     setObjectName("GraphWidget 0");
     setAllowedAreas(Qt::AllDockWidgetAreas);
-    graphView = new DisassemblerGraphView(this);
+    graphView = new DisassemblerGraphView(this, seekable);
     setWidget(graphView);
 
     // getting the name of the class is implementation defined, and cannot be

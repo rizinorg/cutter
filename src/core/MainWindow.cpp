@@ -319,6 +319,7 @@ void MainWindow::initDocks()
     }
 
     updateMemberPointers();
+
     if (!disassemblyDock) {
         on_actionExtraDisassembly_triggered();
     } else if (!graphDock) {
@@ -326,6 +327,8 @@ void MainWindow::initDocks()
     } else if (!hexdumpDock) {
         on_actionExtraHexdump_triggered();
     }
+
+    updateMemberPointers();
 }
 
 void MainWindow::initLayout()
@@ -526,6 +529,13 @@ void MainWindow::finalizeOpen()
     showMaximized();
 
 
+    QSettings s;
+    QStringList unsync = s.value("unsync").toStringList();
+    for (auto it : dockWidgets) {
+        if (unsync.contains(it->objectName())) {
+            qobject_cast<MemoryDockWidget*>(it)->toggleSync();
+        }
+    }
 
     // Set focus to disasm or graph widget
 
@@ -672,11 +682,20 @@ void MainWindow::saveSettings()
     QSettings settings;
 
     QStringList docks;
+    const QStringList syncable = QStringList()
+                                 << hexdumpDock->metaObject()->className()
+                                 << disassemblyDock->metaObject()->className()
+                                 << graphDock->metaObject()->className();
+    QStringList unsync;
     for (const auto &it : dockWidgets) {
         docks.append(it->objectName());
+        if (syncable.contains(it->metaObject()->className()) &&
+            !qobject_cast<MemoryDockWidget*>(it)->isSynced()) {
+            unsync.append(it->objectName());
+        }
     }
     settings.setValue("docks", docks);
-
+    settings.setValue("unsync", unsync);
     settings.setValue("geometry", saveGeometry());
     settings.setValue("size", size());
     settings.setValue("pos", pos());

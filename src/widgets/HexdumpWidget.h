@@ -32,7 +32,7 @@ class HexdumpWidget : public MemoryDockWidget
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
-    Highlighter        *highlighter;
+    Highlighter *highlighter;
     enum Format {
         Hex,
         Octal,
@@ -54,7 +54,6 @@ public slots:
     void zoomIn(int range = 1);
     void zoomOut(int range = 1);
     void zoomReset();
-    void toggleSync();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -114,7 +113,6 @@ private:
     ut64 requestedSelectionEndAddress=0;
     HexdumpRangeDialog  rangeDialog;
     QAction syncAction;
-    CutterSeekable *seekable;
     qreal defaultFontSize;
 
 private slots:
