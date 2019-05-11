@@ -9,6 +9,7 @@
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
 
+#include <QColorDialog>
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -112,6 +113,28 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     contextMenu->addAction(&actionExportGraph);
     contextMenu->addSeparator();
     contextMenu->addAction(&actionSyncOffset);
+
+
+    QAction *highlightBB = new QAction(this);
+    highlightBB->setText(tr("Highlight block"));
+    connect(highlightBB, &QAction::triggered, this, [this]() {
+        auto bbh = Core()->getBBHighlighter();
+        QColor c = QColorDialog::getColor(disassemblySelectedBackgroundColor);
+        if (c.isValid()) {
+            bbh->highlight(blockForAddress(seekable->getOffset())->entry, c);
+        }
+    });
+
+    QAction *unhighlight = new QAction(this);
+    unhighlight->setText(tr("Unhighlight block"));
+    connect(unhighlight, &QAction::triggered, this, [this]() {
+        auto bbh = Core()->getBBHighlighter();
+        bbh->clear(blockForAddress(seekable->getOffset())->entry);
+    });
+
+    blockMenu->addAction(highlightBB);
+    blockMenu->addAction(unhighlight);
+
 
     // Include all actions from generic context menu in block specific menu
     blockMenu->addSeparator();
@@ -435,9 +458,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
     if (bb) {
         QColor color(bb->color);
-        color.setAlphaF(0.5);
         p.setBrush(color);
-        // Add basic block highlighting transparent color
         p.drawRect(blockX, blockY,
                    block.width, block.height);
     }
