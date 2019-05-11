@@ -354,7 +354,7 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
             updatingSelection = true;
             setCursorOnAscii(!selectingData);
             auto cursorPosition = currentAreaPosToAddr(pos);
-            setCursorAddr(cursorPosition);
+            setCursorAddr(cursorPosition, event->modifiers() == Qt::ShiftModifier);
             viewport()->update();
         }
     }
