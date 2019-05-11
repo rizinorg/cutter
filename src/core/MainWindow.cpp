@@ -319,6 +319,13 @@ void MainWindow::initDocks()
     }
 
     updateMemberPointers();
+    if (!disassemblyDock) {
+        on_actionExtraDisassembly_triggered();
+    } else if (!graphDock) {
+        on_actionExtraGraph_triggered();
+    } else if (!hexdumpDock) {
+        on_actionExtraHexdump_triggered();
+    }
 }
 
 void MainWindow::initLayout()

@@ -246,12 +246,14 @@ private:
     void initToolBar();
     void initDocks();
     void initLayout();
+    void initCorners();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
     void resetToDebugLayout();
     void restoreDebugLayout();
 
+    void updateMemberPointers();
     void resetDockWidgetList();
     void restoreDocks();
     void hideAllDocks();
@@ -265,13 +267,13 @@ private:
     void setOverviewData();
     bool isOverviewActive();
 
+    /**
+     * @brief Map, where key is class name an value is pair of
+     * pointer to class constructor and action that passed to this constructor.
+     */
     QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> mapper;
 
     QString getUniqueObjectName(const QString &className) const;
-
-    void initCorners();
-
-    void updateMemberPointers();
 };
 
 #endif // MAINWINDOW_H
