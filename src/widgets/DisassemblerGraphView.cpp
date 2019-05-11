@@ -116,6 +116,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
 
 
     QAction *highlightBB = new QAction(this);
+    actionUnhighlight.setVisible(false);
+
     highlightBB->setText(tr("Highlight block"));
     connect(highlightBB, &QAction::triggered, this, [this]() {
         auto bbh = Core()->getBBHighlighter();
@@ -123,17 +125,18 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
         if (c.isValid()) {
             bbh->highlight(blockForAddress(seekable->getOffset())->entry, c);
         }
+        Config()->colorsUpdated();
     });
 
-    QAction *unhighlight = new QAction(this);
-    unhighlight->setText(tr("Unhighlight block"));
-    connect(unhighlight, &QAction::triggered, this, [this]() {
+    actionUnhighlight.setText(tr("Unhighlight block"));
+    connect(&actionUnhighlight, &QAction::triggered, this, [this]() {
         auto bbh = Core()->getBBHighlighter();
         bbh->clear(blockForAddress(seekable->getOffset())->entry);
+        Config()->colorsUpdated();
     });
 
     blockMenu->addAction(highlightBB);
-    blockMenu->addAction(unhighlight);
+    blockMenu->addAction(&actionUnhighlight);
 
 
     // Include all actions from generic context menu in block specific menu
@@ -948,6 +951,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
         blockMenu->setCurHighlightedWord(highlight_token->content);
     }
     if (event->button() == Qt::RightButton) {
+        actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
         event->accept();
         blockMenu->exec(event->globalPos());
     }

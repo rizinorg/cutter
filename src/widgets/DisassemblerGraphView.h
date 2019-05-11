@@ -203,6 +203,7 @@ private:
     QColor mDisabledBreakpointColor;
 
     QAction actionExportGraph;
+    QAction actionUnhighlight;
     QAction actionSyncOffset;
 
     QLabel *emptyText = nullptr;
