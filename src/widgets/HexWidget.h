@@ -64,7 +64,8 @@ struct HexCursor {
     void stopBlinking() { blinkTimer.stop(); }
 };
 
-class AbstractData {
+class AbstractData
+{
 public:
     virtual ~AbstractData() {}
     virtual void fetch(uint64_t addr, int len) = 0;
@@ -72,7 +73,8 @@ public:
     virtual uint64_t maxIndex() = 0;
 };
 
-class BufferData : public AbstractData {
+class BufferData : public AbstractData
+{
 public:
     BufferData()
     {
@@ -106,7 +108,8 @@ private:
     QByteArray m_buffer;
 };
 
-class MemoryData : public AbstractData {
+class MemoryData : public AbstractData
+{
 public:
     MemoryData() {}
     ~MemoryData() override {}

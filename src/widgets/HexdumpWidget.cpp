@@ -79,7 +79,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     this->setWindowTitle(tr("Hexdump"));
 
-    refreshDeferrer = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
+    refreshDeferrer = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA * offset) {
         refresh(offset ? *offset : RVA_INVALID);
     });
 

@@ -101,7 +101,7 @@ HexWidget::HexWidget(QWidget *parent) :
     addAction(actionCopyAddress);
 
     actionSelectRange = new QAction(tr("Select range"), this);
-    connect(actionSelectRange, &QAction::triggered, this, [this](){ rangeDialog.open(cursor.address); });
+    connect(actionSelectRange, &QAction::triggered, this, [this]() { rangeDialog.open(cursor.address); });
     addAction(actionSelectRange);
     connect(&rangeDialog, &QDialog::accepted, this, &HexWidget::onRangeDialogAccepted);
 
@@ -383,7 +383,8 @@ void HexWidget::wheelEvent(QWheelEvent *event)
         startAddress = 0;
     } else if (delta > 0 && data->maxIndex() < bytesPerScreen()) {
         startAddress = 0;
-    } else if (delta > 0 && (data->maxIndex() - startAddress) <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
+    } else if (delta > 0
+               && (data->maxIndex() - startAddress) <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
         startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
     } else {
         startAddress += delta;
@@ -623,10 +624,13 @@ void HexWidget::drawAddrArea(QPainter &painter)
 {
     uint64_t offset = startAddress;
     QString addrString;
-    QRect strRect(addrArea.topLeft(), QSize((addrCharLen + (showExAddr ? 2 : 0)) * charWidth, lineHeight));
+    QSize areaSize((addrCharLen + (showExAddr ? 2 : 0)) * charWidth, lineHeight);
+    QRect strRect(addrArea.topLeft(), areaSize);
 
     painter.setPen(addrColor);
-    for (int line = 0; line < visibleLines && offset <= data->maxIndex(); ++line, strRect.translate(0, lineHeight), offset += itemRowByteLen()) {
+    for (int line = 0;
+           line < visibleLines && offset <= data->maxIndex();
+            ++line, strRect.translate(0, lineHeight), offset += itemRowByteLen()) {
         addrString = QString("%1").arg(offset, addrCharLen, 16, QLatin1Char('0'));
         if (showExAddr)
             addrString.prepend(hexPrefix);
@@ -752,8 +756,13 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
 
     /* Fill the main part */
     if (startOffset2 <= endOffset2) {
-        rect = ascii ? asciiRectangle(startOffset2) : itemRectangle(startOffset2);
-        rect.setBottomRight(ascii ? asciiRectangle(endOffset2).bottomRight() : itemRectangle(endOffset2).bottomRight());
+        if (ascii) {
+            rect = asciiRectangle(startOffset2);
+            rect.setBottomRight(asciiRectangle(endOffset2).bottomRight());
+        } else {
+            rect = itemRectangle(startOffset2);
+            rect.setBottomRight(itemRectangle(endOffset2).bottomRight());
+        }
         painter.fillRect(rect, highlightColor);
     }
 }
