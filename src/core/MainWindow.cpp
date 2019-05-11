@@ -256,8 +256,6 @@ void MainWindow::initToolBar()
 void MainWindow::initDocks()
 {
     dockWidgets.reserve(20);
-    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
-    hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
     pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
 
@@ -276,7 +274,6 @@ void MainWindow::initDocks()
     });
 
     ui->actionOverview->setChecked(overviewDock->getUserOpened());
-    graphDock = new GraphWidget(this, ui->actionGraph);
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);
     entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
@@ -304,10 +301,6 @@ void MainWindow::initDocks()
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
 
-    disassemblyDock->setTransient(true);
-    graphDock->setTransient(true);
-    hexdumpDock->setTransient(true);
-
     QSettings s;
     QStringList docks = s.value("docks").toStringList();
 
@@ -324,6 +317,8 @@ void MainWindow::initDocks()
             }
         }
     }
+
+    updateMemberPointers();
 }
 
 void MainWindow::initLayout()
@@ -355,28 +350,28 @@ void MainWindow::updateTasksIndicator()
 void MainWindow::on_actionExtraGraph_triggered()
 {
     auto *extraDock = new GraphWidget(this, ui->actionGraph);
-    extraDock->setObjectName(getUniqueObjectName("GraphWidget"));
+    extraDock->setObjectName(getUniqueObjectName(extraDock->metaObject()->className()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraHexdump_triggered()
 {
     auto *extraDock = new HexdumpWidget(this, ui->actionHexdump);
-    extraDock->setObjectName(getUniqueObjectName("HexdumpWidget"));
+    extraDock->setObjectName(getUniqueObjectName(extraDock->metaObject()->className()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraDisassembly_triggered()
 {
     auto *extraDock = new DisassemblyWidget(this, ui->actionDisassembly);
-    extraDock->setObjectName(getUniqueObjectName("DisassemblyWidget"));
+    extraDock->setObjectName(getUniqueObjectName(extraDock->metaObject()->className()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
 {
     extraDock->setTransient(true);
-    addDockWidget(Qt::RightDockWidgetArea, extraDock, Qt::Orientation::Horizontal);
+    addDockWidget(Qt::TopDockWidgetArea, extraDock, Qt::Orientation::Horizontal);
     auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
     qApp->processEvents();
     restoreExtraDock.restoreWidth(extraDock->widget());
@@ -669,21 +664,6 @@ void MainWindow::saveSettings()
 {
     QSettings settings;
 
-    /* Save all widgets with right ID's. For instance, if there are only widgets
-     * with ID's 2, 3 and 4 (because ones with ID's 0 and 1 was deleted), save them
-     * with ID's 0, 1 and 2.
-     */
-    QMap<QString, int> instanceCounter;
-    for (auto it : dockWidgets) {
-        if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
-            QString className = it->metaObject()->className();
-            if (!instanceCounter.contains(className)) {
-                instanceCounter.insert(className, 0);
-            }
-            it->setObjectName(QString("%1 %2").arg(className).arg(instanceCounter[className]++));
-        }
-    }
-
     QStringList docks;
     for (const auto &it : dockWidgets) {
         docks.append(it->objectName());
@@ -813,7 +793,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(sectionsDock, commentsDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
-    addDockWidget(Qt::RightDockWidgetArea, stackDock);
+    addDockWidget(Qt::TopDockWidgetArea, stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
 
@@ -870,6 +850,21 @@ void MainWindow::initCorners()
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
 }
 
+void MainWindow::updateMemberPointers()
+{
+    QString className;
+    for (auto it : dockWidgets) {
+        className = it->metaObject()->className();
+        if (className == "GraphWidget") {
+            graphDock = qobject_cast<GraphWidget*>(it);
+        } else if (className == "DisassemblyWidget") {
+            disassemblyDock = qobject_cast<DisassemblyWidget*>(it);
+        } else if (className == "HexdumpWidget") {
+            hexdumpDock = qobject_cast<HexdumpWidget*>(it);
+        }
+    }
+}
+
 void MainWindow::addWidget(QDockWidget* widget)
 {
     dockWidgets.push_back(widget);
@@ -882,6 +877,7 @@ void MainWindow::addWidget(QDockWidget* widget)
             for (auto action : widget->actions()) {
                 dockWidgetsOfAction.remove(action, widget);
             }
+            updateMemberPointers();
         });
     }
 }
@@ -906,11 +902,14 @@ void MainWindow::showZenDocks()
                                             graphDock,
                                             importsDock
                                           };
+    int width = functionsDock->maximumWidth();
+    functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w)) {
             w->show();
         }
     }
+    functionsDock->setMaximumWidth(width);
     updateDockActionsChecked();
 }
 
@@ -928,11 +927,14 @@ void MainWindow::showDebugDocks()
                                               memoryMapDock,
                                               breakpointDock
                                             };
+    int width = functionsDock->maximumWidth();
+    functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (debugDocks.contains(w)) {
             w->show();
         }
     }
+    functionsDock->setMaximumWidth(width);
     updateDockActionsChecked();
 }
 
@@ -980,25 +982,19 @@ void MainWindow::restoreDebugLayout()
 
 void MainWindow::resetDockWidgetList()
 {
-    QStringList hasMainWidget;
+    QStringList isLeft;
+    QList<QWidget*> toClose;
     for (auto it : dockWidgets) {
-        if (QRegExp("\\w+ 0").exactMatch(it->objectName())) {
-            hasMainWidget.append(it->metaObject()->className());
+        if (isLeft.contains(it->metaObject()->className())) {
+            toClose.append(it);
+        } else if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
+            isLeft.append(it->metaObject()->className());
         }
     }
-    // Do not use erase because close event will remove pointer from container
-    std::remove_if(dockWidgets.begin(), dockWidgets.end(),
-                   [&hasMainWidget](QDockWidget *el) -> bool {
-        if (QRegExp("\\w+ [1-9]\\d*").exactMatch(el->objectName())) {
-            if (hasMainWidget.contains(el->metaObject()->className())) {
-                el->close(); // It will cause calling of deleteLater() method
-                return true;
-            }
-            el->setObjectName(QString(el->metaObject()->className()) + " 0");
-            hasMainWidget.append(el->metaObject()->className());
-        }
-        return false;
-    });
+    for (auto it : toClose) {
+        it->close();
+    }
+    updateMemberPointers();
 }
 
 void MainWindow::on_actionLock_triggered()
@@ -1037,9 +1033,16 @@ void MainWindow::on_actionDefault_triggered()
 
     initCorners();
     resetDockWidgetList();
+
     if (core->currentlyDebugging) {
+        resetToDefaultLayout();
+        saveSettings();
+
         resetToDebugLayout();
     } else {
+        resetToDebugLayout();
+        saveDebugSettings();
+
         resetToDefaultLayout();
     }
 }

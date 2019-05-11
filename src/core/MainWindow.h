@@ -270,6 +270,8 @@ private:
     QString getUniqueObjectName(const QString &className) const;
 
     void initCorners();
+
+    void updateMemberPointers();
 };
 
 #endif // MAINWINDOW_H
