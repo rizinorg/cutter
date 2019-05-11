@@ -21,7 +21,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    setObjectName("HexdumpWidget 0");
+    setObjectName("HexdumpWidget");
 
     ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
     ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));

@@ -32,7 +32,7 @@ class HexdumpWidget : public MemoryDockWidget
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
-    Highlighter        *highlighter;
+    Highlighter *highlighter;
 
 public slots:
     void initParsing();
