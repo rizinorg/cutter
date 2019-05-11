@@ -19,7 +19,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
     ui(new Ui::HexdumpWidget)
 {
-    seekable = new CutterSeekable(this);
     ui->setupUi(this);
 
     setObjectName("HexdumpWidget 0");
