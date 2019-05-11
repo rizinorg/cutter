@@ -14,20 +14,28 @@ class HexdumpRangeDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit HexdumpRangeDialog(QWidget *parent = nullptr);
+    explicit HexdumpRangeDialog(QWidget *parent = nullptr, bool allowEmpty = false);
     ~HexdumpRangeDialog();
-    QString getStartAddress() const;
-    QString getEndAddress() const;
-    QString getLength() const;
-    bool    getEndAddressRadioButtonChecked() const;
-    bool    getLengthRadioButtonChecked() const;
+    bool empty();
+    ut64 getStartAddress() const;
+    ut64 getEndAddress() const;
+
     void    setStartAddress(ut64 start);
+    void    open(ut64 start);
 
 public slots:
     void textEdited();
 
 private:
+    bool getEndAddressRadioButtonChecked() const;
+    bool getLengthRadioButtonChecked() const;
+    bool validate();
+
     Ui::HexdumpRangeDialog *ui;
+    bool emptyRange = true;
+    ut64 startAddress;
+    ut64 endAddress;
+    bool allowEmpty = false;
 
 private slots:
     void on_radioButtonClicked(bool checked);

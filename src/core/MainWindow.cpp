@@ -168,14 +168,14 @@ void MainWindow::initUI()
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
+    //Undo and redo seek
+    ui->actionBackward->setShortcut(QKeySequence::Back);
+    ui->actionForward->setShortcut(QKeySequence::Forward);
+    
     /* Setup plugins interfaces */
     for (auto plugin : Plugins()->getPlugins()) {
         plugin->setupInterface(this);
     }
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
-    setDockOptions(dockOptions() | DockOption::GroupedDragging);
-#endif
 
     initLayout();
 }
@@ -670,6 +670,10 @@ void MainWindow::readSettingsOrDefault()
     setPanelLock();
     tabsOnTop = settings.value("tabsOnTop").toBool();
     setTabLocation();
+    bool dockGroupedDragging = settings.value("docksGroupedDragging", false).toBool();
+    ui->actionGrouped_dock_dragging->setChecked(dockGroupedDragging);
+    on_actionGrouped_dock_dragging_triggered(dockGroupedDragging);
+
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     resize(size);
@@ -702,6 +706,7 @@ void MainWindow::saveSettings()
     settings.setValue("state", saveState());
     settings.setValue("panelLock", panelLock);
     settings.setValue("tabsOnTop", tabsOnTop);
+    settings.setValue("docksGroupedDragging", ui->actionGrouped_dock_dragging->isChecked());
 }
 
 void MainWindow::readDebugSettings()
@@ -1294,6 +1299,13 @@ void MainWindow::on_actionExport_as_code_triggered()
     QTextStream fileOut(&file);
     QString &cmd = cmdMap[dialog.selectedNameFilter()];
     fileOut << Core()->cmd(cmd + " $s @ 0");
+}
+
+void MainWindow::on_actionGrouped_dock_dragging_triggered(bool checked)
+{
+    auto options = dockOptions();
+    options.setFlag(QMainWindow::DockOption::GroupedDragging, checked);
+    setDockOptions(options);
 }
 
 

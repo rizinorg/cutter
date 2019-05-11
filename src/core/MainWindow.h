@@ -176,6 +176,8 @@ private slots:
 
     void on_actionExport_as_code_triggered();
 
+    void on_actionGrouped_dock_dragging_triggered(bool checked);
+
     void projectSaved(bool successfully, const QString &name);
 
     void updateTasksIndicator();

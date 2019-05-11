@@ -347,6 +347,26 @@
                     </property>
                    </widget>
                   </item>
+		  <item>
+                   <widget class="QCheckBox" name="aao_objc">
+                    <property name="text">
+                     <string> Analyze all objc references (aao)</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+		  <item>
+                   <widget class="QCheckBox" name="avrr_vtables">
+                    <property name="text">
+                     <string> Recover class information (avrr)</string>
+                    </property>
+                    <property name="checked">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
                   <item>
                    <widget class="QLabel" name="label">
                     <property name="text">

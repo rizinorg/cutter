@@ -865,6 +865,7 @@ QAction *DisassemblyContextMenu::addAnonymousAction(QString name, const char *sl
 void DisassemblyContextMenu::initAction(QAction *action, QString name, const char *slot)
 {
     action->setParent(this);
+    parentWidget()->addAction(action);
     action->setText(name);
     if (slot) {
         connect(action, SIGNAL(triggered(bool)), this, slot);
