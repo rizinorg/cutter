@@ -244,7 +244,8 @@ public:
     };
     Selection getSelection();
 public slots:
-    void onSeekChanged(uint64_t addr);
+    void seek(uint64_t address);
+    void refresh();
     void updateColors();
 signals:
     void selectionChanged(Selection selection);

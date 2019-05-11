@@ -48,7 +48,8 @@ private:
 
     RefreshDeferrer *refreshDeferrer;
 
-    void refresh(RVA addr = RVA_INVALID);
+    void refresh();
+    void refresh(RVA addr);
     void selectHexPreview();
 
     void setupFonts();

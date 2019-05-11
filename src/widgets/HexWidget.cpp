@@ -224,6 +224,17 @@ HexWidget::Selection HexWidget::getSelection()
     return Selection{selection.isEmpty(), selection.start(), selection.end()};
 }
 
+void HexWidget::seek(uint64_t address)
+{
+    setCursorAddr(address);
+}
+
+void HexWidget::refresh()
+{
+    fetchData();
+    viewport()->update();
+}
+
 void HexWidget::setItemEndianess(bool bigEndian)
 {
     itemBigEndian = bigEndian;
@@ -231,11 +242,6 @@ void HexWidget::setItemEndianess(bool bigEndian)
     updateCursorMeta(); // Update cached item character
 
     viewport()->update();
-}
-
-void HexWidget::onSeekChanged(uint64_t addr)
-{
-    setCursorAddr(addr);
 }
 
 void HexWidget::updateColors()
@@ -485,7 +491,7 @@ void HexWidget::copyAddress()
 void HexWidget::onRangeDialogAccepted()
 {
     if (rangeDialog.empty()) {
-        onSeekChanged(rangeDialog.getStartAddress());
+        seek(rangeDialog.getStartAddress());
         return;
     }
     selectRange(rangeDialog.getStartAddress(), rangeDialog.getEndAddress());
