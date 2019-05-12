@@ -6,7 +6,8 @@
 #include <QScrollArea>
 #include <QTimer>
 
-struct BasicCursor {
+struct BasicCursor
+{
     uint64_t address;
     bool pastEnd;
     BasicCursor(uint64_t pos) : address(pos), pastEnd(false) {}
@@ -47,7 +48,8 @@ struct BasicCursor {
     }
 };
 
-struct HexCursor {
+struct HexCursor
+{
     HexCursor() { isVisible = false; onAsciiArea = false; }
 
     bool isVisible;

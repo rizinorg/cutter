@@ -86,7 +86,7 @@ HexWidget::HexWidget(QWidget *parent) :
     actionItemBigEndian->setEnabled(false);
     connect(actionItemBigEndian, &QAction::triggered, this, &HexWidget::setItemEndianess);
 
-    actionHexPairs = new QAction(tr("hex.pairs"), this);
+    actionHexPairs = new QAction(tr("Bytes as pairs"), this);
     actionHexPairs->setCheckable(true);
     connect(actionHexPairs, &QAction::triggered, this, &HexWidget::onHexPairsModeEnabled);
 
