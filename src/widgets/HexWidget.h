@@ -257,16 +257,16 @@ signals:
     void positionChanged(RVA start);
 
 protected:
-    void paintEvent(QPaintEvent *event);
-    void resizeEvent(QResizeEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void keyPressEvent(QKeyEvent *event);
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private slots:
-    void showContextMenu(const QPoint &pt);
     void onCursorBlinked();
     void onHexPairsModeEnabled(bool enable);
     void copy();
@@ -293,9 +293,17 @@ private:
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
     void fetchData();
-    BasicCursor screenPosToAddr(const QPoint &point) const;
-    BasicCursor asciiPosToAddr(const QPoint &point) const;
-    BasicCursor currentAreaPosToAddr(const QPoint &point) const;
+    /**
+     * @brief Convert mouse position to address.
+     * @param point mouse position in widget
+     * @param middle start next position from middle of symbol. Use middle=true for vertical cursror position between symbols,
+     * middle=false for insert mode cursor and getting symbol under cursor.
+     * @return
+     */
+    BasicCursor screenPosToAddr(const QPoint &point, bool middle = false) const;
+    BasicCursor asciiPosToAddr(const QPoint &point, bool middle = false) const;
+    BasicCursor currentAreaPosToAddr(const QPoint &point, bool middle = false) const;
+    BasicCursor mousePosToAddr(const QPoint &point, bool middle = false) const;
     QRect itemRectangle(uint offset);
     QRect asciiRectangle(uint offset);
     void updateWidth();

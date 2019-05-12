@@ -33,9 +33,7 @@ HexWidget::HexWidget(QWidget *parent) :
     updatingSelection(false)
 {
     setMouseTracking(true);
-    setContextMenuPolicy(Qt::CustomContextMenu);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-    connect(this, &QScrollArea::customContextMenuRequested, this, &HexWidget::showContextMenu);
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() { viewport()->update(); });
 
     connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
@@ -104,6 +102,10 @@ HexWidget::HexWidget(QWidget *parent) :
     connect(actionSelectRange, &QAction::triggered, this, [this]() { rangeDialog.open(cursor.address); });
     addAction(actionSelectRange);
     connect(&rangeDialog, &QDialog::accepted, this, &HexWidget::onRangeDialogAccepted);
+
+    connect(this, &HexWidget::selectionChanged, this, [this](Selection selection) {
+        actionCopy->setEnabled(!selection.empty);
+    });
 
     updateMetrics();
     updateItemLength();
@@ -333,7 +335,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
         pos.setX(area.left());
     else if (pos.x() > area.right())
         pos.setX(area.right());
-    auto addr = currentAreaPosToAddr(pos);
+    auto addr = currentAreaPosToAddr(pos, true);
     setCursorAddr(addr, true);
 
     /* Stop blinking */
@@ -353,7 +355,7 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
         if (selecting) {
             updatingSelection = true;
             setCursorOnAscii(!selectingData);
-            auto cursorPosition = currentAreaPosToAddr(pos);
+            auto cursorPosition = currentAreaPosToAddr(pos, true);
             setCursorAddr(cursorPosition, event->modifiers() == Qt::ShiftModifier);
             viewport()->update();
         }
@@ -435,8 +437,17 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
     //viewport()->update();
 }
 
-void HexWidget::showContextMenu(const QPoint &pt)
+void HexWidget::contextMenuEvent(QContextMenuEvent *event)
 {
+    QPoint pt = event->pos();
+    if (event->reason() == QContextMenuEvent::Mouse) {
+        auto mouseAddr = mousePosToAddr(pt).address;
+        if (selection.isEmpty() || !(mouseAddr >= selection.start() && mouseAddr <= selection.end())) {
+            cursorOnAscii = asciiArea.contains(pt);
+            seek(mouseAddr);
+        }
+    }
+
     QMenu *menu = new QMenu();
     QMenu *sizeMenu = menu->addMenu(tr("Item size:"));
     sizeMenu->addActions(actionsItemSize);
@@ -1049,7 +1060,7 @@ void HexWidget::fetchData()
     data->fetch(startAddress, bytesPerScreen());
 }
 
-BasicCursor HexWidget::screenPosToAddr(const QPoint &point) const
+BasicCursor HexWidget::screenPosToAddr(const QPoint &point,  bool middle) const
 {
     QPoint pt = point - itemArea.topLeft();
 
@@ -1057,27 +1068,34 @@ BasicCursor HexWidget::screenPosToAddr(const QPoint &point) const
     relativeAddress += (pt.y() / lineHeight) * itemRowByteLen();
     relativeAddress += (pt.x() / columnExWidth()) * itemGroupByteLen();
     pt.rx() %= columnExWidth();
-    relativeAddress += ((pt.x() + itemWidth() / 2) / itemWidth()) * itemByteLen;
+    auto roundingOffset = middle ? itemWidth() / 2 : 0;
+    relativeAddress += ((pt.x() + roundingOffset) / itemWidth()) * itemByteLen;
     BasicCursor result(startAddress);
     result += relativeAddress;
     return result;
 }
 
-BasicCursor HexWidget::asciiPosToAddr(const QPoint &point) const
+BasicCursor HexWidget::asciiPosToAddr(const QPoint &point, bool middle) const
 {
     QPoint pt = point - asciiArea.topLeft();
 
     int relativeAddress = 0;
     relativeAddress += (pt.y() / lineHeight) * itemRowByteLen();
-    relativeAddress += (pt.x() +  charWidth / 2) / charWidth;
+    auto roundingOffset = middle ? (charWidth / 2) : 0;
+    relativeAddress += (pt.x() + (roundingOffset)) / charWidth;
     BasicCursor result(startAddress);
     result += relativeAddress;
     return result;
 }
 
-BasicCursor HexWidget::currentAreaPosToAddr(const QPoint &point) const
+BasicCursor HexWidget::currentAreaPosToAddr(const QPoint &point, bool middle) const
 {
-    return cursorOnAscii ? asciiPosToAddr(point) : screenPosToAddr(point);
+    return cursorOnAscii ? asciiPosToAddr(point, middle) : screenPosToAddr(point, middle);
+}
+
+BasicCursor HexWidget::mousePosToAddr(const QPoint &point, bool middle) const
+{
+    return asciiArea.contains(point) ? asciiPosToAddr(point, middle) : screenPosToAddr(point, middle);
 }
 
 QRect HexWidget::itemRectangle(uint offset)
