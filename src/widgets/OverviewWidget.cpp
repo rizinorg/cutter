@@ -97,6 +97,9 @@ void OverviewWidget::targetClosed()
 
 void OverviewWidget::updateTargetView()
 {
+    if (!targetGraphWidget) {
+        return;
+    }
     qreal curScale = graphView->getViewScale();
     int rectx = graphView->getRangeRect().x();
     int recty = graphView->getRangeRect().y();
