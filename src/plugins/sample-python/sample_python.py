@@ -1,7 +1,7 @@
 
 import cutter
 
-from PySide2.QtCore import QObject, SIGNAL, Qt
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QAction, QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
 
 
@@ -30,8 +30,8 @@ class FortuneWidget(cutter.CutterDockWidget):
         layout.addWidget(button)
         layout.setAlignment(button, Qt.AlignHCenter)
 
-        QObject.connect(cutter.core(), SIGNAL("seekChanged(RVA)"), self.generate_fortune)
-        QObject.connect(button, SIGNAL("clicked()"), self.generate_fortune)
+        button.clicked.connect(self.generate_fortune)
+        cutter.core().seekChanged.connect(self.generate_fortune)
 
         self.show()
 

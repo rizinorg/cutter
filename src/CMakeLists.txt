@@ -123,7 +123,7 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
 
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
             COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml"
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
 else()
