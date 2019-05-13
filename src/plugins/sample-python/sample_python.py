@@ -1,7 +1,7 @@
 
 import cutter
 
-from PySide2.QtCore import QObject, SIGNAL, Qt
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QAction, QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
 
 
