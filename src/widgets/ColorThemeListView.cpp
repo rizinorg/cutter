@@ -336,10 +336,10 @@ void ColorSettingsModel::updateTheme()
 
     for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
         QJsonArray rgb = it.value().toArray();
-        if (rgb.size() != 3) {
+        if (rgb.size() != 4) {
             continue;
         }
-        theme.push_back({it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()), false});
+        theme.push_back({it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt(), rgb[3].toInt()), false});
     }
 
     if (!theme.isEmpty()) {
@@ -739,13 +739,13 @@ const QMap<QString, OptionInfo> optionInfoMap__ = {
     }
 },
 {
-    "linehl", {
+    "hlline", {
         QObject::tr("Selected line background color"),
         QObject::tr("Line highlight")
     }
 },
 {
-    "wordhl", {
+    "hlword", {
         QObject::tr("Background color of selected word"),
         QObject::tr("Word higlight")
     }

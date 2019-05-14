@@ -46,6 +46,8 @@ public:
      */
     bool isPickingFromScreen() const;
 
+    void setAlphaEnabled(bool enabled);
+
 
 public slots:
     /**
@@ -101,8 +103,7 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
 
-private:
-    void mouseEvent(QMouseEvent* event);
+    virtual void mouseEvent(QMouseEvent* event);
 
     /**
      * @brief pointToColor converts coordinates on widget to color these coordinates represents.
@@ -134,6 +135,23 @@ class ColorPickArea : public ColorPickerWidget
     Q_OBJECT
 public:
     explicit ColorPickArea(QWidget *parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+    void mouseEvent(QMouseEvent *event) override;
+
+private:
+    QColor pointToColor(int x, int y) const override;
+
+    QPoint colorToPoint(const QColor& color) const override;
+};
+
+class AlphaChannelBar : public ColorPickerWidget
+{
+    Q_OBJECT
+public:
+    AlphaChannelBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
 
 protected:
     void paintEvent(QPaintEvent *event) override;

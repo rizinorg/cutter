@@ -124,7 +124,7 @@ private:
     ColorThemeWorker(const ColorThemeWorker &root) = delete;
     ColorThemeWorker &operator=(const ColorThemeWorker &) = delete;
 
-    QColor mergeColors(const QColor &upper, const QColor &lower) const;
+    QColor mergeColors(const QColor& upper, const QColor& lower) const;
 };
 
 #endif // COLORTHEMEWORKER_H

@@ -511,7 +511,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                     highlightWidth = block.width - widthBefore - (10 +  2 * padding);
                 }
 
-                QColor selectionColor = ConfigColor("wordhl");
+                QColor selectionColor = ConfigColor("hlword");
 
                 p.fillRect(QRectF(blockX + charWidth * 3 + widthBefore, y, highlightWidth,
                                  charHeight), selectionColor);
@@ -718,7 +718,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
-    disassemblySelectionColor = ConfigColor("linehl");
+    disassemblySelectionColor = ConfigColor("hlline");
     PCSelectionColor = ConfigColor("highlightPC");
 
     jmpColor = ConfigColor("graph.trufae");
