@@ -5,6 +5,7 @@
 #include "dialogs/HexdumpRangeDialog.h"
 #include <QScrollArea>
 #include <QTimer>
+#include <QMenu>
 
 struct BasicCursor
 {
@@ -227,12 +228,19 @@ public:
     enum AddrWidth { AddrWidth32 = 8, AddrWidth64 = 16 };
     enum ItemSize { ItemSizeByte = 1, ItemSizeWord = 2, ItemSizeDword = 4, ItemSizeQword = 8 };
     enum ItemFormat { ItemFormatHex, ItemFormatOct, ItemFormatDec, ItemFormatSignedDec, ItemFormatFloat };
+    enum class ColumnMode { Fixed, PowerOf2 };
 
     void setItemSize(int nbytes);
     void setItemFormat(ItemFormat format);
     void setItemEndianess(bool bigEndian);
     void setItemGroupSize(int size);
-    void setColumnCount(int columns);
+    /**
+     * @brief Sets line size in bytes.
+     * Changes column mode to fixed. Command can be rejected if current item format is bigger than requested size.
+     * @param bytes line size in bytes.
+     */
+    void setFixedLineSize(int bytes);
+    void setColumnMode(ColumnMode mode);
 
     /**
      * @brief Select non empty inclusive range [start; end]
@@ -275,6 +283,7 @@ private slots:
 
 private:
     void updateItemLength();
+    void updateCounts();
     void drawHeader(QPainter &painter);
     void drawCursor(QPainter &painter, bool shadow = false);
     void drawAddrArea(QPainter &painter);
@@ -350,7 +359,7 @@ private:
 
     inline int itemRowByteLen() const
     {
-        return itemColumns * itemGroupByteLen();
+        return rowSizeBytes;
     }
 
     inline int bytesPerScreen() const
@@ -396,10 +405,12 @@ private:
     QRect asciiArea;
 
     int itemByteLen;
-    int itemGroupSize; // Items per group (default: 1)
-    int itemColumns;
+    int itemGroupSize; ///< Items per group (default: 1), 2 in case of hexpair mode
+    int rowSizeBytes; ///< Line size in bytes
+    int itemColumns; ///< Number of columns, single column consists of itemGroupSize items
     int itemCharLen;
     int itemPrefixLen;
+    ColumnMode columnMode;
 
     ItemFormat itemFormat;
 
@@ -436,7 +447,8 @@ private:
 
     const QString hexPrefix = QStringLiteral("0x");
 
-    QList<QAction *> actionsColumnCount;
+    QMenu* rowSizeMenu;
+    QAction* actionRowSizePowerOf2;
     QList<QAction *> actionsItemSize;
     QList<QAction *> actionsItemFormat;
     QAction *actionItemBigEndian;

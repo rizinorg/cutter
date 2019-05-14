@@ -15,22 +15,25 @@
 #include <QApplication>
 
 static const uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
+static const int MAX_LINE_WIDTH_PRESET = 32;
+static const int MAX_LINE_WIDTH_BYTES = 128 * 1024;
 
 HexWidget::HexWidget(QWidget *parent) :
     QScrollArea(parent),
-    addrCharLen(AddrWidth64),
-    showExAddr(true),
-    showExHex(true),
-    showAscii(true),
-    showHeader(true),
-    itemBigEndian(false),
-    cursorOnAscii(false),
     cursorEnabled(true),
+    cursorOnAscii(false),
+    updatingSelection(false),
     itemByteLen(1),
     itemGroupSize(1),
-    itemColumns(16),
+    rowSizeBytes(16),
+    columnMode(ColumnMode::PowerOf2),
     itemFormat(ItemFormatHex),
-    updatingSelection(false)
+    itemBigEndian(false),
+    addrCharLen(AddrWidth64),
+    showHeader(true),
+    showAscii(true),
+    showExHex(true),
+    showExAddr(true)
 {
     setMouseTracking(true);
     setFocusPolicy(Qt::FocusPolicy::StrongFocus);
@@ -68,16 +71,21 @@ HexWidget::HexWidget(QWidget *parent) :
     actionsItemFormat.at(0)->setChecked(true);
     actionsItemFormat.at(ItemFormatFloat)->setEnabled(false);
 
+    rowSizeMenu = new QMenu(tr("Bytes per row"), this);
     auto columnsActionGroup = new QActionGroup(this);
-    for (int i = 1; i <= 32; i *= 2) {
-        QAction *action = new QAction(QString::number(i), this);
+    for (int i = 1; i <= MAX_LINE_WIDTH_PRESET; i *= 2) {
+        QAction *action = new QAction(QString::number(i), rowSizeMenu);
         action->setCheckable(true);
         action->setActionGroup(columnsActionGroup);
-        if (i == 16)
-            action->setChecked(true);
-        connect(action, &QAction::triggered, this, [=]() { setColumnCount(i); });
-        actionsColumnCount.append(action);
+        connect(action, &QAction::triggered, this, [=]() { setFixedLineSize(i); });
+        rowSizeMenu->addAction(action);
     }
+    rowSizeMenu->addSeparator();
+    actionRowSizePowerOf2 = new QAction(tr("Power of 2"), this);
+    actionRowSizePowerOf2->setCheckable(true);
+    actionRowSizePowerOf2->setActionGroup(columnsActionGroup);
+    connect(actionRowSizePowerOf2, &QAction::triggered, this, [=]() { setColumnMode(ColumnMode::PowerOf2); });
+    rowSizeMenu->addAction(actionRowSizePowerOf2);
 
     actionItemBigEndian = new QAction(tr("Big Endian"), this);
     actionItemBigEndian->setCheckable(true);
@@ -140,7 +148,6 @@ void HexWidget::setMonospaceFont(const QFont &font)
     updateMetrics();
     fetchData();
     updateCursorMeta();
-    updateWidth();
 
     viewport()->update();
 }
@@ -153,6 +160,9 @@ void HexWidget::setItemSize(int nbytes)
         return;
 
     itemByteLen = nbytes;
+    if (itemByteLen > rowSizeBytes) {
+        rowSizeBytes = itemByteLen;
+    }
 
     actionsItemFormat.at(ItemFormatFloat)->setEnabled(nbytes >= 4);
     actionItemBigEndian->setEnabled(nbytes != 1);
@@ -173,7 +183,7 @@ void HexWidget::setItemFormat(ItemFormat format)
         sizeEnabled = false;
     actionsItemSize.at(0)->setEnabled(sizeEnabled);
     actionsItemSize.at(1)->setEnabled(sizeEnabled);
-    actionHexPairs->setEnabled(itemByteLen == 1 && format == ItemFormatHex);
+
 
     updateItemLength();
     fetchData();
@@ -186,24 +196,86 @@ void HexWidget::setItemGroupSize(int size)
 {
     itemGroupSize = size;
 
-    updateAreasPosition();
+    updateCounts();
     fetchData();
     updateCursorMeta();
-    updateWidth();
 
     viewport()->update();
 }
 
-void HexWidget::setColumnCount(int columns)
+void HexWidget::updateCounts()
 {
-    //FIXME: check that columns is power of 2
-    itemColumns = columns;
-    actionHexPairs->setEnabled(columns > 1);
+    actionHexPairs->setEnabled(rowSizeBytes > 1 && itemByteLen == 1
+                               && itemFormat == ItemFormat::ItemFormatHex);
+    if (actionHexPairs->isChecked() && actionHexPairs->isEnabled()) {
+        itemGroupSize = 2;
+    } else {
+        itemGroupSize = 1;
+    }
+
+    if (columnMode == ColumnMode::PowerOf2) {
+        int last_good_size = itemGroupByteLen();
+        for (int i = itemGroupByteLen(); i <= MAX_LINE_WIDTH_BYTES; i *= 2) {
+            rowSizeBytes = i;
+            itemColumns = rowSizeBytes / itemGroupByteLen();
+            updateAreasPosition();
+            if (horizontalScrollBar()->maximum() == 0) {
+                last_good_size = rowSizeBytes;
+            } else {
+                break;
+            }
+        }
+        rowSizeBytes = last_good_size;
+    }
+
+    itemColumns = rowSizeBytes / itemGroupByteLen();
+
+    // ensure correct action is selected when changing line size programmatically
+    if (columnMode == ColumnMode::Fixed) {
+        int w = 1;
+        const auto &actions = rowSizeMenu->actions();
+        for (auto action : actions) {
+            action->setChecked(false);
+        }
+        for (auto action : actions) {
+            if (w > MAX_LINE_WIDTH_PRESET) {
+                break;
+            }
+            if (rowSizeBytes == w) {
+                action->setChecked(true);
+            }
+            w *= 2;
+        }
+    } else if (columnMode == ColumnMode::PowerOf2) {
+        actionRowSizePowerOf2->setChecked(true);
+    }
 
     updateAreasPosition();
+}
+
+void HexWidget::setFixedLineSize(int lineSize)
+{
+    if (lineSize < 1 || lineSize < itemGroupByteLen() || lineSize % itemGroupByteLen()) {
+        updateCounts();
+        return;
+    }
+    rowSizeBytes = lineSize;
+    columnMode = ColumnMode::Fixed;
+
+    updateCounts();
     fetchData();
     updateCursorMeta();
-    updateWidth();
+
+    viewport()->update();
+}
+
+void HexWidget::setColumnMode(ColumnMode mode)
+{
+    columnMode = mode;
+
+    updateCounts();
+    fetchData();
+    updateCursorMeta();
 
     viewport()->update();
 }
@@ -306,13 +378,15 @@ void HexWidget::updateWidth()
 
 void HexWidget::resizeEvent(QResizeEvent *event)
 {
-    updateWidth();
+    int oldByteCount = bytesPerScreen();
+    updateCounts();
 
-    if (event->oldSize().height() == event->size().height())
+    if (event->oldSize().height() == event->size().height() && oldByteCount == bytesPerScreen())
         return;
 
     updateAreasHeight();
     fetchData(); // rowCount was changed
+    updateCursorMeta();
 
     viewport()->update();
 }
@@ -453,8 +527,7 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     sizeMenu->addActions(actionsItemSize);
     QMenu *formatMenu = menu->addMenu(tr("Item format:"));
     formatMenu->addActions(actionsItemFormat);
-    QMenu *columnsMenu = menu->addMenu(tr("Columns:"));
-    columnsMenu->addActions(actionsColumnCount);
+    menu->addMenu(rowSizeMenu);
     menu->addAction(actionHexPairs);
     menu->addAction(actionItemBigEndian);
     menu->addSeparator();
@@ -476,10 +549,8 @@ void HexWidget::onCursorBlinked()
 void HexWidget::onHexPairsModeEnabled(bool enable)
 {
     if (enable) {
-        itemColumns /= 2;
         setItemGroupSize(2);
     } else {
-        itemColumns *= 2;
         setItemGroupSize(1);
     }
 }
@@ -572,16 +643,7 @@ void HexWidget::updateItemLength()
 
     itemCharLen += itemPrefixLen;
 
-    if (itemByteLen == 1 && itemFormat == ItemFormatHex) {
-        actionHexPairs->setEnabled(true);
-    } else {
-        actionHexPairs->setEnabled(false);
-        actionHexPairs->setChecked(false);
-        itemGroupSize = 1;
-    }
-
-    updateAreasPosition();
-    updateWidth();
+    updateCounts();
 }
 
 void HexWidget::drawHeader(QPainter &painter)
@@ -640,7 +702,7 @@ void HexWidget::drawAddrArea(QPainter &painter)
 
     painter.setPen(addrColor);
     for (int line = 0;
-           line < visibleLines && offset <= data->maxIndex();
+            line < visibleLines && offset <= data->maxIndex();
             ++line, strRect.translate(0, lineHeight), offset += itemRowByteLen()) {
         addrString = QString("%1").arg(offset, addrCharLen, 16, QLatin1Char('0'));
         if (showExAddr)
@@ -659,7 +721,6 @@ void HexWidget::drawItemArea(QPainter &painter)
     QRect itemRect(itemArea.topLeft(), QSize(itemWidth(), lineHeight));
     QColor itemColor;
     QString itemString;
-    int itemOffset;
 
     fillSelectionBackground(painter);
 
@@ -783,7 +844,7 @@ void HexWidget::updateMetrics()
     lineHeight = fontMetrics().height();
     charWidth = fontMetrics().width(QLatin1Char('F'));
 
-    updateAreasPosition();
+    updateCounts();
     updateAreasHeight();
 
     int cursorWidth = charWidth / 3;
@@ -804,12 +865,6 @@ void HexWidget::updateMetrics()
         shadowCursor.screenPos.setWidth(charWidth);
         shadowCursor.screenPos.moveTopLeft(asciiArea.topLeft());
     }
-
-    int max = (showAscii ? asciiArea.right() : itemArea.right()) - viewport()->width();
-    if (max < 0)
-        max = 0;
-    horizontalScrollBar()->setMaximum(max);
-    horizontalScrollBar()->setPageStep(charWidth);
 }
 
 void HexWidget::updateAreasPosition()
@@ -826,6 +881,8 @@ void HexWidget::updateAreasPosition()
 
     asciiArea.setTopLeft(QPoint(itemArea.right() + spacingWidth, yOffset));
     asciiArea.setWidth(asciiRowWidth());
+
+    updateWidth();
 }
 
 void HexWidget::updateAreasHeight()
