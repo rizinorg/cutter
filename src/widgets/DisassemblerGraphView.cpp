@@ -123,7 +123,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
         auto bbh = Core()->getBBHighlighter();
         QColor c = QColorDialog::getColor(disassemblySelectedBackgroundColor);
         if (c.isValid()) {
-            bbh->highlight(blockForAddress(seekable->getOffset())->entry, c);
+            bbh->highlight(blockForAddress(this->seekable->getOffset())->entry, c);
         }
         Config()->colorsUpdated();
     });
@@ -131,7 +131,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     actionUnhighlight.setText(tr("Unhighlight block"));
     connect(&actionUnhighlight, &QAction::triggered, this, [this]() {
         auto bbh = Core()->getBBHighlighter();
-        bbh->clear(blockForAddress(seekable->getOffset())->entry);
+        bbh->clear(blockForAddress(this->seekable->getOffset())->entry);
         Config()->colorsUpdated();
     });
 
