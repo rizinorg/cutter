@@ -136,7 +136,7 @@ QString ColorThemeWorker::save(const QJsonDocument &theme, const QString &themeN
                        .arg(QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt(), arr[3].toInt()).name(format)).toUtf8());
         } else if (arr.size() == 3) {
             fOut.write(line.arg(it.key())
-                       .arg(QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt(), arr[3].toInt()).name(format)).toUtf8());
+                       .arg(QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt()).name(format)).toUtf8());
         }
     }
 
@@ -183,17 +183,22 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
             QColor(sl[2]).getRgb(&r, &g, &b, &a);
             theme.insert(sl[1], QJsonArray({r, g, b, a}));
         }
-    }
-
-    for (auto &it : cutterSpecificOptions) {
-        if (!theme.contains(it)) {
+        for (auto &it : cutterSpecificOptions) {
+            if (!theme.contains(it)) {
+                mergeColors(Config()->getColor(it),
+                            Config()->getColor("gui.background")).getRgb(&r, &g, &b, &a);
+                Config()->getColor(it).getRgb(&r, &g, &b, &a);
+                theme.insert(it, QJsonArray({r, g, b, a}));
+            }
+        }
+    } else {
+        for (auto &it : cutterSpecificOptions) {
             mergeColors(Config()->getColor(it),
                         Config()->getColor("gui.background")).getRgb(&r, &g, &b, &a);
             Config()->getColor(it).getRgb(&r, &g, &b, &a);
             theme.insert(it, QJsonArray({r, g, b, a}));
         }
     }
-
 
     for (auto &key : radare2UnusedOptions) {
         theme.remove(key);
