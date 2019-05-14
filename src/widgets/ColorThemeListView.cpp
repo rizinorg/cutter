@@ -350,10 +350,10 @@ void ColorSettingsModel::updateTheme()
 QJsonDocument ColorSettingsModel::getTheme() const
 {
     QJsonObject obj;
-    int r, g, b;
+    int r, g, b, a;
     for (auto &it : theme) {
-        it.color.getRgb(&r, &g, &b);
-        obj.insert(it.optionName, QJsonArray({r, g, b}));
+        it.color.getRgb(&r, &g, &b, &a);
+        obj.insert(it.optionName, QJsonArray({r, g, b, a}));
     }
     return QJsonDocument(obj);
 }
