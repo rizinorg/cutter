@@ -37,7 +37,6 @@ public:
 public slots:
     void initParsing();
 
-    void toggleSync();
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
     QWidget *widgetToFocusOnRaise() override;
@@ -60,7 +59,6 @@ private:
     void showSidePanel(bool show);
 
     QAction syncAction;
-    CutterSeekable *seekable;
 
 private slots:
     void onSeekChanged(RVA addr);

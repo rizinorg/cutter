@@ -82,5 +82,5 @@ private:
 
 signals:
     void seekableSeekChanged(RVA addr);
-
+    void syncChanged();
 };
