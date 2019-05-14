@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 SCRIPTPATH=$(realpath "$(dirname "${BASH_SOURCE[0]}")")
 
