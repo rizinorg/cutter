@@ -17,22 +17,11 @@
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
-    ui(new Ui::HexdumpWidget),
-    seekable(new CutterSeekable(this))
+    ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);
 
-    /*
-     * Ugly hack just for the layout issue
-     * QSettings saves the state with the object names
-     * By doing this hack,
-     * you can at least avoid some mess by dismissing all the Extra Widgets
-     */
-    QString name = "Hexdump";
-    if (!action) {
-        name = "Extra Hexdump";
-    }
-    setObjectName(name);
+    setObjectName("HexdumpWidget");
 
     ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
     ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));
@@ -161,19 +150,6 @@ void HexdumpWidget::on_parseBitsComboBox_currentTextChanged(const QString &/*arg
 {
     refreshSelectionInfo();
 }
-
-
-void HexdumpWidget::toggleSync()
-{
-    QString windowTitle = tr("Hexdump");
-    seekable->toggleSynchronization();
-    if (seekable->isSynchronized()) {
-        setWindowTitle(windowTitle);
-    } else {
-        setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    }
-}
-
 
 void HexdumpWidget::setupFonts()
 {
