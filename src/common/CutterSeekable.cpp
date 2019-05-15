@@ -50,7 +50,6 @@ void CutterSeekable::toggleSynchronization()
 {
     synchronized = !synchronized;
     onCoreSeekChanged(Core()->getOffset());
-    emit syncChanged();
 }
 
 bool CutterSeekable::isSynchronized()

@@ -94,7 +94,8 @@ public:
     void setFilename(const QString &fn);
     void refreshOmniBar(const QStringList &flags);
 
-    void addWidget(QDockWidget* widget);
+    void addToDockWidgetList(QDockWidget *dockWidget);
+    void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
     void addExtraWidget(CutterDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
@@ -206,7 +207,7 @@ private:
     Configuration *configuration;
 
     QList<QDockWidget *> dockWidgets;
-    QMultiMap<QAction *, QDockWidget *> dockWidgetsOfAction;
+    QMap<QAction *, QDockWidget *> dockWidgetActions;
     DisassemblyWidget  *disassemblyDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
@@ -248,15 +249,12 @@ private:
     void initToolBar();
     void initDocks();
     void initLayout();
-    void initCorners();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
     void resetToDebugLayout();
     void restoreDebugLayout();
 
-    void updateMemberPointers();
-    void resetDockWidgetList();
     void restoreDocks();
     void hideAllDocks();
     void showZenDocks();
@@ -268,14 +266,6 @@ private:
     void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
-
-    /**
-     * @brief Map, where key is class name an value is pair of
-     * pointer to class constructor and action that passed to this constructor.
-     */
-    QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> mapper;
-
-    QString getUniqueObjectName(const QString &className) const;
 };
 
 #endif // MAINWINDOW_H

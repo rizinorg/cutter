@@ -6,9 +6,19 @@
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Graph, main, action)
 {
-    setObjectName("GraphWidget");
+    /*
+     * Ugly hack just for the layout issue
+     * QSettings saves the state with the object names
+     * By doing this hack,
+     * you can at least avoid some mess by dismissing all the Extra Widgets
+     */
+    QString name = "Graph";
+    if (!action) {
+        name = "Extra Graph";
+    }
+    setObjectName(name);
     setAllowedAreas(Qt::AllDockWidgetAreas);
-    graphView = new DisassemblerGraphView(this, seekable);
+    graphView = new DisassemblerGraphView(this);
     setWidget(graphView);
 
     // getting the name of the class is implementation defined, and cannot be

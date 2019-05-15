@@ -84,7 +84,7 @@ class DisassemblerGraphView : public GraphView
     };
 
 public:
-    DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable);
+    DisassemblerGraphView(QWidget *parent);
     ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
@@ -112,6 +112,8 @@ public slots:
     void colorsUpdatedSlot();
     void fontsUpdatedSlot();
     void onSeekChanged(RVA addr);
+    void toggleSync();
+
     void zoom(QPointF mouseRelativePos, double velocity);
     void zoomReset();
 
