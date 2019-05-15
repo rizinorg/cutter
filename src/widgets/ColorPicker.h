@@ -19,7 +19,7 @@ signals:
     void colorChanged(const QColor& color);
 
 public slots:
-    virtual void setColor(const QColor& color);
+    virtual void setColor(const QColor& color) = 0;
 
 protected:
     QColor currColor;
@@ -122,6 +122,8 @@ class ColorShowWidget : public ColorPickWidgetAbstract
 public:
     explicit ColorShowWidget(QWidget *parent = nullptr);
 
+    void setColor(const QColor& c) override;
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 };
@@ -136,10 +138,10 @@ class ColorPickArea : public ColorPickerWidget
 public:
     explicit ColorPickArea(QWidget *parent = nullptr);
 
+    void setColor(const QColor& c) override;
+
 protected:
     void paintEvent(QPaintEvent *event) override;
-
-    void mouseEvent(QMouseEvent *event) override;
 
 private:
     QColor pointToColor(int x, int y) const override;
@@ -152,6 +154,8 @@ class AlphaChannelBar : public ColorPickerWidget
     Q_OBJECT
 public:
     AlphaChannelBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
+
+    void setColor(const QColor& c) override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -171,6 +175,8 @@ class ColorValueBar : public ColorPickerWidget
     Q_OBJECT
 public:
     ColorValueBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
+
+    void setColor(const QColor& c) override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;

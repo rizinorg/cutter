@@ -33,17 +33,24 @@ void ColorPickArea::paintEvent(QPaintEvent* event)
 
     p.setPen(QPen(Qt::black, 3));
     QPoint curr = colorToPoint(currColor);
-    p.drawLine(curr - QPoint(0, 10), curr + QPoint(0, 10));
-    p.drawLine(curr - QPoint(10, 0), curr + QPoint(10, 0));
+    p.drawLine(curr - QPoint(0, 8), curr + QPoint(0, 8));
+    p.drawLine(curr - QPoint(8, 0), curr + QPoint(8, 0));
 
     p.end();
-    QWidget::paintEvent(event);
 }
 
-void ColorPickArea::mouseEvent(QMouseEvent* event)
+void ColorPickArea::setColor(const QColor& c)
 {
-    ColorPickerWidget::mouseEvent(event);
-    repaint(QRect(event->pos() - QPoint(10, 10), event->pos() + QPoint(10, 10)));
+    if (c == currColor) {
+        return;
+    }
+    QPoint p1 = colorToPoint(currColor);
+    QPoint p2 = colorToPoint(c);
+    currColor = c;
+    repaint(QRect(p2 - QPoint(10, 10), p2 + QPoint(10, 10)));
+    repaint(QRect(p1 - QPoint(10, 10), p1 + QPoint(10, 10)));
+
+    emit colorChanged(currColor);
 }
 
 ColorPickerWidget::ColorPickerWidget(QWidget* parent) : ColorPickWidgetAbstract(parent)
@@ -69,11 +76,11 @@ void ColorPickerWidget::mouseMoveEvent(QMouseEvent* event)
 QColor ColorPickArea::pointToColor(int x, int y) const
 {
     QColor color;
-    qreal h, s, v;
-    currColor.getHsvF(&h, &s, &v);
-    color.setHsvF((qreal)x / width(),
-                  1.0 - (qreal)y / height(),
-                  v);
+    qreal h, s, v, a;
+    currColor.getHsvF(&h, &s, &v, &a);
+    color.setHsvF(qreal(x) / width(),
+                  1.0 - qreal(y) / height(),
+                  v, a);
     return color;
 }
 
@@ -81,7 +88,7 @@ QPoint ColorPickArea::colorToPoint(const QColor& color) const
 {
     qreal h, s, v;
     color.getHsvF(&h, &s, &v);
-    return QPoint(h * width(), (1.0 - s) * height());
+    return QPointF(h * width(), (1.0 - s) * height()).toPoint();
 }
 
 void ColorPickerWidget::mouseEvent(QMouseEvent* event)
@@ -97,14 +104,18 @@ void ColorPickerWidget::mouseEvent(QMouseEvent* event)
                  ? rect().bottom() + 1
                  : rect().y());
     }
-    currColor = pointToColor(pos.x(), pos.y());
-    emit colorChanged(currColor);
+    setColor(pointToColor(pos.x(), pos.y()));
 }
 
-void ColorPickWidgetAbstract::setColor(const QColor& color)
+void ColorValueBar::setColor(const QColor& c)
 {
-    currColor = color;
+    if (c == currColor) {
+        return;
+    }
+    currColor = c;
     repaint();
+
+    emit colorChanged(currColor);
 }
 
 void ColorValueBar::paintEvent(QPaintEvent* event)
@@ -145,9 +156,9 @@ QColor ColorValueBar::pointToColor(int x, int y) const
 {
     Q_UNUSED(x)
     QColor color = currColor;
-    qreal h, s, v;
-    color.getHsvF(&h, &s, &v);
-    color.setHsvF(h, s, 1.0 - qreal(y) / height());
+    qreal h, s, v, a;
+    color.getHsvF(&h, &s, &v, &a);
+    color.setHsvF(h, s, 1.0 - qreal(y) / height(), a);
     return color;
 }
 
@@ -253,7 +264,12 @@ void ColorPicker::updateColor(const QColor& color)
     QSignalBlocker s5(ui->hueSpinBox);
 
     QSignalBlocker s6(ui->hexLineEdit);
+
     QSignalBlocker s7(ui->alphaChannelBar);
+    QSignalBlocker s8(ui->colorPickArea);
+    QSignalBlocker s9(ui->colorShow);
+    QSignalBlocker s10(ui->valuePickBar);
+
     currColor = color;
 
     ui->hexLineEdit->setText(currColor.name());
@@ -336,13 +352,38 @@ void ColorPicker::stopPickingFromScreen()
 
 ColorShowWidget::ColorShowWidget(QWidget* parent) : ColorPickWidgetAbstract(parent) { }
 
+void ColorShowWidget::setColor(const QColor& c)
+{
+    currColor = c;
+    repaint();
+}
+
 void ColorShowWidget::paintEvent(QPaintEvent* event)
 {
     QPainter p(this);
+    const int miniRectWidth = rect().width() / 2;
+    for (int y = rect().topLeft().ry(); y < rect().bottomRight().ry(); y++) {
+        for (int x = rect().topLeft().rx(); x < rect().bottomRight().rx(); x++) {
+            p.setPen(((x % miniRectWidth) / (miniRectWidth / 2)) == ((y % miniRectWidth) / (miniRectWidth / 2))
+                     ? Qt::white
+                     : Qt::black);
+            p.drawPoint(x, y);
+        }
+    }
     p.setPen(currColor);
     p.setBrush(QBrush(currColor));
     p.drawRect(event->rect());
     p.end();
+}
+
+void AlphaChannelBar::setColor(const QColor& c)
+{
+    if (c == currColor) {
+        return;
+    }
+    currColor = c;
+    repaint();
+    emit colorChanged(currColor);
 }
 
 void AlphaChannelBar::paintEvent(QPaintEvent* event)
