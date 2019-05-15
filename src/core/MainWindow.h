@@ -65,7 +65,7 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
 
-    void openNewFile(InitialOptions options = InitialOptions(), bool skipOptionsDialog = false);
+    void openNewFile(InitialOptions &options, bool skipOptionsDialog = false);
     void displayNewFileDialog();
     void displayWelcomeDialog();
     void closeNewFileDialog();

@@ -2,7 +2,6 @@ import argparse
 import importlib.util
 import logging
 import os
-import pprint
 import subprocess
 import sys
 

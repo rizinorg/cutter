@@ -16,7 +16,6 @@ class QtResLoader:
         code = cls.get_code(module.__name__)
         if code is None:
             raise ImportError("get_code() failed")
-            return
         exec(code, module.__dict__)
 
 class QtResFinder:
