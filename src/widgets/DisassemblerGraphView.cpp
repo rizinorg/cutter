@@ -28,12 +28,12 @@
 
 #include <cmath>
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     : GraphView(parent),
       mFontMetrics(nullptr),
       blockMenu(new DisassemblyContextMenu(this)),
       contextMenu(new QMenu(this)),
-      seekable(seekable)
+      seekable(new CutterSeekable(this))
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
@@ -106,7 +106,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     actionExportGraph.setText(tr("Export Graph"));
     connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
     actionSyncOffset.setText(tr("Sync/unsync offset"));
-    connect(&actionSyncOffset, &QAction::triggered, this, [this]() { this->seekable->toggleSynchronization(); });
+    connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
 
     // Context menu that applies to everything
     contextMenu->addAction(&actionExportGraph);
@@ -153,6 +153,16 @@ DisassemblerGraphView::~DisassemblerGraphView()
 {
     for (QShortcut *shortcut : shortcuts) {
         delete shortcut;
+    }
+}
+
+void DisassemblerGraphView::toggleSync()
+{
+    seekable->toggleSynchronization();
+    if (seekable->isSynchronized()) {
+        parentWidget()->setWindowTitle(windowTitle);
+    } else {
+        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
     }
 }
 

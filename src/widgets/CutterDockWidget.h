@@ -57,7 +57,6 @@ public:
 
 signals:
     void becameVisibleToUser();
-    void closed();
 
 public slots:
     void toggleDockWidget(bool show);

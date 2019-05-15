@@ -38,8 +38,19 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
+    ,   seekable(new CutterSeekable(this))
 {
-    setObjectName("DisassemblyWidget");
+    /*
+     * Ugly hack just for the layout issue
+     * QSettings saves the state with the object names
+     * By doing this hack,
+     * you can at least avoid some mess by dismissing all the Extra Widgets
+     */
+    QString name = "Disassembly";
+    if (!action) {
+        name = "Extra Disassembly";
+    }
+    setObjectName(name);
 
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
@@ -174,6 +185,17 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
     ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
 #undef ADD_ACTION
+}
+
+void DisassemblyWidget::toggleSync()
+{
+    QString windowTitle = tr("Disassembly");
+    seekable->toggleSynchronization();
+    if (seekable->isSynchronized()) {
+        setWindowTitle(windowTitle);
+    } else {
+        setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
+    }
 }
 
 void DisassemblyWidget::setPreviewMode(bool previewMode)

@@ -32,11 +32,12 @@ class HexdumpWidget : public MemoryDockWidget
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
     ~HexdumpWidget();
-    Highlighter *highlighter;
+    Highlighter        *highlighter;
 
 public slots:
     void initParsing();
 
+    void toggleSync();
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
 
@@ -57,6 +58,7 @@ private:
     void clearParseWindow();
 
     QAction syncAction;
+    CutterSeekable *seekable;
 
 private slots:
     void onSeekChanged(RVA addr);

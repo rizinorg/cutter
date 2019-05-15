@@ -29,6 +29,7 @@ public slots:
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void seekPrev();
+    void toggleSync();
     void setPreviewMode(bool previewMode);
 
 protected slots:
@@ -81,6 +82,7 @@ private:
     QList<QTextEdit::ExtraSelection> getSameWordsSelections();
 
     QAction syncIt;
+    CutterSeekable *seekable;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
