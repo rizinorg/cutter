@@ -123,7 +123,7 @@ struct SectionDescription {
     RVA size;
     RVA vsize;
     QString name;
-    QString flags;
+    QString perm;
     QString entropy;
 };
 

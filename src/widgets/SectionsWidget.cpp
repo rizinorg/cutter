@@ -62,6 +62,8 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
             return RAddressString(section.vaddr);
         case SectionsModel::EndAddressColumn:
             return RAddressString(section.vaddr + section.vsize);
+        case SectionsModel::PermissionsColumn:
+            return section.perm;
         case SectionsModel::EntropyColumn:
             return section.entropy;
         default:
@@ -91,6 +93,8 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Address");
         case SectionsModel::EndAddressColumn:
             return tr("End Address");
+        case SectionsModel::PermissionsColumn:
+            return tr("Permissions");
         case SectionsModel::EntropyColumn:
             return tr("Entropy");
         default:
@@ -115,6 +119,7 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     auto rightSection = right.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
 
     switch (left.column()) {
+    default:
     case SectionsModel::NameColumn:
         return leftSection.name < rightSection.name;
     case SectionsModel::SizeColumn:
@@ -125,14 +130,11 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
             return leftSection.vaddr < rightSection.vaddr;
         }
         return leftSection.vsize < rightSection.vsize;
+    case SectionsModel::PermissionsColumn:
+        return leftSection.perm < rightSection.perm;
     case SectionsModel::EntropyColumn:
         return leftSection.entropy < rightSection.entropy;
-
-    default:
-        break;
     }
-
-    return false;
 }
 
 SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
