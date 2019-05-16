@@ -1467,16 +1467,19 @@ QList<RIOPluginDescription> CutterCore::getRIOPluginDescriptions()
 {
     QList<RIOPluginDescription> ret;
 
-    QJsonArray plugins = cmdj("oLj").object()["IO_Plugins"].toArray();
+    QJsonArray plugins = cmdj("oLj").object()["io_plugins"].toArray();
     for (const QJsonValue &pluginValue : plugins) {
         QJsonObject pluginObject = pluginValue.toObject();
 
         RIOPluginDescription plugin;
 
-        plugin.name = pluginObject["Name"].toString();
-        plugin.description = pluginObject["Description"].toString();
-        plugin.license = pluginObject["License"].toString();
-        plugin.permissions = pluginObject["Permissions"].toString();
+        plugin.name = pluginObject["name"].toString();
+        plugin.description = pluginObject["description"].toString();
+        plugin.license = pluginObject["license"].toString();
+        plugin.permissions = pluginObject["permissions"].toString();
+        for (const auto &uri : pluginObject["uris"].toArray()) {
+            plugin.uris << uri.toString();
+        }
 
         ret << plugin;
     }

@@ -165,6 +165,7 @@ struct RIOPluginDescription {
     QString description;
     QString license;
     QString permissions;
+    QList<QString> uris;
 };
 
 struct RCorePluginDescription {
