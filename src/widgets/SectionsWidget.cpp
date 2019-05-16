@@ -57,7 +57,7 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
         case SectionsModel::NameColumn:
             return section.name;
         case SectionsModel::SizeColumn:
-            return section.vsize;
+            return RSizeString(section.vsize);
         case SectionsModel::AddressColumn:
             return RAddressString(section.vaddr);
         case SectionsModel::EndAddressColumn:
@@ -367,24 +367,24 @@ void AbstractAddrDock::updateDock()
         addrDockScene->seekAddrSizeMap[name] = desc.vsize;
 
         RVA addr = getAddressOfSection(desc);
-        int size = getSizeOfSection(desc);
+        RVA size = getSizeOfSection(desc);
         addrDockScene->nameAddrMap[name] = addr;
         addrDockScene->nameAddrSizeMap[name] = size;
 
-        size = getAdjustedSize(size, validMinSize);
+        int drawSize = getAdjustedSize(size, validMinSize);
 
-        QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
+        QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, drawSize);
         rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
         addrDockScene->addItem(rect);
 
-        addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
-        addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
+        addTextItem(textColor, QPoint(0, y), RAddressString(addr));
+        addTextItem(textColor, QPoint(rectOffset, y), RSizeString(size));
         addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
 
         addrDockScene->namePosYMap[name] = y;
-        addrDockScene->nameHeightMap[name] = size;
+        addrDockScene->nameHeightMap[name] = drawSize;
 
-        y += size;
+        y += drawSize;
     }
 
     graphicsView->setSceneRect(addrDockScene->itemsBoundingRect());
@@ -488,7 +488,7 @@ RVA AddrDockScene::getAddrFromPos(int posY, bool seek)
 {
     QHash<QString, int>::const_iterator it;
     QHash<QString, RVA> addrMap = seek ? seekAddrMap : nameAddrMap;
-    QHash<QString, int> addrSizeMap = seek ? seekAddrSizeMap : nameAddrSizeMap;
+    QHash<QString, RVA> addrSizeMap = seek ? seekAddrSizeMap : nameAddrSizeMap;
     for (it = namePosYMap.constBegin(); it != namePosYMap.constEnd(); ++it) {
         QString name = it.key();
         int y = it.value();

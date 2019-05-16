@@ -159,9 +159,9 @@ public:
     bool disableCenterOn;
 
     QHash<QString, RVA> nameAddrMap;
-    QHash<QString, int> nameAddrSizeMap;
+    QHash<QString, RVA> nameAddrSizeMap;
     QHash<QString, RVA> seekAddrMap;
-    QHash<QString, int> seekAddrSizeMap;
+    QHash<QString, RVA> seekAddrSizeMap;
     QHash<QString, int> namePosYMap;
     QHash<QString, int> nameHeightMap;
 

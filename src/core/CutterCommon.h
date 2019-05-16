@@ -47,7 +47,7 @@ inline QString RAddressString(RVA addr)
 
 inline QString RSizeString(RVA size)
 {
-    return QString::asprintf("%lld", size);
+    return QString::asprintf("%#llx", size);
 }
 
 inline QString RHexString(RVA size)
