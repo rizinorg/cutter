@@ -463,7 +463,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     // Highlight selected tokens
     if (highlight_token != nullptr) {
         int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
-        int tokenWidth = mFontMetrics->width(highlight_token->content);
+        qreal tokenWidth = mFontMetrics->width(highlight_token->content);
 
         for (const Instr &instr : db.instrs) {
             int pos = -1;
@@ -476,19 +476,19 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                     continue;
                 }
 
-                int widthBefore = mFontMetrics->width(instr.plainText.left(pos));
+                qreal widthBefore = mFontMetrics->width(instr.plainText.left(pos));
                 if (charWidth * 3 + widthBefore > block.width - (10 + 2 * charWidth)) {
                     continue;
                 }
 
-                int highlightWidth = tokenWidth;
+                qreal highlightWidth = tokenWidth;
                 if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + 2 * charWidth)) {
-                    highlightWidth = static_cast<int>(block.width - widthBefore - (10 + 4 * charWidth));
+                    highlightWidth = block.width - widthBefore - (10 + 4 * charWidth);
                 }
 
                 QColor selectionColor = ConfigColor("wordhl");
 
-                p.fillRect(QRect(static_cast<int>(blockX + charWidth * 3 + widthBefore), y, highlightWidth,
+                p.fillRect(QRectF(blockX + charWidth * 3 + widthBefore, y, highlightWidth,
                                  charHeight), selectionColor);
             }
 
