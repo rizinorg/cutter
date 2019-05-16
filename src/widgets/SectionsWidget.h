@@ -139,6 +139,10 @@ protected:
     int getAdjustedSize(int size, int validMinSize);
     int getRectWidth();
     int getIndicatorWidth();
+    int getValidMinSize();
+
+    virtual RVA getSizeOfSection(const SectionDescription &section) =0;
+    virtual RVA getAddressOfSection(const SectionDescription &section) =0;
 
 private:
     void drawIndicator(QString name, float ratio);
@@ -175,10 +179,13 @@ class RawAddrDock : public AbstractAddrDock
 
 public:
     explicit RawAddrDock(SectionsModel *model, QWidget *parent = nullptr);
-    ~RawAddrDock();
+    ~RawAddrDock() = default;
 
     void updateDock() override;
-    int getValidMinSize();
+
+protected:
+    RVA getSizeOfSection(const SectionDescription &section) override { return section.size; };
+    RVA getAddressOfSection(const SectionDescription &section) override { return section.paddr; };
 };
 
 class VirtualAddrDock : public AbstractAddrDock
@@ -187,10 +194,13 @@ class VirtualAddrDock : public AbstractAddrDock
 
 public:
     explicit VirtualAddrDock(SectionsModel *model, QWidget *parent = nullptr);
-    ~VirtualAddrDock();
+    ~VirtualAddrDock() = default;
 
     void updateDock() override;
-    int getValidMinSize();
+
+protected:
+    RVA getSizeOfSection(const SectionDescription &section) override { return section.vsize; };
+    RVA getAddressOfSection(const SectionDescription &section) override { return section.vaddr; };
 };
 
 #endif // SECTIONSWIDGET_H
