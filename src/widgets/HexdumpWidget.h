@@ -16,12 +16,12 @@
 #include "common/HexAsciiHighlighter.h"
 #include "common/HexHighlighter.h"
 #include "common/SvgIconEngine.h"
-#include "HexTextView.h"
+#include "HexWidget.h"
 
 #include "Dashboard.h"
 
 namespace Ui {
-    class HexdumpWidget;
+class HexdumpWidget;
 }
 
 class RefreshDeferrer;
@@ -31,8 +31,8 @@ class HexdumpWidget : public MemoryDockWidget
     Q_OBJECT
 public:
     explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
-    ~HexdumpWidget();
-    Highlighter        *highlighter;
+    ~HexdumpWidget() override;
+    Highlighter *highlighter;
 
 public slots:
     void initParsing();
@@ -40,7 +40,7 @@ public slots:
     void toggleSync();
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
-
+    QWidget *widgetToFocusOnRaise() override;
 private:
     std::unique_ptr<Ui::HexdumpWidget> ui;
 
@@ -48,7 +48,8 @@ private:
 
     RefreshDeferrer *refreshDeferrer;
 
-    void refresh(RVA addr = RVA_INVALID);
+    void refresh();
+    void refresh(RVA addr);
     void selectHexPreview();
 
     void setupFonts();
@@ -65,7 +66,7 @@ private slots:
 
     void on_actionHideHexdump_side_panel_triggered();
 
-    void selectionChanged(HexTextView::Selection selection);
+    void selectionChanged(HexWidget::Selection selection);
 
     void on_parseArchComboBox_currentTextChanged(const QString &arg1);
     void on_parseBitsComboBox_currentTextChanged(const QString &arg1);

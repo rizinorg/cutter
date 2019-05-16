@@ -95,19 +95,17 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
         }
     });
 
-    connect(Core(), &CutterCore::refreshAll, this, [this]() {
-        refresh(seekable->getOffset());
-    });
+    connect(Core(), &CutterCore::refreshAll, this, [this]() { refresh(); });
 
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
-    connect(ui->hexTextView, &HexTextView::positionChanged, this, [this](RVA addr) {
+    connect(ui->hexTextView, &HexWidget::positionChanged, this, [this](RVA addr) {
         if (!sent_seek) {
             sent_seek = true;
             seekable->seek(addr);
             sent_seek = false;
         }
     });
-    connect(ui->hexTextView, &HexTextView::selectionChanged, this, &HexdumpWidget::selectionChanged);
+    connect(ui->hexTextView, &HexWidget::selectionChanged, this, &HexdumpWidget::selectionChanged);
 
     initParsing();
     selectHexPreview();
@@ -124,13 +122,23 @@ void HexdumpWidget::onSeekChanged(RVA addr)
 
 HexdumpWidget::~HexdumpWidget() {}
 
+void HexdumpWidget::refresh()
+{
+    refresh(RVA_INVALID);
+}
+
 void HexdumpWidget::refresh(RVA addr)
 {
     if (!refreshDeferrer->attemptRefresh(addr == RVA_INVALID ? nullptr : new RVA(addr))) {
         return;
     }
     sent_seek = true;
-    ui->hexTextView->refresh(addr);
+    if (addr != RVA_INVALID) {
+        ui->hexTextView->seek(addr);
+    } else {
+        ui->hexTextView->refresh();
+        refreshSelectionInfo();
+    }
     sent_seek = false;
 }
 
@@ -143,7 +151,7 @@ void HexdumpWidget::initParsing()
     ui->parseEndianComboBox->setCurrentIndex(Core()->getConfigb("cfg.bigendian") ? 1 : 0);
 }
 
-void HexdumpWidget::selectionChanged(HexTextView::Selection selection)
+void HexdumpWidget::selectionChanged(HexWidget::Selection selection)
 {
     if (selection.empty) {
         clearParseWindow();
@@ -179,7 +187,7 @@ void HexdumpWidget::setupFonts()
 {
     QFont font = Config()->getFont();
     ui->hexDisasTextEdit->setFont(font);
-    ui->hexTextView->setupFonts();
+    ui->hexTextView->setMonospaceFont(font);
 }
 
 void HexdumpWidget::refreshSelectionInfo()
@@ -318,6 +326,10 @@ void HexdumpWidget::resizeEvent(QResizeEvent *event)
     refresh();
 }
 
+QWidget *HexdumpWidget::widgetToFocusOnRaise()
+{
+    return ui->hexTextView;
+}
 
 void HexdumpWidget::on_copyMD5_clicked()
 {

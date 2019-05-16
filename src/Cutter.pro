@@ -272,7 +272,6 @@ SOURCES += \
     menus/DisassemblyContextMenu.cpp \
     widgets/DisassemblyWidget.cpp \
     widgets/HexdumpWidget.cpp \
-    widgets/HexTextView.cpp \
     common/Configuration.cpp \
     common/Colors.cpp \
     dialogs/SaveProjectDialog.cpp \
@@ -349,7 +348,8 @@ SOURCES += \
     common/CrashHandler.cpp \
     common/BugReporting.cpp \
     common/HighDpiPixmap.cpp \
-    widgets/GraphGridLayout.cpp
+    widgets/GraphGridLayout.cpp \
+    widgets/HexWidget.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -392,7 +392,6 @@ HEADERS  += \
     menus/DisassemblyContextMenu.h \
     widgets/DisassemblyWidget.h \
     widgets/HexdumpWidget.h \
-    widgets/HexTextView.h \
     common/Configuration.h \
     common/Colors.h \
     dialogs/SaveProjectDialog.h \
@@ -475,7 +474,8 @@ HEADERS  += \
     common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
-    widgets/GraphGridLayout.h
+    widgets/GraphGridLayout.h \
+    widgets/HexWidget.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
@@ -501,7 +501,6 @@ FORMS    += \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
     widgets/HexdumpWidget.ui \
-    widgets/HexTextView.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/AppearanceOptionsWidget.ui \
