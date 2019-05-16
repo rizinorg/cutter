@@ -8,7 +8,7 @@
 
 //TODO: fix performance (possibly use QTextLayout?)
 void RichTextPainter::paintRichText(QPainter *painter, int x, int y, int w, int h, int xinc,
-                                    const List &richText, CachedFontMetrics *fontMetrics)
+                                    const List &richText, CachedFontMetricsF *fontMetrics)
 {
     QPen pen;
     QPen highlightPen;

@@ -377,8 +377,7 @@ void DisassemblerGraphView::initFont()
     charWidth = metrics.width('X');
     charHeight = static_cast<int>(metrics.height());
     charOffset = 0;
-    delete mFontMetrics;
-    mFontMetrics = new CachedFontMetrics(this, font());
+    mFontMetrics.reset(new CachedFontMetricsF(font()));
 }
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
@@ -536,7 +535,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
 
         RichTextPainter::paintRichText(&p, static_cast<int>(x), y, block.width, charHeight, 0, line,
-                                       mFontMetrics);
+                                       mFontMetrics.get());
         y += charHeight;
     }
 
@@ -571,7 +570,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
             RichTextPainter::paintRichText(&p, static_cast<int>(x + charWidth), y,
                                            static_cast<int>(block.width - charWidth), charHeight, 0, line,
-                                           mFontMetrics);
+                                           mFontMetrics.get());
             y += charHeight;
 
         }

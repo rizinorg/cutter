@@ -7,7 +7,9 @@
 #include <QColor>
 #include <vector>
 
-class CachedFontMetrics;
+class QFontMetricsF;
+template<typename T, typename FontMetrics> class CachedFontMetrics;
+using CachedFontMetricsF = CachedFontMetrics<qreal, QFontMetricsF>;
 class QPainter;
 
 class RichTextPainter
@@ -36,7 +38,7 @@ public:
 
     //functions
     static void paintRichText(QPainter *painter, int x, int y, int w, int h, int xinc,
-                              const List &richText, CachedFontMetrics *fontMetrics);
+                              const List &richText, CachedFontMetricsF *fontMetrics);
     static void htmlRichText(const List &richText, QString &textHtml, QString &textPlain);
 
     static List fromTextDocument(const QTextDocument &doc);
