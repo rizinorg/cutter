@@ -483,10 +483,8 @@ void MainWindow::finalizeOpen()
 {
     core->getOpcodes();
     core->updateSeek();
-    core->message(tr(" > Populating UI"));
     refreshAll();
 
-    core->message(tr(" > Finished, happy reversing :)"));
     // Add fortune message
     core->message("\n" + core->cmd("fo"));
     showMaximized();
