@@ -118,9 +118,6 @@ void OverviewWidget::updateGraphData()
         return;
     }
     if (targetGraphWidget && !targetGraphWidget->getGraphView()->isGraphEmpty()) {
-        if (targetGraphWidget->getGraphView()->currentFcnAddr == graphView->currentFcnAddr) {
-            return;
-        }
         graphView->currentFcnAddr = targetGraphWidget->getGraphView()->currentFcnAddr;
         auto &mainGraphView = *targetGraphWidget->getGraphView();
         graphView->setData(mainGraphView.getWidth(), mainGraphView.getHeight(),
