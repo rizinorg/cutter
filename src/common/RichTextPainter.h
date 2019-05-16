@@ -9,7 +9,6 @@
 
 class QFontMetricsF;
 template<typename T, typename FontMetrics> class CachedFontMetrics;
-using CachedFontMetricsF = CachedFontMetrics<qreal, QFontMetricsF>;
 class QPainter;
 
 class RichTextPainter
@@ -37,8 +36,9 @@ public:
     typedef std::vector<CustomRichText_t> List;
 
     //functions
-    static void paintRichText(QPainter *painter, int x, int y, int w, int h, int xinc,
-                              const List &richText, CachedFontMetricsF *fontMetrics);
+    template<typename T = qreal, typename FontMetrics = QFontMetricsF>
+    static void paintRichText(QPainter *painter, T x, T y, T w, T h, T xinc,
+                              const List &richText, CachedFontMetrics<T, FontMetrics> *fontMetrics);
     static void htmlRichText(const List &richText, QString &textHtml, QString &textPlain);
 
     static List fromTextDocument(const QTextDocument &doc);

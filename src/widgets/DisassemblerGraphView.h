@@ -15,6 +15,7 @@
 
 class QTextEdit;
 class SyntaxHighlighter;
+using CachedFontMetricsF = CachedFontMetrics<qreal, QFontMetricsF>;
 
 class DisassemblerGraphView : public GraphView
 {
