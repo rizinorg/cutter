@@ -70,8 +70,12 @@ public:
 
 private slots:
     void refreshSections();
+    void refreshDocks();
+
     void onSectionsDoubleClicked(const QModelIndex &index);
-    void onSectionsSeekChanged(RVA addr);
+
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
 private:
     QList<SectionDescription> sections;
@@ -82,12 +86,20 @@ private:
     QWidget *dockWidgetContents;
     QuickFilterView *quickFilterView;
 
-    RefreshDeferrer *refreshDeferrer;
-
     QWidget *addrDockWidget;
     RawAddrDock *rawAddrDock;
     VirtualAddrDock *virtualAddrDock;
     QToolButton *toggleButton;
+
+    /**
+     * RefreshDeferrer for loading the section data
+     */
+    RefreshDeferrer *sectionsRefreshDeferrer;
+
+    /**
+     * RefreshDeferrer for updating the visualization docks
+     */
+    RefreshDeferrer *dockRefreshDeferrer;
 
     void initSectionsTable();
     void initQuickFilter();
@@ -110,13 +122,13 @@ public:
     virtual void updateDock();
 
 protected:
-    int indicatorWidth;
     int indicatorHeight;
     int indicatorParamPosY;
     float heightThreshold;
     float heightDivisor;
     int rectOffset;
-    int rectWidth;
+    int rectWidthMin;
+    int rectWidthMax;
     QColor indicatorColor;
     QColor textColor;
     AddrDockScene *addrDockScene;
@@ -125,6 +137,8 @@ protected:
 
     void addTextItem(QColor color, QPoint pos, QString string);
     int getAdjustedSize(int size, int validMinSize);
+    int getRectWidth();
+    int getIndicatorWidth();
 
 private:
     void drawIndicator(QString name, float ratio);
