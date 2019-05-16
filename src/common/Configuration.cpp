@@ -222,7 +222,6 @@ void Configuration::loadBaseThemeNative()
     /* Colors */
     // GUI
     setColor("gui.cflow",   QColor(0, 0, 0));
-    setColor("gui.dataoffset", QColor(0, 0, 0));
     // Custom
     setColor("gui.imports", QColor(50, 140, 255));
     setColor("gui.main", QColor(0, 128, 0));
@@ -254,6 +253,7 @@ void Configuration::loadNativeTheme()
         setColor("highlightPC", QColor(87, 26, 7));
         setColor("gui.tooltip.background", QColor(42, 44, 46));
         setColor("gui.tooltip.foreground", QColor(250, 252, 254));
+        setColor("gui.dataoffset", QColor(255, 255, 255));
     } else {
         setColor("gui.border", QColor(0, 0, 0));
         setColor("gui.background", QColor(255, 255, 255));
@@ -262,6 +262,7 @@ void Configuration::loadNativeTheme()
         setColor("linehl", QColor(210, 210, 255, 150));
         setColor("wordhl", QColor(179, 119, 214, 60));
         setColor("highlightPC", QColor(214, 255, 210));
+        setColor("gui.dataoffset", QColor(0, 0, 0));
     }
 }
 
