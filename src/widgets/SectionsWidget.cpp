@@ -145,9 +145,8 @@ SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
     setWindowTitle(QStringLiteral("Sections"));
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    refreshDeferrer = createRefreshDeferrer([this]() {
-        drawIndicatorOnAddrDocks();
-    });
+    sectionsRefreshDeferrer = createRefreshDeferrer([this]() { refreshSections(); });
+    dockRefreshDeferrer = createRefreshDeferrer([this]() { refreshDocks(); });
 
     initSectionsTable();
     initQuickFilter();
@@ -240,8 +239,8 @@ void SectionsWidget::initConnects()
             refreshSections();
         }
     });
-    connect(Core(), SIGNAL(seekChanged(RVA)), this, SLOT(onSectionsSeekChanged(RVA)));
-    connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(refreshSections()));
+    connect(Core(), &CutterCore::seekChanged, this, &SectionsWidget::refreshDocks);
+    connect(Config(), &Configuration::colorsUpdated, this, &SectionsWidget::refreshSections);
     connect(toggleButton, &QToolButton::clicked, this, [ = ] {
         toggleButton->hide();
         addrDockWidget->show();
@@ -256,28 +255,21 @@ void SectionsWidget::initConnects()
 
 void SectionsWidget::refreshSections()
 {
+    if (!sectionsRefreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
     sectionsModel->beginResetModel();
     sections = Core()->getAllSections();
     sectionsModel->endResetModel();
     qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
-    rawAddrDock->updateDock();
-    virtualAddrDock->updateDock();
-    drawIndicatorOnAddrDocks();
+    refreshDocks();
 }
 
-void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
+void SectionsWidget::refreshDocks()
 {
-    if (!index.isValid()) {
+    if (!dockRefreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
-
-    auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
-    Core()->seek(section.vaddr);
-}
-
-void SectionsWidget::onSectionsSeekChanged(RVA addr)
-{
-    Q_UNUSED(addr);
     rawAddrDock->updateDock();
     virtualAddrDock->updateDock();
     drawIndicatorOnAddrDocks();
@@ -285,10 +277,6 @@ void SectionsWidget::onSectionsSeekChanged(RVA addr)
 
 void SectionsWidget::drawIndicatorOnAddrDocks()
 {
-    if (!refreshDeferrer->attemptRefresh(nullptr)) {
-        return;
-    }
-
     RVA offset = Core()->getOffset();
     for (int i = 0; i != virtualAddrDock->proxyModel->rowCount(); i++) {
         QModelIndex idx = virtualAddrDock->proxyModel->index(i, 0);
@@ -306,6 +294,21 @@ void SectionsWidget::drawIndicatorOnAddrDocks()
             return;
         }
     }
+}
+
+void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
+{
+    if (!index.isValid()) {
+        return;
+    }
+
+    auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
+    Core()->seek(section.vaddr);
+}
+
+void SectionsWidget::resizeEvent(QResizeEvent *event) {
+    CutterDockWidget::resizeEvent(event);
+    refreshDocks();
 }
 
 void SectionsWidget::updateToggle()
@@ -328,13 +331,13 @@ AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
 
     setWidget(graphicsView);
 
-    indicatorWidth = 600;
     indicatorHeight = 5;
     indicatorParamPosY = 20;
     heightThreshold = 30;
     heightDivisor = 1000;
     rectOffset = 100;
-    rectWidth = 400;
+    rectWidthMin = 80;
+    rectWidthMax = 400;
     indicatorColor = ConfigColor("gui.navbar.seek");
     textColor = ConfigColor("gui.dataoffset");
 }
@@ -374,13 +377,24 @@ int AbstractAddrDock::getAdjustedSize(int size, int validMinSize)
     return heightThreshold * r;
 }
 
+int AbstractAddrDock::getRectWidth()
+{
+    return qBound(rectWidthMin, width() - 300, rectWidthMax);
+}
+
+int AbstractAddrDock::getIndicatorWidth()
+{
+    return getRectWidth() + 200;
+}
+
+
 void AbstractAddrDock::drawIndicator(QString name, float ratio)
 {
     RVA offset = Core()->getOffset();
     float padding = addrDockScene->nameHeightMap[name] * ratio;
     int y = addrDockScene->namePosYMap[name] + (int)padding;
     QColor color = indicatorColor;
-    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, indicatorWidth, indicatorHeight));
+    QGraphicsRectItem *indicator = new QGraphicsRectItem(QRectF(0, y, getIndicatorWidth(), indicatorHeight));
     indicator->setBrush(QBrush(color));
     addrDockScene->addItem(indicator);
 
@@ -388,7 +402,7 @@ void AbstractAddrDock::drawIndicator(QString name, float ratio)
         graphicsView->centerOn(indicator);
     }
 
-    addTextItem(color, QPoint(rectOffset + rectWidth, y - indicatorParamPosY), name);
+    addTextItem(color, QPoint(rectOffset + getRectWidth(), y - indicatorParamPosY), name);
     addTextItem(color, QPoint(0, y - indicatorParamPosY), QString("0x%1").arg(offset, 0, 16));
 }
 
@@ -458,7 +472,8 @@ void RawAddrDock::updateDock()
     setFeatures(QDockWidget::DockWidgetClosable);
     int y = 0;
     int validMinSize = getValidMinSize();
-    proxyModel->sort(2, Qt::AscendingOrder);
+    int rectWidth = getRectWidth();
+    proxyModel->sort(SectionsModel::AddressColumn, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); ++i) {
         QModelIndex idx = proxyModel->index(i, 0);
         auto desc = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
@@ -490,11 +505,13 @@ void RawAddrDock::updateDock()
 
         y += size;
     }
+
+    graphicsView->setSceneRect(addrDockScene->itemsBoundingRect());
 }
 
 int RawAddrDock::getValidMinSize()
 {
-    proxyModel->sort(1, Qt::AscendingOrder);
+    proxyModel->sort(SectionsModel::SizeColumn, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
         int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
@@ -522,7 +539,8 @@ void VirtualAddrDock::updateDock()
     setFeatures(QDockWidget::NoDockWidgetFeatures);
     int y = 0;
     int validMinSize = getValidMinSize();
-    proxyModel->sort(2, Qt::AscendingOrder);
+    int rectWidth = getRectWidth();
+    proxyModel->sort(SectionsModel::AddressColumn, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
         RVA addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
@@ -549,11 +567,13 @@ void VirtualAddrDock::updateDock()
 
         y += size;
     }
+
+    graphicsView->setSceneRect(addrDockScene->itemsBoundingRect());
 }
 
 int VirtualAddrDock::getValidMinSize()
 {
-    proxyModel->sort(1, Qt::AscendingOrder);
+    proxyModel->sort(SectionsModel::SizeColumn, Qt::AscendingOrder);
     for (int i = 0; i < proxyModel->rowCount(); i++) {
         QModelIndex idx = proxyModel->index(i, 0);
         int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
