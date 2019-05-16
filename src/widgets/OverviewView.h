@@ -106,11 +106,6 @@ private:
                                                            GraphView::GraphBlock *to) override;
 
     /**
-     * @brief if the mouse is in the rect in Overview.
-     */
-    bool mouseContainsRect(QMouseEvent *event);
-
-    /**
      * @brief base background color changing depending on the theme
      */
     QColor disassemblyBackgroundColor;

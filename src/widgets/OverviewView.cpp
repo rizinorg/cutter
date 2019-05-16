@@ -82,29 +82,21 @@ void OverviewView::paintEvent(QPaintEvent *event)
     p.drawRect(rangeRect);
 }
 
-bool OverviewView::mouseContainsRect(QMouseEvent *event)
-{
-    if (rangeRect.contains(event->pos())) {
-        mouseActive = true;
-        initialDiff = QPointF(event->localPos().x() - rangeRect.x(), event->localPos().y() - rangeRect.y());
-        return true;
-    }
-    return false;
-}
-
 void OverviewView::mousePressEvent(QMouseEvent *event)
 {
-    if (mouseContainsRect(event)) {
-        return;
+    mouseActive = true;
+    if (rangeRect.contains(event->pos())) {
+        initialDiff = QPointF(event->localPos().x() - rangeRect.x(), event->localPos().y() - rangeRect.y());
+    } else {
+        qreal w = rangeRect.width();
+        qreal h = rangeRect.height();
+        qreal x = event->localPos().x() - w / 2;
+        qreal y = event->localPos().y() - h / 2;
+        rangeRect = QRectF(x, y, w, h);
+        initialDiff = QPointF(w / 2,  h / 2);
+        viewport()->update();
+        emit mouseMoved();
     }
-    qreal w = rangeRect.width();
-    qreal h = rangeRect.height();
-    qreal x = event->localPos().x() - w / 2;
-    qreal y = event->localPos().y() - h / 2;
-    rangeRect = QRectF(x, y, w, h);
-    viewport()->update();
-    emit mouseMoved();
-    mouseContainsRect(event);
 }
 
 void OverviewView::mouseReleaseEvent(QMouseEvent *event)
