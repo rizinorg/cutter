@@ -352,6 +352,42 @@ void AbstractAddrDock::updateDock()
     addrDockScene->setBackgroundBrush(bg);
 
     textColor = ConfigColor("gui.dataoffset");
+
+    int y = 0;
+    int validMinSize = getValidMinSize();
+    int rectWidth = getRectWidth();
+    proxyModel->sort(SectionsModel::AddressColumn, Qt::AscendingOrder);
+    for (int i = 0; i < proxyModel->rowCount(); ++i) {
+        QModelIndex idx = proxyModel->index(i, 0);
+        auto desc = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
+
+        QString name = desc.name;
+
+        addrDockScene->seekAddrMap[name] = desc.vaddr;
+        addrDockScene->seekAddrSizeMap[name] = desc.vsize;
+
+        RVA addr = getAddressOfSection(desc);
+        int size = getSizeOfSection(desc);
+        addrDockScene->nameAddrMap[name] = addr;
+        addrDockScene->nameAddrSizeMap[name] = size;
+
+        size = getAdjustedSize(size, validMinSize);
+
+        QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
+        rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
+        addrDockScene->addItem(rect);
+
+        addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
+        addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
+        addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
+
+        addrDockScene->namePosYMap[name] = y;
+        addrDockScene->nameHeightMap[name] = size;
+
+        y += size;
+    }
+
+    graphicsView->setSceneRect(addrDockScene->itemsBoundingRect());
 }
 
 void AbstractAddrDock::addTextItem(QColor color, QPoint pos, QString string)
@@ -387,6 +423,18 @@ int AbstractAddrDock::getIndicatorWidth()
     return getRectWidth() + 200;
 }
 
+int AbstractAddrDock::getValidMinSize()
+{
+    proxyModel->sort(SectionsModel::SizeColumn, Qt::AscendingOrder);
+    for (int i = 0; i < proxyModel->rowCount(); i++) {
+        QModelIndex idx = proxyModel->index(i, 0);
+        int size = getSizeOfSection(idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>());
+        if (size > 0) {
+            return size;
+        }
+    }
+    return 0;
+}
 
 void AbstractAddrDock::drawIndicator(QString name, float ratio)
 {
@@ -464,63 +512,6 @@ RawAddrDock::RawAddrDock(SectionsModel *model, QWidget *parent) :
     });
 }
 
-RawAddrDock::~RawAddrDock() {}
-
-void RawAddrDock::updateDock()
-{
-    AbstractAddrDock::updateDock();
-    setFeatures(QDockWidget::DockWidgetClosable);
-    int y = 0;
-    int validMinSize = getValidMinSize();
-    int rectWidth = getRectWidth();
-    proxyModel->sort(SectionsModel::AddressColumn, Qt::AscendingOrder);
-    for (int i = 0; i < proxyModel->rowCount(); ++i) {
-        QModelIndex idx = proxyModel->index(i, 0);
-        auto desc = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
-
-        QString name = desc.name;
-
-        RVA vaddr = desc.vaddr;
-        int vsize = desc.vsize;
-        addrDockScene->seekAddrMap[name] = vaddr;
-        addrDockScene->seekAddrSizeMap[name] = vsize;
-
-        RVA addr = desc.paddr;
-        int size = desc.size;
-        addrDockScene->nameAddrMap[name] = addr;
-        addrDockScene->nameAddrSizeMap[name] = size;
-
-        size = getAdjustedSize(size, validMinSize);
-
-        QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
-        rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
-        addrDockScene->addItem(rect);
-
-        addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
-        addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
-        addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
-
-        addrDockScene->namePosYMap[name] = y;
-        addrDockScene->nameHeightMap[name] = size;
-
-        y += size;
-    }
-
-    graphicsView->setSceneRect(addrDockScene->itemsBoundingRect());
-}
-
-int RawAddrDock::getValidMinSize()
-{
-    proxyModel->sort(SectionsModel::SizeColumn, Qt::AscendingOrder);
-    for (int i = 0; i < proxyModel->rowCount(); i++) {
-        QModelIndex idx = proxyModel->index(i, 0);
-        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().size;
-        if (size > 0) {
-            return size;
-        }
-    }
-    return 0;
-}
 
 VirtualAddrDock::VirtualAddrDock(SectionsModel *model, QWidget *parent) :
     AbstractAddrDock(model, parent)
@@ -531,55 +522,14 @@ VirtualAddrDock::VirtualAddrDock(SectionsModel *model, QWidget *parent) :
     });
 }
 
-VirtualAddrDock::~VirtualAddrDock() {}
+void RawAddrDock::updateDock()
+{
+    AbstractAddrDock::updateDock();
+    setFeatures(QDockWidget::DockWidgetClosable);
+}
 
 void VirtualAddrDock::updateDock()
 {
     AbstractAddrDock::updateDock();
     setFeatures(QDockWidget::NoDockWidgetFeatures);
-    int y = 0;
-    int validMinSize = getValidMinSize();
-    int rectWidth = getRectWidth();
-    proxyModel->sort(SectionsModel::AddressColumn, Qt::AscendingOrder);
-    for (int i = 0; i < proxyModel->rowCount(); i++) {
-        QModelIndex idx = proxyModel->index(i, 0);
-        RVA addr = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vaddr;
-        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
-        QString name = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().name;
-
-        addrDockScene->seekAddrMap[name] = addr;
-        addrDockScene->seekAddrSizeMap[name] = size;
-        addrDockScene->nameAddrMap[name] = addr;
-        addrDockScene->nameAddrSizeMap[name] = size;
-
-        size = getAdjustedSize(size, validMinSize);
-
-        QGraphicsRectItem *rect = new QGraphicsRectItem(rectOffset, y, rectWidth, size);
-        rect->setBrush(QBrush(idx.data(Qt::DecorationRole).value<QColor>()));
-        addrDockScene->addItem(rect);
-
-        addTextItem(textColor, QPoint(0, y), QString("0x%1").arg(addr, 0, 16));
-        addTextItem(textColor, QPoint(rectOffset, y), QString::number(size));
-        addTextItem(textColor, QPoint(rectOffset + rectWidth, y), name);
-
-        addrDockScene->namePosYMap[name] = y;
-        addrDockScene->nameHeightMap[name] = size;
-
-        y += size;
-    }
-
-    graphicsView->setSceneRect(addrDockScene->itemsBoundingRect());
-}
-
-int VirtualAddrDock::getValidMinSize()
-{
-    proxyModel->sort(SectionsModel::SizeColumn, Qt::AscendingOrder);
-    for (int i = 0; i < proxyModel->rowCount(); i++) {
-        QModelIndex idx = proxyModel->index(i, 0);
-        int size = idx.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>().vsize;
-        if (size > 0) {
-            return size;
-        }
-    }
-    return 0;
 }
