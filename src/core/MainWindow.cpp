@@ -392,7 +392,7 @@ void MainWindow::addMenuFileAction(QAction *action)
     ui->menuFile->addAction(action);
 }
 
-void MainWindow::openNewFile(InitialOptions options, bool skipOptionsDialog)
+void MainWindow::openNewFile(InitialOptions &options, bool skipOptionsDialog)
 {
     setFilename(options.filename);
 
