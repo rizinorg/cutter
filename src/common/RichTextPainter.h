@@ -2,13 +2,15 @@
 #ifndef RICHTEXTPAINTER_H
 #define RICHTEXTPAINTER_H
 
+#include "common/Metrics.h"
+
 #include <QString>
 #include <QTextDocument>
 #include <QColor>
 #include <vector>
 
 class QFontMetricsF;
-template<typename T, typename FontMetrics> class CachedFontMetrics;
+template<typename T> class CachedFontMetrics;
 class QPainter;
 
 class RichTextPainter
@@ -36,9 +38,9 @@ public:
     typedef std::vector<CustomRichText_t> List;
 
     //functions
-    template<typename T = qreal, typename FontMetrics = QFontMetricsF>
+    template<typename T = qreal>
     static void paintRichText(QPainter *painter, T x, T y, T w, T h, T xinc,
-                              const List &richText, CachedFontMetrics<T, FontMetrics> *fontMetrics);
+                              const List &richText, CachedFontMetrics<T> *fontMetrics);
     static void htmlRichText(const List &richText, QString &textHtml, QString &textPlain);
 
     static List fromTextDocument(const QTextDocument &doc);

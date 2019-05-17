@@ -8,9 +8,10 @@
 
 //TODO: fix performance (possibly use QTextLayout?)
 
-template<typename T, typename FontMetrics>
+
+template<typename T>
 void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xinc,
-                          const List &richText, CachedFontMetrics<T, FontMetrics> *fontMetrics)
+                          const List &richText, CachedFontMetrics<T> *fontMetrics)
 {
     QPen pen;
     QPen highlightPen;
@@ -46,7 +47,7 @@ void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xin
             painter->setPen(pen);
             break;
         }
-        painter->drawText(QRect(x + xinc, y, w - xinc, h), Qt::TextBypassShaping, curRichText.text);
+        painter->drawText(typename Metrics<T>::Rect(x + xinc, y, w - xinc, h), Qt::TextBypassShaping, curRichText.text);
         if (curRichText.highlight && curRichText.highlightColor.alpha()) {
             highlightPen.setColor(curRichText.highlightColor);
             highlightPen.setWidth(curRichText.highlightWidth);
@@ -60,8 +61,8 @@ void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xin
 }
 
 template
-void RichTextPainter::paintRichText<qreal, QFontMetricsF>(QPainter *painter, qreal x, qreal y, qreal w, qreal h, qreal xinc,
-    const List &richText, CachedFontMetrics<qreal, QFontMetricsF> *fontMetrics);
+void RichTextPainter::paintRichText<qreal>(QPainter *painter, qreal x, qreal y, qreal w, qreal h, qreal xinc,
+    const List &richText, CachedFontMetrics<qreal> *fontMetrics);
 
 
 /**

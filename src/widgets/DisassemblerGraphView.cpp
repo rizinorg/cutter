@@ -377,7 +377,7 @@ void DisassemblerGraphView::initFont()
     charWidth = metrics.width('X');
     charHeight = static_cast<int>(metrics.height());
     charOffset = 0;
-    mFontMetrics.reset(new CachedFontMetricsF(font()));
+    mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));
 }
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
@@ -534,7 +534,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             continue;
         }
 
-        RichTextPainter::paintRichText<qreal, QFontMetricsF>(&p, x, y, block.width, charHeight, 0, line,
+        RichTextPainter::paintRichText<qreal>(&p, x, y, block.width, charHeight, 0, line,
                                        mFontMetrics.get());
         y += charHeight;
     }
@@ -568,7 +568,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             QRectF bpRect(x - rectSize / 3.0, y + (charHeight - rectSize) / 2.0, rectSize, rectSize);
             Q_UNUSED(bpRect);
 
-            RichTextPainter::paintRichText<qreal, QFontMetricsF>(&p, x + charWidth, y,
+            RichTextPainter::paintRichText<qreal>(&p, x + charWidth, y,
                                            block.width - charWidth, charHeight, 0, line,
                                            mFontMetrics.get());
             y += charHeight;

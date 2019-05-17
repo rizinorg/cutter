@@ -15,7 +15,6 @@
 
 class QTextEdit;
 class SyntaxHighlighter;
-using CachedFontMetricsF = CachedFontMetrics<qreal, QFontMetricsF>;
 
 class DisassemblerGraphView : public GraphView
 {
@@ -142,7 +141,7 @@ private:
 
     Token *highlight_token;
     // Font data
-    std::unique_ptr<CachedFontMetricsF> mFontMetrics;
+    std::unique_ptr<CachedFontMetrics<qreal>> mFontMetrics;
     qreal charWidth;
     int charHeight;
     int charOffset;

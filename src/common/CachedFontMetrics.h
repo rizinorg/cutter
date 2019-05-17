@@ -1,11 +1,13 @@
 #ifndef CACHEDFONTMETRICS_H
 #define CACHEDFONTMETRICS_H
 
+#include "common/Metrics.h"
+
 #include <QObject>
 #include <QFont>
 #include <QFontMetrics>
 
-template<typename T, typename FontMetrics>
+template<typename T>
 class CachedFontMetrics
 {
 public:
@@ -76,7 +78,7 @@ public:
     }
 
 private:
-    FontMetrics mFontMetrics;
+    typename Metrics<T>::FontMetrics mFontMetrics;
     T mWidths[0x10000 - 0xE000 + 0xD800];
     T mHeight;
 
@@ -98,8 +100,5 @@ private:
 #endif
     }
 };
-
-using CachedFontMetricsI = CachedFontMetrics<int, QFontMetrics>;
-using CachedFontMetricsF = CachedFontMetrics<qreal, QFontMetricsF>;
 
 #endif // CACHEDFONTMETRICS_H
