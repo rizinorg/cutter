@@ -7,15 +7,18 @@
 #include <QTextFragment>
 
 //TODO: fix performance (possibly use QTextLayout?)
-void RichTextPainter::paintRichText(QPainter *painter, int x, int y, int w, int h, int xinc,
-                                    const List &richText, CachedFontMetrics *fontMetrics)
+
+
+template<typename T>
+void RichTextPainter::paintRichText(QPainter *painter, T x, T y, T w, T h, T xinc,
+                          const List &richText, CachedFontMetrics<T> *fontMetrics)
 {
     QPen pen;
     QPen highlightPen;
     QBrush brush(Qt::cyan);
     for (const CustomRichText_t &curRichText : richText) {
-        int textWidth = fontMetrics->width(curRichText.text);
-        int backgroundWidth = textWidth;
+        T textWidth = fontMetrics->width(curRichText.text);
+        T backgroundWidth = textWidth;
         if (backgroundWidth + xinc > w)
             backgroundWidth = w - xinc;
         if (backgroundWidth <= 0) //stop drawing when going outside the specified width
@@ -32,30 +35,35 @@ void RichTextPainter::paintRichText(QPainter *painter, int x, int y, int w, int 
         case FlagBackground: //background only
             if (backgroundWidth > 0 && curRichText.textBackground.alpha()) {
                 brush.setColor(curRichText.textBackground);
-                painter->fillRect(QRect(x + xinc, y, backgroundWidth, h), brush);
+                painter->fillRect(QRectF(x + xinc, y, backgroundWidth, h), brush);
             }
             break;
         case FlagAll: //color+background
             if (backgroundWidth > 0 && curRichText.textBackground.alpha()) {
                 brush.setColor(curRichText.textBackground);
-                painter->fillRect(QRect(x + xinc, y, backgroundWidth, h), brush);
+                painter->fillRect(QRectF(x + xinc, y, backgroundWidth, h), brush);
             }
             pen.setColor(curRichText.textColor);
             painter->setPen(pen);
             break;
         }
-        painter->drawText(QRect(x + xinc, y, w - xinc, h), Qt::TextBypassShaping, curRichText.text);
+        painter->drawText(typename Metrics<T>::Rect(x + xinc, y, w - xinc, h), Qt::TextBypassShaping, curRichText.text);
         if (curRichText.highlight && curRichText.highlightColor.alpha()) {
             highlightPen.setColor(curRichText.highlightColor);
             highlightPen.setWidth(curRichText.highlightWidth);
             painter->setPen(highlightPen);
-            int highlightOffsetX = curRichText.highlightConnectPrev ? -1 : 1;
+            T highlightOffsetX = curRichText.highlightConnectPrev ? -1 : 1;
             painter->drawLine(x + xinc + highlightOffsetX, y + h - 1, x + xinc + backgroundWidth - 1,
                               y + h - 1);
         }
         xinc += textWidth;
     }
 }
+
+template
+void RichTextPainter::paintRichText<qreal>(QPainter *painter, qreal x, qreal y, qreal w, qreal h, qreal xinc,
+    const List &richText, CachedFontMetrics<qreal> *fontMetrics);
+
 
 /**
  * @brief RichTextPainter::htmlRichText Convert rich text in x64dbg to HTML, for use by other applications

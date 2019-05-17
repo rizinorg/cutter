@@ -377,8 +377,7 @@ void DisassemblerGraphView::initFont()
     charWidth = metrics.width('X');
     charHeight = static_cast<int>(metrics.height());
     charOffset = 0;
-    delete mFontMetrics;
-    mFontMetrics = new CachedFontMetrics(this, font());
+    mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));
 }
 
 void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
@@ -464,7 +463,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     // Highlight selected tokens
     if (highlight_token != nullptr) {
         int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
-        int tokenWidth = mFontMetrics->width(highlight_token->content);
+        qreal tokenWidth = mFontMetrics->width(highlight_token->content);
 
         for (const Instr &instr : db.instrs) {
             int pos = -1;
@@ -477,19 +476,19 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                     continue;
                 }
 
-                int widthBefore = mFontMetrics->width(instr.plainText.left(pos));
+                qreal widthBefore = mFontMetrics->width(instr.plainText.left(pos));
                 if (charWidth * 3 + widthBefore > block.width - (10 + 2 * charWidth)) {
                     continue;
                 }
 
-                int highlightWidth = tokenWidth;
+                qreal highlightWidth = tokenWidth;
                 if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + 2 * charWidth)) {
-                    highlightWidth = static_cast<int>(block.width - widthBefore - (10 + 4 * charWidth));
+                    highlightWidth = block.width - widthBefore - (10 + 4 * charWidth);
                 }
 
                 QColor selectionColor = ConfigColor("wordhl");
 
-                p.fillRect(QRect(static_cast<int>(blockX + charWidth * 3 + widthBefore), y, highlightWidth,
+                p.fillRect(QRectF(blockX + charWidth * 3 + widthBefore, y, highlightWidth,
                                  charHeight), selectionColor);
             }
 
@@ -535,8 +534,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             continue;
         }
 
-        RichTextPainter::paintRichText(&p, static_cast<int>(x), y, block.width, charHeight, 0, line,
-                                       mFontMetrics);
+        RichTextPainter::paintRichText<qreal>(&p, x, y, block.width, charHeight, 0, line,
+                                       mFontMetrics.get());
         y += charHeight;
     }
 
@@ -569,9 +568,9 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             QRectF bpRect(x - rectSize / 3.0, y + (charHeight - rectSize) / 2.0, rectSize, rectSize);
             Q_UNUSED(bpRect);
 
-            RichTextPainter::paintRichText(&p, static_cast<int>(x + charWidth), y,
-                                           static_cast<int>(block.width - charWidth), charHeight, 0, line,
-                                           mFontMetrics);
+            RichTextPainter::paintRichText<qreal>(&p, x + charWidth, y,
+                                           block.width - charWidth, charHeight, 0, line,
+                                           mFontMetrics.get());
             y += charHeight;
 
         }

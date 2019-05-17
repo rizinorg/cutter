@@ -141,7 +141,7 @@ private:
 
     Token *highlight_token;
     // Font data
-    CachedFontMetrics *mFontMetrics;
+    std::unique_ptr<CachedFontMetrics<qreal>> mFontMetrics;
     qreal charWidth;
     int charHeight;
     int charOffset;
