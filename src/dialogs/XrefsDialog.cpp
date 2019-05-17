@@ -24,8 +24,8 @@ XrefsDialog::XrefsDialog(QWidget *parent) :
     QTextDocument *asm_docu = ui->previewTextEdit->document();
     asm_docu->setDocumentMargin(10);
 
-    setupPreviewFont();
     setupPreviewColors();
+    setupPreviewFont();
 
     // Highlight current line
     connect(ui->previewTextEdit, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
@@ -69,7 +69,6 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
     if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
         qhelpers::selectFirstItem(ui->fromTreeWidget);
     }
-
 }
 
 void XrefsDialog::on_fromTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, int column)
