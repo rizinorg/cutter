@@ -328,7 +328,7 @@ bool NewFileDialog::fillProjectsList()
 void NewFileDialog::fillIOPluginsList()
 {
     ui->ioPlugin->clear();
-    ui->ioPlugin->addItem("file");
+    ui->ioPlugin->addItem("file://");
     ui->ioPlugin->setItemData(0, tr("Open a file with no extra treatment."), Qt::ToolTipRole);
 
     int index = 1;
@@ -338,9 +338,14 @@ void NewFileDialog::fillIOPluginsList()
         if (plugin.permissions.contains('d')) {
             continue;
         }
-        ui->ioPlugin->addItem(plugin.name);
-        ui->ioPlugin->setItemData(index, plugin.description, Qt::ToolTipRole);
-        index++;
+        for (const auto &uri : qAsConst(plugin.uris)) {
+            if (uri == "file://") {
+                continue;
+            }
+            ui->ioPlugin->addItem(uri);
+            ui->ioPlugin->setItemData(index, plugin.description, Qt::ToolTipRole);
+            index++;
+        }
     }
 }
 
@@ -368,7 +373,7 @@ void NewFileDialog::loadFile(const QString &filename)
     // Close dialog and open MainWindow/InitialOptionsDialog
     QString ioFile = "";
     if (ui->ioPlugin->currentIndex()) {
-        ioFile = ui->ioPlugin->currentText() + "://";
+        ioFile = ui->ioPlugin->currentText();
     }
     ioFile += nativeFn;
     InitialOptions options;
