@@ -98,10 +98,12 @@ HexWidget::HexWidget(QWidget *parent) :
 
     actionCopy = new QAction(tr("Copy"), this);
     addAction(actionCopy);
+    actionCopy->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     actionCopy->setShortcut(QKeySequence::Copy);
     connect(actionCopy, &QAction::triggered, this, &HexWidget::copy);
 
     actionCopyAddress = new QAction(tr("Copy address"), this);
+    actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     actionCopyAddress->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
     connect(actionCopyAddress, &QAction::triggered, this, &HexWidget::copyAddress);
     addAction(actionCopyAddress);
