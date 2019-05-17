@@ -5,6 +5,7 @@
 #include <QShortcut>
 #include <QStringListModel>
 #include <QTimer>
+#include <QSettings>
 #include <iostream>
 #include "core/Cutter.h"
 #include "ConsoleWidget.h"
@@ -15,6 +16,7 @@
 
 static const int invalidHistoryPos = -1;
 
+static const char *consoleWrapSettingsKey = "console.wrap";
 
 ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -40,8 +42,9 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
 
     actionWrapLines = new QAction(tr("Wrap Lines"), ui->outputTextEdit);
     actionWrapLines->setCheckable(true);
+    setWrap(QSettings().value(consoleWrapSettingsKey, true).toBool());
     connect(actionWrapLines, &QAction::triggered, this, [this] (bool checked) {
-        ui->outputTextEdit->setLineWrapMode(checked ? QPlainTextEdit::WidgetWidth: QPlainTextEdit::NoWrap);
+        setWrap(checked);
     });
     actions.append(actionWrapLines);
 
@@ -54,8 +57,6 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
 
     connect(ui->inputLineEdit, &QLineEdit::textChanged, this, &ConsoleWidget::updateCompletion);
     updateCompletion();
-
-    ui->outputTextEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
 
     // Set console output context menu
     ui->outputTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -158,6 +159,13 @@ void ConsoleWidget::executeCommand(const QString &command)
 
     timer->start();
     Core()->getAsyncTaskManager()->start(commandTask);
+}
+
+void ConsoleWidget::setWrap(bool wrap)
+{
+    QSettings().setValue(consoleWrapSettingsKey, wrap);
+    actionWrapLines->setChecked(wrap);
+    ui->outputTextEdit->setLineWrapMode(wrap ? QPlainTextEdit::WidgetWidth: QPlainTextEdit::NoWrap);
 }
 
 void ConsoleWidget::on_inputLineEdit_returnPressed()
