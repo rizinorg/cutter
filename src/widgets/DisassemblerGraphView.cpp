@@ -287,9 +287,6 @@ void DisassemblerGraphView::loadCurrentGraph()
                 i.size = (block_entry + block_size) - i.addr;
             }
 
-            // Skip last byte, otherwise it will overlap with next instruction
-            i.size -= 1;
-
             QTextDocument textDoc;
             textDoc.setHtml(CutterCore::ansiEscapeToHtml(op["text"].toString()));
 
@@ -385,6 +382,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     int blockX = block.x - getViewOffset().x();
     int blockY = block.y - getViewOffset().y();
 
+    const qreal padding = 2 * charWidth;
+
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
     p.setFont(Config()->getFont());
@@ -402,11 +401,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     RVA addr = seekable->getOffset();
     RVA PCAddr = Core()->getProgramCounterValue();
     for (const Instr &instr : db.instrs) {
-        if ((instr.addr <= addr) && (addr <= instr.addr + instr.size)) {
+        if (instr.contains(addr)) {
             block_selected = true;
             selected_instruction = instr.addr;
         }
-        if ((instr.addr <= PCAddr) && (PCAddr <= instr.addr + instr.size)) {
+        if (instr.contains(PCAddr)) {
             PCInBlock = true;
         }
 
@@ -443,9 +442,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                    block.width, block.height);
     }
 
+    const int firstInstructionY = blockY + getInstructionOffset(db, 0).y();
+
     // Draw different background for selected instruction
     if (selected_instruction != RVA_INVALID) {
-        int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
+        int y = firstInstructionY;
         for (const Instr &instr : db.instrs) {
             if (instr.addr > selected_instruction) {
                 break;
@@ -453,7 +454,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             auto selected = instr.addr == selected_instruction;
             if (selected) {
                 p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
-                                 static_cast<int>(block.width - (10 + 2 * charWidth)),
+                                 static_cast<int>(block.width - (10 + padding)),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
             }
             y += int(instr.text.lines.size()) * charHeight;
@@ -462,7 +463,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     // Highlight selected tokens
     if (highlight_token != nullptr) {
-        int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
+        int y = firstInstructionY;
         qreal tokenWidth = mFontMetrics->width(highlight_token->content);
 
         for (const Instr &instr : db.instrs) {
@@ -477,13 +478,13 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                 }
 
                 qreal widthBefore = mFontMetrics->width(instr.plainText.left(pos));
-                if (charWidth * 3 + widthBefore > block.width - (10 + 2 * charWidth)) {
+                if (charWidth * 3 + widthBefore > block.width - (10 + padding)) {
                     continue;
                 }
 
                 qreal highlightWidth = tokenWidth;
-                if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + 2 * charWidth)) {
-                    highlightWidth = block.width - widthBefore - (10 + 4 * charWidth);
+                if (charWidth * 3 + widthBefore + tokenWidth >= block.width - (10 + padding)) {
+                    highlightWidth = block.width - widthBefore - (10 +  2 * padding);
                 }
 
                 QColor selectionColor = ConfigColor("wordhl");
@@ -498,7 +499,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
 
     // Highlight program counter
     if (PCInBlock) {
-        int y = static_cast<int>(blockY + (2 * charWidth) + (db.header_text.lines.size() * charHeight));
+        int y = firstInstructionY;
         for (const Instr &instr : db.instrs) {
             if (instr.addr > PCAddr) {
                 break;
@@ -506,7 +507,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             auto PC = instr.addr == PCAddr;
             if (PC) {
                 p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
-                                 static_cast<int>(block.width - (10 + 2 * charWidth)),
+                                 static_cast<int>(block.width - (10 + padding)),
                                  int(instr.text.lines.size()) * charHeight), PCSelectionColor);
             }
             y += int(instr.text.lines.size()) * charHeight;
@@ -521,8 +522,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     }
 
     // Render node text
-    auto x = blockX + (2 * charWidth);
-    int y = static_cast<int>(blockY + (2 * charWidth));
+    auto x = blockX + padding;
+    int y = blockY + getTextOffset(0).y();
     qreal lineHeightRender = charHeight;
     for (auto &line : db.header_text.lines) {
         qreal lineYRender = y;
@@ -542,11 +543,11 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     for (const Instr &instr : db.instrs) {
         if (Core()->isBreakpoint(breakpoints, instr.addr)) {
             p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
-                             static_cast<int>(block.width - (10 + 2 * charWidth)),
+                             static_cast<int>(block.width - (10 + padding)),
                              int(instr.text.lines.size()) * charHeight), ConfigColor("gui.breakpoint_background"));
             if (instr.addr == selected_instruction) {
                 p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
-                                 static_cast<int>(block.width - (10 + 2 * charWidth)),
+                                 static_cast<int>(block.width - (10 + padding)),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
             }
         }
@@ -600,7 +601,7 @@ RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point
     DisassemblyBlock &db = disassembly_blocks[block.entry];
 
     // Remove header and margin
-    int off_y = static_cast<int>((2 * charWidth) + (db.header_text.lines.size() * charHeight));
+    int off_y = getInstructionOffset(db, 0).y();
 
     // Get mouse coordinate over the actual text
     int text_point_y = point->y() - off_y;
@@ -625,7 +626,7 @@ DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
     DisassemblyBlock &db = disassembly_blocks[block.entry];
 
     // Remove header and margin
-    int off_y = static_cast<int>((2 * charWidth) + (db.header_text.lines.size() * charHeight));
+    int off_y = getInstructionOffset(db, 0).y();
 
     // Get mouse coordinate over the actual text
     int text_point_y = point->y() - off_y;
@@ -641,6 +642,47 @@ DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
     }
 
     return nullptr;
+}
+
+QRectF DisassemblerGraphView::getInstrRect(GraphView::GraphBlock &block, RVA addr) const
+{
+    auto blockIt = disassembly_blocks.find(block.entry);
+    if (blockIt == disassembly_blocks.end()) {
+        return QRectF();
+    }
+    auto &db = blockIt->second;
+    if (db.instrs.empty()) {
+        return QRectF();
+    }
+
+    size_t sequenceAddr = db.instrs[0].addr;
+    size_t firstLineWithAddr = 0;
+    size_t currentLine = 0;
+    for (size_t i = 0; i < db.instrs.size(); i++) {
+        auto &instr = db.instrs[i];
+        if (instr.addr != sequenceAddr) {
+            sequenceAddr = instr.addr;
+            firstLineWithAddr = currentLine;
+        }
+        if (instr.contains(addr)) {
+            while (i < db.instrs.size() && db.instrs[i + 1].addr == sequenceAddr) {
+                currentLine += db.instrs[i].text.lines.size();
+                i++;
+            }
+            QPointF topLeft = getInstructionOffset(db, static_cast<int>(firstLineWithAddr));
+            return QRectF(topLeft, QSizeF(block.width - 4 * charWidth,
+                                          charHeight * int(currentLine - firstLineWithAddr + db.instrs[i].text.lines.size())));
+        }
+        currentLine += instr.text.lines.size();
+    }
+    return QRectF();
+}
+
+void DisassemblerGraphView::showInstruction(GraphView::GraphBlock &block, RVA addr)
+{
+    QRectF rect = getInstrRect(block, addr);
+    rect.translate(block.x, block.y);
+    showRectangle(QRect(rect.x(), rect.y(), rect.width(), rect.height()), true);
 }
 
 // Public Slots
@@ -679,7 +721,7 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
                 continue;
             }
 
-            if ((i.addr <= addr) && (addr <= i.addr + i.size)) {
+            if (i.contains(addr)) {
                 return &db;
             }
         }
@@ -691,22 +733,21 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
 {
     blockMenu->setOffset(addr);
     DisassemblyBlock *db = blockForAddress(addr);
+    bool switchFunction = false;
+    if (!db) {
+        // not in this function, try refreshing
+        refreshView();
+        db = blockForAddress(addr);
+        switchFunction = true;
+    }
     if (db) {
         // This is a local address! We animated to it.
         transition_dont_seek = true;
-        showBlock(&blocks[db->entry]);
+        showBlock(&blocks[db->entry], !switchFunction);
+        showInstruction(blocks[db->entry], addr);
         prepareHeader();
     } else {
-        refreshView();
-        db = blockForAddress(addr);
-        if (db) {
-            // This is a local address! We animated to it.
-            transition_dont_seek = true;
-            showBlock(&blocks[db->entry]);
-            prepareHeader();
-        } else {
-            header->hide();
-        }
+        header->hide();
     }
 }
 
@@ -775,7 +816,7 @@ void DisassemblerGraphView::seekInstruction(bool previous_instr)
 
     for (size_t i = 0; i < db->instrs.size(); i++) {
         Instr &instr = db->instrs[i];
-        if (!((instr.addr <= addr) && (addr <= instr.addr + instr.size))) {
+        if (!instr.contains(addr)) {
             continue;
         }
 
@@ -783,7 +824,11 @@ void DisassemblerGraphView::seekInstruction(bool previous_instr)
         if (!previous_instr && (i < db->instrs.size() - 1)) {
             seekable->seek(db->instrs[i + 1].addr);
         } else if (previous_instr && (i > 0)) {
-            seekable->seek(db->instrs[i - 1].addr);
+            while (i > 0 && db->instrs[i].addr == addr) { // jump over 0 size instructions
+                i--;
+            }
+            seekable->seek(db->instrs[i].addr);
+            break;
         }
     }
 }
@@ -850,6 +895,17 @@ DisassemblerGraphView::Token *DisassemblerGraphView::getToken(Instr *instr, int 
     }
 
     return nullptr;
+}
+
+QPoint DisassemblerGraphView::getTextOffset(int line) const
+{
+    int padding = static_cast<int>(2 * charWidth);
+    return QPoint(padding, padding + line * charHeight);
+}
+
+QPoint DisassemblerGraphView::getInstructionOffset(const DisassemblyBlock &block, int line) const
+{
+    return getTextOffset(line + static_cast<int>(block.header_text.lines.size()));
 }
 
 void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
@@ -1018,4 +1074,9 @@ void DisassemblerGraphView::paintEvent(QPaintEvent *event)
     // DisassemblerGraphView is always dirty
     setCacheDirty();
     GraphView::paintEvent(event);
+}
+
+bool DisassemblerGraphView::Instr::contains(ut64 addr) const
+{
+    return this->addr <= addr && (addr - this->addr) < size;
 }

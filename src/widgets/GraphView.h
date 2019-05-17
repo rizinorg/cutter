@@ -43,8 +43,14 @@ public:
     explicit GraphView(QWidget *parent);
     ~GraphView() override;
 
-    void showBlock(GraphBlock &block);
-    void showBlock(GraphBlock *block);
+    void showBlock(GraphBlock &block, bool anywhere = false);
+    void showBlock(GraphBlock *block, bool anywhere = false);
+    /**
+     * @brief Move view so that area is visible.
+     * @param rect Rectangle to show
+     * @param anywhere - set to true for minimizing movement
+     */
+    void showRectangle(const QRect &rect, bool anywhere = false);
 
     /**
      * @brief keep the current addr of the fcn of Graph
