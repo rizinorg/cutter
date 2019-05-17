@@ -62,6 +62,7 @@ private:
     void invalidateHistoryPosition();
     void removeLastLine();
     void executeCommand(const QString &command);
+    void setWrap(bool wrap);
 
     QSharedPointer<CommandTask> commandTask;
 
