@@ -131,12 +131,6 @@
        </item>
        <item>
         <widget class="QPlainTextEdit" name="previewTextEdit">
-         <property name="font">
-          <font>
-           <family>Anonymous Pro</family>
-           <pointsize>13</pointsize>
-          </font>
-         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
