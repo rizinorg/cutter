@@ -22,7 +22,10 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
     previewDisasmWidget = new DisassemblyWidget(nullptr);
     previewDisasmWidget->setObjectName("Preview Disasm");
     previewDisasmWidget->setPreviewMode(true);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+    // default size limit is acceptable
     previewDisasmWidget->setMinimumSize(qApp->screenAt(previewDisasmWidget->pos())->size() * 0.5);
+#endif
     previewDisasmWidget->setWindowTitle(tr("Disassembly Preview"));
     previewDisasmWidget->setFeatures(QDockWidget::NoDockWidgetFeatures);
     ui->colorPickerAndPreviewLayout->addWidget(previewDisasmWidget);
