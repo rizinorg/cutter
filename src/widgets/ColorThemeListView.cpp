@@ -37,7 +37,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
                                 const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
-    int margin = this->margin * qApp->screenAt(option.rect.topLeft())->devicePixelRatio();
+    int margin = this->margin * painter->device()->devicePixelRatioF();
     painter->save();
     painter->setFont(option.font);
     painter->setRenderHint(QPainter::Antialiasing);
@@ -88,10 +88,16 @@ void ColorOptionDelegate::paint(QPainter *painter,
                 resetButtonRect.setSize(resetButtonRect.size() * 1.0);
             }
         } else {
-            QColor c = qApp->palette().placeholderText().color();
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+            QColor placeholderColor = qApp->palette().placeholderText().color();
+#else
+            QColor placeholderColor = qApp->palette().text().color();
+            placeholderColor.setAlphaF(0.5);
+#endif
+            QColor c = placeholderColor;
             c.setAlphaF(0.2);
             br = c;
-            pen = QPen(qApp->palette().placeholderText().color().darker(), margin / 2);
+            pen = QPen(placeholderColor.darker(), margin / 2);
         }
 
         painter->fillRect(option.rect, br);
@@ -143,9 +149,9 @@ void ColorOptionDelegate::paint(QPainter *painter,
 
 QSize ColorOptionDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    int margin = this->margin * qApp->screenAt(option.rect.topLeft())->devicePixelRatio();
-    int fontHeight = option.fontMetrics.height();
-    int h = QPen().width();
+    qreal margin = this->margin * option.widget->devicePixelRatioF();
+    qreal fontHeight = option.fontMetrics.height();
+    qreal h = QPen().width();
     h += fontHeight; // option name
     h += margin / 2; // margin between option rect and option name
     h += margin / 4; // margin betveen option rect and color rect
@@ -154,7 +160,7 @@ QSize ColorOptionDelegate::sizeHint(const QStyleOptionViewItem& option, const QM
     h += margin; // last margin
 
     Q_UNUSED(index)
-    return QSize(-1, h);
+    return QSize(-1, qRound(h));
 }
 
 QRect ColorOptionDelegate::getResetButtonRect() const
@@ -187,6 +193,7 @@ ColorThemeListView::ColorThemeListView(QWidget *parent) :
     setModel(new ColorSettingsModel(static_cast<QObject *>(this)));
     static_cast<ColorSettingsModel *>(this->model())->updateTheme();
     setItemDelegate(new ColorOptionDelegate(this));
+    setResizeMode(ResizeMode::Adjust);
 
     QJsonArray rgb = qobject_cast<ColorSettingsModel*>(model())->getTheme()
                      .object().find("gui.background").value().toArray();
@@ -235,7 +242,8 @@ void ColorThemeListView::mouseReleaseEvent(QMouseEvent* e)
         auto model = qobject_cast<ColorSettingsModel*>(this->model());
         ColorOption co = currentIndex().data(Qt::UserRole).value<ColorOption>();
         co.changed = false;
-        QJsonArray rgb = ThemeWorker().getTheme(Config()->getColorTheme())[co.optionName].toArray();
+        QJsonArray rgb = ThemeWorker().getTheme(
+                             Config()->getColorTheme()).object()[co.optionName].toArray();
         co.color = QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
         model->setData(currentIndex(), QVariant::fromValue(co));
         QCursor c;

@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
                 continue;
             }
             QJsonObject updatedTheme;
-            auto sch = ThemeWorker().getTheme(theme);
-            for (auto key : sch.object().keys()) {
+            auto sch = ThemeWorker().getTheme(theme).object();
+            for (auto key : sch.keys()) {
                 if (options.contains(key)) {
                     updatedTheme.insert(key, sch[key]);
                 }

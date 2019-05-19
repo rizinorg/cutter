@@ -194,8 +194,7 @@ ColorPicker::ColorPicker(QWidget* parent) :
 ColorPicker::~ColorPicker()
 {
     if (pickingFromScreen) {
-        setColor(QApplication::screenAt(QCursor::pos())->grabWindow(QApplication::desktop()->winId())
-                .toImage().pixelColor(QCursor::pos()));
+        setColor(getColorAtMouse());
         stopPickingFromScreen();
     }
 }
@@ -282,11 +281,7 @@ void ColorPicker::startPickingFromScreen()
 void ColorPicker::mouseReleaseEvent(QMouseEvent* event)
 {
     if (pickingFromScreen) {
-        const QDesktopWidget *desktop = QApplication::desktop();
-        const QPixmap pixmap = QGuiApplication::screens().at(desktop->screenNumber())
-                               ->grabWindow(desktop->winId(),
-                                            QCursor::pos().x(), QCursor::pos().y(), 1, 1);
-        setColor(pixmap.toImage().pixel(0, 0));
+        setColor(getColorAtMouse());
         pickingFromScreen = false;
         setMouseTracking(false);
         releaseMouse();
@@ -297,13 +292,18 @@ void ColorPicker::mouseReleaseEvent(QMouseEvent* event)
 void ColorPicker::mouseMoveEvent(QMouseEvent* event)
 {
     if (pickingFromScreen) {
-        const QDesktopWidget *desktop = QApplication::desktop();
-        const QPixmap pixmap = QGuiApplication::screens().at(desktop->screenNumber())
-                               ->grabWindow(desktop->winId(),
-                                            QCursor::pos().x(), QCursor::pos().y(), 1, 1);
-        updateColor(pixmap.toImage().pixel(0, 0));
+        updateColor(getColorAtMouse());
     }
     QWidget::mouseMoveEvent(event);
+}
+
+QColor ColorPicker::getColorAtMouse()
+{
+    const QDesktopWidget *desktop = QApplication::desktop();
+    const QPixmap pixmap = QGuiApplication::screens().at(desktop->screenNumber())
+                           ->grabWindow(desktop->winId(),
+                                        QCursor::pos().x(), QCursor::pos().y(), 1, 1);
+    return pixmap.toImage().pixelColor(0, 0);
 }
 
 bool ColorPicker::isPickingFromScreen() const

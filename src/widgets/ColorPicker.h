@@ -79,6 +79,8 @@ private:
     Ui::ColorPicker *ui;
     bool pickingFromScreen;
 
+    QColor getColorAtMouse();
+
     /**
      * @brief bufferColor is used to buffer current color while picking from screen.
      */
