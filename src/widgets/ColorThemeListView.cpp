@@ -149,9 +149,9 @@ void ColorOptionDelegate::paint(QPainter *painter,
 
 QSize ColorOptionDelegate::sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    int margin = this->margin * option.widget->devicePixelRatioF();
-    int fontHeight = option.fontMetrics.height();
-    int h = QPen().width();
+    qreal margin = this->margin * option.widget->devicePixelRatioF();
+    qreal fontHeight = option.fontMetrics.height();
+    qreal h = QPen().width();
     h += fontHeight; // option name
     h += margin / 2; // margin between option rect and option name
     h += margin / 4; // margin betveen option rect and color rect
@@ -160,7 +160,7 @@ QSize ColorOptionDelegate::sizeHint(const QStyleOptionViewItem& option, const QM
     h += margin; // last margin
 
     Q_UNUSED(index)
-    return QSize(-1, h);
+    return QSize(-1, qRound(h));
 }
 
 QRect ColorOptionDelegate::getResetButtonRect() const
@@ -193,6 +193,7 @@ ColorThemeListView::ColorThemeListView(QWidget *parent) :
     setModel(new ColorSettingsModel(static_cast<QObject *>(this)));
     static_cast<ColorSettingsModel *>(this->model())->updateTheme();
     setItemDelegate(new ColorOptionDelegate(this));
+    setResizeMode(ResizeMode::Adjust);
 
     QJsonArray rgb = qobject_cast<ColorSettingsModel*>(model())->getTheme()
                      .object().find("gui.background").value().toArray();
