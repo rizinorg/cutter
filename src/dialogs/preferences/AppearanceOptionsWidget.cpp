@@ -126,12 +126,19 @@ void AppearanceOptionsWidget::on_copyButton_clicked()
     do {
         newThemeName = QInputDialog::getText(this, tr("Enter theme name"),
                                              tr("Name:"), QLineEdit::Normal,
-                                             currColorTheme + tr(" - copy"));
-    } while (!newThemeName.isEmpty() && ThemeWorker().isThemeExist(newThemeName));
+                                             currColorTheme + tr(" - copy"))
+                       .trimmed();
+        if (newThemeName.isEmpty()) {
+            return;
+        }
+        if (ThemeWorker().isThemeExist(newThemeName)) {
+            QMessageBox::information(this, tr("Theme Copy"),
+                                     tr("Theme named %1 already exists.").arg(newThemeName));
+        } else {
+            break;
+        }
+    } while (true);
 
-    if (newThemeName.isEmpty()) {
-        return;
-    }
     ThemeWorker().copy(currColorTheme, newThemeName);
     Config()->setColorTheme(newThemeName);
     updateThemeFromConfig(false);
