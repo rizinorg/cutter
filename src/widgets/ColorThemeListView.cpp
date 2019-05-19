@@ -739,13 +739,13 @@ const QMap<QString, OptionInfo> optionInfoMap__ = {
     }
 },
 {
-    "hlline", {
+    "lineHighlight", {
         QObject::tr("Selected line background color"),
         QObject::tr("Line highlight")
     }
 },
 {
-    "hlword", {
+    "wordHighlight", {
         QObject::tr("Background color of selected word"),
         QObject::tr("Word higlight")
     }

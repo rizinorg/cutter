@@ -248,8 +248,8 @@ void Configuration::loadNativeTheme()
         setColor("gui.background", QColor(30, 30, 30));
         setColor("gui.alt_background", QColor(42, 42, 42));
         setColor("gui.disass_selected", QColor(35, 35, 35));
-        setColor("hlline", QColor(255, 255, 255, 15));
-        setColor("hlword", QColor(20, 20, 20, 255));
+        setColor("lineHighlight", QColor(255, 255, 255, 15));
+        setColor("wordHighlight", QColor(20, 20, 20, 255));
         setColor("highlightPC", QColor(87, 26, 7));
         setColor("gui.tooltip.background", QColor(42, 44, 46));
         setColor("gui.tooltip.foreground", QColor(250, 252, 254));
@@ -259,8 +259,8 @@ void Configuration::loadNativeTheme()
         setColor("gui.background", QColor(255, 255, 255));
         setColor("gui.alt_background", QColor(245, 250, 255));
         setColor("gui.disass_selected", QColor(255, 255, 255));
-        setColor("hlline", QColor(210, 210, 255, 150));
-        setColor("hlword", QColor(179, 119, 214, 60));
+        setColor("lineHighlight", QColor(210, 210, 255, 150));
+        setColor("wordHighlight", QColor(179, 119, 214, 60));
         setColor("highlightPC", QColor(214, 255, 210));
         setColor("gui.dataoffset", QColor(0, 0, 0));
     }
@@ -291,8 +291,8 @@ void Configuration::loadLightTheme()
     setColor("gui.background", QColor(255, 255, 255));
     setColor("gui.alt_background", QColor(245, 250, 255));
     setColor("gui.disass_selected", QColor(255, 255, 255));
-    setColor("hlline",   QColor(210, 210, 255, 150));
-    setColor("hlword", QColor(179, 119, 214, 60));
+    setColor("lineHighlight",   QColor(210, 210, 255, 150));
+    setColor("wordHighlight", QColor(179, 119, 214, 60));
     setColor("highlightPC", QColor(214, 255, 210));
     setColor("gui.navbar.empty", QColor(220, 236, 245));
     setColor("gui.navbar.err", QColor(3, 170, 245));
@@ -363,8 +363,8 @@ void Configuration::loadDarkTheme()
     // Disassembly line selected
     setColor("gui.tooltip.background", QColor(42, 44, 46));
     setColor("gui.tooltip.foreground", QColor(250, 252, 254));
-    setColor("hlline", QColor(21, 29, 29, 150));
-    setColor("hlword", QColor(52, 58, 71, 255));
+    setColor("lineHighlight", QColor(21, 29, 29, 150));
+    setColor("wordHighlight", QColor(52, 58, 71, 255));
 }
 
 const QFont Configuration::getFont() const

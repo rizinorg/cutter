@@ -8,8 +8,8 @@
 #include "common/Configuration.h"
 
 const QStringList ColorThemeWorker::cutterSpecificOptions = {
-    "hlword",
-    "hlline",
+    "wordHighlight",
+    "lineHighlight",
     "gui.main",
     "gui.imports",
     "highlightPC",

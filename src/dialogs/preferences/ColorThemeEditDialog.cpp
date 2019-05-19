@@ -41,7 +41,7 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
                              .data(Qt::UserRole)
                              .value<ColorOption>()
                              .optionName;
-        ui->colorPicker->setAlphaEnabled(optionName == "hlword" || optionName == "hlline");
+        ui->colorPicker->setAlphaEnabled(optionName == "wordHighlight" || optionName == "lineHighlight");
     });
 
     ui->colorThemeListView->setCurrentIndex(ui->colorThemeListView->model()->index(0, 0));
