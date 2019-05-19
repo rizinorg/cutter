@@ -28,7 +28,7 @@ ColorOptionDelegate::ColorOptionDelegate(QObject* parent) : QStyledItemDelegate 
 {
     resetButtonPixmap = getPixmapFromSvg(":/img/icons/reset.svg", qApp->palette().text().color());
     connect(qApp, &QGuiApplication::paletteChanged, this,
-            [this](const QPalette &p){
+            [this](){
         resetButtonPixmap = getPixmapFromSvg(":/img/icons/reset.svg", qApp->palette().text().color());
     });
 }

@@ -95,7 +95,7 @@ public:
 
     ~BufferData() override {}
 
-    void fetch(uint64_t addr, int len) override {}
+    void fetch(uint64_t, int) override { }
 
     const void *dataPtr(uint64_t addr) override
     {

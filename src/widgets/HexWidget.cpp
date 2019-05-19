@@ -457,9 +457,9 @@ void HexWidget::wheelEvent(QWheelEvent *event)
     if (dy == 0)
         return;
 
-    if (delta < 0 && startAddress < -delta) {
+    if (delta < 0 && startAddress < static_cast<uint64_t>(-delta)) {
         startAddress = 0;
-    } else if (delta > 0 && data->maxIndex() < bytesPerScreen()) {
+    } else if (delta > 0 && data->maxIndex() < static_cast<uint64_t>(bytesPerScreen())) {
         startAddress = 0;
     } else if (delta > 0
                && (data->maxIndex() - startAddress) <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
