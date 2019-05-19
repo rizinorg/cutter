@@ -62,6 +62,9 @@ class DisassemblerGraphView : public GraphView
         Text fullText;
         QString plainText;
         std::vector<unsigned char> opcode; //instruction bytes
+
+        bool empty() const { return size == 0; }
+        bool contains(ut64 addr) const;
     };
 
     struct Token {
@@ -157,8 +160,19 @@ private:
     void prepareGraphNode(GraphBlock &block);
     void prepareHeader();
     Token *getToken(Instr *instr, int x);
+    QPoint getTextOffset(int line) const;
+    QPoint getInstructionOffset(const DisassemblyBlock &block, int line) const;
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
     Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
+    /**
+     * @brief Get instructions placement and size relative to block.
+     * Inefficient don't use this function when iterating over all instructions.
+     * @param block
+     * @param addr
+     * @return
+     */
+    QRectF getInstrRect(GraphView::GraphBlock &block, RVA addr) const;
+    void showInstruction(GraphView::GraphBlock &block, RVA addr);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);

@@ -400,27 +400,38 @@ void GraphView::centerY(bool emitSignal)
     }
 }
 
-void GraphView::showBlock(GraphBlock &block)
+void GraphView::showBlock(GraphBlock &block, bool anywhere)
 {
-    showBlock(&block);
+    showBlock(&block, anywhere);
 }
 
-void GraphView::showBlock(GraphBlock *block)
+void GraphView::showBlock(GraphBlock *block, bool anywhere)
 {
+    showRectangle(QRect(block->x, block->y, block->width, block->height), anywhere);
+    blockTransitionedTo(block);
+}
+
+void GraphView::showRectangle(const QRect &block, bool anywhere)
+{
+    QSizeF renderSize = QSizeF(viewport()->size()) / current_scale;
     if (width * current_scale <= viewport()->width()) {
         centerX(false);
     } else {
-        int render_width = viewport()->width() / current_scale;
-        offset.rx() = block->x - ((render_width - block->width) / 2);
+        if (!anywhere || block.x() < offset.x() || block.right() > offset.x() + renderSize.width()) {
+            offset.rx() = block.x() - ((renderSize.width() - block.width()) / 2);
+        }
     }
     if (height * current_scale <= viewport()->height()) {
         centerY(false);
     } else {
-        offset.ry() = block->y - 35 / current_scale;
+        static const int HEADER_HEIGHT = 35; // this could be handled better
+        if (!anywhere || block.y() < offset.y() + HEADER_HEIGHT
+                || block.bottom() > offset.y() + renderSize.height()) {
+            offset.ry() = block.y() - HEADER_HEIGHT / current_scale;
+        }
     }
     clampViewOffset();
     emit viewOffsetChanged(offset);
-    blockTransitionedTo(block);
     viewport()->update();
 }
 
