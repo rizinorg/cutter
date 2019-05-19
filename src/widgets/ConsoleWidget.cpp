@@ -23,7 +23,10 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     ui(new Ui::ConsoleWidget),
     debugOutputEnabled(true),
     maxHistoryEntries(100),
-    lastHistoryPosition(invalidHistoryPos)
+    lastHistoryPosition(invalidHistoryPos),
+    completer(nullptr),
+    historyUpShortcut(nullptr),
+    historyDownShortcut(nullptr)
 {
     ui->setupUi(this);
 
@@ -55,7 +58,7 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     completer->setFilterMode(Qt::MatchStartsWith);
     ui->inputLineEdit->setCompleter(completer);
 
-    connect(ui->inputLineEdit, &QLineEdit::textChanged, this, &ConsoleWidget::updateCompletion);
+    connect(ui->inputLineEdit, &QLineEdit::textEdited, this, &ConsoleWidget::updateCompletion);
     updateCompletion();
 
     // Set console output context menu
@@ -69,20 +72,38 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     clear_shortcut->setContext(Qt::WidgetShortcut);
 
     // Up and down arrows show history
-    QShortcut *historyOnUp = new QShortcut(QKeySequence(Qt::Key_Up), ui->inputLineEdit);
-    connect(historyOnUp, SIGNAL(activated()), this, SLOT(historyPrev()));
-    historyOnUp->setContext(Qt::WidgetShortcut);
+    historyUpShortcut = new QShortcut(QKeySequence(Qt::Key_Up), ui->inputLineEdit);
+    connect(historyUpShortcut, SIGNAL(activated()), this, SLOT(historyPrev()));
+    historyUpShortcut->setContext(Qt::WidgetShortcut);
 
-    QShortcut *historyOnDown = new QShortcut(QKeySequence(Qt::Key_Down), ui->inputLineEdit);
-    connect(historyOnDown, SIGNAL(activated()), this, SLOT(historyNext()));
-    historyOnDown->setContext(Qt::WidgetShortcut);
+    historyDownShortcut = new QShortcut(QKeySequence(Qt::Key_Down), ui->inputLineEdit);
+    connect(historyDownShortcut, SIGNAL(activated()), this, SLOT(historyNext()));
+    historyDownShortcut->setContext(Qt::WidgetShortcut);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupFont()));
+
+    completer->popup()->installEventFilter(this);
 }
 
 ConsoleWidget::~ConsoleWidget()
 {
     delete completer;
+}
+
+bool ConsoleWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if(completer && obj == completer->popup() &&
+        // disable up/down shortcuts if completer is shown
+        (event->type() == QEvent::Type::Show || event->type() == QEvent::Type::Hide)) {
+        bool enabled = !completer->popup()->isVisible();
+        if (historyUpShortcut) {
+            historyUpShortcut->setEnabled(enabled);
+        }
+        if (historyDownShortcut) {
+            historyDownShortcut->setEnabled(enabled);
+        }
+    }
+    return false;
 }
 
 void ConsoleWidget::setupFont()

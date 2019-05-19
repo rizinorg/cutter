@@ -10,6 +10,7 @@
 #include <memory>
 
 class QCompleter;
+class QShortcut;
 
 namespace Ui {
 class ConsoleWidget;
@@ -33,6 +34,9 @@ public:
     {
         maxHistoryEntries = max;
     }
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
 public slots:
     void focusInputLineEdit();
@@ -75,6 +79,8 @@ private:
     QStringList history;
     QStringListModel completionModel;
     QCompleter *completer;
+    QShortcut *historyUpShortcut;
+    QShortcut *historyDownShortcut;
 };
 
 #endif // CONSOLEWIDGET_H
