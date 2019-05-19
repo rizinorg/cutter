@@ -48,6 +48,7 @@ static bool migrateSettingsPre18(QSettings &newSettings)
 
 static void migrateSettingsTo1(QSettings &settings) {
     settings.remove("settings_migrated"); // now handled by version
+    settings.remove("updated_custom_themes"); // now handled by theme_version
 }
 
 static void initializeSettings()
@@ -78,6 +79,40 @@ static void initializeSettings()
     settings.setValue(CUTTER_SETTINGS_VERSION_KEY, CUTTER_SETTINGS_VERSION_CURRENT);
 }
 
+
+#define THEME_VERSION_CURRENT   1
+#define THEME_VERSION_KEY       "theme_version"
+
+static void removeObsoleteOptionsFromCustomThemes() {
+    const QStringList options = Core()->cmdj("ecj").object().keys()
+        << ColorThemeWorker::cutterSpecificOptions;
+    for (auto theme : Core()->cmdList("eco*")) {
+        theme = theme.trimmed();
+        if (!ThemeWorker().isCustomTheme(theme)) {
+            continue;
+        }
+        QJsonObject updatedTheme;
+        auto sch = ThemeWorker().getTheme(theme).object();
+        for (const auto& key : sch.keys()) {
+            if (options.contains(key)) {
+                updatedTheme.insert(key, sch[key]);
+            }
+        }
+        ThemeWorker().save(QJsonDocument(updatedTheme), theme);
+    }
+}
+
+static void migrateThemes()
+{
+    QSettings settings;
+    int themeVersion = settings.value(THEME_VERSION_KEY, 0).toInt();
+    if (themeVersion != THEME_VERSION_CURRENT) {
+        removeObsoleteOptionsFromCustomThemes();
+        settings.setValue(THEME_VERSION_KEY, THEME_VERSION_CURRENT);
+    }
+}
+
+
 int main(int argc, char *argv[])
 {
     if (argc >= 3 && QString::fromLocal8Bit(argv[1]) == "--start-crash-handler") {
@@ -101,27 +136,7 @@ int main(int argc, char *argv[])
 
     CutterApplication a(argc, argv);
 
-    QSettings settings;
-    // Removes obsolete color options (highlight and highlightWord) from custom theme files
-    if (!settings.value("updated_custom_themes", false).toBool()) {
-        const QStringList options = Core()->cmdj("ecj").object().keys()
-                                    << ColorThemeWorker::cutterSpecificOptions;
-        for (auto theme : Core()->cmdList("eco*")) {
-            theme = theme.trimmed();
-            if (!ThemeWorker().isCustomTheme(theme)) {
-                continue;
-            }
-            QJsonObject updatedTheme;
-            auto sch = ThemeWorker().getTheme(theme).object();
-            for (auto key : sch.keys()) {
-                if (options.contains(key)) {
-                    updatedTheme.insert(key, sch[key]);
-                }
-            }
-            ThemeWorker().save(QJsonDocument(updatedTheme), theme);
-        }
-        settings.setValue("updated_custom_themes", true);
-    }
+    migrateThemes();
 
     if (Config()->getAutoUpdateEnabled()) {
         UpdateWorker *updateWorker = new UpdateWorker;
