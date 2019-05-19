@@ -62,10 +62,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
 
     connect(ui->colorComboBox, &QComboBox::currentTextChanged,
             this, [this](const QString &str) {
-        bool editable = ThemeWorker().isCustomTheme(str);
-        ui->editButton->setEnabled(editable);
-        ui->deleteButton->setEnabled(editable);
-        ui->renameButton->setEnabled(editable);
+        ui->editButton->setEnabled(ThemeWorker().isCustomTheme(str));
     });
 }
 
