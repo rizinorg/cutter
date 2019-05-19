@@ -52,6 +52,7 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     actions.append(actionWrapLines);
 
     // Completion
+    completionActive = false;
     completer = new QCompleter(&completionModel, this);
     completer->setMaxVisibleItems(20);
     completer->setCaseSensitivity(Qt::CaseInsensitive);
@@ -79,6 +80,11 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     historyDownShortcut = new QShortcut(QKeySequence(Qt::Key_Down), ui->inputLineEdit);
     connect(historyDownShortcut, SIGNAL(activated()), this, SLOT(historyNext()));
     historyDownShortcut->setContext(Qt::WidgetShortcut);
+
+    QShortcut *completionShortcut = new QShortcut(QKeySequence(Qt::Key_Tab), ui->inputLineEdit);
+    connect(completionShortcut, &QShortcut::activated, this, &ConsoleWidget::triggerCompletion);
+
+    connect(ui->inputLineEdit, &QLineEdit::editingFinished, this, &ConsoleWidget::disableCompletion);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupFont()));
 
@@ -246,8 +252,33 @@ void ConsoleWidget::historyPrev()
     }
 }
 
+void ConsoleWidget::triggerCompletion()
+{
+    if (completionActive) {
+        return;
+    }
+    completionActive = true;
+    updateCompletion();
+    completer->complete();
+}
+
+void ConsoleWidget::disableCompletion()
+{
+    if (!completionActive) {
+        return;
+    }
+    completionActive = false;
+    updateCompletion();
+    completer->popup()->hide();
+}
+
 void ConsoleWidget::updateCompletion()
 {
+    if (!completionActive) {
+        completionModel.setStringList({});
+        return;
+    }
+
     auto current = ui->inputLineEdit->text();
     auto completions = Core()->autocomplete(current, R_LINE_PROMPT_DEFAULT);
     int lastSpace = current.lastIndexOf(' ');
@@ -262,6 +293,7 @@ void ConsoleWidget::updateCompletion()
 
 void ConsoleWidget::clear()
 {
+    disableCompletion();
     ui->inputLineEdit->clear();
 
     invalidateHistoryPosition();

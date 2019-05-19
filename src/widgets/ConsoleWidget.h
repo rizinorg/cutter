@@ -56,6 +56,8 @@ private slots:
     void historyNext();
     void historyPrev();
 
+    void triggerCompletion();
+    void disableCompletion();
     void updateCompletion();
 
     void clear();
@@ -77,6 +79,7 @@ private:
     int maxHistoryEntries;
     int lastHistoryPosition;
     QStringList history;
+    bool completionActive;
     QStringListModel completionModel;
     QCompleter *completer;
     QShortcut *historyUpShortcut;
