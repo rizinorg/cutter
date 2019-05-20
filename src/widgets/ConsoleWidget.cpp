@@ -86,7 +86,8 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
 
     connect(ui->inputLineEdit, &QLineEdit::editingFinished, this, &ConsoleWidget::disableCompletion);
 
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(setupFont()));
+    connect(Config(), &Configuration::fontsUpdated, this, &ConsoleWidget::setupFont);
+    connect(Config(), &Configuration::interfaceThemeChanged, this, &ConsoleWidget::setupFont);
 
     completer->popup()->installEventFilter(this);
 }
