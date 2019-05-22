@@ -310,6 +310,7 @@ void DisassemblerGraphView::loadCurrentGraph()
 
         addBlock(gb);
     }
+    cleanupEdges();
 
     if (!func["blocks"].toArray().isEmpty()) {
         computeGraph(entry);
@@ -353,6 +354,25 @@ void DisassemblerGraphView::prepareGraphNode(GraphBlock &block)
     int extra = static_cast<int>(4 * charWidth + 4);
     block.width = static_cast<int>(width + extra + charWidth);
     block.height = (height * charHeight) + extra;
+}
+
+void DisassemblerGraphView::cleanupEdges()
+{
+    for (auto &blockIt : blocks) {
+        auto &block = blockIt.second;
+        auto outIt = block.edges.begin();
+        std::unordered_set<ut64> seenEdges;
+        for (auto it = block.edges.begin(), end = block.edges.end(); it != end; ++it) {
+            // remove edges going  to different functions
+            // and remove duplicate edges, common in switch statements
+            if (blocks.find(it->target) != blocks.end() &&
+                    seenEdges.find(it->target) == seenEdges.end()) {
+                *outIt++ = *it;
+                seenEdges.insert(it->target);
+            }
+        }
+        block.edges.erase(outIt, block.edges.end());
+    }
 }
 
 void DisassemblerGraphView::prepareHeader()
