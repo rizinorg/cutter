@@ -391,7 +391,6 @@ void AlphaChannelBar::paintEvent(QPaintEvent* event)
     QPainter p(this);
     QRect barRect = rect();
 
-    QColor color = currColor;
     qreal h, s, v, a;
     currColor.getHsvF(&h, &s, &v, &a);
     a = 1.0 - a;
