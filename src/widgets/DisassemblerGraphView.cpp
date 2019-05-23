@@ -121,10 +121,17 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     highlightBB->setText(tr("Highlight block"));
     connect(highlightBB, &QAction::triggered, this, [this]() {
         auto bbh = Core()->getBBHighlighter();
-        QColor c = QColorDialog::getColor(disassemblySelectedBackgroundColor, this, QString(),
+        RVA currBlockEntry = blockForAddress(this->seekable->getOffset())->entry;
+
+        QColor background = disassemblyBackgroundColor;
+        if (auto block = bbh->getBasicBlock(currBlockEntry)) {
+            background = block->color;
+        }
+
+        QColor c = QColorDialog::getColor(background, this, QString(),
                                           QColorDialog::DontUseNativeDialog);
         if (c.isValid()) {
-            bbh->highlight(blockForAddress(this->seekable->getOffset())->entry, c);
+            bbh->highlight(currBlockEntry, c);
         }
         Config()->colorsUpdated();
     });
