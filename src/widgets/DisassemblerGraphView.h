@@ -158,6 +158,7 @@ private:
 
     void initFont();
     void prepareGraphNode(GraphBlock &block);
+    void cleanupEdges();
     void prepareHeader();
     Token *getToken(Instr *instr, int x);
     QPoint getTextOffset(int line) const;
