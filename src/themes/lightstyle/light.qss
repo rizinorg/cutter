@@ -74,6 +74,10 @@ QToolButton
   padding:2px;
 }
 
+QToolButton[popupMode="1"] { /* only for MenuButtonPopup */
+    padding-right: 20px; /* make way for the popup button */
+}
+
 QToolButton:hover
 {
   border-bottom-width:2px;
@@ -382,6 +386,12 @@ QAbstractSpinBox::down-arrow,QAbstractSpinBox::down-arrow:disabled,QAbstractSpin
   image:url(:/qss_icons/rc/down_arrow.png);
   width:10px;
   height:10px;
+}
+
+QToolButton::menu-button {
+    border: solid transparent;
+    /* 16px width + 4px for border = 20px allocated above */
+    width: 16px;
 }
 
 QToolButton::menu-indicator
@@ -714,6 +724,10 @@ QTreeView
 QAbstractSpinBox::down-arrow:hover,QToolButton::menu-arrow,QHeaderView::down-arrow,QSpinBox::down-arrow:hover,QHeaderView::down-arrow
 {
   image:url(:/qss_icons/rc/down_arrow.png);
+}
+
+QToolButton::menu-arrow:open {
+    top: 1px; left: 1px; /* shift it a bit */
 }
 
 QHeaderView::up-arrow,QAbstractSpinBox::up-arrow:hover,QHeaderView::up-arrow
