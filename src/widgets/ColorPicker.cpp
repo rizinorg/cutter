@@ -434,7 +434,7 @@ QColor AlphaChannelBar::pointToColor(int x, int y) const
     return color;
 }
 
-QPoint AlphaChannelBar::colorToPoint(const QColor& color) const
+QPoint AlphaChannelBar::colorToPoint(const QColor &) const
 {
     return QPoint();
 }
