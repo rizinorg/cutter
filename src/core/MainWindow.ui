@@ -24,7 +24,7 @@
 </string>
   </property>
   <property name="documentMode">
-   <bool>false</bool>
+   <bool>true</bool>
   </property>
   <property name="dockNestingEnabled">
    <bool>true</bool>

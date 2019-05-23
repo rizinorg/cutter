@@ -6,28 +6,6 @@ QHeaderView::section {
 /*     border: 2px solid white;*/
 }
 
-
-QMainWindow > QTabBar::tab {
-    border-bottom-color: #2180a9;
-    border-top-left-radius: 0px;
-    border-top-right-radius: 0px;
-    min-width: 8px;
-    max-width: 200px;
-    padding: 5px;
-    margin-bottom: 3px;
-    margin-top: 3px;
-}
-
-QMainWindow > QTabBar::tab:selected {
-    background: #2180a9;
-    color: #FFFFFF;
-}
-
-QMainWindow > QTabBar::tab:hover {
-    background: #2180a9;      /* #3C879E; */
-    color: #FFFFFF;
-}
-
 QDockWidget::title {
     text-align: center;
 }
