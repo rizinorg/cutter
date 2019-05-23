@@ -49,13 +49,11 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     ui->openSideViewB->hide();  // hide button at startup since side view is visible
 
     connect(closeButton, &QToolButton::clicked, this, [this] {
-        ui->hexSideTab_2->hide();
-        ui->openSideViewB->show();
+        showSidePanel(false);
     });
 
     connect(ui->openSideViewB, &QToolButton::clicked, this, [this] {
-        ui->hexSideTab_2->show();
-        ui->openSideViewB->hide();
+        showSidePanel(true);
     });
 
     ui->bytesMD5->setPlaceholderText("Select bytes to display information");
@@ -106,6 +104,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
         }
     });
     connect(ui->hexTextView, &HexWidget::selectionChanged, this, &HexdumpWidget::selectionChanged);
+    connect(ui->hexSideTab_2, &QTabWidget::currentChanged, this, &HexdumpWidget::refreshSelectionInfo);
 
     initParsing();
     selectHexPreview();
@@ -208,19 +207,32 @@ void HexdumpWidget::clearParseWindow()
     ui->bytesSHA1->setText("");
 }
 
+void HexdumpWidget::showSidePanel(bool show)
+{
+    ui->hexSideTab_2->setVisible(show);
+    ui->openSideViewB->setHidden(show);
+    if (show) {
+        refreshSelectionInfo();
+    }
+}
+
 void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 {
+    if (!ui->hexSideTab_2->isVisible()) {
+        return;
+    }
 
     QString address = RAddressString(start_address);
-
     QString argument = QString("%1@" + address).arg(size);
-    // Get selected combos
-    QString arch = ui->parseArchComboBox->currentText();
-    QString bits = ui->parseBitsComboBox->currentText();
-    bool bigEndian = ui->parseEndianComboBox->currentIndex() == 1;
 
-    {
+    if (ui->hexSideTab_2->currentIndex() == 0) {
         // scope for TempConfig
+
+        // Get selected combos
+        QString arch = ui->parseArchComboBox->currentText();
+        QString bits = ui->parseBitsComboBox->currentText();
+        bool bigEndian = ui->parseEndianComboBox->currentIndex() == 1;
+
         TempConfig tempConfig;
         tempConfig
         .set("asm.arch", arch)
@@ -261,29 +273,15 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         default:
             ui->hexDisasTextEdit->setPlainText("");
         }
-    }
-
-    // Fill the information tab hashes and entropy
-    ui->bytesMD5->setText(Core()->cmd("ph md5 " + argument).trimmed());
-    ui->bytesSHA1->setText(Core()->cmd("ph sha1 " + argument).trimmed());
-    ui->bytesEntropy->setText(Core()->cmd("ph entropy " + argument).trimmed());
-    ui->bytesMD5->setCursorPosition(0);
-    ui->bytesSHA1->setCursorPosition(0);
-}
-
-/*
- * Actions callback functions
- */
-
-void HexdumpWidget::on_actionHideHexdump_side_panel_triggered()
-{
-    if (ui->hexSideTab_2->isVisible()) {
-        ui->hexSideTab_2->hide();
     } else {
-        ui->hexSideTab_2->show();
+        // Fill the information tab hashes and entropy
+        ui->bytesMD5->setText(Core()->cmd("ph md5 " + argument).trimmed());
+        ui->bytesSHA1->setText(Core()->cmd("ph sha1 " + argument).trimmed());
+        ui->bytesEntropy->setText(Core()->cmd("ph entropy " + argument).trimmed());
+        ui->bytesMD5->setCursorPosition(0);
+        ui->bytesSHA1->setCursorPosition(0);
     }
 }
-
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
 {

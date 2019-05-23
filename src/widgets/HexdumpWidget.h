@@ -57,14 +57,13 @@ private:
     void refreshSelectionInfo();
     void updateParseWindow(RVA start_address, int size);
     void clearParseWindow();
+    void showSidePanel(bool show);
 
     QAction syncAction;
     CutterSeekable *seekable;
 
 private slots:
     void onSeekChanged(RVA addr);
-
-    void on_actionHideHexdump_side_panel_triggered();
 
     void selectionChanged(HexWidget::Selection selection);
 
