@@ -354,7 +354,7 @@ void DisassemblyWidget::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    QColor highlightColor = ConfigColor("linehl");
+    QColor highlightColor = ConfigColor("lineHighlight");
     QColor highlightPCColor = ConfigColor("highlightPC");
 
     // Highlight the current word
@@ -600,7 +600,7 @@ QList<QTextEdit::ExtraSelection> DisassemblyWidget::getSameWordsSelections()
     QList<QTextEdit::ExtraSelection> selections;
     QTextEdit::ExtraSelection highlightSelection;
     QTextDocument *document = mDisasTextEdit->document();
-    QColor highlightWordColor = ConfigColor("wordhl");
+    QColor highlightWordColor = ConfigColor("wordHighlight");
 
     if (curHighlightedWord.isNull()) {
         return QList<QTextEdit::ExtraSelection>();

@@ -9,6 +9,7 @@
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
 
+#include <QColorDialog>
 #include <QPainter>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -112,6 +113,39 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     contextMenu->addAction(&actionExportGraph);
     contextMenu->addSeparator();
     contextMenu->addAction(&actionSyncOffset);
+
+
+    QAction *highlightBB = new QAction(this);
+    actionUnhighlight.setVisible(false);
+
+    highlightBB->setText(tr("Highlight block"));
+    connect(highlightBB, &QAction::triggered, this, [this]() {
+        auto bbh = Core()->getBBHighlighter();
+        RVA currBlockEntry = blockForAddress(this->seekable->getOffset())->entry;
+
+        QColor background = disassemblyBackgroundColor;
+        if (auto block = bbh->getBasicBlock(currBlockEntry)) {
+            background = block->color;
+        }
+
+        QColor c = QColorDialog::getColor(background, this, QString(),
+                                          QColorDialog::DontUseNativeDialog);
+        if (c.isValid()) {
+            bbh->highlight(currBlockEntry, c);
+        }
+        Config()->colorsUpdated();
+    });
+
+    actionUnhighlight.setText(tr("Unhighlight block"));
+    connect(&actionUnhighlight, &QAction::triggered, this, [this]() {
+        auto bbh = Core()->getBBHighlighter();
+        bbh->clear(blockForAddress(this->seekable->getOffset())->entry);
+        Config()->colorsUpdated();
+    });
+
+    blockMenu->addAction(highlightBB);
+    blockMenu->addAction(&actionUnhighlight);
+
 
     // Include all actions from generic context menu in block specific menu
     blockMenu->addSeparator();
@@ -455,9 +489,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
     if (bb) {
         QColor color(bb->color);
-        color.setAlphaF(0.5);
         p.setBrush(color);
-        // Add basic block highlighting transparent color
         p.drawRect(blockX, blockY,
                    block.width, block.height);
     }
@@ -507,7 +539,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                     highlightWidth = block.width - widthBefore - (10 +  2 * padding);
                 }
 
-                QColor selectionColor = ConfigColor("wordhl");
+                QColor selectionColor = ConfigColor("wordHighlight");
 
                 p.fillRect(QRectF(blockX + charWidth * 3 + widthBefore, y, highlightWidth,
                                  charHeight), selectionColor);
@@ -714,7 +746,7 @@ void DisassemblerGraphView::colorsUpdatedSlot()
     mDisabledBreakpointColor = disassemblyBackgroundColor;
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
-    disassemblySelectionColor = ConfigColor("linehl");
+    disassemblySelectionColor = ConfigColor("lineHighlight");
     PCSelectionColor = ConfigColor("highlightPC");
 
     jmpColor = ConfigColor("graph.trufae");
@@ -947,6 +979,7 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
         blockMenu->setCurHighlightedWord(highlight_token->content);
     }
     if (event->button() == Qt::RightButton) {
+        actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
         event->accept();
         blockMenu->exec(event->globalPos());
     }

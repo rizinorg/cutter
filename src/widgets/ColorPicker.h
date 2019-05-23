@@ -19,7 +19,7 @@ signals:
     void colorChanged(const QColor& color);
 
 public slots:
-    virtual void setColor(const QColor& color);
+    virtual void setColor(const QColor& color) = 0;
 
 protected:
     QColor currColor;
@@ -45,6 +45,8 @@ public:
      * @brief isPickingFromScreen returns true if color picker is picking from screen.
      */
     bool isPickingFromScreen() const;
+
+    void setAlphaEnabled(bool enabled);
 
 
 public slots:
@@ -101,8 +103,7 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
 
-private:
-    void mouseEvent(QMouseEvent* event);
+    virtual void mouseEvent(QMouseEvent* event);
 
     /**
      * @brief pointToColor converts coordinates on widget to color these coordinates represents.
@@ -121,6 +122,8 @@ class ColorShowWidget : public ColorPickWidgetAbstract
 public:
     explicit ColorShowWidget(QWidget *parent = nullptr);
 
+    void setColor(const QColor& c) override;
+
 protected:
     void paintEvent(QPaintEvent *event) override;
 };
@@ -134,6 +137,25 @@ class ColorPickArea : public ColorPickerWidget
     Q_OBJECT
 public:
     explicit ColorPickArea(QWidget *parent = nullptr);
+
+    void setColor(const QColor& c) override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    QColor pointToColor(int x, int y) const override;
+
+    QPoint colorToPoint(const QColor& color) const override;
+};
+
+class AlphaChannelBar : public ColorPickerWidget
+{
+    Q_OBJECT
+public:
+    AlphaChannelBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
+
+    void setColor(const QColor& c) override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -153,6 +175,8 @@ class ColorValueBar : public ColorPickerWidget
     Q_OBJECT
 public:
     ColorValueBar(QWidget *parent = nullptr) : ColorPickerWidget(parent) {}
+
+    void setColor(const QColor& c) override;
 
 protected:
     void paintEvent(QPaintEvent *event) override;

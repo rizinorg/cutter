@@ -48,6 +48,16 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="ColorPickerHelpers::AlphaChannelBar" name="alphaChannelBar" native="true">
+         <property name="minimumSize">
+          <size>
+           <width>30</width>
+           <height>0</height>
+          </size>
+         </property>
+        </widget>
+       </item>
       </layout>
      </item>
      <item>
@@ -339,6 +349,12 @@
   </customwidget>
   <customwidget>
    <class>ColorPickerHelpers::ColorShowWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/ColorPicker.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ColorPickerHelpers::AlphaChannelBar</class>
    <extends>QWidget</extends>
    <header>widgets/ColorPicker.h</header>
    <container>1</container>

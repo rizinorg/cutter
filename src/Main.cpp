@@ -7,6 +7,7 @@
 #include "common/CrashHandler.h"
 
 #include <QJsonObject>
+#include <QJsonArray>
 
 /**
  * @brief Migrate Settings used before Cutter 1.8

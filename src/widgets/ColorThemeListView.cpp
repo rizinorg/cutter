@@ -336,10 +336,10 @@ void ColorSettingsModel::updateTheme()
 
     for (auto it = obj.constBegin(); it != obj.constEnd(); it++) {
         QJsonArray rgb = it.value().toArray();
-        if (rgb.size() != 3) {
+        if (rgb.size() != 4) {
             continue;
         }
-        theme.push_back({it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt()), false});
+        theme.push_back({it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt(), rgb[3].toInt()), false});
     }
 
     if (!theme.isEmpty()) {
@@ -350,10 +350,10 @@ void ColorSettingsModel::updateTheme()
 QJsonDocument ColorSettingsModel::getTheme() const
 {
     QJsonObject obj;
-    int r, g, b;
+    int r, g, b, a;
     for (auto &it : theme) {
-        it.color.getRgb(&r, &g, &b);
-        obj.insert(it.optionName, QJsonArray({r, g, b}));
+        it.color.getRgb(&r, &g, &b, &a);
+        obj.insert(it.optionName, QJsonArray({r, g, b, a}));
     }
     return QJsonDocument(obj);
 }
@@ -739,13 +739,13 @@ const QMap<QString, OptionInfo> optionInfoMap__ = {
     }
 },
 {
-    "linehl", {
+    "lineHighlight", {
         QObject::tr("Selected line background color"),
         QObject::tr("Line highlight")
     }
 },
 {
-    "wordhl", {
+    "wordHighlight", {
         QObject::tr("Background color of selected word"),
         QObject::tr("Word higlight")
     }

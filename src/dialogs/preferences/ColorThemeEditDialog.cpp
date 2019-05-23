@@ -35,7 +35,15 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
             previewDisasmWidget, &DisassemblyWidget::colorsUpdatedSlot);
 
     connect(ui->colorThemeListView, &ColorThemeListView::itemChanged,
-            ui->colorPicker, &ColorPicker::updateColor);
+            this, [this](const QColor& color) {
+        ui->colorPicker->updateColor(color);
+        QString optionName = ui->colorThemeListView->currentIndex()
+                             .data(Qt::UserRole)
+                             .value<ColorOption>()
+                             .optionName;
+        ui->colorPicker->setAlphaEnabled(optionName == "wordHighlight" || optionName == "lineHighlight");
+    });
+
     ui->colorThemeListView->setCurrentIndex(ui->colorThemeListView->model()->index(0, 0));
 
     connect(ui->colorPicker, &ColorPicker::colorChanged, this, &ColorThemeEditDialog::colorOptionChanged);
