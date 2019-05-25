@@ -94,7 +94,6 @@ HexWidget::HexWidget(QWidget *parent) :
 
     actionHexPairs = new QAction(tr("Bytes as pairs"), this);
     actionHexPairs->setCheckable(true);
-    actionHexPairs->setEnabled(Core()->getConfigb("hex.pairs"));
     connect(actionHexPairs, &QAction::triggered, this, &HexWidget::onHexPairsModeEnabled);
 
     actionCopy = new QAction(tr("Copy"), this);
@@ -552,13 +551,13 @@ void HexWidget::onCursorBlinked()
 
 void HexWidget::onHexPairsModeEnabled(bool enable)
 {
+    // Sync configuration
+    Core()->setConfig("hex.pairs", enable);
     if (enable) {
         setItemGroupSize(2);
     } else {
         setItemGroupSize(1);
     }
-    // Sync configuration
-    Core()->setConfig("hex.pairs", enable);
 }
 
 void HexWidget::copy()
