@@ -680,6 +680,7 @@ void HexWidget::drawCursor(QPainter &painter, bool shadow)
         QPen pen(Qt::gray);
         pen.setStyle(Qt::DashLine);
         painter.setPen(pen);
+        shadowCursor.screenPos.setWidth(cursorOnAscii ? itemWidth() : charWidth);
         painter.drawRect(shadowCursor.screenPos);
         painter.setPen(Qt::SolidLine);
     }
@@ -863,7 +864,6 @@ void HexWidget::updateMetrics()
         shadowCursor.screenPos.moveTopLeft(itemArea.topLeft());
     } else {
         cursor.screenPos.moveTopLeft(itemArea.topLeft());
-
         shadowCursor.screenPos.setWidth(charWidth);
         shadowCursor.screenPos.moveTopLeft(asciiArea.topLeft());
     }
