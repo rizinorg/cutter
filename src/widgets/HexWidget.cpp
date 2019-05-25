@@ -94,6 +94,7 @@ HexWidget::HexWidget(QWidget *parent) :
 
     actionHexPairs = new QAction(tr("Bytes as pairs"), this);
     actionHexPairs->setCheckable(true);
+    actionHexPairs->setEnabled(Core()->getConfigb("hex.pairs"));
     connect(actionHexPairs, &QAction::triggered, this, &HexWidget::onHexPairsModeEnabled);
 
     actionCopy = new QAction(tr("Copy"), this);
@@ -209,6 +210,7 @@ void HexWidget::updateCounts()
 {
     actionHexPairs->setEnabled(rowSizeBytes > 1 && itemByteLen == 1
                                && itemFormat == ItemFormat::ItemFormatHex);
+    actionHexPairs->setChecked(Core()->getConfigb("hex.pairs"));
     if (actionHexPairs->isChecked() && actionHexPairs->isEnabled()) {
         itemGroupSize = 2;
     } else {
@@ -555,6 +557,8 @@ void HexWidget::onHexPairsModeEnabled(bool enable)
     } else {
         setItemGroupSize(1);
     }
+    // Sync configuration
+    Core()->setConfig("hex.pairs", enable);
 }
 
 void HexWidget::copy()
