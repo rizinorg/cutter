@@ -77,6 +77,9 @@ public:
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
     RAnalFunction *functionAt(ut64 addr);
+    RVA getFunctionStart(RAnalFunction *fcn);
+    RVA getFunctionEnd(RAnalFunction *fcn);
+    RVA getLastFunctionInstruction(RAnalFunction *fcn);
     QString cmdFunctionAt(QString addr);
     QString cmdFunctionAt(RVA addr);
     QString createFunctionAt(RVA addr, QString name);

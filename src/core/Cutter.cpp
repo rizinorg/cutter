@@ -826,6 +826,44 @@ RAnalFunction *CutterCore::functionAt(ut64 addr)
     return r_anal_get_fcn_in(core_->anal, addr, 0);
 }
 
+
+/**
+ * @brief return the address of the first instruction of a given function
+ * @param fcn - the function to get its first address
+ * @returns the address of the first instruction in the function
+ */
+RVA CutterCore::getFunctionStart(RAnalFunction *fcn)
+{
+    CORE_LOCK();
+    return fcn ? fcn->addr : 0;
+}
+
+/**
+ * @brief return the end address of a given function
+ * @param fcn - the function to get its last address
+ * @returns the last address of fcn
+ */
+RVA CutterCore::getFunctionEnd(RAnalFunction *fcn)
+{
+    CORE_LOCK();
+    return fcn ? fcn->addr + r_anal_fcn_size(fcn) : 0;
+}
+
+/**
+ * @brief return the address of the last instruction of a given function
+ * @param fcn - the function to get its last instruction address
+ * @returns the address of the last instruction in the function
+ */
+RVA CutterCore::getLastFunctionInstruction(RAnalFunction *fcn)
+{
+    CORE_LOCK();
+    if (!fcn) {
+        return 0;
+    }
+    RAnalBlock *lastBB = (RAnalBlock *)r_list_last(fcn->bbs);
+    return lastBB ? lastBB->addr + r_anal_bb_offset_inst(lastBB, lastBB->ninstr-1) : 0;
+}
+
 QString CutterCore::cmdFunctionAt(QString addr)
 {
     QString ret;
