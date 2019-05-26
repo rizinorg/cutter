@@ -321,8 +321,8 @@ void SectionsWidget::updateToggle()
 
 AbstractAddrDock::AbstractAddrDock(SectionsModel *model, QWidget *parent) :
     QDockWidget(parent),
-    addrDockScene(new AddrDockScene),
-    graphicsView(new QGraphicsView)
+    addrDockScene(new AddrDockScene(this)),
+    graphicsView(new QGraphicsView(this))
 {
     graphicsView->setScene(addrDockScene);
     setWidget(graphicsView);

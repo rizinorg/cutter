@@ -127,8 +127,8 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     });
 
     setScrollMode();
-    actionDelBreakpoint = new QAction(tr("Delete breakpoint"));
-    actionToggleBreakpoint = new QAction(tr("Toggle breakpoint"));
+    actionDelBreakpoint = new QAction(tr("Delete breakpoint"), this);
+    actionToggleBreakpoint = new QAction(tr("Toggle breakpoint"), this);
     connect(actionDelBreakpoint, &QAction::triggered, this, &BreakpointWidget::delBreakpoint);
     connect(actionToggleBreakpoint, &QAction::triggered, this, &BreakpointWidget::toggleBreakpoint);
     connect(Core(), &CutterCore::refreshAll, this, &BreakpointWidget::refreshBreakpoint);

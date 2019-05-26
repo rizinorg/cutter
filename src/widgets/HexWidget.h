@@ -6,6 +6,7 @@
 #include <QScrollArea>
 #include <QTimer>
 #include <QMenu>
+#include <memory>
 
 struct BasicCursor
 {
@@ -457,7 +458,7 @@ private:
     QAction *actionCopyAddress;
     QAction *actionSelectRange;
 
-    AbstractData *data;
+    std::unique_ptr<AbstractData> data;
 };
 
 #endif // HEXWIDGET_H

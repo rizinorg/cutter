@@ -25,8 +25,8 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     viewStack->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewStack);
 
-    seekAction = new QAction(tr("Seek to this offset"));
-    editAction = new QAction(tr("Edit stack value..."));
+    seekAction = new QAction(tr("Seek to this offset"), this);
+    editAction = new QAction(tr("Edit stack value..."), this);
     viewStack->setContextMenuPolicy(Qt::CustomContextMenu);
 
     refreshDeferrer = createRefreshDeferrer([this]() {
