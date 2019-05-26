@@ -4,6 +4,7 @@
 
 #include "core/MainWindow.h"
 
+#include <QCollator>
 #include <QLabel>
 #include <QLineEdit>
 
@@ -45,6 +46,11 @@ void RegistersWidget::setRegisterGrid()
     QJsonObject registerValues = Core()->getRegisterValues().object();
     QJsonObject registerRefs = Core()->getRegisterJson();
     QStringList registerNames = registerValues.keys();
+
+    QCollator collator;
+    collator.setNumericMode(true);
+    std::sort(registerNames.begin(), registerNames.end(), collator);
+
     registerLen = registerValues.size();
     for (const QString &key : registerNames) {
         regValue = RAddressString(registerValues[key].toVariant().toULongLong());
