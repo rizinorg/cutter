@@ -122,7 +122,7 @@ HexWidget::HexWidget(QWidget *parent) :
 
     startAddress = 0ULL;
     cursor.address = 0ULL;
-    data = new MemoryData();
+    data.reset(new MemoryData());
 
     fetchData();
     updateCursorMeta();

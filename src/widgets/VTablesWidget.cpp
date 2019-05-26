@@ -138,7 +138,7 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
     tree->addStatusBar(ui->verticalLayout);
 
     model = new VTableModel(&vtables, this);
-    proxy = new VTableSortFilterProxyModel(model);
+    proxy = new VTableSortFilterProxyModel(model, this);
 
     ui->vTableTreeView->setModel(proxy);
     ui->vTableTreeView->sortByColumn(VTableModel::ADDRESS, Qt::AscendingOrder);

@@ -68,7 +68,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QToolButton *startButton = new QToolButton;
     startButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(startButton, &QToolButton::triggered, startButton, &QToolButton::setDefaultAction);
-    QMenu *startMenu = new QMenu;
+    QMenu *startMenu = new QMenu(startButton);
 
     // only emulation is currently allowed
     // startMenu->addAction(actionStart);
@@ -82,7 +82,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     continueUntilButton->setPopupMode(QToolButton::MenuButtonPopup);
     connect(continueUntilButton, &QToolButton::triggered, continueUntilButton,
             &QToolButton::setDefaultAction);
-    QMenu *continueUntilMenu = new QMenu;
+    QMenu *continueUntilMenu = new QMenu(continueUntilButton);
     continueUntilMenu->addAction(actionContinueUntilMain);
     continueUntilMenu->addAction(actionContinueUntilCall);
     continueUntilMenu->addAction(actionContinueUntilSyscall);
