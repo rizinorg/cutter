@@ -209,6 +209,7 @@ void HexWidget::updateCounts()
 {
     actionHexPairs->setEnabled(rowSizeBytes > 1 && itemByteLen == 1
                                && itemFormat == ItemFormat::ItemFormatHex);
+    actionHexPairs->setChecked(Core()->getConfigb("hex.pairs"));
     if (actionHexPairs->isChecked() && actionHexPairs->isEnabled()) {
         itemGroupSize = 2;
     } else {
@@ -550,6 +551,8 @@ void HexWidget::onCursorBlinked()
 
 void HexWidget::onHexPairsModeEnabled(bool enable)
 {
+    // Sync configuration
+    Core()->setConfig("hex.pairs", enable);
     if (enable) {
         setItemGroupSize(2);
     } else {
