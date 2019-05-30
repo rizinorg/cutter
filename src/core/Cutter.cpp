@@ -864,7 +864,7 @@ RVA CutterCore::getLastFunctionInstruction(RVA addr)
         return RVA_INVALID;
     }
     RAnalBlock *lastBB = (RAnalBlock *)r_list_last(fcn->bbs);
-    return lastBB ? lastBB->addr + r_anal_bb_offset_inst(lastBB, lastBB->ninstr-1) : 0;
+    return lastBB ? lastBB->addr + r_anal_bb_offset_inst(lastBB, lastBB->ninstr-1) : RVA_INVALID;
 }
 
 QString CutterCore::cmdFunctionAt(QString addr)
