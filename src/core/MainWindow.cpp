@@ -141,7 +141,7 @@ void MainWindow::initUI()
     QShortcut *seek_shortcut = new QShortcut(QKeySequence(Qt::Key_S), this);
     connect(seek_shortcut, SIGNAL(activated()), this->omnibar, SLOT(setFocus()));
     QShortcut *seek_to_func_end_shortcut = new QShortcut(QKeySequence(Qt::Key_Dollar), this);
-    connect(seek_to_func_end_shortcut, SIGNAL(activated()), SLOT(seekToFunctionEnd()));
+    connect(seek_to_func_end_shortcut, SIGNAL(activated()), SLOT(seekToFunctionLastInstruction()));
     QShortcut *seek_to_func_start_shortcut = new QShortcut(QKeySequence(Qt::Key_AsciiCircum), this);
     connect(seek_to_func_start_shortcut, SIGNAL(activated()), SLOT(seekToFunctionStart()));
 
@@ -1145,20 +1145,14 @@ void MainWindow::on_actionGrouped_dock_dragging_triggered(bool checked)
     setDockOptions(options);
 }
 
-void MainWindow::seekToFunctionEnd()
+void MainWindow::seekToFunctionLastInstruction()
 {
-    RAnalFunction *fcn = Core()->functionAt(Core()->getOffset());
-    if (fcn) {
-        Core()->seek(Core()->getLastFunctionInstruction(fcn));
-    }
+    Core()->seek(Core()->getLastFunctionInstruction(Core()->getOffset()));
 }
 
 void MainWindow::seekToFunctionStart()
 {
-    RAnalFunction *fcn = Core()->functionAt(Core()->getOffset());
-    if (fcn) {
-        Core()->seek(Core()->getFunctionStart(fcn));
-    }
+    Core()->seek(Core()->getFunctionStart(Core()->getOffset()));
 }
 
 void MainWindow::projectSaved(bool successfully, const QString &name)

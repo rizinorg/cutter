@@ -828,37 +828,40 @@ RAnalFunction *CutterCore::functionAt(ut64 addr)
 
 
 /**
- * @brief return the address of the first instruction of a given function
- * @param fcn - the function to get its first address
- * @returns the address of the first instruction in the function
+ * @brief finds the start address of a function in a given address
+ * @param addr - an address which belongs to a function
+ * @returns if function exists, return its start address. Otherwise return RVA_INVALID
  */
-RVA CutterCore::getFunctionStart(RAnalFunction *fcn)
+RVA CutterCore::getFunctionStart(RVA addr)
 {
     CORE_LOCK();
-    return fcn ? fcn->addr : 0;
+    RAnalFunction *fcn = Core()->functionAt(addr);
+    return fcn ? fcn->addr : RVA_INVALID;
 }
 
 /**
- * @brief return the end address of a given function
- * @param fcn - the function to get its last address
- * @returns the last address of fcn
+ * @brief finds the end address of a function in a given address
+ * @param addr - an address which belongs to a function
+ * @returns if function exists, return its end address. Otherwise return RVA_INVALID
  */
-RVA CutterCore::getFunctionEnd(RAnalFunction *fcn)
+RVA CutterCore::getFunctionEnd(RVA addr)
 {
     CORE_LOCK();
-    return fcn ? fcn->addr + r_anal_fcn_size(fcn) : 0;
+    RAnalFunction *fcn = Core()->functionAt(addr);
+    return fcn ? fcn->addr : RVA_INVALID;
 }
 
 /**
- * @brief return the address of the last instruction of a given function
- * @param fcn - the function to get its last instruction address
- * @returns the address of the last instruction in the function
+ * @brief finds the last instruction of a function in a given address
+ * @param addr - an address which belongs to a function
+ * @returns if function exists, return the address of its last instruction. Otherwise return RVA_INVALID
  */
-RVA CutterCore::getLastFunctionInstruction(RAnalFunction *fcn)
+RVA CutterCore::getLastFunctionInstruction(RVA addr)
 {
     CORE_LOCK();
+    RAnalFunction *fcn = Core()->functionAt(addr);
     if (!fcn) {
-        return 0;
+        return RVA_INVALID;
     }
     RAnalBlock *lastBB = (RAnalBlock *)r_list_last(fcn->bbs);
     return lastBB ? lastBB->addr + r_anal_bb_offset_inst(lastBB, lastBB->ninstr-1) : 0;

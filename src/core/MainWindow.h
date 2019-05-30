@@ -115,7 +115,7 @@ public slots:
     void finalizeOpen();
 
     void refreshAll();
-    void seekToFunctionEnd();
+    void seekToFunctionLastInstruction();
     void seekToFunctionStart();
     void setPanelLock();
     void setTabLocation();
