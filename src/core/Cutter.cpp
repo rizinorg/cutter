@@ -826,6 +826,47 @@ RAnalFunction *CutterCore::functionAt(ut64 addr)
     return r_anal_get_fcn_in(core_->anal, addr, 0);
 }
 
+
+/**
+ * @brief finds the start address of a function in a given address
+ * @param addr - an address which belongs to a function
+ * @returns if function exists, return its start address. Otherwise return RVA_INVALID
+ */
+RVA CutterCore::getFunctionStart(RVA addr)
+{
+    CORE_LOCK();
+    RAnalFunction *fcn = Core()->functionAt(addr);
+    return fcn ? fcn->addr : RVA_INVALID;
+}
+
+/**
+ * @brief finds the end address of a function in a given address
+ * @param addr - an address which belongs to a function
+ * @returns if function exists, return its end address. Otherwise return RVA_INVALID
+ */
+RVA CutterCore::getFunctionEnd(RVA addr)
+{
+    CORE_LOCK();
+    RAnalFunction *fcn = Core()->functionAt(addr);
+    return fcn ? fcn->addr : RVA_INVALID;
+}
+
+/**
+ * @brief finds the last instruction of a function in a given address
+ * @param addr - an address which belongs to a function
+ * @returns if function exists, return the address of its last instruction. Otherwise return RVA_INVALID
+ */
+RVA CutterCore::getLastFunctionInstruction(RVA addr)
+{
+    CORE_LOCK();
+    RAnalFunction *fcn = Core()->functionAt(addr);
+    if (!fcn) {
+        return RVA_INVALID;
+    }
+    RAnalBlock *lastBB = (RAnalBlock *)r_list_last(fcn->bbs);
+    return lastBB ? lastBB->addr + r_anal_bb_offset_inst(lastBB, lastBB->ninstr-1) : RVA_INVALID;
+}
+
 QString CutterCore::cmdFunctionAt(QString addr)
 {
     QString ret;

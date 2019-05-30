@@ -182,7 +182,11 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, true);
     })
+    
+    // Plus sign in num-bar considered "Qt::Key_Equal"
     ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
+    // Plus sign in numpad
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
     ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
 #undef ADD_ACTION
 }
