@@ -116,6 +116,16 @@ private:
     QColor graphNodeColor;
 
     /**
+     * @brief fill color of the selection rectangle
+     */
+    QColor graphSelectionFill;
+
+    /**
+     * @brief border color of the selection rectangle
+     */
+    QColor graphSelectionBorder;
+
+    /**
      * @brief edgeConfigurations edge styles computed by DisassemblerGraphView
      */
     DisassemblerGraphView::EdgeConfigurationMapping edgeConfigurations;

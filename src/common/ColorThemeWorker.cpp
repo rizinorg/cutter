@@ -24,6 +24,8 @@ const QStringList ColorThemeWorker::cutterSpecificOptions = {
     "gui.disass_selected",
     "gui.breakpoint_background",
     "gui.overview.node",
+    "gui.overview.fill",
+    "gui.overview.border",
     "gui.border",
     "gui.background",
     "gui.alt_background",
