@@ -254,6 +254,8 @@ void Configuration::loadNativeTheme()
         setColor("gui.tooltip.background", QColor(42, 44, 46));
         setColor("gui.tooltip.foreground", QColor(250, 252, 254));
         setColor("gui.dataoffset", QColor(255, 255, 255));
+        setColor("gui.overview.fill",  QColor(255, 255, 255, 40));
+        setColor("gui.overview.border",  QColor(99, 218, 232, 50));
     } else {
         setColor("gui.border", QColor(0, 0, 0));
         setColor("gui.background", QColor(255, 255, 255));
@@ -263,6 +265,8 @@ void Configuration::loadNativeTheme()
         setColor("wordHighlight", QColor(179, 119, 214, 60));
         setColor("highlightPC", QColor(214, 255, 210));
         setColor("gui.dataoffset", QColor(0, 0, 0));
+        setColor("gui.overview.fill",  QColor(175, 217, 234, 65));
+        setColor("gui.overview.border",  QColor(99, 218, 232, 50)); 
     }
 }
 
@@ -298,6 +302,11 @@ void Configuration::loadLightTheme()
     setColor("gui.navbar.err", QColor(3, 170, 245));
     setColor("gui.tooltip.background", QColor(250, 252, 254));
     setColor("gui.tooltip.foreground", QColor(42, 44, 46));
+
+    // Graph Overview
+    setColor("gui.overview.node", QColor(245, 250, 255));
+    setColor("gui.overview.fill",  QColor(175, 217, 234, 65));
+    setColor("gui.overview.border",  QColor(99, 218, 232, 50));
 }
 
 void Configuration::loadBaseThemeDark()
@@ -347,7 +356,10 @@ void Configuration::loadBaseThemeDark()
     setColor("highlightPC", QColor(87, 26, 7));
     setColor("gui.breakpoint_background", QColor(140, 76, 76));
 
+    // Graph Overview
     setColor("gui.overview.node",  QColor(100, 100, 100));
+    setColor("gui.overview.fill",  QColor(255, 255, 255, 40));
+    setColor("gui.overview.border",  QColor(99, 218, 232, 50));
 }
 
 void Configuration::loadDarkTheme()

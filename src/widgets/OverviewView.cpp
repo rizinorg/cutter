@@ -78,7 +78,8 @@ void OverviewView::paintEvent(QPaintEvent *event)
         return;
     }
     QPainter p(viewport());
-    p.setPen(Qt::red);
+    p.setPen(graphSelectionBorder);
+    p.setBrush(graphSelectionFill);
     p.drawRect(rangeRect);
 }
 
@@ -138,6 +139,8 @@ void OverviewView::colorsUpdatedSlot()
     disassemblyBackgroundColor = ConfigColor("gui.overview.node");
     graphNodeColor = ConfigColor("gui.border");
     backgroundColor = ConfigColor("gui.background");
+    graphSelectionFill = ConfigColor("gui.overview.fill");
+    graphSelectionBorder = ConfigColor("gui.overview.border");
     setCacheDirty();
     refreshView();
 }

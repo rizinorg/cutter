@@ -703,6 +703,18 @@ const QMap<QString, OptionInfo> optionInfoMap__ = {
     }
 },
 {
+    "gui.overview.fill", {
+        QObject::tr("Fill color of Graph Overview's selection"),
+        QObject::tr("Graph Overview fill")
+    }
+},
+{
+    "gui.overview.border", {
+        QObject::tr("Border color of Graph Overview's selection"),
+        QObject::tr("Graph Overview border")
+    }
+},
+{
     "gui.cflow", {
         "",
         "gui.cflow"
