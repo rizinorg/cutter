@@ -100,6 +100,19 @@
     <string>Link Type to Address</string>
    </property>
   </action>
+  <action name="actionEdit_Type">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Edit Type</string>
+   </property>
+  </action>
+  <action name="actionView_Type">
+   <property name="text">
+    <string>View Type</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

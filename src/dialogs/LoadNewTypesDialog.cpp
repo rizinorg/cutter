@@ -68,3 +68,11 @@ void LoadNewTypesDialog::done(int r)
         QDialog::done(r);
     }
 }
+
+void LoadNewTypesDialog::fillTextArea(QString content, bool readonly) {
+    ui->layoutWidget->hide();
+    ui->plainTextEdit->setPlainText(content);
+    if (readonly) {
+        ui->plainTextEdit->setReadOnly(true);
+    }
+}

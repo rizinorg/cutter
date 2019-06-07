@@ -99,6 +99,18 @@ private slots:
     void on_actionLoad_New_Types_triggered();
 
     /**
+     * @brief Executed on clicking the Edit Type option in the context menu
+     * It will open the LoadNewTypesDialog filled with the selected type
+     */
+    void on_actionEdit_Type_triggered();
+
+    /**
+     * @brief Executed on clicking the View Type option in the context menu
+     * It will open the LoadNewTypesDialog filled with the selected type as read only
+     */
+    void on_actionView_Type_triggered();
+
+    /**
      * @brief Executed on clicking the Delete Type option in the context menu
      * Upon confirmation from the user, it will delete the selected type.
      */
@@ -109,6 +121,12 @@ private slots:
      * Opens the LinkTypeDialog box from where the user can link a address to a type
      */
     void on_actionLink_Type_To_Address_triggered();
+
+    /**
+     * @brief triggers when the user double-clicks an item. This will open
+     * a dialog that shows the Type's content
+     */
+    void on_typesTreeView_doubleClicked(const QModelIndex &index);
 
 private:
     std::unique_ptr<Ui::TypesWidget> ui;

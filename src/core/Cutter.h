@@ -336,6 +336,15 @@ public:
     QList<TypeDescription> getAllTypedefs();
 
     /**
+     * @brief Fetching the C representation of a given Type
+     * @param name - the name or the type of the given Type / Struct
+     * @param category - the category of the given Type (Struct, Union, Enum, ...)
+     * @return The type decleration as C output
+     */
+    QString getTypeAsC(QString name, QString category);
+
+
+    /**
      * @brief Adds new types
      * It first uses the r_parse_c_string() function from radare2 API to parse the
      * supplied C file (in the form of a string). If there were errors, they are displayed.

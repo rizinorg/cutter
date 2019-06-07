@@ -16,6 +16,15 @@ class LoadNewTypesDialog : public QDialog
 public:
     explicit LoadNewTypesDialog(QWidget *parent = nullptr);
     ~LoadNewTypesDialog();
+    /**
+     * @brief Fill the Dialog's TextEdit object with the content
+     * passed to the function. The content will most likely be a C
+     * representation of a Type.
+     * @param content - The content which should be in the TextEdit object.
+     * most likely will be a C representation of a Type.
+     * @param readonly - Will be set as "true" for viewing mode
+     */
+    void fillTextArea(QString content, bool readonly=false);
 
 private slots:
     /**

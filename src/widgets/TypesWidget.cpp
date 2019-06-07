@@ -60,7 +60,7 @@ QVariant TypesModel::headerData(int section, Qt::Orientation, int role) const
     case Qt::DisplayRole:
         switch (section) {
         case TYPE:
-            return tr("Type");
+            return tr("Type / Name");
         case SIZE:
             return tr("Size");
         case FORMAT:
@@ -229,10 +229,15 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
 
     if (index.isValid()) {
         TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
-        if (t.category == "Struct") {
+        if (t.category != "Primitive") {
             // Add "Link To Address" option
-            menu.addAction(ui->actionLink_Type_To_Address);
+            menu.addAction(ui->actionEdit_Type);
+            menu.addAction(ui->actionView_Type);
+            if (t.category == "Struct") {
+                menu.addAction(ui->actionLink_Type_To_Address);
+            }
         }
+
     }
 
     menu.addAction(ui->actionExport_Types);
@@ -274,6 +279,35 @@ void TypesWidget::on_actionLoad_New_Types_triggered()
     dialog.exec();
 }
 
+void TypesWidget::on_actionEdit_Type_triggered()
+{
+    LoadNewTypesDialog dialog(this);
+    connect(&dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
+    QModelIndex index = ui->typesTreeView->currentIndex();
+    TypeDescription t;
+    if (index.isValid()) {
+        t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
+        dialog.setWindowTitle(tr("Edit Type: ") + t.type);
+        dialog.exec();
+    }
+}
+
+
+void TypesWidget::on_actionView_Type_triggered()
+{
+    LoadNewTypesDialog dialog(this);
+    QModelIndex index = ui->typesTreeView->currentIndex();
+    TypeDescription t;
+    if (index.isValid()) {
+        t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category), true);
+
+        dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
+        dialog.exec();
+    }
+}
+
 void TypesWidget::on_actionDelete_Type_triggered()
 {
     QModelIndex proxyIndex = ui->typesTreeView->currentIndex();
@@ -301,7 +335,21 @@ void TypesWidget::on_actionLink_Type_To_Address_triggered()
         TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
         dialog.setDefaultType(t.type);
         dialog.setDefaultAddress(RAddressString(Core()->getOffset()));
+        dialog.exec();
     }
 
-    dialog.exec();
+}
+
+void TypesWidget::on_typesTreeView_doubleClicked(const QModelIndex &index) {
+    LoadNewTypesDialog dialog(this);
+    TypeDescription t;
+    if (index.isValid()) {
+        t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+        if (t.category == "Primitive") {
+            return;
+        }
+        dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category), true);
+        dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
+        dialog.exec();
+    }
 }
