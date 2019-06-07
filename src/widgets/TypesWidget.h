@@ -93,20 +93,20 @@ private slots:
 
     /**
      * @brief Executed on clicking the Load New types option in the context menu
-     * It will open the LoadNewTypesDialog where the user can either enter the
+     * It will open the TypesInteractionDialog where the user can either enter the
      * types manually, or can select a file from where the types will be loaded
      */
     void on_actionLoad_New_Types_triggered();
 
     /**
      * @brief Executed on clicking the Edit Type option in the context menu
-     * It will open the LoadNewTypesDialog filled with the selected type
+     * It will open the TypesInteractionDialog filled with the selected type
      */
     void on_actionEdit_Type_triggered();
 
     /**
      * @brief Executed on clicking the View Type option in the context menu
-     * It will open the LoadNewTypesDialog filled with the selected type as read only
+     * It will open the TypesInteractionDialog filled with the selected type as read only
      */
     void on_actionView_Type_triggered();
 

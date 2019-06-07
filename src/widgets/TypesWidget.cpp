@@ -2,7 +2,7 @@
 #include "ui_TypesWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-#include "dialogs/LoadNewTypesDialog.h"
+#include "dialogs/TypesInteractionDialog.h"
 #include "dialogs/LinkTypeDialog.h"
 
 #include <QMenu>
@@ -273,7 +273,7 @@ void TypesWidget::on_actionExport_Types_triggered()
 
 void TypesWidget::on_actionLoad_New_Types_triggered()
 {
-    LoadNewTypesDialog dialog(this);
+    TypesInteractionDialog dialog(this);
     connect(&dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
     dialog.setWindowTitle(tr("Load New Types"));
     dialog.exec();
@@ -281,7 +281,7 @@ void TypesWidget::on_actionLoad_New_Types_triggered()
 
 void TypesWidget::on_actionEdit_Type_triggered()
 {
-    LoadNewTypesDialog dialog(this);
+    TypesInteractionDialog dialog(this);
     connect(&dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
     QModelIndex index = ui->typesTreeView->currentIndex();
     TypeDescription t;
@@ -296,7 +296,7 @@ void TypesWidget::on_actionEdit_Type_triggered()
 
 void TypesWidget::on_actionView_Type_triggered()
 {
-    LoadNewTypesDialog dialog(this);
+    TypesInteractionDialog dialog(this);
     QModelIndex index = ui->typesTreeView->currentIndex();
     TypeDescription t;
     if (index.isValid()) {
@@ -341,7 +341,7 @@ void TypesWidget::on_actionLink_Type_To_Address_triggered()
 }
 
 void TypesWidget::on_typesTreeView_doubleClicked(const QModelIndex &index) {
-    LoadNewTypesDialog dialog(this);
+    TypesInteractionDialog dialog(this);
     TypeDescription t;
     if (index.isValid()) {
         t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();

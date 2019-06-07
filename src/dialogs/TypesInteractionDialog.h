@@ -1,21 +1,21 @@
-#ifndef LOADNEWTYPESDIALOG_H
-#define LOADNEWTYPESDIALOG_H
+#ifndef TYPESINTERACTIONDIALOG_H
+#define TYPESINTERACTIONDIALOG_H
 
 #include <QDialog>
 #include <memory>
 
 namespace Ui {
-class LoadNewTypesDialog;
+class TypesInteractionDialog;
 }
 class SyntaxHighlighter;
 
-class LoadNewTypesDialog : public QDialog
+class TypesInteractionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LoadNewTypesDialog(QWidget *parent = nullptr);
-    ~LoadNewTypesDialog();
+    explicit TypesInteractionDialog(QWidget *parent = nullptr);
+    ~TypesInteractionDialog();
     /**
      * @brief Fill the Dialog's TextEdit object with the content
      * passed to the function. The content will most likely be a C
@@ -47,7 +47,7 @@ private slots:
     void done(int r) override;
 
 private:
-    std::unique_ptr<Ui::LoadNewTypesDialog> ui;
+    std::unique_ptr<Ui::TypesInteractionDialog> ui;
     SyntaxHighlighter *syntaxHighLighter;
 
 signals:
@@ -57,4 +57,4 @@ signals:
     void newTypesLoaded();
 };
 
-#endif // LOADNEWTYPESDIALOG_H
+#endif // TYPESINTERACTIONDIALOG_H

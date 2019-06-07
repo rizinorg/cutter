@@ -332,7 +332,7 @@ SOURCES += \
     dialogs/WelcomeDialog.cpp \
     common/RunScriptTask.cpp \
     dialogs/EditMethodDialog.cpp \
-    dialogs/LoadNewTypesDialog.cpp \
+    dialogs/TypesInteractionDialog.cpp \
     widgets/SdbWidget.cpp \
     common/PythonManager.cpp \
     plugins/PluginManager.cpp \
@@ -458,7 +458,7 @@ HEADERS  += \
     common/Json.h \
     dialogs/EditMethodDialog.h \
     common/CrashHandler.h \
-    dialogs/LoadNewTypesDialog.h \
+    dialogs/TypesInteractionDialog.h \
     widgets/SdbWidget.h \
     common/PythonManager.h \
     plugins/PluginManager.h \
@@ -533,7 +533,7 @@ FORMS    += \
     dialogs/HexdumpRangeDialog.ui \
     dialogs/WelcomeDialog.ui \
     dialogs/EditMethodDialog.ui \
-    dialogs/LoadNewTypesDialog.ui \
+    dialogs/TypesInteractionDialog.ui \
     widgets/SdbWidget.ui \
     dialogs/LinkTypeDialog.ui \
     widgets/ColorPicker.ui \
