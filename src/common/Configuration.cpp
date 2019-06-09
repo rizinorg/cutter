@@ -445,12 +445,6 @@ void Configuration::setColorTheme(const QString &theme)
         setColor(it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt(), rgb[3].toInt()));
     }
 
-    // Trick Cutter to load colors that are not specified in standard theme
-    if (!ThemeWorker().isCustomTheme(theme)) {
-        setInterfaceTheme(getInterfaceTheme());
-        return;
-    }
-
     emit colorsUpdated();
 }
 
