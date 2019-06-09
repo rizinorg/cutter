@@ -5,24 +5,6 @@
 #include "common/ColorThemeWorker.h"
 #include "common/Configuration.h"
 
-/* Map with names of themes associated with its color palette
- * (Dark or Light), so for dark interface themes will be shown only Dark color themes
- * and for light - only light ones.
- */
-static const QHash<QString, ColorFlags> kRelevantThemes = {
-    { "ayu", DarkFlag },
-    { "consonance", DarkFlag },
-    { "darkda", DarkFlag },
-    { "onedark", DarkFlag },
-    { "solarized", DarkFlag },
-    { "zenburn", DarkFlag },
-    { "cutter", LightFlag },
-    { "dark", LightFlag },
-    { "matrix", LightFlag },
-    { "tango", LightFlag },
-    { "white", LightFlag }
-};
-
 ColorThemeComboBox::ColorThemeComboBox(QWidget *parent) : QComboBox(parent), showOnlyCustom(false)
 {
     connect(this, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -42,13 +24,14 @@ void ColorThemeComboBox::updateFromConfig(bool interfaceThemeChanged)
     clear();
     for (const QString &theme : themes) {
         if (ThemeWorker().isCustomTheme(theme) ||
-            (kCutterInterfaceThemesList[curInterfaceThemeIndex].flag & kRelevantThemes[theme])) {
+            (Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex].flag &
+             Configuration::relevantThemes[theme])) {
             addItem(theme);
         }
     }
 
     QString curTheme = interfaceThemeChanged
-        ? Config()->getLastThemeOf(kCutterInterfaceThemesList[curInterfaceThemeIndex])
+        ? Config()->getLastThemeOf(Configuration::cutterInterfaceThemesList()[curInterfaceThemeIndex])
         : Config()->getColorTheme();
     const int index = findText(curTheme);
 
@@ -73,12 +56,12 @@ void ColorThemeComboBox::onCurrentIndexChanged(int index)
     QString theme = itemText(index);
 
     int curQtThemeIndex = Config()->getInterfaceTheme();
-    if (curQtThemeIndex >= kCutterInterfaceThemesList.size()) {
+    if (curQtThemeIndex >= Configuration::cutterInterfaceThemesList().size()) {
         curQtThemeIndex = 0;
         Config()->setInterfaceTheme(curQtThemeIndex);
     }
 
-    Config()->setLastThemeOf(kCutterInterfaceThemesList[curQtThemeIndex], theme);
+    Config()->setLastThemeOf(Configuration::cutterInterfaceThemesList()[curQtThemeIndex], theme);
     Config()->setColorTheme(theme);
 }
 

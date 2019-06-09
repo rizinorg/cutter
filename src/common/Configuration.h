@@ -18,7 +18,6 @@ struct CutterInterfaceTheme {
     ColorFlags flag;
 };
 
-extern const QList<CutterInterfaceTheme> kCutterInterfaceThemesList;
 
 class Configuration : public QObject
 {
@@ -31,14 +30,18 @@ private:
     // Colors
     void loadBaseThemeNative();
     void loadBaseThemeDark();
-    void loadNativeTheme();
-    void loadLightTheme();
-    void loadDarkTheme();
+    void loadNativeStylesheet();
+    void loadLightStylesheet();
+    void loadDarkStylesheet();
 
     // Asm Options
     void applySavedAsmOptions();
 
 public:
+    static const QList<CutterInterfaceTheme>& cutterInterfaceThemesList();
+    static const QHash<QString, ColorFlags> relevantThemes;
+    static const QHash<QString, QHash<ColorFlags, QColor>> cutterOptionColors;
+
     // Functions
     Configuration();
     static Configuration *instance();
@@ -63,6 +66,7 @@ public:
 
     // Colors
     bool windowColorIsDark();
+    static bool nativeWindowIsDark();
     void setLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme, const QString &theme);
     QString getLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme) const;
     void setInterfaceTheme(int theme);

@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QJsonArray>
 #include <QStandardPaths>
+
 #include "common/Configuration.h"
 
 const QStringList ColorThemeWorker::cutterSpecificOptions = {
@@ -160,15 +161,29 @@ bool ColorThemeWorker::isThemeExist(const QString &name) const
 QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
 {
     int r, g, b, a;
-    QJsonObject theme;
+    QVariantMap theme;
     QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
         Core()->cmd(QString("eco %1").arg(themeName));
-        theme = Core()->cmdj("ecj").object();
+        theme = Core()->cmdj("ecj").object().toVariantMap();
         Core()->cmd(QString("eco %1").arg(curr));
     } else {
-        theme = Core()->cmdj("ecj").object();
+        theme = Core()->cmdj("ecj").object().toVariantMap();
+    }
+
+    for (auto it = theme.begin(); it != theme.end(); it++) {
+        auto arr = it.value().toList();
+        if (arr.size() == 4) {
+            continue;
+        }
+        QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt()).getRgb(&r, &g, &b, &a);
+        theme[it.key()] = QJsonArray({r, g, b, a});
+    }
+
+    for (auto& it : cutterSpecificOptions) {
+        Configuration::cutterOptionColors[it][Configuration::relevantThemes[themeName]].getRgb(&r, &g, &b, &a);
+        theme.insert(it, QJsonArray{r, g, b, a});
     }
 
     if (isCustomTheme(themeName)) {
@@ -185,27 +200,13 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
             QColor(sl[2]).getRgb(&r, &g, &b, &a);
             theme.insert(sl[1], QJsonArray({r, g, b, a}));
         }
-        for (auto &it : cutterSpecificOptions) {
-            if (!theme.contains(it)) {
-                mergeColors(Config()->getColor(it),
-                            Config()->getColor("gui.background")).getRgb(&r, &g, &b, &a);
-                Config()->getColor(it).getRgb(&r, &g, &b, &a);
-                theme.insert(it, QJsonArray({r, g, b, a}));
-            }
-        }
-    } else {
-        for (auto &it : cutterSpecificOptions) {
-            mergeColors(Config()->getColor(it),
-                        Config()->getColor("gui.background")).getRgb(&r, &g, &b, &a);
-            Config()->getColor(it).getRgb(&r, &g, &b, &a);
-            theme.insert(it, QJsonArray({r, g, b, a}));
-        }
     }
 
     for (auto &key : radare2UnusedOptions) {
         theme.remove(key);
     }
-    return QJsonDocument(theme);
+
+    return QJsonDocument(QJsonObject::fromVariantMap(theme));
 }
 
 QString ColorThemeWorker::deleteTheme(const QString &themeName) const
