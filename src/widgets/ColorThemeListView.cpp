@@ -133,7 +133,24 @@ void ColorOptionDelegate::paint(QPainter *painter,
 
     QPainterPath roundedColorRect;
     roundedColorRect.addRoundedRect(colorRect, fontHeight / 4, fontHeight / 4);
-    painter->setPen(Qt::NoPen);
+    if (currCO.color.alpha() < 255) {
+        QPixmap p(colorRect.size());
+        QPainter paint(&p);
+        const int c1 = colorRect.width() / 4;
+        const int c2 = c1 / 2;
+        for (int y = 0; y < colorRect.height(); y++) {
+            for (int x = 0; x < colorRect.width(); x++) {
+                paint.setPen((x % c1) / c2 == (y % c1) / c2
+                             ? Qt::black
+                             : Qt::white);
+                paint.drawPoint(x, y);
+            }
+        }
+        QBrush b;
+        b.setTexture(p);
+        painter->fillPath(roundedColorRect, b);
+    }
+    painter->setPen(currCO.color);
     painter->fillPath(roundedColorRect, currCO.color);
 
     QString desc = painter->fontMetrics().elidedText(

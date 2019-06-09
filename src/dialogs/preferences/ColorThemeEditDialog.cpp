@@ -16,6 +16,12 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
     configSignalBlocker(Config()), // Blocks signals from Config to avoid updating of widgets during editing
     colorTheme(Config()->getColorTheme())
 {
+    showAlphaOptions = {
+        "gui.overview.border",
+        "gui.overview.fill",
+        "wordHighlight",
+        "lineHighlight"
+    };
     ui->setupUi(this);
     ui->colorComboBox->setShowOnlyCustom(true);
 
@@ -41,7 +47,7 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
                              .data(Qt::UserRole)
                              .value<ColorOption>()
                              .optionName;
-        ui->colorPicker->setAlphaEnabled(optionName == "wordHighlight" || optionName == "lineHighlight");
+        ui->colorPicker->setAlphaEnabled(showAlphaOptions.contains(optionName));
     });
 
     ui->colorThemeListView->setCurrentIndex(ui->colorThemeListView->model()->index(0, 0));
