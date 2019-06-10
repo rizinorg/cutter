@@ -134,18 +134,13 @@ void ColorOptionDelegate::paint(QPainter *painter,
     QPainterPath roundedColorRect;
     roundedColorRect.addRoundedRect(colorRect, fontHeight / 4, fontHeight / 4);
     if (currCO.color.alpha() < 255) {
-        QPixmap p(colorRect.size());
-        QPainter paint(&p);
-        const int c1 = colorRect.width() / 4;
+        const int c1 = static_cast<int>(8 * painter->device()->devicePixelRatioF());
         const int c2 = c1 / 2;
-        for (int y = 0; y < colorRect.height(); y++) {
-            for (int x = 0; x < colorRect.width(); x++) {
-                paint.setPen((x % c1) / c2 == (y % c1) / c2
-                             ? Qt::black
-                             : Qt::white);
-                paint.drawPoint(x, y);
-            }
-        }
+        QPixmap p(c1, c1);
+        QPainter paint(&p);
+        paint.fillRect(0, 0, c1, c1, Qt::white);
+        paint.fillRect(0, 0, c2, c2, Qt::black);
+        paint.fillRect(c2, c2, c2, c2, Qt::black);
         QBrush b;
         b.setTexture(p);
         painter->fillPath(roundedColorRect, b);
