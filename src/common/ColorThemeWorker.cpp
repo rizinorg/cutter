@@ -174,9 +174,6 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
 
     for (auto it = theme.begin(); it != theme.end(); it++) {
         auto arr = it.value().toList();
-        if (arr.size() == 4) {
-            continue;
-        }
         QColor(arr[0].toInt(), arr[1].toInt(), arr[2].toInt()).getRgb(&r, &g, &b, &a);
         theme[it.key()] = QJsonArray({r, g, b, a});
     }
