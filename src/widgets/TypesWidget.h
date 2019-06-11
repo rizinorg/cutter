@@ -99,16 +99,12 @@ private slots:
     void on_actionLoad_New_Types_triggered();
 
     /**
-     * @brief Executed on clicking the Edit Type option in the context menu
-     * It will open the TypesInteractionDialog filled with the selected type
+     * @brief Executed on clicking either the Edit Type or View Type options in the context menu
+     * It will open the TypesInteractionDialog filled with the selected type. Depends on Edit or View mode
+     * the text view would be read-only or not.
      */
-    void on_actionEdit_Type_triggered();
+    void viewType(bool readOnly=true);
 
-    /**
-     * @brief Executed on clicking the View Type option in the context menu
-     * It will open the TypesInteractionDialog filled with the selected type as read only
-     */
-    void on_actionView_Type_triggered();
 
     /**
      * @brief Executed on clicking the Delete Type option in the context menu
@@ -126,7 +122,7 @@ private slots:
      * @brief triggers when the user double-clicks an item. This will open
      * a dialog that shows the Type's content
      */
-    void on_typesTreeView_doubleClicked(const QModelIndex &index);
+    void typeItemDoubleClicked(const QModelIndex &index);
 
 private:
     std::unique_ptr<Ui::TypesWidget> ui;
@@ -135,6 +131,8 @@ private:
     TypesSortFilterProxyModel *types_proxy_model;
     QList<TypeDescription> types;
     CutterTreeWidget *tree;
+    QAction *actionViewType;
+    QAction *actionEditType;
 
     void setScrollMode();
 

@@ -9,7 +9,7 @@
 #include <QFileDialog>
 #include <QTemporaryFile>
 
-TypesInteractionDialog::TypesInteractionDialog(QWidget *parent) :
+TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly) :
     QDialog(parent),
     ui(new Ui::TypesInteractionDialog)
 {
@@ -18,6 +18,10 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent) :
     syntaxHighLighter = new SyntaxHighlighter(ui->plainTextEdit->document());
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+    if (readOnly) {
+        ui->plainTextEdit->setReadOnly(true);
+    }
 }
 
 TypesInteractionDialog::~TypesInteractionDialog() {}
@@ -69,10 +73,7 @@ void TypesInteractionDialog::done(int r)
     }
 }
 
-void TypesInteractionDialog::fillTextArea(QString content, bool readonly) {
+void TypesInteractionDialog::fillTextArea(QString content) {
     ui->layoutWidget->hide();
     ui->plainTextEdit->setPlainText(content);
-    if (readonly) {
-        ui->plainTextEdit->setReadOnly(true);
-    }
 }
