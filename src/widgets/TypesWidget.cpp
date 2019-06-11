@@ -296,8 +296,7 @@ void TypesWidget::viewType(bool readOnly)
     }
 
     TypesInteractionDialog dialog(this, readOnly);
-    TypeDescription t;
-    t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
     if (!readOnly) {
         dialog.setWindowTitle(tr("Edit Type: ") + t.type);
         connect(&dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
@@ -348,8 +347,7 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index) {
     }
 
     TypesInteractionDialog dialog(this, true);
-    TypeDescription t;
-    t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
+    TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
     if (t.category == "Primitive") {
         return;
     }
