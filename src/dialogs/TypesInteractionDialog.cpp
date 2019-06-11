@@ -19,9 +19,7 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly) :
 
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-    if (readOnly) {
-        ui->plainTextEdit->setReadOnly(true);
-    }
+    ui->plainTextEdit->setReadOnly(true);
 }
 
 TypesInteractionDialog::~TypesInteractionDialog() {}

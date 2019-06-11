@@ -244,7 +244,6 @@ void TypesWidget::showTypesContextMenu(const QPoint &pt)
                 menu.addAction(ui->actionLink_Type_To_Address);
             }
         }
-
     }
 
     menu.addAction(ui->actionExport_Types);
@@ -305,7 +304,6 @@ void TypesWidget::viewType(bool readOnly)
     }
     dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
     dialog.exec();
-    
 }
 
 
@@ -338,7 +336,6 @@ void TypesWidget::on_actionLink_Type_To_Address_triggered()
         dialog.setDefaultAddress(RAddressString(Core()->getOffset()));
         dialog.exec();
     }
-
 }
 
 void TypesWidget::typeItemDoubleClicked(const QModelIndex &index) {
@@ -354,5 +351,4 @@ void TypesWidget::typeItemDoubleClicked(const QModelIndex &index) {
     dialog.fillTextArea(Core()->getTypeAsC(t.type, t.category));
     dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     dialog.exec();
-    
 }
