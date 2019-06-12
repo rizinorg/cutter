@@ -43,6 +43,7 @@ private:
     bool themeWasEdited(const QString &theme) const;
 
 private:
+    QList<QString> showAlphaOptions;
     Ui::ColorThemeEditDialog *ui;
     QSignalBlocker configSignalBlocker;
     DisassemblyWidget *previewDisasmWidget;

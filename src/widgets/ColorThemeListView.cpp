@@ -133,7 +133,21 @@ void ColorOptionDelegate::paint(QPainter *painter,
 
     QPainterPath roundedColorRect;
     roundedColorRect.addRoundedRect(colorRect, fontHeight / 4, fontHeight / 4);
-    painter->setPen(Qt::NoPen);
+    // Create chess-like pattern of black and white squares
+    // and fill background of roundedColorRect with it
+    if (currCO.color.alpha() < 255) {
+        const int c1 = static_cast<int>(8 * painter->device()->devicePixelRatioF());
+        const int c2 = c1 / 2;
+        QPixmap p(c1, c1);
+        QPainter paint(&p);
+        paint.fillRect(0, 0, c1, c1, Qt::white);
+        paint.fillRect(0, 0, c2, c2, Qt::black);
+        paint.fillRect(c2, c2, c2, c2, Qt::black);
+        QBrush b;
+        b.setTexture(p);
+        painter->fillPath(roundedColorRect, b);
+    }
+    painter->setPen(currCO.color);
     painter->fillPath(roundedColorRect, currCO.color);
 
     QString desc = painter->fontMetrics().elidedText(

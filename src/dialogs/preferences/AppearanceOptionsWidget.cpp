@@ -80,11 +80,11 @@ void AppearanceOptionsWidget::updateThemeFromConfig(bool interfaceThemeChanged)
     QSignalBlocker signalBlockerThemeBox(ui->themeComboBox);
 
     ui->themeComboBox->clear();
-    for (auto &it : kCutterInterfaceThemesList) {
+    for (auto &it : Configuration::cutterInterfaceThemesList()) {
         ui->themeComboBox->addItem(it.name);
     }
     int currInterfaceThemeIndex = Config()->getInterfaceTheme();
-    if (currInterfaceThemeIndex >= kCutterInterfaceThemesList.size()) {
+    if (currInterfaceThemeIndex >= Configuration::cutterInterfaceThemesList().size()) {
         currInterfaceThemeIndex = 0;
         Config()->setInterfaceTheme(currInterfaceThemeIndex);
     }
