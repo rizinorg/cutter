@@ -280,7 +280,7 @@ void TypesWidget::on_actionExport_Types_triggered()
 void TypesWidget::on_actionLoad_New_Types_triggered()
 {
     TypesInteractionDialog dialog(this);
-    connect(&dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
+    connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
     dialog.setWindowTitle(tr("Load New Types"));
     dialog.exec();
 }
@@ -298,7 +298,7 @@ void TypesWidget::viewType(bool readOnly)
     TypeDescription t = index.data(TypesModel::TypeDescriptionRole).value<TypeDescription>();
     if (!readOnly) {
         dialog.setWindowTitle(tr("Edit Type: ") + t.type);
-        connect(&dialog, SIGNAL(newTypesLoaded()), this, SLOT(refreshTypes()));
+    connect(&dialog, &TypesInteractionDialog::newTypesLoaded, this, &TypesWidget::refreshTypes);
     } else {
         dialog.setWindowTitle(tr("View Type: ") + t.type + tr(" (Read Only)"));
     }
