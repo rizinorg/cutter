@@ -157,6 +157,7 @@ private:
     QAction actionSetAsString;
 
     QMenu *setToDataMenu;
+    QMenu *setAsMenu;
     QAction actionSetToDataEx;
     QAction actionSetToDataByte;
     QAction actionSetToDataWord;
@@ -176,6 +177,7 @@ private:
 
     void addSetBaseMenu();
     void addSetBitsMenu();
+    void addSetAsMenu();
     void addSetToDataMenu();
     void addEditMenu();
     void addDebugMenu();
