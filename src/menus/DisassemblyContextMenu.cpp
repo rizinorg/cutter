@@ -64,7 +64,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
                SLOT(on_actionDeleteFunction_triggered()));
     addAction(&actionDeleteFunction);
 
-    initAction(&actionAnalyzeFunction, tr("Define function here..."),
+    initAction(&actionAnalyzeFunction, tr("Define function here"),
                SLOT(on_actionAnalyzeFunction_triggered()));
     addAction(&actionAnalyzeFunction);
 
@@ -82,15 +82,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
                SLOT(on_actionLinkType_triggered()), getLinkTypeSequence());
     addAction(&actionLinkType);
 
-    initAction(&actionSetToCode, tr("Set as Code"),
-               SLOT(on_actionSetToCode_triggered()), getSetToCodeSequence());
-    addAction(&actionSetToCode);
-
-    initAction(&actionSetAsString, tr("Set as String"),
-               SLOT(on_actionSetAsString_triggered()), getSetAsStringSequence());
-    addAction(&actionSetAsString);
-
-    addSetToDataMenu();
+    addSetAsMenu();
 
     addSeparator();
 
@@ -174,9 +166,25 @@ void DisassemblyContextMenu::addSetBitsMenu()
     connect(&actionSetBits64, &QAction::triggered, this, [this] { setBits(64); });
 }
 
+
+void DisassemblyContextMenu::addSetAsMenu()
+{
+    setAsMenu = addMenu(tr("Set as..."));
+
+    initAction(&actionSetToCode, tr("Code"),
+               SLOT(on_actionSetToCode_triggered()), getSetToCodeSequence());
+    setAsMenu->addAction(&actionSetToCode);
+
+    initAction(&actionSetAsString, tr("String"),
+               SLOT(on_actionSetAsString_triggered()), getSetAsStringSequence());
+    setAsMenu->addAction(&actionSetAsString);
+
+    addSetToDataMenu();
+}
+
 void DisassemblyContextMenu::addSetToDataMenu()
 {
-    setToDataMenu = addMenu(tr("Set to Data..."));
+    setToDataMenu = setAsMenu->addMenu(tr("Data..."));
 
     initAction(&actionSetToDataByte, tr("Byte"));
     setToDataMenu->addAction(&actionSetToDataByte);
