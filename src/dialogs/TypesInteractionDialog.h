@@ -14,7 +14,7 @@ class TypesInteractionDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit TypesInteractionDialog(QWidget *parent = nullptr, bool readOnly=false);
+    explicit TypesInteractionDialog(QWidget *parent = nullptr, bool readOnly = false);
     ~TypesInteractionDialog();
     /**
      * @brief Fill the Dialog's TextEdit object with the content
