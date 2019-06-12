@@ -107,7 +107,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     actionExportGraph.setText(tr("Export Graph"));
     connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
     actionSyncOffset.setText(tr("Sync/unsync offset"));
-    connect(&actionSyncOffset, &QAction::triggered, this, [this]() { this->seekable->toggleSynchronization(); });
+    connect(&actionSyncOffset, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
 
     // Context menu that applies to everything
     contextMenu->addAction(&actionExportGraph);

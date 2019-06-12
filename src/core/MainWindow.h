@@ -274,7 +274,7 @@ private:
      * @brief Map, where key is class name an value is pair of
      * pointer to class constructor and action that passed to this constructor.
      */
-    QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> mapper;
+    QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> classNameToConstructorAndActionMap;
 
     QString getUniqueObjectName(const QString &className) const;
 };

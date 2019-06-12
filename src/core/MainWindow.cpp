@@ -127,9 +127,9 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
-    mapper.insert("GraphWidget", {getNewInstance<GraphWidget>, ui->actionGraph});
-    mapper.insert("DisassemblyWidget", {getNewInstance<DisassemblyWidget>, ui->actionDisassembly});
-    mapper.insert("HexdumpWidget", {getNewInstance<HexdumpWidget>, ui->actionHexdump});
+    classNameToConstructorAndActionMap.insert("GraphWidget", {getNewInstance<GraphWidget>, ui->actionGraph});
+    classNameToConstructorAndActionMap.insert("DisassemblyWidget", {getNewInstance<DisassemblyWidget>, ui->actionDisassembly});
+    classNameToConstructorAndActionMap.insert("HexdumpWidget", {getNewInstance<HexdumpWidget>, ui->actionHexdump});
 
     initToolBar();
     initDocks();
@@ -315,8 +315,9 @@ void MainWindow::initDocks()
         if (std::none_of(dockWidgets.constBegin(), dockWidgets.constEnd(),
                          [&it](QDockWidget *w) { return w->objectName() == it; })) {
             className = it.split(' ').at(0);
-            if (mapper.contains(className)) {
-                auto widget = mapper[className].first(this, mapper[className].second);
+            if (classNameToConstructorAndActionMap.contains(className)) {
+                auto widget = classNameToConstructorAndActionMap[className]
+                              .first(this, classNameToConstructorAndActionMap[className].second);
                 widget->setObjectName(it);
                 addExtraWidget(widget);
             }
@@ -327,9 +328,11 @@ void MainWindow::initDocks()
 
     if (!disassemblyDock) {
         on_actionExtraDisassembly_triggered();
-    } else if (!graphDock) {
+    }
+    if (!graphDock) {
         on_actionExtraGraph_triggered();
-    } else if (!hexdumpDock) {
+    }
+    if (!hexdumpDock) {
         on_actionExtraHexdump_triggered();
     }
 
@@ -536,7 +539,7 @@ void MainWindow::finalizeOpen()
     QStringList unsync = s.value("unsync").toStringList();
     for (auto it : dockWidgets) {
         if (unsync.contains(it->objectName())) {
-            qobject_cast<MemoryDockWidget*>(it)->toggleSync();
+            qobject_cast<MemoryDockWidget*>(it)->getSeekable()->setSynchronization(false);
         }
     }
 
@@ -697,7 +700,7 @@ void MainWindow::saveSettings()
     for (const auto &it : dockWidgets) {
         docks.append(it->objectName());
         if (syncable.contains(it->metaObject()->className()) &&
-            !qobject_cast<MemoryDockWidget*>(it)->isSynced()) {
+            !qobject_cast<MemoryDockWidget*>(it)->getSeekable()->isSynchronized()) {
             unsync.append(it->objectName());
         }
     }

@@ -13,10 +13,7 @@ public:
     MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow *parent, QAction *action = nullptr);
     ~MemoryDockWidget() {}
 
-    bool isSynced() const;
-
-public slots:
-    void toggleSync();
+    CutterSeekable* getSeekable() const;
 
 private:
     void handleRaiseMemoryWidget(CutterCore::MemoryWidgetType raiseType);

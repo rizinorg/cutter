@@ -23,10 +23,10 @@ public:
     void seek(RVA addr) { updateSeek(addr, false); }
 
     /**
-     * @brief toggleSyncWithCore toggles
+     * @brief setSynchronization sets
      * Core seek synchronization.
      */
-    void toggleSynchronization();
+    void setSynchronization(bool sync);
 
     /**
      * @brief getOffset returns the seekable offset.
@@ -49,6 +49,12 @@ public slots:
      * @brief seekPrev seeks to last location.
      */
     void seekPrev();
+
+    /**
+     * @brief toggleSyncWithCore toggles
+     * Core seek synchronization.
+     */
+    void toggleSynchronization();
 
 private slots:
     /**

@@ -17,18 +17,6 @@ MemoryDockWidget::MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow
     });
 }
 
-bool MemoryDockWidget::isSynced() const
-{
-    return seekable && seekable->isSynchronized();
-}
-
-void MemoryDockWidget::toggleSync()
-{
-    if (seekable) {
-        seekable->toggleSynchronization();
-    }
-}
-
 void MemoryDockWidget::handleRaiseMemoryWidget(CutterCore::MemoryWidgetType raiseType)
 {
     bool raisingEmptyGraph = (raiseType == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
@@ -45,4 +33,9 @@ void MemoryDockWidget::handleRaiseMemoryWidget(CutterCore::MemoryWidgetType rais
         raise();
         widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);
     }
+}
+
+CutterSeekable* MemoryDockWidget::getSeekable() const
+{
+    return seekable;
 }

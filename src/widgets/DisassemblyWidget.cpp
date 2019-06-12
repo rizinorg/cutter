@@ -133,7 +133,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     mCtxMenu->addSeparator();
     syncIt.setText(tr("Sync/unsync offset"));
     mCtxMenu->addAction(&syncIt);
-    connect(&syncIt, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
+    connect(&syncIt, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblyWidget::on_seekChanged);
 
     addActions(mCtxMenu->actions());
@@ -195,8 +195,8 @@ void DisassemblyWidget::setPreviewMode(bool previewMode)
             action->setEnabled(!previewMode);
         }
     }
-    if (seekable->isSynchronized() && previewMode) {
-        toggleSync();
+    if (previewMode) {
+        seekable->setSynchronization(false);
     }
 }
 
