@@ -203,6 +203,7 @@ private:
     VisualNavbar *visualNavbar;
     Omnibar *omnibar;
     ProgressIndicator *tasksProgressIndicator;
+    QByteArray emptyState;
 
     Configuration *configuration;
 

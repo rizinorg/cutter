@@ -134,9 +134,7 @@ void MainWindow::initUI()
     initToolBar();
     initDocks();
 
-    QSettings s;
-    s.setValue("state.empty", saveState());
-
+    emptyState = saveState();
     /*
      *  Some global shortcuts
      */
@@ -1066,7 +1064,7 @@ void MainWindow::on_actionFunctionsRename_triggered()
 void MainWindow::on_actionDefault_triggered()
 {
     QSettings s;
-    restoreState(s.value("state.empty").toByteArray());
+    restoreState(emptyState);
 
     initCorners();
     resetDockWidgetList();
