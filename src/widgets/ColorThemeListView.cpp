@@ -133,6 +133,8 @@ void ColorOptionDelegate::paint(QPainter *painter,
 
     QPainterPath roundedColorRect;
     roundedColorRect.addRoundedRect(colorRect, fontHeight / 4, fontHeight / 4);
+    // Create chess-like pattern of black and white squares
+    // and fill background of roundedColorRect with it
     if (currCO.color.alpha() < 255) {
         const int c1 = static_cast<int>(8 * painter->device()->devicePixelRatioF());
         const int c2 = c1 / 2;
