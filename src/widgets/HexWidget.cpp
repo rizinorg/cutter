@@ -517,13 +517,24 @@ void HexWidget::keyPressEvent(QKeyEvent *event)
 void HexWidget::contextMenuEvent(QContextMenuEvent *event)
 {
     QPoint pt = event->pos();
+    bool mouseOutsideSelection = false;
     if (event->reason() == QContextMenuEvent::Mouse) {
         auto mouseAddr = mousePosToAddr(pt).address;
-        if (selection.isEmpty() || !(mouseAddr >= selection.start() && mouseAddr <= selection.end())) {
-            cursorOnAscii = asciiArea.contains(pt);
+        if (asciiArea.contains(pt)) {
+            cursorOnAscii = true;
+        } else if (itemArea.contains(pt)) {
+            cursorOnAscii = false;
+        }
+        if (selection.isEmpty()) {
             seek(mouseAddr);
+        } else {
+            mouseOutsideSelection = !selection.contains(mouseAddr);
         }
     }
+
+    auto disableOutsideSelectionActions = [this](bool disable) {
+        actionCopyAddress->setDisabled(disable);
+    };
 
     QMenu *menu = new QMenu();
     QMenu *sizeMenu = menu->addMenu(tr("Item size:"));
@@ -535,9 +546,11 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     menu->addAction(actionItemBigEndian);
     menu->addSeparator();
     menu->addAction(actionCopy);
+    disableOutsideSelectionActions(mouseOutsideSelection);
     menu->addAction(actionCopyAddress);
     menu->addActions(this->actions());
     menu->exec(mapToGlobal(pt));
+    disableOutsideSelectionActions(false);
     menu->deleteLater();
 }
 
@@ -736,8 +749,9 @@ void HexWidget::drawItemArea(QPainter &painter)
         for (int j = 0; j < itemColumns; ++j) {
             for (int k = 0; k < itemGroupSize && itemAddr <= data->maxIndex(); ++k, itemAddr += itemByteLen) {
                 itemString = renderItem(itemAddr - startAddress, &itemColor);
-                if (selection.contains(itemAddr))
+                if (selection.contains(itemAddr)  && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
+                }
                 painter.setPen(itemColor);
                 painter.drawText(itemRect, Qt::AlignVCenter, itemString);
                 itemRect.translate(itemWidth(), 0);
@@ -771,7 +785,7 @@ void HexWidget::drawAsciiArea(QPainter &painter)
         charRect.moveLeft(asciiArea.left());
         for (int j = 0; j < itemRowByteLen() && address <= data->maxIndex(); ++j, ++address) {
             ascii = renderAscii(address - startAddress, &color);
-            if (selection.contains(address))
+            if (selection.contains(address) && cursorOnAscii)
                 color = palette().highlightedText().color();
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */
@@ -795,54 +809,77 @@ void HexWidget::drawAsciiArea(QPainter &painter)
 
 void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
 {
-    QRect rect;
-    const QRect *area = ascii ? &asciiArea : &itemArea;
-
-    int startOffset = -1;
-    int endOffset = -1;
-
-    if (!selection.intersects(startAddress, lastVisibleAddr())) {
+    if (selection.isEmpty()) {
         return;
     }
+    const auto parts = rangePolygons(selection.start(), selection.end(), ascii);
+    for (const auto &shape : qAsConst(parts)) {
+        QColor highlightColor = palette().color(QPalette::Highlight);
+        if (ascii == cursorOnAscii) {
+            painter.setBrush(highlightColor);
+            painter.drawPolygon(shape);
+        } else {
+            painter.setPen(highlightColor);
+            painter.drawPolyline(shape);
+        }
+    }
+}
+
+QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
+{
+    if (last < startAddress || start > lastVisibleAddr()) {
+        return {};
+    }
+
+    QRectF rect;
+    const QRectF area = QRectF(ascii ? asciiArea : itemArea);
 
     /* Convert absolute values to relative */
-    startOffset = std::max(selection.start(), startAddress) - startAddress;
-    endOffset = std::min(selection.end(), lastVisibleAddr()) - startAddress;
+    int startOffset = std::max(uint64_t(start), startAddress) - startAddress;
+    int endOffset = std::min(uint64_t(last), lastVisibleAddr()) - startAddress;
 
-    /* Align values */
-    int startOffset2 = (startOffset + itemRowByteLen()) & ~(itemRowByteLen() - 1);
-    int endOffset2 = endOffset & ~(itemRowByteLen() - 1);
+    QVector<QPolygonF> parts;
 
-    QColor highlightColor = palette().color(QPalette::Highlight);
+    auto getRectangle = [&](int offset) {
+        return QRectF(ascii ? asciiRectangle(offset) : itemRectangle(offset));
+    };
 
-    /* Fill top/bottom parts */
-    if (startOffset2 <= endOffset2) {
-        /* Fill the top part even if it's a whole line */
-        rect = ascii ? asciiRectangle(startOffset) : itemRectangle(startOffset);
-        rect.setRight(area->right());
-        painter.fillRect(rect, highlightColor);
-        /* Fill the bottom part even if it's a whole line */
-        rect = ascii ? asciiRectangle(endOffset) : itemRectangle(endOffset);
-        rect.setLeft(area->left());
-        painter.fillRect(rect, highlightColor);
-        /* Required for calculating the bottomRight() of the main part */
-        --endOffset2;
-    } else {
-        startOffset2 = startOffset;
-        endOffset2 = endOffset;
-    }
-
-    /* Fill the main part */
-    if (startOffset2 <= endOffset2) {
-        if (ascii) {
-            rect = asciiRectangle(startOffset2);
-            rect.setBottomRight(asciiRectangle(endOffset2).bottomRight());
+    auto startRect = getRectangle(startOffset);
+    auto endRect = getRectangle(endOffset);
+    if (endOffset - startOffset + 1 <= rowSizeBytes) {
+        if (startOffset / rowSizeBytes == endOffset / rowSizeBytes) { // single row
+            rect = startRect;
+            rect.setRight(endRect.right());
+            parts.push_back(QPolygonF(rect));
         } else {
-            rect = itemRectangle(startOffset2);
-            rect.setBottomRight(itemRectangle(endOffset2).bottomRight());
+            // two seperate rectangles
+            rect = startRect;
+            rect.setRight(area.right());
+            parts.push_back(QPolygonF(rect));
+            rect = endRect;
+            rect.setLeft(area.left());
+            parts.push_back(QPolygonF(rect));
         }
-        painter.fillRect(rect, highlightColor);
+    } else {
+        // single multiline shape
+        QPolygonF shape;
+        shape << startRect.topLeft();
+        rect = getRectangle(startOffset + rowSizeBytes - 1 - startOffset % rowSizeBytes);
+        shape << rect.topRight();
+        if (endOffset % rowSizeBytes != rowSizeBytes - 1) {
+            rect = getRectangle(endOffset - endOffset % rowSizeBytes - 1);
+            shape << rect.bottomRight() << endRect.topRight();
+        }
+        shape << endRect.bottomRight();
+        shape << getRectangle(endOffset - endOffset % rowSizeBytes).bottomLeft();
+        if (startOffset % rowSizeBytes) {
+            rect = getRectangle(startOffset - startOffset % rowSizeBytes + rowSizeBytes);
+            shape << rect.topLeft() << startRect.bottomLeft();
+        }
+        shape << shape.first(); // close the shape
+        parts.push_back(shape);
     }
+    return parts;
 }
 
 void HexWidget::updateMetrics()

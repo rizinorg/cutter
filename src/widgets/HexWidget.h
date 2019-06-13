@@ -314,8 +314,19 @@ private:
     BasicCursor asciiPosToAddr(const QPoint &point, bool middle = false) const;
     BasicCursor currentAreaPosToAddr(const QPoint &point, bool middle = false) const;
     BasicCursor mousePosToAddr(const QPoint &point, bool middle = false) const;
+    /**
+     * @brief Rectangle for single item in data area.
+     * @param offset relative to first byte on screen
+     * @return
+     */
     QRect itemRectangle(uint offset);
+    /**
+     * @brief Rectangle for single item in ascii area.
+     * @param offset relative to first byte on screen
+     * @return
+     */
     QRect asciiRectangle(uint offset);
+    QVector<QPolygonF> rangePolygons(RVA start, RVA last, bool ascii);
     void updateWidth();
 
     inline int itemWidth() const
