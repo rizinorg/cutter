@@ -1,21 +1,30 @@
-#ifndef LOADNEWTYPESDIALOG_H
-#define LOADNEWTYPESDIALOG_H
+#ifndef TYPESINTERACTIONDIALOG_H
+#define TYPESINTERACTIONDIALOG_H
 
 #include <QDialog>
 #include <memory>
 
 namespace Ui {
-class LoadNewTypesDialog;
+class TypesInteractionDialog;
 }
 class SyntaxHighlighter;
 
-class LoadNewTypesDialog : public QDialog
+class TypesInteractionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit LoadNewTypesDialog(QWidget *parent = nullptr);
-    ~LoadNewTypesDialog();
+    explicit TypesInteractionDialog(QWidget *parent = nullptr, bool readOnly = false);
+    ~TypesInteractionDialog();
+    /**
+     * @brief Fill the Dialog's TextEdit object with the content
+     * passed to the function. The content will most likely be a C
+     * representation of a Type.
+     * @param content - The content which should be in the TextEdit object.
+     * most likely will be a C representation of a Type.
+     * @param readonly - Will be set as "true" for viewing mode
+     */
+    void fillTextArea(QString content);
 
 private slots:
     /**
@@ -38,7 +47,7 @@ private slots:
     void done(int r) override;
 
 private:
-    std::unique_ptr<Ui::LoadNewTypesDialog> ui;
+    std::unique_ptr<Ui::TypesInteractionDialog> ui;
     SyntaxHighlighter *syntaxHighLighter;
 
 signals:
@@ -48,4 +57,4 @@ signals:
     void newTypesLoaded();
 };
 
-#endif // LOADNEWTYPESDIALOG_H
+#endif // TYPESINTERACTIONDIALOG_H

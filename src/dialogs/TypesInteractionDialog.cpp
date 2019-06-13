@@ -1,5 +1,5 @@
-#include "dialogs/LoadNewTypesDialog.h"
-#include "ui_LoadNewTypesDialog.h"
+#include "dialogs/TypesInteractionDialog.h"
+#include "ui_TypesInteractionDialog.h"
 
 #include "core/Cutter.h"
 #include "common/Configuration.h"
@@ -9,20 +9,20 @@
 #include <QFileDialog>
 #include <QTemporaryFile>
 
-LoadNewTypesDialog::LoadNewTypesDialog(QWidget *parent) :
+TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly) :
     QDialog(parent),
-    ui(new Ui::LoadNewTypesDialog)
+    ui(new Ui::TypesInteractionDialog)
 {
     ui->setupUi(this);
     ui->plainTextEdit->setPlainText("");
     syntaxHighLighter = new SyntaxHighlighter(ui->plainTextEdit->document());
-
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    ui->plainTextEdit->setReadOnly(readOnly);
 }
 
-LoadNewTypesDialog::~LoadNewTypesDialog() {}
+TypesInteractionDialog::~TypesInteractionDialog() {}
 
-void LoadNewTypesDialog::on_selectFileButton_clicked()
+void TypesInteractionDialog::on_selectFileButton_clicked()
 {
     QString filename = QFileDialog::getOpenFileName(this, tr("Select file"), Config()->getRecentFolder(), "Header files (*.h *.hpp);;All files (*)");
     if (filename.isEmpty()) {
@@ -39,7 +39,7 @@ void LoadNewTypesDialog::on_selectFileButton_clicked()
     ui->plainTextEdit->setPlainText(file.readAll());
 }
 
-void LoadNewTypesDialog::on_plainTextEdit_textChanged()
+void TypesInteractionDialog::on_plainTextEdit_textChanged()
 {
     if (ui->plainTextEdit->toPlainText().isEmpty()) {
         ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
@@ -48,7 +48,7 @@ void LoadNewTypesDialog::on_plainTextEdit_textChanged()
     }
 }
 
-void LoadNewTypesDialog::done(int r)
+void TypesInteractionDialog::done(int r)
 {
     if (r == QDialog::Accepted) {
         QString error = Core()->addTypes(ui->plainTextEdit->toPlainText());
@@ -67,4 +67,9 @@ void LoadNewTypesDialog::done(int r)
     } else {
         QDialog::done(r);
     }
+}
+
+void TypesInteractionDialog::fillTextArea(QString content) {
+    ui->layoutWidget->hide();
+    ui->plainTextEdit->setPlainText(content);
 }

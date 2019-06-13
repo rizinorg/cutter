@@ -2349,6 +2349,7 @@ QList<TypeDescription> CutterCore::getAllTypedefs()
 
 QString CutterCore::addTypes(const char *str)
 {
+    CORE_LOCK();
     char *error_msg = nullptr;
     char *parsed = r_parse_c_string(core_->anal, str, &error_msg);
     QString error;
@@ -2370,6 +2371,26 @@ QString CutterCore::addTypes(const char *str)
     }
 
     return error;
+}
+
+QString CutterCore::getTypeAsC(QString name, QString category)
+{
+    CORE_LOCK();
+    QString output = "Failed to fetch the output.";
+    if (name.isEmpty() || category.isEmpty()) {
+        return output;
+    }
+    QString typeName = sanitizeStringForCommand(name);
+    if (category == "Struct") {
+        output = cmd (QString("tsc %1").arg(typeName));
+    } else if (category == "Union") {
+        output = cmd (QString("tuc %1").arg(typeName));
+    } else if(category == "Enum") {
+        output = cmd (QString("tec %1").arg(typeName));
+    } else if(category == "Typedef") {
+        output = cmd (QString("ttc %1").arg(typeName));
+    }
+    return output;
 }
 
 bool CutterCore::isAddressMapped(RVA addr)
