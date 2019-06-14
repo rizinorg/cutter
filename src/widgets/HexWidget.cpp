@@ -846,6 +846,14 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
 
     auto startRect = getRectangle(startOffset);
     auto endRect = getRectangle(endOffset);
+    if (!ascii) {
+        if (int startFraction = startOffset % itemByteLen) {
+            startRect.setLeft(startRect.left() + startFraction * startRect.width() / itemByteLen);
+        }
+        if (int endFraction = itemByteLen - 1 - (endOffset % itemByteLen)) {
+            endRect.setRight(endRect.right() - endFraction * endRect.width() / itemByteLen);
+        }
+    }
     if (endOffset - startOffset + 1 <= rowSizeBytes) {
         if (startOffset / rowSizeBytes == endOffset / rowSizeBytes) { // single row
             rect = startRect;
@@ -1202,17 +1210,25 @@ QRect HexWidget::itemRectangle(uint offset)
     int x;
     int y;
 
+    int width = itemWidth();
     y = (offset / itemRowByteLen()) * lineHeight;
     offset %= itemRowByteLen();
 
     x = (offset / itemGroupByteLen()) * columnExWidth();
     offset %= itemGroupByteLen();
     x += (offset / itemByteLen) * itemWidth();
+    if (offset == 0) {
+        x -= charWidth / 2;
+        width += charWidth / 2;
+    }
+    if (offset == itemGroupByteLen() - 1) {
+        width += charWidth / 2;
+    }
 
     x += itemArea.x();
     y += itemArea.y();
 
-    return QRect(x, y, itemWidth(), lineHeight);
+    return QRect(x, y, width, lineHeight);
 }
 
 QRect HexWidget::asciiRectangle(uint offset)
