@@ -536,8 +536,9 @@ void MainWindow::finalizeOpen()
     QSettings s;
     QStringList unsync = s.value("unsync").toStringList();
     for (auto it : dockWidgets) {
-        if (unsync.contains(it->objectName())) {
-            qobject_cast<MemoryDockWidget*>(it)->getSeekable()->setSynchronization(false);
+        auto w = qobject_cast<MemoryDockWidget*>(it);
+        if (w) {
+            w->getSeekable()->setSynchronization(!unsync.contains(it->objectName()));
         }
     }
 
@@ -691,9 +692,9 @@ void MainWindow::saveSettings()
 
     QStringList docks;
     const QStringList syncable = QStringList()
-                                 << hexdumpDock->metaObject()->className()
-                                 << disassemblyDock->metaObject()->className()
-                                 << graphDock->metaObject()->className();
+                                 << "HexdumpWidget"
+                                 << "DisassemblyWidget"
+                                 << "GraphWidget";
     QStringList unsync;
     for (const auto &it : dockWidgets) {
         docks.append(it->objectName());
@@ -889,12 +890,13 @@ void MainWindow::updateMemberPointers()
 {
     QString className;
     for (auto it : dockWidgets) {
-        className = it->metaObject()->className();
-        if (className == "GraphWidget") {
+        if (!graphDock) {
             graphDock = qobject_cast<GraphWidget*>(it);
-        } else if (className == "DisassemblyWidget") {
+        }
+        if (!disassemblyDock) {
             disassemblyDock = qobject_cast<DisassemblyWidget*>(it);
-        } else if (className == "HexdumpWidget") {
+        }
+        if (!hexdumpDock) {
             hexdumpDock = qobject_cast<HexdumpWidget*>(it);
         }
     }
