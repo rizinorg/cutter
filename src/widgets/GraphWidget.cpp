@@ -20,6 +20,8 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
             main->updateDockActionChecked(action);
     });
 
+    connect(graphView, &DisassemblerGraphView::nameChanged, this, &MemoryDockWidget::updateWindowTitle);
+
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         main->toggleOverview(visibility, this);
         if (visibility) {
@@ -42,6 +44,11 @@ void GraphWidget::closeEvent(QCloseEvent *event)
 {
     CutterDockWidget::closeEvent(event);
     emit graphClosed();
+}
+
+QString GraphWidget::getWindowTitle() const
+{
+    return graphView->windowTitle;
 }
 
 DisassemblerGraphView *GraphWidget::getGraphView() const

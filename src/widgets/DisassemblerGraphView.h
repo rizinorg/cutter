@@ -213,6 +213,7 @@ signals:
     void viewZoomed();
     void graphMoved();
     void resized();
+    void nameChanged(const QString& name);
 
 public:
     bool isGraphEmpty()     { return emptyGraph; }

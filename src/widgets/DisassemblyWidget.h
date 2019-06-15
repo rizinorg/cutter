@@ -67,6 +67,7 @@ private:
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
+    QString getWindowTitle() const override;
 
     QList<RVA> breakpoints;
 

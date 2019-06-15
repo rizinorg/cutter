@@ -58,6 +58,8 @@ private:
     void clearParseWindow();
     void showSidePanel(bool show);
 
+    QString getWindowTitle() const override;
+
     QAction syncAction;
 
 private slots:

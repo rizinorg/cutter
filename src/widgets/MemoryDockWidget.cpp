@@ -8,13 +8,7 @@ MemoryDockWidget::MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow
     , mType(type), seekable(new CutterSeekable(this))
 {
     connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, this, &MemoryDockWidget::handleRaiseMemoryWidget);
-    connect(seekable, &CutterSeekable::syncChanged, this, [this]() {
-        if (seekable->isSynchronized()) {
-            setWindowTitle(windowTitle().remove(CutterSeekable::tr(" (unsynced)")));
-        } else {
-            setWindowTitle(windowTitle() + CutterSeekable::tr(" (unsynced)"));
-        }
-    });
+    connect(seekable, &CutterSeekable::syncChanged, this, &MemoryDockWidget::updateWindowTitle);
 }
 
 void MemoryDockWidget::handleRaiseMemoryWidget(CutterCore::MemoryWidgetType raiseType)
@@ -32,6 +26,15 @@ void MemoryDockWidget::handleRaiseMemoryWidget(CutterCore::MemoryWidgetType rais
         show();
         raise();
         widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);
+    }
+}
+
+void MemoryDockWidget::updateWindowTitle()
+{
+    if (seekable->isSynchronized()) {
+        setWindowTitle(getWindowTitle());
+    } else {
+        setWindowTitle(getWindowTitle() + CutterSeekable::tr(" (unsynced)"));
     }
 }
 

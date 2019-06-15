@@ -249,11 +249,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     } else if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
     }
-    if (!seekable->isSynchronized()) {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    } else {
-        parentWidget()->setWindowTitle(windowTitle);
-    }
+    emit nameChanged(windowTitle);
 
     RVA entry = func["offset"].toVariant().toULongLong();
 

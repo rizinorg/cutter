@@ -20,9 +20,13 @@ private:
 
     CutterCore::MemoryWidgetType mType;
 
+public slots:
+    void updateWindowTitle();
+
 protected:
     CutterSeekable *seekable = nullptr;
 
+    virtual QString getWindowTitle() const = 0;
 };
 
 #endif // MEMORYDOCKWIDGET_H

@@ -25,6 +25,8 @@ protected:
 private:
     void closeEvent(QCloseEvent *event) override;
 
+    QString getWindowTitle() const override;
+
     DisassemblerGraphView *graphView;
 };
 

@@ -46,7 +46,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     cursorCharOffset = 0;
     seekFromCursor = false;
 
-    setWindowTitle(tr("Disassembly"));
+    setWindowTitle(getWindowTitle());
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(mDisasTextEdit);
@@ -631,6 +631,11 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
     return CutterDockWidget::eventFilter(obj, event);
+}
+
+QString DisassemblyWidget::getWindowTitle() const
+{
+    return tr("Disassembly");
 }
 
 void DisassemblyWidget::on_seekChanged(RVA offset)

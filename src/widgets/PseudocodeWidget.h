@@ -34,6 +34,8 @@ private:
 
     void doRefresh(RVA addr);
     void setupFonts();
+
+    QString getWindowTitle() const override;
 };
 
 #endif // PSEUDOCODEWIDGET_H

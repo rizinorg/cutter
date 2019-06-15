@@ -64,7 +64,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
                                      "  border-color : #3daee9"
                                      "}");
 
-    this->setWindowTitle(tr("Hexdump"));
+    setWindowTitle(getWindowTitle());
 
     refreshDeferrer = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
         refresh(offset ? *offset : RVA_INVALID);
@@ -190,6 +190,11 @@ void HexdumpWidget::showSidePanel(bool show)
     if (show) {
         refreshSelectionInfo();
     }
+}
+
+QString HexdumpWidget::getWindowTitle() const
+{
+    return tr("Hexdump");
 }
 
 void HexdumpWidget::updateParseWindow(RVA start_address, int size)
