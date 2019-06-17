@@ -127,6 +127,10 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
+    connect(ui->actionExtraGraph, &QAction::triggered, this, &MainWindow::addExtraGraph);
+    connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
+    connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
+
     classNameToConstructorAndActionMap.insert(GraphWidget::getWidgetType(),
                                               {getNewInstance<GraphWidget>, ui->actionGraph});
     classNameToConstructorAndActionMap.insert(DisassemblyWidget::getWidgetType(),
@@ -328,13 +332,13 @@ void MainWindow::initDocks()
     updateMemberPointers();
 
     if (!disassemblyDock) {
-        on_actionExtraDisassembly_triggered();
+        addExtraDisassembly();
     }
     if (!graphDock) {
-        on_actionExtraGraph_triggered();
+        addExtraGraph();
     }
     if (!hexdumpDock) {
-        on_actionExtraHexdump_triggered();
+        addExtraHexdump();
     }
 
     updateMemberPointers();
@@ -366,21 +370,21 @@ void MainWindow::updateTasksIndicator()
     tasksProgressIndicator->setProgressIndicatorVisible(running);
 }
 
-void MainWindow::on_actionExtraGraph_triggered()
+void MainWindow::addExtraGraph()
 {
     auto *extraDock = new GraphWidget(this, ui->actionGraph);
     extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
-void MainWindow::on_actionExtraHexdump_triggered()
+void MainWindow::addExtraHexdump()
 {
     auto *extraDock = new HexdumpWidget(this, ui->actionHexdump);
     extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
-void MainWindow::on_actionExtraDisassembly_triggered()
+void MainWindow::addExtraDisassembly()
 {
     auto *extraDock = new DisassemblyWidget(this, ui->actionDisassembly);
     extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
