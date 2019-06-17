@@ -12,9 +12,11 @@ class GraphWidget : public MemoryDockWidget
 
 public:
     explicit GraphWidget(MainWindow *main, QAction *action = nullptr);
-    ~GraphWidget() {}
+    ~GraphWidget() override {}
 
     DisassemblerGraphView *getGraphView() const;
+
+    static QString getWidgetType();
 
 signals:
     void graphClosed();

@@ -55,3 +55,8 @@ DisassemblerGraphView *GraphWidget::getGraphView() const
 {
     return graphView;
 }
+
+QString GraphWidget::getWidgetType()
+{
+    return "Graph";
+}

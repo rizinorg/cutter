@@ -34,6 +34,8 @@ public:
     ~HexdumpWidget() override;
     Highlighter *highlighter;
 
+    static QString getWidgetType();
+
 public slots:
     void initParsing();
 

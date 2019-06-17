@@ -110,6 +110,11 @@ void HexdumpWidget::onSeekChanged(RVA addr)
 
 HexdumpWidget::~HexdumpWidget() {}
 
+QString HexdumpWidget::getWidgetType()
+{
+    return "Hexdump";
+}
+
 void HexdumpWidget::refresh()
 {
     refresh(RVA_INVALID);

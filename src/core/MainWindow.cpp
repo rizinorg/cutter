@@ -127,9 +127,12 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
-    classNameToConstructorAndActionMap.insert("GraphWidget", {getNewInstance<GraphWidget>, ui->actionGraph});
-    classNameToConstructorAndActionMap.insert("DisassemblyWidget", {getNewInstance<DisassemblyWidget>, ui->actionDisassembly});
-    classNameToConstructorAndActionMap.insert("HexdumpWidget", {getNewInstance<HexdumpWidget>, ui->actionHexdump});
+    classNameToConstructorAndActionMap.insert(GraphWidget::getWidgetType(),
+                                              {getNewInstance<GraphWidget>, ui->actionGraph});
+    classNameToConstructorAndActionMap.insert(DisassemblyWidget::getWidgetType(),
+                                              {getNewInstance<DisassemblyWidget>, ui->actionDisassembly});
+    classNameToConstructorAndActionMap.insert(HexdumpWidget::getWidgetType(),
+                                              {getNewInstance<HexdumpWidget>, ui->actionHexdump});
 
     initToolBar();
     initDocks();
@@ -312,7 +315,7 @@ void MainWindow::initDocks()
     for (const auto &it : docks) {
         if (std::none_of(dockWidgets.constBegin(), dockWidgets.constEnd(),
                          [&it](QDockWidget *w) { return w->objectName() == it; })) {
-            className = it.split(' ').at(0);
+            className = it.split(';').at(0);
             if (classNameToConstructorAndActionMap.contains(className)) {
                 auto widget = classNameToConstructorAndActionMap[className]
                               .first(this, classNameToConstructorAndActionMap[className].second);
@@ -366,21 +369,21 @@ void MainWindow::updateTasksIndicator()
 void MainWindow::on_actionExtraGraph_triggered()
 {
     auto *extraDock = new GraphWidget(this, ui->actionGraph);
-    extraDock->setObjectName(getUniqueObjectName(extraDock->metaObject()->className()));
+    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraHexdump_triggered()
 {
     auto *extraDock = new HexdumpWidget(this, ui->actionHexdump);
-    extraDock->setObjectName(getUniqueObjectName(extraDock->metaObject()->className()));
+    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::on_actionExtraDisassembly_triggered()
 {
     auto *extraDock = new DisassemblyWidget(this, ui->actionDisassembly);
-    extraDock->setObjectName(getUniqueObjectName(extraDock->metaObject()->className()));
+    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
@@ -692,9 +695,9 @@ void MainWindow::saveSettings()
 
     QStringList docks;
     const QStringList syncable = QStringList()
-                                 << "HexdumpWidget"
-                                 << "DisassemblyWidget"
-                                 << "GraphWidget";
+                                 << HexdumpWidget::getWidgetType()
+                                 << DisassemblyWidget::getWidgetType()
+                                 << GraphWidget::getWidgetType();
     QStringList unsync;
     for (const auto &it : dockWidgets) {
         docks.append(it->objectName());
@@ -812,7 +815,10 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, breakpointDock);
     tabifyDockWidget(dashboardDock, registerRefsDock);
     for (const auto &it : dockWidgets) {
-        if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
+        // Check whether or not current widgets is graph, hexdump or disasm
+        if (qobject_cast<GraphWidget*>(it) ||
+            qobject_cast<HexdumpWidget*>(it) ||
+            qobject_cast<DisassemblyWidget*>(it)) {
             tabifyDockWidget(dashboardDock, it);
         }
     }
@@ -851,35 +857,36 @@ void MainWindow::updateDockActionsChecked()
     }
 }
 
-QString MainWindow::getUniqueObjectName(const QString& className) const
+QString MainWindow::getUniqueObjectName(const QString& widgetType) const
 {
     QStringList docks;
     docks.reserve(dockWidgets.size());
     QString name;
     for (const auto &it : dockWidgets) {
         name = it->objectName();
-        if (name.contains(className)) {
+        if (name.split(';').at(0) == widgetType && name != "Graph Overview") {
             docks.push_back(name);
         }
     }
 
     if (docks.isEmpty()) {
-        return className;
+        return widgetType;
     }
 
     int id = 0;
-    while (docks.contains(className + " " + QString::number(id))) {
+    while (docks.contains(widgetType + ";" + QString::number(id))) {
         id++;
     }
 
-    return className + " "  + QString::number(id);
+    return widgetType + ";"  + QString::number(id);
 }
 
 void MainWindow::initCorners()
 {
     // TODO: Allow the user to select this option visually in the GUI settings
     // Adjust the DockWidget areas
-    setCorner(Qt::TopLeftCorner, Qt::TopDockWidgetArea);
+
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
     setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
 
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
@@ -915,6 +922,7 @@ void MainWindow::addWidget(QDockWidget* widget)
                 dockWidgetsOfAction.remove(action, widget);
             }
             updateMemberPointers();
+            updateDockActionsChecked();
         });
     }
 }
@@ -934,15 +942,15 @@ void MainWindow::showZenDocks()
                                             dashboardDock,
                                             stringsDock,
                                             searchDock,
-                                            hexdumpDock,
-                                            disassemblyDock,
-                                            graphDock,
                                             importsDock
                                           };
     int width = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
-        if (zenDocks.contains(w)) {
+        if (zenDocks.contains(w) ||
+            qobject_cast<GraphWidget*>(w) ||
+            qobject_cast<HexdumpWidget*>(w) ||
+            qobject_cast<DisassemblyWidget*>(w)) {
             w->show();
         }
     }
@@ -957,9 +965,6 @@ void MainWindow::showDebugDocks()
                                               searchDock,
                                               stackDock,
                                               registersDock,
-                                              hexdumpDock,
-                                              disassemblyDock,
-                                              graphDock,
                                               backtraceDock,
                                               memoryMapDock,
                                               breakpointDock
@@ -967,7 +972,10 @@ void MainWindow::showDebugDocks()
     int width = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
-        if (debugDocks.contains(w)) {
+        if (debugDocks.contains(w) ||
+            qobject_cast<GraphWidget*>(w) ||
+            qobject_cast<HexdumpWidget*>(w) ||
+            qobject_cast<DisassemblyWidget*>(w)) {
             w->show();
         }
     }

@@ -277,7 +277,7 @@ private:
      */
     QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> classNameToConstructorAndActionMap;
 
-    QString getUniqueObjectName(const QString &className) const;
+    QString getUniqueObjectName(const QString &widgetType) const;
 };
 
 #endif // MAINWINDOW_H

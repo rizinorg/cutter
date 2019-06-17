@@ -23,6 +23,8 @@ public:
     explicit DisassemblyWidget(MainWindow *main, QAction *action = nullptr);
     QWidget *getTextWidget();
 
+    static QString getWidgetType();
+
 public slots:
     void highlightCurrentLine();
     void showDisasContextMenu(const QPoint &pt);

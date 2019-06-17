@@ -205,6 +205,11 @@ QWidget *DisassemblyWidget::getTextWidget()
     return mDisasTextEdit;
 }
 
+QString DisassemblyWidget::getWidgetType()
+{
+    return "Disassembly";
+}
+
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
     if(!disasmRefresh->attemptRefresh(offset == RVA_INVALID ? nullptr : new RVA(offset))) {
