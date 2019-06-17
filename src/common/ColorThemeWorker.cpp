@@ -178,8 +178,13 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
         theme[it.key()] = QJsonArray({r, g, b, a});
     }
 
+    ColorFlags colorFlags = ColorFlags::DarkFlag;
+    if (Configuration::relevantThemes.contains(themeName)) {
+        colorFlags = Configuration::relevantThemes[themeName];
+    }
+
     for (auto& it : cutterSpecificOptions) {
-        Configuration::cutterOptionColors[it][Configuration::relevantThemes[themeName]].getRgb(&r, &g, &b, &a);
+        Configuration::cutterOptionColors[it][colorFlags].getRgb(&r, &g, &b, &a);
         theme.insert(it, QJsonArray{r, g, b, a});
     }
 
