@@ -110,6 +110,8 @@ public:
     }
     void messageBoxWarning(QString title, QString message);
 
+    QString getUniqueObjectName(const QString &widgetType) const;
+
 public slots:
     void finalizeOpen();
 
@@ -276,8 +278,6 @@ private:
      * pointer to class constructor and action that passed to this constructor.
      */
     QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> classNameToConstructorAndActionMap;
-
-    QString getUniqueObjectName(const QString &widgetType) const;
 };
 
 #endif // MAINWINDOW_H

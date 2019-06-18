@@ -312,7 +312,7 @@ void MainWindow::initDocks()
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
 
     QSettings s;
-    QStringList docks = s.value("docks").toStringList();
+    QStringList docks = s.value("docks", QStringList { GraphWidget::getWidgetType() }).toStringList();
 
     // Restore all extra widgets
     QString className;
@@ -373,21 +373,18 @@ void MainWindow::updateTasksIndicator()
 void MainWindow::addExtraGraph()
 {
     auto *extraDock = new GraphWidget(this, ui->actionGraph);
-    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraHexdump()
 {
     auto *extraDock = new HexdumpWidget(this, ui->actionHexdump);
-    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraDisassembly()
 {
     auto *extraDock = new DisassemblyWidget(this, ui->actionDisassembly);
-    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
@@ -857,14 +854,14 @@ void MainWindow::updateDockActionsChecked()
     }
 }
 
-QString MainWindow::getUniqueObjectName(const QString& widgetType) const
+QString MainWindow::getUniqueObjectName(const QString &widgetType) const
 {
     QStringList docks;
     docks.reserve(dockWidgets.size());
     QString name;
     for (const auto &it : dockWidgets) {
         name = it->objectName();
-        if (name.split(';').at(0) == widgetType && name != "Graph Overview") {
+        if (name.split(';').at(0) == widgetType) {
             docks.push_back(name);
         }
     }

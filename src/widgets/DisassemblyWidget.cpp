@@ -3,6 +3,7 @@
 #include "common/Configuration.h"
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
+#include "core/MainWindow.h"
 
 #include <QScrollBar>
 #include <QJsonArray>
@@ -39,7 +40,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
 {
-    setObjectName(getWidgetType());
+    setObjectName(main->getUniqueObjectName(getWidgetType()));
 
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
