@@ -146,7 +146,7 @@ void HexWidget::setMonospaceFont(const QFont &font)
         setFont(XXX); */
     }
     QScrollArea::setFont(font);
-    monospaceFont = font;
+    monospaceFont = font.resolve(this->font());
     updateMetrics();
     fetchData();
     updateCursorMeta();
@@ -559,7 +559,8 @@ void HexWidget::onCursorBlinked()
     if (!cursorEnabled)
         return;
     cursor.blink();
-    viewport()->update(cursor.screenPos.translated(-horizontalScrollBar()->value(), 0));
+    QRect cursorRect(cursor.screenPos.x(), cursor.screenPos.y(), cursor.screenPos.width(), cursor.screenPos.height());
+    viewport()->update(cursorRect.translated(-horizontalScrollBar()->value(), 0));
 }
 
 void HexWidget::onHexPairsModeEnabled(bool enable)
@@ -670,7 +671,7 @@ void HexWidget::drawHeader(QPainter &painter)
         return;
 
     int offset = 0;
-    QRect rect(itemArea.left(), 0, itemWidth(), lineHeight);
+    QRectF rect(itemArea.left(), 0, itemWidth(), lineHeight);
 
     painter.setPen(addrColor);
 
@@ -702,7 +703,7 @@ void HexWidget::drawCursor(QPainter &painter, bool shadow)
     }
 
     painter.setPen(cursor.cachedColor);
-    QRect charRect(cursor.screenPos);
+    QRectF charRect(cursor.screenPos);
     charRect.setWidth(charWidth);
     painter.fillRect(charRect, backgroundColor);
     painter.drawText(charRect, Qt::AlignVCenter, cursor.cachedChar);
@@ -716,8 +717,8 @@ void HexWidget::drawAddrArea(QPainter &painter)
 {
     uint64_t offset = startAddress;
     QString addrString;
-    QSize areaSize((addrCharLen + (showExAddr ? 2 : 0)) * charWidth, lineHeight);
-    QRect strRect(addrArea.topLeft(), areaSize);
+    QSizeF areaSize((addrCharLen + (showExAddr ? 2 : 0)) * charWidth, lineHeight);
+    QRectF strRect(addrArea.topLeft(), areaSize);
 
     painter.setPen(addrColor);
     for (int line = 0;
@@ -731,13 +732,13 @@ void HexWidget::drawAddrArea(QPainter &painter)
 
     painter.setPen(borderColor);
 
-    int vLineOffset = itemArea.left() - charWidth;
-    painter.drawLine(vLineOffset, 0, vLineOffset, viewport()->height());
+    qreal vLineOffset = itemArea.left() - charWidth;
+    painter.drawLine(QLineF(vLineOffset, 0, vLineOffset, viewport()->height()));
 }
 
 void HexWidget::drawItemArea(QPainter &painter)
 {
-    QRect itemRect(itemArea.topLeft(), QSize(itemWidth(), lineHeight));
+    QRectF itemRect(itemArea.topLeft(), QSizeF(itemWidth(), lineHeight));
     QColor itemColor;
     QString itemString;
 
@@ -768,13 +769,13 @@ void HexWidget::drawItemArea(QPainter &painter)
 
     painter.setPen(borderColor);
 
-    int vLineOffset = asciiArea.left() - charWidth;
-    painter.drawLine(vLineOffset, 0, vLineOffset, viewport()->height());
+    qreal vLineOffset = asciiArea.left() - charWidth;
+    painter.drawLine(QLineF(vLineOffset, 0, vLineOffset, viewport()->height()));
 }
 
 void HexWidget::drawAsciiArea(QPainter &painter)
 {
-    QRect charRect(asciiArea.topLeft(), QSize(charWidth, lineHeight));
+    QRectF charRect(asciiArea.topLeft(), QSizeF(charWidth, lineHeight));
 
     fillSelectionBackground(painter, true);
 
@@ -790,10 +791,11 @@ void HexWidget::drawAsciiArea(QPainter &painter)
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */
             if (ascii == '.') {
-                int a = cursor.screenPos.width();
-                int x = charRect.left() + (charWidth - a) / 2 + 1;
-                int y = charRect.bottom() - 2 * a;
-                painter.fillRect(x, y, a, a, color);
+                qreal a = cursor.screenPos.width();
+                QPointF p = charRect.bottomLeft();
+                p.rx() += (charWidth - a) / 2 + 1;
+                p.ry() += - 2 * a;
+                painter.fillRect(QRectF(p, QSizeF(a, a)), color);
             } else {
                 painter.drawText(charRect, Qt::AlignVCenter, ascii);
             }
@@ -892,15 +894,14 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
 
 void HexWidget::updateMetrics()
 {
-    lineHeight = fontMetrics().height();
-    charWidth = fontMetrics().width(QLatin1Char('F'));
+    QFontMetricsF fontMetrics(this->monospaceFont);
+    lineHeight = fontMetrics.height();
+    charWidth = fontMetrics.width(QLatin1Char('F'));
 
     updateCounts();
     updateAreasHeight();
 
-    int cursorWidth = charWidth / 3;
-    if (cursorWidth == 0)
-        cursorWidth = 1;
+    qreal cursorWidth = std::max(charWidth / 3, 1.);
     cursor.screenPos.setHeight(lineHeight);
     shadowCursor.screenPos.setHeight(lineHeight);
 
@@ -919,17 +920,17 @@ void HexWidget::updateMetrics()
 
 void HexWidget::updateAreasPosition()
 {
-    const int spacingWidth = areaSpacingWidth();
+    const qreal spacingWidth = areaSpacingWidth();
 
-    int yOffset = showHeader ? lineHeight : 0;
+    qreal yOffset = showHeader ? lineHeight : 0;
 
-    addrArea.setTopLeft(QPoint(0, yOffset));
+    addrArea.setTopLeft(QPointF(0, yOffset));
     addrArea.setWidth((addrCharLen + (showExAddr ? 2 : 0)) * charWidth);
 
-    itemArea.setTopLeft(QPoint(addrArea.right() + spacingWidth, yOffset));
+    itemArea.setTopLeft(QPointF(addrArea.right() + spacingWidth, yOffset));
     itemArea.setWidth(itemRowWidth());
 
-    asciiArea.setTopLeft(QPoint(itemArea.right() + spacingWidth, yOffset));
+    asciiArea.setTopLeft(QPointF(itemArea.right() + spacingWidth, yOffset));
     asciiArea.setWidth(asciiRowWidth());
 
     updateWidth();
@@ -937,9 +938,9 @@ void HexWidget::updateAreasPosition()
 
 void HexWidget::updateAreasHeight()
 {
-    visibleLines = (viewport()->height() - itemArea.top()) / lineHeight;
+    visibleLines = static_cast<int>((viewport()->height() - itemArea.top()) / lineHeight);
 
-    int height = visibleLines * lineHeight;
+    qreal height = visibleLines * lineHeight;
     addrArea.setHeight(height);
     itemArea.setHeight(height);
     asciiArea.setHeight(height);
@@ -1007,8 +1008,8 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
 
 void HexWidget::updateCursorMeta()
 {
-    QPoint point;
-    QPoint pointAscii;
+    QPointF point;
+    QPointF pointAscii;
 
     int offset = cursor.address - startAddress;
     int itemOffset = offset;
@@ -1169,14 +1170,16 @@ void HexWidget::fetchData()
 
 BasicCursor HexWidget::screenPosToAddr(const QPoint &point,  bool middle) const
 {
-    QPoint pt = point - itemArea.topLeft();
+    QPointF pt = point - itemArea.topLeft();
 
     int relativeAddress = 0;
-    relativeAddress += (pt.y() / lineHeight) * itemRowByteLen();
-    relativeAddress += (pt.x() / columnExWidth()) * itemGroupByteLen();
-    pt.rx() %= columnExWidth();
+    int line = static_cast<int>(pt.y() / lineHeight);
+    relativeAddress += line * itemRowByteLen();
+    int column = static_cast<int>(pt.x() / columnExWidth());
+    relativeAddress += column * itemGroupByteLen();
+    pt.rx() -= column * columnExWidth();
     auto roundingOffset = middle ? itemWidth() / 2 : 0;
-    relativeAddress += ((pt.x() + roundingOffset) / itemWidth()) * itemByteLen;
+    relativeAddress += static_cast<int>((pt.x() + roundingOffset) / itemWidth()) * itemByteLen;
     BasicCursor result(startAddress);
     result += relativeAddress;
     return result;
@@ -1184,12 +1187,12 @@ BasicCursor HexWidget::screenPosToAddr(const QPoint &point,  bool middle) const
 
 BasicCursor HexWidget::asciiPosToAddr(const QPoint &point, bool middle) const
 {
-    QPoint pt = point - asciiArea.topLeft();
+    QPointF pt = point - asciiArea.topLeft();
 
     int relativeAddress = 0;
-    relativeAddress += (pt.y() / lineHeight) * itemRowByteLen();
+    relativeAddress += static_cast<int>(pt.y() / lineHeight) * itemRowByteLen();
     auto roundingOffset = middle ? (charWidth / 2) : 0;
-    relativeAddress += (pt.x() + (roundingOffset)) / charWidth;
+    relativeAddress += static_cast<int>((pt.x() + (roundingOffset)) / charWidth);
     BasicCursor result(startAddress);
     result += relativeAddress;
     return result;
@@ -1205,12 +1208,12 @@ BasicCursor HexWidget::mousePosToAddr(const QPoint &point, bool middle) const
     return asciiArea.contains(point) ? asciiPosToAddr(point, middle) : screenPosToAddr(point, middle);
 }
 
-QRect HexWidget::itemRectangle(uint offset)
+QRectF HexWidget::itemRectangle(uint offset)
 {
-    int x;
-    int y;
+    qreal x;
+    qreal y;
 
-    int width = itemWidth();
+    qreal width = itemWidth();
     y = (offset / itemRowByteLen()) * lineHeight;
     offset %= itemRowByteLen();
 
@@ -1228,21 +1231,19 @@ QRect HexWidget::itemRectangle(uint offset)
     x += itemArea.x();
     y += itemArea.y();
 
-    return QRect(x, y, width, lineHeight);
+    return QRectF(x, y, width, lineHeight);
 }
 
-QRect HexWidget::asciiRectangle(uint offset)
+QRectF HexWidget::asciiRectangle(uint offset)
 {
-    int x;
-    int y;
+    QPointF p;
 
-    y = (offset / itemRowByteLen()) * lineHeight;
+    p.ry() = (offset / itemRowByteLen()) * lineHeight;
     offset %= itemRowByteLen();
 
-    x = offset * charWidth;
+    p.rx() = offset * charWidth;
 
-    x += asciiArea.x();
-    y += asciiArea.y();
+    p += asciiArea.topLeft();
 
-    return QRect(x, y, charWidth, lineHeight);
+    return QRectF(p, QSizeF(charWidth, lineHeight));
 }

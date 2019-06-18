@@ -57,7 +57,7 @@ struct HexCursor
     bool isVisible;
     bool onAsciiArea;
     QTimer blinkTimer;
-    QRect screenPos;
+    QRectF screenPos;
     uint64_t address;
     QString cachedChar;
     QColor cachedColor;
@@ -319,17 +319,17 @@ private:
      * @param offset relative to first byte on screen
      * @return
      */
-    QRect itemRectangle(uint offset);
+    QRectF itemRectangle(uint offset);
     /**
      * @brief Rectangle for single item in ascii area.
      * @param offset relative to first byte on screen
      * @return
      */
-    QRect asciiRectangle(uint offset);
+    QRectF asciiRectangle(uint offset);
     QVector<QPolygonF> rangePolygons(RVA start, RVA last, bool ascii);
     void updateWidth();
 
-    inline int itemWidth() const
+    inline qreal itemWidth() const
     {
         return itemCharLen * charWidth;
     }
@@ -349,17 +349,17 @@ private:
         return itemByteLen * itemGroupSize;
     }
 
-    inline int columnWidth() const
+    inline qreal columnWidth() const
     {
         return itemGroupCharLen() * charWidth;
     }
 
-    inline int columnExWidth() const
+    inline qreal columnExWidth() const
     {
         return columnExCharLen() * charWidth;
     }
 
-    inline int columnSpacingWidth() const
+    inline qreal columnSpacingWidth() const
     {
         return columnSpacing * charWidth;
     }
@@ -379,17 +379,17 @@ private:
         return itemRowByteLen() * visibleLines;
     }
 
-    inline int itemRowWidth() const
+    inline qreal itemRowWidth() const
     {
         return itemRowCharLen() * charWidth;
     }
 
-    inline int asciiRowWidth() const
+    inline qreal asciiRowWidth() const
     {
         return itemRowByteLen() * charWidth;
     }
 
-    inline int areaSpacingWidth() const
+    inline qreal areaSpacingWidth() const
     {
         return areaSpacing * charWidth;
     }
@@ -399,7 +399,7 @@ private:
         return (startAddress - 1) + bytesPerScreen();
     }
 
-    const QRect &currentArea() const
+    const QRectF &currentArea() const
     {
         return cursorOnAscii ? asciiArea : itemArea;
     }
@@ -412,9 +412,9 @@ private:
     HexSelection selection;
     bool updatingSelection;
 
-    QRect addrArea;
-    QRect itemArea;
-    QRect asciiArea;
+    QRectF addrArea;
+    QRectF itemArea;
+    QRectF asciiArea;
 
     int itemByteLen;
     int itemGroupSize; ///< Items per group (default: 1), 2 in case of hexpair mode
@@ -430,9 +430,9 @@ private:
 
     int visibleLines;
     uint64_t startAddress;
-    int charWidth;
+    qreal charWidth;
     int byteWidth;
-    int lineHeight;
+    qreal lineHeight;
     int addrCharLen;
     int addrAreaWidth;
     QFont monospaceFont;
