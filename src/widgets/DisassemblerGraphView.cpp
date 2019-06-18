@@ -29,12 +29,12 @@
 
 #include <cmath>
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable)
     : GraphView(parent),
       mFontMetrics(nullptr),
       blockMenu(new DisassemblyContextMenu(this)),
       contextMenu(new QMenu(this)),
-      seekable(new CutterSeekable(this))
+      seekable(seekable)
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
@@ -107,7 +107,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent)
     actionExportGraph.setText(tr("Export Graph"));
     connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
     actionSyncOffset.setText(tr("Sync/unsync offset"));
-    connect(&actionSyncOffset, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
+    connect(&actionSyncOffset, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
 
     // Context menu that applies to everything
     contextMenu->addAction(&actionExportGraph);
@@ -190,16 +190,6 @@ DisassemblerGraphView::~DisassemblerGraphView()
     }
 }
 
-void DisassemblerGraphView::toggleSync()
-{
-    seekable->toggleSynchronization();
-    if (seekable->isSynchronized()) {
-        parentWidget()->setWindowTitle(windowTitle);
-    } else {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    }
-}
-
 void DisassemblerGraphView::refreshView()
 {
     initFont();
@@ -259,11 +249,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     } else if (!funcName.isEmpty()) {
         windowTitle += " (" + funcName + ")";
     }
-    if (!seekable->isSynchronized()) {
-        parentWidget()->setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    } else {
-        parentWidget()->setWindowTitle(windowTitle);
-    }
+    emit nameChanged(windowTitle);
 
     RVA entry = func["offset"].toVariant().toULongLong();
 

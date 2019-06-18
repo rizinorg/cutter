@@ -106,6 +106,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+template<class T>
+T* getNewInstance(MainWindow *m, QAction *a) { return new T(m, a); }
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(Core()),
@@ -124,9 +127,21 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
+    connect(ui->actionExtraGraph, &QAction::triggered, this, &MainWindow::addExtraGraph);
+    connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
+    connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
+
+    classNameToConstructorAndActionMap.insert(GraphWidget::getWidgetType(),
+                                              {getNewInstance<GraphWidget>, ui->actionGraph});
+    classNameToConstructorAndActionMap.insert(DisassemblyWidget::getWidgetType(),
+                                              {getNewInstance<DisassemblyWidget>, ui->actionDisassembly});
+    classNameToConstructorAndActionMap.insert(HexdumpWidget::getWidgetType(),
+                                              {getNewInstance<HexdumpWidget>, ui->actionHexdump});
+
     initToolBar();
     initDocks();
 
+    emptyState = saveState();
     /*
      *  Some global shortcuts
      */
@@ -251,8 +266,6 @@ void MainWindow::initToolBar()
 void MainWindow::initDocks()
 {
     dockWidgets.reserve(20);
-    disassemblyDock = new DisassemblyWidget(this, ui->actionDisassembly);
-    hexdumpDock = new HexdumpWidget(this, ui->actionHexdump);
     pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
 
@@ -271,7 +284,6 @@ void MainWindow::initDocks()
     });
 
     ui->actionOverview->setChecked(overviewDock->getUserOpened());
-    graphDock = new GraphWidget(this, ui->actionGraph);
     sectionsDock = new SectionsWidget(this, ui->actionSections);
     segmentsDock = new SegmentsWidget(this, ui->actionSegments);
     entrypointDock = new EntrypointWidget(this, ui->actionEntrypoints);
@@ -298,6 +310,38 @@ void MainWindow::initDocks()
     classesDock = new ClassesWidget(this, ui->actionClasses);
     resourcesDock = new ResourcesWidget(this, ui->actionResources);
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
+
+    QSettings s;
+    QStringList docks = s.value("docks").toStringList();
+
+    // Restore all extra widgets
+    QString className;
+    for (const auto &it : docks) {
+        if (std::none_of(dockWidgets.constBegin(), dockWidgets.constEnd(),
+                         [&it](QDockWidget *w) { return w->objectName() == it; })) {
+            className = it.split(';').at(0);
+            if (classNameToConstructorAndActionMap.contains(className)) {
+                auto widget = classNameToConstructorAndActionMap[className]
+                              .first(this, classNameToConstructorAndActionMap[className].second);
+                widget->setObjectName(it);
+                addExtraWidget(widget);
+            }
+        }
+    }
+
+    updateMemberPointers();
+
+    if (!disassemblyDock) {
+        addExtraDisassembly();
+    }
+    if (!graphDock) {
+        addExtraGraph();
+    }
+    if (!hexdumpDock) {
+        addExtraHexdump();
+    }
+
+    updateMemberPointers();
 }
 
 void MainWindow::initLayout()
@@ -306,10 +350,8 @@ void MainWindow::initLayout()
     enableDebugWidgetsMenu(false);
     // Restore saved settings
     readSettingsOrDefault();
-    // TODO: Allow the user to select this option visually in the GUI settings
-    // Adjust the DockWidget areas
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+
+    initCorners();
 }
 
 void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
@@ -328,28 +370,31 @@ void MainWindow::updateTasksIndicator()
     tasksProgressIndicator->setProgressIndicatorVisible(running);
 }
 
-void MainWindow::on_actionExtraGraph_triggered()
+void MainWindow::addExtraGraph()
 {
-    auto *extraDock = new GraphWidget(this, nullptr);
+    auto *extraDock = new GraphWidget(this, ui->actionGraph);
+    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
-void MainWindow::on_actionExtraHexdump_triggered()
+void MainWindow::addExtraHexdump()
 {
-    auto *extraDock = new HexdumpWidget(this, nullptr);
+    auto *extraDock = new HexdumpWidget(this, ui->actionHexdump);
+    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
-void MainWindow::on_actionExtraDisassembly_triggered()
+void MainWindow::addExtraDisassembly()
 {
-    auto *extraDock = new DisassemblyWidget(this, nullptr);
+    auto *extraDock = new DisassemblyWidget(this, ui->actionDisassembly);
+    extraDock->setObjectName(getUniqueObjectName(extraDock->getWidgetType()));
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
 {
     extraDock->setTransient(true);
-    addDockWidget(Qt::TopDockWidgetArea, extraDock);
+    addDockWidget(Qt::TopDockWidgetArea, extraDock, Qt::Orientation::Horizontal);
     auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
     qApp->processEvents();
     restoreExtraDock.restoreWidth(extraDock->widget());
@@ -385,7 +430,8 @@ QMenu *MainWindow::getMenuByType(MenuType type)
 void MainWindow::addPluginDockWidget(QDockWidget *dockWidget, QAction *action)
 {
     addDockWidget(Qt::TopDockWidgetArea, dockWidget);
-    addDockWidgetAction(dockWidget, action);
+    dockWidget->addAction(action);
+    addWidget(dockWidget);
     ui->menuPlugins->addAction(action);
     addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
     updateDockActionChecked(action);
@@ -494,6 +540,14 @@ void MainWindow::finalizeOpen()
     showMaximized();
 
 
+    QSettings s;
+    QStringList unsync = s.value("unsync").toStringList();
+    for (auto it : dockWidgets) {
+        auto w = qobject_cast<MemoryDockWidget*>(it);
+        if (w) {
+            w->getSeekable()->setSynchronization(!unsync.contains(it->objectName()));
+        }
+    }
 
     // Set focus to disasm or graph widget
 
@@ -606,7 +660,7 @@ void MainWindow::readSettingsOrDefault()
      * Check if saved settings exist
      * If not, then read the default layout
      */
-    if (!geo.length() && !state.length()) {
+    if (!geo.length() || !state.length()) {
         resetToDefaultLayout();
         return;
     }
@@ -642,6 +696,22 @@ void MainWindow::readSettingsOrDefault()
 void MainWindow::saveSettings()
 {
     QSettings settings;
+
+    QStringList docks;
+    const QStringList syncable = QStringList()
+                                 << HexdumpWidget::getWidgetType()
+                                 << DisassemblyWidget::getWidgetType()
+                                 << GraphWidget::getWidgetType();
+    QStringList unsync;
+    for (const auto &it : dockWidgets) {
+        docks.append(it->objectName());
+        if (syncable.contains(it->metaObject()->className()) &&
+            !qobject_cast<MemoryDockWidget*>(it)->getSeekable()->isSynchronized()) {
+            unsync.append(it->objectName());
+        }
+    }
+    settings.setValue("docks", docks);
+    settings.setValue("unsync", unsync);
     settings.setValue("geometry", saveGeometry());
     settings.setValue("size", size());
     settings.setValue("pos", pos());
@@ -728,22 +798,7 @@ void MainWindow::restoreDocks()
     addDockWidget(Qt::TopDockWidgetArea, overviewDock);
 
     // Function | Dashboard
-    splitDockWidget(overviewDock, dashboardDock, Qt::Horizontal);
-    splitDockWidget(functionsDock, overviewDock, Qt::Vertical);
-
-    // In the lower half the console is the first widget
-    addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
-
-    // Console | Sections
-    splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
-    splitDockWidget(consoleDock, segmentsDock, Qt::Horizontal);
-
-    // Tabs for center (must be applied after splitDockWidget())
-    tabifyDockWidget(sectionsDock, commentsDock);
-    tabifyDockWidget(segmentsDock, commentsDock);
-    tabifyDockWidget(dashboardDock, disassemblyDock);
-    tabifyDockWidget(dashboardDock, graphDock);
-    tabifyDockWidget(dashboardDock, hexdumpDock);
+    splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
     tabifyDockWidget(dashboardDock, pseudocodeDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
     tabifyDockWidget(dashboardDock, flagsDock);
@@ -760,16 +815,33 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, resourcesDock);
     tabifyDockWidget(dashboardDock, vTablesDock);
     tabifyDockWidget(dashboardDock, sdbDock);
+    tabifyDockWidget(dashboardDock, memoryMapDock);
+    tabifyDockWidget(dashboardDock, breakpointDock);
+    tabifyDockWidget(dashboardDock, registerRefsDock);
+    for (const auto &it : dockWidgets) {
+        // Check whether or not current widgets is graph, hexdump or disasm
+        if (qobject_cast<GraphWidget*>(it) ||
+            qobject_cast<HexdumpWidget*>(it) ||
+            qobject_cast<DisassemblyWidget*>(it)) {
+            tabifyDockWidget(dashboardDock, it);
+        }
+    }
+
+    splitDockWidget(functionsDock, overviewDock, Qt::Vertical);
+
+    // In the lower half the console is the first widget
+    addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
+
+    // Console | Sections
+    splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
+    splitDockWidget(consoleDock, segmentsDock, Qt::Horizontal);
+
+    tabifyDockWidget(sectionsDock, commentsDock);
 
     // Add Stack, Registers and Backtrace vertically stacked
     addDockWidget(Qt::TopDockWidgetArea, stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
-
-    // MemoryMap/Breakpoint/RegRefs widget goes in the center tabs
-    tabifyDockWidget(dashboardDock, memoryMapDock);
-    tabifyDockWidget(dashboardDock, breakpointDock);
-    tabifyDockWidget(dashboardDock, registerRefsDock);
 
     updateDockActionsChecked();
 }
@@ -784,14 +856,88 @@ void MainWindow::hideAllDocks()
 
 void MainWindow::updateDockActionsChecked()
 {
-    for (auto i = dockWidgetActions.constBegin(); i != dockWidgetActions.constEnd(); i++) {
-        i.key()->setChecked(!i.value()->isHidden());
+    for (auto i = dockWidgetsOfAction.constBegin(); i != dockWidgetsOfAction.constEnd(); i++) {
+        updateDockActionChecked(i.key());
+    }
+}
+
+QString MainWindow::getUniqueObjectName(const QString& widgetType) const
+{
+    QStringList docks;
+    docks.reserve(dockWidgets.size());
+    QString name;
+    for (const auto &it : dockWidgets) {
+        name = it->objectName();
+        if (name.split(';').at(0) == widgetType && name != "Graph Overview") {
+            docks.push_back(name);
+        }
+    }
+
+    if (docks.isEmpty()) {
+        return widgetType;
+    }
+
+    int id = 0;
+    while (docks.contains(widgetType + ";" + QString::number(id))) {
+        id++;
+    }
+
+    return widgetType + ";"  + QString::number(id);
+}
+
+void MainWindow::initCorners()
+{
+    // TODO: Allow the user to select this option visually in the GUI settings
+    // Adjust the DockWidget areas
+
+    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+
+    setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
+    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+}
+
+void MainWindow::updateMemberPointers()
+{
+    QString className;
+    for (auto it : dockWidgets) {
+        if (!graphDock) {
+            graphDock = qobject_cast<GraphWidget*>(it);
+        }
+        if (!disassemblyDock) {
+            disassemblyDock = qobject_cast<DisassemblyWidget*>(it);
+        }
+        if (!hexdumpDock) {
+            hexdumpDock = qobject_cast<HexdumpWidget*>(it);
+        }
+    }
+}
+
+void MainWindow::addWidget(QDockWidget* widget)
+{
+    dockWidgets.push_back(widget);
+    for (auto action : widget->actions()) {
+        dockWidgetsOfAction.insert(action, widget);
+        connect(qobject_cast<CutterDockWidget*>(widget), &CutterDockWidget::closed,
+                this, [this]() {
+            QDockWidget *widget = qobject_cast<QDockWidget*>(sender());
+            dockWidgets.removeOne(widget);
+            for (auto action : widget->actions()) {
+                dockWidgetsOfAction.remove(action, widget);
+            }
+            updateMemberPointers();
+            updateDockActionsChecked();
+        });
     }
 }
 
 void MainWindow::updateDockActionChecked(QAction *action)
 {
-    action->setChecked(!dockWidgetActions[action]->isHidden());
+    auto actions = dockWidgetsOfAction.values(action);
+    action->setChecked(!std::accumulate(actions.begin(), actions.end(), false,
+                                       [](bool a, QDockWidget* w) -> bool {
+        return a || w->isHidden();
+    }));
 }
 
 void MainWindow::showZenDocks()
@@ -799,17 +945,20 @@ void MainWindow::showZenDocks()
     const QList<QDockWidget *> zenDocks = { functionsDock,
                                             dashboardDock,
                                             stringsDock,
-                                            graphDock,
-                                            disassemblyDock,
-                                            hexdumpDock,
                                             searchDock,
-                                            importsDock,
+                                            importsDock
                                           };
+    int width = functionsDock->maximumWidth();
+    functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
-        if (zenDocks.contains(w)) {
+        if (zenDocks.contains(w) ||
+            qobject_cast<GraphWidget*>(w) ||
+            qobject_cast<HexdumpWidget*>(w) ||
+            qobject_cast<DisassemblyWidget*>(w)) {
             w->show();
         }
     }
+    functionsDock->setMaximumWidth(width);
     updateDockActionsChecked();
 }
 
@@ -817,9 +966,6 @@ void MainWindow::showDebugDocks()
 {
     const QList<QDockWidget *> debugDocks = { functionsDock,
                                               stringsDock,
-                                              graphDock,
-                                              disassemblyDock,
-                                              hexdumpDock,
                                               searchDock,
                                               stackDock,
                                               registersDock,
@@ -827,11 +973,17 @@ void MainWindow::showDebugDocks()
                                               memoryMapDock,
                                               breakpointDock
                                             };
+    int width = functionsDock->maximumWidth();
+    functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
-        if (debugDocks.contains(w)) {
+        if (debugDocks.contains(w) ||
+            qobject_cast<GraphWidget*>(w) ||
+            qobject_cast<HexdumpWidget*>(w) ||
+            qobject_cast<DisassemblyWidget*>(w)) {
             w->show();
         }
     }
+    functionsDock->setMaximumWidth(width);
     updateDockActionsChecked();
 }
 
@@ -877,6 +1029,23 @@ void MainWindow::restoreDebugLayout()
     }
 }
 
+void MainWindow::resetDockWidgetList()
+{
+    QStringList isLeft;
+    QList<QWidget*> toClose;
+    for (auto it : dockWidgets) {
+        if (isLeft.contains(it->metaObject()->className())) {
+            toClose.append(it);
+        } else if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
+            isLeft.append(it->metaObject()->className());
+        }
+    }
+    for (auto it : toClose) {
+        it->close();
+    }
+    updateMemberPointers();
+}
+
 void MainWindow::on_actionLock_triggered()
 {
     panelLock = !panelLock;
@@ -908,9 +1077,21 @@ void MainWindow::on_actionFunctionsRename_triggered()
 
 void MainWindow::on_actionDefault_triggered()
 {
+    QSettings s;
+    restoreState(emptyState);
+
+    initCorners();
+    resetDockWidgetList();
+
     if (core->currentlyDebugging) {
+        resetToDefaultLayout();
+        saveSettings();
+
         resetToDebugLayout();
     } else {
+        resetToDebugLayout();
+        saveDebugSettings();
+
         resetToDefaultLayout();
     }
 }
@@ -1205,16 +1386,6 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
         }
     }
     return false;
-}
-
-void MainWindow::addToDockWidgetList(QDockWidget *dockWidget)
-{
-    this->dockWidgets.push_back(dockWidget);
-}
-
-void MainWindow::addDockWidgetAction(QDockWidget *dockWidget, QAction *action)
-{
-    this->dockWidgetActions[action] = dockWidget;
 }
 
 /**

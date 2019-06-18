@@ -86,6 +86,11 @@ void PseudocodeWidget::setupFonts()
     ui->textEdit->setFont(font);
 }
 
+QString PseudocodeWidget::getWindowTitle() const
+{
+    return tr("Pseudocode");
+}
+
 void PseudocodeWidget::fontsUpdated()
 {
     setupFonts();

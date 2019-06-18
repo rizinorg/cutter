@@ -38,26 +38,15 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
-    ,   seekable(new CutterSeekable(this))
 {
-    /*
-     * Ugly hack just for the layout issue
-     * QSettings saves the state with the object names
-     * By doing this hack,
-     * you can at least avoid some mess by dismissing all the Extra Widgets
-     */
-    QString name = "Disassembly";
-    if (!action) {
-        name = "Extra Disassembly";
-    }
-    setObjectName(name);
+    setObjectName(getWidgetType());
 
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
     cursorCharOffset = 0;
     seekFromCursor = false;
 
-    setWindowTitle(tr("Disassembly"));
+    setWindowTitle(getWindowTitle());
 
     QVBoxLayout *layout = new QVBoxLayout();
     layout->addWidget(mDisasTextEdit);
@@ -144,7 +133,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     mCtxMenu->addSeparator();
     syncIt.setText(tr("Sync/unsync offset"));
     mCtxMenu->addAction(&syncIt);
-    connect(&syncIt, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
+    connect(&syncIt, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblyWidget::on_seekChanged);
 
     addActions(mCtxMenu->actions());
@@ -191,17 +180,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 #undef ADD_ACTION
 }
 
-void DisassemblyWidget::toggleSync()
-{
-    QString windowTitle = tr("Disassembly");
-    seekable->toggleSynchronization();
-    if (seekable->isSynchronized()) {
-        setWindowTitle(windowTitle);
-    } else {
-        setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    }
-}
-
 void DisassemblyWidget::setPreviewMode(bool previewMode)
 {
     mDisasTextEdit->setContextMenuPolicy(previewMode
@@ -217,14 +195,19 @@ void DisassemblyWidget::setPreviewMode(bool previewMode)
             action->setEnabled(!previewMode);
         }
     }
-    if (seekable->isSynchronized() && previewMode) {
-        toggleSync();
+    if (previewMode) {
+        seekable->setSynchronization(false);
     }
 }
 
 QWidget *DisassemblyWidget::getTextWidget()
 {
     return mDisasTextEdit;
+}
+
+QString DisassemblyWidget::getWidgetType()
+{
+    return "Disassembly";
 }
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
@@ -653,6 +636,11 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
     return CutterDockWidget::eventFilter(obj, event);
+}
+
+QString DisassemblyWidget::getWindowTitle() const
+{
+    return tr("Disassembly");
 }
 
 void DisassemblyWidget::on_seekChanged(RVA offset)

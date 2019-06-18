@@ -70,7 +70,7 @@ static void initializeSettings()
                 qInfo() << "Migrating Settings to Version" << v;
                 switch (v) {
                 case 1:
-                    migrateSettingsTo1(settings);
+                    migrateSettingsTo1(settings); break;
                 default:
                     break;
                 }

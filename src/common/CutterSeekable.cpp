@@ -13,6 +13,13 @@ CutterSeekable::CutterSeekable(QObject *parent)
 
 CutterSeekable::~CutterSeekable() {}
 
+void CutterSeekable::setSynchronization(bool sync)
+{
+    synchronized = sync;
+    onCoreSeekChanged(Core()->getOffset());
+    emit syncChanged();
+}
+
 void CutterSeekable::onCoreSeekChanged(RVA addr)
 {
     if (synchronized && widgetOffset != addr) {
@@ -48,8 +55,7 @@ RVA CutterSeekable::getOffset()
 
 void CutterSeekable::toggleSynchronization()
 {
-    synchronized = !synchronized;
-    onCoreSeekChanged(Core()->getOffset());
+    setSynchronization(!synchronized);
 }
 
 bool CutterSeekable::isSynchronized()

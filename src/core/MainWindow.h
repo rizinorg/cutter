@@ -94,8 +94,7 @@ public:
     void setFilename(const QString &fn);
     void refreshOmniBar(const QStringList &flags);
 
-    void addToDockWidgetList(QDockWidget *dockWidget);
-    void addDockWidgetAction(QDockWidget *dockWidget, QAction *action);
+    void addWidget(QDockWidget* widget);
     void addExtraWidget(CutterDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
@@ -138,9 +137,9 @@ public slots:
 private slots:
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
-    void on_actionExtraGraph_triggered();
-    void on_actionExtraHexdump_triggered();
-    void on_actionExtraDisassembly_triggered();
+    void addExtraGraph();
+    void addExtraHexdump();
+    void addExtraDisassembly();
 
     void on_actionRefresh_Panels_triggered();
 
@@ -204,11 +203,12 @@ private:
     VisualNavbar *visualNavbar;
     Omnibar *omnibar;
     ProgressIndicator *tasksProgressIndicator;
+    QByteArray emptyState;
 
     Configuration *configuration;
 
     QList<QDockWidget *> dockWidgets;
-    QMap<QAction *, QDockWidget *> dockWidgetActions;
+    QMultiMap<QAction *, QDockWidget *> dockWidgetsOfAction;
     DisassemblyWidget  *disassemblyDock = nullptr;
     HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
@@ -250,12 +250,15 @@ private:
     void initToolBar();
     void initDocks();
     void initLayout();
+    void initCorners();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
     void resetToDebugLayout();
     void restoreDebugLayout();
 
+    void updateMemberPointers();
+    void resetDockWidgetList();
     void restoreDocks();
     void hideAllDocks();
     void showZenDocks();
@@ -267,6 +270,14 @@ private:
     void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
+
+    /**
+     * @brief Map, where key is class name an value is pair of
+     * pointer to class constructor and action that passed to this constructor.
+     */
+    QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> classNameToConstructorAndActionMap;
+
+    QString getUniqueObjectName(const QString &widgetType) const;
 };
 
 #endif // MAINWINDOW_H

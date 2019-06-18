@@ -23,13 +23,14 @@ public:
     explicit DisassemblyWidget(MainWindow *main, QAction *action = nullptr);
     QWidget *getTextWidget();
 
+    static QString getWidgetType();
+
 public slots:
     void highlightCurrentLine();
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void seekPrev();
-    void toggleSync();
     void setPreviewMode(bool previewMode);
 
 protected slots:
@@ -68,6 +69,7 @@ private:
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
+    QString getWindowTitle() const override;
 
     QList<RVA> breakpoints;
 
@@ -82,7 +84,6 @@ private:
     QList<QTextEdit::ExtraSelection> getSameWordsSelections();
 
     QAction syncIt;
-    CutterSeekable *seekable;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

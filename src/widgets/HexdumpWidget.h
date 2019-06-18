@@ -34,10 +34,11 @@ public:
     ~HexdumpWidget() override;
     Highlighter *highlighter;
 
+    static QString getWidgetType();
+
 public slots:
     void initParsing();
 
-    void toggleSync();
 protected:
     virtual void resizeEvent(QResizeEvent *event) override;
     QWidget *widgetToFocusOnRaise() override;
@@ -59,8 +60,9 @@ private:
     void clearParseWindow();
     void showSidePanel(bool show);
 
+    QString getWindowTitle() const override;
+
     QAction syncAction;
-    CutterSeekable *seekable;
 
 private slots:
     void onSeekChanged(RVA addr);

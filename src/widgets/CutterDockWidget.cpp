@@ -8,12 +8,12 @@ CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     QDockWidget(parent),
     action(action)
 {
+    if (action) {
+        addAction(action);
+        connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
+    }
     if (parent) {
-        parent->addToDockWidgetList(this);
-        if (action) {
-            parent->addDockWidgetAction(this, action);
-            connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
-        }
+        parent->addWidget(this);
     }
 
     // Install event filter to catch redraw widgets when needed
@@ -39,7 +39,7 @@ bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
 void CutterDockWidget::toggleDockWidget(bool show)
 {
     if (!show) {
-        this->close();
+        this->hide();
     } else {
         this->show();
         this->raise();
@@ -73,6 +73,8 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
     if (isTransient) {
         deleteLater();
     }
+
+    emit closed();
 }
 
 QAction *CutterDockWidget::getBoundAction() const

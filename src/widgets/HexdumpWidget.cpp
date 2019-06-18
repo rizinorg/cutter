@@ -17,22 +17,11 @@
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
-    ui(new Ui::HexdumpWidget),
-    seekable(new CutterSeekable(this))
+    ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);
 
-    /*
-     * Ugly hack just for the layout issue
-     * QSettings saves the state with the object names
-     * By doing this hack,
-     * you can at least avoid some mess by dismissing all the Extra Widgets
-     */
-    QString name = "Hexdump";
-    if (!action) {
-        name = "Extra Hexdump";
-    }
-    setObjectName(name);
+    setObjectName(getWidgetType());
 
     ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
     ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));
@@ -75,13 +64,13 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
                                      "  border-color : #3daee9"
                                      "}");
 
-    this->setWindowTitle(tr("Hexdump"));
+    setWindowTitle(getWindowTitle());
 
     refreshDeferrer = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
         refresh(offset ? *offset : RVA_INVALID);
     });
 
-    connect(&syncAction, SIGNAL(triggered(bool)), this, SLOT(toggleSync()));
+    connect(&syncAction, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
     syncAction.setText(tr("Sync/unsync offset"));
     this->ui->hexTextView->addAction(&syncAction);
 
@@ -120,6 +109,11 @@ void HexdumpWidget::onSeekChanged(RVA addr)
 }
 
 HexdumpWidget::~HexdumpWidget() {}
+
+QString HexdumpWidget::getWidgetType()
+{
+    return "Hexdump";
+}
 
 void HexdumpWidget::refresh()
 {
@@ -169,19 +163,6 @@ void HexdumpWidget::on_parseBitsComboBox_currentTextChanged(const QString &/*arg
     refreshSelectionInfo();
 }
 
-
-void HexdumpWidget::toggleSync()
-{
-    QString windowTitle = tr("Hexdump");
-    seekable->toggleSynchronization();
-    if (seekable->isSynchronized()) {
-        setWindowTitle(windowTitle);
-    } else {
-        setWindowTitle(windowTitle + CutterSeekable::tr(" (unsynced)"));
-    }
-}
-
-
 void HexdumpWidget::setupFonts()
 {
     QFont font = Config()->getFont();
@@ -214,6 +195,11 @@ void HexdumpWidget::showSidePanel(bool show)
     if (show) {
         refreshSelectionInfo();
     }
+}
+
+QString HexdumpWidget::getWindowTitle() const
+{
+    return tr("Hexdump");
 }
 
 void HexdumpWidget::updateParseWindow(RVA start_address, int size)
