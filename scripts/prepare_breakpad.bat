@@ -12,8 +12,8 @@ mkdir %ROOT_DIR%\src\breakpad
 CD %ROOT_DIR%\src\breakpad
 powershell -Command "fetch breakpad"
 powershell -Command "gclient sync"
-rem  CD %ROOT_DIR%\src\breakpad\src
-rem  powershell -Command "git reset --hard 756daa536ad819eff80172aaab262fb71d1e89fd"
+CD %ROOT_DIR%\src\breakpad\src
+powershell -Command "git reset --hard 756daa536ad819eff80172aaab262fb71d1e89fd"
 
 CD %ROOT_DIR%\src\breakpad\src\src\client\windows
 DEL %CD%\breakpad_client.gyp
