@@ -94,7 +94,8 @@ public:
     void setFilename(const QString &fn);
     void refreshOmniBar(const QStringList &flags);
 
-    void addWidget(QDockWidget* widget);
+    void addWidget(QDockWidget *widget);
+    void removeWidget(QDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
@@ -211,10 +212,7 @@ private:
 
     QList<QDockWidget *> dockWidgets;
     QMultiMap<QAction *, QDockWidget *> dockWidgetsOfAction;
-    DisassemblyWidget  *disassemblyDock = nullptr;
-    HexdumpWidget      *hexdumpDock = nullptr;
     PseudocodeWidget   *pseudocodeDock = nullptr;
-    GraphWidget        *graphDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
