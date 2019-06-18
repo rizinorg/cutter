@@ -4,6 +4,7 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 #include "common/TempConfig.h"
+#include "core/MainWindow.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -21,7 +22,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    setObjectName(getWidgetType());
+    setObjectName(main->getUniqueObjectName(getWidgetType()));
 
     ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
     ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));

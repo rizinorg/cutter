@@ -6,7 +6,8 @@
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Graph, main, action)
 {
-    setObjectName(getWidgetType());
+    setObjectName(main->getUniqueObjectName(getWidgetType()));
+
     setAllowedAreas(Qt::AllDockWidgetAreas);
     graphView = new DisassemblerGraphView(this, seekable);
     setWidget(graphView);
