@@ -12,8 +12,8 @@ mkdir %ROOT_DIR%\src\breakpad
 CD %ROOT_DIR%\src\breakpad
 powershell -Command "fetch breakpad"
 powershell -Command "gclient sync"
-CD %ROOT_DIR%\src\breakpad\src
-powershell -Command "git reset --hard 756daa536ad819eff80172aaab262fb71d1e89fd"
+rem  CD %ROOT_DIR%\src\breakpad\src
+rem  powershell -Command "git reset --hard 756daa536ad819eff80172aaab262fb71d1e89fd"
 
 CD %ROOT_DIR%\src\breakpad\src\src\client\windows
 DEL %CD%\breakpad_client.gyp
@@ -27,5 +27,5 @@ CD %ROOT_DIR%\src\breakpad\src\src
 powershell -Command "tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release"
 
 set PATH=%BUFF_PATH%
-msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH%
+msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH% && exit /b 1
 CD %ROOT_DIR%
