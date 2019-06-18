@@ -13,6 +13,9 @@ MemoryDockWidget::MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow
 
 void MemoryDockWidget::handleRaiseMemoryWidget(CutterCore::MemoryWidgetType raiseType)
 {
+    if (!seekable->isSynchronized()) {
+        return;
+    }
     bool raisingEmptyGraph = (raiseType == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty());
     if (raisingEmptyGraph) {
         raiseType = CutterCore::MemoryWidgetType::Disassembly;
