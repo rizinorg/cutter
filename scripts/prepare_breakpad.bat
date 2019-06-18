@@ -27,5 +27,5 @@ CD %ROOT_DIR%\src\breakpad\src\src
 powershell -Command "tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release"
 
 set PATH=%BUFF_PATH%
-msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH% && exit /b 1
+msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH% || exit /b 1
 CD %ROOT_DIR%
