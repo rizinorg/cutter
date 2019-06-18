@@ -6,6 +6,7 @@
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     QDockWidget(parent),
+    mainWindow(parent),
     action(action)
 {
     if (action) {
@@ -71,6 +72,9 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
     }
     QDockWidget::closeEvent(event);
     if (isTransient) {
+        if (mainWindow) {
+            mainWindow->removeWidget(this);
+        }
         deleteLater();
     }
 

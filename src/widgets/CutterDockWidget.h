@@ -69,6 +69,7 @@ protected:
     QAction *getBoundAction() const;
 
 private:
+    MainWindow *mainWindow;
     QAction *action;
 
     bool isTransient = false;

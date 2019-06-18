@@ -312,7 +312,11 @@ void MainWindow::initDocks()
     vTablesDock = new VTablesWidget(this, ui->actionVTables);
 
     QSettings s;
-    QStringList docks = s.value("docks", QStringList { GraphWidget::getWidgetType() }).toStringList();
+    QStringList docks = s.value("docks", QStringList {
+        DisassemblyWidget::getWidgetType(),
+        GraphWidget::getWidgetType(),
+        HexdumpWidget::getWidgetType()
+    }).toStringList();
 
     // Restore all extra widgets
     QString className;
@@ -328,20 +332,6 @@ void MainWindow::initDocks()
             }
         }
     }
-
-    updateMemberPointers();
-
-    if (!disassemblyDock) {
-        addExtraDisassembly();
-    }
-    if (!graphDock) {
-        addExtraGraph();
-    }
-    if (!hexdumpDock) {
-        addExtraHexdump();
-    }
-
-    updateMemberPointers();
 }
 
 void MainWindow::initLayout()
@@ -372,19 +362,19 @@ void MainWindow::updateTasksIndicator()
 
 void MainWindow::addExtraGraph()
 {
-    auto *extraDock = new GraphWidget(this, ui->actionGraph);
+    auto *extraDock = new GraphWidget(this, nullptr);
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraHexdump()
 {
-    auto *extraDock = new HexdumpWidget(this, ui->actionHexdump);
+    auto *extraDock = new HexdumpWidget(this, nullptr);
     addExtraWidget(extraDock);
 }
 
 void MainWindow::addExtraDisassembly()
 {
-    auto *extraDock = new DisassemblyWidget(this, ui->actionDisassembly);
+    auto *extraDock = new DisassemblyWidget(this, nullptr);
     addExtraWidget(extraDock);
 }
 
@@ -559,22 +549,21 @@ void MainWindow::finalizeOpen()
     // If there are no graph/disasm widgets focus on MainWindow
 
     setFocus();
-    const QString disasmWidgetClassName = disassemblyDock->metaObject()->className();
-    const QString graphWidgetClassName = graphDock->metaObject()->className();
     bool graphContainsFunc = false;
     for (auto dockWidget : dockWidgets) {
         const QString className = dockWidget->metaObject()->className();
-        if (className == graphWidgetClassName && !dockWidget->visibleRegion().isNull()) {
-            graphContainsFunc = !qobject_cast<GraphWidget*>(dockWidget)->getGraphView()->getBlocks().empty();
+        auto graphWidget = qobject_cast<GraphWidget*>(dockWidget);
+        if (graphWidget && !dockWidget->visibleRegion().isNull()) {
+            graphContainsFunc = !graphWidget->getGraphView()->getBlocks().empty();
             if (graphContainsFunc) {
                 dockWidget->widget()->setFocus();
                 break;
             }
         }
-        if (className == disasmWidgetClassName && !dockWidget->visibleRegion().isNull()) {
+        auto disasmWidget = qobject_cast<DisassemblyWidget*>(dockWidget);
+        if (disasmWidget && !dockWidget->visibleRegion().isNull()) {
             if (!graphContainsFunc) {
-                auto disasm = qobject_cast<DisassemblyWidget*>(dockWidget);
-                disasm->setFocus();
+                disasmWidget->setFocus();
             } else {
                 break;
             }
@@ -890,22 +879,6 @@ void MainWindow::initCorners()
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
 }
 
-void MainWindow::updateMemberPointers()
-{
-    QString className;
-    for (auto it : dockWidgets) {
-        if (!graphDock) {
-            graphDock = qobject_cast<GraphWidget*>(it);
-        }
-        if (!disassemblyDock) {
-            disassemblyDock = qobject_cast<DisassemblyWidget*>(it);
-        }
-        if (!hexdumpDock) {
-            hexdumpDock = qobject_cast<HexdumpWidget*>(it);
-        }
-    }
-}
-
 void MainWindow::addWidget(QDockWidget* widget)
 {
     dockWidgets.push_back(widget);
@@ -918,10 +891,14 @@ void MainWindow::addWidget(QDockWidget* widget)
             for (auto action : widget->actions()) {
                 dockWidgetsOfAction.remove(action, widget);
             }
-            updateMemberPointers();
             updateDockActionsChecked();
         });
     }
+}
+
+void MainWindow::removeWidget(QDockWidget *widget)
+{
+    dockWidgets.removeAll(widget);
 }
 
 void MainWindow::updateDockActionChecked(QAction *action)
@@ -1036,7 +1013,6 @@ void MainWindow::resetDockWidgetList()
     for (auto it : toClose) {
         it->close();
     }
-    updateMemberPointers();
 }
 
 void MainWindow::on_actionLock_triggered()
