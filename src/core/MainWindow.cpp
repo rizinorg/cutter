@@ -698,15 +698,11 @@ void MainWindow::saveSettings()
     QSettings settings;
 
     QStringList docks;
-    const QStringList syncable = QStringList()
-                                 << HexdumpWidget::getWidgetType()
-                                 << DisassemblyWidget::getWidgetType()
-                                 << GraphWidget::getWidgetType();
     QStringList unsync;
     for (const auto &it : dockWidgets) {
         docks.append(it->objectName());
-        if (syncable.contains(it->metaObject()->className()) &&
-            !qobject_cast<MemoryDockWidget*>(it)->getSeekable()->isSynchronized()) {
+        auto memoryDockWidget = qobject_cast<MemoryDockWidget*>(it);
+        if (memoryDockWidget && !memoryDockWidget->getSeekable()->isSynchronized()) {
             unsync.append(it->objectName());
         }
     }
