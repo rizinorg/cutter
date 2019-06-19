@@ -40,8 +40,7 @@
       </property>
       <property name="font">
        <font>
-        <family>Monaco</family>
-        <pointsize>11</pointsize>
+        <family>Monospace</family>
        </font>
       </property>
       <property name="frameShape">
@@ -58,6 +57,9 @@
       </property>
       <property name="plainText">
        <string/>
+      </property>
+      <property name="textInteractionFlags">
+       <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
       </property>
      </widget>
     </item>
