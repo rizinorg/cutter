@@ -40,7 +40,9 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
 {
-    setObjectName(main->getUniqueObjectName(getWidgetType()));
+    setObjectName(main
+                  ? main->getUniqueObjectName(getWidgetType())
+                  : getWidgetType());
 
     topOffset = bottomOffset = RVA_INVALID;
     cursorLineOffset = 0;
