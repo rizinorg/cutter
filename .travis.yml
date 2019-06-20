@@ -64,7 +64,6 @@ dist: xenial
 addons:
   homebrew:
     brewfile: scripts/Brewfile
-    update: true
 
 install:
   - scripts/fetch_deps.sh
