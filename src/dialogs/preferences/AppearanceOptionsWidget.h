@@ -53,6 +53,8 @@ private slots:
     void on_editButton_clicked();
     void onLanguageComboBoxCurrentIndexChanged(int index);
 
+    void updateModificationButtons(const QString& theme);
+
 
     /**
      * @brief Changes all @a before colors in given @a fileName svg file to @a after

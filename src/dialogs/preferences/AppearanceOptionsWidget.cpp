@@ -61,9 +61,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
             &AppearanceOptionsWidget::updateFontFromConfig);
 
     connect(ui->colorComboBox, &QComboBox::currentTextChanged,
-            this, [this](const QString &str) {
-        ui->editButton->setEnabled(ThemeWorker().isCustomTheme(str));
-    });
+            this, &AppearanceOptionsWidget::updateModificationButtons);
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
@@ -90,7 +88,7 @@ void AppearanceOptionsWidget::updateThemeFromConfig(bool interfaceThemeChanged)
     }
     ui->themeComboBox->setCurrentIndex(currInterfaceThemeIndex);
     ui->colorComboBox->updateFromConfig(interfaceThemeChanged);
-    ui->editButton->setEnabled(ThemeWorker().isCustomTheme(ui->colorComboBox->currentText()));
+    updateModificationButtons(ui->colorComboBox->currentText());
 }
 
 void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
@@ -243,6 +241,14 @@ void AppearanceOptionsWidget::onLanguageComboBoxCurrentIndexChanged(int index)
     }
 
     qWarning() << tr("Cannot set language, not found in available ones");
+}
+
+void AppearanceOptionsWidget::updateModificationButtons(const QString& theme)
+{
+    bool editable = ThemeWorker().isCustomTheme(theme);
+    ui->editButton->setEnabled(editable);
+    ui->deleteButton->setEnabled(editable);
+    ui->renameButton->setEnabled(editable);
 }
 
 QIcon AppearanceOptionsWidget::getIconFromSvg(const QString& fileName, const QColor& after, const QColor& before)
