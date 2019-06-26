@@ -186,6 +186,7 @@ struct RAsmPluginDescription {
 struct DisassemblyLine {
     RVA offset;
     QString text;
+    RVA arrow;
 };
 
 struct BinClassBaseClassDescription {

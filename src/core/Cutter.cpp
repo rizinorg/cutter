@@ -20,6 +20,7 @@ Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
 namespace RJsonKey {
     R_JSON_KEY(addr);
     R_JSON_KEY(addr_end);
+    R_JSON_KEY(arrow);
     R_JSON_KEY(baddr);
     R_JSON_KEY(bind);
     R_JSON_KEY(blocks);
@@ -2647,6 +2648,7 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
         DisassemblyLine line;
         line.offset = object[RJsonKey::offset].toVariant().toULongLong();
         line.text = ansiEscapeToHtml(object[RJsonKey::text].toString());
+        line.arrow = object[RJsonKey::arrow].toVariant().toULongLong();
         r << line;
     }
 

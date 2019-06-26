@@ -5,6 +5,7 @@
 #include "MemoryDockWidget.h"
 #include "common/CutterSeekable.h"
 #include "common/RefreshDeferrer.h"
+#include "common/CachedFontMetrics.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -15,6 +16,7 @@
 class DisassemblyTextEdit;
 class DisassemblyScrollArea;
 class DisassemblyContextMenu;
+class DisassemblyLeftPanel;
 
 class DisassemblyWidget : public MemoryDockWidget
 {
@@ -32,6 +34,8 @@ public slots:
     void colorsUpdatedSlot();
     void seekPrev();
     void setPreviewMode(bool previewMode);
+    QFontMetrics getFontMetrics();
+    QList<DisassemblyLine> getLines();
 
 protected slots:
     void on_seekChanged(RVA offset);
@@ -49,6 +53,8 @@ protected:
     DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;
     DisassemblyTextEdit *mDisasTextEdit;
+    DisassemblyLeftPanel *leftPanel;
+    QList<DisassemblyLine> lines;
 
 private:
     RVA topOffset;
@@ -127,6 +133,20 @@ protected:
 
 private:
     bool lockScroll;
+};
+
+/**
+ * @class This class is used to draw the left pane of the disassembly
+ * widget. Its goal is to draw proper arrows for the jumps of the disassembly.
+ */
+class DisassemblyLeftPanel: public QFrame
+{
+public:
+    DisassemblyLeftPanel(DisassemblyWidget *disas);
+    void paintEvent(QPaintEvent *event) override;
+
+private:
+    DisassemblyWidget *disas;
 };
 
 #endif // DISASSEMBLYWIDGET_H
