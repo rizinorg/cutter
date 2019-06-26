@@ -2,6 +2,7 @@
 #define GRAPHWIDGET_H
 
 #include "MemoryDockWidget.h"
+#include <QLineEdit>
 
 class MainWindow;
 class DisassemblerGraphView;
@@ -28,8 +29,10 @@ private:
     void closeEvent(QCloseEvent *event) override;
 
     QString getWindowTitle() const override;
+    void prepareHeader();
 
     DisassemblerGraphView *graphView;
+    QLineEdit *header = nullptr;
 };
 
 #endif // GRAPHWIDGET_H
