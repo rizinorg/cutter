@@ -28,6 +28,7 @@ private:
         QCheckBox *checkBox;
         QString config;
     };
+    QList<ConfigCheckbox> checkboxes;
 
     void triggerAsmOptionsChanged();
 

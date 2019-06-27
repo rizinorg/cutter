@@ -21,9 +21,43 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         ui->syntaxComboBox->addItem(syntax, syntax);
     ui->syntaxComboBox->blockSignals(false);
 
+    checkboxes = {
+        { ui->describeCheckBox,     "asm.descirbe" },
+        { ui->refptrCheckBox,       "asm.refptr" },
+        { ui->xrefCheckBox,         "asm.xrefs" },
+        { ui->bblineCheckBox,       "asm.bb.line" },
+        { ui->varsubCheckBox,       "asm.var.sub" },
+        { ui->varsubOnlyCheckBox,   "asm.var.subonly" },
+        { ui->lbytesCheckBox,       "asm.lbytes" },
+        { ui->bytespaceCheckBox,    "asm.bytespace" },
+        { ui->bytesCheckBox,        "asm.bytes" },
+        { ui->xrefCheckBox,         "asm.xrefs" },
+        { ui->indentCheckBox,       "asm.indent" },
+        { ui->offsetCheckBox,       "asm.offset" },
+        { ui->slowCheckBox,         "asm.slow" },
+        { ui->linesCheckBox,        "asm.lines" },
+        { ui->fcnlinesCheckBox,     "asm.lines.fcn" },
+        { ui->flgoffCheckBox,       "asm.flags.offset" },
+        { ui->emuCheckBox,          "asm.emu" },
+        { ui->emuStrCheckBox,       "emu.str" },
+        { ui->varsumCheckBox,       "asm.var.summary" },
+        { ui->sizeCheckBox,         "asm.size" },
+    };
+
+
+    QList<ConfigCheckbox>::iterator confCheckbox;
+
+    for (confCheckbox = checkboxes.begin(); confCheckbox != checkboxes.end(); ++confCheckbox) {
+        QString val = confCheckbox->config;
+        QCheckBox &cb = *confCheckbox->checkBox;
+        connect(confCheckbox->checkBox, &QCheckBox::stateChanged, [this, val, &cb]() { checkboxEnabler(&cb, val) ;});
+    }
+
+    connect(ui->commentsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,                                              &AsmOptionsWidget::commentsComboBoxChanged);
+    connect(ui->asmComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,                                        &AsmOptionsWidget::asmComboBoxChanged);
+    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
     updateAsmOptionsFromVars();
 
-    connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
 }
 
 AsmOptionsWidget::~AsmOptionsWidget() {}
@@ -77,43 +111,11 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->asmTabsOffSpinBox->blockSignals(false);
 
 
-    QList<ConfigCheckbox> checkboxes = {
-        { ui->describeCheckBox,     "asm.descirbe" },
-        { ui->refptrCheckBox,       "asm.refptr" },
-        { ui->xrefCheckBox,         "asm.xrefs" },
-        { ui->bblineCheckBox,       "asm.bb.line" },
-        { ui->varsubCheckBox,       "asm.var.sub" },
-        { ui->varsubOnlyCheckBox,   "asm.var.subonly" },
-        { ui->lbytesCheckBox,       "asm.lbytes" },
-        { ui->bytespaceCheckBox,    "asm.bytespace" },
-        { ui->bytesCheckBox,        "asm.bytes" },
-        { ui->xrefCheckBox,         "asm.xrefs" },
-        { ui->indentCheckBox,       "asm.indent" },
-        { ui->offsetCheckBox,       "asm.offset" },
-        { ui->slowCheckBox,         "asm.slow" },
-        { ui->linesCheckBox,        "asm.lines" },
-        { ui->fcnlinesCheckBox,     "asm.lines.fcn" },
-        { ui->flgoffCheckBox,       "asm.flags.offset" },
-        { ui->emuCheckBox,          "asm.emu" },
-        { ui->emuStrCheckBox,       "emu.str" },
-        { ui->varsumCheckBox,       "asm.var.summary" },
-        { ui->sizeCheckBox,         "asm.size" },
-    };
-
-
     QList<ConfigCheckbox>::iterator confCheckbox;
+
     for (confCheckbox = checkboxes.begin(); confCheckbox != checkboxes.end(); ++confCheckbox) {
         qhelpers::setCheckedWithoutSignals(confCheckbox->checkBox,  Config()->getConfigBool(confCheckbox->config));
-
-        QString val = confCheckbox->config;
-        QCheckBox &cb = *confCheckbox->checkBox;
-        connect(confCheckbox->checkBox, &QCheckBox::stateChanged, [this, val, &cb]() { checkboxEnabler(&cb, val) ;});
     }
-
-    connect(ui->commentsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-                                                    &AsmOptionsWidget::commentsComboBoxChanged);
-    connect(ui->asmComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
-                                                    &AsmOptionsWidget::asmComboBoxChanged);
 
 }
 
