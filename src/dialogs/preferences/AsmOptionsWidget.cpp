@@ -54,8 +54,10 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         connect(confCheckbox->checkBox, &QCheckBox::stateChanged, [this, val, &cb]() { checkboxEnabler(&cb, val) ;});
     }
 
-    connect(ui->commentsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,                                              &AsmOptionsWidget::commentsComboBoxChanged);
-    connect(ui->asmComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,                                        &AsmOptionsWidget::asmComboBoxChanged);
+    connect(ui->commentsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+                &AsmOptionsWidget::commentsComboBoxChanged);
+    connect(ui->asmComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+                &AsmOptionsWidget::asmComboBoxChanged);
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
     updateAsmOptionsFromVars();
 }
