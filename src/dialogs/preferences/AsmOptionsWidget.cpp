@@ -47,6 +47,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
 
     QList<ConfigCheckbox>::iterator confCheckbox;
 
+    // Connect each checbox from "checboxes" to the generic signal "checkboxEnabler"
     for (confCheckbox = checkboxes.begin(); confCheckbox != checkboxes.end(); ++confCheckbox) {
         QString val = confCheckbox->config;
         QCheckBox &cb = *confCheckbox->checkBox;
@@ -57,7 +58,6 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
     connect(ui->asmComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,                                        &AsmOptionsWidget::asmComboBoxChanged);
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
     updateAsmOptionsFromVars();
-
 }
 
 AsmOptionsWidget::~AsmOptionsWidget() {}
@@ -113,6 +113,7 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
 
     QList<ConfigCheckbox>::iterator confCheckbox;
 
+    // Set the value for each checkbox in "checkboxes" as it exists in the configuration
     for (confCheckbox = checkboxes.begin(); confCheckbox != checkboxes.end(); ++confCheckbox) {
         qhelpers::setCheckedWithoutSignals(confCheckbox->checkBox,  Config()->getConfigBool(confCheckbox->config));
     }
@@ -232,7 +233,9 @@ void AsmOptionsWidget::commentsComboBoxChanged(int index)
     // Check if comments are disabled
     ui->cmtcolSpinBox->setEnabled(index != 1);
 
+    // Show\Hide comments in disassembly based on whether "Off" is selected
     Config()->setConfig("asm.comments", index != 2);
+    // Enable comments-related checboxes only if Comments are enabled
     ui->xrefCheckBox->setEnabled(index != 2);
     ui->refptrCheckBox->setEnabled(index != 2);
     ui->describeCheckBox->setEnabled(index != 2);
