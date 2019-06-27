@@ -47,7 +47,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
 
     QList<ConfigCheckbox>::iterator confCheckbox;
 
-    // Connect each checbox from "checboxes" to the generic signal "checkboxEnabler"
+    // Connect each checkbox from "checkboxes" to the generic signal "checkboxEnabler"
     for (confCheckbox = checkboxes.begin(); confCheckbox != checkboxes.end(); ++confCheckbox) {
         QString val = confCheckbox->config;
         QCheckBox &cb = *confCheckbox->checkBox;
@@ -237,7 +237,7 @@ void AsmOptionsWidget::commentsComboBoxChanged(int index)
 
     // Show\Hide comments in disassembly based on whether "Off" is selected
     Config()->setConfig("asm.comments", index != 2);
-    // Enable comments-related checboxes only if Comments are enabled
+    // Enable comments-related checkboxes only if Comments are enabled
     ui->xrefCheckBox->setEnabled(index != 2);
     ui->refptrCheckBox->setEnabled(index != 2);
     ui->describeCheckBox->setEnabled(index != 2);
@@ -258,7 +258,7 @@ void AsmOptionsWidget::asmComboBoxChanged(int index)
 /**
  * @brief A generic signal to handle the simple cases where a checkbox is toggled
  * while it only responsible for a single independent boolean configuration eval.
- * @param checkBox - The checbox which is responsible for the siganl
+ * @param checkBox - The checkbox which is responsible for the siganl
  * @param config - the configuration string to be toggled
  */
 void AsmOptionsWidget::checkboxEnabler(QCheckBox* checkBox, QString config)
