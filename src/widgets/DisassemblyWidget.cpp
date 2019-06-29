@@ -5,6 +5,7 @@
 #include "common/TempConfig.h"
 #include "core/MainWindow.h"
 
+#include <QApplication>
 #include <QScrollBar>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -66,14 +67,38 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     layout->setMargin(0);
     mDisasScrollArea->viewport()->setLayout(layout);
     splitter->addWidget(mDisasScrollArea);
+    mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+    // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
+    // issues with dark and light interface themes
+    mDisasScrollArea->setStyleSheet("border: 0px transparent black;");
+    mDisasTextEdit->setStyleSheet("border: 0px transparent black;");
+    mDisasTextEdit->setFocusProxy(this);
+    mDisasTextEdit->setFocusPolicy(Qt::ClickFocus);
+    mDisasScrollArea->setFocusProxy(this);
+    mDisasScrollArea->setFocusPolicy(Qt::ClickFocus);
+
+    setFocusPolicy(Qt::ClickFocus);
     
+    // Behave like all widgets: highlight on focus and hover
+    connect(qApp, &QApplication::focusChanged, this, [this](QWidget* , QWidget* now) {
+        QColor borderColor = this == now
+                             ? palette().color(QPalette::Highlight)
+                             : palette().color(QPalette::WindowText).darker();
+        widget()->setStyleSheet(QString("QSplitter { border: %1px solid %2 } \n"
+                                        "QSplitter:hover { border: %1px solid %3 } \n")
+                                .arg(devicePixelRatio())
+                                .arg(borderColor.name())
+                                .arg(palette().color(QPalette::Highlight).name()));
+    });
+
+    splitter->setFrameShape(QFrame::Box);
     // Set current widget to the splitted layout we just created
     setWidget(splitter);
 
     // Resize properly
     QList<int> sizes;
     sizes.append(3);
-    sizes.append(1); // TODO Probably not the best way to go
+    sizes.append(1);
     splitter->setSizes(sizes);
 
     setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -553,6 +578,7 @@ void DisassemblyWidget::cursorPositionChanged()
         // No word is selected so use the word under the cursor
         mCtxMenu->setCurHighlightedWord(curHighlightedWord);
     }
+    leftPanel->update();
 }
 
 void DisassemblyWidget::moveCursorRelative(bool up, bool page)
@@ -790,6 +816,24 @@ void DisassemblyWidget::seekPrev()
 /*********************
  * Left panel
  *********************/
+
+struct Range {
+    Range(RVA v1, RVA v2)
+        : from(v1), to(v2) { if (from > to) std::swap(from, to); }
+    RVA from;
+    RVA to;
+
+    inline bool contains(const Range& other) const
+    {
+        return from <= other.from && to >= other.to;
+    }
+
+    inline bool contains(RVA point) const
+    {
+        return from <= point && to >= point;
+    }
+};
+
 DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
 {
     this->disas = disas;
@@ -797,76 +841,127 @@ DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
 
 void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 {
-    Q_UNUSED(event);
+    Q_UNUSED(event)
 
-    RVA currentOffset = Core()->getOffset(); // TODO Use the seekable from DisassemblyWidget
+    using namespace std;
+    constexpr int penSizePix = 2;
+    constexpr int distanceBetweenLines = 10;
+    constexpr int arrowWidth = 5;
     int rightOffset = size().rwidth();
+    auto tEdit = qobject_cast<DisassemblyTextEdit*>(disas->getTextWidget());
+    int topOffset = int(tEdit->document()->documentMargin() + tEdit->contentsMargins().top() +
+                        disas->contentsMargins().top());
     int lineHeight = disas->getFontMetrics().height();
-    QColor arrowColor = ConfigColor("flow");
+    QColor arrowColorDown = ConfigColor("flow");
+    QColor arrowColorUp = ConfigColor("cflow");
     QPainter p(this);
-    QPen pen(arrowColor, 1, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
-    p.setPen(pen);
+    QPen penDown(arrowColorDown, penSizePix, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
+    QPen penUp(arrowColorUp, penSizePix, Qt::SolidLine, Qt::FlatCap, Qt::RoundJoin);
+    // Fill background
+    p.fillRect(event->rect(), Config()->getColor("gui.background").darker(115));
 
     QList<DisassemblyLine> lines = disas->getLines();
 
-    // Precompute pixel position of the arrows
-    // TODO This can probably be done in another loop for performance purposes
     QMap<RVA, int> linesPixPosition;
-    int i = 0;
-    int baseOffset = lineHeight / 2;
-    for (auto l : lines) {
-        linesPixPosition[l.offset] = i * lineHeight + baseOffset;
-        i++;
+    QMap<RVA, pair<RVA, int>> arrowInfo; /* offset -> (arrow, layer of arrow) */
+    int nLines = 0;
+    for (const auto& line : lines) {
+        linesPixPosition[line.offset] = nLines * lineHeight + lineHeight / 2 + topOffset;
+        nLines++;
+        if (line.arrow != RVA_INVALID) {
+            arrowInfo.insert(line.offset, { line.arrow, -1 });
+        }
     }
 
+    for (auto it = arrowInfo.begin(); it != arrowInfo.end(); it++) {
+        Range currRange = { it.key(), it.value().first };
+        it.value().second = it.value().second == -1
+                            ? 1
+                            : it.value().second;
+        for (auto innerIt = arrowInfo.begin(); innerIt != arrowInfo.end(); innerIt++) {
+            if (innerIt == it) {
+                continue;
+            }
+            Range innerRange = { innerIt.key(), innerIt.value().first };
+            if (currRange.contains(innerRange) || currRange.contains(innerRange.from)) {
+                it.value().second++;
+            }
+        }
+    }
+
+    // I'm sorry this loop below, but it is only way I see how to implement the feature
+    while (true) {
+        bool correction = false;
+        bool correction2 = false;
+        for (auto it = arrowInfo.begin(); it != arrowInfo.end(); it++) {
+            int minDistance = INT32_MAX;
+            Range currRange = { it.key(), it.value().first };
+            for (auto innerIt = arrowInfo.begin(); innerIt != arrowInfo.end(); innerIt++) {
+                if (innerIt == it) {
+                    continue;
+                }
+                Range innerRange = { innerIt.key(), innerIt.value().first };
+                if (it.value().second == innerIt.value().second &&
+                    (currRange.contains(innerRange) || currRange.contains(innerRange.from))) {
+                    it.value().second++;
+                    correction = true;
+                }
+                int distance = it.value().second - innerIt.value().second;
+                if (distance > 0 && distance < minDistance) {
+                    minDistance = distance;
+                }
+            }
+            if (minDistance > 1 && minDistance != INT32_MAX) {
+                correction2 = true;
+                it.value().second -= minDistance - 1;
+            }
+        }
+        if (!correction && !correction2) {
+            break;
+        }
+    }
+
+    const RVA currOffset = disas->getSeekable()->getOffset();
     // Draw the lines
-    // TODO Use better var names
-    QPolygon arrow;
-    int direction;
-    int lineFinalHeight;
-    int lineOffset = 10;
-    for (auto l : lines) {
+    for (const auto& l : lines) {
+        int lineOffset = int((distanceBetweenLines * arrowInfo[l.offset].second + distanceBetweenLines) *
+                         p.device()->devicePixelRatioF());
         // Skip until we reach a line that jumps to a destination
-        if (l.arrow == 0) {
+        if (l.arrow == RVA_INVALID) {
             continue;
         }
 
-        // Compute useful variables
-        if (l.arrow > currentOffset) {
-            direction = 1;
-        } else {
-            direction = -1;
+        bool jumpDown = l.arrow > l.offset;
+        p.setPen(jumpDown ? penDown : penUp);
+        if (l.offset == currOffset) {
+            QPen pen = p.pen();
+            pen.setWidth((penSizePix * 3) / 2);
+            p.setPen(pen);
         }
-
         bool endVisible = true;
-        int currentLineYPos = linesPixPosition[l.offset];
-        lineFinalHeight = linesPixPosition.value(l.arrow, -1);
 
-        if (lineFinalHeight == -1) {
-            if (direction == 1) {
-                lineFinalHeight = 0;
-            } else {
-                lineFinalHeight = size().height();
-            }
+        int currentLineYPos = linesPixPosition[l.offset];
+        int lineArrowY = linesPixPosition.value(l.arrow, -1);
+
+        if (lineArrowY == -1) {
+            lineArrowY = jumpDown
+                              ? geometry().bottom()
+                              : 0;
             endVisible = false;
         }
 
         // Draw the lines
         p.drawLine(rightOffset, currentLineYPos, rightOffset - lineOffset, currentLineYPos);
-        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset, lineFinalHeight);
+        p.drawLine(rightOffset - lineOffset, currentLineYPos, rightOffset - lineOffset, lineArrowY);
 
         if (endVisible) {
-            p.drawLine(rightOffset - lineOffset, lineFinalHeight, rightOffset, lineFinalHeight);
+            p.drawLine(rightOffset - lineOffset, lineArrowY, rightOffset, lineArrowY);
 
-            // Draw the arrow
-            arrow.clear();
-            arrow.append(QPoint(rightOffset - 3, lineFinalHeight + 3));
-            arrow.append(QPoint(rightOffset - 3, lineFinalHeight - 3));
-            arrow.append(QPoint(rightOffset, lineFinalHeight));
+            QPainterPath arrow;
+            arrow.moveTo(rightOffset - arrowWidth, lineArrowY + arrowWidth);
+            arrow.lineTo(rightOffset - arrowWidth, lineArrowY - arrowWidth);
+            arrow.lineTo(rightOffset, lineArrowY);
+            p.fillPath(arrow, p.pen().brush());
         }
-        p.drawConvexPolygon(arrow);
-
-	// Shift next jump line
-        lineOffset += 10;
     }
 }
