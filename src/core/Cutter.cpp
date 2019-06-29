@@ -2709,7 +2709,10 @@ QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)
         DisassemblyLine line;
         line.offset = object[RJsonKey::offset].toVariant().toULongLong();
         line.text = ansiEscapeToHtml(object[RJsonKey::text].toString());
-        line.arrow = object[RJsonKey::arrow].toVariant().toULongLong();
+        const auto& arrow = object[RJsonKey::arrow];
+        line.arrow = arrow.isNull()
+                     ? RVA_INVALID
+                     : arrow.toVariant().toULongLong();
         r << line;
     }
 
