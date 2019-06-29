@@ -102,7 +102,6 @@ public:
 
     void loadCurrentGraph();
     QString windowTitle;
-    QTextEdit *header = nullptr;
 
     int getWidth() { return width; }
     int getHeight() { return height; }
@@ -157,7 +156,6 @@ private:
     void initFont();
     void prepareGraphNode(GraphBlock &block);
     void cleanupEdges();
-    void prepareHeader();
     Token *getToken(Instr *instr, int x);
     QPoint getTextOffset(int line) const;
     QPoint getInstructionOffset(const DisassemblyBlock &block, int line) const;
@@ -206,8 +204,6 @@ private:
     QAction actionSyncOffset;
 
     QLabel *emptyText = nullptr;
-    SyntaxHighlighter *highlighter = nullptr;
-
 signals:
     void viewRefreshed();
     void viewZoomed();

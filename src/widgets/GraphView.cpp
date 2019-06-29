@@ -424,10 +424,14 @@ void GraphView::showRectangle(const QRect &block, bool anywhere)
     if (height * current_scale <= viewport()->height()) {
         centerY(false);
     } else {
-        static const int HEADER_HEIGHT = 35; // this could be handled better
-        if (!anywhere || block.y() < offset.y() + HEADER_HEIGHT
+        if (!anywhere || block.y() < offset.y()
                 || block.bottom() > offset.y() + renderSize.height()) {
-            offset.ry() = block.y() - HEADER_HEIGHT / current_scale;
+            offset.ry() = block.y();
+            // Leave some space at top if possible
+            const qreal topPadding = 10 / current_scale;
+            if (block.height() + topPadding < renderSize.height()) {
+                offset.ry() -= topPadding;
+            }
         }
     }
     clampViewOffset();

@@ -157,19 +157,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
 
     connect(blockMenu, &DisassemblyContextMenu::copy, this, &DisassemblerGraphView::copySelection);
 
-    header = new QTextEdit();
-    header->setFixedHeight(30);
-    header->setReadOnly(true);
-    header->setLineWrapMode(QTextEdit::NoWrap);
-
     // Add header as widget to layout so it stretches to the layout width
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setAlignment(Qt::AlignTop);
-    layout->addWidget(header);
-
-    prepareHeader();
-
-    highlighter = new SyntaxHighlighter(header->document());
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -393,17 +383,6 @@ void DisassemblerGraphView::cleanupEdges()
         }
         block.edges.erase(outIt, block.edges.end());
     }
-}
-
-void DisassemblerGraphView::prepareHeader()
-{
-    QString afcf = Core()->cmd("afcf").trimmed();
-    if (afcf.isEmpty()) {
-        header->hide();
-        return;
-    }
-    header->show();
-    header->setPlainText(afcf);
 }
 
 void DisassemblerGraphView::initFont()
@@ -783,9 +762,6 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
         transition_dont_seek = true;
         showBlock(&blocks[db->entry], !switchFunction);
         showInstruction(blocks[db->entry], addr);
-        prepareHeader();
-    } else {
-        header->hide();
     }
 }
 
