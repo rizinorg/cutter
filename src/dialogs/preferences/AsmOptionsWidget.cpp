@@ -22,7 +22,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
     ui->syntaxComboBox->blockSignals(false);
 
     checkboxes = {
-        { ui->describeCheckBox,     "asm.descirbe" },
+        { ui->describeCheckBox,     "asm.describe" },
         { ui->refptrCheckBox,       "asm.refptr" },
         { ui->xrefCheckBox,         "asm.xrefs" },
         { ui->bblineCheckBox,       "asm.bb.line" },
