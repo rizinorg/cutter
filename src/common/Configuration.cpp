@@ -109,15 +109,16 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.nbytes",         10 },
     { "asm.syntax",         "intel" },
     { "asm.ucase",          false },
-    { "asm.bb.line",         false },
+    { "asm.bb.line",        false },
     { "asm.capitalize",     false },
     { "asm.var.sub",        true },
     { "asm.var.subonly",    true },
     { "asm.tabs",           5 },
     { "asm.tabs.off",       5 },
     { "asm.marks",          false },
-    { "asm.refptr",          false },
-    { "esil.breakoninvalid",   true },
+    { "asm.refptr",         false },
+    { "asm.movlea",         false },
+    { "esil.breakoninvalid",true },
     { "graph.offset",       false}
 };
 
