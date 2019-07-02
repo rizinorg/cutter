@@ -25,6 +25,7 @@ void RenameDialog::on_buttonBox_rejected()
 void RenameDialog::setName(QString fcnName)
 {
     ui->nameEdit->setText(fcnName);
+    ui->nameEdit->selectAll();
 }
 
 QString RenameDialog::getName() const
