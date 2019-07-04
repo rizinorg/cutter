@@ -131,12 +131,9 @@ void MainWindow::initUI()
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
 
-    classNameToConstructorAndActionMap.insert(GraphWidget::getWidgetType(),
-                                              {getNewInstance<GraphWidget>, ui->actionGraph});
-    classNameToConstructorAndActionMap.insert(DisassemblyWidget::getWidgetType(),
-                                              {getNewInstance<DisassemblyWidget>, ui->actionDisassembly});
-    classNameToConstructorAndActionMap.insert(HexdumpWidget::getWidgetType(),
-                                              {getNewInstance<HexdumpWidget>, ui->actionHexdump});
+    widgetTypeToConstructorMap.insert(GraphWidget::getWidgetType(), getNewInstance<GraphWidget>);
+    widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(), getNewInstance<DisassemblyWidget>);
+    widgetTypeToConstructorMap.insert(HexdumpWidget::getWidgetType(), getNewInstance<HexdumpWidget>);
 
     initToolBar();
     initDocks();
@@ -324,9 +321,8 @@ void MainWindow::initDocks()
         if (std::none_of(dockWidgets.constBegin(), dockWidgets.constEnd(),
                          [&it](QDockWidget *w) { return w->objectName() == it; })) {
             className = it.split(';').at(0);
-            if (classNameToConstructorAndActionMap.contains(className)) {
-                auto widget = classNameToConstructorAndActionMap[className]
-                              .first(this, classNameToConstructorAndActionMap[className].second);
+            if (widgetTypeToConstructorMap.contains(className)) {
+                auto widget = widgetTypeToConstructorMap[className](this, nullptr);
                 widget->setObjectName(it);
                 addExtraWidget(widget);
             }
