@@ -272,10 +272,9 @@ private:
     bool isOverviewActive();
 
     /**
-     * @brief Map, where key is class name an value is pair of
-     * pointer to class constructor and action that passed to this constructor.
+     * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
      */
-    QMap<QString, std::pair<std::function<CutterDockWidget*(MainWindow*, QAction*)>, QAction*>> classNameToConstructorAndActionMap;
+    QMap<QString, std::function<CutterDockWidget*(MainWindow*, QAction*)>> widgetTypeToConstructorMap;
 };
 
 #endif // MAINWINDOW_H

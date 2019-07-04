@@ -881,14 +881,6 @@
     <string>Tmp</string>
    </property>
   </action>
-  <action name="actionDisassembly">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Disassembly</string>
-   </property>
-  </action>
   <action name="actionGraph">
    <property name="checkable">
     <bool>true</bool>
@@ -911,14 +903,6 @@
    </property>
    <property name="text">
     <string>Pseudocode</string>
-   </property>
-  </action>
-  <action name="actionHexdump">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Hexdump</string>
    </property>
   </action>
   <action name="actionConsole">
