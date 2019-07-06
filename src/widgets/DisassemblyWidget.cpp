@@ -844,7 +844,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     Q_UNUSED(event)
 
     using namespace std;
-    constexpr int penSizePix = 2;
+    constexpr int penSizePix = 1;
     constexpr int distanceBetweenLines = 10;
     constexpr int arrowWidth = 5;
     int rightOffset = size().rwidth();
