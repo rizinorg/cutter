@@ -922,7 +922,7 @@ QString CutterCore::getDecompiledCodePDC(RVA addr)
 
 bool CutterCore::getR2DecAvailable()
 {
-    return cmdList("e cmd.pdc=?").contains(QStringLiteral("r2dec"));
+    return cmdList("e cmd.pdc=?").contains(QStringLiteral("pdd"));
 }
 
 QString CutterCore::getDecompiledCodeR2Dec(RVA addr)
