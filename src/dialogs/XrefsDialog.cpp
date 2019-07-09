@@ -11,7 +11,6 @@
 XrefsDialog::XrefsDialog(QWidget *parent) :
     QDialog(parent),
     addr(0),
-    func_name(QString::null),
     ui(new Ui::XrefsDialog)
 {
     ui->setupUi(this);

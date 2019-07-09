@@ -543,7 +543,7 @@ QStringList Configuration::getAvailableTranslations()
     }
 
     QStringList fileNames = fileNamesSet.toList();
-    qSort(fileNames);
+    std::sort(fileNames.begin(), fileNames.end());
     QStringList languages;
     QString currLanguageName;
     auto allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,

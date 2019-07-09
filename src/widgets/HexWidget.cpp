@@ -1224,7 +1224,7 @@ QRectF HexWidget::itemRectangle(uint offset)
         x -= charWidth / 2;
         width += charWidth / 2;
     }
-    if (offset == itemGroupByteLen() - 1) {
+    if (static_cast<int>(offset) == itemGroupByteLen() - 1) {
         width += charWidth / 2;
     }
 
