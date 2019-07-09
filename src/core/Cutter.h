@@ -373,7 +373,7 @@ public:
     QList<VariableDescription> getVariables(RVA at);
 
     QList<XrefDescription> getXRefs(RVA addr, bool to, bool whole_function,
-                                    const QString &filterType = QString::null);
+                                    const QString &filterType = QString());
 
     QList<StringDescription> parseStringsJson(const QJsonDocument &doc);
 

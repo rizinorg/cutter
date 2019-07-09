@@ -284,7 +284,7 @@ bool NewFileDialog::fillRecentFilesList()
         } else {
             QListWidgetItem *item = new QListWidgetItem(
                 getIconFor(name, i++),
-                file + "\nCreated: " + info.created().toString() + "\nSize: " + qhelpers::formatBytecount(
+                file + "\nCreated: " + info.birthTime().toString() + "\nSize: " + qhelpers::formatBytecount(
                     info.size())
             );
             //":/img/icons/target.svg"), name );
