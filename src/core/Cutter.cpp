@@ -627,25 +627,38 @@ void CutterCore::seek(ut64 offset)
     }
     cmd(QString("s %1").arg(offset));
     // cmd already does emit seekChanged(core_->offset);
+}
+
+void CutterCore::show(ut64 offset)
+{
+    seek(offset);
+    triggerRaisePrioritizedMemoryWidget();
+}
+
+void CutterCore::show(QString offset)
+{
+    seek(offset);
+    triggerRaisePrioritizedMemoryWidget();
+}
+
+void CutterCore::show()
+{
     triggerRaisePrioritizedMemoryWidget();
 }
 
 void CutterCore::seek(QString thing)
 {
     cmdRaw(QString("s %1").arg(thing));
-    triggerRaisePrioritizedMemoryWidget();
 }
 
 void CutterCore::seekPrev()
 {
     cmd("s-");
-    triggerRaisePrioritizedMemoryWidget();
 }
 
 void CutterCore::seekNext()
 {
     cmd("s+");
-    triggerRaisePrioritizedMemoryWidget();
 }
 
 void CutterCore::updateSeek()
@@ -1150,7 +1163,7 @@ void CutterCore::attachDebug(int pid)
     // attach to process with dbg plugin
     cmd("o-*; e cfg.debug = true; o+ dbg://" + QString::number(pid));
     QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seek(programCounterValue);
+    show(programCounterValue);
     emit registersChanged();
     if (!currentlyDebugging || !currentlyEmulating) {
         // prevent register flags from appearing during debug/emul
@@ -1175,7 +1188,7 @@ void CutterCore::stopDebug()
         } else {
             cmd("dk 9; oo; .ar-");
         }
-        seek(offsetPriorDebugging);
+        show(offsetPriorDebugging);
         setConfig("asm.flags", true);
         setConfig("io.cache", false);
         currentlyDebugging = false;
@@ -1219,7 +1232,7 @@ void CutterCore::continueUntilCall()
             cmd("dcc");
         }
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seek(programCounterValue);
+        show(programCounterValue);
         emit registersChanged();
     }
 }
@@ -1233,7 +1246,7 @@ void CutterCore::continueUntilSyscall()
             cmd("dcs");
         }
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seek(programCounterValue);
+        show(programCounterValue);
         emit registersChanged();
     }
 }
@@ -1243,7 +1256,7 @@ void CutterCore::stepDebug()
     if (currentlyDebugging) {
         cmdEsil("ds");
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seek(programCounterValue);
+        show(programCounterValue);
         emit registersChanged();
     }
 }
@@ -1253,7 +1266,7 @@ void CutterCore::stepOverDebug()
     if (currentlyDebugging) {
         cmdEsil("dso");
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seek(programCounterValue);
+        show(programCounterValue);
         emit registersChanged();
     }
 }
@@ -1263,7 +1276,7 @@ void CutterCore::stepOutDebug()
     if (currentlyDebugging) {
         cmd("dsf");
         QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seek(programCounterValue);
+        show(programCounterValue);
         emit registersChanged();
     }
 }

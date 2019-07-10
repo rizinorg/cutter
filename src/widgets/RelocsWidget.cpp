@@ -147,7 +147,7 @@ void RelocsWidget::on_relocsTreeView_doubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    Core()->seek(index.data(RelocsModel::AddressRole).toLongLong());
+    Core()->show(index.data(RelocsModel::AddressRole).toLongLong());
 }
 
 void RelocsWidget::refreshRelocs()

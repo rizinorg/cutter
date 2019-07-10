@@ -194,5 +194,5 @@ void ImportsWidget::on_importsTreeView_doubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    Core()->seek(index.data(ImportsModel::AddressRole).toLongLong());
+    Core()->show(index.data(ImportsModel::AddressRole).toLongLong());
 }

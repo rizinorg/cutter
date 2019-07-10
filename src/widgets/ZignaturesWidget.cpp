@@ -151,5 +151,5 @@ void ZignaturesWidget::on_zignaturesTreeView_doubleClicked(const QModelIndex &in
 {
     ZignatureDescription item = index.data(
                                     ZignaturesModel::ZignatureDescriptionRole).value<ZignatureDescription>();
-    Core()->seek(item.offset);
+    Core()->show(item.offset);
 }

@@ -522,7 +522,7 @@ void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
 
     FunctionDescription function = index.data(
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    Core()->seek(function.offset);
+    Core()->show(function.offset);
 }
 
 void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
@@ -556,7 +556,7 @@ void FunctionsWidget::on_actionDisasAdd_comment_triggered()
         // Rename function in r2 core
         Core()->setComment(function.offset, comment);
         // Seek to new renamed function
-        Core()->seek(function.offset);
+        Core()->show(function.offset);
         // TODO: Refresh functions tree widget
     }
 }
@@ -581,7 +581,7 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
         Core()->renameFunction(function.name, new_name);
 
         // Seek to new renamed function
-        Core()->seek(function.offset);
+        Core()->show(function.offset);
     }
 }
 

@@ -145,6 +145,9 @@ public:
     /* Seek functions */
     void seek(QString thing);
     void seek(ut64 offset);
+    void show();
+    void show(ut64 offset); // seek and raise memory widget
+    void show(QString thing);
     void seekPrev();
     void seekNext();
     void updateSeek();

@@ -51,5 +51,5 @@ void EntrypointWidget::on_entrypointTreeWidget_itemDoubleClicked(QTreeWidgetItem
         return;
 
     EntrypointDescription ep = item->data(0, Qt::UserRole).value<EntrypointDescription>();
-    Core()->seek(ep.vaddr);
+    Core()->show(ep.vaddr);
 }

@@ -303,7 +303,7 @@ void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
     }
 
     auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
-    Core()->seek(section.vaddr);
+    Core()->show(section.vaddr);
 }
 
 void SectionsWidget::resizeEvent(QResizeEvent *event) {
@@ -470,7 +470,7 @@ void AddrDockScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         if (event->buttons() & Qt::LeftButton) {
             RVA seekAddr = getAddrFromPos((int)event->scenePos().y(), true);
             disableCenterOn = true;
-            Core()->seek(seekAddr);
+            Core()->show(seekAddr);
             disableCenterOn = false;
             return;
         }

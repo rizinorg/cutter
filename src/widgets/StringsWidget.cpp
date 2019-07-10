@@ -204,7 +204,7 @@ void StringsWidget::on_stringsTreeView_doubleClicked(const QModelIndex &index)
     }
 
     StringDescription str = index.data(StringsModel::StringDescriptionRole).value<StringDescription>();
-    Core()->seek(str.vaddr);
+    Core()->show(str.vaddr);
 }
 
 void StringsWidget::refreshStrings()

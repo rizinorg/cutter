@@ -179,7 +179,7 @@ void RegisterRefsWidget::on_registerRefTreeView_doubleClicked(const QModelIndex 
 {
     RegisterRefDescription item = index.data(
                                       RegisterRefModel::RegisterRefDescriptionRole).value<RegisterRefDescription>();
-    Core()->seek(item.value);
+    Core()->show(item.value);
 }
 
 void RegisterRefsWidget::showRegRefContextMenu(const QPoint &pt)

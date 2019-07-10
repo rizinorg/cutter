@@ -108,7 +108,7 @@ void StackWidget::onDoubleClicked(const QModelIndex &index)
     // Check if we are clicking on the offset or value columns and seek if it is the case
     if (index.column() <= 1) {
         QString item = index.data().toString();
-        Core()->seek(item);
+        Core()->show(item);
     }
 }
 
@@ -123,7 +123,7 @@ void StackWidget::customMenuRequested(QPoint pos)
 void StackWidget::seekOffset()
 {
     QString offset = viewStack->selectionModel()->currentIndex().data().toString();
-    Core()->seek(offset);
+    Core()->show(offset);
 }
 
 void StackWidget::editStack()
