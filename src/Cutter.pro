@@ -348,7 +348,8 @@ SOURCES += \
     common/BugReporting.cpp \
     common/HighDpiPixmap.cpp \
     widgets/GraphGridLayout.cpp \
-    widgets/HexWidget.cpp
+    widgets/HexWidget.cpp \
+    common/SelectionHighlight.cpp
 
 HEADERS  += \
     core/Cutter.h \
@@ -474,7 +475,8 @@ HEADERS  += \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
     widgets/GraphGridLayout.h \
-    widgets/HexWidget.h
+    widgets/HexWidget.h \
+    common/SelectionHighlight.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

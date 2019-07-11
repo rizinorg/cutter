@@ -3,6 +3,7 @@
 #include "common/Configuration.h"
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
+#include "common/SelectionHighlight.h"
 #include "core/MainWindow.h"
 
 #include <QScrollBar>
@@ -376,7 +377,7 @@ void DisassemblyWidget::highlightCurrentLine()
     }
 
     // Highlight all the words in the document same as the current one
-    extraSelections.append(getSameWordsSelections());
+    extraSelections.append(createSameWordsSelections(mDisasTextEdit, curHighlightedWord));
 
     // highlight PC line
     RVA PCAddr = Core()->getProgramCounterValue();
@@ -440,7 +441,7 @@ void DisassemblyWidget::updateCursorPosition()
 
     if (offset < topOffset || (offset > bottomOffset && bottomOffset != RVA_INVALID)) {
         mDisasTextEdit->moveCursor(QTextCursor::Start);
-        mDisasTextEdit->setExtraSelections(getSameWordsSelections());
+        mDisasTextEdit->setExtraSelections(createSameWordsSelections(mDisasTextEdit, curHighlightedWord));
     } else {
         RVA currentCursorOffset = readCurrentDisassemblyOffset();
         QTextCursor originalCursor = mDisasTextEdit->textCursor();
@@ -583,33 +584,6 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
             highlightCurrentLine();
         }
     }
-}
-
-QList<QTextEdit::ExtraSelection> DisassemblyWidget::getSameWordsSelections()
-{
-    QList<QTextEdit::ExtraSelection> selections;
-    QTextEdit::ExtraSelection highlightSelection;
-    QTextDocument *document = mDisasTextEdit->document();
-    QColor highlightWordColor = ConfigColor("wordHighlight");
-
-    if (curHighlightedWord.isNull()) {
-        return QList<QTextEdit::ExtraSelection>();
-    }
-
-    highlightSelection.cursor = mDisasTextEdit->textCursor();
-    highlightSelection.cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
-
-    while (!highlightSelection.cursor.isNull() && !highlightSelection.cursor.atEnd()) {
-        highlightSelection.cursor = document->find(curHighlightedWord, highlightSelection.cursor,
-                                                   QTextDocument::FindWholeWords);
-
-        if (!highlightSelection.cursor.isNull()) {
-            highlightSelection.format.setBackground(highlightWordColor);
-
-            selections.append(highlightSelection);
-        }
-    }
-    return selections;
 }
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
