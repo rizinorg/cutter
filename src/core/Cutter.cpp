@@ -931,9 +931,15 @@ RVA CutterCore::getOffsetJump(RVA addr)
     return value;
 }
 
-QString CutterCore::getDecompiledCodePDC(RVA addr)
+DecompiledCode CutterCore::getDecompiledCodePDC(RVA addr)
 {
-    return cmd("pdc @ " + QString::number(addr));
+    DecompiledCode code;
+    auto lines = cmd("pdc @ " + QString::number(addr)).split('\n');
+    code.lines.reserve(lines.size());
+    for (const auto &line : lines) {
+        code.lines.append(DecompiledCode::Line(line));
+    }
+    return code;
 }
 
 bool CutterCore::getR2DecAvailable()
@@ -941,9 +947,48 @@ bool CutterCore::getR2DecAvailable()
     return cmdList("e cmd.pdc=?").contains(QStringLiteral("pdd"));
 }
 
-QString CutterCore::getDecompiledCodeR2Dec(RVA addr)
+DecompiledCode CutterCore::getDecompiledCodeR2Dec(RVA addr)
 {
-    return cmd("pdd @ " + QString::number(addr));
+    DecompiledCode code;
+    QString s;
+
+    QJsonObject json = cmdj("pddj @ " + QString::number(addr)).object();
+    if (json.isEmpty()) {
+        return code;
+    }
+
+    for (const auto &line : json["log"].toArray()) {
+        if (!line.isString()) {
+            continue;
+        }
+        code.lines.append(DecompiledCode::Line(line.toString()));
+    }
+
+    auto linesArray = json["lines"].toArray();
+    code.lines.reserve(code.lines.size() + linesArray.size());
+    for (const auto &line : linesArray) {
+        QJsonObject lineObject = line.toObject();
+        if (lineObject.isEmpty()) {
+            continue;
+        }
+        DecompiledCode::Line codeLine;
+        codeLine.str = lineObject["str"].toString();
+        bool ok;
+        codeLine.addr = lineObject["offset"].toVariant().toULongLong(&ok);
+        if (!ok) {
+            codeLine.addr = RVA_INVALID;
+        }
+        code.lines.append(codeLine);
+    }
+
+    for (const auto &line : json["errors"].toArray()) {
+        if (!line.isString()) {
+            continue;
+        }
+        code.lines.append(DecompiledCode::Line(line.toString()));
+    }
+
+    return code;
 }
 
 

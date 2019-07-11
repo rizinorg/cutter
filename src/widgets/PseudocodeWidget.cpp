@@ -6,6 +6,19 @@
 #include "common/TempConfig.h"
 
 #include <QTextEdit>
+#include <QTextBlock>
+
+class DecompiledCodeBlockUserData: public QTextBlockUserData
+{
+public:
+    DecompiledCode::Line line;
+
+    explicit DecompiledCodeBlockUserData(const DecompiledCode::Line &line)
+    {
+        this->line = line;
+    }
+};
+
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Pseudocode, main, action),
@@ -53,7 +66,7 @@ void PseudocodeWidget::doRefresh(RVA addr)
         return;
     }
 
-    QString decompiledCode;
+    DecompiledCode decompiledCode;
     switch (ui->decompilerComboBox->currentIndex()) {
     case DecompilerCBR2Dec:
         if (Core()->getR2DecAvailable()) {
@@ -66,12 +79,19 @@ void PseudocodeWidget::doRefresh(RVA addr)
         break;
     }
 
-    if (decompiledCode.length() == 0) {
+    if (decompiledCode.lines.isEmpty()) {
         ui->textEdit->setText(tr("Cannot decompile at") + " " + RAddressString(
                                   addr) + " " + tr("(Not a function?)"));
         return;
+    } else {
+        ui->textEdit->document()->clear();
+        QTextCursor cursor(ui->textEdit->document());
+        for (const DecompiledCode::Line &line : decompiledCode.lines) {
+            cursor.insertText(line.str);
+            cursor.block().setUserData(new DecompiledCodeBlockUserData(line));
+            cursor.insertBlock();
+        }
     }
-    ui->textEdit->setText(decompiledCode);
 }
 
 void PseudocodeWidget::refreshPseudocode()
