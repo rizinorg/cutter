@@ -7,12 +7,14 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
+include(Utils)
 
 set(CUTTER_PYTHON_MIN 3.5)
 
 option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." OFF)
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
+tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -95,6 +97,22 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
 endif()
 
+if(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
+    if(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING STREQUAL AUTO)
+        find_package(KF5SyntaxHighlighting)
+        if(KF5SyntaxHighlighting_FOUND)
+            set(KSYNTAXHIGHLIGHTING_STATUS ON)
+        else()
+            set(KSYNTAXHIGHLIGHTING_STATUS "OFF (KSyntaxHighlighting not found)")
+        endif()
+    else()
+        find_package(KF5SyntaxHighlighting REQUIRED)
+        set(KSYNTAXHIGHLIGHTING_STATUS ON)
+    endif()
+else()
+    set(KSYNTAXHIGHLIGHTING_STATUS OFF)
+endif()
+
 
 
 message(STATUS "")
@@ -103,6 +121,7 @@ message(STATUS "Options:")
 message(STATUS "- Python: ${CUTTER_ENABLE_PYTHON}")
 message(STATUS "- Python Bindings: ${CUTTER_ENABLE_PYTHON_BINDINGS}")
 message(STATUS "- Crash Handling: ${CUTTER_ENABLE_CRASH_REPORTS}")
+message(STATUS "- KSyntaxHighlighting: ${KSYNTAXHIGHLIGHTING_STATUS}")
 message(STATUS "")
 
 
@@ -184,4 +203,8 @@ if(CUTTER_ENABLE_PYTHON)
     endif()
 endif()
 
+if(TARGET KF5::SyntaxHighlighting)
+    target_link_libraries(Cutter KF5::SyntaxHighlighting)
+    target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
+endif()
 

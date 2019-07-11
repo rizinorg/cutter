@@ -7,7 +7,8 @@
 namespace Ui {
 class TypesInteractionDialog;
 }
-class SyntaxHighlighter;
+
+class QSyntaxHighlighter;
 
 class TypesInteractionDialog : public QDialog
 {
@@ -48,7 +49,7 @@ private slots:
 
 private:
     std::unique_ptr<Ui::TypesInteractionDialog> ui;
-    SyntaxHighlighter *syntaxHighLighter;
+    QSyntaxHighlighter *syntaxHighLighter;
 
 signals:
     /**

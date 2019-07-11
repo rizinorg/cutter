@@ -1,12 +1,11 @@
 #include "PseudocodeWidget.h"
 #include "ui_PseudocodeWidget.h"
 
-#include <QTextEdit>
-
 #include "common/Configuration.h"
 #include "common/Helpers.h"
-#include "common/SyntaxHighlighter.h"
 #include "common/TempConfig.h"
+
+#include <QTextEdit>
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(CutterCore::MemoryWidgetType::Pseudocode, main, action),
@@ -14,7 +13,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    syntaxHighLighter = new SyntaxHighlighter(ui->textEdit->document());
+    syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
 
     setupFonts();
     colorsUpdatedSlot();
