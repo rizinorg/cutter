@@ -12,9 +12,17 @@
 #include <QObject>
 #include <QTextBlockUserData>
 
+/**
+ * Represents a single line of decompiled code as part of the displayed text,
+ * including the position inside the QTextDocument
+ */
 struct DecompiledCodeTextLine
 {
+    /**
+     * position inside the QTextDocument
+     */
     int position;
+
     DecompiledCode::Line line;
 
     DecompiledCodeTextLine(int position, const DecompiledCode::Line &line)

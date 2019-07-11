@@ -36,6 +36,9 @@ private:
 
     QSyntaxHighlighter *syntaxHighlighter;
 
+    /**
+     * Index of all lines that are currently displayed, ordered by the position in the text
+     */
     QList<DecompiledCodeTextLine> textLines;
 
     bool seekFromCursor = false;

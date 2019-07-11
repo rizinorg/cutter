@@ -303,9 +303,19 @@ struct VariableDescription {
     QString type;
 };
 
+/**
+ * Describes the result of a Decompilation Process with optional metadata
+ */
 struct DecompiledCode {
+    /**
+     * A single line of decompiled code
+     */
     struct Line {
         QString str;
+
+        /**
+         * Offset of the original instruction
+         */
         RVA addr;
 
         Line()
