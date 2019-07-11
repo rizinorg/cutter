@@ -15,7 +15,7 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly) :
 {
     ui->setupUi(this);
     ui->plainTextEdit->setPlainText("");
-    syntaxHighLighter = new SyntaxHighlighter(ui->plainTextEdit->document());
+    syntaxHighLighter = Config()->createSyntaxHighlighter(ui->plainTextEdit->document());
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     ui->plainTextEdit->setReadOnly(readOnly);
 }

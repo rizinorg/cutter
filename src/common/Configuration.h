@@ -8,6 +8,16 @@
 #define Config() (Configuration::instance())
 #define ConfigColor(x) Config()->getColor(x)
 
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+namespace KSyntaxHighlighting {
+    class Repository;
+    class Theme;
+}
+#endif
+
+class QSyntaxHighlighter;
+class QTextDocument;
+
 enum ColorFlags {
     LightFlag = 1,
     DarkFlag = 2
@@ -26,6 +36,10 @@ private:
     QPalette nativePalette;
     QSettings s;
     static Configuration *mPtr;
+
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+    KSyntaxHighlighting::Repository *kSyntaxHighlightingRepository;
+#endif
 
     // Colors
     void loadBaseThemeNative();
@@ -76,6 +90,12 @@ public:
     }
 
     const CutterInterfaceTheme *getCurrentTheme();
+
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+    KSyntaxHighlighting::Repository *getKSyntaxHighlightingRepository();
+    KSyntaxHighlighting::Theme getKSyntaxHighlightingTheme();
+#endif
+    QSyntaxHighlighter *createSyntaxHighlighter(QTextDocument *document);
 
     QString getDirProjects();
     void setDirProjects(const QString &dir);

@@ -11,7 +11,7 @@ class PseudocodeWidget;
 }
 
 class QTextEdit;
-class SyntaxHighlighter;
+class QSyntaxHighlighter;
 
 class PseudocodeWidget : public MemoryDockWidget
 {
@@ -30,7 +30,7 @@ private:
     enum DecompilerComboBoxValues { DecompilerCBR2Dec, DecompilerCBPdc };
     std::unique_ptr<Ui::PseudocodeWidget> ui;
 
-    SyntaxHighlighter *syntaxHighLighter;
+    QSyntaxHighlighter *syntaxHighlighter;
 
     void doRefresh(RVA addr);
     void setupFonts();

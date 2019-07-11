@@ -7,7 +7,15 @@
 #include <QApplication>
 #include <QLibraryInfo>
 
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+#include <KSyntaxHighlighting/repository.h>
+#include <KSyntaxHighlighting/theme.h>
+#include <KSyntaxHighlighting/syntaxhighlighter.h>
+#include <KSyntaxHighlighting/definition.h>
+#endif
+
 #include "common/ColorThemeWorker.h"
+#include "common/SyntaxHighlighter.h"
 
 /* Map with names of themes associated with its color palette
  * (Dark or Light), so for dark interface themes will be shown only Dark color themes
@@ -133,6 +141,9 @@ Configuration::Configuration() : QObject(), nativePalette(qApp->palette())
                               .arg(s.fileName())
                              );
     }
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+    kSyntaxHighlightingRepository = nullptr;
+#endif
 }
 
 Configuration *Configuration::instance()
@@ -147,6 +158,10 @@ void Configuration::loadInitial()
     setInterfaceTheme(getInterfaceTheme());
     setColorTheme(getColorTheme());
     applySavedAsmOptions();
+
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+    kSyntaxHighlightingRepository = new KSyntaxHighlighting::Repository();
+#endif
 }
 
 QString Configuration::getDirProjects()
@@ -395,6 +410,40 @@ const CutterInterfaceTheme *Configuration::getCurrentTheme()
         setInterfaceTheme(i);
     }
     return &cutterInterfaceThemesList()[i];
+}
+
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+KSyntaxHighlighting::Repository *Configuration::getKSyntaxHighlightingRepository()
+{
+    return kSyntaxHighlightingRepository;
+}
+
+KSyntaxHighlighting::Theme Configuration::getKSyntaxHighlightingTheme()
+{
+    auto repo = getKSyntaxHighlightingRepository();
+    if (!repo) {
+        return KSyntaxHighlighting::Theme();
+    }
+    return repo->defaultTheme(
+        getCurrentTheme()->flag & DarkFlag
+        ? KSyntaxHighlighting::Repository::DefaultTheme::DarkTheme
+        : KSyntaxHighlighting::Repository::DefaultTheme::LightTheme);
+}
+#endif
+
+QSyntaxHighlighter *Configuration::createSyntaxHighlighter(QTextDocument *document)
+{
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+    auto syntaxHighlighter = new KSyntaxHighlighting::SyntaxHighlighter(document);
+    auto repo = getKSyntaxHighlightingRepository();
+    if (repo) {
+        syntaxHighlighter->setDefinition(repo->definitionForName("C"));
+        syntaxHighlighter->setTheme(repo->defaultTheme(KSyntaxHighlighting::Repository::DefaultTheme::DarkTheme));
+    }
+    return syntaxHighlighter;
+#else
+    return new SyntaxHighlighter(document);
+#endif
 }
 
 QString Configuration::getLogoFile()
