@@ -116,6 +116,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     Core()->initialize();
     Core()->setSettings();
     Config()->loadInitial();
+    Core()->loadCutterRC();
 
     bool analLevelSpecified = false;
     int analLevel = 0;
