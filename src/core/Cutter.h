@@ -44,6 +44,7 @@ public:
     static CutterCore *instance();
 
     void initialize();
+    void loadCutterRC();
 
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 

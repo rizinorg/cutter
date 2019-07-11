@@ -185,6 +185,22 @@ void CutterCore::initialize()
     asyncTaskManager = new AsyncTaskManager(this);
 }
 
+void CutterCore::loadCutterRC()
+{
+    auto home = QDir::home();
+    if (!home.exists()) {
+        return;
+    }
+    auto cutterRCFileInfo = QFileInfo(home, ".cutterrc");
+    if (!cutterRCFileInfo.isFile()) {
+        return;
+    }
+    auto path = cutterRCFileInfo.absoluteFilePath();
+    qInfo() << "Loading" << path;
+    r_core_cmd_file(core_, path.toUtf8().constData());
+}
+
+
 QList<QString> CutterCore::sdbList(QString path)
 {
     CORE_LOCK();
