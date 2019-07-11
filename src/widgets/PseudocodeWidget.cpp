@@ -155,11 +155,11 @@ void PseudocodeWidget::updateCursorPosition()
     connectCursorPositionChanged(true);
 
     auto it = findLineByOffset(offset);
-    if(it != textLines.end()) {
+    if (it != textLines.end()) {
         // move back if the offset is identical (so we don't land on closing braces for example)
-        while(it != textLines.begin()) {
+        while (it != textLines.begin()) {
             auto prev = it - 1;
-            if(prev->line.addr != it->line.addr) {
+            if (prev->line.addr != it->line.addr) {
                 break;
             }
             it = prev;
@@ -200,7 +200,7 @@ QList<DecompiledCodeTextLine>::iterator PseudocodeWidget::findLineByOffset(RVA o
 RVA PseudocodeWidget::getOffsetAtLine(const QTextCursor &tc)
 {
     auto it = findLine(tc.position());
-    if(it == textLines.begin()) {
+    if (it == textLines.begin()) {
         return RVA_INVALID;
     }
     it--;
