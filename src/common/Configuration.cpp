@@ -10,7 +10,6 @@
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
 #include <KSyntaxHighlighting/repository.h>
 #include <KSyntaxHighlighting/theme.h>
-#include <KSyntaxHighlighting/syntaxhighlighter.h>
 #include <KSyntaxHighlighting/definition.h>
 #endif
 
@@ -400,6 +399,9 @@ void Configuration::setInterfaceTheme(int theme)
 
     emit interfaceThemeChanged();
     emit colorsUpdated();
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+    emit kSyntaxHighlightingThemeChanged();
+#endif
 }
 
 const CutterInterfaceTheme *Configuration::getCurrentTheme()
@@ -434,15 +436,14 @@ KSyntaxHighlighting::Theme Configuration::getKSyntaxHighlightingTheme()
 QSyntaxHighlighter *Configuration::createSyntaxHighlighter(QTextDocument *document)
 {
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
-    auto syntaxHighlighter = new KSyntaxHighlighting::SyntaxHighlighter(document);
+    auto syntaxHighlighter = new SyntaxHighlighter(document);
     auto repo = getKSyntaxHighlightingRepository();
     if (repo) {
         syntaxHighlighter->setDefinition(repo->definitionForName("C"));
-        syntaxHighlighter->setTheme(repo->defaultTheme(KSyntaxHighlighting::Repository::DefaultTheme::DarkTheme));
     }
     return syntaxHighlighter;
 #else
-    return new SyntaxHighlighter(document);
+    return new FallbackSyntaxHighlighter(document);
 #endif
 }
 
