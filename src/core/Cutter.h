@@ -248,9 +248,9 @@ public:
     QString currentlyOpenFile;
 
     /* Pseudocode */
-    QString getDecompiledCodePDC(RVA addr);
+    DecompiledCode getDecompiledCodePDC(RVA addr);
     bool getR2DecAvailable();
-    QString getDecompiledCodeR2Dec(RVA addr);
+    DecompiledCode getDecompiledCodeR2Dec(RVA addr);
 
     RVA getOffsetJump(RVA addr);
     QJsonDocument getFileInfo();

@@ -31,9 +31,9 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTextEdit" name="textEdit">
+     <widget class="QPlainTextEdit" name="textEdit">
       <property name="lineWrapMode">
-       <enum>QTextEdit::NoWrap</enum>
+       <enum>QPlainTextEdit::NoWrap</enum>
       </property>
       <property name="readOnly">
        <bool>true</bool>

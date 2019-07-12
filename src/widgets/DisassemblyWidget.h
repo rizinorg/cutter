@@ -81,7 +81,6 @@ private:
     void connectCursorPositionChanged(bool disconnect);
 
     void moveCursorRelative(bool up, bool page);
-    QList<QTextEdit::ExtraSelection> getSameWordsSelections();
 
     QAction syncIt;
 };
