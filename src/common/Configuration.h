@@ -152,6 +152,9 @@ signals:
     void fontsUpdated();
     void colorsUpdated();
     void interfaceThemeChanged();
+#ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
+    void kSyntaxHighlightingThemeChanged();
+#endif
 };
 
 #endif // CONFIGURATION_H

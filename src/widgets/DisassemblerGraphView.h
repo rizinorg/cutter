@@ -14,7 +14,7 @@
 #include "common/CutterSeekable.h"
 
 class QTextEdit;
-class SyntaxHighlighter;
+class FallbackSyntaxHighlighter;
 
 class DisassemblerGraphView : public GraphView
 {
