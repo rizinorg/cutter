@@ -59,8 +59,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     QShortcut *shortcut_disassembly = new QShortcut(QKeySequence(Qt::Key_Space), this);
     shortcut_disassembly->setContext(Qt::WidgetShortcut);
     connect(shortcut_disassembly, &QShortcut::activated, this, [] {
-        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
-        Core()->triggerRaisePrioritizedMemoryWidget();
+        Core()->triggerShowMemoryWidget(CutterCore::MemoryWidgetType::Disassembly);
+        //Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly); // TODO:[#1616] cleanup this
+        //Core()->triggerRaisePrioritizedMemoryWidget();
     });
     // ESC for previous
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);

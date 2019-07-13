@@ -193,8 +193,9 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
     // Space to switch to graph
     ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut, [] {
-        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-        Core()->triggerRaisePrioritizedMemoryWidget();
+        Core()->triggerShowMemoryWidget(CutterCore::MemoryWidgetType::Graph);
+        //Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph); //TODO:[#1616] cleanup this
+        //Core()->triggerRaisePrioritizedMemoryWidget();
     })
 
     ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)

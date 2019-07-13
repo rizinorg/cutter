@@ -95,6 +95,7 @@ public:
     void refreshOmniBar(const QStringList &flags);
 
     void addWidget(QDockWidget *widget);
+    void addMemoryDockWidget(MemoryDockWidget *widget);
     void removeWidget(QDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
 
@@ -112,6 +113,7 @@ public:
     void messageBoxWarning(QString title, QString message);
 
     QString getUniqueObjectName(const QString &widgetType) const;
+    void showMemoryWidget();
 
 public slots:
     void finalizeOpen();
@@ -275,6 +277,8 @@ private:
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
      */
     QMap<QString, std::function<CutterDockWidget*(MainWindow*, QAction*)>> widgetTypeToConstructorMap;
+
+    MemoryDockWidget* lastMemoryWidget = nullptr;
 };
 
 #endif // MAINWINDOW_H

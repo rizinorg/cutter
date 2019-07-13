@@ -171,6 +171,8 @@ void MainWindow::initUI()
     connect(core, SIGNAL(newDebugMessage(const QString &)),
             this->consoleDock, SLOT(addDebugOutput(const QString &)));
 
+    connect(core, &CutterCore::showMemoryWidgetRequested, this, &MainWindow::showMemoryWidget);
+
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
@@ -863,6 +865,16 @@ QString MainWindow::getUniqueObjectName(const QString &widgetType) const
     return widgetType + ";"  + QString::number(id);
 }
 
+void MainWindow::showMemoryWidget()
+{
+    if (lastMemoryWidget) {
+        if (lastMemoryWidget->tryRaiseMemoryWidget()) {
+            return;
+        }
+    }
+    //TODO: raise somethig else
+}
+
 void MainWindow::initCorners()
 {
     // TODO: Allow the user to select this option visually in the GUI settings
@@ -889,12 +901,24 @@ void MainWindow::addWidget(QDockWidget* widget)
             }
             updateDockActionsChecked();
         });
-    }
+    }    
+}
+
+void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
+{
+    connect(widget, &QDockWidget::visibilityChanged, this, [this, widget](bool visibility) {
+        if (visibility) {
+           lastMemoryWidget = widget;
+        }
+    });
 }
 
 void MainWindow::removeWidget(QDockWidget *widget)
 {
     dockWidgets.removeAll(widget);
+    if (lastMemoryWidget == widget) {
+        lastMemoryWidget = nullptr;
+    }
 }
 
 void MainWindow::updateDockActionChecked(QAction *action)

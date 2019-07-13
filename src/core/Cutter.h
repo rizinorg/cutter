@@ -33,6 +33,7 @@ public:
     RCore *operator->() const;
 };
 
+class MemoryDockWidget;
 
 class CutterCore: public QObject
 {
@@ -161,13 +162,17 @@ public:
     {
         return memoryWidgetPriority;
     }
-    void setMemoryWidgetPriority(MemoryWidgetType type)
+    void setMemoryWidgetPriority(MemoryWidgetType type) //TODO: replace
     {
         memoryWidgetPriority = type;
     }
-    void triggerRaisePrioritizedMemoryWidget()
+    void triggerShowMemoryWidget(MemoryWidgetType type)
     {
-        emit raisePrioritizedMemoryWidget(memoryWidgetPriority);
+        //TOOD: implement this
+    }
+    void triggerRaisePrioritizedMemoryWidget() // TODO: replace
+    {
+        emit showMemoryWidgetRequested();
     }
 
     /* Math functions */
@@ -442,6 +447,8 @@ signals:
 
     void newMessage(const QString &msg);
     void newDebugMessage(const QString &msg);
+
+    void showMemoryWidgetRequested();
 
 private:
     MemoryWidgetType memoryWidgetPriority;

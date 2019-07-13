@@ -15,8 +15,8 @@ public:
 
     CutterSeekable* getSeekable() const;
 
+    bool tryRaiseMemoryWidget();
 private:
-    void handleRaiseMemoryWidget(CutterCore::MemoryWidgetType raiseType);
 
     CutterCore::MemoryWidgetType mType;
 
