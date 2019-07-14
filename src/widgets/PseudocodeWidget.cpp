@@ -5,6 +5,7 @@
 #include "common/Helpers.h"
 #include "common/TempConfig.h"
 #include "common/SelectionHighlight.h"
+#include "common/Decompiler.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -58,12 +59,16 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         doRefresh(Core()->getOffset());
     });
 
-    if (Core()->getR2DecAvailable()) {
-        ui->decompilerComboBox->setEnabled(true);
-        ui->decompilerComboBox->setCurrentIndex(DecompilerCBR2Dec);
-    } else {
+    auto decompilers = Core()->getDecompilers();
+    for (auto dec : decompilers) {
+        ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
+    }
+
+    if(decompilers.size() <= 1) {
         ui->decompilerComboBox->setEnabled(false);
-        ui->decompilerComboBox->setCurrentIndex(DecompilerCBPdc);
+        if (decompilers.isEmpty()) {
+            ui->textEdit->setPlainText(tr("No Decompiler available."));
+        }
     }
 
     connectCursorPositionChanged(false);
@@ -77,23 +82,21 @@ PseudocodeWidget::~PseudocodeWidget() = default;
 
 void PseudocodeWidget::doRefresh(RVA addr)
 {
+    if (ui->decompilerComboBox->currentIndex() < 0) {
+        return;
+    }
+
+    Decompiler *dec = Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
+    if (!dec) {
+        return;
+    }
+
     if (addr == RVA_INVALID) {
         ui->textEdit->setPlainText(tr("Click Refresh to generate Pseudocode from current offset."));
         return;
     }
 
-    DecompiledCode decompiledCode;
-    switch (ui->decompilerComboBox->currentIndex()) {
-    case DecompilerCBR2Dec:
-        if (Core()->getR2DecAvailable()) {
-            decompiledCode = Core()->getDecompiledCodeR2Dec(addr);
-            break;
-        } // else fallthrough
-    case DecompilerCBPdc:
-    default:
-        decompiledCode = Core()->getDecompiledCodePDC(addr);
-        break;
-    }
+    DecompiledCode decompiledCode = dec->decompileAt(addr);
 
     textLines = {};
     textLines.reserve(decompiledCode.lines.size());

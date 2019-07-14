@@ -3,6 +3,7 @@
 #include "CutterApplication.h"
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
+#include "common/Decompiler.h"
 
 #include <QApplication>
 #include <QFileOpenEvent>
@@ -117,6 +118,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     Core()->setSettings();
     Config()->loadInitial();
     Core()->loadCutterRC();
+
+    if (R2DecDecompiler::isAvailable()) {
+        Core()->registerDecompiler(new R2DecDecompiler(Core()));
+    }
 
     bool analLevelSpecified = false;
     int analLevel = 0;

@@ -304,35 +304,6 @@ struct VariableDescription {
     QString type;
 };
 
-/**
- * Describes the result of a Decompilation Process with optional metadata
- */
-struct DecompiledCode {
-    /**
-     * A single line of decompiled code
-     */
-    struct Line {
-        QString str;
-
-        /**
-         * Offset of the original instruction
-         */
-        RVA addr;
-
-        Line()
-        {
-            this->addr = RVA_INVALID;
-        }
-
-        explicit Line(const QString &str, RVA addr = RVA_INVALID)
-        {
-            this->str = str;
-            this->addr = addr;
-        }
-    };
-    QList<Line> lines = {};
-};
-
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
@@ -370,6 +341,5 @@ Q_DECLARE_METATYPE(BreakpointDescription)
 Q_DECLARE_METATYPE(ProcessDescription)
 Q_DECLARE_METATYPE(RegisterRefDescription)
 Q_DECLARE_METATYPE(VariableDescription)
-Q_DECLARE_METATYPE(DecompiledCode::Line)
 
 #endif // DESCRIPTIONS_H

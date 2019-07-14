@@ -31,7 +31,6 @@ private slots:
     void seekChanged();
 
 private:
-    enum DecompilerComboBoxValues { DecompilerCBR2Dec, DecompilerCBPdc };
     std::unique_ptr<Ui::PseudocodeWidget> ui;
 
     QSyntaxHighlighter *syntaxHighlighter;
