@@ -830,8 +830,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     constexpr int arrowWidth = 5;
     int rightOffset = size().rwidth();
     auto tEdit = qobject_cast<DisassemblyTextEdit*>(disas->getTextWidget());
-    int topOffset = int(tEdit->document()->documentMargin() + tEdit->contentsMargins().top() +
-                        disas->contentsMargins().top());
+    int topOffset = int(tEdit->document()->documentMargin() + tEdit->contentsMargins().top());
     int lineHeight = disas->getFontMetrics().height();
     QColor arrowColorDown = ConfigColor("flow");
     QColor arrowColorUp = ConfigColor("cflow");
