@@ -32,6 +32,7 @@ public slots:
     void showDisasContextMenu(const QPoint &pt);
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
+    void scrollInstructions(int count);
     void seekPrev();
     void setPreviewMode(bool previewMode);
     QFontMetrics getFontMetrics();
@@ -41,7 +42,6 @@ protected slots:
     void on_seekChanged(RVA offset);
     void refreshDisasm(RVA offset = RVA_INVALID);
 
-    void scrollInstructions(int count);
     bool updateMaxLines();
 
     void cursorPositionChanged();
@@ -143,6 +143,7 @@ class DisassemblyLeftPanel: public QFrame
 public:
     DisassemblyLeftPanel(DisassemblyWidget *disas);
     void paintEvent(QPaintEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
     DisassemblyWidget *disas;

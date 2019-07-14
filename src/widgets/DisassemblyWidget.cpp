@@ -79,7 +79,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     mDisasScrollArea->setFocusPolicy(Qt::ClickFocus);
 
     setFocusPolicy(Qt::ClickFocus);
-    
+
     // Behave like all widgets: highlight on focus and hover
     connect(qApp, &QApplication::focusChanged, this, [this](QWidget* , QWidget* now) {
         QColor borderColor = this == now
@@ -217,7 +217,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, true);
     })
-    
+
     // Plus sign in num-bar considered "Qt::Key_Equal"
     ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
     // Plus sign in numpad
@@ -811,6 +811,13 @@ struct Range {
 DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
 {
     this->disas = disas;
+}
+
+void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event) {
+    int count = -(event->angleDelta() / 15).y();
+    count -= (count > 0 ? 5 : -5);
+
+    this->disas->scrollInstructions(count);
 }
 
 void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
