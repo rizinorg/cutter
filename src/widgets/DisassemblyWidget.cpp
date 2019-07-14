@@ -161,14 +161,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        bool emptyGraph = (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Graph
-                           && Core()->isGraphEmpty());
-        if (visibility && !emptyGraph) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
-        }
-    });
-
     connect(Core(), &CutterCore::refreshAll, this, [this]() {
         refreshDisasm(seekable->getOffset());
     });
@@ -192,10 +184,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(a, &QAction::triggered, this, (slot)); }
 
     // Space to switch to graph
-    ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut, [] {
-        Core()->triggerShowMemoryWidget(CutterCore::MemoryWidgetType::Graph);
-        //Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph); //TODO:[#1616] cleanup this
-        //Core()->triggerRaisePrioritizedMemoryWidget();
+    ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut, [this] {
+        mainWindow->showMemoryWidget(CutterCore::MemoryWidgetType::Graph);
     })
 
     ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)

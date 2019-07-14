@@ -98,6 +98,8 @@ public:
     void addMemoryDockWidget(MemoryDockWidget *widget);
     void removeWidget(QDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
+    MemoryDockWidget *addNewMemoryWidget(CutterCore::MemoryWidgetType type, RVA address, bool synchronized = true);
+
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
@@ -114,6 +116,9 @@ public:
 
     QString getUniqueObjectName(const QString &widgetType) const;
     void showMemoryWidget();
+    void showMemoryWidget(CutterCore::MemoryWidgetType type);
+
+    QMenu *createShowInMenu(QWidget *parent, RVA address);
 
 public slots:
     void finalizeOpen();

@@ -68,8 +68,9 @@ protected:
     void closeEvent(QCloseEvent *event) override;
     QAction *getBoundAction() const;
 
-private:
     MainWindow *mainWindow;
+
+private:
     QAction *action;
 
     bool isTransient = false;

@@ -40,9 +40,16 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         main->toggleOverview(visibility, this);
         if (visibility) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
             graphView->onSeekChanged(Core()->getOffset());
         }
+    });
+
+    QAction *switchAction = new QAction(this);
+    switchAction->setShortcut(Qt::Key_Space);
+    switchAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    addAction(switchAction);
+    connect(switchAction, &QAction::triggered, this, [this] {
+        mainWindow->showMemoryWidget(CutterCore::MemoryWidgetType::Disassembly);
     });
 
     connect(graphView, &DisassemblerGraphView::graphMoved, this, [ = ]() {

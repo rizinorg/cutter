@@ -7,7 +7,6 @@ MemoryDockWidget::MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow
     : CutterDockWidget(parent, action)
     , mType(type), seekable(new CutterSeekable(this))
 {
-    //connect(Core(), &CutterCore::raisePrioritizedMemoryWidget, this, &MemoryDockWidget::handleRaiseMemoryWidget); //TODO:[#1616] cleanup this
     if (parent) {
         parent->addMemoryDockWidget(this);
     }
@@ -23,6 +22,13 @@ bool MemoryDockWidget::tryRaiseMemoryWidget()
     if (mType == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty()) {
         return false;
     }
+    raiseMemoryWidget();
+
+    return true;
+}
+
+void MemoryDockWidget::raiseMemoryWidget()
+{
 
     if (getBoundAction()) {
         getBoundAction()->setChecked(true);
@@ -31,7 +37,6 @@ bool MemoryDockWidget::tryRaiseMemoryWidget()
     show();
     raise();
     widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);
-    return true;
 }
 
 void MemoryDockWidget::updateWindowTitle()

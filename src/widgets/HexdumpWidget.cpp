@@ -78,13 +78,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     this->ui->hexTextView->addAction(&syncAction);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
-
-    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        if (visibility) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Hexdump);
-        }
-    });
-
     connect(Core(), &CutterCore::refreshAll, this, [this]() { refresh(); });
 
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);

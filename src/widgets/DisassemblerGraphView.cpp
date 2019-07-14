@@ -55,14 +55,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connectSeekChanged(false);
 
-    // Space to switch to disassembly
-    QShortcut *shortcut_disassembly = new QShortcut(QKeySequence(Qt::Key_Space), this);
-    shortcut_disassembly->setContext(Qt::WidgetShortcut);
-    connect(shortcut_disassembly, &QShortcut::activated, this, [] {
-        Core()->triggerShowMemoryWidget(CutterCore::MemoryWidgetType::Disassembly);
-        //Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly); // TODO:[#1616] cleanup this
-        //Core()->triggerRaisePrioritizedMemoryWidget();
-    });
     // ESC for previous
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
@@ -96,7 +88,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     QShortcut *shortcut_prev_instr = new QShortcut(QKeySequence(Qt::Key_K), this);
     shortcut_prev_instr->setContext(Qt::WidgetShortcut);
     connect(shortcut_prev_instr, SIGNAL(activated()), this, SLOT(prevInstr()));
-    shortcuts.append(shortcut_disassembly);
     shortcuts.append(shortcut_escape);
     shortcuts.append(shortcut_zoom_in);
     shortcuts.append(shortcut_zoom_out);

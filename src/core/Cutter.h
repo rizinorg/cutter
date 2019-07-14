@@ -162,15 +162,7 @@ public:
     {
         return memoryWidgetPriority;
     }
-    void setMemoryWidgetPriority(MemoryWidgetType type) //TODO: replace
-    {
-        memoryWidgetPriority = type;
-    }
-    void triggerShowMemoryWidget(MemoryWidgetType type)
-    {
-        //TOOD: implement this
-    }
-    void triggerRaisePrioritizedMemoryWidget() // TODO: replace
+    void triggerRaisePrioritizedMemoryWidget()
     {
         emit showMemoryWidgetRequested();
     }
@@ -441,7 +433,6 @@ signals:
      */
     void seekChanged(RVA offset);
 
-    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
     void changeDefinedView();
     void changeDebugView();
 

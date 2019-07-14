@@ -171,7 +171,8 @@ void MainWindow::initUI()
     connect(core, SIGNAL(newDebugMessage(const QString &)),
             this->consoleDock, SLOT(addDebugOutput(const QString &)));
 
-    connect(core, &CutterCore::showMemoryWidgetRequested, this, &MainWindow::showMemoryWidget);
+    connect(core, &CutterCore::showMemoryWidgetRequested,
+            this, static_cast<void(MainWindow::*)()>(&MainWindow::showMemoryWidget));
 
     updateTasksIndicator();
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
@@ -180,7 +181,7 @@ void MainWindow::initUI()
     //Undo and redo seek
     ui->actionBackward->setShortcut(QKeySequence::Back);
     ui->actionForward->setShortcut(QKeySequence::Forward);
-    
+
     /* Setup plugins interfaces */
     for (auto plugin : Plugins()->getPlugins()) {
         plugin->setupInterface(this);
@@ -192,7 +193,7 @@ void MainWindow::initUI()
 void MainWindow::initToolBar()
 {
     chooseThemeIcons();
-    
+
     // Sepparator between undo/redo and goto lineEdit
     QWidget *spacer3 = new QWidget();
     spacer3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -321,7 +322,7 @@ void MainWindow::initDocks()
     QString className;
     for (const auto &it : docks) {
         if (std::none_of(dockWidgets.constBegin(), dockWidgets.constEnd(),
-                         [&it](QDockWidget *w) { return w->objectName() == it; })) {
+        [&it](QDockWidget * w) { return w->objectName() == it; })) {
             className = it.split(';').at(0);
             if (widgetTypeToConstructorMap.contains(className)) {
                 auto widget = widgetTypeToConstructorMap[className](this, nullptr);
@@ -872,7 +873,57 @@ void MainWindow::showMemoryWidget()
             return;
         }
     }
-    //TODO: raise somethig else
+    showMemoryWidget(CutterCore::MemoryWidgetType::Disassembly);
+}
+
+void MainWindow::showMemoryWidget(CutterCore::MemoryWidgetType type)
+{
+    for (auto &dock : dockWidgets) {
+        if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
+            if (memoryWidget->getType() == type && memoryWidget->getSeekable()->isSynchronized()) {
+                memoryWidget->tryRaiseMemoryWidget();
+                return;
+            }
+        }
+    }
+    auto memoryDockWidget = addNewMemoryWidget(type, Core()->getOffset());
+    memoryDockWidget->raiseMemoryWidget();
+}
+
+QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
+{
+    QMenu *menu = new QMenu(parent);
+    for (auto &dock : dockWidgets) {
+        if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
+            QAction *action = new QAction(memoryWidget->objectName(), menu);
+        }
+    }
+    return menu;
+}
+
+MemoryDockWidget *MainWindow::addNewMemoryWidget(CutterCore::MemoryWidgetType type, RVA address,
+                                                 bool synchronized)
+{
+    MemoryDockWidget *memoryWidget = nullptr;
+    switch (type) {
+    case CutterCore::MemoryWidgetType::Graph:
+        memoryWidget = new GraphWidget(this);
+        break;
+    case CutterCore::MemoryWidgetType::Hexdump:
+        memoryWidget = new HexdumpWidget(this);
+        break;
+    case CutterCore::MemoryWidgetType::Disassembly:
+        memoryWidget = new DisassemblyWidget(this);
+        break;
+    case CutterCore::MemoryWidgetType::Pseudocode:
+        memoryWidget = new PseudocodeWidget(this);
+        break;
+    }
+    auto seekable = memoryWidget->getSeekable();
+    seekable->setSynchronization(synchronized);
+    seekable->seek(address);
+    addExtraWidget(memoryWidget);
+    return memoryWidget;
 }
 
 void MainWindow::initCorners()
@@ -908,7 +959,7 @@ void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
 {
     connect(widget, &QDockWidget::visibilityChanged, this, [this, widget](bool visibility) {
         if (visibility) {
-           lastMemoryWidget = widget;
+            lastMemoryWidget = widget;
         }
     });
 }
@@ -992,11 +1043,11 @@ void MainWindow::resetToDefaultLayout()
 
 void MainWindow::resetToDebugLayout()
 {
-    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
+    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority(); //TODO:[#1616]
     hideAllDocks();
     restoreDocks();
     showDebugDocks();
-    core->raisePrioritizedMemoryWidget(memType);
+    showMemoryWidget(memType);
 
     auto restoreStackDock = qhelpers::forceWidth(stackDock->widget(), 400);
     qApp->processEvents();
@@ -1011,7 +1062,7 @@ void MainWindow::restoreDebugLayout()
     restoreDocks();
     showDebugDocks();
     readDebugSettings();
-    core->raisePrioritizedMemoryWidget(memType);
+    showMemoryWidget(memType);
     if (isMaxim) {
         showMaximized();
     } else {
@@ -1348,7 +1399,7 @@ void MainWindow::changeDefinedView()
     restoreDocks();
     readSettingsOrDefault();
     enableDebugWidgetsMenu(false);
-    core->raisePrioritizedMemoryWidget(memType);
+    showMemoryWidget(memType);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
