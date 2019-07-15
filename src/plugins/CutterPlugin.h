@@ -28,6 +28,13 @@ public:
     virtual void setupInterface(MainWindow *main) = 0;
 
     /**
+     * @brief Register any decompiler implemented by the Plugin
+     *
+     * called during initialization of Cutter, after setupPlugin()
+     */
+    virtual void registerDecompilers() {}
+
+    /**
      * @brief Shutdown the Plugin
      *
      * called just before the Plugin is deleted.
