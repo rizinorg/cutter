@@ -138,6 +138,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     Plugins()->loadPlugins();
 
+    for (auto *plugin : Plugins()->getPlugins()) {
+        plugin->registerDecompilers();
+    }
+
     mainWindow = new MainWindow();
     installEventFilter(mainWindow);
 
