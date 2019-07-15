@@ -10,6 +10,7 @@
 #include "common/R2Task.h"
 #include "common/Json.h"
 #include "core/Cutter.h"
+#include "Decompiler.h"
 #include "r_asm.h"
 #include "sdb.h"
 
@@ -932,66 +933,31 @@ RVA CutterCore::getOffsetJump(RVA addr)
     return value;
 }
 
-DecompiledCode CutterCore::getDecompiledCodePDC(RVA addr)
+
+QList<Decompiler *> CutterCore::getDecompilers()
 {
-    DecompiledCode code;
-    auto lines = cmd("pdc @ " + QString::number(addr)).split('\n');
-    code.lines.reserve(lines.size());
-    for (const auto &line : lines) {
-        code.lines.append(DecompiledCode::Line(line));
-    }
-    return code;
+    return decompilers;
 }
 
-bool CutterCore::getR2DecAvailable()
+Decompiler *CutterCore::getDecompilerById(const QString &id)
 {
-    return cmdList("e cmd.pdc=?").contains(QStringLiteral("pdd"));
+    for (Decompiler *dec : decompilers) {
+        if (dec->getId() == id) {
+            return dec;
+        }
+    }
+    return nullptr;
 }
 
-DecompiledCode CutterCore::getDecompiledCodeR2Dec(RVA addr)
+bool CutterCore::registerDecompiler(Decompiler *decompiler)
 {
-    DecompiledCode code;
-    QString s;
-
-    QJsonObject json = cmdj("pddj @ " + QString::number(addr)).object();
-    if (json.isEmpty()) {
-        return code;
+    if (getDecompilerById(decompiler->getId())) {
+        return false;
     }
-
-    for (const auto &line : json["log"].toArray()) {
-        if (!line.isString()) {
-            continue;
-        }
-        code.lines.append(DecompiledCode::Line(line.toString()));
-    }
-
-    auto linesArray = json["lines"].toArray();
-    code.lines.reserve(code.lines.size() + linesArray.size());
-    for (const auto &line : linesArray) {
-        QJsonObject lineObject = line.toObject();
-        if (lineObject.isEmpty()) {
-            continue;
-        }
-        DecompiledCode::Line codeLine;
-        codeLine.str = lineObject["str"].toString();
-        bool ok;
-        codeLine.addr = lineObject["offset"].toVariant().toULongLong(&ok);
-        if (!ok) {
-            codeLine.addr = RVA_INVALID;
-        }
-        code.lines.append(codeLine);
-    }
-
-    for (const auto &line : json["errors"].toArray()) {
-        if (!line.isString()) {
-            continue;
-        }
-        code.lines.append(DecompiledCode::Line(line.toString()));
-    }
-
-    return code;
+    decompiler->setParent(this);
+    decompilers.push_back(decompiler);
+    return true;
 }
-
 
 QJsonDocument CutterCore::getFileInfo()
 {

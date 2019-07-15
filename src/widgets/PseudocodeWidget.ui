@@ -70,18 +70,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="decompilerComboBox">
-        <item>
-         <property name="text">
-          <string>r2dec</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>pdc</string>
-         </property>
-        </item>
-       </widget>
+       <widget class="QComboBox" name="decompilerComboBox" />
       </item>
      </layout>
     </item>

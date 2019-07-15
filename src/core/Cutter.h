@@ -14,6 +14,8 @@
 
 class AsyncTaskManager;
 class CutterCore;
+class Decompiler;
+
 #include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
 
@@ -247,10 +249,19 @@ public:
     int currentlyAttachedToPID = -1;
     QString currentlyOpenFile;
 
-    /* Pseudocode */
-    DecompiledCode getDecompiledCodePDC(RVA addr);
-    bool getR2DecAvailable();
-    DecompiledCode getDecompiledCodeR2Dec(RVA addr);
+    /* Decompilers */
+    QList<Decompiler *> getDecompilers();
+    Decompiler *getDecompilerById(const QString &id);
+
+    /**
+     * Register a new decompiler
+     *
+     * The decompiler must have a unique id, otherwise this method will fail.
+     * The decompiler's parent will be set to this CutterCore instance, so it will automatically be freed later.
+     *
+     * @return whether the decompiler was registered successfully
+     */
+    bool registerDecompiler(Decompiler *decompiler);
 
     RVA getOffsetJump(RVA addr);
     QJsonDocument getFileInfo();
@@ -448,6 +459,8 @@ private:
     AsyncTaskManager *asyncTaskManager;
     RVA offsetPriorDebugging = RVA_INVALID;
     QErrorMessage msgBox;
+
+    QList<Decompiler *> decompilers;
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
