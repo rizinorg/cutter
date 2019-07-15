@@ -926,6 +926,11 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
     return menu;
 }
 
+void MainWindow::setCurrentMemoryWidget(MemoryDockWidget *memoryWidget)
+{
+    lastMemoryWidget = memoryWidget;
+}
+
 MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,
                                                  bool synchronized)
 {
@@ -984,7 +989,7 @@ void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
 {
     connect(widget, &QDockWidget::visibilityChanged, this, [this, widget](bool visibility) {
         if (visibility) {
-            lastMemoryWidget = widget;
+            setCurrentMemoryWidget(widget);
         }
     });
 }

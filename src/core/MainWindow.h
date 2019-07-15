@@ -119,6 +119,7 @@ public:
     void showMemoryWidget(MemoryWidgetType type);
 
     QMenu *createShowInMenu(QWidget *parent, RVA address);
+    void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
 
 public slots:
     void finalizeOpen();

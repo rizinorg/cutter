@@ -24,6 +24,7 @@ public:
     {
         return mType;
     }
+    bool eventFilter(QObject *object, QEvent *event);
 private:
 
     MemoryWidgetType mType;

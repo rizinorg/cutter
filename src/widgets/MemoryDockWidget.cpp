@@ -2,6 +2,7 @@
 #include "common/CutterSeekable.h"
 #include "MainWindow.h"
 #include <QAction>
+#include <QEvent>
 
 MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action)
     : CutterDockWidget(parent, action)
@@ -37,6 +38,14 @@ void MemoryDockWidget::raiseMemoryWidget()
     show();
     raise();
     widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);
+}
+
+bool MemoryDockWidget::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::FocusIn) {
+        mainWindow->setCurrentMemoryWidget(this);
+    }
+    return CutterDockWidget::eventFilter(object, event);
 }
 
 void MemoryDockWidget::updateWindowTitle()

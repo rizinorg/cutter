@@ -90,6 +90,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     });
     connect(ui->hexTextView, &HexWidget::selectionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexSideTab_2, &QTabWidget::currentChanged, this, &HexdumpWidget::refreshSelectionInfo);
+    ui->hexTextView->installEventFilter(this);
 
     initParsing();
     selectHexPreview();

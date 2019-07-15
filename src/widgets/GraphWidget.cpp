@@ -57,6 +57,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     });
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &GraphWidget::prepareHeader);
     connect(Core(), &CutterCore::functionRenamed, this, &GraphWidget::prepareHeader);
+    graphView->installEventFilter(this);
 }
 
 QWidget *GraphWidget::widgetToFocusOnRaise()
