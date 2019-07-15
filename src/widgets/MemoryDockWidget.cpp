@@ -3,7 +3,7 @@
 #include "MainWindow.h"
 #include <QAction>
 
-MemoryDockWidget::MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow *parent, QAction *action)
+MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action)
     : CutterDockWidget(parent, action)
     , mType(type), seekable(new CutterSeekable(this))
 {
@@ -19,7 +19,7 @@ bool MemoryDockWidget::tryRaiseMemoryWidget()
         return false;
     }
 
-    if (mType == CutterCore::MemoryWidgetType::Graph && Core()->isGraphEmpty()) {
+    if (mType == MemoryWidgetType::Graph && Core()->isGraphEmpty()) {
         return false;
     }
     raiseMemoryWidget();

@@ -33,8 +33,6 @@ public:
     RCore *operator->() const;
 };
 
-class MemoryDockWidget;
-
 class CutterCore: public QObject
 {
     Q_OBJECT
@@ -155,17 +153,6 @@ public:
     RVA getOffset();
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
-
-    /* Disassembly/Graph/Hexdump/Pseudocode view priority */
-    enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Pseudocode };
-    MemoryWidgetType getMemoryWidgetPriority() const
-    {
-        return memoryWidgetPriority;
-    }
-    void triggerRaisePrioritizedMemoryWidget()
-    {
-        emit showMemoryWidgetRequested();
-    }
 
     /* Math functions */
     ut64 math(const QString &expr);
@@ -442,8 +429,6 @@ signals:
     void showMemoryWidgetRequested();
 
 private:
-    MemoryWidgetType memoryWidgetPriority;
-
     QString notes;
     RCore *core_ = nullptr;
     AsyncTaskManager *asyncTaskManager;

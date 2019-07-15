@@ -632,18 +632,18 @@ void CutterCore::seek(ut64 offset)
 void CutterCore::show(ut64 offset)
 {
     seek(offset);
-    triggerRaisePrioritizedMemoryWidget();
+    emit showMemoryWidgetRequested();
 }
 
 void CutterCore::show(QString offset)
 {
     seek(offset);
-    triggerRaisePrioritizedMemoryWidget();
+    emit showMemoryWidgetRequested();
 }
 
 void CutterCore::show()
 {
-    triggerRaisePrioritizedMemoryWidget();
+    emit showMemoryWidgetRequested();
 }
 
 void CutterCore::seek(QString thing)

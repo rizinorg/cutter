@@ -34,7 +34,7 @@ struct DecompiledCodeTextLine
 
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(CutterCore::MemoryWidgetType::Pseudocode, main, action),
+    MemoryDockWidget(MemoryWidgetType::Pseudocode, main, action),
     ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);

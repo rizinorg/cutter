@@ -39,7 +39,7 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 }
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
-    :   MemoryDockWidget(CutterCore::MemoryWidgetType::Disassembly, main, action)
+    :   MemoryDockWidget(MemoryWidgetType::Disassembly, main, action)
     ,   mCtxMenu(new DisassemblyContextMenu(this))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
@@ -185,7 +185,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
     // Space to switch to graph
     ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut, [this] {
-        mainWindow->showMemoryWidget(CutterCore::MemoryWidgetType::Graph);
+        mainWindow->showMemoryWidget(MemoryWidgetType::Graph);
     })
 
     ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)

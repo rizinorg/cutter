@@ -17,7 +17,7 @@
 #include <QShortcut>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
+    MemoryDockWidget(MemoryWidgetType::Hexdump, main, action),
     ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);

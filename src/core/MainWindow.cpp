@@ -842,6 +842,14 @@ void MainWindow::updateDockActionsChecked()
     }
 }
 
+MemoryWidgetType MainWindow::getMemoryWidgetTypeToRestore()
+{
+    if (lastMemoryWidget) {
+        return lastMemoryWidget->getType();
+    }
+    return MemoryWidgetType::Disassembly;
+}
+
 QString MainWindow::getUniqueObjectName(const QString &widgetType) const
 {
     QStringList docks;
@@ -873,10 +881,10 @@ void MainWindow::showMemoryWidget()
             return;
         }
     }
-    showMemoryWidget(CutterCore::MemoryWidgetType::Disassembly);
+    showMemoryWidget(MemoryWidgetType::Disassembly);
 }
 
-void MainWindow::showMemoryWidget(CutterCore::MemoryWidgetType type)
+void MainWindow::showMemoryWidget(MemoryWidgetType type)
 {
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
@@ -896,26 +904,43 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
             QAction *action = new QAction(memoryWidget->objectName(), menu);
+            connect(action, &QAction::triggered, this, [this, memoryWidget, address](){
+                memoryWidget->getSeekable()->seek(address);
+                memoryWidget->raiseMemoryWidget();
+            });
+            menu->addAction(action);
         }
     }
+    menu->addSeparator();
+    auto createAddNewWidgetAction = [this, menu, address](QString label, MemoryWidgetType type) {
+        QAction *action = new QAction(label, menu);
+        connect(action, &QAction::triggered, this, [this, address, type](){
+            addNewMemoryWidget(type, address, true);
+        });
+        menu->addAction(action);
+    };
+    createAddNewWidgetAction(tr("New disassembly"), MemoryWidgetType::Disassembly);
+    createAddNewWidgetAction(tr("New graph"), MemoryWidgetType::Graph);
+    createAddNewWidgetAction(tr("New hexdump"), MemoryWidgetType::Hexdump);
+
     return menu;
 }
 
-MemoryDockWidget *MainWindow::addNewMemoryWidget(CutterCore::MemoryWidgetType type, RVA address,
+MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,
                                                  bool synchronized)
 {
     MemoryDockWidget *memoryWidget = nullptr;
     switch (type) {
-    case CutterCore::MemoryWidgetType::Graph:
+    case MemoryWidgetType::Graph:
         memoryWidget = new GraphWidget(this);
         break;
-    case CutterCore::MemoryWidgetType::Hexdump:
+    case MemoryWidgetType::Hexdump:
         memoryWidget = new HexdumpWidget(this);
         break;
-    case CutterCore::MemoryWidgetType::Disassembly:
+    case MemoryWidgetType::Disassembly:
         memoryWidget = new DisassemblyWidget(this);
         break;
-    case CutterCore::MemoryWidgetType::Pseudocode:
+    case MemoryWidgetType::Pseudocode:
         memoryWidget = new PseudocodeWidget(this);
         break;
     }
@@ -1043,7 +1068,7 @@ void MainWindow::resetToDefaultLayout()
 
 void MainWindow::resetToDebugLayout()
 {
-    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority(); //TODO:[#1616]
+    MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
     hideAllDocks();
     restoreDocks();
     showDebugDocks();
@@ -1056,7 +1081,7 @@ void MainWindow::resetToDebugLayout()
 
 void MainWindow::restoreDebugLayout()
 {
-    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
+    MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
     bool isMaxim = isMaximized();
     hideAllDocks();
     restoreDocks();
@@ -1394,7 +1419,7 @@ void MainWindow::changeDebugView()
 void MainWindow::changeDefinedView()
 {
     saveDebugSettings();
-    CutterCore::MemoryWidgetType memType = core->getMemoryWidgetPriority();
+    MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
     hideAllDocks();
     restoreDocks();
     readSettingsOrDefault();

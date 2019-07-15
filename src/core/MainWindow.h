@@ -6,6 +6,7 @@
 #include "dialogs/WelcomeDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
+#include "MemoryDockWidget.h"
 
 #include <memory>
 
@@ -54,7 +55,6 @@ namespace Ui {
 class MainWindow;
 }
 
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -98,7 +98,7 @@ public:
     void addMemoryDockWidget(MemoryDockWidget *widget);
     void removeWidget(QDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
-    MemoryDockWidget *addNewMemoryWidget(CutterCore::MemoryWidgetType type, RVA address, bool synchronized = true);
+    MemoryDockWidget *addNewMemoryWidget(MemoryWidgetType type, RVA address, bool synchronized = true);
 
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
@@ -116,7 +116,7 @@ public:
 
     QString getUniqueObjectName(const QString &widgetType) const;
     void showMemoryWidget();
-    void showMemoryWidget(CutterCore::MemoryWidgetType type);
+    void showMemoryWidget(MemoryWidgetType type);
 
     QMenu *createShowInMenu(QWidget *parent, RVA address);
 
@@ -277,6 +277,8 @@ private:
     void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
+
+    MemoryWidgetType getMemoryWidgetTypeToRestore();
 
     /**
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget

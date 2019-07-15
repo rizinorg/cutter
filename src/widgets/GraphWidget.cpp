@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(CutterCore::MemoryWidgetType::Graph, main, action)
+    MemoryDockWidget(MemoryWidgetType::Graph, main, action)
 {
     setObjectName(main
                   ? main->getUniqueObjectName(getWidgetType())
@@ -49,7 +49,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     switchAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     addAction(switchAction);
     connect(switchAction, &QAction::triggered, this, [this] {
-        mainWindow->showMemoryWidget(CutterCore::MemoryWidgetType::Disassembly);
+        mainWindow->showMemoryWidget(MemoryWidgetType::Disassembly);
     });
 
     connect(graphView, &DisassemblerGraphView::graphMoved, this, [ = ]() {
