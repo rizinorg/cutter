@@ -168,6 +168,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
     connect(mCtxMenu, SIGNAL(copy()), mDisasTextEdit, SLOT(copy()));
 
+    showInMenu = mCtxMenu->addAction(tr("Show in"));
     mCtxMenu->addSeparator();
     syncIt.setText(tr("Sync/unsync offset"));
     mCtxMenu->addAction(&syncIt);
@@ -455,6 +456,7 @@ void DisassemblyWidget::highlightCurrentLine()
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
+    showInMenu->setMenu(mainWindow->createShowInMenu(this, seekable->getOffset()));
     mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 

@@ -54,6 +54,7 @@ protected:
     DisassemblyScrollArea *mDisasScrollArea;
     DisassemblyTextEdit *mDisasTextEdit;
     DisassemblyLeftPanel *leftPanel;
+    QAction* showInMenu;
     QList<DisassemblyLine> lines;
 
 private:
