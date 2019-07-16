@@ -218,11 +218,10 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
         moveCursorRelative(true, true);
     })
 
-    // Plus sign in num-bar considered "Qt::Key_Equal"
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
-    // Plus sign in numpad
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
+    // Zoom shortcuts
+    ADD_ACTION(QKeySequence(Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
+    ADD_ACTION(QKeySequence(Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
+    ADD_ACTION(QKeySequence(Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomReset)
 #undef ADD_ACTION
 }
 
@@ -394,6 +393,12 @@ void DisassemblyWidget::zoomIn()
 void DisassemblyWidget::zoomOut()
 {
     mDisasTextEdit->zoomOut();
+    updateMaxLines();
+}
+
+void DisassemblyWidget::zoomReset()
+{
+    setupFonts();
     updateMaxLines();
 }
 

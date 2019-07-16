@@ -48,6 +48,7 @@ protected slots:
 
     void zoomIn();
     void zoomOut();
+    void zoomReset();
 
 protected:
     DisassemblyContextMenu *mCtxMenu;
