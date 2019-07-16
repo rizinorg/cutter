@@ -60,8 +60,12 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     });
 
     auto decompilers = Core()->getDecompilers();
+    auto selectedDecompilerId = Config()->getSelectedDecompiler();
     for (auto dec : decompilers) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
+        if (dec->getId() == selectedDecompilerId) {
+            ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
+        }
     }
 
     if(decompilers.size() <= 1) {
@@ -71,6 +75,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         }
     }
 
+    connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &PseudocodeWidget::decompilerSelected);
     connectCursorPositionChanged(false);
     connect(Core(), &CutterCore::seekChanged, this, &PseudocodeWidget::seekChanged);
 
@@ -122,6 +127,11 @@ void PseudocodeWidget::doRefresh(RVA addr)
 void PseudocodeWidget::refreshPseudocode()
 {
     doRefresh(Core()->getOffset());
+}
+
+void PseudocodeWidget::decompilerSelected()
+{
+    Configuration().setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
 }
 
 void PseudocodeWidget::connectCursorPositionChanged(bool disconnect)

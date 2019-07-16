@@ -642,3 +642,13 @@ QStringList Configuration::getTranslationsDirectories() const
 #endif // Q_OS_MAC
     };
 }
+
+QString Configuration::getSelectedDecompiler()
+{
+    return s.value("selectedDecompiler").toString();
+}
+
+void Configuration::setSelectedDecompiler(const QString &id)
+{
+    s.setValue("selectedDecompiler", id);
+}
