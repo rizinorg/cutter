@@ -124,7 +124,6 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.tabs.off",       5 },
     { "asm.marks",          false },
     { "asm.refptr",         false },
-    { "asm.movlea",         false },
     { "esil.breakoninvalid",true },
     { "graph.offset",       false}
 };
