@@ -67,6 +67,7 @@ protected:
 
     void closeEvent(QCloseEvent *event) override;
     QAction *getBoundAction() const;
+    QString getDockNumber();
 
     MainWindow *mainWindow;
 

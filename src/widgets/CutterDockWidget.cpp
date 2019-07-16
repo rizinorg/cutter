@@ -86,3 +86,15 @@ QAction *CutterDockWidget::getBoundAction() const
     return action;
 }
 
+QString CutterDockWidget::getDockNumber()
+{
+    auto name = this->objectName();
+    if (name.contains(';')) {
+        auto parts = name.split(';');
+        if (parts.size() >= 2) {
+            return parts[1];
+        }
+    }
+    return QString();
+}
+

@@ -10,7 +10,7 @@ class DisassemblyContextMenu : public QMenu
     Q_OBJECT
 
 public:
-    DisassemblyContextMenu(QWidget *parent = nullptr);
+    DisassemblyContextMenu(QWidget *parent, MainWindow* mainWindow);
     ~DisassemblyContextMenu();
 
 signals:
@@ -101,6 +101,7 @@ private:
     RVA offset;
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
+    MainWindow* mainWindow;
 
     QList<QAction *> anonymousActions;
 
@@ -163,6 +164,8 @@ private:
     QAction actionSetToDataWord;
     QAction actionSetToDataDword;
     QAction actionSetToDataQword;
+
+    QAction showInSubmenu;
 
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);

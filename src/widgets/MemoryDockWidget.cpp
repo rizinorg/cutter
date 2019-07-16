@@ -50,11 +50,15 @@ bool MemoryDockWidget::eventFilter(QObject *object, QEvent *event)
 
 void MemoryDockWidget::updateWindowTitle()
 {
-    if (seekable->isSynchronized()) {
-        setWindowTitle(getWindowTitle());
-    } else {
-        setWindowTitle(getWindowTitle() + CutterSeekable::tr(" (unsynced)"));
+    QString name = getWindowTitle();
+    QString id = getDockNumber();
+    if (!id.isEmpty()) {
+        name += " " + id;
     }
+    if (!seekable->isSynchronized()) {
+        name += CutterSeekable::tr(" (unsynced)");
+    }
+    setWindowTitle(name);
 }
 
 CutterSeekable* MemoryDockWidget::getSeekable() const

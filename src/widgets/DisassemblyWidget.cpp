@@ -40,7 +40,7 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     :   MemoryDockWidget(MemoryWidgetType::Disassembly, main, action)
-    ,   mCtxMenu(new DisassemblyContextMenu(this))
+    ,   mCtxMenu(new DisassemblyContextMenu(this, main))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
 {
@@ -168,7 +168,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
 
     connect(mCtxMenu, SIGNAL(copy()), mDisasTextEdit, SLOT(copy()));
 
-    showInMenu = mCtxMenu->addAction(tr("Show in"));
     mCtxMenu->addSeparator();
     syncIt.setText(tr("Sync/unsync offset"));
     mCtxMenu->addAction(&syncIt);
@@ -456,7 +455,6 @@ void DisassemblyWidget::highlightCurrentLine()
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
-    showInMenu->setMenu(mainWindow->createShowInMenu(this, seekable->getOffset()));
     mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 

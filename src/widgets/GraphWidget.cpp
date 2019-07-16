@@ -23,7 +23,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     header->setReadOnly(true);
     layout->addWidget(header);
 
-    graphView = new DisassemblerGraphView(layoutWidget, seekable);
+    graphView = new DisassemblerGraphView(layoutWidget, seekable, main);
     layout->addWidget(graphView);
 
     // getting the name of the class is implementation defined, and cannot be

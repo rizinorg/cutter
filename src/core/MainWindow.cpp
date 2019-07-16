@@ -903,7 +903,7 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
     QMenu *menu = new QMenu(parent);
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
-            QAction *action = new QAction(memoryWidget->objectName(), menu);
+            QAction *action = new QAction(memoryWidget->windowTitle(), menu);
             connect(action, &QAction::triggered, this, [this, memoryWidget, address](){
                 memoryWidget->getSeekable()->seek(address);
                 memoryWidget->raiseMemoryWidget();

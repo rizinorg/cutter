@@ -29,10 +29,10 @@
 
 #include <cmath>
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable, MainWindow* mainWindow)
     : GraphView(parent),
       mFontMetrics(nullptr),
-      blockMenu(new DisassemblyContextMenu(this)),
+      blockMenu(new DisassemblyContextMenu(this, mainWindow)),
       contextMenu(new QMenu(this)),
       seekable(seekable)
 {
