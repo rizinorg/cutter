@@ -27,6 +27,7 @@ private slots:
     void fontsUpdated();
     void colorsUpdatedSlot();
     void refreshPseudocode();
+    void decompilerSelected();
     void cursorPositionChanged();
     void seekChanged();
 

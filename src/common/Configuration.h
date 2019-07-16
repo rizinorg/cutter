@@ -148,6 +148,12 @@ public:
      */
     QStringList getTranslationsDirectories() const;
 
+    /**
+     * @return id of the last selected decompiler (see CutterCore::getDecompilerById)
+     */
+    QString getSelectedDecompiler();
+    void setSelectedDecompiler(const QString &id);
+
 signals:
     void fontsUpdated();
     void colorsUpdated();
