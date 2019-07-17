@@ -928,7 +928,9 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
 
 void MainWindow::setCurrentMemoryWidget(MemoryDockWidget *memoryWidget)
 {
-    lastMemoryWidget = memoryWidget;
+    if (memoryWidget->getSeekable()->isSynchronized()) {
+        lastMemoryWidget = memoryWidget;
+    }
 }
 
 MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,

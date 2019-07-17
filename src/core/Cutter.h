@@ -144,12 +144,24 @@ public:
     /* Seek functions */
     void seek(QString thing);
     void seek(ut64 offset);
-    void show();
-    void show(ut64 offset); // seek and raise memory widget
-    void show(QString thing);
     void seekPrev();
     void seekNext();
     void updateSeek();
+    /**
+     * @brief Raise a memory widget showing current offset, prefer last active
+     * memory widget.
+     */
+    void show();
+    /**
+     * @brief Seek to \p offset and raise a memory widget showing it.
+     * @param offset
+     */
+    void show(ut64 offset);
+    /**
+     * @brief \see CutterCore::show(ut64)
+     * @param thing - addressable expression
+     */
+    void show(QString thing);
     RVA getOffset();
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
