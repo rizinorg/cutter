@@ -19,11 +19,11 @@ matrix:
     env: BUILD_SYSTEM=cmake
   - name: macOS QMake + Deploy
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10.2
     env: BUILD_SYSTEM=qmake DEPLOY=1
   - name: macOS CMake
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10.2
     env: BUILD_SYSTEM=cmake
   - name: Documentation + Deploy
     os: linux
