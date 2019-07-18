@@ -7,51 +7,51 @@
     <x>0</x>
     <y>0</y>
     <width>567</width>
-    <height>300</height>
+    <height>79</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Graph</string>
   </property>
-  <widget class="QWidget" name="">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>10</y>
-     <width>253</width>
-     <height>62</height>
-    </rect>
-   </property>
-   <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
-     <widget class="QLabel" name="maxColsLabel">
-      <property name="text">
-       <string>Maximum Line Length:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QSpinBox" name="maxColsSpinBox">
-      <property name="minimum">
-       <number>10</number>
-      </property>
-      <property name="maximum">
-       <number>999999999</number>
-      </property>
-      <property name="singleStep">
-       <number>5</number>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="2">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="maxColsLabel">
+       <property name="text">
+        <string>Maximum Line Length:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="maxColsSpinBox"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <widget class="QCheckBox" name="graphOffsetCheckBox">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>208</width>
+        <height>24</height>
+       </rect>
+      </property>
       <property name="text">
-       <string>Show offsets (graph.offset) </string>
+       <string>Show offsets (graph.offset)</string>
       </property>
      </widget>
-    </item>
-   </layout>
-  </widget>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
