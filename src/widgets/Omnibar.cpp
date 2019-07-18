@@ -69,7 +69,7 @@ void Omnibar::on_gotoEntry_returnPressed()
 {
     QString str = this->text();
     if (!str.isEmpty()) {
-        Core()->show(str);
+        Core()->seekAndShow(str);
     }
 
     this->setText("");

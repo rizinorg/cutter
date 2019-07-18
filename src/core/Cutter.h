@@ -151,17 +151,17 @@ public:
      * @brief Raise a memory widget showing current offset, prefer last active
      * memory widget.
      */
-    void show();
+    void showMemoryWidget();
     /**
      * @brief Seek to \p offset and raise a memory widget showing it.
      * @param offset
      */
-    void show(ut64 offset);
+    void seekAndShow(ut64 offset);
     /**
      * @brief \see CutterCore::show(ut64)
      * @param thing - addressable expression
      */
-    void show(QString thing);
+    void seekAndShow(QString thing);
     RVA getOffset();
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);

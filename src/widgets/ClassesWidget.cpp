@@ -634,7 +634,7 @@ void ClassesWidget::on_classesTreeView_doubleClicked(const QModelIndex &index)
         return;
     }
     RVA offset = offsetData.value<RVA>();
-    Core()->show(offset);
+    Core()->seekAndShow(offset);
 }
 
 void ClassesWidget::showContextMenu(const QPoint &pt)
@@ -696,7 +696,7 @@ void ClassesWidget::on_seekToVTableAction_triggered()
         return;
     }
 
-    Core()->show(vtables[0].addr + desc.vtableOffset);
+    Core()->seekAndShow(vtables[0].addr + desc.vtableOffset);
 }
 
 void ClassesWidget::on_addMethodAction_triggered()

@@ -150,7 +150,7 @@ void SymbolsWidget::on_symbolsTreeView_doubleClicked(const QModelIndex &index)
     }
 
     auto symbol = index.data(SymbolsModel::SymbolDescriptionRole).value<SymbolDescription>();
-    Core()->show(symbol.vaddr);
+    Core()->seekAndShow(symbol.vaddr);
 }
 
 void SymbolsWidget::refreshSymbols()

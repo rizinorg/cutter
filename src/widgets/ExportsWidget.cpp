@@ -183,5 +183,5 @@ void ExportsWidget::on_exportsTreeView_doubleClicked(const QModelIndex &index)
         return;
 
     ExportDescription exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
-    Core()->show(exp.vaddr);
+    Core()->seekAndShow(exp.vaddr);
 }

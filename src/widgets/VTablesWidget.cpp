@@ -188,10 +188,10 @@ void VTablesWidget::on_vTableTreeView_doubleClicked(const QModelIndex &index)
 
     QModelIndex parent = index.parent();
     if (parent.isValid()) {
-        Core()->show(index.data(
+        Core()->seekAndShow(index.data(
                          VTableModel::VTableDescriptionRole).value<BinClassMethodDescription>().addr);
     } else {
-        Core()->show(index.data(
+        Core()->seekAndShow(index.data(
                          VTableModel::VTableDescriptionRole).value<VTableDescription>().addr);
     }
 }

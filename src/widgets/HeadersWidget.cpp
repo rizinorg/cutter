@@ -134,5 +134,5 @@ void HeadersWidget::setScrollMode()
 void HeadersWidget::on_headersTreeView_doubleClicked(const QModelIndex &index)
 {
     HeaderDescription item = index.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
-    Core()->show(item.vaddr);
+    Core()->seekAndShow(item.vaddr);
 }

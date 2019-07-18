@@ -107,5 +107,5 @@ void ResourcesWidget::onDoubleClicked(const QModelIndex &index)
         return;
 
     ResourcesDescription res = index.data(Qt::UserRole).value<ResourcesDescription>();
-    Core()->show(res.vaddr);
+    Core()->seekAndShow(res.vaddr);
 }
