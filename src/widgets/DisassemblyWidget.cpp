@@ -71,8 +71,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     mDisasScrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     // Use stylesheet instead of QWidget::setFrameShape(QFrame::NoShape) to avoid
     // issues with dark and light interface themes
-    mDisasScrollArea->setStyleSheet("border: 0px transparent black;");
-    mDisasTextEdit->setStyleSheet("border: 0px transparent black;");
+    mDisasScrollArea->setStyleSheet("QAbstractScrollArea { border: 0px transparent black; }");
+    mDisasTextEdit->setStyleSheet("QPlainTextEdit { border: 0px transparent black; }");
     mDisasTextEdit->setFocusProxy(this);
     mDisasTextEdit->setFocusPolicy(Qt::ClickFocus);
     mDisasScrollArea->setFocusProxy(this);
