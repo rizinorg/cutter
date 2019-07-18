@@ -38,6 +38,8 @@ private slots:
 
 private:
     std::unique_ptr<Ui::AboutDialog> ui;
+
+    QString buildQtVersionString(void);
 };
 
 #endif // ABOUTDIALOG_H
