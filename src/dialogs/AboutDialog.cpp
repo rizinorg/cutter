@@ -28,7 +28,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     QString aboutString("<h1>Cutter</h1>"
                         + tr("Version") + " " CUTTER_VERSION_FULL "<br/>"
-                        + tr("Using r2-") + R2_GITTAP
+                        + tr("Using r2-") + R2_GITTAP + "<br/>"
+                        + buildQtVersionString()
                         + "<p><b>" + tr("Optional Features:") + "</b><br/>"
                         + QString("Python: %1<br/>").arg(
 #ifdef CUTTER_ENABLE_PYTHON
@@ -91,7 +92,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 
     connect(&updateWorker, &UpdateWorker::checkComplete, &waitDialog, &QProgressDialog::cancel);
     connect(&updateWorker, &UpdateWorker::checkComplete,
-    [&updateWorker](const QVersionNumber &version, const QString & error) {
+    [&updateWorker](const QVersionNumber & version, const QString & error) {
         if (!error.isEmpty()) {
             QMessageBox::critical(nullptr, tr("Error!"), error);
         } else {
@@ -110,4 +111,33 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 void AboutDialog::on_updatesCheckBox_stateChanged(int)
 {
     Config()->setAutoUpdateEnabled(!Config()->getAutoUpdateEnabled());
+}
+
+static QString compilerString()
+{
+#if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too
+    QString isAppleString;
+#if defined(__apple_build_version__) // Apple clang has other version numbers
+    isAppleString = QLatin1String(" (Apple)");
+#endif
+    return QLatin1String("Clang " ) + QString::number(__clang_major__) + QLatin1Char('.')
+           + QString::number(__clang_minor__) + isAppleString;
+#elif defined(Q_CC_GNU)
+    return QLatin1String("GCC " ) + QLatin1String(__VERSION__);
+#elif defined(Q_CC_MSVC)
+    if (_MSC_VER > 1999)
+        return QLatin1String("MSVC <unknown>");
+    if (_MSC_VER >= 1910)
+        return QLatin1String("MSVC 2017");
+    if (_MSC_VER >= 1900)
+        return QLatin1String("MSVC 2015");
+#endif
+    return QLatin1String("<unknown compiler>");
+}
+
+QString AboutDialog::buildQtVersionString(void)
+{
+    return tr("Based on Qt %1 (%2, %3 bit)").arg(QLatin1String(qVersion()),
+                                                 compilerString(),
+                                                 QString::number(QSysInfo::WordSize));
 }
