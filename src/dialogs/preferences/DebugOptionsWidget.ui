@@ -16,6 +16,9 @@
         <layout class="QVBoxLayout" name="verticalLayout">
             <item>
                 <layout class="QFormLayout" name="formLayout">
+                    <property name="fieldGrowthPolicy">
+                        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+                    </property>
                     <property name="labelAlignment">
                         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
                     </property>
@@ -37,7 +40,14 @@
                         </widget>
                     </item>
                     <item row="1" column="1">
-                        <widget class="QLineEdit" name="debugArgs"/>
+                        <widget class="QLineEdit" name="debugArgs">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                        </widget>
                     </item>
                     <item row="2" column="0">
                         <widget class="QLabel" name="esilstackAddr">
@@ -47,7 +57,14 @@
                         </widget>
                     </item>
                     <item row="2" column="1">
-                        <widget class="QLineEdit" name="stackAddr"/>
+                        <widget class="QLineEdit" name="stackAddr">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                        </widget>
                     </item>
                     <item row="3" column="0">
                         <widget class="QLabel" name="esilStackSize">
@@ -57,7 +74,14 @@
                         </widget>
                     </item>
                     <item row="3" column="1">
-                        <widget class="QLineEdit" name="stackSize"/>
+                        <widget class="QLineEdit" name="stackSize">
+                            <property name="sizePolicy">
+                                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                        </widget>
                     </item>
                 </layout>
             </item>
