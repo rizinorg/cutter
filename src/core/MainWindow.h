@@ -6,6 +6,7 @@
 #include "dialogs/WelcomeDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
+#include "MemoryDockWidget.h"
 
 #include <memory>
 
@@ -54,7 +55,6 @@ namespace Ui {
 class MainWindow;
 }
 
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -95,8 +95,11 @@ public:
     void refreshOmniBar(const QStringList &flags);
 
     void addWidget(QDockWidget *widget);
+    void addMemoryDockWidget(MemoryDockWidget *widget);
     void removeWidget(QDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
+    MemoryDockWidget *addNewMemoryWidget(MemoryWidgetType type, RVA address, bool synchronized = true);
+
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
@@ -112,6 +115,11 @@ public:
     void messageBoxWarning(QString title, QString message);
 
     QString getUniqueObjectName(const QString &widgetType) const;
+    void showMemoryWidget();
+    void showMemoryWidget(MemoryWidgetType type);
+
+    QMenu *createShowInMenu(QWidget *parent, RVA address);
+    void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
 
 public slots:
     void finalizeOpen();
@@ -271,10 +279,14 @@ private:
     void setOverviewData();
     bool isOverviewActive();
 
+    MemoryWidgetType getMemoryWidgetTypeToRestore();
+
     /**
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
      */
     QMap<QString, std::function<CutterDockWidget*(MainWindow*, QAction*)>> widgetTypeToConstructorMap;
+
+    MemoryDockWidget* lastMemoryWidget = nullptr;
 };
 
 #endif // MAINWINDOW_H

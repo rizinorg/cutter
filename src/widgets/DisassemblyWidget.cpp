@@ -39,8 +39,8 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
 }
 
 DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
-    :   MemoryDockWidget(CutterCore::MemoryWidgetType::Disassembly, main, action)
-    ,   mCtxMenu(new DisassemblyContextMenu(this))
+    :   MemoryDockWidget(MemoryWidgetType::Disassembly, main, action)
+    ,   mCtxMenu(new DisassemblyContextMenu(this, main))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
 {
@@ -161,14 +161,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        bool emptyGraph = (Core()->getMemoryWidgetPriority() == CutterCore::MemoryWidgetType::Graph
-                           && Core()->isGraphEmpty());
-        if (visibility && !emptyGraph) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Disassembly);
-        }
-    });
-
     connect(Core(), &CutterCore::refreshAll, this, [this]() {
         refreshDisasm(seekable->getOffset());
     });
@@ -192,9 +184,8 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(a, &QAction::triggered, this, (slot)); }
 
     // Space to switch to graph
-    ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut, [] {
-        Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
-        Core()->triggerRaisePrioritizedMemoryWidget();
+    ADD_ACTION(Qt::Key_Space, Qt::WidgetWithChildrenShortcut, [this] {
+        mainWindow->showMemoryWidget(MemoryWidgetType::Graph);
     })
 
     ADD_ACTION(Qt::Key_Escape, Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::seekPrev)

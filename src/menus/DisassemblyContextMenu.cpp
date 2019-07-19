@@ -9,6 +9,7 @@
 #include "dialogs/SetToDataDialog.h"
 #include "dialogs/EditFunctionDialog.h"
 #include "dialogs/LinkTypeDialog.h"
+#include "MainWindow.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -17,16 +18,20 @@
 #include <QApplication>
 #include <QPushButton>
 
-DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent)
+DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow* mainWindow)
     :   QMenu(parent),
         offset(0),
-        canCopy(false)
+        canCopy(false),
+        mainWindow(mainWindow)
 {
     initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
     addAction(&actionCopy);
 
     initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()), getCopyAddressSequence());
     addAction(&actionCopyAddr);
+
+    initAction(&showInSubmenu, tr("Show in"), nullptr);
+    addAction(&showInSubmenu);
 
     copySeparator = addSeparator();
 
@@ -378,6 +383,11 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // Decide to show Reverse jmp option
     showReverseJmpQuery();
+
+    if (showInSubmenu.menu() != nullptr) {
+        showInSubmenu.menu()->deleteLater();
+    }
+    showInSubmenu.setMenu(mainWindow->createShowInMenu(this, offset));
 
     // Only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);

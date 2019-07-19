@@ -35,7 +35,6 @@ public:
     RCore *operator->() const;
 };
 
-
 class CutterCore: public QObject
 {
     Q_OBJECT
@@ -150,24 +149,24 @@ public:
     void seekPrev();
     void seekNext();
     void updateSeek();
+    /**
+     * @brief Raise a memory widget showing current offset, prefer last active
+     * memory widget.
+     */
+    void showMemoryWidget();
+    /**
+     * @brief Seek to \p offset and raise a memory widget showing it.
+     * @param offset
+     */
+    void seekAndShow(ut64 offset);
+    /**
+     * @brief \see CutterCore::show(ut64)
+     * @param thing - addressable expression
+     */
+    void seekAndShow(QString thing);
     RVA getOffset();
     RVA prevOpAddr(RVA startAddr, int count);
     RVA nextOpAddr(RVA startAddr, int count);
-
-    /* Disassembly/Graph/Hexdump/Pseudocode view priority */
-    enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Pseudocode };
-    MemoryWidgetType getMemoryWidgetPriority() const
-    {
-        return memoryWidgetPriority;
-    }
-    void setMemoryWidgetPriority(MemoryWidgetType type)
-    {
-        memoryWidgetPriority = type;
-    }
-    void triggerRaisePrioritizedMemoryWidget()
-    {
-        emit raisePrioritizedMemoryWidget(memoryWidgetPriority);
-    }
 
     /* Math functions */
     ut64 math(const QString &expr);
@@ -444,16 +443,15 @@ signals:
      */
     void seekChanged(RVA offset);
 
-    void raisePrioritizedMemoryWidget(CutterCore::MemoryWidgetType type);
     void changeDefinedView();
     void changeDebugView();
 
     void newMessage(const QString &msg);
     void newDebugMessage(const QString &msg);
 
-private:
-    MemoryWidgetType memoryWidgetPriority;
+    void showMemoryWidgetRequested();
 
+private:
     QString notes;
     RCore *core_ = nullptr;
     AsyncTaskManager *asyncTaskManager;

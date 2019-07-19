@@ -152,5 +152,5 @@ void MemoryMapWidget::on_memoryTreeView_doubleClicked(const QModelIndex &index)
 {
     MemoryMapDescription item = index.data(
                                     MemoryMapModel::MemoryDescriptionRole).value<MemoryMapDescription>();
-    Core()->seek(item.addrStart);
+    Core()->seekAndShow(item.addrStart);
 }

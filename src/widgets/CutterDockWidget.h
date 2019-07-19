@@ -67,9 +67,11 @@ protected:
 
     void closeEvent(QCloseEvent *event) override;
     QAction *getBoundAction() const;
+    QString getDockNumber();
+
+    MainWindow *mainWindow;
 
 private:
-    MainWindow *mainWindow;
     QAction *action;
 
     bool isTransient = false;

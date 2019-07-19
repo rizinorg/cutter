@@ -168,7 +168,7 @@ void BreakpointWidget::on_breakpointTreeView_doubleClicked(const QModelIndex &in
 {
     BreakpointDescription item = index.data(
                                      BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    Core()->seek(item.addr);
+    Core()->seekAndShow(item.addr);
 }
 
 void BreakpointWidget::showBreakpointContextMenu(const QPoint &pt)

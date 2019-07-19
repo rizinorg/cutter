@@ -6,19 +6,28 @@
 
 class CutterSeekable;
 
+/* Disassembly/Graph/Hexdump/Pseudocode view priority */
+enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Pseudocode };
+
 class MemoryDockWidget : public CutterDockWidget
 {
     Q_OBJECT
 public:
-    MemoryDockWidget(CutterCore::MemoryWidgetType type, MainWindow *parent, QAction *action = nullptr);
+    MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action = nullptr);
     ~MemoryDockWidget() {}
 
     CutterSeekable* getSeekable() const;
 
+    bool tryRaiseMemoryWidget();
+    void raiseMemoryWidget();
+    MemoryWidgetType getType() const
+    {
+        return mType;
+    }
+    bool eventFilter(QObject *object, QEvent *event);
 private:
-    void handleRaiseMemoryWidget(CutterCore::MemoryWidgetType raiseType);
 
-    CutterCore::MemoryWidgetType mType;
+    MemoryWidgetType mType;
 
 public slots:
     void updateWindowTitle();

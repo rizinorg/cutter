@@ -188,5 +188,5 @@ void SegmentsWidget::onSegmentsDoubleClicked(const QModelIndex &index)
         return;
 
     auto segment = index.data(SegmentsModel::SegmentDescriptionRole).value<SegmentDescription>();
-    Core()->seek(segment.vaddr);
+    Core()->seekAndShow(segment.vaddr);
 }

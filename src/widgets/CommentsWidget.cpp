@@ -272,7 +272,7 @@ void CommentsWidget::on_commentsTreeView_doubleClicked(const QModelIndex &index)
         return;
 
     auto comment = index.data(CommentsModel::CommentDescriptionRole).value<CommentDescription>();
-    Core()->seek(comment.offset);
+    Core()->seekAndShow(comment.offset);
 }
 
 void CommentsWidget::on_actionHorizontal_triggered()

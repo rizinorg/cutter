@@ -206,7 +206,7 @@ void SearchWidget::on_searchTreeView_doubleClicked(const QModelIndex &index)
 
     SearchDescription search = index.data(
                                    SearchModel::SearchDescriptionRole).value<SearchDescription>();
-    Core()->seek(search.offset);
+    Core()->seekAndShow(search.offset);
 }
 
 void SearchWidget::searchChanged()

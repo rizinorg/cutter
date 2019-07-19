@@ -174,7 +174,7 @@ void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
         return;
 
     FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-    Core()->seek(flag.offset);
+    Core()->seekAndShow(flag.offset);
 }
 
 void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)

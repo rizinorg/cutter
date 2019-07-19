@@ -35,7 +35,7 @@ struct DecompiledCodeTextLine
 
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(CutterCore::MemoryWidgetType::Pseudocode, main, action),
+    MemoryDockWidget(MemoryWidgetType::Pseudocode, main, action),
     ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);
@@ -47,12 +47,6 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
-
-    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        if (visibility) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Pseudocode);
-        }
-    });
 
     // TODO Use RefreshDeferrer and remove the refresh button
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {

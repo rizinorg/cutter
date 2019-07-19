@@ -5,7 +5,7 @@
 #include <QVBoxLayout>
 
 GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(CutterCore::MemoryWidgetType::Graph, main, action)
+    MemoryDockWidget(MemoryWidgetType::Graph, main, action)
 {
     setObjectName(main
                   ? main->getUniqueObjectName(getWidgetType())
@@ -23,7 +23,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     header->setReadOnly(true);
     layout->addWidget(header);
 
-    graphView = new DisassemblerGraphView(layoutWidget, seekable);
+    graphView = new DisassemblerGraphView(layoutWidget, seekable, main);
     layout->addWidget(graphView);
 
     // getting the name of the class is implementation defined, and cannot be
@@ -40,9 +40,16 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         main->toggleOverview(visibility, this);
         if (visibility) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Graph);
             graphView->onSeekChanged(Core()->getOffset());
         }
+    });
+
+    QAction *switchAction = new QAction(this);
+    switchAction->setShortcut(Qt::Key_Space);
+    switchAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    addAction(switchAction);
+    connect(switchAction, &QAction::triggered, this, [this] {
+        mainWindow->showMemoryWidget(MemoryWidgetType::Disassembly);
     });
 
     connect(graphView, &DisassemblerGraphView::graphMoved, this, [ = ]() {
@@ -50,6 +57,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     });
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &GraphWidget::prepareHeader);
     connect(Core(), &CutterCore::functionRenamed, this, &GraphWidget::prepareHeader);
+    graphView->installEventFilter(this);
 }
 
 QWidget *GraphWidget::widgetToFocusOnRaise()

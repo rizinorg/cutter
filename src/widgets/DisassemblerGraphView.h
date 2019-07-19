@@ -87,7 +87,7 @@ class DisassemblerGraphView : public GraphView
     };
 
 public:
-    DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable);
+    DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable, MainWindow* mainWindow);
     ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;

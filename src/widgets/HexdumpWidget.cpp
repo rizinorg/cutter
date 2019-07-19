@@ -17,7 +17,7 @@
 #include <QShortcut>
 
 HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(CutterCore::MemoryWidgetType::Hexdump, main, action),
+    MemoryDockWidget(MemoryWidgetType::Hexdump, main, action),
     ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);
@@ -78,13 +78,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     this->ui->hexTextView->addAction(&syncAction);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
-
-    connect(this, &QDockWidget::visibilityChanged, this, [](bool visibility) {
-        if (visibility) {
-            Core()->setMemoryWidgetPriority(CutterCore::MemoryWidgetType::Hexdump);
-        }
-    });
-
     connect(Core(), &CutterCore::refreshAll, this, [this]() { refresh(); });
 
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
@@ -97,6 +90,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     });
     connect(ui->hexTextView, &HexWidget::selectionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexSideTab_2, &QTabWidget::currentChanged, this, &HexdumpWidget::refreshSelectionInfo);
+    ui->hexTextView->installEventFilter(this);
 
     initParsing();
     selectHexPreview();

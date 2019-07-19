@@ -67,7 +67,7 @@ void LinkTypeDialog::done(int r)
             QDialog::done(r);
 
             // Seek to the specified address
-            Core()->seek(address);
+            Core()->seekAndShow(address);
 
             // Refresh the views
             emit Core()->refreshCodeViews();
