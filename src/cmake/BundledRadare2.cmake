@@ -16,7 +16,7 @@ set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
 
 add_library(Radare2 INTERFACE)
 add_dependencies(Radare2 Radare2-Bundled)
-target_link_directories(Radare2 INTERFACE "${RADARE2_INSTALL_DIR}/lib")
+set_target_properties(Radare2 PROPERTIES INTERFACE_LINK_DIRECTORIES "${RADARE2_INSTALL_DIR}/lib")
 target_link_libraries(Radare2 INTERFACE
         r_core r_config r_cons r_io r_util r_flag r_asm r_debug
         r_hash r_bin r_lang r_io r_anal r_parse r_bp r_egg r_reg
