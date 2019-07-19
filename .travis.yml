@@ -67,7 +67,7 @@ addons:
     update: true
 
 before_install:
-  - pyenv global 3.7
+  - pyenv global 3.7.1
 
 install:
   - if [[ "$BUILD_SYSTEM" == "cmake" ]]; then
