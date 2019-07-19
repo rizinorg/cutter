@@ -72,6 +72,7 @@ addons:
     update: true
 
 before_install:
+  - sudo apt-get install ninja-build
   - pyenv global 3.7.1
 
 install:
