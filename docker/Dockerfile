@@ -1,34 +1,52 @@
-FROM ubuntu:rolling
-LABEL maintainer "pschmied <ps1337@mailbox.org>"
+FROM alpine:edge AS builder
+LABEL maintainer "Philipp Schmied <ps1337@mailbox.org>"
 
 # Prevent build fails because of interactive scripts when compiling
 ENV DEBIAN_FRONTEND noninteractive
 
 # Dependencies
-RUN apt-get update && \
-    apt-get -y install \
-    cmake \
-    curl \
-    g++ \
-    gcc \
-    git-core \
-    gosu \
-    libqt5svg5-dev \
-    make \
-    pkg-config \
-    python3 \
-    python3-dev \
-    qt5-default \
-    qtbase5-dev \
-    qtwebengine5-dev \
-    unzip \
-    wget
+RUN apk add --no-cache \
+        bash \
+        cmake \
+        curl \
+        g++ \
+        gcc \
+        git \
+        linux-headers \
+        make \
+        pkgconfig \
+        python3-dev \
+        qt5-qtbase \
+        qt5-qtsvg-dev \
+        qt5-qttools-dev \
+        unzip \
+        wget
 
 # Get, compile and test Cutter from master branch
-RUN git clone --recurse-submodules https://github.com/radareorg/cutter.git /opt/cutter && \
-    cd /opt/cutter && \
+RUN git clone --recurse-submodules https://github.com/radareorg/cutter.git /opt/cutter
+RUN cd /opt/cutter && \
     bash build.sh && \
     bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
+
+FROM alpine:edge AS runner
+
+# Add the dependencies we need for running
+RUN apk add --no-cache \
+         bash \
+         libuuid \
+         make \
+         python3 \
+         qt5-qtbase \
+         shadow \
+         su-exec
+
+# Get the compiled Cutter, r2 libs and bins from the builder
+COPY --from=builder /opt/cutter /opt/cutter
+COPY --from=builder /usr/lib /usr/lib
+COPY --from=builder /usr/share/radare2 /usr/share/radare2
+RUN cd /opt/cutter/radare2/binr && \
+    make install && \
+    make symstall install-symlink
 
 # Add r2 user
 RUN useradd r2
@@ -42,4 +60,5 @@ RUN mkdir /var/sharedFolder && \
 
 WORKDIR /home/r2
 ADD entrypoint.sh /usr/local/bin/entrypoint.sh
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
