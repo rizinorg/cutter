@@ -5,12 +5,22 @@ set(RADARE2_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../radare2")
 set(RADARE2_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/Radare2-prefix")
 set(MESON_OPTIONS "--prefix=${RADARE2_INSTALL_DIR}")
 
+find_program(MESON meson)
+if(NOT MESON)
+    message(FATAL_ERROR "Failed to find meson, which is required to build bundled radare2")
+endif()
+
+find_program(NINJA ninja)
+if(NOT NINJA)
+    message(FATAL_ERROR "Failed to find ninja, which is required to build bundled radare2")
+endif()
+
 ExternalProject_Add(Radare2-Bundled
         SOURCE_DIR "${RADARE2_SOURCE_DIR}"
         INSTALL_DIR "${RADARE2_INSTALL_DIR}"
-        CONFIGURE_COMMAND meson "${RADARE2_SOURCE_DIR}" ${MESON_OPTIONS} && meson configure ${MESON_OPTIONS}
-        BUILD_COMMAND ninja
-        INSTALL_COMMAND ninja install)
+        CONFIGURE_COMMAND "${MESON}" "${RADARE2_SOURCE_DIR}" ${MESON_OPTIONS} && "${MESON}" configure ${MESON_OPTIONS}
+        BUILD_COMMAND "${NINJA}"
+        INSTALL_COMMAND "${NINJA}" install)
 
 set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
 
