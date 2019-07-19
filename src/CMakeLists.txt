@@ -66,8 +66,6 @@ endif()
 
 
 find_package(Radare2 REQUIRED)
-include_directories(${RADARE2_INCLUDE_DIRS})
-link_directories(${RADARE2_LIBRARY_DIRS})
 
 if(CUTTER_ENABLE_PYTHON)
     find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
@@ -182,7 +180,7 @@ if(CUTTER_ENABLE_CRASH_REPORTS)
 endif()
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
-target_link_libraries(Cutter ${RADARE2_LIBRARIES})
+target_link_libraries(Cutter Radare2::libr)
 if(CUTTER_ENABLE_PYTHON)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
@@ -196,6 +194,7 @@ if(CUTTER_ENABLE_PYTHON)
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtWidgets")
         endif()
         list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+        list(APPEND BINDINGS_INCLUDE_DIRS ${Radare2_INCLUDE_DIRS})
         list(APPEND BINDINGS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
         string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
 
