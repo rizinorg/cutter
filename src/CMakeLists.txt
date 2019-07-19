@@ -11,6 +11,7 @@ include(Utils)
 
 set(CUTTER_PYTHON_MIN 3.5)
 
+option(CUTTER_USE_BUNDLED_RADARE2 "Use radare2 from src/radare2 submodule instead of searching for it on the system" ON)
 option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." OFF)
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
@@ -49,23 +50,12 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg Network)
 
-
-if(WIN32)
-    # use radare2 libraries from submodule on windows
-    set(CUTTER_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cutter_win32")
-    list(APPEND CMAKE_PREFIX_PATH "${CUTTER_WIN32_DIR}")
-
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bit
-        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib64")
-    else()
-        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib32")
-    endif()
-
-    set(RADARE2_INCLUDE_DIRS "${CUTTER_WIN32_DIR}/radare2/include/libr" "${CUTTER_WIN32_DIR}/include")
+if(CUTTER_USE_BUNDLED_RADARE2)
+    include(BundledRadare2)
+else()
+    find_package(Radare2 REQUIRED)
+    add_library(Radare2 ALIAS Radare2::libr)
 endif()
-
-
-find_package(Radare2 REQUIRED)
 
 if(CUTTER_ENABLE_PYTHON)
     find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
@@ -180,7 +170,7 @@ if(CUTTER_ENABLE_CRASH_REPORTS)
 endif()
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
-target_link_libraries(Cutter Radare2::libr)
+target_link_libraries(Cutter Radare2)
 if(CUTTER_ENABLE_PYTHON)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
