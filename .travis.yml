@@ -17,6 +17,11 @@ matrix:
   - name: Linux CMake
     os: linux
     env: BUILD_SYSTEM=cmake
+    addons:
+      apt:
+        update: true
+        packages:
+          - ninja-build
   - name: macOS QMake + Deploy
     os: osx
     osx_image: xcode10.1
