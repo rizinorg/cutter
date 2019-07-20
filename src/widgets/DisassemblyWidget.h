@@ -125,6 +125,7 @@ public:
         this->lockScroll = lock;
     }
 
+    qreal textOffset() const;
 protected:
     bool viewportEvent(QEvent *event) override;
     void scrollContentsBy(int dx, int dy) override;
