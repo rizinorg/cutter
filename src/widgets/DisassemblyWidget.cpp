@@ -379,18 +379,21 @@ void DisassemblyWidget::zoomIn()
 {
     mDisasTextEdit->zoomIn();
     updateMaxLines();
+    leftPanel->update();
 }
 
 void DisassemblyWidget::zoomOut()
 {
     mDisasTextEdit->zoomOut();
     updateMaxLines();
+    leftPanel->update();
 }
 
 void DisassemblyWidget::zoomReset()
 {
     setupFonts();
     updateMaxLines();
+    leftPanel->update();
 }
 
 void DisassemblyWidget::highlightCurrentLine()
@@ -746,6 +749,12 @@ void DisassemblyScrollArea::resetScrollBars()
     verticalScrollBar()->blockSignals(false);
 }
 
+qreal DisassemblyTextEdit::textOffset() const
+{
+    return (blockBoundingGeometry(document()->begin()).topLeft() +
+            contentOffset()).y();
+}
+
 bool DisassemblyTextEdit::viewportEvent(QEvent *event)
 {
     switch (event->type()) {
@@ -826,7 +835,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     constexpr int arrowWidth = 5;
     int rightOffset = size().rwidth();
     auto tEdit = qobject_cast<DisassemblyTextEdit*>(disas->getTextWidget());
-    int topOffset = int(tEdit->document()->documentMargin() + tEdit->contentsMargins().top());
+    int topOffset = int(tEdit->contentsMargins().top() + tEdit->textOffset());
     int lineHeight = disas->getFontMetrics().height();
     QColor arrowColorDown = ConfigColor("flow");
     QColor arrowColorUp = ConfigColor("cflow");
