@@ -20,7 +20,7 @@ ExternalProject_Add(Radare2-Bundled
         INSTALL_DIR "${RADARE2_INSTALL_DIR}"
         CONFIGURE_COMMAND "${MESON}" "${RADARE2_SOURCE_DIR}" ${MESON_OPTIONS} && "${MESON}" configure ${MESON_OPTIONS}
         BUILD_COMMAND "${NINJA}"
-        INSTALL_COMMAND "${NINJA}" install)
+        INSTALL_COMMAND "${NINJA}" install && ls -l "${RADARE2_INSTALL_DIR}/lib")
 
 set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
 
