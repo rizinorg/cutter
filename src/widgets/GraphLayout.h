@@ -11,6 +11,10 @@ public:
     struct GraphEdge {
         ut64 target;
         QPolygonF polyline;
+        enum ArrowDirection {
+            Down, Left, Up, Right, None
+        };
+        ArrowDirection arrow = ArrowDirection::Down;
 
         explicit GraphEdge(ut64 target): target(target) {}
     };

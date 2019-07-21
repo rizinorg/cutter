@@ -87,8 +87,31 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                 if (auto spl = ED_spl(e)) {
                     for (int i=0; i<1 && i < spl->size; i++) {
                         auto bz = spl->list[i];
+                        edge.polyline.reserve(bz.size + 1);
                         for (int j=0; j<bz.size; j++) {
                             edge.polyline.push_back(QPointF(bz.list[j].x, bz.list[j].y));
+                        }
+                        QPointF last(0, 0);
+                        if (!edge.polyline.empty()) {
+                            last = edge.polyline.back();
+                        }
+                        if (bz.eflag) {
+                            QPointF tip = QPointF(bz.ep.x, bz.ep.y);
+                            edge.polyline.push_back(tip);
+                            QPointF direction = tip - last;
+                            if (abs(direction.x()) > abs(direction.y())) {
+                                if (direction.x() > 0) {
+                                    edge.arrow = GraphEdge::Right;
+                                } else {
+                                    edge.arrow = GraphEdge::Left;
+                                }
+                            } else {
+                                if (direction.y() > 0) {
+                                    edge.arrow = GraphEdge::Down;
+                                } else {
+                                    edge.arrow = GraphEdge::Up;
+                                }
+                            }
                         }
                     }
                 }

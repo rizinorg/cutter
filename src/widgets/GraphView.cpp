@@ -360,9 +360,27 @@ void GraphView::paintGraphCache()
                 if (ec.end_arrow) {
                     auto lastPt = edge.polyline.last();
                     QPolygonF arrowEnd;
-                    arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() - 6);
-                    arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() - 6);
                     arrowEnd << QPointF(lastPt);
+                    switch(edge.arrow) {
+                        case GraphLayout::GraphEdge::Down:
+                            arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() - 6);
+                            arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() - 6);
+                            break;
+                        case GraphLayout::GraphEdge::Up:
+                            arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() + 6);
+                            arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() + 6);
+                            break;
+                        case GraphLayout::GraphEdge::Left:
+                            arrowEnd << QPointF(lastPt.x() + 6, lastPt.y() + 3);
+                            arrowEnd << QPointF(lastPt.x() + 6, lastPt.y() - 3);
+                            break;
+                        case GraphLayout::GraphEdge::Right:
+                            arrowEnd << QPointF(lastPt.x() - 6, lastPt.y() + 3);
+                            arrowEnd << QPointF(lastPt.x() - 6, lastPt.y() - 3);
+                            break;
+                    }
+
+
                     p.drawConvexPolygon(recalculatePolygon(arrowEnd));
                 }
             }
