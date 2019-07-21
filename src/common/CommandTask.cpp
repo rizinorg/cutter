@@ -10,7 +10,9 @@ CommandTask::CommandTask(const QString &cmd, ColorMode colorMode, bool outFormat
 void CommandTask::runTask() {
     TempConfig tempConfig;
     tempConfig.set("scr.color", colorMode);
-    tempConfig.set("scr.html", outFormatHtml);
     auto res = Core()->cmdTask(cmd);
+    if (outFormatHtml) {
+        res = CutterCore::ansiEscapeToHtml(res);
+    }
     emit finished(res);
 }
