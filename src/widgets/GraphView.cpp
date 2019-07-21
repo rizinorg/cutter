@@ -1,7 +1,9 @@
 #include "GraphView.h"
 
 #include "GraphGridLayout.h"
+#ifdef CUTTER_ENABLE_GRAPHVIZ
 #include "GraphvizLayout.h"
+#endif
 
 #include <vector>
 #include <QPainter>
@@ -18,7 +20,6 @@
 
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
-    , graphLayoutSystem(new GraphvizLayout())
     , useGL(false)
 #ifndef QT_NO_OPENGL
     , cacheTexture(0)
@@ -33,6 +34,7 @@ GraphView::GraphView(QWidget *parent)
         glWidget = nullptr;
     }
 #endif
+    setGraphLayout(Layout::GridMedium);
 }
 
 GraphView::~GraphView()
@@ -438,6 +440,26 @@ void GraphView::showRectangle(const QRect &block, bool anywhere)
     clampViewOffset();
     emit viewOffsetChanged(offset);
     viewport()->update();
+}
+
+void GraphView::setGraphLayout(GraphView::Layout layout)
+{
+    switch (layout) {
+        case Layout::GridNarrow:
+            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Narrow));
+            break;
+        case Layout::GridMedium:
+            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Medium));
+            break;
+        case Layout::GridWide:
+            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Wide));
+            break;
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+        case Layout::Graphviz:
+            this->graphLayoutSystem.reset(new GraphvizLayout());
+            break;
+#endif
+    }
 }
 
 void GraphView::addBlock(GraphView::GraphBlock block)

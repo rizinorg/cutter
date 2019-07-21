@@ -103,6 +103,23 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
 
     // Context menu that applies to everything
     contextMenu->addAction(&actionExportGraph);
+    static const std::pair<QString, GraphView::Layout> LAYOUT_CONFIG[] = {
+        {tr("Grid narrow"), GraphView::Layout::GridNarrow}
+        ,{tr("Grid medium"), GraphView::Layout::GridMedium}
+        ,{tr("Grid wide"), GraphView::Layout::GridWide}
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+        ,{tr("Graphviz"), GraphView::Layout::Graphviz}
+#endif
+    };
+    auto layoutMenu = contextMenu->addMenu(tr("Layout"));
+    for (auto &item : LAYOUT_CONFIG) {
+        auto action = layoutMenu->addAction(item.first);
+        GraphView::Layout layout = item.second;
+        connect(action, &QAction::triggered, this, [this, layout]() {
+            setGraphLayout(layout);
+            refreshView();
+        });
+    }
     contextMenu->addSeparator();
     contextMenu->addAction(&actionSyncOffset);
 
