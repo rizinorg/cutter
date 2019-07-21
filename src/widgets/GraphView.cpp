@@ -1,6 +1,7 @@
 #include "GraphView.h"
 
 #include "GraphGridLayout.h"
+#include "GraphvizLayout.h"
 
 #include <vector>
 #include <QPainter>
@@ -17,7 +18,7 @@
 
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
-    , graphLayoutSystem(new GraphGridLayout())
+    , graphLayoutSystem(new GraphvizLayout())
     , useGL(false)
 #ifndef QT_NO_OPENGL
     , cacheTexture(0)
