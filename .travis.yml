@@ -37,7 +37,7 @@ matrix:
   - name: Documentation + Deploy
     os: linux
     cache: ~
-    before_install: sudo apt-get update && sudo apt-get install doxygen python3-sphinx python3-breathe # because the apt addon is broken on bionic
+    before_install: sudo apt-get update && sudo apt-get install doxygen python3-sphinx python3-breathe python3-sphinx-rtd-theme # because the apt addon is broken on bionic
     install: ~
     before_script: ~
     after_success: ~
