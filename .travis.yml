@@ -33,6 +33,8 @@ matrix:
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
+    before_install:
+      - pyenv global 3.7.1;
 
   - name: Documentation + Deploy
     os: linux
