@@ -14,33 +14,30 @@ matrix:
   - name: Linux QMake + Deploy
     os: linux
     env: BUILD_SYSTEM=qmake DEPLOY=1
+
   - name: Linux CMake
     os: linux
     env: BUILD_SYSTEM=cmake
-    addons:
-      apt:
-        update: true
-        packages:
-          - ninja-build
+    before_install:
+      - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+            sudo apt-get update && sudo apt-get install ninja-build; # because the apt addon is broken on bionic
+            pyenv global 3.7.1;
+        fi
+
   - name: macOS QMake + Deploy
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=qmake DEPLOY=1
+
   - name: macOS CMake
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
+
   - name: Documentation + Deploy
     os: linux
     cache: ~
-    addons:
-      apt:
-        update: true
-        packages:
-        - doxygen
-        - python3-sphinx
-        - python3-breathe
-    before_install: ~
+    before_install: sudo apt-get update && sudo apt-get install doxygen python3-sphinx python3-breathe # because the apt addon is broken on bionic
     install: ~
     before_script: ~
     after_success: ~
@@ -71,10 +68,6 @@ addons:
     brewfile: scripts/Brewfile
     update: true
 
-before_install:
-  - sudo apt-get install ninja-build
-  - pyenv global 3.7.1
-
 install:
   - if [[ "$BUILD_SYSTEM" == "cmake" ]]; then
         pip install meson;
@@ -91,7 +84,6 @@ install:
     fi
 
 before_script:
-  - git submodule init ; git submodule update
   - cd radare2
   - if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
         if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
