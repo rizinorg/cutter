@@ -20,9 +20,9 @@ matrix:
     env: BUILD_SYSTEM=cmake
     before_install:
       - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-            sudo apt-get update && sudo apt-get install ninja-build; # because the apt addon is broken on bionic
+            sudo apt-get update && sudo apt-get install ninja-build;
             pyenv global 3.7.1;
-        fi
+        fi # because the apt addon is broken on bionic
 
   - name: macOS QMake + Deploy
     os: osx
