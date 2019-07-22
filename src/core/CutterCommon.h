@@ -9,10 +9,10 @@
 #include <QString>
 
 // Workaround for compile errors on Windows
-#ifdef _WIN32
+#ifdef Q_OS_WIN
 #undef min
 #undef max
-#endif //_WIN32
+#endif // Q_OS_WIN
 
 // radare2 list iteration macros
 #define CutterRListForeach(list, it, type, x) \
