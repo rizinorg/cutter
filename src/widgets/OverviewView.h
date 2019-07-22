@@ -32,6 +32,8 @@ public:
     void setData(int baseWidth, int baseHeight, std::unordered_map<ut64, GraphBlock> baseBlocks,
                  DisassemblerGraphView::EdgeConfigurationMapping baseEdgeConfigurations);
 
+    void centreRect();
+
 public slots:
     /**
      * @brief scale and center all nodes in, then run update

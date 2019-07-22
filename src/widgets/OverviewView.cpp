@@ -27,6 +27,13 @@ void OverviewView::setData(int baseWidth, int baseHeight,
     viewport()->update();
 }
 
+void OverviewView::centreRect()
+{
+    qreal w = rangeRect.width();
+    qreal h = rangeRect.height();
+    initialDiff = QPointF(w / 2,  h / 2);
+}
+
 OverviewView::~OverviewView()
 {
 }
