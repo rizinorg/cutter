@@ -11,6 +11,7 @@ include(Utils)
 
 set(CUTTER_PYTHON_MIN 3.5)
 
+option(CUTTER_USE_BUNDLED_RADARE2 "Use radare2 from src/radare2 submodule instead of searching for it on the system" OFF)
 option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUTTER_PYTHON_MIN}." OFF)
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
@@ -49,25 +50,13 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg Network)
 
-
-if(WIN32)
-    # use radare2 libraries from submodule on windows
-    set(CUTTER_WIN32_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../cutter_win32")
-    list(APPEND CMAKE_PREFIX_PATH "${CUTTER_WIN32_DIR}")
-
-    if(CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bit
-        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib64")
-    else()
-        list(APPEND CMAKE_LIBRARY_PATH "${CUTTER_WIN32_DIR}/radare2/lib32")
-    endif()
-
-    set(RADARE2_INCLUDE_DIRS "${CUTTER_WIN32_DIR}/radare2/include/libr" "${CUTTER_WIN32_DIR}/include")
+if(CUTTER_USE_BUNDLED_RADARE2)
+    include(BundledRadare2)
+    set(RADARE2_TARGET Radare2)
+else()
+    find_package(Radare2 REQUIRED)
+    set(RADARE2_TARGET Radare2::libr)
 endif()
-
-
-find_package(Radare2 REQUIRED)
-include_directories(${RADARE2_INCLUDE_DIRS})
-link_directories(${RADARE2_LIBRARY_DIRS})
 
 if(CUTTER_ENABLE_PYTHON)
     find_package(PythonLibs ${CUTTER_PYTHON_MIN} REQUIRED)
@@ -118,6 +107,7 @@ endif()
 message(STATUS "")
 message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
 message(STATUS "Options:")
+message(STATUS "- Bundled radare2: ${CUTTER_USE_BUNDLED_RADARE2}")
 message(STATUS "- Python: ${CUTTER_ENABLE_PYTHON}")
 message(STATUS "- Python Bindings: ${CUTTER_ENABLE_PYTHON_BINDINGS}")
 message(STATUS "- Crash Handling: ${CUTTER_ENABLE_CRASH_REPORTS}")
@@ -182,7 +172,7 @@ if(CUTTER_ENABLE_CRASH_REPORTS)
 endif()
 
 target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
-target_link_libraries(Cutter ${RADARE2_LIBRARIES})
+target_link_libraries(Cutter ${RADARE2_TARGET})
 if(CUTTER_ENABLE_PYTHON)
     target_link_libraries(Cutter ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
@@ -196,6 +186,7 @@ if(CUTTER_ENABLE_PYTHON)
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtWidgets")
         endif()
         list(APPEND BINDINGS_INCLUDE_DIRS ${Qt5Core_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+        list(APPEND BINDINGS_INCLUDE_DIRS ${Radare2_INCLUDE_DIRS})
         list(APPEND BINDINGS_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}")
         string(REPLACE ";" ":" BINDINGS_INCLUDE_DIRS "${BINDINGS_INCLUDE_DIRS}")
 

@@ -14,28 +14,29 @@ matrix:
   - name: Linux QMake + Deploy
     os: linux
     env: BUILD_SYSTEM=qmake DEPLOY=1
+
   - name: Linux CMake
     os: linux
     env: BUILD_SYSTEM=cmake
+    before_install:
+      - sudo apt-get update && sudo apt-get install ninja-build # because the apt addon is broken on bionic
+      - pyenv global 3.7.1
+      - pip install meson
+
   - name: macOS QMake + Deploy
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=qmake DEPLOY=1
+
   - name: macOS CMake
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
+
   - name: Documentation + Deploy
     os: linux
     cache: ~
-    addons:
-      apt:
-        update: true
-        packages:
-        - doxygen
-        - python3-sphinx
-        - python3-breathe
-    before_install: ~
+    before_install: sudo apt-get update && sudo apt-get install doxygen python3-sphinx python3-breathe python3-sphinx-rtd-theme # because the apt addon is broken on bionic
     install: ~
     before_script: ~
     after_success: ~
@@ -59,7 +60,7 @@ matrix:
 
 
 sudo: required
-dist: xenial
+dist: bionic
 
 addons:
   homebrew:
@@ -79,12 +80,13 @@ install:
     fi
 
 before_script:
-  - git submodule init ; git submodule update
   - cd radare2
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        INSTALL_TARGET=install sys/install.sh;
-    else
-        LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
+  - if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+            INSTALL_TARGET=install sys/install.sh;
+        else
+            LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
+        fi
     fi
   - cd ..
 
@@ -111,6 +113,7 @@ script:
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DCUTTER_USE_BUNDLED_RADARE2=ON
                 ../src &&
             make -j4;
        fi
@@ -134,6 +137,7 @@ script:
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DCUTTER_USE_BUNDLED_RADARE2=ON
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"
                 ../src &&
             make -j4;
