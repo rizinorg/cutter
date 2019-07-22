@@ -25,12 +25,12 @@ matrix:
 
   - name: macOS QMake + Deploy
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10.2
     env: BUILD_SYSTEM=qmake DEPLOY=1
 
   - name: macOS CMake
     os: osx
-    osx_image: xcode10.1
+    osx_image: xcode10.2
     env: BUILD_SYSTEM=cmake
 
   - name: Documentation + Deploy
@@ -65,7 +65,6 @@ dist: bionic
 addons:
   homebrew:
     brewfile: scripts/Brewfile
-    update: true
 
 install:
   - scripts/fetch_deps.sh
@@ -73,6 +72,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         export PATH=/usr/local/opt/llvm/bin:$PATH;
         source scripts/prepare_breakpad_macos.sh;
+        sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
         export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH";
