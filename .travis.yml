@@ -19,10 +19,9 @@ matrix:
     os: linux
     env: BUILD_SYSTEM=cmake
     before_install:
-      - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-            sudo apt-get update && sudo apt-get install ninja-build;
-            pyenv global 3.7.1;
-        fi # because the apt addon is broken on bionic
+      - sudo apt-get update && sudo apt-get install ninja-build # because the apt addon is broken on bionic
+      - pyenv global 3.7.1
+      - pip install meson
 
   - name: macOS QMake + Deploy
     os: osx
@@ -33,9 +32,6 @@ matrix:
     os: osx
     osx_image: xcode10.1
     env: BUILD_SYSTEM=cmake
-    before_install:
-      - pyenv versions
-      - pyenv global 3.7
 
   - name: Documentation + Deploy
     os: linux
@@ -72,9 +68,6 @@ addons:
     update: true
 
 install:
-  - if [[ "$BUILD_SYSTEM" == "cmake" ]]; then
-        pip install meson;
-    fi
   - scripts/fetch_deps.sh
   - source cutter-deps/env.sh
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
