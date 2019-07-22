@@ -13,7 +13,6 @@ GraphvizLayout::GraphvizLayout()
 {
 }
 
-
 void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
                                       int &width, int &height) const
 {
@@ -35,6 +34,12 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     agsafeset(g, (char*)"rankdir", (char*)"BT", "");
     const float dpi = 72.0;
     agsafeset(g, (char*)"dpi", (char*)"72", "");
+
+    auto width_attr = agattr(g, AGNODE, "width", "1");
+    auto height_attr = agattr(g, AGNODE, "height", "1");
+    agattr(g, AGNODE, "shape", "box");
+    agattr(g, AGNODE, "fixedsize", "true");
+
     for (const auto& blockIt : blocks)
     {
         auto u = nodes[blockIt.first];
@@ -51,19 +56,14 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
         }
         std::string str = std::to_string(1.0 * block.width / dpi);
         std::replace(str.begin(), str.end(), ',', '.');
-        strc.push_back(str);
-        agsafeset(u, (char*)"width", (char*)strc.back().c_str(), "");
+        agxset(u, width_attr, (char*)str.c_str());
         str = std::to_string(1.0 * block.height / dpi);
         std::replace(str.begin(), str.end(), ',', '.');
         strc.push_back(str);
-        agsafeset(u, (char*)"height", (char*)strc.back().c_str(), "");
-
-        agsafeset(u, (char*)"shape", (char*)"box", "");
-        agsafeset(u, (char*)"fixedsize", (char*)"true", "");
+        agxset(u, height_attr, (char*)str.c_str());
     }
 
     gvLayout(gvc, g, "dot");
-    gvRender (gvc, g, "dot", nullptr);
 
     for (auto& blockIt : blocks)
     {
