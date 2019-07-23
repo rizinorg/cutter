@@ -440,6 +440,8 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                     return QIcon(new SvgIconEngine(QString(":/img/icons/home.svg"), QPalette::WindowText));
                 }
                 return QVariant();
+            case VTableRole:
+                return -1;
             case NameRole:
                 return base.className;
             case TypeRole:
