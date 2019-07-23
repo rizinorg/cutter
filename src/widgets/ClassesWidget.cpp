@@ -470,6 +470,8 @@ QVariant AnalClassesModel::data(const QModelIndex &index, int role) const
                     return QIcon(new SvgIconEngine(QString(":/img/icons/fork.svg"), QPalette::WindowText));
                 }
                 return QVariant();
+            case VTableRole:
+                return QVariant::fromValue(meth.vtableOffset);
             case OffsetRole:
                 return QVariant::fromValue(meth.addr);
             case NameRole:
@@ -544,6 +546,14 @@ bool ClassesSortFilterProxyModel::lessThan(const QModelIndex &left, const QModel
         auto right_type = right.data(ClassesModel::TypeRole).value<ClassesModel::RowType>();
         if (left_type != right_type) {
             return left_type < right_type;
+        }
+    }
+    // fallthrough
+    case ClassesModel::VTABLE: {
+        auto left_vtable = left.data(ClassesModel::VTableRole).toLongLong();
+        auto right_vtable = right.data(ClassesModel::VTableRole).toLongLong();
+        if (left_vtable != right_vtable) {
+            return left_vtable < right_vtable;
         }
     }
     // fallthrough
