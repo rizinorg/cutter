@@ -5,6 +5,8 @@
 #include <queue>
 #include <stack>
 #include <cassert>
+#include <sstream>
+#include <iomanip>
 
 #include <gvc.h>
 
@@ -14,60 +16,66 @@ GraphvizLayout::GraphvizLayout()
 }
 
 void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
-                                      int &width, int &height) const
+                                     int &width, int &height) const
 {
-    width = height = 10;
-    GVC_t* gvc = gvContext();
-    Agraph_t* g = agopen(const_cast<char*>("G"), Agdirected, nullptr); //Leftovers from old C library, graphviz shouldn't modify file name
+    //https://gitlab.com/graphviz/graphviz/issues/1441
+#define STR(v) const_cast<char*>(v)
 
-    std::unordered_map<ut64, Agnode_t*> nodes;
-    for (const auto& block : blocks)
-    {
+    width = height = 10;
+    GVC_t *gvc = gvContext();
+    Agraph_t *g = agopen(STR("G"), Agdirected, nullptr);
+
+    std::unordered_map<ut64, Agnode_t *> nodes;
+    for (const auto &block : blocks) {
         nodes[block.first] = agnode(g, nullptr, TRUE);
     }
 
     std::vector<std::string> strc;
     strc.reserve(2 * blocks.size());
-    std::map<std::pair<ut64, ut64>, Agedge_t*> edges;
+    std::map<std::pair<ut64, ut64>, Agedge_t *> edges;
 
-    agsafeset(g, (char*)"splines", (char*)"ortho", "");
-    agsafeset(g, (char*)"rankdir", (char*)"BT", "");
-    const float dpi = 72.0;
-    agsafeset(g, (char*)"dpi", (char*)"72", "");
+    agsafeset(g, STR("splines"), STR("ortho"), STR(""));
+    agsafeset(g, STR("rankdir"), STR("BT"), STR(""));
+    // graphviz has builtin 72 dpi setting for input that differs from output
+    // it's easier to use 72 everywhere
+    const double dpi = 72.0;
+    agsafeset(g, STR("dpi"), STR("72"), STR(""));
 
-    auto width_attr = agattr(g, AGNODE, "width", "1");
-    auto height_attr = agattr(g, AGNODE, "height", "1");
-    agattr(g, AGNODE, "shape", "box");
-    agattr(g, AGNODE, "fixedsize", "true");
+    auto widhAttr = agattr(g, AGNODE, STR("width"), STR("1"));
+    auto heightAattr = agattr(g, AGNODE, STR("height"), STR("1"));
+    agattr(g, AGNODE, STR("shape"), STR("box"));
+    agattr(g, AGNODE, STR("fixedsize"), STR("true"));
 
-    for (const auto& blockIt : blocks)
-    {
+
+    std::ostringstream stream;
+    stream.imbue(std::locale::classic());
+    auto setFloatingPointAttr = [&stream](void *obj, Agsym_t *sym, double value) {
+        stream.str({});
+        stream << std::fixed << std::setw(4) << value;
+        auto str = stream.str();
+        agxset(obj, sym, STR(str.c_str()));
+    };
+
+    for (const auto &blockIt : blocks) {
         auto u = nodes[blockIt.first];
-        auto& block = blockIt.second;
+        auto &block = blockIt.second;
 
-        for (auto & edge : block.edges)
-        {
+        for (auto &edge : block.edges) {
             auto v = nodes.find(edge.target);
             if (v == nodes.end()) {
                 continue;
             }
-            auto e = agedge(g,u,v->second,nullptr,TRUE);
+            auto e = agedge(g, u, v->second, nullptr, TRUE);
             edges[{blockIt.first, edge.target}] = e;
         }
-        std::string str = std::to_string(1.0 * block.width / dpi);
-        std::replace(str.begin(), str.end(), ',', '.');
-        agxset(u, width_attr, (char*)str.c_str());
-        str = std::to_string(1.0 * block.height / dpi);
-        std::replace(str.begin(), str.end(), ',', '.');
-        strc.push_back(str);
-        agxset(u, height_attr, (char*)str.c_str());
+        setFloatingPointAttr(u, widhAttr, block.width / dpi);
+        setFloatingPointAttr(u, heightAattr, block.height / dpi);
     }
 
     gvLayout(gvc, g, "dot");
 
-    for (auto& blockIt : blocks)
-    {
-        auto& block = blockIt.second;
+    for (auto &blockIt : blocks) {
+        auto &block = blockIt.second;
         auto u = nodes[blockIt.first];
 
         auto pos = ND_coord(u);
@@ -79,16 +87,15 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
         width = std::max(width, block.x + block.width);
         height = std::max(height, block.y + block.height);
 
-        for (auto & edge : block.edges)
-        {
+        for (auto &edge : block.edges) {
             auto it = edges.find({blockIt.first, edge.target});
             if (it != edges.end()) {
                 auto e = it->second;
                 if (auto spl = ED_spl(e)) {
-                    for (int i=0; i<1 && i < spl->size; i++) {
+                    for (int i = 0; i < 1 && i < spl->size; i++) {
                         auto bz = spl->list[i];
                         edge.polyline.reserve(bz.size + 1);
-                        for (int j=0; j<bz.size; j++) {
+                        for (int j = 0; j < bz.size; j++) {
                             edge.polyline.push_back(QPointF(bz.list[j].x, bz.list[j].y));
                         }
                         QPointF last(0, 0);
@@ -120,11 +127,11 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     }
 
     gvFreeLayout(gvc, g);
-    for (auto v : nodes)
-    {
+    for (auto v : nodes) {
         agdelnode(g, v.second);
     }
 
     agclose(g);
     gvFreeContext(gvc);
+#undef STR
 }
