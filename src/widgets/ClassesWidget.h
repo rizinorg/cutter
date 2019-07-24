@@ -53,6 +53,14 @@ public:
      */
     static const int TypeRole = Qt::UserRole + 2;
 
+    /**
+     * @brief VTable role of data for QModelIndex
+     *
+     * will contain values of type long long for sorting
+     * by vtable offset
+     */
+    static const int VTableRole = Qt::UserRole + 3;
+
     explicit ClassesModel(QObject *parent = nullptr) : QAbstractItemModel(parent) {}
 
     QVariant headerData(int section, Qt::Orientation orientation,
