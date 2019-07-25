@@ -15,6 +15,23 @@ GraphvizLayout::GraphvizLayout()
 {
 }
 
+static GraphLayout::GraphEdge::ArrowDirection getArrowDirection(QPointF direction)
+{
+    if (abs(direction.x()) > abs(direction.y())) {
+        if (direction.x() > 0) {
+            return GraphLayout::GraphEdge::Right;
+        } else {
+            return GraphLayout::GraphEdge::Left;
+        }
+    } else {
+        if (direction.y() > 0) {
+            return GraphLayout::GraphEdge::Down;
+        } else {
+            return GraphLayout::GraphEdge::Up;
+        }
+    }
+}
+
 void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
                                      int &width, int &height) const
 {
@@ -36,6 +53,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
 
     agsafeset(g, STR("splines"), STR("ortho"), STR(""));
     agsafeset(g, STR("rankdir"), STR("BT"), STR(""));
+    agsafeset(g, STR("newrank"), STR("true"), STR(""));
     // graphviz has builtin 72 dpi setting for input that differs from output
     // it's easier to use 72 everywhere
     const double dpi = 72.0;
@@ -105,20 +123,20 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                         if (bz.eflag) {
                             QPointF tip = QPointF(bz.ep.x, bz.ep.y);
                             edge.polyline.push_back(tip);
-                            QPointF direction = tip - last;
-                            if (abs(direction.x()) > abs(direction.y())) {
-                                if (direction.x() > 0) {
-                                    edge.arrow = GraphEdge::Right;
-                                } else {
-                                    edge.arrow = GraphEdge::Left;
-                                }
-                            } else {
-                                if (direction.y() > 0) {
-                                    edge.arrow = GraphEdge::Down;
-                                } else {
-                                    edge.arrow = GraphEdge::Up;
-                                }
+                        }
+
+                        if (edge.polyline.size() >= 2) {
+                        // make sure self loops go from bottom to top
+                            if (edge.target == block.entry && edge.polyline.first().y() < edge.polyline.last().y()) {
+                                std::reverse(edge.polyline.begin(), edge.polyline.end());
                             }
+                            auto it = edge.polyline.rbegin();
+                            QPointF direction = *it;
+                            direction -= *(++it);
+                            edge.arrow = getArrowDirection(direction);
+
+                        } else {
+                            edge.arrow = GraphEdge::Down;
                         }
                     }
                 }
