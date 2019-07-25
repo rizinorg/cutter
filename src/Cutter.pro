@@ -360,7 +360,9 @@ SOURCES += \
     widgets/GraphGridLayout.cpp \
     widgets/HexWidget.cpp \
     common/SelectionHighlight.cpp \
-    common/Decompiler.cpp \
+    common/Decompiler.cpp
+
+GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
 
 HEADERS  += \
@@ -486,10 +488,11 @@ HEADERS  += \
     common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
-    widgets/GraphGridLayout.h \
     widgets/HexWidget.h \
     common/SelectionHighlight.h \
     common/Decompiler.h
+
+GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
