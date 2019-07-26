@@ -38,7 +38,9 @@ public:
         ,GridMedium
         ,GridWide
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        ,Graphviz
+        ,GraphvizOrthoPlain
+        ,GraphvizOrthoRank
+        ,GraphvizPolyline
 #endif
     };
 

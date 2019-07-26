@@ -108,7 +108,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
         ,{tr("Grid medium"), GraphView::Layout::GridMedium}
         ,{tr("Grid wide"), GraphView::Layout::GridWide}
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        ,{tr("Graphviz"), GraphView::Layout::Graphviz}
+        ,{tr("Graphviz ortho"), GraphView::Layout::GraphvizOrthoPlain}
+        ,{tr("Graphviz ortho+"), GraphView::Layout::GraphvizOrthoRank}
+        ,{tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
 #endif
     };
     auto layoutMenu = contextMenu->addMenu(tr("Layout"));

@@ -473,8 +473,14 @@ void GraphView::setGraphLayout(GraphView::Layout layout)
             this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Wide));
             break;
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        case Layout::Graphviz:
+        case Layout::GraphvizOrthoPlain:
             this->graphLayoutSystem.reset(new GraphvizLayout());
+            break;
+        case Layout::GraphvizOrthoRank:
+            this->graphLayoutSystem.reset(new GraphvizLayout(true));
+            break;
+        case Layout::GraphvizPolyline:
+            this->graphLayoutSystem.reset(new GraphvizLayout(true, false));
             break;
 #endif
     }

@@ -7,17 +7,20 @@
 #include <cassert>
 #include <sstream>
 #include <iomanip>
+#include <set>
 
 #include <gvc.h>
 
-GraphvizLayout::GraphvizLayout()
+GraphvizLayout::GraphvizLayout(bool removeLoops, bool ortho)
     : GraphLayout({})
+    , removeLoops(removeLoops)
+    , ortho(ortho)
 {
 }
 
-static GraphLayout::GraphEdge::ArrowDirection getArrowDirection(QPointF direction)
+static GraphLayout::GraphEdge::ArrowDirection getArrowDirection(QPointF direction, bool preferVertical)
 {
-    if (abs(direction.x()) > abs(direction.y())) {
+    if (abs(direction.x()) > abs(direction.y()) * (preferVertical ? 3.0 : 1.0)) {
         if (direction.x() > 0) {
             return GraphLayout::GraphEdge::Right;
         } else {
@@ -30,6 +33,54 @@ static GraphLayout::GraphEdge::ArrowDirection getArrowDirection(QPointF directio
             return GraphLayout::GraphEdge::Up;
         }
     }
+}
+
+static std::set<std::pair<ut64, ut64>> SelectLoopEdges(const GraphLayout::Graph &graph, ut64 entry)
+{
+    std::set<std::pair<ut64, ut64>> result;
+    // Run DFS to select backwards/loop edges
+    // 0 - not visited
+    // 1 - in stack
+    // 2 - visited
+    std::unordered_map<ut64, uint8_t> visited;
+    visited.reserve(graph.size());
+    std::stack<std::pair<ut64, size_t>> stack;
+    auto dfsFragment = [&visited, &graph, &stack, &result](ut64 first) {
+        visited[first] = 1;
+        stack.push({first, 0});
+        while (!stack.empty()) {
+            auto v = stack.top().first;
+            auto edge_index = stack.top().second;
+            auto blockIt = graph.find(v);
+            if (blockIt == graph.end()) {
+                continue;
+            }
+            const auto &block = blockIt->second;
+            if (edge_index < block.edges.size()) {
+                ++stack.top().second;
+                auto target = block.edges[edge_index].target;
+                auto &targetState = visited[target];
+                if (targetState == 0) {
+                    targetState = 1;
+                    stack.push({target, 0});
+                } else if (targetState == 1) {
+                    result.insert({v, target});
+                }
+            } else {
+                stack.pop();
+                visited[v] = 2;
+            }
+        }
+    };
+
+    dfsFragment(entry);
+    for (auto &blockIt : graph) {
+        if (!visited[blockIt.first]) {
+            dfsFragment(blockIt.first);
+        }
+    }
+
+    return result;
 }
 
 void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
@@ -51,7 +102,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     strc.reserve(2 * blocks.size());
     std::map<std::pair<ut64, ut64>, Agedge_t *> edges;
 
-    agsafeset(g, STR("splines"), STR("ortho"), STR(""));
+    agsafeset(g, STR("splines"), ortho ? STR("ortho") : STR("polyline"), STR(""));
     agsafeset(g, STR("rankdir"), STR("BT"), STR(""));
     agsafeset(g, STR("newrank"), STR("true"), STR(""));
     // graphviz has builtin 72 dpi setting for input that differs from output
@@ -60,9 +111,10 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     agsafeset(g, STR("dpi"), STR("72"), STR(""));
 
     auto widhAttr = agattr(g, AGNODE, STR("width"), STR("1"));
-    auto heightAattr = agattr(g, AGNODE, STR("height"), STR("1"));
+    auto heightAatr = agattr(g, AGNODE, STR("height"), STR("1"));
     agattr(g, AGNODE, STR("shape"), STR("box"));
     agattr(g, AGNODE, STR("fixedsize"), STR("true"));
+     auto constraintAttr = agattr(g, AGEDGE, STR("constraint"), STR("1"));
 
 
     std::ostringstream stream;
@@ -73,6 +125,11 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
         auto str = stream.str();
         agxset(obj, sym, STR(str.c_str()));
     };
+
+    std::set<std::pair<ut64, ut64>> loopEdges;
+    if (removeLoops) {
+        loopEdges = SelectLoopEdges(blocks, entry);
+    }
 
     for (const auto &blockIt : blocks) {
         auto u = nodes[blockIt.first];
@@ -85,9 +142,12 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
             }
             auto e = agedge(g, u, v->second, nullptr, TRUE);
             edges[{blockIt.first, edge.target}] = e;
+            if (removeLoops && loopEdges.find({blockIt.first, edge.target}) != loopEdges.end()) {
+                agxset(e, constraintAttr, STR("0"));
+            }
         }
         setFloatingPointAttr(u, widhAttr, block.width / dpi);
-        setFloatingPointAttr(u, heightAattr, block.height / dpi);
+        setFloatingPointAttr(u, heightAatr, block.height / dpi);
     }
 
     gvLayout(gvc, g, "dot");
@@ -133,7 +193,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                             auto it = edge.polyline.rbegin();
                             QPointF direction = *it;
                             direction -= *(++it);
-                            edge.arrow = getArrowDirection(direction);
+                            edge.arrow = getArrowDirection(direction, !ortho);
 
                         } else {
                             edge.arrow = GraphEdge::Down;
