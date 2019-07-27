@@ -918,9 +918,9 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
         bool jumpDown = l.arrow > l.offset;
         p.setPen(jumpDown ? penDown : penUp);
-        if (l.offset == currOffset) {
+        if (l.offset == currOffset || l.arrow == currOffset) {
             QPen pen = p.pen();
-            pen.setWidth((penSizePix * 3) / 2);
+            pen.setWidthF((penSizePix * 3) / 2.0);
             p.setPen(pen);
         }
         bool endVisible = true;
