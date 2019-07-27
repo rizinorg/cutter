@@ -462,6 +462,7 @@ void GraphView::showRectangle(const QRect &block, bool anywhere)
 
 void GraphView::setGraphLayout(GraphView::Layout layout)
 {
+    graphLayout = layout;
     switch (layout) {
         case Layout::GridNarrow:
             this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Narrow));
@@ -473,14 +474,17 @@ void GraphView::setGraphLayout(GraphView::Layout layout)
             this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Wide));
             break;
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        case Layout::GraphvizOrthoPlain:
-            this->graphLayoutSystem.reset(new GraphvizLayout());
+        case Layout::GraphvizOrtho:
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho));
             break;
-        case Layout::GraphvizOrthoRank:
-            this->graphLayoutSystem.reset(new GraphvizLayout(true));
+        case Layout::GraphvizOrthoLR:
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho, GraphvizLayout::Direction::LR));
             break;
         case Layout::GraphvizPolyline:
-            this->graphLayoutSystem.reset(new GraphvizLayout(true, false));
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline));
+            break;
+        case Layout::GraphvizPolylineLR:
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline, GraphvizLayout::Direction::LR));
             break;
 #endif
     }

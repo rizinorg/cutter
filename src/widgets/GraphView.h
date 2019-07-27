@@ -38,9 +38,10 @@ public:
         ,GridMedium
         ,GridWide
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        ,GraphvizOrthoPlain
-        ,GraphvizOrthoRank
+        ,GraphvizOrtho
+        ,GraphvizOrthoLR
         ,GraphvizPolyline
+        ,GraphvizPolylineLR
 #endif
     };
 
@@ -71,6 +72,7 @@ public:
     ut64 currentFcnAddr = RVA_INVALID; // TODO: move application specific code out of graph view
 
     void setGraphLayout(Layout layout);
+    Layout getGraphLayout() const { return graphLayout; }
 
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
@@ -154,6 +156,7 @@ private:
     QSize cacheSize;
     QOpenGLWidget *glWidget;
 #endif
+    Layout graphLayout;
 
     /**
      * @brief flag to control if the cache is invalid and should be re-created in the next draw

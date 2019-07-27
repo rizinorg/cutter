@@ -11,10 +11,10 @@
 
 #include <gvc.h>
 
-GraphvizLayout::GraphvizLayout(bool removeLoops, bool ortho)
+GraphvizLayout::GraphvizLayout(LineType lineType, Direction direction)
     : GraphLayout({})
-    , removeLoops(removeLoops)
-    , ortho(ortho)
+    , direction(direction)
+    , lineType(lineType)
 {
 }
 
@@ -102,8 +102,15 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     strc.reserve(2 * blocks.size());
     std::map<std::pair<ut64, ut64>, Agedge_t *> edges;
 
-    agsafeset(g, STR("splines"), ortho ? STR("ortho") : STR("polyline"), STR(""));
-    agsafeset(g, STR("rankdir"), STR("BT"), STR(""));
+    agsafeset(g, STR("splines"), lineType == LineType::Ortho ? STR("ortho") : STR("polyline"), STR(""));
+    switch (direction) {
+        case Direction::LR:
+            agsafeset(g, STR("rankdir"), STR("LR"), STR(""));
+            break;
+        case Direction::TB:
+            agsafeset(g, STR("rankdir"), STR("BT"), STR(""));
+            break;
+    }
     agsafeset(g, STR("newrank"), STR("true"), STR(""));
     // graphviz has builtin 72 dpi setting for input that differs from output
     // it's easier to use 72 everywhere
@@ -114,8 +121,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     auto heightAatr = agattr(g, AGNODE, STR("height"), STR("1"));
     agattr(g, AGNODE, STR("shape"), STR("box"));
     agattr(g, AGNODE, STR("fixedsize"), STR("true"));
-     auto constraintAttr = agattr(g, AGEDGE, STR("constraint"), STR("1"));
-
+    auto constraintAttr = agattr(g, AGEDGE, STR("constraint"), STR("1"));
 
     std::ostringstream stream;
     stream.imbue(std::locale::classic());
@@ -126,10 +132,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
         agxset(obj, sym, STR(str.c_str()));
     };
 
-    std::set<std::pair<ut64, ut64>> loopEdges;
-    if (removeLoops) {
-        loopEdges = SelectLoopEdges(blocks, entry);
-    }
+    std::set<std::pair<ut64, ut64>> loopEdges = SelectLoopEdges(blocks, entry);
 
     for (const auto &blockIt : blocks) {
         auto u = nodes[blockIt.first];
@@ -142,7 +145,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
             }
             auto e = agedge(g, u, v->second, nullptr, TRUE);
             edges[{blockIt.first, edge.target}] = e;
-            if (removeLoops && loopEdges.find({blockIt.first, edge.target}) != loopEdges.end()) {
+            if (loopEdges.find({blockIt.first, edge.target}) != loopEdges.end()) {
                 agxset(e, constraintAttr, STR("0"));
             }
         }
@@ -193,7 +196,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                             auto it = edge.polyline.rbegin();
                             QPointF direction = *it;
                             direction -= *(++it);
-                            edge.arrow = getArrowDirection(direction, !ortho);
+                            edge.arrow = getArrowDirection(direction, lineType == LineType::Polyline);
 
                         } else {
                             edge.arrow = GraphEdge::Down;

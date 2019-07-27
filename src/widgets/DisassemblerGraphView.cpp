@@ -108,20 +108,28 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
         ,{tr("Grid medium"), GraphView::Layout::GridMedium}
         ,{tr("Grid wide"), GraphView::Layout::GridWide}
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        ,{tr("Graphviz ortho"), GraphView::Layout::GraphvizOrthoPlain}
-        ,{tr("Graphviz ortho+"), GraphView::Layout::GraphvizOrthoRank}
         ,{tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
+        ,{tr("Graphviz polyline LR"), GraphView::Layout::GraphvizPolylineLR}
+        ,{tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
+        ,{tr("Graphviz ortho LR"), GraphView::Layout::GraphvizOrthoLR}
 #endif
     };
     auto layoutMenu = contextMenu->addMenu(tr("Layout"));
+    QActionGroup* layoutGroup = new QActionGroup(layoutMenu);
     for (auto &item : LAYOUT_CONFIG) {
-        auto action = layoutMenu->addAction(item.first);
+        auto action = layoutGroup->addAction(item.first);
+        action->setCheckable(true);
         GraphView::Layout layout = item.second;
         connect(action, &QAction::triggered, this, [this, layout]() {
             setGraphLayout(layout);
             refreshView();
+            onSeekChanged(this->seekable->getOffset()); // try to keep the view on current block
         });
+        if (layout == getGraphLayout()) {
+            action->setChecked(true);
+        }
     }
+    layoutMenu->addActions(layoutGroup->actions());
     contextMenu->addSeparator();
     contextMenu->addAction(&actionSyncOffset);
 
