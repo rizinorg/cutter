@@ -38,6 +38,7 @@ public:
         bool start_arrow = false;
         bool end_arrow = true;
         qreal width_scale = 1.0;
+        Qt::PenStyle lineStyle = Qt::PenStyle::SolidLine;
     };
 
     explicit GraphView(QWidget *parent);

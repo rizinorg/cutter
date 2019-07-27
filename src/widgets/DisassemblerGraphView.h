@@ -147,6 +147,7 @@ private:
     int charOffset;
     int baseline;
     bool emptyGraph;
+    ut64 currentBlockAddress = RVA_INVALID;
 
     DisassemblyContextMenu *blockMenu;
     QMenu *contextMenu;

@@ -601,6 +601,11 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
     }
     ec.start_arrow = false;
     ec.end_arrow = true;
+    if (from.entry == currentBlockAddress) {
+        ec.lineStyle = Qt::DashLine;
+    } else if (to->entry == currentBlockAddress) {
+        ec.lineStyle = Qt::DashDotLine;
+    }
     return ec;
 }
 
@@ -922,6 +927,8 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
         return;
     }
 
+    currentBlockAddress = block.entry;
+
     highlight_token = getToken(instr, pos.x());
 
     RVA addr = instr->addr;
@@ -983,6 +990,7 @@ bool DisassemblerGraphView::helpEvent(QHelpEvent *event)
 
 void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
+    currentBlockAddress = to->entry;
     if (transition_dont_seek) {
         transition_dont_seek = false;
         return;
