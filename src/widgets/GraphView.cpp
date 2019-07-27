@@ -348,40 +348,42 @@ void GraphView::paintGraphCache()
             p.drawPolyline(polyline);
             pen.setStyle(Qt::SolidLine);
             p.setPen(pen);
+
+            auto drawArrow = [&](QPointF tip, QPointF dir) {
+                QPolygonF arrow;
+                arrow << tip;
+                QPointF dy(-dir.y(), dir.x());
+                QPointF base = tip - dir * 6;
+                arrow << base + 3 * dy;
+                arrow << base - 3 * dy;
+                p.drawConvexPolygon(recalculatePolygon(arrow));
+            };
+
             if (!polyline.empty()) {
                 if (ec.start_arrow) {
                     auto firstPt = edge.polyline.first();
-                    QPolygonF arrowStart;
-                    arrowStart << QPointF(firstPt.x() - 3, firstPt.y() + 6);
-                    arrowStart << QPointF(firstPt.x() + 3, firstPt.y() + 6);
-                    arrowStart << QPointF(firstPt);
-                    p.drawConvexPolygon(recalculatePolygon(arrowStart));
+                    drawArrow(firstPt, QPointF(0, 1));
                 }
                 if (ec.end_arrow) {
                     auto lastPt = edge.polyline.last();
-                    QPolygonF arrowEnd;
-                    arrowEnd << QPointF(lastPt);
+                    QPointF dir(0, -1);
                     switch(edge.arrow) {
                         case GraphLayout::GraphEdge::Down:
-                            arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() - 6);
-                            arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() - 6);
+                            dir = QPointF(0, 1);
                             break;
                         case GraphLayout::GraphEdge::Up:
-                            arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() + 6);
-                            arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() + 6);
+                            dir = QPointF(0, -1);
                             break;
                         case GraphLayout::GraphEdge::Left:
-                            arrowEnd << QPointF(lastPt.x() + 6, lastPt.y() + 3);
-                            arrowEnd << QPointF(lastPt.x() + 6, lastPt.y() - 3);
+                            dir = QPointF(-1, 0);
                             break;
                         case GraphLayout::GraphEdge::Right:
-                            arrowEnd << QPointF(lastPt.x() - 6, lastPt.y() + 3);
-                            arrowEnd << QPointF(lastPt.x() - 6, lastPt.y() - 3);
+                            dir = QPointF(1, 0);
+                            break;
+                        default:
                             break;
                     }
-
-
-                    p.drawConvexPolygon(recalculatePolygon(arrowEnd));
+                    drawArrow(lastPt, dir);
                 }
             }
         }

@@ -18,7 +18,8 @@ GraphvizLayout::GraphvizLayout(LineType lineType, Direction direction)
 {
 }
 
-static GraphLayout::GraphEdge::ArrowDirection getArrowDirection(QPointF direction, bool preferVertical)
+static GraphLayout::GraphEdge::ArrowDirection getArrowDirection(QPointF direction,
+                                                                bool preferVertical)
 {
     if (abs(direction.x()) > abs(direction.y()) * (preferVertical ? 3.0 : 1.0)) {
         if (direction.x() > 0) {
@@ -104,12 +105,12 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
 
     agsafeset(g, STR("splines"), lineType == LineType::Ortho ? STR("ortho") : STR("polyline"), STR(""));
     switch (direction) {
-        case Direction::LR:
-            agsafeset(g, STR("rankdir"), STR("LR"), STR(""));
-            break;
-        case Direction::TB:
-            agsafeset(g, STR("rankdir"), STR("BT"), STR(""));
-            break;
+    case Direction::LR:
+        agsafeset(g, STR("rankdir"), STR("LR"), STR(""));
+        break;
+    case Direction::TB:
+        agsafeset(g, STR("rankdir"), STR("BT"), STR(""));
+        break;
     }
     agsafeset(g, STR("newrank"), STR("true"), STR(""));
     // graphviz has builtin 72 dpi setting for input that differs from output
@@ -189,7 +190,7 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                         }
 
                         if (edge.polyline.size() >= 2) {
-                        // make sure self loops go from bottom to top
+                            // make sure self loops go from bottom to top
                             if (edge.target == block.entry && edge.polyline.first().y() < edge.polyline.last().y()) {
                                 std::reverse(edge.polyline.begin(), edge.polyline.end());
                             }
@@ -208,10 +209,6 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
     }
 
     gvFreeLayout(gvc, g);
-    for (auto v : nodes) {
-        agdelnode(g, v.second);
-    }
-
     agclose(g);
     gvFreeContext(gvc);
 #undef STR
