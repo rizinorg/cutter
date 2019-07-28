@@ -17,14 +17,12 @@ SdbWidget::SdbWidget(MainWindow *main, QAction *action) :
     path.clear();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(reload()));
-    reload(nullptr);
+    reload();
 }
 
 void SdbWidget::reload(QString _path)
 {
-    if (!_path.isNull()) {
-        path = _path;
-    }
+    path = _path;
 
     ui->lineEdit->setText(path);
     /* insert root sdb keyvalue pairs */
@@ -44,7 +42,9 @@ void SdbWidget::reload(QString _path)
     qhelpers::adjustColumns(ui->treeWidget, 0);
     /* namespaces */
     keys = Core()->sdbList(path);
-    keys.append("..");
+    if (!path.isEmpty()) {
+        keys.append("..");
+    }
     for (const QString &key : keys) {
         QTreeWidgetItem *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, key + "/");
