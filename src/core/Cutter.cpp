@@ -219,6 +219,12 @@ QList<QString> CutterCore::sdbList(QString path)
     return list;
 }
 
+using SdbListPtr = std::unique_ptr<SdbList, decltype (&ls_free)>;
+static SdbListPtr makeSdbListPtr(SdbList *list)
+{
+    return {list, ls_free};
+}
+
 QList<QString> CutterCore::sdbListKeys(QString path)
 {
     CORE_LOCK();
@@ -227,7 +233,7 @@ QList<QString> CutterCore::sdbListKeys(QString path)
     if (root) {
         void *vsi;
         ls_iter_t *iter;
-        SdbList *l = sdb_foreach_list(root, false);
+        SdbListPtr l = makeSdbListPtr(sdb_foreach_list(root, false));
         ls_foreach(l, iter, vsi) {
             SdbKv *nsi = (SdbKv *)vsi;
             list << reinterpret_cast<char *>(nsi->base.key);
@@ -2098,7 +2104,7 @@ QList<QString> CutterCore::getAllAnalClasses(bool sorted)
 {
     QList<QString> ret;
 
-    SdbList *l = r_anal_class_get_all(core_->anal, sorted);
+    SdbListPtr l = makeSdbListPtr(r_anal_class_get_all(core_->anal, sorted));
     if (!l) {
         return ret;
     }
@@ -2110,7 +2116,6 @@ QList<QString> CutterCore::getAllAnalClasses(bool sorted)
         auto kv = reinterpret_cast<SdbKv *>(entry);
         ret.append(QString::fromUtf8(reinterpret_cast<const char *>(kv->base.key)));
     }
-    ls_free(l);
 
     return ret;
 }
