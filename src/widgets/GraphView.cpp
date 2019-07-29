@@ -337,8 +337,11 @@ void GraphView::paintGraphCache()
             EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
             QPen pen(ec.color);
             pen.setStyle(ec.lineStyle);
-            pen.setWidth(pen.width() / ec.width_scale);
-            if (pen.width() * current_scale < 2) {
+            pen.setWidthF(pen.width() * ec.width_scale);
+            if (ec.width_scale > 1.01 && pen.widthF() * current_scale < 2) {
+                pen.setWidthF(2.0 / current_scale);
+            }
+            if (pen.widthF() * current_scale < 2) {
                 pen.setWidth(0);
             }
             p.setPen(pen);

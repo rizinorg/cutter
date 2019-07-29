@@ -137,7 +137,7 @@ GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlo
     auto baseEcIt = edgeConfigurations.find({from.entry, to->entry});
     if (baseEcIt != edgeConfigurations.end())
         ec = baseEcIt->second;
-    ec.width_scale = getViewScale();
+    ec.width_scale = 1.0 / getViewScale();
     return ec;
 }
 

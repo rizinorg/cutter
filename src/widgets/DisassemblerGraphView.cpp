@@ -602,9 +602,9 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
     ec.start_arrow = false;
     ec.end_arrow = true;
     if (from.entry == currentBlockAddress) {
-        ec.lineStyle = Qt::DashLine;
+        ec.width_scale = 2.0;
     } else if (to->entry == currentBlockAddress) {
-        ec.lineStyle = Qt::DashDotLine;
+        ec.width_scale = 2.0;
     }
     return ec;
 }
