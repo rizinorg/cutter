@@ -674,13 +674,13 @@ QRectF DisassemblerGraphView::getInstrRect(GraphView::GraphBlock &block, RVA add
             firstLineWithAddr = currentLine;
         }
         if (instr.contains(addr)) {
-            while (i < db.instrs.size() && db.instrs[i + 1].addr == sequenceAddr) {
+            while (i < db.instrs.size() && db.instrs[i].addr == sequenceAddr) {
                 currentLine += db.instrs[i].text.lines.size();
                 i++;
             }
             QPointF topLeft = getInstructionOffset(db, static_cast<int>(firstLineWithAddr));
             return QRectF(topLeft, QSizeF(block.width - 4 * charWidth,
-                                          charHeight * int(currentLine - firstLineWithAddr + db.instrs[i].text.lines.size())));
+                                          charHeight * int(currentLine - firstLineWithAddr)));
         }
         currentLine += instr.text.lines.size();
     }
