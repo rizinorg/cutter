@@ -12,7 +12,8 @@ git clone --depth 1 git@github.com:radareorg/cutter.re.git || exit 1
 echo "Updating docs"
 
 rm -rf cutter.re/docs
-cp -a docs/build/html cutter.re/docs || exit 1
+rm -rf cutter.re/_site/docs
+cp -a docs/build/html cutter.re/_site/docs || exit 1
 
 echo "Committing new changes"
 
