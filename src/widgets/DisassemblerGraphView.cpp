@@ -152,6 +152,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     // Add header as widget to layout so it stretches to the layout width
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setAlignment(Qt::AlignTop);
+
+    this->scale_thickness_multiplier = true;
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)
@@ -601,6 +603,11 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
     }
     ec.start_arrow = false;
     ec.end_arrow = true;
+    if (from.entry == currentBlockAddress) {
+        ec.width_scale = 2.0;
+    } else if (to->entry == currentBlockAddress) {
+        ec.width_scale = 2.0;
+    }
     return ec;
 }
 
@@ -922,6 +929,8 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
         return;
     }
 
+    currentBlockAddress = block.entry;
+
     highlight_token = getToken(instr, pos.x());
 
     RVA addr = instr->addr;
@@ -983,6 +992,7 @@ bool DisassemblerGraphView::helpEvent(QHelpEvent *event)
 
 void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 {
+    currentBlockAddress = to->entry;
     if (transition_dont_seek) {
         transition_dont_seek = false;
         return;

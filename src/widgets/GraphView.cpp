@@ -336,8 +336,12 @@ void GraphView::paintGraphCache()
             QPolygonF polyline = recalculatePolygon(edge.polyline);
             EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
             QPen pen(ec.color);
-            pen.setWidth(pen.width() / ec.width_scale);
-            if (pen.width() * current_scale < 2) {
+            pen.setStyle(ec.lineStyle);
+            pen.setWidthF(pen.width() * ec.width_scale);
+            if (scale_thickness_multiplier * ec.width_scale > 1.01 && pen.widthF() * current_scale < 2) {
+                pen.setWidthF(ec.width_scale / current_scale);
+            }
+            if (pen.widthF() * current_scale < 2) {
                 pen.setWidth(0);
             }
             p.setPen(pen);

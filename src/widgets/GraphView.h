@@ -38,6 +38,7 @@ public:
         bool start_arrow = false;
         bool end_arrow = true;
         qreal width_scale = 1.0;
+        Qt::PenStyle lineStyle = Qt::PenStyle::SolidLine;
     };
 
     explicit GraphView(QWidget *parent);
@@ -96,6 +97,7 @@ protected:
 
     int width = 0;
     int height = 0;
+    bool scale_thickness_multiplier = false;
 
     void clampViewOffset();
     void setViewOffsetInternal(QPoint pos, bool emitSignal = true);
@@ -124,9 +126,6 @@ private:
     int scroll_base_x = 0;
     int scroll_base_y = 0;
     bool scroll_mode = false;
-
-    // Todo: remove charheight/charwidth cause it should be handled in child class
-    qreal charWidth = 10.0;
 
     bool useGL;
 
