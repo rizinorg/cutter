@@ -152,6 +152,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     // Add header as widget to layout so it stretches to the layout width
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setAlignment(Qt::AlignTop);
+
+    this->scale_thickness_multiplier = true;
 }
 
 void DisassemblerGraphView::connectSeekChanged(bool disconn)

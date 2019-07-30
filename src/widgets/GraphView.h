@@ -97,6 +97,7 @@ protected:
 
     int width = 0;
     int height = 0;
+    bool scale_thickness_multiplier = false;
 
     void clampViewOffset();
     void setViewOffsetInternal(QPoint pos, bool emitSignal = true);
@@ -125,9 +126,6 @@ private:
     int scroll_base_x = 0;
     int scroll_base_y = 0;
     bool scroll_mode = false;
-
-    // Todo: remove charheight/charwidth cause it should be handled in child class
-    qreal charWidth = 10.0;
 
     bool useGL;
 

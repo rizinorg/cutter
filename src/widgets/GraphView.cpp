@@ -338,8 +338,8 @@ void GraphView::paintGraphCache()
             QPen pen(ec.color);
             pen.setStyle(ec.lineStyle);
             pen.setWidthF(pen.width() * ec.width_scale);
-            if (ec.width_scale > 1.01 && pen.widthF() * current_scale < 2) {
-                pen.setWidthF(2.0 / current_scale);
+            if (scale_thickness_multiplier * ec.width_scale > 1.01 && pen.widthF() * current_scale < 2) {
+                pen.setWidthF(ec.width_scale / current_scale);
             }
             if (pen.widthF() * current_scale < 2) {
                 pen.setWidth(0);
