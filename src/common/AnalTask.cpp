@@ -97,12 +97,12 @@ void AnalTask::runTask()
 
     if (!options.analCmd.empty()) {
         log(tr("Analyzing..."));
-        for (const QString &cmd : options.analCmd) {
+        for (const CommandDescription &cmd : options.analCmd) {
             if (isInterrupted()) {
                 return;
             }
-            log("  " + tr("Running") + " " + cmd);
-            Core()->cmd(cmd);
+            log("  " + tr("Running") + " " + cmd.description);
+            Core()->cmd(cmd.command);
         }
         log(tr("Analysis complete!"));
     } else {
