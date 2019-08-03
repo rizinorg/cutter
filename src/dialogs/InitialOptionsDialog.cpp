@@ -51,21 +51,21 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     }
 
     analysisCommands = {
-        { { "aa", "Analyze all symbols" }, new QCheckBox(), true },
-        { { "aar", "Analyze instructions for references" }, new QCheckBox(), true },
-        { { "aac", "Analyze function calls" }, new QCheckBox(), true },
-        { { "aab", "Analyze all basic blocks" }, new QCheckBox(), false },
-        { { "aao", "Analyze all objc references" }, new QCheckBox(), false },
-        { { "avrr", "Recover class information from RTTI" }, new QCheckBox(), false },
-        { { "aan", "Autoname functions based on context" }, new QCheckBox(), false },
-        { { "aae", "Emulate code to find computed references" }, new QCheckBox(), false },
-        { { "aat", "Analyze all consecutive functions" }, new QCheckBox(), false },
-        { { "aaft", "Type and Argument matching analysis" }, new QCheckBox(), false },
-        { { "aaT", "Analyze code after trap-sleds" }, new QCheckBox(), false },
-        { { "aap", "Analyze function preludes" }, new QCheckBox(), false },
-        { { "e! anal.jmp.tbl", "Analyze jump tables in switch statements" }, new QCheckBox(), false },
-        { { "e! anal.pushret", "Analyze PUSH+RET as JMP" },  new QCheckBox(), false },
-        { { "e! anal.hasnext", "Continue analysis after each function" }, new QCheckBox(), false }};
+        { { "aa", tr("Analyze all symbols") }, new QCheckBox(), true },
+        { { "aar", tr("Analyze instructions for references") }, new QCheckBox(), true },
+        { { "aac", tr("Analyze function calls") }, new QCheckBox(), true },
+        { { "aab", tr("Analyze all basic blocks") }, new QCheckBox(), false },
+        { { "aao", tr("Analyze all objc references") }, new QCheckBox(), false },
+        { { "avrr", tr("Recover class information from RTTI") }, new QCheckBox(), false },
+        { { "aan", tr("Autoname functions based on context") }, new QCheckBox(), false },
+        { { "aae", tr("Emulate code to find computed references") }, new QCheckBox(), false },
+        { { "aat", tr("Analyze all consecutive functions") }, new QCheckBox(), false },
+        { { "aaft", tr("Type and Argument matching analysis") }, new QCheckBox(), false },
+        { { "aaT", tr("Analyze code after trap-sleds") }, new QCheckBox(), false },
+        { { "aap", tr("Analyze function preludes") }, new QCheckBox(), false },
+        { { "e! anal.jmp.tbl", tr("Analyze jump tables in switch statements") }, new QCheckBox(), false },
+        { { "e! anal.pushret", tr("Analyze PUSH+RET as JMP") },  new QCheckBox(), false },
+        { { "e! anal.hasnext", tr("Continue analysis after each function") }, new QCheckBox(), false }};
 
     // Per each checkbox, set a tooltip desccribing it
     AnalysisCommands item;

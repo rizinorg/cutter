@@ -96,12 +96,12 @@ void AnalTask::runTask()
     Core()->setConfig("prj.simple", true);
 
     if (!options.analCmd.empty()) {
-        log(tr("Analyzing..."));
+        log(tr("Executing analysis..."));
         for (const CommandDescription &cmd : options.analCmd) {
             if (isInterrupted()) {
                 return;
             }
-            log("  " + tr("Running") + " " + cmd.description);
+            log(cmd.description);
             Core()->cmd(cmd.command);
         }
         log(tr("Analysis complete!"));
