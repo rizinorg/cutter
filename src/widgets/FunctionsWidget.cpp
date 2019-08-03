@@ -8,6 +8,7 @@
 #include "dialogs/XrefsDialog.h"
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
+#include "menus/AddressableItemContextMenu.h"
 
 #include <algorithm>
 #include <QMenu>
@@ -527,18 +528,23 @@ void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
 
 void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
 {
+    //TODO: [address-contextenu] cleanup
     // Set functions popup menu
-    QMenu *menu = new QMenu(ui->functionsTreeView);
-    menu->clear();
-    menu->addAction(ui->actionDisasAdd_comment);
-    menu->addAction(ui->actionFunctionsRename);
-    menu->addAction(ui->actionFunctionsUndefine);
-    menu->addSeparator();
-    menu->addAction(ui->action_References);
+    AddressableItemContextMenu menu(ui->functionsTreeView, mainWindow);
+    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
+                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    menu.setWholeFunction(true);
 
-    menu->exec(ui->functionsTreeView->mapToGlobal(pt));
+    menu.setTarget(function.offset, function.name);
 
-    delete menu;
+    menu.addSeparator();
+    menu.addAction(ui->actionDisasAdd_comment);
+    menu.addAction(ui->actionFunctionsRename);
+    menu.addAction(ui->actionFunctionsUndefine);
+    menu.addSeparator();
+    menu.addAction(ui->action_References);
+
+    menu.exec(ui->functionsTreeView->mapToGlobal(pt));
 }
 
 void FunctionsWidget::on_actionDisasAdd_comment_triggered()
