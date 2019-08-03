@@ -1,5 +1,5 @@
 #include "RelocsWidget.h"
-#include "ui_RelocsWidget.h"
+#include "ui_ListDockWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
@@ -7,7 +7,7 @@
 #include <QTreeWidget>
 
 RelocsModel::RelocsModel(QList<RelocDescription> *relocs, QObject *parent) :
-    QAbstractTableModel(parent),
+    AddressableItemModel<QAbstractTableModel>(parent),
     relocs(relocs)
 {}
 
@@ -61,10 +61,21 @@ QVariant RelocsModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-RelocsProxyModel::RelocsProxyModel(RelocsModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+RVA RelocsModel::address(const QModelIndex &index) const
 {
-    setSourceModel(sourceModel);
+    const RelocDescription &reloc = relocs->at(index.row());
+    return reloc.vaddr;
+}
+
+QString RelocsModel::name(const QModelIndex &index) const
+{
+    const RelocDescription &reloc = relocs->at(index.row());
+    return reloc.name;
+}
+
+RelocsProxyModel::RelocsProxyModel(RelocsModel *sourceModel, QObject *parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
+{
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -103,64 +114,25 @@ bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
 }
 
 RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    ui(new Ui::RelocsWidget),
+    ListDockWidget(main, action),
     relocsModel(new RelocsModel(&relocs, this)),
-    relocsProxyModel(new RelocsProxyModel(relocsModel, this)),
-    tree(new CutterTreeWidget(this))
+    relocsProxyModel(new RelocsProxyModel(relocsModel, this))
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Relocs"));
+    setObjectName("RelocsWidget");
 
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
+    setModels(relocsModel, relocsProxyModel);
+    ui->treeView->sortByColumn(RelocsModel::NameColumn, Qt::AscendingOrder);
 
-    ui->relocsTreeView->setModel(relocsProxyModel);
-    ui->relocsTreeView->sortByColumn(RelocsModel::NameColumn, Qt::AscendingOrder);
-
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    // Esc to clear the filter entry
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)),
-            relocsProxyModel, SLOT(setFilterWildcard(const QString &)));
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->relocsTreeView, SLOT(setFocus()));
-
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(relocsProxyModel->rowCount());
-    });
-    
-    setScrollMode();
-
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshRelocs()));
+    connect(Core(), &CutterCore::refreshAll, this, &RelocsWidget::refreshRelocs);
 }
 
 RelocsWidget::~RelocsWidget() {}
-
-void RelocsWidget::on_relocsTreeView_doubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    Core()->seekAndShow(index.data(RelocsModel::AddressRole).toLongLong());
-}
 
 void RelocsWidget::refreshRelocs()
 {
     relocsModel->beginResetModel();
     relocs = Core()->getAllRelocs();
     relocsModel->endResetModel();
-    qhelpers::adjustColumns(ui->relocsTreeView, 3, 0);
-
-    tree->showItemsNumber(relocsProxyModel->rowCount());
-}
-
-void RelocsWidget::setScrollMode()
-{
-    qhelpers::setVerticalScrollMode(ui->relocsTreeView);
+    qhelpers::adjustColumns(ui->treeView, 3, 0);
 }
