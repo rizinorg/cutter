@@ -107,14 +107,14 @@ find_package(PkgConfig REQUIRED)
 
 if (CUTTER_ENABLE_GRAPHVIZ)
     if (CUTTER_ENABLE_GRAPHVIZ STREQUAL AUTO)
-        pkg_check_modules(GVC libgvc)
+        pkg_check_modules(GVC IMPORTED_TARGET libgvc)
         if (GVC_FOUND)
             set(CUTTER_ENABLE_GRAPHVIZ ON)
         else()
             set(CUTTER_ENABLE_GRAPHVIZ OFF)
         endif()
     else()
-        pkg_check_modules(GVC REQUIRED libgvc)
+        pkg_check_modules(GVC REQUIRED IMPORTED_TARGET libgvc)
     endif()
 endif()
 
@@ -174,9 +174,7 @@ add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${H
 set_target_properties(Cutter PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
 
 if (CUTTER_ENABLE_GRAPHVIZ)
-    target_link_libraries(Cutter ${GVC_LIBRARIES})
-    target_include_directories(Cutter PUBLIC ${GVC_INCLUDE_DIRS})
-    target_compile_options(Cutter PUBLIC ${GVC_CFLAGS_OTHER})
+    target_link_libraries(Cutter PkgConfig::GVC)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_GRAPHVIZ)
 endif()
 
