@@ -33,6 +33,18 @@ public:
     using GraphBlock = GraphLayout::GraphBlock;
     using GraphEdge = GraphLayout::GraphEdge;
 
+    enum class Layout {
+        GridNarrow
+        ,GridMedium
+        ,GridWide
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+        ,GraphvizOrtho
+        ,GraphvizOrthoLR
+        ,GraphvizPolyline
+        ,GraphvizPolylineLR
+#endif
+    };
+
     struct EdgeConfiguration {
         QColor color = QColor(128, 128, 128);
         bool start_arrow = false;
@@ -59,6 +71,9 @@ public:
      * if they aren't same, then Overview needs to update the pixmap cache.
      */
     ut64 currentFcnAddr = RVA_INVALID; // TODO: move application specific code out of graph view
+
+    void setGraphLayout(Layout layout);
+    Layout getGraphLayout() const { return graphLayout; }
 
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
@@ -140,6 +155,7 @@ private:
     QSize cacheSize;
     QOpenGLWidget *glWidget;
 #endif
+    Layout graphLayout;
 
     /**
      * @brief flag to control if the cache is invalid and should be re-created in the next draw

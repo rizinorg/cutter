@@ -1,6 +1,9 @@
 #include "GraphView.h"
 
 #include "GraphGridLayout.h"
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+#include "GraphvizLayout.h"
+#endif
 
 #include <vector>
 #include <QPainter>
@@ -17,7 +20,6 @@
 
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
-    , graphLayoutSystem(new GraphGridLayout())
     , useGL(false)
 #ifndef QT_NO_OPENGL
     , cacheTexture(0)
@@ -32,6 +34,7 @@ GraphView::GraphView(QWidget *parent)
         glWidget = nullptr;
     }
 #endif
+    setGraphLayout(Layout::GridMedium);
 }
 
 GraphView::~GraphView()
@@ -349,22 +352,42 @@ void GraphView::paintGraphCache()
             p.drawPolyline(polyline);
             pen.setStyle(Qt::SolidLine);
             p.setPen(pen);
+
+            auto drawArrow = [&](QPointF tip, QPointF dir) {
+                QPolygonF arrow;
+                arrow << tip;
+                QPointF dy(-dir.y(), dir.x());
+                QPointF base = tip - dir * 6;
+                arrow << base + 3 * dy;
+                arrow << base - 3 * dy;
+                p.drawConvexPolygon(recalculatePolygon(arrow));
+            };
+
             if (!polyline.empty()) {
                 if (ec.start_arrow) {
                     auto firstPt = edge.polyline.first();
-                    QPolygonF arrowStart;
-                    arrowStart << QPointF(firstPt.x() - 3, firstPt.y() + 6);
-                    arrowStart << QPointF(firstPt.x() + 3, firstPt.y() + 6);
-                    arrowStart << QPointF(firstPt);
-                    p.drawConvexPolygon(recalculatePolygon(arrowStart));
+                    drawArrow(firstPt, QPointF(0, 1));
                 }
                 if (ec.end_arrow) {
                     auto lastPt = edge.polyline.last();
-                    QPolygonF arrowEnd;
-                    arrowEnd << QPointF(lastPt.x() - 3, lastPt.y() - 6);
-                    arrowEnd << QPointF(lastPt.x() + 3, lastPt.y() - 6);
-                    arrowEnd << QPointF(lastPt);
-                    p.drawConvexPolygon(recalculatePolygon(arrowEnd));
+                    QPointF dir(0, -1);
+                    switch(edge.arrow) {
+                        case GraphLayout::GraphEdge::Down:
+                            dir = QPointF(0, 1);
+                            break;
+                        case GraphLayout::GraphEdge::Up:
+                            dir = QPointF(0, -1);
+                            break;
+                        case GraphLayout::GraphEdge::Left:
+                            dir = QPointF(-1, 0);
+                            break;
+                        case GraphLayout::GraphEdge::Right:
+                            dir = QPointF(1, 0);
+                            break;
+                        default:
+                            break;
+                    }
+                    drawArrow(lastPt, dir);
                 }
             }
         }
@@ -441,6 +464,36 @@ void GraphView::showRectangle(const QRect &block, bool anywhere)
     clampViewOffset();
     emit viewOffsetChanged(offset);
     viewport()->update();
+}
+
+void GraphView::setGraphLayout(GraphView::Layout layout)
+{
+    graphLayout = layout;
+    switch (layout) {
+        case Layout::GridNarrow:
+            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Narrow));
+            break;
+        case Layout::GridMedium:
+            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Medium));
+            break;
+        case Layout::GridWide:
+            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Wide));
+            break;
+#ifdef CUTTER_ENABLE_GRAPHVIZ
+        case Layout::GraphvizOrtho:
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho));
+            break;
+        case Layout::GraphvizOrthoLR:
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho, GraphvizLayout::Direction::LR));
+            break;
+        case Layout::GraphvizPolyline:
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline));
+            break;
+        case Layout::GraphvizPolylineLR:
+            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline, GraphvizLayout::Direction::LR));
+            break;
+#endif
+    }
 }
 
 void GraphView::addBlock(GraphView::GraphBlock block)

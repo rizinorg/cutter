@@ -16,6 +16,7 @@ option(CUTTER_ENABLE_PYTHON "Enable Python integration. Requires Python >= ${CUT
 option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shiboken2. Unused if CUTTER_ENABLE_PYTHON=OFF." OFF)
 option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
 tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
+tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of gprahviz for graph layout" AUTO)
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -102,7 +103,20 @@ else()
     set(KSYNTAXHIGHLIGHTING_STATUS OFF)
 endif()
 
+find_package(PkgConfig REQUIRED)
 
+if (CUTTER_ENABLE_GRAPHVIZ)
+    if (CUTTER_ENABLE_GRAPHVIZ STREQUAL AUTO)
+        pkg_check_modules(GVC libgvc)
+        if (GVC_FOUND)
+            set(CUTTER_ENABLE_GRAPHVIZ ON)
+        else()
+            set(CUTTER_ENABLE_GRAPHVIZ OFF)
+        endif()
+    else()
+        pkg_check_modules(GVC REQUIRED libgvc)
+    endif()
+endif()
 
 message(STATUS "")
 message(STATUS "Building Cutter version ${CUTTER_VERSION_FULL}")
@@ -112,6 +126,7 @@ message(STATUS "- Python: ${CUTTER_ENABLE_PYTHON}")
 message(STATUS "- Python Bindings: ${CUTTER_ENABLE_PYTHON_BINDINGS}")
 message(STATUS "- Crash Handling: ${CUTTER_ENABLE_CRASH_REPORTS}")
 message(STATUS "- KSyntaxHighlighting: ${KSYNTAXHIGHLIGHTING_STATUS}")
+message(STATUS "- Graphviz: ${CUTTER_ENABLE_GRAPHVIZ}")
 message(STATUS "")
 
 
@@ -142,6 +157,11 @@ else()
 endif()
 
 
+if (CUTTER_ENABLE_GRAPHVIZ)
+    list(APPEND SOURCE_FILES ${CUTTER_PRO_GRAPHVIZ_SOURCES})
+    list(APPEND HEADER_FILES ${CUTTER_PRO_GRAPHVIZ_HEADERS})
+endif()
+
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU"
         OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
@@ -152,6 +172,13 @@ endif()
 
 add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
+
+if (CUTTER_ENABLE_GRAPHVIZ)
+    target_link_libraries(Cutter ${GVC_LIBRARIES})
+    target_include_directories(Cutter PUBLIC ${GVC_INCLUDE_DIRS})
+    target_compile_options(Cutter PUBLIC ${GVC_CFLAGS_OTHER})
+    target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_GRAPHVIZ)
+endif()
 
 if(CUTTER_ENABLE_CRASH_REPORTS)
     set(THREADS_PREFER_PTHREAD_FLAG ON)

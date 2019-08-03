@@ -362,6 +362,9 @@ SOURCES += \
     common/SelectionHighlight.cpp \
     common/Decompiler.cpp
 
+GRAPHVIZ_SOURCES = \
+    widgets/GraphvizLayout.cpp
+
 HEADERS  += \
     core/Cutter.h \
     core/CutterCommon.h \
@@ -485,10 +488,11 @@ HEADERS  += \
     common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
-    widgets/GraphGridLayout.h \
     widgets/HexWidget.h \
     common/SelectionHighlight.h \
     common/Decompiler.h
+
+GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \

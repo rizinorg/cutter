@@ -19,7 +19,7 @@ matrix:
     os: linux
     env: BUILD_SYSTEM=cmake
     before_install:
-      - sudo apt-get update && sudo apt-get install ninja-build # because the apt addon is broken on bionic
+      - sudo apt-get update && sudo apt-get install ninja-build libgraphviz-dev # because the apt addon is broken on bionic
       - pyenv global 3.7.1
       - pip install meson
 
@@ -36,7 +36,7 @@ matrix:
   - name: Documentation + Deploy
     os: linux
     cache: ~
-    before_install: sudo apt-get update && sudo apt-get install doxygen python3-sphinx python3-breathe python3-sphinx-rtd-theme # because the apt addon is broken on bionic
+    before_install: sudo apt-get update && sudo apt-get install doxygen python3-sphinx python3-breathe python3-sphinx-rtd-theme libgraphviz-dev # because the apt addon is broken on bionic
     install: ~
     before_script: ~
     after_success: ~
