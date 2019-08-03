@@ -173,10 +173,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                 options.analCmd = {};
                 break;
             case 1:
-                options.analCmd = { "aaa" };
+                options.analCmd = { {"aaa", "Auto analysis"} };
                 break;
             case 2:
-                options.analCmd = { "aaaa" };
+                options.analCmd = { {"aaaa", "Auto analysis (experimental)"} };
                 break;
             }
         }

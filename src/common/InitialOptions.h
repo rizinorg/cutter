@@ -4,6 +4,14 @@
 
 #include "core/Cutter.h"
 
+/**
+ * @brief The CommandDescription struct is a pair of a radare2 command and its description
+ */
+struct CommandDescription {
+    QString command;
+    QString description;
+};
+
 struct InitialOptions
 {
     enum class Endianness { Auto, Little, Big };
@@ -29,8 +37,8 @@ struct InitialOptions
 
     QString pdbFile;
     QString script;
-
-    QList<QString> analCmd = { "aaa" };
+    
+    QList<CommandDescription> analCmd = { {"aaa", "Auto analysis"} };
 
     QString shellcode;
 };

@@ -221,8 +221,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>564</width>
-           <height>867</height>
+           <width>567</width>
+           <height>418</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -269,9 +269,12 @@
               <number>0</number>
              </property>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_6">
+              <layout class="QVBoxLayout" name="verticalLayout_2">
                <property name="spacing">
-                <number>5</number>
+                <number>0</number>
+               </property>
+               <property name="sizeConstraint">
+                <enum>QLayout::SetMinimumSize</enum>
                </property>
                <item>
                 <widget class="QFrame" name="analoptionsFrame">
@@ -300,156 +303,19 @@
                   <property name="bottomMargin">
                    <number>5</number>
                   </property>
-                  <item>
-                   <widget class="QCheckBox" name="aa_symbols">
-                    <property name="text">
-                     <string>Analyze all symbols (aa)</string>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aar_references">
-                    <property name="text">
-                     <string>Analyze for references (aar)</string>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aac_calls">
-                    <property name="text">
-                     <string>Analyze function calls (aac)</string>
-                    </property>
-                    <property name="checked">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aab_basicblocks">
-                    <property name="text">
-                     <string>Analyze all basic blocks (aab)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aan_rename">
-                    <property name="text">
-                     <string>Autorename functions based on context (aan)</string>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-		  <item>
-                   <widget class="QCheckBox" name="aao_objc">
-                    <property name="text">
-                     <string> Analyze all objc references (aao)</string>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-		  <item>
-                   <widget class="QCheckBox" name="avrr_vtables">
-                    <property name="text">
-                     <string> Recover class information (avrr)</string>
-                    </property>
-                    <property name="checked">
-                     <bool>false</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QLabel" name="label">
-                    <property name="text">
-                     <string>Experimental:</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aae_emulate">
-                    <property name="text">
-                     <string>Emulate code to find computed references (aae)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aat_consecutive">
-                    <property name="text">
-                     <string>Analyze for consecutive function (aat)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="afta_typeargument">
-                    <property name="text">
-                     <string>Type and Argument matching analysis (afta)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aaT_aftertrap">
-                    <property name="text">
-                     <string>Analyze code after trap-sleds (aaT)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="aap_preludes">
-                    <property name="text">
-                     <string>Analyze function preludes (aap)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="jmptbl">
-                    <property name="text">
-                     <string>Analyze jump tables in switch statements (e! anal.jmptbl)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="pushret">
-                    <property name="text">
-                     <string>Analyze push+ret as jmp (e! anal.pushret)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QCheckBox" name="hasnext">
-                    <property name="text">
-                     <string>Continue analysis after each function (e! anal.hasnext)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="Line" name="line_4">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                   </widget>
-                  </item>
                  </layout>
                 </widget>
                </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_2">
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <property name="sizeConstraint">
-                <enum>QLayout::SetMinimumSize</enum>
-               </property>
+               <item>
+                <widget class="Line" name="advancedAnlysisLine">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="visible">
+                  <bool>false</bool>
+                </property>
+                </widget>
+               </item>
                <item>
                 <widget class="QCheckBox" name="writeCheckBox">
                  <property name="text">

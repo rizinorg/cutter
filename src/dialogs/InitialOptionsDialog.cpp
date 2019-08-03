@@ -50,8 +50,36 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
     }
 
+    analysisCommands = {
+        { { "aa", tr("Analyze all symbols") }, new QCheckBox(), true },
+        { { "aar", tr("Analyze instructions for references") }, new QCheckBox(), true },
+        { { "aac", tr("Analyze function calls") }, new QCheckBox(), true },
+        { { "aab", tr("Analyze all basic blocks") }, new QCheckBox(), false },
+        { { "aao", tr("Analyze all objc references") }, new QCheckBox(), false },
+        { { "avrr", tr("Recover class information from RTTI") }, new QCheckBox(), false },
+        { { "aan", tr("Autoname functions based on context") }, new QCheckBox(), false },
+        { { "aae", tr("Emulate code to find computed references") }, new QCheckBox(), false },
+        { { "aat", tr("Analyze all consecutive functions") }, new QCheckBox(), false },
+        { { "aaft", tr("Type and Argument matching analysis") }, new QCheckBox(), false },
+        { { "aaT", tr("Analyze code after trap-sleds") }, new QCheckBox(), false },
+        { { "aap", tr("Analyze function preludes") }, new QCheckBox(), false },
+        { { "e! anal.jmp.tbl", tr("Analyze jump tables in switch statements") }, new QCheckBox(), false },
+        { { "e! anal.pushret", tr("Analyze PUSH+RET as JMP") },  new QCheckBox(), false },
+        { { "e! anal.hasnext", tr("Continue analysis after each function") }, new QCheckBox(), false }};
+
+    // Per each checkbox, set a tooltip desccribing it
+    AnalysisCommands item;
+    foreach (item, analysisCommands){
+        item.checkbox->setText(item.commandDesc.description);
+        item.checkbox->setToolTip(item.commandDesc.command);
+        item.checkbox->setChecked(item.checked);
+        ui->verticalLayout_7->addWidget(item.checkbox);
+    }
+    
+
     ui->hideFrame->setVisible(false);
     ui->analoptionsFrame->setVisible(false);
+    ui->advancedAnlysisLine->setVisible(false);
 
     updatePDBLayout();
 
@@ -86,30 +114,30 @@ void InitialOptionsDialog::updateCPUComboBox()
     ui->cpuComboBox->lineEdit()->setText(currentText);
 }
 
+QList<QString> InitialOptionsDialog::getAnalysisCommands(const InitialOptions &options) {
+    QList<QString> commands;
+    for (auto& commandDesc: options.analCmd) {
+        commands << commandDesc.command;
+    }
+    return commands;
+}
+
 void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 {
     if (options.analCmd.isEmpty()) {
         analLevel = 0;
-    } else if (options.analCmd == QList<QString>({ "aaa" })) {
+    } else if (options.analCmd.first().command == "aaa" ) {
         analLevel = 1;
-    } else if (options.analCmd == QList<QString>({ "aaaa" })) {
+    } else if (options.analCmd.first().command ==  "aaaa" ) {
         analLevel = 2;
     } else {
         analLevel = 3;
-        // TODO: These checks must always be in sync with getSelectedAdvancedAnalCmds(), which is dangerous
-        ui->aa_symbols->setChecked(options.analCmd.contains("aa"));
-        ui->aar_references->setChecked(options.analCmd.contains("aar"));
-        ui->aac_calls->setChecked(options.analCmd.contains("aac"));
-        ui->aab_basicblocks->setChecked(options.analCmd.contains("aab"));
-        ui->aan_rename->setChecked(options.analCmd.contains("aan"));
-        ui->aae_emulate->setChecked(options.analCmd.contains("aae"));
-        ui->aat_consecutive->setChecked(options.analCmd.contains("aat"));
-        ui->afta_typeargument->setChecked(options.analCmd.contains("afta"));
-        ui->aaT_aftertrap->setChecked(options.analCmd.contains("aaT"));
-        ui->aap_preludes->setChecked(options.analCmd.contains("aap"));
-        ui->jmptbl->setChecked(options.analCmd.contains("e! anal.jmptbl"));
-        ui->pushret->setChecked(options.analCmd.contains("e! anal.pushret"));
-        ui->hasnext->setChecked(options.analCmd.contains("e! anal.hasnext"));
+        AnalysisCommands item;
+        QList<QString> commands = getAnalysisCommands(options);
+        foreach (item, analysisCommands){
+            qInfo() << item.commandDesc.command;
+            item.checkbox->setChecked(commands.contains(item.commandDesc.command));
+        }
     }
 
     if (!options.script.isEmpty()) {
@@ -171,55 +199,15 @@ QString InitialOptionsDialog::getSelectedOS() const
     return os.isValid() ? os.toString() : nullptr;
 }
 
-QList<QString> InitialOptionsDialog::getSelectedAdvancedAnalCmds() const
+QList<CommandDescription> InitialOptionsDialog::getSelectedAdvancedAnalCmds() const
 {
-    QList<QString> advanced = QList<QString>();
+    QList<CommandDescription> advanced = QList<CommandDescription>();
     if (ui->analSlider->value() == 3) {
-        // Enable analysis configurations before executing analysis commands
-        if (ui->jmptbl->isChecked()) {
-            advanced << "e! anal.jmptbl";
-        }
-        if (ui->pushret->isChecked()) {
-            advanced << "e! anal.pushret";
-        }
-        if (ui->hasnext->isChecked()) {
-            advanced << "e! anal.hasnext";
-        }
-        if (ui->aa_symbols->isChecked()) {
-            advanced << "aa";
-        }
-        if (ui->aar_references->isChecked()) {
-            advanced << "aar";
-        }
-        if (ui->aac_calls->isChecked()) {
-            advanced << "aac";
-        }
-        if (ui->aab_basicblocks->isChecked()) {
-            advanced << "aab";
-        }
-        if (ui->aao_objc->isChecked()) {
-            advanced << "aao";
-        }
-        if (ui->avrr_vtables->isChecked()) {
-            advanced << "avrr";
-        }
-        if (ui->aan_rename->isChecked()) {
-            advanced << "aan";
-        }
-        if (ui->aae_emulate->isChecked()) {
-            advanced << "aae";
-        }
-        if (ui->aat_consecutive->isChecked()) {
-            advanced << "aat";
-        }
-        if (ui->afta_typeargument->isChecked()) {
-            advanced << "afta";
-        }
-        if (ui->aaT_aftertrap->isChecked()) {
-            advanced << "aaT";
-        }
-        if (ui->aap_preludes->isChecked()) {
-            advanced << "aap";
+        AnalysisCommands item;
+        foreach (item, analysisCommands){
+            if(item.checkbox->isChecked()) {
+                advanced << item.commandDesc;
+            }
         }
     }
     return advanced;
@@ -269,10 +257,10 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
     int level = ui->analSlider->value();
     switch (level) {
     case 1:
-        options.analCmd = { "aaa" };
+        options.analCmd = { {"aaa", "Auto analysis"} };
         break;
     case 2:
-        options.analCmd = { "aaaa" };
+        options.analCmd = { {"aaaa", "Auto analysis (experimental}"} };
         break;
     case 3:
         options.analCmd = getSelectedAdvancedAnalCmds();
@@ -346,8 +334,10 @@ void InitialOptionsDialog::on_analSlider_valueChanged(int value)
         ui->analCheckBox->setText(tr("Analysis: Enabled"));
         if (value == 3) {
             ui->analoptionsFrame->setVisible(true);
+            ui->advancedAnlysisLine->setVisible(true);
         } else {
             ui->analoptionsFrame->setVisible(false);
+            ui->advancedAnlysisLine->setVisible(false);
         }
     }
 }
