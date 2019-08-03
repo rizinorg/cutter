@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CommentsWidget</class>
- <widget class="QDockWidget" name="CommentsWidget">
+ <class>ListDockWidget</class>
+ <widget class="QDockWidget" name="ListDockWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -9,9 +9,6 @@
     <width>645</width>
     <height>250</height>
    </rect>
-  </property>
-  <property name="windowTitle">
-   <string notr="true">Comments</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -31,7 +28,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="CutterTreeView" name="commentsTreeView">
+     <widget class="CutterTreeView" name="treeView">
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
@@ -45,28 +42,6 @@
     </item>
    </layout>
   </widget>
-  <action name="actionHorizontal">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Horizontal</string>
-   </property>
-   <property name="toolTip">
-    <string>Horizontal view</string>
-   </property>
-  </action>
-  <action name="actionVertical">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Vertical</string>
-   </property>
-   <property name="toolTip">
-    <string>Vertical view</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>

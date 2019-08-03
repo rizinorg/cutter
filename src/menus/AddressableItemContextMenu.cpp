@@ -19,10 +19,12 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     connect(&actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
     actionCopyAddress.setShortcuts({Qt::CTRL + Qt::SHIFT + Qt::Key_C});
+    actionCopyAddress.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     connect(&actionShowXrefs, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionShowXrefs);
     actionShowXrefs.setShortcut({Qt::Key_X});
+    actionShowXrefs.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
 
     addAction(&actionShowInMenu);

@@ -362,7 +362,8 @@ SOURCES += \
     common/SelectionHighlight.cpp \
     common/Decompiler.cpp \
     menus/AddressableItemContextMenu.cpp \
-    common/AddressableItemModel.cpp
+    common/AddressableItemModel.cpp \
+    widgets/ListDockWidget.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -494,7 +495,8 @@ HEADERS  += \
     common/SelectionHighlight.h \
     common/Decompiler.h \
     menus/AddressableItemContextMenu.h \
-    common/AddressableItemModel.cpp
+    common/AddressableItemModel.h \
+    widgets/ListDockWidget.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
@@ -510,7 +512,6 @@ FORMS    += \
     dialogs/InitialOptionsDialog.ui \
     dialogs/EditFunctionDialog.ui \
     core/MainWindow.ui \
-    widgets/CommentsWidget.ui \
     widgets/ConsoleWidget.ui \
     widgets/Dashboard.ui \
     widgets/EntrypointWidget.ui \
@@ -558,7 +559,8 @@ FORMS    += \
     widgets/SdbWidget.ui \
     dialogs/LinkTypeDialog.ui \
     widgets/ColorPicker.ui \
-    dialogs/preferences/ColorThemeEditDialog.ui
+    dialogs/preferences/ColorThemeEditDialog.ui \
+    widgets/ListDockWidget.ui
 
 RESOURCES += \
     resources.qrc \

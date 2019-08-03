@@ -1,5 +1,5 @@
 #include "CommentsWidget.h"
-#include "ui_CommentsWidget.h"
+#include "ui_ListDockWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
@@ -10,7 +10,7 @@
 CommentsModel::CommentsModel(QList<CommentDescription> *comments,
                              QMap<QString, QList<CommentDescription> > *nestedComments,
                              QObject *parent)
-    : QAbstractItemModel(parent),
+    : AddressableItemModel<>(parent),
       comments(comments),
       nestedComments(nestedComments),
       nested(false)
@@ -28,6 +28,12 @@ void CommentsModel::setNested(bool nested)
     endResetModel();
 }
 
+RVA CommentsModel::address(const QModelIndex &index) const
+{
+    QVariant comment = this->data(index, CommentDescriptionRole);
+    return comment.value<CommentDescription>().offset;
+}
+
 QModelIndex CommentsModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
@@ -37,7 +43,8 @@ QModelIndex CommentsModel::index(int row, int column, const QModelIndex &parent)
     return createIndex(row, column, (quintptr)(parent.row() + 1));
 }
 
-QModelIndex CommentsModel::parent(const QModelIndex &index) const {
+QModelIndex CommentsModel::parent(const QModelIndex &index) const
+{
     /* Ignore invalid indexes and root nodes */
     if (!index.isValid() || index.internalId() == 0) {
         return QModelIndex();
@@ -164,9 +171,8 @@ QVariant CommentsModel::headerData(int section, Qt::Orientation, int role) const
 }
 
 CommentsProxyModel::CommentsProxyModel(CommentsModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
 {
-    setSourceModel(sourceModel);
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -217,45 +223,30 @@ bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 }
 
 CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    ui(new Ui::CommentsWidget),
-    main(main),
-    tree(new CutterTreeWidget(this))
+    ListDockWidget(main, action),
+    actionHorizontal(tr("Horizontal"), this),
+    actionVertical(tr("Vertical"), this)
 {
-    ui->setupUi(this);
-
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
-
     commentsModel = new CommentsModel(&comments, &nestedComments, this);
     commentsProxyModel = new CommentsProxyModel(commentsModel, this);
-    ui->commentsTreeView->setModel(commentsProxyModel);
-    ui->commentsTreeView->sortByColumn(CommentsModel::CommentColumn, Qt::AscendingOrder);
+    setModels(commentsModel, commentsProxyModel);
+    ui->treeView->sortByColumn(CommentsModel::CommentColumn, Qt::AscendingOrder);
 
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    titleContextMenu = new QMenu(this);
+    auto viewTypeGroup = new QActionGroup(titleContextMenu);
+    actionHorizontal.setCheckable(true);
+    actionHorizontal.setActionGroup(viewTypeGroup);
+    connect(&actionHorizontal, &QAction::toggled, this, &CommentsWidget::onActionHorizontalToggled);
+    actionVertical.setCheckable(true);
+    actionVertical.setActionGroup(viewTypeGroup);
+    connect(&actionVertical, &QAction::toggled, this, &CommentsWidget::onActionVerticalToggled);
+    titleContextMenu->addActions(viewTypeGroup->actions());
 
-    // Esc to clear the filter entry
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)),
-            commentsProxyModel, SLOT(setFilterWildcard(const QString &)));
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->commentsTreeView, SLOT(setFocus()));
-
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(commentsProxyModel->rowCount());
-    });
-    
-    setScrollMode();
-
-    ui->actionHorizontal->setChecked(true);
+    actionHorizontal.setChecked(true);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showTitleContextMenu(const QPoint &)));
+    connect(this, &QWidget::customContextMenuRequested,
+            this, &CommentsWidget::showTitleContextMenu);
 
     connect(Core(), SIGNAL(commentsChanged()), this, SLOT(refreshTree()));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshTree()));
@@ -263,7 +254,7 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
 
 CommentsWidget::~CommentsWidget() {}
 
-void CommentsWidget::on_commentsTreeView_doubleClicked(const QModelIndex &index)
+void CommentsWidget::onItemActivated(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
@@ -271,53 +262,39 @@ void CommentsWidget::on_commentsTreeView_doubleClicked(const QModelIndex &index)
     if (commentsModel->isNested() && !index.parent().isValid())
         return;
 
-    auto comment = index.data(CommentsModel::CommentDescriptionRole).value<CommentDescription>();
-    Core()->seekAndShow(comment.offset);
+    ListDockWidget::onItemActivated(index);
 }
 
-void CommentsWidget::on_actionHorizontal_triggered()
+void CommentsWidget::onActionHorizontalToggled(bool checked)
 {
-    commentsModel->setNested(false);
-    ui->commentsTreeView->setIndentation(8);
+    if (checked) {
+        commentsModel->setNested(false);
+        ui->treeView->setIndentation(8);
+    }
 }
 
-void CommentsWidget::on_actionVertical_triggered()
+void CommentsWidget::onActionVerticalToggled(bool checked)
 {
-    commentsModel->setNested(true);
-    ui->commentsTreeView->setIndentation(20);
+    if (checked) {
+        commentsModel->setNested(true);
+        ui->treeView->setIndentation(20);
+    }
 }
 
 void CommentsWidget::showTitleContextMenu(const QPoint &pt)
 {
-    // Set functions popup menu
-    QMenu *menu = new QMenu(this);
-    menu->clear();
-    menu->addAction(ui->actionHorizontal);
-    menu->addAction(ui->actionVertical);
-
-    if (!commentsModel->isNested()) {
-        ui->actionHorizontal->setChecked(true);
-        ui->actionVertical->setChecked(false);
-    } else {
-        ui->actionVertical->setChecked(true);
-        ui->actionHorizontal->setChecked(false);
-    }
-
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    menu->exec(this->mapToGlobal(pt));
-    delete menu;
+    titleContextMenu->exec(this->mapToGlobal(pt));
 }
 
 void CommentsWidget::resizeEvent(QResizeEvent *event)
 {
-    if (main->responsive && isVisible()) {
+    if (mainWindow->responsive && isVisible()) {
         if (event->size().width() >= event->size().height()) {
             // Set horizontal view (list)
-            on_actionHorizontal_triggered();
+            actionHorizontal.setChecked(true);
         } else {
             // Set vertical view (Tree)
-            on_actionVertical_triggered();
+            actionVertical.setChecked(true);
         }
     }
     QDockWidget::resizeEvent(event);
@@ -336,12 +313,6 @@ void CommentsWidget::refreshTree()
 
     commentsModel->endResetModel();
 
-    qhelpers::adjustColumns(ui->commentsTreeView, 3, 0);
-
-    tree->showItemsNumber(commentsProxyModel->rowCount());
+    qhelpers::adjustColumns(ui->treeView, 3, 0);
 }
 
-void CommentsWidget::setScrollMode()
-{
-    qhelpers::setVerticalScrollMode(ui->commentsTreeView);
-}
