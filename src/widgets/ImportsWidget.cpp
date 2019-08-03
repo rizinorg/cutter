@@ -10,7 +10,7 @@
 #include <QTreeWidget>
 
 ImportsModel::ImportsModel(QList<ImportDescription> *imports, QObject *parent) :
-    QAbstractTableModel(parent),
+    AddressableItemModel(parent),
     imports(imports)
 {}
 
@@ -81,10 +81,21 @@ QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
     return QVariant();
 }
 
-ImportsProxyModel::ImportsProxyModel(ImportsModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+RVA ImportsModel::address(const QModelIndex &index) const
 {
-    setSourceModel(sourceModel);
+    const ImportDescription &import = imports->at(index.row());
+    return import.plt;
+}
+
+QString ImportsModel::name(const QModelIndex &index) const
+{
+    const ImportDescription &import = imports->at(index.row());
+    return import.name;
+}
+
+ImportsProxyModel::ImportsProxyModel(ImportsModel *sourceModel, QObject *parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
+{
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }

@@ -12,6 +12,7 @@
 #include "CutterDockWidget.h"
 #include "core/Cutter.h"
 #include "CutterTreeWidget.h"
+#include "common/AddressableItemModel.h"
 
 class MainWindow;
 class QTreeWidget;
@@ -21,7 +22,7 @@ namespace Ui {
 class ImportsWidget;
 }
 
-class ImportsModel : public QAbstractTableModel
+class ImportsModel : public AddressableItemModel<QAbstractTableModel>
 {
     Q_OBJECT
 
@@ -56,9 +57,12 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    RVA address(const QModelIndex &index) const override;
+    QString name(const QModelIndex &index) const override;
 };
 
-class ImportsProxyModel : public QSortFilterProxyModel
+class ImportsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 

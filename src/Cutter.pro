@@ -361,7 +361,8 @@ SOURCES += \
     widgets/HexWidget.cpp \
     common/SelectionHighlight.cpp \
     common/Decompiler.cpp \
-    menus/AddressableItemContextMenu.cpp
+    menus/AddressableItemContextMenu.cpp \
+    common/AddressableItemModel.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -492,7 +493,8 @@ HEADERS  += \
     widgets/HexWidget.h \
     common/SelectionHighlight.h \
     common/Decompiler.h \
-    menus/AddressableItemContextMenu.h
+    menus/AddressableItemContextMenu.h \
+    common/AddressableItemModel.cpp
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
