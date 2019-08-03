@@ -18,7 +18,7 @@ QString AddressableFilterProxyModel::name(const QModelIndex &index) const
     return addressableSourceModel->name(this->mapToSource(index));
 }
 
-void AddressableFilterProxyModel::setSourceModel(QAbstractItemModel *sourceModel)
+void AddressableFilterProxyModel::setSourceModel(QAbstractItemModel *)
 {
     throw new std::runtime_error("Not supported");
 }

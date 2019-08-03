@@ -12,7 +12,7 @@ class AddressableItemModelI
 {
 public:
     virtual RVA address(const QModelIndex &index) const = 0;
-    virtual QString name(const QModelIndex &) const { return  QString(); }
+    virtual QString name(const QModelIndex &index) const { Q_UNUSED(index) return  QString(); }
     virtual QAbstractItemModel *asItemModel() = 0;
 };
 
@@ -22,8 +22,8 @@ class AddressableItemModel : public ParentModel, public AddressableItemModelI
     static_assert (std::is_base_of<QAbstractItemModel, ParentModel>::value,
                    "ParentModel needs to inherit from QAbstractItemModel");
 public:
-    explicit AddressableItemModel(QObject *parent = nullptr) :  ParentModel(parent) {};
-    virtual ~AddressableItemModel() {};
+    explicit AddressableItemModel(QObject *parent = nullptr) :  ParentModel(parent) {}
+    virtual ~AddressableItemModel() {}
     QAbstractItemModel *asItemModel() { return this; }
 };
 
