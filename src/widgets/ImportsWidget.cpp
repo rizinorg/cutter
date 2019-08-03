@@ -1,5 +1,5 @@
 #include "ImportsWidget.h"
-#include "ui_ImportsWidget.h"
+#include "ui_ListDockWidget.h"
 #include "WidgetShortcuts.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
@@ -140,45 +140,21 @@ bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
  */
 
 ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    ui(new Ui::ImportsWidget),
+    ListDockWidget(main, action),
     importsModel(new ImportsModel(&imports, this)),
-    importsProxyModel(new ImportsProxyModel(importsModel, this)),
-    tree(new CutterTreeWidget(this))
+    importsProxyModel(new ImportsProxyModel(importsModel, this))
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Imports"));
+    setObjectName("ImportsWidget");
 
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
-
-    ui->importsTreeView->setModel(importsProxyModel);
-    ui->importsTreeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
+    setModels(importsModel, importsProxyModel);
+    ui->treeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
 
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
             toggleDockWidget(true); 
             main->updateDockActionChecked(action);
             } );
-
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    // Esc to clear the filter entry
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)),
-            importsProxyModel, SLOT(setFilterWildcard(const QString &)));
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->importsTreeView, SLOT(setFocus()));
-
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(importsProxyModel->rowCount());
-    });
-    
-    setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshImports()));
 }
@@ -190,20 +166,5 @@ void ImportsWidget::refreshImports()
     importsModel->beginResetModel();
     imports = Core()->getAllImports();
     importsModel->endResetModel();
-    qhelpers::adjustColumns(ui->importsTreeView, 4, 0);
-
-    tree->showItemsNumber(importsProxyModel->rowCount());
-}
-
-void ImportsWidget::setScrollMode()
-{
-    qhelpers::setVerticalScrollMode(ui->importsTreeView);
-}
-
-void ImportsWidget::on_importsTreeView_doubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    Core()->seekAndShow(index.data(ImportsModel::AddressRole).toLongLong());
+    qhelpers::adjustColumns(ui->treeView, 4, 0);
 }

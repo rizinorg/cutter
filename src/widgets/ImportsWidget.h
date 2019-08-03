@@ -11,16 +11,12 @@
 
 #include "CutterDockWidget.h"
 #include "core/Cutter.h"
-#include "CutterTreeWidget.h"
+#include "widgets/ListDockWidget.h"
 #include "common/AddressableItemModel.h"
 
 class MainWindow;
 class QTreeWidget;
 class ImportsWidget;
-
-namespace Ui {
-class ImportsWidget;
-}
 
 class ImportsModel : public AddressableItemModel<QAbstractTableModel>
 {
@@ -74,7 +70,7 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class ImportsWidget : public CutterDockWidget
+class ImportsWidget : public ListDockWidget
 {
     Q_OBJECT
 
@@ -83,20 +79,13 @@ public:
     ~ImportsWidget();
 
 private slots:
-    void on_importsTreeView_doubleClicked(const QModelIndex &index);
-
     void refreshImports();
-
 private:
-    std::unique_ptr<Ui::ImportsWidget> ui;
-
     ImportsModel *importsModel;
     ImportsProxyModel *importsProxyModel;
     QList<ImportDescription> imports;
-    CutterTreeWidget *tree;
 
     void highlightUnsafe();
-    void setScrollMode();
 };
 
 #endif // IMPORTSWIDGET_H

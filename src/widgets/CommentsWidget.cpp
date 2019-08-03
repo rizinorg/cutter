@@ -227,6 +227,9 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
     actionHorizontal(tr("Horizontal"), this),
     actionVertical(tr("Vertical"), this)
 {
+    setWindowTitle(tr("Comments"));
+    setObjectName("CommentsWidget");
+
     commentsModel = new CommentsModel(&comments, &nestedComments, this);
     commentsProxyModel = new CommentsProxyModel(commentsModel, this);
     setModels(commentsModel, commentsProxyModel);

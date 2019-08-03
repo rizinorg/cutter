@@ -518,7 +518,6 @@ FORMS    += \
     widgets/FlagsWidget.ui \
     widgets/ExportsWidget.ui \
     widgets/FunctionsWidget.ui \
-    widgets/ImportsWidget.ui \
     widgets/RelocsWidget.ui \
     widgets/StringsWidget.ui \
     widgets/SymbolsWidget.ui \
