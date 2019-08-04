@@ -518,7 +518,6 @@ FORMS    += \
     widgets/FlagsWidget.ui \
     widgets/FunctionsWidget.ui \
     widgets/StringsWidget.ui \
-    widgets/SymbolsWidget.ui \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
