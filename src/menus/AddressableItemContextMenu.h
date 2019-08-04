@@ -24,6 +24,7 @@ public slots:
 private:
     void onActionCopyAddress();
     void onActionShowXrefs();
+    void onActionAddComment();
 
     virtual void aboutToShowSlot();
 
@@ -34,6 +35,7 @@ protected:
     QAction actionShowInMenu;
     QAction actionCopyAddress;
     QAction actionShowXrefs;
+    QAction actionAddcomment;
 
     QString name;
     bool wholeFunction = false;

@@ -1,5 +1,5 @@
 #include "FunctionsWidget.h"
-#include "ui_FunctionsWidget.h"
+#include "ui_ListDockWidget.h"
 
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
@@ -29,7 +29,7 @@ static const int kMaxTooltipHighlightsLines = 5;
 
 FunctionModel::FunctionModel(QList<FunctionDescription> *functions, QSet<RVA> *importAddresses,
                              ut64 *mainAdress, bool nested, QFont default_font, QFont highlight_font, QObject *parent)
-    : QAbstractItemModel(parent),
+    : AddressableItemModel<>(parent),
       functions(functions),
       importAddresses(importAddresses),
       mainAdress(mainAdress),
@@ -188,7 +188,8 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
 
     case Qt::ToolTipRole: {
 
-        QStringList disasmPreview = Core()->getDisassemblyPreview(function.offset, kMaxTooltipDisasmPreviewLines);
+        QStringList disasmPreview = Core()->getDisassemblyPreview(function.offset,
+                                                                  kMaxTooltipDisasmPreviewLines);
         const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
         const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
@@ -205,17 +206,20 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         if (disasmPreview.isEmpty() && highlights.isEmpty())
             return QVariant();
 
-        QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
-                .arg(fnt.family())
-                .arg(qMax(6, fnt.pointSize() - 1)); // slightly decrease font size, to keep more text in the same box
+        QString toolTipContent =
+            QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")
+            .arg(fnt.family())
+            .arg(qMax(6, fnt.pointSize() -
+                      1)); // slightly decrease font size, to keep more text in the same box
 
         if (!disasmPreview.isEmpty())
-            toolTipContent += tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly preview</strong>:<br>%1</div>")
+            toolTipContent +=
+                tr("<div style=\"margin-bottom: 10px;\"><strong>Disassembly preview</strong>:<br>%1</div>")
                 .arg(disasmPreview.join("<br>"));
 
         if (!highlights.isEmpty()) {
             toolTipContent += tr("<div><strong>Highlights</strong>:<br>%1</div>")
-                .arg(highlights.join(QLatin1Char('\n')).toHtmlEscaped().replace(QLatin1Char('\n'), "<br>"));
+                              .arg(highlights.join(QLatin1Char('\n')).toHtmlEscaped().replace(QLatin1Char('\n'), "<br>"));
         }
         toolTipContent += "</div></html>";
         return toolTipContent;
@@ -283,6 +287,18 @@ void FunctionModel::setNested(bool nested)
     endResetModel();
 }
 
+RVA FunctionModel::address(const QModelIndex &index) const
+{
+    auto function = data(index, FunctionDescriptionRole).value<FunctionDescription>();
+    return function.offset;
+}
+
+QString FunctionModel::name(const QModelIndex &index) const
+{
+    auto function = data(index, FunctionDescriptionRole).value<FunctionDescription>();
+    return function.name;
+}
+
 void FunctionModel::seekChanged(RVA)
 {
     int previousIndex = currentIndex;
@@ -333,9 +349,8 @@ void FunctionModel::functionRenamed(const QString &prev_name, const QString &new
 
 FunctionSortFilterProxyModel::FunctionSortFilterProxyModel(FunctionModel *source_model,
                                                            QObject *parent)
-    : QSortFilterProxyModel(parent)
+    : AddressableFilterProxyModel(source_model, parent)
 {
-    setSourceModel(source_model);
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -412,17 +427,15 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
 }
 
 FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    ui(new Ui::FunctionsWidget),
-    tree(new CutterTreeWidget(this))
+    ListDockWidget(main, action),
+    actionRename(tr("Rename"), this),
+    actionUndefine(tr("Undefine"), this),
+    actionHorizontal(tr("Horizontal"), this),
+    actionVertical(tr("Vertical"), this)
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Functions"));
+    setObjectName("FunctionsWidget");
 
-    // Add Status Bar footer 
-    tree->addStatusBar(ui->verticalLayout);
-
-    // Radare core found in:
-    this->main = main;
     setTooltipStylesheet();
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setTooltipStylesheet()));
 
@@ -430,46 +443,44 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     // leave the filter visible by default so users know it exists
     //ui->filterLineEdit->setVisible(false);
 
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(search_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
-    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    // Esc to clear the filter entry
-    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
-    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    QFontInfo font_info = ui->functionsTreeView->fontInfo();
+    QFontInfo font_info = ui->treeView->fontInfo();
     QFont default_font = QFont(font_info.family(), font_info.pointSize());
     QFont highlight_font = QFont(font_info.family(), font_info.pointSize(), QFont::Bold);
 
     functionModel = new FunctionModel(&functions, &importAddresses, &mainAdress, false, default_font,
                                       highlight_font, this);
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
-    ui->functionsTreeView->setModel(functionProxyModel);
-    ui->functionsTreeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
+    setModels(functionModel, functionProxyModel);
+    ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
 
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), functionProxyModel,
-            SLOT(setFilterWildcard(const QString &)));
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->functionsTreeView, SLOT(setFocus()));
 
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(functionProxyModel->rowCount());
-    });
-    
-    setScrollMode();
+    titleContextMenu = new QMenu(this);
+    auto viewTypeGroup = new QActionGroup(titleContextMenu);
+    actionHorizontal.setCheckable(true);
+    actionHorizontal.setActionGroup(viewTypeGroup);
+    connect(&actionHorizontal, &QAction::toggled, this, &FunctionsWidget::onActionHorizontalToggled);
+    actionVertical.setCheckable(true);
+    actionVertical.setActionGroup(viewTypeGroup);
+    connect(&actionVertical, &QAction::toggled, this, &FunctionsWidget::onActionVerticalToggled);
+    titleContextMenu->addActions(viewTypeGroup->actions());
 
-    // Set Functions context menu
-    connect(ui->functionsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showFunctionsContextMenu(const QPoint &)));
+    actionRename.setShortcut({Qt::Key_N});
+    actionRename.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    connect(&actionRename, &QAction::triggered, this,
+            &FunctionsWidget::onActionFunctionsRenameTriggered);
+    connect(&actionUndefine, &QAction::triggered, this,
+            &FunctionsWidget::onActionFunctionsUndefineTriggered);
 
-    connect(ui->functionsTreeView, SIGNAL(doubleClicked(const QModelIndex &)), this,
-            SLOT(onFunctionsDoubleClicked(const QModelIndex &)));
+    auto itemConextMenu = getItemContextMenu();
+    itemConextMenu->addSeparator();
+    itemConextMenu->addAction(&actionRename);
+    itemConextMenu->addAction(&actionUndefine);
+    itemConextMenu->setWholeFunction(true);
+
+    addActions(itemConextMenu->actions());
 
     // Use a custom context menu on the dock title bar
-    //this->title_bar = this->titleBarWidget();
-    ui->actionHorizontal->setChecked(true);
+    actionHorizontal.setChecked(true);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showTitleContextMenu(const QPoint &)));
@@ -504,9 +515,7 @@ void FunctionsWidget::refreshTree()
         functionModel->endResetModel();
 
         // resize offset and size columns
-        qhelpers::adjustColumns(ui->functionsTreeView, 3, 0);
-
-        tree->showItemsNumber(functionProxyModel->rowCount());
+        qhelpers::adjustColumns(ui->treeView, 3, 0);
     });
     Core()->getAsyncTaskManager()->start(task);
 }
@@ -516,61 +525,10 @@ void FunctionsWidget::changeSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Pol
     ui->dockWidgetContents->setSizePolicy(hor, ver);
 }
 
-void FunctionsWidget::onFunctionsDoubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    FunctionDescription function = index.data(
-                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    Core()->seekAndShow(function.offset);
-}
-
-void FunctionsWidget::showFunctionsContextMenu(const QPoint &pt)
-{
-    //TODO: [address-contextenu] cleanup
-    // Set functions popup menu
-    AddressableItemContextMenu menu(ui->functionsTreeView, mainWindow);
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
-                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    menu.setWholeFunction(true);
-
-    menu.setTarget(function.offset, function.name);
-
-    menu.addSeparator();
-    menu.addAction(ui->actionDisasAdd_comment);
-    menu.addAction(ui->actionFunctionsRename);
-    menu.addAction(ui->actionFunctionsUndefine);
-    menu.addSeparator();
-    menu.addAction(ui->action_References);
-
-    menu.exec(ui->functionsTreeView->mapToGlobal(pt));
-}
-
-void FunctionsWidget::on_actionDisasAdd_comment_triggered()
+void FunctionsWidget::onActionFunctionsRenameTriggered()
 {
     // Get selected item in functions tree view
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
-                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-
-    // Create dialog
-    CommentsDialog c(this);
-
-    if (c.exec()) {
-        // Get new function name
-        QString comment = c.getComment();
-        // Rename function in r2 core
-        Core()->setComment(function.offset, comment);
-        // Seek to new renamed function
-        Core()->seekAndShow(function.offset);
-        // TODO: Refresh functions tree widget
-    }
-}
-
-void FunctionsWidget::on_actionFunctionsRename_triggered()
-{
-    // Get selected item in functions tree view
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
+    FunctionDescription function = ui->treeView->selectionModel()->currentIndex().data(
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
@@ -591,79 +549,58 @@ void FunctionsWidget::on_actionFunctionsRename_triggered()
     }
 }
 
-void FunctionsWidget::on_actionFunctionsUndefine_triggered()
-{
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
-                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    Core()->delFunction(function.offset);
-}
 
-void FunctionsWidget::on_action_References_triggered()
+void FunctionsWidget::onActionFunctionsUndefineTriggered()
 {
-    // Get selected item in functions tree view
-    FunctionDescription function = ui->functionsTreeView->selectionModel()->currentIndex().data(
-                                       FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
-    XrefsDialog x(nullptr);
-    x.fillRefsForAddress(function.offset, function.name, true);
-    x.exec();
+    const auto selection = ui->treeView->selectionModel()->selection().indexes();
+    std::vector<RVA> offsets;
+    offsets.reserve(selection.size());
+    for (const auto &index : selection) {
+        offsets.push_back(functionProxyModel->address(index));
+    }
+    for (RVA offset : offsets) {
+        Core()->delFunction(offset);
+    }
 }
 
 void FunctionsWidget::showTitleContextMenu(const QPoint &pt)
 {
-    // Set functions popup menu
-    QMenu *menu = new QMenu(this);
-    menu->clear();
-    menu->addAction(ui->actionHorizontal);
-    menu->addAction(ui->actionVertical);
+    titleContextMenu->exec(this->mapToGlobal(pt));
+}
 
-    if (!functionModel->isNested()) {
-        ui->actionHorizontal->setChecked(true);
-        ui->actionVertical->setChecked(false);
-    } else {
-        ui->actionVertical->setChecked(true);
-        ui->actionHorizontal->setChecked(false);
+void FunctionsWidget::onActionHorizontalToggled(bool enable)
+{
+    if (enable) {
+        functionModel->setNested(false);
+        ui->treeView->setIndentation(8);
     }
-
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    menu->exec(this->mapToGlobal(pt));
-    delete menu;
 }
 
-void FunctionsWidget::on_actionHorizontal_triggered()
+void FunctionsWidget::onActionVerticalToggled(bool enable)
 {
-    functionModel->setNested(false);
-    ui->functionsTreeView->setIndentation(8);
-}
-
-void FunctionsWidget::on_actionVertical_triggered()
-{
-    functionModel->setNested(true);
-    ui->functionsTreeView->setIndentation(20);
+    if (enable) {
+        functionModel->setNested(true);
+        ui->treeView->setIndentation(20);
+    }
 }
 
 void FunctionsWidget::resizeEvent(QResizeEvent *event)
 {
-    if (main->responsive && isVisible()) {
+    if (mainWindow->responsive && isVisible()) {
         if (event->size().width() >= event->size().height()) {
             // Set horizontal view (list)
-            on_actionHorizontal_triggered();
+            actionHorizontal.setChecked(true);
         } else {
             // Set vertical view (Tree)
-            on_actionVertical_triggered();
+            actionVertical.setChecked(true);
         }
     }
     QDockWidget::resizeEvent(event);
 }
 
-void FunctionsWidget::setScrollMode()
-{
-    qhelpers::setVerticalScrollMode(ui->functionsTreeView);
-}
-
 /**
  * @brief a SLOT to set the stylesheet for a tooltip
- */ 
+ */
 void FunctionsWidget::setTooltipStylesheet()
 {
     setStyleSheet(QString("QToolTip { border-width: 1px; max-width: %1px;" \

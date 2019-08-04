@@ -516,7 +516,6 @@ FORMS    += \
     widgets/Dashboard.ui \
     widgets/EntrypointWidget.ui \
     widgets/FlagsWidget.ui \
-    widgets/FunctionsWidget.ui \
     widgets/StringsWidget.ui \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \

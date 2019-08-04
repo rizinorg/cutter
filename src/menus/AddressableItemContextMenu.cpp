@@ -1,6 +1,7 @@
 #include "AddressableItemContextMenu.h"
 #include "dialogs/XrefsDialog.h"
 #include "MainWindow.h"
+#include "dialogs/CommentsDialog.h"
 
 #include <QtCore>
 #include <QShortcut>
@@ -15,6 +16,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     , actionShowInMenu(tr("Show in"), this)
     , actionCopyAddress(tr("Copy address"), this)
     , actionShowXrefs(tr("Show X-Refs"), this)
+    , actionAddcomment(tr("Add comment"), this)
 {
     connect(&actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
@@ -26,10 +28,15 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     actionShowXrefs.setShortcut({Qt::Key_X});
     actionShowXrefs.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
+    connect(&actionAddcomment, &QAction::triggered, this,
+            &AddressableItemContextMenu::onActionAddComment);
+
 
     addAction(&actionShowInMenu);
     addAction(&actionCopyAddress);
     addAction(&actionShowXrefs);
+    addSeparator();
+    addAction(&actionAddcomment);
 
     connect(this, &QMenu::aboutToShow, this, &AddressableItemContextMenu::aboutToShowSlot);
 }
@@ -69,6 +76,21 @@ void AddressableItemContextMenu::onActionShowXrefs()
     }
     dialog.fillRefsForAddress(offset, name, wholeFunction);
     dialog.exec();
+}
+
+void AddressableItemContextMenu::onActionAddComment()
+{
+    // Create dialog
+    CommentsDialog c(this);
+
+    if (c.exec()) {
+        // Get new function name
+        QString comment = c.getComment();
+        // Rename function in r2 core
+        Core()->setComment(offset, comment);
+        // Seek to new renamed function
+        Core()->seekAndShow(offset);
+    }
 }
 
 void AddressableItemContextMenu::aboutToShowSlot()
