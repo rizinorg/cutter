@@ -29,6 +29,19 @@
     </property>
     <item>
      <widget class="CutterTreeView" name="treeView">
+      <property name="styleSheet">
+       <string notr="true">CutterTreeView::item
+{
+    padding-top: 1px;
+    padding-bottom: 1px;
+}</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="indentation">
+       <number>8</number>
+      </property>
       <property name="sortingEnabled">
        <bool>true</bool>
       </property>
