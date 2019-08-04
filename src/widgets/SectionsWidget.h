@@ -13,10 +13,9 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
+#include "widgets/ListDockWidget.h"
 
-class CutterTreeView;
 class QAbstractItemView;
-class MainWindow;
 class SectionsWidget;
 class AbstractAddrDock;
 class AddrDockScene;
@@ -27,7 +26,7 @@ class QuickFilterView;
 class QGraphicsView;
 class QGraphicsRectItem;
 
-class SectionsModel : public QAbstractListModel
+class SectionsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -47,9 +46,12 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    RVA address(const QModelIndex &index) const override;
+    QString name(const QModelIndex &index) const override;
 };
 
-class SectionsProxyModel : public QSortFilterProxyModel
+class SectionsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 
@@ -60,7 +62,7 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class SectionsWidget : public CutterDockWidget
+class SectionsWidget : public ListDockWidget
 {
     Q_OBJECT
 
@@ -71,9 +73,6 @@ public:
 private slots:
     void refreshSections();
     void refreshDocks();
-
-    void onSectionsDoubleClicked(const QModelIndex &index);
-
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
@@ -81,10 +80,6 @@ private:
     QList<SectionDescription> sections;
     SectionsModel *sectionsModel;
     SectionsProxyModel *proxyModel;
-    CutterTreeView *sectionsTable;
-    MainWindow *main;
-    QWidget *dockWidgetContents;
-    QuickFilterView *quickFilterView;
 
     QWidget *addrDockWidget;
     RawAddrDock *rawAddrDock;

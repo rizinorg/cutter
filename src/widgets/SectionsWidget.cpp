@@ -4,6 +4,7 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "common/Configuration.h"
+#include "ui_ListDockWidget.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsTextItem>
@@ -14,7 +15,7 @@
 #include <QToolTip>
 
 SectionsModel::SectionsModel(QList<SectionDescription> *sections, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       sections(sections)
 {
 }
@@ -105,10 +106,21 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+RVA SectionsModel::address(const QModelIndex &index) const
 {
-    setSourceModel(sourceModel);
+    const SectionDescription &section = sections->at(index.row());
+    return section.vaddr;
+}
+
+QString SectionsModel::name(const QModelIndex &index) const
+{
+    const SectionDescription &section = sections->at(index.row());
+    return section.name;
+}
+
+SectionsProxyModel::SectionsProxyModel(SectionsModel *sourceModel, QObject *parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
+{
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -138,8 +150,7 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 }
 
 SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    main(main)
+    ListDockWidget(main, action)
 {
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));
@@ -158,42 +169,22 @@ SectionsWidget::~SectionsWidget() = default;
 
 void SectionsWidget::initSectionsTable()
 {
-    sectionsTable = new CutterTreeView;
     sectionsModel = new SectionsModel(&sections, this);
     proxyModel = new SectionsProxyModel(sectionsModel, this);
+    setModels(sectionsModel, proxyModel);
 
-    sectionsTable->setModel(proxyModel);
-    sectionsTable->setIndentation(10);
-    sectionsTable->setSortingEnabled(true);
-    sectionsTable->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
+    ui->treeView->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
 }
 
 void SectionsWidget::initQuickFilter()
 {
-    quickFilterView = new QuickFilterView(this, false);
-    quickFilterView->setObjectName(QStringLiteral("quickFilterView"));
-    QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    sizePolicy1.setHorizontalStretch(0);
-    sizePolicy1.setVerticalStretch(0);
-    sizePolicy1.setHeightForWidth(quickFilterView->sizePolicy().hasHeightForWidth());
-    quickFilterView->setSizePolicy(sizePolicy1);
-
-    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
-    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(search_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::showFilter);
-
-    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(clear_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::clearFilter);
+    ui->quickFilterView->closeFilter();
 }
 
 void SectionsWidget::initAddrMapDocks()
 {
-    dockWidgetContents = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout();
-
-    layout->addWidget(sectionsTable);
-    layout->addWidget(quickFilterView);
+    QVBoxLayout *layout = ui->verticalLayout;
+    showCount(false);
 
     rawAddrDock = new RawAddrDock(sectionsModel, this);
     virtualAddrDock = new VirtualAddrDock(sectionsModel, this);
@@ -220,20 +211,11 @@ void SectionsWidget::initAddrMapDocks()
     toggleButton->setArrowType(Qt::NoArrow);
     toggleButton->hide();
     layout->addWidget(toggleButton);
-
-    layout->setMargin(0);
-    dockWidgetContents->setLayout(layout);
-    setWidget(dockWidgetContents);
 }
 
 void SectionsWidget::initConnects()
 {
-    connect(sectionsTable, SIGNAL(doubleClicked(const QModelIndex &)),
-            this, SLOT(onSectionsDoubleClicked(const QModelIndex &)));
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSections()));
-    connect(quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
-            SLOT(setFilterWildcard(const QString &)));
-    connect(quickFilterView, SIGNAL(filterClosed()), sectionsTable, SLOT(setFocus()));
+    connect(Core(), &CutterCore::refreshAll, this, &SectionsWidget::refreshSections);
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (visibility) {
             refreshSections();
@@ -261,7 +243,7 @@ void SectionsWidget::refreshSections()
     sectionsModel->beginResetModel();
     sections = Core()->getAllSections();
     sectionsModel->endResetModel();
-    qhelpers::adjustColumns(sectionsTable, SectionsModel::ColumnCount, 0);
+    qhelpers::adjustColumns(ui->treeView, SectionsModel::ColumnCount, 0);
     refreshDocks();
 }
 
@@ -294,16 +276,6 @@ void SectionsWidget::drawIndicatorOnAddrDocks()
             return;
         }
     }
-}
-
-void SectionsWidget::onSectionsDoubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid()) {
-        return;
-    }
-
-    auto section = index.data(SectionsModel::SectionDescriptionRole).value<SectionDescription>();
-    Core()->seekAndShow(section.vaddr);
 }
 
 void SectionsWidget::resizeEvent(QResizeEvent *event) {
