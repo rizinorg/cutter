@@ -3,12 +3,13 @@
 #include "core/MainWindow.h"
 #include "QuickFilterView.h"
 #include "common/Helpers.h"
+#include "ui_ListDockWidget.h"
 
 #include <QVBoxLayout>
 #include <QShortcut>
 
 SegmentsModel::SegmentsModel(QList<SegmentDescription> *segments, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       segments(segments)
 {
 }
@@ -94,10 +95,21 @@ QVariant SegmentsModel::headerData(int segment, Qt::Orientation, int role) const
     }
 }
 
-SegmentsProxyModel::SegmentsProxyModel(SegmentsModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+RVA SegmentsModel::address(const QModelIndex &index) const
 {
-    setSourceModel(sourceModel);
+    const SegmentDescription &segment = segments->at(index.row());
+    return segment.vaddr;
+}
+
+QString SegmentsModel::name(const QModelIndex &index) const
+{
+    const SegmentDescription &segment = segments->at(index.row());
+    return segment.name;
+}
+
+SegmentsProxyModel::SegmentsProxyModel(SegmentsModel *sourceModel, QObject *parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
+{
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -121,54 +133,21 @@ bool SegmentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 }
 
 SegmentsWidget::SegmentsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    main(main)
+    ListDockWidget(main, action)
 {
-
     setObjectName("SegmentsWidget");
     setWindowTitle(QStringLiteral("Segments"));
 
-    segmentsTable = new CutterTreeView;
     segmentsModel = new SegmentsModel(&segments, this);
     auto proxyModel = new SegmentsProxyModel(segmentsModel, this);
+    setModels(segmentsModel, proxyModel);
 
-    segmentsTable->setModel(proxyModel);
-    segmentsTable->setIndentation(10);
-    segmentsTable->setSortingEnabled(true);
-    segmentsTable->sortByColumn(SegmentsModel::NameColumn, Qt::AscendingOrder);
+    ui->treeView->sortByColumn(SegmentsModel::NameColumn, Qt::AscendingOrder);
 
-    connect(segmentsTable, SIGNAL(doubleClicked(const QModelIndex &)),
-            this, SLOT(onSegmentsDoubleClicked(const QModelIndex &)));
-    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    ui->quickFilterView->closeFilter();
+    showCount(false);
+
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSegments()));
-
-    quickFilterView = new QuickFilterView(this, false);
-    quickFilterView->setObjectName(QStringLiteral("quickFilterView"));
-    QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    sizePolicy1.setHorizontalStretch(0);
-    sizePolicy1.setVerticalStretch(0);
-    sizePolicy1.setHeightForWidth(quickFilterView->sizePolicy().hasHeightForWidth());
-    quickFilterView->setSizePolicy(sizePolicy1);
-
-    QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);
-    connect(search_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::showFilter);
-    search_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clear_shortcut, &QShortcut::activated, quickFilterView, &QuickFilterView::clearFilter);
-    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    connect(quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
-            SLOT(setFilterWildcard(const QString &)));
-    connect(quickFilterView, SIGNAL(filterClosed()), segmentsTable, SLOT(setFocus()));
-
-    dockWidgetContents = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(segmentsTable);
-    layout->addWidget(quickFilterView);
-    layout->setMargin(0);
-    dockWidgetContents->setLayout(layout);
-    setWidget(dockWidgetContents);
 }
 
 SegmentsWidget::~SegmentsWidget() {}
@@ -179,14 +158,5 @@ void SegmentsWidget::refreshSegments()
     segments = Core()->getAllSegments();
     segmentsModel->endResetModel();
 
-    qhelpers::adjustColumns(segmentsTable, SegmentsModel::ColumnCount, 0);
-}
-
-void SegmentsWidget::onSegmentsDoubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    auto segment = index.data(SegmentsModel::SegmentDescriptionRole).value<SegmentDescription>();
-    Core()->seekAndShow(segment.vaddr);
+    qhelpers::adjustColumns(ui->treeView, SegmentsModel::ColumnCount, 0);
 }

@@ -16,6 +16,7 @@ public:
     ~CutterTreeWidget();
     void addStatusBar(QVBoxLayout *pos);
     void showItemsNumber(int count);
+    void showStatusBar(bool show);
 
 private:
     QStatusBar *bar;

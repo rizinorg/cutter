@@ -40,6 +40,11 @@ ListDockWidget::ListDockWidget(MainWindow *main, QAction *action) :
 
 ListDockWidget::~ListDockWidget() {}
 
+void ListDockWidget::showCount(bool show)
+{
+    tree->showStatusBar(show);
+}
+
 void ListDockWidget::setModels(AddressableItemModelI *objectModel,
                                AddressableFilterProxyModel *objectFilterProxyModel)
 {

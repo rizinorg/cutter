@@ -23,4 +23,9 @@ void CutterTreeWidget::showItemsNumber(int count)
     }
 }
 
+void CutterTreeWidget::showStatusBar(bool show)
+{
+    bar->setVisible(show);
+}
+
 CutterTreeWidget::~CutterTreeWidget() {}

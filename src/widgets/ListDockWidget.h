@@ -28,6 +28,8 @@ class ListDockWidget : public CutterDockWidget
 public:
     explicit ListDockWidget(MainWindow *main, QAction *action = nullptr);
     ~ListDockWidget() override;
+
+    void showCount(bool show);
 protected:
     void setModels(AddressableItemModelI *objectModel,
                    AddressableFilterProxyModel *objectFilterProxyModel);

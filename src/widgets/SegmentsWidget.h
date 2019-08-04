@@ -7,16 +7,12 @@
 #include <QSortFilterProxyModel>
 
 #include "core/Cutter.h"
-#include "CutterTreeView.h"
-#include "CutterDockWidget.h"
+#include "widgets/ListDockWidget.h"
 
-class CutterTreeView;
 class QAbstractItemView;
-class MainWindow;
 class SegmentsWidget;
-class QuickFilterView;
 
-class SegmentsModel : public QAbstractListModel
+class SegmentsModel : public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -36,9 +32,12 @@ public:
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int segment, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+    RVA address(const QModelIndex &index) const override;
+    QString name(const QModelIndex &index) const override;
 };
 
-class SegmentsProxyModel : public QSortFilterProxyModel
+class SegmentsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 
@@ -49,7 +48,7 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class SegmentsWidget : public CutterDockWidget
+class SegmentsWidget : public ListDockWidget
 {
     Q_OBJECT
 
@@ -59,15 +58,9 @@ public:
 
 private slots:
     void refreshSegments();
-    void onSegmentsDoubleClicked(const QModelIndex &index);
-
 private:
     QList<SegmentDescription> segments;
     SegmentsModel *segmentsModel;
-    CutterTreeView *segmentsTable;
-    MainWindow *main;
-    QWidget *dockWidgetContents;
-    QuickFilterView *quickFilterView;
 };
 
 #endif // SEGMENTSWIDGET_H
