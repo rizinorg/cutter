@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "core/Cutter.h"
-#include "CutterDockWidget.h"
+#include "ListDockWidget.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -22,7 +22,7 @@ class QTreeWidgetItem;
 class HeadersWidget;
 
 
-class HeadersModel: public QAbstractListModel
+class HeadersModel: public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -35,18 +35,21 @@ public:
     enum Column { OffsetColumn = 0, NameColumn, ValueColumn, ColumnCount };
     enum Role { HeaderDescriptionRole = Qt::UserRole };
 
-    HeadersModel(QList<HeaderDescription> *headers, QObject *parent = 0);
+    HeadersModel(QList<HeaderDescription> *headers, QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+    RVA address(const QModelIndex &index) const override;
+    QString name(const QModelIndex &index) const override;
 };
 
 
 
-class HeadersProxyModel : public QSortFilterProxyModel
+class HeadersProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 
@@ -60,7 +63,7 @@ protected:
 
 
 
-class HeadersWidget : public CutterDockWidget
+class HeadersWidget : public ListDockWidget
 {
     Q_OBJECT
 
@@ -69,18 +72,12 @@ public:
     ~HeadersWidget();
 
 private slots:
-    void on_headersTreeView_doubleClicked(const QModelIndex &index);
-
     void refreshHeaders();
 
 private:
-    std::unique_ptr<Ui::HeadersWidget> ui;
-
     HeadersModel *headersModel;
     HeadersProxyModel *headersProxyModel;
     QList<HeaderDescription> headers;
-
-    void setScrollMode();
 };
 
 

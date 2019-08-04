@@ -528,7 +528,6 @@ FORMS    += \
     widgets/ClassesWidget.ui \
     widgets/VTablesWidget.ui \
     widgets/TypesWidget.ui \
-    widgets/HeadersWidget.ui \
     widgets/SearchWidget.ui \
     dialogs/R2PluginsDialog.ui \
     dialogs/VersionInfoDialog.ui \
