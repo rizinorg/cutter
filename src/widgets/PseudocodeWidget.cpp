@@ -1,5 +1,6 @@
 #include "PseudocodeWidget.h"
 #include "ui_PseudocodeWidget.h"
+#include "menus/DisassemblyContextMenu.h"
 
 #include "common/Configuration.h"
 #include "common/Helpers.h"
@@ -36,6 +37,7 @@ struct DecompiledCodeTextLine
 
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(MemoryWidgetType::Pseudocode, main, action),
+    mCtxMenu(new DisassemblyContextMenu(this, main)),
     ui(new Ui::PseudocodeWidget)
 {
     ui->setupUi(this);
@@ -72,6 +74,13 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &PseudocodeWidget::decompilerSelected);
     connectCursorPositionChanged(false);
     connect(Core(), &CutterCore::seekChanged, this, &PseudocodeWidget::seekChanged);
+    ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->textEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(showDisasContextMenu(const QPoint &)));
+
+    // refresh the widget when an action in this menu is triggered
+    connect(mCtxMenu, &QMenu::triggered, this, &PseudocodeWidget::refreshPseudocode);
+    addActions(mCtxMenu->actions());
 
     doRefresh(RVA_INVALID);
 }
@@ -143,6 +152,7 @@ void PseudocodeWidget::cursorPositionChanged()
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
+        mCtxMenu->setOffset(offset);
         seekFromCursor = false;
     }
     updateSelection();
@@ -247,6 +257,7 @@ void PseudocodeWidget::updateSelection()
     extraSelections.append(createSameWordsSelections(ui->textEdit, searchString));
 
     ui->textEdit->setExtraSelections(extraSelections);
+    mCtxMenu->setCurHighlightedWord(searchString);
 }
 
 QString PseudocodeWidget::getWindowTitle() const
@@ -261,4 +272,10 @@ void PseudocodeWidget::fontsUpdated()
 
 void PseudocodeWidget::colorsUpdatedSlot()
 {
+}
+
+void PseudocodeWidget::showDisasContextMenu(const QPoint &pt)
+{
+    mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
+    doRefresh(Core()->getOffset());
 }
