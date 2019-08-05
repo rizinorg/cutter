@@ -8,25 +8,28 @@
 #include <QResizeEvent>
 #include <QShortcut>
 
-ListDockWidget::ListDockWidget(MainWindow *main, QAction *action) :
+ListDockWidget::ListDockWidget(MainWindow *main, QAction *action, SearchBarPolicy searchBarPolicy) :
     CutterDockWidget(main, action),
     ui(new Ui::ListDockWidget),
-    tree(new CutterTreeWidget(this))
+    tree(new CutterTreeWidget(this)),
+    searchBarPolicy(searchBarPolicy)
 {
     ui->setupUi(this);
 
     // Add Status Bar footer
     tree->addStatusBar(ui->verticalLayout);
 
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    if (searchBarPolicy != SearchBarPolicy::Hide) {
+        // Ctrl-F to show/hide the filter entry
+        QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+        connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+        searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    // Esc to clear the filter entry
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+        // Esc to clear the filter entry
+        QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+        connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
+        clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+    }
 
     connect(ui->treeView, &QTreeView::activated, this, &ListDockWidget::onItemActivated);
 
@@ -36,6 +39,10 @@ ListDockWidget::ListDockWidget(MainWindow *main, QAction *action) :
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->treeView, &QWidget::customContextMenuRequested,
             this, &ListDockWidget::showItemContextMenu);
+
+    if (searchBarPolicy != SearchBarPolicy::ShowByDefault) {
+        ui->quickFilterView->closeFilter();
+    }
 }
 
 ListDockWidget::~ListDockWidget() {}

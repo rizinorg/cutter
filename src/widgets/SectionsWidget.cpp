@@ -1,5 +1,4 @@
 #include "SectionsWidget.h"
-#include "CutterTreeView.h"
 #include "QuickFilterView.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"

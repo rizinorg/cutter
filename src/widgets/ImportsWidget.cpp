@@ -149,7 +149,6 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
 
     setModels(importsModel, importsProxyModel);
     ui->treeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
-
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
             toggleDockWidget(true); 

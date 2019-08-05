@@ -26,7 +26,13 @@ class ListDockWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit ListDockWidget(MainWindow *main, QAction *action = nullptr);
+    enum class SearchBarPolicy {
+        ShowByDefault,
+        HideByDefault,
+        Hide,
+    };
+
+    explicit ListDockWidget(MainWindow *main, QAction *action = nullptr, SearchBarPolicy searchBarPolicy = SearchBarPolicy::ShowByDefault);
     ~ListDockWidget() override;
 
     void showCount(bool show);
@@ -47,6 +53,7 @@ private:
     AddressableFilterProxyModel *objectFilterProxyModel;
     CutterTreeWidget *tree;
     AddressableItemContextMenu *itemContextMenu;
+    SearchBarPolicy searchBarPolicy;
 };
 
 #endif // LISTDOCKWIDGET_H

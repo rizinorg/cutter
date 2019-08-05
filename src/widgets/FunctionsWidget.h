@@ -3,23 +3,13 @@
 
 #include <memory>
 
-#include <QSortFilterProxyModel>
-
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
-#include "CutterTreeView.h"
 #include "widgets/ListDockWidget.h"
 
 class MainWindow;
-class QTreeWidgetItem;
 class FunctionsTask;
 class FunctionsWidget;
-
-namespace Ui {
-class FunctionsWidget;
-}
-
 
 class FunctionModel : public AddressableItemModel<>
 {
