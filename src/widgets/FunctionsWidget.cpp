@@ -450,7 +450,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     functionModel = new FunctionModel(&functions, &importAddresses, &mainAdress, false, default_font,
                                       highlight_font, this);
     functionProxyModel = new FunctionSortFilterProxyModel(functionModel, this);
-    setModels(functionModel, functionProxyModel);
+    setModels(functionProxyModel);
     ui->treeView->sortByColumn(FunctionModel::NameColumn, Qt::AscendingOrder);
 
 

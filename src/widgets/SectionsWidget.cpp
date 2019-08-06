@@ -170,7 +170,7 @@ void SectionsWidget::initSectionsTable()
 {
     sectionsModel = new SectionsModel(&sections, this);
     proxyModel = new SectionsProxyModel(sectionsModel, this);
-    setModels(sectionsModel, proxyModel);
+    setModels(proxyModel);
 
     ui->treeView->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
 }

@@ -147,7 +147,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     setWindowTitle(tr("Imports"));
     setObjectName("ImportsWidget");
 
-    setModels(importsModel, importsProxyModel);
+    setModels(importsProxyModel);
     ui->treeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 

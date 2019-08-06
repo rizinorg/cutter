@@ -37,8 +37,7 @@ public:
 
     void showCount(bool show);
 protected:
-    void setModels(AddressableItemModelI *objectModel,
-                   AddressableFilterProxyModel *objectFilterProxyModel);
+    void setModels(AddressableFilterProxyModel *objectFilterProxyModel);
 
     AddressableItemContextMenu *getItemContextMenu();
     void setItemContextMenu(AddressableItemContextMenu *menu);
@@ -49,7 +48,6 @@ protected:
 
     std::unique_ptr<Ui::ListDockWidget> ui;
 private:
-    AddressableItemModelI *objectModel;
     AddressableFilterProxyModel *objectFilterProxyModel;
     CutterTreeWidget *tree;
     AddressableItemContextMenu *itemContextMenu;

@@ -55,10 +55,8 @@ void ListDockWidget::showCount(bool show)
     tree->showStatusBar(show);
 }
 
-void ListDockWidget::setModels(AddressableItemModelI *objectModel,
-                               AddressableFilterProxyModel *objectFilterProxyModel)
+void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyModel)
 {
-    this->objectModel = objectModel;
     this->objectFilterProxyModel = objectFilterProxyModel;
 
     ui->treeView->setModel(objectFilterProxyModel);

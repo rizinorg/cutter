@@ -12,6 +12,11 @@ class AddressableItemModelI
 {
 public:
     virtual RVA address(const QModelIndex &index) const = 0;
+    /**
+     * @brief Get name for item, optional.
+     * @param index item intex
+     * @return Item name or empty QString if item doesn't have short descriptive name.
+     */
     virtual QString name(const QModelIndex &index) const { Q_UNUSED(index) return  QString(); }
     virtual QAbstractItemModel *asItemModel() = 0;
 };

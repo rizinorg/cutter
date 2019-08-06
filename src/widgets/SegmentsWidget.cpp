@@ -138,7 +138,7 @@ SegmentsWidget::SegmentsWidget(MainWindow *main, QAction *action) :
 
     segmentsModel = new SegmentsModel(&segments, this);
     auto proxyModel = new SegmentsProxyModel(segmentsModel, this);
-    setModels(segmentsModel, proxyModel);
+    setModels(proxyModel);
 
     ui->treeView->sortByColumn(SegmentsModel::NameColumn, Qt::AscendingOrder);
 

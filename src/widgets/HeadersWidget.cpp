@@ -117,7 +117,7 @@ HeadersWidget::HeadersWidget(MainWindow *main, QAction *action) :
 
     headersModel = new HeadersModel(&headers, this);
     headersProxyModel = new HeadersProxyModel(headersModel, this);
-    setModels(headersModel, headersProxyModel);
+    setModels(headersProxyModel);
     ui->treeView->sortByColumn(HeadersModel::OffsetColumn, Qt::AscendingOrder);
 
     ui->quickFilterView->closeFilter();
