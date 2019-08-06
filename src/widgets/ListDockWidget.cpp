@@ -27,7 +27,10 @@ ListDockWidget::ListDockWidget(MainWindow *main, QAction *action, SearchBarPolic
 
         // Esc to clear the filter entry
         QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-        connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
+        connect(clearShortcut, &QShortcut::activated, [this]() {
+            ui->quickFilterView->clearFilter();
+            ui->treeView->setFocus();
+        });
         clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
     }
 
