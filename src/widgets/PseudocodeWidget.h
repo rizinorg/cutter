@@ -13,15 +13,20 @@ class PseudocodeWidget;
 class QTextEdit;
 class QSyntaxHighlighter;
 class QTextCursor;
+class DisassemblyContextMenu;
 struct DecompiledCodeTextLine;
 
 class PseudocodeWidget : public MemoryDockWidget
 {
     Q_OBJECT
+protected:
+    DisassemblyContextMenu *mCtxMenu;
 
 public:
     explicit PseudocodeWidget(MainWindow *main, QAction *action = nullptr);
     ~PseudocodeWidget();
+public slots:
+    void showDisasContextMenu(const QPoint &pt);
 
 private slots:
     void fontsUpdated();
