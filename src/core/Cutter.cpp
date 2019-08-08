@@ -2597,6 +2597,17 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
     emit flagsChanged();
 }
 
+QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
+{
+    auto r = cmdj(QString("fdj @") + QString::number(offset)).object();
+    QString name = r.value("name").toString();
+    if (flagOffsetOut) {
+        int queryOffset = r.value("offset").toInt(0);
+        *flagOffsetOut = offset  + static_cast<RVA>(-queryOffset);
+    }
+    return name;
+}
+
 void CutterCore::handleREvent(int type, void *data)
 {
     switch (type) {

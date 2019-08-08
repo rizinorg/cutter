@@ -15,6 +15,13 @@ class MainWindow;
 class QTreeWidgetItem;
 class CommentsWidget;
 
+struct CommentGroup
+{
+    QString name;
+    RVA offset;
+    QList<CommentDescription> comments;
+};
+
 class CommentsModel : public AddressableItemModel<>
 {
     Q_OBJECT
@@ -23,7 +30,7 @@ class CommentsModel : public AddressableItemModel<>
 
 private:
     QList<CommentDescription> *comments;
-    QMap<QString, QList<CommentDescription>> *nestedComments;
+    QList<CommentGroup> *nestedComments;
     bool nested;
 
 public:
@@ -32,7 +39,7 @@ public:
     enum Role { CommentDescriptionRole = Qt::UserRole, FunctionRole };
 
     CommentsModel(QList<CommentDescription> *comments,
-                  QMap<QString, QList<CommentDescription>> *nestedComments,
+                  QList<CommentGroup> *nestedComments,
                   QObject *parent = nullptr);
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
@@ -75,8 +82,6 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private slots:
-    void onItemActivated(const QModelIndex &index) override;
-
     void onActionHorizontalToggled(bool checked);
     void onActionVerticalToggled(bool checked);
 
@@ -91,7 +96,7 @@ private:
     QAction actionVertical;
 
     QList<CommentDescription> comments;
-    QMap<QString, QList<CommentDescription>> nestedComments;
+    QList<CommentGroup> nestedComments;
 
     QMenu *titleContextMenu;
 };

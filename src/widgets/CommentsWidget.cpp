@@ -8,7 +8,7 @@
 #include <QShortcut>
 
 CommentsModel::CommentsModel(QList<CommentDescription> *comments,
-                             QMap<QString, QList<CommentDescription> > *nestedComments,
+                             QList<CommentGroup> *nestedComments,
                              QObject *parent)
     : AddressableItemModel<>(parent),
       comments(comments),
@@ -30,8 +30,16 @@ void CommentsModel::setNested(bool nested)
 
 RVA CommentsModel::address(const QModelIndex &index) const
 {
-    QVariant comment = this->data(index, CommentDescriptionRole);
-    return comment.value<CommentDescription>().offset;
+    if (isNested()) {
+        if (index.internalId() != 0) {
+            auto &group = nestedComments->at(index.parent().row());
+            return group.comments.at(index.row()).offset;
+        } else {
+            return nestedComments->at(index.row()).offset;
+        }
+    } else {
+        return comments->at(index.row()).offset;
+    }
 }
 
 QModelIndex CommentsModel::index(int row, int column, const QModelIndex &parent) const
@@ -59,8 +67,7 @@ int CommentsModel::rowCount(const QModelIndex &parent) const
         return (isNested() ? nestedComments->size() : comments->count());
 
     if (isNested() && parent.internalId() == 0) {
-        QString fcnName = nestedComments->keys().at(parent.row());
-        return nestedComments->operator[](fcnName).size();
+        return nestedComments->at(parent.row()).comments.size();
     }
 
     return 0;
@@ -90,12 +97,13 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
         isSubnode = false;
     }
 
-    QString offset;
+    QString groupName;
     CommentDescription comment;
     if (isNested()) {
-        offset = nestedComments->keys().at(commentIndex);
+        auto &group = nestedComments->at(commentIndex);
+        groupName = group.name;
         if (isSubnode) {
-            comment = nestedComments->operator[](offset).at(index.row());
+            comment = group.comments.at(index.row());
         }
     } else {
         comment = comments->at(commentIndex);
@@ -114,7 +122,7 @@ QVariant CommentsModel::data(const QModelIndex &index, int role) const
                     break;
                 }
             } else if (index.column() == OffsetNestedColumn) {
-                return offset;
+                return groupName;
             }
         } else {
             switch (index.column()) {
@@ -257,17 +265,6 @@ CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
 
 CommentsWidget::~CommentsWidget() {}
 
-void CommentsWidget::onItemActivated(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    if (commentsModel->isNested() && !index.parent().isValid())
-        return;
-
-    ListDockWidget::onItemActivated(index);
-}
-
 void CommentsWidget::onActionHorizontalToggled(bool checked)
 {
     if (checked) {
@@ -309,9 +306,18 @@ void CommentsWidget::refreshTree()
 
     comments = Core()->getAllComments("CCu");
     nestedComments.clear();
+    QMap<QString, size_t> nestedCommentMapping;
     for (const CommentDescription &comment : comments) {
-        QString fcnName = Core()->cmdFunctionAt(comment.offset);
-        nestedComments[fcnName].append(comment);
+        RVA offset = RVA_INVALID;
+        QString fcnName = Core()->nearestFlag(comment.offset, &offset);
+        auto nestedCommentIt = nestedCommentMapping.find(fcnName);
+        if (nestedCommentIt == nestedCommentMapping.end()) {
+            nestedCommentMapping.insert(fcnName, nestedComments.size());
+            nestedComments.push_back({fcnName, offset, {comment}});
+        } else {
+            auto &commentGroup = nestedComments[nestedCommentIt.value()];
+            commentGroup.comments.append(comment);
+        }
     }
 
     commentsModel->endResetModel();
