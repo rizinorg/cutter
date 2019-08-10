@@ -148,21 +148,21 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             case NameColumn:
                 return function.name;
             case SizeColumn:
-                return function.size;
+                return QString::number(function.size);
             case OffsetColumn:
                 return RAddressString(function.offset);
             case NargsColumn:
-                return function.nargs;
+                return QString::number(function.nargs);
             case NlocalsColumn:
-                return function.nlocals;
+                return QString::number(function.nlocals);
             case NbbsColumn:
-                return function.nbbs;
+                return QString::number(function.nbbs);
             case CalltypeColumn:
                 return function.calltype;
             case EdgesColumn:
-                return function.edges;
+                return QString::number(function.edges);
             case FrameColumn:
-                return function.stackframe;
+                return QString::number(function.stackframe);
             default:
                 return QVariant();
             }
@@ -438,10 +438,6 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
 
     setTooltipStylesheet();
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(setTooltipStylesheet()));
-
-
-    // leave the filter visible by default so users know it exists
-    //ui->filterLineEdit->setVisible(false);
 
     QFontInfo font_info = ui->treeView->fontInfo();
     QFont default_font = QFont(font_info.family(), font_info.pointSize());

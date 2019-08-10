@@ -49,7 +49,7 @@ QVariant SegmentsModel::data(const QModelIndex &index, int role) const
         case SegmentsModel::NameColumn:
             return segment.name;
         case SegmentsModel::SizeColumn:
-            return segment.size;
+            return QString::number(segment.size);
         case SegmentsModel::AddressColumn:
             return RAddressString(segment.vaddr);
         case SegmentsModel::EndAddressColumn:
