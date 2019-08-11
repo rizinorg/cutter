@@ -41,7 +41,9 @@ void XrefsDialog::fillRefs(QList<XrefDescription> refs, QList<XrefDescription> x
     for (const auto &xref : refs) {
         auto *tempItem = new QTreeWidgetItem();
         tempItem->setText(0, xref.to_str);
-        tempItem->setText(1, Core()->disassembleSingleInstruction(xref.to));
+        if (xref.type != "DATA") {
+            tempItem->setText(1, Core()->disassembleSingleInstruction(xref.to));
+        }
         tempItem->setText(2, xrefTypeString(xref.type));
         tempItem->setData(0, Qt::UserRole, QVariant::fromValue(xref));
         ui->fromTreeWidget->insertTopLevelItem(0, tempItem);
@@ -187,19 +189,14 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
 
 QString XrefsDialog::xrefTypeString(const QString &type)
 {
-    switch (type.toStdString()[0]) {
-    case R_ANAL_REF_TYPE_CALL:
-        return QString("Call");
-    case R_ANAL_REF_TYPE_CODE:
+    if (type == "CODE") {
         return QString("Code");
-    case R_ANAL_REF_TYPE_DATA:
+    } else if (type == "CALL") {
+        return QString("Call");
+    } else if (type == "DATA") {
         return QString("Data");
-    case R_ANAL_REF_TYPE_NULL:
-        return QString();
-    case R_ANAL_REF_TYPE_STRING:
+    } else if (type == "STRING") {
         return QString("String");
-    default:
-        break;
     }
     return type;
 }
