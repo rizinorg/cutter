@@ -249,6 +249,31 @@ void DisassemblyContextMenu::addDebugMenu()
     debugMenu->addAction(&actionSetPC);
 }
 
+QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingUsedHere(RVA offset)
+{
+    QVector<ThingUsedHere> result;
+    const QJsonArray array = Core()->cmdj("anj @ " + QString::number(offset)).array();
+    result.reserve(array.size());
+    for (const auto &thing : array) {
+        auto obj = thing.toObject();
+        RVA offset = obj["offset"].toVariant().toULongLong();
+        QString name = obj["name"].toString();
+        QString typeString = obj["type"].toString();
+        ThingUsedHere::Type type = ThingUsedHere::Type::Address;
+        if (typeString == "var") {
+            type = ThingUsedHere::Type::Var;
+        } else if (typeString == "flag") {
+            type = ThingUsedHere::Type::Flag;
+        } else if (typeString == "function") {
+            type = ThingUsedHere::Type::Function;
+        } else if (typeString == "address") {
+            type = ThingUsedHere::Type::Address;
+        }
+        result.push_back(ThingUsedHere{name, offset, type});
+    }
+    return result;
+}
+
 void DisassemblyContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
@@ -362,20 +387,17 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
 
     // Only show "rename X used here" if there is something to rename
-    QJsonArray thingUsedHereArray = Core()->cmdj("anj @ " + QString::number(offset)).array();
-    if (!thingUsedHereArray.isEmpty()) {
+    auto thingsUsedHere = getThingUsedHere(offset);
+    if (!thingsUsedHere.isEmpty()) {
         actionRenameUsedHere.setVisible(true);
-        QJsonObject thingUsedHere = thingUsedHereArray.first().toObject();
-        if (thingUsedHere["type"] == "address") {
-            RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
+        auto &thingUsedHere = thingsUsedHere.first();
+        if (thingUsedHere.type == ThingUsedHere::Type::Address) {
+            RVA offset = thingUsedHere.offset;
             actionRenameUsedHere.setText(tr("Add flag at %1 (used here)").arg(RAddressString(offset)));
-        } else {
-            if (thingUsedHere["type"] == "function") {
-                actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere["name"].toString()));
-            }
-            else {
-                actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere["name"].toString()));
-            }
+        } else if (thingUsedHere.type == ThingUsedHere::Type::Function) {
+            actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere.name));
+        }  else {
+            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere.name));
         }
     } else {
         actionRenameUsedHere.setVisible(false);
@@ -686,38 +708,39 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 
 void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 {
-    QJsonArray array = Core()->cmdj("anj @ " + QString::number(offset)).array();
+    auto array = getThingUsedHere(offset);
     if (array.isEmpty()) {
         return;
     }
 
-    QJsonObject thingUsedHere = array.first().toObject();
-    QString type = thingUsedHere.value("type").toString();
+    auto thingUsedHere = array.first();
 
     RenameDialog dialog(this);
 
     QString oldName;
+    auto type = thingUsedHere.type;
 
-    if (type == "address") {
-        RVA offset = thingUsedHere["offset"].toVariant().toULongLong();
+    if (type == ThingUsedHere::Type::Address) {
+        RVA offset = thingUsedHere.offset;
         dialog.setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
         dialog.setName("label." + QString::number(offset, 16));
     } else {
-        oldName = thingUsedHere.value("name").toString();
+        oldName = thingUsedHere.name;
         dialog.setWindowTitle(tr("Rename %1").arg(oldName));
         dialog.setName(oldName);
     }
+
 
     if (dialog.exec()) {
         QString newName = dialog.getName().trimmed();
         if (!newName.isEmpty()) {
             Core()->cmd("an " + newName + " @ " + QString::number(offset));
 
-            if (type == "address" || type == "flag") {
+            if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Address) {
                 Core()->triggerFlagsChanged();
-            } else if (type == "var") {
+            } else if (type == ThingUsedHere::Type::Var) {
                 Core()->triggerVarsChanged();
-            } else if (type == "function") {
+            } else if (type == ThingUsedHere::Type::Function) {
                 Core()->triggerFunctionRenamed(oldName, newName);
             }
         }

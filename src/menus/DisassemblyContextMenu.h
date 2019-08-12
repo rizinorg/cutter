@@ -10,7 +10,7 @@ class DisassemblyContextMenu : public QMenu
     Q_OBJECT
 
 public:
-    DisassemblyContextMenu(QWidget *parent, MainWindow* mainWindow);
+    DisassemblyContextMenu(QWidget *parent, MainWindow *mainWindow);
     ~DisassemblyContextMenu();
 
 signals:
@@ -101,7 +101,7 @@ private:
     RVA offset;
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
-    MainWindow* mainWindow;
+    MainWindow *mainWindow;
 
     QList<QAction *> anonymousActions;
 
@@ -184,5 +184,18 @@ private:
     void addSetToDataMenu();
     void addEditMenu();
     void addDebugMenu();
+
+    struct ThingUsedHere {
+        QString name;
+        RVA offset;
+        enum class Type {
+            Var,
+            Function,
+            Flag,
+            Address
+        };
+        Type type;
+    };
+    QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 };
 #endif // DISASSEMBLYCONTEXTMENU_H
