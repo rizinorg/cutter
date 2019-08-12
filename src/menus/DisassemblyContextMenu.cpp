@@ -18,7 +18,7 @@
 #include <QApplication>
 #include <QPushButton>
 
-DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow* mainWindow)
+DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
         offset(0),
         canCopy(false),
@@ -27,7 +27,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow* main
     initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
     addAction(&actionCopy);
 
-    initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()), getCopyAddressSequence());
+    initAction(&actionCopyAddr, tr("Copy address"), SLOT(on_actionCopyAddr_triggered()),
+               getCopyAddressSequence());
     addAction(&actionCopyAddr);
 
     initAction(&showInSubmenu, tr("Show in"), nullptr);
@@ -112,9 +113,6 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow* main
 
 DisassemblyContextMenu::~DisassemblyContextMenu()
 {
-    for (QAction *action : anonymousActions) {
-        delete action;
-    }
 }
 
 void DisassemblyContextMenu::addSetBaseMenu()
@@ -274,6 +272,40 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
     return result;
 }
 
+void DisassemblyContextMenu::updateTargetMenuActions(const QVector<ThingUsedHere> &targets)
+{
+    for (auto action : showTargetMenuActions) {
+        removeAction(action);
+        auto menu = action->menu();
+        if (menu) {
+            menu->deleteLater();
+        }
+        action->deleteLater();
+    }
+    showTargetMenuActions.clear();
+    for (auto &target : targets) {
+        QString name;
+        if (target.name.isEmpty()) {
+            name = tr("%1 (used here)").arg(RAddressString(target.offset));
+        } else {
+            name = tr("%1 (%2)").arg(target.name, RAddressString(target.offset));
+        }
+        auto action = new QAction(name, this);
+        showTargetMenuActions.append(action);
+        auto menu = mainWindow->createShowInMenu(this, target.offset);
+        action->setMenu(menu);
+        QAction *copyAddress = new QAction(tr("Copy address"), menu);
+        RVA offset = target.offset;
+        connect(copyAddress, &QAction::triggered, copyAddress, [offset]() {
+            QClipboard *clipboard = QApplication::clipboard();
+            clipboard->setText(RAddressString(offset));
+        });
+        menu->addSeparator();
+        menu->addAction(copyAddress);
+    }
+    insertActions(copySeparator, showTargetMenuActions);
+}
+
 void DisassemblyContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
@@ -402,6 +434,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     } else {
         actionRenameUsedHere.setVisible(false);
     }
+    updateTargetMenuActions(thingsUsedHere);
 
     // Decide to show Reverse jmp option
     showReverseJmpQuery();
@@ -752,7 +785,8 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
     RAnalFunction *fcn = Core()->functionAt(offset);
 
     if (!fcn) {
-        QMessageBox::critical(this, tr("Re-type function local vars"), tr("You must be in a function to define variable types."));
+        QMessageBox::critical(this, tr("Re-type function local vars"),
+                              tr("You must be in a function to define variable types."));
         return;
     }
 
@@ -896,7 +930,7 @@ void DisassemblyContextMenu::setToData(int size, int repeat)
 QAction *DisassemblyContextMenu::addAnonymousAction(QString name, const char *slot,
                                                     QKeySequence keySequence)
 {
-    auto action = new QAction();
+    auto action = new QAction(this);
     addAction(action);
     anonymousActions.append(action);
     initAction(action, name, slot, keySequence);

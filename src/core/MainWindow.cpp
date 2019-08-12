@@ -915,7 +915,7 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
     auto createAddNewWidgetAction = [this, menu, address](QString label, MemoryWidgetType type) {
         QAction *action = new QAction(label, menu);
         connect(action, &QAction::triggered, this, [this, address, type](){
-            addNewMemoryWidget(type, address, true);
+            addNewMemoryWidget(type, address, false);
         });
         menu->addAction(action);
     };

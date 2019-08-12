@@ -166,6 +166,7 @@ private:
     QAction actionSetToDataQword;
 
     QAction showInSubmenu;
+    QList<QAction*> showTargetMenuActions;
 
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
@@ -197,5 +198,7 @@ private:
         Type type;
     };
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
+
+    void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
 };
 #endif // DISASSEMBLYCONTEXTMENU_H
