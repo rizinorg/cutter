@@ -191,6 +191,34 @@ void Configuration::setRecentFolder(const QString &dir)
 }
 
 /**
+ * @brief Get the previously selected io mode for the given file
+ * @param filePath - path to the file whose previously selected IO mode is to be found
+ * @return string representing the IO mode for the file, if it exists in the settings,
+ * empty string otherwise
+ */
+QString Configuration::getIOMode(const QString &filePath)
+{
+    return s.value("ioModes").toHash()[filePath].toString();
+}
+
+/**
+ * @brief Save the IO mode for the given file
+ * If the ioMode is empty, then it is removed from the settings
+ * @param filePath - path to the file whose IO mode is to be saved
+ * @param ioMode - IO mode of the file
+ */
+void Configuration::setIOMode(const QString &filePath, const QString &ioMode)
+{
+    QHash<QString, QVariant> ioModes = s.value("ioModes").toHash();
+    if (ioMode.isEmpty()) {
+        ioModes.remove(filePath);
+    } else {
+        ioModes[filePath] = ioMode;
+    }
+    s.setValue("ioModes", ioModes);
+}
+
+/**
  * @brief Configuration::setFilesTabLastClicked
  * Set the new file dialog last clicked tab
  * @param lastClicked

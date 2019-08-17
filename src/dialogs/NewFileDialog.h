@@ -41,6 +41,8 @@ private slots:
 
     void on_tabWidget_currentChanged(int index);
 
+    void on_newFileEdit_textChanged(const QString &filePath);
+
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);

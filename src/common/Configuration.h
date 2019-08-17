@@ -154,6 +154,9 @@ public:
     QString getSelectedDecompiler();
     void setSelectedDecompiler(const QString &id);
 
+    QString getIOMode(const QString &filePath);
+    void setIOMode(const QString &filePath, const QString &ioMode);
+
 signals:
     void fontsUpdated();
     void colorsUpdated();

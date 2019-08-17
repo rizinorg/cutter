@@ -372,17 +372,26 @@ void NewFileDialog::loadFile(const QString &filename)
     QStringList files = settings.value("recentFileList").toStringList();
     files.removeAll(nativeFn);
     files.prepend(nativeFn);
-    while (files.size() > MaxRecentFiles)
+    while (files.size() > MaxRecentFiles) {
+        // remove file from ioModes settings
+        Config()->setIOMode(QDir::toNativeSeparators(files.last()), "");
+        // remove file from recentFiles settings
         files.removeLast();
+    }
 
     settings.setValue("recentFileList", files);
 
-    // Close dialog and open MainWindow/InitialOptionsDialog
-    QString ioFile = "";
+    // Get value of IO mode
+    QString ioMode = "";
     if (ui->ioPlugin->currentIndex()) {
-        ioFile = ui->ioPlugin->currentText();
+        ioMode = ui->ioPlugin->currentText();
     }
-    ioFile += nativeFn;
+
+    // Set IO mode for the file
+    Config()->setIOMode(nativeFn, ioMode);
+
+    // Close dialog and open MainWindow/InitialOptionsDialog
+    QString ioFile = ioMode + nativeFn;
     InitialOptions options;
     options.filename = ioFile;
     main->openNewFile(options, ui->checkBox_FilelessOpen->isChecked());
@@ -411,4 +420,19 @@ void NewFileDialog::loadShellcode(const QString &shellcode, const int size)
 void NewFileDialog::on_tabWidget_currentChanged(int index)
 {
     Config()->setNewFileLastClicked(index);
+}
+
+/**
+ * @brief Executed whenever the text inside newFileEdit changes
+ * @param filePath - path to the current selected file
+ */
+void NewFileDialog::on_newFileEdit_textChanged(const QString &filePath)
+{
+    QString ioMode = Config()->getIOMode(QDir::toNativeSeparators(filePath));
+    int idx = ui->ioPlugin->findText(ioMode);
+    if (idx != -1) {
+        ui->ioPlugin->setCurrentIndex(idx);
+    } else {
+        ui->ioPlugin->setCurrentIndex(0);
+    }
 }
