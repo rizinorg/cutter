@@ -1,5 +1,5 @@
 #include "ExportsWidget.h"
-#include "ui_ExportsWidget.h"
+#include "ui_ListDockWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "WidgetShortcuts.h"
@@ -7,7 +7,7 @@
 #include <QShortcut>
 
 ExportsModel::ExportsModel(QList<ExportDescription> *exports, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       exports(exports)
 {
 }
@@ -71,10 +71,21 @@ QVariant ExportsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-ExportsProxyModel::ExportsProxyModel(ExportsModel *source_model, QObject *parent)
-    : QSortFilterProxyModel(parent)
+RVA ExportsModel::address(const QModelIndex &index) const
 {
-    setSourceModel(source_model);
+    const ExportDescription &exp = exports->at(index.row());
+    return exp.vaddr;
+}
+
+QString ExportsModel::name(const QModelIndex &index) const
+{
+    const ExportDescription &exp = exports->at(index.row());
+    return exp.name;
+}
+
+ExportsProxyModel::ExportsProxyModel(ExportsModel *source_model, QObject *parent)
+    : AddressableFilterProxyModel(source_model, parent)
+{
     setFilterCaseSensitivity(Qt::CaseInsensitive);
     setSortCaseSensitivity(Qt::CaseInsensitive);
 }
@@ -115,45 +126,21 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 }
 
 ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    ui(new Ui::ExportsWidget),
-    tree(new CutterTreeWidget(this))
+    ListDockWidget(main, action)
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Exports"));
+    setObjectName("ExportsWidget");
 
-    // Add Status Bar footer
-    tree->addStatusBar(ui->verticalLayout);
-    
     exportsModel = new ExportsModel(&exports, this);
     exportsProxyModel = new ExportsProxyModel(exportsModel, this);
-    ui->exportsTreeView->setModel(exportsProxyModel);
-    ui->exportsTreeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
+    setModels(exportsProxyModel);
+    ui->treeView->sortByColumn(ExportsModel::OffsetColumn, Qt::AscendingOrder);
 
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ExportsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
             toggleDockWidget(true); 
             main->updateDockActionChecked(action);
             } );
-
-    // Ctrl-F to show/hide the filter entry
-    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
-    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    // Esc to clear the filter entry
-    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
-    connect(clearShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
-    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-
-    connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)),
-            exportsProxyModel, SLOT(setFilterWildcard(const QString &)));
-    connect(ui->quickFilterView, SIGNAL(filterClosed()), ui->exportsTreeView, SLOT(setFocus()));
-
-    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
-        tree->showItemsNumber(exportsProxyModel->rowCount());
-    });
-    
-    setScrollMode();
 
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshExports()));
 }
@@ -166,22 +153,5 @@ void ExportsWidget::refreshExports()
     exports = Core()->getAllExports();
     exportsModel->endResetModel();
 
-    qhelpers::adjustColumns(ui->exportsTreeView, 3, 0);
-
-    tree->showItemsNumber(exportsProxyModel->rowCount());
-}
-
-
-void ExportsWidget::setScrollMode()
-{
-    qhelpers::setVerticalScrollMode(ui->exportsTreeView);
-}
-
-void ExportsWidget::on_exportsTreeView_doubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    ExportDescription exp = index.data(ExportsModel::ExportDescriptionRole).value<ExportDescription>();
-    Core()->seekAndShow(exp.vaddr);
+    qhelpers::adjustColumns(ui->treeView, 3, 0);
 }

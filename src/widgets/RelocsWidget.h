@@ -7,16 +7,12 @@
 
 #include "CutterDockWidget.h"
 #include "core/Cutter.h"
-#include "CutterTreeWidget.h"
+#include "widgets/ListDockWidget.h"
 
 class MainWindow;
 class RelocsWidget;
 
-namespace Ui {
-class RelocsWidget;
-}
-
-class RelocsModel : public QAbstractTableModel
+class RelocsModel : public AddressableItemModel<QAbstractTableModel>
 {
     Q_OBJECT
 
@@ -31,14 +27,17 @@ public:
 
     RelocsModel(QList<RelocDescription> *relocs, QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+
+    RVA address(const QModelIndex &index) const override;
+    QString name(const QModelIndex &index) const override;
 };
 
-class RelocsProxyModel : public QSortFilterProxyModel
+class RelocsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 
@@ -50,7 +49,7 @@ protected:
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
-class RelocsWidget : public CutterDockWidget
+class RelocsWidget : public ListDockWidget
 {
     Q_OBJECT
 
@@ -59,18 +58,12 @@ public:
     ~RelocsWidget();
 
 private slots:
-    void on_relocsTreeView_doubleClicked(const QModelIndex &index);
     void refreshRelocs();
 
 private:
-    std::unique_ptr<Ui::RelocsWidget> ui;
-
     RelocsModel *relocsModel;
     RelocsProxyModel *relocsProxyModel;
     QList<RelocDescription> relocs;
-    CutterTreeWidget *tree;
-
-    void setScrollMode();
 };
 
 #endif // RELOCSWIDGET_H

@@ -146,6 +146,7 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
     // Esc to clear the filter entry
     QShortcut *clear_shortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     connect(clear_shortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::clearFilter);
+    clear_shortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     // Ctrl-F to show/hide the filter entry
     QShortcut *search_shortcut = new QShortcut(QKeySequence::Find, this);

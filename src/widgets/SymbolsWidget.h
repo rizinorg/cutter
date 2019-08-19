@@ -7,17 +7,15 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
-#include "CutterTreeWidget.h"
+#include "widgets/ListDockWidget.h"
+
 
 class MainWindow;
 class QTreeWidgetItem;
 class SymbolsWidget;
 
-namespace Ui {
-class SymbolsWidget;
-}
 
-class SymbolsModel: public QAbstractListModel
+class SymbolsModel: public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -32,14 +30,17 @@ public:
 
     SymbolsModel(QList<SymbolDescription> *exports, QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+    RVA address(const QModelIndex &index) const override;
+    QString name(const QModelIndex &index) const override;
 };
 
-class SymbolsProxyModel : public QSortFilterProxyModel
+class SymbolsProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 
@@ -52,7 +53,7 @@ protected:
 };
 
 
-class SymbolsWidget : public CutterDockWidget
+class SymbolsWidget : public ListDockWidget
 {
     Q_OBJECT
 
@@ -61,19 +62,12 @@ public:
     ~SymbolsWidget();
 
 private slots:
-    void on_symbolsTreeView_doubleClicked(const QModelIndex &index);
-
     void refreshSymbols();
 
 private:
-    std::unique_ptr<Ui::SymbolsWidget> ui;
-
     QList<SymbolDescription> symbols;
     SymbolsModel *symbolsModel;
     SymbolsProxyModel *symbolsProxyModel;
-    CutterTreeWidget *tree;
-
-    void setScrollMode();
 };
 
 #endif // SYMBOLSWIDGET_H

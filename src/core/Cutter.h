@@ -91,6 +91,13 @@ public:
     void delFlag(RVA addr);
     void delFlag(const QString &name);
     void addFlag(RVA offset, QString name, RVA size);
+    /**
+     * @brief Get nearest flag at or before offset.
+     * @param offset search position
+     * @param flagOffsetOut adress of returned flag
+     * @return flag name
+     */
+    QString nearestFlag(RVA offset, RVA *flagOffsetOut);
     void triggerFlagsChanged();
 
     /* Edition functions */

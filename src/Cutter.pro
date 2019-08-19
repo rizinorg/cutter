@@ -360,7 +360,10 @@ SOURCES += \
     widgets/GraphGridLayout.cpp \
     widgets/HexWidget.cpp \
     common/SelectionHighlight.cpp \
-    common/Decompiler.cpp
+    common/Decompiler.cpp \
+    menus/AddressableItemContextMenu.cpp \
+    common/AddressableItemModel.cpp \
+    widgets/ListDockWidget.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -490,7 +493,10 @@ HEADERS  += \
     widgets/GraphLayout.h \
     widgets/HexWidget.h \
     common/SelectionHighlight.h \
-    common/Decompiler.h
+    common/Decompiler.h \
+    menus/AddressableItemContextMenu.h \
+    common/AddressableItemModel.h \
+    widgets/ListDockWidget.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
@@ -506,17 +512,11 @@ FORMS    += \
     dialogs/InitialOptionsDialog.ui \
     dialogs/EditFunctionDialog.ui \
     core/MainWindow.ui \
-    widgets/CommentsWidget.ui \
     widgets/ConsoleWidget.ui \
     widgets/Dashboard.ui \
     widgets/EntrypointWidget.ui \
     widgets/FlagsWidget.ui \
-    widgets/ExportsWidget.ui \
-    widgets/FunctionsWidget.ui \
-    widgets/ImportsWidget.ui \
-    widgets/RelocsWidget.ui \
     widgets/StringsWidget.ui \
-    widgets/SymbolsWidget.ui \
     widgets/HexdumpWidget.ui \
     dialogs/SaveProjectDialog.ui \
     dialogs/preferences/PreferencesDialog.ui \
@@ -527,7 +527,6 @@ FORMS    += \
     widgets/ClassesWidget.ui \
     widgets/VTablesWidget.ui \
     widgets/TypesWidget.ui \
-    widgets/HeadersWidget.ui \
     widgets/SearchWidget.ui \
     dialogs/R2PluginsDialog.ui \
     dialogs/VersionInfoDialog.ui \
@@ -554,7 +553,8 @@ FORMS    += \
     widgets/SdbWidget.ui \
     dialogs/LinkTypeDialog.ui \
     widgets/ColorPicker.ui \
-    dialogs/preferences/ColorThemeEditDialog.ui
+    dialogs/preferences/ColorThemeEditDialog.ui \
+    widgets/ListDockWidget.ui
 
 RESOURCES += \
     resources.qrc \

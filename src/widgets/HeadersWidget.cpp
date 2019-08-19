@@ -1,10 +1,10 @@
 #include "HeadersWidget.h"
-#include "ui_HeadersWidget.h"
+#include "ui_ListDockWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
 HeadersModel::HeadersModel(QList<HeaderDescription> *headers, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       headers(headers)
 {
 }
@@ -64,10 +64,21 @@ QVariant HeadersModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
-HeadersProxyModel::HeadersProxyModel(HeadersModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+RVA HeadersModel::address(const QModelIndex &index) const
 {
-    setSourceModel(sourceModel);
+    const HeaderDescription &header = headers->at(index.row());
+    return header.vaddr;
+}
+
+QString HeadersModel::name(const QModelIndex &index) const
+{
+    const HeaderDescription &header = headers->at(index.row());
+    return header.name;
+}
+
+HeadersProxyModel::HeadersProxyModel(HeadersModel *sourceModel, QObject *parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
+{
 }
 
 bool HeadersProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
@@ -99,17 +110,18 @@ bool HeadersProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
 }
 
 HeadersWidget::HeadersWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
-    ui(new Ui::HeadersWidget)
+    ListDockWidget(main, action)
 {
-    ui->setupUi(this);
+    setWindowTitle(tr("Headers"));
+    setObjectName("HeadersWidget");
 
     headersModel = new HeadersModel(&headers, this);
     headersProxyModel = new HeadersProxyModel(headersModel, this);
-    ui->headersTreeView->setModel(headersProxyModel);
-    ui->headersTreeView->sortByColumn(HeadersModel::OffsetColumn, Qt::AscendingOrder);
+    setModels(headersProxyModel);
+    ui->treeView->sortByColumn(HeadersModel::OffsetColumn, Qt::AscendingOrder);
 
-    setScrollMode();
+    ui->quickFilterView->closeFilter();
+    showCount(false);
 
     connect(Core(), &CutterCore::refreshAll, this, &HeadersWidget::refreshHeaders);
 }
@@ -122,17 +134,6 @@ void HeadersWidget::refreshHeaders()
     headers = Core()->getAllHeaders();
     headersModel->endResetModel();
 
-    ui->headersTreeView->resizeColumnToContents(0);
-    ui->headersTreeView->resizeColumnToContents(1);
-}
-
-void HeadersWidget::setScrollMode()
-{
-    qhelpers::setVerticalScrollMode(ui->headersTreeView);
-}
-
-void HeadersWidget::on_headersTreeView_doubleClicked(const QModelIndex &index)
-{
-    HeaderDescription item = index.data(HeadersModel::HeaderDescriptionRole).value<HeaderDescription>();
-    Core()->seekAndShow(item.vaddr);
+    ui->treeView->resizeColumnToContents(0);
+    ui->treeView->resizeColumnToContents(1);
 }
