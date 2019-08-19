@@ -442,8 +442,10 @@ void HexWidget::mousePressEvent(QMouseEvent *event)
 void HexWidget::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        if (selection.isEmpty())
+        if (selection.isEmpty()) {
             selection.init(cursor.address);
+            cursorEnabled = true;
+        }
         updatingSelection = false;
     }
 }
