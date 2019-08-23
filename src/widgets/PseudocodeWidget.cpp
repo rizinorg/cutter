@@ -134,7 +134,7 @@ void PseudocodeWidget::refreshPseudocode()
 
 void PseudocodeWidget::decompilerSelected()
 {
-    Configuration().setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
+    Config()->setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
 }
 
 void PseudocodeWidget::connectCursorPositionChanged(bool disconnect)
