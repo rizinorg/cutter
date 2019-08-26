@@ -5,6 +5,7 @@
 
 #include "core/Cutter.h"
 #include "MemoryDockWidget.h"
+#include "Decompiler.h"
 
 namespace Ui {
 class PseudocodeWidget;
@@ -41,10 +42,7 @@ private:
 
     QSyntaxHighlighter *syntaxHighlighter;
 
-    /**
-     * Index of all lines that are currently displayed, ordered by the position in the text
-     */
-    QList<DecompiledCodeTextLine> textLines;
+    AnnotatedCode code;
 
     bool seekFromCursor = false;
 
@@ -53,17 +51,6 @@ private:
     void updateSelection();
     void connectCursorPositionChanged(bool disconnect);
     void updateCursorPosition();
-
-    /**
-     * @return Iterator to the first line that is after position or last if not found.
-     */
-    QList<DecompiledCodeTextLine>::iterator findLine(int position);
-
-    /**
-     * @return Iterator to the first line that is considered to contain offset
-     */
-    QList<DecompiledCodeTextLine>::iterator findLineByOffset(RVA offset);
-    RVA getOffsetAtLine(const QTextCursor &tc);
 
     QString getWindowTitle() const override;
 };
