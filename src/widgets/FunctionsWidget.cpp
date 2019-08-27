@@ -467,7 +467,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     connect(&actionUndefine, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsUndefineTriggered);
 
-    auto itemConextMenu = getItemContextMenu();
+    auto itemConextMenu = ui->treeView->getItemContextMenu();
     itemConextMenu->addSeparator();
     itemConextMenu->addAction(&actionRename);
     itemConextMenu->addAction(&actionUndefine);

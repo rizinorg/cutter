@@ -496,7 +496,8 @@ HEADERS  += \
     common/Decompiler.h \
     menus/AddressableItemContextMenu.h \
     common/AddressableItemModel.h \
-    widgets/ListDockWidget.h
+    widgets/ListDockWidget.h \
+    widgets/AddressableItemList.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
