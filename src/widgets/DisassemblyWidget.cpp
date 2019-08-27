@@ -668,7 +668,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
         return true;
     }
-    return CutterDockWidget::eventFilter(obj, event);
+    return MemoryDockWidget::eventFilter(obj, event);
 }
 
 QString DisassemblyWidget::getWindowTitle() const
