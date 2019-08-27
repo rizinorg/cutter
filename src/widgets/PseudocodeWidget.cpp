@@ -14,27 +14,6 @@
 #include <QObject>
 #include <QTextBlockUserData>
 
-/**
- * Represents a single line of decompiled code as part of the displayed text,
- * including the position inside the QTextDocument
- */
-struct DecompiledCodeTextLine
-{
-    /**
-     * position inside the QTextDocument
-     */
-    int position;
-
-    DecompiledCode::Line line;
-
-    DecompiledCodeTextLine(int position, const DecompiledCode::Line &line)
-    {
-        this->position = position;
-        this->line = line;
-    }
-};
-
-
 PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     MemoryDockWidget(MemoryWidgetType::Pseudocode, main, action),
     mCtxMenu(new DisassemblyContextMenu(this, main)),
@@ -104,24 +83,14 @@ void PseudocodeWidget::doRefresh(RVA addr)
         return;
     }
 
-    DecompiledCode decompiledCode = dec->decompileAt(addr);
-
-    textLines = {};
-    textLines.reserve(decompiledCode.lines.size());
-
-    if (decompiledCode.lines.isEmpty()) {
+    code = dec->decompileAt(addr);
+    if (code.code.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at") + " " + RAddressString(
                                   addr) + " " + tr("(Not a function?)"));
         return;
     } else {
         connectCursorPositionChanged(true);
-        ui->textEdit->document()->clear();
-        QTextCursor cursor(ui->textEdit->document());
-        for (const DecompiledCode::Line &line : decompiledCode.lines) {
-            textLines.append(DecompiledCodeTextLine(cursor.position(), line));
-            // Can't use cursor.block()->setUserData() here, because the Syntax Highlighter will mess it up.
-            cursor.insertText(line.str + "\n");
-        }
+        ui->textEdit->setPlainText(code.code);
         connectCursorPositionChanged(false);
         seekChanged();
     }
@@ -148,7 +117,8 @@ void PseudocodeWidget::connectCursorPositionChanged(bool disconnect)
 
 void PseudocodeWidget::cursorPositionChanged()
 {
-    RVA offset = getOffsetAtLine(ui->textEdit->textCursor());
+    size_t pos = ui->textEdit->textCursor().position();
+    RVA offset = code.OffsetForPosition(pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
@@ -169,59 +139,16 @@ void PseudocodeWidget::seekChanged()
 void PseudocodeWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
+    size_t pos = code.PositionForOffset(offset);
+    if (pos == SIZE_MAX) {
+        return;
+    }
     connectCursorPositionChanged(true);
-
-    auto it = findLineByOffset(offset);
-    if (it != textLines.end()) {
-        // move back if the offset is identical (so we don't land on closing braces for example)
-        while (it != textLines.begin()) {
-            auto prev = it - 1;
-            if (prev->line.addr != it->line.addr) {
-                break;
-            }
-            it = prev;
-        }
-        QTextCursor cursor = ui->textEdit->textCursor();
-        cursor.setPosition((*it).position);
-        ui->textEdit->setTextCursor(cursor);
-        updateSelection();
-    }
-
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.setPosition(pos);
+    ui->textEdit->setTextCursor(cursor);
+    updateSelection();
     connectCursorPositionChanged(false);
-}
-
-QList<DecompiledCodeTextLine>::iterator PseudocodeWidget::findLine(int position)
-{
-    return std::upper_bound(textLines.begin(), textLines.end(), position,
-                            [](int pos, const DecompiledCodeTextLine &line) {
-                                return pos < line.position;
-                            });
-}
-
-QList<DecompiledCodeTextLine>::iterator PseudocodeWidget::findLineByOffset(RVA offset)
-{
-    auto it = textLines.begin();
-    auto candidate = it;
-    for (; it != textLines.end(); it++) {
-        RVA lineOffset = it->line.addr;
-        if (lineOffset != RVA_INVALID && lineOffset > offset) {
-            break;
-        }
-        if (candidate->line.addr == RVA_INVALID || (lineOffset != RVA_INVALID && lineOffset > candidate->line.addr)) {
-            candidate = it;
-        }
-    }
-    return candidate;
-}
-
-RVA PseudocodeWidget::getOffsetAtLine(const QTextCursor &tc)
-{
-    auto it = findLine(tc.position());
-    if (it == textLines.begin()) {
-        return RVA_INVALID;
-    }
-    it--;
-    return (*it).line.addr;
 }
 
 void PseudocodeWidget::setupFonts()
@@ -236,20 +163,7 @@ void PseudocodeWidget::updateSelection()
 
     // Highlight the current line
     auto cursor = ui->textEdit->textCursor();
-
-    RVA cursorOffset = getOffsetAtLine(cursor);
-    if (cursorOffset != RVA_INVALID) {
-        for (auto it = findLineByOffset(cursorOffset);
-                it != textLines.end() && it->line.addr != RVA_INVALID && it->line.addr <= cursorOffset;
-                it++) {
-            auto lineCursor = cursor;
-            lineCursor.setPosition(it->position);
-            extraSelections.append(createLineHighlightSelection(lineCursor));
-        }
-    } else {
-        // if the cursor position has no valid offset, just highlight the line
-        extraSelections.append(createLineHighlightSelection(cursor));
-    }
+    extraSelections.append(createLineHighlightSelection(cursor));
 
     // Highlight all the words in the document same as the current one
     cursor.select(QTextCursor::WordUnderCursor);

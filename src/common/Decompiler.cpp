@@ -5,6 +5,42 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+
+ut64 AnnotatedCode::OffsetForPosition(size_t pos) const
+{
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = UT64_MAX;
+    for (const auto &annotation : annotations) {
+        if (annotation.type != CodeAnnotation::Type::Offset || annotation.start > pos || annotation.end <= pos) {
+            continue;
+        }
+        if (closestPos != SIZE_MAX && closestPos >= annotation.start) {
+            continue;
+        }
+        closestPos = annotation.start;
+        closestOffset = annotation.offset.offset;
+    }
+    return closestOffset;
+}
+
+size_t AnnotatedCode::PositionForOffset(ut64 offset) const
+{
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = UT64_MAX;
+    for (const auto &annotation : annotations) {
+        if (annotation.type != CodeAnnotation::Type::Offset || annotation.offset.offset > offset) {
+            continue;
+        }
+        if (closestOffset != UT64_MAX && closestOffset >= annotation.offset.offset) {
+            continue;
+        }
+        closestPos = annotation.start;
+        closestOffset = annotation.offset.offset;
+    }
+    return closestPos;
+}
+
+
 Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
     : QObject(parent),
     id(id),
@@ -22,9 +58,9 @@ bool R2DecDecompiler::isAvailable()
     return Core()->cmdList("e cmd.pdc=?").contains(QStringLiteral("pdd"));
 }
 
-DecompiledCode R2DecDecompiler::decompileAt(RVA addr)
+AnnotatedCode R2DecDecompiler::decompileAt(RVA addr)
 {
-    DecompiledCode code;
+    AnnotatedCode code = {};
     QString s;
 
     QJsonObject json = Core()->cmdj("pddj @ " + QString::number(addr)).object();
@@ -36,31 +72,32 @@ DecompiledCode R2DecDecompiler::decompileAt(RVA addr)
         if (!line.isString()) {
             continue;
         }
-        code.lines.append(DecompiledCode::Line(line.toString()));
+        code.code.append(line.toString() + "\n");
     }
 
     auto linesArray = json["lines"].toArray();
-    code.lines.reserve(code.lines.size() + linesArray.size());
     for (const auto &line : linesArray) {
         QJsonObject lineObject = line.toObject();
         if (lineObject.isEmpty()) {
             continue;
         }
-        DecompiledCode::Line codeLine;
-        codeLine.str = lineObject["str"].toString();
+        CodeAnnotation annotation = {};
+        annotation.type = CodeAnnotation::Type::Offset;
+        annotation.start = code.code.length();
+        code.code.append(lineObject["str"].toString() + "\n");
+        annotation.end = code.code.length();
         bool ok;
-        codeLine.addr = lineObject["offset"].toVariant().toULongLong(&ok);
-        if (!ok) {
-            codeLine.addr = RVA_INVALID;
+        annotation.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
+        if (ok) {
+            code.annotations.push_back(annotation);
         }
-        code.lines.append(codeLine);
     }
 
     for (const auto &line : json["errors"].toArray()) {
         if (!line.isString()) {
             continue;
         }
-        code.lines.append(DecompiledCode::Line(line.toString()));
+        code.code.append(line.toString() + "\n");
     }
 
     return code;

@@ -6,34 +6,37 @@
 #include <QString>
 #include <QObject>
 
+struct CodeAnnotation
+{
+    size_t start;
+    size_t end;
+
+    enum class Type { Offset };
+    Type type;
+
+    union
+    {
+        struct
+        {
+            ut64 offset;
+        } offset;
+    };
+};
+
 /**
  * Describes the result of a Decompilation Process with optional metadata
  */
-struct DecompiledCode {
+struct AnnotatedCode
+{
     /**
-     * A single line of decompiled code
+     * The entire decompiled code
      */
-    struct Line
-    {
-        QString str;
+    QString code;
 
-        /**
-         * Offset of the original instruction
-         */
-        RVA addr;
+    QList<CodeAnnotation> annotations;
 
-        Line()
-        {
-            this->addr = RVA_INVALID;
-        }
-
-        explicit Line(const QString &str, RVA addr = RVA_INVALID)
-        {
-            this->str = str;
-            this->addr = addr;
-        }
-    };
-    QList<Line> lines = {};
+    ut64 OffsetForPosition(size_t pos) const;
+    size_t PositionForOffset(ut64 offset) const;
 };
 
 /**
@@ -54,7 +57,7 @@ public:
     QString getId() const   { return id; }
     QString getName() const { return name; }
 
-    virtual DecompiledCode decompileAt(RVA addr) =0;
+    virtual AnnotatedCode decompileAt(RVA addr) =0;
 };
 
 class R2DecDecompiler: public Decompiler
@@ -63,7 +66,7 @@ class R2DecDecompiler: public Decompiler
 
 public:
     explicit R2DecDecompiler(QObject *parent = nullptr);
-    DecompiledCode decompileAt(RVA addr) override;
+    AnnotatedCode decompileAt(RVA addr) override;
 
     static bool isAvailable();
 };
