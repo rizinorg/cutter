@@ -163,20 +163,7 @@ void PseudocodeWidget::updateSelection()
 
     // Highlight the current line
     auto cursor = ui->textEdit->textCursor();
-
-    /*RVA cursorOffset = getOffsetAtLine(cursor);
-    if (cursorOffset != RVA_INVALID) {
-        for (auto it = findLineByOffset(cursorOffset);
-                it != textLines.end() && it->line.addr != RVA_INVALID && it->line.addr <= cursorOffset;
-                it++) {
-            auto lineCursor = cursor;
-            lineCursor.setPosition(it->position);
-            extraSelections.append(createLineHighlightSelection(lineCursor));
-        }
-    } else {*/
-        // if the cursor position has no valid offset, just highlight the line
-        extraSelections.append(createLineHighlightSelection(cursor));
-    //}
+    extraSelections.append(createLineHighlightSelection(cursor));
 
     // Highlight all the words in the document same as the current one
     cursor.select(QTextCursor::WordUnderCursor);
