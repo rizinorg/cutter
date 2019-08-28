@@ -51,6 +51,7 @@ Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
 R2DecDecompiler::R2DecDecompiler(QObject *parent)
     : Decompiler("r2dec", "r2dec", parent)
 {
+    task = nullptr;
 }
 
 bool R2DecDecompiler::isAvailable()
@@ -58,47 +59,59 @@ bool R2DecDecompiler::isAvailable()
     return Core()->cmdList("e cmd.pdc=?").contains(QStringLiteral("pdd"));
 }
 
-AnnotatedCode R2DecDecompiler::decompileAt(RVA addr)
+void R2DecDecompiler::decompileAt(RVA addr)
 {
-    AnnotatedCode code = {};
-    QString s;
-
-    QJsonObject json = Core()->cmdj("pddj @ " + QString::number(addr)).object();
-    if (json.isEmpty()) {
-        return code;
+    if (task) {
+        return;
     }
 
-    for (const auto &line : json["log"].toArray()) {
-        if (!line.isString()) {
-            continue;
-        }
-        code.code.append(line.toString() + "\n");
-    }
+    task = new R2Task("pddj @ " + QString::number(addr));
+    connect(task, &R2Task::finished, this, [this]() {
+        AnnotatedCode code = {};
+        QString s;
 
-    auto linesArray = json["lines"].toArray();
-    for (const auto &line : linesArray) {
-        QJsonObject lineObject = line.toObject();
-        if (lineObject.isEmpty()) {
-            continue;
+        QJsonObject json = task->getResultJson().object();
+        delete task;
+        task = nullptr;
+        if (json.isEmpty()) {
+            code.code = tr("Failed to parse JSON from r2dec");
+            emit finished(code);
+            return;
         }
-        CodeAnnotation annotation = {};
-        annotation.type = CodeAnnotation::Type::Offset;
-        annotation.start = code.code.length();
-        code.code.append(lineObject["str"].toString() + "\n");
-        annotation.end = code.code.length();
-        bool ok;
-        annotation.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
-        if (ok) {
-            code.annotations.push_back(annotation);
-        }
-    }
 
-    for (const auto &line : json["errors"].toArray()) {
-        if (!line.isString()) {
-            continue;
+        for (const auto &line : json["log"].toArray()) {
+            if (!line.isString()) {
+                continue;
+            }
+            code.code.append(line.toString() + "\n");
         }
-        code.code.append(line.toString() + "\n");
-    }
 
-    return code;
+        auto linesArray = json["lines"].toArray();
+        for (const auto &line : linesArray) {
+            QJsonObject lineObject = line.toObject();
+            if (lineObject.isEmpty()) {
+                continue;
+            }
+            CodeAnnotation annotation = {};
+            annotation.type = CodeAnnotation::Type::Offset;
+            annotation.start = code.code.length();
+            code.code.append(lineObject["str"].toString() + "\n");
+            annotation.end = code.code.length();
+            bool ok;
+            annotation.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
+            if (ok) {
+                code.annotations.push_back(annotation);
+            }
+        }
+
+        for (const auto &line : json["errors"].toArray()) {
+            if (!line.isString()) {
+                continue;
+            }
+            code.code.append(line.toString() + "\n");
+        }
+
+        emit finished(code);
+    });
+    task->startTask();
 }

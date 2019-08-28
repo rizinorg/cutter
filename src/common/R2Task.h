@@ -23,6 +23,7 @@ public:
     void joinTask();
 
     QString getResult();
+    QJsonDocument getResultJson();
     const char *getResultRaw();
 
 signals:

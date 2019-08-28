@@ -36,11 +36,13 @@ private slots:
     void decompilerSelected();
     void cursorPositionChanged();
     void seekChanged();
+    void decompilationFinished(AnnotatedCode code);
 
 private:
     std::unique_ptr<Ui::PseudocodeWidget> ui;
 
     QSyntaxHighlighter *syntaxHighlighter;
+    bool decompilerSelectionEnabled;
 
     AnnotatedCode code;
 

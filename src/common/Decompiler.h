@@ -2,6 +2,7 @@
 #define DECOMPILER_H
 
 #include "CutterCommon.h"
+#include "R2Task.h"
 
 #include <QString>
 #include <QObject>
@@ -54,19 +55,30 @@ public:
     Decompiler(const QString &id, const QString &name, QObject *parent = nullptr);
     virtual ~Decompiler() = default;
 
-    QString getId() const   { return id; }
-    QString getName() const { return name; }
+    QString getId() const       { return id; }
+    QString getName() const     { return name; }
+    virtual bool isRunning()    { return false; }
+    virtual bool isCancelable() { return false; }
 
-    virtual AnnotatedCode decompileAt(RVA addr) =0;
+    virtual void decompileAt(RVA addr) =0;
+    virtual void cancel() {}
+
+signals:
+    void finished(AnnotatedCode code);
 };
 
 class R2DecDecompiler: public Decompiler
 {
     Q_OBJECT
 
+private:
+    R2Task *task;
+
 public:
     explicit R2DecDecompiler(QObject *parent = nullptr);
-    AnnotatedCode decompileAt(RVA addr) override;
+    void decompileAt(RVA addr) override;
+
+    bool isRunning() override    { return task != nullptr; }
 
     static bool isAvailable();
 };

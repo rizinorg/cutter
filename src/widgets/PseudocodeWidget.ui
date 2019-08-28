@@ -50,6 +50,20 @@
        </widget>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="progressLayout">
+        <property name="leftMargin">
+         <number>8</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="progressLabel">
+          <property name="text">
+           <string>Decompiling...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
@@ -70,7 +84,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="decompilerComboBox" />
+       <widget class="QComboBox" name="decompilerComboBox"/>
       </item>
      </layout>
     </item>
