@@ -35,9 +35,9 @@ public:
 
     void setModel(AddressableItemModelI *addressableItemModel)
     {
-        this->model = addressableItemModel;
+        this->addressableModel = addressableItemModel;
 
-        BaseListWidget::setModel(this->model->asItemModel());
+        BaseListWidget::setModel(this->addressableModel->asItemModel());
 
         this->connect(this->selectionModel(), &QItemSelectionModel::currentChanged, this,
                       &AddressableItemList<BaseListWidget>::onSelectedItemChanged);
@@ -47,10 +47,7 @@ public:
     void setMainWindow(MainWindow *mainWindow)
     {
         this->mainWindow = mainWindow;
-        if (itemContextMenu) {
-            itemContextMenu->deleteLater();
-        }
-        itemContextMenu = new AddressableItemContextMenu(this, mainWindow);
+        setItemContextMenu(new AddressableItemContextMenu(this, mainWindow));
     }
 
     AddressableItemContextMenu *getItemContextMenu()
@@ -69,8 +66,8 @@ protected:
     {
         auto index = this->currentIndex();
         if (index.isValid() && itemContextMenu) {
-            auto offset = model->address(index);
-            auto name = model->name(index);
+            auto offset = addressableModel->address(index);
+            auto name = addressableModel->name(index);
             itemContextMenu->setTarget(offset, name);
             itemContextMenu->exec(this->mapToGlobal(pt));
         }
@@ -81,7 +78,7 @@ protected:
         if (!index.isValid())
             return;
 
-        auto offset = model->address(index);
+        auto offset = addressableModel->address(index);
         Core()->seekAndShow(offset);
     }
     virtual void onSelectedItemChanged(const QModelIndex &index)
@@ -91,13 +88,13 @@ protected:
     void updateMenuFromItem(const QModelIndex &index)
     {
         if (index.isValid()) {
-            auto offset = model->address(index);
-            auto name = model->name(index);
+            auto offset = addressableModel->address(index);
+            auto name = addressableModel->name(index);
             itemContextMenu->setTarget(offset, name);
         }
     }
 private:
-    AddressableItemModelI *model = nullptr;
+    AddressableItemModelI *addressableModel = nullptr;
     AddressableItemContextMenu *itemContextMenu = nullptr;
     MainWindow *mainWindow = nullptr;
 };
