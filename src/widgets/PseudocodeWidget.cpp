@@ -41,13 +41,14 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         if (dec->getId() == selectedDecompilerId) {
             ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
         }
+        connect(dec, &Decompiler::finished, this, &PseudocodeWidget::decompilationFinished);
     }
 
-    if(decompilers.size() <= 1) {
-        ui->decompilerComboBox->setEnabled(false);
-        if (decompilers.isEmpty()) {
-            ui->textEdit->setPlainText(tr("No Decompiler available."));
-        }
+    decompilerSelectionEnabled = decompilers.size() > 1;
+    ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
+
+    if (decompilers.isEmpty()) {
+        ui->textEdit->setPlainText(tr("No Decompiler available."));
     }
 
     connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &PseudocodeWidget::decompilerSelected);
@@ -61,6 +62,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     connect(mCtxMenu, &QMenu::triggered, this, &PseudocodeWidget::refreshPseudocode);
     addActions(mCtxMenu->actions());
 
+    ui->progressLabel->setVisible(false);
     doRefresh(RVA_INVALID);
 }
 
@@ -74,7 +76,7 @@ void PseudocodeWidget::doRefresh(RVA addr)
     }
 
     Decompiler *dec = Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
-    if (!dec) {
+    if (!dec || dec->isRunning()) {
         return;
     }
 
@@ -83,10 +85,34 @@ void PseudocodeWidget::doRefresh(RVA addr)
         return;
     }
 
-    code = dec->decompileAt(addr);
+    dec->decompileAt(addr);
+    if (dec->isRunning()) {
+        ui->progressLabel->setVisible(true);
+        ui->decompilerComboBox->setEnabled(false);
+        if (dec->isCancelable()) {
+            ui->refreshButton->setText(tr("Cancel"));
+        } else {
+            ui->refreshButton->setEnabled(false);
+        }
+        return;
+    }
+}
+
+void PseudocodeWidget::refreshPseudocode()
+{
+    doRefresh(Core()->getOffset());
+}
+
+void PseudocodeWidget::decompilationFinished(AnnotatedCode code)
+{
+    ui->progressLabel->setVisible(false);
+    ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
+    ui->refreshButton->setText(tr("Refresh"));
+    ui->refreshButton->setEnabled(true);
+
+    this->code = code;
     if (code.code.isEmpty()) {
-        ui->textEdit->setPlainText(tr("Cannot decompile at") + " " + RAddressString(
-                                  addr) + " " + tr("(Not a function?)"));
+        ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         return;
     } else {
         connectCursorPositionChanged(true);
@@ -94,11 +120,6 @@ void PseudocodeWidget::doRefresh(RVA addr)
         connectCursorPositionChanged(false);
         seekChanged();
     }
-}
-
-void PseudocodeWidget::refreshPseudocode()
-{
-    doRefresh(Core()->getOffset());
 }
 
 void PseudocodeWidget::decompilerSelected()

@@ -47,6 +47,11 @@ QString R2Task::getResult()
     return QString::fromUtf8(task->res);
 }
 
+QJsonDocument R2Task::getResultJson()
+{
+    return Core()->parseJson(task->res, task->cmd);
+}
+
 const char *R2Task::getResultRaw()
 {
     return task->res;
