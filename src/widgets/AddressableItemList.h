@@ -41,13 +41,12 @@ public:
 
         this->connect(this->selectionModel(), &QItemSelectionModel::currentChanged, this,
                       &AddressableItemList<BaseListWidget>::onSelectedItemChanged);
-
-        this->addActions(this->getItemContextMenu()->actions());
     }
     void setMainWindow(MainWindow *mainWindow)
     {
         this->mainWindow = mainWindow;
         setItemContextMenu(new AddressableItemContextMenu(this, mainWindow));
+        this->addActions(this->getItemContextMenu()->actions());
     }
 
     AddressableItemContextMenu *getItemContextMenu()
