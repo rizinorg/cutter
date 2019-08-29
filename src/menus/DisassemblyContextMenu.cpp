@@ -671,26 +671,7 @@ void DisassemblyContextMenu::on_actionSetPC_triggered()
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
-    QString oldComment = Core()->cmd("CC." + RAddressString(offset));
-    // Remove newline at the end added by cmd
-    oldComment.remove(oldComment.length() - 1, 1);
-    CommentsDialog c(this);
-
-    if (oldComment.isNull() || oldComment.isEmpty()) {
-        c.setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
-    } else {
-        c.setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
-    }
-
-    c.setComment(oldComment);
-    if (c.exec()) {
-        QString comment = c.getComment();
-        if (comment.isEmpty()) {
-            Core()->delComment(offset);
-        } else {
-            Core()->setComment(offset, comment);
-        }
-    }
+    CommentsDialog::addOrEditComment(offset, this);
 }
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()

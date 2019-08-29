@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <memory>
 
+#include "core/CutterCommon.h"
+
 namespace Ui {
 class CommentsDialog;
 }
@@ -19,6 +21,7 @@ public:
     QString getComment();
     void setComment(const QString &comment);
 
+    static void addOrEditComment(RVA offset, QWidget *parent);
 private slots:
     void on_buttonBox_accepted();
 

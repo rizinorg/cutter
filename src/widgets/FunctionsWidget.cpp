@@ -3,7 +3,6 @@
 
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-#include "dialogs/CommentsDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/XrefsDialog.h"
 #include "common/FunctionsTask.h"

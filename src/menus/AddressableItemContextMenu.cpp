@@ -30,7 +30,8 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
 
     connect(&actionAddcomment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-
+    actionAddcomment.setShortcut({Qt::Key_Semicolon});
+    actionAddcomment.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     addAction(&actionShowInMenu);
     addAction(&actionCopyAddress);
@@ -80,17 +81,7 @@ void AddressableItemContextMenu::onActionShowXrefs()
 
 void AddressableItemContextMenu::onActionAddComment()
 {
-    // Create dialog
-    CommentsDialog c(this);
-
-    if (c.exec()) {
-        // Get new function name
-        QString comment = c.getComment();
-        // Rename function in r2 core
-        Core()->setComment(offset, comment);
-        // Seek to new renamed function
-        Core()->seekAndShow(offset);
-    }
+    CommentsDialog::addOrEditComment(offset, this);
 }
 
 void AddressableItemContextMenu::aboutToShowSlot()
