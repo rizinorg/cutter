@@ -154,6 +154,9 @@ public:
     QString getSelectedDecompiler();
     void setSelectedDecompiler(const QString &id);
 
+    bool getDecompilerAutoRefreshEnabled();
+    void setDecompilerAutoRefreshEnabled(bool enabled);
+
 signals:
     void fontsUpdated();
     void colorsUpdated();

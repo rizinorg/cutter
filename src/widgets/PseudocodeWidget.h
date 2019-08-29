@@ -41,14 +41,29 @@ private slots:
 private:
     std::unique_ptr<Ui::PseudocodeWidget> ui;
 
+    RefreshDeferrer *refreshDeferrer;
+
     QSyntaxHighlighter *syntaxHighlighter;
     bool decompilerSelectionEnabled;
+    bool autoRefreshEnabled;
 
+    /**
+     * True if doRefresh() was called, but the decompiler was still running
+     * This means, after the decompiler has finished, it should be refreshed immediately.
+     */
+    bool decompilerWasBusy;
+
+    RVA decompiledFunctionAddr;
     AnnotatedCode code;
 
     bool seekFromCursor = false;
 
-    void doRefresh(RVA addr);
+    Decompiler *getCurrentDecompiler();
+
+    void setAutoRefresh(bool enabled);
+    void doAutoRefresh();
+    void doRefresh(RVA addr = Core()->getOffset());
+    void updateRefreshButton();
     void setupFonts();
     void updateSelection();
     void connectCursorPositionChanged(bool disconnect);

@@ -652,3 +652,13 @@ void Configuration::setSelectedDecompiler(const QString &id)
 {
     s.setValue("selectedDecompiler", id);
 }
+
+bool Configuration::getDecompilerAutoRefreshEnabled()
+{
+    return s.value("decompilerAutoRefresh", true).toBool();
+}
+
+void Configuration::setDecompilerAutoRefreshEnabled(bool enabled)
+{
+    s.setValue("decompilerAutoRefresh", enabled);
+}
