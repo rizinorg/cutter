@@ -11,7 +11,7 @@
 #include <QTreeWidget>
 
 FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       flags(flags)
 {
 }
@@ -71,14 +71,21 @@ QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
+RVA FlagsModel::address(const QModelIndex &index) const
+{
+   const FlagDescription &flag = flags->at(index.row());
+   return flag.offset;
+}
 
-
-
+QString FlagsModel::name(const QModelIndex &index) const
+{
+    const FlagDescription &flag = flags->at(index.row());
+    return flag.name;
+}
 
 FlagsSortFilterProxyModel::FlagsSortFilterProxyModel(FlagsModel *source_model, QObject *parent)
-    : QSortFilterProxyModel(parent)
+    : AddressableFilterProxyModel(source_model, parent)
 {
-    setSourceModel(source_model);
 }
 
 bool FlagsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
@@ -128,6 +135,7 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
     flags_proxy_model = new FlagsSortFilterProxyModel(flags_model, this);
     connect(ui->filterLineEdit, SIGNAL(textChanged(const QString &)), flags_proxy_model,
             SLOT(setFilterWildcard(const QString &)));
+    ui->flagsTreeView->setMainWindow(mainWindow);
     ui->flagsTreeView->setModel(flags_proxy_model);
     ui->flagsTreeView->sortByColumn(FlagsModel::OFFSET, Qt::AscendingOrder);
 
@@ -151,31 +159,20 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
         tree->showItemsNumber(flags_proxy_model->rowCount());
     });
 
-    auto xRefShortcut = new QShortcut(QKeySequence{Qt::CTRL + Qt::Key_X}, this);
-    xRefShortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    ui->actionXrefs->setShortcut(Qt::CTRL + Qt::Key_X);
-    connect(xRefShortcut, SIGNAL(activated()), this, SLOT(on_actionXrefs_triggered()));
-    
     setScrollMode();
-
-    ui->flagsTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->flagsTreeView, SIGNAL(customContextMenuRequested(const QPoint &)), this,
-            SLOT(showContextMenu(const QPoint &)));
 
     connect(Core(), SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshFlagspaces()));
+
+    auto menu = ui->flagsTreeView->getItemContextMenu();
+    menu->addSeparator();
+    menu->addAction(ui->actionRename);
+    menu->addAction(ui->actionDelete);
+    addAction(ui->actionRename);
+    addAction(ui->actionDelete);
 }
 
 FlagsWidget::~FlagsWidget() {}
-
-void FlagsWidget::on_flagsTreeView_doubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-    Core()->seekAndShow(flag.offset);
-}
 
 void FlagsWidget::on_flagspaceCombo_currentTextChanged(const QString &arg1)
 {
@@ -203,28 +200,6 @@ void FlagsWidget::on_actionDelete_triggered()
                                FlagsModel::FlagDescriptionRole).value<FlagDescription>();
     Core()->delFlag(flag.name);
 }
-
-void FlagsWidget::on_actionXrefs_triggered()
-{
-    FlagDescription flag = ui->flagsTreeView->selectionModel()->currentIndex().data(
-                               FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-
-    XrefsDialog xresfDialog(nullptr);
-    xresfDialog.fillRefsForAddress(flag.offset, RAddressString(flag.offset), false);
-    xresfDialog.exec();
-}
-
-void FlagsWidget::showContextMenu(const QPoint &pt)
-{
-    QMenu *menu = new QMenu(ui->flagsTreeView);
-    menu->addAction(ui->actionRename);
-    menu->addAction(ui->actionDelete);
-    menu->addSeparator();
-    menu->addAction(ui->actionXrefs);
-    menu->exec(ui->flagsTreeView->mapToGlobal(pt));
-    delete menu;
-}
-
 
 void FlagsWidget::flagsChanged()
 {
