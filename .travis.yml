@@ -14,29 +14,44 @@ matrix:
   - name: Linux QMake + Deploy
     os: linux
     env: BUILD_SYSTEM=qmake DEPLOY=1
+    addons:
+      apt:
+        packages:
+         - ninja-build
 
   - name: Linux CMake
     os: linux
     env: BUILD_SYSTEM=cmake
+    addons:
+      apt:
+        packages:
+         - ninja-build
+         - libgraphviz-dev
     before_install:
-      - sudo apt-get update && sudo apt-get install ninja-build libgraphviz-dev # because the apt addon is broken on bionic
       - pyenv global 3.7.1
       - pip install meson
 
   - name: macOS QMake + Deploy
     os: osx
-    osx_image: xcode10.2
+    osx_image: xcode10.3
     env: BUILD_SYSTEM=qmake DEPLOY=1
 
   - name: macOS CMake
     os: osx
-    osx_image: xcode10.2
+    osx_image: xcode10.3
     env: BUILD_SYSTEM=cmake
 
   - name: Documentation + Deploy
     os: linux
     cache: ~
-    before_install: sudo apt-get update && sudo apt-get install doxygen python3-sphinx python3-breathe python3-sphinx-rtd-theme libgraphviz-dev # because the apt addon is broken on bionic
+    addons:
+      apt:
+        packages:
+         - doxygen
+         - python3-sphinx
+         - python3-breathe
+         - python3-sphinx-rtd-theme
+         - libgraphviz-dev
     install: ~
     before_script: ~
     after_success: ~
@@ -160,6 +175,7 @@ after_success:
       chmod +x Cutter.app/Contents/MacOS/Cutter &&
       mkdir -p Cutter.app/Contents/Resources/r2/share &&
       cp -a /usr/local/share/radare2 Cutter.app/Contents/Resources/r2/share/ &&
+      "$TRAVIS_BUILD_DIR/scripts/r2ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/Cutter.app/Contents/Resources/r2" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_INSTALL_PLUGDIR="`pwd`/Cutter.app/Contents/Resources/plugins/native" -DCUTTER_SOURCE_DIR="$TRAVIS_BUILD_DIR" &&
       mkdir image && cp -a Cutter.app image/ &&
       export VOL_NAME="Cutter v${CUTTER_VERSION}" &&
       export DMG_TMP_FILE="Cutter-v$CUTTER_VERSION-x64.macOS-tmp.dmg" &&
@@ -180,6 +196,7 @@ after_success:
       mkdir -p appdir/usr/bin/translations &&
       cp ../src/translations/*.qm appdir/usr/bin/translations/ &&
       "$TRAVIS_BUILD_DIR/scripts/appimage_embed_python.sh" appdir &&
+      "$TRAVIS_BUILD_DIR/scripts/r2ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/appdir/usr" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_SOURCE_DIR="$TRAVIS_BUILD_DIR" &&
       wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage" &&
       chmod a+x linuxdeployqt*.AppImage &&
       rm -fv "$TRAVIS_BUILD_DIR/cutter-deps/qt/plugins/imageformats/libqjp2.so" &&

@@ -57,10 +57,32 @@ void PluginManager::loadPlugins()
     loadPluginsFromDir(QDir(pluginsDirStr));
 
 #ifdef Q_OS_WIN
-    QDir appDir;
-    appDir.mkdir("plugins");
-    if (appDir.cd("plugins")) {
-        loadPluginsFromDir(appDir);
+    {
+        QDir appDir;
+        appDir.mkdir("plugins");
+        if (appDir.cd("plugins")) {
+            loadPluginsFromDir(appDir);
+        }
+    }
+#endif
+
+#ifdef APPIMAGE
+    {
+        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
+        plugdir.cdUp(); // appdir
+        if (plugdir.cd("share/RadareOrg/Cutter/plugins")) { // appdir/share/RadareOrg/Cutter/plugins
+            loadPluginsFromDir(plugdir);
+        }
+    }
+#endif
+
+#ifdef Q_OS_MACOS
+    {
+        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
+        plugdir.cdUp(); // Contents
+        if (plugdir.cd("Resources/plugins")) { // Contents/Resources/plugins
+            loadPluginsFromDir(plugdir);
+        }
     }
 #endif
 }

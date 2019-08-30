@@ -175,6 +175,14 @@ void CutterCore::initialize()
     qInfo() << "Setting r2 prefix =" << prefix.absolutePath() << " for macOS Application Bundle.";
 #endif
     setConfig("dir.prefix", prefix.absolutePath());
+
+    auto pluginsDir = prefix;
+    if (pluginsDir.cd("share/radare2/plugins")) {
+        qInfo() << "Setting r2 plugins dir =" << pluginsDir.absolutePath();
+        setConfig("dir.plugins", pluginsDir.absolutePath());
+    } else {
+        qInfo() << "r2 plugins dir =" << pluginsDir.absolutePath() << "does not exist!";
+    }
 #endif
 
     r_core_loadlibs(this->core_, R_CORE_LOADLIBS_ALL, NULL);

@@ -25,6 +25,10 @@
 
 #include <cstdlib>
 
+#if CUTTER_R2GHIDRA_STATIC
+#include <R2GhidraDecompiler.h>
+#endif
+
 CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc, argv)
 {
     // Setup application information
@@ -123,6 +127,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         Core()->registerDecompiler(new R2DecDecompiler(Core()));
     }
 
+#if CUTTER_R2GHIDRA_STATIC
+    Core()->registerDecompiler(new R2GhidraDecompiler(Core()));
+#endif
+
     bool analLevelSpecified = false;
     int analLevel = 0;
 
@@ -186,6 +194,32 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 #ifdef CUTTER_APPVEYOR_R2DEC
     qputenv("R2DEC_HOME", "radare2\\lib\\plugins\\r2dec-js");
+#endif
+
+#ifdef APPIMAGE
+    {
+        auto sleighHome = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
+        sleighHome.cdUp(); // appdir
+        sleighHome.cd("share/radare2/plugins/r2ghidra_sleigh"); // appdir/share/radare2/plugins/r2ghidra_sleigh
+        Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+    }
+#endif
+
+#ifdef Q_OS_MACOS
+    {
+        auto sleighHome = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
+        sleighHome.cdUp(); // Contents
+        sleighHome.cd("Resources/r2/share/radare2/plugins/r2ghidra_sleigh"); // Contents/Resources/r2/share/radare2/plugins/r2ghidra_sleigh
+        Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+    }
+#endif
+
+#ifdef Q_OS_WIN
+    {
+        auto sleighHome = QDir(QCoreApplication::applicationDirPath());
+        sleighHome.cd("radare2/lib/plugins/r2ghidra_sleigh");
+        Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+    }
 #endif
 }
 
