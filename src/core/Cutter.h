@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QJsonDocument>
 #include <QErrorMessage>
+#include <QMutex>
 
 class AsyncTaskManager;
 class CutterCore;
@@ -21,23 +22,14 @@ class Decompiler;
 
 #define Core() (CutterCore::instance())
 
-class RCoreLocked
-{
-    RCore *core;
-
-public:
-    explicit RCoreLocked(RCore *core);
-    RCoreLocked(const RCoreLocked &) = delete;
-    RCoreLocked &operator=(const RCoreLocked &) = delete;
-    RCoreLocked(RCoreLocked &&);
-    ~RCoreLocked();
-    operator RCore *() const;
-    RCore *operator->() const;
-};
+class RCoreLocked;
 
 class CutterCore: public QObject
 {
     Q_OBJECT
+
+    friend class RCoreLocked;
+    friend class R2Task;
 
 public:
     explicit CutterCore(QObject *parent = nullptr);
@@ -408,7 +400,7 @@ public:
 
     QStringList getSectionList();
 
-    RCoreLocked core() const;
+    RCoreLocked core();
 
     static QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
@@ -460,7 +452,16 @@ signals:
 
 private:
     QString notes;
+
+    /**
+     * Internal reference to the RCore.
+     * NEVER use this directly! Always use the CORE_LOCK(); macro and access it like core->...
+     */
     RCore *core_ = nullptr;
+    QMutex coreMutex;
+    int coreLockDepth = 0;
+    void *coreBed = nullptr;
+
     AsyncTaskManager *asyncTaskManager;
     RVA offsetPriorDebugging = RVA_INVALID;
     QErrorMessage msgBox;
@@ -469,6 +470,20 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
+};
+
+class RCoreLocked
+{
+    CutterCore * const core;
+
+public:
+    explicit RCoreLocked(CutterCore *core);
+    RCoreLocked(const RCoreLocked &) = delete;
+    RCoreLocked &operator=(const RCoreLocked &) = delete;
+    RCoreLocked(RCoreLocked &&);
+    ~RCoreLocked();
+    operator RCore *() const;
+    RCore *operator->() const;
 };
 
 #endif // CUTTER_H
