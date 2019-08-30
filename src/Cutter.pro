@@ -51,6 +51,9 @@ equals(CUTTER_BUNDLE_R2_APPBUNDLE, true)        CONFIG += CUTTER_BUNDLE_R2_APPBU
 !defined(CUTTER_APPVEYOR_R2DEC, var)            CUTTER_APPVEYOR_R2DEC=false
 equals(CUTTER_APPVEYOR_R2DEC, true)             CONFIG += CUTTER_APPVEYOR_R2DEC
 
+!defined(CUTTER_R2GHIDRA_STATIC, var)           CUTTER_R2GHIDRA_STATIC=false
+equals(CUTTER_R2GHIDRA_STATIC, true)            CONFIG += CUTTER_R2GHIDRA_STATIC
+
 CUTTER_ENABLE_CRASH_REPORTS {
     message("Crash report support enabled.")
     DEFINES += CUTTER_ENABLE_CRASH_REPORTS
@@ -238,6 +241,14 @@ macx:CUTTER_BUNDLE_R2_APPBUNDLE {
 CUTTER_APPVEYOR_R2DEC {
     message("Appveyor r2dec")
     DEFINES += CUTTER_APPVEYOR_R2DEC
+}
+
+CUTTER_R2GHIDRA_STATIC {
+    message("Building with static r2ghidra support")
+    DEFINES += CUTTER_R2GHIDRA_STATIC
+    SOURCES += $$R2GHIDRA_SOURCE/cutter-plugin/R2GhidraDecompiler.cpp
+    HEADERS += $$R2GHIDRA_SOURCE/cutter-plugin/R2GhidraDecompiler.h
+    INCLUDEPATH += $$R2GHIDRA_SOURCE/cutter-plugin
 }
 
 QMAKE_SUBSTITUTES += CutterConfig.h.in
