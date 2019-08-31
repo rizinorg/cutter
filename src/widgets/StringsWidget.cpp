@@ -2,7 +2,6 @@
 #include "ui_StringsWidget.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-#include "dialogs/XrefsDialog.h"
 #include "WidgetShortcuts.h"
 
 #include <QClipboard>

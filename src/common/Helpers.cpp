@@ -78,13 +78,26 @@ QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &s
  * @param tw - QTreeWidget instance
  * @return true - setCurrentItem was set, false - tree is empty
  */
-bool selectFirstItem(QTreeWidget* tw)
+bool selectFirstItem(QTreeWidget *tw)
 {
     if (tw->topLevelItem(0)) {
         tw->setCurrentItem(tw->topLevelItem(0));
         return true;
     }
     return false;
+}
+
+
+bool selectFirstItem(QAbstractItemView *itemView)
+{
+    auto selectionModel = itemView->selectionModel();
+    auto model = itemView->model();
+    if (model->hasChildren()) {
+        selectionModel->setCurrentIndex(model->index(0, 0), QItemSelectionModel::SelectCurrent);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void setVerticalScrollMode(QAbstractItemView *tw)
@@ -205,7 +218,8 @@ QByteArray applyColorToSvg(const QString &filename, QColor color)
  * @param setter functor which has to be called
  *   for example we need to set an action icon, the functor can be just [](void* o, const QIcon &icon) { static_cast<QAction*>(o)->setIcon(icon); }
  */
-void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter)
+void setThemeIcons(QList<QPair<void *, QString>> supportedIconsNames,
+                   std::function<void(void *, const QIcon &)> setter)
 {
     if (supportedIconsNames.isEmpty() || !setter) {
         return;

@@ -4,7 +4,6 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 #include "dialogs/RenameDialog.h"
-#include "dialogs/XrefsDialog.h"
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
 #include "menus/AddressableItemContextMenu.h"
@@ -17,6 +16,7 @@
 #include <QShortcut>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QResizeEvent>
 
 namespace {
 

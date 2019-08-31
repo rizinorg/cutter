@@ -39,6 +39,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     addSeparator();
     addAction(&actionAddcomment);
 
+    setHasTarget(hasTarget);
     connect(this, &QMenu::aboutToShow, this, &AddressableItemContextMenu::aboutToShowSlot);
 }
 
@@ -60,6 +61,12 @@ void AddressableItemContextMenu::setTarget(RVA offset, QString name)
 {
     this->offset = offset;
     this->name = name;
+    setHasTarget(true);
+}
+
+void AddressableItemContextMenu::clearTarget()
+{
+    setHasTarget(false);
 }
 
 void AddressableItemContextMenu::onActionCopyAddress()
@@ -70,7 +77,8 @@ void AddressableItemContextMenu::onActionCopyAddress()
 
 void AddressableItemContextMenu::onActionShowXrefs()
 {
-    XrefsDialog dialog(nullptr);
+    emit xrefsTriggered();
+    XrefsDialog dialog(mainWindow, nullptr);
     QString tmpName = name;
     if (name.isEmpty()) {
         name = RAddressString(offset);
@@ -90,5 +98,13 @@ void AddressableItemContextMenu::aboutToShowSlot()
         actionShowInMenu.menu()->deleteLater();
     }
     actionShowInMenu.setMenu(mainWindow->createShowInMenu(this, offset));
+}
+
+void AddressableItemContextMenu::setHasTarget(bool hasTarget)
+{
+    this->hasTarget = hasTarget;
+    for (const auto &action : this->actions()) {
+        action->setEnabled(hasTarget);
+    }
 }
 

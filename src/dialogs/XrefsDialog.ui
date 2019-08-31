@@ -50,7 +50,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="toTreeWidget">
+        <widget class="AddressableItemList&lt;&gt;" name="toTreeWidget">
          <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
@@ -60,7 +60,7 @@
          <property name="indentation">
           <number>5</number>
          </property>
-         <property name="columnCount">
+         <!--property name="columnCount">
           <number>3</number>
          </property>
          <column>
@@ -77,7 +77,7 @@
           <property name="text">
            <string>Type</string>
           </property>
-         </column>
+         </column-->
         </widget>
        </item>
        <item>
@@ -88,7 +88,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QTreeWidget" name="fromTreeWidget">
+        <widget class="AddressableItemList&lt;&gt;" name="fromTreeWidget">
          <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
@@ -98,7 +98,7 @@
          <property name="indentation">
           <number>5</number>
          </property>
-         <property name="columnCount">
+         <!--property name="columnCount">
           <number>3</number>
          </property>
          <column>
@@ -115,7 +115,7 @@
           <property name="text">
            <string>Type</string>
           </property>
-         </column>
+         </column-->
         </widget>
        </item>
       </layout>
@@ -170,6 +170,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>AddressableItemList&lt;&gt;</class>
+   <extends>QTreeView</extends>
+   <header>widgets/AddressableItemList.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

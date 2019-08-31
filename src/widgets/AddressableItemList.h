@@ -90,6 +90,8 @@ protected:
             auto offset = addressableModel->address(index);
             auto name = addressableModel->name(index);
             itemContextMenu->setTarget(offset, name);
+        } else {
+            itemContextMenu->clearTarget();
         }
     }
 private:

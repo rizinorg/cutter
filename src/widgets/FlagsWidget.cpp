@@ -2,7 +2,6 @@
 #include "ui_FlagsWidget.h"
 #include "core/MainWindow.h"
 #include "dialogs/RenameDialog.h"
-#include "dialogs/XrefsDialog.h"
 #include "common/Helpers.h"
 
 #include <QComboBox>
