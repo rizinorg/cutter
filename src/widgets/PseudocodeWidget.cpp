@@ -46,6 +46,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     connect(ui->autoRefreshCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
         setAutoRefresh(state == Qt::Checked);
         Config()->setDecompilerAutoRefreshEnabled(autoRefreshEnabled);
+        doAutoRefresh();
     });
 
     auto decompilers = Core()->getDecompilers();
