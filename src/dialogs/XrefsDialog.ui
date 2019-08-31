@@ -60,24 +60,6 @@
          <property name="indentation">
           <number>5</number>
          </property>
-         <!--property name="columnCount">
-          <number>3</number>
-         </property>
-         <column>
-          <property name="text">
-           <string>Address</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Code</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Type</string>
-          </property>
-         </column-->
         </widget>
        </item>
        <item>
@@ -98,24 +80,6 @@
          <property name="indentation">
           <number>5</number>
          </property>
-         <!--property name="columnCount">
-          <number>3</number>
-         </property>
-         <column>
-          <property name="text">
-           <string>Address</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Code</string>
-          </property>
-         </column>
-         <column>
-          <property name="text">
-           <string>Type</string>
-          </property>
-         </column-->
         </widget>
        </item>
       </layout>

@@ -217,7 +217,7 @@ QVariant XrefModel::data(const QModelIndex &index, int role) const
                 return QString();
             }
         case TYPE:
-            return xref.type; //TODO: convert
+            return xrefTypeString(xref.type);
         }
         return QVariant();
     case FlagDescriptionRole:
