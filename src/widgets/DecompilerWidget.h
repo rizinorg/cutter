@@ -1,5 +1,5 @@
-#ifndef PSEUDOCODEWIDGET_H
-#define PSEUDOCODEWIDGET_H
+#ifndef DecompilerWIDGET_H
+#define DecompilerWIDGET_H
 
 #include <memory>
 
@@ -8,7 +8,7 @@
 #include "Decompiler.h"
 
 namespace Ui {
-class PseudocodeWidget;
+class DecompilerWidget;
 }
 
 class QTextEdit;
@@ -17,29 +17,29 @@ class QTextCursor;
 class DisassemblyContextMenu;
 struct DecompiledCodeTextLine;
 
-class PseudocodeWidget : public MemoryDockWidget
+class DecompilerWidget : public MemoryDockWidget
 {
     Q_OBJECT
 protected:
     DisassemblyContextMenu *mCtxMenu;
 
 public:
-    explicit PseudocodeWidget(MainWindow *main, QAction *action = nullptr);
-    ~PseudocodeWidget();
+    explicit DecompilerWidget(MainWindow *main, QAction *action = nullptr);
+    ~DecompilerWidget();
 public slots:
     void showDisasContextMenu(const QPoint &pt);
 
 private slots:
     void fontsUpdated();
     void colorsUpdatedSlot();
-    void refreshPseudocode();
+    void refreshDecompiler();
     void decompilerSelected();
     void cursorPositionChanged();
     void seekChanged();
     void decompilationFinished(AnnotatedCode code);
 
 private:
-    std::unique_ptr<Ui::PseudocodeWidget> ui;
+    std::unique_ptr<Ui::DecompilerWidget> ui;
 
     RefreshDeferrer *refreshDeferrer;
 
@@ -72,4 +72,4 @@ private:
     QString getWindowTitle() const override;
 };
 
-#endif // PSEUDOCODEWIDGET_H
+#endif // DecompilerWIDGET_H

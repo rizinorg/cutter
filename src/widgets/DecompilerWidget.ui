@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>PseudocodeWidget</class>
- <widget class="QDockWidget" name="PseudocodeWidget">
+ <class>DecompilerWidget</class>
+ <widget class="QDockWidget" name="DecompilerWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Pseudocode</string>
+   <string>Decompiler</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">

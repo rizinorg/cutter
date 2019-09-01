@@ -110,7 +110,7 @@
                 </item>
                 <item>
                  <property name="text">
-                  <string>Pseudocode (asm.pseudo)</string>
+                  <string>Decompiler (asm.pseudo)</string>
                  </property>
                 </item>
                </widget>
