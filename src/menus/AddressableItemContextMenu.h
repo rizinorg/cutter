@@ -21,6 +21,9 @@ public:
 public slots:
     void setOffset(RVA offset);
     void setTarget(RVA offset, QString name = QString());
+    void clearTarget();
+signals:
+    void xrefsTriggered();
 private:
     void onActionCopyAddress();
     void onActionShowXrefs();
@@ -31,7 +34,9 @@ private:
     MainWindow *mainWindow;
 
     RVA offset;
+    bool hasTarget = false;
 protected:
+    void setHasTarget(bool hasTarget);
     QAction actionShowInMenu;
     QAction actionCopyAddress;
     QAction actionShowXrefs;

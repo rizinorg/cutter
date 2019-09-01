@@ -30,7 +30,8 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
 
     connect(&actionAddcomment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-
+    actionAddcomment.setShortcut({Qt::Key_Semicolon});
+    actionAddcomment.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
     addAction(&actionShowInMenu);
     addAction(&actionCopyAddress);
@@ -38,6 +39,7 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     addSeparator();
     addAction(&actionAddcomment);
 
+    setHasTarget(hasTarget);
     connect(this, &QMenu::aboutToShow, this, &AddressableItemContextMenu::aboutToShowSlot);
 }
 
@@ -59,6 +61,12 @@ void AddressableItemContextMenu::setTarget(RVA offset, QString name)
 {
     this->offset = offset;
     this->name = name;
+    setHasTarget(true);
+}
+
+void AddressableItemContextMenu::clearTarget()
+{
+    setHasTarget(false);
 }
 
 void AddressableItemContextMenu::onActionCopyAddress()
@@ -69,7 +77,8 @@ void AddressableItemContextMenu::onActionCopyAddress()
 
 void AddressableItemContextMenu::onActionShowXrefs()
 {
-    XrefsDialog dialog(nullptr);
+    emit xrefsTriggered();
+    XrefsDialog dialog(mainWindow, nullptr);
     QString tmpName = name;
     if (name.isEmpty()) {
         name = RAddressString(offset);
@@ -80,17 +89,7 @@ void AddressableItemContextMenu::onActionShowXrefs()
 
 void AddressableItemContextMenu::onActionAddComment()
 {
-    // Create dialog
-    CommentsDialog c(this);
-
-    if (c.exec()) {
-        // Get new function name
-        QString comment = c.getComment();
-        // Rename function in r2 core
-        Core()->setComment(offset, comment);
-        // Seek to new renamed function
-        Core()->seekAndShow(offset);
-    }
+    CommentsDialog::addOrEditComment(offset, this);
 }
 
 void AddressableItemContextMenu::aboutToShowSlot()
@@ -99,5 +98,13 @@ void AddressableItemContextMenu::aboutToShowSlot()
         actionShowInMenu.menu()->deleteLater();
     }
     actionShowInMenu.setMenu(mainWindow->createShowInMenu(this, offset));
+}
+
+void AddressableItemContextMenu::setHasTarget(bool hasTarget)
+{
+    this->hasTarget = hasTarget;
+    for (const auto &action : this->actions()) {
+        action->setEnabled(hasTarget);
+    }
 }
 

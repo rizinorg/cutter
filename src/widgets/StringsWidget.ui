@@ -31,7 +31,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="CutterTreeView" name="stringsTreeView">
+     <widget class="AddressableItemList&lt;&gt;" name="stringsTreeView">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -71,19 +71,9 @@
     </item>
    </layout>
   </widget>
-  <action name="actionCopy_Address">
-   <property name="text">
-    <string>Copy Address</string>
-   </property>
-  </action>
   <action name="actionCopy_String">
    <property name="text">
     <string>Copy String</string>
-   </property>
-  </action>
-  <action name="actionX_refs">
-   <property name="text">
-    <string>Xrefs</string>
    </property>
   </action>
   <action name="actionFilter">
@@ -94,9 +84,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CutterTreeView</class>
+   <class>AddressableItemList&lt;&gt;</class>
    <extends>QTreeView</extends>
-   <header>widgets/CutterTreeView.h</header>
+   <header>widgets/AddressableItemList.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

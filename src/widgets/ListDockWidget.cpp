@@ -34,14 +34,9 @@ ListDockWidget::ListDockWidget(MainWindow *main, QAction *action, SearchBarPolic
         clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
     }
 
-    connect(ui->treeView, &QTreeView::activated, this, &ListDockWidget::onItemActivated);
-
     qhelpers::setVerticalScrollMode(ui->treeView);
 
-    itemContextMenu = new AddressableItemContextMenu(ui->treeView, mainWindow);
-    ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->treeView, &QWidget::customContextMenuRequested,
-            this, &ListDockWidget::showItemContextMenu);
+    ui->treeView->setMainWindow(mainWindow);
 
     if (searchBarPolicy != SearchBarPolicy::ShowByDefault) {
         ui->quickFilterView->closeFilter();
@@ -59,6 +54,7 @@ void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyMod
 {
     this->objectFilterProxyModel = objectFilterProxyModel;
 
+
     ui->treeView->setModel(objectFilterProxyModel);
 
 
@@ -71,48 +67,4 @@ void ListDockWidget::setModels(AddressableFilterProxyModel *objectFilterProxyMod
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
         tree->showItemsNumber(this->objectFilterProxyModel->rowCount());
     });
-
-    connect(ui->treeView->selectionModel(), &QItemSelectionModel::currentChanged, this,
-            &ListDockWidget::onSelectedItemChanged);
-
-    addActions(this->getItemContextMenu()->actions());
-}
-
-AddressableItemContextMenu *ListDockWidget::getItemContextMenu()
-{
-    return itemContextMenu;
-}
-
-void ListDockWidget::setItemContextMenu(AddressableItemContextMenu *menu)
-{
-    this->itemContextMenu = menu;
-}
-
-void ListDockWidget::showItemContextMenu(const QPoint &pt)
-{
-    auto index = ui->treeView->currentIndex();
-    if (index.isValid()) {
-        auto offset = objectFilterProxyModel->address(index);
-        auto name = objectFilterProxyModel->name(index);
-        itemContextMenu->setTarget(offset, name);
-        itemContextMenu->exec(ui->treeView->mapToGlobal(pt));
-    }
-}
-
-void ListDockWidget::onItemActivated(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    auto offset = objectFilterProxyModel->address(index);
-    Core()->seekAndShow(offset);
-}
-
-void ListDockWidget::onSelectedItemChanged(const QModelIndex &index)
-{
-    if (index.isValid()) {
-        auto offset = objectFilterProxyModel->address(index);
-        auto name = objectFilterProxyModel->name(index);
-        itemContextMenu->setTarget(offset, name);
-    }
 }

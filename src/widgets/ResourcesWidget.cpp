@@ -4,7 +4,7 @@
 #include <QVBoxLayout>
 
 ResourcesModel::ResourcesModel(QList<ResourcesDescription> *resources, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       resources(resources)
 {
 }
@@ -27,11 +27,11 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case NAME:
-            return res.name;
+            return QString::number(res.name);
         case VADDR:
             return RAddressString(res.vaddr);
         case INDEX:
-            return res.index;
+            return QString::number(res.index);
         case TYPE:
             return res.type;
         case SIZE:
@@ -73,25 +73,27 @@ QVariant ResourcesModel::headerData(int section, Qt::Orientation, int role) cons
     }
 }
 
+RVA ResourcesModel::address(const QModelIndex &index) const
+{
+    const ResourcesDescription &res = resources->at(index.row());
+    return res.vaddr;
+}
+
 ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+    ListDockWidget(main, action, ListDockWidget::SearchBarPolicy::HideByDefault)
 {
     setObjectName("ResourcesWidget");
 
     model = new ResourcesModel(&resources, this);
+    filterModel = new AddressableFilterProxyModel(model, this);
+    setModels(filterModel);
+
+    showCount(false);
 
     // Configure widget
     this->setWindowTitle(tr("Resources"));
 
-    // Add resources tree view
-    view = new CutterTreeView(this);
-    view->setModel(model);
-    view->show();
-    this->setWidget(view);
-
     connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshResources()));
-    connect(view, SIGNAL(doubleClicked(const QModelIndex &)), this,
-            SLOT(onDoubleClicked(const QModelIndex &)));
 }
 
 void ResourcesWidget::refreshResources()
@@ -99,13 +101,4 @@ void ResourcesWidget::refreshResources()
     model->beginResetModel();
     resources = Core()->getAllResources();
     model->endResetModel();
-}
-
-void ResourcesWidget::onDoubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    ResourcesDescription res = index.data(Qt::UserRole).value<ResourcesDescription>();
-    Core()->seekAndShow(res.vaddr);
 }
