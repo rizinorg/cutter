@@ -1,5 +1,5 @@
-#ifndef DecompilerWIDGET_H
-#define DecompilerWIDGET_H
+#ifndef DECOMPILERWIDGET_H
+#define DECOMPILERWIDGET_H
 
 #include <memory>
 
@@ -72,4 +72,4 @@ private:
     QString getWindowTitle() const override;
 };
 
-#endif // DecompilerWIDGET_H
+#endif // DECOMPILERWIDGET_H
