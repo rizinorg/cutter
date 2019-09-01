@@ -167,8 +167,6 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     //
     auto menu = ui->stringsTreeView->getItemContextMenu();
     menu->addAction(ui->actionCopy_String);
-    menu->addAction(ui->actionFilter);
-
 
     connect(ui->quickFilterView, SIGNAL(filterTextChanged(const QString &)), proxyModel,
             SLOT(setFilterWildcard(const QString &)));
