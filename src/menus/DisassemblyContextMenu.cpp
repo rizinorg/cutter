@@ -790,7 +790,7 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
         return;
     }
 
-    EditVariablesDialog dialog(Core()->getOffset(), this);
+    EditVariablesDialog dialog(Core()->getOffset(), curHighlightedWord, this);
     dialog.exec();
 }
 
