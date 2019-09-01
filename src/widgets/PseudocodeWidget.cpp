@@ -29,9 +29,24 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
-    // TODO Use RefreshDeferrer and remove the refresh button
+    decompiledFunctionAddr = RVA_INVALID;
+    decompilerWasBusy = false;
+
     connect(ui->refreshButton, &QAbstractButton::clicked, this, [this]() {
-        doRefresh(Core()->getOffset());
+        doRefresh();
+    });
+
+    refreshDeferrer = createRefreshDeferrer([this]() {
+        doRefresh();
+    });
+
+    autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
+    ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
+    setAutoRefresh(autoRefreshEnabled);
+    connect(ui->autoRefreshCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
+        setAutoRefresh(state == Qt::Checked);
+        Config()->setDecompilerAutoRefreshEnabled(autoRefreshEnabled);
+        doAutoRefresh();
     });
 
     auto decompilers = Core()->getDecompilers();
@@ -64,19 +79,66 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
 
     ui->progressLabel->setVisible(false);
     doRefresh(RVA_INVALID);
+
+    connect(Core(), &CutterCore::refreshAll, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::functionRenamed, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::varsChanged, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::functionsChanged, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::flagsChanged, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::commentsChanged, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::instructionChanged, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::refreshCodeViews, this, &PseudocodeWidget::doAutoRefresh);
 }
 
 PseudocodeWidget::~PseudocodeWidget() = default;
 
+Decompiler *PseudocodeWidget::getCurrentDecompiler()
+{
+    return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
+}
+
+void PseudocodeWidget::setAutoRefresh(bool enabled)
+{
+    autoRefreshEnabled = enabled;
+    updateRefreshButton();
+}
+
+void PseudocodeWidget::doAutoRefresh()
+{
+    if (!autoRefreshEnabled) {
+        return;
+    }
+    doRefresh();
+}
+
+void PseudocodeWidget::updateRefreshButton()
+{
+    Decompiler *dec = getCurrentDecompiler();
+    ui->refreshButton->setEnabled(!autoRefreshEnabled && dec && !dec->isRunning());
+    if (dec && dec->isRunning() && dec->isCancelable()) {
+        ui->refreshButton->setText(tr("Cancel"));
+    } else {
+        ui->refreshButton->setText(tr("Refresh"));
+    }
+}
 
 void PseudocodeWidget::doRefresh(RVA addr)
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     if (ui->decompilerComboBox->currentIndex() < 0) {
         return;
     }
 
-    Decompiler *dec = Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
-    if (!dec || dec->isRunning()) {
+    Decompiler *dec = getCurrentDecompiler();
+    if (!dec) {
+        return;
+    }
+
+    if (dec->isRunning()) {
+        decompilerWasBusy = true;
         return;
     }
 
@@ -89,26 +151,21 @@ void PseudocodeWidget::doRefresh(RVA addr)
     if (dec->isRunning()) {
         ui->progressLabel->setVisible(true);
         ui->decompilerComboBox->setEnabled(false);
-        if (dec->isCancelable()) {
-            ui->refreshButton->setText(tr("Cancel"));
-        } else {
-            ui->refreshButton->setEnabled(false);
-        }
+        updateRefreshButton();
         return;
     }
 }
 
 void PseudocodeWidget::refreshPseudocode()
 {
-    doRefresh(Core()->getOffset());
+    doRefresh();
 }
 
 void PseudocodeWidget::decompilationFinished(AnnotatedCode code)
 {
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
-    ui->refreshButton->setText(tr("Refresh"));
-    ui->refreshButton->setEnabled(true);
+    updateRefreshButton();
 
     this->code = code;
     if (code.code.isEmpty()) {
@@ -118,13 +175,21 @@ void PseudocodeWidget::decompilationFinished(AnnotatedCode code)
         connectCursorPositionChanged(true);
         ui->textEdit->setPlainText(code.code);
         connectCursorPositionChanged(false);
-        seekChanged();
+        updateCursorPosition();
+    }
+
+    if (decompilerWasBusy) {
+        decompilerWasBusy = false;
+        doAutoRefresh();
     }
 }
 
 void PseudocodeWidget::decompilerSelected()
 {
     Config()->setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
+    if (autoRefreshEnabled) {
+        doRefresh();
+    }
 }
 
 void PseudocodeWidget::connectCursorPositionChanged(bool disconnect)
@@ -154,6 +219,15 @@ void PseudocodeWidget::seekChanged()
     if (seekFromCursor) {
         return;
     }
+
+    if (autoRefreshEnabled) {
+        auto fcnAddr = Core()->getFunctionStart(Core()->getOffset());
+        if (fcnAddr == RVA_INVALID || fcnAddr != decompiledFunctionAddr) {
+            doRefresh();
+            return;
+        }
+    }
+
     updateCursorPosition();
 }
 
@@ -212,5 +286,5 @@ void PseudocodeWidget::colorsUpdatedSlot()
 void PseudocodeWidget::showDisasContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
-    doRefresh(Core()->getOffset());
+    doRefresh();
 }
