@@ -16,6 +16,7 @@ public:
     explicit EditVariablesDialog(RVA offset, QString initialVar = QString(), QWidget *parent = nullptr);
     ~EditVariablesDialog();
 
+    bool empty() const;
 private slots:
     void applyFields();
     void updateFields();

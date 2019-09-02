@@ -42,6 +42,11 @@ EditVariablesDialog::~EditVariablesDialog()
     delete ui;
 }
 
+bool EditVariablesDialog::empty() const
+{
+    return ui->dropdownLocalVars->count() == 0;
+}
+
 void EditVariablesDialog::applyFields()
 {
     if (ui->dropdownLocalVars->currentIndex() < 0) {
