@@ -844,7 +844,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Show Decompiler rather than assembly</string>
+    <string>Show pseudocode rather than assembly</string>
    </property>
   </action>
   <action name="actionEntrypoints">
