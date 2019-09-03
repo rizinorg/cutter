@@ -147,6 +147,7 @@ void PseudocodeWidget::doRefresh(RVA addr)
         return;
     }
 
+    decompiledFunctionAddr = Core()->getFunctionStart(addr);
     dec->decompileAt(addr);
     if (dec->isRunning()) {
         ui->progressLabel->setVisible(true);
