@@ -714,7 +714,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 {
     RCore *core = Core()->core();
 
-    RenameDialog dialog(this);
+    RenameDialog dialog(nullptr);
 
     RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
     RFlagItem *f = r_flag_get_i (core->flags, offset);
@@ -748,7 +748,7 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 
     auto thingUsedHere = array.first();
 
-    RenameDialog dialog(this);
+    RenameDialog dialog(nullptr);
 
     QString oldName;
     auto type = thingUsedHere.type;
