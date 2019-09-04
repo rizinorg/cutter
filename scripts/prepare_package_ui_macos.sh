@@ -47,10 +47,10 @@ echo '
            close
            open
            update without registering applications
-           delay 2
+           delay 20
      end tell
    end tell
-' | osascript || exit 1
+' | osascript || echo "WARNING: Script for .dmg background failed!!!"
 
 echo "Syncing..."
 sync || exit 1
