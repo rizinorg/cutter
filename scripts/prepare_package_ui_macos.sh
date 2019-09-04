@@ -47,7 +47,7 @@ echo '
            close
            open
            update without registering applications
-           delay 2
+           delay 5
      end tell
    end tell
 ' | osascript || exit 1
