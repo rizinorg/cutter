@@ -309,6 +309,8 @@ void DisassemblyContextMenu::updateTargetMenuActions(const QVector<ThingUsedHere
 void DisassemblyContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
+
+    this->actionSetFunctionVarTypes.setVisible(true);
 }
 
 void DisassemblyContextMenu::setCanCopy(bool enabled)
@@ -409,7 +411,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // Only show retype for local vars if in a function
     if (in_fcn) {
-        actionSetFunctionVarTypes.setVisible(true);
+        auto vars = Core()->getVariables(offset);
+        actionSetFunctionVarTypes.setVisible(!vars.empty());
         actionEditFunction.setVisible(true);
         actionEditFunction.setText(tr("Edit function \"%1\"").arg(in_fcn->name));
     } else {
@@ -771,7 +774,10 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
         return;
     }
 
-    EditVariablesDialog dialog(Core()->getOffset(), this);
+    EditVariablesDialog dialog(Core()->getOffset(), curHighlightedWord, this);
+    if (dialog.empty()) { // don't show the dialog if there are no variables
+        return;
+    }
     dialog.exec();
 }
 
