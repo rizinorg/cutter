@@ -679,7 +679,7 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
-    RenameDialog dialog(this);
+    RenameDialog dialog(mainWindow);
     dialog.setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
     dialog.setPlaceholderText(tr("Function name"));
     if (dialog.exec()) {
@@ -698,7 +698,7 @@ void DisassemblyContextMenu::on_actionRename_triggered()
 {
     RCore *core = Core()->core();
 
-    RenameDialog dialog(this);
+    RenameDialog dialog(mainWindow);
 
     RAnalFunction *fcn = r_anal_get_fcn_at (core->anal, offset, R_ANAL_FCN_TYPE_NULL);
     RFlagItem *f = r_flag_get_i (core->flags, offset);
@@ -732,7 +732,7 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
 
     auto thingUsedHere = array.first();
 
-    RenameDialog dialog(this);
+    RenameDialog dialog(mainWindow);
 
     QString oldName;
     auto type = thingUsedHere.type;
@@ -836,7 +836,7 @@ void DisassemblyContextMenu::on_actionStructureOffsetMenu_triggered(QAction *act
 
 void DisassemblyContextMenu::on_actionLinkType_triggered()
 {
-    LinkTypeDialog dialog(this);
+    LinkTypeDialog dialog(mainWindow);
     if (!dialog.setDefaultAddress(curHighlightedWord)) {
         dialog.setDefaultAddress(RAddressString(offset));
     }
@@ -861,7 +861,7 @@ void DisassemblyContextMenu::on_actionDeleteFunction_triggered()
 void DisassemblyContextMenu::on_actionEditFunction_triggered()
 {
     RCore *core = Core()->core();
-    EditFunctionDialog dialog(this);
+    EditFunctionDialog dialog(mainWindow);
     RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, offset, 0);
 
     if (fcn) {
