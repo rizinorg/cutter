@@ -250,7 +250,7 @@ void AsmOptionsWidget::asmComboBoxChanged(int index)
     // Check if ESIL enabled
     Config()->setConfig("asm.esil", index == 1);
 
-    // Check if Decompiler enabled
+    // Check if Pseudocode enabled
     Config()->setConfig("asm.pseudo", index == 2);
     triggerAsmOptionsChanged();
 }
