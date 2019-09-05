@@ -844,8 +844,8 @@ void MainWindow::updateDockActionsChecked()
 
 MemoryWidgetType MainWindow::getMemoryWidgetTypeToRestore()
 {
-    if (lastMemoryWidget) {
-        return lastMemoryWidget->getType();
+    if (lastSyncMemoryWidget) {
+        return lastSyncMemoryWidget->getType();
     }
     return MemoryWidgetType::Disassembly;
 }
@@ -876,8 +876,8 @@ QString MainWindow::getUniqueObjectName(const QString &widgetType) const
 
 void MainWindow::showMemoryWidget()
 {
-    if (lastMemoryWidget) {
-        if (lastMemoryWidget->tryRaiseMemoryWidget()) {
+    if (lastSyncMemoryWidget) {
+        if (lastSyncMemoryWidget->tryRaiseMemoryWidget()) {
             return;
         }
     }
@@ -929,8 +929,14 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
 void MainWindow::setCurrentMemoryWidget(MemoryDockWidget *memoryWidget)
 {
     if (memoryWidget->getSeekable()->isSynchronized()) {
-        lastMemoryWidget = memoryWidget;
+        lastSyncMemoryWidget = memoryWidget;
     }
+    lastMemoryWidget = memoryWidget;
+}
+
+MemoryDockWidget *MainWindow::getLastMemoryWidget()
+{
+    return lastMemoryWidget;
 }
 
 MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,
@@ -999,6 +1005,9 @@ void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
 void MainWindow::removeWidget(QDockWidget *widget)
 {
     dockWidgets.removeAll(widget);
+    if (lastSyncMemoryWidget == widget) {
+        lastSyncMemoryWidget = nullptr;
+    }
     if (lastMemoryWidget == widget) {
         lastMemoryWidget = nullptr;
     }

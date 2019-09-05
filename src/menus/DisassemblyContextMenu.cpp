@@ -309,6 +309,8 @@ void DisassemblyContextMenu::updateTargetMenuActions(const QVector<ThingUsedHere
 void DisassemblyContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
+
+    this->actionSetFunctionVarTypes.setVisible(true);
 }
 
 void DisassemblyContextMenu::setCanCopy(bool enabled)
@@ -409,7 +411,8 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // Only show retype for local vars if in a function
     if (in_fcn) {
-        actionSetFunctionVarTypes.setVisible(true);
+        auto vars = Core()->getVariables(offset);
+        actionSetFunctionVarTypes.setVisible(!vars.empty());
         actionEditFunction.setVisible(true);
         actionEditFunction.setText(tr("Edit function \"%1\"").arg(in_fcn->name));
     } else {
@@ -671,26 +674,7 @@ void DisassemblyContextMenu::on_actionSetPC_triggered()
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()
 {
-    QString oldComment = Core()->cmd("CC." + RAddressString(offset));
-    // Remove newline at the end added by cmd
-    oldComment.remove(oldComment.length() - 1, 1);
-    CommentsDialog c(mainWindow);
-
-    if (oldComment.isNull() || oldComment.isEmpty()) {
-        c.setWindowTitle(tr("Add Comment at %1").arg(RAddressString(offset)));
-    } else {
-        c.setWindowTitle(tr("Edit Comment at %1").arg(RAddressString(offset)));
-    }
-
-    c.setComment(oldComment);
-    if (c.exec()) {
-        QString comment = c.getComment();
-        if (comment.isEmpty()) {
-            Core()->delComment(offset);
-        } else {
-            Core()->setComment(offset, comment);
-        }
-    }
+    CommentsDialog::addOrEditComment(offset, this);
 }
 
 void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
@@ -790,13 +774,16 @@ void DisassemblyContextMenu::on_actionSetFunctionVarTypes_triggered()
         return;
     }
 
-    EditVariablesDialog dialog(Core()->getOffset(), this);
+    EditVariablesDialog dialog(Core()->getOffset(), curHighlightedWord, this);
+    if (dialog.empty()) { // don't show the dialog if there are no variables
+        return;
+    }
     dialog.exec();
 }
 
 void DisassemblyContextMenu::on_actionXRefs_triggered()
 {
-    XrefsDialog dialog(mainWindow);
+    XrefsDialog dialog(mainWindow, nullptr);
     dialog.fillRefsForAddress(offset, RAddressString(offset), false);
     dialog.exec();
 }

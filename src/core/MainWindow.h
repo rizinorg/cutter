@@ -120,6 +120,7 @@ public:
 
     QMenu *createShowInMenu(QWidget *parent, RVA address);
     void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
+    MemoryDockWidget* getLastMemoryWidget();
 
 public slots:
     void finalizeOpen();
@@ -286,6 +287,7 @@ private:
      */
     QMap<QString, std::function<CutterDockWidget*(MainWindow*, QAction*)>> widgetTypeToConstructorMap;
 
+    MemoryDockWidget* lastSyncMemoryWidget = nullptr;
     MemoryDockWidget* lastMemoryWidget = nullptr;
 };
 

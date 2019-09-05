@@ -3,9 +3,7 @@
 
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
-#include "dialogs/CommentsDialog.h"
 #include "dialogs/RenameDialog.h"
-#include "dialogs/XrefsDialog.h"
 #include "common/FunctionsTask.h"
 #include "common/TempConfig.h"
 #include "menus/AddressableItemContextMenu.h"
@@ -18,6 +16,7 @@
 #include <QShortcut>
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QResizeEvent>
 
 namespace {
 
@@ -467,7 +466,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     connect(&actionUndefine, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsUndefineTriggered);
 
-    auto itemConextMenu = getItemContextMenu();
+    auto itemConextMenu = ui->treeView->getItemContextMenu();
     itemConextMenu->addSeparator();
     itemConextMenu->addAction(&actionRename);
     itemConextMenu->addAction(&actionUndefine);

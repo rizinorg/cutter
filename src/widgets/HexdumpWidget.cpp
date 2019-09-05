@@ -94,6 +94,9 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     initParsing();
     selectHexPreview();
+
+    // apply initial offset
+    refresh(seekable->getOffset());
 }
 
 void HexdumpWidget::onSeekChanged(RVA addr)

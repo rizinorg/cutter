@@ -39,18 +39,10 @@ public:
 protected:
     void setModels(AddressableFilterProxyModel *objectFilterProxyModel);
 
-    AddressableItemContextMenu *getItemContextMenu();
-    void setItemContextMenu(AddressableItemContextMenu *menu);
-    virtual void showItemContextMenu(const QPoint &pt);
-
-    virtual void onItemActivated(const QModelIndex &index);
-    void onSelectedItemChanged(const QModelIndex &index);
-
     std::unique_ptr<Ui::ListDockWidget> ui;
 private:
     AddressableFilterProxyModel *objectFilterProxyModel;
     CutterTreeWidget *tree;
-    AddressableItemContextMenu *itemContextMenu;
     SearchBarPolicy searchBarPolicy;
 };
 

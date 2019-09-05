@@ -496,7 +496,8 @@ HEADERS  += \
     common/Decompiler.h \
     menus/AddressableItemContextMenu.h \
     common/AddressableItemModel.h \
-    widgets/ListDockWidget.h
+    widgets/ListDockWidget.h \
+    widgets/AddressableItemList.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
@@ -536,7 +537,6 @@ FORMS    += \
     widgets/RegistersWidget.ui \
     widgets/BacktraceWidget.ui \
     dialogs/OpenFileDialog.ui \
-    widgets/MemoryMapWidget.ui \
     dialogs/preferences/DebugOptionsWidget.ui \
     widgets/BreakpointWidget.ui \
     dialogs/BreakpointsDialog.ui \

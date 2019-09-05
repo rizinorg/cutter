@@ -1,5 +1,6 @@
 #include "Omnibar.h"
 #include "core/MainWindow.h"
+#include "CutterSeekable.h"
 
 #include <QStringListModel>
 #include <QCompleter>
@@ -69,7 +70,13 @@ void Omnibar::on_gotoEntry_returnPressed()
 {
     QString str = this->text();
     if (!str.isEmpty()) {
-        Core()->seekAndShow(str);
+        if (auto memoryWidget = main->getLastMemoryWidget()) {
+            RVA offset = Core()->math(str);
+            memoryWidget->getSeekable()->seek(offset);
+            memoryWidget->raiseMemoryWidget();
+        } else {
+            Core()->seekAndShow(str);
+        }
     }
 
     this->setText("");

@@ -30,7 +30,7 @@ static const QMap<QString, QString> kSearchBoundariesValues {
    };
 
 SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       search(search)
 {
 }
@@ -119,11 +119,16 @@ QVariant SearchModel::headerData(int section, Qt::Orientation, int role) const
     }
 }
 
+RVA SearchModel::address(const QModelIndex &index) const
+{
+    const SearchDescription &exp = search->at(index.row());
+    return exp.offset;
+}
+
 
 SearchSortFilterProxyModel::SearchSortFilterProxyModel(SearchModel *source_model, QObject *parent)
-    : QSortFilterProxyModel(parent)
+    : AddressableFilterProxyModel(source_model, parent)
 {
-    setSourceModel(source_model);
 }
 
 bool SearchSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
@@ -174,6 +179,7 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
     search_model = new SearchModel(&search, this);
     search_proxy_model = new SearchSortFilterProxyModel(search_model, this);
     ui->searchTreeView->setModel(search_proxy_model);
+    ui->searchTreeView->setMainWindow(main);
     ui->searchTreeView->sortByColumn(SearchModel::OFFSET, Qt::AscendingOrder);
 
     setScrollMode();
@@ -198,16 +204,6 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
 }
 
 SearchWidget::~SearchWidget() {}
-
-void SearchWidget::on_searchTreeView_doubleClicked(const QModelIndex &index)
-{
-    if (!index.isValid())
-        return;
-
-    SearchDescription search = index.data(
-                                   SearchModel::SearchDescriptionRole).value<SearchDescription>();
-    Core()->seekAndShow(search.offset);
-}
 
 void SearchWidget::searchChanged()
 {

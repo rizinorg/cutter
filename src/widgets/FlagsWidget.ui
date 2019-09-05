@@ -31,7 +31,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="CutterTreeView" name="flagsTreeView">
+     <widget class="AddressableItemList&lt;&gt;" name="flagsTreeView">
       <property name="styleSheet">
        <string notr="true">CutterTreeView::item
 {
@@ -99,7 +99,7 @@
     <string>Rename</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+N</string>
+    <string>N</string>
    </property>
   </action>
   <action name="actionDelete">
@@ -110,23 +110,12 @@
     <string>Del</string>
    </property>
   </action>
-  <action name="actionXrefs">
-   <property name="text">
-    <string>X-Refs</string>
-   </property>
-   <property name="toolTip">
-    <string>Show X-Refs of this flag</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+X</string>
-   </property>
-  </action>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CutterTreeView</class>
+   <class>AddressableItemList&lt;&gt;</class>
    <extends>QTreeView</extends>
-   <header>widgets/CutterTreeView.h</header>
+   <header>widgets/AddressableItemList.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
