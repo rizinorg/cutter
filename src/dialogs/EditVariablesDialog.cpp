@@ -23,7 +23,7 @@ EditVariablesDialog::EditVariablesDialog(RVA offset, QString initialVar, QWidget
     int index = 0;
     for (const VariableDescription &var : variables) {
         ui->dropdownLocalVars->addItem(var.name, QVariant::fromValue(var));
-        if (var.name == initialVar) {
+        if (!QString::compare(var.name, initialVar, Qt::CaseInsensitive)) {
             currentItemIndex = index;
         }
         index++;
