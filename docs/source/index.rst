@@ -17,7 +17,7 @@ download the latest release
 `here <https://github.com/radareorg/cutter/releases>`__.
 - OSX: Download the latest ``.dmg`` file.
 - Windows: Download the latest archive.
-- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.8.4-x86_64.AppImage``
+- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.9.0-x86_64.AppImage``
 
 
 Building from sources
