@@ -149,7 +149,7 @@
     <addaction name="actionDashboard"/>
     <addaction name="separator"/>
     <addaction name="actionFunctions"/>
-    <addaction name="actionPseudocode"/>
+    <addaction name="actionDecompiler"/>
     <addaction name="actionOverview"/>
     <addaction name="separator"/>
     <addaction name="actionSearch"/>
@@ -838,7 +838,7 @@
     <string>Show ESIL rather than assembly</string>
    </property>
   </action>
-  <action name="actionDisplay_Pseudocode">
+  <action name="actionDisplay_Decompiler">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -896,12 +896,12 @@
     <string>Graph Overview</string>
    </property>
   </action>
-  <action name="actionPseudocode">
+  <action name="actionDecompiler">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Pseudocode</string>
+    <string>Decompiler</string>
    </property>
   </action>
   <action name="actionConsole">

@@ -64,7 +64,7 @@
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
 #include "widgets/HexdumpWidget.h"
-#include "widgets/PseudocodeWidget.h"
+#include "widgets/DecompilerWidget.h"
 #include "widgets/HexWidget.h"
 
 // Qt Headers
@@ -266,7 +266,7 @@ void MainWindow::initToolBar()
 void MainWindow::initDocks()
 {
     dockWidgets.reserve(20);
-    pseudocodeDock = new PseudocodeWidget(this, ui->actionPseudocode);
+    decompilerDock = new DecompilerWidget(this, ui->actionDecompiler);
     consoleDock = new ConsoleWidget(this, ui->actionConsole);
 
     overviewDock = new OverviewWidget(this, ui->actionOverview);
@@ -780,7 +780,7 @@ void MainWindow::restoreDocks()
 
     // Function | Dashboard
     splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
-    tabifyDockWidget(dashboardDock, pseudocodeDock);
+    tabifyDockWidget(dashboardDock, decompilerDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
     tabifyDockWidget(dashboardDock, flagsDock);
     tabifyDockWidget(dashboardDock, stringsDock);
@@ -953,8 +953,8 @@ MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA addr
     case MemoryWidgetType::Disassembly:
         memoryWidget = new DisassemblyWidget(this);
         break;
-    case MemoryWidgetType::Pseudocode:
-        memoryWidget = new PseudocodeWidget(this);
+    case MemoryWidgetType::Decompiler:
+        memoryWidget = new DecompilerWidget(this);
         break;
     }
     auto seekable = memoryWidget->getSeekable();

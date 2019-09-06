@@ -6,8 +6,8 @@
 
 class CutterSeekable;
 
-/* Disassembly/Graph/Hexdump/Pseudocode view priority */
-enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Pseudocode };
+/* Disassembly/Graph/Hexdump/Decompiler view priority */
+enum class MemoryWidgetType { Disassembly, Graph, Hexdump, Decompiler };
 
 class MemoryDockWidget : public CutterDockWidget
 {

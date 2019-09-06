@@ -48,7 +48,7 @@ class QDockWidget;
 class DisassemblyWidget;
 class GraphWidget;
 class HexdumpWidget;
-class PseudocodeWidget;
+class DecompilerWidget;
 class OverviewWidget;
 
 namespace Ui {
@@ -221,7 +221,7 @@ private:
 
     QList<QDockWidget *> dockWidgets;
     QMultiMap<QAction *, QDockWidget *> dockWidgetsOfAction;
-    PseudocodeWidget   *pseudocodeDock = nullptr;
+    DecompilerWidget   *decompilerDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;

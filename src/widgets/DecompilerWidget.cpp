@@ -1,5 +1,5 @@
-#include "PseudocodeWidget.h"
-#include "ui_PseudocodeWidget.h"
+#include "DecompilerWidget.h"
+#include "ui_DecompilerWidget.h"
 #include "menus/DisassemblyContextMenu.h"
 
 #include "common/Configuration.h"
@@ -14,10 +14,10 @@
 #include <QObject>
 #include <QTextBlockUserData>
 
-PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(MemoryWidgetType::Pseudocode, main, action),
+DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
+    MemoryDockWidget(MemoryWidgetType::Decompiler, main, action),
     mCtxMenu(new DisassemblyContextMenu(this, main)),
-    ui(new Ui::PseudocodeWidget)
+    ui(new Ui::DecompilerWidget)
 {
     ui->setupUi(this);
 
@@ -56,7 +56,7 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         if (dec->getId() == selectedDecompilerId) {
             ui->decompilerComboBox->setCurrentIndex(ui->decompilerComboBox->count() - 1);
         }
-        connect(dec, &Decompiler::finished, this, &PseudocodeWidget::decompilationFinished);
+        connect(dec, &Decompiler::finished, this, &DecompilerWidget::decompilationFinished);
     }
 
     decompilerSelectionEnabled = decompilers.size() > 1;
@@ -66,44 +66,44 @@ PseudocodeWidget::PseudocodeWidget(MainWindow *main, QAction *action) :
         ui->textEdit->setPlainText(tr("No Decompiler available."));
     }
 
-    connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &PseudocodeWidget::decompilerSelected);
+    connect(ui->decompilerComboBox, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &DecompilerWidget::decompilerSelected);
     connectCursorPositionChanged(false);
-    connect(Core(), &CutterCore::seekChanged, this, &PseudocodeWidget::seekChanged);
+    connect(Core(), &CutterCore::seekChanged, this, &DecompilerWidget::seekChanged);
     ui->textEdit->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->textEdit, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showDisasContextMenu(const QPoint &)));
 
     // refresh the widget when an action in this menu is triggered
-    connect(mCtxMenu, &QMenu::triggered, this, &PseudocodeWidget::refreshPseudocode);
+    connect(mCtxMenu, &QMenu::triggered, this, &DecompilerWidget::refreshDecompiler);
     addActions(mCtxMenu->actions());
 
     ui->progressLabel->setVisible(false);
     doRefresh(RVA_INVALID);
 
-    connect(Core(), &CutterCore::refreshAll, this, &PseudocodeWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionRenamed, this, &PseudocodeWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::varsChanged, this, &PseudocodeWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::functionsChanged, this, &PseudocodeWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::flagsChanged, this, &PseudocodeWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::commentsChanged, this, &PseudocodeWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::instructionChanged, this, &PseudocodeWidget::doAutoRefresh);
-    connect(Core(), &CutterCore::refreshCodeViews, this, &PseudocodeWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::refreshAll, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::functionRenamed, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::varsChanged, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::functionsChanged, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::flagsChanged, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doAutoRefresh);
+    connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doAutoRefresh);
 }
 
-PseudocodeWidget::~PseudocodeWidget() = default;
+DecompilerWidget::~DecompilerWidget() = default;
 
-Decompiler *PseudocodeWidget::getCurrentDecompiler()
+Decompiler *DecompilerWidget::getCurrentDecompiler()
 {
     return Core()->getDecompilerById(ui->decompilerComboBox->currentData().toString());
 }
 
-void PseudocodeWidget::setAutoRefresh(bool enabled)
+void DecompilerWidget::setAutoRefresh(bool enabled)
 {
     autoRefreshEnabled = enabled;
     updateRefreshButton();
 }
 
-void PseudocodeWidget::doAutoRefresh()
+void DecompilerWidget::doAutoRefresh()
 {
     if (!autoRefreshEnabled) {
         return;
@@ -111,7 +111,7 @@ void PseudocodeWidget::doAutoRefresh()
     doRefresh();
 }
 
-void PseudocodeWidget::updateRefreshButton()
+void DecompilerWidget::updateRefreshButton()
 {
     Decompiler *dec = getCurrentDecompiler();
     ui->refreshButton->setEnabled(!autoRefreshEnabled && dec && !dec->isRunning());
@@ -122,7 +122,7 @@ void PseudocodeWidget::updateRefreshButton()
     }
 }
 
-void PseudocodeWidget::doRefresh(RVA addr)
+void DecompilerWidget::doRefresh(RVA addr)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
@@ -143,7 +143,7 @@ void PseudocodeWidget::doRefresh(RVA addr)
     }
 
     if (addr == RVA_INVALID) {
-        ui->textEdit->setPlainText(tr("Click Refresh to generate Pseudocode from current offset."));
+        ui->textEdit->setPlainText(tr("Click Refresh to generate Decompiler from current offset."));
         return;
     }
 
@@ -157,12 +157,12 @@ void PseudocodeWidget::doRefresh(RVA addr)
     }
 }
 
-void PseudocodeWidget::refreshPseudocode()
+void DecompilerWidget::refreshDecompiler()
 {
     doRefresh();
 }
 
-void PseudocodeWidget::decompilationFinished(AnnotatedCode code)
+void DecompilerWidget::decompilationFinished(AnnotatedCode code)
 {
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
@@ -185,7 +185,7 @@ void PseudocodeWidget::decompilationFinished(AnnotatedCode code)
     }
 }
 
-void PseudocodeWidget::decompilerSelected()
+void DecompilerWidget::decompilerSelected()
 {
     Config()->setSelectedDecompiler(ui->decompilerComboBox->currentData().toString());
     if (autoRefreshEnabled) {
@@ -193,16 +193,16 @@ void PseudocodeWidget::decompilerSelected()
     }
 }
 
-void PseudocodeWidget::connectCursorPositionChanged(bool disconnect)
+void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
 {
     if (disconnect) {
-        QObject::disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this, &PseudocodeWidget::cursorPositionChanged);
+        QObject::disconnect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this, &DecompilerWidget::cursorPositionChanged);
     } else {
-        connect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this, &PseudocodeWidget::cursorPositionChanged);
+        connect(ui->textEdit, &QPlainTextEdit::cursorPositionChanged, this, &DecompilerWidget::cursorPositionChanged);
     }
 }
 
-void PseudocodeWidget::cursorPositionChanged()
+void DecompilerWidget::cursorPositionChanged()
 {
     size_t pos = ui->textEdit->textCursor().position();
     RVA offset = code.OffsetForPosition(pos);
@@ -215,7 +215,7 @@ void PseudocodeWidget::cursorPositionChanged()
     updateSelection();
 }
 
-void PseudocodeWidget::seekChanged()
+void DecompilerWidget::seekChanged()
 {
     if (seekFromCursor) {
         return;
@@ -232,7 +232,7 @@ void PseudocodeWidget::seekChanged()
     updateCursorPosition();
 }
 
-void PseudocodeWidget::updateCursorPosition()
+void DecompilerWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
     size_t pos = code.PositionForOffset(offset);
@@ -247,13 +247,13 @@ void PseudocodeWidget::updateCursorPosition()
     connectCursorPositionChanged(false);
 }
 
-void PseudocodeWidget::setupFonts()
+void DecompilerWidget::setupFonts()
 {
     QFont font = Config()->getFont();
     ui->textEdit->setFont(font);
 }
 
-void PseudocodeWidget::updateSelection()
+void DecompilerWidget::updateSelection()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
@@ -270,21 +270,21 @@ void PseudocodeWidget::updateSelection()
     mCtxMenu->setCurHighlightedWord(searchString);
 }
 
-QString PseudocodeWidget::getWindowTitle() const
+QString DecompilerWidget::getWindowTitle() const
 {
-    return tr("Pseudocode");
+    return tr("Decompiler");
 }
 
-void PseudocodeWidget::fontsUpdated()
+void DecompilerWidget::fontsUpdated()
 {
     setupFonts();
 }
 
-void PseudocodeWidget::colorsUpdatedSlot()
+void DecompilerWidget::colorsUpdatedSlot()
 {
 }
 
-void PseudocodeWidget::showDisasContextMenu(const QPoint &pt)
+void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
     doRefresh();

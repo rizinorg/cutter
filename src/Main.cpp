@@ -35,7 +35,7 @@ static bool migrateSettingsPre18(QSettings &newSettings)
     return true;
 }
 
-#define CUTTER_SETTINGS_VERSION_CURRENT 1
+#define CUTTER_SETTINGS_VERSION_CURRENT 2
 #define CUTTER_SETTINGS_VERSION_KEY     "version"
 
 /*
@@ -50,6 +50,12 @@ static bool migrateSettingsPre18(QSettings &newSettings)
 static void migrateSettingsTo1(QSettings &settings) {
     settings.remove("settings_migrated"); // now handled by version
     settings.remove("updated_custom_themes"); // now handled by theme_version
+}
+
+static void migrateSettingsTo2(QSettings &settings) {
+    QStringList docks = settings.value("docks").toStringList(); // get current list of docks
+    // replace occurences of "PseudocodeWidget" with "DecompilerWidget"
+    settings.setValue("docks", docks.replaceInStrings("PseudocodeWidget", "DecompilerWidget"));
 }
 
 static void initializeSettings()
@@ -71,6 +77,8 @@ static void initializeSettings()
                 switch (v) {
                 case 1:
                     migrateSettingsTo1(settings); break;
+                case 2:
+                    migrateSettingsTo2(settings);
                 default:
                     break;
                 }
