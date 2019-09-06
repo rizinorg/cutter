@@ -149,7 +149,6 @@
     <addaction name="actionDashboard"/>
     <addaction name="separator"/>
     <addaction name="actionFunctions"/>
-    <addaction name="actionHexdump"/>
     <addaction name="actionPseudocode"/>
     <addaction name="actionOverview"/>
     <addaction name="separator"/>
