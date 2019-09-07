@@ -14,7 +14,10 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly) :
     ui(new Ui::TypesInteractionDialog)
 {
     ui->setupUi(this);
+    QFont font = Config()->getFont();
+    ui->plainTextEdit->setFont(font);
     ui->plainTextEdit->setPlainText("");
+    ui->plainTextEdit->setTabStopDistance(4 * QFontMetrics(font).horizontalAdvance(' '));
     syntaxHighLighter = Config()->createSyntaxHighlighter(ui->plainTextEdit->document());
     ui->buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     ui->plainTextEdit->setReadOnly(readOnly);
