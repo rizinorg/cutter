@@ -42,7 +42,7 @@ void MemoryDockWidget::raiseMemoryWidget()
 
 bool MemoryDockWidget::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::FocusIn) {
+    if (mainWindow && event->type() == QEvent::FocusIn) {
         mainWindow->setCurrentMemoryWidget(this);
     }
     return CutterDockWidget::eventFilter(object, event);
