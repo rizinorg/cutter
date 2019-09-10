@@ -87,10 +87,11 @@ class DisassemblerGraphView : public GraphView
     };
 
 public:
-    DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable, MainWindow* mainWindow);
+    DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable, MainWindow *mainWindow);
     ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
-    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
+                           qreal scale) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                                     QPoint pos) override;
@@ -109,6 +110,12 @@ public:
     using EdgeConfigurationMapping = std::map<std::pair<ut64, ut64>, EdgeConfiguration>;
     EdgeConfigurationMapping getEdgeConfigurations();
 
+    /**
+     * @brief keep the current addr of the fcn of Graph
+     * Everytime overview updates its contents, it compares this value with the one in Graph
+     * if they aren't same, then Overview needs to update the pixmap cache.
+     */
+    ut64 currentFcnAddr = RVA_INVALID; // TODO: make this less public
 public slots:
     void refreshView();
     void colorsUpdatedSlot();
@@ -210,7 +217,7 @@ signals:
     void viewZoomed();
     void graphMoved();
     void resized();
-    void nameChanged(const QString& name);
+    void nameChanged(const QString &name);
 
 public:
     bool isGraphEmpty()     { return emptyGraph; }

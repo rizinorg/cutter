@@ -10,6 +10,7 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QPropertyAnimation>
+#include <QSvgGenerator>
 
 #ifndef QT_NO_OPENGL
 #include <QOpenGLContext>
@@ -43,10 +44,13 @@ GraphView::~GraphView()
 }
 
 // Callbacks
-void GraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
+void GraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
+                          qreal scale)
 {
     Q_UNUSED(p);
     Q_UNUSED(block);
+    Q_UNUSED(offset);
+    Q_UNUSED(scale);
     qWarning() << "Draw block not overriden!";
 }
 
@@ -128,11 +132,11 @@ void GraphView::computeGraph(ut64 entry)
     viewport()->update();
 }
 
-QPolygonF GraphView::recalculatePolygon(QPolygonF polygon)
+QPolygonF GraphView::recalculatePolygon(QPolygonF polygon, QPointF offset)
 {
     QPolygonF ret;
     for (int i = 0; i < polygon.size(); i++) {
-        ret << QPointF(polygon[i].x() - offset.x(), polygon[i].y() - offset.y());
+        ret << (polygon[i] - offset);
     }
     return ret;
 }
@@ -302,29 +306,40 @@ void GraphView::paintGraphCache()
         p.setRenderHint(QPainter::Antialiasing);
     }
 
-    int render_width = viewport()->width();
-    int render_height = viewport()->height();
+    paint(p, offset, this->viewport()->rect(), current_scale); //TODO: use correct window
 
+    p.end();
+#ifndef QT_NO_OPENGL
+    delete paintDevice;
+#endif
+}
+
+void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale)
+{
+    QPointF offsetF(offset.x(), offset.y());
     p.setBrush(backgroundColor);
-    p.drawRect(viewport()->rect());
+    p.drawRect(viewport);
     p.setBrush(Qt::black);
 
-    p.scale(current_scale, current_scale);
+    p.scale(scale, scale);
+
+    int render_width = viewport.width();
+    int render_height = viewport.height();
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
-        qreal blockX = block.x * current_scale;
-        qreal blockY = block.y * current_scale;
-        qreal blockWidth = block.width * current_scale;
-        qreal blockHeight = block.height * current_scale;
+        qreal blockX = block.x * scale;
+        qreal blockY = block.y * scale;
+        qreal blockWidth = block.width * scale;
+        qreal blockHeight = block.height * scale;
 
         // Check if block is visible by checking if block intersects with view area
-        if (offset.x() * current_scale < blockX + blockWidth
-                && blockX < offset.x() * current_scale + render_width
-                && offset.y() * current_scale < blockY + blockHeight
-                && blockY < offset.y() * current_scale + render_height) {
-            drawBlock(p, block);
+        if (offset.x() * scale < blockX + blockWidth
+                && blockX < offset.x() * scale + render_width
+                && offset.y() * scale < blockY + blockHeight
+                && blockY < offset.y() * scale + render_height) {
+            drawBlock(p, block, offset, scale);
         }
 
         p.setBrush(Qt::gray);
@@ -336,15 +351,15 @@ void GraphView::paintGraphCache()
             if (edge.polyline.empty()) {
                 continue;
             }
-            QPolygonF polyline = recalculatePolygon(edge.polyline);
+            QPolygonF polyline = recalculatePolygon(edge.polyline, offsetF);
             EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
             QPen pen(ec.color);
             pen.setStyle(ec.lineStyle);
             pen.setWidthF(pen.width() * ec.width_scale);
-            if (scale_thickness_multiplier * ec.width_scale > 1.01 && pen.widthF() * current_scale < 2) {
-                pen.setWidthF(ec.width_scale / current_scale);
+            if (scale_thickness_multiplier * ec.width_scale > 1.01 && pen.widthF() * scale < 2) {
+                pen.setWidthF(ec.width_scale / scale);
             }
-            if (pen.widthF() * current_scale < 2) {
+            if (pen.widthF() * scale < 2) {
                 pen.setWidth(0);
             }
             p.setPen(pen);
@@ -360,7 +375,7 @@ void GraphView::paintGraphCache()
                 QPointF base = tip - dir * 6;
                 arrow << base + 3 * dy;
                 arrow << base - 3 * dy;
-                p.drawConvexPolygon(recalculatePolygon(arrow));
+                p.drawConvexPolygon(recalculatePolygon(arrow, offsetF));
             };
 
             if (!polyline.empty()) {
@@ -371,32 +386,52 @@ void GraphView::paintGraphCache()
                 if (ec.end_arrow) {
                     auto lastPt = edge.polyline.last();
                     QPointF dir(0, -1);
-                    switch(edge.arrow) {
-                        case GraphLayout::GraphEdge::Down:
-                            dir = QPointF(0, 1);
-                            break;
-                        case GraphLayout::GraphEdge::Up:
-                            dir = QPointF(0, -1);
-                            break;
-                        case GraphLayout::GraphEdge::Left:
-                            dir = QPointF(-1, 0);
-                            break;
-                        case GraphLayout::GraphEdge::Right:
-                            dir = QPointF(1, 0);
-                            break;
-                        default:
-                            break;
+                    switch (edge.arrow) {
+                    case GraphLayout::GraphEdge::Down:
+                        dir = QPointF(0, 1);
+                        break;
+                    case GraphLayout::GraphEdge::Up:
+                        dir = QPointF(0, -1);
+                        break;
+                    case GraphLayout::GraphEdge::Left:
+                        dir = QPointF(-1, 0);
+                        break;
+                    case GraphLayout::GraphEdge::Right:
+                        dir = QPointF(1, 0);
+                        break;
+                    default:
+                        break;
                     }
                     drawArrow(lastPt, dir);
                 }
             }
         }
     }
+}
 
+void GraphView::saveAsBitmap(QString path, const char *format)
+{
+    QImage image(width, height, QImage::Format_RGB32);
+    QPainter p;
+    p.begin(&image);
+    paint(p, QPoint(0, 0), image.rect());
     p.end();
-#ifndef QT_NO_OPENGL
-    delete paintDevice;
-#endif
+    if (!image.save(path, format)) {
+        qWarning() << "Could not save image";
+    }
+}
+
+void GraphView::saveAsSvg(QString path)
+{
+    QSvgGenerator generator;
+    generator.setFileName(path);
+    generator.setSize(QSize(width, height));
+    generator.setViewBox(QRect(0, 0, width, height));
+    generator.setTitle("Cutter graph export");
+    QPainter p;
+    p.begin(&generator);
+    paint(p, QPoint(0, 0), QRect(0, 0, width, height));
+    p.end();
 }
 
 
@@ -470,28 +505,30 @@ void GraphView::setGraphLayout(GraphView::Layout layout)
 {
     graphLayout = layout;
     switch (layout) {
-        case Layout::GridNarrow:
-            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Narrow));
-            break;
-        case Layout::GridMedium:
-            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Medium));
-            break;
-        case Layout::GridWide:
-            this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Wide));
-            break;
+    case Layout::GridNarrow:
+        this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Narrow));
+        break;
+    case Layout::GridMedium:
+        this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Medium));
+        break;
+    case Layout::GridWide:
+        this->graphLayoutSystem.reset(new GraphGridLayout(GraphGridLayout::LayoutType::Wide));
+        break;
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        case Layout::GraphvizOrtho:
-            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho));
-            break;
-        case Layout::GraphvizOrthoLR:
-            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho, GraphvizLayout::Direction::LR));
-            break;
-        case Layout::GraphvizPolyline:
-            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline));
-            break;
-        case Layout::GraphvizPolylineLR:
-            this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline, GraphvizLayout::Direction::LR));
-            break;
+    case Layout::GraphvizOrtho:
+        this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho));
+        break;
+    case Layout::GraphvizOrthoLR:
+        this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Ortho,
+                                                         GraphvizLayout::Direction::LR));
+        break;
+    case Layout::GraphvizPolyline:
+        this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline));
+        break;
+    case Layout::GraphvizPolylineLR:
+        this->graphLayoutSystem.reset(new GraphvizLayout(GraphvizLayout::LineType::Polyline,
+                                                         GraphvizLayout::Direction::LR));
+        break;
 #endif
     }
 }

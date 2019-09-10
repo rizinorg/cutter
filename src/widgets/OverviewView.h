@@ -34,6 +34,12 @@ public:
 
     void centreRect();
 
+    /**
+     * @brief keep the current addr of the fcn of Graph
+     * Everytime overview updates its contents, it compares this value with the one in Graph
+     * if they aren't same, then Overview needs to update the pixmap cache.
+     */
+    ut64 currentFcnAddr = RVA_INVALID; // TODO: make this less public
 public slots:
     /**
      * @brief scale and center all nodes in, then run update
@@ -97,7 +103,8 @@ private:
     /**
      * @brief draw the computed blocks passed by Graph
      */
-    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block) override;
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
+                           qreal scale) override;
 
     /**
      * @brief override the edgeConfiguration so as to

@@ -52,10 +52,11 @@ void OverviewView::refreshView()
     viewport()->update();
 }
 
-void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
+void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
+                             qreal scale)
 {
-    int blockX = block.x - getViewOffset().x();
-    int blockY = block.y - getViewOffset().y();
+    int blockX = block.x - offset.x();
+    int blockY = block.y - offset.y();
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);

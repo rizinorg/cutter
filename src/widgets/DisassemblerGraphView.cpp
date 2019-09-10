@@ -8,6 +8,7 @@
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
+#include "dialogs/MultitypeFileSaveDialog.h"
 
 #include <QColorDialog>
 #include <QPainter>
@@ -29,7 +30,8 @@
 
 #include <cmath>
 
-DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* seekable, MainWindow* mainWindow)
+DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
+                                             MainWindow *mainWindow)
     : GraphView(parent),
       mFontMetrics(nullptr),
       blockMenu(new DisassemblyContextMenu(this, mainWindow)),
@@ -105,17 +107,17 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable* se
     contextMenu->addAction(&actionExportGraph);
     static const std::pair<QString, GraphView::Layout> LAYOUT_CONFIG[] = {
         {tr("Grid narrow"), GraphView::Layout::GridNarrow}
-        ,{tr("Grid medium"), GraphView::Layout::GridMedium}
-        ,{tr("Grid wide"), GraphView::Layout::GridWide}
+        , {tr("Grid medium"), GraphView::Layout::GridMedium}
+        , {tr("Grid wide"), GraphView::Layout::GridWide}
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        ,{tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
-        ,{tr("Graphviz polyline LR"), GraphView::Layout::GraphvizPolylineLR}
-        ,{tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
-        ,{tr("Graphviz ortho LR"), GraphView::Layout::GraphvizOrthoLR}
+        , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
+        , {tr("Graphviz polyline LR"), GraphView::Layout::GraphvizPolylineLR}
+        , {tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
+        , {tr("Graphviz ortho LR"), GraphView::Layout::GraphvizOrthoLR}
 #endif
     };
     auto layoutMenu = contextMenu->addMenu(tr("Layout"));
-    QActionGroup* layoutGroup = new QActionGroup(layoutMenu);
+    QActionGroup *layoutGroup = new QActionGroup(layoutMenu);
     for (auto &item : LAYOUT_CONFIG) {
         auto action = layoutGroup->addAction(item.first);
         action->setCheckable(true);
@@ -417,10 +419,11 @@ void DisassemblerGraphView::initFont()
     mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));
 }
 
-void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
+void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
+                                      const QPoint &offset, qreal scale)
 {
-    int blockX = block.x - getViewOffset().x();
-    int blockY = block.y - getViewOffset().y();
+    int blockX = block.x - offset.x();
+    int blockY = block.y - offset.y();
 
     const qreal padding = 2 * charWidth;
 
@@ -528,7 +531,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
                 QColor selectionColor = ConfigColor("wordHighlight");
 
                 p.fillRect(QRectF(blockX + charWidth * 3 + widthBefore, y, highlightWidth,
-                                 charHeight), selectionColor);
+                                  charHeight), selectionColor);
             }
 
             y += int(instr.text.lines.size()) * charHeight;
@@ -552,10 +555,10 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
     }
 
-    qreal render_height = viewport()->size().height();
+    //qreal render_height = viewport()->size().height();
 
     // Stop rendering text when it's too small
-    if (charHeight * getViewScale() * p.device()->devicePixelRatioF() < 4) {
+    if (charHeight * scale * p.device()->devicePixelRatioF() < 4) {
         return;
     }
 
@@ -565,16 +568,16 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
     qreal lineHeightRender = charHeight;
     for (auto &line : db.header_text.lines) {
         qreal lineYRender = y;
-        lineYRender *= getViewScale();
+        lineYRender *= scale;
         // Check if line does NOT intersects with view area
-        if (0 > lineYRender + lineHeightRender
+        /*if (0 > lineYRender + lineHeightRender
                 || render_height < lineYRender) {
             y += charHeight;
             continue;
-        }
+        }*/
 
         RichTextPainter::paintRichText<qreal>(&p, x, y, block.width, charHeight, 0, line,
-                                       mFontMetrics.get());
+                                              mFontMetrics.get());
         y += charHeight;
     }
 
@@ -591,12 +594,12 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
         }
         for (auto &line : instr.text.lines) {
             qreal lineYRender = y;
-            lineYRender *= getViewScale();
-            if (0 > lineYRender + lineHeightRender
+            lineYRender *= scale;
+            /*if (0 > lineYRender + lineHeightRender
                     || render_height < lineYRender) {
                 y += charHeight;
                 continue;
-            }
+            }*/
 
             int rectSize = qRound(charWidth);
             if (rectSize % 2) {
@@ -608,8 +611,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block)
             Q_UNUSED(bpRect);
 
             RichTextPainter::paintRichText<qreal>(&p, x + charWidth, y,
-                                           block.width - charWidth, charHeight, 0, line,
-                                           mFontMetrics.get());
+                                                  block.width - charWidth, charHeight, 0, line,
+                                                  mFontMetrics.get());
             y += charHeight;
 
         }
@@ -1028,29 +1031,59 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 }
 
 
+enum class GraphExportType {
+    Gif, Png, Jpeg, Svg, GVDot, GVJson,
+    GVGif, GVPng, GVJpeg, GVPostScript, GVSvg
+};
+Q_DECLARE_METATYPE(GraphExportType);
+
 void DisassemblerGraphView::on_actionExportGraph_triggered()
 {
-    QStringList filters;
-    filters.append(tr("Graphiz dot (*.dot)"));
-    if (!QStandardPaths::findExecutable("dot").isEmpty()
-            || !QStandardPaths::findExecutable("xdot").isEmpty()) {
-        filters.append(tr("GIF (*.gif)"));
-        filters.append(tr("PNG (*.png)"));
-        filters.append(tr("JPEG (*.jpg)"));
-        filters.append(tr("PostScript (*.ps)"));
-        filters.append(tr("SVG (*.svg)"));
-        filters.append(tr("JSON (*.json)"));
+    QVector<MultitypeFileSaveDialog::TypeDescription> types = {
+        {tr("PNG (*.png)"), "png", QVariant::fromValue(GraphExportType::Png)},
+        {tr("GIF (*.gif)"), "gif", QVariant::fromValue(GraphExportType::Gif)},
+        {tr("JPEG (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::Jpeg)},
+        {tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg)}
+    };
+    bool hasGraphviz = !QStandardPaths::findExecutable("dot").isEmpty()
+                       || !QStandardPaths::findExecutable("xdot").isEmpty();
+    if (hasGraphviz) {
+        types.append({
+            {tr("Graphviz dot (*.dot)"), "dot", QVariant::fromValue(GraphExportType::GVDot)},
+            {tr("Graphviz json (*.json)"), "json", QVariant::fromValue(GraphExportType::GVJson)},
+            {tr("Graphviz gif (*.gif)"), "gif", QVariant::fromValue(GraphExportType::GVGif)},
+            {tr("Graphviz png (*.png)"), "png", QVariant::fromValue(GraphExportType::GVPng)},
+            {tr("Graphviz jpg (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::GVJpeg)},
+            {tr("Graphviz post script (*.ps)"), "ps", QVariant::fromValue(GraphExportType::GVPostScript)},
+            {tr("Graphviz svg (*.svg)"), "svg", QVariant::fromValue(GraphExportType::GVSvg)}
+        });
     }
 
-    QFileDialog dialog(this, tr("Export Graph"));
-    dialog.setAcceptMode(QFileDialog::AcceptSave);
-    dialog.setFileMode(QFileDialog::AnyFile);
-    dialog.setNameFilters(filters);
+    MultitypeFileSaveDialog dialog(this, tr("Export Graph"));
+    dialog.setTypes(types);
     dialog.selectFile("graph");
-    dialog.setDefaultSuffix("dot");
     if (!dialog.exec())
         return;
-    int startIdx = dialog.selectedNameFilter().lastIndexOf("*.") + 2;
+
+    auto selectedType = dialog.selectedType();
+    if (!selectedType.data.canConvert<GraphExportType>()) {
+        qWarning() << "Bad selected type, should not happen.";
+        return;
+    }
+    QString filePath = dialog.selectedFiles().first();
+    switch (selectedType.data.value<GraphExportType>()) {
+    case GraphExportType::Png:
+    case GraphExportType::Gif:
+    case GraphExportType::Jpeg:
+        this->saveAsBitmap(filePath);
+        break;
+    case GraphExportType::Svg:
+        this->saveAsSvg(filePath);
+        break;
+    }
+
+    //TODO: handle graphviz export
+    /*int startIdx = dialog.selectedNameFilter().lastIndexOf("*.") + 2;
     int count = dialog.selectedNameFilter().length() - startIdx - 1;
     QString format = dialog.selectedNameFilter().mid(startIdx, count);
     QString fileName = dialog.selectedFiles()[0];
@@ -1066,7 +1099,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmd("agfd $FB");
+    fileOut << Core()->cmd("agfd $FB");*/
 }
 
 void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
