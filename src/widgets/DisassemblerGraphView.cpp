@@ -1080,26 +1080,29 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     case GraphExportType::Svg:
         this->saveAsSvg(filePath);
         break;
-    }
 
-    //TODO: handle graphviz export
-    /*int startIdx = dialog.selectedNameFilter().lastIndexOf("*.") + 2;
-    int count = dialog.selectedNameFilter().length() - startIdx - 1;
-    QString format = dialog.selectedNameFilter().mid(startIdx, count);
-    QString fileName = dialog.selectedFiles()[0];
-    if (format != "dot") {
+    case GraphExportType::GVDot: {
+        QFile file(filePath);
+        if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning() << "Can't open file";
+            return;
+        }
+        QTextStream fileOut(&file);
+        fileOut << Core()->cmd("agfd $FB");
+    }
+    break;
+
+    case GraphExportType::GVJson:
+    case GraphExportType::GVGif:
+    case GraphExportType::GVPng:
+    case GraphExportType::GVJpeg:
+    case GraphExportType::GVPostScript:
+    case GraphExportType::GVSvg:
         TempConfig tempConfig;
-        tempConfig.set("graph.gv.format", format);
-        qWarning() << Core()->cmd(QString("agfw \"%1\" @ $FB").arg(fileName));
-        return;
+        tempConfig.set("graph.gv.format", selectedType.extension);
+        qWarning() << Core()->cmd(QString("agfw \"%1\" @ $FB").arg(filePath));
+        break;
     }
-    QFile file(fileName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        qWarning() << "Can't open file";
-        return;
-    }
-    QTextStream fileOut(&file);
-    fileOut << Core()->cmd("agfd $FB");*/
 }
 
 void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
