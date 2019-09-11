@@ -90,15 +90,15 @@ public:
     DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable, MainWindow *mainWindow);
     ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
-    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
-                           qreal scale) override;
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos) override;
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                                     QPoint pos) override;
     virtual bool helpEvent(QHelpEvent *event) override;
     virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos) override;
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
-                                                           GraphView::GraphBlock *to) override;
+                                                           GraphView::GraphBlock *to,
+                                                           bool interactive) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
 
     void loadCurrentGraph();

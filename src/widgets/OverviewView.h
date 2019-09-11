@@ -103,8 +103,7 @@ private:
     /**
      * @brief draw the computed blocks passed by Graph
      */
-    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
-                           qreal scale) override;
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
 
     /**
      * @brief override the edgeConfiguration so as to
@@ -112,7 +111,8 @@ private:
      * @return EdgeConfiguration
      */
     virtual GraphView::EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from,
-                                                           GraphView::GraphBlock *to) override;
+                                                           GraphView::GraphBlock *to,
+                                                           bool interactive) override;
 
     /**
      * @brief base background color changing depending on the theme

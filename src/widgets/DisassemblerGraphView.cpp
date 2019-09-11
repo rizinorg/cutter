@@ -355,7 +355,7 @@ DisassemblerGraphView::EdgeConfigurationMapping DisassemblerGraphView::getEdgeCo
     EdgeConfigurationMapping result;
     for (auto &block : blocks) {
         for (const auto &edge : block.second.edges) {
-            result[ {block.first, edge.target}] = edgeConfiguration(block.second, &blocks[edge.target]);
+            result[ {block.first, edge.target}] = edgeConfiguration(block.second, &blocks[edge.target], false);
         }
     }
     return result;
@@ -419,18 +419,16 @@ void DisassemblerGraphView::initFont()
     mFontMetrics.reset(new CachedFontMetrics<qreal>(font()));
 }
 
-void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
-                                      const QPoint &offset, qreal scale)
+void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
-    int blockX = block.x - offset.x();
-    int blockY = block.y - offset.y();
+    QRectF blockRect(block.x, block.y, block.width, block.height);
 
     const qreal padding = 2 * charWidth;
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
     p.setFont(Config()->getFont());
-    p.drawRect(blockX, blockY, block.width, block.height);
+    p.drawRect(blockRect);
 
     breakpoints = Core()->getBreakpointsAddresses();
 
@@ -444,7 +442,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     RVA addr = seekable->getOffset();
     RVA PCAddr = Core()->getProgramCounterValue();
     for (const Instr &instr : db.instrs) {
-        if (instr.contains(addr)) {
+        if (instr.contains(addr) && interactive) {
             block_selected = true;
             selected_instruction = instr.addr;
         }
@@ -473,17 +471,22 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     }
 
     // Draw basic block background
-    p.drawRect(blockX, blockY,
-               block.width, block.height);
+    p.drawRect(blockRect);
     auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
     if (bb) {
         QColor color(bb->color);
         p.setBrush(color);
-        p.drawRect(blockX, blockY,
-                   block.width, block.height);
+        p.drawRect(blockRect);
     }
 
-    const int firstInstructionY = blockY + getInstructionOffset(db, 0).y();
+    const int firstInstructionY = block.y + getInstructionOffset(db, 0).y();
+
+    // Stop rendering text when it's too small
+    auto transform = p.combinedTransform();
+    QRect screenChar = transform.mapRect(QRect(0, 0, charWidth, charHeight));
+    if (screenChar.width() * p.device()->devicePixelRatioF() < 4) {
+        return;
+    }
 
     // Draw different background for selected instruction
     if (selected_instruction != RVA_INVALID) {
@@ -494,7 +497,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
             }
             auto selected = instr.addr == selected_instruction;
             if (selected) {
-                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
                                  static_cast<int>(block.width - (10 + padding)),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
             }
@@ -530,7 +533,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
                 QColor selectionColor = ConfigColor("wordHighlight");
 
-                p.fillRect(QRectF(blockX + charWidth * 3 + widthBefore, y, highlightWidth,
+                p.fillRect(QRectF(block.x + charWidth * 3 + widthBefore, y, highlightWidth,
                                   charHeight), selectionColor);
             }
 
@@ -547,7 +550,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
             }
             auto PC = instr.addr == PCAddr;
             if (PC) {
-                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
                                  static_cast<int>(block.width - (10 + padding)),
                                  int(instr.text.lines.size()) * charHeight), PCSelectionColor);
             }
@@ -555,27 +558,10 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         }
     }
 
-    //qreal render_height = viewport()->size().height();
-
-    // Stop rendering text when it's too small
-    if (charHeight * scale * p.device()->devicePixelRatioF() < 4) {
-        return;
-    }
-
     // Render node text
-    auto x = blockX + padding;
-    int y = blockY + getTextOffset(0).y();
-    qreal lineHeightRender = charHeight;
+    auto x = block.x + padding;
+    int y = block.y + getTextOffset(0).y();
     for (auto &line : db.header_text.lines) {
-        qreal lineYRender = y;
-        lineYRender *= scale;
-        // Check if line does NOT intersects with view area
-        /*if (0 > lineYRender + lineHeightRender
-                || render_height < lineYRender) {
-            y += charHeight;
-            continue;
-        }*/
-
         RichTextPainter::paintRichText<qreal>(&p, x, y, block.width, charHeight, 0, line,
                                               mFontMetrics.get());
         y += charHeight;
@@ -583,24 +569,16 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     for (const Instr &instr : db.instrs) {
         if (Core()->isBreakpoint(breakpoints, instr.addr)) {
-            p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
+            p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
                              static_cast<int>(block.width - (10 + padding)),
                              int(instr.text.lines.size()) * charHeight), ConfigColor("gui.breakpoint_background"));
             if (instr.addr == selected_instruction) {
-                p.fillRect(QRect(static_cast<int>(blockX + charWidth), y,
+                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
                                  static_cast<int>(block.width - (10 + padding)),
                                  int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
             }
         }
         for (auto &line : instr.text.lines) {
-            qreal lineYRender = y;
-            lineYRender *= scale;
-            /*if (0 > lineYRender + lineHeightRender
-                    || render_height < lineYRender) {
-                y += charHeight;
-                continue;
-            }*/
-
             int rectSize = qRound(charWidth);
             if (rectSize % 2) {
                 rectSize++;
@@ -620,7 +598,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 }
 
 GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView::GraphBlock &from,
-                                                                      GraphView::GraphBlock *to)
+                                                                      GraphView::GraphBlock *to,
+                                                                      bool interactive)
 {
     EdgeConfiguration ec;
     DisassemblyBlock &db = disassembly_blocks[from.entry];
@@ -633,10 +612,12 @@ GraphView::EdgeConfiguration DisassemblerGraphView::edgeConfiguration(GraphView:
     }
     ec.start_arrow = false;
     ec.end_arrow = true;
-    if (from.entry == currentBlockAddress) {
-        ec.width_scale = 2.0;
-    } else if (to->entry == currentBlockAddress) {
-        ec.width_scale = 2.0;
+    if (interactive) {
+        if (from.entry == currentBlockAddress) {
+            ec.width_scale = 2.0;
+        } else if (to->entry == currentBlockAddress) {
+            ec.width_scale = 2.0;
+        }
     }
     return ec;
 }
@@ -1054,7 +1035,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
             {tr("Graphviz gif (*.gif)"), "gif", QVariant::fromValue(GraphExportType::GVGif)},
             {tr("Graphviz png (*.png)"), "png", QVariant::fromValue(GraphExportType::GVPng)},
             {tr("Graphviz jpg (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::GVJpeg)},
-            {tr("Graphviz post script (*.ps)"), "ps", QVariant::fromValue(GraphExportType::GVPostScript)},
+            {tr("Graphviz PostScript (*.ps)"), "ps", QVariant::fromValue(GraphExportType::GVPostScript)},
             {tr("Graphviz svg (*.svg)"), "svg", QVariant::fromValue(GraphExportType::GVSvg)}
         });
     }

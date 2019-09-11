@@ -52,18 +52,16 @@ void OverviewView::refreshView()
     viewport()->update();
 }
 
-void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
-                             qreal scale)
+void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
-    int blockX = block.x - offset.x();
-    int blockY = block.y - offset.y();
+    Q_UNUSED(interactive)
+    QRectF blockRect(block.x, block.y, block.width, block.height);
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
-    p.drawRect(blockX, blockY, block.width, block.height);
+    p.drawRect(blockRect);
     p.setBrush(QColor(0, 0, 0, 100));
-    p.drawRect(blockX + 2, blockY + 2,
-               block.width, block.height);
+    p.drawRect(blockRect.translated(2, 2));
 
     // Draw basic block highlighting/tracing
     auto bb = Core()->getBBHighlighter()->getBasicBlock(block.entry);
@@ -75,8 +73,7 @@ void OverviewView::drawBlock(QPainter &p, GraphView::GraphBlock &block, const QP
         p.setBrush(disassemblyBackgroundColor);
     }
     p.setPen(QPen(graphNodeColor, 1));
-    p.drawRect(blockX, blockY,
-               block.width, block.height);
+    p.drawRect(blockRect);
 }
 
 void OverviewView::paintEvent(QPaintEvent *event)
@@ -132,8 +129,10 @@ void OverviewView::wheelEvent(QWheelEvent *event)
 }
 
 GraphView::EdgeConfiguration OverviewView::edgeConfiguration(GraphView::GraphBlock &from,
-                                                             GraphView::GraphBlock *to)
+                                                             GraphView::GraphBlock *to,
+                                                             bool interactive)
 {
+    Q_UNUSED(interactive)
     EdgeConfiguration ec;
     auto baseEcIt = edgeConfigurations.find({from.entry, to->entry});
     if (baseEcIt != edgeConfigurations.end())

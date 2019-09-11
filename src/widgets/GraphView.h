@@ -68,7 +68,7 @@ public:
     void setGraphLayout(Layout layout);
     Layout getGraphLayout() const { return graphLayout; }
 
-    void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0); //TODO:
+    void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0, bool interactive = true);
 
     void saveAsBitmap(QString path, const char *format = nullptr);
     void saveAsSvg(QString path);
@@ -86,15 +86,21 @@ protected:
     void computeGraph(ut64 entry);
 
     // Callbacks that should be overridden
-    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
-                           qreal scale);  //TODO: it should be possible to avoid manual scaling using qt drawing transformation API
+    /**
+     * @brief drawBlock
+     * @param p painter object, not necesarily current widget
+     * @param block
+     * @param interactive - can be used for disabling elemnts during export
+     */
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive = true);
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos);
     virtual bool helpEvent(QHelpEvent *event);
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
     virtual void wheelEvent(QWheelEvent *event) override;
-    virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
+    virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to,
+                                                bool interactive = true);
 
     bool event(QEvent *event) override;
 
@@ -164,8 +170,6 @@ private:
     QSize getRequiredCacheSize();
     qreal getRequiredCacheDevicePixelRatioF();
 
-    QPolygonF recalculatePolygon(QPolygonF polygon,
-                                 QPointF offset); //TODO: use qt view transform functionality
     void beginMouseDrag(QMouseEvent *event);
 public:
     QPoint getViewOffset() const    { return offset; }

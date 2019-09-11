@@ -40,17 +40,14 @@ GraphView::GraphView(QWidget *parent)
 
 GraphView::~GraphView()
 {
-    // TODO: Cleanups
 }
 
 // Callbacks
-void GraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, const QPoint &offset,
-                          qreal scale)
+void GraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive)
 {
-    Q_UNUSED(p);
-    Q_UNUSED(block);
-    Q_UNUSED(offset);
-    Q_UNUSED(scale);
+    Q_UNUSED(p)
+    Q_UNUSED(block)
+    Q_UNUSED(interactive)
     qWarning() << "Draw block not overriden!";
 }
 
@@ -103,10 +100,12 @@ void GraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 }
 
 GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock &from,
-                                                          GraphView::GraphBlock *to)
+                                                          GraphView::GraphBlock *to,
+                                                          bool interactive)
 {
-    Q_UNUSED(from);
-    Q_UNUSED(to);
+    Q_UNUSED(from)
+    Q_UNUSED(to)
+    Q_UNUSED(interactive)
     qWarning() << "Edge configuration not overridden!";
     EdgeConfiguration ec;
     return ec;
@@ -130,15 +129,6 @@ void GraphView::computeGraph(ut64 entry)
     ready = true;
 
     viewport()->update();
-}
-
-QPolygonF GraphView::recalculatePolygon(QPolygonF polygon, QPointF offset)
-{
-    QPolygonF ret;
-    for (int i = 0; i < polygon.size(); i++) {
-        ret << (polygon[i] - offset);
-    }
-    return ret;
 }
 
 void GraphView::beginMouseDrag(QMouseEvent *event)
@@ -306,7 +296,7 @@ void GraphView::paintGraphCache()
         p.setRenderHint(QPainter::Antialiasing);
     }
 
-    paint(p, offset, this->viewport()->rect(), current_scale); //TODO: use correct window
+    paint(p, offset, this->viewport()->rect(), current_scale);
 
     p.end();
 #ifndef QT_NO_OPENGL
@@ -314,32 +304,29 @@ void GraphView::paintGraphCache()
 #endif
 }
 
-void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale)
+void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, bool interactive)
 {
     QPointF offsetF(offset.x(), offset.y());
     p.setBrush(backgroundColor);
     p.drawRect(viewport);
     p.setBrush(Qt::black);
 
-    p.scale(scale, scale);
-
     int render_width = viewport.width();
     int render_height = viewport.height();
+
+    // window - rectangle in logical coordinates
+    QRect window = QRect(offset, QSize(qRound(render_width / scale), qRound(render_height / scale)));
+    p.setWindow(window);
+    QRect windowF(window.x(), window.y(), window.width(), window.height());
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
 
-        qreal blockX = block.x * scale;
-        qreal blockY = block.y * scale;
-        qreal blockWidth = block.width * scale;
-        qreal blockHeight = block.height * scale;
+        QRectF blockRect(block.x, block.y, block.width, block.height);
 
         // Check if block is visible by checking if block intersects with view area
-        if (offset.x() * scale < blockX + blockWidth
-                && blockX < offset.x() * scale + render_width
-                && offset.y() * scale < blockY + blockHeight
-                && blockY < offset.y() * scale + render_height) {
-            drawBlock(p, block, offset, scale);
+        if (blockRect.intersects(windowF)) {
+            drawBlock(p, block, interactive);
         }
 
         p.setBrush(Qt::gray);
@@ -351,7 +338,7 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale)
             if (edge.polyline.empty()) {
                 continue;
             }
-            QPolygonF polyline = recalculatePolygon(edge.polyline, offsetF);
+            QPolygonF polyline = edge.polyline;
             EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
             QPen pen(ec.color);
             pen.setStyle(ec.lineStyle);
@@ -375,7 +362,7 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale)
                 QPointF base = tip - dir * 6;
                 arrow << base + 3 * dy;
                 arrow << base - 3 * dy;
-                p.drawConvexPolygon(recalculatePolygon(arrow, offsetF));
+                p.drawConvexPolygon(arrow);
             };
 
             if (!polyline.empty()) {
@@ -414,7 +401,7 @@ void GraphView::saveAsBitmap(QString path, const char *format)
     QImage image(width, height, QImage::Format_RGB32);
     QPainter p;
     p.begin(&image);
-    paint(p, QPoint(0, 0), image.rect());
+    paint(p, QPoint(0, 0), image.rect(), 1.0, false);
     p.end();
     if (!image.save(path, format)) {
         qWarning() << "Could not save image";
@@ -430,7 +417,7 @@ void GraphView::saveAsSvg(QString path)
     generator.setTitle("Cutter graph export");
     QPainter p;
     p.begin(&generator);
-    paint(p, QPoint(0, 0), QRect(0, 0, width, height));
+    paint(p, QPoint(0, 0), QRect(0, 0, width, height), 1.0, false);
     p.end();
 }
 
@@ -672,12 +659,6 @@ void GraphView::keyPressEvent(QKeyEvent *event)
 
 void GraphView::mouseReleaseEvent(QMouseEvent *event)
 {
-    // TODO
-//    if(event->button() == Qt::ForwardButton)
-//        gotoNextSlot();
-//    else if(event->button() == Qt::BackButton)
-//        gotoPreviousSlot();
-
     if (scroll_mode && (event->buttons() & (Qt::LeftButton | Qt::MiddleButton)) == 0) {
         scroll_mode = false;
         setCursor(Qt::ArrowCursor);
