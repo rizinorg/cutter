@@ -510,7 +510,7 @@ HEADERS  += \
     common/AddressableItemModel.h \
     widgets/ListDockWidget.h \
     widgets/AddressableItemList.h \
-    dialogs/MultitypeFileSaveDialog.cpp
+    dialogs/MultitypeFileSaveDialog.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
