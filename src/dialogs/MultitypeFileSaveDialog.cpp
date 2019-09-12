@@ -2,6 +2,7 @@
 
 #include "MultitypeFileSaveDialog.h"
 
+#include <QMessageBox>
 
 
 MultitypeFileSaveDialog::MultitypeFileSaveDialog(QWidget *parent,
@@ -52,6 +53,20 @@ MultitypeFileSaveDialog::TypeDescription MultitypeFileSaveDialog::selectedType()
     } else {
         return *filterIt;
     }
+}
+
+void MultitypeFileSaveDialog::done(int r)
+{
+    if (r == QDialog::Accepted) {
+        QFileInfo info(selectedFiles().first());
+        auto selectedType = this->selectedType();
+        if (selectedType.extension.isEmpty()) {
+            QMessageBox::warning(this, tr("File save error"),
+                                 tr("Unrecognized extension '%1'").arg(info.suffix()));
+            return;
+        }
+    }
+    QFileDialog::done(r);
 }
 
 void MultitypeFileSaveDialog::onFilterSelected(const QString &filter)

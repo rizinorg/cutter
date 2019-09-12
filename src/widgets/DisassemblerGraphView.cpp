@@ -1013,7 +1013,7 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 
 
 enum class GraphExportType {
-    Gif, Png, Jpeg, Svg, GVDot, GVJson,
+    Png, Jpeg, Svg, GVDot, GVJson,
     GVGif, GVPng, GVJpeg, GVPostScript, GVSvg
 };
 Q_DECLARE_METATYPE(GraphExportType);
@@ -1022,7 +1022,6 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
 {
     QVector<MultitypeFileSaveDialog::TypeDescription> types = {
         {tr("PNG (*.png)"), "png", QVariant::fromValue(GraphExportType::Png)},
-        {tr("GIF (*.gif)"), "gif", QVariant::fromValue(GraphExportType::Gif)},
         {tr("JPEG (*.jpg)"), "jpg", QVariant::fromValue(GraphExportType::Jpeg)},
         {tr("SVG (*.svg)"), "svg", QVariant::fromValue(GraphExportType::Svg)}
     };
@@ -1054,7 +1053,6 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     QString filePath = dialog.selectedFiles().first();
     switch (selectedType.data.value<GraphExportType>()) {
     case GraphExportType::Png:
-    case GraphExportType::Gif:
     case GraphExportType::Jpeg:
         this->saveAsBitmap(filePath);
         break;

@@ -22,6 +22,8 @@ public:
 
     void setTypes(const QVector<TypeDescription> types, bool useDetection = true);
     TypeDescription selectedType() const;
+protected:
+    void done(int r) override;
 private:
     void onFilterSelected(const QString &filter);
     QVector<TypeDescription>::const_iterator findType(const QString &description) const;
