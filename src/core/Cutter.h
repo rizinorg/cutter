@@ -115,7 +115,7 @@ public:
 
     /**
      * @brief Changes immediate displacement to structure offset
-     * This function makes use of the "ta" command of r2 to apply structure
+     * This function makes use of the "aht" command of r2 to apply structure
      * offset to the immediate displacement used in the given instruction
      * \param structureOffset The name of struct which will be applied
      * \param offset The address of the instruction where the struct will be applied
