@@ -638,7 +638,7 @@ void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset
         offset = getOffset();
     }
 
-    this->cmdRaw("ta " + structureOffset + " @ " + QString::number(offset));
+    this->cmdRaw("aht " + structureOffset + " @ " + QString::number(offset));
     emit instructionChanged(offset);
 }
 

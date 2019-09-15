@@ -360,9 +360,9 @@ void DisassemblyContextMenu::aboutToShowSlot()
         structureOffsetMenu->menuAction()->setVisible(true);
         structureOffsetMenu->clear();
 
-        // Get the possible offsets using the "tas" command
-        // TODO: add tasj command to radare2 and then use it here
-        QStringList ret = Core()->cmdList("tas " + memDisp.toString());
+        // Get the possible offsets using the "ahts" command
+        // TODO: add ahtj command to radare2 and then use it here
+        QStringList ret = Core()->cmdList("ahts " + memDisp.toString());
         for (const QString &val : ret) {
             if (val.isEmpty()) {
                 continue;

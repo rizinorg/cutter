@@ -59,7 +59,7 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
         { { "avrr", tr("Recover class information from RTTI") }, new QCheckBox(), false },
         { { "aan", tr("Autoname functions based on context") }, new QCheckBox(), false },
         { { "aae", tr("Emulate code to find computed references") }, new QCheckBox(), false },
-        { { "aat", tr("Analyze all consecutive functions") }, new QCheckBox(), false },
+        { { "aafr", tr("Analyze all consecutive functions") }, new QCheckBox(), false },
         { { "aaft", tr("Type and Argument matching analysis") }, new QCheckBox(), false },
         { { "aaT", tr("Analyze code after trap-sleds") }, new QCheckBox(), false },
         { { "aap", tr("Analyze function preludes") }, new QCheckBox(), false },
