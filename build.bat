@@ -37,6 +37,7 @@ ECHO Deploying cutter
 MKDIR cutter
 COPY release\cutter.exe cutter\cutter.exe
 XCOPY /S /I ..\%R2DIST%\radare2 cutter\radare2
+DEL cutter\radare2\lib\*.lib
 COPY ..\%R2DIST%\bin\*.dll cutter\
 windeployqt cutter\cutter.exe
 FOR %%i in (..\src\translations\*.qm) DO MOVE "%%~fi" cutter\translations
