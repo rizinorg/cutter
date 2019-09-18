@@ -1012,11 +1012,7 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
 }
 
 
-enum class GraphExportType {
-    Png, Jpeg, Svg, GVDot, GVJson,
-    GVGif, GVPng, GVJpeg, GVPostScript, GVSvg
-};
-Q_DECLARE_METATYPE(GraphExportType);
+Q_DECLARE_METATYPE(DisassemblerGraphView::GraphExportType);
 
 void DisassemblerGraphView::on_actionExportGraph_triggered()
 {
@@ -1039,9 +1035,21 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
         });
     }
 
+    QString defaultName = "graph";
+    if (auto f = Core()->functionAt(currentFcnAddr)) {
+        QString functionName = f->name;
+        // don't confuse image type guessing and make c++ names somewhat usable
+        functionName.replace(QRegularExpression("[.:]"), "_");
+        functionName.remove(QRegularExpression("[^a-zA-Z0-9_].*"));
+        if (!functionName.isEmpty()) {
+            defaultName = functionName;
+        }
+    }
+
+
     MultitypeFileSaveDialog dialog(this, tr("Export Graph"));
     dialog.setTypes(types);
-    dialog.selectFile("graph");
+    dialog.selectFile(defaultName);
     if (!dialog.exec())
         return;
 
@@ -1051,10 +1059,18 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
         return;
     }
     QString filePath = dialog.selectedFiles().first();
-    switch (selectedType.data.value<GraphExportType>()) {
+    exportGraph(filePath, selectedType.data.value<GraphExportType>());
+
+}
+
+void DisassemblerGraphView::exportGraph(QString filePath, GraphExportType type)
+{
+    switch (type) {
     case GraphExportType::Png:
+        this->saveAsBitmap(filePath, "png");
+        break;
     case GraphExportType::Jpeg:
-        this->saveAsBitmap(filePath);
+        this->saveAsBitmap(filePath, "jpg");
         break;
     case GraphExportType::Svg:
         this->saveAsSvg(filePath);
@@ -1072,16 +1088,31 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     break;
 
     case GraphExportType::GVJson:
+        exportR2GraphvizGraph(filePath, "json");
+        break;
     case GraphExportType::GVGif:
+        exportR2GraphvizGraph(filePath, "gif");
+        break;
     case GraphExportType::GVPng:
+        exportR2GraphvizGraph(filePath, "png");
+        break;
     case GraphExportType::GVJpeg:
+        exportR2GraphvizGraph(filePath, "jpg");
+        break;
     case GraphExportType::GVPostScript:
+        exportR2GraphvizGraph(filePath, "ps");
+        break;
     case GraphExportType::GVSvg:
-        TempConfig tempConfig;
-        tempConfig.set("graph.gv.format", selectedType.extension);
-        qWarning() << Core()->cmd(QString("agfw \"%1\" @ 0x%2").arg(filePath).arg(currentFcnAddr, 0, 16));
+        exportR2GraphvizGraph(filePath, "svg");
         break;
     }
+}
+
+void DisassemblerGraphView::exportR2GraphvizGraph(QString filePath, QString type)
+{
+    TempConfig tempConfig;
+    tempConfig.set("graph.gv.format", type);
+    qWarning() << Core()->cmdRaw(QString("agfw \"%1\" @ 0x%2").arg(filePath).arg(currentFcnAddr, 0, 16));
 }
 
 void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
