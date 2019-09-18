@@ -1067,7 +1067,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
             return;
         }
         QTextStream fileOut(&file);
-        fileOut << Core()->cmd("agfd $FB");
+        fileOut << Core()->cmd(QString("agfd 0x%1").arg(currentFcnAddr, 0, 16));
     }
     break;
 
@@ -1079,7 +1079,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     case GraphExportType::GVSvg:
         TempConfig tempConfig;
         tempConfig.set("graph.gv.format", selectedType.extension);
-        qWarning() << Core()->cmd(QString("agfw \"%1\" @ $FB").arg(filePath));
+        qWarning() << Core()->cmd(QString("agfw \"%1\" @ 0x%2").arg(filePath).arg(currentFcnAddr, 0, 16));
         break;
     }
 }
