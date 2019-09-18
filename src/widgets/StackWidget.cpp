@@ -10,7 +10,8 @@
 
 StackWidget::StackWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::StackWidget)
+    ui(new Ui::StackWidget),
+    addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
 
@@ -42,6 +43,11 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     connect(viewStack, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     connect(seekAction, &QAction::triggered, this, &StackWidget::seekOffset);
     connect(editAction, &QAction::triggered, this, &StackWidget::editStack);
+    connect(viewStack->selectionModel(), &QItemSelectionModel::currentChanged, this, &StackWidget::onCurrentChanged);
+    connect(modelStack, &QStandardItemModel::itemChanged, this, &StackWidget::onItemChanged);
+
+    addressableItemContextMenu.addAction(editAction);
+    addActions(addressableItemContextMenu.actions());
 }
 
 StackWidget::~StackWidget() = default;
@@ -57,6 +63,7 @@ void StackWidget::updateContents()
 
 void StackWidget::setStackGrid()
 {
+    updatingData = true;
     QJsonArray stackValues = Core()->getStack().array();
     int i = 0;
     for (const QJsonValue &value : stackValues) {
@@ -93,7 +100,8 @@ void StackWidget::setStackGrid()
         i++;
     }
     viewStack->setModel(modelStack);
-    viewStack->resizeColumnsToContents();;
+    viewStack->resizeColumnsToContents();
+    updatingData = false;
 }
 
 void StackWidget::fontsUpdatedSlot()
@@ -114,10 +122,7 @@ void StackWidget::onDoubleClicked(const QModelIndex &index)
 
 void StackWidget::customMenuRequested(QPoint pos)
 {
-    QMenu *menu = new QMenu(this);
-    menu->addAction(seekAction);
-    menu->addAction(editAction);
-    menu->popup(viewStack->viewport()->mapToGlobal(pos));
+    addressableItemContextMenu.exec(viewStack->viewport()->mapToGlobal(pos));
 }
 
 void StackWidget::seekOffset()
@@ -142,5 +147,27 @@ void StackWidget::editStack()
         if (bytes != oldBytes) {
             Core()->editBytesEndian(offset.toULongLong(&ok, 16), bytes);
         }
+    }
+}
+
+void StackWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(current)
+    Q_UNUSED(previous)
+    QString offsetString = viewStack->selectionModel()->currentIndex().data().toString();
+    RVA offset = Core()->math(offsetString);
+    addressableItemContextMenu.setTarget(offset);
+}
+
+void StackWidget::onItemChanged(QStandardItem *item)
+{
+    if (updatingData || item->column() != 1) {
+        return;
+    }
+    QString offsetString = item->index().sibling(item->row(), 0).data().toString();
+    bool ok = false;
+    auto offset = offsetString.toULongLong(&ok, 16);
+    if (ok) {
+        Core()->editBytesEndian(offset, item->text());
     }
 }

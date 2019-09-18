@@ -7,6 +7,7 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
+#include "menus/AddressableItemContextMenu.h"
 
 class MainWindow;
 
@@ -30,6 +31,8 @@ private slots:
     void customMenuRequested(QPoint pos);
     void seekOffset();
     void editStack();
+    void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void onItemChanged(QStandardItem *item);
 
 private:
     std::unique_ptr<Ui::StackWidget> ui;
@@ -38,4 +41,6 @@ private:
     QAction *seekAction;
     QAction *editAction;
     RefreshDeferrer *refreshDeferrer;
+    AddressableItemContextMenu addressableItemContextMenu;
+    bool updatingData = false;
 };
