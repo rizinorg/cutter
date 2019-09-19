@@ -40,6 +40,7 @@ private:
     QStandardItemModel *modelStack = new QStandardItemModel(1, 3, this);
     QAction *seekAction;
     QAction *editAction;
+    QAction menuText;
     RefreshDeferrer *refreshDeferrer;
     AddressableItemContextMenu addressableItemContextMenu;
     bool updatingData = false;

@@ -48,6 +48,9 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
 
     addressableItemContextMenu.addAction(editAction);
     addActions(addressableItemContextMenu.actions());
+
+    menuText.setSeparator(true);
+    qhelpers::prependQAction(&menuText, &addressableItemContextMenu);
 }
 
 StackWidget::~StackWidget() = default;
@@ -82,6 +85,7 @@ void StackWidget::setStackGrid()
                 ref = Core()->cmd("psz @ [" + addr + "]");
             }
             QStandardItem *rowRef = new QStandardItem(ref);
+            rowRef->setEditable(false);
             modelStack->setItem(i, 2, rowRef);
             if (refObject.toString().contains("ascii") && refObject.toString().count("-->") == 1) {
                 modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(243, 156, 17)),
@@ -154,9 +158,15 @@ void StackWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex
 {
     Q_UNUSED(current)
     Q_UNUSED(previous)
-    QString offsetString = viewStack->selectionModel()->currentIndex().data().toString();
+    auto currentIndex = viewStack->selectionModel()->currentIndex();
+    QString offsetString = currentIndex.data().toString();
     RVA offset = Core()->math(offsetString);
     addressableItemContextMenu.setTarget(offset);
+    if (currentIndex.column() == 0) {
+        menuText.setText(tr("Stack position"));
+    } else {
+        menuText.setText(tr("Pointed memory"));
+    }
 }
 
 void StackWidget::onItemChanged(QStandardItem *item)
@@ -164,10 +174,18 @@ void StackWidget::onItemChanged(QStandardItem *item)
     if (updatingData || item->column() != 1) {
         return;
     }
-    QString offsetString = item->index().sibling(item->row(), 0).data().toString();
-    bool ok = false;
-    auto offset = offsetString.toULongLong(&ok, 16);
-    if (ok) {
-        Core()->editBytesEndian(offset, item->text());
-    }
+    QModelIndex index = item->index();
+    int row = item->row();
+    QString text = item->text();
+    // Queue the update instead of performing immediately. Editing will trigger reload.
+    // Performing reload while itemChanged signal is on stack would result
+    // in itemView getting stuck in EditingState and preventing further edits.
+    QMetaObject::invokeMethod(this, [this, index, row, text]() {
+        QString offsetString = index.sibling(row, 0).data().toString();
+        bool ok = false;
+        auto offset = offsetString.toULongLong(&ok, 16);
+        if (ok) {
+            Core()->editBytesEndian(offset, text);
+        }
+    }, Qt::QueuedConnection);
 }

@@ -12,6 +12,7 @@
 #include <QAbstractItemView>
 #include <QAbstractButton>
 #include <QDockWidget>
+#include <QMenu>
 
 static QAbstractItemView::ScrollMode scrollMode()
 {
@@ -238,6 +239,16 @@ void setThemeIcons(QList<QPair<void *, QString>> supportedIconsNames,
             iconPath += relativeThemeDir;
         }
         setter(p.first, QIcon(iconPath + p.second));
+    }
+}
+
+void prependQAction(QAction *action, QMenu *menu)
+{
+    auto actions = menu->actions();
+    if (actions.empty()) {
+        menu->addAction(action);
+    } else {
+        menu->insertAction(actions.first(), action);
     }
 }
 
