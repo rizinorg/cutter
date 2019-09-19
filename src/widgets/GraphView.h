@@ -35,13 +35,13 @@ public:
 
     enum class Layout {
         GridNarrow
-        ,GridMedium
-        ,GridWide
+        , GridMedium
+        , GridWide
 #ifdef CUTTER_ENABLE_GRAPHVIZ
-        ,GraphvizOrtho
-        ,GraphvizOrthoLR
-        ,GraphvizPolyline
-        ,GraphvizPolylineLR
+        , GraphvizOrtho
+        , GraphvizOrthoLR
+        , GraphvizPolyline
+        , GraphvizPolylineLR
 #endif
     };
 
@@ -65,16 +65,13 @@ public:
      */
     void showRectangle(const QRect &rect, bool anywhere = false);
 
-    /**
-     * @brief keep the current addr of the fcn of Graph
-     * Everytime overview updates its contents, it compares this value with the one in Graph
-     * if they aren't same, then Overview needs to update the pixmap cache.
-     */
-    ut64 currentFcnAddr = RVA_INVALID; // TODO: move application specific code out of graph view
-
     void setGraphLayout(Layout layout);
     Layout getGraphLayout() const { return graphLayout; }
 
+    void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0, bool interactive = true);
+
+    void saveAsBitmap(QString path, const char *format = nullptr);
+    void saveAsSvg(QString path);
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
     QColor backgroundColor = QColor(Qt::white);
@@ -89,14 +86,21 @@ protected:
     void computeGraph(ut64 entry);
 
     // Callbacks that should be overridden
-    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block);
+    /**
+     * @brief drawBlock
+     * @param p painter object, not necesarily current widget
+     * @param block
+     * @param interactive - can be used for disabling elemnts during export
+     */
+    virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive = true);
     virtual void blockClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event, QPoint pos);
     virtual void blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, QPoint pos);
     virtual bool helpEvent(QHelpEvent *event);
     virtual void blockTransitionedTo(GraphView::GraphBlock *to);
     virtual void wheelEvent(QWheelEvent *event) override;
-    virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to);
+    virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to,
+                                                bool interactive = true);
 
     bool event(QEvent *event) override;
 
@@ -166,9 +170,7 @@ private:
     QSize getRequiredCacheSize();
     qreal getRequiredCacheDevicePixelRatioF();
 
-    QPolygonF recalculatePolygon(QPolygonF polygon);
     void beginMouseDrag(QMouseEvent *event);
-
 public:
     QPoint getViewOffset() const    { return offset; }
     void setViewOffset(QPoint offset);
