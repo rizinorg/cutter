@@ -8,6 +8,12 @@
 #include "QHeaderView"
 #include "QMenu"
 
+enum ColumnIndex {
+    COLUMN_OFFSET = 0,
+    COLUMN_VALUE,
+    COLUMN_DESCRIPTION
+};
+
 StackWidget::StackWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::StackWidget),
@@ -16,9 +22,9 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     ui->setupUi(this);
 
     // Setup stack model
-    modelStack->setHorizontalHeaderItem(0, new QStandardItem(tr("Offset")));
-    modelStack->setHorizontalHeaderItem(1, new QStandardItem(tr("Value")));
-    modelStack->setHorizontalHeaderItem(2, new QStandardItem(tr("Reference")));
+    modelStack->setHorizontalHeaderItem(COLUMN_OFFSET, new QStandardItem(tr("Offset")));
+    modelStack->setHorizontalHeaderItem(COLUMN_VALUE, new QStandardItem(tr("Value")));
+    modelStack->setHorizontalHeaderItem(COLUMN_DESCRIPTION, new QStandardItem(tr("Reference")));
     viewStack->setFont(Config()->getFont());
     viewStack->setModel(modelStack);
     viewStack->verticalHeader()->hide();
@@ -43,7 +49,8 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     connect(viewStack, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
     connect(seekAction, &QAction::triggered, this, &StackWidget::seekOffset);
     connect(editAction, &QAction::triggered, this, &StackWidget::editStack);
-    connect(viewStack->selectionModel(), &QItemSelectionModel::currentChanged, this, &StackWidget::onCurrentChanged);
+    connect(viewStack->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &StackWidget::onCurrentChanged);
     connect(modelStack, &QStandardItemModel::itemChanged, this, &StackWidget::onItemChanged);
 
     addressableItemContextMenu.addAction(editAction);
@@ -76,8 +83,8 @@ void StackWidget::setStackGrid()
         QStandardItem *rowOffset = new QStandardItem(addr);
         rowOffset->setEditable(false);
         QStandardItem *rowValue = new QStandardItem(valueStack);
-        modelStack->setItem(i, 0, rowOffset);
-        modelStack->setItem(i, 1, rowValue);
+        modelStack->setItem(i, COLUMN_OFFSET, rowOffset);
+        modelStack->setItem(i, COLUMN_VALUE, rowValue);
         QJsonValue refObject = stackItem["ref"];
         if (!refObject.isUndefined()) { // check that the key exists
             QString ref = refObject.toString();
@@ -86,18 +93,19 @@ void StackWidget::setStackGrid()
             }
             QStandardItem *rowRef = new QStandardItem(ref);
             rowRef->setEditable(false);
-            modelStack->setItem(i, 2, rowRef);
+            QModelIndex cell = modelStack->index(i, COLUMN_DESCRIPTION);
+            modelStack->setItem(i, COLUMN_DESCRIPTION, rowRef);
             if (refObject.toString().contains("ascii") && refObject.toString().count("-->") == 1) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(243, 156, 17)),
+                modelStack->setData(cell, QVariant(QColor(243, 156, 17)),
                                     Qt::ForegroundRole); // orange
             } else if (ref.contains("program R X") && ref.count("-->") == 0) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::red)),
+                modelStack->setData(cell, QVariant(QColor(Qt::red)),
                                     Qt::ForegroundRole);
             } else if (ref.contains("stack") && ref.count("-->") == 0) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::cyan)),
+                modelStack->setData(cell, QVariant(QColor(Qt::cyan)),
                                     Qt::ForegroundRole);
             } else if (ref.contains("library") && ref.count("-->") == 0) {
-                modelStack->setData(modelStack->index(i, 2, QModelIndex()), QVariant(QColor(Qt::green)),
+                modelStack->setData(cell, QVariant(QColor(Qt::green)),
                                     Qt::ForegroundRole);
             }
         }
@@ -118,7 +126,7 @@ void StackWidget::onDoubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
     // Check if we are clicking on the offset or value columns and seek if it is the case
-    if (index.column() <= 1) {
+    if (index.column() <= COLUMN_VALUE) {
         QString item = index.data().toString();
         Core()->seekAndShow(item);
     }
@@ -139,11 +147,12 @@ void StackWidget::editStack()
 {
     bool ok;
     int row = viewStack->selectionModel()->currentIndex().row();
-    QString offset = viewStack->selectionModel()->currentIndex().sibling(row, 0).data().toString();
+    auto model = viewStack->model();
+    QString offset = model->index(row, COLUMN_OFFSET).data().toString();
     EditInstructionDialog e(EDIT_NONE, this);
     e.setWindowTitle(tr("Edit stack at %1").arg(offset));
 
-    QString oldBytes = viewStack->selectionModel()->currentIndex().sibling(row, 1).data().toString();
+    QString oldBytes = model->index(row, COLUMN_VALUE).data().toString();
     e.setInstruction(oldBytes);
 
     if (e.exec()) {
@@ -159,10 +168,16 @@ void StackWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex
     Q_UNUSED(current)
     Q_UNUSED(previous)
     auto currentIndex = viewStack->selectionModel()->currentIndex();
-    QString offsetString = currentIndex.data().toString();
+    QString offsetString;
+    if (currentIndex.column() != COLUMN_DESCRIPTION) {
+        offsetString = currentIndex.data().toString();
+    } else {
+        offsetString = currentIndex.sibling(currentIndex.row(), COLUMN_VALUE).data().toString();
+    }
+
     RVA offset = Core()->math(offsetString);
     addressableItemContextMenu.setTarget(offset);
-    if (currentIndex.column() == 0) {
+    if (currentIndex.column() == COLUMN_OFFSET) {
         menuText.setText(tr("Stack position"));
     } else {
         menuText.setText(tr("Pointed memory"));
@@ -171,7 +186,7 @@ void StackWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex
 
 void StackWidget::onItemChanged(QStandardItem *item)
 {
-    if (updatingData || item->column() != 1) {
+    if (updatingData || item->column() != COLUMN_VALUE) {
         return;
     }
     QModelIndex index = item->index();
@@ -181,7 +196,7 @@ void StackWidget::onItemChanged(QStandardItem *item)
     // Performing reload while itemChanged signal is on stack would result
     // in itemView getting stuck in EditingState and preventing further edits.
     QMetaObject::invokeMethod(this, [this, index, row, text]() {
-        QString offsetString = index.sibling(row, 0).data().toString();
+        QString offsetString = index.sibling(row, COLUMN_OFFSET).data().toString();
         bool ok = false;
         auto offset = offsetString.toULongLong(&ok, 16);
         if (ok) {
