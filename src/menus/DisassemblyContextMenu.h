@@ -90,6 +90,9 @@ private:
     QKeySequence getRetypeSequence() const;
     QKeySequence getXRefSequence() const;
     QKeySequence getDisplayOptionsSequence() const;
+    QKeySequence getDefineNewFunctionSequence() const;
+    QKeySequence getUndefineFunctionSequence() const;
+    QKeySequence getEditFunctionSequence() const;
     QList<QKeySequence> getAddBPSequence() const;
 
     /**

@@ -49,7 +49,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addAction(&actionRename);
 
     initAction(&actionEditFunction, tr("Edit function"),
-               SLOT(on_actionEditFunction_triggered()));
+               SLOT(on_actionEditFunction_triggered()), getEditFunctionSequence());
     addAction(&actionEditFunction);
 
     initAction(&actionRenameUsedHere, tr("Rename Flag/Fcn/Var Used Here"),
@@ -67,11 +67,11 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addAction(&actionDeleteFlag);
 
     initAction(&actionDeleteFunction, tr("Undefine function"),
-               SLOT(on_actionDeleteFunction_triggered()));
+               SLOT(on_actionDeleteFunction_triggered()), getUndefineFunctionSequence());
     addAction(&actionDeleteFunction);
 
     initAction(&actionAnalyzeFunction, tr("Define function here"),
-               SLOT(on_actionAnalyzeFunction_triggered()));
+               SLOT(on_actionAnalyzeFunction_triggered()), getDefineNewFunctionSequence());
     addAction(&actionAnalyzeFunction);
 
     addSeparator();
@@ -529,6 +529,22 @@ QList<QKeySequence> DisassemblyContextMenu::getAddBPSequence() const
 {
     return {Qt::Key_F2, Qt::CTRL + Qt::Key_B};
 }
+
+QKeySequence DisassemblyContextMenu::getDefineNewFunctionSequence() const
+{
+    return {Qt::Key_P};
+}
+
+QKeySequence DisassemblyContextMenu::getEditFunctionSequence() const
+{
+    return {Qt::SHIFT + Qt::Key_P};
+}
+
+QKeySequence DisassemblyContextMenu::getUndefineFunctionSequence() const
+{
+    return {Qt::Key_U};
+}
+
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
