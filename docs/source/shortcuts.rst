@@ -33,6 +33,7 @@ Widget shortcuts
 
 Disassembly view shortcuts
 --------------------------
+*Most of these shortcuts are also applied to Disassembly Graph view*
 
 +------------+----------------------------------+
 | Shortcut   | Function                         |
@@ -45,9 +46,23 @@ Disassembly view shortcuts
 +------------+----------------------------------+
 | ;          | Add comment                      |
 +------------+----------------------------------+
+| P          | Define a new function            |
++------------+----------------------------------+
+| Shift+P    | Edit function                    |
++------------+----------------------------------+
+| U          | Undefine a function              |
++------------+----------------------------------+
 | N          | Rename current function/flag     |
 +------------+----------------------------------+
 | Shift+N    | Rename flag/function used here   |
++------------+----------------------------------+
+| Y          | Edit\rename local variables      |
++------------+----------------------------------+
+| L          | Link a type\struct to address    |
++------------+----------------------------------+
+| A          | Set current address to String    |
++------------+----------------------------------+
+| C          | Set current address to Code      |
 +------------+----------------------------------+
 | X          | Show Xrefs                       |
 +------------+----------------------------------+
