@@ -943,6 +943,13 @@ void CutterCore::cmdEsil(const char *command)
     }
 }
 
+QString CutterCore::createFunctionAt(RVA addr)
+{
+    QString ret = cmd("af " + RAddressString(addr));
+    emit functionsChanged();
+    return ret;
+}
+
 QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
     static const QRegExp regExp("[^a-zA-Z0-9_]");
