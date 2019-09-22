@@ -29,7 +29,6 @@ private slots:
     void fontsUpdatedSlot();
     void onDoubleClicked(const QModelIndex &index);
     void customMenuRequested(QPoint pos);
-    void seekOffset();
     void editStack();
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void onItemChanged(QStandardItem *item);
@@ -38,7 +37,6 @@ private:
     std::unique_ptr<Ui::StackWidget> ui;
     QTableView *viewStack = new QTableView;
     QStandardItemModel *modelStack = new QStandardItemModel(1, 3, this);
-    QAction *seekAction;
     QAction *editAction;
     QAction menuText;
     RefreshDeferrer *refreshDeferrer;

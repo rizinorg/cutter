@@ -31,8 +31,9 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     viewStack->setSortingEnabled(true);
     viewStack->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewStack);
+    viewStack->setEditTriggers(viewStack->editTriggers() &
+                               ~(QAbstractItemView::DoubleClicked | QAbstractItemView::AnyKeyPressed));
 
-    seekAction = new QAction(tr("Seek to this offset"), this);
     editAction = new QAction(tr("Edit stack value..."), this);
     viewStack->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -47,7 +48,6 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     connect(viewStack, SIGNAL(doubleClicked(const QModelIndex &)), this,
             SLOT(onDoubleClicked(const QModelIndex &)));
     connect(viewStack, SIGNAL(customContextMenuRequested(QPoint)), SLOT(customMenuRequested(QPoint)));
-    connect(seekAction, &QAction::triggered, this, &StackWidget::seekOffset);
     connect(editAction, &QAction::triggered, this, &StackWidget::editStack);
     connect(viewStack->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &StackWidget::onCurrentChanged);
@@ -126,21 +126,21 @@ void StackWidget::onDoubleClicked(const QModelIndex &index)
     if (!index.isValid())
         return;
     // Check if we are clicking on the offset or value columns and seek if it is the case
-    if (index.column() <= COLUMN_VALUE) {
+    int column = index.column();
+    if (column <= COLUMN_VALUE) {
         QString item = index.data().toString();
-        Core()->seekAndShow(item);
+        Core()->seek(item);
+        if (column == COLUMN_OFFSET) {
+            mainWindow->showMemoryWidget(MemoryWidgetType::Hexdump);
+        } else {
+            Core()->showMemoryWidget();
+        }
     }
 }
 
 void StackWidget::customMenuRequested(QPoint pos)
 {
     addressableItemContextMenu.exec(viewStack->viewport()->mapToGlobal(pos));
-}
-
-void StackWidget::seekOffset()
-{
-    QString offset = viewStack->selectionModel()->currentIndex().data().toString();
-    Core()->seekAndShow(offset);
 }
 
 void StackWidget::editStack()
