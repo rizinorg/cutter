@@ -118,6 +118,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     Python()->initialize();
 #endif
 
+#ifdef Q_OS_WIN
+    // Redefine r_sys_prefix() behaviour
+    qputenv("R_ALT_SRC_DIR", "1");
+#endif
+
     Core()->initialize();
     Core()->setSettings();
     Config()->loadInitial();
@@ -299,7 +304,7 @@ bool CutterApplication::loadTranslations()
                     trQtBase = nullptr;
                 }
             }
-            
+
             if (trCutter) {
                 delete trCutter;
             }

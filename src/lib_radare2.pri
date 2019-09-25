@@ -32,8 +32,7 @@ win32 {
         -lr_socket \
         -lr_fs \
         -lr_magic \
-        -lr_crypto \
-        -lr_sdb
+        -lr_crypto
 } else {
     macx|bsd {
         R2PREFIX=/usr/local

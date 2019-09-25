@@ -16,6 +16,5 @@ ECHO Building radare2 (%PLATFORM%)
 CD radare2
 git clean -xfd
 RMDIR /S /Q ..\%R2DIST%
-python sys\meson.py --release --shared --install=..\%R2DIST% --options "r2_datdir=radare2/share" "r2_libdir=radare2/lib" "c_args=-D_UNICODE -DUNICODE -DCUTTER"
+python sys\meson.py --release --shared --install=..\%R2DIST% --options "r2_datdir=radare2/share" "r2_libdir=radare2/lib" "c_args=-D_UNICODE -DUNICODE"
 IF !ERRORLEVEL! NEQ 0 EXIT /B 1
-COPY /Y build\shlr\libr2sdb.a ..\%R2DIST%\radare2\lib\r_sdb.lib
