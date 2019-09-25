@@ -3,7 +3,7 @@
 
 R2Task::R2Task(const QString &cmd, bool transient)
 {
-    task = r_core_task_new(Core()->core_,
+    task = r_core_task_new(Core()->core(),
         true,
         cmd.toLocal8Bit().constData(),
         static_cast<RCoreTaskCallback>(&R2Task::taskFinishedCallback),
