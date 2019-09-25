@@ -74,10 +74,21 @@ void Dashboard::updateContents()
     setBool(this->ui->strippedEdit, item2, "stripped");
     setBool(this->ui->relocsEdit, item2, "relocs");
 
-    // Add file hashes and libraries
+    // Add file hashes, anal info and libraries
     QJsonObject hashes = Core()->cmdj("itj").object();
     setPlainText(ui->md5Edit, hashes["md5"].toString());
     setPlainText(ui->sha1Edit, hashes["sha1"].toString());
+
+    QJsonObject analinfo = Core()->cmdj("aaij").object();
+    setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toInt()));
+    setPlainText(ui->xRefsLineEdit, QString::number(analinfo["xrefs"].toInt()));
+    setPlainText(ui->callsLineEdit, QString::number(analinfo["calls"].toInt()));
+    setPlainText(ui->stringsLineEdit, QString::number(analinfo["strings"].toInt()));
+    setPlainText(ui->symbolsLineEdit, QString::number(analinfo["symbols"].toInt()));
+    setPlainText(ui->importsLineEdit, QString::number(analinfo["imports"].toInt()));
+    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toInt()));
+    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toInt()));
+    setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toInt()) + "%");
 
     QStringList libs = Core()->cmdList("il");
     if (!libs.isEmpty()) {
