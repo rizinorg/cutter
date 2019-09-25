@@ -16,6 +16,8 @@ class QAbstractItemView;
 class QAbstractButton;
 class QWidget;
 class QTreeView;
+class QAction;
+class QMenu;
 
 namespace qhelpers {
 QString formatBytecount(const long bytecount);
@@ -50,6 +52,8 @@ QByteArray applyColorToSvg(const QByteArray &data, QColor color);
 QByteArray applyColorToSvg(const QString &filename, QColor color);
 
 void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter);
+
+void prependQAction(QAction *action, QMenu *menu);
 
 } // qhelpers
 
