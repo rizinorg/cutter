@@ -210,9 +210,9 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     })
 
     // Zoom shortcuts
-    ADD_ACTION(QKeySequence(Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
-    ADD_ACTION(QKeySequence(Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
-    ADD_ACTION(QKeySequence(Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomReset)
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomReset)
 #undef ADD_ACTION
 }
 
