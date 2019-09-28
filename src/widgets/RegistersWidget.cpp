@@ -25,6 +25,12 @@ RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
 
     connect(Core(), &CutterCore::refreshAll, this, &RegistersWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &RegistersWidget::updateContents);
+
+    // Hide shortcuts because there is no way of selecting an item and triger them
+    for (auto &action : addressContextMenu.actions()) {
+        action->setShortcut(QKeySequence());
+        // setShortcutVisibleInContextMenu(false) doesn't work
+    }
 }
 
 RegistersWidget::~RegistersWidget() = default;
@@ -107,7 +113,7 @@ void RegistersWidget::setRegisterGrid()
         registerEditValue->setText(regValue);
         i++;
         // decide if we should change column
-        if (i >= registerLen / numCols + 1) {
+        if (i >= (registerLen + numCols - 1) / numCols) {
             i = 0;
             col += 2;
         }
