@@ -32,7 +32,6 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["GraphWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [ = ]() {
             toggleDockWidget(true); 
-            main->updateDockActionChecked(action);
     });
 
     connect(graphView, &DisassemblerGraphView::nameChanged, this, &MemoryDockWidget::updateWindowTitle);
