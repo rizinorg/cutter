@@ -1240,7 +1240,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Coverage:</string>
+                    <string>Analysis coverage:</string>
                    </property>
                   </widget>
                  </item>
@@ -1286,7 +1286,7 @@
                     </font>
                    </property>
                    <property name="text">
-                    <string>Percentage:</string>
+                    <string>Coverage percent:</string>
                    </property>
                   </widget>
                  </item>
