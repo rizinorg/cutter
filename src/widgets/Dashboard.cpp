@@ -74,7 +74,7 @@ void Dashboard::updateContents()
     setBool(this->ui->strippedEdit, item2, "stripped");
     setBool(this->ui->relocsEdit, item2, "relocs");
 
-    // Add file hashes, anal info and libraries
+    // Add file hashes, analysis info and libraries
     QJsonObject hashes = Core()->cmdj("itj").object();
     setPlainText(ui->md5Edit, hashes["md5"].toString());
     setPlainText(ui->sha1Edit, hashes["sha1"].toString());
