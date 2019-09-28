@@ -10,12 +10,14 @@
 #include <QApplication>
 #include <QSvgRenderer>
 #include <QMouseEvent>
+#include <QSortFilterProxyModel>
 
 #include "common/Configuration.h"
 #include "common/ColorThemeWorker.h"
 
 #include "widgets/ColorThemeListView.h"
 
+constexpr int allFieldsRole = Qt::UserRole + 2;
 
 struct OptionInfo {
     QString info;
@@ -37,7 +39,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
                                 const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
-    int margin = this->margin * painter->device()->devicePixelRatioF();
+    int margin = this->margin * 1;
     painter->save();
     painter->setFont(option.font);
     painter->setRenderHint(QPainter::Antialiasing);
@@ -204,12 +206,19 @@ QPixmap ColorOptionDelegate::getPixmapFromSvg(const QString& fileName, const QCo
 ColorThemeListView::ColorThemeListView(QWidget *parent) :
     QListView (parent)
 {
-    setModel(new ColorSettingsModel(static_cast<QObject *>(this)));
-    static_cast<ColorSettingsModel *>(this->model())->updateTheme();
+    QSortFilterProxyModel* proxy = new QSortFilterProxyModel(this);
+    ColorSettingsModel* model = new ColorSettingsModel(this);
+    proxy->setSourceModel(model);
+    model->updateTheme();
+    setModel(proxy);
+    proxy->setFilterRole(allFieldsRole);
+    proxy->setFilterCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
+    proxy->setSortRole(Qt::DisplayRole);
+    proxy->setSortCaseSensitivity(Qt::CaseSensitivity::CaseInsensitive);
     setItemDelegate(new ColorOptionDelegate(this));
     setResizeMode(ResizeMode::Adjust);
 
-    QJsonArray rgb = qobject_cast<ColorSettingsModel*>(model())->getTheme()
+    QJsonArray rgb = colorSettingsModel()->getTheme()
                      .object().find("gui.background").value().toArray();
     if (rgb.size() == 3) {
         backgroundColor = QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
@@ -253,13 +262,12 @@ void ColorThemeListView::dataChanged(const QModelIndex& topLeft, const QModelInd
 void ColorThemeListView::mouseReleaseEvent(QMouseEvent* e)
 {
     if (qobject_cast<ColorOptionDelegate*>(itemDelegate())->getResetButtonRect().contains(e->pos())) {
-        auto model = qobject_cast<ColorSettingsModel*>(this->model());
         ColorOption co = currentIndex().data(Qt::UserRole).value<ColorOption>();
         co.changed = false;
         QJsonArray rgb = ThemeWorker().getTheme(
                              Config()->getColorTheme()).object()[co.optionName].toArray();
         co.color = QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
-        model->setData(currentIndex(), QVariant::fromValue(co));
+        colorSettingsModel()->setData(currentIndex(), QVariant::fromValue(co));
         QCursor c;
         c.setShape(Qt::CursorShape::ArrowCursor);
         setCursor(c);
@@ -277,6 +285,11 @@ void ColorThemeListView::mouseMoveEvent(QMouseEvent* e)
         c.setShape(Qt::CursorShape::ArrowCursor);
         setCursor(c);
     }
+}
+
+ColorSettingsModel* ColorThemeListView::colorSettingsModel() const
+{
+    return static_cast<ColorSettingsModel *>(static_cast<QSortFilterProxyModel *>(model())->sourceModel());
 }
 
 void ColorThemeListView::blinkTimeout()
@@ -328,6 +341,14 @@ QVariant ColorSettingsModel::data(const QModelIndex &index, int role) const
         return QVariant::fromValue(optionInfoMap__[theme.at(index.row()).optionName].info);
     }
 
+    if (role == allFieldsRole) {
+        const QString name = theme.at(index.row()).optionName;
+        return QVariant::fromValue(optionInfoMap__[name].displayingtext + " " +
+                optionInfoMap__[theme.at(index.row()).optionName].info + " " +
+                name);
+    }
+
+
     return QVariant();
 }
 
@@ -356,6 +377,12 @@ void ColorSettingsModel::updateTheme()
         theme.push_back({it.key(), QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt(), rgb[3].toInt()), false});
     }
 
+    std::sort(theme.begin(), theme.end(), [](const ColorOption& f, const ColorOption& s) {
+        QString s1 = optionInfoMap__[f.optionName].displayingtext;
+        QString s2 = optionInfoMap__[s.optionName].displayingtext;
+        int r = s1.compare(s2, Qt::CaseSensitivity::CaseInsensitive);
+        return r < 0;
+    });
     if (!theme.isEmpty()) {
         dataChanged(index(0), index(theme.size() - 1));
     }
