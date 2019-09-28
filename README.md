@@ -2,7 +2,7 @@
 
 # Cutter
 
-Cutter is a free and open-source GUI for radare2 reverse engineering framework. Its goal is making an advanced, customizable and FOSS reverse-engineering platform while keeping the user experience at mind. Cutter is created by reverse engineers for reverse engineers.  
+Cutter is a free and open-source reverse engineering framework powered by [radare2](https://github.com/radareorg/radare2) . Its goal is making an advanced, customizable and FOSS reverse-engineering platform while keeping the user experience at mind. Cutter is created by reverse engineers for reverse engineers.  
 
 [![Build Status](https://travis-ci.org/radareorg/cutter.svg?branch=master)](https://travis-ci.org/radareorg/cutter)
 [![Build status](https://ci.appveyor.com/api/projects/status/s9rkx1dn3uy4bfdx/branch/master?svg=true)](https://ci.appveyor.com/project/radare/cutter/branch/master)
@@ -10,8 +10,9 @@ Cutter is a free and open-source GUI for radare2 reverse engineering framework. 
 
 ![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/source/images/screenshot.png)
 
+## Learn more at [https://cutter.re](https://cutter.re).
 
-# Downloading a release
+## Downloading a release
 
 Cutter is available for all platforms (Linux, macOS, Windows).
 You can download the latest release [here](https://github.com/radareorg/cutter/releases).
@@ -23,20 +24,26 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 
 ## Building from sources
 
-To build Cutter on your local machine, please follow this guide: [Building from source](https://cutter.re/docs/building.html)
+To build Cutter on your local machine, please follow this guide: [Building from source](https://cutter.re/build/)
 
 ## Docker
 
 To deploy *cutter* using a pre-built `Dockerfile`, it's possible to use the [provided configuration](docker). The corresponding `README.md` file also contains instructions on how to get started using the docker image with minimal effort.
 
-# Documentation
+## Documentation
 
-You can find our documentation [here](https://cutter.re/docs/).
+You can find our documentation in our [website](https://cutter.re/docs/).
 
-# Help
+## Plugins
+Cutter supports both Python and Native C++ plugins. Want to extend Cutter with Plugins? Read the [Plugins](https://cutter.re/docs/plugins) section on our documentation.
 
-Right now the best place to obtain help from *Cutter* developers and community is to contact us on:
+### Official and Community Plugins
+Our community built many plugins and useful scripts for Cutter such as the native integration of Ghidra decompiler or the plugin to visualize DynamoRIO code coverage. You can find more plugins in the [following list](https://github.com/radareorg/cutter-plugins). Don't hesitate to extend it with your own plugins and scripts for Cutter.
 
-- https://t.me/r2cutter
-- #cutter on irc.freenode.net
-- [@r2gui](https://twitter.com/r2gui) on Twitter
+## Help
+
+The best place to obtain help from *Cutter* developers and community is to contact us on:
+
+- **Telegram:** https://t.me/r2cutter
+- **IRC:** #cutter on irc.freenode.net
+- **Twitter:** [@r2gui](https://twitter.com/r2gui)
