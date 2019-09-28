@@ -306,6 +306,11 @@ void HexdumpWidget::on_hexSideTab_2_currentChanged(int /*index*/)
 
 void HexdumpWidget::resizeEvent(QResizeEvent *event)
 {
+    // Heuristics to hide sidebar when it hides the content of the hexdump. 600px looks just "okay"
+    // Only applied when widget width is decreased to avoid unwanted behavior
+    if (event->oldSize().width() > event->size().width() && event->size().width() < 600) {
+        showSidePanel(false);
+    }
     QDockWidget::resizeEvent(event);
     refresh();
 }
