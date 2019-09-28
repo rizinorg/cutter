@@ -86,8 +86,8 @@ void Dashboard::updateContents()
     setPlainText(ui->stringsLineEdit, QString::number(analinfo["strings"].toInt()));
     setPlainText(ui->symbolsLineEdit, QString::number(analinfo["symbols"].toInt()));
     setPlainText(ui->importsLineEdit, QString::number(analinfo["imports"].toInt()));
-    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toInt()));
-    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toInt()));
+    setPlainText(ui->coverageLineEdit, QString::number(analinfo["covrage"].toInt()) + " bytes");
+    setPlainText(ui->codeSizeLineEdit, QString::number(analinfo["codesz"].toInt()) + " bytes");
     setPlainText(ui->percentageLineEdit, QString::number(analinfo["percent"].toInt()) + "%");
 
     QStringList libs = Core()->cmdList("il");
