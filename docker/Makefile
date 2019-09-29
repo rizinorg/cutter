@@ -17,6 +17,8 @@ VERSION ?= latest
 IMAGE_NAME ?= radareorg/cutter
 CONTAINER_NAME ?= cutter
 
+LOCAL_DEV ?= n
+
 # This will output the help for each task
 # thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 .PHONY: help
@@ -28,10 +30,10 @@ help: ## This help
 
 # Build the container
 build: ## Build the container
-	sudo docker build --rm -t $(IMAGE_NAME) .
+	sudo docker build --rm -t $(IMAGE_NAME) $(if $(LOCAL_DEV) == 'y',-f ./Dockerfile-dev ../,.)
 
 build-nc: ## Build the container without caching
-	sudo docker build --rm --no-cache -t $(IMAGE_NAME) .
+	sudo docker build --rm --no-cache -t $(IMAGE_NAME) $(if $(LOCAL_DEV) == 'y',-f ./Dockerfile-dev ../,.)
 
 run: ## Run container
 	XSOCK=/tmp/.X11-unix && \

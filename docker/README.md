@@ -6,6 +6,10 @@ These files provide an easy way to deploy *Cutter* in a Docker container. After 
 - Mount directives to mount a shared folder and radare2 configuration files.
 - The UID and GID of the user executing `make run` will also be used for the internal container user to avoid permission problems when sharing files.
 
+## Using Local Files
+
+To deploy *Cutter* using local files rather than those in the Master branch set LOCAL_DEV to 'y' when executing `make build` or `make build-nc`, e.g. `make LOCAL_DEV=y build`. This will tell *make* to use `Dockerfile-dev` rather than `Dockerfile` which will copy local files into the container rather than cloning from Git. 
+
 ## Mounting and Using a Specific Binary
 
 The `Makefile` allows mounting a single binary file as read-only, which will also be used as an input for *Cutter*. To use this feature, execute `make run BINARY=/absolute/path/to/binary`.
