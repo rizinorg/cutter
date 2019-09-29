@@ -22,10 +22,17 @@ RUN apk add --no-cache \
         unzip \
         wget
 
+# install radare2 first
+COPY ./build_radare2.sh /opt/cutter/
+COPY ./radare2 /opt/cutter/radare2
+
+RUN cd /opt/cutter && \
+    bash build_radare2.sh
+
 COPY . /opt/cutter
 
 RUN cd /opt/cutter && \
-    bash build.sh && \
+    bash build_rest.sh && \
     bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
 
 FROM alpine:edge AS runner
