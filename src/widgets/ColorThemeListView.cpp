@@ -39,7 +39,7 @@ void ColorOptionDelegate::paint(QPainter *painter,
                                 const QStyleOptionViewItem &option,
                                 const QModelIndex &index) const
 {
-    int margin = this->margin * 1;
+    int margin = this->margin * painter->device()->devicePixelRatioF();
     painter->save();
     painter->setFont(option.font);
     painter->setRenderHint(QPainter::Antialiasing);
