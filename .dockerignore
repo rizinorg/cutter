@@ -1,5 +1,12 @@
-.git*
-docs
-*.md
-*.yml
-*.bat
+*
+!docker/entrypoint.sh
+!scripts/
+!src/
+!build*.sh
+!radare2/*/
+radare2/.*/
+radare2/doc
+radare2/man
+!radare2/config-user.mk.acr
+!radare2/configure
+!radare2/Makefile
