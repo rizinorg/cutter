@@ -1,0 +1,5 @@
+.git*
+docs
+*.md
+*.yml
+*.bat

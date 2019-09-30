@@ -23,37 +23,31 @@ RUN apk add --no-cache \
         wget
 
 # install radare2 first
-COPY ./build_radare2.sh /opt/cutter/
-COPY ./radare2 /opt/cutter/radare2
+COPY build_radare2.sh /opt/cutter/
+COPY radare2 /opt/cutter/radare2
 
-RUN cd /opt/cutter && \
-    bash build_radare2.sh
+WORKDIR /opt/cutter
+RUN bash build_radare2.sh
 
-COPY . /opt/cutter
+COPY build_cutter.sh /opt/cutter/
+COPY scripts /opt/cutter/scripts
+COPY src /opt/cutter/src
 
-RUN cd /opt/cutter && \
-    bash build_rest.sh && \
+RUN bash build_cutter.sh && \
     bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
 
 FROM alpine:edge AS runner
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Add the dependencies we need for running
 RUN apk add --no-cache \
-         bash \
-         libuuid \
-         make \
-         python3 \
-         qt5-qtbase \
-         shadow \
-         su-exec
-
-# Get the compiled Cutter, r2 libs and bins from the builder
-COPY --from=builder /opt/cutter /opt/cutter
-COPY --from=builder /usr/lib /usr/lib
-COPY --from=builder /usr/share/radare2 /usr/share/radare2
-RUN cd /opt/cutter/radare2/binr && \
-    make install && \
-    make symstall install-symlink
+        bash \
+        libuuid \
+        make \
+        python3 \
+        qt5-qtbase \
+        shadow \
+        su-exec
 
 # Add r2 user
 RUN useradd r2
@@ -65,8 +59,12 @@ RUN mkdir /var/sharedFolder && \
     chown -R r2:r2 /var/sharedFolder && \
     chown -R r2:r2 /home/r2/
 
-WORKDIR /home/r2
+COPY ./docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-ADD ./docker/entrypoint.sh /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+# Get the compiled Cutter, r2 libs and bins from the builder
+COPY --from=builder /opt/cutter /opt/cutter
+COPY --from=builder /usr/lib /usr/lib
+COPY --from=builder /usr/share/radare2 /usr/share/radare2
+WORKDIR /opt/cutter/radare2/binr
+RUN make install && \
+make symstall install-symlink
