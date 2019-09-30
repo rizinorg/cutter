@@ -73,8 +73,6 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
         refresh(offset ? *offset : RVA_INVALID);
     });
 
-    connect(&syncAction, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
-    syncAction.setText(tr("Sync/unsync offset"));
     this->ui->hexTextView->addAction(&syncAction);
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));

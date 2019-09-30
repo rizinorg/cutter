@@ -81,6 +81,7 @@ void AboutDialog::on_showPluginsButton_clicked()
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
     UpdateWorker updateWorker;
 
     QProgressDialog waitDialog;
@@ -106,6 +107,7 @@ void AboutDialog::on_checkForUpdatesButton_clicked()
 
     updateWorker.checkCurrentVersion(7000);
     waitDialog.exec();
+#endif
 }
 
 void AboutDialog::on_updatesCheckBox_stateChanged(int)

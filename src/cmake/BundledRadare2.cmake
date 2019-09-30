@@ -26,7 +26,7 @@ set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
 
 add_library(Radare2 INTERFACE)
 add_dependencies(Radare2 Radare2-Bundled)
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13.0")
+if(NOT (${CMAKE_VERSION} VERSION_LESS "3.13.0"))
     target_link_directories(Radare2 INTERFACE "${RADARE2_INSTALL_DIR}/lib")
 else()
     link_directories("${RADARE2_INSTALL_DIR}/lib")

@@ -4,6 +4,9 @@
 #include <QDir>
 #include <QCoreApplication>
 
+#include <cassert>
+#include <memory>
+
 #include "common/TempConfig.h"
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"

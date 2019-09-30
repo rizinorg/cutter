@@ -4,6 +4,8 @@
 #include "CutterDockWidget.h"
 #include "core/Cutter.h"
 
+#include <QAction>
+
 class CutterSeekable;
 
 /* Disassembly/Graph/Hexdump/Decompiler view priority */
@@ -34,6 +36,7 @@ public slots:
 
 protected:
     CutterSeekable *seekable = nullptr;
+    QAction syncAction;
 
     virtual QString getWindowTitle() const = 0;
 };

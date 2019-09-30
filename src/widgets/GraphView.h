@@ -17,7 +17,12 @@
 #include "core/Cutter.h"
 #include "widgets/GraphLayout.h"
 
-#ifndef QT_NO_OPENGL
+#if defined(QT_NO_OPENGL) || QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+// QOpenGLExtraFunctions were introduced in 5.6
+#define CUTTER_NO_OPENGL_GRAPH
+#endif
+
+#ifndef CUTTER_NO_OPENGL_GRAPH
 class QOpenGLWidget;
 #endif
 
@@ -153,7 +158,7 @@ private:
      */
     QPixmap pixmap;
 
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     uint32_t cacheTexture;
     uint32_t cacheFBO;
     QSize cacheSize;

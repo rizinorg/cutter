@@ -169,9 +169,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(mCtxMenu, SIGNAL(copy()), mDisasTextEdit, SLOT(copy()));
 
     mCtxMenu->addSeparator();
-    syncIt.setText(tr("Sync/unsync offset"));
-    mCtxMenu->addAction(&syncIt);
-    connect(&syncIt, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
+    mCtxMenu->addAction(&syncAction);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblyWidget::on_seekChanged);
 
     addActions(mCtxMenu->actions());
@@ -907,10 +905,11 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     }
 
     const RVA currOffset = disas->getSeekable()->getOffset();
+    qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
     // Draw the lines
     for (const auto& l : lines) {
         int lineOffset = int((distanceBetweenLines * arrowInfo[l.offset].second + distanceBetweenLines) *
-                         p.device()->devicePixelRatioF());
+                         pixelRatio);
         // Skip until we reach a line that jumps to a destination
         if (l.arrow == RVA_INVALID) {
             continue;

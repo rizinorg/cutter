@@ -327,7 +327,7 @@ QColor ColorPicker::getColorAtMouse()
     const QPixmap pixmap = QGuiApplication::screens().at(desktop->screenNumber())
                            ->grabWindow(desktop->winId(),
                                         QCursor::pos().x(), QCursor::pos().y(), 1, 1);
-    return pixmap.toImage().pixelColor(0, 0);
+    return QColor(pixmap.toImage().pixel(0, 0));
 }
 
 bool ColorPicker::isPickingFromScreen() const

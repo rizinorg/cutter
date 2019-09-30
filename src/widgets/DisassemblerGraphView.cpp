@@ -9,6 +9,7 @@
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
 #include "dialogs/MultitypeFileSaveDialog.h"
+#include "common/Helpers.h"
 
 #include <QColorDialog>
 #include <QPainter>
@@ -27,6 +28,7 @@
 #include <QStandardPaths>
 #include <QClipboard>
 #include <QApplication>
+#include <QAction>
 
 #include <cmath>
 
@@ -36,7 +38,9 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
       mFontMetrics(nullptr),
       blockMenu(new DisassemblyContextMenu(this, mainWindow)),
       contextMenu(new QMenu(this)),
-      seekable(seekable)
+      seekable(seekable),
+      actionExportGraph(this),
+      actionUnhighlight(this)
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
@@ -100,8 +104,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     // Export Graph menu
     actionExportGraph.setText(tr("Export Graph"));
     connect(&actionExportGraph, SIGNAL(triggered(bool)), this, SLOT(on_actionExportGraph_triggered()));
-    actionSyncOffset.setText(tr("Sync/unsync offset"));
-    connect(&actionSyncOffset, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
 
     // Context menu that applies to everything
     contextMenu->addAction(&actionExportGraph);
@@ -133,7 +135,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     }
     layoutMenu->addActions(layoutGroup->actions());
     contextMenu->addSeparator();
-    contextMenu->addAction(&actionSyncOffset);
+    //contextMenu->addAction(&syncAction); TODO:[#1796] deal with this
 
 
     QAction *highlightBB = new QAction(this);
@@ -484,7 +486,8 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     // Stop rendering text when it's too small
     auto transform = p.combinedTransform();
     QRect screenChar = transform.mapRect(QRect(0, 0, charWidth, charHeight));
-    if (screenChar.width() * p.device()->devicePixelRatioF() < 4) {
+
+    if (screenChar.width() * qhelpers::devicePixelRatio(p.device()) < 4) {
         return;
     }
 

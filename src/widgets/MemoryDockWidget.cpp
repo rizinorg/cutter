@@ -6,12 +6,15 @@
 
 MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action)
     : CutterDockWidget(parent, action)
-    , mType(type), seekable(new CutterSeekable(this))
+    , mType(type)
+    , seekable(new CutterSeekable(this))
+    , syncAction(tr("Sync/unsync offset"), this)
 {
     if (parent) {
         parent->addMemoryDockWidget(this);
     }
     connect(seekable, &CutterSeekable::syncChanged, this, &MemoryDockWidget::updateWindowTitle);
+    connect(&syncAction, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
 }
 
 bool MemoryDockWidget::tryRaiseMemoryWidget()

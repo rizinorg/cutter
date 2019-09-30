@@ -4,6 +4,7 @@
 #ifdef CUTTER_ENABLE_GRAPHVIZ
 #include "GraphvizLayout.h"
 #endif
+#include "Helpers.h"
 
 #include <vector>
 #include <QPainter>
@@ -12,7 +13,7 @@
 #include <QPropertyAnimation>
 #include <QSvgGenerator>
 
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
 #include <QOpenGLContext>
 #include <QOpenGLWidget>
 #include <QOpenGLPaintDevice>
@@ -22,12 +23,12 @@
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
     , useGL(false)
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     , cacheTexture(0)
     , cacheFBO(0)
 #endif
 {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     if (useGL) {
         glWidget = new QOpenGLWidget(this);
         setViewport(glWidget);
@@ -154,7 +155,7 @@ void GraphView::setViewScale(qreal scale)
 QSize GraphView::getCacheSize()
 {
     return
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         useGL ? cacheSize :
 #endif
         pixmap.size();
@@ -163,33 +164,29 @@ QSize GraphView::getCacheSize()
 qreal GraphView::getCacheDevicePixelRatioF()
 {
     return
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         useGL ? 1.0 :
 #endif
-        pixmap.devicePixelRatioF();
+        qhelpers::devicePixelRatio(&pixmap);
 }
 
 QSize GraphView::getRequiredCacheSize()
 {
-    return
-#ifndef QT_NO_OPENGL
-        useGL ? viewport()->size() :
-#endif
-        viewport()->size() * devicePixelRatioF();
+    return viewport()->size() * getRequiredCacheDevicePixelRatioF();
 }
 
 qreal GraphView::getRequiredCacheDevicePixelRatioF()
 {
     return
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         useGL ? 1.0f :
 #endif
-        devicePixelRatioF();
+        qhelpers::devicePixelRatio(this);
 }
 
 void GraphView::paintEvent(QPaintEvent *)
 {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     if (useGL) {
         glWidget->makeCurrent();
     }
@@ -206,7 +203,7 @@ void GraphView::paintEvent(QPaintEvent *)
     }
 
     if (useGL) {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         auto gl = glWidget->context()->extraFunctions();
         gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, cacheFBO);
         gl->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glWidget->defaultFramebufferObject());
@@ -249,12 +246,12 @@ void GraphView::addViewOffset(QPoint move, bool emitSignal)
 
 void GraphView::paintGraphCache()
 {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     QOpenGLPaintDevice *paintDevice = nullptr;
 #endif
     QPainter p;
     if (useGL) {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         auto gl = QOpenGLContext::currentContext()->functions();
 
         bool resizeTex = false;
@@ -289,7 +286,7 @@ void GraphView::paintGraphCache()
         p.begin(paintDevice);
 #endif
     } else {
-        auto dpr = devicePixelRatioF();
+        auto dpr = qhelpers::devicePixelRatio(this);
         pixmap = QPixmap(getRequiredCacheSize());
         pixmap.setDevicePixelRatio(dpr);
         p.begin(&pixmap);
@@ -299,7 +296,7 @@ void GraphView::paintGraphCache()
     paint(p, offset, this->viewport()->rect(), current_scale);
 
     p.end();
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     delete paintDevice;
 #endif
 }

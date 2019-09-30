@@ -17,6 +17,7 @@ enum ColumnIndex {
 StackWidget::StackWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::StackWidget),
+    menuText(this),
     addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);

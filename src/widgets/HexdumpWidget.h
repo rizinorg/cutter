@@ -62,8 +62,6 @@ private:
 
     QString getWindowTitle() const override;
 
-    QAction syncAction;
-
 private slots:
     void onSeekChanged(RVA addr);
 

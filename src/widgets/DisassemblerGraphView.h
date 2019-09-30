@@ -216,7 +216,6 @@ private:
 
     QAction actionExportGraph;
     QAction actionUnhighlight;
-    QAction actionSyncOffset;
 
     QLabel *emptyText = nullptr;
 signals:
