@@ -196,12 +196,18 @@ void StackWidget::onItemChanged(QStandardItem *item)
     // Queue the update instead of performing immediately. Editing will trigger reload.
     // Performing reload while itemChanged signal is on stack would result
     // in itemView getting stuck in EditingState and preventing further edits.
-    QMetaObject::invokeMethod(this, [this, index, row, text]() {
-        QString offsetString = index.sibling(row, COLUMN_OFFSET).data().toString();
-        bool ok = false;
-        auto offset = offsetString.toULongLong(&ok, 16);
-        if (ok) {
-            Core()->editBytesEndian(offset, text);
-        }
-    }, Qt::QueuedConnection);
+    QString offsetString = index.sibling(row, COLUMN_OFFSET).data().toString();
+    bool ok = false;
+    auto offset = offsetString.toULongLong(&ok, 16);
+    if (ok) {
+        queuedEditOffset = offset;
+        queuedEditData = text;
+        QMetaObject::invokeMethod(this, &StackWidget::performQueuedWrite, Qt::QueuedConnection);
+    }
+}
+
+void StackWidget::performQueuedWrite()
+{
+    Core()->editBytesEndian(queuedEditOffset, queuedEditData);
+    queuedEditData.clear();
 }

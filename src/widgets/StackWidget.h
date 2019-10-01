@@ -32,6 +32,7 @@ private slots:
     void editStack();
     void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void onItemChanged(QStandardItem *item);
+    void performQueuedWrite();
 
 private:
     std::unique_ptr<Ui::StackWidget> ui;
@@ -42,4 +43,7 @@ private:
     RefreshDeferrer *refreshDeferrer;
     AddressableItemContextMenu addressableItemContextMenu;
     bool updatingData = false;
+
+    RVA queuedEditOffset = 0;
+    QString queuedEditData;
 };
