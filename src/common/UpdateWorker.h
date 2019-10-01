@@ -1,10 +1,21 @@
 #ifndef UPDATEWORKER_H
 #define UPDATEWORKER_H
 
+#include <QtGlobal>
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+#define CUTTER_UPDATE_WORKER_AVAILABLE 1
+#else
+#define CUTTER_UPDATE_WORKER_AVAILABLE 0
+#endif
+
+#if CUTTER_UPDATE_WORKER_AVAILABLE
+
 #include <QDir>
 #include <QTimer>
 #include <QObject>
 #include <QtNetwork/QNetworkAccessManager>
+
 #include <QVersionNumber>
 
 class QNetworkReply;
@@ -126,4 +137,5 @@ private:
     QNetworkReply *checkReply;
 };
 
+#endif //CUTTER_UPDATE_WORKER_AVAILABLE
 #endif // UPDATEWORKER_H

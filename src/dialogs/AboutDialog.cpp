@@ -54,6 +54,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     QSignalBlocker s(ui->updatesCheckBox);
     ui->updatesCheckBox->setChecked(Config()->getAutoUpdateEnabled());
+
+    if (!CUTTER_UPDATE_WORKER_AVAILABLE) {
+        ui->updatesCheckBox->hide();
+        ui->checkForUpdatesButton->hide();
+    }
 }
 
 AboutDialog::~AboutDialog() {}
@@ -81,7 +86,7 @@ void AboutDialog::on_showPluginsButton_clicked()
 
 void AboutDialog::on_checkForUpdatesButton_clicked()
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+#if CUTTER_UPDATE_WORKER_AVAILABLE
     UpdateWorker updateWorker;
 
     QProgressDialog waitDialog;

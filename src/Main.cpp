@@ -148,6 +148,7 @@ int main(int argc, char *argv[])
     migrateThemes();
 
     if (Config()->getAutoUpdateEnabled()) {
+#if CUTTER_UPDATE_WORKER_AVAILABLE
         UpdateWorker *updateWorker = new UpdateWorker;
         QObject::connect(updateWorker, &UpdateWorker::checkComplete,
                          [=](const QVersionNumber &version, const QString & error) {
@@ -157,6 +158,7 @@ int main(int argc, char *argv[])
             updateWorker->deleteLater();
         });
         updateWorker->checkCurrentVersion(7000);
+#endif
     }
 
     int ret = a.exec();
