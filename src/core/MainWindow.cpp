@@ -1406,11 +1406,13 @@ void MainWindow::on_actionExport_as_code_triggered()
 
 void MainWindow::on_actionGrouped_dock_dragging_triggered(bool checked)
 {
-    auto options = dockOptions();
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
+    auto options = dockOptions();
     options.setFlag(QMainWindow::DockOption::GroupedDragging, checked);
-#endif
     setDockOptions(options);
+#else
+    Q_UNUSED(checked);
+#endif
 }
 
 void MainWindow::seekToFunctionLastInstruction()
