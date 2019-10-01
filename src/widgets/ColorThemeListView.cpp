@@ -267,7 +267,7 @@ void ColorThemeListView::mouseReleaseEvent(QMouseEvent* e)
         QJsonArray rgb = ThemeWorker().getTheme(
                              Config()->getColorTheme()).object()[co.optionName].toArray();
         co.color = QColor(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
-        colorSettingsModel()->setData(currentIndex(), QVariant::fromValue(co));
+        model()->setData(currentIndex(), QVariant::fromValue(co));
         QCursor c;
         c.setShape(Qt::CursorShape::ArrowCursor);
         setCursor(c);
