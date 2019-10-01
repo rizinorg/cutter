@@ -77,20 +77,11 @@ void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, 
 
 bool GraphView::helpEvent(QHelpEvent *event)
 {
-    int x = event->pos().x() + offset.x();
-    int y = event->pos().y() - offset.y();
-
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-
-        if ((block.x <= x) && (block.y <= y) &&
-                (x <= block.x + block.width) & (y <= block.y + block.height)) {
-            QPoint pos = QPoint(x - block.x, y - block.y);
-            blockHelpEvent(block, event, pos);
-            return true;
-        }
+    auto p = viewToLogicalCoordinates(event->pos());
+    if (auto block = getBlockContaining(p)) {
+        blockHelpEvent(*block, event, p - QPoint(block->x, block->y));
+        return true;
     }
-
     return false;
 }
 
@@ -112,6 +103,10 @@ GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock 
     return ec;
 }
 
+void GraphView::blockContextMenuRequested(GraphView::GraphBlock &, QContextMenuEvent *, QPoint)
+{
+}
+
 bool GraphView::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
@@ -121,6 +116,17 @@ bool GraphView::event(QEvent *event)
     }
 
     return QAbstractScrollArea::event(event);
+}
+
+void GraphView::contextMenuEvent(QContextMenuEvent *event)
+{
+    event->ignore();
+    if (event->reason() == QContextMenuEvent::Mouse) {
+        QPoint p = viewToLogicalCoordinates(event->pos());
+        if (auto block = getBlockContaining(p)) {
+            blockContextMenuRequested(*block, event, p);
+        }
+    }
 }
 
 // This calculates the full graph starting at block entry.
@@ -485,6 +491,25 @@ void GraphView::showRectangle(const QRect &block, bool anywhere)
     viewport()->update();
 }
 
+GraphView::GraphBlock *GraphView::getBlockContaining(QPoint p)
+{
+    // Check if a block was clicked
+    for (auto &blockIt : blocks) {
+        GraphBlock &block = blockIt.second;
+
+        QRect rec(block.x, block.y, block.width, block.height);
+        if (rec.contains(p)) {
+            return &block;
+        }
+    }
+    return nullptr;
+}
+
+QPoint GraphView::viewToLogicalCoordinates(QPoint p)
+{
+    return p / current_scale + offset;
+}
+
 void GraphView::setGraphLayout(GraphView::Layout layout)
 {
     graphLayout = layout;
@@ -547,21 +572,14 @@ void GraphView::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    int x = event->pos().x() / current_scale + offset.x();
-    int y = event->pos().y() / current_scale + offset.y();
+    QPoint pos = viewToLogicalCoordinates(event->pos());
 
     // Check if a block was clicked
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-
-        if ((block.x <= x) && (block.y <= y) &&
-                (x <= block.x + block.width) & (y <= block.y + block.height)) {
-            QPoint pos = QPoint(x - block.x, y - block.y);
-            blockClicked(block, event, pos);
-            // Don't do anything else here! blockClicked might seek and
-            // all our data is invalid then.
-            return;
-        }
+    if (auto block = getBlockContaining(pos)) {
+        blockClicked(*block, event, pos - QPoint(block->x, block->y));
+        // Don't do anything else here! blockClicked might seek and
+        // all our data is invalid then.
+        return;
     }
 
     // Check if a line beginning/end  was clicked
@@ -574,13 +592,13 @@ void GraphView::mousePressEvent(QMouseEvent *event)
                 }
                 QPointF start = edge.polyline.first();
                 QPointF end = edge.polyline.last();
-                if (checkPointClicked(start, x, y)) {
+                if (checkPointClicked(start, pos.x(), pos.y())) {
                     showBlock(blocks[edge.target]);
                     // TODO: Callback to child
                     return;
                     break;
                 }
-                if (checkPointClicked(end, x, y, true)) {
+                if (checkPointClicked(end, pos.x(), pos.y(), true)) {
                     showBlock(block);
                     // TODO: Callback to child
                     return;
@@ -612,19 +630,9 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() / current_scale + offset.x();
-    int y = event->pos().y() / current_scale + offset.y();
-
-    // Check if a block was clicked
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-
-        if ((block.x <= x) && (block.y <= y) &&
-                (x <= block.x + block.width) & (y <= block.y + block.height)) {
-            QPoint pos = QPoint(x - block.x, y - block.y);
-            blockDoubleClicked(block, event, pos);
-            return;
-        }
+    auto p = viewToLogicalCoordinates(event->pos());
+    if (auto block = getBlockContaining(p)) {
+        blockDoubleClicked(*block, event, p - QPoint(block->x, block->y));
     }
 }
 

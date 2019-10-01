@@ -33,7 +33,7 @@
 #include <cmath>
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
-                                             MainWindow *mainWindow)
+                                             MainWindow *mainWindow, QList<QAction *> additionalMenuActions)
     : GraphView(parent),
       mFontMetrics(nullptr),
       blockMenu(new DisassemblyContextMenu(this, mainWindow)),
@@ -135,7 +135,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     }
     layoutMenu->addActions(layoutGroup->actions());
     contextMenu->addSeparator();
-    //contextMenu->addAction(&syncAction); TODO:[#1796] deal with this
+    contextMenu->addActions(additionalMenuActions);
 
 
     QAction *highlightBB = new QAction(this);
@@ -651,7 +651,7 @@ RVA DisassemblerGraphView::getAddrForMouseEvent(GraphBlock &block, QPoint *point
 }
 
 DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
-    GraphView::GraphBlock &block, QPoint *point)
+    GraphView::GraphBlock &block, QPoint *point, bool force)
 {
     DisassemblyBlock &db = disassembly_blocks[block.entry];
 
@@ -669,6 +669,13 @@ DisassemblerGraphView::Instr *DisassemblerGraphView::getInstrForMouseEvent(
             return &instr;
         }
         cur_row += instr.text.lines.size();
+    }
+    if (force && !db.instrs.empty()) {
+        if (mouse_row <= 0) {
+            return &db.instrs.front();
+        } else {
+            return &db.instrs.back();
+        }
     }
 
     return nullptr;
@@ -938,7 +945,7 @@ QPoint DisassemblerGraphView::getInstructionOffset(const DisassemblyBlock &block
 void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEvent *event,
                                          QPoint pos)
 {
-    Instr *instr = getInstrForMouseEvent(block, &pos);
+    Instr *instr = getInstrForMouseEvent(block, &pos, event->button() == Qt::RightButton);
     if (!instr) {
         return;
     }
@@ -955,12 +962,25 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
     if (highlight_token) {
         blockMenu->setCurHighlightedWord(highlight_token->content);
     }
-    if (event->button() == Qt::RightButton) {
-        actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
-        event->accept();
-        blockMenu->exec(event->globalPos());
-    }
     viewport()->update();
+}
+
+void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &block,
+                                                      QContextMenuEvent *event, QPoint pos)
+{
+    actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
+    event->accept();
+    blockMenu->exec(event->globalPos());
+}
+
+void DisassemblerGraphView::contextMenuEvent(QContextMenuEvent *event)
+{
+    GraphView::contextMenuEvent(event);
+    if (!event->isAccepted()) {
+        //TODO: handle opening block menu using keyboard
+        contextMenu->exec(event->globalPos());
+        event->accept();
+    }
 }
 
 void DisassemblerGraphView::blockDoubleClicked(GraphView::GraphBlock &block, QMouseEvent *event,
@@ -1115,16 +1135,13 @@ void DisassemblerGraphView::exportR2GraphvizGraph(QString filePath, QString type
 {
     TempConfig tempConfig;
     tempConfig.set("graph.gv.format", type);
-    qWarning() << Core()->cmdRaw(QString("agfw \"%1\" @ 0x%2").arg(filePath).arg(currentFcnAddr, 0, 16));
+    qWarning() << Core()->cmdRaw(QString("agfw \"%1\" @ 0x%2")
+                                 .arg(filePath).arg(currentFcnAddr, 0, 16));
 }
 
 void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
 {
     GraphView::mousePressEvent(event);
-    if (!event->isAccepted() && event->button() == Qt::RightButton) {
-        contextMenu->exec(event->globalPos());
-        event->accept();
-    }
     emit graphMoved();
 }
 

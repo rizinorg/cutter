@@ -69,6 +69,13 @@ public:
      * @param anywhere - set to true for minimizing movement
      */
     void showRectangle(const QRect &rect, bool anywhere = false);
+    /**
+     * @brief Get block containing specified point logical coordinates.
+     * @param p positionin graph logical coordinates
+     * @return Block or nullptr if position is outside all blocks.
+     */
+    GraphView::GraphBlock *getBlockContaining(QPoint p);
+    QPoint viewToLogicalCoordinates(QPoint p);
 
     void setGraphLayout(Layout layout);
     Layout getGraphLayout() const { return graphLayout; }
@@ -106,8 +113,11 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to,
                                                 bool interactive = true);
+    virtual void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
+                                           QPoint pos);
 
     bool event(QEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     // Mouse events
     void mousePressEvent(QMouseEvent *event) override;
