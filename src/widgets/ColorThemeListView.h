@@ -14,6 +14,7 @@ struct ColorOption {
 };
 Q_DECLARE_METATYPE(ColorOption);
 
+class ColorSettingsModel;
 
 class ColorThemeListView : public QListView
 {
@@ -21,6 +22,8 @@ class ColorThemeListView : public QListView
 public:
     ColorThemeListView(QWidget *parent = nullptr);
     virtual ~ColorThemeListView() override {}
+
+    ColorSettingsModel* colorSettingsModel() const;
 
 protected slots:
     void currentChanged(const QModelIndex &current,
@@ -32,6 +35,7 @@ protected slots:
     void mouseReleaseEvent(QMouseEvent *e) override;
 
     void mouseMoveEvent(QMouseEvent *e) override;
+
 
 private slots:
     void blinkTimeout();

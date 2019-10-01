@@ -9,6 +9,7 @@
 
 #include <QScreen>
 #include <QKeyEvent>
+#include <QSortFilterProxyModel>
 
 ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
     QDialog(parent),
@@ -50,6 +51,11 @@ ColorThemeEditDialog::ColorThemeEditDialog(QWidget *parent) :
         ui->colorPicker->setAlphaEnabled(showAlphaOptions.contains(optionName));
     });
 
+    connect(ui->filterLineEdit, &QLineEdit::textChanged, this,
+            [this](const QString& s) {
+        static_cast<QSortFilterProxyModel*>(ui->colorThemeListView->model())->setFilterFixedString(s);
+    });
+
     ui->colorThemeListView->setCurrentIndex(ui->colorThemeListView->model()->index(0, 0));
 
     connect(ui->colorPicker, &ColorPicker::colorChanged, this, &ColorThemeEditDialog::colorOptionChanged);
@@ -67,7 +73,7 @@ ColorThemeEditDialog::~ColorThemeEditDialog()
 void ColorThemeEditDialog::accept()
 {
     colorTheme = Config()->getColorTheme();
-    QJsonDocument sch = qobject_cast<ColorSettingsModel*>(ui->colorThemeListView->model())->getTheme();
+    QJsonDocument sch = ui->colorThemeListView->colorSettingsModel()->getTheme();
     if (ThemeWorker().isCustomTheme(colorTheme)) {
         QString err = ThemeWorker().save(sch, colorTheme);
         if (!err.isEmpty()) {
@@ -115,7 +121,6 @@ void ColorThemeEditDialog::keyPressEvent(QKeyEvent *event)
 
 void ColorThemeEditDialog::colorOptionChanged(const QColor& newColor)
 {
-    auto model = qobject_cast<ColorSettingsModel*>(ui->colorThemeListView->model());
     QModelIndex currIndex = ui->colorThemeListView->currentIndex();
 
     if (!currIndex.isValid()) {
@@ -125,7 +130,7 @@ void ColorThemeEditDialog::colorOptionChanged(const QColor& newColor)
     ColorOption currOption = currIndex.data(Qt::UserRole).value<ColorOption>();
     currOption.color = newColor;
     currOption.changed = true;
-    model->setData(currIndex, QVariant::fromValue(currOption));
+    ui->colorThemeListView->model()->setData(currIndex, QVariant::fromValue(currOption));
 
     Config()->setColor(currOption.optionName, currOption.color);
     if (!ColorThemeWorker::cutterSpecificOptions.contains(currOption.optionName)) {
@@ -151,13 +156,13 @@ void ColorThemeEditDialog::editThemeChanged(const QString& newTheme)
         }
     }
     colorTheme = newTheme;
-    qobject_cast<ColorSettingsModel*>(ui->colorThemeListView->model())->updateTheme();
+    ui->colorThemeListView->colorSettingsModel()->updateTheme();
     previewDisasmWidget->colorsUpdatedSlot();
     setWindowTitle(tr("Theme Editor - <%1>").arg(colorTheme));
 }
 
 bool ColorThemeEditDialog::themeWasEdited(const QString& theme) const
 {
-    auto model = qobject_cast<ColorSettingsModel*>(ui->colorThemeListView->model());
+    auto model = ui->colorThemeListView->colorSettingsModel();
     return ThemeWorker().getTheme(theme) != model->getTheme();
 }
