@@ -40,6 +40,7 @@ matrix:
         packages:
          - ninja-build
          - libgraphviz-dev
+         - qt5-default
     before_install:
       - pyenv install 3.5.2
       - pyenv global 3.5.2
