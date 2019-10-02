@@ -41,7 +41,9 @@ matrix:
          - ninja-build
          - libgraphviz-dev
     before_install:
-      - pip3 install meson
+      - pyenv global 3.5.2
+      - pip install meson
+
 
   - name: macOS QMake + Deploy
     os: osx
