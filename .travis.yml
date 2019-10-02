@@ -42,6 +42,7 @@ matrix:
          - libgraphviz-dev
          - qt5-default
          - libqt5svg5-dev
+         - cmake
     before_install:
       - pyenv install 3.5.2
       - pyenv global 3.5.2
@@ -139,6 +140,8 @@ script:
                 ../src &&
             make -j4;
         elif [[ "$BUILD_SYSTEM" == "cmake" ]]; then
+            apt list -a cmake;
+            which cmake;
             cmake
                 -DCMAKE_BUILD_TYPE=Release
                 -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
