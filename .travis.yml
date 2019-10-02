@@ -41,7 +41,7 @@ matrix:
          - ninja-build
          - libgraphviz-dev
     before_install:
-      - pip install meson
+      - pip3 install meson
 
   - name: macOS QMake + Deploy
     os: osx
@@ -95,8 +95,8 @@ addons:
 
 install:
   - if [[ "$BUILD_SYSTEM" != "cmake_nodep" ]]; then
-      scripts/fetch_deps.sh
-      source cutter-deps/env.sh
+      scripts/fetch_deps.sh;
+      source cutter-deps/env.sh;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         export PATH=/usr/local/opt/llvm/bin:$PATH;
