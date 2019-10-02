@@ -41,6 +41,7 @@ matrix:
          - ninja-build
          - libgraphviz-dev
     before_install:
+      - pyenv install 3.5.2
       - pyenv global 3.5.2
       - pip install meson
 
