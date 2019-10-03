@@ -13,7 +13,7 @@ alternatives – cmake and meson.
 In any case, there are obviously some requirements:
 
 * Radare2 installed from submodule
-* Qt 5.9 or above
+* Qt 5.9 or above (can compile using 5.5 with some limitations)
 * Python3.6
 * Breakpad installed using script (optional, disabled by default)
 
@@ -30,6 +30,7 @@ Note that there are three major building options available:
 * ``CUTTER_ENABLE_PYTHON`` compile with Python support
 * ``CUTTER_ENABLE_PYTHON_BINDINGS`` automatically generate Python Bindings with Shiboken2, required for Python plugins!
 * ``CUTTER_ENABLE_CRASH_REPORTS`` is used to compile Cutter with crash handling system enabled (Breakpad)
+* ``CUTTER_USE_BUNDLED_RADARE2`` CMake only, automatically compile Radare2 from submodule.
 
 --------------
 
@@ -91,7 +92,7 @@ Building with Cmake
 Requirements
 ~~~~~~~~~~~~
 
--  CMake >= 3.1
+-  CMake >= 3.5 (recommended >= 3.6)
 
 Building on Linux
 ~~~~~~~~~~~~~~~~~

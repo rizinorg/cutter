@@ -152,11 +152,8 @@ script:
                 ../src &&
             make -j4;
        elif [[ "$BUILD_SYSTEM" == "cmake_nodep" ]]; then
-            apt list -a cmake;
-            which cmake;
             cmake
                 -DCMAKE_BUILD_TYPE=Release
-                -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 -DCUTTER_USE_BUNDLED_RADARE2=ON
                 ../src &&
             make -j4;
