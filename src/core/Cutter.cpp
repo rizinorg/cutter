@@ -1348,7 +1348,7 @@ void CutterCore::disableBreakpoint(RVA addr)
 QList<BreakpointDescription> CutterCore::getBreakpoints()
 {
     QList<BreakpointDescription> ret;
-    QJsonArray breakpointArray = {}; //cmdj("dbj").array();
+    QJsonArray breakpointArray = cmdj("dbj").array();
 
     for (const QJsonValue &value : breakpointArray) {
         QJsonObject bpObject = value.toObject();
