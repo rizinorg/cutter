@@ -23,13 +23,13 @@ RUN apk add --no-cache \
         wget
 
 # install radare2 first
-COPY build_radare2.sh /opt/cutter/
+COPY docker/build_radare2.sh /opt/cutter/
 COPY radare2 /opt/cutter/radare2
 
 WORKDIR /opt/cutter
 RUN bash build_radare2.sh
 
-COPY build_cutter.sh /opt/cutter/
+COPY docker/build_cutter.sh /opt/cutter/
 COPY scripts /opt/cutter/scripts
 COPY src /opt/cutter/src
 
