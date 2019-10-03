@@ -88,6 +88,18 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
     connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doAutoRefresh);
+
+#define ADD_ACTION(ksq, ctx, slot) {\
+    QAction *a = new QAction(this); \
+    a->setShortcut(ksq); \
+    a->setShortcutContext(ctx); \
+    addAction(a); \
+    connect(a, &QAction::triggered, this, (slot)); }
+    
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DecompilerWidget::zoomIn)
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DecompilerWidget::zoomOut)
+    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DecompilerWidget::zoomReset)
+#undef ADD_ACTION
 }
 
 DecompilerWidget::~DecompilerWidget() = default;
@@ -288,4 +300,19 @@ void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
     doRefresh();
+}
+
+void DecompilerWidget::zoomIn()
+{
+  ui->textEdit->zoomIn();
+}
+
+void DecompilerWidget::zoomOut()
+{
+  ui->textEdit->zoomOut();
+}
+
+void DecompilerWidget::zoomReset()
+{
+  setupFonts();
 }

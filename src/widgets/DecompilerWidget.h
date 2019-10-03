@@ -68,6 +68,9 @@ private:
     void updateSelection();
     void connectCursorPositionChanged(bool disconnect);
     void updateCursorPosition();
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
 
     QString getWindowTitle() const override;
 };
