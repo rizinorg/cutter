@@ -33,7 +33,7 @@ matrix:
 
   - name: Linux Ubuntu 16.04
     os: linux
-    env: BUILD_SYSTEM=cmake_nodep
+    env: BUILD_SYSTEM=cmake_nodep PATH="/usr/bin:$PATH"
     dist: xenial
     addons:
       apt:
