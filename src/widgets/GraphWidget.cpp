@@ -26,6 +26,9 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     graphView = new DisassemblerGraphView(layoutWidget, seekable, main);
     layout->addWidget(graphView);
 
+    // Title needs to get set after graphView is defined
+    updateWindowTitle();
+
     // getting the name of the class is implementation defined, and cannot be
     // used reliably across different compilers.
     //QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts[typeid(this).name()], main);
