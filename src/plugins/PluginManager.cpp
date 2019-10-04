@@ -100,9 +100,7 @@ QVector<QDir> PluginManager::getPluginDirectories() const
     QVector<QDir> result;
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
     for (auto &location : locations) {
-        QDir pluginsDir = location;
-        pluginsDir.cd("plugins");
-        result.push_back(pluginsDir);
+        result.push_back(QDir(location).filePath("plugins"));
     }
 
     return result;
