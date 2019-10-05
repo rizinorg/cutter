@@ -165,7 +165,7 @@ void HexdumpWidget::on_parseBitsComboBox_currentTextChanged(const QString &/*arg
 
 void HexdumpWidget::setupFonts()
 {
-    QFont font = Config()->getFont();
+    QFont font = Config()->getScaledFont();
     ui->hexDisasTextEdit->setFont(font);
     ui->hexTextView->setMonospaceFont(font);
 }

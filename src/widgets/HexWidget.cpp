@@ -40,7 +40,7 @@ HexWidget::HexWidget(QWidget *parent) :
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, [this]() { viewport()->update(); });
 
     connect(Config(), &Configuration::colorsUpdated, this, &HexWidget::updateColors);
-    connect(Config(), &Configuration::fontsUpdated, this, [this]() { setMonospaceFont(Config()->getFont()); });
+    connect(Config(), &Configuration::fontsUpdated, this, [this]() { setMonospaceFont(Config()->getScaledFont()); });
 
     auto sizeActionGroup = new QActionGroup(this);
     for (int i = 1; i <= 8; i *= 2) {

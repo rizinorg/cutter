@@ -78,6 +78,10 @@ private:
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();
+
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
 };
 
 #endif // CUTTERWIDGET_H

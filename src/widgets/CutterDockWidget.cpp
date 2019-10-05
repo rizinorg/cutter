@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QEvent>
+#include <QtWidgets/QShortcut>
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     QDockWidget(parent),
@@ -20,6 +21,18 @@ CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     // Install event filter to catch redraw widgets when needed
     installEventFilter(this);
     updateIsVisibleToUser();
+
+    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this);
+    shortcut_zoom_in->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(shortcut_zoom_in, &QShortcut::activated, this, &CutterDockWidget::zoomIn);
+
+    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
+    shortcut_zoom_out->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(shortcut_zoom_out, &QShortcut::activated, this, &CutterDockWidget::zoomOut);
+
+    QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
+    shortcut_zoom_reset->setContext(Qt::WidgetWithChildrenShortcut);
+    connect(shortcut_zoom_reset, &QShortcut::activated, this, &CutterDockWidget::zoomReset);
 }
 
 CutterDockWidget::~CutterDockWidget() = default;
@@ -97,4 +110,20 @@ QString CutterDockWidget::getDockNumber()
     }
     return QString();
 }
+
+void CutterDockWidget::zoomIn()
+{
+  Config()->setZoomFactor(Config()->getZoomFactor() + 0.1);
+}
+
+void CutterDockWidget::zoomOut()
+{
+  Config()->setZoomFactor(Config()->getZoomFactor() - 0.1);
+}
+
+void CutterDockWidget::zoomReset()
+{
+  Config()->setZoomFactor(1.0);
+}
+
 

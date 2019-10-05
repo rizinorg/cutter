@@ -69,7 +69,7 @@ void RegistersWidget::setRegisterGrid()
             registerLabel->setStyleSheet("font-weight: bold; font-family: mono;");
             registerEditValue = new QLineEdit;
             registerEditValue->setFixedWidth(140);
-            registerEditValue->setFont(Config()->getFont());
+            registerEditValue->setFont(Config()->getScaledFont());
             registerLabel->setContextMenuPolicy(Qt::CustomContextMenu);
             connect(registerLabel, &QWidget::customContextMenuRequested, this, [this, registerEditValue, registerLabel](QPoint p){
                 openContextMenu(registerLabel->mapToGlobal(p), registerEditValue->text());

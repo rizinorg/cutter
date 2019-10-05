@@ -30,7 +30,7 @@ public slots:
     void showDisasContextMenu(const QPoint &pt);
 
 private slots:
-    void fontsUpdated();
+    void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void refreshDecompiler();
     void decompilerSelected();
@@ -68,9 +68,6 @@ private:
     void updateSelection();
     void connectCursorPositionChanged(bool disconnect);
     void updateCursorPosition();
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
 
     QString getWindowTitle() const override;
 };

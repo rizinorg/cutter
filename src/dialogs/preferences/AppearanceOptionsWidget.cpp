@@ -91,6 +91,13 @@ void AppearanceOptionsWidget::updateThemeFromConfig(bool interfaceThemeChanged)
     updateModificationButtons(ui->colorComboBox->currentText());
 }
 
+void AppearanceOptionsWidget::on_fontZoomBox_valueChanged(int zoom)
+{
+  qreal zoomFactor = zoom / 100.0;
+  Config()->setZoomFactor(zoomFactor);
+}
+
+
 void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
 {
     QFont currentFont = Config()->getFont();

@@ -76,7 +76,10 @@ public:
 
     // Fonts
     const QFont getFont() const;
+    const QFont getScaledFont() const;
     void setFont(const QFont &font);
+    qreal getZoomFactor() const;
+    void setZoomFactor(qreal zoom);
 
     // Colors
     bool windowColorIsDark();

@@ -360,10 +360,27 @@ const QFont Configuration::getFont() const
     return font;
 }
 
+const QFont Configuration::getScaledFont() const
+{
+  QFont font = getFont();
+  font.setPointSizeF(font.pointSizeF() * getZoomFactor());
+  return font;
+}
+
 void Configuration::setFont(const QFont &font)
 {
     s.setValue("font", font);
     emit fontsUpdated();
+}
+
+qreal Configuration::getZoomFactor() const {
+  qreal fontZoom = s.value("zoomFactor", 1.0).value<qreal>();
+  return qMax(fontZoom, 0.1);
+}
+
+void Configuration::setZoomFactor(qreal zoom) {
+  s.setValue("zoomFactor", qMax(zoom, 0.1));
+  emit fontsUpdated();
 }
 
 QString Configuration::getLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme) const

@@ -65,15 +65,15 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     // Zoom shortcuts
     QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this);
     shortcut_zoom_in->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_in, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom, this,
+    connect(shortcut_zoom_in, &QShortcut::activatedAmbiguously, this, std::bind(&DisassemblerGraphView::zoom, this,
                                                                      QPointF(0.5, 0.5), 1));
     QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
     shortcut_zoom_out->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_out, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom,
+    connect(shortcut_zoom_out, &QShortcut::activatedAmbiguously, this, std::bind(&DisassemblerGraphView::zoom,
                                                                       this, QPointF(0.5, 0.5), -1));
     QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
     shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
+    connect(shortcut_zoom_reset, SIGNAL(activatedAmbiguously()), this, SLOT(zoomReset()));
 
     // Branch shortcuts
     QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);

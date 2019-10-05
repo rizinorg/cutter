@@ -115,7 +115,7 @@ bool ConsoleWidget::eventFilter(QObject *obj, QEvent *event)
 
 void ConsoleWidget::setupFont()
 {
-    ui->outputTextEdit->setFont(Config()->getFont());
+    ui->outputTextEdit->setFont(Config()->getScaledFont());
 }
 
 void ConsoleWidget::addOutput(const QString &msg)
