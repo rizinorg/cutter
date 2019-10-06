@@ -249,7 +249,7 @@ void DecompilerWidget::updateCursorPosition()
 
 void DecompilerWidget::setupFonts()
 {
-    ui->textEdit->setFont(Config()->getScaledFont());
+    ui->textEdit->setFont(Config()->getFont());
 }
 
 void DecompilerWidget::updateSelection()

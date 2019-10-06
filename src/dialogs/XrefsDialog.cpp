@@ -68,7 +68,7 @@ QString XrefsDialog::normalizeAddr(const QString &addr) const
 
 void XrefsDialog::setupPreviewFont()
 {
-    ui->previewTextEdit->setFont(Config()->getFont());
+    ui->previewTextEdit->setFont(Config()->getBaseFont());
 }
 
 void XrefsDialog::setupPreviewColors()

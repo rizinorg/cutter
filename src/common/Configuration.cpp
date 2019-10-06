@@ -354,15 +354,15 @@ void Configuration::loadDarkStylesheet()
     }
 }
 
-const QFont Configuration::getFont() const
+const QFont Configuration::getBaseFont() const
 {
     QFont font = s.value("font", QFont("Inconsolata", 11)).value<QFont>();
     return font;
 }
 
-const QFont Configuration::getScaledFont() const
+const QFont Configuration::getFont() const
 {
-  QFont font = getFont();
+  QFont font = getBaseFont();
   font.setPointSizeF(font.pointSizeF() * getZoomFactor());
   return font;
 }

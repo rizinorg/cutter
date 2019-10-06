@@ -115,7 +115,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     updateMaxLines();
 
     mDisasTextEdit->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mDisasTextEdit->setFont(Config()->getScaledFont());
+    mDisasTextEdit->setFont(Config()->getFont());
     mDisasTextEdit->setReadOnly(true);
     mDisasTextEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     // wrapping breaks readCurrentDisassemblyOffset() at the moment :-(
@@ -685,7 +685,7 @@ void DisassemblyWidget::colorsUpdatedSlot()
 
 void DisassemblyWidget::setupFonts()
 {
-    mDisasTextEdit->setFont(Config()->getScaledFont());
+    mDisasTextEdit->setFont(Config()->getFont());
 }
 
 

@@ -25,7 +25,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     modelStack->setHorizontalHeaderItem(COLUMN_OFFSET, new QStandardItem(tr("Offset")));
     modelStack->setHorizontalHeaderItem(COLUMN_VALUE, new QStandardItem(tr("Value")));
     modelStack->setHorizontalHeaderItem(COLUMN_DESCRIPTION, new QStandardItem(tr("Reference")));
-    viewStack->setFont(Config()->getScaledFont());
+    viewStack->setFont(Config()->getFont());
     viewStack->setModel(modelStack);
     viewStack->verticalHeader()->hide();
     viewStack->setSortingEnabled(true);
@@ -118,7 +118,7 @@ void StackWidget::setStackGrid()
 
 void StackWidget::fontsUpdatedSlot()
 {
-    viewStack->setFont(Config()->getScaledFont());
+    viewStack->setFont(Config()->getFont());
 }
 
 void StackWidget::onDoubleClicked(const QModelIndex &index)

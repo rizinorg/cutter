@@ -190,7 +190,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
         QStringList disasmPreview = Core()->getDisassemblyPreview(function.offset,
                                                                   kMaxTooltipDisasmPreviewLines);
         const QStringList &summary = Core()->cmdList(QString("pdsf @ %1").arg(function.offset));
-        const QFont &fnt = Config()->getScaledFont();
+        const QFont &fnt = Config()->getFont();
         QFontMetrics fm{ fnt };
 
         // elide long strings using current disasm font metrics

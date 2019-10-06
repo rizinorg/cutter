@@ -410,7 +410,7 @@ void DisassemblerGraphView::cleanupEdges()
 
 void DisassemblerGraphView::initFont()
 {
-    setFont(Config()->getFont());
+    setFont(Config()->getBaseFont());
     QFontMetricsF metrics(font());
     baseline = int(metrics.ascent());
     charWidth = metrics.width('X');
@@ -427,7 +427,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
-    p.setFont(Config()->getFont());
+    p.setFont(Config()->getBaseFont());
     p.drawRect(blockRect);
 
     breakpoints = Core()->getBreakpointsAddresses();

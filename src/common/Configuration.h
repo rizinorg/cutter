@@ -75,8 +75,8 @@ public:
     QStringList getAvailableTranslations();
 
     // Fonts
+    const QFont getBaseFont() const;
     const QFont getFont() const;
-    const QFont getScaledFont() const;
     void setFont(const QFont &font);
     qreal getZoomFactor() const;
     void setZoomFactor(qreal zoom);

@@ -14,7 +14,7 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly) :
     ui(new Ui::TypesInteractionDialog)
 {
     ui->setupUi(this);
-    QFont font = Config()->getFont();
+    QFont font = Config()->getBaseFont();
     ui->plainTextEdit->setFont(font);
     ui->plainTextEdit->setPlainText("");
     ui->plainTextEdit->setTabStopDistance(4 * QFontMetrics(font).horizontalAdvance(' '));

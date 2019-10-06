@@ -201,6 +201,10 @@ private slots:
     void changeDefinedView();
     void chooseThemeIcons();
 
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
+
 private:
     CutterCore *core;
 

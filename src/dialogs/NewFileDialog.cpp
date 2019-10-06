@@ -43,7 +43,7 @@ static QIcon getIconFor(const QString &str, int pos)
     pixPaint.setBrush(getColorFor(pos));
     pixPaint.drawEllipse(1, 1, w - 2, h - 2);
     pixPaint.setPen(Qt::white);
-    QFont font = Config()->getFont();
+    QFont font = Config()->getBaseFont();
     font.setBold(true);
     font.setPointSize(18);
     pixPaint.setFont(font);
