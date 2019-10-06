@@ -1,28 +1,25 @@
+set (_module Graphviz)
 
-if (CUTTER_ENABLE_GRAPHVIZ STREQUAL AUTO)
-    if (NOT (CMAKE_VERSION VERSION_LESS "3.6.0"))
-        pkg_check_modules(GVC IMPORTED_TARGET libgvc)
-    else()
-        pkg_check_modules(GVC libgvc)
-    endif()
-    if (GVC_FOUND)
-        set(CUTTER_ENABLE_GRAPHVIZ ON)
-    else()
-        set(CUTTER_ENABLE_GRAPHVIZ OFF)
-    endif()
+find_package(PkgConfig REQUIRED)
+if (NOT (CMAKE_VERSION VERSION_LESS "3.6.0"))
+    pkg_check_modules(GVC IMPORTED_TARGET GLOBAL libgvc)
 else()
-    if (NOT (CMAKE_VERSION VERSION_LESS "3.6.0"))
-        pkg_check_modules(GVC REQUIRED libgvc)
+    pkg_check_modules(GVC libgvc)
+endif()
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(${_module}
+        FOUND_VAR ${_module}_FOUND
+        REQUIRED_VARS GVC_INCLUDE_DIRS)
+
+if (${GVC_FOUND})
+    if (CMAKE_VERSION VERSION_LESS "3.6.0")
+        add_library(${_module}::GVC INTERFACE IMPORTED)
+        set_target_properties(${_module}::GVC PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${GVC_INCLUDE_DIRS}")
+        set_target_properties(${_module}:GVC PROPERTIES
+                INTERFACE_LINK_LIBRARIES "${GVC_LIBRARIES}")
     else()
-        pkg_check_modules(GVC REQUIRED libgvc)
+       add_library(${_module}::GVC ALIAS PkgConfig::GVC)
     endif()
 endif()
-
-if (CMAKE_VERSION VERSION_LESS "3.6.0")
-    add_library(PkgConfig::GVC INTERFACE IMPORTED)
-    set_target_properties(PkgConfig::GVC PROPERTIES
-            INTERFACE_INCLUDE_DIRECTORIES "${GVC_INCLUDE_DIRS}")
-    set_target_properties(PkgConfig::GVC PROPERTIES
-            INTERFACE_LINK_LIBRARIES "${GVC_LIBRARIES}")
-endif()
-
