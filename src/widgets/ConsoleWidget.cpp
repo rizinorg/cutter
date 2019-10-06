@@ -176,7 +176,7 @@ void ConsoleWidget::executeCommand(const QString &command)
         ui->outputTextEdit->appendHtml(cmd_line + result);
         scrollOutputToEnd();
         historyAdd(command);
-        commandTask = nullptr;
+        commandTask.clear();
         ui->inputLineEdit->setEnabled(true);
         ui->inputLineEdit->setFocus();
         if (oldOffset != Core()->getOffset()) {

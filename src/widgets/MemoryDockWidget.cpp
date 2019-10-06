@@ -3,15 +3,25 @@
 #include "MainWindow.h"
 #include <QAction>
 #include <QEvent>
+#include <QMenu>
+#include <QContextMenuEvent>
 
 MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action)
     : CutterDockWidget(parent, action)
-    , mType(type), seekable(new CutterSeekable(this))
+    , mType(type)
+    , seekable(new CutterSeekable(this))
+    , syncAction(tr("Sync/unsync offset"), this)
 {
     if (parent) {
         parent->addMemoryDockWidget(this);
     }
     connect(seekable, &CutterSeekable::syncChanged, this, &MemoryDockWidget::updateWindowTitle);
+    connect(&syncAction, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
+
+    dockMenu = new QMenu(this);
+    dockMenu->addAction(&syncAction);
+
+    setContextMenuPolicy(Qt::ContextMenuPolicy::DefaultContextMenu);
 }
 
 bool MemoryDockWidget::tryRaiseMemoryWidget()
@@ -61,7 +71,13 @@ void MemoryDockWidget::updateWindowTitle()
     setWindowTitle(name);
 }
 
-CutterSeekable* MemoryDockWidget::getSeekable() const
+void MemoryDockWidget::contextMenuEvent(QContextMenuEvent *event)
+{
+    event->accept();
+    dockMenu->exec(mapToGlobal(event->pos()));
+}
+
+CutterSeekable *MemoryDockWidget::getSeekable() const
 {
     return seekable;
 }

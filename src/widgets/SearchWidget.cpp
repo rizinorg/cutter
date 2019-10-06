@@ -196,8 +196,8 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
         refreshSearch();
     });
 
-    connect(ui->searchspaceCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-    [ = ](int index) { updatePlaceholderText(index);});
+    connect(ui->searchspaceCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+            this, [this](int index) { updatePlaceholderText(index);});
 
     QString currentSearchBoundary = Core()->getConfig("search.in");
     ui->searchInCombo->setCurrentIndex(ui->searchInCombo->findData(currentSearchBoundary));

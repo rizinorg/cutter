@@ -23,7 +23,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     header->setReadOnly(true);
     layout->addWidget(header);
 
-    graphView = new DisassemblerGraphView(layoutWidget, seekable, main);
+    graphView = new DisassemblerGraphView(layoutWidget, seekable, main, {&syncAction});
     layout->addWidget(graphView);
 
     // Title needs to get set after graphView is defined

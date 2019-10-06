@@ -22,7 +22,48 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     :   QMenu(parent),
         offset(0),
         canCopy(false),
-        mainWindow(mainWindow)
+        mainWindow(mainWindow),
+        actionEditInstruction(this),
+        actionNopInstruction(this),
+        actionJmpReverse(this),
+        actionEditBytes(this),
+        actionCopy(this),
+        actionCopyAddr(this),
+        actionAddComment(this),
+        actionAddFlag(this),
+        actionAnalyzeFunction(this),
+        actionEditFunction(this),
+        actionRename(this),
+        actionRenameUsedHere(this),
+        actionSetFunctionVarTypes(this),
+        actionXRefs(this),
+        actionDisplayOptions(this),
+        actionDeleteComment(this),
+        actionDeleteFlag(this),
+        actionDeleteFunction(this),
+        actionLinkType(this),
+        actionSetBaseBinary(this),
+        actionSetBaseOctal(this),
+        actionSetBaseDecimal(this),
+        actionSetBaseHexadecimal(this),
+        actionSetBasePort(this),
+        actionSetBaseIPAddr(this),
+        actionSetBaseSyscall(this),
+        actionSetBaseString(this),
+        actionSetBits16(this),
+        actionSetBits32(this),
+        actionSetBits64(this),
+        actionContinueUntil(this),
+        actionAddBreakpoint(this),
+        actionSetPC(this),
+        actionSetToCode(this),
+        actionSetAsString(this),
+        actionSetToDataEx(this),
+        actionSetToDataByte(this),
+        actionSetToDataWord(this),
+        actionSetToDataDword(this),
+        actionSetToDataQword(this),
+        showInSubmenu(this)
 {
     initAction(&actionCopy, tr("Copy"), SLOT(on_actionCopy_triggered()), getCopySequence());
     addAction(&actionCopy);
@@ -209,7 +250,7 @@ void DisassemblyContextMenu::addSetToDataMenu()
                SLOT(on_actionSetToDataEx_triggered()), getSetToDataExSequence());
     setToDataMenu->addAction(&actionSetToDataEx);
 
-    auto switchAction = new QAction();
+    auto switchAction = new QAction(this);
     initAction(switchAction, "Switch Data",
                SLOT(on_actionSetToData_triggered()), getSetToDataSequence());
 }

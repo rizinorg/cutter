@@ -18,6 +18,7 @@ class QWidget;
 class QTreeView;
 class QAction;
 class QMenu;
+class QPaintDevice;
 
 namespace qhelpers {
 QString formatBytecount(const long bytecount);
@@ -54,6 +55,7 @@ QByteArray applyColorToSvg(const QString &filename, QColor color);
 void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::function<void(void *, const QIcon &)> setter);
 
 void prependQAction(QAction *action, QMenu *menu);
+qreal devicePixelRatio(const QPaintDevice *p);
 
 } // qhelpers
 

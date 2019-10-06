@@ -817,7 +817,7 @@ void HexWidget::fillSelectionBackground(QPainter &painter, bool ascii)
         return;
     }
     const auto parts = rangePolygons(selection.start(), selection.end(), ascii);
-    for (const auto &shape : qAsConst(parts)) {
+    for (const auto &shape : parts) {
         QColor highlightColor = palette().color(QPalette::Highlight);
         if (ascii == cursorOnAscii) {
             painter.setBrush(highlightColor);
@@ -1060,6 +1060,30 @@ const QColor HexWidget::itemColor(uint8_t byte)
     return color;
 }
 
+template<class T>
+static T fromBigEndian(const void * src)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+    return qFromBigEndian<T>(src);
+#else
+    T result;
+    memcpy(&result, src, sizeof(T));
+    return qFromBigEndian<T>(result);
+#endif
+}
+
+template<class T>
+static T fromLittleEndian(const void * src)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+    return qFromLittleEndian<T>(src);
+#else
+    T result;
+    memcpy(&result, src, sizeof(T));
+    return qFromLittleEndian<T>(result);
+#endif
+}
+
 QVariant HexWidget::readItem(int offset, QColor *color)
 {
     quint8 byte;
@@ -1082,9 +1106,9 @@ QVariant HexWidget::readItem(int offset, QColor *color)
         return QVariant(static_cast<qint64>(static_cast<qint8>(byte)));
     case 2:
         if (itemBigEndian)
-            word = qFromBigEndian<quint16>(dataPtr);
+            word = fromBigEndian<quint16>(dataPtr);
         else
-            word = qFromLittleEndian<quint16>(dataPtr);
+            word = fromLittleEndian<quint16>(dataPtr);
         if (color)
             *color = defColor;
         if (!signedItem)
@@ -1092,9 +1116,9 @@ QVariant HexWidget::readItem(int offset, QColor *color)
         return QVariant(static_cast<qint64>(static_cast<qint16>(word)));
     case 4:
         if (itemBigEndian)
-            dword = qFromBigEndian<quint32>(dataPtr);
+            dword = fromBigEndian<quint32>(dataPtr);
         else
-            dword = qFromLittleEndian<quint32>(dataPtr);
+            dword = fromLittleEndian<quint32>(dataPtr);
         if (color)
             *color = defColor;
         if (itemFormat == ItemFormatFloat) {
@@ -1106,9 +1130,9 @@ QVariant HexWidget::readItem(int offset, QColor *color)
         return QVariant(static_cast<qint64>(static_cast<qint32>(dword)));
     case 8:
         if (itemBigEndian)
-            qword = qFromBigEndian<quint64>(dataPtr);
+            qword = fromBigEndian<quint64>(dataPtr);
         else
-            qword = qFromLittleEndian<quint64>(dataPtr);
+            qword = fromLittleEndian<quint64>(dataPtr);
         if (color)
             *color = defColor;
         if (itemFormat == ItemFormatFloat) {

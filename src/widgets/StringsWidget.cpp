@@ -240,7 +240,7 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
 
     tree->showItemsNumber(proxyModel->rowCount());
 
-    task = nullptr;
+    task.clear();
 }
 
 void StringsWidget::on_actionCopy()

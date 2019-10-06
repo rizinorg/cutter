@@ -208,7 +208,21 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
         theme.remove(key);
     }
 
-    return QJsonDocument(QJsonObject::fromVariantMap(theme));
+    // manualy converting instead of using QJsonObject::fromVariantMap because
+    // Qt < 5.6 QJsonValue.fromVariant doesn't expect QVariant to already contain
+    // QJson values like QJsonArray. https://github.com/qt/qtbase/commit/26237f0a2d8db80024b601f676bbce54d483e672
+    QJsonObject obj;
+    for (auto it = theme.begin(); it != theme.end(); it++) {
+        auto &value = it.value();
+        if (value.canConvert<QJsonArray>()) {
+            obj[it.key()] = it.value().value<QJsonArray>();
+        } else {
+            obj[it.key()] = QJsonValue::fromVariant(value);
+        }
+
+    }
+
+    return QJsonDocument(obj);
 }
 
 QString ColorThemeWorker::deleteTheme(const QString &themeName) const

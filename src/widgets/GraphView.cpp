@@ -4,6 +4,7 @@
 #ifdef CUTTER_ENABLE_GRAPHVIZ
 #include "GraphvizLayout.h"
 #endif
+#include "Helpers.h"
 
 #include <vector>
 #include <QPainter>
@@ -12,7 +13,7 @@
 #include <QPropertyAnimation>
 #include <QSvgGenerator>
 
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
 #include <QOpenGLContext>
 #include <QOpenGLWidget>
 #include <QOpenGLPaintDevice>
@@ -22,12 +23,12 @@
 GraphView::GraphView(QWidget *parent)
     : QAbstractScrollArea(parent)
     , useGL(false)
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     , cacheTexture(0)
     , cacheFBO(0)
 #endif
 {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     if (useGL) {
         glWidget = new QOpenGLWidget(this);
         setViewport(glWidget);
@@ -76,20 +77,11 @@ void GraphView::blockHelpEvent(GraphView::GraphBlock &block, QHelpEvent *event, 
 
 bool GraphView::helpEvent(QHelpEvent *event)
 {
-    int x = event->pos().x() + offset.x();
-    int y = event->pos().y() - offset.y();
-
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-
-        if ((block.x <= x) && (block.y <= y) &&
-                (x <= block.x + block.width) & (y <= block.y + block.height)) {
-            QPoint pos = QPoint(x - block.x, y - block.y);
-            blockHelpEvent(block, event, pos);
-            return true;
-        }
+    auto p = viewToLogicalCoordinates(event->pos());
+    if (auto block = getBlockContaining(p)) {
+        blockHelpEvent(*block, event, p - QPoint(block->x, block->y));
+        return true;
     }
-
     return false;
 }
 
@@ -111,6 +103,10 @@ GraphView::EdgeConfiguration GraphView::edgeConfiguration(GraphView::GraphBlock 
     return ec;
 }
 
+void GraphView::blockContextMenuRequested(GraphView::GraphBlock &, QContextMenuEvent *, QPoint)
+{
+}
+
 bool GraphView::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
@@ -120,6 +116,17 @@ bool GraphView::event(QEvent *event)
     }
 
     return QAbstractScrollArea::event(event);
+}
+
+void GraphView::contextMenuEvent(QContextMenuEvent *event)
+{
+    event->ignore();
+    if (event->reason() == QContextMenuEvent::Mouse) {
+        QPoint p = viewToLogicalCoordinates(event->pos());
+        if (auto block = getBlockContaining(p)) {
+            blockContextMenuRequested(*block, event, p);
+        }
+    }
 }
 
 // This calculates the full graph starting at block entry.
@@ -154,7 +161,7 @@ void GraphView::setViewScale(qreal scale)
 QSize GraphView::getCacheSize()
 {
     return
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         useGL ? cacheSize :
 #endif
         pixmap.size();
@@ -163,33 +170,29 @@ QSize GraphView::getCacheSize()
 qreal GraphView::getCacheDevicePixelRatioF()
 {
     return
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         useGL ? 1.0 :
 #endif
-        pixmap.devicePixelRatioF();
+        qhelpers::devicePixelRatio(&pixmap);
 }
 
 QSize GraphView::getRequiredCacheSize()
 {
-    return
-#ifndef QT_NO_OPENGL
-        useGL ? viewport()->size() :
-#endif
-        viewport()->size() * devicePixelRatioF();
+    return viewport()->size() * getRequiredCacheDevicePixelRatioF();
 }
 
 qreal GraphView::getRequiredCacheDevicePixelRatioF()
 {
     return
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         useGL ? 1.0f :
 #endif
-        devicePixelRatioF();
+        qhelpers::devicePixelRatio(this);
 }
 
 void GraphView::paintEvent(QPaintEvent *)
 {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     if (useGL) {
         glWidget->makeCurrent();
     }
@@ -206,7 +209,7 @@ void GraphView::paintEvent(QPaintEvent *)
     }
 
     if (useGL) {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         auto gl = glWidget->context()->extraFunctions();
         gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, cacheFBO);
         gl->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glWidget->defaultFramebufferObject());
@@ -249,12 +252,12 @@ void GraphView::addViewOffset(QPoint move, bool emitSignal)
 
 void GraphView::paintGraphCache()
 {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     QOpenGLPaintDevice *paintDevice = nullptr;
 #endif
     QPainter p;
     if (useGL) {
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
         auto gl = QOpenGLContext::currentContext()->functions();
 
         bool resizeTex = false;
@@ -289,7 +292,7 @@ void GraphView::paintGraphCache()
         p.begin(paintDevice);
 #endif
     } else {
-        auto dpr = devicePixelRatioF();
+        auto dpr = qhelpers::devicePixelRatio(this);
         pixmap = QPixmap(getRequiredCacheSize());
         pixmap.setDevicePixelRatio(dpr);
         p.begin(&pixmap);
@@ -299,7 +302,7 @@ void GraphView::paintGraphCache()
     paint(p, offset, this->viewport()->rect(), current_scale);
 
     p.end();
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     delete paintDevice;
 #endif
 }
@@ -488,6 +491,25 @@ void GraphView::showRectangle(const QRect &block, bool anywhere)
     viewport()->update();
 }
 
+GraphView::GraphBlock *GraphView::getBlockContaining(QPoint p)
+{
+    // Check if a block was clicked
+    for (auto &blockIt : blocks) {
+        GraphBlock &block = blockIt.second;
+
+        QRect rec(block.x, block.y, block.width, block.height);
+        if (rec.contains(p)) {
+            return &block;
+        }
+    }
+    return nullptr;
+}
+
+QPoint GraphView::viewToLogicalCoordinates(QPoint p)
+{
+    return p / current_scale + offset;
+}
+
 void GraphView::setGraphLayout(GraphView::Layout layout)
 {
     graphLayout = layout;
@@ -550,21 +572,14 @@ void GraphView::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    int x = event->pos().x() / current_scale + offset.x();
-    int y = event->pos().y() / current_scale + offset.y();
+    QPoint pos = viewToLogicalCoordinates(event->pos());
 
     // Check if a block was clicked
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-
-        if ((block.x <= x) && (block.y <= y) &&
-                (x <= block.x + block.width) & (y <= block.y + block.height)) {
-            QPoint pos = QPoint(x - block.x, y - block.y);
-            blockClicked(block, event, pos);
-            // Don't do anything else here! blockClicked might seek and
-            // all our data is invalid then.
-            return;
-        }
+    if (auto block = getBlockContaining(pos)) {
+        blockClicked(*block, event, pos - QPoint(block->x, block->y));
+        // Don't do anything else here! blockClicked might seek and
+        // all our data is invalid then.
+        return;
     }
 
     // Check if a line beginning/end  was clicked
@@ -577,13 +592,13 @@ void GraphView::mousePressEvent(QMouseEvent *event)
                 }
                 QPointF start = edge.polyline.first();
                 QPointF end = edge.polyline.last();
-                if (checkPointClicked(start, x, y)) {
+                if (checkPointClicked(start, pos.x(), pos.y())) {
                     showBlock(blocks[edge.target]);
                     // TODO: Callback to child
                     return;
                     break;
                 }
-                if (checkPointClicked(end, x, y, true)) {
+                if (checkPointClicked(end, pos.x(), pos.y(), true)) {
                     showBlock(block);
                     // TODO: Callback to child
                     return;
@@ -615,19 +630,9 @@ void GraphView::mouseMoveEvent(QMouseEvent *event)
 
 void GraphView::mouseDoubleClickEvent(QMouseEvent *event)
 {
-    int x = event->pos().x() / current_scale + offset.x();
-    int y = event->pos().y() / current_scale + offset.y();
-
-    // Check if a block was clicked
-    for (auto &blockIt : blocks) {
-        GraphBlock &block = blockIt.second;
-
-        if ((block.x <= x) && (block.y <= y) &&
-                (x <= block.x + block.width) & (y <= block.y + block.height)) {
-            QPoint pos = QPoint(x - block.x, y - block.y);
-            blockDoubleClicked(block, event, pos);
-            return;
-        }
+    auto p = viewToLogicalCoordinates(event->pos());
+    if (auto block = getBlockContaining(p)) {
+        blockDoubleClicked(*block, event, p - QPoint(block->x, block->y));
     }
 }
 
