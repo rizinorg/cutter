@@ -17,7 +17,7 @@ if (${GVC_FOUND})
         add_library(${_module}::GVC INTERFACE IMPORTED)
         set_target_properties(${_module}::GVC PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${GVC_INCLUDE_DIRS}")
-        set_target_properties(${_module}:GVC PROPERTIES
+        set_target_properties(${_module}::GVC PROPERTIES
                 INTERFACE_LINK_LIBRARIES "${GVC_LIBRARIES}")
     else()
        add_library(${_module}::GVC ALIAS PkgConfig::GVC)
