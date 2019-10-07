@@ -122,6 +122,11 @@ public:
     void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
     MemoryDockWidget* getLastMemoryWidget();
 
+signals:
+    void zoomIn();
+    void zoomOut();
+    void zoomReset();
+
 public slots:
     void finalizeOpen();
 
@@ -201,9 +206,9 @@ private slots:
     void changeDefinedView();
     void chooseThemeIcons();
 
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
+    void onZoomIn();
+    void onZoomOut();
+    void onZoomReset();
 
 private:
     CutterCore *core;

@@ -160,17 +160,9 @@ void MainWindow::initUI()
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
-    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this);
-    shortcut_zoom_in->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_zoom_in, &QShortcut::activated, this, &MainWindow::zoomIn);
-
-    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
-    shortcut_zoom_out->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_zoom_out, &QShortcut::activated, this, &MainWindow::zoomOut);
-
-    QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
-    shortcut_zoom_reset->setContext(Qt::WidgetWithChildrenShortcut);
-    connect(shortcut_zoom_reset, &QShortcut::activated, this, &MainWindow::zoomReset);
+    connect(ui->actionZoomIn, SIGNAL(triggered()), this, SLOT(onZoomIn()));
+    connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(onZoomOut()));
+    connect(ui->actionZoomReset, SIGNAL(triggered()), this, SLOT(onZoomReset()));
 
     connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
                                                                                        const QString &)));
@@ -1514,17 +1506,20 @@ void MainWindow::chooseThemeIcons()
     });
 }
 
-void MainWindow::zoomIn()
+void MainWindow::onZoomIn()
 {
   Config()->setZoomFactor(Config()->getZoomFactor() + 0.1);
+  emit zoomIn();
 }
 
-void MainWindow::zoomOut()
+void MainWindow::onZoomOut()
 {
   Config()->setZoomFactor(Config()->getZoomFactor() - 0.1);
+  emit zoomOut();
 }
 
-void MainWindow::zoomReset()
+void MainWindow::onZoomReset()
 {
   Config()->setZoomFactor(1.0);
+  emit zoomReset();
 }

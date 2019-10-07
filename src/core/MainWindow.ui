@@ -81,6 +81,15 @@
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
     </property>
+    <widget class="QMenu" name="menuZoom">
+     <property name="title">
+      <string>Zoom</string>
+     </property>
+     <addaction name="actionZoomIn"/>
+     <addaction name="actionZoomOut"/>
+     <addaction name="separator"/>
+     <addaction name="actionZoomReset"/>
+    </widget>
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefault"/>
@@ -89,6 +98,8 @@
     <addaction name="actionLock"/>
     <addaction name="actionTabs_on_Top"/>
     <addaction name="actionGrouped_dock_dragging"/>
+    <addaction name="separator"/>
+    <addaction name="menuZoom"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -1070,6 +1081,39 @@
    </property>
    <property name="text">
     <string>Grouped dock dragging</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionZoomReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
    </property>
   </action>
  </widget>

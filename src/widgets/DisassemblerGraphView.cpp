@@ -2,6 +2,7 @@
 #include "DisassemblerGraphView.h"
 #include "common/CutterSeekable.h"
 #include "core/Cutter.h"
+#include "core/MainWindow.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
 #include "common/CachedFontMetrics.h"
@@ -57,23 +58,14 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connectSeekChanged(false);
 
+    connect(mainWindow->window(), SIGNAL(zoomIn()), this, SLOT(zoomIn()));
+    connect(mainWindow->window(), SIGNAL(zoomOut()), this, SLOT(zoomOut()));
+    connect(mainWindow->window(), SIGNAL(zoomReset()), this, SLOT(zoomReset())) ;
+
     // ESC for previous
     QShortcut *shortcut_escape = new QShortcut(QKeySequence(Qt::Key_Escape), this);
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, SIGNAL(activated()), seekable, SLOT(seekPrev()));
-
-    // Zoom shortcuts
-    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this);
-    shortcut_zoom_in->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_in, &QShortcut::activatedAmbiguously, this, std::bind(&DisassemblerGraphView::zoom, this,
-                                                                     QPointF(0.5, 0.5), 1));
-    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
-    shortcut_zoom_out->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_out, &QShortcut::activatedAmbiguously, this, std::bind(&DisassemblerGraphView::zoom,
-                                                                      this, QPointF(0.5, 0.5), -1));
-    QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
-    shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_reset, SIGNAL(activatedAmbiguously()), this, SLOT(zoomReset()));
 
     // Branch shortcuts
     QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
@@ -91,9 +83,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     shortcut_prev_instr->setContext(Qt::WidgetShortcut);
     connect(shortcut_prev_instr, SIGNAL(activated()), this, SLOT(prevInstr()));
     shortcuts.append(shortcut_escape);
-    shortcuts.append(shortcut_zoom_in);
-    shortcuts.append(shortcut_zoom_out);
-    shortcuts.append(shortcut_zoom_reset);
     shortcuts.append(shortcut_next_instr);
     shortcuts.append(shortcut_prev_instr);
 
@@ -793,6 +782,14 @@ void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
 
     viewport()->update();
     emit viewZoomed();
+}
+
+void DisassemblerGraphView::zoomIn() {
+  zoom(QPointF(0.5, 0.5), 1);
+}
+
+void DisassemblerGraphView::zoomOut() {
+  zoom(QPointF(0.5, 0.5), -1);
 }
 
 void DisassemblerGraphView::zoomReset()
