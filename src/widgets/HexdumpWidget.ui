@@ -153,6 +153,11 @@
                  <string>JavaScript</string>
                 </property>
                </item>
+               <item>
+                <property name="text">
+                 <string>Yara</string>
+                </property>
+               </item>
               </widget>
              </item>
              <item>
