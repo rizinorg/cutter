@@ -345,7 +345,8 @@ void NewFileDialog::fillIOPluginsList()
         if (plugin.permissions.contains('d')) {
             continue;
         }
-        for (const auto &uri : qAsConst(plugin.uris)) {
+        const auto &uris = plugin.uris;
+        for (const auto &uri : uris) {
             if (uri == "file://") {
                 continue;
             }

@@ -252,4 +252,14 @@ void prependQAction(QAction *action, QMenu *menu)
     }
 }
 
+qreal devicePixelRatio(const QPaintDevice *p)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+    return p->devicePixelRatioF();
+#else
+    return p->devicePixelRatio();
+#endif
+}
+
+
 } // end namespace

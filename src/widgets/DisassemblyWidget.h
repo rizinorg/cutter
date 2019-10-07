@@ -88,8 +88,6 @@ private:
     void connectCursorPositionChanged(bool disconnect);
 
     void moveCursorRelative(bool up, bool page);
-
-    QAction syncIt;
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

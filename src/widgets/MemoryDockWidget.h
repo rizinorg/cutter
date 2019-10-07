@@ -4,6 +4,8 @@
 #include "CutterDockWidget.h"
 #include "core/Cutter.h"
 
+#include <QAction>
+
 class CutterSeekable;
 
 /* Disassembly/Graph/Hexdump/Decompiler view priority */
@@ -14,9 +16,9 @@ class MemoryDockWidget : public CutterDockWidget
     Q_OBJECT
 public:
     MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action = nullptr);
-    ~MemoryDockWidget() {}
+    ~MemoryDockWidget() override {}
 
-    CutterSeekable* getSeekable() const;
+    CutterSeekable *getSeekable() const;
 
     bool tryRaiseMemoryWidget();
     void raiseMemoryWidget();
@@ -24,7 +26,7 @@ public:
     {
         return mType;
     }
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
 private:
 
     MemoryWidgetType mType;
@@ -34,8 +36,11 @@ public slots:
 
 protected:
     CutterSeekable *seekable = nullptr;
+    QAction syncAction;
+    QMenu *dockMenu = nullptr;
 
     virtual QString getWindowTitle() const = 0;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 };
 
 #endif // MEMORYDOCKWIDGET_H

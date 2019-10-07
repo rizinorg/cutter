@@ -31,6 +31,24 @@ matrix:
       - pyenv global 3.7.1
       - pip install meson
 
+  - name: Linux Ubuntu 16.04
+    os: linux
+    env: BUILD_SYSTEM=cmake_nodep PATH="/usr/bin:$PATH"
+    dist: xenial
+    addons:
+      apt:
+        packages:
+         - ninja-build
+         - libgraphviz-dev
+         - qt5-default
+         - libqt5svg5-dev
+         - cmake
+    before_install:
+      - pyenv install 3.5.2
+      - pyenv global 3.5.2
+      - pip install meson
+
+
   - name: macOS QMake + Deploy
     os: osx
     osx_image: xcode10.3
@@ -82,8 +100,10 @@ addons:
     brewfile: scripts/Brewfile
 
 install:
-  - scripts/fetch_deps.sh
-  - source cutter-deps/env.sh
+  - if [[ "$BUILD_SYSTEM" != "cmake_nodep" ]]; then
+      scripts/fetch_deps.sh;
+      source cutter-deps/env.sh;
+    fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         export PATH=/usr/local/opt/llvm/bin:$PATH;
         source scripts/prepare_breakpad_macos.sh;
@@ -128,6 +148,12 @@ script:
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DCUTTER_USE_BUNDLED_RADARE2=ON
+                ../src &&
+            make -j4;
+       elif [[ "$BUILD_SYSTEM" == "cmake_nodep" ]]; then
+            cmake
+                -DCMAKE_BUILD_TYPE=Release
                 -DCUTTER_USE_BUNDLED_RADARE2=ON
                 ../src &&
             make -j4;

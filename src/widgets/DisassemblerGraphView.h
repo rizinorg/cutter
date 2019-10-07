@@ -87,7 +87,8 @@ class DisassemblerGraphView : public GraphView
     };
 
 public:
-    DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable, MainWindow *mainWindow);
+    DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable, MainWindow *mainWindow,
+                          QList<QAction *> additionalMenuAction);
     ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
@@ -146,6 +147,9 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
+    void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
+                                   QPoint pos) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private slots:
     void on_actionExportGraph_triggered();
@@ -175,7 +179,7 @@ private:
     QPoint getTextOffset(int line) const;
     QPoint getInstructionOffset(const DisassemblyBlock &block, int line) const;
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
-    Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
+    Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point, bool force = false);
     /**
      * @brief Get instructions placement and size relative to block.
      * Inefficient don't use this function when iterating over all instructions.
@@ -216,7 +220,6 @@ private:
 
     QAction actionExportGraph;
     QAction actionUnhighlight;
-    QAction actionSyncOffset;
 
     QLabel *emptyText = nullptr;
 signals:

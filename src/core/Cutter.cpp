@@ -4,6 +4,9 @@
 #include <QDir>
 #include <QCoreApplication>
 
+#include <cassert>
+#include <memory>
+
 #include "common/TempConfig.h"
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
@@ -1348,7 +1351,7 @@ void CutterCore::disableBreakpoint(RVA addr)
 QList<BreakpointDescription> CutterCore::getBreakpoints()
 {
     QList<BreakpointDescription> ret;
-    QJsonArray breakpointArray = {}; //cmdj("dbj").array();
+    QJsonArray breakpointArray = cmdj("dbj").array();
 
     for (const QJsonValue &value : breakpointArray) {
         QJsonObject bpObject = value.toObject();

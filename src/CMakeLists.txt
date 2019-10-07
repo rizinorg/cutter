@@ -1,7 +1,6 @@
+cmake_minimum_required(VERSION 3.5)
 
-cmake_minimum_required(VERSION 3.1)
-
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12.0")
+if(POLICY CMP0074)
     cmake_policy(SET CMP0074 NEW)
 endif()
 
@@ -103,19 +102,13 @@ else()
     set(KSYNTAXHIGHLIGHTING_STATUS OFF)
 endif()
 
-find_package(PkgConfig REQUIRED)
-
 if (CUTTER_ENABLE_GRAPHVIZ)
     if (CUTTER_ENABLE_GRAPHVIZ STREQUAL AUTO)
-        pkg_check_modules(GVC IMPORTED_TARGET libgvc)
-        if (GVC_FOUND)
-            set(CUTTER_ENABLE_GRAPHVIZ ON)
-        else()
-            set(CUTTER_ENABLE_GRAPHVIZ OFF)
-        endif()
+        find_package(Graphviz)
     else()
-        pkg_check_modules(GVC REQUIRED IMPORTED_TARGET libgvc)
+        find_package(Graphviz REQUIRED)
     endif()
+    set (CUTTER_ENABLE_GRAPHVIZ ${Graphviz_FOUND})
 endif()
 
 message(STATUS "")
@@ -157,7 +150,7 @@ else()
 endif()
 
 
-if (CUTTER_ENABLE_GRAPHVIZ)
+if (TARGET Graphviz::GVC)
     list(APPEND SOURCE_FILES ${CUTTER_PRO_GRAPHVIZ_SOURCES})
     list(APPEND HEADER_FILES ${CUTTER_PRO_GRAPHVIZ_HEADERS})
 endif()
@@ -173,8 +166,8 @@ endif()
 add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
 
-if (CUTTER_ENABLE_GRAPHVIZ)
-    target_link_libraries(Cutter PkgConfig::GVC)
+if (TARGET Graphviz::GVC)
+    target_link_libraries(Cutter Graphviz::GVC)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_GRAPHVIZ)
 endif()
 

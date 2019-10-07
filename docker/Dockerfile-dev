@@ -1,0 +1,70 @@
+FROM alpine:edge AS builder
+LABEL maintainer "Philipp Schmied <ps1337@mailbox.org>"
+
+# Prevent build fails because of interactive scripts when compiling
+ENV DEBIAN_FRONTEND noninteractive
+
+# Dependencies
+RUN apk add --no-cache \
+        bash \
+        cmake \
+        curl \
+        g++ \
+        gcc \
+        git \
+        linux-headers \
+        make \
+        pkgconfig \
+        python3-dev \
+        qt5-qtbase \
+        qt5-qtsvg-dev \
+        qt5-qttools-dev \
+        unzip \
+        wget
+
+# install radare2 first
+COPY docker/build_radare2.sh /opt/cutter/
+COPY radare2 /opt/cutter/radare2
+
+WORKDIR /opt/cutter
+RUN bash build_radare2.sh
+
+COPY docker/build_cutter.sh /opt/cutter/
+COPY scripts /opt/cutter/scripts
+COPY src /opt/cutter/src
+
+RUN bash build_cutter.sh && \
+    bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
+
+FROM alpine:edge AS runner
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
+# Add the dependencies we need for running
+RUN apk add --no-cache \
+        bash \
+        libuuid \
+        make \
+        python3 \
+        qt5-qtbase \
+        shadow \
+        su-exec
+
+# Add r2 user
+RUN useradd r2
+
+# Prepare files to mount configurations later on
+RUN mkdir /var/sharedFolder && \
+    mkdir -p /home/r2/.config/radare2 && \
+    touch /home/r2/.radare2rc && \
+    chown -R r2:r2 /var/sharedFolder && \
+    chown -R r2:r2 /home/r2/
+
+COPY ./docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+
+# Get the compiled Cutter, r2 libs and bins from the builder
+COPY --from=builder /opt/cutter /opt/cutter
+COPY --from=builder /usr/lib /usr/lib
+COPY --from=builder /usr/share/radare2 /usr/share/radare2
+WORKDIR /opt/cutter/radare2/binr
+RUN make install && \
+make symstall install-symlink

@@ -10,7 +10,8 @@
 
 RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
-    ui(new Ui::RegistersWidget)
+    ui(new Ui::RegistersWidget),
+    addressContextMenu(this, main)
 {
     ui->setupUi(this);
 
@@ -24,6 +25,12 @@ RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
 
     connect(Core(), &CutterCore::refreshAll, this, &RegistersWidget::updateContents);
     connect(Core(), &CutterCore::registersChanged, this, &RegistersWidget::updateContents);
+
+    // Hide shortcuts because there is no way of selecting an item and triger them
+    for (auto &action : addressContextMenu.actions()) {
+        action->setShortcut(QKeySequence());
+        // setShortcutVisibleInContextMenu(false) doesn't work
+    }
 }
 
 RegistersWidget::~RegistersWidget() = default;
@@ -63,6 +70,14 @@ void RegistersWidget::setRegisterGrid()
             registerEditValue = new QLineEdit;
             registerEditValue->setFixedWidth(140);
             registerEditValue->setFont(Config()->getFont());
+            registerLabel->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(registerLabel, &QWidget::customContextMenuRequested, this, [this, registerEditValue, registerLabel](QPoint p){
+                openContextMenu(registerLabel->mapToGlobal(p), registerEditValue->text());
+            });
+            registerEditValue->setContextMenuPolicy(Qt::CustomContextMenu);
+            connect(registerEditValue, &QWidget::customContextMenuRequested, this, [this, registerEditValue](QPoint p){
+                openContextMenu(registerEditValue->mapToGlobal(p), registerEditValue->text());
+            });
             // add label and register value to grid
             registerLayout->addWidget(registerLabel, i, col);
             registerLayout->addWidget(registerEditValue, i, col + 1);
@@ -98,9 +113,15 @@ void RegistersWidget::setRegisterGrid()
         registerEditValue->setText(regValue);
         i++;
         // decide if we should change column
-        if (i >= registerLen / numCols + 1) {
+        if (i >= (registerLen + numCols - 1) / numCols) {
             i = 0;
             col += 2;
         }
     }
+}
+
+void RegistersWidget::openContextMenu(QPoint point, QString address)
+{
+    addressContextMenu.setTarget(address.toULongLong(nullptr, 16));
+    addressContextMenu.exec(point);
 }

@@ -187,6 +187,10 @@ void MainWindow::initUI()
         plugin->setupInterface(this);
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
+    ui->actionGrouped_dock_dragging->setVisible(false);
+#endif
+
     initLayout();
 }
 
@@ -1402,9 +1406,13 @@ void MainWindow::on_actionExport_as_code_triggered()
 
 void MainWindow::on_actionGrouped_dock_dragging_triggered(bool checked)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     auto options = dockOptions();
     options.setFlag(QMainWindow::DockOption::GroupedDragging, checked);
     setDockOptions(options);
+#else
+    Q_UNUSED(checked);
+#endif
 }
 
 void MainWindow::seekToFunctionLastInstruction()
