@@ -7,12 +7,15 @@
 #include <QTimer>
 #include <QSettings>
 #include <iostream>
+#include <unistd.h>
 #include "core/Cutter.h"
 #include "ConsoleWidget.h"
 #include "ui_ConsoleWidget.h"
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
 
+#define PIPE_READ (0)
+#define PIPE_WRITE (1)
 
 static const int invalidHistoryPos = -1;
 
@@ -90,6 +93,8 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     connect(Config(), &Configuration::interfaceThemeChanged, this, &ConsoleWidget::setupFont);
 
     completer->popup()->installEventFilter(this);
+
+    redirectOutput();
 }
 
 ConsoleWidget::~ConsoleWidget()
@@ -324,3 +329,79 @@ void ConsoleWidget::invalidateHistoryPosition()
 {
     lastHistoryPosition = invalidHistoryPos;
 }
+
+void ConsoleWidget::processQueuedOutput()
+{
+#ifdef Q_OS_UNIX
+    int availBytes;
+
+    if (::ioctl(redirectPipeFds[PIPE_READ], FIONREAD, &availBytes) == -1) {
+        return;
+    }
+    if (availBytes <= 0) {
+        return;
+    }
+
+    if (availBytes > redirectionBuffer->size()) {
+        redirectionBuffer->resize(availBytes + 1);
+    }
+
+    std::fill(redirectionBuffer->begin(), redirectionBuffer->end(), '\0');
+
+    int bytesRead = ::read(redirectPipeFds[PIPE_READ],
+                           redirectionBuffer->data(), availBytes);
+
+    QString *output = new QString(redirectionBuffer->data());
+
+    fprintf(origStderr, "%s", output->toStdString().c_str());
+
+    // Partial lines are ignored since carriage return is currently unsupported
+    if (!output->contains('\n')) {
+        return;
+    }
+
+    // Append each line separately to avoid printing edits made by output
+    // that keeps updating the line using carriage return
+    QStringList outputs = output->split('\n', QString::SkipEmptyParts);
+
+    // Remove strings that don't end with a new line to avoid printing partial output
+    // that's supposed to be overwritten in the next output with a carriage return
+    if (output->lastIndexOf('\n') != bytesRead - 1) {
+        outputs.removeLast();
+    }
+
+    for (QString str : outputs) {
+        // Get the last string that was overwritten using carriage return
+        addOutput(str.remove(0, str.lastIndexOf('\r')));
+    }
+#endif
+}
+
+void ConsoleWidget::redirectOutput()
+{
+#ifdef Q_OS_UNIX
+    ::pipe(redirectPipeFds);
+
+    origStderr = fdopen(dup(fileno(stderr)), "a");
+    origStdout = fdopen(dup(fileno(stdout)), "a");
+    ::close(fileno(stderr));
+    ::close(fileno(stdout));
+
+    dup2(redirectPipeFds[PIPE_WRITE], fileno(stderr));
+    dup2(redirectPipeFds[PIPE_WRITE], fileno(stdout));
+
+    // Attempt to force line buffering to avoid calling processQueuedOutput
+    // for partial lines
+    ::setlinebuf(stderr);
+    ::setlinebuf(stdout);
+
+    redirectionBuffer = new QVector<char>();
+    outputNotifier = new QSocketNotifier(redirectPipeFds[PIPE_READ],
+                                         QSocketNotifier::Read, this);
+    connect(outputNotifier, SIGNAL(activated(int)), this, SLOT(processQueuedOutput()));
+
+    // Configure the pipe to work in async mode
+    fcntl (redirectPipeFds[PIPE_READ], F_SETFL, O_ASYNC | O_NONBLOCK);
+#endif
+}
+
