@@ -464,9 +464,9 @@ QKeySequence DisassemblyContextMenu::getCommentSequence() const
     return {Qt::Key_Semicolon};
 }
 
-QKeySequence DisassemblyContextMenu::getCopyAddressSequence() const
+QList<QKeySequence> DisassemblyContextMenu::getCopyAddressSequence() const
 {
-    return {Qt::CTRL + Qt::SHIFT + Qt::Key_C};
+    return {Qt::CTRL + Qt::SHIFT + Qt::Key_C, Qt::CTRL + Qt::Key_C};
 }
 
 QKeySequence DisassemblyContextMenu::getSetToCodeSequence() const

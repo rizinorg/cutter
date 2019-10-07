@@ -79,7 +79,7 @@ private slots:
 private:
     QKeySequence getCopySequence() const;
     QKeySequence getCommentSequence() const;
-    QKeySequence getCopyAddressSequence() const;
+    QList<QKeySequence> getCopyAddressSequence() const;
     QKeySequence getSetToCodeSequence() const;
     QKeySequence getSetAsStringSequence() const;
     QKeySequence getSetToDataSequence() const;
