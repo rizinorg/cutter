@@ -7,6 +7,7 @@
 
 #include <QStringListModel>
 #include <QSocketNotifier>
+#include <QLocalSocket>
 
 #include <memory>
 
@@ -96,11 +97,17 @@ private:
     QCompleter *completer;
     QShortcut *historyUpShortcut;
     QShortcut *historyDownShortcut;
-    int redirectPipeFds[2];
     FILE *origStderr;
     FILE *origStdout;
+#ifdef Q_OS_WIN
+    QLocalSocket *localSocket;
+    HANDLE hRead;
+    HANDLE hWrite;
+#else
+    int redirectPipeFds[2];
     QVector<char> *redirectionBuffer;
     QSocketNotifier *outputNotifier;
+#endif
 };
 
 #endif // CONSOLEWIDGET_H
