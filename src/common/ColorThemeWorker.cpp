@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QJsonArray>
 #include <QStandardPaths>
+#include <QRegularExpression>
 
 #include "common/Configuration.h"
 
@@ -313,13 +314,14 @@ bool ColorThemeWorker::isFileTheme(const QString& filePath, bool* ok) const
     QString options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions)
                       .join('|')
                       .replace(".", "\\.");
-    QRegExp regexp = QRegExp(QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*")
-                             .arg(options)
-                             .arg(colors));
+
+    QString pattern = QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*").arg(options).arg(colors);
+    // The below construct mimics the behaviour of QRegexP::exactMatch(), which was here before
+    QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
 
     for (auto &line : QString(f.readAll()).split('\n', QString::SkipEmptyParts)) {
         line.replace("#~", "ec ");
-        if (!line.isEmpty() && !regexp.exactMatch(line)) {
+        if (!line.isEmpty() && !regexp.match(line).hasMatch()) {
             *ok = true;
             return false;
         }

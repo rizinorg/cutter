@@ -1,7 +1,7 @@
 #include "HexdumpRangeDialog.h"
 #include "ui_HexdumpRangeDialog.h"
 
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 #include <QPushButton>
 #include <cstdint>
 #include "core/Cutter.h"
@@ -12,7 +12,7 @@ HexdumpRangeDialog::HexdumpRangeDialog(QWidget *parent, bool allowEmpty) :
     allowEmpty(allowEmpty)
 {
     ui->setupUi(this);
-    QRegExpValidator *v = new QRegExpValidator(QRegExp("(?:0[xX])?[0-9a-fA-F]+"), this);
+    QRegularExpressionValidator *v = new QRegularExpressionValidator(QRegularExpression("(?:0[xX])?[0-9a-fA-F]+"), this);
     ui->lengthLineEdit->setValidator(v);
     ui->startAddressLineEdit->setValidator(v);
     ui->endAddressLineEdit->setValidator(v);

@@ -1122,7 +1122,7 @@ void MainWindow::resetDockWidgetList()
     for (auto it : dockWidgets) {
         if (isLeft.contains(it->metaObject()->className())) {
             toClose.append(it);
-        } else if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
+        } else if (QRegularExpression("\\A(?:\\w+ \\d+)\\z").match(it->objectName()).hasMatch()) {
             isLeft.append(it->metaObject()->className());
         }
     }

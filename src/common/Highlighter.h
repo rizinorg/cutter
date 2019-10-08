@@ -6,6 +6,7 @@
 #include <QSyntaxHighlighter>
 #include <QHash>
 #include <QTextCharFormat>
+#include <QRegularExpression>
 
 class QTextDocument;
 class MainWindow;
@@ -24,13 +25,14 @@ private:
     CutterCore *core;
 
     struct HighlightingRule {
-        QRegExp pattern;
+        QString pattern;
+        QRegularExpression::PatternOptions options;
         QTextCharFormat format;
     };
     QVector<HighlightingRule> highlightingRules;
 
-    QRegExp commentStartExpression;
-    QRegExp commentEndExpression;
+    QString commentStartRegularExpression;
+    QString commentEndRegularExpression;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat regFormat;

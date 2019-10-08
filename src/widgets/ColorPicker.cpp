@@ -225,7 +225,8 @@ void ColorPicker::setColor(const QColor& color)
 void ColorPicker::colorChannelChanged()
 {
     QString txt = ui->hexLineEdit->text();
-    if (!QRegExp("#[0-9a-fA-F]{6}").exactMatch(txt)) {
+    // Regex pattern below mimics the behaviour of former RegExp::exactMatch()
+    if (!QRegularExpression("\\A(?:#[0-9a-fA-F]{6})\\z").match(txt).hasMatch()) {
         return;
     }
     QColor hexColor = txt;

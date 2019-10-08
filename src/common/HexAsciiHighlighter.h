@@ -20,13 +20,13 @@ protected:
 
 private:
     struct HighlightingRule {
-        QRegExp pattern;
+        QString pattern;
         QTextCharFormat format;
     };
     QVector<HighlightingRule> highlightingRules;
 
-    QRegExp commentStartExpression;
-    QRegExp commentEndExpression;
+    QString commentStartRegularExpression;
+    QString commentEndRegularExpression;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat classFormat;
