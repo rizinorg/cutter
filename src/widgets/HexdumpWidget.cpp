@@ -254,6 +254,9 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         case 9: // JavaScript
             ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcJ " + argument));
             break;
+        case 10: // Yara
+            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcy " + argument));
+            break;
         default:
             ui->hexDisasTextEdit->setPlainText("");
         }
