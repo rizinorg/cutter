@@ -82,7 +82,7 @@ matrix:
     - chmod 600 scripts/deploy_docs_rsa
     - export GIT_SSH_COMMAND="/usr/bin/ssh -i $TRAVIS_BUILD_DIR/scripts/deploy_docs_rsa"
     - git config --global user.name "Travis CI"
-    - git config --global user.email "travis@travis-ci.org"
+    - git config --global user.email "travis@travis-ci.com"
     deploy:
       skip_cleanup: true
       provider: script
