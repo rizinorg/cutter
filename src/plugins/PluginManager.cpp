@@ -125,6 +125,10 @@ void PluginManager::loadNativePlugins(const QDir &directory)
         QPluginLoader pluginLoader(directory.absoluteFilePath(fileName));
         QObject *plugin = pluginLoader.instance();
         if (!plugin) {
+            auto errorString = pluginLoader.errorString();
+            if (!errorString.isEmpty()) {
+                qWarning() << "Load Error for plugin" << fileName << ":" << errorString;
+            }
             continue;
         }
         CutterPlugin *cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
