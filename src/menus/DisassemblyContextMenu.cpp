@@ -810,7 +810,7 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
         if (!newName.isEmpty()) {
             Core()->cmd("an " + newName + " @ " + QString::number(offset));
 
-            if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Address) {
+            if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
                 Core()->triggerFlagsChanged();
             } else if (type == ThingUsedHere::Type::Var) {
                 Core()->triggerVarsChanged();
