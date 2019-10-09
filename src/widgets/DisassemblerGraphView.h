@@ -100,6 +100,7 @@ public:
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
+    virtual bool event(QEvent *event) override;
 
     void loadCurrentGraph();
     QString windowTitle;
@@ -221,6 +222,10 @@ private:
     QAction actionSyncOffset;
 
     QLabel *emptyText = nullptr;
+
+    static const int KEY_ZOOM_IN;
+    static const int KEY_ZOOM_OUT;
+    static const int KEY_ZOOM_RESET;
 signals:
     void viewRefreshed();
     void viewZoomed();

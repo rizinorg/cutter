@@ -1509,17 +1509,14 @@ void MainWindow::chooseThemeIcons()
 void MainWindow::onZoomIn()
 {
   Config()->setZoomFactor(Config()->getZoomFactor() + 0.1);
-  emit zoomIn();
 }
 
 void MainWindow::onZoomOut()
 {
   Config()->setZoomFactor(Config()->getZoomFactor() - 0.1);
-  emit zoomOut();
 }
 
 void MainWindow::onZoomReset()
 {
   Config()->setZoomFactor(1.0);
-  emit zoomReset();
 }

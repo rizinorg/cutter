@@ -122,11 +122,6 @@ public:
     void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
     MemoryDockWidget* getLastMemoryWidget();
 
-signals:
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
-
 public slots:
     void finalizeOpen();
 
