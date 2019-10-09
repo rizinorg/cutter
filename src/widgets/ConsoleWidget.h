@@ -99,8 +99,8 @@ private:
     QShortcut *historyDownShortcut;
     FILE *origStderr;
     FILE *origStdout;
+    QLocalSocket *pipeSocket;
 #ifdef Q_OS_WIN
-    QLocalSocket *localSocket;
     HANDLE hRead;
     HANDLE hWrite;
 #else

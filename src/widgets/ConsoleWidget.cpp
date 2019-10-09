@@ -22,13 +22,10 @@
 #define fdopen _fdopen
 #define PIPE_SIZE 65536 // Match Linux size
 #define PIPE_NAME "\\\\.\\pipe\\cutteroutput-%1"
-#define LINE_ENDING "\r\n"
 #else
 #include <unistd.h>
-#define LINE_ENDING '\n'
 #define PIPE_READ  (0)
 #define PIPE_WRITE (1)
-
 #endif
 
 static const int invalidHistoryPos = -1;
@@ -346,56 +343,22 @@ void ConsoleWidget::invalidateHistoryPosition()
 
 void ConsoleWidget::processQueuedOutput()
 {
-#ifdef Q_OS_WIN32
-    QString *output = new QString(localSocket->readAll());
-    int bytesRead = output->size();
-#else
-    int availBytes;
-
-    if (::ioctl(redirectPipeFds[PIPE_READ], FIONREAD, &availBytes) == -1) {
-        return;
-    }
-    if (availBytes <= 0) {
-        return;
-    }
-
-    if (availBytes > redirectionBuffer->size()) {
-        redirectionBuffer->resize(availBytes + 1);
-    }
-    std::fill(redirectionBuffer->begin(), redirectionBuffer->end(), '\0');
-
-    int bytesRead = ::read(redirectPipeFds[PIPE_READ],
-                           redirectionBuffer->data(), availBytes);
-
-    QString *output = new QString(redirectionBuffer->data());
-#endif
-    fprintf(origStderr, "%s", output->toStdString().c_str());
-
     // Partial lines are ignored since carriage return is currently unsupported
-    if (!output->contains(LINE_ENDING)) {
-        return;
+    while (pipeSocket->canReadLine()) {
+        QString output = QString(pipeSocket->readLine());
+
+        fprintf(origStderr, "%s", output.toStdString().c_str());
+
+        // Get the last segment that wasn't overwritten by carriage return
+        output = output.trimmed();
+        addOutput(output.remove(0, output.lastIndexOf('\r')));
     }
-
-    // Append each line separately to avoid printing edits made by output
-    // that keeps updating the line using carriage return
-    QStringList outputs = output->split(LINE_ENDING, QString::SkipEmptyParts);
-
-    // Remove strings that don't end with a new line to avoid printing partial output
-    // that's supposed to be overwritten in the next output with a carriage return
-    if (output->lastIndexOf(LINE_ENDING) != bytesRead - 1) {
-        outputs.removeLast();
-    }
-
-    for (QString str : outputs) {
-        // Get the last string that was overwritten using carriage return
-        addOutput(str.remove(0, str.lastIndexOf('\r')));
-    }
-
-    delete output;
 }
 
 void ConsoleWidget::redirectOutput()
 {
+    pipeSocket = new QLocalSocket(this);
+
     origStderr = fdopen(dup(fileno(stderr)), "a");
     origStdout = fdopen(dup(fileno(stdout)), "a");
 
@@ -403,18 +366,14 @@ void ConsoleWidget::redirectOutput()
     QString pipeName = QString::fromLatin1(PIPE_NAME).arg(QUuid::createUuid().toString());
 
     SECURITY_ATTRIBUTES attributes = {sizeof(SECURITY_ATTRIBUTES), 0, false};
-    hWrite = ::CreateNamedPipe((wchar_t*)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-                               PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
-    
-    localSocket = new QLocalSocket(this);
-    localSocket->connectToServer(pipeName, QIODevice::ReadOnly);
-
-    connect(localSocket, SIGNAL(readyRead()), this, SLOT(processQueuedOutput()));
-
+    hWrite = CreateNamedPipe((wchar_t*)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+                             PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
+ 
     int writeFd = _open_osfhandle((intptr_t)hWrite, _O_WRONLY | _O_TEXT);
-
     dup2(writeFd, fileno(stdout));
     dup2(writeFd, fileno(stderr));
+
+    pipeSocket->connectToServer(pipeName, QIODevice::ReadOnly);
 #else
     pipe(redirectPipeFds);
 
@@ -426,13 +385,12 @@ void ConsoleWidget::redirectOutput()
     setlinebuf(stderr);
     setlinebuf(stdout);
 
-    redirectionBuffer = new QVector<char>();
-
-    outputNotifier = new QSocketNotifier(redirectPipeFds[PIPE_READ],
-                                         QSocketNotifier::Read, this);
-    connect(outputNotifier, SIGNAL(activated(int)), this, SLOT(processQueuedOutput()));
-
     // Configure the pipe to work in async mode
     fcntl(redirectPipeFds[PIPE_READ], F_SETFL, O_ASYNC | O_NONBLOCK);
+
+    pipeSocket->setSocketDescriptor(redirectPipeFds[PIPE_READ]);
 #endif
+    pipeSocket->connectToServer(QIODevice::ReadOnly);
+
+    connect(pipeSocket, SIGNAL(readyRead()), this, SLOT(processQueuedOutput()));
 }
