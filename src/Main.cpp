@@ -121,6 +121,39 @@ static void migrateThemes()
     }
 }
 
+/**
+ * @brief Attempt to connect to a parent console and configure outputs.
+ *
+ * @note Doesn't do anything if the exe wasn't executed from a console.
+ */
+#ifdef Q_OS_WIN
+static void connectToConsole()
+{
+    if(!AttachConsole(ATTACH_PARENT_PROCESS)) {
+        return;
+    }
+
+    // Overwrite FD 1 and 2 for the benefit of any code that uses this FD
+    // directly.  This is safe because the CRT allocates FDs 0, 1 and
+    // 2 at startup even if they don't have valid underlying Windows
+    // handles.  This means we won't be overwriting an FD created by
+    // _open() after startup.
+    _close(1);
+    _close(2);
+
+    if (freopen("CONOUT$", "a+", stdout)) {
+        // Avoid buffering stdout/stderr since IOLBF is replaced by IOFBF in Win32.
+        setvbuf(stdout, nullptr, _IONBF, 0);
+    }
+    if (freopen("CONOUT$", "a+", stderr)) {
+        setvbuf(stderr, nullptr, _IONBF, 0);
+    }
+
+    // Fix all cout, wcout, cin, wcin, cerr, wcerr, clog and wclog.
+    std::ios::sync_with_stdio();
+}
+#endif
+
 
 int main(int argc, char *argv[])
 {
@@ -132,6 +165,10 @@ int main(int argc, char *argv[])
     }
 
     initCrashHandler();
+
+#ifdef Q_OS_WIN
+    connectToConsole();
+#endif
 
     qRegisterMetaType<QList<StringDescription>>();
     qRegisterMetaType<QList<FunctionDescription>>();

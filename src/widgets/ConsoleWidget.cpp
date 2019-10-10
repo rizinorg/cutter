@@ -357,11 +357,16 @@ void ConsoleWidget::processQueuedOutput()
 
 void ConsoleWidget::redirectOutput()
 {
+    // Make sure that we are running in a valid console with initialized output handles
+    if(0 > fileno(stderr) && 0 > fileno(stdout)) {
+        addOutput("Run cutter in a console to enable r2 output redirection into this widget.");
+        return;
+    }
+
     pipeSocket = new QLocalSocket(this);
 
     origStderr = fdopen(dup(fileno(stderr)), "a");
     origStdout = fdopen(dup(fileno(stdout)), "a");
-
 #ifdef Q_OS_WIN
     QString pipeName = QString::fromLatin1(PIPE_NAME).arg(QUuid::createUuid().toString());
 
@@ -376,7 +381,6 @@ void ConsoleWidget::redirectOutput()
     pipeSocket->connectToServer(pipeName, QIODevice::ReadOnly);
 #else
     pipe(redirectPipeFds);
-
     dup2(redirectPipeFds[PIPE_WRITE], fileno(stderr));
     dup2(redirectPipeFds[PIPE_WRITE], fileno(stdout));
 
@@ -389,8 +393,8 @@ void ConsoleWidget::redirectOutput()
     fcntl(redirectPipeFds[PIPE_READ], F_SETFL, O_ASYNC | O_NONBLOCK);
 
     pipeSocket->setSocketDescriptor(redirectPipeFds[PIPE_READ]);
-#endif
     pipeSocket->connectToServer(QIODevice::ReadOnly);
+#endif
 
     connect(pipeSocket, SIGNAL(readyRead()), this, SLOT(processQueuedOutput()));
 }
