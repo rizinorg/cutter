@@ -5,6 +5,7 @@
 
 #include <QHash>
 #include <QTextCharFormat>
+#include <QRegularExpression>
 
 class QTextDocument;
 
@@ -20,7 +21,7 @@ protected:
 
 private:
     struct HighlightingRule {
-        QString pattern;
+        QRegularExpression pattern;
         QTextCharFormat format;
     };
     QVector<HighlightingRule> highlightingRules;

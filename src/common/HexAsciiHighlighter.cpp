@@ -8,12 +8,12 @@ AsciiHighlighter::AsciiHighlighter(QTextDocument *parent)
     HighlightingRule rule;
 
     asciiFormat.setForeground(QColor(65, 131, 215));
-    rule.pattern = "\\b[A-Za-z0-9]+\\b";
+    rule.pattern.setPattern("\\b[A-Za-z0-9]+\\b");
     rule.format = asciiFormat;
     highlightingRules.append(rule);
 
-    commentStartRegularExpression = "/\\*";
-    commentEndRegularExpression = "\\*/";
+    commentStartRegularExpression.setPattern("/\\*");
+    commentEndRegularExpression.setPattern("\\*/");
 }
 
 void AsciiHighlighter::highlightBlock(const QString &text)

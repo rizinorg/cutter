@@ -25,14 +25,13 @@ private:
     CutterCore *core;
 
     struct HighlightingRule {
-        QString pattern;
-        QRegularExpression::PatternOptions options;
+        QRegularExpression pattern;
         QTextCharFormat format;
     };
     QVector<HighlightingRule> highlightingRules;
 
-    QString commentStartRegularExpression;
-    QString commentEndRegularExpression;
+    QRegularExpression commentStartRegularExpression;
+    QRegularExpression commentEndRegularExpression;
 
     QTextCharFormat keywordFormat;
     QTextCharFormat regFormat;

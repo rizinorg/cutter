@@ -27,20 +27,20 @@ HexHighlighter::HexHighlighter(QTextDocument *parent)
                     << "\\b75\\b" << "\\b76\\b" << "\\b77\\b" << "\\b78\\b" << "\\b79\\b" << "\\b7a\\b" << "\\b7b\\b"
                     << "\\b7c\\b" << "\\b7d\\b" << "\\b7e\\b" << "\\b7f\\b";
     for (const QString &pattern : keywordPatterns) {
-        rule.pattern = pattern;
-        rule.options = QRegularExpression::CaseInsensitiveOption;
+        rule.pattern.setPattern(pattern);
+        rule.pattern.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
 
     singleLineCommentFormat.setFontWeight(QFont::Bold);
     singleLineCommentFormat.setForeground(Qt::darkGreen);
-    rule.pattern = ";[^\n]*";
+    rule.pattern.setPattern(";[^\n]*");
     rule.format = singleLineCommentFormat;
     highlightingRules.append(rule);
 
-    commentStartRegularExpression = "/\\*";
-    commentEndRegularExpression = "\\*/";
+    commentStartRegularExpression.setPattern("/\\*");
+    commentEndRegularExpression.setPattern("\\*/");
 }
 
 void HexHighlighter::highlightBlock(const QString &text)

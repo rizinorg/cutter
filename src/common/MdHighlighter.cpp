@@ -16,14 +16,14 @@ MdHighlighter::MdHighlighter(QTextDocument *parent)
                     << "\\_\\_([^\\\\]+)\\_\\_";
 
     for (const QString &pattern : keywordPatterns) {
-        rule.pattern = pattern;
+        rule.pattern.setPattern(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
 
     singleLineCommentFormat.setFontWeight(QFont::Bold);
     singleLineCommentFormat.setForeground(Qt::darkGreen);
-    rule.pattern = ";[^\n]*";
+    rule.pattern.setPattern(";[^\n]*");
     rule.format = singleLineCommentFormat;
     highlightingRules.append(rule);
 }
