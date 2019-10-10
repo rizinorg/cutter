@@ -366,7 +366,7 @@ void ConsoleWidget::redirectOutput()
     QString pipeName = QString::fromLatin1(PIPE_NAME).arg(QUuid::createUuid().toString());
 
     SECURITY_ATTRIBUTES attributes = {sizeof(SECURITY_ATTRIBUTES), 0, false};
-    hWrite = CreateNamedPipe((wchar_t*)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+    hWrite = CreateNamedPipeW((wchar_t*)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
                              PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
  
     int writeFd = _open_osfhandle((intptr_t)hWrite, _O_WRONLY | _O_TEXT);
