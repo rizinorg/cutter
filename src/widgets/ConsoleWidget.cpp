@@ -358,7 +358,7 @@ void ConsoleWidget::processQueuedOutput()
 void ConsoleWidget::redirectOutput()
 {
     // Make sure that we are running in a valid console with initialized output handles
-    if(0 > fileno(stderr) && 0 > fileno(stdout)) {
+    if (0 > fileno(stderr) && 0 > fileno(stdout)) {
         addOutput("Run cutter in a console to enable r2 output redirection into this widget.");
         return;
     }
@@ -372,7 +372,7 @@ void ConsoleWidget::redirectOutput()
 
     SECURITY_ATTRIBUTES attributes = {sizeof(SECURITY_ATTRIBUTES), 0, false};
     hWrite = CreateNamedPipeW((wchar_t*)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-                             PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
+                              PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
  
     int writeFd = _open_osfhandle((intptr_t)hWrite, _O_WRONLY | _O_TEXT);
     dup2(writeFd, fileno(stdout));
