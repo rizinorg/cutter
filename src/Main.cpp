@@ -129,24 +129,31 @@ static void migrateThemes()
 #ifdef Q_OS_WIN
 static void connectToConsole()
 {
-    if(!AttachConsole(ATTACH_PARENT_PROCESS)) {
+    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
         return;
     }
 
-    // Overwrite FD 1 and 2 for the benefit of any code that uses this FD
-    // directly.  This is safe because the CRT allocates FDs 0, 1 and
-    // 2 at startup even if they don't have valid underlying Windows
-    // handles.  This means we won't be overwriting an FD created by
-    // _open() after startup.
-    _close(1);
-    _close(2);
+    // Avoid reconfiguring stderr/stdout if one of them is already connected to a stream.
+    // This can happen when running with stdout/stderr redirected to a file.
+    if (0 > fileno(stdout)) {
+        // Overwrite FD 1 and 2 for the benefit of any code that uses the FDs
+        // directly.  This is safe because the CRT allocates FDs 0, 1 and
+        // 2 at startup even if they don't have valid underlying Windows
+        // handles.  This means we won't be overwriting an FD created by
+        // _open() after startup.
+        _close(1);
 
-    if (freopen("CONOUT$", "a+", stdout)) {
-        // Avoid buffering stdout/stderr since IOLBF is replaced by IOFBF in Win32.
-        setvbuf(stdout, nullptr, _IONBF, 0);
+        if (freopen("CONOUT$", "a+", stdout)) {
+            // Avoid buffering stdout/stderr since IOLBF is replaced by IOFBF in Win32.
+            setvbuf(stdout, nullptr, _IONBF, 0);
+        }
     }
-    if (freopen("CONOUT$", "a+", stderr)) {
-        setvbuf(stderr, nullptr, _IONBF, 0);
+    if (0 > fileno(stderr)) {
+        _close(2);
+
+        if (freopen("CONOUT$", "a+", stderr)) {
+            setvbuf(stderr, nullptr, _IONBF, 0);
+        }
     }
 
     // Fix all cout, wcout, cin, wcin, cerr, wcerr, clog and wclog.
