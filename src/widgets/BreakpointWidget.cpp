@@ -127,14 +127,16 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     });
 
     setScrollMode();
-
+ 
     actionDelBreakpoint = new QAction(tr("Delete breakpoint"), this);
     actionDelBreakpoint->setShortcut(Qt::Key_Delete);
+    actionDelBreakpoint->setShortcutContext(Qt::WidgetShortcut);
     connect(actionDelBreakpoint, &QAction::triggered, this, &BreakpointWidget::delBreakpoint);
     ui->breakpointTreeView->addAction(actionDelBreakpoint);
 
     actionToggleBreakpoint = new QAction(tr("Toggle breakpoint"), this);
     actionToggleBreakpoint->setShortcut(Qt::Key_Space);
+    actionToggleBreakpoint->setShortcutContext(Qt::WidgetShortcut);
     connect(actionToggleBreakpoint, &QAction::triggered, this, &BreakpointWidget::toggleBreakpoint);
     ui->breakpointTreeView->addAction(actionToggleBreakpoint);
 
