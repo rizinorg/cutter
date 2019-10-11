@@ -351,7 +351,7 @@ void ConsoleWidget::processQueuedOutput()
 
         // Get the last segment that wasn't overwritten by carriage return
         output = output.trimmed();
-        addOutput(output.remove(0, output.lastIndexOf('\r')));
+        addOutput(output.remove(0, output.lastIndexOf('\r')).trimmed());
     }
 }
 
