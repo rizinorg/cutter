@@ -172,36 +172,26 @@ void ConsoleWidget::executeCommand(const QString &command)
     }
     ui->inputLineEdit->setEnabled(false);
 
-    const int originalLines = ui->outputTextEdit->blockCount();
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(500);
-    timer->setSingleShot(true);
-    connect(timer, &QTimer::timeout, [this]() {
-        ui->outputTextEdit->appendPlainText("Executing the command...");
-    });
+    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command;
+    addOutput(cmd_line);
 
-    QString cmd_line = "<br>[" + RAddressString(Core()->getOffset()) + "]> " + command + "<br>";
     RVA oldOffset = Core()->getOffset();
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
-          command, originalLines, oldOffset] (const QString & result) {
+          command, oldOffset] (const QString & result) {
 
-        if (originalLines < ui->outputTextEdit->blockCount()) {
-            removeLastLine();
-        }
-        ui->outputTextEdit->appendHtml(cmd_line + result);
+        ui->outputTextEdit->appendHtml(result);
         scrollOutputToEnd();
         historyAdd(command);
         commandTask = nullptr;
         ui->inputLineEdit->setEnabled(true);
         ui->inputLineEdit->setFocus();
+
         if (oldOffset != Core()->getOffset()) {
             Core()->updateSeek();
         }
     });
-    connect(commandTask.data(), &CommandTask::finished, timer, &QTimer::stop);
 
-    timer->start();
     Core()->getAsyncTaskManager()->start(commandTask);
 }
 
@@ -351,7 +341,9 @@ void ConsoleWidget::processQueuedOutput()
 
         // Get the last segment that wasn't overwritten by carriage return
         output = output.trimmed();
-        addOutput(output.remove(0, output.lastIndexOf('\r')).trimmed());
+        output = output.remove(0, output.lastIndexOf('\r')).trimmed();
+        ui->outputTextEdit->appendHtml(CutterCore::ansiEscapeToHtml(output));
+        scrollOutputToEnd();
     }
 }
 
