@@ -401,7 +401,7 @@ void DisassemblerGraphView::cleanupEdges()
 
 void DisassemblerGraphView::initFont()
 {
-    setFont(Config()->getBaseFont());
+    setFont(Config()->getFont());
     QFontMetricsF metrics(font());
     baseline = int(metrics.ascent());
     charWidth = metrics.width('X');
@@ -418,7 +418,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
-    p.setFont(Config()->getBaseFont());
+    p.setFont(Config()->getFont());
     p.drawRect(blockRect);
 
     breakpoints = Core()->getBreakpointsAddresses();
@@ -776,13 +776,19 @@ void DisassemblerGraphView::onSeekChanged(RVA addr)
 
 void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
 {
+    qreal newScale = getViewScale() * std::pow(1.25, velocity);
+    setZoom(mouseRelativePos, newScale);
+}
+
+void DisassemblerGraphView::setZoom(QPointF mouseRelativePos, double scale)
+{
     mouseRelativePos.rx() *= size().width();
     mouseRelativePos.ry() *= size().height();
     mouseRelativePos /= getViewScale();
 
     auto globalMouse = mouseRelativePos + getViewOffset();
     mouseRelativePos *= getViewScale();
-    qreal newScale = getViewScale() * std::pow(1.25, velocity);
+    qreal newScale = scale;
     newScale = std::max(newScale, 0.05);
     mouseRelativePos /= newScale;
     setViewScale(newScale);
@@ -806,9 +812,7 @@ void DisassemblerGraphView::zoomOut()
 
 void DisassemblerGraphView::zoomReset()
 {
-    setViewScale(1.0);
-    viewport()->update();
-    emit viewZoomed();
+    setZoom(QPointF(0.5, 0.5), 1);
 }
 
 void DisassemblerGraphView::takeTrue()
