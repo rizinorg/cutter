@@ -14,7 +14,7 @@ TypesInteractionDialog::TypesInteractionDialog(QWidget *parent, bool readOnly) :
     ui(new Ui::TypesInteractionDialog)
 {
     ui->setupUi(this);
-    QFont font = Config()->getFont();
+    QFont font = Config()->getBaseFont();
     ui->plainTextEdit->setFont(font);
     ui->plainTextEdit->setPlainText("");
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)

@@ -78,7 +78,7 @@ QVariant SearchModel::data(const QModelIndex &index, int role) const
             previewContent = Core()->getHexdumpPreview(exp.offset, kMaxTooltipHexdumpBytes);
         }
 
-        const QFont &fnt = Config()->getFont();
+        const QFont &fnt = Config()->getBaseFont();
         QFontMetrics fm{ fnt };
 
         QString toolTipContent = QString("<html><div style=\"font-family: %1; font-size: %2pt; white-space: nowrap;\">")

@@ -3,6 +3,7 @@
 
 #include <QAction>
 #include <QEvent>
+#include <QtWidgets/QShortcut>
 
 CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
     QDockWidget(parent),
@@ -97,4 +98,3 @@ QString CutterDockWidget::getDockNumber()
     }
     return QString();
 }
-

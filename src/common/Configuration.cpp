@@ -354,16 +354,33 @@ void Configuration::loadDarkStylesheet()
     }
 }
 
-const QFont Configuration::getFont() const
+const QFont Configuration::getBaseFont() const
 {
     QFont font = s.value("font", QFont("Inconsolata", 11)).value<QFont>();
     return font;
+}
+
+const QFont Configuration::getFont() const
+{
+  QFont font = getBaseFont();
+  font.setPointSizeF(font.pointSizeF() * getZoomFactor());
+  return font;
 }
 
 void Configuration::setFont(const QFont &font)
 {
     s.setValue("font", font);
     emit fontsUpdated();
+}
+
+qreal Configuration::getZoomFactor() const {
+  qreal fontZoom = s.value("zoomFactor", 1.0).value<qreal>();
+  return qMax(fontZoom, 0.1);
+}
+
+void Configuration::setZoomFactor(qreal zoom) {
+  s.setValue("zoomFactor", qMax(zoom, 0.1));
+  emit fontsUpdated();
 }
 
 QString Configuration::getLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme) const

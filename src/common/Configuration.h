@@ -75,8 +75,22 @@ public:
     QStringList getAvailableTranslations();
 
     // Fonts
+
+    /**
+     * @brief Gets the configured font set by the font selection box
+     * @return the configured font
+     */
+     const QFont getBaseFont() const;
+
+    /**
+     * @brief Gets the configured font with the point size adjusted by the configured zoom
+     * level (minimum of 10%)
+     * @return the configured font size adjusted by zoom level
+     */
     const QFont getFont() const;
     void setFont(const QFont &font);
+    qreal getZoomFactor() const;
+    void setZoomFactor(qreal zoom);
 
     // Colors
     bool windowColorIsDark();

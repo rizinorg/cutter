@@ -160,6 +160,10 @@ void MainWindow::initUI()
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
+    connect(ui->actionZoomIn, SIGNAL(triggered()), this, SLOT(onZoomIn()));
+    connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(onZoomOut()));
+    connect(ui->actionZoomReset, SIGNAL(triggered()), this, SLOT(onZoomReset()));
+
     connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
                                                                                        const QString &)));
 
@@ -1508,4 +1512,19 @@ void MainWindow::chooseThemeIcons()
     qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
         static_cast<QAction*>(obj)->setIcon(icon);
     });
+}
+
+void MainWindow::onZoomIn()
+{
+  Config()->setZoomFactor(Config()->getZoomFactor() + 0.1);
+}
+
+void MainWindow::onZoomOut()
+{
+  Config()->setZoomFactor(Config()->getZoomFactor() - 0.1);
+}
+
+void MainWindow::onZoomReset()
+{
+  Config()->setZoomFactor(1.0);
 }

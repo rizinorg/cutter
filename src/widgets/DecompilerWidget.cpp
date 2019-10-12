@@ -26,7 +26,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
     setupFonts();
     colorsUpdatedSlot();
 
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
+    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
 
     decompiledFunctionAddr = RVA_INVALID;
@@ -249,8 +249,7 @@ void DecompilerWidget::updateCursorPosition()
 
 void DecompilerWidget::setupFonts()
 {
-    QFont font = Config()->getFont();
-    ui->textEdit->setFont(font);
+    ui->textEdit->setFont(Config()->getFont());
 }
 
 void DecompilerWidget::updateSelection()
@@ -275,7 +274,7 @@ QString DecompilerWidget::getWindowTitle() const
     return tr("Decompiler");
 }
 
-void DecompilerWidget::fontsUpdated()
+void DecompilerWidget::fontsUpdatedSlot()
 {
     setupFonts();
 }

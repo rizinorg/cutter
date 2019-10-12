@@ -46,10 +46,6 @@ protected slots:
 
     void cursorPositionChanged();
 
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
-
 protected:
     DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;

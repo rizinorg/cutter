@@ -101,6 +101,7 @@ public:
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
+    virtual bool event(QEvent *event) override;
 
     void loadCurrentGraph();
     QString windowTitle;
@@ -130,6 +131,8 @@ public slots:
     void fontsUpdatedSlot();
     void onSeekChanged(RVA addr);
     void zoom(QPointF mouseRelativePos, double velocity);
+    void zoomIn();
+    void zoomOut();
     void zoomReset();
 
     void takeTrue();
@@ -222,6 +225,10 @@ private:
     QAction actionUnhighlight;
 
     QLabel *emptyText = nullptr;
+
+    static const int KEY_ZOOM_IN;
+    static const int KEY_ZOOM_OUT;
+    static const int KEY_ZOOM_RESET;
 signals:
     void viewRefreshed();
     void viewZoomed();

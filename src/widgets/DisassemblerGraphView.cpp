@@ -2,6 +2,7 @@
 #include "DisassemblerGraphView.h"
 #include "common/CutterSeekable.h"
 #include "core/Cutter.h"
+#include "core/MainWindow.h"
 #include "common/Colors.h"
 #include "common/Configuration.h"
 #include "common/CachedFontMetrics.h"
@@ -31,6 +32,10 @@
 #include <QAction>
 
 #include <cmath>
+
+const int DisassemblerGraphView::KEY_ZOOM_IN = Qt::Key_Plus + Qt::ControlModifier;
+const int DisassemblerGraphView::KEY_ZOOM_OUT = Qt::Key_Minus + Qt::ControlModifier;
+const int DisassemblerGraphView::KEY_ZOOM_RESET = Qt::Key_Equal + Qt::ControlModifier;
 
 DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable,
                                              MainWindow *mainWindow, QList<QAction *> additionalMenuActions)
@@ -66,19 +71,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     shortcut_escape->setContext(Qt::WidgetShortcut);
     connect(shortcut_escape, SIGNAL(activated()), seekable, SLOT(seekPrev()));
 
-    // Zoom shortcuts
-    QShortcut *shortcut_zoom_in = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Plus), this);
-    shortcut_zoom_in->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_in, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom, this,
-                                                                     QPointF(0.5, 0.5), 1));
-    QShortcut *shortcut_zoom_out = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Minus), this);
-    shortcut_zoom_out->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_out, &QShortcut::activated, this, std::bind(&DisassemblerGraphView::zoom,
-                                                                      this, QPointF(0.5, 0.5), -1));
-    QShortcut *shortcut_zoom_reset = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Equal), this);
-    shortcut_zoom_reset->setContext(Qt::WidgetShortcut);
-    connect(shortcut_zoom_reset, SIGNAL(activated()), this, SLOT(zoomReset()));
-
     // Branch shortcuts
     QShortcut *shortcut_take_true = new QShortcut(QKeySequence(Qt::Key_T), this);
     shortcut_take_true->setContext(Qt::WidgetShortcut);
@@ -95,9 +87,6 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     shortcut_prev_instr->setContext(Qt::WidgetShortcut);
     connect(shortcut_prev_instr, SIGNAL(activated()), this, SLOT(prevInstr()));
     shortcuts.append(shortcut_escape);
-    shortcuts.append(shortcut_zoom_in);
-    shortcuts.append(shortcut_zoom_out);
-    shortcuts.append(shortcut_zoom_reset);
     shortcuts.append(shortcut_next_instr);
     shortcuts.append(shortcut_prev_instr);
 
@@ -412,7 +401,7 @@ void DisassemblerGraphView::cleanupEdges()
 
 void DisassemblerGraphView::initFont()
 {
-    setFont(Config()->getFont());
+    setFont(Config()->getBaseFont());
     QFontMetricsF metrics(font());
     baseline = int(metrics.ascent());
     charWidth = metrics.width('X');
@@ -429,7 +418,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     p.setPen(Qt::black);
     p.setBrush(Qt::gray);
-    p.setFont(Config()->getFont());
+    p.setFont(Config()->getBaseFont());
     p.drawRect(blockRect);
 
     breakpoints = Core()->getBreakpointsAddresses();
@@ -805,6 +794,16 @@ void DisassemblerGraphView::zoom(QPointF mouseRelativePos, double velocity)
     emit viewZoomed();
 }
 
+void DisassemblerGraphView::zoomIn()
+{
+    zoom(QPointF(0.5, 0.5), 1);
+}
+
+void DisassemblerGraphView::zoomOut()
+{
+    zoom(QPointF(0.5, 0.5), -1);
+}
+
 void DisassemblerGraphView::zoomReset()
 {
     setViewScale(1.0);
@@ -1032,6 +1031,40 @@ void DisassemblerGraphView::blockTransitionedTo(GraphView::GraphBlock *to)
         return;
     }
     seekLocal(to->entry);
+}
+
+bool DisassemblerGraphView::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ShortcutOverride: {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        int key = keyEvent->key() + keyEvent->modifiers();
+        if (key == KEY_ZOOM_OUT || key == KEY_ZOOM_RESET
+                || key == KEY_ZOOM_IN || (key == (KEY_ZOOM_IN | Qt::ShiftModifier))) {
+            event->accept();
+            return true;
+        }
+        break;
+    }
+    case QEvent::KeyPress: {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        int key = keyEvent->key() + keyEvent->modifiers();
+        if (key == KEY_ZOOM_IN || (key == (KEY_ZOOM_IN | Qt::ShiftModifier))) {
+            zoomIn();
+            return true;
+        } else if (key == KEY_ZOOM_OUT) {
+            zoomOut();
+            return true;
+        } else if (key == KEY_ZOOM_RESET) {
+            zoomReset();
+            return true;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+    return GraphView::event(event);
 }
 
 

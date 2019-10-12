@@ -30,7 +30,7 @@ public slots:
     void showDisasContextMenu(const QPoint &pt);
 
 private slots:
-    void fontsUpdated();
+    void fontsUpdatedSlot();
     void colorsUpdatedSlot();
     void refreshDecompiler();
     void decompilerSelected();

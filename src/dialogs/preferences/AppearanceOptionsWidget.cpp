@@ -11,6 +11,7 @@
 #include <QtSvg/QSvgRenderer>
 
 #include <QComboBox>
+#include <QtWidgets/QSpinBox>
 #include "PreferencesDialog.h"
 #include "AppearanceOptionsWidget.h"
 #include "ui_AppearanceOptionsWidget.h"
@@ -62,13 +63,18 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
 
     connect(ui->colorComboBox, &QComboBox::currentTextChanged,
             this, &AppearanceOptionsWidget::updateModificationButtons);
+
+    connect(ui->fontZoomBox,
+        static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+        this,
+        &AppearanceOptionsWidget::onFontZoomBoxValueChanged);
 }
 
 AppearanceOptionsWidget::~AppearanceOptionsWidget() {}
 
 void AppearanceOptionsWidget::updateFontFromConfig()
 {
-    QFont currentFont = Config()->getFont();
+    QFont currentFont = Config()->getBaseFont();
     ui->fontSelectionLabel->setText(currentFont.toString());
 }
 
@@ -91,9 +97,16 @@ void AppearanceOptionsWidget::updateThemeFromConfig(bool interfaceThemeChanged)
     updateModificationButtons(ui->colorComboBox->currentText());
 }
 
+void AppearanceOptionsWidget::onFontZoomBoxValueChanged(int zoom)
+{
+  qreal zoomFactor = zoom / 100.0;
+  Config()->setZoomFactor(zoomFactor);
+}
+
+
 void AppearanceOptionsWidget::on_fontSelectionButton_clicked()
 {
-    QFont currentFont = Config()->getFont();
+    QFont currentFont = Config()->getBaseFont();
     bool ok;
     QFont newFont = QFontDialog::getFont(&ok, currentFont, this, QString(),
                                          QFontDialog::DontUseNativeDialog);

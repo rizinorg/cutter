@@ -206,11 +206,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, true);
     })
-
-    // Zoom shortcuts
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomReset)
 #undef ADD_ACTION
 }
 
@@ -371,27 +366,6 @@ bool DisassemblyWidget::updateMaxLines()
     }
 
     return false;
-}
-
-void DisassemblyWidget::zoomIn()
-{
-    mDisasTextEdit->zoomIn();
-    updateMaxLines();
-    leftPanel->update();
-}
-
-void DisassemblyWidget::zoomOut()
-{
-    mDisasTextEdit->zoomOut();
-    updateMaxLines();
-    leftPanel->update();
-}
-
-void DisassemblyWidget::zoomReset()
-{
-    setupFonts();
-    updateMaxLines();
-    leftPanel->update();
 }
 
 void DisassemblyWidget::highlightCurrentLine()
