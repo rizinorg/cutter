@@ -131,6 +131,7 @@ public slots:
     void fontsUpdatedSlot();
     void onSeekChanged(RVA addr);
     void zoom(QPointF mouseRelativePos, double velocity);
+    void setZoom(QPointF mouseRelativePos, double scale);
     void zoomIn();
     void zoomOut();
     void zoomReset();
