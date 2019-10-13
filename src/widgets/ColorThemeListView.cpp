@@ -192,7 +192,7 @@ QPixmap ColorOptionDelegate::getPixmapFromSvg(const QString& fileName, const QCo
         return QPixmap();
     }
     QString data = file.readAll();
-    data.replace(QRegExp("#[0-9a-fA-F]{6}"), QString("%1").arg(after.name()));
+    data.replace(QRegularExpression("#[0-9a-fA-F]{6}"), QString("%1").arg(after.name()));
 
     QSvgRenderer svgRenderer(data.toUtf8());
     QPixmap pix(QSize(qApp->fontMetrics().height(), qApp->fontMetrics().height()));

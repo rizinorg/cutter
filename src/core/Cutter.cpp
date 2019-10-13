@@ -293,7 +293,7 @@ bool CutterCore::sdbSet(QString path, QString key, QString val)
 
 QString CutterCore::sanitizeStringForCommand(QString s)
 {
-    static const QRegExp regexp(";|@");
+    static const QRegularExpression regexp(";|@");
     return s.replace(regexp, QStringLiteral("_"));
 }
 
@@ -955,7 +955,7 @@ QString CutterCore::createFunctionAt(RVA addr)
 
 QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
-    static const QRegExp regExp("[^a-zA-Z0-9_]");
+    static const QRegularExpression regExp("[^a-zA-Z0-9_]");
     name.remove(regExp);
     QString command = "af " + name + " " + RAddressString(addr);
     QString ret = cmd(command);
@@ -2727,9 +2727,12 @@ void CutterCore::deleteProject(const QString &name)
 
 bool CutterCore::isProjectNameValid(const QString &name)
 {
-    // see is_valid_project_name() in libr/core/project.c
-    static const QRegExp regexp(R"(^[a-zA-Z0-9\\\._:-]{1,}$)");
-    return regexp.exactMatch(name) && !name.endsWith(".zip") ;
+    // see is_valid_project_name() in libr/core/project.
+
+    QString pattern(R"(^[a-zA-Z0-9\\\._:-]{1,}$)");
+    // The below construct mimics the behaviour of QRegexP::exactMatch(), which was here before
+    static const QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
+    return regexp.match(name).hasMatch() && !name.endsWith(".zip") ;
 }
 
 QList<DisassemblyLine> CutterCore::disassembleLines(RVA offset, int lines)

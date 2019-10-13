@@ -271,7 +271,7 @@ QIcon AppearanceOptionsWidget::getIconFromSvg(const QString& fileName, const QCo
         return QIcon();
     }
     QString data = file.readAll();
-    data.replace(QRegExp(QString("#%1").arg(before.isValid() ? before.name().remove(0, 1) : "[0-9a-fA-F]{6}")),
+    data.replace(QRegularExpression(QString("#%1").arg(before.isValid() ? before.name().remove(0, 1) : "[0-9a-fA-F]{6}")),
                  QString("%1").arg(after.name()));
 
     QSvgRenderer svgRenderer(data.toUtf8());

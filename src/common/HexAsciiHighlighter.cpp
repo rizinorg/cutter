@@ -8,42 +8,43 @@ AsciiHighlighter::AsciiHighlighter(QTextDocument *parent)
     HighlightingRule rule;
 
     asciiFormat.setForeground(QColor(65, 131, 215));
-    rule.pattern = QRegExp("\\b[A-Za-z0-9]+\\b");
+    rule.pattern.setPattern("\\b[A-Za-z0-9]+\\b");
     rule.format = asciiFormat;
     highlightingRules.append(rule);
 
-    commentStartExpression = QRegExp("/\\*");
-    commentEndExpression = QRegExp("\\*/");
+    commentStartRegularExpression.setPattern("/\\*");
+    commentEndRegularExpression.setPattern("\\*/");
 }
 
 void AsciiHighlighter::highlightBlock(const QString &text)
 {
     for (const HighlightingRule &rule : highlightingRules) {
-        QRegExp expression(rule.pattern);
-        int index = expression.indexIn(text);
+        QRegularExpression expression(rule.pattern);
+        int index = expression.match(text).capturedStart();
         while (index >= 0) {
-            int length = expression.matchedLength();
+            int length = expression.match(text).capturedLength();
             setFormat(index, length, rule.format);
-            index = expression.indexIn(text, index + length);
+            index = expression.match(text.mid(index + length)).capturedStart();
         }
     }
     setCurrentBlockState(0);
 
     int startIndex = 0;
     if (previousBlockState() != 1)
-        startIndex = commentStartExpression.indexIn(text);
+        startIndex = QRegularExpression(commentStartRegularExpression).match(text).capturedStart();
 
     while (startIndex >= 0) {
-        int endIndex = commentEndExpression.indexIn(text, startIndex);
+        QRegularExpressionMatch commentEndMatch = QRegularExpression(commentEndRegularExpression).match(text.mid(startIndex));
+        int endIndex = commentEndMatch.capturedStart();
         int commentLength;
         if (endIndex == -1) {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
         } else {
             commentLength = endIndex - startIndex
-                            + commentEndExpression.matchedLength();
+                            + commentEndMatch.capturedLength();
         }
         setFormat(startIndex, commentLength, multiLineCommentFormat);
-        startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);
+        startIndex = QRegularExpression(commentStartRegularExpression).match(text.mid(startIndex + commentLength)).capturedStart();
     }
 }

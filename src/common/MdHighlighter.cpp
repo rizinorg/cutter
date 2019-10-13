@@ -16,14 +16,14 @@ MdHighlighter::MdHighlighter(QTextDocument *parent)
                     << "\\_\\_([^\\\\]+)\\_\\_";
 
     for (const QString &pattern : keywordPatterns) {
-        rule.pattern = QRegExp(pattern);
+        rule.pattern.setPattern(pattern);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
 
     singleLineCommentFormat.setFontWeight(QFont::Bold);
     singleLineCommentFormat.setForeground(Qt::darkGreen);
-    rule.pattern = QRegExp(";[^\n]*");
+    rule.pattern.setPattern(";[^\n]*");
     rule.format = singleLineCommentFormat;
     highlightingRules.append(rule);
 }
@@ -31,12 +31,12 @@ MdHighlighter::MdHighlighter(QTextDocument *parent)
 void MdHighlighter::highlightBlock(const QString &text)
 {
     for (const HighlightingRule &rule : highlightingRules) {
-        QRegExp expression(rule.pattern);
-        int index = expression.indexIn(text);
+        QRegularExpression expression(rule.pattern);
+        int index = expression.match(text).capturedStart();
         while (index >= 0) {
-            int length = expression.matchedLength();
+            int length = expression.match(text).capturedLength();
             setFormat(index, length, rule.format);
-            index = expression.indexIn(text, index + length);
+            index = expression.match(text.mid(index + length)).capturedStart();
         }
     }
     setCurrentBlockState(0);
