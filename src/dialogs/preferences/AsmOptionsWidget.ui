@@ -56,6 +56,13 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QCheckBox" name="bytesCheckBox">
+                <property name="text">
+                 <string>Display the bytes of each instruction (asm.bytes)</string>
+                </property>
+               </widget>
+              </item>
               <item row="4" column="0" colspan="2">
                <widget class="QCheckBox" name="bblineCheckBox">
                 <property name="text">
@@ -353,13 +360,6 @@
           <widget class="QCheckBox" name="varsumCheckBox">
            <property name="text">
             <string>Show variables summary instead of full list (asm.var.summary)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="bytesCheckBox">
-           <property name="text">
-            <string>Show bytes (asm.bytes)</string>
            </property>
           </widget>
          </item>
