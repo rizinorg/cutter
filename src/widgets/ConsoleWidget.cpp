@@ -13,6 +13,20 @@
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
 
+#ifdef Q_OS_WIN
+#include <io.h>
+#include <QUuid>
+#define dup2 _dup2
+#define dup _dup
+#define fileno _fileno
+#define fdopen _fdopen
+#define PIPE_SIZE 65536 // Match Linux size
+#define PIPE_NAME "\\\\.\\pipe\\cutteroutput-%1"
+#else
+#include <unistd.h>
+#define PIPE_READ  (0)
+#define PIPE_WRITE (1)
+#endif
 
 static const int invalidHistoryPos = -1;
 
@@ -90,6 +104,8 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     connect(Config(), &Configuration::interfaceThemeChanged, this, &ConsoleWidget::setupFont);
 
     completer->popup()->installEventFilter(this);
+
+    redirectOutput();
 }
 
 ConsoleWidget::~ConsoleWidget()
@@ -156,36 +172,26 @@ void ConsoleWidget::executeCommand(const QString &command)
     }
     ui->inputLineEdit->setEnabled(false);
 
-    const int originalLines = ui->outputTextEdit->blockCount();
-    QTimer *timer = new QTimer(this);
-    timer->setInterval(500);
-    timer->setSingleShot(true);
-    connect(timer, &QTimer::timeout, [this]() {
-        ui->outputTextEdit->appendPlainText("Executing the command...");
-    });
+    QString cmd_line = "[" + RAddressString(Core()->getOffset()) + "]> " + command;
+    addOutput(cmd_line);
 
-    QString cmd_line = "<br>[" + RAddressString(Core()->getOffset()) + "]> " + command + "<br>";
     RVA oldOffset = Core()->getOffset();
     commandTask = QSharedPointer<CommandTask>(new CommandTask(command, CommandTask::ColorMode::MODE_256, true));
     connect(commandTask.data(), &CommandTask::finished, this, [this, cmd_line,
-          command, originalLines, oldOffset] (const QString & result) {
+          command, oldOffset] (const QString & result) {
 
-        if (originalLines < ui->outputTextEdit->blockCount()) {
-            removeLastLine();
-        }
-        ui->outputTextEdit->appendHtml(cmd_line + result);
+        ui->outputTextEdit->appendHtml(result);
         scrollOutputToEnd();
         historyAdd(command);
         commandTask.clear();
         ui->inputLineEdit->setEnabled(true);
         ui->inputLineEdit->setFocus();
+
         if (oldOffset != Core()->getOffset()) {
             Core()->updateSeek();
         }
     });
-    connect(commandTask.data(), &CommandTask::finished, timer, &QTimer::stop);
 
-    timer->start();
     Core()->getAsyncTaskManager()->start(commandTask);
 }
 
@@ -323,4 +329,64 @@ void ConsoleWidget::historyAdd(const QString &input)
 void ConsoleWidget::invalidateHistoryPosition()
 {
     lastHistoryPosition = invalidHistoryPos;
+}
+
+void ConsoleWidget::processQueuedOutput()
+{
+    // Partial lines are ignored since carriage return is currently unsupported
+    while (pipeSocket->canReadLine()) {
+        QString output = QString(pipeSocket->readLine());
+
+        fprintf(origStderr, "%s", output.toStdString().c_str());
+
+        // Get the last segment that wasn't overwritten by carriage return
+        output = output.trimmed();
+        output = output.remove(0, output.lastIndexOf('\r')).trimmed();
+        ui->outputTextEdit->appendHtml(CutterCore::ansiEscapeToHtml(output));
+        scrollOutputToEnd();
+    }
+}
+
+void ConsoleWidget::redirectOutput()
+{
+    // Make sure that we are running in a valid console with initialized output handles
+    if (0 > fileno(stderr) && 0 > fileno(stdout)) {
+        addOutput("Run cutter in a console to enable r2 output redirection into this widget.");
+        return;
+    }
+
+    pipeSocket = new QLocalSocket(this);
+
+    origStderr = fdopen(dup(fileno(stderr)), "a");
+    origStdout = fdopen(dup(fileno(stdout)), "a");
+#ifdef Q_OS_WIN
+    QString pipeName = QString::fromLatin1(PIPE_NAME).arg(QUuid::createUuid().toString());
+
+    SECURITY_ATTRIBUTES attributes = {sizeof(SECURITY_ATTRIBUTES), 0, false};
+    hWrite = CreateNamedPipeW((wchar_t*)pipeName.utf16(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+                              PIPE_TYPE_BYTE | PIPE_WAIT, 1, PIPE_SIZE, PIPE_SIZE, 0, &attributes);
+ 
+    int writeFd = _open_osfhandle((intptr_t)hWrite, _O_WRONLY | _O_TEXT);
+    dup2(writeFd, fileno(stdout));
+    dup2(writeFd, fileno(stderr));
+
+    pipeSocket->connectToServer(pipeName, QIODevice::ReadOnly);
+#else
+    pipe(redirectPipeFds);
+    dup2(redirectPipeFds[PIPE_WRITE], fileno(stderr));
+    dup2(redirectPipeFds[PIPE_WRITE], fileno(stdout));
+
+    // Attempt to force line buffering to avoid calling processQueuedOutput
+    // for partial lines
+    setlinebuf(stderr);
+    setlinebuf(stdout);
+
+    // Configure the pipe to work in async mode
+    fcntl(redirectPipeFds[PIPE_READ], F_SETFL, O_ASYNC | O_NONBLOCK);
+
+    pipeSocket->setSocketDescriptor(redirectPipeFds[PIPE_READ]);
+    pipeSocket->connectToServer(QIODevice::ReadOnly);
+#endif
+
+    connect(pipeSocket, SIGNAL(readyRead()), this, SLOT(processQueuedOutput()));
 }

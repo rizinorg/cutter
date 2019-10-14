@@ -6,6 +6,8 @@
 #include "common/CommandTask.h"
 
 #include <QStringListModel>
+#include <QSocketNotifier>
+#include <QLocalSocket>
 
 #include <memory>
 
@@ -62,6 +64,11 @@ private slots:
 
     void clear();
 
+    /**
+     * @brief Passes redirected output from the pipe to the terminal and console
+     */
+    void processQueuedOutput();
+
 private:
     void scrollOutputToEnd();
     void historyAdd(const QString &input);
@@ -69,6 +76,12 @@ private:
     void removeLastLine();
     void executeCommand(const QString &command);
     void setWrap(bool wrap);
+
+    /**
+     * @brief Redirects stderr and stdout to the output pipe which is handled by
+     *        processQueuedOutput
+     */
+    void redirectOutput();
 
     QSharedPointer<CommandTask> commandTask;
 
@@ -84,6 +97,17 @@ private:
     QCompleter *completer;
     QShortcut *historyUpShortcut;
     QShortcut *historyDownShortcut;
+    FILE *origStderr;
+    FILE *origStdout;
+    QLocalSocket *pipeSocket;
+#ifdef Q_OS_WIN
+    HANDLE hRead;
+    HANDLE hWrite;
+#else
+    int redirectPipeFds[2];
+    QVector<char> *redirectionBuffer;
+    QSocketNotifier *outputNotifier;
+#endif
 };
 
 #endif // CONSOLEWIDGET_H
