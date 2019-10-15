@@ -113,8 +113,8 @@
      <string>Edit</string>
     </property>
     <addaction name="actionSearch"/>
-    <addaction name="actionUndoSeek"/>
-    <addaction name="actionRedoSeek"/>
+    <addaction name="actionBackward"/>
+    <addaction name="actionForward"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
@@ -293,16 +293,6 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionUndoSeek">
-   <property name="text">
-    <string>Undo Seek</string>
-   </property>
-  </action>
-  <action name="actionRedoSeek">
-   <property name="text">
-    <string>Redo Seek</string>
-   </property>
-  </action>
   <action name="actionCut">
    <property name="text">
     <string>Cut</string>
@@ -358,7 +348,7 @@
      <normaloff>:/img/icons/arrow_left.svg</normaloff>:/img/icons/arrow_left.svg</iconset>
    </property>
    <property name="text">
-    <string>Back</string>
+    <string>Undo Seek</string>
    </property>
    <property name="toolTip">
     <string>Go back</string>
@@ -370,7 +360,7 @@
      <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
    </property>
    <property name="text">
-    <string>Forward</string>
+    <string>Redo Seek</string>
    </property>
   </action>
   <action name="actionLock">
@@ -884,11 +874,6 @@
   <action name="actionSaveAs">
    <property name="text">
     <string>Save As...</string>
-   </property>
-  </action>
-  <action name="actionTmp">
-   <property name="text">
-    <string>Tmp</string>
    </property>
   </action>
   <action name="actionGraph">
