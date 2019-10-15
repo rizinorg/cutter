@@ -1,0 +1,45 @@
+{% extends 'basic/layout.html' %}
+{% block extrahead %}
+{% endblock %}
+
+{# https://www.sphinx-doc.org/en/master/templating.html #}
+
+{% block relbar2 %}
+{% endblock %}
+
+{% block header %}
+    {% if pagename == 'index' %}<div class=indexwrapper>{% endif %}
+{% endblock %}
+
+{% block sidebar1 %}
+{% endblock %}
+
+{% block sidebar2 %}
+ {%- if render_sidebar %}
+  <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+    <div class="sphinxsidebarwrapper">
+      {%- block sidebarlogo %}
+      {%- if logo %}
+        <p class="logo"><a href="https://cutter.re/">
+          <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
+        </a></p>
+      {%- endif %}
+      {%- endblock %}
+      <a href="{{ pathto(master_doc) }}">{{ project }} documentation</a>
+      {%- if sidebars != None %}
+        {#- new style sidebar: explicitly include/exclude templates #}
+        {%- for sidebartemplate in sidebars %}
+        {%- include sidebartemplate %}
+        {%- endfor %}
+      {%- else %}
+        {#- old style sidebars: using blocks -- should be deprecated #}
+      {%- endif %}
+    </div>
+  </div>
+ {%- endif %}
+{% endblock %}
+
+{% block footer %}
+    {{ super() }}
+    {% if pagename == 'index' %}</div>{% endif %}
+{% endblock %}
