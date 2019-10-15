@@ -506,7 +506,7 @@ bool CutterCore::openFile(QString path, RVA mapaddr)
 
 void CutterCore::renameFunction(const QString &oldName, const QString &newName)
 {
-    cmdRaw("afn " + newName + " " + oldName);
+    cmdRaw("afn " + newName + " " + oldName + " ");
     emit functionRenamed(oldName, newName);
 }
 
