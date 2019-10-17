@@ -1283,16 +1283,6 @@ void MainWindow::on_actionForward_triggered()
     core->seekNext();
 }
 
-void MainWindow::on_actionUndoSeek_triggered()
-{
-    core->seekPrev();
-}
-
-void MainWindow::on_actionRedoSeek_triggered()
-{
-    core->seekNext();
-}
-
 void MainWindow::on_actionDisasAdd_comment_triggered()
 {
     CommentsDialog c(this);

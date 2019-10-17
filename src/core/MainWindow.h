@@ -168,8 +168,6 @@ private slots:
 
     void on_actionBackward_triggered();
     void on_actionForward_triggered();
-    void on_actionUndoSeek_triggered();
-    void on_actionRedoSeek_triggered();
 
     void on_actionOpen_triggered();
 
