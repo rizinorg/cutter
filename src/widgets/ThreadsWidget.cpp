@@ -1,6 +1,7 @@
 #include "ThreadsWidget.h"
 #include "ui_ThreadsWidget.h"
 #include "common/JsonModel.h"
+#include <r_debug.h>
 
 #include "core/MainWindow.h"
 
@@ -53,6 +54,24 @@ void ThreadsWidget::updateContents()
     setThreadsGrid();
 }
 
+QString ThreadsWidget::translateStatus(QString status)
+{
+    switch (status.toStdString().c_str()[0]) {
+    case R_DBG_PROC_STOP:
+        return "Stopped";
+    case R_DBG_PROC_RUN:
+        return "Running";
+    case R_DBG_PROC_SLEEP:
+        return "Sleeping";
+    case R_DBG_PROC_ZOMBIE:
+        return "Zombie";
+    case R_DBG_PROC_DEAD:
+        return "Dead";
+    case R_DBG_PROC_RAISED:
+        return "Raised event";
+    }
+}
+
 void ThreadsWidget::setThreadsGrid()
 {
     QJsonArray threadsValues = Core()->getProcessThreads(DEBUGGED_PID).array();
@@ -60,7 +79,7 @@ void ThreadsWidget::setThreadsGrid()
     for (const QJsonValue &value : threadsValues) {
         QJsonObject threadsItem = value.toObject();
         int pid = threadsItem["pid"].toVariant().toInt();
-        QString status = threadsItem["status"].toString();
+        QString status = translateStatus(threadsItem["status"].toString());
         QString path = threadsItem["path"].toString();
         bool current = threadsItem["current"].toBool();
 

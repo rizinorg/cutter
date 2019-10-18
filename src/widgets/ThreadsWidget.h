@@ -29,6 +29,7 @@ private slots:
     void onDoubleClicked(const QModelIndex &index);
 
 private:
+    QString translateStatus(QString status);
     std::unique_ptr<Ui::ThreadsWidget> ui;
     QStandardItemModel *modelThreads = new QStandardItemModel(1, 4, this);
     QTableView *viewThreads = new QTableView;
