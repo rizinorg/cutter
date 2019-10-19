@@ -151,9 +151,11 @@ void XrefsDialog::fillRefsForAddress(RVA addr, QString name, bool whole_function
     qhelpers::adjustColumns(ui->fromTreeWidget, fromModel.columnCount(), 0);
     qhelpers::adjustColumns(ui->toTreeWidget, toModel.columnCount(), 0);
 
-    // try to select first item from refs or xrefs
-    if (!qhelpers::selectFirstItem(ui->toTreeWidget)) {
-        qhelpers::selectFirstItem(ui->fromTreeWidget);
+    // Automatically select the first line
+    if (toModel.hasIndex(0, 0)) {
+        ui->toTreeWidget->setCurrentIndex(toModel.index(0, 0));
+    } else if (fromModel.hasIndex(0, 0)) {
+        ui->fromTreeWidget->setCurrentIndex(fromModel.index(0, 0));
     }
 }
 
