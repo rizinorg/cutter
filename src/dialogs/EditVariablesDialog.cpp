@@ -59,7 +59,7 @@ void EditVariablesDialog::applyFields()
 
     QString newName = ui->nameEdit->text().replace(QLatin1Char(' '), QLatin1Char('_'));
     if (newName != desc.name) {
-        Core()->cmdRaw(QString("afvn %1 %2 ").arg(newName).arg(desc.name));
+        Core()->cmdRaw(QString("afvn %1 %2").arg(newName).arg(desc.name));
     }
 
     // Refresh the views to reflect the changes to vars

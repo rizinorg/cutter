@@ -322,6 +322,10 @@ QString CutterCore::cmdRaw(const QString &str)
 {
     QString cmdStr = str;
     cmdStr.replace('\"', QStringLiteral("\\\""));
+    // If the last token ends in '\', do not escape the end quote.
+    if (cmdStr.endsWith("\\")) {
+        cmdStr.append(" ");
+    }
     return cmd(cmdStr.prepend('\"').append('\"'));
 }
 
@@ -506,7 +510,7 @@ bool CutterCore::openFile(QString path, RVA mapaddr)
 
 void CutterCore::renameFunction(const QString &oldName, const QString &newName)
 {
-    cmdRaw("afn " + newName + " " + oldName + " ");
+    cmdRaw("afn " + newName + " " + oldName);
     emit functionRenamed(oldName, newName);
 }
 
