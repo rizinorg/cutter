@@ -1129,9 +1129,11 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::setCurrentDebugThread(int tid)
 {
-    cmdj("dpt=" + QString::number(tid));
+    cmd("dpt=" + QString::number(tid));
     emit registersChanged();
     emit refreshCodeViews();
+    emit stackChanged();
+    syncAndSeekProgramCounter();
 }
 
 void CutterCore::startDebug()
@@ -1228,6 +1230,7 @@ void CutterCore::stopDebug()
 void CutterCore::syncAndSeekProgramCounter()
 {
     QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+    printf("programcountervalue %s\n", programCounterValue.toStdString().c_str());
     seekAndShow(programCounterValue);
     emit registersChanged();
 }
