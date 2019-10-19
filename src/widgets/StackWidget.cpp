@@ -159,7 +159,7 @@ void StackModel::reload()
         if (!refObject.isUndefined()) { // check that the key exists
             QString ref = refObject.toString();
             if (ref.contains("ascii") && ref.count("-->") == 1) {
-                ref = Core()->cmd(QString("psz @ [%1]").arg(item.offset));
+                ref = Core()->cmdj(QString("pszj @ [%1]").arg(item.offset)).object().value("string").toString();
             }
             item.description = ref;
 
