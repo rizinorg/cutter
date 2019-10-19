@@ -1230,7 +1230,6 @@ void CutterCore::stopDebug()
 void CutterCore::syncAndSeekProgramCounter()
 {
     QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    printf("programcountervalue %s\n", programCounterValue.toStdString().c_str());
     seekAndShow(programCounterValue);
     emit registersChanged();
 }
