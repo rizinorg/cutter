@@ -27,6 +27,25 @@
       <property name="rightMargin">
        <number>0</number>
       </property>
+      <item>
+       <widget class="QTableView" name="viewThreads">
+        <property name="sortingEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="cornerButtonEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="editTriggers">
+         <enum>QAbstractItemView::NoEditTriggers</enum>
+        </property>
+        <property name="horizontalScrollMode">
+         <enum>QAbstractItemView::ScrollPerPixel</enum>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+       </widget>
+      </item>
      </layout>
   </widget>
  </widget>

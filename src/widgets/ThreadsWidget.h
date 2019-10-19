@@ -26,12 +26,11 @@ private slots:
     void updateContents();
     void setThreadsGrid();
     void fontsUpdatedSlot();
-    void onDoubleClicked(const QModelIndex &index);
+    void onActivated(const QModelIndex &index);
 
 private:
     QString translateStatus(QString status);
     std::unique_ptr<Ui::ThreadsWidget> ui;
     QStandardItemModel *modelThreads = new QStandardItemModel(1, 4, this);
-    QTableView *viewThreads = new QTableView;
     RefreshDeferrer *refreshDeferrer;
 };

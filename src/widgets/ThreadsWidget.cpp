@@ -25,23 +25,17 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
     modelThreads->setHorizontalHeaderItem(COLUMN_PID, new QStandardItem(tr("PID")));
     modelThreads->setHorizontalHeaderItem(COLUMN_STATUS, new QStandardItem(tr("Status")));
     modelThreads->setHorizontalHeaderItem(COLUMN_PATH, new QStandardItem(tr("Path")));
-    viewThreads->setFont(Config()->getFont());
-    viewThreads->setModel(modelThreads);
-    viewThreads->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
-    ui->verticalLayout->addWidget(viewThreads);
+    ui->viewThreads->setFont(Config()->getFont());
+    ui->viewThreads->setModel(modelThreads);
 
     refreshDeferrer = createRefreshDeferrer([this]() {
         updateContents();
     });
 
-    viewThreads->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    viewThreads->setSortingEnabled(false);
-
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &ThreadsWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ThreadsWidget::fontsUpdatedSlot);
-    connect(viewThreads, SIGNAL(doubleClicked(const QModelIndex &)), this,
-            SLOT(onDoubleClicked(const QModelIndex &)));
+    connect(ui->viewThreads, &QTableView::activated, this, &ThreadsWidget::onActivated);
 }
 
 ThreadsWidget::~ThreadsWidget() {}
@@ -95,16 +89,21 @@ void ThreadsWidget::setThreadsGrid()
         i++;
     }
 
-    viewThreads->setModel(modelThreads);
-    viewThreads->resizeColumnsToContents();;
+    // Remove irrelevant old rows
+    if (modelThreads->rowCount() > i) {
+        modelThreads->removeRows(i, modelThreads->rowCount() - i);
+    }
+
+    ui->viewThreads->setModel(modelThreads);
+    ui->viewThreads->resizeColumnsToContents();;
 }
 
 void ThreadsWidget::fontsUpdatedSlot()
 {
-    viewThreads->setFont(Config()->getFont());
+    ui->viewThreads->setFont(Config()->getFont());
 }
 
-void ThreadsWidget::onDoubleClicked(const QModelIndex &index)
+void ThreadsWidget::onActivated(const QModelIndex &index)
 {
     if (!index.isValid())
         return;
