@@ -24,7 +24,6 @@ namespace qhelpers {
 QString formatBytecount(const long bytecount);
 void adjustColumns(QTreeView *tv, int columnCount, int padding);
 void adjustColumns(QTreeWidget *tw, int padding);
-bool selectFirstItem(QTreeWidget *tw);
 bool selectFirstItem(QAbstractItemView *itemView);
 QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &str2 = QString(),
                            const QString &str3 = QString(), const QString &str4 = QString(), const QString &str5 = QString());
