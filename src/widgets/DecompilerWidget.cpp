@@ -239,6 +239,7 @@ void DecompilerWidget::updateCursorPosition()
     if (pos == SIZE_MAX) {
         return;
     }
+    mCtxMenu->setOffset(offset);
     connectCursorPositionChanged(true);
     QTextCursor cursor = ui->textEdit->textCursor();
     cursor.setPosition(pos);
