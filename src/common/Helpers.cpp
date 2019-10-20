@@ -75,30 +75,24 @@ QTreeWidgetItem *appendRow(QTreeWidget *tw, const QString &str, const QString &s
 }
 
 /**
- * @brief select first item of QTreeWidget if tree is not empty.
- * @param tw - QTreeWidget instance
- * @return true - setCurrentItem was set, false - tree is empty
+ * @brief Select first item of a QAbstractItemView if not empty
+ * @param itemView
+ * @return true if first item was selected
  */
-bool selectFirstItem(QTreeWidget *tw)
+bool selectFirstItem(QAbstractItemView *itemView)
 {
-    if (tw->topLevelItem(0)) {
-        tw->setCurrentItem(tw->topLevelItem(0));
+    if (!itemView) {
+        return false;
+    }
+    auto model = itemView->model();
+    if (!model) {
+        return false;
+    }
+    if (model->hasIndex(0, 0)) {
+        itemView->setCurrentIndex(model->index(0, 0));
         return true;
     }
     return false;
-}
-
-
-bool selectFirstItem(QAbstractItemView *itemView)
-{
-    auto selectionModel = itemView->selectionModel();
-    auto model = itemView->model();
-    if (model->hasChildren()) {
-        selectionModel->setCurrentIndex(model->index(0, 0), QItemSelectionModel::SelectCurrent);
-        return true;
-    } else {
-        return false;
-    }
 }
 
 void setVerticalScrollMode(QAbstractItemView *tw)
