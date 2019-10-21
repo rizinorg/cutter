@@ -24,9 +24,9 @@ copyright = '2019, The Cutter Developers'
 author = 'The Cutter Developers'
 
 # The short X.Y version
-version = ''
+version = '1.9'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = '1.9.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -38,16 +38,18 @@ release = ''
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [ "breathe" ]
+extensions = [
+    'breathe',
+]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['sphinx_templates']
+templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-# source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+# source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The master toctree document.
 master_doc = 'index'
@@ -62,15 +64,15 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['_build']
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = None
+pygments_style = 'rainbow_dash'
 
 # -- Options for Breathe -----------------------------------------------------
 
-breathe_projects = { "cutter": "../doxygen-out/xml" }
-breathe_default_project = "cutter"
+breathe_projects = { 'cutter': '../doxygen-out/xml' }
+breathe_default_project = 'cutter'
 breathe_default_members = ('members', 'undoc-members')
 
 # -- Options for HTML output -------------------------------------------------
@@ -78,7 +80,9 @@ breathe_default_members = ('members', 'undoc-members')
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'cutter_theme'
+html_theme_path = ['..']
+html_logo = '../../src/img/cutter.ico'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -89,23 +93,25 @@ html_theme = 'sphinx_rtd_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['sphinx_static']
+# html_static_path = ['static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
 # The default sidebars (for documents that don't match any pattern) are
 # defined by theme itself.  Builtin themes are using these templates by
-# default: ``['localtoc.html', 'relations.html', 'sourcelink.html',
-# 'searchbox.html']``.
-#
-# html_sidebars = {}
-
+# Default: html_sidebars = {
+#   '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html'],
+#   'using/windows': ['windowssidebar.html', 'searchbox.html'],
+# }
+html_sidebars = {
+   '**': ['globaltoc.html'],
+}
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Cutterdoc'
+htmlhelp_basename = 'CutterDoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------

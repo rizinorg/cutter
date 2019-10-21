@@ -20,6 +20,9 @@ help:
 	python3 apidoc.py
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+quick:
+	@$(SPHINXBUILD) -M html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
 clean:
 	rm -fr doxygen-out
 	rm -fr source/api

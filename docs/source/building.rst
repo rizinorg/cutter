@@ -1,7 +1,11 @@
 Building
 ========
 
-Below you will find the instructions for building Cutter.
+.. note::
+
+ If you just want to use the latest Release version of Cutter, please note
+ that we provide pre-compiled binaries for Windows, Linux and macOS on
+ our `release page. <https://github.com/radareorg/cutter/releases/latest>`_
 
 
 Building on Linux
@@ -34,7 +38,7 @@ Building steps
 The official way to build Cutter on Linux is by using CMake.
 First clone the repository with its dependencies:
 
-::
+.. code-block:: sh
 
    git clone --recurse-submodules https://github.com/radareorg/cutter
 
