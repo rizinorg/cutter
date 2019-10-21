@@ -30,10 +30,13 @@
       <item>
        <widget class="QTableView" name="viewThreads">
         <property name="sortingEnabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="cornerButtonEnabled">
          <bool>false</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
         </property>
         <property name="editTriggers">
          <enum>QAbstractItemView::NoEditTriggers</enum>
@@ -41,14 +44,29 @@
         <property name="horizontalScrollMode">
          <enum>QAbstractItemView::ScrollPerPixel</enum>
         </property>
-        <attribute name="horizontalHeaderStretchLastSection">
-         <bool>true</bool>
-        </attribute>
+       </widget>
+      </item>
+      <item>
+       <widget class="QuickFilterView" name="quickFilterView" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
        </widget>
       </item>
      </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QuickFilterView</class>
+   <extends>QWidget</extends>
+   <header>widgets/QuickFilterView.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

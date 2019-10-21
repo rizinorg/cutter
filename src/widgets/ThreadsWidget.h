@@ -4,6 +4,7 @@
 #include <memory>
 #include <QStandardItem>
 #include <QTableView>
+#include <QSortFilterProxyModel>
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
@@ -13,6 +14,17 @@ class MainWindow;
 namespace Ui {
 class ThreadsWidget;
 }
+
+class ThreadsFilterModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    ThreadsFilterModel(QObject *parent = nullptr);
+
+protected:
+    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
+};
 
 class ThreadsWidget : public CutterDockWidget
 {
@@ -31,6 +43,7 @@ private slots:
 private:
     QString translateStatus(QString status);
     std::unique_ptr<Ui::ThreadsWidget> ui;
-    QStandardItemModel *modelThreads = new QStandardItemModel(1, 4, this);
+    QStandardItemModel *modelThreads;
+    ThreadsFilterModel *modelFilter;
     RefreshDeferrer *refreshDeferrer;
 };

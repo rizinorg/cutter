@@ -1,6 +1,8 @@
+#include <QShortcut>
 #include "ThreadsWidget.h"
 #include "ui_ThreadsWidget.h"
 #include "common/JsonModel.h"
+#include "QuickFilterView.h"
 #include <r_debug.h>
 
 #include "core/MainWindow.h"
@@ -21,17 +23,37 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
     ui->setupUi(this);
 
     // Setup threads model
+    modelThreads = new QStandardItemModel(1, 4, this);
     modelThreads->setHorizontalHeaderItem(COLUMN_CURRENT, new QStandardItem(tr("Current")));
     modelThreads->setHorizontalHeaderItem(COLUMN_PID, new QStandardItem(tr("PID")));
     modelThreads->setHorizontalHeaderItem(COLUMN_STATUS, new QStandardItem(tr("Status")));
     modelThreads->setHorizontalHeaderItem(COLUMN_PATH, new QStandardItem(tr("Path")));
+    ui->viewThreads->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     ui->viewThreads->setFont(Config()->getFont());
-    ui->viewThreads->setModel(modelThreads);
+
+    modelFilter = new ThreadsFilterModel(this);
+    modelFilter->setSourceModel(modelThreads);
+    ui->viewThreads->setModel(modelFilter);
+
+    // CTRL+F switches to the filter view and opens it in case it's hidden
+    QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &QuickFilterView::showFilter);
+    searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
+
+    // ESC switches back to the thread table and clears the buffer
+    QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);
+    connect(clearShortcut, &QShortcut::activated, this, [this]() {
+        ui->quickFilterView->clearFilter();
+        ui->viewThreads->setFocus();
+    });
+    clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     refreshDeferrer = createRefreshDeferrer([this]() {
         updateContents();
     });
 
+    connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
+            &ThreadsFilterModel::setFilterWildcard);
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &ThreadsWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ThreadsWidget::fontsUpdatedSlot);
@@ -63,6 +85,8 @@ QString ThreadsWidget::translateStatus(QString status)
         return "Dead";
     case R_DBG_PROC_RAISED:
         return "Raised event";
+    default:
+        return "Unknown status";
     }
 }
 
@@ -94,7 +118,7 @@ void ThreadsWidget::setThreadsGrid()
         modelThreads->removeRows(i, modelThreads->rowCount() - i);
     }
 
-    ui->viewThreads->setModel(modelThreads);
+    modelFilter->setSourceModel(modelThreads);
     ui->viewThreads->resizeColumnsToContents();;
 }
 
@@ -108,12 +132,37 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    int row = index.row();
+    int tid = modelFilter->data(index.siblingAtColumn(COLUMN_PID)).toInt();
 
+    // Verify that the selected tid is still in the threads list since dpt= will
+    // attach to any given id. If it isn't found simply update the UI.
     QJsonArray threadsValues = Core()->getProcessThreads(DEBUGGED_PID).array();
-    int tid = threadsValues[row].toObject()["pid"].toInt();
-
-    Core()->setCurrentDebugThread(tid);
+    for (QJsonValue value : threadsValues) {
+        if (tid == value["pid"].toInt()) {
+            Core()->setCurrentDebugThread(tid);
+            break;
+        }
+    }
 
     updateContents();
+}
+
+ThreadsFilterModel::ThreadsFilterModel(QObject *parent)
+    : QSortFilterProxyModel(parent)
+{
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
+    setSortCaseSensitivity(Qt::CaseInsensitive);
+}
+
+bool ThreadsFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) const
+{
+    // All columns are checked for a match
+    for (int i = COLUMN_CURRENT; i <= COLUMN_PATH; ++i) {
+        QModelIndex index = sourceModel()->index(row, i, parent);
+        if (sourceModel()->data(index).toString().contains(filterRegExp())) {
+            return true;
+        }
+    }
+
+    return false;
 }
