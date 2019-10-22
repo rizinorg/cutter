@@ -132,13 +132,13 @@ void ThreadsWidget::onActivated(const QModelIndex &index)
     if (!index.isValid())
         return;
 
-    int tid = modelFilter->data(index.siblingAtColumn(COLUMN_PID)).toInt();
+    int tid = modelFilter->data(index.sibling(index.row(), COLUMN_PID)).toInt();
 
     // Verify that the selected tid is still in the threads list since dpt= will
     // attach to any given id. If it isn't found simply update the UI.
     QJsonArray threadsValues = Core()->getProcessThreads(DEBUGGED_PID).array();
     for (QJsonValue value : threadsValues) {
-        if (tid == value["pid"].toInt()) {
+        if (tid == value.toObject()["pid"].toInt()) {
             Core()->setCurrentDebugThread(tid);
             break;
         }
