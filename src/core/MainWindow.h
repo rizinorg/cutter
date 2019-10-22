@@ -253,6 +253,7 @@ private:
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;
     QDockWidget        *stackDock = nullptr;
+    QDockWidget        *threadsDock = nullptr;
     QDockWidget        *registersDock = nullptr;
     QDockWidget        *backtraceDock = nullptr;
     QDockWidget        *memoryMapDock = nullptr;

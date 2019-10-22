@@ -1027,6 +1027,16 @@ QJsonDocument CutterCore::getStack(int size)
     return cmdj("pxrj " + QString::number(size) + " @ r:SP");
 }
 
+QJsonDocument CutterCore::getProcessThreads(int pid)
+{
+    if (-1 == pid) {
+        // Return threads list of the currently debugged PID
+        return cmdj("dptj");
+    } else {
+        return cmdj("dptj " + QString::number(pid));
+    }
+}
+
 QJsonDocument CutterCore::getRegisterValues()
 {
     return cmdj("drj");
@@ -1115,6 +1125,15 @@ void CutterCore::setRegister(QString regName, QString regValue)
     cmd("dr " + regName + "=" + regValue);
     emit registersChanged();
     emit refreshCodeViews();
+}
+
+void CutterCore::setCurrentDebugThread(int tid)
+{
+    cmd("dpt=" + QString::number(tid));
+    emit registersChanged();
+    emit refreshCodeViews();
+    emit stackChanged();
+    syncAndSeekProgramCounter();
 }
 
 void CutterCore::startDebug()
