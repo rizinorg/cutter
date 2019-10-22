@@ -221,7 +221,14 @@ public:
     QString getRegisterName(QString registerRole);
     RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
+    void setCurrentDebugThread(int tid);
     QJsonDocument getStack(int size = 0x100);
+    /**
+     * @brief Get a list of a given process's threads
+     * @param pid The pid of the process, -1 for the currently debugged process
+     * @return JSON object result of dptj
+     */
+    QJsonDocument getProcessThreads(int pid);
     QJsonDocument getBacktrace();
     void startDebug();
     void startEmulation();
