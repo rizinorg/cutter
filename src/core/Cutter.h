@@ -16,9 +16,11 @@
 class AsyncTaskManager;
 class CutterCore;
 class Decompiler;
+class CommandTask;
 
 #include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
+#include "common/CommandTask.h"
 
 #define Core() (CutterCore::instance())
 
@@ -45,8 +47,24 @@ public:
 
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
+    /**
+     * @brief send a command to radare2
+     * @param str the command you want to execute
+     * @return command output
+     * @note if you want to seek to an address, you should use CutterCore::seek.
+     */
     QString cmd(const char *str);
     QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
+    /**
+     * @brief send a command to radare2 asynchronously
+     * @param str the command you want to execute
+     * @return a shared pointer to the async command task 
+     * @note connect to the &CommandTask::finished signal to add your own logic once
+     *       the command is finished.
+     *       If you want to seek to an address, you should use CutterCore::seek.
+     */
+    QSharedPointer<CommandTask> asyncCmd(const char *str);
+    QSharedPointer<CommandTask> asyncCmd(const QString &str) { return asyncCmd(str.toUtf8().constData()); }
     QString cmdRaw(const QString &str);
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
@@ -435,6 +453,9 @@ signals:
 
     void projectSaved(bool successfully, const QString &name);
 
+    void disableDebugToolbar();
+    void enableDebugToolbar();
+
     /**
      * emitted when config regarding disassembly display changes
      */
@@ -479,6 +500,8 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
+
+    QSharedPointer<CommandTask> commandTask;
 };
 
 class RCoreLocked

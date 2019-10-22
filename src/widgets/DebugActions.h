@@ -29,6 +29,10 @@ public:
     QAction *actionAllContinues;
 
 private:
+    /**
+     * @brief buttons that will be disabled/enabled on (disable/enable)DebugToolbar
+     */
+    QList<QAction *> toggleActions;
     MainWindow *main;
     QList<QAction *> allActions;
     QToolButton *continueUntilButton;

@@ -102,6 +102,22 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // hide allactions
     setAllActionsVisible(false);
 
+    // Toggle all buttons except restart and stop since those are necessary to avoid
+    // staying stuck
+    toggleActions = { actionStep, actionStepOver, actionStepOut, actionContinue,
+        actionContinueUntilMain, actionContinueUntilCall, actionContinueUntilSyscall};
+
+    connect(Core(), &CutterCore::disableDebugToolbar, this, [ = ]() {
+        for (QAction *a : toggleActions) {
+            a->setDisabled(true);
+        }
+    });
+    connect(Core(), &CutterCore::enableDebugToolbar, this, [ = ]() {
+        for (QAction *a : toggleActions) {
+            a->setDisabled(false);
+        }
+    });
+
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
     connect(actionStop, &QAction::triggered, [ = ]() {
         actionStart->setVisible(true);
