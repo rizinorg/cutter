@@ -329,6 +329,7 @@ SOURCES += \
     dialogs/AsyncTaskDialog.cpp \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
+    widgets/ThreadsWidget.cpp \
     widgets/BacktraceWidget.cpp \
     dialogs/OpenFileDialog.cpp \
     common/CommandTask.cpp \
@@ -459,6 +460,7 @@ HEADERS  += \
     dialogs/AsyncTaskDialog.h \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
+    widgets/ThreadsWidget.h \
     widgets/BacktraceWidget.h \
     dialogs/OpenFileDialog.h \
     common/StringsTask.h \
@@ -552,6 +554,7 @@ FORMS    += \
     dialogs/AsyncTaskDialog.ui \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
+    widgets/ThreadsWidget.ui \
     widgets/BacktraceWidget.ui \
     dialogs/OpenFileDialog.ui \
     dialogs/preferences/DebugOptionsWidget.ui \

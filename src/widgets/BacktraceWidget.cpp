@@ -67,6 +67,12 @@ void BacktraceWidget::setBacktraceGrid()
         modelBacktrace->setItem(i, 4, rowFrameSize);
         i++;
     }
+
+    // Remove irrelevant old rows
+    if (modelBacktrace->rowCount() > i) {
+        modelBacktrace->removeRows(i, modelBacktrace->rowCount() - i);
+    }
+
     viewBacktrace->setModel(modelBacktrace);
     viewBacktrace->resizeColumnsToContents();;
 }
