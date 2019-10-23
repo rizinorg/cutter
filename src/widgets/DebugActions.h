@@ -26,6 +26,7 @@ public:
     QAction *actionStepOver;
     QAction *actionStepOut;
     QAction *actionStop;
+    QAction *actionSuspend;
     QAction *actionAllContinues;
 
 private:

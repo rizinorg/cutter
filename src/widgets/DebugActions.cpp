@@ -21,6 +21,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
     QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
     QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
+    QIcon suspendIcon = QIcon(":/img/icons/media-suspend_light.svg");
     QIcon stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     QIcon continueIcon = QIcon(":/img/icons/media-skip-forward_light.svg");
     QIcon continueUntilMainIcon = QIcon(":/img/icons/continue_until_main.svg");
@@ -35,6 +36,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QString startDebugLabel = tr("Start debug");
     QString startEmulLabel = tr("Start emulation");
     QString startAttachLabel = tr("Attach to process");
+    QString suspendDebugLabel = tr("Suspend the process");
     QString stopDebugLabel = tr("Stop debug");
     QString stopEmulLabel = tr("Stop emulation");
     QString restartDebugLabel = tr("Restart program");
@@ -52,6 +54,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     actionStart->setShortcut(QKeySequence(Qt::Key_F9));
     actionStartEmul = new QAction(startEmulIcon, startEmulLabel, this);
     actionAttach = new QAction(startAttachIcon, startAttachLabel, this);
+    actionSuspend = new QAction(suspendIcon, suspendDebugLabel, this);
     actionStop = new QAction(stopIcon, stopDebugLabel, this);
     actionContinue = new QAction(continueIcon, continueLabel, this);
     actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
@@ -92,27 +95,32 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // define toolbar widgets and actions
     toolBar->addWidget(startButton);
     toolBar->addAction(actionContinue);
+    toolBar->addAction(actionSuspend);
     toolBar->addAction(actionStop);
     actionAllContinues = toolBar->addWidget(continueUntilButton);
     toolBar->addAction(actionStep);
     toolBar->addAction(actionStepOver);
     toolBar->addAction(actionStepOut);
 
-    allActions = {actionStop, actionAllContinues, actionContinue, actionContinueUntilCall, actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut, actionStepOver};
+    allActions = {actionStop, actionSuspend, actionAllContinues, actionContinue, actionContinueUntilCall, actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut, actionStepOver};
     // hide allactions
     setAllActionsVisible(false);
 
-    // Toggle all buttons except restart and stop since those are necessary to avoid
-    // staying stuck
+    // Toggle all buttons except restart, suspend and stop since those are necessary to 
+    // avoid staying stuck
     toggleActions = { actionStep, actionStepOver, actionStepOut, actionContinue,
         actionContinueUntilMain, actionContinueUntilCall, actionContinueUntilSyscall};
 
     connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
+        bool disableToolbar = Core()->isDebugTaskInProgress();
         for (QAction *a : toggleActions) {
-            a->setDisabled(Core()->isDebugTaskInProgress());
+            a->setDisabled(disableToolbar);
         }
+        // Suspend should only be available when other icons are disabled
+        actionSuspend->setDisabled(!disableToolbar);
     });
 
+    connect(actionSuspend, &QAction::triggered, Core(), &CutterCore::suspendDebug);
     connect(actionStop, &QAction::triggered, Core(), &CutterCore::stopDebug);
     connect(actionStop, &QAction::triggered, [ = ]() {
         actionStart->setVisible(true);

@@ -1246,6 +1246,11 @@ void CutterCore::attachDebug(int pid)
     emit debugTaskStateChanged();
 }
 
+void CutterCore::suspendDebug()
+{
+    commandTask->breakTask(); 
+}
+
 void CutterCore::stopDebug()
 {
     if (currentlyDebugging) {
