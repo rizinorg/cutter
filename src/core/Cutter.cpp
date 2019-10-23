@@ -314,16 +314,21 @@ QString CutterCore::cmd(const char *str)
 
 bool CutterCore::isDebugTaskInProgress()
 {
-    if (!commandTask.isNull()) {
+    if (!debugTask.isNull()) {
         return true;
     }
 
     return false;
 }
 
-QSharedPointer<R2Task> CutterCore::asyncCmdEsil(const char *command)
+void CutterCore::asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task)
 {
-    QSharedPointer<R2Task> task = asyncCmd(command);
+    asyncCmd(command, task);
+
+    if (task.isNull()) {
+        return;
+    }
+
     connect(task.data(), &R2Task::finished, this, [this, task] () {
         QString res = task.data()->getResult();
 
@@ -331,33 +336,28 @@ QSharedPointer<R2Task> CutterCore::asyncCmdEsil(const char *command)
             msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable this in Preferences");
         }
     });
-    
-    return task;
 }
 
-QSharedPointer<R2Task> CutterCore::asyncCmd(const char *str)
+void CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
 {
-    if (!commandTask.isNull()) {
-        return nullptr;
+    if (!task.isNull()) {
+        return;
     }
 
     CORE_LOCK();
 
     RVA offset = core->offset;
 
-    commandTask = QSharedPointer<R2Task>(new R2Task(str, true));
-    connect(commandTask.data(), &R2Task::finished, this, [this, offset] () {
+    task = QSharedPointer<R2Task>(new R2Task(str, true));
+    connect(task.data(), &R2Task::finished, this, [this, offset, task] () {
         CORE_LOCK();
-
-        commandTask = nullptr;
 
         if (offset != core->offset) {
             updateSeek();
         }
     });
 
-    commandTask->startTask();
-    return commandTask;
+    task->startTask();
 }
 
 QString CutterCore::cmdRaw(const QString &str)
@@ -1248,13 +1248,12 @@ void CutterCore::attachDebug(int pid)
 
 void CutterCore::suspendDebug()
 {
-    commandTask->breakTask(); 
+    debugTask->breakTask(); 
 }
 
 void CutterCore::stopDebug()
 {
     if (currentlyDebugging) {
-        emit debugTaskStateChanged();
         if (currentlyEmulating) {
             cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
@@ -1292,16 +1291,15 @@ void CutterCore::syncAndSeekProgramCounter()
 void CutterCore::continueDebug()
 {
     if (currentlyDebugging) {
-        QSharedPointer<R2Task> task;
-
         if (currentlyEmulating) {
-            task = asyncCmdEsil("aec");
+            asyncCmdEsil("aec", debugTask);
         } else {
-            task = asyncCmd("dc");
+            asyncCmd("dc", debugTask);
         }
-        if (task) {
+        if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
-            connect(task.data(), &R2Task::finished, this, [this] () {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask = nullptr;
                 syncAndSeekProgramCounter();
                 emit registersChanged();
                 emit refreshCodeViews();
@@ -1315,16 +1313,15 @@ void CutterCore::continueUntilDebug(QString offset)
 {
 
     if (currentlyDebugging) {
-        QSharedPointer<R2Task> task;
-
         if (currentlyEmulating) {
-            task = asyncCmdEsil("aecu " + offset);
+            asyncCmdEsil("aecu " + offset, debugTask);
         } else {
-            task = asyncCmd("dcu " + offset);
+            asyncCmd("dcu " + offset, debugTask);
         }
-        if (task) {
+        if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
-            connect(task.data(), &R2Task::finished, this, [this] () {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask = nullptr;
                 syncAndSeekProgramCounter();
                 emit registersChanged();
                 emit stackChanged();
@@ -1338,16 +1335,15 @@ void CutterCore::continueUntilDebug(QString offset)
 void CutterCore::continueUntilCall()
 {
     if (currentlyDebugging) {
-        QSharedPointer<R2Task> task;
-
         if (currentlyEmulating) {
-            task = asyncCmdEsil("aecc");
+            asyncCmdEsil("aecc", debugTask);
         } else {
-            task = asyncCmd("dcc");
+            asyncCmd("dcc", debugTask);
         }
-        if (task) {
+        if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
-            connect(task.data(), &R2Task::finished, this, [this] () {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask = nullptr;
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1358,16 +1354,15 @@ void CutterCore::continueUntilCall()
 void CutterCore::continueUntilSyscall()
 {
     if (currentlyDebugging) {
-        QSharedPointer<R2Task> task;
-
         if (currentlyEmulating) {
-            task = asyncCmdEsil("aecs");
+            asyncCmdEsil("aecs", debugTask);
         } else {
-            task = asyncCmd("dcs");
+            asyncCmd("dcs", debugTask);
         }
-        if (task) {
+        if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
-            connect(task.data(), &R2Task::finished, this, [this] () {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask = nullptr;
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1378,16 +1373,15 @@ void CutterCore::continueUntilSyscall()
 void CutterCore::stepDebug()
 {
     if (currentlyDebugging) {
-        QSharedPointer<R2Task> task;
-
         if (currentlyEmulating) {
-            task = asyncCmdEsil("aes");
+            asyncCmdEsil("aes", debugTask);
         } else {
-            task = asyncCmd("ds");
+            asyncCmd("ds", debugTask);
         }
-        if (task) {
+        if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
-            connect(task.data(), &R2Task::finished, this, [this] () {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask = nullptr;
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1398,16 +1392,15 @@ void CutterCore::stepDebug()
 void CutterCore::stepOverDebug()
 {
     if (currentlyDebugging) {
-        QSharedPointer<R2Task> task;
-
         if (currentlyEmulating) {
-            task = asyncCmdEsil("aeso");
+            asyncCmdEsil("aeso", debugTask);
         } else {
-            task = asyncCmd("dso");
+            asyncCmd("dso", debugTask);
         }
-        if (task) {
+        if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
-            connect(task.data(), &R2Task::finished, this, [this] () {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask = nullptr;
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1417,13 +1410,12 @@ void CutterCore::stepOverDebug()
 
 void CutterCore::stepOutDebug()
 {
-    QSharedPointer<R2Task> task;
-
     if (currentlyDebugging) {
         emit debugTaskStateChanged();
-        task = asyncCmd("dsf");
-        if (task) {
-            connect(task.data(), &R2Task::finished, this, [this] () {
+        asyncCmd("dsf", debugTask);
+        if (!debugTask.isNull()) {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask = nullptr;
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
