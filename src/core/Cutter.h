@@ -16,11 +16,11 @@
 class AsyncTaskManager;
 class CutterCore;
 class Decompiler;
-class CommandTask;
+class R2Task;
 
 #include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
-#include "common/CommandTask.h"
+#include "common/R2Task.h"
 
 #define Core() (CutterCore::instance())
 
@@ -60,11 +60,12 @@ public:
      * @param str the command you want to execute
      * @return a shared pointer to the async command task 
      * @note connect to the &CommandTask::finished signal to add your own logic once
-     *       the command is finished.
+     *       the command is finished. Use task->getResult()/getResultJson() for the 
+     *       return value.
      *       If you want to seek to an address, you should use CutterCore::seek.
      */
-    QSharedPointer<CommandTask> asyncCmd(const char *str);
-    QSharedPointer<CommandTask> asyncCmd(const QString &str) { return asyncCmd(str.toUtf8().constData()); }
+    QSharedPointer<R2Task> asyncCmd(const char *str);
+    QSharedPointer<R2Task> asyncCmd(const QString &str) { return asyncCmd(str.toUtf8().constData()); }
     QString cmdRaw(const QString &str);
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
@@ -501,7 +502,7 @@ private:
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
 
-    QSharedPointer<CommandTask> commandTask;
+    QSharedPointer<R2Task> commandTask;
 };
 
 class RCoreLocked
