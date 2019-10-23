@@ -272,6 +272,7 @@ public:
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
+    bool isDebugTaskInProgress();
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
     int currentlyAttachedToPID = -1;
@@ -456,8 +457,7 @@ signals:
 
     void projectSaved(bool successfully, const QString &name);
 
-    void disableDebugToolbar();
-    void enableDebugToolbar();
+    void debugTaskStateChanged();
 
     /**
      * emitted when config regarding disassembly display changes

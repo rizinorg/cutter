@@ -312,6 +312,15 @@ QString CutterCore::cmd(const char *str)
     return o;
 }
 
+bool CutterCore::isDebugTaskInProgress()
+{
+    if (!commandTask.isNull()) {
+        return true;
+    }
+
+    return false;
+}
+
 QSharedPointer<R2Task> CutterCore::asyncCmdEsil(const char *command)
 {
     QSharedPointer<R2Task> task = asyncCmd(command);
@@ -1162,13 +1171,13 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::setCurrentDebugThread(int tid)
 {
-    emit disableDebugToolbar();
+    emit debugTaskStateChanged();
     cmd("dpt=" + QString::number(tid));
     emit registersChanged();
     emit refreshCodeViews();
     emit stackChanged();
     syncAndSeekProgramCounter();
-    emit enableDebugToolbar();
+    emit debugTaskStateChanged();
 }
 
 void CutterCore::startDebug()
@@ -1187,7 +1196,7 @@ void CutterCore::startDebug()
         emit refreshCodeViews();
     }
     emit stackChanged();
-    emit enableDebugToolbar();
+    emit debugTaskStateChanged();
 }
 
 void CutterCore::startEmulation()
@@ -1210,7 +1219,7 @@ void CutterCore::startEmulation()
     emit registersChanged();
     emit stackChanged();
     emit refreshCodeViews();
-    emit enableDebugToolbar();
+    emit debugTaskStateChanged();
 }
 
 void CutterCore::attachDebug(int pid)
@@ -1234,13 +1243,13 @@ void CutterCore::attachDebug(int pid)
         emit changeDebugView();
     }
 
-    emit enableDebugToolbar();
+    emit debugTaskStateChanged();
 }
 
 void CutterCore::stopDebug()
 {
     if (currentlyDebugging) {
-        emit disableDebugToolbar();
+        emit debugTaskStateChanged();
         if (currentlyEmulating) {
             cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
@@ -1286,12 +1295,12 @@ void CutterCore::continueDebug()
             task = asyncCmd("dc");
         }
         if (task) {
-            emit disableDebugToolbar();
+            emit debugTaskStateChanged();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit registersChanged();
                 emit refreshCodeViews();
-                emit enableDebugToolbar();
+                emit debugTaskStateChanged();
             });
         }
     }
@@ -1309,13 +1318,13 @@ void CutterCore::continueUntilDebug(QString offset)
             task = asyncCmd("dcu " + offset);
         }
         if (task) {
-            emit disableDebugToolbar();
+            emit debugTaskStateChanged();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit registersChanged();
                 emit stackChanged();
                 emit refreshCodeViews();
-                emit enableDebugToolbar();
+                emit debugTaskStateChanged();
             });
         }
     }
@@ -1332,10 +1341,10 @@ void CutterCore::continueUntilCall()
             task = asyncCmd("dcc");
         }
         if (task) {
-            emit disableDebugToolbar();
+            emit debugTaskStateChanged();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
-                emit enableDebugToolbar();
+                emit debugTaskStateChanged();
             });
         }
     }
@@ -1352,10 +1361,10 @@ void CutterCore::continueUntilSyscall()
             task = asyncCmd("dcs");
         }
         if (task) {
-            emit disableDebugToolbar();
+            emit debugTaskStateChanged();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
-                emit enableDebugToolbar();
+                emit debugTaskStateChanged();
             });
         }
     }
@@ -1372,10 +1381,10 @@ void CutterCore::stepDebug()
             task = asyncCmd("ds");
         }
         if (task) {
-            emit disableDebugToolbar();
+            emit debugTaskStateChanged();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
-                emit enableDebugToolbar();
+                emit debugTaskStateChanged();
             });
         }
     }
@@ -1392,10 +1401,10 @@ void CutterCore::stepOverDebug()
             task = asyncCmd("dso");
         }
         if (task) {
-            emit disableDebugToolbar();
+            emit debugTaskStateChanged();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
-                emit enableDebugToolbar();
+                emit debugTaskStateChanged();
             });
         }
     }
@@ -1406,12 +1415,12 @@ void CutterCore::stepOutDebug()
     QSharedPointer<R2Task> task;
 
     if (currentlyDebugging) {
-        emit disableDebugToolbar();
+        emit debugTaskStateChanged();
         task = asyncCmd("dsf");
         if (task) {
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
-                emit enableDebugToolbar();
+                emit debugTaskStateChanged();
             });
         }
     }

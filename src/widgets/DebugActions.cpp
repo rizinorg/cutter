@@ -107,14 +107,9 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     toggleActions = { actionStep, actionStepOver, actionStepOut, actionContinue,
         actionContinueUntilMain, actionContinueUntilCall, actionContinueUntilSyscall};
 
-    connect(Core(), &CutterCore::disableDebugToolbar, this, [ = ]() {
+    connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
         for (QAction *a : toggleActions) {
-            a->setDisabled(true);
-        }
-    });
-    connect(Core(), &CutterCore::enableDebugToolbar, this, [ = ]() {
-        for (QAction *a : toggleActions) {
-            a->setDisabled(false);
+            a->setDisabled(Core()->isDebugTaskInProgress());
         }
     });
 
