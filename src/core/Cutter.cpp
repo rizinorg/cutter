@@ -312,6 +312,20 @@ QString CutterCore::cmd(const char *str)
     return o;
 }
 
+QSharedPointer<R2Task> CutterCore::asyncCmdEsil(const char *command)
+{
+    QSharedPointer<R2Task> task = asyncCmd(command);
+    connect(task.data(), &R2Task::finished, this, [this, task] () {
+        QString res = task.data()->getResult();
+
+        if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
+            msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable this in Preferences");
+        }
+    });
+    
+    return task;
+}
+
 QSharedPointer<R2Task> CutterCore::asyncCmd(const char *str)
 {
     if (!commandTask.isNull()) {
@@ -1263,16 +1277,16 @@ void CutterCore::syncAndSeekProgramCounter()
 
 void CutterCore::continueDebug()
 {
-    QSharedPointer<R2Task> task;
-
     if (currentlyDebugging) {
+        QSharedPointer<R2Task> task;
+
         if (currentlyEmulating) {
-            cmdEsil("aec");
+            task = asyncCmdEsil("aec");
         } else {
-            emit disableDebugToolbar();
             task = asyncCmd("dc");
         }
         if (task) {
+            emit disableDebugToolbar();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit registersChanged();
@@ -1285,16 +1299,17 @@ void CutterCore::continueDebug()
 
 void CutterCore::continueUntilDebug(QString offset)
 {
-    QSharedPointer<R2Task> task;
 
     if (currentlyDebugging) {
+        QSharedPointer<R2Task> task;
+
         if (currentlyEmulating) {
-            cmdEsil("aecu " + offset);
+            task = asyncCmdEsil("aecu " + offset);
         } else {
-            emit disableDebugToolbar();
             task = asyncCmd("dcu " + offset);
         }
         if (task) {
+            emit disableDebugToolbar();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit registersChanged();
@@ -1308,16 +1323,16 @@ void CutterCore::continueUntilDebug(QString offset)
 
 void CutterCore::continueUntilCall()
 {
-    QSharedPointer<R2Task> task;
-
     if (currentlyDebugging) {
+        QSharedPointer<R2Task> task;
+
         if (currentlyEmulating) {
-            cmdEsil("aecc");
+            task = asyncCmdEsil("aecc");
         } else {
-            emit disableDebugToolbar();
             task = asyncCmd("dcc");
         }
         if (task) {
+            emit disableDebugToolbar();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit enableDebugToolbar();
@@ -1328,16 +1343,16 @@ void CutterCore::continueUntilCall()
 
 void CutterCore::continueUntilSyscall()
 {
-    QSharedPointer<R2Task> task;
-
     if (currentlyDebugging) {
+        QSharedPointer<R2Task> task;
+
         if (currentlyEmulating) {
-            cmdEsil("aecs");
+            task = asyncCmdEsil("aecs");
         } else {
-            emit disableDebugToolbar();
             task = asyncCmd("dcs");
         }
         if (task) {
+            emit disableDebugToolbar();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit enableDebugToolbar();
@@ -1348,16 +1363,16 @@ void CutterCore::continueUntilSyscall()
 
 void CutterCore::stepDebug()
 {
-    QSharedPointer<R2Task> task;
-
     if (currentlyDebugging) {
+        QSharedPointer<R2Task> task;
+
         if (currentlyEmulating) {
-            cmdEsil("aes");
+            task = asyncCmdEsil("aes");
         } else {
-            emit disableDebugToolbar();
             task = asyncCmd("ds");
         }
         if (task) {
+            emit disableDebugToolbar();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit enableDebugToolbar();
@@ -1368,16 +1383,16 @@ void CutterCore::stepDebug()
 
 void CutterCore::stepOverDebug()
 {
-    QSharedPointer<R2Task> task;
-
     if (currentlyDebugging) {
+        QSharedPointer<R2Task> task;
+
         if (currentlyEmulating) {
-            cmdEsil("aeso");
+            task = asyncCmdEsil("aeso");
         } else {
-            emit disableDebugToolbar();
             task = asyncCmd("dso");
         }
         if (task) {
+            emit disableDebugToolbar();
             connect(task.data(), &R2Task::finished, this, [this] () {
                 syncAndSeekProgramCounter();
                 emit enableDebugToolbar();

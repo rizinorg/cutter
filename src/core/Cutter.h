@@ -75,6 +75,8 @@ public:
     QJsonDocument cmdjTask(const QString &str);
     void cmdEsil(const char *command);
     void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
+    QSharedPointer<R2Task> asyncCmdEsil(const char *command);
+    QSharedPointer<R2Task> asyncCmdEsil(const QString &command) { return asyncCmdEsil(command.toUtf8().constData()); }
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
