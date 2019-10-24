@@ -1254,6 +1254,8 @@ void CutterCore::suspendDebug()
 void CutterCore::stopDebug()
 {
     if (currentlyDebugging) {
+        currentlyDebugging = false;
+        emit debugTaskStateChanged();
         if (currentlyEmulating) {
             cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
@@ -1275,7 +1277,6 @@ void CutterCore::stopDebug()
         seekAndShow(offsetPriorDebugging);
         setConfig("asm.flags", true);
         setConfig("io.cache", false);
-        currentlyDebugging = false;
         emit flagsChanged();
         emit changeDefinedView();
     }
