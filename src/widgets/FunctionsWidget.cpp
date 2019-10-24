@@ -17,6 +17,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QResizeEvent>
+#include <QApplication>
+#include <QClipboard>
 
 namespace {
 
@@ -429,6 +431,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     ListDockWidget(main, action),
     actionRename(tr("Rename"), this),
     actionUndefine(tr("Undefine"), this),
+    actionCopy(tr("Copy Information"), this),
     actionHorizontal(tr("Horizontal"), this),
     actionVertical(tr("Vertical"), this)
 {
@@ -465,11 +468,16 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
             &FunctionsWidget::onActionFunctionsRenameTriggered);
     connect(&actionUndefine, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsUndefineTriggered);
+    actionCopy.setShortcut(Qt::ControlModifier + Qt::Key_C);
+    actionCopy.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    connect(&actionCopy, &QAction::triggered, this,
+            &FunctionsWidget::onActionFunctionsCopyTriggered);
 
     auto itemConextMenu = ui->treeView->getItemContextMenu();
     itemConextMenu->addSeparator();
     itemConextMenu->addAction(&actionRename);
     itemConextMenu->addAction(&actionUndefine);
+    itemConextMenu->addAction(&actionCopy);
     itemConextMenu->setWholeFunction(true);
 
     addActions(itemConextMenu->actions());
@@ -556,6 +564,26 @@ void FunctionsWidget::onActionFunctionsUndefineTriggered()
     for (RVA offset : offsets) {
         Core()->delFunction(offset);
     }
+}
+
+void FunctionsWidget::onActionFunctionsCopyTriggered()
+{
+    FunctionDescription function = ui->treeView->selectionModel()->currentIndex().data(
+            FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+
+    QString information = QString::asprintf("%s\t%llu\t%#010llx\t%llu\t%llu\t%llu\t%s\t%llu\t%llu",
+            function.name.toUtf8().constData(),
+            function.size,
+            function.offset,
+            function.nargs,
+            function.nlocals,
+            function.nbbs,
+            function.calltype.toUtf8().constData(),
+            function.edges,
+            function.stackframe
+    );
+    auto clipboard = QApplication::clipboard();
+    clipboard->setText(information);
 }
 
 void FunctionsWidget::showTitleContextMenu(const QPoint &pt)

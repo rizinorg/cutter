@@ -99,6 +99,7 @@ public:
 private slots:
     void onActionFunctionsRenameTriggered();
     void onActionFunctionsUndefineTriggered();
+    void onActionFunctionsCopyTriggered();
     void onActionHorizontalToggled(bool enable);
     void onActionVerticalToggled(bool enable);
     void showTitleContextMenu(const QPoint &pt);
@@ -120,6 +121,7 @@ private:
 
     QAction actionRename;
     QAction actionUndefine;
+    QAction actionCopy;
     QAction actionHorizontal;
     QAction actionVertical;
 };
