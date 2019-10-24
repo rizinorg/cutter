@@ -1,6 +1,0 @@
-path_classifiers:
-  library:
-    - radare2
-
-queries:
-  - exclude: cpp/short-global-name
