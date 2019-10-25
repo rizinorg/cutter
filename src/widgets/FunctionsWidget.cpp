@@ -468,7 +468,7 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
             &FunctionsWidget::onActionFunctionsRenameTriggered);
     connect(&actionUndefine, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsUndefineTriggered);
-    actionCopy.setShortcut(Qt::ControlModifier + Qt::Key_C);
+    actionCopy.setShortcut(QKeySequence::Copy);
     actionCopy.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
     connect(&actionCopy, &QAction::triggered, this,
             &FunctionsWidget::onActionFunctionsCopyTriggered);
