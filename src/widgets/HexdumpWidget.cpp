@@ -4,6 +4,7 @@
 #include "common/Helpers.h"
 #include "common/Configuration.h"
 #include "common/TempConfig.h"
+#include "common/SyntaxHighlighter.h"
 #include "core/MainWindow.h"
 
 #include <QJsonObject>
@@ -36,7 +37,9 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     QIcon closeIcon = QIcon(":/img/icons/delete.svg");
     closeButton->setIcon(closeIcon);
     closeButton->setAutoRaise(true);
+
     ui->hexSideTab_2->setCornerWidget(closeButton);
+    syntaxHighLighter = Config()->createSyntaxHighlighter(ui->hexDisasTextEdit->document());
 
     ui->openSideViewB->hide();  // hide button at startup since side view is visible
 
@@ -215,6 +218,8 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         // Get selected combos
         QString arch = ui->parseArchComboBox->currentText();
         QString bits = ui->parseBitsComboBox->currentText();
+        QString selectedCommand = "";
+        QString commandResult = "";
         bool bigEndian = ui->parseEndianComboBox->currentIndex() == 1;
 
         TempConfig tempConfig;
@@ -225,41 +230,40 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
         switch (ui->parseTypeComboBox->currentIndex()) {
         case 0: // Disassembly
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pda " + argument));
+            selectedCommand = "pda";
             break;
         case 1: // String
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcs " + argument));
+            selectedCommand = "pcs";
             break;
         case 2: // Assembler
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pca " + argument));
+            selectedCommand = "pca";
             break;
         case 3: // C byte array
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pc " + argument));
+            selectedCommand = "pc";
             break;
         case 4: // C half-word
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pch " + argument));
+            selectedCommand = "pch";
             break;
         case 5: // C word
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcw " + argument));
+            selectedCommand = "pcw";
             break;
         case 6: // C dword
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcd " + argument));
+            selectedCommand = "pcd";
             break;
         case 7: // Python
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcp " + argument));
+            selectedCommand = "pcp";
             break;
         case 8: // JSON
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcj " + argument));
+            selectedCommand = "pcj";
             break;
         case 9: // JavaScript
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcJ " + argument));
+            selectedCommand = "pcJ";
             break;
         case 10: // Yara
-            ui->hexDisasTextEdit->setPlainText(Core()->cmd("pcy " + argument));
+            selectedCommand = "pcy";
             break;
-        default:
-            ui->hexDisasTextEdit->setPlainText("");
         }
+        ui->hexDisasTextEdit->setPlainText(selectedCommand != "" ? Core()->cmd(selectedCommand + " " + argument) : "");
     } else {
         // Fill the information tab hashes and entropy
         ui->bytesMD5->setText(Core()->cmd("ph md5 " + argument).trimmed());

@@ -25,6 +25,7 @@ class HexdumpWidget;
 }
 
 class RefreshDeferrer;
+class QSyntaxHighlighter;
 
 class HexdumpWidget : public MemoryDockWidget
 {
@@ -48,6 +49,7 @@ private:
     bool sent_seek = false;
 
     RefreshDeferrer *refreshDeferrer;
+    QSyntaxHighlighter *syntaxHighLighter;
 
     void refresh();
     void refresh(RVA addr);
