@@ -107,7 +107,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         export PATH=/usr/local/opt/llvm/bin:$PATH;
         source scripts/prepare_breakpad_macos.sh;
-        sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /;
+        sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.15.pkg -target /;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
         export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH";
