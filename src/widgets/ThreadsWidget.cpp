@@ -55,7 +55,6 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
             &ThreadsFilterModel::setFilterWildcard);
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
-    connect(Core(), &CutterCore::debugTaskStateChanged, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &ThreadsWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ThreadsWidget::fontsUpdatedSlot);
     connect(ui->viewThreads, &QTableView::activated, this, &ThreadsWidget::onActivated);
