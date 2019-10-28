@@ -1300,7 +1300,7 @@ void CutterCore::continueDebug()
         if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
             connect(debugTask.data(), &R2Task::finished, this, [this] () {
-                debugTask = nullptr;
+                debugTask.clear();
                 syncAndSeekProgramCounter();
                 emit registersChanged();
                 emit refreshCodeViews();
@@ -1322,7 +1322,7 @@ void CutterCore::continueUntilDebug(QString offset)
         if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
             connect(debugTask.data(), &R2Task::finished, this, [this] () {
-                debugTask = nullptr;
+                debugTask.clear();
                 syncAndSeekProgramCounter();
                 emit registersChanged();
                 emit stackChanged();
@@ -1344,7 +1344,7 @@ void CutterCore::continueUntilCall()
         if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
             connect(debugTask.data(), &R2Task::finished, this, [this] () {
-                debugTask = nullptr;
+                debugTask.clear();
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1363,7 +1363,7 @@ void CutterCore::continueUntilSyscall()
         if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
             connect(debugTask.data(), &R2Task::finished, this, [this] () {
-                debugTask = nullptr;
+                debugTask.clear();
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1382,7 +1382,7 @@ void CutterCore::stepDebug()
         if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
             connect(debugTask.data(), &R2Task::finished, this, [this] () {
-                debugTask = nullptr;
+                debugTask.clear();
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1401,7 +1401,7 @@ void CutterCore::stepOverDebug()
         if (!debugTask.isNull()) {
             emit debugTaskStateChanged();
             connect(debugTask.data(), &R2Task::finished, this, [this] () {
-                debugTask = nullptr;
+                debugTask.clear();
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
@@ -1416,7 +1416,7 @@ void CutterCore::stepOutDebug()
         asyncCmd("dsf", debugTask);
         if (!debugTask.isNull()) {
             connect(debugTask.data(), &R2Task::finished, this, [this] () {
-                debugTask = nullptr;
+                debugTask.clear();
                 syncAndSeekProgramCounter();
                 emit debugTaskStateChanged();
             });
