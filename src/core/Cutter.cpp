@@ -1171,13 +1171,18 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::setCurrentDebugThread(int tid)
 {
-    emit debugTaskStateChanged();
-    cmd("dpt=" + QString::number(tid));
-    emit registersChanged();
-    emit refreshCodeViews();
-    emit stackChanged();
-    syncAndSeekProgramCounter();
-    emit debugTaskStateChanged();
+    asyncCmd("dpt=" + QString::number(tid), debugTask);
+    if (!debugTask.isNull()) {
+        emit debugTaskStateChanged();
+        connect(debugTask.data(), &R2Task::finished, this, [this] () {
+            debugTask.clear();
+            emit registersChanged();
+            emit refreshCodeViews();
+            emit stackChanged();
+            syncAndSeekProgramCounter();
+            emit debugTaskStateChanged();
+        });
+    }
 }
 
 void CutterCore::startDebug()
