@@ -32,7 +32,8 @@ public:
     {
         auto *deferrer = new RefreshDeferrer(nullptr, this);
         deferrer->registerFor(this);
-        connect(deferrer, &RefreshDeferrer::refreshNow, this, [refreshNowFunc](const RefreshDeferrerParamsResult) {
+        connect(deferrer, &RefreshDeferrer::refreshNow,
+        this, [refreshNowFunc](const RefreshDeferrerParamsResult) {
             refreshNowFunc();
         });
         return deferrer;
@@ -46,9 +47,11 @@ public:
     template<class ParamResult, typename Func>
     RefreshDeferrer *createReplacingRefreshDeferrer(bool replaceIfNull, Func refreshNowFunc)
     {
-        auto *deferrer = new RefreshDeferrer(new ReplacingRefreshDeferrerAccumulator<ParamResult>(replaceIfNull), this);
+        auto *deferrer = new RefreshDeferrer(new ReplacingRefreshDeferrerAccumulator<ParamResult>
+                                             (replaceIfNull), this);
         deferrer->registerFor(this);
-        connect(deferrer, &RefreshDeferrer::refreshNow, this, [refreshNowFunc](const RefreshDeferrerParamsResult paramsResult) {
+        connect(deferrer, &RefreshDeferrer::refreshNow,
+        this, [refreshNowFunc](const RefreshDeferrerParamsResult paramsResult) {
             auto *result = static_cast<const ParamResult *>(paramsResult);
             refreshNowFunc(result);
         });
@@ -63,7 +66,7 @@ public slots:
     void toggleDockWidget(bool show);
 
 protected:
-    virtual QWidget* widgetToFocusOnRaise();
+    virtual QWidget *widgetToFocusOnRaise();
 
     void closeEvent(QCloseEvent *event) override;
     QAction *getBoundAction() const;
@@ -73,11 +76,16 @@ protected:
 
 private:
     QAction *action;
+    bool firstKeyRelease;
+    QSet<int> *keysPressed;
 
     bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+    void processKeyShortcut();
 };
 
 #endif // CUTTERWIDGET_H

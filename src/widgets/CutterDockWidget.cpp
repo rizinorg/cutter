@@ -3,15 +3,15 @@
 
 #include <QAction>
 #include <QEvent>
+#include <QSet>
 
-CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
-    QDockWidget(parent),
-    mainWindow(parent),
-    action(action)
+CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action)
+    : QDockWidget(parent), mainWindow(parent), action(action)
 {
     if (action) {
         addAction(action);
-        connect(action, &QAction::triggered, this, &CutterDockWidget::toggleDockWidget);
+        connect(action, &QAction::triggered, this,
+                &CutterDockWidget::toggleDockWidget);
     }
     if (parent) {
         parent->addWidget(this);
@@ -26,12 +26,10 @@ CutterDockWidget::~CutterDockWidget() = default;
 
 bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::FocusIn
-        || event->type() == QEvent::ZOrderChange
-        || event->type() == QEvent::Paint
-        || event->type() == QEvent::Close
-        || event->type() == QEvent::Show
-        || event->type() == QEvent::Hide) {
+    if (event->type() == QEvent::FocusIn ||
+            event->type() == QEvent::ZOrderChange || event->type() == QEvent::Paint ||
+            event->type() == QEvent::Close || event->type() == QEvent::Show ||
+            event->type() == QEvent::Hide) {
         updateIsVisibleToUser();
     }
     return QDockWidget::eventFilter(object, event);
@@ -47,10 +45,7 @@ void CutterDockWidget::toggleDockWidget(bool show)
     }
 }
 
-QWidget *CutterDockWidget::widgetToFocusOnRaise()
-{
-    return this;
-}
+QWidget *CutterDockWidget::widgetToFocusOnRaise() { return this; }
 
 void CutterDockWidget::updateIsVisibleToUser()
 {
@@ -81,10 +76,7 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
     emit closed();
 }
 
-QAction *CutterDockWidget::getBoundAction() const
-{
-    return action;
-}
+QAction *CutterDockWidget::getBoundAction() const { return action; }
 
 QString CutterDockWidget::getDockNumber()
 {
@@ -98,3 +90,64 @@ QString CutterDockWidget::getDockNumber()
     return QString();
 }
 
+void CutterDockWidget::keyPressEvent(QKeyEvent *event)
+{
+    firstKeyRelease = true;
+    // SegFault here, event uninitialised
+    auto e = event;
+    //keysPressed->insert(event->key());
+}
+
+void CutterDockWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    if (firstKeyRelease) {
+        processKeyShortcut();
+        firstKeyRelease = false;
+    }
+    //keysPressed->remove(event->key());
+}
+
+void CutterDockWidget::processKeyShortcut()
+{
+    bool handled = false;
+    if (keysPressed->contains(Qt::Key_Control)) {
+        /*if (keysPressed->contains(Qt::Key_Tab)) {
+          auto dockList = mainWindow->getListOfDockWidgets();
+          QList<QDockWidget*>::iterator currentWidgetIt;
+          for (auto i = dockList.begin(); i != dockList.end(); ++i)
+          {
+            if ((dynamic_cast<CutterDockWidget*>(*currentWidgetIt))->getDockNumber() == getDockNumber())
+            {
+              currentWidgetIt = i;
+              break;
+            }
+          }
+          CutterDockWidget* currentWidget = dynamic_cast<CutterDockWidget*>(*currentWidgetIt);
+          if (keysPressed->contains(Qt::Key_Shift)) {
+            // TODO: Previous open tab
+            if (currentWidgetIt != dockList.begin())
+            {
+              CutterDockWidget* newWidget = dynamic_cast<CutterDockWidget*>(*currentWidgetIt - 1);
+              currentWidget->toggleDockWidget(false);
+              newWidget->toggleDockWidget(true);
+            }
+          } else {
+            // TODO: Next open tab
+            if (currentWidgetIt != dockList.end() -1)
+            {
+              CutterDockWidget* newWidget = dynamic_cast<CutterDockWidget*>(*currentWidgetIt + 1);
+              currentWidget->toggleDockWidget(false);
+              newWidget->toggleDockWidget(true);
+            }
+          }
+        } else {
+          if (!keysPressed->contains(Qt::Key_Shift)) {
+            if (keysPressed->contains(Qt::Key_T)) {
+              // TODO: Duplicate current tab
+            } else if (keysPressed->contains(Qt::Key_W)) {
+              // TODO: Close current tab
+            }
+          }
+        }*/
+    }
+}

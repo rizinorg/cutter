@@ -107,7 +107,7 @@
 #include <QGraphicsView>
 
 template<class T>
-T* getNewInstance(MainWindow *m, QAction *a) { return new T(m, a); }
+T *getNewInstance(MainWindow *m, QAction *a) { return new T(m, a); }
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -132,7 +132,8 @@ void MainWindow::initUI()
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
 
     widgetTypeToConstructorMap.insert(GraphWidget::getWidgetType(), getNewInstance<GraphWidget>);
-    widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(), getNewInstance<DisassemblyWidget>);
+    widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(),
+                                      getNewInstance<DisassemblyWidget>);
     widgetTypeToConstructorMap.insert(HexdumpWidget::getWidgetType(), getNewInstance<HexdumpWidget>);
 
     initToolBar();
@@ -260,7 +261,8 @@ void MainWindow::initToolBar()
     QObject::connect(configuration, &Configuration::colorsUpdated, [this]() {
         this->visualNavbar->updateGraphicsScene();
     });
-    QObject::connect(configuration, &Configuration::interfaceThemeChanged, this, &MainWindow::chooseThemeIcons);
+    QObject::connect(configuration, &Configuration::interfaceThemeChanged, this,
+                     &MainWindow::chooseThemeIcons);
 }
 
 void MainWindow::initDocks()
@@ -529,7 +531,7 @@ void MainWindow::finalizeOpen()
     QSettings s;
     QStringList unsync = s.value("unsync").toStringList();
     for (auto it : dockWidgets) {
-        auto w = qobject_cast<MemoryDockWidget*>(it);
+        auto w = qobject_cast<MemoryDockWidget *>(it);
         if (w) {
             w->getSeekable()->setSynchronization(!unsync.contains(it->objectName()));
         }
@@ -551,7 +553,7 @@ void MainWindow::finalizeOpen()
     bool graphContainsFunc = false;
     for (auto dockWidget : dockWidgets) {
         const QString className = dockWidget->metaObject()->className();
-        auto graphWidget = qobject_cast<GraphWidget*>(dockWidget);
+        auto graphWidget = qobject_cast<GraphWidget *>(dockWidget);
         if (graphWidget && !dockWidget->visibleRegion().isNull()) {
             graphContainsFunc = !graphWidget->getGraphView()->getBlocks().empty();
             if (graphContainsFunc) {
@@ -559,7 +561,7 @@ void MainWindow::finalizeOpen()
                 break;
             }
         }
-        auto disasmWidget = qobject_cast<DisassemblyWidget*>(dockWidget);
+        auto disasmWidget = qobject_cast<DisassemblyWidget *>(dockWidget);
         if (disasmWidget && !dockWidget->visibleRegion().isNull()) {
             if (!graphContainsFunc) {
                 disasmWidget->setFocus();
@@ -686,7 +688,7 @@ void MainWindow::saveSettings()
     QStringList unsync;
     for (const auto &it : dockWidgets) {
         docks.append(it->objectName());
-        auto memoryDockWidget = qobject_cast<MemoryDockWidget*>(it);
+        auto memoryDockWidget = qobject_cast<MemoryDockWidget *>(it);
         if (memoryDockWidget && !memoryDockWidget->getSeekable()->isSynchronized()) {
             unsync.append(it->objectName());
         }
@@ -801,9 +803,9 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, registerRefsDock);
     for (const auto &it : dockWidgets) {
         // Check whether or not current widgets is graph, hexdump or disasm
-        if (qobject_cast<GraphWidget*>(it) ||
-            qobject_cast<HexdumpWidget*>(it) ||
-            qobject_cast<DisassemblyWidget*>(it)) {
+        if (qobject_cast<GraphWidget *>(it) ||
+                qobject_cast<HexdumpWidget *>(it) ||
+                qobject_cast<DisassemblyWidget *>(it)) {
             tabifyDockWidget(dashboardDock, it);
         }
     }
@@ -904,7 +906,7 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
     for (auto &dock : dockWidgets) {
         if (auto memoryWidget = qobject_cast<MemoryDockWidget *>(dock)) {
             QAction *action = new QAction(memoryWidget->windowTitle(), menu);
-            connect(action, &QAction::triggered, this, [this, memoryWidget, address](){
+            connect(action, &QAction::triggered, this, [this, memoryWidget, address]() {
                 memoryWidget->getSeekable()->seek(address);
                 memoryWidget->raiseMemoryWidget();
             });
@@ -914,7 +916,7 @@ QMenu *MainWindow::createShowInMenu(QWidget *parent, RVA address)
     menu->addSeparator();
     auto createAddNewWidgetAction = [this, menu, address](QString label, MemoryWidgetType type) {
         QAction *action = new QAction(label, menu);
-        connect(action, &QAction::triggered, this, [this, address, type](){
+        connect(action, &QAction::triggered, this, [this, address, type]() {
             addNewMemoryWidget(type, address, false);
         });
         menu->addAction(action);
@@ -937,6 +939,11 @@ void MainWindow::setCurrentMemoryWidget(MemoryDockWidget *memoryWidget)
 MemoryDockWidget *MainWindow::getLastMemoryWidget()
 {
     return lastMemoryWidget;
+}
+
+QList<QDockWidget *> MainWindow::getListOfDockWidgets() const
+{
+    return dockWidgets;
 }
 
 MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,
@@ -976,21 +983,21 @@ void MainWindow::initCorners()
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
 }
 
-void MainWindow::addWidget(QDockWidget* widget)
+void MainWindow::addWidget(QDockWidget *widget)
 {
     dockWidgets.push_back(widget);
     for (auto action : widget->actions()) {
         dockWidgetsOfAction.insert(action, widget);
-        connect(qobject_cast<CutterDockWidget*>(widget), &CutterDockWidget::closed,
-                this, [this]() {
-            QDockWidget *widget = qobject_cast<QDockWidget*>(sender());
+        connect(qobject_cast<CutterDockWidget *>(widget), &CutterDockWidget::closed,
+        this, [this]() {
+            QDockWidget *widget = qobject_cast<QDockWidget *>(sender());
             dockWidgets.removeOne(widget);
             for (auto action : widget->actions()) {
                 dockWidgetsOfAction.remove(action, widget);
             }
             updateDockActionsChecked();
         });
-    }    
+    }
 }
 
 void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
@@ -1017,7 +1024,7 @@ void MainWindow::updateDockActionChecked(QAction *action)
 {
     auto actions = dockWidgetsOfAction.values(action);
     action->setChecked(!std::accumulate(actions.begin(), actions.end(), false,
-                                       [](bool a, QDockWidget* w) -> bool {
+    [](bool a, QDockWidget * w) -> bool {
         return a || w->isHidden();
     }));
 }
@@ -1034,9 +1041,9 @@ void MainWindow::showZenDocks()
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w) ||
-            qobject_cast<GraphWidget*>(w) ||
-            qobject_cast<HexdumpWidget*>(w) ||
-            qobject_cast<DisassemblyWidget*>(w)) {
+                qobject_cast<GraphWidget *>(w) ||
+                qobject_cast<HexdumpWidget *>(w) ||
+                qobject_cast<DisassemblyWidget *>(w)) {
             w->show();
         }
     }
@@ -1059,9 +1066,9 @@ void MainWindow::showDebugDocks()
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (debugDocks.contains(w) ||
-            qobject_cast<GraphWidget*>(w) ||
-            qobject_cast<HexdumpWidget*>(w) ||
-            qobject_cast<DisassemblyWidget*>(w)) {
+                qobject_cast<GraphWidget *>(w) ||
+                qobject_cast<HexdumpWidget *>(w) ||
+                qobject_cast<DisassemblyWidget *>(w)) {
             w->show();
         }
     }
@@ -1114,7 +1121,7 @@ void MainWindow::restoreDebugLayout()
 void MainWindow::resetDockWidgetList()
 {
     QStringList isLeft;
-    QList<QWidget*> toClose;
+    QList<QWidget *> toClose;
     for (auto it : dockWidgets) {
         if (isLeft.contains(it->metaObject()->className())) {
             toClose.append(it);
@@ -1490,14 +1497,14 @@ void MainWindow::messageBoxWarning(QString title, QString message)
 void MainWindow::chooseThemeIcons()
 {
     // List of QActions which have alternative icons in different themes
-    const QList<QPair<void*, QString>> kSupportedIconsNames {
+    const QList<QPair<void *, QString>> kSupportedIconsNames {
         { ui->actionForward, QStringLiteral("arrow_right.svg") },
-        { ui->actionBackward, QStringLiteral("arrow_left.svg") },      
+        { ui->actionBackward, QStringLiteral("arrow_left.svg") },
     };
 
 
     // Set the correct icon for the QAction
-    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
-        static_cast<QAction*>(obj)->setIcon(icon);
+    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon & icon) {
+        static_cast<QAction *>(obj)->setIcon(icon);
     });
 }
