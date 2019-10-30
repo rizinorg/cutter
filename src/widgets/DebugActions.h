@@ -2,6 +2,8 @@
 
 #include "core/Cutter.h"
 
+#include <QAction>
+
 class MainWindow;
 class QToolBar;
 class QToolButton;
@@ -26,8 +28,13 @@ public:
     QAction *actionStepOver;
     QAction *actionStepOut;
     QAction *actionStop;
-    QAction *actionSuspend;
     QAction *actionAllContinues;
+    
+    // Continue and suspend interchange during runtime
+    QIcon continueIcon;
+    QIcon suspendIcon;
+    QString suspendLabel;
+    QString continueLabel;
 
 private:
     /**
