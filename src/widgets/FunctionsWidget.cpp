@@ -568,20 +568,49 @@ void FunctionsWidget::onActionFunctionsUndefineTriggered()
 
 void FunctionsWidget::onActionFunctionsCopyTriggered()
 {
-    FunctionDescription function = ui->treeView->selectionModel()->currentIndex().data(
-            FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+    const auto selection = ui->treeView->selectionModel()->selection().indexes();
 
-    QString information = QString::asprintf("%s\t%llu\t%#010llx\t%llu\t%llu\t%llu\t%s\t%llu\t%llu",
-            function.name.toUtf8().constData(),
-            function.size,
-            function.offset,
-            function.nargs,
-            function.nlocals,
-            function.nbbs,
-            function.calltype.toUtf8().constData(),
-            function.edges,
-            function.stackframe
-    );
+    QList<QString> offsets;
+    offsets.reserve(selection.size());
+    for (const auto &index : selection) {
+
+        const FunctionDescription &function = functionProxyModel->data(index, FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
+
+        switch (index.column()) {
+            case FunctionModel::NameColumn:
+                offsets.push_back(function.name);
+                break;
+            case FunctionModel::SizeColumn:
+                offsets.push_back(QString::number(function.size));
+                break;
+            case FunctionModel::OffsetColumn:
+                offsets.push_back(RAddressString(function.offset));
+                break;
+            case FunctionModel::NargsColumn:
+                offsets.push_back(QString::number(function.nargs));
+                break;
+            case FunctionModel::NlocalsColumn:
+                offsets.push_back(QString::number(function.nlocals));
+                break;
+            case FunctionModel::NbbsColumn:
+                offsets.push_back(QString::number(function.nbbs));
+                break;
+            case FunctionModel::CalltypeColumn:
+                offsets.push_back(function.calltype);
+                break;
+            case FunctionModel::EdgesColumn:
+                offsets.push_back(QString::number(function.edges));
+                break;
+            case FunctionModel::FrameColumn:
+                offsets.push_back(QString::number(function.stackframe));
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    QString information = offsets.join(" ");
     auto clipboard = QApplication::clipboard();
     clipboard->setText(information);
 }
