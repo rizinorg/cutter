@@ -2,6 +2,8 @@
 
 #include "core/Cutter.h"
 
+#include <QAction>
+
 class MainWindow;
 class QToolBar;
 class QToolButton;
@@ -27,8 +29,18 @@ public:
     QAction *actionStepOut;
     QAction *actionStop;
     QAction *actionAllContinues;
+    
+    // Continue and suspend interchange during runtime
+    QIcon continueIcon;
+    QIcon suspendIcon;
+    QString suspendLabel;
+    QString continueLabel;
 
 private:
+    /**
+     * @brief buttons that will be disabled/enabled on (disable/enable)DebugToolbar
+     */
+    QList<QAction *> toggleActions;
     MainWindow *main;
     QList<QAction *> allActions;
     QToolButton *continueUntilButton;
