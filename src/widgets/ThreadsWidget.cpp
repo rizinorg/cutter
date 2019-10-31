@@ -67,7 +67,12 @@ void ThreadsWidget::updateContents()
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
+
     setThreadsGrid();
+
+    if (Core()->isDebugTaskInProgress() || !Core()->currentlyDebugging) {
+        ui->viewThreads->setSelectionMode(QAbstractItemView::NoSelection);
+    }
 }
 
 QString ThreadsWidget::translateStatus(QString status)

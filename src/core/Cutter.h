@@ -18,9 +18,11 @@ class AsyncTaskManager;
 class BasicInstructionHighlighter;
 class CutterCore;
 class Decompiler;
+class R2Task;
 
 #include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
+#include "common/R2Task.h"
 
 #define Core() (CutterCore::instance())
 
@@ -47,8 +49,25 @@ public:
 
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
+    /**
+     * @brief send a command to radare2
+     * @param str the command you want to execute
+     * @return command output
+     * @note if you want to seek to an address, you should use CutterCore::seek.
+     */
     QString cmd(const char *str);
     QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
+    /**
+     * @brief send a command to radare2 asynchronously
+     * @param str the command you want to execute
+     * @param task a shared pointer that will be returned with the R2 command task
+     * @note connect to the &R2Task::finished signal to add your own logic once
+     *       the command is finished. Use task->getResult()/getResultJson() for the 
+     *       return value.
+     *       If you want to seek to an address, you should use CutterCore::seek.
+     */
+    void asyncCmd(const char *str, QSharedPointer<R2Task> &task);
+    void asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
     QString cmdRaw(const QString &str);
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
@@ -56,8 +75,24 @@ public:
     QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
+    /**
+     * @brief send a command to radare2 and check for ESIL errors
+     * @param command the command you want to execute
+     * @note If you want to seek to an address, you should use CutterCore::seek.
+     */
     void cmdEsil(const char *command);
     void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
+    /**
+     * @brief send a command to radare2 and check for ESIL errors
+     * @param command the command you want to execute
+     * @param task a shared pointer that will be returned with the R2 command task
+     * @note connect to the &R2Task::finished signal to add your own logic once
+     *       the command is finished. Use task->getResult()/getResultJson() for the 
+     *       return value.
+     *       If you want to seek to an address, you should use CutterCore::seek.
+     */
+    void asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task);
+    void asyncCmdEsil(const QString &command, QSharedPointer<R2Task> &task) { return asyncCmdEsil(command.toUtf8().constData(), task); }
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
@@ -234,6 +269,7 @@ public:
     void startEmulation();
     void attachDebug(int pid);
     void stopDebug();
+    void suspendDebug();
     void syncAndSeekProgramCounter();
     void continueDebug();
     void continueUntilCall();
@@ -253,6 +289,7 @@ public:
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
+    bool isDebugTaskInProgress();
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
     int currentlyAttachedToPID = -1;
@@ -439,6 +476,11 @@ signals:
     void projectSaved(bool successfully, const QString &name);
 
     /**
+     * emitted when debugTask started or finished running
+     */
+    void debugTaskStateChanged();
+
+    /**
      * emitted when config regarding disassembly display changes
      */
     void asmOptionsChanged();
@@ -483,6 +525,8 @@ private:
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
     BasicInstructionHighlighter biHighlighter;
+
+    QSharedPointer<R2Task> debugTask;
 };
 
 class RCoreLocked
