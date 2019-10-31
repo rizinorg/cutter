@@ -297,12 +297,6 @@ QString CutterCore::sanitizeStringForCommand(QString s)
     return s.replace(regexp, QStringLiteral("_"));
 }
 
-/**
- * @brief CutterCore::cmd send a command to radare2
- * @param str the command you want to execute
- * Note that if you want to seek to an address, you should use CutterCore::seek
- * @return command output
- */
 QString CutterCore::cmd(const char *str)
 {
     CORE_LOCK();
@@ -316,6 +310,54 @@ QString CutterCore::cmd(const char *str)
         updateSeek();
     }
     return o;
+}
+
+bool CutterCore::isDebugTaskInProgress()
+{
+    if (!debugTask.isNull()) {
+        return true;
+    }
+
+    return false;
+}
+
+void CutterCore::asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task)
+{
+    asyncCmd(command, task);
+
+    if (task.isNull()) {
+        return;
+    }
+
+    connect(task.data(), &R2Task::finished, this, [this, task] () {
+        QString res = task.data()->getResult();
+
+        if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
+            msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable this in Preferences");
+        }
+    });
+}
+
+void CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
+{
+    if (!task.isNull()) {
+        return;
+    }
+
+    CORE_LOCK();
+
+    RVA offset = core->offset;
+
+    task = QSharedPointer<R2Task>(new R2Task(str, true));
+    connect(task.data(), &R2Task::finished, this, [this, offset, task] () {
+        CORE_LOCK();
+
+        if (offset != core->offset) {
+            updateSeek();
+        }
+    });
+
+    task->startTask();
 }
 
 QString CutterCore::cmdRaw(const QString &str)
@@ -1129,11 +1171,18 @@ void CutterCore::setRegister(QString regName, QString regValue)
 
 void CutterCore::setCurrentDebugThread(int tid)
 {
-    cmd("dpt=" + QString::number(tid));
-    emit registersChanged();
-    emit refreshCodeViews();
-    emit stackChanged();
-    syncAndSeekProgramCounter();
+    asyncCmd("dpt=" + QString::number(tid), debugTask);
+    if (!debugTask.isNull()) {
+        emit debugTaskStateChanged();
+        connect(debugTask.data(), &R2Task::finished, this, [this] () {
+            debugTask.clear();
+            emit registersChanged();
+            emit refreshCodeViews();
+            emit stackChanged();
+            syncAndSeekProgramCounter();
+            emit debugTaskStateChanged();
+        });
+    }
 }
 
 void CutterCore::startDebug()
@@ -1152,6 +1201,7 @@ void CutterCore::startDebug()
         emit refreshCodeViews();
     }
     emit stackChanged();
+    emit debugTaskStateChanged();
 }
 
 void CutterCore::startEmulation()
@@ -1174,6 +1224,7 @@ void CutterCore::startEmulation()
     emit registersChanged();
     emit stackChanged();
     emit refreshCodeViews();
+    emit debugTaskStateChanged();
 }
 
 void CutterCore::attachDebug(int pid)
@@ -1181,6 +1232,7 @@ void CutterCore::attachDebug(int pid)
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
+
     // attach to process with dbg plugin
     cmd("o-*; e cfg.debug = true; o+ dbg://" + QString::number(pid));
     QString programCounterValue = cmd("dr?`drn PC`").trimmed();
@@ -1195,11 +1247,20 @@ void CutterCore::attachDebug(int pid)
         emit flagsChanged();
         emit changeDebugView();
     }
+
+    emit debugTaskStateChanged();
+}
+
+void CutterCore::suspendDebug()
+{
+    debugTask->breakTask(); 
 }
 
 void CutterCore::stopDebug()
 {
     if (currentlyDebugging) {
+        currentlyDebugging = false;
+        emit debugTaskStateChanged();
         if (currentlyEmulating) {
             cmd("aeim-; aei-; wcr; .ar-");
             currentlyEmulating = false;
@@ -1221,7 +1282,6 @@ void CutterCore::stopDebug()
         seekAndShow(offsetPriorDebugging);
         setConfig("asm.flags", true);
         setConfig("io.cache", false);
-        currentlyDebugging = false;
         emit flagsChanged();
         emit changeDefinedView();
     }
@@ -1238,26 +1298,43 @@ void CutterCore::continueDebug()
 {
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmdEsil("aec");
+            asyncCmdEsil("aec", debugTask);
         } else {
-            cmd("dc");
+            asyncCmd("dc", debugTask);
         }
-        emit registersChanged();
-        emit refreshCodeViews();
+        if (!debugTask.isNull()) {
+            emit debugTaskStateChanged();
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask.clear();
+                syncAndSeekProgramCounter();
+                emit registersChanged();
+                emit refreshCodeViews();
+                emit debugTaskStateChanged();
+            });
+        }
     }
 }
 
 void CutterCore::continueUntilDebug(QString offset)
 {
+
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmdEsil("aecu " + offset);
+            asyncCmdEsil("aecu " + offset, debugTask);
         } else {
-            cmd("dcu " + offset);
+            asyncCmd("dcu " + offset, debugTask);
         }
-        emit registersChanged();
-        emit stackChanged();
-        emit refreshCodeViews();
+        if (!debugTask.isNull()) {
+            emit debugTaskStateChanged();
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask.clear();
+                syncAndSeekProgramCounter();
+                emit registersChanged();
+                emit stackChanged();
+                emit refreshCodeViews();
+                emit debugTaskStateChanged();
+            });
+        }
     }
 }
 
@@ -1265,11 +1342,18 @@ void CutterCore::continueUntilCall()
 {
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmdEsil("aecc");
+            asyncCmdEsil("aecc", debugTask);
         } else {
-            cmd("dcc");
+            asyncCmd("dcc", debugTask);
         }
-        syncAndSeekProgramCounter();
+        if (!debugTask.isNull()) {
+            emit debugTaskStateChanged();
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask.clear();
+                syncAndSeekProgramCounter();
+                emit debugTaskStateChanged();
+            });
+        }
     }
 }
 
@@ -1277,11 +1361,18 @@ void CutterCore::continueUntilSyscall()
 {
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmdEsil("aecs");
+            asyncCmdEsil("aecs", debugTask);
         } else {
-            cmd("dcs");
+            asyncCmd("dcs", debugTask);
         }
-        syncAndSeekProgramCounter();
+        if (!debugTask.isNull()) {
+            emit debugTaskStateChanged();
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask.clear();
+                syncAndSeekProgramCounter();
+                emit debugTaskStateChanged();
+            });
+        }
     }
 }
 
@@ -1289,11 +1380,18 @@ void CutterCore::stepDebug()
 {
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmdEsil("aes");
+            asyncCmdEsil("aes", debugTask);
         } else {
-            cmd("ds");
+            asyncCmd("ds", debugTask);
         }
-        syncAndSeekProgramCounter();
+        if (!debugTask.isNull()) {
+            emit debugTaskStateChanged();
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask.clear();
+                syncAndSeekProgramCounter();
+                emit debugTaskStateChanged();
+            });
+        }
     }
 }
 
@@ -1301,19 +1399,33 @@ void CutterCore::stepOverDebug()
 {
     if (currentlyDebugging) {
         if (currentlyEmulating) {
-            cmdEsil("aeso");
+            asyncCmdEsil("aeso", debugTask);
         } else {
-            cmd("dso");
+            asyncCmd("dso", debugTask);
         }
-        syncAndSeekProgramCounter();
+        if (!debugTask.isNull()) {
+            emit debugTaskStateChanged();
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask.clear();
+                syncAndSeekProgramCounter();
+                emit debugTaskStateChanged();
+            });
+        }
     }
 }
 
 void CutterCore::stepOutDebug()
 {
     if (currentlyDebugging) {
-        cmd("dsf");
-        syncAndSeekProgramCounter();
+        emit debugTaskStateChanged();
+        asyncCmd("dsf", debugTask);
+        if (!debugTask.isNull()) {
+            connect(debugTask.data(), &R2Task::finished, this, [this] () {
+                debugTask.clear();
+                syncAndSeekProgramCounter();
+                emit debugTaskStateChanged();
+            });
+        }
     }
 }
 
