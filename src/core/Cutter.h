@@ -265,6 +265,7 @@ public:
     QJsonDocument getBacktrace();
     void startDebug();
     void startEmulation();
+    bool attachRemote(const QString &uri);
     void attachDebug(int pid);
     void stopDebug();
     void suspendDebug();

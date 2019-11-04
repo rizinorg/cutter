@@ -18,6 +18,7 @@ public:
     void addToToolBar(QToolBar *toolBar);
 
     QAction *actionStart;
+    QAction *actionStartRemote;
     QAction *actionStartEmul;
     QAction *actionAttach;
     QAction *actionContinue;
@@ -49,6 +50,8 @@ private slots:
     void continueUntilMain();
     void attachProcessDialog();
     void attachProcess(int pid);
+    void attachRemoteDialog();
+    void attachRemoteDebugger();
     void setAllActionsVisible(bool visible);
     void setButtonVisibleIfMainExists();
 };
