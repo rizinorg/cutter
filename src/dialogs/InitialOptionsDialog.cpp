@@ -215,8 +215,6 @@ QList<CommandDescription> InitialOptionsDialog::getSelectedAdvancedAnalCmds() co
 
 void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> advanced*/)
 {
-    main->initUI();
-
     InitialOptions options;
 
     options.filename = main->getFilename();

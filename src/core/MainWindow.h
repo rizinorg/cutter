@@ -71,8 +71,6 @@ public:
     void closeNewFileDialog();
     void openProject(const QString &project_name);
 
-    void initUI();
-
     /**
      * @param quit whether to show destructive button in dialog
      * @return if quit is true, false if the application should not close
@@ -258,6 +256,7 @@ private:
     QDockWidget        *breakpointDock = nullptr;
     QDockWidget        *registerRefsDock = nullptr;
 
+    void initUI();
     void initToolBar();
     void initDocks();
     void initLayout();
