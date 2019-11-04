@@ -107,7 +107,6 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
         export PATH=/usr/local/opt/llvm/bin:$PATH;
         source scripts/prepare_breakpad_macos.sh;
-        sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
         export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH";
@@ -163,6 +162,7 @@ script:
             qmake
                 CUTTER_ENABLE_PYTHON=true
                 CUTTER_ENABLE_PYTHON_BINDINGS=true
+                SHIBOKEN_EXTRA_OPTIONS=-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include
                 CUTTER_BUNDLE_R2_APPBUNDLE=true
                 CUTTER_ENABLE_CRASH_REPORTS=true
                 PYTHON_FRAMEWORK_DIR=$CUTTER_DEPS_PYTHON_FRAMEWORK_DIR
@@ -177,6 +177,7 @@ script:
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
                 -DCUTTER_ENABLE_PYTHON=ON
                 -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DSHIBOKEN_EXTRA_OPTIONS=-isystem/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/usr/include
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON
                 -DCUTTER_USE_BUNDLED_RADARE2=ON
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR"

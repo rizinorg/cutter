@@ -16,6 +16,7 @@ option(CUTTER_ENABLE_PYTHON_BINDINGS "Enable generating Python bindings with Shi
 option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER_ENABLE_CRASH_REPORTS=OFF" OFF)
 tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
 tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of graphviz for graph layout" AUTO)
+option (option SHIBOKEN_EXTRA_OPTIONS "Extra options for shiboken generator")
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
@@ -141,7 +142,7 @@ if(CUTTER_ENABLE_PYTHON_BINDINGS)
     include_directories("${BINDINGS_BUILD_DIR}/CutterBindings")
 
     add_custom_command(OUTPUT ${BINDINGS_SOURCE}
-            COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt"
+            COMMAND Shiboken2::shiboken2 --project-file="${BINDINGS_BUILD_DIR}/bindings.txt" ${SHIBOKEN_EXTRA_OPTIONS}
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bindings/bindings.xml" "${BINDINGS_BUILD_DIR}/bindings.txt"
             IMPLICIT_DEPENDS CXX "${CMAKE_CURRENT_SOURCE_DIR}/bindings/bindings.h"
             COMMENT "Generating Python bindings with shiboken2")
