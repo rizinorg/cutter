@@ -117,6 +117,8 @@ MainWindow::MainWindow(QWidget *parent) :
     panelLock = false;
     tabsOnTop = false;
     configuration = Config();
+
+    initUI();
 }
 
 MainWindow::~MainWindow()
@@ -519,7 +521,6 @@ void MainWindow::openProject(const QString &project_name)
 
     core->openProject(project_name);
 
-    initUI();
     finalizeOpen();
 }
 
