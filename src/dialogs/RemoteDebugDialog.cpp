@@ -18,7 +18,7 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
 
     // Set a default selection
     ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(DEFAULT_INDEX));
-    activateGdb();
+    onIndexChange();
 
     connect(ui->debuggerCombo,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),

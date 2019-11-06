@@ -1234,7 +1234,7 @@ bool CutterCore::attachRemote(const QString &uri)
     }
 
     // connect to a debugger with the given plugin
-    cmd(QString("o-*; e cfg.debug = true; o+ " + uri));
+    cmd("o-*; e cfg.debug = true; o+ " + uri);
 
     // Check if we actually connected
     bool connected = false;
