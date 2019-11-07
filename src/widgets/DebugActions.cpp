@@ -37,7 +37,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QString startDebugLabel = tr("Start debug");
     QString startEmulLabel = tr("Start emulation");
     QString startAttachLabel = tr("Attach to process");
-    QString startRemoteLabel = tr("Connect to remote debugger");
+    QString startRemoteLabel = tr("Connect to a remote debugger");
     QString stopDebugLabel = tr("Stop debug");
     QString stopEmulLabel = tr("Stop emulation");
     QString restartDebugLabel = tr("Restart program");

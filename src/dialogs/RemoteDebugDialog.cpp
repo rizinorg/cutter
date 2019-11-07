@@ -70,7 +70,7 @@ bool RemoteDebugDialog::validatePath()
     QMessageBox msgBox;
 
     QString path = getPath();
-    if (QFileInfo(path).exists()) {
+    if (!QFileInfo(path).exists()) {
         msgBox.setText(tr("Path does not exist"));
         msgBox.exec();
         return false;
