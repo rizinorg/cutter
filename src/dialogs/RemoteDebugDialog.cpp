@@ -7,6 +7,8 @@
 
 #define GDBSERVER "GDB"
 #define WINDBGPIPE "WinDbg - Pipe"
+#define WINDBG_URI_PREFIX "windbg"
+#define GDB_URI_PREFIX "gdb"
 #define DEFAULT_INDEX (GDBSERVER)
 
 RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
@@ -155,7 +157,14 @@ void RemoteDebugDialog::setDebugger(QString debugger)
 
 QString RemoteDebugDialog::getUri() const
 {
-    return QString("%1://%2:%3").arg(getDebugger().toLower(), getIp(), QString::number(getPort()));
+    QString debugger = getDebugger();
+    if (debugger == WINDBGPIPE) {
+        return QString("%1://%2").arg(WINDBG_URI_PREFIX, getPath());
+    } else if (debugger == GDBSERVER) {
+        return QString("%1://%2:%3").arg(GDB_URI_PREFIX, getIp(), QString::number(getPort()));
+    }
+
+    return NULL;
 }
 
 QString RemoteDebugDialog::getIp() const
