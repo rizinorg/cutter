@@ -1238,6 +1238,9 @@ void CutterCore::attachRemote(const QString &uri)
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &R2Task::finished, this, [this, uri] () {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
         debugTask.clear();
         // Check if we actually connected
         bool connected = false;
