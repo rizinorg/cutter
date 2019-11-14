@@ -1227,43 +1227,54 @@ void CutterCore::startEmulation()
     emit debugTaskStateChanged();
 }
 
-bool CutterCore::attachRemote(const QString &uri)
+void CutterCore::attachRemote(const QString &uri)
 {
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
 
     // connect to a debugger with the given plugin
-    cmd("o-*; e cfg.debug = true; o+ " + uri);
-
-    // Check if we actually connected
-    bool connected = false;
-    QJsonArray openFilesArray = getOpenedFiles();
-    for (QJsonValue value : openFilesArray) {
-        QJsonObject openFile = value.toObject();
-        QString fileUri= openFile["uri"].toString();
-        if (!fileUri.compare(uri)) {
-            connected = true;
-        }
-    }
-    if (!connected) {
-        return false;
-    }
-
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seekAndShow(programCounterValue);
-    emit registersChanged();
-    if (!currentlyDebugging || !currentlyEmulating) {
-        // prevent register flags from appearing during debug/emul
-        setConfig("asm.flags", false);
-        currentlyDebugging = true;
-        emit flagsChanged();
-        emit changeDebugView();
-    }
-
+    asyncCmd("o-*; e cfg.debug = true; o+ " + uri, debugTask);
     emit debugTaskStateChanged();
 
-    return true;
+    connect(debugTask.data(), &R2Task::finished, this, [this, uri] () {
+        debugTask.clear();
+        // Check if we actually connected
+        bool connected = false;
+        QJsonArray openFilesArray = getOpenedFiles();
+        for (QJsonValue value : openFilesArray) {
+            QJsonObject openFile = value.toObject();
+            QString fileUri= openFile["uri"].toString();
+            if (!fileUri.compare(uri)) {
+                connected = true;
+            }
+        }
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seekAndShow(programCounterValue);
+        if (!connected) {
+            emit attachedRemote(false);
+            emit debugTaskStateChanged();
+            return;
+        }
+
+        emit registersChanged();
+        if (!currentlyDebugging || !currentlyEmulating) {
+            // prevent register flags from appearing during debug/emul
+            setConfig("asm.flags", false);
+            currentlyDebugging = true;
+            emit flagsChanged();
+            emit changeDebugView();
+        }
+
+        emit attachedRemote(true);
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc("Connecting to: " + uri);
+    debugTaskDialog->show();
 }
 
 void CutterCore::attachDebug(int pid)
