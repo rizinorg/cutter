@@ -46,7 +46,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
       seekable(seekable),
       actionExportGraph(this),
       actionUnhighlight(this),
-      actionUnhighlightLine(this)
+      actionUnhighlightInstruction(this)
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
@@ -157,7 +157,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     });
 
     QAction *highlightLBB = new QAction(this);
-    actionUnhighlightLine.setVisible(false);
+    actionUnhighlightInstruction.setVisible(false);
 
     highlightLBB->setText(tr("Highlight line"));
     connect(highlightLBB, &QAction::triggered, this, [this]() {
@@ -177,8 +177,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         Config()->colorsUpdated();
     });
 
-    actionUnhighlightLine.setText(tr("Unhighlight line"));
-    connect(&actionUnhighlightLine, &QAction::triggered, this, [this]() {
+    actionUnhighlightInstruction.setText(tr("Unhighlight line"));
+    connect(&actionUnhighlightInstruction, &QAction::triggered, this, [this]() {
         auto lbbh = Core()->getIBBHighlighter();
         lbbh->clear(this->seekable->getOffset());
         Config()->colorsUpdated();
@@ -187,7 +187,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     blockMenu->addAction(highlightBB);
     blockMenu->addAction(&actionUnhighlight);
     blockMenu->addAction(highlightLBB);
-    blockMenu->addAction(&actionUnhighlightLine);
+    blockMenu->addAction(&actionUnhighlightInstruction);
 
 
     // Include all actions from generic context menu in block specific menu
@@ -1018,7 +1018,7 @@ void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &blo
 {
     const RVA offset = this->seekable->getOffset();
     actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
-    actionUnhighlightLine.setVisible(Core()->getIBBHighlighter()->getBasicBlock(offset));
+    actionUnhighlightInstruction.setVisible(Core()->getIBBHighlighter()->getBasicBlock(offset));
     event->accept();
     blockMenu->exec(event->globalPos());
 }

@@ -224,7 +224,7 @@ private:
 
     QAction actionExportGraph;
     QAction actionUnhighlight;
-    QAction actionUnhighlightLine;
+    QAction actionUnhighlightInstruction;
 
     QLabel *emptyText = nullptr;
 
