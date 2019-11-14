@@ -155,8 +155,38 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         Config()->colorsUpdated();
     });
 
+    QAction *highlightLBB = new QAction(this);
+    actionUnhighlightLine.setVisible(false);
+
+    highlightLBB->setText(tr("Highlight line"));
+    connect(highlightLBB, &QAction::triggered, this, [this]() {
+        const RVA offset = this->seekable->getOffset();
+
+        auto lbbh = Core()->getIBBHighlighter();
+        QColor background = ConfigColor("linehl");
+        if (auto currentColor = lbbh->getBasicBlock(offset)) {
+            background = currentColor->color;
+        }
+
+        QColor c = QColorDialog::getColor(background, this, QString(),
+                                          QColorDialog::DontUseNativeDialog);
+        if (c.isValid()) {
+            lbbh->highlight(offset, c);
+        }
+        Config()->colorsUpdated();
+    });
+
+    actionUnhighlightLine.setText(tr("Unhighlight line"));
+    connect(&actionUnhighlightLine, &QAction::triggered, this, [this]() {
+        auto lbbh = Core()->getIBBHighlighter();
+        lbbh->clear(this->seekable->getOffset());
+        Config()->colorsUpdated();
+    });
+
     blockMenu->addAction(highlightBB);
     blockMenu->addAction(&actionUnhighlight);
+    blockMenu->addAction(highlightLBB);
+    blockMenu->addAction(&actionUnhighlightLine);
 
 
     // Include all actions from generic context menu in block specific menu
@@ -478,6 +508,20 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
 
     if (screenChar.width() * qhelpers::devicePixelRatio(p.device()) < 4) {
         return;
+    }
+
+    // Draw different background for highlighted instructions
+    {
+        int y = firstInstructionY;
+        auto lbb = Core()->getIBBHighlighter();
+        for (const Instr &instr : db.instrs) {
+            if (auto background = lbb->getBasicBlock(instr.addr)) {
+                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
+                                 static_cast<int>(block.width - (10 + padding)),
+                                 int(instr.text.lines.size()) * charHeight), background->color);
+            }
+            y += int(instr.text.lines.size()) * charHeight;
+        }
     }
 
     // Draw different background for selected instruction
@@ -971,7 +1015,9 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &block,
                                                       QContextMenuEvent *event, QPoint pos)
 {
+    const RVA offset = this->seekable->getOffset();
     actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
+    actionUnhighlightLine.setVisible(Core()->getIBBHighlighter()->getBasicBlock(offset));
     event->accept();
     blockMenu->exec(event->globalPos());
 }

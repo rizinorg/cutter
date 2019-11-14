@@ -197,6 +197,9 @@ void CutterCore::initialize()
     // Initialize graph node highlighter
     bbHighlighter = new BasicBlockHighlighter();
 
+    // Initialize (currently only graph view) instruction highlighter
+    ibbHighlighter = new BasicBlockHighlighter();
+
     // Initialize Async tasks manager
     asyncTaskManager = new AsyncTaskManager(this);
 }
@@ -204,6 +207,7 @@ void CutterCore::initialize()
 CutterCore::~CutterCore()
 {
     delete bbHighlighter;
+    delete ibbHighlighter;
     r_cons_sleep_end(coreBed);
     r_core_task_sync_end(core_);
     r_core_free(this->core_);
@@ -2895,6 +2899,10 @@ BasicBlockHighlighter* CutterCore::getBBHighlighter()
     return bbHighlighter;
 }
 
+BasicBlockHighlighter* CutterCore::getIBBHighlighter()
+{
+    return ibbHighlighter;
+}
 
 /**
  * @brief get a compact disassembly preview for tooltips

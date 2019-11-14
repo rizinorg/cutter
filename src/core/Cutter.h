@@ -405,6 +405,7 @@ public:
 
     static QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
+    BasicBlockHighlighter *getIBBHighlighter();
 
 signals:
     void refreshAll();
@@ -471,6 +472,7 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
+    BasicBlockHighlighter *ibbHighlighter;
 };
 
 class RCoreLocked
