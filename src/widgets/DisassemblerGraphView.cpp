@@ -45,7 +45,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
       contextMenu(new QMenu(this)),
       seekable(seekable),
       actionExportGraph(this),
-      actionUnhighlight(this)
+      actionUnhighlight(this),
+      actionUnhighlightLine(this)
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
