@@ -516,6 +516,10 @@ if(CUTTER_ENABLE_PYTHON)
             endif()
         endforeach()
 
+<<<<<<< HEAD
+=======
+        get_target_property(BINDINGS_INCLUDE_DIRS CutterLib INCLUDE_DIRECTORIES)
+>>>>>>> Fix travis
         if(APPLE AND _qt5Core_install_prefix)
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include")
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtCore")
@@ -594,4 +598,8 @@ if(UNIX AND NOT APPLE)
     install(FILES "re.rizin.cutter.desktop"
         DESTINATION "share/applications"
         COMPONENT Devel)
+endif()
+
+if(CUTTER_ENABLE_TESTS)
+    add_subdirectory(test)
 endif()
