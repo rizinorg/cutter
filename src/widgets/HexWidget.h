@@ -75,6 +75,7 @@ public:
     virtual void fetch(uint64_t addr, int len) = 0;
     virtual const void *dataPtr(uint64_t addr) = 0;
     virtual uint64_t maxIndex() = 0;
+    virtual uint64_t minIndex() = 0;
 };
 
 class BufferData : public AbstractData
@@ -121,14 +122,20 @@ public:
     void fetch(uint64_t address, int length) override
     {
         // FIXME: reuse data if possible
-        uint64_t alignedAddr = address & ~(4096ULL - 1);
+        const uint64_t block_sz = 0x1000ULL;
+        uint64_t alignedAddr = address & ~(block_sz - 1);
         int offset = address - alignedAddr;
-        int len = (offset + length + (4096 - 1)) & ~(4096 - 1);
+        int len = (offset + length + (block_sz - 1)) & ~(block_sz - 1);
         m_firstBlockAddr = alignedAddr;
+        m_lastValidAddr = length ? alignedAddr + len - 1 : 0;
+        if (m_lastValidAddr < m_firstBlockAddr) {
+            m_lastValidAddr = -1;
+            len = m_lastValidAddr - m_firstBlockAddr + 1;
+        }
         m_blocks.clear();
         uint64_t addr = alignedAddr;
-        for (int i = 0; i < len / 4096; ++i, addr += 4096) {
-            m_blocks.append(Core()->ioRead(addr, 4096));
+        for (int i = 0; i < len / block_sz; ++i, addr += block_sz) {
+            m_blocks.append(Core()->ioRead(addr, block_sz));
         }
     }
 
@@ -142,12 +149,18 @@ public:
 
     virtual uint64_t maxIndex() override
     {
-        return UINT64_MAX;
+        return m_lastValidAddr;
+    }
+
+    virtual uint64_t minIndex() override
+    {
+        return m_firstBlockAddr;
     }
 
 private:
     QVector<QByteArray> m_blocks;
-    uint64_t m_firstBlockAddr;
+    uint64_t m_firstBlockAddr = 0;
+    uint64_t m_lastValidAddr = 0;
 };
 
 class HexSelection
@@ -298,6 +311,7 @@ private:
     void setCursorAddr(BasicCursor addr, bool select = false);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
+    bool isDataDifferentAt(uint64_t offset);
     const QColor itemColor(uint8_t byte);
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
@@ -469,6 +483,7 @@ private:
     QAction *actionCopyAddress;
     QAction *actionSelectRange;
 
+    std::unique_ptr<AbstractData> old_data;
     std::unique_ptr<AbstractData> data;
 };
 

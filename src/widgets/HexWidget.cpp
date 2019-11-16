@@ -124,6 +124,7 @@ HexWidget::HexWidget(QWidget *parent) :
     startAddress = 0ULL;
     cursor.address = 0ULL;
     data.reset(new MemoryData());
+    old_data.reset(new MemoryData());
 
     fetchData();
     updateCursorMeta();
@@ -204,6 +205,18 @@ void HexWidget::setItemGroupSize(int size)
     updateCursorMeta();
 
     viewport()->update();
+}
+
+bool HexWidget::isDataDifferentAt(uint64_t offset) {
+    if (offset >= old_data->minIndex() && offset < old_data->maxIndex()) {
+        uint64_t itemOffset = offset - startAddress;
+        QVariant curItem = readItem(itemOffset);
+        data.swap(old_data);
+        QVariant oldItem = readItem(itemOffset);
+        data.swap(old_data);
+        return (oldItem != curItem);
+    }
+    return false;
 }
 
 void HexWidget::updateCounts()
@@ -465,13 +478,13 @@ void HexWidget::wheelEvent(QWheelEvent *event)
         startAddress = 0;
     } else if (delta > 0 && data->maxIndex() < static_cast<uint64_t>(bytesPerScreen())) {
         startAddress = 0;
-    } else if (delta > 0
-               && (data->maxIndex() - startAddress) <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
-        startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
     } else {
         startAddress += delta;
     }
     fetchData();
+    if ((data->maxIndex() - startAddress) <= static_cast<uint64_t>(bytesPerScreen() + delta - 1)) {
+        startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
+    }
     if (cursor.address >= startAddress && cursor.address <= lastVisibleAddr()) {
         /* Don't enable cursor blinking if selection isn't empty */
         cursorEnabled = selection.isEmpty();
@@ -756,6 +769,9 @@ void HexWidget::drawItemArea(QPainter &painter)
                 if (selection.contains(itemAddr)  && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
                 }
+                if (isDataDifferentAt(itemAddr)) {
+                    itemColor.setRgb(qRgb(255, 25, 25));
+                }
                 painter.setPen(itemColor);
                 painter.drawText(itemRect, Qt::AlignVCenter, itemString);
                 itemRect.translate(itemWidth(), 0);
@@ -789,8 +805,12 @@ void HexWidget::drawAsciiArea(QPainter &painter)
         charRect.moveLeft(asciiArea.left());
         for (int j = 0; j < itemRowByteLen() && address <= data->maxIndex(); ++j, ++address) {
             ascii = renderAscii(address - startAddress, &color);
-            if (selection.contains(address) && cursorOnAscii)
+            if (selection.contains(address) && cursorOnAscii) {
                 color = palette().highlightedText().color();
+            }
+            if (isDataDifferentAt(address)) {
+                color.setRgb(qRgb(255, 25, 25));
+            }
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */
             if (ascii == '.') {
@@ -985,10 +1005,6 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
         /* Align start address */
         addressValue -= (addressValue % itemRowByteLen());
 
-        if (addressValue > (data->maxIndex() - bytesPerScreen()) + 1) {
-            addressValue = (data->maxIndex() - bytesPerScreen()) + 1;
-        }
-
         /* FIXME: handling Page Up/Down */
         if (addressValue == startAddress + bytesPerScreen()) {
             startAddress += itemRowByteLen();
@@ -997,6 +1013,10 @@ void HexWidget::setCursorAddr(BasicCursor addr, bool select)
         }
 
         fetchData();
+
+        if (startAddress > (data->maxIndex() - bytesPerScreen()) + 1) {
+            startAddress = (data->maxIndex() - bytesPerScreen()) + 1;
+        }
     }
 
     updateCursorMeta();
@@ -1192,6 +1212,7 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
 
 void HexWidget::fetchData()
 {
+    data.swap(old_data);
     data->fetch(startAddress, bytesPerScreen());
 }
 

@@ -80,6 +80,9 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
     connect(Core(), &CutterCore::refreshAll, this, [this]() { refresh(); });
+    connect(Core(), &CutterCore::instructionChanged, this, [this]() { refresh(); });
+    connect(Core(), &CutterCore::stackChanged, this, [this]() { refresh(); });
+    connect(Core(), &CutterCore::registersChanged, this, [this]() { refresh(); });
 
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &HexdumpWidget::onSeekChanged);
     connect(ui->hexTextView, &HexWidget::positionChanged, this, [this](RVA addr) {
