@@ -14,6 +14,7 @@
 #include <QMutex>
 
 class AsyncTaskManager;
+class BasicInstructionHighlighter;
 class CutterCore;
 class Decompiler;
 
@@ -405,7 +406,7 @@ public:
 
     static QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
-    BasicBlockHighlighter *getIBBHighlighter();
+    BasicInstructionHighlighter *getBIHighlighter();
 
 signals:
     void refreshAll();
@@ -472,7 +473,7 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
-    BasicBlockHighlighter *ibbHighlighter;
+    BasicInstructionHighlighter *biHighlighter;
 };
 
 class RCoreLocked

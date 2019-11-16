@@ -193,6 +193,7 @@ private:
      */
     QRectF getInstrRect(GraphView::GraphBlock &block, RVA addr) const;
     void showInstruction(GraphView::GraphBlock &block, RVA addr);
+    const Instr *instrForAddress(RVA addr);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);

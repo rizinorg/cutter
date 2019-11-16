@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "common/TempConfig.h"
+#include "common/BasicInstructionHighlighter.h"
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
 #include "common/R2Task.h"
@@ -198,7 +199,7 @@ void CutterCore::initialize()
     bbHighlighter = new BasicBlockHighlighter();
 
     // Initialize (currently only graph view) instruction highlighter
-    ibbHighlighter = new BasicBlockHighlighter();
+    biHighlighter = new BasicInstructionHighlighter();
 
     // Initialize Async tasks manager
     asyncTaskManager = new AsyncTaskManager(this);
@@ -207,7 +208,7 @@ void CutterCore::initialize()
 CutterCore::~CutterCore()
 {
     delete bbHighlighter;
-    delete ibbHighlighter;
+    delete biHighlighter;
     r_cons_sleep_end(coreBed);
     r_core_task_sync_end(core_);
     r_core_free(this->core_);
@@ -2899,9 +2900,9 @@ BasicBlockHighlighter* CutterCore::getBBHighlighter()
     return bbHighlighter;
 }
 
-BasicBlockHighlighter* CutterCore::getIBBHighlighter()
+BasicInstructionHighlighter* CutterCore::getBIHighlighter()
 {
-    return ibbHighlighter;
+    return biHighlighter;
 }
 
 /**

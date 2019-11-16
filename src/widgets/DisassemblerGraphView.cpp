@@ -9,6 +9,7 @@
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
+#include "common/BasicInstructionHighlighter.h"
 #include "dialogs/MultitypeFileSaveDialog.h"
 #include "common/Helpers.h"
 
@@ -159,28 +160,40 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
     QAction *highlightLBB = new QAction(this);
     actionUnhighlightInstruction.setVisible(false);
 
-    highlightLBB->setText(tr("Highlight line"));
+    highlightLBB->setText(tr("Highlight instruction"));
     connect(highlightLBB, &QAction::triggered, this, [this]() {
         const RVA offset = this->seekable->getOffset();
+        const Instr *instr = instrForAddress(offset);
 
-        auto lbbh = Core()->getIBBHighlighter();
+        if (!instr) {
+            return;
+        }
+
+        auto bih = Core()->getBIHighlighter();
         QColor background = ConfigColor("linehl");
-        if (auto currentColor = lbbh->getBasicBlock(offset)) {
+        if (auto currentColor = bih->getBasicInstruction(offset)) {
             background = currentColor->color;
         }
 
         QColor c = QColorDialog::getColor(background, this, QString(),
                                           QColorDialog::DontUseNativeDialog);
         if (c.isValid()) {
-            lbbh->highlight(offset, c);
+            bih->highlight(instr->addr, instr->size, c);
         }
         Config()->colorsUpdated();
     });
 
-    actionUnhighlightInstruction.setText(tr("Unhighlight line"));
+    actionUnhighlightInstruction.setText(tr("Unhighlight instruction"));
     connect(&actionUnhighlightInstruction, &QAction::triggered, this, [this]() {
-        auto lbbh = Core()->getIBBHighlighter();
-        lbbh->clear(this->seekable->getOffset());
+        const RVA offset = this->seekable->getOffset();
+        const Instr *instr = instrForAddress(offset);
+
+        if (!instr) {
+            return;
+        }
+
+        auto bih = Core()->getBIHighlighter();
+        bih->clear(instr->addr, instr->size);
         Config()->colorsUpdated();
     });
 
@@ -514,9 +527,9 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     // Draw different background for highlighted instructions
     {
         int y = firstInstructionY;
-        auto lbb = Core()->getIBBHighlighter();
+        auto bih = Core()->getBIHighlighter();
         for (const Instr &instr : db.instrs) {
-            if (auto background = lbb->getBasicBlock(instr.addr)) {
+            if (auto background = bih->getBasicInstruction(instr.addr)) {
                 p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
                                  static_cast<int>(block.width - (10 + padding)),
                                  int(instr.text.lines.size()) * charHeight), background->color);
@@ -800,6 +813,21 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
     return nullptr;
 }
 
+const DisassemblerGraphView::Instr *DisassemblerGraphView::instrForAddress(RVA addr)
+{
+    DisassemblyBlock* block = blockForAddress(addr);
+    for (const Instr &i : block->instrs) {
+        if (i.addr == RVA_INVALID || i.size == RVA_INVALID) {
+            continue;
+        }
+
+        if (i.contains(addr)) {
+            return &i;
+        }
+    }
+    return nullptr;
+}
+
 void DisassemblerGraphView::onSeekChanged(RVA addr)
 {
     blockMenu->setOffset(addr);
@@ -1018,7 +1046,7 @@ void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &blo
 {
     const RVA offset = this->seekable->getOffset();
     actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
-    actionUnhighlightInstruction.setVisible(Core()->getIBBHighlighter()->getBasicBlock(offset));
+    actionUnhighlightInstruction.setVisible(Core()->getBIHighlighter()->getBasicInstruction(offset));
     event->accept();
     blockMenu->exec(event->globalPos());
 }
