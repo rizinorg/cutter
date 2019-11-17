@@ -3,6 +3,7 @@
 
 #include "core/CutterCommon.h"
 #include "core/CutterDescriptions.h"
+#include "common/BasicInstructionHighlighter.h"
 
 #include <QMap>
 #include <QDebug>
@@ -473,7 +474,7 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
-    BasicInstructionHighlighter *biHighlighter;
+    BasicInstructionHighlighter biHighlighter;
 };
 
 class RCoreLocked

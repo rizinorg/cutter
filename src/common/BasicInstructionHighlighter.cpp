@@ -1,15 +1,11 @@
 #include "BasicInstructionHighlighter.h"
-
-BasicInstructionHighlighter::~BasicInstructionHighlighter() {
-    for (BasicInstructionIt it = biMap.begin(); it != biMap.end(); ++it) {
-        delete it->second;
-    }
-}
+#include <vector>
 
 /**
  * @brief Clear the basic instruction highlighting
  */
-void BasicInstructionHighlighter::clear(RVA address, RVA size) {
+void BasicInstructionHighlighter::clear(RVA address, RVA size)
+{
     BasicInstructionIt it = biMap.lower_bound(address);
     if (it != biMap.begin()) {
         --it;
@@ -24,51 +20,39 @@ void BasicInstructionHighlighter::clear(RVA address, RVA size) {
     // first and last entries may intersect, but not necessarily
     // be contained in [address, address + size), so we need to
     // check it and perhaps adjust their addresses.
-    std::vector<BasicInstruction*> newInstructions;
+    std::vector<BasicInstruction> newInstructions;
     if (!addrs.empty()) {
-        BasicInstruction *prev = biMap[addrs.front()];
-        if (prev->address < address && prev->address + prev->size > address) {
-            BasicInstruction *newInstr = new BasicInstruction;
-            newInstr->address = prev->address;
-            newInstr->size = address - prev->address;
-            newInstr->color = prev->color;
-            newInstructions.push_back(newInstr);
+        const BasicInstruction &prev = biMap[addrs.front()];
+        if (prev.address < address && prev.address + prev.size > address) {
+            newInstructions.push_back({prev.address, address - prev.address, prev.color});
         }
 
-        BasicInstruction *next = biMap[addrs.back()];
-        if (next->address < address + size && next->address + next->size > address + size) {
-            const RVA offset = address + size - next->address;
-            BasicInstruction *newInstr = new BasicInstruction;
-            newInstr->address = next->address + offset;
-            newInstr->size = next->size - offset;
-            newInstr->color = next->color;
-            newInstructions.push_back(newInstr);
+        const BasicInstruction &next = biMap[addrs.back()];
+        if (next.address < address + size && next.address + next.size > address + size) {
+            const RVA offset = address + size - next.address;
+            newInstructions.push_back({next.address + offset, next.size - offset, next.color});
         }
     }
 
     for (RVA addr : addrs) {
-        BasicInstruction *bi = biMap[addr];
-        if (std::max(bi->address, address) < std::min(bi->address + bi->size, address + size)) {
+        const BasicInstruction &bi = biMap[addr];
+        if (std::max(bi.address, address) < std::min(bi.address + bi.size, address + size)) {
             biMap.erase(addr);
-            delete bi;
         }
     }
 
-    for (BasicInstruction *newInstr : newInstructions) {
-        biMap[newInstr->address] = newInstr;
+    for ( BasicInstruction newInstr : newInstructions) {
+        biMap[newInstr.address] = newInstr;
     }
 }
 
 /**
  * @brief Highlight the basic instruction at address
  */
-void BasicInstructionHighlighter::highlight(RVA address, RVA size, QColor color) {
+void BasicInstructionHighlighter::highlight(RVA address, RVA size, QColor color)
+{
     clear(address, size);
-    BasicInstruction *bi = new BasicInstruction;
-    bi->address = address;
-    bi->size = size;
-    bi->color = color;
-    biMap[address] = bi;
+    biMap[address] = {address, size, color};
 }
 
 /**
@@ -76,13 +60,14 @@ void BasicInstructionHighlighter::highlight(RVA address, RVA size, QColor color)
  *
  * If there is nothing to highlight at specified address, returns nullptr
  */
-BasicInstruction* BasicInstructionHighlighter::getBasicInstruction(RVA address) {
+BasicInstruction *BasicInstructionHighlighter::getBasicInstruction(RVA address)
+{
     BasicInstructionIt it = biMap.upper_bound(address);
     if (it == biMap.begin()) {
         return nullptr;
     }
 
-    BasicInstruction *bi = (--it)->second;
+    BasicInstruction *bi = &(--it)->second;
     if (bi->address <= address && address < bi->address + bi->size) {
         return bi;
     }
