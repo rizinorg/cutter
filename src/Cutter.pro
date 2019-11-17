@@ -359,6 +359,7 @@ SOURCES += \
     common/PythonManager.cpp \
     plugins/PluginManager.cpp \
     common/BasicBlockHighlighter.cpp \
+    common/BasicInstructionHighlighter.cpp \
     dialogs/LinkTypeDialog.cpp \
     widgets/ColorPicker.cpp \
     common/ColorThemeWorker.cpp \
@@ -494,6 +495,7 @@ HEADERS  += \
     common/PythonManager.h \
     plugins/PluginManager.h \
     common/BasicBlockHighlighter.h \
+    common/BasicInstructionHighlighter.h \
     common/UpdateWorker.h \
     widgets/ColorPicker.h \
     common/ColorThemeWorker.h \

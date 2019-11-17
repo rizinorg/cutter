@@ -157,6 +157,8 @@ protected:
 
 private slots:
     void on_actionExportGraph_triggered();
+    void onActionHighlightBITriggered();
+    void onActionUnhighlightBITriggered();
 
 private:
     bool transition_dont_seek = false;
@@ -193,6 +195,7 @@ private:
      */
     QRectF getInstrRect(GraphView::GraphBlock &block, RVA addr) const;
     void showInstruction(GraphView::GraphBlock &block, RVA addr);
+    const Instr *instrForAddress(RVA addr);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
@@ -224,6 +227,7 @@ private:
 
     QAction actionExportGraph;
     QAction actionUnhighlight;
+    QAction actionUnhighlightInstruction;
 
     QLabel *emptyText = nullptr;
 

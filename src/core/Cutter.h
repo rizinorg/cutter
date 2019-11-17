@@ -3,6 +3,7 @@
 
 #include "core/CutterCommon.h"
 #include "core/CutterDescriptions.h"
+#include "common/BasicInstructionHighlighter.h"
 
 #include <QMap>
 #include <QDebug>
@@ -14,6 +15,7 @@
 #include <QMutex>
 
 class AsyncTaskManager;
+class BasicInstructionHighlighter;
 class CutterCore;
 class Decompiler;
 
@@ -405,6 +407,7 @@ public:
 
     static QString ansiEscapeToHtml(const QString &text);
     BasicBlockHighlighter *getBBHighlighter();
+    BasicInstructionHighlighter *getBIHighlighter();
 
 signals:
     void refreshAll();
@@ -471,6 +474,7 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
+    BasicInstructionHighlighter biHighlighter;
 };
 
 class RCoreLocked

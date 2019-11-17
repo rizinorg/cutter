@@ -9,6 +9,7 @@
 #include "common/TempConfig.h"
 #include "common/SyntaxHighlighter.h"
 #include "common/BasicBlockHighlighter.h"
+#include "common/BasicInstructionHighlighter.h"
 #include "dialogs/MultitypeFileSaveDialog.h"
 #include "common/Helpers.h"
 
@@ -45,7 +46,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
       contextMenu(new QMenu(this)),
       seekable(seekable),
       actionExportGraph(this),
-      actionUnhighlight(this)
+      actionUnhighlight(this),
+      actionUnhighlightInstruction(this)
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
@@ -155,8 +157,21 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         Config()->colorsUpdated();
     });
 
+    QAction *highlightBI = new QAction(this);
+    actionUnhighlightInstruction.setVisible(false);
+
+    highlightBI->setText(tr("Highlight instruction"));
+    connect(highlightBI, &QAction::triggered, this,
+            &DisassemblerGraphView::onActionHighlightBITriggered);
+
+    actionUnhighlightInstruction.setText(tr("Unhighlight instruction"));
+    connect(&actionUnhighlightInstruction, &QAction::triggered, this,
+            &DisassemblerGraphView::onActionUnhighlightBITriggered);
+
     blockMenu->addAction(highlightBB);
     blockMenu->addAction(&actionUnhighlight);
+    blockMenu->addAction(highlightBI);
+    blockMenu->addAction(&actionUnhighlightInstruction);
 
 
     // Include all actions from generic context menu in block specific menu
@@ -426,7 +441,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     // Render node
     DisassemblyBlock &db = disassembly_blocks[block.entry];
     bool block_selected = false;
-    bool PCInBlock = false;
     RVA selected_instruction = RVA_INVALID;
 
     // Figure out if the current block is selected
@@ -436,9 +450,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         if (instr.contains(addr) && interactive) {
             block_selected = true;
             selected_instruction = instr.addr;
-        }
-        if (instr.contains(PCAddr)) {
-            PCInBlock = true;
         }
 
         // TODO: L219
@@ -480,23 +491,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         return;
     }
 
-    // Draw different background for selected instruction
-    if (selected_instruction != RVA_INVALID) {
-        int y = firstInstructionY;
-        for (const Instr &instr : db.instrs) {
-            if (instr.addr > selected_instruction) {
-                break;
-            }
-            auto selected = instr.addr == selected_instruction;
-            if (selected) {
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
-                                 static_cast<int>(block.width - (10 + padding)),
-                                 int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
-            }
-            y += int(instr.text.lines.size()) * charHeight;
-        }
-    }
-
     // Highlight selected tokens
     if (highlight_token != nullptr) {
         int y = firstInstructionY;
@@ -533,23 +527,6 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         }
     }
 
-    // Highlight program counter
-    if (PCInBlock) {
-        int y = firstInstructionY;
-        for (const Instr &instr : db.instrs) {
-            if (instr.addr > PCAddr) {
-                break;
-            }
-            auto PC = instr.addr == PCAddr;
-            if (PC) {
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
-                                 static_cast<int>(block.width - (10 + padding)),
-                                 int(instr.text.lines.size()) * charHeight), PCSelectionColor);
-            }
-            y += int(instr.text.lines.size()) * charHeight;
-        }
-    }
-
     // Render node text
     auto x = block.x + padding;
     int y = block.y + getTextOffset(0).y();
@@ -559,17 +536,29 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
         y += charHeight;
     }
 
+    auto bih = Core()->getBIHighlighter();
     for (const Instr &instr : db.instrs) {
+        const QRect instrRect = QRect(static_cast<int>(block.x + charWidth), y,
+                                      static_cast<int>(block.width - (10 + padding)),
+                                      int(instr.text.lines.size()) * charHeight);
+
+        QColor instrColor;
         if (Core()->isBreakpoint(breakpoints, instr.addr)) {
-            p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
-                             static_cast<int>(block.width - (10 + padding)),
-                             int(instr.text.lines.size()) * charHeight), ConfigColor("gui.breakpoint_background"));
-            if (instr.addr == selected_instruction) {
-                p.fillRect(QRect(static_cast<int>(block.x + charWidth), y,
-                                 static_cast<int>(block.width - (10 + padding)),
-                                 int(instr.text.lines.size()) * charHeight), disassemblySelectionColor);
-            }
+            instrColor = ConfigColor("gui.breakpoint_background");
+        } else if (instr.addr == PCAddr) {
+            instrColor = PCSelectionColor;
+        } else if (auto background = bih->getBasicInstruction(instr.addr)) {
+            instrColor = background->color;
         }
+
+        if (instrColor.isValid()) {
+            p.fillRect(instrRect, instrColor);
+        }
+
+        if (selected_instruction != RVA_INVALID && selected_instruction == instr.addr) {
+            p.fillRect(instrRect, disassemblySelectionColor);
+        }
+
         for (auto &line : instr.text.lines) {
             int rectSize = qRound(charWidth);
             if (rectSize % 2) {
@@ -750,6 +739,21 @@ DisassemblerGraphView::DisassemblyBlock *DisassemblerGraphView::blockForAddress(
             if (i.contains(addr)) {
                 return &db;
             }
+        }
+    }
+    return nullptr;
+}
+
+const DisassemblerGraphView::Instr *DisassemblerGraphView::instrForAddress(RVA addr)
+{
+    DisassemblyBlock *block = blockForAddress(addr);
+    for (const Instr &i : block->instrs) {
+        if (i.addr == RVA_INVALID || i.size == RVA_INVALID) {
+            continue;
+        }
+
+        if (i.contains(addr)) {
+            return &i;
         }
     }
     return nullptr;
@@ -971,7 +975,9 @@ void DisassemblerGraphView::blockClicked(GraphView::GraphBlock &block, QMouseEve
 void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &block,
                                                       QContextMenuEvent *event, QPoint pos)
 {
+    const RVA offset = this->seekable->getOffset();
     actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
+    actionUnhighlightInstruction.setVisible(Core()->getBIHighlighter()->getBasicInstruction(offset));
     event->accept();
     blockMenu->exec(event->globalPos());
 }
@@ -1121,6 +1127,43 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     QString filePath = dialog.selectedFiles().first();
     exportGraph(filePath, selectedType.data.value<GraphExportType>());
 
+}
+
+void DisassemblerGraphView::onActionHighlightBITriggered()
+{
+    const RVA offset = this->seekable->getOffset();
+    const Instr *instr = instrForAddress(offset);
+
+    if (!instr) {
+        return;
+    }
+
+    auto bih = Core()->getBIHighlighter();
+    QColor background = ConfigColor("linehl");
+    if (auto currentColor = bih->getBasicInstruction(offset)) {
+        background = currentColor->color;
+    }
+
+    QColor c = QColorDialog::getColor(background, this, QString(),
+                                      QColorDialog::DontUseNativeDialog);
+    if (c.isValid()) {
+        bih->highlight(instr->addr, instr->size, c);
+    }
+    Config()->colorsUpdated();
+}
+
+void DisassemblerGraphView::onActionUnhighlightBITriggered()
+{
+    const RVA offset = this->seekable->getOffset();
+    const Instr *instr = instrForAddress(offset);
+
+    if (!instr) {
+        return;
+    }
+
+    auto bih = Core()->getBIHighlighter();
+    bih->clear(instr->addr, instr->size);
+    Config()->colorsUpdated();
 }
 
 void DisassemblerGraphView::exportGraph(QString filePath, GraphExportType type)

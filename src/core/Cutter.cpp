@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "common/TempConfig.h"
+#include "common/BasicInstructionHighlighter.h"
 #include "common/Configuration.h"
 #include "common/AsyncTask.h"
 #include "common/R2Task.h"
@@ -2895,6 +2896,10 @@ BasicBlockHighlighter* CutterCore::getBBHighlighter()
     return bbHighlighter;
 }
 
+BasicInstructionHighlighter* CutterCore::getBIHighlighter()
+{
+    return &biHighlighter;
+}
 
 /**
  * @brief get a compact disassembly preview for tooltips
