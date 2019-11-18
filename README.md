@@ -24,7 +24,7 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 
 ## Building from sources
 
-To build Cutter on your local machine, please follow this guide: [Building from source](https://cutter.re/build/)
+To build Cutter on your local machine, please follow this guide: [Building from source](https://cutter.re/docs/building.html)
 
 ## Docker
 
