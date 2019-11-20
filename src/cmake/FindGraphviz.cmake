@@ -1,7 +1,7 @@
 set (_module Graphviz)
 
 find_package(PkgConfig REQUIRED)
-if (NOT (CMAKE_VERSION VERSION_LESS "3.13.0"))
+if (NOT (CMAKE_VERSION VERSION_LESS "3.12.0"))
     pkg_check_modules(GVC IMPORTED_TARGET GLOBAL libgvc)
 elseif (NOT (CMAKE_VERSION VERSION_LESS "3.11.0"))
     pkg_check_modules(GVC IMPORTED_TARGET libgvc)
