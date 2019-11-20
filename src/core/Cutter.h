@@ -19,10 +19,12 @@ class BasicInstructionHighlighter;
 class CutterCore;
 class Decompiler;
 class R2Task;
+class R2TaskDialog;
 
 #include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
 #include "common/R2Task.h"
+#include "dialogs/R2TaskDialog.h"
 
 #define Core() (CutterCore::instance())
 
@@ -267,6 +269,12 @@ public:
     QJsonDocument getBacktrace();
     void startDebug();
     void startEmulation();
+    /**
+     * @brief attach to a remote debugger
+     * @param uri remote debugger uri
+     * @note attachedRemote(bool) signals the result
+     */
+    void attachRemote(const QString &uri);
     void attachDebug(int pid);
     void stopDebug();
     void suspendDebug();
@@ -473,6 +481,8 @@ signals:
     void classRenamed(const QString &oldName, const QString &newName);
     void classAttrsChanged(const QString &cls);
 
+    void attachedRemote(bool successfully);
+
     void projectSaved(bool successfully, const QString &name);
 
     /**
@@ -527,6 +537,7 @@ private:
     BasicInstructionHighlighter biHighlighter;
 
     QSharedPointer<R2Task> debugTask;
+    R2TaskDialog *debugTaskDialog;
 };
 
 class RCoreLocked

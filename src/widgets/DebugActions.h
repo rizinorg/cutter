@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Cutter.h"
+#include "dialogs/RemoteDebugDialog.h"
 
 #include <QAction>
 
@@ -18,6 +19,7 @@ public:
     void addToToolBar(QToolBar *toolBar);
 
     QAction *actionStart;
+    QAction *actionStartRemote;
     QAction *actionStartEmul;
     QAction *actionAttach;
     QAction *actionContinue;
@@ -29,7 +31,7 @@ public:
     QAction *actionStepOut;
     QAction *actionStop;
     QAction *actionAllContinues;
-    
+
     // Continue and suspend interchange during runtime
     QIcon continueIcon;
     QIcon suspendIcon;
@@ -41,14 +43,19 @@ private:
      * @brief buttons that will be disabled/enabled on (disable/enable)DebugToolbar
      */
     QList<QAction *> toggleActions;
-    MainWindow *main;
+    QList<QAction *> toggleConnectionActions;
     QList<QAction *> allActions;
     QToolButton *continueUntilButton;
+    RemoteDebugDialog *remoteDialog = nullptr;
+    MainWindow *main;
 
 private slots:
     void continueUntilMain();
     void attachProcessDialog();
     void attachProcess(int pid);
+    void attachRemoteDialog();
+    void attachRemoteDebugger();
+    void onAttachedRemoteDebugger(bool successfully);
     void setAllActionsVisible(bool visible);
     void setButtonVisibleIfMainExists();
 };

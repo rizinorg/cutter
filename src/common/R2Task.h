@@ -15,6 +15,8 @@ private:
     void taskFinished();
 
 public:
+    using Ptr = QSharedPointer<R2Task>;
+
     explicit R2Task(const QString &cmd, bool transient = true);
     ~R2Task();
 
