@@ -20,6 +20,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
     QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
     QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
+    QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
     QIcon stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     QIcon continueUntilMainIcon = QIcon(":/img/icons/continue_until_main.svg");
     QIcon continueUntilCallIcon = QIcon(":/img/icons/continue_until_call.svg");
@@ -35,6 +36,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QString startDebugLabel = tr("Start debug");
     QString startEmulLabel = tr("Start emulation");
     QString startAttachLabel = tr("Attach to process");
+    QString startRemoteLabel = tr("Connect to a remote debugger");
     QString stopDebugLabel = tr("Stop debug");
     QString stopEmulLabel = tr("Stop emulation");
     QString restartDebugLabel = tr("Restart program");
@@ -53,6 +55,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     actionStart->setShortcut(QKeySequence(Qt::Key_F9));
     actionStartEmul = new QAction(startEmulIcon, startEmulLabel, this);
     actionAttach = new QAction(startAttachIcon, startAttachLabel, this);
+    actionStartRemote = new QAction(startRemoteIcon, startRemoteLabel, this);
     actionStop = new QAction(stopIcon, stopDebugLabel, this);
     actionContinue = new QAction(continueIcon, continueLabel, this);
     actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
@@ -75,8 +78,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     startMenu->addAction(actionStart);
     startMenu->addAction(actionStartEmul);
     startMenu->addAction(actionAttach);
+    startMenu->addAction(actionStartRemote);
     startButton->setDefaultAction(actionStart);
-    // startButton->setDefaultAction(actionStartEmul);
     startButton->setMenu(startMenu);
 
     continueUntilButton = new QToolButton;
@@ -105,21 +108,28 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
 
     // Toggle all buttons except restart, suspend(=continue) and stop since those are
     // necessary to avoid staying stuck
-    toggleActions = { actionStep, actionStepOver, actionStepOut, actionContinueUntilMain,
+    toggleActions = {actionStep, actionStepOver, actionStepOut, actionContinueUntilMain,
         actionContinueUntilCall, actionContinueUntilSyscall};
+    toggleConnectionActions = {actionAttach, actionStart, actionStartRemote, actionStartEmul};
 
     connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
-        bool disableToolbar = Core()->isDebugTaskInProgress() || !Core()->currentlyDebugging;
-        for (QAction *a : toggleActions) {
-            a->setDisabled(disableToolbar);
-        }
-        // Suspend should only be available when other icons are disabled
-        if (disableToolbar) {
-            actionContinue->setText(suspendLabel);
-            actionContinue->setIcon(suspendIcon);
+        bool disableToolbar = Core()->isDebugTaskInProgress();
+        if (Core()->currentlyDebugging) {
+            for (QAction *a : toggleActions) {
+                a->setDisabled(disableToolbar);
+            }
+            // Suspend should only be available when other icons are disabled
+            if (disableToolbar) {
+                actionContinue->setText(suspendLabel);
+                actionContinue->setIcon(suspendIcon);
+            } else {
+                actionContinue->setText(continueLabel);
+                actionContinue->setIcon(continueIcon);
+            }
         } else {
-            actionContinue->setText(continueLabel);
-            actionContinue->setIcon(continueIcon);
+            for (QAction *a : toggleConnectionActions) {
+                a->setDisabled(disableToolbar);
+            }
         }
     });
 
@@ -128,6 +138,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         actionStart->setVisible(true);
         actionStartEmul->setVisible(true);
         actionAttach->setVisible(true);
+        actionStartRemote->setVisible(true);
         actionStop->setText(stopDebugLabel);
         actionStart->setText(startDebugLabel);
         actionStart->setIcon(startDebugIcon);
@@ -149,6 +160,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         }
         setAllActionsVisible(true);
         actionAttach->setVisible(false);
+        actionStartRemote->setVisible(false);
         actionStartEmul->setVisible(false);
         actionStart->setText(restartDebugLabel);
         actionStart->setIcon(restartIcon);
@@ -157,11 +169,14 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     });
 
     connect(actionAttach, &QAction::triggered, this, &DebugActions::attachProcessDialog);
+    connect(actionStartRemote, &QAction::triggered, this, &DebugActions::attachRemoteDialog);
+    connect(Core(), &CutterCore::attachedRemote, this, &DebugActions::onAttachedRemoteDebugger);
     connect(actionStartEmul, &QAction::triggered, Core(), &CutterCore::startEmulation);
     connect(actionStartEmul, &QAction::triggered, [ = ]() {
         setAllActionsVisible(true);
         actionStart->setVisible(false);
         actionAttach->setVisible(false);
+        actionStartRemote->setVisible(false);
         actionContinueUntilMain->setVisible(false);
         actionStepOut->setVisible(false);
         continueUntilButton->setDefaultAction(actionContinueUntilSyscall);
@@ -200,6 +215,49 @@ void DebugActions::continueUntilMain()
     Core()->continueUntilDebug(mainAddr);
 }
 
+void DebugActions::attachRemoteDebugger()
+{
+    QString stopAttachLabel = tr("Detach from process");
+    // Hide unwanted buttons
+    setAllActionsVisible(true);
+    actionStart->setVisible(false);
+    actionStartRemote->setVisible(false);
+    actionStartEmul->setVisible(false);
+    actionStop->setText(stopAttachLabel);
+}
+
+void DebugActions::onAttachedRemoteDebugger(bool successfully) {
+    if (!successfully) {
+        QMessageBox msgBox;
+        msgBox.setText(tr("Error connecting."));
+        msgBox.exec();
+        attachRemoteDialog();
+    } else {
+        delete remoteDialog;
+        attachRemoteDebugger();
+    }
+}
+
+void DebugActions::attachRemoteDialog()
+{
+    if (!remoteDialog) {
+        remoteDialog = new RemoteDebugDialog(main);
+    }
+    QMessageBox msgBox;
+    bool success = false;
+    while (!success) {
+        success = true;
+        if (remoteDialog->exec()) {
+            if (!remoteDialog->validate()) {
+                success = false;
+                continue;
+            }
+
+            Core()->attachRemote(remoteDialog->getUri());
+        }
+    }
+}
+
 void DebugActions::attachProcessDialog()
 {
     AttachProcDialog dialog(main);
@@ -226,6 +284,7 @@ void DebugActions::attachProcess(int pid)
     // hide unwanted buttons
     setAllActionsVisible(true);
     actionStart->setVisible(false);
+    actionStartRemote->setVisible(false);
     actionStartEmul->setVisible(false);
     actionStop->setText(stopAttachLabel);
     // attach
