@@ -267,6 +267,7 @@ SOURCES += \
     dialogs/EditInstructionDialog.cpp \
     dialogs/FlagDialog.cpp \
     dialogs/RenameDialog.cpp \
+    dialogs/RemoteDebugDialog.cpp \
     dialogs/XrefsDialog.cpp \
     core/MainWindow.cpp \
     common/Helpers.cpp \
@@ -335,6 +336,7 @@ SOURCES += \
     common/CommandTask.cpp \
     common/ProgressIndicator.cpp \
     common/R2Task.cpp \
+    dialogs/R2TaskDialog.cpp \
     widgets/DebugActions.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
@@ -398,6 +400,7 @@ HEADERS  += \
     dialogs/EditInstructionDialog.h \
     dialogs/FlagDialog.h \
     dialogs/RenameDialog.h \
+    dialogs/RemoteDebugDialog.h \
     dialogs/XrefsDialog.h \
     common/Helpers.h \
     common/HexAsciiHighlighter.h \
@@ -469,6 +472,7 @@ HEADERS  += \
     common/ProgressIndicator.h \
     plugins/CutterPlugin.h \
     common/R2Task.h \
+    dialogs/R2TaskDialog.h \
     widgets/DebugActions.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
@@ -527,6 +531,7 @@ FORMS    += \
     dialogs/EditInstructionDialog.ui \
     dialogs/FlagDialog.ui \
     dialogs/RenameDialog.ui \
+    dialogs/RemoteDebugDialog.ui \
     dialogs/XrefsDialog.ui \
     dialogs/NewfileDialog.ui \
     dialogs/InitialOptionsDialog.ui \
@@ -552,6 +557,7 @@ FORMS    += \
     dialogs/VersionInfoDialog.ui \
     widgets/ZignaturesWidget.ui \
     dialogs/AsyncTaskDialog.ui \
+    dialogs/R2TaskDialog.ui \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
     widgets/ThreadsWidget.ui \
