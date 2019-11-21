@@ -243,7 +243,9 @@ so it contains ``$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig``. For this simply run
 Troubleshooting
 ---------------
 
-   Cmake: qt development package not found
+* Cmake can't find Qt
+
+    Cmake: qt development package not found
 
 Depending on how Qt installed (Distribution packages or using the Qt
 installer application), CMake may not be able to find it by itself if it
@@ -256,4 +258,16 @@ containing bin/, lib/, include/, etc.) and specify it to CMake using
 
    rm CMakeCache.txt # the cache may be polluted with unwanted libraries found before
    cmake -DCMAKE_PREFIX_PATH=/opt/Qt/5.9.1/gcc_64 ..
+
+* R2 libr_***.so cannot be found when running Cutter
+
+   ./Cutter: error while loading shared libraries: libr_lang.so: cannot open shared object file: No such file or directory
+
+The exact r2 .so file that cannot be found may vary. On some systems linker by default uses RUNPATH instead of RPATH which is incompatible with the way r2 is currently compiled. It results in some of the r2 libraries not being found when running cutter. You can verify if this is the problem by running `ldd ./Cutter`. If all the r2 libraries are missing you have a different problem.
+Workaround is to either add `--disable-new-dtags` linker flag when compiling Cutter or add r2 installation path to LD_LIBRARY_PATH environment variable.
+
+::
+
+   cmake -DCMAKE_EXE_LINKER_FLAGS="-Wl,--disable-new-dtags"  ..
+
 
