@@ -311,7 +311,7 @@ private:
     void setCursorAddr(BasicCursor addr, bool select = false);
     void updateCursorMeta();
     void setCursorOnAscii(bool ascii);
-    bool isDataDifferentAt(uint64_t offset);
+    bool isItemDifferentAt(uint64_t address);
     const QColor itemColor(uint8_t byte);
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
@@ -460,6 +460,7 @@ private:
     QColor backgroundColor;
     QColor defColor;
     QColor addrColor;
+    QColor diffColor;
     QColor b0x00Color;
     QColor b0x7fColor;
     QColor b0xffColor;

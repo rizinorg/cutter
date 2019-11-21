@@ -207,9 +207,18 @@ void HexWidget::setItemGroupSize(int size)
     viewport()->update();
 }
 
-bool HexWidget::isDataDifferentAt(uint64_t offset) {
-    if (offset >= old_data->minIndex() && offset < old_data->maxIndex()) {
-        uint64_t itemOffset = offset - startAddress;
+/**
+ * @brief Checks if Item at the address changed compared to the last read data.
+ * @param address Address of Item to be compared.
+ * @return True if Item is different, False if Item is equal or last read didn't contain the address.
+ * @see HexWidget#readItem
+ *
+ * Checks if current Item at the address changed compared to the last read data.
+ * It is assumed that the current read data buffer contains the address.
+ */
+bool HexWidget::isItemDifferentAt(uint64_t address) {
+    if (address >= old_data->minIndex() && address < old_data->maxIndex()) {
+        uint64_t itemOffset = address - startAddress;
         QVariant curItem = readItem(itemOffset);
         data.swap(old_data);
         QVariant oldItem = readItem(itemOffset);
@@ -348,6 +357,7 @@ void HexWidget::updateColors()
     printableColor = Config()->getColor("ai.write");
     defColor = Config()->getColor("btext");
     addrColor = Config()->getColor("func_var_addr");
+    diffColor = Config()->getColor("graph.diff.unmatch");
 
     updateCursorMeta();
     viewport()->update();
@@ -769,8 +779,8 @@ void HexWidget::drawItemArea(QPainter &painter)
                 if (selection.contains(itemAddr)  && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
                 }
-                if (isDataDifferentAt(itemAddr)) {
-                    itemColor.setRgb(qRgb(255, 25, 25));
+                if (isItemDifferentAt(itemAddr)) {
+                    itemColor.setRgb(diffColor.rgb());
                 }
                 painter.setPen(itemColor);
                 painter.drawText(itemRect, Qt::AlignVCenter, itemString);
@@ -808,8 +818,8 @@ void HexWidget::drawAsciiArea(QPainter &painter)
             if (selection.contains(address) && cursorOnAscii) {
                 color = palette().highlightedText().color();
             }
-            if (isDataDifferentAt(address)) {
-                color.setRgb(qRgb(255, 25, 25));
+            if (isItemDifferentAt(address)) {
+                color.setRgb(diffColor.rgb());
             }
             painter.setPen(color);
             /* Dots look ugly. Use fillRect() instead of drawText(). */
