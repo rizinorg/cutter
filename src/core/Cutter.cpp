@@ -1878,7 +1878,7 @@ QList<StringDescription> CutterCore::parseStringsJson(const QJsonDocument &doc)
 
         StringDescription string;
 
-        string.string = QString(QByteArray::fromBase64(stringObject[RJsonKey::string].toVariant().toByteArray()));
+        string.string = stringObject[RJsonKey::string].toString();
         string.vaddr = stringObject[RJsonKey::vaddr].toVariant().toULongLong();
         string.type = stringObject[RJsonKey::type].toString();
         string.size = stringObject[RJsonKey::size].toVariant().toUInt();
