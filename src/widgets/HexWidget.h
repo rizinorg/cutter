@@ -122,10 +122,10 @@ public:
     void fetch(uint64_t address, int length) override
     {
         // FIXME: reuse data if possible
-        const uint64_t block_sz = 0x1000ULL;
-        uint64_t alignedAddr = address & ~(block_sz - 1);
+        const uint64_t blockSize = 0x1000ULL;
+        uint64_t alignedAddr = address & ~(blockSize - 1);
         int offset = address - alignedAddr;
-        int len = (offset + length + (block_sz - 1)) & ~(block_sz - 1);
+        int len = (offset + length + (blockSize - 1)) & ~(blockSize - 1);
         m_firstBlockAddr = alignedAddr;
         m_lastValidAddr = length ? alignedAddr + len - 1 : 0;
         if (m_lastValidAddr < m_firstBlockAddr) {
@@ -134,8 +134,8 @@ public:
         }
         m_blocks.clear();
         uint64_t addr = alignedAddr;
-        for (int i = 0; i < len / block_sz; ++i, addr += block_sz) {
-            m_blocks.append(Core()->ioRead(addr, block_sz));
+        for (int i = 0; i < len / blockSize; ++i, addr += blockSize) {
+            m_blocks.append(Core()->ioRead(addr, blockSize));
         }
     }
 
@@ -484,7 +484,7 @@ private:
     QAction *actionCopyAddress;
     QAction *actionSelectRange;
 
-    std::unique_ptr<AbstractData> old_data;
+    std::unique_ptr<AbstractData> oldData;
     std::unique_ptr<AbstractData> data;
 };
 

@@ -124,7 +124,7 @@ HexWidget::HexWidget(QWidget *parent) :
     startAddress = 0ULL;
     cursor.address = 0ULL;
     data.reset(new MemoryData());
-    old_data.reset(new MemoryData());
+    oldData.reset(new MemoryData());
 
     fetchData();
     updateCursorMeta();
@@ -217,12 +217,12 @@ void HexWidget::setItemGroupSize(int size)
  * It is assumed that the current read data buffer contains the address.
  */
 bool HexWidget::isItemDifferentAt(uint64_t address) {
-    if (address >= old_data->minIndex() && address < old_data->maxIndex()) {
+    if (address >= oldData->minIndex() && address < oldData->maxIndex()) {
         uint64_t itemOffset = address - startAddress;
         QVariant curItem = readItem(itemOffset);
-        data.swap(old_data);
+        data.swap(oldData);
         QVariant oldItem = readItem(itemOffset);
-        data.swap(old_data);
+        data.swap(oldData);
         return (oldItem != curItem);
     }
     return false;
@@ -1222,7 +1222,7 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
 
 void HexWidget::fetchData()
 {
-    data.swap(old_data);
+    data.swap(oldData);
     data->fetch(startAddress, bytesPerScreen());
 }
 
