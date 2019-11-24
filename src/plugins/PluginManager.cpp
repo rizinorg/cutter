@@ -9,6 +9,7 @@
 
 #include "PluginManager.h"
 #include "CutterPlugin.h"
+#include "CutterConfig.h"
 
 #include <QDir>
 #include <QCoreApplication>
@@ -102,6 +103,11 @@ QVector<QDir> PluginManager::getPluginDirectories() const
         }
     }
 #endif
+
+    QString extra_plugin_dirs = CUTTER_EXTRA_PLUGIN_DIRS;
+    for (auto& path : extra_plugin_dirs.split(QDir::listSeparator(), QString::SplitBehavior::SkipEmptyParts)) {
+        result.push_back(QDir(path));
+    }
 
     return result;
 }
