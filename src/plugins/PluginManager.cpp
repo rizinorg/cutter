@@ -45,16 +45,6 @@ void PluginManager::loadPlugins()
         }
         loadPluginsFromDir(dir);
     }
-
-#ifdef APPIMAGE
-    {
-        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
-        plugdir.cdUp(); // appdir
-        if (plugdir.cd("share/RadareOrg/Cutter/plugins")) { // appdir/share/RadareOrg/Cutter/plugins
-            loadPluginsFromDir(plugdir);
-        }
-    }
-#endif
 }
 
 void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
@@ -102,6 +92,16 @@ QVector<QDir> PluginManager::getPluginDirectories() const
     for (auto &location : locations) {
         result.push_back(QDir(location).filePath("plugins"));
     }
+
+#ifdef APPIMAGE
+    {
+        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
+        plugdir.cdUp(); // appdir
+        if (plugdir.cd("share/RadareOrg/Cutter/plugins")) { // appdir/share/RadareOrg/Cutter/plugins
+            result.push_back(plugdir);
+        }
+    }
+#endif
 
     return result;
 }
