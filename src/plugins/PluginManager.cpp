@@ -104,8 +104,13 @@ QVector<QDir> PluginManager::getPluginDirectories() const
     }
 #endif
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0) && defined(Q_OS_UNIX)
+    QChar listSeparator = ':';
+#else
+    QChar listSeparator = QDir::listSeparator();
+#endif
     QString extra_plugin_dirs = CUTTER_EXTRA_PLUGIN_DIRS;
-    for (auto& path : extra_plugin_dirs.split(QDir::listSeparator(), QString::SplitBehavior::SkipEmptyParts)) {
+    for (auto& path : extra_plugin_dirs.split(listSeparator, QString::SplitBehavior::SkipEmptyParts)) {
         result.push_back(QDir(path));
     }
 
