@@ -20,7 +20,11 @@ jobs:
       with:
         submodules: true # 'recursive' 'true' or 'false'
     - name: apt dependencies
+      if: contains(matrix.os, 'ubuntu')
       run: sudo apt-get install ninja-build libgraphviz-dev
+    - name: homebrew dependencies
+      if: contains(matrix.os, 'macos')
+      run: brew bundle scripts/Brewfile
     - name: Pipenv for Github Actions
       uses: VaultVulp/action-pipenv@v1.0.0
     - name: Setup Python environment
