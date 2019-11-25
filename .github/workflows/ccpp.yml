@@ -25,7 +25,7 @@ jobs:
       uses: actions/setup-python@v1.1.1
       with:
         # Version range or exact version of a Python version to use, using semvers version range syntax.
-        python-version: 3.5.7
+        python-version: 3.6.9
         # The target architecture (x86, x64) of the Python interpreter.
         architecture: x64
     - name: py dependencies
@@ -42,14 +42,14 @@ jobs:
         mkdir build
         cd build
         export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
-        cmake
-                -DCMAKE_BUILD_TYPE=Release
-                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
-                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
-                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
-                -DCUTTER_ENABLE_PYTHON=ON
-                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
-                -DCUTTER_ENABLE_CRASH_REPORTS=ON
-                -DCUTTER_USE_BUNDLED_RADARE2=ON
-                ../src &&
+        cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" \
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
+                -DCUTTER_ENABLE_PYTHON=ON \
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON \
+                -DCUTTER_USE_BUNDLED_RADARE2=ON \
+                ../src && \
         make -j4
