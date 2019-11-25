@@ -34,6 +34,7 @@ jobs:
         brew bundle
         brew tap iveney/mocha
         brew install realpath
+        brew install pkg-config
     - name: py dependencies
       run: |
         pip install meson
