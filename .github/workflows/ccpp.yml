@@ -32,6 +32,7 @@ jobs:
       run: |
         cd scripts
         brew bundle
+        brew tap iveney/mocha
         brew install realpath
     - name: py dependencies
       run: |
