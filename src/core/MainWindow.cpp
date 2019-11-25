@@ -87,6 +87,7 @@
 #include <QPropertyAnimation>
 #include <QSysInfo>
 #include <QJsonObject>
+#include <QJsonArray>
 
 #include <QScrollBar>
 #include <QSettings>
@@ -187,6 +188,8 @@ void MainWindow::initUI()
     //Undo and redo seek
     ui->actionBackward->setShortcut(QKeySequence::Back);
     ui->actionForward->setShortcut(QKeySequence::Forward);
+
+    initBackForwardMenu();
 
     /* Setup plugins interfaces */
     for (auto plugin : Plugins()->getPlugins()) {
@@ -983,6 +986,88 @@ void MainWindow::initCorners()
 
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+}
+
+void MainWindow::initBackForwardMenu()
+{
+    auto prepareButtonMenu = [this](QAction *action) -> QMenu* {
+        QToolButton *button = qobject_cast<QToolButton *>(ui->mainToolBar->widgetForAction(action));
+        if (!button) {
+            return nullptr;
+        }
+        QMenu *menu = new QMenu(button);
+        button->setMenu(menu);
+        button->setPopupMode(QToolButton::DelayedPopup);
+        button->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(button, &QWidget::customContextMenuRequested, button,
+                [menu, button] (const QPoint &pos) {
+            menu->exec(button->mapToGlobal(pos));
+        });
+        return menu;
+    };
+
+    if (auto menu = prepareButtonMenu(ui->actionBackward)) {
+        connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
+            updateHistoryMenu(menu, false);
+        });
+    }
+    if (auto menu = prepareButtonMenu(ui->actionForward)) {
+        connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
+            updateHistoryMenu(menu, true);
+        });
+    }
+}
+
+void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
+{
+    auto hist = Core()->cmdj("sj");
+    bool history = true;
+    QList<QAction *> actions;
+    for (auto item : Core()->cmdj("sj").array()) {
+        QJsonObject obj = item.toObject();
+        QString name = obj["name"].toString();
+        RVA offset = obj["offset"].toVariant().toULongLong();
+        bool current = obj["current"].toBool(false);
+        if (current) {
+            history = false;
+        }
+        if (history != redo || current) { // Includ current in both directions
+            QString addressString = RAddressString(offset);
+            QString label = QString("%1 (%2)").arg(name, addressString);
+            if (current) {
+                label += " current";
+            }
+            QAction *action = new QAction(label, menu);
+            actions.push_back(action);
+            action->setToolTip(addressString);
+            if (current) {
+                action->setEnabled(false);
+            }
+        }
+    }
+    if (!redo) {
+        std::reverse(actions.begin(), actions.end());
+    }
+    menu->clear();
+    menu->addActions(actions);
+    int steps = 0;
+    for (QAction *item : menu->actions()) {
+        if (redo) {
+            connect(item, &QAction::triggered, item, [steps]() {
+                for (int i = 0; i < steps; i++) {
+                    Core()->seekNext();
+                }
+            });
+        } else {
+            connect(item, &QAction::triggered, item, [steps]() {
+                for (int i = 0; i < steps; i++) {
+                    Core()->seekPrev();
+                }
+            });
+        }
+        ++steps;
+    }
+
 }
 
 void MainWindow::addWidget(QDockWidget* widget)
