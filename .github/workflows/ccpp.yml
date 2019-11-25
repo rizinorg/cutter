@@ -1,0 +1,48 @@
+name: Radare2 CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: apt dependencies
+      run: sudo apt-get install ninja-build libgraphviz-dev qt5-default libqt5svg5-dev cmake
+    - name: py dependencies
+      run: |
+        pyenv install 3.5.2
+        pyenv global 3.5.2
+        pip install meson
+    - name: cutter dependencies
+      run: |
+        scripts/fetch_deps.sh
+        source cutter-deps/env.sh
+        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+        source scripts/prepare_breakpad_linux.sh
+    - name: cmake
+      run: |
+        mkdir build
+        cd build
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        cmake
+                -DCMAKE_BUILD_TYPE=Release
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0"
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m"
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3"
+                -DCUTTER_ENABLE_PYTHON=ON
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON
+                -DCUTTER_USE_BUNDLED_RADARE2=ON
+                ../src &&
+        make -j4
