@@ -54,7 +54,7 @@ jobs:
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
                 -DCUTTER_ENABLE_PYTHON=ON \
-                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RADARE2=ON \
                 ../src && \
@@ -76,7 +76,7 @@ jobs:
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
                 -DCUTTER_ENABLE_PYTHON=ON \
-                -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RADARE2=ON \
                 -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
