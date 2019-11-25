@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, ubuntu-16.04, macos-latest]
+        python-version: [3.7.5]
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
@@ -28,16 +29,6 @@ jobs:
       run: cd scripts; brew bundle
     - name: Pipenv for Github Actions
       uses: VaultVulp/action-pipenv@v1.0.0
-    # TODO: Only for linux and if isn't applied for some reason, use platform python for now - 
-    # https://help.github.com/en/actions/automating-your-workflow-with-github-actions/software-installed-on-github-hosted-runners
-    #- name: Setup Python environment
-    #  if: contains(matrix.os, 'ubuntu')
-    #  uses: actions/setup-python@v1.1.1
-    #  with:
-    #    # Version range or exact version of a Python version to use, using semvers version range syntax.
-    #    python-version: 3.7.5
-    #    # The target architecture (x86, x64) of the Python interpreter.
-    #    architecture: x64
     - name: py dependencies
       run: |
         pip install meson
