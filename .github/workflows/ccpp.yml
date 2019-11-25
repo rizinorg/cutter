@@ -26,7 +26,7 @@ jobs:
         submodules: true # 'recursive' 'true' or 'false'
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
-      run: sudo apt-get install ninja-build libgraphviz-dev
+      run: sudo apt-get install ninja-build libgraphviz-dev libclang-7-dev
     - name: homebrew dependencies
       if: contains(matrix.os, 'macos')
       run: cd scripts; brew bundle
@@ -55,6 +55,7 @@ jobs:
                 ../src && \
             make -j4
     - name: cmake macos
+      shell: bash
       if: contains(matrix.os, 'macos')
       run: |
         scripts/fetch_deps.sh
