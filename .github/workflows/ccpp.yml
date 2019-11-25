@@ -30,8 +30,6 @@ jobs:
     - name: homebrew dependencies
       if: contains(matrix.os, 'macos')
       run: cd scripts; brew bundle
-    - name: Pipenv for Github Actions
-      uses: VaultVulp/action-pipenv@v1.0.0
     - name: py dependencies
       run: |
         pip install meson
