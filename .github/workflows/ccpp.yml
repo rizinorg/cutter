@@ -25,7 +25,7 @@ jobs:
       uses: actions/setup-python@v1.1.1
       with:
         # Version range or exact version of a Python version to use, using semvers version range syntax.
-        python-version: 3.5.2
+        python-version: 3.5.7
         # The target architecture (x86, x64) of the Python interpreter.
         architecture: x64
     - name: py dependencies
