@@ -20,27 +20,31 @@ jobs:
       with:
         submodules: true # 'recursive' 'true' or 'false'
     - name: apt dependencies
-      run: sudo apt-get install ninja-build libgraphviz-dev qt5-default libqt5svg5-dev cmake
+      run: sudo apt-get install ninja-build libgraphviz-dev
     - name: Pipenv for Github Actions
       uses: VaultVulp/action-pipenv@v1.0.0
     - name: Setup Python environment
       uses: actions/setup-python@v1.1.1
       with:
         # Version range or exact version of a Python version to use, using semvers version range syntax.
-        python-version: 3.6.9
+        python-version: 3.7.5
         # The target architecture (x86, x64) of the Python interpreter.
         architecture: x64
     - name: py dependencies
       run: |
         pip install meson
-    - name: cutter dependencies
+    #- name: cutter dependencies
+    #  run: |
+#       scripts/fetch_deps.sh
+#       source cutter-deps/env.sh
+#       export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+#       source scripts/prepare_breakpad_linux.sh
+    - name: cmake
       run: |
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
         export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
         source scripts/prepare_breakpad_linux.sh
-    - name: cmake
-      run: |
         mkdir build
         cd build
         export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
