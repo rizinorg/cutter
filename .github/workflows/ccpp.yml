@@ -1,4 +1,4 @@
-name: Radare2 CI
+name: Cutter CI
 
 on:
   push:
@@ -13,16 +13,23 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-18.04, ubuntu-16.04]
     
     steps:
     - uses: actions/checkout@v1
     - name: apt dependencies
       run: sudo apt-get install ninja-build libgraphviz-dev qt5-default libqt5svg5-dev cmake
+    - name: Pipenv for Github Actions
+      uses: VaultVulp/action-pipenv@v1.0.0
+    - name: Setup Python environment
+      uses: actions/setup-python@v1.1.1
+      with:
+        # Version range or exact version of a Python version to use, using semvers version range syntax.
+        python-version: 3.5.2
+        # The target architecture (x86, x64) of the Python interpreter.
+        architecture: x64
     - name: py dependencies
       run: |
-        pyenv install 3.5.2
-        pyenv global 3.5.2
         pip install meson
     - name: cutter dependencies
       run: |
