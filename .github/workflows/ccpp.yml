@@ -29,7 +29,10 @@ jobs:
       run: sudo apt-get install ninja-build libgraphviz-dev llvm-7 llvm-7-dev libclang-7-dev
     - name: homebrew dependencies
       if: contains(matrix.os, 'macos')
-      run: cd scripts; brew bundle
+      run: |
+        cd scripts
+        brew bundle
+        brew install realpath
     - name: py dependencies
       run: |
         pip install meson
