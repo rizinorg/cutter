@@ -18,6 +18,9 @@ jobs:
       # Prevent one job from pausing the rest
       fail-fast: false
     steps:
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
     - uses: actions/checkout@v1
       with:
         submodules: true # 'recursive' 'true' or 'false'
