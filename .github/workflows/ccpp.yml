@@ -17,6 +17,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+      with:
+        submodules: true # 'recursive' 'true' or 'false'
     - name: apt dependencies
       run: sudo apt-get install ninja-build libgraphviz-dev qt5-default libqt5svg5-dev cmake
     - name: Pipenv for Github Actions
@@ -48,7 +50,7 @@ jobs:
                 -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
                 -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
                 -DCUTTER_ENABLE_PYTHON=ON \
-                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RADARE2=ON \
                 ../src && \
