@@ -34,7 +34,7 @@ jobs:
       run: |
         pip install meson
     - name: cmake ubuntu
-      if: contains(matrix.os, "ubuntu")
+      if: contains(matrix.os, 'ubuntu')
       run: |
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
@@ -55,7 +55,7 @@ jobs:
                 ../src && \
             make -j4
     - name: cmake macos
-      if: contains(matrix.os, "macos")
+      if: contains(matrix.os, 'macos')
       run: |
         scripts/fetch_deps.sh
         source cutter-deps/env.sh
