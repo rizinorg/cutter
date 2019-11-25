@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-18.04, ubuntu-16.04]
+        os: [ubuntu-18.04, ubuntu-16.04, macos-latest, windows-latest]
     
     steps:
     - uses: actions/checkout@v1
@@ -33,15 +33,14 @@ jobs:
     - name: py dependencies
       run: |
         pip install meson
-    - name: cmake ${{ matrix.os }}
-      env:
-        run: |
-          scripts/fetch_deps.sh
-          source cutter-deps/env.sh
-          export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
-          source scripts/prepare_breakpad_linux.sh
-          export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+    - name: cmake ubuntu
+      if: contains(matrix.os, "ubuntu")
       run: |
+        scripts/fetch_deps.sh
+        source cutter-deps/env.sh
+        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+        source scripts/prepare_breakpad_linux.sh
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
         mkdir build
         cd build
         cmake \
@@ -54,4 +53,27 @@ jobs:
                 -DCUTTER_ENABLE_CRASH_REPORTS=ON \
                 -DCUTTER_USE_BUNDLED_RADARE2=ON \
                 ../src && \
-        make -j4
+            make -j4
+    - name: cmake macos
+      if: contains(matrix.os, "macos")
+      run: |
+        scripts/fetch_deps.sh
+        source cutter-deps/env.sh
+        export PATH=/usr/local/opt/llvm/bin:$PATH
+        source scripts/prepare_breakpad_macos.sh
+        sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        mkdir build
+        cd build
+        cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib" \
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
+                -DCUTTER_ENABLE_PYTHON=ON \
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON \
+                -DCUTTER_USE_BUNDLED_RADARE2=ON \
+                -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
+                ../src && \
+              make -j4;
