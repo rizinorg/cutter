@@ -159,7 +159,7 @@ void CutterCore::initialize()
 {
     r_cons_new();  // initialize console
     core_ = r_core_new();
-    r_core_task_sync_begin(core_);
+    r_core_task_sync_begin(&core_->tasks);
     coreBed = r_cons_sleep_begin();
     CORE_LOCK();
 
@@ -206,7 +206,7 @@ CutterCore::~CutterCore()
 {
     delete bbHighlighter;
     r_cons_sleep_end(coreBed);
-    r_core_task_sync_end(core_);
+    r_core_task_sync_end(&core_->tasks);
     r_core_free(this->core_);
     r_cons_free();
 }
