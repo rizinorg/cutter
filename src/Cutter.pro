@@ -331,6 +331,7 @@ SOURCES += \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
     widgets/ThreadsWidget.cpp \
+    widgets/ProcessesWidget.cpp \
     widgets/BacktraceWidget.cpp \
     dialogs/OpenFileDialog.cpp \
     common/CommandTask.cpp \
@@ -464,6 +465,7 @@ HEADERS  += \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
     widgets/ThreadsWidget.h \
+    widgets/ProcessesWidget.h \
     widgets/BacktraceWidget.h \
     dialogs/OpenFileDialog.h \
     common/StringsTask.h \
@@ -561,6 +563,7 @@ FORMS    += \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
     widgets/ThreadsWidget.ui \
+    widgets/ProcessesWidget.ui \
     widgets/BacktraceWidget.ui \
     dialogs/OpenFileDialog.ui \
     dialogs/preferences/DebugOptionsWidget.ui \
