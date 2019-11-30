@@ -120,6 +120,8 @@ void XrefsDialog::updatePreview(RVA addr)
     TempConfig tempConfig;
     tempConfig.set("scr.html", true);
     tempConfig.set("scr.color", COLOR_MODE_16M);
+    tempConfig.set("asm.lines", false);
+    tempConfig.set("asm.bytes", false);
 
     QString disas = Core()->cmd("pd--20 @ " + QString::number(addr));
     ui->previewTextEdit->document()->setHtml(disas);
