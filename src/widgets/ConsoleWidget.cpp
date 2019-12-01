@@ -226,9 +226,11 @@ void ConsoleWidget::executeCommand(const QString &command)
 
 void ConsoleWidget::sendToStdin(const QString &input)
 {
+#ifndef Q_OS_WIN
     write(stdinFile, (input + "\n").toStdString().c_str(), input.size() + 1);
     fsync(stdinFile);
     addOutput("Sent input: '" + input + "'");
+#endif
 }
 
 void ConsoleWidget::onIndexChange()
