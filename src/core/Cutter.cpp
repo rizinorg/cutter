@@ -313,6 +313,24 @@ QString CutterCore::cmd(const char *str)
     return o;
 }
 
+bool CutterCore::isRedirectableDebugee()
+{
+    if (!currentlyDebugging || currentlyAttachedToPID != -1) {
+        return false;
+    }
+
+    // We are only able to redirect locally debugged unix processes
+    QJsonArray openFilesArray = cmdj("oj").array();;
+    for (QJsonValue value : openFilesArray) {
+        QJsonObject openFile = value.toObject();
+        QString URI = openFile["uri"].toString();
+        if (URI.contains("ptrace") | URI.contains("mach")) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool CutterCore::isDebugTaskInProgress()
 {
     if (!debugTask.isNull()) {

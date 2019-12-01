@@ -4,6 +4,7 @@
 #include "core/MainWindow.h"
 #include "CutterDockWidget.h"
 #include "common/CommandTask.h"
+#include "common/DirectionalComboBox.h"
 
 #include <QStringListModel>
 #include <QSocketNotifier>
@@ -49,7 +50,9 @@ public slots:
 private slots:
     void setupFont();
 
-    void on_inputLineEdit_returnPressed();
+    void on_r2InputLineEdit_returnPressed();
+    void on_debugeeInputLineEdit_returnPressed();
+    void onIndexChange();
 
     void on_execButton_clicked();
 
@@ -75,6 +78,7 @@ private:
     void invalidateHistoryPosition();
     void removeLastLine();
     void executeCommand(const QString &command);
+    void sendToStdin(const QString &input);
     void setWrap(bool wrap);
 
     /**
@@ -99,12 +103,15 @@ private:
     QShortcut *historyDownShortcut;
     FILE *origStderr;
     FILE *origStdout;
+    FILE *origStdin;
     QLocalSocket *pipeSocket;
 #ifdef Q_OS_WIN
     HANDLE hRead;
     HANDLE hWrite;
 #else
     int redirectPipeFds[2];
+    int stdinFile;
+    QString stdinFifoPath;
     QVector<char> *redirectionBuffer;
     QSocketNotifier *outputNotifier;
 #endif
