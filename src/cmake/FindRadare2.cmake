@@ -84,8 +84,17 @@ else()
 	mark_as_advanced(Radare2_CMAKE_PREFIX_PATH_TEMP)
 
 	if(TARGET PkgConfig::Radare2)
-		set_target_properties(PkgConfig::Radare2 PROPERTIES IMPORTED_GLOBAL ON)
-		add_library(Radare2::libr ALIAS PkgConfig::Radare2)
+		if (CMAKE_VERSION VERSION_LESS "3.11.0")
+			add_library(Radare2::libr INTERFACE IMPORTED)
+			set_target_properties(Radare2::libr PROPERTIES
+			    INTERFACE_INCLUDE_DIRECTORIES "${Radare2_INCLUDE_DIRS}")
+			set_target_properties(Radare2::libr PROPERTIES
+			    INTERFACE_LINK_LIBRARIES "${Radare2_LIBRARIES}")
+			link_directories("${Radare2_LIBDIR}") # target specific link directory or flags require even newer cmake
+		else()
+			set_target_properties(PkgConfig::Radare2 PROPERTIES IMPORTED_GLOBAL ON)
+			add_library(Radare2::libr ALIAS PkgConfig::Radare2)
+		endif()
 		set(Radare2_TARGET Radare2::libr)
 	else()
 		set(Radare2_TARGET Radare2_TARGET-NOTFOUND)
