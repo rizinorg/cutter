@@ -1031,11 +1031,11 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
         if (current) {
             history = false;
         }
-        if (history != redo || current) { // Includ current in both directions
+        if (history != redo || current) { // Include current in both directions
             QString addressString = RAddressString(offset);
             QString label = QString("%1 (%2)").arg(name, addressString);
             if (current) {
-                label += " current";
+                label = QString("current position (%1)").arg(addressString);
             }
             QAction *action = new QAction(label, menu);
             actions.push_back(action);
