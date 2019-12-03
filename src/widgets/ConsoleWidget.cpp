@@ -230,6 +230,11 @@ void ConsoleWidget::sendToStdin(const QString &input)
     write(stdinFile, (input + "\n").toStdString().c_str(), input.size() + 1);
     fsync(stdinFile);
     addOutput("Sent input: '" + input + "'");
+#else
+    // Stdin redirection isn't currently available in windows because console applications
+    // with stdin already get their own console window with stdin when they are launched
+    // that the user can type into.
+    addOutput("Unsupported feature");
 #endif
 }
 
