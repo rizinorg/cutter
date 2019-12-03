@@ -1020,6 +1020,8 @@ void MainWindow::initBackForwardMenu()
 
 void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 {
+    static const int MAX_MENU_ENTRIES = 32;
+
     auto hist = Core()->cmdj("sj");
     bool history = true;
     QList<QAction *> actions;
@@ -1047,6 +1049,11 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
     }
     if (!redo) {
         std::reverse(actions.begin(), actions.end());
+    }
+    while (actions.length() > MAX_MENU_ENTRIES) {
+        auto action = actions.back();
+        actions.pop_back();
+        action->deleteLater();
     }
     menu->clear();
     menu->addActions(actions);
