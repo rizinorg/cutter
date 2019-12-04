@@ -298,6 +298,10 @@ public:
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
     bool isDebugTaskInProgress();
+    /**
+     * @brief Check if we can use output/input redirection with the currently debugged process
+     */
+    bool isRedirectableDebugee();
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
     int currentlyAttachedToPID = -1;
