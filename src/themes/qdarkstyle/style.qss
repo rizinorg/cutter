@@ -1223,3 +1223,7 @@ QDateEdit::down-arrow:hover,
 QDateEdit::down-arrow:focus {
     image: url(:/qss_icons/rc/down_arrow.png);
 }
+
+QMenu#historyMenu, QMenu#forwardHistoryMenu {
+    menu-scrollable: true;
+}

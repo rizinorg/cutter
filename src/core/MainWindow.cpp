@@ -1003,15 +1003,21 @@ void MainWindow::initBackForwardMenu()
                 [menu, button] (const QPoint &pos) {
             menu->exec(button->mapToGlobal(pos));
         });
+
+        QFontMetrics metrics(fontMetrics());
+        // Roughly 10-16 lines depending on padding size, no need to calculate more precisely
+        menu->setMaximumHeight(metrics.lineSpacing() * 20);
         return menu;
     };
 
     if (auto menu = prepareButtonMenu(ui->actionBackward)) {
+        menu->setObjectName("historyMenu");
         connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
             updateHistoryMenu(menu, false);
         });
     }
     if (auto menu = prepareButtonMenu(ui->actionForward)) {
+        menu->setObjectName("forwardHistoryMenu");
         connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
             updateHistoryMenu(menu, true);
         });
@@ -1020,8 +1026,6 @@ void MainWindow::initBackForwardMenu()
 
 void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 {
-    static const int MAX_MENU_ENTRIES = 32;
-
     auto hist = Core()->cmdj("sj");
     bool history = true;
     QList<QAction *> actions;
@@ -1043,17 +1047,14 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
             actions.push_back(action);
             action->setToolTip(addressString);
             if (current) {
-                action->setEnabled(false);
+                QFont font;
+                font.setBold(true);
+                action->setFont(font);
             }
         }
     }
     if (!redo) {
         std::reverse(actions.begin(), actions.end());
-    }
-    while (actions.length() > MAX_MENU_ENTRIES) {
-        auto action = actions.back();
-        actions.pop_back();
-        action->deleteLater();
     }
     menu->clear();
     menu->addActions(actions);

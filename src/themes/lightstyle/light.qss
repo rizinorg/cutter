@@ -755,3 +755,6 @@ QLineEdit, QLineEdit[text=""] {
   color: #00304d;
 }
 
+QMenu#historyMenu, QMenu#forwardHistoryMenu {
+    menu-scrollable: true;
+}
