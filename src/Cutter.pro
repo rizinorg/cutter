@@ -275,6 +275,7 @@ SOURCES += \
     common/HexHighlighter.cpp \
     common/Highlighter.cpp \
     common/MdHighlighter.cpp \
+    common/DirectionalComboBox.cpp \
     dialogs/preferences/AsmOptionsWidget.cpp \
     dialogs/NewFileDialog.cpp \
     common/AnalTask.cpp \
@@ -408,6 +409,7 @@ HEADERS  += \
     core/MainWindow.h \
     common/Highlighter.h \
     common/MdHighlighter.h \
+    common/DirectionalComboBox.h \
     dialogs/InitialOptionsDialog.h \
     dialogs/NewFileDialog.h \
     common/AnalTask.h \
