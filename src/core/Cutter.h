@@ -486,6 +486,9 @@ signals:
     void refreshCodeViews();
     void stackChanged();
 
+    void switchedThread();
+    void switchedProcess();
+
     void classNew(const QString &cls);
     void classDeleted(const QString &cls);
     void classRenamed(const QString &oldName, const QString &newName);

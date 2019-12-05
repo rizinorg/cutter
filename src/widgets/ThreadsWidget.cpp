@@ -56,6 +56,9 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
             &ThreadsFilterModel::setFilterWildcard);
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &ThreadsWidget::updateContents);
+    // Seek doesn't necessarily change when switching threads/processes
+    connect(Core(), &CutterCore::switchedThread, this, &ThreadsWidget::updateContents);
+    connect(Core(), &CutterCore::switchedProcess, this, &ThreadsWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ThreadsWidget::fontsUpdatedSlot);
     connect(ui->viewThreads, &QTableView::activated, this, &ThreadsWidget::onActivated);
 }

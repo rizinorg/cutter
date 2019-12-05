@@ -1191,6 +1191,7 @@ void CutterCore::setCurrentDebugThread(int tid)
             emit refreshCodeViews();
             emit stackChanged();
             syncAndSeekProgramCounter();
+            emit switchedThread();
             emit debugTaskStateChanged();
         });
     }
@@ -1213,6 +1214,7 @@ void CutterCore::setCurrentDebugProcess(int pid)
             emit stackChanged();
             emit flagsChanged();
             syncAndSeekProgramCounter();
+            emit switchedProcess();
             emit debugTaskStateChanged();
         });
     }

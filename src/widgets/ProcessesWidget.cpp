@@ -58,6 +58,8 @@ ProcessesWidget::ProcessesWidget(MainWindow *main, QAction *action) :
             &ProcessesFilterModel::setFilterWildcard);
     connect(Core(), &CutterCore::refreshAll, this, &ProcessesWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &ProcessesWidget::updateContents);
+    // Seek doesn't necessarily change when switching processes
+    connect(Core(), &CutterCore::switchedProcess, this, &ProcessesWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ProcessesWidget::fontsUpdatedSlot);
     connect(ui->viewProcesses, &QTableView::activated, this, &ProcessesWidget::onActivated);
 }
@@ -93,7 +95,6 @@ QString ProcessesWidget::translateStatus(QString status)
     case R_DBG_PROC_RAISED:
         return "Raised event";
     default:
-        printf("Status: %s\n", status.toStdString().c_str());
         return "Unknown status";
     }
 }
