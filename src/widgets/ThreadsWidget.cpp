@@ -29,6 +29,7 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
     modelThreads->setHorizontalHeaderItem(COLUMN_STATUS, new QStandardItem(tr("Status")));
     modelThreads->setHorizontalHeaderItem(COLUMN_PATH, new QStandardItem(tr("Path")));
     ui->viewThreads->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->viewThreads->verticalHeader()->setVisible(false);
     ui->viewThreads->setFont(Config()->getFont());
 
     modelFilter = new ThreadsFilterModel(this);
