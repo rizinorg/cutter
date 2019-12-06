@@ -1,6 +1,7 @@
 #include "BacktraceWidget.h"
 #include "ui_BacktraceWidget.h"
 #include "common/JsonModel.h"
+#include "QHeaderView"
 
 #include "core/MainWindow.h"
 
@@ -20,6 +21,7 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     modelBacktrace->setHorizontalHeaderItem(4, new QStandardItem(tr("Frame Size")));
     viewBacktrace->setFont(Config()->getFont());
     viewBacktrace->setModel(modelBacktrace);
+    viewBacktrace->verticalHeader()->setVisible(false);
     viewBacktrace->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewBacktrace);
 
@@ -74,7 +76,7 @@ void BacktraceWidget::setBacktraceGrid()
     }
 
     viewBacktrace->setModel(modelBacktrace);
-    viewBacktrace->resizeColumnsToContents();;
+    viewBacktrace->resizeColumnsToContents();
 }
 
 void BacktraceWidget::fontsUpdatedSlot()
