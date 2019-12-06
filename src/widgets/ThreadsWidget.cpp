@@ -10,8 +10,7 @@
 #define DEBUGGED_PID (-1)
 
 enum ColumnIndex {
-    COLUMN_CURRENT = 0,
-    COLUMN_PID,
+    COLUMN_PID = 0,
     COLUMN_STATUS,
     COLUMN_PATH,
 };
@@ -23,8 +22,7 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
     ui->setupUi(this);
 
     // Setup threads model
-    modelThreads = new QStandardItemModel(1, 4, this);
-    modelThreads->setHorizontalHeaderItem(COLUMN_CURRENT, new QStandardItem(tr("Current")));
+    modelThreads = new QStandardItemModel(1, 3, this);
     modelThreads->setHorizontalHeaderItem(COLUMN_PID, new QStandardItem(tr("PID")));
     modelThreads->setHorizontalHeaderItem(COLUMN_STATUS, new QStandardItem(tr("Status")));
     modelThreads->setHorizontalHeaderItem(COLUMN_PATH, new QStandardItem(tr("Path")));
@@ -100,19 +98,22 @@ void ThreadsWidget::setThreadsGrid()
 {
     QJsonArray threadsValues = Core()->getProcessThreads(DEBUGGED_PID).array();
     int i = 0;
+    QFont font;
+                
     for (const QJsonValue &value : threadsValues) {
         QJsonObject threadsItem = value.toObject();
         int pid = threadsItem["pid"].toVariant().toInt();
         QString status = translateStatus(threadsItem["status"].toString());
         QString path = threadsItem["path"].toString();
         bool current = threadsItem["current"].toBool();
-
-        QStandardItem *rowCurrent = new QStandardItem(QString(current ? "True" : "False"));
+        // Use bold font to highlight active thread
+        font.setBold(current);
         QStandardItem *rowPid = new QStandardItem(QString::number(pid));
+        rowPid->setFont(font);
         QStandardItem *rowStatus = new QStandardItem(status);
+        rowStatus->setFont(font);
         QStandardItem *rowPath = new QStandardItem(path);
-
-        modelThreads->setItem(i, COLUMN_CURRENT, rowCurrent);
+        rowPath->setFont(font);
         modelThreads->setItem(i, COLUMN_PID, rowPid);
         modelThreads->setItem(i, COLUMN_STATUS, rowStatus);
         modelThreads->setItem(i, COLUMN_PATH, rowPath);
@@ -163,7 +164,7 @@ ThreadsFilterModel::ThreadsFilterModel(QObject *parent)
 bool ThreadsFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     // All columns are checked for a match
-    for (int i = COLUMN_CURRENT; i <= COLUMN_PATH; ++i) {
+    for (int i = COLUMN_PID; i <= COLUMN_PATH; ++i) {
         QModelIndex index = sourceModel()->index(row, i, parent);
         if (sourceModel()->data(index).toString().contains(filterRegExp())) {
             return true;
