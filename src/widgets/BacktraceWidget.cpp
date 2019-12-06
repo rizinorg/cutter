@@ -14,7 +14,7 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     // setup backtrace model
     QString PC = Core()->getRegisterName("PC");
     QString SP = Core()->getRegisterName("SP");
-    modelBacktrace->setHorizontalHeaderItem(0, new QStandardItem(tr("Func Name")));
+    modelBacktrace->setHorizontalHeaderItem(0, new QStandardItem(tr("Function")));
     modelBacktrace->setHorizontalHeaderItem(1, new QStandardItem(SP));
     modelBacktrace->setHorizontalHeaderItem(2, new QStandardItem(PC));
     modelBacktrace->setHorizontalHeaderItem(3, new QStandardItem(tr("Description")));
