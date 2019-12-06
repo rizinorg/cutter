@@ -72,6 +72,9 @@
          <property name="text">
           <string>Unknown Instruction</string>
          </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+         </property>
         </widget>
        </item>
       </layout>
