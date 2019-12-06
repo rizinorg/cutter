@@ -1,0 +1,84 @@
+name: Cutter CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, ubuntu-16.04, macos-latest]
+        python-version: [3.7.5]
+      # Prevent one job from pausing the rest
+      fail-fast: false
+    steps:
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: actions/checkout@v1
+      with:
+        submodules: true # 'recursive' 'true' or 'false'
+    - name: apt dependencies
+      if: contains(matrix.os, 'ubuntu')
+      run: sudo apt-get install ninja-build libgraphviz-dev
+    - name: homebrew dependencies
+      if: contains(matrix.os, 'macos')
+      run: |
+        cd scripts
+        brew bundle
+        brew tap iveney/mocha
+        brew install realpath
+        brew install pkg-config
+    - name: py dependencies
+      run: |
+        pip install meson
+    - name: cmake ubuntu
+      if: contains(matrix.os, 'ubuntu')
+      run: |
+        scripts/fetch_deps.sh
+        source cutter-deps/env.sh
+        export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
+        source scripts/prepare_breakpad_linux.sh
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        mkdir build
+        cd build
+        cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.so.1.0" \
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
+                -DCUTTER_ENABLE_PYTHON=ON \
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=OFF \
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON \
+                -DCUTTER_USE_BUNDLED_RADARE2=ON \
+                ../src && \
+            make -j4
+    - name: cmake macos
+      shell: bash
+      if: contains(matrix.os, 'macos')
+      run: |
+        scripts/fetch_deps.sh
+        source cutter-deps/env.sh
+        export PATH=/usr/local/opt/llvm/bin:$PATH
+        source scripts/prepare_breakpad_macos.sh
+        export PKG_CONFIG_PATH="$CUSTOM_BREAKPAD_PREFIX/lib/pkgconfig:$CUSTOM_PYTHON_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+        mkdir build
+        cd build
+        cmake \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DPYTHON_LIBRARY="$CUTTER_DEPS_PYTHON_PREFIX/lib/libpython3.6m.dylib" \
+                -DPYTHON_INCLUDE_DIR="$CUTTER_DEPS_PYTHON_PREFIX/include/python3.6m" \
+                -DPYTHON_EXECUTABLE="$CUTTER_DEPS_PYTHON_PREFIX/bin/python3" \
+                -DCUTTER_ENABLE_PYTHON=ON \
+                -DCUTTER_ENABLE_PYTHON_BINDINGS=ON \
+                -DCUTTER_ENABLE_CRASH_REPORTS=ON \
+                -DCUTTER_USE_BUNDLED_RADARE2=ON \
+                -DBREAKPAD_FRAMEWORK_DIR="$BREAKPAD_FRAMEWORK_DIR" \
+                ../src && \
+              make -j4;
