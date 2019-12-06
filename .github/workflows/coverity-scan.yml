@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Download Coverity Build Tool
         run: |
-          wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=radareorg-cutter" -O cov-analysis-linux64.tar.gz
+          wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=radareorg%2Fcutter" -O cov-analysis-linux64.tar.gz
           mkdir cov-analysis-linux64
           tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
         env:
@@ -42,6 +42,6 @@ jobs:
             --form file=@cutter.tgz \
             --form version=trunk \
             --form description="Cutter" \
-            https://scan.coverity.com/builds?project=radareorg-cutter
+            https://scan.coverity.com/builds?project=radareorg%2Fcutter
         env:
           TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
