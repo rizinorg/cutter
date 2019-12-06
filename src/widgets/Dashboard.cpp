@@ -113,6 +113,7 @@ void Dashboard::updateContents()
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        label->setTextInteractionFlags(Qt::TextSelectableByMouse);
         ui->verticalLayout_2->addWidget(label);
     }
 
