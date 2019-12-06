@@ -47,7 +47,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QString stepLabel = tr("Step");
     QString stepOverLabel = tr("Step over");
     QString stepOutLabel = tr("Step out");
-    suspendLabel = tr("Suspend the process");
+    suspendLabel = tr("Suspend process");
     continueLabel = tr("Continue");
 
     // define actions
