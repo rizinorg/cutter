@@ -224,6 +224,15 @@ void DebugActions::onAttachedRemoteDebugger(bool successfully) {
 
 void DebugActions::attachRemoteDialog()
 {
+    // TODO: Remove once debug is stable
+    if (!acceptedDebugWarning) {
+        acceptedDebugWarning = true;
+        QMessageBox msgBox;
+        msgBox.setText(tr("Debug is currently in beta.\n") + 
+            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
+        msgBox.exec();
+    }
+
     if (!remoteDialog) {
         remoteDialog = new RemoteDebugDialog(main);
     }
@@ -244,6 +253,15 @@ void DebugActions::attachRemoteDialog()
 
 void DebugActions::attachProcessDialog()
 {
+    // TODO: Remove once debug is stable
+    if (!acceptedDebugWarning) {
+        acceptedDebugWarning = true;
+        QMessageBox msgBox;
+        msgBox.setText(tr("Debug is currently in beta.\n") + 
+            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
+        msgBox.exec();
+    }
+
     AttachProcDialog dialog(main);
     bool success = false;
     while (!success) {
@@ -287,6 +305,15 @@ void DebugActions::startDebug()
         msgBox.setText(tr("File '%1' does not have executable permissions.").arg(filename));
         msgBox.exec();
         return;
+    }
+
+    // TODO: Remove once debug is stable
+    if (!acceptedDebugWarning) {
+        acceptedDebugWarning = true;
+        QMessageBox msgBox;
+        msgBox.setText(tr("Debug is currently in beta.\n") + 
+            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
+        msgBox.exec();
     }
 
     NativeDebugDialog dialog(main);

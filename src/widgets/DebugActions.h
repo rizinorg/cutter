@@ -56,6 +56,7 @@ private:
     QToolButton *continueUntilButton;
     RemoteDebugDialog *remoteDialog = nullptr;
     MainWindow *main;
+    bool acceptedDebugWarning = false;
 
 private slots:
     void continueUntilMain();
