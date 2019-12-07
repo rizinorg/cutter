@@ -62,4 +62,5 @@ private slots:
     void onAttachedRemoteDebugger(bool successfully);
     void setAllActionsVisible(bool visible);
     void setButtonVisibleIfMainExists();
+    void chooseThemeIcons();
 };
