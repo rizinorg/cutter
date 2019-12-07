@@ -32,11 +32,15 @@ public:
     QAction *actionStop;
     QAction *actionAllContinues;
 
-    // Continue and suspend interchange during runtime
+    // Continue/suspend and start/restart are interchange during runtime
     QIcon continueIcon;
     QIcon suspendIcon;
+    QIcon restartIcon;
+    QIcon startDebugIcon;
     QString suspendLabel;
     QString continueLabel;
+    QString restartDebugLabel;
+    QString startDebugLabel;
 
     // Stop and Detach interchange during runtime
     QIcon detachIcon;
@@ -55,6 +59,7 @@ private:
 
 private slots:
     void continueUntilMain();
+    void startDebug();
     void attachProcessDialog();
     void attachProcess(int pid);
     void attachRemoteDialog();

@@ -1,6 +1,7 @@
 #include "DebugActions.h"
 #include "core/MainWindow.h"
 #include "dialogs/AttachProcDialog.h"
+#include "dialogs/NativeDebugDialog.h"
 #include "common/Configuration.h"
 #include "common/Helpers.h"
 
@@ -19,24 +20,22 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // setIconSize(QSize(16, 16));
 
     // define icons
-    QIcon startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
     QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
     QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
     QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
     stopIcon = QIcon(":/img/icons/media-stop_light.svg");
-    QIcon restartIcon = QIcon(":/img/icons/spin_light.svg");
+    restartIcon = QIcon(":/img/icons/spin_light.svg");
     detachIcon = QIcon(":/img/icons/detach_debugger.svg");
+    startDebugIcon = QIcon(":/img/icons/play_light_debug.svg");
     continueIcon = QIcon(":/img/icons/media-skip-forward_light.svg");
     suspendIcon = QIcon(":/img/icons/media-suspend_light.svg");
 
     // define action labels
-    QString startDebugLabel = tr("Start debug");
     QString startEmulLabel = tr("Start emulation");
     QString startAttachLabel = tr("Attach to process");
     QString startRemoteLabel = tr("Connect to a remote debugger");
     QString stopDebugLabel = tr("Stop debug");
     QString stopEmulLabel = tr("Stop emulation");
-    QString restartDebugLabel = tr("Restart program");
     QString restartEmulLabel = tr("Restart emulation");
     QString continueUMLabel = tr("Continue until main");
     QString continueUCLabel = tr("Continue until call");
@@ -44,8 +43,10 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QString stepLabel = tr("Step");
     QString stepOverLabel = tr("Step over");
     QString stepOutLabel = tr("Step out");
-    suspendLabel = tr("Suspend process");
+    suspendLabel = tr("Suspend the process");
     continueLabel = tr("Continue");
+    restartDebugLabel = tr("Restart program");
+    startDebugLabel = tr("Start debug");
 
     // define actions
     actionStart = new QAction(startDebugIcon, startDebugLabel, this);
@@ -107,7 +108,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // necessary to avoid staying stuck
     toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
         actionContinueUntilCall, actionContinueUntilSyscall};
-    toggleConnectionActions = {actionAttach, actionStart, actionStartRemote, actionStartEmul};
+    toggleConnectionActions = {actionAttach, actionStartRemote, actionStartEmul};
 
     connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
         bool disableToolbar = Core()->isDebugTaskInProgress();
@@ -146,25 +147,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         setAllActionsVisible(false);
     });
     connect(actionStep, &QAction::triggered, Core(), &CutterCore::stepDebug);
-    connect(actionStart, &QAction::triggered, [ = ]() {
-        // check if file is executable before starting debug
-        QString filename = Core()->getConfig("file.path").section(QLatin1Char(' '), 0, 0);
-        QFileInfo info(filename);
-        if (!Core()->currentlyDebugging && !info.isExecutable()) {
-            QMessageBox msgBox;
-            msgBox.setText(tr("File '%1' does not have executable permissions.").arg(filename));
-            msgBox.exec();
-            return;
-        }
-        setAllActionsVisible(true);
-        actionAttach->setVisible(false);
-        actionStartRemote->setVisible(false);
-        actionStartEmul->setVisible(false);
-        actionStart->setText(restartDebugLabel);
-        actionStart->setIcon(restartIcon);
-        setButtonVisibleIfMainExists();
-        Core()->startDebug();
-    });
+    connect(actionStart, &QAction::triggered, this, &DebugActions::startDebug);
 
     connect(actionAttach, &QAction::triggered, this, &DebugActions::attachProcessDialog);
     connect(actionStartRemote, &QAction::triggered, this, &DebugActions::attachRemoteDialog);
@@ -291,6 +274,37 @@ void DebugActions::attachProcess(int pid)
     actionStop->setIcon(detachIcon);
     // attach
     Core()->attachDebug(pid);
+}
+
+void DebugActions::startDebug()
+{
+    // check if file is executable before starting debug
+    QString filename = Core()->getConfig("file.path").section(QLatin1Char(' '), 0, 0);
+
+    QFileInfo info(filename);
+    if (!Core()->currentlyDebugging && !info.isExecutable()) {
+        QMessageBox msgBox;
+        msgBox.setText(tr("File '%1' does not have executable permissions.").arg(filename));
+        msgBox.exec();
+        return;
+    }
+
+    NativeDebugDialog dialog(main);
+    if (dialog.exec()) {
+        QString args = dialog.getArgs();
+    } else {
+        return;
+    }
+
+    setAllActionsVisible(true);
+    actionAttach->setVisible(false);
+    actionStartRemote->setVisible(false);
+    actionStartEmul->setVisible(false);
+    actionStart->setText(restartDebugLabel);
+    actionStart->setIcon(restartIcon);
+    setButtonVisibleIfMainExists();
+
+    Core()->startDebug();
 }
 
 void DebugActions::setAllActionsVisible(bool visible)

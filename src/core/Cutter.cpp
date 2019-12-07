@@ -1241,14 +1241,14 @@ void CutterCore::setCurrentDebugProcess(int pid)
     debugTask->startTask();
 }
 
-void CutterCore::startDebug()
+void CutterCore::startDebug(const QString &args)
 {
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
     currentlyOpenFile = getConfig("file.path");
 
-    if (!asyncCmd("ood", debugTask)) {
+    if (!asyncCmd("ood " + args, debugTask)) {
         return;
     }
 
