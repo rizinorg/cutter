@@ -10,8 +10,7 @@
 #define DEBUGGED_PID (-1)
 
 enum ColumnIndex {
-    COLUMN_CURRENT = 0,
-    COLUMN_PID,
+    COLUMN_PID = 0,
     COLUMN_UID,
     COLUMN_STATUS,
     COLUMN_PATH,
@@ -24,13 +23,13 @@ ProcessesWidget::ProcessesWidget(MainWindow *main, QAction *action) :
     ui->setupUi(this);
 
     // Setup processes model
-    modelProcesses = new QStandardItemModel(1, 5, this);
-    modelProcesses->setHorizontalHeaderItem(COLUMN_CURRENT, new QStandardItem(tr("Current")));
-    modelProcesses->setHorizontalHeaderItem(COLUMN_UID, new QStandardItem(tr("UID")));
+    modelProcesses = new QStandardItemModel(1, 4, this);
     modelProcesses->setHorizontalHeaderItem(COLUMN_PID, new QStandardItem(tr("PID")));
+    modelProcesses->setHorizontalHeaderItem(COLUMN_UID, new QStandardItem(tr("UID")));
     modelProcesses->setHorizontalHeaderItem(COLUMN_STATUS, new QStandardItem(tr("Status")));
     modelProcesses->setHorizontalHeaderItem(COLUMN_PATH, new QStandardItem(tr("Path")));
     ui->viewProcesses->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->viewProcesses->verticalHeader()->setVisible(false);
     ui->viewProcesses->setFont(Config()->getFont());
 
     modelFilter = new ProcessesFilterModel(this);
@@ -111,6 +110,8 @@ void ProcessesWidget::setProcessesGrid()
 {
     QJsonArray processesValues = Core()->getChildProcesses(DEBUGGED_PID).array();
     int i = 0;
+    QFont font;
+
     for (const QJsonValue &value : processesValues) {
         QJsonObject processesItem = value.toObject();
         int pid = processesItem["pid"].toVariant().toInt();
@@ -119,13 +120,19 @@ void ProcessesWidget::setProcessesGrid()
         QString path = processesItem["path"].toString();
         bool current = processesItem["current"].toBool();
 
-        QStandardItem *rowCurrent = new QStandardItem(QString(current ? "True" : "False"));
+        // Use bold font to highlight active thread
+        font.setBold(current);
+
         QStandardItem *rowPid = new QStandardItem(QString::number(pid));
         QStandardItem *rowUid = new QStandardItem(QString::number(uid));
         QStandardItem *rowStatus = new QStandardItem(status);
         QStandardItem *rowPath = new QStandardItem(path);
 
-        modelProcesses->setItem(i, COLUMN_CURRENT, rowCurrent);
+        rowPid->setFont(font);
+        rowUid->setFont(font);
+        rowStatus->setFont(font);
+        rowPath->setFont(font);
+
         modelProcesses->setItem(i, COLUMN_PID, rowPid);
         modelProcesses->setItem(i, COLUMN_UID, rowUid);
         modelProcesses->setItem(i, COLUMN_STATUS, rowStatus);
@@ -184,7 +191,7 @@ ProcessesFilterModel::ProcessesFilterModel(QObject *parent)
 bool ProcessesFilterModel::filterAcceptsRow(int row, const QModelIndex &parent) const
 {
     // All columns are checked for a match
-    for (int i = COLUMN_CURRENT; i <= COLUMN_PATH; ++i) {
+    for (int i = COLUMN_PID; i <= COLUMN_PATH; ++i) {
         QModelIndex index = sourceModel()->index(row, i, parent);
         if (sourceModel()->data(index).toString().contains(filterRegExp())) {
             return true;
