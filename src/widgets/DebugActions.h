@@ -38,6 +38,10 @@ public:
     QString suspendLabel;
     QString continueLabel;
 
+    // Stop and Detach interchange during runtime
+    QIcon detachIcon;
+    QIcon stopIcon;
+    
 private:
     /**
      * @brief buttons that will be disabled/enabled on (disable/enable)DebugToolbar

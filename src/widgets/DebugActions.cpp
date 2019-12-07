@@ -21,14 +21,15 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QIcon startEmulIcon = QIcon(":/img/icons/play_light_emul.svg");
     QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
     QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
-    QIcon stopIcon = QIcon(":/img/icons/media-stop_light.svg");
+    stopIcon = QIcon(":/img/icons/media-stop_light.svg");
     QIcon continueUntilMainIcon = QIcon(":/img/icons/continue_until_main.svg");
     QIcon continueUntilCallIcon = QIcon(":/img/icons/continue_until_call.svg");
     QIcon continueUntilSyscallIcon = QIcon(":/img/icons/continue_until_syscall.svg");
-    QIcon stepIcon = QIcon(":/img/icons/step_light.svg");
-    QIcon stepOverIcon = QIcon(":/img/icons/step_over_light.svg");
-    QIcon stepOutIcon = QIcon(":/img/icons/step_out_light.svg");
+    QIcon stepIcon = QIcon(":/img/icons/step_into.svg");
+    QIcon stepOverIcon = QIcon(":/img/icons/step_over.svg");
+    QIcon stepOutIcon = QIcon(":/img/icons/step_out.svg");
     QIcon restartIcon = QIcon(":/img/icons/spin_light.svg");
+    detachIcon = QIcon(":/img/icons/detach_debugger.svg");
     continueIcon = QIcon(":/img/icons/media-skip-forward_light.svg");
     suspendIcon = QIcon(":/img/icons/media-suspend_light.svg");
 
@@ -98,8 +99,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     toolBar->addAction(actionContinue);
     toolBar->addAction(actionStop);
     actionAllContinues = toolBar->addWidget(continueUntilButton);
-    toolBar->addAction(actionStep);
     toolBar->addAction(actionStepOver);
+    toolBar->addAction(actionStep);
     toolBar->addAction(actionStepOut);
 
     allActions = {actionStop, actionAllContinues, actionContinue, actionContinueUntilCall, actionContinueUntilMain, actionContinueUntilSyscall, actionStep, actionStepOut, actionStepOver};
@@ -140,6 +141,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         actionAttach->setVisible(true);
         actionStartRemote->setVisible(true);
         actionStop->setText(stopDebugLabel);
+        actionStop->setIcon(stopIcon);
         actionStart->setText(startDebugLabel);
         actionStart->setIcon(startDebugIcon);
         actionStartEmul->setText(startEmulLabel);
@@ -287,6 +289,7 @@ void DebugActions::attachProcess(int pid)
     actionStartRemote->setVisible(false);
     actionStartEmul->setVisible(false);
     actionStop->setText(stopAttachLabel);
+    actionStop->setIcon(detachIcon);
     // attach
     Core()->attachDebug(pid);
 }
