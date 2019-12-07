@@ -24,7 +24,6 @@ private:
 
 private slots:
     void updateDebugPlugin();
-    void updateDebugArgs();
     void updateStackAddr();
     void updateStackSize();
     void on_pluginComboBox_currentIndexChanged(const QString &index);
