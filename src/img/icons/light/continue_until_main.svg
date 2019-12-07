@@ -5,16 +5,12 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
-   fill="none"
-   version="1.1"
    id="svg5373"
-   sodipodi:docname="continue_until_main.svg"
-   inkscape:version="0.92.4 5da689c313, 2019-01-14">
+   version="1.1"
+   fill="none"
+   viewBox="0 0 16 16"
+   height="16"
+   width="16">
   <metadata
      id="metadata5379">
     <rdf:RDF>
@@ -23,47 +19,25 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
      id="defs5377" />
-  <sodipodi:namedview
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1"
-     objecttolerance="10"
-     gridtolerance="10"
-     guidetolerance="10"
-     inkscape:pageopacity="0"
-     inkscape:pageshadow="2"
-     inkscape:window-width="1920"
-     inkscape:window-height="1033"
-     id="namedview5375"
-     showgrid="false"
-     inkscape:zoom="16"
-     inkscape:cx="16.142711"
-     inkscape:cy="16.05283"
-     inkscape:window-x="1680"
-     inkscape:window-y="18"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg5373" />
   <path
-     d="m 0.125,2 h 1.5 V 2.24001 14 h -1.5 z m 3.5,0.18094 V 14 l 9,-5.93782 z M 9.9398,8.06218 5.12523,5 v 6.1809 z"
+     style="clip-rule:evenodd;fill:#63ebff;fill-rule:evenodd"
      id="path5371"
-     inkscape:connector-curvature="0"
-     style="clip-rule:evenodd;fill:#63ebff;fill-rule:evenodd" />
+     d="m 0.125,2 h 1.5 V 2.24001 14 h -1.5 z m 3.5,0.18094 V 14 l 9,-5.93782 z M 9.9398,8.06218 5.12523,5 v 6.1809 z" />
   <text
-     xml:space="preserve"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:arial;-inkscape-font-specification:arial;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.94117647;stroke:none;stroke-width:0.44802567;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
-     x="8.9794331"
-     y="5.1369224"
+     transform="scale(1.0982407,0.91054721)"
      id="text5926"
-     transform="scale(1.0982407,0.91054721)"><tspan
-       sodipodi:role="line"
-       id="tspan5924"
-       x="8.9794331"
+     y="5.1369224"
+     x="8.9794331"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8px;line-height:1.25;font-family:arial;-inkscape-font-specification:arial;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.94117647;stroke:none;stroke-width:0.44802567;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+     xml:space="preserve"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.33333349px;font-family:arial;-inkscape-font-specification:arial;fill:#ffffff;fill-opacity:0.94117647;stroke:none;stroke-width:0.44802567;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
        y="5.1369224"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.33333349px;font-family:arial;-inkscape-font-specification:arial;fill:#ffffff;fill-opacity:0.94117647;stroke:none;stroke-width:0.44802567;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers">M</tspan></text>
+       x="8.9794331"
+       id="tspan5924">M</tspan></text>
 </svg>
