@@ -1,6 +1,8 @@
 #include "DebugActions.h"
 #include "core/MainWindow.h"
 #include "dialogs/AttachProcDialog.h"
+#include "common/Configuration.h"
+#include "common/Helpers.h"
 
 #include <QPainter>
 #include <QMenu>
@@ -22,12 +24,6 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QIcon startAttachIcon = QIcon(":/img/icons/play_light_attach.svg");
     QIcon startRemoteIcon = QIcon(":/img/icons/play_light_remote.svg");
     stopIcon = QIcon(":/img/icons/media-stop_light.svg");
-    QIcon continueUntilMainIcon = QIcon(":/img/icons/continue_until_main.svg");
-    QIcon continueUntilCallIcon = QIcon(":/img/icons/continue_until_call.svg");
-    QIcon continueUntilSyscallIcon = QIcon(":/img/icons/continue_until_syscall.svg");
-    QIcon stepIcon = QIcon(":/img/icons/step_into.svg");
-    QIcon stepOverIcon = QIcon(":/img/icons/step_over.svg");
-    QIcon stepOutIcon = QIcon(":/img/icons/step_out.svg");
     QIcon restartIcon = QIcon(":/img/icons/spin_light.svg");
     detachIcon = QIcon(":/img/icons/detach_debugger.svg");
     continueIcon = QIcon(":/img/icons/media-skip-forward_light.svg");
@@ -60,14 +56,14 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     actionStop = new QAction(stopIcon, stopDebugLabel, this);
     actionContinue = new QAction(continueIcon, continueLabel, this);
     actionContinue->setShortcut(QKeySequence(Qt::Key_F5));
-    actionContinueUntilMain = new QAction(continueUntilMainIcon, continueUMLabel, this);
-    actionContinueUntilCall = new QAction(continueUntilCallIcon, continueUCLabel, this);
-    actionContinueUntilSyscall = new QAction(continueUntilSyscallIcon, continueUSLabel, this);
-    actionStep = new QAction(stepIcon, stepLabel, this);
+    actionContinueUntilMain = new QAction(continueUMLabel, this);
+    actionContinueUntilCall = new QAction(continueUCLabel, this);
+    actionContinueUntilSyscall = new QAction(continueUSLabel, this);
+    actionStep = new QAction(stepLabel, this);
     actionStep->setShortcut(QKeySequence(Qt::Key_F7));
-    actionStepOver = new QAction(stepOverIcon, stepOverLabel, this);
+    actionStepOver = new QAction(stepOverLabel, this);
     actionStepOver->setShortcut(QKeySequence(Qt::Key_F8));
-    actionStepOut = new QAction(stepOutIcon, stepOutLabel, this);
+    actionStepOut = new QAction(stepOutLabel, this);
     actionStepOut->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F8));
 
     QToolButton *startButton = new QToolButton;
@@ -109,7 +105,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
 
     // Toggle all buttons except restart, suspend(=continue) and stop since those are
     // necessary to avoid staying stuck
-    toggleActions = {actionStep, actionStepOver, actionStepOut, actionContinueUntilMain,
+    toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
         actionContinueUntilCall, actionContinueUntilSyscall};
     toggleConnectionActions = {actionAttach, actionStart, actionStartRemote, actionStartEmul};
 
@@ -199,6 +195,9 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
             Core()->continueDebug();
         }
     });
+
+    connect(Config(), &Configuration::interfaceThemeChanged, this, &DebugActions::chooseThemeIcons);
+    chooseThemeIcons();
 }
 
 void DebugActions::setButtonVisibleIfMainExists()
@@ -299,4 +298,26 @@ void DebugActions::setAllActionsVisible(bool visible)
     for (QAction *action : allActions) {
         action->setVisible(visible);
     }
+}
+
+/**
+ * \brief When theme changed, change icons which have a special version for the theme.
+ */
+void DebugActions::chooseThemeIcons()
+{
+    // List of QActions which have alternative icons in different themes
+    const QList<QPair<void*, QString>> kSupportedIconsNames {
+        { actionStep, QStringLiteral("step_into.svg") },
+        { actionStepOver, QStringLiteral("step_over.svg") },
+        { actionStepOut, QStringLiteral("step_out.svg") },
+        { actionContinueUntilMain, QStringLiteral("continue_until_main.svg") },
+        { actionContinueUntilCall, QStringLiteral("continue_until_call.svg") },
+        { actionContinueUntilSyscall, QStringLiteral("continue_until_syscall.svg") },
+    };
+
+
+    // Set the correct icon for the QAction
+    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
+        static_cast<QAction*>(obj)->setIcon(icon);
+    });
 }
