@@ -84,7 +84,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     this->ui->hexTextView->addAction(&syncAction);
 
-    connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdated()));
+    connect(Config(), &Configuration::fontsUpdated, this, &HexdumpWidget::fontsUpdated);
     connect(Core(), &CutterCore::refreshAll, this, [this]() { refresh(); });
     connect(Core(), &CutterCore::instructionChanged, this, [this]() { refresh(); });
     connect(Core(), &CutterCore::stackChanged, this, [this]() { refresh(); });

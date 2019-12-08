@@ -139,6 +139,17 @@ void MainWindow::initUI()
     connect(ui->actionExtraGraph, &QAction::triggered, this, &MainWindow::addExtraGraph);
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
+    connect(ui->actionCommitChanges, &QAction::triggered, this, [this]() {
+        if (!Core()->isWriteMode()) {
+            Core()->cmd("oo+");
+            Core()->cmd("wci");
+            Core()->cmd("oo");
+        } else {
+            Core()->cmd("wci");
+        }
+    });
+    ui->actionCommitChanges->setEnabled(false);
+    connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
 
     widgetTypeToConstructorMap.insert(GraphWidget::getWidgetType(), getNewInstance<GraphWidget>);
     widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(), getNewInstance<DisassemblyWidget>);

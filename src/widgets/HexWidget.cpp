@@ -1,6 +1,7 @@
 #include "HexWidget.h"
 #include "Cutter.h"
 #include "Configuration.h"
+#include "dialogs/WriteCommandsDialogs.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -13,10 +14,15 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QApplication>
+#include <QInputDialog>
+#include <QPushButton>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QRegularExpression>
 
-static const uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
-static const int MAX_LINE_WIDTH_PRESET = 32;
-static const int MAX_LINE_WIDTH_BYTES = 128 * 1024;
+static constexpr uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
+static constexpr int MAX_LINE_WIDTH_PRESET = 32;
+static constexpr int MAX_LINE_WIDTH_BYTES = 128 * 1024;
 
 HexWidget::HexWidget(QWidget *parent) :
     QScrollArea(parent),
@@ -113,6 +119,44 @@ HexWidget::HexWidget(QWidget *parent) :
     connect(actionSelectRange, &QAction::triggered, this, [this]() { rangeDialog.open(cursor.address); });
     addAction(actionSelectRange);
     connect(&rangeDialog, &QDialog::accepted, this, &HexWidget::onRangeDialogAccepted);
+
+    actionsWriteString.reserve(5);
+    QAction* actionWriteString = new QAction(tr("Write string"), this);
+    connect(actionWriteString, &QAction::triggered, this, &HexWidget::w_writeString);
+    actionsWriteString.append(actionWriteString);
+
+    QAction* actionWriteLenString = new QAction(tr("Write length and string"), this);
+    connect(actionWriteLenString, &QAction::triggered, this, &HexWidget::w_writePascalString);
+    actionsWriteString.append(actionWriteLenString);
+
+    QAction* actionWriteWideString = new QAction(tr("Write wide string"), this);
+    connect(actionWriteWideString, &QAction::triggered, this, &HexWidget::w_writeWideString);
+    actionsWriteString.append(actionWriteWideString);
+
+    QAction* actionWriteCString = new QAction(tr("Write zero terminated string"), this);
+    connect(actionWriteCString, &QAction::triggered, this, &HexWidget::w_writeCString);
+    actionsWriteString.append(actionWriteCString);
+
+    QAction* actionWrite64 = new QAction(tr("Write De\\Encoded Base64 string"), this);
+    connect(actionWrite64, &QAction::triggered, this, &HexWidget::w_write64);
+    actionsWriteString.append(actionWrite64);
+
+    actionsWriteOther.reserve(4);
+    QAction* actionWriteZeros = new QAction(tr("Write zeros"), this);
+    connect(actionWriteZeros, &QAction::triggered, this, &HexWidget::w_writeZeros);
+    actionsWriteOther.append(actionWriteZeros);
+
+    QAction* actionWriteRandom = new QAction(tr("Write random bytes"), this);
+    connect(actionWriteRandom, &QAction::triggered, this, &HexWidget::w_writeRandom);
+    actionsWriteOther.append(actionWriteRandom);
+
+    QAction* actionDuplicateFromOffset = new QAction(tr("Duplicate from offset"), this);
+    connect(actionDuplicateFromOffset, &QAction::triggered, this, &HexWidget::w_duplFromOffset);
+    actionsWriteOther.append(actionDuplicateFromOffset);
+
+    QAction* actionIncDec = new QAction(tr("Increment/Decrement"), this);
+    connect(actionIncDec, &QAction::triggered, this, &HexWidget::w_increaseDecrease);
+    actionsWriteOther.append(actionIncDec);
 
     connect(this, &HexWidget::selectionChanged, this, [this](Selection selection) {
         actionCopy->setEnabled(!selection.empty);
@@ -570,6 +614,10 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     menu->addMenu(rowSizeMenu);
     menu->addAction(actionHexPairs);
     menu->addAction(actionItemBigEndian);
+    QMenu *writeMenu = menu->addMenu(tr("Edit"));
+    writeMenu->addActions(actionsWriteString);
+    writeMenu->addSeparator();
+    writeMenu->addActions(actionsWriteOther);
     menu->addSeparator();
     menu->addAction(actionCopy);
     disableOutsideSelectionActions(mouseOutsideSelection);
@@ -631,6 +679,248 @@ void HexWidget::onRangeDialogAccepted()
         return;
     }
     selectRange(rangeDialog.getStartAddress(), rangeDialog.getEndAddress());
+}
+
+void HexWidget::w_writeString()
+{
+    if (!canWrite()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        QSignalBlocker blocker(Core());
+        RVA bs = Core()->getOffset();
+        if (!selection.isEmpty()) {
+            Core()->seek(selection.start());
+        }
+        Core()->cmdRaw("w " + str);
+        Core()->seek(bs);
+        refresh();
+    }
+}
+
+void HexWidget::w_increaseDecrease()
+{
+    if (!canWrite()) {
+        return;
+    }
+    IncrementDecrementDialog d;
+    int ret = d.exec();
+    if (ret == QDialog::Rejected) {
+        return;
+    }
+    QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
+    QSignalBlocker blocker(Core());
+    RVA bs = Core()->getOffset();
+    if (!selection.isEmpty()) {
+        Core()->seek(selection.start());
+    }
+    Core()->cmdRaw("w" + QString::number(d.getNBytes()) + mode + QString::number(d.getValue()));
+    Core()->seek(bs);
+    refresh();
+}
+
+void HexWidget::w_writeZeros()
+{
+    if (!canWrite()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = QString::number(d.getInt(this, tr("Write zeros"),
+                                           tr("Number of zeros:"), 1, 1, 0x7FFFFFFF, 1, &ok));
+    if (ok && !str.isEmpty()) {
+        QSignalBlocker blocker(Core());
+        RVA bs = Core()->getOffset();
+        if (!selection.isEmpty()) {
+            Core()->seek(selection.start());
+        }
+        Core()->cmdRaw("w0 " + str);
+        Core()->seek(bs);
+        refresh();
+    }
+}
+
+void HexWidget::w_write64()
+{
+    if (!canWrite()) {
+        return;
+    }
+    Base64EnDecodedWriteDialog d;
+    int ret = d.exec();
+    if (ret == QDialog::Rejected) {
+        return;
+    }
+    QString mode = d.getMode() == Base64EnDecodedWriteDialog::Encode ? "e" : "d";
+    QByteArray str = d.getData();
+
+    if (mode == "d" && (QString(str).contains(QRegularExpression("[^a-zA-Z0-9+/=]")) ||
+        str.length() % 4 != 0 || str.isEmpty())) {
+        QMessageBox::critical(this, tr("Error"),
+                              tr("Error occured during decoding your input.\n"
+                                 "Please, make sure, that it is a valid base64 string and try again."));
+        return;
+    }
+
+    str = QString("w6" + mode + " ").toUtf8() + (mode == "e" ? str.toHex() : str);
+    QSignalBlocker blocker(Core());
+    RVA bs = Core()->getOffset();
+    if (!selection.isEmpty()) {
+        Core()->seek(selection.start());
+    }
+    Core()->cmdRaw(str.toStdString().c_str());
+    Core()->seek(bs);
+    refresh();
+}
+
+void HexWidget::w_writeRandom()
+{
+    if (!canWrite()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString nbytes = QString::number(d.getInt(this, tr("Write random"),
+                                           tr("Number of bytes:"), 1, 1, 0x7FFFFFFF, 1, &ok));
+    if (ok && !nbytes.isEmpty()) {
+        QSignalBlocker blocker(Core());
+        RVA bs = Core()->getOffset();
+        if (!selection.isEmpty()) {
+            Core()->seek(selection.start());
+        }
+        Core()->cmdRaw("wr " + nbytes);
+        Core()->seek(bs);
+        refresh();
+    }
+}
+
+void HexWidget::w_duplFromOffset()
+{
+    if (!canWrite()) {
+        return;
+    }
+    DuplicateFromOffsetDialog d;
+    int ret = d.exec();
+    if (ret == QDialog::Rejected) {
+        return;
+    }
+    QString offset = QString::number(d.getOffset());
+    QString nBytes = QString::number(d.getNBytes());
+
+    QSignalBlocker blocker(Core());
+    RVA bs = Core()->getOffset();
+    if (!selection.isEmpty()) {
+        Core()->seek(selection.start());
+    }
+    Core()->cmdRaw("wd " + offset + " " + nBytes);
+    Core()->seek(bs);
+    refresh();
+}
+
+void HexWidget::w_writePascalString()
+{
+    if (!canWrite()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write Pascal string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        QSignalBlocker blocker(Core());
+        RVA bs = Core()->getOffset();
+        if (!selection.isEmpty()) {
+            Core()->seek(selection.start());
+        }
+        Core()->cmdRaw("ws " + str);
+        Core()->seek(bs);
+        refresh();
+    }
+}
+
+void HexWidget::w_writeWideString()
+{
+    if (!canWrite()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write wide string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        QSignalBlocker blocker(Core());
+        RVA bs = Core()->getOffset();
+        if (!selection.isEmpty()) {
+            Core()->seek(selection.start());
+        }
+        Core()->cmdRaw("ww " + str);
+        Core()->seek(bs);
+        refresh();
+    }
+}
+
+void HexWidget::w_writeCString()
+{
+    if (!canWrite()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write zero-terminated string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        QSignalBlocker blocker(Core());
+        RVA bs = Core()->getOffset();
+        if (!selection.isEmpty()) {
+            Core()->seek(selection.start());
+        }
+        Core()->cmdRaw("wz " + str);
+        Core()->seek(bs);
+        refresh();
+    }
+}
+
+bool HexWidget::canWrite()
+{
+    bool iocache = Core()->isIOCacheEnabled();
+    bool writeMode = Core()->isWriteMode();
+
+    if (iocache || writeMode) {
+        return true;
+    }
+
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Icon::Critical);
+    msgBox.setWindowTitle(tr("Write error"));
+    msgBox.setText(
+        tr("Unable to complete write operation. Consider opening in write mode or enable 'io.cahce'. \n\n"
+           "WARNING: In write mode any changes will be commited to disk"));
+    msgBox.addButton(tr("OK"), QMessageBox::NoRole);
+    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode"),
+                                                     QMessageBox::YesRole);
+    QAbstractButton *iocacheButton = msgBox.addButton(tr("Enable 'io.cache' mode"),
+                                                     QMessageBox::YesRole);
+
+    msgBox.exec();
+
+
+    if (msgBox.clickedButton() == reopenButton) {
+        Core()->cmd("oo+");
+    } else if (msgBox.clickedButton() == iocacheButton) {
+        Core()->setIOCache(true);
+    } else {
+        return false;
+    }
+    return true;
 }
 
 void HexWidget::updateItemLength()

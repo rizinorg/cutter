@@ -552,6 +552,11 @@ public:
     BasicBlockHighlighter *getBBHighlighter();
     BasicInstructionHighlighter *getBIHighlighter();
 
+    void setIOCache(bool iocache);
+    bool isIOCacheEnabled() const;
+
+    bool isWriteMode();
+
 signals:
     void refreshAll();
 
@@ -586,6 +591,8 @@ signals:
     void attachedRemote(bool successfully);
 
     void projectSaved(bool successfully, const QString &name);
+
+    void ioCacheChanged(bool newval);
 
     /**
      * emitted when debugTask started or finished running
@@ -635,6 +642,7 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
+    bool iocache = false;
     BasicInstructionHighlighter biHighlighter;
 
     QSharedPointer<R2Task> debugTask;

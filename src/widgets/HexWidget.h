@@ -295,6 +295,18 @@ private slots:
     void copyAddress();
     void onRangeDialogAccepted();
 
+    // Write command slots
+    void w_writeString();
+    void w_increaseDecrease();
+    void w_writeZeros();
+    void w_write64();
+    void w_writeRandom();
+    void w_duplFromOffset();
+    void w_writePascalString();
+    void w_writeWideString();
+    void w_writeCString();
+    bool canWrite();
+
 private:
     void updateItemLength();
     void updateCounts();
@@ -483,6 +495,8 @@ private:
     QAction *actionCopy;
     QAction *actionCopyAddress;
     QAction *actionSelectRange;
+    QList<QAction *> actionsWriteString;
+    QList<QAction *> actionsWriteOther;
 
     std::unique_ptr<AbstractData> oldData;
     std::unique_ptr<AbstractData> data;

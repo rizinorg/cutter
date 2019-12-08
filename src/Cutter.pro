@@ -262,6 +262,7 @@ SOURCES += \
     Main.cpp \
     core/Cutter.cpp \
     dialogs/EditStringDialog.cpp \
+    dialogs/WriteCommandsDialogs.cpp \
     widgets/DisassemblerGraphView.cpp \
     widgets/OverviewView.cpp \
     common/RichTextPainter.cpp \
@@ -399,6 +400,7 @@ HEADERS  += \
     core/CutterCommon.h \
     core/CutterDescriptions.h \
     dialogs/EditStringDialog.h \
+    dialogs/WriteCommandsDialogs.h \
     widgets/DisassemblerGraphView.h \
     widgets/OverviewView.h \
     common/RichTextPainter.h \
@@ -540,6 +542,9 @@ GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 FORMS    += \
     dialogs/AboutDialog.ui \
     dialogs/EditStringDialog.ui \
+    dialogs/Base64EnDecodedWriteDialog.ui \
+    dialogs/DuplicateFromOffsetDialog.ui \
+    dialogs/IncrementDecrementDialog.ui \
     dialogs/preferences/AsmOptionsWidget.ui \
     dialogs/CommentsDialog.ui \
     dialogs/EditInstructionDialog.ui \

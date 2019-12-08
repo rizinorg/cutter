@@ -35,7 +35,6 @@ private slots:
     void on_actionJmpReverse_triggered();
     void on_actionEditBytes_triggered();
     void showReverseJmpQuery();
-    bool writeFailed();
 
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();
@@ -216,5 +215,7 @@ private:
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 
     void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
+
+    bool canWrite() const;
 };
 #endif // DISASSEMBLYCONTEXTMENU_H

@@ -3673,9 +3673,31 @@ BasicBlockHighlighter* CutterCore::getBBHighlighter()
     return bbHighlighter;
 }
 
+void CutterCore::setIOCache(bool iocache)
+{
+    Core()->cmd(QString("e io.cache=%1").arg(iocache ? "true" : "false"));
+    this->iocache = iocache;
+    if (iocache) {
+        emit ioCacheChanged(true);
+    }
+}
 BasicInstructionHighlighter* CutterCore::getBIHighlighter()
 {
     return &biHighlighter;
+}
+
+bool CutterCore::isIOCacheEnabled() const
+{
+    return iocache;
+}
+
+bool CutterCore::isWriteMode()
+{
+    using namespace std;
+    QJsonArray ans = cmdj("oj").array();
+    return find_if(begin(ans), end(ans), [](const QJsonValue &v) {
+        return v.toObject().value("raised").toBool();
+    })->toObject().value("writable").toBool();
 }
 
 /**
