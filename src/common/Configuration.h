@@ -20,7 +20,7 @@ class QTextDocument;
 
 enum ColorFlags {
     LightFlag = 1,
-    DarkFlag = 2
+    DarkFlag = 2,
 };
 
 struct CutterInterfaceTheme {
@@ -47,6 +47,7 @@ private:
     void loadNativeStylesheet();
     void loadLightStylesheet();
     void loadDarkStylesheet();
+    void loadMidnightStylesheet();
 
     // Asm Options
     void applySavedAsmOptions();
