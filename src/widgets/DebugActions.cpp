@@ -301,7 +301,7 @@ void DebugActions::setAllActionsVisible(bool visible)
 }
 
 /**
- * \brief When theme changed, change icons which have a special version for the theme.
+ * @brief When theme changed, change icons which have a special version for the theme.
  */
 void DebugActions::chooseThemeIcons()
 {
