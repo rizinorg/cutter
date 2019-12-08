@@ -576,8 +576,8 @@ FORMS    += \
 RESOURCES += \
     resources.qrc \
     themes/native/native.qrc \
-    themes/qdarkstyle/style.qrc \
-    themes/midnight/style.qrc \
+    themes/qdarkstyle/dark.qrc \
+    themes/midnight/midnight.qrc \
     themes/lightstyle/light.qrc
 
 
