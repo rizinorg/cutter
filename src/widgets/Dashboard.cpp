@@ -42,7 +42,7 @@ void Dashboard::updateContents()
     setPlainText(this->ui->formatEdit, item["format"].toString());
     setPlainText(this->ui->modeEdit, item["mode"].toString());
     setPlainText(this->ui->typeEdit, item["type"].toString());
-    setPlainText(this->ui->sizeEdit, qhelpers::formatBytecount(item["size"].toDouble()));
+    setPlainText(this->ui->sizeEdit, Config()->getCurrLocale().formattedDataSize(item["size"].toVariant().toULongLong()));
     setPlainText(this->ui->fdEdit, QString::number(item["fd"].toDouble()));
 
     setPlainText(this->ui->archEdit, item2["arch"].toString());

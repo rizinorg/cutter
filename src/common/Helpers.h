@@ -21,7 +21,6 @@ class QMenu;
 class QPaintDevice;
 
 namespace qhelpers {
-QString formatBytecount(const long bytecount);
 void adjustColumns(QTreeView *tv, int columnCount, int padding);
 void adjustColumns(QTreeWidget *tw, int padding);
 bool selectFirstItem(QAbstractItemView *itemView);

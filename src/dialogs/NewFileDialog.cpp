@@ -290,7 +290,7 @@ bool NewFileDialog::fillRecentFilesList()
         } else {
             // Format the text and add the item to the file list
             const QString text = QString("%1\n%2\nSize: %3").arg(basename, filenameHome,
-                                                                 qhelpers::formatBytecount(info.size()));
+                                                                 Config()->getCurrLocale().formattedDataSize(info.size()));
             QListWidgetItem *item = new QListWidgetItem(
                 getIconFor(basename, i++),
                 text

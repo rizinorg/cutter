@@ -35,7 +35,7 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
         case TYPE:
             return res.type;
         case SIZE:
-            return qhelpers::formatBytecount(res.size);
+            return Config()->getCurrLocale().formattedDataSize(res.size);
         case LANG:
             return res.lang;
         default:

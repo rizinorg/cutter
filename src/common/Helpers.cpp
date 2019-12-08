@@ -23,20 +23,6 @@ static QAbstractItemView::ScrollMode scrollMode()
 
 namespace qhelpers {
 
-QString formatBytecount(const long bytecount)
-{
-    if (bytecount == 0)
-        return "0";
-    const int exp = log(bytecount) / log(1000);
-    constexpr char suffixes[] = {' ', 'k', 'M', 'G', 'T', 'P', 'E'};
-
-    QString str;
-    QTextStream stream(&str);
-    stream << qSetRealNumberPrecision(3) << bytecount / pow(1000, exp)
-           << ' ' << suffixes[exp] << 'B';
-    return stream.readAll();
-}
-
 void adjustColumns(QTreeView *tv, int columnCount, int padding)
 {
     for (int i = 0; i != columnCount; ++i) {
