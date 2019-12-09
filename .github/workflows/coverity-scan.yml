@@ -23,9 +23,12 @@ jobs:
           
       - name: CMake
         run: |
+          scripts/fetch_deps.sh
+          source cutter-deps/env.sh
+          export LD_LIBRARY_PATH="`llvm-config --libdir`:$LD_LIBRARY_PATH"
           mkdir build
           cd build
-          cmake
+          cmake -DCUTTER_USE_BUNDLED_RADARE2=ON ../src
 
       - name: Build with cov-build
         run: |
