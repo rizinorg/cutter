@@ -317,8 +317,9 @@ void DebugActions::startDebug()
     }
 
     NativeDebugDialog dialog(main);
+    QString args;
     if (dialog.exec()) {
-        QString args = dialog.getArgs();
+        args = dialog.getArgs();
     } else {
         return;
     }
@@ -331,7 +332,7 @@ void DebugActions::startDebug()
     actionStart->setIcon(restartIcon);
     setButtonVisibleIfMainExists();
 
-    Core()->startDebug();
+    Core()->startDebug(args);
 }
 
 void DebugActions::setAllActionsVisible(bool visible)
