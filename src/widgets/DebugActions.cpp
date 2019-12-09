@@ -228,7 +228,7 @@ void DebugActions::attachRemoteDialog()
     if (!acceptedDebugWarning) {
         acceptedDebugWarning = true;
         QMessageBox msgBox;
-        msgBox.setText(tr("Debug is currently in beta.\n") + 
+        msgBox.setText(tr("Debug is currently in beta.\n") +
             tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
         msgBox.exec();
     }
@@ -257,7 +257,7 @@ void DebugActions::attachProcessDialog()
     if (!acceptedDebugWarning) {
         acceptedDebugWarning = true;
         QMessageBox msgBox;
-        msgBox.setText(tr("Debug is currently in beta.\n") + 
+        msgBox.setText(tr("Debug is currently in beta.\n") +
             tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
         msgBox.exec();
     }
@@ -311,7 +311,7 @@ void DebugActions::startDebug()
     if (!acceptedDebugWarning) {
         acceptedDebugWarning = true;
         QMessageBox msgBox;
-        msgBox.setText(tr("Debug is currently in beta.\n") + 
+        msgBox.setText(tr("Debug is currently in beta.\n") +
             tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
         msgBox.exec();
     }
