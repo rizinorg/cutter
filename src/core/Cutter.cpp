@@ -1431,13 +1431,14 @@ void CutterCore::stopDebug()
     }
 
     currentlyDebugging = false;
+    emit debugTaskStateChanged();
 
     if (currentlyEmulating) {
-        asyncCmdEsil("aeim-; aei-; wcr; .ar-", debugTask);
+        cmdEsil("aeim-; aei-; wcr; .ar-");
         currentlyEmulating = false;
     } else if (currentlyAttachedToPID != -1) {
-        asyncCmd(QString("dp- %1; o %2; .ar-").arg(
-            QString::number(currentlyAttachedToPID), currentlyOpenFile), debugTask);
+        cmd(QString("dp- %1; o %2; .ar-").arg(
+            QString::number(currentlyAttachedToPID), currentlyOpenFile));
         currentlyAttachedToPID = -1;
     } else {
         QString ptraceFiles = "";
@@ -1450,32 +1451,16 @@ void CutterCore::stopDebug()
                 ptraceFiles += "o-" + QString::number(openFile["fd"].toInt()) + ";";
             }
         }
-        asyncCmd("dk 9; oo; .ar-;" + ptraceFiles, debugTask);
+        cmd("dk 9; oo; .ar-;" + ptraceFiles);
     }
 
+    syncAndSeekProgramCounter();
+    setConfig("asm.flags", true);
+    setConfig("io.cache", false);
+    emit flagsChanged();
+    emit changeDefinedView();
+    offsetPriorDebugging = getOffset();
     emit debugTaskStateChanged();
-    connect(debugTask.data(), &R2Task::finished, this, [this] () {
-        if (debugTaskDialog) {
-            delete debugTaskDialog;
-        }
-        debugTask.clear();
-
-        syncAndSeekProgramCounter();
-        setConfig("asm.flags", true);
-        setConfig("io.cache", false);
-        emit flagsChanged();
-        emit changeDefinedView();
-        offsetPriorDebugging = getOffset();
-        emit debugTaskStateChanged();
-    });
-
-    debugTaskDialog = new R2TaskDialog(debugTask);
-    debugTaskDialog->setBreakOnClose(true);
-    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc("Exiting debug...");
-    debugTaskDialog->show();
-
-    debugTask->startTask();
 }
 
 void CutterCore::syncAndSeekProgramCounter()

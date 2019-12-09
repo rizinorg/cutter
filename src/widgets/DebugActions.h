@@ -32,7 +32,7 @@ public:
     QAction *actionStop;
     QAction *actionAllContinues;
 
-    // Continue/suspend and start/restart are interchange during runtime
+    // Continue/suspend and start/restart interchange during runtime
     QIcon continueIcon;
     QIcon suspendIcon;
     QIcon restartIcon;
