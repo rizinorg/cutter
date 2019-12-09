@@ -62,6 +62,7 @@
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/StackWidget.h"
 #include "widgets/ThreadsWidget.h"
+#include "widgets/ProcessesWidget.h"
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
 #include "widgets/HexdumpWidget.h"
@@ -314,6 +315,7 @@ void MainWindow::initDocks()
     flagsDock = new FlagsWidget(this, ui->actionFlags);
     stackDock = new StackWidget(this, ui->actionStack);
     threadsDock = new ThreadsWidget(this, ui->actionThreads);
+    processesDock = new ProcessesWidget(this, ui->actionProcesses);
     backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
     registersDock = new RegistersWidget(this, ui->actionRegisters);
     memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
@@ -837,6 +839,7 @@ void MainWindow::restoreDocks()
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
     tabifyDockWidget(backtraceDock, threadsDock);
+    tabifyDockWidget(threadsDock, processesDock);
 
     updateDockActionsChecked();
 }

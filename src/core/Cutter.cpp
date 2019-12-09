@@ -1098,6 +1098,16 @@ QJsonDocument CutterCore::getProcessThreads(int pid)
     }
 }
 
+QJsonDocument CutterCore::getChildProcesses(int pid)
+{
+    // Return the currently debugged process and it's children
+    if (-1 == pid) {
+        return cmdj("dpj");
+    }
+    // Return the given pid and it's child processes
+    return cmdj("dpj " + QString::number(pid));
+}
+
 QJsonDocument CutterCore::getRegisterValues()
 {
     return cmdj("drj");
@@ -1199,6 +1209,30 @@ void CutterCore::setCurrentDebugThread(int tid)
             emit refreshCodeViews();
             emit stackChanged();
             syncAndSeekProgramCounter();
+            emit switchedThread();
+            emit debugTaskStateChanged();
+        });
+    }
+}
+
+void CutterCore::setCurrentDebugProcess(int pid)
+{
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    emit debugTaskStateChanged();
+    asyncCmd("dp=" + QString::number(pid), debugTask);
+    if (!debugTask.isNull()) {
+        emit debugTaskStateChanged();
+        connect(debugTask.data(), &R2Task::finished, this, [this] () {
+            debugTask.clear();
+            emit registersChanged();
+            emit refreshCodeViews();
+            emit stackChanged();
+            emit flagsChanged();
+            syncAndSeekProgramCounter();
+            emit switchedProcess();
             emit debugTaskStateChanged();
         });
     }
