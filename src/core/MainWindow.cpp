@@ -1007,6 +1007,8 @@ void MainWindow::initBackForwardMenu()
         QFontMetrics metrics(fontMetrics());
         // Roughly 10-16 lines depending on padding size, no need to calculate more precisely
         menu->setMaximumHeight(metrics.lineSpacing() * 20);
+
+        menu->setToolTipsVisible(true);
         return menu;
     };
 
@@ -1026,6 +1028,10 @@ void MainWindow::initBackForwardMenu()
 
 void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 {
+    // Not too long so that whole screen doesn't get covered,
+    // not too short so that reasonable length c++ names can be seen most of the time
+    const int MAX_NAME_LENGTH = 64;
+
     auto hist = Core()->cmdj("sj");
     bool history = true;
     QList<QAction *> actions;
@@ -1039,13 +1045,17 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
         }
         if (history != redo || current) { // Include current in both directions
             QString addressString = RAddressString(offset);
+
+            QString toolTip = QString("%1 %2").arg(addressString, name); // show non truncated name in tooltip
+
+            name.truncate(MAX_NAME_LENGTH); // TODO:#1904 use common name shortening function
             QString label = QString("%1 (%2)").arg(name, addressString);
             if (current) {
                 label = QString("current position (%1)").arg(addressString);
             }
             QAction *action = new QAction(label, menu);
+            action->setToolTip(toolTip);
             actions.push_back(action);
-            action->setToolTip(addressString);
             if (current) {
                 QFont font;
                 font.setBold(true);
