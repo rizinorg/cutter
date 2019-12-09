@@ -21,10 +21,13 @@ Example:
 Calling a radare2 command
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two ways to do it: \* ``CutterCore::cmd()`` *(Discouraged)*
-Only use it for commands which yells no output \* ``CutterCore::cmdj()``
-To be used with json commands like ``cmdj("agj")`` or ``cmdj("aflj")``.
-It is way easier to parse a json output.
+There are two ways to do it: 
+
+- ``CutterCore::cmd()`` *(Discouraged)* Only use it for commands which yells no output
+- ``CutterCore::cmdj()`` To be used with json commands like ``cmdj("agj")`` or ``cmdj("aflj")``.
+
+Generally, if one needs to retrieve information from a radare2 command, it
+is preferred to use the json API.
 
 Example:
 
