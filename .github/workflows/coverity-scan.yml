@@ -20,7 +20,11 @@ jobs:
         run: |
           chmod go-w $HOME
           sudo chmod -R go-w /usr/share
-          
+      
+      - name: py dependencies
+        run: |
+          pip install meson
+
       - name: CMake
         run: |
           scripts/fetch_deps.sh
