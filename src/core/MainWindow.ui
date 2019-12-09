@@ -153,6 +153,7 @@
      <addaction name="actionBacktrace"/>
      <addaction name="actionBreakpoint"/>
      <addaction name="actionThreads"/>
+     <addaction name="actionProcesses"/>
      <addaction name="actionMemoryMap"/>
      <addaction name="actionRegisters"/>
      <addaction name="actionRegisterRefs"/>
@@ -939,6 +940,14 @@
    </property>
    <property name="text">
     <string>Threads</string>
+   </property>
+  </action>
+  <action name="actionProcesses">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Processes</string>
    </property>
   </action>
   <action name="actionMemoryMap">
