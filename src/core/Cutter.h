@@ -259,6 +259,10 @@ public:
     RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
     void setCurrentDebugThread(int tid);
+    /**
+     * @brief Attach to a given pid from a debug session
+     */
+    void setCurrentDebugProcess(int pid);
     QJsonDocument getStack(int size = 0x100);
     /**
      * @brief Get a list of a given process's threads
@@ -266,6 +270,12 @@ public:
      * @return JSON object result of dptj
      */
     QJsonDocument getProcessThreads(int pid);
+    /**
+     * @brief Get a list of a given process's child processes
+     * @param pid The pid of the process, -1 for the currently debugged process
+     * @return JSON object result of dptj
+     */
+    QJsonDocument getChildProcesses(int pid);
     QJsonDocument getBacktrace();
     void startDebug();
     void startEmulation();
@@ -479,6 +489,9 @@ signals:
     void breakpointsChanged();
     void refreshCodeViews();
     void stackChanged();
+
+    void switchedThread();
+    void switchedProcess();
 
     void classNew(const QString &cls);
     void classDeleted(const QString &cls);

@@ -55,6 +55,10 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
             &ThreadsFilterModel::setFilterWildcard);
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::seekChanged, this, &ThreadsWidget::updateContents);
+    connect(Core(), &CutterCore::debugTaskStateChanged, this, &ThreadsWidget::updateContents);
+    // Seek doesn't necessarily change when switching threads/processes
+    connect(Core(), &CutterCore::switchedThread, this, &ThreadsWidget::updateContents);
+    connect(Core(), &CutterCore::switchedProcess, this, &ThreadsWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &ThreadsWidget::fontsUpdatedSlot);
     connect(ui->viewThreads, &QTableView::activated, this, &ThreadsWidget::onActivated);
 }
@@ -67,10 +71,17 @@ void ThreadsWidget::updateContents()
         return;
     }
 
-    setThreadsGrid();
+    if (Core()->currentlyDebugging) {
+        setThreadsGrid();
+    } else {
+        // Remove rows from the previous debugging session
+        modelThreads->removeRows(0, modelThreads->rowCount());
+    }
 
     if (Core()->isDebugTaskInProgress() || !Core()->currentlyDebugging) {
-        ui->viewThreads->setSelectionMode(QAbstractItemView::NoSelection);
+        ui->viewThreads->setDisabled(true);
+    } else {
+        ui->viewThreads->setDisabled(false);
     }
 }
 
