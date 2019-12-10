@@ -1275,7 +1275,7 @@ void CutterCore::startDebug(const QString &args)
     debugTaskDialog = new R2TaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc("Starting native debug...");
+    debugTaskDialog->setDesc(tr("Starting native debug..."));
     debugTaskDialog->show();
 
     debugTask->startTask();
@@ -1317,7 +1317,7 @@ void CutterCore::startEmulation()
     debugTaskDialog = new R2TaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc("Starting emulation...");
+    debugTaskDialog->setDesc(tr("Starting emulation..."));
     debugTaskDialog->show();
 
     debugTask->startTask();
@@ -1372,7 +1372,7 @@ void CutterCore::attachRemote(const QString &uri)
     debugTaskDialog = new R2TaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc("Connecting to: " + uri);
+    debugTaskDialog->setDesc(tr("Connecting to: ") + uri);
     debugTaskDialog->show();
 
     debugTask->startTask();
@@ -1409,7 +1409,7 @@ void CutterCore::attachDebug(int pid)
     debugTaskDialog = new R2TaskDialog(debugTask);
     debugTaskDialog->setBreakOnClose(true);
     debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
-    debugTaskDialog->setDesc("Attaching to local process...");
+    debugTaskDialog->setDesc(tr("Attaching to process (") + QString::number(pid) + ")...");
     debugTaskDialog->show();
 
     debugTask->startTask();

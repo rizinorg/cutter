@@ -58,6 +58,9 @@ private:
     MainWindow *main;
     bool acceptedDebugWarning = false;
 
+    // TODO: Remove once debug is stable
+    void showDebugWarning();
+
 private slots:
     void continueUntilMain();
     void startDebug();

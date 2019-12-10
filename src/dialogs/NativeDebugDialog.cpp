@@ -13,15 +13,6 @@ NativeDebugDialog::NativeDebugDialog(QWidget *parent) :
 
 NativeDebugDialog::~NativeDebugDialog() {}
 
-void NativeDebugDialog::on_buttonBox_accepted()
-{
-}
-
-void NativeDebugDialog::on_buttonBox_rejected()
-{
-    close();
-}
-
 QString NativeDebugDialog::getArgs() const
 {
     return ui->argEdit->text();

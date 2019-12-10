@@ -21,10 +21,6 @@ public:
 
     QString getArgs() const;
 
-private slots:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
-
 private:
     std::unique_ptr<Ui::NativeDebugDialog> ui;
 };

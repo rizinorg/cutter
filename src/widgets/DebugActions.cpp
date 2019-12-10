@@ -193,6 +193,18 @@ void DebugActions::setButtonVisibleIfMainExists()
     }
 }
 
+void DebugActions::showDebugWarning()
+{
+    if (!acceptedDebugWarning) {
+        acceptedDebugWarning = true;
+        QMessageBox msgBox;
+        msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse);
+        msgBox.setText(tr("Debug is currently in beta.\n") +
+            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
+        msgBox.exec();
+    }
+}
+
 void DebugActions::continueUntilMain()
 {
     QString mainAddr = Core()->cmd("?v sym.main");
@@ -210,7 +222,8 @@ void DebugActions::attachRemoteDebugger()
     actionStop->setText(stopAttachLabel);
 }
 
-void DebugActions::onAttachedRemoteDebugger(bool successfully) {
+void DebugActions::onAttachedRemoteDebugger(bool successfully)
+{
     if (!successfully) {
         QMessageBox msgBox;
         msgBox.setText(tr("Error connecting."));
@@ -224,14 +237,7 @@ void DebugActions::onAttachedRemoteDebugger(bool successfully) {
 
 void DebugActions::attachRemoteDialog()
 {
-    // TODO: Remove once debug is stable
-    if (!acceptedDebugWarning) {
-        acceptedDebugWarning = true;
-        QMessageBox msgBox;
-        msgBox.setText(tr("Debug is currently in beta.\n") +
-            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
-        msgBox.exec();
-    }
+    showDebugWarning();
 
     if (!remoteDialog) {
         remoteDialog = new RemoteDebugDialog(main);
@@ -253,14 +259,7 @@ void DebugActions::attachRemoteDialog()
 
 void DebugActions::attachProcessDialog()
 {
-    // TODO: Remove once debug is stable
-    if (!acceptedDebugWarning) {
-        acceptedDebugWarning = true;
-        QMessageBox msgBox;
-        msgBox.setText(tr("Debug is currently in beta.\n") +
-            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
-        msgBox.exec();
-    }
+    showDebugWarning();
 
     AttachProcDialog dialog(main);
     bool success = false;
@@ -307,14 +306,7 @@ void DebugActions::startDebug()
         return;
     }
 
-    // TODO: Remove once debug is stable
-    if (!acceptedDebugWarning) {
-        acceptedDebugWarning = true;
-        QMessageBox msgBox;
-        msgBox.setText(tr("Debug is currently in beta.\n") +
-            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
-        msgBox.exec();
-    }
+    showDebugWarning();
 
     NativeDebugDialog dialog(main);
     QString args;
