@@ -34,21 +34,15 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="argEdit">
+     <widget class="QTextEdit" name="argEdit">
       <property name="maximumSize">
        <size>
         <width>382</width>
         <height>16777215</height>
        </size>
       </property>
-      <property name="inputMask">
-       <string notr="true"/>
-      </property>
       <property name="text">
        <string notr="true"/>
-      </property>
-      <property name="frame">
-       <bool>false</bool>
       </property>
       <property name="placeholderText">
        <string notr="true"/>

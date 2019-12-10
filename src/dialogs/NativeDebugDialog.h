@@ -20,6 +20,7 @@ public:
     ~NativeDebugDialog();
 
     QString getArgs() const;
+    void setArgs(const QString &args);
 
 private:
     std::unique_ptr<Ui::NativeDebugDialog> ui;

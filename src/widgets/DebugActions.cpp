@@ -198,7 +198,7 @@ void DebugActions::showDebugWarning()
     if (!acceptedDebugWarning) {
         acceptedDebugWarning = true;
         QMessageBox msgBox;
-        msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse);
+        msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
         msgBox.setText(tr("Debug is currently in beta.\n") +
             tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
         msgBox.exec();
@@ -309,12 +309,16 @@ void DebugActions::startDebug()
     showDebugWarning();
 
     NativeDebugDialog dialog(main);
+    dialog.setArgs(Core()->getConfig("dbg.args"));
     QString args;
     if (dialog.exec()) {
         args = dialog.getArgs();
     } else {
         return;
     }
+
+    // Update dbg.args with the new args
+    Core()->setConfig("dbg.args", args);
 
     setAllActionsVisible(true);
     actionAttach->setVisible(false);
@@ -324,7 +328,7 @@ void DebugActions::startDebug()
     actionStart->setIcon(restartIcon);
     setButtonVisibleIfMainExists();
 
-    Core()->startDebug(args);
+    Core()->startDebug();
 }
 
 void DebugActions::setAllActionsVisible(bool visible)

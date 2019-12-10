@@ -279,7 +279,7 @@ public:
      */
     QJsonDocument getChildProcesses(int pid);
     QJsonDocument getBacktrace();
-    void startDebug(const QString &args = nullptr);
+    void startDebug();
     void startEmulation();
     /**
      * @brief attach to a remote debugger

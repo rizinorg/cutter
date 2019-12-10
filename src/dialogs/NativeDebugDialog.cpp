@@ -15,5 +15,11 @@ NativeDebugDialog::~NativeDebugDialog() {}
 
 QString NativeDebugDialog::getArgs() const
 {
-    return ui->argEdit->text();
+    return ui->argEdit->toPlainText();
+}
+
+void NativeDebugDialog::setArgs(const QString &args)
+{
+    ui->argEdit->setText(args);
+    ui->argEdit->selectAll();
 }
