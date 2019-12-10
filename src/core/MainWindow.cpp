@@ -87,6 +87,7 @@
 #include <QPropertyAnimation>
 #include <QSysInfo>
 #include <QJsonObject>
+#include <QJsonArray>
 
 #include <QScrollBar>
 #include <QSettings>
@@ -187,6 +188,8 @@ void MainWindow::initUI()
     //Undo and redo seek
     ui->actionBackward->setShortcut(QKeySequence::Back);
     ui->actionForward->setShortcut(QKeySequence::Forward);
+
+    initBackForwardMenu();
 
     /* Setup plugins interfaces */
     for (auto plugin : Plugins()->getPlugins()) {
@@ -983,6 +986,106 @@ void MainWindow::initCorners()
 
     setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+}
+
+void MainWindow::initBackForwardMenu()
+{
+    auto prepareButtonMenu = [this](QAction *action) -> QMenu* {
+        QToolButton *button = qobject_cast<QToolButton *>(ui->mainToolBar->widgetForAction(action));
+        if (!button) {
+            return nullptr;
+        }
+        QMenu *menu = new QMenu(button);
+        button->setMenu(menu);
+        button->setPopupMode(QToolButton::DelayedPopup);
+        button->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(button, &QWidget::customContextMenuRequested, button,
+                [menu, button] (const QPoint &pos) {
+            menu->exec(button->mapToGlobal(pos));
+        });
+
+        QFontMetrics metrics(fontMetrics());
+        // Roughly 10-16 lines depending on padding size, no need to calculate more precisely
+        menu->setMaximumHeight(metrics.lineSpacing() * 20);
+
+        menu->setToolTipsVisible(true);
+        return menu;
+    };
+
+    if (auto menu = prepareButtonMenu(ui->actionBackward)) {
+        menu->setObjectName("historyMenu");
+        connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
+            updateHistoryMenu(menu, false);
+        });
+    }
+    if (auto menu = prepareButtonMenu(ui->actionForward)) {
+        menu->setObjectName("forwardHistoryMenu");
+        connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
+            updateHistoryMenu(menu, true);
+        });
+    }
+}
+
+void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
+{
+    // Not too long so that whole screen doesn't get covered,
+    // not too short so that reasonable length c++ names can be seen most of the time
+    const int MAX_NAME_LENGTH = 64;
+
+    auto hist = Core()->cmdj("sj");
+    bool history = true;
+    QList<QAction *> actions;
+    for (auto item : Core()->cmdj("sj").array()) {
+        QJsonObject obj = item.toObject();
+        QString name = obj["name"].toString();
+        RVA offset = obj["offset"].toVariant().toULongLong();
+        bool current = obj["current"].toBool(false);
+        if (current) {
+            history = false;
+        }
+        if (history != redo || current) { // Include current in both directions
+            QString addressString = RAddressString(offset);
+
+            QString toolTip = QString("%1 %2").arg(addressString, name); // show non truncated name in tooltip
+
+            name.truncate(MAX_NAME_LENGTH); // TODO:#1904 use common name shortening function
+            QString label = QString("%1 (%2)").arg(name, addressString);
+            if (current) {
+                label = QString("current position (%1)").arg(addressString);
+            }
+            QAction *action = new QAction(label, menu);
+            action->setToolTip(toolTip);
+            actions.push_back(action);
+            if (current) {
+                QFont font;
+                font.setBold(true);
+                action->setFont(font);
+            }
+        }
+    }
+    if (!redo) {
+        std::reverse(actions.begin(), actions.end());
+    }
+    menu->clear();
+    menu->addActions(actions);
+    int steps = 0;
+    for (QAction *item : menu->actions()) {
+        if (redo) {
+            connect(item, &QAction::triggered, item, [steps]() {
+                for (int i = 0; i < steps; i++) {
+                    Core()->seekNext();
+                }
+            });
+        } else {
+            connect(item, &QAction::triggered, item, [steps]() {
+                for (int i = 0; i < steps; i++) {
+                    Core()->seekPrev();
+                }
+            });
+        }
+        ++steps;
+    }
+
 }
 
 void MainWindow::addWidget(QDockWidget* widget)

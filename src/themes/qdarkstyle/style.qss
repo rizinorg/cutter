@@ -1010,7 +1010,7 @@ QToolButton::menu-button:pressed {
 
 QToolButton::menu-indicator {
     image: url(:/qss_icons/rc/down_arrow.png);
-    top: -7px;
+    top: -2px;
     left: -2px;
     /* shift it a bit */
 }
@@ -1222,4 +1222,8 @@ QDateEdit::down-arrow:on,
 QDateEdit::down-arrow:hover,
 QDateEdit::down-arrow:focus {
     image: url(:/qss_icons/rc/down_arrow.png);
+}
+
+QMenu#historyMenu, QMenu#forwardHistoryMenu {
+    menu-scrollable: true;
 }

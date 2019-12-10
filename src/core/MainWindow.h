@@ -261,6 +261,7 @@ private:
     void initDocks();
     void initLayout();
     void initCorners();
+    void initBackForwardMenu();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
@@ -274,6 +275,12 @@ private:
     void showZenDocks();
     void showDebugDocks();
     void enableDebugWidgetsMenu(bool enable);
+    /**
+     * @brief Fill menu with seek history entries.
+     * @param menu
+     * @param redo set to false for undo history, true for redo.
+     */
+    void updateHistoryMenu(QMenu *menu, bool redo = false);
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 

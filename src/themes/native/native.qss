@@ -24,3 +24,7 @@ CutterTreeView::item
    padding-top: 1px;
    padding-bottom: 1px;
 }
+
+QMenu#historyMenu, QMenu#forwardHistoryMenu {
+    menu-scrollable: true;
+}
