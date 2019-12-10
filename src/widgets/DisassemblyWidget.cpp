@@ -614,7 +614,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
     }
 }
 
-void DisassemblyWidget::jumpToOffsetByCursor(const QTextCursor &cursor)
+void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
     RVA offset = readDisassemblyOffset(cursor);
     RVA jump = Core()->getOffsetJump(offset);
@@ -640,7 +640,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
         const QTextCursor& cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
-        jumpToOffsetByCursor(cursor);
+        jumpToOffsetUnderCursor(cursor);
 
         return true;
     }
@@ -652,7 +652,7 @@ void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
     if(event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
-        jumpToOffsetByCursor(cursor);
+        jumpToOffsetUnderCursor(cursor);
     }
 
     MemoryDockWidget::keyPressEvent(event);
