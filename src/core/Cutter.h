@@ -66,10 +66,11 @@ public:
      * @note connect to the &R2Task::finished signal to add your own logic once
      *       the command is finished. Use task->getResult()/getResultJson() for the 
      *       return value.
+     *       Once you have setup connections you can start the task with task->startTask()
      *       If you want to seek to an address, you should use CutterCore::seek.
      */
-    void asyncCmd(const char *str, QSharedPointer<R2Task> &task);
-    void asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
+    bool asyncCmd(const char *str, QSharedPointer<R2Task> &task);
+    bool asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
     QString cmdRaw(const QString &str);
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
@@ -91,10 +92,11 @@ public:
      * @note connect to the &R2Task::finished signal to add your own logic once
      *       the command is finished. Use task->getResult()/getResultJson() for the 
      *       return value.
+     *       Once you have setup connections you can start the task with task->startTask()
      *       If you want to seek to an address, you should use CutterCore::seek.
      */
-    void asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task);
-    void asyncCmdEsil(const QString &command, QSharedPointer<R2Task> &task) { return asyncCmdEsil(command.toUtf8().constData(), task); }
+    bool asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task);
+    bool asyncCmdEsil(const QString &command, QSharedPointer<R2Task> &task) { return asyncCmdEsil(command.toUtf8().constData(), task); }
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);

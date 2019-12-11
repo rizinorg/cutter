@@ -268,6 +268,7 @@ SOURCES += \
     dialogs/FlagDialog.cpp \
     dialogs/RenameDialog.cpp \
     dialogs/RemoteDebugDialog.cpp \
+    dialogs/NativeDebugDialog.cpp \
     dialogs/XrefsDialog.cpp \
     core/MainWindow.cpp \
     common/Helpers.cpp \
@@ -403,6 +404,7 @@ HEADERS  += \
     dialogs/FlagDialog.h \
     dialogs/RenameDialog.h \
     dialogs/RemoteDebugDialog.h \
+    dialogs/NativeDebugDialog.h \
     dialogs/XrefsDialog.h \
     common/Helpers.h \
     common/HexAsciiHighlighter.h \
@@ -536,6 +538,7 @@ FORMS    += \
     dialogs/FlagDialog.ui \
     dialogs/RenameDialog.ui \
     dialogs/RemoteDebugDialog.ui \
+    dialogs/NativeDebugDialog.ui \
     dialogs/XrefsDialog.ui \
     dialogs/NewfileDialog.ui \
     dialogs/InitialOptionsDialog.ui \
