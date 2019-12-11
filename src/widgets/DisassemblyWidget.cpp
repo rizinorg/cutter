@@ -7,6 +7,7 @@
 #include "core/MainWindow.h"
 
 #include <QApplication>
+#include <QColorDialog>
 #include <QScrollBar>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -43,6 +44,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ,   mCtxMenu(new DisassemblyContextMenu(this, main))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))
+    ,   actionUnhighlightInstruction(this)
 {
     setObjectName(main
                   ? main->getUniqueObjectName(getWidgetType())
@@ -172,6 +174,19 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     mCtxMenu->addAction(&syncAction);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblyWidget::on_seekChanged);
 
+    QAction *highlightInstruction = new QAction(this);
+    highlightInstruction->setText(tr("Highlight instruction"));
+    connect(highlightInstruction, &QAction::triggered, this,
+            &DisassemblyWidget::onActionHighlightInstructionTriggered);
+
+    actionUnhighlightInstruction.setVisible(false);
+    actionUnhighlightInstruction.setText(tr("Unhighlight instruction"));
+    connect(&actionUnhighlightInstruction, &QAction::triggered, this,
+            &DisassemblyWidget::onActionUnhighlightInstructionTriggered);
+
+    mCtxMenu->addAction(highlightInstruction);
+    mCtxMenu->addAction(&actionUnhighlightInstruction);
+
     addActions(mCtxMenu->actions());
 
 #define ADD_ACTION(ksq, ctx, slot) {\
@@ -292,11 +307,20 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
             break;
         }
         cursor.insertHtml(line.text);
+
+        QColor backgroundColor;
         if (Core()->isBreakpoint(breakpoints, line.offset)) {
+            backgroundColor = ConfigColor("gui.breakpoint_background");
+        } else if (auto background = Core()->getBIHighlighter()->getBasicInstruction(line.offset)) {
+            backgroundColor = background->color;
+        }
+
+        if (backgroundColor.isValid()) {
             QTextBlockFormat f;
-            f.setBackground(ConfigColor("gui.breakpoint_background"));
+            f.setBackground(backgroundColor);
             cursor.setBlockFormat(f);
         }
+
         auto a = new DisassemblyTextBlockUserData(line);
         cursor.block().setUserData(a);
         cursor.insertBlock();
@@ -357,7 +381,11 @@ void DisassemblyWidget::scrollInstructions(int count)
 
 bool DisassemblyWidget::updateMaxLines()
 {
-    int currentMaxLines = qhelpers::getMaxFullyDisplayedLines(mDisasTextEdit);
+    /**
+     * getDisassemblyLine needs one additional disassembly
+     * line to correctly calculate size of that line
+     */
+    int currentMaxLines = qhelpers::getMaxFullyDisplayedLines(mDisasTextEdit) + 1;
 
     if (currentMaxLines != maxLines) {
         maxLines = currentMaxLines;
@@ -435,6 +463,11 @@ void DisassemblyWidget::highlightCurrentLine()
 
 void DisassemblyWidget::showDisasContextMenu(const QPoint &pt)
 {
+    const RVA offset = this->seekable->getOffset();
+    const auto disasLinePair = getDisassemblyLine(offset);
+    auto bih = Core()->getBIHighlighter();
+    actionUnhighlightInstruction.setVisible(disasLinePair.first && bih->getBasicInstruction(offset));
+    
     mCtxMenu->exec(mDisasTextEdit->mapToGlobal(pt));
 }
 
@@ -646,6 +679,56 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 QString DisassemblyWidget::getWindowTitle() const
 {
     return tr("Disassembly");
+}
+
+std::pair<DisassemblyLine*, RVA> DisassemblyWidget::getDisassemblyLine(RVA address)
+{
+    for (int i = 0; i < lines.size() - 1; i++) {
+        DisassemblyLine &line = lines[i];
+        DisassemblyLine &nextLine = lines[i+1];
+        if (line.offset <= address && address < nextLine.offset) {
+            return {&line, nextLine.offset - line.offset};
+        }
+    }
+
+    return {nullptr, RVA_INVALID};
+}
+
+void DisassemblyWidget::onActionHighlightInstructionTriggered()
+{
+    const RVA offset = this->seekable->getOffset();
+    const auto disasLinePair = getDisassemblyLine(offset);
+
+    if (!disasLinePair.first) {
+        return;
+    }
+
+    auto bih = Core()->getBIHighlighter();
+    QColor background = ConfigColor("linehl");
+    if (auto currentColor = bih->getBasicInstruction(offset)) {
+        background = currentColor->color;
+    }
+
+    QColor c = QColorDialog::getColor(background, this, QString(),
+                                      QColorDialog::DontUseNativeDialog);
+    if (c.isValid()) {
+        bih->highlight(offset, disasLinePair.second, c);
+    }
+    Config()->colorsUpdated();
+}
+
+void DisassemblyWidget::onActionUnhighlightInstructionTriggered()
+{
+    const RVA offset = this->seekable->getOffset();
+    const auto disasLinePair = getDisassemblyLine(offset);
+
+    if (!disasLinePair.first) {
+        return;
+    }
+
+    auto bih = Core()->getBIHighlighter();
+    bih->clear(offset, disasLinePair.second);
+    Config()->colorsUpdated();
 }
 
 void DisassemblyWidget::on_seekChanged(RVA offset)

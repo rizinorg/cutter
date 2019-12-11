@@ -69,10 +69,18 @@ private:
 
     RefreshDeferrer *disasmRefresh;
 
+    QAction actionUnhighlightInstruction;
+
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
     QString getWindowTitle() const override;
+
+    /**
+     * Returns pointer to disassemblyLine which contains address,
+     * and size of that disassemblyLine
+     */
+    std::pair<DisassemblyLine*, RVA> getDisassemblyLine(RVA address);
 
     QList<RVA> breakpoints;
 
@@ -84,6 +92,9 @@ private:
     void connectCursorPositionChanged(bool disconnect);
 
     void moveCursorRelative(bool up, bool page);
+
+    void onActionHighlightInstructionTriggered();
+    void onActionUnhighlightInstructionTriggered();
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
