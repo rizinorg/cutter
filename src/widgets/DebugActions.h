@@ -32,11 +32,15 @@ public:
     QAction *actionStop;
     QAction *actionAllContinues;
 
-    // Continue and suspend interchange during runtime
+    // Continue/suspend and start/restart interchange during runtime
     QIcon continueIcon;
     QIcon suspendIcon;
+    QIcon restartIcon;
+    QIcon startDebugIcon;
     QString suspendLabel;
     QString continueLabel;
+    QString restartDebugLabel;
+    QString startDebugLabel;
 
     // Stop and Detach interchange during runtime
     QIcon detachIcon;
@@ -52,9 +56,14 @@ private:
     QToolButton *continueUntilButton;
     RemoteDebugDialog *remoteDialog = nullptr;
     MainWindow *main;
+    bool acceptedDebugWarning = false;
+
+    // TODO: Remove once debug is stable
+    void showDebugWarning();
 
 private slots:
     void continueUntilMain();
+    void startDebug();
     void attachProcessDialog();
     void attachProcess(int pid);
     void attachRemoteDialog();
