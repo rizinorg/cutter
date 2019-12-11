@@ -161,7 +161,8 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
         tree->showItemsNumber(proxy->rowCount());
     });
     
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshVTables()));
+    connect(Core(), &CutterCore::codeRebased, this, &VTablesWidget::refreshVTables);
+    connect(Core(), &CutterCore::refreshAll, this, &VTablesWidget::refreshVTables);
 }
 
 VTablesWidget::~VTablesWidget()
