@@ -1332,7 +1332,7 @@ void CutterCore::attachRemote(const QString &uri)
     }
 
     // connect to a debugger with the given plugin
-    asyncCmd("o-*; e cfg.debug = true; oodf " + uri, debugTask);
+    asyncCmd("e cfg.debug = true; oodf " + uri, debugTask);
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &R2Task::finished, this, [this, uri] () {
@@ -1387,7 +1387,7 @@ void CutterCore::attachDebug(int pid)
     }
 
     // attach to process with dbg plugin
-    asyncCmd("o-*; e cfg.debug = true; o+ dbg://" + QString::number(pid), debugTask);
+    asyncCmd("e cfg.debug = true; oodf dbg://" + QString::number(pid), debugTask);
     emit debugTaskStateChanged();
 
     connect(debugTask.data(), &R2Task::finished, this, [this, pid] () {
