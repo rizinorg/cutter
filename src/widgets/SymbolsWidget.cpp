@@ -124,6 +124,7 @@ SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
     setModels(symbolsProxyModel);
     ui->treeView->sortByColumn(SymbolsModel::AddressColumn, Qt::AscendingOrder);
 
+    connect(Core(), &CutterCore::codeRebased, this, &SymbolsWidget::refreshSymbols);
     connect(Core(), &CutterCore::refreshAll, this, &SymbolsWidget::refreshSymbols);
 }
 

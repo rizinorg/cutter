@@ -160,8 +160,9 @@ FlagsWidget::FlagsWidget(MainWindow *main, QAction *action) :
 
     setScrollMode();
 
-    connect(Core(), SIGNAL(flagsChanged()), this, SLOT(flagsChanged()));
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshFlagspaces()));
+    connect(Core(), &CutterCore::flagsChanged, this, &FlagsWidget::flagsChanged);
+    connect(Core(), &CutterCore::codeRebased, this, &FlagsWidget::flagsChanged);
+    connect(Core(), &CutterCore::refreshAll, this, &FlagsWidget::refreshFlagspaces);
 
     auto menu = ui->flagsTreeView->getItemContextMenu();
     menu->addSeparator();

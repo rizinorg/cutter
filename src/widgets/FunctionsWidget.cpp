@@ -480,8 +480,9 @@ FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
     connect(this, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showTitleContextMenu(const QPoint &)));
 
-    connect(Core(), SIGNAL(functionsChanged()), this, SLOT(refreshTree()));
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshTree()));
+    connect(Core(), &CutterCore::functionsChanged, this, &FunctionsWidget::refreshTree);
+    connect(Core(), &CutterCore::codeRebased, this, &FunctionsWidget::refreshTree);
+    connect(Core(), &CutterCore::refreshAll, this, &FunctionsWidget::refreshTree);
 }
 
 FunctionsWidget::~FunctionsWidget() {}
