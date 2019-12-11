@@ -155,7 +155,8 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
             main->updateDockActionChecked(action);
             } );
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshImports()));
+    connect(Core(), &CutterCore::codeRebased, this, &ImportsWidget::refreshImports);
+    connect(Core(), &CutterCore::refreshAll, this, &ImportsWidget::refreshImports);
 }
 
 ImportsWidget::~ImportsWidget() {}

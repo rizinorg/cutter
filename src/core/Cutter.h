@@ -491,6 +491,10 @@ signals:
     void breakpointsChanged();
     void refreshCodeViews();
     void stackChanged();
+    /**
+     * @brief update all the widgets that are affected by rebasing in debug mode
+     */
+    void codeRebased();
 
     void switchedThread();
     void switchedProcess();

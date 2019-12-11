@@ -186,7 +186,8 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     });
     clearShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshStrings()));
+    connect(Core(), &CutterCore::refreshAll, this, &StringsWidget::refreshStrings);
+    connect(Core(), &CutterCore::codeRebased, this, &StringsWidget::refreshStrings);
 
     connect(
         ui->quickFilterView->comboBox(), &QComboBox::currentTextChanged, this,
