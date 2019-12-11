@@ -215,6 +215,7 @@ void SectionsWidget::initAddrMapDocks()
 void SectionsWidget::initConnects()
 {
     connect(Core(), &CutterCore::refreshAll, this, &SectionsWidget::refreshSections);
+    connect(Core(), &CutterCore::codeRebased, this, &SectionsWidget::refreshSections);
     connect(this, &QDockWidget::visibilityChanged, this, [ = ](bool visibility) {
         if (visibility) {
             refreshSections();

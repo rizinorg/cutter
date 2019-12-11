@@ -142,6 +142,7 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
 
     connect(Core(), &CutterCore::refreshAll, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::breakpointsChanged, this, &BreakpointWidget::refreshBreakpoint);
+    connect(Core(), &CutterCore::codeRebased, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::refreshCodeViews, this, &BreakpointWidget::refreshBreakpoint);
     connect(ui->addBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::addBreakpointDialog);
     connect(ui->delBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::delBreakpoint);

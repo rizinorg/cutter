@@ -1265,9 +1265,10 @@ void CutterCore::startDebug()
             setConfig("asm.flags", false);
             currentlyDebugging = true;
             emit changeDebugView();
-            emit flagsChanged();
             emit refreshCodeViews();
         }
+
+        emit codeRebased();
         emit stackChanged();
         emit debugTaskStateChanged();
     });
@@ -1306,10 +1307,11 @@ void CutterCore::startEmulation()
             currentlyDebugging = true;
             currentlyEmulating = true;
             emit changeDebugView();
-            emit flagsChanged();
         }
+
         emit registersChanged();
         emit stackChanged();
+        emit codeRebased();
         emit refreshCodeViews();
         emit debugTaskStateChanged();
     });
@@ -1361,10 +1363,10 @@ void CutterCore::attachRemote(const QString &uri)
             // prevent register flags from appearing during debug/emul
             setConfig("asm.flags", false);
             currentlyDebugging = true;
-            emit flagsChanged();
             emit changeDebugView();
         }
 
+        emit codeRebased();
         emit attachedRemote(true);
         emit debugTaskStateChanged();
     });
@@ -1401,9 +1403,11 @@ void CutterCore::attachDebug(int pid)
             currentlyDebugging = true;
             currentlyOpenFile = getConfig("file.path");
             currentlyAttachedToPID = pid;
-            emit flagsChanged();
             emit changeDebugView();
         }
+
+        emit codeRebased();
+        emit debugTaskStateChanged();
     });
 
     debugTaskDialog = new R2TaskDialog(debugTask);
@@ -1457,7 +1461,7 @@ void CutterCore::stopDebug()
     syncAndSeekProgramCounter();
     setConfig("asm.flags", true);
     setConfig("io.cache", false);
-    emit flagsChanged();
+    emit codeRebased();
     emit changeDefinedView();
     offsetPriorDebugging = getOffset();
     emit debugTaskStateChanged();
