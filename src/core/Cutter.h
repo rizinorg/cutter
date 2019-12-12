@@ -394,12 +394,15 @@ public:
     void suspendDebug();
     void syncAndSeekProgramCounter();
     void continueDebug();
+    void continueBackDebug();
     void continueUntilCall();
     void continueUntilSyscall();
     void continueUntilDebug(QString offset);
     void stepDebug();
     void stepOverDebug();
     void stepOutDebug();
+    void stepBackDebug();
+    void addTraceSession();
 
     void addBreakpoint(const BreakpointDescription &config);
     void updateBreakpoint(int index, const BreakpointDescription &config);

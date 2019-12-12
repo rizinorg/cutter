@@ -26,11 +26,14 @@ public:
     QAction *actionContinueUntilMain;
     QAction *actionContinueUntilCall;
     QAction *actionContinueUntilSyscall;
+    QAction *actionContinueBack;
     QAction *actionStep;
     QAction *actionStepOver;
     QAction *actionStepOut;
+    QAction *actionStepBack;
     QAction *actionStop;
     QAction *actionAllContinues;
+    QAction *actionAddTraceSession;
 
     // Continue/suspend and start/restart interchange during runtime
     QIcon continueIcon;

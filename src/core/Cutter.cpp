@@ -1902,6 +1902,35 @@ void CutterCore::continueDebug()
     debugTask->startTask();
 }
 
+void CutterCore::continueBackDebug()
+{
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aecb", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dcb", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit registersChanged();
+        emit stackChanged();
+        emit refreshCodeViews();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
+}
+
 void CutterCore::continueUntilDebug(QString offset)
 {
     if (!currentlyDebugging) {
@@ -2055,6 +2084,32 @@ void CutterCore::stepOutDebug()
     debugTask->startTask();
 }
 
+void CutterCore::stepBackDebug()
+{
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aesb", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dsb", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
+}
+
 QStringList CutterCore::getDebugPlugins()
 {
     QStringList plugins;
@@ -2078,6 +2133,41 @@ QString CutterCore::getActiveDebugPlugin()
 void CutterCore::setDebugPlugin(QString plugin)
 {
     setConfig("dbg.backend", plugin);
+}
+
+void CutterCore::addTraceSession()
+{
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aets+", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dts+", debugTask)) {
+            return;
+        }
+    }
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Creating debug tracepoint..."));
+    debugTaskDialog->show();
+
+    debugTask->startTask();
 }
 
 void CutterCore::toggleBreakpoint(RVA addr)
