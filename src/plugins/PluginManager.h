@@ -29,13 +29,14 @@ public:
 
     const QList<CutterPlugin *> &getPlugins()   { return plugins; }
 
-    QString getPluginsDirectory() const;
+    QVector<QDir> getPluginDirectories() const;
+    QString getUserPluginsDirectory() const;
 
 private:
     QList<CutterPlugin *> plugins;
 
     void loadNativePlugins(const QDir &directory);
-    void loadPluginsFromDir(const QDir &pluginsDir);
+    void loadPluginsFromDir(const QDir &pluginsDir, bool writable = false);
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     void loadPythonPlugins(const QDir &directory);
