@@ -51,6 +51,7 @@ jobs:
 
       - name: Submit the result to Coverity Scan
         run: |
+          cd build
           tar czvf cutter.tgz cov-int
           curl \
             --form project=radareorg-cutter \
