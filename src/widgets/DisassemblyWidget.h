@@ -72,6 +72,7 @@ private:
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
     QString getWindowTitle() const override;
 
     QList<RVA> breakpoints;
@@ -84,6 +85,8 @@ private:
     void connectCursorPositionChanged(bool disconnect);
 
     void moveCursorRelative(bool up, bool page);
+
+    void jumpToOffsetUnderCursor(const QTextCursor&);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea
