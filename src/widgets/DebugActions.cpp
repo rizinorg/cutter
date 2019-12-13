@@ -108,7 +108,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // necessary to avoid staying stuck
     toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
         actionContinueUntilCall, actionContinueUntilSyscall};
-    toggleConnectionActions = {actionAttach, actionStartRemote, actionStartEmul};
+    toggleConnectionActions = {actionAttach, actionStartRemote};
 
     connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
         bool disableToolbar = Core()->isDebugTaskInProgress();
