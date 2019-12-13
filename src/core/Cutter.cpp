@@ -1264,7 +1264,7 @@ void CutterCore::startDebug()
         if (!currentlyDebugging) {
             setConfig("asm.flags", false);
             currentlyDebugging = true;
-            emit changeDebugView();
+            emit toggleDebugView();
             emit refreshCodeViews();
         }
 
@@ -1306,7 +1306,7 @@ void CutterCore::startEmulation()
             setConfig("io.cache", true);
             currentlyDebugging = true;
             currentlyEmulating = true;
-            emit changeDebugView();
+            emit toggleDebugView();
         }
 
         emit registersChanged();
@@ -1363,7 +1363,7 @@ void CutterCore::attachRemote(const QString &uri)
             // prevent register flags from appearing during debug/emul
             setConfig("asm.flags", false);
             currentlyDebugging = true;
-            emit changeDebugView();
+            emit toggleDebugView();
         }
 
         emit codeRebased();
@@ -1403,7 +1403,7 @@ void CutterCore::attachDebug(int pid)
             currentlyDebugging = true;
             currentlyOpenFile = getConfig("file.path");
             currentlyAttachedToPID = pid;
-            emit changeDebugView();
+            emit toggleDebugView();
         }
 
         emit codeRebased();
@@ -1462,7 +1462,7 @@ void CutterCore::stopDebug()
     setConfig("asm.flags", true);
     setConfig("io.cache", false);
     emit codeRebased();
-    emit changeDefinedView();
+    emit toggleDebugView();
     offsetPriorDebugging = getOffset();
     emit debugTaskStateChanged();
 }

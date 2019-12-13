@@ -171,8 +171,7 @@ void MainWindow::initUI()
     connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
                                                                                        const QString &)));
 
-    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
-    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
+    connect(core, &CutterCore::toggleDebugView, this, &MainWindow::toggleDebugView);
 
     connect(core, SIGNAL(newMessage(const QString &)),
             this->consoleDock, SLOT(addOutput(const QString &)));
@@ -1437,22 +1436,21 @@ void MainWindow::projectSaved(bool successfully, const QString &name)
         core->message(tr("Failed to save project: %1").arg(name));
 }
 
-void MainWindow::changeDebugView()
+void MainWindow::toggleDebugView()
 {
-    saveSettings();
-    restoreDebugLayout();
-    enableDebugWidgetsMenu(true);
-}
-
-void MainWindow::changeDefinedView()
-{
-    saveDebugSettings();
-    MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
-    hideAllDocks();
-    restoreDocks();
-    readSettingsOrDefault();
-    enableDebugWidgetsMenu(false);
-    showMemoryWidget(memType);
+    if (Core()->currentlyDebugging) {
+        saveSettings();
+        restoreDebugLayout();
+        enableDebugWidgetsMenu(true);
+    } else {
+        saveDebugSettings();
+        MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
+        hideAllDocks();
+        restoreDocks();
+        readSettingsOrDefault();
+        enableDebugWidgetsMenu(false);
+        showMemoryWidget(memType);
+    }
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
