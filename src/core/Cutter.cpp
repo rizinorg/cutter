@@ -1455,7 +1455,7 @@ void CutterCore::stopDebug()
                 ptraceFiles += "o-" + QString::number(openFile["fd"].toInt()) + ";";
             }
         }
-        cmd("dk 9; oo; .ar-;" + ptraceFiles);
+        cmd("doc" + ptraceFiles);
     }
 
     syncAndSeekProgramCounter();
