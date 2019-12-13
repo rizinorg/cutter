@@ -13,6 +13,7 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: 3.7.5
+
       - name: Download Coverity Build Tool
         run: |
           wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=radareorg%2Fcutter" -O cov-analysis-linux64.tar.gz
@@ -25,6 +26,9 @@ jobs:
         run: |
           chmod go-w $HOME
           sudo chmod -R go-w /usr/share
+      
+      - name: apt dependencies
+        run: sudo apt-get install ninja-build libgraphviz-dev
       
       - name: py dependencies
         run: |
@@ -42,10 +46,12 @@ jobs:
       - name: Build with cov-build
         run: |
           export PATH=`pwd`/cov-analysis-linux64/bin:$PATH
+          cd build
           cov-build --dir cov-int make
 
       - name: Submit the result to Coverity Scan
         run: |
+          cd build
           tar czvf cutter.tgz cov-int
           curl \
             --form project=radareorg-cutter \

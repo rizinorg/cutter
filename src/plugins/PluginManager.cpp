@@ -9,6 +9,7 @@
 
 #include "PluginManager.h"
 #include "CutterPlugin.h"
+#include "CutterConfig.h"
 
 #include <QDir>
 #include <QCoreApplication>
@@ -30,77 +31,44 @@ PluginManager::~PluginManager()
 {
 }
 
-QString PluginManager::getPluginsDirectory() const
-{
-    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    if (locations.isEmpty()) {
-        return QString();
-    }
-    QDir pluginsDir(locations.first());
-    pluginsDir.mkpath("plugins");
-    if (!pluginsDir.cd("plugins")) {
-        return QString();
-    }
-    return pluginsDir.absolutePath();
-}
-
 void PluginManager::loadPlugins()
 {
     assert(plugins.isEmpty());
 
-    QString pluginsDirStr = getPluginsDirectory();
-    if (pluginsDirStr.isEmpty()) {
-        qCritical() << "Failed to get a path to load plugins from.";
-        return;
+    QString userPluginDir = getUserPluginsDirectory();
+    if (!userPluginDir.isEmpty()) {
+        loadPluginsFromDir(QDir(userPluginDir), true);
     }
-
-    loadPluginsFromDir(QDir(pluginsDirStr));
-
-#ifdef Q_OS_WIN
-    {
-        QDir appDir;
-        appDir.mkdir("plugins");
-        if (appDir.cd("plugins")) {
-            loadPluginsFromDir(appDir);
+    const auto pluginDirs = getPluginDirectories();
+    for (auto &dir : pluginDirs) {
+        if (dir.absolutePath() == userPluginDir) {
+            continue;
         }
+        loadPluginsFromDir(dir);
     }
-#endif
-
-#ifdef APPIMAGE
-    {
-        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
-        plugdir.cdUp(); // appdir
-        if (plugdir.cd("share/RadareOrg/Cutter/plugins")) { // appdir/share/RadareOrg/Cutter/plugins
-            loadPluginsFromDir(plugdir);
-        }
-    }
-#endif
-
-#ifdef Q_OS_MACOS
-    {
-        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
-        plugdir.cdUp(); // Contents
-        if (plugdir.cd("Resources/plugins")) { // Contents/Resources/plugins
-            loadPluginsFromDir(plugdir);
-        }
-    }
-#endif
 }
 
-void PluginManager::loadPluginsFromDir(const QDir &pluginsDir)
+void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
 {
     qInfo() << "Plugins are loaded from" << pluginsDir.absolutePath();
     int loadedPlugins = plugins.length();
+    if (!pluginsDir.exists()) {
+        return;
+    }
 
     QDir nativePluginsDir = pluginsDir;
-    nativePluginsDir.mkdir("native");
+    if (writable) {
+        nativePluginsDir.mkdir("native");
+    }
     if (nativePluginsDir.cd("native")) {
         loadNativePlugins(nativePluginsDir);
     }
 
 #ifdef CUTTER_ENABLE_PYTHON_BINDINGS
     QDir pythonPluginsDir = pluginsDir;
-    pythonPluginsDir.mkdir("python");
+    if (writable) {
+        pythonPluginsDir.mkdir("python");
+    }
     if (pythonPluginsDir.cd("python")) {
         loadPythonPlugins(pythonPluginsDir.absolutePath());
     }
@@ -110,13 +78,58 @@ void PluginManager::loadPluginsFromDir(const QDir &pluginsDir)
     qInfo() << "Loaded" << loadedPlugins << "plugin(s).";
 }
 
-
 void PluginManager::destroyPlugins()
 {
     for (CutterPlugin *plugin : plugins) {
         plugin->terminate();
         delete plugin;
     }
+}
+
+QVector<QDir> PluginManager::getPluginDirectories() const
+{
+    QVector<QDir> result;
+    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    for (auto &location : locations) {
+        result.push_back(QDir(location).filePath("plugins"));
+    }
+
+#ifdef APPIMAGE
+    {
+        auto plugdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
+        plugdir.cdUp(); // appdir
+        if (plugdir.cd("share/RadareOrg/Cutter/plugins")) { // appdir/share/RadareOrg/Cutter/plugins
+            result.push_back(plugdir);
+        }
+    }
+#endif
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 6, 0) && defined(Q_OS_UNIX)
+    QChar listSeparator = ':';
+#else
+    QChar listSeparator = QDir::listSeparator();
+#endif
+    QString extra_plugin_dirs = CUTTER_EXTRA_PLUGIN_DIRS;
+    for (auto& path : extra_plugin_dirs.split(listSeparator, QString::SplitBehavior::SkipEmptyParts)) {
+        result.push_back(QDir(path));
+    }
+
+    return result;
+}
+
+
+QString PluginManager::getUserPluginsDirectory() const
+{
+    QString location = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    if (location.isEmpty()) {
+        return QString();
+    }
+    QDir pluginsDir(location);
+    pluginsDir.mkpath("plugins");
+    if (!pluginsDir.cd("plugins")) {
+        return QString();
+    }
+    return pluginsDir.absolutePath();
 }
 
 void PluginManager::loadNativePlugins(const QDir &directory)

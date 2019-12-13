@@ -17,6 +17,7 @@ option(CUTTER_ENABLE_CRASH_REPORTS "Enable crash report system. Unused if CUTTER
 tri_option(CUTTER_ENABLE_KSYNTAXHIGHLIGHTING "Use KSyntaxHighlighting" AUTO)
 tri_option(CUTTER_ENABLE_GRAPHVIZ "Enable use of graphviz for graph layout" AUTO)
 option (option SHIBOKEN_EXTRA_OPTIONS "Extra options for shiboken generator")
+set(CUTTER_EXTRA_PLUGIN_DIRS "" CACHE STRING "List of addition plugin locations")
 
 if(NOT CUTTER_ENABLE_PYTHON)
     set(CUTTER_ENABLE_PYTHON_BINDINGS OFF)
