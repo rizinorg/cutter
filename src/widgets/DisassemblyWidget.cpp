@@ -617,20 +617,7 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
 void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 {
     RVA offset = readDisassemblyOffset(cursor);
-    RVA jump = Core()->getOffsetJump(offset);
-
-    if (jump == RVA_INVALID) {
-        bool ok;
-        RVA xref = Core()->cmdj("axfj@" + QString::number(
-                                              offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
-        if (ok) {
-            jump = xref;
-        }
-    }
-
-    if (jump != RVA_INVALID) {
-        seekable->seek(jump);
-    }
+    seekable->seekToReference(offset);
 }
 
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
