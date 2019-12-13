@@ -581,10 +581,58 @@ void CutterCore::setToCode(RVA addr)
     emit instructionChanged(addr);
 }
 
-void CutterCore::setAsString(RVA addr)
+void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
 {
-    cmd("Cs @ " + RAddressString(addr));
+    if(RVA_INVALID == addr)
+    {
+        return;
+    }
+
+    QString command;
+
+    switch(type)
+    {
+    case StringTypeFormats::None:
+    {
+        command = "Cs ";
+        break;
+    }
+    case StringTypeFormats::ASCII_LATIN1:
+    {
+        command = "Csa ";
+        break;
+    }
+    case StringTypeFormats::UTF8:
+    {
+        command = "Cs8 ";
+        break;
+    }
+    default:
+        return;
+    }
+
+    seekAndShow(addr);
+    QString arg;
+    if(size > 0) {
+        arg = QString::asprintf("%d @ %lld", size, addr);
+    }
+    else {
+        arg = QString::asprintf("@ %lld", addr);
+    }
+
+    cmd(command + arg);
+    instructionChanged(addr);
+}
+
+void CutterCore::removeString(RVA addr)
+{
+    cmd("Cs- @ " + RAddressString(addr));
     emit instructionChanged(addr);
+}
+
+QString CutterCore::getString(RVA addr)
+{
+    return cmd("ps @ " + RAddressString(addr));
 }
 
 void CutterCore::setToData(RVA addr, int size, int repeat)

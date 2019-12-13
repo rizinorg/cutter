@@ -106,7 +106,10 @@ public:
 
     /* Code/Data */
     void setToCode(RVA addr);
-    void setAsString(RVA addr);
+    enum class StringTypeFormats { None, ASCII_LATIN1, UTF8 };
+    void setAsString(RVA addr, int size = 0, StringTypeFormats type = StringTypeFormats::None);
+    void removeString(RVA addr);
+    QString getString(RVA addr);
     void setToData(RVA addr, int size, int repeat = 1);
     int sizeofDataMeta(RVA addr);
 
