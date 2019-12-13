@@ -882,7 +882,7 @@ void DisassemblyContextMenu::on_actionSetAsStringRemove_triggered()
 
 void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
 {
-    EditStringDialog dialog(this->window());
+    EditStringDialog dialog(parentWidget());
     const int predictedStrSize = Core()->getString(offset).size();
     dialog.setStringSizeValue(predictedStrSize);
     dialog.setStringStartAddress(offset);
