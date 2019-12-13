@@ -204,6 +204,12 @@ void DecompilerWidget::connectCursorPositionChanged(bool disconnect)
 
 void DecompilerWidget::cursorPositionChanged()
 {
+    // Do not perform seeks along with the cursor while selecting multiple lines
+    if (!ui->textEdit->textCursor().selectedText().isEmpty())
+    {
+        return;
+    }
+
     size_t pos = ui->textEdit->textCursor().position();
     RVA offset = code.OffsetForPosition(pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
