@@ -529,8 +529,7 @@ signals:
      */
     void seekChanged(RVA offset);
 
-    void changeDefinedView();
-    void changeDebugView();
+    void toggleDebugView();
 
     void newMessage(const QString &msg);
     void newDebugMessage(const QString &msg);
