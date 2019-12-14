@@ -69,21 +69,18 @@ void CutterSeekable::seekToReference(RVA offset)
     {
         return;
     }
-    RVA jump = Core()->getOffsetJump(offset);
     
-    if (jump == RVA_INVALID) {
-        QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
-        
-        if (refs.length()) {
-            jump = refs.at(0).to;
-        }
-
+    RVA target;
+    QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
+    
+    if (refs.length()) {
         if (refs.length() > 1) {
             qWarning() << "Too many references here. Weird behaviour expected.";
         }
-    }
-
-    if (jump != RVA_INVALID) {
-        seek(jump);
+        
+        target = refs.at(0).to;
+        if (target != RVA_INVALID) {
+            seek(target);
+        }
     }
 }
