@@ -310,7 +310,6 @@ void DecompilerWidget::seekToReference()
 
 bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 {
-
     if (event->type() == QEvent::MouseButtonDblClick
         && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
