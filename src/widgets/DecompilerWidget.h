@@ -70,6 +70,13 @@ private:
     void updateCursorPosition();
 
     QString getWindowTitle() const override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
+    /**
+     * @brief a wrapper around CutterSeekable::seekToReference to seek to an object which is
+     * referenced from the address under cursor
+     */
+    void seekToReference();
 };
 
 #endif // DECOMPILERWIDGET_H

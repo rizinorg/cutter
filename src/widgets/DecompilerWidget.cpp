@@ -7,6 +7,7 @@
 #include "common/TempConfig.h"
 #include "common/SelectionHighlight.h"
 #include "common/Decompiler.h"
+#include "common/CutterSeekable.h"
 
 #include <QTextEdit>
 #include <QPlainTextEdit>
@@ -22,6 +23,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
     ui->setupUi(this);
 
     syntaxHighlighter = Config()->createSyntaxHighlighter(ui->textEdit->document());
+
+    // Event filter to intercept double clicks in the textbox
+    ui->textEdit->viewport()->installEventFilter(this);
 
     setupFonts();
     colorsUpdatedSlot();
@@ -88,6 +92,13 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
     connect(Core(), &CutterCore::commentsChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::instructionChanged, this, &DecompilerWidget::doAutoRefresh);
     connect(Core(), &CutterCore::refreshCodeViews, this, &DecompilerWidget::doAutoRefresh);
+
+    // Esc to seek backward
+    QAction *seekPrevAction = new QAction(this);
+    seekPrevAction->setShortcut(Qt::Key_Escape);
+    seekPrevAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    addAction(seekPrevAction);
+    connect(seekPrevAction, &QAction::triggered, seekable, &CutterSeekable::seekPrev);
 }
 
 DecompilerWidget::~DecompilerWidget() = default;
@@ -294,4 +305,25 @@ void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 {
     mCtxMenu->exec(ui->textEdit->mapToGlobal(pt));
     doRefresh();
+}
+
+void DecompilerWidget::seekToReference()
+{
+    size_t pos = ui->textEdit->textCursor().position();
+    RVA offset = code.OffsetForPosition(pos);
+    seekable->seekToReference(offset);
+}
+
+bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonDblClick
+        && (obj == ui->textEdit || obj == ui->textEdit->viewport())) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+
+        const QTextCursor& cursor = ui->textEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
+        seekToReference();
+        return true;
+    }
+
+    return MemoryDockWidget::eventFilter(obj, event);
 }

@@ -62,3 +62,25 @@ bool CutterSeekable::isSynchronized()
 {
     return synchronized;
 }
+
+void CutterSeekable::seekToReference(RVA offset)
+{
+    if (offset == RVA_INVALID)
+    {
+        return;
+    }
+    
+    RVA target;
+    QList<XrefDescription> refs = Core()->getXRefs(offset, false, false);
+    
+    if (refs.length()) {
+        if (refs.length() > 1) {
+            qWarning() << "Too many references here. Weird behaviour expected.";
+        }
+        
+        target = refs.at(0).to;
+        if (target != RVA_INVALID) {
+            seek(target);
+        }
+    }
+}
