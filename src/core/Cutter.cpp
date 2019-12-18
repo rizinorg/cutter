@@ -348,7 +348,7 @@ bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task)
         return false;
     }
 
-    connect(task.data(), &R2Task::finished, this, [this, task] () {
+    connect(task.data(), &R2Task::finished, task.get(), [this, task] () {
         QString res = task.data()->getResult();
 
         if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
@@ -370,7 +370,7 @@ bool CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
     RVA offset = core->offset;
 
     task = QSharedPointer<R2Task>(new R2Task(str, true));
-    connect(task.data(), &R2Task::finished, this, [this, offset, task] () {
+    connect(task.data(), &R2Task::finished, task.get(), [this, offset, task] () {
         CORE_LOCK();
 
         if (offset != core->offset) {
