@@ -298,12 +298,6 @@ QString CutterCore::sanitizeStringForCommand(QString s)
     return s.replace(regexp, QStringLiteral("_"));
 }
 
-/**
- * @brief CutterCore::cmd send a command to radare2
- * @param str the command you want to execute
- * Note that if you want to seek to an address, you should use CutterCore::seek
- * @return command output
- */
 QString CutterCore::cmd(const char *str)
 {
     CORE_LOCK();
@@ -317,6 +311,74 @@ QString CutterCore::cmd(const char *str)
         updateSeek();
     }
     return o;
+}
+
+bool CutterCore::isRedirectableDebugee()
+{
+    if (!currentlyDebugging || currentlyAttachedToPID != -1) {
+        return false;
+    }
+
+    // We are only able to redirect locally debugged unix processes
+    QJsonArray openFilesArray = cmdj("oj").array();;
+    for (QJsonValue value : openFilesArray) {
+        QJsonObject openFile = value.toObject();
+        QString URI = openFile["uri"].toString();
+        if (URI.contains("ptrace") | URI.contains("mach")) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CutterCore::isDebugTaskInProgress()
+{
+    if (!debugTask.isNull()) {
+        return true;
+    }
+
+    return false;
+}
+
+bool CutterCore::asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task)
+{
+    asyncCmd(command, task);
+
+    if (task.isNull()) {
+        return false;
+    }
+
+    connect(task.data(), &R2Task::finished, this, [this, task] () {
+        QString res = task.data()->getResult();
+
+        if (res.contains(QStringLiteral("[ESIL] Stopped execution in an invalid instruction"))) {
+            msgBox.showMessage("Stopped when attempted to run an invalid instruction. You can disable this in Preferences");
+        }
+    });
+
+    return true;
+}
+
+bool CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
+{
+    if (!task.isNull()) {
+        return false;
+    }
+
+    CORE_LOCK();
+
+    RVA offset = core->offset;
+
+    task = QSharedPointer<R2Task>(new R2Task(str, true));
+    connect(task.data(), &R2Task::finished, this, [this, offset, task] () {
+        CORE_LOCK();
+
+        if (offset != core->offset) {
+            updateSeek();
+        }
+    });
+
+    return true;
 }
 
 QString CutterCore::cmdRaw(const QString &str)
@@ -1076,6 +1138,26 @@ QJsonDocument CutterCore::getStack(int size)
     return cmdj("pxrj " + QString::number(size) + " @ r:SP");
 }
 
+QJsonDocument CutterCore::getProcessThreads(int pid)
+{
+    if (-1 == pid) {
+        // Return threads list of the currently debugged PID
+        return cmdj("dptj");
+    } else {
+        return cmdj("dptj " + QString::number(pid));
+    }
+}
+
+QJsonDocument CutterCore::getChildProcesses(int pid)
+{
+    // Return the currently debugged process and it's children
+    if (-1 == pid) {
+        return cmdj("dpj");
+    }
+    // Return the given pid and it's child processes
+    return cmdj("dpj " + QString::number(pid));
+}
+
 QJsonDocument CutterCore::getRegisterValues()
 {
     return cmdj("drj");
@@ -1166,21 +1248,86 @@ void CutterCore::setRegister(QString regName, QString regValue)
     emit refreshCodeViews();
 }
 
+void CutterCore::setCurrentDebugThread(int tid)
+{
+    if (!asyncCmd("dpt=" + QString::number(tid), debugTask)) {
+        return;
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        emit registersChanged();
+        emit refreshCodeViews();
+        emit stackChanged();
+        syncAndSeekProgramCounter();
+        emit switchedThread();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
+}
+
+void CutterCore::setCurrentDebugProcess(int pid)
+{
+    if (!currentlyDebugging || !asyncCmd("dp=" + QString::number(pid), debugTask)) {
+        return;
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        emit registersChanged();
+        emit refreshCodeViews();
+        emit stackChanged();
+        emit flagsChanged();
+        syncAndSeekProgramCounter();
+        emit switchedProcess();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
+}
+
 void CutterCore::startDebug()
 {
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
-    cmd("ood");
-    emit registersChanged();
-    if (!currentlyDebugging) {
-        setConfig("asm.flags", false);
-        currentlyDebugging = true;
-        emit changeDebugView();
-        emit flagsChanged();
-        emit refreshCodeViews();
+    currentlyOpenFile = getConfig("file.path");
+
+    if (!asyncCmd("ood", debugTask)) {
+        return;
     }
-    emit stackChanged();
+
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+
+        emit registersChanged();
+        if (!currentlyDebugging) {
+            setConfig("asm.flags", false);
+            currentlyDebugging = true;
+            emit toggleDebugView();
+            emit refreshCodeViews();
+        }
+
+        emit codeRebased();
+        emit stackChanged();
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Starting native debug..."));
+    debugTaskDialog->show();
+
+    debugTask->startTask();
 }
 
 void CutterCore::startEmulation()
@@ -1188,21 +1335,97 @@ void CutterCore::startEmulation()
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
+
     // clear registers, init esil state, stack, progcounter at current seek
-    cmd("ar0; aei; aeim; aeip");
-    emit registersChanged();
-    if (!currentlyDebugging || !currentlyEmulating) {
-        // prevent register flags from appearing during debug/emul
-        setConfig("asm.flags", false);
-        // allows to view self-modifying code changes or other binary changes
-        setConfig("io.cache", true);
-        currentlyDebugging = true;
-        currentlyEmulating = true;
-        emit changeDebugView();
-        emit flagsChanged();
+    asyncCmd("aei; aeim; aeip", debugTask);
+
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+
+        if (!currentlyDebugging || !currentlyEmulating) {
+            // prevent register flags from appearing during debug/emul
+            setConfig("asm.flags", false);
+            // allows to view self-modifying code changes or other binary changes
+            setConfig("io.cache", true);
+            currentlyDebugging = true;
+            currentlyEmulating = true;
+            emit toggleDebugView();
+        }
+
+        emit registersChanged();
+        emit stackChanged();
+        emit codeRebased();
+        emit refreshCodeViews();
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Starting emulation..."));
+    debugTaskDialog->show();
+
+    debugTask->startTask();
+}
+
+void CutterCore::attachRemote(const QString &uri)
+{
+    if (!currentlyDebugging) {
+        offsetPriorDebugging = getOffset();
     }
-    emit stackChanged();
-    emit refreshCodeViews();
+
+    // connect to a debugger with the given plugin
+    asyncCmd("e cfg.debug = true; oodf " + uri, debugTask);
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this, uri] () {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+        // Check if we actually connected
+        bool connected = false;
+        QJsonArray openFilesArray = getOpenedFiles();
+        for (QJsonValue value : openFilesArray) {
+            QJsonObject openFile = value.toObject();
+            QString fileUri= openFile["uri"].toString();
+            if (!fileUri.compare(uri)) {
+                connected = true;
+            }
+        }
+        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+        seekAndShow(programCounterValue);
+        if (!connected) {
+            emit attachedRemote(false);
+            emit debugTaskStateChanged();
+            return;
+        }
+
+        emit registersChanged();
+        if (!currentlyDebugging || !currentlyEmulating) {
+            // prevent register flags from appearing during debug/emul
+            setConfig("asm.flags", false);
+            currentlyDebugging = true;
+            emit toggleDebugView();
+        }
+
+        emit codeRebased();
+        emit attachedRemote(true);
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Connecting to: ") + uri);
+    debugTaskDialog->show();
+
+    debugTask->startTask();
 }
 
 void CutterCore::attachDebug(int pid)
@@ -1210,125 +1433,274 @@ void CutterCore::attachDebug(int pid)
     if (!currentlyDebugging) {
         offsetPriorDebugging = getOffset();
     }
+
     // attach to process with dbg plugin
-    cmd("o-*; e cfg.debug = true; o+ dbg://" + QString::number(pid));
-    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-    seekAndShow(programCounterValue);
-    emit registersChanged();
-    if (!currentlyDebugging || !currentlyEmulating) {
-        // prevent register flags from appearing during debug/emul
-        setConfig("asm.flags", false);
-        currentlyDebugging = true;
-        currentlyOpenFile = getConfig("file.path");
-        currentlyAttachedToPID = pid;
-        emit flagsChanged();
-        emit changeDebugView();
-    }
+    asyncCmd("e cfg.debug = true; oodf dbg://" + QString::number(pid), debugTask);
+    emit debugTaskStateChanged();
+
+    connect(debugTask.data(), &R2Task::finished, this, [this, pid] () {
+        if (debugTaskDialog) {
+            delete debugTaskDialog;
+        }
+        debugTask.clear();
+
+        syncAndSeekProgramCounter();
+        if (!currentlyDebugging || !currentlyEmulating) {
+            // prevent register flags from appearing during debug/emul
+            setConfig("asm.flags", false);
+            currentlyDebugging = true;
+            currentlyOpenFile = getConfig("file.path");
+            currentlyAttachedToPID = pid;
+            emit toggleDebugView();
+        }
+
+        emit codeRebased();
+        emit debugTaskStateChanged();
+    });
+
+    debugTaskDialog = new R2TaskDialog(debugTask);
+    debugTaskDialog->setBreakOnClose(true);
+    debugTaskDialog->setAttribute(Qt::WA_DeleteOnClose);
+    debugTaskDialog->setDesc(tr("Attaching to process (") + QString::number(pid) + ")...");
+    debugTaskDialog->show();
+
+    debugTask->startTask();
+}
+
+void CutterCore::suspendDebug()
+{
+    debugTask->breakTask(); 
 }
 
 void CutterCore::stopDebug()
 {
-    if (currentlyDebugging) {
-        if (currentlyEmulating) {
-            cmd("aeim-; aei-; wcr; .ar-");
-            currentlyEmulating = false;
-        } else if (currentlyAttachedToPID != -1) {
-            cmd(QString("dp- %1; o %2; .ar-").arg(QString::number(currentlyAttachedToPID), currentlyOpenFile));
-            currentlyAttachedToPID = -1;
-        } else {
-            cmd("dk 9; oo; .ar-");
-        }
-        seekAndShow(offsetPriorDebugging);
-        setConfig("asm.flags", true);
-        setConfig("io.cache", false);
-        currentlyDebugging = false;
-        emit flagsChanged();
-        emit changeDefinedView();
+    if (!currentlyDebugging) {
+        return;
     }
+
+    if (!debugTask.isNull()) {
+        suspendDebug();
+    }
+
+    currentlyDebugging = false;
+    emit debugTaskStateChanged();
+
+    if (currentlyEmulating) {
+        cmdEsil("aeim-; aei-; wcr; .ar-");
+        currentlyEmulating = false;
+    } else if (currentlyAttachedToPID != -1) {
+        cmd(QString("dp- %1; o %2; .ar-").arg(
+            QString::number(currentlyAttachedToPID), currentlyOpenFile));
+        currentlyAttachedToPID = -1;
+    } else {
+        QString ptraceFiles = "";
+        // close ptrace file descriptors left open
+        QJsonArray openFilesArray = cmdj("oj").array();;
+        for (QJsonValue value : openFilesArray) {
+            QJsonObject openFile = value.toObject();
+            QString URI = openFile["uri"].toString();
+            if (URI.contains("ptrace")) {
+                ptraceFiles += "o-" + QString::number(openFile["fd"].toInt()) + ";";
+            }
+        }
+        cmd("doc" + ptraceFiles);
+    }
+
+    syncAndSeekProgramCounter();
+    setConfig("asm.flags", true);
+    setConfig("io.cache", false);
+    emit codeRebased();
+    emit toggleDebugView();
+    offsetPriorDebugging = getOffset();
+    emit debugTaskStateChanged();
+}
+
+void CutterCore::syncAndSeekProgramCounter()
+{
+    QString programCounterValue = cmd("dr?`drn PC`").trimmed();
+    seekAndShow(programCounterValue);
+    emit registersChanged();
 }
 
 void CutterCore::continueDebug()
 {
-    if (currentlyDebugging) {
-        if (currentlyEmulating) {
-            cmdEsil("aec");
-        } else {
-            cmd("dc");
+    if (!currentlyDebugging) {
+        return;
+    }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aec", debugTask)) {
+            return;
         }
+    } else {
+        if (!asyncCmd("dc", debugTask)) {
+            return;
+        }
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
         emit registersChanged();
         emit refreshCodeViews();
-    }
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
 }
 
 void CutterCore::continueUntilDebug(QString offset)
 {
-    if (currentlyDebugging) {
-        if (currentlyEmulating) {
-            cmdEsil("aecu " + offset);
-        } else {
-            cmd("dcu " + offset);
-        }
-        emit registersChanged();
-        emit refreshCodeViews();
+    if (!currentlyDebugging) {
+        return;
     }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aecu " + offset, debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dcu " + offset, debugTask)) {
+            return;
+        }
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit registersChanged();
+        emit stackChanged();
+        emit refreshCodeViews();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
 }
 
 void CutterCore::continueUntilCall()
 {
-    if (currentlyDebugging) {
-        if (currentlyEmulating) {
-            cmdEsil("aecc");
-        } else {
-            cmd("dcc");
-        }
-        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seekAndShow(programCounterValue);
-        emit registersChanged();
+    if (!currentlyDebugging) {
+        return;
     }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aecc", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dcc", debugTask)) {
+            return;
+        }
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
 }
 
 void CutterCore::continueUntilSyscall()
 {
-    if (currentlyDebugging) {
-        if (currentlyEmulating) {
-            cmdEsil("aecs");
-        } else {
-            cmd("dcs");
-        }
-        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seekAndShow(programCounterValue);
-        emit registersChanged();
+    if (!currentlyDebugging) {
+        return;
     }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aecs", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dcs", debugTask)) {
+            return;
+        }
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
 }
 
 void CutterCore::stepDebug()
 {
-    if (currentlyDebugging) {
-        cmdEsil("ds");
-        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seekAndShow(programCounterValue);
-        emit registersChanged();
+    if (!currentlyDebugging) {
+        return;
     }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aes", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("ds", debugTask)) {
+            return;
+        }
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
 }
 
 void CutterCore::stepOverDebug()
 {
-    if (currentlyDebugging) {
-        cmdEsil("dso");
-        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seekAndShow(programCounterValue);
-        emit registersChanged();
+    if (!currentlyDebugging) {
+        return;
     }
+
+    if (currentlyEmulating) {
+        if (!asyncCmdEsil("aeso", debugTask)) {
+            return;
+        }
+    } else {
+        if (!asyncCmd("dso", debugTask)) {
+            return;
+        }
+    }
+
+    emit debugTaskStateChanged();
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
 }
 
 void CutterCore::stepOutDebug()
 {
-    if (currentlyDebugging) {
-        cmd("dsf");
-        QString programCounterValue = cmd("dr?`drn PC`").trimmed();
-        seekAndShow(programCounterValue);
-        emit registersChanged();
+    if (!currentlyDebugging) {
+        return;
     }
+
+    emit debugTaskStateChanged();
+    if (!asyncCmd("dsf", debugTask)) {
+        return;
+    }
+
+    connect(debugTask.data(), &R2Task::finished, this, [this] () {
+        debugTask.clear();
+        syncAndSeekProgramCounter();
+        emit debugTaskStateChanged();
+    });
+
+    debugTask->startTask();
 }
 
 QStringList CutterCore::getDebugPlugins()
@@ -2890,7 +3262,7 @@ QString CutterCore::getVersionInformation()
         { "r_hash", &r_hash_version },
         { "r_fs", &r_fs_version },
         { "r_io", &r_io_version },
-#if !USE_LIB_MAGIC        
+#if !USE_LIB_MAGIC
         { "r_magic", &r_magic_version },
 #endif
         { "r_parse", &r_parse_version },

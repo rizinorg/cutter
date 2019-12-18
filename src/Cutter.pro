@@ -268,6 +268,8 @@ SOURCES += \
     dialogs/EditInstructionDialog.cpp \
     dialogs/FlagDialog.cpp \
     dialogs/RenameDialog.cpp \
+    dialogs/RemoteDebugDialog.cpp \
+    dialogs/NativeDebugDialog.cpp \
     dialogs/XrefsDialog.cpp \
     core/MainWindow.cpp \
     common/Helpers.cpp \
@@ -275,6 +277,7 @@ SOURCES += \
     common/HexHighlighter.cpp \
     common/Highlighter.cpp \
     common/MdHighlighter.cpp \
+    common/DirectionalComboBox.cpp \
     dialogs/preferences/AsmOptionsWidget.cpp \
     dialogs/NewFileDialog.cpp \
     common/AnalTask.cpp \
@@ -330,11 +333,14 @@ SOURCES += \
     dialogs/AsyncTaskDialog.cpp \
     widgets/StackWidget.cpp \
     widgets/RegistersWidget.cpp \
+    widgets/ThreadsWidget.cpp \
+    widgets/ProcessesWidget.cpp \
     widgets/BacktraceWidget.cpp \
     dialogs/OpenFileDialog.cpp \
     common/CommandTask.cpp \
     common/ProgressIndicator.cpp \
     common/R2Task.cpp \
+    dialogs/R2TaskDialog.cpp \
     widgets/DebugActions.cpp \
     widgets/MemoryMapWidget.cpp \
     dialogs/preferences/DebugOptionsWidget.cpp \
@@ -399,6 +405,8 @@ HEADERS  += \
     dialogs/EditInstructionDialog.h \
     dialogs/FlagDialog.h \
     dialogs/RenameDialog.h \
+    dialogs/RemoteDebugDialog.h \
+    dialogs/NativeDebugDialog.h \
     dialogs/XrefsDialog.h \
     common/Helpers.h \
     common/HexAsciiHighlighter.h \
@@ -406,6 +414,7 @@ HEADERS  += \
     core/MainWindow.h \
     common/Highlighter.h \
     common/MdHighlighter.h \
+    common/DirectionalComboBox.h \
     dialogs/InitialOptionsDialog.h \
     dialogs/NewFileDialog.h \
     common/AnalTask.h \
@@ -461,6 +470,8 @@ HEADERS  += \
     dialogs/AsyncTaskDialog.h \
     widgets/StackWidget.h \
     widgets/RegistersWidget.h \
+    widgets/ThreadsWidget.h \
+    widgets/ProcessesWidget.h \
     widgets/BacktraceWidget.h \
     dialogs/OpenFileDialog.h \
     common/StringsTask.h \
@@ -469,6 +480,7 @@ HEADERS  += \
     common/ProgressIndicator.h \
     plugins/CutterPlugin.h \
     common/R2Task.h \
+    dialogs/R2TaskDialog.h \
     widgets/DebugActions.h \
     widgets/MemoryMapWidget.h \
     dialogs/preferences/DebugOptionsWidget.h \
@@ -528,6 +540,8 @@ FORMS    += \
     dialogs/EditInstructionDialog.ui \
     dialogs/FlagDialog.ui \
     dialogs/RenameDialog.ui \
+    dialogs/RemoteDebugDialog.ui \
+    dialogs/NativeDebugDialog.ui \
     dialogs/XrefsDialog.ui \
     dialogs/NewfileDialog.ui \
     dialogs/InitialOptionsDialog.ui \
@@ -553,8 +567,11 @@ FORMS    += \
     dialogs/VersionInfoDialog.ui \
     widgets/ZignaturesWidget.ui \
     dialogs/AsyncTaskDialog.ui \
+    dialogs/R2TaskDialog.ui \
     widgets/StackWidget.ui \
     widgets/RegistersWidget.ui \
+    widgets/ThreadsWidget.ui \
+    widgets/ProcessesWidget.ui \
     widgets/BacktraceWidget.ui \
     dialogs/OpenFileDialog.ui \
     dialogs/preferences/DebugOptionsWidget.ui \

@@ -503,7 +503,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // Only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
-    QString progCounterName = Core()->getRegisterName("PC");
+    QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText("Set " + progCounterName + " here");
 
 }
@@ -739,7 +739,7 @@ void DisassemblyContextMenu::on_actionContinueUntil_triggered()
 void DisassemblyContextMenu::on_actionSetPC_triggered()
 {
     QString progCounterName = Core()->getRegisterName("PC");
-    Core()->setRegister(progCounterName, RAddressString(offset));
+    Core()->setRegister(progCounterName, RAddressString(offset).toUpper());
 }
 
 void DisassemblyContextMenu::on_actionAddComment_triggered()

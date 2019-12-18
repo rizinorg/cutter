@@ -142,7 +142,8 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
             main->updateDockActionChecked(action);
             } );
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshExports()));
+    connect(Core(), &CutterCore::codeRebased, this, &ExportsWidget::refreshExports);
+    connect(Core(), &CutterCore::refreshAll, this, &ExportsWidget::refreshExports);
 }
 
 ExportsWidget::~ExportsWidget() {}

@@ -116,6 +116,7 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     registerRefModel = new RegisterRefModel(&registerRefs, this);
     registerRefProxyModel = new RegisterRefProxyModel(registerRefModel, this);
     ui->registerRefTreeView->setModel(registerRefProxyModel);
+    ui->registerRefTreeView->setAutoScroll(false);
     ui->registerRefTreeView->sortByColumn(RegisterRefModel::RegColumn, Qt::AscendingOrder);
 
     actionCopyValue = new QAction(tr("Copy register value"), this);

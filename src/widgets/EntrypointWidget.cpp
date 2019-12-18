@@ -20,7 +20,8 @@ EntrypointWidget::EntrypointWidget(MainWindow *main, QAction *action) :
 
     setScrollMode();
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(fillEntrypoint()));
+    connect(Core(), &CutterCore::codeRebased, this, &EntrypointWidget::fillEntrypoint);
+    connect(Core(), &CutterCore::refreshAll, this, &EntrypointWidget::fillEntrypoint);
 }
 
 EntrypointWidget::~EntrypointWidget() {}

@@ -19,8 +19,11 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     // Setup stack model
     viewStack->setFont(Config()->getFont());
     viewStack->setModel(modelStack);
+    viewStack->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     viewStack->verticalHeader()->hide();
+    viewStack->setShowGrid(false);
     viewStack->setSortingEnabled(true);
+    viewStack->setAutoScroll(false);
     viewStack->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewStack);
     viewStack->setEditTriggers(viewStack->editTriggers() &

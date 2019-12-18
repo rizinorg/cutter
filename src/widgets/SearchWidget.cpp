@@ -16,18 +16,22 @@ static const int kMaxTooltipHexdumpBytes = 64;
 
 }
 
-static const QMap<QString, QString> kSearchBoundariesValues {
+static const QMap<QString, QString> searchBoundaries {
     {"io.maps", "All maps"},
     {"io.map", "Current map"},
     {"raw", "Raw"},
-    {"dbg.maps", "All memory maps"},
-    {"dbg.map", "Memory map"},
     {"block", "Current block"},
     {"bin.section", "Current mapped section"},
     {"bin.sections", "All mapped sections"},
+};
+
+static const QMap<QString, QString> searchBoundariesDebug {
+    {"dbg.maps", "All memory maps"},
+    {"dbg.map", "Memory map"},
+    {"block", "Current block"},
     {"dbg.stack", "Stack"},
     {"dbg.heap", "Heap"}
-   };
+};
 
 SearchModel::SearchModel(QList<SearchDescription> *search, QObject *parent)
     : AddressableItemModel<QAbstractListModel>(parent),
@@ -170,11 +174,7 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
     ui->setupUi(this);
     setStyleSheet(QString("QToolTip { max-width: %1px; opacity: 230; }").arg(kMaxTooltipWidth));
 
-    ui->searchInCombo->blockSignals(true);
-    QMap<QString, QString>::const_iterator mapIter;
-    for (mapIter = kSearchBoundariesValues.cbegin(); mapIter != kSearchBoundariesValues.cend(); ++mapIter)
-        ui->searchInCombo->addItem(mapIter.value(), mapIter.key());
-    ui->searchInCombo->blockSignals(false);
+    updateSearchBoundaries();
 
     search_model = new SearchModel(&search, this);
     search_proxy_model = new SearchSortFilterProxyModel(search_model, this);
@@ -184,7 +184,8 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
 
     setScrollMode();
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSearchspaces()));
+    connect(Core(), &CutterCore::toggleDebugView, this, &SearchWidget::updateSearchBoundaries);
+    connect(Core(), &CutterCore::refreshAll, this, &SearchWidget::refreshSearchspaces);
 
     QShortcut *enter_press = new QShortcut(QKeySequence(Qt::Key_Return), this);
     connect(enter_press, &QShortcut::activated, this, [this]() {
@@ -198,12 +199,34 @@ SearchWidget::SearchWidget(MainWindow *main, QAction *action) :
 
     connect(ui->searchspaceCombo, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, [this](int index) { updatePlaceholderText(index);});
-
-    QString currentSearchBoundary = Core()->getConfig("search.in");
-    ui->searchInCombo->setCurrentIndex(ui->searchInCombo->findData(currentSearchBoundary));
 }
 
 SearchWidget::~SearchWidget() {}
+
+void SearchWidget::updateSearchBoundaries()
+{
+    QMap<QString, QString>::const_iterator mapIter;
+    QMap<QString, QString> boundaries;
+
+    if (Core()->currentlyDebugging && !Core()->currentlyEmulating) {
+        boundaries = searchBoundariesDebug;
+    } else {
+        boundaries = searchBoundaries;
+    }
+
+    mapIter = boundaries.cbegin();
+    ui->searchInCombo->setCurrentIndex(ui->searchInCombo->findData(mapIter.key()));
+    Config()->setConfig("search.in", mapIter.key());
+
+    ui->searchInCombo->blockSignals(true);
+    ui->searchInCombo->clear();
+    for (mapIter; mapIter != boundaries.cend(); ++mapIter) {
+        ui->searchInCombo->addItem(mapIter.value(), mapIter.key());
+    }
+    ui->searchInCombo->blockSignals(false);
+
+    ui->filterLineEdit->clear();
+}
 
 void SearchWidget::searchChanged()
 {

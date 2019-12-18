@@ -193,8 +193,7 @@ private slots:
 
     void mousePressEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *object, QEvent *event) override;
-    void changeDebugView();
-    void changeDefinedView();
+    void toggleDebugView();
     void chooseThemeIcons();
 
     void onZoomIn();
@@ -249,6 +248,8 @@ private:
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;
     QDockWidget        *stackDock = nullptr;
+    QDockWidget        *threadsDock = nullptr;
+    QDockWidget        *processesDock = nullptr;
     QDockWidget        *registersDock = nullptr;
     QDockWidget        *backtraceDock = nullptr;
     QDockWidget        *memoryMapDock = nullptr;

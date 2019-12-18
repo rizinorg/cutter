@@ -61,6 +61,8 @@
 #include "widgets/RegisterRefsWidget.h"
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/StackWidget.h"
+#include "widgets/ThreadsWidget.h"
+#include "widgets/ProcessesWidget.h"
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
 #include "widgets/HexdumpWidget.h"
@@ -170,8 +172,7 @@ void MainWindow::initUI()
     connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
                                                                                        const QString &)));
 
-    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
-    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
+    connect(core, &CutterCore::toggleDebugView, this, &MainWindow::toggleDebugView);
 
     connect(core, SIGNAL(newMessage(const QString &)),
             this->consoleDock, SLOT(addOutput(const QString &)));
@@ -217,7 +218,10 @@ void MainWindow::initToolBar()
 
     DebugActions *debugActions = new DebugActions(ui->mainToolBar, this);
     // Debug menu
+    ui->menuDebug->addAction(debugActions->actionStart);
     ui->menuDebug->addAction(debugActions->actionStartEmul);
+    ui->menuDebug->addAction(debugActions->actionAttach);
+    ui->menuDebug->addAction(debugActions->actionStartRemote);
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugActions->actionStep);
     ui->menuDebug->addAction(debugActions->actionStepOver);
@@ -313,6 +317,8 @@ void MainWindow::initDocks()
     stringsDock = new StringsWidget(this, ui->actionStrings);
     flagsDock = new FlagsWidget(this, ui->actionFlags);
     stackDock = new StackWidget(this, ui->actionStack);
+    threadsDock = new ThreadsWidget(this, ui->actionThreads);
+    processesDock = new ProcessesWidget(this, ui->actionProcesses);
     backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
     registersDock = new RegistersWidget(this, ui->actionRegisters);
     memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
@@ -831,10 +837,12 @@ void MainWindow::restoreDocks()
 
     tabifyDockWidget(sectionsDock, commentsDock);
 
-    // Add Stack, Registers and Backtrace vertically stacked
+    // Add Stack, Registers, Threads and Backtrace vertically stacked
     addDockWidget(Qt::TopDockWidgetArea, stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
+    tabifyDockWidget(backtraceDock, threadsDock);
+    tabifyDockWidget(threadsDock, processesDock);
 
     updateDockActionsChecked();
 }
@@ -1164,6 +1172,7 @@ void MainWindow::showDebugDocks()
                                               stackDock,
                                               registersDock,
                                               backtraceDock,
+                                              threadsDock,
                                               memoryMapDock,
                                               breakpointDock
                                             };
@@ -1531,22 +1540,21 @@ void MainWindow::projectSaved(bool successfully, const QString &name)
         core->message(tr("Failed to save project: %1").arg(name));
 }
 
-void MainWindow::changeDebugView()
+void MainWindow::toggleDebugView()
 {
-    saveSettings();
-    restoreDebugLayout();
-    enableDebugWidgetsMenu(true);
-}
-
-void MainWindow::changeDefinedView()
-{
-    saveDebugSettings();
-    MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
-    hideAllDocks();
-    restoreDocks();
-    readSettingsOrDefault();
-    enableDebugWidgetsMenu(false);
-    showMemoryWidget(memType);
+    if (Core()->currentlyDebugging) {
+        saveSettings();
+        restoreDebugLayout();
+        enableDebugWidgetsMenu(true);
+    } else {
+        saveDebugSettings();
+        MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
+        hideAllDocks();
+        restoreDocks();
+        readSettingsOrDefault();
+        enableDebugWidgetsMenu(false);
+        showMemoryWidget(memType);
+    }
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -1591,7 +1599,7 @@ void MainWindow::messageBoxWarning(QString title, QString message)
 }
 
 /**
- * \brief When theme changed, change icons which have a special version for the theme.
+ * @brief When theme changed, change icons which have a special version for the theme.
  */
 void MainWindow::chooseThemeIcons()
 {

@@ -33,30 +33,13 @@
                         <widget class="QComboBox" name="pluginComboBox"/>
                     </item>
                     <item row="1" column="0">
-                        <widget class="QLabel" name="argsLabel">
-                            <property name="text">
-                                <string>Program Arguments:</string>
-                            </property>
-                        </widget>
-                    </item>
-                    <item row="1" column="1">
-                        <widget class="QLineEdit" name="debugArgs">
-                            <property name="sizePolicy">
-                                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                        </widget>
-                    </item>
-                    <item row="2" column="0">
                         <widget class="QLabel" name="esilstackAddr">
                             <property name="text">
                                 <string>ESIL stack address:</string>
                             </property>
                         </widget>
                     </item>
-                    <item row="2" column="1">
+                    <item row="1" column="1">
                         <widget class="QLineEdit" name="stackAddr">
                             <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -66,14 +49,14 @@
                             </property>
                         </widget>
                     </item>
-                    <item row="3" column="0">
+                    <item row="2" column="0">
                         <widget class="QLabel" name="esilStackSize">
                             <property name="text">
                                 <string>ESIL stack size:</string>
                             </property>
                         </widget>
                     </item>
-                    <item row="3" column="1">
+                    <item row="2" column="1">
                         <widget class="QLineEdit" name="stackSize">
                             <property name="sizePolicy">
                                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">

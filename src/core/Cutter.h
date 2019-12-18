@@ -18,9 +18,13 @@ class AsyncTaskManager;
 class BasicInstructionHighlighter;
 class CutterCore;
 class Decompiler;
+class R2Task;
+class R2TaskDialog;
 
 #include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
+#include "common/R2Task.h"
+#include "dialogs/R2TaskDialog.h"
 
 #define Core() (CutterCore::instance())
 
@@ -47,8 +51,26 @@ public:
 
     /* Core functions (commands) */
     static QString sanitizeStringForCommand(QString s);
+    /**
+     * @brief send a command to radare2
+     * @param str the command you want to execute
+     * @return command output
+     * @note if you want to seek to an address, you should use CutterCore::seek.
+     */
     QString cmd(const char *str);
     QString cmd(const QString &str) { return cmd(str.toUtf8().constData()); }
+    /**
+     * @brief send a command to radare2 asynchronously
+     * @param str the command you want to execute
+     * @param task a shared pointer that will be returned with the R2 command task
+     * @note connect to the &R2Task::finished signal to add your own logic once
+     *       the command is finished. Use task->getResult()/getResultJson() for the 
+     *       return value.
+     *       Once you have setup connections you can start the task with task->startTask()
+     *       If you want to seek to an address, you should use CutterCore::seek.
+     */
+    bool asyncCmd(const char *str, QSharedPointer<R2Task> &task);
+    bool asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
     QString cmdRaw(const QString &str);
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
@@ -56,8 +78,25 @@ public:
     QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);
+    /**
+     * @brief send a command to radare2 and check for ESIL errors
+     * @param command the command you want to execute
+     * @note If you want to seek to an address, you should use CutterCore::seek.
+     */
     void cmdEsil(const char *command);
     void cmdEsil(const QString &command) { cmdEsil(command.toUtf8().constData()); }
+    /**
+     * @brief send a command to radare2 and check for ESIL errors
+     * @param command the command you want to execute
+     * @param task a shared pointer that will be returned with the R2 command task
+     * @note connect to the &R2Task::finished signal to add your own logic once
+     *       the command is finished. Use task->getResult()/getResultJson() for the 
+     *       return value.
+     *       Once you have setup connections you can start the task with task->startTask()
+     *       If you want to seek to an address, you should use CutterCore::seek.
+     */
+    bool asyncCmdEsil(const char *command, QSharedPointer<R2Task> &task);
+    bool asyncCmdEsil(const QString &command, QSharedPointer<R2Task> &task) { return asyncCmdEsil(command.toUtf8().constData(), task); }
     QString getVersionInformation();
 
     QJsonDocument parseJson(const char *res, const char *cmd = nullptr);
@@ -242,12 +281,37 @@ public:
     QString getRegisterName(QString registerRole);
     RVA getProgramCounterValue();
     void setRegister(QString regName, QString regValue);
+    void setCurrentDebugThread(int tid);
+    /**
+     * @brief Attach to a given pid from a debug session
+     */
+    void setCurrentDebugProcess(int pid);
     QJsonDocument getStack(int size = 0x100);
+    /**
+     * @brief Get a list of a given process's threads
+     * @param pid The pid of the process, -1 for the currently debugged process
+     * @return JSON object result of dptj
+     */
+    QJsonDocument getProcessThreads(int pid);
+    /**
+     * @brief Get a list of a given process's child processes
+     * @param pid The pid of the process, -1 for the currently debugged process
+     * @return JSON object result of dptj
+     */
+    QJsonDocument getChildProcesses(int pid);
     QJsonDocument getBacktrace();
     void startDebug();
     void startEmulation();
+    /**
+     * @brief attach to a remote debugger
+     * @param uri remote debugger uri
+     * @note attachedRemote(bool) signals the result
+     */
+    void attachRemote(const QString &uri);
     void attachDebug(int pid);
     void stopDebug();
+    void suspendDebug();
+    void syncAndSeekProgramCounter();
     void continueDebug();
     void continueUntilCall();
     void continueUntilSyscall();
@@ -266,6 +330,11 @@ public:
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);
+    bool isDebugTaskInProgress();
+    /**
+     * @brief Check if we can use output/input redirection with the currently debugged process
+     */
+    bool isRedirectableDebugee();
     bool currentlyDebugging = false;
     bool currentlyEmulating = false;
     int currentlyAttachedToPID = -1;
@@ -443,13 +512,27 @@ signals:
     void breakpointsChanged();
     void refreshCodeViews();
     void stackChanged();
+    /**
+     * @brief update all the widgets that are affected by rebasing in debug mode
+     */
+    void codeRebased();
+
+    void switchedThread();
+    void switchedProcess();
 
     void classNew(const QString &cls);
     void classDeleted(const QString &cls);
     void classRenamed(const QString &oldName, const QString &newName);
     void classAttrsChanged(const QString &cls);
 
+    void attachedRemote(bool successfully);
+
     void projectSaved(bool successfully, const QString &name);
+
+    /**
+     * emitted when debugTask started or finished running
+     */
+    void debugTaskStateChanged();
 
     /**
      * emitted when config regarding disassembly display changes
@@ -467,8 +550,7 @@ signals:
      */
     void seekChanged(RVA offset);
 
-    void changeDefinedView();
-    void changeDebugView();
+    void toggleDebugView();
 
     void newMessage(const QString &msg);
     void newDebugMessage(const QString &msg);
@@ -496,6 +578,9 @@ private:
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
     BasicInstructionHighlighter biHighlighter;
+
+    QSharedPointer<R2Task> debugTask;
+    R2TaskDialog *debugTaskDialog;
 };
 
 class RCoreLocked

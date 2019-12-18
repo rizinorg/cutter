@@ -33,6 +33,7 @@ QString EditInstructionDialog::getInstruction() const
 void EditInstructionDialog::setInstruction(const QString &instruction)
 {
     ui->lineEdit->setText(instruction);
+    ui->lineEdit->selectAll();
     updatePreview(instruction);
 }
 
