@@ -28,7 +28,7 @@ matrix:
          - ninja-build
          - libgraphviz-dev
     before_install:
-      - pyenv global 3.7.1
+      - pyenv global 3.7
       - pip install meson
 
   - name: Linux Ubuntu 16.04
