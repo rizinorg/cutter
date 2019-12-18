@@ -894,7 +894,7 @@ void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
 
     uint64_t strAddr = 0U;
     if( !dialog.getStringStartAddress(strAddr) ) {
-        QMessageBox::critical(this->window(), tr("Wrong address"), tr("Can't edit string by this address"));
+        QMessageBox::critical(this->window(), tr("Wrong address"), tr("Can't edit string at this address"));
         return;
     }
     CutterCore::StringTypeFormats coreStringType = CutterCore::StringTypeFormats::None;

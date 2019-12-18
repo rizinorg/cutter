@@ -677,13 +677,12 @@ void CutterCore::setAsString(RVA addr, int size, StringTypeFormats type)
     QString arg;
     if(size > 0) {
         arg = QString::asprintf("%d @ %lld", size, addr);
-    }
-    else {
+    } else {
         arg = QString::asprintf("@ %lld", addr);
     }
 
     cmd(command + arg);
-    instructionChanged(addr);
+    emit instructionChanged(addr);
 }
 
 void CutterCore::removeString(RVA addr)
