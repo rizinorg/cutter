@@ -9,6 +9,7 @@
 #include "dialogs/SetToDataDialog.h"
 #include "dialogs/EditFunctionDialog.h"
 #include "dialogs/LinkTypeDialog.h"
+#include "dialogs/EditStringDialog.h"
 #include "MainWindow.h"
 
 #include <QtCore>
@@ -57,7 +58,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionAddBreakpoint(this),
         actionSetPC(this),
         actionSetToCode(this),
-        actionSetAsString(this),
+        actionSetAsStringAuto(this),
+        actionSetAsStringRemove(this),
+        actionSetAsStringAdvanced(this),
         actionSetToDataEx(this),
         actionSetToDataByte(this),
         actionSetToDataWord(this),
@@ -219,9 +222,19 @@ void DisassemblyContextMenu::addSetAsMenu()
                SLOT(on_actionSetToCode_triggered()), getSetToCodeSequence());
     setAsMenu->addAction(&actionSetToCode);
 
-    initAction(&actionSetAsString, tr("String"),
+    setAsString = setAsMenu->addMenu(tr("String..."));
+
+    initAction(&actionSetAsStringAuto, tr("Auto-detect"),
                SLOT(on_actionSetAsString_triggered()), getSetAsStringSequence());
-    setAsMenu->addAction(&actionSetAsString);
+    initAction(&actionSetAsStringRemove, tr("Remove"),
+               SLOT(on_actionSetAsStringRemove_triggered()));
+    initAction(&actionSetAsStringAdvanced, tr("Adanced"),
+               SLOT(on_actionSetAsStringAdvanced_triggered()));
+
+
+    setAsString->addAction(&actionSetAsStringAuto);
+    setAsString->addAction(&actionSetAsStringRemove);
+    setAsString->addAction(&actionSetAsStringAdvanced);
 
     addSetToDataMenu();
 }
@@ -862,6 +875,47 @@ void DisassemblyContextMenu::on_actionSetAsString_triggered()
     Core()->setAsString(offset);
 }
 
+void DisassemblyContextMenu::on_actionSetAsStringRemove_triggered()
+{
+    Core()->removeString(offset);
+}
+
+void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
+{
+    EditStringDialog dialog(parentWidget());
+    const int predictedStrSize = Core()->getString(offset).size();
+    dialog.setStringSizeValue(predictedStrSize);
+    dialog.setStringStartAddress(offset);
+
+    if(!dialog.exec())
+    {
+        return;
+    }
+
+    uint64_t strAddr = 0U;
+    if( !dialog.getStringStartAddress(strAddr) ) {
+        QMessageBox::critical(this->window(), tr("Wrong address"), tr("Can't edit string at this address"));
+        return;
+    }
+    CutterCore::StringTypeFormats coreStringType = CutterCore::StringTypeFormats::None;
+
+    const auto strSize = dialog.getStringSizeValue();
+    const auto strType = dialog.getStringType();
+    switch(strType)
+    {
+    case EditStringDialog::StringType::Auto:
+        coreStringType = CutterCore::StringTypeFormats::None;
+        break;
+    case EditStringDialog::StringType::ASCII_LATIN1:
+        coreStringType = CutterCore::StringTypeFormats::ASCII_LATIN1;
+        break;
+    case EditStringDialog::StringType::UTF8:
+        coreStringType = CutterCore::StringTypeFormats::UTF8;
+        break;
+    };
+
+    Core()->setAsString(strAddr, strSize, coreStringType);
+}
 
 void DisassemblyContextMenu::on_actionSetToData_triggered()
 {

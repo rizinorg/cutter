@@ -58,6 +58,8 @@ private slots:
 
     void on_actionSetToCode_triggered();
     void on_actionSetAsString_triggered();
+    void on_actionSetAsStringRemove_triggered();
+    void on_actionSetAsStringAdvanced_triggered();
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
@@ -158,10 +160,14 @@ private:
     QAction actionSetPC;
 
     QAction actionSetToCode;
-    QAction actionSetAsString;
+
+    QAction actionSetAsStringAuto;
+    QAction actionSetAsStringRemove;
+    QAction actionSetAsStringAdvanced;
 
     QMenu *setToDataMenu;
     QMenu *setAsMenu;
+    QMenu *setAsString;
     QAction actionSetToDataEx;
     QAction actionSetToDataByte;
     QAction actionSetToDataWord;

@@ -258,6 +258,7 @@ QMAKE_SUBSTITUTES += CutterConfig.h.in
 SOURCES += \
     Main.cpp \
     core/Cutter.cpp \
+    dialogs/EditStringDialog.cpp \
     widgets/DisassemblerGraphView.cpp \
     widgets/OverviewView.cpp \
     common/RichTextPainter.cpp \
@@ -393,6 +394,7 @@ HEADERS  += \
     core/Cutter.h \
     core/CutterCommon.h \
     core/CutterDescriptions.h \
+    dialogs/EditStringDialog.h \
     widgets/DisassemblerGraphView.h \
     widgets/OverviewView.h \
     common/RichTextPainter.h \
@@ -532,6 +534,7 @@ GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
+    dialogs/EditStringDialog.ui \
     dialogs/preferences/AsmOptionsWidget.ui \
     dialogs/CommentsDialog.ui \
     dialogs/EditInstructionDialog.ui \
