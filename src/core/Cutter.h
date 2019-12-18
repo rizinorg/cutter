@@ -107,8 +107,26 @@ public:
     /* Code/Data */
     void setToCode(RVA addr);
     enum class StringTypeFormats { None, ASCII_LATIN1, UTF8 };
+    /**
+     * @brief Adds string at address
+     * That function calls the 'Cs' command
+     * \param addr The address of the array where the string will be applied
+     * \param size The size of string
+     * \param type The type of string
+     */
     void setAsString(RVA addr, int size = 0, StringTypeFormats type = StringTypeFormats::None);
+    /**
+     * @brief Removes string at address
+     * That function calls the 'Cs-' command
+     * \param addr The address of the array where the string will be applied
+     */
     void removeString(RVA addr);
+    /**
+     * @brief Gets string at address
+     * That function calls the 'ps' command
+     * \param addr The address of the first byte of the array
+     * @return string at requested address
+     */
     QString getString(RVA addr);
     void setToData(RVA addr, int size, int repeat = 1);
     int sizeofDataMeta(RVA addr);
