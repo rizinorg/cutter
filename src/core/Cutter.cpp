@@ -1020,7 +1020,7 @@ QString CutterCore::createFunctionAt(RVA addr, QString name)
 {
     static const QRegularExpression regExp("[^a-zA-Z0-9_]");
     name.remove(regExp);
-    QString command = "af " + name + " " + RAddressString(addr);
+    QString command = "af " + name + " @ " + RAddressString(addr);
     QString ret = cmd(command);
     emit functionsChanged();
     return ret;
