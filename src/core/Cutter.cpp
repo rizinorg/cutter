@@ -1802,6 +1802,19 @@ QList<RVA> CutterCore::getBreakpointsAddresses()
     return bpAddresses;
 }
 
+QList<RVA> CutterCore::getBreakpointsInFunction(RVA funcAddr)
+{
+    QList<RVA> allBreakpoints = getBreakpointsAddresses();
+    QList<RVA> functionBreakpoints;
+
+    // Use std manipulations to take only the breakpoints that belong to this function
+    std::copy_if(allBreakpoints.begin(),
+             allBreakpoints.end(),
+             std::back_inserter(functionBreakpoints),
+             [this, funcAddr](RVA BPadd) { return getFunctionStart(BPadd) == funcAddr; });
+    return functionBreakpoints;
+}
+
 bool CutterCore::isBreakpoint(const QList<RVA> &breakpoints, RVA addr)
 {
     return breakpoints.contains(addr);
