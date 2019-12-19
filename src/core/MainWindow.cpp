@@ -218,6 +218,9 @@ void MainWindow::initToolBar()
 
     DebugActions *debugActions = new DebugActions(ui->mainToolBar, this);
     // Debug menu
+    auto debugViewAction = ui->menuDebug->addAction(tr("View"));
+    debugViewAction->setMenu(ui->menuAddDebugWidgets);
+    ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugActions->actionStart);
     ui->menuDebug->addAction(debugActions->actionStartEmul);
     ui->menuDebug->addAction(debugActions->actionAttach);
