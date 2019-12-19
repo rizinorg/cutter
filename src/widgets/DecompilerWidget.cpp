@@ -32,6 +32,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
 
     connect(Config(), SIGNAL(fontsUpdated()), this, SLOT(fontsUpdatedSlot()));
     connect(Config(), SIGNAL(colorsUpdated()), this, SLOT(colorsUpdatedSlot()));
+    connect(Core(), SIGNAL(registersChanged()), this, SLOT(highlightPC()));
 
     decompiledFunctionAddr = RVA_INVALID;
     decompilerWasBusy = false;
@@ -158,6 +159,8 @@ void DecompilerWidget::doRefresh(RVA addr)
         return;
     }
 
+    // Clear all selections since we just refreshed
+    ui->textEdit->setExtraSelections({});
     decompiledFunctionAddr = Core()->getFunctionStart(addr);
     dec->decompileAt(addr);
     if (dec->isRunning()) {
@@ -171,6 +174,18 @@ void DecompilerWidget::doRefresh(RVA addr)
 void DecompilerWidget::refreshDecompiler()
 {
     doRefresh();
+}
+
+QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
+{
+    size_t pos = code.PositionForOffset(addr);
+    if (pos == SIZE_MAX || pos == 0) {
+        return QTextCursor();
+    }
+
+    QTextCursor cursor = ui->textEdit->textCursor();
+    cursor.setPosition(pos);
+    return cursor;
 }
 
 void DecompilerWidget::decompilationFinished(AnnotatedCode code)
@@ -188,6 +203,8 @@ void DecompilerWidget::decompilationFinished(AnnotatedCode code)
         ui->textEdit->setPlainText(code.code);
         connectCursorPositionChanged(false);
         updateCursorPosition();
+        highlightPC();
+        highlightBreakpoints();
     }
 
     if (decompilerWasBusy) {
@@ -284,6 +301,8 @@ void DecompilerWidget::updateSelection()
     extraSelections.append(createSameWordsSelections(ui->textEdit, searchString));
 
     ui->textEdit->setExtraSelections(extraSelections);
+    // Highlight PC after updating the selected line
+    highlightPC();
     mCtxMenu->setCurHighlightedWord(searchString);
 }
 
@@ -326,4 +345,47 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
     }
 
     return MemoryDockWidget::eventFilter(obj, event);
+}
+
+
+void DecompilerWidget::highlightPC()
+{
+    RVA PCAddress = Core()->getProgramCounterValue();
+    if (PCAddress == RVA_INVALID || (Core()->getFunctionStart(PCAddress) != decompiledFunctionAddr)) {
+        return;
+    }
+
+    QTextCursor cursor = getCursorForAddress(PCAddress);
+    if (!cursor.isNull()) {
+        colorLine(createLineHighlightPC(cursor));
+    }
+    
+}
+
+void DecompilerWidget::highlightBreakpoints()
+{
+
+    QList<RVA> functionBreakpoints = Core()->getBreakpointsInFunction(decompiledFunctionAddr);
+    QTextCursor cursor;
+    foreach(auto &bp, functionBreakpoints) {
+        if (bp == RVA_INVALID) {
+            continue;;
+        }
+
+        cursor = getCursorForAddress(bp);
+        if (!cursor.isNull()) {
+            // Use a Block formatting since these lines are not updated frequently as selections and PC
+            QTextBlockFormat f;
+            f.setBackground(ConfigColor("gui.breakpoint_background"));
+            cursor.setBlockFormat(f);
+        }
+    }
+}
+
+bool DecompilerWidget::colorLine(QTextEdit::ExtraSelection extraSelection)
+{
+    QList<QTextEdit::ExtraSelection> extraSelections = ui->textEdit->extraSelections();
+    extraSelections.append(extraSelection);
+    ui->textEdit->setExtraSelections(extraSelections);
+    return true;
 }
