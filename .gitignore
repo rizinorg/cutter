@@ -43,6 +43,10 @@ CMakeLists.txt.user
 
 # Vim
 *.swp
+*~
+
+# Git mergetool
+~.orig
 
 # CMake Files:
 src/*_automoc.cpp
