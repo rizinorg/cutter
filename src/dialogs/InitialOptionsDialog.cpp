@@ -153,6 +153,12 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 
     shellcode = options.shellcode;
 
+    if (!options.forceBinPlugin.isEmpty()) {
+        ui->formatComboBox->setCurrentText(options.forceBinPlugin);
+    } else {
+        ui->formatComboBox->setCurrentIndex(0);
+    }
+
     // TODO: all other options should also be applied to the ui
 }
 
