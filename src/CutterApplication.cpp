@@ -80,6 +80,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                   QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
+    QCommandLineOption formatOption({"F", "format"},
+                                    QObject::tr("Force using a specific file format (bin plugin)"),
+                                    QObject::tr("name"));
+    cmd_parser.addOption(formatOption);
+
     QCommandLineOption scriptOption("i",
                                     QObject::tr("Run script file"),
                                     QObject::tr("file"));
@@ -178,6 +183,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     } else { // filename specified as positional argument
         InitialOptions options;
         options.filename = args[0];
+        options.forceBinPlugin = cmd_parser.value(formatOption);
         if (analLevelSpecified) {
             switch (analLevel) {
             case 0:
