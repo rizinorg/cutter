@@ -327,6 +327,11 @@ public:
     void disableBreakpoint(RVA addr);
     bool isBreakpoint(const QList<RVA> &breakpoints, RVA addr);
     QList<RVA> getBreakpointsAddresses();
+    
+    /**
+     * @brief Get all breakpoinst that are belong to a functions at this address
+     */
+    QList<RVA> getBreakpointsInFunction(RVA funcAddr);
     QString getActiveDebugPlugin();
     QStringList getDebugPlugins();
     void setDebugPlugin(QString plugin);

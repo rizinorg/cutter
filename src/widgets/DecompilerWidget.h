@@ -1,6 +1,7 @@
 #ifndef DECOMPILERWIDGET_H
 #define DECOMPILERWIDGET_H
 
+#include <QTextEdit>
 #include <memory>
 
 #include "core/Cutter.h"
@@ -29,6 +30,7 @@ public:
 public slots:
     void showDisasContextMenu(const QPoint &pt);
 
+    void highlightPC();
 private slots:
     void fontsUpdatedSlot();
     void colorsUpdatedSlot();
@@ -77,6 +79,26 @@ private:
      * referenced from the address under cursor
      */
     void seekToReference();
+
+    /**
+     * @brief Retrieve the Cursor for a location as close as possible to the given address
+     * @param addr - an address in the decompiled function
+     * @return a Cursor object for the given address
+     */
+    QTextCursor getCursorForAddress(RVA addr);
+
+    /**
+     * @brief Append a highlighted line to the TextEdit
+     * @param extraSelection - an ExtraSelection object colored with the appropriate color
+     * @return True on success, otherwise False
+     */
+    bool colorLine(QTextEdit::ExtraSelection extraSelection);
+
+    /**
+     * @brief This function responsible to highlight all the breakpoints in the decompiler view.
+     * It will also run when a breakpoint is added, removed or modified.
+     */
+    void highlightBreakpoints();
 };
 
 #endif // DECOMPILERWIDGET_H
