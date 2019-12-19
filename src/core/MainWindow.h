@@ -288,6 +288,12 @@ private:
     void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
+    /**
+     * @brief Check if a widget is one of debug specific dock widgets.
+     * @param dock
+     * @return true for debug specific widgets, false for all other including common dock widgets.
+     */
+    bool isDebugWidget(QDockWidget *dock) const;
 
     MemoryWidgetType getMemoryWidgetTypeToRestore();
 
