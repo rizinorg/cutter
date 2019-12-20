@@ -3115,9 +3115,7 @@ void CutterCore::handleREvent(int type, void *data)
     }
     case R_EVENT_DEBUG_PROCESS_FINISHED: {
         auto ev = reinterpret_cast<REventDebugProcessFinished*>(data);
-        QMessageBox msgBox;
-        msgBox.setText(tr("Debugged process exited (") + QString::number(ev->pid) + ")");
-        msgBox.exec();
+        emit debugProcessFinished(ev->pid);
         break;
     }
     default:
