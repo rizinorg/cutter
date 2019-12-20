@@ -237,7 +237,7 @@ void SectionsWidget::initConnects()
 
 void SectionsWidget::refreshSections()
 {
-    if (!sectionsRefreshDeferrer->attemptRefresh(nullptr)) {
+    if (!sectionsRefreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
         return;
     }
     sectionsModel->beginResetModel();

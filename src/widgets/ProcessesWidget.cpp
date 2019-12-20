@@ -72,16 +72,16 @@ void ProcessesWidget::updateContents()
         return;
     }
 
-    if (Core()->currentlyDebugging) {
-        setProcessesGrid();
-    } else {
+    if (!Core()->currentlyDebugging) {
         // Remove rows from the previous debugging session
         modelProcesses->removeRows(0, modelProcesses->rowCount());
+        return;
     }
 
-    if (Core()->isDebugTaskInProgress() || !Core()->currentlyDebugging) {
+    if (Core()->isDebugTaskInProgress()) {
         ui->viewProcesses->setDisabled(true);
     } else {
+        setProcessesGrid();
         ui->viewProcesses->setDisabled(false);
     }
 }

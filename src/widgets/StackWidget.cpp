@@ -58,7 +58,7 @@ StackWidget::~StackWidget() = default;
 
 void StackWidget::updateContents()
 {
-    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
         return;
     }
 
