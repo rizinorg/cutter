@@ -37,7 +37,7 @@ StackWidget::StackWidget(MainWindow *main, QAction *action) :
     });
 
     connect(Core(), &CutterCore::refreshAll, this, &StackWidget::updateContents);
-    connect(Core(), &CutterCore::seekChanged, this, &StackWidget::updateContents);
+    connect(Core(), &CutterCore::registersChanged, this, &StackWidget::updateContents);
     connect(Core(), &CutterCore::stackChanged, this, &StackWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &StackWidget::fontsUpdatedSlot);
     connect(viewStack, SIGNAL(doubleClicked(const QModelIndex &)), this,
