@@ -231,6 +231,7 @@ void DebugActions::onAttachedRemoteDebugger(bool successfully)
         attachRemoteDialog();
     } else {
         delete remoteDialog;
+        remoteDialog = nullptr;
         attachRemoteDebugger();
     }
 }
