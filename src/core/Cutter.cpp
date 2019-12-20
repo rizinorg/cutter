@@ -3113,6 +3113,13 @@ void CutterCore::handleREvent(int type, void *data)
         emit classAttrsChanged(QString::fromUtf8(ev->attr.class_name));
         break;
     }
+    case R_EVENT_DEBUG_PROCESS_FINISHED: {
+        auto ev = reinterpret_cast<REventDebugProcessFinished*>(data);
+        QMessageBox msgBox;
+        msgBox.setText(tr("Debugged process exited (") + QString::number(ev->pid) + ")");
+        msgBox.exec();
+        break;
+    }
     default:
         break;
     }
