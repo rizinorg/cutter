@@ -54,7 +54,7 @@ ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, modelFilter,
             &ThreadsFilterModel::setFilterWildcard);
     connect(Core(), &CutterCore::refreshAll, this, &ThreadsWidget::updateContents);
-    connect(Core(), &CutterCore::seekChanged, this, &ThreadsWidget::updateContents);
+    connect(Core(), &CutterCore::registersChanged, this, &ThreadsWidget::updateContents);
     connect(Core(), &CutterCore::debugTaskStateChanged, this, &ThreadsWidget::updateContents);
     // Seek doesn't necessarily change when switching threads/processes
     connect(Core(), &CutterCore::switchedThread, this, &ThreadsWidget::updateContents);
