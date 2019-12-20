@@ -531,6 +531,11 @@ signals:
     void classRenamed(const QString &oldName, const QString &newName);
     void classAttrsChanged(const QString &cls);
 
+    /**
+     * @brief end of current debug event received
+     */
+    void debugProcessFinished(int pid);
+
     void attachedRemote(bool successfully);
 
     void projectSaved(bool successfully, const QString &name);

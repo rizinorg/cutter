@@ -110,6 +110,12 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
         actionContinueUntilCall, actionContinueUntilSyscall};
     toggleConnectionActions = {actionAttach, actionStartRemote};
 
+    connect(Core(), &CutterCore::debugProcessFinished, this, [ = ](int pid) {
+        QMessageBox msgBox;
+        msgBox.setText(tr("Debugged process exited (") + QString::number(pid) + ")");
+        msgBox.exec();
+    });
+
     connect(Core(), &CutterCore::debugTaskStateChanged, this, [ = ]() {
         bool disableToolbar = Core()->isDebugTaskInProgress();
         if (Core()->currentlyDebugging) {
