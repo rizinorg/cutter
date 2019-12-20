@@ -71,16 +71,16 @@ void ThreadsWidget::updateContents()
         return;
     }
 
-    if (Core()->currentlyDebugging) {
-        setThreadsGrid();
-    } else {
+    if (!Core()->currentlyDebugging) {
         // Remove rows from the previous debugging session
         modelThreads->removeRows(0, modelThreads->rowCount());
+        return;
     }
 
-    if (Core()->isDebugTaskInProgress() || !Core()->currentlyDebugging) {
+    if (Core()->isDebugTaskInProgress()) {
         ui->viewThreads->setDisabled(true);
     } else {
+        setThreadsGrid();
         ui->viewThreads->setDisabled(false);
     }
 }
