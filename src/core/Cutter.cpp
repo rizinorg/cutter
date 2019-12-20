@@ -1736,7 +1736,15 @@ void CutterCore::toggleBreakpoint(RVA addr)
 
 void CutterCore::toggleBreakpoint(QString addr)
 {
-    cmd("dbs " + addr);
+    cmdRaw("dbs " + addr);
+    emit instructionChanged(addr.toULongLong());
+    emit breakpointsChanged();
+}
+
+
+void CutterCore::addBreakpoint(QString addr)
+{
+    cmdRaw("db " + addr);
     emit instructionChanged(addr.toULongLong());
     emit breakpointsChanged();
 }
