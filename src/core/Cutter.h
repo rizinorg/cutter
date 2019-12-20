@@ -319,6 +319,7 @@ public:
     void stepDebug();
     void stepOverDebug();
     void stepOutDebug();
+    void addBreakpoint(QString addr);
     void toggleBreakpoint(RVA addr);
     void toggleBreakpoint(QString addr);
     void delBreakpoint(RVA addr);
