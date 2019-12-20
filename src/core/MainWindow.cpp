@@ -677,7 +677,8 @@ void MainWindow::readSettingsOrDefault()
     // make sure all DockWidgets are part of the MainWindow
     // also show them, so newly installed plugin widgets are shown right away
     for (auto dockWidget : dockWidgets) {
-        if (dockWidgetArea(dockWidget) == Qt::DockWidgetArea::NoDockWidgetArea) {
+        if (dockWidgetArea(dockWidget) == Qt::DockWidgetArea::NoDockWidgetArea &&
+            !isDebugWidget(dockWidget)) {
             addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
             dockWidget->show();
         }
@@ -863,6 +864,18 @@ void MainWindow::updateDockActionsChecked()
     for (auto i = dockWidgetsOfAction.constBegin(); i != dockWidgetsOfAction.constEnd(); i++) {
         updateDockActionChecked(i.key());
     }
+}
+
+bool MainWindow::isDebugWidget(QDockWidget *dock) const
+{
+    return dock == stackDock ||
+           dock == registersDock ||
+           dock == backtraceDock ||
+           dock == threadsDock ||
+           dock == memoryMapDock ||
+           dock == breakpointDock ||
+           dock == processesDock ||
+           dock == registerRefsDock;
 }
 
 MemoryWidgetType MainWindow::getMemoryWidgetTypeToRestore()
