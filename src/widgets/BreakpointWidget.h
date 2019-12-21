@@ -4,6 +4,7 @@
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
+#include "AddressableItemModel.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -20,7 +21,7 @@ class MainWindow;
 class QTreeWidgetItem;
 class BreakpointWidget;
 
-class BreakpointModel: public QAbstractListModel
+class BreakpointModel: public AddressableItemModel<QAbstractListModel>
 {
     Q_OBJECT
 
@@ -35,16 +36,18 @@ public:
 
     BreakpointModel(QList<BreakpointDescription> *breakpoints, QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+    RVA address(const QModelIndex &index) const override;
 };
 
 
 
-class BreakpointProxyModel : public QSortFilterProxyModel
+class BreakpointProxyModel : public AddressableFilterProxyModel
 {
     Q_OBJECT
 

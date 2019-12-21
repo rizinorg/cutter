@@ -6,7 +6,7 @@
 #include <QMenu>
 
 BreakpointModel::BreakpointModel(QList<BreakpointDescription> *breakpoints, QObject *parent)
-    : QAbstractListModel(parent),
+    : AddressableItemModel<QAbstractListModel>(parent),
       breakpoints(breakpoints)
 {
 }
@@ -74,10 +74,17 @@ QVariant BreakpointModel::headerData(int section, Qt::Orientation, int role) con
     }
 }
 
-BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject *parent)
-    : QSortFilterProxyModel(parent)
+RVA BreakpointModel::address(const QModelIndex &index) const
 {
-    setSourceModel(sourceModel);
+    if (index.row() < breakpoints->count()) {
+        return breakpoints->at(index.row()).addr;
+    }
+    return RVA_INVALID;
+}
+
+BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject *parent)
+    : AddressableFilterProxyModel(sourceModel, parent)
+{
 }
 
 bool BreakpointProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
@@ -178,7 +185,7 @@ void BreakpointWidget::on_breakpointTreeView_doubleClicked(const QModelIndex &in
 {
     BreakpointDescription item = index.data(
                                      BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    Core()->seekAndShow(item.addr);
+    //Core()->seekAndShow(item.addr);
 }
 
 void BreakpointWidget::showBreakpointContextMenu(const QPoint &pt)
