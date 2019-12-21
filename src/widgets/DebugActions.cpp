@@ -303,7 +303,7 @@ void DebugActions::attachProcess(int pid)
 void DebugActions::startDebug()
 {
     // check if file is executable before starting debug
-    QString filename = Core()->getConfig("file.path").section(QLatin1Char(' '), 0, 0);
+    QString filename = Core()->getConfig("file.path");
 
     QFileInfo info(filename);
     if (!Core()->currentlyDebugging && !info.isExecutable()) {
