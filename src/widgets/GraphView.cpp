@@ -178,7 +178,7 @@ qreal GraphView::getCacheDevicePixelRatioF()
 
 QSize GraphView::getRequiredCacheSize()
 {
-    return viewport()->size() * getRequiredCacheDevicePixelRatioF();
+    return viewport()->size() * qhelpers::devicePixelRatio(this);
 }
 
 qreal GraphView::getRequiredCacheDevicePixelRatioF()
@@ -213,16 +213,15 @@ void GraphView::paintEvent(QPaintEvent *)
         auto gl = glWidget->context()->extraFunctions();
         gl->glBindFramebuffer(GL_READ_FRAMEBUFFER, cacheFBO);
         gl->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glWidget->defaultFramebufferObject());
+        auto dpr = qhelpers::devicePixelRatio(this);
         gl->glBlitFramebuffer(0, 0, cacheSize.width(), cacheSize.height(),
-                              0, 0, viewport()->width(), viewport()->height(),
+                              0, 0, viewport()->width() * dpr, viewport()->height() * dpr,
                               GL_COLOR_BUFFER_BIT, GL_NEAREST);
         glWidget->doneCurrent();
 #endif
     } else {
-        QRectF target(0.0, 0.0, viewport()->width(), viewport()->height());
-        QRectF source(0.0, 0.0, pixmap.width(), pixmap.height());
         QPainter p(viewport());
-        p.drawPixmap(target, pixmap, source);
+        p.drawPixmap(QPoint(0, 0), pixmap);
     }
 }
 
@@ -253,7 +252,7 @@ void GraphView::addViewOffset(QPoint move, bool emitSignal)
 void GraphView::paintGraphCache()
 {
 #ifndef CUTTER_NO_OPENGL_GRAPH
-    QOpenGLPaintDevice *paintDevice = nullptr;
+    std::unique_ptr<QOpenGLPaintDevice> paintDevice;
 #endif
     QPainter p;
     if (useGL) {
@@ -261,6 +260,7 @@ void GraphView::paintGraphCache()
         auto gl = QOpenGLContext::currentContext()->functions();
 
         bool resizeTex = false;
+        QSize sizeNeed = getRequiredCacheSize();
         if (!cacheTexture) {
             gl->glGenTextures(1, &cacheTexture);
             gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
@@ -270,13 +270,13 @@ void GraphView::paintGraphCache()
             gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             resizeTex = true;
-        } else if (cacheSize != viewport()->size()) {
+        } else if (cacheSize != sizeNeed) {
             gl->glBindTexture(GL_TEXTURE_2D, cacheTexture);
             resizeTex = true;
         }
         if (resizeTex) {
-            cacheSize = viewport()->size();
-            gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewport()->width(), viewport()->height(), 0, GL_RGBA,
+            cacheSize = sizeNeed;
+            gl->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, cacheSize.width(), cacheSize.height(), 0, GL_RGBA,
                              GL_UNSIGNED_BYTE, nullptr);
             gl->glGenFramebuffers(1, &cacheFBO);
             gl->glBindFramebuffer(GL_FRAMEBUFFER, cacheFBO);
@@ -285,33 +285,29 @@ void GraphView::paintGraphCache()
             gl->glBindFramebuffer(GL_FRAMEBUFFER, cacheFBO);
         }
         gl->glViewport(0, 0, viewport()->width(), viewport()->height());
-        gl->glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        gl->glClearColor(backgroundColor.redF(), backgroundColor.greenF(), backgroundColor.blueF(), 1.0f);
         gl->glClear(GL_COLOR_BUFFER_BIT);
 
-        paintDevice = new QOpenGLPaintDevice(viewport()->size());
-        p.begin(paintDevice);
+        paintDevice.reset(new QOpenGLPaintDevice(cacheSize));
+        p.begin(paintDevice.get());
 #endif
     } else {
         auto dpr = qhelpers::devicePixelRatio(this);
-        pixmap = QPixmap(getRequiredCacheSize());
+        pixmap = QPixmap(getRequiredCacheSize() * dpr);
         pixmap.setDevicePixelRatio(dpr);
+        pixmap.fill(backgroundColor);
         p.begin(&pixmap);
         p.setRenderHint(QPainter::Antialiasing);
+        p.setViewport(this->viewport()->rect());
     }
-
     paint(p, offset, this->viewport()->rect(), current_scale);
 
     p.end();
-#ifndef CUTTER_NO_OPENGL_GRAPH
-    delete paintDevice;
-#endif
 }
 
 void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, bool interactive)
 {
     QPointF offsetF(offset.x(), offset.y());
-    p.setBrush(backgroundColor);
-    p.drawRect(viewport);
     p.setBrush(Qt::black);
 
     int render_width = viewport.width();
@@ -320,7 +316,7 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
     // window - rectangle in logical coordinates
     QRect window = QRect(offset, QSize(qRound(render_width / scale), qRound(render_height / scale)));
     p.setWindow(window);
-    QRect windowF(window.x(), window.y(), window.width(), window.height());
+    QRectF windowF(window.x(), window.y(), window.width(), window.height());
 
     for (auto &blockIt : blocks) {
         GraphBlock &block = blockIt.second;
@@ -346,7 +342,7 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
             QPen pen(ec.color);
             pen.setStyle(ec.lineStyle);
             pen.setWidthF(pen.width() * ec.width_scale);
-            if (scale_thickness_multiplier * ec.width_scale > 1.01 && pen.widthF() * scale < 2) {
+            if (scale_thickness_multiplier && ec.width_scale > 1.01 && pen.widthF() * scale < 2) {
                 pen.setWidthF(ec.width_scale / scale);
             }
             if (pen.widthF() * scale < 2) {
@@ -359,6 +355,8 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
             p.setPen(pen);
 
             auto drawArrow = [&](QPointF tip, QPointF dir) {
+                pen.setWidth(0);
+                p.setPen(pen);
                 QPolygonF arrow;
                 arrow << tip;
                 QPointF dy(-dir.y(), dir.x());
@@ -402,6 +400,7 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
 void GraphView::saveAsBitmap(QString path, const char *format)
 {
     QImage image(width, height, QImage::Format_RGB32);
+    image.fill(backgroundColor);
     QPainter p;
     p.begin(&image);
     paint(p, QPoint(0, 0), image.rect(), 1.0, false);
