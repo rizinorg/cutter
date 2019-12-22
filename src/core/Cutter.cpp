@@ -1776,6 +1776,15 @@ void CutterCore::disableBreakpoint(RVA addr)
     emit breakpointsChanged();
 }
 
+void CutterCore::setBreakpointTrace(int index, bool enabled)
+{
+    if (enabled) {
+        cmd(QString("dbite %1").arg(index));
+    } else {
+        cmd(QString("dbitd %1").arg(index));
+    }
+}
+
 QList<BreakpointDescription> CutterCore::getBreakpoints()
 {
     QList<BreakpointDescription> ret;

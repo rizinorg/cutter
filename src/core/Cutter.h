@@ -326,6 +326,13 @@ public:
     void delAllBreakpoints();
     void enableBreakpoint(RVA addr);
     void disableBreakpoint(RVA addr);
+    /**
+     * @brief Enable or disable breakpoint tracing.
+     * @param index - breakpoint index to modify
+     * @param enabled - true if tracing should be enabled
+     */
+    void setBreakpointTrace(int index, bool enabled);
+
     bool isBreakpoint(const QList<RVA> &breakpoints, RVA addr);
     QList<RVA> getBreakpointsAddresses();
     

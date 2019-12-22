@@ -3,17 +3,26 @@
 #include "dialogs/BreakpointsDialog.h"
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
+#include "widgets/BoolToggleDelegate.h"
 #include <QMenu>
+#include <QStyledItemDelegate>
+#include <QCheckBox>
 
-BreakpointModel::BreakpointModel(QList<BreakpointDescription> *breakpoints, QObject *parent)
-    : AddressableItemModel<QAbstractListModel>(parent),
-      breakpoints(breakpoints)
+BreakpointModel::BreakpointModel(QObject *parent)
+    : AddressableItemModel<QAbstractListModel>(parent)
 {
+}
+
+void BreakpointModel::refresh()
+{
+    beginResetModel();
+    breakpoints = Core()->getBreakpoints();
+    endResetModel();
 }
 
 int BreakpointModel::rowCount(const QModelIndex &) const
 {
-    return breakpoints->count();
+    return breakpoints.count();
 }
 
 int BreakpointModel::columnCount(const QModelIndex &) const
@@ -23,10 +32,10 @@ int BreakpointModel::columnCount(const QModelIndex &) const
 
 QVariant BreakpointModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= breakpoints->count())
+    if (index.row() >= breakpoints.count())
         return QVariant();
 
-    const BreakpointDescription &breakpoint = breakpoints->at(index.row());
+    const BreakpointDescription &breakpoint = breakpoints.at(index.row());
 
     switch (role) {
     case Qt::DisplayRole:
@@ -43,6 +52,15 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
             return breakpoint.enabled;
         default:
             return QVariant();
+        }
+    case Qt::EditRole:
+        switch (index.column()) {
+        case TraceColumn:
+            return breakpoint.trace;
+        case EnabledColumn:
+            return breakpoint.enabled;
+        default:
+            return data(index, Qt::DisplayRole);
         }
     case BreakpointDescriptionRole:
         return QVariant::fromValue(breakpoint);
@@ -74,10 +92,55 @@ QVariant BreakpointModel::headerData(int section, Qt::Orientation, int role) con
     }
 }
 
+bool BreakpointModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (index.row() >= breakpoints.count())
+        return false;
+
+    BreakpointDescription &breakpoint = breakpoints[index.row()];
+
+    switch (role) {
+    case Qt::EditRole:
+        switch (index.column()) {
+        case TraceColumn:
+            breakpoint.trace = value.toBool();
+            Core()->setBreakpointTrace(index.row(), breakpoint.trace);
+            emit dataChanged(index, index, {role, Qt::DisplayRole});
+            return true;
+        case EnabledColumn:
+            breakpoint.enabled = value.toBool();
+            if (breakpoint.enabled) {
+                Core()->enableBreakpoint(breakpoint.addr);
+            } else {
+                Core()->disableBreakpoint(breakpoint.addr);
+            }
+            emit dataChanged(index, index, {role, Qt::DisplayRole});
+            return true;
+        default:
+            return false;
+        }
+
+    default:
+        return false;
+    }
+}
+
+Qt::ItemFlags BreakpointModel::flags(const QModelIndex &index) const
+{
+    switch (index.column()) {
+    case TraceColumn:
+        return AddressableItemModel::flags(index) | Qt::ItemFlag::ItemIsEditable;
+    case EnabledColumn:
+        return AddressableItemModel::flags(index) | Qt::ItemFlag::ItemIsEditable;
+    default:
+        return AddressableItemModel::flags(index);
+    }
+}
+
 RVA BreakpointModel::address(const QModelIndex &index) const
 {
-    if (index.row() < breakpoints->count()) {
-        return breakpoints->at(index.row()).addr;
+    if (index.row() < breakpoints.count()) {
+        return breakpoints.at(index.row()).addr;
     }
     return RVA_INVALID;
 }
@@ -124,17 +187,19 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
 {
     ui->setupUi(this);
 
-    breakpointModel = new BreakpointModel(&breakpoints, this);
+    ui->breakpointTreeView->setMainWindow(mainWindow);
+    breakpointModel = new BreakpointModel(this);
     breakpointProxyModel = new BreakpointProxyModel(breakpointModel, this);
     ui->breakpointTreeView->setModel(breakpointProxyModel);
     ui->breakpointTreeView->sortByColumn(BreakpointModel::AddrColumn, Qt::AscendingOrder);
+    ui->breakpointTreeView->setItemDelegate(new BoolTogggleDelegate(this));
 
     refreshDeferrer = createRefreshDeferrer([this]() {
         refreshBreakpoint();
     });
 
     setScrollMode();
- 
+
     actionDelBreakpoint = new QAction(tr("Delete breakpoint"), this);
     actionDelBreakpoint->setShortcut(Qt::Key_Delete);
     actionDelBreakpoint->setShortcutContext(Qt::WidgetShortcut);
@@ -147,6 +212,10 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     connect(actionToggleBreakpoint, &QAction::triggered, this, &BreakpointWidget::toggleBreakpoint);
     ui->breakpointTreeView->addAction(actionToggleBreakpoint);
 
+    auto contextMenu = ui->breakpointTreeView->getItemContextMenu();
+    contextMenu->addAction(actionToggleBreakpoint);
+    contextMenu->addAction(actionDelBreakpoint);
+
     connect(Core(), &CutterCore::refreshAll, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::breakpointsChanged, this, &BreakpointWidget::refreshBreakpoint);
     connect(Core(), &CutterCore::codeRebased, this, &BreakpointWidget::refreshBreakpoint);
@@ -154,9 +223,6 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     connect(ui->addBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::addBreakpointDialog);
     connect(ui->delBreakpoint, &QAbstractButton::clicked, this, &BreakpointWidget::delBreakpoint);
     connect(ui->delAllBreakpoints, &QAbstractButton::clicked, Core(), &CutterCore::delAllBreakpoints);
-    ui->breakpointTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->breakpointTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showBreakpointContextMenu(const QPoint &)));
 }
 
 BreakpointWidget::~BreakpointWidget() = default;
@@ -167,9 +233,7 @@ void BreakpointWidget::refreshBreakpoint()
         return;
     }
 
-    breakpointModel->beginResetModel();
-    breakpoints = Core()->getBreakpoints();
-    breakpointModel->endResetModel();
+    breakpointModel->refresh();
 
     ui->breakpointTreeView->resizeColumnToContents(0);
     ui->breakpointTreeView->resizeColumnToContents(1);
@@ -179,26 +243,6 @@ void BreakpointWidget::refreshBreakpoint()
 void BreakpointWidget::setScrollMode()
 {
     qhelpers::setVerticalScrollMode(ui->breakpointTreeView);
-}
-
-void BreakpointWidget::on_breakpointTreeView_doubleClicked(const QModelIndex &index)
-{
-    BreakpointDescription item = index.data(
-                                     BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    //Core()->seekAndShow(item.addr);
-}
-
-void BreakpointWidget::showBreakpointContextMenu(const QPoint &pt)
-{
-    QMenu *menu = new QMenu(ui->breakpointTreeView);
-    menu->clear();
-    menu->addAction(actionDelBreakpoint);
-    menu->addAction(actionToggleBreakpoint);
-
-    menu->exec(ui->breakpointTreeView->viewport()->mapToGlobal(pt));
-    this->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    delete menu;
 }
 
 void BreakpointWidget::addBreakpointDialog()
@@ -218,9 +262,15 @@ void BreakpointWidget::addBreakpointDialog()
 
 void BreakpointWidget::delBreakpoint()
 {
-    BreakpointDescription bp = ui->breakpointTreeView->selectionModel()->currentIndex().data(
-                                   BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    Core()->delBreakpoint(bp.addr);
+    auto selection = ui->breakpointTreeView->selectionModel()->selectedRows();
+    QVector<RVA> breakpointsToRemove(selection.count());
+    int index = 0;
+    for (auto row : selection) {
+        breakpointsToRemove[index++] = breakpointProxyModel->address(row);
+    }
+    for (auto address : breakpointsToRemove) {
+        Core()->delBreakpoint(address);
+    }
 }
 
 void BreakpointWidget::toggleBreakpoint()

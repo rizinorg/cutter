@@ -28,19 +28,25 @@ class BreakpointModel: public AddressableItemModel<QAbstractListModel>
     friend BreakpointWidget;
 
 private:
-    QList<BreakpointDescription> *breakpoints;
+    QList<BreakpointDescription> breakpoints;
 
 public:
     enum Column { AddrColumn = 0, PermColumn, HwColumn, TraceColumn, EnabledColumn, ColumnCount };
     enum Role { BreakpointDescriptionRole = Qt::UserRole };
 
-    BreakpointModel(QList<BreakpointDescription> *breakpoints, QObject *parent = nullptr);
+    BreakpointModel(QObject *parent = nullptr);
+
+    void refresh();
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
 
     RVA address(const QModelIndex &index) const override;
 };
@@ -70,8 +76,6 @@ public:
     ~BreakpointWidget();
 
 private slots:
-    void on_breakpointTreeView_doubleClicked(const QModelIndex &index);
-    void showBreakpointContextMenu(const QPoint &pt);
     void delBreakpoint();
     void toggleBreakpoint();
     void addBreakpointDialog();
