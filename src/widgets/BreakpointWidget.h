@@ -91,6 +91,8 @@ private:
     QAction *actionToggleBreakpoint = nullptr;
 
     void setScrollMode();
+    QVector<RVA> getSelectedAddresses() const;
 
     RefreshDeferrer *refreshDeferrer;
+    bool editing = false;
 };

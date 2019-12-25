@@ -229,7 +229,7 @@ BreakpointWidget::~BreakpointWidget() = default;
 
 void BreakpointWidget::refreshBreakpoint()
 {
-    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+    if (editing || !refreshDeferrer->attemptRefresh(nullptr)) {
         return;
     }
 
@@ -260,14 +260,20 @@ void BreakpointWidget::addBreakpointDialog()
     }
 }
 
-void BreakpointWidget::delBreakpoint()
+QVector<RVA> BreakpointWidget::getSelectedAddresses() const
 {
     auto selection = ui->breakpointTreeView->selectionModel()->selectedRows();
-    QVector<RVA> breakpointsToRemove(selection.count());
+    QVector<RVA> breakpointAddressese(selection.count());
     int index = 0;
     for (auto row : selection) {
-        breakpointsToRemove[index++] = breakpointProxyModel->address(row);
+        breakpointAddressese[index++] = breakpointProxyModel->address(row);
     }
+    return breakpointAddressese;
+}
+
+void BreakpointWidget::delBreakpoint()
+{
+    auto breakpointsToRemove = getSelectedAddresses();
     for (auto address : breakpointsToRemove) {
         Core()->delBreakpoint(address);
     }
@@ -275,11 +281,11 @@ void BreakpointWidget::delBreakpoint()
 
 void BreakpointWidget::toggleBreakpoint()
 {
-    BreakpointDescription bp = ui->breakpointTreeView->selectionModel()->currentIndex().data(
-                                   BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    if (bp.enabled) {
-        Core()->disableBreakpoint(bp.addr);
-    } else {
-        Core()->enableBreakpoint(bp.addr);
+    auto selection = ui->breakpointTreeView->selectionModel()->selectedRows();
+    editing = true;
+    for (auto row : selection) {
+        auto cell = breakpointProxyModel->index(row.row(), BreakpointModel::EnabledColumn);
+        breakpointProxyModel->setData(cell, !cell.data(Qt::EditRole).toBool());
     }
+    editing = false;
 }
