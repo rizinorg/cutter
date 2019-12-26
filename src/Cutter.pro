@@ -385,7 +385,8 @@ SOURCES += \
     menus/AddressableItemContextMenu.cpp \
     common/AddressableItemModel.cpp \
     widgets/ListDockWidget.cpp \
-    dialogs/MultitypeFileSaveDialog.cpp
+    dialogs/MultitypeFileSaveDialog.cpp \
+    widgets/BoolToggleDelegate.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -528,7 +529,8 @@ HEADERS  += \
     common/AddressableItemModel.h \
     widgets/ListDockWidget.h \
     widgets/AddressableItemList.h \
-    dialogs/MultitypeFileSaveDialog.h
+    dialogs/MultitypeFileSaveDialog.h \
+    widgets/BoolToggleDelegate.cpp
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 

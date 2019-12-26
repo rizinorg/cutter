@@ -101,6 +101,9 @@
    <property name="shortcut">
     <string>N</string>
    </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
+   </property>
   </action>
   <action name="actionDelete">
    <property name="text">
@@ -108,6 +111,9 @@
    </property>
    <property name="shortcut">
     <string>Del</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::WidgetWithChildrenShortcut</enum>
    </property>
   </action>
  </widget>
