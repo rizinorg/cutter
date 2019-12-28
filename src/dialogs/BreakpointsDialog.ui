@@ -21,20 +21,26 @@
        <property name="text">
         <string>Position</string>
        </property>
+       <property name="buddy">
+        <cstring>breakpointPosition</cstring>
+       </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="breakpointPosition"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>Condition</string>
        </property>
+       <property name="buddy">
+        <cstring>breakpointCondition</cstring>
+       </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="breakpointCondition">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -63,7 +69,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QCheckBox" name="checkBox_2">
+         <widget class="QCheckBox" name="checkActive">
           <property name="text">
            <string>Active</string>
           </property>
@@ -73,7 +79,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton">
+         <widget class="QRadioButton" name="radioSoftware">
           <property name="text">
            <string>Software</string>
           </property>
@@ -83,7 +89,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QRadioButton" name="radioButton_2">
+         <widget class="QRadioButton" name="radioHardware">
           <property name="text">
            <string>Hardware</string>
           </property>
@@ -102,7 +108,7 @@
           </property>
           <layout class="QFormLayout" name="formLayout_2">
            <item row="0" column="1">
-            <widget class="QComboBox" name="comboBox_2">
+            <widget class="QComboBox" name="hwPermissions">
              <item>
               <property name="text">
                <string>__x</string>
@@ -130,6 +136,9 @@
              <property name="text">
               <string>Access</string>
              </property>
+             <property name="buddy">
+              <cstring>hwPermissions</cstring>
+             </property>
             </widget>
            </item>
            <item row="1" column="0">
@@ -137,10 +146,13 @@
              <property name="text">
               <string>Size</string>
              </property>
+             <property name="buddy">
+              <cstring>breakpointSize</cstring>
+             </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="comboBox_3">
+            <widget class="QComboBox" name="breakpointSize">
              <item>
               <property name="text">
                <string>1</string>
@@ -182,10 +194,13 @@
             <property name="text">
              <string>Command</string>
             </property>
+            <property name="buddy">
+             <cstring>breakpointCommand</cstring>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit_2">
+           <widget class="QLineEdit" name="breakpointCommand">
             <property name="minimumSize">
              <size>
               <width>180</width>
@@ -197,7 +212,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="checkBox">
+         <widget class="QCheckBox" name="checkTrace">
           <property name="text">
            <string>Trace</string>
           </property>
@@ -268,7 +283,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>radioButton_2</sender>
+   <sender>radioHardware</sender>
    <signal>toggled(bool)</signal>
    <receiver>hwConfigBox</receiver>
    <slot>setEnabled(bool)</slot>

@@ -1,5 +1,6 @@
 #include "BreakpointsDialog.h"
 #include "ui_BreakpointsDialog.h"
+#include "Cutter.h"
 
 BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     QDialog(parent),
@@ -13,9 +14,21 @@ BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     //ui->textEdit->installEventFilter(this);
 }
 
-BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &editableBreakpoint, QWidget *parent)
+BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QWidget *parent)
     : BreakpointsDialog(true, parent)
 {
+    ui->breakpointPosition->setText(RAddressString(breakpoint.addr));
+    ui->breakpointCommand->setText(breakpoint.command);
+    ui->breakpointCondition->setEditText(breakpoint.condition);
+    if (breakpoint.hw) {
+        ui->radioHardware->setChecked(true);
+        ui->hwPermissions->setEditText(breakpoint.permission);
+        ui->breakpointSize->setEditText(QString::number(breakpoint.size));
+    } else {
+        ui->radioSoftware->setChecked(true);
+    }
+    ui->checkTrace->setChecked(breakpoint.trace);
+    ui->checkActive->setChecked(breakpoint.enabled);
 }
 
 BreakpointsDialog::~BreakpointsDialog() {}
@@ -33,6 +46,23 @@ QString BreakpointsDialog::getBreakpoints()
 {
     QString ret = "";//ui->textEdit->document()->toPlainText();
     return ret;
+}
+
+BreakpointDescription BreakpointsDialog::getDescription()
+{
+    BreakpointDescription breakpoint;
+    breakpoint.addr = Core()->num(ui->breakpointPosition->text());
+    breakpoint.size = Core()->num(ui->breakpointSize->currentText());
+    breakpoint.condition = ui->breakpointCondition->currentText();
+    if (ui->radioHardware->isChecked()) {
+        breakpoint.hw = true;
+        breakpoint.permission = ui->hwPermissions->currentText();
+    } else {
+        breakpoint.hw = false;
+    }
+    breakpoint.trace = ui->checkTrace->isChecked();
+    breakpoint.enabled = ui->checkActive->isChecked();
+    return breakpoint;
 }
 
 bool BreakpointsDialog::eventFilter(QObject *obj, QEvent *event)

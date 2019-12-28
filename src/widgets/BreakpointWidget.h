@@ -78,6 +78,7 @@ public:
 private slots:
     void delBreakpoint();
     void toggleBreakpoint();
+    void editBreakpoint();
     void addBreakpointDialog();
     void refreshBreakpoint();
 
@@ -89,6 +90,7 @@ private:
     QList<BreakpointDescription> breakpoints;
     QAction *actionDelBreakpoint = nullptr;
     QAction *actionToggleBreakpoint = nullptr;
+    QAction *actionEditBreakpoint = nullptr;
 
     void setScrollMode();
     QVector<RVA> getSelectedAddresses() const;

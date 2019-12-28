@@ -212,7 +212,11 @@ BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
     connect(actionToggleBreakpoint, &QAction::triggered, this, &BreakpointWidget::toggleBreakpoint);
     ui->breakpointTreeView->addAction(actionToggleBreakpoint);
 
+    actionEditBreakpoint = new QAction(tr("Edit"), this);
+    connect(actionEditBreakpoint, &QAction::triggered, this, &BreakpointWidget::editBreakpoint);
+
     auto contextMenu = ui->breakpointTreeView->getItemContextMenu();
+    contextMenu->addAction(actionEditBreakpoint);
     contextMenu->addAction(actionToggleBreakpoint);
     contextMenu->addAction(actionDelBreakpoint);
 
@@ -288,4 +292,18 @@ void BreakpointWidget::toggleBreakpoint()
         breakpointProxyModel->setData(cell, !cell.data(Qt::EditRole).toBool());
     }
     editing = false;
+}
+
+void BreakpointWidget::editBreakpoint()
+{
+    auto index = ui->breakpointTreeView->currentIndex();
+    if (index.isValid()) {
+        auto breakpoint = breakpointProxyModel->data(index, BreakpointModel::BreakpointDescriptionRole);
+        if (!breakpoint.isNull()) {
+            BreakpointsDialog editDialog(breakpoint.value<BreakpointDescription>(), this);
+            if (editDialog.exec() == QDialog::Accepted) {
+                qDebug() << "accepted";
+            }
+        }
+    }
 }
