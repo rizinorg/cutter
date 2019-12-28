@@ -21,7 +21,7 @@ Example:
 Calling a radare2 command
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two ways to do it: 
+There are two ways to call a radare2 command: 
 
 - ``CutterCore::cmd()`` *(Discouraged)* Only use it for commands which yells no output
 - ``CutterCore::cmdj()`` To be used with json commands like ``cmdj("agj")`` or ``cmdj("aflj")``.
@@ -98,10 +98,8 @@ In contrast to the official guidelines of Qt, in Cutter we always use curly brac
 Includes
 ^^^^^^^^
 
-Always try to include only the **needed** definitions inside any header file.
-The less include in a header file, the better. That is that a header file is
-meant to be included elsewhere, and we want to avoid to trigger every file
-compilation when developping because of a single change in a header file.
+Strive to include only **required** definitions inside header files.
+This will avoid triggering additional unnecessary compilations.
 
 If you only need to know that a class exists but don't need the prototype,
 you can declare the class like this:
@@ -120,11 +118,11 @@ And then include the class header inside your .cpp so you can use that class.
 If you need something in the source file (.cpp) that is not a class member,
 then add the include in the source file.
 
-The includes must be ordered from local to global. That is you will first include
+The includes must be ordered from local to global. That is, first include
 any local header file (with doublequotes like `#include "common/Helpers.h"`.
-Then after an empty newline you can include Qt definitions like
+Then, after an empty newline, include Qt definitions like
 `#include <QShortcut>`.
-And then after when needed, include the standard C++ headers you need.
+Finally, include the standard C++ headers you need.
 
 Includes must be sorted by alphabetical order.
 
@@ -144,7 +142,7 @@ function documentation, please use the following format:
 Loops
 ^^^^^
 
-We use C++11 foreach loop style which means any “foreach” loop should
+We use the C++11 foreach loop style, which means any “foreach” loop should
 look like:
 
 .. code:: cpp
@@ -167,7 +165,7 @@ Example:
 Connecting signals
 ^^^^^^^^^^^^^^^^^^
 
-To connect a signal to a slot, this is the preferred way to do it:
+To connect a signal to a slot, this is the preferred syntax:
 
 .. code:: cpp
 
