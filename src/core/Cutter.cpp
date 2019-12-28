@@ -1801,6 +1801,8 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
         bp.hw = bpObject[RJsonKey::hw].toBool();
         bp.trace = bpObject[RJsonKey::trace].toBool();
         bp.enabled = bpObject[RJsonKey::enabled].toBool();
+        bp.condition = bpObject["cond"].toString("");
+        bp.command = bpObject["data"].toString("");
 
         ret << bp;
     }

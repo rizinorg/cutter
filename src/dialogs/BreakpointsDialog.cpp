@@ -1,15 +1,21 @@
 #include "BreakpointsDialog.h"
 #include "ui_BreakpointsDialog.h"
 
-BreakpointsDialog::BreakpointsDialog(QWidget *parent) :
+BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::BreakpointsDialog)
+    ui(new Ui::BreakpointsDialog),
+    editMode(editMode)
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
     // Event filter for capturing Ctrl/Cmd+Return
-    ui->textEdit->installEventFilter(this);
+    //ui->textEdit->installEventFilter(this);
+}
+
+BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &editableBreakpoint, QWidget *parent)
+    : BreakpointsDialog(true, parent)
+{
 }
 
 BreakpointsDialog::~BreakpointsDialog() {}
@@ -25,14 +31,14 @@ void BreakpointsDialog::on_buttonBox_rejected()
 
 QString BreakpointsDialog::getBreakpoints()
 {
-    QString ret = ui->textEdit->document()->toPlainText();
+    QString ret = "";//ui->textEdit->document()->toPlainText();
     return ret;
 }
 
 bool BreakpointsDialog::eventFilter(QObject *obj, QEvent *event)
 {
     Q_UNUSED(obj);
-    if (event -> type() == QEvent::KeyPress) {
+    /*if (event -> type() == QEvent::KeyPress) {
         QKeyEvent *keyEvent = static_cast <QKeyEvent *> (event);
 
         // Confirm comment by pressing Ctrl/Cmd+Return
@@ -41,7 +47,7 @@ bool BreakpointsDialog::eventFilter(QObject *obj, QEvent *event)
             this->accept();
             return true;
         }
-    }
+    }*/
 
     return false;
 }

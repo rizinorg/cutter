@@ -279,6 +279,8 @@ struct BreakpointDescription {
     RVA addr;
     int size;
     QString permission;
+    QString command;
+    QString condition;
     bool hw;
     bool trace;
     bool enabled;
