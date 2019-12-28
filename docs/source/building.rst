@@ -26,7 +26,7 @@ On Linux, you will need:
 * qt5-svg
 * pkgconf
 
-On some Linux distributions, all of those packages can be installed with this single command:
+On some Linux distributions, all of these packages can be installed with this single command:
 
 ::
 
@@ -36,14 +36,14 @@ Building steps
 ~~~~~~~~~~~~~~
 
 The official way to build Cutter on Linux is by using CMake.
-First clone the repository with its dependencies:
+First, clone the repository with its dependencies:
 
 .. code-block:: sh
 
    git clone --recurse-submodules https://github.com/radareorg/cutter
 
 
-Then just use CMake to build Cutter and its dependency radare2.
+Then invoke CMake to build Cutter and its dependency radare2.
 
 .. code:: sh
 
@@ -135,7 +135,7 @@ Install Meson:
 
    python -m pip install meson
 
-To compile Cutter run:
+To compile Cutter, run:
 
 .. code:: batch
 
@@ -221,8 +221,8 @@ Or if one wants to explicitely disable an option:
 Compiling Cutter with Breakpad support
 --------------------------------------
 
-If you want to build Cutter with crash handling system, you want prepare Breakpad before.
-For this simply run one of the scripts (according to your OS) from root Cutter directory:
+If you want to build Cutter with crash handling system, you will want to first prepare Breakpad.
+For this, simply run one of the scripts (according to your OS) from root Cutter directory:
     
 .. code:: sh
 
@@ -263,8 +263,8 @@ containing bin/, lib/, include/, etc.) and specify it to CMake using
 
    ./Cutter: error while loading shared libraries: libr_lang.so: cannot open shared object file: No such file or directory
 
-The exact r2 .so file that cannot be found may vary. On some systems linker by default uses RUNPATH instead of RPATH which is incompatible with the way r2 is currently compiled. It results in some of the r2 libraries not being found when running cutter. You can verify if this is the problem by running `ldd ./Cutter`. If all the r2 libraries are missing you have a different problem.
-Workaround is to either add `--disable-new-dtags` linker flag when compiling Cutter or add r2 installation path to LD_LIBRARY_PATH environment variable.
+The exact r2 .so file that cannot be found may vary. On some systems, the linker by default uses RUNPATH instead of RPATH which is incompatible with the way r2 is currently compiled. It results in some of the r2 libraries not being found when running cutter. You can verify if this is the problem by running `ldd ./Cutter`. If all the r2 libraries are missing you have a different problem.
+The workaround is to either add the `--disable-new-dtags` linker flag when compiling Cutter or add the r2 installation path to LD_LIBRARY_PATH environment variable.
 
 ::
 

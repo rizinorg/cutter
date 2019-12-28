@@ -1,9 +1,9 @@
 Cutter
 ======
 
-Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced,
+Cutter is a Qt and C++ GUI for radare2. Its goal is to provide an advanced,
 customizable and FOSS reverse-engineering platform while keeping the
-user experience at mind. Cutter is created by reverse engineers for
+user experience in mind. Cutter was created by reverse engineers for
 reverse engineers.
 
 .. image:: images/screenshot.png
@@ -41,7 +41,7 @@ Want to help the project?
 
 If you want to contribute to Cutter, take a look
 `here <https://github.com/radareorg/cutter/blob/master/CONTRIBUTING.md>`__
-to know what you can do to help the project!
+to learn how you can help improve the project!
 
 .. toctree::
    :maxdepth: 2
