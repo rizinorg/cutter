@@ -36,7 +36,7 @@ Building steps
 ~~~~~~~~~~~~~~
 
 The official way to build Cutter on Linux is by using CMake.
-First ,clone the repository with its dependencies:
+First, clone the repository with its dependencies:
 
 .. code-block:: sh
 
