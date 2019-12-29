@@ -320,6 +320,8 @@ public:
     void stepOverDebug();
     void stepOutDebug();
     void addBreakpoint(QString addr);
+    void addBreakpoint(const BreakpointDescription& config);
+    void updateBreakpoint(RVA addr, const BreakpointDescription& config);
     void toggleBreakpoint(RVA addr);
     void toggleBreakpoint(QString addr);
     void delBreakpoint(RVA addr);

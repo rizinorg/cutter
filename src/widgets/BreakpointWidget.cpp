@@ -251,7 +251,7 @@ void BreakpointWidget::setScrollMode()
 
 void BreakpointWidget::addBreakpointDialog()
 {
-    BreakpointsDialog dialog(this);
+    BreakpointsDialog dialog(false, this);
 
     if (dialog.exec()) {
         QString bps = dialog.getBreakpoints();
@@ -298,11 +298,12 @@ void BreakpointWidget::editBreakpoint()
 {
     auto index = ui->breakpointTreeView->currentIndex();
     if (index.isValid()) {
-        auto breakpoint = breakpointProxyModel->data(index, BreakpointModel::BreakpointDescriptionRole);
-        if (!breakpoint.isNull()) {
-            BreakpointsDialog editDialog(breakpoint.value<BreakpointDescription>(), this);
+        auto data = breakpointProxyModel->data(index, BreakpointModel::BreakpointDescriptionRole);
+        if (!data.isNull()) {
+            auto breakpoint = data.value<BreakpointDescription>();
+            BreakpointsDialog editDialog(breakpoint, this);
             if (editDialog.exec() == QDialog::Accepted) {
-                qDebug() << "accepted";
+                Core()->updateBreakpoint(breakpoint.addr, editDialog.getDescription());
             }
         }
     }

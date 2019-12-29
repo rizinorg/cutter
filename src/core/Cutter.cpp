@@ -104,6 +104,13 @@ namespace RJsonKey {
 
 #undef R_JSON_KEY
 
+static void UpdateOwnedCharPtr(char *&variable, const QString& newValue)
+{
+    auto data = newValue.toUtf8();
+    R_FREE(variable)
+    variable = strdup(data.data());
+}
+
 RCoreLocked::RCoreLocked(CutterCore *core)
     : core(core)
 {
@@ -1747,6 +1754,49 @@ void CutterCore::addBreakpoint(QString addr)
     cmdRaw("db " + addr);
     emit instructionChanged(addr.toULongLong());
     emit breakpointsChanged();
+}
+
+void CutterCore::addBreakpoint(const BreakpointDescription &config)
+{
+    if (config.hw) {
+        if (config.permission == "r__") {
+            cmd(QString("dbw %1 r").arg(config.addr));
+        } if (config.permission == "_w_")  {
+            cmd(QString("dbw %1 w").arg(config.addr));
+        } if (config.permission == "rw_")  {
+            cmd(QString("dbw %1 rw").arg(config.addr));
+        } else {
+            TempConfig tempConfig;
+            tempConfig.set("dbg.hwbp", 1);
+            addBreakpoint(QString::number(config.addr));
+        }
+    } else {
+        addBreakpoint(QString::number(config.addr));
+    }
+    CORE_LOCK();
+    auto index = r_bp_get_index_at(core->dbg->bp, config.addr);
+    auto breakpoint = r_bp_get_index(core->dbg->bp, index);
+    if (!breakpoint) {
+        qWarning() << "Failed to create breakpoint";
+        return;
+    }
+    breakpoint->enabled = config.enabled;
+    if (config.trace) {
+        setBreakpointTrace(index, config.trace);
+    }
+    if (!config.condition.isEmpty()) {
+        UpdateOwnedCharPtr(breakpoint->cond, config.condition);
+    }
+    if (!config.command.isEmpty()) {
+        UpdateOwnedCharPtr(breakpoint->data, config.command);
+    }
+    emit breakpointsChanged();
+}
+
+void CutterCore::updateBreakpoint(RVA addr, const BreakpointDescription &breakpoint)
+{
+    cmd("db- " + RAddressString(addr));
+    addBreakpoint(breakpoint);
 }
 
 void CutterCore::delBreakpoint(RVA addr)

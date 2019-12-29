@@ -54,6 +54,7 @@ BreakpointDescription BreakpointsDialog::getDescription()
     breakpoint.addr = Core()->num(ui->breakpointPosition->text());
     breakpoint.size = Core()->num(ui->breakpointSize->currentText());
     breakpoint.condition = ui->breakpointCondition->currentText();
+    breakpoint.command = ui->breakpointCommand->text();
     if (ui->radioHardware->isChecked()) {
         breakpoint.hw = true;
         breakpoint.permission = ui->hwPermissions->currentText();

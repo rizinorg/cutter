@@ -278,6 +278,7 @@ struct MemoryMapDescription {
 struct BreakpointDescription {
     RVA addr;
     int size;
+    QString name;
     QString permission;
     QString command;
     QString condition;
