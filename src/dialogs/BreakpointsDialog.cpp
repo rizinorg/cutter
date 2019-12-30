@@ -77,6 +77,14 @@ void BreakpointsDialog::createNewBreakpoint(RVA address, QWidget *parent)
     }
 }
 
+void BreakpointsDialog::editBreakpoint(const BreakpointDescription &breakpoint, QWidget *parent)
+{
+    BreakpointsDialog editDialog(breakpoint, parent);
+    if (editDialog.exec() == QDialog::Accepted) {
+        Core()->updateBreakpoint(breakpoint.index, editDialog.getDescription());
+    }
+}
+
 void BreakpointsDialog::refreshOkButton()
 {
     auto button = ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);

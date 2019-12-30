@@ -268,10 +268,7 @@ void BreakpointWidget::editBreakpoint()
         auto data = breakpointProxyModel->data(index, BreakpointModel::BreakpointDescriptionRole);
         if (!data.isNull()) {
             auto breakpoint = data.value<BreakpointDescription>();
-            BreakpointsDialog editDialog(breakpoint, this);
-            if (editDialog.exec() == QDialog::Accepted) {
-                Core()->updateBreakpoint(breakpoint.index, editDialog.getDescription());
-            }
+            BreakpointsDialog::editBreakpoint(breakpoint, this);
         }
     }
 }

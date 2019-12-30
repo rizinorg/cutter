@@ -319,6 +319,7 @@ public:
     void stepDebug();
     void stepOverDebug();
     void stepOutDebug();
+
     void addBreakpoint(QString addr);
     void addBreakpoint(const BreakpointDescription &config);
     void updateBreakpoint(int index, const BreakpointDescription &config);
@@ -334,6 +335,8 @@ public:
      * @param enabled - true if tracing should be enabled
      */
     void setBreakpointTrace(int index, bool enabled);
+    int breakpointIndexAt(RVA addr);
+    BreakpointDescription getBreakpointAt(RVA addr);
 
     bool isBreakpoint(const QList<RVA> &breakpoints, RVA addr);
     QList<RVA> getBreakpointsAddresses();

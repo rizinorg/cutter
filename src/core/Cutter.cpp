@@ -1802,6 +1802,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     if (!config.command.isEmpty()) {
         UpdateOwnedCharPtr(breakpoint->data, config.command);
     }
+    emit instructionChanged(breakpoint->addr);
     emit breakpointsChanged();
 }
 
@@ -1853,6 +1854,59 @@ void CutterCore::setBreakpointTrace(int index, bool enabled)
     }
 }
 
+static BreakpointDescription breakpointDescriptionFromR2(int index, r_bp_item_t *bpi)
+{
+    BreakpointDescription bp;
+    bp.addr = bpi->addr;
+    bp.index = index;
+    bp.size = bpi->size;
+    bp.name = bpi->name;
+    // hw permissions
+    {
+        char perm[4] = "___";
+        if (bpi->perm & R_BP_PROT_READ) {
+            perm[0] = 'r';
+        }
+        if (bpi->perm & R_BP_PROT_WRITE) {
+            perm[1] = 'w';
+        }
+        if (bpi->perm & R_BP_PROT_ACCESS) {
+            perm[1] = 'w';
+            perm[0] = 'r';
+            if (bpi->perm & (R_BP_PROT_READ | R_BP_PROT_WRITE)) {
+                qDebug() << "Unexpected breapkpoint config rw and access";
+            }
+        }
+        if (bpi->perm & R_BP_PROT_EXEC) {
+            perm[1] = 'x';
+        }
+        bp.permission = perm;
+    }
+    bp.command = bpi->data;
+    bp.condition = bpi->cond;
+    bp.hw = bpi->hw;
+    bp.trace = bpi->trace;
+    bp.enabled = bpi->enabled;
+    return bp;
+}
+
+int CutterCore::breakpointIndexAt(RVA addr)
+{
+    CORE_LOCK();
+    return r_bp_get_index_at(core->dbg->bp, addr);
+}
+
+BreakpointDescription CutterCore::getBreakpointAt(RVA addr)
+{
+    CORE_LOCK();
+    int index = breakpointIndexAt(addr);
+    auto bp = r_bp_get_index(core->dbg->bp, index);
+    if (bp) {
+        return breakpointDescriptionFromR2(index, bp);
+    }
+    return BreakpointDescription();
+}
+
 QList<BreakpointDescription> CutterCore::getBreakpoints()
 {
     CORE_LOCK();
@@ -1860,39 +1914,7 @@ QList<BreakpointDescription> CutterCore::getBreakpoints()
     //TODO: use higher level API, don't touch r2 bps_idx directly
     for (int i = 0; i < core->dbg->bp->bps_idx_count; i++) {
         if (auto bpi = core->dbg->bp->bps_idx[i]) {
-            BreakpointDescription bp;
-            bp.addr = bpi->addr;
-            bp.index = i;
-            bp.size = bpi->size;
-            bp.name = bpi->name;
-            // hw permissions
-            {
-                char perm[4] = "___";
-                if (bpi->perm & R_BP_PROT_READ) {
-                    perm[0] = 'r';
-                }
-                if (bpi->perm & R_BP_PROT_WRITE) {
-                    perm[1] = 'w';
-                }
-                if (bpi->perm & R_BP_PROT_ACCESS) {
-                    perm[1] = 'w';
-                    perm[0] = 'r';
-                    if (bpi->perm & (R_BP_PROT_READ | R_BP_PROT_WRITE)) {
-                        qDebug() << "Unexpected breapkpoint config rw and access";
-                    }
-                }
-                if (bpi->perm & R_BP_PROT_EXEC) {
-                    perm[1] = 'x';
-                }
-                bp.permission = perm;
-            }
-            bp.command = bpi->data;
-            bp.condition = bpi->cond;
-            bp.hw = bpi->hw;
-            bp.trace = bpi->trace;
-            bp.enabled = bpi->enabled;
-
-            ret.push_back(bp);
+            ret.push_back(breakpointDescriptionFromR2(i, bpi));
         }
     }
 

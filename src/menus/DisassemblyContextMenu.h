@@ -53,6 +53,7 @@ private slots:
     void on_actionDeleteFunction_triggered();
 
     void on_actionAddBreakpoint_triggered();
+    void on_actionAdvancedBreakpoint_triggered();
     void on_actionContinueUntil_triggered();
     void on_actionSetPC_triggered();
 
@@ -157,6 +158,7 @@ private:
     QMenu *debugMenu;
     QAction actionContinueUntil;
     QAction actionAddBreakpoint;
+    QAction actionAdvancedBreakpoint;
     QAction actionSetPC;
 
     QAction actionSetToCode;
