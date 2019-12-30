@@ -2,6 +2,8 @@
 #include "ui_BreakpointsDialog.h"
 #include "Cutter.h"
 
+#include <QPushButton>
+
 BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::BreakpointsDialog),
@@ -10,8 +12,14 @@ BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
-    // Event filter for capturing Ctrl/Cmd+Return
-    //ui->textEdit->installEventFilter(this);
+    connect(ui->breakpointPosition, &QLineEdit::textChanged, this, &BreakpointsDialog::refreshOkButton);
+    refreshOkButton();
+
+    if (editMode) {
+        setWindowTitle(tr("Edit breakpoint"));
+    } else {
+        setWindowTitle(tr("New breakpoint"));
+    }
 }
 
 BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QWidget *parent)
@@ -29,32 +37,27 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
     }
     ui->checkTrace->setChecked(breakpoint.trace);
     ui->checkActive->setChecked(breakpoint.enabled);
+    refreshOkButton();
+}
+
+BreakpointsDialog::BreakpointsDialog(RVA address, QWidget *parent)
+    : BreakpointsDialog(false, parent)
+{
+    if (address != RVA_INVALID) {
+        ui->breakpointPosition->setText(RAddressString(address));
+    }
+    refreshOkButton();
 }
 
 BreakpointsDialog::~BreakpointsDialog() {}
 
-void BreakpointsDialog::on_buttonBox_accepted()
-{
-}
-
-void BreakpointsDialog::on_buttonBox_rejected()
-{
-    close();
-}
-
-QString BreakpointsDialog::getBreakpoints()
-{
-    QString ret = "";//ui->textEdit->document()->toPlainText();
-    return ret;
-}
-
 BreakpointDescription BreakpointsDialog::getDescription()
 {
     BreakpointDescription breakpoint;
-    breakpoint.addr = Core()->num(ui->breakpointPosition->text());
+    breakpoint.addr = Core()->math(ui->breakpointPosition->text());
     breakpoint.size = Core()->num(ui->breakpointSize->currentText());
-    breakpoint.condition = ui->breakpointCondition->currentText();
-    breakpoint.command = ui->breakpointCommand->text();
+    breakpoint.condition = ui->breakpointCondition->currentText().trimmed();
+    breakpoint.command = ui->breakpointCommand->text().trimmed();
     if (ui->radioHardware->isChecked()) {
         breakpoint.hw = true;
         breakpoint.permission = ui->hwPermissions->currentText();
@@ -66,19 +69,16 @@ BreakpointDescription BreakpointsDialog::getDescription()
     return breakpoint;
 }
 
-bool BreakpointsDialog::eventFilter(QObject *obj, QEvent *event)
+void BreakpointsDialog::createNewBreakpoint(RVA address, QWidget *parent)
 {
-    Q_UNUSED(obj);
-    /*if (event -> type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast <QKeyEvent *> (event);
+    BreakpointsDialog editDialog(address, parent);
+    if (editDialog.exec() == QDialog::Accepted) {
+        Core()->addBreakpoint(editDialog.getDescription());
+    }
+}
 
-        // Confirm comment by pressing Ctrl/Cmd+Return
-        if ((keyEvent -> modifiers() & Qt::ControlModifier) &&
-                ((keyEvent -> key() == Qt::Key_Enter) || (keyEvent -> key() == Qt::Key_Return))) {
-            this->accept();
-            return true;
-        }
-    }*/
-
-    return false;
+void BreakpointsDialog::refreshOkButton()
+{
+    auto button = ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok);
+    button->setDisabled(ui->breakpointPosition->text().isEmpty());
 }

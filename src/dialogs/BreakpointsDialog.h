@@ -18,16 +18,12 @@ public:
     BreakpointsDialog(RVA address, QWidget *parent = nullptr);
     ~BreakpointsDialog();
 
-    QString getBreakpoints();
     BreakpointDescription getDescription();
 
-private slots:
-    void on_buttonBox_accepted();
-    void on_buttonBox_rejected();
-
+    static void createNewBreakpoint(RVA address = RVA_INVALID, QWidget *parent = nullptr);
 private:
     std::unique_ptr<Ui::BreakpointsDialog> ui;
     bool editMode = false;
 
-    bool eventFilter(QObject *obj, QEvent *event);
+    void refreshOkButton();
 };

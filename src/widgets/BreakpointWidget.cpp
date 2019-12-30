@@ -228,17 +228,7 @@ void BreakpointWidget::setScrollMode()
 
 void BreakpointWidget::addBreakpointDialog()
 {
-    BreakpointsDialog dialog(false, this);
-
-    if (dialog.exec()) {
-        QString bps = dialog.getBreakpoints();
-        if (!bps.isEmpty()) {
-            QStringList bpList = bps.split(QLatin1Char(' '), QString::SkipEmptyParts);
-            for (const QString &bp : bpList) {
-                Core()->addBreakpoint(bp);
-            }
-        }
-    }
+    BreakpointsDialog::createNewBreakpoint(RVA_INVALID, this);
 }
 
 QVector<RVA> BreakpointWidget::getSelectedAddresses() const
