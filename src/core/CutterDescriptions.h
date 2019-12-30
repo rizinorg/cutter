@@ -276,15 +276,23 @@ struct MemoryMapDescription {
 };
 
 struct BreakpointDescription {
-    RVA addr;
-    int size;
+    enum PositionType {
+        Address,
+        Named,
+        Module,
+    };
+
+    RVA addr = RVA_INVALID;
+    int index = -1;
+    PositionType type = Address;
+    int size = 0;
     QString name;
     QString permission;
     QString command;
     QString condition;
-    bool hw;
-    bool trace;
-    bool enabled;
+    bool hw = false;
+    bool trace = false;
+    bool enabled = true;
 };
 
 struct ProcessDescription {

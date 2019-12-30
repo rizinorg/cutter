@@ -42,10 +42,14 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
         switch (index.column()) {
         case AddrColumn:
             return RAddressString(breakpoint.addr);
-        case PermColumn:
-            return breakpoint.permission;
-        case HwColumn:
-            return breakpoint.hw;
+        case NameColumn:
+            return breakpoint.name;
+        case TypeColumn:
+            if (breakpoint.hw) {
+                return tr("HW %1").arg(breakpoint.permission);
+            } else {
+                return tr("SW");
+            }
         case TraceColumn:
             return breakpoint.trace;
         case EnabledColumn:
@@ -55,6 +59,8 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
         }
     case Qt::EditRole:
         switch (index.column()) {
+        case AddrColumn:
+            return breakpoint.addr;
         case TraceColumn:
             return breakpoint.trace;
         case EnabledColumn:
@@ -76,10 +82,10 @@ QVariant BreakpointModel::headerData(int section, Qt::Orientation, int role) con
         switch (section) {
         case AddrColumn:
             return tr("Offset");
-        case PermColumn:
-            return tr("Permissions");
-        case HwColumn:
-            return tr("Hardware bp");
+        case NameColumn:
+            return tr("Name");
+        case TypeColumn:
+            return tr("Type");
         case TraceColumn:
             return tr("Tracing");
         case EnabledColumn:
@@ -104,7 +110,7 @@ bool BreakpointModel::setData(const QModelIndex &index, const QVariant &value, i
         switch (index.column()) {
         case TraceColumn:
             breakpoint.trace = value.toBool();
-            Core()->setBreakpointTrace(index.row(), breakpoint.trace);
+            Core()->setBreakpointTrace(breakpoint.index, breakpoint.trace);
             emit dataChanged(index, index, {role, Qt::DisplayRole});
             return true;
         case EnabledColumn:
@@ -148,37 +154,8 @@ RVA BreakpointModel::address(const QModelIndex &index) const
 BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject *parent)
     : AddressableFilterProxyModel(sourceModel, parent)
 {
-}
-
-bool BreakpointProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) const
-{
-    QModelIndex index = sourceModel()->index(row, 0, parent);
-    BreakpointDescription item = index.data(
-                                     BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    return item.permission.contains(filterRegExp());
-}
-
-bool BreakpointProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
-{
-    BreakpointDescription leftBreakpt = left.data(
-                                            BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-    BreakpointDescription rightBreakpt = right.data(
-                                             BreakpointModel::BreakpointDescriptionRole).value<BreakpointDescription>();
-
-    switch (left.column()) {
-    case BreakpointModel::AddrColumn:
-        return leftBreakpt.addr < rightBreakpt.addr;
-    case BreakpointModel::HwColumn:
-        return leftBreakpt.hw < rightBreakpt.hw;
-    case BreakpointModel::PermColumn:
-        return leftBreakpt.permission < rightBreakpt.permission;
-    case BreakpointModel::EnabledColumn:
-        return leftBreakpt.enabled < rightBreakpt.enabled;
-    default:
-        break;
-    }
-
-    return leftBreakpt.addr < rightBreakpt.addr;
+     // Use numeric values instead of numbers converted to strings if available
+    this->setSortRole(Qt::EditRole);
 }
 
 BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
@@ -303,7 +280,7 @@ void BreakpointWidget::editBreakpoint()
             auto breakpoint = data.value<BreakpointDescription>();
             BreakpointsDialog editDialog(breakpoint, this);
             if (editDialog.exec() == QDialog::Accepted) {
-                Core()->updateBreakpoint(breakpoint.addr, editDialog.getDescription());
+                Core()->updateBreakpoint(breakpoint.index, editDialog.getDescription());
             }
         }
     }

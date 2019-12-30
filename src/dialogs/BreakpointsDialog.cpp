@@ -22,8 +22,8 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
     ui->breakpointCondition->setEditText(breakpoint.condition);
     if (breakpoint.hw) {
         ui->radioHardware->setChecked(true);
-        ui->hwPermissions->setEditText(breakpoint.permission);
-        ui->breakpointSize->setEditText(QString::number(breakpoint.size));
+        ui->hwPermissions->setCurrentText(breakpoint.permission);
+        ui->breakpointSize->setCurrentText(QString::number(breakpoint.size));
     } else {
         ui->radioSoftware->setChecked(true);
     }
