@@ -1762,13 +1762,13 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     RBreakpointItem *breakpoint = nullptr;
     int watchpoint_prot = 0;
     if (config.hw) {
-        if (config.permission == "r__") {
+        if (config.permission == "r--") {
             watchpoint_prot = R_BP_PROT_READ;
         }
-        if (config.permission == "_w_")  {
+        if (config.permission == "-w-")  {
             watchpoint_prot = R_BP_PROT_WRITE;
         }
-        if (config.permission == "rw_")  {
+        if (config.permission == "rw-")  {
             watchpoint_prot = R_BP_PROT_ACCESS;
         }
     }
@@ -1880,7 +1880,7 @@ static BreakpointDescription breakpointDescriptionFromR2(int index, r_bp_item_t 
     bp.name = bpi->name;
     // hw permissions
     {
-        char perm[4] = "___";
+        char perm[4] = "---";
         if (bpi->perm & R_BP_PROT_READ) {
             perm[0] = 'r';
         }

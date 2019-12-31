@@ -294,8 +294,8 @@ void DisassemblyContextMenu::addDebugMenu()
     initAction(&actionAddBreakpoint, tr("Add/remove breakpoint"),
                SLOT(on_actionAddBreakpoint_triggered()), getAddBPSequence());
     debugMenu->addAction(&actionAddBreakpoint);
-    connect(&actionAdvancedBreakpoint, &QAction::triggered,
-            this, &DisassemblyContextMenu::on_actionAdvancedBreakpoint_triggered);
+    initAction(&actionAdvancedBreakpoint, tr("Advanced breakpoint"),
+               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL+Qt::Key_F2));
     debugMenu->addAction(&actionAdvancedBreakpoint);
 
     initAction(&actionContinueUntil, tr("Continue until line"),
@@ -508,7 +508,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // Only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
-    actionAdvancedBreakpoint.setText(Core()->breakpointIndexAt(offset) > -1 ?
+    bool hasBreakpoint = Core()->breakpointIndexAt(offset) > -1;
+    actionAddBreakpoint.setText(hasBreakpoint ?
+                                     tr("Remove breakpoint") : tr("Add breakpoint"));
+    actionAdvancedBreakpoint.setText(hasBreakpoint ?
                                      tr("Edit breakpoint") : tr("Advanced breakpoint"));
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText("Set " + progCounterName + " here");
