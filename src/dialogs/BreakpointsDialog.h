@@ -27,4 +27,5 @@ private:
     bool editMode = false;
 
     void refreshOkButton();
+    void onTypeChanged();
 };

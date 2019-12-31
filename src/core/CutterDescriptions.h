@@ -282,10 +282,12 @@ struct BreakpointDescription {
         Module,
     };
 
-    RVA addr = RVA_INVALID;
+    RVA addr = 0;
+    int64_t moduleDelta = 0;
     int index = -1;
     PositionType type = Address;
     int size = 0;
+    QString positionExpression;
     QString name;
     QString permission;
     QString command;
@@ -349,6 +351,7 @@ Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(SegmentDescription)
 Q_DECLARE_METATYPE(MemoryMapDescription)
 Q_DECLARE_METATYPE(BreakpointDescription)
+Q_DECLARE_METATYPE(BreakpointDescription::PositionType)
 Q_DECLARE_METATYPE(ProcessDescription)
 Q_DECLARE_METATYPE(RegisterRefDescription)
 Q_DECLARE_METATYPE(VariableDescription)

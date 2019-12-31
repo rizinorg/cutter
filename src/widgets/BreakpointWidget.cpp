@@ -89,7 +89,7 @@ QVariant BreakpointModel::headerData(int section, Qt::Orientation, int role) con
         case TraceColumn:
             return tr("Tracing");
         case EnabledColumn:
-            return tr("Active");
+            return tr("Enabled");
         default:
             return QVariant();
         }

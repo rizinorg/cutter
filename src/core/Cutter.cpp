@@ -104,7 +104,7 @@ namespace RJsonKey {
 
 #undef R_JSON_KEY
 
-static void UpdateOwnedCharPtr(char *&variable, const QString &newValue)
+static void updateOwnedCharPtr(char *&variable, const QString &newValue)
 {
     auto data = newValue.toUtf8();
     R_FREE(variable)
@@ -1772,16 +1772,29 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
             watchpoint_prot = R_BP_PROT_ACCESS;
         }
     }
-    if (config.type == BreakpointDescription::Address) {
-        breakpoint = r_debug_bp_add(core->dbg, config.addr, (config.hw && watchpoint_prot == 0),
-                                    watchpoint_prot, watchpoint_prot,
-                                    nullptr, 0);
-        if (config.hw) {
-            breakpoint->size = config.size;
-        }
-        //TODO: naming
-    } else {
-        assert("Not implemented");
+
+    auto address = config.addr;
+    char *module = nullptr;
+    QByteArray moduleNameData;
+    if (config.type == BreakpointDescription::Named) {
+        address = Core()->math(config.positionExpression);
+    } else if (config.type == BreakpointDescription::Module) {
+        address = 0;
+        moduleNameData = config.positionExpression.toUtf8();
+        module = moduleNameData.data();
+    }
+    breakpoint = r_debug_bp_add(core->dbg, address, (config.hw && watchpoint_prot == 0),
+                                watchpoint_prot, watchpoint_prot,
+                                module, config.moduleDelta);
+    if (config.type == BreakpointDescription::Named) {
+        updateOwnedCharPtr(breakpoint->expr, config.positionExpression);
+    }
+
+    if (config.hw) {
+        breakpoint->size = config.size;
+    }
+    if (config.type == BreakpointDescription::Named) {
+        updateOwnedCharPtr(breakpoint->name, config.positionExpression);
     }
 
     if (!breakpoint) {
@@ -1797,10 +1810,10 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
         setBreakpointTrace(index, config.trace);
     }
     if (!config.condition.isEmpty()) {
-        UpdateOwnedCharPtr(breakpoint->cond, config.condition);
+        updateOwnedCharPtr(breakpoint->cond, config.condition);
     }
     if (!config.command.isEmpty()) {
-        UpdateOwnedCharPtr(breakpoint->data, config.command);
+        updateOwnedCharPtr(breakpoint->data, config.command);
     }
     emit instructionChanged(breakpoint->addr);
     emit breakpointsChanged();
@@ -1860,6 +1873,10 @@ static BreakpointDescription breakpointDescriptionFromR2(int index, r_bp_item_t 
     bp.addr = bpi->addr;
     bp.index = index;
     bp.size = bpi->size;
+    if (bpi->expr) {
+        bp.positionExpression = bpi->expr;
+        bp.type = BreakpointDescription::Named;
+    }
     bp.name = bpi->name;
     // hw permissions
     {
