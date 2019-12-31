@@ -1762,15 +1762,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     RBreakpointItem *breakpoint = nullptr;
     int watchpoint_prot = 0;
     if (config.hw) {
-        if (config.permission == "r--") {
-            watchpoint_prot = R_BP_PROT_READ;
-        }
-        if (config.permission == "-w-")  {
-            watchpoint_prot = R_BP_PROT_WRITE;
-        }
-        if (config.permission == "rw-")  {
-            watchpoint_prot = R_BP_PROT_ACCESS;
-        }
+        watchpoint_prot = config.permission & ~(R_BP_PROT_EXEC);
     }
 
     auto address = config.addr;
@@ -1878,27 +1870,7 @@ static BreakpointDescription breakpointDescriptionFromR2(int index, r_bp_item_t 
         bp.type = BreakpointDescription::Named;
     }
     bp.name = bpi->name;
-    // hw permissions
-    {
-        char perm[4] = "---";
-        if (bpi->perm & R_BP_PROT_READ) {
-            perm[0] = 'r';
-        }
-        if (bpi->perm & R_BP_PROT_WRITE) {
-            perm[1] = 'w';
-        }
-        if (bpi->perm & R_BP_PROT_ACCESS) {
-            perm[1] = 'w';
-            perm[0] = 'r';
-            if (bpi->perm & (R_BP_PROT_READ | R_BP_PROT_WRITE)) {
-                qDebug() << "Unexpected breapkpoint config rw and access";
-            }
-        }
-        if (bpi->perm & R_BP_PROT_EXEC) {
-            perm[1] = 'x';
-        }
-        bp.permission = perm;
-    }
+    bp.permission = bpi->perm;
     bp.command = bpi->data;
     bp.condition = bpi->cond;
     bp.hw = bpi->hw;

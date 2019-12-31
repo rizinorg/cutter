@@ -1,6 +1,7 @@
 #include "BreakpointsDialog.h"
 #include "ui_BreakpointsDialog.h"
 #include "Cutter.h"
+#include "Helpers.h"
 
 #include <QPushButton>
 
@@ -28,6 +29,18 @@ BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     connect(ui->positionType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &BreakpointsDialog::onTypeChanged);
     onTypeChanged();
+    struct {
+        QString label;
+        int permission;
+    } hwLabels[] = {
+        {tr("Execute"), R_BP_PROT_EXEC},
+        {tr("Read"), R_BP_PROT_READ},
+        {tr("Write"), R_BP_PROT_WRITE},
+        {tr("Read Write"), R_BP_PROT_READ|R_BP_PROT_WRITE},
+    };
+    for (auto &item : hwLabels) {
+        ui->hwPermissions->addItem(item.label, item.permission);
+    }
 }
 
 BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QWidget *parent)
@@ -54,7 +67,7 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
     ui->breakpointCondition->setEditText(breakpoint.condition);
     if (breakpoint.hw) {
         ui->radioHardware->setChecked(true);
-        ui->hwPermissions->setCurrentText(breakpoint.permission);
+        qhelpers::selectIndexByData(ui->hwPermissions, breakpoint.permission, 0);
         ui->breakpointSize->setCurrentText(QString::number(breakpoint.size));
     } else {
         ui->radioSoftware->setChecked(true);
@@ -98,7 +111,7 @@ BreakpointDescription BreakpointsDialog::getDescription()
     breakpoint.command = ui->breakpointCommand->toPlainText().trimmed();
     if (ui->radioHardware->isChecked()) {
         breakpoint.hw = true;
-        breakpoint.permission = ui->hwPermissions->currentText();
+        breakpoint.permission = ui->hwPermissions->currentData().toInt();
     } else {
         breakpoint.hw = false;
     }

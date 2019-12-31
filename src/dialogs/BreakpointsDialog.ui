@@ -90,12 +90,23 @@
        <property name="editable">
         <bool>true</bool>
        </property>
+       <property name="currentText">
+        <string/>
+       </property>
+       <property name="currentIndex">
+        <number>-1</number>
+       </property>
        <property name="insertPolicy">
         <enum>QComboBox::NoInsert</enum>
        </property>
        <property name="frame">
         <bool>true</bool>
        </property>
+       <item>
+        <property name="text">
+         <string>?v $.rax-0x6  # break when rax is 6</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item row="1" column="0">
@@ -161,28 +172,7 @@
           </property>
           <layout class="QFormLayout" name="formLayout_2">
            <item row="0" column="1">
-            <widget class="QComboBox" name="hwPermissions">
-             <item>
-              <property name="text">
-               <string>--x</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>r--</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>-w-</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>rw-</string>
-              </property>
-             </item>
-            </widget>
+            <widget class="QComboBox" name="hwPermissions"/>
            </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_3">

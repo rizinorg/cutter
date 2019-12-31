@@ -287,9 +287,9 @@ struct BreakpointDescription {
     int index = -1;
     PositionType type = Address;
     int size = 0;
+    int permission = 0;
     QString positionExpression;
     QString name;
-    QString permission;
     QString command;
     QString condition;
     bool hw = false;

@@ -30,6 +30,20 @@ int BreakpointModel::columnCount(const QModelIndex &) const
     return BreakpointModel::ColumnCount;
 }
 
+static QString formatHwBreakpoint(int permission) {
+    char data[] = "rwx";
+    if ((permission & (R_BP_PROT_READ | R_BP_PROT_ACCESS)) == 0) {
+        data[0] = '-';
+    }
+    if ((permission & (R_BP_PROT_WRITE | R_BP_PROT_ACCESS)) == 0) {
+        data[1] = '-';
+    }
+    if ((permission & R_BP_PROT_EXEC) == 0) {
+        data[2] = '-';
+    }
+    return data;
+}
+
 QVariant BreakpointModel::data(const QModelIndex &index, int role) const
 {
     if (index.row() >= breakpoints.count())
@@ -45,8 +59,9 @@ QVariant BreakpointModel::data(const QModelIndex &index, int role) const
         case NameColumn:
             return breakpoint.name;
         case TypeColumn:
+
             if (breakpoint.hw) {
-                return tr("HW %1").arg(breakpoint.permission);
+                return tr("HW %1").arg(formatHwBreakpoint(breakpoint.permission));
             } else {
                 return tr("SW");
             }

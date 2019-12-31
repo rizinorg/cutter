@@ -13,6 +13,7 @@
 #include <QAbstractButton>
 #include <QDockWidget>
 #include <QMenu>
+#include <QComboBox>
 
 static QAbstractItemView::ScrollMode scrollMode()
 {
@@ -255,6 +256,17 @@ qreal devicePixelRatio(const QPaintDevice *p)
 #else
     return p->devicePixelRatio();
 #endif
+}
+
+void selectIndexByData(QComboBox *widget, QVariant data, int defaultIndex)
+{
+    for (int i = 0; i < widget->count(); i++) {
+        if (widget->itemData(i) == data) {
+            widget->setCurrentIndex(i);
+            return;
+        }
+    }
+    widget->setCurrentIndex(defaultIndex);
 }
 
 
