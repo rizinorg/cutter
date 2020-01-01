@@ -609,7 +609,7 @@ QString CutterCore::getInstructionOpcode(RVA addr)
 
 void CutterCore::editInstruction(RVA addr, const QString &inst)
 {
-    cmd("wa " + inst + " @ " + RAddressString(addr));
+    cmd("\"wa " + inst + "\" @ " + RAddressString(addr));
     emit instructionChanged(addr);
 }
 
