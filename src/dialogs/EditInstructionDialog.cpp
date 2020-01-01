@@ -52,7 +52,7 @@ void EditInstructionDialog::updatePreview(const QString &input)
         result = CutterCore::bytesToHexString(data).trimmed();
     }
 
-    if (result.isEmpty() || result.contains(QLatin1Char('\n')) || result.contains("invalid")) {
+    if (result.isEmpty() || result.contains("invalid")) {
         ui->instructionLabel->setText("Unknown Instruction");
     } else {
         ui->instructionLabel->setText(result);
