@@ -28,4 +28,6 @@ private:
 
     void refreshOkButton();
     void onTypeChanged();
+    void configureCheckboxRestrictions();
+    int getHwPermissions();
 };

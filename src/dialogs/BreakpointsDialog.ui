@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>595</width>
-    <height>422</height>
+    <width>610</width>
+    <height>437</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -158,53 +158,83 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <layout class="QFormLayout" name="formLayout_2">
-           <item row="0" column="1">
-            <widget class="QComboBox" name="hwPermissions"/>
-           </item>
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_3">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="hwRead">
              <property name="text">
-              <string>Access</string>
-             </property>
-             <property name="buddy">
-              <cstring>hwPermissions</cstring>
+              <string>Read</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_4">
+           <item>
+            <widget class="QCheckBox" name="hwWrite">
              <property name="text">
-              <string>Size</string>
-             </property>
-             <property name="buddy">
-              <cstring>breakpointSize</cstring>
+              <string>Write</string>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="breakpointSize">
-             <item>
-              <property name="text">
-               <string>1</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>2</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>4</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>8</string>
-              </property>
-             </item>
+           <item>
+            <widget class="QCheckBox" name="hwExecute">
+             <property name="text">
+              <string>Execute</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
             </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="label_4">
+               <property name="text">
+                <string>Size</string>
+               </property>
+               <property name="buddy">
+                <cstring>breakpointSize</cstring>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="breakpointSize">
+               <item>
+                <property name="text">
+                 <string>1</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>2</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>4</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>8</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>
@@ -280,8 +310,6 @@
   <tabstop>checkEnabled</tabstop>
   <tabstop>radioSoftware</tabstop>
   <tabstop>radioHardware</tabstop>
-  <tabstop>hwPermissions</tabstop>
-  <tabstop>breakpointSize</tabstop>
   <tabstop>checkTrace</tabstop>
   <tabstop>breakpointCommand</tabstop>
  </tabstops>
@@ -294,8 +322,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>393</y>
+     <x>260</x>
+     <y>450</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -310,8 +338,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>393</y>
+     <x>328</x>
+     <y>450</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -326,12 +354,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>174</y>
+     <x>77</x>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
-     <x>62</x>
-     <y>195</y>
+     <x>77</x>
+     <y>320</y>
     </hint>
    </hints>
   </connection>

@@ -5,6 +5,7 @@
 
 #include <QPushButton>
 #include <QCompleter>
+#include <QCheckBox>
 
 BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     QDialog(parent),
@@ -43,18 +44,6 @@ BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     connect(ui->positionType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &BreakpointsDialog::onTypeChanged);
     onTypeChanged();
-    struct {
-        QString label;
-        int permission;
-    } hwLabels[] = {
-        {tr("Execute"), R_BP_PROT_EXEC},
-        {tr("Read"), R_BP_PROT_READ},
-        {tr("Write"), R_BP_PROT_WRITE},
-        {tr("Read Write"), R_BP_PROT_READ|R_BP_PROT_WRITE},
-    };
-    for (auto &item : hwLabels) {
-        ui->hwPermissions->addItem(item.label, item.permission);
-    }
 
     auto modules = Core()->getMemoryMap();
     QSet<QString> moduleNames;
@@ -69,6 +58,7 @@ BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     ui->moduleName->completer()->setFilterMode(Qt::MatchContains);
 
     ui->breakpointCondition->setCompleter(nullptr); // Don't use examples for completing
+    configureCheckboxRestrictions();
 }
 
 BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QWidget *parent)
@@ -95,7 +85,9 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
     ui->breakpointCondition->setEditText(breakpoint.condition);
     if (breakpoint.hw) {
         ui->radioHardware->setChecked(true);
-        qhelpers::selectIndexByData(ui->hwPermissions, breakpoint.permission, 0);
+        ui->hwRead->setChecked(breakpoint.permission & R_BP_PROT_READ);
+        ui->hwWrite->setChecked(breakpoint.permission & R_BP_PROT_WRITE);
+        ui->hwExecute->setChecked(breakpoint.permission & R_BP_PROT_EXEC);
         ui->breakpointSize->setCurrentText(QString::number(breakpoint.size));
     } else {
         ui->radioSoftware->setChecked(true);
@@ -139,7 +131,7 @@ BreakpointDescription BreakpointsDialog::getDescription()
     breakpoint.command = ui->breakpointCommand->toPlainText().trimmed();
     if (ui->radioHardware->isChecked()) {
         breakpoint.hw = true;
-        breakpoint.permission = ui->hwPermissions->currentData().toInt();
+        breakpoint.permission = getHwPermissions();
     } else {
         breakpoint.hw = false;
     }
@@ -176,4 +168,46 @@ void BreakpointsDialog::onTypeChanged()
     ui->moduleLabel->setEnabled(moduleEnabled);
     ui->moduleName->setEnabled(moduleEnabled);
     ui->breakpointPosition->setPlaceholderText(ui->positionType->currentData(Qt::ToolTipRole).toString());
+}
+
+void BreakpointsDialog::configureCheckboxRestrictions()
+{
+    auto atLeastOneChecked = [this]() {
+        if (this->getHwPermissions() == 0) {
+            this->ui->hwExecute->setChecked(true);
+        }
+    };
+    auto rwRule = [this, atLeastOneChecked](bool checked) {
+        if (checked) {
+            this->ui->hwExecute->setChecked(false);
+        } else {
+            atLeastOneChecked();
+        }
+    };
+    connect(ui->hwRead, &QCheckBox::toggled, this, rwRule);
+    connect(ui->hwWrite, &QCheckBox::toggled, this, rwRule);
+    auto execRule = [this, atLeastOneChecked](bool checked) {
+        if (checked) {
+            this->ui->hwRead->setChecked(false);
+            this->ui->hwWrite->setChecked(false);
+        } else {
+            atLeastOneChecked();
+        }
+    };
+    connect(ui->hwExecute, &QCheckBox::toggled, this, execRule);
+}
+
+int BreakpointsDialog::getHwPermissions()
+{
+    int result = 0;
+    if (ui->hwRead->isChecked()) {
+        result |= R_BP_PROT_READ;
+    }
+    if (ui->hwWrite->isChecked()) {
+        result |= R_BP_PROT_WRITE;
+    }
+    if (ui->hwExecute->isChecked()) {
+        result |= R_BP_PROT_EXEC;
+    }
+    return result;
 }
