@@ -4,6 +4,7 @@
 #include "Helpers.h"
 
 #include <QPushButton>
+#include <QCompleter>
 
 BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     QDialog(parent),
@@ -22,9 +23,22 @@ BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
         setWindowTitle(tr("New breakpoint"));
     }
 
-    ui->positionType->setItemData(0, BreakpointDescription::Address);
-    ui->positionType->setItemData(1, BreakpointDescription::Named);
-    ui->positionType->setItemData(2, BreakpointDescription::Module);
+
+    struct {
+        QString label;
+        QString tooltip;
+        BreakpointDescription::PositionType type;
+    } positionTypes[] = {
+        {tr("Address"), tr("Address or expression calculated when creating breakpoint"), BreakpointDescription::Address},
+        {tr("Named"), tr("Expression - stored as expression"), BreakpointDescription::Named},
+        {tr("Module offset"), tr("Offset relative to module"), BreakpointDescription::Module},
+    };
+    int index = 0;
+    for (auto &item : positionTypes) {
+        ui->positionType->addItem(item.label, item.type);
+        ui->positionType->setItemData(index, item.tooltip, Qt::ToolTipRole);
+        index++;
+    }
 
     connect(ui->positionType, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &BreakpointsDialog::onTypeChanged);
@@ -41,6 +55,20 @@ BreakpointsDialog::BreakpointsDialog(bool editMode, QWidget *parent) :
     for (auto &item : hwLabels) {
         ui->hwPermissions->addItem(item.label, item.permission);
     }
+
+    auto modules = Core()->getMemoryMap();
+    QSet<QString> moduleNames;
+    for (const auto &module : modules) {
+        moduleNames.insert(module.fileName);
+    }
+    for (const auto& module : moduleNames) {
+        ui->moduleName->addItem(module);
+    }
+    ui->moduleName->setCurrentText("");
+    // Suggest completion when user tries to enter file name not only full path
+    ui->moduleName->completer()->setFilterMode(Qt::MatchContains);
+
+    ui->breakpointCondition->setCompleter(nullptr); // Don't use examples for completing
 }
 
 BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QWidget *parent)
@@ -55,7 +83,7 @@ BreakpointsDialog::BreakpointsDialog(const BreakpointDescription &breakpoint, QW
         break;
     case BreakpointDescription::Module:
         ui->breakpointPosition->setText(QString::number(breakpoint.moduleDelta));
-        ui->moduleName->setText(breakpoint.positionExpression);
+        ui->moduleName->setCurrentText(breakpoint.positionExpression);
         break;
     }
     for (int i = 0; i < ui->positionType->count(); i++) {
@@ -101,7 +129,7 @@ BreakpointDescription BreakpointsDialog::getDescription()
         break;
     case BreakpointDescription::Module:
         breakpoint.moduleDelta = static_cast<int64_t>(Core()->math(ui->breakpointPosition->text()));
-        breakpoint.positionExpression = ui->moduleName->text().trimmed();
+        breakpoint.positionExpression = ui->moduleName->currentText().trimmed();
         break;
     }
     breakpoint.type = positionType;
@@ -147,4 +175,5 @@ void BreakpointsDialog::onTypeChanged()
     bool moduleEnabled = ui->positionType->currentData() == QVariant(BreakpointDescription::Module);
     ui->moduleLabel->setEnabled(moduleEnabled);
     ui->moduleName->setEnabled(moduleEnabled);
+    ui->breakpointPosition->setPlaceholderText(ui->positionType->currentData(Qt::ToolTipRole).toString());
 }
