@@ -46,13 +46,13 @@ void EditInstructionDialog::updatePreview(const QString &input)
         return;
     } else if (editMode == EDIT_BYTES) {
         QByteArray data = CutterCore::hexStringToBytes(input);
-        result = Core()->disassemble(data).trimmed();
+        result = Core()->disassemble(data).simplified();
     } else if (editMode == EDIT_TEXT) {
         QByteArray data = Core()->assemble(input);
         result = CutterCore::bytesToHexString(data).trimmed();
     }
 
-    if (result.isEmpty() || result.contains(QLatin1Char('\n'))) {
+    if (result.isEmpty() || result.contains("invalid")) {
         ui->instructionLabel->setText("Unknown Instruction");
     } else {
         ui->instructionLabel->setText(result);
