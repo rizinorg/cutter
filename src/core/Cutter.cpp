@@ -1790,7 +1790,7 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     }
 
     if (!breakpoint) {
-        qWarning() << "Failed to create breakpoint";
+        QMessageBox::critical(nullptr, tr("Breakpoint error"), tr("Failed to create breakpoint"));
         return;
     }
     int index = std::find(core->dbg->bp->bps_idx,
