@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>531</width>
-    <height>407</height>
+    <width>595</width>
+    <height>422</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -154,15 +154,9 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="hwConfigBox">
+         <widget class="QWidget" name="hwConfigBox">
           <property name="enabled">
            <bool>false</bool>
-          </property>
-          <property name="title">
-           <string/>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
            <item row="0" column="1">
@@ -214,6 +208,19 @@
            </item>
           </layout>
          </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>
