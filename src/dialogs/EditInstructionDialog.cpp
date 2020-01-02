@@ -8,6 +8,8 @@ EditInstructionDialog::EditInstructionDialog(InstructionEditMode editMode, QWidg
     editMode(editMode)
 {
     ui->setupUi(this);
+    ui->lineEdit->setMinimumWidth(400);
+    ui->instructionLabel->setWordWrap(true);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
     connect(ui->lineEdit, SIGNAL(textEdited(const QString &)), this,
@@ -46,7 +48,7 @@ void EditInstructionDialog::updatePreview(const QString &input)
         return;
     } else if (editMode == EDIT_BYTES) {
         QByteArray data = CutterCore::hexStringToBytes(input);
-        result = Core()->disassemble(data).simplified();
+        result = Core()->disassemble(data).replace('\n', "; ");
     } else if (editMode == EDIT_TEXT) {
         QByteArray data = Core()->assemble(input);
         result = CutterCore::bytesToHexString(data).trimmed();
