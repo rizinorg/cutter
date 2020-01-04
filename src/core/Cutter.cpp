@@ -104,6 +104,13 @@ namespace RJsonKey {
 
 #undef R_JSON_KEY
 
+static void updateOwnedCharPtr(char *&variable, const QString &newValue)
+{
+    auto data = newValue.toUtf8();
+    R_FREE(variable)
+    variable = strdup(data.data());
+}
+
 RCoreLocked::RCoreLocked(CutterCore *core)
     : core(core)
 {
@@ -457,7 +464,7 @@ QStringList CutterCore::autocomplete(const QString &cmd, RLinePromptType promptT
 
     QStringList r;
     r.reserve(r_pvector_len(&completion.args));
-    for (size_t i = 0; i< r_pvector_len(&completion.args); i++) {
+    for (size_t i = 0; i < r_pvector_len(&completion.args); i++) {
         r.push_back(QString::fromUtf8(reinterpret_cast<const char *>(r_pvector_at(&completion.args, i))));
     }
 
@@ -1468,7 +1475,7 @@ void CutterCore::attachDebug(int pid)
 
 void CutterCore::suspendDebug()
 {
-    debugTask->breakTask(); 
+    debugTask->breakTask();
 }
 
 void CutterCore::stopDebug()
@@ -1749,6 +1756,73 @@ void CutterCore::addBreakpoint(QString addr)
     emit breakpointsChanged();
 }
 
+void CutterCore::addBreakpoint(const BreakpointDescription &config)
+{
+    CORE_LOCK();
+    RBreakpointItem *breakpoint = nullptr;
+    int watchpoint_prot = 0;
+    if (config.hw) {
+        watchpoint_prot = config.permission & ~(R_BP_PROT_EXEC);
+    }
+
+    auto address = config.addr;
+    char *module = nullptr;
+    QByteArray moduleNameData;
+    if (config.type == BreakpointDescription::Named) {
+        address = Core()->math(config.positionExpression);
+    } else if (config.type == BreakpointDescription::Module) {
+        address = 0;
+        moduleNameData = config.positionExpression.toUtf8();
+        module = moduleNameData.data();
+    }
+    breakpoint = r_debug_bp_add(core->dbg, address, (config.hw && watchpoint_prot == 0),
+                                watchpoint_prot, watchpoint_prot,
+                                module, config.moduleDelta);
+    if (config.type == BreakpointDescription::Named) {
+        updateOwnedCharPtr(breakpoint->expr, config.positionExpression);
+    }
+
+    if (config.hw) {
+        breakpoint->size = config.size;
+    }
+    if (config.type == BreakpointDescription::Named) {
+        updateOwnedCharPtr(breakpoint->name, config.positionExpression);
+    }
+
+    if (!breakpoint) {
+        QMessageBox::critical(nullptr, tr("Breakpoint error"), tr("Failed to create breakpoint"));
+        return;
+    }
+    int index = std::find(core->dbg->bp->bps_idx,
+                          core->dbg->bp->bps_idx + core->dbg->bp->bps_idx_count,
+                          breakpoint) - core->dbg->bp->bps_idx;
+
+    breakpoint->enabled = config.enabled;
+    if (config.trace) {
+        setBreakpointTrace(index, config.trace);
+    }
+    if (!config.condition.isEmpty()) {
+        updateOwnedCharPtr(breakpoint->cond, config.condition);
+    }
+    if (!config.command.isEmpty()) {
+        updateOwnedCharPtr(breakpoint->data, config.command);
+    }
+    emit instructionChanged(breakpoint->addr);
+    emit breakpointsChanged();
+}
+
+void CutterCore::updateBreakpoint(int index, const BreakpointDescription &config)
+{
+    CORE_LOCK();
+    if (auto bp = r_bp_get_index(core->dbg->bp, index)) {
+        r_bp_del(core->dbg->bp, bp->addr);
+    }
+    // Delete by index currently buggy,
+    // required for breakpoints with non address based position
+    //r_bp_del_index(core->dbg->bp, index);
+    addBreakpoint(config);
+}
+
 void CutterCore::delBreakpoint(RVA addr)
 {
     cmd("db- " + RAddressString(addr));
@@ -1785,24 +1859,52 @@ void CutterCore::setBreakpointTrace(int index, bool enabled)
     }
 }
 
+static BreakpointDescription breakpointDescriptionFromR2(int index, r_bp_item_t *bpi)
+{
+    BreakpointDescription bp;
+    bp.addr = bpi->addr;
+    bp.index = index;
+    bp.size = bpi->size;
+    if (bpi->expr) {
+        bp.positionExpression = bpi->expr;
+        bp.type = BreakpointDescription::Named;
+    }
+    bp.name = bpi->name;
+    bp.permission = bpi->perm;
+    bp.command = bpi->data;
+    bp.condition = bpi->cond;
+    bp.hw = bpi->hw;
+    bp.trace = bpi->trace;
+    bp.enabled = bpi->enabled;
+    return bp;
+}
+
+int CutterCore::breakpointIndexAt(RVA addr)
+{
+    CORE_LOCK();
+    return r_bp_get_index_at(core->dbg->bp, addr);
+}
+
+BreakpointDescription CutterCore::getBreakpointAt(RVA addr)
+{
+    CORE_LOCK();
+    int index = breakpointIndexAt(addr);
+    auto bp = r_bp_get_index(core->dbg->bp, index);
+    if (bp) {
+        return breakpointDescriptionFromR2(index, bp);
+    }
+    return BreakpointDescription();
+}
+
 QList<BreakpointDescription> CutterCore::getBreakpoints()
 {
+    CORE_LOCK();
     QList<BreakpointDescription> ret;
-    QJsonArray breakpointArray = cmdj("dbj").array();
-
-    for (const QJsonValue &value : breakpointArray) {
-        QJsonObject bpObject = value.toObject();
-
-        BreakpointDescription bp;
-
-        bp.addr = bpObject[RJsonKey::addr].toVariant().toULongLong();
-        bp.size = bpObject[RJsonKey::size].toInt();
-        bp.permission = bpObject[RJsonKey::prot].toString();
-        bp.hw = bpObject[RJsonKey::hw].toBool();
-        bp.trace = bpObject[RJsonKey::trace].toBool();
-        bp.enabled = bpObject[RJsonKey::enabled].toBool();
-
-        ret << bp;
+    //TODO: use higher level API, don't touch r2 bps_idx directly
+    for (int i = 0; i < core->dbg->bp->bps_idx_count; i++) {
+        if (auto bpi = core->dbg->bp->bps_idx[i]) {
+            ret.push_back(breakpointDescriptionFromR2(i, bpi));
+        }
     }
 
     return ret;

@@ -31,7 +31,7 @@ private:
     QList<BreakpointDescription> breakpoints;
 
 public:
-    enum Column { AddrColumn = 0, PermColumn, HwColumn, TraceColumn, EnabledColumn, ColumnCount };
+    enum Column { AddrColumn = 0, NameColumn, TypeColumn, TraceColumn, EnabledColumn, ColumnCount };
     enum Role { BreakpointDescriptionRole = Qt::UserRole };
 
     BreakpointModel(QObject *parent = nullptr);
@@ -60,9 +60,6 @@ class BreakpointProxyModel : public AddressableFilterProxyModel
 public:
     BreakpointProxyModel(BreakpointModel *sourceModel, QObject *parent = nullptr);
 
-protected:
-    bool filterAcceptsRow(int row, const QModelIndex &parent) const override;
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
 };
 
 
@@ -78,6 +75,7 @@ public:
 private slots:
     void delBreakpoint();
     void toggleBreakpoint();
+    void editBreakpoint();
     void addBreakpointDialog();
     void refreshBreakpoint();
 
@@ -89,6 +87,7 @@ private:
     QList<BreakpointDescription> breakpoints;
     QAction *actionDelBreakpoint = nullptr;
     QAction *actionToggleBreakpoint = nullptr;
+    QAction *actionEditBreakpoint = nullptr;
 
     void setScrollMode();
     QVector<RVA> getSelectedAddresses() const;

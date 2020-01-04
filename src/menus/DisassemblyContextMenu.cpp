@@ -10,6 +10,7 @@
 #include "dialogs/EditFunctionDialog.h"
 #include "dialogs/LinkTypeDialog.h"
 #include "dialogs/EditStringDialog.h"
+#include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
 
 #include <QtCore>
@@ -56,6 +57,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionSetBits64(this),
         actionContinueUntil(this),
         actionAddBreakpoint(this),
+        actionAdvancedBreakpoint(this),
         actionSetPC(this),
         actionSetToCode(this),
         actionSetAsStringAuto(this),
@@ -292,6 +294,9 @@ void DisassemblyContextMenu::addDebugMenu()
     initAction(&actionAddBreakpoint, tr("Add/remove breakpoint"),
                SLOT(on_actionAddBreakpoint_triggered()), getAddBPSequence());
     debugMenu->addAction(&actionAddBreakpoint);
+    initAction(&actionAdvancedBreakpoint, tr("Advanced breakpoint"),
+               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL+Qt::Key_F2));
+    debugMenu->addAction(&actionAdvancedBreakpoint);
 
     initAction(&actionContinueUntil, tr("Continue until line"),
                SLOT(on_actionContinueUntil_triggered()));
@@ -503,9 +508,13 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     // Only show debug options if we are currently debugging
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
+    bool hasBreakpoint = Core()->breakpointIndexAt(offset) > -1;
+    actionAddBreakpoint.setText(hasBreakpoint ?
+                                     tr("Remove breakpoint") : tr("Add breakpoint"));
+    actionAdvancedBreakpoint.setText(hasBreakpoint ?
+                                     tr("Edit breakpoint") : tr("Advanced breakpoint"));
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText("Set " + progCounterName + " here");
-
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
@@ -729,6 +738,16 @@ void DisassemblyContextMenu::on_actionCopyAddr_triggered()
 void DisassemblyContextMenu::on_actionAddBreakpoint_triggered()
 {
     Core()->toggleBreakpoint(offset);
+}
+
+void DisassemblyContextMenu::on_actionAdvancedBreakpoint_triggered()
+{
+    int index = Core()->breakpointIndexAt(offset);
+    if (index >= 0) {
+        BreakpointsDialog::editBreakpoint(Core()->getBreakpointAt(offset), this);
+    } else {
+        BreakpointsDialog::createNewBreakpoint(offset, this);
+    }
 }
 
 void DisassemblyContextMenu::on_actionContinueUntil_triggered()

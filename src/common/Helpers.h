@@ -19,6 +19,7 @@ class QTreeView;
 class QAction;
 class QMenu;
 class QPaintDevice;
+class QComboBox;
 
 namespace qhelpers {
 QString formatBytecount(const uint64_t bytecount);
@@ -55,6 +56,13 @@ void setThemeIcons(QList<QPair<void*, QString>> supportedIconsNames, std::functi
 
 void prependQAction(QAction *action, QMenu *menu);
 qreal devicePixelRatio(const QPaintDevice *p);
+/**
+ * @brief Select comboBox item by value in Qt::UserRole.
+ * @param comboBox
+ * @param data - value to search in combobox item data
+ * @param defaultIndex - item to select in case no match
+ */
+void selectIndexByData(QComboBox *comboBox, QVariant data, int defaultIndex = -1);
 
 } // qhelpers
 
