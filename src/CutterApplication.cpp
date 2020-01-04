@@ -90,7 +90,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                     QObject::tr("file"));
     cmd_parser.addOption(scriptOption);
 
-    QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for embeded python interpreter"),
+    QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for embedded python interpreter"),
                                         "PYTHONHOME");
     cmd_parser.addOption(pythonHomeOption);
 
