@@ -146,35 +146,75 @@ StackModel::StackModel(QObject *parent)
 
 void StackModel::reload()
 {
-    QJsonArray stackValues = Core()->getStack().array();
+    QList<QJsonObject> stackItems = Core()->getStack();
 
     beginResetModel();
     values.clear();
-    for (const QJsonValue &value : stackValues) {
-        QJsonObject stackItem = value.toObject();
+    for (const QJsonObject &stackItem : stackItems) {
         Item item;
 
         item.offset = stackItem["addr"].toVariant().toULongLong();
         item.value = RAddressString(stackItem["value"].toVariant().toULongLong());
 
-
-        QJsonValue refObject = stackItem["ref"];
-        if (!refObject.isUndefined()) { // check that the key exists
-            QString ref = refObject.toString();
-            if (ref.contains("ascii") && ref.count("-->") == 1) {
-                ref = Core()->cmdj(QString("pszj @ [%1]").arg(item.offset)).object().value("string").toString();
-            }
-            item.description = ref;
-
-
-            if (refObject.toString().contains("ascii") && refObject.toString().count("-->") == 1) {
+        QJsonObject refItem = stackItem["ref"].toObject();
+        if (!refItem.empty()) {
+            QString str = refItem["string"].toVariant().toString();
+            if (!str.isEmpty()) {
+                item.description = str;
                 item.descriptionColor = QVariant(QColor(243, 156, 17));
-            } else if (ref.contains("program R X") && ref.count("-->") == 0) {
-                item.descriptionColor = QVariant(QColor(Qt::red));
-            } else if (ref.contains("stack") && ref.count("-->") == 0) {
-                item.descriptionColor = QVariant(QColor(Qt::cyan));
-            } else if (ref.contains("library") && ref.count("-->") == 0) {
-                item.descriptionColor = QVariant(QColor(Qt::green));
+            } else {
+                QString type, mapname, section, func, perms, asmb, string, reg, value;
+                do {
+                    item.description += " ->";
+                    reg = refItem["reg"].toVariant().toString();
+                    if (!reg.isEmpty()) {
+                        item.description += " @" + reg;
+                    }
+                    mapname = refItem["mapname"].toVariant().toString();
+                    if (!mapname.isEmpty()) {
+                        item.description += " (" + mapname + ")";
+                    }
+                    section = refItem["section"].toVariant().toString();
+                    if (!section.isEmpty()) {
+                        item.description += " (" + section + ")";
+                    }
+                    func = refItem["func"].toVariant().toString();
+                    if (!func.isEmpty()) {
+                        item.description += " " + func;
+                    }
+                    type = refItem["type"].toVariant().toString();
+                    if (!type.isEmpty()) {
+                        item.description += " " + type;
+                    }
+                    perms = refItem["perms"].toVariant().toString();
+                    if (!perms.isEmpty()) {
+                        item.description += " " + perms;
+                    }
+                    asmb = refItem["asm"].toVariant().toString();
+                    if (!asmb.isEmpty()) {
+                        item.description += " \"" + asmb + "\"";
+                    }
+                    string = refItem["string"].toVariant().toString();
+                    if (!string.isEmpty()) {
+                        item.description += " " + string;
+                    }
+                    value = RAddressString(stackItem["value"].toVariant().toULongLong());
+                    if (!value.isEmpty()) {
+                        item.description += " " + value;
+                    }
+                    refItem = refItem["ref"].toObject();
+                } while (!refItem.empty());
+
+                // Set the description's color according to the last item type
+                if (type == "ascii") {
+                    item.descriptionColor = QVariant(QColor(243, 156, 17));
+                } else if (type == "program") {
+                    item.descriptionColor = QVariant(QColor(Qt::red));
+                } else if (type == "library") {
+                    item.descriptionColor = QVariant(QColor(Qt::green));
+                } else if (type == "stack") {
+                    item.descriptionColor = QVariant(QColor(Qt::cyan));
+                }
             }
         }
         values.push_back(item);
