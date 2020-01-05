@@ -11,9 +11,12 @@ VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PA
 # Required QT version
 lessThan(QT_MAJOR_VERSION, 5): error("requires Qt 5")
 
-TRANSLATIONS += translations/cutter_ca.ts \
+TRANSLATIONS += translations/cutter_ar.ts \
+                translations/cutter_ca.ts \
+                translations/cutter_cn.ts \
                 translations/cutter_de.ts \
                 translations/cutter_es.ts \
+                translations/cutter_fa.ts \
                 translations/cutter_fr.ts \
                 translations/cutter_it.ts \
                 translations/cutter_nl.ts \
