@@ -144,6 +144,16 @@ StackModel::StackModel(QObject *parent)
 {
 }
 
+// Utility function to check if a telescoped item exists and add it with prefixes to the desc
+static inline const QString append_var(QString &dst, const QString val, const QString prepend_val,
+                                       const QString append_val)
+{
+    if (!val.isEmpty()) {
+        dst += prepend_val + val + append_val;
+    }
+    return val;
+}
+
 void StackModel::reload()
 {
     QList<QJsonObject> stackItems = Core()->getStack();
@@ -161,47 +171,20 @@ void StackModel::reload()
             QString str = refItem["string"].toVariant().toString();
             if (!str.isEmpty()) {
                 item.description = str;
-                    item.descriptionColor = ConfigColor("comment");
+                item.descriptionColor = ConfigColor("comment");
             } else {
-                QString type, mapname, section, func, perms, asmb, string, reg, value;
+                QString type;
                 do {
                     item.description += " ->";
-                    reg = refItem["reg"].toVariant().toString();
-                    if (!reg.isEmpty()) {
-                        item.description += " @" + reg;
-                    }
-                    mapname = refItem["mapname"].toVariant().toString();
-                    if (!mapname.isEmpty()) {
-                        item.description += " (" + mapname + ")";
-                    }
-                    section = refItem["section"].toVariant().toString();
-                    if (!section.isEmpty()) {
-                        item.description += " (" + section + ")";
-                    }
-                    func = refItem["func"].toVariant().toString();
-                    if (!func.isEmpty()) {
-                        item.description += " " + func;
-                    }
-                    type = refItem["type"].toVariant().toString();
-                    if (!type.isEmpty()) {
-                        item.description += " " + type;
-                    }
-                    perms = refItem["perms"].toVariant().toString();
-                    if (!perms.isEmpty()) {
-                        item.description += " " + perms;
-                    }
-                    asmb = refItem["asm"].toVariant().toString();
-                    if (!asmb.isEmpty()) {
-                        item.description += " \"" + asmb + "\"";
-                    }
-                    string = refItem["string"].toVariant().toString();
-                    if (!string.isEmpty()) {
-                        item.description += " " + string;
-                    }
-                    value = RAddressString(stackItem["value"].toVariant().toULongLong());
-                    if (!value.isEmpty()) {
-                        item.description += " " + value;
-                    }
+                    append_var(item.description, refItem["reg"].toVariant().toString(), " @", "");
+                    append_var(item.description, refItem["mapname"].toVariant().toString(), " (", ")");
+                    append_var(item.description, refItem["section"].toVariant().toString(), " (", ")");
+                    append_var(item.description, refItem["func"].toVariant().toString(), " ", "");
+                    type = append_var(item.description, refItem["type"].toVariant().toString(), " ", "");
+                    append_var(item.description, refItem["perms"].toVariant().toString(), " ", "");
+                    append_var(item.description, refItem["asm"].toVariant().toString(), " \"", "\"");
+                    append_var(item.description, refItem["string"].toVariant().toString(), " ", "");
+                    append_var(item.description, RAddressString(stackItem["value"].toVariant().toULongLong()), " ", "");
                     refItem = refItem["ref"].toObject();
                 } while (!refItem.empty());
 
