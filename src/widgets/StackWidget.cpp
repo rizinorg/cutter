@@ -161,7 +161,7 @@ void StackModel::reload()
             QString str = refItem["string"].toVariant().toString();
             if (!str.isEmpty()) {
                 item.description = str;
-                item.descriptionColor = QVariant(QColor(243, 156, 17));
+                    item.descriptionColor = ConfigColor("comment");
             } else {
                 QString type, mapname, section, func, perms, asmb, string, reg, value;
                 do {
@@ -207,13 +207,13 @@ void StackModel::reload()
 
                 // Set the description's color according to the last item type
                 if (type == "ascii") {
-                    item.descriptionColor = QVariant(QColor(243, 156, 17));
+                    item.descriptionColor = ConfigColor("comment");
                 } else if (type == "program") {
-                    item.descriptionColor = QVariant(QColor(Qt::red));
+                    item.descriptionColor = ConfigColor("fname");
                 } else if (type == "library") {
-                    item.descriptionColor = QVariant(QColor(Qt::green));
+                    item.descriptionColor = ConfigColor("floc");
                 } else if (type == "stack") {
-                    item.descriptionColor = QVariant(QColor(Qt::cyan));
+                    item.descriptionColor = ConfigColor("offset");
                 }
             }
         }
