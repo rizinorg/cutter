@@ -392,6 +392,11 @@ void Configuration::setFont(const QFont &font)
     emit fontsUpdated();
 }
 
+void Configuration::refreshFont()
+{
+    emit fontsUpdated();
+}
+
 qreal Configuration::getZoomFactor() const {
   qreal fontZoom = s.value("zoomFactor", 1.0).value<qreal>();
   return qMax(fontZoom, 0.1);

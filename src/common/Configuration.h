@@ -171,7 +171,8 @@ public:
 
     bool getDecompilerAutoRefreshEnabled();
     void setDecompilerAutoRefreshEnabled(bool enabled);
-
+public slots:
+    void refreshFont();
 signals:
     void fontsUpdated();
     void colorsUpdated();

@@ -193,6 +193,7 @@ private slots:
 
     void mousePressEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *object, QEvent *event) override;
+    bool event(QEvent *event) override;
     void toggleDebugView();
     void chooseThemeIcons();
 

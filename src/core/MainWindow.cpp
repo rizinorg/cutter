@@ -1599,6 +1599,20 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::FontChange
+        || event->type() == QEvent::StyleChange
+        || event->type() == QEvent::PaletteChange) {
+#if QT_VERSION < QT_VERSION_CHECK(5,10,0)
+        QMetaObject::invokeMethod(Config(), "refreshFont", Qt::ConnectionType::QueuedConnection);
+#else
+        QMetaObject::invokeMethod(Config(), &Configuration::refreshFont, Qt::ConnectionType::QueuedConnection);
+#endif
+    }
+    return QMainWindow::event(event);
+}
+
 /**
  * @brief Show a warning message box.
  *

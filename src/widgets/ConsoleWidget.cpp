@@ -111,7 +111,6 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
     connect(ui->r2InputLineEdit, &QLineEdit::editingFinished, this, &ConsoleWidget::disableCompletion);
 
     connect(Config(), &Configuration::fontsUpdated, this, &ConsoleWidget::setupFont);
-    connect(Config(), &Configuration::interfaceThemeChanged, this, &ConsoleWidget::setupFont);
 
     connect(ui->inputCombo,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
