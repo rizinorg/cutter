@@ -28,8 +28,7 @@ AppearanceOptionsWidget::AppearanceOptionsWidget(PreferencesDialog *dialog)
       ui(new Ui::AppearanceOptionsWidget)
 {
     ui->setupUi(this);
-    updateFontFromConfig();
-    updateThemeFromConfig(false);
+    updateFromConfig();
 
     QStringList langs = Config()->getAvailableTranslations();
     ui->languageComboBox->addItems(langs);
@@ -262,6 +261,13 @@ void AppearanceOptionsWidget::updateModificationButtons(const QString& theme)
     ui->editButton->setEnabled(editable);
     ui->deleteButton->setEnabled(editable);
     ui->renameButton->setEnabled(editable);
+}
+
+void AppearanceOptionsWidget::updateFromConfig()
+{
+    updateFontFromConfig();
+    updateThemeFromConfig(false);
+    ui->fontZoomBox->setValue(qRound(Config()->getZoomFactor() * 100));
 }
 
 QIcon AppearanceOptionsWidget::getIconFromSvg(const QString& fileName, const QColor& after, const QColor& before)
