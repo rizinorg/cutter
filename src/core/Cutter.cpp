@@ -1180,7 +1180,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
 
     // Search for the section the addr is in, avoid duplication for heap/stack with type
     if(!(type & R_ANAL_ADDR_TYPE_HEAP || type & R_ANAL_ADDR_TYPE_STACK)) {
-        // Attempt to find the address withing a map
+        // Attempt to find the address within a map
         RDebugMap *map = r_debug_map_get(core->dbg, addr);
         if (map && map->name && map->name[0]) {
             json["mapname"] = map->name;
@@ -1201,7 +1201,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
         }
     }
 
-    // Attempt to find the address withing a function
+    // Attempt to find the address within a function
     RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, addr, 0);
     if (fcn) {
         json["fcn"] = fcn->name;
