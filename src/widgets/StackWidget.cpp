@@ -173,7 +173,7 @@ void StackModel::reload()
                 item.description = str;
                 item.descriptionColor = ConfigColor("comment");
             } else {
-                QString type;
+                QString type, string;
                 do {
                     item.description += " ->";
                     append_var(item.description, refItem["reg"].toVariant().toString(), " @", "");
@@ -183,13 +183,19 @@ void StackModel::reload()
                     type = append_var(item.description, refItem["type"].toVariant().toString(), " ", "");
                     append_var(item.description, refItem["perms"].toVariant().toString(), " ", "");
                     append_var(item.description, refItem["asm"].toVariant().toString(), " \"", "\"");
-                    append_var(item.description, refItem["string"].toVariant().toString(), " ", "");
-                    append_var(item.description, RAddressString(stackItem["value"].toVariant().toULongLong()), " ", "");
+                    string = append_var(item.description, refItem["string"].toVariant().toString(), " ", "");
+                    if (!string.isNull()) {
+                        // There is no point in adding ascii and addr info after a string
+                        break;
+                    }
+                    if (!refItem["value"].isNull()) {
+                        append_var(item.description, RAddressString(refItem["value"].toVariant().toULongLong()), " ", "");
+                    }
                     refItem = refItem["ref"].toObject();
                 } while (!refItem.empty());
 
                 // Set the description's color according to the last item type
-                if (type == "ascii") {
+                if (type == "ascii" || !string.isEmpty()) {
                     item.descriptionColor = ConfigColor("comment");
                 } else if (type == "program") {
                     item.descriptionColor = ConfigColor("fname");

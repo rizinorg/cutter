@@ -1178,16 +1178,15 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
 
     json["addr"] = QString::number(addr);
 
-    // Attempt to find the address withing a map
-    RDebugMap *map = r_debug_map_get(core->dbg, addr);
-    if (map && map->name && map->name[0]) {
-        json["mapname"] = map->name;
-    }
-
-    // Search for the section the addr is in, avoid duplication for heap/stack with mapname
+    // Search for the section the addr is in, avoid duplication for heap/stack with type
     if(!(type & R_ANAL_ADDR_TYPE_HEAP || type & R_ANAL_ADDR_TYPE_STACK)) {
+        // Attempt to find the address withing a map
+        RDebugMap *map = r_debug_map_get(core->dbg, addr);
+        if (map && map->name && map->name[0]) {
+            json["mapname"] = map->name;
+        }
+
         RBinSection *sect = r_bin_get_section_at(r_bin_cur_object (core->bin), addr, true);
-        // Do not repeat "stack" or "heap" words unnecessarily.
         if (sect && sect->name[0]) {
             json["section"] = sect->name;
         }
@@ -1220,7 +1219,6 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
             json["type"] = "library";
         } else if (type & R_ANAL_ADDR_TYPE_ASCII) {
             json["type"] = "ascii";
-            json["value"] = QString::number((char)addr);
         } else if (type & R_ANAL_ADDR_TYPE_SEQUENCE) {
             json["type"] = "sequence";
         }
@@ -1246,8 +1244,6 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
         if (!perms.isEmpty()) {
             json["perms"] = perms;
         }
-    } else {
-        json["value"] = QString::number(addr);
     }
 
     // Try to telescope further if depth permits it
@@ -1262,8 +1258,8 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
         json["value"] = QString::number(n);
         if (depth && n != addr) {
             // Make sure we aren't telescoping the same address
-            QJsonObject ref = getAddrRefs(n, depth-1);
-            if (!ref.empty()) {
+            QJsonObject ref = getAddrRefs(n, depth - 1);
+            if (!ref.empty() && !ref["type"].isNull()) {
                 // If the dereference of the current pointer is an ascii character we
                 // might have a string in this address
                 if (ref["type"].toString().contains("ascii")) {

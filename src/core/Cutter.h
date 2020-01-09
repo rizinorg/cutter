@@ -293,7 +293,8 @@ public:
      */
     QList<QJsonObject> getStack(int size = 0x100, int depth = 6);
     /**
-     * @brief Returns the telescoped values of a given address up to a given depth
+     * @brief Recursively dereferences pointers starting at the specified address
+     *        up to a given depth
      * @param addr telescoping addr
      * @param depth telescoping depth 
      */
