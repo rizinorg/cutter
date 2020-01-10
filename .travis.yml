@@ -46,7 +46,7 @@ matrix:
     before_install:
       - pyenv install 3.5.2
       - pyenv global 3.5.2
-      - pip install meson
+      - pip install meson==0.52.1
 
 
   - name: macOS QMake + Deploy
