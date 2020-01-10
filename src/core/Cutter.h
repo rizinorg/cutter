@@ -286,7 +286,19 @@ public:
      * @brief Attach to a given pid from a debug session
      */
     void setCurrentDebugProcess(int pid);
-    QJsonDocument getStack(int size = 0x100);
+    /**
+     * @brief Returns a list of stack address and their telescoped references
+     * @param size number of bytes to scan
+     * @param depth telescoping depth 
+     */
+    QList<QJsonObject> getStack(int size = 0x100, int depth = 6);
+    /**
+     * @brief Recursively dereferences pointers starting at the specified address
+     *        up to a given depth
+     * @param addr telescoping addr
+     * @param depth telescoping depth 
+     */
+    QJsonObject getAddrRefs(RVA addr, int depth);
     /**
      * @brief Get a list of a given process's threads
      * @param pid The pid of the process, -1 for the currently debugged process

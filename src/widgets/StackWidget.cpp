@@ -144,37 +144,66 @@ StackModel::StackModel(QObject *parent)
 {
 }
 
+// Utility function to check if a telescoped item exists and add it with prefixes to the desc
+static inline const QString append_var(QString &dst, const QString val, const QString prepend_val,
+                                       const QString append_val)
+{
+    if (!val.isEmpty()) {
+        dst += prepend_val + val + append_val;
+    }
+    return val;
+}
+
 void StackModel::reload()
 {
-    QJsonArray stackValues = Core()->getStack().array();
+    QList<QJsonObject> stackItems = Core()->getStack();
 
     beginResetModel();
     values.clear();
-    for (const QJsonValue &value : stackValues) {
-        QJsonObject stackItem = value.toObject();
+    for (const QJsonObject &stackItem : stackItems) {
         Item item;
 
         item.offset = stackItem["addr"].toVariant().toULongLong();
         item.value = RAddressString(stackItem["value"].toVariant().toULongLong());
 
+        QJsonObject refItem = stackItem["ref"].toObject();
+        if (!refItem.empty()) {
+            QString str = refItem["string"].toVariant().toString();
+            if (!str.isEmpty()) {
+                item.description = str;
+                item.descriptionColor = ConfigColor("comment");
+            } else {
+                QString type, string;
+                do {
+                    item.description += " ->";
+                    append_var(item.description, refItem["reg"].toVariant().toString(), " @", "");
+                    append_var(item.description, refItem["mapname"].toVariant().toString(), " (", ")");
+                    append_var(item.description, refItem["section"].toVariant().toString(), " (", ")");
+                    append_var(item.description, refItem["func"].toVariant().toString(), " ", "");
+                    type = append_var(item.description, refItem["type"].toVariant().toString(), " ", "");
+                    append_var(item.description, refItem["perms"].toVariant().toString(), " ", "");
+                    append_var(item.description, refItem["asm"].toVariant().toString(), " \"", "\"");
+                    string = append_var(item.description, refItem["string"].toVariant().toString(), " ", "");
+                    if (!string.isNull()) {
+                        // There is no point in adding ascii and addr info after a string
+                        break;
+                    }
+                    if (!refItem["value"].isNull()) {
+                        append_var(item.description, RAddressString(refItem["value"].toVariant().toULongLong()), " ", "");
+                    }
+                    refItem = refItem["ref"].toObject();
+                } while (!refItem.empty());
 
-        QJsonValue refObject = stackItem["ref"];
-        if (!refObject.isUndefined()) { // check that the key exists
-            QString ref = refObject.toString();
-            if (ref.contains("ascii") && ref.count("-->") == 1) {
-                ref = Core()->cmdj(QString("pszj @ [%1]").arg(item.offset)).object().value("string").toString();
-            }
-            item.description = ref;
-
-
-            if (refObject.toString().contains("ascii") && refObject.toString().count("-->") == 1) {
-                item.descriptionColor = QVariant(QColor(243, 156, 17));
-            } else if (ref.contains("program R X") && ref.count("-->") == 0) {
-                item.descriptionColor = QVariant(QColor(Qt::red));
-            } else if (ref.contains("stack") && ref.count("-->") == 0) {
-                item.descriptionColor = QVariant(QColor(Qt::cyan));
-            } else if (ref.contains("library") && ref.count("-->") == 0) {
-                item.descriptionColor = QVariant(QColor(Qt::green));
+                // Set the description's color according to the last item type
+                if (type == "ascii" || !string.isEmpty()) {
+                    item.descriptionColor = ConfigColor("comment");
+                } else if (type == "program") {
+                    item.descriptionColor = ConfigColor("fname");
+                } else if (type == "library") {
+                    item.descriptionColor = ConfigColor("floc");
+                } else if (type == "stack") {
+                    item.descriptionColor = ConfigColor("offset");
+                }
             }
         }
         values.push_back(item);

@@ -1139,9 +1139,144 @@ QJsonDocument CutterCore::getSignatureInfo()
     return cmdj("iCj");
 }
 
-QJsonDocument CutterCore::getStack(int size)
+QList<QJsonObject> CutterCore::getStack(int size, int depth)
 {
-    return cmdj("pxrj " + QString::number(size) + " @ r:SP");
+    QList<QJsonObject> stack;
+    if (!currentlyDebugging) {
+        return stack;
+    }
+
+    CORE_LOCK();
+    bool ret;
+    RVA addr = cmd("dr SP").toULongLong(&ret, 16);
+    if (!ret) {
+        return stack;
+    }
+
+    int base = core->anal->bits;
+    for (int i = 0; i < size; i += base / 8) {
+        if ((base == 32 && addr + i >= UT32_MAX) || (base == 16 && addr + i >= UT16_MAX)) {
+            break;
+        }
+
+        stack.append(getAddrRefs(addr + i, depth));
+    }
+
+    return stack;
+}
+
+QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
+    QJsonObject json;
+    if (depth < 1 || addr == UT64_MAX) {
+        return json;
+    }
+
+    CORE_LOCK();
+    int bits = core->assembler->bits;
+    QByteArray buf = QByteArray();
+    ut64 type = r_core_anal_address(core, addr);
+
+    json["addr"] = QString::number(addr);
+
+    // Search for the section the addr is in, avoid duplication for heap/stack with type
+    if(!(type & R_ANAL_ADDR_TYPE_HEAP || type & R_ANAL_ADDR_TYPE_STACK)) {
+        // Attempt to find the address within a map
+        RDebugMap *map = r_debug_map_get(core->dbg, addr);
+        if (map && map->name && map->name[0]) {
+            json["mapname"] = map->name;
+        }
+
+        RBinSection *sect = r_bin_get_section_at(r_bin_cur_object (core->bin), addr, true);
+        if (sect && sect->name[0]) {
+            json["section"] = sect->name;
+        }
+    }
+
+    // Check if the address points to a register
+    RFlagItem *fi = r_flag_get_i(core->flags, addr);
+    if (fi) {
+        RRegItem *r = r_reg_get(core->dbg->reg, fi->name, -1);
+        if (r) {
+            json["reg"] = r->name;
+        }
+    }
+
+    // Attempt to find the address within a function
+    RAnalFunction *fcn = r_anal_get_fcn_in(core->anal, addr, 0);
+    if (fcn) {
+        json["fcn"] = fcn->name;
+    }
+
+    // Update type and permission information
+    if (type != 0) {
+        if (type & R_ANAL_ADDR_TYPE_HEAP) {
+            json["type"] = "heap";
+        } else if (type & R_ANAL_ADDR_TYPE_STACK) {
+            json["type"] = "stack";
+        } else if (type & R_ANAL_ADDR_TYPE_PROGRAM) {
+            json["type"] = "program";
+        } else if (type & R_ANAL_ADDR_TYPE_LIBRARY) {
+            json["type"] = "library";
+        } else if (type & R_ANAL_ADDR_TYPE_ASCII) {
+            json["type"] = "ascii";
+        } else if (type & R_ANAL_ADDR_TYPE_SEQUENCE) {
+            json["type"] = "sequence";
+        }
+
+        QString perms = "";
+        if (type & R_ANAL_ADDR_TYPE_READ) {
+            perms += "r";
+        }
+        if (type & R_ANAL_ADDR_TYPE_WRITE) {
+            perms += "w";
+        }
+        if (type & R_ANAL_ADDR_TYPE_EXEC) {
+            RAsmOp op;
+            buf.resize(32);
+            perms += "x";
+            // Instruction disassembly
+            r_io_read_at(core->io, addr, (unsigned char*)buf.data(), buf.size());
+            r_asm_set_pc(core->assembler, addr);
+            r_asm_disassemble(core->assembler, &op, (unsigned char*)buf.data(), buf.size());
+            json["asm"] = r_asm_op_get_asm(&op);
+        }
+
+        if (!perms.isEmpty()) {
+            json["perms"] = perms;
+        }
+    }
+
+    // Try to telescope further if depth permits it
+    if ((type & R_ANAL_ADDR_TYPE_READ) && !(type & R_ANAL_ADDR_TYPE_EXEC)) {
+        buf.resize(64);
+        ut32 *n32 = (ut32 *)buf.data();
+        ut64 *n64 = (ut64 *)buf.data();
+        r_io_read_at(core->io, addr, (unsigned char*)buf.data(), buf.size());
+        ut64 n = (bits == 64)? *n64: *n32;
+        // The value of the next address will serve as an indication that there's more to
+        // telescope if we have reached the depth limit
+        json["value"] = QString::number(n);
+        if (depth && n != addr) {
+            // Make sure we aren't telescoping the same address
+            QJsonObject ref = getAddrRefs(n, depth - 1);
+            if (!ref.empty() && !ref["type"].isNull()) {
+                // If the dereference of the current pointer is an ascii character we
+                // might have a string in this address
+                if (ref["type"].toString().contains("ascii")) {
+                    buf.resize(128);
+                    r_io_read_at(core->io, addr, (unsigned char*)buf.data(), buf.size());
+                    QString strVal = QString(buf);
+                    // Indicate that the string is longer than the printed value
+                    if (strVal.size() == buf.size()) {
+                        strVal += "...";
+                    }
+                    json["string"] = strVal;
+                }
+                json["ref"] = ref;
+            }
+        }
+    }
+    return json;
 }
 
 QJsonDocument CutterCore::getProcessThreads(int pid)
