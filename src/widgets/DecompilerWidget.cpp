@@ -66,6 +66,9 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
 
     decompilerSelectionEnabled = decompilers.size() > 1;
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
+    // if available, set r2ghidra as default decompiler
+    ui->decompilerComboBox->setCurrentText("Ghidra");
+
 
     if (decompilers.isEmpty()) {
         ui->textEdit->setPlainText(tr("No Decompiler available."));
