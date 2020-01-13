@@ -29,6 +29,8 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
 
     ui->copyMD5->setIcon(QIcon(":/img/icons/copy.svg"));
     ui->copySHA1->setIcon(QIcon(":/img/icons/copy.svg"));
+    ui->copySHA256->setIcon(QIcon(":/img/icons/copy.svg"));
+    ui->copyCRC32->setIcon(QIcon(":/img/icons/copy.svg"));
 
 
     ui->splitter->setChildrenCollapsible(false);
@@ -51,10 +53,14 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
         showSidePanel(true);
     });
 
-    ui->bytesMD5->setPlaceholderText("Select bytes to display information");
-    ui->bytesEntropy->setPlaceholderText("Select bytes to display information");
-    ui->bytesSHA1->setPlaceholderText("Select bytes to display information");
-    ui->hexDisasTextEdit->setPlaceholderText("Select bytes to display information");
+    // Set placeholders for the line-edit components
+    QString placeholder = tr("Select bytes to display information");
+    ui->bytesMD5->setPlaceholderText(placeholder);
+    ui->bytesEntropy->setPlaceholderText(placeholder);
+    ui->bytesSHA1->setPlaceholderText(placeholder);
+    ui->bytesSHA256->setPlaceholderText(placeholder);
+    ui->bytesCRC32->setPlaceholderText(placeholder);
+    ui->hexDisasTextEdit->setPlaceholderText(placeholder);
 
     setupFonts();
 
@@ -190,6 +196,8 @@ void HexdumpWidget::clearParseWindow()
     ui->bytesEntropy->setText("");
     ui->bytesMD5->setText("");
     ui->bytesSHA1->setText("");
+    ui->bytesSHA256->setText("");
+    ui->bytesCRC32->setText("");
 }
 
 void HexdumpWidget::showSidePanel(bool show)
@@ -271,9 +279,13 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         // Fill the information tab hashes and entropy
         ui->bytesMD5->setText(Core()->cmd("ph md5 " + argument).trimmed());
         ui->bytesSHA1->setText(Core()->cmd("ph sha1 " + argument).trimmed());
+        ui->bytesSHA256->setText(Core()->cmd("ph sha256 " + argument).trimmed());
+        ui->bytesCRC32->setText(Core()->cmd("ph crc32 " + argument).trimmed());
         ui->bytesEntropy->setText(Core()->cmd("ph entropy " + argument).trimmed());
         ui->bytesMD5->setCursorPosition(0);
         ui->bytesSHA1->setCursorPosition(0);
+        ui->bytesSHA256->setCursorPosition(0);
+        ui->bytesCRC32->setCursorPosition(0);
     }
 }
 
@@ -333,8 +345,7 @@ void HexdumpWidget::on_copyMD5_clicked()
     QString md5 = ui->bytesMD5->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(md5);
-    // FIXME
-    // this->main->addOutput("MD5 copied to clipboard: " + md5);
+    Core()->message("MD5 copied to clipboard: " + md5);
 }
 
 void HexdumpWidget::on_copySHA1_clicked()
@@ -342,10 +353,24 @@ void HexdumpWidget::on_copySHA1_clicked()
     QString sha1 = ui->bytesSHA1->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(sha1);
-    // FIXME
-    // this->main->addOutput("SHA1 copied to clipboard: " + sha1);
+    Core()->message("SHA1 copied to clipboard: " + sha1);
 }
 
+void HexdumpWidget::on_copySHA256_clicked()
+{
+    QString sha256 = ui->bytesSHA256->text();
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(sha256);
+    Core()->message("SHA256 copied to clipboard: " + sha256);
+}
+
+void HexdumpWidget::on_copyCRC32_clicked()
+{
+    QString crc32 = ui->bytesCRC32->text();
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(crc32);
+    Core()->message("CRC32 copied to clipboard: " + crc32);
+}
 
 void HexdumpWidget::selectHexPreview()
 {
