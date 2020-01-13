@@ -53,7 +53,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
         showSidePanel(true);
     });
 
-    // Set placholders for the lin-edit components
+    // Set placeholders for the line-edit components
     QString placeholder = tr("Select bytes to display information");
     ui->bytesMD5->setPlaceholderText(placeholder);
     ui->bytesEntropy->setPlaceholderText(placeholder);
@@ -345,8 +345,7 @@ void HexdumpWidget::on_copyMD5_clicked()
     QString md5 = ui->bytesMD5->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(md5);
-    // FIXME
-    // this->main->addOutput("MD5 copied to clipboard: " + md5);
+    Core()->message("MD5 copied to clipboard: " + md5);
 }
 
 void HexdumpWidget::on_copySHA1_clicked()
@@ -354,8 +353,7 @@ void HexdumpWidget::on_copySHA1_clicked()
     QString sha1 = ui->bytesSHA1->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(sha1);
-    // FIXME
-    // this->main->addOutput("SHA1 copied to clipboard: " + sha1);
+    Core()->message("SHA1 copied to clipboard: " + sha1);
 }
 
 void HexdumpWidget::on_copySHA256_clicked()
@@ -363,8 +361,7 @@ void HexdumpWidget::on_copySHA256_clicked()
     QString sha256 = ui->bytesSHA256->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(sha256);
-    // FIXME
-    // this->main->addOutput("SHA1 copied to clipboard: " + sha1);
+    Core()->message("SHA256 copied to clipboard: " + sha256);
 }
 
 void HexdumpWidget::on_copyCRC32_clicked()
@@ -372,8 +369,7 @@ void HexdumpWidget::on_copyCRC32_clicked()
     QString crc32 = ui->bytesCRC32->text();
     QClipboard *clipboard = QApplication::clipboard();
     clipboard->setText(crc32);
-    // FIXME
-    // this->main->addOutput("SHA1 copied to clipboard: " + sha1);
+    Core()->message("CRC32 copied to clipboard: " + crc32);
 }
 
 void HexdumpWidget::selectHexPreview()
