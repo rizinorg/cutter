@@ -36,7 +36,7 @@ On Arch-based Linux distributions, build-essential should be replaced by base-de
 
 ::
 
-   sudo pacman -Syu git base-devel cmake meson
+   sudo pacman -Syu git base-devel cmake meson qt5-base qt5-svg
 
 Building steps
 ~~~~~~~~~~~~~~
