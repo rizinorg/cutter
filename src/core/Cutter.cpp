@@ -996,12 +996,20 @@ QString CutterCore::disassembleSingleInstruction(RVA addr)
     return cmd("pi 1@" + QString::number(addr)).simplified();
 }
 
+RAnalFunction *CutterCore::functionIn(ut64 addr)
+{
+    CORE_LOCK();
+    RList *fcns = r_anal_get_functions_in (core->anal, addr);
+    RAnalFunction *fcn = !r_list_empty(fcns) ? reinterpret_cast<RAnalFunction *>(r_list_first(fcns)) : nullptr;
+    r_list_free(fcns);
+    return fcn;
+}
+
 RAnalFunction *CutterCore::functionAt(ut64 addr)
 {
     CORE_LOCK();
-    return r_anal_get_fcn_in(core->anal, addr, 0);
+    return r_anal_get_function_at(core->anal, addr);
 }
-
 
 /**
  * @brief finds the start address of a function in a given address
@@ -1011,7 +1019,7 @@ RAnalFunction *CutterCore::functionAt(ut64 addr)
 RVA CutterCore::getFunctionStart(RVA addr)
 {
     CORE_LOCK();
-    RAnalFunction *fcn = Core()->functionAt(addr);
+    RAnalFunction *fcn = Core()->functionIn(addr);
     return fcn ? fcn->addr : RVA_INVALID;
 }
 
@@ -1023,7 +1031,7 @@ RVA CutterCore::getFunctionStart(RVA addr)
 RVA CutterCore::getFunctionEnd(RVA addr)
 {
     CORE_LOCK();
-    RAnalFunction *fcn = Core()->functionAt(addr);
+    RAnalFunction *fcn = Core()->functionIn(addr);
     return fcn ? fcn->addr : RVA_INVALID;
 }
 
@@ -1035,7 +1043,7 @@ RVA CutterCore::getFunctionEnd(RVA addr)
 RVA CutterCore::getLastFunctionInstruction(RVA addr)
 {
     CORE_LOCK();
-    RAnalFunction *fcn = Core()->functionAt(addr);
+    RAnalFunction *fcn = Core()->functionIn(addr);
     if (!fcn) {
         return RVA_INVALID;
     }
@@ -2343,7 +2351,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
     CutterRListForeach (core->anal->fcns, iter, RAnalFunction, fcn) {
         FunctionDescription function;
         function.offset = fcn->addr;
-        function.size = r_anal_fcn_size(fcn);
+        function.linearSize = r_anal_function_linear_size(fcn);
         function.nargs = r_anal_var_count(core->anal, fcn, 'b', 1) +
             r_anal_var_count(core->anal, fcn, 'r', 1) +
             r_anal_var_count(core->anal, fcn, 's', 1);

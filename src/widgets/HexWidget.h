@@ -134,7 +134,7 @@ public:
         }
         m_blocks.clear();
         uint64_t addr = alignedAddr;
-        for (int i = 0; i < len / blockSize; ++i, addr += blockSize) {
+        for (ut64 i = 0; i < len / blockSize; ++i, addr += blockSize) {
             m_blocks.append(Core()->ioRead(addr, blockSize));
         }
     }

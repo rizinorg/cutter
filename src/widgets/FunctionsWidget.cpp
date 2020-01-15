@@ -122,7 +122,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
                 case 0:
                     return tr("Offset: %1").arg(RAddressString(function.offset));
                 case 1:
-                    return tr("Size: %1").arg(RSizeString(function.size));
+                    return tr("Size: %1").arg(RSizeString(function.linearSize));
                 case 2:
                     return tr("Import: %1").arg(functionIsImport(function.offset) ? tr("true") : tr("false"));
                 case 3:
@@ -147,7 +147,7 @@ QVariant FunctionModel::data(const QModelIndex &index, int role) const
             case NameColumn:
                 return function.name;
             case SizeColumn:
-                return QString::number(function.size);
+                return QString::number(function.linearSize);
             case OffsetColumn:
                 return RAddressString(function.offset);
             case NargsColumn:
@@ -383,8 +383,8 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
         case FunctionModel::OffsetColumn:
             return left_function.offset < right_function.offset;
         case FunctionModel::SizeColumn:
-            if (left_function.size != right_function.size)
-                return left_function.size < right_function.size;
+            if (left_function.linearSize != right_function.linearSize)
+                return left_function.linearSize < right_function.linearSize;
             break;
         case FunctionModel::ImportColumn: {
             bool left_is_import = left.data(FunctionModel::IsImportRole).toBool();

@@ -13,7 +13,7 @@
 
 struct FunctionDescription {
     RVA offset;
-    RVA size;
+    RVA linearSize;
     RVA nargs;
     RVA nbbs;
     RVA nlocals;
@@ -24,7 +24,9 @@ struct FunctionDescription {
 
     bool contains(RVA addr) const
     {
-        return addr >= offset && addr < offset + size;
+        // TODO: this is not exactly correct in edge cases.
+        // r_anal_function_contains() does it right.
+        return addr >= offset && addr < offset + linearSize;
     }
 };
 
