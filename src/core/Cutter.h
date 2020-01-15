@@ -111,7 +111,19 @@ public:
     void renameFunction(const QString &oldName, const QString &newName);
     void delFunction(RVA addr);
     void renameFlag(QString old_name, QString new_name);
+
+    /**
+     * @param addr
+     * @return a function that contains addr or nullptr
+     */
+    RAnalFunction *functionIn(ut64 addr);
+
+    /**
+     * @param addr
+     * @return the function that has its entrypoint at addr or nullptr
+     */
     RAnalFunction *functionAt(ut64 addr);
+
     RVA getFunctionStart(RVA addr);
     RVA getFunctionEnd(RVA addr);
     RVA getLastFunctionInstruction(RVA addr);

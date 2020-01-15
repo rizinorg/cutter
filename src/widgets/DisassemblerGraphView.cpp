@@ -226,7 +226,7 @@ void DisassemblerGraphView::loadCurrentGraph()
     .set("asm.lines.fcn", false);
 
     QJsonArray functions;
-    RAnalFunction *fcn = Core()->functionAt(seekable->getOffset());
+    RAnalFunction *fcn = Core()->functionIn(seekable->getOffset());
     if (fcn) {
         currentFcnAddr = fcn->addr;
         QJsonDocument functionsDoc = Core()->cmdj("agJ " + RAddressString(fcn->addr));
@@ -1091,7 +1091,7 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
     }
 
     QString defaultName = "graph";
-    if (auto f = Core()->functionAt(currentFcnAddr)) {
+    if (auto f = Core()->functionIn(currentFcnAddr)) {
         QString functionName = f->name;
         // don't confuse image type guessing and make c++ names somewhat usable
         functionName.replace(QRegularExpression("[.:]"), "_");
