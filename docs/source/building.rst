@@ -26,11 +26,17 @@ On Linux, you will need:
 * qt5-svg
 * pkgconf
 
-On some Linux distributions, all of these packages can be installed with this single command:
+On Debian-based Linux distributions, all of these packages can be installed with this single command:
 
 ::
 
    sudo apt install git build-essential cmake meson libzip-dev zlib1g-dev qt5-default libqt5svg5-dev
+
+On Arch-based Linux distributions, build-essential should be replaced by base-devel:
+
+::
+
+   sudo pacman -Syu git base-devel cmake meson qt5-base qt5-svg
 
 Building steps
 ~~~~~~~~~~~~~~
