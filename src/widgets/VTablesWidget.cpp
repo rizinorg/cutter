@@ -163,6 +163,8 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
     
     connect(Core(), &CutterCore::codeRebased, this, &VTablesWidget::refreshVTables);
     connect(Core(), &CutterCore::refreshAll, this, &VTablesWidget::refreshVTables);
+
+    refreshDeferrer = createRefreshDeferrer([this](){ refreshVTables(); });
 }
 
 VTablesWidget::~VTablesWidget()
@@ -171,6 +173,10 @@ VTablesWidget::~VTablesWidget()
 
 void VTablesWidget::refreshVTables()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     model->beginResetModel();
     vtables = Core()->getAllVTables();
     model->endResetModel();
