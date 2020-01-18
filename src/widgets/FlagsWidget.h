@@ -5,6 +5,7 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
+#include <QStandardItemModel>
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
@@ -38,6 +39,8 @@ public:
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
+
+    const FlagDescription *description(QModelIndex index) const;
 };
 
 
@@ -81,6 +84,7 @@ private:
     std::unique_ptr<Ui::FlagsWidget> ui;
     MainWindow *main;
 
+    bool disableFlagRefresh = false;
     FlagsModel *flags_model;
     FlagsSortFilterProxyModel *flags_proxy_model;
     QList<FlagDescription> flags;
