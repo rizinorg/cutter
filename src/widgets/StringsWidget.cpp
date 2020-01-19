@@ -88,6 +88,11 @@ RVA StringsModel::address(const QModelIndex &index) const
     return str.vaddr;
 }
 
+const StringDescription *StringsModel::description(const QModelIndex &index) const
+{
+    return &strings->at(index.row());
+}
+
 StringsProxyModel::StringsProxyModel(StringsModel *sourceModel, QObject *parent)
     : AddressableFilterProxyModel(sourceModel, parent)
 {
@@ -107,30 +112,30 @@ bool StringsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
 
 bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    auto leftStr = left.data(StringsModel::StringDescriptionRole).value<StringDescription>();
-    auto rightStr = right.data(StringsModel::StringDescriptionRole).value<StringDescription>();
+    auto model = static_cast<StringsModel*>(sourceModel());
+    auto leftStr = model->description(left);
+    auto rightStr = model->description(right);
 
     switch (left.column()) {
     case StringsModel::OffsetColumn:
-        return leftStr.vaddr < rightStr.vaddr;
+        return leftStr->vaddr < rightStr->vaddr;
     case StringsModel::StringColumn: // sort by string
-        return leftStr.string < rightStr.string;
+        return leftStr->string < rightStr->string;
     case StringsModel::TypeColumn: // sort by type
-        return leftStr.type < rightStr.type;
+        return leftStr->type < rightStr->type;
     case StringsModel::SizeColumn: // sort by size
-        return leftStr.size < rightStr.size;
+        return leftStr->size < rightStr->size;
     case StringsModel::LengthColumn: // sort by length
-        return leftStr.length < rightStr.length;
+        return leftStr->length < rightStr->length;
     case StringsModel::SectionColumn:
-        return leftStr.section < rightStr.section;
+        return leftStr->section < rightStr->section;
     default:
         break;
     }
 
     // fallback
-    return leftStr.vaddr < rightStr.vaddr;
+    return leftStr->vaddr < rightStr->vaddr;
 }
-
 
 StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
@@ -162,7 +167,7 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     proxyModel = new StringsProxyModel(model, this);
     ui->stringsTreeView->setMainWindow(main);
     ui->stringsTreeView->setModel(proxyModel);
-    ui->stringsTreeView->sortByColumn(StringsModel::OffsetColumn, Qt::AscendingOrder);
+    ui->stringsTreeView->sortByColumn(-1, Qt::AscendingOrder);
 
     //
     auto menu = ui->stringsTreeView->getItemContextMenu();
@@ -235,7 +240,6 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     this->strings = strings;
     model->endResetModel();
 
-    qhelpers::adjustColumns(ui->stringsTreeView, 5, 0);
     if (ui->stringsTreeView->columnWidth(1) > 300)
         ui->stringsTreeView->setColumnWidth(1, 300);
 

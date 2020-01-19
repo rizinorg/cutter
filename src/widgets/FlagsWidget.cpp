@@ -253,8 +253,6 @@ void FlagsWidget::refreshFlags()
     flags = Core()->getAllFlags(flagspace);
     flags_model->endResetModel();
 
-    //qhelpers::adjustColumns(ui->flagsTreeView, 2, 0);
-
     tree->showItemsNumber(flags_proxy_model->rowCount());
     
     // TODO: this is not a very good place for the following:
