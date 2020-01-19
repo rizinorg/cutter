@@ -202,6 +202,12 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
             tree->showItemsNumber(proxyModel->rowCount());
         }
     );
+
+    auto header = ui->stringsTreeView->header();
+    header->setSectionResizeMode(QHeaderView::ResizeMode::ResizeToContents);
+    header->setSectionResizeMode(StringsModel::StringColumn, QHeaderView::ResizeMode::Stretch);
+    header->setStretchLastSection(false);
+    header->setResizeContentsPrecision(256);
 }
 
 StringsWidget::~StringsWidget() {}
@@ -239,9 +245,6 @@ void StringsWidget::stringSearchFinished(const QList<StringDescription> &strings
     model->beginResetModel();
     this->strings = strings;
     model->endResetModel();
-
-    if (ui->stringsTreeView->columnWidth(1) > 300)
-        ui->stringsTreeView->setColumnWidth(1, 300);
 
     tree->showItemsNumber(proxyModel->rowCount());
 
