@@ -112,7 +112,7 @@ bool StringsProxyModel::filterAcceptsRow(int row, const QModelIndex &parent) con
 
 bool StringsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    auto model = static_cast<StringsModel*>(sourceModel());
+    auto model = static_cast<StringsModel *>(sourceModel());
     auto leftStr = model->description(left);
     auto rightStr = model->description(right);
 
@@ -181,7 +181,8 @@ StringsWidget::StringsWidget(MainWindow *main, QAction *action) :
     });
 
     QShortcut *searchShortcut = new QShortcut(QKeySequence::Find, this);
-    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView, &ComboQuickFilterView::showFilter);
+    connect(searchShortcut, &QShortcut::activated, ui->quickFilterView,
+            &ComboQuickFilterView::showFilter);
     searchShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
     QShortcut *clearShortcut = new QShortcut(QKeySequence(Qt::Key_Escape), this);

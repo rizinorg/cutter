@@ -73,8 +73,8 @@ QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
 
 RVA FlagsModel::address(const QModelIndex &index) const
 {
-   const FlagDescription &flag = flags->at(index.row());
-   return flag.offset;
+    const FlagDescription &flag = flags->at(index.row());
+    return flag.offset;
 }
 
 QString FlagsModel::name(const QModelIndex &index) const
@@ -105,7 +105,7 @@ bool FlagsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &par
 
 bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
 {
-    auto source = static_cast<FlagsModel*>(sourceModel());
+    auto source = static_cast<FlagsModel *>(sourceModel());
     auto left_flag = source->description(left);
     auto right_flag = source->description(right);
 
@@ -254,7 +254,7 @@ void FlagsWidget::refreshFlags()
     flags_model->endResetModel();
 
     tree->showItemsNumber(flags_proxy_model->rowCount());
-    
+
     // TODO: this is not a very good place for the following:
     QStringList flagNames;
     for (const FlagDescription &i : flags)

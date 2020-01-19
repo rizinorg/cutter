@@ -160,11 +160,11 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
         tree->showItemsNumber(proxy->rowCount());
     });
-    
+
     connect(Core(), &CutterCore::codeRebased, this, &VTablesWidget::refreshVTables);
     connect(Core(), &CutterCore::refreshAll, this, &VTablesWidget::refreshVTables);
 
-    refreshDeferrer = createRefreshDeferrer([this](){ refreshVTables(); });
+    refreshDeferrer = createRefreshDeferrer([this]() { refreshVTables(); });
 }
 
 VTablesWidget::~VTablesWidget()
