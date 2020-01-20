@@ -7,6 +7,7 @@ CutterTreeView::CutterTreeView(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    this->setUniformRowHeights(true);
 }
 
 CutterTreeView::~CutterTreeView() {}
