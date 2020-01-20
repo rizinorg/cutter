@@ -56,6 +56,11 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
 
     auto decompilers = Core()->getDecompilers();
     auto selectedDecompilerId = Config()->getSelectedDecompiler();
+    if (selectedDecompilerId.isEmpty()) {
+        // If no decompiler was previously chosen. set r2ghidra as default decompiler
+        selectedDecompilerId = "r2ghidra";
+    }
+
     for (auto dec : decompilers) {
         ui->decompilerComboBox->addItem(dec->getName(), dec->getId());
         if (dec->getId() == selectedDecompilerId) {
@@ -66,9 +71,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
 
     decompilerSelectionEnabled = decompilers.size() > 1;
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
-    // if available, set r2ghidra as default decompiler
-    ui->decompilerComboBox->setCurrentText("Ghidra");
-
 
     if (decompilers.isEmpty()) {
         ui->textEdit->setPlainText(tr("No Decompiler available."));
