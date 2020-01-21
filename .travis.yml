@@ -18,6 +18,9 @@ matrix:
       apt:
         packages:
          - ninja-build
+    before_install:
+      - pyenv global 3.7
+      - pip install meson
 
   - name: Linux CMake
     os: linux
@@ -224,6 +227,7 @@ after_success:
       cp ../src/translations/*.qm appdir/usr/bin/translations/ &&
       "$TRAVIS_BUILD_DIR/scripts/appimage_embed_python.sh" appdir &&
       "$TRAVIS_BUILD_DIR/scripts/r2ghidra.sh" -DCMAKE_INSTALL_PREFIX="`pwd`/appdir/usr" -DBUILD_CUTTER_PLUGIN=ON -DCUTTER_SOURCE_DIR="$TRAVIS_BUILD_DIR" &&
+      "$TRAVIS_BUILD_DIR/scripts/r2dec.sh" --prefix=`pwd`/appdir/usr &&
       wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage" &&
       chmod a+x linuxdeployqt*.AppImage &&
       rm -fv "$TRAVIS_BUILD_DIR/cutter-deps/qt/plugins/imageformats/libqjp2.so" &&
