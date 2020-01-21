@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>652</width>
-    <height>725</height>
+    <height>686</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,282 +36,331 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_4">
          <item>
-          <widget class="QGroupBox" name="disassemblyGroupBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
+          <widget class="QScrollArea" name="scrollArea">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="title">
-            <string>Disassembly</string>
+           <property name="widgetResizable">
+            <bool>true</bool>
            </property>
-           <layout class="QGridLayout" name="gridLayout">
-            <item row="5" column="2">
-             <widget class="QComboBox" name="caseComboBox">
-              <item>
-               <property name="text">
-                <string>Lowercase</string>
+           <widget class="QWidget" name="scrollAreaWidgetContents">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>583</width>
+              <height>668</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QGroupBox" name="disassemblyGroupBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Uppercase (asm.ucase)</string>
+               <property name="title">
+                <string>Disassembly</string>
                </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Capitalize (asm.capitalize)</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="11" column="2">
-             <widget class="QSpinBox" name="asmTabsOffSpinBox">
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-            <item row="10" column="1">
-             <widget class="QLabel" name="asmTabsLabel">
-              <property name="text">
-               <string>Tabs in assembly (asm.tabs):</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="2">
-             <widget class="QComboBox" name="syntaxComboBox"/>
-            </item>
-            <item row="10" column="2">
-             <widget class="QSpinBox" name="asmTabsSpinBox">
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="singleStep">
-               <number>5</number>
-              </property>
-             </widget>
-            </item>
-            <item row="14" column="1" colspan="2">
-             <widget class="QCheckBox" name="bytespaceCheckBox">
-              <property name="text">
-               <string>Separate bytes with whitespace (asm.bytespace)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1">
-             <widget class="QLabel" name="syntaxLabel">
-              <property name="text">
-               <string>Syntax (asm.syntax):</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1" colspan="2">
-             <widget class="QCheckBox" name="indentCheckBox">
-              <property name="text">
-               <string>Indent disassembly based on reflines depth (asm.indent)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="7" column="1">
-             <widget class="QCheckBox" name="offsetCheckBox">
-              <property name="text">
-               <string>Show offsets (asm.offset)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="1">
-             <widget class="QLabel" name="asmTabsOffLabel">
-              <property name="text">
-               <string>Tabs before assembly (asm.tabs.off):</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QLabel" name="label">
-              <property name="text">
-               <string>Show Disassembly as:</string>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="9" column="1" colspan="2">
-             <widget class="QCheckBox" name="bblineCheckBox">
-              <property name="text">
-               <string>Show empty line after every basic block (asm.bb.line)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1" colspan="2">
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="3" column="2" colspan="2">
-             <widget class="QComboBox" name="asmComboBox">
-              <item>
-               <property name="text">
-                <string>Normal</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>ESIL (asm.esil)</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>Pseudocode (asm.pseudo)</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="13" column="1" colspan="2">
-             <widget class="QCheckBox" name="lbytesCheckBox">
-              <property name="text">
-               <string>Align bytes to the left (asm.lbytes)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="1">
-             <widget class="QCheckBox" name="bytesCheckBox">
-              <property name="text">
-               <string>Display the bytes of each instruction (asm.bytes)</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="commentsGroupBox">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-             <horstretch>0</horstretch>
-             <verstretch>1</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="title">
-            <string>Comments</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_6">
-            <item row="1" column="0">
-             <layout class="QGridLayout" name="gridLayout_5" columnminimumwidth="0,0">
-              <item row="1" column="0" colspan="2">
-               <widget class="QCheckBox" name="describeCheckBox">
-                <property name="text">
-                 <string>Show opcode description (asm.describe)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QComboBox" name="commentsComboBox">
-                <item>
-                 <property name="text">
-                  <string>Normal</string>
-                 </property>
+               <layout class="QGridLayout" name="gridLayout">
+                <item row="9" column="2">
+                 <widget class="QSpinBox" name="nbytesSpinBox">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
-                <item>
-                 <property name="text">
-                  <string>Above instructions</string>
-                 </property>
+                <item row="9" column="1">
+                 <widget class="QLabel" name="nbytesLabel">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
+                  <property name="text">
+                   <string>Number of bytes to display (asm.nbytes):</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
                 </item>
-                <item>
-                 <property name="text">
-                  <string>Off</string>
-                 </property>
+                <item row="13" column="1">
+                 <widget class="QLabel" name="asmTabsOffLabel">
+                  <property name="text">
+                   <string>Tabs before assembly (asm.tabs.off):</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
                 </item>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QLabel" name="label_2">
-                <property name="text">
-                 <string>Show comments:</string>
-                </property>
-                <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="1">
-               <widget class="QSpinBox" name="cmtcolSpinBox">
-                <property name="maximum">
-                 <number>100</number>
-                </property>
-                <property name="singleStep">
-                 <number>5</number>
-                </property>
-               </widget>
-              </item>
-              <item row="4" column="0">
-               <widget class="QLabel" name="cmtcolLabel">
-                <property name="text">
-                 <string>Column to align comments (asm.cmt.col):</string>
-                </property>
-                <property name="textInteractionFlags">
-                 <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <widget class="QCheckBox" name="xrefCheckBox">
-                <property name="text">
-                 <string>Show x-refs (asm.xrefs)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="3" column="0" colspan="2">
-               <widget class="QCheckBox" name="refptrCheckBox">
-                <property name="text">
-                 <string>Show refpointer information (asm.refptr)</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="0" column="0">
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>10</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+                <item row="3" column="1">
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Show Disassembly as:</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="13" column="2">
+                 <widget class="QSpinBox" name="asmTabsOffSpinBox">
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="16" column="1" colspan="2">
+                 <widget class="QCheckBox" name="bytespaceCheckBox">
+                  <property name="text">
+                   <string>Separate bytes with whitespace (asm.bytespace)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="14" column="1" colspan="2">
+                 <widget class="QCheckBox" name="indentCheckBox">
+                  <property name="text">
+                   <string>Indent disassembly based on reflines depth (asm.indent)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="2">
+                 <widget class="QSpinBox" name="asmTabsSpinBox">
+                  <property name="maximum">
+                   <number>100</number>
+                  </property>
+                  <property name="singleStep">
+                   <number>5</number>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="1">
+                 <widget class="QLabel" name="asmTabsLabel">
+                  <property name="text">
+                   <string>Tabs in assembly (asm.tabs):</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="15" column="1" colspan="2">
+                 <widget class="QCheckBox" name="lbytesCheckBox">
+                  <property name="text">
+                   <string>Align bytes to the left (asm.lbytes)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" colspan="2">
+                 <spacer name="verticalSpacer_3">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>10</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="5" column="2">
+                 <widget class="QComboBox" name="caseComboBox">
+                  <item>
+                   <property name="text">
+                    <string>Lowercase</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Uppercase (asm.ucase)</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Capitalize (asm.capitalize)</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="3" column="2" colspan="2">
+                 <widget class="QComboBox" name="asmComboBox">
+                  <item>
+                   <property name="text">
+                    <string>Normal</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>ESIL (asm.esil)</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>Pseudocode (asm.pseudo)</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item row="11" column="1" colspan="2">
+                 <widget class="QCheckBox" name="bblineCheckBox">
+                  <property name="text">
+                   <string>Show empty line after every basic block (asm.bb.line)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="1">
+                 <widget class="QCheckBox" name="offsetCheckBox">
+                  <property name="text">
+                   <string>Show offsets (asm.offset)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="1">
+                 <widget class="QLabel" name="syntaxLabel">
+                  <property name="text">
+                   <string>Syntax (asm.syntax):</string>
+                  </property>
+                  <property name="textInteractionFlags">
+                   <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="8" column="1">
+                 <widget class="QCheckBox" name="bytesCheckBox">
+                  <property name="text">
+                   <string>Display the bytes of each instruction (asm.bytes)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="QComboBox" name="syntaxComboBox"/>
+                </item>
+                <item row="10" column="1">
+                 <widget class="QCheckBox" name="realnameCheckBox">
+                  <property name="text">
+                   <string>Display flags' real name (asm.flags.real)</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="commentsGroupBox">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>1</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="title">
+                <string>Comments</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_6">
+                <item row="1" column="0">
+                 <layout class="QGridLayout" name="gridLayout_5" columnminimumwidth="0,0">
+                  <item row="1" column="0" colspan="2">
+                   <widget class="QCheckBox" name="describeCheckBox">
+                    <property name="text">
+                     <string>Show opcode description (asm.describe)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QComboBox" name="commentsComboBox">
+                    <item>
+                     <property name="text">
+                      <string>Normal</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Above instructions</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Off</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="label_2">
+                    <property name="text">
+                     <string>Show comments:</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QSpinBox" name="cmtcolSpinBox">
+                    <property name="maximum">
+                     <number>100</number>
+                    </property>
+                    <property name="singleStep">
+                     <number>5</number>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QLabel" name="cmtcolLabel">
+                    <property name="text">
+                     <string>Column to align comments (asm.cmt.col):</string>
+                    </property>
+                    <property name="textInteractionFlags">
+                     <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QCheckBox" name="xrefCheckBox">
+                    <property name="text">
+                     <string>Show x-refs (asm.xrefs)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0" colspan="2">
+                   <widget class="QCheckBox" name="refptrCheckBox">
+                    <property name="text">
+                     <string>Show refpointer information (asm.refptr)</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item row="0" column="0">
+                 <spacer name="verticalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Fixed</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>20</width>
+                    <height>10</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </item>
         </layout>
@@ -322,101 +371,109 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QCheckBox" name="slowCheckBox">
-           <property name="text">
-            <string>Slow Analysis (asm.slow)</string>
+          <widget class="QScrollArea" name="scrollArea_2">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
            </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="scrollAreaWidgetContents_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>581</width>
+              <height>302</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_6">
+             <item>
+              <widget class="QCheckBox" name="slowCheckBox">
+               <property name="text">
+                <string>Slow Analysis (asm.slow)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="linesCheckBox">
+               <property name="text">
+                <string>Show jump lines (asm.lines)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="fcnlinesCheckBox">
+               <property name="text">
+                <string>Show function boundary lines (asm.lines.fcn)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="flgoffCheckBox">
+               <property name="text">
+                <string>Show offset before flags (asm.flags.off)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="emuCheckBox">
+               <property name="text">
+                <string>Run ESIL emulation analysis (asm.emu)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="emuStrCheckBox">
+               <property name="text">
+                <string>Show only strings if any in the asm.emu output (emu.str)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="sizeCheckBox">
+               <property name="text">
+                <string>Show size of opcodes in disassembly (asm.size)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="varsumCheckBox">
+               <property name="text">
+                <string>Show variables summary instead of full list (asm.var.summary)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="varsubCheckBox">
+               <property name="text">
+                <string>Substitute variables (asm.var.sub)</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QCheckBox" name="varsubOnlyCheckBox">
+               <property name="text">
+                <string>Substitute entire variable expressions with names (asm.var.subonly)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="linesCheckBox">
-           <property name="text">
-            <string>Show jump lines (asm.lines)</string>
+          <spacer name="verticalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="fcnlinesCheckBox">
-           <property name="text">
-            <string>Show function boundary lines (asm.lines.fcn)</string>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
            </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="flgoffCheckBox">
-           <property name="text">
-            <string>Show offset before flags (asm.flags.off)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="emuCheckBox">
-           <property name="text">
-            <string>Run ESIL emulation analysis (asm.emu)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="emuStrCheckBox">
-           <property name="text">
-            <string>Show only strings if any in the asm.emu output (emu.str)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="sizeCheckBox">
-           <property name="text">
-            <string>Show size of opcodes in disassembly (asm.size)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="varsumCheckBox">
-           <property name="text">
-            <string>Show variables summary instead of full list (asm.var.summary)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <property name="leftMargin">
-            <number>16</number>
-           </property>
-           <item row="0" column="0">
-            <widget class="QLabel" name="nbytesLabel">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="text">
-              <string>Number of bytes to display (asm.nbytes):</string>
-             </property>
-             <property name="textInteractionFlags">
-              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QSpinBox" name="nbytesSpinBox">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="varsubCheckBox">
-           <property name="text">
-            <string>Substitute variables (asm.var.sub)</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="varsubOnlyCheckBox">
-           <property name="text">
-            <string>Substitute entire variable expressions with names (asm.var.subonly)</string>
-           </property>
-          </widget>
+          </spacer>
          </item>
         </layout>
        </widget>
