@@ -26,7 +26,7 @@ private:
     QList<FlagDescription> *flags;
 
 public:
-    enum Columns { OFFSET = 0, SIZE, NAME, COUNT };
+    enum Columns { OFFSET = 0, SIZE, NAME, REALNAME, COUNT };
     static const int FlagDescriptionRole = Qt::UserRole;
 
     FlagsModel(QList<FlagDescription> *flags, QObject *parent = nullptr);
@@ -40,6 +40,7 @@ public:
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
+    QString realname(const QModelIndex &index) const;
 
     const FlagDescription *description(QModelIndex index) const;
 };

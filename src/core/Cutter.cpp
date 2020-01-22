@@ -66,6 +66,7 @@ namespace RJsonKey {
     R_JSON_KEY(license);
     R_JSON_KEY(methods);
     R_JSON_KEY(name);
+    R_JSON_KEY(realname);
     R_JSON_KEY(nargs);
     R_JSON_KEY(nbbs);
     R_JSON_KEY(nlocals);
@@ -73,6 +74,7 @@ namespace RJsonKey {
     R_JSON_KEY(opcode);
     R_JSON_KEY(opcodes);
     R_JSON_KEY(ordinal);
+    R_JSON_KEY(libname);
     R_JSON_KEY(outdegree);
     R_JSON_KEY(paddr);
     R_JSON_KEY(path);
@@ -2385,6 +2387,7 @@ QList<ImportDescription> CutterCore::getAllImports()
         import.ordinal = importObject[RJsonKey::ordinal].toInt();
         import.bind = importObject[RJsonKey::bind].toString();
         import.type = importObject[RJsonKey::type].toString();
+        import.libname = importObject[RJsonKey::libname].toString();
         import.name = importObject[RJsonKey::name].toString();
 
         ret << import;
@@ -2622,6 +2625,7 @@ QList<FlagDescription> CutterCore::getAllFlags(QString flagspace)
         flag.offset = flagObject[RJsonKey::offset].toVariant().toULongLong();
         flag.size = flagObject[RJsonKey::size].toVariant().toULongLong();
         flag.name = flagObject[RJsonKey::name].toString();
+        flag.realname = flagObject[RJsonKey::realname].toString();
 
         ret << flag;
     }

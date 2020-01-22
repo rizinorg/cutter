@@ -42,6 +42,8 @@ QVariant FlagsModel::data(const QModelIndex &index, int role) const
             return RAddressString(flag.offset);
         case NAME:
             return flag.name;
+        case REALNAME:
+            return flag.realname;
         default:
             return QVariant();
         }
@@ -63,6 +65,8 @@ QVariant FlagsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Offset");
         case NAME:
             return tr("Name");
+        case REALNAME:
+            return tr("Real Name");
         default:
             return QVariant();
         }
@@ -83,6 +87,12 @@ QString FlagsModel::name(const QModelIndex &index) const
     return flag.name;
 }
 
+QString FlagsModel::realname(const QModelIndex &index) const
+{
+    const FlagDescription &flag = flags->at(index.row());
+    return flag.realname;
+}
+
 const FlagDescription *FlagsModel::description(QModelIndex index) const
 {
     if (index.row() < flags->size()) {
@@ -100,7 +110,7 @@ bool FlagsSortFilterProxyModel::filterAcceptsRow(int row, const QModelIndex &par
 {
     QModelIndex index = sourceModel()->index(row, 0, parent);
     FlagDescription flag = index.data(FlagsModel::FlagDescriptionRole).value<FlagDescription>();
-    return flag.name.contains(filterRegExp());
+    return flag.name.contains(filterRegExp()) || flag.realname.contains(filterRegExp());
 }
 
 bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -120,6 +130,10 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
     // fallthrough
     case FlagsModel::NAME:
         return left_flag->name < right_flag->name;
+    // fallthrough
+    case FlagsModel::REALNAME:
+        return left_flag->realname < right_flag->realname;
+
     default:
         break;
     }
