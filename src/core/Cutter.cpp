@@ -1921,6 +1921,10 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
     breakpoint = r_debug_bp_add(core->dbg, address, (config.hw && watchpoint_prot == 0),
                                 watchpoint_prot, watchpoint_prot,
                                 module, config.moduleDelta);
+    if (!breakpoint) {
+        QMessageBox::critical(nullptr, tr("Breakpoint error"), tr("Failed to create breakpoint"));
+        return;
+    }
     if (config.type == BreakpointDescription::Named) {
         updateOwnedCharPtr(breakpoint->expr, config.positionExpression);
     }
@@ -1932,10 +1936,6 @@ void CutterCore::addBreakpoint(const BreakpointDescription &config)
         updateOwnedCharPtr(breakpoint->name, config.positionExpression);
     }
 
-    if (!breakpoint) {
-        QMessageBox::critical(nullptr, tr("Breakpoint error"), tr("Failed to create breakpoint"));
-        return;
-    }
     int index = std::find(core->dbg->bp->bps_idx,
                           core->dbg->bp->bps_idx + core->dbg->bp->bps_idx_count,
                           breakpoint) - core->dbg->bp->bps_idx;
