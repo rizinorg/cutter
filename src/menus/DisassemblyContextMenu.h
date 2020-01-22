@@ -157,9 +157,11 @@ private:
 
     QMenu *debugMenu;
     QAction actionContinueUntil;
+    QAction actionSetPC;
+
+    QMenu *breakpointMenu;
     QAction actionAddBreakpoint;
     QAction actionAdvancedBreakpoint;
-    QAction actionSetPC;
 
     QAction actionSetToCode;
 
@@ -195,6 +197,7 @@ private:
     void addSetAsMenu();
     void addSetToDataMenu();
     void addEditMenu();
+    void addBreakpointMenu();
     void addDebugMenu();
 
     struct ThingUsedHere {
