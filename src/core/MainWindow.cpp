@@ -408,11 +408,6 @@ void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
     restoreExtraDock.restoreWidth(extraDock->widget());
 }
 
-/**
- * @brief Getter for MainWindow's different menus
- * @param type The type which represents the desired menu
- * @return The requested menu or nullptr if "type" is invalid
-**/
 QMenu *MainWindow::getMenuByType(MenuType type)
 {
     switch (type) {

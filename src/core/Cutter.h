@@ -6,6 +6,7 @@
 #include "common/BasicInstructionHighlighter.h"
 
 #include <QMap>
+#include <QMenu>
 #include <QDebug>
 #include <QObject>
 #include <QStringList>
@@ -419,6 +420,17 @@ public:
     QStringList getAsmPluginNames();
     QStringList getAnalPluginNames();
 
+    /* Context menu plugins */
+    enum class ContextMenuType { Disassembly, Addressable };
+    /**
+     * @brief Fetches the pointer to a context menu extension of type
+     * @param type - the type of the context menu
+     * @return plugins submenu of the selected context menu
+     */
+    QMenu *getContextMenuExtensions(ContextMenuType type);
+    void addContextMenuExtensionAction(ContextMenuType type, QAction *action);
+    void addContextMenuExtensionSeparator(ContextMenuType type);
+
     /* Projects */
     QStringList getProjectNames();
     void openProject(const QString &name);
@@ -628,6 +640,9 @@ private:
 
     QSharedPointer<R2Task> debugTask;
     R2TaskDialog *debugTaskDialog;
+
+    QMenu *disassemblyContextMenuExtensions = nullptr;
+    QMenu *addressableContextMenuExtensions = nullptr;
 };
 
 class RCoreLocked

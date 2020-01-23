@@ -153,6 +153,13 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addDebugMenu();
 
+    addSeparator();
+
+    pluginMenu = Core()->getContextMenuExtensions(CutterCore::ContextMenuType::Disassembly);
+    addMenu(pluginMenu);
+
+    addSeparator();
+
     connect(this, &DisassemblyContextMenu::aboutToShow,
             this, &DisassemblyContextMenu::aboutToShowSlot);
 }
@@ -515,6 +522,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
                                      tr("Edit breakpoint") : tr("Advanced breakpoint"));
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText("Set " + progCounterName + " here");
+
+    for (QAction *pluginAction : pluginMenu->actions()) {
+        pluginAction->setData(QVariant::fromValue(offset));
+    }
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const

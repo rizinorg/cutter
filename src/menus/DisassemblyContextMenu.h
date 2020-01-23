@@ -161,6 +161,8 @@ private:
     QAction actionAdvancedBreakpoint;
     QAction actionSetPC;
 
+    QMenu *pluginMenu;
+
     QAction actionSetToCode;
 
     QAction actionSetAsStringAuto;

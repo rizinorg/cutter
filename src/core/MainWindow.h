@@ -101,6 +101,11 @@ public:
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
+    /**
+     * @brief Getter for MainWindow's different menus
+     * @param type The type which represents the desired menu
+     * @return The requested menu or nullptr if "type" is invalid
+     */
     QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
 
