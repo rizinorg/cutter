@@ -130,7 +130,7 @@ bool FlagsSortFilterProxyModel::lessThan(const QModelIndex &left, const QModelIn
     // fallthrough
     case FlagsModel::NAME:
         return left_flag->name < right_flag->name;
-    // fallthrough
+    
     case FlagsModel::REALNAME:
         return left_flag->realname < right_flag->realname;
 
