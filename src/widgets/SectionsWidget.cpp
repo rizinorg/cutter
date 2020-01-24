@@ -57,11 +57,13 @@ QVariant SectionsModel::data(const QModelIndex &index, int role) const
         case SectionsModel::NameColumn:
             return section.name;
         case SectionsModel::SizeColumn:
-            return RSizeString(section.vsize);
+            return RSizeString(section.size);
         case SectionsModel::AddressColumn:
             return RAddressString(section.vaddr);
         case SectionsModel::EndAddressColumn:
             return RAddressString(section.vaddr + section.vsize);
+        case SectionsModel::VirtualSizeColumn:
+            return RSizeString(section.vsize);
         case SectionsModel::PermissionsColumn:
             return section.perm;
         case SectionsModel::EntropyColumn:
@@ -88,11 +90,13 @@ QVariant SectionsModel::headerData(int section, Qt::Orientation, int role) const
         case SectionsModel::NameColumn:
             return tr("Name");
         case SectionsModel::SizeColumn:
-            return tr("Virtual Size");
+            return tr("Size");
         case SectionsModel::AddressColumn:
             return tr("Address");
         case SectionsModel::EndAddressColumn:
             return tr("End Address");
+        case SectionsModel::VirtualSizeColumn:
+            return tr("Virtual Size");
         case SectionsModel::PermissionsColumn:
             return tr("Permissions");
         case SectionsModel::EntropyColumn:
@@ -134,12 +138,14 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     case SectionsModel::NameColumn:
         return leftSection.name < rightSection.name;
     case SectionsModel::SizeColumn:
-        return leftSection.vsize < rightSection.vsize;
+        return leftSection.size < rightSection.size;
     case SectionsModel::AddressColumn:
     case SectionsModel::EndAddressColumn:
         if (leftSection.vaddr != rightSection.vaddr) {
             return leftSection.vaddr < rightSection.vaddr;
         }
+        return leftSection.vsize < rightSection.vsize;
+    case SectionsModel::VirtualSizeColumn:
         return leftSection.vsize < rightSection.vsize;
     case SectionsModel::PermissionsColumn:
         return leftSection.perm < rightSection.perm;
@@ -172,7 +178,7 @@ void SectionsWidget::initSectionsTable()
     proxyModel = new SectionsProxyModel(sectionsModel, this);
     setModels(proxyModel);
 
-    ui->treeView->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
+    ui->treeView->sortByColumn(SectionsModel::AddressColumn, Qt::AscendingOrder);
 }
 
 void SectionsWidget::initQuickFilter()
