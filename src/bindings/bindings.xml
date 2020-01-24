@@ -13,6 +13,9 @@
     <object-type name="MainWindow" >
         <enum-type name="MenuType" />
     </object-type>
+    <object-type name="CutterApplication">
+        <modify-function signature="CutterApplication(int &amp;, char **)" remove="all"/>
+    </object-type>
     <object-type name="BasicBlockHighlighter" />
     <object-type name="CutterDockWidget" />
 
