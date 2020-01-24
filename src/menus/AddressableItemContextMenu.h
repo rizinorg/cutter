@@ -31,6 +31,7 @@ private:
 
     virtual void aboutToShowSlot();
 
+    QMenu *pluginMenu;
     MainWindow *mainWindow;
 
     RVA offset;

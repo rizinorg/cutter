@@ -6,7 +6,9 @@
 
     <primitive-type name="bool"/>
 
-    <object-type name="CutterCore" />
+    <object-type name="CutterCore">
+        <enum-type name="ContextMenuType" />
+    </object-type>
     <object-type name="Configuration" />
     <object-type name="MainWindow" >
         <enum-type name="MenuType" />
