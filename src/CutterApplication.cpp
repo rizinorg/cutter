@@ -208,10 +208,16 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 #ifdef APPIMAGE
     {
-        auto sleighHome = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
-        sleighHome.cdUp(); // appdir
+        auto appdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
+        appdir.cdUp(); // appdir
+
+        auto sleighHome = appdir;
         sleighHome.cd("share/radare2/plugins/r2ghidra_sleigh"); // appdir/share/radare2/plugins/r2ghidra_sleigh
         Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+
+        auto r2decHome = appdir;
+        appdir.cd("share/radare2/plugins/r2dec-js"); // appdir/share/radare2/plugins/r2dec-js
+        qputenv("R2DEC_HOME", appdir.absolutePath().toLocal8Bit());
     }
 #endif
 
