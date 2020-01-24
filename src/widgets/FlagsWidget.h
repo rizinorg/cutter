@@ -40,7 +40,6 @@ public:
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
-    QString realname(const QModelIndex &index) const;
 
     const FlagDescription *description(QModelIndex index) const;
 };
