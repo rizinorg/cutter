@@ -87,12 +87,6 @@ QString FlagsModel::name(const QModelIndex &index) const
     return flag.name;
 }
 
-QString FlagsModel::realname(const QModelIndex &index) const
-{
-    const FlagDescription &flag = flags->at(index.row());
-    return flag.realname;
-}
-
 const FlagDescription *FlagsModel::description(QModelIndex index) const
 {
     if (index.row() < flags->size()) {
