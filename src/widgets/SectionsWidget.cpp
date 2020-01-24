@@ -178,7 +178,7 @@ void SectionsWidget::initSectionsTable()
     proxyModel = new SectionsProxyModel(sectionsModel, this);
     setModels(proxyModel);
 
-    ui->treeView->sortByColumn(SectionsModel::NameColumn, Qt::AscendingOrder);
+    ui->treeView->sortByColumn(SectionsModel::AddressColumn, Qt::AscendingOrder);
 }
 
 void SectionsWidget::initQuickFilter()
