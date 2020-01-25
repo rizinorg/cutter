@@ -46,6 +46,8 @@ QVariant ImportsModel::data(const QModelIndex &index, int role) const
             return import.type;
         case ImportsModel::SafetyColumn:
             return banned.match(import.name).hasMatch() ? tr("Unsafe") : QStringLiteral("");
+        case ImportsModel::LibraryColumn:
+            return import.libname;
         case ImportsModel::NameColumn:
             return import.name;
         default:
@@ -72,6 +74,8 @@ QVariant ImportsModel::headerData(int section, Qt::Orientation, int role) const
             return tr("Type");
         case ImportsModel::SafetyColumn:
             return tr("Safety");
+        case ImportsModel::LibraryColumn:
+            return tr("Library");
         case ImportsModel::NameColumn:
             return tr("Name");
         default:
@@ -91,6 +95,12 @@ QString ImportsModel::name(const QModelIndex &index) const
 {
     const ImportDescription &import = imports->at(index.row());
     return import.name;
+}
+
+QString ImportsModel::libname(const QModelIndex &index) const
+{
+    const ImportDescription &import = imports->at(index.row());
+    return import.libname;
 }
 
 ImportsProxyModel::ImportsProxyModel(ImportsModel *sourceModel, QObject *parent)
@@ -126,8 +136,13 @@ bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
         return leftImport.type < rightImport.type;
     case ImportsModel::SafetyColumn:
         break;
+    case ImportsModel::LibraryColumn:
+        if (leftImport.libname != rightImport.libname)
+            return leftImport.libname < rightImport.libname;
+    // Fallthrough. Sort by Library and then by import name
     case ImportsModel::NameColumn:
         return leftImport.name < rightImport.name;
+        
     default:
         break;
     }
@@ -148,7 +163,8 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     setObjectName("ImportsWidget");
 
     setModels(importsProxyModel);
-    ui->treeView->sortByColumn(ImportsModel::NameColumn, Qt::AscendingOrder);
+    // Sort by library name by default to create a solid context per each group of imports
+    ui->treeView->sortByColumn(ImportsModel::LibraryColumn, Qt::AscendingOrder);
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
             toggleDockWidget(true); 

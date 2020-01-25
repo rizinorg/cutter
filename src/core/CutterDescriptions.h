@@ -36,6 +36,7 @@ struct ImportDescription {
     QString bind;
     QString type;
     QString name;
+    QString libname;
 };
 
 struct ExportDescription {
@@ -117,6 +118,7 @@ struct FlagDescription {
     RVA offset;
     RVA size;
     QString name;
+    QString realname;
 };
 
 struct SectionDescription {
