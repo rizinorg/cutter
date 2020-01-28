@@ -145,7 +145,6 @@
      <addaction name="actionSymbols"/>
      <addaction name="actionVTables"/>
      <addaction name="actionZignatures"/>
-     <addaction name="actionBreakpoint"/>
     </widget>
     <widget class="QMenu" name="menuAddDebugWidgets">
      <property name="title">

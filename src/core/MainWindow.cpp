@@ -1208,7 +1208,12 @@ void MainWindow::showDebugDocks()
 
 void MainWindow::enableDebugWidgetsMenu(bool enable)
 {
-    ui->menuAddDebugWidgets->setEnabled(enable);
+    for (QAction *action : ui->menuAddDebugWidgets->actions()) {
+        // The breakpoints menu should be available outside of debug
+        if (!action->text().contains("Breakpoints")) {
+            action->setEnabled(enable);
+        }
+    }
 }
 
 void MainWindow::resetToDefaultLayout()
