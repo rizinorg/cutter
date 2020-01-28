@@ -106,7 +106,7 @@ public:
      * @param filePath
      * Path to file to check.
      * @param ok
-     * Output parameter. Indicates wheter or not check was successfull.
+     * Output parameter. Indicates wheter or not check was successful.
      * @return true if given file is color theme and ok == true, otherwise returns false.
      */
     bool isFileTheme(const QString &filePath, bool *ok) const;

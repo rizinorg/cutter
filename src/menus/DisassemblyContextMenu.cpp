@@ -720,7 +720,7 @@ bool DisassemblyContextMenu::writeFailed()
     msgBox.setIcon(QMessageBox::Icon::Critical);
     msgBox.setWindowTitle(tr("Write error"));
     msgBox.setText(
-        tr("Unable to complete write operation. Consider opening in write mode. \n\nWARNING: In write mode any changes will be commited to disk"));
+        tr("Unable to complete write operation. Consider opening in write mode. \n\nWARNING: In write mode any changes will be committed to disk"));
     msgBox.addButton(tr("OK"), QMessageBox::NoRole);
     QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode and try again"),
                                                      QMessageBox::YesRole);

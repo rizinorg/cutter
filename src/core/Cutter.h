@@ -141,7 +141,7 @@ public:
     /**
      * @brief Get nearest flag at or before offset.
      * @param offset search position
-     * @param flagOffsetOut adress of returned flag
+     * @param flagOffsetOut address of returned flag
      * @return flag name
      */
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
