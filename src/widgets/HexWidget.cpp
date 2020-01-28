@@ -895,7 +895,7 @@ QVector<QPolygonF> HexWidget::rangePolygons(RVA start, RVA last, bool ascii)
             rect.setRight(endRect.right());
             parts.push_back(QPolygonF(rect));
         } else {
-            // two seperate rectangles
+            // two separate rectangles
             rect = startRect;
             rect.setRight(area.right());
             parts.push_back(QPolygonF(rect));
