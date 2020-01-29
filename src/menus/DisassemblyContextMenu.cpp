@@ -151,6 +151,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addSeparator();
 
+    addBreakpointMenu();
     addDebugMenu();
 
     addSeparator();
@@ -294,16 +295,21 @@ void DisassemblyContextMenu::addEditMenu()
     editMenu->addAction(&actionJmpReverse);
 }
 
-void DisassemblyContextMenu::addDebugMenu()
+void DisassemblyContextMenu::addBreakpointMenu()
 {
-    debugMenu = addMenu(tr("Debug"));
+    breakpointMenu = addMenu(tr("Breakpoint"));
 
     initAction(&actionAddBreakpoint, tr("Add/remove breakpoint"),
                SLOT(on_actionAddBreakpoint_triggered()), getAddBPSequence());
-    debugMenu->addAction(&actionAddBreakpoint);
+    breakpointMenu->addAction(&actionAddBreakpoint);
     initAction(&actionAdvancedBreakpoint, tr("Advanced breakpoint"),
                SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL+Qt::Key_F2));
-    debugMenu->addAction(&actionAdvancedBreakpoint);
+    breakpointMenu->addAction(&actionAdvancedBreakpoint);
+}
+
+void DisassemblyContextMenu::addDebugMenu()
+{
+    debugMenu = addMenu(tr("Debug"));
 
     initAction(&actionContinueUntil, tr("Continue until line"),
                SLOT(on_actionContinueUntil_triggered()));
