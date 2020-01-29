@@ -3,6 +3,7 @@
 #include "core/MainWindow.h"
 #include "common/Helpers.h"
 
+#include <QJsonObject>
 #include <QMenu>
 #include <QClipboard>
 #include <QShortcut>
@@ -38,7 +39,14 @@ QVariant RegisterRefModel::data(const QModelIndex &index, int role) const
         case ValueColumn:
             return registerRef.value;
         case RefColumn:
-            return registerRef.ref;
+            return registerRef.refDesc.ref;
+        default:
+            return QVariant();
+        }
+    case Qt::ForegroundRole:
+        switch (index.column()) {
+        case RefColumn:
+            return registerRef.refDesc.refColor;
         default:
             return QVariant();
         }
@@ -93,7 +101,7 @@ bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
     case RegisterRefModel::RegColumn:
         return leftRegRef.reg < rightRegRef.reg;
     case RegisterRefModel::RefColumn:
-        return leftRegRef.ref < rightRegRef.ref;
+        return leftRegRef.refDesc.ref < rightRegRef.refDesc.ref;
     case RegisterRefModel::ValueColumn:
         return leftRegRef.value < rightRegRef.value;
     default:
@@ -106,7 +114,8 @@ bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
 RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
     CutterDockWidget(main, action),
     ui(new Ui::RegisterRefsWidget),
-    tree(new CutterTreeWidget(this))
+    tree(new CutterTreeWidget(this)),
+    addressableItemContextMenu(this, main)
 {
     ui->setupUi(this);
 
@@ -121,6 +130,13 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
 
     actionCopyValue = new QAction(tr("Copy register value"), this);
     actionCopyRef = new QAction(tr("Copy register reference"), this);
+
+    addressableItemContextMenu.addAction(actionCopyValue);
+    addressableItemContextMenu.addAction(actionCopyRef);
+    addActions(addressableItemContextMenu.actions());
+
+    connect(ui->registerRefTreeView->selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &RegisterRefsWidget::onCurrentChanged);
 
     refreshDeferrer = createRefreshDeferrer([this](){
         refreshRegisterRef();
@@ -144,8 +160,8 @@ RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
         copyClip(RegisterRefModel::RefColumn);
     });
     ui->registerRefTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->registerRefTreeView, SIGNAL(customContextMenuRequested(const QPoint &)),
-            this, SLOT(showRegRefContextMenu(const QPoint &)));
+    connect(ui->registerRefTreeView, &QMenu::customContextMenuRequested,
+            this, &RegisterRefsWidget::customMenuRequested);
 
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
         tree->showItemsNumber(registerRefProxyModel->rowCount());
@@ -161,7 +177,19 @@ void RegisterRefsWidget::refreshRegisterRef()
     }
 
     registerRefModel->beginResetModel();
-    registerRefs = Core()->getRegisterRefs();
+
+    QList<QJsonObject> regRefs = Core()->getRegisterRefs();
+    registerRefs.clear();
+    for (const QJsonObject &reg : regRefs) {
+        RegisterRefDescription desc;
+
+        desc.value = RAddressString(reg["value"].toVariant().toULongLong());
+        desc.reg = reg["name"].toVariant().toString();
+        desc.refDesc = Core()->formatRefDesc(reg["ref"].toObject());
+
+        registerRefs.push_back(desc);
+    }
+
     registerRefModel->endResetModel();
 
     ui->registerRefTreeView->resizeColumnToContents(0);
@@ -183,15 +211,27 @@ void RegisterRefsWidget::on_registerRefTreeView_doubleClicked(const QModelIndex 
     Core()->seekAndShow(item.value);
 }
 
-void RegisterRefsWidget::showRegRefContextMenu(const QPoint &pt)
+void RegisterRefsWidget::customMenuRequested(QPoint pos)
 {
-    QMenu *menu = new QMenu(ui->registerRefTreeView);
-    menu->clear();
-    menu->addAction(actionCopyValue);
-    menu->addAction(actionCopyRef);
+    addressableItemContextMenu.exec(ui->registerRefTreeView->viewport()->mapToGlobal(pos));
+}
 
-    menu->exec(ui->registerRefTreeView->viewport()->mapToGlobal(pt));
-    delete menu;
+void RegisterRefsWidget::onCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    Q_UNUSED(current)
+    Q_UNUSED(previous)
+    auto currentIndex = ui->registerRefTreeView->selectionModel()->currentIndex();
+
+    // Use the value column as the offset
+    QString offsetString;
+    if (currentIndex.column() != RegisterRefModel::RefColumn) {
+        offsetString = currentIndex.data().toString();
+    } else {
+        offsetString = currentIndex.sibling(currentIndex.row(), RegisterRefModel::ValueColumn).data().toString();
+    }
+
+    RVA offset = Core()->math(offsetString);
+    addressableItemContextMenu.setTarget(offset);
 }
 
 void RegisterRefsWidget::copyClip(int column)

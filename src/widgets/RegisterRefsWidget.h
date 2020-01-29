@@ -5,6 +5,7 @@
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
 #include "CutterTreeWidget.h"
+#include "menus/AddressableItemContextMenu.h"
 
 #include <QAbstractListModel>
 #include <QSortFilterProxyModel>
@@ -21,6 +22,12 @@ class RegisterRefsWidget;
 class MainWindow;
 class QTreeWidgetItem;
 
+struct RegisterRefDescription {
+    QString reg;
+    QString value;
+    RefDescription refDesc;
+};
+Q_DECLARE_METATYPE(RegisterRefDescription)
 
 class RegisterRefModel: public QAbstractListModel
 {
@@ -43,8 +50,6 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 };
-
-
 
 class RegisterRefProxyModel : public QSortFilterProxyModel
 {
@@ -71,7 +76,8 @@ private slots:
     void on_registerRefTreeView_doubleClicked(const QModelIndex &index);
     void refreshRegisterRef();
     void copyClip(int column);
-    void showRegRefContextMenu(const QPoint &pt);
+    void customMenuRequested(QPoint pos);
+    void onCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
 
 private:
     std::unique_ptr<Ui::RegisterRefsWidget> ui;
@@ -79,10 +85,12 @@ private:
     RegisterRefModel *registerRefModel;
     RegisterRefProxyModel *registerRefProxyModel;
     QList<RegisterRefDescription> registerRefs;
-    QAction *actionCopyValue;
-    QAction *actionCopyRef;
     CutterTreeWidget *tree;
     void setScrollMode();
 
     RefreshDeferrer *refreshDeferrer;
+
+    QAction *actionCopyValue;
+    QAction *actionCopyRef;
+    AddressableItemContextMenu addressableItemContextMenu;
 };
