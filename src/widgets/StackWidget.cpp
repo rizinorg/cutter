@@ -144,16 +144,6 @@ StackModel::StackModel(QObject *parent)
 {
 }
 
-// Utility function to check if a telescoped item exists and add it with prefixes to the desc
-static inline const QString append_var(QString &dst, const QString val, const QString prepend_val,
-                                       const QString append_val)
-{
-    if (!val.isEmpty()) {
-        dst += prepend_val + val + append_val;
-    }
-    return val;
-}
-
 void StackModel::reload()
 {
     QList<QJsonObject> stackItems = Core()->getStack();
