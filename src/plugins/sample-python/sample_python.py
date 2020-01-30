@@ -44,23 +44,63 @@ class FortuneWidget(cutter.CutterDockWidget):
 class CutterSamplePlugin(cutter.CutterPlugin):
     name = "SamplePlugin"
     description = "A sample plugin written in python."
-    version = "1.0"
+    version = "1.1"
     author = "xarkes and thestr4ng3r :-P"
+
+    # Override CutterPlugin methods
 
     def __init__(self):
         super(CutterSamplePlugin, self).__init__()
+        self.disassembly_actions = []
+        self.addressable_item_actions = []
+        self.testDisasAction = None
+        self.testAddrAction = None
+        self.testAddrAction2 = None
+        self.main = None
 
     def setupPlugin(self):
         pass
 
     def setupInterface(self, main):
+        # Dock widget
         action = QAction("Sample Python Plugin", main)
         action.setCheckable(True)
         widget = FortuneWidget(main, action)
         main.addPluginDockWidget(widget, action)
 
+        # Dissassembly context menu
+        menu = main.getContextMenuExtensions(cutter.MainWindow.ContextMenuType.Disassembly)
+        self.testDisasAction = menu.addAction("Test disassembly")
+        self.testDisasAction.triggered.connect(self.handleDisas)
+        self.main = main
+
+        # Context menu for tables with addressable items like Flags,Functions,Strings,Search results,...
+        addressableItemMenu = main.getContextMenuExtensions(cutter.MainWindow.ContextMenuType.Addressable)
+        self.testAddrAction = addressableItemMenu.addAction("Test addressable")
+        self.addrSeparator = addressableItemMenu.addSeparator() # can use separator and other qt functionality
+        self.testAddrAction2 = addressableItemMenu.addAction("Test addressable2")
+        self.testAddrAction.triggered.connect(self.handleAddr)
+        self.testAddrAction2.triggered.connect(self.handleAddr)
+
     def terminate(self): # optional
         print("CutterSamplePlugin shutting down")
+        if self.main:
+            menu = self.main.getContextMenuExtensions(cutter.MainWindow.ContextMenuType.Disassembly)
+            menu.removeAction(self.testDisasAction)
+            addressableItemMenu = self.main.getContextMenuExtensions(cutter.MainWindow.ContextMenuType.Addressable)
+            for action in [self.testAddrAction, self.testAddrAction2, self.addrSeparator]:
+                addressableItemMenu.removeAction(action)
+        print("CutterSamplePlugin finished clean up")
+
+    # Plugin methods
+
+    def handleAddr(self):
+        # for actions in plugin menu Cutter sets data to current item address
+        cutter.message("Context menu action callback 0x{:x}".format(self.testAddrAction.data()))
+
+    def handleDisas(self):
+        # for actions in plugin menu Cutter sets data to address for current dissasembly line
+        cutter.message("Dissasembly menu action callback 0x{:x}".format(self.testDisasAction.data()))
 
 
 # This function will be called by Cutter and should return an instance of the plugin.

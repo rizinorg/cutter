@@ -40,8 +40,8 @@ AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWind
     addAction(&actionAddcomment);
 
     addSeparator();
-    pluginMenu = Core()->getContextMenuExtensions(CutterCore::ContextMenuType::Addressable);
-    addMenu(pluginMenu);
+    pluginMenu = mainWindow->getContextMenuExtensions(MainWindow::ContextMenuType::Addressable);
+    pluginMenuAction = addMenu(pluginMenu);
     addSeparator();
 
     setHasTarget(hasTarget);
@@ -105,6 +105,7 @@ void AddressableItemContextMenu::aboutToShowSlot()
     }
     actionShowInMenu.setMenu(mainWindow->createShowInMenu(this, offset));
 
+    pluginMenuAction->setVisible(!pluginMenu->isEmpty());
     for (QAction *pluginAction : pluginMenu->actions()) {
         pluginAction->setData(QVariant::fromValue(offset));
     }

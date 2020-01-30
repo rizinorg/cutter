@@ -39,7 +39,7 @@ PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
         tr("Author")
     });
 
-    for (CutterPlugin *plugin : Plugins()->getPlugins()) {
+    for (auto &plugin : Plugins()->getPlugins()) {
         auto item = new QTreeWidgetItem();
         item->setText(0, plugin->getName());
         item->setText(1, plugin->getDescription());

@@ -125,6 +125,15 @@ public:
     void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
     MemoryDockWidget* getLastMemoryWidget();
 
+    /* Context menu plugins */
+    enum class ContextMenuType { Disassembly, Addressable };
+    /**
+     * @brief Fetches the pointer to a context menu extension of type
+     * @param type - the type of the context menu
+     * @return plugins submenu of the selected context menu
+     */
+    QMenu *getContextMenuExtensions(ContextMenuType type);
+
 public slots:
     void finalizeOpen();
 
@@ -262,6 +271,9 @@ private:
     NewFileDialog      *newFileDialog = nullptr;
     QDockWidget        *breakpointDock = nullptr;
     QDockWidget        *registerRefsDock = nullptr;
+
+    QMenu *disassemblyContextMenuExtensions = nullptr;
+    QMenu *addressableContextMenuExtensions = nullptr;
 
     void initUI();
     void initToolBar();

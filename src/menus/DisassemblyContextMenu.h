@@ -182,6 +182,7 @@ private:
 
     QAction showInSubmenu;
     QList<QAction*> showTargetMenuActions;
+    QAction *pluginActionMenuAction;
 
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
