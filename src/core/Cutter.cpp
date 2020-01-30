@@ -1156,6 +1156,86 @@ QJsonDocument CutterCore::getSignatureInfo()
     return cmdj("iCj");
 }
 
+// Utility function to check if a telescoped item exists and add it with prefixes to the desc
+static inline const QString appendVar(QString &dst, const QString val, const QString prepend_val,
+                                       const QString append_val)
+{
+    if (!val.isEmpty()) {
+        dst += prepend_val + val + append_val;
+    }
+    return val;
+}
+
+RefDescription CutterCore::formatRefDesc(QJsonObject refItem)
+{
+    RefDescription desc;
+
+    // Ignore empty refs and refs that only contain addr
+    if (refItem.size() <= 1) {
+        return desc;
+    }
+
+    QString str = refItem["string"].toVariant().toString();
+    if (!str.isEmpty()) {
+        desc.ref = str;
+        desc.refColor = ConfigColor("comment");
+    } else {
+        QString type, string;
+        do {
+            desc.ref += " ->";
+            appendVar(desc.ref, refItem["reg"].toVariant().toString(), " @", "");
+            appendVar(desc.ref, refItem["mapname"].toVariant().toString(), " (", ")");
+            appendVar(desc.ref, refItem["section"].toVariant().toString(), " (", ")");
+            appendVar(desc.ref, refItem["func"].toVariant().toString(), " ", "");
+            type = appendVar(desc.ref, refItem["type"].toVariant().toString(), " ", "");
+            appendVar(desc.ref, refItem["perms"].toVariant().toString(), " ", "");
+            appendVar(desc.ref, refItem["asm"].toVariant().toString(), " \"", "\"");
+            string = appendVar(desc.ref, refItem["string"].toVariant().toString(), " ", "");
+            if (!string.isNull()) {
+                // There is no point in adding ascii and addr info after a string
+                break;
+            }
+            if (!refItem["value"].isNull()) {
+                appendVar(desc.ref, RAddressString(refItem["value"].toVariant().toULongLong()), " ", "");
+            }
+            refItem = refItem["ref"].toObject();
+        } while (!refItem.empty());
+
+        // Set the ref's color according to the last item type
+        if (type == "ascii" || !string.isEmpty()) {
+            desc.refColor = ConfigColor("comment");
+        } else if (type == "program") {
+            desc.refColor = ConfigColor("fname");
+        } else if (type == "library") {
+            desc.refColor = ConfigColor("floc");
+        } else if (type == "stack") {
+            desc.refColor = ConfigColor("offset");
+        }
+    }
+
+    return desc;
+}
+
+QList<QJsonObject> CutterCore::getRegisterRefs(int depth)
+{
+    QList<QJsonObject> ret;
+    if (!currentlyDebugging) {
+        return ret;
+    }
+
+    QJsonObject registers = cmdj("drj").object();
+
+    for (const QString &key : registers.keys()) {
+        QJsonObject reg;
+        reg["value"] = registers.value(key);
+        reg["ref"] = getAddrRefs(registers.value(key).toVariant().toULongLong(), depth);
+        reg["name"] = key;
+        ret.append(reg);
+    }
+
+    return ret;
+}
+
 QList<QJsonObject> CutterCore::getStack(int size, int depth)
 {
     QList<QJsonObject> stack;
@@ -1319,26 +1399,6 @@ QJsonDocument CutterCore::getChildProcesses(int pid)
 QJsonDocument CutterCore::getRegisterValues()
 {
     return cmdj("drj");
-}
-
-QList<RegisterRefDescription> CutterCore::getRegisterRefs()
-{
-    QList<RegisterRefDescription> ret;
-    QJsonArray registerRefArray = cmdj("drrj").array();
-
-    for (const QJsonValue &value : registerRefArray) {
-        QJsonObject regRefObject = value.toObject();
-
-        RegisterRefDescription regRef;
-
-        regRef.reg = regRefObject[RJsonKey::reg].toString();
-        regRef.value = regRefObject[RJsonKey::value].toString();
-        regRef.ref = regRefObject[RJsonKey::ref].toString();
-
-        ret << regRef;
-    }
-
-    return ret;
 }
 
 QList<VariableDescription> CutterCore::getVariables(RVA at)

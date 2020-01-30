@@ -144,16 +144,6 @@ StackModel::StackModel(QObject *parent)
 {
 }
 
-// Utility function to check if a telescoped item exists and add it with prefixes to the desc
-static inline const QString append_var(QString &dst, const QString val, const QString prepend_val,
-                                       const QString append_val)
-{
-    if (!val.isEmpty()) {
-        dst += prepend_val + val + append_val;
-    }
-    return val;
-}
-
 void StackModel::reload()
 {
     QList<QJsonObject> stackItems = Core()->getStack();
@@ -165,47 +155,8 @@ void StackModel::reload()
 
         item.offset = stackItem["addr"].toVariant().toULongLong();
         item.value = RAddressString(stackItem["value"].toVariant().toULongLong());
+        item.refDesc = Core()->formatRefDesc(stackItem["ref"].toObject());
 
-        QJsonObject refItem = stackItem["ref"].toObject();
-        if (!refItem.empty()) {
-            QString str = refItem["string"].toVariant().toString();
-            if (!str.isEmpty()) {
-                item.description = str;
-                item.descriptionColor = ConfigColor("comment");
-            } else {
-                QString type, string;
-                do {
-                    item.description += " ->";
-                    append_var(item.description, refItem["reg"].toVariant().toString(), " @", "");
-                    append_var(item.description, refItem["mapname"].toVariant().toString(), " (", ")");
-                    append_var(item.description, refItem["section"].toVariant().toString(), " (", ")");
-                    append_var(item.description, refItem["func"].toVariant().toString(), " ", "");
-                    type = append_var(item.description, refItem["type"].toVariant().toString(), " ", "");
-                    append_var(item.description, refItem["perms"].toVariant().toString(), " ", "");
-                    append_var(item.description, refItem["asm"].toVariant().toString(), " \"", "\"");
-                    string = append_var(item.description, refItem["string"].toVariant().toString(), " ", "");
-                    if (!string.isNull()) {
-                        // There is no point in adding ascii and addr info after a string
-                        break;
-                    }
-                    if (!refItem["value"].isNull()) {
-                        append_var(item.description, RAddressString(refItem["value"].toVariant().toULongLong()), " ", "");
-                    }
-                    refItem = refItem["ref"].toObject();
-                } while (!refItem.empty());
-
-                // Set the description's color according to the last item type
-                if (type == "ascii" || !string.isEmpty()) {
-                    item.descriptionColor = ConfigColor("comment");
-                } else if (type == "program") {
-                    item.descriptionColor = ConfigColor("fname");
-                } else if (type == "library") {
-                    item.descriptionColor = ConfigColor("floc");
-                } else if (type == "stack") {
-                    item.descriptionColor = ConfigColor("offset");
-                }
-            }
-        }
         values.push_back(item);
     }
     endResetModel();
@@ -236,14 +187,14 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
         case ValueColumn:
             return item.value;
         case DescriptionColumn:
-            return item.description;
+            return item.refDesc.ref;
         default:
             return QVariant();
         }
     case Qt::ForegroundRole:
         switch (index.column()) {
         case DescriptionColumn:
-            return item.descriptionColor;
+            return item.refDesc.refColor;
         default:
             return QVariant();
         }

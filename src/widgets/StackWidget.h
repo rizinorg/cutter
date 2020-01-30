@@ -22,8 +22,7 @@ public:
     struct Item {
         RVA offset;
         QString value;
-        QString description;
-        QVariant descriptionColor;
+        RefDescription refDesc;
     };
 
     enum Column { OffsetColumn = 0, ValueColumn, DescriptionColumn, ColumnCount};
