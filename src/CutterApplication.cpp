@@ -155,7 +155,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     Plugins()->loadPlugins();
 
-    for (auto *plugin : Plugins()->getPlugins()) {
+    for (auto &plugin : Plugins()->getPlugins()) {
         plugin->registerDecompilers();
     }
 
@@ -248,9 +248,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 CutterApplication::~CutterApplication()
 {
-#ifdef CUTTER_ENABLE_PYTHON
     Plugins()->destroyPlugins();
-#endif
     delete mainWindow;
 #ifdef CUTTER_ENABLE_PYTHON
     Python()->shutdown();

@@ -7,11 +7,11 @@
     <primitive-type name="bool"/>
 
     <object-type name="CutterCore">
-        <enum-type name="ContextMenuType" />
     </object-type>
     <object-type name="Configuration" />
     <object-type name="MainWindow" >
         <enum-type name="MenuType" />
+        <enum-type name="ContextMenuType" />
     </object-type>
     <object-type name="BasicBlockHighlighter" />
     <object-type name="CutterDockWidget" />

@@ -209,13 +209,6 @@ void CutterCore::initialize()
 
     // Initialize Async tasks manager
     asyncTaskManager = new AsyncTaskManager(this);
-
-    // Initialize context menu extensions for plugins
-    disassemblyContextMenuExtensions = new QMenu(tr("Plugins"));
-    disassemblyContextMenuExtensions->menuAction()->setVisible(false);
-    disassemblyContextMenuExtensions->setEnabled(false);
-    addressableContextMenuExtensions = new QMenu(tr("Plugins"));
-    addressableContextMenuExtensions->menuAction()->setVisible(false);
 }
 
 CutterCore::~CutterCore()
@@ -2299,39 +2292,6 @@ QStringList CutterCore::getAnalPluginNames()
     }
 
     return ret;
-}
-
-QMenu *CutterCore::getContextMenuExtensions(ContextMenuType type)
-{
-    switch (type) {
-    case ContextMenuType::Disassembly:
-        return disassemblyContextMenuExtensions;
-    case ContextMenuType::Addressable:
-        return addressableContextMenuExtensions;
-    default:
-        return nullptr;
-    }
-}
-
-void CutterCore::addContextMenuExtensionAction(ContextMenuType type, QAction *action)
-{
-    QMenu *menu = getContextMenuExtensions(type);
-    if (menu) {
-        // The submenu should be invisible and disabled while it's empty
-        if (menu->isEmpty()) {
-            menu->menuAction()->setVisible(true);
-            menu->setEnabled(true);
-        }
-        menu->addAction(action);
-    }
-}
-
-void CutterCore::addContextMenuExtensionSeparator(ContextMenuType type)
-{
-    QMenu *menu = getContextMenuExtensions(type);
-    if (menu) {
-        menu->addSeparator();
-    }
 }
 
 QStringList CutterCore::getProjectNames()

@@ -33,7 +33,7 @@ PluginManager::~PluginManager()
 
 void PluginManager::loadPlugins()
 {
-    assert(plugins.isEmpty());
+    assert(plugins.empty());
 
     QString userPluginDir = getUserPluginsDirectory();
     if (!userPluginDir.isEmpty()) {
@@ -51,7 +51,7 @@ void PluginManager::loadPlugins()
 void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
 {
     qInfo() << "Plugins are loaded from" << pluginsDir.absolutePath();
-    int loadedPlugins = plugins.length();
+    int loadedPlugins = plugins.size();
     if (!pluginsDir.exists()) {
         return;
     }
@@ -74,16 +74,19 @@ void PluginManager::loadPluginsFromDir(const QDir &pluginsDir, bool writable)
     }
 #endif
 
-    loadedPlugins = plugins.length() - loadedPlugins;
+    loadedPlugins = plugins.size() - loadedPlugins;
     qInfo() << "Loaded" << loadedPlugins << "plugin(s).";
+}
+
+void PluginManager::PluginTerminator::operator()(CutterPlugin *plugin) const
+{
+    plugin->terminate();
+    delete plugin;
 }
 
 void PluginManager::destroyPlugins()
 {
-    for (CutterPlugin *plugin : plugins) {
-        plugin->terminate();
-        delete plugin;
-    }
+    plugins.clear();
 }
 
 QVector<QDir> PluginManager::getPluginDirectories() const
@@ -144,12 +147,12 @@ void PluginManager::loadNativePlugins(const QDir &directory)
             }
             continue;
         }
-        CutterPlugin *cutterPlugin = qobject_cast<CutterPlugin *>(plugin);
+        PluginPtr cutterPlugin{qobject_cast<CutterPlugin *>(plugin)};
         if (!cutterPlugin) {
             continue;
         }
         cutterPlugin->setupPlugin();
-        plugins.append(cutterPlugin);
+        plugins.push_back(std::move(cutterPlugin));
     }
 }
 
@@ -169,12 +172,12 @@ void PluginManager::loadPythonPlugins(const QDir &directory)
         } else {
             moduleName = fileName;
         }
-        CutterPlugin *cutterPlugin = loadPythonPlugin(moduleName.toLocal8Bit().constData());
+        PluginPtr cutterPlugin{loadPythonPlugin(moduleName.toLocal8Bit().constData())};
         if (!cutterPlugin) {
             continue;
         }
         cutterPlugin->setupPlugin();
-        plugins.append(cutterPlugin);
+        plugins.push_back(std::move(cutterPlugin));
     }
 
     PythonManager::ThreadHolder threadHolder;
