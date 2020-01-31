@@ -1,4 +1,4 @@
-version: '1.10.0-git-{build}'
+version: '1.10.1-git-{build}'
 image: 'Visual Studio 2017'
 clone_depth: 1
 
@@ -41,7 +41,7 @@ install:
   - cmd: python -m pip install meson
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
   # Artifacts
-  - cmd: set "ARTIFACT_NAME=Cutter-v1.10.0-%ARCH%.Windows"
+  - cmd: set "ARTIFACT_NAME=Cutter-v1.10.1-%ARCH%.Windows"
   - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )
 
 before_build:
