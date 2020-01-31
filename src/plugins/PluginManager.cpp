@@ -33,7 +33,7 @@ PluginManager::~PluginManager()
 
 void PluginManager::loadPlugins()
 {
-    assert(plugins.isEmpty());
+    assert(plugins.empty());
 
     QString userPluginDir = getUserPluginsDirectory();
     if (!userPluginDir.isEmpty()) {
