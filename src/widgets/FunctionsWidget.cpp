@@ -16,7 +16,6 @@
 #include <QShortcut>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QResizeEvent>
 
 namespace {
 
@@ -578,20 +577,6 @@ void FunctionsWidget::onActionVerticalToggled(bool enable)
         functionModel->setNested(true);
         ui->treeView->setIndentation(20);
     }
-}
-
-void FunctionsWidget::resizeEvent(QResizeEvent *event)
-{
-    if (mainWindow->responsive && isVisible()) {
-        if (event->size().width() >= event->size().height()) {
-            // Set horizontal view (list)
-            actionHorizontal.setChecked(true);
-        } else {
-            // Set vertical view (Tree)
-            actionVertical.setChecked(true);
-        }
-    }
-    QDockWidget::resizeEvent(event);
 }
 
 /**
