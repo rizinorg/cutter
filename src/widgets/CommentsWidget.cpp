@@ -4,7 +4,6 @@
 #include "common/Helpers.h"
 
 #include <QMenu>
-#include <QResizeEvent>
 #include <QShortcut>
 
 CommentsModel::CommentsModel(QList<CommentDescription> *comments,
@@ -285,20 +284,6 @@ void CommentsWidget::onActionVerticalToggled(bool checked)
 void CommentsWidget::showTitleContextMenu(const QPoint &pt)
 {
     titleContextMenu->exec(this->mapToGlobal(pt));
-}
-
-void CommentsWidget::resizeEvent(QResizeEvent *event)
-{
-    if (mainWindow->responsive && isVisible()) {
-        if (event->size().width() >= event->size().height()) {
-            // Set horizontal view (list)
-            actionHorizontal.setChecked(true);
-        } else {
-            // Set vertical view (Tree)
-            actionVertical.setChecked(true);
-        }
-    }
-    QDockWidget::resizeEvent(event);
 }
 
 void CommentsWidget::refreshTree()

@@ -78,9 +78,6 @@ public:
     explicit CommentsWidget(MainWindow *main, QAction *action = nullptr);
     ~CommentsWidget() override;
 
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-
 private slots:
     void onActionHorizontalToggled(bool checked);
     void onActionVerticalToggled(bool checked);
