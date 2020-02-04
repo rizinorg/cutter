@@ -163,8 +163,6 @@ private:
     QAction actionAddBreakpoint;
     QAction actionAdvancedBreakpoint;
 
-    QMenu *pluginMenu;
-
     QAction actionSetToCode;
 
     QAction actionSetAsStringAuto;
@@ -182,7 +180,8 @@ private:
 
     QAction showInSubmenu;
     QList<QAction*> showTargetMenuActions;
-    QAction *pluginActionMenuAction;
+    QMenu *pluginMenu = nullptr;
+    QAction *pluginActionMenuAction = nullptr;
 
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
