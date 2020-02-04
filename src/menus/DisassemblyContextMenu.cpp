@@ -156,8 +156,10 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addSeparator();
 
-    pluginMenu = mainWindow->getContextMenuExtensions(MainWindow::ContextMenuType::Disassembly);
-    pluginActionMenuAction = addMenu(pluginMenu);
+    if (mainWindow) {
+        pluginMenu = mainWindow->getContextMenuExtensions(MainWindow::ContextMenuType::Disassembly);
+        pluginActionMenuAction = addMenu(pluginMenu);
+    }
 
     addSeparator();
 
@@ -529,9 +531,11 @@ void DisassemblyContextMenu::aboutToShowSlot()
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
     actionSetPC.setText("Set " + progCounterName + " here");
 
-    pluginActionMenuAction->setVisible(!pluginMenu->isEmpty());
-    for (QAction *pluginAction : pluginMenu->actions()) {
-        pluginAction->setData(QVariant::fromValue(offset));
+    if (pluginMenu) {
+        pluginActionMenuAction->setVisible(!pluginMenu->isEmpty());
+        for (QAction *pluginAction : pluginMenu->actions()) {
+            pluginAction->setData(QVariant::fromValue(offset));
+        }
     }
 }
 
