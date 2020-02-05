@@ -77,6 +77,7 @@ if get_option('enable_python')
                              join_paths(meson.current_source_dir(), 'common'),
                              join_paths(meson.current_source_dir(), 'widgets'),
                              join_paths(meson.current_source_dir(), 'plugins'),
+                             join_paths(meson.current_source_dir(), 'menus'),
                              join_paths(meson.current_source_dir(), 'subprojects/radare2/libr/include'),
                              join_paths(meson.current_build_dir(), 'subprojects/radare2'),
                              qt5core_dep.get_pkgconfig_variable('includedir'),
