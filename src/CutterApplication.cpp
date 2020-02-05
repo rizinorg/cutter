@@ -33,6 +33,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 {
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
+    setDesktopFileName("org.radare.Cutter");
     setWindowIcon(QIcon(":/img/cutter.svg"));
     setAttribute(Qt::AA_UseHighDpiPixmaps);
     setLayoutDirection(Qt::LeftToRight);
