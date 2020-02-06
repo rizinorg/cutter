@@ -87,7 +87,7 @@ win32:defined(CUTTER_DEPS_DIR, var) {
     !defined(PYSIDE_TYPESYSTEMS, var)           PYSIDE_TYPESYSTEMS="$${CUTTER_DEPS_DIR}/pyside/share/PySide2/typesystems"
 }
 
-INCLUDEPATH *= . core widgets dialogs common plugins
+INCLUDEPATH *= . core widgets dialogs common plugins menus
 
 win32 {
     # Generate debug symbols in release mode

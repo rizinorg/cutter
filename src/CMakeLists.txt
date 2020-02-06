@@ -44,7 +44,7 @@ project(Cutter VERSION "${CUTTER_VERSION_FULL}")
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(core widgets common plugins)
+include_directories(core widgets common plugins menus)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
