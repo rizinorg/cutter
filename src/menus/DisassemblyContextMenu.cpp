@@ -240,7 +240,7 @@ void DisassemblyContextMenu::addSetAsMenu()
                SLOT(on_actionSetAsString_triggered()), getSetAsStringSequence());
     initAction(&actionSetAsStringRemove, tr("Remove"),
                SLOT(on_actionSetAsStringRemove_triggered()));
-    initAction(&actionSetAsStringAdvanced, tr("Adanced"),
+    initAction(&actionSetAsStringAdvanced, tr("Advanced"),
                SLOT(on_actionSetAsStringAdvanced_triggered()));
 
 
