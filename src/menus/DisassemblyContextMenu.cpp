@@ -483,8 +483,17 @@ void DisassemblyContextMenu::aboutToShowSlot()
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
     } else if (f) {
+        QString name;
+
+        // Check if Realname is enabled. If yes, show it instead of the full flag-name.
+        if (Config()->getConfigBool("asm.flags.real") && f->realname) {
+            name = f->realname;
+        } else {
+            name = f->name;
+        }
+
         actionRename.setVisible(true);
-        actionRename.setText(tr("Rename flag \"%1\"").arg(f->name));
+        actionRename.setText(tr("Rename flag \"%1\"").arg(name));
     } else {
         actionRename.setVisible(false);
     }
