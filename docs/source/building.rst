@@ -70,24 +70,6 @@ that you can start like this:
 
    ./build/Cutter
 
-Make sure to update the submodule whenever the submodule upstream is updated. 
-You can update all the submodules at once by running these commands from the project root:
-
-.. code:: sh
-
-   git submodule foreach git pull origin master
-   git add submodule_name_1 submodule_name_2
-   git commit -m "Update submodules"
-
-Alternatively, you can also update the submodules individually
-
-.. code:: sh
-
-   cd radare2
-   git checkout master && git pull
-   cd ..
-   git add radare2
-   git commit -m "Update radare2"
 
 Building on Windows
 -------------------
@@ -293,5 +275,4 @@ The workaround is to either add the `--disable-new-dtags` linker flag when compi
 ::
 
    cmake -DCMAKE_EXE_LINKER_FLAGS="-Wl,--disable-new-dtags"  ..
-
 
