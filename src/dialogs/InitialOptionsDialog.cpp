@@ -159,6 +159,10 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
         ui->formatComboBox->setCurrentIndex(0);
     }
 
+    if (options.binLoadAddr != RVA_INVALID) {
+        ui->entry_loadOffset->setText(RAddressString(options.binLoadAddr));
+    }
+
     // TODO: all other options should also be applied to the ui
 }
 

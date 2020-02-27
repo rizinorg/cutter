@@ -85,6 +85,11 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                     QObject::tr("name"));
     cmd_parser.addOption(formatOption);
 
+    QCommandLineOption baddrOption({"B", "base"},
+                                    QObject::tr("Load binary at a specific base address"),
+                                    QObject::tr("base address"));
+    cmd_parser.addOption(baddrOption);
+
     QCommandLineOption scriptOption("i",
                                     QObject::tr("Run script file"),
                                     QObject::tr("file"));
@@ -184,6 +189,13 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
         InitialOptions options;
         options.filename = args[0];
         options.forceBinPlugin = cmd_parser.value(formatOption);
+        if (cmd_parser.isSet(baddrOption)) {
+            bool ok;
+            RVA baddr = cmd_parser.value(baddrOption).toULongLong(&ok, 0);
+            if (ok) {
+                options.binLoadAddr = baddr;
+            }
+        }
         if (analLevelSpecified) {
             switch (analLevel) {
             case 0:
