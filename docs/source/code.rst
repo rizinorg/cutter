@@ -188,7 +188,6 @@ fixes and performance improvements on radare2. Often, we need to update
 the radare2 submodule or others, in order to push the most recent
 version of them to Cutter.
 
-Make sure to update the submodule whenever the submodule upstream is updated.
 You can view the list of all the submodules from the cutter root folder with:
 
 .. code:: sh
