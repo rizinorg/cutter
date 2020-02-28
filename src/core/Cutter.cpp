@@ -535,7 +535,7 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
     }
 
     ut64 hashLimit = getConfigut64("cfg.hashlimit");
-    r_bin_file_hash(core->bin, hashLimit, path.toUtf8().constData(), NULL);
+    r_bin_file_compute_hashes(core->bin, hashLimit);
 
     fflush(stdout);
     return true;
