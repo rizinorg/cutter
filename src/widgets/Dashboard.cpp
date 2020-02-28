@@ -56,10 +56,12 @@ void Dashboard::updateContents()
     setPlainText(this->ui->compilerEdit, item2["compiler"].toString());
     setPlainText(this->ui->bitsEdit, QString::number(item2["bits"].toDouble()));
 
-    if (!item2["relro"].isUndefined()) {
+    if (!item2["relro"].toString().isEmpty()) {
         QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
         relro[0] = relro[0].toUpper();
         setPlainText(this->ui->relroEdit, relro);
+    } else {
+        setPlainText(this->ui->relroEdit, "N/A");
     }
 
     setPlainText(this->ui->baddrEdit, RAddressString(item2["baddr"].toVariant().toULongLong()));
