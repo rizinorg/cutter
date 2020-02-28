@@ -50,7 +50,7 @@ to learn how you can help improve the project!
    shortcuts
    building
    common-errors
-   code
+   dev-doc
    plugins
    api
 
