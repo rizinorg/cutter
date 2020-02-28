@@ -177,3 +177,39 @@ Functions documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 You can find the classes documentation in the API Reference menu item.
+
+Updating the submodules
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Git submodules play a major part in Cutter. This, because Cutter is powered
+by radare2, its parent project, and it tries to stay up-to-date with its
+recent version, which allows us to implement new features, and enjoy bug
+fixes and performance improvements on radare2. Often, we need to update
+the radare2 submodule or others, in order to push the most recent
+version of them to Cutter.
+
+You can view the list of all the submodules from the cutter root folder with:
+
+.. code:: sh
+
+   git config --file .gitmodules --get-regexp path | awk '{ print $2 }'
+
+To update all the submodules at once, run these commands from the
+cutter root folder:
+
+.. code:: sh
+
+   git submodule foreach git pull origin master
+   git add submodule_name_1 submodule_name_2
+   git commit -m "Update submodules"
+
+More likely, you'll only need to update the radare2 submodule.
+In order to update one submodule individually, use the following code:
+
+.. code:: sh
+
+   cd radare2
+   git checkout master && git pull
+   cd ..
+   git add radare2
+   git commit -m "Update radare2 submodule"
