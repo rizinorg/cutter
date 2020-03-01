@@ -176,7 +176,7 @@ To connect a signal to a slot, this is the preferred syntax:
 
    connect(sender, &QObject::destroyed, this, &MyObject::objectDestroyed);
 
-This syntax performs compile time type checkign and allows the use of lambda
+This syntax performs compile-time type checks and allows the use of lambda
 functions. Other approaches for connecting signals silently break at runtime.
 
 General coding advices
@@ -224,9 +224,9 @@ In order to update one submodule individually, use the following code:
    git commit -m "Update radare2 submodule"
 
 
-Usefull things to learn about Qt
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Useful resources to learn more about Qt development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * `Signals & Slots <https://doc.qt.io/qt-5/signalsandslots.html>`__
-* `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ read this if you are going to work with list or table like widgtets
+* `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ - read this if you are going to work with list or table-like widgets
 * `QAction <https://doc.qt.io/qt-5/qaction.html#details>`__
