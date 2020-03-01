@@ -1,10 +1,18 @@
-Contributing
-============
+Developer documentation
+=======================
 
 This page shows some hints about the coding conventions.
 
-Coding advices
---------------
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   dev-doc/*
+   crash-handling-system
+
+
+Cutter coding advices
+---------------------
 
 CutterCore class
 ~~~~~~~~~~~~~~~~
@@ -56,11 +64,8 @@ Make sure to connect the ``CutterCore::seekChanged(RVA offset)`` signal
 so your widget refreshes its output when radare2 seek is modified
 (switching to another function, etc.).
 
-General coding guidelines
--------------------------
-
 Coding style
-~~~~~~~~~~~~
+------------
 
 In general, we follow `the official Qt guidelines <https://wiki.qt.io/Qt_Coding_Style>`__ to
 format the code. If in doubt, you can use `AStyle
@@ -96,7 +101,7 @@ In contrast to the official guidelines of Qt, in Cutter we always use curly brac
 
 
 Includes
-^^^^^^^^
+~~~~~~~~
 
 Strive to include only **required** definitions inside header files.
 This will avoid triggering additional unnecessary compilations.
@@ -127,7 +132,7 @@ Finally, include the standard C++ headers you need.
 Includes must be sorted by alphabetical order.
 
 Docstrings
-^^^^^^^^^^
+~~~~~~~~~~
 
 Our API reference is generated using Doxygen, so when it comes to
 function documentation, please use the following format:
@@ -140,7 +145,7 @@ function documentation, please use the following format:
    virtual void accumulate(RefreshDeferrerParams params) =0;
 
 Loops
-^^^^^
+~~~~~
 
 We use the C++11 foreach loop style, which means any “foreach” loop should
 look like:
@@ -152,7 +157,7 @@ look like:
    }
 
 nullptr
-^^^^^^^
+~~~~~~~
 
 Please do not use ``0`` nor ``Q_NULLPTR``, only use ``nullptr``.
 
@@ -163,7 +168,7 @@ Example:
    QObject *object = nullptr;
 
 Connecting signals
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
 To connect a signal to a slot, this is the preferred syntax:
 
@@ -171,7 +176,11 @@ To connect a signal to a slot, this is the preferred syntax:
 
    connect(sender, &QObject::destroyed, this, &MyObject::objectDestroyed);
 
-The main reason is that this syntax allows the use of lambda functions.
+This syntax performs compile-time type checks and allows the use of lambda
+functions. Other approaches for connecting signals silently break at runtime.
+
+General coding advices
+----------------------
 
 Functions documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -213,3 +222,11 @@ In order to update one submodule individually, use the following code:
    cd ..
    git add radare2
    git commit -m "Update radare2 submodule"
+
+
+Useful resources to learn more about Qt development
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* `Signals & Slots <https://doc.qt.io/qt-5/signalsandslots.html>`__
+* `Model/View Programming <https://doc.qt.io/qt-5/model-view-programming.html>`__ - read this if you are going to work with list or table-like widgets
+* `QAction <https://doc.qt.io/qt-5/qaction.html#details>`__
