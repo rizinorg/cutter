@@ -81,7 +81,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     setFocusPolicy(Qt::ClickFocus);
 
     // Behave like all widgets: highlight on focus and hover
-    connect(qApp, &QApplication::focusChanged, this, [this](QWidget* , QWidget* now) {
+    connect(qApp, &QApplication::focusChanged, this, [this](QWidget *, QWidget * now) {
         QColor borderColor = this == now
                              ? palette().color(QPalette::Highlight)
                              : palette().color(QPalette::WindowText).darker();
@@ -107,7 +107,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     setupFonts();
     setupColors();
 
-    disasmRefresh = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA *offset) {
+    disasmRefresh = createReplacingRefreshDeferrer<RVA>(false, [this](const RVA * offset) {
         refreshDisasm(offset ? *offset : RVA_INVALID);
     });
 
@@ -220,7 +220,7 @@ void DisassemblyWidget::setPreviewMode(bool previewMode)
     }
     for (auto action : actions()) {
         if (action->shortcut() == Qt::Key_Space ||
-            action->shortcut() == Qt::Key_Escape) {
+                action->shortcut() == Qt::Key_Escape) {
             action->setEnabled(!previewMode);
         }
     }
@@ -251,7 +251,7 @@ QList<DisassemblyLine> DisassemblyWidget::getLines()
 
 void DisassemblyWidget::refreshDisasm(RVA offset)
 {
-    if(!disasmRefresh->attemptRefresh(offset == RVA_INVALID ? nullptr : new RVA(offset))) {
+    if (!disasmRefresh->attemptRefresh(offset == RVA_INVALID ? nullptr : new RVA(offset))) {
         return;
     }
 
@@ -632,10 +632,11 @@ void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonDblClick
-        && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
+            && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        const QTextCursor& cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
+        const QTextCursor &cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(),
+                                                                             mouseEvent->y()));
         jumpToOffsetUnderCursor(cursor);
 
         return true;
@@ -646,7 +647,7 @@ bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 
 void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
 {
-    if(event->key() == Qt::Key_Return) {
+    if (event->key() == Qt::Key_Return) {
         const QTextCursor cursor = mDisasTextEdit->textCursor();
         jumpToOffsetUnderCursor(cursor);
     }
@@ -785,7 +786,7 @@ struct Range {
     RVA from;
     RVA to;
 
-    inline bool contains(const Range& other) const
+    inline bool contains(const Range &other) const
     {
         return from <= other.from && to >= other.to;
     }
@@ -801,7 +802,8 @@ DisassemblyLeftPanel::DisassemblyLeftPanel(DisassemblyWidget *disas)
     this->disas = disas;
 }
 
-void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event) {
+void DisassemblyLeftPanel::wheelEvent(QWheelEvent *event)
+{
     int count = -(event->angleDelta() / 15).y();
     count -= (count > 0 ? 5 : -5);
 
@@ -817,7 +819,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     constexpr int distanceBetweenLines = 10;
     constexpr int arrowWidth = 5;
     int rightOffset = size().rwidth();
-    auto tEdit = qobject_cast<DisassemblyTextEdit*>(disas->getTextWidget());
+    auto tEdit = qobject_cast<DisassemblyTextEdit *>(disas->getTextWidget());
     int topOffset = int(tEdit->contentsMargins().top() + tEdit->textOffset());
     int lineHeight = disas->getFontMetrics().height();
     QColor arrowColorDown = ConfigColor("flow");
@@ -833,7 +835,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     QMap<RVA, int> linesPixPosition;
     QMap<RVA, pair<RVA, int>> arrowInfo; /* offset -> (arrow, layer of arrow) */
     int nLines = 0;
-    for (const auto& line : lines) {
+    for (const auto &line : lines) {
         linesPixPosition[line.offset] = nLines * lineHeight + lineHeight / 2 + topOffset;
         nLines++;
         if (line.arrow != RVA_INVALID) {
@@ -870,7 +872,7 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
                 }
                 Range innerRange = { innerIt.key(), innerIt.value().first };
                 if (it.value().second == innerIt.value().second &&
-                    (currRange.contains(innerRange) || currRange.contains(innerRange.from))) {
+                        (currRange.contains(innerRange) || currRange.contains(innerRange.from))) {
                     it.value().second++;
                     correction = true;
                 }
@@ -892,9 +894,9 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     const RVA currOffset = disas->getSeekable()->getOffset();
     qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
     // Draw the lines
-    for (const auto& l : lines) {
+    for (const auto &l : lines) {
         int lineOffset = int((distanceBetweenLines * arrowInfo[l.offset].second + distanceBetweenLines) *
-                         pixelRatio);
+                             pixelRatio);
         // Skip until we reach a line that jumps to a destination
         if (l.arrow == RVA_INVALID) {
             continue;
@@ -914,8 +916,8 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
 
         if (lineArrowY == -1) {
             lineArrowY = jumpDown
-                              ? geometry().bottom()
-                              : 0;
+                         ? geometry().bottom()
+                         : 0;
             endVisible = false;
         }
 

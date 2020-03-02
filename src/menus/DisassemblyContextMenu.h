@@ -64,8 +64,8 @@ private slots:
     void on_actionSetAsStringAdvanced_triggered();
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
-    std::pair<DisassemblyLine*, RVA> getDisassemblyLine(RVA address);
-    
+    std::pair<DisassemblyLine *, RVA> getDisassemblyLine(RVA address);
+
 
     /**
      * @brief Executed on selecting an offset from the structureOffsetMenu
@@ -188,7 +188,7 @@ private:
     QAction actionSetToDataQword;
 
     QAction showInSubmenu;
-    QList<QAction*> showTargetMenuActions;
+    QList<QAction *> showTargetMenuActions;
     QMenu *pluginMenu = nullptr;
     QAction *pluginActionMenuAction = nullptr;
 

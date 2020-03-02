@@ -138,8 +138,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
     addSetBitsMenu();
 
     structureOffsetMenu = addMenu(tr("Structure offset"));
-    connect(structureOffsetMenu, SIGNAL(triggered(QAction*)),
-            this, SLOT(on_actionStructureOffsetMenu_triggered(QAction*)));
+    connect(structureOffsetMenu, SIGNAL(triggered(QAction *)),
+            this, SLOT(on_actionStructureOffsetMenu_triggered(QAction *)));
 
     initAction(&actionLinkType, tr("Link Type to Address"),
                SLOT(on_actionLinkType_triggered()), getLinkTypeSequence());
@@ -327,7 +327,7 @@ void DisassemblyContextMenu::addBreakpointMenu()
                SLOT(on_actionAddBreakpoint_triggered()), getAddBPSequence());
     breakpointMenu->addAction(&actionAddBreakpoint);
     initAction(&actionAdvancedBreakpoint, tr("Advanced breakpoint"),
-               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL+Qt::Key_F2));
+               SLOT(on_actionAdvancedBreakpoint_triggered()), QKeySequence(Qt::CTRL + Qt::Key_F2));
     breakpointMenu->addAction(&actionAdvancedBreakpoint);
 }
 
@@ -442,16 +442,16 @@ void DisassemblyContextMenu::aboutToShowSlot()
     QVariant memDisp; // Displacement
     if (instObject.contains("opex") && instObject["opex"].toObject().contains("operands")) {
         // Loop through both the operands of the instruction
-        for (const QJsonValue value: instObject["opex"].toObject()["operands"].toArray()) {
+        for (const QJsonValue value : instObject["opex"].toObject()["operands"].toArray()) {
             QJsonObject operand = value.toObject();
             if (operand.contains("type") && operand["type"].toString() == "mem" &&
                     operand.contains("base") && !operand["base"].toString().contains("bp") &&
                     operand.contains("disp") && operand["disp"].toVariant().toLongLong() > 0) {
 
-                    // The current operand is the one which has an immediate displacement
-                    memBaseReg = operand["base"].toString();
-                    memDisp = operand["disp"].toVariant();
-                    break;
+                // The current operand is the one which has an immediate displacement
+                memBaseReg = operand["base"].toString();
+                memDisp = operand["disp"].toVariant();
+                break;
 
             }
         }
@@ -564,7 +564,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     debugMenu->menuAction()->setVisible(Core()->currentlyDebugging);
     bool hasBreakpoint = Core()->breakpointIndexAt(offset) > -1;
     actionAddBreakpoint.setText(hasBreakpoint ?
-                                     tr("Remove breakpoint") : tr("Add breakpoint"));
+                                tr("Remove breakpoint") : tr("Add breakpoint"));
     actionAdvancedBreakpoint.setText(hasBreakpoint ?
                                      tr("Edit breakpoint") : tr("Advanced breakpoint"));
     QString progCounterName = Core()->getRegisterName("PC").toUpper();
@@ -576,7 +576,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
             pluginAction->setData(QVariant::fromValue(offset));
         }
     }
-    
+
     // logic for disabling "unhighlight line"
     // when the line is not highlighted
     const auto disasLinePair = getDisassemblyLine(offset);
@@ -951,7 +951,7 @@ void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
     dialog.exec();
 }
 
-std::pair<DisassemblyLine*, RVA> DisassemblyContextMenu::getDisassemblyLine(RVA address)
+std::pair<DisassemblyLine *, RVA> DisassemblyContextMenu::getDisassemblyLine(RVA address)
 {
     // I wasn't able to call DisassemblyWidget::refreshDisasm
     // I believe that function will fix the stuff.
@@ -959,7 +959,7 @@ std::pair<DisassemblyLine*, RVA> DisassemblyContextMenu::getDisassemblyLine(RVA 
     QList<DisassemblyLine> lines = Core()->disassembleLines(offset, 10);
     for (int i = 0; i < lines.size() - 1; i++) {
         DisassemblyLine &line = lines[i];
-        DisassemblyLine &nextLine = lines[i+1];
+        DisassemblyLine &nextLine = lines[i + 1];
         if (line.offset <= address && address < nextLine.offset) {
             return {&line, nextLine.offset - line.offset};
         }
@@ -1024,13 +1024,12 @@ void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
     dialog.setStringSizeValue(predictedStrSize);
     dialog.setStringStartAddress(offset);
 
-    if(!dialog.exec())
-    {
+    if (!dialog.exec()) {
         return;
     }
 
     uint64_t strAddr = 0U;
-    if( !dialog.getStringStartAddress(strAddr) ) {
+    if ( !dialog.getStringStartAddress(strAddr) ) {
         QMessageBox::critical(this->window(), tr("Wrong address"), tr("Can't edit string at this address"));
         return;
     }
@@ -1038,8 +1037,7 @@ void DisassemblyContextMenu::on_actionSetAsStringAdvanced_triggered()
 
     const auto strSize = dialog.getStringSizeValue();
     const auto strType = dialog.getStringType();
-    switch(strType)
-    {
+    switch (strType) {
     case EditStringDialog::StringType::Auto:
         coreStringType = CutterCore::StringTypeFormats::None;
         break;
