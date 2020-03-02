@@ -102,7 +102,7 @@ div.sphinxsidebar h3,
 div.sphinxsidebar h4 {
     font-family: Content-font, Roboto, sans-serif;
     color: #444;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: normal;
     margin: 0 0 5px 0;
     padding: 0;
@@ -438,4 +438,59 @@ code.descname {
     ul {
         margin-left: 0;
     }
+}
+/* Kbd Style */
+
+kbd {
+    font-family: Consolas, "Lucida Console", monospace;
+    display: inline-block;
+    border-radius: 3px;
+    padding: 0px 4px;
+    box-shadow: 1px 1px 1px #777;
+    margin: 2px;
+    font-size: small;
+    vertical-align: text-bottom;
+    background: #eee;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    font-variant: small-caps;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+kbd:hover,
+kbd:hover * {
+    color: black;
+    box-shadow: 1px 1px 1px #333;
+}
+
+kbd:active,
+kbd:active * {
+    color: black;
+    box-shadow: 1px 1px 0px #ddd inset;
+}
+
+kbd kbd {
+    padding: 0px;
+    margin: 0 1px;
+    box-shadow: 0px 0px 0px black;
+    vertical-align: baseline;
+    background: none;
+}
+
+kbd kbd:hover {
+    box-shadow: 0px 0px 0px black;
+}
+
+kbd:active kbd {
+    box-shadow: 0px 0px 0px black;
+    background: none;
 }

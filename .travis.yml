@@ -72,6 +72,7 @@ matrix:
          - python3-sphinx
          - python3-breathe
          - python3-sphinx-rtd-theme
+         - python3-recommonmark
          - libgraphviz-dev
     install: ~
     before_script: ~

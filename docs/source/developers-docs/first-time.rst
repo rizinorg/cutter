@@ -9,7 +9,7 @@ The first step before starting to add code to Cutter, is to build it on your env
 Read documentation
 ------------------
 
-Read :doc:`../dev-doc`.
+Read :doc:`../developers-docs`.
 
 Get familiar with current situation
 -----------------------------------
