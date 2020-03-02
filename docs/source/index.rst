@@ -50,7 +50,8 @@ to learn how you can help improve the project!
    shortcuts
    building
    common-errors
-   dev-doc
+   developers-docs
+   user-docs
    plugins
    api
 

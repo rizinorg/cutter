@@ -4,10 +4,10 @@ Developer documentation
 This page shows some hints about the coding conventions.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :glob:
 
-   dev-doc/*
+   developers-docs/*
    crash-handling-system
 
 
