@@ -10,7 +10,7 @@ Instead, you will want to implement a radare2 plugin, which is documented `here 
 
 
 Loading and Overview
---------------------
+----------------------
 
 Plugins are loaded from an OS-dependent user-level directory.
 To get the location of this directory and a list of currently loaded plugins, navigate to Edit -> Preferences -> Plugins.
@@ -27,7 +27,7 @@ which will be created automatically by Cutter.
 
 
 Creating Plugins
----------------
+------------------
 
 .. toctree::
    :glob:

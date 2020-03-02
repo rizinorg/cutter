@@ -1,5 +1,5 @@
 Breakpoints Widget Context Menu 
-==============================
+================================
 
 
 Edit a breakpoint
