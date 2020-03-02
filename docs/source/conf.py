@@ -109,7 +109,7 @@ html_logo = '../../src/img/cutter.ico'
 #   'using/windows': ['windowssidebar.html', 'searchbox.html'],
 # }
 html_sidebars = {
-   '**': ['globaltoc.html'],
+   '**': ['globaltoc.html', 'searchbox.html'],
 }
 
 # -- Options for HTMLHelp output ---------------------------------------------
