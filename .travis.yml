@@ -101,6 +101,7 @@ dist: bionic
 addons:
   homebrew:
     brewfile: scripts/Brewfile
+    update: true
 
 install:
   - if [[ "$BUILD_SYSTEM" != "cmake_nodep" ]]; then
