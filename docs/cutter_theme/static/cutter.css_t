@@ -102,7 +102,7 @@ div.sphinxsidebar h3,
 div.sphinxsidebar h4 {
     font-family: Content-font, Roboto, sans-serif;
     color: #444;
-    font-size: 24px;
+    font-size: 18px;
     font-weight: normal;
     margin: 0 0 5px 0;
     padding: 0;
