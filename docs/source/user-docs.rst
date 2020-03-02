@@ -7,7 +7,8 @@ Cutter is an advanced reverse engineering platform that is powered by radare2. T
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
+   :titlesonly:
    :glob:
 
    user-docs/menus
