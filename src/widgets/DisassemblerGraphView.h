@@ -157,8 +157,6 @@ protected:
 
 private slots:
     void on_actionExportGraph_triggered();
-    void onActionHighlightBITriggered();
-    void onActionUnhighlightBITriggered();
 
 private:
     bool transition_dont_seek = false;
@@ -227,7 +225,6 @@ private:
 
     QAction actionExportGraph;
     QAction actionUnhighlight;
-    QAction actionUnhighlightInstruction;
 
     QLabel *emptyText = nullptr;
 

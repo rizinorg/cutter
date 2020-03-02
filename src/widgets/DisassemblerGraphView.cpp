@@ -46,8 +46,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
       contextMenu(new QMenu(this)),
       seekable(seekable),
       actionExportGraph(this),
-      actionUnhighlight(this),
-      actionUnhighlightInstruction(this)
+      actionUnhighlight(this)
 {
     highlight_token = nullptr;
     auto *layout = new QVBoxLayout(this);
@@ -157,21 +156,8 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         Config()->colorsUpdated();
     });
 
-    QAction *highlightBI = new QAction(this);
-    actionUnhighlightInstruction.setVisible(false);
-
-    highlightBI->setText(tr("Highlight instruction"));
-    connect(highlightBI, &QAction::triggered, this,
-            &DisassemblerGraphView::onActionHighlightBITriggered);
-
-    actionUnhighlightInstruction.setText(tr("Unhighlight instruction"));
-    connect(&actionUnhighlightInstruction, &QAction::triggered, this,
-            &DisassemblerGraphView::onActionUnhighlightBITriggered);
-
     blockMenu->addAction(highlightBB);
     blockMenu->addAction(&actionUnhighlight);
-    blockMenu->addAction(highlightBI);
-    blockMenu->addAction(&actionUnhighlightInstruction);
 
 
     // Include all actions from generic context menu in block specific menu
@@ -977,7 +963,6 @@ void DisassemblerGraphView::blockContextMenuRequested(GraphView::GraphBlock &blo
 {
     const RVA offset = this->seekable->getOffset();
     actionUnhighlight.setVisible(Core()->getBBHighlighter()->getBasicBlock(block.entry));
-    actionUnhighlightInstruction.setVisible(Core()->getBIHighlighter()->getBasicInstruction(offset));
     event->accept();
     blockMenu->exec(event->globalPos());
 }
@@ -1118,42 +1103,6 @@ void DisassemblerGraphView::on_actionExportGraph_triggered()
 
 }
 
-void DisassemblerGraphView::onActionHighlightBITriggered()
-{
-    const RVA offset = this->seekable->getOffset();
-    const Instr *instr = instrForAddress(offset);
-
-    if (!instr) {
-        return;
-    }
-
-    auto bih = Core()->getBIHighlighter();
-    QColor background = ConfigColor("linehl");
-    if (auto currentColor = bih->getBasicInstruction(offset)) {
-        background = currentColor->color;
-    }
-
-    QColor c = QColorDialog::getColor(background, this, QString(),
-                                      QColorDialog::DontUseNativeDialog);
-    if (c.isValid()) {
-        bih->highlight(instr->addr, instr->size, c);
-    }
-    Config()->colorsUpdated();
-}
-
-void DisassemblerGraphView::onActionUnhighlightBITriggered()
-{
-    const RVA offset = this->seekable->getOffset();
-    const Instr *instr = instrForAddress(offset);
-
-    if (!instr) {
-        return;
-    }
-
-    auto bih = Core()->getBIHighlighter();
-    bih->clear(instr->addr, instr->size);
-    Config()->colorsUpdated();
-}
 
 void DisassemblerGraphView::exportGraph(QString filePath, GraphExportType type)
 {

@@ -278,7 +278,7 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
     {
         TempConfig tempConfig;
         tempConfig.set("scr.color", COLOR_MODE_16M)
-		.set("asm.lines", false);
+        .set("asm.lines", false);
         lines = Core()->disassembleLines(topOffset, maxLines);
     }
 
@@ -292,11 +292,20 @@ void DisassemblyWidget::refreshDisasm(RVA offset)
             break;
         }
         cursor.insertHtml(line.text);
+
+        QColor backgroundColor;
         if (Core()->isBreakpoint(breakpoints, line.offset)) {
+            backgroundColor = ConfigColor("gui.breakpoint_background");
+        } else if (auto background = Core()->getBIHighlighter()->getBasicInstruction(line.offset)) {
+            backgroundColor = background->color;
+        }
+
+        if (backgroundColor.isValid()) {
             QTextBlockFormat f;
-            f.setBackground(ConfigColor("gui.breakpoint_background"));
+            f.setBackground(backgroundColor);
             cursor.setBlockFormat(f);
         }
+
         auto a = new DisassemblyTextBlockUserData(line);
         cursor.block().setUserData(a);
         cursor.insertBlock();

@@ -19,6 +19,7 @@ signals:
 public slots:
     void setOffset(RVA offset);
     void setCanCopy(bool enabled);
+    // QList<DisassemblyLine> getLines();
 
     /**
      * @brief Sets the value of curHighlightedWord
@@ -63,6 +64,8 @@ private slots:
     void on_actionSetAsStringAdvanced_triggered();
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
+    std::pair<DisassemblyLine*, RVA> getDisassemblyLine(RVA address);
+    
 
     /**
      * @brief Executed on selecting an offset from the structureOffsetMenu
@@ -78,6 +81,12 @@ private slots:
      * to a type
      */
     void on_actionLinkType_triggered();
+
+    void on_actionHighlightLine_triggered();
+    void on_actionUnhighlightLine_triggered();
+
+protected:
+    QList<DisassemblyLine> lines;
 
 private:
     QKeySequence getCopySequence() const;
@@ -182,6 +191,9 @@ private:
     QList<QAction*> showTargetMenuActions;
     QMenu *pluginMenu = nullptr;
     QAction *pluginActionMenuAction = nullptr;
+
+    QAction actionHighlightLine;
+    QAction actionUnhighlightLine;
 
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);

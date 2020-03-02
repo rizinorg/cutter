@@ -13,12 +13,21 @@
 #include "dialogs/BreakpointsDialog.h"
 #include "MainWindow.h"
 
+#include "common/BasicInstructionHighlighter.h"
+#include "common/Configuration.h"
+#include "common/SelectionHighlight.h"
+
+
+#include "DisassemblyWidget.h"
+
 #include <QtCore>
 #include <QShortcut>
 #include <QJsonArray>
 #include <QClipboard>
 #include <QApplication>
 #include <QPushButton>
+#include <QColorDialog>
+#include <QList>
 
 DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *mainWindow)
     :   QMenu(parent),
@@ -56,6 +65,8 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionSetBits32(this),
         actionSetBits64(this),
         actionContinueUntil(this),
+        actionHighlightLine(this),
+        actionUnhighlightLine(this),
         actionAddBreakpoint(this),
         actionAdvancedBreakpoint(this),
         actionSetPC(this),
@@ -153,6 +164,17 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
 
     addBreakpointMenu();
     addDebugMenu();
+
+    addSeparator();
+
+    initAction(&actionHighlightLine, tr("Highlight Line"),
+               SLOT(on_actionHighlightLine_triggered()));
+    addAction(&actionHighlightLine);
+
+    initAction(&actionUnhighlightLine, tr("Unhighlight Line"),
+               SLOT(on_actionUnhighlightLine_triggered()));
+    addAction(&actionUnhighlightLine);
+    actionUnhighlightLine.setVisible(false);
 
     addSeparator();
 
@@ -554,6 +576,12 @@ void DisassemblyContextMenu::aboutToShowSlot()
             pluginAction->setData(QVariant::fromValue(offset));
         }
     }
+    
+    // logic for disabling "unhighlight line"
+    // when the line is not highlighted
+    const auto disasLinePair = getDisassemblyLine(offset);
+    auto bih = Core()->getBIHighlighter();
+    actionUnhighlightLine.setVisible(disasLinePair.first && bih->getBasicInstruction(offset));
 }
 
 QKeySequence DisassemblyContextMenu::getCopySequence() const
@@ -921,6 +949,57 @@ void DisassemblyContextMenu::on_actionDisplayOptions_triggered()
     PreferencesDialog dialog(this->window());
     dialog.showSection(PreferencesDialog::Section::Disassembly);
     dialog.exec();
+}
+
+std::pair<DisassemblyLine*, RVA> DisassemblyContextMenu::getDisassemblyLine(RVA address)
+{
+    // I wasn't able to call DisassemblyWidget::refreshDisasm
+    // I believe that function will fix the stuff.
+    // 10 doesnt mean anything, sorry
+    QList<DisassemblyLine> lines = Core()->disassembleLines(offset, 10);
+    for (int i = 0; i < lines.size() - 1; i++) {
+        DisassemblyLine &line = lines[i];
+        DisassemblyLine &nextLine = lines[i+1];
+        if (line.offset <= address && address < nextLine.offset) {
+            return {&line, nextLine.offset - line.offset};
+        }
+    }
+
+    return {nullptr, RVA_INVALID};
+}
+
+void DisassemblyContextMenu::on_actionHighlightLine_triggered()
+{
+    const auto disasLinePair = getDisassemblyLine(offset);
+
+    if (!disasLinePair.first) {
+        return;
+    }
+    auto bih = Core()->getBIHighlighter();
+    QColor background = ConfigColor("linehl");
+    if (auto currentColor = bih->getBasicInstruction(offset)) {
+        background = currentColor->color;
+    }
+
+    QColor c = QColorDialog::getColor(background, this, QString(),
+                                      QColorDialog::DontUseNativeDialog);
+    if (c.isValid()) {
+        bih->highlight(offset, disasLinePair.second, c);
+    }
+    Config()->colorsUpdated();
+}
+
+void DisassemblyContextMenu::on_actionUnhighlightLine_triggered()
+{
+    const auto disasLinePair = getDisassemblyLine(offset);
+
+    if (!disasLinePair.first) {
+        return;
+    }
+
+    auto bih = Core()->getBIHighlighter();
+    bih->clear(offset, disasLinePair.second);
+    Config()->colorsUpdated();
 }
 
 void DisassemblyContextMenu::on_actionSetToCode_triggered()
