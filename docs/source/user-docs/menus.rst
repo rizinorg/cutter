@@ -5,7 +5,7 @@ This part of the user documentation will provide the reader with information abo
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :glob:
 
    menus/*

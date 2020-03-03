@@ -1,6 +1,14 @@
 Disassembly Context Menu 
 ==============================
 
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   disassembly-context-menu/*
+
+Disassembly context menu contains actions that operate with selected instruction in disassembly and graph widgets.
+
 Copy
 ----------------------------------------
 **Description:** Copy the selected text.  
@@ -119,3 +127,4 @@ Show Cross References
 **Steps:** Right click on an instruction and choose ``Show X-Refs``  
 
 **Shortcut:** :kbd:`X`
+
