@@ -445,7 +445,14 @@ QJsonDocument CutterCore::parseJson(const char *res, const char *cmd)
         } else {
             eprintf("Failed to parse JSON: %s\n", jsonError.errorString().toLocal8Bit().constData());
         }
-        eprintf("%s\n", json.constData());
+        const int MAX_JSON_DUMP_SIZE = 8 * 1024;
+        if (json.length() > MAX_JSON_DUMP_SIZE) {
+            int originalSize = json.length();
+            json.resize(MAX_JSON_DUMP_SIZE);
+            eprintf("%d bytes total: %s ...\n", originalSize, json.constData());
+        } else {
+            eprintf("%s\n", json.constData());
+        }
     }
 
     return doc;
