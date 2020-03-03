@@ -2,7 +2,7 @@ Disassembly Context Menu
 ==============================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :glob:
 
    disassembly-context-menu/*
