@@ -14,7 +14,7 @@ or top of the screen.
    menu-bar/windows-menu
    menu-bar/plugins-menu
    menu-bar/debug-menu
-   menu-bar/debug-->-view-menu
+   menu-bar/debug-view-menu
    menu-bar/help-menu
    menu-bar/*
 
