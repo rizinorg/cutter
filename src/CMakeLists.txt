@@ -169,6 +169,14 @@ add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${H
 set_target_properties(Cutter PROPERTIES
         ENABLE_EXPORTS ON
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
+install(TARGETS Cutter)
+
+if(UNIX AND NOT APPLE)
+    install (FILES "img/cutter.svg"
+                DESTINATION "share/icons/hicolor/scalable/apps/")
+    install(FILES "org.radare.Cutter.desktop"
+        DESTINATION "share/applications")
+endif()
 
 if (TARGET Graphviz::GVC)
     target_link_libraries(Cutter Graphviz::GVC)
