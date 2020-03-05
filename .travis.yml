@@ -69,11 +69,13 @@ matrix:
       apt:
         packages:
          - doxygen
-         - python3-sphinx
-         - python3-breathe
-         - python3-sphinx-rtd-theme
-         - python3-recommonmark
          - libgraphviz-dev
+    before_install:
+      - pyenv global 3.7
+      - pip install -U sphinx
+      - pip install -U breathe
+      - pip install -U sphinx-rtd-theme
+      - pip install -U recommonmark
     install: ~
     before_script: ~
     after_success: ~
