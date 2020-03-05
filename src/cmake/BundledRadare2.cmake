@@ -2,8 +2,13 @@
 include(ExternalProject)
 
 set(RADARE2_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../radare2")
-set(RADARE2_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/Radare2-prefix")
-set(MESON_OPTIONS "--prefix=${RADARE2_INSTALL_DIR}" --libdir=lib)
+if(WIN32)
+    set(RADARE2_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/")
+    set(MESON_OPTIONS "--prefix=${RADARE2_INSTALL_DIR}" --bindir=.)
+else()
+    set(RADARE2_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/Radare2-prefix")
+    set(MESON_OPTIONS "--prefix=${RADARE2_INSTALL_DIR}" --libdir=lib)
+endif()
 
 find_program(MESON meson)
 if(NOT MESON)
@@ -22,7 +27,11 @@ ExternalProject_Add(Radare2-Bundled
         BUILD_COMMAND "${NINJA}"
         INSTALL_COMMAND "${NINJA}" install)
 
-set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
+if (WIN32)
+    set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr" "${RADARE2_INSTALL_DIR}/include/")
+else()
+    set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
+endif()
 
 add_library(Radare2 INTERFACE)
 add_dependencies(Radare2 Radare2-Bundled)
