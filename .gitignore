@@ -74,6 +74,10 @@ compile_commands.json
 # vscode
 **/.vscode
 
+# Visual Studio CMake
+src/out
+.vs
+
 # cutter-deps
 /cutter-deps
 
