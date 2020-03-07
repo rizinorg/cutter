@@ -31,20 +31,30 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     for (const auto &plugin : asm_plugins) {
         ui->archComboBox->addItem(plugin, plugin);
     }
-    ui->archComboBox->setToolTip(core->cmd("e? asm.arch").trimmed());
+    ui->archComboBox->setToolTip(QString("%1 (%2)")
+                                 .arg(core->getConfigDescription("asm.arch").trimmed())
+                                 .arg("asm.arch"));
 
     // cpu combo box
     ui->cpuComboBox->lineEdit()->setPlaceholderText(tr("Auto"));
-    ui->cpuComboBox->setToolTip(core->cmd("e? asm.cpu").trimmed());
+
+    ui->cpuComboBox->setToolTip(QString("%1 (%2)")
+                                .arg(core->getConfigDescription("asm.cpu").trimmed())
+                                .arg("asm.cpu"));
+
     updateCPUComboBox();
 
     // os combo box
     for (const auto &plugin : core->cmdList("e asm.os=?")) {
         ui->kernelComboBox->addItem(plugin, plugin);
     }
-    ui->kernelComboBox->setToolTip(core->cmd("e? asm.os").trimmed());
+    ui->kernelComboBox->setToolTip(QString("%1 (%2)")
+                                   .arg(core->getConfigDescription("asm.os").trimmed())
+                                   .arg("asm.os"));
 
-    ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
+    ui->bitsComboBox->setToolTip(QString("%1 (%2)")
+                                 .arg(core->getConfigDescription("asm.bits").trimmed())
+                                 .arg("asm.bits"));
 
     for (const auto &plugin : core->getRBinPluginDescriptions("bin")) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
