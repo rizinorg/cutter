@@ -37,7 +37,7 @@ endif()
 add_library(Radare2 INTERFACE)
 add_dependencies(Radare2 Radare2-Bundled)
 if(NOT (${CMAKE_VERSION} VERSION_LESS "3.13.0"))
-    target_link_directories(Radare2 INTERFACE "${RADARE2_INSTALL_DIR}/lib")
+    target_link_directories(Radare2 INTERFACE $<BUILD_INTERFACE:${RADARE2_INSTALL_DIR}/lib>)
 else()
     link_directories("${RADARE2_INSTALL_DIR}/lib")
 endif()
@@ -50,8 +50,9 @@ set (R2_BIN r2agent rabin2 radare2 radiff2 rafind2 ragg2 rahash2 rarun2 rasm2 ra
 
 target_link_libraries(Radare2 INTERFACE
         ${R2_LIBS})
-target_include_directories(Radare2 INTERFACE "${Radare2_INCLUDE_DIRS}")
+target_include_directories(Radare2 INTERFACE $<BUILD_INTERFACE:${Radare2_INCLUDE_DIRS}> $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/libr>)
 
+install(TARGETS Radare2 EXPORT Cutter)
 if (APPLE)
 elseif (WIN32)
     foreach(_lib ${R2_LIBS} ${R2_EXTRA_LIBS})
