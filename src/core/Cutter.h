@@ -265,6 +265,7 @@ public:
     bool getConfigb(const QString &k) { return getConfigb(k.toUtf8().constData()); }
     QString getConfig(const char *k);
     QString getConfig(const QString &k) { return getConfig(k.toUtf8().constData()); }
+    QString getConfigDescription(const char *k);
     QList<QString> getColorThemes();
 
     /* Assembly\Hexdump related methods */

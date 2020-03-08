@@ -912,6 +912,13 @@ bool CutterCore::getConfigb(const char *k)
     return r_config_get_i(core->config, k) != 0;
 }
 
+QString CutterCore::getConfigDescription(const char *k)
+{
+    CORE_LOCK();
+    RConfigNode *node = r_config_node_get (core->config, k);
+    return QString(node->desc);
+}
+
 void CutterCore::triggerRefreshAll()
 {
     emit refreshAll();
