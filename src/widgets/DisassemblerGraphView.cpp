@@ -1157,12 +1157,14 @@ void DisassemblerGraphView::onActionUnhighlightBITriggered()
 
 void DisassemblerGraphView::exportGraph(QString filePath, GraphExportType type)
 {
+    bool graphTransparent = Config()->getBitmapTransparentState();
+    double graphScaleFactor = Config()->getBitmapExportScaleFactor();
     switch (type) {
     case GraphExportType::Png:
-        this->saveAsBitmap(filePath, "png");
+        this->saveAsBitmap(filePath, "png", graphScaleFactor, graphTransparent);
         break;
     case GraphExportType::Jpeg:
-        this->saveAsBitmap(filePath, "jpg");
+        this->saveAsBitmap(filePath, "jpg", graphScaleFactor, false);
         break;
     case GraphExportType::Svg:
         this->saveAsSvg(filePath);

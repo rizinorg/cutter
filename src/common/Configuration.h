@@ -18,6 +18,11 @@ namespace KSyntaxHighlighting {
 class QSyntaxHighlighter;
 class QTextDocument;
 
+// Graph Export Settings
+extern double bitmapGraphExportScale;
+extern bool bitmapGraphExportTransparency;
+
+
 enum ColorFlags {
     LightFlag = 1,
     DarkFlag = 2,
@@ -171,6 +176,14 @@ public:
 
     bool getDecompilerAutoRefreshEnabled();
     void setDecompilerAutoRefreshEnabled(bool enabled);
+
+    /**
+     * @brief Getters and setters for the transaparent option state and scale factor for bitmap graph exports.
+     */
+    bool getBitmapTransparentState();
+    double getBitmapExportScaleFactor();
+    void setBitmapTransparentState(bool inputValueGraph);
+    void setBitmapExportScaleFactor(double inputValueGraph);
 public slots:
     void refreshFont();
 signals:

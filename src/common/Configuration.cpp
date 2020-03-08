@@ -16,6 +16,9 @@
 #include "common/ColorThemeWorker.h"
 #include "common/SyntaxHighlighter.h"
 
+double bitmapGraphExportScale = 1.0;
+bool bitmapGraphExportTransparency = false;
+
 /* Map with names of themes associated with its color palette
  * (Dark or Light), so for dark interface themes will be shown only Dark color themes
  * and for light - only light ones.
@@ -706,4 +709,24 @@ bool Configuration::getDecompilerAutoRefreshEnabled()
 void Configuration::setDecompilerAutoRefreshEnabled(bool enabled)
 {
     s.setValue("decompilerAutoRefresh", enabled);
+}
+
+bool Configuration::getBitmapTransparentState()
+{
+    return bitmapGraphExportTransparency;
+}
+
+double Configuration::getBitmapExportScaleFactor()
+{
+    return bitmapGraphExportScale;
+}
+
+void Configuration::setBitmapTransparentState(bool inputValueGraph)
+{
+    bitmapGraphExportTransparency = inputValueGraph;
+}
+
+void Configuration::setBitmapExportScaleFactor(double inputValueGraph)
+{
+    bitmapGraphExportScale = inputValueGraph;
 }
