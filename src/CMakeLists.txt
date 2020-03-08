@@ -169,14 +169,18 @@ endif()
 add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${HEADER_FILES} ${BINDINGS_SOURCE})
 set_target_properties(Cutter PROPERTIES
         ENABLE_EXPORTS ON
-        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist"
-        PUBLIC_HEADER "${HEADER_FILES}")
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
 install(TARGETS Cutter
         EXPORT Cutter
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cutter"
+        BUNDLE DESTINATION "." # needs to be tested
         )
 install (EXPORT Cutter DESTINATION "${CMAKE_INSTALL_LIBDIR}/Cutter")
+foreach(_file ${HEADER_FILES})
+    # Can't use target PUBLIC_HEADER option for installing due to multiple directories
+    get_filename_component(_header_dir "${_file}" DIRECTORY)
+    install (FILES "${_file}" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_header_dir}")
+endforeach()
 
 if(UNIX AND NOT APPLE)
     install (FILES "img/cutter.svg"
