@@ -31,16 +31,12 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     for (const auto &plugin : asm_plugins) {
         ui->archComboBox->addItem(plugin, plugin);
     }
-    ui->archComboBox->setToolTip(QString("%1 (%2)")
-                                 .arg(core->getConfigDescription("asm.arch").trimmed())
-                                 .arg("asm.arch"));
+
+    setTooltipWithConfigHelp(ui->archComboBox,"asm.arch");
 
     // cpu combo box
     ui->cpuComboBox->lineEdit()->setPlaceholderText(tr("Auto"));
-
-    ui->cpuComboBox->setToolTip(QString("%1 (%2)")
-                                .arg(core->getConfigDescription("asm.cpu").trimmed())
-                                .arg("asm.cpu"));
+    setTooltipWithConfigHelp(ui->cpuComboBox, "asm.cpu");
 
     updateCPUComboBox();
 
@@ -48,13 +44,9 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     for (const auto &plugin : core->cmdList("e asm.os=?")) {
         ui->kernelComboBox->addItem(plugin, plugin);
     }
-    ui->kernelComboBox->setToolTip(QString("%1 (%2)")
-                                   .arg(core->getConfigDescription("asm.os").trimmed())
-                                   .arg("asm.os"));
 
-    ui->bitsComboBox->setToolTip(QString("%1 (%2)")
-                                 .arg(core->getConfigDescription("asm.bits").trimmed())
-                                 .arg("asm.bits"));
+    setTooltipWithConfigHelp(ui->kernelComboBox, "asm.os");
+    setTooltipWithConfigHelp(ui->bitsComboBox, "asm.bits");
 
     for (const auto &plugin : core->getRBinPluginDescriptions("bin")) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
@@ -175,6 +167,14 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 
     // TODO: all other options should also be applied to the ui
 }
+
+
+void InitialOptionsDialog::setTooltipWithConfigHelp(QWidget *w, const char *config) {
+    w->setToolTip(QString("%1 (%2)")
+                  .arg(core->getConfigDescription(config))
+                  .arg(config));
+}
+
 
 QString InitialOptionsDialog::getSelectedArch() const
 {
