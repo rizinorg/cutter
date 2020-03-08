@@ -170,24 +170,6 @@ add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${H
 set_target_properties(Cutter PROPERTIES
         ENABLE_EXPORTS ON
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
-install(TARGETS Cutter
-        EXPORT Cutter
-        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-        BUNDLE DESTINATION "." # needs to be tested
-        )
-install (EXPORT Cutter DESTINATION "${CMAKE_INSTALL_LIBDIR}/Cutter")
-foreach(_file ${HEADER_FILES})
-    # Can't use target PUBLIC_HEADER option for installing due to multiple directories
-    get_filename_component(_header_dir "${_file}" DIRECTORY)
-    install (FILES "${_file}" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_header_dir}")
-endforeach()
-
-if(UNIX AND NOT APPLE)
-    install (FILES "img/cutter.svg"
-                DESTINATION "share/icons/hicolor/scalable/apps/")
-    install(FILES "org.radare.Cutter.desktop"
-        DESTINATION "share/applications")
-endif()
 
 if (TARGET Graphviz::GVC)
     target_link_libraries(Cutter Graphviz::GVC)
@@ -240,3 +222,31 @@ if(TARGET KF5::SyntaxHighlighting)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
 endif()
 
+# Install files
+install(TARGETS Cutter
+        EXPORT CutterTargets
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        BUNDLE DESTINATION "." # needs to be tested
+)
+install(EXPORT CutterTargets
+    NAMESPACE Cutter::
+    DESTINATION "${ConfigPackageLocation}"
+    COMPONENT Devel)
+install(FILES
+    cmake/CutterConfig.cmake
+    DESTINATION ${ConfigPackageLocation}
+    COMPONENT Devel
+)
+foreach(_file ${HEADER_FILES})
+    # Can't use target PUBLIC_HEADER option for installing due to multiple directories
+    get_filename_component(_header_dir "${_file}" DIRECTORY)
+    install (FILES "${_file}" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_header_dir}" COMPONENT Devel)
+endforeach()
+
+if(UNIX AND NOT APPLE)
+    install (FILES "img/cutter.svg"
+                DESTINATION "share/icons/hicolor/scalable/apps/")
+    install(FILES "org.radare.Cutter.desktop"
+        DESTINATION "share/applications"
+        COMPONENT Devel)
+endif()
