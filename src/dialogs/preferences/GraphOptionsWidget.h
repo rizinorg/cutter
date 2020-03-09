@@ -20,9 +20,7 @@ class GraphOptionsWidget : public QDialog
 
 public:
     explicit GraphOptionsWidget(PreferencesDialog *dialog);
-    bool getExportBitmapTransparency();
     ~GraphOptionsWidget();
-    bool exportGraphTranparency();
 private:
     std::unique_ptr<Ui::GraphOptionsWidget> ui;
 
@@ -34,8 +32,9 @@ private slots:
     void on_maxColsSpinBox_valueChanged(int value);
     void on_graphOffsetCheckBox_toggled(bool checked);
 
-    void on_bitmapGraphScale_valueChanged(double value);
-    void on_checkTransparent_stateChanged(int checked);
+    void checkTransparentStateChanged(int checked);
+    void bitmapGraphScaleValueChanged(double value);
+  
 };
 
 

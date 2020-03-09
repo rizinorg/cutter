@@ -16,9 +16,6 @@
 #include "common/ColorThemeWorker.h"
 #include "common/SyntaxHighlighter.h"
 
-double bitmapGraphExportScale = 1.0;
-bool bitmapGraphExportTransparency = false;
-
 /* Map with names of themes associated with its color palette
  * (Dark or Light), so for dark interface themes will be shown only Dark color themes
  * and for light - only light ones.

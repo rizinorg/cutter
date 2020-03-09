@@ -45,11 +45,20 @@
      </item>
      <item row="1" column="1">
       <widget class="QDoubleSpinBox" name="bitmapGraphScale">
+       <property name="suffix">
+        <string>%</string>
+       </property>
+       <property name="decimals">
+        <number>0</number>
+       </property>
        <property name="minimum">
         <double>100.000000000000000</double>
        </property>
        <property name="maximum">
         <double>30000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>50.000000000000000</double>
        </property>
       </widget>
      </item>

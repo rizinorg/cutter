@@ -18,10 +18,6 @@ namespace KSyntaxHighlighting {
 class QSyntaxHighlighter;
 class QTextDocument;
 
-// Graph Export Settings
-extern double bitmapGraphExportScale;
-extern bool bitmapGraphExportTransparency;
-
 
 enum ColorFlags {
     LightFlag = 1,
@@ -41,6 +37,10 @@ private:
     QPalette nativePalette;
     QSettings s;
     static Configuration *mPtr;
+
+    // Graph Export Settings
+    double bitmapGraphExportScale = 1.0;
+    bool bitmapGraphExportTransparency = false;
 
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     KSyntaxHighlighting::Repository *kSyntaxHighlightingRepository;
@@ -184,6 +184,7 @@ public:
     double getBitmapExportScaleFactor();
     void setBitmapTransparentState(bool inputValueGraph);
     void setBitmapExportScaleFactor(double inputValueGraph);
+
 public slots:
     void refreshFont();
 signals:
