@@ -710,20 +710,21 @@ void Configuration::setDecompilerAutoRefreshEnabled(bool enabled)
 
 bool Configuration::getBitmapTransparentState()
 {
-    return bitmapGraphExportTransparency;
+    return s.value("bitmapGraphExportTransparency", false).value<bool>();
 }
 
 double Configuration::getBitmapExportScaleFactor()
 {
-    return bitmapGraphExportScale;
+    return s.value("bitmapGraphExportScale", 1.0).value<double>();
 }
 
 void Configuration::setBitmapTransparentState(bool inputValueGraph)
 {
-    bitmapGraphExportTransparency = inputValueGraph;
+    s.setValue("bitmapGraphExportTransparency", inputValueGraph);
 }
 
 void Configuration::setBitmapExportScaleFactor(double inputValueGraph)
 {
-    bitmapGraphExportScale = inputValueGraph;
+    s.setValue("bitmapGraphExportScale", inputValueGraph);
 }
+

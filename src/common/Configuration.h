@@ -38,10 +38,6 @@ private:
     QSettings s;
     static Configuration *mPtr;
 
-    // Graph Export Settings
-    double bitmapGraphExportScale = 1.0;
-    bool bitmapGraphExportTransparency = false;
-
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     KSyntaxHighlighting::Repository *kSyntaxHighlightingRepository;
 #endif
