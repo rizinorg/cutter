@@ -82,7 +82,7 @@ public:
 
     void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0, bool interactive = true);
 
-    void saveAsBitmap(QString path, const char *format = nullptr);
+    void saveAsBitmap(QString path, const char *format = nullptr, double scaler = 1.0, bool transparent = false);
     void saveAsSvg(QString path);
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;

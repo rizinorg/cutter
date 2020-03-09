@@ -14,8 +14,12 @@ GraphOptionsWidget::GraphOptionsWidget(PreferencesDialog *dialog)
       ui(new Ui::GraphOptionsWidget)
 {
     ui->setupUi(this);
-
+    ui->checkTransparent->setChecked(Config()->getBitmapTransparentState());
+    ui->bitmapGraphScale->setValue(Config()->getBitmapExportScaleFactor()*100.0);
     updateOptionsFromVars();
+
+    connect<void(QDoubleSpinBox::*)(double)>(ui->bitmapGraphScale, (&QDoubleSpinBox::valueChanged), this, &GraphOptionsWidget::bitmapGraphScaleValueChanged);
+    connect(ui->checkTransparent, &QCheckBox::stateChanged, this, &GraphOptionsWidget::checkTransparentStateChanged);
 
     connect(Core(), SIGNAL(graphOptionsChanged()), this, SLOT(updateOptionsFromVars()));
 }
@@ -50,3 +54,15 @@ void GraphOptionsWidget::on_graphOffsetCheckBox_toggled(bool checked)
     Config()->setConfig("graph.offset", checked);
     triggerOptionsChanged();
 }
+
+void GraphOptionsWidget::checkTransparentStateChanged(int checked)
+{
+    Config()->setBitmapTransparentState(checked);
+}
+
+void GraphOptionsWidget::bitmapGraphScaleValueChanged(double value)
+{
+    double value_decimal = value/(double)100.0;
+    Config()->setBitmapExportScaleFactor(value_decimal);
+}
+

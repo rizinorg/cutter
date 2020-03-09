@@ -397,13 +397,17 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
     }
 }
 
-void GraphView::saveAsBitmap(QString path, const char *format)
+void GraphView::saveAsBitmap(QString path, const char *format, double scaler, bool transparent)
 {
-    QImage image(width, height, QImage::Format_RGB32);
-    image.fill(backgroundColor);
+    QImage image(width*scaler, height*scaler, QImage::Format_ARGB32);
+    if(transparent){
+        image.fill(qRgba(0, 0, 0, 0));
+    }else{
+        image.fill(backgroundColor);
+    }
     QPainter p;
     p.begin(&image);
-    paint(p, QPoint(0, 0), image.rect(), 1.0, false);
+    paint(p, QPoint(0, 0), image.rect(), scaler, false);
     p.end();
     if (!image.save(path, format)) {
         qWarning() << "Could not save image";
