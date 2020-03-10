@@ -26,7 +26,7 @@ author = 'The Cutter Developers'
 # The short X.Y version
 version = '1.10'
 # The full version, including alpha/beta/rc tags
-release = '1.10.1'
+release = '1.10.2'
 
 
 # -- General configuration ---------------------------------------------------
