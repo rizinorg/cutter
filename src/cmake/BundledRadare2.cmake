@@ -28,11 +28,7 @@ ExternalProject_Add(Radare2-Bundled
         BUILD_COMMAND "${NINJA}"
         INSTALL_COMMAND "${NINJA}" install)
 
-if (WIN32)
-    set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr" "${RADARE2_INSTALL_DIR}/include/")
-else()
-    set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
-endif()
+set(Radare2_INCLUDE_DIRS "${RADARE2_INSTALL_DIR}/include/libr")
 
 add_library(Radare2 INTERFACE)
 add_dependencies(Radare2 Radare2-Bundled)
@@ -62,7 +58,11 @@ elseif (WIN32)
         install(FILES "${RADARE2_INSTALL_DIR}/${R2_INSTALL_BINPATH}/${_exe}.exe" DESTINATION "${CMAKE_INSTALL_BINDIR}")
     endforeach()
     install(DIRECTORY "${RADARE2_INSTALL_DIR}/share" DESTINATION ".")
-    install(DIRECTORY "${RADARE2_INSTALL_DIR}/include" DESTINATION ".")
+    install(DIRECTORY "${RADARE2_INSTALL_DIR}/include" DESTINATION "."
+        COMPONENT Devel)
+    install(DIRECTORY "${RADARE2_INSTALL_DIR}/lib" DESTINATION "."
+        COMPONENT Devel
+        PATTERN "*.pdb" EXCLUDE)
 else ()
     install(DIRECTORY "${RADARE2_INSTALL_DIR}/" DESTINATION ".")
 endif()
