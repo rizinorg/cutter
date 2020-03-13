@@ -169,6 +169,7 @@ add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${H
 set_target_properties(Cutter PROPERTIES
         ENABLE_EXPORTS ON
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
+target_compile_definitions(Cutter PRIVATE CUTTER_SOURCE_BUILD)
 
 set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
 foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
@@ -243,6 +244,7 @@ install(TARGETS Cutter
         EXPORT CutterTargets
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
         BUNDLE DESTINATION "." # needs to be tested
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Devel
 )
 install(EXPORT CutterTargets
     NAMESPACE Cutter::
