@@ -53,18 +53,29 @@ Then invoke CMake to build Cutter and its dependency radare2.
 
 .. code:: sh
 
-   cd cutter/src
-   mkdir build
-   cmake -B build -DCUTTER_USE_BUNDLED_RADARE2=ON
+   cd cutter
+   mkdir build && cd build
+   cmake -DCUTTER_USE_BUNDLED_RADARE2=ON ../src
+   cmake --build .
+
+If your operating system has a newer version of CMake (> v3.12) you can use this cleaner solution:
+
+.. code:: sh
+
+   cd cutter
+   cmake -S src -B build -DCUTTER_USE_BUNDLED_RADARE2=ON
    cmake --build build
 
 
-If you are interested in building Cutter with support for Python plugins,
-Syntax Highlighting, Crash Reporting and more,
-please look at the full list of `CMake Building Options`_.
+.. note::
 
-After the build process is complete, you should be provided with Cutter executable
-that you can start like this:
+   If you are interested in building Cutter with support for Python plugins,
+   Syntax Highlighting, Crash Reporting and more,
+   please look at the full list of `CMake Building Options`_.
+
+
+After the build process is complete, you should have the Cutter executable in the `build` folder.
+You can now execute Cutter like this:
 
 .. code:: sh
 
