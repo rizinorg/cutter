@@ -4,6 +4,9 @@ include(ExternalProject)
 set(RADARE2_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../radare2")
 if(WIN32)
     set(RADARE2_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}")
+    if ("${CMAKE_GENERATOR}" MATCHES "Visual Studio")
+        set(RADARE2_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+    endif()
     set(RADARE2_INSTALL_BINPATH ".")
     set(MESON_OPTIONS "--prefix=${RADARE2_INSTALL_DIR}" "--bindir=${RADARE2_INSTALL_BINPATH}" "-Dr2_incdir=include/libr")
 else()
@@ -23,8 +26,7 @@ endif()
 
 ExternalProject_Add(Radare2-Bundled
         SOURCE_DIR "${RADARE2_SOURCE_DIR}"
-        INSTALL_DIR "${RADARE2_INSTALL_DIR}"
-        CONFIGURE_COMMAND "${MESON}" "${RADARE2_SOURCE_DIR}" ${MESON_OPTIONS} && "${MESON}" configure ${MESON_OPTIONS}
+        CONFIGURE_COMMAND "${MESON}" "<SOURCE_DIR>" ${MESON_OPTIONS} && "${MESON}" configure ${MESON_OPTIONS}
         BUILD_COMMAND "${NINJA}"
         INSTALL_COMMAND "${NINJA}" install)
 
