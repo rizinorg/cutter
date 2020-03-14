@@ -459,6 +459,14 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     actionAnalyzeFunction.setVisible(true);
 
+    Core()->seek(offset);
+    QString stringDefiniton = Core()->cmd("Cs.");
+    if (stringDefiniton.isNull() || stringDefiniton.isEmpty()) {
+        actionSetAsStringRemove.setVisible(false);
+    } else {
+        actionSetAsStringRemove.setVisible(true);
+    }
+
     QString comment = Core()->cmd("CC." + RAddressString(offset));
     if (comment.isNull() || comment.isEmpty()) {
         actionDeleteComment.setVisible(false);
