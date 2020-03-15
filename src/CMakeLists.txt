@@ -7,6 +7,7 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
 include(Utils)
+include(CutterInstallDirs)
 
 set(CUTTER_PYTHON_MIN 3.5)
 
@@ -44,7 +45,6 @@ project(Cutter VERSION "${CUTTER_VERSION_FULL}")
 
 set(CMAKE_CXX_STANDARD 11)
 
-include_directories(core widgets common plugins menus)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -169,38 +169,56 @@ add_executable(Cutter MACOSX_BUNDLE ${UI_FILES} ${QRC_FILES} ${SOURCE_FILES} ${H
 set_target_properties(Cutter PROPERTIES
         ENABLE_EXPORTS ON
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/macos/Info.plist")
+target_compile_definitions(Cutter PRIVATE CUTTER_SOURCE_BUILD)
+
+set(CUTTER_INCLUDE_DIRECTORIES core widgets common plugins menus .)
+foreach(_dir ${CUTTER_INCLUDE_DIRECTORIES})
+    target_include_directories(Cutter PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${_dir}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_dir}>
+    )
+endforeach()
 
 if (TARGET Graphviz::GVC)
-    target_link_libraries(Cutter Graphviz::GVC)
+    target_link_libraries(Cutter PRIVATE Graphviz::GVC)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_GRAPHVIZ)
 endif()
 
 if(CUTTER_ENABLE_CRASH_REPORTS)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     find_package(Threads REQUIRED)
-    target_link_libraries(Cutter Threads::Threads)
-    
+    target_link_libraries(Cutter PRIVATE Threads::Threads)
+
     add_definitions(-DCUTTER_ENABLE_CRASH_REPORTS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ")
     if(DEFINED BREAKPAD_FRAMEWORK_DIR)
         include_directories("${BREAKPAD_FRAMEWORK_DIR}/Breakpad.framework/Headers")
         set_target_properties(Cutter PROPERTIES LINK_FLAGS "-Wl,-F${BREAKPAD_FRAMEWORK_DIR}")
-        target_link_libraries(Cutter "-framework Breakpad")
+        target_link_libraries(Cutter PRIVATE "-framework Breakpad")
     else()
         find_package(Breakpad REQUIRED)
         include_directories(${BREAKPAD_INCLUDE_DIRS})
-        target_link_libraries(Cutter ${BREAKPAD_LINK_LIBRARIES})
+        target_link_libraries(Cutter PRIVATE ${BREAKPAD_LINK_LIBRARIES})
     endif()
 endif()
 
-target_link_libraries(Cutter Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Svg Qt5::Network)
-target_link_libraries(Cutter ${RADARE2_TARGET})
+target_link_libraries(Cutter PUBLIC Qt5::Core Qt5::Widgets Qt5::Gui PRIVATE  Qt5::Svg Qt5::Network)
+target_link_libraries(Cutter PUBLIC ${RADARE2_TARGET})
 if(CUTTER_ENABLE_PYTHON)
-    target_link_libraries(Cutter ${PYTHON_LIBRARIES})
+    target_link_libraries(Cutter PRIVATE ${PYTHON_LIBRARIES})
     if(CUTTER_ENABLE_PYTHON_BINDINGS)
-        target_link_libraries(Cutter Shiboken2::libshiboken PySide2::pyside2)
+        target_link_libraries(Cutter PRIVATE Shiboken2::libshiboken PySide2::pyside2)
 
-        get_target_property(BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
+        get_target_property(RAW_BINDINGS_INCLUDE_DIRS Cutter INCLUDE_DIRECTORIES)
+        set(BINDINGS_INCLUDE_DIRS "")
+        foreach(_dir ${RAW_BINDINGS_INCLUDE_DIRS})
+            string(REGEX REPLACE "\\$<BUILD_INTERFACE:(.*)>" "\\1" _dir ${_dir})
+            string(REGEX REPLACE "\\$<INSTALL_INTERFACE:(.*)>" "" _dir ${_dir})
+            if (NOT "${_dir}" STREQUAL "")
+                list(APPEND BINDINGS_INCLUDE_DIRS "${_dir}")
+            endif()
+        endforeach()
+
         if(APPLE AND _qt5Core_install_prefix)
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include")
             list(APPEND BINDINGS_INCLUDE_DIRS "${_qt5Core_install_prefix}/include/QtCore")
@@ -217,7 +235,36 @@ if(CUTTER_ENABLE_PYTHON)
 endif()
 
 if(TARGET KF5::SyntaxHighlighting)
-    target_link_libraries(Cutter KF5::SyntaxHighlighting)
+    target_link_libraries(Cutter PRIVATE KF5::SyntaxHighlighting)
     target_compile_definitions(Cutter PRIVATE CUTTER_ENABLE_KSYNTAXHIGHLIGHTING)
 endif()
 
+# Install files
+install(TARGETS Cutter
+        EXPORT CutterTargets
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        BUNDLE DESTINATION "." # needs to be tested
+        ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT Devel
+)
+install(EXPORT CutterTargets
+    NAMESPACE Cutter::
+    DESTINATION "${ConfigPackageLocation}"
+    COMPONENT Devel)
+install(FILES
+    cmake/CutterConfig.cmake
+    DESTINATION ${ConfigPackageLocation}
+    COMPONENT Devel
+)
+foreach(_file ${HEADER_FILES})
+    # Can't use target PUBLIC_HEADER option for installing due to multiple directories
+    get_filename_component(_header_dir "${_file}" DIRECTORY)
+    install (FILES "${_file}" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/cutter/${_header_dir}" COMPONENT Devel)
+endforeach()
+
+if(UNIX AND NOT APPLE)
+    install (FILES "img/cutter.svg"
+                DESTINATION "share/icons/hicolor/scalable/apps/")
+    install(FILES "org.radare.Cutter.desktop"
+        DESTINATION "share/applications"
+        COMPONENT Devel)
+endif()

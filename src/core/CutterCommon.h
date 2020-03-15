@@ -55,5 +55,11 @@ inline QString RHexString(RVA size)
     return QString::asprintf("%#llx", size);
 }
 
+#ifdef CUTTER_SOURCE_BUILD
+#define CUTTER_EXPORT Q_DECL_EXPORT
+#else
+#define CUTTER_EXPORT Q_DECL_IMPORT
+#endif
+
 #endif // CUTTERCORE_H
 
