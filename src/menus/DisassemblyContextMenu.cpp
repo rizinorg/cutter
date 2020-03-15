@@ -459,6 +459,10 @@ void DisassemblyContextMenu::aboutToShowSlot()
 
     actionAnalyzeFunction.setVisible(true);
 
+    // Show the option to remove a defined string only if a string is defined in this address
+    QString stringDefinition = Core()->cmd("Cs. @ " + RAddressString(offset));
+    actionSetAsStringRemove.setVisible(!stringDefinition.isEmpty());
+
     QString comment = Core()->cmd("CC." + RAddressString(offset));
     if (comment.isNull() || comment.isEmpty()) {
         actionDeleteComment.setVisible(false);
