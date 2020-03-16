@@ -558,11 +558,18 @@ public:
      * @param enabled
      */
     void setIOCache(bool enabled);
+
     /**
      * @brief Check if Cache mode is enabled.
      * @return true if Cache is enabled, otherwise return false.
      */
     bool isIOCacheEnabled() const;
+
+    /**
+     * @brief Commit write cache to the file on disk.
+     */
+    void commitWriteCache();
+
     /**
      * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it will be immediately
      * committed to the file on disk, thus modify the file. This function wrap radare2 function which re-open the file with

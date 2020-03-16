@@ -140,13 +140,7 @@ void MainWindow::initUI()
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
     connect(ui->actionCommitChanges, &QAction::triggered, this, [this]() {
-        if (!Core()->isWriteModeEnabled()) {
-            Core()->cmd("oo+");
-            Core()->cmd("wci");
-            Core()->cmd("oo");
-        } else {
-            Core()->cmd("wci");
-        }
+        Core()->commitWriteCache();
     });
     ui->actionCommitChanges->setEnabled(false);
     connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
@@ -632,6 +626,24 @@ void MainWindow::setFilename(const QString &fn)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+
+    // Check if there are uncomitted changes
+    if (core->isIOCacheEnabled() && !core->cmdj("wcj").array().isEmpty()) {
+
+        QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
+                                                                tr("It seems that you have changes or patches that are not comitted to the file.\n"
+                                                                "Do you want to commit them now?"),
+                                                                (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+        if (ret == QMessageBox::Cancel) {
+            event->ignore();
+            return;
+        }
+
+        if (ret == QMessageBox::Save) {
+            core->commitWriteCache();
+        } 
+    }
+
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                                             tr("Do you really want to exit?\nSave your project before closing!"),
                                                             (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));

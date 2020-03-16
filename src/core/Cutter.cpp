@@ -3690,6 +3690,17 @@ bool CutterCore::isIOCacheEnabled() const
     return iocache;
 }
 
+void CutterCore::commitWriteCache()
+{
+    if (!isWriteModeEnabled()) {
+        setWriteMode (true);
+        cmd("wci");
+        cmd("oo");
+    } else {
+        cmd("wci");
+    }
+}
+
 // Enable or disable write-mode. Avoid unecessary changes if not need.
 void CutterCore::setWriteMode(bool enabled)
 {
