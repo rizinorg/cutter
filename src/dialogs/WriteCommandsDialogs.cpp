@@ -67,9 +67,7 @@ DuplicateFromOffsetDialog::DuplicateFromOffsetDialog(QWidget* parent) : QDialog(
 
 RVA DuplicateFromOffsetDialog::getOffset() const
 {
-    bool ok;
-    uint64_t val = ui->offsetLE->text().toULongLong(&ok, 16);
-    return ok ? val : 0;
+    return Core()->math(ui->offsetLE->text());
 }
 
 size_t DuplicateFromOffsetDialog::getNBytes() const
@@ -79,21 +77,16 @@ size_t DuplicateFromOffsetDialog::getNBytes() const
 
 void DuplicateFromOffsetDialog::refresh()
 {
-    RVA newOffset = getOffset();
-    if (newOffset != 0) {
-        QSignalBlocker sb(Core());
-        RVA bo = Core()->getOffset();
-        Core()->seek(newOffset);
-        QString s = Core()->cmd("p8 " + QString::number(getNBytes()));
-        Core()->seek(bo);
-        QStringList sl;
-        for (int i = 0; i < s.size(); i += 16) {
-            QString ss = "";
-            for (int j = i; j < i + 16 && j < s.size(); j++) {
-                ss += QString(s.at(j)) + ((j % 2 == 1) ? " " : "");
-            }
-            sl.push_back(ss);
-        }
-        ui->bytesLabel->setText(sl.join("\n"));
-    }
+    RVA offestFrom = getOffset();
+
+    QSignalBlocker sb(Core());
+
+    // Add space every two characters for word wrap in hex sequence
+    QRegularExpression re{"(.{2})"};
+    QString bytes = Core()->cmd(QString("p8 %1 @ %2")
+    .arg(QString::number(getNBytes()))
+    .arg(QString::number(offestFrom)))
+    .replace(re, "\\1 ");
+
+    ui->bytesLabel->setText(bytes.trimmed());
 }

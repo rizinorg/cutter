@@ -810,16 +810,14 @@ void HexWidget::w_duplFromOffset()
     if (ret == QDialog::Rejected) {
         return;
     }
-    QString offset = QString::number(d.getOffset());
+    RVA copyFrom = d.getOffset();
     QString nBytes = QString::number(d.getNBytes());
-
+    RVA copyTo = !selection.isEmpty() ? selection.start() : Core()->getOffset();
     QSignalBlocker blocker(Core());
-    RVA bs = Core()->getOffset();
-    if (!selection.isEmpty()) {
-        Core()->seek(selection.start());
-    }
-    Core()->cmdRaw("wd " + offset + " " + nBytes);
-    Core()->seek(bs);
+    Core()->cmdRaw(QString("wd %1 %2 %3")
+                            .arg(copyFrom)
+                            .arg(nBytes)
+                            .arg(copyTo));
     refresh();
 }
 
