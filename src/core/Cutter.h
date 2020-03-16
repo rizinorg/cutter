@@ -552,10 +552,29 @@ public:
     BasicBlockHighlighter *getBBHighlighter();
     BasicInstructionHighlighter *getBIHighlighter();
 
-    void setIOCache(bool iocache);
+    /**
+     * @brief Enable or dsiable Cache mode. Cache mode is used to imagine writing to the opened file
+     * without committing the changes to the disk.
+     * @param enabled
+     */
+    void setIOCache(bool enabled);
+    /**
+     * @brief Check if Cache mode is enabled.
+     * @return true if Cache is enabled, otherwise return false.
+     */
     bool isIOCacheEnabled() const;
-
-    bool isWriteMode();
+    /**
+     * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it will be immediately
+     * committed to the file on disk, thus modify the file. This function wrap radare2 function which re-open the file with
+     * the desired permissions.
+     * @param enabled
+     */
+    void setWriteMode(bool enabled);
+    /**
+     * @brief Check if the file is opened in write mode.
+     * @return true if write mode is enabled, otherwise return false.
+     */
+    bool isWriteModeEnabled();
 
 signals:
     void refreshAll();
@@ -593,6 +612,7 @@ signals:
     void projectSaved(bool successfully, const QString &name);
 
     void ioCacheChanged(bool newval);
+    void writeModeChanged(bool newval);
 
     /**
      * emitted when debugTask started or finished running

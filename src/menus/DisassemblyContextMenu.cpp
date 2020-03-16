@@ -388,43 +388,6 @@ void DisassemblyContextMenu::updateTargetMenuActions(const QVector<ThingUsedHere
     insertActions(copySeparator, showTargetMenuActions);
 }
 
-bool DisassemblyContextMenu::canWrite() const
-{
-    bool iocache = Core()->isIOCacheEnabled();
-    bool writeMode = Core()->isWriteMode();
-
-    if (iocache || writeMode) {
-        return true;
-    }
-
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Icon::Critical);
-    msgBox.setWindowTitle(tr("Write error"));
-    msgBox.setText(
-        tr("Your file is opened in read-only mode. "
-           "Editing is only available when the file is opened in either Write or Cache modes.\n\n"
-           "WARNING: In Write mode, any changes will be committed to the file on disk. "
-           "For safety, please consider using Cache mode and then commit the changes manually "
-           "via File -> Commit modifications to disk"));
-    msgBox.addButton(tr("OK"), QMessageBox::NoRole);
-    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode"),
-                                                     QMessageBox::YesRole);
-    QAbstractButton *iocacheButton = msgBox.addButton(tr("Enable 'io.cache' mode"),
-                                                     QMessageBox::YesRole);
-
-    msgBox.exec();
-
-
-    if (msgBox.clickedButton() == reopenButton) {
-        Core()->cmd("oo+");
-    } else if (msgBox.clickedButton() == iocacheButton) {
-        Core()->setIOCache(true);
-    } else {
-        return false;
-    }
-    return true;
-}
-
 void DisassemblyContextMenu::setOffset(RVA offset)
 {
     this->offset = offset;
@@ -691,7 +654,7 @@ QKeySequence DisassemblyContextMenu::getUndefineFunctionSequence() const
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     EditInstructionDialog e(EDIT_TEXT, this);
@@ -712,7 +675,7 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 
 void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     Core()->nopInstruction(offset);
@@ -737,7 +700,7 @@ void DisassemblyContextMenu::showReverseJmpQuery()
 
 void DisassemblyContextMenu::on_actionJmpReverse_triggered()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     Core()->jmpReverse(offset);
@@ -745,7 +708,7 @@ void DisassemblyContextMenu::on_actionJmpReverse_triggered()
 
 void DisassemblyContextMenu::on_actionEditBytes_triggered()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     EditInstructionDialog e(EDIT_BYTES, this);

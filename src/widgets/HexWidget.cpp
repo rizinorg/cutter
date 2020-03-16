@@ -683,7 +683,7 @@ void HexWidget::onRangeDialogAccepted()
 
 void HexWidget::w_writeString()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     bool ok = false;
@@ -705,7 +705,7 @@ void HexWidget::w_writeString()
 
 void HexWidget::w_increaseDecrease()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     IncrementDecrementDialog d;
@@ -726,7 +726,7 @@ void HexWidget::w_increaseDecrease()
 
 void HexWidget::w_writeZeros()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     bool ok = false;
@@ -748,7 +748,7 @@ void HexWidget::w_writeZeros()
 
 void HexWidget::w_write64()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     Base64EnDecodedWriteDialog d;
@@ -780,7 +780,7 @@ void HexWidget::w_write64()
 
 void HexWidget::w_writeRandom()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     bool ok = false;
@@ -802,7 +802,7 @@ void HexWidget::w_writeRandom()
 
 void HexWidget::w_duplFromOffset()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     DuplicateFromOffsetDialog d;
@@ -825,7 +825,7 @@ void HexWidget::w_duplFromOffset()
 
 void HexWidget::w_writePascalString()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     bool ok = false;
@@ -847,7 +847,7 @@ void HexWidget::w_writePascalString()
 
 void HexWidget::w_writeWideString()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     bool ok = false;
@@ -869,7 +869,7 @@ void HexWidget::w_writeWideString()
 
 void HexWidget::w_writeCString()
 {
-    if (!canWrite()) {
+    if (!ioModesController.prepareForWriting()) {
         return;
     }
     bool ok = false;
@@ -887,40 +887,6 @@ void HexWidget::w_writeCString()
         Core()->seek(bs);
         refresh();
     }
-}
-
-bool HexWidget::canWrite()
-{
-    bool iocache = Core()->isIOCacheEnabled();
-    bool writeMode = Core()->isWriteMode();
-
-    if (iocache || writeMode) {
-        return true;
-    }
-
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Icon::Critical);
-    msgBox.setWindowTitle(tr("Write error"));
-    msgBox.setText(
-        tr("Unable to complete write operation. Consider opening in write mode or enable 'io.cahce'. \n\n"
-           "WARNING: In write mode any changes will be commited to disk"));
-    msgBox.addButton(tr("OK"), QMessageBox::NoRole);
-    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode"),
-                                                     QMessageBox::YesRole);
-    QAbstractButton *iocacheButton = msgBox.addButton(tr("Enable 'io.cache' mode"),
-                                                     QMessageBox::YesRole);
-
-    msgBox.exec();
-
-
-    if (msgBox.clickedButton() == reopenButton) {
-        Core()->cmd("oo+");
-    } else if (msgBox.clickedButton() == iocacheButton) {
-        Core()->setIOCache(true);
-    } else {
-        return false;
-    }
-    return true;
 }
 
 void HexWidget::updateItemLength()

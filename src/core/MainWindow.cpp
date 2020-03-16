@@ -140,7 +140,7 @@ void MainWindow::initUI()
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
     connect(ui->actionCommitChanges, &QAction::triggered, this, [this]() {
-        if (!Core()->isWriteMode()) {
+        if (!Core()->isWriteModeEnabled()) {
             Core()->cmd("oo+");
             Core()->cmd("wci");
             Core()->cmd("oo");

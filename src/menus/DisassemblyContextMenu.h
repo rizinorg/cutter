@@ -2,6 +2,7 @@
 #define DISASSEMBLYCONTEXTMENU_H
 
 #include "core/Cutter.h"
+#include "common/IOModesController.h"
 #include <QMenu>
 #include <QKeySequence>
 
@@ -107,6 +108,7 @@ private:
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
     MainWindow *mainWindow;
+    IOModesController ioModesController;
 
     QList<QAction *> anonymousActions;
 
@@ -215,7 +217,5 @@ private:
     QVector<ThingUsedHere> getThingUsedHere(RVA offset);
 
     void updateTargetMenuActions(const QVector<ThingUsedHere> &targets);
-
-    bool canWrite() const;
 };
 #endif // DISASSEMBLYCONTEXTMENU_H

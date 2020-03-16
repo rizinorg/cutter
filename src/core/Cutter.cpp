@@ -3673,17 +3673,16 @@ BasicBlockHighlighter* CutterCore::getBBHighlighter()
     return bbHighlighter;
 }
 
-void CutterCore::setIOCache(bool iocache)
-{
-    Core()->cmd(QString("e io.cache=%1").arg(iocache ? "true" : "false"));
-    this->iocache = iocache;
-    if (iocache) {
-        emit ioCacheChanged(true);
-    }
-}
 BasicInstructionHighlighter* CutterCore::getBIHighlighter()
 {
     return &biHighlighter;
+}
+
+void CutterCore::setIOCache(bool enabled)
+{
+    setConfig("io.cache", enabled);
+    this->iocache = enabled;
+    emit ioCacheChanged(enabled);
 }
 
 bool CutterCore::isIOCacheEnabled() const
@@ -3691,7 +3690,27 @@ bool CutterCore::isIOCacheEnabled() const
     return iocache;
 }
 
-bool CutterCore::isWriteMode()
+// Enable or disable write-mode. Avoid unecessary changes if not need.
+void CutterCore::setWriteMode(bool enabled)
+{
+    bool writeModeState = isWriteModeEnabled();
+
+    if (writeModeState == enabled) {
+        // New mode is the same is current. Do nothing.
+        return;
+    }
+    
+    // Change from read-only to write-mode
+    if (enabled && !writeModeState) {
+        cmd("oo+");
+    // Change from write-mode to read-only
+    } else {
+        cmd("oo");
+    }
+    writeModeChanged (enabled);
+}
+
+bool CutterCore::isWriteModeEnabled()
 {
     using namespace std;
     QJsonArray ans = cmdj("oj").array();

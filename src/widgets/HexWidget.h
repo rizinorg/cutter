@@ -3,6 +3,8 @@
 
 #include "Cutter.h"
 #include "dialogs/HexdumpRangeDialog.h"
+#include "common/IOModesController.h"
+
 #include <QScrollArea>
 #include <QTimer>
 #include <QMenu>
@@ -305,7 +307,6 @@ private slots:
     void w_writePascalString();
     void w_writeWideString();
     void w_writeCString();
-    bool canWrite();
 
 private:
     void updateItemLength();
@@ -500,6 +501,8 @@ private:
 
     std::unique_ptr<AbstractData> oldData;
     std::unique_ptr<AbstractData> data;
+    IOModesController ioModesController;
+
 };
 
 #endif // HEXWIDGET_H
