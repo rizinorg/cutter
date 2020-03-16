@@ -5,6 +5,7 @@
 #include "Cutter.h"
 
 #include <cmath>
+#include <QFontDatabase>
 
 Base64EnDecodedWriteDialog::Base64EnDecodedWriteDialog(QWidget* parent) : QDialog(parent),
     ui(new Ui::Base64EnDecodedWriteDialog)
@@ -30,10 +31,10 @@ IncrementDecrementDialog::IncrementDecrementDialog(QWidget* parent) : QDialog(pa
     ui->incrementRB->click();
 
     ui->nBytesCB->addItems(QStringList()
-                           << tr("byte")
-                           << tr("word")
-                           << tr("dword")
-                           << tr("qword"));
+                           << tr("Byte")
+                           << tr("Word")
+                           << tr("Dword")
+                           << tr("Qword"));
 
     ui->valueLE->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-Fx]{1,18}"), ui->valueLE));
 }
@@ -45,13 +46,15 @@ IncrementDecrementDialog::Mode IncrementDecrementDialog::getMode() const
 
 uint8_t IncrementDecrementDialog::getNBytes() const
 {
-    return static_cast<uint8_t>(std::pow(2, ui->nBytesCB->currentIndex()));
+    // Shift left to keep index powered by two
+    // This is used to create the w1, w2, w4 and w8 commands based on the selected index.
+    return static_cast<uint8_t>(1 << ui->nBytesCB->currentIndex());
 }
 
 uint64_t IncrementDecrementDialog::getValue() const
 {
     bool ok;
-    uint64_t val = ui->valueLE->text().toULongLong(&ok, 16);
+    uint64_t val = Core()->math(ui->valueLE->text());
     return ok ? val : 0;
 }
 
@@ -59,7 +62,7 @@ DuplicateFromOffsetDialog::DuplicateFromOffsetDialog(QWidget* parent) : QDialog(
     ui(new Ui::DuplicateFromOffsetDialog)
 {
     ui->setupUi(this);
-    ui->bytesLabel->setFont(QFont("Monospace"));
+    ui->bytesLabel->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     ui->offsetLE->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9a-fA-Fx]{1,18}"), ui->offsetLE));
     connect(ui->offsetLE, &QLineEdit::textChanged, this, &DuplicateFromOffsetDialog::refresh);
     connect(ui->nBytesSB, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &DuplicateFromOffsetDialog::refresh);

@@ -715,12 +715,17 @@ void HexWidget::w_increaseDecrease()
     }
     QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
     QSignalBlocker blocker(Core());
-    RVA bs = Core()->getOffset();
+    RVA destinationAddr = !selection.isEmpty() ? selection.start() : Core()->getOffset();
+
     if (!selection.isEmpty()) {
         Core()->seek(selection.start());
     }
-    Core()->cmdRaw("w" + QString::number(d.getNBytes()) + mode + QString::number(d.getValue()));
-    Core()->seek(bs);
+
+    Core()->cmdRaw(QString("w%1 %2 %3 @ %4")
+                        .arg(QString::number(d.getNBytes()))
+                        .arg(mode)
+                        .arg(QString::number(d.getValue()))
+                        .arg(destinationAddr));
     refresh();
 }
 
