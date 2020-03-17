@@ -4,6 +4,7 @@
 #include <QHostAddress>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QRegExpValidator>
 
 #define GDBSERVER "GDB"
 #define WINDBGPIPE "WinDbg - Pipe"
@@ -169,7 +170,12 @@ QString RemoteDebugDialog::getUri() const
 
 QString RemoteDebugDialog::getIp() const
 {
-    return ui->ipEdit->text();
+    auto temp = ui->ipEdit->text();
+    if (temp == "" || temp == "localhost") {
+        return "127.0.0.1";
+    } else {
+        return temp;
+    }
 }
 
 QString RemoteDebugDialog::getPath() const

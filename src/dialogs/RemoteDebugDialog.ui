@@ -101,7 +101,7 @@
        <bool>false</bool>
       </property>
       <property name="placeholderText">
-       <string notr="true"/>
+       <string>Enter Remote Port</string>
       </property>
      </widget>
     </item>
@@ -130,7 +130,7 @@
        <bool>false</bool>
       </property>
       <property name="placeholderText">
-       <string notr="true"/>
+       <string>Enter Remote IP</string>
       </property>
      </widget>
     </item>
@@ -142,7 +142,7 @@
      <x>10</x>
      <y>130</y>
      <width>301</width>
-     <height>35</height>
+     <height>36</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
