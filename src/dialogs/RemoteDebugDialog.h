@@ -2,6 +2,7 @@
 #define REMOTEDEBUGDIALOG_H
 
 #include <QDialog>
+#include <QListWidgetItem>
 #include <memory>
 
 namespace Ui {
@@ -34,6 +35,9 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void onIndexChange();
+    void clearAll();
+    void removeItem();
+    void itemClicked(QListWidgetItem *item);
 
 private:
     void activateGdb();
@@ -41,6 +45,11 @@ private:
     bool validateIp();
     bool validatePort();
     bool validatePath();
+
+    bool fillRecentIpList();
+    void fillFormData(QString formdata);
+
+    void checkIfEmpty();
 
     std::unique_ptr<Ui::RemoteDebugDialog> ui;
 };

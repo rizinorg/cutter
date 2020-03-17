@@ -10,8 +10,14 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>170</height>
+    <height>270</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle">
    <string notr="true">Remote debugging configuration</string>
@@ -33,24 +39,10 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="debuggerCombo">
-      <item>
-       <property name="text">
-        <string>GDB</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>WinDbg - Pipe</string>
-       </property>
-      </item>
-     </widget>
-    </item>
     <item row="1" column="0">
-     <widget class="QLabel" name="ipText">
+     <widget class="QLabel" name="pathText">
       <property name="text">
-       <string>IP:</string>
+       <string>Path:</string>
       </property>
      </widget>
     </item>
@@ -66,20 +58,66 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string notr="true"/>
+       <string notr="true">127.0.0.1</string>
       </property>
       <property name="frame">
        <bool>false</bool>
       </property>
       <property name="placeholderText">
-       <string notr="true"/>
+       <string notr="true">127.0.0.1</string>
       </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="debuggerCombo">
+      <item>
+       <property name="text">
+        <string>GDB</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>WinDbg - Pipe</string>
+       </property>
+      </item>
      </widget>
     </item>
     <item row="2" column="0">
      <widget class="QLabel" name="portText">
       <property name="text">
        <string>Port:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="ipText">
+      <property name="text">
+       <string>IP:</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLineEdit" name="pathEdit">
+      <property name="maximumSize">
+       <size>
+        <width>382</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="inputMask">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string notr="true"/>
+      </property>
+      <property name="frame">
+       <bool>false</bool>
+      </property>
+      <property name="readOnly">
+       <bool>false</bool>
+      </property>
+      <property name="placeholderText">
+       <string notr="true">Enter Path</string>
       </property>
      </widget>
     </item>
@@ -101,36 +139,7 @@
        <bool>false</bool>
       </property>
       <property name="placeholderText">
-       <string notr="true"/>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="pathText">
-      <property name="text">
-       <string>Path:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QLineEdit" name="pathEdit">
-      <property name="maximumSize">
-       <size>
-        <width>382</width>
-        <height>16777215</height>
-       </size>
-      </property>
-      <property name="inputMask">
-       <string notr="true"/>
-      </property>
-      <property name="text">
-       <string notr="true"/>
-      </property>
-      <property name="frame">
-       <bool>false</bool>
-      </property>
-      <property name="placeholderText">
-       <string notr="true"/>
+       <string notr="true">Enter Port</string>
       </property>
      </widget>
     </item>
@@ -142,10 +151,30 @@
      <x>10</x>
      <y>130</y>
      <width>301</width>
-     <height>35</height>
+     <height>135</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="sizeConstraint">
+     <enum>QLayout::SetDefaultConstraint</enum>
+    </property>
+    <item>
+     <widget class="Line" name="line">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QListWidget" name="recentsIpListWidget">
+      <property name="contextMenuPolicy">
+       <enum>Qt::ActionsContextMenu</enum>
+      </property>
+      <property name="selectionRectVisible">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
     <item>
      <widget class="QDialogButtonBox" name="buttonBox">
       <property name="orientation">
@@ -156,9 +185,39 @@
       </property>
      </widget>
     </item>
+    <item>
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
    </layout>
   </widget>
+  <action name="actionRemove_item">
+   <property name="text">
+    <string>Remove item</string>
+   </property>
+  </action>
+  <action name="actionClear_all">
+   <property name="text">
+    <string>Clear all</string>
+   </property>
+  </action>
  </widget>
+ <tabstops>
+  <tabstop>debuggerCombo</tabstop>
+  <tabstop>ipEdit</tabstop>
+  <tabstop>pathEdit</tabstop>
+  <tabstop>portEdit</tabstop>
+  <tabstop>recentsIpListWidget</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

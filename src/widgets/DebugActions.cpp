@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include <QToolBar>
 #include <QToolButton>
+#include <QSettings>
 
 DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QObject(main),
@@ -107,7 +108,8 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     // Toggle all buttons except restart, suspend(=continue) and stop since those are
     // necessary to avoid staying stuck
     toggleActions = {actionStepOver, actionStep, actionStepOut, actionContinueUntilMain,
-        actionContinueUntilCall, actionContinueUntilSyscall};
+                     actionContinueUntilCall, actionContinueUntilSyscall
+                    };
     toggleConnectionActions = {actionAttach, actionStartRemote};
 
     connect(Core(), &CutterCore::debugProcessFinished, this, [ = ](int pid) {
@@ -176,7 +178,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     connect(actionContinueUntilMain, &QAction::triggered, this, &DebugActions::continueUntilMain);
     connect(actionContinueUntilCall, &QAction::triggered, Core(), &CutterCore::continueUntilCall);
     connect(actionContinueUntilSyscall, &QAction::triggered, Core(), &CutterCore::continueUntilSyscall);
-    connect(actionContinue, &QAction::triggered, Core(), [=]() {
+    connect(actionContinue, &QAction::triggered, Core(), [ = ]() {
         // Switch between continue and suspend depending on the debugger's state
         if (Core()->isDebugTaskInProgress()) {
             Core()->suspendDebug();
@@ -207,7 +209,7 @@ void DebugActions::showDebugWarning()
         QMessageBox msgBox;
         msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
         msgBox.setText(tr("Debug is currently in beta.\n") +
-            tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
+                       tr("If you encounter any problems or have suggestions, please submit an issue to https://github.com/radareorg/cutter/issues"));
         msgBox.exec();
     }
 }
@@ -237,6 +239,12 @@ void DebugActions::onAttachedRemoteDebugger(bool successfully)
         msgBox.exec();
         attachRemoteDialog();
     } else {
+        QSettings settings;
+        QStringList ips = settings.value("recentIpList").toStringList();
+        ips.removeAll(remoteDialog->getUri());
+        ips.prepend(remoteDialog->getUri());
+        settings.setValue("recentIpList", ips);
+
         delete remoteDialog;
         remoteDialog = nullptr;
         attachRemoteDebugger();
@@ -352,7 +360,7 @@ void DebugActions::setAllActionsVisible(bool visible)
 void DebugActions::chooseThemeIcons()
 {
     // List of QActions which have alternative icons in different themes
-    const QList<QPair<void*, QString>> kSupportedIconsNames {
+    const QList<QPair<void *, QString>> kSupportedIconsNames {
         { actionStep, QStringLiteral("step_into.svg") },
         { actionStepOver, QStringLiteral("step_over.svg") },
         { actionStepOut, QStringLiteral("step_out.svg") },
@@ -363,7 +371,7 @@ void DebugActions::chooseThemeIcons()
 
 
     // Set the correct icon for the QAction
-    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon &icon) {
-        static_cast<QAction*>(obj)->setIcon(icon);
+    qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon & icon) {
+        static_cast<QAction *>(obj)->setIcon(icon);
     });
 }
