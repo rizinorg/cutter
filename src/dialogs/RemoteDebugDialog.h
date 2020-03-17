@@ -34,6 +34,8 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void onIndexChange();
+    void on_actionClear_all_triggered();
+    void on_actionRemove_item_triggered();
 
 private:
     void activateGdb();
@@ -41,6 +43,8 @@ private:
     bool validateIp();
     bool validatePort();
     bool validatePath();
+
+    bool fillRecentIpList();
 
     std::unique_ptr<Ui::RemoteDebugDialog> ui;
 };

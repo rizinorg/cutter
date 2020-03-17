@@ -11,6 +11,7 @@
 #include <QFileInfo>
 #include <QToolBar>
 #include <QToolButton>
+#include <QSettings>
 
 DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
     QObject(main),
@@ -236,6 +237,13 @@ void DebugActions::onAttachedRemoteDebugger(bool successfully)
         msgBox.exec();
         attachRemoteDialog();
     } else {
+        qDebug() <<  "    ---    "  << remoteDialog->getIp() << remoteDialog->getPort();
+        QSettings settings;
+        QStringList ips = settings.value("recentIpList").toStringList();
+        ips.removeAll(remoteDialog->getUri());
+        ips.prepend(remoteDialog->getUri());
+        settings.setValue("recentIpList", ips);
+        
         delete remoteDialog;
         remoteDialog = nullptr;
         attachRemoteDebugger();

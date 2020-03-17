@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QRegExpValidator>
+#include <QSettings>
 
 #define GDBSERVER "GDB"
 #define WINDBGPIPE "WinDbg - Pipe"
@@ -18,10 +19,16 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
-
+    setAcceptDrops(true);
+    ui->recentsIpListWidget->addAction(ui->actionRemove_item);
+    ui->recentsIpListWidget->addAction(ui->actionClear_all);
     // Set a default selection
     ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(DEFAULT_INDEX));
     onIndexChange();
+
+    fillRecentIpList();
+    
+    ui->ipEdit->setFocus();
 
     connect(ui->debuggerCombo,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -154,6 +161,60 @@ void RemoteDebugDialog::setPort(QString port)
 void RemoteDebugDialog::setDebugger(QString debugger)
 {
     ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(debugger));
+}
+
+void RemoteDebugDialog::on_actionRemove_item_triggered()
+{
+    QListWidgetItem *item = ui->recentsIpListWidget->currentItem();
+
+    if (item == nullptr)
+        return;
+
+    QVariant data = item->data(Qt::UserRole);
+    QString sitem = data.toString();
+
+    QSettings settings;
+    QStringList ips = settings.value("recentFileList").toStringList();
+    ips.removeAll(sitem);
+    settings.setValue("recentFileList", ips);
+
+    ui->recentsIpListWidget->takeItem(ui->recentsIpListWidget->currentRow());
+
+    ui->ipEdit->clear();
+
+}
+
+void RemoteDebugDialog::on_actionClear_all_triggered()
+{
+    QSettings settings;
+    QStringList ips = settings.value("recentIpList").toStringList();
+    ips.clear();
+
+    ui->recentsIpListWidget->clear();
+    settings.setValue("recentIpList", ips);
+    ui->ipEdit->clear();
+}
+
+bool RemoteDebugDialog::fillRecentIpList()
+{
+    QSettings settings;
+
+    QStringList ips = settings.value("recentIpList").toStringList();
+    QMutableListIterator<QString> it(ips);
+    int i = 0;
+    while (it.hasNext()) {
+        const QString ip = it.next();
+        // Format the text and add the item to the file list
+        const QString text = QString("%1").arg(ip);
+        QListWidgetItem *item = new QListWidgetItem(
+            text
+        );
+        item->setData(Qt::UserRole, ip);
+        ui->recentsIpListWidget->addItem(item);
+    }
+    
+    settings.setValue("recentIpList", ips);
+    return !ips.isEmpty();
 }
 
 QString RemoteDebugDialog::getUri() const
