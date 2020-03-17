@@ -234,11 +234,6 @@ void RemoteDebugDialog::on_recentsIpListWidget_itemClicked(QListWidgetItem *item
     }
 }
 
-void RemoteDebugDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item)
-{
-    // loadFile(item->data(Qt::UserRole).toString());
-}
-
 QString RemoteDebugDialog::getUri() const
 {
     QString debugger = getDebugger();
