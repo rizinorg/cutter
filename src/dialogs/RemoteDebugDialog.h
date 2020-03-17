@@ -2,6 +2,7 @@
 #define REMOTEDEBUGDIALOG_H
 
 #include <QDialog>
+#include <QListWidgetItem>
 #include <memory>
 
 namespace Ui {
@@ -36,6 +37,8 @@ private slots:
     void onIndexChange();
     void on_actionClear_all_triggered();
     void on_actionRemove_item_triggered();
+    void on_recentsIpListWidget_itemClicked(QListWidgetItem *item);
+    void on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item);
 
 private:
     void activateGdb();

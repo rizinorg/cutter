@@ -201,7 +201,6 @@ bool RemoteDebugDialog::fillRecentIpList()
 
     QStringList ips = settings.value("recentIpList").toStringList();
     QMutableListIterator<QString> it(ips);
-    int i = 0;
     while (it.hasNext()) {
         const QString ip = it.next();
         // Format the text and add the item to the file list
@@ -215,6 +214,29 @@ bool RemoteDebugDialog::fillRecentIpList()
     
     settings.setValue("recentIpList", ips);
     return !ips.isEmpty();
+}
+
+void RemoteDebugDialog::on_recentsIpListWidget_itemClicked(QListWidgetItem *item)
+{
+    QVariant data = item->data(Qt::UserRole);
+    QString ipport = data.toString();
+    if (!ipport.indexOf(GDB_URI_PREFIX)) {
+        ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(GDBSERVER));
+        int last_colon = ipport.lastIndexOf(QString(":"));
+        QString port_temp = ipport.mid(last_colon+1,ipport.length());
+        QString ip_temp = ipport.mid(6,ipport.length()-port_temp.length()-7);
+        ui->ipEdit->setText(ip_temp);
+        ui->portEdit->setText(port_temp);
+    } else if (!ipport.indexOf(WINDBG_URI_PREFIX)) {
+        ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(WINDBGPIPE));
+        QString path_temp = ipport.mid(9,ipport.length());
+        ui->pathEdit->setText(path_temp);
+    }
+}
+
+void RemoteDebugDialog::on_recentsListWidget_itemDoubleClicked(QListWidgetItem *item)
+{
+    // loadFile(item->data(Qt::UserRole).toString());
 }
 
 QString RemoteDebugDialog::getUri() const

@@ -237,7 +237,6 @@ void DebugActions::onAttachedRemoteDebugger(bool successfully)
         msgBox.exec();
         attachRemoteDialog();
     } else {
-        qDebug() <<  "    ---    "  << remoteDialog->getIp() << remoteDialog->getPort();
         QSettings settings;
         QStringList ips = settings.value("recentIpList").toStringList();
         ips.removeAll(remoteDialog->getUri());
