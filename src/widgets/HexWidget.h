@@ -329,6 +329,12 @@ private:
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
+    /**
+     * @brief Get the location on which operations such as Writing should apply.
+     * @return Start of selection if multiple bytes are selected. Otherwise, the curren seek of the widget.
+     */
+    RVA getLocationAddress();
+
     void fetchData();
     /**
      * @brief Convert mouse position to address.

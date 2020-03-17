@@ -692,13 +692,9 @@ void HexWidget::w_writeString()
     QString str = d.getText(this, tr("Write string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        QSignalBlocker blocker(Core());
-        RVA bs = Core()->getOffset();
-        if (!selection.isEmpty()) {
-            Core()->seek(selection.start());
-        }
-        Core()->cmdRaw("w " + str);
-        Core()->seek(bs);
+        Core()->cmdRaw(QString("w %1 @ %2")
+                            .arg(str)
+                            .arg(getLocationAddress()));
         refresh();
     }
 }
@@ -714,18 +710,11 @@ void HexWidget::w_increaseDecrease()
         return;
     }
     QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
-    QSignalBlocker blocker(Core());
-    RVA destinationAddr = !selection.isEmpty() ? selection.start() : Core()->getOffset();
-
-    if (!selection.isEmpty()) {
-        Core()->seek(selection.start());
-    }
-
     Core()->cmdRaw(QString("w%1 %2 %3 @ %4")
                         .arg(QString::number(d.getNBytes()))
                         .arg(mode)
                         .arg(QString::number(d.getValue()))
-                        .arg(destinationAddr));
+                        .arg(getLocationAddress()));
     refresh();
 }
 
@@ -740,13 +729,9 @@ void HexWidget::w_writeZeros()
     QString str = QString::number(d.getInt(this, tr("Write zeros"),
                                            tr("Number of zeros:"), 1, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !str.isEmpty()) {
-        QSignalBlocker blocker(Core());
-        RVA bs = Core()->getOffset();
-        if (!selection.isEmpty()) {
-            Core()->seek(selection.start());
-        }
-        Core()->cmdRaw("w0 " + str);
-        Core()->seek(bs);
+        Core()->cmdRaw(QString("w0 %1 @ %2")
+                            .arg(str)
+                            .arg(getLocationAddress()));
         refresh();
     }
 }
@@ -772,14 +757,10 @@ void HexWidget::w_write64()
         return;
     }
 
-    str = QString("w6" + mode + " ").toUtf8() + (mode == "e" ? str.toHex() : str);
-    QSignalBlocker blocker(Core());
-    RVA bs = Core()->getOffset();
-    if (!selection.isEmpty()) {
-        Core()->seek(selection.start());
-    }
-    Core()->cmdRaw(str.toStdString().c_str());
-    Core()->seek(bs);
+    Core()->cmdRaw(QString("w6%1 %2 @ %3")
+                        .arg(mode)
+                        .arg((mode == "e" ? str.toHex() : str).toStdString().c_str())
+                        .arg(getLocationAddress()));
     refresh();
 }
 
@@ -794,13 +775,9 @@ void HexWidget::w_writeRandom()
     QString nbytes = QString::number(d.getInt(this, tr("Write random"),
                                            tr("Number of bytes:"), 1, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !nbytes.isEmpty()) {
-        QSignalBlocker blocker(Core());
-        RVA bs = Core()->getOffset();
-        if (!selection.isEmpty()) {
-            Core()->seek(selection.start());
-        }
-        Core()->cmdRaw("wr " + nbytes);
-        Core()->seek(bs);
+        Core()->cmdRaw(QString("wr %1 @ %2")
+                            .arg(nbytes)
+                            .arg(getLocationAddress()));
         refresh();
     }
 }
@@ -817,12 +794,10 @@ void HexWidget::w_duplFromOffset()
     }
     RVA copyFrom = d.getOffset();
     QString nBytes = QString::number(d.getNBytes());
-    RVA copyTo = !selection.isEmpty() ? selection.start() : Core()->getOffset();
-    QSignalBlocker blocker(Core());
     Core()->cmdRaw(QString("wd %1 %2 %3")
                             .arg(copyFrom)
                             .arg(nBytes)
-                            .arg(copyTo));
+                            .arg(getLocationAddress()));
     refresh();
 }
 
@@ -837,13 +812,9 @@ void HexWidget::w_writePascalString()
     QString str = d.getText(this, tr("Write Pascal string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        QSignalBlocker blocker(Core());
-        RVA bs = Core()->getOffset();
-        if (!selection.isEmpty()) {
-            Core()->seek(selection.start());
-        }
-        Core()->cmdRaw("ws " + str);
-        Core()->seek(bs);
+        Core()->cmdRaw(QString("ws %1 @ %2")
+                            .arg(str)
+                            .arg(getLocationAddress()));
         refresh();
     }
 }
@@ -859,13 +830,9 @@ void HexWidget::w_writeWideString()
     QString str = d.getText(this, tr("Write wide string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        QSignalBlocker blocker(Core());
-        RVA bs = Core()->getOffset();
-        if (!selection.isEmpty()) {
-            Core()->seek(selection.start());
-        }
-        Core()->cmdRaw("ww " + str);
-        Core()->seek(bs);
+        Core()->cmdRaw(QString("ww %1 @ %2")
+                            .arg(str)
+                            .arg(getLocationAddress()));
         refresh();
     }
 }
@@ -881,13 +848,9 @@ void HexWidget::w_writeCString()
     QString str = d.getText(this, tr("Write zero-terminated string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        QSignalBlocker blocker(Core());
-        RVA bs = Core()->getOffset();
-        if (!selection.isEmpty()) {
-            Core()->seek(selection.start());
-        }
-        Core()->cmdRaw("wz " + str);
-        Core()->seek(bs);
+        Core()->cmdRaw(QString("wz %1 @ %2")
+                            .arg(str)
+                            .arg(getLocationAddress()));
         refresh();
     }
 }
@@ -1563,4 +1526,10 @@ QRectF HexWidget::asciiRectangle(uint offset)
     p += asciiArea.topLeft();
 
     return QRectF(p, QSizeF(charWidth, lineHeight));
+}
+
+
+
+RVA HexWidget::getLocationAddress() {
+    return !selection.isEmpty() ? selection.start() : cursor.address;
 }
