@@ -53,9 +53,7 @@ uint8_t IncrementDecrementDialog::getNBytes() const
 
 uint64_t IncrementDecrementDialog::getValue() const
 {
-    bool ok;
-    uint64_t val = Core()->math(ui->valueLE->text());
-    return ok ? val : 0;
+    return Core()->math(ui->valueLE->text());
 }
 
 DuplicateFromOffsetDialog::DuplicateFromOffsetDialog(QWidget* parent) : QDialog(parent),
