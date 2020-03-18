@@ -400,7 +400,7 @@ QString CutterCore::cmdRawAt(const char *cmd, RVA address)
 
     {
         CORE_LOCK();
-      	r_cons_push ();
+      r_cons_push ();
 
         // r_cmd_call does not return the output of the command
         r_cmd_call(core->rcmd, cmd);
@@ -408,9 +408,9 @@ QString CutterCore::cmdRawAt(const char *cmd, RVA address)
         // we grab the output straight from r_cons
         res = r_cons_get_buffer();
 
-        // // cleaning up
+        // cleaning up
         r_cons_pop ();
-	    r_cons_echo (NULL);
+        r_cons_echo (NULL);
     }
 
     seekSilent(oldOffset);
@@ -3743,7 +3743,7 @@ void CutterCore::setWriteMode(bool enabled)
     bool writeModeState = isWriteModeEnabled();
 
     if (writeModeState == enabled) {
-        // New mode is the same is current. Do nothing.
+        // New mode is the same as current. Do nothing.
         return;
     }
     
@@ -3840,4 +3840,3 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 
     return  array;
 }
-

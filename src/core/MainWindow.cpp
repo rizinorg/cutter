@@ -627,11 +627,11 @@ void MainWindow::setFilename(const QString &fn)
 void MainWindow::closeEvent(QCloseEvent *event)
 {
 
-    // Check if there are uncomitted changes
+    // Check if there are uncommitted changes
     if (core->isIOCacheEnabled() && !core->cmdj("wcj").array().isEmpty()) {
 
         QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
-                                                                tr("It seems that you have changes or patches that are not comitted to the file.\n"
+                                                                tr("It seems that you have changes or patches that are not committed to the file.\n"
                                                                 "Do you want to commit them now?"),
                                                                 (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
         if (ret == QMessageBox::Cancel) {
