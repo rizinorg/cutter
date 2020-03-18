@@ -34,6 +34,11 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
     connect(ui->debuggerCombo,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
             this, &RemoteDebugDialog::onIndexChange);
+
+    // connect statements for right click action and itemClicked action
+    connect(ui->actionClear_all, &QAction::triggered, this, &RemoteDebugDialog::clear_all);
+    connect(ui->actionRemove_item, &QAction::triggered, this, &RemoteDebugDialog::remove_item);
+    connect(ui->recentsIpListWidget, &QListWidget::itemClicked, this, &RemoteDebugDialog::item_clicked);
 }
 
 RemoteDebugDialog::~RemoteDebugDialog() {}
@@ -164,7 +169,7 @@ void RemoteDebugDialog::setDebugger(QString debugger)
     ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(debugger));
 }
 
-void RemoteDebugDialog::on_actionRemove_item_triggered()
+void RemoteDebugDialog::remove_item()
 {
     QListWidgetItem *item = ui->recentsIpListWidget->currentItem();
 
@@ -185,7 +190,7 @@ void RemoteDebugDialog::on_actionRemove_item_triggered()
 
 }
 
-void RemoteDebugDialog::on_actionClear_all_triggered()
+void RemoteDebugDialog::clear_all()
 {
     QSettings settings;
     // empty QStringList
@@ -215,7 +220,7 @@ bool RemoteDebugDialog::fillRecentIpList()
     return !ips.isEmpty();
 }
 
-void RemoteDebugDialog::on_recentsIpListWidget_itemClicked(QListWidgetItem *item)
+void RemoteDebugDialog::item_clicked(QListWidgetItem *item)
 {
     QVariant data = item->data(Qt::UserRole);
     QString ipport = data.toString();
