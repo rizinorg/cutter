@@ -728,9 +728,14 @@ void HexWidget::w_writeZeros()
     }
     bool ok = false;
     QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
+
+    int size = 1;
+    if (!selection.isEmpty() && selection.size() <= INT_MAX) {
+        size = static_cast<int>(selection.size());
+    }
+
     QString str = QString::number(d.getInt(this, tr("Write zeros"),
-                                           tr("Number of zeros:"), 1, 1, 0x7FFFFFFF, 1, &ok));
+                                           tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !str.isEmpty()) {
         Core()->cmdRawAt(QString("w0 %1")
                             .arg(str),
@@ -774,9 +779,13 @@ void HexWidget::w_writeRandom()
     }
     bool ok = false;
     QInputDialog d;
-    d.setInputMode(QInputDialog::InputMode::TextInput);
+
+    int size = 1;
+    if (!selection.isEmpty() && selection.size() <= INT_MAX) {
+        size = static_cast<int>(selection.size());
+    }
     QString nbytes = QString::number(d.getInt(this, tr("Write random"),
-                                           tr("Number of bytes:"), 1, 1, 0x7FFFFFFF, 1, &ok));
+                                           tr("Number of bytes:"), size, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !nbytes.isEmpty()) {
         Core()->cmdRawAt(QString("wr %1")
                             .arg(nbytes),
