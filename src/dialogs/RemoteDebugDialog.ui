@@ -52,7 +52,7 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string notr="true"/>
+       <string notr="true">127.0.0.1</string>
       </property>
       <property name="frame">
        <bool>false</bool>

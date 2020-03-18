@@ -168,7 +168,7 @@ void RemoteDebugDialog::setDebugger(QString debugger)
     ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(debugger));
 }
 
-/*
+/**
 * @brief Clears the selected item in the list of recent connections.
 * Triggers when you right click and click on "Remove Item" in remote debug dialog.
 */
@@ -193,7 +193,7 @@ void RemoteDebugDialog::remove_item()
 
 }
 
-/*
+/**
 * @brief Clears the list of recent connections.
 * Triggers when you right click and click on "Clear All" in remote debug dialog.
 */
@@ -206,32 +206,29 @@ void RemoteDebugDialog::clear_all()
     settings.setValue("recentIpList", temp);
 }
 
-/*
+/**
 * @brief Fills the remote debug dialog form with given string
 * Eg: gdb://127.0.0.1:8754 or windbg:///tmp/abcd
 */
 void RemoteDebugDialog::fillFormData(QString formdata)
 {
     // the PREFIX should be in start
-    // indexOf should return 0 if thats the case
-    if (!formdata.indexOf(GDB_URI_PREFIX)) {
+    if (formdata.startsWith(GDB_URI_PREFIX)) {
         ui->debuggerCombo->setCurrentText(GDBSERVER);
         int last_colon = formdata.lastIndexOf(QString(":"));
         QString port_temp = formdata.mid(last_colon + 1, formdata.length());
-        // length of "gdb://" is 6
-        // TODO: Remove the hardcoded values
-        QString ip_temp = formdata.mid(6, formdata.length() - port_temp.length() - 7);
+        // +/- 3 is because of "://" in path/url
+        QString ip_temp = formdata.mid(QString(GDB_URI_PREFIX).length() + 3, formdata.length() - port_temp.length() - QString(GDB_URI_PREFIX).length() - 3 - 1);
         ui->ipEdit->setText(ip_temp);
         ui->portEdit->setText(port_temp);
-    } else if (!formdata.indexOf(WINDBG_URI_PREFIX)) {
+    } else if (formdata.startsWith(WINDBG_URI_PREFIX)) {
         ui->debuggerCombo->setCurrentText(WINDBGPIPE);
-        // length of "windbg://" is 9
-        QString path_temp = formdata.mid(9, formdata.length());
+        QString path_temp = formdata.mid(QString(WINDBG_URI_PREFIX).length() + 3, formdata.length());
         ui->pathEdit->setText(path_temp);
     }
 }
 
-/*
+/**
 * @brief Fills recent remote connections.
 */
 bool RemoteDebugDialog::fillRecentIpList()
@@ -252,11 +249,8 @@ bool RemoteDebugDialog::fillRecentIpList()
         ui->recentsIpListWidget->addItem(item);
     }
 
-    if (ips.isEmpty())
+    if (!ips.isEmpty())
     {
-        ui->ipEdit->setText("127.0.0.1");
-        ui->portEdit->clear();
-    } else {
         fillFormData(ips[0]);
     }
 
@@ -264,7 +258,7 @@ bool RemoteDebugDialog::fillRecentIpList()
     return !ips.isEmpty();
 }
 
-/*
+/**
 * @brief Fills the form with the selected item's data.
 */
 void RemoteDebugDialog::item_clicked(QListWidgetItem *item)
