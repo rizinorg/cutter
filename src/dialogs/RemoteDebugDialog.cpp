@@ -218,7 +218,8 @@ void RemoteDebugDialog::fillFormData(QString formdata)
         int last_colon = formdata.lastIndexOf(QString(":"));
         QString port_temp = formdata.mid(last_colon + 1, formdata.length());
         // +/- 3 is because of "://" in path/url
-        QString ip_temp = formdata.mid(QString(GDB_URI_PREFIX).length() + 3, formdata.length() - port_temp.length() - QString(GDB_URI_PREFIX).length() - 3 - 1);
+        QString ip_temp = formdata.mid(QString(GDB_URI_PREFIX).length() + 3,
+                                       formdata.length() - port_temp.length() - QString(GDB_URI_PREFIX).length() - 3 - 1);
         ui->ipEdit->setText(ip_temp);
         ui->portEdit->setText(port_temp);
     } else if (formdata.startsWith(WINDBG_URI_PREFIX)) {
@@ -249,8 +250,7 @@ bool RemoteDebugDialog::fillRecentIpList()
         ui->recentsIpListWidget->addItem(item);
     }
 
-    if (!ips.isEmpty())
-    {
+    if (!ips.isEmpty()) {
         fillFormData(ips[0]);
     }
 
@@ -265,7 +265,7 @@ void RemoteDebugDialog::item_clicked(QListWidgetItem *item)
 {
     QVariant data = item->data(Qt::UserRole);
     QString ipport = data.toString();
-    
+
     fillFormData(ipport);
 }
 
