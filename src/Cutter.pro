@@ -536,7 +536,6 @@ HEADERS  += \
     widgets/AddressableItemList.h \
     dialogs/MultitypeFileSaveDialog.h \
     widgets/BoolToggleDelegate.h \
-    widgets/BoolToggleDelegate.cpp \
     common/IOModesController.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
