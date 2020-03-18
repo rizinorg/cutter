@@ -158,6 +158,9 @@
     </item>
     <item>
      <widget class="QListWidget" name="recentsIpListWidget">
+      <property name="contextMenuPolicy">
+       <enum>Qt::ActionsContextMenu</enum>
+      </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
       </property>
@@ -171,7 +174,7 @@
        <enum>QListView::Adjust</enum>
       </property>
       <property name="spacing">
-       <number>5</number>
+       <number>2</number>
       </property>
       <property name="selectionRectVisible">
        <bool>true</bool>

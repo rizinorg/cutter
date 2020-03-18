@@ -174,9 +174,9 @@ void RemoteDebugDialog::on_actionRemove_item_triggered()
     QString sitem = data.toString();
 
     QSettings settings;
-    QStringList ips = settings.value("recentFileList").toStringList();
+    QStringList ips = settings.value("recentIpList").toStringList();
     ips.removeAll(sitem);
-    settings.setValue("recentFileList", ips);
+    settings.setValue("recentIpList", ips);
 
     ui->recentsIpListWidget->takeItem(ui->recentsIpListWidget->currentRow());
 
@@ -203,7 +203,6 @@ bool RemoteDebugDialog::fillRecentIpList()
     QMutableListIterator<QString> it(ips);
     while (it.hasNext()) {
         const QString ip = it.next();
-        // Format the text and add the item to the file list
         const QString text = QString("%1").arg(ip);
         QListWidgetItem *item = new QListWidgetItem(
             text
