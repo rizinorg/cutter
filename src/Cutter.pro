@@ -390,7 +390,8 @@ SOURCES += \
     common/AddressableItemModel.cpp \
     widgets/ListDockWidget.cpp \
     dialogs/MultitypeFileSaveDialog.cpp \
-    widgets/BoolToggleDelegate.cpp
+    widgets/BoolToggleDelegate.cpp \
+    common/IOModesController.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
