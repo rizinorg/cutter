@@ -654,11 +654,14 @@ void HexWidget::copy()
         return;
 
     QClipboard *clipboard = QApplication::clipboard();
-    QString range = QString("%1@0x%2").arg(selection.size()).arg(selection.start(), 0, 16);
     if (cursorOnAscii) {
-        clipboard->setText(Core()->cmd("psx " + range));
+        clipboard->setText(Core()->cmdRawAt(QString("psx %1")
+                                    .arg(selection.size()),
+                                    selection.start()).trimmed());
     } else {
-        clipboard->setText(Core()->cmd("p8 " + range)); //TODO: copy in the format shown
+        clipboard->setText(Core()->cmdRawAt(QString("p8 %1")
+                                    .arg(selection.size()),
+                                    selection.start()).trimmed()); //TODO: copy in the format shown
     }
 }
 
@@ -692,9 +695,9 @@ void HexWidget::w_writeString()
     QString str = d.getText(this, tr("Write string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmd(QString("w %1 @ %2")
-                            .arg(str)
-                            .arg(getLocationAddress()));
+        Core()->cmdRawAt(QString("w %1")
+                            .arg(str),
+                            getLocationAddress());
         refresh();
     }
 }
@@ -710,11 +713,11 @@ void HexWidget::w_increaseDecrease()
         return;
     }
     QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
-    Core()->cmd(QString("w%1%2 %3 @ %4")
+    Core()->cmdRawAt(QString("w%1%2 %3")
                         .arg(QString::number(d.getNBytes()))
                         .arg(mode)
-                        .arg(QString::number(d.getValue()))
-                        .arg(getLocationAddress()));
+                        .arg(QString::number(d.getValue())),
+                        getLocationAddress());
     refresh();
 }
 
@@ -729,9 +732,9 @@ void HexWidget::w_writeZeros()
     QString str = QString::number(d.getInt(this, tr("Write zeros"),
                                            tr("Number of zeros:"), 1, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !str.isEmpty()) {
-        Core()->cmd(QString("w0 %1 @ %2")
-                            .arg(str)
-                            .arg(getLocationAddress()));
+        Core()->cmdRawAt(QString("w0 %1")
+                            .arg(str),
+                            getLocationAddress());
         refresh();
     }
 }
@@ -757,10 +760,10 @@ void HexWidget::w_write64()
         return;
     }
 
-    Core()->cmd(QString("w6%1 %2 @ %3")
+    Core()->cmdRawAt(QString("w6%1 %2")
                         .arg(mode)
-                        .arg((mode == "e" ? str.toHex() : str).toStdString().c_str())
-                        .arg(getLocationAddress()));
+                        .arg((mode == "e" ? str.toHex() : str).toStdString().c_str()),
+                        getLocationAddress());
     refresh();
 }
 
@@ -775,9 +778,9 @@ void HexWidget::w_writeRandom()
     QString nbytes = QString::number(d.getInt(this, tr("Write random"),
                                            tr("Number of bytes:"), 1, 1, 0x7FFFFFFF, 1, &ok));
     if (ok && !nbytes.isEmpty()) {
-        Core()->cmd(QString("wr %1 @ %2")
-                            .arg(nbytes)
-                            .arg(getLocationAddress()));
+        Core()->cmdRawAt(QString("wr %1")
+                            .arg(nbytes),
+                            getLocationAddress());
         refresh();
     }
 }
@@ -794,10 +797,10 @@ void HexWidget::w_duplFromOffset()
     }
     RVA copyFrom = d.getOffset();
     QString nBytes = QString::number(d.getNBytes());
-    Core()->cmd(QString("wd %1 %2 %3")
+    Core()->cmdRawAt(QString("wd %1 %2")
                             .arg(copyFrom)
-                            .arg(nBytes)
-                            .arg(getLocationAddress()));
+                            .arg(nBytes),
+                            getLocationAddress());
     refresh();
 }
 
@@ -812,9 +815,9 @@ void HexWidget::w_writePascalString()
     QString str = d.getText(this, tr("Write Pascal string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmd(QString("ws %1 @ %2")
-                            .arg(str)
-                            .arg(getLocationAddress()));
+        Core()->cmdRawAt(QString("ws %1")
+                            .arg(str),
+                            getLocationAddress());
         refresh();
     }
 }
@@ -830,9 +833,9 @@ void HexWidget::w_writeWideString()
     QString str = d.getText(this, tr("Write wide string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmd(QString("ww %1 @ %2")
-                            .arg(str)
-                            .arg(getLocationAddress()));
+        Core()->cmdRawAt(QString("ww %1")
+                            .arg(str),
+                            getLocationAddress());
         refresh();
     }
 }
@@ -848,9 +851,9 @@ void HexWidget::w_writeCString()
     QString str = d.getText(this, tr("Write zero-terminated string"),
                             tr("String:"), QLineEdit::Normal, "", &ok);
     if (ok && !str.isEmpty()) {
-        Core()->cmd(QString("wz %1 @ %2")
-                            .arg(str)
-                            .arg(getLocationAddress()));
+        Core()->cmdRawAt(QString("wz %1")
+                            .arg(str),
+                            getLocationAddress());
         refresh();
     }
 }
@@ -1527,8 +1530,6 @@ QRectF HexWidget::asciiRectangle(uint offset)
 
     return QRectF(p, QSizeF(charWidth, lineHeight));
 }
-
-
 
 RVA HexWidget::getLocationAddress() {
     return !selection.isEmpty() ? selection.start() : cursor.address;
