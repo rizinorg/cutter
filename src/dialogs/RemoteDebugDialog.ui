@@ -189,6 +189,13 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>debuggerCombo</tabstop>
+  <tabstop>ipEdit</tabstop>
+  <tabstop>pathEdit</tabstop>
+  <tabstop>portEdit</tabstop>
+  <tabstop>recentsIpListWidget</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

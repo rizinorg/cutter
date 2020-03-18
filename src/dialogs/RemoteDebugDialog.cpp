@@ -28,8 +28,8 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
 
     fillRecentIpList();
 
-    ui->ipEdit->setText("127.0.0.1");
     ui->ipEdit->setFocus();
+    ui->ipEdit->setText("127.0.0.1");
 
     connect(ui->debuggerCombo,
             static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
@@ -254,7 +254,7 @@ QString RemoteDebugDialog::getIp() const
 {
     // empty text => "127.0.0.1"
     auto temp = ui->ipEdit->text();
-    if (temp == "" || temp == "localhost") {
+    if (temp == "") {
         return "127.0.0.1";
     } else {
         return temp;
