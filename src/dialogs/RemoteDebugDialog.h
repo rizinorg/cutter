@@ -47,6 +47,7 @@ private:
     bool validatePath();
 
     bool fillRecentIpList();
+    void fillFormData(QString formdata);
 
     std::unique_ptr<Ui::RemoteDebugDialog> ui;
 };
