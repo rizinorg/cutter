@@ -38,6 +38,8 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
     connect(ui->actionClear_all, &QAction::triggered, this, &RemoteDebugDialog::clear_all);
     connect(ui->actionRemove_item, &QAction::triggered, this, &RemoteDebugDialog::remove_item);
     connect(ui->recentsIpListWidget, &QListWidget::itemClicked, this, &RemoteDebugDialog::item_clicked);
+    // this will add line seprator between history items
+    ui->recentsIpListWidget->setStyleSheet( "QListWidget::item { border-bottom: 1px solid white; }" );
 }
 
 RemoteDebugDialog::~RemoteDebugDialog() {}
