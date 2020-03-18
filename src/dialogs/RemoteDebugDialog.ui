@@ -58,7 +58,7 @@
        <bool>false</bool>
       </property>
       <property name="placeholderText">
-       <string notr="true">Enter IP Address</string>
+       <string notr="true">127.0.0.1</string>
       </property>
      </widget>
     </item>
@@ -160,21 +160,6 @@
      <widget class="QListWidget" name="recentsIpListWidget">
       <property name="contextMenuPolicy">
        <enum>Qt::ActionsContextMenu</enum>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>0</number>
-      </property>
-      <property name="resizeMode">
-       <enum>QListView::Adjust</enum>
-      </property>
-      <property name="spacing">
-       <number>2</number>
       </property>
       <property name="selectionRectVisible">
        <bool>true</bool>

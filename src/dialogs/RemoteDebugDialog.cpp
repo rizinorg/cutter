@@ -23,11 +23,12 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
     ui->recentsIpListWidget->addAction(ui->actionRemove_item);
     ui->recentsIpListWidget->addAction(ui->actionClear_all);
     // Set a default selection
-    ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(DEFAULT_INDEX));
+    ui->debuggerCombo->setCurrentText(DEFAULT_INDEX);
     onIndexChange();
 
     fillRecentIpList();
 
+    ui->ipEdit->setText("127.0.0.1");
     ui->ipEdit->setFocus();
 
     connect(ui->debuggerCombo,
@@ -173,32 +174,31 @@ void RemoteDebugDialog::on_actionRemove_item_triggered()
     QVariant data = item->data(Qt::UserRole);
     QString sitem = data.toString();
 
+    // remove the item from recentIpList
     QSettings settings;
     QStringList ips = settings.value("recentIpList").toStringList();
     ips.removeAll(sitem);
     settings.setValue("recentIpList", ips);
 
+    // also remove the line from list
     ui->recentsIpListWidget->takeItem(ui->recentsIpListWidget->currentRow());
-
-    ui->ipEdit->clear();
 
 }
 
 void RemoteDebugDialog::on_actionClear_all_triggered()
 {
     QSettings settings;
-    QStringList ips = settings.value("recentIpList").toStringList();
-    ips.clear();
-
+    // empty QStringList
+    QStringList temp;
     ui->recentsIpListWidget->clear();
-    settings.setValue("recentIpList", ips);
-    ui->ipEdit->clear();
+    settings.setValue("recentIpList", temp);
 }
 
 bool RemoteDebugDialog::fillRecentIpList()
 {
     QSettings settings;
 
+    // fetch recentIpList
     QStringList ips = settings.value("recentIpList").toStringList();
     QMutableListIterator<QString> it(ips);
     while (it.hasNext()) {
@@ -208,10 +208,10 @@ bool RemoteDebugDialog::fillRecentIpList()
             text
         );
         item->setData(Qt::UserRole, ip);
+        // fill recentsIpListWidget
         ui->recentsIpListWidget->addItem(item);
     }
 
-    settings.setValue("recentIpList", ips);
     return !ips.isEmpty();
 }
 
@@ -219,15 +219,20 @@ void RemoteDebugDialog::on_recentsIpListWidget_itemClicked(QListWidgetItem *item
 {
     QVariant data = item->data(Qt::UserRole);
     QString ipport = data.toString();
+    // the PREFIX should be in start
+    // indexOf should return 0 if thats the case
     if (!ipport.indexOf(GDB_URI_PREFIX)) {
-        ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(GDBSERVER));
+        ui->debuggerCombo->setCurrentText(GDBSERVER);
         int last_colon = ipport.lastIndexOf(QString(":"));
         QString port_temp = ipport.mid(last_colon + 1, ipport.length());
+        // length of "gdb://" is 6
+        // TODO: Remove the hardcoded values
         QString ip_temp = ipport.mid(6, ipport.length() - port_temp.length() - 7);
         ui->ipEdit->setText(ip_temp);
         ui->portEdit->setText(port_temp);
     } else if (!ipport.indexOf(WINDBG_URI_PREFIX)) {
-        ui->debuggerCombo->setCurrentIndex(ui->debuggerCombo->findText(WINDBGPIPE));
+        ui->debuggerCombo->setCurrentText(WINDBGPIPE);
+        // length of "windbg://" is 9
         QString path_temp = ipport.mid(9, ipport.length());
         ui->pathEdit->setText(path_temp);
     }
@@ -247,6 +252,7 @@ QString RemoteDebugDialog::getUri() const
 
 QString RemoteDebugDialog::getIp() const
 {
+    // empty text => "127.0.0.1"
     auto temp = ui->ipEdit->text();
     if (temp == "" || temp == "localhost") {
         return "127.0.0.1";
