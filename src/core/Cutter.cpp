@@ -16,6 +16,7 @@
 #include "core/Cutter.h"
 #include "Decompiler.h"
 #include "r_asm.h"
+#include "r_cmd.h"
 #include "sdb.h"
 
 Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
@@ -388,6 +389,32 @@ bool CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
     });
 
     return true;
+}
+
+// TODO: Refactor cmdRaw based on this implementation and use it inside cmdRawAt
+QString CutterCore::cmdRawAt(const char *cmd, RVA address)
+{
+    QString res;
+    RVA oldOffset = getOffset();
+    seekSilent(address);
+
+    {
+        CORE_LOCK();
+      	r_cons_push ();
+
+        // r_cmd_call does not return the output of the command
+        r_cmd_call(core->rcmd, cmd);
+
+        // we grab the output straight from r_cons
+        res = r_cons_get_buffer();
+
+        // // cleaning up
+        r_cons_pop ();
+	    r_cons_echo (NULL);
+    }
+
+    seekSilent(oldOffset);
+    return res;
 }
 
 QString CutterCore::cmdRaw(const QString &str)
@@ -769,6 +796,15 @@ void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset
 
     this->cmdRaw("aht " + structureOffset + " @ " + QString::number(offset));
     emit instructionChanged(offset);
+}
+
+void CutterCore::seekSilent(ut64 offset)
+{
+    CORE_LOCK();
+    if (offset == RVA_INVALID) {
+        return;
+    }
+    r_core_seek(core, offset, true);
 }
 
 void CutterCore::seek(ut64 offset)

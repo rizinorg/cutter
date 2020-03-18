@@ -73,6 +73,22 @@ public:
     bool asyncCmd(const char *str, QSharedPointer<R2Task> &task);
     bool asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
     QString cmdRaw(const QString &str);
+
+    /**
+     * @brief Execute a command \a cmd at \a address. The function will preform a silent seek to the address
+     * without triggering the seekChanged event nor adding new entries to the seek history. By nature, the
+     * API is executing raw commands, and thus ignores multiple commands and overcome command injections.
+     * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
+     * only the first command will be executed.
+     * @param address - an address to which Cutter will temporarily seek.
+     * @return the output of the command
+     */
+    QString cmdRawAt(const char *cmd, RVA address);
+    
+    /**
+     * @brief a wrapper around cmdRawAt(const char *cmd, RVA address).
+     */
+    QString cmdRawAt(const QString &str, RVA address) { return cmdRawAt(str.toUtf8().constData(), address); }
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QStringList cmdList(const char *str) { return cmd(str).split(QLatin1Char('\n'), QString::SkipEmptyParts); }
@@ -221,6 +237,8 @@ public:
     /* Seek functions */
     void seek(QString thing);
     void seek(ut64 offset);
+    void seekSilent(ut64 offset);
+    void seekSilent(QString thing) { seekSilent(math(thing)); }
     void seekPrev();
     void seekNext();
     void updateSeek();
