@@ -400,7 +400,7 @@ QString CutterCore::cmdRawAt(const char *cmd, RVA address)
 
     {
         CORE_LOCK();
-      r_cons_push ();
+        r_cons_push ();
 
         // r_cmd_call does not return the output of the command
         r_cmd_call(core->rcmd, cmd);
