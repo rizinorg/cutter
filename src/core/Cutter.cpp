@@ -398,30 +398,30 @@ QString CutterCore::cmdRawAt(const char *cmd, RVA address)
     RVA oldOffset = getOffset();
     seekSilent(address);
 
-    {
-        CORE_LOCK();
-        r_cons_push ();
-
-        // r_cmd_call does not return the output of the command
-        r_cmd_call(core->rcmd, cmd);
-
-        // we grab the output straight from r_cons
-        res = r_cons_get_buffer();
-
-        // cleaning up
-        r_cons_pop ();
-        r_cons_echo (NULL);
-    }
+    res = cmdRaw(cmd);
 
     seekSilent(oldOffset);
     return res;
 }
 
-QString CutterCore::cmdRaw(const QString &str)
+QString CutterCore::cmdRaw(const char *cmd)
 {
-    QString cmdStr = str;
-    cmdStr.replace('\"', QStringLiteral("\\\""));
-    return cmd(cmdStr.prepend('\"').append('\"'));
+    QString res;
+    CORE_LOCK();
+    r_cons_push ();
+
+    // r_cmd_call does not return the output of the command
+    bool success = r_cmd_call(core->rcmd, cmd);
+
+    qInfo() << "---" << success << "----\n";
+    // we grab the output straight from r_cons
+    res = r_cons_get_buffer();
+
+    // cleaning up
+    r_cons_pop ();
+    r_cons_echo (NULL);
+    
+    return res;
 }
 
 QJsonDocument CutterCore::cmdj(const char *str)
@@ -794,7 +794,7 @@ void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset
         offset = getOffset();
     }
 
-    this->cmdRaw("aht " + structureOffset + " @ " + QString::number(offset));
+    this->cmdRawAt("aht " + structureOffset, QString::number(offset));
     emit instructionChanged(offset);
 }
 

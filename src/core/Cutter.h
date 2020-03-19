@@ -72,10 +72,23 @@ public:
      */
     bool asyncCmd(const char *str, QSharedPointer<R2Task> &task);
     bool asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
-    QString cmdRaw(const QString &str);
 
     /**
-     * @brief Execute a command \a cmd at \a address. The function will preform a silent seek to the address
+     * @brief Execute a radare2 command \a cmd.  By nature, the API
+     * is executing raw commands, and thus ignores multiple commands and overcome command injections.
+     * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
+     * only the first command will be executed.
+     * @return the output of the command
+     */
+    QString cmdRaw(const char *cmd);
+
+    /**
+     * @brief a wrapper around cmdRaw(const char *cmd,).
+     */
+    QString cmdRaw(const QString &cmd) { return cmdRaw(cmd.toUtf8().constData()); };
+
+    /**
+     * @brief Execute a radare2 command \a cmd at \a address. The function will preform a silent seek to the address
      * without triggering the seekChanged event nor adding new entries to the seek history. By nature, the
      * API is executing raw commands, and thus ignores multiple commands and overcome command injections.
      * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
@@ -89,6 +102,7 @@ public:
      * @brief a wrapper around cmdRawAt(const char *cmd, RVA address).
      */
     QString cmdRawAt(const QString &str, RVA address) { return cmdRawAt(str.toUtf8().constData(), address); }
+    
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QStringList cmdList(const char *str) { return cmd(str).split(QLatin1Char('\n'), QString::SkipEmptyParts); }
