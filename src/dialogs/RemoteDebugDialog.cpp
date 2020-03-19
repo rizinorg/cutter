@@ -5,7 +5,6 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QSettings>
-#include <QFrame>
 
 #define GDBSERVER "GDB"
 #define WINDBGPIPE "WinDbg - Pipe"
@@ -248,16 +247,6 @@ bool RemoteDebugDialog::fillRecentIpList()
         item->setData(Qt::UserRole, ip);
         // fill recentsIpListWidget
         ui->recentsIpListWidget->addItem(item);
-
-        // https://stackoverflow.com/a/24819554
-        QListWidgetItem *hlineitem = new QListWidgetItem();
-        hlineitem->setSizeHint(QSize(ui->recentsIpListWidget->size().width(), 1));
-        hlineitem->setFlags(Qt::NoItemFlags);
-        ui->recentsIpListWidget->addItem(hlineitem);
-
-        QFrame *hlinewidget = new QFrame();
-        hlinewidget->setFrameShape(QFrame::HLine);
-        ui->recentsIpListWidget->setItemWidget(hlineitem, hlinewidget);
     }
 
     if (!ips.isEmpty()) {
