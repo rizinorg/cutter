@@ -2473,7 +2473,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
         function.nbbs = r_list_length (fcn->bbs);
         function.calltype = fcn->cc ? QString::fromUtf8(fcn->cc) : QString();
         function.name = fcn->name ? QString::fromUtf8(fcn->name) : QString();
-        function.edges = r_anal_fcn_count_edges(fcn, nullptr);
+        function.edges = r_anal_function_count_edges(fcn, nullptr);
         function.stackframe = fcn->maxstack;
         funcList.append(function);
     }
