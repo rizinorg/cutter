@@ -139,6 +139,11 @@ void MainWindow::initUI()
     connect(ui->actionExtraGraph, &QAction::triggered, this, &MainWindow::addExtraGraph);
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
+    connect(ui->actionCommitChanges, &QAction::triggered, this, [this]() {
+        Core()->commitWriteCache();
+    });
+    ui->actionCommitChanges->setEnabled(false);
+    connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
 
     widgetTypeToConstructorMap.insert(GraphWidget::getWidgetType(), getNewInstance<GraphWidget>);
     widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(), getNewInstance<DisassemblyWidget>);
@@ -621,6 +626,24 @@ void MainWindow::setFilename(const QString &fn)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+
+    // Check if there are uncommitted changes
+    if (core->isIOCacheEnabled() && !core->cmdj("wcj").array().isEmpty()) {
+
+        QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
+                                                                tr("It seems that you have changes or patches that are not committed to the file.\n"
+                                                                "Do you want to commit them now?"),
+                                                                (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+        if (ret == QMessageBox::Cancel) {
+            event->ignore();
+            return;
+        }
+
+        if (ret == QMessageBox::Save) {
+            core->commitWriteCache();
+        } 
+    }
+
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                                             tr("Do you really want to exit?\nSave your project before closing!"),
                                                             (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));

@@ -2,6 +2,7 @@
 #define DISASSEMBLYCONTEXTMENU_H
 
 #include "core/Cutter.h"
+#include "common/IOModesController.h"
 #include <QMenu>
 #include <QKeySequence>
 
@@ -35,7 +36,6 @@ private slots:
     void on_actionJmpReverse_triggered();
     void on_actionEditBytes_triggered();
     void showReverseJmpQuery();
-    bool writeFailed();
 
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();
@@ -108,6 +108,7 @@ private:
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
     MainWindow *mainWindow;
+    IOModesController ioModesController;
 
     QList<QAction *> anonymousActions;
 

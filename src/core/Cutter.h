@@ -73,6 +73,22 @@ public:
     bool asyncCmd(const char *str, QSharedPointer<R2Task> &task);
     bool asyncCmd(const QString &str, QSharedPointer<R2Task> &task) { return asyncCmd(str.toUtf8().constData(), task); }
     QString cmdRaw(const QString &str);
+
+    /**
+     * @brief Execute a command \a cmd at \a address. The function will preform a silent seek to the address
+     * without triggering the seekChanged event nor adding new entries to the seek history. By nature, the
+     * API is executing raw commands, and thus ignores multiple commands and overcome command injections.
+     * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
+     * only the first command will be executed.
+     * @param address - an address to which Cutter will temporarily seek.
+     * @return the output of the command
+     */
+    QString cmdRawAt(const char *cmd, RVA address);
+    
+    /**
+     * @brief a wrapper around cmdRawAt(const char *cmd, RVA address).
+     */
+    QString cmdRawAt(const QString &str, RVA address) { return cmdRawAt(str.toUtf8().constData(), address); }
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
     QStringList cmdList(const char *str) { return cmd(str).split(QLatin1Char('\n'), QString::SkipEmptyParts); }
@@ -221,6 +237,8 @@ public:
     /* Seek functions */
     void seek(QString thing);
     void seek(ut64 offset);
+    void seekSilent(ut64 offset);
+    void seekSilent(QString thing) { seekSilent(math(thing)); }
     void seekPrev();
     void seekNext();
     void updateSeek();
@@ -552,6 +570,37 @@ public:
     BasicBlockHighlighter *getBBHighlighter();
     BasicInstructionHighlighter *getBIHighlighter();
 
+    /**
+     * @brief Enable or dsiable Cache mode. Cache mode is used to imagine writing to the opened file
+     * without committing the changes to the disk.
+     * @param enabled
+     */
+    void setIOCache(bool enabled);
+
+    /**
+     * @brief Check if Cache mode is enabled.
+     * @return true if Cache is enabled, otherwise return false.
+     */
+    bool isIOCacheEnabled() const;
+
+    /**
+     * @brief Commit write cache to the file on disk.
+     */
+    void commitWriteCache();
+
+    /**
+     * @brief Enable or disable Write mode. When the file is opened in write mode, any changes to it will be immediately
+     * committed to the file on disk, thus modify the file. This function wrap radare2 function which re-open the file with
+     * the desired permissions.
+     * @param enabled
+     */
+    void setWriteMode(bool enabled);
+    /**
+     * @brief Check if the file is opened in write mode.
+     * @return true if write mode is enabled, otherwise return false.
+     */
+    bool isWriteModeEnabled();
+
 signals:
     void refreshAll();
 
@@ -586,6 +635,9 @@ signals:
     void attachedRemote(bool successfully);
 
     void projectSaved(bool successfully, const QString &name);
+
+    void ioCacheChanged(bool newval);
+    void writeModeChanged(bool newval);
 
     /**
      * emitted when debugTask started or finished running
@@ -635,6 +687,7 @@ private:
 
     bool emptyGraph = false;
     BasicBlockHighlighter *bbHighlighter;
+    bool iocache = false;
     BasicInstructionHighlighter biHighlighter;
 
     QSharedPointer<R2Task> debugTask;

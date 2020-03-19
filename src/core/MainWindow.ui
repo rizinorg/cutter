@@ -39,7 +39,7 @@
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>22</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -51,10 +51,10 @@
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>378</x>
-      <y>100</y>
-      <width>156</width>
-      <height>220</height>
+      <x>328</x>
+      <y>99</y>
+      <width>265</width>
+      <height>364</height>
      </rect>
     </property>
     <property name="title">
@@ -64,6 +64,8 @@
     <addaction name="actionOpen"/>
     <addaction name="separator"/>
     <addaction name="actionImportPDB"/>
+    <addaction name="separator"/>
+    <addaction name="actionCommitChanges"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -1117,6 +1119,11 @@
    </property>
    <property name="shortcutContext">
     <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionCommitChanges">
+   <property name="text">
+    <string>Commit changes</string>
    </property>
   </action>
  </widget>

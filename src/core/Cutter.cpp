@@ -16,6 +16,7 @@
 #include "core/Cutter.h"
 #include "Decompiler.h"
 #include "r_asm.h"
+#include "r_cmd.h"
 #include "sdb.h"
 
 Q_GLOBAL_STATIC(CutterCore, uniqueInstance)
@@ -388,6 +389,32 @@ bool CutterCore::asyncCmd(const char *str, QSharedPointer<R2Task> &task)
     });
 
     return true;
+}
+
+// TODO: Refactor cmdRaw based on this implementation and use it inside cmdRawAt
+QString CutterCore::cmdRawAt(const char *cmd, RVA address)
+{
+    QString res;
+    RVA oldOffset = getOffset();
+    seekSilent(address);
+
+    {
+        CORE_LOCK();
+        r_cons_push ();
+
+        // r_cmd_call does not return the output of the command
+        r_cmd_call(core->rcmd, cmd);
+
+        // we grab the output straight from r_cons
+        res = r_cons_get_buffer();
+
+        // cleaning up
+        r_cons_pop ();
+        r_cons_echo (NULL);
+    }
+
+    seekSilent(oldOffset);
+    return res;
 }
 
 QString CutterCore::cmdRaw(const QString &str)
@@ -769,6 +796,15 @@ void CutterCore::applyStructureOffset(const QString &structureOffset, RVA offset
 
     this->cmdRaw("aht " + structureOffset + " @ " + QString::number(offset));
     emit instructionChanged(offset);
+}
+
+void CutterCore::seekSilent(ut64 offset)
+{
+    CORE_LOCK();
+    if (offset == RVA_INVALID) {
+        return;
+    }
+    r_core_seek(core, offset, true);
 }
 
 void CutterCore::seek(ut64 offset)
@@ -2437,7 +2473,7 @@ QList<FunctionDescription> CutterCore::getAllFunctions()
         function.nbbs = r_list_length (fcn->bbs);
         function.calltype = fcn->cc ? QString::fromUtf8(fcn->cc) : QString();
         function.name = fcn->name ? QString::fromUtf8(fcn->name) : QString();
-        function.edges = r_anal_fcn_count_edges(fcn, nullptr);
+        function.edges = r_anal_function_count_edges(fcn, nullptr);
         function.stackframe = fcn->maxstack;
         funcList.append(function);
     }
@@ -3678,6 +3714,58 @@ BasicInstructionHighlighter* CutterCore::getBIHighlighter()
     return &biHighlighter;
 }
 
+void CutterCore::setIOCache(bool enabled)
+{
+    setConfig("io.cache", enabled);
+    this->iocache = enabled;
+    emit ioCacheChanged(enabled);
+}
+
+bool CutterCore::isIOCacheEnabled() const
+{
+    return iocache;
+}
+
+void CutterCore::commitWriteCache()
+{
+    if (!isWriteModeEnabled()) {
+        setWriteMode (true);
+        cmd("wci");
+        cmd("oo");
+    } else {
+        cmd("wci");
+    }
+}
+
+// Enable or disable write-mode. Avoid unecessary changes if not need.
+void CutterCore::setWriteMode(bool enabled)
+{
+    bool writeModeState = isWriteModeEnabled();
+
+    if (writeModeState == enabled) {
+        // New mode is the same as current. Do nothing.
+        return;
+    }
+    
+    // Change from read-only to write-mode
+    if (enabled && !writeModeState) {
+        cmd("oo+");
+    // Change from write-mode to read-only
+    } else {
+        cmd("oo");
+    }
+    writeModeChanged (enabled);
+}
+
+bool CutterCore::isWriteModeEnabled()
+{
+    using namespace std;
+    QJsonArray ans = cmdj("oj").array();
+    return find_if(begin(ans), end(ans), [](const QJsonValue &v) {
+        return v.toObject().value("raised").toBool();
+    })->toObject().value("writable").toBool();
+}
+
 /**
  * @brief get a compact disassembly preview for tooltips
  * @param address - the address from which to print the disassembly
@@ -3752,4 +3840,3 @@ QByteArray CutterCore::ioRead(RVA addr, int len)
 
     return  array;
 }
-

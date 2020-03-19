@@ -654,6 +654,9 @@ QKeySequence DisassemblyContextMenu::getUndefineFunctionSequence() const
 
 void DisassemblyContextMenu::on_actionEditInstruction_triggered()
 {
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
     EditInstructionDialog e(EDIT_TEXT, this);
     e.setWindowTitle(tr("Edit Instruction at %1").arg(RAddressString(offset)));
 
@@ -666,30 +669,16 @@ void DisassemblyContextMenu::on_actionEditInstruction_triggered()
         QString userInstructionOpcode = e.getInstruction();
         if (userInstructionOpcode != oldInstructionOpcode) {
             Core()->editInstruction(offset, userInstructionOpcode);
-
-            // Check if the write failed
-            auto newInstructionBytes = Core()->getInstructionBytes(offset);
-            if (newInstructionBytes == oldInstructionBytes) {
-                if (!writeFailed()) {
-                    Core()->editInstruction(offset, userInstructionOpcode);
-                }
-            }
         }
     }
 }
 
 void DisassemblyContextMenu::on_actionNopInstruction_triggered()
 {
-    QString oldBytes = Core()->getInstructionBytes(offset);
-
-    Core()->nopInstruction(offset);
-
-    QString newBytes = Core()->getInstructionBytes(offset);
-    if (oldBytes == newBytes) {
-        if (!writeFailed()) {
-            Core()->nopInstruction(offset);
-        }
+    if (!ioModesController.prepareForWriting()) {
+        return;
     }
+    Core()->nopInstruction(offset);
 }
 
 void DisassemblyContextMenu::showReverseJmpQuery()
@@ -711,20 +700,17 @@ void DisassemblyContextMenu::showReverseJmpQuery()
 
 void DisassemblyContextMenu::on_actionJmpReverse_triggered()
 {
-    QString oldBytes = Core()->getInstructionBytes(offset);
-
-    Core()->jmpReverse(offset);
-
-    QString newBytes = Core()->getInstructionBytes(offset);
-    if (oldBytes == newBytes) {
-        if (!writeFailed()) {
-            Core()->jmpReverse(offset);
-        }
+    if (!ioModesController.prepareForWriting()) {
+        return;
     }
+    Core()->jmpReverse(offset);
 }
 
 void DisassemblyContextMenu::on_actionEditBytes_triggered()
 {
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
     EditInstructionDialog e(EDIT_BYTES, this);
     e.setWindowTitle(tr("Edit Bytes at %1").arg(RAddressString(offset)));
 
@@ -735,36 +721,8 @@ void DisassemblyContextMenu::on_actionEditBytes_triggered()
         QString bytes = e.getInstruction();
         if (bytes != oldBytes) {
             Core()->editBytes(offset, bytes);
-
-            QString newBytes = Core()->getInstructionBytes(offset);
-            if (oldBytes == newBytes) {
-                if (!writeFailed()) {
-                    Core()->editBytes(offset, bytes);
-                }
-            }
         }
     }
-}
-
-bool DisassemblyContextMenu::writeFailed()
-{
-    QMessageBox msgBox;
-    msgBox.setIcon(QMessageBox::Icon::Critical);
-    msgBox.setWindowTitle(tr("Write error"));
-    msgBox.setText(
-        tr("Unable to complete write operation. Consider opening in write mode. \n\nWARNING: In write mode any changes will be committed to disk"));
-    msgBox.addButton(tr("OK"), QMessageBox::NoRole);
-    QAbstractButton *reopenButton = msgBox.addButton(tr("Reopen in write mode and try again"),
-                                                     QMessageBox::YesRole);
-
-    msgBox.exec();
-
-    if (msgBox.clickedButton() == reopenButton) {
-        Core()->cmd("oo+");
-        return false;
-    }
-
-    return true;
 }
 
 void DisassemblyContextMenu::on_actionCopy_triggered()

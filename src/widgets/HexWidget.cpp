@@ -1,6 +1,7 @@
 #include "HexWidget.h"
 #include "Cutter.h"
 #include "Configuration.h"
+#include "dialogs/WriteCommandsDialogs.h"
 
 #include <QPainter>
 #include <QPaintEvent>
@@ -13,10 +14,15 @@
 #include <QMenu>
 #include <QClipboard>
 #include <QApplication>
+#include <QInputDialog>
+#include <QPushButton>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QRegularExpression>
 
-static const uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
-static const int MAX_LINE_WIDTH_PRESET = 32;
-static const int MAX_LINE_WIDTH_BYTES = 128 * 1024;
+static constexpr uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
+static constexpr int MAX_LINE_WIDTH_PRESET = 32;
+static constexpr int MAX_LINE_WIDTH_BYTES = 128 * 1024;
 
 HexWidget::HexWidget(QWidget *parent) :
     QScrollArea(parent),
@@ -113,6 +119,44 @@ HexWidget::HexWidget(QWidget *parent) :
     connect(actionSelectRange, &QAction::triggered, this, [this]() { rangeDialog.open(cursor.address); });
     addAction(actionSelectRange);
     connect(&rangeDialog, &QDialog::accepted, this, &HexWidget::onRangeDialogAccepted);
+
+    actionsWriteString.reserve(5);
+    QAction* actionWriteString = new QAction(tr("Write string"), this);
+    connect(actionWriteString, &QAction::triggered, this, &HexWidget::w_writeString);
+    actionsWriteString.append(actionWriteString);
+
+    QAction* actionWriteLenString = new QAction(tr("Write length and string"), this);
+    connect(actionWriteLenString, &QAction::triggered, this, &HexWidget::w_writePascalString);
+    actionsWriteString.append(actionWriteLenString);
+
+    QAction* actionWriteWideString = new QAction(tr("Write wide string"), this);
+    connect(actionWriteWideString, &QAction::triggered, this, &HexWidget::w_writeWideString);
+    actionsWriteString.append(actionWriteWideString);
+
+    QAction* actionWriteCString = new QAction(tr("Write zero terminated string"), this);
+    connect(actionWriteCString, &QAction::triggered, this, &HexWidget::w_writeCString);
+    actionsWriteString.append(actionWriteCString);
+
+    QAction* actionWrite64 = new QAction(tr("Write De\\Encoded Base64 string"), this);
+    connect(actionWrite64, &QAction::triggered, this, &HexWidget::w_write64);
+    actionsWriteString.append(actionWrite64);
+
+    actionsWriteOther.reserve(4);
+    QAction* actionWriteZeros = new QAction(tr("Write zeros"), this);
+    connect(actionWriteZeros, &QAction::triggered, this, &HexWidget::w_writeZeros);
+    actionsWriteOther.append(actionWriteZeros);
+
+    QAction* actionWriteRandom = new QAction(tr("Write random bytes"), this);
+    connect(actionWriteRandom, &QAction::triggered, this, &HexWidget::w_writeRandom);
+    actionsWriteOther.append(actionWriteRandom);
+
+    QAction* actionDuplicateFromOffset = new QAction(tr("Duplicate from offset"), this);
+    connect(actionDuplicateFromOffset, &QAction::triggered, this, &HexWidget::w_duplFromOffset);
+    actionsWriteOther.append(actionDuplicateFromOffset);
+
+    QAction* actionIncDec = new QAction(tr("Increment/Decrement"), this);
+    connect(actionIncDec, &QAction::triggered, this, &HexWidget::w_increaseDecrease);
+    actionsWriteOther.append(actionIncDec);
 
     connect(this, &HexWidget::selectionChanged, this, [this](Selection selection) {
         actionCopy->setEnabled(!selection.empty);
@@ -570,6 +614,10 @@ void HexWidget::contextMenuEvent(QContextMenuEvent *event)
     menu->addMenu(rowSizeMenu);
     menu->addAction(actionHexPairs);
     menu->addAction(actionItemBigEndian);
+    QMenu *writeMenu = menu->addMenu(tr("Edit"));
+    writeMenu->addActions(actionsWriteString);
+    writeMenu->addSeparator();
+    writeMenu->addActions(actionsWriteOther);
     menu->addSeparator();
     menu->addAction(actionCopy);
     disableOutsideSelectionActions(mouseOutsideSelection);
@@ -606,11 +654,14 @@ void HexWidget::copy()
         return;
 
     QClipboard *clipboard = QApplication::clipboard();
-    QString range = QString("%1@0x%2").arg(selection.size()).arg(selection.start(), 0, 16);
     if (cursorOnAscii) {
-        clipboard->setText(Core()->cmd("psx " + range));
+        clipboard->setText(Core()->cmdRawAt(QString("psx %1")
+                                    .arg(selection.size()),
+                                    selection.start()).trimmed());
     } else {
-        clipboard->setText(Core()->cmd("p8 " + range)); //TODO: copy in the format shown
+        clipboard->setText(Core()->cmdRawAt(QString("p8 %1")
+                                    .arg(selection.size()),
+                                    selection.start()).trimmed()); //TODO: copy in the format shown
     }
 }
 
@@ -631,6 +682,189 @@ void HexWidget::onRangeDialogAccepted()
         return;
     }
     selectRange(rangeDialog.getStartAddress(), rangeDialog.getEndAddress());
+}
+
+void HexWidget::w_writeString()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        Core()->cmdRawAt(QString("w %1")
+                            .arg(str),
+                            getLocationAddress());
+        refresh();
+    }
+}
+
+void HexWidget::w_increaseDecrease()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    IncrementDecrementDialog d;
+    int ret = d.exec();
+    if (ret == QDialog::Rejected) {
+        return;
+    }
+    QString mode = d.getMode() == IncrementDecrementDialog::Increase ? "+" : "-";
+    Core()->cmdRawAt(QString("w%1%2 %3")
+                        .arg(QString::number(d.getNBytes()))
+                        .arg(mode)
+                        .arg(QString::number(d.getValue())),
+                        getLocationAddress());
+    refresh();
+}
+
+void HexWidget::w_writeZeros()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+
+    int size = 1;
+    if (!selection.isEmpty() && selection.size() <= INT_MAX) {
+        size = static_cast<int>(selection.size());
+    }
+
+    QString str = QString::number(d.getInt(this, tr("Write zeros"),
+                                           tr("Number of zeros:"), size, 1, 0x7FFFFFFF, 1, &ok));
+    if (ok && !str.isEmpty()) {
+        Core()->cmdRawAt(QString("w0 %1")
+                            .arg(str),
+                            getLocationAddress());
+        refresh();
+    }
+}
+
+void HexWidget::w_write64()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    Base64EnDecodedWriteDialog d;
+    int ret = d.exec();
+    if (ret == QDialog::Rejected) {
+        return;
+    }
+    QString mode = d.getMode() == Base64EnDecodedWriteDialog::Encode ? "e" : "d";
+    QByteArray str = d.getData();
+
+    if (mode == "d" && (QString(str).contains(QRegularExpression("[^a-zA-Z0-9+/=]")) ||
+        str.length() % 4 != 0 || str.isEmpty())) {
+        QMessageBox::critical(this, tr("Error"),
+                              tr("Error occured during decoding your input.\n"
+                                 "Please, make sure, that it is a valid base64 string and try again."));
+        return;
+    }
+
+    Core()->cmdRawAt(QString("w6%1 %2")
+                        .arg(mode)
+                        .arg((mode == "e" ? str.toHex() : str).toStdString().c_str()),
+                        getLocationAddress());
+    refresh();
+}
+
+void HexWidget::w_writeRandom()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+
+    int size = 1;
+    if (!selection.isEmpty() && selection.size() <= INT_MAX) {
+        size = static_cast<int>(selection.size());
+    }
+    QString nbytes = QString::number(d.getInt(this, tr("Write random"),
+                                           tr("Number of bytes:"), size, 1, 0x7FFFFFFF, 1, &ok));
+    if (ok && !nbytes.isEmpty()) {
+        Core()->cmdRawAt(QString("wr %1")
+                            .arg(nbytes),
+                            getLocationAddress());
+        refresh();
+    }
+}
+
+void HexWidget::w_duplFromOffset()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    DuplicateFromOffsetDialog d;
+    int ret = d.exec();
+    if (ret == QDialog::Rejected) {
+        return;
+    }
+    RVA copyFrom = d.getOffset();
+    QString nBytes = QString::number(d.getNBytes());
+    Core()->cmdRawAt(QString("wd %1 %2")
+                            .arg(copyFrom)
+                            .arg(nBytes),
+                            getLocationAddress());
+    refresh();
+}
+
+void HexWidget::w_writePascalString()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write Pascal string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        Core()->cmdRawAt(QString("ws %1")
+                            .arg(str),
+                            getLocationAddress());
+        refresh();
+    }
+}
+
+void HexWidget::w_writeWideString()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write wide string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        Core()->cmdRawAt(QString("ww %1")
+                            .arg(str),
+                            getLocationAddress());
+        refresh();
+    }
+}
+
+void HexWidget::w_writeCString()
+{
+    if (!ioModesController.prepareForWriting()) {
+        return;
+    }
+    bool ok = false;
+    QInputDialog d;
+    d.setInputMode(QInputDialog::InputMode::TextInput);
+    QString str = d.getText(this, tr("Write zero-terminated string"),
+                            tr("String:"), QLineEdit::Normal, "", &ok);
+    if (ok && !str.isEmpty()) {
+        Core()->cmdRawAt(QString("wz %1")
+                            .arg(str),
+                            getLocationAddress());
+        refresh();
+    }
 }
 
 void HexWidget::updateItemLength()
@@ -1304,4 +1538,8 @@ QRectF HexWidget::asciiRectangle(uint offset)
     p += asciiArea.topLeft();
 
     return QRectF(p, QSizeF(charWidth, lineHeight));
+}
+
+RVA HexWidget::getLocationAddress() {
+    return !selection.isEmpty() ? selection.start() : cursor.address;
 }

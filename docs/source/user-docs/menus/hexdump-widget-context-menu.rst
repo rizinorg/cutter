@@ -1,5 +1,10 @@
 Hexdump Widget Context Menu
 ==============================
+.. toctree::
+   :maxdepth: 1
+   :glob:
+
+   hexdump-context-menu/*
 
 Bytes Per Row
 ----------------------------------------

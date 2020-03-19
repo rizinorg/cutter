@@ -3,6 +3,8 @@
 
 #include "Cutter.h"
 #include "dialogs/HexdumpRangeDialog.h"
+#include "common/IOModesController.h"
+
 #include <QScrollArea>
 #include <QTimer>
 #include <QMenu>
@@ -295,6 +297,17 @@ private slots:
     void copyAddress();
     void onRangeDialogAccepted();
 
+    // Write command slots
+    void w_writeString();
+    void w_increaseDecrease();
+    void w_writeZeros();
+    void w_write64();
+    void w_writeRandom();
+    void w_duplFromOffset();
+    void w_writePascalString();
+    void w_writeWideString();
+    void w_writeCString();
+
 private:
     void updateItemLength();
     void updateCounts();
@@ -316,6 +329,12 @@ private:
     QVariant readItem(int offset, QColor *color = nullptr);
     QString renderItem(int offset, QColor *color = nullptr);
     QChar renderAscii(int offset, QColor *color = nullptr);
+    /**
+     * @brief Get the location on which operations such as Writing should apply.
+     * @return Start of selection if multiple bytes are selected. Otherwise, the curren seek of the widget.
+     */
+    RVA getLocationAddress();
+
     void fetchData();
     /**
      * @brief Convert mouse position to address.
@@ -483,9 +502,13 @@ private:
     QAction *actionCopy;
     QAction *actionCopyAddress;
     QAction *actionSelectRange;
+    QList<QAction *> actionsWriteString;
+    QList<QAction *> actionsWriteOther;
 
     std::unique_ptr<AbstractData> oldData;
     std::unique_ptr<AbstractData> data;
+    IOModesController ioModesController;
+
 };
 
 #endif // HEXWIDGET_H
