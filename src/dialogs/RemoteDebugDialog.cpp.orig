@@ -4,8 +4,8 @@
 #include <QHostAddress>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QRegExpValidator>
 #include <QSettings>
-#include <QFrame>
 
 #define GDBSERVER "GDB"
 #define WINDBGPIPE "WinDbg - Pipe"
@@ -35,9 +35,9 @@ RemoteDebugDialog::RemoteDebugDialog(QWidget *parent) :
             this, &RemoteDebugDialog::onIndexChange);
 
     // connect statements for right click action and itemClicked action
-    connect(ui->actionClear_all, &QAction::triggered, this, &RemoteDebugDialog::clearAll);
-    connect(ui->actionRemove_item, &QAction::triggered, this, &RemoteDebugDialog::removeItem);
-    connect(ui->recentsIpListWidget, &QListWidget::itemClicked, this, &RemoteDebugDialog::itemClicked);
+    connect(ui->actionClear_all, &QAction::triggered, this, &RemoteDebugDialog::clear_all);
+    connect(ui->actionRemove_item, &QAction::triggered, this, &RemoteDebugDialog::remove_item);
+    connect(ui->recentsIpListWidget, &QListWidget::itemClicked, this, &RemoteDebugDialog::item_clicked);
 }
 
 RemoteDebugDialog::~RemoteDebugDialog() {}
@@ -172,7 +172,7 @@ void RemoteDebugDialog::setDebugger(QString debugger)
 * @brief Clears the selected item in the list of recent connections.
 * Triggers when you right click and click on "Remove Item" in remote debug dialog.
 */
-void RemoteDebugDialog::removeItem()
+void RemoteDebugDialog::remove_item()
 {
     QListWidgetItem *item = ui->recentsIpListWidget->currentItem();
 
@@ -197,7 +197,7 @@ void RemoteDebugDialog::removeItem()
 * @brief Clears the list of recent connections.
 * Triggers when you right click and click on "Clear All" in remote debug dialog.
 */
-void RemoteDebugDialog::clearAll()
+void RemoteDebugDialog::clear_all()
 {
     QSettings settings;
     // empty QStringList
@@ -218,8 +218,7 @@ void RemoteDebugDialog::fillFormData(QString formdata)
         int last_colon = formdata.lastIndexOf(QString(":"));
         QString port_temp = formdata.mid(last_colon + 1, formdata.length());
         // +/- 3 is because of "://" in path/url
-        QString ip_temp = formdata.mid(QString(GDB_URI_PREFIX).length() + 3,
-                                       formdata.length() - port_temp.length() - QString(GDB_URI_PREFIX).length() - 3 - 1);
+        QString ip_temp = formdata.mid(QString(GDB_URI_PREFIX).length() + 3, formdata.length() - port_temp.length() - QString(GDB_URI_PREFIX).length() - 3 - 1);
         ui->ipEdit->setText(ip_temp);
         ui->portEdit->setText(port_temp);
     } else if (formdata.startsWith(WINDBG_URI_PREFIX)) {
@@ -248,19 +247,10 @@ bool RemoteDebugDialog::fillRecentIpList()
         item->setData(Qt::UserRole, ip);
         // fill recentsIpListWidget
         ui->recentsIpListWidget->addItem(item);
-
-        // https://stackoverflow.com/a/24819554
-        QListWidgetItem *hlineitem = new QListWidgetItem();
-        hlineitem->setSizeHint(QSize(ui->recentsIpListWidget->size().width(), 1));
-        hlineitem->setFlags(Qt::NoItemFlags);
-        ui->recentsIpListWidget->addItem(hlineitem);
-
-        QFrame *hlinewidget = new QFrame();
-        hlinewidget->setFrameShape(QFrame::HLine);
-        ui->recentsIpListWidget->setItemWidget(hlineitem, hlinewidget);
     }
 
-    if (!ips.isEmpty()) {
+    if (!ips.isEmpty())
+    {
         fillFormData(ips[0]);
     }
 
@@ -271,11 +261,11 @@ bool RemoteDebugDialog::fillRecentIpList()
 /**
 * @brief Fills the form with the selected item's data.
 */
-void RemoteDebugDialog::itemClicked(QListWidgetItem *item)
+void RemoteDebugDialog::item_clicked(QListWidgetItem *item)
 {
     QVariant data = item->data(Qt::UserRole);
     QString ipport = data.toString();
-
+    
     fillFormData(ipport);
 }
 

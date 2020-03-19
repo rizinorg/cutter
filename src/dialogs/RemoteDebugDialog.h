@@ -35,9 +35,9 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void onIndexChange();
-    void clear_all();
-    void remove_item();
-    void item_clicked(QListWidgetItem *item);
+    void clearAll();
+    void removeItem();
+    void itemClicked(QListWidgetItem *item);
 
 private:
     void activateGdb();
