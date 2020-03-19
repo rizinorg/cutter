@@ -82,3 +82,6 @@ src/out
 /cutter-deps
 
 /breakpad
+
+# astyle backup .orig files
+*.orig
