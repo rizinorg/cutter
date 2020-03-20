@@ -15,7 +15,7 @@ EditVariablesDialog::EditVariablesDialog(RVA offset, QString initialVar, QWidget
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(applyFields()));
     connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(int)), SLOT(updateFields()));
 
-    QString fcnName = Core()->cmd(QString("afn @ %1").arg(offset)).trimmed();
+    QString fcnName = Core()->cmdRawAt("afn.", offset).trimmed();
     setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcnName));
 
     variables = Core()->getVariables(offset);
