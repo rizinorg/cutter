@@ -1177,7 +1177,7 @@ void DisassemblerGraphView::exportGraph(QString filePath, GraphExportType type)
             return;
         }
         QTextStream fileOut(&file);
-        fileOut << Core()->cmd(QString("agfd 0x%1").arg(currentFcnAddr, 0, 16));
+        fileOut << Core()->cmdRaw(QString("agfd 0x%1").arg(currentFcnAddr, 0, 16));
     }
     break;
 
@@ -1206,8 +1206,9 @@ void DisassemblerGraphView::exportR2GraphvizGraph(QString filePath, QString type
 {
     TempConfig tempConfig;
     tempConfig.set("graph.gv.format", type);
-    qWarning() << Core()->cmdRaw(QString("agfw \"%1\" @ 0x%2")
-                                 .arg(filePath).arg(currentFcnAddr, 0, 16));
+    qWarning() << Core()->cmdRawAt(QString("agfw \"%1\"")
+                                 .arg(filePath),
+                                 currentFcnAddr);
 }
 
 void DisassemblerGraphView::mousePressEvent(QMouseEvent *event)
