@@ -134,7 +134,7 @@ void ColorThemeEditDialog::colorOptionChanged(const QColor& newColor)
 
     Config()->setColor(currOption.optionName, currOption.color);
     if (!ColorThemeWorker::cutterSpecificOptions.contains(currOption.optionName)) {
-        Core()->cmd(QString("ec %1 %2").arg(currOption.optionName).arg(currOption.color.name()));
+        Core()->cmdRaw(QString("ec %1 %2").arg(currOption.optionName).arg(currOption.color.name()));
     }
     previewDisasmWidget->colorsUpdatedSlot();
 }
