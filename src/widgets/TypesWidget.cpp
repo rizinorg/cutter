@@ -273,7 +273,7 @@ void TypesWidget::on_actionExport_Types_triggered()
         return;
     }
     QTextStream fileOut(&file);
-    fileOut << Core()->cmd("tc");
+    fileOut << Core()->cmdRaw("tc");
     file.close();
 }
 
