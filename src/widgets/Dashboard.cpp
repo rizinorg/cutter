@@ -105,7 +105,7 @@ void Dashboard::updateContents()
 
         // Calculate the Entropy of the entire binary from offset 0 to $s
         // where $s is the size of the entire file
-        QString entropy = Core()->cmd("ph entropy $s @ 0").trimmed();
+        QString entropy = Core()->cmdRawAt("ph entropy $s", 0).trimmed();
 
         // Define a Read-Only line edit to display the entropy value
         QLineEdit *entropyLineEdit = new QLineEdit();
