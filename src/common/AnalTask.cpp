@@ -60,7 +60,7 @@ void AnalTask::runTask()
     }
 
     if (!options.os.isNull()) {
-        Core()->cmd("e asm.os=" + options.os);
+        Core()->cmdRaw("e asm.os=" + options.os);
     }
 
     if (!options.pdbFile.isNull()) {
@@ -74,14 +74,14 @@ void AnalTask::runTask()
 
     if (!options.shellcode.isNull() && options.shellcode.size() / 2 > 0) {
         log(tr("Loading shellcode..."));
-        Core()->cmd("wx " + options.shellcode);
+        Core()->cmdRaw("wx " + options.shellcode);
     }
 
     if (options.endian != InitialOptions::Endianness::Auto) {
         Core()->setEndianness(options.endian == InitialOptions::Endianness::Big);
     }
 
-    Core()->cmd("fs *");
+    Core()->cmdRaw("fs *");
 
     if (!options.script.isNull()) {
         log(tr("Executing script..."));
@@ -102,6 +102,7 @@ void AnalTask::runTask()
                 return;
             }
             log(cmd.description);
+            // use cmd instead of cmdRaw because commands can be unexpected
             Core()->cmd(cmd.command);
         }
         log(tr("Analysis complete!"));
