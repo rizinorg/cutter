@@ -90,7 +90,7 @@ QString GraphWidget::getWidgetType()
 
 void GraphWidget::prepareHeader()
 {
-    QString afcf = Core()->cmd(QString("afcf @%1").arg(seekable->getOffset())).trimmed();
+    QString afcf = Core()->cmdRawAt("afcf", seekable->getOffset()).trimmed();
     if (afcf.isEmpty()) {
         header->hide();
         return;
