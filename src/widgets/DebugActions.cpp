@@ -191,6 +191,7 @@ DebugActions::DebugActions(QToolBar *toolBar, MainWindow *main) :
 
 void DebugActions::setButtonVisibleIfMainExists()
 {
+    // Use cmd because cmdRaw would not handle multiple commands concatenated
     int mainExists = Core()->cmd("f?sym.main; ??").toInt();
     // if main is not a flag we hide the continue until main button
     if (!mainExists) {
@@ -213,7 +214,7 @@ void DebugActions::showDebugWarning()
 
 void DebugActions::continueUntilMain()
 {
-    QString mainAddr = Core()->cmd("?v sym.main");
+    QString mainAddr = Core()->cmdRaw("?v sym.main");
     Core()->continueUntilDebug(mainAddr);
 }
 
