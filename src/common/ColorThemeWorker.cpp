@@ -167,9 +167,9 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
     QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
-        Core()->cmd(QString("eco %1").arg(themeName));
+        Core()->cmdRaw(QString("eco %1").arg(themeName));
         theme = Core()->cmdj("ecj").object().toVariantMap();
-        Core()->cmd(QString("eco %1").arg(curr));
+        Core()->cmdRaw(QString("eco %1").arg(curr));
     } else {
         theme = Core()->cmdj("ecj").object().toVariantMap();
     }
