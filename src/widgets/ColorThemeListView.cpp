@@ -241,7 +241,7 @@ void ColorThemeListView::currentChanged(const QModelIndex &current,
     ColorOption prev = previous.data(Qt::UserRole).value<ColorOption>();
     Config()->setColor(prev.optionName, prev.color);
     if (ThemeWorker().radare2SpecificOptions.contains(prev.optionName)) {
-        Core()->cmd(QString("ec %1 %2").arg(prev.optionName).arg(prev.color.name()));
+        Core()->cmdRaw(QString("ec %1 %2").arg(prev.optionName).arg(prev.color.name()));
     }
 
     QListView::currentChanged(current, previous);
@@ -302,7 +302,7 @@ void ColorThemeListView::blinkTimeout()
     auto updateColor = [](const QString &name, const QColor &color) {
         Config()->setColor(name, color);
         if (ThemeWorker().radare2SpecificOptions.contains(name)) {
-            Core()->cmd(QString("ec %1 %2").arg(name).arg(color.name()));
+            Core()->cmdRaw(QString("ec %1 %2").arg(name).arg(color.name()));
         }
     };
 
