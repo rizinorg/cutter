@@ -460,10 +460,11 @@ void DisassemblyContextMenu::aboutToShowSlot()
     actionAnalyzeFunction.setVisible(true);
 
     // Show the option to remove a defined string only if a string is defined in this address
-    QString stringDefinition = Core()->cmd("Cs. @ " + RAddressString(offset));
+    QString stringDefinition = Core()->cmdRawAt("Cs.", offset);
     actionSetAsStringRemove.setVisible(!stringDefinition.isEmpty());
 
-    QString comment = Core()->cmd("CC." + RAddressString(offset));
+    QString comment = Core()->cmdRawAt("CC.", offset);
+
     if (comment.isNull() || comment.isEmpty()) {
         actionDeleteComment.setVisible(false);
         actionAddComment.setText(tr("Add Comment"));
@@ -841,7 +842,7 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
     if (dialog.exec()) {
         QString newName = dialog.getName().trimmed();
         if (!newName.isEmpty()) {
-            Core()->cmd("an " + newName + " @ " + QString::number(offset));
+            Core()->cmdRawAt(QString("an %1").arg(newName), offset);
 
             if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
                 Core()->triggerFlagsChanged();
@@ -1006,7 +1007,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
         stackSizeText.sprintf("%d", fcn->stack);
         dialog.setStackSizeText(stackSizeText);
 
-        QStringList callConList = Core()->cmd("afcl").split("\n");
+        QStringList callConList = Core()->cmdRaw("afcl").split("\n");
         callConList.removeLast();
         dialog.setCallConList(callConList);
         dialog.setCallConSelected(fcn->cc);
@@ -1019,7 +1020,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
             fcn->addr = Core()->math(new_start_addr);
             QString new_stack_size = dialog.getStackSizeText();
             fcn->stack = int(Core()->math(new_stack_size));
-            Core()->cmd("afc " + dialog.getCallConSelected());
+            Core()->cmdRaw("afc " + dialog.getCallConSelected());
             emit Core()->functionsChanged();
         }
     }
