@@ -156,6 +156,7 @@ CUTTER_ENABLE_PYTHON {
         }
         BINDINGS_SRC_DIR = "$${PWD}/bindings"
         BINDINGS_BUILD_DIR = "$${OUT_PWD}/bindings"
+        BINDINGS_SOURCE_DIR = "$${BINDINGS_BUILD_DIR}/CutterBindings"
         BINDINGS_SOURCE = $$system("$${BINDINGS_SRC_LIST_CMD} qmake \"$${BINDINGS_BUILD_DIR}\"")
         BINDINGS_INCLUDE_DIRS = "$$[QT_INSTALL_HEADERS]" \
                                 "$$[QT_INSTALL_HEADERS]/QtCore" \
@@ -194,9 +195,9 @@ CUTTER_ENABLE_PYTHON {
         bindings.commands = $$quote($$system_path($${SHIBOKEN_EXECUTABLE})) $${SHIBOKEN_OPTIONS}
         QMAKE_EXTRA_TARGETS += bindings
         PRE_TARGETDEPS += bindings_target
-        GENERATED_SOURCES += $${BINDINGS_SOURCE}
+        # GENERATED_SOURCES += $${BINDINGS_SOURCE} done by dummy targets bellow
 
-        INCLUDEPATH += "$${BINDINGS_BUILD_DIR}/CutterBindings"
+        INCLUDEPATH += "$${BINDINGS_SOURCE_DIR}"
 
         win32:DEFINES += WIN32_LEAN_AND_MEAN
 
@@ -211,6 +212,34 @@ CUTTER_ENABLE_PYTHON {
             PKGCONFIG += shiboken2 pyside2
         }
         INCLUDEPATH += "$$PYSIDE_INCLUDEDIR" "$$PYSIDE_INCLUDEDIR/QtCore" "$$PYSIDE_INCLUDEDIR/QtWidgets" "$$PYSIDE_INCLUDEDIR/QtGui"
+
+
+        BINDINGS_DUMMY_INPUT_LIST = bindings/src_list.py
+
+        # dummy rules to specify dependency between generated binding files and bindings_target
+        bindings_h.input = BINDINGS_DUMMY_INPUT_LIST
+        bindings_h.depends = bindings_target
+        bindings_h.output = cutterbindings_python.h
+        bindings_h.commands = "echo placeholder command ${QMAKE_FILE_OUT}"
+        bindings_h.variable_out = HEADERS
+        QMAKE_EXTRA_COMPILERS += bindings_h
+
+        for(path, BINDINGS_SOURCE) {
+            dummy_input = $$replace(path, .cpp, .txt)
+            BINDINGS_DUMMY_INPUTS += $$dummy_input
+            win32 {
+                _ = $$system("mkdir \"$$dirname(dummy_input)\"; echo a >\"$$dummy_input\"")
+            } else {
+                _ = $$system("mkdir -p \"$$dirname(dummy_input)\"; echo a >\"$$dummy_input\"")
+            }
+        }
+
+        bindings_cpp.input = BINDINGS_DUMMY_INPUTS
+        bindings_cpp.depends = bindings_target
+        bindings_cpp.output = "$${BINDINGS_SOURCE_DIR}/${QMAKE_FILE_IN_BASE}.cpp"
+        bindings_cpp.commands = "echo placeholder command ${QMAKE_FILE_OUT}"
+        bindings_cpp.variable_out = GENERATED_SOURCES
+        QMAKE_EXTRA_COMPILERS += bindings_cpp
     }
 }
 
