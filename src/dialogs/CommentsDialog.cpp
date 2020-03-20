@@ -38,7 +38,7 @@ void CommentsDialog::setComment(const QString &comment)
 
 void CommentsDialog::addOrEditComment(RVA offset, QWidget *parent)
 {
-    QString oldComment = Core()->cmd("CC." + RAddressString(offset));
+    QString oldComment = Core()->cmdRawAt("CC.", offset);
     // Remove newline at the end added by cmd
     oldComment.remove(oldComment.length() - 1, 1);
     CommentsDialog c(parent);
