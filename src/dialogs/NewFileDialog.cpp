@@ -321,7 +321,7 @@ bool NewFileDialog::fillProjectsList()
 
     int i = 0;
     for (const QString &project : projects) {
-        QString info = QDir::toNativeSeparators(core->cmd("Pi " + project));
+        QString info = QDir::toNativeSeparators(core->cmdRaw("Pi " + project));
 
         QListWidgetItem *item = new QListWidgetItem(getIconFor(project, i++), project + "\n" + info);
 
