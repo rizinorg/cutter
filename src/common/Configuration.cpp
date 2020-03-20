@@ -208,7 +208,7 @@ int Configuration::getNewFileLastClicked()
 
 void Configuration::resetAll()
 {
-    Core()->cmd("e-");
+    Core()->cmdRaw("e-");
     Core()->setSettings();
     // Delete the file so no extra configuration is in it.
     QFile settingsFile(s.fileName());
@@ -524,10 +524,10 @@ const QColor Configuration::getColor(const QString &name) const
 void Configuration::setColorTheme(const QString &theme)
 {
     if (theme == "default") {
-        Core()->cmd("ecd");
+        Core()->cmdRaw("ecd");
         s.setValue("theme", "default");
     } else {
-        Core()->cmd(QStringLiteral("eco %1").arg(theme));
+        Core()->cmdRaw(QStringLiteral("eco %1").arg(theme));
         s.setValue("theme", theme);
     }
 
