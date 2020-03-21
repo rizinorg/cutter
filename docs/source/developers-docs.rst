@@ -29,10 +29,20 @@ Example:
 Calling a radare2 command
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There are two ways to call a radare2 command: 
+There are multiple ways to call a radare2 command: 
 
-- ``CutterCore::cmd()`` *(Discouraged)* Only use it for commands which yells no output
-- ``CutterCore::cmdj()`` To be used with json commands like ``cmdj("agj")`` or ``cmdj("aflj")``.
+- ``CutterCore::cmdj(<command>)`` - To be used with json commands like ``cmdj("agj")`` or ``cmdj("aflj")``. 
+  This is the command we used to fetch structured data from radare2.
+  
+- ``CutterCore::cmdRaw(<command>)`` - Executes a single radare2 command 
+ without going through radare2 shell functionality like output redirects, grep, and multiple command parsing.
+The command then returns its output. This should be used when a command doesn't have output or the output should be handled as-is. If possible, using the json variation with ``cmdj`` is always preferred.
+  
+- ``CutterCore::cmdRawAt(<command>, <address>)`` - Executes a single radare2 command in a given address and returns the output. This helps avoiding weird strings concatenation like ``cmd("ph " + hash + " @ " + QString::num(address))``.
+  
+- ``CutterCore::cmd()`` - *(Discouraged)* Only use it when ``cmdj`` or ``cmdRaw`` cannot be used. This is used for complex commands using concatenation of several commands (``px 5; pd 7; afl;``), for grepping (``pd 5~call``). for commands inside commands (``?e `afn.```) and so on.
+  This is also used when the output is complex and does not parsed correctly in ``cmdRaw``.
+  Make sure to carefully sanitize user-controlled variables that are passed to the command, to avoid unexpected command injections. 
 
 Generally, if one needs to retrieve information from a radare2 command, it
 is preferred to use the json API.
@@ -56,6 +66,11 @@ Example:
 .. code:: cpp
 
    Core()->seek(0x00C0FFEE);
+
+.. note::
+
+ Cutter also supports a silent seek which doesn't trigger the ``seekChanged`` event and doesn't add new entries to the seek history.
+
 
 Creating a widget
 ~~~~~~~~~~~~~~~~~
