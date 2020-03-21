@@ -76,8 +76,7 @@ public:
     /**
      * @brief Execute a radare2 command \a cmd.  By nature, the API
      * is executing raw commands, and thus ignores multiple commands and overcome command injections.
-     * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
-     * only the first command will be executed.
+     * @param cmd - a raw command to execute. Passing multiple commands (e.g "px 5; pd 7 && pdf") will result in them treated as arguments to first command.
      * @return the output of the command
      */
     QString cmdRaw(const char *cmd);
@@ -90,7 +89,8 @@ public:
     /**
      * @brief Execute a radare2 command \a cmd at \a address. The function will preform a silent seek to the address
      * without triggering the seekChanged event nor adding new entries to the seek history. By nature, the
-     * API is executing raw commands, and thus ignores multiple commands and overcome command injections.
+     * API is executing a single command without going through radare2 shell, and thus ignores multiple commands 
+     * and tries to overcome command injections.
      * @param cmd - a raw command to execute. If multiple commands will be passed (e.g "px 5; pd 7 && pdf") then
      * only the first command will be executed.
      * @param address - an address to which Cutter will temporarily seek.
