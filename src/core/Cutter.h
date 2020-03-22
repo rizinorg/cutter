@@ -14,6 +14,7 @@
 #include <QJsonDocument>
 #include <QErrorMessage>
 #include <QMutex>
+#include <QDir>
 
 class AsyncTaskManager;
 class BasicInstructionHighlighter;
@@ -692,6 +693,8 @@ private:
 
     QSharedPointer<R2Task> debugTask;
     R2TaskDialog *debugTaskDialog;
+    
+    QVector<QDir> getCutterRCDirectories() const;
 };
 
 class RCoreLocked

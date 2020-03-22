@@ -229,32 +229,34 @@ RCoreLocked CutterCore::core()
     return RCoreLocked(this);
 }
 
-void CutterCore::loadCutterRC()
+QVector<QDir> CutterCore::getCutterRCDirectories() const
 {
-    // Checking home explicitly as it is not a standardLocation as per Qt.
-    // Home is being checked, because initially home was the only location where .cutterrc was loaded from.
-    CORE_LOCK();
-    auto home = QDir::home();
-    auto cutterRCFileInfo = QFileInfo(home, ".cutterrc");
-    auto path = cutterRCFileInfo.absoluteFilePath();
-    
-    if (home.exists() && cutterRCFileInfo.isFile()) {
-        qInfo() << "Loading" << path;
-        r_core_cmd_file(core, path.toUtf8().constData());
-    }    
-    QVector<QDir> result; 
+    QVector<QDir> result;
+    result.push_back(QDir::home());
     QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
     for (auto &location : locations) { 
         result.push_back(QDir(location)); 
     }
+    locations = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation);
+    for (auto &location : locations) { 
+        result.push_back(QDir(location)); 
+    }
+    return result;
+}
+
+void CutterCore::loadCutterRC()
+{
+    CORE_LOCK();
+    
+    const auto result = getCutterRCDirectories();
     for(auto &dir : result){
         if(!dir.exists())continue;
-        cutterRCFileInfo = QFileInfo(dir, ".cutterrc");
-        path = cutterRCFileInfo.absoluteFilePath();
+        auto cutterRCFileInfo = QFileInfo(dir, ".cutterrc");
+        auto path = cutterRCFileInfo.absoluteFilePath();
         if (!cutterRCFileInfo.isFile()) {
             continue;
         }
-        qInfo() << "Loading" << path;
+        qInfo() << "Loading initialization file from" << path;
         r_core_cmd_file(core, path.toUtf8().constData());
     }
 }
