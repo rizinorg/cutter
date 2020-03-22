@@ -3,6 +3,9 @@
 #include <QRegularExpression>
 #include <QDir>
 #include <QCoreApplication>
+#include <QVector>
+#include <QStringList>
+#include <QStandardPaths>
 
 #include <cassert>
 #include <memory>
@@ -228,18 +231,32 @@ RCoreLocked CutterCore::core()
 
 void CutterCore::loadCutterRC()
 {
+    // Checking home explicitly as it is not a standardLocation as per Qt.
+    // Home is being checked, because initially home was the only location where .cutterrc was loaded from.
     CORE_LOCK();
     auto home = QDir::home();
-    if (!home.exists()) {
-        return;
-    }
     auto cutterRCFileInfo = QFileInfo(home, ".cutterrc");
-    if (!cutterRCFileInfo.isFile()) {
-        return;
-    }
     auto path = cutterRCFileInfo.absoluteFilePath();
-    qInfo() << "Loading" << path;
-    r_core_cmd_file(core, path.toUtf8().constData());
+    
+    if (home.exists() && cutterRCFileInfo.isFile()) {
+        qInfo() << "Loading" << path;
+        r_core_cmd_file(core, path.toUtf8().constData());
+    }    
+    QVector<QDir> result; 
+    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
+    for (auto &location : locations) { 
+        result.push_back(QDir(location)); 
+    }
+    for(auto &dir : result){
+        if(!dir.exists())continue;
+        cutterRCFileInfo = QFileInfo(dir, ".cutterrc");
+        path = cutterRCFileInfo.absoluteFilePath();
+        if (!cutterRCFileInfo.isFile()) {
+            continue;
+        }
+        qInfo() << "Loading" << path;
+        r_core_cmd_file(core, path.toUtf8().constData());
+    }
 }
 
 
