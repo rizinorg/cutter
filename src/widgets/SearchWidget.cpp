@@ -220,7 +220,7 @@ void SearchWidget::updateSearchBoundaries()
 
     ui->searchInCombo->blockSignals(true);
     ui->searchInCombo->clear();
-    for (mapIter; mapIter != boundaries.cend(); ++mapIter) {
+    for (; mapIter != boundaries.cend(); ++mapIter) {
         ui->searchInCombo->addItem(mapIter.value(), mapIter.key());
     }
     ui->searchInCombo->blockSignals(false);
