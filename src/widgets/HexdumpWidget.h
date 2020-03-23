@@ -58,6 +58,7 @@ private:
     void setupFonts();
 
     void refreshSelectionInfo();
+    void showMetaInfo(RVA address);
     void updateParseWindow(RVA start_address, int size);
     void clearParseWindow();
     void showSidePanel(bool show);

@@ -62,6 +62,11 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
     ui->bytesCRC32->setPlaceholderText(placeholder);
     ui->hexDisasTextEdit->setPlaceholderText(placeholder);
 
+    // Set placeholders for the flag and comment components
+    QString placeholder_2 = tr("Select address to display information");
+    ui->addressFlag->setPlaceholderText(placeholder_2);
+    ui->addressComment->setPlaceholderText(placeholder_2);
+
     setupFonts();
 
     ui->openSideViewB->setStyleSheet(""
@@ -97,6 +102,7 @@ HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
             seekable->seek(addr);
             sent_seek = false;
         }
+        showMetaInfo(addr);
     });
     connect(ui->hexTextView, &HexWidget::selectionChanged, this, &HexdumpWidget::selectionChanged);
     connect(ui->hexSideTab_2, &QTabWidget::currentChanged, this, &HexdumpWidget::refreshSelectionInfo);
@@ -287,6 +293,29 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         ui->bytesSHA256->setCursorPosition(0);
         ui->bytesCRC32->setCursorPosition(0);
     }
+}
+
+void HexdumpWidget::showMetaInfo(RVA address)
+{
+    QString flagName = "";
+
+    RCore *core = Core()->core();
+    RFlagItem *f = r_flag_get_i (core->flags, address);
+
+    if (f) {
+        // Check if Realname is enabled. If yes, show it instead of the full flag-name.
+        if (Config()->getConfigBool("asm.flags.real") && f->realname) {
+            flagName = f->realname;
+        } else {
+            flagName = f->name;
+        }
+    }
+
+    // Fill the information for flag and comment
+    ui->addressFlag->setText(flagName.trimmed());
+    ui->addressComment->setText(Core()->cmd("CC." + RAddressString(address).trimmed()));
+    ui->addressFlag->setCursorPosition(0);
+    ui->addressComment->setCursorPosition(0);
 }
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
