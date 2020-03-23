@@ -233,11 +233,7 @@ QVector<QDir> CutterCore::getCutterRCDirectories() const
 {
     QVector<QDir> result;
     result.push_back(QDir::home());
-    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppDataLocation);
-    for (auto &location : locations) { 
-        result.push_back(QDir(location)); 
-    }
-    locations = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation);
+    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation);
     for (auto &location : locations) { 
         result.push_back(QDir(location)); 
     }
