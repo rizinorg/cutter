@@ -121,7 +121,7 @@ before_script:
   - cd radare2
   - if [[ "$BUILD_SYSTEM" == "qmake" ]]; then
         if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-            INSTALL_TARGET=install sys/install.sh;
+            INSTALL_TARGET=install sys/install.sh /usr;
         else
             LDFLAGS=-headerpad_max_install_names INSTALL_TARGET=install sys/install.sh;
         fi
