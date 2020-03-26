@@ -3,6 +3,9 @@
 #include <QRegularExpression>
 #include <QDir>
 #include <QCoreApplication>
+#include <QVector>
+#include <QStringList>
+#include <QStandardPaths>
 
 #include <cassert>
 #include <memory>
@@ -226,20 +229,32 @@ RCoreLocked CutterCore::core()
     return RCoreLocked(this);
 }
 
+QVector<QDir> CutterCore::getCutterRCDirectories() const
+{
+    QVector<QDir> result;
+    result.push_back(QDir::home());
+    QStringList locations = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation);
+    for (auto &location : locations) { 
+        result.push_back(QDir(location)); 
+    }
+    return result;
+}
+
 void CutterCore::loadCutterRC()
 {
     CORE_LOCK();
-    auto home = QDir::home();
-    if (!home.exists()) {
-        return;
+    
+    const auto result = getCutterRCDirectories();
+    for(auto &dir : result){
+        if(!dir.exists())continue;
+        auto cutterRCFileInfo = QFileInfo(dir, ".cutterrc");
+        auto path = cutterRCFileInfo.absoluteFilePath();
+        if (!cutterRCFileInfo.isFile()) {
+            continue;
+        }
+        qInfo() << "Loading initialization file from" << path;
+        r_core_cmd_file(core, path.toUtf8().constData());
     }
-    auto cutterRCFileInfo = QFileInfo(home, ".cutterrc");
-    if (!cutterRCFileInfo.isFile()) {
-        return;
-    }
-    auto path = cutterRCFileInfo.absoluteFilePath();
-    qInfo() << "Loading" << path;
-    r_core_cmd_file(core, path.toUtf8().constData());
 }
 
 
