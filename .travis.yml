@@ -19,6 +19,7 @@ matrix:
         packages:
          - mesa-common-dev
          - libgl1-mesa-glx
+         - libgl1-mesa-dev
          - ninja-build
     before_install:
       - pyenv global 3.7
