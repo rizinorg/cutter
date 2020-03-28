@@ -63,8 +63,8 @@ after_build:
   #- cmd: powershell scripts\bundle_openssl.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
   - cmd: powershell scripts\bundle_python.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
   - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.dll" "%ARTIFACT_PATH%\"
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.dll" "%ARTIFACT_PATH%\"
+  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.abi3.dll" "%ARTIFACT_PATH%\"
+  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.abi3.dll" "%ARTIFACT_PATH%\"
 
 # Tests
 test: off
