@@ -17,6 +17,8 @@ matrix:
     addons:
       apt:
         packages:
+         - mesa-common-dev
+         - libgl1-mesa-glx
          - ninja-build
     before_install:
       - pyenv global 3.7
@@ -28,6 +30,7 @@ matrix:
     addons:
       apt:
         packages:
+         - mesa-common-dev
          - ninja-build
          - libgraphviz-dev
     before_install:
