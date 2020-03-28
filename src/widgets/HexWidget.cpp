@@ -19,6 +19,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QRegularExpression>
+#include <QToolTip>
 
 static constexpr uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
 static constexpr int MAX_LINE_WIDTH_PRESET = 32;
@@ -467,6 +468,15 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
     QPoint pos = event->pos();
     pos.rx() += horizontalScrollBar()->value();
 
+    auto addr = currentAreaPosToAddr(pos, true);
+
+    QString ret = getFlagAndComment(addr.address);
+    if (!ret.isEmpty() && itemArea.contains(pos)) {
+        QToolTip::showText(event->globalPos(), ret, this);
+    } else {
+        QToolTip::hideText();
+    }
+
     if (!updatingSelection) {
         if (itemArea.contains(pos) || asciiArea.contains(pos))
             setCursor(Qt::IBeamCursor);
@@ -480,7 +490,6 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
         pos.setX(area.left());
     else if (pos.x() > area.right())
         pos.setX(area.right());
-    auto addr = currentAreaPosToAddr(pos, true);
     setCursorAddr(addr, true);
 
     /* Stop blinking */
@@ -1010,6 +1019,11 @@ void HexWidget::drawItemArea(QPainter &painter)
         for (int j = 0; j < itemColumns; ++j) {
             for (int k = 0; k < itemGroupSize && itemAddr <= data->maxIndex(); ++k, itemAddr += itemByteLen) {
                 itemString = renderItem(itemAddr - startAddress, &itemColor);
+
+                if (!getFlagAndComment(itemAddr).isEmpty()) {
+                    painter.setPen(QColor(255, 255, 0));
+                    painter.drawRect(itemRect);
+                }
                 if (selection.contains(itemAddr)  && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
                 }
@@ -1452,6 +1466,38 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
         byte = '.';
     }
     return QChar(byte);
+}
+
+QString HexWidget::getFlagAndComment(uint64_t address)
+{
+    QString ret = "";
+    QString flagName = "";
+
+    RCore *core = Core()->core();
+    RFlagItem *f = r_flag_get_i (core->flags, address);
+
+    if (f) {
+        // Check if Realname is enabled. If yes, show it instead of the full flag-name.
+        if (Config()->getConfigBool("asm.flags.real") && f->realname) {
+            flagName = f->realname;
+        } else {
+            flagName = f->name;
+        }
+
+        ret = "Flag: " + flagName.trimmed();
+    }
+
+    QString comment = Core()->cmd("CC." + RAddressString(address));
+
+    if (!(comment.isNull() || comment.isEmpty())) {
+        if (ret.isEmpty()) {
+            ret = "Comment: " + comment.trimmed();
+        } else {
+            ret += "\nComment: " + comment.trimmed();
+        }
+    }
+
+    return ret;
 }
 
 void HexWidget::fetchData()
