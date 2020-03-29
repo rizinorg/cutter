@@ -189,7 +189,7 @@ void RemoteDebugDialog::removeItem()
 
     // also remove the line from list
     ui->recentsIpListWidget->takeItem(ui->recentsIpListWidget->currentRow());
-
+    checkIfEmpty();
 }
 
 /**
@@ -203,6 +203,7 @@ void RemoteDebugDialog::clearAll()
     QStringList temp;
     ui->recentsIpListWidget->clear();
     settings.setValue("recentIpList", temp);
+    checkIfEmpty();
 }
 
 /**
@@ -253,8 +254,25 @@ bool RemoteDebugDialog::fillRecentIpList()
         fillFormData(ips[0]);
     }
 
+    checkIfEmpty();
 
     return !ips.isEmpty();
+}
+
+void RemoteDebugDialog::checkIfEmpty()
+{
+    QSettings settings;
+    QStringList ips = settings.value("recentIpList").toStringList();
+
+    if (ips.isEmpty()) {
+        ui->recentsIpListWidget->setVisible(false);
+        ui->line->setVisible(false);
+
+        auto finalHeight = ui->line->size().height() + ui->recentsIpListWidget->size().height();
+        if (finalHeight > 90){
+            resize(size().width(), size().height() - finalHeight);
+        }
+    }
 }
 
 /**

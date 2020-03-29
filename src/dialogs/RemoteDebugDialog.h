@@ -49,6 +49,8 @@ private:
     bool fillRecentIpList();
     void fillFormData(QString formdata);
 
+    void checkIfEmpty();
+
     std::unique_ptr<Ui::RemoteDebugDialog> ui;
 };
 
