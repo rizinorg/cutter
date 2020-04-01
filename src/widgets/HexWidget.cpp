@@ -468,11 +468,11 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
     QPoint pos = event->pos();
     pos.rx() += horizontalScrollBar()->value();
 
-    auto addr = currentAreaPosToAddr(pos, true);
+    auto mouseAddr = mousePosToAddr(pos).address;
 
-    QString ret = getFlagAndComment(addr.address);
-    if (!ret.isEmpty() && itemArea.contains(pos)) {
-        QToolTip::showText(event->globalPos(), ret, this);
+    QString metaData = getFlagAndComment(mouseAddr);
+    if (!metaData.isEmpty() && itemArea.contains(pos)) {
+        QToolTip::showText(event->globalPos(), metaData, this);
     } else {
         QToolTip::hideText();
     }
@@ -490,6 +490,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
         pos.setX(area.left());
     else if (pos.x() > area.right())
         pos.setX(area.right());
+    auto addr = currentAreaPosToAddr(pos, true);
     setCursorAddr(addr, true);
 
     /* Stop blinking */
@@ -1021,8 +1022,11 @@ void HexWidget::drawItemArea(QPainter &painter)
                 itemString = renderItem(itemAddr - startAddress, &itemColor);
 
                 if (!getFlagAndComment(itemAddr).isEmpty()) {
-                    painter.setPen(QColor(255, 255, 0));
-                    painter.drawRect(itemRect);
+                    QColor markerColor(borderColor);
+                    markerColor.setAlphaF(0.5);
+                    const auto shape = rangePolygons(itemAddr, itemAddr, false)[0];
+                    painter.setPen(markerColor);
+                    painter.drawPolyline(shape);
                 }
                 if (selection.contains(itemAddr)  && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
@@ -1468,36 +1472,28 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
     return QChar(byte);
 }
 
+/**
+ * @brief Gets the available flags and comment at a specific address.
+ * @param address Address of Item to be checked.
+ * @return String containing the flags and comment available at the address.
+ */
 QString HexWidget::getFlagAndComment(uint64_t address)
 {
-    QString ret = "";
-    QString flagName = "";
-
     RCore *core = Core()->core();
-    RFlagItem *f = r_flag_get_i (core->flags, address);
+    QString flagName = r_flag_get_liststr (core->flags, address);
 
-    if (f) {
-        // Check if Realname is enabled. If yes, show it instead of the full flag-name.
-        if (Config()->getConfigBool("asm.flags.real") && f->realname) {
-            flagName = f->realname;
-        } else {
-            flagName = f->name;
+    QString metaData = flagName.isEmpty() ? "" : "Flag: " + flagName.trimmed();
+
+    QString comment = Core()->cmdRawAt("CC.", address);
+
+    if (!comment.isEmpty()) {
+        if (!metaData.isEmpty()) {
+            metaData.append("\n");
         }
-
-        ret = "Flag: " + flagName.trimmed();
+        metaData.append("Comment: " + comment.trimmed());
     }
 
-    QString comment = Core()->cmd("CC." + RAddressString(address));
-
-    if (!(comment.isNull() || comment.isEmpty())) {
-        if (ret.isEmpty()) {
-            ret = "Comment: " + comment.trimmed();
-        } else {
-            ret += "\nComment: " + comment.trimmed();
-        }
-    }
-
-    return ret;
+    return metaData;
 }
 
 void HexWidget::fetchData()
