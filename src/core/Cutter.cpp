@@ -3470,6 +3470,11 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
     emit flagsChanged();
 }
 
+/**
+ * @brief Gets all the flags present at a specific address
+ * @param addr The address to be checked
+ * @return String containing all the flags which are comma-separated
+ */
 QString CutterCore::listFlagsAsStringAt(RVA addr)
 {
     RCore *core = Core()->core();
