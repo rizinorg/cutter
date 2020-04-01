@@ -472,7 +472,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
 
     QString metaData = getFlagAndComment(mouseAddr);
     if (!metaData.isEmpty() && itemArea.contains(pos)) {
-        QToolTip::showText(event->globalPos(), metaData, this);
+        QToolTip::showText(event->globalPos(), metaData.replace(",", ", "), this);
     } else {
         QToolTip::hideText();
     }
@@ -1479,13 +1479,10 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
  */
 QString HexWidget::getFlagAndComment(uint64_t address)
 {
-    RCore *core = Core()->core();
-    QString flagName = r_flag_get_liststr (core->flags, address);
+    QString flagName = Core()->listFlagsAsStringAt(address);
+    QString metaData = flagName.isEmpty() ? "" : "Flags: " + flagName.trimmed();
 
-    QString metaData = flagName.isEmpty() ? "" : "Flag: " + flagName.trimmed();
-
-    QString comment = Core()->cmdRawAt("CC.", address);
-
+    QString comment = Core()->getCommentAt(address);
     if (!comment.isEmpty()) {
         if (!metaData.isEmpty()) {
             metaData.append("\n");
