@@ -3482,7 +3482,7 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
  */
 QString CutterCore::listFlagsAsStringAt(RVA addr)
 {
-    RCore *core = Core()->core();
+    CORE_LOCK();
     return r_flag_get_liststr (core->flags, addr);
 }
 
