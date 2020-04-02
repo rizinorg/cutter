@@ -26,7 +26,14 @@ jobs:
         submodules: true # 'recursive' 'true' or 'false'
     - name: apt dependencies
       if: contains(matrix.os, 'ubuntu')
-      run: sudo apt-get install ninja-build libgraphviz-dev
+      run: |
+        sudo apt-get install libgraphviz-dev
+        if [[ "${{ matrix.os }}" = "ubuntu-16.04" ]]
+        then
+          sudo apt-get install ninja-build/xenial-backports
+        else
+          sudo apt-get install ninja-build
+        fi
     - name: homebrew dependencies
       if: contains(matrix.os, 'macos')
       run: |
