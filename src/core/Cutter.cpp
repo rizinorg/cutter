@@ -775,6 +775,11 @@ void CutterCore::delComment(RVA addr)
     emit commentsChanged();
 }
 
+/**
+ * @brief Gets the comment present at a specific address
+ * @param addr The address to be checked
+ * @return String containing comment
+ */
 QString CutterCore::getCommentAt(RVA addr)
 {
     return Core()->cmdRawAt("CC.", addr);

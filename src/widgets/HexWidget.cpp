@@ -470,7 +470,7 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
 
     auto mouseAddr = mousePosToAddr(pos).address;
 
-    QString metaData = getFlagAndComment(mouseAddr);
+    QString metaData = getFlagsAndComment(mouseAddr);
     if (!metaData.isEmpty() && itemArea.contains(pos)) {
         QToolTip::showText(event->globalPos(), metaData.replace(",", ", "), this);
     } else {
@@ -1021,7 +1021,7 @@ void HexWidget::drawItemArea(QPainter &painter)
             for (int k = 0; k < itemGroupSize && itemAddr <= data->maxIndex(); ++k, itemAddr += itemByteLen) {
                 itemString = renderItem(itemAddr - startAddress, &itemColor);
 
-                if (!getFlagAndComment(itemAddr).isEmpty()) {
+                if (!getFlagsAndComment(itemAddr).isEmpty()) {
                     QColor markerColor(borderColor);
                     markerColor.setAlphaF(0.5);
                     const auto shape = rangePolygons(itemAddr, itemAddr, false)[0];
@@ -1477,10 +1477,10 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
  * @param address Address of Item to be checked.
  * @return String containing the flags and comment available at the address.
  */
-QString HexWidget::getFlagAndComment(uint64_t address)
+QString HexWidget::getFlagsAndComment(uint64_t address)
 {
-    QString flagName = Core()->listFlagsAsStringAt(address);
-    QString metaData = flagName.isEmpty() ? "" : "Flags: " + flagName.trimmed();
+    QString flagNames = Core()->listFlagsAsStringAt(address);
+    QString metaData = flagNames.isEmpty() ? "" : "Flags: " + flagNames.trimmed();
 
     QString comment = Core()->getCommentAt(address);
     if (!comment.isEmpty()) {
