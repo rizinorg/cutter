@@ -775,6 +775,16 @@ void CutterCore::delComment(RVA addr)
     emit commentsChanged();
 }
 
+/**
+ * @brief Gets the comment present at a specific address
+ * @param addr The address to be checked
+ * @return String containing comment
+ */
+QString CutterCore::getCommentAt(RVA addr)
+{
+    return Core()->cmdRawAt("CC.", addr);
+}
+
 void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
 {
     if (offset == RVA_INVALID) {
@@ -3463,6 +3473,17 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
     name = sanitizeStringForCommand(name);
     cmdRawAt(QString("f %1 %2").arg(name).arg(size), offset);
     emit flagsChanged();
+}
+
+/**
+ * @brief Gets all the flags present at a specific address
+ * @param addr The address to be checked
+ * @return String containing all the flags which are comma-separated
+ */
+QString CutterCore::listFlagsAsStringAt(RVA addr)
+{
+    CORE_LOCK();
+    return r_flag_get_liststr (core->flags, addr);
 }
 
 QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)

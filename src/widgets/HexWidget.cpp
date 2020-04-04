@@ -19,6 +19,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QRegularExpression>
+#include <QToolTip>
 
 static constexpr uint64_t MAX_COPY_SIZE = 128 * 1024 * 1024;
 static constexpr int MAX_LINE_WIDTH_PRESET = 32;
@@ -466,6 +467,15 @@ void HexWidget::mouseMoveEvent(QMouseEvent *event)
 {
     QPoint pos = event->pos();
     pos.rx() += horizontalScrollBar()->value();
+
+    auto mouseAddr = mousePosToAddr(pos).address;
+
+    QString metaData = getFlagsAndComment(mouseAddr);
+    if (!metaData.isEmpty() && itemArea.contains(pos)) {
+        QToolTip::showText(event->globalPos(), metaData.replace(",", ", "), this);
+    } else {
+        QToolTip::hideText();
+    }
 
     if (!updatingSelection) {
         if (itemArea.contains(pos) || asciiArea.contains(pos))
@@ -1010,6 +1020,14 @@ void HexWidget::drawItemArea(QPainter &painter)
         for (int j = 0; j < itemColumns; ++j) {
             for (int k = 0; k < itemGroupSize && itemAddr <= data->maxIndex(); ++k, itemAddr += itemByteLen) {
                 itemString = renderItem(itemAddr - startAddress, &itemColor);
+
+                if (!getFlagsAndComment(itemAddr).isEmpty()) {
+                    QColor markerColor(borderColor);
+                    markerColor.setAlphaF(0.5);
+                    const auto shape = rangePolygons(itemAddr, itemAddr, false)[0];
+                    painter.setPen(markerColor);
+                    painter.drawPolyline(shape);
+                }
                 if (selection.contains(itemAddr)  && !cursorOnAscii) {
                     itemColor = palette().highlightedText().color();
                 }
@@ -1452,6 +1470,27 @@ QChar HexWidget::renderAscii(int offset, QColor *color)
         byte = '.';
     }
     return QChar(byte);
+}
+
+/**
+ * @brief Gets the available flags and comment at a specific address.
+ * @param address Address of Item to be checked.
+ * @return String containing the flags and comment available at the address.
+ */
+QString HexWidget::getFlagsAndComment(uint64_t address)
+{
+    QString flagNames = Core()->listFlagsAsStringAt(address);
+    QString metaData = flagNames.isEmpty() ? "" : "Flags: " + flagNames.trimmed();
+
+    QString comment = Core()->getCommentAt(address);
+    if (!comment.isEmpty()) {
+        if (!metaData.isEmpty()) {
+            metaData.append("\n");
+        }
+        metaData.append("Comment: " + comment.trimmed());
+    }
+
+    return metaData;
 }
 
 void HexWidget::fetchData()

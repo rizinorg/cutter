@@ -169,6 +169,7 @@ public:
     void delFlag(RVA addr);
     void delFlag(const QString &name);
     void addFlag(RVA offset, QString name, RVA size);
+    QString listFlagsAsStringAt(RVA addr);
     /**
      * @brief Get nearest flag at or before offset.
      * @param offset search position
@@ -217,6 +218,7 @@ public:
     /* Comments */
     void setComment(RVA addr, const QString &cmt);
     void delComment(RVA addr);
+    QString getCommentAt(RVA addr);
     void setImmediateBase(const QString &r2BaseName, RVA offset = RVA_INVALID);
     void setCurrentBits(int bits, RVA offset = RVA_INVALID);
 
