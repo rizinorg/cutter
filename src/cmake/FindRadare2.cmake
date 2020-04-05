@@ -72,9 +72,12 @@ if(WIN32)
 			INTERFACE_INCLUDE_DIRECTORIES "${Radare2_INCLUDE_DIRS}")
 	set(Radare2_TARGET Radare2::libr)
 else()
-	# support sys/user.sh install
-	set(Radare2_CMAKE_PREFIX_PATH_TEMP ${CMAKE_PREFIX_PATH})
-	list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/bin/prefix/radare2")
+	# support installation locations used by r2 scripts like sys/user.sh and sys/install.sh
+	if(CUTTER_USE_ADDITIONAL_RADARE2_PATHS)
+		set(Radare2_CMAKE_PREFIX_PATH_TEMP ${CMAKE_PREFIX_PATH})
+		list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/bin/prefix/radare2") # sys/user.sh
+		list(APPEND CMAKE_PREFIX_PATH "/usr/local") # sys/install.sh
+	endif()
 
 	find_package(PkgConfig REQUIRED)
 	if(CMAKE_VERSION VERSION_LESS "3.6")
@@ -84,7 +87,9 @@ else()
 	endif()
 
 	# reset CMAKE_PREFIX_PATH
-	set(CMAKE_PREFIX_PATH ${Radare2_CMAKE_PREFIX_PATH_TEMP})
+	if(CUTTER_USE_ADDITIONAL_RADARE2_PATHS)
+		set(CMAKE_PREFIX_PATH ${Radare2_CMAKE_PREFIX_PATH_TEMP})
+	endif()
 
 	if((TARGET PkgConfig::Radare2) AND (NOT CMAKE_VERSION VERSION_LESS "3.11.0"))
 		set_target_properties(PkgConfig::Radare2 PROPERTIES IMPORTED_GLOBAL ON)
