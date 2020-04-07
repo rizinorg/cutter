@@ -61,7 +61,7 @@
      <string>File</string>
     </property>
     <addaction name="actionNew"/>
-    <addaction name="actionOpen"/>
+    <addaction name="actionMap"/>
     <addaction name="separator"/>
     <addaction name="actionImportPDB"/>
     <addaction name="separator"/>
@@ -257,7 +257,7 @@
   </action>
   <action name="actionNew">
    <property name="text">
-    <string>New</string>
+    <string>New Window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -281,12 +281,12 @@
     <string>Documentation</string>
    </property>
   </action>
-  <action name="actionOpen">
+  <action name="actionMap">
    <property name="text">
-    <string>Open</string>
+    <string>Map File</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Ctrl+M</string>
    </property>
   </action>
   <action name="actionSave">

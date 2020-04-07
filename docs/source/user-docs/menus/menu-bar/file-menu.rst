@@ -5,7 +5,7 @@ New Instance of Cutter
 ----------------------------------------
 **Description:** Open a new instance of Cutter to start a new session. This option will open a new window of Cutter without exiting the current session.  
 
-**Steps:** File -> New  
+**Steps:** File -> New Window  
 
 **Shortcut:** :kbd:`Ctrl` + :kbd:`N`  
 
@@ -14,9 +14,9 @@ Map a new file
 **Description:** Cutter allows you to map the contents of other files into the same I/O space used to contain the loaded binary. The new contents can be placed at random or specific offsets.
 Specifically, Cutter is able to open files and map portions of them at random or specific places in memory. It is the perfect basic tooling to reproduce an environment like a core file, a debug session, or a framework by also loading and mapping all the libraries and files the binary depends on.  
 
-**Steps:** File -> Open  
+**Steps:** File -> Map File  
 
-**Shortcut:** :kbd:`Ctrl` + :kbd:`O`  
+**Shortcut:** :kbd:`Ctrl` + :kbd:`M`  
 
 Import a PDB file
 ----------------------------------------

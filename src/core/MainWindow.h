@@ -181,7 +181,7 @@ private slots:
     void on_actionBackward_triggered();
     void on_actionForward_triggered();
 
-    void on_actionOpen_triggered();
+    void on_actionMap_triggered();
 
     void on_actionTabs_on_Top_triggered();
 
