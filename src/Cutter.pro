@@ -81,9 +81,9 @@ CUTTER_ENABLE_PYTHON_BINDINGS {
 win32:defined(CUTTER_DEPS_DIR, var) {
     !defined(SHIBOKEN_EXECUTABLE, var)          SHIBOKEN_EXECUTABLE="$${CUTTER_DEPS_DIR}/pyside/bin/shiboken2.exe"
     !defined(SHIBOKEN_INCLUDEDIR, var)          SHIBOKEN_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/shiboken2"
-    !defined(SHIBOKEN_LIBRARY, var)             SHIBOKEN_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/shiboken2.lib"
+    !defined(SHIBOKEN_LIBRARY, var)             SHIBOKEN_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/shiboken2.abi3.lib"
     !defined(PYSIDE_INCLUDEDIR, var)            PYSIDE_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/PySide2"
-    !defined(PYSIDE_LIBRARY, var)               PYSIDE_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/pyside2.lib"
+    !defined(PYSIDE_LIBRARY, var)               PYSIDE_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/pyside2.abi3.lib"
     !defined(PYSIDE_TYPESYSTEMS, var)           PYSIDE_TYPESYSTEMS="$${CUTTER_DEPS_DIR}/pyside/share/PySide2/typesystems"
 }
 
