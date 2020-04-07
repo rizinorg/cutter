@@ -369,7 +369,7 @@ SOURCES += \
     widgets/ThreadsWidget.cpp \
     widgets/ProcessesWidget.cpp \
     widgets/BacktraceWidget.cpp \
-    dialogs/OpenFileDialog.cpp \
+    dialogs/MapFileDialog.cpp \
     common/CommandTask.cpp \
     common/ProgressIndicator.cpp \
     common/R2Task.cpp \
@@ -509,7 +509,7 @@ HEADERS  += \
     widgets/ThreadsWidget.h \
     widgets/ProcessesWidget.h \
     widgets/BacktraceWidget.h \
-    dialogs/OpenFileDialog.h \
+    dialogs/MapFileDialog.h \
     common/StringsTask.h \
     common/FunctionsTask.h \
     common/CommandTask.h \
@@ -614,7 +614,7 @@ FORMS    += \
     widgets/ThreadsWidget.ui \
     widgets/ProcessesWidget.ui \
     widgets/BacktraceWidget.ui \
-    dialogs/OpenFileDialog.ui \
+    dialogs/MapFileDialog.ui \
     dialogs/preferences/DebugOptionsWidget.ui \
     widgets/BreakpointWidget.ui \
     dialogs/BreakpointsDialog.ui \

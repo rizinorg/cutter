@@ -247,7 +247,7 @@ public:
     bool loadFile(QString path, ut64 baddr = 0LL, ut64 mapaddr = 0LL, int perms = R_PERM_R,
                   int va = 0, bool loadbin = false, const QString &forceBinPlugin = QString());
     bool tryFile(QString path, bool rw);
-    bool openFile(QString path, RVA mapaddr);
+    bool mapFile(QString path, RVA mapaddr);
     void loadScript(const QString &scriptname);
     QJsonArray getOpenedFiles();
 

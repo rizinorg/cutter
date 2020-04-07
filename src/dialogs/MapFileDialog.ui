@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>OpenFileDialog</class>
- <widget class="QDialog" name="OpenFileDialog">
+ <class>MapFileDialog</class>
+ <widget class="QDialog" name="MapFileDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Open file</string>
+   <string>Map New File</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -90,7 +90,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>OpenFileDialog</receiver>
+   <receiver>MapFileDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

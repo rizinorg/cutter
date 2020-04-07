@@ -23,7 +23,7 @@
 #include "dialogs/AboutDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/preferences/PreferencesDialog.h"
-#include "dialogs/OpenFileDialog.h"
+#include "dialogs/MapFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
 
 // Widgets Headers
@@ -1395,7 +1395,7 @@ void MainWindow::on_actionRun_Script_triggered()
  */
 void MainWindow::on_actionMap_triggered()
 {
-    OpenFileDialog dialog(this);
+    MapFileDialog dialog(this);
     dialog.exec();
 }
 
