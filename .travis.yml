@@ -72,7 +72,7 @@ matrix:
          - libgraphviz-dev
     before_install:
       - pyenv global 3.7
-      - pip install -U sphinx
+      - pip install -U sphinx>=2.4,<3
       - pip install -U breathe
       - pip install -U sphinx-rtd-theme
       - pip install -U recommonmark
