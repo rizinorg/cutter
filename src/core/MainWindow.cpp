@@ -1393,7 +1393,7 @@ void MainWindow::on_actionRun_Script_triggered()
  * @brief MainWindow::on_actionOpen_triggered
  * Open a file as in "load (add) a file in current session".
  */
-void MainWindow::on_actionOpen_triggered()
+void MainWindow::on_actionMap_triggered()
 {
     OpenFileDialog dialog(this);
     dialog.exec();
