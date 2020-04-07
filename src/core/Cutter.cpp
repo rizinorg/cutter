@@ -605,12 +605,12 @@ bool CutterCore::tryFile(QString path, bool rw)
 }
 
 /**
- * @brief Opens a file using r2 API
+ * @brief Maps a file using r2 API
  * @param path Path to file
  * @param mapaddr Map Address
  * @return bool
  */
-bool CutterCore::openFile(QString path, RVA mapaddr)
+bool CutterCore::mapFile(QString path, RVA mapaddr)
 {
     CORE_LOCK();
     RVA addr = mapaddr != RVA_INVALID ? mapaddr : 0;
