@@ -7,7 +7,6 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(DisallowInSource)
 include(Utils)
-include(CutterInstallDirs)
 
 set(CUTTER_PYTHON_MIN 3.5)
 
@@ -53,6 +52,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 find_package(Qt5 REQUIRED COMPONENTS Core Widgets Gui Svg Network)
+
+include(CutterInstallDirs)
 
 if(CUTTER_USE_BUNDLED_RADARE2)
     include(BundledRadare2)
