@@ -26,6 +26,22 @@ matrix:
       - pyenv global 3.7
       - pip install meson
 
+  - name: Linux QMake + Deploy 1604
+    os: linux
+    dist: xenial
+    env: BUILD_SYSTEM=qmake DEPLOY=1
+    addons:
+      apt:
+        packages:
+         - mesa-common-dev
+         - libgl1-mesa-glx
+         - libgl1-mesa-dev
+         - libxkbcommon-x11-dev
+         - ninja-build
+    before_install:
+      - pyenv global 3.7
+      - pip install meson
+
   - name: Linux CMake
     os: linux
     env: BUILD_SYSTEM=cmake
