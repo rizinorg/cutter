@@ -22,7 +22,7 @@ matrix:
          - libgl1-mesa-glx
          - libgl1-mesa-dev
          - libxkbcommon-x11-dev
-         - ninja-build
+         - ninja-build/xenial-backports
     before_install:
       - pyenv global 3.7
       - pip install meson
