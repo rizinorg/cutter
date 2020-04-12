@@ -132,6 +132,12 @@ QLineEdit
   padding:0 8px;
 }
 
+QLineEdit:disabled
+{
+  color: #919191;
+  background-color:#f1f1f1;
+}
+
 QLabel
 {
   color:#00162e;
@@ -199,6 +205,11 @@ QMenuBar::item:pressed
   padding-bottom:1px;
 }
 
+QMenuBar::item:disabled
+{
+  color: #a6a6a6;
+}
+
 QMenu
 {
   background-color:#fafcfe;
@@ -222,6 +233,11 @@ QMenu::item:selected
   border-left-width:2px;
   color:#039be5;
   background-color:#f4f9ff;
+}
+
+QMenu::item:disabled
+{
+  color: #a6a6a6;
 }
 
 QTabWidget
@@ -304,6 +320,11 @@ QCheckBox::indicator:unchecked
   border-color:#039be5;
   border-style:solid;
   border-width:1px;
+}
+
+QCheckBox::indicator:checked:disabled
+{
+  background-color:#d6d6d6;
 }
 
 QRadioButton
@@ -605,11 +626,13 @@ QLineEdit:hover,QLineEdit:focus
 
 QToolTip
 {
-  border-radius:4px;
+  border-radius:1px;
   opacity:200;
   border-style:solid;
+  border-color: white;
   border-width:2px;
   padding:5px;
+  background-color: #212121;
 }
 
 QFrame
