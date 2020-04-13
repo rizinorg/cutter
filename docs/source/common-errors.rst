@@ -16,7 +16,7 @@ Compilation error
 -----------------
 
 r_core development package not found
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you installed radare2 and still encounter this error, it could be that your
 ``PATH`` environment variable is set improperly (doesn’t contain
