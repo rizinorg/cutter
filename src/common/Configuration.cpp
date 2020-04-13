@@ -728,3 +728,13 @@ void Configuration::setBitmapExportScaleFactor(double inputValueGraph)
     s.setValue("bitmapGraphExportScale", inputValueGraph);
 }
 
+void Configuration::setOutputRedirectionEnabled(bool enabled)
+{
+    this->outputRedirectEnabled = enabled;
+}
+
+bool Configuration::getOutputRedirectionEnabled() const
+{
+    return outputRedirectEnabled;
+}
+

@@ -99,6 +99,13 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                         "PYTHONHOME");
     cmd_parser.addOption(pythonHomeOption);
 
+    QCommandLineOption disableRedirectOption("no-output-redirect",
+                                    QObject::tr("Disable output redirection."
+                                                " Some of the output in console widget will not be visible."
+                                                " Use this option when debuging a crash or freeze and output "
+                                                " redirection is causing some messages to be lost."));
+    cmd_parser.addOption(disableRedirectOption);
+
     cmd_parser.process(*this);
 
     QStringList args = cmd_parser.positionalArguments();
@@ -136,6 +143,10 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     Core()->setSettings();
     Config()->loadInitial();
     Core()->loadCutterRC();
+
+    if (cmd_parser.isSet(disableRedirectOption)) {
+        Config()->setOutputRedirectionEnabled(false);
+    }
 
     if (R2DecDecompiler::isAvailable()) {
         Core()->registerDecompiler(new R2DecDecompiler(Core()));
@@ -367,4 +378,3 @@ void CutterProxyStyle::polish(QWidget *widget)
     }
 #endif // QT_VERSION_CHECK(5, 10, 0) < QT_VERSION
 }
-
