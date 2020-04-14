@@ -3483,7 +3483,10 @@ void CutterCore::addFlag(RVA offset, QString name, RVA size)
 QString CutterCore::listFlagsAsStringAt(RVA addr)
 {
     CORE_LOCK();
-    return r_flag_get_liststr (core->flags, addr);
+    char *flagList = r_flag_get_liststr (core->flags, addr);
+    QString result(flagList);
+    r_mem_free(flagList);
+    return result;
 }
 
 QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
