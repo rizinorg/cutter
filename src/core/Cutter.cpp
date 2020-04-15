@@ -117,6 +117,12 @@ static void updateOwnedCharPtr(char *&variable, const QString &newValue)
     variable = strdup(data.data());
 }
 
+static QString fromOwnedCharPtr(char *str) {
+    QString result(str ? str : "");
+    r_mem_free(str);
+    return result;
+}
+
 RCoreLocked::RCoreLocked(CutterCore *core)
     : core(core)
 {
@@ -329,8 +335,7 @@ QString CutterCore::cmd(const char *str)
 
     RVA offset = core->offset;
     char *res = r_core_cmd_str(core, str);
-    QString o = QString(res ? res : "");
-    r_mem_free(res);
+    QString o = fromOwnedCharPtr(res);
 
     if (offset != core->offset) {
         updateSeek();
@@ -782,7 +787,8 @@ void CutterCore::delComment(RVA addr)
  */
 QString CutterCore::getCommentAt(RVA addr)
 {
-    return Core()->cmdRawAt("CC.", addr);
+    CORE_LOCK();
+    return fromOwnedCharPtr(r_meta_get_string(core->anal, R_META_TYPE_COMMENT, addr));
 }
 
 void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
@@ -3484,8 +3490,7 @@ QString CutterCore::listFlagsAsStringAt(RVA addr)
 {
     CORE_LOCK();
     char *flagList = r_flag_get_liststr (core->flags, addr);
-    QString result(flagList);
-    r_mem_free(flagList);
+    QString result = fromOwnedCharPtr(flagList);
     return result;
 }
 
