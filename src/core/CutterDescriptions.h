@@ -239,7 +239,7 @@ struct AnalVTableDescription {
 };
 
 struct ResourcesDescription {
-    int name;
+    QString name;
     RVA vaddr;
     ut64 index;
     QString type;
