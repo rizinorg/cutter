@@ -262,13 +262,11 @@ void HexWidget::setItemGroupSize(int size)
  * It is assumed that the current read data buffer contains the address.
  */
 bool HexWidget::isItemDifferentAt(uint64_t address) {
-    if (address >= oldData->minIndex() && address < oldData->maxIndex()) {
-        uint64_t itemOffset = address - startAddress;
-        QVariant curItem = readItem(itemOffset);
-        data.swap(oldData);
-        QVariant oldItem = readItem(itemOffset);
-        data.swap(oldData);
-        return (oldItem != curItem);
+    char oldItem[sizeof(uint64_t)] = {};
+    char newItem[sizeof(uint64_t)] = {};
+    if (data->copy(newItem, address, static_cast<size_t>(itemByteLen)) &&
+        oldData->copy(oldItem, address, static_cast<size_t>(itemByteLen))) {
+        return memcmp(oldItem, newItem, sizeof(oldItem)) != 0;
     }
     return false;
 }
@@ -1373,15 +1371,20 @@ QVariant HexWidget::readItem(int offset, QColor *color)
     quint16 word;
     quint32 dword;
     quint64 qword;
-    float *ptrFloat32;
-    double *ptrFloat64;
+    float float32;
+    double float64;
 
-    const void *dataPtr = data->dataPtr(startAddress + offset);
+    quint8 bytes[sizeof(uint64_t)];
+    data->copy(bytes, startAddress + offset, static_cast<size_t>(itemByteLen));
     const bool signedItem = itemFormat == ItemFormatSignedDec;
+
+    if (color) {
+        *color = defColor;
+    }
 
     switch (itemByteLen) {
     case 1:
-        byte = *static_cast<const quint8 *>(dataPtr);
+        byte = bytes[0];
         if (color)
             *color = itemColor(byte);
         if (!signedItem)
@@ -1389,38 +1392,34 @@ QVariant HexWidget::readItem(int offset, QColor *color)
         return QVariant(static_cast<qint64>(static_cast<qint8>(byte)));
     case 2:
         if (itemBigEndian)
-            word = fromBigEndian<quint16>(dataPtr);
+            word = fromBigEndian<quint16>(bytes);
         else
-            word = fromLittleEndian<quint16>(dataPtr);
-        if (color)
-            *color = defColor;
+            word = fromLittleEndian<quint16>(bytes);
+
         if (!signedItem)
             return QVariant(static_cast<quint64>(word));
         return QVariant(static_cast<qint64>(static_cast<qint16>(word)));
     case 4:
         if (itemBigEndian)
-            dword = fromBigEndian<quint32>(dataPtr);
+            dword = fromBigEndian<quint32>(bytes);
         else
-            dword = fromLittleEndian<quint32>(dataPtr);
-        if (color)
-            *color = defColor;
+            dword = fromLittleEndian<quint32>(bytes);
+
         if (itemFormat == ItemFormatFloat) {
-            ptrFloat32 = static_cast<float *>(static_cast<void *>(&dword));
-            return QVariant(*ptrFloat32);
+            memcpy(&float32, &dword, sizeof(float32));
+            return QVariant(float32);
         }
         if (!signedItem)
             return QVariant(static_cast<quint64>(dword));
         return QVariant(static_cast<qint64>(static_cast<qint32>(dword)));
     case 8:
         if (itemBigEndian)
-            qword = fromBigEndian<quint64>(dataPtr);
+            qword = fromBigEndian<quint64>(bytes);
         else
-            qword = fromLittleEndian<quint64>(dataPtr);
-        if (color)
-            *color = defColor;
+            qword = fromLittleEndian<quint64>(bytes);
         if (itemFormat == ItemFormatFloat) {
-            ptrFloat64 = static_cast<double *>(static_cast<void *>(&qword));
-            return  QVariant(*ptrFloat64);
+            memcpy(&float64, &qword, sizeof(float64));
+            return  QVariant(float64);
         }
         if (!signedItem)
             return  QVariant(qword);
@@ -1462,7 +1461,8 @@ QString HexWidget::renderItem(int offset, QColor *color)
 
 QChar HexWidget::renderAscii(int offset, QColor *color)
 {
-    uchar byte = *static_cast<const uint8_t *>(data->dataPtr(startAddress + offset));
+    uchar byte;
+    data->copy(&byte, startAddress + offset, sizeof(byte));
     if (color) {
         *color = itemColor(byte);
     }
@@ -1539,7 +1539,7 @@ BasicCursor HexWidget::mousePosToAddr(const QPoint &point, bool middle) const
     return asciiArea.contains(point) ? asciiPosToAddr(point, middle) : screenPosToAddr(point, middle);
 }
 
-QRectF HexWidget::itemRectangle(uint offset)
+QRectF HexWidget::itemRectangle(int offset)
 {
     qreal x;
     qreal y;
@@ -1565,7 +1565,7 @@ QRectF HexWidget::itemRectangle(uint offset)
     return QRectF(x, y, width, lineHeight);
 }
 
-QRectF HexWidget::asciiRectangle(uint offset)
+QRectF HexWidget::asciiRectangle(int offset)
 {
     QPointF p;
 
