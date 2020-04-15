@@ -3121,7 +3121,7 @@ QList<ResourcesDescription> CutterCore::getAllResources()
 
         ResourcesDescription res;
 
-        res.name = resourceObject[RJsonKey::name].toInt();
+        res.name = resourceObject[RJsonKey::name].toString();
         res.vaddr = resourceObject[RJsonKey::vaddr].toVariant().toULongLong();
         res.index = resourceObject[RJsonKey::index].toVariant().toULongLong();
         res.type = resourceObject[RJsonKey::type].toString();

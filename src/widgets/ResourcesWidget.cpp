@@ -27,7 +27,7 @@ QVariant ResourcesModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case NAME:
-            return QString::number(res.name);
+            return res.name;
         case VADDR:
             return RAddressString(res.vaddr);
         case INDEX:
