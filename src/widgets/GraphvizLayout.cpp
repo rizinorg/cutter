@@ -194,9 +194,9 @@ void GraphvizLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &block
                             if (edge.target == block.entry && edge.polyline.first().y() < edge.polyline.last().y()) {
                                 std::reverse(edge.polyline.begin(), edge.polyline.end());
                             }
-                            auto it = edge.polyline.rbegin();
+                            auto it = std::prev(edge.polyline.end());
                             QPointF direction = *it;
-                            direction -= *(++it);
+                            direction -= *(--it);
                             edge.arrow = getArrowDirection(direction, lineType == LineType::Polyline);
 
                         } else {

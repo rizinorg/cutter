@@ -15,7 +15,7 @@ EditVariablesDialog::EditVariablesDialog(RVA offset, QString initialVar, QWidget
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(applyFields()));
     connect(ui->dropdownLocalVars, SIGNAL(currentIndexChanged(int)), SLOT(updateFields()));
 
-    QString fcnName = Core()->cmd(QString("afn @ %1").arg(offset)).trimmed();
+    QString fcnName = Core()->cmdRawAt("afn.", offset).trimmed();
     setWindowTitle(tr("Set Variable Types for Function: %1").arg(fcnName));
 
     variables = Core()->getVariables(offset);
@@ -57,7 +57,10 @@ void EditVariablesDialog::applyFields()
 
     Core()->cmdRaw(QString("afvt %1 %2").arg(desc.name).arg(ui->typeComboBox->currentText()));
 
-    QString newName = ui->nameEdit->text().replace(QLatin1Char(' '), QLatin1Char('_'));
+    // TODO Remove all those replace once r2 command parser is fixed
+    QString newName = ui->nameEdit->text().replace(QLatin1Char(' '), QLatin1Char('_'))
+            .replace(QLatin1Char('\\'), QLatin1Char('_'))
+            .replace(QLatin1Char('/'), QLatin1Char('_'));
     if (newName != desc.name) {
         Core()->cmdRaw(QString("afvn %1 %2").arg(newName).arg(desc.name));
     }

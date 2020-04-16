@@ -39,7 +39,7 @@
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>22</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -51,19 +51,21 @@
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>378</x>
-      <y>100</y>
-      <width>156</width>
-      <height>220</height>
+      <x>328</x>
+      <y>99</y>
+      <width>265</width>
+      <height>364</height>
      </rect>
     </property>
     <property name="title">
      <string>File</string>
     </property>
     <addaction name="actionNew"/>
-    <addaction name="actionOpen"/>
+    <addaction name="actionMap"/>
     <addaction name="separator"/>
     <addaction name="actionImportPDB"/>
+    <addaction name="separator"/>
+    <addaction name="actionCommitChanges"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
@@ -81,6 +83,15 @@
     <property name="tabsOnTop" stdset="0">
      <bool>false</bool>
     </property>
+    <widget class="QMenu" name="menuZoom">
+     <property name="title">
+      <string>Zoom</string>
+     </property>
+     <addaction name="actionZoomIn"/>
+     <addaction name="actionZoomOut"/>
+     <addaction name="separator"/>
+     <addaction name="actionZoomReset"/>
+    </widget>
     <addaction name="actionRefresh_contents"/>
     <addaction name="separator"/>
     <addaction name="actionDefault"/>
@@ -89,6 +100,8 @@
     <addaction name="actionLock"/>
     <addaction name="actionTabs_on_Top"/>
     <addaction name="actionGrouped_dock_dragging"/>
+    <addaction name="separator"/>
+    <addaction name="menuZoom"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -102,8 +115,8 @@
      <string>Edit</string>
     </property>
     <addaction name="actionSearch"/>
-    <addaction name="actionUndoSeek"/>
-    <addaction name="actionRedoSeek"/>
+    <addaction name="actionBackward"/>
+    <addaction name="actionForward"/>
     <addaction name="separator"/>
     <addaction name="actionPreferences"/>
    </widget>
@@ -141,6 +154,8 @@
      </property>
      <addaction name="actionBacktrace"/>
      <addaction name="actionBreakpoint"/>
+     <addaction name="actionThreads"/>
+     <addaction name="actionProcesses"/>
      <addaction name="actionMemoryMap"/>
      <addaction name="actionRegisters"/>
      <addaction name="actionRegisterRefs"/>
@@ -242,7 +257,7 @@
   </action>
   <action name="actionNew">
    <property name="text">
-    <string>New</string>
+    <string>New Window</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -266,12 +281,12 @@
     <string>Documentation</string>
    </property>
   </action>
-  <action name="actionOpen">
+  <action name="actionMap">
    <property name="text">
-    <string>Open</string>
+    <string>Map File</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+O</string>
+    <string>Ctrl+M</string>
    </property>
   </action>
   <action name="actionSave">
@@ -280,16 +295,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionUndoSeek">
-   <property name="text">
-    <string>Undo Seek</string>
-   </property>
-  </action>
-  <action name="actionRedoSeek">
-   <property name="text">
-    <string>Redo Seek</string>
    </property>
   </action>
   <action name="actionCut">
@@ -347,7 +352,7 @@
      <normaloff>:/img/icons/arrow_left.svg</normaloff>:/img/icons/arrow_left.svg</iconset>
    </property>
    <property name="text">
-    <string>Back</string>
+    <string>Undo Seek</string>
    </property>
    <property name="toolTip">
     <string>Go back</string>
@@ -359,7 +364,7 @@
      <normaloff>:/img/icons/arrow_right.svg</normaloff>:/img/icons/arrow_right.svg</iconset>
    </property>
    <property name="text">
-    <string>Forward</string>
+    <string>Redo Seek</string>
    </property>
   </action>
   <action name="actionLock">
@@ -875,11 +880,6 @@
     <string>Save As...</string>
    </property>
   </action>
-  <action name="actionTmp">
-   <property name="text">
-    <string>Tmp</string>
-   </property>
-  </action>
   <action name="actionGraph">
    <property name="checkable">
     <bool>true</bool>
@@ -934,6 +934,22 @@
    </property>
    <property name="text">
     <string>Backtrace</string>
+   </property>
+  </action>
+  <action name="actionThreads">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Threads</string>
+   </property>
+  </action>
+  <action name="actionProcesses">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Processes</string>
    </property>
   </action>
   <action name="actionMemoryMap">
@@ -1070,6 +1086,44 @@
    </property>
    <property name="text">
     <string>Grouped dock dragging</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionZoomReset">
+   <property name="text">
+    <string>Reset</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+=</string>
+   </property>
+   <property name="shortcutContext">
+    <enum>Qt::ApplicationShortcut</enum>
+   </property>
+  </action>
+  <action name="actionCommitChanges">
+   <property name="text">
+    <string>Commit changes</string>
    </property>
   </action>
  </widget>

@@ -123,6 +123,7 @@ HeadersWidget::HeadersWidget(MainWindow *main, QAction *action) :
     ui->quickFilterView->closeFilter();
     showCount(false);
 
+    connect(Core(), &CutterCore::codeRebased, this, &HeadersWidget::refreshHeaders);
     connect(Core(), &CutterCore::refreshAll, this, &HeadersWidget::refreshHeaders);
 }
 

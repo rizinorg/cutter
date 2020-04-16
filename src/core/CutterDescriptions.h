@@ -9,11 +9,12 @@
 #include <QList>
 #include <QStringList>
 #include <QMetaType>
+#include <QColor>
 #include "core/CutterCommon.h"
 
 struct FunctionDescription {
     RVA offset;
-    RVA size;
+    RVA linearSize;
     RVA nargs;
     RVA nbbs;
     RVA nlocals;
@@ -24,7 +25,9 @@ struct FunctionDescription {
 
     bool contains(RVA addr) const
     {
-        return addr >= offset && addr < offset + size;
+        // TODO: this is not exactly correct in edge cases.
+        // r_anal_function_contains() does it right.
+        return addr >= offset && addr < offset + linearSize;
     }
 };
 
@@ -34,6 +37,7 @@ struct ImportDescription {
     QString bind;
     QString type;
     QString name;
+    QString libname;
 };
 
 struct ExportDescription {
@@ -115,6 +119,7 @@ struct FlagDescription {
     RVA offset;
     RVA size;
     QString name;
+    QString realname;
 };
 
 struct SectionDescription {
@@ -234,7 +239,7 @@ struct AnalVTableDescription {
 };
 
 struct ResourcesDescription {
-    int name;
+    QString name;
     RVA vaddr;
     ut64 index;
     QString type;
@@ -276,12 +281,25 @@ struct MemoryMapDescription {
 };
 
 struct BreakpointDescription {
-    RVA addr;
-    int size;
-    QString permission;
-    bool hw;
-    bool trace;
-    bool enabled;
+    enum PositionType {
+        Address,
+        Named,
+        Module,
+    };
+
+    RVA addr = 0;
+    int64_t moduleDelta = 0;
+    int index = -1;
+    PositionType type = Address;
+    int size = 0;
+    int permission = 0;
+    QString positionExpression;
+    QString name;
+    QString command;
+    QString condition;
+    bool hw = false;
+    bool trace = false;
+    bool enabled = true;
 };
 
 struct ProcessDescription {
@@ -291,10 +309,9 @@ struct ProcessDescription {
     QString path;
 };
 
-struct RegisterRefDescription {
-    QString reg;
-    QString value;
+struct RefDescription {
     QString ref;
+    QColor refColor;
 };
 
 struct VariableDescription {
@@ -338,8 +355,9 @@ Q_DECLARE_METATYPE(SectionDescription)
 Q_DECLARE_METATYPE(SegmentDescription)
 Q_DECLARE_METATYPE(MemoryMapDescription)
 Q_DECLARE_METATYPE(BreakpointDescription)
+Q_DECLARE_METATYPE(BreakpointDescription::PositionType)
 Q_DECLARE_METATYPE(ProcessDescription)
-Q_DECLARE_METATYPE(RegisterRefDescription)
+Q_DECLARE_METATYPE(RefDescription)
 Q_DECLARE_METATYPE(VariableDescription)
 
 #endif // DESCRIPTIONS_H

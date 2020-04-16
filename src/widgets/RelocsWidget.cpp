@@ -124,6 +124,7 @@ RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
     setModels(relocsProxyModel);
     ui->treeView->sortByColumn(RelocsModel::NameColumn, Qt::AscendingOrder);
 
+    connect(Core(), &CutterCore::codeRebased, this, &RelocsWidget::refreshRelocs);
     connect(Core(), &CutterCore::refreshAll, this, &RelocsWidget::refreshRelocs);
 }
 

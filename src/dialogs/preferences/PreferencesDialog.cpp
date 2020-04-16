@@ -21,7 +21,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
 {
     setAttribute(Qt::WA_DeleteOnClose);
     ui->setupUi(this);
-    setWindowFlag(Qt::WindowContextHelpButtonHint, false);
+    setWindowFlags(windowFlags() & (~Qt::WindowContextHelpButtonHint));
 
     QList<PreferenceCategory> prefs {
 

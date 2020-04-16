@@ -169,9 +169,7 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     connect(mCtxMenu, SIGNAL(copy()), mDisasTextEdit, SLOT(copy()));
 
     mCtxMenu->addSeparator();
-    syncIt.setText(tr("Sync/unsync offset"));
-    mCtxMenu->addAction(&syncIt);
-    connect(&syncIt, &QAction::triggered, seekable, &CutterSeekable::toggleSynchronization);
+    mCtxMenu->addAction(&syncAction);
     connect(seekable, &CutterSeekable::seekableSeekChanged, this, &DisassemblyWidget::on_seekChanged);
 
     addActions(mCtxMenu->actions());
@@ -208,11 +206,6 @@ DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
     ADD_ACTION(QKeySequence::MoveToPreviousPage, Qt::WidgetWithChildrenShortcut, [this]() {
         moveCursorRelative(true, true);
     })
-
-    // Zoom shortcuts
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Plus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomIn)
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Minus), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomOut)
-    ADD_ACTION(QKeySequence(Qt::CTRL + Qt::Key_Equal), Qt::WidgetWithChildrenShortcut, &DisassemblyWidget::zoomReset)
 #undef ADD_ACTION
 }
 
@@ -373,27 +366,6 @@ bool DisassemblyWidget::updateMaxLines()
     }
 
     return false;
-}
-
-void DisassemblyWidget::zoomIn()
-{
-    mDisasTextEdit->zoomIn();
-    updateMaxLines();
-    leftPanel->update();
-}
-
-void DisassemblyWidget::zoomOut()
-{
-    mDisasTextEdit->zoomOut();
-    updateMaxLines();
-    leftPanel->update();
-}
-
-void DisassemblyWidget::zoomReset()
-{
-    setupFonts();
-    updateMaxLines();
-    leftPanel->update();
 }
 
 void DisassemblyWidget::highlightCurrentLine()
@@ -642,33 +614,35 @@ void DisassemblyWidget::moveCursorRelative(bool up, bool page)
     }
 }
 
+void DisassemblyWidget::jumpToOffsetUnderCursor(const QTextCursor &cursor)
+{
+    RVA offset = readDisassemblyOffset(cursor);
+    seekable->seekToReference(offset);
+}
+
 bool DisassemblyWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonDblClick
         && (obj == mDisasTextEdit || obj == mDisasTextEdit->viewport())) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 
-        QTextCursor cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
-        RVA offset = readDisassemblyOffset(cursor);
-
-        RVA jump = Core()->getOffsetJump(offset);
-
-        if (jump == RVA_INVALID) {
-            bool ok;
-            RVA xref = Core()->cmdj("axfj@" + QString::number(
-                offset)).array().first().toObject().value("to").toVariant().toULongLong(&ok);
-            if (ok) {
-                jump = xref;
-            }
-        }
-
-        if (jump != RVA_INVALID) {
-            seekable->seek(jump);
-        }
+        const QTextCursor& cursor = mDisasTextEdit->cursorForPosition(QPoint(mouseEvent->x(), mouseEvent->y()));
+        jumpToOffsetUnderCursor(cursor);
 
         return true;
     }
+
     return MemoryDockWidget::eventFilter(obj, event);
+}
+
+void DisassemblyWidget::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Return) {
+        const QTextCursor cursor = mDisasTextEdit->textCursor();
+        jumpToOffsetUnderCursor(cursor);
+    }
+
+    MemoryDockWidget::keyPressEvent(event);
 }
 
 QString DisassemblyWidget::getWindowTitle() const
@@ -907,10 +881,11 @@ void DisassemblyLeftPanel::paintEvent(QPaintEvent *event)
     }
 
     const RVA currOffset = disas->getSeekable()->getOffset();
+    qreal pixelRatio = qhelpers::devicePixelRatio(p.device());
     // Draw the lines
     for (const auto& l : lines) {
         int lineOffset = int((distanceBetweenLines * arrowInfo[l.offset].second + distanceBetweenLines) *
-                         p.device()->devicePixelRatioF());
+                         pixelRatio);
         // Skip until we reach a line that jumps to a destination
         if (l.arrow == RVA_INVALID) {
             continue;

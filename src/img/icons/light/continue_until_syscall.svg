@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg5373"
+   version="1.1"
+   fill="none"
+   viewBox="0 0 16 16"
+   height="16"
+   width="16">
+  <metadata
+     id="metadata5379">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs5377" />
+  <path
+     style="clip-rule:evenodd;fill:#63ebff;fill-rule:evenodd"
+     id="path5371"
+     d="m 0.1875,2 h 1.5 V 2.24001 14 h -1.5 z m 3.5,0.18094 V 14 l 9,-5.93782 z M 10.0023,8.06218 5.18773,5 v 6.1809 z" />
+  <text
+     transform="scale(0.94721314,1.0557286)"
+     id="text5926"
+     y="5.3185167"
+     x="12.225597"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.89985847px;line-height:1.25;font-family:arial;-inkscape-font-specification:arial;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:0.94117647;stroke:none;stroke-width:0.3864142;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+     xml:space="preserve"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.4666667px;font-family:arial;-inkscape-font-specification:arial;fill:#ffffff;fill-opacity:0.94117647;stroke:none;stroke-width:0.3864142;stroke-linecap:round;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:stroke fill markers"
+       y="5.3185167"
+       x="12.225597"
+       id="tspan5924">S</tspan></text>
+</svg>

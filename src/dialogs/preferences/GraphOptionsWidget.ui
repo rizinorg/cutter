@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>567</width>
-    <height>79</height>
+    <width>557</width>
+    <height>175</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,43 @@
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QSpinBox" name="maxColsSpinBox"/>
+      <widget class="QSpinBox" name="maxColsSpinBox">
+       <property name="minimum">
+        <number>25</number>
+       </property>
+       <property name="maximum">
+        <number>256</number>
+       </property>
+       <property name="value">
+        <number>100</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="bitmapGraphScaleLabel">
+       <property name="text">
+        <string>Graph Bitmap Export Scale: </string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QDoubleSpinBox" name="bitmapGraphScale">
+       <property name="suffix">
+        <string>%</string>
+       </property>
+       <property name="decimals">
+        <number>0</number>
+       </property>
+       <property name="minimum">
+        <double>100.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>30000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>50.000000000000000</double>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -47,6 +83,19 @@
       </property>
       <property name="text">
        <string>Show offsets (graph.offset)</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkTransparent">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>30</y>
+        <width>361</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Export Transparent Bitmap Graphs</string>
       </property>
      </widget>
     </widget>

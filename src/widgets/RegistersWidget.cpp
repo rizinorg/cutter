@@ -17,6 +17,7 @@ RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
 
     // setup register layout
     registerLayout->setVerticalSpacing(0);
+    registerLayout->setAlignment(Qt::AlignLeft |  Qt::AlignTop) ;
     ui->verticalLayout->addLayout(registerLayout);
 
     refreshDeferrer = createRefreshDeferrer([this]() {
@@ -64,11 +65,12 @@ void RegistersWidget::setRegisterGrid()
         // check if we already filled this grid space with label/value
         if (!registerLayout->itemAtPosition(i, col)) {
             registerLabel = new QLabel;
+            registerLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
             registerLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
             registerLabel->setMaximumWidth(60);
             registerLabel->setStyleSheet("font-weight: bold; font-family: mono;");
             registerEditValue = new QLineEdit;
-            registerEditValue->setFixedWidth(140);
+            registerEditValue->setMaximumWidth(140);
             registerEditValue->setFont(Config()->getFont());
             registerLabel->setContextMenuPolicy(Qt::CustomContextMenu);
             connect(registerLabel, &QWidget::customContextMenuRequested, this, [this, registerEditValue, registerLabel](QPoint p){

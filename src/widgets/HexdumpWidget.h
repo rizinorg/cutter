@@ -25,6 +25,7 @@ class HexdumpWidget;
 }
 
 class RefreshDeferrer;
+class QSyntaxHighlighter;
 
 class HexdumpWidget : public MemoryDockWidget
 {
@@ -48,6 +49,7 @@ private:
     bool sent_seek = false;
 
     RefreshDeferrer *refreshDeferrer;
+    QSyntaxHighlighter *syntaxHighLighter;
 
     void refresh();
     void refresh(RVA addr);
@@ -61,8 +63,6 @@ private:
     void showSidePanel(bool show);
 
     QString getWindowTitle() const override;
-
-    QAction syncAction;
 
 private slots:
     void onSeekChanged(RVA addr);
@@ -79,6 +79,8 @@ private slots:
     void on_hexSideTab_2_currentChanged(int index);
     void on_copyMD5_clicked();
     void on_copySHA1_clicked();
+    void on_copySHA256_clicked();
+    void on_copyCRC32_clicked();
 };
 
 #endif // HEXDUMPWIDGET_H

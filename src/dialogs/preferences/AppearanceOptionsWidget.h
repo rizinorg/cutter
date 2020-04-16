@@ -30,6 +30,7 @@ private slots:
     void updateThemeFromConfig(bool interfaceThemeChanged = true);
 
     void on_fontSelectionButton_clicked();
+    void onFontZoomBoxValueChanged(int zoom);
     void on_themeComboBox_currentIndexChanged(int index);
     void on_copyButton_clicked();
     void on_deleteButton_clicked();
@@ -53,8 +54,9 @@ private slots:
     void on_editButton_clicked();
     void onLanguageComboBoxCurrentIndexChanged(int index);
 
+private:
     void updateModificationButtons(const QString& theme);
-
+    void updateFromConfig();
 
     /**
      * @brief Changes all @a before colors in given @a fileName svg file to @a after

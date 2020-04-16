@@ -1,4 +1,4 @@
-FROM alpine:edge AS builder
+FROM alpine:latest AS builder
 LABEL maintainer "Philipp Schmied <ps1337@mailbox.org>"
 
 # Prevent build fails because of interactive scripts when compiling
@@ -36,7 +36,7 @@ COPY src /opt/cutter/src
 RUN bash build_cutter.sh && \
     bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
 
-FROM alpine:edge AS runner
+FROM alpine:latest AS runner
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 # Add the dependencies we need for running

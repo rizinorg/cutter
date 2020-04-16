@@ -12,7 +12,7 @@ You can create an issue by clicking on [this link](https://github.com/radareorg/
 
 Note that cutter is still under development and many parts of the code are to be improved.
 The best way is to check the opened issues [here](https://github.com/radareorg/cutter/issues) or discuss with radareorg team.
-Please follow our contribution guidelines: https://cutter.re/docs/code.html
+Please follow our contribution guidelines: https://cutter.re/docs/developers-docs.html
 
 ## Contributing to the documentation
 

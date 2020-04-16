@@ -64,9 +64,9 @@
      </widget>
     </item>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QGridLayout" name="gridLayout">
       <property name="spacing">
-       <number>4</number>
+       <number>5</number>
       </property>
       <property name="leftMargin">
        <number>4</number>
@@ -80,8 +80,28 @@
       <property name="bottomMargin">
        <number>2</number>
       </property>
-      <item>
-       <widget class="QLineEdit" name="inputLineEdit">
+      <item row="0" column="0">
+       <widget class="DirectionalComboBox" name="inputCombo">
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContents</enum>
+        </property>
+        <property name="visible">
+            <bool>false</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>R2 Console</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Debugee Input</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="r2InputLineEdit">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
           <horstretch>0</horstretch>
@@ -99,7 +119,29 @@
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="debugeeInputLineEdit">
+        <property name="visible">
+            <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frame">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string> Enter input for the debugee</string>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
        <widget class="QToolButton" name="execButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -133,8 +175,17 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DirectionalComboBox</class>
+   <extends>QComboBox</extends>
+   <header>common/DirectionalComboBox.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>
+

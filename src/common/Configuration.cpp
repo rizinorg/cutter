@@ -124,6 +124,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.tabs.off",       5 },
     { "asm.marks",          false },
     { "asm.refptr",         false },
+    { "asm.flags.real",     true },
     { "esil.breakoninvalid",true },
     { "graph.offset",       false}
 };
@@ -207,7 +208,7 @@ int Configuration::getNewFileLastClicked()
 
 void Configuration::resetAll()
 {
-    Core()->cmd("e-");
+    Core()->cmdRaw("e-");
     Core()->setSettings();
     // Delete the file so no extra configuration is in it.
     QFile settingsFile(s.fileName());
@@ -354,16 +355,57 @@ void Configuration::loadDarkStylesheet()
     }
 }
 
-const QFont Configuration::getFont() const
+void Configuration::loadMidnightStylesheet()
+{
+    /* Load Qt Theme */
+    QFile f(":midnight/style.css");
+    if (!f.exists()) {
+        qWarning() << "Can't find Midnight theme stylesheet.";
+    } else {
+        f.open(QFile::ReadOnly | QFile::Text);
+        QTextStream ts(&f);
+        QString stylesheet = ts.readAll();
+
+        QPalette p = qApp->palette();
+        p.setColor(QPalette::Text, Qt::white);
+        qApp->setPalette(p);
+
+        qApp->setStyleSheet(stylesheet);
+    }
+}
+
+const QFont Configuration::getBaseFont() const
 {
     QFont font = s.value("font", QFont("Inconsolata", 11)).value<QFont>();
     return font;
+}
+
+const QFont Configuration::getFont() const
+{
+  QFont font = getBaseFont();
+  font.setPointSizeF(font.pointSizeF() * getZoomFactor());
+  return font;
 }
 
 void Configuration::setFont(const QFont &font)
 {
     s.setValue("font", font);
     emit fontsUpdated();
+}
+
+void Configuration::refreshFont()
+{
+    emit fontsUpdated();
+}
+
+qreal Configuration::getZoomFactor() const {
+  qreal fontZoom = s.value("zoomFactor", 1.0).value<qreal>();
+  return qMax(fontZoom, 0.1);
+}
+
+void Configuration::setZoomFactor(qreal zoom) {
+  s.setValue("zoomFactor", qMax(zoom, 0.1));
+  emit fontsUpdated();
 }
 
 QString Configuration::getLastThemeOf(const CutterInterfaceTheme &currInterfaceTheme) const
@@ -386,6 +428,8 @@ void Configuration::setInterfaceTheme(int theme)
         loadNativeStylesheet();
     } else if (interfaceTheme.name == "Dark") {
         loadDarkStylesheet();
+    } else if (interfaceTheme.name == "Midnight") {
+        loadMidnightStylesheet();
     } else if (interfaceTheme.name == "Light") {
         loadLightStylesheet();
     } else {
@@ -480,10 +524,10 @@ const QColor Configuration::getColor(const QString &name) const
 void Configuration::setColorTheme(const QString &theme)
 {
     if (theme == "default") {
-        Core()->cmd("ecd");
+        Core()->cmdRaw("ecd");
         s.setValue("theme", "default");
     } else {
-        Core()->cmd(QStringLiteral("eco %1").arg(theme));
+        Core()->cmdRaw(QStringLiteral("eco %1").arg(theme));
         s.setValue("theme", theme);
     }
 
@@ -518,6 +562,7 @@ const QList<CutterInterfaceTheme>& Configuration::cutterInterfaceThemesList()
     static const QList<CutterInterfaceTheme> list = {
         { "Native", Configuration::nativeWindowIsDark() ? DarkFlag : LightFlag },
         { "Dark",   DarkFlag },
+        { "Midnight", DarkFlag },
         { "Light",  LightFlag }
     };
     return list;
@@ -662,3 +707,24 @@ void Configuration::setDecompilerAutoRefreshEnabled(bool enabled)
 {
     s.setValue("decompilerAutoRefresh", enabled);
 }
+
+bool Configuration::getBitmapTransparentState()
+{
+    return s.value("bitmapGraphExportTransparency", false).value<bool>();
+}
+
+double Configuration::getBitmapExportScaleFactor()
+{
+    return s.value("bitmapGraphExportScale", 1.0).value<double>();
+}
+
+void Configuration::setBitmapTransparentState(bool inputValueGraph)
+{
+    s.setValue("bitmapGraphExportTransparency", inputValueGraph);
+}
+
+void Configuration::setBitmapExportScaleFactor(double inputValueGraph)
+{
+    s.setValue("bitmapGraphExportScale", inputValueGraph);
+}
+

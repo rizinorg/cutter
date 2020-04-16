@@ -9,7 +9,7 @@ with open(pro_file_path, "r") as f:
     pro_content = f.read()
 
 def version_var_re(name):
-    return "^[ \t]*{}[ \t]*=[ \t]*(\d)+[ \t]*$".format(name)
+    return "^[ \t]*{}[ \t]*=[ \t]*(\d+)[ \t]*$".format(name)
 
 m = re.search(version_var_re("CUTTER_VERSION_MAJOR"), pro_content, flags=re.MULTILINE)
 version_major = int(m.group(1)) if m is not None else 0

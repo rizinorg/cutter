@@ -1,7 +1,7 @@
 Common errors
 =============
 
-This page lists common issues met by our users.
+This page lists common issues encountered by users.
 
 AppImage crashes
 ----------------
@@ -18,7 +18,7 @@ Compilation error
 r_core development package not found
 ~~~~~~~~~~~~~~~~~~
 
-If you installed radare2 and still encounter this error, could be your
+If you installed radare2 and still encounter this error, it could be that your
 ``PATH`` environment variable is set improperly (doesn’t contain
 ``/usr/local/bin``). That can be, for example, due to ``Qt Creator.app``
 being copied over to ``/Applications``. To fix this, append
@@ -26,7 +26,7 @@ being copied over to ``/Applications``. To fix this, append
 Environment* section in Qt Creator. See the screenshot below should you
 encounter any problems.
 
-On OS X you can also try:
+On macOS, you can also try:
 
 -  ``PKG_CONFIG_PATH=$HOME/bin/prefix/radare2/lib/pkgconfig qmake``
 -  ``PKG_CONFIG_PATH=$HOME/cutter/radare2/pkgcfg qmake`` (for modern
@@ -42,8 +42,8 @@ can add variable ``PKG_CONFIG_PATH`` with value ``/usr/lib/pkgconfig/``
 OS X libjpeg error
 ~~~~~~~~~~~~~~~~~~
 
-On Mac, QT5 apps fail to build on QtCreator if you have the libjpeg lib
-installed with brew. Run this command to workaround the issue:
+On macOS, QT5 apps fail to build on QtCreator if you have the libjpeg lib
+installed with brew. Run this command to work around the issue:
 
 ::
 
@@ -55,4 +55,4 @@ Keyboard layout issue
 Some people report that they have keyboard issues. Usually it is because
 the Xorg layout is wrong. You can check it with: ``setxkbmap -query``
 Most of the time using ``setxkbmap us`` solves the issue, but it might
-not be enough and require some more advanced Xorg configuration.
+not be enough and require a more advanced Xorg configuration.

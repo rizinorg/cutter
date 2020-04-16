@@ -12,6 +12,7 @@
 #include <QPushButton>
 #include <QTreeWidget>
 #include <QVBoxLayout>
+#include <QUrl>
 
 
 PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
@@ -21,9 +22,12 @@ PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
     setLayout(layout);
 
     auto dirLabel = new QLabel(this);
-    dirLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    dirLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    dirLabel->setOpenExternalLinks(true);
     layout->addWidget(dirLabel);
-    dirLabel->setText(tr("Plugins are loaded from <b>%1</b>").arg(Plugins()->getPluginsDirectory()));
+    auto pluginPath = Plugins()->getUserPluginsDirectory();
+    dirLabel->setText(tr("Plugins are loaded from <a href=\"%1\">%2</a>")
+                      .arg(QUrl::fromLocalFile(pluginPath).toString(), pluginPath.toHtmlEscaped()));
 
     auto treeWidget = new QTreeWidget(this);
     layout->addWidget(treeWidget);
@@ -35,7 +39,7 @@ PluginsOptionsWidget::PluginsOptionsWidget(PreferencesDialog *dialog)
         tr("Author")
     });
 
-    for (CutterPlugin *plugin : Plugins()->getPlugins()) {
+    for (auto &plugin : Plugins()->getPlugins()) {
         auto item = new QTreeWidgetItem();
         item->setText(0, plugin->getName());
         item->setText(1, plugin->getDescription());

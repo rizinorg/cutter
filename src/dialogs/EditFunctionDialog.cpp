@@ -33,17 +33,6 @@ void EditFunctionDialog::setStartAddrText(const QString &startAddr)
     ui->startLineEdit->setText(startAddr);
 }
 
-QString EditFunctionDialog::getEndAddrText()
-{
-    QString ret = ui->endLineEdit->text();
-    return ret;
-}
-
-void EditFunctionDialog::setEndAddrText(const QString &endAddr)
-{
-    ui->endLineEdit->setText(endAddr);
-}
-
 QString EditFunctionDialog::getStackSizeText()
 {
     QString ret = ui->stackSizeLineEdit->text();

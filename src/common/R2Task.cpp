@@ -29,17 +29,17 @@ void R2Task::taskFinished()
 
 void R2Task::startTask()
 {
-    r_core_task_enqueue(Core()->core_, task);
+    r_core_task_enqueue(&Core()->core_->tasks, task);
 }
 
 void R2Task::breakTask()
 {
-    r_core_task_break(Core()->core_, task->id);
+    r_core_task_break(&Core()->core_->tasks, task->id);
 }
 
 void R2Task::joinTask()
 {
-    r_core_task_join(Core()->core_, nullptr, task->id);
+    r_core_task_join(&Core()->core_->tasks, nullptr, task->id);
 }
 
 QString R2Task::getResult()

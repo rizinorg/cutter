@@ -4,8 +4,11 @@
 #include "core/MainWindow.h"
 #include "CutterDockWidget.h"
 #include "common/CommandTask.h"
+#include "common/DirectionalComboBox.h"
 
 #include <QStringListModel>
+#include <QSocketNotifier>
+#include <QLocalSocket>
 
 #include <memory>
 
@@ -47,7 +50,9 @@ public slots:
 private slots:
     void setupFont();
 
-    void on_inputLineEdit_returnPressed();
+    void on_r2InputLineEdit_returnPressed();
+    void on_debugeeInputLineEdit_returnPressed();
+    void onIndexChange();
 
     void on_execButton_clicked();
 
@@ -62,13 +67,25 @@ private slots:
 
     void clear();
 
+    /**
+     * @brief Passes redirected output from the pipe to the terminal and console
+     */
+    void processQueuedOutput();
+
 private:
     void scrollOutputToEnd();
     void historyAdd(const QString &input);
     void invalidateHistoryPosition();
     void removeLastLine();
     void executeCommand(const QString &command);
+    void sendToStdin(const QString &input);
     void setWrap(bool wrap);
+
+    /**
+     * @brief Redirects stderr and stdout to the output pipe which is handled by
+     *        processQueuedOutput
+     */
+    void redirectOutput();
 
     QSharedPointer<CommandTask> commandTask;
 
@@ -84,6 +101,20 @@ private:
     QCompleter *completer;
     QShortcut *historyUpShortcut;
     QShortcut *historyDownShortcut;
+    FILE *origStderr;
+    FILE *origStdout;
+    FILE *origStdin;
+    QLocalSocket *pipeSocket;
+#ifdef Q_OS_WIN
+    HANDLE hRead;
+    HANDLE hWrite;
+#else
+    int redirectPipeFds[2];
+    int stdinFile;
+    QString stdinFifoPath;
+    QVector<char> *redirectionBuffer;
+    QSocketNotifier *outputNotifier;
+#endif
 };
 
 #endif // CONSOLEWIDGET_H

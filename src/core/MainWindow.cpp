@@ -23,7 +23,7 @@
 #include "dialogs/AboutDialog.h"
 #include "dialogs/RenameDialog.h"
 #include "dialogs/preferences/PreferencesDialog.h"
-#include "dialogs/OpenFileDialog.h"
+#include "dialogs/MapFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
 
 // Widgets Headers
@@ -61,6 +61,8 @@
 #include "widgets/RegisterRefsWidget.h"
 #include "widgets/DisassemblyWidget.h"
 #include "widgets/StackWidget.h"
+#include "widgets/ThreadsWidget.h"
+#include "widgets/ProcessesWidget.h"
 #include "widgets/RegistersWidget.h"
 #include "widgets/BacktraceWidget.h"
 #include "widgets/HexdumpWidget.h"
@@ -87,6 +89,7 @@
 #include <QPropertyAnimation>
 #include <QSysInfo>
 #include <QJsonObject>
+#include <QJsonArray>
 
 #include <QScrollBar>
 #include <QSettings>
@@ -117,6 +120,8 @@ MainWindow::MainWindow(QWidget *parent) :
     panelLock = false;
     tabsOnTop = false;
     configuration = Config();
+
+    initUI();
 }
 
 MainWindow::~MainWindow()
@@ -127,9 +132,18 @@ void MainWindow::initUI()
 {
     ui->setupUi(this);
 
+    // Initialize context menu extensions for plugins
+    disassemblyContextMenuExtensions = new QMenu(tr("Plugins"), this);
+    addressableContextMenuExtensions = new QMenu(tr("Plugins"), this);
+
     connect(ui->actionExtraGraph, &QAction::triggered, this, &MainWindow::addExtraGraph);
     connect(ui->actionExtraDisassembly, &QAction::triggered, this, &MainWindow::addExtraDisassembly);
     connect(ui->actionExtraHexdump, &QAction::triggered, this, &MainWindow::addExtraHexdump);
+    connect(ui->actionCommitChanges, &QAction::triggered, this, [this]() {
+        Core()->commitWriteCache();
+    });
+    ui->actionCommitChanges->setEnabled(false);
+    connect(Core(), &CutterCore::ioCacheChanged, ui->actionCommitChanges, &QAction::setEnabled);
 
     widgetTypeToConstructorMap.insert(GraphWidget::getWidgetType(), getNewInstance<GraphWidget>);
     widgetTypeToConstructorMap.insert(DisassemblyWidget::getWidgetType(),
@@ -161,11 +175,14 @@ void MainWindow::initUI()
     QShortcut *refresh_shortcut = new QShortcut(QKeySequence(QKeySequence::Refresh), this);
     connect(refresh_shortcut, SIGNAL(activated()), this, SLOT(refreshAll()));
 
+    connect(ui->actionZoomIn, SIGNAL(triggered()), this, SLOT(onZoomIn()));
+    connect(ui->actionZoomOut, SIGNAL(triggered()), this, SLOT(onZoomOut()));
+    connect(ui->actionZoomReset, SIGNAL(triggered()), this, SLOT(onZoomReset()));
+
     connect(core, SIGNAL(projectSaved(bool, const QString &)), this, SLOT(projectSaved(bool,
                                                                                        const QString &)));
 
-    connect(core, &CutterCore::changeDebugView, this, &MainWindow::changeDebugView);
-    connect(core, &CutterCore::changeDefinedView, this, &MainWindow::changeDefinedView);
+    connect(core, &CutterCore::toggleDebugView, this, &MainWindow::toggleDebugView);
 
     connect(core, SIGNAL(newMessage(const QString &)),
             this->consoleDock, SLOT(addOutput(const QString &)));
@@ -183,10 +200,16 @@ void MainWindow::initUI()
     ui->actionBackward->setShortcut(QKeySequence::Back);
     ui->actionForward->setShortcut(QKeySequence::Forward);
 
+    initBackForwardMenu();
+
     /* Setup plugins interfaces */
-    for (auto plugin : Plugins()->getPlugins()) {
+    for (auto &plugin : Plugins()->getPlugins()) {
         plugin->setupInterface(this);
     }
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 7, 0)
+    ui->actionGrouped_dock_dragging->setVisible(false);
+#endif
 
     initLayout();
 }
@@ -205,7 +228,13 @@ void MainWindow::initToolBar()
 
     DebugActions *debugActions = new DebugActions(ui->mainToolBar, this);
     // Debug menu
+    auto debugViewAction = ui->menuDebug->addAction(tr("View"));
+    debugViewAction->setMenu(ui->menuAddDebugWidgets);
+    ui->menuDebug->addSeparator();
+    ui->menuDebug->addAction(debugActions->actionStart);
     ui->menuDebug->addAction(debugActions->actionStartEmul);
+    ui->menuDebug->addAction(debugActions->actionAttach);
+    ui->menuDebug->addAction(debugActions->actionStartRemote);
     ui->menuDebug->addSeparator();
     ui->menuDebug->addAction(debugActions->actionStep);
     ui->menuDebug->addAction(debugActions->actionStepOver);
@@ -302,6 +331,8 @@ void MainWindow::initDocks()
     stringsDock = new StringsWidget(this, ui->actionStrings);
     flagsDock = new FlagsWidget(this, ui->actionFlags);
     stackDock = new StackWidget(this, ui->actionStack);
+    threadsDock = new ThreadsWidget(this, ui->actionThreads);
+    processesDock = new ProcessesWidget(this, ui->actionProcesses);
     backtraceDock = new BacktraceWidget(this, ui->actionBacktrace);
     registersDock = new RegistersWidget(this, ui->actionRegisters);
     memoryMapDock = new MemoryMapWidget(this, ui->actionMemoryMap);
@@ -388,11 +419,6 @@ void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
     restoreExtraDock.restoreWidth(extraDock->widget());
 }
 
-/**
- * @brief Getter for MainWindow's different menus
- * @param type The type which represents the desired menu
- * @return The requested menu or nullptr if "type" is invalid
-**/
 QMenu *MainWindow::getMenuByType(MenuType type)
 {
     switch (type) {
@@ -508,12 +534,11 @@ void MainWindow::displayInitialOptionsDialog(const InitialOptions &options, bool
 
 void MainWindow::openProject(const QString &project_name)
 {
-    QString filename = core->cmd("Pi " + project_name);
+    QString filename = core->cmdRaw("Pi " + project_name);
     setFilename(filename.trimmed());
 
     core->openProject(project_name);
 
-    initUI();
     finalizeOpen();
 }
 
@@ -524,7 +549,7 @@ void MainWindow::finalizeOpen()
     refreshAll();
 
     // Add fortune message
-    core->message("\n" + core->cmd("fo"));
+    core->message("\n" + core->cmdRaw("fo"));
     showMaximized();
 
 
@@ -603,6 +628,24 @@ void MainWindow::setFilename(const QString &fn)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
+
+    // Check if there are uncommitted changes
+    if (core->isIOCacheEnabled() && !core->cmdj("wcj").array().isEmpty()) {
+
+        QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
+                                                                tr("It seems that you have changes or patches that are not committed to the file.\n"
+                                                                "Do you want to commit them now?"),
+                                                                (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+        if (ret == QMessageBox::Cancel) {
+            event->ignore();
+            return;
+        }
+
+        if (ret == QMessageBox::Save) {
+            core->commitWriteCache();
+        } 
+    }
+
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                                             tr("Do you really want to exit?\nSave your project before closing!"),
                                                             (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
@@ -658,7 +701,8 @@ void MainWindow::readSettingsOrDefault()
     // make sure all DockWidgets are part of the MainWindow
     // also show them, so newly installed plugin widgets are shown right away
     for (auto dockWidget : dockWidgets) {
-        if (dockWidgetArea(dockWidget) == Qt::DockWidgetArea::NoDockWidgetArea) {
+        if (dockWidgetArea(dockWidget) == Qt::DockWidgetArea::NoDockWidgetArea &&
+            !isDebugWidget(dockWidget)) {
             addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
             dockWidget->show();
         }
@@ -821,10 +865,12 @@ void MainWindow::restoreDocks()
 
     tabifyDockWidget(sectionsDock, commentsDock);
 
-    // Add Stack, Registers and Backtrace vertically stacked
+    // Add Stack, Registers, Threads and Backtrace vertically stacked
     addDockWidget(Qt::TopDockWidgetArea, stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
+    tabifyDockWidget(backtraceDock, threadsDock);
+    tabifyDockWidget(threadsDock, processesDock);
 
     updateDockActionsChecked();
 }
@@ -842,6 +888,18 @@ void MainWindow::updateDockActionsChecked()
     for (auto i = dockWidgetsOfAction.constBegin(); i != dockWidgetsOfAction.constEnd(); i++) {
         updateDockActionChecked(i.key());
     }
+}
+
+bool MainWindow::isDebugWidget(QDockWidget *dock) const
+{
+    return dock == stackDock ||
+           dock == registersDock ||
+           dock == backtraceDock ||
+           dock == threadsDock ||
+           dock == memoryMapDock ||
+           dock == breakpointDock ||
+           dock == processesDock ||
+           dock == registerRefsDock;
 }
 
 MemoryWidgetType MainWindow::getMemoryWidgetTypeToRestore()
@@ -983,7 +1041,107 @@ void MainWindow::initCorners()
     setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
 }
 
-void MainWindow::addWidget(QDockWidget *widget)
+void MainWindow::initBackForwardMenu()
+{
+    auto prepareButtonMenu = [this](QAction *action) -> QMenu* {
+        QToolButton *button = qobject_cast<QToolButton *>(ui->mainToolBar->widgetForAction(action));
+        if (!button) {
+            return nullptr;
+        }
+        QMenu *menu = new QMenu(button);
+        button->setMenu(menu);
+        button->setPopupMode(QToolButton::DelayedPopup);
+        button->setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(button, &QWidget::customContextMenuRequested, button,
+                [menu, button] (const QPoint &pos) {
+            menu->exec(button->mapToGlobal(pos));
+        });
+
+        QFontMetrics metrics(fontMetrics());
+        // Roughly 10-16 lines depending on padding size, no need to calculate more precisely
+        menu->setMaximumHeight(metrics.lineSpacing() * 20);
+
+        menu->setToolTipsVisible(true);
+        return menu;
+    };
+
+    if (auto menu = prepareButtonMenu(ui->actionBackward)) {
+        menu->setObjectName("historyMenu");
+        connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
+            updateHistoryMenu(menu, false);
+        });
+    }
+    if (auto menu = prepareButtonMenu(ui->actionForward)) {
+        menu->setObjectName("forwardHistoryMenu");
+        connect(menu, &QMenu::aboutToShow, menu, [this, menu]() {
+            updateHistoryMenu(menu, true);
+        });
+    }
+}
+
+void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
+{
+    // Not too long so that whole screen doesn't get covered,
+    // not too short so that reasonable length c++ names can be seen most of the time
+    const int MAX_NAME_LENGTH = 64;
+
+    auto hist = Core()->cmdj("sj");
+    bool history = true;
+    QList<QAction *> actions;
+    for (auto item : Core()->cmdj("sj").array()) {
+        QJsonObject obj = item.toObject();
+        QString name = obj["name"].toString();
+        RVA offset = obj["offset"].toVariant().toULongLong();
+        bool current = obj["current"].toBool(false);
+        if (current) {
+            history = false;
+        }
+        if (history != redo || current) { // Include current in both directions
+            QString addressString = RAddressString(offset);
+
+            QString toolTip = QString("%1 %2").arg(addressString, name); // show non truncated name in tooltip
+
+            name.truncate(MAX_NAME_LENGTH); // TODO:#1904 use common name shortening function
+            QString label = QString("%1 (%2)").arg(name, addressString);
+            if (current) {
+                label = QString("current position (%1)").arg(addressString);
+            }
+            QAction *action = new QAction(label, menu);
+            action->setToolTip(toolTip);
+            actions.push_back(action);
+            if (current) {
+                QFont font;
+                font.setBold(true);
+                action->setFont(font);
+            }
+        }
+    }
+    if (!redo) {
+        std::reverse(actions.begin(), actions.end());
+    }
+    menu->clear();
+    menu->addActions(actions);
+    int steps = 0;
+    for (QAction *item : menu->actions()) {
+        if (redo) {
+            connect(item, &QAction::triggered, item, [steps]() {
+                for (int i = 0; i < steps; i++) {
+                    Core()->seekNext();
+                }
+            });
+        } else {
+            connect(item, &QAction::triggered, item, [steps]() {
+                for (int i = 0; i < steps; i++) {
+                    Core()->seekPrev();
+                }
+            });
+        }
+        ++steps;
+    }
+
+}
+
+void MainWindow::addWidget(QDockWidget* widget)
 {
     dockWidgets.push_back(widget);
     for (auto action : widget->actions()) {
@@ -1059,6 +1217,7 @@ void MainWindow::showDebugDocks()
                                               stackDock,
                                               registersDock,
                                               backtraceDock,
+                                              threadsDock,
                                               memoryMapDock,
                                               breakpointDock
                                             };
@@ -1078,7 +1237,12 @@ void MainWindow::showDebugDocks()
 
 void MainWindow::enableDebugWidgetsMenu(bool enable)
 {
-    ui->menuAddDebugWidgets->setEnabled(enable);
+    for (QAction *action : ui->menuAddDebugWidgets->actions()) {
+        // The breakpoints menu should be available outside of debug
+        if (!action->text().contains("Breakpoints")) {
+            action->setEnabled(enable);
+        }
+    }
 }
 
 void MainWindow::resetToDefaultLayout()
@@ -1125,7 +1289,7 @@ void MainWindow::resetDockWidgetList()
     for (auto it : dockWidgets) {
         if (isLeft.contains(it->metaObject()->className())) {
             toClose.append(it);
-        } else if (QRegExp("\\w+ \\d+").exactMatch(it->objectName())) {
+        } else if (QRegularExpression("\\A(?:\\w+ \\d+)\\z").match(it->objectName()).hasMatch()) {
             isLeft.append(it->metaObject()->className());
         }
     }
@@ -1236,9 +1400,9 @@ void MainWindow::on_actionRun_Script_triggered()
  * @brief MainWindow::on_actionOpen_triggered
  * Open a file as in "load (add) a file in current session".
  */
-void MainWindow::on_actionOpen_triggered()
+void MainWindow::on_actionMap_triggered()
 {
-    OpenFileDialog dialog(this);
+    MapFileDialog dialog(this);
     dialog.exec();
 }
 
@@ -1278,16 +1442,6 @@ void MainWindow::on_actionBackward_triggered()
 }
 
 void MainWindow::on_actionForward_triggered()
-{
-    core->seekNext();
-}
-
-void MainWindow::on_actionUndoSeek_triggered()
-{
-    core->seekPrev();
-}
-
-void MainWindow::on_actionRedoSeek_triggered()
 {
     core->seekNext();
 }
@@ -1404,14 +1558,20 @@ void MainWindow::on_actionExport_as_code_triggered()
     tempConfig.set("io.va", false);
     QTextStream fileOut(&file);
     QString &cmd = cmdMap[dialog.selectedNameFilter()];
+
+    // Use cmd because cmdRaw would not handle such input
     fileOut << Core()->cmd(cmd + " $s @ 0");
 }
 
 void MainWindow::on_actionGrouped_dock_dragging_triggered(bool checked)
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     auto options = dockOptions();
     options.setFlag(QMainWindow::DockOption::GroupedDragging, checked);
     setDockOptions(options);
+#else
+    Q_UNUSED(checked);
+#endif
 }
 
 void MainWindow::seekToFunctionLastInstruction()
@@ -1432,22 +1592,21 @@ void MainWindow::projectSaved(bool successfully, const QString &name)
         core->message(tr("Failed to save project: %1").arg(name));
 }
 
-void MainWindow::changeDebugView()
+void MainWindow::toggleDebugView()
 {
-    saveSettings();
-    restoreDebugLayout();
-    enableDebugWidgetsMenu(true);
-}
-
-void MainWindow::changeDefinedView()
-{
-    saveDebugSettings();
-    MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
-    hideAllDocks();
-    restoreDocks();
-    readSettingsOrDefault();
-    enableDebugWidgetsMenu(false);
-    showMemoryWidget(memType);
+    if (Core()->currentlyDebugging) {
+        saveSettings();
+        restoreDebugLayout();
+        enableDebugWidgetsMenu(true);
+    } else {
+        saveDebugSettings();
+        MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
+        hideAllDocks();
+        restoreDocks();
+        readSettingsOrDefault();
+        enableDebugWidgetsMenu(false);
+        showMemoryWidget(memType);
+    }
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -1476,6 +1635,20 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
     return false;
 }
 
+bool MainWindow::event(QEvent *event)
+{
+    if (event->type() == QEvent::FontChange
+        || event->type() == QEvent::StyleChange
+        || event->type() == QEvent::PaletteChange) {
+#if QT_VERSION < QT_VERSION_CHECK(5,10,0)
+        QMetaObject::invokeMethod(Config(), "refreshFont", Qt::ConnectionType::QueuedConnection);
+#else
+        QMetaObject::invokeMethod(Config(), &Configuration::refreshFont, Qt::ConnectionType::QueuedConnection);
+#endif
+    }
+    return QMainWindow::event(event);
+}
+
 /**
  * @brief Show a warning message box.
  *
@@ -1492,7 +1665,7 @@ void MainWindow::messageBoxWarning(QString title, QString message)
 }
 
 /**
- * \brief When theme changed, change icons which have a special version for the theme.
+ * @brief When theme changed, change icons which have a special version for the theme.
  */
 void MainWindow::chooseThemeIcons()
 {
@@ -1507,4 +1680,31 @@ void MainWindow::chooseThemeIcons()
     qhelpers::setThemeIcons(kSupportedIconsNames, [](void *obj, const QIcon & icon) {
         static_cast<QAction *>(obj)->setIcon(icon);
     });
+}
+
+void MainWindow::onZoomIn()
+{
+  Config()->setZoomFactor(Config()->getZoomFactor() + 0.1);
+}
+
+void MainWindow::onZoomOut()
+{
+  Config()->setZoomFactor(Config()->getZoomFactor() - 0.1);
+}
+
+void MainWindow::onZoomReset()
+{
+  Config()->setZoomFactor(1.0);
+}
+
+QMenu *MainWindow::getContextMenuExtensions(ContextMenuType type)
+{
+    switch (type) {
+    case ContextMenuType::Disassembly:
+        return disassemblyContextMenuExtensions;
+    case ContextMenuType::Addressable:
+        return addressableContextMenuExtensions;
+    default:
+        return nullptr;
+    }
 }

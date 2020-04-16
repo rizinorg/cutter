@@ -1,9 +1,9 @@
-Cutter Documentation
-====================
+Cutter
+======
 
-Cutter is a Qt and C++ GUI for radare2. Its goal is making an advanced,
+Cutter is a Qt and C++ GUI for radare2. Its goal is to provide an advanced,
 customizable and FOSS reverse-engineering platform while keeping the
-user experience at mind. Cutter is created by reverse engineers for
+user experience in mind. Cutter was created by reverse engineers for
 reverse engineers.
 
 .. image:: images/screenshot.png
@@ -15,9 +15,10 @@ Get Cutter
 Cutter is available for all platforms (Linux, OS X, Windows). You can
 download the latest release
 `here <https://github.com/radareorg/cutter/releases>`__.
+
 - OSX: Download the latest ``.dmg`` file.
 - Windows: Download the latest archive.
-- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.9.0-x86_64.AppImage``
+- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.10.3-pre-x86_64.AppImage``
 
 
 Building from sources
@@ -40,8 +41,7 @@ Want to help the project?
 
 If you want to contribute to Cutter, take a look
 `here <https://github.com/radareorg/cutter/blob/master/CONTRIBUTING.md>`__
-to know what you can do to help the project!
-
+to learn how you can help improve the project!
 
 .. toctree::
    :maxdepth: 2
@@ -50,7 +50,8 @@ to know what you can do to help the project!
    shortcuts
    building
    common-errors
-   code
+   developers-docs
+   user-docs
    plugins
    api
 

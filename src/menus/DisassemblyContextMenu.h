@@ -2,6 +2,7 @@
 #define DISASSEMBLYCONTEXTMENU_H
 
 #include "core/Cutter.h"
+#include "common/IOModesController.h"
 #include <QMenu>
 #include <QKeySequence>
 
@@ -35,7 +36,6 @@ private slots:
     void on_actionJmpReverse_triggered();
     void on_actionEditBytes_triggered();
     void showReverseJmpQuery();
-    bool writeFailed();
 
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();
@@ -53,11 +53,14 @@ private slots:
     void on_actionDeleteFunction_triggered();
 
     void on_actionAddBreakpoint_triggered();
+    void on_actionAdvancedBreakpoint_triggered();
     void on_actionContinueUntil_triggered();
     void on_actionSetPC_triggered();
 
     void on_actionSetToCode_triggered();
     void on_actionSetAsString_triggered();
+    void on_actionSetAsStringRemove_triggered();
+    void on_actionSetAsStringAdvanced_triggered();
     void on_actionSetToData_triggered();
     void on_actionSetToDataEx_triggered();
 
@@ -105,6 +108,7 @@ private:
     bool canCopy;
     QString curHighlightedWord; // The current highlighted word
     MainWindow *mainWindow;
+    IOModesController ioModesController;
 
     QList<QAction *> anonymousActions;
 
@@ -154,14 +158,21 @@ private:
 
     QMenu *debugMenu;
     QAction actionContinueUntil;
-    QAction actionAddBreakpoint;
     QAction actionSetPC;
 
+    QMenu *breakpointMenu;
+    QAction actionAddBreakpoint;
+    QAction actionAdvancedBreakpoint;
+
     QAction actionSetToCode;
-    QAction actionSetAsString;
+
+    QAction actionSetAsStringAuto;
+    QAction actionSetAsStringRemove;
+    QAction actionSetAsStringAdvanced;
 
     QMenu *setToDataMenu;
     QMenu *setAsMenu;
+    QMenu *setAsString;
     QAction actionSetToDataEx;
     QAction actionSetToDataByte;
     QAction actionSetToDataWord;
@@ -170,6 +181,8 @@ private:
 
     QAction showInSubmenu;
     QList<QAction*> showTargetMenuActions;
+    QMenu *pluginMenu = nullptr;
+    QAction *pluginActionMenuAction = nullptr;
 
     // For creating anonymous entries (that are always visible)
     QAction *addAnonymousAction(QString name, const char *slot, QKeySequence shortcut);
@@ -187,6 +200,7 @@ private:
     void addSetAsMenu();
     void addSetToDataMenu();
     void addEditMenu();
+    void addBreakpointMenu();
     void addDebugMenu();
 
     struct ThingUsedHere {

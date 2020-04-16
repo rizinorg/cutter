@@ -7,6 +7,10 @@ about: Create a report to help us improve
 **Environment information**
 * Operating System:
 * Cutter version:
+* Obtained from:
+  - [x] Built from source
+  - [ ] Downloaded from release
+  - [ ] Distribution repository
 * File format:
 
 **Describe the bug**

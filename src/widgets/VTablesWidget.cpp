@@ -160,8 +160,11 @@ VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
     connect(ui->quickFilterView, &QuickFilterView::filterTextChanged, this, [this] {
         tree->showItemsNumber(proxy->rowCount());
     });
-    
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshVTables()));
+
+    connect(Core(), &CutterCore::codeRebased, this, &VTablesWidget::refreshVTables);
+    connect(Core(), &CutterCore::refreshAll, this, &VTablesWidget::refreshVTables);
+
+    refreshDeferrer = createRefreshDeferrer([this]() { refreshVTables(); });
 }
 
 VTablesWidget::~VTablesWidget()
@@ -170,6 +173,10 @@ VTablesWidget::~VTablesWidget()
 
 void VTablesWidget::refreshVTables()
 {
+    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+        return;
+    }
+
     model->beginResetModel();
     vtables = Core()->getAllVTables();
     model->endResetModel();

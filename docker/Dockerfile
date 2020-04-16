@@ -1,4 +1,4 @@
-FROM alpine:edge AS builder
+FROM alpine:latest AS builder
 LABEL maintainer "Philipp Schmied <ps1337@mailbox.org>"
 
 # Prevent build fails because of interactive scripts when compiling
@@ -28,7 +28,7 @@ RUN cd /opt/cutter && \
     bash build.sh && \
     bash -c 'if [[ ! -x "/opt/cutter/build/Cutter" ]]; then exit -1; fi'
 
-FROM alpine:edge AS runner
+FROM alpine:latest AS runner
 
 # Add the dependencies we need for running
 RUN apk add --no-cache \

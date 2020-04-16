@@ -71,8 +71,6 @@ public:
     void closeNewFileDialog();
     void openProject(const QString &project_name);
 
-    void initUI();
-
     /**
      * @param quit whether to show destructive button in dialog
      * @return if quit is true, false if the application should not close
@@ -103,6 +101,11 @@ public:
 
     void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
+    /**
+     * @brief Getter for MainWindow's different menus
+     * @param type The type which represents the desired menu
+     * @return The requested menu or nullptr if "type" is invalid
+     */
     QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
 
@@ -122,6 +125,15 @@ public:
     void setCurrentMemoryWidget(MemoryDockWidget *memoryWidget);
     MemoryDockWidget *getLastMemoryWidget();
     QList<QDockWidget *> getListOfDockWidgets() const;
+
+    /* Context menu plugins */
+    enum class ContextMenuType { Disassembly, Addressable };
+    /**
+     * @brief Fetches the pointer to a context menu extension of type
+     * @param type - the type of the context menu
+     * @return plugins submenu of the selected context menu
+     */
+    QMenu *getContextMenuExtensions(ContextMenuType type);
 
 public slots:
     void finalizeOpen();
@@ -169,10 +181,8 @@ private slots:
 
     void on_actionBackward_triggered();
     void on_actionForward_triggered();
-    void on_actionUndoSeek_triggered();
-    void on_actionRedoSeek_triggered();
 
-    void on_actionOpen_triggered();
+    void on_actionMap_triggered();
 
     void on_actionTabs_on_Top_triggered();
 
@@ -198,9 +208,13 @@ private slots:
 
     void mousePressEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *object, QEvent *event) override;
-    void changeDebugView();
-    void changeDefinedView();
+    bool event(QEvent *event) override;
+    void toggleDebugView();
     void chooseThemeIcons();
+
+    void onZoomIn();
+    void onZoomOut();
+    void onZoomReset();
 
 private:
     CutterCore *core;
@@ -250,6 +264,8 @@ private:
     QDockWidget        *asmDock = nullptr;
     QDockWidget        *calcDock = nullptr;
     QDockWidget        *stackDock = nullptr;
+    QDockWidget        *threadsDock = nullptr;
+    QDockWidget        *processesDock = nullptr;
     QDockWidget        *registersDock = nullptr;
     QDockWidget        *backtraceDock = nullptr;
     QDockWidget        *memoryMapDock = nullptr;
@@ -257,12 +273,16 @@ private:
     QDockWidget        *breakpointDock = nullptr;
     QDockWidget        *registerRefsDock = nullptr;
 
+    QMenu *disassemblyContextMenuExtensions = nullptr;
+    QMenu *addressableContextMenuExtensions = nullptr;
+
+    void initUI();
     void initToolBar();
     void initDocks();
     void initLayout();
     void initCorners();
-    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(),
-                                     bool skipOptionsDialog = false);
+    void initBackForwardMenu();
+    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
     void resetToDebugLayout();
@@ -275,12 +295,24 @@ private:
     void showZenDocks();
     void showDebugDocks();
     void enableDebugWidgetsMenu(bool enable);
+    /**
+     * @brief Fill menu with seek history entries.
+     * @param menu
+     * @param redo set to false for undo history, true for redo.
+     */
+    void updateHistoryMenu(QMenu *menu, bool redo = false);
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
     void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
+    /**
+     * @brief Check if a widget is one of debug specific dock widgets.
+     * @param dock
+     * @return true for debug specific widgets, false for all other including common dock widgets.
+     */
+    bool isDebugWidget(QDockWidget *dock) const;
 
     MemoryWidgetType getMemoryWidgetTypeToRestore();
 

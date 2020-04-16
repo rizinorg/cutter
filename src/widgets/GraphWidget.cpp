@@ -23,7 +23,7 @@ GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
     header->setReadOnly(true);
     layout->addWidget(header);
 
-    graphView = new DisassemblerGraphView(layoutWidget, seekable, main);
+    graphView = new DisassemblerGraphView(layoutWidget, seekable, main, {&syncAction});
     layout->addWidget(graphView);
 
     // Title needs to get set after graphView is defined
@@ -90,7 +90,7 @@ QString GraphWidget::getWidgetType()
 
 void GraphWidget::prepareHeader()
 {
-    QString afcf = Core()->cmd(QString("afcf @%1").arg(seekable->getOffset())).trimmed();
+    QString afcf = Core()->cmdRawAt("afcf", seekable->getOffset()).trimmed();
     if (afcf.isEmpty()) {
         header->hide();
         return;

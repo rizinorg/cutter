@@ -43,7 +43,7 @@ static QIcon getIconFor(const QString &str, int pos)
     pixPaint.setBrush(getColorFor(pos));
     pixPaint.drawEllipse(1, 1, w - 2, h - 2);
     pixPaint.setPen(Qt::white);
-    QFont font = Config()->getFont();
+    QFont font = Config()->getBaseFont();
     font.setBold(true);
     font.setPointSize(18);
     pixPaint.setFont(font);
@@ -321,7 +321,7 @@ bool NewFileDialog::fillProjectsList()
 
     int i = 0;
     for (const QString &project : projects) {
-        QString info = QDir::toNativeSeparators(core->cmd("Pi " + project));
+        QString info = QDir::toNativeSeparators(core->cmdRaw("Pi " + project));
 
         QListWidgetItem *item = new QListWidgetItem(getIconFor(project, i++), project + "\n" + info);
 
@@ -345,7 +345,8 @@ void NewFileDialog::fillIOPluginsList()
         if (plugin.permissions.contains('d')) {
             continue;
         }
-        for (const auto &uri : qAsConst(plugin.uris)) {
+        const auto &uris = plugin.uris;
+        for (const auto &uri : uris) {
             if (uri == "file://") {
                 continue;
             }

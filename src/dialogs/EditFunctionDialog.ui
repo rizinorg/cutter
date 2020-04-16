@@ -58,33 +58,23 @@
       <widget class="QLineEdit" name="startLineEdit"/>
      </item>
      <item row="5" column="0">
-      <widget class="QLabel" name="endLabel">
-       <property name="text">
-        <string>End address</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="endLineEdit"/>
-     </item>
-     <item row="6" column="0">
       <widget class="QLabel" name="stackSizeLabel">
        <property name="text">
         <string>Stack size</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="1">
+     <item row="5" column="1">
       <widget class="QLineEdit" name="stackSizeLineEdit"/>
      </item>
-     <item row="7" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="callConLabel">
        <property name="text">
         <string>Calling convention</string>
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="6" column="1">
       <widget class="QComboBox" name="callConComboBox"/>
      </item>
     </layout>

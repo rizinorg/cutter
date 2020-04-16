@@ -25,6 +25,10 @@
   <update_contact>xarkes</update_contact>
 
   <releases>
+    <release version="1.10.3-pre" date="2020-03-24" />
+    <release version="1.10.2" date="2020-03-10" />
+    <release version="1.10.1" date="2020-01-31" />
+    <release version="1.10.0" date="2019-12-20" />
     <release version="1.9.0" date="2019-09-06" />
     <release version="1.8.3" date="2019-07-01" />
     <release version="1.8.2" date="2019-05-20" />

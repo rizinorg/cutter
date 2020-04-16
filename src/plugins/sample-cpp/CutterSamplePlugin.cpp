@@ -62,6 +62,8 @@ void CutterSamplePluginWidget::on_seekChanged(RVA addr)
 void CutterSamplePluginWidget::on_buttonClicked()
 {
     QString fortune = Core()->cmd("fo").replace("\n", "");
+    // cmdRaw can be used to execute single raw commands
+    // this is especially good for user-controlled input
     QString res = Core()->cmdRaw("?E " + fortune);
     text->setText(res);
 }

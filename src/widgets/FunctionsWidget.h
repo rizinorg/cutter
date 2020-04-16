@@ -105,9 +105,6 @@ private slots:
     void setTooltipStylesheet();
     void refreshTree();
 
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-
 private:
     QSharedPointer<FunctionsTask> task;
     QList<FunctionDescription> functions;

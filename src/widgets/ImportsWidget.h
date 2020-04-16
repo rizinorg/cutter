@@ -43,7 +43,7 @@ private:
     QList<ImportDescription> *imports;
 
 public:
-    enum Column { AddressColumn = 0, TypeColumn, SafetyColumn, NameColumn, ColumnCount };
+    enum Column { AddressColumn = 0, TypeColumn, LibraryColumn, NameColumn, SafetyColumn, ColumnCount };
     enum Role { ImportDescriptionRole = Qt::UserRole, AddressRole };
 
     ImportsModel(QList<ImportDescription> *imports, QObject *parent = nullptr);
@@ -56,6 +56,8 @@ public:
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
+    QString libname(const QModelIndex &index) const;
+
 };
 
 class ImportsProxyModel : public AddressableFilterProxyModel

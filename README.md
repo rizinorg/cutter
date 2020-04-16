@@ -4,8 +4,8 @@
 
 Cutter is a free and open-source reverse engineering framework powered by [radare2](https://github.com/radareorg/radare2) . Its goal is making an advanced, customizable and FOSS reverse-engineering platform while keeping the user experience at mind. Cutter is created by reverse engineers for reverse engineers.  
 
-[![Build Status](https://travis-ci.org/radareorg/cutter.svg?branch=master)](https://travis-ci.org/radareorg/cutter)
-[![Build status](https://ci.appveyor.com/api/projects/status/s9rkx1dn3uy4bfdx/branch/master?svg=true)](https://ci.appveyor.com/project/radare/cutter/branch/master)
+[![Build Status](https://travis-ci.com/radareorg/cutter.svg?branch=master)](https://travis-ci.com/radareorg/cutter)
+[![Build status](https://ci.appveyor.com/api/projects/status/s9rkx1dn3uy4bfdx/branch/master?svg=true)](https://ci.appveyor.com/project/radareorg/cutter/branch/master)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/radareorg/cutter.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/radareorg/cutter/alerts/)
 
 ![Screenshot](https://raw.githubusercontent.com/radareorg/cutter/master/docs/source/images/screenshot.png)
@@ -24,7 +24,7 @@ You can download the latest release [here](https://github.com/radareorg/cutter/r
 
 ## Building from sources
 
-To build Cutter on your local machine, please follow this guide: [Building from source](https://cutter.re/build/)
+To build Cutter on your local machine, please follow this guide: [Building from source](https://cutter.re/docs/building.html)
 
 ## Docker
 

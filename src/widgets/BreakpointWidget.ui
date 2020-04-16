@@ -28,7 +28,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="CutterTreeView" name="breakpointTreeView">
+     <widget class="AddressableItemList&lt;&gt;" name="breakpointTreeView">
       <property name="styleSheet">
        <string notr="true">CutterTreeView::item
 {
@@ -80,9 +80,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CutterTreeView</class>
+   <class>AddressableItemList&lt;&gt;</class>
    <extends>QTreeView</extends>
-   <header>widgets/CutterTreeView.h</header>
+   <header>widgets/AddressableItemList.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

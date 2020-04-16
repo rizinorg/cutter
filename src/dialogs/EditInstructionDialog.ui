@@ -20,6 +20,9 @@
    <property name="spacing">
     <number>2</number>
    </property>
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
    <property name="leftMargin">
     <number>2</number>
    </property>
@@ -71,6 +74,9 @@
          </property>
          <property name="text">
           <string>Unknown Instruction</string>
+         </property>
+         <property name="textInteractionFlags">
+          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
          </property>
         </widget>
        </item>

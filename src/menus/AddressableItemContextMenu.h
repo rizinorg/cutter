@@ -31,16 +31,18 @@ private:
 
     virtual void aboutToShowSlot();
 
+    QMenu *pluginMenu;
+    QAction *pluginMenuAction;
     MainWindow *mainWindow;
 
     RVA offset;
     bool hasTarget = false;
 protected:
     void setHasTarget(bool hasTarget);
-    QAction actionShowInMenu;
-    QAction actionCopyAddress;
-    QAction actionShowXrefs;
-    QAction actionAddcomment;
+    QAction *actionShowInMenu;
+    QAction *actionCopyAddress;
+    QAction *actionShowXrefs;
+    QAction *actionAddcomment;
 
     QString name;
     bool wholeFunction = false;

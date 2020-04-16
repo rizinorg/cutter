@@ -31,20 +31,22 @@ InitialOptionsDialog::InitialOptionsDialog(MainWindow *main):
     for (const auto &plugin : asm_plugins) {
         ui->archComboBox->addItem(plugin, plugin);
     }
-    ui->archComboBox->setToolTip(core->cmd("e? asm.arch").trimmed());
+
+    setTooltipWithConfigHelp(ui->archComboBox,"asm.arch");
 
     // cpu combo box
     ui->cpuComboBox->lineEdit()->setPlaceholderText(tr("Auto"));
-    ui->cpuComboBox->setToolTip(core->cmd("e? asm.cpu").trimmed());
+    setTooltipWithConfigHelp(ui->cpuComboBox, "asm.cpu");
+
     updateCPUComboBox();
 
     // os combo box
     for (const auto &plugin : core->cmdList("e asm.os=?")) {
         ui->kernelComboBox->addItem(plugin, plugin);
     }
-    ui->kernelComboBox->setToolTip(core->cmd("e? asm.os").trimmed());
 
-    ui->bitsComboBox->setToolTip(core->cmd("e? asm.bits").trimmed());
+    setTooltipWithConfigHelp(ui->kernelComboBox, "asm.os");
+    setTooltipWithConfigHelp(ui->bitsComboBox, "asm.bits");
 
     for (const auto &plugin : core->getRBinPluginDescriptions("bin")) {
         ui->formatComboBox->addItem(plugin.name, QVariant::fromValue(plugin));
@@ -153,8 +155,26 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
 
     shellcode = options.shellcode;
 
+    if (!options.forceBinPlugin.isEmpty()) {
+        ui->formatComboBox->setCurrentText(options.forceBinPlugin);
+    } else {
+        ui->formatComboBox->setCurrentIndex(0);
+    }
+
+    if (options.binLoadAddr != RVA_INVALID) {
+        ui->entry_loadOffset->setText(RAddressString(options.binLoadAddr));
+    }
+
     // TODO: all other options should also be applied to the ui
 }
+
+
+void InitialOptionsDialog::setTooltipWithConfigHelp(QWidget *w, const char *config) {
+    w->setToolTip(QString("%1 (%2)")
+                  .arg(core->getConfigDescription(config))
+                  .arg(config));
+}
+
 
 QString InitialOptionsDialog::getSelectedArch() const
 {
@@ -215,8 +235,6 @@ QList<CommandDescription> InitialOptionsDialog::getSelectedAdvancedAnalCmds() co
 
 void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> advanced*/)
 {
-    main->initUI();
-
     InitialOptions options;
 
     options.filename = main->getFilename();

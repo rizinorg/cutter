@@ -1,5 +1,6 @@
 #include "UpdateWorker.h"
 
+#if CUTTER_UPDATE_WORKER_AVAILABLE
 #include <QUrl>
 #include <QFile>
 #include <QTimer>
@@ -18,6 +19,7 @@
 #include <QMessageBox>
 #include "common/Configuration.h"
 #include "CutterConfig.h"
+
 
 UpdateWorker::UpdateWorker(QObject *parent) :
     QObject(parent), pending(false)
@@ -128,7 +130,7 @@ void UpdateWorker::showUpdateDialog(bool showDontCheckForUpdatesButton)
             });
             download(fullFileName, latestVersion.toString());
             // Calling show() before exec() is only way make dialog non-modal
-            // it seems wierd, but it works
+            // it seems weird, but it works
             progressDial.show();
             progressDial.exec();
         }
@@ -217,3 +219,4 @@ QVersionNumber UpdateWorker::currentVersionNumber()
 {
     return QVersionNumber(CUTTER_VERSION_MAJOR, CUTTER_VERSION_MINOR, CUTTER_VERSION_PATCH);
 }
+#endif // CUTTER_UPDATE_WORKER_AVAILABLE

@@ -87,7 +87,8 @@ class DisassemblerGraphView : public GraphView
     };
 
 public:
-    DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable, MainWindow *mainWindow);
+    DisassemblerGraphView(QWidget *parent, CutterSeekable *seekable, MainWindow *mainWindow,
+                          QList<QAction *> additionalMenuAction);
     ~DisassemblerGraphView() override;
     std::unordered_map<ut64, DisassemblyBlock> disassembly_blocks;
     virtual void drawBlock(QPainter &p, GraphView::GraphBlock &block, bool interactive) override;
@@ -100,6 +101,7 @@ public:
                                                            GraphView::GraphBlock *to,
                                                            bool interactive) override;
     virtual void blockTransitionedTo(GraphView::GraphBlock *to) override;
+    virtual bool event(QEvent *event) override;
 
     void loadCurrentGraph();
     QString windowTitle;
@@ -129,6 +131,9 @@ public slots:
     void fontsUpdatedSlot();
     void onSeekChanged(RVA addr);
     void zoom(QPointF mouseRelativePos, double velocity);
+    void setZoom(QPointF mouseRelativePos, double scale);
+    void zoomIn();
+    void zoomOut();
     void zoomReset();
 
     void takeTrue();
@@ -146,9 +151,14 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
+    void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
+                                   QPoint pos) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
 private slots:
     void on_actionExportGraph_triggered();
+    void onActionHighlightBITriggered();
+    void onActionUnhighlightBITriggered();
 
 private:
     bool transition_dont_seek = false;
@@ -175,7 +185,7 @@ private:
     QPoint getTextOffset(int line) const;
     QPoint getInstructionOffset(const DisassemblyBlock &block, int line) const;
     RVA getAddrForMouseEvent(GraphBlock &block, QPoint *point);
-    Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point);
+    Instr *getInstrForMouseEvent(GraphBlock &block, QPoint *point, bool force = false);
     /**
      * @brief Get instructions placement and size relative to block.
      * Inefficient don't use this function when iterating over all instructions.
@@ -185,6 +195,7 @@ private:
      */
     QRectF getInstrRect(GraphView::GraphBlock &block, RVA addr) const;
     void showInstruction(GraphView::GraphBlock &block, RVA addr);
+    const Instr *instrForAddress(RVA addr);
     DisassemblyBlock *blockForAddress(RVA addr);
     void seekLocal(RVA addr, bool update_viewport = true);
     void seekInstruction(bool previous_instr);
@@ -216,9 +227,13 @@ private:
 
     QAction actionExportGraph;
     QAction actionUnhighlight;
-    QAction actionSyncOffset;
+    QAction actionUnhighlightInstruction;
 
     QLabel *emptyText = nullptr;
+
+    static const int KEY_ZOOM_IN;
+    static const int KEY_ZOOM_OUT;
+    static const int KEY_ZOOM_RESET;
 signals:
     void viewRefreshed();
     void viewZoomed();

@@ -42,6 +42,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         { ui->emuStrCheckBox,       "emu.str" },
         { ui->varsumCheckBox,       "asm.var.summary" },
         { ui->sizeCheckBox,         "asm.size" },
+        { ui->realnameCheckBox,     "asm.flags.real" }
     };
 
 
@@ -54,9 +55,10 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         connect(confCheckbox->checkBox, &QCheckBox::stateChanged, [this, val, &cb]() { checkboxEnabler(&cb, val) ;});
     }
 
-    connect(ui->commentsComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    using indexSignalType = void (QComboBox::*)(int);
+    connect(ui->commentsComboBox, static_cast<indexSignalType>(&QComboBox::currentIndexChanged), this,
                 &AsmOptionsWidget::commentsComboBoxChanged);
-    connect(ui->asmComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+    connect(ui->asmComboBox, static_cast<indexSignalType>(&QComboBox::currentIndexChanged), this,
                 &AsmOptionsWidget::asmComboBoxChanged);
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
     updateAsmOptionsFromVars();

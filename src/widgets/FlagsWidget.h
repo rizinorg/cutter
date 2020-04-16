@@ -5,6 +5,7 @@
 
 #include <QAbstractItemModel>
 #include <QSortFilterProxyModel>
+#include <QStandardItemModel>
 
 #include "core/Cutter.h"
 #include "CutterDockWidget.h"
@@ -25,7 +26,7 @@ private:
     QList<FlagDescription> *flags;
 
 public:
-    enum Columns { OFFSET = 0, SIZE, NAME, COUNT };
+    enum Columns { OFFSET = 0, SIZE, NAME, REALNAME, COUNT };
     static const int FlagDescriptionRole = Qt::UserRole;
 
     FlagsModel(QList<FlagDescription> *flags, QObject *parent = nullptr);
@@ -34,10 +35,13 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
 
     RVA address(const QModelIndex &index) const override;
     QString name(const QModelIndex &index) const override;
+
+    const FlagDescription *description(QModelIndex index) const;
 };
 
 
@@ -81,6 +85,7 @@ private:
     std::unique_ptr<Ui::FlagsWidget> ui;
     MainWindow *main;
 
+    bool disableFlagRefresh = false;
     FlagsModel *flags_model;
     FlagsSortFilterProxyModel *flags_proxy_model;
     QList<FlagDescription> flags;

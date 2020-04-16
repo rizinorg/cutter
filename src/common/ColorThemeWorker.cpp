@@ -5,6 +5,7 @@
 #include <QColor>
 #include <QJsonArray>
 #include <QStandardPaths>
+#include <QRegularExpression>
 
 #include "common/Configuration.h"
 
@@ -75,8 +76,9 @@ ColorThemeWorker::ColorThemeWorker(QObject *parent) : QObject (parent)
     } else {
         QMessageBox::critical(nullptr,
             tr("Standard themes not found"),
-            tr("The radare2 standard themes could not be found. "
+            tr("The radare2 standard themes could not be found in '%1'. "
                "Most likely, radare2 is not properly installed.")
+                .arg(currDir.path())
         );
     }
 }
@@ -165,9 +167,9 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
     QString curr = Config()->getColorTheme();
 
     if (themeName != curr) {
-        Core()->cmd(QString("eco %1").arg(themeName));
+        Core()->cmdRaw(QString("eco %1").arg(themeName));
         theme = Core()->cmdj("ecj").object().toVariantMap();
-        Core()->cmd(QString("eco %1").arg(curr));
+        Core()->cmdRaw(QString("eco %1").arg(curr));
     } else {
         theme = Core()->cmdj("ecj").object().toVariantMap();
     }
@@ -208,7 +210,21 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
         theme.remove(key);
     }
 
-    return QJsonDocument(QJsonObject::fromVariantMap(theme));
+    // manualy converting instead of using QJsonObject::fromVariantMap because
+    // Qt < 5.6 QJsonValue.fromVariant doesn't expect QVariant to already contain
+    // QJson values like QJsonArray. https://github.com/qt/qtbase/commit/26237f0a2d8db80024b601f676bbce54d483e672
+    QJsonObject obj;
+    for (auto it = theme.begin(); it != theme.end(); it++) {
+        auto &value = it.value();
+        if (value.canConvert<QJsonArray>()) {
+            obj[it.key()] = it.value().value<QJsonArray>();
+        } else {
+            obj[it.key()] = QJsonValue::fromVariant(value);
+        }
+
+    }
+
+    return QJsonDocument(obj);
 }
 
 QString ColorThemeWorker::deleteTheme(const QString &themeName) const
@@ -299,13 +315,14 @@ bool ColorThemeWorker::isFileTheme(const QString& filePath, bool* ok) const
     QString options = (Core()->cmdj("ecj").object().keys() << cutterSpecificOptions)
                       .join('|')
                       .replace(".", "\\.");
-    QRegExp regexp = QRegExp(QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*")
-                             .arg(options)
-                             .arg(colors));
+
+    QString pattern = QString("((ec\\s+(%1)\\s+(((rgb:|#)[0-9a-fA-F]{3,8})|(%2))))\\s*").arg(options).arg(colors);
+    // The below construct mimics the behaviour of QRegexP::exactMatch(), which was here before
+    QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
 
     for (auto &line : QString(f.readAll()).split('\n', QString::SkipEmptyParts)) {
         line.replace("#~", "ec ");
-        if (!line.isEmpty() && !regexp.exactMatch(line)) {
+        if (!line.isEmpty() && !regexp.match(line).hasMatch()) {
             *ok = true;
             return false;
         }

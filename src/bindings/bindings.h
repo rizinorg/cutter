@@ -9,5 +9,6 @@
 #include "../core/MainWindow.h"
 #include "../widgets/CutterDockWidget.h"
 #include "../plugins/CutterPlugin.h"
+#include "../menus/AddressableItemContextMenu.h"
 
 #endif //CUTTER_BINDINGS_H

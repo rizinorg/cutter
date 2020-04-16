@@ -1,4 +1,4 @@
-version: '1.9.0-git-{build}'
+version: '1.10.3-pre-git-{build}'
 image: 'Visual Studio 2017'
 clone_depth: 1
 
@@ -9,15 +9,17 @@ configuration:
 # Environment
 environment:
   NINJA_URL: https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-win.zip
-  QT32PATH: 'C:\Qt\5.12\msvc2017'
-  QT64PATH: 'C:\Qt\5.12\msvc2017_64'
   VSVARSALLPATH: 'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat'
+  QTPATH: 'cutter-deps\qt'
+  USE_APPVEYOR_QT: 'false'
   matrix:
     # Build: qmake vs2017 x86 shared
     #- ARCH: x86
     #  PYTHON: 'C:\Python36'
     #  QMAKE: 1
     #  DEPLOY: true
+    #  QTPATH: 'C:\Qt\5.12\msvc2017'
+    #  USE_APPVEYOR_QT: true
     # Build: qmake vs2017 x64 shared
     - ARCH: x64
       PYTHON: 'C:\Python36-x64'
@@ -37,11 +39,13 @@ install:
   - cmd: set "CUTTER_DEPS_DIR=%APPVEYOR_BUILD_FOLDER%\cutter-deps"
   - cmd: set "PATH=%CD%;%PYTHON%;%PATH%"
   - cmd: call "%VSVARSALLPATH%" %ARCH%
-  - cmd: if "%ARCH%" == "x64" ( set "PATH=%QT64PATH%\bin;%PATH%" ) else ( set "PATH=%QT32PATH%\bin;%PATH%" )
+  - cmd: if "%USE_APPVEYOR_QT%" == "false" ( set "QTPATH=%APPVEYOR_BUILD_FOLDER%\%QTPATH%" )
+  - cmd: set "PATH=%QTPATH%\bin;%PATH%"
+  - cmd: echo %PATH%
   - cmd: python -m pip install meson
   - cmd: powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; wget %NINJA_URL% -OutFile ninja.zip; Expand-Archive .\ninja.zip -DestinationPath ."
   # Artifacts
-  - cmd: set "ARTIFACT_NAME=Cutter-v1.9.0-%ARCH%.Windows"
+  - cmd: set "ARTIFACT_NAME=Cutter-v1.10.3-pre-%ARCH%.Windows"
   - cmd: if defined MESON ( set "ARTIFACT_PATH=dist_%ARCH%" ) else ( set "ARTIFACT_PATH=build_%ARCH%\cutter" )
 
 before_build:
@@ -56,11 +60,11 @@ build_script:
 after_build:
   - cmd: if defined QMAKE ( set "PATH=%CD%\r2_dist_%ARCH%\bin;%PATH%" && powershell scripts\bundle_r2dec.ps1 "%CD%\%ARTIFACT_PATH%" )
   - cmd: if defined QMAKE ( C:\msys64\usr\bin\bash -lc "export PATH=\"/c/msys64/usr/bin:$PATH\" && cd \"$APPVEYOR_BUILD_FOLDER\" && scripts/appveyor_r2ghidra.sh" )
-  - cmd: powershell scripts\bundle_openssl.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
+  #- cmd: powershell scripts\bundle_openssl.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
   - cmd: powershell scripts\bundle_python.ps1 %ARCH% "%CD%\%ARTIFACT_PATH%"
   - cmd: xcopy "%CUTTER_DEPS_DIR%\pyside\lib\site-packages" "%ARTIFACT_PATH%\python36\site-packages" /e /i /h
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.dll" "%ARTIFACT_PATH%\"
-  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.dll" "%ARTIFACT_PATH%\"
+  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\shiboken2.abi3.dll" "%ARTIFACT_PATH%\"
+  - cmd: copy "%CUTTER_DEPS_DIR%\pyside\bin\pyside2.abi3.dll" "%ARTIFACT_PATH%\"
 
 # Tests
 test: off

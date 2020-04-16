@@ -34,7 +34,6 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     // Setup application information
     setApplicationVersion(CUTTER_VERSION_FULL);
     setWindowIcon(QIcon(":/img/cutter.svg"));
-    setAttribute(Qt::AA_DontShowIconsInMenus);
     setAttribute(Qt::AA_UseHighDpiPixmaps);
     setLayoutDirection(Qt::LeftToRight);
 
@@ -81,12 +80,22 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
                                   QObject::tr("level"));
     cmd_parser.addOption(analOption);
 
+    QCommandLineOption formatOption({"F", "format"},
+                                    QObject::tr("Force using a specific file format (bin plugin)"),
+                                    QObject::tr("name"));
+    cmd_parser.addOption(formatOption);
+
+    QCommandLineOption baddrOption({"B", "base"},
+                                    QObject::tr("Load binary at a specific base address"),
+                                    QObject::tr("base address"));
+    cmd_parser.addOption(baddrOption);
+
     QCommandLineOption scriptOption("i",
                                     QObject::tr("Run script file"),
                                     QObject::tr("file"));
     cmd_parser.addOption(scriptOption);
 
-    QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for embeded python interpreter"),
+    QCommandLineOption pythonHomeOption("pythonhome", QObject::tr("PYTHONHOME to use for embedded python interpreter"),
                                         "PYTHONHOME");
     cmd_parser.addOption(pythonHomeOption);
 
@@ -151,7 +160,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
     Plugins()->loadPlugins();
 
-    for (auto *plugin : Plugins()->getPlugins()) {
+    for (auto &plugin : Plugins()->getPlugins()) {
         plugin->registerDecompilers();
     }
 
@@ -179,6 +188,14 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     } else { // filename specified as positional argument
         InitialOptions options;
         options.filename = args[0];
+        options.forceBinPlugin = cmd_parser.value(formatOption);
+        if (cmd_parser.isSet(baddrOption)) {
+            bool ok;
+            RVA baddr = cmd_parser.value(baddrOption).toULongLong(&ok, 0);
+            if (ok) {
+                options.binLoadAddr = baddr;
+            }
+        }
         if (analLevelSpecified) {
             switch (analLevel) {
             case 0:
@@ -203,19 +220,32 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 #ifdef APPIMAGE
     {
-        auto sleighHome = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
-        sleighHome.cdUp(); // appdir
+        auto appdir = QDir(QCoreApplication::applicationDirPath()); // appdir/bin
+        appdir.cdUp(); // appdir
+
+        auto sleighHome = appdir;
         sleighHome.cd("share/radare2/plugins/r2ghidra_sleigh"); // appdir/share/radare2/plugins/r2ghidra_sleigh
         Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+
+        auto r2decHome = appdir;
+        r2decHome.cd("share/radare2/plugins/r2dec-js"); // appdir/share/radare2/plugins/r2dec-js
+        qputenv("R2DEC_HOME", r2decHome.absolutePath().toLocal8Bit());
     }
 #endif
 
 #ifdef Q_OS_MACOS
     {
-        auto sleighHome = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
-        sleighHome.cdUp(); // Contents
-        sleighHome.cd("Resources/r2/share/radare2/plugins/r2ghidra_sleigh"); // Contents/Resources/r2/share/radare2/plugins/r2ghidra_sleigh
+        auto r2prefix = QDir(QCoreApplication::applicationDirPath()); // Contents/MacOS
+        r2prefix.cdUp(); // Contents
+        r2prefix.cd("Resources/r2"); // Contents/Resources/r2
+
+        auto sleighHome = r2prefix;
+        sleighHome.cd("share/radare2/plugins/r2ghidra_sleigh"); // Contents/Resources/r2/share/radare2/plugins/r2ghidra_sleigh
         Core()->setConfig("r2ghidra.sleighhome", sleighHome.absolutePath());
+
+        auto r2decHome = r2prefix;
+        r2decHome.cd("share/radare2/plugins/r2dec-js"); // Contents/Resources/r2/share/radare2/plugins/r2dec-js
+        qputenv("R2DEC_HOME", r2decHome.absolutePath().toLocal8Bit());
     }
 #endif
 
@@ -230,9 +260,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
 
 CutterApplication::~CutterApplication()
 {
-#ifdef CUTTER_ENABLE_PYTHON
     Plugins()->destroyPlugins();
-#endif
     delete mainWindow;
 #ifdef CUTTER_ENABLE_PYTHON
     Python()->shutdown();

@@ -219,6 +219,7 @@ AnalClassesModel::AnalClassesModel(CutterDockWidget *parent)
     });
 
     connect(Core(), &CutterCore::refreshAll, this, &AnalClassesModel::refreshAll);
+    connect(Core(), &CutterCore::codeRebased, this, &AnalClassesModel::refreshAll);
     connect(Core(), &CutterCore::classNew, this, &AnalClassesModel::classNew);
     connect(Core(), &CutterCore::classDeleted, this, &AnalClassesModel::classDeleted);
     connect(Core(), &CutterCore::classRenamed, this, &AnalClassesModel::classRenamed);

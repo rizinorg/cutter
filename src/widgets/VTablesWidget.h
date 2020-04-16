@@ -70,6 +70,7 @@ private:
     QSortFilterProxyModel *proxy;
     QList<VTableDescription> vtables;
     CutterTreeWidget *tree;
+    RefreshDeferrer *refreshDeferrer;
 };
 
 #endif // VTABLESWIDGET_H

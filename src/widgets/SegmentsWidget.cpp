@@ -145,7 +145,8 @@ SegmentsWidget::SegmentsWidget(MainWindow *main, QAction *action) :
     ui->quickFilterView->closeFilter();
     showCount(false);
 
-    connect(Core(), SIGNAL(refreshAll()), this, SLOT(refreshSegments()));
+    connect(Core(), &CutterCore::refreshAll, this, &SegmentsWidget::refreshSegments);
+    connect(Core(), &CutterCore::codeRebased, this, &SegmentsWidget::refreshSegments);
 }
 
 SegmentsWidget::~SegmentsWidget() {}

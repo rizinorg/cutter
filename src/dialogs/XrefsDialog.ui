@@ -60,6 +60,9 @@
          <property name="indentation">
           <number>5</number>
          </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
         </widget>
        </item>
        <item>
@@ -79,6 +82,9 @@
          </property>
          <property name="indentation">
           <number>5</number>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
          </property>
         </widget>
        </item>

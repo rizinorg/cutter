@@ -27,51 +27,51 @@ HexHighlighter::HexHighlighter(QTextDocument *parent)
                     << "\\b75\\b" << "\\b76\\b" << "\\b77\\b" << "\\b78\\b" << "\\b79\\b" << "\\b7a\\b" << "\\b7b\\b"
                     << "\\b7c\\b" << "\\b7d\\b" << "\\b7e\\b" << "\\b7f\\b";
     for (const QString &pattern : keywordPatterns) {
-        rule.pattern = QRegExp(pattern);
-        rule.pattern.setCaseSensitivity(Qt::CaseInsensitive);
+        rule.pattern.setPattern(pattern);
+        rule.pattern.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
         rule.format = keywordFormat;
         highlightingRules.append(rule);
     }
 
     singleLineCommentFormat.setFontWeight(QFont::Bold);
     singleLineCommentFormat.setForeground(Qt::darkGreen);
-    rule.pattern = QRegExp(";[^\n]*");
+    rule.pattern.setPattern(";[^\n]*");
     rule.format = singleLineCommentFormat;
     highlightingRules.append(rule);
 
-    commentStartExpression = QRegExp("/\\*");
-    commentEndExpression = QRegExp("\\*/");
+    commentStartRegularExpression.setPattern("/\\*");
+    commentEndRegularExpression.setPattern("\\*/");
 }
 
 void HexHighlighter::highlightBlock(const QString &text)
 {
     for (const HighlightingRule &rule : highlightingRules) {
-        QRegExp expression(rule.pattern);
-        int index = expression.indexIn(text);
+        QRegularExpression expression(rule.pattern);
+        int index = expression.match(text).capturedStart();
         while (index >= 0) {
-            int length = expression.matchedLength();
+            int length = expression.match(text).capturedLength();
             setFormat(index, length, rule.format);
-            index = expression.indexIn(text, index + length);
+            index = expression.match(text.mid(index + length)).capturedStart();
         }
     }
     setCurrentBlockState(0);
 
     int startIndex = 0;
     if (previousBlockState() != 1)
-        startIndex = commentStartExpression.indexIn(text);
+        startIndex = QRegularExpression(commentStartRegularExpression).match(text).capturedStart();
 
     while (startIndex >= 0) {
-        int endIndex = commentEndExpression.indexIn(text, startIndex);
+        QRegularExpressionMatch commentEndMatch = QRegularExpression(commentEndRegularExpression).match(text.mid(startIndex));
+        int endIndex = commentEndMatch.capturedStart();
         int commentLength;
         if (endIndex == -1) {
             setCurrentBlockState(1);
             commentLength = text.length() - startIndex;
         } else {
             commentLength = endIndex - startIndex
-                            + commentEndExpression.matchedLength();
+                            + commentEndMatch.capturedLength();
         }
         setFormat(startIndex, commentLength, multiLineCommentFormat);
-        startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);
+        startIndex = QRegularExpression(commentStartRegularExpression).match(text.mid(startIndex + commentLength)).capturedStart();
     }
 }
-

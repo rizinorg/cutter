@@ -44,6 +44,12 @@ public:
      */
     bool isSynchronized();
 
+    /**
+     * @brief seekToReference will seek to the function or the object which is referenced in a given offset
+     * @param offset - an address that contains a reference to jump to
+     */
+    void seekToReference(RVA offset);
+
 public slots:
     /**
      * @brief seekPrev seeks to last location.

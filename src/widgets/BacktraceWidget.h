@@ -30,6 +30,6 @@ private slots:
 private:
     std::unique_ptr<Ui::BacktraceWidget> ui;
     QStandardItemModel *modelBacktrace = new QStandardItemModel(1, 5, this);
-    QTableView *viewBacktrace = new QTableView;
+    QTableView *viewBacktrace = new QTableView(this);
     RefreshDeferrer *refreshDeferrer;
 };

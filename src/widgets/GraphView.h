@@ -17,7 +17,12 @@
 #include "core/Cutter.h"
 #include "widgets/GraphLayout.h"
 
-#ifndef QT_NO_OPENGL
+#if defined(QT_NO_OPENGL) || QT_VERSION < QT_VERSION_CHECK(5, 6, 0)
+// QOpenGLExtraFunctions were introduced in 5.6
+#define CUTTER_NO_OPENGL_GRAPH
+#endif
+
+#ifndef CUTTER_NO_OPENGL_GRAPH
 class QOpenGLWidget;
 #endif
 
@@ -64,13 +69,20 @@ public:
      * @param anywhere - set to true for minimizing movement
      */
     void showRectangle(const QRect &rect, bool anywhere = false);
+    /**
+     * @brief Get block containing specified point logical coordinates.
+     * @param p positionin graph logical coordinates
+     * @return Block or nullptr if position is outside all blocks.
+     */
+    GraphView::GraphBlock *getBlockContaining(QPoint p);
+    QPoint viewToLogicalCoordinates(QPoint p);
 
     void setGraphLayout(Layout layout);
     Layout getGraphLayout() const { return graphLayout; }
 
     void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0, bool interactive = true);
 
-    void saveAsBitmap(QString path, const char *format = nullptr);
+    void saveAsBitmap(QString path, const char *format = nullptr, double scaler = 1.0, bool transparent = false);
     void saveAsSvg(QString path);
 protected:
     std::unordered_map<ut64, GraphBlock> blocks;
@@ -101,8 +113,11 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) override;
     virtual EdgeConfiguration edgeConfiguration(GraphView::GraphBlock &from, GraphView::GraphBlock *to,
                                                 bool interactive = true);
+    virtual void blockContextMenuRequested(GraphView::GraphBlock &block, QContextMenuEvent *event,
+                                           QPoint pos);
 
     bool event(QEvent *event) override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
 
     // Mouse events
     void mousePressEvent(QMouseEvent *event) override;
@@ -153,7 +168,7 @@ private:
      */
     QPixmap pixmap;
 
-#ifndef QT_NO_OPENGL
+#ifndef CUTTER_NO_OPENGL_GRAPH
     uint32_t cacheTexture;
     uint32_t cacheFBO;
     QSize cacheSize;

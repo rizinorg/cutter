@@ -46,10 +46,6 @@ protected slots:
 
     void cursorPositionChanged();
 
-    void zoomIn();
-    void zoomOut();
-    void zoomReset();
-
 protected:
     DisassemblyContextMenu *mCtxMenu;
     DisassemblyScrollArea *mDisasScrollArea;
@@ -76,6 +72,7 @@ private:
     RVA readCurrentDisassemblyOffset();
     RVA readDisassemblyOffset(QTextCursor tc);
     bool eventFilter(QObject *obj, QEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
     QString getWindowTitle() const override;
 
     QList<RVA> breakpoints;
@@ -89,7 +86,7 @@ private:
 
     void moveCursorRelative(bool up, bool page);
 
-    QAction syncIt;
+    void jumpToOffsetUnderCursor(const QTextCursor&);
 };
 
 class DisassemblyScrollArea : public QAbstractScrollArea

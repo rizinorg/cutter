@@ -13,33 +13,40 @@
 AddressableItemContextMenu::AddressableItemContextMenu(QWidget *parent, MainWindow *mainWindow)
     : QMenu(parent)
     , mainWindow(mainWindow)
-    , actionShowInMenu(tr("Show in"), this)
-    , actionCopyAddress(tr("Copy address"), this)
-    , actionShowXrefs(tr("Show X-Refs"), this)
-    , actionAddcomment(tr("Add comment"), this)
 {
-    connect(&actionCopyAddress, &QAction::triggered, this,
+    actionShowInMenu = new QAction(tr("Show in"), this);
+    actionCopyAddress = new QAction(tr("Copy address"), this);
+    actionShowXrefs = new QAction(tr("Show X-Refs"), this);
+    actionAddcomment = new QAction(tr("Add comment"), this);
+
+    connect(actionCopyAddress, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionCopyAddress);
-    actionCopyAddress.setShortcuts({Qt::CTRL + Qt::SHIFT + Qt::Key_C});
-    actionCopyAddress.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionCopyAddress->setShortcuts({Qt::CTRL + Qt::SHIFT + Qt::Key_C});
+    actionCopyAddress->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
-    connect(&actionShowXrefs, &QAction::triggered, this,
+    connect(actionShowXrefs, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionShowXrefs);
-    actionShowXrefs.setShortcut({Qt::Key_X});
-    actionShowXrefs.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionShowXrefs->setShortcut({Qt::Key_X});
+    actionShowXrefs->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
-    connect(&actionAddcomment, &QAction::triggered, this,
+    connect(actionAddcomment, &QAction::triggered, this,
             &AddressableItemContextMenu::onActionAddComment);
-    actionAddcomment.setShortcut({Qt::Key_Semicolon});
-    actionAddcomment.setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
+    actionAddcomment->setShortcut({Qt::Key_Semicolon});
+    actionAddcomment->setShortcutContext(Qt::ShortcutContext::WidgetWithChildrenShortcut);
 
-    addAction(&actionShowInMenu);
-    addAction(&actionCopyAddress);
-    addAction(&actionShowXrefs);
+    addAction(actionShowInMenu);
+    addAction(actionCopyAddress);
+    addAction(actionShowXrefs);
     addSeparator();
-    addAction(&actionAddcomment);
+    addAction(actionAddcomment);
+
+    addSeparator();
+    pluginMenu = mainWindow->getContextMenuExtensions(MainWindow::ContextMenuType::Addressable);
+    pluginMenuAction = addMenu(pluginMenu);
+    addSeparator();
 
     setHasTarget(hasTarget);
+
     connect(this, &QMenu::aboutToShow, this, &AddressableItemContextMenu::aboutToShowSlot);
 }
 
@@ -94,10 +101,15 @@ void AddressableItemContextMenu::onActionAddComment()
 
 void AddressableItemContextMenu::aboutToShowSlot()
 {
-    if (actionShowInMenu.menu()) {
-        actionShowInMenu.menu()->deleteLater();
+    if (actionShowInMenu->menu()) {
+        actionShowInMenu->menu()->deleteLater();
     }
-    actionShowInMenu.setMenu(mainWindow->createShowInMenu(this, offset));
+    actionShowInMenu->setMenu(mainWindow->createShowInMenu(this, offset));
+
+    pluginMenuAction->setVisible(!pluginMenu->isEmpty());
+    for (QAction *pluginAction : pluginMenu->actions()) {
+        pluginAction->setData(QVariant::fromValue(offset));
+    }
 }
 
 void AddressableItemContextMenu::setHasTarget(bool hasTarget)

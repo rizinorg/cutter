@@ -18,9 +18,10 @@ namespace KSyntaxHighlighting {
 class QSyntaxHighlighter;
 class QTextDocument;
 
+
 enum ColorFlags {
     LightFlag = 1,
-    DarkFlag = 2
+    DarkFlag = 2,
 };
 
 struct CutterInterfaceTheme {
@@ -47,6 +48,7 @@ private:
     void loadNativeStylesheet();
     void loadLightStylesheet();
     void loadDarkStylesheet();
+    void loadMidnightStylesheet();
 
     // Asm Options
     void applySavedAsmOptions();
@@ -75,8 +77,22 @@ public:
     QStringList getAvailableTranslations();
 
     // Fonts
+
+    /**
+     * @brief Gets the configured font set by the font selection box
+     * @return the configured font
+     */
+     const QFont getBaseFont() const;
+
+    /**
+     * @brief Gets the configured font with the point size adjusted by the configured zoom
+     * level (minimum of 10%)
+     * @return the configured font size adjusted by zoom level
+     */
     const QFont getFont() const;
     void setFont(const QFont &font);
+    qreal getZoomFactor() const;
+    void setZoomFactor(qreal zoom);
 
     // Colors
     bool windowColorIsDark();
@@ -157,6 +173,16 @@ public:
     bool getDecompilerAutoRefreshEnabled();
     void setDecompilerAutoRefreshEnabled(bool enabled);
 
+    /**
+     * @brief Getters and setters for the transaparent option state and scale factor for bitmap graph exports.
+     */
+    bool getBitmapTransparentState();
+    double getBitmapExportScaleFactor();
+    void setBitmapTransparentState(bool inputValueGraph);
+    void setBitmapExportScaleFactor(double inputValueGraph);
+
+public slots:
+    void refreshFont();
 signals:
     void fontsUpdated();
     void colorsUpdated();

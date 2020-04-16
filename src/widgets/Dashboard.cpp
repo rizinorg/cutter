@@ -56,10 +56,12 @@ void Dashboard::updateContents()
     setPlainText(this->ui->compilerEdit, item2["compiler"].toString());
     setPlainText(this->ui->bitsEdit, QString::number(item2["bits"].toDouble()));
 
-    if (!item2["relro"].isUndefined()) {
+    if (!item2["relro"].toString().isEmpty()) {
         QString relro = item2["relro"].toString().section(QLatin1Char(' '), 0, 0);
         relro[0] = relro[0].toUpper();
         setPlainText(this->ui->relroEdit, relro);
+    } else {
+        setPlainText(this->ui->relroEdit, "N/A");
     }
 
     setPlainText(this->ui->baddrEdit, RAddressString(item2["baddr"].toVariant().toULongLong()));
@@ -75,9 +77,42 @@ void Dashboard::updateContents()
     setBool(this->ui->relocsEdit, item2, "relocs");
 
     // Add file hashes, analysis info and libraries
+
     QJsonObject hashes = Core()->cmdj("itj").object();
-    setPlainText(ui->md5Edit, hashes["md5"].toString());
-    setPlainText(ui->sha1Edit, hashes["sha1"].toString());
+
+    // Add hashes as a pair of Hash Name : Hash Value.
+    for (const QString& key : hashes.keys()) {
+        // Create a bold QString with the hash name uppercased
+        QString label = QString("<b>%1:</b>").arg(key.toUpper());
+
+        // Define a Read-Only line edit to display the hash value
+        QLineEdit *hashLineEdit = new QLineEdit();
+        hashLineEdit->setReadOnly(true);
+        hashLineEdit->setText(hashes.value(key).toString());
+        // Set cursor position to begining to avoid long hashes (e.g sha256)
+        // to look truncated at the begining
+        hashLineEdit->setCursorPosition(0);
+
+        // Add both controls to a form layout in a single row
+        ui->formLayout_2->addRow(new QLabel(label), hashLineEdit);
+    }
+
+    // Add the Entropy value of the file to the dashboard
+    {
+        // Scope for TempConfig
+        TempConfig tempConfig;
+        tempConfig.set("io.va", false);
+
+        // Calculate the Entropy of the entire binary from offset 0 to $s
+        // where $s is the size of the entire file
+        QString entropy = Core()->cmdRawAt("ph entropy $s", 0).trimmed();
+
+        // Define a Read-Only line edit to display the entropy value
+        QLineEdit *entropyLineEdit = new QLineEdit();
+        entropyLineEdit->setReadOnly(true);
+        entropyLineEdit->setText(entropy);
+        ui->formLayout_2->addRow(new QLabel(tr("<b>Entropy:</b>")), entropyLineEdit);
+    }
 
     QJsonObject analinfo = Core()->cmdj("aaij").object();
     setPlainText(ui->functionsLineEdit, QString::number(analinfo["fcns"].toInt()));
@@ -113,6 +148,7 @@ void Dashboard::updateContents()
         QLabel *label = new QLabel(this);
         label->setText(lib);
         label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        label->setTextInteractionFlags(Qt::TextSelectableByMouse);
         ui->verticalLayout_2->addWidget(label);
     }
 
@@ -121,15 +157,6 @@ void Dashboard::updateContents()
 
     QSpacerItem *spacer = new QSpacerItem(1, 1, QSizePolicy::Fixed, QSizePolicy::Expanding);
     ui->verticalLayout_2->addSpacerItem(spacer);
-
-    // Add entropy value
-    {
-        // Scope for TempConfig
-        TempConfig tempConfig;
-        tempConfig.set("io.va", false);
-        QString entropy = Core()->cmd("ph entropy $s @ 0").trimmed();
-        ui->lblEntropy->setText(entropy);
-    }
 
 
     // Get stats for the graphs

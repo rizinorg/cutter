@@ -1,6 +1,7 @@
 #include "BacktraceWidget.h"
 #include "ui_BacktraceWidget.h"
 #include "common/JsonModel.h"
+#include "QHeaderView"
 
 #include "core/MainWindow.h"
 
@@ -13,13 +14,14 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     // setup backtrace model
     QString PC = Core()->getRegisterName("PC");
     QString SP = Core()->getRegisterName("SP");
-    modelBacktrace->setHorizontalHeaderItem(0, new QStandardItem(tr("Func Name")));
+    modelBacktrace->setHorizontalHeaderItem(0, new QStandardItem(tr("Function")));
     modelBacktrace->setHorizontalHeaderItem(1, new QStandardItem(SP));
     modelBacktrace->setHorizontalHeaderItem(2, new QStandardItem(PC));
     modelBacktrace->setHorizontalHeaderItem(3, new QStandardItem(tr("Description")));
     modelBacktrace->setHorizontalHeaderItem(4, new QStandardItem(tr("Frame Size")));
     viewBacktrace->setFont(Config()->getFont());
     viewBacktrace->setModel(modelBacktrace);
+    viewBacktrace->verticalHeader()->setVisible(false);
     viewBacktrace->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     ui->verticalLayout->addWidget(viewBacktrace);
 
@@ -28,7 +30,7 @@ BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
     });
 
     connect(Core(), &CutterCore::refreshAll, this, &BacktraceWidget::updateContents);
-    connect(Core(), &CutterCore::seekChanged, this, &BacktraceWidget::updateContents);
+    connect(Core(), &CutterCore::registersChanged, this, &BacktraceWidget::updateContents);
     connect(Config(), &Configuration::fontsUpdated, this, &BacktraceWidget::fontsUpdatedSlot);
 }
 
@@ -36,9 +38,10 @@ BacktraceWidget::~BacktraceWidget() {}
 
 void BacktraceWidget::updateContents()
 {
-    if (!refreshDeferrer->attemptRefresh(nullptr)) {
+    if (!refreshDeferrer->attemptRefresh(nullptr) || Core()->isDebugTaskInProgress()) {
         return;
     }
+
     setBacktraceGrid();
 }
 
@@ -67,8 +70,14 @@ void BacktraceWidget::setBacktraceGrid()
         modelBacktrace->setItem(i, 4, rowFrameSize);
         i++;
     }
+
+    // Remove irrelevant old rows
+    if (modelBacktrace->rowCount() > i) {
+        modelBacktrace->removeRows(i, modelBacktrace->rowCount() - i);
+    }
+
     viewBacktrace->setModel(modelBacktrace);
-    viewBacktrace->resizeColumnsToContents();;
+    viewBacktrace->resizeColumnsToContents();
 }
 
 void BacktraceWidget::fontsUpdatedSlot()

@@ -1,20 +1,20 @@
-#include "OpenFileDialog.h"
-#include "ui_OpenFileDialog.h"
+#include "MapFileDialog.h"
+#include "ui_MapFileDialog.h"
 
 #include "common/Configuration.h"
 
 #include <QFileDialog>
 
-OpenFileDialog::OpenFileDialog(QWidget *parent):
+MapFileDialog::MapFileDialog(QWidget *parent):
     QDialog(parent),
-    ui(new Ui::OpenFileDialog)
+    ui(new Ui::MapFileDialog)
 {
     ui->setupUi(this);
 }
 
-OpenFileDialog::~OpenFileDialog() {}
+MapFileDialog::~MapFileDialog() {}
 
-void OpenFileDialog::on_selectFileButton_clicked()
+void MapFileDialog::on_selectFileButton_clicked()
 {
     QString currentDir = Config()->getRecentFolder();
     QString fileName = QFileDialog::getOpenFileName(this, tr("Select file"), currentDir);
@@ -25,7 +25,7 @@ void OpenFileDialog::on_selectFileButton_clicked()
     }
 }
 
-void OpenFileDialog::on_buttonBox_accepted()
+void MapFileDialog::on_buttonBox_accepted()
 {
     const QString &filePath = QDir::toNativeSeparators(ui->filenameLineEdit->text());
     RVA mapAddress = RVA_INVALID;
@@ -34,14 +34,14 @@ void OpenFileDialog::on_buttonBox_accepted()
         mapAddress = Core()->math(mapAddressStr);
     }
 
-    if (!Core()->openFile(filePath, mapAddress)) {
-        QMessageBox::critical(this, tr("Open file"), tr("Failed to open file"));
+    if (!Core()->mapFile(filePath, mapAddress)) {
+        QMessageBox::critical(this, tr("Map new file file"), tr("Failed to map a new file"));
         return;
     }
     close();
 }
 
-void OpenFileDialog::on_buttonBox_rejected()
+void MapFileDialog::on_buttonBox_rejected()
 {
     close();
 }
