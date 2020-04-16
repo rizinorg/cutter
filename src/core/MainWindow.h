@@ -159,6 +159,10 @@ public slots:
     void openNewFileFailed();
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
+
+    void jumpToNextOpenTab();
+    void jumpToPrevOpenTab();
+
 private slots:
     void on_actionAbout_triggered();
     void on_actionIssue_triggered();
@@ -320,6 +324,8 @@ private:
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
      */
     QMap<QString, std::function<CutterDockWidget*(MainWindow *, QAction *)>> widgetTypeToConstructorMap;
+
+    QList<QDockWidget *> getOpenTabs();
 
     MemoryDockWidget *lastSyncMemoryWidget = nullptr;
     MemoryDockWidget *lastMemoryWidget = nullptr;

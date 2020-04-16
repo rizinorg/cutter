@@ -109,6 +109,9 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 
+#include <algorithm>
+#include <iostream>
+
 template<class T>
 T *getNewInstance(MainWindow *m, QAction *a) { return new T(m, a); }
 
@@ -364,6 +367,18 @@ void MainWindow::initDocks()
             }
         }
     }
+    QAction *nextTabAction = new QAction("&Next Tab", this);
+    nextTabAction->setShortcuts(QKeySequence::NextChild);
+    addAction(nextTabAction);
+    connect(nextTabAction, &QAction::triggered, this,
+            &MainWindow::jumpToNextOpenTab);
+
+    // TODO: Shortcut not being detected
+    QAction *prevTabAction = new QAction("&Previous Tab", this);
+    prevTabAction->setShortcuts(QKeySequence::PreviousChild);
+    addAction(prevTabAction);
+    connect(prevTabAction, &QAction::triggered, this,
+            &MainWindow::jumpToPrevOpenTab);
 }
 
 void MainWindow::initLayout()
@@ -383,6 +398,38 @@ void MainWindow::toggleOverview(bool visibility, GraphWidget *targetGraph)
     }
     if (visibility) {
         overviewDock->setTargetGraphWidget(targetGraph);
+    }
+}
+
+QList<QDockWidget *> MainWindow::getOpenTabs()
+{
+    QList<QDockWidget *> tabbedWidgets = {dashboardDock};
+    tabbedWidgets.append(tabifiedDockWidgets(dashboardDock));
+    std::copy_if(tabbedWidgets.begin(), tabbedWidgets.end(), tabbedWidgets.begin(), [](const QDockWidget* e){ return !e->isHidden(); });
+    return tabbedWidgets;
+}
+
+void MainWindow::jumpToNextOpenTab()
+{
+    auto openTabs = getOpenTabs();
+    for (auto it : openTabs) {
+        if (!it->visibleRegion().isEmpty() && it != openTabs.back()) {
+            it->hide();
+            // TODO: 'Show' next tab
+            break;
+        }
+    }
+}
+
+void MainWindow::jumpToPrevOpenTab()
+{
+    auto openTabs = getOpenTabs();
+    for (auto it : openTabs) {
+        if (!it->visibleRegion().isEmpty() && it != openTabs.front()) {
+            it->hide();
+            // TODO: 'Show' previous tab
+            break;
+        }
     }
 }
 
