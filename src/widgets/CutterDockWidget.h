@@ -83,9 +83,6 @@ private:
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
-    void processKeyShortcut();
 };
 
 #endif // CUTTERWIDGET_H
