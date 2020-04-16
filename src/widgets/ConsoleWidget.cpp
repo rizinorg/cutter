@@ -133,8 +133,6 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
 
 ConsoleWidget::~ConsoleWidget()
 {
-    delete completer;
-
 #ifndef Q_OS_WIN
     ::close(stdinFile);
     remove(stdinFifoPath.toStdString().c_str());

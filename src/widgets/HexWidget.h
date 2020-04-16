@@ -75,7 +75,7 @@ class AbstractData
 public:
     virtual ~AbstractData() {}
     virtual void fetch(uint64_t addr, int len) = 0;
-    virtual const void *dataPtr(uint64_t addr) = 0;
+    virtual bool copy(void *out, uint64_t adr, size_t len) = 0;
     virtual uint64_t maxIndex() = 0;
     virtual uint64_t minIndex() = 0;
 };
@@ -101,9 +101,12 @@ public:
 
     void fetch(uint64_t, int) override { }
 
-    const void *dataPtr(uint64_t addr) override
-    {
-        return m_buffer.constData() + addr;
+    bool copy(void *out, uint64_t addr, size_t len) override {
+        if (addr < static_cast<uint64_t>(m_buffer.size()) && (static_cast<uint64_t>(m_buffer.size()) - addr) < len) {
+            memcpy(out, m_buffer.constData() + addr, len);
+            return true;
+        }
+        return false;
     }
 
     uint64_t maxIndex() override
@@ -120,6 +123,7 @@ class MemoryData : public AbstractData
 public:
     MemoryData() {}
     ~MemoryData() override {}
+    static constexpr size_t BLOCK_SIZE = 4096;
 
     void fetch(uint64_t address, int length) override
     {
@@ -141,12 +145,23 @@ public:
         }
     }
 
-    const void *dataPtr(uint64_t addr) override
-    {
+    bool copy(void *out, uint64_t addr, size_t len) override {
+        if (addr < m_firstBlockAddr || addr > m_lastValidAddr ||
+                (m_lastValidAddr - addr + 1) < len /* do not merge with last check to handle overflows */) {
+            return false;
+        }
+
         int totalOffset = addr - m_firstBlockAddr;
-        int blockId = totalOffset / 4096;
-        int blockOffset = totalOffset % 4096;
-        return static_cast<const void *>(m_blocks.at(blockId).constData() + blockOffset);
+        int blockId = totalOffset / BLOCK_SIZE;
+        int blockOffset = totalOffset % BLOCK_SIZE;
+        size_t first_part = BLOCK_SIZE - blockOffset;
+        if (first_part >= len) {
+            memcpy(out, m_blocks.at(blockId).constData() + blockOffset, len);
+        } else {
+            memcpy(out, m_blocks.at(blockId).constData() + blockOffset, first_part);
+            memcpy(static_cast<char*>(out) + first_part, m_blocks.at(blockId + 1).constData(), len - first_part);
+        }
+        return true;
     }
 
     virtual uint64_t maxIndex() override
@@ -353,13 +368,13 @@ private:
      * @param offset relative to first byte on screen
      * @return
      */
-    QRectF itemRectangle(uint offset);
+    QRectF itemRectangle(int offset);
     /**
      * @brief Rectangle for single item in ascii area.
      * @param offset relative to first byte on screen
      * @return
      */
-    QRectF asciiRectangle(uint offset);
+    QRectF asciiRectangle(int offset);
     QVector<QPolygonF> rangePolygons(RVA start, RVA last, bool ascii);
     void updateWidth();
 
@@ -450,12 +465,12 @@ private:
     QRectF itemArea;
     QRectF asciiArea;
 
-    int itemByteLen;
-    int itemGroupSize; ///< Items per group (default: 1), 2 in case of hexpair mode
-    int rowSizeBytes; ///< Line size in bytes
-    int itemColumns; ///< Number of columns, single column consists of itemGroupSize items
-    int itemCharLen;
-    int itemPrefixLen;
+    int itemByteLen = 1;
+    int itemGroupSize = 1; ///< Items per group (default: 1), 2 in case of hexpair mode
+    int rowSizeBytes = 16; ///< Line size in bytes
+    int itemColumns = 16; ///< Number of columns, single column consists of itemGroupSize items
+    int itemCharLen = 2;
+    int itemPrefixLen = 0;
     ColumnMode columnMode;
 
     ItemFormat itemFormat;
