@@ -8,6 +8,17 @@
 
 #include "core/MainWindow.h"
 
+enum class AutomaticAnalysisLevel {
+    Ask, None, AAA, AAAA
+};
+
+struct CutterCommandLineOptions {
+    QStringList args;
+    AutomaticAnalysisLevel analLevel = AutomaticAnalysisLevel::Ask;
+    InitialOptions fileOpenOptions;
+    QString pythonHome;
+    bool outputRedirectionEnabled = true;
+};
 
 class CutterApplication : public QApplication
 {
@@ -31,10 +42,15 @@ private:
      * @return true on success
      */
     bool loadTranslations();
-
+    /**
+     * @brief Parse commandline options and store them in a structure.
+     * @return false if options have error
+     */
+    bool parseCommandLineOptions();
 private:
     bool m_FileAlreadyDropped;
     MainWindow *mainWindow;
+    CutterCommandLineOptions clOptions;
 };
 
 
