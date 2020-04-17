@@ -174,7 +174,7 @@ CutterCore *CutterCore::instance()
     return uniqueInstance;
 }
 
-void CutterCore::initialize()
+void CutterCore::initialize(bool loadPlugins)
 {
     r_cons_new();  // initialize console
     core_ = r_core_new();
@@ -208,7 +208,12 @@ void CutterCore::initialize()
     }
 #endif
 
-    r_core_loadlibs(this->core_, R_CORE_LOADLIBS_ALL, NULL);
+    if (!loadPlugins) {
+        setConfig("cfg.plugins", 0);
+    }
+    if (getConfigi("cfg.plugins")) {
+        r_core_loadlibs(this->core_, R_CORE_LOADLIBS_ALL, nullptr);
+    }
     // IMPLICIT r_bin_iobind (core_->bin, core_->io);
 
     // Otherwise r2 may ask the user for input and Cutter would freeze

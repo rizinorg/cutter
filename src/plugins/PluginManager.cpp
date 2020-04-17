@@ -31,9 +31,14 @@ PluginManager::~PluginManager()
 {
 }
 
-void PluginManager::loadPlugins()
+void PluginManager::loadPlugins(bool enablePlugins)
 {
     assert(plugins.empty());
+
+    if (!enablePlugins) {
+        // [#2159] list but don't enable the plugins
+        return;
+    }
 
     QString userPluginDir = getUserPluginsDirectory();
     if (!userPluginDir.isEmpty()) {

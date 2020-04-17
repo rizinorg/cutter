@@ -18,6 +18,8 @@ struct CutterCommandLineOptions {
     InitialOptions fileOpenOptions;
     QString pythonHome;
     bool outputRedirectionEnabled = true;
+    bool enableCutterPlugins = true;
+    bool enableR2Plugins = true;
 };
 
 class CutterApplication : public QApplication
@@ -33,6 +35,7 @@ public:
         return mainWindow;
     }
 
+    void launchNewInstance(const QStringList &args = {});
 protected:
     bool event(QEvent *e);
 

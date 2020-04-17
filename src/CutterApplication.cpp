@@ -102,7 +102,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     qputenv("R_ALT_SRC_DIR", "1");
 #endif
 
-    Core()->initialize();
+    Core()->initialize(clOptions.enableR2Plugins);
     Core()->setSettings();
     Config()->loadInitial();
     Core()->loadCutterRC();
@@ -117,7 +117,7 @@ CutterApplication::CutterApplication(int &argc, char **argv) : QApplication(argc
     Core()->registerDecompiler(new R2GhidraDecompiler(Core()));
 #endif
 
-    Plugins()->loadPlugins();
+    Plugins()->loadPlugins(clOptions.enableCutterPlugins);
 
     for (auto &plugin : Plugins()->getPlugins()) {
         plugin->registerDecompilers();
@@ -196,6 +196,21 @@ CutterApplication::~CutterApplication()
 #endif
 }
 
+void CutterApplication::launchNewInstance(const QStringList &args)
+{
+    QProcess process(this);
+    process.setEnvironment(QProcess::systemEnvironment());
+    QStringList allArgs;
+    if (!clOptions.enableCutterPlugins) {
+        allArgs.push_back("--no-cutter-plugins");
+    }
+    if (!clOptions.enableR2Plugins) {
+        allArgs.push_back("--no-cutter-plugins");
+    }
+    allArgs.append(args);
+    process.startDetached(qApp->applicationFilePath(), allArgs);
+}
+
 bool CutterApplication::event(QEvent *e)
 {
     if (e->type() == QEvent::FileOpen) {
@@ -205,10 +220,7 @@ bool CutterApplication::event(QEvent *e)
                 // We already dropped a file in macOS, let's spawn another instance
                 // (Like the File -> Open)
                 QString fileName = openEvent->file();
-                QProcess process(this);
-                process.setEnvironment(QProcess::systemEnvironment());
-                QStringList args = QStringList(fileName);
-                process.startDetached(qApp->applicationFilePath(), args);
+                launchNewInstance({fileName});
             } else {
                 QString fileName = openEvent->file();
                 m_FileAlreadyDropped = true;
@@ -282,6 +294,8 @@ bool CutterApplication::loadTranslations()
 
 bool CutterApplication::parseCommandLineOptions()
 {
+    // Keep this function in sync with documentation
+
     QCommandLineParser cmd_parser;
     cmd_parser.setApplicationDescription(
         QObject::tr("A Qt and C++ GUI for radare2 reverse engineering framework"));
@@ -322,6 +336,18 @@ bool CutterApplication::parseCommandLineOptions()
                                                          " Use this option when debuging a crash or freeze and output "
                                                          " redirection is causing some messages to be lost."));
     cmd_parser.addOption(disableRedirectOption);
+
+    QCommandLineOption disablePlugins("no-plugins",
+                                      QObject::tr("Do not load plugins"));
+    cmd_parser.addOption(disablePlugins);
+
+    QCommandLineOption disableCutterPlugins("no-cutter-plugins",
+                                            QObject::tr("Do not load Cutter plugins"));
+    cmd_parser.addOption(disableCutterPlugins);
+
+    QCommandLineOption disableR2Plugins("no-r2-plugins",
+                                        QObject::tr("Do not load radare2 plugins"));
+    cmd_parser.addOption(disableR2Plugins);
 
     cmd_parser.process(*this);
 
@@ -388,6 +414,18 @@ bool CutterApplication::parseCommandLineOptions()
     }
 
     opts.outputRedirectionEnabled = !cmd_parser.isSet(disableRedirectOption);
+    if (cmd_parser.isSet(disablePlugins)) {
+        opts.enableCutterPlugins = false;
+        opts.enableR2Plugins = false;
+    }
+
+    if (cmd_parser.isSet(disableCutterPlugins)) {
+        opts.enableCutterPlugins = false;
+    }
+
+    if (cmd_parser.isSet(disableR2Plugins)) {
+        opts.enableR2Plugins = false;
+    }
 
     this->clOptions = opts;
     return true;

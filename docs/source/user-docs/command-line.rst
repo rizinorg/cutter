@@ -61,3 +61,15 @@ Options
    Disable output redirection. Some of the output in console widget will not
    be visible. Use this option when debuging a crash or freeze and output
    redirection is causing some messages to be lost.
+
+.. option:: --no-plugins
+
+   Start cutter with all plugins disabled. Implies :option:`--no-cutter-plugins` and :option:`--no-r2-plugins`.
+
+.. option:: --no-cutter-plugins
+
+   Start cutter with cutter plugins disabled.
+
+.. option:: --no-r2-plugins
+
+   Start cutter with r2 plugins disabled.
