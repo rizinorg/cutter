@@ -128,7 +128,9 @@ ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
 
     completer->popup()->installEventFilter(this);
 
-    redirectOutput();
+    if (Config()->getOutputRedirectionEnabled()) {
+        redirectOutput();
+    }
 }
 
 ConsoleWidget::~ConsoleWidget()

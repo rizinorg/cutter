@@ -41,6 +41,7 @@ private:
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
     KSyntaxHighlighting::Repository *kSyntaxHighlightingRepository;
 #endif
+    bool outputRedirectEnabled = true;
 
     // Colors
     void loadBaseThemeNative();
@@ -180,6 +181,15 @@ public:
     double getBitmapExportScaleFactor();
     void setBitmapTransparentState(bool inputValueGraph);
     void setBitmapExportScaleFactor(double inputValueGraph);
+
+    /**
+     * @brief Enable or disable Cutter output redirection.
+     * Output redirection state can only be changed early during Cutter initalization.
+     * Changing it later will have no effect
+     * @param enabled set this to false for disabling output redirection
+     */
+    void setOutputRedirectionEnabled(bool enabled);
+    bool getOutputRedirectionEnabled() const;
 
 public slots:
     void refreshFont();
