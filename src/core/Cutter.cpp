@@ -1494,22 +1494,22 @@ QList<VariableDescription> CutterCore::getVariables(RVA at)
     return ret;
 }
 
-QJsonObject CutterCore::getRegisterJson()
+QVector<RegisterRefValueDescription> CutterCore::getRegisterRefValues()
 {
     QJsonArray registerRefArray = cmdj("drrj").array();
-    QJsonObject registerJson;
+    QVector<RegisterRefValueDescription> result;
 
-    for (const QJsonValue &value : registerRefArray) {
+    for (const QJsonValue value : registerRefArray) {
         QJsonObject regRefObject = value.toObject();
 
-        QJsonObject registers;
+        RegisterRefValueDescription desc;
+        desc.name = regRefObject[RJsonKey::reg].toString();
+        desc.value = regRefObject[RJsonKey::value].toString();
+        desc.ref = regRefObject[RJsonKey::ref].toString();
 
-        registers.insert(RJsonKey::value, regRefObject[RJsonKey::value]);
-        registers.insert(RJsonKey::ref, regRefObject[RJsonKey::ref]);
-
-        registerJson.insert(regRefObject[RJsonKey::reg].toString(), registers);
+        result.push_back(desc);
     }
-    return registerJson;
+    return result;
 }
 
 QString CutterCore::getRegisterName(QString registerRole)

@@ -321,6 +321,12 @@ struct VariableDescription {
     QString type;
 };
 
+struct RegisterRefValueDescription {
+    QString name;
+    QString value;
+    QString ref;
+};
+
 Q_DECLARE_METATYPE(FunctionDescription)
 Q_DECLARE_METATYPE(ImportDescription)
 Q_DECLARE_METATYPE(ExportDescription)
