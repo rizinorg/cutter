@@ -4,7 +4,7 @@ TARGET = Cutter
 
 CUTTER_VERSION_MAJOR = 1
 CUTTER_VERSION_MINOR = 10
-CUTTER_VERSION_PATCH = 3
+CUTTER_VERSION_PATCH = 2
 
 VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PATCH}
 
@@ -81,9 +81,9 @@ CUTTER_ENABLE_PYTHON_BINDINGS {
 win32:defined(CUTTER_DEPS_DIR, var) {
     !defined(SHIBOKEN_EXECUTABLE, var)          SHIBOKEN_EXECUTABLE="$${CUTTER_DEPS_DIR}/pyside/bin/shiboken2.exe"
     !defined(SHIBOKEN_INCLUDEDIR, var)          SHIBOKEN_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/shiboken2"
-    !defined(SHIBOKEN_LIBRARY, var)             SHIBOKEN_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/shiboken2.abi3.lib"
+    !defined(SHIBOKEN_LIBRARY, var)             SHIBOKEN_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/shiboken2.lib"
     !defined(PYSIDE_INCLUDEDIR, var)            PYSIDE_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/PySide2"
-    !defined(PYSIDE_LIBRARY, var)               PYSIDE_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/pyside2.abi3.lib"
+    !defined(PYSIDE_LIBRARY, var)               PYSIDE_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/pyside2.lib"
     !defined(PYSIDE_TYPESYSTEMS, var)           PYSIDE_TYPESYSTEMS="$${CUTTER_DEPS_DIR}/pyside/share/PySide2/typesystems"
 }
 
@@ -344,6 +344,7 @@ SOURCES += \
     dialogs/preferences/AppearanceOptionsWidget.cpp \
     dialogs/preferences/GraphOptionsWidget.cpp \
     dialogs/preferences/PreferenceCategory.cpp \
+    dialogs/preferences/InitializationFileEditor.cpp \
     widgets/QuickFilterView.cpp \
     widgets/ClassesWidget.cpp \
     widgets/ResourcesWidget.cpp \
@@ -369,7 +370,7 @@ SOURCES += \
     widgets/ThreadsWidget.cpp \
     widgets/ProcessesWidget.cpp \
     widgets/BacktraceWidget.cpp \
-    dialogs/MapFileDialog.cpp \
+    dialogs/OpenFileDialog.cpp \
     common/CommandTask.cpp \
     common/ProgressIndicator.cpp \
     common/R2Task.cpp \
@@ -484,6 +485,7 @@ HEADERS  += \
     dialogs/preferences/AppearanceOptionsWidget.h \
     dialogs/preferences/PreferenceCategory.h \
     dialogs/preferences/GraphOptionsWidget.h \
+    dialogs/preferences/InitializationFileEditor.h \
     widgets/QuickFilterView.h \
     widgets/ClassesWidget.h \
     widgets/ResourcesWidget.h \
@@ -509,7 +511,7 @@ HEADERS  += \
     widgets/ThreadsWidget.h \
     widgets/ProcessesWidget.h \
     widgets/BacktraceWidget.h \
-    dialogs/MapFileDialog.h \
+    dialogs/OpenFileDialog.h \
     common/StringsTask.h \
     common/FunctionsTask.h \
     common/CommandTask.h \
@@ -598,6 +600,7 @@ FORMS    += \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/AppearanceOptionsWidget.ui \
     dialogs/preferences/GraphOptionsWidget.ui \
+    dialogs/preferences/InitializationFileEditor.ui \
     widgets/QuickFilterView.ui \
     widgets/DecompilerWidget.ui \
     widgets/ClassesWidget.ui \
@@ -614,7 +617,7 @@ FORMS    += \
     widgets/ThreadsWidget.ui \
     widgets/ProcessesWidget.ui \
     widgets/BacktraceWidget.ui \
-    dialogs/MapFileDialog.ui \
+    dialogs/OpenFileDialog.ui \
     dialogs/preferences/DebugOptionsWidget.ui \
     widgets/BreakpointWidget.ui \
     dialogs/BreakpointsDialog.ui \

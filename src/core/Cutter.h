@@ -46,7 +46,8 @@ public:
 
     void initialize(bool loadPlugins = true);
     void loadCutterRC();
-
+    QDir getCutterRCDefaultDirectory() const;
+    
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 
     RVA getOffset() const                   { return core_->offset; }

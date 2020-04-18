@@ -240,6 +240,11 @@ RCoreLocked CutterCore::core()
     return RCoreLocked(this);
 }
 
+QDir CutterCore::getCutterRCDefaultDirectory() const
+{
+    return QDir::home();
+}
+
 QVector<QDir> CutterCore::getCutterRCDirectories() const
 {
     QVector<QDir> result;
@@ -248,6 +253,7 @@ QVector<QDir> CutterCore::getCutterRCDirectories() const
     for (auto &location : locations) { 
         result.push_back(QDir(location)); 
     }
+    result.push_back(getCutterRCDefaultDirectory()); // File in config editor is from this directory
     return result;
 }
 
