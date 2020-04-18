@@ -54,7 +54,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
             QIcon(":/img/icons/plugins.svg")
         },
         {
-            tr("Init\nFile Editor"),
+            tr("Initialization\nFile Editor"),
             new InitializationFileEditor(this),
             QIcon(":/img/icons/graph.svg")
         }

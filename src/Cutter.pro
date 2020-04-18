@@ -4,7 +4,7 @@ TARGET = Cutter
 
 CUTTER_VERSION_MAJOR = 1
 CUTTER_VERSION_MINOR = 10
-CUTTER_VERSION_PATCH = 2
+CUTTER_VERSION_PATCH = 3
 
 VERSION = $${CUTTER_VERSION_MAJOR}.$${CUTTER_VERSION_MINOR}.$${CUTTER_VERSION_PATCH}
 
@@ -81,9 +81,9 @@ CUTTER_ENABLE_PYTHON_BINDINGS {
 win32:defined(CUTTER_DEPS_DIR, var) {
     !defined(SHIBOKEN_EXECUTABLE, var)          SHIBOKEN_EXECUTABLE="$${CUTTER_DEPS_DIR}/pyside/bin/shiboken2.exe"
     !defined(SHIBOKEN_INCLUDEDIR, var)          SHIBOKEN_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/shiboken2"
-    !defined(SHIBOKEN_LIBRARY, var)             SHIBOKEN_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/shiboken2.lib"
+    !defined(SHIBOKEN_LIBRARY, var)             SHIBOKEN_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/shiboken2.abi3.lib"
     !defined(PYSIDE_INCLUDEDIR, var)            PYSIDE_INCLUDEDIR="$${CUTTER_DEPS_DIR}/pyside/include/PySide2"
-    !defined(PYSIDE_LIBRARY, var)               PYSIDE_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/pyside2.lib"
+    !defined(PYSIDE_LIBRARY, var)               PYSIDE_LIBRARY="$${CUTTER_DEPS_DIR}/pyside/lib/pyside2.abi3.lib"
     !defined(PYSIDE_TYPESYSTEMS, var)           PYSIDE_TYPESYSTEMS="$${CUTTER_DEPS_DIR}/pyside/share/PySide2/typesystems"
 }
 
@@ -370,7 +370,7 @@ SOURCES += \
     widgets/ThreadsWidget.cpp \
     widgets/ProcessesWidget.cpp \
     widgets/BacktraceWidget.cpp \
-    dialogs/OpenFileDialog.cpp \
+    dialogs/MapFileDialog.cpp \
     common/CommandTask.cpp \
     common/ProgressIndicator.cpp \
     common/R2Task.cpp \
@@ -511,7 +511,7 @@ HEADERS  += \
     widgets/ThreadsWidget.h \
     widgets/ProcessesWidget.h \
     widgets/BacktraceWidget.h \
-    dialogs/OpenFileDialog.h \
+    dialogs/MapFileDialog.h \
     common/StringsTask.h \
     common/FunctionsTask.h \
     common/CommandTask.h \
@@ -617,7 +617,7 @@ FORMS    += \
     widgets/ThreadsWidget.ui \
     widgets/ProcessesWidget.ui \
     widgets/BacktraceWidget.ui \
-    dialogs/OpenFileDialog.ui \
+    dialogs/MapFileDialog.ui \
     dialogs/preferences/DebugOptionsWidget.ui \
     widgets/BreakpointWidget.ui \
     dialogs/BreakpointsDialog.ui \

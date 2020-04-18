@@ -242,7 +242,7 @@ RCoreLocked CutterCore::core()
 
 QDir CutterCore::getCutterRCDefaultDirectory() const
 {
-    return QDir::home();
+    return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
 }
 
 QVector<QDir> CutterCore::getCutterRCDirectories() const
