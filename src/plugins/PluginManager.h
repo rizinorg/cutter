@@ -28,8 +28,9 @@ public:
 
     /**
      * @brief Load all plugins, should be called once on application start
+     * @param enablePlugins set to false if plugin code shouldn't be started
      */
-    void loadPlugins();
+    void loadPlugins(bool enablePlugins = true);
 
     /**
      * @brief Destroy all loaded plugins, should be called once on application shutdown

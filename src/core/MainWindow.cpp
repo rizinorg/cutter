@@ -13,6 +13,7 @@
 #include "common/PythonManager.h"
 #include "plugins/PluginManager.h"
 #include "CutterConfig.h"
+#include "CutterApplication.h"
 
 // Dialogs
 #include "dialogs/WelcomeDialog.h"
@@ -1349,9 +1350,7 @@ void MainWindow::on_actionDefault_triggered()
 void MainWindow::on_actionNew_triggered()
 {
     // Create a new Cutter process
-    QProcess process(this);
-    process.setEnvironment(QProcess::systemEnvironment());
-    process.startDetached(qApp->applicationFilePath());
+    static_cast<CutterApplication*>(qApp)->launchNewInstance();
 }
 
 void MainWindow::on_actionSave_triggered()
