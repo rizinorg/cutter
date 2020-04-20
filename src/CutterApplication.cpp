@@ -205,7 +205,7 @@ void CutterApplication::launchNewInstance(const QStringList &args)
         allArgs.push_back("--no-cutter-plugins");
     }
     if (!clOptions.enableR2Plugins) {
-        allArgs.push_back("--no-cutter-plugins");
+        allArgs.push_back("--no-r2-plugins");
     }
     allArgs.append(args);
     process.startDetached(qApp->applicationFilePath(), allArgs);
