@@ -287,7 +287,8 @@ private:
     void initLayout();
     void initCorners();
     void initBackForwardMenu();
-    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
+    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(),
+                                     bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
     void resetToDebugLayout();

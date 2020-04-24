@@ -410,7 +410,8 @@ QList<QDockWidget *> MainWindow::getOpenTabs()
 {
     QList<QDockWidget *> tabbedWidgets = {dashboardDock};
     tabbedWidgets.append(tabifiedDockWidgets(dashboardDock));
-    std::copy_if(tabbedWidgets.begin(), tabbedWidgets.end(), tabbedWidgets.begin(), [](const QDockWidget* e){ return !e->isHidden(); });
+    std::copy_if(tabbedWidgets.begin(), tabbedWidgets.end(),
+    tabbedWidgets.begin(), [](const QDockWidget * e) { return !e->isHidden(); });
     return tabbedWidgets;
 }
 
@@ -419,7 +420,7 @@ void MainWindow::closeCurrentTab()
     auto openTabs = getOpenTabs();
     for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
         if (!(*it)->visibleRegion().isEmpty()) {
-          (*it)->hide();
+            (*it)->hide();
             break;
         }
     }
@@ -428,7 +429,6 @@ void MainWindow::closeCurrentTab()
 void MainWindow::jumpToNextOpenTab()
 {
     auto openTabs = getOpenTabs();
-    //for (auto it : openTabs) {
     for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
         if (!(*it)->visibleRegion().isEmpty() && *it != openTabs.back()) {
             (*(++it))->raise();
@@ -696,7 +696,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
         QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
                                                                 tr("It seems that you have changes or patches that are not committed to the file.\n"
-                                                                "Do you want to commit them now?"),
+                                                                   "Do you want to commit them now?"),
                                                                 (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
         if (ret == QMessageBox::Cancel) {
             event->ignore();
@@ -705,7 +705,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
         if (ret == QMessageBox::Save) {
             core->commitWriteCache();
-        } 
+        }
     }
 
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
@@ -764,7 +764,7 @@ void MainWindow::readSettingsOrDefault()
     // also show them, so newly installed plugin widgets are shown right away
     for (auto dockWidget : dockWidgets) {
         if (dockWidgetArea(dockWidget) == Qt::DockWidgetArea::NoDockWidgetArea &&
-            !isDebugWidget(dockWidget)) {
+                !isDebugWidget(dockWidget)) {
             addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
             dockWidget->show();
         }
@@ -1105,9 +1105,10 @@ void MainWindow::initCorners()
 
 void MainWindow::initBackForwardMenu()
 {
-    auto prepareButtonMenu = [this](QAction *action) -> QMenu* {
+    auto prepareButtonMenu = [this](QAction * action) -> QMenu* {
         QToolButton *button = qobject_cast<QToolButton *>(ui->mainToolBar->widgetForAction(action));
-        if (!button) {
+        if (!button)
+        {
             return nullptr;
         }
         QMenu *menu = new QMenu(button);
@@ -1115,7 +1116,8 @@ void MainWindow::initBackForwardMenu()
         button->setPopupMode(QToolButton::DelayedPopup);
         button->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(button, &QWidget::customContextMenuRequested, button,
-                [menu, button] (const QPoint &pos) {
+                [menu, button] (const QPoint & pos)
+        {
             menu->exec(button->mapToGlobal(pos));
         });
 
@@ -1203,7 +1205,7 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 
 }
 
-void MainWindow::addWidget(QDockWidget* widget)
+void MainWindow::addWidget(QDockWidget *widget)
 {
     dockWidgets.push_back(widget);
     for (auto action : widget->actions()) {
@@ -1700,12 +1702,13 @@ bool MainWindow::eventFilter(QObject *, QEvent *event)
 bool MainWindow::event(QEvent *event)
 {
     if (event->type() == QEvent::FontChange
-        || event->type() == QEvent::StyleChange
-        || event->type() == QEvent::PaletteChange) {
+            || event->type() == QEvent::StyleChange
+            || event->type() == QEvent::PaletteChange) {
 #if QT_VERSION < QT_VERSION_CHECK(5,10,0)
         QMetaObject::invokeMethod(Config(), "refreshFont", Qt::ConnectionType::QueuedConnection);
 #else
-        QMetaObject::invokeMethod(Config(), &Configuration::refreshFont, Qt::ConnectionType::QueuedConnection);
+        QMetaObject::invokeMethod(Config(), &Configuration::refreshFont,
+                                  Qt::ConnectionType::QueuedConnection);
 #endif
     }
     return QMainWindow::event(event);
@@ -1746,17 +1749,17 @@ void MainWindow::chooseThemeIcons()
 
 void MainWindow::onZoomIn()
 {
-  Config()->setZoomFactor(Config()->getZoomFactor() + 0.1);
+    Config()->setZoomFactor(Config()->getZoomFactor() + 0.1);
 }
 
 void MainWindow::onZoomOut()
 {
-  Config()->setZoomFactor(Config()->getZoomFactor() - 0.1);
+    Config()->setZoomFactor(Config()->getZoomFactor() - 0.1);
 }
 
 void MainWindow::onZoomReset()
 {
-  Config()->setZoomFactor(1.0);
+    Config()->setZoomFactor(1.0);
 }
 
 QMenu *MainWindow::getContextMenuExtensions(ContextMenuType type)
