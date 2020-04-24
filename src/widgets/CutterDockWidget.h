@@ -76,8 +76,6 @@ protected:
 
 private:
     QAction *action;
-    bool firstKeyRelease;
-    QSet<int> *keysPressed;
 
     bool isTransient = false;
 
