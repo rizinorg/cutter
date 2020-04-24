@@ -1061,11 +1061,6 @@ MemoryDockWidget *MainWindow::getLastMemoryWidget()
     return lastMemoryWidget;
 }
 
-QList<QDockWidget *> MainWindow::getListOfDockWidgets() const
-{
-    return dockWidgets;
-}
-
 MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA address,
                                                  bool synchronized)
 {

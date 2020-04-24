@@ -124,7 +124,6 @@ public:
     QMenu *createShowInMenu(QWidget *parent, RVA address);
     void setCurrentMemoryWidget(MemoryDockWidget *memoryWidget);
     MemoryDockWidget *getLastMemoryWidget();
-    QList<QDockWidget *> getListOfDockWidgets() const;
 
     /* Context menu plugins */
     enum class ContextMenuType { Disassembly, Addressable };
