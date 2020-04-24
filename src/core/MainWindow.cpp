@@ -416,7 +416,6 @@ QList<QDockWidget *> MainWindow::getOpenTabs()
 
 void MainWindow::closeCurrentTab()
 {
-    std::cout << "close detected\n";
     auto openTabs = getOpenTabs();
     for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
         if (!(*it)->visibleRegion().isEmpty()) {
@@ -428,7 +427,6 @@ void MainWindow::closeCurrentTab()
 
 void MainWindow::jumpToNextOpenTab()
 {
-    std::cout << "Next detected\n";
     auto openTabs = getOpenTabs();
     //for (auto it : openTabs) {
     for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
