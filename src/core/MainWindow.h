@@ -160,6 +160,7 @@ public slots:
 
     void toggleOverview(bool visibility, GraphWidget *targetGraph);
 
+    void closeCurrentTab();
     void jumpToNextOpenTab();
     void jumpToPrevOpenTab();
 

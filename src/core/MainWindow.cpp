@@ -110,7 +110,6 @@
 #include <QGraphicsView>
 
 #include <algorithm>
-#include <iostream>
 
 template<class T>
 T *getNewInstance(MainWindow *m, QAction *a) { return new T(m, a); }
@@ -367,6 +366,12 @@ void MainWindow::initDocks()
             }
         }
     }
+    QAction *closeTabAction = new QAction("&Close Tab", this);
+    closeTabAction->setShortcuts(QKeySequence::Close);
+    addAction(closeTabAction);
+    connect(closeTabAction, &QAction::triggered, this,
+            &MainWindow::closeCurrentTab);
+
     QAction *nextTabAction = new QAction("&Next Tab", this);
     nextTabAction->setShortcuts(QKeySequence::NextChild);
     addAction(nextTabAction);
@@ -409,13 +414,26 @@ QList<QDockWidget *> MainWindow::getOpenTabs()
     return tabbedWidgets;
 }
 
+void MainWindow::closeCurrentTab()
+{
+    std::cout << "close detected\n";
+    auto openTabs = getOpenTabs();
+    for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
+        if (!(*it)->visibleRegion().isEmpty()) {
+          (*it)->hide();
+            break;
+        }
+    }
+}
+
 void MainWindow::jumpToNextOpenTab()
 {
+    std::cout << "Next detected\n";
     auto openTabs = getOpenTabs();
-    for (auto it : openTabs) {
-        if (!it->visibleRegion().isEmpty() && it != openTabs.back()) {
-            it->hide();
-            // TODO: 'Show' next tab
+    //for (auto it : openTabs) {
+    for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
+        if (!(*it)->visibleRegion().isEmpty() && *it != openTabs.back()) {
+            (*(++it))->raise();
             break;
         }
     }
@@ -424,10 +442,9 @@ void MainWindow::jumpToNextOpenTab()
 void MainWindow::jumpToPrevOpenTab()
 {
     auto openTabs = getOpenTabs();
-    for (auto it : openTabs) {
-        if (!it->visibleRegion().isEmpty() && it != openTabs.front()) {
-            it->hide();
-            // TODO: 'Show' previous tab
+    for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
+        if (!(*it)->visibleRegion().isEmpty() && *it != openTabs.front()) {
+            (*(--it))->raise();
             break;
         }
     }
