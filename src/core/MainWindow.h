@@ -109,7 +109,7 @@ public:
     QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
 
-    void updateDockActionChecked(QAction *action);
+    void updateDockActionChecked(QAction * action);
 
     QString getFilename() const
     {
@@ -122,8 +122,8 @@ public:
     void showMemoryWidget(MemoryWidgetType type);
 
     QMenu *createShowInMenu(QWidget *parent, RVA address);
-    void setCurrentMemoryWidget(MemoryDockWidget *memoryWidget);
-    MemoryDockWidget *getLastMemoryWidget();
+    void setCurrentMemoryWidget(MemoryDockWidget* memoryWidget);
+    MemoryDockWidget* getLastMemoryWidget();
 
     /* Context menu plugins */
     enum class ContextMenuType { Disassembly, Addressable };
@@ -286,8 +286,7 @@ private:
     void initLayout();
     void initCorners();
     void initBackForwardMenu();
-    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(),
-                                     bool skipOptionsDialog = false);
+    void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
     void resetToDefaultLayout();
     void resetToDebugLayout();
@@ -324,12 +323,12 @@ private:
     /**
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
      */
-    QMap<QString, std::function<CutterDockWidget*(MainWindow *, QAction *)>> widgetTypeToConstructorMap;
+    QMap<QString, std::function<CutterDockWidget*(MainWindow*, QAction*)>> widgetTypeToConstructorMap;
 
     QList<QDockWidget *> getOpenTabs();
 
-    MemoryDockWidget *lastSyncMemoryWidget = nullptr;
-    MemoryDockWidget *lastMemoryWidget = nullptr;
+    MemoryDockWidget* lastSyncMemoryWidget = nullptr;
+    MemoryDockWidget* lastMemoryWidget = nullptr;
 };
 
 #endif // MAINWINDOW_H
