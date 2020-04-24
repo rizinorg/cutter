@@ -33,7 +33,7 @@ public:
         auto *deferrer = new RefreshDeferrer(nullptr, this);
         deferrer->registerFor(this);
         connect(deferrer, &RefreshDeferrer::refreshNow, this, [refreshNowFunc](const RefreshDeferrerParamsResult) {
-                refreshNowFunc();
+            refreshNowFunc();
         });
         return deferrer;
     }

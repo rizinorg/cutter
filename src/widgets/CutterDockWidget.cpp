@@ -5,9 +5,9 @@
 #include <QEvent>
 #include <QtWidgets/QShortcut>
 
-CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :         
-    QDockWidget(parent), 
-    mainWindow(parent), 
+CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *action) :
+    QDockWidget(parent),
+    mainWindow(parent),
     action(action)
 {
     if (action) {
@@ -27,12 +27,12 @@ CutterDockWidget::~CutterDockWidget() = default;
 
 bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::FocusIn 
-            || event->type() == QEvent::ZOrderChange 
-            || event->type() == QEvent::Paint 
-            || event->type() == QEvent::Close 
-            || event->type() == QEvent::Show 
-            || event->type() == QEvent::Hide) {
+    if (event->type() == QEvent::FocusIn
+        || event->type() == QEvent::ZOrderChange
+        || event->type() == QEvent::Paint
+        || event->type() == QEvent::Close
+        || event->type() == QEvent::Show
+        || event->type() == QEvent::Hide) {
         updateIsVisibleToUser();
     }
     return QDockWidget::eventFilter(object, event);
@@ -48,9 +48,9 @@ void CutterDockWidget::toggleDockWidget(bool show)
     }
 }
 
-QWidget *CutterDockWidget::widgetToFocusOnRaise() 
-{ 
-    return this; 
+QWidget *CutterDockWidget::widgetToFocusOnRaise()
+{
+    return this;
 }
 
 void CutterDockWidget::updateIsVisibleToUser()
@@ -82,9 +82,9 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
     emit closed();
 }
 
-QAction *CutterDockWidget::getBoundAction() const 
-{ 
-    return action; 
+QAction *CutterDockWidget::getBoundAction() const
+{
+    return action;
 }
 
 QString CutterDockWidget::getDockNumber()

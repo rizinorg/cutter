@@ -1196,7 +1196,7 @@ void MainWindow::updateHistoryMenu(QMenu *menu, bool redo)
 
 }
 
-void MainWindow::addWidget(QDockWidget *widget)
+void MainWindow::addWidget(QDockWidget* widget)
 {
     dockWidgets.push_back(widget);
     for (auto action : widget->actions()) {
@@ -1210,7 +1210,7 @@ void MainWindow::addWidget(QDockWidget *widget)
             }
             updateDockActionsChecked();
         });
-    }   
+    }
 }
 
 void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
@@ -1254,9 +1254,9 @@ void MainWindow::showZenDocks()
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w) ||
-            qobject_cast<GraphWidget* >(w) ||
-            qobject_cast<HexdumpWidget* >(w) ||
-            qobject_cast<DisassemblyWidget* >(w)) {
+            qobject_cast<GraphWidget*>(w) ||
+            qobject_cast<HexdumpWidget*>(w) ||
+            qobject_cast<DisassemblyWidget*>(w)) {
             w->show();
         }
     }
@@ -1280,9 +1280,9 @@ void MainWindow::showDebugDocks()
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (debugDocks.contains(w) ||
-            qobject_cast<GraphWidget* >(w) ||
-            qobject_cast<HexdumpWidget* >(w) ||
-            qobject_cast<DisassemblyWidget* >(w)) {
+            qobject_cast<GraphWidget*>(w) ||
+            qobject_cast<HexdumpWidget*>(w) ||
+            qobject_cast<DisassemblyWidget*>(w)) {
             w->show();
         }
     }
@@ -1727,7 +1727,7 @@ void MainWindow::chooseThemeIcons()
     // List of QActions which have alternative icons in different themes
     const QList<QPair<void*, QString>> kSupportedIconsNames {
         { ui->actionForward, QStringLiteral("arrow_right.svg") },
-        { ui->actionBackward, QStringLiteral("arrow_left.svg") },   
+        { ui->actionBackward, QStringLiteral("arrow_left.svg") },
     };
 
 
