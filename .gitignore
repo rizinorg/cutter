@@ -85,3 +85,7 @@ src/out
 
 # astyle backup .orig files
 *.orig
+
+# Docker generated files
+docker/radare2rc
+docker/sharedFolder
