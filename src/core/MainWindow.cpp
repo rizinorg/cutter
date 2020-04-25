@@ -426,8 +426,12 @@ void MainWindow::jumpToNextOpenTab()
 {
     auto openTabs = getOpenTabs();
     for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
-        if (!(*it)->visibleRegion().isEmpty() && *it != openTabs.back()) {
-            (*(++it))->raise();
+        if (!(*it)->visibleRegion().isEmpty()) {
+            if (*it == openTabs.back()) {
+                openTabs.front()->raise();
+            } else {
+                (*(++it))->raise();
+            }
             break;
         }
     }
@@ -437,8 +441,12 @@ void MainWindow::jumpToPrevOpenTab()
 {
     auto openTabs = getOpenTabs();
     for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
-        if (!(*it)->visibleRegion().isEmpty() && *it != openTabs.front()) {
-            (*(--it))->raise();
+        if (!(*it)->visibleRegion().isEmpty()) {
+            if (*it == openTabs.front()) {
+                openTabs.back()->raise();
+            } else {
+                (*(--it))->raise();
+            }
             break;
         }
     }
