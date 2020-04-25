@@ -38,6 +38,15 @@ bool CutterDockWidget::eventFilter(QObject *object, QEvent *event)
     return QDockWidget::eventFilter(object, event);
 }
 
+QVariantMap CutterDockWidget::serializeViewProprties()
+{
+    return {};
+}
+
+void CutterDockWidget::deserializeViewProperties(const QVariantMap &)
+{
+}
+
 void CutterDockWidget::toggleDockWidget(bool show)
 {
     if (!show) {

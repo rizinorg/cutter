@@ -55,6 +55,13 @@ namespace Ui {
 class MainWindow;
 }
 
+struct CutterLayout
+{
+    QByteArray geometry;
+    QByteArray state;
+    QHash<QString, QVariantMap> viewProperties;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -85,7 +92,7 @@ public:
 
     void closeEvent(QCloseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-    void readSettingsOrDefault();
+    void readSettings();
     void saveSettings();
     void readDebugSettings();
     void saveDebugSettings();
@@ -250,7 +257,6 @@ private:
     StringsWidget      *stringsDock = nullptr;
     FlagsWidget        *flagsDock = nullptr;
     Dashboard          *dashboardDock = nullptr;
-    QLineEdit          *gotoEntry = nullptr;
     SdbWidget          *sdbDock = nullptr;
     SectionsWidget     *sectionsDock = nullptr;
     SegmentsWidget     *segmentsDock = nullptr;
@@ -259,9 +265,6 @@ private:
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;
     VTablesWidget      *vTablesDock = nullptr;
-    DisassemblerGraphView *graphView = nullptr;
-    QDockWidget        *asmDock = nullptr;
-    QDockWidget        *calcDock = nullptr;
     QDockWidget        *stackDock = nullptr;
     QDockWidget        *threadsDock = nullptr;
     QDockWidget        *processesDock = nullptr;
@@ -275,22 +278,25 @@ private:
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;
 
+    QMap<QString, CutterLayout> layouts;
+
     void initUI();
     void initToolBar();
     void initDocks();
-    void initLayout();
     void initCorners();
     void initBackForwardMenu();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
-    void resetToDefaultLayout();
-    void resetToDebugLayout();
-    void restoreDebugLayout();
+    CutterLayout getViewLayout();
+    CutterLayout getViewLayout(const QString &name);
+
+    void setViewLayout(const CutterLayout &layout);
+    void loadLayouts();
+    void saveLayouts(QSettings &settings);
+
 
     void updateMemberPointers();
-    void resetDockWidgetList();
     void restoreDocks();
-    void hideAllDocks();
     void showZenDocks();
     void showDebugDocks();
     void enableDebugWidgetsMenu(bool enable);
@@ -300,6 +306,8 @@ private:
      * @param redo set to false for undo history, true for redo.
      */
     void updateHistoryMenu(QMenu *menu, bool redo = false);
+    void updateLayoutsMenu();
+    void saveNamedLayout();
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 

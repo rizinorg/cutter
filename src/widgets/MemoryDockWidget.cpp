@@ -58,6 +58,19 @@ bool MemoryDockWidget::eventFilter(QObject *object, QEvent *event)
     return CutterDockWidget::eventFilter(object, event);
 }
 
+QVariantMap MemoryDockWidget::serializeViewProprties()
+{
+    auto result = CutterDockWidget::serializeViewProprties();
+    result["synchronized"] = seekable->isSynchronized();
+    return result;
+}
+
+void MemoryDockWidget::deserializeViewProperties(const QVariantMap &properties)
+{
+    QVariant synchronized = properties.value("synchronized", true);
+    seekable->setSynchronization(synchronized.toBool());
+}
+
 void MemoryDockWidget::updateWindowTitle()
 {
     QString name = getWindowTitle();

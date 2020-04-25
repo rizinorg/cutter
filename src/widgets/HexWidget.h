@@ -147,7 +147,7 @@ public:
 
     bool copy(void *out, uint64_t addr, size_t len) override {
         if (addr < m_firstBlockAddr || addr > m_lastValidAddr ||
-                (m_lastValidAddr - addr + 1) < len /* do not merge with last check to handle overflows */) {
+                (m_lastValidAddr - addr + 1) < len /* do not merge with last check to handle overflows */ || m_blocks.isEmpty()) {
             return false;
         }
 

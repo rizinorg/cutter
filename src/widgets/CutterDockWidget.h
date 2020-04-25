@@ -54,7 +54,10 @@ public:
         });
         return deferrer;
     }
+    virtual QVariantMap serializeViewProprties();
+    virtual void deserializeViewProperties(const QVariantMap &properties);
 
+    bool isTransient = false; //TODO:#694 hack, move this back as private
 signals:
     void becameVisibleToUser();
     void closed();
@@ -74,7 +77,6 @@ protected:
 private:
     QAction *action;
 
-    bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();

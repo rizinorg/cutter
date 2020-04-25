@@ -27,6 +27,9 @@ public:
         return mType;
     }
     bool eventFilter(QObject *object, QEvent *event) override;
+
+    QVariantMap serializeViewProprties() override;
+    void deserializeViewProperties(const QVariantMap &properties) override;
 private:
 
     MemoryWidgetType mType;
