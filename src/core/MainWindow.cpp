@@ -376,9 +376,8 @@ void MainWindow::initDocks()
     connect(nextTabAction, &QAction::triggered, this,
             &MainWindow::jumpToNextOpenTab);
 
-    // TODO: Shortcut not being detected
     QAction *prevTabAction = new QAction("&Previous Tab", this);
-    prevTabAction->setShortcuts(QKeySequence::PreviousChild);
+    prevTabAction->setShortcuts({ QKeySequence::PreviousChild, QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab) });
     addAction(prevTabAction);
     connect(prevTabAction, &QAction::triggered, this,
             &MainWindow::jumpToPrevOpenTab);
@@ -426,7 +425,6 @@ void MainWindow::closeCurrentTab()
 void MainWindow::jumpToNextOpenTab()
 {
     auto openTabs = getOpenTabs();
-    //for (auto it : openTabs) {
     for (auto it = openTabs.begin(); it != openTabs.end(); ++it) {
         if (!(*it)->visibleRegion().isEmpty() && *it != openTabs.back()) {
             (*(++it))->raise();
@@ -1210,7 +1208,7 @@ void MainWindow::addWidget(QDockWidget* widget)
             }
             updateDockActionsChecked();
         });
-    }
+    }   
 }
 
 void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
