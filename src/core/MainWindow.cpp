@@ -219,8 +219,7 @@ void MainWindow::initUI()
 
     enableDebugWidgetsMenu(false);
     readSettings();
-    //initCorners();
-    setViewLayout(getViewLayout(LAYOUT_DEFAULT));
+    initCorners();
 }
 
 void MainWindow::initToolBar()
@@ -527,8 +526,10 @@ void MainWindow::finalizeOpen()
 
     // Add fortune message
     core->message("\n" + core->cmdRaw("fo"));
+
     showMaximized();
     Config()->adjustColorThemeDarkness();
+    setViewLayout(getViewLayout(LAYOUT_DEFAULT));
 
     // Set focus to disasm or graph widget
 
