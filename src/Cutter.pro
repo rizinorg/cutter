@@ -420,7 +420,8 @@ SOURCES += \
     widgets/ListDockWidget.cpp \
     dialogs/MultitypeFileSaveDialog.cpp \
     widgets/BoolToggleDelegate.cpp \
-    common/IOModesController.cpp
+    common/IOModesController.cpp \
+    common/SettingsUpgrade.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -566,7 +567,8 @@ HEADERS  += \
     widgets/AddressableItemList.h \
     dialogs/MultitypeFileSaveDialog.h \
     widgets/BoolToggleDelegate.h \
-    common/IOModesController.h
+    common/IOModesController.h \
+    common/SettingsUpgrade.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 

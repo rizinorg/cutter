@@ -1273,7 +1273,7 @@ void MainWindow::loadLayouts()
         layout.geometry = settings.value("geometry").toByteArray();
         layout.state = settings.value("state").toByteArray();
 
-        auto docks = settings.value("docks", QHash<QString, QVariant>()).toHash();
+        auto docks = settings.value("docks").toMap();
         for (auto it = docks.begin(), end = docks.end(); it != end; it++) {
             layout.viewProperties.insert(it.key(), it.value().toMap());
         }
@@ -1294,7 +1294,7 @@ void MainWindow::saveLayouts(QSettings &settings)
         auto &layout = it.value();
         settings.setValue("state", layout.state);
         settings.setValue("geometry", layout.geometry);
-        QHash<QString, QVariant> properties;
+        QVariantMap properties;
         for (auto it = layout.viewProperties.begin(), end = layout.viewProperties.end(); it != end; ++it) {
             properties.insert(it.key(), it.value());
         }

@@ -59,7 +59,7 @@ struct CutterLayout
 {
     QByteArray geometry;
     QByteArray state;
-    QHash<QString, QVariantMap> viewProperties;
+    QMap<QString, QVariantMap> viewProperties;
 };
 
 class MainWindow : public QMainWindow
