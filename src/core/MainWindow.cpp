@@ -523,11 +523,18 @@ void MainWindow::finalizeOpen()
     core->getOpcodes();
     core->updateSeek();
     refreshAll();
-
     // Add fortune message
     core->message("\n" + core->cmdRaw("fo"));
 
-    showMaximized();
+    QSettings settings;
+    auto geometry = settings.value("geometry").toByteArray();
+    if (!geometry.isEmpty()) {
+        restoreGeometry(geometry);
+        show();
+    } else {
+        showMaximized();
+    }
+
     Config()->adjustColorThemeDarkness();
     setViewLayout(getViewLayout(LAYOUT_DEFAULT));
 
@@ -654,7 +661,6 @@ void MainWindow::readSettings()
 {
     QSettings settings;
 
-
     responsive = settings.value("responsive").toBool();
     panelLock = settings.value("panelLock").toBool();
     setPanelLock();
@@ -664,7 +670,7 @@ void MainWindow::readSettings()
     ui->actionGrouped_dock_dragging->setChecked(dockGroupedDragging);
     on_actionGrouped_dock_dragging_triggered(dockGroupedDragging);
 
-    loadLayouts();
+    loadLayouts(settings);
 }
 
 void MainWindow::saveSettings()
@@ -674,6 +680,7 @@ void MainWindow::saveSettings()
     settings.setValue("panelLock", panelLock);
     settings.setValue("tabsOnTop", tabsOnTop);
     settings.setValue("docksGroupedDragging", ui->actionGrouped_dock_dragging->isChecked());
+    settings.setValue("geometry", saveGeometry());
 
     layouts[Core()->isDebugTaskInProgress() ? LAYOUT_DEBUG : LAYOUT_DEFAULT] = getViewLayout();
     saveLayouts(settings);
@@ -1193,15 +1200,10 @@ CutterLayout MainWindow::getViewLayout(const QString &name)
 
 void MainWindow::setViewLayout(const CutterLayout &layout)
 {
-    bool isDefault = layout.geometry.isEmpty();
+    bool isDefault = layout.state.isEmpty() || layout.geometry.isEmpty();
     bool isDebug = Core()->currentlyDebugging;
 
-    if (!layout.geometry.isEmpty()) {
-        restoreGeometry(layout.geometry);
-    }
-
     for (auto dock : dockWidgets) {
-        qDebug() << "closing all " << dock->objectName();
         dock->hide();
         dock->close();
     }
@@ -1258,12 +1260,12 @@ void MainWindow::setViewLayout(const CutterLayout &layout)
             showZenDocks();
         }
     }
+
     updateDockActionsChecked();
 }
 
-void MainWindow::loadLayouts()
+void MainWindow::loadLayouts(QSettings &settings)
 {
-    QSettings settings;
     this->layouts.clear();
     int size = settings.beginReadArray("layouts");
     for (int i = 0; i < size; i++) {
@@ -1334,13 +1336,10 @@ void MainWindow::on_actionFunctionsRename_triggered()
 
 void MainWindow::on_actionDefault_triggered()
 {
-    //initCorners();
-
     if (core->currentlyDebugging) {
         layouts[LAYOUT_DEBUG] = {};
         setViewLayout(layouts[LAYOUT_DEBUG]);
     } else {
-        qDebug() << "default  default layout";
         layouts[LAYOUT_DEFAULT] = {};
         setViewLayout(layouts[LAYOUT_DEFAULT]);
     }
@@ -1591,17 +1590,17 @@ void MainWindow::projectSaved(bool successfully, const QString &name)
 
 void MainWindow::toggleDebugView()
 {
+    MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
     if (Core()->currentlyDebugging) {
         layouts[LAYOUT_DEFAULT] = getViewLayout(); //TODO:#694 consider if should be saved to file
         setViewLayout(getViewLayout(LAYOUT_DEBUG));
         enableDebugWidgetsMenu(true);
     } else {
-        //MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
         layouts[LAYOUT_DEBUG] = getViewLayout(); //TODO:#694 consider if should be saved to file
         setViewLayout(getViewLayout(LAYOUT_DEFAULT));
         enableDebugWidgetsMenu(false);
-        //showMemoryWidget(memType);
     }
+    showMemoryWidget(memType);
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)

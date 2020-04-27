@@ -291,7 +291,7 @@ private:
     CutterLayout getViewLayout(const QString &name);
 
     void setViewLayout(const CutterLayout &layout);
-    void loadLayouts();
+    void loadLayouts(QSettings &settings);
     void saveLayouts(QSettings &settings);
 
 

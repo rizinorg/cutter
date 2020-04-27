@@ -89,7 +89,9 @@ static void migrateSettingsTo3(QSettings &settings) {
 
     settings.endArray();
 
-    settings.remove("geometry");
+    settings.remove("pos"); // Pos and size already stored within geometry
+    settings.remove("size");
+    // keep geometry but with slightly different usecase
     settings.remove("state");
     settings.remove("debug.geometry");
     settings.remove("debug.state");
