@@ -56,9 +56,9 @@ Disassembly view shortcuts
 +-------------+----------------------------------+
 | Shift+N     | Rename flag/function used here   |
 +-------------+----------------------------------+
-| Y           | Edit\rename local variables      |
+| Y           | Edit/rename local variables      |
 +-------------+----------------------------------+
-| L           | Link a type\struct to address    |
+| L           | Link a type/struct to address    |
 +-------------+----------------------------------+
 | A           | Set current address to String    |
 +-------------+----------------------------------+
