@@ -18,7 +18,7 @@ download the latest release
 
 - OSX: Download the latest ``.dmg`` file.
 - Windows: Download the latest archive.
-- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.10.3-pre-x86_64.AppImage``
+- Linux: use the AppImage file. Then just make it executable and run it: ``chmod +x Cutter-v1.10.3-x86_64.AppImage``
 
 
 Building from sources
