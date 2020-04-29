@@ -145,14 +145,14 @@ SizePolicyMinMax forceHeight(QWidget *widget, int height)
 
 void SizePolicyMinMax::restoreWidth(QWidget *widget)
 {
-    widget->setSizePolicy(sizePolicy);
+    widget->setSizePolicy(sizePolicy.horizontalPolicy(), widget->sizePolicy().verticalPolicy());
     widget->setMinimumWidth(min);
     widget->setMaximumWidth(max);
 }
 
 void SizePolicyMinMax::restoreHeight(QWidget *widget)
 {
-    widget->setSizePolicy(sizePolicy);
+    widget->setSizePolicy(widget->sizePolicy().horizontalPolicy(), sizePolicy.verticalPolicy());
     widget->setMinimumHeight(min);
     widget->setMaximumHeight(max);
 }

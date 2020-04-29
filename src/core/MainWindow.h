@@ -283,7 +283,6 @@ private:
     void initUI();
     void initToolBar();
     void initDocks();
-    void initCorners();
     void initBackForwardMenu();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 

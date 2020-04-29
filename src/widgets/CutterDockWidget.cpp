@@ -85,6 +85,10 @@ void CutterDockWidget::closeEvent(QCloseEvent *event)
         if (mainWindow) {
             mainWindow->removeWidget(this);
         }
+
+        // remove parent, otherwise dock layout may still decide to use this widget which is about to be deleted
+        setParent(nullptr);
+
         deleteLater();
     }
 

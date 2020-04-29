@@ -219,7 +219,6 @@ void MainWindow::initUI()
 
     enableDebugWidgetsMenu(false);
     readSettings();
-    initCorners();
 }
 
 void MainWindow::initToolBar()
@@ -390,9 +389,6 @@ void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
 {
     extraDock->setTransient(true);
     addDockWidget(Qt::TopDockWidgetArea, extraDock, Qt::Orientation::Horizontal);
-    auto restoreExtraDock = qhelpers::forceWidth(extraDock->widget(), 600);
-    qApp->processEvents();
-    restoreExtraDock.restoreWidth(extraDock->widget());
 }
 
 QMenu *MainWindow::getMenuByType(MenuType type)
@@ -736,12 +732,19 @@ void MainWindow::lockUnlock_Docks(bool what)
 
 void MainWindow::restoreDocks()
 {
-    // In the upper half the functions are the first widget
-    addDockWidget(Qt::TopDockWidgetArea, functionsDock);
-    addDockWidget(Qt::TopDockWidgetArea, overviewDock);
-
-    // Function | Dashboard
+    // Initial structure
+    // func | main area | debug
+    //      |___________|
+    //      | console   |
+    addDockWidget(Qt::LeftDockWidgetArea, functionsDock);
     splitDockWidget(functionsDock, dashboardDock, Qt::Horizontal);
+    splitDockWidget(dashboardDock, stackDock, Qt::Horizontal);
+    splitDockWidget(dashboardDock, consoleDock, Qt::Vertical);
+
+    // overview bellow func
+    splitDockWidget(functionsDock, overviewDock, Qt::Vertical);
+
+    // main area
     tabifyDockWidget(dashboardDock, decompilerDock);
     tabifyDockWidget(dashboardDock, entrypointDock);
     tabifyDockWidget(dashboardDock, flagsDock);
@@ -770,19 +773,12 @@ void MainWindow::restoreDocks()
         }
     }
 
-    splitDockWidget(functionsDock, overviewDock, Qt::Vertical);
-
-    // In the lower half the console is the first widget
-    addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
-
-    // Console | Sections
+    // Console | Sections/segments/comments
     splitDockWidget(consoleDock, sectionsDock, Qt::Horizontal);
-    splitDockWidget(consoleDock, segmentsDock, Qt::Horizontal);
-
+    tabifyDockWidget(sectionsDock, segmentsDock);
     tabifyDockWidget(sectionsDock, commentsDock);
 
     // Add Stack, Registers, Threads and Backtrace vertically stacked
-    addDockWidget(Qt::TopDockWidgetArea, stackDock);
     splitDockWidget(stackDock, registersDock, Qt::Vertical);
     tabifyDockWidget(stackDock, backtraceDock);
     tabifyDockWidget(backtraceDock, threadsDock);
@@ -930,18 +926,6 @@ MemoryDockWidget *MainWindow::addNewMemoryWidget(MemoryWidgetType type, RVA addr
     return memoryWidget;
 }
 
-void MainWindow::initCorners()
-{
-    // TODO: Allow the user to select this option visually in the GUI settings
-    // Adjust the DockWidget areas
-
-    setCorner(Qt::TopLeftCorner, Qt::LeftDockWidgetArea);
-    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
-
-    setCorner(Qt::BottomRightCorner, Qt::BottomDockWidgetArea);
-    setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
-}
-
 void MainWindow::initBackForwardMenu()
 {
     auto prepareButtonMenu = [this](QAction *action) -> QMenu* {
@@ -1063,6 +1047,7 @@ void MainWindow::saveNamedLayout()
         layouts[name] = getViewLayout();
         updateLayoutsMenu();
     }
+    saveSettings();
 }
 
 void MainWindow::addWidget(QDockWidget *widget)
@@ -1136,6 +1121,7 @@ void MainWindow::showZenDocks()
         }
     }
     functionsDock->setMaximumWidth(width);
+    dashboardDock->raise();
 }
 
 void MainWindow::showDebugDocks()
@@ -1152,6 +1138,9 @@ void MainWindow::showDebugDocks()
                                             };
     int width = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
+    auto registerWidth = qhelpers::forceWidth(registersDock, std::min(500, this->width() / 4));
+    auto registerHeight = qhelpers::forceHeight(registersDock, std::max(100, height() / 2));
+    QDockWidget *widgetToFocus = nullptr;
     for (auto w : dockWidgets) {
         if (debugDocks.contains(w) ||
             qobject_cast<GraphWidget*>(w) ||
@@ -1159,8 +1148,16 @@ void MainWindow::showDebugDocks()
             qobject_cast<DisassemblyWidget*>(w)) {
             w->show();
         }
+        if (qobject_cast<DisassemblyWidget*>(w)) {
+            widgetToFocus = w;
+        }
     }
+    registerHeight.restoreHeight(registersDock);
+    registerWidth.restoreWidth(registersDock);
     functionsDock->setMaximumWidth(width);
+    if (widgetToFocus) {
+        widgetToFocus->raise();
+    }
 }
 
 void MainWindow::enableDebugWidgetsMenu(bool enable)
@@ -1203,9 +1200,14 @@ void MainWindow::setViewLayout(const CutterLayout &layout)
     bool isDefault = layout.state.isEmpty() || layout.geometry.isEmpty();
     bool isDebug = Core()->currentlyDebugging;
 
-    for (auto dock : dockWidgets) {
+    // make a copy to avoid iterating over container from which items are being removed
+    auto widgetsToClose = dockWidgets;
+
+    for (auto dock : widgetsToClose) {
         dock->hide();
         dock->close();
+        dock->setFloating(false); // tabifyDockWidget doesn't work if dock is floating
+        removeDockWidget(dock);
     }
 
     QStringList docksToCreate;
