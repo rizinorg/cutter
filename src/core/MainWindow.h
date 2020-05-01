@@ -103,8 +103,8 @@ public:
     void addExtraWidget(CutterDockWidget *extraDock);
     MemoryDockWidget *addNewMemoryWidget(MemoryWidgetType type, RVA address, bool synchronized = true);
 
-
-    //void addPluginDockWidget(QDockWidget *dockWidget, QAction *action); // TODO:[#694] mark as deprecated
+    CUTTER_DEPRECATED("Action will be ignored. Use addPluginDockWidget(CutterDockWidget*) instead.")
+    void addPluginDockWidget(CutterDockWidget *dockWidget, QAction *) { addPluginDockWidget(dockWidget); }
     void addPluginDockWidget(CutterDockWidget *dockWidget);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
     /**

@@ -1,9 +1,10 @@
 #ifndef CUTTERWIDGET_H
 #define CUTTERWIDGET_H
 
-#include <QDockWidget>
-
+#include "CutterCommon.h"
 #include "common/RefreshDeferrer.h"
+
+#include <QDockWidget>
 
 class MainWindow;
 
@@ -12,7 +13,9 @@ class CutterDockWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    //CutterDockWidget(MainWindow *parent, QAction *); // TODO:[#694] mark as deprecated
+    CUTTER_DEPRECATED("Action will be ignored. Use CutterDockWidget(MainWindow*) instead.")
+    CutterDockWidget(MainWindow *parent, QAction *action);
+
     explicit CutterDockWidget(MainWindow *parent);
     ~CutterDockWidget() override;
     bool eventFilter(QObject *object, QEvent *event) override;

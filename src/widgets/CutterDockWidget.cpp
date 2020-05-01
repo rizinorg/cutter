@@ -4,6 +4,11 @@
 #include <QEvent>
 #include <QtWidgets/QShortcut>
 
+CutterDockWidget::CutterDockWidget(MainWindow *parent, QAction *)
+    : CutterDockWidget(parent)
+{
+}
+
 CutterDockWidget::CutterDockWidget(MainWindow *parent) :
     QDockWidget(parent),
     mainWindow(parent)

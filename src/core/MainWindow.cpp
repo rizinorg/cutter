@@ -1641,11 +1641,11 @@ void MainWindow::toggleDebugView()
 {
     MemoryWidgetType memType = getMemoryWidgetTypeToRestore();
     if (Core()->currentlyDebugging) {
-        layouts[LAYOUT_DEFAULT] = getViewLayout(); //TODO:#694 consider if should be saved to file
+        layouts[LAYOUT_DEFAULT] = getViewLayout();
         setViewLayout(getViewLayout(LAYOUT_DEBUG));
         enableDebugWidgetsMenu(true);
     } else {
-        layouts[LAYOUT_DEBUG] = getViewLayout(); //TODO:#694 consider if should be saved to file
+        layouts[LAYOUT_DEBUG] = getViewLayout();
         setViewLayout(getViewLayout(LAYOUT_DEFAULT));
         enableDebugWidgetsMenu(false);
     }
