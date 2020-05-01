@@ -67,7 +67,7 @@ class MemoryMapWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit MemoryMapWidget(MainWindow *main, QAction *action = nullptr);
+    explicit MemoryMapWidget(MainWindow *main);
     ~MemoryMapWidget();
 
 private slots:

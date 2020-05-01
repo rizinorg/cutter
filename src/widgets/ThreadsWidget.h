@@ -31,7 +31,7 @@ class ThreadsWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit ThreadsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ThreadsWidget(MainWindow *main);
     ~ThreadsWidget();
 
 private slots:

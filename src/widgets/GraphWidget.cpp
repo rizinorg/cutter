@@ -4,8 +4,8 @@
 #include "WidgetShortcuts.h"
 #include <QVBoxLayout>
 
-GraphWidget::GraphWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(MemoryWidgetType::Graph, main, action)
+GraphWidget::GraphWidget(MainWindow *main) :
+    MemoryDockWidget(MemoryWidgetType::Graph, main)
 {
     setObjectName(main
                   ? main->getUniqueObjectName(getWidgetType())

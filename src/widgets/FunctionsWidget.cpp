@@ -424,8 +424,8 @@ bool FunctionSortFilterProxyModel::lessThan(const QModelIndex &left, const QMode
     }
 }
 
-FunctionsWidget::FunctionsWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action),
+FunctionsWidget::FunctionsWidget(MainWindow *main) :
+    ListDockWidget(main),
     actionRename(tr("Rename"), this),
     actionUndefine(tr("Undefine"), this),
     actionHorizontal(tr("Horizontal"), this),

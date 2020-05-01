@@ -17,7 +17,7 @@ class SdbWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit SdbWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SdbWidget(MainWindow *main);
     ~SdbWidget();
 
 private slots:

@@ -229,8 +229,8 @@ bool CommentsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     return false;
 }
 
-CommentsWidget::CommentsWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action),
+CommentsWidget::CommentsWidget(MainWindow *main) :
+    ListDockWidget(main),
     actionHorizontal(tr("Horizontal"), this),
     actionVertical(tr("Vertical"), this)
 {

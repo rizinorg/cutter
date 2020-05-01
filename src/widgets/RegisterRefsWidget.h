@@ -69,7 +69,7 @@ class RegisterRefsWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit RegisterRefsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit RegisterRefsWidget(MainWindow *main);
     ~RegisterRefsWidget();
 
 private slots:

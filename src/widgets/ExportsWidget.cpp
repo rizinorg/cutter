@@ -125,8 +125,8 @@ bool ExportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftExp.vaddr < rightExp.vaddr;
 }
 
-ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action)
+ExportsWidget::ExportsWidget(MainWindow *main) :
+    ListDockWidget(main)
 {
     setWindowTitle(tr("Exports"));
     setObjectName("ExportsWidget");
@@ -138,8 +138,7 @@ ExportsWidget::ExportsWidget(MainWindow *main, QAction *action) :
 
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ExportsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true); 
-            main->updateDockActionChecked(action);
+            toggleDockWidget(true);
             } );
 
     connect(Core(), &CutterCore::codeRebased, this, &ExportsWidget::refreshExports);

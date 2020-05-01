@@ -12,7 +12,8 @@ class CutterDockWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit CutterDockWidget(MainWindow *parent, QAction *action = nullptr);
+    //CutterDockWidget(MainWindow *parent, QAction *); // TODO:[#694] mark as deprecated
+    explicit CutterDockWidget(MainWindow *parent);
     ~CutterDockWidget() override;
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isVisibleToUser()      { return isVisibleToUserCurrent; }
@@ -56,8 +57,6 @@ public:
     }
     virtual QVariantMap serializeViewProprties();
     virtual void deserializeViewProperties(const QVariantMap &properties);
-
-    bool isTransient = false; //TODO:#694 hack, move this back as private
 signals:
     void becameVisibleToUser();
     void closed();
@@ -69,14 +68,12 @@ protected:
     virtual QWidget* widgetToFocusOnRaise();
 
     void closeEvent(QCloseEvent *event) override;
-    QAction *getBoundAction() const;
     QString getDockNumber();
 
     MainWindow *mainWindow;
 
 private:
-    QAction *action;
-
+    bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;
     void updateIsVisibleToUser();

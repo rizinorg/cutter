@@ -94,19 +94,18 @@ public:
     void paintEvent(QPaintEvent *event) override;
     void readSettings();
     void saveSettings();
-    void readDebugSettings();
-    void saveDebugSettings();
     void setFilename(const QString &fn);
     void refreshOmniBar(const QStringList &flags);
 
-    void addWidget(QDockWidget *widget);
+    void addWidget(CutterDockWidget *widget);
     void addMemoryDockWidget(MemoryDockWidget *widget);
-    void removeWidget(QDockWidget *widget);
+    void removeWidget(CutterDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
     MemoryDockWidget *addNewMemoryWidget(MemoryWidgetType type, RVA address, bool synchronized = true);
 
 
-    void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
+    //void addPluginDockWidget(QDockWidget *dockWidget, QAction *action); // TODO:[#694] mark as deprecated
+    void addPluginDockWidget(CutterDockWidget *dockWidget);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
     /**
      * @brief Getter for MainWindow's different menus
@@ -115,8 +114,6 @@ public:
      */
     QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
-
-    void updateDockActionChecked(QAction * action);
 
     QString getFilename() const
     {
@@ -240,10 +237,10 @@ private:
 
     Configuration *configuration;
 
-    QList<QDockWidget *> dockWidgets;
-    QMultiMap<QAction *, QDockWidget *> dockWidgetsOfAction;
+    QList<CutterDockWidget *> dockWidgets;
     DecompilerWidget   *decompilerDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
+    QAction *actionOverview = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;
@@ -265,15 +262,15 @@ private:
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;
     VTablesWidget      *vTablesDock = nullptr;
-    QDockWidget        *stackDock = nullptr;
-    QDockWidget        *threadsDock = nullptr;
-    QDockWidget        *processesDock = nullptr;
-    QDockWidget        *registersDock = nullptr;
-    QDockWidget        *backtraceDock = nullptr;
-    QDockWidget        *memoryMapDock = nullptr;
+    CutterDockWidget        *stackDock = nullptr;
+    CutterDockWidget        *threadsDock = nullptr;
+    CutterDockWidget        *processesDock = nullptr;
+    CutterDockWidget        *registersDock = nullptr;
+    CutterDockWidget        *backtraceDock = nullptr;
+    CutterDockWidget        *memoryMapDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
-    QDockWidget        *breakpointDock = nullptr;
-    QDockWidget        *registerRefsDock = nullptr;
+    CutterDockWidget        *breakpointDock = nullptr;
+    CutterDockWidget        *registerRefsDock = nullptr;
 
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;
@@ -310,7 +307,6 @@ private:
 
     void toggleDockWidget(QDockWidget *dock_widget, bool show);
 
-    void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
     /**
@@ -325,7 +321,7 @@ private:
     /**
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
      */
-    QMap<QString, std::function<CutterDockWidget*(MainWindow*, QAction*)>> widgetTypeToConstructorMap;
+    QMap<QString, std::function<CutterDockWidget*(MainWindow*)>> widgetTypeToConstructorMap;
 
     MemoryDockWidget* lastSyncMemoryWidget = nullptr;
     MemoryDockWidget* lastMemoryWidget = nullptr;

@@ -6,8 +6,8 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 
-MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action)
-    : CutterDockWidget(parent, action)
+MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent)
+    : CutterDockWidget(parent)
     , mType(type)
     , seekable(new CutterSeekable(this))
     , syncAction(tr("Sync/unsync offset"), this)
@@ -40,11 +40,6 @@ bool MemoryDockWidget::tryRaiseMemoryWidget()
 
 void MemoryDockWidget::raiseMemoryWidget()
 {
-
-    if (getBoundAction()) {
-        getBoundAction()->setChecked(true);
-    }
-
     show();
     raise();
     widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);

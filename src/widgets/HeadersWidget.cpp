@@ -109,8 +109,8 @@ bool HeadersProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return leftHeader.vaddr < rightHeader.vaddr;
 }
 
-HeadersWidget::HeadersWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action)
+HeadersWidget::HeadersWidget(MainWindow *main) :
+    ListDockWidget(main)
 {
     setWindowTitle(tr("Headers"));
     setObjectName("HeadersWidget");

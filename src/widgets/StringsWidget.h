@@ -70,7 +70,7 @@ class StringsWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit StringsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit StringsWidget(MainWindow *main);
     ~StringsWidget();
 
 private slots:

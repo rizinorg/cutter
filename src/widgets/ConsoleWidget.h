@@ -24,7 +24,7 @@ class ConsoleWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit ConsoleWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ConsoleWidget(MainWindow *main);
 
     ~ConsoleWidget();
 

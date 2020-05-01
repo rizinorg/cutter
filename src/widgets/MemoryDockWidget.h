@@ -15,7 +15,7 @@ class MemoryDockWidget : public CutterDockWidget
 {
     Q_OBJECT
 public:
-    MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action = nullptr);
+    MemoryDockWidget(MemoryWidgetType type, MainWindow *parent);
     ~MemoryDockWidget() override {}
 
     CutterSeekable *getSeekable() const;

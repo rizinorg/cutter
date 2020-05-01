@@ -175,7 +175,7 @@ class ClassesWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit ClassesWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ClassesWidget(MainWindow *main);
     ~ClassesWidget();
 
 private slots:

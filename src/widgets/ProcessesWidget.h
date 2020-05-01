@@ -31,7 +31,7 @@ class ProcessesWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit ProcessesWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ProcessesWidget(MainWindow *main);
     ~ProcessesWidget();
 
 private slots:

@@ -15,8 +15,8 @@
 #include <QObject>
 #include <QTextBlockUserData>
 
-DecompilerWidget::DecompilerWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(MemoryWidgetType::Decompiler, main, action),
+DecompilerWidget::DecompilerWidget(MainWindow *main) :
+    MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DisassemblyContextMenu(this, main)),
     ui(new Ui::DecompilerWidget)
 {

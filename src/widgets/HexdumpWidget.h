@@ -31,7 +31,7 @@ class HexdumpWidget : public MemoryDockWidget
 {
     Q_OBJECT
 public:
-    explicit HexdumpWidget(MainWindow *main, QAction *action = nullptr);
+    explicit HexdumpWidget(MainWindow *main);
     ~HexdumpWidget() override;
     Highlighter *highlighter;
 

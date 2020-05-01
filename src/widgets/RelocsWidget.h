@@ -54,7 +54,7 @@ class RelocsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit RelocsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit RelocsWidget(MainWindow *main);
     ~RelocsWidget();
 
 private slots:

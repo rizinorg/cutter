@@ -92,7 +92,7 @@ class FunctionsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit FunctionsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit FunctionsWidget(MainWindow *main);
     ~FunctionsWidget() override;
     void changeSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver);
 

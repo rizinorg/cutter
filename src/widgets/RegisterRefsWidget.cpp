@@ -111,8 +111,8 @@ bool RegisterRefProxyModel::lessThan(const QModelIndex &left, const QModelIndex 
     return leftRegRef.reg < rightRegRef.reg;
 }
 
-RegisterRefsWidget::RegisterRefsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+RegisterRefsWidget::RegisterRefsWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::RegisterRefsWidget),
     tree(new CutterTreeWidget(this)),
     addressableItemContextMenu(this, main)
