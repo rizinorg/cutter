@@ -238,6 +238,7 @@ private:
     Configuration *configuration;
 
     QList<CutterDockWidget *> dockWidgets;
+    QList<CutterDockWidget *> pluginDocks;
     DecompilerWidget   *decompilerDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
     QAction *actionOverview = nullptr;
@@ -295,6 +296,11 @@ private:
     void restoreDocks();
     void showZenDocks();
     void showDebugDocks();
+    /**
+     * @brief Try to guess which is the "main" section of layout and dock there.
+     * @param widget that needs to be docked
+     */
+    void dockOnMainArea(QDockWidget *widget);
     void enableDebugWidgetsMenu(bool enable);
     /**
      * @brief Fill menu with seek history entries.
@@ -305,8 +311,6 @@ private:
     void updateLayoutsMenu();
     void saveNamedLayout();
 
-    void toggleDockWidget(QDockWidget *dock_widget, bool show);
-
     void setOverviewData();
     bool isOverviewActive();
     /**
@@ -315,6 +319,7 @@ private:
      * @return true for debug specific widgets, false for all other including common dock widgets.
      */
     bool isDebugWidget(QDockWidget *dock) const;
+    bool isExtraMemoryWidget(QDockWidget *dock) const;
 
     MemoryWidgetType getMemoryWidgetTypeToRestore();
 

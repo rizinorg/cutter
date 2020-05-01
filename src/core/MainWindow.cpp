@@ -432,8 +432,10 @@ void MainWindow::addExtraDisassembly()
 void MainWindow::addExtraWidget(CutterDockWidget *extraDock)
 {
     extraDock->setTransient(true);
-    addDockWidget(Qt::TopDockWidgetArea, extraDock, Qt::Orientation::Horizontal);
+    dockOnMainArea(extraDock);
     addWidget(extraDock);
+    extraDock->show();
+    extraDock->raise();
 }
 
 QMenu *MainWindow::getMenuByType(MenuType type)
@@ -463,6 +465,7 @@ void MainWindow::addPluginDockWidget(CutterDockWidget *dockWidget)
     addWidget(dockWidget);
     ui->menuPlugins->addAction(dockWidget->toggleViewAction());
     addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, dockWidget);
+    pluginDocks.push_back(dockWidget);
 }
 
 void MainWindow::addMenuFileAction(QAction *action)
@@ -808,9 +811,7 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(dashboardDock, registerRefsDock);
     for (const auto &it : dockWidgets) {
         // Check whether or not current widgets is graph, hexdump or disasm
-        if (qobject_cast<GraphWidget *>(it) ||
-                qobject_cast<HexdumpWidget *>(it) ||
-                qobject_cast<DisassemblyWidget *>(it)) {
+        if (isExtraMemoryWidget(it)) {
             tabifyDockWidget(dashboardDock, it);
         }
     }
@@ -825,6 +826,10 @@ void MainWindow::restoreDocks()
     tabifyDockWidget(stackDock, backtraceDock);
     tabifyDockWidget(backtraceDock, threadsDock);
     tabifyDockWidget(threadsDock, processesDock);
+
+    for (auto dock : pluginDocks) {
+        dockOnMainArea(dock);
+    }
 }
 
 bool MainWindow::isDebugWidget(QDockWidget *dock) const
@@ -837,6 +842,13 @@ bool MainWindow::isDebugWidget(QDockWidget *dock) const
            dock == breakpointDock ||
            dock == processesDock ||
            dock == registerRefsDock;
+}
+
+bool MainWindow::isExtraMemoryWidget(QDockWidget *dock) const
+{
+    return qobject_cast<GraphWidget*>(dock) ||
+            qobject_cast<HexdumpWidget*>(dock) ||
+            qobject_cast<DisassemblyWidget*>(dock);
 }
 
 MemoryWidgetType MainWindow::getMemoryWidgetTypeToRestore()
@@ -1102,6 +1114,7 @@ void MainWindow::addMemoryDockWidget(MemoryDockWidget *widget)
 void MainWindow::removeWidget(CutterDockWidget *widget)
 {
     dockWidgets.removeAll(widget);
+    pluginDocks.removeAll(widget);
     if (lastSyncMemoryWidget == widget) {
         lastSyncMemoryWidget = nullptr;
     }
@@ -1122,9 +1135,7 @@ void MainWindow::showZenDocks()
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w) ||
-            qobject_cast<GraphWidget*>(w) ||
-            qobject_cast<HexdumpWidget*>(w) ||
-            qobject_cast<DisassemblyWidget*>(w)) {
+            isExtraMemoryWidget(w)) {
             w->show();
         }
     }
@@ -1151,9 +1162,7 @@ void MainWindow::showDebugDocks()
     QDockWidget *widgetToFocus = nullptr;
     for (auto w : dockWidgets) {
         if (debugDocks.contains(w) ||
-            qobject_cast<GraphWidget*>(w) ||
-            qobject_cast<HexdumpWidget*>(w) ||
-            qobject_cast<DisassemblyWidget*>(w)) {
+            isExtraMemoryWidget(w)) {
             w->show();
         }
         if (qobject_cast<DisassemblyWidget*>(w)) {
@@ -1165,6 +1174,33 @@ void MainWindow::showDebugDocks()
     functionsDock->setMaximumWidth(width);
     if (widgetToFocus) {
         widgetToFocus->raise();
+    }
+}
+
+void MainWindow::dockOnMainArea(QDockWidget *widget)
+{
+    QDockWidget* best = nullptr;
+    float bestScore = 1;
+    // choose best existing area for placing the new widget
+    for (auto dock : dockWidgets) {
+        if (dock->isHidden() || dock == widget) {
+            continue;
+        }
+        float newScore = 0;
+        if (isExtraMemoryWidget(dock)) {
+            newScore += 10000000; // prefer existing disssasembly and graph widgets
+        }
+        newScore += dock->width() * dock->height(); // the bigger the better
+
+        if (newScore > bestScore) {
+            bestScore = newScore;
+            best = dock;
+        }
+    }
+    if (best) {
+        tabifyDockWidget(best, widget);
+    } else {
+        addDockWidget(Qt::TopDockWidgetArea, widget, Qt::Orientation::Horizontal);
     }
 }
 
@@ -1247,22 +1283,27 @@ void MainWindow::setViewLayout(const CutterLayout &layout)
 
     for (auto dock : dockWidgets) {
         auto properties = layout.viewProperties.find(dock->objectName());
-        auto cutterDock = qobject_cast<CutterDockWidget *>(dock);
         if (properties != layout.viewProperties.end()) {
-            if (cutterDock != nullptr) {
-                cutterDock->deserializeViewProperties(*properties);
-            }
+            dock->deserializeViewProperties(*properties);
         } else {
-            if (cutterDock != nullptr) {
-                // call with empty to reset view properties when switching layout
-                cutterDock->deserializeViewProperties({});
-            }
+            dock->deserializeViewProperties({}); // call with empty properties to reset the widget
             newDocks.push_back(dock);
         }
     }
 
     if (!isDefault) {
         restoreState(layout.state);
+
+        for (auto dock : newDocks) {
+            dock->hide(); // hide to prevent dockOnMainArea putting them on each other
+        }
+        for (auto dock : newDocks) {
+            dockOnMainArea(dock);
+            // Show any new docks by default.
+            // Showing new builtin docks helps discovering features added in latest release.
+            // Installing a new plugin hints that usre will likely want to use it.
+            dock->show();
+        }
     } else {
         if (isDebug) {
             showDebugDocks();
