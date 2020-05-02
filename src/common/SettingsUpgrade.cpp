@@ -61,13 +61,17 @@ static void migrateSettingsTo3(QSettings &settings) {
 
     const auto docks = settings.value("docks", QStringList()).toStringList();
     auto unsyncList = settings.value("unsync", QStringList()).toStringList();
+#if QT_VERSION < QT_VERSION_CHECK(5,14,0)
+    QSet<QString> unsyncDocks = unsyncList.toSet();
+#else
     QSet<QString> unsyncDocks(unsyncList.begin(), unsyncList.end());
+#endif
 
     QVariantMap viewProperties;
     for (auto &dock : docks) {
         QVariantMap properties;
         bool synchronized = true;
-        if (unsyncList.contains(dock)) {
+        if (unsyncDocks.contains(dock)) {
             synchronized = false;
         }
         properties.insert("synchronized", synchronized);
