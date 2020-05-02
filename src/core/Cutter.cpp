@@ -870,6 +870,7 @@ void CutterCore::seekAndShow(QString offset)
 void CutterCore::seek(QString thing)
 {
     cmdRaw(QString("s %1").arg(thing));
+    updateSeek();
 }
 
 void CutterCore::seekPrev()
