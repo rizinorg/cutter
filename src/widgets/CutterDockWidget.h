@@ -58,7 +58,33 @@ public:
         });
         return deferrer;
     }
+    /**
+     * @brief Serialize dock properties for saving as part of layout.
+     *
+     * Override this function for saving dock specific view properties. Use
+     * in situations where it makes sense to have different properties for
+     * multiple instances of widget. Don't use for options that are more suitable
+     * as global settings and should be applied equally to all widgets or all
+     * widgets of this kind.
+     *
+     * Keep synchrononized with deserializeViewProperties. When modifying add
+     * project upgrade step in SettingsUpgrade.cpp if necessary.
+     *
+     * @return Dictionary of current dock properties.
+     * @see CutterDockWidget#deserializeViewProperties
+     */
     virtual QVariantMap serializeViewProprties();
+    /**
+     * @brief Deserialization half of serialize view properties.
+     *
+     * When a property is not specified in property map dock should reset it
+     * to default value instead of leaving it umodified. Empty map should reset
+     * all properties controlled by serializeViewProprties/deserializeViewProperties
+     * mechanism.
+     *
+     * @param properties to modify for current widget
+     * @see CutterDockWidget#serializeViewProprties
+     */
     virtual void deserializeViewProperties(const QVariantMap &properties);
 signals:
     void becameVisibleToUser();
