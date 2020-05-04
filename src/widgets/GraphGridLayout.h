@@ -4,6 +4,9 @@
 #include "core/Cutter.h"
 #include "GraphLayout.h"
 
+/**
+ * @brief Graph layout algorithm on layered graph layout approach. For simplicity all the nodes are placed in a grid.
+ */
 class GraphGridLayout : public GraphLayout
 {
 public:
@@ -23,18 +26,18 @@ private:
 
     struct GridBlock {
         ut64 id;
-        std::vector<ut64> tree_edge; // subset of outgoing edges that form a tree
-        std::vector<ut64> dag_edge; // subset of outgoing edges that form a tree
+        std::vector<ut64> tree_edge; //< subset of outgoing edges that form a tree
+        std::vector<ut64> dag_edge; //< subset of outgoing edges that form a tree
         std::size_t has_parent = false;
         int level = 0;
 
-        // Number of rows in block
+        /// Number of rows in subtree
         int row_count = 0;
-        // Number of columns in block
+        /// Number of columns in subtree
         int col_count = 0;
-        // Column in which the block is
+        /// Column in which the block is
         int col = 0;
-        // Row in which the block is
+        /// Row in which the block is
         int row = 0;
     };
 

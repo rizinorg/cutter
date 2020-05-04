@@ -6,36 +6,31 @@
 #include <stack>
 #include <cassert>
 
-/*
-This files implements a layered graph layout where all nodes are placed in a grid.
+/** @class GraphGridLayout
 
-Basic familarity with grpah algorithms is recommended.
-Terms used:
-~~~~~~~~~~~
-Vertice, node, block - read description of graph for definition. Within this text vertice and node are used
-interchangably with block due to code being written for visualizing basic block controll flow graph.
+Basic familarity with graph algorithms is recommended.
 
-edge - read description of graph for definition for precise definition.
-
-DAG - directed acyclic graph, graph using directed edges which doesn't have cycles. DAG may contain loops if following
-them would require going in both directions of edges. Example 1->2 1->3 3->2 is a DAG, 2->1 1->3 3->2 isn't a DAG.
-
-DFS - depth first search, a graph traversal algorithm
-
-toposort - toplogical sorting, process of ordering a DAG vertices that all edges go from vertices erlier in the
+# Terms used:
+- **Vertice**, **node**, **block** - read description of graph for definition. Within this text vertice and node are
+used interchangably with block due to code being written for visualizing basic block controll flow graph.
+- **edge** - read description of graph for definition for precise definition.
+- **DAG** - directed acyclic graph, graph using directed edges which doesn't have cycles. DAG may contain loops if
+following them would require going in both directions of edges. Example 1->2 1->3 3->2 is a DAG, 2->1 1->3 3->2
+isn't a DAG.
+- **DFS** - depth first search, a graph traversal algorithm
+- **toposort** - toplogical sorting, process of ordering a DAG vertices that all edges go from vertices erlier in the
 toposort order to vertices later in toposort order. There are multiple algorithms for implementing toposort operation.
 Single DAG can have multiple valid topoligical orderings, a toposort algorithm can be designed to priotarize a specific
 one from all valid toposort orders. Example: for graph 1->4, 2->1, 2->3, 3->4 valid topological orders are [2,1,3,4] and
 [2,3,1,4].
 
-High level strucutre of the algorithm
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1 select subset of edges that form a DAG (remove cycles)
-2 toposort the DAG
-3 choose a subset of edges that form a tree and assign layers
-4 assign node positions within grid using tree structure, child subtrees are placed side by side with parent on top
-5 perform edge routing
-6 calculate column and row pixel positions based on node sizes and amount edges between the rows
+# High level strucutre of the algorithm
+1. select subset of edges that form a DAG (remove cycles)
+2. toposort the DAG
+3. choose a subset of edges that form a tree and assign layers
+4. assign node positions within grid using tree structure, child subtrees are placed side by side with parent on top
+5. perform edge routing
+6. calculate column and row pixel positions based on node sizes and amount edges between the rows
 
 
 Contrary to many other layered graph drawing algorithm this implementation doesn't perform node reording to minimize
@@ -44,8 +39,7 @@ true jump on one side, false jump on other). Due to most of control flow being r
 constructs like if/then/else and loops, resulting layout is usually readable without node reordering within layers.
 
 
-Describtion of grid.
-~~~~~~~~~~~~~~~~~~~~
+# Describtion of grid.
 To simplify the layout algorithm initial steps assume that all nodes have the same size and edges are zero width.
 After placing the nodes and routing the edges it is known which nodes are in in which row and column, how
 many edges are between each pair of rows. Using this information positions are converted from the grid cells
@@ -53,8 +47,8 @@ to pixel coordinates. Routing 0 width edges between rows can also be interpreted
 reserved for edges. The row numbers in code are using first interpretation. To allow better centering of nodes one
 above other each node is 2 columns wide and 1 row high.
 
-1-2 Cycle removal and toposort
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 1-2 Cycle removal and toposort
+
 Cycle removal and toposort are done at the same time during single DFS traversal. In case entrypoint is part of a loop
 DFS started from entrypoint. This ensures that entrypoint is at the top of resulting layout if possible. Resulting
 toposort order is used in many of the following layout steps that require calculating some property of a vertice based
@@ -62,8 +56,8 @@ on child property or the other way around. Using toposort order such operations 
 array in either forward or reverse direction. To prevent running out of stack memory when processing large graphs
 DFS is implemented non-recursively.
 
-Layer assignment
-~~~~~~~~~~~~~~~~
+# Layer assignment
+
 Layers are assigned in toposort order from top to bottom, with nodes layer being max(predecessor.layer)+1. This ensures
 that loop edges are only ones going from deeper levels to previous layers.
 
@@ -71,8 +65,8 @@ To further simply node placment a subset of edges is selected which forms a tree
 into a tree drawing problem. For each node in level n following nodes which have level exactly n+1 are greedily
 assigned as child nodes in tree. If a node already has perant assigned then corresponding edge is not part of tree.
 
-Node position assignment
-~~~~~~~~~~~~~~~~~~~~~~~~
+# Node position assignment
+
 Since the graph has been reduced to a tree node placement is more or less putting subtrees side by side with
 parent on top. There is some room for interpretation what exactly side by side means and where exactly on top is.
 Drawing the graph either too dense or too big may make it less readable so there are configuration options which allow
@@ -86,21 +80,36 @@ Other choice is wether to place node horizontally in the middle between direct c
 subtree width.
 
 That results in 3 modes
-* wide - bounding boxes are always side by side, no exception for single vertice subtree
-* medium - use exception for single vertice subtree, place node in the middle of direct children. In case of long
+
+- **wide** - bounding boxes are always side by side, no exception for single vertice subtree
+- **medium** - use exception for single vertice subtree, place node in the middle of direct children. In case of long
  if elseif chanin produces staircase shape.
-* narrow - use exception for single vertice subtree, place node in the middle of subtree total width. In case of
+- **narrow** - use exception for single vertice subtree, place node in the middle of subtree total width. In case of
  if elseif chain produces two columns.
 
+# Edge routing
+Edge routing can be split into 3 stages. Rough routing within grid, overlaping edge prevention and converting to
+pixel coordinates.
+
+Due to nodes being placed in a grid. Horizontal segments of edges can't intersect with any nodes. The path for edges
+is chosen so that it consists of at most 5 segments, typically resulting in sidedway U shape or square Z shape.
+- short vertical segment from node to horizontal line
+- move to empty column
+- vertical segment between starting row and end row, an empty column can always be found, in the worst case there are empty columns at the sides of drawing
+- horizontal segment to target node column
+- short vertical segment connecting to target node
+
+There are 3 special cases:
+- source and target nodes are in the same column with no nodes betweeen - single vertical segment
+- column bellow stating node is empty - segments 1-3 are merged
+- column above target node is empty - segments 3-5 are merged
+Vertical segment intersection with nodes is prevented using a 2d arry marking which vertical segments are blocked and
+naively iterating through all rows between start and end at the desired column.
+
+Edge overlap within a column or row is prevented by spliting columns into sub-columns. Used subcolumns are stored and
+chechked using a 2d array of lists.
+
 */
-
-
-// Vector functions
-template<class T>
-static void removeFromVec(std::vector<T> &vec, T elem)
-{
-    vec.erase(std::remove(vec.begin(), vec.end(), elem), vec.end());
-}
 
 GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     : GraphLayout({})
