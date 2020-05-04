@@ -6,6 +6,95 @@
 #include <stack>
 #include <cassert>
 
+/*
+This files implements a layered graph layout where all nodes are placed in a grid.
+
+Basic familarity with grpah algorithms is recommended.
+Terms used:
+~~~~~~~~~~~
+Vertice, node, block - read description of graph for definition. Within this text vertice and node are used
+interchangably with block due to code being written for visualizing basic block controll flow graph.
+
+edge - read description of graph for definition for precise definition.
+
+DAG - directed acyclic graph, graph using directed edges which doesn't have cycles. DAG may contain loops if following
+them would require going in both directions of edges. Example 1->2 1->3 3->2 is a DAG, 2->1 1->3 3->2 isn't a DAG.
+
+DFS - depth first search, a graph traversal algorithm
+
+toposort - toplogical sorting, process of ordering a DAG vertices that all edges go from vertices erlier in the
+toposort order to vertices later in toposort order. There are multiple algorithms for implementing toposort operation.
+Single DAG can have multiple valid topoligical orderings, a toposort algorithm can be designed to priotarize a specific
+one from all valid toposort orders. Example: for graph 1->4, 2->1, 2->3, 3->4 valid topological orders are [2,1,3,4] and
+[2,3,1,4].
+
+High level strucutre of the algorithm
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 select subset of edges that form a DAG (remove cycles)
+2 toposort the DAG
+3 choose a subset of edges that form a tree and assign layers
+4 assign node positions within grid using tree structure, child subtrees are placed side by side with parent on top
+5 perform edge routing
+6 calculate column and row pixel positions based on node sizes and amount edges between the rows
+
+
+Contrary to many other layered graph drawing algorithm this implementation doesn't perform node reording to minimize
+edge crossing. This simplifies implementation, and preserves original control flow structure for conditional jumps (
+true jump on one side, false jump on other). Due to most of control flow being result of structured programming
+constructs like if/then/else and loops, resulting layout is usually readable without node reordering within layers.
+
+
+Describtion of grid.
+~~~~~~~~~~~~~~~~~~~~
+To simplify the layout algorithm initial steps assume that all nodes have the same size and edges are zero width.
+After placing the nodes and routing the edges it is known which nodes are in in which row and column, how
+many edges are between each pair of rows. Using this information positions are converted from the grid cells
+to pixel coordinates. Routing 0 width edges between rows can also be interpreted as every second row and column being
+reserved for edges. The row numbers in code are using first interpretation. To allow better centering of nodes one
+above other each node is 2 columns wide and 1 row high.
+
+1-2 Cycle removal and toposort
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cycle removal and toposort are done at the same time during single DFS traversal. In case entrypoint is part of a loop
+DFS started from entrypoint. This ensures that entrypoint is at the top of resulting layout if possible. Resulting
+toposort order is used in many of the following layout steps that require calculating some property of a vertice based
+on child property or the other way around. Using toposort order such operations can be implemented iteration through
+array in either forward or reverse direction. To prevent running out of stack memory when processing large graphs
+DFS is implemented non-recursively.
+
+Layer assignment
+~~~~~~~~~~~~~~~~
+Layers are assigned in toposort order from top to bottom, with nodes layer being max(predecessor.layer)+1. This ensures
+that loop edges are only ones going from deeper levels to previous layers.
+
+To further simply node placment a subset of edges is selected which forms a tree. This turns DAG drawing problem
+into a tree drawing problem. For each node in level n following nodes which have level exactly n+1 are greedily
+assigned as child nodes in tree. If a node already has perant assigned then corresponding edge is not part of tree.
+
+Node position assignment
+~~~~~~~~~~~~~~~~~~~~~~~~
+Since the graph has been reduced to a tree node placement is more or less putting subtrees side by side with
+parent on top. There is some room for interpretation what exactly side by side means and where exactly on top is.
+Drawing the graph either too dense or too big may make it less readable so there are configuration options which allow
+choosing these things resulting in more or less dense layout.
+
+Current layout algorithm defines subtree size as it's bounding box and in most cases puts the bounding boxes side by
+side. The layout could be made more dense by taking exact shape into account. There is a special case for ignoring
+bounding box when one of 2 subtrees contain's exactly 1 vertice.
+
+Other choice is wether to place node horizontally in the middle between direct child nodes or in the middle of
+subtree width.
+
+That results in 3 modes
+* wide - bounding boxes are always side by side, no exception for single vertice subtree
+* medium - use exception for single vertice subtree, place node in the middle of direct children. In case of long
+ if elseif chanin produces staircase shape.
+* narrow - use exception for single vertice subtree, place node in the middle of subtree total width. In case of
+ if elseif chain produces two columns.
+
+*/
+
+
 // Vector functions
 template<class T>
 static void removeFromVec(std::vector<T> &vec, T elem)
@@ -69,7 +158,7 @@ std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, ut64 entry)
         }
     }
 
-    // assign levels and select tree edges
+    // assign layers and select tree edges
     for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
         auto &block = state.grid_blocks[*it];
         int nextLevel = block.level + 1;
