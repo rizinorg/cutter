@@ -33,6 +33,9 @@ const QHash<QString, ColorFlags> Configuration::relevantThemes = {
     { "tango", LightFlag },
     { "white", LightFlag }
 };
+static const QString DEFAULT_LIGHT_COLOR_THEME = "cutter";
+static const QString DEFAULT_DARK_COLOR_THEME = "ayu";
+
 
 const QHash<QString, QHash<ColorFlags, QColor>> Configuration::cutterOptionColors = {
     { "gui.cflow",                 { { DarkFlag,  QColor(0xff, 0xff, 0xff) },
@@ -440,6 +443,8 @@ void Configuration::setInterfaceTheme(int theme)
         setColor(it.key(), it.value()[interfaceTheme.flag]);
     }
 
+    adjustColorThemeDarkness();
+
     emit interfaceThemeChanged();
     emit colorsUpdated();
 #ifdef CUTTER_ENABLE_KSYNTAXHIGHLIGHTING
@@ -541,6 +546,26 @@ void Configuration::setColorTheme(const QString &theme)
     }
 
     emit colorsUpdated();
+}
+
+void Configuration::adjustColorThemeDarkness()
+{
+    bool windowIsDark = windowColorIsDark();
+    int windowDarkness = windowIsDark ? DarkFlag : LightFlag;
+    int currentColorThemeDarkness = colorThemeDarkness(getColorTheme());
+
+    if ((currentColorThemeDarkness & windowDarkness) == 0) {
+        setColorTheme(windowIsDark ? DEFAULT_DARK_COLOR_THEME : DEFAULT_LIGHT_COLOR_THEME);
+    }
+}
+
+int Configuration::colorThemeDarkness(const QString &colorTheme) const
+{
+    auto flags = relevantThemes.find(colorTheme);
+    if (flags != relevantThemes.end()) {
+        return static_cast<int>(*flags);
+    }
+    return DarkFlag | LightFlag;
 }
 
 void Configuration::resetToDefaultAsmOptions()

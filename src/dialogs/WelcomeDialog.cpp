@@ -37,6 +37,7 @@ WelcomeDialog::WelcomeDialog(QWidget *parent) :
             this,
             &WelcomeDialog::onLanguageComboBox_currentIndexChanged);
 
+    Config()->adjustColorThemeDarkness();
 }
 
 /**
@@ -54,11 +55,6 @@ WelcomeDialog::~WelcomeDialog()
 void WelcomeDialog::on_themeComboBox_currentIndexChanged(int index)
 {
     Config()->setInterfaceTheme(index);
-
-    // use "ayu" as the default color theme for dark interface
-    if (Config()->windowColorIsDark()) {
-        Config()->setColorTheme("ayu");
-    }
 
     // make sure that Cutter's logo changes its color according to the selected theme
     ui->logoSvgWidget->load(Config()->getLogoFile());

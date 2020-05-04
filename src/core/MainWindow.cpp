@@ -550,7 +550,7 @@ void MainWindow::finalizeOpen()
     // Add fortune message
     core->message("\n" + core->cmdRaw("fo"));
     showMaximized();
-
+    Config()->adjustColorThemeDarkness();
 
     QSettings s;
     QStringList unsync = s.value("unsync").toStringList();

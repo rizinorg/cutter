@@ -141,6 +141,11 @@ public:
 
     QString getColorTheme() const     { return s.value("theme", "cutter").toString(); }
     void setColorTheme(const QString &theme);
+    /**
+     * @brief Change current color theme if it doesnt't much native theme's darkness.
+     */
+    void adjustColorThemeDarkness();
+    int colorThemeDarkness(const QString &colorTheme) const;
 
     void setColor(const QString &name, const QColor &color);
     const QColor getColor(const QString &name) const;
