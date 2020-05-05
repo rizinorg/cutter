@@ -49,9 +49,10 @@ private:
 
     struct GridEdge {
         ut64 dest;
-        std::vector<Point> points;
         int start_index = 0;
+        int mainColumn = -1;
         QPolygonF polyline;
+        std::vector<Point> points;
 
         void addPoint(int row, int col, int index = 0)
         {
@@ -83,6 +84,7 @@ private:
     using Matrix = std::vector<std::vector<T>>;
     using EdgesVector = Matrix<std::vector<bool>>;
 
+    void routeEdges(LayoutState &state) const;
     GridEdge routeEdge(EdgesVector &horiz_edges, EdgesVector &vert_edges,
                        Matrix<bool> &edge_valid, GridBlock &start, GridBlock &end) const;
     static int findVertEdgeIndex(EdgesVector &edges, int col, int min_row, int max_row);

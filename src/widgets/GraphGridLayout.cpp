@@ -111,6 +111,138 @@ chechked using a 2d array of lists.
 
 */
 
+namespace {
+class MinTree1
+{
+public:
+    MinTree1(size_t size)
+        : size(size)
+        , nodeCount(2 * size)
+        , nodes(nodeCount)
+    {
+    }
+
+    MinTree1(size_t size, int value)
+        : MinTree1(size)
+    {
+        init(value);
+    }
+
+    void build()
+    {
+        for (size_t i = size - 1; i > 0; i--) {
+            nodes[i] = std::min(nodes[i << 1], nodes[(i << 1) | 1]);
+        }
+    }
+    void init(int value)
+    {
+        std::fill_n(nodes.begin() + size, size, value);
+    }
+
+    void set(size_t pos, int value)
+    {
+        nodes[pos + size] = value;
+        while (pos > 1) {
+            auto parrent = pos >> 1;
+            nodes[parrent] = std::min(nodes[pos], nodes[pos ^ 1]);
+            pos = parrent;
+        }
+    }
+    int valueAtPoint(size_t pos)
+    {
+        return nodes[positionToLeaveIndex(pos)];
+    }
+    size_t leaveIndexToPosition(size_t index)
+    {
+        return index - size;
+    }
+
+    size_t positionToLeaveIndex(size_t position)
+    {
+        return position + size;
+    }
+
+    /**
+     * @brief Find right most position with value than less than given in range [0; position].
+     * @param position inclusive right side of query range
+     * @param value search for position with value less than this
+     * @return returns the position with searched property or -1 if there is no such position.
+     */
+    int rightMostLessThan(size_t position, int value)
+    {
+        // right side exclusive range [l;r)
+        size_t goodSubtree = 0;
+        for (size_t l = positionToLeaveIndex(0), r = positionToLeaveIndex(position + 1); l < r;
+                l >>= 1, r >>= 1) {
+            if (l & 1) {
+                if (nodes[l] < value) {
+                    // mark subtree as good but don't stop yet, there might be something good further to the right
+                    goodSubtree = l;
+                }
+                ++l;
+            }
+            if (r & 1) {
+                --r;
+                if (nodes[r] <  value) {
+                    goodSubtree = r;
+                    break;
+                }
+            }
+        }
+        if (!goodSubtree) {
+            return -1;
+        }
+        // find rightmost branch of subtree
+        while (goodSubtree < size) {
+            goodSubtree = (goodSubtree << 1) + 1;
+        }
+        return goodSubtree - size; // convert from node index to position in range (0;size]
+    }
+
+    /**
+     * @brief Find left most position with value than less than given in range [position; size).
+     * @param position inclusive left side of query range
+     * @param value search for position with value less than this
+     * @return returns the position with searched property or -1 if there is no such position.
+     */
+    int leftMostLessThan(size_t position, int value)
+    {
+        // right side exclusive range [l;r)
+        size_t goodSubtree = 0;
+        for (size_t l = positionToLeaveIndex(position), r = positionToLeaveIndex(size); l < r;
+                l >>= 1, r >>= 1) {
+            if (l & 1) {
+                if (nodes[l] < value) {
+                    goodSubtree = l;
+                    break;
+                }
+                ++l;
+            }
+            if (r & 1) {
+                --r;
+                if (nodes[r] <  value) {
+                    goodSubtree = r;
+                    // mark subtree as good but don't stop yet, there might be something good further to the left
+                }
+            }
+        }
+        if (!goodSubtree) {
+            return -1;
+        }
+        // find rightmost branch of subtree
+        while (goodSubtree < size) {
+            goodSubtree = (goodSubtree << 1);
+        }
+        return goodSubtree - size; // convert from node index to position in range (0;size]
+    }
+private:
+    const size_t size; //< number of leaves and also index of left most leave
+    const size_t nodeCount;
+    std::vector<int> nodes;
+};
+
+}
+
 GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     : GraphLayout({})
 , layoutType(layoutType)
@@ -480,6 +612,91 @@ void GraphGridLayout::markEdge(EdgesVector &edges, int row, int col, int index, 
         edges[row][col].push_back(false);
     edges[row][col][index] = used;
 }
+
+void GraphGridLayout::routeEdges(GraphGridLayout::LayoutState &state) const
+{
+    //first part route the edges within grid, avoiding nodes
+    // Use sweep line approach processing events sorted by row
+    size_t columns = 1;
+    size_t rows = 1;
+    for (auto &node : state.grid_blocks) {
+        // block is 2 column wide so index for edge column to the right of block is
+        // +2, and edge column count is at least 2 + 1
+        columns = std::max(columns, size_t(node.second.col) + 3);
+        rows = std::max(rows, size_t(node.second.row) + 1);
+    }
+    struct Event {
+        size_t blockId;
+        size_t edgeId;
+        int row;
+        enum Type {
+            Edge = 0,
+            Block = 1
+        } type;
+    };
+    // create events
+    std::vector<Event> events;
+    events.reserve(state.grid_blocks.size() * 2);
+    for (const auto &it : state.grid_blocks) {
+        events.push_back({it.first, 0, it.second.row, Event::Block});
+        const auto &inputBlock = (*state.blocks)[it.first];
+        int startRow = it.second.row + 1;
+
+        auto gridEdges = state.edge[it.first];
+        gridEdges.resize(inputBlock.edges.size());
+        for (size_t i = 0; i < inputBlock.edges.size(); i++) {
+            auto targetId = inputBlock.edges[i].target;
+            gridEdges[i].dest = targetId;
+            const auto &targetGridBlock = state.grid_blocks[targetId];
+            int endRow = targetGridBlock.row;
+            Event e{targetId, i, std::max(startRow, endRow), Event::Edge};
+            events.push_back(e);
+        }
+    }
+    std::sort(events.begin(), events.end(),
+        [](const Event & a, const Event & b) {
+        if (a.row != b.row) {
+            return a.row < b.row;
+        }
+        return static_cast<int>(a.type) < static_cast<int>(b.type);
+    });
+
+    // process events and choose main column for each edge
+    MinTree1 blockedColumns(columns, -1);
+    for (const auto &event : events) {
+        if (event.type == Event::Block) {
+            auto block = state.grid_blocks[event.blockId];
+            blockedColumns.set(block.col + 1, event.row);
+        } else {
+            auto block = state.grid_blocks[event.blockId];
+            int column = block.col + 1;
+            auto &edge = state.edge[event.blockId][event.edgeId];
+            const auto &targetBlock = state.grid_blocks[edge.dest];
+            auto topRow = std::min(block.row + 1, targetBlock.row);
+
+            // Prefer using the same column as starting node or target node.
+            // It allows reducing amount of segments.
+            if (blockedColumns.valueAtPoint(column) < topRow) {
+                edge.mainColumn = column;
+            } else if (blockedColumns.valueAtPoint(targetBlock.col + 1) < topRow) {
+                edge.mainColumn = targetBlock.col + 1;
+            } else {
+                auto nearestLeft = blockedColumns.rightMostLessThan(column, topRow);
+                auto nearestRight = blockedColumns.leftMostLessThan(column, topRow);
+                // There should always be empty column at the sides of drawing
+                assert(nearestLeft != -1 && nearestRight != -1);
+
+                // choose column closest to the middle
+                if (column - nearestLeft < nearestRight - column) {
+                    edge.mainColumn = nearestLeft;
+                } else {
+                    edge.mainColumn = nearestRight;
+                }
+            }
+        }
+    }
+}
+
 
 GraphGridLayout::GridEdge GraphGridLayout::routeEdge(EdgesVector &horiz_edges,
                                                      EdgesVector &vert_edges,
