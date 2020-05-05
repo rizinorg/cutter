@@ -211,7 +211,10 @@ int Configuration::getNewFileLastClicked()
 
 void Configuration::resetAll()
 {
-    Core()->cmdRaw("e-");
+    // Don't reset all r2 vars, that currently breaks a bunch of stuff.
+    // settingsFile.remove()+loadInitials() should reset all settings configurable using Cutter GUI.
+    //Core()->cmdRaw("e-");
+
     Core()->setSettings();
     // Delete the file so no extra configuration is in it.
     QFile settingsFile(s.fileName());
