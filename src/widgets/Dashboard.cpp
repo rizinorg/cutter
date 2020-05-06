@@ -80,6 +80,17 @@ void Dashboard::updateContents()
 
     QJsonObject hashes = Core()->cmdj("itj").object();
 
+    // Delete hashesWidget if it isn't null to avoid duplicate components
+    if (hashesWidget) {
+        hashesWidget->deleteLater();
+    }
+
+    // Define dynamic components to hold the hashes
+    hashesWidget = new QWidget();
+    QFormLayout *hashesLayout = new QFormLayout;
+    hashesWidget->setLayout(hashesLayout);
+    ui->hashesVerticalLayout->addWidget(hashesWidget);
+
     // Add hashes as a pair of Hash Name : Hash Value.
     for (const QString& key : hashes.keys()) {
         // Create a bold QString with the hash name uppercased
@@ -89,12 +100,13 @@ void Dashboard::updateContents()
         QLineEdit *hashLineEdit = new QLineEdit();
         hashLineEdit->setReadOnly(true);
         hashLineEdit->setText(hashes.value(key).toString());
+
         // Set cursor position to begining to avoid long hashes (e.g sha256)
         // to look truncated at the begining
         hashLineEdit->setCursorPosition(0);
 
         // Add both controls to a form layout in a single row
-        ui->formLayout_2->addRow(new QLabel(label), hashLineEdit);
+        hashesLayout->addRow(new QLabel(label), hashLineEdit);
     }
 
     // Add the Entropy value of the file to the dashboard
@@ -111,7 +123,7 @@ void Dashboard::updateContents()
         QLineEdit *entropyLineEdit = new QLineEdit();
         entropyLineEdit->setReadOnly(true);
         entropyLineEdit->setText(entropy);
-        ui->formLayout_2->addRow(new QLabel(tr("<b>Entropy:</b>")), entropyLineEdit);
+        hashesLayout->addRow(new QLabel(tr("<b>Entropy:</b>")), entropyLineEdit);
     }
 
     QJsonObject analinfo = Core()->cmdj("aaij").object();
