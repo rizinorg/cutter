@@ -1,6 +1,7 @@
 #ifndef DASHBOARD_H
 #define DASHBOARD_H
 
+#include <QFormLayout>
 #include <memory>
 #include "CutterDockWidget.h"
 
@@ -32,6 +33,8 @@ private:
     std::unique_ptr<Ui::Dashboard>   ui;
     void setPlainText(QLineEdit *textBox, const QString &text);
     void setBool(QLineEdit *textBox, const QJsonObject &jsonObject, const QString &key);
+
+    QWidget *hashesWidget = nullptr;
 };
 
 #endif // DASHBOARD_H
