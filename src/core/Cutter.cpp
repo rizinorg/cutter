@@ -641,6 +641,12 @@ void CutterCore::renameFlag(QString old_name, QString new_name)
     emit flagsChanged();
 }
 
+void CutterCore::renameRealName(QString flagName, QString newRealName)
+{
+    cmdRaw("fN " + flagName + " " + newRealName);
+    emit flagsChanged();
+}
+
 void CutterCore::delFlag(RVA addr)
 {
     cmdRawAt("f-", addr);
@@ -3474,6 +3480,21 @@ QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
         *flagOffsetOut = offset  + static_cast<RVA>(-queryOffset);
     }
     return name;
+}
+
+RFlagItem *CutterCore::getFlagByName(QString flagName) {
+    CORE_LOCK();
+    RFlagItem *flag = r_flag_get (core->flags, qPrintable(flagName));
+    return flag ? flag : nullptr;
+}
+
+QString CutterCore::getRealNameByFlagName(QString flagName) {
+    RFlagItem *flag = getFlagByName(flagName);
+    if (flag) {
+        return QString(flag->realname);
+    } else {
+        return QString();
+    }
 }
 
 void CutterCore::handleREvent(int type, void *data)

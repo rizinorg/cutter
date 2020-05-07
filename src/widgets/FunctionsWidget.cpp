@@ -527,10 +527,11 @@ void FunctionsWidget::onActionFunctionsRenameTriggered()
                                        FunctionModel::FunctionDescriptionRole).value<FunctionDescription>();
 
     // Create dialog
-    RenameDialog r(this);
+    RenameDialog r(this, RenameDialog::Type::Function);
 
     // Set function name in dialog
     r.setName(function.name);
+    r.setRealName(Core()->getRealNameByFlagName(function.name));
     // If user accepted
     if (r.exec()) {
         // Get new function name

@@ -33,7 +33,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionCopyAddr(this),
         actionAddComment(this),
         actionAddFlag(this),
-        actionAnalyzeFunction(this),
+        actionDefineFunction(this),
         actionEditFunction(this),
         actionRename(this),
         actionRenameUsedHere(this),
@@ -116,9 +116,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionDeleteFunction_triggered()), getUndefineFunctionSequence());
     addAction(&actionDeleteFunction);
 
-    initAction(&actionAnalyzeFunction, tr("Define function here"),
-               SLOT(on_actionAnalyzeFunction_triggered()), getDefineNewFunctionSequence());
-    addAction(&actionAnalyzeFunction);
+    initAction(&actionDefineFunction, tr("Define function here"),
+               SLOT(on_actionDefineFunction_triggered()), getDefineNewFunctionSequence());
+    addAction(&actionDefineFunction);
 
     addSeparator();
 
@@ -330,12 +330,16 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
         auto obj = thing.toObject();
         RVA offset = obj["offset"].toVariant().toULongLong();
         QString name;
+        QString realname;
 
-        // If real names display is enabled, show flag's real name instead of full flag name
+        name = obj["name"].toString();
+
+        // If realnames display is enabled, set flag's real name as display name
         if (Config()->getConfigBool("asm.flags.real") && obj.contains("realname")) {
-            name = obj["realname"].toString();
+            realname = obj["realname"].toString();
         } else {
-            name = obj["name"].toString();
+            // If no, use name as realname as well
+            realname = name;
         }
 
         QString typeString = obj["type"].toString();
@@ -345,11 +349,12 @@ QVector<DisassemblyContextMenu::ThingUsedHere> DisassemblyContextMenu::getThingU
         } else if (typeString == "flag") {
             type = ThingUsedHere::Type::Flag;
         } else if (typeString == "function") {
+            realname = Core()->getRealNameByFlagName(name);
             type = ThingUsedHere::Type::Function;
         } else if (typeString == "address") {
             type = ThingUsedHere::Type::Address;
         }
-        result.push_back(ThingUsedHere{name, offset, type});
+        result.push_back(ThingUsedHere{name, realname, offset, type});
     }
     return result;
 }
@@ -457,7 +462,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
         }
     }
 
-    actionAnalyzeFunction.setVisible(true);
+    actionDefineFunction.setVisible(true);
 
     // Show the option to remove a defined string only if a string is defined in this address
     QString stringDefinition = Core()->cmdRawAt("Cs.", offset);
@@ -486,7 +491,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     actionDeleteFunction.setVisible(fcn ? true : false);
 
     if (fcn) {
-        actionAnalyzeFunction.setVisible(false);
+        actionDefineFunction.setVisible(false);
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
     } else if (f) {
@@ -526,9 +531,9 @@ void DisassemblyContextMenu::aboutToShowSlot()
             RVA offset = thingUsedHere.offset;
             actionRenameUsedHere.setText(tr("Add flag at %1 (used here)").arg(RAddressString(offset)));
         } else if (thingUsedHere.type == ThingUsedHere::Type::Function) {
-            actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere.name));
+            actionRenameUsedHere.setText(tr("Rename \"%1\"").arg(thingUsedHere.realname));
         }  else {
-            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere.name));
+            actionRenameUsedHere.setText(tr("Rename \"%1\" (used here)").arg(thingUsedHere.realname));
         }
     } else {
         actionRenameUsedHere.setVisible(false);
@@ -768,10 +773,11 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
     CommentsDialog::addOrEditComment(offset, this);
 }
 
-void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
+void DisassemblyContextMenu::on_actionDefineFunction_triggered()
 {
-    RenameDialog dialog(mainWindow);
-    dialog.setWindowTitle(tr("Analyze function at %1").arg(RAddressString(offset)));
+    RenameDialog dialog(mainWindow, RenameDialog::Type::Function);
+    
+    dialog.setWindowTitle(tr("Define function at %1").arg(RAddressString(offset)));
     dialog.setPlaceholderText(tr("Function name"));
     if (dialog.exec()) {
         QString function_name = dialog.getName();
@@ -796,18 +802,54 @@ void DisassemblyContextMenu::on_actionRename_triggered()
     if (fcn) {
         /* Rename function */
         dialog.setWindowTitle(tr("Rename function %1").arg(fcn->name));
+        dialog.setDialogType(RenameDialog::Type::Function);
+        // RAnalFunction does not hold a property for "realname" and thus we need to
+        // retrieve the respective flag and then query for the display name.
+        QString oldRealName = Core()->getRealNameByFlagName(fcn->name);
         dialog.setName(fcn->name);
+        dialog.setRealName(oldRealName);
+
         if (dialog.exec()) {
-            QString new_name = dialog.getName();
-            Core()->renameFunction(fcn->name, new_name);
+            QString newRealName = dialog.getRealName();
+            QString newFunctionName = dialog.getName();
+
+            // Rename only if flag name indeed changed. Otherwise, we wouldn't like to trigger
+            // the flag renaming event
+            if (fcn->name != newFunctionName) {
+                // Rename the flag as well, and not only the function name
+                // so if the function name changed, the flag should be changed as well.
+                Core()->renameFlag(fcn->name, newFunctionName);
+
+                Core()->renameFunction(fcn->name, newFunctionName);
+            }
+
+            // Rename only if flag realname indeed changed. Otherwise, we wouldn't like to
+            // trigger the flag renaming event.
+            if (oldRealName != newRealName) {
+                Core()->renameRealName(fcn->name, newRealName);
+            }
         }
     } else if (f) {
         /* Rename current flag */
         dialog.setWindowTitle(tr("Rename flag %1").arg(f->name));
         dialog.setName(f->name);
+        dialog.setRealName(f->realname);
+
         if (dialog.exec()) {
-            QString new_name = dialog.getName();
-            Core()->renameFlag(f->name, new_name);
+            QString newRealName = dialog.getRealName();
+            QString newFlagName = dialog.getName();
+
+            // Rename only if flag name indeed changed. Otherwise, we wouldn't like to trigger
+            // the flag renaming event
+            if (f->name != newFlagName) {
+                Core()->renameFlag(f->name, newFlagName);
+            }
+
+            // Rename only if flag dislay name indeed changed. Otherwise, we wouldn't like to
+            // trigger the flag renaming event
+            if (f->realname != newRealName) {
+                Core()->renameRealName(f->name, newRealName);
+            }
         }
     } else {
         return;
@@ -826,23 +868,45 @@ void DisassemblyContextMenu::on_actionRenameUsedHere_triggered()
     RenameDialog dialog(mainWindow);
 
     QString oldName;
+    QString oldRealName;
+    RVA offset;
     auto type = thingUsedHere.type;
 
     if (type == ThingUsedHere::Type::Address) {
-        RVA offset = thingUsedHere.offset;
+        offset = thingUsedHere.offset;
         dialog.setWindowTitle(tr("Add flag at %1").arg(RAddressString(offset)));
         dialog.setName("label." + QString::number(offset, 16));
     } else {
         oldName = thingUsedHere.name;
         dialog.setWindowTitle(tr("Rename %1").arg(oldName));
         dialog.setName(oldName);
+        dialog.setRealName(thingUsedHere.realname);
     }
 
 
     if (dialog.exec()) {
         QString newName = dialog.getName().trimmed();
+        QString newRealName = dialog.getRealName().trimmed();
+
         if (!newName.isEmpty()) {
-            Core()->cmdRawAt(QString("an %1").arg(newName), offset);
+            // If there is not oldName that means that we create a new flag
+            if (oldName.isEmpty()) {
+                Core()->addFlag(offset, newName, 1);
+                return;
+            }
+
+            if (newName != oldName) {
+                
+                Core()->renameFlag(oldName, newName);
+                if (type == ThingUsedHere::Type::Function) {
+                    Core()->renameFunction(oldName, newName);
+                }
+            }
+
+            if (newRealName != oldRealName) {
+                Core()->renameRealName(newName, newRealName);
+
+            }
 
             if (type == ThingUsedHere::Type::Address || type == ThingUsedHere::Type::Flag) {
                 Core()->triggerFlagsChanged();

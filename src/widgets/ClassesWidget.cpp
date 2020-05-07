@@ -744,7 +744,8 @@ void ClassesWidget::on_editMethodAction_triggered()
 void ClassesWidget::on_newClassAction_triggered()
 {
     QString name;
-    if (!RenameDialog::showDialog(tr("Create new Class"), &name, tr("Class Name"), this) || name.isEmpty()) {
+    if (!RenameDialog::showDialog(tr("Create new Class"), &name, tr("Class Name"),
+                                  RenameDialog::Type::Class, this) || name.isEmpty()) {
         return;
     }
     Core()->createNewClass(name);
@@ -771,7 +772,8 @@ void ClassesWidget::on_renameClassAction_triggered()
     }
     QString oldName = index.data(ClassesModel::NameRole).toString();
     QString newName = oldName;
-    if (!RenameDialog::showDialog(tr("Rename Class %1").arg(oldName), &newName, tr("Class Name"), this) || newName.isEmpty()) {
+    if (!RenameDialog::showDialog(tr("Rename Class %1").arg(oldName), &newName, tr("Class Name"),
+                                  RenameDialog::Type::Class, this) || newName.isEmpty()) {
         return;
     }
     Core()->renameClass(oldName, newName);

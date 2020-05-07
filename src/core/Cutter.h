@@ -145,6 +145,14 @@ public:
     void renameFlag(QString old_name, QString new_name);
 
     /**
+     * @brief Set the realname property of a \a flagName to \a newRealName
+     * 
+     * @param flagName The name of the flag that its realname property will change.
+     * @param newRealName The new value of the realname property of the flag
+     */
+    void renameRealName(QString flagName, QString newRealName);
+
+    /**
      * @param addr
      * @return a function that contains addr or nullptr
      */
@@ -176,6 +184,22 @@ public:
      * @return flag name
      */
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
+
+    /**
+     * @brief Get a pointer to RFlagItem that represents a flag with name \a flagName.
+     * 
+     * @param flagName The name of the requested flag.
+     * @return RFlagItem* that represents the requested flag.
+     */
+    RFlagItem *getFlagByName(QString flagName);
+
+    /**
+     * @brief Get the realname of a flag \a flagName.
+     * 
+     * @param flagName The name of the flag its realname will be returned.
+     * @return QString The realname of the flag \a flagName.
+     */
+    QString getRealNameByFlagName(QString flagName);
     void triggerFlagsChanged();
 
     /* Edition functions */

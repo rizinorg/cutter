@@ -9,28 +9,58 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>75</height>
+    <width>491</width>
+    <height>128</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string notr="true">Rename function</string>
+   <string notr="true">Rename</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="spacing">
-      <number>5</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="nameLabel">
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="realnameLabel">
+       <property name="toolTip">
+        <string>By default, this is the name that Cutter displays in the disassembly, graph, decompiler and across different widgets.</string>
+       </property>
        <property name="text">
-        <string>Name:</string>
+        <string>Display Name (realname):</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QLineEdit" name="nameEdit">
+     <item row="1" column="0">
+      <widget class="QLabel" name="uidLabel">
+       <property name="toolTip">
+        <string>A unique identifier name that is used by radare2 to represent a flag. This name is not shown by default in Cutter.</string>
+       </property>
+       <property name="text">
+        <string>Unique Identifier (name):</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="flagNameLineEdit">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QCheckBox" name="autoRenameCheckBox">
+       <property name="toolTip">
+        <string>Guesses the most suitable flag name and apllies it</string>
+       </property>
+       <property name="text">
+        <string>Auto-Rename</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="2">
+      <widget class="QLineEdit" name="realnameLineEdit">
        <property name="inputMask">
         <string notr="true"/>
        </property>

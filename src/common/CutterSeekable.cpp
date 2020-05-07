@@ -75,7 +75,8 @@ void CutterSeekable::seekToReference(RVA offset)
     
     if (refs.length()) {
         if (refs.length() > 1) {
-            qWarning() << "Too many references here. Weird behaviour expected.";
+            qWarning() << QString("Too many references here (%1). Weird behaviour expected.")
+                                        .arg(refs.length());
         }
         
         target = refs.at(0).to;
