@@ -24,7 +24,9 @@ DEL %CD%\build_all.vcxproj
 COPY %ROOT_DIR%\scripts\breakpad_client.gyp %CD%
 
 CD %ROOT_DIR%\src\breakpad\src\src
+SET GYP_MSVS_VERSION=2017
 powershell -Command "tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release"
+devenv client\windows\breakpad_client.sln /upgrade
 
 set PATH=%BUFF_PATH%
 msbuild /m %CD%\client\windows\breakpad_client.sln /p:Configuration=release /p:Platform=%ARCH% || exit /b 1
