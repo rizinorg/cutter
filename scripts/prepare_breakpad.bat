@@ -16,12 +16,12 @@ CD %ROOT_DIR%\src\breakpad\src
 powershell -Command "git reset --hard 756daa536ad819eff80172aaab262fb71d1e89fd"
 
 CD %ROOT_DIR%\src\breakpad\src\src\client\windows
-DEL %CD%\breakpad_client.gyp
+rem DEL %CD%\breakpad_client.gyp
 rem DEL %CD%\breakpad_client.sln
 rem DEL %CD%\common.vcxproj
 rem DEL %CD%\common.vcxproj.filters
 rem DEL %CD%\build_all.vcxproj
-COPY %ROOT_DIR%\scripts\breakpad_client.gyp %CD%
+rem COPY %ROOT_DIR%\scripts\breakpad_client.gyp %CD%
 
 CD %ROOT_DIR%\src\breakpad\src\src
 powershell -Command "tools\gyp\gyp.bat --no-circular-check client\windows\breakpad_client.gyp -Dwin_release_RuntimeLibrary=2 -Dwin_debug_RuntimeLibrary=2  -Dplatform=%ARCH% -Dconfiguration=release"
