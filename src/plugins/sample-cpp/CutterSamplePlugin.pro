@@ -1,5 +1,5 @@
 HEADERS        += ../CutterSamplePlugin.h ../CutterPlugin.h
-INCLUDEPATH    += ../ ../../
+INCLUDEPATH    += ../ ../../ ../../core ../../widgets
 SOURCES        += CutterSamplePlugin.cpp
 
 QMAKE_CXXFLAGS += $$system("pkg-config --cflags r_core")

@@ -15,10 +15,10 @@ public:
     void setupPlugin() override;
     void setupInterface(MainWindow *main) override;
 
-    const QString &getName() const          { return "SamplePlugin"; }
-    const QString &getAuthor() const        { return "xarkes"; }
-    const QString &getDescription() const   { return "Just a sample plugin."; }
-    const QString &getVersion() const       { return "1.0"; }
+    QString getName() const override          { return "SamplePlugin"; }
+    QString getAuthor() const override        { return "xarkes"; }
+    QString getDescription() const override   { return "Just a sample plugin."; }
+    QString getVersion() const override       { return "1.0"; }
 };
 
 class CutterSamplePluginWidget : public CutterDockWidget
