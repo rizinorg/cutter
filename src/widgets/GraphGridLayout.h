@@ -4,6 +4,7 @@
 #include "core/Cutter.h"
 #include "GraphLayout.h"
 
+
 /**
  * @brief Graph layout algorithm on layered graph layout approach. For simplicity all the nodes are placed in a grid.
  */
@@ -42,24 +43,20 @@ private:
     };
 
     struct Point {
-        int row; //point[0]
-        int col; //point[1]
-        int index; //point[2]
+        int row;
+        int col;
+        int kind;
+        int offset;
     };
 
     struct GridEdge {
         ut64 dest;
-        int start_index = 0;
         int mainColumn = -1;
-        QPolygonF polyline;
         std::vector<Point> points;
 
-        void addPoint(int row, int col, int index = 0)
+        void addPoint(int row, int col, int kind = 0)
         {
-            Point point = {row, col, 0};
-            this->points.push_back(point);
-            if (int(this->points.size()) > 1)
-                this->points[this->points.size() - 2].index = index;
+            this->points.push_back({row, col, kind, 0});
         }
     };
 
@@ -67,6 +64,12 @@ private:
         std::unordered_map<ut64, GridBlock> grid_blocks;
         std::unordered_map<ut64, GraphBlock> *blocks = nullptr;
         std::unordered_map<ut64, std::vector<GridEdge>> edge;
+        size_t rows = -1;
+        size_t columns = -1;
+        std::vector<int> columnWidth;
+        std::vector<int> rowHeight;
+        std::vector<int> edgeColumnWidth;
+        std::vector<int> edgeRowHeight;
     };
 
     using GridBlockMap = std::unordered_map<ut64, GridBlock>;
@@ -79,18 +82,11 @@ private:
                            int col, int row) const;
     static std::vector<ut64> topoSort(LayoutState &state, ut64 entry);
 
-    // Edge computing stuff
-    template<typename T>
-    using Matrix = std::vector<std::vector<T>>;
-    using EdgesVector = Matrix<std::vector<bool>>;
-
     void routeEdges(LayoutState &state) const;
-    GridEdge routeEdge(EdgesVector &horiz_edges, EdgesVector &vert_edges,
-                       Matrix<bool> &edge_valid, GridBlock &start, GridBlock &end) const;
-    static int findVertEdgeIndex(EdgesVector &edges, int col, int min_row, int max_row);
-    static bool isEdgeMarked(EdgesVector &edges, int row, int col, int index);
-    static void markEdge(EdgesVector &edges, int row, int col, int index, bool used = true);
-    static int findHorizEdgeIndex(EdgesVector &edges, int row, int min_col, int max_col);
+    void calculateEdgeMainColumn(LayoutState &state) const;
+    void roughRouting(LayoutState &state) const;
+    void elaborateEdgePlacement(LayoutState &state) const;
+    void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
 };
 
 #endif // GRAPHGRIDLAYOUT_H
