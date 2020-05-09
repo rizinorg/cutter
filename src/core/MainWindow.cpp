@@ -196,11 +196,26 @@ void MainWindow::initUI()
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
-    //Undo and redo seek
+    // Undo and redo seek
     ui->actionBackward->setShortcut(QKeySequence::Back);
     ui->actionForward->setShortcut(QKeySequence::Forward);
 
     initBackForwardMenu();
+
+    connect(core, &CutterCore::ioModeChanged, this, &MainWindow::setAvailableIOModeOptions);
+    setAvailableIOModeOptions();
+
+    connect(ui->actionCacheMode, &QAction::triggered, this, []() {
+        Core()->setIOCache(true);
+    });
+
+    connect(ui->actionWriteMode, &QAction::triggered, this, []() {
+        Core()->setWriteMode(true);
+    });
+
+    connect(ui->actionReadOnly, &QAction::triggered, this, []() {
+        Core()->setWriteMode(false);
+    });
 
     /* Setup plugins interfaces */
     for (auto &plugin : Plugins()->getPlugins()) {
@@ -1699,4 +1714,13 @@ QMenu *MainWindow::getContextMenuExtensions(ContextMenuType type)
     default:
         return nullptr;
     }
+}
+
+void MainWindow::setAvailableIOModeOptions()
+{
+    // Enable the read-only menu item only if writing is enabled
+    ui->actionReadOnly->setEnabled(ioModesController.canWrite());
+
+    ui->actionCacheMode->setEnabled(!Core()->isIOCacheEnabled());
+    ui->actionWriteMode->setEnabled(!Core()->isWriteModeEnabled());
 }

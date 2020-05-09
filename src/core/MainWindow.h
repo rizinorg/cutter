@@ -6,6 +6,7 @@
 #include "dialogs/WelcomeDialog.h"
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
+#include "common/IOModesController.h"
 #include "MemoryDockWidget.h"
 
 #include <memory>
@@ -215,6 +216,7 @@ private slots:
     void onZoomOut();
     void onZoomReset();
 
+    void setAvailableIOModeOptions();
 private:
     CutterCore *core;
 
@@ -230,6 +232,7 @@ private:
     Omnibar *omnibar;
     ProgressIndicator *tasksProgressIndicator;
     QByteArray emptyState;
+    IOModesController ioModesController;
 
     Configuration *configuration;
 
