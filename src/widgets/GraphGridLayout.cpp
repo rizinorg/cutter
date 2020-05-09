@@ -668,21 +668,23 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
             auto &edge = state.edge[event.blockId][event.edgeId];
             const auto &targetBlock = state.grid_blocks[edge.dest];
             auto topRow = std::min(block.row + 1, targetBlock.row);
+            auto targetColumn = targetBlock.col + 1;
 
             // Prefer using the same column as starting node or target node.
             // It allows reducing amount of segments.
             if (blockedColumns.valueAtPoint(column) < topRow) {
                 edge.mainColumn = column;
-            } else if (blockedColumns.valueAtPoint(targetBlock.col + 1) < topRow) {
-                edge.mainColumn = targetBlock.col + 1;
+            } else if (blockedColumns.valueAtPoint(targetColumn) < topRow) {
+                edge.mainColumn = targetColumn;
             } else {
                 auto nearestLeft = blockedColumns.rightMostLessThan(column, topRow);
                 auto nearestRight = blockedColumns.leftMostLessThan(column, topRow);
                 // There should always be empty column at the sides of drawing
                 assert(nearestLeft != -1 && nearestRight != -1);
 
-                // choose column closest to the middle
-                if (column - nearestLeft < nearestRight - column) {
+                // choose closest column
+                if (column - nearestLeft + abs(targetColumn - nearestLeft) <
+                    nearestRight - column + abs(targetColumn - nearestRight)) {
                     edge.mainColumn = nearestLeft;
                 } else {
                     edge.mainColumn = nearestRight;
@@ -703,22 +705,23 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
 
             edge.addPoint(start.row + 1, start.col + 1);
             if (edge.mainColumn != start.col + 1) {
-                edge.addPoint(start.row + 1, start.col + 1);
-                edge.addPoint(start.row + 1, edge.mainColumn, target.row <= start.row ? -1 : 0);
+                edge.addPoint(start.row + 1, start.col + 1, edge.mainColumn < start.col + 1 ? -1 : 1);
+                edge.addPoint(start.row + 1, edge.mainColumn, target.row <= start.row ? -2 : 0);
             }
             int mainColumnKind = 0;
             if (edge.mainColumn < start.col + 1 && edge.mainColumn < target.col + 1) {
-                mainColumnKind = +1;
+                mainColumnKind = +2;
             } else if (edge.mainColumn > start.col + 1 && edge.mainColumn > target.col + 1) {
-                mainColumnKind = -1;
+                mainColumnKind = -2;
+            } else if (edge.mainColumn == start.col + 1 && edge.mainColumn != target.col + 1) {
+                mainColumnKind = edge.mainColumn < target.col + 1 ? 1 : -1;
+            } else if (edge.mainColumn == target.col + 1 && edge.mainColumn != start.col + 1) {
+                mainColumnKind = edge.mainColumn < start.col + 1 ? 1 : -1;
             }
             edge.addPoint(target.row, edge.mainColumn, mainColumnKind);
             if (target.col + 1 != edge.mainColumn) {
-                edge.addPoint(target.row, target.col + 1);
-                if (target.row <= start.row) {
-                    edge.points.back().kind = 1;
-                }
-                edge.addPoint(target.row, target.col + 1);
+                edge.addPoint(target.row, target.col + 1, target.row <= start.row ? 2 : 0);
+                edge.addPoint(target.row, target.col + 1, target.col + 1 < edge.mainColumn ? 1 : -1);
             }
         }
     }
@@ -795,9 +798,9 @@ void calculateSegmentOffsets(
             rightSideIt++;
         }
 
-        while (nextSegmentIt != segments.end() && nextSegmentIt->x == x && nextSegmentIt->kind <= 0) {
+        while (nextSegmentIt != segments.end() && nextSegmentIt->x == x && nextSegmentIt->kind <= 1) {
             int y = maxSegment.rangeMaximum(nextSegmentIt->y0, nextSegmentIt->y1 + 1);
-            if (nextSegmentIt->kind == 0) {
+            if (nextSegmentIt->kind != -2) {
                 y = std::max(y, 0);
             }
             y += spacing;
