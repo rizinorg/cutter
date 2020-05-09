@@ -46,7 +46,7 @@ public:
 
     void initialize(bool loadPlugins = true);
     void loadCutterRC();
-    QString getCutterRCDefaultDirectory() const;
+    QDir getCutterRCDefaultDirectory() const;
     
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 

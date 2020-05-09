@@ -240,7 +240,7 @@ RCoreLocked CutterCore::core()
     return RCoreLocked(this);
 }
 
-QString CutterCore::getCutterRCDefaultDirectory() const
+QDir CutterCore::getCutterRCDefaultDirectory() const
 {
     return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
 }
