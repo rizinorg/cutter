@@ -841,6 +841,67 @@ void calculateSegmentOffsets(
     }
 }
 
+
+/**
+ * @brief Center the segments to the middle of edge columns when possible.
+ * @param segmentOffsets offsets relative to the left side edge column.
+ * @param edgeColumnWidth widths of edge columns
+ * @param segments either all horizontal or all vertical edge segments
+ */
+void centerEdges(
+        std::vector<int> &segmentOffsets,
+        const std::vector<int> &edgeColumnWidth,
+        const std::vector<EdgeSegment> &segments)
+{
+    /* Split segments in each edge column into non intersecting chunks. Center each chunk separately.
+     *
+     * Process segment endpoints sorted by x and y. Maintain count of currently started segments. When number of
+     * active segments reaches 0 there is empty space between chunks.
+     */
+    struct Event {
+        int x;
+        int y;
+        int index;
+        bool start;
+    };
+    std::vector<Event> events;
+    events.reserve(segments.size() * 2);
+    for (const auto &segment : segments) {
+        auto offset = segmentOffsets[segment.edgeIndex];
+        // Exclude segments which are outside edge column and between the blocks. It's hard to ensure that moving
+        // them doesn't cause overlap with blocks.
+        if (offset >= 0 && offset <= edgeColumnWidth[segment.x]) {
+            events.push_back({segment.x, segment.y0, segment.edgeIndex, true});
+            events.push_back({segment.x, segment.y1, segment.edgeIndex, false});
+        }
+    }
+    std::sort(events.begin(), events.end(), [](const Event &a, const Event &b) {
+        if (a.x != b.x) return a.x < b.x;
+        if (a.y != b.y) return a.y < b.y;
+        // Process segment start events before end to ensure that activeSegmentCount doesn't go negative and only
+        // reaches 0 at the end of chunk.
+        return int(a.start) > int(b.start);
+    });
+
+    auto it = events.begin();
+    while (it != events.end()) {
+        auto chunkStart = it++;
+        int activeSegmentCount = 1;
+        int chunkWidth = 0;
+        while (activeSegmentCount > 0) {
+            activeSegmentCount += it->start ? 1 : -1;
+            chunkWidth = std::max(chunkWidth, segmentOffsets[it->index]);
+            it++;
+        }
+        int spacing = (edgeColumnWidth[chunkStart->x] - chunkWidth) / 2;
+        for (auto segment = chunkStart; segment != it; segment++) {
+            if (segment->start) {
+                segmentOffsets[segment->index] += spacing;
+            }
+        }
+    }
+}
+
 void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state) const
 {
     // Vertical segments
@@ -872,6 +933,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     state.edgeColumnWidth.assign(state.columns + 1, 0);
     edgeOffsets.resize(edgeIndex);
     calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides, state.columnWidth, 2 * state.rows + 1, layoutConfig.block_horizontal_margin);
+    centerEdges(edgeOffsets, state.edgeColumnWidth, segments);
     edgeIndex = 0;
     for (auto &edgeListIt : state.edge) {
         for (auto &edge : edgeListIt.second) {
