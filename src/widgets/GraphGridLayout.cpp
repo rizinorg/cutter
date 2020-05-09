@@ -683,11 +683,12 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
                 assert(nearestLeft != -1 && nearestRight != -1);
 
                 // choose closest column
-                if (column - nearestLeft + abs(targetColumn - nearestLeft) <
-                    nearestRight - column + abs(targetColumn - nearestRight)) {
-                    edge.mainColumn = nearestLeft;
+                auto distanceLeft = column - nearestLeft + abs(targetColumn - nearestLeft);
+                auto distanceRight = nearestRight - column + abs(targetColumn - nearestRight);
+                if (distanceLeft != distanceRight) {
+                    edge.mainColumn = distanceLeft < distanceRight ? nearestLeft : nearestRight;
                 } else {
-                    edge.mainColumn = nearestRight;
+                    edge.mainColumn = event.edgeId < state.edge[event.blockId].size() / 2 ? nearestLeft : nearestRight;
                 }
             }
         }
@@ -764,9 +765,9 @@ void calculateSegmentOffsets(
         if (a.kind != b.kind) return a.kind < b.kind;
         auto aSize = a.y1 - a.y0;
         auto bSize = b.y1 - b.y0;
-        if (a.kind < 0) {
+        if (a.kind != 1) {
             return aSize < bSize;
-        } else if (a.kind > 0) {
+        } else {
             return aSize > bSize;
         }
         return false;
