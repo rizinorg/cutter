@@ -20,7 +20,7 @@ RenameDialog::~RenameDialog() {}
 void RenameDialog::on_buttonBox_accepted()
 {
     // Rename function and refresh widgets
-    QString name = ui->flagNameLineEdit->text();
+    QString name = ui->nameLineEdit->text();
 }
 
 void RenameDialog::on_buttonBox_rejected()
@@ -30,12 +30,12 @@ void RenameDialog::on_buttonBox_rejected()
 
 void RenameDialog::setName(QString name)
 {
-    ui->flagNameLineEdit->setText(name);
+    ui->nameLineEdit->setText(name);
 }
 
 QString RenameDialog::getName() const
 {
-    return ui->flagNameLineEdit->text();
+    return ui->nameLineEdit->text();
 }
 
 void RenameDialog::setRealName(QString name)
@@ -78,10 +78,10 @@ void RenameDialog::autoRenameStateChanged(int state)
 {
        switch (state) {
        case Qt::Checked:
-           ui->flagNameLineEdit->setEnabled(false);
+           ui->nameLineEdit->setEnabled(false);
            break;
        case Qt::Unchecked:
-           ui->flagNameLineEdit->setEnabled(true);
+           ui->nameLineEdit->setEnabled(true);
            break;
        }
 }
@@ -105,8 +105,8 @@ void RenameDialog::showEvent(QShowEvent* event)
         ui->realnameLineEdit->hide();
         ui->autoRenameCheckBox->setChecked(false);
         ui->autoRenameCheckBox->hide();
-        ui->flagNameLineEdit->setFocus();
-        ui->flagNameLineEdit->selectAll();
+        ui->nameLineEdit->setFocus();
+        ui->nameLineEdit->selectAll();
         return;
     }
 

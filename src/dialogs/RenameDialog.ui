@@ -40,7 +40,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="flagNameLineEdit">
+      <widget class="QLineEdit" name="nameLineEdit">
        <property name="enabled">
         <bool>false</bool>
        </property>
