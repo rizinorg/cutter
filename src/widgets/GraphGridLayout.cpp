@@ -701,7 +701,7 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
             const auto &start = blockIt.second;
             const auto &target = state.grid_blocks[edge.dest];
 
-            edge.addPoint(start.row, start.col + 1); //TODO: better deal with endpoints
+            edge.addPoint(start.row + 1, start.col + 1);
             if (edge.mainColumn != start.col + 1) {
                 edge.addPoint(start.row + 1, start.col + 1);
                 edge.addPoint(start.row + 1, edge.mainColumn, target.row <= start.row ? -1 : 0);
@@ -718,7 +718,7 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
                 if (target.row <= start.row) {
                     edge.points.back().kind = 1;
                 }
-                edge.addPoint(target.row + 1, target.col + 1);
+                edge.addPoint(target.row, target.col + 1);
             }
         }
     }
@@ -734,7 +734,8 @@ namespace {
     };
     struct NodeSide {
         int x;
-        int y;
+        int y0;
+        int y1;
         int size;
     };
 }
@@ -746,7 +747,6 @@ void calculateSegmentOffsets(
         std::vector<NodeSide> &nodeRightSide,
         std::vector<NodeSide> &nodeLeftSide,
         const std::vector<int> &columnWidth,
-        int nodeSize,
         size_t H,
         int spacing)
 {
@@ -791,7 +791,7 @@ void calculateSegmentOffsets(
             rightSideIt++;
         }
         while (rightSideIt != nodeRightSide.end() && rightSideIt->x + 1 == x) {
-            maxSegment.setRange(rightSideIt->y, rightSideIt->y + nodeSize + 1, rightSideIt->size - leftColumWidth);
+            maxSegment.setRange(rightSideIt->y0, rightSideIt->y1 + 1, rightSideIt->size - leftColumWidth);
             rightSideIt++;
         }
 
@@ -819,7 +819,7 @@ void calculateSegmentOffsets(
             leftSideIt++;
         }
         while (leftSideIt != nodeLeftSide.end() && leftSideIt->x == x) {
-            maxSegment.setRange(leftSideIt->y, leftSideIt->y + nodeSize + 1, leftSideIt->size - rightColumnWidth);
+            maxSegment.setRange(leftSideIt->y0, leftSideIt->y1 + 1, leftSideIt->size - rightColumnWidth);
             leftSideIt++;
         }
         while (nextSegmentIt != segments.end() && nextSegmentIt->x == x) {
@@ -834,7 +834,6 @@ void calculateSegmentOffsets(
             edgeOffsets[it->edgeIndex] = middleWidth + (rightSideMiddle - edgeOffsets[it->edgeIndex]) + spacing;
         }
         edgeColumnWidth[x] = middleWidth + rightSideMiddle + spacing;
-        qDebug() << " w " << edgeColumnWidth << "\n";
     }
 }
 
@@ -850,8 +849,8 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
         for (const auto &edge : edgeListIt.second) {
             for (size_t j = 1; j < edge.points.size(); j += 2) {
                 EdgeSegment segment;
-                segment.y0 = edge.points[j - 1].row;
-                segment.y1 = edge.points[j].row;
+                segment.y0 = edge.points[j - 1].row * 2; // edges in even rows
+                segment.y1 = edge.points[j].row * 2;
                 segment.x = edge.points[j].col;
                 segment.kind = edge.points[j].kind;
                 segment.edgeIndex = edgeIndex++;
@@ -862,12 +861,13 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     for (auto &blockIt : state.grid_blocks) {
         auto &node = blockIt.second;
         auto w = (*state.blocks)[blockIt.first].width / 2;
-        leftSides.push_back({node.col, node.row, w});
-        rightSides.push_back({node.col + 1, node.row, w});
+        int row = node.row * 2 + 1; // blocks in odd rows
+        leftSides.push_back({node.col, row, row, w});
+        rightSides.push_back({node.col + 1, row, row, w});
     }
     state.edgeColumnWidth.assign(state.columns + 1, 0);
     edgeOffsets.resize(edgeIndex);
-    calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides, state.columnWidth, 1, state.rows +1, layoutConfig.block_horizontal_margin);
+    calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides, state.columnWidth, 2 * state.rows + 1, layoutConfig.block_horizontal_margin);
     edgeIndex = 0;
     for (auto &edgeListIt : state.edge) {
         for (auto &edge : edgeListIt.second) {
@@ -887,8 +887,8 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
         for (const auto &edge : edgeListIt.second) {
             for (size_t j = 2; j < edge.points.size(); j += 2) {
                 EdgeSegment segment;
-                segment.y0 = edge.points[j - 1].col;
-                segment.y1 = edge.points[j].col;
+                segment.y0 = edge.points[j - 1].col * 2;
+                segment.y1 = edge.points[j].col * 2;
                 segment.x = edge.points[j].row;
                 segment.kind = edge.points[j].kind;
                 segment.edgeIndex = edgeIndex++;
@@ -899,13 +899,14 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     edgeOffsets.resize(edgeIndex);
     for (auto &blockIt : state.grid_blocks) {
         auto &node = blockIt.second;
-        leftSides.push_back({node.row, node.col, state.rowHeight[node.row]});
+        int leftColumn = node.col * 2 + 1;
+        leftSides.push_back({node.row, leftColumn, leftColumn + 2, state.rowHeight[node.row]});
         auto h = (*state.blocks)[blockIt.first].height;
-        rightSides.push_back({node.row, node.col, h});
+        rightSides.push_back({node.row, leftColumn, leftColumn + 2, h});
     }
     state.edgeRowHeight.assign(state.rows + 1, 0);
     edgeOffsets.resize(edgeIndex);
-    calculateSegmentOffsets(segments, edgeOffsets, state.edgeRowHeight, rightSides, leftSides, state.rowHeight, 2, state.columns + 1, layoutConfig.block_horizontal_margin);
+    calculateSegmentOffsets(segments, edgeOffsets, state.edgeRowHeight, rightSides, leftSides, state.rowHeight, 2 * state.columns + 1, layoutConfig.block_horizontal_margin);
     edgeIndex = 0;
     for (auto &edgeListIt : state.edge) {
         for (auto &edge : edgeListIt.second) {
