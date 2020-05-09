@@ -186,14 +186,6 @@ public:
     QString nearestFlag(RVA offset, RVA *flagOffsetOut);
 
     /**
-     * @brief Get a pointer to RFlagItem that represents a flag with name \a flagName.
-     * 
-     * @param flagName The name of the requested flag.
-     * @return RFlagItem* that represents the requested flag.
-     */
-    RFlagItem *getFlagByName(QString flagName);
-
-    /**
      * @brief Get the realname of a flag \a flagName.
      * 
      * @param flagName The name of the flag its realname will be returned.

@@ -3487,12 +3487,6 @@ QString CutterCore::nearestFlag(RVA offset, RVA *flagOffsetOut)
     return name;
 }
 
-RFlagItem *CutterCore::getFlagByName(QString flagName) {
-    CORE_LOCK();
-    RFlagItem *flag = r_flag_get (core->flags, qPrintable(flagName));
-    return flag ? flag : nullptr;
-}
-
 QString CutterCore::getRealNameByFlagName(QString flagName)
 {
     CORE_LOCK();
