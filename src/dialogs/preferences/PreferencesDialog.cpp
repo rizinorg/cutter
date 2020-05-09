@@ -54,9 +54,9 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
             QIcon(":/img/icons/plugins.svg")
         },
         {
-            tr("Initialization\nFile Editor"),
+            tr("CutterRC\nEditor"),
             new InitializationFileEditor(this),
-            QIcon(":/img/icons/graph.svg")
+            QIcon(":/img/icons/cutterrc.svg")
         }
     };
 
@@ -120,7 +120,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Graph"), QStringLiteral("graph.svg") },
         { QStringLiteral("Appearance"), QStringLiteral("polar.svg") },
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
-        { QStringLiteral("Initialization\nFile Editor"), QStringLiteral("graph.svg") },
+        { QStringLiteral("CutterRC\nEditor"), QStringLiteral("cutterrc.svg") },
     };
     QList<QPair<void*, QString>> supportedIconsNames;
 

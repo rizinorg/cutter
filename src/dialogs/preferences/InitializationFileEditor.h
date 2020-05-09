@@ -20,12 +20,12 @@ public:
     explicit InitializationFileEditor(PreferencesDialog *dialog);
     ~InitializationFileEditor();
     void saveCutterRC();
+    
 private:
     std::unique_ptr<Ui::InitializationFileEditor> ui;
 
-
 private slots:
-
+    void cutterRCModificationChanged(bool change);
 
 };
 

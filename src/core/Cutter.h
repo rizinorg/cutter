@@ -46,7 +46,7 @@ public:
 
     void initialize(bool loadPlugins = true);
     void loadCutterRC();
-    QDir getCutterRCDefaultDirectory() const;
+    QString getCutterRCDefaultDirectory() const;
     
     AsyncTaskManager *getAsyncTaskManager() { return asyncTaskManager; }
 
@@ -711,7 +711,7 @@ private:
     QSharedPointer<R2Task> debugTask;
     R2TaskDialog *debugTaskDialog;
     
-    QVector<QDir> getCutterRCDirectories() const;
+    QVector<QString> getCutterRCDirectories() const;
 };
 
 class RCoreLocked
