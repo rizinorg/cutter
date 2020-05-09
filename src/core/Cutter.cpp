@@ -643,7 +643,12 @@ void CutterCore::renameFlag(QString old_name, QString new_name)
 
 void CutterCore::renameRealName(QString flagName, QString newRealName)
 {
-    cmdRaw("fN " + flagName + " " + newRealName);
+    CORE_LOCK();
+    RFlagItem *flag = r_flag_get (core->flags, flagName.toUtf8().constData());
+    if (!flag) {
+        return;
+    }
+    r_flag_item_set_realname (flag, newRealName.toUtf8().constData());
     emit flagsChanged();
 }
 
@@ -3488,8 +3493,10 @@ RFlagItem *CutterCore::getFlagByName(QString flagName) {
     return flag ? flag : nullptr;
 }
 
-QString CutterCore::getRealNameByFlagName(QString flagName) {
-    RFlagItem *flag = getFlagByName(flagName);
+QString CutterCore::getRealNameByFlagName(QString flagName)
+{
+    CORE_LOCK();
+    RFlagItem *flag = r_flag_get (core->flags, flagName.toUtf8().constData());
     if (flag) {
         return QString(flag->realname);
     } else {

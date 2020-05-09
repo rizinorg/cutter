@@ -119,7 +119,7 @@ void RenameDialog::showEvent(QShowEvent* event)
         realname = flagName;
     }
 
-    bool sameNames = flagName.compare(realname) == 0;
+    bool sameNames = flagName == realname;
     bool realnameIsSubstring = flagName.contains(realname);
 
     // We want realname to be a substring of name. but not an exact match.
