@@ -24,7 +24,7 @@ InitializationFileEditor::InitializationFileEditor(PreferencesDialog *dialog)
     connect(ui->ConfigFileEdit, SIGNAL(modificationChanged(bool)), this, SLOT(cutterRCModificationChanged(bool)));
     
     const QDir cutterRCDirectory = Core()->getCutterRCDefaultDirectory();
-    auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "CutterRC.txt");
+    auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "rc");
     QString cutterRCLocation = cutterRCFileInfo.absoluteFilePath();
     
     ui->cutterRCLoaded->setText(tr("CutterRC is loaded from <a href=\"%1\">%2</a>")
@@ -48,7 +48,7 @@ void InitializationFileEditor::saveCutterRC(){
     if(!cutterRCDirectory.exists()){
         cutterRCDirectory.mkpath(".");
     }
-    auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "CutterRC.txt");
+    auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "rc");
     QString cutterRCLocation = cutterRCFileInfo.absoluteFilePath();
    
     QFile cutterRC(cutterRCLocation);

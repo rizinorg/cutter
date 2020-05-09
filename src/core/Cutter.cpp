@@ -253,7 +253,7 @@ QVector<QString> CutterCore::getCutterRCDirectories() const
     for (auto &location : locations) { 
         result.push_back(QFileInfo(QDir(location), ".cutterrc").absoluteFilePath());
     }
-    result.push_back(QFileInfo(getCutterRCDefaultDirectory(), "CutterRC.txt").absoluteFilePath()); // File in config editor is from this path
+    result.push_back(QFileInfo(getCutterRCDefaultDirectory(), "rc").absoluteFilePath()); // File in config editor is from this path
     return result;
 }
 
