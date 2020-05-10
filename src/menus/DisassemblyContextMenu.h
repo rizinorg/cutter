@@ -40,7 +40,7 @@ private slots:
     void on_actionCopy_triggered();
     void on_actionCopyAddr_triggered();
     void on_actionAddComment_triggered();
-    void on_actionDefineFunction_triggered();
+    void on_actionAnalyzeFunction_triggered();
     void on_actionAddFlag_triggered();
     void on_actionRename_triggered();
     void on_actionRenameUsedHere_triggered();
@@ -125,7 +125,7 @@ private:
 
     QAction actionAddComment;
     QAction actionAddFlag;
-    QAction actionDefineFunction;
+    QAction actionAnalyzeFunction;
     QAction actionEditFunction;
     QAction actionRename;
     QAction actionRenameUsedHere;

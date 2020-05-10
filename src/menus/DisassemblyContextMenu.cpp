@@ -33,7 +33,7 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionCopyAddr(this),
         actionAddComment(this),
         actionAddFlag(this),
-        actionDefineFunction(this),
+        actionAnalyzeFunction(this),
         actionEditFunction(this),
         actionRename(this),
         actionRenameUsedHere(this),
@@ -116,9 +116,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
                SLOT(on_actionDeleteFunction_triggered()), getUndefineFunctionSequence());
     addAction(&actionDeleteFunction);
 
-    initAction(&actionDefineFunction, tr("Define function here"),
-               SLOT(on_actionDefineFunction_triggered()), getDefineNewFunctionSequence());
-    addAction(&actionDefineFunction);
+    initAction(&actionAnalyzeFunction, tr("Define function here"),
+               SLOT(on_actionAnalyzeFunction_triggered()), getDefineNewFunctionSequence());
+    addAction(&actionAnalyzeFunction);
 
     addSeparator();
 
@@ -462,7 +462,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
         }
     }
 
-    actionDefineFunction.setVisible(true);
+    actionAnalyzeFunction.setVisible(true);
 
     // Show the option to remove a defined string only if a string is defined in this address
     QString stringDefinition = Core()->cmdRawAt("Cs.", offset);
@@ -491,7 +491,7 @@ void DisassemblyContextMenu::aboutToShowSlot()
     actionDeleteFunction.setVisible(fcn ? true : false);
 
     if (fcn) {
-        actionDefineFunction.setVisible(false);
+        actionAnalyzeFunction.setVisible(false);
         actionRename.setVisible(true);
         actionRename.setText(tr("Rename function \"%1\"").arg(fcn->name));
     } else if (f) {
@@ -773,7 +773,7 @@ void DisassemblyContextMenu::on_actionAddComment_triggered()
     CommentsDialog::addOrEditComment(offset, this);
 }
 
-void DisassemblyContextMenu::on_actionDefineFunction_triggered()
+void DisassemblyContextMenu::on_actionAnalyzeFunction_triggered()
 {
     RenameDialog dialog(mainWindow, RenameDialog::Type::Function);
     
