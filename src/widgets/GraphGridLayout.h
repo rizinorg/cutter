@@ -70,6 +70,11 @@ private:
         std::vector<int> rowHeight;
         std::vector<int> edgeColumnWidth;
         std::vector<int> edgeRowHeight;
+
+        std::vector<int> columnOffset;
+        std::vector<int> rowOffset;
+        std::vector<int> edgeColumnOffset;
+        std::vector<int> edgeRowOffset;
     };
 
     using GridBlockMap = std::unordered_map<ut64, GridBlock>;
@@ -86,6 +91,8 @@ private:
     void calculateEdgeMainColumn(LayoutState &state) const;
     void roughRouting(LayoutState &state) const;
     void elaborateEdgePlacement(LayoutState &state) const;
+    static int calculateColumnOffsets(const std::vector<int> &columnWidth, const std::vector<int> &edgeColumnWidth,
+                                      std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset);
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
 };
 
