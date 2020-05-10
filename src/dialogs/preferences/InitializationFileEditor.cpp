@@ -27,7 +27,7 @@ InitializationFileEditor::InitializationFileEditor(PreferencesDialog *dialog)
     auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "rc");
     QString cutterRCLocation = cutterRCFileInfo.absoluteFilePath();
     
-    ui->cutterRCLoaded->setText(tr("CutterRC is loaded from <a href=\"%1\">%2</a>")
+    ui->cutterRCLoaded->setText(tr("Script is loaded from <a href=\"%1\">%2</a>")
                                 .arg(QUrl::fromLocalFile(cutterRCDirectory.absolutePath()).toString(), cutterRCLocation.toHtmlEscaped()));
     ui->ConfigFileEdit->clear();
     if(cutterRCFileInfo.exists()){
