@@ -24,6 +24,13 @@ public:
                                  int &height) const override;
 private:
     LayoutType layoutType;
+    bool tightSubtreePlacement = false;
+    bool parentBetweenDirectChild = false;
+
+    struct ListHead {
+        int head;
+        int tail;
+    };
 
     struct GridBlock {
         ut64 id;
@@ -34,12 +41,17 @@ private:
 
         /// Number of rows in subtree
         int row_count = 0;
-        /// Number of columns in subtree
-        int col_count = 0;
         /// Column in which the block is
         int col = 0;
         /// Row in which the block is
         int row = 0;
+
+        int lastRowWidth;
+        int lastRowLeft;
+        int leftPosition;
+        int rightPosition;
+        ListHead leftSide;
+        ListHead rightSide;
     };
 
     struct Point {
@@ -81,17 +93,13 @@ private:
 
     void computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
                                   LayoutState &layoutState) const;
-    void computeBlockPlacement(ut64 blockId,
-                               LayoutState &layoutState) const;
-    void adjustGraphLayout(GridBlock &block, GridBlockMap &blocks,
-                           int col, int row) const;
     static std::vector<ut64> topoSort(LayoutState &state, ut64 entry);
 
     void routeEdges(LayoutState &state) const;
     void calculateEdgeMainColumn(LayoutState &state) const;
     void roughRouting(LayoutState &state) const;
     void elaborateEdgePlacement(LayoutState &state) const;
-    static int calculateColumnOffsets(const std::vector<int> &columnWidth, const std::vector<int> &edgeColumnWidth,
+    static int calculateColumnOffsets(const std::vector<int> &columnWidth, std::vector<int> &edgeColumnWidth, int minSpacing,
                                       std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset);
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
 };

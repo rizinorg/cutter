@@ -404,6 +404,20 @@ GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     : GraphLayout({})
 , layoutType(layoutType)
 {
+    switch (layoutType) {
+    case LayoutType::Narrow:
+        tightSubtreePlacement = true;
+        parentBetweenDirectChild = false;
+        break;
+    case LayoutType::Medium:
+        tightSubtreePlacement = false;
+        parentBetweenDirectChild = false;
+        break;
+    case LayoutType::Wide:
+        tightSubtreePlacement = false;
+        parentBetweenDirectChild = true;
+        break;
+    }
 }
 
 std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, ut64 entry)
@@ -524,87 +538,140 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
 void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
                                                LayoutState &layoutState) const
 {
-    for (auto blockId : blockOrder) {
-        computeBlockPlacement(blockId, layoutState);
-    }
-    int col = 0;
-    for (auto blockId : blockOrder) {
-        if (!layoutState.grid_blocks[blockId].has_parent) {
-            adjustGraphLayout(layoutState.grid_blocks[blockId], layoutState.grid_blocks, col, 1);
-            col += layoutState.grid_blocks[blockId].col_count;
-        }
-    }
-}
-
-// Prepare graph
-// This computes the position and (row/col based) size of the block
-void GraphGridLayout::computeBlockPlacement(ut64 blockId, LayoutState &layoutState) const
-{
-    auto &block = layoutState.grid_blocks[blockId];
-    auto &blocks = layoutState.grid_blocks;
-    int col = 0;
-    int row_count = 1;
-    int childColumn = 0;
-    bool singleChild = block.tree_edge.size() == 1;
-    // Compute all children nodes
-    for (size_t i = 0; i < block.tree_edge.size(); i++) {
-        ut64 edge = block.tree_edge[i];
-        auto &edgeb = blocks[edge];
-        row_count = std::max(edgeb.row_count + 1, row_count);
-        childColumn = edgeb.col;
-    }
-
-    if (layoutType != LayoutType::Wide && block.tree_edge.size() == 2) {
-        auto &left = blocks[block.tree_edge[0]];
-        auto &right = blocks[block.tree_edge[1]];
-        if (left.tree_edge.size() == 0) {
-            left.col = right.col - 2;
-            int add = left.col < 0 ? - left.col : 0;
-            adjustGraphLayout(right, blocks, add, 1);
-            adjustGraphLayout(left, blocks, add, 1);
-            col = right.col_count + add;
-        } else if (right.tree_edge.size() == 0) {
-            adjustGraphLayout(left, blocks, 0, 1);
-            adjustGraphLayout(right, blocks, left.col + 2, 1);
-            col = std::max(left.col_count, right.col + 2);
-        } else {
-            adjustGraphLayout(left, blocks, 0, 1);
-            adjustGraphLayout(right, blocks, left.col_count, 1);
-            col = left.col_count + right.col_count;
-        }
-        block.col_count = std::max(2, col);
-        if (layoutType == LayoutType::Medium) {
-            block.col = (left.col + right.col) / 2;
-        } else {
-            block.col = singleChild ? childColumn : (col - 2) / 2;
-        }
-    } else {
-        for (ut64 edge : block.tree_edge) {
-            adjustGraphLayout(blocks[edge], blocks, col, 1);
-            col += blocks[edge].col_count;
-        }
-        if (col >= 2) {
-            // Place this node centered over the child nodes
-            block.col = singleChild ? childColumn : (col - 2) / 2;
-            block.col_count = col;
-        } else {
-            //No child nodes, set single node's width (nodes are 2 columns wide to allow
-            //centering over a branch)
+    struct ListNode {
+        int next;
+        int value;
+    };
+    std::vector<ListNode> sides(blockOrder.size() * 2 + 1); // two sides for ech block + 0 node reserved
+    int sidesUsed = 0;
+    for (auto blockId : blockOrder) { // process nodes in the order from bottom to top
+        auto &block = layoutState.grid_blocks[blockId];
+        block.row = 0;
+        if (block.tree_edge.size() == 0) {
+            block.row_count = 1;
             block.col = 0;
-            block.col_count = 2;
+            block.lastRowWidth = 2;
+            block.lastRowLeft = 0;
+            block.leftPosition = 0;
+            block.rightPosition = 2;
+
+            sides[++sidesUsed] = {0, 0}; // preincrement because sides[0] should not be used
+            block.leftSide = {sidesUsed, sidesUsed};
+            sides[++sidesUsed] = {0, 2};
+            block.rightSide = {sidesUsed, sidesUsed};
+        } else {
+            auto &firstChild = layoutState.grid_blocks[block.tree_edge[0]];
+            auto leftSide = firstChild.leftSide;
+            auto rightSide = firstChild.rightSide;
+            block.row_count = firstChild.row_count;
+            block.lastRowWidth = firstChild.lastRowWidth;
+            block.lastRowLeft = firstChild.lastRowLeft;
+            block.leftPosition = firstChild.leftPosition;
+            block.rightPosition = firstChild.rightPosition;
+            // Place children subtree side by side
+            for (size_t i = 1; i < block.tree_edge.size(); i++) {
+                auto &child = layoutState.grid_blocks[block.tree_edge[i]];
+                int minPos = INT_MIN;
+                int leftPos = 0;
+                int rightPos = 0;
+                auto leftIt = rightSide.head;
+                auto rightIt = child.leftSide.head;
+                int maxLeftWidth = 0;
+                int minRightPos = child.col;
+
+                while (leftIt != 0 && rightIt != 0) {
+                    leftPos += sides[leftIt].value;
+                    rightPos += sides[rightIt].value;
+                    minPos = std::max(minPos, leftPos - rightPos);
+                    maxLeftWidth = std::max(maxLeftWidth, leftPos);
+                    minRightPos = std::min(minRightPos, rightPos);
+                    leftIt = sides[leftIt].next;
+                    rightIt = sides[rightIt].next;
+                }
+                int rightTreeOffset = 0;
+                if (tightSubtreePlacement) {
+                    rightTreeOffset = minPos;
+                } else {
+                    if (leftIt != 0) {
+                        rightTreeOffset = maxLeftWidth;
+                    } else {
+                        rightTreeOffset = block.rightPosition - minRightPos;
+                    }
+
+                }
+                child.col += rightTreeOffset;
+                if (leftIt != 0) {
+                    sides[leftIt].value -= (rightTreeOffset + child.lastRowWidth - leftPos);
+                    sides[rightSide.tail].next = leftIt;
+                    child.rightSide.tail = rightSide.tail;
+                    rightSide = child.rightSide;
+                } else if (rightIt != 0) {
+                    sides[rightIt].value += (rightPos + rightTreeOffset - block.lastRowLeft);
+                    sides[leftSide.tail].next = rightIt;
+                    leftSide.tail = child.leftSide.tail;
+                    rightSide = child.rightSide;
+                    block.lastRowWidth = child.lastRowWidth + rightTreeOffset;
+                    block.lastRowLeft = child.lastRowLeft + rightTreeOffset;
+                } else {
+                    rightSide = child.rightSide;
+                }
+                sides[rightSide.head].value += rightTreeOffset;
+                block.row_count = std::max(block.row_count, child.row_count);
+                block.leftPosition = std::min(block.leftPosition, child.leftPosition + rightTreeOffset);
+                block.rightPosition = std::max(block.rightPosition, rightTreeOffset + child.rightPosition);
+            }
+
+
+            // Calculate parent position
+            if (parentBetweenDirectChild && block.tree_edge.size() <= 2) {
+                int col = 0;
+                for (auto target : block.tree_edge) {
+                    col += layoutState.grid_blocks[target].col;
+                }
+                block.col = col / block.tree_edge.size();
+            } else {
+                block.col = (block.rightPosition + block.leftPosition) / 2 - 1;
+                block.col = std::max(block.col, layoutState.grid_blocks[block.tree_edge.front()].col - 1);
+                block.col = std::min(block.col, layoutState.grid_blocks[block.tree_edge.back()].col + 1);
+            }
+            block.row_count += 1;
+
+            sides[++sidesUsed] = {leftSide.head, block.col};
+            sides[leftSide.head].value -= block.col;
+            block.leftSide = {sidesUsed, leftSide.tail};
+            sides[++sidesUsed] = {rightSide.head, block.col + 2};
+            sides[rightSide.head].value -= block.col + 2;
+            block.rightSide = {sidesUsed, rightSide.tail};
+
+            // Keep children position relative to parent so that moving parent moves whole subtree
+            for (auto target : block.tree_edge) {
+                auto &targetBlock = layoutState.grid_blocks[target];
+                targetBlock.row += 1;
+                targetBlock.col -= block.col;
+            }
         }
     }
-    block.row = 0;
-    block.row_count = row_count;
-}
 
-void GraphGridLayout::adjustGraphLayout(GridBlock &block,
-                                        std::unordered_map<ut64, GridBlock> &blocks, int col, int row) const
-{
-    block.col += col;
-    block.row += row;
-    for (ut64 edge : block.tree_edge) {
-        adjustGraphLayout(blocks[edge], blocks, col, row);
+    // calculate root positions
+    int nextEmptyColumn = 0;
+    for (auto &blockIt : layoutState.grid_blocks) {
+        auto &block = blockIt.second;
+        if (block.level == 0) { // place all the roots first
+            auto offset = -block.leftPosition;
+            block.col += nextEmptyColumn + offset;
+            nextEmptyColumn = block.rightPosition + offset;
+        }
+    }
+    // visit all nodes top to bottom, converting relative positions to absolute
+    for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
+        auto &block = layoutState.grid_blocks[*it];
+        assert(childBlock.row >= 0);
+        assert(childBlock.col >= 0);
+        for (auto childId : block.tree_edge) {
+            auto &childBlock = layoutState.grid_blocks[childId];
+            childBlock.row += block.row;
+            childBlock.col += block.col;
+        }
     }
 }
 
@@ -983,7 +1050,9 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     leftSides.clear();
     rightSides.clear();
 
-    calculateColumnOffsets(state.columnWidth, state.edgeColumnWidth, state.columnOffset, state.edgeColumnOffset);
+    calculateColumnOffsets(state.columnWidth, state.edgeColumnWidth,
+                           layoutConfig.block_horizontal_margin,
+                           state.columnOffset, state.edgeColumnOffset);
 
     // Horizontal segments
     edgeIndex = 0;
@@ -1024,13 +1093,14 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     }
 }
 
-int GraphGridLayout::calculateColumnOffsets(const std::vector<int> &columnWidth, const std::vector<int> &edgeColumnWidth, std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset)
+int GraphGridLayout::calculateColumnOffsets(const std::vector<int> &columnWidth, std::vector<int> &edgeColumnWidth, int minSpacing, std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset)
 {
     assert(edgeColumnWidth.size() == columnWidth.size() + 1);
     int position = 0;
     edgeColumnOffset.resize(edgeColumnWidth.size());
     columnOffset.resize(columnWidth.size());
     for (size_t i = 0; i < columnWidth.size(); i++) {
+        edgeColumnWidth[i] = std::max(edgeColumnWidth[i], minSpacing);
         edgeColumnOffset[i] = position;
         position += edgeColumnWidth[i];
         columnOffset[i] = position;
@@ -1044,8 +1114,12 @@ int GraphGridLayout::calculateColumnOffsets(const std::vector<int> &columnWidth,
 void GraphGridLayout::convertToPixelCoordinates(GraphGridLayout::LayoutState &state, int &width, int &height) const
 {
     // calculate row and column offsets
-    width = calculateColumnOffsets(state.columnWidth, state.edgeColumnWidth, state.columnOffset, state.edgeColumnOffset);
-    height = calculateColumnOffsets(state.rowHeight, state.edgeRowHeight, state.rowOffset, state.edgeRowOffset);
+    width = calculateColumnOffsets(state.columnWidth, state.edgeColumnWidth,
+                                   layoutConfig.block_horizontal_margin,
+                                   state.columnOffset, state.edgeColumnOffset);
+    height = calculateColumnOffsets(state.rowHeight, state.edgeRowHeight,
+                                    layoutConfig.block_vertical_margin,
+                                    state.rowOffset, state.edgeRowOffset);
 
     // pixel positions
     for (auto &block : (*state.blocks)) {

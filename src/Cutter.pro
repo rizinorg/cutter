@@ -562,6 +562,7 @@ HEADERS  += \
     common/BugReporting.h \
     common/HighDpiPixmap.h \
     widgets/GraphLayout.h \
+    widgets/GraphGridLayout.h \
     widgets/HexWidget.h \
     common/SelectionHighlight.h \
     common/Decompiler.h \
@@ -576,7 +577,7 @@ HEADERS  += \
     dialogs/LayoutManager.h \
     common/CutterLayout.h
 
-GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
+GRAPHVIZ_HEADERS = widgets/GraphvizLayout.h
 
 FORMS    += \
     dialogs/AboutDialog.ui \
