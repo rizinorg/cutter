@@ -793,7 +793,7 @@ void CutterCore::delComment(RVA addr)
 QString CutterCore::getCommentAt(RVA addr)
 {
     CORE_LOCK();
-    return fromOwnedCharPtr(r_meta_get_string(core->anal, R_META_TYPE_COMMENT, addr));
+    return r_meta_get_string(core->anal, R_META_TYPE_COMMENT, addr);
 }
 
 void CutterCore::setImmediateBase(const QString &r2BaseName, RVA offset)
