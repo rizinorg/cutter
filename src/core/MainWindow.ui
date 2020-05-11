@@ -203,10 +203,7 @@
   </widget>
   <action name="actionDefault">
    <property name="text">
-    <string>Reset Layout</string>
-   </property>
-   <property name="toolTip">
-    <string>Reset layout</string>
+    <string>Reset to default layout</string>
    </property>
   </action>
   <action name="actionZen">

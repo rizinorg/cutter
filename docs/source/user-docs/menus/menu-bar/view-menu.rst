@@ -15,7 +15,7 @@ Reset to default layout
 ----------------------------------------
 **Description:** Reset the current layout to the default layout provided by Cutter.
 
-**Steps:** View -> Reset Layout  
+**Steps:** View -> Reset to default layout
 
 Reset to default settings
 ----------------------------------------
