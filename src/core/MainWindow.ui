@@ -1156,7 +1156,7 @@
   </action>
   <action name="actionReadOnly">
    <property name="text">
-    <string>Read only</string>
+    <string>Read-Only mode</string>
    </property>
   </action>
  </widget>

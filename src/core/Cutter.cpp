@@ -3813,7 +3813,6 @@ void CutterCore::setWriteMode(bool enabled)
         cmdRaw("oo+");
     // Change from write-mode to read-only
     } else {
-        qDebug() << "READ ONLY!!!";
         cmdRaw("oo");
     }
     // Disable cache mode because we specifically set write or
