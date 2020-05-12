@@ -513,6 +513,15 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
             layoutState.edge[blockIt.first][i].dest = blockIt.second.edges[i].target;
         }
     }
+    for (const auto &edgeList : layoutState.edge) {
+        auto &startBlock = layoutState.grid_blocks[edgeList.first];
+        startBlock.outputCount++;
+        for (auto &edge : edgeList.second) {
+            auto &targetBlock = layoutState.grid_blocks[edge.dest];
+            targetBlock.inputCount++;
+        }
+    }
+
     layoutState.columns = 1;
     layoutState.rows = 1;
     for (auto &node : layoutState.grid_blocks) {
@@ -764,6 +773,14 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
 
 void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
 {
+    auto getSpacingOverride = [this](int blockWidth, int edgeCount) {
+        int maxSpacing = blockWidth / edgeCount;
+        if (maxSpacing < layoutConfig.block_horizontal_margin) {
+            return std::max(maxSpacing, 1);
+        }
+        return 0;
+    };
+
     for (auto &blockIt : state.grid_blocks) {
         auto &blockEdges = state.edge[blockIt.first];
         for (size_t i = 0; i < blockEdges.size(); i++) {
@@ -791,6 +808,12 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
                 edge.addPoint(target.row, target.col + 1, target.row <= start.row ? 2 : 0);
                 edge.addPoint(target.row, target.col + 1, target.col + 1 < edge.mainColumn ? 1 : -1);
             }
+
+            // reduce edge spacing when there is large amount of edges
+            auto startSpacingOverride = getSpacingOverride((*state.blocks)[start.id].width, start.outputCount);
+            auto targetSpacingOverride = getSpacingOverride((*state.blocks)[target.id].width, target.inputCount);
+            edge.points.front().spacingOverride = startSpacingOverride;
+            edge.points.back().spacingOverride = targetSpacingOverride;
         }
     }
 }
@@ -800,8 +823,9 @@ namespace {
         int y0;
         int y1;
         int x;
-        int kind;
         int edgeIndex;
+        int16_t kind;
+        int16_t spacingOverride;
     };
     struct NodeSide {
         int x;
@@ -871,7 +895,7 @@ void calculateSegmentOffsets(
             if (nextSegmentIt->kind != -2) {
                 y = std::max(y, 0);
             }
-            y += spacing;
+            y += nextSegmentIt->spacingOverride ? nextSegmentIt->spacingOverride : spacing;
             maxSegment.setRange(nextSegmentIt->y0, nextSegmentIt->y1 + 1, y);
             edgeOffsets[nextSegmentIt->edgeIndex] = y;
             nextSegmentIt++;
@@ -895,7 +919,7 @@ void calculateSegmentOffsets(
         }
         while (nextSegmentIt != segments.end() && nextSegmentIt->x == x) {
             int y = maxSegment.rangeMaximum(nextSegmentIt->y0, nextSegmentIt->y1 + 1);
-            y += spacing;
+            y += nextSegmentIt->spacingOverride ? nextSegmentIt->spacingOverride : spacing;
             maxSegment.setRange(nextSegmentIt->y0, nextSegmentIt->y1 + 1, y);
             edgeOffsets[nextSegmentIt->edgeIndex] = y;
             nextSegmentIt++;
@@ -1024,8 +1048,9 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
                 segment.y0 = edge.points[j - 1].row * 2; // edges in even rows
                 segment.y1 = edge.points[j].row * 2;
                 segment.x = edge.points[j].col;
-                segment.kind = edge.points[j].kind;
                 segment.edgeIndex = edgeIndex++;
+                segment.kind = edge.points[j].kind;
+                segment.spacingOverride = edge.points[j].spacingOverride;
                 segments.push_back(segment);
             }
         }
@@ -1081,8 +1106,9 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
                 segment.y0 = state.edgeColumnOffset[edge.points[j - 1].col] + edge.points[j - 1].offset;//edge.points[j - 1].col * 2;
                 segment.y1 = state.edgeColumnOffset[edge.points[j + 1].col] + edge.points[j + 1].offset;;//edge.points[j].col * 2;
                 segment.x = edge.points[j].row;
-                segment.kind = edge.points[j].kind;
                 segment.edgeIndex = edgeIndex++;
+                segment.kind = edge.points[j].kind;
+                segment.spacingOverride = edge.points[j].spacingOverride;
                 segments.push_back(segment);
             }
         }

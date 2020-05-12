@@ -38,6 +38,8 @@ private:
         std::vector<ut64> dag_edge; //< subset of outgoing edges that form a tree
         std::size_t has_parent = false;
         int level = 0;
+        int inputCount = 0;
+        int outputCount = 0;
 
         /// Number of rows in subtree
         int row_count = 0;
@@ -57,8 +59,9 @@ private:
     struct Point {
         int row;
         int col;
-        int kind;
         int offset;
+        int16_t kind;
+        int16_t spacingOverride;
     };
 
     struct GridEdge {
@@ -66,9 +69,10 @@ private:
         int mainColumn = -1;
         std::vector<Point> points;
 
-        void addPoint(int row, int col, int kind = 0)
+        void addPoint(int row, int col, int16_t kind = 0)
         {
-            this->points.push_back({row, col, kind, 0});
+
+            this->points.push_back({row, col, 0, kind, 0});
         }
     };
 
