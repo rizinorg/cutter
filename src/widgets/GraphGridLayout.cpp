@@ -593,7 +593,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                     rightTreeOffset = minPos;
                 } else {
                     if (leftIt != 0) {
-                        rightTreeOffset = maxLeftWidth;
+                        rightTreeOffset = maxLeftWidth - child.leftPosition;
                     } else {
                         rightTreeOffset = block.rightPosition - minRightPos;
                     }
@@ -602,7 +602,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                 child.col += rightTreeOffset;
                 if (leftIt != 0) {
                     sides[leftIt].value -= (rightTreeOffset + child.lastRowWidth - leftPos);
-                    sides[rightSide.tail].next = leftIt;
+                    sides[child.rightSide.tail].next = leftIt;
                     child.rightSide.tail = rightSide.tail;
                     rightSide = child.rightSide;
                 } else if (rightIt != 0) {
