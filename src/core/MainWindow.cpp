@@ -723,7 +723,7 @@ void MainWindow::saveSettings()
     settings.setValue("docksGroupedDragging", ui->actionGrouped_dock_dragging->isChecked());
     settings.setValue("geometry", saveGeometry());
 
-    layouts[Core()->isDebugTaskInProgress() ? LAYOUT_DEBUG : LAYOUT_DEFAULT] = getViewLayout();
+    layouts[Core()->currentlyDebugging ? LAYOUT_DEBUG : LAYOUT_DEFAULT] = getViewLayout();
     saveLayouts(settings);
 }
 
