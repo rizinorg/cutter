@@ -117,6 +117,10 @@ T *getNewInstance(MainWindow *m) { return new T(m); }
 static const QString LAYOUT_DEFAULT = "Default";
 static const QString LAYOUT_DEBUG = "Debug";
 
+static bool isBuiltinLayoutName(const QString &name) {
+    return name == LAYOUT_DEFAULT || name == LAYOUT_DEBUG;
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     core(Core()),
@@ -1078,6 +1082,9 @@ void MainWindow::updateLayoutsMenu()
     ui->menuLayouts->clear();
     for (auto it = layouts.begin(), end = layouts.end(); it != end; ++it) {
         QString name = it.key();
+        if (isBuiltinLayoutName(name)) {
+            continue;
+        }
         auto action = new QAction(it.key(), ui->menuLayouts);
         connect(action, &QAction::triggered, this, [this, name]() {
             setViewLayout(getViewLayout(name));
@@ -1089,11 +1096,18 @@ void MainWindow::updateLayoutsMenu()
 void MainWindow::saveNamedLayout()
 {
     bool ok = false;
-    QString name = QInputDialog::getText(this, "Save layout", "Enter name", QLineEdit::Normal, {}, &ok);
-    if (ok && !name.isEmpty() && name != LAYOUT_DEFAULT && name != LAYOUT_DEBUG) {
-        layouts[name] = getViewLayout();
-        updateLayoutsMenu();
+    QString name;
+    while (name.isEmpty() || isBuiltinLayoutName(name)) {
+        if (ok) {
+            QMessageBox::warning(this, tr("Save layout error"), tr("'%1' is not a valid name.").arg(name));
+        }
+        name = QInputDialog::getText(this, tr("Save layout"), tr("Enter name"), QLineEdit::Normal, {}, &ok);
+        if (!ok) {
+            return;
+        }
     }
+    layouts[name] = getViewLayout();
+    updateLayoutsMenu();
     saveSettings();
 }
 
