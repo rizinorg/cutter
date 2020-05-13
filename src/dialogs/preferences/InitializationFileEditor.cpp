@@ -21,14 +21,19 @@ InitializationFileEditor::InitializationFileEditor(PreferencesDialog *dialog)
 {
     ui->setupUi(this);
     connect(ui->saveRC, &QDialogButtonBox::accepted, this, &InitializationFileEditor::saveCutterRC);
+    connect(ui->executeNow, &QDialogButtonBox::accepted, this, &InitializationFileEditor::executeCutterRC);
     connect(ui->ConfigFileEdit, SIGNAL(modificationChanged(bool)), this, SLOT(cutterRCModificationChanged(bool)));
     
     const QDir cutterRCDirectory = Core()->getCutterRCDefaultDirectory();
     auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "rc");
     QString cutterRCLocation = cutterRCFileInfo.absoluteFilePath();
     
+    ui->cutterRCLoaded->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    ui->cutterRCLoaded->setOpenExternalLinks(true);
     ui->cutterRCLoaded->setText(tr("Script is loaded from <a href=\"%1\">%2</a>")
                                 .arg(QUrl::fromLocalFile(cutterRCDirectory.absolutePath()).toString(), cutterRCLocation.toHtmlEscaped()));
+    
+    ui->executeNow->button(QDialogButtonBox::Retry)->setText("Execute");
     ui->ConfigFileEdit->clear();
     if(cutterRCFileInfo.exists()){
         QFile cutterRC(cutterRCLocation);
@@ -58,7 +63,6 @@ void InitializationFileEditor::saveCutterRC(){
         out << text;
         cutterRC.close();
     }
-    ui->saveRC->setDisabled(true);
     ui->ConfigFileEdit->document()->setModified(false);
 }
 
@@ -68,4 +72,9 @@ void InitializationFileEditor::cutterRCModificationChanged(bool change){
     }else{
         ui->saveRC->setDisabled(true);
     }
+}
+
+void InitializationFileEditor::executeCutterRC(){
+    saveCutterRC();
+    Core()->loadDefaultCutterRC();
 }

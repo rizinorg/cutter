@@ -245,7 +245,7 @@ QDir CutterCore::getCutterRCDefaultDirectory() const
     return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
 }
 
-QVector<QString> CutterCore::getCutterRCDirectories() const
+QVector<QString> CutterCore::getCutterRCFilePaths() const
 {
     QVector<QString> result;
     result.push_back(QFileInfo(QDir::home(), ".cutterrc").absoluteFilePath());
@@ -260,7 +260,7 @@ QVector<QString> CutterCore::getCutterRCDirectories() const
 void CutterCore::loadCutterRC()
 {
     CORE_LOCK();
-    const auto result = getCutterRCDirectories();
+    const auto result = getCutterRCFilePaths();
     for(auto &cutterRCFilePath : result){
         auto cutterRCFileInfo = QFileInfo(cutterRCFilePath);
         if (!cutterRCFileInfo.exists() || !cutterRCFileInfo.isFile()) {
@@ -269,6 +269,18 @@ void CutterCore::loadCutterRC()
         qInfo() << "Loading initialization file from " << cutterRCFilePath;
         r_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
     }
+}
+
+void CutterCore::loadDefaultCutterRC()
+{
+    CORE_LOCK();
+    auto cutterRCFilePath = QFileInfo(getCutterRCDefaultDirectory(), "rc").absoluteFilePath();
+    const auto cutterRCFileInfo = QFileInfo(cutterRCFilePath);
+    if (!cutterRCFileInfo.exists() || !cutterRCFileInfo.isFile()) {
+        return;
+    }
+    qInfo() << "Loading initialization file from " << cutterRCFilePath;
+    r_core_cmd_file(core, cutterRCFilePath.toUtf8().constData());
 }
 
 

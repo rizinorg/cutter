@@ -20,6 +20,7 @@ public:
     explicit InitializationFileEditor(PreferencesDialog *dialog);
     ~InitializationFileEditor();
     void saveCutterRC();
+    void executeCutterRC();
     
 private:
     std::unique_ptr<Ui::InitializationFileEditor> ui;
