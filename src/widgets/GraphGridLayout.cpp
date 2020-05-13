@@ -814,6 +814,14 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
             auto targetSpacingOverride = getSpacingOverride((*state.blocks)[target.id].width, target.inputCount);
             edge.points.front().spacingOverride = startSpacingOverride;
             edge.points.back().spacingOverride = targetSpacingOverride;
+
+
+            int length = 0;
+            for (size_t i = 1; i < edge.points.size(); i++) {
+                length += abs(edge.points[i].row - edge.points[i - 1].row) +
+                               abs(edge.points[i].col - edge.points[i - 1].col);
+            }
+            edge.secondaryPriority = 2 * length + (target.row >= start.row ? 1 : 0);
         }
     }
 }
@@ -824,6 +832,7 @@ namespace {
         int y1;
         int x;
         int edgeIndex;
+        int secondaryPriority;
         int16_t kind;
         int16_t spacingOverride;
     };
@@ -856,10 +865,17 @@ void calculateSegmentOffsets(
         if (a.kind != b.kind) return a.kind < b.kind;
         auto aSize = a.y1 - a.y0;
         auto bSize = b.y1 - b.y0;
+        if (aSize != bSize) {
+            if (a.kind != 1) {
+                return aSize < bSize;
+            } else {
+                return aSize > bSize;
+            }
+        }
         if (a.kind != 1) {
-            return aSize < bSize;
+            return a.secondaryPriority < b.secondaryPriority;
         } else {
-            return aSize > bSize;
+            return a.secondaryPriority > b.secondaryPriority;
         }
         return false;
     });
@@ -1051,6 +1067,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
                 segment.edgeIndex = edgeIndex++;
                 segment.kind = edge.points[j].kind;
                 segment.spacingOverride = edge.points[j].spacingOverride;
+                segment.secondaryPriority = edge.secondaryPriority;
                 segments.push_back(segment);
             }
         }
@@ -1109,6 +1126,7 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
                 segment.edgeIndex = edgeIndex++;
                 segment.kind = edge.points[j].kind;
                 segment.spacingOverride = edge.points[j].spacingOverride;
+                segment.secondaryPriority = edge.secondaryPriority;
                 segments.push_back(segment);
             }
         }

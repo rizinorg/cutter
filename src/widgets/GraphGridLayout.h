@@ -68,10 +68,10 @@ private:
         ut64 dest;
         int mainColumn = -1;
         std::vector<Point> points;
+        int secondaryPriority;
 
         void addPoint(int row, int col, int16_t kind = 0)
         {
-
             this->points.push_back({row, col, 0, kind, 0});
         }
     };
