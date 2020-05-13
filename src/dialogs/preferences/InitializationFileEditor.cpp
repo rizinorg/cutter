@@ -22,8 +22,8 @@ InitializationFileEditor::InitializationFileEditor(PreferencesDialog *dialog)
     ui->setupUi(this);
     connect(ui->saveRC, &QDialogButtonBox::accepted, this, &InitializationFileEditor::saveCutterRC);
     connect(ui->executeNow, &QDialogButtonBox::accepted, this, &InitializationFileEditor::executeCutterRC);
-    connect(ui->ConfigFileEdit, &QPlainTextEdit::modificationChanged, this, &InitializationFileEditor::cutterRCModificationChanged);
-    
+    connect(ui->ConfigFileEdit, &QPlainTextEdit::modificationChanged, ui->saveRC, &QWidget::setEnabled);
+
     const QDir cutterRCDirectory = Core()->getCutterRCDefaultDirectory();
     auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "rc");
     QString cutterRCLocation = cutterRCFileInfo.absoluteFilePath();
@@ -64,14 +64,6 @@ void InitializationFileEditor::saveCutterRC(){
         cutterRC.close();
     }
     ui->ConfigFileEdit->document()->setModified(false);
-}
-
-void InitializationFileEditor::cutterRCModificationChanged(bool change){
-    if(change == true){
-        ui->saveRC->setEnabled(true);
-    }else{
-        ui->saveRC->setDisabled(true);
-    }
 }
 
 void InitializationFileEditor::executeCutterRC(){
