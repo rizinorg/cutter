@@ -22,7 +22,7 @@ InitializationFileEditor::InitializationFileEditor(PreferencesDialog *dialog)
     ui->setupUi(this);
     connect(ui->saveRC, &QDialogButtonBox::accepted, this, &InitializationFileEditor::saveCutterRC);
     connect(ui->executeNow, &QDialogButtonBox::accepted, this, &InitializationFileEditor::executeCutterRC);
-    connect(ui->ConfigFileEdit, SIGNAL(modificationChanged(bool)), this, SLOT(cutterRCModificationChanged(bool)));
+    connect(ui->ConfigFileEdit, &QPlainTextEdit::modificationChanged, this, &InitializationFileEditor::cutterRCModificationChanged);
     
     const QDir cutterRCDirectory = Core()->getCutterRCDefaultDirectory();
     auto cutterRCFileInfo = QFileInfo(cutterRCDirectory, "rc");

@@ -24,8 +24,6 @@ public:
     
 private:
     std::unique_ptr<Ui::InitializationFileEditor> ui;
-
-private slots:
     void cutterRCModificationChanged(bool change);
 
 };
