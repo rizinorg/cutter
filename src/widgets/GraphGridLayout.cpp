@@ -6,6 +6,9 @@
 #include <stack>
 #include <cassert>
 
+#include "common/BinaryTrees.h"
+
+
 /** @class GraphGridLayout
 
 Basic familarity with graph algorithms is recommended.
@@ -111,294 +114,6 @@ chechked using a 2d array of lists.
 
 */
 
-namespace {
-class MinTree1
-{
-public:
-    MinTree1(size_t size)
-        : size(size)
-        , nodeCount(2 * size)
-        , nodes(nodeCount)
-    {
-    }
-
-    MinTree1(size_t size, int value)
-        : MinTree1(size)
-    {
-        init(value);
-    }
-
-    void buildTree()
-    {
-        for (size_t i = size - 1; i > 0; i--) {
-            nodes[i] = std::min(nodes[i << 1], nodes[(i << 1) | 1]);
-        }
-    }
-    void init(int value)
-    {
-        std::fill_n(nodes.begin() + size, size, value);
-        buildTree();
-    }
-
-    void set(size_t pos, int value)
-    {
-        pos = positionToLeaveIndex(pos);
-        nodes[pos] = value;
-        while (pos > 1) {
-            auto parrent = pos >> 1;
-            nodes[parrent] = std::min(nodes[pos], nodes[pos ^ 1]);
-            pos = parrent;
-        }
-    }
-    int valueAtPoint(size_t pos)
-    {
-        return nodes[positionToLeaveIndex(pos)];
-    }
-    size_t leaveIndexToPosition(size_t index)
-    {
-        return index - size;
-    }
-
-    size_t positionToLeaveIndex(size_t position)
-    {
-        return position + size;
-    }
-
-    /**
-     * @brief Find right most position with value than less than given in range [0; position].
-     * @param position inclusive right side of query range
-     * @param value search for position with value less than this
-     * @return returns the position with searched property or -1 if there is no such position.
-     */
-    int rightMostLessThan(size_t position, int value)
-    {
-        auto isGood = [&](size_t pos) {
-            return nodes[pos] < value;
-        };
-        // right side exclusive range [l;r)
-        size_t goodSubtree = 0;
-        for (size_t l = positionToLeaveIndex(0), r = positionToLeaveIndex(position + 1); l < r;
-                l >>= 1, r >>= 1) {
-            if (l & 1) {
-                if (isGood(l)) {
-                    // mark subtree as good but don't stop yet, there might be something good further to the right
-                    goodSubtree = l;
-                }
-                ++l;
-            }
-            if (r & 1) {
-                --r;
-                if (isGood(r)) {
-                    goodSubtree = r;
-                    break;
-                }
-            }
-        }
-        if (!goodSubtree) {
-            return -1;
-        }
-        // find rightmost good leave
-        while (goodSubtree < size) {
-            goodSubtree = (goodSubtree << 1) + 1;
-            if (!isGood(goodSubtree)) {
-                goodSubtree ^= 1;
-            }
-        }
-        return leaveIndexToPosition(goodSubtree); // convert from node index to position in range (0;size]
-    }
-
-    /**
-     * @brief Find left most position with value than less than given in range [position; size).
-     * @param position inclusive left side of query range
-     * @param value search for position with value less than this
-     * @return returns the position with searched property or -1 if there is no such position.
-     */
-    int leftMostLessThan(size_t position, int value)
-    {
-        auto isGood = [&](size_t pos) {
-            return nodes[pos] < value;
-        };
-        // right side exclusive range [l;r)
-        size_t goodSubtree = 0;
-        for (size_t l = positionToLeaveIndex(position), r = positionToLeaveIndex(size); l < r;
-                l >>= 1, r >>= 1) {
-            if (l & 1) {
-                if (isGood(l)) {
-                    goodSubtree = l;
-                    break;
-                }
-                ++l;
-            }
-            if (r & 1) {
-                --r;
-                if (isGood(r)) {
-                    goodSubtree = r;
-                    // mark subtree as good but don't stop yet, there might be something good further to the left
-                }
-            }
-        }
-        if (!goodSubtree) {
-            return -1;
-        }
-        // find leftmost good leave
-        while (goodSubtree < size) {
-            goodSubtree = (goodSubtree << 1);
-            if (!isGood(goodSubtree)) {
-                goodSubtree ^= 1;
-            }
-        }
-        return leaveIndexToPosition(goodSubtree); // convert from node index to position in range (0;size]
-    }
-private:
-    const size_t size; //< number of leaves and also index of left most leave
-    const size_t nodeCount;
-    std::vector<int> nodes;
-};
-
-
-class LazySegmentTree
-{
-public:
-    using NodeType = int;
-    using PromiseType = int;
-    static const int NO_PROMISE = INT_MIN;
-
-    LazySegmentTree(size_t size)
-        : size(size)
-        , nodeCount(2 * size)
-        , nodes(nodeCount)
-        , promise(size, NO_PROMISE)
-    {
-        h = 0;
-        size_t v = size;
-        while (v) {
-            v >>= 1;
-            h++;
-        }
-    }
-
-    LazySegmentTree(size_t size, NodeType value)
-        : LazySegmentTree(size)
-    {
-        init(value);
-    }
-
-    size_t leaveIndexToPosition(size_t index) const
-    {
-        return index - size;
-    }
-
-    size_t positionToLeaveIndex(size_t position) const
-    {
-        return position + size;
-    }
-
-    void updateFromChild(NodeType &parent, const NodeType &left, const NodeType &right)
-    {
-        parent = std::max(left, right);
-    }
-
-    void pushDown(size_t parent)
-    {
-        if (promise[parent] != NO_PROMISE) {
-            size_t left = (parent << 1);
-            size_t right = (parent << 1) | 1;
-            nodes[left] = nodes[right] = nodes[parent];
-            if (left < size) {
-                promise[left] = promise[parent];
-            }
-            if (right < size) {
-                promise[right] = promise[parent];
-            }
-            promise[parent] = NO_PROMISE;
-        }
-    }
-
-    void buildTree()
-    {
-        for (size_t i = size - 1; i > 0; i--) {
-            updateFromChild(nodes[i], nodes[i << 1], nodes[(i << 1) | 1]);
-        }
-    }
-    void init(NodeType value)
-    {
-        std::fill_n(nodes.begin() + size, size, value);
-        buildTree();
-        promise.assign(promise.size(), NO_PROMISE);
-    }
-
-    void pushDownFromRoot(size_t p)
-    {
-        for (size_t i = h; i > 0; i--) {
-            pushDown(p >> i);
-        }
-    }
-
-    void updateUntilRoot(size_t p)
-    {
-        while (p > 1) {
-            auto parent = p >> 1;
-            if (promise[parent] == NO_PROMISE) {
-                updateFromChild(nodes[parent], nodes[p], nodes[p ^ 1]);
-            }
-            p >>= 1;
-        }
-    }
-
-    void setRange(size_t left, size_t right, NodeType value)
-    {
-        left = positionToLeaveIndex(left);
-        right = positionToLeaveIndex(right);
-        pushDownFromRoot(left);
-        pushDownFromRoot(right - 1);
-        for (size_t l = left, r = right; l < r; l >>= 1, r >>= 1) {
-            if (l & 1) {
-                nodes[l] = value;
-                if (l < size) {
-                    promise[l] = value;
-                }
-                l += 1;
-            }
-            if (r & 1) {
-                r -= 1;
-                nodes[r] = value;
-                if (r < size) {
-                    promise[r] = value;
-                }
-            }
-        }
-        updateUntilRoot(left);
-        updateUntilRoot(right - 1);
-    }
-
-    int rangeMaximum(size_t l, size_t r)
-    {
-        NodeType result = INT_MIN;
-        l = positionToLeaveIndex(l);
-        r = positionToLeaveIndex(r);
-        pushDownFromRoot(l);
-        pushDownFromRoot(r -1);
-        for (; l < r; l >>= 1, r>>= 1) {
-            if (l & 1) {
-                result = std::max(result, nodes[l++]);
-            }
-            if (r & 1) {
-                result = std::max(result, nodes[--r]);
-            }
-        }
-        return result;
-    }
-
-private:
-    const size_t size; //< number of leaves and also index of left most leave
-    const size_t nodeCount;
-    int h;
-    std::vector<NodeType> nodes;
-    std::vector<PromiseType> promise;
-};
-const int LazySegmentTree::NO_PROMISE;
-
-}
 
 GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     : GraphLayout({})
@@ -733,7 +448,7 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
     });
 
     // process events and choose main column for each edge
-    MinTree1 blockedColumns(state.columns + 1, -1); // There are more columns than node columns
+    PointSetMinTree blockedColumns(state.columns + 1, -1); // There are more columns than node columns
     for (const auto &event : events) {
         if (event.type == Event::Block) {
             auto block = state.grid_blocks[event.blockId];
@@ -886,7 +601,7 @@ void calculateSegmentOffsets(
     sort(nodeRightSide.begin(), nodeRightSide.end(), compareNode);
     sort(nodeLeftSide.begin(), nodeLeftSide.end(), compareNode);
 
-    LazySegmentTree maxSegment(H, INT_MIN);
+    RangeAssignMaxTree maxSegment(H, INT_MIN);
     auto nextSegmentIt = segments.begin();
     auto rightSideIt = nodeRightSide.begin();
     auto leftSideIt = nodeLeftSide.begin();

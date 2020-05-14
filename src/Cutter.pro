@@ -575,7 +575,8 @@ HEADERS  += \
     common/IOModesController.h \
     common/SettingsUpgrade.h \
     dialogs/LayoutManager.h \
-    common/CutterLayout.h
+    common/CutterLayout.h \
+    common/BinaryTrees.h
 
 GRAPHVIZ_HEADERS = widgets/GraphvizLayout.h
 
