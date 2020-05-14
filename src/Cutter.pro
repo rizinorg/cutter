@@ -576,7 +576,8 @@ HEADERS  += \
     common/SettingsUpgrade.h \
     dialogs/LayoutManager.h \
     common/CutterLayout.h \
-    common/BinaryTrees.h
+    common/BinaryTrees.h \
+    common/LinkedListPool.h
 
 GRAPHVIZ_HEADERS = widgets/GraphvizLayout.h
 

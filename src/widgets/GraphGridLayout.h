@@ -3,6 +3,7 @@
 
 #include "core/Cutter.h"
 #include "GraphLayout.h"
+#include "common/LinkedListPool.h"
 
 
 /**
@@ -27,11 +28,6 @@ private:
     bool tightSubtreePlacement = false;
     bool parentBetweenDirectChild = false;
 
-    struct ListHead {
-        int head;
-        int tail;
-    };
-
     struct GridBlock {
         ut64 id;
         std::vector<ut64> tree_edge; //< subset of outgoing edges that form a tree
@@ -52,8 +48,8 @@ private:
         int lastRowLeft;
         int leftPosition;
         int rightPosition;
-        ListHead leftSide;
-        ListHead rightSide;
+        LinkedListPool<int>::List leftSide;
+        LinkedListPool<int>::List rightSide;
     };
 
     struct Point {

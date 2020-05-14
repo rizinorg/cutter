@@ -262,12 +262,7 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
 void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
                                                LayoutState &layoutState) const
 {
-    struct ListNode {
-        int next;
-        int value;
-    };
-    std::vector<ListNode> sides(blockOrder.size() * 2 + 1); // two sides for ech block + 0 node reserved
-    int sidesUsed = 0;
+    LinkedListPool<int> sides(blockOrder.size() * 2); // two sides for each node
     for (auto blockId : blockOrder) { // process nodes in the order from bottom to top
         auto &block = layoutState.grid_blocks[blockId];
         block.row = 0;
@@ -279,10 +274,8 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             block.leftPosition = 0;
             block.rightPosition = 2;
 
-            sides[++sidesUsed] = {0, 0}; // preincrement because sides[0] should not be used
-            block.leftSide = {sidesUsed, sidesUsed};
-            sides[++sidesUsed] = {0, 2};
-            block.rightSide = {sidesUsed, sidesUsed};
+            block.leftSide = sides.makeList(0);
+            block.rightSide = sides.makeList(2);
         } else {
             auto &firstChild = layoutState.grid_blocks[block.tree_edge[0]];
             auto leftSide = firstChild.leftSide;
@@ -298,19 +291,19 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                 int minPos = INT_MIN;
                 int leftPos = 0;
                 int rightPos = 0;
-                auto leftIt = rightSide.head;
-                auto rightIt = child.leftSide.head;
+                auto leftIt = sides.head(rightSide);
+                auto rightIt = sides.head(child.leftSide);
                 int maxLeftWidth = 0;
                 int minRightPos = child.col;
 
-                while (leftIt != 0 && rightIt != 0) {
-                    leftPos += sides[leftIt].value;
-                    rightPos += sides[rightIt].value;
+                while (leftIt && rightIt) {
+                    leftPos += *leftIt;
+                    rightPos += *rightIt;
                     minPos = std::max(minPos, leftPos - rightPos);
                     maxLeftWidth = std::max(maxLeftWidth, leftPos);
                     minRightPos = std::min(minRightPos, rightPos);
-                    leftIt = sides[leftIt].next;
-                    rightIt = sides[rightIt].next;
+                    ++leftIt;
+                    ++rightIt;
                 }
                 int rightTreeOffset = 0;
                 if (tightSubtreePlacement) {
@@ -324,22 +317,20 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
 
                 }
                 child.col += rightTreeOffset;
-                if (leftIt != 0) {
-                    sides[leftIt].value -= (rightTreeOffset + child.lastRowWidth - leftPos);
-                    sides[child.rightSide.tail].next = leftIt;
-                    child.rightSide.tail = rightSide.tail;
-                    rightSide = child.rightSide;
-                } else if (rightIt != 0) {
-                    sides[rightIt].value += (rightPos + rightTreeOffset - block.lastRowLeft);
-                    sides[leftSide.tail].next = rightIt;
-                    leftSide.tail = child.leftSide.tail;
+                if (leftIt) {
+                    *leftIt -= (rightTreeOffset + child.lastRowWidth - leftPos);
+                    rightSide = sides.append(child.rightSide, sides.splitTail(rightSide, leftIt));
+                } else if (rightIt) {
+                    *rightIt += (rightPos + rightTreeOffset - block.lastRowLeft);
+                    leftSide = sides.append(leftSide, sides.splitTail(child.leftSide, rightIt));
+
                     rightSide = child.rightSide;
                     block.lastRowWidth = child.lastRowWidth + rightTreeOffset;
                     block.lastRowLeft = child.lastRowLeft + rightTreeOffset;
                 } else {
                     rightSide = child.rightSide;
                 }
-                sides[rightSide.head].value += rightTreeOffset;
+                *sides.head(rightSide) += rightTreeOffset;
                 block.row_count = std::max(block.row_count, child.row_count);
                 block.leftPosition = std::min(block.leftPosition, child.leftPosition + rightTreeOffset);
                 block.rightPosition = std::max(block.rightPosition, rightTreeOffset + child.rightPosition);
@@ -360,12 +351,12 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             }
             block.row_count += 1;
 
-            sides[++sidesUsed] = {leftSide.head, block.col};
-            sides[leftSide.head].value -= block.col;
-            block.leftSide = {sidesUsed, leftSide.tail};
-            sides[++sidesUsed] = {rightSide.head, block.col + 2};
-            sides[rightSide.head].value -= block.col + 2;
-            block.rightSide = {sidesUsed, rightSide.tail};
+
+            *sides.head(leftSide) -= block.col;
+            block.leftSide = sides.append(sides.makeList(block.col), leftSide);
+
+            *sides.head(rightSide) -= block.col + 2;
+            block.rightSide = sides.append(sides.makeList(block.col + 2), rightSide);
 
             // Keep children position relative to parent so that moving parent moves whole subtree
             for (auto target : block.tree_edge) {
