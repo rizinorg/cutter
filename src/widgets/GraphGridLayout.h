@@ -100,7 +100,7 @@ private:
     void roughRouting(LayoutState &state) const;
     void elaborateEdgePlacement(LayoutState &state) const;
     void adjustColumnWidths(LayoutState &state) const;
-    static int calculateColumnOffsets(const std::vector<int> &columnWidth, std::vector<int> &edgeColumnWidth, int minSpacing,
+    static int calculateColumnOffsets(const std::vector<int> &columnWidth, std::vector<int> &edgeColumnWidth,
                                       std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset);
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
 };
