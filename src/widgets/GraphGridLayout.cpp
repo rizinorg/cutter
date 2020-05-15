@@ -117,7 +117,7 @@ chechked using a 2d array of lists.
 
 GraphGridLayout::GraphGridLayout(GraphGridLayout::LayoutType layoutType)
     : GraphLayout({})
-, layoutType(layoutType)
+    , layoutType(layoutType)
 {
     switch (layoutType) {
     case LayoutType::Narrow:
@@ -219,8 +219,8 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
         layoutState.grid_blocks[it.first] = block;
     }
 
-    auto block_order = topoSort(layoutState, entry);
-    computeAllBlockPlacement(block_order, layoutState);
+    auto blockOrder = topoSort(layoutState, entry);
+    computeAllBlockPlacement(blockOrder, layoutState);
 
     for (auto &blockIt : blocks) {
         layoutState.edge[blockIt.first].resize(blockIt.second.edges.size());
@@ -245,6 +245,7 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
         // block is 2 column wide
         layoutState.columns = std::max(layoutState.columns, size_t(node.second.col) + 2);
     }
+
     layoutState.rowHeight.assign(layoutState.rows, 0);
     layoutState.columnWidth.assign(layoutState.columns, 0);
     for (auto &node : layoutState.grid_blocks) {
@@ -262,8 +263,12 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
 void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
                                                LayoutState &layoutState) const
 {
-    LinkedListPool<int> sides(blockOrder.size() * 2); // two sides for each node
-    for (auto blockId : blockOrder) { // process nodes in the order from bottom to top
+    // Shapes of subtrees are maintained using linked lists. Each value within list is column relative to previous row.
+    // This allows moving things around by chaning only first value in list.
+    LinkedListPool<int> sides(blockOrder.size() * 2); // *2 = two sides for each node
+
+    // Process nodes in the order from bottom to top. Ensures that all subtrees are processed before parent node.
+    for (auto blockId : blockOrder) {
         auto &block = layoutState.grid_blocks[blockId];
         block.row = 0;
         if (block.tree_edge.size() == 0) {
@@ -278,14 +283,14 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             block.rightSide = sides.makeList(2);
         } else {
             auto &firstChild = layoutState.grid_blocks[block.tree_edge[0]];
-            auto leftSide = firstChild.leftSide;
+            auto leftSide = firstChild.leftSide; // left side of block children subtrees processed so far
             auto rightSide = firstChild.rightSide;
             block.row_count = firstChild.row_count;
             block.lastRowWidth = firstChild.lastRowWidth;
             block.lastRowLeft = firstChild.lastRowLeft;
             block.leftPosition = firstChild.leftPosition;
             block.rightPosition = firstChild.rightPosition;
-            // Place children subtree side by side
+            // Place children subtrees side by side
             for (size_t i = 1; i < block.tree_edge.size(); i++) {
                 auto &child = layoutState.grid_blocks[block.tree_edge[i]];
                 int minPos = INT_MIN;
@@ -296,7 +301,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                 int maxLeftWidth = 0;
                 int minRightPos = child.col;
 
-                while (leftIt && rightIt) {
+                while (leftIt && rightIt) { // process part of subtrees that touch when put side by side
                     leftPos += *leftIt;
                     rightPos += *rightIt;
                     minPos = std::max(minPos, leftPos - rightPos);
@@ -307,8 +312,9 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                 }
                 int rightTreeOffset = 0;
                 if (tightSubtreePlacement) {
-                    rightTreeOffset = minPos;
+                    rightTreeOffset = minPos; // mode a) place subtrees as close as possible
                 } else {
+                    // mode b) use bounding box for shortest subtree, full shape
                     if (leftIt != 0) {
                         rightTreeOffset = maxLeftWidth - child.leftPosition;
                     } else {
@@ -316,6 +322,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                     }
 
                 }
+                // Calculate the new shape after putting the two subtrees side by side
                 child.col += rightTreeOffset;
                 if (leftIt) {
                     *leftIt -= (rightTreeOffset + child.lastRowWidth - leftPos);
@@ -339,18 +346,20 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
 
             // Calculate parent position
             if (parentBetweenDirectChild && block.tree_edge.size() <= 2) {
+                // mode a) keep one child to the left, other to the right
                 int col = 0;
                 for (auto target : block.tree_edge) {
                     col += layoutState.grid_blocks[target].col;
                 }
                 block.col = col / block.tree_edge.size();
             } else {
+                // mode b) somewhere between left most direct child and right most, preferably in the middle of
+                // horizontal dimensions. Results layout looks more like single vertical line.
                 block.col = (block.rightPosition + block.leftPosition) / 2 - 1;
                 block.col = std::max(block.col, layoutState.grid_blocks[block.tree_edge.front()].col - 1);
                 block.col = std::min(block.col, layoutState.grid_blocks[block.tree_edge.back()].col + 1);
             }
             block.row_count += 1;
-
 
             *sides.head(leftSide) -= block.col;
             block.leftSide = sides.append(sides.makeList(block.col), leftSide);
@@ -358,7 +367,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             *sides.head(rightSide) -= block.col + 2;
             block.rightSide = sides.append(sides.makeList(block.col + 2), rightSide);
 
-            // Keep children position relative to parent so that moving parent moves whole subtree
+            // Keep children positions relative to parent so that moving parent moves whole subtree
             for (auto target : block.tree_edge) {
                 auto &targetBlock = layoutState.grid_blocks[target];
                 targetBlock.row += 1;
@@ -367,7 +376,9 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
         }
     }
 
-    // calculate root positions
+    // Calculate root positions. Typical function should have one root node that matches with entrypoint.
+    // There can be more of them in case of switch statement analysis failure, unreahable basic blocks or
+    // using the algorithm for non control flow graphs.
     int nextEmptyColumn = 0;
     for (auto &blockIt : layoutState.grid_blocks) {
         auto &block = blockIt.second;
@@ -377,7 +388,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             nextEmptyColumn = block.rightPosition + offset;
         }
     }
-    // visit all nodes top to bottom, converting relative positions to absolute
+    // Visit all nodes top to bottom, converting relative positions to absolute.
     for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
         auto &block = layoutState.grid_blocks[*it];
         assert(childBlock.row >= 0);
@@ -399,8 +410,9 @@ void GraphGridLayout::routeEdges(GraphGridLayout::LayoutState &state) const
 
 void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &state) const
 {
-    // find an empty column as close as possible to start or end
-    // Use sweep line approach processing events sorted by row
+    // Find an empty column as close as possible to start or end block's column.
+    // Use sweep line approach processing events sorted by row top to bottom. Use an appropriate tree structure
+    // to contain blocks above sweep line and query for nearest column which isn't blocked by a block.
 
     struct Event {
         size_t blockId;
@@ -426,8 +438,7 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
             gridEdges[i].dest = targetId;
             const auto &targetGridBlock = state.grid_blocks[targetId];
             int endRow = targetGridBlock.row;
-            Event e{it.first, i, std::max(startRow, endRow), Event::Edge};
-            events.push_back(e);
+            events.push_back({it.first, i, std::max(startRow, endRow), Event::Edge});
         }
     }
     std::sort(events.begin(), events.end(),
@@ -439,7 +450,7 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
     });
 
     // process events and choose main column for each edge
-    PointSetMinTree blockedColumns(state.columns + 1, -1); // There are more columns than node columns
+    PointSetMinTree blockedColumns(state.columns + 1, -1); // There are more edge columns than node columns
     for (const auto &event : events) {
         if (event.type == Event::Block) {
             auto block = state.grid_blocks[event.blockId];
@@ -452,11 +463,10 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
             auto topRow = std::min(block.row + 1, targetBlock.row);
             auto targetColumn = targetBlock.col + 1;
 
-            // Prefer using the same column as starting node or target node.
-            // It allows reducing amount of segments.
+            // Prefer using the same column as starting node, it allows reducing amount of segments.
             if (blockedColumns.valueAtPoint(column) < topRow) {
                 edge.mainColumn = column;
-            } else if (blockedColumns.valueAtPoint(targetColumn) < topRow) {
+            } else if (blockedColumns.valueAtPoint(targetColumn) < topRow) { // next try target block column
                 edge.mainColumn = targetColumn;
             } else {
                 auto nearestLeft = blockedColumns.rightMostLessThan(column, topRow);
@@ -464,12 +474,14 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
                 // There should always be empty column at the sides of drawing
                 assert(nearestLeft != -1 && nearestRight != -1);
 
-                // choose closest column
+                // Choose closest column. Take into account distance to source and target block columns.
                 auto distanceLeft = column - nearestLeft + abs(targetColumn - nearestLeft);
                 auto distanceRight = nearestRight - column + abs(targetColumn - nearestRight);
                 if (distanceLeft != distanceRight) {
                     edge.mainColumn = distanceLeft < distanceRight ? nearestLeft : nearestRight;
                 } else {
+                    // In case of tie choose based on edge index. Should result in true branches being mostly on one
+                    // side, false branches on other side.
                     edge.mainColumn = event.edgeId < state.edge[event.blockId].size() / 2 ? nearestLeft : nearestRight;
                 }
             }
@@ -515,7 +527,7 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
                 edge.addPoint(target.row, target.col + 1, target.col + 1 < edge.mainColumn ? 1 : -1);
             }
 
-            // reduce edge spacing when there is large amount of edges
+            // reduce edge spacing when there is large amount of edges connected to single block
             auto startSpacingOverride = getSpacingOverride((*state.blocks)[start.id].width, start.outputCount);
             auto targetSpacingOverride = getSpacingOverride((*state.blocks)[target.id].width, target.inputCount);
             edge.points.front().spacingOverride = startSpacingOverride;
@@ -532,24 +544,46 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
     }
 }
 
-namespace {
-    struct EdgeSegment {
-        int y0;
-        int y1;
-        int x;
-        int edgeIndex;
-        int secondaryPriority;
-        int16_t kind;
-        int16_t spacingOverride;
-    };
-    struct NodeSide {
-        int x;
-        int y0;
-        int y1;
-        int size;
-    };
+namespace
+{
+/**
+ * @brief Single segment of an edge. An edge can be drawn using multiple horizontal and vertical segments.
+ */
+struct EdgeSegment
+{
+    int y0;
+    int y1;
+    int x;
+    int edgeIndex;
+    int secondaryPriority;
+    int16_t kind;
+    int16_t spacingOverride;
+};
+struct NodeSide
+{
+    int x;
+    int y0;
+    int y1;
+    int size;
+};
 }
 
+/**
+ * @brief Calculate segment offsets relative to their column
+ *
+ * Argument naming uses terms for vertical segments, but the function can be used for horizontal segments as well.
+ *
+ * @param segments Segments that need to be processed.
+ * @param edgeOffsets Output argument for returning segment offsets relative to their columns.
+ * @param edgeColumnWidth InOut argument describing how much column with edges take. Initial value used as minimal
+ * value. May be increased to depending on amount of segments in each column and how tightly they are packed.
+ * @param nodeRightSide Right side of nodes. Used to reduce space reserved for edges by placing them between nodes.
+ * @param nodeLeftSide Same as right side.
+ * @param columnWidth
+ * @param H All the segmement and node coordinates y0 and y1 are expected to be in range [0;H)
+ * @param segmentSpacing The expected spacing between two segments in the same column. Actual spacing may be smaller
+ * for nodes with many edges.
+ */
 void calculateSegmentOffsets(
         std::vector<EdgeSegment> &segments,
         std::vector<int> &edgeOffsets,
@@ -720,6 +754,13 @@ static void centerEdges(
     }
 }
 
+/**
+ * @brief Convert segment coordinates from arbitary range to continuous range starting at 0.
+ * @param segments
+ * @param leftSides
+ * @param rightSides
+ * @return Size of compressed coordinate range.
+ */
 static int compressCoordinates(std::vector<EdgeSegment> &segments,
                                std::vector<NodeSide> &leftSides,
                                std::vector<NodeSide> &rightSides)
@@ -735,6 +776,7 @@ static int compressCoordinates(std::vector<EdgeSegment> &segments,
         positions.push_back(segment.y1);
     }
     // y0 and y1 in rightSides should match leftSides
+
     std::sort(positions.begin(), positions.end());
     auto lastUnique = std::unique(positions.begin(), positions.end());
     positions.erase(lastUnique, positions.end());
@@ -771,12 +813,13 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
         return segment;
     };
 
-    // Vertical segments
+
     std::vector<EdgeSegment> segments;
     std::vector<NodeSide> rightSides;
     std::vector<NodeSide> leftSides;
     std::vector<int> edgeOffsets;
 
+    // Vertical segments
     for (auto &edgeListIt : state.edge) {
         for (const auto &edge : edgeListIt.second) {
             for (size_t j = 1; j < edge.points.size(); j += 2) {
