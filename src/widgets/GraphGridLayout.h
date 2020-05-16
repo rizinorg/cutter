@@ -27,6 +27,7 @@ private:
     LayoutType layoutType;
     bool tightSubtreePlacement = false;
     bool parentBetweenDirectChild = false;
+    bool verticalBlockAlignmentMiddle = false;
 
     struct GridBlock {
         ut64 id;

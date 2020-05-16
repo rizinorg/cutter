@@ -893,9 +893,17 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
         auto blockWidth = (*state.blocks)[node.id].width;
         int leftSide = state.edgeColumnOffset[node.col + 1] + state.edgeColumnWidth[node.col + 1] / 2 - blockWidth / 2;
         int rightSide = leftSide + blockWidth;
-        leftSides.push_back({node.row, leftSide, rightSide, state.rowHeight[node.row]});
-        auto h = (*state.blocks)[blockIt.first].height;
-        rightSides.push_back({node.row, leftSide, rightSide, h});
+
+        int h = (*state.blocks)[blockIt.first].height;
+        int freeSpace = state.rowHeight[node.row] - h;
+        int topProfile = state.rowHeight[node.row];
+        int bottomProfile = h;
+        if (verticalBlockAlignmentMiddle) {
+            topProfile -= freeSpace / 2;
+            bottomProfile += freeSpace / 2;
+        }
+        leftSides.push_back({node.row, leftSide, rightSide, topProfile});
+        rightSides.push_back({node.row, leftSide, rightSide, bottomProfile});
     }
     state.edgeRowHeight.assign(state.rows + 1, layoutConfig.blockVerticalSpacing);
     state.edgeRowHeight[0] = state.edgeRowHeight.back() = 0;
@@ -951,6 +959,9 @@ void GraphGridLayout::convertToPixelCoordinates(GraphGridLayout::LayoutState &st
         block.second.x = state.edgeColumnOffset[gridBlock.col + 1] + state.edgeColumnWidth[gridBlock.col + 1] / 2 -
                 block.second.width / 2;
         block.second.y = state.rowOffset[gridBlock.row];
+        if (verticalBlockAlignmentMiddle) {
+            block.second.y += (state.rowHeight[gridBlock.row] - block.second.height) / 2;
+        }
     }
     for (auto &it: (*state.blocks)) {
         auto &block = it.second;
