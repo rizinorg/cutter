@@ -1054,7 +1054,7 @@ void CutterCore::setEndianness(bool big)
 QByteArray CutterCore::assemble(const QString &code)
 {
     CORE_LOCK();
-    RAsmCode *ac = r_asm_massemble(core->assembler, code.toUtf8().constData());
+    RAsmCode *ac = r_asm_massemble(core->rasm, code.toUtf8().constData());
     QByteArray res;
     if (ac && ac->bytes) {
         res = QByteArray(reinterpret_cast<const char *>(ac->bytes), ac->len);
@@ -1066,7 +1066,7 @@ QByteArray CutterCore::assemble(const QString &code)
 QString CutterCore::disassemble(const QByteArray &data)
 {
     CORE_LOCK();
-    RAsmCode *ac = r_asm_mdisassemble(core->assembler, reinterpret_cast<const ut8 *>(data.constData()), data.length());
+    RAsmCode *ac = r_asm_mdisassemble(core->rasm, reinterpret_cast<const ut8 *>(data.constData()), data.length());
     QString code;
     if (ac && ac->assembly) {
         code = QString::fromUtf8(ac->assembly);
@@ -1345,7 +1345,7 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
     }
 
     CORE_LOCK();
-    int bits = core->assembler->bits;
+    int bits = core->rasm->bits;
     QByteArray buf = QByteArray();
     ut64 type = r_core_anal_address(core, addr);
 
@@ -1409,8 +1409,8 @@ QJsonObject CutterCore::getAddrRefs(RVA addr, int depth) {
             perms += "x";
             // Instruction disassembly
             r_io_read_at(core->io, addr, (unsigned char*)buf.data(), buf.size());
-            r_asm_set_pc(core->assembler, addr);
-            r_asm_disassemble(core->assembler, &op, (unsigned char*)buf.data(), buf.size());
+            r_asm_set_pc(core->rasm, addr);
+            r_asm_disassemble(core->rasm, &op, (unsigned char*)buf.data(), buf.size());
             json["asm"] = r_asm_op_get_asm(&op);
         }
 
@@ -2365,7 +2365,7 @@ QStringList CutterCore::getAsmPluginNames()
     QStringList ret;
 
     RAsmPlugin *ap;
-    CutterRListForeach(core->assembler->plugins, it, RAsmPlugin, ap) {
+    CutterRListForeach(core->rasm->plugins, it, RAsmPlugin, ap) {
         ret << ap->name;
     }
 
@@ -2476,7 +2476,7 @@ QList<RAsmPluginDescription> CutterCore::getRAsmPluginDescriptions()
     QList<RAsmPluginDescription> ret;
 
     RAsmPlugin *ap;
-    CutterRListForeach(core->assembler->plugins, it, RAsmPlugin, ap) {
+    CutterRListForeach(core->rasm->plugins, it, RAsmPlugin, ap) {
         RAsmPluginDescription plugin;
 
         plugin.name = ap->name;
