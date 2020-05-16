@@ -134,7 +134,7 @@ private:
 };
 
 /**
- * @class This class is used to draw the left pane of the disassembly
+ * This class is used to draw the left pane of the disassembly
  * widget. Its goal is to draw proper arrows for the jumps of the disassembly.
  */
 class DisassemblyLeftPanel: public QFrame

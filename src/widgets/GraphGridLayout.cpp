@@ -75,20 +75,15 @@ parent on top. There is some room for interpretation what exactly side by side m
 Drawing the graph either too dense or too big may make it less readable so there are configuration options which allow
 choosing these things resulting in more or less dense layout.
 
-Current layout algorithm defines subtree size as it's bounding box and in most cases puts the bounding boxes side by
-side. The layout could be made more dense by taking exact shape into account. There is a special case for ignoring
-bounding box when one of 2 subtrees contain's exactly 1 vertice.
+Once the subtrees are placed side by side. Parent node can be placed either in the middle of horizontal bounds or
+in the middle of direct children. First option results in narrower layout and more vertical columns. Second option
+results in nodes being more spread out which may help seeing where each edge goes.
 
-Other choice is wether to place node horizontally in the middle between direct child nodes or in the middle of
-subtree width.
+In more compact mode two subtrees are placed side by side taking into account their shape. In wider mode
+bounding box of shorter subtree is used instead of exact shape. This gives slightly sparse layout without it being too
+wide.
 
-That results in 3 modes
-
-- **wide** - bounding boxes are always side by side, no exception for single vertice subtree
-- **medium** - use exception for single vertice subtree, place node in the middle of direct children. In case of long
- if elseif chanin produces staircase shape.
-- **narrow** - use exception for single vertice subtree, place node in the middle of subtree total width. In case of
- if elseif chain produces two columns.
+\image html graph_parent_placement.svg
 
 # Edge routing
 Edge routing can be split into 3 stages. Rough routing within grid, overlaping edge prevention and converting to
