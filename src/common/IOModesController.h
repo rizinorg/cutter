@@ -3,13 +3,19 @@
 
 #include "core/Cutter.h"
 
-class IOModesController
+class IOModesController : public QObject
+
 {
-
-
+    Q_OBJECT
 public:
+    enum class Mode { READ_ONLY, CACHE, WRITE };
     bool prepareForWriting();
     bool canWrite();
+    bool allChangesComitted();
+    Mode getIOMode();
+
+public slots:
+    bool askCommitUnsavedChanges();
 };
 
 #endif // IOMODESCONTROLLER_H

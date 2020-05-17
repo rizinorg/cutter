@@ -203,7 +203,13 @@ void MainWindow::initUI()
     initBackForwardMenu();
 
     connect(core, &CutterCore::ioModeChanged, this, &MainWindow::setAvailableIOModeOptions);
-    setAvailableIOModeOptions();
+    connect(core, &CutterCore::ioCacheChanged, &ioModesController, &IOModesController::askCommitUnsavedChanges);
+
+    QActionGroup *ioModeActionGroup = new QActionGroup(this);
+
+    ioModeActionGroup->addAction(ui->actionCacheMode);
+    ioModeActionGroup->addAction(ui->actionWriteMode);
+    ioModeActionGroup->addAction(ui->actionReadOnly);
 
     connect(ui->actionCacheMode, &QAction::triggered, this, []() {
         Core()->setIOCache(true);
@@ -644,20 +650,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 
     // Check if there are uncommitted changes
-    if (core->isIOCacheEnabled() && !core->cmdj("wcj").array().isEmpty()) {
-
-        QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
-                                                                tr("It seems that you have changes or patches that are not committed to the file.\n"
-                                                                "Do you want to commit them now?"),
-                                                                (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
-        if (ret == QMessageBox::Cancel) {
-            event->ignore();
-            return;
-        }
-
-        if (ret == QMessageBox::Save) {
-            core->commitWriteCache();
-        } 
+    if (!ioModesController.askCommitUnsavedChanges()) {
+        // if false, Cancel was chosen
+        event->ignore();
+        return;
     }
 
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
@@ -1718,9 +1714,14 @@ QMenu *MainWindow::getContextMenuExtensions(ContextMenuType type)
 
 void MainWindow::setAvailableIOModeOptions()
 {
-    // Enable the read-only menu item only if writing is enabled
-    ui->actionReadOnly->setEnabled(ioModesController.canWrite());
-
-    ui->actionCacheMode->setEnabled(!Core()->isIOCacheEnabled());
-    ui->actionWriteMode->setEnabled(!Core()->isWriteModeEnabled());
+    switch (ioModesController.getIOMode()) {
+    case IOModesController::Mode::WRITE:
+        ui->actionWriteMode->setChecked(true);
+        break;
+    case IOModesController::Mode::CACHE:
+        ui->actionCacheMode->setChecked(true);
+        break;
+    default:
+        ui->actionReadOnly->setChecked(true);
+    }
 }

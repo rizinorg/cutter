@@ -3789,8 +3789,11 @@ bool CutterCore::isIOCacheEnabled() const
 
 void CutterCore::commitWriteCache()
 {
+    // Temporarily disable cache mode
+    TempConfig tempConfig;
+    tempConfig.set("io.cache", false);
     if (!isWriteModeEnabled()) {
-        setWriteMode (true);
+        cmdRaw("oo+");
         cmdRaw("wci");
         cmdRaw("oo");
     } else {

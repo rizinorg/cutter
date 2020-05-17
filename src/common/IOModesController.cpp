@@ -1,12 +1,26 @@
 #include "IOModesController.h"
 #include "Cutter.h"
 
+#include <QJsonArray>
 #include <QPushButton>
 #include <QObject>
+#include <QMessageBox>
+#include <QJsonObject>
 
 bool IOModesController::canWrite()
 {
     return Core()->isIOCacheEnabled() || Core()->isWriteModeEnabled();
+}
+
+IOModesController::Mode IOModesController::getIOMode()
+{
+    if (Core()->isWriteModeEnabled()) {
+        return Mode::WRITE;
+    } else if (Core()->isIOCacheEnabled()) {
+        return Mode::CACHE;
+    } else {
+        return Mode::READ_ONLY;
+    }
 }
 
 bool IOModesController::prepareForWriting()
@@ -39,5 +53,40 @@ bool IOModesController::prepareForWriting()
     } else {
         return false;
     }
+    return true;
+}
+
+bool IOModesController::allChangesComitted()
+{
+    // Get a list of available write changes
+    QJsonArray changes = Core()->cmdj("wcj").array();
+    
+    // Check if there is a change which isn't written to the file
+    for (const QJsonValue &value : changes) {
+        QJsonObject changeObject = value.toObject();
+        if (!changeObject["written"].toBool()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool IOModesController::askCommitUnsavedChanges()
+{
+    // Check if there are uncommitted changes
+    if (!allChangesComitted()) {
+
+        QMessageBox::StandardButton ret = QMessageBox::question(NULL, QObject::tr("Uncomitted changes"),
+                                                QObject::tr("It seems that you have changes or patches that are not committed to the file.\n"
+                                                "Do you want to commit them now?"),
+                                                (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
+        if (ret == QMessageBox::Save) {
+            Core()->commitWriteCache();
+        } else if (ret == QMessageBox::Cancel) {
+            return false;
+        }
+    }
+
     return true;
 }

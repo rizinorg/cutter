@@ -1139,6 +1139,9 @@
    </property>
   </action>
   <action name="actionWriteMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Write mode</string>
    </property>
@@ -1147,6 +1150,9 @@
    </property>
   </action>
   <action name="actionCacheMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Cache mode</string>
    </property>
@@ -1155,6 +1161,12 @@
    </property>
   </action>
   <action name="actionReadOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Read-Only mode</string>
    </property>
