@@ -26,7 +26,7 @@ Options
 
    Displays version information.
 
-.. option:: -A, --anal <level>
+.. option:: -A, --analysis <level>
 
    When opening a file automatically perform analysis at given level. Requires
    :option:`<filename>` to be specified. Following levels are available:
