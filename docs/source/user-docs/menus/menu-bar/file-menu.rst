@@ -26,14 +26,14 @@ Import a PDB file
 
 Enable Write mode
 -----------------------
-**Description:** By default, binaries in Cutter are opened in read-only mode (unless chosen otherwise in the Initial Analysis dialog). This option will enable Write mode and allow you to patch and edit the binary on disk. **Please note** that when Write mode is enabled, each change you make to the binary in Cutter will be applied to the original file on disk. In order not to take unnecessary risks, consider using Cache mode instead.
+**Description:** This option will enable Write mode and allow you to patch and edit the binary on disk. **Please note** that when Write mode is enabled, each change you make to the binary in Cutter will be applied to the original file on disk. In order not to take unnecessary risks, consider using Cache mode instead.
 
 **Steps:** File -> Set mode -> Write mode
 
 
 Enable Cache mode
 -----------------------
-**Description:** By default, binaries in Cutter are opened in read-only mode (unless chosen otherwise in the Initial Analysis dialog). This option will enable Cache mode and allow you to patch and edit the binary **without** applying the changes to the file on disk. Unlike in Write mode, in Cache mode, the changes you make to the binary in Cutter will not be applied to the original file on disk unless you specifically committing them using the "Commit changes" menu item. This is safer than using Write mode because there is no risk to lose important data.
+**Description:** This option will enable Cache mode and allow you to patch and edit the binary **without** applying the changes to the file on disk. Unlike in Write mode, in Cache mode, the changes you make to the binary in Cutter will not be applied to the original file on disk unless you specifically committing them using the "Commit changes" menu item. This is safer than using Write mode because there is no risk to lose important data.
 
 **Steps:** File -> Set mode -> Cache mode
 
