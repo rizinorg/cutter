@@ -303,7 +303,7 @@ bool CutterApplication::parseCommandLineOptions()
     cmd_parser.addVersionOption();
     cmd_parser.addPositionalArgument("filename", QObject::tr("Filename to open."));
 
-    QCommandLineOption analOption({"A", "anal"},
+    QCommandLineOption analOption({"A", "analysis"},
                                   QObject::tr("Automatically open file and optionally start analysis. "
                                               "Needs filename to be specified. May be a value between 0 and 2:"
                                               " 0 = no analysis, 1 = aaa, 2 = aaaa (experimental)"),
