@@ -325,6 +325,12 @@ bool CutterApplication::parseCommandLineOptions()
                                     QObject::tr("file"));
     cmd_parser.addOption(scriptOption);
 
+    QCommandLineOption writeModeOption({"w", "writemode"},
+                                    QObject::tr("Open file in write mode"),
+                                    QObject::tr("writemode"));
+    cmd_parser.addOption(writeModeOption);
+
+
     QCommandLineOption pythonHomeOption("pythonhome",
                                         QObject::tr("PYTHONHOME to use for embedded python interpreter"),
                                         "PYTHONHOME");
