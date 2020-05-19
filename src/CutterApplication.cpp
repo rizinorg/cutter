@@ -326,8 +326,7 @@ bool CutterApplication::parseCommandLineOptions()
     cmd_parser.addOption(scriptOption);
 
     QCommandLineOption writeModeOption({"w", "writemode"},
-                                    QObject::tr("Open file in write mode"),
-                                    QObject::tr("writemode"));
+                                    QObject::tr("Open file in write mode"));
     cmd_parser.addOption(writeModeOption);
 
 
@@ -413,6 +412,8 @@ bool CutterApplication::parseCommandLineOptions()
             break;
         }
         opts.fileOpenOptions.script = cmd_parser.value(scriptOption);
+
+        opts.fileOpenOptions.writeEnabled = cmd_parser.isSet(writeModeOption);
     }
 
     if (cmd_parser.isSet(pythonHomeOption)) {
