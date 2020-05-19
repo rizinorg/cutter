@@ -386,8 +386,8 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
     // Visit all nodes top to bottom, converting relative positions to absolute.
     for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
         auto &block = layoutState.grid_blocks[*it];
-        assert(childBlock.row >= 0);
-        assert(childBlock.col >= 0);
+        assert(block.row >= 0);
+        assert(block.col >= 0);
         for (auto childId : block.tree_edge) {
             auto &childBlock = layoutState.grid_blocks[childId];
             childBlock.row += block.row;
