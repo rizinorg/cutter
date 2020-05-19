@@ -92,6 +92,7 @@ private:
 
     using GridBlockMap = std::unordered_map<ut64, GridBlock>;
 
+    void findMergePoints(LayoutState &state) const;
     void computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
                                   LayoutState &layoutState) const;
     static std::vector<ut64> topoSort(LayoutState &state, ut64 entry);

@@ -215,6 +215,7 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     }
 
     auto blockOrder = topoSort(layoutState, entry);
+    findMergePoints(layoutState);
     computeAllBlockPlacement(blockOrder, layoutState);
 
     for (auto &blockIt : blocks) {
@@ -253,6 +254,54 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     routeEdges(layoutState);
 
     convertToPixelCoordinates(layoutState, width, height);
+}
+
+void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
+{
+    for (auto &blockIt : state.grid_blocks) {
+        auto &block = blockIt.second;
+        GridBlock *mergeBlock = nullptr;
+        for (auto edge : block.tree_edge) {
+            auto &targetBlock = state.grid_blocks[edge];
+            if (targetBlock.tree_edge.size() == 1) {
+                if (!mergeBlock) {
+                    mergeBlock = &state.grid_blocks[targetBlock.tree_edge[0]];;
+                } else {
+                    mergeBlock = nullptr;
+                    break;
+                }
+            } else if (targetBlock.tree_edge.size() > 1) {
+                mergeBlock = nullptr;
+                break;
+            }
+        }
+        if (!mergeBlock) {
+            continue;
+        }
+        int blocksGoingToMerge = 0;
+        int blockWithTreeEdge = 0;
+        for (auto edge : block.tree_edge) {
+            auto &targetBlock = state.grid_blocks[edge];
+            bool goesToMerge = false;
+            for (auto secondEdgeTarget : targetBlock.dag_edge) {
+                if (secondEdgeTarget == mergeBlock->id) {
+                    goesToMerge = true;
+                    break;
+                }
+            }
+            if (goesToMerge) {
+                if (targetBlock.tree_edge.size() == 1 && targetBlock.tree_edge[0]) {
+                    blockWithTreeEdge = blocksGoingToMerge;
+                }
+                blocksGoingToMerge++;
+            } else {
+                break;
+            }
+        }
+        if (blocksGoingToMerge) {
+            state.grid_blocks[block.tree_edge[blockWithTreeEdge]].col = blockWithTreeEdge * 2 - (blocksGoingToMerge - 1);
+        }
+    }
 }
 
 void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
@@ -338,23 +387,25 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
                 block.rightPosition = std::max(block.rightPosition, rightTreeOffset + child.rightPosition);
             }
 
-
+            int col = 0;
             // Calculate parent position
             if (parentBetweenDirectChild && block.tree_edge.size() <= 2) {
                 // mode a) keep one child to the left, other to the right
-                int col = 0;
                 for (auto target : block.tree_edge) {
                     col += layoutState.grid_blocks[target].col;
                 }
-                block.col = col / block.tree_edge.size();
+                col /= block.tree_edge.size();
             } else {
                 // mode b) somewhere between left most direct child and right most, preferably in the middle of
                 // horizontal dimensions. Results layout looks more like single vertical line.
-                block.col = (block.rightPosition + block.leftPosition) / 2 - 1;
-                block.col = std::max(block.col, layoutState.grid_blocks[block.tree_edge.front()].col - 1);
-                block.col = std::min(block.col, layoutState.grid_blocks[block.tree_edge.back()].col + 1);
+                col = (block.rightPosition + block.leftPosition) / 2 - 1;
+                col = std::max(col, layoutState.grid_blocks[block.tree_edge.front()].col - 1);
+                col = std::min(col, layoutState.grid_blocks[block.tree_edge.back()].col + 1);
             }
+            block.col += col; // += instead of = to keep offset calculated in previous steps
             block.row_count += 1;
+            block.leftPosition = std::min(block.leftPosition, block.col);
+            block.rightPosition = std::max(block.rightPosition, block.col + 2);
 
             *sides.head(leftSide) -= block.col;
             block.leftSide = sides.append(sides.makeList(block.col), leftSide);
