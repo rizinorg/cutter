@@ -7,5 +7,5 @@ Preferences can be opened by clicking ``Edit -> Preferences``.
    :maxdepth: 2
    :glob:
 
-   preferences/initialization-script-editor
+   preferences/initialization-script
    preferences/*
