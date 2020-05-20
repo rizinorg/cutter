@@ -86,11 +86,14 @@ wide.
 \image html graph_parent_placement.svg
 
 # Edge routing
-Edge routing can be split into 3 stages. Rough routing within grid, overlaping edge prevention and converting to
-pixel coordinates.
+Edge routing can be split into: main column selection, rough routing, segment offset calculation.
 
-Due to nodes being placed in a grid. Horizontal segments of edges can't intersect with any nodes. The path for edges
-is chosen so that it consists of at most 5 segments, typically resulting in sidedway U shape or square Z shape.
+Transition from source to target row is done using single vertical segment. This is caleld main column.
+
+Rough routing cretes the path of edge using up to 5 segments using grid coordinates.
+Due to nodes being placed in a grid. Horizontal segments of edges can't intersect with any nodes.
+The path for edges is chosen so that it consists of at most 5 segments, typically resulting in sidedway U shape or
+square Z shape.
 - short vertical segment from node to horizontal line
 - move to empty column
 - vertical segment between starting row and end row, an empty column can always be found, in the worst case there are empty columns at the sides of drawing
@@ -104,8 +107,18 @@ There are 3 special cases:
 Vertical segment intersection with nodes is prevented using a 2d arry marking which vertical segments are blocked and
 naively iterating through all rows between start and end at the desired column.
 
-Edge overlap within a column or row is prevented by spliting columns into sub-columns. Used subcolumns are stored and
-chechked using a 2d array of lists.
+After rough routing segment offsets are calculated relative to their corresponding edge column. This ensures that
+two segments don't overlap. Segment offsets within each column are assigned greedily with some heuristics for
+assignment order to reduce amount of edge crossings and result in more visually pleasing output for a typical CFG
+graph.
+Each segment gets assigned an offset that is maximum of previusly assigned offsets overlaping with current
+segment + segment spacing.
+Assignment order is chosen based on:
+* direction of previous and last segment - helps reducing crossings and place the segments between nodes
+* segment length - reduces crossing when segment endpoints have the same structure as valid parentheses expression
+* edge length - establishes some kind of order when single node is connected to many edges, typically a block
+  with switch statement or block after switch statement.
+
 
 */
 
@@ -828,7 +841,7 @@ static int compressCoordinates(std::vector<EdgeSegment> &segments,
     positions.erase(lastUnique, positions.end());
 
     auto positionToIndex = [&] (int position) {
-        auto index = std::lower_bound(positions.begin(), positions.end(), position) - positions.begin();
+        size_t index = std::lower_bound(positions.begin(), positions.end(), position) - positions.begin();
         assert(index < positions.size());
         return index;
     };
