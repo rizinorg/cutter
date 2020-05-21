@@ -50,6 +50,8 @@ to pixel coordinates. Routing 0 width edges between rows can also be interpreted
 reserved for edges. The row numbers in code are using first interpretation. To allow better centering of nodes one
 above other each node is 2 columns wide and 1 row high.
 
+\image html graph_grid.svg
+
 # 1-2 Cycle removal and toposort
 
 Cycle removal and toposort are done at the same time during single DFS traversal. In case entrypoint is part of a loop
@@ -118,7 +120,6 @@ Assignment order is chosen based on:
 * segment length - reduces crossing when segment endpoints have the same structure as valid parentheses expression
 * edge length - establishes some kind of order when single node is connected to many edges, typically a block
   with switch statement or block after switch statement.
-
 
 */
 
@@ -754,6 +755,7 @@ void calculateSegmentOffsets(
  * @param segmentOffsets offsets relative to the left side edge column.
  * @param edgeColumnWidth widths of edge columns
  * @param segments either all horizontal or all vertical edge segments
+ * @param minSpacing spacing between segments
  */
 static void centerEdges(
         std::vector<int> &segmentOffsets,
