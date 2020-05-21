@@ -492,7 +492,7 @@ void DisassemblerGraphView::drawBlock(QPainter &p, GraphView::GraphBlock &block,
     }
 
     // Highlight selected tokens
-    if (highlight_token != nullptr) {
+    if (interactive && highlight_token != nullptr) {
         int y = firstInstructionY;
         qreal tokenWidth = mFontMetrics->width(highlight_token->content);
 
