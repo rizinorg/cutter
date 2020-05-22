@@ -69,12 +69,12 @@ Reset Zoom
 
 Save layout
 ----------------------------------------
-**Description:** Save current layout with given name. Layout includes the set of currently opened widgets, their position and some properties.
+**Description:** Save the current layout with a given name. A layout includes the set of currently opened widgets, their position, and some properties.
 
-**Steps:** View -> Save Layout , enter layout name in the dialog.
+**Steps:** View -> Save Layout , enter a layout name in the dialog.
 
 Layouts
 ----------------------------------------
-**Description:** Load the settings from selected layout into current layout. Loading a layout will not cause it to automatically be modifed. To do that you must use `Save layout`_ command. 
+**Description:** Load the settings from the selected layout into the current layout. Loading a layout will not cause it to automatically be modified. To do that you must use the `Save layout`_ command. 
 
 **Steps:** View -> Layouts ->  layout name
