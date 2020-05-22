@@ -693,12 +693,12 @@ void MainWindow::paintEvent(QPaintEvent *event)
     QMainWindow::paintEvent(event);
     /*
      * Dirty hack
-     * Just to adjust the width of Functions Widget to fixed size
-     * After everything is drawn, safely make it Preferred size policy
-     * So that user can change the widget size with the mouse
+     * Just to adjust the width of Functions Widget to fixed size.
+     * After everything is drawn, restore the max width limit.
      */
-    if (functionsDock) {
-        functionsDock->changeSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    if (functionsDock && functionDockWidthToRestore) {
+        functionsDock->setMaximumWidth(functionDockWidthToRestore);
+        functionDockWidthToRestore = 0;
     }
 }
 
@@ -1145,7 +1145,7 @@ void MainWindow::showZenDocks()
                                             searchDock,
                                             importsDock
                                           };
-    int width = functionsDock->maximumWidth();
+    functionDockWidthToRestore = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
     for (auto w : dockWidgets) {
         if (zenDocks.contains(w) ||
@@ -1153,7 +1153,6 @@ void MainWindow::showZenDocks()
             w->show();
         }
     }
-    functionsDock->setMaximumWidth(width);
     dashboardDock->raise();
 }
 
@@ -1169,7 +1168,7 @@ void MainWindow::showDebugDocks()
                                               memoryMapDock,
                                               breakpointDock
                                             };
-    int width = functionsDock->maximumWidth();
+    functionDockWidthToRestore = functionsDock->maximumWidth();
     functionsDock->setMaximumWidth(200);
     auto registerWidth = qhelpers::forceWidth(registersDock, std::min(500, this->width() / 4));
     auto registerHeight = qhelpers::forceHeight(registersDock, std::max(100, height() / 2));
@@ -1185,7 +1184,6 @@ void MainWindow::showDebugDocks()
     }
     registerHeight.restoreHeight(registersDock);
     registerWidth.restoreWidth(registersDock);
-    functionsDock->setMaximumWidth(width);
     if (widgetToFocus) {
         widgetToFocus->raise();
     }

@@ -330,6 +330,7 @@ private:
 
     MemoryDockWidget* lastSyncMemoryWidget = nullptr;
     MemoryDockWidget* lastMemoryWidget = nullptr;
+    int functionDockWidthToRestore = 0;
 };
 
 #endif // MAINWINDOW_H
