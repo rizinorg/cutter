@@ -1195,7 +1195,9 @@ void MainWindow::dockOnMainArea(QDockWidget *widget)
     float bestScore = 1;
     // choose best existing area for placing the new widget
     for (auto dock : dockWidgets) {
-        if (dock->isHidden() || dock == widget) {
+        if (dock->isHidden() || dock == widget ||
+            dock->isFloating() || // tabifying onto floating dock using code doesn't work well
+            dock->parentWidget() != this) { // floating group isn't considered floating
             continue;
         }
         float newScore = 0;
