@@ -55,6 +55,13 @@ namespace Ui {
 class MainWindow;
 }
 
+struct CutterLayout
+{
+    QByteArray geometry;
+    QByteArray state;
+    QMap<QString, QVariantMap> viewProperties;
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -85,21 +92,20 @@ public:
 
     void closeEvent(QCloseEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-    void readSettingsOrDefault();
+    void readSettings();
     void saveSettings();
-    void readDebugSettings();
-    void saveDebugSettings();
     void setFilename(const QString &fn);
     void refreshOmniBar(const QStringList &flags);
 
-    void addWidget(QDockWidget *widget);
+    void addWidget(CutterDockWidget *widget);
     void addMemoryDockWidget(MemoryDockWidget *widget);
-    void removeWidget(QDockWidget *widget);
+    void removeWidget(CutterDockWidget *widget);
     void addExtraWidget(CutterDockWidget *extraDock);
     MemoryDockWidget *addNewMemoryWidget(MemoryWidgetType type, RVA address, bool synchronized = true);
 
-
-    void addPluginDockWidget(QDockWidget *dockWidget, QAction *action);
+    CUTTER_DEPRECATED("Action will be ignored. Use addPluginDockWidget(CutterDockWidget*) instead.")
+    void addPluginDockWidget(CutterDockWidget *dockWidget, QAction *) { addPluginDockWidget(dockWidget); }
+    void addPluginDockWidget(CutterDockWidget *dockWidget);
     enum class MenuType { File, Edit, View, Windows, Debug, Help, Plugins };
     /**
      * @brief Getter for MainWindow's different menus
@@ -108,8 +114,6 @@ public:
      */
     QMenu *getMenuByType(MenuType type);
     void addMenuFileAction(QAction *action);
-
-    void updateDockActionChecked(QAction * action);
 
     QString getFilename() const
     {
@@ -233,10 +237,11 @@ private:
 
     Configuration *configuration;
 
-    QList<QDockWidget *> dockWidgets;
-    QMultiMap<QAction *, QDockWidget *> dockWidgetsOfAction;
+    QList<CutterDockWidget *> dockWidgets;
+    QList<CutterDockWidget *> pluginDocks;
     DecompilerWidget   *decompilerDock = nullptr;
     OverviewWidget     *overviewDock = nullptr;
+    QAction *actionOverview = nullptr;
     EntrypointWidget   *entrypointDock = nullptr;
     FunctionsWidget    *functionsDock = nullptr;
     ImportsWidget      *importsDock = nullptr;
@@ -250,7 +255,6 @@ private:
     StringsWidget      *stringsDock = nullptr;
     FlagsWidget        *flagsDock = nullptr;
     Dashboard          *dashboardDock = nullptr;
-    QLineEdit          *gotoEntry = nullptr;
     SdbWidget          *sdbDock = nullptr;
     SectionsWidget     *sectionsDock = nullptr;
     SegmentsWidget     *segmentsDock = nullptr;
@@ -259,40 +263,44 @@ private:
     ClassesWidget      *classesDock = nullptr;
     ResourcesWidget    *resourcesDock = nullptr;
     VTablesWidget      *vTablesDock = nullptr;
-    DisassemblerGraphView *graphView = nullptr;
-    QDockWidget        *asmDock = nullptr;
-    QDockWidget        *calcDock = nullptr;
-    QDockWidget        *stackDock = nullptr;
-    QDockWidget        *threadsDock = nullptr;
-    QDockWidget        *processesDock = nullptr;
-    QDockWidget        *registersDock = nullptr;
-    QDockWidget        *backtraceDock = nullptr;
-    QDockWidget        *memoryMapDock = nullptr;
+    CutterDockWidget        *stackDock = nullptr;
+    CutterDockWidget        *threadsDock = nullptr;
+    CutterDockWidget        *processesDock = nullptr;
+    CutterDockWidget        *registersDock = nullptr;
+    CutterDockWidget        *backtraceDock = nullptr;
+    CutterDockWidget        *memoryMapDock = nullptr;
     NewFileDialog      *newFileDialog = nullptr;
-    QDockWidget        *breakpointDock = nullptr;
-    QDockWidget        *registerRefsDock = nullptr;
+    CutterDockWidget        *breakpointDock = nullptr;
+    CutterDockWidget        *registerRefsDock = nullptr;
 
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;
 
+    QMap<QString, CutterLayout> layouts;
+
     void initUI();
     void initToolBar();
     void initDocks();
-    void initLayout();
-    void initCorners();
     void initBackForwardMenu();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
-    void resetToDefaultLayout();
-    void resetToDebugLayout();
-    void restoreDebugLayout();
+    CutterLayout getViewLayout();
+    CutterLayout getViewLayout(const QString &name);
+
+    void setViewLayout(const CutterLayout &layout);
+    void loadLayouts(QSettings &settings);
+    void saveLayouts(QSettings &settings);
+
 
     void updateMemberPointers();
-    void resetDockWidgetList();
     void restoreDocks();
-    void hideAllDocks();
     void showZenDocks();
     void showDebugDocks();
+    /**
+     * @brief Try to guess which is the "main" section of layout and dock there.
+     * @param widget that needs to be docked
+     */
+    void dockOnMainArea(QDockWidget *widget);
     void enableDebugWidgetsMenu(bool enable);
     /**
      * @brief Fill menu with seek history entries.
@@ -300,10 +308,9 @@ private:
      * @param redo set to false for undo history, true for redo.
      */
     void updateHistoryMenu(QMenu *menu, bool redo = false);
+    void updateLayoutsMenu();
+    void saveNamedLayout();
 
-    void toggleDockWidget(QDockWidget *dock_widget, bool show);
-
-    void updateDockActionsChecked();
     void setOverviewData();
     bool isOverviewActive();
     /**
@@ -312,16 +319,18 @@ private:
      * @return true for debug specific widgets, false for all other including common dock widgets.
      */
     bool isDebugWidget(QDockWidget *dock) const;
+    bool isExtraMemoryWidget(QDockWidget *dock) const;
 
     MemoryWidgetType getMemoryWidgetTypeToRestore();
 
     /**
      * @brief Map from a widget type (e.g. DisassemblyWidget::getWidgetType()) to the respective contructor of the widget
      */
-    QMap<QString, std::function<CutterDockWidget*(MainWindow*, QAction*)>> widgetTypeToConstructorMap;
+    QMap<QString, std::function<CutterDockWidget*(MainWindow*)>> widgetTypeToConstructorMap;
 
     MemoryDockWidget* lastSyncMemoryWidget = nullptr;
     MemoryDockWidget* lastMemoryWidget = nullptr;
+    int functionDockWidthToRestore = 0;
 };
 
 #endif // MAINWINDOW_H

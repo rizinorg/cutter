@@ -17,8 +17,8 @@
 #include <QInputDialog>
 #include <QShortcut>
 
-HexdumpWidget::HexdumpWidget(MainWindow *main, QAction *action) :
-    MemoryDockWidget(MemoryWidgetType::Hexdump, main, action),
+HexdumpWidget::HexdumpWidget(MainWindow *main) :
+    MemoryDockWidget(MemoryWidgetType::Hexdump, main),
     ui(new Ui::HexdumpWidget)
 {
     ui->setupUi(this);

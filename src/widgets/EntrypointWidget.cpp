@@ -12,8 +12,8 @@
  * Entrypoint Widget
  */
 
-EntrypointWidget::EntrypointWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+EntrypointWidget::EntrypointWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::EntrypointWidget)
 {
     ui->setupUi(this);

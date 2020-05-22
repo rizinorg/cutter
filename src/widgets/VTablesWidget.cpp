@@ -127,8 +127,8 @@ bool VTableSortFilterProxyModel::filterAcceptsRow(int source_row,
 }
 
 
-VTablesWidget::VTablesWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+VTablesWidget::VTablesWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::VTablesWidget),
     tree(new CutterTreeWidget(this))
 {

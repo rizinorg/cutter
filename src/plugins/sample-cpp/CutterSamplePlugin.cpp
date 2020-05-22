@@ -14,14 +14,12 @@ void CutterSamplePlugin::setupPlugin()
 
 void CutterSamplePlugin::setupInterface(MainWindow *main)
 {
-    QAction *action = new QAction("Sample C++ Plugin", main);
-    action->setCheckable(true);
-    CutterSamplePluginWidget *widget = new CutterSamplePluginWidget(main, action);
-    main->addPluginDockWidget(widget, action);
+    CutterSamplePluginWidget *widget = new CutterSamplePluginWidget(main);
+    main->addPluginDockWidget(widget);
 }
 
-CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+CutterSamplePluginWidget::CutterSamplePluginWidget(MainWindow *main) :
+    CutterDockWidget(main)
 {
     this->setObjectName("CutterSamplePluginWidget");
     this->setWindowTitle("Sample C++ Plugin");

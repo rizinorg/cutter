@@ -12,7 +12,7 @@ class OverviewWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit OverviewWidget(MainWindow *main, QAction *action = nullptr);
+    explicit OverviewWidget(MainWindow *main);
     ~OverviewWidget();
 
 private:

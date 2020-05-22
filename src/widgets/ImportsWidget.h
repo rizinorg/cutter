@@ -77,7 +77,7 @@ class ImportsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit ImportsWidget(MainWindow *main, QAction *action);
+    explicit ImportsWidget(MainWindow *main);
     ~ImportsWidget();
 
 private slots:

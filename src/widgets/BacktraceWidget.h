@@ -19,7 +19,7 @@ class BacktraceWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit BacktraceWidget(MainWindow *main, QAction *action = nullptr);
+    explicit BacktraceWidget(MainWindow *main);
     ~BacktraceWidget();
 
 private slots:

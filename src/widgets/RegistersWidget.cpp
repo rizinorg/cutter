@@ -8,8 +8,8 @@
 #include <QLabel>
 #include <QLineEdit>
 
-RegistersWidget::RegistersWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+RegistersWidget::RegistersWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::RegistersWidget),
     addressContextMenu(this, main)
 {

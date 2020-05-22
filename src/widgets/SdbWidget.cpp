@@ -8,8 +8,8 @@
 #include <QTreeWidget>
 
 
-SdbWidget::SdbWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+SdbWidget::SdbWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::SdbWidget)
 {
     ui->setupUi(this);

@@ -75,7 +75,7 @@ class CommentsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit CommentsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit CommentsWidget(MainWindow *main);
     ~CommentsWidget() override;
 
 private slots:

@@ -38,8 +38,8 @@ static DisassemblyTextBlockUserData *getUserData(const QTextBlock &block)
     return static_cast<DisassemblyTextBlockUserData *>(userData);
 }
 
-DisassemblyWidget::DisassemblyWidget(MainWindow *main, QAction *action)
-    :   MemoryDockWidget(MemoryWidgetType::Disassembly, main, action)
+DisassemblyWidget::DisassemblyWidget(MainWindow *main)
+    :   MemoryDockWidget(MemoryWidgetType::Disassembly, main)
     ,   mCtxMenu(new DisassemblyContextMenu(this, main))
     ,   mDisasScrollArea(new DisassemblyScrollArea(this))
     ,   mDisasTextEdit(new DisassemblyTextEdit(this))

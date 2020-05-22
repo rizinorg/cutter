@@ -2,12 +2,12 @@
 import cutter
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QAction, QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
+from PySide2.QtWidgets import QVBoxLayout, QLabel, QWidget, QSizePolicy, QPushButton
 
 
 class FortuneWidget(cutter.CutterDockWidget):
-    def __init__(self, parent, action):
-        super(FortuneWidget, self).__init__(parent, action)
+    def __init__(self, parent):
+        super(FortuneWidget, self).__init__(parent)
         self.setObjectName("FancyDockWidgetFromCoolPlugin")
         self.setWindowTitle("Sample Python Plugin")
 
@@ -62,10 +62,8 @@ class CutterSamplePlugin(cutter.CutterPlugin):
 
     def setupInterface(self, main):
         # Dock widget
-        action = QAction("Sample Python Plugin", main)
-        action.setCheckable(True)
-        widget = FortuneWidget(main, action)
-        main.addPluginDockWidget(widget, action)
+        widget = FortuneWidget(main)
+        main.addPluginDockWidget(widget)
 
         # Dissassembly context menu
         menu = main.getContextMenuExtensions(cutter.MainWindow.ContextMenuType.Disassembly)

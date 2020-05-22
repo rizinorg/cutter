@@ -52,7 +52,7 @@ class StackWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit StackWidget(MainWindow *main, QAction *action = nullptr);
+    explicit StackWidget(MainWindow *main);
     ~StackWidget();
 
 private slots:

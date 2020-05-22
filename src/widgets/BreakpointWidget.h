@@ -69,7 +69,7 @@ class BreakpointWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit BreakpointWidget(MainWindow *main, QAction *action = nullptr);
+    explicit BreakpointWidget(MainWindow *main);
     ~BreakpointWidget();
 
 private slots:

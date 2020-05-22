@@ -79,8 +79,8 @@ RVA ResourcesModel::address(const QModelIndex &index) const
     return res.vaddr;
 }
 
-ResourcesWidget::ResourcesWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action, ListDockWidget::SearchBarPolicy::HideByDefault)
+ResourcesWidget::ResourcesWidget(MainWindow *main) :
+    ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
 {
     setObjectName("ResourcesWidget");
 

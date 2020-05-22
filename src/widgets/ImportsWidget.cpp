@@ -154,8 +154,8 @@ bool ImportsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
  * Imports Widget
  */
 
-ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action),
+ImportsWidget::ImportsWidget(MainWindow *main) :
+    ListDockWidget(main),
     importsModel(new ImportsModel(&imports, this)),
     importsProxyModel(new ImportsProxyModel(importsModel, this))
 {
@@ -167,8 +167,7 @@ ImportsWidget::ImportsWidget(MainWindow *main, QAction *action) :
     ui->treeView->sortByColumn(ImportsModel::LibraryColumn, Qt::AscendingOrder);
     QShortcut *toggle_shortcut = new QShortcut(widgetShortcuts["ImportsWidget"], main);
     connect(toggle_shortcut, &QShortcut::activated, this, [=] (){ 
-            toggleDockWidget(true); 
-            main->updateDockActionChecked(action);
+            toggleDockWidget(true);
             } );
 
     connect(Core(), &CutterCore::codeRebased, this, &ImportsWidget::refreshImports);

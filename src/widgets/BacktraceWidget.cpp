@@ -5,8 +5,8 @@
 
 #include "core/MainWindow.h"
 
-BacktraceWidget::BacktraceWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+BacktraceWidget::BacktraceWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::BacktraceWidget)
 {
     ui->setupUi(this);

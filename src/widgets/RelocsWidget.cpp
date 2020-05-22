@@ -113,8 +113,8 @@ bool RelocsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     return false;
 }
 
-RelocsWidget::RelocsWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action),
+RelocsWidget::RelocsWidget(MainWindow *main) :
+    ListDockWidget(main),
     relocsModel(new RelocsModel(&relocs, this)),
     relocsProxyModel(new RelocsProxyModel(relocsModel, this))
 {

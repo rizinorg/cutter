@@ -3,8 +3,8 @@
 #include "GraphWidget.h"
 #include "OverviewView.h"
 
-OverviewWidget::OverviewWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action)
+OverviewWidget::OverviewWidget(MainWindow *main) :
+    CutterDockWidget(main)
 {
     setWindowTitle("Graph Overview");
     setObjectName("Graph Overview");

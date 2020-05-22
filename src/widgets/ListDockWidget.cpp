@@ -8,8 +8,8 @@
 #include <QResizeEvent>
 #include <QShortcut>
 
-ListDockWidget::ListDockWidget(MainWindow *main, QAction *action, SearchBarPolicy searchBarPolicy) :
-    CutterDockWidget(main, action),
+ListDockWidget::ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy) :
+    CutterDockWidget(main),
     ui(new Ui::ListDockWidget),
     tree(new CutterTreeWidget(this)),
     searchBarPolicy(searchBarPolicy)

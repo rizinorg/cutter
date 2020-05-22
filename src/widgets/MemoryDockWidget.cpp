@@ -6,8 +6,8 @@
 #include <QMenu>
 #include <QContextMenuEvent>
 
-MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action)
-    : CutterDockWidget(parent, action)
+MemoryDockWidget::MemoryDockWidget(MemoryWidgetType type, MainWindow *parent)
+    : CutterDockWidget(parent)
     , mType(type)
     , seekable(new CutterSeekable(this))
     , syncAction(tr("Sync/unsync offset"), this)
@@ -40,11 +40,6 @@ bool MemoryDockWidget::tryRaiseMemoryWidget()
 
 void MemoryDockWidget::raiseMemoryWidget()
 {
-
-    if (getBoundAction()) {
-        getBoundAction()->setChecked(true);
-    }
-
     show();
     raise();
     widgetToFocusOnRaise()->setFocus(Qt::FocusReason::TabFocusReason);
@@ -56,6 +51,19 @@ bool MemoryDockWidget::eventFilter(QObject *object, QEvent *event)
         mainWindow->setCurrentMemoryWidget(this);
     }
     return CutterDockWidget::eventFilter(object, event);
+}
+
+QVariantMap MemoryDockWidget::serializeViewProprties()
+{
+    auto result = CutterDockWidget::serializeViewProprties();
+    result["synchronized"] = seekable->isSynchronized();
+    return result;
+}
+
+void MemoryDockWidget::deserializeViewProperties(const QVariantMap &properties)
+{
+    QVariant synchronized = properties.value("synchronized", true);
+    seekable->setSynchronization(synchronized.toBool());
 }
 
 void MemoryDockWidget::updateWindowTitle()

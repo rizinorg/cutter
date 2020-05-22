@@ -12,7 +12,7 @@ class GraphWidget : public MemoryDockWidget
     Q_OBJECT
 
 public:
-    explicit GraphWidget(MainWindow *main, QAction *action = nullptr);
+    explicit GraphWidget(MainWindow *main);
     ~GraphWidget() override {}
 
     DisassemblerGraphView *getGraphView() const;

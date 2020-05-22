@@ -22,7 +22,7 @@ class DisassemblyWidget : public MemoryDockWidget
 {
     Q_OBJECT
 public:
-    explicit DisassemblyWidget(MainWindow *main, QAction *action = nullptr);
+    explicit DisassemblyWidget(MainWindow *main);
     QWidget *getTextWidget();
 
     static QString getWidgetType();
