@@ -26,6 +26,7 @@
 #include "dialogs/preferences/PreferencesDialog.h"
 #include "dialogs/MapFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
+#include "dialogs/LayoutManager.h"
 
 // Widgets Headers
 #include "widgets/DisassemblerGraphView.h"
@@ -114,12 +115,7 @@
 template<class T>
 T *getNewInstance(MainWindow *m) { return new T(m); }
 
-static const QString LAYOUT_DEFAULT = "Default";
-static const QString LAYOUT_DEBUG = "Debug";
-
-static bool isBuiltinLayoutName(const QString &name) {
-    return name == LAYOUT_DEFAULT || name == LAYOUT_DEBUG;
-}
+using namespace Cutter;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -235,6 +231,7 @@ void MainWindow::initUI()
     });
   
     connect(ui->actionSaveLayout, &QAction::triggered, this, &MainWindow::saveNamedLayout);
+    connect(ui->actionManageLayouts, &QAction::triggered, this, &MainWindow::manageLayouts);
 
     /* Setup plugins interfaces */
     for (auto &plugin : Plugins()->getPlugins()) {
@@ -1122,6 +1119,13 @@ void MainWindow::saveNamedLayout()
     layouts[name] = getViewLayout();
     updateLayoutsMenu();
     saveSettings();
+}
+
+void MainWindow::manageLayouts()
+{
+    LayoutManager layoutManger(layouts, this);
+    layoutManger.exec();
+    updateLayoutsMenu();
 }
 
 void MainWindow::addWidget(CutterDockWidget *widget)

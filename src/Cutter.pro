@@ -422,7 +422,9 @@ SOURCES += \
     dialogs/MultitypeFileSaveDialog.cpp \
     widgets/BoolToggleDelegate.cpp \
     common/IOModesController.cpp \
-    common/SettingsUpgrade.cpp
+    common/SettingsUpgrade.cpp \
+    dialogs/LayoutManager.cpp \
+    common/CutterLayout.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -570,7 +572,9 @@ HEADERS  += \
     dialogs/MultitypeFileSaveDialog.h \
     widgets/BoolToggleDelegate.h \
     common/IOModesController.h \
-    common/SettingsUpgrade.h
+    common/SettingsUpgrade.h \
+    dialogs/LayoutManager.h \
+    common/CutterLayout.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
@@ -637,7 +641,8 @@ FORMS    += \
     dialogs/LinkTypeDialog.ui \
     widgets/ColorPicker.ui \
     dialogs/preferences/ColorThemeEditDialog.ui \
-    widgets/ListDockWidget.ui
+    widgets/ListDockWidget.ui \
+    dialogs/LayoutManager.ui
 
 RESOURCES += \
     resources.qrc \

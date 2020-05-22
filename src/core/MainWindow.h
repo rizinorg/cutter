@@ -7,6 +7,7 @@
 #include "common/Configuration.h"
 #include "common/InitialOptions.h"
 #include "common/IOModesController.h"
+#include "common/CutterLayout.h"
 #include "MemoryDockWidget.h"
 
 #include <memory>
@@ -55,13 +56,6 @@ class OverviewWidget;
 namespace Ui {
 class MainWindow;
 }
-
-struct CutterLayout
-{
-    QByteArray geometry;
-    QByteArray state;
-    QMap<QString, QVariantMap> viewProperties;
-};
 
 class MainWindow : public QMainWindow
 {
@@ -279,7 +273,7 @@ private:
     QMenu *disassemblyContextMenuExtensions = nullptr;
     QMenu *addressableContextMenuExtensions = nullptr;
 
-    QMap<QString, CutterLayout> layouts;
+    QMap<QString, Cutter::CutterLayout> layouts;
 
     void initUI();
     void initToolBar();
@@ -287,10 +281,10 @@ private:
     void initBackForwardMenu();
     void displayInitialOptionsDialog(const InitialOptions &options = InitialOptions(), bool skipOptionsDialog = false);
 
-    CutterLayout getViewLayout();
-    CutterLayout getViewLayout(const QString &name);
+    Cutter::CutterLayout getViewLayout();
+    Cutter::CutterLayout getViewLayout(const QString &name);
 
-    void setViewLayout(const CutterLayout &layout);
+    void setViewLayout(const Cutter::CutterLayout &layout);
     void loadLayouts(QSettings &settings);
     void saveLayouts(QSettings &settings);
 
@@ -313,6 +307,7 @@ private:
     void updateHistoryMenu(QMenu *menu, bool redo = false);
     void updateLayoutsMenu();
     void saveNamedLayout();
+    void manageLayouts();
 
     void setOverviewData();
     bool isOverviewActive();
