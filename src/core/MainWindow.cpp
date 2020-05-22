@@ -1107,11 +1107,14 @@ void MainWindow::saveNamedLayout()
 {
     bool ok = false;
     QString name;
+    QStringList names = layouts.keys();
+    names.removeAll(LAYOUT_DEBUG);
+    names.removeAll(LAYOUT_DEFAULT);
     while (name.isEmpty() || isBuiltinLayoutName(name)) {
         if (ok) {
             QMessageBox::warning(this, tr("Save layout error"), tr("'%1' is not a valid name.").arg(name));
         }
-        name = QInputDialog::getText(this, tr("Save layout"), tr("Enter name"), QLineEdit::Normal, {}, &ok);
+        name = QInputDialog::getItem(this, tr("Save layout"), tr("Enter name"), names, -1, true, &ok);
         if (!ok) {
             return;
         }
