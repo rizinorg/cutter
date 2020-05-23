@@ -27,8 +27,11 @@ void AnalTask::runTask()
     openFailed = false;
 
     int perms = R_PERM_RX;
-    if (options.writeEnabled)
+    if (options.writeEnabled) {
         perms |= R_PERM_W;
+        emit Core()->ioModeChanged();
+
+    }
 
     // Demangle (must be before file Core()->loadFile)
     Core()->setConfig("bin.demangle", options.demangle);

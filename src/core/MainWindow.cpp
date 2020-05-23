@@ -205,12 +205,35 @@ void MainWindow::initUI()
     connect(core->getAsyncTaskManager(), &AsyncTaskManager::tasksChanged, this,
             &MainWindow::updateTasksIndicator);
 
-    //Undo and redo seek
+    // Undo and redo seek
     ui->actionBackward->setShortcut(QKeySequence::Back);
     ui->actionForward->setShortcut(QKeySequence::Forward);
 
     initBackForwardMenu();
 
+    connect(core, &CutterCore::ioModeChanged, this, &MainWindow::setAvailableIOModeOptions);
+
+    QActionGroup *ioModeActionGroup = new QActionGroup(this);
+
+    ioModeActionGroup->addAction(ui->actionCacheMode);
+    ioModeActionGroup->addAction(ui->actionWriteMode);
+    ioModeActionGroup->addAction(ui->actionReadOnly);
+
+    connect(ui->actionCacheMode, &QAction::triggered, this, [this]() {
+        ioModesController.setIOMode(IOModesController::Mode::CACHE);
+        setAvailableIOModeOptions();
+    });
+
+    connect(ui->actionWriteMode, &QAction::triggered, this, [this]() {
+        ioModesController.setIOMode(IOModesController::Mode::WRITE);
+        setAvailableIOModeOptions();
+    });
+
+    connect(ui->actionReadOnly, &QAction::triggered, this, [this]() {
+        ioModesController.setIOMode(IOModesController::Mode::READ_ONLY);
+        setAvailableIOModeOptions();
+    });
+  
     connect(ui->actionSaveLayout, &QAction::triggered, this, &MainWindow::saveNamedLayout);
 
     /* Setup plugins interfaces */
@@ -651,20 +674,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 {
 
     // Check if there are uncommitted changes
-    if (core->isIOCacheEnabled() && !core->cmdj("wcj").array().isEmpty()) {
-
-        QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
-                                                                tr("It seems that you have changes or patches that are not committed to the file.\n"
-                                                                "Do you want to commit them now?"),
-                                                                (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
-        if (ret == QMessageBox::Cancel) {
-            event->ignore();
-            return;
-        }
-
-        if (ret == QMessageBox::Save) {
-            core->commitWriteCache();
-        } 
+    if (!ioModesController.askCommitUnsavedChanges()) {
+        // if false, Cancel was chosen
+        event->ignore();
+        return;
     }
 
     QMessageBox::StandardButton ret = QMessageBox::question(this, APPNAME,
@@ -1763,5 +1776,19 @@ QMenu *MainWindow::getContextMenuExtensions(ContextMenuType type)
         return addressableContextMenuExtensions;
     default:
         return nullptr;
+    }
+}
+
+void MainWindow::setAvailableIOModeOptions()
+{
+    switch (ioModesController.getIOMode()) {
+    case IOModesController::Mode::WRITE:
+        ui->actionWriteMode->setChecked(true);
+        break;
+    case IOModesController::Mode::CACHE:
+        ui->actionCacheMode->setChecked(true);
+        break;
+    default:
+        ui->actionReadOnly->setChecked(true);
     }
 }

@@ -3786,9 +3786,15 @@ BasicInstructionHighlighter* CutterCore::getBIHighlighter()
 
 void CutterCore::setIOCache(bool enabled)
 {
+    if (enabled) {
+        // disable write mode when cache is enabled
+        setWriteMode(false);
+    }
     setConfig("io.cache", enabled);
     this->iocache = enabled;
+
     emit ioCacheChanged(enabled);
+    emit ioModeChanged();
 }
 
 bool CutterCore::isIOCacheEnabled() const
@@ -3798,8 +3804,11 @@ bool CutterCore::isIOCacheEnabled() const
 
 void CutterCore::commitWriteCache()
 {
+    // Temporarily disable cache mode
+    TempConfig tempConfig;
+    tempConfig.set("io.cache", false);
     if (!isWriteModeEnabled()) {
-        setWriteMode (true);
+        cmdRaw("oo+");
         cmdRaw("wci");
         cmdRaw("oo");
     } else {
@@ -3812,8 +3821,8 @@ void CutterCore::setWriteMode(bool enabled)
 {
     bool writeModeState = isWriteModeEnabled();
 
-    if (writeModeState == enabled) {
-        // New mode is the same as current. Do nothing.
+    if (writeModeState == enabled && !this->iocache) {
+        // New mode is the same as current and IO Cache is disabled. Do nothing.
         return;
     }
     
@@ -3824,7 +3833,11 @@ void CutterCore::setWriteMode(bool enabled)
     } else {
         cmdRaw("oo");
     }
+    // Disable cache mode because we specifically set write or
+    // read-only modes.
+    setIOCache(false);
     writeModeChanged (enabled);
+    emit ioModeChanged();
 }
 
 bool CutterCore::isWriteModeEnabled()

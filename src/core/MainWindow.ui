@@ -39,7 +39,7 @@
      <x>0</x>
      <y>0</y>
      <width>1013</width>
-     <height>29</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="defaultUp">
@@ -51,20 +51,32 @@
    <widget class="QMenu" name="menuFile">
     <property name="geometry">
      <rect>
-      <x>328</x>
-      <y>99</y>
-      <width>265</width>
-      <height>364</height>
+      <x>2024</x>
+      <y>127</y>
+      <width>151</width>
+      <height>312</height>
      </rect>
     </property>
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuSetMode">
+     <property name="toolTip">
+      <string/>
+     </property>
+     <property name="title">
+      <string>Set mode</string>
+     </property>
+     <addaction name="actionWriteMode"/>
+     <addaction name="actionCacheMode"/>
+     <addaction name="actionReadOnly"/>
+    </widget>
     <addaction name="actionNew"/>
     <addaction name="actionMap"/>
     <addaction name="separator"/>
     <addaction name="actionImportPDB"/>
     <addaction name="separator"/>
+    <addaction name="menuSetMode"/>
     <addaction name="actionCommitChanges"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
@@ -797,6 +809,39 @@
   <action name="actionCommitChanges">
    <property name="text">
     <string>Commit changes</string>
+   </property>
+  </action>
+  <action name="actionWriteMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Write mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Open the file in write mode. Every change to the file will change the original file on disk.</string>
+   </property>
+  </action>
+  <action name="actionCacheMode">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Cache mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Enable cache mode. Changes to the file would not be applied to disk unless you specifically commit them. This is a safer option.</string>
+   </property>
+  </action>
+  <action name="actionReadOnly">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Read-Only mode</string>
    </property>
   </action>
   <action name="actionSaveLayout">

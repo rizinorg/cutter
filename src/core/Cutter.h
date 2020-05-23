@@ -657,6 +657,7 @@ signals:
 
     void ioCacheChanged(bool newval);
     void writeModeChanged(bool newval);
+    void ioModeChanged();
 
     /**
      * emitted when debugTask started or finished running

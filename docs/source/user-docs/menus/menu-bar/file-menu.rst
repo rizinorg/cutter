@@ -24,6 +24,33 @@ Import a PDB file
 
 **Steps:** File -> Import PDB  
 
+Enable Write mode
+-----------------------
+**Description:** This option will enable Write mode and allow you to patch and edit the binary on disk. **Please note** that when Write mode is enabled, each change you make to the binary in Cutter will be applied to the original file on disk. In order not to take unnecessary risks, consider using Cache mode instead.
+
+**Steps:** File -> Set mode -> Write mode
+
+
+Enable Cache mode
+-----------------------
+**Description:** This option will enable Cache mode and allow you to patch and edit the binary **without** applying the changes to the file on disk. Unlike in Write mode, in Cache mode, the changes you make to the binary in Cutter will not be applied to the original file on disk unless you specifically committing them using the "Commit changes" menu item. This is safer than using Write mode because there is no risk to lose important data.
+
+**Steps:** File -> Set mode -> Cache mode
+
+
+Enable Read-Only mode
+------------------------
+**Description:** This option is available when files are opened in Write or Cache modes. When Read-Only mode is enabled, no patches and editions to the file are allowed. This is the default mode for files in Cutter, unless specified otherwise by the user, by either enabling Write or Cache mode.
+
+**Steps:** File -> Set mode -> Read-Only mode
+
+Commit changes from cache
+----------------------------
+**Description:** Apply the changes performed in Cache mode to the file on disk. Cache mode will not apply the changes and patches made unless the user clicks "Commit changes". To automatically apply every change to the file on disk, use the less-safer Write mode.
+
+**Steps:** File -> Commit changes
+
+
 Save project
 ----------------------------------------
 **Description:** Save your session to a project. If no project file assigned to your session, the "Save as..." dialog will open.  
