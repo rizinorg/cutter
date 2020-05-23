@@ -83,6 +83,9 @@ bool IOModesController::askCommitUnsavedChanges()
                                                 (QMessageBox::StandardButtons)(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel));
         if (ret == QMessageBox::Save) {
             Core()->commitWriteCache();
+        } else if (ret == QMessageBox::Discard) {
+            Core()->cmdRaw("wcr");
+            emit Core()->refreshCodeViews();
         } else if (ret == QMessageBox::Cancel) {
             return false;
         }
