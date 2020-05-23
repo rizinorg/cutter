@@ -13,6 +13,7 @@ public:
     bool canWrite();
     bool allChangesComitted();
     Mode getIOMode();
+    void setIOMode(Mode mode);
 
 public slots:
     bool askCommitUnsavedChanges();

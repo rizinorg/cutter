@@ -203,7 +203,6 @@ void MainWindow::initUI()
     initBackForwardMenu();
 
     connect(core, &CutterCore::ioModeChanged, this, &MainWindow::setAvailableIOModeOptions);
-    connect(core, &CutterCore::ioCacheChanged, &ioModesController, &IOModesController::askCommitUnsavedChanges);
 
     QActionGroup *ioModeActionGroup = new QActionGroup(this);
 
@@ -211,16 +210,19 @@ void MainWindow::initUI()
     ioModeActionGroup->addAction(ui->actionWriteMode);
     ioModeActionGroup->addAction(ui->actionReadOnly);
 
-    connect(ui->actionCacheMode, &QAction::triggered, this, []() {
-        Core()->setIOCache(true);
+    connect(ui->actionCacheMode, &QAction::triggered, this, [this]() {
+        ioModesController.setIOMode(IOModesController::Mode::CACHE);
+        setAvailableIOModeOptions();
     });
 
-    connect(ui->actionWriteMode, &QAction::triggered, this, []() {
-        Core()->setWriteMode(true);
+    connect(ui->actionWriteMode, &QAction::triggered, this, [this]() {
+        ioModesController.setIOMode(IOModesController::Mode::WRITE);
+        setAvailableIOModeOptions();
     });
 
-    connect(ui->actionReadOnly, &QAction::triggered, this, []() {
-        Core()->setWriteMode(false);
+    connect(ui->actionReadOnly, &QAction::triggered, this, [this]() {
+        ioModesController.setIOMode(IOModesController::Mode::READ_ONLY);
+        setAvailableIOModeOptions();
     });
 
     /* Setup plugins interfaces */
