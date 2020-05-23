@@ -61,9 +61,9 @@ on child property or the other way around. Using toposort order such operations 
 array in either forward or reverse direction. To prevent running out of stack memory when processing large graphs
 DFS is implemented non-recursively.
 
-# Layer assignment
+# Row assignment
 
-Layers are assigned in toposort order from top to bottom, with nodes layer being max(predecessor.layer)+1. This ensures
+Rows are assigned in toposort order from top to bottom, with nodes row being max(predecessor.row)+1. This ensures
 that loop edges are only ones going from deeper levels to previous layers.
 
 To further simply node placment a subset of edges is selected which forms a tree. This turns DAG drawing problem
@@ -194,26 +194,34 @@ std::vector<ut64> GraphGridLayout::topoSort(LayoutState &state, ut64 entry)
         }
     }
 
+    return blockOrder;
+}
+
+void GraphGridLayout::assignRows(GraphGridLayout::LayoutState &state, const std::vector<unsigned long long> &blockOrder)
+{
     // assign layers and select tree edges
     for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
         auto &block = state.grid_blocks[*it];
-        int nextLevel = block.level + 1;
+        int nextLevel = block.row + 1;
         for (auto target : block.dag_edge) {
             auto &targetBlock = state.grid_blocks[target];
-            targetBlock.level = std::max(targetBlock.level, nextLevel);
+            targetBlock.row = std::max(targetBlock.row, nextLevel);
         }
     }
+}
+
+void GraphGridLayout::selectTree(GraphGridLayout::LayoutState &state)
+{
     for (auto &blockIt : state.grid_blocks) {
         auto &block = blockIt.second;
         for (auto targetId : block.dag_edge) {
             auto &targetBlock = state.grid_blocks[targetId];
-            if (!targetBlock.has_parent && targetBlock.level == block.level + 1) {
+            if (!targetBlock.has_parent && targetBlock.row == block.row + 1) {
                 block.tree_edge.push_back(targetId);
                 targetBlock.has_parent = true;
             }
         }
     }
-    return blockOrder;
 }
 
 void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &blocks, ut64 entry,
@@ -229,7 +237,6 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     }
 
     auto blockOrder = topoSort(layoutState, entry);
-    findMergePoints(layoutState);
     computeAllBlockPlacement(blockOrder, layoutState);
 
     for (auto &blockIt : blocks) {
@@ -325,6 +332,11 @@ void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
 void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
                                                LayoutState &layoutState) const
 {
+    assignRows(layoutState, blockOrder);
+    selectTree(layoutState);
+    findMergePoints(layoutState);
+
+
     // Shapes of subtrees are maintained using linked lists. Each value within list is column relative to previous row.
     // This allows moving things around by chaning only first value in list.
     LinkedListPool<int> sides(blockOrder.size() * 2); // *2 = two sides for each node
@@ -332,7 +344,6 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
     // Process nodes in the order from bottom to top. Ensures that all subtrees are processed before parent node.
     for (auto blockId : blockOrder) {
         auto &block = layoutState.grid_blocks[blockId];
-        block.row = 0;
         if (block.tree_edge.size() == 0) {
             block.row_count = 1;
             block.col = 0;
@@ -434,7 +445,6 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
             // Keep children positions relative to parent so that moving parent moves whole subtree
             for (auto target : block.tree_edge) {
                 auto &targetBlock = layoutState.grid_blocks[target];
-                targetBlock.row += 1;
                 targetBlock.col -= block.col;
             }
         }
@@ -446,7 +456,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
     int nextEmptyColumn = 0;
     for (auto &blockIt : layoutState.grid_blocks) {
         auto &block = blockIt.second;
-        if (block.level == 0) { // place all the roots first
+        if (block.row == 0) { // place all the roots first
             auto offset = -block.leftPosition;
             block.col += nextEmptyColumn + offset;
             nextEmptyColumn = block.rightPosition + offset;
@@ -455,11 +465,9 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
     // Visit all nodes top to bottom, converting relative positions to absolute.
     for (auto it = blockOrder.rbegin(), end = blockOrder.rend(); it != end; it++) {
         auto &block = layoutState.grid_blocks[*it];
-        assert(block.row >= 0);
         assert(block.col >= 0);
         for (auto childId : block.tree_edge) {
             auto &childBlock = layoutState.grid_blocks[childId];
-            childBlock.row += block.row;
             childBlock.col += block.col;
         }
     }

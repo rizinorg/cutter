@@ -37,7 +37,6 @@ private:
         std::vector<ut64> tree_edge; //< subset of outgoing edges that form a tree
         std::vector<ut64> dag_edge; //< subset of outgoing edges that form a dag
         std::size_t has_parent = false;
-        int level = 0;
         int inputCount = 0;
         int outputCount = 0;
 
@@ -115,6 +114,19 @@ private:
      * @return Reverse topological ordering.
      */
     static std::vector<ut64> topoSort(LayoutState &state, ut64 entry);
+
+    /**
+     * @brief Assign row positions to nodes.
+     * @param state
+     * @param blockOrder reverse toplogical ordering of nodes
+     */
+    static void assignRows(LayoutState &state, const std::vector<ut64> &blockOrder);
+    /**
+     * @brief Select subset of DAG edges that form tree.
+     * @param state
+     * @param blockOrder reverse toplogical ordering of nodes
+     */
+    static void selectTree(LayoutState &state);
 
     /**
      * @brief routeEdges Route edges, expects node positions to be calculated previously.
