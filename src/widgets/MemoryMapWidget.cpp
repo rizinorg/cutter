@@ -111,8 +111,8 @@ bool MemoryProxyModel::lessThan(const QModelIndex &left, const QModelIndex &righ
     return leftMemMap.addrStart < rightMemMap.addrStart;
 }
 
-MemoryMapWidget::MemoryMapWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action, ListDockWidget::SearchBarPolicy::HideByDefault)
+MemoryMapWidget::MemoryMapWidget(MainWindow *main) :
+    ListDockWidget(main, ListDockWidget::SearchBarPolicy::HideByDefault)
 {
     setWindowTitle(tr("Memory Map"));
     setObjectName("MemoryMapWidget");

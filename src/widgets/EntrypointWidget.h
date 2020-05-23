@@ -19,7 +19,7 @@ class EntrypointWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit EntrypointWidget(MainWindow *main, QAction *action = nullptr);
+    explicit EntrypointWidget(MainWindow *main);
     ~EntrypointWidget();
 
 private slots:

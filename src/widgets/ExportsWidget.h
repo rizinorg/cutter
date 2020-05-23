@@ -60,7 +60,7 @@ class ExportsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit ExportsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit ExportsWidget(MainWindow *main);
     ~ExportsWidget();
 
 private slots:

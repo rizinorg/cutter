@@ -1,9 +1,10 @@
 #ifndef CUTTERWIDGET_H
 #define CUTTERWIDGET_H
 
-#include <QDockWidget>
-
+#include "CutterCommon.h"
 #include "common/RefreshDeferrer.h"
+
+#include <QDockWidget>
 
 class MainWindow;
 
@@ -12,7 +13,10 @@ class CutterDockWidget : public QDockWidget
     Q_OBJECT
 
 public:
-    explicit CutterDockWidget(MainWindow *parent, QAction *action = nullptr);
+    CUTTER_DEPRECATED("Action will be ignored. Use CutterDockWidget(MainWindow*) instead.")
+    CutterDockWidget(MainWindow *parent, QAction *action);
+
+    explicit CutterDockWidget(MainWindow *parent);
     ~CutterDockWidget() override;
     bool eventFilter(QObject *object, QEvent *event) override;
     bool isVisibleToUser()      { return isVisibleToUserCurrent; }
@@ -54,7 +58,34 @@ public:
         });
         return deferrer;
     }
-
+    /**
+     * @brief Serialize dock properties for saving as part of layout.
+     *
+     * Override this function for saving dock specific view properties. Use
+     * in situations where it makes sense to have different properties for
+     * multiple instances of widget. Don't use for options that are more suitable
+     * as global settings and should be applied equally to all widgets or all
+     * widgets of this kind.
+     *
+     * Keep synchrononized with deserializeViewProperties. When modifying add
+     * project upgrade step in SettingsUpgrade.cpp if necessary.
+     *
+     * @return Dictionary of current dock properties.
+     * @see CutterDockWidget#deserializeViewProperties
+     */
+    virtual QVariantMap serializeViewProprties();
+    /**
+     * @brief Deserialization half of serialize view properties.
+     *
+     * When a property is not specified in property map dock should reset it
+     * to default value instead of leaving it umodified. Empty map should reset
+     * all properties controlled by serializeViewProprties/deserializeViewProperties
+     * mechanism.
+     *
+     * @param properties to modify for current widget
+     * @see CutterDockWidget#serializeViewProprties
+     */
+    virtual void deserializeViewProperties(const QVariantMap &properties);
 signals:
     void becameVisibleToUser();
     void closed();
@@ -66,14 +97,11 @@ protected:
     virtual QWidget* widgetToFocusOnRaise();
 
     void closeEvent(QCloseEvent *event) override;
-    QAction *getBoundAction() const;
     QString getDockNumber();
 
     MainWindow *mainWindow;
 
 private:
-    QAction *action;
-
     bool isTransient = false;
 
     bool isVisibleToUserCurrent = false;

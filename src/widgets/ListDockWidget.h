@@ -32,7 +32,7 @@ public:
         Hide,
     };
 
-    explicit ListDockWidget(MainWindow *main, QAction *action = nullptr, SearchBarPolicy searchBarPolicy = SearchBarPolicy::ShowByDefault);
+    explicit ListDockWidget(MainWindow *main, SearchBarPolicy searchBarPolicy = SearchBarPolicy::ShowByDefault);
     ~ListDockWidget() override;
 
     void showCount(bool show);

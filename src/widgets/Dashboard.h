@@ -21,7 +21,7 @@ class Dashboard : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit Dashboard(MainWindow *main, QAction *action = nullptr);
+    explicit Dashboard(MainWindow *main);
     ~Dashboard();
 
 private slots:

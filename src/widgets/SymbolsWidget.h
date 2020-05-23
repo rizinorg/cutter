@@ -58,7 +58,7 @@ class SymbolsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit SymbolsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SymbolsWidget(MainWindow *main);
     ~SymbolsWidget();
 
 private slots:

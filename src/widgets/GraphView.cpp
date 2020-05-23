@@ -338,7 +338,7 @@ void GraphView::paint(QPainter &p, QPoint offset, QRect viewport, qreal scale, b
                 continue;
             }
             QPolygonF polyline = edge.polyline;
-            EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target]);
+            EdgeConfiguration ec = edgeConfiguration(block, &blocks[edge.target], interactive);
             QPen pen(ec.color);
             pen.setStyle(ec.lineStyle);
             pen.setWidthF(pen.width() * ec.width_scale);

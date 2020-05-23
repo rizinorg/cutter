@@ -68,7 +68,7 @@ class HeadersWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit HeadersWidget(MainWindow *main, QAction *action = nullptr);
+    explicit HeadersWidget(MainWindow *main);
     ~HeadersWidget();
 
 private slots:

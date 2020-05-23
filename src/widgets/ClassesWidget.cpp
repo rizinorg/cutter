@@ -575,8 +575,8 @@ bool ClassesSortFilterProxyModel::hasChildren(const QModelIndex &parent) const
 
 
 
-ClassesWidget::ClassesWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ClassesWidget::ClassesWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::ClassesWidget)
 {
     ui->setupUi(this);

@@ -173,8 +173,8 @@ BreakpointProxyModel::BreakpointProxyModel(BreakpointModel *sourceModel, QObject
     this->setSortRole(Qt::EditRole);
 }
 
-BreakpointWidget::BreakpointWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+BreakpointWidget::BreakpointWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::BreakpointWidget)
 {
     ui->setupUi(this);

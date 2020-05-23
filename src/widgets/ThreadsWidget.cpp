@@ -15,8 +15,8 @@ enum ColumnIndex {
     COLUMN_PATH,
 };
 
-ThreadsWidget::ThreadsWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ThreadsWidget::ThreadsWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::ThreadsWidget)
 {
     ui->setupUi(this);

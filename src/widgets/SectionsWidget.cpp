@@ -154,8 +154,8 @@ bool SectionsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     }
 }
 
-SectionsWidget::SectionsWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action)
+SectionsWidget::SectionsWidget(MainWindow *main) :
+    ListDockWidget(main)
 {
     setObjectName("SectionsWidget");
     setWindowTitle(QStringLiteral("Sections"));

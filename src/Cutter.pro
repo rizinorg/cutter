@@ -344,6 +344,7 @@ SOURCES += \
     dialogs/preferences/AppearanceOptionsWidget.cpp \
     dialogs/preferences/GraphOptionsWidget.cpp \
     dialogs/preferences/PreferenceCategory.cpp \
+    dialogs/preferences/InitializationFileEditor.cpp \
     widgets/QuickFilterView.cpp \
     widgets/ClassesWidget.cpp \
     widgets/ResourcesWidget.cpp \
@@ -420,7 +421,8 @@ SOURCES += \
     widgets/ListDockWidget.cpp \
     dialogs/MultitypeFileSaveDialog.cpp \
     widgets/BoolToggleDelegate.cpp \
-    common/IOModesController.cpp
+    common/IOModesController.cpp \
+    common/SettingsUpgrade.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -484,6 +486,7 @@ HEADERS  += \
     dialogs/preferences/AppearanceOptionsWidget.h \
     dialogs/preferences/PreferenceCategory.h \
     dialogs/preferences/GraphOptionsWidget.h \
+    dialogs/preferences/InitializationFileEditor.h \
     widgets/QuickFilterView.h \
     widgets/ClassesWidget.h \
     widgets/ResourcesWidget.h \
@@ -566,7 +569,8 @@ HEADERS  += \
     widgets/AddressableItemList.h \
     dialogs/MultitypeFileSaveDialog.h \
     widgets/BoolToggleDelegate.h \
-    common/IOModesController.h
+    common/IOModesController.h \
+    common/SettingsUpgrade.h
 
 GRAPHVIZ_HEADERS = widgets/GraphGridLayout.h
 
@@ -598,6 +602,7 @@ FORMS    += \
     dialogs/preferences/PreferencesDialog.ui \
     dialogs/preferences/AppearanceOptionsWidget.ui \
     dialogs/preferences/GraphOptionsWidget.ui \
+    dialogs/preferences/InitializationFileEditor.ui \
     widgets/QuickFilterView.ui \
     widgets/DecompilerWidget.ui \
     widgets/ClassesWidget.ui \

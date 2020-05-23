@@ -69,7 +69,7 @@ class FlagsWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit FlagsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit FlagsWidget(MainWindow *main);
     ~FlagsWidget();
 
 private slots:

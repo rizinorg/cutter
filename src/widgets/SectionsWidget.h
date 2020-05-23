@@ -67,7 +67,7 @@ class SectionsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit SectionsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SectionsWidget(MainWindow *main);
     ~SectionsWidget();
 
 private slots:

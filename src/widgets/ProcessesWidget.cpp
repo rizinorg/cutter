@@ -16,8 +16,8 @@ enum ColumnIndex {
     COLUMN_PATH,
 };
 
-ProcessesWidget::ProcessesWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ProcessesWidget::ProcessesWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::ProcessesWidget)
 {
     ui->setupUi(this);

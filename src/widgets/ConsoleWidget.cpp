@@ -37,8 +37,8 @@ static const int invalidHistoryPos = -1;
 
 static const char *consoleWrapSettingsKey = "console.wrap";
 
-ConsoleWidget::ConsoleWidget(MainWindow *main, QAction *action) :
-    CutterDockWidget(main, action),
+ConsoleWidget::ConsoleWidget(MainWindow *main) :
+    CutterDockWidget(main),
     ui(new Ui::ConsoleWidget),
     debugOutputEnabled(true),
     maxHistoryEntries(100),

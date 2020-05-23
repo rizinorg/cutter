@@ -15,7 +15,7 @@ class MemoryDockWidget : public CutterDockWidget
 {
     Q_OBJECT
 public:
-    MemoryDockWidget(MemoryWidgetType type, MainWindow *parent, QAction *action = nullptr);
+    MemoryDockWidget(MemoryWidgetType type, MainWindow *parent);
     ~MemoryDockWidget() override {}
 
     CutterSeekable *getSeekable() const;
@@ -27,6 +27,9 @@ public:
         return mType;
     }
     bool eventFilter(QObject *object, QEvent *event) override;
+
+    QVariantMap serializeViewProprties() override;
+    void deserializeViewProperties(const QVariantMap &properties) override;
 private:
 
     MemoryWidgetType mType;

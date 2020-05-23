@@ -6,6 +6,7 @@
 #include "GraphOptionsWidget.h"
 #include "DebugOptionsWidget.h"
 #include "PluginsOptionsWidget.h"
+#include "InitializationFileEditor.h"
 
 #include "PreferenceCategory.h"
 
@@ -51,6 +52,11 @@ PreferencesDialog::PreferencesDialog(QWidget *parent)
             tr("Plugins"),
             new PluginsOptionsWidget(this),
             QIcon(":/img/icons/plugins.svg")
+        },
+        {
+            tr("Initialization Script"),
+            new InitializationFileEditor(this),
+            QIcon(":/img/icons/initialization.svg")
         }
     };
 
@@ -114,6 +120,7 @@ void PreferencesDialog::chooseThemeIcons()
         { QStringLiteral("Graph"), QStringLiteral("graph.svg") },
         { QStringLiteral("Appearance"), QStringLiteral("polar.svg") },
         { QStringLiteral("Plugins"), QStringLiteral("plugins.svg") },
+        { QStringLiteral("Initialization Script"), QStringLiteral("initialization.svg") },
     };
     QList<QPair<void*, QString>> supportedIconsNames;
 

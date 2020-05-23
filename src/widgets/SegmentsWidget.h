@@ -53,7 +53,7 @@ class SegmentsWidget : public ListDockWidget
     Q_OBJECT
 
 public:
-    explicit SegmentsWidget(MainWindow *main, QAction *action = nullptr);
+    explicit SegmentsWidget(MainWindow *main);
     ~SegmentsWidget();
 
 private slots:

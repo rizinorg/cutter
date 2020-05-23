@@ -25,7 +25,7 @@ protected:
     DisassemblyContextMenu *mCtxMenu;
 
 public:
-    explicit DecompilerWidget(MainWindow *main, QAction *action = nullptr);
+    explicit DecompilerWidget(MainWindow *main);
     ~DecompilerWidget();
 public slots:
     void showDisasContextMenu(const QPoint &pt);

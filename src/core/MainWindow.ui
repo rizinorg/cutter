@@ -114,6 +114,13 @@
     <addaction name="actionGrouped_dock_dragging"/>
     <addaction name="separator"/>
     <addaction name="menuZoom"/>
+    <addaction name="actionSaveLayout"/>
+    <widget class="QMenu" name="menuLayouts">
+     <property name="title">
+      <string>Layouts</string>
+     </property>
+    </widget>
+    <addaction name="menuLayouts"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -145,55 +152,20 @@
      <property name="title">
       <string>Info...</string>
      </property>
-     <addaction name="actionClasses"/>
-     <addaction name="actionEntrypoints"/>
-     <addaction name="actionExports"/>
-     <addaction name="actionFlags"/>
-     <addaction name="actionHeaders"/>
-     <addaction name="actionImports"/>
-     <addaction name="actionRelocs"/>
-     <addaction name="actionResources"/>
-     <addaction name="actionSDBBrowser"/>
-     <addaction name="actionSections"/>
-     <addaction name="actionSegments"/>
-     <addaction name="actionSymbols"/>
-     <addaction name="actionVTables"/>
-     <addaction name="actionZignatures"/>
     </widget>
     <widget class="QMenu" name="menuAddDebugWidgets">
      <property name="title">
       <string>Debug...</string>
      </property>
-     <addaction name="actionBacktrace"/>
-     <addaction name="actionBreakpoint"/>
-     <addaction name="actionThreads"/>
-     <addaction name="actionProcesses"/>
-     <addaction name="actionMemoryMap"/>
-     <addaction name="actionRegisters"/>
-     <addaction name="actionRegisterRefs"/>
-     <addaction name="actionStack"/>
     </widget>
-    <addaction name="actionDashboard"/>
-    <addaction name="separator"/>
-    <addaction name="actionFunctions"/>
-    <addaction name="actionDecompiler"/>
-    <addaction name="actionOverview"/>
-    <addaction name="separator"/>
-    <addaction name="actionSearch"/>
-    <addaction name="actionStrings"/>
-    <addaction name="actionTypes"/>
-    <addaction name="separator"/>
     <addaction name="actionExtraDisassembly"/>
     <addaction name="actionExtraGraph"/>
     <addaction name="actionExtraHexdump"/>
     <addaction name="separator"/>
     <addaction name="menuAddInfoWidgets"/>
     <addaction name="menuAddDebugWidgets"/>
-    <addaction name="separator"/>
-    <addaction name="actionComments"/>
-    <addaction name="actionConsole"/>
-    <addaction name="separator"/>
     <addaction name="menuPlugins"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
@@ -243,10 +215,7 @@
   </widget>
   <action name="actionDefault">
    <property name="text">
-    <string>Reset Layout</string>
-   </property>
-   <property name="toolTip">
-    <string>Reset layout</string>
+    <string>Reset to default layout</string>
    </property>
   </action>
   <action name="actionZen">
@@ -411,105 +380,6 @@
     <string>Lock/Unlock</string>
    </property>
   </action>
-  <action name="actionStrings">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Strings</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Strings panel</string>
-   </property>
-  </action>
-  <action name="actionSections">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Sections</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Sections panel</string>
-   </property>
-  </action>
-  <action name="actionSegments">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Segments</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Segments panel</string>
-   </property>
-  </action>
-  <action name="actionFunctions">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Functions</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Functions panel</string>
-   </property>
-  </action>
-  <action name="actionImports">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Imports</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Imports panel</string>
-   </property>
-  </action>
-  <action name="actionSymbols">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Symbols</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Symbols panel</string>
-   </property>
-  </action>
-  <action name="actionRelocs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Relocs</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Relocs panel</string>
-   </property>
-  </action>
-  <action name="actionFlags">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Flags</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Flags panel</string>
-   </property>
-  </action>
-  <action name="actionMem">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Memory</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Memory panel</string>
-   </property>
-  </action>
   <action name="actionTheme">
    <property name="checkable">
     <bool>false</bool>
@@ -547,17 +417,6 @@
    </property>
    <property name="text">
     <string>Refresh</string>
-   </property>
-  </action>
-  <action name="actionComments">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Comments</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide comments</string>
    </property>
   </action>
   <action name="actionTabs_on_Top">
@@ -788,28 +647,9 @@
     <string>Show/Hide bottom pannel</string>
    </property>
   </action>
-  <action name="actionSDBBrowser">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>SDB Browser</string>
-   </property>
-  </action>
   <action name="actionRun_Script">
    <property name="text">
     <string>Run Script</string>
-   </property>
-  </action>
-  <action name="actionDashboard">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Dashboard</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Dashboard panel</string>
    </property>
   </action>
   <action name="actionReset_settings">
@@ -863,14 +703,6 @@
     <string>Show pseudocode rather than assembly</string>
    </property>
   </action>
-  <action name="actionEntrypoints">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Entry Points</string>
-   </property>
-  </action>
   <action name="actionDisplay_Offsets">
    <property name="checkable">
     <bool>true</bool>
@@ -900,102 +732,6 @@
     <string>Graph</string>
    </property>
   </action>
-  <action name="actionOverview">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Graph Overview</string>
-   </property>
-  </action>
-  <action name="actionDecompiler">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Decompiler</string>
-   </property>
-  </action>
-  <action name="actionConsole">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Console</string>
-   </property>
-  </action>
-  <action name="actionStack">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Stack</string>
-   </property>
-  </action>
-  <action name="actionRegisters">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Registers</string>
-   </property>
-  </action>
-  <action name="actionBacktrace">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Backtrace</string>
-   </property>
-  </action>
-  <action name="actionThreads">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Threads</string>
-   </property>
-  </action>
-  <action name="actionProcesses">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Processes</string>
-   </property>
-  </action>
-  <action name="actionMemoryMap">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Memory map</string>
-   </property>
-  </action>
-  <action name="actionBreakpoint">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Breakpoints</string>
-   </property>
-  </action>
-  <action name="actionRegisterRefs">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Register References</string>
-   </property>
-  </action>
-  <action name="actionClasses">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Classes</string>
-   </property>
-  </action>
   <action name="actionImportPDB">
    <property name="text">
     <string>Import PDB</string>
@@ -1004,69 +740,6 @@
   <action name="actionAnalyze">
    <property name="text">
     <string>Analyze</string>
-   </property>
-  </action>
-  <action name="actionResources">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Resources</string>
-   </property>
-  </action>
-  <action name="actionVTables">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>VTables</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide VTables panel</string>
-   </property>
-  </action>
-  <action name="actionTypes">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Types</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Types panel</string>
-   </property>
-  </action>
-  <action name="actionSearch">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Search</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Search panel</string>
-   </property>
-  </action>
-  <action name="actionHeaders">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Headers</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Headers panel</string>
-   </property>
-  </action>
-  <action name="actionZignatures">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Zignatures</string>
-   </property>
-   <property name="toolTip">
-    <string>Show/Hide Zignatures panel</string>
    </property>
   </action>
   <action name="actionExport_as_code">
@@ -1169,6 +842,11 @@
    </property>
    <property name="text">
     <string>Read-Only mode</string>
+   </property>
+  </action>
+  <action name="actionSaveLayout">
+   <property name="text">
+    <string>Save layout</string>
    </property>
   </action>
  </widget>

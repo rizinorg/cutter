@@ -113,8 +113,8 @@ bool SymbolsProxyModel::lessThan(const QModelIndex &left, const QModelIndex &rig
     return false;
 }
 
-SymbolsWidget::SymbolsWidget(MainWindow *main, QAction *action) :
-    ListDockWidget(main, action)
+SymbolsWidget::SymbolsWidget(MainWindow *main) :
+    ListDockWidget(main)
 {
     setWindowTitle(tr("Symbols"));
     setObjectName("SymbolsWidget");

@@ -1,6 +1,7 @@
 View Menu
 ==============================
 
+
 Refresh contents
 ----------------------------------------
 **Description:** In some cases, not all the displayed information on Cutter's widgets will be up-to-date, for example - after defining a new function from the integrated radare2 console. By refreshing the contents, Cutter will fetch the most up to date information from the session and will update the different views.
@@ -12,9 +13,9 @@ Refresh contents
 
 Reset to default layout
 ----------------------------------------
-**Description:** Reset the current layout to the default layout provided by Cutter. Future additions will include custom and user-defined layouts to which you'll be able to reset.
+**Description:** Reset the current layout to the default layout provided by Cutter.
 
-**Steps:** View -> Reset Layout  
+**Steps:** View -> Reset to default layout
 
 Reset to default settings
 ----------------------------------------
@@ -24,7 +25,7 @@ Reset to default settings
 
 Lock and Unlock panels
 ----------------------------------------
-**Description:** Allow or disable locking the different widgets.  
+**Description:** Allow or disable moving and closing of different widgets. Uncheck this option to prevent accidentally modifying current layout.
 
 **Steps:** View -> Unlock Panels  
 
@@ -64,3 +65,16 @@ Reset Zoom
 **Steps:** View -> Zoom -> Reset  
 
 **Shortcut:** :kbd:`Ctrl` + :kbd:`=`
+
+
+Save layout
+----------------------------------------
+**Description:** Save the current layout with a given name. A layout includes the set of currently opened widgets, their position, and some properties.
+
+**Steps:** View -> Save Layout , enter a layout name in the dialog.
+
+Layouts
+----------------------------------------
+**Description:** Load the settings from the selected layout into the current layout. Loading a layout will not cause it to automatically be modified. To do that you must use the `Save layout`_ command. 
+
+**Steps:** View -> Layouts ->  layout name

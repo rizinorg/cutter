@@ -61,5 +61,12 @@ inline QString RHexString(RVA size)
 #define CUTTER_EXPORT Q_DECL_IMPORT
 #endif
 
+
+#if defined(__has_cpp_attribute) && __has_cpp_attribute(deprecated)
+#define CUTTER_DEPRECATED(msg) [[deprecated(msg)]]
+#else
+#define CUTTER_DEPRECATED(msg)
+#endif
+
 #endif // CUTTERCORE_H
 

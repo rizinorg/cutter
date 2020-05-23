@@ -72,7 +72,7 @@ class TypesWidget : public CutterDockWidget
     Q_OBJECT
 
 public:
-    explicit TypesWidget(MainWindow *main, QAction *action = nullptr);
+    explicit TypesWidget(MainWindow *main);
     ~TypesWidget();
 
 private slots:
