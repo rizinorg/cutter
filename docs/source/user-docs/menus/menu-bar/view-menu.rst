@@ -13,7 +13,7 @@ Refresh contents
 
 Reset to default layout
 ----------------------------------------
-**Description:** Reset the current layout to the default layout provided by Cutter.
+**Description:** Reset the current :doc:`layout</user-docs/preferences/layout>` to the default layout provided by Cutter.
 
 **Steps:** View -> Reset to default layout
 
@@ -67,14 +67,20 @@ Reset Zoom
 **Shortcut:** :kbd:`Ctrl` + :kbd:`=`
 
 
+Manage layouts
+----------------------------------------
+**Description:**  Rename and delete saved :doc:`layouts</user-docs/preferences/layout>`.
+
+**Steps:** View -> Manage layouts , select layout, choose command
+
 Save layout
 ----------------------------------------
-**Description:** Save the current layout with a given name. A layout includes the set of currently opened widgets, their position, and some properties.
+**Description:** Save the current :doc:`layout</user-docs/preferences/layout>` with a given name. A layout includes the set of currently opened widgets, their position, and some properties.
 
 **Steps:** View -> Save Layout , enter a layout name in the dialog.
 
 Layouts
 ----------------------------------------
-**Description:** Load the settings from the selected layout into the current layout. Loading a layout will not cause it to automatically be modified. To do that you must use the `Save layout`_ command. 
+**Description:** Load the settings from the selected :doc:`layout</user-docs/preferences/layout>` into the current layout. Loading a layout will not cause it to automatically be modified. To do that you must use the `Save layout`_ command.
 
 **Steps:** View -> Layouts ->  layout name

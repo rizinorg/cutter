@@ -41,6 +41,7 @@ release = '1.10.3'
 extensions = [
     'breathe',
     'recommonmark',
+    'sphinx.ext.autosectionlabel'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -72,6 +73,9 @@ exclude_patterns = ['_build']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'rainbow_dash'
+
+
+autosectionlabel_prefix_document = True
 
 # -- Options for Breathe -----------------------------------------------------
 

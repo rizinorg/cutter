@@ -114,6 +114,8 @@
     <addaction name="actionGrouped_dock_dragging"/>
     <addaction name="separator"/>
     <addaction name="menuZoom"/>
+    <addaction name="separator"/>
+    <addaction name="actionManageLayouts"/>
     <addaction name="actionSaveLayout"/>
     <widget class="QMenu" name="menuLayouts">
      <property name="title">
@@ -847,6 +849,11 @@
   <action name="actionSaveLayout">
    <property name="text">
     <string>Save layout</string>
+   </property>
+  </action>
+  <action name="actionManageLayouts">
+   <property name="text">
+    <string>Manage layouts</string>
    </property>
   </action>
  </widget>
