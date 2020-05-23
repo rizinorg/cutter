@@ -260,9 +260,12 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     layoutState.columnWidth.assign(layoutState.columns, 0);
     for (auto &node : layoutState.grid_blocks) {
         const auto &inputBlock = blocks[node.first];
-        layoutState.rowHeight[node.second.row] = std::max(inputBlock.height, layoutState.rowHeight[node.second.row]);
-        layoutState.columnWidth[node.second.col] = std::max(inputBlock.width / 2, layoutState.columnWidth[node.second.col]);
-        layoutState.columnWidth[node.second.col + 1] = std::max(inputBlock.width / 2, layoutState.columnWidth[node.second.col + 1]);
+        layoutState.rowHeight[node.second.row] = std::max(inputBlock.height,
+                                                          layoutState.rowHeight[node.second.row]);
+        layoutState.columnWidth[node.second.col] = std::max(inputBlock.width / 2,
+                                                            layoutState.columnWidth[node.second.col]);
+        layoutState.columnWidth[node.second.col + 1] = std::max(inputBlock.width / 2,
+                                                                layoutState.columnWidth[node.second.col + 1]);
     }
 
     routeEdges(layoutState);
@@ -313,7 +316,8 @@ void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
             }
         }
         if (blocksGoingToMerge) {
-            state.grid_blocks[block.tree_edge[blockWithTreeEdge]].col = blockWithTreeEdge * 2 - (blocksGoingToMerge - 1);
+            state.grid_blocks[block.tree_edge[blockWithTreeEdge]].col = blockWithTreeEdge * 2 -
+                                                                        (blocksGoingToMerge - 1);
         }
     }
 }
@@ -501,8 +505,7 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
             events.push_back({it.first, i, std::max(startRow, endRow), Event::Edge});
         }
     }
-    std::sort(events.begin(), events.end(),
-        [](const Event & a, const Event & b) {
+    std::sort(events.begin(), events.end(), [](const Event &a, const Event &b) {
         if (a.row != b.row) {
             return a.row < b.row;
         }
@@ -510,7 +513,7 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
     });
 
     // process events and choose main column for each edge
-    PointSetMinTree blockedColumns(state.columns + 1, -1); // There are more edge columns than node columns
+    PointSetMinTree blockedColumns(state.columns + 1, -1);
     for (const auto &event : events) {
         if (event.type == Event::Block) {
             auto block = state.grid_blocks[event.blockId];
@@ -589,7 +592,8 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
 
             // reduce edge spacing when there is large amount of edges connected to single block
             auto startSpacingOverride = getSpacingOverride((*state.blocks)[start.id].width, start.outputCount);
-            auto targetSpacingOverride = getSpacingOverride((*state.blocks)[target.id].width, target.inputCount);
+            auto targetSpacingOverride = getSpacingOverride((*state.blocks)[target.id].width,
+                                                            target.inputCount);
             edge.points.front().spacingOverride = startSpacingOverride;
             edge.points.back().spacingOverride = targetSpacingOverride;
 
@@ -597,34 +601,32 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
             int length = 0;
             for (size_t i = 1; i < edge.points.size(); i++) {
                 length += abs(edge.points[i].row - edge.points[i - 1].row) +
-                               abs(edge.points[i].col - edge.points[i - 1].col);
+                          abs(edge.points[i].col - edge.points[i - 1].col);
             }
             edge.secondaryPriority = 2 * length + (target.row >= start.row ? 1 : 0);
         }
     }
 }
 
-namespace
-{
+namespace {
 /**
  * @brief Single segment of an edge. An edge can be drawn using multiple horizontal and vertical segments.
+ * x y meaning matches vertical segments. For horizontal segments axis are swapped.
  */
-struct EdgeSegment
-{
+struct EdgeSegment {
     int y0;
     int y1;
     int x;
     int edgeIndex;
     int secondaryPriority;
     int16_t kind;
-    int16_t spacingOverride;
+    int16_t spacingOverride; //< segment spacing override, 0 if default spacing should be used
 };
-struct NodeSide
-{
+struct NodeSide {
     int x;
     int y0;
     int y1;
-    int size;
+    int size; //< block size in the x axis direction
 };
 }
 
@@ -645,14 +647,14 @@ struct NodeSide
  * for nodes with many edges.
  */
 void calculateSegmentOffsets(
-        std::vector<EdgeSegment> &segments,
-        std::vector<int> &edgeOffsets,
-        std::vector<int> &edgeColumnWidth,
-        std::vector<NodeSide> &nodeRightSide,
-        std::vector<NodeSide> &nodeLeftSide,
-        const std::vector<int> &columnWidth,
-        size_t H,
-        int segmentSpacing)
+    std::vector<EdgeSegment> &segments,
+    std::vector<int> &edgeOffsets,
+    std::vector<int> &edgeColumnWidth,
+    std::vector<NodeSide> &nodeRightSide,
+    std::vector<NodeSide> &nodeLeftSide,
+    const std::vector<int> &columnWidth,
+    size_t H,
+    int segmentSpacing)
 {
     for (auto &segment : segments) {
         if (segment.y0 > segment.y1) {
@@ -660,7 +662,7 @@ void calculateSegmentOffsets(
         }
     }
 
-    std::sort(segments.begin(), segments.end(), [](const EdgeSegment &a, const EdgeSegment &b){
+    std::sort(segments.begin(), segments.end(), [](const EdgeSegment & a, const EdgeSegment & b) {
         if (a.x != b.x) return a.x < b.x;
         if (a.kind != b.kind) return a.kind < b.kind;
         auto aSize = a.y1 - a.y0;
@@ -680,7 +682,7 @@ void calculateSegmentOffsets(
         return false;
     });
 
-    auto compareNode = [](const NodeSide &a, const NodeSide &b) {
+    auto compareNode = [](const NodeSide & a, const NodeSide & b) {
         return a.x < b.x;
     };
     sort(nodeRightSide.begin(), nodeRightSide.end(), compareNode);
@@ -743,7 +745,8 @@ void calculateSegmentOffsets(
         auto rightSideMiddle = std::max(maxSegment.rangeMaximum(0, H), 0);
         rightSideMiddle = std::max(rightSideMiddle, edgeColumnWidth[x] - middleWidth - segmentSpacing);
         for (auto it = firstRightSideSegment; it != nextSegmentIt; ++it) {
-            edgeOffsets[it->edgeIndex] = middleWidth + (rightSideMiddle - edgeOffsets[it->edgeIndex]) + segmentSpacing;
+            edgeOffsets[it->edgeIndex] = middleWidth + (rightSideMiddle - edgeOffsets[it->edgeIndex]) +
+                                         segmentSpacing;
         }
         edgeColumnWidth[x] = middleWidth + segmentSpacing + rightSideMiddle;
     }
@@ -758,10 +761,10 @@ void calculateSegmentOffsets(
  * @param minSpacing spacing between segments
  */
 static void centerEdges(
-        std::vector<int> &segmentOffsets,
-        const std::vector<int> &edgeColumnWidth,
-        const std::vector<EdgeSegment> &segments,
-        int minSpacing)
+    std::vector<int> &segmentOffsets,
+    const std::vector<int> &edgeColumnWidth,
+    const std::vector<EdgeSegment> &segments,
+    int minSpacing)
 {
     /* Split segments in each edge column into non intersecting chunks. Center each chunk separately.
      *
@@ -785,7 +788,7 @@ static void centerEdges(
             events.push_back({segment.x, segment.y1, segment.edgeIndex, false});
         }
     }
-    std::sort(events.begin(), events.end(), [](const Event &a, const Event &b) {
+    std::sort(events.begin(), events.end(), [](const Event & a, const Event & b) {
         if (a.x != b.x) return a.x < b.x;
         if (a.y != b.y) return a.y < b.y;
         // Process segment start events before end to ensure that activeSegmentCount doesn't go negative and only
@@ -862,7 +865,8 @@ static int compressCoordinates(std::vector<EdgeSegment> &segments,
 void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state) const
 {
     int edgeIndex = 0;
-    auto segmentFromPoint = [&edgeIndex](const Point &point, const GridEdge &edge, int y0, int y1, int x) {
+    auto segmentFromPoint =
+    [&edgeIndex](const Point & point, const GridEdge & edge, int y0, int y1, int x) {
         EdgeSegment segment;
         segment.y0 = y0;
         segment.y1 = y1;
@@ -895,7 +899,8 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
         auto &node = blockIt.second;
         auto width = (*state.blocks)[blockIt.first].width;
         auto leftWidth = width / 2;
-        auto rightWidth = width - leftWidth;  // not the same as leftWidth, you would think that one pixel offset isn't visible, but it is
+        // not the same as leftWidth, you would think that one pixel offset isn't visible, but it is
+        auto rightWidth = width - leftWidth;
         int row = node.row * 2 + 1; // blocks in odd rows
         leftSides.push_back({node.col, row, row, leftWidth});
         rightSides.push_back({node.col + 1, row, row, rightWidth});
@@ -903,12 +908,12 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     state.edgeColumnWidth.assign(state.columns + 1, layoutConfig.blockHorizontalSpacing);
     state.edgeColumnWidth[0] = state.edgeColumnWidth.back() = 0;
     edgeOffsets.resize(edgeIndex);
-    calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides, state.columnWidth, 2 * state.rows + 1, layoutConfig.edgeHorizontalSpacing);
+    calculateSegmentOffsets(segments, edgeOffsets, state.edgeColumnWidth, rightSides, leftSides,
+                            state.columnWidth, 2 * state.rows + 1, layoutConfig.edgeHorizontalSpacing);
     centerEdges(edgeOffsets, state.edgeColumnWidth, segments, layoutConfig.blockHorizontalSpacing);
     edgeIndex = 0;
 
-    auto copySegmentsToEdges = [&](bool col)
-    {
+    auto copySegmentsToEdges = [&](bool col) {
         int edgeIndex = 0;
         for (auto &edgeListIt : state.edge) {
             for (auto &edge : edgeListIt.second) {
@@ -923,9 +928,11 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     for (auto &segment : segments) {
         auto &offset = edgeOffsets[segment.edgeIndex];
         if (segment.kind == -2) {
-            offset -= (state.edgeColumnWidth[segment.x - 1] / 2 +  state.columnWidth[segment.x - 1]) - oldColumnWidths[segment.x - 1];
+            offset -= (state.edgeColumnWidth[segment.x - 1] / 2 +  state.columnWidth[segment.x - 1]) -
+                      oldColumnWidths[segment.x - 1];
         } else if (segment.kind == 2) {
-            offset += (state.edgeColumnWidth[segment.x + 1] / 2 +  state.columnWidth[segment.x]) - oldColumnWidths[segment.x];
+            offset += (state.edgeColumnWidth[segment.x + 1] / 2 +  state.columnWidth[segment.x]) -
+                      oldColumnWidths[segment.x];
         }
     }
     calculateColumnOffsets(state.columnWidth, state.edgeColumnWidth,
@@ -952,7 +959,8 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     for (auto &blockIt : state.grid_blocks) {
         auto &node = blockIt.second;
         auto blockWidth = (*state.blocks)[node.id].width;
-        int leftSide = state.edgeColumnOffset[node.col + 1] + state.edgeColumnWidth[node.col + 1] / 2 - blockWidth / 2;
+        int leftSide = state.edgeColumnOffset[node.col + 1] + state.edgeColumnWidth[node.col + 1] / 2 -
+                       blockWidth / 2;
         int rightSide = leftSide + blockWidth;
 
         int h = (*state.blocks)[blockIt.first].height;
@@ -970,7 +978,8 @@ void GraphGridLayout::elaborateEdgePlacement(GraphGridLayout::LayoutState &state
     state.edgeRowHeight[0] = state.edgeRowHeight.back() = 0;
     edgeOffsets.resize(edgeIndex);
     auto compressedCoordinates = compressCoordinates(segments, leftSides, rightSides);
-    calculateSegmentOffsets(segments, edgeOffsets, state.edgeRowHeight, rightSides, leftSides, state.rowHeight, compressedCoordinates, layoutConfig.edgeVerticalSpacing);
+    calculateSegmentOffsets(segments, edgeOffsets, state.edgeRowHeight, rightSides, leftSides,
+                            state.rowHeight, compressedCoordinates, layoutConfig.edgeVerticalSpacing);
     copySegmentsToEdges(false);
 }
 
@@ -984,11 +993,14 @@ void GraphGridLayout::adjustColumnWidths(GraphGridLayout::LayoutState &state) co
         int edgeWidth = state.edgeColumnWidth[node.second.col + 1];
         int columnWidth = (inputBlock.width - edgeWidth) / 2;
         state.columnWidth[node.second.col] = std::max(columnWidth, state.columnWidth[node.second.col]);
-        state.columnWidth[node.second.col + 1] = std::max(columnWidth, state.columnWidth[node.second.col + 1]);
+        state.columnWidth[node.second.col + 1] = std::max(columnWidth,
+                                                          state.columnWidth[node.second.col + 1]);
     }
 }
 
-int GraphGridLayout::calculateColumnOffsets(const std::vector<int> &columnWidth, std::vector<int> &edgeColumnWidth, std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset)
+int GraphGridLayout::calculateColumnOffsets(const std::vector<int> &columnWidth,
+                                            std::vector<int> &edgeColumnWidth, std::vector<int> &columnOffset,
+                                            std::vector<int> &edgeColumnOffset)
 {
     assert(edgeColumnWidth.size() == columnWidth.size() + 1);
     int position = 0;
@@ -1005,7 +1017,10 @@ int GraphGridLayout::calculateColumnOffsets(const std::vector<int> &columnWidth,
     return position;
 }
 
-void GraphGridLayout::convertToPixelCoordinates(GraphGridLayout::LayoutState &state, int &width, int &height) const
+void GraphGridLayout::convertToPixelCoordinates(
+    GraphGridLayout::LayoutState &state,
+    int &width,
+    int &height) const
 {
     // calculate row and column offsets
     width = calculateColumnOffsets(state.columnWidth, state.edgeColumnWidth,
@@ -1017,14 +1032,14 @@ void GraphGridLayout::convertToPixelCoordinates(GraphGridLayout::LayoutState &st
     for (auto &block : (*state.blocks)) {
         const auto &gridBlock = state.grid_blocks[block.first];
 
-        block.second.x = state.edgeColumnOffset[gridBlock.col + 1] + state.edgeColumnWidth[gridBlock.col + 1] / 2 -
-                block.second.width / 2;
+        block.second.x = state.edgeColumnOffset[gridBlock.col + 1] +
+                         state.edgeColumnWidth[gridBlock.col + 1] / 2 - block.second.width / 2;
         block.second.y = state.rowOffset[gridBlock.row];
         if (verticalBlockAlignmentMiddle) {
             block.second.y += (state.rowHeight[gridBlock.row] - block.second.height) / 2;
         }
     }
-    for (auto &it: (*state.blocks)) {
+    for (auto &it : (*state.blocks)) {
         auto &block = it.second;
         for (size_t i = 0; i < block.edges.size(); i++) {
             auto &resultEdge = block.edges[i];

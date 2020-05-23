@@ -25,14 +25,17 @@ public:
                                  int &height) const override;
 private:
     LayoutType layoutType;
+    /// false - use bounding box for smallest ubrees when placing them side by side
     bool tightSubtreePlacement = false;
+    /// true if code should try to place parent between direct children as much as possible
     bool parentBetweenDirectChild = false;
+    /// false if blocks in rows should be aligned at top, true for middle alignment
     bool verticalBlockAlignmentMiddle = false;
 
     struct GridBlock {
         ut64 id;
         std::vector<ut64> tree_edge; //< subset of outgoing edges that form a tree
-        std::vector<ut64> dag_edge; //< subset of outgoing edges that form a tree
+        std::vector<ut64> dag_edge; //< subset of outgoing edges that form a dag
         std::size_t has_parent = false;
         int level = 0;
         int inputCount = 0;
@@ -92,18 +95,64 @@ private:
 
     using GridBlockMap = std::unordered_map<ut64, GridBlock>;
 
+    /**
+     * @brief Find nodes where controll flow merges after splitting.
+     * Sets node column offset so that after computing placement merge point is centered bellow nodes above.
+     */
     void findMergePoints(LayoutState &state) const;
+    /**
+     * @brief Compute node rows and columns within grid.
+     * @param blockOrder Nodes in the reverse topological order.
+     */
     void computeAllBlockPlacement(const std::vector<ut64> &blockOrder,
                                   LayoutState &layoutState) const;
+    /**
+     * @brief Perform the topological sorting of graph nodes.
+     * If the graph contains loops, a subset of edges is selected. Subset of edges forming DAG are stored in
+     * GridBlock::dag_edge.
+     * @param state Graph layout state including the input graph.
+     * @param entry Entrypoint node. When removing loops prefer placing this node at top.
+     * @return Reverse topological ordering.
+     */
     static std::vector<ut64> topoSort(LayoutState &state, ut64 entry);
 
+    /**
+     * @brief routeEdges Route edges, expects node positions to be calculated previously.
+     */
     void routeEdges(LayoutState &state) const;
+    /**
+     * @brief Choose which column to use for transition from start node row to target node row.
+     */
     void calculateEdgeMainColumn(LayoutState &state) const;
+    /**
+     * @brief Do rough edge routing within grid using up to 5 segments.
+     */
     void roughRouting(LayoutState &state) const;
+    /**
+     * @brief Calculate segment placement relative to their columns.
+     */
     void elaborateEdgePlacement(LayoutState &state) const;
+    /**
+     * @brief Recalculate column widths, trying to compenstate for the space taken by edge columns.
+     */
     void adjustColumnWidths(LayoutState &state) const;
+    /**
+     * @brief Calculate position of each column(or row) based on widths.
+     * It is assumed that columnWidth.size() + 1 = edgeColumnWidth.size() and they are interleaved.
+     * @param columnWidth
+     * @param edgeColumnWidth
+     * @param columnOffset
+     * @param edgeColumnOffset
+     * @return total width of all the columns
+     */
     static int calculateColumnOffsets(const std::vector<int> &columnWidth, std::vector<int> &edgeColumnWidth,
                                       std::vector<int> &columnOffset, std::vector<int> &edgeColumnOffset);
+    /**
+     * @brief Final graph layout step. Convert grids cell relative positions to absolute pixel positions.
+     * @param state
+     * @param width image width output argument
+     * @param height image height output argument
+     */
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
 };
 
