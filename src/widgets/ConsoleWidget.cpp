@@ -65,12 +65,18 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     QList<QKeySequence> toggleShortcuts;
     toggleShortcuts << widgetShortcuts["ConsoleWidget"] << widgetShortcuts["ConsoleWidgetAlternative"];
     toggleConsole->setShortcuts(toggleShortcuts);
+    connect(toggleConsole, &QAction::triggered, this, [this, toggleConsole](){
+        if (toggleConsole->isChecked()) {
+            widgetToFocusOnRaise()->setFocus();
+        }
+    });
 
-    QAction *actionClear = new QAction(tr("Clear Output"), ui->outputTextEdit);
-    connect(actionClear, SIGNAL(triggered(bool)), ui->outputTextEdit, SLOT(clear()));
+    QAction *actionClear = new QAction(tr("Clear Output"), this);
+    connect(actionClear, &QAction::triggered, ui->outputTextEdit, &QPlainTextEdit::clear);
+    addAction(actionClear);
 
     // Ctrl+l to clear the output
-    actionClear->setShortcut(QKeySequence("Ctrl+l"));
+    actionClear->setShortcut(Qt::CTRL + Qt::Key_L);
     actionClear->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actions.append(actionClear);
 
@@ -166,6 +172,11 @@ bool ConsoleWidget::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return false;
+}
+
+QWidget *ConsoleWidget::widgetToFocusOnRaise()
+{
+    return ui->r2InputLineEdit;
 }
 
 void ConsoleWidget::setupFont()

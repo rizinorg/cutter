@@ -39,7 +39,8 @@ public:
     }
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    QWidget* widgetToFocusOnRaise() override;
 
 public slots:
     void focusInputLineEdit();
