@@ -232,6 +232,7 @@ after_success:
       export FILE_TO_UPLOAD="$DMG_FILE"
     ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      export VERSION=$CUTTER_VERSION
       make INSTALL_ROOT=appdir install &&
       cp -r /usr/share/radare2 appdir/usr/share/ &&
       mkdir -p appdir/usr/bin/translations &&
