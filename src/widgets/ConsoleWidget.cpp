@@ -14,6 +14,7 @@
 #include "ui_ConsoleWidget.h"
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
+#include "WidgetShortcuts.h"
 
 #ifdef Q_OS_WIN
 #include <io.h>
@@ -59,8 +60,18 @@ ConsoleWidget::ConsoleWidget(MainWindow *main) :
     QTextDocument *console_docu = ui->outputTextEdit->document();
     console_docu->setDocumentMargin(10);
 
+    // Ctrl+` and ';' to toggle console widget
+    QAction *toggleConsole = toggleViewAction();
+    QList<QKeySequence> toggleShortcuts;
+    toggleShortcuts << widgetShortcuts["ConsoleWidget"] << widgetShortcuts["ConsoleWidgetAlternative"];
+    toggleConsole->setShortcuts(toggleShortcuts);
+
     QAction *actionClear = new QAction(tr("Clear Output"), ui->outputTextEdit);
     connect(actionClear, SIGNAL(triggered(bool)), ui->outputTextEdit, SLOT(clear()));
+
+    // Ctrl+l to clear the output
+    actionClear->setShortcut(QKeySequence("Ctrl+l"));
+    actionClear->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actions.append(actionClear);
 
     actionWrapLines = new QAction(tr("Wrap Lines"), ui->outputTextEdit);
