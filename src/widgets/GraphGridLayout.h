@@ -25,7 +25,7 @@ public:
                                  int &height) const override;
 private:
     LayoutType layoutType;
-    /// false - use bounding box for smallest ubrees when placing them side by side
+    /// false - use bounding box for smallest subtree when placing them side by side
     bool tightSubtreePlacement = false;
     /// true if code should try to place parent between direct children as much as possible
     bool parentBetweenDirectChild = false;
@@ -95,7 +95,7 @@ private:
     using GridBlockMap = std::unordered_map<ut64, GridBlock>;
 
     /**
-     * @brief Find nodes where controll flow merges after splitting.
+     * @brief Find nodes where control flow merges after splitting.
      * Sets node column offset so that after computing placement merge point is centered bellow nodes above.
      */
     void findMergePoints(LayoutState &state) const;
@@ -118,13 +118,13 @@ private:
     /**
      * @brief Assign row positions to nodes.
      * @param state
-     * @param blockOrder reverse toplogical ordering of nodes
+     * @param blockOrder reverse topological ordering of nodes
      */
     static void assignRows(LayoutState &state, const std::vector<ut64> &blockOrder);
     /**
      * @brief Select subset of DAG edges that form tree.
      * @param state
-     * @param blockOrder reverse toplogical ordering of nodes
+     * @param blockOrder reverse topological ordering of nodes
      */
     static void selectTree(LayoutState &state);
 
@@ -145,7 +145,7 @@ private:
      */
     void elaborateEdgePlacement(LayoutState &state) const;
     /**
-     * @brief Recalculate column widths, trying to compenstate for the space taken by edge columns.
+     * @brief Recalculate column widths, trying to compensate for the space taken by edge columns.
      */
     void adjustColumnWidths(LayoutState &state) const;
     /**

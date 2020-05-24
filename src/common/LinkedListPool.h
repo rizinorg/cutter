@@ -10,6 +10,9 @@
  *
  *  Should not be used as general purpose container. Use only for algorithms that require linked lists ability
  * to split and concatenate them. All the data is owned by LinkedListPool.
+ *
+ * In contrast to std::list and std::forward_list doesn't allocate each node separately. LinkedListPool can reserve
+ * all the memory for multiple lists during construction. Uses std::vector as backing container.
  */
 template<class T>
 class LinkedListPool
@@ -101,7 +104,7 @@ public:
     LinkedListPool(size_t initialCapacity)
         : data(1)
     {
-        data.reserve(initialCapacity + 1); // 0 element reserved
+        data.reserve(initialCapacity + 1); // [0] element reserved
     }
 
     /**

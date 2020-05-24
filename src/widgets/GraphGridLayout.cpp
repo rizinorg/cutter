@@ -11,23 +11,23 @@
 
 /** @class GraphGridLayout
 
-Basic familarity with graph algorithms is recommended.
+Basic familiarity with graph algorithms is recommended.
 
 # Terms used:
-- **Vertice**, **node**, **block** - read description of graph for definition. Within this text vertice and node are
-used interchangably with block due to code being written for visualizing basic block controll flow graph.
+- **Vertex**, **node**, **block** - read description of graph for definition. Within this text vertex and node are
+used interchangeably with block due to code being written for visualizing basic block control flow graph.
 - **edge** - read description of graph for definition for precise definition.
 - **DAG** - directed acyclic graph, graph using directed edges which doesn't have cycles. DAG may contain loops if
 following them would require going in both directions of edges. Example 1->2 1->3 3->2 is a DAG, 2->1 1->3 3->2
 isn't a DAG.
 - **DFS** - depth first search, a graph traversal algorithm
-- **toposort** - toplogical sorting, process of ordering a DAG vertices that all edges go from vertices erlier in the
+- **toposort** - topological sorting, process of ordering a DAG vertices that all edges go from vertices earlier in the
 toposort order to vertices later in toposort order. There are multiple algorithms for implementing toposort operation.
-Single DAG can have multiple valid topoligical orderings, a toposort algorithm can be designed to priotarize a specific
+Single DAG can have multiple valid topological orderings, a toposort algorithm can be designed to prioritize a specific
 one from all valid toposort orders. Example: for graph 1->4, 2->1, 2->3, 3->4 valid topological orders are [2,1,3,4] and
 [2,3,1,4].
 
-# High level strucutre of the algorithm
+# High level structure of the algorithm
 1. select subset of edges that form a DAG (remove cycles)
 2. toposort the DAG
 3. choose a subset of edges that form a tree and assign layers
@@ -36,13 +36,13 @@ one from all valid toposort orders. Example: for graph 1->4, 2->1, 2->3, 3->4 va
 6. calculate column and row pixel positions based on node sizes and amount edges between the rows
 
 
-Contrary to many other layered graph drawing algorithm this implementation doesn't perform node reording to minimize
+Contrary to many other layered graph drawing algorithm this implementation doesn't perform node reordering to minimize
 edge crossing. This simplifies implementation, and preserves original control flow structure for conditional jumps (
 true jump on one side, false jump on other). Due to most of control flow being result of structured programming
 constructs like if/then/else and loops, resulting layout is usually readable without node reordering within layers.
 
 
-# Describtion of grid.
+# Description of grid.
 To simplify the layout algorithm initial steps assume that all nodes have the same size and edges are zero width.
 After placing the nodes and routing the edges it is known which nodes are in in which row and column, how
 many edges are between each pair of rows. Using this information positions are converted from the grid cells
@@ -56,7 +56,7 @@ above other each node is 2 columns wide and 1 row high.
 
 Cycle removal and toposort are done at the same time during single DFS traversal. In case entrypoint is part of a loop
 DFS started from entrypoint. This ensures that entrypoint is at the top of resulting layout if possible. Resulting
-toposort order is used in many of the following layout steps that require calculating some property of a vertice based
+toposort order is used in many of the following layout steps that require calculating some property of a vertex based
 on child property or the other way around. Using toposort order such operations can be implemented iteration through
 array in either forward or reverse direction. To prevent running out of stack memory when processing large graphs
 DFS is implemented non-recursively.
@@ -66,13 +66,13 @@ DFS is implemented non-recursively.
 Rows are assigned in toposort order from top to bottom, with nodes row being max(predecessor.row)+1. This ensures
 that loop edges are only ones going from deeper levels to previous layers.
 
-To further simply node placment a subset of edges is selected which forms a tree. This turns DAG drawing problem
+To further simply node placement a subset of edges is selected which forms a tree. This turns DAG drawing problem
 into a tree drawing problem. For each node in level n following nodes which have level exactly n+1 are greedily
-assigned as child nodes in tree. If a node already has perant assigned then corresponding edge is not part of tree.
+assigned as child nodes in tree. If a node already has parent assigned then corresponding edge is not part of tree.
 
 # Node position assignment
 
-Since the graph has been reduced to a tree node placement is more or less putting subtrees side by side with
+Since the graph has been reduced to a tree, node placement is more or less putting subtrees side by side with
 parent on top. There is some room for interpretation what exactly side by side means and where exactly on top is.
 Drawing the graph either too dense or too big may make it less readable so there are configuration options which allow
 choosing these things resulting in more or less dense layout.
@@ -90,11 +90,11 @@ wide.
 # Edge routing
 Edge routing can be split into: main column selection, rough routing, segment offset calculation.
 
-Transition from source to target row is done using single vertical segment. This is caleld main column.
+Transition from source to target row is done using single vertical segment. This is called main column.
 
-Rough routing cretes the path of edge using up to 5 segments using grid coordinates.
+Rough routing creates the path of edge using up to 5 segments using grid coordinates.
 Due to nodes being placed in a grid. Horizontal segments of edges can't intersect with any nodes.
-The path for edges is chosen so that it consists of at most 5 segments, typically resulting in sidedway U shape or
+The path for edges is chosen so that it consists of at most 5 segments, typically resulting in sideways U shape or
 square Z shape.
 - short vertical segment from node to horizontal line
 - move to empty column
@@ -103,17 +103,17 @@ square Z shape.
 - short vertical segment connecting to target node
 
 There are 3 special cases:
-- source and target nodes are in the same column with no nodes betweeen - single vertical segment
+- source and target nodes are in the same column with no nodes between - single vertical segment
 - column bellow stating node is empty - segments 1-3 are merged
 - column above target node is empty - segments 3-5 are merged
-Vertical segment intersection with nodes is prevented using a 2d arry marking which vertical segments are blocked and
+Vertical segment intersection with nodes is prevented using a 2d array marking which vertical segments are blocked and
 naively iterating through all rows between start and end at the desired column.
 
 After rough routing segment offsets are calculated relative to their corresponding edge column. This ensures that
 two segments don't overlap. Segment offsets within each column are assigned greedily with some heuristics for
 assignment order to reduce amount of edge crossings and result in more visually pleasing output for a typical CFG
 graph.
-Each segment gets assigned an offset that is maximum of previusly assigned offsets overlaping with current
+Each segment gets assigned an offset that is maximum of previously assigned offsets overlapping with current
 segment + segment spacing.
 Assignment order is chosen based on:
 * direction of previous and last segment - helps reducing crossings and place the segments between nodes
@@ -338,7 +338,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
 
 
     // Shapes of subtrees are maintained using linked lists. Each value within list is column relative to previous row.
-    // This allows moving things around by chaning only first value in list.
+    // This allows moving things around by changing only first value in list.
     LinkedListPool<int> sides(blockOrder.size() * 2); // *2 = two sides for each node
 
     // Process nodes in the order from bottom to top. Ensures that all subtrees are processed before parent node.
