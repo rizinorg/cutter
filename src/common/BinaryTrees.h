@@ -2,7 +2,7 @@
 #define BINARY_TREES_H
 
 /** \file BinaryTrees.h
- * \brief Utilities to simplify cration of specilized augmented binary trees.
+ * \brief Utilities to simplify creation of specialized augmented binary trees.
  */
 
 #include <vector>
@@ -14,13 +14,13 @@
 
 /**
  * Not really a segment tree for storing segments as referred in academic literature. Can be considered a
- * full, almost perfect, augemented binary tree. In the context of competetive programming often called segment tree.
+ * full, almost perfect, augmented binary tree. In the context of competitive programming often called segment tree.
  *
  * Child classes are expected to implement updateFromChildren(NodeType&parent, NodeType& left, NodeType& right)
  * method which calculates inner node values from children nodes.
  *
  * \tparam NodeTypeT type of each tree element
- * \tparam FinalType final child class used for curiosly recurring template pattern
+ * \tparam FinalType final child class used for curiously recurring template pattern
  */
 template<class NodeTypeT, class FinalType>
 class SegmentTreeBase
@@ -31,7 +31,7 @@ public:
 
     /**
      * @brief Create tree with \a size leaves.
-     * @param size numbe of leaves in the tree
+     * @param size number of leaves in the tree
      */
     explicit SegmentTreeBase(size_t size)
         : size(size)
@@ -135,7 +135,7 @@ public:
         return this->nodes[this->leaveIndexToPosition(index)];
     }
 
-    // Implement range query when necesarry
+    // Implement range query when necessary
 };
 
 class PointSetMinTree : public PointSetSegmentTree<int, PointSetMinTree>
@@ -283,7 +283,7 @@ public:
      * @param l inclusive range left side
      * @param r exclusive range right side
      * @param initialValue Initial value for aggregate operation.
-     * @return Tree operation calulated over the range.
+     * @return Tree operation calculated over the range.
      */
     NodeType rangeOperation(size_t l, size_t r, NodeType initialValue)
     {
@@ -374,7 +374,7 @@ public:
 
     /**
      * @brief Change all the elements in range [\a left, \a right) to \a value.
-     * @param left incluseive range leftside
+     * @param left inclusive range left side
      * @param right exclusive right side of range
      * @param value value to be assigned
      */

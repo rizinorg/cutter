@@ -34,8 +34,8 @@ private:
 
     struct GridBlock {
         ut64 id;
-        std::vector<ut64> tree_edge; //< subset of outgoing edges that form a tree
-        std::vector<ut64> dag_edge; //< subset of outgoing edges that form a dag
+        std::vector<ut64> tree_edge; //!< subset of outgoing edges that form a tree
+        std::vector<ut64> dag_edge; //!< subset of outgoing edges that form a dag
         std::size_t has_parent = false;
         int inputCount = 0;
         int outputCount = 0;
@@ -47,12 +47,12 @@ private:
         /// Row in which the block is
         int row = 0;
 
-        int lastRowWidth;
-        int lastRowLeft;
-        int leftPosition;
-        int rightPosition;
-        LinkedListPool<int>::List leftSide;
-        LinkedListPool<int>::List rightSide;
+        int lastRowLeft; //!< left side of subtree last row
+        int lastRowRight; //!< right side of subtree last row
+        int leftPosition; //!< left side of subtree
+        int rightPosition; //!< right side of subtree
+        LinkedListPool<int>::List leftSideShape;
+        LinkedListPool<int>::List rightSideShape;
     };
 
     struct Point {
@@ -124,7 +124,6 @@ private:
     /**
      * @brief Select subset of DAG edges that form tree.
      * @param state
-     * @param blockOrder reverse topological ordering of nodes
      */
     static void selectTree(LayoutState &state);
 
