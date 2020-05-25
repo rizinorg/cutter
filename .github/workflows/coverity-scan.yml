@@ -28,7 +28,7 @@ jobs:
           sudo chmod -R go-w /usr/share
       
       - name: apt dependencies
-        run: sudo apt-get install ninja-build libgraphviz-dev
+        run: sudo apt-get install ninja-build libgraphviz-dev mesa-common-dev
       
       - name: py dependencies
         run: |
