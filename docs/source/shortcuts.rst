@@ -30,6 +30,10 @@ Widget shortcuts
 +-----------+---------+
 | Shift+E   | Exports |
 +-----------+---------+
+| Ctrl+`    | Console |
++-----------+---------+
+| :         | Console |
++-----------+---------+
 
 Disassembly view shortcuts
 --------------------------
