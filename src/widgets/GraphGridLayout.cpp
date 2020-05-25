@@ -413,7 +413,7 @@ void GraphGridLayout::computeAllBlockPlacement(const std::vector<ut64> &blockOrd
 
             int col = 0;
             // Calculate parent position
-            if (parentBetweenDirectChild && block.tree_edge.size() <= 2) {
+            if (parentBetweenDirectChild) {
                 // mode a) keep one child to the left, other to the right
                 for (auto target : block.tree_edge) {
                     col += layoutState.grid_blocks[target].col;
@@ -543,6 +543,21 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
                 // Choose closest column. Take into account distance to source and target block columns.
                 auto distanceLeft = column - nearestLeft + abs(targetColumn - nearestLeft);
                 auto distanceRight = nearestRight - column + abs(targetColumn - nearestRight);
+
+                // For upward edges try to make a loop instead of 8 shape,
+                // it is slightly longer but produces less crossing.
+                if (targetBlock.row < block.row) {
+                    if (targetColumn < column && blockedColumns.valueAtPoint(column + 1) < topRow &&
+                            column - targetColumn <= distanceLeft + 2) {
+                        edge.mainColumn = column + 1;
+                        continue;
+                    } else if (targetColumn > column && blockedColumns.valueAtPoint(column - 1) < topRow &&
+                               targetColumn - column <= distanceRight + 2) {
+                        edge.mainColumn = column - 1;
+                        continue;
+                    }
+                }
+
                 if (distanceLeft != distanceRight) {
                     edge.mainColumn = distanceLeft < distanceRight ? nearestLeft : nearestRight;
                 } else {
