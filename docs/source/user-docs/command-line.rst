@@ -52,7 +52,7 @@ Options
 
    Run script file
 
-.. option:: -w, --writemode <file>
+.. option:: -w, --writemode
 
    Open a file in write mode, instead of the default read-only mode.
    When used together with -A/--analysis <level>, it will open a file directly
