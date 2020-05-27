@@ -54,8 +54,8 @@ Options
 
 .. option:: -w, --writemode <file>
 
-   Open <filename> in write mode, not in the default read-only mode.
-   When used together with -A/--analysis <level>, will open a file directly
+   Open a file in write mode, instead of the default read-only mode.
+   When used together with -A/--analysis <level>, it will open a file directly
    in write mode without any further dialog or confirmation.
 
 .. option:: --pythonhome <PYTHONHOME>
