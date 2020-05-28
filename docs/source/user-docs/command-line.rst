@@ -50,7 +50,13 @@ Options
 
 .. option:: -i <file>
 
-   Run  script file
+   Run script file
+
+.. option:: -w, --writemode
+
+   Open a file in write mode, instead of the default read-only mode.
+   When used together with -A/--analysis <level>, it will open a file directly
+   in write mode without any further dialog or confirmation.
 
 .. option:: --pythonhome <PYTHONHOME>
 

@@ -241,7 +241,7 @@ bool CutterApplication::loadTranslations()
         return true;
     }
     const auto &allLocales = QLocale::matchingLocales(QLocale::AnyLanguage, QLocale::AnyScript,
-        QLocale::AnyCountry);
+                                                      QLocale::AnyCountry);
 
     bool cutterTrLoaded = false;
 
@@ -325,6 +325,11 @@ bool CutterApplication::parseCommandLineOptions()
                                     QObject::tr("file"));
     cmd_parser.addOption(scriptOption);
 
+    QCommandLineOption writeModeOption({"w", "writemode"},
+                                       QObject::tr("Open file in write mode"));
+    cmd_parser.addOption(writeModeOption);
+
+
     QCommandLineOption pythonHomeOption("pythonhome",
                                         QObject::tr("PYTHONHOME to use for embedded python interpreter"),
                                         "PYTHONHOME");
@@ -407,6 +412,8 @@ bool CutterApplication::parseCommandLineOptions()
             break;
         }
         opts.fileOpenOptions.script = cmd_parser.value(scriptOption);
+
+        opts.fileOpenOptions.writeEnabled = cmd_parser.isSet(writeModeOption);
     }
 
     if (cmd_parser.isSet(pythonHomeOption)) {

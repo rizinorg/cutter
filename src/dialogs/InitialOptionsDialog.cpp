@@ -165,6 +165,9 @@ void InitialOptionsDialog::loadOptions(const InitialOptions &options)
         ui->entry_loadOffset->setText(RAddressString(options.binLoadAddr));
     }
 
+	ui->writeCheckBox->setChecked(options.writeEnabled);
+
+
     // TODO: all other options should also be applied to the ui
 }
 
