@@ -250,25 +250,28 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         case 3: // C byte array
             selectedCommand = "pc";
             break;
-        case 4: // C half-word
+        case 4: // C byte array with instructions
+            selectedCommand = "pci";
+            break;
+        case 5: // C half-word
             selectedCommand = "pch";
             break;
-        case 5: // C word
+        case 6: // C word
             selectedCommand = "pcw";
             break;
-        case 6: // C dword
+        case 7: // C dword
             selectedCommand = "pcd";
             break;
-        case 7: // Python
+        case 8: // Python
             selectedCommand = "pcp";
             break;
-        case 8: // JSON
+        case 9: // JSON
             selectedCommand = "pcj";
             break;
-        case 9: // JavaScript
+        case 10: // JavaScript
             selectedCommand = "pcJ";
             break;
-        case 10: // Yara
+        case 11: // Yara
             selectedCommand = "pcy";
             break;
         }
@@ -292,7 +295,7 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
 {
-    if (ui->parseTypeComboBox->currentIndex() == 0) {
+    if (ui->parseTypeComboBox->currentIndex() == 0 || ui->parseTypeComboBox->currentIndex() == 4) {
         ui->hexSideFrame_2->show();
     } else {
         ui->hexSideFrame_2->hide();
