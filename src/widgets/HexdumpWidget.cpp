@@ -149,21 +149,19 @@ void HexdumpWidget::refresh(RVA addr)
 
 void HexdumpWidget::initParsing()
 {
-    parseTypesMap.insert("Disassembly", "pda");
-    parseTypesMap.insert("String","pcs");
-    parseTypesMap.insert("Assembler", "pca");
-    parseTypesMap.insert("C bytes", "pc");
-    parseTypesMap.insert("C bytes with instructions", "pci");
-    parseTypesMap.insert("C half-words (2 byte)", "pch");
-    parseTypesMap.insert("C words (4 byte)", "pcw");
-    parseTypesMap.insert("C dwords (8 byte)", "pcd");
-    parseTypesMap.insert("Python", "pcp");
-    parseTypesMap.insert("JSON", "pcj");
-    parseTypesMap.insert("JavaScript", "pcJ");
-    parseTypesMap.insert("Yara", "pcy");
-
     // Fill the plugins combo for the hexdump sidebar
-    ui->parseTypeComboBox->insertItems(0, parseTypesMap.keys());
+    ui->parseTypeComboBox->addItem(tr("Disassembly"), "pda");
+    ui->parseTypeComboBox->addItem(tr("String"), "pcs");
+    ui->parseTypeComboBox->addItem(tr("Assembler"), "pca");
+    ui->parseTypeComboBox->addItem(tr("C bytes"), "pc");
+    ui->parseTypeComboBox->addItem(tr("C bytes with instructions"), "pci");
+    ui->parseTypeComboBox->addItem(tr("C half-words (2 byte)"), "pch");
+    ui->parseTypeComboBox->addItem(tr("C words (4 byte)"), "pcw");
+    ui->parseTypeComboBox->addItem(tr("C dwords (8 byte)"), "pcd");
+    ui->parseTypeComboBox->addItem(tr("Python"), "pcp");
+    ui->parseTypeComboBox->addItem(tr("JSON"), "pcj");
+    ui->parseTypeComboBox->addItem(tr("JavaScript"), "pcJ");
+    ui->parseTypeComboBox->addItem(tr("Yara"), "pcy");
 
     ui->parseArchComboBox->insertItems(0, Core()->getAsmPluginNames());
 
@@ -242,7 +240,7 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
         // Get selected combos
         QString arch = ui->parseArchComboBox->currentText();
         QString bits = ui->parseBitsComboBox->currentText();
-        QString selectedCommand = parseTypesMap[ui->parseTypeComboBox->currentText()];
+        QString selectedCommand = ui->parseTypeComboBox->currentData().toString();
         QString commandResult = "";
         bool bigEndian = ui->parseEndianComboBox->currentIndex() == 1;
 
@@ -272,8 +270,8 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
 {
-    QString currentParseTypeText = ui->parseTypeComboBox->currentText();
-    if (currentParseTypeText == parseTypesMap.key("pda") || currentParseTypeText == parseTypesMap.key("pci")) {
+    QString currentParseTypeText = ui->parseTypeComboBox->currentData().toString();
+    if (currentParseTypeText == "pda" || currentParseTypeText == "pci") {
         ui->hexSideFrame_2->show();
     } else {
         ui->hexSideFrame_2->hide();
