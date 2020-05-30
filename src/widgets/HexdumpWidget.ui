@@ -131,6 +131,11 @@
                </item>
                <item>
                 <property name="text">
+                 <string>C bytes with instructions</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
                  <string>C half-words (2 byte)</string>
                 </property>
                </item>
