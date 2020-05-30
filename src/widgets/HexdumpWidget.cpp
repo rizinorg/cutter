@@ -295,7 +295,7 @@ void HexdumpWidget::updateParseWindow(RVA start_address, int size)
 
 void HexdumpWidget::on_parseTypeComboBox_currentTextChanged(const QString &)
 {
-    if (ui->parseTypeComboBox->currentIndex() == 0) {
+    if (ui->parseTypeComboBox->currentIndex() == 0 || ui->parseTypeComboBox->currentIndex() == 4) {
         ui->hexSideFrame_2->show();
     } else {
         ui->hexSideFrame_2->hide();
