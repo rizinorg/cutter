@@ -106,69 +106,6 @@
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
-               <property name="currentText">
-                <string>Disassembly</string>
-               </property>
-               <item>
-                <property name="text">
-                 <string>Disassembly</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>String</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Assembler</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>C bytes</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>C bytes with instructions</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>C half-words (2 byte)</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>C words (4 byte)</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>C dwords (8 byte)</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Python</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>JSON</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>JavaScript</string>
-                </property>
-               </item>
-               <item>
-                <property name="text">
-                 <string>Yara</string>
-                </property>
-               </item>
               </widget>
              </item>
              <item>
