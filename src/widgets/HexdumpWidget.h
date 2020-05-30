@@ -48,6 +48,8 @@ private:
 
     bool sent_seek = false;
 
+    QHash<QString, QString> parseTypesMap;
+
     RefreshDeferrer *refreshDeferrer;
     QSyntaxHighlighter *syntaxHighLighter;
 
