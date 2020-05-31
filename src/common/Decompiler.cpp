@@ -64,22 +64,19 @@ void R2DecDecompiler::decompileAt(RVA addr)
     if (task) {
         return;
     }
-    // RAnnotatedCode *codi = r_annotated_code_new (nullptr);
     task = new R2Task("pddj @ " + QString::number(addr));
     connect(task, &R2Task::finished, this, [this]() {
         RAnnotatedCode *codi = r_annotated_code_new (nullptr);
         QString codeString = "";
         AnnotatedCode code = {};
-        // code.code = "codeString";
-        //     emit finished(code);return;
         QJsonObject json = task->getResultJson().object();
         delete task;
         task = nullptr;
         if (json.isEmpty()) {
             codeString = tr("Failed to parse JSON from r2dec");
-            // codi->code = strdup (codeString);
-            code.code = "codeString";
-            emit finished(code);
+            QByteArray ba = codeString.toUtf8();
+            codi->code = ba.data();
+            emit finished(codi);
             return;
         }
 
@@ -112,14 +109,9 @@ void R2DecDecompiler::decompileAt(RVA addr)
             }
             codeString.append(line.toString() + "\n");
         }
-        codeString.append("HEOWE");
-
-        // codi->code = codeString.toUtf8().data();
         QByteArray ba = codeString.toUtf8();
         codi->code = ba.data();
-        code.code = QString(QLatin1String(codi->code));
-        // code.code = codeString;
-        emit finished(code);
+        emit finished(codi);
     });
     task->startTask();
 }
