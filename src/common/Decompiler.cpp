@@ -68,7 +68,6 @@ void R2DecDecompiler::decompileAt(RVA addr)
     connect(task, &R2Task::finished, this, [this]() {
         RAnnotatedCode *codi = r_annotated_code_new (nullptr);
         QString codeString = "";
-        AnnotatedCode code = {};
         QJsonObject json = task->getResultJson().object();
         delete task;
         task = nullptr;
