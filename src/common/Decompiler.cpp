@@ -5,42 +5,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-
-// ut64 AnnotatedCode::OffsetForPosition(size_t pos) const
-// {
-//     size_t closestPos = SIZE_MAX;
-//     ut64 closestOffset = UT64_MAX;
-//     for (const auto &annotation : annotations) {
-//         if (annotation.type != CodeAnnotation::Type::Offset || annotation.start > pos || annotation.end <= pos) {
-//             continue;
-//         }
-//         if (closestPos != SIZE_MAX && closestPos >= annotation.start) {
-//             continue;
-//         }
-//         closestPos = annotation.start;
-//         closestOffset = annotation.offset.offset;
-//     }
-//     return closestOffset;
-// }
-
-// size_t AnnotatedCode::PositionForOffset(ut64 offset) const
-// {
-//     size_t closestPos = SIZE_MAX;
-//     ut64 closestOffset = UT64_MAX;
-//     for (const auto &annotation : annotations) {
-//         if (annotation.type != CodeAnnotation::Type::Offset || annotation.offset.offset > offset) {
-//             continue;
-//         }
-//         if (closestOffset != UT64_MAX && closestOffset >= annotation.offset.offset) {
-//             continue;
-//         }
-//         closestPos = annotation.start;
-//         closestOffset = annotation.offset.offset;
-//     }
-//     return closestPos;
-// }
-
-
 Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
     : QObject(parent),
     id(id),

@@ -140,29 +140,6 @@ void DecompilerWidget::updateRefreshButton()
     }
 }
 
-// static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
-//     return UT64_MAX;
-// }
-// static size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
-//     size_t axy = 213;
-//     return axy;
-// }
-// static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
-//     size_t closestPos = SIZE_MAX;
-//     ut64 closestOffset = UT64_MAX;
-    // RCodeAnnotation *anno;
-    // r_vector_foreach (&codeDecompiled->annotations, anno){
-//         if (anno->type != R_CODE_ANNOTATION_TYPE_OFFSET || anno->start > pos || anno->end <= pos){
-//             continue;
-//         }
-//         if (closestPos != SIZE_MAX && closestPos >= anno->start){
-//             continue;
-//         }
-//         closestPos = anno->start;
-//         closestOffset = anno->offset.offset;
-//     }
-//     return closestOffset;
-// }
 static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
@@ -180,6 +157,7 @@ static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
     }
     return closestOffset;
 }
+
 static size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
@@ -259,8 +237,6 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
 
-    // this->code = codeDecompiled;
-    // this->code = std::make_shared<RAnnotatedCode>(codeDecompiled);
     this->code = std::unique_ptr<RAnnotatedCode>(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
@@ -279,22 +255,6 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
         decompilerWasBusy = false;
         doAutoRefresh();
     }
-    // if (code.code.isEmpty()) {
-    //     ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
-    //     return;
-    // } else {
-    //     connectCursorPositionChanged(true);
-    //     ui->textEdit->setPlainText(code.code);
-    //     connectCursorPositionChanged(false);
-    //     updateCursorPosition();
-    //     highlightPC();
-    //     highlightBreakpoints();
-    // }
-
-    // if (decompilerWasBusy) {
-    //     decompilerWasBusy = false;
-    //     doAutoRefresh();
-    // }
 }
 
 void DecompilerWidget::decompilerSelected()
@@ -324,7 +284,6 @@ void DecompilerWidget::cursorPositionChanged()
 
     size_t pos = ui->textEdit->textCursor().position();
     RVA offset = offsetForPosition(code.get(), pos);
-    // RVA offset = 10; //Temp 
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
@@ -355,7 +314,6 @@ void DecompilerWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
     size_t pos = positionForOffset(code.get(), offset);
-    // size_t pos = 12; //TEMP
     if (pos == SIZE_MAX) {
         return;
     }
@@ -433,7 +391,6 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 
     return MemoryDockWidget::eventFilter(obj, event);
 }
-
 
 void DecompilerWidget::highlightPC()
 {

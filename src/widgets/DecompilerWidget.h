@@ -57,8 +57,6 @@ private:
     bool decompilerWasBusy;
 
     RVA decompiledFunctionAddr;
-    // RAnnotatedCode *code;
-    // std::shared_ptr<RAnnotatedCode> code;
     std::unique_ptr<RAnnotatedCode> code;
 
     bool seekFromCursor = false;
@@ -103,11 +101,6 @@ private:
      */
     void highlightBreakpoints();
 
-
-    //New Functions
-    // ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos);
-    // size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset);
-    //;
 };
 
 #endif // DECOMPILERWIDGET_H
