@@ -8,39 +8,6 @@
 #include <QString>
 #include <QObject>
 
-// struct CodeAnnotation
-// {
-//     size_t start;
-//     size_t end;
-
-//     enum class Type { Offset };
-//     Type type;
-
-//     union
-//     {
-//         struct
-//         {
-//             ut64 offset;
-//         } offset;
-//     };
-// };
-
-// /**
-//  * Describes the result of a Decompilation Process with optional metadata
-//  */
-// struct AnnotatedCode
-// {
-//     /**
-//      * The entire decompiled code
-//      */
-//     QString code;
-
-//     QList<CodeAnnotation> annotations;
-
-//     ut64 OffsetForPosition(size_t pos) const;
-//     size_t PositionForOffset(ut64 offset) const;
-// };
-
 /**
  * Implements a decompiler that can be registered using CutterCore::registerDecompiler()
  */

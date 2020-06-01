@@ -221,7 +221,6 @@ void DecompilerWidget::refreshDecompiler()
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 {
     size_t pos = positionForOffset(code.get(), addr);
-    // size_t pos = 100; //Temp
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
@@ -374,7 +373,6 @@ void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
     RVA offset = offsetForPosition(code.get(), pos);
-    // RVA offset = 100; //TEMP
     seekable->seekToReference(offset);
 }
 
