@@ -65,7 +65,7 @@ public:
     virtual void cancel() {}
 
 signals:
-    void finished(RAnnotatedCode *code);
+    void finished(RAnnotatedCode *codeDecompiled);
 };
 
 class R2DecDecompiler: public Decompiler

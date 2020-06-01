@@ -7,6 +7,7 @@
 #include "core/Cutter.h"
 #include "MemoryDockWidget.h"
 #include "Decompiler.h"
+#include <r_util/r_annotated_code.h>//For RAnnotatedCode
 
 namespace Ui {
 class DecompilerWidget;
@@ -104,8 +105,8 @@ private:
 
 
     //New Functions
-    ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos);
-    size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset);
+    // ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos);
+    // size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset);
     //;
 };
 

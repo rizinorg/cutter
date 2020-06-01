@@ -150,8 +150,8 @@ void DecompilerWidget::updateRefreshButton()
 // static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
 //     size_t closestPos = SIZE_MAX;
 //     ut64 closestOffset = UT64_MAX;
-//     RCodeAnnotation *anno;
-//     r_vector_foreach (&codeDecompiled->annotations, anno){
+    // RCodeAnnotation *anno;
+    // r_vector_foreach (&codeDecompiled->annotations, anno){
 //         if (anno->type != R_CODE_ANNOTATION_TYPE_OFFSET || anno->start > pos || anno->end <= pos){
 //             continue;
 //         }
@@ -163,11 +163,12 @@ void DecompilerWidget::updateRefreshButton()
 //     }
 //     return closestOffset;
 // }
-ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
+static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
-    RCodeAnnotation *annotation = new RCodeAnnotation;
-    r_vector_foreach (&codeDecompiled->annotations, annotation){
+    void *annotationi;
+    r_vector_foreach (&codeDecompiled->annotations, annotationi){
+        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos || annotation->end <= pos){
             continue;
         }
@@ -179,11 +180,12 @@ ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
     }
     return closestOffset;
 }
-size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
+static size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
-    RCodeAnnotation *annotation;
-    r_vector_foreach (&codeDecompiled->annotations, annotation){
+    void *annotationi;
+    r_vector_foreach (&codeDecompiled->annotations, annotationi){
+        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
         if(annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset){
             continue;
         }
@@ -240,8 +242,8 @@ void DecompilerWidget::refreshDecompiler()
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 {
-    // size_t pos = positionForOffset(code.get(), addr);
-    size_t pos = 100; //Temp
+    size_t pos = positionForOffset(code.get(), addr);
+    // size_t pos = 100; //Temp
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
@@ -321,8 +323,8 @@ void DecompilerWidget::cursorPositionChanged()
     }
 
     size_t pos = ui->textEdit->textCursor().position();
-    // RVA offset = offsetForPosition(code.get(), pos);
-    RVA offset = 10; //Temp 
+    RVA offset = offsetForPosition(code.get(), pos);
+    // RVA offset = 10; //Temp 
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
@@ -352,8 +354,8 @@ void DecompilerWidget::seekChanged()
 void DecompilerWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
-    // size_t pos = positionForOffset(code.get(), offset);
-    size_t pos = 12; //TEMP
+    size_t pos = positionForOffset(code.get(), offset);
+    // size_t pos = 12; //TEMP
     if (pos == SIZE_MAX) {
         return;
     }
@@ -413,8 +415,8 @@ void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    // RVA offset = offsetForPosition(code.get(), pos);
-    RVA offset = 100; //TEMP
+    RVA offset = offsetForPosition(code.get(), pos);
+    // RVA offset = 100; //TEMP
     seekable->seekToReference(offset);
 }
 
