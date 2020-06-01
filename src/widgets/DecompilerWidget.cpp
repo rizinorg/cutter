@@ -140,14 +140,61 @@ void DecompilerWidget::updateRefreshButton()
     }
 }
 
-static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
-    return UT64_MAX;
+// static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
+//     return UT64_MAX;
+// }
+// static size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
+//     size_t axy = 213;
+//     return axy;
+// }
+// static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
+//     size_t closestPos = SIZE_MAX;
+//     ut64 closestOffset = UT64_MAX;
+//     RCodeAnnotation *anno;
+//     r_vector_foreach (&codeDecompiled->annotations, anno){
+//         if (anno->type != R_CODE_ANNOTATION_TYPE_OFFSET || anno->start > pos || anno->end <= pos){
+//             continue;
+//         }
+//         if (closestPos != SIZE_MAX && closestPos >= anno->start){
+//             continue;
+//         }
+//         closestPos = anno->start;
+//         closestOffset = anno->offset.offset;
+//     }
+//     return closestOffset;
+// }
+ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = UT64_MAX;
+    RCodeAnnotation *annotation = new RCodeAnnotation;
+    r_vector_foreach (&codeDecompiled->annotations, annotation){
+        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos || annotation->end <= pos){
+            continue;
+        }
+        if (closestPos != SIZE_MAX && closestPos >= annotation->start){
+            continue;
+        }
+        closestPos = annotation->start;
+        closestOffset = annotation->offset.offset;
+    }
+    return closestOffset;
 }
-static size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
-    size_t axy = 213;
-    return axy;
+size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = UT64_MAX;
+    RCodeAnnotation *annotation;
+    r_vector_foreach (&codeDecompiled->annotations, annotation){
+        if(annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset){
+            continue;
+        }
+        if(closestOffset != UT64_MAX && closestOffset >= annotation->offset.offset) {
+            continue;
+        }
+        closestPos = annotation->start;
+        closestOffset = annotation->offset.offset;
+    }
+    return closestPos;
 }
-
 
 void DecompilerWidget::doRefresh(RVA addr)
 {

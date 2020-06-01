@@ -101,6 +101,12 @@ private:
      * It will also run when a breakpoint is added, removed or modified.
      */
     void highlightBreakpoints();
+
+
+    //New Functions
+    ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos);
+    size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset);
+    //;
 };
 
 #endif // DECOMPILERWIDGET_H
