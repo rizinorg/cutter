@@ -56,7 +56,8 @@ private:
     bool decompilerWasBusy;
 
     RVA decompiledFunctionAddr;
-    AnnotatedCode code;
+    // RAnnotatedCode *code;
+    std::shared_ptr<RAnnotatedCode> code;
 
     bool seekFromCursor = false;
 

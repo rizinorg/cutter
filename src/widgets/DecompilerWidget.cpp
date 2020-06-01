@@ -193,29 +193,46 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
     return cursor;
 }
 
-void DecompilerWidget::decompilationFinished(AnnotatedCode code)
+void DecompilerWidget::decompilationFinished(RAnnotatedCode *code)
 {
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
 
-    this->code = code;
-    if (code.code.isEmpty()) {
+    this->code = std::make_shared<RAnnotatedCode>(code);
+    QString codeString = fromUtf8(this->code->code);
+    if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         return;
     } else {
         connectCursorPositionChanged(true);
-        ui->textEdit->setPlainText(code.code);
+        ui->textEdit->setPlainText(codeString);
         connectCursorPositionChanged(false);
         updateCursorPosition();
         highlightPC();
         highlightBreakpoints();
     }
-
+    
     if (decompilerWasBusy) {
         decompilerWasBusy = false;
         doAutoRefresh();
     }
+    // if (code.code.isEmpty()) {
+    //     ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
+    //     return;
+    // } else {
+    //     connectCursorPositionChanged(true);
+    //     ui->textEdit->setPlainText(code.code);
+    //     connectCursorPositionChanged(false);
+    //     updateCursorPosition();
+    //     highlightPC();
+    //     highlightBreakpoints();
+    // }
+
+    // if (decompilerWasBusy) {
+    //     decompilerWasBusy = false;
+    //     doAutoRefresh();
+    // }
 }
 
 void DecompilerWidget::decompilerSelected()
