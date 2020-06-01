@@ -14,6 +14,7 @@
 #include <QTextBlock>
 #include <QObject>
 #include <QTextBlockUserData>
+#include <QString>
 
 DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
@@ -200,7 +201,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *code)
     updateRefreshButton();
 
     this->code = std::make_shared<RAnnotatedCode>(code);
-    QString codeString = fromUtf8(this->code->code);
+    QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         return;
@@ -212,7 +213,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *code)
         highlightPC();
         highlightBreakpoints();
     }
-    
+
     if (decompilerWasBusy) {
         decompilerWasBusy = false;
         doAutoRefresh();

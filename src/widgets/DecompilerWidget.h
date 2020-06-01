@@ -38,7 +38,7 @@ private slots:
     void decompilerSelected();
     void cursorPositionChanged();
     void seekChanged();
-    void decompilationFinished(AnnotatedCode code);
+    void decompilationFinished(RAnnotatedCode *code);
 
 private:
     std::unique_ptr<Ui::DecompilerWidget> ui;
