@@ -57,7 +57,8 @@ private:
 
     RVA decompiledFunctionAddr;
     // RAnnotatedCode *code;
-    std::shared_ptr<RAnnotatedCode> code;
+    // std::shared_ptr<RAnnotatedCode> code;
+    std::unique_ptr<RAnnotatedCode> code;
 
     bool seekFromCursor = false;
 

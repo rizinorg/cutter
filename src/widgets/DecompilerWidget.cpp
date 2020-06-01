@@ -140,6 +140,15 @@ void DecompilerWidget::updateRefreshButton()
     }
 }
 
+static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos){
+    return UT64_MAX;
+}
+static size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset) {
+    size_t axy = 213;
+    return axy;
+}
+
+
 void DecompilerWidget::doRefresh(RVA addr)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
@@ -184,7 +193,8 @@ void DecompilerWidget::refreshDecompiler()
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 {
-    size_t pos = code.PositionForOffset(addr);
+    // size_t pos = positionForOffset(code.get(), addr);
+    size_t pos = 100; //Temp
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
@@ -194,13 +204,15 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
     return cursor;
 }
 
-void DecompilerWidget::decompilationFinished(RAnnotatedCode *code)
+void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 {
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
 
-    this->code = std::make_shared<RAnnotatedCode>(code);
+    // this->code = codeDecompiled;
+    // this->code = std::make_shared<RAnnotatedCode>(codeDecompiled);
+    this->code = std::unique_ptr<RAnnotatedCode>(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
@@ -262,7 +274,8 @@ void DecompilerWidget::cursorPositionChanged()
     }
 
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = code.OffsetForPosition(pos);
+    // RVA offset = offsetForPosition(code.get(), pos);
+    RVA offset = 10; //Temp 
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
@@ -292,7 +305,8 @@ void DecompilerWidget::seekChanged()
 void DecompilerWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
-    size_t pos = code.PositionForOffset(offset);
+    // size_t pos = positionForOffset(code.get(), offset);
+    size_t pos = 12; //TEMP
     if (pos == SIZE_MAX) {
         return;
     }
@@ -352,7 +366,8 @@ void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = code.OffsetForPosition(pos);
+    // RVA offset = offsetForPosition(code.get(), pos);
+    RVA offset = 100; //TEMP
     seekable->seekToReference(offset);
 }
 
