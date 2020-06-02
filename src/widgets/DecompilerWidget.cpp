@@ -14,7 +14,6 @@
 #include <QTextBlock>
 #include <QObject>
 #include <QTextBlockUserData>
-#include <QString>
 
 DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),

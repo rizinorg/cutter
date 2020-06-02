@@ -7,7 +7,6 @@
 #include "core/Cutter.h"
 #include "MemoryDockWidget.h"
 #include "Decompiler.h"
-#include <r_util/r_annotated_code.h>//For RAnnotatedCode
 
 namespace Ui {
 class DecompilerWidget;
