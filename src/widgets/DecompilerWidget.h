@@ -56,8 +56,7 @@ private:
     bool decompilerWasBusy;
 
     RVA decompiledFunctionAddr;
-    std::unique_ptr<RAnnotatedCode> code;
-
+    std::unique_ptr<RAnnotatedCode, std::function<void(RAnnotatedCode*)>> code;
     bool seekFromCursor = false;
 
     Decompiler *getCurrentDecompiler();

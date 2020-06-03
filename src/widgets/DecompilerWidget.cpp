@@ -46,6 +46,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     });
 
     autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
+    // autoRefreshEnabled = true;
     ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
     setAutoRefresh(autoRefreshEnabled);
     connect(ui->autoRefreshCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
@@ -139,12 +140,12 @@ void DecompilerWidget::updateRefreshButton()
     }
 }
 
-static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos)
+static ut64 offsetForPosition(RAnnotatedCode &codeDecompiled, size_t pos)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
     void *annotationi;
-    r_vector_foreach (&codeDecompiled->annotations, annotationi) {
+    r_vector_foreach (&codeDecompiled.annotations, annotationi) {
         RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
                 || annotation->end <= pos) {
@@ -159,12 +160,12 @@ static ut64 offsetForPosition(RAnnotatedCode *codeDecompiled, size_t pos)
     return closestOffset;
 }
 
-static size_t positionForOffset(RAnnotatedCode *codeDecompiled, ut64 offset)
+static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
 {
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
     void *annotationi;
-    r_vector_foreach (&codeDecompiled->annotations, annotationi) {
+    r_vector_foreach (&codeDecompiled.annotations, annotationi) {
         RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset) {
             continue;
@@ -222,7 +223,7 @@ void DecompilerWidget::refreshDecompiler()
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 {
-    size_t pos = positionForOffset(code.get(), addr);
+    size_t pos = positionForOffset(*code, addr);
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
@@ -237,8 +238,10 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
-
-    this->code = std::unique_ptr<RAnnotatedCode>(codeDecompiled);
+    auto deleterForRAnnotatedCode = [](RAnnotatedCode* ptrr){
+        r_annotated_code_free(ptrr);
+    };
+    this->code = std::unique_ptr<RAnnotatedCode, decltype(deleterForRAnnotatedCode)>(codeDecompiled, deleterForRAnnotatedCode);
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
@@ -284,7 +287,7 @@ void DecompilerWidget::cursorPositionChanged()
     }
 
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = offsetForPosition(code.get(), pos);
+    RVA offset = offsetForPosition(*code, pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
@@ -314,7 +317,7 @@ void DecompilerWidget::seekChanged()
 void DecompilerWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
-    size_t pos = positionForOffset(code.get(), offset);
+    size_t pos = positionForOffset(*code, offset);
     if (pos == SIZE_MAX) {
         return;
     }
@@ -374,7 +377,7 @@ void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = offsetForPosition(code.get(), pos);
+    RVA offset = offsetForPosition(*code, pos);
     seekable->seekToReference(offset);
 }
 

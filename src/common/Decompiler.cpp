@@ -72,8 +72,8 @@ void R2DecDecompiler::decompileAt(RVA addr)
             }
             codeString.append(line.toString() + "\n");
         }
-        QByteArray ba = codeString.toUtf8();
-        code->code = ba.data();
+        std::string tmp = codeString.toStdString();
+        code->code = strdup (tmp.c_str());
         emit finished(code);
     });
     task->startTask();
