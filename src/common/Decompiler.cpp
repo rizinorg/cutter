@@ -37,8 +37,8 @@ void R2DecDecompiler::decompileAt(RVA addr)
         task = nullptr;
         if (json.isEmpty()) {
             codeString = tr("Failed to parse JSON from r2dec");
-            QByteArray ba = codeString.toUtf8();
-            code->code = ba.data();
+            std::string temporary = codeString.toStdString();
+            code->code = strdup (temporary.c_str());
             emit finished(code);
             return;
         }

@@ -46,7 +46,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     });
 
     autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
-    // autoRefreshEnabled = true;
+    // autoRefreshEnabled = false;
     ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
     setAutoRefresh(autoRefreshEnabled);
     connect(ui->autoRefreshCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
