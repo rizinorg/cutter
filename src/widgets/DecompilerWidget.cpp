@@ -46,7 +46,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     });
 
     autoRefreshEnabled = Config()->getDecompilerAutoRefreshEnabled();
-    // autoRefreshEnabled = false;
     ui->autoRefreshCheckBox->setChecked(autoRefreshEnabled);
     setAutoRefresh(autoRefreshEnabled);
     connect(ui->autoRefreshCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
@@ -106,6 +105,13 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     seekPrevAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     addAction(seekPrevAction);
     connect(seekPrevAction, &QAction::triggered, seekable, &CutterSeekable::seekPrev);
+
+    // Initializing this->code (RAnnotatedCode)
+    RAnnotatedCode *codeDecompiled = r_annotated_code_new (strdup ("Choose an offset and refresh to get decompiled code"));
+    auto deleterForRAnnotatedCode = [](RAnnotatedCode* ptrr){
+        r_annotated_code_free(ptrr);
+    };
+    this->code = std::unique_ptr<RAnnotatedCode, decltype(deleterForRAnnotatedCode)>(codeDecompiled, deleterForRAnnotatedCode);
 }
 
 DecompilerWidget::~DecompilerWidget() = default;
