@@ -281,7 +281,7 @@ void InitialOptionsDialog::setupAndStartAnalysis(/*int level, QList<QString> adv
         options.analCmd = { {"aaa", "Auto analysis"} };
         break;
     case 2:
-        options.analCmd = { {"aaaa", "Auto analysis (experimental}"} };
+        options.analCmd = { {"aaaa", "Auto analysis (experimental)"} };
         break;
     case 3:
         options.analCmd = getSelectedAdvancedAnalCmds();
