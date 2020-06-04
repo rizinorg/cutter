@@ -58,7 +58,7 @@ VisualNavbar::VisualNavbar(MainWindow *main, QWidget *parent) :
     this->graphicsView->setMinimumHeight(15);
     this->graphicsView->setMaximumHeight(15);
     this->graphicsView->setFrameShape(QFrame::NoFrame);
-    this->graphicsView->setRenderHints(0);
+    this->graphicsView->setRenderHints({});
     this->graphicsView->setScene(graphicsScene);
     this->graphicsView->setRenderHints(QPainter::Antialiasing);
     this->graphicsView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

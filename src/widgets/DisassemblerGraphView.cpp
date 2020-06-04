@@ -1231,7 +1231,11 @@ void DisassemblerGraphView::wheelEvent(QWheelEvent *event)
         if (!numDegrees.isNull()) {
             int numSteps = numDegrees.y() / 15;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
             QPointF relativeMousePos = event->pos();
+#else
+            QPointF relativeMousePos = event->position();
+#endif
             relativeMousePos.rx() /= size().width();
             relativeMousePos.ry() /= size().height();
 

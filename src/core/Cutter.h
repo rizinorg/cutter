@@ -26,6 +26,7 @@ class R2TaskDialog;
 #include "plugins/CutterPlugin.h"
 #include "common/BasicBlockHighlighter.h"
 #include "common/R2Task.h"
+#include "common/Helpers.h"
 #include "dialogs/R2TaskDialog.h"
 
 #define Core() (CutterCore::instance())
@@ -108,7 +109,7 @@ public:
     
     QJsonDocument cmdj(const char *str);
     QJsonDocument cmdj(const QString &str) { return cmdj(str.toUtf8().constData()); }
-    QStringList cmdList(const char *str) { return cmd(str).split(QLatin1Char('\n'), QString::SkipEmptyParts); }
+    QStringList cmdList(const char *str) { return cmd(str).split(QLatin1Char('\n'), CUTTER_QT_SKIP_EMPTY_PARTS); }
     QStringList cmdList(const QString &str) { return cmdList(str.toUtf8().constData()); }
     QString cmdTask(const QString &str);
     QJsonDocument cmdjTask(const QString &str);

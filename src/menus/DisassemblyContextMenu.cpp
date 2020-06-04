@@ -56,9 +56,9 @@ DisassemblyContextMenu::DisassemblyContextMenu(QWidget *parent, MainWindow *main
         actionSetBits32(this),
         actionSetBits64(this),
         actionContinueUntil(this),
+        actionSetPC(this),
         actionAddBreakpoint(this),
         actionAdvancedBreakpoint(this),
-        actionSetPC(this),
         actionSetToCode(this),
         actionSetAsStringAuto(this),
         actionSetAsStringRemove(this),
@@ -1003,9 +1003,7 @@ void DisassemblyContextMenu::on_actionEditFunction_triggered()
         QString startAddrText = "0x" + QString::number(fcn->addr, 16);
         dialog.setStartAddrText(startAddrText);
 
-        QString stackSizeText;
-        stackSizeText.sprintf("%d", fcn->stack);
-        dialog.setStackSizeText(stackSizeText);
+        dialog.setStackSizeText(QString::number(fcn->stack));
 
         QStringList callConList = Core()->cmdRaw("afcl").split("\n");
         callConList.removeLast();

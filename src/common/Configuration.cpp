@@ -665,7 +665,7 @@ QStringList Configuration::getAvailableTranslations()
         }
     }
 
-    QStringList fileNames = fileNamesSet.toList();
+    QStringList fileNames = fileNamesSet.values();
     std::sort(fileNames.begin(), fileNames.end());
     QStringList languages;
     QString currLanguageName;
