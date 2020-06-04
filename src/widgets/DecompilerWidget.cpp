@@ -107,11 +107,10 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     connect(seekPrevAction, &QAction::triggered, seekable, &CutterSeekable::seekPrev);
 
     // Initializing this->code (RAnnotatedCode)
+
+    // This will never be shown to users in normal circumstances
     RAnnotatedCode *codeDecompiled = r_annotated_code_new (strdup ("Choose an offset and refresh to get decompiled code"));
-    auto deleterForRAnnotatedCode = [](RAnnotatedCode* ptrr){
-        r_annotated_code_free(ptrr);
-    };
-    this->code = std::unique_ptr<RAnnotatedCode, decltype(deleterForRAnnotatedCode)>(codeDecompiled, deleterForRAnnotatedCode);
+    this->code = std::unique_ptr<RAnnotatedCode, decltype(&r_annotated_code_free)>(codeDecompiled, &r_annotated_code_free);
 }
 
 DecompilerWidget::~DecompilerWidget() = default;
@@ -244,10 +243,8 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
-    auto deleterForRAnnotatedCode = [](RAnnotatedCode* ptrr){
-        r_annotated_code_free(ptrr);
-    };
-    this->code = std::unique_ptr<RAnnotatedCode, decltype(deleterForRAnnotatedCode)>(codeDecompiled, deleterForRAnnotatedCode);
+    
+    this->code.reset(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
