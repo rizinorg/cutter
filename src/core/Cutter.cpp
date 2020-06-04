@@ -606,9 +606,6 @@ bool CutterCore::loadFile(QString path, ut64 baddr, ut64 mapaddr, int perms, int
         r_core_cmd0 (core, "omfg+w");
     }
 
-    ut64 hashLimit = getConfigut64("cfg.hashlimit");
-    r_bin_file_compute_hashes(core->bin, hashLimit);
-
     fflush(stdout);
     return true;
 }
@@ -999,7 +996,7 @@ QString CutterCore::getConfigDescription(const char *k)
 {
     CORE_LOCK();
     RConfigNode *node = r_config_node_get (core->config, k);
-    return QString(node->desc);
+    return node ? QString(node->desc) : QString("Unrecognized configuration key");
 }
 
 void CutterCore::triggerRefreshAll()

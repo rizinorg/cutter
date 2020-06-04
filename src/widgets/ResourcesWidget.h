@@ -41,7 +41,6 @@ class ResourcesWidget : public ListDockWidget
 private:
     ResourcesModel *model;
     AddressableFilterProxyModel *filterModel;
-    CutterTreeView *view;
     QList<ResourcesDescription> resources;
 
 public:
