@@ -14,6 +14,7 @@
 #include <QRegularExpression>
 #include <QTextBlockUserData>
 #include <QPainter>
+#include <QPainterPath>
 #include <QSplitter>
 
 

@@ -3,6 +3,7 @@
 
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QMouseEvent>
 #include <QDesktopWidget>
 #include <QPixmap>

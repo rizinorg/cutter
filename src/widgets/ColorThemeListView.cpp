@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QMap>
 #include <QPainter>
+#include <QPainterPath>
 #include <QFontMetrics>
 #include <QScreen>
 #include <QJsonArray>
