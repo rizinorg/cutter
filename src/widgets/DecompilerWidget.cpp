@@ -18,7 +18,8 @@
 DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DisassemblyContextMenu(this, main)),
-    ui(new Ui::DecompilerWidget)
+    ui(new Ui::DecompilerWidget),
+    code(r_annotated_code_new (strdup ("Choose an offset and refresh to get decompiled code")), &r_annotated_code_free)
 {
     ui->setupUi(this);
 
@@ -105,12 +106,6 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     seekPrevAction->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     addAction(seekPrevAction);
     connect(seekPrevAction, &QAction::triggered, seekable, &CutterSeekable::seekPrev);
-
-    // Initializing this->code (RAnnotatedCode)
-
-    // This will never be shown to users in normal circumstances
-    RAnnotatedCode *codeDecompiled = r_annotated_code_new (strdup ("Choose an offset and refresh to get decompiled code"));
-    this->code = std::unique_ptr<RAnnotatedCode, decltype(&r_annotated_code_free)>(codeDecompiled, &r_annotated_code_free);
 }
 
 DecompilerWidget::~DecompilerWidget() = default;
@@ -243,7 +238,7 @@ void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
-    
+
     this->code.reset(codeDecompiled);
     QString codeString = QString::fromUtf8(this->code->code);
     if (codeString.isEmpty()) {
