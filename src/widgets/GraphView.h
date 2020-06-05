@@ -44,11 +44,10 @@ public:
         , GridWide
 #ifdef CUTTER_ENABLE_GRAPHVIZ
         , GraphvizOrtho
-        , GraphvizOrthoLR
         , GraphvizPolyline
-        , GraphvizPolylineLR
 #endif
     };
+    static std::unique_ptr<GraphLayout> makeGraphLayout(Layout layout, bool horizontal = false);
 
     struct EdgeConfiguration {
         QColor color = QColor(128, 128, 128);
@@ -77,8 +76,8 @@ public:
     GraphView::GraphBlock *getBlockContaining(QPoint p);
     QPoint viewToLogicalCoordinates(QPoint p);
 
-    void setGraphLayout(Layout layout);
-    Layout getGraphLayout() const { return graphLayout; }
+    void setGraphLayout(std::unique_ptr<GraphLayout> layout);
+    GraphLayout& getGraphLayout() const { return *graphLayoutSystem; }
 
     void paint(QPainter &p, QPoint offset, QRect area, qreal scale = 1.0, bool interactive = true);
 
@@ -174,7 +173,6 @@ private:
     QSize cacheSize;
     QOpenGLWidget *glWidget;
 #endif
-    Layout graphLayout;
 
     /**
      * @brief flag to control if the cache is invalid and should be re-created in the next draw

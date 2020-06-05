@@ -159,6 +159,7 @@ private slots:
     void on_actionExportGraph_triggered();
     void onActionHighlightBITriggered();
     void onActionUnhighlightBITriggered();
+    void updateLayout();
 
 private:
     bool transition_dont_seek = false;
@@ -173,8 +174,11 @@ private:
     bool emptyGraph;
     ut64 currentBlockAddress = RVA_INVALID;
 
+    GraphView::Layout graphLayout;
+
     DisassemblyContextMenu *blockMenu;
     QMenu *contextMenu;
+    QAction* horizontalLayoutAction;
 
     void connectSeekChanged(bool disconnect);
 

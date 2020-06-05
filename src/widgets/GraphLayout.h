@@ -42,6 +42,10 @@ public:
     virtual ~GraphLayout() {}
     virtual void CalculateLayout(Graph &blocks, ut64 entry, int &width,
                                  int &height) const = 0;
+    virtual void setLayoutConfig(const LayoutConfig &config)
+    {
+        this->layoutConfig = config;
+    };
 protected:
     LayoutConfig layoutConfig;
 };

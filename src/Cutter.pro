@@ -424,7 +424,8 @@ SOURCES += \
     common/IOModesController.cpp \
     common/SettingsUpgrade.cpp \
     dialogs/LayoutManager.cpp \
-    common/CutterLayout.cpp
+    common/CutterLayout.cpp \
+    widgets/GraphHorizontalAdapter.cpp
 
 GRAPHVIZ_SOURCES = \
     widgets/GraphvizLayout.cpp
@@ -577,7 +578,8 @@ HEADERS  += \
     dialogs/LayoutManager.h \
     common/CutterLayout.h \
     common/BinaryTrees.h \
-    common/LinkedListPool.h
+    common/LinkedListPool.h \
+    widgets/GraphHorizontalAdapter.h
 
 GRAPHVIZ_HEADERS = widgets/GraphvizLayout.h
 

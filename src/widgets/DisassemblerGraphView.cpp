@@ -42,6 +42,7 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
                                              MainWindow *mainWindow, QList<QAction *> additionalMenuActions)
     : GraphView(parent),
       mFontMetrics(nullptr),
+      graphLayout(GraphView::Layout::GridMedium),
       blockMenu(new DisassemblyContextMenu(this, mainWindow)),
       contextMenu(new QMenu(this)),
       seekable(seekable),
@@ -104,27 +105,29 @@ DisassemblerGraphView::DisassemblerGraphView(QWidget *parent, CutterSeekable *se
         , {tr("Grid wide"), GraphView::Layout::GridWide}
 #ifdef CUTTER_ENABLE_GRAPHVIZ
         , {tr("Graphviz polyline"), GraphView::Layout::GraphvizPolyline}
-        , {tr("Graphviz polyline LR"), GraphView::Layout::GraphvizPolylineLR}
         , {tr("Graphviz ortho"), GraphView::Layout::GraphvizOrtho}
-        , {tr("Graphviz ortho LR"), GraphView::Layout::GraphvizOrthoLR}
 #endif
     };
     auto layoutMenu = contextMenu->addMenu(tr("Layout"));
+    horizontalLayoutAction = layoutMenu->addAction(tr("Horizontal"));
+    horizontalLayoutAction->setCheckable(true);
+    layoutMenu->addSeparator();
+    connect(horizontalLayoutAction, &QAction::toggled, this, &DisassemblerGraphView::updateLayout);
     QActionGroup *layoutGroup = new QActionGroup(layoutMenu);
     for (auto &item : LAYOUT_CONFIG) {
         auto action = layoutGroup->addAction(item.first);
         action->setCheckable(true);
         GraphView::Layout layout = item.second;
         connect(action, &QAction::triggered, this, [this, layout]() {
-            setGraphLayout(layout);
-            refreshView();
-            onSeekChanged(this->seekable->getOffset()); // try to keep the view on current block
+            this->graphLayout = layout;
+            updateLayout();
         });
-        if (layout == getGraphLayout()) {
+        if (layout == this->graphLayout) {
             action->setChecked(true);
         }
     }
     layoutMenu->addActions(layoutGroup->actions());
+
     contextMenu->addSeparator();
     contextMenu->addActions(additionalMenuActions);
 
@@ -1153,6 +1156,13 @@ void DisassemblerGraphView::onActionUnhighlightBITriggered()
     auto bih = Core()->getBIHighlighter();
     bih->clear(instr->addr, instr->size);
     Config()->colorsUpdated();
+}
+
+void DisassemblerGraphView::updateLayout()
+{
+    setGraphLayout(GraphView::makeGraphLayout(graphLayout, horizontalLayoutAction->isChecked()));
+    refreshView();
+    onSeekChanged(this->seekable->getOffset()); // try to keep the view on current block
 }
 
 void DisassemblerGraphView::exportGraph(QString filePath, GraphExportType type)
