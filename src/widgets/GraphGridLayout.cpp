@@ -248,7 +248,7 @@ void GraphGridLayout::CalculateLayout(std::unordered_map<ut64, GraphBlock> &bloc
     }
     for (const auto &edgeList : layoutState.edge) {
         auto &startBlock = layoutState.grid_blocks[edgeList.first];
-        startBlock.outputCount++;
+        startBlock.outputCount = edgeList.second.size();
         for (auto &edge : edgeList.second) {
             auto &targetBlock = layoutState.grid_blocks[edge.dest];
             targetBlock.inputCount++;
@@ -573,6 +573,9 @@ void GraphGridLayout::calculateEdgeMainColumn(GraphGridLayout::LayoutState &stat
 void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
 {
     auto getSpacingOverride = [this](int blockWidth, int edgeCount) {
+        if (edgeCount == 0) {
+            return 0;
+        }
         int maxSpacing = blockWidth / edgeCount;
         if (maxSpacing < layoutConfig.edgeHorizontalSpacing) {
             return std::max(maxSpacing, 1);
@@ -614,6 +617,13 @@ void GraphGridLayout::roughRouting(GraphGridLayout::LayoutState &state) const
                                                             target.inputCount);
             edge.points.front().spacingOverride = startSpacingOverride;
             edge.points.back().spacingOverride = targetSpacingOverride;
+            if (edge.points.size() <= 2) {
+                if (startSpacingOverride && startSpacingOverride < targetSpacingOverride) {
+                    edge.points.back().spacingOverride = startSpacingOverride;
+                }
+            } else {
+                edge.points[1].spacingOverride = startSpacingOverride;
+            }
 
 
             int length = 0;
