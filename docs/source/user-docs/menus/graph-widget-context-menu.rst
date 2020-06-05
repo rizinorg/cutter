@@ -41,10 +41,16 @@ When Graphviz is installed, the following options are also available:
  - Graphviz PNG Image
  - Graphviz JPG Image
  - Graphviz SVG Image
- -   
 
 **Steps:** Right click anywhere on the Graph view and choose ``Export Graph``.  
 
+
+Graph Layout Direction
+----------------------------------------
+**Description:** Graph layout direction can be either vertical top to bottom or horizontal left to right.
+
+
+**Steps:** Right click anywhere on the Graph view  ``Layout -> Horizontal``.
 
 Choose Graph Layout
 ----------------------------------------
@@ -56,10 +62,7 @@ Choose Graph Layout
  
 When Graphviz is installed, the following options are also available:
 
- - Graphviz polyline  
- - Graphviz polyline LR  
- - Graphviz ortho  
- - Graphviz ortho LR  
-
+ - Graphviz polyline
+ - Graphviz ortho
 
 **Steps:** Right click anywhere on the Graph view and choose a layout from the ``Layout`` sub-menu.
