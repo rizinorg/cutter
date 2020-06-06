@@ -41,7 +41,7 @@ protected:
 
     std::unique_ptr<Ui::ListDockWidget> ui;
 private:
-    AddressableFilterProxyModel *objectFilterProxyModel;
+    AddressableFilterProxyModel *objectFilterProxyModel = nullptr;
     CutterTreeWidget *tree;
     SearchBarPolicy searchBarPolicy;
 };

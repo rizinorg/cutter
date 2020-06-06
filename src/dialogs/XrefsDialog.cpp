@@ -226,7 +226,7 @@ QVariant XrefModel::data(const QModelIndex &index, int role) const
     case FlagDescriptionRole:
         return QVariant::fromValue(xref);
     default:
-        return QVariant();
+        break;
     }
     return QVariant();
 }

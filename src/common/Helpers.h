@@ -21,6 +21,12 @@ class QMenu;
 class QPaintDevice;
 class QComboBox;
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
+#define CUTTER_QT_SKIP_EMPTY_PARTS QString::SkipEmptyParts
+#else
+#define CUTTER_QT_SKIP_EMPTY_PARTS Qt::SkipEmptyParts
+#endif
+
 namespace qhelpers {
 QString formatBytecount(const uint64_t bytecount);
 void adjustColumns(QTreeView *tv, int columnCount, int padding);

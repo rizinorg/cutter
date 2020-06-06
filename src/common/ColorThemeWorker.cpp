@@ -196,8 +196,8 @@ QJsonDocument ColorThemeWorker::getTheme(const QString& themeName) const
             return QJsonDocument();
         }
         QStringList sl;
-        for (auto &line : QString(src.readAll()).split('\n', QString::SkipEmptyParts)) {
-            sl = line.replace("#~", "ec ").replace("rgb:", "#").split(' ', QString::SkipEmptyParts);
+        for (auto &line : QString(src.readAll()).split('\n', CUTTER_QT_SKIP_EMPTY_PARTS)) {
+            sl = line.replace("#~", "ec ").replace("rgb:", "#").split(' ', CUTTER_QT_SKIP_EMPTY_PARTS);
             if (sl.size() != 3 || sl[0][0] == '#') {
                 continue;
             }
@@ -320,7 +320,7 @@ bool ColorThemeWorker::isFileTheme(const QString& filePath, bool* ok) const
     // The below construct mimics the behaviour of QRegexP::exactMatch(), which was here before
     QRegularExpression regexp("\\A(?:" + pattern + ")\\z");
 
-    for (auto &line : QString(f.readAll()).split('\n', QString::SkipEmptyParts)) {
+    for (auto &line : QString(f.readAll()).split('\n', CUTTER_QT_SKIP_EMPTY_PARTS)) {
         line.replace("#~", "ec ");
         if (!line.isEmpty() && !regexp.match(line).hasMatch()) {
             *ok = true;
