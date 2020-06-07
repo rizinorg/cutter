@@ -75,7 +75,7 @@ void CutterSeekable::seekToReference(RVA offset)
     
     if (refs.length()) {
         if (refs.length() > 1) {
-            qWarning() << tr("Too many (%1) references here. Weird behaviour expected.")
+            qWarning() << tr("More than one (%1) references here. Weird behaviour expected.")
                             .arg(refs.length());
         }
         
