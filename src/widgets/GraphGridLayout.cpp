@@ -1203,7 +1203,7 @@ static void optimizeLinearProgram(
         if (direction == 0) {
             continue;
         }
-
+        processed[g] = 1;
         int limitingGroup = -1;
         if (direction < 0) {
             int minMove = INT_MAX;
@@ -1247,7 +1247,7 @@ static void optimizeLinearProgram(
             continue;;
         }
         joinSegmentGroups(limitingGroup, g);
-        queue.push({limitingGroup, edgeCount[limitingGroup]});
+        queue.push({edgeCount[limitingGroup], limitingGroup});
         equalities.push_back({{g, limitingGroup}, solution[g] - solution[limitingGroup]});
     }
     for (auto it = equalities.rbegin(), end = equalities.rend(); it != end; ++it) {
@@ -1344,7 +1344,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
        return a.x < b.x;
     });
     for (auto &segment : segments) {
-        auto startPos = lastSegments.upper_bound(segment.y0);
+        auto startPos = lastSegments.lower_bound(segment.y0);
         --startPos; // should never be lastSegment.begin() because map is initialized with segment at pos -1
         auto lastSegment = startPos->second;
         auto it = startPos;
@@ -1378,7 +1378,7 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
 
     optimizeLinearProgram(solution.size(), std::move(objectiveFunction), std::move(inequalities), std::move(equalities), solution);
 
-        variableIndex = segmentIndexOffset;
+    variableIndex = segmentIndexOffset;
     for (auto &blockIt : *state.blocks) {
         auto &block = blockIt.second;
         for (auto &edge : blockIt.second.edges) {
