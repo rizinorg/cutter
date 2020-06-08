@@ -165,6 +165,7 @@ private:
      * @param height image height output argument
      */
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
+    void optimizeLayout(LayoutState &state) const;
 };
 
 #endif // GRAPHGRIDLAYOUT_H
