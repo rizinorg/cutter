@@ -12,7 +12,7 @@ Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
 {
 }
 
-static RAnnotatedCode *makeWarning(QString warningMessage){
+RAnnotatedCode *Decompiler::makeWarning(QString warningMessage){
     std::string temporary = warningMessage.toStdString();
     return r_annotated_code_new(strdup(temporary.c_str()));
 }
@@ -39,7 +39,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
         delete task;
         task = nullptr;
         if (json.isEmpty()) {
-            emit finished(makeWarning(tr("Failed to parse JSON from r2dec")));
+            emit finished(Decompiler::makeWarning(tr("Failed to parse JSON from r2dec")));
             return;
         }
         RAnnotatedCode *code = r_annotated_code_new(nullptr);

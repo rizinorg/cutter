@@ -23,6 +23,8 @@ public:
     Decompiler(const QString &id, const QString &name, QObject *parent = nullptr);
     virtual ~Decompiler() = default;
 
+    static RAnnotatedCode *makeWarning(QString warningMessage);
+
     QString getId() const       { return id; }
     QString getName() const     { return name; }
     virtual bool isRunning()    { return false; }
