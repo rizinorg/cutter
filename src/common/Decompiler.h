@@ -3,42 +3,10 @@
 
 #include "CutterCommon.h"
 #include "R2Task.h"
+#include <r_util/r_annotated_code.h>
 
 #include <QString>
 #include <QObject>
-
-struct CodeAnnotation
-{
-    size_t start;
-    size_t end;
-
-    enum class Type { Offset };
-    Type type;
-
-    union
-    {
-        struct
-        {
-            ut64 offset;
-        } offset;
-    };
-};
-
-/**
- * Describes the result of a Decompilation Process with optional metadata
- */
-struct AnnotatedCode
-{
-    /**
-     * The entire decompiled code
-     */
-    QString code;
-
-    QList<CodeAnnotation> annotations;
-
-    ut64 OffsetForPosition(size_t pos) const;
-    size_t PositionForOffset(ut64 offset) const;
-};
 
 /**
  * Implements a decompiler that can be registered using CutterCore::registerDecompiler()
@@ -55,6 +23,8 @@ public:
     Decompiler(const QString &id, const QString &name, QObject *parent = nullptr);
     virtual ~Decompiler() = default;
 
+    static RAnnotatedCode *makeWarning(QString warningMessage);
+
     QString getId() const       { return id; }
     QString getName() const     { return name; }
     virtual bool isRunning()    { return false; }
@@ -64,7 +34,7 @@ public:
     virtual void cancel() {}
 
 signals:
-    void finished(AnnotatedCode code);
+    void finished(RAnnotatedCode *codeDecompiled);
 };
 
 class R2DecDecompiler: public Decompiler

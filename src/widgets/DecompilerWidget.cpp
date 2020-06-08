@@ -18,7 +18,8 @@
 DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DisassemblyContextMenu(this, main)),
-    ui(new Ui::DecompilerWidget)
+    ui(new Ui::DecompilerWidget),
+    code(Decompiler::makeWarning(tr("Choose an offset and refresh to get decompiled code")), &r_annotated_code_free)
 {
     ui->setupUi(this);
 
@@ -139,6 +140,45 @@ void DecompilerWidget::updateRefreshButton()
     }
 }
 
+static ut64 offsetForPosition(RAnnotatedCode &codeDecompiled, size_t pos)
+{
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = UT64_MAX;
+    void *annotationi;
+    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
+                || annotation->end <= pos) {
+            continue;
+        }
+        if (closestPos != SIZE_MAX && closestPos >= annotation->start) {
+            continue;
+        }
+        closestPos = annotation->start;
+        closestOffset = annotation->offset.offset;
+    }
+    return closestOffset;
+}
+
+static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
+{
+    size_t closestPos = SIZE_MAX;
+    ut64 closestOffset = UT64_MAX;
+    void *annotationi;
+    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
+        RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
+        if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset) {
+            continue;
+        }
+        if (closestOffset != UT64_MAX && closestOffset >= annotation->offset.offset) {
+            continue;
+        }
+        closestPos = annotation->start;
+        closestOffset = annotation->offset.offset;
+    }
+    return closestPos;
+}
+
 void DecompilerWidget::doRefresh(RVA addr)
 {
     if (!refreshDeferrer->attemptRefresh(nullptr)) {
@@ -183,7 +223,7 @@ void DecompilerWidget::refreshDecompiler()
 
 QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
 {
-    size_t pos = code.PositionForOffset(addr);
+    size_t pos = positionForOffset(*code, addr);
     if (pos == SIZE_MAX || pos == 0) {
         return QTextCursor();
     }
@@ -193,19 +233,20 @@ QTextCursor DecompilerWidget::getCursorForAddress(RVA addr)
     return cursor;
 }
 
-void DecompilerWidget::decompilationFinished(AnnotatedCode code)
+void DecompilerWidget::decompilationFinished(RAnnotatedCode *codeDecompiled)
 {
     ui->progressLabel->setVisible(false);
     ui->decompilerComboBox->setEnabled(decompilerSelectionEnabled);
     updateRefreshButton();
 
-    this->code = code;
-    if (code.code.isEmpty()) {
+    this->code.reset(codeDecompiled);
+    QString codeString = QString::fromUtf8(this->code->code);
+    if (codeString.isEmpty()) {
         ui->textEdit->setPlainText(tr("Cannot decompile at this address (Not a function?)"));
         return;
     } else {
         connectCursorPositionChanged(true);
-        ui->textEdit->setPlainText(code.code);
+        ui->textEdit->setPlainText(codeString);
         connectCursorPositionChanged(false);
         updateCursorPosition();
         highlightPC();
@@ -244,7 +285,7 @@ void DecompilerWidget::cursorPositionChanged()
     }
 
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = code.OffsetForPosition(pos);
+    RVA offset = offsetForPosition(*code, pos);
     if (offset != RVA_INVALID && offset != Core()->getOffset()) {
         seekFromCursor = true;
         Core()->seek(offset);
@@ -274,7 +315,7 @@ void DecompilerWidget::seekChanged()
 void DecompilerWidget::updateCursorPosition()
 {
     RVA offset = Core()->getOffset();
-    size_t pos = code.PositionForOffset(offset);
+    size_t pos = positionForOffset(*code, offset);
     if (pos == SIZE_MAX) {
         return;
     }
@@ -334,7 +375,7 @@ void DecompilerWidget::showDisasContextMenu(const QPoint &pt)
 void DecompilerWidget::seekToReference()
 {
     size_t pos = ui->textEdit->textCursor().position();
-    RVA offset = code.OffsetForPosition(pos);
+    RVA offset = offsetForPosition(*code, pos);
     seekable->seekToReference(offset);
 }
 
@@ -351,7 +392,6 @@ bool DecompilerWidget::eventFilter(QObject *obj, QEvent *event)
 
     return MemoryDockWidget::eventFilter(obj, event);
 }
-
 
 void DecompilerWidget::highlightPC()
 {
