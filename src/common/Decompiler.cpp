@@ -5,47 +5,16 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-
-ut64 AnnotatedCode::OffsetForPosition(size_t pos) const
-{
-    size_t closestPos = SIZE_MAX;
-    ut64 closestOffset = UT64_MAX;
-    for (const auto &annotation : annotations) {
-        if (annotation.type != CodeAnnotation::Type::Offset || annotation.start > pos || annotation.end <= pos) {
-            continue;
-        }
-        if (closestPos != SIZE_MAX && closestPos >= annotation.start) {
-            continue;
-        }
-        closestPos = annotation.start;
-        closestOffset = annotation.offset.offset;
-    }
-    return closestOffset;
-}
-
-size_t AnnotatedCode::PositionForOffset(ut64 offset) const
-{
-    size_t closestPos = SIZE_MAX;
-    ut64 closestOffset = UT64_MAX;
-    for (const auto &annotation : annotations) {
-        if (annotation.type != CodeAnnotation::Type::Offset || annotation.offset.offset > offset) {
-            continue;
-        }
-        if (closestOffset != UT64_MAX && closestOffset >= annotation.offset.offset) {
-            continue;
-        }
-        closestPos = annotation.start;
-        closestOffset = annotation.offset.offset;
-    }
-    return closestPos;
-}
-
-
 Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
     : QObject(parent),
     id(id),
     name(name)
 {
+}
+
+RAnnotatedCode *Decompiler::makeWarning(QString warningMessage){
+    std::string temporary = warningMessage.toStdString();
+    return r_annotated_code_new(strdup(temporary.c_str()));
 }
 
 R2DecDecompiler::R2DecDecompiler(QObject *parent)
@@ -64,26 +33,22 @@ void R2DecDecompiler::decompileAt(RVA addr)
     if (task) {
         return;
     }
-
     task = new R2Task("pddj @ " + QString::number(addr));
     connect(task, &R2Task::finished, this, [this]() {
-        AnnotatedCode code = {};
-        QString s;
-
         QJsonObject json = task->getResultJson().object();
         delete task;
         task = nullptr;
         if (json.isEmpty()) {
-            code.code = tr("Failed to parse JSON from r2dec");
-            emit finished(code);
+            emit finished(Decompiler::makeWarning(tr("Failed to parse JSON from r2dec")));
             return;
         }
-
+        RAnnotatedCode *code = r_annotated_code_new(nullptr);
+        QString codeString = "";
         for (const auto &line : json["log"].toArray()) {
             if (!line.isString()) {
                 continue;
             }
-            code.code.append(line.toString() + "\n");
+            codeString.append(line.toString() + "\n");
         }
 
         auto linesArray = json["lines"].toArray();
@@ -92,25 +57,24 @@ void R2DecDecompiler::decompileAt(RVA addr)
             if (lineObject.isEmpty()) {
                 continue;
             }
-            CodeAnnotation annotation = {};
-            annotation.type = CodeAnnotation::Type::Offset;
-            annotation.start = code.code.length();
-            code.code.append(lineObject["str"].toString() + "\n");
-            annotation.end = code.code.length();
+            RCodeAnnotation *annotationi = new RCodeAnnotation;
+            annotationi->start = codeString.length();
+            codeString.append(lineObject["str"].toString() + "\n");
+            annotationi->end = codeString.length();
             bool ok;
-            annotation.offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
-            if (ok) {
-                code.annotations.push_back(annotation);
-            }
+            annotationi->type = R_CODE_ANNOTATION_TYPE_OFFSET;
+            annotationi->offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
+            r_annotated_code_add_annotation(code, annotationi);
         }
 
         for (const auto &line : json["errors"].toArray()) {
             if (!line.isString()) {
                 continue;
             }
-            code.code.append(line.toString() + "\n");
+            codeString.append(line.toString() + "\n");
         }
-
+        std::string tmp = codeString.toStdString();
+        code->code = strdup(tmp.c_str());
         emit finished(code);
     });
     task->startTask();
