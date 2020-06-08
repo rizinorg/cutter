@@ -19,7 +19,7 @@ DecompilerWidget::DecompilerWidget(MainWindow *main) :
     MemoryDockWidget(MemoryWidgetType::Decompiler, main),
     mCtxMenu(new DisassemblyContextMenu(this, main)),
     ui(new Ui::DecompilerWidget),
-    code(r_annotated_code_new (strdup ("Choose an offset and refresh to get decompiled code")), &r_annotated_code_free)
+    code(r_annotated_code_new(strdup("Choose an offset and refresh to get decompiled code")), &r_annotated_code_free)
 {
     ui->setupUi(this);
 
@@ -145,7 +145,7 @@ static ut64 offsetForPosition(RAnnotatedCode &codeDecompiled, size_t pos)
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
     void *annotationi;
-    r_vector_foreach (&codeDecompiled.annotations, annotationi) {
+    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
         RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->start > pos
                 || annotation->end <= pos) {
@@ -165,7 +165,7 @@ static size_t positionForOffset(RAnnotatedCode &codeDecompiled, ut64 offset)
     size_t closestPos = SIZE_MAX;
     ut64 closestOffset = UT64_MAX;
     void *annotationi;
-    r_vector_foreach (&codeDecompiled.annotations, annotationi) {
+    r_vector_foreach(&codeDecompiled.annotations, annotationi) {
         RCodeAnnotation *annotation = (RCodeAnnotation *)annotationi;
         if (annotation->type != R_CODE_ANNOTATION_TYPE_OFFSET || annotation->offset.offset > offset) {
             continue;

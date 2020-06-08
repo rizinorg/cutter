@@ -3,7 +3,7 @@
 
 #include "CutterCommon.h"
 #include "R2Task.h"
-#include <r_util/r_annotated_code.h>//For RAnnotatedCode
+#include <r_util/r_annotated_code.h>
 
 #include <QString>
 #include <QObject>

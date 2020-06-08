@@ -30,7 +30,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
     }
     task = new R2Task("pddj @ " + QString::number(addr));
     connect(task, &R2Task::finished, this, [this]() {
-        RAnnotatedCode *code = r_annotated_code_new (nullptr);
+        RAnnotatedCode *code = r_annotated_code_new(nullptr);
         QString codeString = "";
         QJsonObject json = task->getResultJson().object();
         delete task;
@@ -38,7 +38,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
         if (json.isEmpty()) {
             codeString = tr("Failed to parse JSON from r2dec");
             std::string temporary = codeString.toStdString();
-            code->code = strdup (temporary.c_str());
+            code->code = strdup(temporary.c_str());
             emit finished(code);
             return;
         }
@@ -63,7 +63,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
             bool ok;
             annotationi->type = R_CODE_ANNOTATION_TYPE_OFFSET;
             annotationi->offset.offset = lineObject["offset"].toVariant().toULongLong(&ok);
-            r_annotated_code_add_annotation (code, annotationi);
+            r_annotated_code_add_annotation(code, annotationi);
         }
 
         for (const auto &line : json["errors"].toArray()) {
@@ -73,7 +73,7 @@ void R2DecDecompiler::decompileAt(RVA addr)
             codeString.append(line.toString() + "\n");
         }
         std::string tmp = codeString.toStdString();
-        code->code = strdup (tmp.c_str());
+        code->code = strdup(tmp.c_str());
         emit finished(code);
     });
     task->startTask();
