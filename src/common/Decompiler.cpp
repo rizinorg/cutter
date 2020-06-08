@@ -12,6 +12,11 @@ Decompiler::Decompiler(const QString &id, const QString &name, QObject *parent)
 {
 }
 
+static RAnnotatedCode *makeWarning(QString warningMessage){
+    std::string temporary = warningMessage.toStdString();
+    return r_annotated_code_new(strdup(temporary.c_str()));
+}
+
 R2DecDecompiler::R2DecDecompiler(QObject *parent)
     : Decompiler("r2dec", "r2dec", parent)
 {
@@ -30,19 +35,15 @@ void R2DecDecompiler::decompileAt(RVA addr)
     }
     task = new R2Task("pddj @ " + QString::number(addr));
     connect(task, &R2Task::finished, this, [this]() {
-        RAnnotatedCode *code = r_annotated_code_new(nullptr);
-        QString codeString = "";
         QJsonObject json = task->getResultJson().object();
         delete task;
         task = nullptr;
         if (json.isEmpty()) {
-            codeString = tr("Failed to parse JSON from r2dec");
-            std::string temporary = codeString.toStdString();
-            code->code = strdup(temporary.c_str());
-            emit finished(code);
+            emit finished(makeWarning(tr("Failed to parse JSON from r2dec")));
             return;
         }
-
+        RAnnotatedCode *code = r_annotated_code_new(nullptr);
+        QString codeString = "";
         for (const auto &line : json["log"].toArray()) {
             if (!line.isString()) {
                 continue;
