@@ -47,6 +47,8 @@ private:
         /// Row in which the block is
         int row = 0;
 
+        ut64 mergeBlock = 0;
+
         int lastRowLeft; //!< left side of subtree last row
         int lastRowRight; //!< right side of subtree last row
         int leftPosition; //!< left side of subtree

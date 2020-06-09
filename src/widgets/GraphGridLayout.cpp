@@ -320,6 +320,7 @@ void GraphGridLayout::findMergePoints(GraphGridLayout::LayoutState &state) const
             }
         }
         if (blocksGoingToMerge) {
+            block.mergeBlock = mergeBlock->id;
             state.grid_blocks[block.tree_edge[blockWithTreeEdge]].col = blockWithTreeEdge * 2 -
                                                                         (blocksGoingToMerge - 1);
         }
@@ -1336,6 +1337,32 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
         segments.push_back({block.x + block.width, blockVariable, block.y, block.y + block.height});
         setViableSolution(blockVariable, block.x);
     }
+    objectiveFunction.resize(solution.size());
+    for (auto &blockIt : *state.blocks) {
+        auto &block = blockIt.second;
+        int blockVariable = blockMapping[blockIt.first];
+        if (block.edges.size() == 2) {
+            auto &blockLeft = (*state.blocks)[block.edges[0].target];
+            auto &blockRight = (*state.blocks)[block.edges[1].target];
+            auto middle = block.x + block.width / 2;
+            if (blockLeft.x + blockLeft.width < middle && blockRight.x > middle) {
+                addInequality(blockMapping[block.edges[0].target], blockLeft.x + blockLeft.width,
+                              blockVariable, middle,
+                              layoutConfig.blockHorizontalSpacing / 2);
+                addInequality(blockVariable, middle,
+                              blockMapping[block.edges[1].target], blockRight.x,
+                              layoutConfig.blockHorizontalSpacing / 2);
+                auto &gridBlock = state.grid_blocks[blockIt.first];
+                if (gridBlock.mergeBlock) {
+                    auto &mergeBlock = (*state.blocks)[gridBlock.mergeBlock];
+                    if (mergeBlock.x + mergeBlock.width / 2 == middle) {
+                        equalities.push_back({{blockVariable, blockMapping[gridBlock.mergeBlock]},
+                                              block.x - mergeBlock.x});
+                    }
+                }
+            }
+        }
+    }
 
     std::map<int, std::pair<int, int>> lastSegments;
     lastSegments[-1] = {-1, -1};
@@ -1374,7 +1401,6 @@ void GraphGridLayout::optimizeLayout(GraphGridLayout::LayoutState &state) const
         lastSegments[segment.y0] = {segment.variableId, segment.x};
         lastSegments[segment.y1] = lastSegment;
     }
-    objectiveFunction.resize(solution.size());
 
     optimizeLinearProgram(solution.size(), std::move(objectiveFunction), std::move(inequalities), std::move(equalities), solution);
 
