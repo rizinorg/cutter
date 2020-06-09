@@ -224,6 +224,13 @@
                   </property>
                  </widget>
                 </item>
+                <item row="7" column="2">
+                 <widget class="QCheckBox" name="relOffsetCheckBox">
+                  <property name="text">
+                   <string>Show relative offsets (asm.reloff)</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="4" column="1">
                  <widget class="QLabel" name="syntaxLabel">
                   <property name="text">

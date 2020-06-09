@@ -34,6 +34,7 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
         { ui->xrefCheckBox,         "asm.xrefs" },
         { ui->indentCheckBox,       "asm.indent" },
         { ui->offsetCheckBox,       "asm.offset" },
+        { ui->relOffsetCheckBox,    "asm.reloff" },
         { ui->slowCheckBox,         "asm.slow" },
         { ui->linesCheckBox,        "asm.lines" },
         { ui->fcnlinesCheckBox,     "asm.lines.fcn" },
