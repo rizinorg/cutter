@@ -167,6 +167,11 @@ private:
      * @param height image height output argument
      */
     void convertToPixelCoordinates(LayoutState &state, int &width, int &height) const;
+    /**
+     * @brief Connect edge ends to blocks by changing y.
+     * @param graph
+     */
+    void connectEdgeEnds(Graph &graph) const;
     void optimizeLayout(LayoutState &state) const;
 };
 
