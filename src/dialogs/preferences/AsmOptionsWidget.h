@@ -37,6 +37,7 @@ private slots:
 
     void updateAsmOptionsFromVars();
 
+    void on_offsetCheckBox_toggled(bool checked);
 
     void on_cmtcolSpinBox_valueChanged(int value);
 

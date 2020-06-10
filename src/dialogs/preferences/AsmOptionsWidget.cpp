@@ -76,6 +76,9 @@ void AsmOptionsWidget::updateAsmOptionsFromVars()
     ui->cmtcolSpinBox->blockSignals(false);
     ui->cmtcolSpinBox->setEnabled(cmtRightEnabled);
 
+    bool offsetsEnabled = Config()->getConfigBool("asm.offset") || Config()->getConfigBool("graph.offset");
+    ui->relOffsetCheckBox->setEnabled(offsetsEnabled);
+
     bool bytesEnabled = Config()->getConfigBool("asm.bytes");
     ui->bytespaceCheckBox->setEnabled(bytesEnabled);
     ui->lbytesCheckBox->setEnabled(bytesEnabled);
@@ -145,6 +148,12 @@ void AsmOptionsWidget::on_cmtcolSpinBox_valueChanged(int value)
     triggerAsmOptionsChanged();
 }
 
+void AsmOptionsWidget::on_offsetCheckBox_toggled(bool checked)
+{
+    Config()->setConfig("asm.offset", checked);
+    ui->relOffsetCheckBox->setEnabled(checked || Config()->getConfigBool("graph.offset"));
+    triggerAsmOptionsChanged();
+}
 
 void AsmOptionsWidget::on_bytesCheckBox_toggled(bool checked)
 {
