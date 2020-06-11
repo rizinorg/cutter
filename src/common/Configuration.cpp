@@ -129,7 +129,7 @@ static const QHash<QString, QVariant> asmOptions = {
     { "asm.marks",          false },
     { "asm.refptr",         false },
     { "asm.flags.real",     true },
-    { "asm.reloff",         true },
+    { "asm.reloff",         false },
     { "esil.breakoninvalid",true },
     { "graph.offset",       false}
 };
@@ -767,4 +767,3 @@ bool Configuration::getOutputRedirectionEnabled() const
 {
     return outputRedirectEnabled;
 }
-
