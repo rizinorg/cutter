@@ -57,13 +57,11 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
     }
 
     using indexSignalType = void (QComboBox::*)(int);
-    using toggleSignalType = void (QCheckBox::*)(bool);
     connect(ui->commentsComboBox, static_cast<indexSignalType>(&QComboBox::currentIndexChanged), this,
                 &AsmOptionsWidget::commentsComboBoxChanged);
     connect(ui->asmComboBox, static_cast<indexSignalType>(&QComboBox::currentIndexChanged), this,
                 &AsmOptionsWidget::asmComboBoxChanged);
-    connect(ui->offsetCheckBox, static_cast<toggleSignalType>(&QCheckBox::toggled),this,
-                &AsmOptionsWidget::offsetCheckBoxToggled);
+    connect(ui->offsetCheckBox, &QCheckBox::toggled, this, &AsmOptionsWidget::offsetCheckBoxToggled);
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
     updateAsmOptionsFromVars();
 }
