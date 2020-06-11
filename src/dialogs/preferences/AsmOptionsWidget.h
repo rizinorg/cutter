@@ -53,6 +53,7 @@ private slots:
     void commentsComboBoxChanged(int index);
     void asmComboBoxChanged(int index);
     void offsetCheckBoxToggled(bool checked);
+    void relOffCheckBoxToggled(bool checked);
     void checkboxEnabler(QCheckBox *checkbox, QString config);
 };
 

@@ -72,7 +72,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="1">
+                <item row="11" column="1">
                  <widget class="QLabel" name="nbytesLabel">
                   <property name="enabled">
                    <bool>true</bool>
@@ -85,7 +85,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="14" column="1">
+                <item row="15" column="1">
                  <widget class="QLabel" name="asmTabsOffLabel">
                   <property name="text">
                    <string>Tabs before assembly (asm.tabs.off):</string>
@@ -105,7 +105,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="14" column="2">
+                <item row="15" column="2">
                  <widget class="QSpinBox" name="asmTabsOffSpinBox">
                   <property name="maximum">
                    <number>100</number>
@@ -115,21 +115,21 @@
                   </property>
                  </widget>
                 </item>
-                <item row="17" column="1" colspan="2">
+                <item row="18" column="1" colspan="2">
                  <widget class="QCheckBox" name="bytespaceCheckBox">
                   <property name="text">
                    <string>Separate bytes with whitespace (asm.bytespace)</string>
                   </property>
                  </widget>
                 </item>
-                <item row="15" column="1" colspan="2">
+                <item row="16" column="1" colspan="2">
                  <widget class="QCheckBox" name="indentCheckBox">
                   <property name="text">
                    <string>Indent disassembly based on reflines depth (asm.indent)</string>
                   </property>
                  </widget>
                 </item>
-                <item row="13" column="2">
+                <item row="14" column="2">
                  <widget class="QSpinBox" name="asmTabsSpinBox">
                   <property name="maximum">
                    <number>100</number>
@@ -139,7 +139,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="13" column="1">
+                <item row="14" column="1">
                  <widget class="QLabel" name="asmTabsLabel">
                   <property name="text">
                    <string>Tabs in assembly (asm.tabs):</string>
@@ -149,7 +149,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="16" column="1" colspan="2">
+                <item row="17" column="1" colspan="2">
                  <widget class="QCheckBox" name="lbytesCheckBox">
                   <property name="text">
                    <string>Align bytes to the left (asm.lbytes)</string>
@@ -210,7 +210,7 @@
                   </item>
                  </widget>
                 </item>
-                <item row="12" column="1" colspan="2">
+                <item row="13" column="1" colspan="2">
                  <widget class="QCheckBox" name="bblineCheckBox">
                   <property name="text">
                    <string>Show empty line after every basic block (asm.bb.line)</string>
@@ -234,7 +234,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="1">
+                <item row="10" column="1">
                  <widget class="QCheckBox" name="bytesCheckBox">
                   <property name="text">
                    <string>Display the bytes of each instruction (asm.bytes)</string>
@@ -244,7 +244,7 @@
                 <item row="4" column="2">
                  <widget class="QComboBox" name="syntaxComboBox"/>
                 </item>
-                <item row="11" column="1">
+                <item row="12" column="1">
                  <widget class="QCheckBox" name="realnameCheckBox">
                   <property name="text">
                    <string>Display flags' real name (asm.flags.real)</string>
@@ -255,6 +255,13 @@
                  <widget class="QCheckBox" name="relOffsetCheckBox">
                   <property name="text">
                    <string>Show offsets relative to a function (asm.reloff)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="1">
+                 <widget class="QCheckBox" name="relOffFlagsCheckBox">
+                  <property name="text">
+                   <string>Show offsets relative to a flag (asm.reloff.flags)</string>
                   </property>
                  </widget>
                 </item>
