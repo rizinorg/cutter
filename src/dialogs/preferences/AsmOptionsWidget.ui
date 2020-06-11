@@ -65,7 +65,7 @@
                 <string>Disassembly</string>
                </property>
                <layout class="QGridLayout" name="gridLayout">
-                <item row="10" column="2">
+                <item row="11" column="2">
                  <widget class="QSpinBox" name="nbytesSpinBox">
                   <property name="enabled">
                    <bool>true</bool>
