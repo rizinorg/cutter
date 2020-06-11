@@ -37,7 +37,6 @@ private slots:
 
     void updateAsmOptionsFromVars();
 
-
     void on_cmtcolSpinBox_valueChanged(int value);
 
     void on_syntaxComboBox_currentIndexChanged(int index);
@@ -53,6 +52,7 @@ private slots:
 
     void commentsComboBoxChanged(int index);
     void asmComboBoxChanged(int index);
+    void offsetCheckBoxToggled(bool checked);
     void checkboxEnabler(QCheckBox *checkbox, QString config);
 };
 
