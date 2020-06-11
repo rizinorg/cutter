@@ -263,9 +263,7 @@ void AsmOptionsWidget::asmComboBoxChanged(int index)
 
 void AsmOptionsWidget::offsetCheckBoxToggled(bool checked)
 {
-    Config()->setConfig("asm.offset", checked);
     ui->relOffsetCheckBox->setEnabled(checked || Config()->getConfigBool("graph.offset"));
-    triggerAsmOptionsChanged();
 }
 
 /**
