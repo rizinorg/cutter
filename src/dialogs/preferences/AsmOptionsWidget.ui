@@ -254,7 +254,7 @@
                 <item row="8" column="1">
                  <widget class="QCheckBox" name="relOffsetCheckBox">
                   <property name="text">
-                   <string>Show relative offsets (asm.reloff)</string>
+                   <string>Show offsets relative to a function (asm.reloff)</string>
                   </property>
                  </widget>
                 </item>
