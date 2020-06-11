@@ -52,6 +52,7 @@ void GraphOptionsWidget::on_maxColsSpinBox_valueChanged(int value)
 void GraphOptionsWidget::on_graphOffsetCheckBox_toggled(bool checked)
 {
     Config()->setConfig("graph.offset", checked);
+    emit Core()->asmOptionsChanged();
     triggerOptionsChanged();
 }
 
