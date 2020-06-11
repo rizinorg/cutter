@@ -57,10 +57,13 @@ AsmOptionsWidget::AsmOptionsWidget(PreferencesDialog *dialog)
     }
 
     using indexSignalType = void (QComboBox::*)(int);
+    using toggleSignalType = void (QCheckBox::*)(bool);
     connect(ui->commentsComboBox, static_cast<indexSignalType>(&QComboBox::currentIndexChanged), this,
                 &AsmOptionsWidget::commentsComboBoxChanged);
     connect(ui->asmComboBox, static_cast<indexSignalType>(&QComboBox::currentIndexChanged), this,
                 &AsmOptionsWidget::asmComboBoxChanged);
+    connect(ui->offsetCheckBox, static_cast<toggleSignalType>(&QCheckBox::toggled),this,
+                &AsmOptionsWidget::offsetCheckBoxToggled);
     connect(Core(), SIGNAL(asmOptionsChanged()), this, SLOT(updateAsmOptionsFromVars()));
     updateAsmOptionsFromVars();
 }
@@ -145,13 +148,6 @@ void AsmOptionsWidget::triggerAsmOptionsChanged()
 void AsmOptionsWidget::on_cmtcolSpinBox_valueChanged(int value)
 {
     Config()->setConfig("asm.cmt.col", value);
-    triggerAsmOptionsChanged();
-}
-
-void AsmOptionsWidget::on_offsetCheckBox_toggled(bool checked)
-{
-    Config()->setConfig("asm.offset", checked);
-    ui->relOffsetCheckBox->setEnabled(checked || Config()->getConfigBool("graph.offset"));
     triggerAsmOptionsChanged();
 }
 
@@ -264,6 +260,13 @@ void AsmOptionsWidget::asmComboBoxChanged(int index)
 
     // Check if Pseudocode enabled
     Config()->setConfig("asm.pseudo", index == 2);
+    triggerAsmOptionsChanged();
+}
+
+void AsmOptionsWidget::offsetCheckBoxToggled(bool checked)
+{
+    Config()->setConfig("asm.offset", checked);
+    ui->relOffsetCheckBox->setEnabled(checked || Config()->getConfigBool("graph.offset"));
     triggerAsmOptionsChanged();
 }
 
