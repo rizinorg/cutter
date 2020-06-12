@@ -758,6 +758,22 @@ void Configuration::setBitmapExportScaleFactor(double inputValueGraph)
     s.setValue("bitmapGraphExportScale", inputValueGraph);
 }
 
+void Configuration::setGraphSpacing(QPoint blockSpacing, QPoint edgeSpacing)
+{
+    s.setValue("graph.blockSpacing", blockSpacing);
+    s.setValue("graph.edgeSpacing", edgeSpacing);
+}
+
+QPoint Configuration::getGraphBlockSpacing()
+{
+    return s.value("graph.blockSpacing", QPoint(10, 40)).value<QPoint>();
+}
+
+QPoint Configuration::getGraphEdgeSpacing()
+{
+    return s.value("graph.edgeSpacing", QPoint(10, 10)).value<QPoint>();
+}
+
 void Configuration::setOutputRedirectionEnabled(bool enabled)
 {
     this->outputRedirectEnabled = enabled;

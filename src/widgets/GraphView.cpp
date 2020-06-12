@@ -130,12 +130,11 @@ void GraphView::contextMenuEvent(QContextMenuEvent *event)
     }
 }
 
-// This calculates the full graph starting at block entry.
-void GraphView::computeGraph(ut64 entry)
+void GraphView::computeGraphPlacement()
 {
     graphLayoutSystem->CalculateLayout(blocks, entry, width, height);
+    setCacheDirty();
     ready = true;
-
     viewport()->update();
 }
 
@@ -428,7 +427,6 @@ void GraphView::saveAsSvg(QString path)
     p.end();
 }
 
-
 void GraphView::center()
 {
     centerX(false);
@@ -520,6 +518,11 @@ void GraphView::setGraphLayout(std::unique_ptr<GraphLayout> layout)
     if (!graphLayoutSystem) {
         graphLayoutSystem = makeGraphLayout(Layout::GridMedium);
     }
+}
+
+void GraphView::setLayoutConfig(const GraphLayout::LayoutConfig &config)
+{
+    graphLayoutSystem->setLayoutConfig(config);
 }
 
 std::unique_ptr<GraphLayout> GraphView::makeGraphLayout(GraphView::Layout layout, bool horizontal)
