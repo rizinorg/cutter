@@ -1175,6 +1175,7 @@ void DisassemblerGraphView::updateLayout()
     setGraphLayout(GraphView::makeGraphLayout(graphLayout, horizontalLayoutAction->isChecked()));
     setLayoutConfig(getLayoutConfig());
     computeGraphPlacement();
+    emit viewRefreshed();
     onSeekChanged(this->seekable->getOffset()); // try to keep the view on current block
 }
 
