@@ -4,11 +4,11 @@
 #include "common/Helpers.h"
 #include "common/SvgIconEngine.h"
 #include "dialogs/EditMethodDialog.h"
-#include "dialogs/RenameDialog.h"
 
 #include <QList>
 #include <QMenu>
 #include <QMouseEvent>
+#include <QInputDialog>
 
 QVariant ClassesModel::headerData(int section, Qt::Orientation, int role) const
 {
@@ -740,14 +740,14 @@ void ClassesWidget::on_editMethodAction_triggered()
     EditMethodDialog::editMethod(className, methName, this);
 }
 
-
 void ClassesWidget::on_newClassAction_triggered()
 {
-    QString name;
-    if (!RenameDialog::showDialog(tr("Create new Class"), &name, tr("Class Name"), this) || name.isEmpty()) {
-        return;
+    bool ok;
+    QString name = QInputDialog::getText(this, tr("Create new Class"),
+                            tr("Class Name:"), QLineEdit::Normal, QString(), &ok);
+    if (ok && !name.isEmpty()) {
+        Core()->createNewClass(name);
     }
-    Core()->createNewClass(name);
 }
 
 void ClassesWidget::on_deleteClassAction_triggered()
@@ -770,9 +770,10 @@ void ClassesWidget::on_renameClassAction_triggered()
         return;
     }
     QString oldName = index.data(ClassesModel::NameRole).toString();
-    QString newName = oldName;
-    if (!RenameDialog::showDialog(tr("Rename Class %1").arg(oldName), &newName, tr("Class Name"), this) || newName.isEmpty()) {
-        return;
+    bool ok;
+    QString newName = QInputDialog::getText(this, tr("Rename Class %1").arg(oldName),
+                                         tr("Class name:"), QLineEdit::Normal, oldName, &ok);
+    if (ok && !newName.isEmpty()) {
+            Core()->renameClass(oldName, newName);
     }
-    Core()->renameClass(oldName, newName);
 }
