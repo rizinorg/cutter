@@ -22,7 +22,6 @@
 #include "dialogs/SaveProjectDialog.h"
 #include "dialogs/CommentsDialog.h"
 #include "dialogs/AboutDialog.h"
-#include "dialogs/RenameDialog.h"
 #include "dialogs/preferences/PreferencesDialog.h"
 #include "dialogs/MapFileDialog.h"
 #include "dialogs/AsyncTaskDialog.h"
@@ -1407,14 +1406,6 @@ void MainWindow::on_actionLockUnlock_triggered()
         }
         ui->actionLockUnlock->setIcon(QIcon(":/unlock"));
     }
-}
-
-void MainWindow::on_actionFunctionsRename_triggered()
-{
-    RenameDialog r(this);
-    // Get function based on click position
-    //r->setFunctionName(fcn_name);
-    r.exec();
 }
 
 void MainWindow::on_actionDefault_triggered()

@@ -170,8 +170,6 @@ private slots:
 
     void on_actionDefault_triggered();
 
-    void on_actionFunctionsRename_triggered();
-
     void on_actionNew_triggered();
 
     void on_actionSave_triggered();
