@@ -300,7 +300,6 @@ SOURCES += \
     dialogs/CommentsDialog.cpp \
     dialogs/EditInstructionDialog.cpp \
     dialogs/FlagDialog.cpp \
-    dialogs/RenameDialog.cpp \
     dialogs/RemoteDebugDialog.cpp \
     dialogs/NativeDebugDialog.cpp \
     dialogs/XrefsDialog.cpp \
@@ -445,7 +444,6 @@ HEADERS  += \
     dialogs/CommentsDialog.h \
     dialogs/EditInstructionDialog.h \
     dialogs/FlagDialog.h \
-    dialogs/RenameDialog.h \
     dialogs/RemoteDebugDialog.h \
     dialogs/NativeDebugDialog.h \
     dialogs/XrefsDialog.h \
@@ -593,7 +591,6 @@ FORMS    += \
     dialogs/CommentsDialog.ui \
     dialogs/EditInstructionDialog.ui \
     dialogs/FlagDialog.ui \
-    dialogs/RenameDialog.ui \
     dialogs/RemoteDebugDialog.ui \
     dialogs/NativeDebugDialog.ui \
     dialogs/XrefsDialog.ui \
