@@ -1,7 +1,6 @@
 #include "FlagsWidget.h"
 #include "ui_FlagsWidget.h"
 #include "core/MainWindow.h"
-#include "dialogs/RenameDialog.h"
 #include "common/Helpers.h"
 
 #include <QComboBox>
@@ -9,6 +8,7 @@
 #include <QShortcut>
 #include <QTreeWidget>
 #include <QStandardItemModel>
+#include <QInputDialog>
 
 FlagsModel::FlagsModel(QList<FlagDescription> *flags, QObject *parent)
     : AddressableItemModel<QAbstractListModel>(parent),
@@ -204,11 +204,11 @@ void FlagsWidget::on_actionRename_triggered()
     FlagDescription flag = ui->flagsTreeView->selectionModel()->currentIndex().data(
                                FlagsModel::FlagDescriptionRole).value<FlagDescription>();
 
-    RenameDialog r(this);
-    r.setName(flag.name);
-    if (r.exec()) {
-        QString new_name = r.getName();
-        Core()->renameFlag(flag.name, new_name);
+    bool ok;
+    QString newName = QInputDialog::getText(this, tr("Rename flag %1").arg(flag.name),
+                            tr("Flag name:"), QLineEdit::Normal, flag.name, &ok);
+    if (ok && !newName.isEmpty()) {
+        Core()->renameFlag(flag.name, newName);
     }
 }
 
